@@ -1,0 +1,1 @@
+-server -Xms2048m -Xmx2048m -Xmn256m -XX:+AggressiveOpts -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+OptimizeStringConcat -XX:+UseFastAccessorMethods

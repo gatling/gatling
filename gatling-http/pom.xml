@@ -7,11 +7,15 @@
 		<groupId>com.excilys.ebi.gatling</groupId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>gatling-core</artifactId>
+	<artifactId>gatling-http</artifactId>
 	<name>${project.artifactId}</name>
-	<description>Gatling Core functionnalities</description>
+	<description>Gatling HTTP functionnalities</description>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.excilys.ebi.gatling</groupId>
+			<artifactId>gatling-core</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>com.ning</groupId>
 			<artifactId>async-http-client</artifactId>
@@ -23,10 +27,6 @@
 		<dependency>
 			<groupId>se.scalablesolutions.akka</groupId>
 			<artifactId>akka-typed-actor</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.ximpleware</groupId>
-			<artifactId>vtd-xml</artifactId>
 		</dependency>
 	</dependencies>
 	
