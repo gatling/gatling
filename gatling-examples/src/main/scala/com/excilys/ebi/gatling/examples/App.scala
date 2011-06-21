@@ -3,7 +3,7 @@ package com.excilys.ebi.gatling.examples
 import com.excilys.ebi.gatling.http.scenario.HttpScenarioBuilder._
 import com.excilys.ebi.gatling.http.context.builder.HttpContextBuilder._
 import com.excilys.ebi.gatling.http.context.HttpContext
-import com.excilys.ebi.gatling.core.action.AbstractAction
+import com.excilys.ebi.gatling.core.action.Action
 
 import com.ning.http.client.RequestBuilder
 import com.ning.http.client.Request
@@ -16,10 +16,10 @@ object App {
     val pause2 = 3000L
     val pause3 = 1000L
 
-    val url = "http://localhost/index.xhtml"
+    val url = "http://localhost:8080/webapp/index.xhtml"
     val request: Request = new RequestBuilder setUrl url build
 
-    val s: AbstractAction = {
+    val s: Action = {
       scenario //.doHttpRequest(request)
         .pause(pause1)
         //        .iterate(
@@ -32,8 +32,8 @@ object App {
         .build
     }
 
-    val ctx: HttpContext = httpContext withUserId 1 build
-    val pill: HttpContext = httpContext withUserId 0 build
+    val ctx: HttpContext = httpContext withUserId 1 withSessionScope Map() withRequestScope Map() build
+    val pill: HttpContext = httpContext withUserId 0 withSessionScope Map() withRequestScope Map() build
 
     s.execute(ctx)
     s.execute(pill)

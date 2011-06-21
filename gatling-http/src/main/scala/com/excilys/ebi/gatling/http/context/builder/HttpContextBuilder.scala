@@ -7,7 +7,7 @@ abstract class TRUE
 
 object HttpContextBuilder {
   class HttpContextBuilder[HUID](val userId: Option[Integer], val session: Option[Map[String, Any]], val request: Option[Map[String, Any]]) {
-
+    
     def fromContext(context: HttpContext) = new HttpContextBuilder[TRUE](Some(context.getUserId), Some(context.getSession), Some(Map.empty[String, String]))
 
     def withUserId(userId: Integer) = new HttpContextBuilder[TRUE](Some(userId), session, request)
@@ -31,7 +31,11 @@ object HttpContextBuilder {
   }
 
   implicit def enableBuild(builder: HttpContextBuilder[TRUE]) = new {
-    def build(): HttpContext = new HttpContext(builder.userId.get, builder.session.get, builder.request.get)
+    def build(): HttpContext = {
+      val sess = builder.session.get
+      val req = builder.request.get
+      new HttpContext(builder.userId.get, sess, req)
+    }
   }
 
   def httpContext = new HttpContextBuilder(None, None, None)

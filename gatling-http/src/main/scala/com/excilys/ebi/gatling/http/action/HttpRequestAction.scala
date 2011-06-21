@@ -2,7 +2,7 @@ package com.excilys.ebi.gatling.http.action
 
 import scala.collection.mutable.{ Set => MSet, HashMap, MultiMap }
 
-import com.excilys.ebi.gatling.core.action.AbstractAction
+import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.action.RequestAction
 import com.excilys.ebi.gatling.core.action.request.AbstractRequest
 import com.excilys.ebi.gatling.core.context.Context
@@ -27,7 +27,7 @@ import com.ning.http.client.HttpContent
 import com.ning.http.client.Response
 import com.ning.http.client.Response.ResponseBuilder
 
-class HttpRequestAction(next: AbstractAction, request: AbstractRequest, givenProcessors: Option[List[HttpProcessor]])
+class HttpRequestAction(next: Action, request: AbstractRequest, givenProcessors: Option[List[HttpProcessor]])
   extends RequestAction(next, request, givenProcessors) {
   val client: AsyncHttpClient = new AsyncHttpClient
 

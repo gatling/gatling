@@ -1,6 +1,6 @@
 package com.excilys.ebi.gatling.core.scenario
 
-import com.excilys.ebi.gatling.core.action.AbstractAction
+import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.EndActionBuilder.EndActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder._
@@ -34,7 +34,7 @@ object ScenarioBuilder {
 
     def end: AbstractActionBuilder = new EndActionBuilder
 
-    def build(): AbstractAction = actions.get.first.build
+    def build(): Action = actions.get.first.build
 
     def withNext(next: AbstractActionBuilder) = actions.get.first.withNext(next)
 

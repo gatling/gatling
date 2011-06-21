@@ -8,7 +8,7 @@ import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.context.ElapsedActionTime
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 
-class PauseAction(next: AbstractAction, delayInMillis: Long) extends AbstractAction {
+class PauseAction(next: Action, delayInMillis: Long) extends AbstractAction {
   def execute(context: Context) = {
     if (context.getUserId == 0) {
       next.execute(context)

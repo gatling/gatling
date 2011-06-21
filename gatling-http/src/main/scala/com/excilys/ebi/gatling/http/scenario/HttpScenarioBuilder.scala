@@ -4,7 +4,7 @@ import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.scenario.ScenarioBuilder.ScenarioBuilder
 import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder._
 import com.excilys.ebi.gatling.core.action.builder.EndActionBuilder._
-import com.excilys.ebi.gatling.core.action.AbstractAction
+import com.excilys.ebi.gatling.core.action.Action
 
 import com.excilys.ebi.gatling.http.action.builder.HttpRequestActionBuilder._
 import com.excilys.ebi.gatling.http.request.HttpRequest
@@ -53,7 +53,7 @@ object HttpScenarioBuilder {
       new HttpScenarioBuilder(endBuilder :: newActionBuilders)
     }
 
-    def build(): AbstractAction = {
+    def build(): Action = {
       actionBuilders.last.build
     }
 

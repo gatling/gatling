@@ -6,6 +6,6 @@ import com.excilys.ebi.gatling.core.capture.AbstractCapture
 import com.excilys.ebi.gatling.core.assertion.AbstractAssertion
 import com.excilys.ebi.gatling.core.processor.Processor
 
-abstract class RequestAction(next: AbstractAction, request: AbstractRequest, givenProcessors: Option[List[Processor]]) extends AbstractAction {
+abstract class RequestAction(next: Action, request: AbstractRequest, givenProcessors: Option[List[Processor]]) extends AbstractAction {
   def execute(context: Context)
 }
