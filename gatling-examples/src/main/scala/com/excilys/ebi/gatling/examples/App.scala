@@ -32,8 +32,8 @@ object App {
         .build
     }
 
-    val ctx: HttpContext = httpContext withUserId 1 withSessionScope Map() withRequestScope Map() build
-    val pill: HttpContext = httpContext withUserId 0 withSessionScope Map() withRequestScope Map() build
+    val ctx: HttpContext = httpContext withUserId 1 build
+    val pill: HttpContext = httpContext withUserId 0 build
 
     s.execute(ctx)
     s.execute(pill)
