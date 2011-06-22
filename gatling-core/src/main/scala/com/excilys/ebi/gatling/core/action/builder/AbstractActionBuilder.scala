@@ -7,5 +7,5 @@ abstract class FALSE
 
 trait AbstractActionBuilder {
   def build: Action
-  def withNext(next: AbstractActionBuilder): AbstractActionBuilder
+  def withNext(next: Action): AbstractActionBuilder
 }

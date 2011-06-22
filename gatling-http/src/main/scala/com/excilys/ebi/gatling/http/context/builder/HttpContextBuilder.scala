@@ -28,6 +28,7 @@ object HttpContextBuilder {
 
     def getRequestAttribute(attrKey: String) = request.get.get(attrKey)
 
+    def setElapsedActionTime(value: Long) = unsetSessionAttribute("elapsedTime") setSessionAttribute ("elapsedTime", value)
   }
 
   implicit def enableBuild(builder: HttpContextBuilder[TRUE]) = new {

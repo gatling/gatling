@@ -5,6 +5,6 @@ import com.excilys.ebi.gatling.core.action.request.AbstractRequest
 
 class HttpRequest(val httpRequest: Request) extends AbstractRequest {
 
-  def getHttpRequest = httpRequest
+  def getRequest: Request = httpRequest
 
 }

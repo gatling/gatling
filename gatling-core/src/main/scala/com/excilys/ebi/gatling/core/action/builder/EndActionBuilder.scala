@@ -8,9 +8,14 @@ import akka.actor.TypedActor
 object EndActionBuilder {
   class EndActionBuilder extends AbstractActionBuilder {
 
-    def build(): Action = TypedActor.newInstance(classOf[Action],  classOf[EndAction])
+    def build(): Action = {
+      println("Building EndAction")
+      TypedActor.newInstance(classOf[Action], classOf[EndAction])
+    }
 
-    def withNext(next: AbstractActionBuilder): AbstractActionBuilder = null
+    def withNext(next: Action): AbstractActionBuilder = this
+
+    override def toString = "End"
   }
 
   def endActionBuilder = new EndActionBuilder

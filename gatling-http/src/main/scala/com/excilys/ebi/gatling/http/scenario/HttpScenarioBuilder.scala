@@ -1,7 +1,6 @@
 package com.excilys.ebi.gatling.http.scenario
 
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
-import com.excilys.ebi.gatling.core.scenario.ScenarioBuilder.ScenarioBuilder
 import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder._
 import com.excilys.ebi.gatling.core.action.builder.EndActionBuilder._
 import com.excilys.ebi.gatling.core.action.Action
@@ -17,57 +16,41 @@ object HttpScenarioBuilder {
 
     def pause(delayInMillis: Long): HttpScenarioBuilder = {
       val pause = pauseActionBuilder withDelay delayInMillis
-      val newActionBuilders =
-        if (actionBuilders.size > 0) {
-          actionBuilders.first.withNext(pause) :: actionBuilders.tail
-        } else {
-          actionBuilders
-        }
-      new HttpScenarioBuilder(pause :: newActionBuilders)
+      println("Adding PauseAction")
+      new HttpScenarioBuilder(pause :: actionBuilders)
     }
 
     def iterate(times: Integer, chain: HttpScenarioBuilder): HttpScenarioBuilder = {
       val chainActions: List[AbstractActionBuilder] = chain.actionsList
-      var iteratedActions = chainActions
-      for (i <- 1 until times) {
-        iteratedActions = iteratedActions.first.withNext(chainActions.last) :: iteratedActions.tail
+      var iteratedActions = List[AbstractActionBuilder]()
+      for (i <- 1 to times) {
         iteratedActions = chainActions ::: iteratedActions
       }
-      val newActionBuilders =
-        if (actionBuilders.size > 0) {
-          actionBuilders.first.withNext(iteratedActions.last) :: actionBuilders.tail
-        } else {
-          actionBuilders
-        }
-      new HttpScenarioBuilder(iteratedActions ::: newActionBuilders)
+      println("Adding Iterations")
+      new HttpScenarioBuilder(iteratedActions ::: actionBuilders)
     }
 
     def end = {
-      val endBuilder = endActionBuilder
-      val newActionBuilders =
-        if (actionBuilders.size > 0) {
-          actionBuilders.first.withNext(endBuilder) :: actionBuilders.tail
-        } else {
-          actionBuilders
-        }
-      new HttpScenarioBuilder(endBuilder :: newActionBuilders)
+      println("Adding EndAction")
+      new HttpScenarioBuilder(endActionBuilder :: actionBuilders)
     }
 
     def build(): Action = {
-      actionBuilders.last.build
+      var previousInList: Action = null
+      for (actionBuilder <- actionBuilders) {
+        println("previousInList: " + previousInList)
+        previousInList = actionBuilder withNext (previousInList) build
+      }
+      println(previousInList)
+      previousInList
     }
 
-    def withNext(next: AbstractActionBuilder) = actionBuilders.first.withNext(next)
+    def withNext(next: Action) = null
 
     def doHttpRequest(request: Request): HttpScenarioBuilder = {
       val httpRequest = httpRequestActionBuilder withRequest (new HttpRequest(request))
-      val newActionBuilders =
-        if (actionBuilders.size > 0) {
-          actionBuilders.first.withNext(httpRequest) :: actionBuilders.tail
-        } else {
-          actionBuilders
-        }
-      new HttpScenarioBuilder(httpRequest :: newActionBuilders)
+      println("Adding HttpRequestAction")
+      new HttpScenarioBuilder(httpRequest :: actionBuilders)
     }
   }
   def scenario = new HttpScenarioBuilder(Nil)

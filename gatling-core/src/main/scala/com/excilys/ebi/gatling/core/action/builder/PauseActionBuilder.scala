@@ -6,15 +6,17 @@ import com.excilys.ebi.gatling.core.action.Action
 import akka.actor.TypedActor
 
 object PauseActionBuilder {
-  class PauseActionBuilder(val delayInMillis: Option[Long], val next: Option[AbstractActionBuilder]) extends AbstractActionBuilder {
+  class PauseActionBuilder(val delayInMillis: Option[Long], val next: Option[Action]) extends AbstractActionBuilder {
     def withDelay(delayInMillis: Long) = new PauseActionBuilder(Some(delayInMillis), next)
 
-    def withNext(next: AbstractActionBuilder) = new PauseActionBuilder(delayInMillis, Some(next))
+    def withNext(next: Action) = new PauseActionBuilder(delayInMillis, Some(next))
 
     def build(): Action = {
-      val n = next.get.build
-      TypedActor.newInstance(classOf[Action], new PauseAction(n, delayInMillis.get))
+      println("Building PauseAction")
+      TypedActor.newInstance(classOf[Action], new PauseAction(next.get, delayInMillis.get))
     }
+
+    override def toString = "next: " + next + ", delayInMillis: " + delayInMillis
   }
 
   def pauseActionBuilder = new PauseActionBuilder(None, None)
