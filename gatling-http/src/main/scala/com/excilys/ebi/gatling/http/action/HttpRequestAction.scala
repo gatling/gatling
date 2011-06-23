@@ -52,7 +52,7 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessors: Opt
         for (processor <- processors.get(httpHook)) {
           processor match {
             case c: HttpCapture => {
-              c.getScope.setAttribute(contextBuilder, c.getAttrKey, c.capture(placeToSearch))
+              contextBuilder = c.getScope.setAttribute(contextBuilder, c.getAttrKey, c.capture(placeToSearch))
             }
             case a: HttpAssertion => {
               // do assertion stuff
