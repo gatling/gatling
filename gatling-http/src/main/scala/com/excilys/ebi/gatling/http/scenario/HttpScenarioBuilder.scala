@@ -7,16 +7,23 @@ import com.excilys.ebi.gatling.core.action.Action
 
 import com.excilys.ebi.gatling.http.action.builder.HttpRequestActionBuilder._
 import com.excilys.ebi.gatling.http.request.HttpRequest
+import com.excilys.ebi.gatling.http.processor.HttpProcessor
 
 import com.ning.http.client.Request
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
 object HttpScenarioBuilder {
+
+  val LOGGER: Logger = LoggerFactory.getLogger(classOf[HttpScenarioBuilder]);
+
   class HttpScenarioBuilder(var actionBuilders: List[AbstractActionBuilder]) {
     def actionsList = actionBuilders
 
     def pause(delayInMillis: Long): HttpScenarioBuilder = {
       val pause = pauseActionBuilder withDelay delayInMillis
-      println("Adding PauseAction")
+      LOGGER.debug("Adding PauseAction")
       new HttpScenarioBuilder(pause :: actionBuilders)
     }
 
@@ -26,19 +33,19 @@ object HttpScenarioBuilder {
       for (i <- 1 to times) {
         iteratedActions = chainActions ::: iteratedActions
       }
-      println("Adding Iterations")
+      LOGGER.debug("Adding Iterations")
       new HttpScenarioBuilder(iteratedActions ::: actionBuilders)
     }
 
     def end = {
-      println("Adding EndAction")
+      LOGGER.debug("Adding EndAction")
       new HttpScenarioBuilder(endActionBuilder :: actionBuilders)
     }
 
     def build(): Action = {
       var previousInList: Action = null
       for (actionBuilder <- actionBuilders) {
-        println("previousInList: " + previousInList)
+        LOGGER.debug("previousInList: {}", previousInList)
         previousInList = actionBuilder withNext (previousInList) build
       }
       println(previousInList)
@@ -47,10 +54,14 @@ object HttpScenarioBuilder {
 
     def withNext(next: Action) = null
 
-    def doHttpRequest(request: Request): HttpScenarioBuilder = {
-      val httpRequest = httpRequestActionBuilder withRequest (new HttpRequest(request))
-      println("Adding HttpRequestAction")
+    def doHttpRequest(request: Request, processors: List[HttpProcessor]): HttpScenarioBuilder = {
+      val httpRequest = httpRequestActionBuilder withRequest (new HttpRequest(request)) withProcessors processors
+      LOGGER.debug("Adding HttpRequestAction")
       new HttpScenarioBuilder(httpRequest :: actionBuilders)
+    }
+
+    def doHttpRequest(request: Request): HttpScenarioBuilder = {
+      doHttpRequest(request, Nil)
     }
   }
   def scenario = new HttpScenarioBuilder(Nil)

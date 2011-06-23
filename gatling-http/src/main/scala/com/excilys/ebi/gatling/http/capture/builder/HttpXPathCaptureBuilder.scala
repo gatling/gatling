@@ -9,7 +9,13 @@ import com.excilys.ebi.gatling.http.capture.HttpCapture
 import com.excilys.ebi.gatling.http.capture.HttpXPathCapture
 import com.excilys.ebi.gatling.http.phase._
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
 object HttpXPathCaptureBuilder {
+
+  val LOGGER: Logger = LoggerFactory.getLogger(classOf[HttpXPathCaptureBuilder[TRUE]]);
+
   class HttpXPathCaptureBuilder[HE](expression: Option[String], attribute: Option[String], scope: Option[HttpScope], httpHook: Option[HttpResponseHook])
     extends HttpCaptureBuilder[HE](expression, attribute, scope, httpHook) {
 
@@ -22,6 +28,6 @@ object HttpXPathCaptureBuilder {
     def build(): HttpCapture = new HttpXPathCapture(builder.expression.get, builder.attribute.get, builder.scope.get, builder.httpHook.get)
   }
 
-  def regexp(expression: String) = new HttpXPathCaptureBuilder[TRUE](Some(expression), None, Some(new SessionScope), Some(CompletePageReceived))
+  def regexp(expression: String) = new HttpXPathCaptureBuilder[TRUE](Some(expression), None, Some(new SessionScope), Some(new CompletePageReceived))
 
 }

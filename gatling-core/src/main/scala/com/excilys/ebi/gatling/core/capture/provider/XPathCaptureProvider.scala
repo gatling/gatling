@@ -4,6 +4,13 @@ import com.ximpleware.VTDGen
 import com.ximpleware.VTDNav
 import com.ximpleware.AutoPilot
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+object XPathCaptureProvider {
+
+  val LOGGER: Logger = LoggerFactory.getLogger(classOf[XPathCaptureProvider]);
+}
 class XPathCaptureProvider extends AbstractCaptureProvider {
 
   def capture(target: Any, from: Any): Option[String] = { null }
@@ -26,9 +33,6 @@ class XPathCaptureProvider extends AbstractCaptureProvider {
     value
   }
 
-  /**
-   * TODO
-   */
   def captureAll(target: Any, from: Any): Option[String] = {
     null
   }

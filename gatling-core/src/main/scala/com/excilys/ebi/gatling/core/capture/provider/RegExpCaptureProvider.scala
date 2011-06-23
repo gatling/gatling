@@ -2,12 +2,21 @@ package com.excilys.ebi.gatling.core.capture.provider
 
 import scala.util.matching.Regex
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+object RegExpCaptureProvider {
+  val LOGGER: Logger = LoggerFactory.getLogger(classOf[RegExpCaptureProvider]);
+}
 class RegExpCaptureProvider extends AbstractCaptureProvider {
   def capture(target: Any, from: Any): Option[String] = captureOne(target, from)
 
   def captureOne(target: Any, from: Any): Option[String] = {
     val toBeFound = new Regex(target.toString)
-    toBeFound findFirstIn from.toString
+    toBeFound.findFirstMatchIn(from.toString) match {
+      case Some(m) => Some(m.group(1))
+      case None => None
+    }
   }
 
   def captureAll(target: Any, from: Any): Option[Any] = {

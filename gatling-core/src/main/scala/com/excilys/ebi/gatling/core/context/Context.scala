@@ -1,5 +1,5 @@
 package com.excilys.ebi.gatling.core.context
 
-class Context(userId: Integer) {
+class Context(val userId: Integer) {
   def getUserId = userId
 }

@@ -10,9 +10,18 @@ case class RequestScope extends HttpScope {
   def setAttribute(builder: HttpContextBuilder[TRUE], attrKey: String, attrValue: Any): HttpContextBuilder[TRUE] = {
     builder setRequestAttribute (attrKey -> attrValue)
   }
+
+  override def equals(that: Any): Boolean = {
+    that.isInstanceOf[RequestScope]
+  }
+
 }
 case class SessionScope extends HttpScope {
   def setAttribute(builder: HttpContextBuilder[TRUE], attrKey: String, attrValue: Any): HttpContextBuilder[TRUE] = {
     builder setSessionAttribute (attrKey -> attrValue)
+  }
+
+  override def equals(that: Any): Boolean = {
+    that.isInstanceOf[SessionScope]
   }
 }

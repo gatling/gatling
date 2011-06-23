@@ -42,6 +42,8 @@
 		<ahc.version>1.6.4</ahc.version>
 		<akka.version>1.1.2</akka.version>
 		<vtdxml.version>2.10</vtdxml.version>
+		<logback.version>0.9.29</logback.version>
+		<slf4j.version>1.6.1</slf4j.version>
 	</properties>
 
 	<dependencyManagement>
@@ -87,6 +89,16 @@
 				<artifactId>vtd-xml</artifactId>
 				<version>${vtdxml.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>ch.qos.logback</groupId>
+				<artifactId>logback-classic</artifactId>
+				<version>${logback.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -94,6 +106,15 @@
 		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-library</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
 		</dependency>
 	</dependencies>
 
