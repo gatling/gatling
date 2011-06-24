@@ -21,15 +21,16 @@ object HttpScenarioBuilder {
 
   def addRelevantAction = { numberOfRelevantActions += 1 }
 
-  class HttpScenarioBuilder(var actionBuilders: List[AbstractActionBuilder]) {
+  class HttpScenarioBuilder(val name: String, var actionBuilders: List[AbstractActionBuilder]) {
 
     def actionsList = actionBuilders
+    def getName = name
     def getNumberOfRelevantActions = numberOfRelevantActions
 
     def pause(delayInMillis: Long): HttpScenarioBuilder = {
       val pause = pauseActionBuilder withDelay delayInMillis
       LOGGER.debug("Adding PauseAction")
-      new HttpScenarioBuilder(pause :: actionBuilders)
+      new HttpScenarioBuilder(name, pause :: actionBuilders)
     }
 
     def iterate(times: Integer, chain: HttpScenarioBuilder): HttpScenarioBuilder = {
@@ -39,12 +40,12 @@ object HttpScenarioBuilder {
         iteratedActions = chainActions ::: iteratedActions
       }
       LOGGER.debug("Adding Iterations")
-      new HttpScenarioBuilder(iteratedActions ::: actionBuilders)
+      new HttpScenarioBuilder(name, iteratedActions ::: actionBuilders)
     }
 
     def end = {
       LOGGER.debug("Adding EndAction")
-      new HttpScenarioBuilder(endActionBuilder :: actionBuilders)
+      new HttpScenarioBuilder(name, endActionBuilder :: actionBuilders)
     }
 
     def build(): Action = {
@@ -62,13 +63,13 @@ object HttpScenarioBuilder {
     def doHttpRequest(request: Request, processors: List[HttpProcessor]): HttpScenarioBuilder = {
       val httpRequest = httpRequestActionBuilder withRequest (new HttpRequest(request)) withProcessors processors
       LOGGER.debug("Adding HttpRequestAction")
-      new HttpScenarioBuilder(httpRequest :: actionBuilders)
+      new HttpScenarioBuilder(name, httpRequest :: actionBuilders)
     }
 
     def doHttpRequest(request: Request): HttpScenarioBuilder = {
       doHttpRequest(request, Nil)
     }
   }
-  def scenario = new HttpScenarioBuilder(Nil)
-  def chain = scenario
+  def scenario(name: String) = new HttpScenarioBuilder(name, Nil)
+  def chain = scenario("")
 }

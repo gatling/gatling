@@ -19,15 +19,15 @@ import org.slf4j.LoggerFactory
 object HttpRunner {
   val LOGGER: Logger = LoggerFactory.getLogger(classOf[HttpRunner])
 
-  class HttpRunner(s: Action, numUsers: Integer, ramp: Option[Integer], numberOfRelevantActions: Integer) extends Runner(s, numUsers, ramp, numberOfRelevantActions) {
+  class HttpRunner(s: HttpScenarioBuilder, numUsers: Integer, ramp: Option[Integer]) extends Runner(s.build, numUsers, ramp) {
 
-    LOGGER.info("Expecting relevant {} actions to be executed during this simulation", numberOfRelevantActions)
+    LOGGER.info("[{}] Expecting {} relevant actions to be executed in this scenario", s.getName, s.getNumberOfRelevantActions * numUsers)
 
     def run = {
       for (i <- 1 to numberOfUsers) {
         ramp match {
-          case Some(time) => Scheduler.scheduleOnce(() => s.execute(httpContext withUserId i build), (time / numberOfUsers) * i, TimeUnit.MILLISECONDS);
-          case None => s.execute(httpContext withUserId i build)
+          case Some(time) => Scheduler.scheduleOnce(() => scenario.execute(httpContext withUserId i build), (time / numberOfUsers) * i, TimeUnit.MILLISECONDS);
+          case None => scenario.execute(httpContext withUserId i build)
         }
       }
     }
@@ -39,6 +39,6 @@ object HttpRunner {
   }
 
   def play(s: HttpScenarioBuilder, numUsers: Integer, ramp: Integer): Unit = {
-    new HttpRunner(s.build, numUsers, Some(ramp), s.getNumberOfRelevantActions * numUsers).run
+    new HttpRunner(s, numUsers, Some(ramp)).run
   }
 }

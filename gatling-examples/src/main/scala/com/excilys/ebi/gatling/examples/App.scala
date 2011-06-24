@@ -22,7 +22,8 @@ object App {
     val request: Request = new RequestBuilder setUrl url build
 
     val s: HttpScenarioBuilder =
-      scenario.doHttpRequest(request)
+      scenario("Standard User")
+        .doHttpRequest(request)
         .pause(pause1)
         .iterate(
           iterations,
