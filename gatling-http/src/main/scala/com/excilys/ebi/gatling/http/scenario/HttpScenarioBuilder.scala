@@ -17,9 +17,14 @@ import org.slf4j.LoggerFactory
 object HttpScenarioBuilder {
 
   val LOGGER: Logger = LoggerFactory.getLogger(classOf[HttpScenarioBuilder]);
+  var numberOfRelevantActions = 0
+
+  def addRelevantAction = { numberOfRelevantActions += 1 }
 
   class HttpScenarioBuilder(var actionBuilders: List[AbstractActionBuilder]) {
+
     def actionsList = actionBuilders
+    def getNumberOfRelevantActions = numberOfRelevantActions
 
     def pause(delayInMillis: Long): HttpScenarioBuilder = {
       val pause = pauseActionBuilder withDelay delayInMillis

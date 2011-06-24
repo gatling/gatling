@@ -11,6 +11,7 @@ import com.excilys.ebi.gatling.core.capture.provider.AbstractCaptureProvider
 
 import com.excilys.ebi.gatling.http.action.HttpRequestAction
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
+import com.excilys.ebi.gatling.http.scenario.HttpScenarioBuilder
 
 import akka.actor.TypedActor
 
@@ -44,6 +45,7 @@ object HttpRequestActionBuilder {
 
     def build(): Action = {
       LOGGER.debug("Building HttpRequestAction with next: {}, request {} and processors: " + processors, nextAction, request)
+      HttpScenarioBuilder.addRelevantAction
       TypedActor.newInstance(classOf[Action], new HttpRequestAction(nextAction.get, request.get, processors))
     }
 
