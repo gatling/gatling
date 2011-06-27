@@ -21,7 +21,7 @@ object App {
     val url = "http://localhost/index.html"
     val request: Request = new RequestBuilder setUrl url build
 
-    val s: HttpScenarioBuilder =
+    val lambdaUser =
       scenario("Standard User")
         .doHttpRequest(request)
         .pause(pause1)
@@ -34,8 +34,7 @@ object App {
             List(
               regexp("""<input id="text1" type="text" value="(.*)" />""") inAttribute "input" build))
             .pause(pause3)
-            .end
 
-    play(s, concurrentUsers)
+    play(lambdaUser, concurrentUsers)
   }
 }

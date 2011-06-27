@@ -10,11 +10,14 @@ import com.excilys.ebi.gatling.http.scenario.HttpScenarioBuilder.HttpScenarioBui
 import com.excilys.ebi.gatling.http.scenario.HttpScenarioBuilder
 
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.CountDownLatch;
 
 import akka.actor.Scheduler
 
 object HttpRunner {
-  class HttpRunner(s: HttpScenarioBuilder, numUsers: Integer, ramp: Option[Integer]) extends Runner(s.build, numUsers, ramp) {
+  class HttpRunner(s: HttpScenarioBuilder, numUsers: Integer, ramp: Option[Integer]) extends Runner(s, numUsers, ramp) {
+    val latch: CountDownLatch = new CountDownLatch(numUsers)
+    val scenario = scenarioBuilder.end(latch).build
 
     logger.info("[{}] Expecting {} relevant actions to be executed in this scenario", s.getName, s.getNumberOfRelevantActions * numUsers)
 
@@ -25,6 +28,7 @@ object HttpRunner {
           case None => scenario.execute(httpContext withUserId i build)
         }
       }
+      latch.await(86400, TimeUnit.SECONDS)
     }
 
   }

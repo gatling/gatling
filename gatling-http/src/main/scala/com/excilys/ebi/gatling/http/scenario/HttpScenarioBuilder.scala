@@ -5,6 +5,7 @@ import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder._
 import com.excilys.ebi.gatling.core.action.builder.EndActionBuilder._
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.scenario.ScenarioBuilder
 
 import com.excilys.ebi.gatling.http.action.builder.HttpRequestActionBuilder._
 import com.excilys.ebi.gatling.http.request.HttpRequest
@@ -12,12 +13,14 @@ import com.excilys.ebi.gatling.http.processor.HttpProcessor
 
 import com.ning.http.client.Request
 
+import java.util.concurrent.CountDownLatch
+
 object HttpScenarioBuilder {
   var numberOfRelevantActions = 0
 
   def addRelevantAction = { numberOfRelevantActions += 1 }
 
-  class HttpScenarioBuilder(val name: String, var actionBuilders: List[AbstractActionBuilder]) extends Logging {
+  class HttpScenarioBuilder(val name: String, var actionBuilders: List[AbstractActionBuilder]) extends ScenarioBuilder with Logging {
 
     def actionsList = actionBuilders
     def getName = name
@@ -39,9 +42,9 @@ object HttpScenarioBuilder {
       new HttpScenarioBuilder(name, iteratedActions ::: actionBuilders)
     }
 
-    def end = {
+    def end(latch: CountDownLatch) = {
       logger.debug("Adding EndAction")
-      new HttpScenarioBuilder(name, endActionBuilder :: actionBuilders)
+      new HttpScenarioBuilder(name, endActionBuilder(latch) :: actionBuilders)
     }
 
     def build(): Action = {
