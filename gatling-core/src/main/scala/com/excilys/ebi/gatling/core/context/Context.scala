@@ -1,5 +1,8 @@
 package com.excilys.ebi.gatling.core.context
 
-class Context(val userId: Integer) {
+import akka.actor.Uuid
+
+class Context(val userId: Integer, val writeActorUuid: Uuid) {
   def getUserId = userId
+  def getWriteActorUuid = writeActorUuid
 }

@@ -12,6 +12,7 @@ import com.ning.http.client.HttpResponseBodyPart
 
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.statistics.ActionInfo
 
 import com.excilys.ebi.gatling.http.context.HttpContext
 import com.excilys.ebi.gatling.http.context.builder.HttpContextBuilder._
@@ -21,7 +22,9 @@ import com.excilys.ebi.gatling.http.capture.HttpCapture
 import com.excilys.ebi.gatling.http.assertion.HttpAssertion
 import com.excilys.ebi.gatling.http.phase._
 
-class CustomAsyncHandler(context: HttpContext, processors: MultiMap[HttpResponseHook, HttpProcessor], next: Action, givenProcessors: Option[List[HttpProcessor]])
+import akka.actor.Actor.registry.actorFor
+
+class CustomAsyncHandler(context: HttpContext, processors: MultiMap[HttpResponseHook, HttpProcessor], next: Action, givenProcessors: Option[List[HttpProcessor]], startTime: Long)
   extends AsyncHandler[Response] with Logging {
 
   private val responseBuilder: ResponseBuilder = new ResponseBuilder()
@@ -70,9 +73,13 @@ class CustomAsyncHandler(context: HttpContext, processors: MultiMap[HttpResponse
 
   def onCompleted(): Response = {
     logger.debug("Response Received")
-    val startTime: Long = System.nanoTime()
+    val processingStartTime: Long = System.nanoTime()
     processResponse(new CompletePageReceived, responseBuilder.build.getResponseBody)
-    next.execute(contextBuilder setElapsedActionTime (System.nanoTime() - startTime) build)
+    actorFor(context.getWriteActorUuid) match {
+      case Some(a) => a ! ActionInfo("Default", context.getUserId, "request sent", (System.nanoTime - startTime) / 1000000)
+      case None =>
+    }
+    next.execute(contextBuilder setElapsedActionTime (System.nanoTime() - processingStartTime) build)
     null
   }
 

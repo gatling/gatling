@@ -12,7 +12,7 @@ import com.ning.http.client.Request
 
 object App {
   def main(args: Array[String]) {
-    val iterations = 2
+    val iterations = 10
     val concurrentUsers = 5
     val pause1 = 3000L
     val pause2 = 2000L
