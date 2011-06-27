@@ -82,6 +82,10 @@
 						<groupId>org.guiceyfruit</groupId>
 						<artifactId>guice-all</artifactId>
 					</exclusion>
+					<exclusion>
+						<artifactId>akka-stm</artifactId>
+						<groupId>se.scalablesolutions.akka</groupId>
+					</exclusion>
 				</exclusions>
 			</dependency>
 			<dependency>
