@@ -15,17 +15,12 @@ import com.excilys.ebi.gatling.http.scenario.HttpScenarioBuilder
 
 import akka.actor.TypedActor
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
 object HttpRequestActionBuilder {
-  val LOGGER: Logger = LoggerFactory.getLogger(classOf[HttpRequestActionBuilder]);
-
   class HttpRequestActionBuilder(val request: Option[HttpRequest], val nextAction: Option[Action], val processors: Option[List[HttpProcessor]])
     extends AbstractActionBuilder {
 
     def withProcessors(givenProcessors: List[HttpProcessor]) = {
-      LOGGER.debug("Adding Processors")
+      logger.debug("Adding Processors")
       processors match {
         case Some(list) => new HttpRequestActionBuilder(request, nextAction, Some(givenProcessors ::: list))
         case None => new HttpRequestActionBuilder(request, nextAction, Some(givenProcessors))
@@ -44,7 +39,7 @@ object HttpRequestActionBuilder {
     def withNext(next: Action) = new HttpRequestActionBuilder(request, Some(next), processors)
 
     def build(): Action = {
-      LOGGER.debug("Building HttpRequestAction with next: {}, request {} and processors: " + processors, nextAction, request)
+      logger.debug("Building HttpRequestAction with next: {}, request {} and processors: " + processors, nextAction, request)
       HttpScenarioBuilder.addRelevantAction
       TypedActor.newInstance(classOf[Action], new HttpRequestAction(nextAction.get, request.get, processors))
     }

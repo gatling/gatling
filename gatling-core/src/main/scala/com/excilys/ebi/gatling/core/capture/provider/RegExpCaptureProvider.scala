@@ -2,12 +2,6 @@ package com.excilys.ebi.gatling.core.capture.provider
 
 import scala.util.matching.Regex
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
-object RegExpCaptureProvider {
-  val LOGGER: Logger = LoggerFactory.getLogger(classOf[RegExpCaptureProvider]);
-}
 class RegExpCaptureProvider extends AbstractCaptureProvider {
   def capture(target: Any, from: Any): Option[String] = captureOne(target, from)
 

@@ -1,18 +1,13 @@
 package com.excilys.ebi.gatling.http.context.builder
 
 import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.http.context.HttpContext
-
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 abstract class TRUE
 
 object HttpContextBuilder {
-
-  val LOGGER: Logger = LoggerFactory.getLogger(classOf[HttpContextBuilder[TRUE]]);
-
-  class HttpContextBuilder[HUID](val userId: Option[Integer], val session: Option[Map[String, Any]], val request: Option[Map[String, Any]]) {
+  class HttpContextBuilder[HUID](val userId: Option[Integer], val session: Option[Map[String, Any]], val request: Option[Map[String, Any]]) extends Logging {
 
     def fromContext(context: HttpContext) = new HttpContextBuilder[TRUE](Some(context.getUserId), Some(context.getSession), Some(Map.empty[String, String]))
 
@@ -40,7 +35,7 @@ object HttpContextBuilder {
   implicit def enableBuild(builder: HttpContextBuilder[TRUE]) = new {
     def build(): HttpContext = {
       val context = new HttpContext(builder.userId.get, builder.session.get, builder.request.get)
-      LOGGER.debug("Built HttpContext")
+      builder.logger.debug("Built HttpContext")
       context
     }
   }

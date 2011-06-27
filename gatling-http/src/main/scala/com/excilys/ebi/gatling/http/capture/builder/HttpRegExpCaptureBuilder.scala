@@ -7,13 +7,7 @@ import com.excilys.ebi.gatling.http.capture.HttpCapture
 import com.excilys.ebi.gatling.http.capture.HttpRegExpCapture
 import com.excilys.ebi.gatling.http.phase._
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
 object HttpRegExpCaptureBuilder {
-
-  val LOGGER: Logger = LoggerFactory.getLogger(classOf[HttpRegExpCaptureBuilder[TRUE]]);
-
   class HttpRegExpCaptureBuilder[HE](expression: Option[String], attribute: Option[String], scope: Option[HttpScope], httpHook: Option[HttpResponseHook])
     extends HttpCaptureBuilder[HE](expression, attribute, scope, httpHook) {
 

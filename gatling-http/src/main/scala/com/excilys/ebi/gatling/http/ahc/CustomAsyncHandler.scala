@@ -11,6 +11,7 @@ import com.ning.http.client.HttpResponseHeaders
 import com.ning.http.client.HttpResponseBodyPart
 
 import com.excilys.ebi.gatling.core.action.Action
+import com.excilys.ebi.gatling.core.log.Logging
 
 import com.excilys.ebi.gatling.http.context.HttpContext
 import com.excilys.ebi.gatling.http.context.builder.HttpContextBuilder._
@@ -20,15 +21,8 @@ import com.excilys.ebi.gatling.http.capture.HttpCapture
 import com.excilys.ebi.gatling.http.assertion.HttpAssertion
 import com.excilys.ebi.gatling.http.phase._
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
-object CustomAsyncHandler {
-
-  val LOGGER: Logger = LoggerFactory.getLogger(classOf[CustomAsyncHandler]);
-}
 class CustomAsyncHandler(context: HttpContext, processors: MultiMap[HttpResponseHook, HttpProcessor], next: Action, givenProcessors: Option[List[HttpProcessor]])
-  extends AsyncHandler[Response] {
+  extends AsyncHandler[Response] with Logging {
 
   private val responseBuilder: ResponseBuilder = new ResponseBuilder()
 
@@ -40,7 +34,7 @@ class CustomAsyncHandler(context: HttpContext, processors: MultiMap[HttpResponse
         if (processor.isInstanceOf[HttpCapture]) {
           val c = processor.asInstanceOf[HttpCapture]
           val value = c.capture(placeToSearch)
-          CustomAsyncHandler.LOGGER.info("Captured Value: {}", value)
+          logger.info("Captured Value: {}", value)
           contextBuilder = c.getScope.setAttribute(contextBuilder, c.getAttrKey, value)
         } else if (processor.isInstanceOf[HttpAssertion]) {
           val a = processor.asInstanceOf[HttpAssertion]
@@ -75,7 +69,7 @@ class CustomAsyncHandler(context: HttpContext, processors: MultiMap[HttpResponse
   }
 
   def onCompleted(): Response = {
-    CustomAsyncHandler.LOGGER.debug("Response Received")
+    logger.debug("Response Received")
     val startTime: Long = System.nanoTime()
     processResponse(new CompletePageReceived, responseBuilder.build.getResponseBody)
     next.execute(contextBuilder setElapsedActionTime (System.nanoTime() - startTime) build)

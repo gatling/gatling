@@ -13,15 +13,10 @@ import java.util.concurrent.TimeUnit
 
 import akka.actor.Scheduler
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
 object HttpRunner {
-  val LOGGER: Logger = LoggerFactory.getLogger(classOf[HttpRunner])
-
   class HttpRunner(s: HttpScenarioBuilder, numUsers: Integer, ramp: Option[Integer]) extends Runner(s.build, numUsers, ramp) {
 
-    LOGGER.info("[{}] Expecting {} relevant actions to be executed in this scenario", s.getName, s.getNumberOfRelevantActions * numUsers)
+    logger.info("[{}] Expecting {} relevant actions to be executed in this scenario", s.getName, s.getNumberOfRelevantActions * numUsers)
 
     def run = {
       for (i <- 1 to numberOfUsers) {

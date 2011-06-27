@@ -1,3 +1,5 @@
 package com.excilys.ebi.gatling.core.processor
 
-trait Processor
+import com.excilys.ebi.gatling.core.log.Logging
+
+trait Processor extends Logging
