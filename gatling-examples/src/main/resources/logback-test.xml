@@ -7,7 +7,6 @@
 
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
-			<!-- <pattern>%logger{36} - %msg%n</pattern> -->
 			<pattern>%msg%n</pattern>
 		</encoder>
 	</appender>
@@ -27,10 +26,9 @@
 <!--	</appender>-->
 
 
-	<logger name="com.excilys.gatling.core.actor.request.RequestStepActor"
-		additivity="false">
+	<logger name="com.excilys.ebi.gatling" additivity="false">
 		<level value="DEBUG" />
-		<appender-ref ref="SCRIPT" />
+		<appender-ref ref="CONSOLE" />
 	</logger>
 
 	<root>
