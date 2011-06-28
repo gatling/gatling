@@ -76,7 +76,7 @@ class CustomAsyncHandler(context: HttpContext, processors: MultiMap[HttpPhase, H
   def onCompleted(): Response = {
     logger.debug("Response Received")
     val processingStartTime: Long = System.nanoTime()
-    processResponse(new CompletePageReceived, responseBuilder.build.getResponseBody)
+    processResponse(new CompletePageReceived, responseBuilder.build)
     actorFor(context.getWriteActorUuid) match {
       case Some(a) =>
         a ! ActionInfo(context.getUserId, "Request " + request.getName, executionStartTime, (System.nanoTime - executionStartTime) / 1000000, "OK")

@@ -11,8 +11,5 @@ abstract class HttpCapture(val expression: String, val attrKey: String, val scop
   def getScope = scope
   def getAttrKey = attrKey
 
-  def capture(from: Any): Option[Any] = {
-    logger.debug("Capturing...")
-    provider.capture(expression, from)
-  }
+  def capture(from: Any): Option[Any]
 }
