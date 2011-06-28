@@ -1,4 +1,4 @@
-package com.excilys.ebi.gatling.core.statistics
+package com.excilys.ebi.gatling.core.statistics.writer
 
 import akka.actor.Actor
 

@@ -1,4 +1,4 @@
-package com.excilys.ebi.gatling.core.statistics
+package com.excilys.ebi.gatling.core.statistics.writer
 
 import com.excilys.ebi.gatling.core.statistics.message.ActionInfo
 import com.excilys.ebi.gatling.core.statistics.message.NumberOfRelevantActions
