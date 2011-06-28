@@ -51,6 +51,7 @@
 		<vtdxml.version>2.10</vtdxml.version>
 		<logback.version>0.9.29</logback.version>
 		<slf4j.version>1.6.1</slf4j.version>
+		<commons.lang.version>2.6</commons.lang.version>
 	</properties>
 
 	<dependencyManagement>
@@ -109,6 +110,11 @@
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
 				<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-lang</groupId>
+				<artifactId>commons-lang</artifactId>
+				<version>${commons.lang.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

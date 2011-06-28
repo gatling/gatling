@@ -28,8 +28,12 @@
 			<groupId>com.ximpleware</groupId>
 			<artifactId>vtd-xml</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>
 	</dependencies>
-	
+
 	<build>
 		<plugins>
 			<plugin>
