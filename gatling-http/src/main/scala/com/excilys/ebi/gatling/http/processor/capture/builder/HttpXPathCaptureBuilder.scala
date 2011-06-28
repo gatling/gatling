@@ -22,6 +22,6 @@ object HttpXPathCaptureBuilder {
     def build(): HttpCapture = new HttpXPathCapture(builder.expression.get, builder.attribute.get, builder.scope.get, builder.httpPhase.get)
   }
 
-  def regexp(expression: String) = new HttpXPathCaptureBuilder[TRUE](Some(expression), None, Some(new SessionScope), Some(new CompletePageReceived))
+  def xpath(expression: String) = new HttpXPathCaptureBuilder[TRUE](Some(expression), None, Some(new SessionScope), Some(new CompletePageReceived))
 
 }
