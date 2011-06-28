@@ -4,7 +4,7 @@ import com.excilys.ebi.gatling.core.runner.Runner
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.statistics.writer.FileStatWriter
-import com.excilys.ebi.gatling.core.statistics.message.NumberOfRelevantActions
+import com.excilys.ebi.gatling.core.statistics.message.InitializeStatWriter
 
 import com.excilys.ebi.gatling.http.context.HttpContext
 import com.excilys.ebi.gatling.http.context.builder.HttpContextBuilder._
@@ -14,6 +14,7 @@ import com.excilys.ebi.gatling.http.action.HttpRequestAction
 
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.CountDownLatch;
+import java.util.Date
 
 import akka.actor.Scheduler
 import akka.actor.Actor.actorOf
@@ -28,7 +29,7 @@ object HttpRunner {
     def run = {
 
       val statWriter = actorOf[FileStatWriter].start
-      statWriter ! NumberOfRelevantActions((s.getNumberOfRelevantActions + 1) * numUsers)
+      statWriter ! InitializeStatWriter((new Date).toString, s.getName, (s.getNumberOfRelevantActions + 1) * numUsers)
 
       logger.debug("Stats Write Actor Uuid: {}", statWriter.getUuid)
       logger.debug("Launching All Scenarios")

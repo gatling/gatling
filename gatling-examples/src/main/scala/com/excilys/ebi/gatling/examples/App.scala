@@ -6,6 +6,7 @@ import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.http.scenario.HttpScenarioBuilder.{ scenario, chain, HttpScenarioBuilder }
 import com.excilys.ebi.gatling.http.runner.HttpRunner.play
 import com.excilys.ebi.gatling.http.processor.capture.builder.HttpRegExpCaptureBuilder.regexp
+import com.excilys.ebi.gatling.http.processor.capture.builder.HttpXPathCaptureBuilder.xpath
 
 import com.ning.http.client.RequestBuilder
 import com.ning.http.client.Request
@@ -23,17 +24,20 @@ object App {
 
     val lambdaUser =
       scenario("Standard User")
-        .doHttpRequest("Req1", request)
+        .doHttpRequest("Page d'accueil", request)
         .pause(pause1)
         .iterate(
           iterations,
-          chain.doHttpRequest("Req2", request)
-            .pause(pause2))
-          .doHttpRequest(
-            "Req3",
+          chain.doHttpRequest("Catégorie Poney",
             request,
-            List(
-              regexp("""<input id="text1" type="text" value="(.*)" />""") inAttribute "input" build))
+            List(xpath("//input[@value='aaaa']/@id") inAttribute "inputbis" build))
+            .pause(pause2)
+            .doHttpRequest("Liste Articles", request)
+            .pause(pause3))
+          .doHttpRequest(
+            "Ajout au panier",
+            request,
+            List(regexp("""<input id="text1" type="text" value="(.*)" />""") inAttribute "input" build))
             .pause(pause3)
 
     play(lambdaUser, concurrentUsers)

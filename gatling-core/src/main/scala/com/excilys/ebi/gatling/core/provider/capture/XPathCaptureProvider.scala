@@ -6,7 +6,7 @@ import com.ximpleware.AutoPilot
 
 class XPathCaptureProvider extends AbstractCaptureProvider {
 
-  def capture(target: Any, from: Any): Option[String] = { null }
+  def capture(target: Any, from: Any): Option[String] = captureOne(target, from)
 
   def captureOne(target: Any, from: Any): Option[String] = {
     val vg = new VTDGen

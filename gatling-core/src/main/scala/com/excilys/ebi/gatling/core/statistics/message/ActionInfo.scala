@@ -1,3 +1,3 @@
 package com.excilys.ebi.gatling.core.statistics.message
 
-case class ActionInfo(val scenarioName: String, val userId: Integer, val actionSummary: String, val executionTime: Long)
+case class ActionInfo(val userId: Integer, val action: String, val executionStartTime: Long, val executionDuration: Long, val result: String)

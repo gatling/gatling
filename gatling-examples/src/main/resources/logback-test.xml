@@ -11,13 +11,13 @@
 		</encoder>
 	</appender>
 
-	<appender name="SCRIPT" class="ch.qos.logback.core.FileAppender">
-		<append>false</append>
-		<File>toto.log</File>
-		<encoder>
-			<pattern>%msg%n</pattern>
-		</encoder>
-	</appender>
+<!-- 	<appender name="SCRIPT" class="ch.qos.logback.core.FileAppender"> -->
+<!-- 		<append>false</append> -->
+<!-- 		<File>toto.log</File> -->
+<!-- 		<encoder> -->
+<!-- 			<pattern>%msg%n</pattern> -->
+<!-- 		</encoder> -->
+<!-- 	</appender> -->
 
 <!--	<appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">-->
 <!--		<param name="QueueCapacity" value="10000" />  Default is 1000 -->

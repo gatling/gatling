@@ -9,9 +9,10 @@ import akka.actor.Actor.registry.actorFor
 
 class EndAction(val latch: CountDownLatch) extends Action {
   def execute(context: Context): Unit = {
+    val executionStartTime = System.nanoTime
     latch.countDown
     actorFor(context.getWriteActorUuid) match {
-      case Some(a) => a ! ActionInfo("Default", context.getUserId, "End Of Scenario", 0)
+      case Some(a) => a ! ActionInfo(context.getUserId, "End of scenario", executionStartTime, 0, "OK")
       case None =>
     }
     logger.info("Done user #{}", context.getUserId)

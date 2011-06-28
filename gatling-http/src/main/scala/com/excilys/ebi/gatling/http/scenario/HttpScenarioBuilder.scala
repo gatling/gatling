@@ -58,8 +58,8 @@ object HttpScenarioBuilder {
 
     def withNext(next: Action) = null
 
-    def doHttpRequest(name: String, request: Request, processors: List[HttpProcessor]): HttpScenarioBuilder = {
-      val httpRequest = httpRequestActionBuilder withRequest (new HttpRequest(name, request)) withProcessors processors
+    def doHttpRequest(reqName: String, request: Request, processors: List[HttpProcessor]): HttpScenarioBuilder = {
+      val httpRequest = httpRequestActionBuilder withRequest (new HttpRequest(reqName, request)) withProcessors processors
       logger.debug("Adding HttpRequestAction")
       new HttpScenarioBuilder(name, httpRequest :: actionBuilders)
     }
