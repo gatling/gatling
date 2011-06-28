@@ -16,7 +16,7 @@ import com.excilys.ebi.gatling.core.statistics.message.ActionInfo
 
 import com.excilys.ebi.gatling.http.context.HttpContext
 import com.excilys.ebi.gatling.http.context.builder.HttpContextBuilder._
-import com.excilys.ebi.gatling.http.phase.HttpResponseHook
+import com.excilys.ebi.gatling.http.phase.HttpPhase
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
 import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
 import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
@@ -24,15 +24,15 @@ import com.excilys.ebi.gatling.http.phase._
 
 import akka.actor.Actor.registry.actorFor
 
-class CustomAsyncHandler(context: HttpContext, processors: MultiMap[HttpResponseHook, HttpProcessor], next: Action, givenProcessors: Option[List[HttpProcessor]], startTime: Long)
+class CustomAsyncHandler(context: HttpContext, processors: MultiMap[HttpPhase, HttpProcessor], next: Action, givenProcessors: Option[List[HttpProcessor]], startTime: Long)
   extends AsyncHandler[Response] with Logging {
 
   private val responseBuilder: ResponseBuilder = new ResponseBuilder()
 
   var contextBuilder = httpContext fromContext context
 
-  private def processResponse(httpHook: HttpResponseHook, placeToSearch: Any): STATE = {
-    processors.get(httpHook) match {
+  private def processResponse(httpPhase: HttpPhase, placeToSearch: Any): STATE = {
+    processors.get(httpPhase) match {
       case Some(set) => for (processor <- set) {
         if (processor.isInstanceOf[HttpCapture]) {
           val c = processor.asInstanceOf[HttpCapture]
@@ -46,12 +46,12 @@ class CustomAsyncHandler(context: HttpContext, processors: MultiMap[HttpResponse
       case None =>
     }
     STATE.CONTINUE
-    //continue(httpHook)
+    //continue(httpPhase)
   }
 
-  private def continue(httpHook: HttpResponseHook): STATE = {
+  private def continue(httpPhase: HttpPhase): STATE = {
     givenProcessors match {
-      case Some(list) => if (processors.get(httpHook).size == givenProcessors.get.size) STATE.ABORT else STATE.CONTINUE
+      case Some(list) => if (processors.get(httpPhase).size == givenProcessors.get.size) STATE.ABORT else STATE.CONTINUE
       case None => STATE.CONTINUE
     }
   }

@@ -6,8 +6,8 @@ import com.excilys.ebi.gatling.http.context.HttpScope
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
 import com.excilys.ebi.gatling.http.phase._
 
-abstract class HttpCapture(val expression: String, val attrKey: String, val scope: HttpScope, httpHook: HttpResponseHook, val provider: AbstractCaptureProvider)
-  extends HttpProcessor(httpHook) {
+abstract class HttpCapture(val expression: String, val attrKey: String, val scope: HttpScope, httpPhase: HttpPhase, val provider: AbstractCaptureProvider)
+  extends HttpProcessor(httpPhase) {
   def getScope = scope
   def getAttrKey = attrKey
 
