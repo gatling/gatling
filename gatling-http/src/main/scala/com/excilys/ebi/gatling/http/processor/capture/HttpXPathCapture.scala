@@ -13,10 +13,10 @@ class HttpXPathCapture(expression: String, attrKey: String, scope: HttpScope, ht
   def capture(from: Any): Option[Any] = {
     logger.debug("Capturing XPath")
     val placeToSearch =
-      if (from.isInstanceOf[Response])
-        from.asInstanceOf[Response].getResponseBody
-      else
-        from
+      from match {
+        case r: Response => r.getResponseBody
+        case _ => throw new IllegalArgumentException
+      }
     provider.capture(expression, placeToSearch)
   }
 
