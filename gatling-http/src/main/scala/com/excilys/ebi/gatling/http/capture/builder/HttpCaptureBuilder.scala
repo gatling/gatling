@@ -13,7 +13,8 @@ abstract class TRUE
 abstract class FALSE
 
 object HttpCaptureBuilder {
-  abstract class HttpCaptureBuilder[HE](val expression: Option[String], val attribute: Option[String], val scope: Option[HttpScope], val httpHook: Option[HttpResponseHook]) extends Logging {
+  abstract class HttpCaptureBuilder[HE](val expression: Option[String], val attribute: Option[String], val scope: Option[HttpScope], val httpHook: Option[HttpResponseHook])
+    extends Logging {
 
     def in(attrKey: String) = inRequest(attrKey)
     def inRequest(attrKey: String)
