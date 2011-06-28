@@ -1,3 +1,5 @@
 package com.excilys.ebi.gatling.core.action.request
 
-trait AbstractRequest
+abstract class AbstractRequest(val name: String) {
+  def getName = name
+}

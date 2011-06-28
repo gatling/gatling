@@ -23,13 +23,14 @@ object App {
 
     val lambdaUser =
       scenario("Standard User")
-        .doHttpRequest(request)
+        .doHttpRequest("Req1", request)
         .pause(pause1)
         .iterate(
           iterations,
-          chain.doHttpRequest(request)
+          chain.doHttpRequest("Req2", request)
             .pause(pause2))
           .doHttpRequest(
+            "Req3",
             request,
             List(
               regexp("""<input id="text1" type="text" value="(.*)" />""") inAttribute "input" build))
