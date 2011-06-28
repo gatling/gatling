@@ -1,4 +1,4 @@
-package com.excilys.ebi.gatling.http.assertion
+package com.excilys.ebi.gatling.http.processor.assertion
 
 import com.excilys.ebi.gatling.core.provider.assertion.AbstractAssertionProvider
 

@@ -18,8 +18,8 @@ import com.excilys.ebi.gatling.http.context.HttpContext
 import com.excilys.ebi.gatling.http.context.builder.HttpContextBuilder._
 import com.excilys.ebi.gatling.http.phase.HttpResponseHook
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
-import com.excilys.ebi.gatling.http.capture.HttpCapture
-import com.excilys.ebi.gatling.http.assertion.HttpAssertion
+import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
+import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
 import com.excilys.ebi.gatling.http.phase._
 
 import akka.actor.Actor.registry.actorFor

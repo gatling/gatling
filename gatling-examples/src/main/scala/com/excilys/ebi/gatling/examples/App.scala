@@ -5,7 +5,7 @@ import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 
 import com.excilys.ebi.gatling.http.scenario.HttpScenarioBuilder.{ scenario, chain, HttpScenarioBuilder }
 import com.excilys.ebi.gatling.http.runner.HttpRunner.play
-import com.excilys.ebi.gatling.http.capture.builder.HttpRegExpCaptureBuilder.regexp
+import com.excilys.ebi.gatling.http.processor.capture.builder.HttpRegExpCaptureBuilder.regexp
 
 import com.ning.http.client.RequestBuilder
 import com.ning.http.client.Request

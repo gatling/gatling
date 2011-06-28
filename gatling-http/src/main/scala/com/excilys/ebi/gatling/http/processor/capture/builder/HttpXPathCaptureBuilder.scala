@@ -1,12 +1,12 @@
-package com.excilys.ebi.gatling.http.capture.builder
+package com.excilys.ebi.gatling.http.processor.capture.builder
 
-import com.excilys.ebi.gatling.http.capture.builder.HttpCaptureBuilder.HttpCaptureBuilder
+import com.excilys.ebi.gatling.http.processor.capture.builder.HttpCaptureBuilder.HttpCaptureBuilder
 
 import com.excilys.ebi.gatling.http.context.HttpScope
 import com.excilys.ebi.gatling.http.context.RequestScope
 import com.excilys.ebi.gatling.http.context.SessionScope
-import com.excilys.ebi.gatling.http.capture.HttpCapture
-import com.excilys.ebi.gatling.http.capture.HttpXPathCapture
+import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
+import com.excilys.ebi.gatling.http.processor.capture.HttpXPathCapture
 import com.excilys.ebi.gatling.http.phase._
 
 object HttpXPathCaptureBuilder {

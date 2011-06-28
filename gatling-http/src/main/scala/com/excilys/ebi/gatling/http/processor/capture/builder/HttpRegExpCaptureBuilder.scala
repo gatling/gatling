@@ -1,10 +1,10 @@
-package com.excilys.ebi.gatling.http.capture.builder
+package com.excilys.ebi.gatling.http.processor.capture.builder
 
-import com.excilys.ebi.gatling.http.capture.builder.HttpCaptureBuilder.HttpCaptureBuilder
+import com.excilys.ebi.gatling.http.processor.capture.builder.HttpCaptureBuilder.HttpCaptureBuilder
 
 import com.excilys.ebi.gatling.http.context._
-import com.excilys.ebi.gatling.http.capture.HttpCapture
-import com.excilys.ebi.gatling.http.capture.HttpRegExpCapture
+import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
+import com.excilys.ebi.gatling.http.processor.capture.HttpRegExpCapture
 import com.excilys.ebi.gatling.http.phase._
 
 object HttpRegExpCaptureBuilder {

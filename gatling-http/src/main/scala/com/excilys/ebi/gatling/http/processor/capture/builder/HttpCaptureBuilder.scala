@@ -1,4 +1,4 @@
-package com.excilys.ebi.gatling.http.capture.builder
+package com.excilys.ebi.gatling.http.processor.capture.builder
 
 import com.excilys.ebi.gatling.core.provider.capture.XPathCaptureProvider
 import com.excilys.ebi.gatling.core.log.Logging
@@ -6,7 +6,7 @@ import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.http.context.HttpScope
 import com.excilys.ebi.gatling.http.context.RequestScope
 import com.excilys.ebi.gatling.http.context.SessionScope
-import com.excilys.ebi.gatling.http.capture.HttpCapture
+import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
 import com.excilys.ebi.gatling.http.phase.HttpResponseHook
 
 abstract class TRUE
