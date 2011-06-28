@@ -1,4 +1,4 @@
-package com.excilys.ebi.gatling.core.capture.provider
+package com.excilys.ebi.gatling.core.provider.capture
 
 import scala.util.matching.Regex
 

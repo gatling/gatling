@@ -6,8 +6,7 @@ import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.action.RequestAction
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.action.request.AbstractRequest
-import com.excilys.ebi.gatling.core.assertion.AbstractAssertion
-import com.excilys.ebi.gatling.core.capture.provider.AbstractCaptureProvider
+import com.excilys.ebi.gatling.core.provider.capture.AbstractCaptureProvider
 
 import com.excilys.ebi.gatling.http.action.HttpRequestAction
 import com.excilys.ebi.gatling.http.processor.HttpProcessor

@@ -12,7 +12,7 @@ import com.ning.http.client.HttpResponseBodyPart
 
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.statistics.ActionInfo
+import com.excilys.ebi.gatling.core.statistics.message.ActionInfo
 
 import com.excilys.ebi.gatling.http.context.HttpContext
 import com.excilys.ebi.gatling.http.context.builder.HttpContextBuilder._

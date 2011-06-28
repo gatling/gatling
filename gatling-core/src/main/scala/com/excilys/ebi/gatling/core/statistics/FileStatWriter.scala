@@ -1,5 +1,8 @@
 package com.excilys.ebi.gatling.core.statistics
 
+import com.excilys.ebi.gatling.core.statistics.message.ActionInfo
+import com.excilys.ebi.gatling.core.statistics.message.NumberOfRelevantActions
+
 import java.io.FileWriter
 import java.util.Date
 

@@ -4,7 +4,7 @@ import com.excilys.ebi.gatling.core.runner.Runner
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.statistics.FileStatWriter
-import com.excilys.ebi.gatling.core.statistics.NumberOfRelevantActions
+import com.excilys.ebi.gatling.core.statistics.message.NumberOfRelevantActions
 
 import com.excilys.ebi.gatling.http.context.HttpContext
 import com.excilys.ebi.gatling.http.context.builder.HttpContextBuilder._

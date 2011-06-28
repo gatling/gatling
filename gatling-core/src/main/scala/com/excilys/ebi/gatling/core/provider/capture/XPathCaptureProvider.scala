@@ -1,4 +1,4 @@
-package com.excilys.ebi.gatling.core.capture.provider
+package com.excilys.ebi.gatling.core.provider.capture
 
 import com.ximpleware.VTDGen
 import com.ximpleware.VTDNav

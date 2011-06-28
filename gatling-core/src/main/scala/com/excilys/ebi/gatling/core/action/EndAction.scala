@@ -1,7 +1,7 @@
 package com.excilys.ebi.gatling.core.action
 
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.statistics.ActionInfo
+import com.excilys.ebi.gatling.core.statistics.message.ActionInfo
 
 import java.util.concurrent.CountDownLatch
 

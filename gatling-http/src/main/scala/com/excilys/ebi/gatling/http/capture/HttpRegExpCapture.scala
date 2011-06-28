@@ -1,6 +1,6 @@
 package com.excilys.ebi.gatling.http.capture
 
-import com.excilys.ebi.gatling.core.capture.provider.RegExpCaptureProvider
+import com.excilys.ebi.gatling.core.provider.capture.RegExpCaptureProvider
 
 import com.excilys.ebi.gatling.http.context.HttpScope
 import com.excilys.ebi.gatling.http.phase.HttpResponseHook

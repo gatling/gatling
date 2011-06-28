@@ -1,4 +1,4 @@
-package com.excilys.ebi.gatling.core.assertion.provider
+package com.excilys.ebi.gatling.core.provider.assertion
 
 import com.excilys.ebi.gatling.core.log.Logging
 
