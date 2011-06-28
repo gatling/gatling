@@ -7,4 +7,6 @@ class HttpRequest(val httpRequest: Request) extends AbstractRequest {
 
   def getRequest: Request = httpRequest
 
+  override def toString = "HttpRequest : " + getRequest.getUrl
+
 }

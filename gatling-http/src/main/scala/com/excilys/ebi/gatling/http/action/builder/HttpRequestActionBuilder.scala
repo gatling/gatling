@@ -38,7 +38,7 @@ object HttpRequestActionBuilder {
     def withNext(next: Action) = new HttpRequestActionBuilder(request, Some(next), processors)
 
     def build(): Action = {
-      logger.debug("Building HttpRequestAction with next: {}, request {} and processors: " + processors, nextAction, request)
+      logger.debug("Building HttpRequestAction with request {} and processors: {}", request.get, processors.get)
       HttpScenarioBuilder.addRelevantAction
       TypedActor.newInstance(classOf[Action], new HttpRequestAction(nextAction.get, request.get, processors))
     }

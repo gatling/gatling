@@ -50,7 +50,6 @@ object HttpScenarioBuilder {
     def build(): Action = {
       var previousInList: Action = null
       for (actionBuilder <- actionBuilders) {
-        logger.debug("previousInList: {}", previousInList)
         previousInList = actionBuilder withNext (previousInList) build
       }
       println(previousInList)

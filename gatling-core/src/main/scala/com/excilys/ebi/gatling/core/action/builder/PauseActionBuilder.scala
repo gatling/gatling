@@ -12,7 +12,7 @@ object PauseActionBuilder {
     def withNext(next: Action) = new PauseActionBuilder(delayInMillis, Some(next))
 
     def build(): Action = {
-      logger.debug("Building PauseAction with delay: {}ms and next: {}", delayInMillis.get, next.get)
+      logger.debug("Building PauseAction with delay: {}ms", delayInMillis.get)
       TypedActor.newInstance(classOf[Action], new PauseAction(next.get, delayInMillis.get))
     }
   }

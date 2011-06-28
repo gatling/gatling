@@ -7,6 +7,8 @@ class StatusReceived extends HttpPhase {
   }
 
   override def hashCode = 1
+
+  override def toString = "StatusReceived"
 }
 class HeadersReceived extends HttpPhase {
   override def equals(that: Any): Boolean = {
@@ -14,6 +16,8 @@ class HeadersReceived extends HttpPhase {
   }
 
   override def hashCode = 2
+
+  override def toString = "HeadersReceived"
 }
 class BodyPartReceived extends HttpPhase {
   override def equals(that: Any): Boolean = {
@@ -21,6 +25,8 @@ class BodyPartReceived extends HttpPhase {
   }
 
   override def hashCode = 3
+
+  override def toString = "BodyPartReceived"
 }
 class CompletePageReceived extends HttpPhase {
   override def equals(that: Any): Boolean = {
@@ -28,4 +34,6 @@ class CompletePageReceived extends HttpPhase {
   }
 
   override def hashCode = 4
+
+  override def toString = "CompletePageReceived"
 }

@@ -7,4 +7,8 @@ import com.excilys.ebi.gatling.http.phase.HttpPhase
 import scala.util.matching.Regex
 
 class HttpRegExpCapture(expression: String, attrKey: String, scope: HttpScope, httpPhase: HttpPhase)
-  extends HttpCapture(expression, attrKey, scope, httpPhase, new RegExpCaptureProvider)
+  extends HttpCapture(expression, attrKey, scope, httpPhase, new RegExpCaptureProvider) {
+
+  override def toString = "HttpRegExpCapture (" + expression + ")"
+
+}

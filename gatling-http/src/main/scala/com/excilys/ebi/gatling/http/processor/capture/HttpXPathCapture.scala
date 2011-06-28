@@ -6,4 +6,8 @@ import com.excilys.ebi.gatling.http.context.HttpScope
 import com.excilys.ebi.gatling.http.phase.HttpPhase
 
 class HttpXPathCapture(expression: String, attrKey: String, scope: HttpScope, httpPhase: HttpPhase)
-  extends HttpCapture(expression, attrKey, scope, httpPhase, new XPathCaptureProvider)
+  extends HttpCapture(expression, attrKey, scope, httpPhase, new XPathCaptureProvider) {
+
+  override def toString = "HttpXPathCapture (" + expression + ")"
+
+}
