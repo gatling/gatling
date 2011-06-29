@@ -30,14 +30,14 @@ object App {
           iterations,
           chain.doHttpRequest("Catégorie Poney",
             request,
-            List(xpath("//input[@value='aaaa']/@id") inAttribute "inputbis" build))
+            xpath("//input[@value='aaaa']/@id") inAttribute "inputbis" build)
             .pause(pause2)
             .doHttpRequest("Liste Articles", request)
             .pause(pause3))
           .doHttpRequest(
             "Ajout au panier",
             request,
-            List(regexp("""<input id="text1" type="text" value="(.*)" />""") inAttribute "input" build))
+            regexp("""<input id="text1" type="text" value="(.*)" />""") inAttribute "input" build)
             .pause(pause3)
 
     play(lambdaUser, concurrentUsers)
