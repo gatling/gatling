@@ -17,3 +17,4 @@ build.log
 
 # project files to ignore
 toto.log
+/gatling_*

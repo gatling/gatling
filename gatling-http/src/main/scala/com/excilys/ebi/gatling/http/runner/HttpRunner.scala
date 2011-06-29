@@ -29,7 +29,8 @@ object HttpRunner {
     def run = {
 
       val statWriter = actorOf[FileStatWriter].start
-      statWriter ! InitializeStatWriter((new Date).toString, s.getName, (s.getNumberOfRelevantActions + 1) * numUsers)
+
+      statWriter ! InitializeStatWriter(new Date, s.getName, (s.getNumberOfRelevantActions + 1) * numUsers)
 
       logger.debug("Stats Write Actor Uuid: {}", statWriter.getUuid)
       logger.debug("Launching All Scenarios")

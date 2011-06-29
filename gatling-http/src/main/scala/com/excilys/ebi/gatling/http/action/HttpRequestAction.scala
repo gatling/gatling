@@ -13,6 +13,8 @@ import com.ning.http.client.AsyncHttpClient
 
 import scala.collection.mutable.{ HashMap, MultiMap, Set => MSet }
 
+import java.util.Date
+
 object HttpRequestAction {
   val CLIENT: AsyncHttpClient = new AsyncHttpClient
 }
@@ -35,6 +37,6 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessors: Opt
 
   def execute(context: Context) = {
     logger.info("Sending Request")
-    HttpRequestAction.CLIENT.executeRequest(request.getRequest, new CustomAsyncHandler(context.asInstanceOf[HttpContext], processors, next, givenProcessors, System.nanoTime, request))
+    HttpRequestAction.CLIENT.executeRequest(request.getRequest, new CustomAsyncHandler(context.asInstanceOf[HttpContext], processors, next, givenProcessors, System.nanoTime, new Date, request))
   }
 }

@@ -23,10 +23,12 @@ import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
 import com.excilys.ebi.gatling.http.phase._
 import com.excilys.ebi.gatling.http.request.HttpRequest
 
+import java.util.Date
+
 import akka.actor.Actor.registry.actorFor
 
 class CustomAsyncHandler(context: HttpContext, processors: MultiMap[HttpPhase, HttpProcessor], next: Action, givenProcessors: Option[List[HttpProcessor]],
-  executionStartTime: Long, request: HttpRequest)
+  executionStartTime: Long, executionStartDate: Date, request: HttpRequest)
   extends AsyncHandler[Response] with Logging {
 
   private val responseBuilder: ResponseBuilder = new ResponseBuilder()
@@ -79,7 +81,7 @@ class CustomAsyncHandler(context: HttpContext, processors: MultiMap[HttpPhase, H
     processResponse(new CompletePageReceived, responseBuilder.build)
     actorFor(context.getWriteActorUuid) match {
       case Some(a) =>
-        a ! ActionInfo(context.getUserId, "Request " + request.getName, executionStartTime, (System.nanoTime - executionStartTime) / 1000000, "OK")
+        a ! ActionInfo(context.getUserId, "Request " + request.getName, executionStartDate, (System.nanoTime - executionStartTime) / 1000000, "OK")
       case None =>
     }
     next.execute(contextBuilder setElapsedActionTime (System.nanoTime() - processingStartTime) build)
