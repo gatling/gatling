@@ -14,7 +14,7 @@ class HttpXPathCapture(expression: String, attrKey: String, scope: HttpScope, ht
     logger.debug("Capturing XPath")
     val placeToSearch =
       from match {
-        case r: Response => r.getResponseBody
+        case r: Response => r.getResponseBodyAsBytes
         case _ => throw new IllegalArgumentException
       }
     provider.capture(expression, placeToSearch)
