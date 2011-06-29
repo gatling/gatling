@@ -10,7 +10,11 @@ import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 
 class PauseAction(next: Action, delayInMillis: Long) extends Action {
   def execute(context: Context) = {
-    val delayInNanos: Long = delayInMillis * 1000000 - (if (context.isInstanceOf[ElapsedActionTime]) context.asInstanceOf[ElapsedActionTime].getElapsedActionTime else 0L)
+    val delayInNanos: Long = TimeUnit.NANOSECONDS.convert(delayInMillis, TimeUnit.MILLISECONDS) -
+      (context match {
+        case e: ElapsedActionTime => e.getElapsedActionTime
+        case _ => 0L
+      })
     logger.info("Waiting for {}ms", delayInMillis)
     Scheduler.scheduleOnce(() => next.execute(context), delayInNanos, TimeUnit.NANOSECONDS)
   }
