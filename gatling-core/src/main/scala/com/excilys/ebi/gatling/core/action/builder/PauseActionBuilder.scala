@@ -3,6 +3,8 @@ package com.excilys.ebi.gatling.core.action.builder
 import com.excilys.ebi.gatling.core.action.PauseAction
 import com.excilys.ebi.gatling.core.action.Action
 
+import com.excilys.ebi.gatling.core.scenario.ScenarioBuilder
+
 import java.util.concurrent.TimeUnit
 
 import akka.actor.TypedActor
@@ -17,6 +19,7 @@ object PauseActionBuilder {
 
     def build(): Action = {
       logger.debug("Building PauseAction with delay: {}ms", TimeUnit.MILLISECONDS.convert(delayValue.get, delayUnit.get))
+      ScenarioBuilder.addToExecutionTime(delayValue.get, delayUnit.get)
       TypedActor.newInstance(classOf[Action], new PauseAction(next.get, delayValue.get, delayUnit.get))
     }
   }

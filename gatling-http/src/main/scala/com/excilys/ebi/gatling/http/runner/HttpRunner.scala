@@ -25,6 +25,7 @@ object HttpRunner {
     val scenario = scenarioBuilder.end(latch).build
 
     logger.info("[{}] Expecting {} relevant actions to be executed in this scenario", s.getName, (s.getNumberOfRelevantActions + 1) * numUsers)
+    logger.info("[{}] Simulation execution time will be at least {}s", s.getName, s.getExecutionTime)
 
     def run = {
 

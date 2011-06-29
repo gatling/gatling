@@ -17,7 +17,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 object HttpScenarioBuilder {
-  var numberOfRelevantActions = 0
+  private var numberOfRelevantActions = 0
 
   def addRelevantAction = { numberOfRelevantActions += 1 }
 
