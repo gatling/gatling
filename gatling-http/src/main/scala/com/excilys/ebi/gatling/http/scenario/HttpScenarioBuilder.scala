@@ -14,6 +14,7 @@ import com.excilys.ebi.gatling.http.processor.HttpProcessor
 import com.ning.http.client.Request
 
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 object HttpScenarioBuilder {
   var numberOfRelevantActions = 0
@@ -26,8 +27,12 @@ object HttpScenarioBuilder {
     def getName = name
     def getNumberOfRelevantActions = numberOfRelevantActions
 
-    def pause(delayInMillis: Long): HttpScenarioBuilder = {
-      val pause = pauseActionBuilder withDelay delayInMillis
+    def pause(delayValue: Int): HttpScenarioBuilder = {
+      pause(delayValue, TimeUnit.SECONDS)
+    }
+
+    def pause(delayValue: Int, delayUnit: TimeUnit): HttpScenarioBuilder = {
+      val pause = pauseActionBuilder withDelayValue delayValue withDelayUnit delayUnit
       logger.debug("Adding PauseAction")
       new HttpScenarioBuilder(name, pause :: actionBuilders)
     }

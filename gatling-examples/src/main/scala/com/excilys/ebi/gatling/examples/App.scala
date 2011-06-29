@@ -15,9 +15,9 @@ object App {
   def main(args: Array[String]) {
     val iterations = 10
     val concurrentUsers = 5
-    val pause1 = 3000L
-    val pause2 = 2000L
-    val pause3 = 1000L
+    val pause1 = 3
+    val pause2 = 2
+    val pause3 = 1
 
     val url = "http://localhost/index.html"
     val request: Request = new RequestBuilder setUrl url build
