@@ -38,13 +38,13 @@ class CustomAsyncHandler(context: HttpContext, processors: MultiMap[HttpPhase, H
   private def processResponse(httpPhase: HttpPhase, placeToSearch: Any): STATE = {
     processors.get(httpPhase) match {
       case Some(set) => for (processor <- set) {
-        if (processor.isInstanceOf[HttpCapture]) {
-          val c = processor.asInstanceOf[HttpCapture]
-          val value = c.capture(placeToSearch)
-          logger.info("Captured Value: {}", value)
-          contextBuilder = c.getScope.setAttribute(contextBuilder, c.getAttrKey, value)
-        } else if (processor.isInstanceOf[HttpAssertion]) {
-          val a = processor.asInstanceOf[HttpAssertion]
+        processor match {
+          case c: HttpCapture => {
+            val value = c.capture(placeToSearch)
+            logger.info("Captured Value: {}", value)
+            contextBuilder = c.getScope.setAttribute(contextBuilder, c.getAttrKey, value)
+          }
+          case a: HttpAssertion =>
         }
       }
       case None =>
