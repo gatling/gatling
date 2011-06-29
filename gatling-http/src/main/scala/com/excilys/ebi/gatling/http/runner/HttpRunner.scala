@@ -51,11 +51,11 @@ object HttpRunner {
 
   }
 
-  def play(s: HttpScenarioBuilder, numUsers: Integer): Unit = {
+  def play(s: HttpScenarioBuilder, numUsers: Int): Unit = {
     play(s, numUsers, 0)
   }
 
-  def play(s: HttpScenarioBuilder, numUsers: Integer, ramp: Integer): Unit = {
+  def play(s: HttpScenarioBuilder, numUsers: Int, ramp: Int): Unit = {
     new HttpRunner(s, numUsers, Some(ramp)).run
   }
 }
