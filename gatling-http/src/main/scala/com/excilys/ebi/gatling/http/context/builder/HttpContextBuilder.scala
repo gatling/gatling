@@ -9,11 +9,11 @@ import akka.actor.Uuid
 abstract class TRUE
 
 object HttpContextBuilder {
-  class HttpContextBuilder[HUID, HWAU](val userId: Option[Integer], val writeActorUuid: Option[Uuid], val session: Option[Map[String, Any]], val request: Option[Map[String, Any]]) extends Logging {
+  class HttpContextBuilder[HUID, HWAU](val userId: Option[Int], val writeActorUuid: Option[Uuid], val session: Option[Map[String, Any]], val request: Option[Map[String, Any]]) extends Logging {
 
     def fromContext(context: HttpContext) = new HttpContextBuilder[TRUE, TRUE](Some(context.getUserId), Some(context.getWriteActorUuid), Some(context.getSession), Some(Map.empty[String, String]))
 
-    def withUserId(userId: Integer) = new HttpContextBuilder[TRUE, HWAU](Some(userId), writeActorUuid, session, request)
+    def withUserId(userId: Int) = new HttpContextBuilder[TRUE, HWAU](Some(userId), writeActorUuid, session, request)
 
     def withWriteActorUuid(writeActorUuid: Uuid) = new HttpContextBuilder[HUID, TRUE](userId, Some(writeActorUuid), session, request)
 

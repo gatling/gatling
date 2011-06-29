@@ -32,7 +32,7 @@ object HttpScenarioBuilder {
       new HttpScenarioBuilder(name, pause :: actionBuilders)
     }
 
-    def iterate(times: Integer, chain: HttpScenarioBuilder): HttpScenarioBuilder = {
+    def iterate(times: Int, chain: HttpScenarioBuilder): HttpScenarioBuilder = {
       val chainActions: List[AbstractActionBuilder] = chain.actionsList
       var iteratedActions = List[AbstractActionBuilder]()
       for (i <- 1 to times) {

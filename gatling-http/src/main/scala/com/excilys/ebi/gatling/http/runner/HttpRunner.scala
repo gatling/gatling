@@ -20,7 +20,7 @@ import akka.actor.Scheduler
 import akka.actor.Actor.actorOf
 
 object HttpRunner {
-  class HttpRunner(s: HttpScenarioBuilder, numUsers: Integer, ramp: Option[Integer]) extends Runner(s, numUsers, ramp) {
+  class HttpRunner(s: HttpScenarioBuilder, numUsers: Int, ramp: Option[Int]) extends Runner(s, numUsers, ramp) {
     val latch: CountDownLatch = new CountDownLatch(numUsers)
     val scenario = scenarioBuilder.end(latch).build
 
