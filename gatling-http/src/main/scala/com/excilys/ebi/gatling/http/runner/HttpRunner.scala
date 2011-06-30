@@ -3,8 +3,8 @@ package com.excilys.ebi.gatling.http.runner
 import com.excilys.ebi.gatling.core.runner.Runner
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.action.Action
-import com.excilys.ebi.gatling.core.statistics.writer.FileStatWriter
-import com.excilys.ebi.gatling.core.statistics.message.InitializeStatWriter
+import com.excilys.ebi.gatling.core.result.writer.FileDataWriter
+import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
 
 import com.excilys.ebi.gatling.http.context.HttpContext
 import com.excilys.ebi.gatling.http.context.builder.HttpContextBuilder._
@@ -29,9 +29,9 @@ object HttpRunner {
 
     def run = {
 
-      val statWriter = actorOf[FileStatWriter].start
+      val statWriter = actorOf[FileDataWriter].start
 
-      statWriter ! InitializeStatWriter(new Date, s.getName, (s.getNumberOfRelevantActions + 1) * numUsers)
+      statWriter ! InitializeDataWriter(new Date, s.getName, (s.getNumberOfRelevantActions + 1) * numUsers)
 
       logger.debug("Stats Write Actor Uuid: {}", statWriter.getUuid)
       logger.debug("Launching All Scenarios")

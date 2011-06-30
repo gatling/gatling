@@ -1,7 +1,7 @@
-package com.excilys.ebi.gatling.core.statistics.writer
+package com.excilys.ebi.gatling.core.result.writer
 
-import com.excilys.ebi.gatling.core.statistics.message.ActionInfo
-import com.excilys.ebi.gatling.core.statistics.message.InitializeStatWriter
+import com.excilys.ebi.gatling.core.result.message.ActionInfo
+import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
 
 import java.io.FileWriter
 
@@ -9,7 +9,7 @@ import org.apache.commons.lang.time.FastDateFormat
 
 import akka.actor.Actor.registry
 
-class FileStatWriter extends StatWriter {
+class FileDataWriter extends DataWriter {
   var fw: FileWriter = null
   var numberOfRelevantActions = 0
   var numberOfRelevantActionsDone = 0
@@ -30,7 +30,7 @@ class FileStatWriter extends StatWriter {
         registry.shutdownAll
       }
     }
-    case InitializeStatWriter(runOn, scenarioName, numberOfRelevantActions) ⇒ {
+    case InitializeDataWriter(runOn, scenarioName, numberOfRelevantActions) ⇒ {
       fw = new FileWriter("gatling_" + fileNameFormatter.format(runOn), true);
       this.runOn = formatter.format(runOn)
       this.scenarioName = scenarioName

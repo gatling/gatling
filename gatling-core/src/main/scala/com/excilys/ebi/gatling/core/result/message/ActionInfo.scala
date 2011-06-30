@@ -1,4 +1,4 @@
-package com.excilys.ebi.gatling.core.statistics.message
+package com.excilys.ebi.gatling.core.result.message
 
 import java.util.Date
 
