@@ -16,6 +16,10 @@
 			<groupId>com.excilys.ebi.gatling</groupId>
 			<artifactId>gatling-http</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.excilys.ebi.gatling</groupId>
+			<artifactId>gatling-statistics</artifactId>
+		</dependency>
 	</dependencies>
 	
 	<build>
