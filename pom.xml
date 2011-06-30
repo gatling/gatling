@@ -11,6 +11,7 @@
 		<module>gatling-core</module>
 		<module>gatling-http</module>
 		<module>gatling-examples</module>
+		<module>gatling-statistics</module>
 	</modules>
 
 	<licenses>
@@ -64,6 +65,11 @@
 			<dependency>
 				<groupId>com.excilys.ebi.gatling</groupId>
 				<artifactId>gatling-http</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.excilys.ebi.gatling</groupId>
+				<artifactId>gatling-statistics</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
