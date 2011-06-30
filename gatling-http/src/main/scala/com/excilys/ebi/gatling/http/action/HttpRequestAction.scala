@@ -23,16 +23,14 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessors: Opt
 
   val processors: MultiMap[HttpPhase, HttpProcessor] = new HashMap[HttpPhase, MSet[HttpProcessor]] with MultiMap[HttpPhase, HttpProcessor]
 
-  {
-    givenProcessors match {
-      case Some(list) => {
-        for (processor <- list) {
-          logger.debug("Adding {} to {} Phase", processor, processor.getHttpPhase)
-          processors.addBinding(processor.getHttpPhase, processor)
-        }
+  givenProcessors match {
+    case Some(list) => {
+      for (processor <- list) {
+        logger.debug("  -- Adding {} to {} Phase", processor, processor.getHttpPhase)
+        processors.addBinding(processor.getHttpPhase, processor)
       }
-      case None => {}
     }
+    case None => {}
   }
 
   def execute(context: Context) = {

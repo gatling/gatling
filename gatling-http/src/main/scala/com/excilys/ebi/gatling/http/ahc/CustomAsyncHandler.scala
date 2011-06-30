@@ -45,7 +45,10 @@ class CustomAsyncHandler(context: HttpContext, processors: MultiMap[HttpPhase, H
             logger.info("Captured Value: {}", value)
             contextBuilder = c.getScope.setAttribute(contextBuilder, c.getAttrKey, value)
           }
-          case a: HttpAssertion =>
+          case a: HttpAssertion => {
+            logger.info("Asserting")
+          }
+          case _ =>
         }
       }
       case None =>
