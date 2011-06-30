@@ -10,8 +10,8 @@
 	<modules>
 		<module>gatling-core</module>
 		<module>gatling-http</module>
-		<module>gatling-examples</module>
 		<module>gatling-statistics</module>
+		<module>gatling-examples</module>
 	</modules>
 
 	<licenses>

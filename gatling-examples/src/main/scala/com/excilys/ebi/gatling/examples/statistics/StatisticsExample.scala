@@ -1,7 +1,9 @@
 package com.excilys.ebi.gatling.examples.statistics
 
-object StatisticsExample {
-  def run = {
+import com.excilys.ebi.gatling.statistics.DataWriter
 
+object StatisticsExample {
+  def run(runOn: String) = {
+    new DataWriter.writeUsersStats(runOn)
   }
 }

@@ -7,7 +7,7 @@ object App {
   def main(args: Array[String]) {
     args(0) match {
       case "http" => HttpExample.run
-      case "stats" => StatisticsExample.run
+      case "stats" => StatisticsExample.run(args(1))
       case _ =>
     }
   }
