@@ -5,6 +5,7 @@ import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.result.writer.FileDataWriter
 import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
+import com.excilys.ebi.gatling.core.result.message.ActionInfo
 
 import com.excilys.ebi.gatling.http.context.HttpContext
 import com.excilys.ebi.gatling.http.context.builder.HttpContextBuilder._
@@ -36,10 +37,14 @@ object HttpRunner {
       logger.debug("Stats Write Actor Uuid: {}", statWriter.getUuid)
       logger.debug("Launching All Scenarios")
       for (i <- 1 to numberOfUsers) {
+        //statWriter ! ActionInfo(i, "Beginning of scenario", new Date, 0, "OK")
         ramp match {
-          case Some(time) =>
+          case Some(time) => {
             Scheduler.scheduleOnce(
-              () => scenario.execute(httpContext withUserId i withWriteActorUuid statWriter.getUuid build), (time / numberOfUsers) * i, TimeUnit.MILLISECONDS);
+              () =>
+                scenario.execute(httpContext withUserId i withWriteActorUuid statWriter.getUuid build), (time / numberOfUsers) * i, TimeUnit.MILLISECONDS);
+          }
+
           case None => scenario.execute(httpContext withUserId i withWriteActorUuid statWriter.getUuid build)
         }
       }
