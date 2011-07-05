@@ -20,9 +20,9 @@ class FileDataWriter extends DataWriter {
   val fileNameFormatter = FastDateFormat.getInstance("yyyyMMddhhmmss")
 
   def receive = {
-    case ActionInfo(userId, action, executionStartDate, executionDuration, result) ⇒ {
+    case ActionInfo(userId, action, executionStartDate, executionDuration, resultStatus, resultMessage) ⇒ {
       fw.write(
-        runOn + "\t" + scenarioName + "\t" + userId + "\t" + action + "\t" + formatter.format(executionStartDate) + "\t" + executionDuration + "\t" + result + "\n")
+        runOn + "\t" + scenarioName + "\t" + userId + "\t" + action + "\t" + formatter.format(executionStartDate) + "\t" + executionDuration + "\t" + resultStatus + "\t" + resultMessage + "\n")
       numberOfRelevantActionsDone += 1
       if (numberOfRelevantActions == numberOfRelevantActionsDone && self.getMailboxSize == 0) {
         fw.close

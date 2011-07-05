@@ -85,7 +85,7 @@ class CustomAsyncHandler(context: HttpContext, processors: MultiMap[HttpPhase, H
     processResponse(new CompletePageReceived, responseBuilder.build)
     actorFor(context.getWriteActorUuid) match {
       case Some(a) =>
-        a ! ActionInfo(context.getUserId, "Request " + request.getName, executionStartDate, TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTime, TimeUnit.NANOSECONDS), "OK")
+        a ! ActionInfo(context.getUserId, "Request " + request.getName, executionStartDate, TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTime, TimeUnit.NANOSECONDS), "OK", "Request Executed Successfully")
       case None =>
     }
     next.execute(contextBuilder setElapsedActionTime (System.nanoTime() - processingStartTime) build)
