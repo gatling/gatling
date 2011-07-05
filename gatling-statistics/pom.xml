@@ -16,6 +16,10 @@
 			<groupId>com.excilys.ebi.gatling</groupId>
 			<artifactId>gatling-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.fusesource.scalate</groupId>
+			<artifactId>scalate-core</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -24,11 +28,16 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.2.1</version><!--$NO-MVN-MAN-VER$-->
+				<version>2.2.1</version><!--$NO-MVN-MAN-VER$ -->
 				<configuration>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
+					<archive>
+						<manifest>
+							<mainClass>com.excilys.ebi.gatling.statistics.Main</mainClass>
+						</manifest>
+					</archive>
 				</configuration>
 				<executions>
 					<execution>
