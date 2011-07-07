@@ -19,3 +19,4 @@ build.log
 toto.log
 /gatling_*
 /*.html
+/2011*

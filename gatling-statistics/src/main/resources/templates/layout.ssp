@@ -21,7 +21,7 @@
 		<ul id="menu">
 			<li>General
 				<ul>
-					<li><a href="activeSessions.html">Active Sessions</a></li>
+					<li><a href="active_sessions.html">Active Sessions</a></li>
 					<li><a href="requests.html">Requests</a></li>
 				</ul>
 			</li>
@@ -69,8 +69,7 @@
 	      },
 	      tooltip: {
 	         formatter: function() {
-	                   return '<b>'+ this.series.name +'</b><br/>'+
-	               this.x +': '+ this.y;
+	                   return '<span style="font-weight:bold">'+ this.series.name +"</span><br/>"+ this.y +' users at '+ this.y;
 	         }
 	      },
 	      legend: {

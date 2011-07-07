@@ -4,6 +4,7 @@ import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
 
 import java.io.FileWriter
+import java.io.File
 
 import org.apache.commons.lang.time.FastDateFormat
 
@@ -31,7 +32,11 @@ class FileDataWriter extends DataWriter {
       }
     }
     case InitializeDataWriter(runOn, scenarioName, numberOfRelevantActions) ⇒ {
-      fw = new FileWriter("gatling_" + fileNameFormatter.format(runOn), true);
+      val dir = new File(fileNameFormatter.format(runOn))
+      dir.mkdir
+      val file = new File(dir, "simulation.log")
+
+      fw = new FileWriter(file, true);
       this.runOn = formatter.format(runOn)
       this.scenarioName = scenarioName
       this.numberOfRelevantActions = numberOfRelevantActions
