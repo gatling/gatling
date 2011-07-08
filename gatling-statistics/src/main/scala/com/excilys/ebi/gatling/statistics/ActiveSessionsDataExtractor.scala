@@ -25,6 +25,13 @@ class ActiveSessionsDataExtractor(val runOn: String) extends Logging {
     for (line <- Source.fromFile(runOn + "/simulation.log", "utf-8").getLines) {
       line.split("\t") match {
         case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage) => {
+          // If we are on a new time, import users from before
+          if (lastTimeValue != executionStartDate)
+            data.get(lastTimeValue).get.foreach {
+              case s: String =>
+                data.addBinding(executionStartDate, s)
+            }
+
           if (actionName == "End of scenario") {
             logger.debug("-1 ActiveSession")
             def get = getInMap(executionStartDate)_
