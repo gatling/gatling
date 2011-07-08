@@ -17,7 +17,7 @@
 	</head>
 	<body>
 	<div id="body">
-		<p id="header">Simulation run on Date</p>
+		<p id="header">Simulation run on <%= runOn %></p>
 		<ul id="menu">
 			<li>General
 				<ul>
@@ -51,7 +51,7 @@
 	         marginBottom: 25
 	      },
 	      title: {
-	         text: 'Active Sessions',
+	         text: 'Number of Requests',
 	         x: -20 //center
 	      },
 	      xAxis: {
@@ -69,7 +69,7 @@
 	      },
 	      tooltip: {
 	         formatter: function() {
-	                   return '<span style="font-weight:bold">'+ this.series.name +"</span><br/>"+ this.y +' users at '+ this.y;
+	                   return '<span style="font-weight:bold">'+ this.series.name +"</span><br/>"+ this.y +' requests at '+ this.x;
 	         }
 	      },
 	      legend: {

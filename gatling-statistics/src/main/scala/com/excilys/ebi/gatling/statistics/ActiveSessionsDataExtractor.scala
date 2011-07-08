@@ -27,7 +27,11 @@ class ActiveSessionsDataExtractor(val runOn: String) extends Logging {
         case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage) => {
           if (actionName == "End of scenario") {
             logger.debug("-1 ActiveSession")
+            def get = getInMap(executionStartDate)_
             data.removeBinding(executionStartDate, userId)
+            if (get(data).size == 0)
+              data.put(executionStartDate, MSet.empty)
+            logger.debug("{}", data)
           } else {
             logger.debug("+1 ActiveSession")
             data.addBinding(executionStartDate, userId)
@@ -43,5 +47,12 @@ class ActiveSessionsDataExtractor(val runOn: String) extends Logging {
     }
 
     sortedData
+  }
+
+  private def getInMap(date: String)(map: MultiMap[String, String]) = {
+    map.get(date) match {
+      case Some(set) => set
+      case None => MSet.empty
+    }
   }
 }

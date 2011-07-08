@@ -31,10 +31,16 @@ class RequestsDataPresenter extends Logging {
       Binding("dates", "List[String]"),
       Binding("globalValues", "List[Int]"),
       Binding("okValues", "List[Int]"),
-      Binding("koValues", "List[Int]"))
+      Binding("koValues", "List[Int]"),
+      Binding("runOn", "String"))
 
     val output = engine.layout("templates/layout_requests.ssp",
-      Map("title" -> title, "dates" -> dates.reverse, "globalValues" -> globalValues.reverse, "okValues" -> okValues.reverse, "koValues" -> koValues.reverse))
+      Map("title" -> title,
+        "dates" -> dates.reverse,
+        "globalValues" -> globalValues.reverse,
+        "okValues" -> okValues.reverse,
+        "koValues" -> koValues.reverse,
+        "runOn" -> runOn))
 
     val dir = new File(runOn)
     dir.mkdir

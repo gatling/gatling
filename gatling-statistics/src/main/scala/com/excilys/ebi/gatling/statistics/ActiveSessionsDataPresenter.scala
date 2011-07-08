@@ -22,9 +22,17 @@ class ActiveSessionsDataPresenter extends Logging {
     logger.debug("Dates: {}\nValues: {}", dates, values)
 
     val engine = new TemplateEngine
-    engine.bindings = List(Binding("title", "String"), Binding("dates", "List[String]"), Binding("values", "List[Int]"))
+    engine.bindings = List(
+      Binding("title", "String"),
+      Binding("dates", "List[String]"),
+      Binding("values", "List[Int]"),
+      Binding("runOn", "String"))
 
-    val output = engine.layout("templates/layout_active_sessions.ssp", Map("title" -> title, "dates" -> dates.reverse, "values" -> values.reverse))
+    val output = engine.layout("templates/layout_active_sessions.ssp",
+      Map("title" -> title,
+        "dates" -> dates.reverse,
+        "values" -> values.reverse,
+        "runOn" -> runOn))
 
     val dir = new File(runOn)
     dir.mkdir
