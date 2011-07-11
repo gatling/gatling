@@ -32,7 +32,7 @@ object HttpExample {
             get(url),
             xpath("//input[@value='aaaa']/@id") inAttribute "inputbis" build)
             .pause(pause2)
-            .doHttpRequest("Liste Articles", get(url))
+            .doHttpRequest("Liste Articles", get(url) withQueryParam ("test", "value"))
             .pause(pause3))
           .doHttpRequest(
             "Ajout au panier",

@@ -6,13 +6,13 @@ import com.ning.http.client.RequestBuilder
 import com.ning.http.client.Request
 
 object GetHttpRequestBuilder {
-  class GetHttpRequestBuilder(val url: Option[String], params: Option[Map[String, String]]) extends HttpRequestBuilder with Logging {
-    def withParam(param: Tuple2[String, String]) = new GetHttpRequestBuilder(url, Some(params.get + (param._1 -> param._2)))
+  class GetHttpRequestBuilder(val url: Option[String], val queryParams: Option[Map[String, String]]) extends HttpRequestBuilder with Logging {
+    def withQueryParam(queryParam: Tuple2[String, String]) = new GetHttpRequestBuilder(url, Some(queryParams.get + (queryParam._1 -> queryParam._2)))
 
     def build(): Request = {
       val requestBuilder = new RequestBuilder setUrl url.get
-      for (param <- params.get) {
-        requestBuilder addQueryParameter (param._1, param._2)
+      for (queryParam <- queryParams.get) {
+        requestBuilder addQueryParameter (queryParam._1, queryParam._2)
       }
       logger.debug("Built GET Request")
 
