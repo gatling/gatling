@@ -8,6 +8,7 @@ import com.excilys.ebi.gatling.http.runner.HttpRunner.play
 import com.excilys.ebi.gatling.http.processor.capture.builder.HttpRegExpCaptureBuilder.regexp
 import com.excilys.ebi.gatling.http.processor.capture.builder.HttpXPathCaptureBuilder.xpath
 import com.excilys.ebi.gatling.http.request.builder.GetHttpRequestBuilder.get
+import com.excilys.ebi.gatling.http.request.builder.PostHttpRequestBuilder.post
 
 import com.ning.http.client.RequestBuilder
 import com.ning.http.client.Request
@@ -33,7 +34,8 @@ object HttpExample {
             xpath("//input[@value='aaaa']/@id") inAttribute "inputbis" build)
             .pause(pause2)
             .doHttpRequest("Liste Articles", get(url) withQueryParam ("test", "value"))
-            .pause(pause3))
+            .pause(pause3)
+            .doHttpRequest("Test POST", post(url) withQueryParam ("postTest", "omg") withParam ("postParam", "value")))
           .doHttpRequest(
             "Ajout au panier",
             get(url),
