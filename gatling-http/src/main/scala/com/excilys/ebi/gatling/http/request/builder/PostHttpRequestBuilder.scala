@@ -3,7 +3,6 @@ package com.excilys.ebi.gatling.http.request.builder
 import com.excilys.ebi.gatling.core.log.Logging
 
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
-import com.excilys.ebi.gatling.http.request.FileBody
 import com.excilys.ebi.gatling.http.request.FilePathBody
 import com.excilys.ebi.gatling.http.request.StringBody
 
@@ -23,13 +22,11 @@ object PostHttpRequestBuilder {
 
     def withHeader(header: Tuple2[String, String]) = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get + (header._1 -> header._2)), body)
 
-    def asJSON = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get + ("Accept" -> "application/json")), body)
+    def asJSON = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get + ("Accept" -> "application/json") + ("Content-Type" -> "application/json")), body)
 
-    def asXML = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get + ("Accept" -> "application/xml")), body)
+    def asXML = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get + ("Accept" -> "application/xml") + ("Content-Type" -> "application/xml")), body)
 
-    def withFile(file: File) = new PostHttpRequestBuilder(url, queryParams, params, headers, Some(FileBody(file)))
-
-    def withFilePath(filePath: String) = new PostHttpRequestBuilder(url, queryParams, params, headers, Some(FilePathBody(filePath)))
+    def withFile(filePath: String) = new PostHttpRequestBuilder(url, queryParams, params, headers, Some(FilePathBody(filePath)))
 
     def withBody(body: String) = new PostHttpRequestBuilder(url, queryParams, params, headers, Some(StringBody(body)))
 
@@ -45,8 +42,7 @@ object PostHttpRequestBuilder {
       body match {
         case Some(thing) =>
           thing match {
-            case FileBody(file) =>
-            case FilePathBody(filePath) =>
+            case FilePathBody(filePath) => requestBuilder setBody new File("request-files/" + filePath)
             case StringBody(body) => requestBuilder setBody body
             case _ =>
           }

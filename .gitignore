@@ -20,3 +20,5 @@ toto.log
 /gatling_*
 /*.html
 /2011*
+/request-files/*
+!/request-files/.gitkeep

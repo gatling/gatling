@@ -35,7 +35,7 @@ object HttpExample {
             .pause(pause2)
             .doHttpRequest("Liste Articles", get(url) withQueryParam ("test", "value"))
             .pause(pause3)
-            .doHttpRequest("Test POST", post("http://localhost:3000/test") withQueryParam ("postTest", "omg") withParam ("postParam", "value")))
+            .doHttpRequest("Test POST", post("http://localhost:3000/things") withQueryParam ("postTest", "omg") withFile "file.json" asJSON))
           .doHttpRequest(
             "Ajout au panier",
             get(url),
