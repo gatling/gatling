@@ -1,6 +1,6 @@
 package com.excilys.ebi.gatling.http.ahc
 
-import scala.collection.mutable.MultiMap
+import scala.collection.mutable.{ HashSet, MultiMap }
 
 import com.ning.http.client.AsyncHandler
 import com.ning.http.client.AsyncHandler.STATE
@@ -37,21 +37,18 @@ class CustomAsyncHandler(context: HttpContext, processors: MultiMap[HttpPhase, H
   var contextBuilder = httpContext fromContext context
 
   private def processResponse(httpPhase: HttpPhase, placeToSearch: Any): STATE = {
-    processors.get(httpPhase) match {
-      case Some(set) => for (processor <- set) {
-        processor match {
-          case c: HttpCapture => {
-            val value = c.capture(placeToSearch)
-            logger.info("Captured Value: {}", value)
-            contextBuilder = c.getScope.setAttribute(contextBuilder, c.getAttrKey, value)
-          }
-          case a: HttpAssertion => {
-            logger.info("Asserting")
-          }
-          case _ =>
+    for (processor <- processors.get(httpPhase).getOrElse(new HashSet)) {
+      processor match {
+        case c: HttpCapture => {
+          val value = c.capture(placeToSearch)
+          logger.info("Captured Value: {}", value)
+          contextBuilder = c.getScope.setAttribute(contextBuilder, c.getAttrKey, value)
         }
+        case a: HttpAssertion => {
+          logger.info("Asserting")
+        }
+        case _ =>
       }
-      case None =>
     }
     STATE.CONTINUE
     //continue(httpPhase)
@@ -83,11 +80,11 @@ class CustomAsyncHandler(context: HttpContext, processors: MultiMap[HttpPhase, H
     logger.debug("Response Received")
     val processingStartTime: Long = System.nanoTime()
     processResponse(new CompletePageReceived, responseBuilder.build)
-    actorFor(context.getWriteActorUuid) match {
-      case Some(a) =>
-        a ! ActionInfo(context.getUserId, "Request " + request.getName, executionStartDate, TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTime, TimeUnit.NANOSECONDS), "OK", "Request Executed Successfully")
-      case None =>
+
+    actorFor(context.getWriteActorUuid).map { a =>
+      a ! ActionInfo(context.getUserId, "Request " + request.getName, executionStartDate, TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTime, TimeUnit.NANOSECONDS), "OK", "Request Executed Successfully")
     }
+
     next.execute(contextBuilder setElapsedActionTime (System.nanoTime() - processingStartTime) build)
     null
   }

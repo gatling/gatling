@@ -57,10 +57,7 @@ class RequestsDataExtractor(val runOn: String) extends Logging {
   }
 
   private def getInMap(date: String)(map: HashMap[String, Int]): Int = {
-    map.get(date) match {
-      case Some(i) => i
-      case None => 0
-    }
+    map.get(date).getOrElse(0)
   }
 
   private def incrementInMap(executionStartDate: String)(map: HashMap[String, Int]) = {

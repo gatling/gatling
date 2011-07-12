@@ -20,18 +20,10 @@ object HttpRequestActionBuilder {
 
     def withProcessors(givenProcessors: List[HttpProcessor]) = {
       logger.debug("Adding Processors")
-      processors match {
-        case Some(list) => new HttpRequestActionBuilder(request, nextAction, Some(givenProcessors ::: list))
-        case None => new HttpRequestActionBuilder(request, nextAction, Some(givenProcessors))
-      }
+      new HttpRequestActionBuilder(request, nextAction, Some(givenProcessors ::: processors.getOrElse(Nil)))
     }
 
-    def withProcessor(processor: HttpProcessor) = {
-      processors match {
-        case Some(list) => new HttpRequestActionBuilder(request, nextAction, Some(processor :: list))
-        case None => new HttpRequestActionBuilder(request, nextAction, Some(processor :: Nil))
-      }
-    }
+    def withProcessor(processor: HttpProcessor) = new HttpRequestActionBuilder(request, nextAction, Some(processor :: processors.getOrElse(Nil)))
 
     def withRequest(request: HttpRequest) = new HttpRequestActionBuilder(Some(request), nextAction, processors)
 

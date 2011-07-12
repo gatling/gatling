@@ -11,10 +11,11 @@ import akka.actor.Actor.registry.actorFor
 class EndAction(val latch: CountDownLatch) extends Action {
   def execute(context: Context): Unit = {
     latch.countDown
-    actorFor(context.getWriteActorUuid) match {
-      case Some(a) => a ! ActionInfo(context.getUserId, "End of scenario", new Date, 0, "OK", "End of Scenario Reached")
-      case None =>
+
+    actorFor(context.getWriteActorUuid).map { a =>
+      a ! ActionInfo(context.getUserId, "End of scenario", new Date, 0, "OK", "End of Scenario Reached")
     }
+
     logger.info("Done user #{}", context.getUserId)
   }
 

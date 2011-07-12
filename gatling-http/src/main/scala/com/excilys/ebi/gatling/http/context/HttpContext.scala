@@ -13,8 +13,7 @@ class HttpContext(givenUserId: Int, writeActorUuid: Uuid, session: Map[String, A
   def getRequest = request
 
   def getElapsedActionTime =
-    session.get("elapsedTime") match {
-      case Some(l) => l.asInstanceOf[Long]
-      case None => 0L
-    }
+    session.get("elapsedTime").map { l =>
+      l.asInstanceOf[Long]
+    }.getOrElse(0L)
 }

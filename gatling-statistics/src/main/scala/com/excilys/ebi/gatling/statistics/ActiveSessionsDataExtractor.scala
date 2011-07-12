@@ -57,9 +57,6 @@ class ActiveSessionsDataExtractor(val runOn: String) extends Logging {
   }
 
   private def getInMap(date: String)(map: MultiMap[String, String]) = {
-    map.get(date) match {
-      case Some(set) => set
-      case None => MSet.empty
-    }
+    map.get(date).getOrElse(MSet.empty)
   }
 }

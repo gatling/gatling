@@ -38,14 +38,11 @@ object HttpRunner {
       logger.debug("Launching All Scenarios")
       for (i <- 1 to numberOfUsers) {
         //statWriter ! ActionInfo(i, "Beginning of scenario", new Date, 0, "OK")
-        ramp match {
-          case Some(time) => {
-            Scheduler.scheduleOnce(
-              () =>
-                scenario.execute(httpContext withUserId i withWriteActorUuid statWriter.getUuid build), (time / numberOfUsers) * i, TimeUnit.MILLISECONDS);
-          }
 
-          case None => scenario.execute(httpContext withUserId i withWriteActorUuid statWriter.getUuid build)
+        ramp.map { time =>
+          Scheduler.scheduleOnce(() => scenario.execute(httpContext withUserId i withWriteActorUuid statWriter.getUuid build), (time / numberOfUsers) * i, TimeUnit.MILLISECONDS)
+        }.getOrElse {
+          scenario.execute(httpContext withUserId i withWriteActorUuid statWriter.getUuid build)
         }
       }
       logger.debug("Finished Launching scenarios executions")

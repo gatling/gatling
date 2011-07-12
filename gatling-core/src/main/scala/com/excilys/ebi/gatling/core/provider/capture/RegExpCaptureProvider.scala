@@ -7,9 +7,9 @@ class RegExpCaptureProvider extends AbstractCaptureProvider {
 
   def captureOne(target: Any, from: Any): Option[String] = {
     val toBeFound = new Regex(target.toString)
-    toBeFound.findFirstMatchIn(from.toString) match {
-      case Some(m) => Some(m.group(1))
-      case None => None
+
+    toBeFound.findFirstMatchIn(from.toString).map { m =>
+      m.group(1)
     }
   }
 
