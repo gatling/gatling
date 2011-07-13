@@ -28,6 +28,10 @@
 			<groupId>se.scalablesolutions.akka</groupId>
 			<artifactId>akka-typed-actor</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.fusesource.scalate</groupId>
+			<artifactId>scalate-core</artifactId>
+		</dependency>
 	</dependencies>
 	
 	<build>

@@ -33,9 +33,11 @@ object HttpExample {
             get(url),
             xpath("//input[@value='aaaa']/@id") inAttribute "inputbis" build)
             .pause(pause2)
+            .doHttpRequest("Create Thing blabla", post("http://localhost:3000/things") withQueryParam ("postTest", "omg") withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON)
+            .pause(pause3)
             .doHttpRequest("Liste Articles", get(url) withQueryParam ("test", "value"))
             .pause(pause3)
-            .doHttpRequest("Test POST", post("http://localhost:3000/things") withQueryParam ("postTest", "omg") withFile "file.json" asJSON))
+            .doHttpRequest("Create Thing omgomg", post("http://localhost:3000/things") withQueryParam ("postTest", "omg") withTemplateBody ("create_thing", Map("name" -> "omgomg")) asJSON))
           .doHttpRequest(
             "Ajout au panier",
             get(url),

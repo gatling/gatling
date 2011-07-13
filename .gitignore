@@ -22,3 +22,5 @@ toto.log
 /2011*
 /request-files/*
 !/request-files/.gitkeep
+#/user-templates/*
+!/user-templates/.gitkeep
