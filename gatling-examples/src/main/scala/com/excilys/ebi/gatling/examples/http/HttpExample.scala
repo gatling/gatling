@@ -2,9 +2,10 @@ package com.excilys.ebi.gatling.examples.http
 
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
+import com.excilys.ebi.gatling.core.feeder.TSVFeeder
 
 import com.excilys.ebi.gatling.http.scenario.HttpScenarioBuilder.{ scenario, chain, HttpScenarioBuilder }
-import com.excilys.ebi.gatling.http.runner.HttpRunner.play
+import com.excilys.ebi.gatling.http.runner.builder.HttpRunnerBuilder._
 import com.excilys.ebi.gatling.http.processor.capture.builder.HttpRegExpCaptureBuilder.regexp
 import com.excilys.ebi.gatling.http.processor.capture.builder.HttpXPathCaptureBuilder.xpath
 import com.excilys.ebi.gatling.http.request.builder.GetHttpRequestBuilder.get
@@ -23,6 +24,8 @@ object HttpExample {
 
     val url = "http://localhost/index.html"
 
+    val usersInformation = new TSVFeeder("test_feeder", List("login", "password"))
+
     val lambdaUser =
       scenario("Standard User")
         .doHttpRequest("Page d'accueil", get(url))
@@ -33,17 +36,16 @@ object HttpExample {
             get(url),
             xpath("//input[@value='aaaa']/@id") inAttribute "inputbis" build)
             .pause(pause2)
-            .doHttpRequest("Create Thing blabla", post("http://localhost:3000/things") withQueryParam ("postTest", "omg") withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON)
+            .doHttpRequest("Create Thing blabla", post("http://localhost:3000/things") withQueryParam ("postTest", usersInformation.get("login")_) withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON)
             .pause(pause3)
-            .doHttpRequest("Liste Articles", get(url) withQueryParam ("test", "value"))
+            .doHttpRequest("Liste Articles", get("http://localhost:3000/things") withQueryParam ("test", usersInformation.get("password")_))
             .pause(pause3)
             .doHttpRequest("Create Thing omgomg", post("http://localhost:3000/things") withQueryParam ("postTest", "omg") withTemplateBody ("create_thing", Map("name" -> "omgomg")) asJSON))
-          .doHttpRequest(
-            "Ajout au panier",
+          .doHttpRequest("Ajout au panier",
             get(url),
             regexp("""<input id="text1" type="text" value="(.*)" />""") inAttribute "input" build)
             .pause(pause3)
 
-    play(lambdaUser, concurrentUsers)
+    prepareSimulation(lambdaUser) withUsersNumber concurrentUsers withFeeder usersInformation play
   }
 }
