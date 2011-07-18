@@ -34,7 +34,7 @@ object HttpExample {
           iterations,
           chain.doHttpRequest("Catégorie Poney",
             get(url),
-            xpath("//input[@value='aaaa']/@id") inAttribute "inputbis" build)
+            xpath("//input[@value='aaaa']/@id") in "inputbis" build)
             .pause(pause2)
             .doHttpRequest("Create Thing blabla", post("http://localhost:3000/things") withQueryParam ("postTest", usersInformation.get("login")_) withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON)
             .pause(pause3)
@@ -43,7 +43,7 @@ object HttpExample {
             .doHttpRequest("Create Thing omgomg", post("http://localhost:3000/things") withQueryParam ("postTest", "omg") withTemplateBody ("create_thing", Map("name" -> "omgomg")) asJSON))
           .doHttpRequest("Ajout au panier",
             get(url),
-            regexp("""<input id="text1" type="text" value="(.*)" />""") inAttribute "input" build)
+            regexp("""<input id="text1" type="text" value="(.*)" />""") in "input" build)
             .pause(pause3)
 
     prepareSimulation(lambdaUser) withUsersNumber concurrentUsers withFeeder usersInformation play

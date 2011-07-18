@@ -4,7 +4,6 @@ import com.excilys.ebi.gatling.core.action.{ Action, RequestAction }
 import com.excilys.ebi.gatling.core.context.Context
 
 import com.excilys.ebi.gatling.http.ahc.CustomAsyncHandler
-import com.excilys.ebi.gatling.http.context.HttpContext
 import com.excilys.ebi.gatling.http.phase.HttpPhase
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
 import com.excilys.ebi.gatling.http.request.HttpRequest
@@ -35,6 +34,6 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessors: Opt
 
   def execute(context: Context) = {
     logger.info("Sending Request")
-    HttpRequestAction.CLIENT.executeRequest(request.getRequest(context.getFeederIndex), new CustomAsyncHandler(context.asInstanceOf[HttpContext], processors, next, givenProcessors, System.nanoTime, new Date, request))
+    HttpRequestAction.CLIENT.executeRequest(request.getRequest(context.getFeederIndex), new CustomAsyncHandler(context, processors, next, givenProcessors, System.nanoTime, new Date, request))
   }
 }

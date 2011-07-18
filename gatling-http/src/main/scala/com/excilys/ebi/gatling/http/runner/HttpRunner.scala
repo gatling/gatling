@@ -7,9 +7,9 @@ import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.result.writer.FileDataWriter
 import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
+import com.excilys.ebi.gatling.core.context.builder.ContextBuilder._
+import com.excilys.ebi.gatling.core.context.Context
 
-import com.excilys.ebi.gatling.http.context.HttpContext
-import com.excilys.ebi.gatling.http.context.builder.HttpContextBuilder._
 import com.excilys.ebi.gatling.http.scenario.HttpScenarioBuilder.HttpScenarioBuilder
 import com.excilys.ebi.gatling.http.scenario.HttpScenarioBuilder
 import com.excilys.ebi.gatling.http.action.HttpRequestAction
@@ -38,11 +38,11 @@ object HttpRunner {
       logger.debug("Stats Write Actor Uuid: {}", statWriter.getUuid)
       logger.debug("Launching All Scenarios")
       for (i <- 1 to numberOfUsers) {
-        val context: HttpContext = feeder.map { f =>
+        val context: Context = feeder.map { f =>
           logger.debug("Context With FeederIndex")
-          httpContext withUserId i withWriteActorUuid statWriter.getUuid withFeederIndex f.nextIndex build
+          makeContext withUserId i withWriteActorUuid statWriter.getUuid withFeederIndex f.nextIndex build
         }.getOrElse {
-          httpContext withUserId i withWriteActorUuid statWriter.getUuid build
+          makeContext withUserId i withWriteActorUuid statWriter.getUuid build
         }
 
         ramp.map { time =>

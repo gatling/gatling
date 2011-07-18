@@ -13,9 +13,9 @@ import com.ning.http.client.HttpResponseBodyPart
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
+import com.excilys.ebi.gatling.core.context.builder.ContextBuilder.makeContext
+import com.excilys.ebi.gatling.core.context.Context
 
-import com.excilys.ebi.gatling.http.context.HttpContext
-import com.excilys.ebi.gatling.http.context.builder.HttpContextBuilder._
 import com.excilys.ebi.gatling.http.phase.HttpPhase
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
 import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
@@ -28,13 +28,13 @@ import java.util.concurrent.TimeUnit
 
 import akka.actor.Actor.registry.actorFor
 
-class CustomAsyncHandler(context: HttpContext, processors: MultiMap[HttpPhase, HttpProcessor], next: Action, givenProcessors: Option[List[HttpProcessor]],
+class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpProcessor], next: Action, givenProcessors: Option[List[HttpProcessor]],
   executionStartTime: Long, executionStartDate: Date, request: HttpRequest)
   extends AsyncHandler[Response] with Logging {
 
   private val responseBuilder: ResponseBuilder = new ResponseBuilder()
 
-  var contextBuilder = httpContext fromContext context
+  var contextBuilder = makeContext fromContext context
 
   private def processResponse(httpPhase: HttpPhase, placeToSearch: Any): STATE = {
     for (processor <- processors.get(httpPhase).getOrElse(new HashSet)) {
@@ -42,7 +42,7 @@ class CustomAsyncHandler(context: HttpContext, processors: MultiMap[HttpPhase, H
         case c: HttpCapture => {
           val value = c.capture(placeToSearch)
           logger.info("Captured Value: {}", value)
-          contextBuilder = c.getScope.setAttribute(contextBuilder, c.getAttrKey, value)
+          contextBuilder = contextBuilder setAttribute (c.getAttrKey, value.toString)
         }
         case a: HttpAssertion => {
           logger.info("Asserting")

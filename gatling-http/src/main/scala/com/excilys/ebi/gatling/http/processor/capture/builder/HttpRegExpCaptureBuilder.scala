@@ -2,28 +2,21 @@ package com.excilys.ebi.gatling.http.processor.capture.builder
 
 import com.excilys.ebi.gatling.http.processor.capture.builder.HttpCaptureBuilder.HttpCaptureBuilder
 
-import com.excilys.ebi.gatling.http.context._
 import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
 import com.excilys.ebi.gatling.http.processor.capture.HttpRegExpCapture
 import com.excilys.ebi.gatling.http.phase._
 
 object HttpRegExpCaptureBuilder {
-  class HttpRegExpCaptureBuilder[HE](expression: Option[String], attribute: Option[String], scope: Option[HttpScope], httpPhase: Option[HttpPhase])
-    extends HttpCaptureBuilder[HE](expression, attribute, scope, httpPhase) {
+  class HttpRegExpCaptureBuilder(expression: Option[String], attribute: Option[String], httpPhase: Option[HttpPhase])
+    extends HttpCaptureBuilder(expression, attribute, httpPhase) {
 
-    def inAttribute(attrKey: String) = new HttpRegExpCaptureBuilder[HE](expression, Some(attrKey), scope, httpPhase)
-    def inRequest(attrKey: String) = new HttpRegExpCaptureBuilder[HE](expression, Some(attrKey), Some(new RequestScope), httpPhase)
-    def inSession(attrKey: String) = new HttpRegExpCaptureBuilder[HE](expression, Some(attrKey), Some(new SessionScope), httpPhase)
-    def onHeaders = new HttpRegExpCaptureBuilder[HE](expression, attribute, scope, Some(new HeadersReceived))
-    def onComplete = new HttpRegExpCaptureBuilder[HE](expression, attribute, scope, Some(new CompletePageReceived))
+    def in(attrKey: String): HttpRegExpCaptureBuilder = new HttpRegExpCaptureBuilder(expression, Some(attrKey), httpPhase)
+    def onHeaders = new HttpRegExpCaptureBuilder(expression, attribute, Some(new HeadersReceived))
+    def onComplete = new HttpRegExpCaptureBuilder(expression, attribute, Some(new CompletePageReceived))
+
+    def build: HttpCapture = new HttpRegExpCapture(expression.get, attribute.get, httpPhase.get)
   }
 
-  implicit def enableBuild(builder: HttpRegExpCaptureBuilder[TRUE]) = new {
-    def build(): HttpCapture = {
-      new HttpRegExpCapture(builder.expression.get, builder.attribute.get, builder.scope.get, builder.httpPhase.get)
-    }
-  }
-
-  def regexp(expression: String) = new HttpRegExpCaptureBuilder[TRUE](Some(expression), None, Some(new SessionScope), Some(new CompletePageReceived))
+  def regexp(expression: String) = new HttpRegExpCaptureBuilder(Some(expression), None, Some(new CompletePageReceived))
 
 }
