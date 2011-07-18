@@ -5,8 +5,8 @@ import com.excilys.ebi.gatling.core.context.ElapsedActionTime
 
 import akka.actor.Uuid
 
-class HttpContext(givenUserId: Int, writeActorUuid: Uuid, session: Map[String, Any], request: Map[String, Any])
-  extends Context(givenUserId, writeActorUuid) with ElapsedActionTime {
+class HttpContext(givenUserId: Int, writeActorUuid: Uuid, feederIndex: Int, session: Map[String, Any], request: Map[String, Any])
+  extends Context(givenUserId, writeActorUuid, feederIndex) with ElapsedActionTime {
 
   def getSession = session
 

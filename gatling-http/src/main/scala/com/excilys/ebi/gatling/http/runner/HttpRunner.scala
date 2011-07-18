@@ -1,5 +1,6 @@
 package com.excilys.ebi.gatling.http.runner
 
+import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.runner.Runner
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.action.Action
@@ -21,7 +22,7 @@ import akka.actor.Scheduler
 import akka.actor.Actor.actorOf
 
 object HttpRunner {
-  class HttpRunner(s: HttpScenarioBuilder, numUsers: Int, ramp: Option[Int]) extends Runner(s, numUsers, ramp) {
+  class HttpRunner(s: HttpScenarioBuilder, numUsers: Int, ramp: Option[Int], feeder: Option[Feeder]) extends Runner(s, numUsers, ramp, feeder) {
     val latch: CountDownLatch = new CountDownLatch(numUsers)
     val scenario = scenarioBuilder.end(latch).build
 
@@ -37,12 +38,17 @@ object HttpRunner {
       logger.debug("Stats Write Actor Uuid: {}", statWriter.getUuid)
       logger.debug("Launching All Scenarios")
       for (i <- 1 to numberOfUsers) {
-        //statWriter ! ActionInfo(i, "Beginning of scenario", new Date, 0, "OK")
+        val context: HttpContext = feeder.map { f =>
+          logger.debug("Context With FeederIndex")
+          httpContext withUserId i withWriteActorUuid statWriter.getUuid withFeederIndex f.nextIndex build
+        }.getOrElse {
+          httpContext withUserId i withWriteActorUuid statWriter.getUuid build
+        }
 
         ramp.map { time =>
-          Scheduler.scheduleOnce(() => scenario.execute(httpContext withUserId i withWriteActorUuid statWriter.getUuid build), (time / numberOfUsers) * i, TimeUnit.MILLISECONDS)
+          Scheduler.scheduleOnce(() => scenario.execute(context), (time / numberOfUsers) * i, TimeUnit.MILLISECONDS)
         }.getOrElse {
-          scenario.execute(httpContext withUserId i withWriteActorUuid statWriter.getUuid build)
+          scenario.execute(context)
         }
       }
       logger.debug("Finished Launching scenarios executions")
@@ -51,13 +57,5 @@ object HttpRunner {
       logger.debug("Runner execution ended")
     }
 
-  }
-
-  def play(s: HttpScenarioBuilder, numUsers: Int): Unit = {
-    play(s, numUsers, 0)
-  }
-
-  def play(s: HttpScenarioBuilder, numUsers: Int, ramp: Int): Unit = {
-    new HttpRunner(s, numUsers, Some(ramp)).run
   }
 }

@@ -1,11 +1,15 @@
 package com.excilys.ebi.gatling.http.request.builder
 
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.context.Context
 
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.excilys.ebi.gatling.http.request.FilePathBody
 import com.excilys.ebi.gatling.http.request.StringBody
 import com.excilys.ebi.gatling.http.request.TemplateBody
+import com.excilys.ebi.gatling.http.request.Param
+import com.excilys.ebi.gatling.http.request.StringParam
+import com.excilys.ebi.gatling.http.request.FeederParam
 
 import com.ning.http.client.RequestBuilder
 import com.ning.http.client.Request
@@ -15,11 +19,13 @@ import java.io.File
 import org.fusesource.scalate._
 
 object PostHttpRequestBuilder {
-  class PostHttpRequestBuilder(val url: Option[String], val queryParams: Option[Map[String, String]], val params: Option[Map[String, String]],
+  class PostHttpRequestBuilder(val url: Option[String], val queryParams: Option[Map[String, Param]], val params: Option[Map[String, String]],
     val headers: Option[Map[String, String]], val body: Option[HttpRequestBody])
     extends HttpRequestBuilder with Logging {
 
-    def withQueryParam(queryParam: Tuple2[String, String]) = new PostHttpRequestBuilder(url, Some(queryParams.get + (queryParam._1 -> queryParam._2)), params, headers, body)
+    def withQueryParam(paramKey: String, paramValue: String) = new PostHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> StringParam(paramValue))), params, headers, body)
+
+    def withQueryParam(paramKey: String, paramValue: Function[Int, String]) = new PostHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> FeederParam(paramValue))), params, headers, body)
 
     def withParam(param: Tuple2[String, String]) = new PostHttpRequestBuilder(url, queryParams, Some(params.get + (param._1 -> param._2)), headers, body)
 
@@ -35,10 +41,15 @@ object PostHttpRequestBuilder {
 
     def withTemplateBody(tplPath: String, values: Map[String, String]) = new PostHttpRequestBuilder(url, queryParams, params, headers, Some(TemplateBody(tplPath, values)))
 
-    def build(): Request = {
+    def build(feederIndex: Int): Request = {
       val requestBuilder = new RequestBuilder setUrl url.get setMethod "POST"
 
-      for (queryParam <- queryParams.get) requestBuilder addQueryParameter (queryParam._1, queryParam._2)
+      for (queryParam <- queryParams.get) {
+        queryParam._2 match {
+          case StringParam(string) => requestBuilder addQueryParameter (queryParam._1, string)
+          case FeederParam(func) => requestBuilder addQueryParameter (queryParam._1, func(feederIndex))
+        }
+      }
 
       for (param <- params.get) requestBuilder addParameter (param._1, param._2)
 
