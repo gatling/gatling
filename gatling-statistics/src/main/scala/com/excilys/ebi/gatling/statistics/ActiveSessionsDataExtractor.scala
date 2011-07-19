@@ -4,7 +4,7 @@ import scala.collection.SortedMap
 import com.excilys.ebi.gatling.core.log.Logging
 
 import scala.io.Source
-import scala.collection.immutable.{ HashSet, TreeMap }
+import scala.collection.immutable.{ HashSet, TreeMap, TreeSet }
 import scala.collection.mutable.{ HashMap, MultiMap, Set => MSet }
 
 import java.lang.String
@@ -13,50 +13,61 @@ class ActiveSessionsDataExtractor(val runOn: String) extends Logging {
   val formattedRunOn = (new StringBuilder(runOn)).insert(12, ":").insert(10, ":").insert(8, " ").insert(6, "-").insert(4, "-").toString
 
   def getResults: Map[String, Int] = {
-    var lastTimeValue = formattedRunOn
-    var nbActiveSessions = 0
-    var lastResult: Tuple2[String, Int] = ("", 0)
-
-    var results: List[Tuple2[String, Int]] = Nil
-
-    val data: MultiMap[String, String] = new HashMap[String, MSet[String]] with MultiMap[String, String]
+    val activeSessions: MultiMap[String, String] = new HashMap[String, MSet[String]] with MultiMap[String, String]
+    val deadSessions: MultiMap[String, String] = new HashMap[String, MSet[String]] with MultiMap[String, String]
 
     logger.info("[Stats] reading from file: " + "gatling_" + runOn)
-    for (line <- Source.fromFile(runOn + "/simulation.log", "utf-8").getLines) {
-      line.split("\t") match {
-        case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage) => {
-          // If we are on a new time, import users from before
-          if (lastTimeValue != executionStartDate)
-            data.get(lastTimeValue).get.foreach {
-              case s: String =>
-                data.addBinding(executionStartDate, s)
-            }
 
+    // Going through the specified log file
+    for (line <- Source.fromFile(runOn + "/simulation.log", "utf-8").getLines) {
+      // Split each line by tabulation (As we get data from a TSV file)
+      line.split("\t") match {
+        // If we have a well formated result
+        case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage) => {
+          // Adding a dummy value to set a new entry for executionStartDate
+          activeSessions.addBinding(executionStartDate, "0")
+
+          // Depending on the type of action, we add the session to the good map
           if (actionName == "End of scenario") {
-            logger.debug("-1 ActiveSession")
-            def get = getInMap(executionStartDate)_
-            data.removeBinding(executionStartDate, userId)
-            if (get(data).size == 0)
-              data.put(executionStartDate, MSet.empty)
-            logger.debug("{}", data)
+            deadSessions.addBinding(executionStartDate, userId)
           } else {
-            logger.debug("+1 ActiveSession")
-            data.addBinding(executionStartDate, userId)
+            activeSessions.addBinding(executionStartDate, userId)
           }
         }
+        // Else, if the resulting data is not well formated print an error message
         case _ => sys.error("Input file not well formatted")
       }
     }
 
-    var sortedData: TreeMap[String, Int] = TreeMap.empty
-    data.foreach {
-      case (date, userSet) => sortedData = sortedData + (date -> userSet.size)
+    // Getting all dates sorted
+    var executionStartDates: TreeSet[String] = TreeSet.empty
+    activeSessions.keySet.foreach { key =>
+      executionStartDates = executionStartDates + key
     }
 
-    sortedData
-  }
+    // Adding the missing active/dead sessions to the different executionStartDate
+    var lastDate: String = formattedRunOn
+    executionStartDates.map { startDate =>
+      if (startDate != formattedRunOn) {
+        activeSessions.get(lastDate).map { set =>
+          set.map { userId =>
+            activeSessions.addBinding(startDate, userId)
+          }
+          deadSessions.get(startDate).map { set =>
+            set.map { userId =>
+              activeSessions.removeBinding(startDate, userId)
+            }
+          }
+        }
+      }
+      lastDate = startDate
+    }
 
-  private def getInMap(date: String)(map: MultiMap[String, String]) = {
-    map.get(date).getOrElse(MSet.empty)
+    // Counting active sessions by starDate and returning result
+    var results: Map[String, Int] = TreeMap.empty
+    executionStartDates.foreach { startDate =>
+      results = results + (startDate -> (activeSessions.get(startDate).get.size - 1))
+    }
+    results
   }
 }
