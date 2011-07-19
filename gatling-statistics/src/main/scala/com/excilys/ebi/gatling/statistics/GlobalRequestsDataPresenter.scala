@@ -6,7 +6,7 @@ import org.fusesource.scalate._
 import java.io.FileWriter
 import java.io.File
 
-class RequestsDataPresenter extends Logging {
+class GlobalRequestsDataPresenter extends Logging {
   def generateGraphFor(runOn: String) {
     val title = "Requests"
 
@@ -15,7 +15,7 @@ class RequestsDataPresenter extends Logging {
     var okValues: List[Int] = Nil
     var koValues: List[Int] = Nil
 
-    new RequestsDataExtractor(runOn).getResults foreach {
+    new GlobalRequestsDataExtractor(runOn).getResults foreach {
       case (date, (numberOfRequests, numberOfSuccesses, numberOfFailures)) =>
         dates = date.substring(11) :: dates
         globalValues = numberOfRequests :: globalValues

@@ -9,7 +9,7 @@ import scala.collection.mutable.{ HashMap, MultiMap, Set => MSet }
 
 import java.lang.String
 
-class RequestsDataExtractor(val runOn: String) extends Logging {
+class GlobalRequestsDataExtractor(val runOn: String) extends Logging {
   val formattedRunOn = (new StringBuilder(runOn)).insert(12, ":").insert(10, ":").insert(8, " ").insert(6, "-").insert(4, "-").toString
 
   def getResults: Map[String, Tuple3[Int, Int, Int]] = {
