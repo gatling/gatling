@@ -7,7 +7,7 @@ import java.io.FileWriter
 import java.io.File
 
 class ActiveSessionsDataPresenter extends Logging {
-  def generateGraphFor(runOn: String) {
+  def generateGraphFor(runOn: String) = {
     val title = "Active Sessions"
 
     var dates: List[String] = Nil

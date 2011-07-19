@@ -7,7 +7,7 @@ import java.io.FileWriter
 import java.io.File
 
 class GlobalRequestsDataPresenter extends Logging {
-  def generateGraphFor(runOn: String) {
+  def generateGraphFor(runOn: String) = {
     val title = "Requests"
 
     var dates: List[String] = Nil
