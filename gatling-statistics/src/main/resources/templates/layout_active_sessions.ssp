@@ -55,7 +55,11 @@
 	         x: -20 //center
 	      },
 	      xAxis: {
-	         categories: <%= dates.mkString("['", "', '","']") %>
+	         categories: <%= dates.mkString("['", "', '","']") %>,
+	         labels: {
+	        	 step: 2,
+	        	 y: 20
+	         }
 	      },
 	      yAxis: {
 	         title: {
