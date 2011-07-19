@@ -15,7 +15,7 @@ import com.ning.http.client.Request
 
 object GetHttpRequestBuilder {
   class GetHttpRequestBuilder(url: Option[String], queryParams: Option[Map[String, Param]], feeder: Option[Feeder])
-    extends HttpRequestBuilder(url, queryParams, feeder) with Logging {
+      extends HttpRequestBuilder(url, queryParams, feeder) with Logging {
     def withQueryParam(paramKey: String, paramValue: String) = new GetHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> StringParam(paramValue))), feeder)
 
     def withQueryParam(paramKey: String, paramValue: FromContext) = new GetHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> ContextParam(paramValue.attributeKey))), feeder)
@@ -28,6 +28,10 @@ object GetHttpRequestBuilder {
       }
 
       val requestBuilder = new RequestBuilder setUrl url.get
+      for (cookie <- context.getCookies) {
+        requestBuilder.addCookie(cookie)
+      }
+
       for (queryParam <- queryParams.get) {
         queryParam._2 match {
           case StringParam(string) => requestBuilder addQueryParameter (queryParam._1, string)

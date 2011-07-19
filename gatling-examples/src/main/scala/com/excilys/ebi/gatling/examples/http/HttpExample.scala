@@ -57,7 +57,8 @@ object HttpExample {
                   // Third request to be repeated
                   .doHttpRequest(
                     "Liste Articles",
-                    get("http://localhost:3000/things") withFeeder usersInformation withQueryParam ("firstname", FromContext("firstname")) withQueryParam ("lastname", FromContext("lastname"))
+                    get("http://localhost:3000/things") withFeeder usersInformation withQueryParam ("firstname", FromContext("firstname")) withQueryParam ("lastname", FromContext("lastname")),
+                    regexp("""Cookie:(\w+)""") in "testCookie" build
                   )
                     .pause(pause3)
                     // Fourth request to be repeated

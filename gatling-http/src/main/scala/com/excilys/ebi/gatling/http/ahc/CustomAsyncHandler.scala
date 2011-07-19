@@ -29,8 +29,8 @@ import java.util.concurrent.TimeUnit
 import akka.actor.Actor.registry.actorFor
 
 class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpProcessor], next: Action, givenProcessors: Option[List[HttpProcessor]],
-  executionStartTime: Long, executionStartDate: Date, request: HttpRequest)
-  extends AsyncHandler[Response] with Logging {
+                         executionStartTime: Long, executionStartDate: Date, request: HttpRequest)
+    extends AsyncHandler[Response] with Logging {
 
   private val responseBuilder: ResponseBuilder = new ResponseBuilder()
 
@@ -51,14 +51,6 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
       }
     }
     STATE.CONTINUE
-    //continue(httpPhase)
-  }
-
-  private def continue(httpPhase: HttpPhase): STATE = {
-    givenProcessors match {
-      case Some(list) => if (processors.get(httpPhase).size == givenProcessors.get.size) STATE.ABORT else STATE.CONTINUE
-      case None => STATE.CONTINUE
-    }
   }
 
   def onStatusReceived(responseStatus: HttpResponseStatus): STATE = {
@@ -79,13 +71,16 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
   def onCompleted(): Response = {
     logger.debug("Response Received")
     val processingStartTime: Long = System.nanoTime()
-    processResponse(new CompletePageReceived, responseBuilder.build)
+    val response = responseBuilder.build
+    processResponse(new CompletePageReceived, response)
 
     actorFor(context.getWriteActorUuid).map { a =>
       a ! ActionInfo(context.getUserId, "Request " + request.getName, executionStartDate, TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTime, TimeUnit.NANOSECONDS), "OK", "Request Executed Successfully")
     }
 
-    next.execute(contextBuilder setElapsedActionTime (System.nanoTime() - processingStartTime) build)
+    logger.debug(" -- Cookies received by AHC : {}", response.getCookies)
+
+    next.execute(contextBuilder setElapsedActionTime (System.nanoTime() - processingStartTime) setCookies response.getCookies build)
     null
   }
 
