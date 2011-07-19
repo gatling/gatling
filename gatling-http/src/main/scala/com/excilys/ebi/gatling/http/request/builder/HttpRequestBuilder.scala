@@ -4,5 +4,5 @@ import com.ning.http.client.Request
 import com.excilys.ebi.gatling.core.context.Context
 
 abstract class HttpRequestBuilder {
-  def build(feederIndex: Int): Request
+  def build(context: Context): Request
 }

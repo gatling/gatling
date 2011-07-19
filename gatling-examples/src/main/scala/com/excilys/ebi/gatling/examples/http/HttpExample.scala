@@ -3,6 +3,7 @@ package com.excilys.ebi.gatling.examples.http
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.feeder.TSVFeeder
+import com.excilys.ebi.gatling.core.context.FromContext
 
 import com.excilys.ebi.gatling.http.scenario.HttpScenarioBuilder.{ scenario, chain, HttpScenarioBuilder }
 import com.excilys.ebi.gatling.http.runner.builder.HttpRunnerBuilder._
@@ -34,18 +35,18 @@ object HttpExample {
           iterations,
           chain.doHttpRequest("Catégorie Poney",
             get(url),
-            xpath("//input[@value='aaaa']/@id") in "inputbis" build)
+            xpath("//input[@value='aaaa']/@id") in "ctxParam" build)
             .pause(pause2)
-            .doHttpRequest("Create Thing blabla", post("http://localhost:3000/things") withQueryParam ("postTest", usersInformation.get("login")_) withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON)
+            .doHttpRequest("Create Thing blabla", post("http://localhost:3000/things") withQueryParam ("postTest", FromContext("ctxParam")) withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON)
             .pause(pause3)
             .doHttpRequest("Liste Articles", get("http://localhost:3000/things") withQueryParam ("test", usersInformation.get("password")_))
             .pause(pause3)
-            .doHttpRequest("Create Thing omgomg", post("http://localhost:3000/things") withQueryParam ("postTest", "omg") withTemplateBody ("create_thing", Map("name" -> "omgomg")) asJSON))
+            .doHttpRequest("Create Thing omgomg", post("http://localhost:3000/things") withQueryParam ("postTest", "homeURL") withTemplateBody ("create_thing", Map("name" -> "omgomg")) asJSON))
           .doHttpRequest("Ajout au panier",
             get(url),
             regexp("""<input id="text1" type="text" value="(.*)" />""") in "input" build)
             .pause(pause3)
 
-    prepareSimulation(lambdaUser) withUsersNumber concurrentUsers withFeeder usersInformation play
+    prepareSimulationFor(lambdaUser) withUsersNumber concurrentUsers withFeeder usersInformation play
   }
 }

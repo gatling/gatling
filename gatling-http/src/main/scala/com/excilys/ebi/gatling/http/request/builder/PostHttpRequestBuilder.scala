@@ -2,6 +2,7 @@ package com.excilys.ebi.gatling.http.request.builder
 
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.context.FromContext
 
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.excilys.ebi.gatling.http.request.FilePathBody
@@ -10,6 +11,7 @@ import com.excilys.ebi.gatling.http.request.TemplateBody
 import com.excilys.ebi.gatling.http.request.Param
 import com.excilys.ebi.gatling.http.request.StringParam
 import com.excilys.ebi.gatling.http.request.FeederParam
+import com.excilys.ebi.gatling.http.request.ContextParam
 
 import com.ning.http.client.RequestBuilder
 import com.ning.http.client.Request
@@ -27,6 +29,8 @@ object PostHttpRequestBuilder {
 
     def withQueryParam(paramKey: String, paramValue: Function[Int, String]) = new PostHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> FeederParam(paramValue))), params, headers, body)
 
+    def withQueryParam(paramKey: String, paramValue: FromContext) = new PostHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> ContextParam(paramValue.attributeKey))), params, headers, body)
+
     def withParam(param: Tuple2[String, String]) = new PostHttpRequestBuilder(url, queryParams, Some(params.get + (param._1 -> param._2)), headers, body)
 
     def withHeader(header: Tuple2[String, String]) = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get + (header._1 -> header._2)), body)
@@ -41,13 +45,14 @@ object PostHttpRequestBuilder {
 
     def withTemplateBody(tplPath: String, values: Map[String, String]) = new PostHttpRequestBuilder(url, queryParams, params, headers, Some(TemplateBody(tplPath, values)))
 
-    def build(feederIndex: Int): Request = {
+    def build(context: Context): Request = {
       val requestBuilder = new RequestBuilder setUrl url.get setMethod "POST"
 
       for (queryParam <- queryParams.get) {
         queryParam._2 match {
           case StringParam(string) => requestBuilder addQueryParameter (queryParam._1, string)
-          case FeederParam(func) => requestBuilder addQueryParameter (queryParam._1, func(feederIndex))
+          case FeederParam(func) => requestBuilder addQueryParameter (queryParam._1, func(context.getFeederIndex))
+          case ContextParam(string) => requestBuilder addQueryParameter (queryParam._1, context.getAttribute(string))
         }
       }
 

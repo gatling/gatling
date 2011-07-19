@@ -15,5 +15,5 @@ object HttpRunnerBuilder {
 
     def play = new HttpRunner(s.get, numUsers.get, ramp, feeder).run
   }
-  def prepareSimulation(s: HttpScenarioBuilder) = new HttpRunnerBuilder(Some(s), None, None, None)
+  def prepareSimulationFor(s: HttpScenarioBuilder) = new HttpRunnerBuilder(Some(s), None, None, None)
 }

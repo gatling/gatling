@@ -42,7 +42,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
         case c: HttpCapture => {
           val value = c.capture(placeToSearch)
           logger.info("Captured Value: {}", value)
-          contextBuilder = contextBuilder setAttribute (c.getAttrKey, value.toString)
+          contextBuilder = contextBuilder setAttribute (c.getAttrKey, value.getOrElse(throw new Exception("Capture string not found")).toString)
         }
         case a: HttpAssertion => {
           logger.info("Asserting")

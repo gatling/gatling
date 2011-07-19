@@ -34,6 +34,6 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessors: Opt
 
   def execute(context: Context) = {
     logger.info("Sending Request")
-    HttpRequestAction.CLIENT.executeRequest(request.getRequest(context.getFeederIndex), new CustomAsyncHandler(context, processors, next, givenProcessors, System.nanoTime, new Date, request))
+    HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new CustomAsyncHandler(context, processors, next, givenProcessors, System.nanoTime, new Date, request))
   }
 }
