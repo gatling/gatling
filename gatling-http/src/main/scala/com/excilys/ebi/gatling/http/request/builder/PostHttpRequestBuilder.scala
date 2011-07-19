@@ -3,6 +3,7 @@ package com.excilys.ebi.gatling.http.request.builder
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.context.FromContext
+import com.excilys.ebi.gatling.core.feeder.Feeder
 
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.excilys.ebi.gatling.http.request.FilePathBody
@@ -21,37 +22,40 @@ import java.io.File
 import org.fusesource.scalate._
 
 object PostHttpRequestBuilder {
-  class PostHttpRequestBuilder(val url: Option[String], val queryParams: Option[Map[String, Param]], val params: Option[Map[String, String]],
-    val headers: Option[Map[String, String]], val body: Option[HttpRequestBody])
-    extends HttpRequestBuilder with Logging {
+  class PostHttpRequestBuilder(url: Option[String], queryParams: Option[Map[String, Param]], val params: Option[Map[String, String]],
+    val headers: Option[Map[String, String]], val body: Option[HttpRequestBody], feeder: Option[Feeder])
+    extends HttpRequestBuilder(url, queryParams, feeder) with Logging {
 
-    def withQueryParam(paramKey: String, paramValue: String) = new PostHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> StringParam(paramValue))), params, headers, body)
+    def withQueryParam(paramKey: String, paramValue: String) = new PostHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> StringParam(paramValue))), params, headers, body, feeder)
 
-    def withQueryParam(paramKey: String, paramValue: Function[Int, String]) = new PostHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> FeederParam(paramValue))), params, headers, body)
+    def withQueryParam(paramKey: String, paramValue: FromContext) = new PostHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> ContextParam(paramValue.attributeKey))), params, headers, body, feeder)
 
-    def withQueryParam(paramKey: String, paramValue: FromContext) = new PostHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> ContextParam(paramValue.attributeKey))), params, headers, body)
+    def withParam(param: Tuple2[String, String]) = new PostHttpRequestBuilder(url, queryParams, Some(params.get + (param._1 -> param._2)), headers, body, feeder)
 
-    def withParam(param: Tuple2[String, String]) = new PostHttpRequestBuilder(url, queryParams, Some(params.get + (param._1 -> param._2)), headers, body)
+    def withHeader(header: Tuple2[String, String]) = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get + (header._1 -> header._2)), body, feeder)
 
-    def withHeader(header: Tuple2[String, String]) = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get + (header._1 -> header._2)), body)
+    def asJSON = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get + ("Accept" -> "application/json") + ("Content-Type" -> "application/json")), body, feeder)
 
-    def asJSON = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get + ("Accept" -> "application/json") + ("Content-Type" -> "application/json")), body)
+    def asXML = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get + ("Accept" -> "application/xml") + ("Content-Type" -> "application/xml")), body, feeder)
 
-    def asXML = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get + ("Accept" -> "application/xml") + ("Content-Type" -> "application/xml")), body)
+    def withFile(filePath: String) = new PostHttpRequestBuilder(url, queryParams, params, headers, Some(FilePathBody(filePath)), feeder)
 
-    def withFile(filePath: String) = new PostHttpRequestBuilder(url, queryParams, params, headers, Some(FilePathBody(filePath)))
+    def withBody(body: String) = new PostHttpRequestBuilder(url, queryParams, params, headers, Some(StringBody(body)), feeder)
 
-    def withBody(body: String) = new PostHttpRequestBuilder(url, queryParams, params, headers, Some(StringBody(body)))
+    def withTemplateBody(tplPath: String, values: Map[String, String]) = new PostHttpRequestBuilder(url, queryParams, params, headers, Some(TemplateBody(tplPath, values)), feeder)
 
-    def withTemplateBody(tplPath: String, values: Map[String, String]) = new PostHttpRequestBuilder(url, queryParams, params, headers, Some(TemplateBody(tplPath, values)))
+    def withFeeder(feeder: Feeder) = new PostHttpRequestBuilder(url, queryParams, params, headers, body, Some(feeder))
 
     def build(context: Context): Request = {
+      feeder.map { f =>
+        context.setAttributes(f.next)
+      }
+
       val requestBuilder = new RequestBuilder setUrl url.get setMethod "POST"
 
       for (queryParam <- queryParams.get) {
         queryParam._2 match {
           case StringParam(string) => requestBuilder addQueryParameter (queryParam._1, string)
-          case FeederParam(func) => requestBuilder addQueryParameter (queryParam._1, func(context.getFeederIndex))
           case ContextParam(string) => requestBuilder addQueryParameter (queryParam._1, context.getAttribute(string))
         }
       }
@@ -93,5 +97,5 @@ object PostHttpRequestBuilder {
     }
   }
 
-  def post(url: String) = new PostHttpRequestBuilder(Some(url), Some(Map()), Some(Map()), Some(Map()), None)
+  def post(url: String) = new PostHttpRequestBuilder(Some(url), Some(Map()), Some(Map()), Some(Map()), None, None)
 }

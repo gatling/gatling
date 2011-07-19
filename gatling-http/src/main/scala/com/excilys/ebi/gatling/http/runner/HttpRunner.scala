@@ -1,6 +1,5 @@
 package com.excilys.ebi.gatling.http.runner
 
-import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.runner.Runner
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.action.Action
@@ -22,7 +21,7 @@ import akka.actor.Scheduler
 import akka.actor.Actor.actorOf
 
 object HttpRunner {
-  class HttpRunner(s: HttpScenarioBuilder, numUsers: Int, ramp: Option[Int], feeder: Option[Feeder]) extends Runner(s, numUsers, ramp, feeder) {
+  class HttpRunner(s: HttpScenarioBuilder, numUsers: Int, ramp: Option[Int]) extends Runner(s, numUsers, ramp) {
     val latch: CountDownLatch = new CountDownLatch(numUsers)
     val scenario = scenarioBuilder.end(latch).build
 
@@ -38,12 +37,7 @@ object HttpRunner {
       logger.debug("Stats Write Actor Uuid: {}", statWriter.getUuid)
       logger.debug("Launching All Scenarios")
       for (i <- 1 to numberOfUsers) {
-        val context: Context = feeder.map { f =>
-          logger.debug("Context With FeederIndex")
-          makeContext withUserId i withWriteActorUuid statWriter.getUuid withFeederIndex f.nextIndex build
-        }.getOrElse {
-          makeContext withUserId i withWriteActorUuid statWriter.getUuid build
-        }
+        val context: Context = makeContext withUserId i withWriteActorUuid statWriter.getUuid build
 
         ramp.map { time =>
           Scheduler.scheduleOnce(() => scenario.execute(context), (time / numberOfUsers) * i, TimeUnit.MILLISECONDS)

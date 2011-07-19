@@ -17,7 +17,7 @@ import com.ning.http.client.Request
 
 object HttpExample {
   def run = {
-    val iterations = 10
+    val iterations = 2
     val concurrentUsers = 5
     val pause1 = 3
     val pause2 = 2
@@ -25,28 +25,54 @@ object HttpExample {
 
     val url = "http://localhost/index.html"
 
-    val usersInformation = new TSVFeeder("test_feeder", List("login", "password"))
+    val usersCredentials = new TSVFeeder("user_credential", List("login", "password"))
+    val usersInformation = new TSVFeeder("user_information", List("firstname", "lastname"))
 
     val lambdaUser =
       scenario("Standard User")
-        .doHttpRequest("Page d'accueil", get(url))
-        .pause(pause1)
-        .iterate(
-          iterations,
-          chain.doHttpRequest("Catégorie Poney",
-            get(url),
-            xpath("//input[@value='aaaa']/@id") in "ctxParam" build)
-            .pause(pause2)
-            .doHttpRequest("Create Thing blabla", post("http://localhost:3000/things") withQueryParam ("postTest", FromContext("ctxParam")) withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON)
-            .pause(pause3)
-            .doHttpRequest("Liste Articles", get("http://localhost:3000/things") withQueryParam ("test", usersInformation.get("password")_))
-            .pause(pause3)
-            .doHttpRequest("Create Thing omgomg", post("http://localhost:3000/things") withQueryParam ("postTest", "homeURL") withTemplateBody ("create_thing", Map("name" -> "omgomg")) asJSON))
-          .doHttpRequest("Ajout au panier",
-            get(url),
-            regexp("""<input id="text1" type="text" value="(.*)" />""") in "input" build)
-            .pause(pause3)
+        // First request outside iteration
+        .doHttpRequest(
+          "Page d'accueil",
+          get(url)
+        )
+          .pause(pause1)
+          // Loop
+          .iterate(
+            // How many times ?
+            iterations,
+            // What will be repeated ?
+            chain
+              // First request to be repeated
+              .doHttpRequest("Catégorie Poney",
+                get(url),
+                xpath("//input[@value='aaaa']/@id") in "ctxParam" build
+              )
+                .pause(pause2)
+                // Second request to be repeated
+                .doHttpRequest(
+                  "Create Thing blabla",
+                  post("http://localhost:3000/things") withFeeder usersCredentials withQueryParam ("login", FromContext("login")) withQueryParam ("password", FromContext("password")) withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON
+                )
+                  .pause(pause3)
+                  // Third request to be repeated
+                  .doHttpRequest(
+                    "Liste Articles",
+                    get("http://localhost:3000/things") withFeeder usersInformation withQueryParam ("firstname", FromContext("firstname")) withQueryParam ("lastname", FromContext("lastname"))
+                  )
+                    .pause(pause3)
+                    // Fourth request to be repeated
+                    .doHttpRequest(
+                      "Create Thing omgomg",
+                      post("http://localhost:3000/things") withQueryParam ("postTest", FromContext("ctxParam")) withTemplateBody ("create_thing", Map("name" -> "omgomg")) asJSON
+                    )
+          )
+            // Second request outside iteration
+            .doHttpRequest("Ajout au panier",
+              get(url),
+              regexp("""<input id="text1" type="text" value="(.*)" />""") in "input" build
+            )
+              .pause(pause3)
 
-    prepareSimulationFor(lambdaUser) withUsersNumber concurrentUsers withFeeder usersInformation play
+    prepareSimulationFor(lambdaUser) withUsersNumber concurrentUsers play
   }
 }
