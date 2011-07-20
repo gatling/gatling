@@ -1,12 +1,14 @@
-package com.excilys.ebi.gatling.statistics
+package com.excilys.ebi.gatling.statistics.extractor
 
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.statistics.result.DetailsRequestsDataResult
 
 import scala.io.Source
 import scala.collection.immutable.TreeMap
 import scala.math._
 
 class DetailsRequestsDataExtractor(val runOn: String) extends Logging {
+
   def getResults: Map[String, DetailsRequestsDataResult] = {
     val extractedInformation = extractFromFile
     computeStatistics(extractedInformation)

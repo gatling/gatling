@@ -1,4 +1,4 @@
-package com.excilys.ebi.gatling.statistics
+package com.excilys.ebi.gatling.statistics.writer
 
 import java.io.File
 import java.io.FileWriter

@@ -1,10 +1,10 @@
-package com.excilys.ebi.gatling.statistics;
+package com.excilys.ebi.gatling.statistics.presenter
 
 import com.excilys.ebi.gatling.core.log.Logging
-import org.fusesource.scalate._
 
-import java.io.FileWriter
-import java.io.File
+import com.excilys.ebi.gatling.statistics.extractor.GlobalRequestsDataExtractor
+import com.excilys.ebi.gatling.statistics.template.GlobalRequestsTemplate
+import com.excilys.ebi.gatling.statistics.writer.TemplateWriter
 
 class GlobalRequestsDataPresenter extends Logging {
   def generateGraphFor(runOn: String, menuItems: Map[String, String]) = {

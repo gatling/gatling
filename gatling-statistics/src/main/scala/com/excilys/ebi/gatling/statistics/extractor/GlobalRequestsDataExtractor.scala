@@ -1,11 +1,10 @@
-package com.excilys.ebi.gatling.statistics
+package com.excilys.ebi.gatling.statistics.extractor
 
-import scala.collection.SortedMap
 import com.excilys.ebi.gatling.core.log.Logging
 
 import scala.io.Source
-import scala.collection.immutable.{ HashSet, TreeMap }
-import scala.collection.mutable.{ HashMap, MultiMap, Set => MSet }
+import scala.collection.immutable.TreeMap
+import scala.collection.mutable.HashMap
 
 import java.lang.String
 

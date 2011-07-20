@@ -1,12 +1,12 @@
-package com.excilys.ebi.gatling.statistics
+package com.excilys.ebi.gatling.statistics.presenter
 
 import com.excilys.ebi.gatling.core.log.Logging
-import org.fusesource.scalate._
+
+import com.excilys.ebi.gatling.statistics.extractor.DetailsRequestsDataExtractor
+import com.excilys.ebi.gatling.statistics.template.DetailsRequestsTemplate
+import com.excilys.ebi.gatling.statistics.writer.TemplateWriter
 
 import scala.collection.immutable.TreeMap
-
-import java.io.File
-import java.io.FileWriter
 
 class DetailsRequestsDataPresenter extends Logging {
   def generateGraphFor(runOn: String): Map[String, String] = {

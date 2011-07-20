@@ -1,6 +1,8 @@
-package com.excilys.ebi.gatling.statistics
+package com.excilys.ebi.gatling.statistics.template
 
 import org.fusesource.scalate._
+
+import com.excilys.ebi.gatling.statistics.result.DetailsRequestsDataResult
 
 class DetailsRequestsTemplate(val runOn: String, val menuItems: Map[String, String], val dates: List[String], val values: List[Int], val requestName: String, val result: DetailsRequestsDataResult) {
 
@@ -14,7 +16,7 @@ class DetailsRequestsTemplate(val runOn: String, val menuItems: Map[String, Stri
 
   bodyEngine.bindings = List(
     Binding("requestName", "String"),
-    Binding("result", "com.excilys.ebi.gatling.statistics.DetailsRequestsDataResult"))
+    Binding("result", "com.excilys.ebi.gatling.statistics.result.DetailsRequestsDataResult"))
   bodyEngine.escapeMarkup = false
 
   def getOutput: String = {

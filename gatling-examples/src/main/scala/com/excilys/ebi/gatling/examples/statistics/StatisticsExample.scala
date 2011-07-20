@@ -1,8 +1,8 @@
 package com.excilys.ebi.gatling.examples.statistics
 
-import com.excilys.ebi.gatling.statistics.ActiveSessionsDataPresenter
-import com.excilys.ebi.gatling.statistics.GlobalRequestsDataPresenter
-import com.excilys.ebi.gatling.statistics.DetailsRequestsDataPresenter
+import com.excilys.ebi.gatling.statistics.presenter.ActiveSessionsDataPresenter
+import com.excilys.ebi.gatling.statistics.presenter.GlobalRequestsDataPresenter
+import com.excilys.ebi.gatling.statistics.presenter.DetailsRequestsDataPresenter
 
 object StatisticsExample {
 
