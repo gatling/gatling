@@ -29,7 +29,7 @@ object GetHttpRequestBuilder {
         context.setAttributes(f.next)
       }
 
-      val requestBuilder = new RequestBuilder setUrl url.get
+      val requestBuilder = new RequestBuilder setUrl url.get setMethod "GET"
       for (cookie <- context.getCookies) {
         requestBuilder.addCookie(cookie)
       }
