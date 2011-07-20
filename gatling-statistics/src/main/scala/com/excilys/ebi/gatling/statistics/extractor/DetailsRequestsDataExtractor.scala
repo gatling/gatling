@@ -23,7 +23,7 @@ class DetailsRequestsDataExtractor(val runOn: String) extends Logging {
         case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage) => {
           if (actionName != "End of scenario")
             extractedValues = extractedValues + (actionName ->
-              (extractedValues.getOrElse(actionName, Map.empty) + (executionStartDate -> executionDuration.toInt)))
+              (extractedValues.getOrElse(actionName, new TreeMap[String, Int]) + (executionStartDate -> executionDuration.toInt)))
         }
         // Else, if the resulting data is not well formated print an error message
         case _ => sys.error("Input file not well formatted")
