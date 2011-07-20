@@ -20,6 +20,8 @@ object GetHttpRequestBuilder {
 
     def withQueryParam(paramKey: String, paramValue: FromContext) = new GetHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> ContextParam(paramValue.attributeKey))), feeder)
 
+    def withQueryParam(paramKey: String) = withQueryParam(paramKey, FromContext(paramKey))
+
     def withFeeder(feeder: Feeder) = new GetHttpRequestBuilder(url, queryParams, Some(feeder))
 
     def build(context: Context): Request = {

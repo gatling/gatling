@@ -30,6 +30,8 @@ object PostHttpRequestBuilder {
 
     def withQueryParam(paramKey: String, paramValue: FromContext) = new PostHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> ContextParam(paramValue.attributeKey))), params, headers, body, feeder)
 
+    def withQueryParam(paramKey: String) = withQueryParam(paramKey, FromContext(paramKey))
+
     def withParam(param: Tuple2[String, String]) = new PostHttpRequestBuilder(url, queryParams, Some(params.get + (param._1 -> param._2)), headers, body, feeder)
 
     def withHeader(header: Tuple2[String, String]) = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get + (header._1 -> header._2)), body, feeder)

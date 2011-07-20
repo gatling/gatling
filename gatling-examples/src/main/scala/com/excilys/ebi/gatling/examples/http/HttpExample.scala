@@ -51,13 +51,13 @@ object HttpExample {
                 // Second request to be repeated
                 .doHttpRequest(
                   "Create Thing blabla",
-                  post("http://localhost:3000/things") withFeeder usersCredentials withQueryParam ("login", FromContext("login")) withQueryParam ("password", FromContext("password")) withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON
+                  post("http://localhost:3000/things") withFeeder usersCredentials withQueryParam "login" withQueryParam "password" withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON
                 )
                   .pause(pause3)
                   // Third request to be repeated
                   .doHttpRequest(
                     "Liste Articles",
-                    get("http://localhost:3000/things") withFeeder usersInformation withQueryParam ("firstname", FromContext("firstname")) withQueryParam ("lastname", FromContext("lastname")),
+                    get("http://localhost:3000/things") withFeeder usersInformation withQueryParam "firstname" withQueryParam "lastname",
                     regexp("""Cookie:(\w+)""") in "testCookie" build
                   )
                     .pause(pause3)

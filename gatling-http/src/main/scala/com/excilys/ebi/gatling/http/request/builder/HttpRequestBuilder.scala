@@ -13,6 +13,8 @@ abstract class HttpRequestBuilder(val url: Option[String], val queryParams: Opti
 
   def withQueryParam(paramKey: String, paramValue: FromContext): HttpRequestBuilder
 
+  def withQueryParam(paramKey: String): HttpRequestBuilder
+
   def withFeeder(feeder: Feeder): HttpRequestBuilder
 
   def build(context: Context): Request
