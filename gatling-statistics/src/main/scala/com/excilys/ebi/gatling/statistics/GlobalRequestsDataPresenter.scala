@@ -7,9 +7,7 @@ import java.io.FileWriter
 import java.io.File
 
 class GlobalRequestsDataPresenter extends Logging {
-  def generateGraphFor(runOn: String) = {
-    val title = "Requests"
-
+  def generateGraphFor(runOn: String, menuItems: Map[String, String]) = {
     var dates: List[String] = Nil
     var globalValues: List[Int] = Nil
     var okValues: List[Int] = Nil
@@ -25,28 +23,8 @@ class GlobalRequestsDataPresenter extends Logging {
 
     logger.debug("Dates: {}\nValues: {}", dates, (globalValues, okValues, koValues))
 
-    val engine = new TemplateEngine
-    engine.bindings = List(
-      Binding("title", "String"),
-      Binding("dates", "List[String]"),
-      Binding("globalValues", "List[Int]"),
-      Binding("okValues", "List[Int]"),
-      Binding("koValues", "List[Int]"),
-      Binding("runOn", "String"))
+    val output = new GlobalRequestsTemplate(runOn, menuItems, dates.reverse, globalValues.reverse, okValues.reverse, koValues.reverse).getOutput
 
-    val output = engine.layout("templates/layout_requests.ssp",
-      Map("title" -> title,
-        "dates" -> dates.reverse,
-        "globalValues" -> globalValues.reverse,
-        "okValues" -> okValues.reverse,
-        "koValues" -> koValues.reverse,
-        "runOn" -> runOn))
-
-    val dir = new File(runOn)
-    dir.mkdir
-    val file = new File(dir, "requests.html")
-    val fw = new FileWriter(file)
-    fw.write(output)
-    fw.close
+    new TemplateWriter(runOn, "requests.html").writeToFile(output)
   }
 }

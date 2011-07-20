@@ -7,13 +7,14 @@ import com.excilys.ebi.gatling.statistics.DetailsRequestsDataPresenter
 object StatisticsExample {
 
   def run(runOn: String) = {
+    val detailsRequestsPresenter = new DetailsRequestsDataPresenter
+    val menuItems = detailsRequestsPresenter.generateGraphFor(runOn)
+
     val activeSessionsPresenter = new ActiveSessionsDataPresenter
-    activeSessionsPresenter.generateGraphFor(runOn)
+    activeSessionsPresenter.generateGraphFor(runOn, menuItems)
 
     val requestsPresenter = new GlobalRequestsDataPresenter
-    requestsPresenter.generateGraphFor(runOn)
+    requestsPresenter.generateGraphFor(runOn, menuItems)
 
-    val detailsRequestsPresenter = new DetailsRequestsDataPresenter
-    detailsRequestsPresenter.generateGraphFor(runOn)
   }
 }

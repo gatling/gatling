@@ -21,4 +21,22 @@
 			<artifactId>scalate-core</artifactId>
 		</dependency>
 	</dependencies>
+
+<!-- Won't work because the plugin compiles with a ServletRenderContext, but we need DefaultRenderContext. Workaround with SBT, but not with MVN plugin -->
+<!-- 	<build> -->
+<!-- 		<plugins> -->
+<!-- 			<plugin> -->
+<!-- 				<groupId>org.fusesource.scalate</groupId> -->
+<!-- 				<artifactId>maven-scalate-plugin</artifactId> -->
+<!-- 				<version>1.5.0</version> -->
+<!-- 				<executions> -->
+<!-- 					<execution> -->
+<!-- 						<goals> -->
+<!-- 							<goal>precompile</goal> -->
+<!-- 						</goals> -->
+<!-- 					</execution> -->
+<!-- 				</executions> -->
+<!-- 			</plugin> -->
+<!-- 		</plugins> -->
+<!-- 	</build> -->
 </project>

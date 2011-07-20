@@ -1,0 +1,50 @@
+var chart;
+$(document).ready(function() {
+	chart = new Highcharts.Chart({
+      chart: {
+         renderTo: 'container',
+         defaultSeriesType: 'line',
+         marginRight: 130,
+         marginBottom: 25
+      },
+      title: {
+         text: 'Active Sessions',
+         x: -20 //center
+      },
+      xAxis: {
+         categories: <%= dates.mkString("['", "', '","']") %>,
+         labels: {
+        	 step: 2,
+        	 y: 20
+         }
+      },
+      yAxis: {
+         title: {
+            text: 'Number of active sessions'
+         },
+         plotLines: [{
+            value: 0,
+            width: 1,
+            color: '#808080'
+         }],
+         min: 0
+      },
+      tooltip: {
+         formatter: function() {
+                   return '<span style="font-weight:bold">'+ this.series.name +"</span><br/>"+ this.y +' users at '+ this.x;
+         }
+      },
+      legend: {
+         layout: 'vertical',
+         align: 'right',
+         verticalAlign: 'top',
+         x: -10,
+         y: 100,
+         borderWidth: 0
+      },
+      series: [{
+         name: 'Global',
+         data: <%= values.mkString("[", ", ", "]") %>
+      }]
+   });
+});
