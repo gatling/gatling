@@ -1,7 +1,8 @@
 package com.excilys.ebi.gatling.examples.statistics
 
 import com.excilys.ebi.gatling.statistics.ActiveSessionsDataPresenter
-import com.excilys.ebi.gatling.statistics.RequestsDataPresenter
+import com.excilys.ebi.gatling.statistics.GlobalRequestsDataPresenter
+import com.excilys.ebi.gatling.statistics.DetailsRequestsDataPresenter
 
 object StatisticsExample {
 
@@ -9,7 +10,10 @@ object StatisticsExample {
     val activeSessionsPresenter = new ActiveSessionsDataPresenter
     activeSessionsPresenter.generateGraphFor(runOn)
 
-    val requestsPresenter = new RequestsDataPresenter
+    val requestsPresenter = new GlobalRequestsDataPresenter
     requestsPresenter.generateGraphFor(runOn)
+
+    val detailsRequestsPresenter = new DetailsRequestsDataPresenter
+    detailsRequestsPresenter.generateGraphFor(runOn)
   }
 }

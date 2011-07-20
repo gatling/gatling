@@ -17,7 +17,7 @@
 	</head>
 	<body>
 	<div id="body">
-		<p id="header">Simulation run on <%= runOn %></p>
+		<p id="header">Simulation run on <%= runOn %> - <%= requestName %></p>
 		<ul id="menu">
 			<li>General
 				<ul>
@@ -35,6 +35,14 @@
 		</ul>
 		<div id="content">
 			<div id="container" style="height:410px; margin: 0 2em; clear:both; min-width: 600px"></div>
+			<h2>Statistics</h2>
+			<p>Here are some statistics for this request.</p>
+			<ul>
+				<li>Min : <%= result.min %>ms</li>
+				<li>Max : <%= result.max %>ms</li>
+				<li>Medium : <%= result.medium %>ms</li>
+				<li>Standard Deviation : <%= result.standardDeviation %></li>
+			</ul>
 		</div>
 		<div id="footer">
 		
@@ -51,7 +59,7 @@
 	         marginBottom: 25
 	      },
 	      title: {
-	         text: 'Number of Requests',
+	         text: 'Response Time',
 	         x: -20 //center
 	      },
 	      xAxis: {
@@ -63,7 +71,7 @@
 	      },
 	      yAxis: {
 	         title: {
-	            text: 'Number of requests per second'
+	            text: 'response time in ms'
 	         },
 	         plotLines: [{
 	            value: 0,
@@ -74,7 +82,7 @@
 	      },
 	      tooltip: {
 	         formatter: function() {
-	                   return '<span style="font-weight:bold">'+ this.series.name +"</span><br/>"+ this.y +' requests at '+ this.x;
+	                   return '<span style="font-weight:bold">'+ this.series.name +"</span><br/>"+ this.y +' users at '+ this.x;
 	         }
 	      },
 	      legend: {
@@ -86,28 +94,8 @@
 	         borderWidth: 0
 	      },
 	      series: [{
-	         name: 'Global',
-	         data: <%= globalValues.mkString("[", ", ", "]") %>
-	      },
-	      {
-	    	  name: 'Success',
-	    	  data: <%= okValues.mkString("[", ", ", "]") %>
-	      },
-	      {
-	    	  name: 'Failures',
-	    	  data: <%= koValues.mkString("[", ", ", "]") %>
-	      }],
-	      colors: [
-		           	'#4572A7', 
-		           	'#89A54E', 
-		           	'#AA4643', 
-		           	'#80699B', 
-		           	'#3D96AE', 
-		           	'#DB843D', 
-		           	'#92A8CD', 
-		           	'#A47D7C', 
-		           	'#B5CA92'
-		           ]
+	         data: <%= values.mkString("[", ", ", "]") %>
+	      }]
 	   });
 	});
 	</script>
