@@ -20,7 +20,7 @@ toto.log
 /gatling_*
 /*.html
 /2011*
-/request-files/*
-!/request-files/.gitkeep
+/user-requests/*
+!/user-requests/.gitkeep
 #/user-templates/*
 !/user-templates/.gitkeep

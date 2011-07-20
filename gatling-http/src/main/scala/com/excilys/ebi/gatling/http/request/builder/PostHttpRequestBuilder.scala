@@ -73,7 +73,7 @@ object PostHttpRequestBuilder {
       body match {
         case Some(thing) =>
           thing match {
-            case FilePathBody(filePath) => requestBuilder setBody new File("request-files/" + filePath)
+            case FilePathBody(filePath) => requestBuilder setBody new File("user-requests/" + filePath)
             case StringBody(body) => requestBuilder setBody body
             case TemplateBody(tplPath, values) => requestBuilder setBody compileBody(tplPath, values)
             case _ =>
