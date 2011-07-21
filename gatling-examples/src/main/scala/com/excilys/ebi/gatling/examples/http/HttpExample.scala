@@ -17,7 +17,7 @@ import com.ning.http.client.Request
 
 object HttpExample {
   def run = {
-    val iterations = 20
+    val iterations = 2
     val concurrentUsers = 5
     val pause1 = 3
     val pause2 = 2
@@ -42,7 +42,8 @@ object HttpExample {
           // What will be repeated ?
           chain
             // First request to be repeated
-            .doHttpRequest("Page accueil",
+            .doHttpRequest(
+              "Page accueil",
               get(url),
               xpath("//input[@value='aaaa']/@id") in "ctxParam" build)
             .pause(pause2)
