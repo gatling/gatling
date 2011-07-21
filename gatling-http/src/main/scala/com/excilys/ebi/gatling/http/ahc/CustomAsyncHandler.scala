@@ -69,7 +69,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
   }
 
   def onCompleted(): Response = {
-    logger.debug("Response Received for request: {}", request.getRequest(context).getUrl)
+    logger.debug("Response Received for request: {}", request.getRequest.getUrl)
     val processingStartTime: Long = System.nanoTime()
     val response = responseBuilder.build
     processResponse(new CompletePageReceived, response)

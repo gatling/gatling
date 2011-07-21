@@ -7,9 +7,14 @@ import com.excilys.ebi.gatling.core.context.Context
 
 class HttpRequest(givenName: String, val httpRequestBuilder: HttpRequestBuilder) extends AbstractRequest(givenName) {
 
+  private var request: Request = null
+
   def getRequest(context: Context): Request = {
-    httpRequestBuilder build (context)
+    request = httpRequestBuilder build (context)
+    request
   }
+
+  def getRequest = request
 
   override def toString = "[HttpRequest] " + getName
 
