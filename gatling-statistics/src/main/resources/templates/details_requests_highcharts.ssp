@@ -4,7 +4,7 @@ $(document).ready(function() {
       chart: {
          renderTo: 'container',
          defaultSeriesType: 'line',
-         marginRight: 130,
+         marginRight: 150,
          marginBottom: 25
       },
       title: {
@@ -31,7 +31,7 @@ $(document).ready(function() {
       },
       tooltip: {
          formatter: function() {
-                   return '<span style="font-weight:bold">'+ this.series.name +"</span><br/>"+ this.y +' users at '+ this.x;
+                   return '<span style="font-weight:bold">'+ this.series.name +"</span><br/>response time at "+ this.x +": "+ this.y + "ms";
          }
       },
       legend: {
@@ -43,6 +43,7 @@ $(document).ready(function() {
          borderWidth: 0
       },
       series: [{
+      	 name: "<%= requestName %>",
          data: <%= values.mkString("[", ", ", "]") %>
       }]
    });

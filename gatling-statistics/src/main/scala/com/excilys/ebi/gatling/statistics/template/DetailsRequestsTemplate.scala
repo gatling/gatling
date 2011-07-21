@@ -11,7 +11,8 @@ class DetailsRequestsTemplate(val runOn: String, val menuItems: Map[String, Stri
 
   highchartsEngine.bindings = List(
     Binding("dates", "List[String]"),
-    Binding("values", "List[Int]"))
+    Binding("values", "List[Int]"),
+    Binding("requestName", "String"))
   highchartsEngine.escapeMarkup = false
 
   bodyEngine.bindings = List(
@@ -21,7 +22,7 @@ class DetailsRequestsTemplate(val runOn: String, val menuItems: Map[String, Stri
 
   def getOutput: String = {
     val highcharts = highchartsEngine.layout("templates/details_requests_highcharts.ssp",
-      Map("dates" -> dates, "values" -> values))
+      Map("dates" -> dates, "values" -> values, "requestName" -> requestName.substring(8)))
 
     val body = bodyEngine.layout("templates/details_requests_body.ssp",
       Map("requestName" -> requestName, "result" -> result))
