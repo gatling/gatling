@@ -17,7 +17,7 @@ import com.ning.http.client.Request
 
 object HttpExample {
   def run = {
-    val iterations = 2
+    val iterations = 20
     val concurrentUsers = 5
     val pause1 = 3
     val pause2 = 2
@@ -32,47 +32,40 @@ object HttpExample {
       scenario("Standard User")
         // First request outside iteration
         .doHttpRequest(
-          "Page d'accueil",
-          get(url)
-        )
-          .pause(pause1)
-          // Loop
-          .iterate(
-            // How many times ?
-            iterations,
-            // What will be repeated ?
-            chain
-              // First request to be repeated
-              .doHttpRequest("Catégorie Poney",
-                get(url),
-                xpath("//input[@value='aaaa']/@id") in "ctxParam" build
-              )
-                .pause(pause2)
-                // Second request to be repeated
-                .doHttpRequest(
-                  "Create Thing blabla",
-                  post("http://localhost:3000/things") withFeeder usersCredentials withQueryParam "login" withQueryParam "password" withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON
-                )
-                  .pause(pause3)
-                  // Third request to be repeated
-                  .doHttpRequest(
-                    "Liste Articles",
-                    get("http://localhost:3000/things") withFeeder usersInformation withQueryParam "firstname" withQueryParam "lastname",
-                    regexp("""Cookie:(\w+)""") in "testCookie" build
-                  )
-                    .pause(pause3)
-                    // Fourth request to be repeated
-                    .doHttpRequest(
-                      "Create Thing omgomg",
-                      post("http://localhost:3000/things") withQueryParam ("postTest", FromContext("ctxParam")) withTemplateBody ("create_thing", Map("name" -> "omgomg")) asJSON
-                    )
-          )
-            // Second request outside iteration
-            .doHttpRequest("Ajout au panier",
+          "Catégorie Poney",
+          get(url))
+        .pause(pause1)
+        // Loop
+        .iterate(
+          // How many times ?
+          iterations,
+          // What will be repeated ?
+          chain
+            // First request to be repeated
+            .doHttpRequest("Page accueil",
               get(url),
-              regexp("""<input id="text1" type="text" value="(.*)" />""") in "input" build
-            )
-              .pause(pause3)
+              xpath("//input[@value='aaaa']/@id") in "ctxParam" build)
+            .pause(pause2)
+            // Second request to be repeated
+            .doHttpRequest(
+              "Create Thing blabla",
+              post("http://localhost:3000/things") withFeeder usersCredentials withQueryParam "login" withQueryParam "password" withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON)
+            .pause(pause3)
+            // Third request to be repeated
+            .doHttpRequest(
+              "Liste Articles",
+              get("http://localhost:3000/things") withFeeder usersInformation withQueryParam "firstname" withQueryParam "lastname",
+              regexp("""Cookie:(\w+)""") in "testCookie" build)
+            .pause(pause3)
+            // Fourth request to be repeated
+            .doHttpRequest(
+              "Create Thing omgomg",
+              post("http://localhost:3000/things") withQueryParam ("postTest", FromContext("ctxParam")) withTemplateBody ("create_thing", Map("name" -> "omgomg")) asJSON))
+        // Second request outside iteration
+        .doHttpRequest("Ajout au panier",
+          get(url),
+          regexp("""<input id="text1" type="text" value="(.*)" />""") in "input" build)
+        .pause(pause3)
 
     prepareSimulationFor(lambdaUser) withUsersNumber concurrentUsers play
   }
