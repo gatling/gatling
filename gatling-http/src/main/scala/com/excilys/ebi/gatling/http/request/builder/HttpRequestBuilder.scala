@@ -32,6 +32,12 @@ abstract class HttpRequestBuilder(val url: Option[String], val queryParams: Opti
 
   def build(context: Context): Request
 
+  def withHeader(header: Tuple2[String, String]): HttpRequestBuilder
+
+  def asJSON: HttpRequestBuilder
+
+  def asXML: HttpRequestBuilder
+
   private[builder] def compileBody(tplPath: String, values: Map[String, String]): String = {
 
     val engine = new TemplateEngine
