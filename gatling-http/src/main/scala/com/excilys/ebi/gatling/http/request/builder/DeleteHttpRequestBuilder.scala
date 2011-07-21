@@ -22,9 +22,9 @@ import java.io.File
 import org.fusesource.scalate._
 
 object DeleteHttpRequestBuilder {
-  class DeleteHttpRequestBuilder(url: Option[String], queryParams: Option[Map[String, Param]], val headers: Option[Map[String, String]],
+  class DeleteHttpRequestBuilder(url: Option[String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]],
                                  val body: Option[HttpRequestBody], feeder: Option[Feeder])
-      extends HttpRequestBuilder(url, queryParams, feeder) with Logging {
+      extends HttpRequestBuilder(url, queryParams, headers, feeder) with Logging {
     def withQueryParam(paramKey: String, paramValue: String) = new DeleteHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> StringParam(paramValue))), headers, body, feeder)
 
     def withQueryParam(paramKey: String, paramValue: FromContext) = new DeleteHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> ContextParam(paramValue.attributeKey))), headers, body, feeder)

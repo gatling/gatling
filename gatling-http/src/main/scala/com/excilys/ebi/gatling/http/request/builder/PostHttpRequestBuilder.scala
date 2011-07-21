@@ -22,8 +22,8 @@ import org.fusesource.scalate._
 
 object PostHttpRequestBuilder {
   class PostHttpRequestBuilder(url: Option[String], queryParams: Option[Map[String, Param]], val params: Option[Map[String, String]],
-                               val headers: Option[Map[String, String]], val body: Option[HttpRequestBody], feeder: Option[Feeder])
-      extends HttpRequestBuilder(url, queryParams, feeder) with Logging {
+                               headers: Option[Map[String, String]], val body: Option[HttpRequestBody], feeder: Option[Feeder])
+      extends HttpRequestBuilder(url, queryParams, headers, feeder) with Logging {
 
     def withQueryParam(paramKey: String, paramValue: String) = new PostHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> StringParam(paramValue))), params, headers, body, feeder)
 

@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.http.request.TemplateBody
 
 import java.io.File
 
-abstract class HttpRequestBuilder(val url: Option[String], val queryParams: Option[Map[String, Param]], val feeder: Option[Feeder]) extends Logging {
+abstract class HttpRequestBuilder(val url: Option[String], val queryParams: Option[Map[String, Param]], val headers: Option[Map[String, String]], val feeder: Option[Feeder]) extends Logging {
 
   def withQueryParam(paramKey: String, paramValue: String): HttpRequestBuilder
 

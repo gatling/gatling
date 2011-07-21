@@ -15,7 +15,7 @@ import com.ning.http.client.Request
 
 object GetHttpRequestBuilder {
   class GetHttpRequestBuilder(url: Option[String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], feeder: Option[Feeder])
-      extends HttpRequestBuilder(url, queryParams, feeder) with Logging {
+      extends HttpRequestBuilder(url, queryParams, headers, feeder) with Logging {
     def withQueryParam(paramKey: String, paramValue: String) =
       new GetHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> StringParam(paramValue))), headers, feeder)
 
