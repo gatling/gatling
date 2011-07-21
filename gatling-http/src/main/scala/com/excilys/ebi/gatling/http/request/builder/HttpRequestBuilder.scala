@@ -3,6 +3,7 @@ package com.excilys.ebi.gatling.http.request.builder
 import com.ning.http.client.Request
 import com.ning.http.client.RequestBuilder
 import com.ning.http.client.FluentStringsMap
+import com.ning.http.client.FluentCaseInsensitiveStringsMap
 
 import org.fusesource.scalate._
 
@@ -48,15 +49,17 @@ abstract class HttpRequestBuilder(val url: Option[String], val queryParams: Opti
     addCookiesTo(requestBuilder, context)
     addQueryParamsTo(requestBuilder, context)
     addHeadersTo(requestBuilder, headers)
-    logger.debug("Built {} Request", method)
-    requestBuilder build
+    val request = requestBuilder build
+
+    logger.debug("Built {} Request: {})", method, request.getCookies)
+    request
   }
 
   private def consumeSeed(feeder: Option[Feeder], context: Context) =
     feeder.map { f => context.setAttributes(f.next) }
 
   private def addCookiesTo(requestBuilder: RequestBuilder, context: Context) = {
-    for (cookie <- context.getCookies) { requestBuilder.addCookie(cookie) }
+    for (cookie <- context.getCookies) { requestBuilder.addOrReplaceCookie(cookie) }
   }
 
   private def addQueryParamsTo(requestBuilder: RequestBuilder, context: Context) = {
@@ -70,6 +73,7 @@ abstract class HttpRequestBuilder(val url: Option[String], val queryParams: Opti
   }
 
   private def addHeadersTo(requestBuilder: RequestBuilder, headers: Option[Map[String, String]]) = {
+    requestBuilder setHeaders (new FluentCaseInsensitiveStringsMap)
     for (header <- headers.get) { requestBuilder addHeader (header._1, header._2) }
   }
 

@@ -7,10 +7,10 @@ import com.excilys.ebi.gatling.http.phase.HttpPhase
 import com.ning.http.client.Response
 
 class HttpXPathCapture(expression: String, attrKey: String, httpPhase: HttpPhase)
-  extends HttpCapture(expression, attrKey, httpPhase, new XPathCaptureProvider) {
+    extends HttpCapture(expression, attrKey, httpPhase, new XPathCaptureProvider) {
 
   def capture(from: Any): Option[Any] = {
-    logger.debug("Capturing XPath")
+    logger.debug("Capturing XPath...")
     val placeToSearch =
       from match {
         case r: Response => r.getResponseBodyAsBytes

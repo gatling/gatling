@@ -34,7 +34,6 @@ object HttpRunner {
 
       statWriter ! InitializeDataWriter(new Date, s.getName, (s.getNumberOfRelevantActions + 1) * numUsers)
 
-      logger.debug("Stats Write Actor Uuid: {}", statWriter.getUuid)
       logger.debug("Launching All Scenarios")
       for (i <- 1 to numberOfUsers) {
         val context: Context = makeContext withUserId i withWriteActorUuid statWriter.getUuid build
@@ -48,7 +47,6 @@ object HttpRunner {
       logger.debug("Finished Launching scenarios executions")
       latch.await(86400, TimeUnit.SECONDS)
       HttpRequestAction.CLIENT.close
-      logger.debug("Runner execution ended")
     }
 
   }

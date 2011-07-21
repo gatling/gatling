@@ -14,7 +14,6 @@ class Context(val userId: Int, val writeActorUuid: Uuid, val cookies: List[Cooki
   def getAttribute(key: String): String = {
     val result = data.get(key).getOrElse(throw new Exception("No matching attribute"))
     logger.debug("Context('{}') = {}", key, result)
-    logger.debug("Context: {}", data)
     result
   }
 

@@ -69,7 +69,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
   }
 
   def onCompleted(): Response = {
-    logger.debug("Response Received")
+    logger.debug("Response Received for request: {}", request.getRequest(context).getUrl)
     val processingStartTime: Long = System.nanoTime()
     val response = responseBuilder.build
     processResponse(new CompletePageReceived, response)
@@ -77,8 +77,6 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
     actorFor(context.getWriteActorUuid).map { a =>
       a ! ActionInfo(context.getUserId, "Request " + request.getName, executionStartDate, TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTime, TimeUnit.NANOSECONDS), "OK", "Request Executed Successfully")
     }
-
-    logger.debug(" -- Cookies received by AHC : {}", response.getCookies)
 
     next.execute(contextBuilder setElapsedActionTime (System.nanoTime() - processingStartTime) setCookies response.getCookies build)
     null

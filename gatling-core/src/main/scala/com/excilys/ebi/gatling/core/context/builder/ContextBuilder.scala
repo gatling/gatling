@@ -35,7 +35,6 @@ object ContextBuilder {
       while (it.hasNext) {
         cookiesList = it.next :: cookiesList
       }
-      logger.debug(" -- Cookies stored in context : {}", cookiesList)
       new ContextBuilder[HUID, HWAU](userId, writeActorUuid, data, Some(cookiesList))
     }
   }
@@ -44,7 +43,6 @@ object ContextBuilder {
     def build(): Context = {
       val context = new Context(builder.userId.get, builder.writeActorUuid.get, builder.cookies.get, builder.data.get)
       builder.logger.debug("Built Context")
-      builder.logger.debug("Context cookies: {}", builder.cookies)
       context
     }
   }
