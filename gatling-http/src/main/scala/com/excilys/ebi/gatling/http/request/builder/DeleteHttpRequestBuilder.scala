@@ -23,8 +23,8 @@ import org.fusesource.scalate._
 
 object DeleteHttpRequestBuilder {
   class DeleteHttpRequestBuilder(url: Option[String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]],
-                                 val body: Option[HttpRequestBody], feeder: Option[Feeder])
-      extends HttpRequestBuilder(url, queryParams, headers, feeder) with Logging {
+                                 body: Option[HttpRequestBody], feeder: Option[Feeder])
+      extends HttpRequestBuilder(url, queryParams, None, headers, body, feeder) with Logging {
     def withQueryParam(paramKey: String, paramValue: String) = new DeleteHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> StringParam(paramValue))), headers, body, feeder)
 
     def withQueryParam(paramKey: String, paramValue: FromContext) = new DeleteHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> ContextParam(paramValue.attributeKey))), headers, body, feeder)
@@ -45,18 +45,7 @@ object DeleteHttpRequestBuilder {
 
     def withFeeder(feeder: Feeder) = new DeleteHttpRequestBuilder(url, queryParams, headers, body, Some(feeder))
 
-    def build(context: Context): Request = {
-      val requestBuilder = new RequestBuilder setUrl url.get setMethod "DELETE"
-
-      consumeSeed(feeder, context)
-      addCookiesTo(requestBuilder, context)
-      addQueryParamsTo(requestBuilder, context)
-      addHeadersTo(requestBuilder, headers)
-      addBodyTo(requestBuilder, body)
-
-      logger.debug("Built DELETE Request")
-      requestBuilder build
-    }
+    def build(context: Context): Request = build(context, "DELETE")
   }
 
   def delete(url: String) = new DeleteHttpRequestBuilder(Some(url), Some(Map()), Some(Map()), None, None)

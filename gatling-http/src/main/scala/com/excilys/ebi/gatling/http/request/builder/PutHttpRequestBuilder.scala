@@ -13,6 +13,7 @@ import com.excilys.ebi.gatling.http.request.Param
 import com.excilys.ebi.gatling.http.request.StringParam
 import com.excilys.ebi.gatling.http.request.FeederParam
 import com.excilys.ebi.gatling.http.request.ContextParam
+import com.excilys.ebi.gatling.http.request.builder.mixin.Body
 
 import com.ning.http.client.RequestBuilder
 import com.ning.http.client.Request
@@ -23,8 +24,8 @@ import org.fusesource.scalate._
 
 object PutHttpRequestBuilder {
   class PutHttpRequestBuilder(url: Option[String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]],
-                              val body: Option[HttpRequestBody], feeder: Option[Feeder])
-      extends HttpRequestBuilder(url, queryParams, headers, feeder) with Logging {
+                              body: Option[HttpRequestBody], feeder: Option[Feeder])
+      extends HttpRequestBuilder(url, queryParams, None, headers, body, feeder) with Body with Logging {
     def withQueryParam(paramKey: String, paramValue: String) = new PutHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> StringParam(paramValue))), headers, body, feeder)
 
     def withQueryParam(paramKey: String, paramValue: FromContext) = new PutHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> ContextParam(paramValue.attributeKey))), headers, body, feeder)
@@ -45,18 +46,7 @@ object PutHttpRequestBuilder {
 
     def withFeeder(feeder: Feeder) = new PutHttpRequestBuilder(url, queryParams, headers, body, Some(feeder))
 
-    def build(context: Context): Request = {
-      val requestBuilder = new RequestBuilder setUrl url.get setMethod "PUT"
-      consumeSeed(feeder, context)
-
-      addCookiesTo(requestBuilder, context)
-      addQueryParamsTo(requestBuilder, context)
-      addHeadersTo(requestBuilder, headers)
-      addBodyTo(requestBuilder, body)
-
-      logger.debug("Built PUT Request")
-      requestBuilder build
-    }
+    def build(context: Context): Request = build(context, "PUT")
   }
 
   def put(url: String) = new PutHttpRequestBuilder(Some(url), Some(Map()), Some(Map()), None, None)

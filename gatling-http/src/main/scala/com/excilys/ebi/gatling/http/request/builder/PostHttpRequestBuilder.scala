@@ -12,6 +12,7 @@ import com.excilys.ebi.gatling.http.request.TemplateBody
 import com.excilys.ebi.gatling.http.request.Param
 import com.excilys.ebi.gatling.http.request.StringParam
 import com.excilys.ebi.gatling.http.request.ContextParam
+import com.excilys.ebi.gatling.http.request.builder.mixin.RequestParamsAndBody
 
 import com.ning.http.client.RequestBuilder
 import com.ning.http.client.Request
@@ -21,9 +22,9 @@ import java.io.File
 import org.fusesource.scalate._
 
 object PostHttpRequestBuilder {
-  class PostHttpRequestBuilder(url: Option[String], queryParams: Option[Map[String, Param]], val params: Option[Map[String, String]],
-                               headers: Option[Map[String, String]], val body: Option[HttpRequestBody], feeder: Option[Feeder])
-      extends HttpRequestBuilder(url, queryParams, headers, feeder) with Logging {
+  class PostHttpRequestBuilder(url: Option[String], queryParams: Option[Map[String, Param]], params: Option[Map[String, Param]],
+                               headers: Option[Map[String, String]], body: Option[HttpRequestBody], feeder: Option[Feeder])
+      extends HttpRequestBuilder(url, queryParams, params, headers, body, feeder) with RequestParamsAndBody with Logging {
 
     def withQueryParam(paramKey: String, paramValue: String) = new PostHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> StringParam(paramValue))), params, headers, body, feeder)
 
@@ -31,7 +32,11 @@ object PostHttpRequestBuilder {
 
     def withQueryParam(paramKey: String) = withQueryParam(paramKey, FromContext(paramKey))
 
-    def withParam(param: Tuple2[String, String]) = new PostHttpRequestBuilder(url, queryParams, Some(params.get + (param._1 -> param._2)), headers, body, feeder)
+    def withParam(paramKey: String, paramValue: String) = new PostHttpRequestBuilder(url, queryParams, Some(params.get + (paramKey -> StringParam(paramValue))), headers, body, feeder)
+
+    def withParam(paramKey: String, paramValue: FromContext) = new PostHttpRequestBuilder(url, queryParams, Some(params.get + (paramKey -> ContextParam(paramValue.attributeKey))), headers, body, feeder)
+
+    def withParam(paramKey: String) = withQueryParam(paramKey, FromContext(paramKey))
 
     def withHeader(header: Tuple2[String, String]) = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get + (header._1 -> header._2)), body, feeder)
 
@@ -47,22 +52,7 @@ object PostHttpRequestBuilder {
 
     def withFeeder(feeder: Feeder) = new PostHttpRequestBuilder(url, queryParams, params, headers, body, Some(feeder))
 
-    def build(context: Context): Request = {
-      val requestBuilder = new RequestBuilder setUrl url.get setMethod "POST"
-
-      consumeSeed(feeder, context)
-
-      addCookiesTo(requestBuilder, context)
-
-      addQueryParamsTo(requestBuilder, context)
-
-      addHeadersTo(requestBuilder, headers)
-
-      addBodyTo(requestBuilder, body)
-
-      logger.debug("Built POST Request")
-      requestBuilder build
-    }
+    def build(context: Context): Request = build(context, "POST")
   }
 
   def post(url: String) = new PostHttpRequestBuilder(Some(url), Some(Map()), Some(Map()), Some(Map()), None, None)

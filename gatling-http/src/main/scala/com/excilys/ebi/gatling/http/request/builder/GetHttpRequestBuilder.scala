@@ -15,7 +15,7 @@ import com.ning.http.client.Request
 
 object GetHttpRequestBuilder {
   class GetHttpRequestBuilder(url: Option[String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], feeder: Option[Feeder])
-      extends HttpRequestBuilder(url, queryParams, headers, feeder) with Logging {
+      extends HttpRequestBuilder(url, queryParams, None, headers, None, feeder) with Logging {
     def withQueryParam(paramKey: String, paramValue: String) =
       new GetHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> StringParam(paramValue))), headers, feeder)
 
@@ -32,18 +32,7 @@ object GetHttpRequestBuilder {
 
     def asXML = new GetHttpRequestBuilder(url, queryParams, Some(headers.get + ("Accept" -> "application/xml")), feeder)
 
-    def build(context: Context): Request = {
-      val requestBuilder = new RequestBuilder setUrl url.get setMethod "GET"
-
-      consumeSeed(feeder, context)
-      addCookiesTo(requestBuilder, context)
-      addQueryParamsTo(requestBuilder, context)
-      addHeadersTo(requestBuilder, headers)
-
-      logger.debug("Built GET Request")
-
-      requestBuilder build
-    }
+    def build(context: Context): Request = build(context, "GET")
   }
 
   def get(url: String) = new GetHttpRequestBuilder(Some(url), Some(Map()), Some(Map()), None)
