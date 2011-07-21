@@ -11,7 +11,6 @@ import com.excilys.ebi.gatling.http.request.StringBody
 import com.excilys.ebi.gatling.http.request.TemplateBody
 import com.excilys.ebi.gatling.http.request.Param
 import com.excilys.ebi.gatling.http.request.StringParam
-import com.excilys.ebi.gatling.http.request.FeederParam
 import com.excilys.ebi.gatling.http.request.ContextParam
 
 import com.ning.http.client.RequestBuilder
@@ -49,57 +48,20 @@ object PostHttpRequestBuilder {
     def withFeeder(feeder: Feeder) = new PostHttpRequestBuilder(url, queryParams, params, headers, body, Some(feeder))
 
     def build(context: Context): Request = {
-      feeder.map { f =>
-        context.setAttributes(f.next)
-      }
-
       val requestBuilder = new RequestBuilder setUrl url.get setMethod "POST"
 
-      for (cookie <- context.getCookies) {
-        requestBuilder.addCookie(cookie)
-      }
+      consumeSeed(feeder, context)
 
-      for (queryParam <- queryParams.get) {
-        queryParam._2 match {
-          case StringParam(string) => requestBuilder addQueryParameter (queryParam._1, string)
-          case ContextParam(string) => requestBuilder addQueryParameter (queryParam._1, context.getAttribute(string))
-        }
-      }
+      addCookiesTo(requestBuilder, context)
 
-      for (param <- params.get) requestBuilder addParameter (param._1, param._2)
+      addQueryParamsTo(requestBuilder, context)
 
-      for (header <- headers.get) requestBuilder addHeader (header._1, header._2)
+      addHeadersTo(requestBuilder, headers)
 
-      body match {
-        case Some(thing) =>
-          thing match {
-            case FilePathBody(filePath) => requestBuilder setBody new File("user-requests/" + filePath)
-            case StringBody(body) => requestBuilder setBody body
-            case TemplateBody(tplPath, values) => requestBuilder setBody compileBody(tplPath, values)
-            case _ =>
-          }
-        case None =>
-      }
+      addBodyTo(requestBuilder, body)
 
       logger.debug("Built POST Request")
       requestBuilder build
-    }
-
-    private def compileBody(tplPath: String, values: Map[String, String]): String = {
-
-      val engine = new TemplateEngine
-      engine.allowCaching = false
-
-      var bindings: List[Binding] = List()
-
-      for (value <- values) {
-        bindings = Binding(value._1, "String") :: bindings
-      }
-
-      logger.debug("Bindings: {}", bindings)
-
-      engine.bindings = bindings
-      engine.layout("user-templates/" + tplPath + ".ssp", values)
     }
   }
 

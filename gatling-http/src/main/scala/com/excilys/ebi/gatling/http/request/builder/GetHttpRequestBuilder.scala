@@ -25,21 +25,12 @@ object GetHttpRequestBuilder {
     def withFeeder(feeder: Feeder) = new GetHttpRequestBuilder(url, queryParams, Some(feeder))
 
     def build(context: Context): Request = {
-      feeder.map { f =>
-        context.setAttributes(f.next)
-      }
-
       val requestBuilder = new RequestBuilder setUrl url.get setMethod "GET"
-      for (cookie <- context.getCookies) {
-        requestBuilder.addCookie(cookie)
-      }
 
-      for (queryParam <- queryParams.get) {
-        queryParam._2 match {
-          case StringParam(string) => requestBuilder addQueryParameter (queryParam._1, string)
-          case ContextParam(string) => requestBuilder addQueryParameter (queryParam._1, context.getAttribute(string))
-        }
-      }
+      consumeSeed(feeder, context)
+      addCookiesTo(requestBuilder, context)
+      addQueryParamsTo(requestBuilder, context)
+
       logger.debug("Built GET Request")
 
       requestBuilder build
