@@ -27,7 +27,7 @@ $(document).ready(function() {
       },
       tooltip: {
          formatter: function() {
-                   return '<span style="font-weight:bold">'+ this.series.name +"</span><br/>response time at "+ this.x +": "+ this.y + "ms";
+                   return '<span style="font-weight:bold">'+ this.series.name +"</span><br/>response time of " + this.y + "ms at "+ new Date(this.x).toUTCString().substr(17,8);
          }
       },
       legend: {

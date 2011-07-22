@@ -27,7 +27,7 @@ $(document).ready(function() {
       },
       tooltip: {
          formatter: function() {
-                   return '<span style="font-weight:bold">'+ this.series.name +"</span><br/>"+ this.y +' requests at '+ this.x;
+                   return '<span style="font-weight:bold">'+ this.series.name +"</span><br/>"+ this.y +' requests at '+ new Date(this.x).toUTCString().substr(17,8);
          }
       },
       legend: {
