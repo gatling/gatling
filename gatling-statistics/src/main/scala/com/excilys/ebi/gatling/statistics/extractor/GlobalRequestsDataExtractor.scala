@@ -11,12 +11,7 @@ import java.lang.String
 class GlobalRequestsDataExtractor(val runOn: String) extends Logging {
   val formattedRunOn = (new StringBuilder(runOn)).insert(12, ":").insert(10, ":").insert(8, " ").insert(6, "-").insert(4, "-").toString
 
-  def getResults: Map[String, Tuple3[Int, Int, Int]] = {
-    var lastTimeValue = formattedRunOn
-    var nbActiveSessions = 0
-    var lastResult: Tuple2[String, Int] = ("", 0)
-
-    var results: List[Tuple2[String, Int]] = Nil
+  def getResults: List[(String, (Int, Int, Int))] = {
 
     val failureRequestData: HashMap[String, Int] = new HashMap[String, Int]
     val successRequestData: HashMap[String, Int] = new HashMap[String, Int]
@@ -44,15 +39,15 @@ class GlobalRequestsDataExtractor(val runOn: String) extends Logging {
       }
     }
 
-    var sortedData: TreeMap[String, Tuple3[Int, Int, Int]] = TreeMap.empty
+    var data: List[(String, (Int, Int, Int))] = Nil
 
     allRequestData.foreach {
       case (date, nbRequests) =>
         def get = getInMap(date)_
-        sortedData = sortedData + (date -> (nbRequests, get(successRequestData), get(failureRequestData)))
+        data = (date, (nbRequests, get(successRequestData), get(failureRequestData))) :: data
     }
 
-    sortedData
+    data
   }
 
   private def getInMap(date: String)(map: HashMap[String, Int]): Int = {
