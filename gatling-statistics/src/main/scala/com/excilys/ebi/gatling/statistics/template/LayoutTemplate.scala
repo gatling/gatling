@@ -2,7 +2,7 @@ package com.excilys.ebi.gatling.statistics.template
 
 import org.fusesource.scalate._
 
-class LayoutTemplate(val title: String, val runOn: String, val body: String, val highcharts: String, val menuItems: Map[String, String]) {
+private[template] class LayoutTemplate(val title: String, val runOn: String, val body: String, val highcharts: String, val menuItems: Map[String, String]) {
 
   val engine = new TemplateEngine
 

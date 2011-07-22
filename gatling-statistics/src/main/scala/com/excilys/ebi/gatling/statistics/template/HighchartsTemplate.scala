@@ -2,7 +2,7 @@ package com.excilys.ebi.gatling.statistics.template
 
 import org.fusesource.scalate._
 
-class HighchartsTemplate(val series: List[Series], val graphTitle: String, val yAxisTitle: String, val toolTip: String) {
+private[template] class HighchartsTemplate(val series: List[Series], val graphTitle: String, val yAxisTitle: String, val toolTip: String) {
 
   val highchartsEngine = new TemplateEngine
 

@@ -1,7 +1,6 @@
 package com.excilys.ebi.gatling.statistics.presenter
 
 import com.excilys.ebi.gatling.core.log.Logging
-
 import com.excilys.ebi.gatling.statistics.extractor.GlobalRequestsDataExtractor
 import com.excilys.ebi.gatling.statistics.template.GlobalRequestsTemplate
 import com.excilys.ebi.gatling.statistics.template.Series

@@ -10,7 +10,9 @@ import com.excilys.ebi.gatling.statistics.writer.TemplateWriter
 import scala.collection.immutable.TreeMap
 
 class DetailsRequestsDataPresenter extends DataPresenter with Logging {
+
   def generateGraphFor(runOn: String): Map[String, String] = {
+
     var menuItems: Map[String, String] = TreeMap.empty
 
     val results = new DetailsRequestsDataExtractor(runOn).getResults
@@ -34,5 +36,5 @@ class DetailsRequestsDataPresenter extends DataPresenter with Logging {
     menuItems
   }
 
-  private def requestNameToFileName(requestName: String): String = requestName.replace("-", "_").replace(" ", "_").toLowerCase
+  private def requestNameToFileName(requestName: String): String = requestName.replace("-", "_").replace(" ", "_").replace("'", "").toLowerCase
 }
