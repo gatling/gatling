@@ -4,6 +4,7 @@ import com.excilys.ebi.gatling.core.log.Logging
 
 import com.excilys.ebi.gatling.statistics.extractor.GlobalRequestsDataExtractor
 import com.excilys.ebi.gatling.statistics.template.GlobalRequestsTemplate
+import com.excilys.ebi.gatling.statistics.template.Series
 import com.excilys.ebi.gatling.statistics.writer.TemplateWriter
 
 class GlobalRequestsDataPresenter extends DataPresenter with Logging {
@@ -19,10 +20,11 @@ class GlobalRequestsDataPresenter extends DataPresenter with Logging {
         globalData = (formattedDate, numberOfRequests) :: globalData
         successData = (formattedDate, numberOfSuccesses) :: successData
         failureData = (formattedDate, numberOfFailures) :: failureData
-
     }
 
-    val output = new GlobalRequestsTemplate(runOn, menuItems, globalData, successData, failureData).getOutput
+    val series = List(new Series("All", globalData), new Series("Success", successData), new Series("Failures", failureData))
+
+    val output = new GlobalRequestsTemplate(runOn, menuItems, series).getOutput
 
     new TemplateWriter(runOn, "requests.html").writeToFile(output)
   }

@@ -4,6 +4,7 @@ import com.excilys.ebi.gatling.core.log.Logging
 
 import com.excilys.ebi.gatling.statistics.extractor.DetailsRequestsDataExtractor
 import com.excilys.ebi.gatling.statistics.template.DetailsRequestsTemplate
+import com.excilys.ebi.gatling.statistics.template.Series
 import com.excilys.ebi.gatling.statistics.writer.TemplateWriter
 
 import scala.collection.immutable.TreeMap
@@ -23,7 +24,9 @@ class DetailsRequestsDataPresenter extends DataPresenter with Logging {
     results.foreach {
       case (requestName, result) =>
 
-        val output = new DetailsRequestsTemplate(runOn, menuItems, result.values.map { e => (getDateForHighcharts(e._1), e._2) }, requestName, result).getOutput
+        val series = List(new Series(requestName.substring(8), result.values.map { e => (getDateForHighcharts(e._1), e._2) }))
+
+        val output = new DetailsRequestsTemplate(runOn, menuItems, series, requestName, result).getOutput
 
         new TemplateWriter(runOn, requestNameToFileName(requestName) + ".html").writeToFile(output)
 

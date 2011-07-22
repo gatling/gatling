@@ -4,11 +4,11 @@ $(document).ready(function() {
       chart: {
          renderTo: 'container',
          defaultSeriesType: 'line',
-         marginRight: 150,
+         marginRight: 130,
          marginBottom: 25
       },
       title: {
-         text: 'Response Time',
+         text: '<%= graphTitle %>',
          x: -20 //center
       },
       xAxis: {
@@ -16,7 +16,7 @@ $(document).ready(function() {
       },
       yAxis: {
          title: {
-            text: 'response time in ms'
+            text: '<%= yAxisTitle %>'
          },
          plotLines: [{
             value: 0,
@@ -27,7 +27,7 @@ $(document).ready(function() {
       },
       tooltip: {
          formatter: function() {
-                   return '<span style="font-weight:bold">'+ this.series.name +"</span><br/>response time of " + this.y + "ms at "+ new Date(this.x).toUTCString().substr(17,8);
+                   return '<span style="font-weight:bold">'+ this.series.name +"</span><br/><%= toolTip.replace("{}",""""+ this.y +"""" ) %> at "+ new Date(this.x).toUTCString().substr(17,8);
          }
       },
       legend: {
@@ -38,9 +38,19 @@ $(document).ready(function() {
          y: 100,
          borderWidth: 0
       },
-      series: [{
-      	 name: "<%= requestName %>",
-         data: <%= data.map { e => "[" + e._1 + ", " + e._2 + "]" }.mkString("[ ", ",", " ]") %>
-      }]
+      series: [
+      	<%= series.mkString("{ ", "},{", " }") %>
+      ],
+      colors: [
+	           	'#4572A7', 
+	           	'#89A54E', 
+	           	'#AA4643', 
+	           	'#80699B', 
+	           	'#3D96AE', 
+	           	'#DB843D', 
+	           	'#92A8CD', 
+	           	'#A47D7C', 
+	           	'#B5CA92'
+	           ]
    });
 });
