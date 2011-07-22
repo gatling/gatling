@@ -12,11 +12,7 @@ $(document).ready(function() {
          x: -20 //center
       },
       xAxis: {
-         categories: <%= dates.mkString("['", "', '","']") %>,
-         labels: {
-        	 step: 2,
-        	 y: 20
-         }
+         type: 'datetime'
       },
       yAxis: {
          title: {
@@ -44,7 +40,7 @@ $(document).ready(function() {
       },
       series: [{
          name: 'Global',
-         data: <%= values.mkString("[", ", ", "]") %>
+         data: <%= data.map { e => "[" + e._1 + ", " + e._2 + "]" }.mkString("[ ", ",", " ]") %>
       }]
    });
 });
