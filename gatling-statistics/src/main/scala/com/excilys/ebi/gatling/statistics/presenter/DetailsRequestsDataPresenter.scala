@@ -8,7 +8,7 @@ import com.excilys.ebi.gatling.statistics.writer.TemplateWriter
 
 import scala.collection.immutable.TreeMap
 
-class DetailsRequestsDataPresenter extends Logging {
+class DetailsRequestsDataPresenter extends DataPresenter with Logging {
   def generateGraphFor(runOn: String): Map[String, String] = {
     var menuItems: Map[String, String] = TreeMap.empty
 
@@ -23,18 +23,7 @@ class DetailsRequestsDataPresenter extends Logging {
     results.foreach {
       case (requestName, result) =>
 
-        var dates: List[String] = Nil
-        var values: List[Int] = Nil
-
-        result.values foreach {
-          case (date, responseTime) =>
-            dates = date.substring(11) :: dates
-            values = responseTime :: values
-        }
-
-        logger.debug("Dates: {}\nValues: {}", dates, values)
-
-        val output = new DetailsRequestsTemplate(runOn, menuItems, dates.reverse, values.reverse, requestName, result).getOutput
+        val output = new DetailsRequestsTemplate(runOn, menuItems, result.values.map { e => (getDateForHighcharts(e._1), e._2) }, requestName, result).getOutput
 
         new TemplateWriter(runOn, requestNameToFileName(requestName) + ".html").writeToFile(output)
 

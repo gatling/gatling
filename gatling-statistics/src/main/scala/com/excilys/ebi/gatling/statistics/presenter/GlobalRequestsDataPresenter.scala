@@ -6,7 +6,7 @@ import com.excilys.ebi.gatling.statistics.extractor.GlobalRequestsDataExtractor
 import com.excilys.ebi.gatling.statistics.template.GlobalRequestsTemplate
 import com.excilys.ebi.gatling.statistics.writer.TemplateWriter
 
-class GlobalRequestsDataPresenter extends Logging {
+class GlobalRequestsDataPresenter extends DataPresenter with Logging {
   def generateGraphFor(runOn: String, menuItems: Map[String, String]) = {
     var dates: List[String] = Nil
     var globalValues: List[Int] = Nil
