@@ -7,7 +7,6 @@ import com.excilys.ebi.gatling.core.feeder.Feeder
 
 import com.excilys.ebi.gatling.http.request.Param
 import com.excilys.ebi.gatling.http.request.StringParam
-import com.excilys.ebi.gatling.http.request.FeederParam
 import com.excilys.ebi.gatling.http.request.ContextParam
 
 import com.ning.http.client.RequestBuilder

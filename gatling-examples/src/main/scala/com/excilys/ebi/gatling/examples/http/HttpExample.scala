@@ -61,7 +61,7 @@ object HttpExample {
             // Fourth request to be repeated
             .doHttpRequest(
               "Create Thing omgomg",
-              post("http://localhost:3000/things") withQueryParam ("postTest", FromContext("ctxParam")) withTemplateBody ("create_thing", Map("name" -> "omgomg")) asJSON))
+              post("http://localhost:3000/things") withQueryParam ("postTest", FromContext("ctxParam")) withTemplateBodyFromContext ("create_thing", Map("name" -> "ctxParam")) asJSON))
         // Second request outside iteration
         .doHttpRequest("Ajout au panier",
           get(url),
