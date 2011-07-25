@@ -17,8 +17,8 @@ import com.ning.http.client.Request
 
 object HttpExample {
   def run = {
-    val iterations = 2
-    val concurrentUsers = 5
+    val iterations = 10
+    val concurrentUsers = 10
     val pause1 = 3
     val pause2 = 2
     val pause3 = 1
