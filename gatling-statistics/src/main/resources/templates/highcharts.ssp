@@ -3,7 +3,7 @@ $(document).ready(function() {
 	chart = new Highcharts.Chart({
       chart: {
          renderTo: 'container',
-         defaultSeriesType: 'line',
+         defaultSeriesType: 'spline',
          marginRight: 130,
          marginBottom: 25
       },
@@ -24,6 +24,27 @@ $(document).ready(function() {
             color: '#808080'
          }],
          min: 0
+      },
+      plotOptions: {
+    	  spline: {
+              lineWidth: 1,
+              states: {
+                 hover: {
+                    lineWidth: 3
+                 }
+              },
+              marker: {
+                 enabled: false,
+                 states: {
+                    hover: {
+                       enabled: true,
+                       symbol: 'circle',
+                       radius: 3,
+                       lineWidth: 1
+                    }
+                 }   
+              }
+           }  
       },
       tooltip: {
          formatter: function() {
