@@ -1,0 +1,47 @@
+<assembly
+	xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+	<id>all-${project.version}</id>
+	<formats>
+		<format>tar.gz</format>
+		<format>zip</format>
+	</formats>
+	<includeBaseDirectory>true</includeBaseDirectory>
+	<baseDirectory>gatling-all-${project.version}</baseDirectory>
+	<moduleSets>
+		<moduleSet>
+
+			<!-- Enable access to all projects in the current multimodule build! -->
+			<useAllReactorProjects>true</useAllReactorProjects>
+
+			<!-- Now, select which projects to include in this module-set. -->
+			<includes>
+				<include>com.excilys.ebi.gatling:gatling-core</include>
+				<include>com.excilys.ebi.gatling:gatling-http</include>
+				<include>com.excilys.ebi.gatling:gatling-statistics</include>
+				<include>com.excilys.ebi.gatling:gatling-app</include>
+				<include>com.excilys.ebi.gatling:gatling-examples</include>
+			</includes>
+			<binaries>
+				<unpack>false</unpack>
+				<outputDirectory>lib/</outputDirectory>
+				<dependencySets>
+					<dependencySet>
+						<includes />
+						<outputDirectory>lib/deps/</outputDirectory>
+					</dependencySet>
+				</dependencySets>
+			</binaries>
+		</moduleSet>
+	</moduleSets>
+	<fileSets>
+		<fileSet>
+			<directory>src/main/assembly/assembly-structure</directory>
+			<outputDirectory>/</outputDirectory>
+			<excludes>
+				<exclude>**/.gitkeep</exclude>
+			</excludes>
+		</fileSet>
+	</fileSets>
+</assembly>

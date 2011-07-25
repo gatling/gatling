@@ -13,6 +13,7 @@
 		<module>gatling-statistics</module>
 		<module>gatling-examples</module>
 		<module>gatling-app</module>
+		<module>gatling-assembly</module>
 	</modules>
 
 	<licenses>
@@ -72,6 +73,16 @@
 			<dependency>
 				<groupId>com.excilys.ebi.gatling</groupId>
 				<artifactId>gatling-statistics</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.excilys.ebi.gatling</groupId>
+				<artifactId>gatling-app</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.excilys.ebi.gatling</groupId>
+				<artifactId>gatling-examples</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
