@@ -12,6 +12,7 @@
 		<module>gatling-http</module>
 		<module>gatling-statistics</module>
 		<module>gatling-examples</module>
+		<module>gatling-app</module>
 	</modules>
 
 	<licenses>
