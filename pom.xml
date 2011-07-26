@@ -11,7 +11,6 @@
 		<module>gatling-core</module>
 		<module>gatling-http</module>
 		<module>gatling-statistics</module>
-		<module>gatling-examples</module>
 		<module>gatling-app</module>
 		<module>gatling-assembly</module>
 	</modules>

@@ -1,5 +1,3 @@
-package com.excilys.ebi.gatling.examples.http
-
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.feeder.TSVFeeder
