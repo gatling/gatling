@@ -9,7 +9,7 @@ class TSVFeeder(filePath: String, mappings: List[String]) extends Feeder(filePat
   var currentUser = 0
   var seeds: Queue[Map[String, String]] = Queue()
 
-  for (line <- Source.fromFile("user-seeds/" + filePath + ".tsv", "utf-8").getLines) {
+  for (line <- Source.fromFile("user-files/seeds/" + filePath + ".tsv", "utf-8").getLines) {
     var lineMap = new HashMap[String, String]
 
     for (mapping <- mappings zip line.split("\t").toList)

@@ -32,7 +32,7 @@ class FileDataWriter extends DataWriter {
       }
     }
     case InitializeDataWriter(runOn, scenarioName, numberOfRelevantActions) ⇒ {
-      val dir = new File(fileNameFormatter.format(runOn))
+      val dir = new File("results/" + fileNameFormatter.format(runOn))
       dir.mkdir
       val file = new File(dir, "simulation.log")
 

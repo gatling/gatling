@@ -5,7 +5,7 @@ import java.io.FileWriter
 
 class TemplateWriter(val runOn: String, val fileName: String) {
   def writeToFile(output: String) = {
-    val dir = new File(runOn)
+    val dir = new File("results/" + runOn)
     dir.mkdir
     val file = new File(dir, fileName)
     val fw = new FileWriter(file)

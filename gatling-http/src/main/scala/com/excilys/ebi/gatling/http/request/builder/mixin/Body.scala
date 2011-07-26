@@ -37,7 +37,7 @@ trait Body extends HttpRequestBuilder {
     body match {
       case Some(thing) =>
         thing match {
-          case FilePathBody(filePath) => requestBuilder setBody new File("user-requests/" + filePath)
+          case FilePathBody(filePath) => requestBuilder setBody new File("user-files/requests/" + filePath)
           case StringBody(body) => requestBuilder setBody body
           case TemplateBody(tplPath, values) => requestBuilder setBody compileBody(tplPath, values, context)
           case _ =>
@@ -63,6 +63,6 @@ trait Body extends HttpRequestBuilder {
     }
 
     engine.bindings = bindings
-    engine.layout("user-templates/" + tplPath + ".ssp", templateValues)
+    engine.layout("user-files/requests/" + tplPath + ".ssp", templateValues)
   }
 }
