@@ -41,7 +41,21 @@
 			<outputDirectory>/</outputDirectory>
 			<excludes>
 				<exclude>**/.gitkeep</exclude>
+				<exclude>bin/*</exclude>
 			</excludes>
 		</fileSet>
 	</fileSets>
+	<files>
+		<file>
+			<source>src/main/assembly/assembly-structure/bin/gatling.sh</source>
+			<filtered>true</filtered>
+			<fileMode>0755</fileMode>
+			<outputDirectory>/bin/</outputDirectory>
+		</file>
+		<file>
+			<source>src/main/assembly/assembly-structure/bin/gatling.bat</source>
+			<filtered>true</filtered>
+			<outputDirectory>/bin/</outputDirectory>
+		</file>
+	</files>
 </assembly>

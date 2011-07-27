@@ -10,7 +10,7 @@
 	<artifactId>gatling-app</artifactId>
 	<name>${project.artifactId}</name>
 	<description>Gatling command line application</description>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>org.scala-lang</groupId>
@@ -26,4 +26,19 @@
 		</dependency>
 	</dependencies>
 
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>com.excilys.ebi.gatling.app.App</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
