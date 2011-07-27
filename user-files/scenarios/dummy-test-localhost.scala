@@ -19,7 +19,7 @@ val pause1 = 3
 val pause2 = 2
 val pause3 = 1
 
-val url = "http://localhost/index.html"
+val url = "http://localhost:3000/index.html"
 
 val usersCredentials = new TSVFeeder("user_credential", List("login", "password"))
 val usersInformation = new TSVFeeder("user_information", List("firstname", "lastname"))
