@@ -12,9 +12,7 @@ import java.io.File
 
 import com.excilys.ebi.gatling.core.log.Logging
 
-import com.excilys.ebi.gatling.statistics.presenter.ActiveSessionsDataPresenter
-import com.excilys.ebi.gatling.statistics.presenter.GlobalRequestsDataPresenter
-import com.excilys.ebi.gatling.statistics.presenter.DetailsRequestsDataPresenter
+import com.excilys.ebi.gatling.statistics.GraphicsGenerator
 
 class ResultHolder(var value: String)
 
@@ -40,10 +38,10 @@ object App extends Logging {
 
     val fileChosen = Console.readInt
 
-    compileAndRun(filesList(fileChosen))
+    runAndGenerateStats(filesList(fileChosen))
   }
 
-  private def compileAndRun(filename: String) = {
+  private def runAndGenerateStats(filename: String) = {
 
     val settings = new Settings
     settings.usejavacp.value = true
@@ -51,29 +49,14 @@ object App extends Logging {
 
     val fileContent = Source.fromFile("user-files/scenarios/" + filename).mkString + "\n$result__.value = execution"
 
-    logger.debug(fileContent)
-
     val runOn = new ResultHolder("")
     n.bind("$result__", runOn)
 
     n.interpret(fileContent)
 
-    logger.debug("result: {}", runOn.value)
-
     n.close()
 
-    generateStatistics(runOn.value)
-  }
-
-  private def generateStatistics(runOn: String) {
-    val detailsRequestsPresenter = new DetailsRequestsDataPresenter
-    val menuItems = detailsRequestsPresenter.generateGraphFor(runOn)
-
-    val activeSessionsPresenter = new ActiveSessionsDataPresenter
-    activeSessionsPresenter.generateGraphFor(runOn, menuItems)
-
-    val requestsPresenter = new GlobalRequestsDataPresenter
-    requestsPresenter.generateGraphFor(runOn, menuItems)
+    (new GraphicsGenerator).generateFor(runOn.value)
   }
 
 }
