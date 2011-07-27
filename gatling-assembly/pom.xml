@@ -8,7 +8,7 @@
 	</parent>
 	<artifactId>gatling-assembly</artifactId>
 	<packaging>pom</packaging>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>com.excilys.ebi.gatling</groupId>
@@ -39,10 +39,18 @@
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.2.1</version>
 				<configuration>
-				<finalName>gatling</finalName>
+					<finalName>gatling</finalName>
 					<descriptors>
 						<descriptor>src/main/assembly/gatling-all.xml</descriptor>
 					</descriptors>
+					<descriptorRefs>
+						<descriptorRefs>jar-with-dependencies</descriptorRefs>
+					</descriptorRefs>
+					<archive>
+						<manifest>
+							<mainClass>com.excilys.ebi.gatling.app.App</mainClass>
+						</manifest>
+					</archive>
 				</configuration>
 				<executions>
 					<execution>

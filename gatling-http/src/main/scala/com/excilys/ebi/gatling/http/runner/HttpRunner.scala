@@ -20,6 +20,8 @@ import java.util.Date
 import akka.actor.Scheduler
 import akka.actor.Actor.actorOf
 
+import org.apache.commons.lang.time.FastDateFormat
+
 object HttpRunner {
   class HttpRunner(s: HttpScenarioBuilder, numUsers: Int, ramp: Option[Int]) extends Runner(s, numUsers, ramp) {
     val latch: CountDownLatch = new CountDownLatch(numUsers)
@@ -28,11 +30,13 @@ object HttpRunner {
     logger.info("[{}] Expecting {} relevant actions to be executed in this scenario", s.getName, (s.getNumberOfRelevantActions + 1) * numUsers)
     logger.info("[{}] Simulation execution time will be at least {}s", s.getName, s.getExecutionTime)
 
-    def run = {
+    def run: String = {
 
       val statWriter = actorOf[FileDataWriter].start
 
-      statWriter ! InitializeDataWriter(new Date, s.getName, (s.getNumberOfRelevantActions + 1) * numUsers)
+      val startDate = new Date
+
+      statWriter ! InitializeDataWriter(startDate, s.getName, (s.getNumberOfRelevantActions + 1) * numUsers)
 
       logger.debug("Launching All Scenarios")
       for (i <- 1 to numberOfUsers) {
@@ -47,6 +51,7 @@ object HttpRunner {
       logger.debug("Finished Launching scenarios executions")
       latch.await(86400, TimeUnit.SECONDS)
       HttpRequestAction.CLIENT.close
+      FastDateFormat.getInstance("yyyyMMddhhmmss").format(startDate)
     }
 
   }
