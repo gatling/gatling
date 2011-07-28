@@ -19,7 +19,7 @@ val pause1 = 3
 val pause2 = 2
 val pause3 = 1
 
-val url = "http://localhost:3000/index.html"
+val url = "http://localhost:3000"
 
 val usersCredentials = new TSVFeeder("user_credential", List("login", "password"))
 val usersInformation = new TSVFeeder("user_information", List("firstname", "lastname"))
@@ -65,4 +65,4 @@ val lambdaUser =
     .pause(pause3)
 
 val execution = 
-  prepareSimulationFor(lambdaUser) withUsersNumber concurrentUsers withRamp 5 play
+  prepareSimulationFor(lambdaUser) withUsersNumber concurrentUsers withRamp 10000 play
