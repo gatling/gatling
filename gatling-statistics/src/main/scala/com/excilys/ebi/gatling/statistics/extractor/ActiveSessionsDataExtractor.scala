@@ -12,7 +12,7 @@ import java.lang.String
 class ActiveSessionsDataExtractor(val runOn: String) extends Logging {
   val formattedRunOn = (new StringBuilder(runOn)).insert(12, ":").insert(10, ":").insert(8, " ").insert(6, "-").insert(4, "-").toString
 
-  def getResults: List[(String, Int)] = {
+  def getResults: List[(String, Double)] = {
     val activeSessions: MultiMap[String, String] = new HashMap[String, MSet[String]] with MultiMap[String, String]
     val deadSessions: MultiMap[String, String] = new HashMap[String, MSet[String]] with MultiMap[String, String]
 
@@ -64,9 +64,9 @@ class ActiveSessionsDataExtractor(val runOn: String) extends Logging {
     }
 
     // Counting active sessions by starDate and returning result
-    var results: List[(String, Int)] = Nil
+    var results: List[(String, Double)] = Nil
     executionStartDates.foreach { startDate =>
-      results = (startDate, (activeSessions.get(startDate).get.size - 1)) :: results
+      results = (startDate, (activeSessions.get(startDate).get.size - 1).asInstanceOf[Double]) :: results
     }
     results
   }

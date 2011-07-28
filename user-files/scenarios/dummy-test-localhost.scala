@@ -65,4 +65,4 @@ val lambdaUser =
     .pause(pause3)
 
 val execution = 
-  prepareSimulationFor(lambdaUser) withUsersNumber concurrentUsers play
+  prepareSimulationFor(lambdaUser) withUsersNumber concurrentUsers withRamp 5 play

@@ -2,7 +2,9 @@ package com.excilys.ebi.gatling.statistics.template
 
 import org.fusesource.scalate._
 
-private[template] class HighchartsTemplate(val series: List[Series], val graphTitle: String, val yAxisTitle: String, val toolTip: String) {
+private[template] class HighchartsTemplate(val series: List[Series], val graphTitle: String, val yAxisTitle: String, val toolTip: String, val plotBand: PlotBand) {
+
+  def this(series: List[Series], graphTitle: String, yAxisTitle: String, toolTip: String) = this(series, graphTitle, yAxisTitle, toolTip, new PlotBand(0, 0))
 
   val highchartsEngine = new TemplateEngine
 
@@ -10,7 +12,9 @@ private[template] class HighchartsTemplate(val series: List[Series], val graphTi
     Binding("series", "List[com.excilys.ebi.gatling.statistics.template.Series]"),
     Binding("graphTitle", "String"),
     Binding("yAxisTitle", "String"),
-    Binding("toolTip", "String"))
+    Binding("toolTip", "String"),
+    Binding("hasPlotBand", "Boolean"),
+    Binding("plotBand", "com.excilys.ebi.gatling.statistics.template.PlotBand"))
   highchartsEngine.escapeMarkup = false
 
   def getOutput: String = {
@@ -18,6 +22,8 @@ private[template] class HighchartsTemplate(val series: List[Series], val graphTi
       Map("series" -> series,
         "graphTitle" -> graphTitle,
         "yAxisTitle" -> yAxisTitle,
-        "toolTip" -> toolTip))
+        "toolTip" -> toolTip,
+        "hasPlotBand" -> (plotBand.maxValue != plotBand.minValue),
+        "plotBand" -> plotBand))
   }
 }

@@ -26,7 +26,8 @@ class DetailsRequestsDataPresenter extends DataPresenter with Logging {
     results.foreach {
       case (requestName, result) =>
 
-        val series = List(new Series(requestName.substring(8), result.values.map { e => (getDateForHighcharts(e._1), e._2) }))
+        val series = List(new Series(requestName.substring(8), result.values.map { e => (getDateForHighcharts(e._1), e._2) }),
+          new Series("medium", result.values.map { e => (getDateForHighcharts(e._1), result.medium) }))
 
         val output = new DetailsRequestsTemplate(runOn, menuItems, series, requestName, result).getOutput
 

@@ -8,9 +8,9 @@ import com.excilys.ebi.gatling.statistics.writer.TemplateWriter
 
 class GlobalRequestsDataPresenter extends DataPresenter with Logging {
   def generateGraphFor(runOn: String, menuItems: Map[String, String]) = {
-    var globalData: List[(String, Int)] = Nil
-    var successData: List[(String, Int)] = Nil
-    var failureData: List[(String, Int)] = Nil
+    var globalData: List[(String, Double)] = Nil
+    var successData: List[(String, Double)] = Nil
+    var failureData: List[(String, Double)] = Nil
 
     new GlobalRequestsDataExtractor(runOn).getResults foreach {
       case (date, (numberOfRequests, numberOfSuccesses, numberOfFailures)) =>

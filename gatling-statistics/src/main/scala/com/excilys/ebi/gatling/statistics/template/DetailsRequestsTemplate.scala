@@ -14,7 +14,8 @@ class DetailsRequestsTemplate(val runOn: String, val menuItems: Map[String, Stri
   bodyEngine.escapeMarkup = false
 
   def getOutput: String = {
-    val highcharts = new HighchartsTemplate(series, "Response Time", "Response Time in ms", "Response Time of {}ms").getOutput
+    val plotBand = new PlotBand(result.medium - result.standardDeviation, result.medium + result.standardDeviation)
+    val highcharts = new HighchartsTemplate(series, "Response Time", "Response Time in ms", "Response Time of {}ms", plotBand).getOutput
 
     val body = bodyEngine.layout("templates/details_requests_body.ssp",
       Map("requestName" -> requestName, "result" -> result))

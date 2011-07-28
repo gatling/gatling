@@ -23,6 +23,13 @@ $(document).ready(function() {
             width: 1,
             color: '#808080'
          }],
+         <% if(hasPlotBand){ %>
+         plotBands: [{
+            from: <%= plotBand.minValue.toString %>,
+            to: <%= plotBand.maxValue.toString %>,
+            color: 'rgba(68, 170, 213, 0.1)'
+         }],
+         <% } %>
          min: 0
       },
       plotOptions: {

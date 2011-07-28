@@ -11,11 +11,11 @@ import java.lang.String
 class GlobalRequestsDataExtractor(val runOn: String) extends Logging {
   val formattedRunOn = (new StringBuilder(runOn)).insert(12, ":").insert(10, ":").insert(8, " ").insert(6, "-").insert(4, "-").toString
 
-  def getResults: List[(String, (Int, Int, Int))] = {
+  def getResults: List[(String, (Double, Double, Double))] = {
 
-    val failureRequestData: HashMap[String, Int] = new HashMap[String, Int]
-    val successRequestData: HashMap[String, Int] = new HashMap[String, Int]
-    val allRequestData: HashMap[String, Int] = new HashMap[String, Int]
+    val failureRequestData: HashMap[String, Double] = new HashMap[String, Double]
+    val successRequestData: HashMap[String, Double] = new HashMap[String, Double]
+    val allRequestData: HashMap[String, Double] = new HashMap[String, Double]
 
     logger.info("[Stats] reading from file: " + "gatling_" + runOn)
     for (line <- Source.fromFile("results/" + runOn + "/simulation.log", "utf-8").getLines) {
@@ -39,7 +39,7 @@ class GlobalRequestsDataExtractor(val runOn: String) extends Logging {
       }
     }
 
-    var data: List[(String, (Int, Int, Int))] = Nil
+    var data: List[(String, (Double, Double, Double))] = Nil
 
     allRequestData.foreach {
       case (date, nbRequests) =>
@@ -50,11 +50,11 @@ class GlobalRequestsDataExtractor(val runOn: String) extends Logging {
     data
   }
 
-  private def getInMap(date: String)(map: HashMap[String, Int]): Int = {
+  private def getInMap(date: String)(map: HashMap[String, Double]): Double = {
     map.get(date).getOrElse(0)
   }
 
-  private def incrementInMap(executionStartDate: String)(map: HashMap[String, Int]) = {
+  private def incrementInMap(executionStartDate: String)(map: HashMap[String, Double]) = {
     map(executionStartDate) =
       if (map.contains(executionStartDate))
         map(executionStartDate) + 1
