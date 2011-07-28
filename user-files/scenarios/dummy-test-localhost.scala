@@ -13,6 +13,8 @@ import com.excilys.ebi.gatling.http.request.builder.PostHttpRequestBuilder.post
 import com.ning.http.client.RequestBuilder
 import com.ning.http.client.Request
 
+import java.util.concurrent.TimeUnit
+
 val iterations = 10
 val concurrentUsers = 10
 val pause1 = 3
@@ -65,4 +67,4 @@ val lambdaUser =
     .pause(pause3)
 
 val execution = 
-  prepareSimulationFor(lambdaUser) withUsersNumber concurrentUsers withRamp 10000 play
+  prepareSimulationFor(lambdaUser) withUsersNumber concurrentUsers withRamp (10000, TimeUnit.MILLISECONDS) play

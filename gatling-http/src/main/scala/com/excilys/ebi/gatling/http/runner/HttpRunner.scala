@@ -23,11 +23,11 @@ import akka.actor.Actor.actorOf
 import org.apache.commons.lang.time.FastDateFormat
 
 object HttpRunner {
-  class HttpRunner(s: HttpScenarioBuilder, numUsers: Int, ramp: Option[Int]) extends Runner(s, numUsers, ramp) {
+  class HttpRunner(s: HttpScenarioBuilder, numUsers: Int, ramp: Option[(Int, TimeUnit)]) extends Runner(s, numUsers, ramp) {
     val latch: CountDownLatch = new CountDownLatch(numUsers)
     val scenario = scenarioBuilder.end(latch).build
 
-    logger.info("[{}] Simulation execution time will be at least {}s", s.getName, s.getExecutionTime + TimeUnit.SECONDS.convert(ramp.map { r => r.toLong }.getOrElse(0L), TimeUnit.MILLISECONDS))
+    logger.info("[{}] Simulation execution time will be at least {}s", s.getName, s.getExecutionTime + TimeUnit.SECONDS.convert(ramp.map { r => r._1.toLong }.getOrElse(0L), ramp.map { r => r._2 }.getOrElse(TimeUnit.SECONDS)))
 
     def run: String = {
 
@@ -41,8 +41,8 @@ object HttpRunner {
       for (i <- 1 to numberOfUsers) {
         val context: Context = makeContext withUserId i withWriteActorUuid statWriter.getUuid build
 
-        ramp.map { time =>
-          Scheduler.scheduleOnce(() => scenario.execute(context), (time.toDouble / (numberOfUsers - 1).toDouble).toInt * (i - 1), TimeUnit.MILLISECONDS)
+        ramp.map { r =>
+          Scheduler.scheduleOnce(() => scenario.execute(context), (r._1.toDouble / (numberOfUsers - 1).toDouble).toInt * (i - 1), r._2)
         }.getOrElse {
           scenario.execute(context)
         }
