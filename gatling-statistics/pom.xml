@@ -20,6 +20,10 @@
 			<groupId>org.fusesource.scalate</groupId>
 			<artifactId>scalate-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
 	</dependencies>
 
 <!-- Won't work because the plugin compiles with a ServletRenderContext, but we need DefaultRenderContext. Workaround with SBT, but not with MVN plugin -->

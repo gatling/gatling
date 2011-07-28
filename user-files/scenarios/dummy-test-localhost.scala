@@ -15,8 +15,8 @@ import com.ning.http.client.Request
 
 import java.util.concurrent.TimeUnit
 
-val iterations = 10
-val concurrentUsers = 10
+val iterations = 5
+val concurrentUsers = 5
 val pause1 = 3
 val pause2 = 2
 val pause3 = 1
