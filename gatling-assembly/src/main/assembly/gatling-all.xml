@@ -21,7 +21,6 @@
 				<include>com.excilys.ebi.gatling:gatling-http</include>
 				<include>com.excilys.ebi.gatling:gatling-statistics</include>
 				<include>com.excilys.ebi.gatling:gatling-app</include>
-				<include>com.excilys.ebi.gatling:gatling-examples</include>
 			</includes>
 			<binaries>
 				<unpack>false</unpack>
