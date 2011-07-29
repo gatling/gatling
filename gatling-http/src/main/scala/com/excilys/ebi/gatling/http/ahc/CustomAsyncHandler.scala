@@ -28,8 +28,8 @@ import java.util.concurrent.TimeUnit
 
 import akka.actor.Actor.registry.actorFor
 
-class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpProcessor], next: Action, givenProcessors: Option[List[HttpProcessor]],
-                         executionStartTime: Long, executionStartDate: Date, request: HttpRequest)
+class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpAssertion], captures: MultiMap[HttpPhase, HttpCapture], next: Action, executionStartTime: Long, executionStartDate: Date,
+                         request: HttpRequest)
     extends AsyncHandler[Response] with Logging {
 
   private val responseBuilder: ResponseBuilder = new ResponseBuilder()
@@ -37,18 +37,14 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
   var contextBuilder = makeContext fromContext context
 
   private def processResponse(httpPhase: HttpPhase, placeToSearch: Any): STATE = {
-    for (processor <- processors.get(httpPhase).getOrElse(new HashSet)) {
-      processor match {
-        case c: HttpCapture => {
-          val value = c.capture(placeToSearch)
-          logger.info("Captured Value: {}", value)
-          contextBuilder = contextBuilder setAttribute (c.getAttrKey, value.getOrElse(throw new Exception("Capture string not found")).toString)
-        }
-        case a: HttpAssertion => {
-          logger.info("Asserting")
-        }
-        case _ =>
-      }
+    for (a <- assertions.get(httpPhase).getOrElse(new HashSet)) {
+      // Do assert Stuff
+    }
+
+    for (c <- captures.get(httpPhase).getOrElse(new HashSet)) {
+      val value = c.capture(placeToSearch)
+      logger.info("Captured Value: {}", value)
+      contextBuilder = contextBuilder setAttribute (c.getAttrKey, value.getOrElse(throw new Exception("Capture string not found")).toString)
     }
     STATE.CONTINUE
   }
@@ -60,7 +56,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
   def onHeadersReceived(headers: HttpResponseHeaders): STATE = {
     responseBuilder.accumulate(headers)
-    processResponse(new HeadersReceived, headers.getHeaders) // Ici c'est compliqué...
+    processResponse(new HeadersReceived, headers.getHeaders) // Process headers is not that simple.
   }
 
   def onBodyPartReceived(bodyPart: HttpResponseBodyPart): STATE = {

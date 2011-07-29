@@ -7,6 +7,8 @@ import com.excilys.ebi.gatling.http.ahc.CustomAsyncHandler
 import com.excilys.ebi.gatling.http.phase.HttpPhase
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
 import com.excilys.ebi.gatling.http.request.HttpRequest
+import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
+import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
 
 import com.ning.http.client.AsyncHttpClient
 
@@ -18,15 +20,22 @@ object HttpRequestAction {
   val CLIENT: AsyncHttpClient = new AsyncHttpClient
 }
 class HttpRequestAction(next: Action, request: HttpRequest, givenProcessors: Option[List[HttpProcessor]])
-  extends RequestAction(next, request, givenProcessors) {
+    extends RequestAction(next, request, givenProcessors) {
 
-  val processors: MultiMap[HttpPhase, HttpProcessor] = new HashMap[HttpPhase, MSet[HttpProcessor]] with MultiMap[HttpPhase, HttpProcessor]
+  val assertions: MultiMap[HttpPhase, HttpAssertion] = new HashMap[HttpPhase, MSet[HttpAssertion]] with MultiMap[HttpPhase, HttpAssertion]
+  val captures: MultiMap[HttpPhase, HttpCapture] = new HashMap[HttpPhase, MSet[HttpCapture]] with MultiMap[HttpPhase, HttpCapture]
 
   givenProcessors match {
     case Some(list) => {
       for (processor <- list) {
-        logger.debug("  -- Adding {} to {} Phase", processor, processor.getHttpPhase)
-        processors.addBinding(processor.getHttpPhase, processor)
+        processor match {
+          case a: HttpAssertion =>
+            assertions.addBinding(a.getHttpPhase, a)
+            logger.debug("  -- Adding {} to {} Phase", a, a.getHttpPhase)
+          case c: HttpCapture =>
+            captures.addBinding(c.getHttpPhase, c)
+            logger.debug("  -- Adding {} to {} Phase", c, c.getHttpPhase)
+        }
       }
     }
     case None => {}
@@ -34,6 +43,6 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessors: Opt
 
   def execute(context: Context) = {
     logger.info("Sending Request")
-    HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new CustomAsyncHandler(context, processors, next, givenProcessors, System.nanoTime, new Date, request))
+    HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new CustomAsyncHandler(context, assertions, captures, next, System.nanoTime, new Date, request))
   }
 }
