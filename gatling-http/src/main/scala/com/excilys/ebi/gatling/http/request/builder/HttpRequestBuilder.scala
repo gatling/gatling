@@ -23,7 +23,7 @@ import com.excilys.ebi.gatling.http.request.TemplateBody
 import java.io.File
 
 abstract class HttpRequestBuilder(val url: Option[String], val queryParams: Option[Map[String, Param]], val params: Option[Map[String, Param]],
-                                  val headers: Option[Map[String, String]], val body: Option[HttpRequestBody], val feeder: Option[Feeder])
+                                  val headers: Option[Map[String, String]], val body: Option[HttpRequestBody], val feeder: Option[Feeder], val followsRedirects: Option[Boolean])
     extends Logging {
   val requestBuilder = new RequestBuilder setUrl url.get
 
@@ -37,14 +37,17 @@ abstract class HttpRequestBuilder(val url: Option[String], val queryParams: Opti
 
   def withHeader(header: Tuple2[String, String]): HttpRequestBuilder
 
-  def asJSON: HttpRequestBuilder
+  def followsRedirect(followRedirect: Boolean): HttpRequestBuilder
 
-  def asXML: HttpRequestBuilder
+  def asJSON(): HttpRequestBuilder
+
+  def asXML(): HttpRequestBuilder
 
   def build(context: Context): Request
 
   def build(context: Context, method: String): Request = {
-    requestBuilder setMethod method
+    requestBuilder setMethod method setFollowRedirects followsRedirects.getOrElse(false)
+
     consumeSeed(feeder, context)
     addCookiesTo(requestBuilder, context)
     addQueryParamsTo(requestBuilder, context)

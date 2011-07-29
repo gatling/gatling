@@ -48,7 +48,7 @@ val lambdaUser =
         // Second request to be repeated
         .doHttpRequest(
           "Create Thing blabla",
-          post("http://localhost:3000/things") withFeeder usersCredentials withQueryParam "login" withQueryParam "password" withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON)
+          post("http://localhost:3000/things") followsRedirect true withFeeder usersCredentials withQueryParam "login" withQueryParam "password" withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON)
         .pause(pause3)
         // Third request to be repeated
         .doHttpRequest(
