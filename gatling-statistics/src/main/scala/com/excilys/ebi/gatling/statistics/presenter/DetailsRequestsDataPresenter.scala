@@ -6,6 +6,7 @@ import com.excilys.ebi.gatling.statistics.extractor.DetailsRequestsDataExtractor
 import com.excilys.ebi.gatling.statistics.template.DetailsRequestsTemplate
 import com.excilys.ebi.gatling.statistics.template.Series
 import com.excilys.ebi.gatling.statistics.writer.TemplateWriter
+import com.excilys.ebi.gatling.statistics.writer.TSVFileWriter
 
 import scala.collection.immutable.TreeMap
 
@@ -25,6 +26,8 @@ class DetailsRequestsDataPresenter extends DataPresenter with Logging {
 
     results.foreach {
       case (requestName, result) =>
+
+        new TSVFileWriter(runOn, requestNameToFileName(requestName) + ".tsv").writeToFile(result.values.map { e => List(e._1, e._2.toString) })
 
         val series = List(new Series(requestName.substring(8), result.values.map { e => (getDateForHighcharts(e._1), e._2) }),
           new Series("medium", result.values.map { e => (getDateForHighcharts(e._1), result.medium) }))
