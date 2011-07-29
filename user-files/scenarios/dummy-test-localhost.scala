@@ -7,6 +7,7 @@ import com.excilys.ebi.gatling.http.scenario.HttpScenarioBuilder.{ scenario, cha
 import com.excilys.ebi.gatling.http.runner.builder.HttpRunnerBuilder._
 import com.excilys.ebi.gatling.http.processor.capture.builder.HttpRegExpCaptureBuilder.regexp
 import com.excilys.ebi.gatling.http.processor.capture.builder.HttpXPathCaptureBuilder.xpath
+import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpXPathAssertionBuilder.assertXpath
 import com.excilys.ebi.gatling.http.request.builder.GetHttpRequestBuilder.get
 import com.excilys.ebi.gatling.http.request.builder.PostHttpRequestBuilder.post
 
@@ -15,8 +16,8 @@ import com.ning.http.client.Request
 
 import java.util.concurrent.TimeUnit
 
-val iterations = 5
-val concurrentUsers = 5
+val iterations = 2
+val concurrentUsers = 1
 val pause1 = 3
 val pause2 = 2
 val pause3 = 1
@@ -43,7 +44,7 @@ val lambdaUser =
         .doHttpRequest(
           "Page accueil",
           get(url),
-          xpath("//input[@value='aaaa']/@id") in "ctxParam" build)
+          assertXpath("//input[@value='aaaa']/@id", "text1") in "ctxParam" build)
         .pause(pause2)
         // Second request to be repeated
         .doHttpRequest(

@@ -21,7 +21,10 @@ object ContextBuilder {
 
     def withData(data: Map[String, String]) = new ContextBuilder[HUID, HWAU](userId, writeActorUuid, Some(data), cookies)
 
-    def setAttribute(attr: Tuple2[String, String]) = new ContextBuilder[HUID, HWAU](userId, writeActorUuid, Some(data.get + (attr._1 -> attr._2)), cookies)
+    def setAttribute(attr: Tuple2[String, String]) = {
+      logger.debug("Setting '{}' in '{}'", attr._2, attr._1)
+      new ContextBuilder[HUID, HWAU](userId, writeActorUuid, Some(data.get + (attr._1 -> attr._2)), cookies)
+    }
 
     def unsetAttribute(attrKey: String) = new ContextBuilder[HUID, HWAU](userId, writeActorUuid, Some(data.get - attrKey), cookies)
 

@@ -5,6 +5,11 @@ import com.excilys.ebi.gatling.core.provider.capture.XPathCaptureProvider
 class XPathAssertionProvider extends AbstractAssertionProvider {
   def assert(expected: Any, target: Any, from: Any) = {
     val result = (new XPathCaptureProvider).capture(target, from)
-    (result == expected, result)
+    result.map {
+      r =>
+        (r == expected, Some(r))
+    }.getOrElse {
+      (false, None)
+    }
   }
 }

@@ -5,5 +5,24 @@ import com.excilys.ebi.gatling.core.provider.assertion.AbstractAssertionProvider
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
 import com.excilys.ebi.gatling.http.phase.HttpPhase
 
-abstract class HttpAssertion(val expected: Any, httpPhase: HttpPhase, val provider: AbstractAssertionProvider)
-  extends HttpProcessor(httpPhase)
+import com.ning.http.client.Response
+
+abstract class HttpAssertion(val expression: String, val expected: Any, val attrKey: Option[String], httpPhase: HttpPhase, val provider: AbstractAssertionProvider)
+    extends HttpProcessor(httpPhase) {
+
+  def assert(from: Any): (Boolean, Option[Any], Option[String]) = {
+    logger.debug("Asserting with RegExp...")
+    val placeToSearch =
+      from match {
+        case r: Response => r.getResponseBody
+        case _ => throw new IllegalArgumentException
+      }
+    val providerResult = provider.assert(expected, expression, placeToSearch)
+    attrKey.map {
+      key =>
+        (providerResult._1, providerResult._2, Some(key))
+    }.getOrElse {
+      (providerResult._1, providerResult._2, None)
+    }
+  }
+}

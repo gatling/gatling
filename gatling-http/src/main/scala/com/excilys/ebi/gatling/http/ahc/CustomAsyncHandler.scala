@@ -38,7 +38,14 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
 
   private def processResponse(httpPhase: HttpPhase, placeToSearch: Any): STATE = {
     for (a <- assertions.get(httpPhase).getOrElse(new HashSet)) {
-      // Do assert Stuff
+      val (result, resultValue, attrKey) = a.assert(placeToSearch)
+      logger.debug("ASSERTION RESULT: {}, {}, " + attrKey, result, resultValue)
+      if (result)
+        attrKey.map { key =>
+          contextBuilder = contextBuilder setAttribute (key, resultValue.getOrElse(throw new Exception("Assertion didn't find result")).toString)
+        }
+      else
+        sendLogAndExecuteNext("KO", "Assertion " + a + " failed", 0, None)
     }
 
     for (c <- captures.get(httpPhase).getOrElse(new HashSet)) {
@@ -47,6 +54,16 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
       contextBuilder = contextBuilder setAttribute (c.getAttrKey, value.getOrElse(throw new Exception("Capture string not found")).toString)
     }
     STATE.CONTINUE
+  }
+
+  private def sendLogAndExecuteNext(requestResult: String, requestMessage: String, processingStartTime: Long, response: Option[Response]) = {
+    actorFor(context.getWriteActorUuid).map { a =>
+      a ! ActionInfo(context.getUserId, "Request " + request.getName, executionStartDate, TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTime, TimeUnit.NANOSECONDS), requestResult, requestMessage)
+    }
+    response.map { r =>
+      contextBuilder = contextBuilder setCookies r.getCookies
+    }
+    next.execute(contextBuilder setElapsedActionTime (System.nanoTime() - processingStartTime) build)
   }
 
   def onStatusReceived(responseStatus: HttpResponseStatus): STATE = {
@@ -70,11 +87,7 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
     val response = responseBuilder.build
     processResponse(new CompletePageReceived, response)
 
-    actorFor(context.getWriteActorUuid).map { a =>
-      a ! ActionInfo(context.getUserId, "Request " + request.getName, executionStartDate, TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTime, TimeUnit.NANOSECONDS), "OK", "Request Executed Successfully")
-    }
-
-    next.execute(contextBuilder setElapsedActionTime (System.nanoTime() - processingStartTime) setCookies response.getCookies build)
+    sendLogAndExecuteNext("OK", "Request Executed Successfully", processingStartTime, Some(response))
     null
   }
 
