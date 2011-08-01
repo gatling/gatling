@@ -12,7 +12,10 @@ class Context(val userId: Int, val writeActorUuid: Uuid, val cookies: List[Cooki
   def getData = data
 
   def getAttribute(key: String): String = {
-    val result = data.get(key).getOrElse(throw new Exception("No matching attribute"))
+    val result = data.get(key).getOrElse {
+      logger.info("No Matching Attribute for key: '{}' in context, setting to ''", key)
+      ""
+    }
     logger.debug("Context('{}') = {}", key, result)
     result
   }
