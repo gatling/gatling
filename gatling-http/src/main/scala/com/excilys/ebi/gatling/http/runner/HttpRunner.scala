@@ -27,6 +27,7 @@ object HttpRunner {
     val latch: CountDownLatch = new CountDownLatch(numUsers)
     val scenario = scenarioBuilder.end(latch).build
 
+    logger.debug("[{}] {} requests to be executed for this scenario.", s.getName, s.getNumberOfRelevantActions + 1 * numUsers)
     logger.info("[{}] Simulation execution time will be at least {}s", s.getName, s.getExecutionTime + TimeUnit.SECONDS.convert(ramp.map { r => r._1.toLong }.getOrElse(0L), ramp.map { r => r._2 }.getOrElse(TimeUnit.SECONDS)))
 
     def run: String = {

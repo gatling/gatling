@@ -8,6 +8,7 @@ import com.excilys.ebi.gatling.http.runner.builder.HttpRunnerBuilder._
 import com.excilys.ebi.gatling.http.processor.capture.builder.HttpRegExpCaptureBuilder.regexp
 import com.excilys.ebi.gatling.http.processor.capture.builder.HttpXPathCaptureBuilder.xpath
 import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpXPathAssertionBuilder.assertXpath
+import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpRegExpAssertionBuilder.assertRegexp
 import com.excilys.ebi.gatling.http.request.builder.GetHttpRequestBuilder.get
 import com.excilys.ebi.gatling.http.request.builder.PostHttpRequestBuilder.post
 
@@ -16,8 +17,8 @@ import com.ning.http.client.Request
 
 import java.util.concurrent.TimeUnit
 
-val iterations = 2
-val concurrentUsers = 1
+val iterations = 10
+val concurrentUsers = 10
 val pause1 = 3
 val pause2 = 2
 val pause3 = 1
@@ -49,13 +50,13 @@ val lambdaUser =
         // Second request to be repeated
         .doHttpRequest(
           "Create Thing blabla",
-          post("http://localhost:3000/things") followsRedirect true withFeeder usersCredentials withQueryParam "login" withQueryParam "password" withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON)
+          post("http://localhost:3000/things") followsRedirect true withFeeder usersCredentials withQueryParam "login" withQueryParam "password" withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON,
+          assertRegexp("""<input value="(.*)"/>""", "blabla") build)
         .pause(pause3)
         // Third request to be repeated
         .doHttpRequest(
           "Liste Articles",
-          get("http://localhost:3000/things") withFeeder usersInformation withQueryParam "firstname" withQueryParam "lastname",
-          regexp("""Cookie:(\w+)""") in "testCookie" build)
+          get("http://localhost:3000/things") withFeeder usersInformation withQueryParam "firstname" withQueryParam "lastname")
         .pause(pause3)
         // Fourth request to be repeated
         .doHttpRequest(

@@ -7,7 +7,7 @@ import com.excilys.ebi.gatling.http.phase.HttpPhase
 
 import com.ning.http.client.Response
 
-abstract class HttpAssertion(val expression: String, val expected: Any, val attrKey: Option[String], httpPhase: HttpPhase, val provider: AbstractAssertionProvider)
+abstract class HttpAssertion(val expression: String, val expected: String, val attrKey: Option[String], httpPhase: HttpPhase, val provider: AbstractAssertionProvider)
     extends HttpProcessor(httpPhase) {
 
   def assert(from: Any): (Boolean, Option[Any], Option[String]) = {

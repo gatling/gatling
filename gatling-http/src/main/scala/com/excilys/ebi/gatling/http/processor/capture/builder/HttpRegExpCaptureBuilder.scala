@@ -9,8 +9,6 @@ object HttpRegExpCaptureBuilder {
       extends HttpCaptureBuilder(expression, attribute, httpPhase) {
 
     def in(attrKey: String) = new HttpRegExpCaptureBuilder(expression, Some(attrKey), httpPhase)
-    def onHeaders = new HttpRegExpCaptureBuilder(expression, attribute, Some(new HeadersReceived))
-    def onComplete = new HttpRegExpCaptureBuilder(expression, attribute, Some(new CompletePageReceived))
 
     def build: HttpCapture = new HttpRegExpCapture(expression.get, attribute.get, httpPhase.get)
   }

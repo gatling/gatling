@@ -4,7 +4,7 @@ import akka.actor.Uuid
 import com.excilys.ebi.gatling.core.log.Logging
 import com.ning.http.client.Cookie
 
-class Context(val userId: Int, val writeActorUuid: Uuid, val cookies: List[Cookie], var data: Map[String, String]) extends Logging {
+class Context(val userId: Int, val writeActorUuid: Uuid, val cookies: List[Cookie], var data: Map[String, String]) extends ElapsedActionTime with Logging {
   def getUserId = userId
   def getWriteActorUuid = writeActorUuid
   def getCookies = cookies
@@ -23,6 +23,6 @@ class Context(val userId: Int, val writeActorUuid: Uuid, val cookies: List[Cooki
 
   def getElapsedActionTime: Long =
     data.get("gatlingElapsedTime").map { l =>
-      l.asInstanceOf[Long]
+      l.toLong
     }.getOrElse(0L)
 }

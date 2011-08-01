@@ -15,7 +15,7 @@ class PauseAction(next: Action, delayValue: Int, delayUnit: TimeUnit) extends Ac
         case e: ElapsedActionTime => e.getElapsedActionTime
         case _ => 0L
       })
-    logger.info("Waiting for {}ms", TimeUnit.MILLISECONDS.convert(delayValue, delayUnit))
+    logger.info("Waiting for {}ms ({}ms)", TimeUnit.MILLISECONDS.convert(delayValue, delayUnit), TimeUnit.MILLISECONDS.convert(delayInNanos, TimeUnit.NANOSECONDS))
     Scheduler.scheduleOnce(() => next.execute(context), delayInNanos, TimeUnit.NANOSECONDS)
   }
 

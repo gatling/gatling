@@ -44,8 +44,10 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
         attrKey.map { key =>
           contextBuilder = contextBuilder setAttribute (key, resultValue.getOrElse(throw new Exception("Assertion didn't find result")).toString)
         }
-      else
-        sendLogAndExecuteNext("KO", "Assertion " + a + " failed", 0, None)
+      else {
+        sendLogAndExecuteNext("KO", "Assertion " + a + " failed", System.nanoTime(), None)
+        return STATE.ABORT
+      }
     }
 
     for (c <- captures.get(httpPhase).getOrElse(new HashSet)) {
@@ -53,6 +55,10 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
       logger.info("Captured Value: {}", value)
       contextBuilder = contextBuilder setAttribute (c.getAttrKey, value.getOrElse(throw new Exception("Capture string not found")).toString)
     }
+
+    if (placeToSearch.isInstanceOf[Response])
+      sendLogAndExecuteNext("OK", "Request Executed Successfully", System.nanoTime(), Some(placeToSearch.asInstanceOf[Response]))
+
     STATE.CONTINUE
   }
 
@@ -83,11 +89,8 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
 
   def onCompleted(): Response = {
     logger.debug("Response Received for request: {}", request.getRequest.getUrl)
-    val processingStartTime: Long = System.nanoTime()
     val response = responseBuilder.build
     processResponse(new CompletePageReceived, response)
-
-    sendLogAndExecuteNext("OK", "Request Executed Successfully", processingStartTime, Some(response))
     null
   }
 

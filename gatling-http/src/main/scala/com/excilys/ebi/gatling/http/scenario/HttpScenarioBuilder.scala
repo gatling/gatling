@@ -40,11 +40,11 @@ object HttpScenarioBuilder {
 
     def iterate(times: Int, chain: HttpScenarioBuilder): HttpScenarioBuilder = {
       val chainActions: List[AbstractActionBuilder] = chain.actionsList
-      var iteratedActions = List[AbstractActionBuilder]()
+      var iteratedActions: List[AbstractActionBuilder] = Nil
       for (i <- 1 to times) {
         iteratedActions = chainActions ::: iteratedActions
       }
-      logger.debug("Adding Iterations")
+      logger.debug("Adding {} Iterations", times)
       new HttpScenarioBuilder(name, iteratedActions ::: actionBuilders)
     }
 

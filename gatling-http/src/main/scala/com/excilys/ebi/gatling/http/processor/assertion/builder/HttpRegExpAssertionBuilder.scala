@@ -7,13 +7,12 @@ import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
 import com.excilys.ebi.gatling.http.processor.assertion.HttpRegExpAssertion
 
 object HttpRegExpAssertionBuilder {
-  class HttpRegExpAssertionBuilder(val expression: Option[String], val attrKey: Option[String], val expected: Option[Any], httpPhase: Option[HttpPhase]) {
-    def in(attrKey: String) = new HttpRegExpAssertionBuilder(expression, Some(attrKey), expected, httpPhase)
-    def onHeaders = new HttpRegExpAssertionBuilder(expression, attrKey, expected, Some(new HeadersReceived))
-    def onComplete = new HttpRegExpAssertionBuilder(expression, attrKey, expected, Some(new CompletePageReceived))
+  class HttpRegExpAssertionBuilder(expression: Option[String], expected: Option[String], attrKey: Option[String], httpPhase: Option[HttpPhase])
+      extends HttpAssertionBuilder(expression, expected, attrKey, httpPhase) {
+    def in(attrKey: String) = new HttpRegExpAssertionBuilder(expression, expected, Some(attrKey), httpPhase)
 
-    def build: HttpAssertion = new HttpRegExpAssertion(expression.get, attrKey, expected.get, httpPhase.get)
+    def build: HttpAssertion = new HttpRegExpAssertion(expression.get, expected.get, attrKey, httpPhase.get)
   }
 
-  def assertRegexp(expression: String, expected: Any) = new HttpRegExpAssertionBuilder(Some(expression), None, Some(expected), Some(new CompletePageReceived))
+  def assertRegexp(expression: String, expected: String) = new HttpRegExpAssertionBuilder(Some(expression), Some(expected), None, Some(new CompletePageReceived))
 }
