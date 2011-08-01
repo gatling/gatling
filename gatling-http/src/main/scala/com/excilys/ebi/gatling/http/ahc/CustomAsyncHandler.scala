@@ -45,7 +45,12 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
           contextBuilder = contextBuilder setAttribute (key, resultValue.getOrElse(throw new Exception("Assertion didn't find result")).toString)
         }
       else {
-        sendLogAndExecuteNext("KO", "Assertion " + a + " failed", System.nanoTime(), None)
+        val response =
+          if (placeToSearch.isInstanceOf[Response])
+            Some(placeToSearch.asInstanceOf[Response])
+          else
+            None
+        sendLogAndExecuteNext("KO", "Assertion " + a + " failed", System.nanoTime(), response)
         return STATE.ABORT
       }
     }
