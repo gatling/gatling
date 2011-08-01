@@ -95,7 +95,7 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
   }
 
   def onThrowable(throwable: Throwable) = {
-    throwable.printStackTrace
+    sendLogAndExecuteNext("KO", throwable.getMessage, System.nanoTime(), None)
   }
 
 }
