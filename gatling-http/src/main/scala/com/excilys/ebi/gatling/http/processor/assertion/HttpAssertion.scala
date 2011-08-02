@@ -11,10 +11,10 @@ abstract class HttpAssertion(val expression: String, val expected: String, val a
     extends HttpProcessor(httpPhase) {
 
   def assert(from: Any): (Boolean, Option[Any], Option[String]) = {
-    logger.debug("Asserting with RegExp...")
     val placeToSearch =
       from match {
         case r: Response => r.getResponseBody
+        case i: Int => i
         case _ => throw new IllegalArgumentException
       }
     val providerResult = provider.assert(expected, expression, placeToSearch)

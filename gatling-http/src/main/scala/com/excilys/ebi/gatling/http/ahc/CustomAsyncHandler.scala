@@ -34,7 +34,22 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
 
   private val responseBuilder: ResponseBuilder = new ResponseBuilder()
 
-  var contextBuilder = makeContext fromContext context
+  private var contextBuilder = makeContext fromContext context
+
+  private var hasSentLog = false
+
+  private def sendLogAndExecuteNext(requestResult: String, requestMessage: String, processingStartTime: Long, response: Option[Response]) = {
+    if (!hasSentLog) {
+      actorFor(context.getWriteActorUuid).map { a =>
+        a ! ActionInfo(context.getUserId, "Request " + request.getName, executionStartDate, TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTime, TimeUnit.NANOSECONDS), requestResult, requestMessage)
+      }
+      response.map { r =>
+        contextBuilder = contextBuilder setCookies r.getCookies
+      }
+      next.execute(contextBuilder setElapsedActionTime (System.nanoTime() - processingStartTime) build)
+      hasSentLog = true
+    }
+  }
 
   private def processResponse(httpPhase: HttpPhase, placeToSearch: Any): STATE = {
     for (a <- assertions.get(httpPhase).getOrElse(new HashSet)) {
@@ -65,16 +80,6 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
       sendLogAndExecuteNext("OK", "Request Executed Successfully", System.nanoTime(), Some(placeToSearch.asInstanceOf[Response]))
 
     STATE.CONTINUE
-  }
-
-  private def sendLogAndExecuteNext(requestResult: String, requestMessage: String, processingStartTime: Long, response: Option[Response]) = {
-    actorFor(context.getWriteActorUuid).map { a =>
-      a ! ActionInfo(context.getUserId, "Request " + request.getName, executionStartDate, TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTime, TimeUnit.NANOSECONDS), requestResult, requestMessage)
-    }
-    response.map { r =>
-      contextBuilder = contextBuilder setCookies r.getCookies
-    }
-    next.execute(contextBuilder setElapsedActionTime (System.nanoTime() - processingStartTime) build)
   }
 
   def onStatusReceived(responseStatus: HttpResponseStatus): STATE = {

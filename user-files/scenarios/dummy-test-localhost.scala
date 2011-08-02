@@ -3,14 +3,15 @@ import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.feeder.TSVFeeder
 import com.excilys.ebi.gatling.core.context.FromContext
 
-import com.excilys.ebi.gatling.http.scenario.HttpScenarioBuilder.{ scenario, chain, HttpScenarioBuilder }
+import com.excilys.ebi.gatling.http.scenario.HttpScenarioBuilder._
 import com.excilys.ebi.gatling.http.runner.builder.HttpRunnerBuilder._
-import com.excilys.ebi.gatling.http.processor.capture.builder.HttpRegExpCaptureBuilder.regexp
-import com.excilys.ebi.gatling.http.processor.capture.builder.HttpXPathCaptureBuilder.xpath
-import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpXPathAssertionBuilder.assertXpath
-import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpRegExpAssertionBuilder.assertRegexp
-import com.excilys.ebi.gatling.http.request.builder.GetHttpRequestBuilder.get
-import com.excilys.ebi.gatling.http.request.builder.PostHttpRequestBuilder.post
+import com.excilys.ebi.gatling.http.processor.capture.builder.HttpRegExpCaptureBuilder._
+import com.excilys.ebi.gatling.http.processor.capture.builder.HttpXPathCaptureBuilder._
+import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpXPathAssertionBuilder._
+import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpRegExpAssertionBuilder._
+import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpStatusAssertionBuilder._
+import com.excilys.ebi.gatling.http.request.builder.GetHttpRequestBuilder._
+import com.excilys.ebi.gatling.http.request.builder.PostHttpRequestBuilder._
 
 import com.ning.http.client.RequestBuilder
 import com.ning.http.client.Request
@@ -18,7 +19,7 @@ import com.ning.http.client.Request
 import java.util.concurrent.TimeUnit
 
 val iterations = 10
-val concurrentUsers = 10
+val concurrentUsers = 1
 val pause1 = 3
 val pause2 = 2
 val pause3 = 1
@@ -45,7 +46,8 @@ val lambdaUser =
         .doHttpRequest(
           "Page accueil",
           get(url),
-          assertXpath("//input[@value='aaaa']/@id", "text1") in "ctxParam" build)
+          assertXpath("//input[@value='aaaa']/@id", "text1") in "ctxParam" build,
+          assertStatusInRange(200 to 210) build)
         .pause(pause2)
         // Second request to be repeated
         .doHttpRequest(
@@ -61,7 +63,8 @@ val lambdaUser =
         // Fourth request to be repeated
         .doHttpRequest(
           "Create Thing omgomg",
-          post("http://localhost:3000/things") withQueryParam ("postTest", FromContext("ctxParam")) withTemplateBodyFromContext ("create_thing", Map("name" -> "ctxParam")) asJSON))
+          post("http://localhost:3000/things") withQueryParam ("postTest", FromContext("ctxParam")) withTemplateBodyFromContext ("create_thing", Map("name" -> "ctxParam")) asJSON,
+          assertStatus(201) build))
     // Second request outside iteration
     .doHttpRequest("Ajout au panier",
       get(url),
