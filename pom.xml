@@ -23,6 +23,32 @@
 		</license>
 	</licenses>
 
+	<scm>
+		<connection>scm:git:git://github.com/excilys/gatling.git</connection>
+		<developerConnection>scm:git:git@github.com:excilys/gatling.git</developerConnection>
+		<url>https://github.com/excilys/gatling</url>
+	</scm>
+
+	<distributionManagement>
+		<repository>
+			<id>excilys-release</id>
+			<url>http://repository.excilys.com/content/repositories/releases</url>
+		</repository>
+	</distributionManagement>
+
+	<developers>
+		<developer>
+			<id>slandelle@excilys.com</id>
+			<name>Stephane Landelle</name>
+			<organization>Excilys</organization>
+		</developer>
+		<developer>
+			<id>rsertelon@excilys.com</id>
+			<name>Romain Sertelon</name>
+			<organization>Excilys</organization>
+		</developer>
+	</developers>
+
 	<repositories>
 		<repository>
 			<id>akka.repository</id>
@@ -197,6 +223,15 @@
 						<include>**/*Test.*</include>
 						<include>**/*Suite.*</include>
 					</includes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.2.1</version><!--$NO-MVN-MAN-VER$-->
+				<configuration>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<tagNameFormat>@{project.version}</tagNameFormat>
 				</configuration>
 			</plugin>
 		</plugins>
