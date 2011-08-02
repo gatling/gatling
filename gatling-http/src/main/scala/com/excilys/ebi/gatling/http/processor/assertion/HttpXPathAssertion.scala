@@ -8,4 +8,14 @@ class HttpXPathAssertion(expression: String, expected: String, attrKey: Option[S
     extends HttpAssertion(expression, expected, attrKey, httpPhase, new XPathAssertionProvider) {
 
   override def toString = "HttpXPathAssertion ('" + expression + "' must be equal to '" + expected + "')"
+
+  override def equals(that: Any) = {
+    if (!that.isInstanceOf[HttpXPathAssertion])
+      false
+    else {
+      val other = that.asInstanceOf[HttpXPathAssertion]
+
+      this.expression == other.expression && this.expected == other.expected && this.attrKey == other.attrKey
+    }
+  }
 }

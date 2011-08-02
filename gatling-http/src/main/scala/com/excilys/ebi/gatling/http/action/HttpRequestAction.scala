@@ -5,9 +5,11 @@ import com.excilys.ebi.gatling.core.context.Context
 
 import com.excilys.ebi.gatling.http.ahc.CustomAsyncHandler
 import com.excilys.ebi.gatling.http.phase.HttpPhase
+import com.excilys.ebi.gatling.http.phase.StatusReceived
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
 import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
+import com.excilys.ebi.gatling.http.processor.assertion.HttpStatusAssertion
 import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
 
 import com.ning.http.client.AsyncHttpClient
@@ -24,6 +26,9 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessors: Opt
 
   val assertions: MultiMap[HttpPhase, HttpAssertion] = new HashMap[HttpPhase, MSet[HttpAssertion]] with MultiMap[HttpPhase, HttpAssertion]
   val captures: MultiMap[HttpPhase, HttpCapture] = new HashMap[HttpPhase, MSet[HttpCapture]] with MultiMap[HttpPhase, HttpCapture]
+
+  // Adds default assertions
+  assertions.addBinding(new StatusReceived, new HttpStatusAssertion((200 to 210).mkString, None))
 
   givenProcessors match {
     case Some(list) => {
