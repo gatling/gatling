@@ -10,7 +10,9 @@ import com.ning.http.client.Response
 abstract class HttpAssertion(val expression: String, val expected: String, val attrKey: Option[String], httpPhase: HttpPhase, val provider: AbstractAssertionProvider)
     extends HttpProcessor(httpPhase) {
 
-  def assert(from: Any): (Boolean, Option[Any], Option[String]) = {
+  def assert(from: Any): (Boolean, Option[Any], Option[String]) = assertInRequest(from, (new String).hashCode.toString)
+
+  def assertInRequest(from: Any, identifier: String): (Boolean, Option[Any], Option[String]) = {
     val placeToSearch =
       from match {
         case r: Response => r.getResponseBody

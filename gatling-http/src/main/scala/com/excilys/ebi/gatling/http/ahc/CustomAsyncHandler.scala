@@ -52,8 +52,9 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
   }
 
   private def processResponse(httpPhase: HttpPhase, placeToSearch: Any): STATE = {
+    logger.debug("Assertions at {} : {}", httpPhase, assertions.get(httpPhase))
     for (a <- assertions.get(httpPhase).getOrElse(new HashSet)) {
-      val (result, resultValue, attrKey) = a.assert(placeToSearch)
+      val (result, resultValue, attrKey) = a.assertInRequest(placeToSearch, request.getName + context.getUserId + executionStartDate)
       logger.debug("ASSERTION RESULT: {}, {}, " + attrKey, result, resultValue)
       if (result)
         attrKey.map { key =>

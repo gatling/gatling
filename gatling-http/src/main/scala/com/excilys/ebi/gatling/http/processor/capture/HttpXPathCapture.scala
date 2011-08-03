@@ -7,16 +7,16 @@ import com.excilys.ebi.gatling.http.phase.HttpPhase
 import com.ning.http.client.Response
 
 class HttpXPathCapture(expression: String, attrKey: String, httpPhase: HttpPhase)
-    extends HttpCapture(expression, attrKey, httpPhase, new XPathCaptureProvider) {
+    extends HttpCapture(expression, attrKey, httpPhase, null) {
 
-  def capture(from: Any): Option[Any] = {
+  def captureInRequest(from: Any, identifier: String): Option[Any] = {
     logger.debug("Capturing XPath...")
-    val placeToSearch =
+    val response =
       from match {
-        case r: Response => r.getResponseBodyAsBytes
+        case r: Response => r
         case _ => throw new IllegalArgumentException
       }
-    provider.capture(expression, placeToSearch)
+    XPathCaptureProvider.getInstance(identifier).capture(expression, response.getResponseBodyAsBytes)
   }
 
   override def toString = "HttpXPathCapture (" + expression + ")"

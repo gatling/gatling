@@ -47,21 +47,26 @@ val lambdaUser =
           "Page accueil",
           get(url),
           assertXpath("//input[@value='aaaa']/@id", "text1") in "ctxParam" build,
-          assertStatusInRange(200 to 210) build,
-          xpath("//input[@value='aaaa']/@id") in "test" build,
-          xpath("//input[@value='aaaa']/@id") in "test2" build)
+          assertStatusInRange(200 to 210) in "blablaParam" build,
+          assertXpath("//input[@value='aaaa']/@id", "text1") in "test1" build,
+          assertXpath("//input[@id='text1']/@value", "aaaa") in "test2" build)
         .pause(pause2)
         // Second request to be repeated
         .doHttpRequest(
           "Create Thing blabla",
-          post("http://localhost:3000/things") followsRedirect true withFeeder usersCredentials withQueryParam "login" withQueryParam "password" withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON,
-          assertRegexp("""<input value="(.*)"/>""", "blabla") build)
+          post("http://localhost:3000/things") followsRedirect true withFeeder usersCredentials withQueryParam "login" withQueryParam "password" withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON)//,
+          //assertRegexp("""<input value="(.*)"/>""", "blabla") build)
         .pause(pause3)
         // Third request to be repeated
         .doHttpRequest(
           "Liste Articles",
           get("http://localhost:3000/things") withFeeder usersInformation withQueryParam "firstname" withQueryParam "lastname")
         .pause(pause3)
+        .doHttpRequest(
+          "Test Page",
+          get("http://localhost:3000/tests"),
+          assertXpath("//input[@value='bbbb']/@id", "text2") in "test1" build,
+          assertXpath("//input[@id='text2']/@value", "bbbb") in "test2" build)
         // Fourth request to be repeated
         .doHttpRequest(
           "Create Thing omgomg",

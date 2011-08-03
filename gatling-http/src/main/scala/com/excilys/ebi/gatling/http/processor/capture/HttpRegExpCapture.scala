@@ -9,9 +9,9 @@ import scala.util.matching.Regex
 import com.ning.http.client.Response
 
 class HttpRegExpCapture(expression: String, attrKey: String, httpPhase: HttpPhase)
-  extends HttpCapture(expression, attrKey, httpPhase, new RegExpCaptureProvider) {
+    extends HttpCapture(expression, attrKey, httpPhase, new RegExpCaptureProvider) {
 
-  def capture(from: Any): Option[Any] = {
+  def captureInRequest(from: Any, identifier: String): Option[Any] = {
     logger.debug("Capturing RegExp...")
     val placeToSearch =
       from match {
