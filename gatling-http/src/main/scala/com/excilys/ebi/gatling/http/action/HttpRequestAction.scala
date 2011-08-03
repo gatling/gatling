@@ -27,9 +27,6 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessors: Opt
   val assertions: MultiMap[HttpPhase, HttpAssertion] = new HashMap[HttpPhase, MSet[HttpAssertion]] with MultiMap[HttpPhase, HttpAssertion]
   val captures: MultiMap[HttpPhase, HttpCapture] = new HashMap[HttpPhase, MSet[HttpCapture]] with MultiMap[HttpPhase, HttpCapture]
 
-  // Adds default assertions
-  assertions.addBinding(new StatusReceived, new HttpStatusAssertion((200 to 210).mkString, None))
-
   givenProcessors match {
     case Some(list) => {
       for (processor <- list) {
@@ -45,6 +42,9 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessors: Opt
     }
     case None => {}
   }
+
+  // Adds default assertions (they won't be added if overrided by user)
+  assertions.addBinding(new StatusReceived, new HttpStatusAssertion((200 to 210).mkString(":"), None))
 
   def execute(context: Context) = {
     logger.info("Sending Request")

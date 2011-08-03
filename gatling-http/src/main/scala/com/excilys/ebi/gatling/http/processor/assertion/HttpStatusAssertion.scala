@@ -9,13 +9,7 @@ class HttpStatusAssertion(expected: String, attrKey: Option[String])
 
   override def toString = "HttpStatusAssertion (Http Response Status must be in '{" + expected + "}')"
 
-  override def equals(that: Any) = {
-    if (!that.isInstanceOf[HttpStatusAssertion])
-      false
-    else {
-      val other = that.asInstanceOf[HttpStatusAssertion]
+  override def equals(that: Any) = that.isInstanceOf[HttpStatusAssertion]
 
-      other.expected.contains(this.expected) && this.attrKey == other.attrKey
-    }
-  }
+  override def hashCode() = 1
 }
