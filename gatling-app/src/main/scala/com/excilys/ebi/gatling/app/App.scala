@@ -55,12 +55,16 @@ object App extends Logging {
 
     val n = new IMain(settings)
 
-    val fileContent = Source.fromFile("user-files/scenarios/" + filename).mkString + "\n$result__.value = execution"
+    val fileContent = Source.fromFile("user-files/scenarios/" + filename).mkString + "\n\n$result__.value = execution"
+
+    logger.debug(fileContent)
 
     val runOn = new ResultHolder("")
     n.bind("$result__", runOn)
     n.interpret(fileContent)
     n.close()
+
+    logger.debug("RunOn Value: {}", runOn.value)
 
     (new GraphicsGenerator).generateFor(runOn.value)
   }
