@@ -19,7 +19,7 @@ import com.ning.http.client.Request
 import java.util.concurrent.TimeUnit
 
 val iterations = 10
-val concurrentUsers = 1
+val concurrentUsers = 10
 val pause1 = 3
 val pause2 = 2
 val pause3 = 1
@@ -47,7 +47,9 @@ val lambdaUser =
           "Page accueil",
           get(url),
           assertXpath("//input[@value='aaaa']/@id", "text1") in "ctxParam" build,
-          assertStatusInRange(200 to 210) build)
+          assertStatusInRange(200 to 210) build,
+          xpath("//input[@value='aaaa']/@id") in "test" build,
+          xpath("//input[@value='aaaa']/@id") in "test2" build)
         .pause(pause2)
         // Second request to be repeated
         .doHttpRequest(
