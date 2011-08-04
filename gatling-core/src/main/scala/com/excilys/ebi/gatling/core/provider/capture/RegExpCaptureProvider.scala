@@ -3,8 +3,6 @@ package com.excilys.ebi.gatling.core.provider.capture
 import scala.util.matching.Regex
 
 class RegExpCaptureProvider extends AbstractCaptureProvider {
-  def capture(target: Any, from: Any): Option[String] = captureOne(target, from)
-
   def captureOne(target: Any, from: Any): Option[String] = {
     val toBeFound = new Regex(target.toString)
 

@@ -24,8 +24,6 @@ object XPathCaptureProvider {
     var vn: VTDNav = null
     var ap: AutoPilot = null
 
-    def capture(target: Any, from: Any): Option[String] = captureOne(target, from)
-
     def captureOne(target: Any, from: Any): Option[String] = {
 
       if (vtdEngine == null) {

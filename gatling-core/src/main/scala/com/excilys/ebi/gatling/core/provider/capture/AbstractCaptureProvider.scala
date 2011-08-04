@@ -3,7 +3,7 @@ package com.excilys.ebi.gatling.core.provider.capture
 import com.excilys.ebi.gatling.core.log.Logging
 
 abstract class AbstractCaptureProvider extends Logging {
-  def capture(target: Any, from: Any): Option[Any]
+  def capture(target: Any, from: Any): Option[Any] = captureOne(target, from)
   def captureOne(target: Any, from: Any): Option[Any]
   def captureAll(target: Any, from: Any): Option[Any]
 }
