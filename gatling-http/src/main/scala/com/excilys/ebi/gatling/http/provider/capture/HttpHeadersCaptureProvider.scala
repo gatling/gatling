@@ -2,8 +2,6 @@ package com.excilys.ebi.gatling.http.provider.capture
 
 import com.excilys.ebi.gatling.core.provider.capture.AbstractCaptureProvider
 
-import com.excilys.ebi.gatling.http.header.HeaderKey
-
 import com.ning.http.client.FluentCaseInsensitiveStringsMap
 
 class HttpHeadersCaptureProvider extends AbstractCaptureProvider {
@@ -18,7 +16,6 @@ class HttpHeadersCaptureProvider extends AbstractCaptureProvider {
     logger.debug(" -- Headers Capture Provider - Got headers Map: {}", headersMap)
 
     val headerKey = target match {
-      case key: HeaderKey => key.toString
       case s: String => s
       case _ => throw new IllegalArgumentException
     }

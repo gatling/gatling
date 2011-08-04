@@ -2,7 +2,6 @@ package com.excilys.ebi.gatling.http.processor.assertion.builder
 
 import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
 import com.excilys.ebi.gatling.http.processor.assertion.HttpHeaderAssertion
-import com.excilys.ebi.gatling.http.header.HeaderKey
 
 object HttpHeaderAssertionBuilder {
   class HttpHeaderAssertionBuilder(expression: Option[String], expected: Option[String], attrKey: Option[String])
@@ -13,5 +12,4 @@ object HttpHeaderAssertionBuilder {
   }
 
   def assertHeader(headerName: String, expected: String) = new HttpHeaderAssertionBuilder(Some(headerName), Some(expected), None)
-  def assertHeader(header: HeaderKey, expected: String): HttpHeaderAssertionBuilder = assertHeader(header.toString, expected)
 }

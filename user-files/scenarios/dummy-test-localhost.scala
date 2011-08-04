@@ -1,8 +1,5 @@
-import com.excilys.ebi.gatling.core.action.Action
-import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.feeder.TSVFeeder
 import com.excilys.ebi.gatling.core.context.FromContext
-
 import com.excilys.ebi.gatling.http.scenario.HttpScenarioBuilder._
 import com.excilys.ebi.gatling.http.runner.builder.HttpRunnerBuilder._
 import com.excilys.ebi.gatling.http.processor.capture.builder.HttpRegExpCaptureBuilder._
@@ -14,11 +11,7 @@ import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpStatusAssert
 import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpHeaderAssertionBuilder._
 import com.excilys.ebi.gatling.http.request.builder.GetHttpRequestBuilder._
 import com.excilys.ebi.gatling.http.request.builder.PostHttpRequestBuilder._
-import com.excilys.ebi.gatling.http.header._
-
-import com.ning.http.client.RequestBuilder
-import com.ning.http.client.Request
-
+import com.excilys.ebi.gatling.http.header.HeaderKey._
 import java.util.concurrent.TimeUnit
 
 val iterations = 5
@@ -68,7 +61,7 @@ val lambdaUser =
         .doHttpRequest(
           "Test Page",
           get("http://localhost:3000/tests"),
-          assertHeader(ContentTypeHeader(), "text/html") in "ctxParam" build)
+          assertHeader(ContentType, "text/html; charset=utf-8") in "ctxParam" build)
         // Fourth request to be repeated
         .doHttpRequest(
           "Create Thing omgomg",
