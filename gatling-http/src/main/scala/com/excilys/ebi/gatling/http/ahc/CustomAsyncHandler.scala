@@ -52,6 +52,7 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
   }
 
   private def processResponse(httpPhase: HttpPhase, placeToSearch: Any): STATE = {
+    val processingStartTime = System.nanoTime
     logger.debug("Assertions at {} : {}", httpPhase, assertions.get(httpPhase))
     for (a <- assertions.get(httpPhase).getOrElse(new HashSet)) {
       val (result, resultValue, attrKey) = a.assertInRequest(placeToSearch, request.getName + context.getUserId + executionStartDate)
@@ -66,7 +67,7 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
             Some(placeToSearch.asInstanceOf[Response])
           else
             None
-        sendLogAndExecuteNext("KO", "Assertion " + a + " failed", System.nanoTime(), response)
+        sendLogAndExecuteNext("KO", "Assertion " + a + " failed", processingStartTime, response)
         return STATE.ABORT
       }
     }
@@ -78,7 +79,7 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
     }
 
     if (placeToSearch.isInstanceOf[Response])
-      sendLogAndExecuteNext("OK", "Request Executed Successfully", System.nanoTime(), Some(placeToSearch.asInstanceOf[Response]))
+      sendLogAndExecuteNext("OK", "Request Executed Successfully", processingStartTime, Some(placeToSearch.asInstanceOf[Response]))
 
     STATE.CONTINUE
   }
@@ -90,7 +91,7 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
 
   def onHeadersReceived(headers: HttpResponseHeaders): STATE = {
     responseBuilder.accumulate(headers)
-    processResponse(new HeadersReceived, headers.getHeaders) // Process headers is not that simple.
+    processResponse(new HeadersReceived, headers.getHeaders)
   }
 
   def onBodyPartReceived(bodyPart: HttpResponseBodyPart): STATE = {
@@ -106,6 +107,7 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
   }
 
   def onThrowable(throwable: Throwable) = {
+    logger.debug("{}\n{}", throwable.getClass, throwable.getStackTraceString)
     sendLogAndExecuteNext("KO", throwable.getMessage, System.nanoTime(), None)
   }
 

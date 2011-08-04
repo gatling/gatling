@@ -6,6 +6,7 @@ import com.excilys.ebi.gatling.http.processor.HttpProcessor
 import com.excilys.ebi.gatling.http.phase.HttpPhase
 
 import com.ning.http.client.Response
+import com.ning.http.client.FluentCaseInsensitiveStringsMap
 
 abstract class HttpAssertion(val expression: String, val expected: String, val attrKey: Option[String], httpPhase: HttpPhase, val provider: AbstractAssertionProvider)
     extends HttpProcessor(httpPhase) {
@@ -17,6 +18,7 @@ abstract class HttpAssertion(val expression: String, val expected: String, val a
       from match {
         case r: Response => r.getResponseBody
         case i: Int => i
+        case map: FluentCaseInsensitiveStringsMap => map
         case _ => throw new IllegalArgumentException
       }
     val providerResult = provider.assert(expected, expression, placeToSearch)

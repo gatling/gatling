@@ -7,19 +7,22 @@ import com.excilys.ebi.gatling.http.scenario.HttpScenarioBuilder._
 import com.excilys.ebi.gatling.http.runner.builder.HttpRunnerBuilder._
 import com.excilys.ebi.gatling.http.processor.capture.builder.HttpRegExpCaptureBuilder._
 import com.excilys.ebi.gatling.http.processor.capture.builder.HttpXPathCaptureBuilder._
+import com.excilys.ebi.gatling.http.processor.capture.builder.HttpHeaderCaptureBuilder._
 import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpXPathAssertionBuilder._
 import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpRegExpAssertionBuilder._
 import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpStatusAssertionBuilder._
+import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpHeaderAssertionBuilder._
 import com.excilys.ebi.gatling.http.request.builder.GetHttpRequestBuilder._
 import com.excilys.ebi.gatling.http.request.builder.PostHttpRequestBuilder._
+import com.excilys.ebi.gatling.http.header._
 
 import com.ning.http.client.RequestBuilder
 import com.ning.http.client.Request
 
 import java.util.concurrent.TimeUnit
 
-val iterations = 10
-val concurrentUsers = 10
+val iterations = 5
+val concurrentUsers = 1
 val pause1 = 3
 val pause2 = 2
 val pause3 = 1
@@ -65,8 +68,7 @@ val lambdaUser =
         .doHttpRequest(
           "Test Page",
           get("http://localhost:3000/tests"),
-          assertXpath("//input[@value='bbbb']/@id", "text2") in "test1" build,
-          assertXpath("//input[@id='text2']/@value", "bbbb") in "test2" build)
+          assertHeader(ContentTypeHeader(), "text/html") in "ctxParam" build)
         // Fourth request to be repeated
         .doHttpRequest(
           "Create Thing omgomg",
