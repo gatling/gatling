@@ -11,6 +11,7 @@ import tools.nsc.util.BatchSourceFile
 import java.io.File
 
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.config.GatlingConfig
 
 import com.excilys.ebi.gatling.statistics.GraphicsGenerator
 
@@ -21,6 +22,8 @@ object App extends Logging {
   def main(args: Array[String]) {
 
     println("-----------\nGatling cli\n-----------\n")
+
+    GatlingConfig // Initializes configuration
 
     val files = for (
       file <- new Directory(new File("user-files/scenarios")).files if (!file.name.startsWith(".") && !file.name.startsWith("_"))
