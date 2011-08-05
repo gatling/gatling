@@ -10,29 +10,30 @@ import com.excilys.ebi.gatling.core.provider.capture.AbstractCaptureProvider
 
 import com.excilys.ebi.gatling.http.action.HttpRequestAction
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
+import com.excilys.ebi.gatling.http.processor.builder.HttpProcessorBuilder
 import com.excilys.ebi.gatling.http.scenario.HttpScenarioBuilder
 
 import akka.actor.TypedActor
 
 object HttpRequestActionBuilder {
-  class HttpRequestActionBuilder(val request: Option[HttpRequest], val nextAction: Option[Action], val processors: Option[List[HttpProcessor]])
-    extends AbstractActionBuilder {
+  class HttpRequestActionBuilder(val request: Option[HttpRequest], val nextAction: Option[Action], val processorBuilders: Option[List[HttpProcessorBuilder]])
+      extends AbstractActionBuilder {
 
-    def withProcessors(givenProcessors: List[HttpProcessor]) = {
+    def withProcessors(givenProcessors: List[HttpProcessorBuilder]) = {
       logger.debug("Adding Processors")
-      new HttpRequestActionBuilder(request, nextAction, Some(givenProcessors ::: processors.getOrElse(Nil)))
+      new HttpRequestActionBuilder(request, nextAction, Some(givenProcessors ::: processorBuilders.getOrElse(Nil)))
     }
 
-    def withProcessor(processor: HttpProcessor) = new HttpRequestActionBuilder(request, nextAction, Some(processor :: processors.getOrElse(Nil)))
+    def withProcessor(processor: HttpProcessorBuilder) = new HttpRequestActionBuilder(request, nextAction, Some(processor :: processorBuilders.getOrElse(Nil)))
 
-    def withRequest(request: HttpRequest) = new HttpRequestActionBuilder(Some(request), nextAction, processors)
+    def withRequest(request: HttpRequest) = new HttpRequestActionBuilder(Some(request), nextAction, processorBuilders)
 
-    def withNext(next: Action) = new HttpRequestActionBuilder(request, Some(next), processors)
+    def withNext(next: Action) = new HttpRequestActionBuilder(request, Some(next), processorBuilders)
 
     def build(): Action = {
-      logger.debug("Building HttpRequestAction with request {} and processors: {}", request.get, processors.get)
+      logger.debug("Building HttpRequestAction with request {}", request.get)
       HttpScenarioBuilder.addRelevantAction
-      TypedActor.newInstance(classOf[Action], new HttpRequestAction(nextAction.get, request.get, processors))
+      TypedActor.newInstance(classOf[Action], new HttpRequestAction(nextAction.get, request.get, processorBuilders))
     }
 
   }
