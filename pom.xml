@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.excilys.ebi.gatling</groupId>
 	<artifactId>gatling-parent</artifactId>
@@ -59,6 +60,13 @@
 			<name>Excilys Third Party Repository</name>
 			<url>http://repository.excilys.com/content/repositories/thirdparty</url>
 		</repository>
+		<repository>
+			<id>repository.jboss.org</id>
+			<url>https://repository.jboss.org/nexus/content/repositories/releases/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
@@ -81,6 +89,7 @@
 		<commons.lang.version>2.6</commons.lang.version>
 		<scalate.version>1.5.0</scalate.version>
 		<commons.io.version>2.0.1</commons.io.version>
+		<netty.version>3.2.5.Final</netty.version>
 	</properties>
 
 	<dependencyManagement>
@@ -121,6 +130,11 @@
 				<version>${ahc.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.jboss.netty</groupId>
+				<artifactId>netty</artifactId>
+				<version>${netty.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>se.scalablesolutions.akka</groupId>
 				<artifactId>akka-actor</artifactId>
 				<version>${akka.version}</version>
@@ -135,8 +149,8 @@
 						<artifactId>guice-all</artifactId>
 					</exclusion>
 					<exclusion>
-						<artifactId>akka-stm</artifactId>
 						<groupId>se.scalablesolutions.akka</groupId>
+						<artifactId>akka-stm</artifactId>
 					</exclusion>
 				</exclusions>
 			</dependency>
@@ -227,7 +241,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
-				<version>2.2.1</version><!--$NO-MVN-MAN-VER$-->
+				<version>2.2.1</version><!--$NO-MVN-MAN-VER$ -->
 				<configuration>
 					<autoVersionSubmodules>true</autoVersionSubmodules>
 					<tagNameFormat>@{project.version}</tagNameFormat>
