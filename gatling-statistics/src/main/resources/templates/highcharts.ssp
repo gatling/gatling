@@ -1,3 +1,9 @@
+<%@ val series: List[com.excilys.ebi.gatling.statistics.template.Series] %>
+<%@ val toolTip: String %>
+<%@ val plotBand: com.excilys.ebi.gatling.statistics.template.PlotBand %>
+<%@ val hasPlotBand: Boolean %>
+<%@ val yAxisTitle: String %>
+<%@ val graphTitle: String %>
 var chart;
 $(document).ready(function() {
 	chart = new Highcharts.Chart({

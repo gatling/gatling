@@ -1,3 +1,4 @@
+<%@ val result: com.excilys.ebi.gatling.statistics.result.DetailsRequestsDataResult %>
 <h2>Statistics</h2>
 <p>Here are some statistics for this request.</p>
 <ul>

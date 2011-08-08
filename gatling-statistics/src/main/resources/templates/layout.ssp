@@ -1,3 +1,8 @@
+<%@ val highcharts: String %>
+<%@ val body: String %>
+<%@ val menuItems: Map[String, String] %>
+<%@ val runOn: String %>
+<%@ val title: String %>
 <!DOCTYPE html>
 <html>
 	<head>

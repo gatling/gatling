@@ -7,10 +7,6 @@ import com.excilys.ebi.gatling.statistics.result.DetailsRequestsDataResult
 class DetailsRequestsTemplate(val runOn: String, val menuItems: Map[String, String], val series: List[Series], val requestName: String, val result: DetailsRequestsDataResult) {
 
   val bodyEngine = new TemplateEngine
-
-  bodyEngine.bindings = List(
-    Binding("requestName", "String"),
-    Binding("result", "com.excilys.ebi.gatling.statistics.result.DetailsRequestsDataResult"))
   bodyEngine.escapeMarkup = false
 
   def getOutput: String = {

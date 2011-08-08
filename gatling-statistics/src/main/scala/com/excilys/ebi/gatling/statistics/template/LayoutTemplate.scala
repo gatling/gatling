@@ -5,13 +5,6 @@ import org.fusesource.scalate._
 private[template] class LayoutTemplate(val title: String, val runOn: String, val body: String, val highcharts: String, val menuItems: Map[String, String]) {
 
   val engine = new TemplateEngine
-
-  engine.bindings = List(
-    Binding("title", "String"),
-    Binding("runOn", "String"),
-    Binding("body", "String"),
-    Binding("highcharts", "String"),
-    Binding("menuItems", "Map[String, String]"))
   engine.escapeMarkup = false
 
   def getOutput: String = {
