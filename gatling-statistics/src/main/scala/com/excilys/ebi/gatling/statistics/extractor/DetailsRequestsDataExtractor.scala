@@ -42,7 +42,6 @@ class DetailsRequestsDataExtractor(val runOn: String) extends Logging {
         val medium = responseTimes.map(entry => entry._2).sum / nbOfElements
         val standardDeviation = sqrt(responseTimes.map(entry => (pow(entry._2 - medium, 2))).sum / nbOfElements)
         val result = new DetailsRequestsDataResult(responseTimes.reverse, min, max, medium, standardDeviation)
-        logger.debug("--| Result : {}", result)
         results = results + (requestName -> result)
     }
     results

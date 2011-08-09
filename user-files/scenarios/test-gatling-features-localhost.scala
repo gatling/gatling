@@ -12,6 +12,6 @@ val lambdaUser = scenarioFromFile("lambda-user-test-gatling")
 val adminUser = scenarioFromFile("admin-user-test-gatling")
 
 val lambdaUserConfig = configureScenario(lambdaUser) withUsersNumber 5 withRampOf 10
-val adminConfig = configureScenario(adminUser) withUsersNumber 5 withRampOf (5000, TimeUnit.MILLISECONDS) startsAt 130
+val adminConfig = configureScenario(adminUser) withUsersNumber 5 withRampOf 10 startsAt 60
 
 val execution = runSimulations(lambdaUserConfig, adminConfig)

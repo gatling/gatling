@@ -12,9 +12,11 @@ import java.lang.String
 class ActiveSessionsDataExtractor(val runOn: String) extends Logging {
   val formattedRunOn = (new StringBuilder(runOn)).insert(12, ":").insert(10, ":").insert(8, " ").insert(6, "-").insert(4, "-").toString
 
-  def getResults: List[(String, Double)] = {
-    val activeSessions: MultiMap[String, String] = new HashMap[String, MSet[String]] with MultiMap[String, String]
-    val deadSessions: MultiMap[String, String] = new HashMap[String, MSet[String]] with MultiMap[String, String]
+  def getResults: List[(String, List[(String, Double)])] = {
+
+    var executionStartDates: TreeSet[String] = TreeSet.empty
+    // String: scenarioName, first MultiMap: active sessions, second MultiMap: dead sessions
+    var scenariosToSessions: Map[String, (MultiMap[String, String], MultiMap[String, String])] = Map.empty
 
     logger.info("[Stats] reading from file: " + "gatling_" + runOn)
 
@@ -24,50 +26,82 @@ class ActiveSessionsDataExtractor(val runOn: String) extends Logging {
       line.split("\t") match {
         // If we have a well formated result
         case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage) => {
-          // Adding a dummy value to set a new entry for executionStartDate
-          activeSessions.addBinding(executionStartDate, "0")
+
+          val sessions = scenariosToSessions.get(scenarioName).getOrElse {
+            val s = (new HashMap[String, MSet[String]] with MultiMap[String, String], new HashMap[String, MSet[String]] with MultiMap[String, String])
+            scenariosToSessions += (scenarioName -> s)
+            s
+          }
+
+          // Insert a value to keep the value in the set even if there's no active session
+          scenariosToSessions.map { scenarioAndSessions =>
+            scenarioAndSessions._2._1.addBinding(executionStartDate, "0")
+          }
 
           // Depending on the type of action, we add the session to the good map
           if (actionName == "End of scenario") {
-            deadSessions.addBinding(executionStartDate, userId)
+            sessions._2.addBinding(executionStartDate, userId)
           } else {
-            activeSessions.addBinding(executionStartDate, userId)
+            sessions._1.addBinding(executionStartDate, userId)
           }
+
+          // Storing date in a sorted set (to be used later for global active sessions)
+          executionStartDates = executionStartDates + executionStartDate
         }
         // Else, if the resulting data is not well formated print an error message
         case _ => sys.error("Input file not well formatted")
       }
     }
 
-    // Getting all dates sorted
-    var executionStartDates: TreeSet[String] = TreeSet.empty
-    activeSessions.keySet.foreach { key =>
-      executionStartDates = executionStartDates + key
-    }
-
     // Adding the missing active/dead sessions to the different executionStartDate
     var lastDate: String = formattedRunOn
-    executionStartDates.map { startDate =>
-      if (startDate != formattedRunOn) {
-        activeSessions.get(lastDate).map { set =>
-          set.map { userId =>
-            activeSessions.addBinding(startDate, userId)
-          }
-          deadSessions.get(startDate).map { set =>
-            set.map { userId =>
-              activeSessions.removeBinding(startDate, userId)
-            }
+
+    scenariosToSessions.foreach { scenarioAndSessions =>
+      val (scName, (activeSessions, deadSessions)) = scenarioAndSessions
+      executionStartDates.map { startDate =>
+        if (startDate != formattedRunOn) {
+          activeSessions.get(lastDate).map {
+            set =>
+              set.map {
+                userId =>
+                  activeSessions.addBinding(startDate, userId)
+              }
+              deadSessions.get(startDate).map { set =>
+                set.map {
+                  userId =>
+                    activeSessions.removeBinding(startDate, userId)
+                }
+              }
           }
         }
+        lastDate = startDate
       }
-      lastDate = startDate
+    }
+    logger.debug("scenarioToSessions: {}", scenariosToSessions)
+
+    // String: scenarioName, String: Date, Double: Number Of ActiveSessions
+    var results: List[(String, List[(String, Double)])] = Nil
+
+    // Creating results for each scenario
+    scenariosToSessions.map { scenarioAndSessions =>
+      var scenarioResults: List[(String, Double)] = Nil
+      var lastSize = 0D
+      executionStartDates.map { startDate =>
+        logger.debug("Trying to get result with scenario: {} and date: {}", scenarioAndSessions._1, startDate)
+        val sizeAsDouble: Double = scenariosToSessions.get(scenarioAndSessions._1).get._1.get(startDate).map(set => (set.size - 1).toDouble).getOrElse(lastSize)
+        scenarioResults = (startDate, sizeAsDouble) :: scenarioResults
+      }
+      results = (scenarioAndSessions._1, scenarioResults) :: results
     }
 
-    // Counting active sessions by starDate and returning result
-    var results: List[(String, Double)] = Nil
-    executionStartDates.foreach { startDate =>
-      results = (startDate, (activeSessions.get(startDate).get.size - 1).asInstanceOf[Double]) :: results
+    var globalResults: Map[String, Double] = Map.empty
+    results.foreach { scenarioAndResults =>
+      scenarioAndResults._2.map { result =>
+        globalResults = globalResults + (result._1 -> (globalResults.get(result._1).getOrElse(0D).asInstanceOf[Double] + result._2))
+      }
     }
-    results
+
+    results = ("All Scenarios", globalResults.toList) :: results
+    results.reverse
   }
 }

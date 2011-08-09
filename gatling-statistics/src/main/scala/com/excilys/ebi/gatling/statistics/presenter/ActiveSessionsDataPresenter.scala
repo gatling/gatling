@@ -13,9 +13,15 @@ class ActiveSessionsDataPresenter extends DataPresenter with Logging {
 
     val results = new ActiveSessionsDataExtractor(runOn).getResults
 
-    new TSVFileWriter(runOn, "active_sessions.tsv").writeToFile(results.map { e => List(e._1, e._2.toString) })
+    // TODO: write file with results
+    //new TSVFileWriter(runOn, "active_sessions.tsv").writeToFile(results.map { e => List(e._1, e._2.toString) })
 
-    val seriesList = List(new Series("Active Sessions", results.map { e => (getDateForHighcharts(e._1), e._2) }))
+    var seriesList: List[Series] = Nil
+    results.map {
+      result =>
+        val (scenarioName, listOfValues) = result
+        seriesList = new Series(scenarioName, listOfValues.map { e => (getDateForHighcharts(e._1), e._2) }) :: seriesList
+    }
 
     val output = new ActiveSessionsTemplate(runOn, menuItems, seriesList).getOutput
 
