@@ -7,6 +7,7 @@ import tools.nsc.Settings
 import tools.nsc.io.Directory
 import tools.nsc._
 import tools.nsc.util.BatchSourceFile
+import scala.util.matching.Regex
 
 import java.io.File
 
@@ -58,6 +59,12 @@ object App extends Logging {
 
     val n = new IMain(settings)
 
+    val initialFileBodyContent = Source.fromFile("user-files/scenarios/" + filename).mkString
+
+    val toBeFound = new Regex("""scenarioFromFile\("(.*)"\)""")
+    val newFileBodyContent = toBeFound replaceAllIn (initialFileBodyContent, result =>
+      Source.fromFile("user-files/scenarios/_" + result.group(1) + ".scala").mkString + "\n\n")
+
     val imports = """
 import com.excilys.ebi.gatling.core.feeder._
 import com.excilys.ebi.gatling.core.context._
@@ -77,7 +84,7 @@ import com.excilys.ebi.gatling.http.runner.HttpRunner._
 import java.util.concurrent.TimeUnit
 """
 
-    val fileContent = imports + Source.fromFile("user-files/scenarios/" + filename).mkString + "\n\n$result__.value = execution"
+    val fileContent = imports + newFileBodyContent + "\n\n$result__.value = execution"
 
     logger.debug(fileContent)
 
