@@ -1,11 +1,11 @@
-package com.excilys.ebi.gatling.http.scenario
+package com.excilys.ebi.gatling.http.scenario.builder
 
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder._
 import com.excilys.ebi.gatling.core.action.builder.EndActionBuilder._
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.scenario.ScenarioBuilder
+import com.excilys.ebi.gatling.core.scenario.builder.ScenarioBuilder._
 
 import com.excilys.ebi.gatling.http.action.builder.HttpRequestActionBuilder._
 import com.excilys.ebi.gatling.http.request.builder.HttpRequestBuilder
@@ -18,15 +18,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 object HttpScenarioBuilder {
-  private var numberOfRelevantActions = 0
-
-  def addRelevantAction = { numberOfRelevantActions += 1 }
-
-  class HttpScenarioBuilder(val name: String, var actionBuilders: List[AbstractActionBuilder]) extends ScenarioBuilder with Logging {
-
-    def actionsList = actionBuilders
-    def getName = name
-    def getNumberOfRelevantActions = numberOfRelevantActions
+  class HttpScenarioBuilder(name: String, actionBuilders: List[AbstractActionBuilder]) extends ScenarioBuilder(name, actionBuilders) with Logging {
 
     def pause(delayValue: Int): HttpScenarioBuilder = {
       pause(delayValue, TimeUnit.SECONDS)
@@ -53,10 +45,10 @@ object HttpScenarioBuilder {
       new HttpScenarioBuilder(name, endActionBuilder(latch) :: actionBuilders)
     }
 
-    def build(): Action = {
+    def build(scenarioId: Int): Action = {
       var previousInList: Action = null
       for (actionBuilder <- actionBuilders) {
-        previousInList = actionBuilder withNext (previousInList) build
+        previousInList = actionBuilder withNext (previousInList) build (scenarioId)
       }
       println(previousInList)
       previousInList

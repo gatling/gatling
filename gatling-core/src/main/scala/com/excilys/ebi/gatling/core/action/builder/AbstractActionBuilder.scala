@@ -7,6 +7,6 @@ abstract class TRUE
 abstract class FALSE
 
 trait AbstractActionBuilder extends Logging {
-  def build: Action
+  def build(scenarioId: Int): Action
   def withNext(next: Action): AbstractActionBuilder
 }

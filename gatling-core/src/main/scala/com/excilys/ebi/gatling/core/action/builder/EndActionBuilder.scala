@@ -10,8 +10,8 @@ import java.util.concurrent.CountDownLatch
 object EndActionBuilder {
   class EndActionBuilder(val latch: CountDownLatch) extends AbstractActionBuilder {
 
-    def build(): Action = {
-      logger.debug("Building EndAction")
+    def build(scenarioId: Int): Action = {
+      logger.debug("Building EndAction of scenario {}", scenarioId)
       TypedActor.newInstance(classOf[Action], new EndAction(latch))
     }
 

@@ -1,7 +1,7 @@
 import com.excilys.ebi.gatling.core.feeder.TSVFeeder
 import com.excilys.ebi.gatling.core.context.FromContext
-import com.excilys.ebi.gatling.http.scenario.HttpScenarioBuilder._
-import com.excilys.ebi.gatling.http.runner.builder.HttpRunnerBuilder._
+import com.excilys.ebi.gatling.core.scenario.configuration.builder.ScenarioConfigurationBuilder._
+import com.excilys.ebi.gatling.http.scenario.builder.HttpScenarioBuilder._
 import com.excilys.ebi.gatling.http.processor.capture.builder.HttpRegExpCaptureBuilder._
 import com.excilys.ebi.gatling.http.processor.capture.builder.HttpXPathCaptureBuilder._
 import com.excilys.ebi.gatling.http.processor.capture.builder.HttpHeaderCaptureBuilder._
@@ -12,10 +12,10 @@ import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpHeaderAssert
 import com.excilys.ebi.gatling.http.request.builder.GetHttpRequestBuilder._
 import com.excilys.ebi.gatling.http.request.builder.PostHttpRequestBuilder._
 import com.excilys.ebi.gatling.http.header.HeaderKey._
+import com.excilys.ebi.gatling.http.runner.HttpRunner._
 import java.util.concurrent.TimeUnit
 
 val iterations = 10
-val concurrentUsers = 10
 val pause1 = 3
 val pause2 = 2
 val pause3 = 1
@@ -72,6 +72,30 @@ val lambdaUser =
       get(url),
       regexp("""<input id="text1" type="text" value="(.*)" />""") in "input")
     .pause(pause3)
+    
+    
+val adminUser =
+  scenario("Admin User")
+    // First request outside iteration
+    .doHttpRequest(
+      "Catégorie Poney",
+      get(url))
+    .pause(pause1)
+    // Loop
+    .iterate(
+      // How many times ?
+      iterations,
+      // What will be repeated ?
+      chain
+        // First request to be repeated
+        .doHttpRequest(
+          "Page Admin",
+          get(url) withFeeder usersInformation withQueryParam "firstname")
+        .pause(pause2)
+    )
 
-val execution = 
-  prepareSimulationFor(lambdaUser) withUsersNumber concurrentUsers withRamp (10000, TimeUnit.MILLISECONDS) play
+
+  val lambdaUserConfig = configureScenario(lambdaUser) withUsersNumber 5 withRampOf 10
+  val adminConfig = configureScenario(adminUser) withUsersNumber 5 withRampOf (5000, TimeUnit.MILLISECONDS) startsAt 130
+  
+  val execution = runSimulations(lambdaUserConfig, adminConfig)
