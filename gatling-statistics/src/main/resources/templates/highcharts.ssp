@@ -11,7 +11,8 @@ $(document).ready(function() {
          renderTo: 'container',
          defaultSeriesType: 'spline',
          marginRight: 130,
-         marginBottom: 25
+         marginBottom: 25,
+         zoomType: 'x' 
       },
       title: {
          text: '<%= graphTitle %>',
