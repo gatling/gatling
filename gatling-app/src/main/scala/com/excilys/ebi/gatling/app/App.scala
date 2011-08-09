@@ -51,14 +51,33 @@ object App extends Logging {
 
   private def runAndGenerateStats(filename: String) = {
 
-    logger.info("Executing scenario of file '{}'", filename)
+    logger.info("Executing simulation of file '{}'", filename)
 
     val settings = new Settings
     settings.usejavacp.value = true
 
     val n = new IMain(settings)
 
-    val fileContent = Source.fromFile("user-files/scenarios/" + filename).mkString + "\n\n$result__.value = execution"
+    val imports = """
+import com.excilys.ebi.gatling.core.feeder._
+import com.excilys.ebi.gatling.core.context._
+import com.excilys.ebi.gatling.core.scenario.configuration.builder.ScenarioConfigurationBuilder._
+import com.excilys.ebi.gatling.http.scenario.builder.HttpScenarioBuilder._
+import com.excilys.ebi.gatling.http.processor.capture.builder.HttpRegExpCaptureBuilder._
+import com.excilys.ebi.gatling.http.processor.capture.builder.HttpXPathCaptureBuilder._
+import com.excilys.ebi.gatling.http.processor.capture.builder.HttpHeaderCaptureBuilder._
+import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpXPathAssertionBuilder._
+import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpRegExpAssertionBuilder._
+import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpStatusAssertionBuilder._
+import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpHeaderAssertionBuilder._
+import com.excilys.ebi.gatling.http.request.builder.GetHttpRequestBuilder._
+import com.excilys.ebi.gatling.http.request.builder.PostHttpRequestBuilder._
+import com.excilys.ebi.gatling.http.header.HeaderKey._
+import com.excilys.ebi.gatling.http.runner.HttpRunner._
+import java.util.concurrent.TimeUnit
+"""
+
+    val fileContent = imports + Source.fromFile("user-files/scenarios/" + filename).mkString + "\n\n$result__.value = execution"
 
     logger.debug(fileContent)
 

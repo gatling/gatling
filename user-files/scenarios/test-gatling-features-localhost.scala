@@ -1,20 +1,3 @@
-import com.excilys.ebi.gatling.core.feeder.TSVFeeder
-import com.excilys.ebi.gatling.core.context.FromContext
-import com.excilys.ebi.gatling.core.scenario.configuration.builder.ScenarioConfigurationBuilder._
-import com.excilys.ebi.gatling.http.scenario.builder.HttpScenarioBuilder._
-import com.excilys.ebi.gatling.http.processor.capture.builder.HttpRegExpCaptureBuilder._
-import com.excilys.ebi.gatling.http.processor.capture.builder.HttpXPathCaptureBuilder._
-import com.excilys.ebi.gatling.http.processor.capture.builder.HttpHeaderCaptureBuilder._
-import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpXPathAssertionBuilder._
-import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpRegExpAssertionBuilder._
-import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpStatusAssertionBuilder._
-import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpHeaderAssertionBuilder._
-import com.excilys.ebi.gatling.http.request.builder.GetHttpRequestBuilder._
-import com.excilys.ebi.gatling.http.request.builder.PostHttpRequestBuilder._
-import com.excilys.ebi.gatling.http.header.HeaderKey._
-import com.excilys.ebi.gatling.http.runner.HttpRunner._
-import java.util.concurrent.TimeUnit
-
 val iterations = 10
 val pause1 = 3
 val pause2 = 2
