@@ -18,7 +18,7 @@ class SeparatedValuesFeeder(filePath: String, mappings: List[String], val separa
     seeds = seeds += lineMap
   }
 
-  logger.debug("Feeder Seeds: {}", seeds)
+  logger.debug("Feeder Seeds Loaded")
 
   def next: Map[String, String] = seeds.dequeue
 }

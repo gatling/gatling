@@ -21,7 +21,6 @@ import com.excilys.ebi.gatling.http.processor.HttpProcessor
 import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
 import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
 import com.excilys.ebi.gatling.http.phase._
-import com.excilys.ebi.gatling.http.request.HttpRequest
 
 import java.util.Date
 import java.util.concurrent.TimeUnit
@@ -29,7 +28,7 @@ import java.util.concurrent.TimeUnit
 import akka.actor.Actor.registry.actorFor
 
 class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpAssertion], captures: MultiMap[HttpPhase, HttpCapture], next: Action, executionStartTime: Long, executionStartDate: Date,
-                         request: HttpRequest)
+                         requestName: String)
     extends AsyncHandler[Response] with Logging {
 
   private val responseBuilder: ResponseBuilder = new ResponseBuilder()
@@ -41,7 +40,7 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
   private def sendLogAndExecuteNext(requestResult: String, requestMessage: String, processingStartTime: Long, response: Option[Response]) = {
     if (!hasSentLog) {
       actorFor(context.getWriteActorUuid).map { a =>
-        a ! ActionInfo(context.getScenarioName, context.getUserId, "Request " + request.getName, executionStartDate, TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTime, TimeUnit.NANOSECONDS), requestResult, requestMessage)
+        a ! ActionInfo(context.getScenarioName, context.getUserId, "Request " + requestName, executionStartDate, TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTime, TimeUnit.NANOSECONDS), requestResult, requestMessage)
       }
       response.map { r =>
         contextBuilder = contextBuilder setCookies r.getCookies
@@ -55,7 +54,7 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
     val processingStartTime = System.nanoTime
     logger.debug("Assertions at {} : {}", httpPhase, assertions.get(httpPhase))
     for (a <- assertions.get(httpPhase).getOrElse(new HashSet)) {
-      val (result, resultValue, attrKey) = a.assertInRequest(placeToSearch, request.getName + context.getUserId + executionStartDate)
+      val (result, resultValue, attrKey) = a.assertInRequest(placeToSearch, requestName + context.getUserId + executionStartDate)
       logger.debug("ASSERTION RESULT: {}, {}, " + attrKey, result, resultValue)
       if (result)
         attrKey.map { key =>
@@ -100,7 +99,6 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
   }
 
   def onCompleted(): Response = {
-    logger.debug("Response Received for request: {}", request.getRequest.getUrl)
     val response = responseBuilder.build
     processResponse(new CompletePageReceived, response)
     null

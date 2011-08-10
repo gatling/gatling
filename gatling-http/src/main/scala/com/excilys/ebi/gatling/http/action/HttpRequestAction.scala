@@ -52,6 +52,6 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilde
 
   def execute(context: Context) = {
     logger.info("Sending Request")
-    HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new CustomAsyncHandler(context, assertions, captures, next, System.nanoTime, new Date, request))
+    HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new CustomAsyncHandler(context, assertions, captures, next, System.nanoTime, new Date, request.getName))
   }
 }
