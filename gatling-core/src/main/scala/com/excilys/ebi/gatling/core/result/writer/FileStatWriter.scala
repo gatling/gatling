@@ -26,7 +26,7 @@ class FileDataWriter extends DataWriter {
     case ActionInfo(scenarioName, userId, action, executionStartDate, executionDuration, resultStatus, resultMessage) ⇒ {
       bos.write((runOn + "\t" + scenarioName + "\t" + userId + "\t" + action + "\t" + formatter.format(executionStartDate) + "\t" + executionDuration + "\t" + resultStatus + "\t" + resultMessage + "\n").getBytes)
       numberOfRelevantActionsDone += 1
-      if (numberOfRelevantActions == numberOfRelevantActionsDone && self.getMailboxSize == 0) {
+      if (numberOfRelevantActions == numberOfRelevantActionsDone && self.dispatcher.mailboxSize(self) == 0) {
         bos.flush
         bos.close
         logger.debug("All scenarios finished, stoping actors")
