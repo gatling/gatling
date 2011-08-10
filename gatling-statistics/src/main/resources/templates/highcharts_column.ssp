@@ -1,0 +1,49 @@
+<%@ val columnData: com.excilys.ebi.gatling.statistics.template.ColumnSeries %>
+<%@ val toolTip: String %>
+<%@ val yAxisTitle: String %>
+<%@ val graphTitle: String %>
+<%@ val xCategories: List[Double]%>
+var column_chart = new Highcharts.Chart({
+     chart: {
+        renderTo: 'container_column',
+        defaultSeriesType: 'column',
+        marginRight: 130,
+        marginBottom: 25,
+        zoomType: 'x'
+     },
+     title: {
+        text: '<%= graphTitle %>',
+        x: -20
+     },
+     xAxis: {
+        categories: <%= xCategories.mkString("[ '","', '", "' ]" ) %>
+     },
+     yAxis: {
+        title: {
+           text: '<%= yAxisTitle %>'
+        },
+        min: 0
+     },
+     plotOptions: {
+   	  column: {
+   	      pointPadding: 0.2,
+   	      borderWidth: 0
+   	  }
+     },
+     tooltip: {
+        formatter: function() {
+                  return '<span style="font-weight:bold">'+ this.series.name +"</span><br/><%= toolTip.replace("{}",""""+ this.y +"""" ) %> with duration of "+ this.x + "ms";
+        }
+     },
+     legend: {
+        layout: 'vertical',
+        align: 'right',
+        verticalAlign: 'top',
+        x: -10,
+        y: 100,
+        borderWidth: 0
+     },
+     series: [{
+     	<%= columnData %>
+     }]
+  });

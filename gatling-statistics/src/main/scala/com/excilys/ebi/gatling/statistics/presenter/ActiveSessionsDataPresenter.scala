@@ -4,7 +4,7 @@ import com.excilys.ebi.gatling.core.log.Logging
 
 import com.excilys.ebi.gatling.statistics.extractor.ActiveSessionsDataExtractor
 import com.excilys.ebi.gatling.statistics.template.ActiveSessionsTemplate
-import com.excilys.ebi.gatling.statistics.template.Series
+import com.excilys.ebi.gatling.statistics.template.TimeSeries
 import com.excilys.ebi.gatling.statistics.writer.TemplateWriter
 import com.excilys.ebi.gatling.statistics.writer.TSVFileWriter
 
@@ -16,11 +16,11 @@ class ActiveSessionsDataPresenter extends DataPresenter with Logging {
     // TODO: write file with results
     //new TSVFileWriter(runOn, "active_sessions.tsv").writeToFile(results.map { e => List(e._1, e._2.toString) })
 
-    var seriesList: List[Series] = Nil
+    var seriesList: List[TimeSeries] = Nil
     results.map {
       result =>
         val (scenarioName, listOfValues) = result
-        seriesList = new Series(scenarioName, listOfValues.map { e => (getDateForHighcharts(e._1), e._2) }) :: seriesList
+        seriesList = new TimeSeries(scenarioName, listOfValues.map { e => (getDateForHighcharts(e._1), e._2) }) :: seriesList
     }
 
     val output = new ActiveSessionsTemplate(runOn, menuItems, seriesList).getOutput

@@ -41,7 +41,16 @@ class DetailsRequestsDataExtractor(val runOn: String) extends Logging {
         val max = responseTimes.maxBy(_._2)._2
         val medium = responseTimes.map(entry => entry._2).sum / nbOfElements
         val standardDeviation = sqrt(responseTimes.map(entry => (pow(entry._2 - medium, 2))).sum / nbOfElements)
-        val result = new DetailsRequestsDataResult(responseTimes.size, responseTimes.reverse, min, max, medium, standardDeviation)
+
+        var responseTimesToNumberOfRequests: Map[Double, Double] = new TreeMap
+        responseTimes.map {
+          dateAndResponseTime =>
+            responseTimesToNumberOfRequests += (dateAndResponseTime._2 -> (responseTimesToNumberOfRequests.get(dateAndResponseTime._2).getOrElse(0D) + 1))
+        }
+        val sortedResponseTimes = responseTimesToNumberOfRequests.keys.toList
+        val numberOfRequests = responseTimesToNumberOfRequests.values.toList
+
+        val result = new DetailsRequestsDataResult(responseTimes.size, responseTimes.reverse, (sortedResponseTimes, numberOfRequests), min, max, medium, standardDeviation)
         results = results + (requestName -> result)
     }
     results

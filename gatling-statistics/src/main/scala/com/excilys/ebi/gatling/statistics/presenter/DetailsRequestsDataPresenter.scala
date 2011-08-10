@@ -4,7 +4,8 @@ import com.excilys.ebi.gatling.core.log.Logging
 
 import com.excilys.ebi.gatling.statistics.extractor.DetailsRequestsDataExtractor
 import com.excilys.ebi.gatling.statistics.template.DetailsRequestsTemplate
-import com.excilys.ebi.gatling.statistics.template.Series
+import com.excilys.ebi.gatling.statistics.template.TimeSeries
+import com.excilys.ebi.gatling.statistics.template.ColumnSeries
 import com.excilys.ebi.gatling.statistics.writer.TemplateWriter
 import com.excilys.ebi.gatling.statistics.writer.TSVFileWriter
 
@@ -27,12 +28,14 @@ class DetailsRequestsDataPresenter extends DataPresenter with Logging {
     results.foreach {
       case (requestName, result) =>
 
-        new TSVFileWriter(runOn, requestNameToFileName(requestName) + ".tsv").writeToFile(result.values.map { e => List(e._1, e._2.toString) })
+        new TSVFileWriter(runOn, requestNameToFileName(requestName) + ".tsv").writeToFile(result.timeValues.map { e => List(e._1, e._2.toString) })
 
-        val series = List(new Series(requestName.substring(8), result.values.map { e => (getDateForHighcharts(e._1), e._2) }),
-          new Series("medium", result.values.map { e => (getDateForHighcharts(e._1), result.medium) }))
+        val series = List(new TimeSeries(requestName.substring(8), result.timeValues.map { e => (getDateForHighcharts(e._1), e._2) }),
+          new TimeSeries("medium", result.timeValues.map { e => (getDateForHighcharts(e._1), result.medium) }))
 
-        val output = new DetailsRequestsTemplate(runOn, menuItems, series, requestName, result).getOutput
+        val columnData = new ColumnSeries(requestName.substring(8), result.columnData._1, result.columnData._2)
+
+        val output = new DetailsRequestsTemplate(runOn, menuItems, series, columnData, requestName, result).getOutput
 
         new TemplateWriter(runOn, requestNameToFileName(requestName) + ".html").writeToFile(output)
 

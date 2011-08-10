@@ -3,7 +3,7 @@ package com.excilys.ebi.gatling.statistics.presenter
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.statistics.extractor.GlobalRequestsDataExtractor
 import com.excilys.ebi.gatling.statistics.template.GlobalRequestsTemplate
-import com.excilys.ebi.gatling.statistics.template.Series
+import com.excilys.ebi.gatling.statistics.template.TimeSeries
 import com.excilys.ebi.gatling.statistics.writer.TemplateWriter
 import com.excilys.ebi.gatling.statistics.writer.TSVFileWriter
 
@@ -27,7 +27,7 @@ class GlobalRequestsDataPresenter extends DataPresenter with Logging {
 
     new TSVFileWriter(runOn, "requests.tsv").writeToFile(forFile)
 
-    val series = List(new Series("All", globalData), new Series("Success", successData), new Series("Failures", failureData))
+    val series = List(new TimeSeries("All", globalData), new TimeSeries("Success", successData), new TimeSeries("Failures", failureData))
 
     val output = new GlobalRequestsTemplate(runOn, menuItems, series).getOutput
 

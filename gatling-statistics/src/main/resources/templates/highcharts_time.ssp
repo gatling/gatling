@@ -1,0 +1,88 @@
+<%@ val series: List[com.excilys.ebi.gatling.statistics.template.TimeSeries] %>
+<%@ val toolTip: String %>
+<%@ val plotBand: com.excilys.ebi.gatling.statistics.template.PlotBand %>
+<%@ val hasPlotBand: Boolean %>
+<%@ val yAxisTitle: String %>
+<%@ val graphTitle: String %>
+var time_chart = new Highcharts.Chart({
+     chart: {
+        renderTo: 'container',
+        defaultSeriesType: 'spline',
+        marginRight: 130,
+        marginBottom: 25,
+        zoomType: 'x' 
+     },
+     title: {
+        text: '<%= graphTitle %>',
+        x: -20 //center
+     },
+     xAxis: {
+        type: 'datetime'
+     },
+     yAxis: {
+        title: {
+           text: '<%= yAxisTitle %>'
+        },
+        plotLines: [{
+           value: 0,
+           width: 1,
+           color: '#808080'
+        }],
+        <% if(hasPlotBand){ %>
+        plotBands: [{
+           from: <%= plotBand.minValue.toString %>,
+           to: <%= plotBand.maxValue.toString %>,
+           color: 'rgba(68, 170, 213, 0.1)'
+        }],
+        <% } %>
+        min: 0
+     },
+     plotOptions: {
+   	  spline: {
+             lineWidth: 1,
+             states: {
+                hover: {
+                   lineWidth: 3
+                }
+             },
+             marker: {
+                enabled: false,
+                states: {
+                   hover: {
+                      enabled: true,
+                      symbol: 'circle',
+                      radius: 3,
+                      lineWidth: 1
+                   }
+                }   
+             }
+          }  
+     },
+     tooltip: {
+        formatter: function() {
+                  return '<span style="font-weight:bold">'+ this.series.name +"</span><br/><%= toolTip.replace("{}",""""+ this.y +"""" ) %> at "+ new Date(this.x).toUTCString().substr(17,8);
+        }
+     },
+     legend: {
+        layout: 'vertical',
+        align: 'right',
+        verticalAlign: 'top',
+        x: -10,
+        y: 100,
+        borderWidth: 0
+     },
+     series: [
+     	<%= series.mkString("{ ", "},{", " }") %>
+     ],
+     colors: [
+           	'#4572A7', 
+           	'#89A54E', 
+           	'#AA4643', 
+           	'#80699B', 
+           	'#3D96AE', 
+           	'#DB843D', 
+           	'#92A8CD', 
+           	'#A47D7C', 
+           	'#B5CA92'
+           ]
+});

@@ -12,3 +12,6 @@
 		</ul>
 	</li>
 </ul>
+
+<p>Dispersion of requests by response time</p>
+<div id="container_column" style="height:410px; margin: 0 auto; clear:both; min-width: 600px"></div>
