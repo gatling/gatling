@@ -77,7 +77,6 @@ class ActiveSessionsDataExtractor(val runOn: String) extends Logging {
         lastDate = startDate
       }
     }
-    logger.debug("scenarioToSessions: {}", scenariosToSessions)
 
     // String: scenarioName, String: Date, Double: Number Of ActiveSessions
     var results: List[(String, List[(String, Double)])] = Nil
@@ -87,7 +86,6 @@ class ActiveSessionsDataExtractor(val runOn: String) extends Logging {
       var scenarioResults: List[(String, Double)] = Nil
       var lastSize = 0D
       executionStartDates.map { startDate =>
-        logger.debug("Trying to get result with scenario: {} and date: {}", scenarioAndSessions._1, startDate)
         val sizeAsDouble: Double = scenariosToSessions.get(scenarioAndSessions._1).get._1.get(startDate).map(set => (set.size - 1).toDouble).getOrElse(lastSize)
         scenarioResults = (startDate, sizeAsDouble) :: scenarioResults
       }
