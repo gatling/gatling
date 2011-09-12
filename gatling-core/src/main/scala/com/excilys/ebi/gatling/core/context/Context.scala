@@ -25,7 +25,7 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
     data ++= attributes
   }
 
-  def getElapsedActionTime: Long =
+  def getLastActionDuration: Long =
     data.get("gatlingElapsedTime").map { l =>
       l.toLong
     }.getOrElse(0L)
