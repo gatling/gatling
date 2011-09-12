@@ -10,18 +10,18 @@ import java.util.concurrent.TimeUnit
 import akka.actor.TypedActor
 
 object PauseActionBuilder {
-  class PauseActionBuilder(val delayValue: Option[Int], val delayUnit: Option[TimeUnit], val next: Option[Action]) extends AbstractActionBuilder {
+  class PauseActionBuilder(val duration: Option[Int], val timeUnit: Option[TimeUnit], val next: Option[Action]) extends AbstractActionBuilder {
 
-    def withDelayValue(delayValue: Int) = new PauseActionBuilder(Some(delayValue), delayUnit, next)
+    def withDuration(duration: Int) = new PauseActionBuilder(Some(duration), timeUnit, next)
 
-    def withDelayUnit(delayUnit: TimeUnit) = new PauseActionBuilder(delayValue, Some(delayUnit), next)
+    def withTimeUnit(timeUnit: TimeUnit) = new PauseActionBuilder(duration, Some(timeUnit), next)
 
-    def withNext(next: Action) = new PauseActionBuilder(delayValue, delayUnit, Some(next))
+    def withNext(next: Action) = new PauseActionBuilder(duration, timeUnit, Some(next))
 
     def build(scenarioId: Int): Action = {
-      logger.debug("Building PauseAction with delay: {}ms", TimeUnit.MILLISECONDS.convert(delayValue.get, delayUnit.get))
-      ScenarioBuilder.addToExecutionTime(scenarioId, delayValue.get, delayUnit.get)
-      TypedActor.newInstance(classOf[Action], new PauseAction(next.get, delayValue.get, delayUnit.get))
+      logger.debug("Building PauseAction with duration: {}ms", TimeUnit.MILLISECONDS.convert(duration.get, timeUnit.get))
+      ScenarioBuilder.addToExecutionTime(scenarioId, duration.get, timeUnit.get)
+      TypedActor.newInstance(classOf[Action], new PauseAction(next.get, duration.get, timeUnit.get))
     }
   }
 

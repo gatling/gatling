@@ -25,7 +25,7 @@ object HttpScenarioBuilder {
     }
 
     def pause(delayValue: Int, delayUnit: TimeUnit): HttpScenarioBuilder = {
-      val pause = pauseActionBuilder withDelayValue delayValue withDelayUnit delayUnit
+      val pause = pauseActionBuilder withDuration delayValue withTimeUnit delayUnit
       logger.debug("Adding PauseAction")
       new HttpScenarioBuilder(name, pause :: actionBuilders)
     }
