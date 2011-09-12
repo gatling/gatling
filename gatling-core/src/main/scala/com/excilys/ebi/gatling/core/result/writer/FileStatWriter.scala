@@ -7,7 +7,7 @@ import java.io.FileOutputStream
 import java.io.File
 import java.io.BufferedOutputStream
 
-import org.apache.commons.lang.time.FastDateFormat
+import org.apache.commons.lang3.time.FastDateFormat
 
 import akka.actor.Actor.registry
 

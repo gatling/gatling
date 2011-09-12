@@ -22,7 +22,7 @@ import java.util.Date
 import akka.actor.Scheduler
 import akka.actor.Actor.actorOf
 
-import org.apache.commons.lang.time.FastDateFormat
+import org.apache.commons.lang3.time.FastDateFormat
 
 object HttpRunner {
   class HttpRunner(configurationBuilders: List[ScenarioConfigurationBuilder]) extends Runner(configurationBuilders) {
