@@ -4,12 +4,12 @@ import scala.io.Source
 import scala.collection.immutable.HashMap
 import scala.collection.mutable.Queue
 
-class SeparatedValuesFeeder(filePath: String, mappings: List[String], val separator: String) extends Feeder(filePath, mappings) {
+class SeparatedValuesFeeder(fileName: String, mappings: List[String], val separator: String, val extension: String) extends Feeder(fileName, mappings) {
 
-  var currentUser = 0
   var seeds: Queue[Map[String, String]] = Queue()
 
-  for (line <- Source.fromFile("user-files/seeds/" + filePath + ".tsv", "utf-8").getLines) {
+  // FIXME: utf-8 should be configurable
+  for (line <- Source.fromFile("user-files/seeds/" + fileName + extension, "utf-8").getLines) {
     var lineMap = new HashMap[String, String]
 
     for (mapping <- mappings zip line.split(separator).toList)
