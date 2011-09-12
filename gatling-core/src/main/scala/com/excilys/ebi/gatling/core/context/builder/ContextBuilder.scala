@@ -10,29 +10,29 @@ import com.ning.http.client.Cookie
 abstract class TRUE
 
 object ContextBuilder {
-  class ContextBuilder[HSN, HUID, HWAU](val scenarioName: Option[String], val userId: Option[Int], val writeActorUuid: Option[Uuid], val data: Option[Map[String, String]], val cookies: Option[List[Cookie]])
+  class ContextBuilder[HSN, HUID, HWAU](val scenarioName: Option[String], val userId: Option[Int], val writeActorUuid: Option[Uuid], val cookies: Option[List[Cookie]], val data: Option[Map[String, String]])
       extends Logging {
 
-    def fromContext(context: Context) = new ContextBuilder[TRUE, TRUE, TRUE](Some(context.getScenarioName), Some(context.getUserId), Some(context.getWriteActorUuid), Some(context.getData), Some(context.getCookies))
+    def fromContext(context: Context) = new ContextBuilder[TRUE, TRUE, TRUE](Some(context.getScenarioName), Some(context.getUserId), Some(context.getWriteActorUuid), Some(context.getCookies), Some(context.getData))
 
-    def withUserId(userId: Int) = new ContextBuilder[HSN, TRUE, HWAU](scenarioName, Some(userId), writeActorUuid, data, cookies)
+    def withUserId(userId: Int) = new ContextBuilder[HSN, TRUE, HWAU](scenarioName, Some(userId), writeActorUuid, cookies, data)
 
-    def withWriteActorUuid(writeActorUuid: Uuid) = new ContextBuilder[HSN, HUID, TRUE](scenarioName, userId, Some(writeActorUuid), data, cookies)
+    def withWriteActorUuid(writeActorUuid: Uuid) = new ContextBuilder[HSN, HUID, TRUE](scenarioName, userId, Some(writeActorUuid), cookies, data)
 
-    def withScenarioName(scenarioName: String) = new ContextBuilder[TRUE, HUID, HWAU](Some(scenarioName), userId, writeActorUuid, data, cookies)
+    def withScenarioName(scenarioName: String) = new ContextBuilder[TRUE, HUID, HWAU](Some(scenarioName), userId, writeActorUuid, cookies, data)
 
-    def withData(data: Map[String, String]) = new ContextBuilder[HSN, HUID, HWAU](scenarioName, userId, writeActorUuid, Some(data), cookies)
+    def withData(data: Map[String, String]) = new ContextBuilder[HSN, HUID, HWAU](scenarioName, userId, writeActorUuid, cookies, Some(data))
 
     def setAttribute(attr: Tuple2[String, String]) = {
-      logger.debug("Setting '{}' in '{}'", attr._2, attr._1)
-      new ContextBuilder[HSN, HUID, HWAU](scenarioName, userId, writeActorUuid, Some(data.get + (attr._1 -> attr._2)), cookies)
+      logger.debug("Setting '{}'='{}'", attr._1, attr._2)
+      new ContextBuilder[HSN, HUID, HWAU](scenarioName, userId, writeActorUuid, cookies, Some(data.get + (attr._1 -> attr._2)))
     }
 
-    def unsetAttribute(attrKey: String) = new ContextBuilder[HSN, HUID, HWAU](scenarioName, userId, writeActorUuid, Some(data.get - attrKey), cookies)
+    def unsetAttribute(attrKey: String) = new ContextBuilder[HSN, HUID, HWAU](scenarioName, userId, writeActorUuid, cookies, Some(data.get - attrKey))
 
     def getAttribute(attrKey: String) = data.get.get(attrKey)
 
-    def setElapsedActionTime(value: Long) = unsetAttribute(Context.LAST_ACTION_DURATION_ATTR_NAME) setAttribute (Context.LAST_ACTION_DURATION_ATTR_NAME, value.toString)
+    def setDuration(value: Long) = unsetAttribute(Context.LAST_ACTION_DURATION_ATTR_NAME) setAttribute (Context.LAST_ACTION_DURATION_ATTR_NAME, value.toString)
 
     def setCookies(cookies: java.util.List[Cookie]) = {
       var cookiesList: List[Cookie] = Nil
@@ -40,7 +40,7 @@ object ContextBuilder {
       while (it.hasNext) {
         cookiesList = it.next :: cookiesList
       }
-      new ContextBuilder[HSN, HUID, HWAU](scenarioName, userId, writeActorUuid, data, Some(cookiesList))
+      new ContextBuilder[HSN, HUID, HWAU](scenarioName, userId, writeActorUuid, Some(cookiesList), data)
     }
   }
 
@@ -52,5 +52,5 @@ object ContextBuilder {
     }
   }
 
-  def makeContext = new ContextBuilder(None, None, None, Some(Map()), Some(List()))
+  def newContext = new ContextBuilder(None, None, None, Some(List()), Some(Map()))
 }

@@ -76,7 +76,7 @@ object HttpRunner {
 
     def executeOneScenario(configuration: ScenarioConfiguration, scenario: Action) = {
       for (i <- 1 to configuration.numberOfUsers) {
-        val context: Context = makeContext withUserId i withWriteActorUuid statWriter.getUuid withScenarioName configuration.scenarioBuilder.getName build
+        val context: Context = newContext withUserId i withWriteActorUuid statWriter.getUuid withScenarioName configuration.scenarioBuilder.getName build
 
         val ramp = configuration.ramp
         Scheduler.scheduleOnce(() => scenario.execute(context), (ramp._1.toDouble / (configuration.numberOfUsers - 1).toDouble).toInt * (i - 1), ramp._2)

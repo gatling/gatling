@@ -13,7 +13,7 @@ import com.ning.http.client.HttpResponseBodyPart
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
-import com.excilys.ebi.gatling.core.context.builder.ContextBuilder.makeContext
+import com.excilys.ebi.gatling.core.context.builder.ContextBuilder.newContext
 import com.excilys.ebi.gatling.core.context.Context
 
 import com.excilys.ebi.gatling.http.phase.HttpPhase
@@ -33,7 +33,7 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
 
   private val responseBuilder: ResponseBuilder = new ResponseBuilder()
 
-  private var contextBuilder = makeContext fromContext context
+  private var contextBuilder = newContext fromContext context
 
   private var hasSentLog = false
 
@@ -45,7 +45,7 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
       response.map { r =>
         contextBuilder = contextBuilder setCookies r.getCookies
       }
-      next.execute(contextBuilder setElapsedActionTime (System.nanoTime() - processingStartTime) build)
+      next.execute(contextBuilder setDuration (System.nanoTime() - processingStartTime) build)
       hasSentLog = true
     }
   }
