@@ -32,7 +32,7 @@ object ContextBuilder {
 
     def getAttribute(attrKey: String) = data.get.get(attrKey)
 
-    def setElapsedActionTime(value: Long) = unsetAttribute("gatlingElapsedTime") setAttribute ("gatlingElapsedTime", value.toString)
+    def setElapsedActionTime(value: Long) = unsetAttribute(Context.LAST_ACTION_DURATION_ATTR_NAME) setAttribute (Context.LAST_ACTION_DURATION_ATTR_NAME, value.toString)
 
     def setCookies(cookies: java.util.List[Cookie]) = {
       var cookiesList: List[Cookie] = Nil
