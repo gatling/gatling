@@ -13,7 +13,7 @@ object ScenarioBuilder {
     numberOfRelevantActions += (scenarioId -> (1 + numberOfRelevantActions.get(scenarioId).getOrElse(0)))
   }
 
-  def addToExecutionTime(scenarioId: Int, timeValue: Int, timeUnit: TimeUnit) = {
+  def addToExecutionTime(scenarioId: Int, timeValue: Long, timeUnit: TimeUnit) = {
     expectedExecutiontime += (scenarioId -> (TimeUnit.MILLISECONDS.convert(timeValue, timeUnit) + expectedExecutiontime.get(scenarioId).getOrElse(0L)))
   }
 

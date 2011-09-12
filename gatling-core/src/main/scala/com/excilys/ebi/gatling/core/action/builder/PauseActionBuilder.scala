@@ -10,9 +10,9 @@ import java.util.concurrent.TimeUnit
 import akka.actor.TypedActor
 
 object PauseActionBuilder {
-  class PauseActionBuilder(val duration: Option[Int], val timeUnit: Option[TimeUnit], val next: Option[Action]) extends AbstractActionBuilder {
+  class PauseActionBuilder(val duration: Option[Long], val timeUnit: Option[TimeUnit], val next: Option[Action]) extends AbstractActionBuilder {
 
-    def withDuration(duration: Int) = new PauseActionBuilder(Some(duration), timeUnit, next)
+    def withDuration(duration: Long) = new PauseActionBuilder(Some(duration), timeUnit, next)
 
     def withTimeUnit(timeUnit: TimeUnit) = new PauseActionBuilder(duration, Some(timeUnit), next)
 

@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 
-class PauseAction(next: Action, duration: Int, timeUnit: TimeUnit) extends Action {
+class PauseAction(next: Action, duration: Long, timeUnit: TimeUnit) extends Action {
   def execute(context: Context) = {
     val durationInNanos: Long = TimeUnit.NANOSECONDS.convert(duration, timeUnit) - context.getLastActionDuration
 
