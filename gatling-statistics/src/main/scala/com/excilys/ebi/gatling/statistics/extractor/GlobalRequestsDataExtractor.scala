@@ -1,6 +1,8 @@
 package com.excilys.ebi.gatling.statistics.extractor
 
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.result.message.ResultStatus
+import com.excilys.ebi.gatling.core.result.message.ResultStatus._
 
 import scala.io.Source
 import scala.collection.immutable.TreeMap
@@ -24,14 +26,17 @@ class GlobalRequestsDataExtractor(val runOn: String) extends Logging {
           if (actionName startsWith "Request") {
             def inc = incrementInMap(executionStartDate)_
 
-            resultStatus match {
-              case "OK" =>
-                inc(successRequestData)
-                inc(allRequestData)
-              case "KO" =>
-                inc(failureRequestData)
-                inc(allRequestData)
-              case _ => sys.error("Result Status not well formatted")
+            try {
+              ResultStatus.withName(resultStatus) match {
+                case OK =>
+                  inc(successRequestData)
+                  inc(allRequestData)
+                case KO =>
+                  inc(failureRequestData)
+                  inc(allRequestData)
+              }
+            } catch {
+              case e => sys.error("Input file not well formated")
             }
           }
         }

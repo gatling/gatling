@@ -13,6 +13,7 @@ import com.ning.http.client.HttpResponseBodyPart
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
+import com.excilys.ebi.gatling.core.result.message.ResultStatus._
 import com.excilys.ebi.gatling.core.context.builder.ContextBuilder.newContext
 import com.excilys.ebi.gatling.core.context.Context
 
@@ -37,7 +38,7 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
 
   private var hasSentLog = false
 
-  private def sendLogAndExecuteNext(requestResult: String, requestMessage: String, processingStartTime: Long, response: Option[Response]) = {
+  private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String, processingStartTime: Long, response: Option[Response]) = {
     if (!hasSentLog) {
       actorFor(context.getWriteActorUuid).map { a =>
         a ! ActionInfo(context.getScenarioName, context.getUserId, "Request " + requestName, executionStartDate, TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTime, TimeUnit.NANOSECONDS), requestResult, requestMessage)
@@ -66,7 +67,7 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
             Some(placeToSearch.asInstanceOf[Response])
           else
             None
-        sendLogAndExecuteNext("KO", "Assertion " + a + " failed", processingStartTime, response)
+        sendLogAndExecuteNext(KO, "Assertion " + a + " failed", processingStartTime, response)
         return STATE.ABORT
       }
     }
@@ -78,7 +79,7 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
     }
 
     if (placeToSearch.isInstanceOf[Response])
-      sendLogAndExecuteNext("OK", "Request Executed Successfully", processingStartTime, Some(placeToSearch.asInstanceOf[Response]))
+      sendLogAndExecuteNext(OK, "Request Executed Successfully", processingStartTime, Some(placeToSearch.asInstanceOf[Response]))
 
     STATE.CONTINUE
   }
@@ -106,7 +107,7 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
 
   def onThrowable(throwable: Throwable) = {
     logger.debug("{}\n{}", throwable.getClass, throwable.getStackTraceString)
-    sendLogAndExecuteNext("KO", throwable.getMessage, System.nanoTime(), None)
+    sendLogAndExecuteNext(KO, throwable.getMessage, System.nanoTime(), None)
   }
 
 }
