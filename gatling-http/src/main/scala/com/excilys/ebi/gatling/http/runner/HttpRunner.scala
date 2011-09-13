@@ -71,7 +71,7 @@ object HttpRunner {
       latch.await(86400, TimeUnit.SECONDS)
       logger.debug("Latch is at 0")
       HttpRequestAction.CLIENT.close
-      FastDateFormat.getInstance("yyyyMMddhhmmss").format(startDate)
+      FastDateFormat.getInstance("yyyyMMddHHmmss").format(startDate)
     }
 
     def executeOneScenario(configuration: ScenarioConfiguration, scenario: Action) = {
