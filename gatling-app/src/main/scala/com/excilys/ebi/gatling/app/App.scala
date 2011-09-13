@@ -10,13 +10,16 @@ import tools.nsc.util.BatchSourceFile
 import scala.util.matching.Regex
 
 import java.io.File
+import java.util.Date
 
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.config.GatlingConfig
 
 import com.excilys.ebi.gatling.statistics.GraphicsGenerator
 
-class ResultHolder(var value: String)
+import org.apache.commons.lang3.time.FastDateFormat
+
+class DateHolder(var value: Date)
 
 object App extends Logging {
 
@@ -65,7 +68,7 @@ object App extends Logging {
     val newFileBodyContent = toBeFound replaceAllIn (initialFileBodyContent, result =>
       Source.fromFile("user-files/scenarios/_" + result.group(1) + ".scala").mkString + "\n\n")
 
-    val imports = """
+    val fileHeader = """
 import com.excilys.ebi.gatling.core.feeder._
 import com.excilys.ebi.gatling.core.context._
 import com.excilys.ebi.gatling.core.scenario.configuration.builder.ScenarioConfigurationBuilder._
@@ -82,20 +85,26 @@ import com.excilys.ebi.gatling.http.request.builder.PostHttpRequestBuilder._
 import com.excilys.ebi.gatling.http.header.HeaderKey._
 import com.excilys.ebi.gatling.http.runner.HttpRunner._
 import java.util.concurrent.TimeUnit
+import java.util.Date
+
+startDate.value = new Date
+
+def runSimulations = runSim(startDate.value)_
 """
 
-    val fileContent = imports + newFileBodyContent + "\n\n$result__.value = execution"
-
+    val fileContent = fileHeader + newFileBodyContent
     logger.debug(fileContent)
 
-    val runOn = new ResultHolder("")
-    n.bind("$result__", runOn)
+    val runOn = new DateHolder(new Date)
+    n.bind("startDate", runOn)
     n.interpret(fileContent)
     n.close()
 
-    logger.debug("RunOn Value: {}", runOn.value)
+    val folderName = FastDateFormat.getInstance("yyyyMMddHHmmss").format(runOn.value)
 
-    (new GraphicsGenerator).generateFor(runOn.value)
+    logger.debug("\nFolder Name: {}", folderName)
+
+    new GraphicsGenerator().generateFor(folderName)
   }
 
 }

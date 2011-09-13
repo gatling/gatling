@@ -2,4 +2,4 @@ val sc = scenario("Test Gzip").doHttpRequest("Blog Main Page", get("http://blog.
 
 val scConfiguration = configureScenario(sc) withUsersNumber 1
 
-val execution = runSimulations(scConfiguration)
+runSimulations(scConfiguration)

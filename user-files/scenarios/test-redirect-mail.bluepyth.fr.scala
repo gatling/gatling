@@ -3,4 +3,4 @@ val lambdaUser = scenario("Standard User").doHttpRequest("Redirect TEST", get("h
 
 val lambdaUserConfig = configureScenario(lambdaUser) withUsersNumber 1
 
-val execution = runSimulations(lambdaUserConfig)
+runSimulations(lambdaUserConfig)

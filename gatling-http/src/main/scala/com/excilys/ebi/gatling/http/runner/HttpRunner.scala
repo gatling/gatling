@@ -25,14 +25,13 @@ import akka.actor.Actor.actorOf
 import org.apache.commons.lang3.time.FastDateFormat
 
 object HttpRunner {
-  class HttpRunner(configurationBuilders: List[ScenarioConfigurationBuilder]) extends Runner(configurationBuilders) {
+  class HttpRunner(startDate: Date, configurationBuilders: List[ScenarioConfigurationBuilder]) extends Runner(startDate, configurationBuilders) {
 
     var totalNumberOfUsers = 0
     var totalNumberOfRelevantActions = 0
     var scenarioConfigurations: List[ScenarioConfiguration] = Nil
     var scenarios: List[Action] = Nil
     val statWriter = actorOf[FileDataWriter].start
-    val startDate = new Date
 
     for (i <- 1 to scenarioConfigurationBuilders.size)
       scenarioConfigurations = scenarioConfigurationBuilders(i - 1).build(i) :: scenarioConfigurations
@@ -56,7 +55,7 @@ object HttpRunner {
     // TODO
     // logger.info("[Runner] Simulation execution time will be at least {}s", ScenarioBuilder.getExecutionTime + TimeUnit.SECONDS.convert(ramp.map { r => r._1.toLong }.getOrElse(0L), ramp.map { r => r._2 }.getOrElse(TimeUnit.SECONDS)))
 
-    def run: String = {
+    def run = {
 
       statWriter ! InitializeDataWriter(startDate, totalNumberOfRelevantActions)
 
@@ -71,7 +70,6 @@ object HttpRunner {
       latch.await(86400, TimeUnit.SECONDS)
       logger.debug("Latch is at 0")
       HttpRequestAction.CLIENT.close
-      FastDateFormat.getInstance("yyyyMMddHHmmss").format(startDate)
     }
 
     def executeOneScenario(configuration: ScenarioConfiguration, scenario: Action) = {
@@ -85,5 +83,5 @@ object HttpRunner {
 
   }
 
-  def runSimulations(scenarioConfigurations: ScenarioConfigurationBuilder*) = new HttpRunner(scenarioConfigurations.toList).run
+  def runSim(startDate: Date)(scenarioConfigurations: ScenarioConfigurationBuilder*) = new HttpRunner(startDate, scenarioConfigurations.toList).run
 }
