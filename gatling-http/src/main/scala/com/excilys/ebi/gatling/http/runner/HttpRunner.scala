@@ -51,7 +51,7 @@ object HttpRunner {
 
     logger.debug("[Runner] {} requests to be executed for this simulation.", totalNumberOfRelevantActions)
     logger.debug("total number of users : {}", totalNumberOfUsers)
-    logger.debug("Map of relevant actions: {}", ScenarioBuilder.getNumberOfRelevantActionsMap)
+    logger.debug("Map of relevant actions: {}", ScenarioBuilder.getNumberOfRelevantActionsByScenario)
     logger.debug("Number of relevant actions for the simulation: {}", totalNumberOfRelevantActions)
     // TODO
     // logger.info("[Runner] Simulation execution time will be at least {}s", ScenarioBuilder.getExecutionTime + TimeUnit.SECONDS.convert(ramp.map { r => r._1.toLong }.getOrElse(0L), ramp.map { r => r._2 }.getOrElse(TimeUnit.SECONDS)))

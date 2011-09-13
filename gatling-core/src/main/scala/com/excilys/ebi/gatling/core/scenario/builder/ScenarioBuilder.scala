@@ -6,19 +6,19 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 object ScenarioBuilder {
-  private var expectedExecutiontime: Map[Int, Long] = Map.empty
-  private var numberOfRelevantActions: Map[Int, Int] = Map.empty
+  private var expectedExecutionDuration: Map[Int, Long] = Map.empty
+  private var numberOfRelevantActionsByScenario: Map[Int, Int] = Map.empty
 
   def addRelevantAction(scenarioId: Int) = {
-    numberOfRelevantActions += (scenarioId -> (1 + numberOfRelevantActions.get(scenarioId).getOrElse(0)))
+    numberOfRelevantActionsByScenario += (scenarioId -> (1 + numberOfRelevantActionsByScenario.get(scenarioId).getOrElse(0)))
   }
 
   def addToExecutionTime(scenarioId: Int, timeValue: Long, timeUnit: TimeUnit) = {
-    expectedExecutiontime += (scenarioId -> (TimeUnit.MILLISECONDS.convert(timeValue, timeUnit) + expectedExecutiontime.get(scenarioId).getOrElse(0L)))
+    expectedExecutionDuration += (scenarioId -> (TimeUnit.MILLISECONDS.convert(timeValue, timeUnit) + expectedExecutionDuration.get(scenarioId).getOrElse(0L)))
   }
 
-  def getNumberOfRelevantActionsMap = numberOfRelevantActions
-  def getExecutionTime(scenarioId: Int) = TimeUnit.SECONDS.convert(expectedExecutiontime.get(scenarioId).get, TimeUnit.MILLISECONDS)
+  def getNumberOfRelevantActionsByScenario = numberOfRelevantActionsByScenario
+  def getExecutionTime(scenarioId: Int) = TimeUnit.SECONDS.convert(expectedExecutionDuration.get(scenarioId).get, TimeUnit.MILLISECONDS)
 
   abstract class ScenarioBuilder(val name: String, var actionBuilders: List[AbstractActionBuilder]) extends AbstractActionBuilder {
     def actionsList = actionBuilders
