@@ -59,13 +59,6 @@
 			<name>Excilys Third Party Repository</name>
 			<url>http://repository.excilys.com/content/repositories/thirdparty</url>
 		</repository>
-		<repository>
-			<id>repository.jboss.org</id>
-			<url>https://repository.jboss.org/nexus/content/repositories/releases/</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
