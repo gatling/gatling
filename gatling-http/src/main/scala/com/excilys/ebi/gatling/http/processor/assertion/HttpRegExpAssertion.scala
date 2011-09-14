@@ -1,11 +1,16 @@
 package com.excilys.ebi.gatling.http.processor.assertion
 
-import com.excilys.ebi.gatling.core.provider.assertion.RegExpAssertionProvider
+import com.excilys.ebi.gatling.core.processor.AssertionType._
 
 import com.excilys.ebi.gatling.http.phase.HttpPhase
+import com.excilys.ebi.gatling.http.processor.capture.HttpRegExpCapture
 
-class HttpRegExpAssertion(expression: String, expected: String, attrKey: Option[String], httpPhase: HttpPhase)
-    extends HttpAssertion(expression, expected, attrKey, httpPhase, new RegExpAssertionProvider) {
+class HttpRegExpAssertion(expression: String, val expected: String, attrKey: String, httpPhase: HttpPhase)
+    extends HttpRegExpCapture(expression, attrKey, httpPhase) with HttpAssertion {
+
+  def getAssertionType = EQUALITY
+
+  def getExpected = expected
 
   override def toString = "HttpRegExpAssertion ('" + expression + "' must be equal to '" + expected + "')"
 

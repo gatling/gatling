@@ -38,7 +38,7 @@ scenario("Standard User")
       .doHttpRequest(
         "Create Thing omgomg",
         post("http://localhost:3000/things") withQueryParam ("postTest", FromContext("ctxParam")) withTemplateBodyFromContext ("create_thing", Map("name" -> "ctxParam")) asJSON,
-        assertStatus(201)))
+        assertStatus(201) in "status"))
   // Second request outside iteration
   .doHttpRequest("Ajout au panier",
     get(baseUrl),

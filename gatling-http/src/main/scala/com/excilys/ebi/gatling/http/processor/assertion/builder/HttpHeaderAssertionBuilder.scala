@@ -8,7 +8,7 @@ object HttpHeaderAssertionBuilder {
       extends HttpAssertionBuilder(expression, expected, attrKey, null) {
     def in(attrKey: String) = new HttpHeaderAssertionBuilder(expression, expected, Some(attrKey))
 
-    def build: HttpAssertion = new HttpHeaderAssertion(expression.get, expected.get, attrKey)
+    def build: HttpAssertion = new HttpHeaderAssertion(expression.get, expected.get, attrKey.get)
   }
 
   def assertHeader(headerName: String, expected: String) = new HttpHeaderAssertionBuilder(Some(headerName), Some(expected), None)

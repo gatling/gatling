@@ -9,7 +9,7 @@ object HttpStatusAssertionBuilder {
       extends HttpAssertionBuilder(None, expected, attrKey, Some(new StatusReceived)) {
     def in(attrKey: String) = new HttpStatusAssertionBuilder(expected, Some(attrKey))
 
-    def build: HttpAssertion = new HttpStatusAssertion(expected.get, attrKey)
+    def build: HttpAssertion = new HttpStatusAssertion(expected.get, attrKey.get)
   }
 
   def assertStatusInRange(range: Range) = new HttpStatusAssertionBuilder(Some(range.mkString(":")), None)

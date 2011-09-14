@@ -11,7 +11,7 @@ object HttpXPathAssertionBuilder {
       extends HttpAssertionBuilder(expression, expected, attrKey, httpPhase) {
     def in(attrKey: String) = new HttpXPathAssertionBuilder(expression, expected, Some(attrKey), httpPhase)
 
-    def build: HttpAssertion = new HttpXPathAssertion(expression.get, expected.get, attrKey, httpPhase.get)
+    def build: HttpAssertion = new HttpXPathAssertion(expression.get, expected.get, attrKey.get, httpPhase.get)
   }
 
   def assertXpath(expression: String, expected: String) = new HttpXPathAssertionBuilder(Some(expression), Some(expected), None, Some(new CompletePageReceived))

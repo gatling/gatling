@@ -1,35 +1,37 @@
 package com.excilys.ebi.gatling.http.ahc
 
-import scala.collection.mutable.{ HashSet, MultiMap }
+import scala.collection.mutable.MultiMap
+import scala.collection.immutable.HashSet
 
-import com.ning.http.client.AsyncHandler
-import com.ning.http.client.AsyncHandler.STATE
-import com.ning.http.client.Response
-import com.ning.http.client.Response.ResponseBuilder
-import com.ning.http.client.HttpResponseStatus
-import com.ning.http.client.HttpResponseHeaders
-import com.ning.http.client.HttpResponseBodyPart
+import com.excilys.ebi.gatling.http.phase._
+import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
+import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
 
+import com.excilys.ebi.gatling.core.processor.Assertion._
+import com.excilys.ebi.gatling.core.processor.AssertionType._
+import com.excilys.ebi.gatling.core.result.message.ResultStatus._
+import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.context.builder.ContextBuilder._
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
-import com.excilys.ebi.gatling.core.result.message.ResultStatus._
-import com.excilys.ebi.gatling.core.context.builder.ContextBuilder.newContext
-import com.excilys.ebi.gatling.core.context.Context
 
-import com.excilys.ebi.gatling.http.phase.HttpPhase
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
-import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
-import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
-import com.excilys.ebi.gatling.http.phase._
+
+import akka.actor.Actor.registry._
+
+import com.ning.http.client.AsyncHandler.STATE
+import com.ning.http.client.Response.ResponseBuilder
+import com.ning.http.client.AsyncHandler
+import com.ning.http.client.HttpResponseBodyPart
+import com.ning.http.client.HttpResponseHeaders
+import com.ning.http.client.HttpResponseStatus
+import com.ning.http.client.Response
 
 import java.util.Date
 import java.util.concurrent.TimeUnit
 
-import akka.actor.Actor.registry.actorFor
-
-class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpAssertion], captures: MultiMap[HttpPhase, HttpCapture], next: Action, executionStartTime: Long, executionStartDate: Date,
-                         requestName: String)
+class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpProcessor], next: Action, executionStartTime: Long, executionStartDate: Date, requestName: String)
     extends AsyncHandler[Response] with Logging {
 
   private val responseBuilder: ResponseBuilder = new ResponseBuilder()
@@ -53,29 +55,41 @@ class CustomAsyncHandler(context: Context, assertions: MultiMap[HttpPhase, HttpA
 
   private def processResponse(httpPhase: HttpPhase, placeToSearch: Any): STATE = {
     val processingStartTime = System.nanoTime
-    logger.debug("Assertions at {} : {}", httpPhase, assertions.get(httpPhase))
-    for (a <- assertions.get(httpPhase).getOrElse(new HashSet)) {
-      val (result, resultValue, attrKey) = a.assertInRequest(placeToSearch, requestName + context.getUserId + executionStartDate)
-      logger.debug("ASSERTION RESULT: {}, {}, " + attrKey, result, resultValue)
-      if (result)
-        attrKey.map { key =>
-          contextBuilder = contextBuilder setAttribute (key, resultValue.getOrElse(throw new Exception("Assertion didn't find result")).toString)
-        }
-      else {
-        val response =
-          if (placeToSearch.isInstanceOf[Response])
-            Some(placeToSearch.asInstanceOf[Response])
-          else
-            None
-        sendLogAndExecuteNext(KO, "Assertion " + a + " failed", processingStartTime, response)
-        return STATE.ABORT
-      }
-    }
+    logger.debug("Processors at {} : {}", httpPhase, processors.get(httpPhase))
+    for (processor <- processors.get(httpPhase).getOrElse(new HashSet)) {
+      processor match {
+        // If the processor is an HTTP Capture
+        case c: HttpCapture =>
+          val value = c.capture(placeToSearch)
+          logger.info("Captured Value: {}", value)
+          contextBuilder = contextBuilder setAttribute (c.getAttrKey, value.getOrElse(throw new Exception("Capture string not found")).toString)
+          if (c.isInstanceOf[HttpAssertion]) {
+            // If the Capture is also an assertion
+            val a = c.asInstanceOf[HttpAssertion]
+            // Computing of the result of the assertion
+            val result =
+              a.getAssertionType match {
+                case EQUALITY => assertEquals(value.get, a.getExpected)
+                case IN_RANGE => assertInRange(value.get, a.getExpected)
+              }
+            logger.debug("ASSERTION RESULT: {}", result)
 
-    for (c <- captures.get(httpPhase).getOrElse(new HashSet)) {
-      val value = c.capture(placeToSearch)
-      logger.info("Captured Value: {}", value)
-      contextBuilder = contextBuilder setAttribute (c.getAttrKey, value.getOrElse(throw new Exception("Capture string not found")).toString)
+            // If the result is true, then we store the value in the context if requested
+            if (result) {
+              contextBuilder = contextBuilder setAttribute (c.getAttrKey, value.getOrElse(throw new Exception("Assertion didn't find result")).toString)
+            } else {
+              // Else, we write the failure in the logs
+              val response =
+                if (placeToSearch.isInstanceOf[Response])
+                  Some(placeToSearch.asInstanceOf[Response])
+                else
+                  None
+              sendLogAndExecuteNext(KO, "Assertion " + a + " failed", processingStartTime, response)
+              return STATE.ABORT
+            }
+          }
+        case _ => throw new IllegalArgumentException
+      }
     }
 
     if (placeToSearch.isInstanceOf[Response])

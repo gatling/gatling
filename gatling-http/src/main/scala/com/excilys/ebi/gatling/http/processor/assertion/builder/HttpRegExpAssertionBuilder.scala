@@ -11,7 +11,7 @@ object HttpRegExpAssertionBuilder {
       extends HttpAssertionBuilder(expression, expected, attrKey, httpPhase) {
     def in(attrKey: String) = new HttpRegExpAssertionBuilder(expression, expected, Some(attrKey), httpPhase)
 
-    def build: HttpAssertion = new HttpRegExpAssertion(expression.get, expected.get, attrKey, httpPhase.get)
+    def build: HttpAssertion = new HttpRegExpAssertion(expression.get, expected.get, attrKey.get, httpPhase.get)
   }
 
   def assertRegexp(expression: String, expected: String) = new HttpRegExpAssertionBuilder(Some(expression), Some(expected), None, Some(new CompletePageReceived))
