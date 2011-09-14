@@ -27,6 +27,8 @@ object GetHttpRequestBuilder {
 
     def withHeader(header: Tuple2[String, String]) = new GetHttpRequestBuilder(url, queryParams, Some(headers.get + (header._1 -> header._2)), feeder, followsRedirects)
 
+    def withHeaders(givenHeaders: Map[String, String]) = new GetHttpRequestBuilder(url, queryParams, Some(headers.get ++ givenHeaders), feeder, followsRedirects)
+
     def asJSON = new GetHttpRequestBuilder(url, queryParams, Some(headers.get + ("Accept" -> "application/json")), feeder, followsRedirects)
 
     def asXML = new GetHttpRequestBuilder(url, queryParams, Some(headers.get + ("Accept" -> "application/xml")), feeder, followsRedirects)

@@ -40,6 +40,8 @@ object PostHttpRequestBuilder {
 
     def withHeader(header: Tuple2[String, String]) = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get + (header._1 -> header._2)), body, feeder, followsRedirects)
 
+    def withHeaders(givenHeaders: Map[String, String]) = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get ++ givenHeaders), body, feeder, followsRedirects)
+
     def asJSON = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get + ("Accept" -> "application/json") + ("Content-Type" -> "application/json")), body, feeder, followsRedirects)
 
     def asXML = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get + ("Accept" -> "application/xml") + ("Content-Type" -> "application/xml")), body, feeder, followsRedirects)

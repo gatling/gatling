@@ -37,6 +37,8 @@ abstract class HttpRequestBuilder(val url: Option[String], val queryParams: Opti
 
   def withHeader(header: Tuple2[String, String]): HttpRequestBuilder
 
+  def withHeaders(headers: Map[String, String]): HttpRequestBuilder
+
   def followsRedirect(followRedirect: Boolean): HttpRequestBuilder
 
   def asJSON(): HttpRequestBuilder

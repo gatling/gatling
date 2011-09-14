@@ -33,6 +33,8 @@ object PutHttpRequestBuilder {
 
     def withHeader(header: Tuple2[String, String]) = new PutHttpRequestBuilder(url, queryParams, Some(headers.get + (header._1 -> header._2)), body, feeder, followsRedirects)
 
+    def withHeaders(givenHeaders: Map[String, String]) = new PutHttpRequestBuilder(url, queryParams, Some(headers.get ++ givenHeaders), body, feeder, followsRedirects)
+
     def asJSON = new PutHttpRequestBuilder(url, queryParams, Some(headers.get + ("Accept" -> "application/json") + ("Content-Type" -> "application/json")), body, feeder, followsRedirects)
 
     def asXML = new PutHttpRequestBuilder(url, queryParams, Some(headers.get + ("Accept" -> "application/xml") + ("Content-Type" -> "application/xml")), body, feeder, followsRedirects)
