@@ -1,6 +1,6 @@
-package com.excilys.ebi.gatling.http.header
+package com.excilys.ebi.gatling.http.request
 
-object HeaderKey {
+object RequestHeader {
   val AcceptRanges = "Accept-Ranges"
   val Age = "Age"
   val Allow = "Allow"

@@ -82,7 +82,7 @@ import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpStatusAssert
 import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpHeaderAssertionBuilder._
 import com.excilys.ebi.gatling.http.request.builder.GetHttpRequestBuilder._
 import com.excilys.ebi.gatling.http.request.builder.PostHttpRequestBuilder._
-import com.excilys.ebi.gatling.http.header.HeaderKey._
+import com.excilys.ebi.gatling.http.request.RequestHeader._
 import com.excilys.ebi.gatling.http.runner.HttpRunner._
 import java.util.concurrent.TimeUnit
 import java.util.Date
