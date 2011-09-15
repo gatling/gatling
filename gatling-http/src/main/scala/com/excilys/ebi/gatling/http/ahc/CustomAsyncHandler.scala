@@ -44,13 +44,21 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
   private val identifier = requestName + context.getUserId
 
-  var providerTypes: HashSet[ProviderType] = HashSet.empty
+  private var providerTypes: HashSet[ProviderType] = HashSet.empty
 
   private val responseBuilder: ResponseBuilder = new ResponseBuilder()
 
   private var contextBuilder = newContext fromContext context
 
   private var hasSentLog = false
+
+  private var regexpProvider: RegExpCaptureProvider = null
+
+  private var xpathProvider: XPathCaptureProvider = null
+
+  private var httpHeadersProvider: HttpHeadersCaptureProvider = null
+
+  private var httpStatusProvider: HttpStatusCaptureProvider = null
 
   private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String, processingStartTime: Long, response: Option[Response]) = {
     if (!hasSentLog) {
@@ -75,16 +83,16 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
       providerType match {
         case REGEXP_PROVIDER =>
           logger.debug("Prepared REGEXP_PROVIDER")
-          RegExpCaptureProvider.prepare(identifier, placeToSearch.asInstanceOf[Response].getResponseBody)
+          regexpProvider = new RegExpCaptureProvider(placeToSearch.asInstanceOf[Response].getResponseBody)
         case XPATH_PROVIDER =>
           logger.debug("Prepared XPATH_PROVIDER")
-          XPathCaptureProvider.prepare(identifier, placeToSearch.asInstanceOf[Response].getResponseBodyAsBytes)
+          xpathProvider = new XPathCaptureProvider(placeToSearch.asInstanceOf[Response].getResponseBodyAsBytes)
         case HTTP_HEADERS_PROVIDER =>
           logger.debug("Prepared HTTP_HEADER_PROVIDER")
-          HttpHeadersCaptureProvider.prepare(identifier, placeToSearch.asInstanceOf[FluentCaseInsensitiveStringsMap])
+          httpHeadersProvider = new HttpHeadersCaptureProvider(placeToSearch.asInstanceOf[FluentCaseInsensitiveStringsMap])
         case HTTP_STATUS_PROVIDER =>
           logger.debug("Prepared HTTP_STATUS_PROVIDER")
-          HttpStatusCaptureProvider.prepare(identifier, placeToSearch.asInstanceOf[Int])
+          httpStatusProvider = new HttpStatusCaptureProvider(placeToSearch.asInstanceOf[Int])
       }
     }
   }
@@ -93,37 +101,17 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
     processor.getProviderType match {
       case REGEXP_PROVIDER =>
         logger.debug("Captured with REGEXP_PROVIDER")
-        RegExpCaptureProvider.capture(identifier, processor.expression)
+        regexpProvider.capture(processor.expression)
       case XPATH_PROVIDER =>
         logger.debug("Captured with XPATH_PROVIDER")
-        XPathCaptureProvider.capture(identifier, processor.expression)
+        xpathProvider.capture(processor.expression)
       case HTTP_HEADERS_PROVIDER =>
         logger.debug("Captured with HTTP_HEADER_PROVIDER")
-        HttpHeadersCaptureProvider.capture(identifier, processor.expression)
+        httpHeadersProvider.capture(processor.expression)
       case HTTP_STATUS_PROVIDER =>
         logger.debug("Captured with HTTP_STATUS_PROVIDER")
-        HttpStatusCaptureProvider.capture(identifier, processor.expression)
+        httpStatusProvider.capture(processor.expression)
     }
-  }
-
-  private def clearProviders = {
-    for (providerType <- providerTypes) {
-      providerType match {
-        case REGEXP_PROVIDER =>
-          logger.debug("Cleared REGEXP_PROVIDER")
-          RegExpCaptureProvider.clear(identifier)
-        case XPATH_PROVIDER =>
-          logger.debug("Cleared XPATH_PROVIDER")
-          XPathCaptureProvider.clear(identifier)
-        case HTTP_HEADERS_PROVIDER =>
-          logger.debug("Cleared HTTP_HEADER_PROVIDER")
-          HttpHeadersCaptureProvider.clear(identifier)
-        case HTTP_STATUS_PROVIDER =>
-          logger.debug("Cleared HTTP_STATUS_PROVIDER")
-          HttpStatusCaptureProvider.clear(identifier)
-      }
-    }
-    providerTypes = HashSet.empty
   }
 
   private def processResponse(httpPhase: HttpPhase, placeToSearch: Any): STATE = {
@@ -176,10 +164,11 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
         case _ => throw new IllegalArgumentException
       }
     }
-    clearProviders
 
     if (placeToSearch.isInstanceOf[Response])
       sendLogAndExecuteNext(OK, "Request Executed Successfully", processingStartTime, Some(placeToSearch.asInstanceOf[Response]))
+
+    providerTypes = HashSet.empty
 
     STATE.CONTINUE
   }
