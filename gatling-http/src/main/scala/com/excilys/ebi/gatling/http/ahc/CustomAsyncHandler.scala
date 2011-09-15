@@ -2,13 +2,13 @@ package com.excilys.ebi.gatling.http.ahc
 
 import scala.collection.mutable.MultiMap
 import scala.collection.immutable.HashSet
+import scala.collection.{ Set => CSet }
 
-import com.excilys.ebi.gatling.http.phase._
-import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
-import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
-
+import com.excilys.ebi.gatling.core.provider.capture.RegExpCaptureProvider
+import com.excilys.ebi.gatling.core.provider.capture.XPathCaptureProvider
 import com.excilys.ebi.gatling.core.processor.Assertion._
 import com.excilys.ebi.gatling.core.processor.AssertionType._
+import com.excilys.ebi.gatling.core.provider.ProviderType._
 import com.excilys.ebi.gatling.core.result.message.ResultStatus._
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.context.builder.ContextBuilder._
@@ -16,9 +16,12 @@ import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 
+import com.excilys.ebi.gatling.http.phase._
+import com.excilys.ebi.gatling.http.provider.capture.HttpHeadersCaptureProvider
+import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
+import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
-
-import akka.actor.Actor.registry._
+import com.excilys.ebi.gatling.http.provider.capture.HttpStatusCaptureProvider
 
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
@@ -27,12 +30,21 @@ import com.ning.http.client.HttpResponseBodyPart
 import com.ning.http.client.HttpResponseHeaders
 import com.ning.http.client.HttpResponseStatus
 import com.ning.http.client.Response
+import com.ning.http.client.FluentCaseInsensitiveStringsMap
+
+import akka.actor.Actor.registry._
+
+import org.apache.commons.lang3.StringUtils
 
 import java.util.Date
 import java.util.concurrent.TimeUnit
 
 class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpProcessor], next: Action, executionStartTime: Long, executionStartDate: Date, requestName: String)
     extends AsyncHandler[Response] with Logging {
+
+  private val identifier = requestName + context.getUserId
+
+  var providerTypes: HashSet[ProviderType] = HashSet.empty
 
   private val responseBuilder: ResponseBuilder = new ResponseBuilder()
 
@@ -53,16 +65,84 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
     }
   }
 
+  private def prepareProviders(processors: CSet[HttpProcessor], placeToSearch: Any) = {
+
+    for (processor <- processors) {
+      providerTypes = providerTypes + processor.getProviderType
+    }
+
+    for (providerType <- providerTypes) {
+      providerType match {
+        case REGEXP_PROVIDER =>
+          logger.debug("Prepared REGEXP_PROVIDER")
+          RegExpCaptureProvider.prepare(identifier, placeToSearch.asInstanceOf[Response].getResponseBody)
+        case XPATH_PROVIDER =>
+          logger.debug("Prepared XPATH_PROVIDER")
+          XPathCaptureProvider.prepare(identifier, placeToSearch.asInstanceOf[Response].getResponseBodyAsBytes)
+        case HTTP_HEADERS_PROVIDER =>
+          logger.debug("Prepared HTTP_HEADER_PROVIDER")
+          HttpHeadersCaptureProvider.prepare(identifier, placeToSearch.asInstanceOf[FluentCaseInsensitiveStringsMap])
+        case HTTP_STATUS_PROVIDER =>
+          logger.debug("Prepared HTTP_STATUS_PROVIDER")
+          HttpStatusCaptureProvider.prepare(identifier, placeToSearch.asInstanceOf[Int])
+      }
+    }
+  }
+
+  private def captureData(processor: HttpCapture): Option[Any] = {
+    processor.getProviderType match {
+      case REGEXP_PROVIDER =>
+        logger.debug("Captured with REGEXP_PROVIDER")
+        RegExpCaptureProvider.capture(identifier, processor.expression)
+      case XPATH_PROVIDER =>
+        logger.debug("Captured with XPATH_PROVIDER")
+        XPathCaptureProvider.capture(identifier, processor.expression)
+      case HTTP_HEADERS_PROVIDER =>
+        logger.debug("Captured with HTTP_HEADER_PROVIDER")
+        HttpHeadersCaptureProvider.capture(identifier, processor.expression)
+      case HTTP_STATUS_PROVIDER =>
+        logger.debug("Captured with HTTP_STATUS_PROVIDER")
+        HttpStatusCaptureProvider.capture(identifier, processor.expression)
+    }
+  }
+
+  private def clearProviders = {
+    for (providerType <- providerTypes) {
+      providerType match {
+        case REGEXP_PROVIDER =>
+          logger.debug("Cleared REGEXP_PROVIDER")
+          RegExpCaptureProvider.clear(identifier)
+        case XPATH_PROVIDER =>
+          logger.debug("Cleared XPATH_PROVIDER")
+          XPathCaptureProvider.clear(identifier)
+        case HTTP_HEADERS_PROVIDER =>
+          logger.debug("Cleared HTTP_HEADER_PROVIDER")
+          HttpHeadersCaptureProvider.clear(identifier)
+        case HTTP_STATUS_PROVIDER =>
+          logger.debug("Cleared HTTP_STATUS_PROVIDER")
+          HttpStatusCaptureProvider.clear(identifier)
+      }
+    }
+    providerTypes = HashSet.empty
+  }
+
   private def processResponse(httpPhase: HttpPhase, placeToSearch: Any): STATE = {
     val processingStartTime = System.nanoTime
     logger.debug("Processors at {} : {}", httpPhase, processors.get(httpPhase))
-    for (processor <- processors.get(httpPhase).getOrElse(new HashSet)) {
+
+    val phaseProcessors = processors.get(httpPhase).getOrElse(new HashSet[HttpProcessor])
+
+    prepareProviders(phaseProcessors, placeToSearch)
+
+    for (processor <- phaseProcessors) {
       processor match {
+
         // If the processor is an HTTP Capture
         case c: HttpCapture =>
-          val value = c.capture(placeToSearch)
+          val value = captureData(c)
           logger.info("Captured Value: {}", value)
-          contextBuilder = contextBuilder setAttribute (c.getAttrKey, value.getOrElse(throw new Exception("Capture string not found")).toString)
+          val contextAttribute = (c.getAttrKey, value.getOrElse(throw new IllegalArgumentException("Value No Found")).toString)
+
           if (c.isInstanceOf[HttpAssertion]) {
             // If the Capture is also an assertion
             val a = c.asInstanceOf[HttpAssertion]
@@ -76,7 +156,8 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
             // If the result is true, then we store the value in the context if requested
             if (result) {
-              contextBuilder = contextBuilder setAttribute (c.getAttrKey, value.getOrElse(throw new Exception("Assertion didn't find result")).toString)
+              if (c.getAttrKey != StringUtils.EMPTY)
+                contextBuilder = contextBuilder setAttribute contextAttribute
             } else {
               // Else, we write the failure in the logs
               val response =
@@ -87,10 +168,15 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
               sendLogAndExecuteNext(KO, "Assertion " + a + " failed", processingStartTime, response)
               return STATE.ABORT
             }
+          } else {
+            if (c.getAttrKey != StringUtils.EMPTY)
+              contextBuilder = contextBuilder setAttribute contextAttribute
           }
+
         case _ => throw new IllegalArgumentException
       }
     }
+    clearProviders
 
     if (placeToSearch.isInstanceOf[Response])
       sendLogAndExecuteNext(OK, "Request Executed Successfully", processingStartTime, Some(placeToSearch.asInstanceOf[Response]))

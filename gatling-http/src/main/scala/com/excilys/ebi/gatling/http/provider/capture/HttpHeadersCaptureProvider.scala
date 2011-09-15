@@ -4,40 +4,43 @@ import com.excilys.ebi.gatling.core.provider.capture.AbstractCaptureProvider
 
 import com.ning.http.client.FluentCaseInsensitiveStringsMap
 
-class HttpHeadersCaptureProvider extends AbstractCaptureProvider {
+object HttpHeadersCaptureProvider {
 
-  def captureAll(target: Any, from: Any): Option[java.util.List[String]] = {
+  var captureProviderPool: Map[String, HttpHeadersCaptureProvider] = Map.empty
 
-    val headersMap = from match {
-      case map: FluentCaseInsensitiveStringsMap => map
-      case _ => throw new IllegalArgumentException
-    }
+  def prepare(identifier: String, headersMap: FluentCaseInsensitiveStringsMap) = {
+    captureProviderPool += (identifier -> new HttpHeadersCaptureProvider(headersMap))
+  }
 
-    logger.debug(" -- Headers Capture Provider - Got headers Map: {}", headersMap)
+  def capture(identifier: String, expression: Any) = {
+    captureProviderPool.get(identifier).get.capture(expression)
+  }
 
-    val headerKey = target match {
-      case s: String => s
-      case _ => throw new IllegalArgumentException
-    }
+  def clear(identifier: String) = {
+    captureProviderPool -= identifier
+  }
 
-    logger.debug(" -- Headers Capture Provider - Got headerKey: {}", headerKey)
+}
+class HttpHeadersCaptureProvider(headersMap: FluentCaseInsensitiveStringsMap) extends AbstractCaptureProvider {
 
-    val values = headersMap.get(headerKey)
+  def capture(headerName: Any): Option[String] = {
+    captureAll(headerName.toString, headersMap).map { list =>
+      if (list.size > 0)
+        Some(list.get(0))
+      else
+        None
+    }.getOrElse(None)
+  }
+
+  def captureAll(headerName: String, headersMap: FluentCaseInsensitiveStringsMap): Option[java.util.List[String]] = {
+
+    val values = headersMap.get(headerName)
 
     logger.debug(" -- Headers Capture Provider - Got header values: {}", values)
 
     if (values == null)
       None
     else
-      Option(values)
-  }
-
-  def captureOne(target: Any, from: Any): Option[String] = {
-    captureAll(target, from).map { list =>
-      if (list.size > 0)
-        Some(list.get(0))
-      else
-        None
-    }.getOrElse(None)
+      Some(values)
   }
 }

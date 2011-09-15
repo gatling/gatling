@@ -1,18 +1,30 @@
 package com.excilys.ebi.gatling.core.provider.capture
 
 import scala.util.matching.Regex
+import com.excilys.ebi.gatling.core.log.Logging
 
-class RegExpCaptureProvider extends AbstractCaptureProvider {
-  def captureOne(target: Any, from: Any): Option[String] = {
-    val toBeFound = new Regex(target.toString)
+object RegExpCaptureProvider extends Logging {
 
-    toBeFound.findFirstMatchIn(from.toString).map { m =>
-      m.group(1)
-    }
+  var captureProviderPool: Map[String, RegExpCaptureProvider] = Map.empty
+
+  def prepare(identifier: String, textContent: String) = {
+    captureProviderPool += (identifier -> new RegExpCaptureProvider(textContent))
   }
 
-  def captureAll(target: Any, from: Any): Option[Any] = {
-    val toBeFound = new Regex(target.toString)
-    Some(toBeFound findAllIn from.toString)
+  def capture(identifier: String, expression: Any) = {
+    logger.debug("[RegExpCaptureProvider] Capturing with expression : {}", expression)
+    captureProviderPool.get(identifier).get.capture(expression)
+  }
+
+  def clear(identifier: String) = {
+    captureProviderPool -= identifier
+  }
+
+}
+class RegExpCaptureProvider(textContent: String) extends AbstractCaptureProvider {
+  def capture(expression: Any): Option[String] = {
+    new Regex(expression.toString).findFirstMatchIn(textContent).map { m =>
+      m.group(1)
+    }
   }
 }

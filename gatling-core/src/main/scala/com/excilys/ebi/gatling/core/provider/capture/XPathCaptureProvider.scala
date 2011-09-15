@@ -3,49 +3,43 @@ package com.excilys.ebi.gatling.core.provider.capture
 import com.ximpleware.VTDGen
 import com.ximpleware.VTDNav
 import com.ximpleware.AutoPilot
+import com.excilys.ebi.gatling.core.log.Logging
 
-object XPathCaptureProvider {
+object XPathCaptureProvider extends Logging {
 
-  var providersMap: Map[String, XPathCaptureProvider] = Map.empty
+  var captureProviderPool: Map[String, XPathCaptureProvider] = Map.empty
 
-  def getInstance(identifier: String): XPathCaptureProvider = {
-    providersMap.get(identifier).map { provider =>
-      provider
-    }.getOrElse {
-      val provider = new XPathCaptureProvider
-      providersMap = providersMap + (identifier -> provider)
-      provider
-    }
+  def prepare(identifier: String, xmlContent: Array[Byte]) = {
+    captureProviderPool += (identifier -> new XPathCaptureProvider(xmlContent))
   }
 
-  private[capture] class XPathCaptureProvider extends AbstractCaptureProvider {
-
-    var vtdEngine: VTDGen = null
-    var vn: VTDNav = null
-    var ap: AutoPilot = null
-
-    def captureOne(target: Any, from: Any): Option[String] = {
-
-      if (vtdEngine == null) {
-        vtdEngine = new VTDGen
-        vtdEngine.setDoc(from match {
-          case x: String => x.getBytes
-          case x: Array[Byte] => x
-        })
-        logger.debug("XPATH CAPTURE - DOC SET")
-        vtdEngine.parse(false)
-        vn = vtdEngine.getNav()
-        ap = new AutoPilot(vn)
-      }
-      ap.selectXPath(target.toString)
-      val value = Some(ap.evalXPathToString)
-      vtdEngine.clear
-      logger.debug("XPATH CAPTURE: {}", value)
-      value
-    }
-
-    def captureAll(target: Any, from: Any): Option[String] = {
-      null
-    }
+  def capture(identifier: String, expression: Any) = {
+    logger.debug("[XPathCaptureProvider] Capturing with expression : {}", expression)
+    captureProviderPool.get(identifier).get.capture(expression)
   }
+
+  def clear(identifier: String) = {
+    captureProviderPool -= identifier
+  }
+
+}
+private[capture] class XPathCaptureProvider(xmlContent: Array[Byte]) extends AbstractCaptureProvider {
+
+  var vtdEngine: VTDGen = null
+  var vn: VTDNav = null
+  var ap: AutoPilot = null
+
+  vtdEngine = new VTDGen
+  vtdEngine.setDoc(xmlContent)
+  vtdEngine.parse(false)
+  vn = vtdEngine.getNav()
+  ap = new AutoPilot(vn)
+
+  def capture(expression: Any): Option[String] = {
+    ap.selectXPath(expression.toString)
+    val value = Some(ap.evalXPathToString)
+    logger.debug("XPATH CAPTURE: {}", value)
+    value
+  }
+
 }

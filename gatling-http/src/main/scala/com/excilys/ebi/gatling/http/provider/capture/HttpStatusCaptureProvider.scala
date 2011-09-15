@@ -1,18 +1,27 @@
 package com.excilys.ebi.gatling.http.provider.capture
 
 import com.excilys.ebi.gatling.core.provider.capture.AbstractCaptureProvider
-
 import com.ning.http.client.Response
+import com.excilys.ebi.gatling.core.log.Logging
 
-class HttpStatusCaptureProvider extends AbstractCaptureProvider {
-  def captureOne(target: Any, from: Any): Option[Any] = {
-    from match {
-      case i: Int => Some(i)
-      case _ => throw new IllegalArgumentException
-    }
+object HttpStatusCaptureProvider extends Logging {
+
+  var captureProviderPool: Map[String, HttpStatusCaptureProvider] = Map.empty
+
+  def prepare(identifier: String, statusCode: Int) = {
+    captureProviderPool += (identifier -> new HttpStatusCaptureProvider(statusCode))
   }
 
-  def captureAll(target: Any, from: Any): Option[Any] = {
-    None
+  def capture(identifier: String, statusCode: Any) = {
+    captureProviderPool.get(identifier).get.capture(statusCode)
+  }
+
+  def clear(identifier: String) = {
+    captureProviderPool -= identifier
+  }
+}
+class HttpStatusCaptureProvider(statusCode: Int) extends AbstractCaptureProvider {
+  def capture(unused: Any): Option[String] = {
+    Some(statusCode.toString)
   }
 }
