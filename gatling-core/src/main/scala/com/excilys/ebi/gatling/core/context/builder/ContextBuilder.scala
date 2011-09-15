@@ -40,7 +40,8 @@ object ContextBuilder {
       while (it.hasNext) {
         cookiesList = it.next :: cookiesList
       }
-      new ContextBuilder[HSN, HUID, HWAU](scenarioName, userId, writeActorUuid, Some(cookiesList), data)
+      // FIXME: will use to many space in memory
+      new ContextBuilder[HSN, HUID, HWAU](scenarioName, userId, writeActorUuid, Some(cookiesList ::: this.cookies.getOrElse(Nil)), data)
     }
   }
 
