@@ -48,7 +48,7 @@ abstract class HttpRequestBuilder(val url: Option[String], val queryParams: Opti
   def build(context: Context): Request
 
   def build(context: Context, method: String): Request = {
-    requestBuilder setMethod method setFollowRedirects followsRedirects.getOrElse(true)
+    requestBuilder setMethod method setFollowRedirects followsRedirects.getOrElse(false)
 
     consumeSeed(feeder, context)
     addCookiesTo(requestBuilder, context)
