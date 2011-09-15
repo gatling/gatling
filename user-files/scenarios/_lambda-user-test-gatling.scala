@@ -16,7 +16,7 @@ scenario("Standard User")
         get(baseUrl),
         assertXpath("//input[@value='aaaa']/@id", "text1") in "ctxParam",
         assertStatusInRange(200 to 210) in "blablaParam",
-        assertXpath("//input[@value='aaaa']/@id", "text1") in "test1",
+        assertXpath("//input[@value='aaaa']/@id", "text1"),
         assertXpath("//input[@id='text1']/@value", "aaaa") in "test2")
       .pause(pause2)
       // Second request to be repeated
