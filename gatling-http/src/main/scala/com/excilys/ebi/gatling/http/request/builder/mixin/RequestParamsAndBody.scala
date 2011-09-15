@@ -27,11 +27,11 @@ trait RequestParamsAndBody extends Body {
   def withParam(paramKey: String): HttpRequestBuilder
 
   private def addParamsTo(requestBuilder: RequestBuilder, params: Option[Map[String, Param]], context: Context) = {
-    requestBuilder setQueryParameters new FluentStringsMap
+    requestBuilder setParameters new FluentStringsMap
     for (param <- params.get) {
       param._2 match {
-        case StringParam(string) => requestBuilder addQueryParameter (param._1, string)
-        case ContextParam(string) => requestBuilder addQueryParameter (param._1, context.getAttribute(string))
+        case StringParam(string) => requestBuilder addParameter (param._1, string)
+        case ContextParam(string) => requestBuilder addParameter (param._1, context.getAttribute(string))
       }
     }
   }
