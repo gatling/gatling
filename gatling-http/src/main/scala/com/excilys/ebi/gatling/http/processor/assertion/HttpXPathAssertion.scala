@@ -2,7 +2,7 @@ package com.excilys.ebi.gatling.http.processor.assertion
 
 import com.excilys.ebi.gatling.core.processor.AssertionType._
 
-import com.excilys.ebi.gatling.http.phase.HttpPhase
+import com.excilys.ebi.gatling.http.phase.HttpPhase._
 import com.ning.http.client.Response
 import com.excilys.ebi.gatling.http.processor.capture.HttpXPathCapture
 

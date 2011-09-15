@@ -2,7 +2,7 @@ package com.excilys.ebi.gatling.http.processor.assertion
 
 import com.excilys.ebi.gatling.core.processor.AssertionType._
 
-import com.excilys.ebi.gatling.http.phase.HttpPhase
+import com.excilys.ebi.gatling.http.phase.HttpPhase._
 import com.excilys.ebi.gatling.http.processor.capture.HttpRegExpCapture
 
 class HttpRegExpAssertion(expression: String, val expected: String, attrKey: String, httpPhase: HttpPhase)

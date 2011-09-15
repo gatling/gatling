@@ -1,8 +1,6 @@
 package com.excilys.ebi.gatling.http.processor.assertion.builder
 
-import com.excilys.ebi.gatling.http.phase.HttpPhase
-import com.excilys.ebi.gatling.http.phase.CompletePageReceived
-import com.excilys.ebi.gatling.http.phase.HeadersReceived
+import com.excilys.ebi.gatling.http.phase.HttpPhase._
 import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
 import com.excilys.ebi.gatling.http.processor.assertion.HttpRegExpAssertion
 import org.apache.commons.lang3.StringUtils
@@ -15,5 +13,5 @@ object HttpRegExpAssertionBuilder {
     def build: HttpAssertion = new HttpRegExpAssertion(expression.get, expected.get, attrKey.get, httpPhase.get)
   }
 
-  def assertRegexp(expression: String, expected: String) = new HttpRegExpAssertionBuilder(Some(expression), Some(expected), Some(StringUtils.EMPTY), Some(new CompletePageReceived))
+  def assertRegexp(expression: String, expected: String) = new HttpRegExpAssertionBuilder(Some(expression), Some(expected), Some(StringUtils.EMPTY), Some(CompletePageReceived))
 }

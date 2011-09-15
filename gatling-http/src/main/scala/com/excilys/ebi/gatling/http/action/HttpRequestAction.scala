@@ -3,8 +3,7 @@ package com.excilys.ebi.gatling.http.action
 import com.excilys.ebi.gatling.core.action.{ Action, RequestAction }
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.http.ahc.CustomAsyncHandler
-import com.excilys.ebi.gatling.http.phase.HttpPhase
-import com.excilys.ebi.gatling.http.phase.StatusReceived
+import com.excilys.ebi.gatling.http.phase.HttpPhase._
 import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
 import com.excilys.ebi.gatling.http.processor.builder.HttpProcessorBuilder
@@ -37,7 +36,7 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilde
   }
 
   // Adds default assertions (they won't be added if overridden by user)
-  processors.addBinding(new StatusReceived, new HttpStatusAssertion((200 to 210).mkString(":"), ""))
+  processors.addBinding(StatusReceived, new HttpStatusAssertion((200 to 210).mkString(":"), ""))
 
   def execute(context: Context) = {
     logger.info("Sending Request")

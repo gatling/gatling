@@ -2,7 +2,6 @@ package com.excilys.ebi.gatling.http.processor.assertion
 
 import com.excilys.ebi.gatling.core.processor.AssertionType._
 
-import com.excilys.ebi.gatling.http.phase.StatusReceived
 import com.excilys.ebi.gatling.http.provider.capture.HttpStatusCaptureProvider
 import com.excilys.ebi.gatling.http.processor.capture.HttpStatusCapture
 

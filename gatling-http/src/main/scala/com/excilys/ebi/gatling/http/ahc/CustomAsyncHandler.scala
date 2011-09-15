@@ -16,7 +16,7 @@ import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 
-import com.excilys.ebi.gatling.http.phase._
+import com.excilys.ebi.gatling.http.phase.HttpPhase._
 import com.excilys.ebi.gatling.http.provider.capture.HttpHeadersCaptureProvider
 import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
 import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
@@ -186,12 +186,12 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
   def onStatusReceived(responseStatus: HttpResponseStatus): STATE = {
     responseBuilder.accumulate(responseStatus)
-    processResponse(new StatusReceived, responseStatus.getStatusCode)
+    processResponse(StatusReceived, responseStatus.getStatusCode)
   }
 
   def onHeadersReceived(headers: HttpResponseHeaders): STATE = {
     responseBuilder.accumulate(headers)
-    processResponse(new HeadersReceived, headers.getHeaders)
+    processResponse(HeadersReceived, headers.getHeaders)
   }
 
   def onBodyPartReceived(bodyPart: HttpResponseBodyPart): STATE = {
@@ -201,7 +201,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
   def onCompleted(): Response = {
     val response = responseBuilder.build
-    processResponse(new CompletePageReceived, response)
+    processResponse(CompletePageReceived, response)
     null
   }
 

@@ -2,10 +2,10 @@ package com.excilys.ebi.gatling.http.processor.capture
 
 import com.excilys.ebi.gatling.core.provider.ProviderType._
 
-import com.excilys.ebi.gatling.http.phase.HeadersReceived
+import com.excilys.ebi.gatling.http.phase.HttpPhase._
 
 class HttpHeaderCapture(expression: String, attrKey: String)
-    extends HttpCapture(expression, attrKey, new HeadersReceived, HTTP_HEADERS_PROVIDER) {
+    extends HttpCapture(expression, attrKey, HeadersReceived, HTTP_HEADERS_PROVIDER) {
 
   override def toString = "HttpHeaderCapture (" + expression + ")"
 }
