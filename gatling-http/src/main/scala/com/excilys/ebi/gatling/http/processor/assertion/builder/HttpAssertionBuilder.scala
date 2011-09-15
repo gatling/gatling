@@ -1,6 +1,6 @@
 package com.excilys.ebi.gatling.http.processor.assertion.builder
 
-import com.excilys.ebi.gatling.http.phase.HttpPhase._
+import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
 import com.excilys.ebi.gatling.http.processor.builder.HttpProcessorBuilder
 

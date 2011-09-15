@@ -3,7 +3,7 @@ package com.excilys.ebi.gatling.http.action
 import com.excilys.ebi.gatling.core.action.{ Action, RequestAction }
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.http.ahc.CustomAsyncHandler
-import com.excilys.ebi.gatling.http.phase.HttpPhase._
+import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
 import com.excilys.ebi.gatling.http.processor.builder.HttpProcessorBuilder

@@ -1,4 +1,4 @@
-package com.excilys.ebi.gatling.http.phase
+package com.excilys.ebi.gatling.http.request
 
 object HttpPhase extends Enumeration {
   type HttpPhase = Value

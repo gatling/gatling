@@ -16,7 +16,7 @@ import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 
-import com.excilys.ebi.gatling.http.phase.HttpPhase._
+import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.http.provider.capture.HttpHeadersCaptureProvider
 import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
 import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
