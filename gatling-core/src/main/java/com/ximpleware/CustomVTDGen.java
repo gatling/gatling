@@ -267,7 +267,7 @@ public class CustomVTDGen extends VTDGen {
 				} else if (loop == maxLoop) {
 					throw new EntityException("Errors in char reference: Illegal char following &.");
 				}
-				builder.append(ch);
+				builder.append((char) ch);
 				ch = r.getChar();
 			}
 
