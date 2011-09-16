@@ -73,14 +73,28 @@ object HttpRunner {
     }
 
     def executeOneScenario(configuration: ScenarioConfiguration, scenario: Action) = {
-      for (i <- 1 to configuration.numberOfUsers) {
-        val context: Context = newContext withUserId i withWriteActorUuid statWriter.getUuid withScenarioName configuration.scenarioBuilder.getName build
 
+      if (configuration.numberOfUsers == 1) {
+        // if only 1 user, execute right now
+        val context = buildContext(configuration, 1)
+        scenario.execute(context)
+
+      } else {
+        // otherwise, schedule
         val ramp = configuration.ramp
-        Scheduler.scheduleOnce(() => scenario.execute(context), (ramp._1.toDouble / (configuration.numberOfUsers - 1).toDouble).toInt * (i - 1), ramp._2)
+        // compute ramp period in millis so we can ramp less that one user per second
+        val period = ramp._2.toMillis(ramp._1) / (configuration.numberOfUsers - 1)
+
+        for (i <- 1 to configuration.numberOfUsers) {
+          val context: Context = buildContext(configuration, i)
+          Scheduler.scheduleOnce(() => scenario.execute(context), period * (i - 1), TimeUnit.MILLISECONDS)
+        }
       }
     }
 
+    def buildContext(configuration: ScenarioConfiguration, i: Int) = {
+      newContext withUserId i withWriteActorUuid statWriter.getUuid withScenarioName configuration.scenarioBuilder.getName build
+    }
   }
 
   def runSim(startDate: Date)(scenarioConfigurations: ScenarioConfigurationBuilder*) = new HttpRunner(startDate, scenarioConfigurations.toList).run
