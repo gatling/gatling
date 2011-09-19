@@ -2,8 +2,6 @@ package com.excilys.ebi.gatling.http.processor.assertion
 
 import com.excilys.ebi.gatling.core.processor.AssertionType._
 
-import com.excilys.ebi.gatling.http.request.HttpPhase._
-import com.excilys.ebi.gatling.http.provider.capture.HttpHeadersCaptureProvider
 import com.excilys.ebi.gatling.http.processor.capture.HttpHeaderCapture
 
 class HttpHeaderAssertion(headerName: String, val expected: String, attrKey: String)
