@@ -14,7 +14,8 @@ val lambdaUser = scenario("Standard User")
       .doHttpRequest(
         "Page accueil",
         get(baseUrl),
-        assertXpath("//input[@value='aaaa']/@id", "text1") in "ctxParam",
+        assertXpath("//input[@value='aaaa']/@id") in "ctxParam",
+        assertRegexp("""<input id="text1" type="text" value="aaaa" />"""),
         assertStatusInRange(200 to 210) in "blablaParam",
         assertXpath("//input[@value='aaaa']/@id", "text1"),
         assertXpath("//input[@id='text1']/@value", "aaaa") in "test2")

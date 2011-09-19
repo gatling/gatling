@@ -6,7 +6,10 @@ class RegExpCaptureProvider(textContent: String) extends AbstractCaptureProvider
   def capture(expression: Any): Option[String] = {
     logger.debug("[RegExpCaptureProvider] Capturing with expression : {}", expression)
     new Regex(expression.toString).findFirstMatchIn(textContent).map { m =>
-      m.group(1)
+      if (m.groupCount > 0)
+        m.group(1)
+      else
+        m.matched
     }
   }
 }

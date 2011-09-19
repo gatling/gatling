@@ -120,6 +120,12 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
     val phaseProcessors = processors.get(httpPhase).getOrElse(new HashSet[HttpProcessor])
 
+    val response =
+      if (placeToSearch.isInstanceOf[Response])
+        Some(placeToSearch.asInstanceOf[Response])
+      else
+        None
+
     prepareProviders(phaseProcessors, placeToSearch)
 
     for (processor <- phaseProcessors) {
@@ -128,37 +134,38 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
         // If the processor is an HTTP Capture
         case c: HttpCapture =>
           val value = captureData(c)
-          logger.info("Captured Value: {}", value)
-          val contextAttribute = (c.getAttrKey, value.getOrElse(throw new IllegalArgumentException("Value No Found")).toString)
-
-          if (c.isInstanceOf[HttpAssertion]) {
-            // If the Capture is also an assertion
-            val a = c.asInstanceOf[HttpAssertion]
-            // Computing of the result of the assertion
-            val result =
-              a.getAssertionType match {
-                case EQUALITY => assertEquals(value.get, a.getExpected)
-                case IN_RANGE => assertInRange(value.get, a.getExpected)
-              }
           logger.debug("Captured Value: {}", value)
 
-            // If the result is true, then we store the value in the context if requested
-            if (result) {
+          if (value.isEmpty) {
+            sendLogAndExecuteNext(KO, "Capture " + c + " failed", processingStartTime, response)
+          } else {
+            val contextAttribute = (c.getAttrKey, value.get.toString)
+
+            if (c.isInstanceOf[HttpAssertion]) {
+              // If the Capture is also an assertion
+              val a = c.asInstanceOf[HttpAssertion]
+              // Computing of the result of the assertion
+              val result =
+                a.getAssertionType match {
+                  case EQUALITY => assertEquals(value.get, a.getExpected)
+                  case IN_RANGE => assertInRange(value.get, a.getExpected)
+                  case EXISTENCE => true
+                }
+              logger.debug("ASSERTION RESULT: {}", result)
+
+              // If the result is true, then we store the value in the context if requested
+              if (result) {
+                if (c.getAttrKey != StringUtils.EMPTY)
+                  contextBuilder = contextBuilder setAttribute contextAttribute
+              } else {
+                // Else, we write the failure in the logs
+                sendLogAndExecuteNext(KO, "Assertion " + a + " failed", processingStartTime, response)
+                return STATE.ABORT
+              }
+            } else {
               if (c.getAttrKey != StringUtils.EMPTY)
                 contextBuilder = contextBuilder setAttribute contextAttribute
-            } else {
-              // Else, we write the failure in the logs
-              val response =
-                if (placeToSearch.isInstanceOf[Response])
-                  Some(placeToSearch.asInstanceOf[Response])
-                else
-                  None
-              sendLogAndExecuteNext(KO, "Assertion " + a + " failed", processingStartTime, response)
-              return STATE.ABORT
             }
-          } else {
-            if (c.getAttrKey != StringUtils.EMPTY)
-              contextBuilder = contextBuilder setAttribute contextAttribute
           }
 
         case _ => throw new IllegalArgumentException
