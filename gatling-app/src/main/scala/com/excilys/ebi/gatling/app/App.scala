@@ -64,9 +64,17 @@ object App extends Logging {
 
     val initialFileBodyContent = Source.fromFile("user-files/scenarios/" + filename).mkString
 
-    val toBeFound = new Regex("""scenarioFromFile\("(.*)"\)""")
-    val newFileBodyContent = toBeFound replaceAllIn (initialFileBodyContent, result =>
-      Source.fromFile("user-files/scenarios/_" + result.group(1) + ".scala").mkString + "\n\n")
+    val toBeFound = new Regex("""include\("(.*)"\)""")
+    val newFileBodyContent = toBeFound replaceAllIn (initialFileBodyContent, result => {
+      val partialName = result.group(1)
+      var path =
+        if (partialName.startsWith("_")) {
+          partialName
+        } else {
+          filename.substring(0, filename.length() - 6) + "/" + partialName
+        } 
+      Source.fromFile("user-files/scenarios/" + path+ ".scala").mkString + "\n\n"
+    })
 
     val fileHeader = """
 import com.excilys.ebi.gatling.core.feeder._

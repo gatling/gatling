@@ -1,4 +1,4 @@
-scenario("Admin User")
+val adminUser = scenario("Admin User")
   // First request outside iteration
   .doHttpRequest(
     "Catégorie Poney",
