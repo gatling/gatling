@@ -39,7 +39,7 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilde
   processors.addBinding(StatusReceived, new HttpStatusAssertion((200 to 210).mkString(":"), ""))
 
   def execute(context: Context) = {
-    logger.info("Sending Request")
+    logger.debug("Sending Request")
     HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new CustomAsyncHandler(context, processors, next, System.nanoTime, new Date, request.getName))
   }
 }

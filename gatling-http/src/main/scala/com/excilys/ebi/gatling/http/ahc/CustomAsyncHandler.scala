@@ -140,7 +140,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
                 case EQUALITY => assertEquals(value.get, a.getExpected)
                 case IN_RANGE => assertInRange(value.get, a.getExpected)
               }
-            logger.debug("ASSERTION RESULT: {}", result)
+          logger.debug("Captured Value: {}", value)
 
             // If the result is true, then we store the value in the context if requested
             if (result) {
@@ -166,7 +166,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
     }
 
     if (placeToSearch.isInstanceOf[Response])
-      sendLogAndExecuteNext(OK, "Request Executed Successfully", processingStartTime, Some(placeToSearch.asInstanceOf[Response]))
+      sendLogAndExecuteNext(OK, "Request Executed Successfully", processingStartTime, response)
 
     providerTypes = HashSet.empty
 
@@ -195,7 +195,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
   }
 
   def onThrowable(throwable: Throwable) = {
-    logger.debug("{}\n{}", throwable.getClass, throwable.getStackTraceString)
+    logger.error("{}\n{}", throwable.getClass, throwable.getStackTraceString)
     sendLogAndExecuteNext(KO, throwable.getMessage, System.nanoTime(), None)
   }
 

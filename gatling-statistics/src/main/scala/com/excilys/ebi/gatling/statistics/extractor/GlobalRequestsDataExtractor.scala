@@ -19,7 +19,7 @@ class GlobalRequestsDataExtractor(val runOn: String) extends Logging {
     val successRequestData: HashMap[String, Double] = new HashMap[String, Double]
     val allRequestData: HashMap[String, Double] = new HashMap[String, Double]
 
-    logger.info("[Stats] reading from file: " + "gatling_" + runOn)
+    logger.info("[Stats] reading from file: " + runOn + "/simulation.log")
     for (line <- Source.fromFile("results/" + runOn + "/simulation.log", "utf-8").getLines) {
       line.split("\t") match {
         case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage) => {

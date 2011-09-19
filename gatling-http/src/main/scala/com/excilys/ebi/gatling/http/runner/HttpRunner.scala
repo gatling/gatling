@@ -49,7 +49,7 @@ object HttpRunner {
     val scenariosAndConfigurations = scenarioConfigurations zip scenarios.reverse
 
     logger.debug("[Runner] {} requests to be executed for this simulation.", totalNumberOfRelevantActions)
-    logger.debug("total number of users : {}", totalNumberOfUsers)
+    logger.info("total number of users : {}", totalNumberOfUsers)
     logger.debug("Map of relevant actions: {}", ScenarioBuilder.getNumberOfRelevantActionsByScenario)
     logger.debug("Number of relevant actions for the simulation: {}", totalNumberOfRelevantActions)
     // TODO

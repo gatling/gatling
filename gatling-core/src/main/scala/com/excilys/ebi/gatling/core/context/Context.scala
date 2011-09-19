@@ -19,7 +19,7 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 
   def getAttribute(key: String): String = {
     val result = data.get(key).getOrElse {
-      logger.info("No Matching Attribute for key: '{}' in context, setting to ''", key)
+      logger.warn("No Matching Attribute for key: '{}' in context, setting to ''", key)
       StringUtils.EMPTY
     }
     logger.debug("Context('{}') = {}", key, result)

@@ -18,7 +18,7 @@ class ActiveSessionsDataExtractor(val runOn: String) extends Logging {
     // String: scenarioName, first MultiMap: active sessions, second MultiMap: dead sessions
     var scenariosToSessions: Map[String, (MultiMap[String, String], MultiMap[String, String])] = Map.empty
 
-    logger.info("[Stats] reading from file: " + "gatling_" + runOn)
+    logger.info("[Stats] reading from file: " + runOn + "/simulation.log")
 
     // Going through the specified log file
     for (line <- Source.fromFile("results/" + runOn + "/simulation.log", "utf-8").getLines) {
