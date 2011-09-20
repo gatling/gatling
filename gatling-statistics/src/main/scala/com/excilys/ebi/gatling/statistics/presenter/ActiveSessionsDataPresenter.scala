@@ -1,6 +1,7 @@
 package com.excilys.ebi.gatling.statistics.presenter
 
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.util.PathHelper._
 
 import com.excilys.ebi.gatling.statistics.extractor.ActiveSessionsDataExtractor
 import com.excilys.ebi.gatling.statistics.template.ActiveSessionsTemplate
@@ -25,6 +26,6 @@ class ActiveSessionsDataPresenter extends DataPresenter with Logging {
 
     val output = new ActiveSessionsTemplate(runOn, menuItems, seriesList).getOutput
 
-    new TemplateWriter(runOn, "active_sessions.html").writeToFile(output)
+    new TemplateWriter(runOn, GATLING_GRAPH_ACTIVE_SESSIONS_FILE).writeToFile(output)
   }
 }

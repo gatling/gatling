@@ -12,6 +12,9 @@ import com.excilys.ebi.gatling.http.request.TemplateBody
 import com.excilys.ebi.gatling.http.request.Param
 import com.excilys.ebi.gatling.http.request.StringParam
 import com.excilys.ebi.gatling.http.request.ContextParam
+import com.excilys.ebi.gatling.http.request.MIMEType._
+
+import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
 
 import com.ning.http.client.RequestBuilder
 import com.ning.http.client.Request
@@ -34,9 +37,9 @@ object DeleteHttpRequestBuilder {
 
     def withHeaders(givenHeaders: Map[String, String]) = new DeleteHttpRequestBuilder(url, queryParams, Some(headers.get ++ givenHeaders), body, feeder, followsRedirects)
 
-    def asJSON = new DeleteHttpRequestBuilder(url, queryParams, Some(headers.get + ("Accept" -> "application/json") + ("Content-Type" -> "application/json")), body, feeder, followsRedirects)
+    def asJSON = new DeleteHttpRequestBuilder(url, queryParams, Some(headers.get + (ACCEPT -> APPLICATION_JSON) + (CONTENT_TYPE -> APPLICATION_JSON)), body, feeder, followsRedirects)
 
-    def asXML = new DeleteHttpRequestBuilder(url, queryParams, Some(headers.get + ("Accept" -> "application/xml") + ("Content-Type" -> "application/xml")), body, feeder, followsRedirects)
+    def asXML = new DeleteHttpRequestBuilder(url, queryParams, Some(headers.get + (ACCEPT -> APPLICATION_XML) + (CONTENT_TYPE -> APPLICATION_XML)), body, feeder, followsRedirects)
 
     def withFile(filePath: String) = new DeleteHttpRequestBuilder(url, queryParams, headers, Some(FilePathBody(filePath)), feeder, followsRedirects)
 

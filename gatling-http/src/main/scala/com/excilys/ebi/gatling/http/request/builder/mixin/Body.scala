@@ -5,6 +5,8 @@ import org.fusesource.scalate._
 import com.ning.http.client.RequestBuilder
 
 import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.util.PathHelper._
+import com.excilys.ebi.gatling.core.util.FileHelper._
 
 import com.excilys.ebi.gatling.http.request.builder.HttpRequestBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
@@ -37,7 +39,7 @@ trait Body extends HttpRequestBuilder {
     body match {
       case Some(thing) =>
         thing match {
-          case FilePathBody(filePath) => requestBuilder setBody new File("user-files/request-bodies/" + filePath)
+          case FilePathBody(filePath) => requestBuilder setBody new File(GATLING_REQUEST_BODIES_FOLDER + "/" + filePath)
           case StringBody(body) => requestBuilder setBody body
           case TemplateBody(tplPath, values) => requestBuilder setBody compileBody(tplPath, values, context)
           case _ =>
@@ -63,6 +65,6 @@ trait Body extends HttpRequestBuilder {
     }
 
     engine.bindings = bindings
-    engine.layout("user-files/templates/" + tplPath + ".ssp", templateValues)
+    engine.layout(GATLING_TEMPLATES_FOLDER + "/" + tplPath + SSP_EXTENSION, templateValues)
   }
 }

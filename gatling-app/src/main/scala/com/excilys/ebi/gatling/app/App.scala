@@ -1,17 +1,26 @@
 package com.excilys.ebi.gatling.app
 
 import io.Source
+
 import tools.nsc.interpreter.IMain
 import tools.nsc.Settings
 import tools.nsc.io.Directory
 import tools.nsc._
 import tools.nsc.util.BatchSourceFile
+
 import scala.util.matching.Regex
+
 import java.io.File
 import java.util.Date
+
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.config.GatlingConfig
+import com.excilys.ebi.gatling.core.util.PathHelper._
+import com.excilys.ebi.gatling.core.util.PropertiesHelper._
+import com.excilys.ebi.gatling.core.util.FileHelper._
+
 import com.excilys.ebi.gatling.statistics.GraphicsGenerator
+
 import org.apache.commons.lang3.time.FastDateFormat
 import org.apache.commons.lang3.StringUtils
 
@@ -26,14 +35,14 @@ object App extends Logging {
     GatlingConfig // Initializes configuration
 
     val files = for (
-      file <- new Directory(new File("user-files/scenarios")).files if (!file.name.startsWith(".") && !file.name.startsWith("_"))
+      file <- new Directory(new File(GATLING_SCENARIOS_FOLDER)).files if (!file.name.startsWith(".") && !file.name.startsWith("_"))
     ) yield file.name
 
     val filesList = files.toList
 
     var folderName = StringUtils.EMPTY
 
-    if (!System.getProperty("OnlyStats", "false").equals("true")) {
+    if (!ONLY_STATS_PROPERTY.equals("true")) {
       folderName = filesList.size match {
         case 0 =>
           logger.warn("There are no scenario scripts. Please verify that your scripts are in user-files/scenarios and that they do not start with a _ or a .")
@@ -60,13 +69,13 @@ object App extends Logging {
       }
     }
 
-    if (!System.getProperty("NoStats", "false").equals("true"))
+    if (!NO_STATS_PROPERTY.equals("true"))
       generateStats(folderName)
 
   }
 
   private def generateStats(folderName: String) = {
-    logger.debug("\nFolder Name: {}", folderName)
+    logger.debug("\nGenerating Graphics and Statistics from Folder Name: {}", folderName)
 
     new GraphicsGenerator().generateFor(folderName)
   }
@@ -80,7 +89,7 @@ object App extends Logging {
 
     val n = new IMain(settings)
 
-    val initialFileBodyContent = Source.fromFile("user-files/scenarios/" + filename).mkString
+    val initialFileBodyContent = Source.fromFile(GATLING_SCENARIOS_FOLDER + "/" + filename).mkString
 
     val toBeFound = new Regex("""include\("(.*)"\)""")
     val newFileBodyContent = toBeFound replaceAllIn (initialFileBodyContent, result => {
@@ -91,7 +100,7 @@ object App extends Logging {
         } else {
           filename.substring(0, filename.length() - 6) + "/" + partialName
         }
-      Source.fromFile("user-files/scenarios/" + path + ".scala").mkString + "\n\n"
+      Source.fromFile(GATLING_SCENARIOS_FOLDER + "/" + path + SCALA_EXTENSION).mkString + "\n\n"
     })
 
     val fileHeader = """
@@ -108,8 +117,8 @@ import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpStatusAssert
 import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpHeaderAssertionBuilder._
 import com.excilys.ebi.gatling.http.request.builder.GetHttpRequestBuilder._
 import com.excilys.ebi.gatling.http.request.builder.PostHttpRequestBuilder._
-import com.excilys.ebi.gatling.http.request.RequestHeader._
 import com.excilys.ebi.gatling.http.runner.HttpRunner._
+import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
 import java.util.concurrent.TimeUnit
 import java.util.Date
 

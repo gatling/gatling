@@ -15,7 +15,6 @@ import com.excilys.ebi.gatling.http.request.builder.HttpRequestBuilder
 trait RequestParamsAndBody extends Body {
 
   abstract override def build(context: Context, method: String): Request = {
-    //requestBuilder setMethod method
     addParamsTo(requestBuilder, params, context)
     super.build(context, method)
   }

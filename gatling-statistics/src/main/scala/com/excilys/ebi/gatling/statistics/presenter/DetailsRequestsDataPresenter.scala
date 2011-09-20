@@ -1,6 +1,7 @@
 package com.excilys.ebi.gatling.statistics.presenter
 
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.util.FileHelper._
 
 import com.excilys.ebi.gatling.statistics.extractor.DetailsRequestsDataExtractor
 import com.excilys.ebi.gatling.statistics.template.DetailsRequestsTemplate
@@ -21,14 +22,14 @@ class DetailsRequestsDataPresenter extends DataPresenter with Logging {
 
     results.foreach {
       case (requestName, result) =>
-        val fileName = requestNameToFileName(requestName) + ".html"
+        val fileName = requestNameToFileName(requestName) + HTML_EXTENSION
         menuItems = menuItems + (requestName.substring(8) -> fileName)
     }
 
     results.foreach {
       case (requestName, result) =>
 
-        new TSVFileWriter(runOn, requestNameToFileName(requestName) + ".tsv").writeToFile(result.timeValues.map { e => List(e._1, e._2.toString) })
+        new TSVFileWriter(runOn, requestNameToFileName(requestName) + TSV_EXTENSION).writeToFile(result.timeValues.map { e => List(e._1, e._2.toString) })
 
         val series = List(new TimeSeries(requestName.substring(8), result.timeValues.map { e => (getDateForHighcharts(e._1), e._2) }),
           new TimeSeries("medium", result.timeValues.map { e => (getDateForHighcharts(e._1), result.medium) }))
@@ -37,7 +38,7 @@ class DetailsRequestsDataPresenter extends DataPresenter with Logging {
 
         val output = new DetailsRequestsTemplate(runOn, menuItems, series, columnData, requestName, result).getOutput
 
-        new TemplateWriter(runOn, requestNameToFileName(requestName) + ".html").writeToFile(output)
+        new TemplateWriter(runOn, requestNameToFileName(requestName) + HTML_EXTENSION).writeToFile(output)
 
     }
     menuItems

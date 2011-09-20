@@ -4,16 +4,13 @@ import scala.io.Source
 import scala.collection.immutable.HashMap
 import scala.collection.mutable.Queue
 import com.excilys.ebi.gatling.core.config.GatlingConfig._
+import com.excilys.ebi.gatling.core.util.PathHelper._
 
 class SeparatedValuesFeeder(fileName: String, mappings: List[String], val separator: String, val extension: String) extends Feeder(fileName, mappings) {
 
-  val encoding = config.getString("gatling.feeders.encoding", "utf-8")
-
   var seeds: Queue[Map[String, String]] = Queue()
 
-  logger.debug("Feeder Encoding : {}", encoding)
-
-  for (line <- Source.fromFile("user-files/seeds/" + fileName + extension, encoding).getLines) {
+  for (line <- Source.fromFile(GATLING_SEEDS_FOLDER + "/" + fileName + extension, CONFIG_GATLING_FEEDER_ENCODING).getLines) {
     var lineMap = new HashMap[String, String]
 
     for (mapping <- mappings zip line.split(separator).toList)

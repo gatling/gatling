@@ -8,6 +8,9 @@ import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.http.request.Param
 import com.excilys.ebi.gatling.http.request.StringParam
 import com.excilys.ebi.gatling.http.request.ContextParam
+import com.excilys.ebi.gatling.http.request.MIMEType._
+
+import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
 
 import com.ning.http.client.RequestBuilder
 import com.ning.http.client.Request
@@ -29,9 +32,9 @@ object GetHttpRequestBuilder {
 
     def withHeaders(givenHeaders: Map[String, String]) = new GetHttpRequestBuilder(url, queryParams, Some(headers.get ++ givenHeaders), feeder, followsRedirects)
 
-    def asJSON = new GetHttpRequestBuilder(url, queryParams, Some(headers.get + ("Accept" -> "application/json")), feeder, followsRedirects)
+    def asJSON = new GetHttpRequestBuilder(url, queryParams, Some(headers.get + (ACCEPT -> APPLICATION_JSON)), feeder, followsRedirects)
 
-    def asXML = new GetHttpRequestBuilder(url, queryParams, Some(headers.get + ("Accept" -> "application/xml")), feeder, followsRedirects)
+    def asXML = new GetHttpRequestBuilder(url, queryParams, Some(headers.get + (ACCEPT -> APPLICATION_XML)), feeder, followsRedirects)
 
     def followsRedirect(followRedirect: Boolean) = new GetHttpRequestBuilder(url, queryParams, headers, feeder, Some(followRedirect))
 

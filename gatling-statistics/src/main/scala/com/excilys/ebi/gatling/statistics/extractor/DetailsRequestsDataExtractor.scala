@@ -1,6 +1,8 @@
 package com.excilys.ebi.gatling.statistics.extractor
 
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.util.PathHelper._
+
 import com.excilys.ebi.gatling.statistics.result.DetailsRequestsDataResult
 
 import scala.io.Source
@@ -16,7 +18,7 @@ class DetailsRequestsDataExtractor(val runOn: String) extends Logging {
 
   private def extractFromFile: Map[String, List[(String, Double)]] = {
     var extractedValues: Map[String, List[(String, Double)]] = TreeMap.empty
-    for (line <- Source.fromFile("results/" + runOn + "/simulation.log", "utf-8").getLines) {
+    for (line <- Source.fromFile(GATLING_RESULTS_FOLDER + "/" + runOn + "/" + GATLING_SIMULATION_LOG_FILE, "utf-8").getLines) {
       // Split each line by tabulation (As we get data from a TSV file)
       line.split("\t") match {
         // If we have a well formated result

@@ -1,6 +1,8 @@
 package com.excilys.ebi.gatling.statistics.presenter
 
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.util.PathHelper._
+
 import com.excilys.ebi.gatling.statistics.extractor.GlobalRequestsDataExtractor
 import com.excilys.ebi.gatling.statistics.template.GlobalRequestsTemplate
 import com.excilys.ebi.gatling.statistics.template.TimeSeries
@@ -25,12 +27,12 @@ class GlobalRequestsDataPresenter extends DataPresenter with Logging {
         forFile = List(date, numberOfRequests.toString, numberOfSuccesses.toString, numberOfFailures.toString) :: forFile
     }
 
-    new TSVFileWriter(runOn, "requests.tsv").writeToFile(forFile)
+    new TSVFileWriter(runOn, GATLING_STATS_GLOBAL_REQUESTS_FILE).writeToFile(forFile)
 
     val series = List(new TimeSeries("All", globalData), new TimeSeries("Success", successData), new TimeSeries("Failures", failureData))
 
     val output = new GlobalRequestsTemplate(runOn, menuItems, series).getOutput
 
-    new TemplateWriter(runOn, "requests.html").writeToFile(output)
+    new TemplateWriter(runOn, GATLING_GRAPH_GLOBAL_REQUESTS_FILE).writeToFile(output)
   }
 }

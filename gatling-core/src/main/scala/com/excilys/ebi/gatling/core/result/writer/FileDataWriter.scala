@@ -2,6 +2,8 @@ package com.excilys.ebi.gatling.core.result.writer
 
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
+import com.excilys.ebi.gatling.core.util.PathHelper._
+
 import java.io.FileOutputStream
 import java.io.File
 import java.io.BufferedOutputStream
@@ -42,9 +44,9 @@ class FileDataWriter extends DataWriter {
       }
     }
     case InitializeDataWriter(runOn, numberOfRelevantActions) ⇒ {
-      val dir = new File("results/" + fileNameFormatter.format(runOn))
+      val dir = new File(GATLING_RESULTS_FOLDER + "/" + fileNameFormatter.format(runOn))
       dir.mkdir
-      val file = new File(dir, "simulation.log")
+      val file = new File(dir, GATLING_SIMULATION_LOG_FILE)
 
       osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file, true)))
       this.runOn = formatter.format(runOn)

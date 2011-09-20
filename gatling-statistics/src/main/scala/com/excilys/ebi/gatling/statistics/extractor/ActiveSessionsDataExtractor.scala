@@ -2,6 +2,7 @@ package com.excilys.ebi.gatling.statistics.extractor
 
 import scala.collection.SortedMap
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.util.PathHelper._
 
 import scala.io.Source
 import scala.collection.immutable.{ TreeMap, TreeSet }
@@ -18,10 +19,10 @@ class ActiveSessionsDataExtractor(val runOn: String) extends Logging {
     // String: scenarioName, first MultiMap: active sessions, second MultiMap: dead sessions
     var scenariosToSessions: Map[String, (MultiMap[String, String], MultiMap[String, String])] = Map.empty
 
-    logger.info("[Stats] reading from file: " + runOn + "/simulation.log")
+    logger.info("[Stats] reading from file: {}/{}", runOn, GATLING_SIMULATION_LOG_FILE)
 
     // Going through the specified log file
-    for (line <- Source.fromFile("results/" + runOn + "/simulation.log", "utf-8").getLines) {
+    for (line <- Source.fromFile(GATLING_RESULTS_FOLDER + "/" + runOn + "/" + GATLING_SIMULATION_LOG_FILE, "utf-8").getLines) {
       // Split each line by tabulation (As we get data from a TSV file)
       line.split("\t") match {
         // If we have a well formated result

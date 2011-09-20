@@ -34,7 +34,7 @@ val lambdaUser = scenario("Standard User")
       .doHttpRequest(
         "Test Page",
         get("http://localhost:3000/tests"),
-        assertHeader(ContentType, "text/html; charset=utf-8") in "ctxParam")
+        assertHeader(CONTENT_TYPE, "text/html; charset=utf-8") in "ctxParam")
       // Fourth request to be repeated
       .doHttpRequest(
         "Create Thing omgomg",
