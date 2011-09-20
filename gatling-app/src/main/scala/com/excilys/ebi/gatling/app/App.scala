@@ -1,23 +1,19 @@
 package com.excilys.ebi.gatling.app
 
 import io.Source
-
 import tools.nsc.interpreter.IMain
 import tools.nsc.Settings
 import tools.nsc.io.Directory
 import tools.nsc._
 import tools.nsc.util.BatchSourceFile
 import scala.util.matching.Regex
-
 import java.io.File
 import java.util.Date
-
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.config.GatlingConfig
-
 import com.excilys.ebi.gatling.statistics.GraphicsGenerator
-
 import org.apache.commons.lang3.time.FastDateFormat
+import org.apache.commons.lang3.StringUtils
 
 class DateHolder(var value: Date)
 
@@ -35,25 +31,47 @@ object App extends Logging {
 
     val filesList = files.toList
 
-    filesList.size match {
-      case 0 => logger.info("There are no scenario scripts. Please verify that your scripts are in user-files/scenarios and that they do not start with a _ or a .")
-      case 1 =>
-        logger.info("There is only one scenario, executing it.")
-        runAndGenerateStats(filesList(0))
-      case _ =>
-        println("Which scenario do you want to execute ?")
-        var i = 0
-        for (filename <- filesList) {
-          println("  [" + i + "] " + filename)
-          i += 1
-        }
-        val fileChosen = Console.readInt
-        runAndGenerateStats(filesList(fileChosen))
+    var folderName = StringUtils.EMPTY
+
+    if (!System.getProperty("OnlyStats", "false").equals("true")) {
+      folderName = filesList.size match {
+        case 0 =>
+          logger.warn("There are no scenario scripts. Please verify that your scripts are in user-files/scenarios and that they do not start with a _ or a .")
+          sys.exit
+        case 1 =>
+          logger.info("There is only one scenario, executing it.")
+          run(filesList(0))
+        case _ =>
+          println("Which scenario do you want to execute ?")
+          var i = 0
+          for (filename <- filesList) {
+            println("  [" + i + "] " + filename)
+            i += 1
+          }
+          val fileChosen = Console.readInt
+          run(filesList(fileChosen))
+      }
+    } else {
+      if (args.length > 0) {
+        folderName = args(0)
+      } else {
+        logger.error("You specified the property OnlyStats but ommitted the folderName argument.")
+        sys.exit
+      }
     }
+
+    if (!System.getProperty("NoStats", "false").equals("true"))
+      generateStats(folderName)
 
   }
 
-  private def runAndGenerateStats(filename: String) = {
+  private def generateStats(folderName: String) = {
+    logger.debug("\nFolder Name: {}", folderName)
+
+    new GraphicsGenerator().generateFor(folderName)
+  }
+
+  private def run(filename: String) = {
 
     logger.info("Executing simulation of file '{}'", filename)
 
@@ -72,8 +90,8 @@ object App extends Logging {
           partialName
         } else {
           filename.substring(0, filename.length() - 6) + "/" + partialName
-        } 
-      Source.fromFile("user-files/scenarios/" + path+ ".scala").mkString + "\n\n"
+        }
+      Source.fromFile("user-files/scenarios/" + path + ".scala").mkString + "\n\n"
     })
 
     val fileHeader = """
@@ -108,11 +126,7 @@ def runSimulations = runSim(startDate.value)_
     n.interpret(fileContent)
     n.close()
 
-    val folderName = FastDateFormat.getInstance("yyyyMMddHHmmss").format(runOn.value)
-
-    logger.debug("\nFolder Name: {}", folderName)
-
-    new GraphicsGenerator().generateFor(folderName)
+    FastDateFormat.getInstance("yyyyMMddHHmmss").format(runOn.value)
   }
 
 }
