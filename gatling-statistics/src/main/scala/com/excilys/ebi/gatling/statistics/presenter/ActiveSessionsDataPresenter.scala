@@ -18,9 +18,11 @@ class ActiveSessionsDataPresenter extends DataPresenter with Logging {
     //new TSVFileWriter(runOn, "active_sessions.tsv").writeToFile(results.map { e => List(e._1, e._2.toString) })
 
     var seriesList: List[TimeSeries] = Nil
+
     results.map {
       result =>
-        val (scenarioName, listOfValues) = result
+        val (scenarioName, mutableListOfValues) = result
+        val listOfValues = mutableListOfValues.toList
         seriesList = new TimeSeries(scenarioName, listOfValues.map { e => (getDateForHighcharts(e._1), e._2) }) :: seriesList
     }
 
