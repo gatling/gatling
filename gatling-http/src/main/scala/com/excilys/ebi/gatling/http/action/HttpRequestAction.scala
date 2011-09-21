@@ -39,7 +39,11 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilde
   processors.addBinding(StatusReceived, new HttpStatusAssertion((200 to 210).mkString(":"), ""))
 
   def execute(context: Context) = {
-    logger.debug("Sending Request")
+    val objects = new Array[java.lang.Object](3)
+    objects(0) = request.name
+    objects(1) = context.getScenarioName
+    objects(2) = context.getUserId.toString
+    logger.info("Sending Request '{}': Scenario '{}', UserId #{}", objects)
     HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new CustomAsyncHandler(context, processors, next, System.nanoTime, new Date, request.getName))
   }
 }
