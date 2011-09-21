@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+		<resetJUL>true</resetJUL>
+	</contextListener>
+
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread{10}][%-5level] %logger{15} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- Gatling ALL -->
+	<logger name="com.excilys.ebi.gatling">
+		<level value="INFO" />
+	</logger>
+
+	<!-- Gatling App -->
+	<logger name="com.excilys.ebi.gatling.app">
+		<level value="INFO" />
+	</logger>
+	
+	<!-- Gatling Core -->
+	<logger name="com.excilys.ebi.gatling.core">
+		<level value="INFO" />
+	</logger>
+	
+	<!-- Gatling Core - Configuration -->
+	<logger name="com.excilys.ebi.gatling.config">
+		<level value="INFO" />
+	</logger>
+	
+	<!-- Gatling Core - Context -->
+	<logger name="com.excilys.ebi.gatling.context">
+		<level value="INFO" />
+	</logger>
+	
+	<!-- Gatling Core - Core Providers -->
+	<logger name="com.excilys.ebi.gatling.provider">
+		<level value="INFO" />
+	</logger>
+	
+	<!-- Gatling HTTP -->
+	<logger name="com.excilys.ebi.gatling.http">
+		<level value="INFO" />
+	</logger>
+	
+	<!-- Gatling HTTP - Response Processing -->
+	<logger name="com.excilys.ebi.gatling.http.ahc">
+		<level value="INFO" />
+	</logger>
+	
+	<!-- Gatling HTTP - HTTP Providers -->
+	<logger name="com.excilys.ebi.gatling.http.provider">
+		<level value="INFO" />
+	</logger>
+	
+	<!-- Gatling HTTP - HTTP Requests -->
+	<logger name="com.excilys.ebi.gatling.http.request">
+		<level value="INFO" />
+	</logger>
+	
+	<!-- Gatling HTTP - Simulation Runner -->
+	<logger name="com.excilys.ebi.gatling.http.runner">
+		<level value="INFO" />
+	</logger>
+	
+	<!-- Gatling Statistics -->
+	<logger name="com.excilys.ebi.gatling.statistics">
+		<level value="INFO" />
+	</logger>
+	
+	<!-- Scalate -->
+	<logger name="org.fusesource.scalate">
+		<level value="WARN" />
+	</logger>
+	
+	<!-- AHC -->
+	<logger name="com.ning.http.client" transitive="false">
+		<level value="WARN" />
+	</logger>
+	
+	<root>
+		<level value="INFO" />
+		<appender-ref ref="CONSOLE" />
+	</root>
+
+</configuration>
