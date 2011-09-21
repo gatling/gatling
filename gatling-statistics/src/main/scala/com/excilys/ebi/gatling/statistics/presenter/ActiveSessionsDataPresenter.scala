@@ -1,18 +1,17 @@
 package com.excilys.ebi.gatling.statistics.presenter
 
-import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.PathHelper._
-
 import com.excilys.ebi.gatling.statistics.extractor.ActiveSessionsDataExtractor
 import com.excilys.ebi.gatling.statistics.template.ActiveSessionsTemplate
 import com.excilys.ebi.gatling.statistics.template.TimeSeries
 import com.excilys.ebi.gatling.statistics.writer.TemplateWriter
 import com.excilys.ebi.gatling.statistics.writer.TSVFileWriter
+import scala.collection.mutable.LinkedHashMap
+import scala.collection.mutable.ListBuffer
 
-class ActiveSessionsDataPresenter extends DataPresenter with Logging {
-  def generateGraphFor(runOn: String, menuItems: Map[String, String]) = {
+class ActiveSessionsDataPresenter extends DataPresenter[LinkedHashMap[String, ListBuffer[(String, Double)]]] {
 
-    val results = new ActiveSessionsDataExtractor(runOn).getResults
+  def generateGraphFor(runOn: String, results: LinkedHashMap[String, ListBuffer[(String, Double)]], menuItems: Map[String, String]) = {
 
     // TODO: write file with results
     //new TSVFileWriter(runOn, "active_sessions.tsv").writeToFile(results.map { e => List(e._1, e._2.toString) })

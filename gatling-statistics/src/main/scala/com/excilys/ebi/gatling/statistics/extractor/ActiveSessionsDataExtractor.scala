@@ -10,66 +10,53 @@ import org.joda.time.DateTime
 import org.joda.time.Duration
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.PathHelper._
+import com.excilys.ebi.gatling.statistics.presenter.DataPresenter
+import com.excilys.ebi.gatling.statistics.presenter.ActiveSessionsDataPresenter
 
-class ActiveSessionsDataExtractor(val runOn: String) extends Logging {
+class ActiveSessionsDataExtractor extends DataExtractor[LinkedHashMap[String, ListBuffer[(String, Double)]]] {
 
   val maxResolution = 100
 
   val dateTimeFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
 
-  def getResults: Map[String, ListBuffer[(String, Double)]] = {
+  val executionWindowByScenarioAndUser = new LinkedHashMap[String, LinkedHashMap[String, (String, String)]]
+  var minDate: String = null
+  var maxDate: String = null
 
-    val executionWindowByScenarioAndUser = new LinkedHashMap[String, LinkedHashMap[String, (String, String)]]
-    var minDate: String = null
-    var maxDate: String = null
-
-    logger.info("[Stats] reading from file: {}/{}", runOn, GATLING_SIMULATION_LOG_FILE)
-
-    // Going through the specified log file
-    for (line <- Source.fromFile(GATLING_RESULTS_FOLDER + "/" + runOn + "/" + GATLING_SIMULATION_LOG_FILE, "utf-8").getLines) {
-      // Split each line by tabulation (As we get data from a TSV file)
-      line.split("\t") match {
-        // If we have a well formated result
-        case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage) => {
-
-          val executionWindowByUser = executionWindowByScenarioAndUser.get(scenarioName).getOrElse {
-            val scenarioWindows = new LinkedHashMap[String, (String, String)]
-            executionWindowByScenarioAndUser += scenarioName -> scenarioWindows
-            scenarioWindows
-          }
-
-          val executionWindow = executionWindowByUser.get(userId).getOrElse {
-
-            // this is a start date
-            val userWindow = (executionStartDate, "0");
-            executionWindowByUser += (userId -> userWindow)
-
-            if (minDate == null || minDate > executionStartDate) {
-              minDate = executionStartDate
-            }
-
-            userWindow
-          }
-
-          // Depending on the type of action, we add the session to the good map
-          if (actionName == "End of scenario") {
-
-            // this is an end date
-            executionWindowByUser += (userId -> (executionWindow._1, executionStartDate))
-
-            if (maxDate == null || maxDate < executionStartDate) {
-              maxDate = executionStartDate
-            }
-          }
-        }
-        // Else, if the resulting data is not well formated print an error message
-        case _ => sys.error("Input file not well formatted")
-      }
+  override def onRow(runOn: String, scenarioName: String, userId: String, actionName: String, executionStartDate: String, executionDuration: String, resultStatus: String, resultMessage: String) {
+    val executionWindowByUser = executionWindowByScenarioAndUser.get(scenarioName).getOrElse {
+      val scenarioWindows = new LinkedHashMap[String, (String, String)]
+      executionWindowByScenarioAndUser += scenarioName -> scenarioWindows
+      scenarioWindows
     }
 
-    // decompose execution window into 500 points
+    val executionWindow = executionWindowByUser.get(userId).getOrElse {
 
-    val countsByScenarioAndTime = new LinkedHashMap[String, ListBuffer[(String, Double)]]()
+      // this is a start date
+      val userWindow = (executionStartDate, "0");
+      executionWindowByUser += (userId -> userWindow)
+
+      if (minDate == null || minDate > executionStartDate) {
+        minDate = executionStartDate
+      }
+
+      userWindow
+    }
+
+    // Depending on the type of action, we add the session to the good map
+    if (actionName == "End of scenario") {
+
+      // this is an end date
+      executionWindowByUser += (userId -> (executionWindow._1, executionStartDate))
+
+      if (maxDate == null || maxDate < executionStartDate) {
+        maxDate = executionStartDate
+      }
+    }
+  }
+
+  def getResults: LinkedHashMap[String, ListBuffer[(String, Double)]] = {
+    val countsByScenarioAndTime = new LinkedHashMap[String, ListBuffer[(String, Double)]]
     var globalCountByTime = new ListBuffer[(String, Double)]()
     countsByScenarioAndTime += "All scenarios" -> globalCountByTime
 

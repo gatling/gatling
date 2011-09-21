@@ -11,39 +11,32 @@ import scala.collection.mutable.HashMap
 
 import java.lang.String
 
-class GlobalRequestsDataExtractor(val runOn: String) extends Logging {
-  val formattedRunOn = (new StringBuilder(runOn)).insert(12, ":").insert(10, ":").insert(8, " ").insert(6, "-").insert(4, "-").toString
+class GlobalRequestsDataExtractor extends DataExtractor[List[(String, (Double, Double, Double))]] {
 
-  def getResults: List[(String, (Double, Double, Double))] = {
+  val failureRequestData: HashMap[String, Double] = new HashMap[String, Double]
+  val successRequestData: HashMap[String, Double] = new HashMap[String, Double]
+  val allRequestData: HashMap[String, Double] = new HashMap[String, Double]
 
-    val failureRequestData: HashMap[String, Double] = new HashMap[String, Double]
-    val successRequestData: HashMap[String, Double] = new HashMap[String, Double]
-    val allRequestData: HashMap[String, Double] = new HashMap[String, Double]
+  def onRow(runOn: String, scenarioName: String, userId: String, actionName: String, executionStartDate: String, executionDuration: String, resultStatus: String, resultMessage: String) {
+    if (actionName startsWith "Request") {
+      def inc = incrementInMap(executionStartDate)_
 
-    logger.info("[Stats] reading from file: {}/{}", runOn, GATLING_SIMULATION_LOG_FILE)
-    for (line <- Source.fromFile(GATLING_RESULTS_FOLDER + "/" + runOn + "/" + GATLING_SIMULATION_LOG_FILE, "utf-8").getLines) {
-      line.split("\t") match {
-        case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage) => {
-          if (actionName startsWith "Request") {
-            def inc = incrementInMap(executionStartDate)_
-
-            try {
-              ResultStatus.withName(resultStatus) match {
-                case OK =>
-                  inc(successRequestData)
-                  inc(allRequestData)
-                case KO =>
-                  inc(failureRequestData)
-                  inc(allRequestData)
-              }
-            } catch {
-              case e => sys.error("Input file not well formated")
-            }
-          }
+      try {
+        ResultStatus.withName(resultStatus) match {
+          case OK =>
+            inc(successRequestData)
+            inc(allRequestData)
+          case KO =>
+            inc(failureRequestData)
+            inc(allRequestData)
         }
-        case _ => sys.error("Input file not well formatted")
+      } catch {
+        case e => sys.error("Input file not well formated")
       }
     }
+  }
+
+  def getResults: List[(String, (Double, Double, Double))] = {
 
     var data: List[(String, (Double, Double, Double))] = Nil
 

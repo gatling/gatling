@@ -12,7 +12,13 @@ import com.excilys.ebi.gatling.statistics.writer.TSVFileWriter
 
 import scala.collection.immutable.TreeMap
 
-class DetailsRequestsDataPresenter extends DataPresenter with Logging {
+class DetailsRequestsDataPresenter {
+
+  // FIXME remove duplicate
+  protected def getDateForHighcharts(date: String): String = {
+    "Date.UTC(" + date.substring(0, 4) + ", " + date.substring(5, 7) + ", " + date.substring(8, 10) +
+      ", " + date.substring(11, 13) + ", " + date.substring(14, 16) + ", " + date.substring(17, 19) + ")"
+  }
 
   def generateGraphFor(runOn: String): Map[String, String] = {
 

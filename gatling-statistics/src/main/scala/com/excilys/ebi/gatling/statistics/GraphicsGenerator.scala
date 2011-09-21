@@ -1,14 +1,13 @@
 package com.excilys.ebi.gatling.statistics
 
-import com.excilys.ebi.gatling.core.util.PathHelper._
-
-import com.excilys.ebi.gatling.statistics.presenter.ActiveSessionsDataPresenter
-import com.excilys.ebi.gatling.statistics.presenter.GlobalRequestsDataPresenter
-import com.excilys.ebi.gatling.statistics.presenter.DetailsRequestsDataPresenter
-
 import java.io.File
 
+import scala.io.Source
+
 import org.apache.commons.io.FileUtils
+
+import com.excilys.ebi.gatling.core.util.PathHelper._
+import com.excilys.ebi.gatling.statistics.presenter.DetailsRequestsDataPresenter
 
 class GraphicsGenerator {
   def generateFor(runOn: String) = {
@@ -24,8 +23,24 @@ class GraphicsGenerator {
 
     val menuItems = (new DetailsRequestsDataPresenter).generateGraphFor(runOn)
 
-    (new ActiveSessionsDataPresenter).generateGraphFor(runOn, menuItems)
+    val generators: List[GraphicGenerator[_ <: Any]] = List(new ActiveSessionsGraphicGenerator, new GlobalRequestsGraphicGenerator)
 
-    (new GlobalRequestsDataPresenter).generateGraphFor(runOn, menuItems)
+    for (line <- Source.fromFile(GATLING_RESULTS_FOLDER + "/" + runOn + "/" + GATLING_SIMULATION_LOG_FILE, "utf-8").getLines) {
+      line.split("\t") match {
+        // If we have a well formated result
+        case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage) => {
+
+          generators.foreach { generator =>
+            generator.onRow(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage)
+          }
+        }
+        // Else, if the resulting data is not well formated print an error message
+        case _ => sys.error("Input file not well formatted")
+      }
+    }
+
+    generators.foreach { generator =>
+      generator.generateGraphFor(runOn, menuItems)
+    }
   }
 }
