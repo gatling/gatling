@@ -23,24 +23,20 @@ class GraphicsGenerator {
 
     val menuItems = (new DetailsRequestsDataPresenter).generateGraphFor(runOn)
 
-    val generators: List[GraphicGenerator[_ <: Any]] = List(new ActiveSessionsGraphicGenerator, new GlobalRequestsGraphicGenerator)
+    val generator = new CompositeGraphicGenerator(new ActiveSessionsGraphicGenerator, new GlobalRequestsGraphicGenerator)
 
     for (line <- Source.fromFile(GATLING_RESULTS_FOLDER + "/" + runOn + "/" + GATLING_SIMULATION_LOG_FILE, "utf-8").getLines) {
       line.split("\t") match {
         // If we have a well formated result
         case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage) => {
 
-          generators.foreach { generator =>
-            generator.onRow(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage)
-          }
+          generator.onRow(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage)
         }
         // Else, if the resulting data is not well formated print an error message
         case _ => sys.error("Input file not well formatted")
       }
     }
 
-    generators.foreach { generator =>
-      generator.generateGraphFor(runOn, menuItems)
-    }
+    generator.generateGraphFor(runOn, menuItems)
   }
 }

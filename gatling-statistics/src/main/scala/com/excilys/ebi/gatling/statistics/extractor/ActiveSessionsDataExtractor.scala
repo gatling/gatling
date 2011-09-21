@@ -43,15 +43,11 @@ class ActiveSessionsDataExtractor extends DataExtractor[LinkedHashMap[String, Li
       userWindow
     }
 
-    // Depending on the type of action, we add the session to the good map
-    if (actionName == "End of scenario") {
+    // this is an end date
+    executionWindowByUser += (userId -> (executionWindow._1, executionStartDate))
 
-      // this is an end date
-      executionWindowByUser += (userId -> (executionWindow._1, executionStartDate))
-
-      if (maxDate == null || maxDate < executionStartDate) {
-        maxDate = executionStartDate
-      }
+    if (maxDate == null || maxDate < executionStartDate) {
+      maxDate = executionStartDate
     }
   }
 
