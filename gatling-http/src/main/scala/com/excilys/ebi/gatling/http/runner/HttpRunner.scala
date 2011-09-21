@@ -93,7 +93,11 @@ object HttpRunner {
     }
 
     def buildContext(configuration: ScenarioConfiguration, i: Int) = {
-      newContext withUserId i withWriteActorUuid statWriter.getUuid withScenarioName configuration.scenarioBuilder.getName build
+      val ctx = newContext withUserId i withWriteActorUuid statWriter.getUuid withScenarioName configuration.scenarioBuilder.getName build
+
+      configuration.feeder.map { f => ctx.setAttributes(f.next) }
+
+      ctx
     }
   }
 

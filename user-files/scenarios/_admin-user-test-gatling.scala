@@ -13,5 +13,5 @@ val adminUser = scenario("Admin User")
       // First request to be repeated
       .doHttpRequest(
         "Page Admin",
-        get(baseUrl) withFeeder usersInformation withQueryParam "firstname")
+        get(baseUrl) withQueryParam "firstname")
       .pause(pause2))

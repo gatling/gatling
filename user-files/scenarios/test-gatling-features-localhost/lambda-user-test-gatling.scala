@@ -26,13 +26,13 @@ val lambdaUser = scenario("Standard User")
       // Second request to be repeated
       .doHttpRequest(
         "Create Thing blabla",
-        post("http://localhost:3000/things") followsRedirect true withFeeder usersCredentials withQueryParam "login" withQueryParam "password" withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON) //,
+        post("http://localhost:3000/things") withQueryParam "login" withQueryParam "password" withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON) //,
       //assertRegexp("""<input value="(.*)"/>""", "blabla"))
       .pause(pause1)
       // Third request to be repeated
       .doHttpRequest(
         "Liste Articles",
-        get("http://localhost:3000/things") withFeeder usersInformation withQueryParam "firstname" withQueryParam "lastname")
+        get("http://localhost:3000/things") withQueryParam "firstname" withQueryParam "lastname")
       .pause(pause1)
       .doHttpRequest(
         "Test Page",

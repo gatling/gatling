@@ -11,7 +11,6 @@ import org.slf4j.helpers.MessageFormatter
 
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.context.FromContext
-import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.log.Logging
 
 import com.excilys.ebi.gatling.http.request.Param
@@ -25,7 +24,7 @@ import com.excilys.ebi.gatling.http.request.TemplateBody
 import java.io.File
 
 abstract class HttpRequestBuilder(val url: Option[String], val queryParams: Option[Map[String, Param]], val params: Option[Map[String, Param]],
-                                  val headers: Option[Map[String, String]], val body: Option[HttpRequestBody], val feeder: Option[Feeder],
+                                  val headers: Option[Map[String, String]], val body: Option[HttpRequestBody],
                                   val followsRedirects: Option[Boolean], val urlInterpolations: Seq[String])
     extends Logging {
   val requestBuilder = new RequestBuilder
@@ -35,8 +34,6 @@ abstract class HttpRequestBuilder(val url: Option[String], val queryParams: Opti
   def withQueryParam(paramKey: String, paramValue: FromContext): HttpRequestBuilder
 
   def withQueryParam(paramKey: String): HttpRequestBuilder
-
-  def withFeeder(feeder: Feeder): HttpRequestBuilder
 
   def withHeader(header: Tuple2[String, String]): HttpRequestBuilder
 
@@ -68,7 +65,6 @@ abstract class HttpRequestBuilder(val url: Option[String], val queryParams: Opti
 
     requestBuilder setUrl formattedUrl setMethod method setFollowRedirects followsRedirects.getOrElse(false)
 
-    consumeSeed(feeder, context)
     addCookiesTo(requestBuilder, context)
     addQueryParamsTo(requestBuilder, context)
     addHeadersTo(requestBuilder, headers)
@@ -77,9 +73,6 @@ abstract class HttpRequestBuilder(val url: Option[String], val queryParams: Opti
     logger.debug("Built {} Request: {})", method, request.getCookies)
     request
   }
-
-  private def consumeSeed(feeder: Option[Feeder], context: Context) =
-    feeder.map { f => context.setAttributes(f.next) }
 
   private def addCookiesTo(requestBuilder: RequestBuilder, context: Context) = {
     for (cookie <- context.getCookies) { requestBuilder.addOrReplaceCookie(cookie) }
