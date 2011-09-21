@@ -43,7 +43,6 @@ class ActiveSessionsDataExtractor extends DataExtractor[LinkedHashMap[String, Li
       userWindow
     }
 
-    // this is an end date
     executionWindowByUser += (userId -> (executionWindow._1, executionStartDate))
 
     if (maxDate == null || maxDate < executionStartDate) {
@@ -54,7 +53,6 @@ class ActiveSessionsDataExtractor extends DataExtractor[LinkedHashMap[String, Li
   def getResults: LinkedHashMap[String, ListBuffer[(String, Double)]] = {
     val countsByScenarioAndTime = new LinkedHashMap[String, ListBuffer[(String, Double)]]
     var globalCountByTime = new ListBuffer[(String, Double)]()
-    countsByScenarioAndTime += "All scenarios" -> globalCountByTime
 
     getTimes(minDate, maxDate).foreach { time =>
 
@@ -85,6 +83,8 @@ class ActiveSessionsDataExtractor extends DataExtractor[LinkedHashMap[String, Li
 
       globalCountByTime += ((time, activeUsers))
     }
+
+    countsByScenarioAndTime += "All scenarios" -> globalCountByTime
 
     countsByScenarioAndTime
   }
