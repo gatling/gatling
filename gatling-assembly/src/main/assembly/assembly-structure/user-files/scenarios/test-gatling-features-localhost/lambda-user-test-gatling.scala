@@ -20,6 +20,9 @@ val lambdaUser = scenario("Standard User")
         assertXpath("//input[@value='aaaa']/@id", "text1"),
         assertXpath("//input[@id='text1']/@value", "aaaa") in "test2")
       .pause(pause2)
+      .doHttpRequest("Url from context",
+        get("http://localhost:3000/{}", "test2"))
+      .pause(pause1)
       // Second request to be repeated
       .doHttpRequest(
         "Create Thing blabla",
