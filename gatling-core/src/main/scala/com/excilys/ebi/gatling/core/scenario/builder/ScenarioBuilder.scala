@@ -48,7 +48,7 @@ object ScenarioBuilder {
       newInstance(name, iteratedActions ::: actionBuilders)
     }
 
-    def end(latch: CountDownLatch) {
+    def end(latch: CountDownLatch): B = {
       logger.debug("Adding EndAction")
       newInstance(name, endActionBuilder(latch) :: actionBuilders)
     }
