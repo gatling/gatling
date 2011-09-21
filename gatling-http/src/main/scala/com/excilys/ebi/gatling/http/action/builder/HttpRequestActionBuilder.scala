@@ -18,7 +18,7 @@ import akka.actor.TypedActor
 
 object HttpRequestActionBuilder {
   class HttpRequestActionBuilder(val request: Option[HttpRequest], val nextAction: Option[Action], val processorBuilders: Option[List[HttpProcessorBuilder]])
-      extends AbstractActionBuilder {
+    extends AbstractActionBuilder {
 
     def withProcessors(givenProcessors: List[HttpProcessorBuilder]) = {
       logger.debug("Adding Processors")
@@ -39,6 +39,6 @@ object HttpRequestActionBuilder {
 
   }
 
-  def httpRequestActionBuilder = new HttpRequestActionBuilder(None, None, None)
+  def newHttpRequestActionBuilder = new HttpRequestActionBuilder(None, None, None)
 }
 

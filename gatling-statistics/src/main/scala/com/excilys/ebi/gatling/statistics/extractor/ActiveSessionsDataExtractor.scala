@@ -24,6 +24,7 @@ class ActiveSessionsDataExtractor extends DataExtractor[LinkedHashMap[String, Li
   var maxDate: String = null
 
   override def onRow(runOn: String, scenarioName: String, userId: String, actionName: String, executionStartDate: String, executionDuration: String, resultStatus: String, resultMessage: String) {
+
     val executionWindowByUser = executionWindowByScenarioAndUser.get(scenarioName).getOrElse {
       val scenarioWindows = new LinkedHashMap[String, (String, String)]
       executionWindowByScenarioAndUser += scenarioName -> scenarioWindows
@@ -32,18 +33,22 @@ class ActiveSessionsDataExtractor extends DataExtractor[LinkedHashMap[String, Li
 
     val executionWindow = executionWindowByUser.get(userId).getOrElse {
 
-      // this is a start date
+      // create new window entry with end date 0
       val userWindow = (executionStartDate, "0");
       executionWindowByUser += (userId -> userWindow)
-
-      if (minDate == null || minDate > executionStartDate) {
-        minDate = executionStartDate
-      }
-
       userWindow
     }
 
+    // update window end date
     executionWindowByUser += (userId -> (executionWindow._1, executionStartDate))
+
+    updateLimits(executionStartDate)
+  }
+
+  private def updateLimits(executionStartDate: String) {
+    if (minDate == null || minDate > executionStartDate) {
+      minDate = executionStartDate
+    }
 
     if (maxDate == null || maxDate < executionStartDate) {
       maxDate = executionStartDate

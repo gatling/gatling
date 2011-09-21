@@ -7,8 +7,8 @@ import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfiguration
 import java.util.concurrent.TimeUnit
 
 object ScenarioConfigurationBuilder {
-  class ScenarioConfigurationBuilder(s: Option[ScenarioBuilder], numUsers: Option[Int], ramp: Option[(Int, TimeUnit)],
-                                     startTime: Option[(Int, TimeUnit)], feeder: Option[Feeder]) {
+  class ScenarioConfigurationBuilder(s: Option[ScenarioBuilder[_ <: ScenarioBuilder[_]]], numUsers: Option[Int], ramp: Option[(Int, TimeUnit)],
+    startTime: Option[(Int, TimeUnit)], feeder: Option[Feeder]) {
 
     def withUsersNumber(nbUsers: Int) = new ScenarioConfigurationBuilder(s, Some(nbUsers), ramp, startTime, feeder)
 
@@ -24,5 +24,5 @@ object ScenarioConfigurationBuilder {
 
     def build(scenarioId: Int): ScenarioConfiguration = new ScenarioConfiguration(scenarioId, s.get, numUsers.get, ramp.get, startTime.get, feeder)
   }
-  def configureScenario(s: ScenarioBuilder) = new ScenarioConfigurationBuilder(Some(s), Some(500), Some((0, TimeUnit.SECONDS)), Some((0, TimeUnit.SECONDS)), None)
+  def configureScenario[B <: ScenarioBuilder[B]](s: B) = new ScenarioConfigurationBuilder(Some(s), Some(500), Some((0, TimeUnit.SECONDS)), Some((0, TimeUnit.SECONDS)), None)
 }

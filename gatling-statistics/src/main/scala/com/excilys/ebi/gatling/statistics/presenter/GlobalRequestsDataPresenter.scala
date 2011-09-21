@@ -29,7 +29,6 @@ class GlobalRequestsDataPresenter extends DataPresenter[List[(String, (Double, D
         forFile = List(date, numberOfRequests.toString, numberOfSuccesses.toString, numberOfFailures.toString) :: forFile
     }
 
-    // FIXME dead code?
     new TSVFileWriter(runOn, GATLING_STATS_GLOBAL_REQUESTS_FILE).writeToFile(forFile)
 
     val series = List(new TimeSeries("All", globalData), new TimeSeries("Success", successData), new TimeSeries("Failures", failureData))
