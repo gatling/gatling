@@ -76,7 +76,7 @@
 		<ahc.version>1.7.0-20110628</ahc.version>
 		<akka.version>1.2</akka.version>
 		<vtdxml.version>2.10</vtdxml.version>
-		<logback.version>0.9.29</logback.version>
+		<logback.version>0.9.30</logback.version>
 		<slf4j.version>1.6.2</slf4j.version>
 		<commons.lang3.version>3.0.1</commons.lang3.version>
 		<scalate.version>1.5.2</scalate.version>
