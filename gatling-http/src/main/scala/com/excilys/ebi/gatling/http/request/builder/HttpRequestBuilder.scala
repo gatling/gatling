@@ -7,8 +7,6 @@ import com.ning.http.client.FluentCaseInsensitiveStringsMap
 
 import org.fusesource.scalate._
 
-import org.slf4j.helpers.MessageFormatter
-
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.context.FromContext
 import com.excilys.ebi.gatling.core.log.Logging
@@ -23,9 +21,9 @@ import com.excilys.ebi.gatling.http.request.TemplateBody
 
 import java.io.File
 
-abstract class HttpRequestBuilder(val url: Option[String], val queryParams: Option[Map[String, Param]], val params: Option[Map[String, Param]],
+abstract class HttpRequestBuilder(val urlFormatter: Option[Context => String], val queryParams: Option[Map[String, Param]], val params: Option[Map[String, Param]],
                                   val headers: Option[Map[String, String]], val body: Option[HttpRequestBody],
-                                  val followsRedirects: Option[Boolean], val urlInterpolations: Seq[String])
+                                  val followsRedirects: Option[Boolean])
     extends Logging {
   val requestBuilder = new RequestBuilder
 
@@ -48,22 +46,8 @@ abstract class HttpRequestBuilder(val url: Option[String], val queryParams: Opti
   def build(context: Context): Request
 
   def build(context: Context, method: String): Request = {
-    var formattedUrl = url.get
 
-    val urlInterpolationsNumber = urlInterpolations.size
-    if (urlInterpolationsNumber > 0) {
-      if (urlInterpolationsNumber == 1)
-        formattedUrl = MessageFormatter.format(formattedUrl, context.getAttribute(urlInterpolations.head)).getMessage
-      else if (urlInterpolationsNumber == 2)
-        formattedUrl = MessageFormatter.format(formattedUrl, context.getAttribute(urlInterpolations(0)), context.getAttribute(urlInterpolations(1))).getMessage
-      else {
-        val interpolations: Seq[String] = for (interpolation <- urlInterpolations) yield context.getAttribute(interpolation)
-
-        formattedUrl = MessageFormatter.arrayFormat(formattedUrl, urlInterpolations.toArray).getMessage
-      }
-    }
-
-    requestBuilder setUrl formattedUrl setMethod method setFollowRedirects followsRedirects.getOrElse(false)
+    requestBuilder setUrl urlFormatter.get.apply(context) setMethod method setFollowRedirects followsRedirects.getOrElse(false)
 
     addCookiesTo(requestBuilder, context)
     addQueryParamsTo(requestBuilder, context)

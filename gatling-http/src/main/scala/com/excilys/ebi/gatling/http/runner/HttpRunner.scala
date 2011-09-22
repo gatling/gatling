@@ -13,7 +13,6 @@ import com.excilys.ebi.gatling.core.scenario.configuration.builder.ScenarioConfi
 import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfiguration
 
 import com.excilys.ebi.gatling.http.action.HttpRequestAction
-import com.excilys.ebi.gatling.http.scenario.builder.HttpScenarioBuilder
 
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.CountDownLatch;

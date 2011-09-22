@@ -3,6 +3,7 @@ package com.excilys.ebi.gatling.http.request.builder
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.context.FromContext
+import com.excilys.ebi.gatling.core.util.StringHelper._
 
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.excilys.ebi.gatling.http.request.FilePathBody
@@ -24,42 +25,43 @@ import java.io.File
 import org.fusesource.scalate._
 
 object PostHttpRequestBuilder {
-  class PostHttpRequestBuilder(url: Option[String], queryParams: Option[Map[String, Param]], params: Option[Map[String, Param]],
-                               headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], urlInterpolations: Seq[String])
-      extends HttpRequestBuilder(url, queryParams, params, headers, body, followsRedirects, urlInterpolations) with RequestParamsAndBody with Logging {
+  class PostHttpRequestBuilder(urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], params: Option[Map[String, Param]],
+                               headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean])
+      extends HttpRequestBuilder(urlFormatter, queryParams, params, headers, body, followsRedirects) with RequestParamsAndBody with Logging {
 
-    def withQueryParam(paramKey: String, paramValue: String) = new PostHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> StringParam(paramValue))), params, headers, body, followsRedirects, urlInterpolations)
+    def withQueryParam(paramKey: String, paramValue: String) = new PostHttpRequestBuilder(urlFormatter, Some(queryParams.get + (paramKey -> StringParam(paramValue))), params, headers, body, followsRedirects)
 
-    def withQueryParam(paramKey: String, paramValue: FromContext) = new PostHttpRequestBuilder(url, Some(queryParams.get + (paramKey -> ContextParam(paramValue.attributeKey))), params, headers, body, followsRedirects, urlInterpolations)
+    def withQueryParam(paramKey: String, paramValue: FromContext) = new PostHttpRequestBuilder(urlFormatter, Some(queryParams.get + (paramKey -> ContextParam(paramValue.attributeKey))), params, headers, body, followsRedirects)
 
     def withQueryParam(paramKey: String) = withQueryParam(paramKey, FromContext(paramKey))
 
-    def withParam(paramKey: String, paramValue: String) = new PostHttpRequestBuilder(url, queryParams, Some(params.get + (paramKey -> StringParam(paramValue))), headers, body, followsRedirects, urlInterpolations)
+    def withParam(paramKey: String, paramValue: String) = new PostHttpRequestBuilder(urlFormatter, queryParams, Some(params.get + (paramKey -> StringParam(paramValue))), headers, body, followsRedirects)
 
-    def withParam(paramKey: String, paramValue: FromContext) = new PostHttpRequestBuilder(url, queryParams, Some(params.get + (paramKey -> ContextParam(paramValue.attributeKey))), headers, body, followsRedirects, urlInterpolations)
+    def withParam(paramKey: String, paramValue: FromContext) = new PostHttpRequestBuilder(urlFormatter, queryParams, Some(params.get + (paramKey -> ContextParam(paramValue.attributeKey))), headers, body, followsRedirects)
 
     def withParam(paramKey: String) = withQueryParam(paramKey, FromContext(paramKey))
 
-    def withHeader(header: Tuple2[String, String]) = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get + (header._1 -> header._2)), body, followsRedirects, urlInterpolations)
+    def withHeader(header: Tuple2[String, String]) = new PostHttpRequestBuilder(urlFormatter, queryParams, params, Some(headers.get + (header._1 -> header._2)), body, followsRedirects)
 
-    def withHeaders(givenHeaders: Map[String, String]) = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get ++ givenHeaders), body, followsRedirects, urlInterpolations)
+    def withHeaders(givenHeaders: Map[String, String]) = new PostHttpRequestBuilder(urlFormatter, queryParams, params, Some(headers.get ++ givenHeaders), body, followsRedirects)
 
-    def asJSON = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get + (ACCEPT -> APPLICATION_JSON) + (CONTENT_TYPE -> APPLICATION_JSON)), body, followsRedirects, urlInterpolations)
+    def asJSON = new PostHttpRequestBuilder(urlFormatter, queryParams, params, Some(headers.get + (ACCEPT -> APPLICATION_JSON) + (CONTENT_TYPE -> APPLICATION_JSON)), body, followsRedirects)
 
-    def asXML = new PostHttpRequestBuilder(url, queryParams, params, Some(headers.get + (ACCEPT -> APPLICATION_XML) + (CONTENT_TYPE -> APPLICATION_XML)), body, followsRedirects, urlInterpolations)
+    def asXML = new PostHttpRequestBuilder(urlFormatter, queryParams, params, Some(headers.get + (ACCEPT -> APPLICATION_XML) + (CONTENT_TYPE -> APPLICATION_XML)), body, followsRedirects)
 
-    def withFile(filePath: String) = new PostHttpRequestBuilder(url, queryParams, params, headers, Some(FilePathBody(filePath)), followsRedirects, urlInterpolations)
+    def withFile(filePath: String) = new PostHttpRequestBuilder(urlFormatter, queryParams, params, headers, Some(FilePathBody(filePath)), followsRedirects)
 
-    def withBody(body: String) = new PostHttpRequestBuilder(url, queryParams, params, headers, Some(StringBody(body)), followsRedirects, urlInterpolations)
+    def withBody(body: String) = new PostHttpRequestBuilder(urlFormatter, queryParams, params, headers, Some(StringBody(body)), followsRedirects)
 
-    def withTemplateBodyFromContext(tplPath: String, values: Map[String, String]) = new PostHttpRequestBuilder(url, queryParams, params, headers, Some(TemplateBody(tplPath, values.map { value => (value._1, ContextParam(value._2)) })), followsRedirects, urlInterpolations)
+    def withTemplateBodyFromContext(tplPath: String, values: Map[String, String]) = new PostHttpRequestBuilder(urlFormatter, queryParams, params, headers, Some(TemplateBody(tplPath, values.map { value => (value._1, ContextParam(value._2)) })), followsRedirects)
 
-    def withTemplateBody(tplPath: String, values: Map[String, String]) = new PostHttpRequestBuilder(url, queryParams, params, headers, Some(TemplateBody(tplPath, values.map { value => (value._1, StringParam(value._2)) })), followsRedirects, urlInterpolations)
+    def withTemplateBody(tplPath: String, values: Map[String, String]) = new PostHttpRequestBuilder(urlFormatter, queryParams, params, headers, Some(TemplateBody(tplPath, values.map { value => (value._1, StringParam(value._2)) })), followsRedirects)
 
-    def followsRedirect(followRedirect: Boolean) = new PostHttpRequestBuilder(url, queryParams, params, headers, body, Some(followRedirect), urlInterpolations)
+    def followsRedirect(followRedirect: Boolean) = new PostHttpRequestBuilder(urlFormatter, queryParams, params, headers, body, Some(followRedirect))
 
     def build(context: Context): Request = build(context, "POST")
   }
 
-  def post(url: String, urlInterpolations: String*) = new PostHttpRequestBuilder(Some(url), Some(Map()), Some(Map()), Some(Map()), None, None, urlInterpolations)
+  def post(url: String, interpolations: String*) = new PostHttpRequestBuilder(Some((c: Context) => interpolate(c, url, interpolations)), Some(Map()), Some(Map()), Some(Map()), None, None)
+  def post(f: Context => String) = new PostHttpRequestBuilder(Some(f), Some(Map()), Some(Map()), Some(Map()), None, None)
 }
