@@ -17,7 +17,7 @@ class SeparatedValuesFeeder(fileName: String, mappings: List[String], val separa
     for (mapping <- mappings zip line.split(separator).toList)
       lineMap = lineMap + mapping
 
-    seeds = seeds += lineMap
+    seeds += lineMap
   }
 
   logger.debug("Feeder Seeds Loaded")
