@@ -73,7 +73,7 @@
 		<maven.compiler.target>1.6</maven.compiler.target>
 		<encoding>UTF-8</encoding>
 		<scala.version>2.9.1</scala.version>
-		<ahc.version>1.7.0-20110628</ahc.version>
+		<ahc.version>1.7.0-20110922</ahc.version>
 		<akka.version>1.2</akka.version>
 		<vtdxml.version>2.10</vtdxml.version>
 		<logback.version>0.9.30</logback.version>
