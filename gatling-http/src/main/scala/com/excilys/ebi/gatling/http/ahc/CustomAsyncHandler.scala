@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit
 import com.excilys.ebi.gatling.core.provider.capture.AbstractCaptureProvider
 
 class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpProcessor], next: Action, executionStartTime: Long, executionStartDate: Date, requestName: String)
-  extends AsyncHandler[Response] with Logging {
+    extends AsyncHandler[Response] with Logging {
 
   private val identifier = requestName + context.getUserId
 
@@ -152,13 +152,14 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
                     case IN_RANGE => assertInRange(value.get, a.getExpected)
                     case EXISTENCE => true
                   }
-                logger.debug("ASSERTION RESULT: {}", result)
 
                 // If the result is true, then we store the value in the context if requested
                 if (result) {
+                  logger.debug("ASSERTION RESULT: {}", result)
                   if (c.getAttrKey != StringUtils.EMPTY)
                     contextBuilder = contextBuilder setAttribute contextAttribute
                 } else {
+                  logger.warn("ASSERTION RESULT: {} for {}", result, a)
                   // Else, we write the failure in the logs
                   sendLogAndExecuteNext(KO, "Assertion " + a + " failed", processingStartTime, response)
                   return STATE.ABORT
