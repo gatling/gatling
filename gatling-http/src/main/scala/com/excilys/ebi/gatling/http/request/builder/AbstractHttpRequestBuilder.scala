@@ -22,8 +22,6 @@ import com.excilys.ebi.gatling.http.request.MIMEType._
 
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
 
-import java.io.File
-
 abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val urlFormatter: Option[Context => String], val queryParams: Option[Map[String, Param]],
                                                                               val headers: Option[Map[String, String]], val followsRedirects: Option[Boolean])
     extends Logging {

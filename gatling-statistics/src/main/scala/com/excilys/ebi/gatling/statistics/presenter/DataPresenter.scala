@@ -1,6 +1,4 @@
 package com.excilys.ebi.gatling.statistics.presenter
-import scala.collection.mutable.LinkedHashMap
-import scala.collection.mutable.ListBuffer
 
 abstract class DataPresenter[R] {
   protected def getDateForHighcharts(date: String): String = {

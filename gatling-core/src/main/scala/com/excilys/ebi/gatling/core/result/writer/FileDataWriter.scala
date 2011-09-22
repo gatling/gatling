@@ -8,9 +8,11 @@ import java.io.FileOutputStream
 import java.io.File
 import java.io.BufferedOutputStream
 import java.io.OutputStreamWriter
+
 import org.apache.commons.lang3.time.FastDateFormat
-import akka.actor.Actor.registry
 import org.apache.commons.lang3.StringUtils
+
+import akka.actor.Actor.registry
 
 class FileDataWriter extends DataWriter {
   var osw: OutputStreamWriter = null

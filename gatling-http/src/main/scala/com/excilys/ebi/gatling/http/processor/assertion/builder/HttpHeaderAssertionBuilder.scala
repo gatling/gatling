@@ -2,8 +2,9 @@ package com.excilys.ebi.gatling.http.processor.assertion.builder
 
 import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
 import com.excilys.ebi.gatling.http.processor.assertion.HttpHeaderAssertion
-import org.apache.commons.lang3.StringUtils
 import com.excilys.ebi.gatling.http.processor.assertion.HttpHeaderPresentAssertion
+
+import org.apache.commons.lang3.StringUtils
 
 object HttpHeaderAssertionBuilder {
   class HttpHeaderAssertionBuilder(expression: Option[String], expected: Option[String], attrKey: Option[String])

@@ -3,8 +3,9 @@ package com.excilys.ebi.gatling.http.processor.assertion.builder
 import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
 import com.excilys.ebi.gatling.http.processor.assertion.HttpRegExpAssertion
-import org.apache.commons.lang3.StringUtils
 import com.excilys.ebi.gatling.http.processor.assertion.HttpRegExpPresentAssertion
+
+import org.apache.commons.lang3.StringUtils
 
 object HttpRegExpAssertionBuilder {
   class HttpRegExpAssertionBuilder(expression: Option[String], expected: Option[String], attrKey: Option[String], httpPhase: Option[HttpPhase])

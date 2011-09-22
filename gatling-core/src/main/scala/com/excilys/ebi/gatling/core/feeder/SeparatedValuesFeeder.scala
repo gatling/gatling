@@ -3,6 +3,7 @@ package com.excilys.ebi.gatling.core.feeder
 import scala.io.Source
 import scala.collection.immutable.HashMap
 import scala.collection.mutable.Queue
+
 import com.excilys.ebi.gatling.core.config.GatlingConfig._
 import com.excilys.ebi.gatling.core.util.PathHelper._
 

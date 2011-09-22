@@ -2,10 +2,12 @@ package com.excilys.ebi.gatling.core.action
 
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
+import com.excilys.ebi.gatling.core.result.message.ResultStatus._
+
 import java.util.concurrent.CountDownLatch
 import java.util.Date
+
 import akka.actor.Actor.registry.actorFor
-import com.excilys.ebi.gatling.core.result.message.ResultStatus._
 
 class EndAction(val latch: CountDownLatch) extends Action {
   def execute(context: Context): Unit = {

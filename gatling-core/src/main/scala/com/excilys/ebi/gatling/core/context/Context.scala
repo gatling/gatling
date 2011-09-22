@@ -1,8 +1,11 @@
 package com.excilys.ebi.gatling.core.context
 
 import akka.actor.Uuid
+
 import com.excilys.ebi.gatling.core.log.Logging
+
 import com.ning.http.client.Cookie
+
 import org.apache.commons.lang3.StringUtils
 
 object Context {

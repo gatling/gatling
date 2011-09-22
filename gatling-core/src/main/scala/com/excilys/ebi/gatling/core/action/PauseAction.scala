@@ -1,11 +1,10 @@
 package com.excilys.ebi.gatling.core.action
 
 import akka.actor.Scheduler
-import akka.actor.TypedActor
+
 import java.util.concurrent.TimeUnit
 
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 
 class PauseAction(next: Action, duration: Long, timeUnit: TimeUnit) extends Action {
   def execute(context: Context) = {

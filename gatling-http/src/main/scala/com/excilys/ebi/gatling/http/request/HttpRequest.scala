@@ -1,10 +1,12 @@
 package com.excilys.ebi.gatling.http.request
 
-import com.ning.http.client.Request
-import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 import com.excilys.ebi.gatling.core.action.request.AbstractRequest
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.log.Logging
+
+import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
+
+import com.ning.http.client.Request
 
 class HttpRequest(givenName: String, val httpRequestBuilder: AbstractHttpRequestBuilder[_]) extends AbstractRequest(givenName) with Logging {
 

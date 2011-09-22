@@ -2,10 +2,7 @@ package com.excilys.ebi.gatling.http.processor.capture
 
 import com.excilys.ebi.gatling.core.provider.ProviderType._
 
-import com.excilys.ebi.gatling.http.provider.capture.HttpStatusCaptureProvider
 import com.excilys.ebi.gatling.http.request.HttpPhase._
-
-import com.ning.http.client.Response
 
 class HttpStatusCapture(attrKey: String)
     extends HttpCapture("", attrKey, StatusReceived, HTTP_STATUS_PROVIDER) {

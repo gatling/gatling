@@ -1,11 +1,12 @@
 package com.excilys.ebi.gatling.core.scenario.builder
 
-import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import com.excilys.ebi.gatling.core.action.Action
+import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder._
 import com.excilys.ebi.gatling.core.action.builder.EndActionBuilder._
+
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 object ScenarioBuilder {
   private var expectedExecutionDuration: Map[Int, Long] = Map.empty

@@ -1,4 +1,5 @@
 package com.excilys.ebi.gatling.statistics
+
 import com.excilys.ebi.gatling.statistics.presenter.DataPresenter
 import com.excilys.ebi.gatling.statistics.extractor.DataExtractor
 

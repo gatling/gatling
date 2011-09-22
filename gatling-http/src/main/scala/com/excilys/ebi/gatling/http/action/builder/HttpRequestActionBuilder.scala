@@ -2,23 +2,18 @@ package com.excilys.ebi.gatling.http.action.builder
 
 import com.excilys.ebi.gatling.http.request.HttpRequest
 
-import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
-import com.excilys.ebi.gatling.core.action.RequestAction
 import com.excilys.ebi.gatling.core.action.Action
-import com.excilys.ebi.gatling.core.action.request.AbstractRequest
-import com.excilys.ebi.gatling.core.provider.capture.AbstractCaptureProvider
+import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.scenario.builder.ScenarioBuilder
 
 import com.excilys.ebi.gatling.http.action.HttpRequestAction
-import com.excilys.ebi.gatling.http.processor.HttpProcessor
 import com.excilys.ebi.gatling.http.processor.builder.HttpProcessorBuilder
-import com.excilys.ebi.gatling.http.scenario.builder.HttpScenarioBuilder
 
 import akka.actor.TypedActor
 
 object HttpRequestActionBuilder {
   class HttpRequestActionBuilder(val request: Option[HttpRequest], val nextAction: Option[Action], val processorBuilders: Option[List[HttpProcessorBuilder]])
-    extends AbstractActionBuilder {
+      extends AbstractActionBuilder {
 
     def withProcessors(givenProcessors: List[HttpProcessorBuilder]) = {
       logger.debug("Adding Processors")

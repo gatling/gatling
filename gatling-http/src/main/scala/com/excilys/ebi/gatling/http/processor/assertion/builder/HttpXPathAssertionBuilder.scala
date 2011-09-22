@@ -3,8 +3,9 @@ package com.excilys.ebi.gatling.http.processor.assertion.builder
 import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
 import com.excilys.ebi.gatling.http.processor.assertion.HttpXPathAssertion
-import org.apache.commons.lang3.StringUtils
 import com.excilys.ebi.gatling.http.processor.assertion.HttpXPathPresentAssertion
+
+import org.apache.commons.lang3.StringUtils
 
 object HttpXPathAssertionBuilder {
   class HttpXPathAssertionBuilder(expression: Option[String], expected: Option[String], attrKey: Option[String], httpPhase: Option[HttpPhase])

@@ -4,24 +4,24 @@ import scala.collection.mutable.MultiMap
 import scala.collection.immutable.HashSet
 import scala.collection.{ Set => CSet }
 
+import com.excilys.ebi.gatling.core.action.Action
+import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.context.builder.ContextBuilder._
+import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.provider.capture.RegExpCaptureProvider
 import com.excilys.ebi.gatling.core.provider.capture.XPathCaptureProvider
 import com.excilys.ebi.gatling.core.processor.Assertion._
 import com.excilys.ebi.gatling.core.processor.AssertionType._
 import com.excilys.ebi.gatling.core.provider.ProviderType._
 import com.excilys.ebi.gatling.core.result.message.ResultStatus._
-import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.context.builder.ContextBuilder._
-import com.excilys.ebi.gatling.core.action.Action
-import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 
-import com.excilys.ebi.gatling.http.request.HttpPhase._
-import com.excilys.ebi.gatling.http.provider.capture.HttpHeadersCaptureProvider
 import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
 import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
+import com.excilys.ebi.gatling.http.provider.capture.HttpHeadersCaptureProvider
 import com.excilys.ebi.gatling.http.provider.capture.HttpStatusCaptureProvider
+import com.excilys.ebi.gatling.http.request.HttpPhase._
 
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder

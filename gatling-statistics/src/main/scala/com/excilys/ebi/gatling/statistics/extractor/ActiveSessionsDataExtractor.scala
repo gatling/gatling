@@ -1,17 +1,14 @@
 package com.excilys.ebi.gatling.statistics.extractor
 
 import scala.math._
-import scala.collection.mutable.Map
 import scala.collection.mutable.LinkedHashMap
 import scala.collection.mutable.ListBuffer
-import scala.io.Source
+
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.DateTime
 import org.joda.time.Duration
-import com.excilys.ebi.gatling.core.log.Logging
+
 import com.excilys.ebi.gatling.core.util.PathHelper._
-import com.excilys.ebi.gatling.statistics.presenter.DataPresenter
-import com.excilys.ebi.gatling.statistics.presenter.ActiveSessionsDataPresenter
 
 class ActiveSessionsDataExtractor extends DataExtractor[LinkedHashMap[String, ListBuffer[(String, Double)]]] {
 

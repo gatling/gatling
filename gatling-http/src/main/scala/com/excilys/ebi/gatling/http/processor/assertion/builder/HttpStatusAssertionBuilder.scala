@@ -3,6 +3,7 @@ package com.excilys.ebi.gatling.http.processor.assertion.builder
 import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
 import com.excilys.ebi.gatling.http.processor.assertion.HttpStatusAssertion
+
 import org.apache.commons.lang3.StringUtils
 
 object HttpStatusAssertionBuilder {

@@ -1,7 +1,5 @@
 package com.excilys.ebi.gatling.statistics.template
 
-import org.fusesource.scalate._
-
 class GlobalRequestsTemplate(val runOn: String, val menuItems: Map[String, String], val series: List[TimeSeries]) {
 
   def getOutput: String = {

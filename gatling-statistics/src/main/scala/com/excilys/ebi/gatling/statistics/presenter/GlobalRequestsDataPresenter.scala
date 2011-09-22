@@ -1,11 +1,13 @@
 package com.excilys.ebi.gatling.statistics.presenter
 
 import com.excilys.ebi.gatling.core.util.PathHelper._
+
 import com.excilys.ebi.gatling.statistics.extractor.GlobalRequestsDataExtractor
 import com.excilys.ebi.gatling.statistics.template.GlobalRequestsTemplate
 import com.excilys.ebi.gatling.statistics.template.TimeSeries
 import com.excilys.ebi.gatling.statistics.writer.TemplateWriter
 import com.excilys.ebi.gatling.statistics.writer.TSVFileWriter
+
 import scala.collection.mutable.LinkedHashMap
 import scala.collection.mutable.ListBuffer
 

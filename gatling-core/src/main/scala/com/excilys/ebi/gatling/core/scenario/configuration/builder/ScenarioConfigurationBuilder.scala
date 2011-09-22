@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit
 
 object ScenarioConfigurationBuilder {
   class ScenarioConfigurationBuilder(s: Option[ScenarioBuilder[_ <: ScenarioBuilder[_]]], numUsers: Option[Int], ramp: Option[(Int, TimeUnit)],
-    startTime: Option[(Int, TimeUnit)], feeder: Option[Feeder]) {
+                                     startTime: Option[(Int, TimeUnit)], feeder: Option[Feeder]) {
 
     def withUsersNumber(nbUsers: Int) = new ScenarioConfigurationBuilder(s, Some(nbUsers), ramp, startTime, feeder)
 

@@ -6,6 +6,7 @@
 package com.excilys.ebi.gatling.core.config
 
 import java.io.File
+
 import akka.config.ConfigParser
 import akka.config.Importer
 import akka.config.FilesystemImporter

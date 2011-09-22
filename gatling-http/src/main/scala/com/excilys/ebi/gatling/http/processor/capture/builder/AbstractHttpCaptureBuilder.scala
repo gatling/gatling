@@ -1,8 +1,5 @@
 package com.excilys.ebi.gatling.http.processor.capture.builder
 
-import com.excilys.ebi.gatling.core.provider.capture.XPathCaptureProvider
-import com.excilys.ebi.gatling.core.log.Logging
-
 import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
 import com.excilys.ebi.gatling.http.processor.builder.HttpProcessorBuilder
 import com.excilys.ebi.gatling.http.request.HttpPhase._

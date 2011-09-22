@@ -2,19 +2,19 @@ package com.excilys.ebi.gatling.http.action
 
 import com.excilys.ebi.gatling.core.action.{ Action, RequestAction }
 import com.excilys.ebi.gatling.core.context.Context
+
 import com.excilys.ebi.gatling.http.ahc.CustomAsyncHandler
 import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.http.request.HttpRequest
-import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
-import com.excilys.ebi.gatling.http.processor.builder.HttpProcessorBuilder
-import com.excilys.ebi.gatling.http.processor.assertion.builder.HttpAssertionBuilder
 import com.excilys.ebi.gatling.http.processor.assertion.HttpStatusAssertion
-import com.excilys.ebi.gatling.http.processor.capture.builder.HttpCaptureBuilder
-import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
-import com.ning.http.client.AsyncHttpClient
-import scala.collection.mutable.{ HashMap, MultiMap, Set => MSet }
-import java.util.Date
+import com.excilys.ebi.gatling.http.processor.builder.HttpProcessorBuilder
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
+
+import com.ning.http.client.AsyncHttpClient
+
+import scala.collection.mutable.{ HashMap, MultiMap, Set => MSet }
+
+import java.util.Date
 
 object HttpRequestAction {
   val CLIENT: AsyncHttpClient = new AsyncHttpClient

@@ -1,12 +1,9 @@
 package com.excilys.ebi.gatling.statistics.extractor
 
-import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus
 import com.excilys.ebi.gatling.core.result.message.ResultStatus._
 import com.excilys.ebi.gatling.core.util.PathHelper._
 
-import scala.io.Source
-import scala.collection.immutable.TreeMap
 import scala.collection.mutable.HashMap
 
 import java.lang.String
