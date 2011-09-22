@@ -6,9 +6,11 @@ import com.excilys.ebi.gatling.http.request.HttpPhase._
 
 object HttpXPathCaptureBuilder {
   class HttpXPathCaptureBuilder(expression: Option[String], attribute: Option[String], httpPhase: Option[HttpPhase])
-      extends HttpCaptureBuilder(expression, attribute, httpPhase) {
+      extends AbstractHttpCaptureBuilder[HttpXPathCaptureBuilder](expression, attribute, httpPhase) {
 
-    def in(attrKey: String) = new HttpXPathCaptureBuilder(expression, Some(attrKey), httpPhase)
+    def newInstance(expression: Option[String], attribute: Option[String], httpPhase: Option[HttpPhase]) = {
+      new HttpXPathCaptureBuilder(expression, attribute, httpPhase)
+    }
 
     def build(): HttpCapture = new HttpXPathCapture(expression.get, attribute.get, httpPhase.get)
   }

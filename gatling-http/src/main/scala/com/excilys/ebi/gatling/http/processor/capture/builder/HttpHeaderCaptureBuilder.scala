@@ -3,14 +3,18 @@ package com.excilys.ebi.gatling.http.processor.capture.builder
 import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
 import com.excilys.ebi.gatling.http.processor.capture.HttpHeaderCapture
 
-object HttpHeaderCaptureBuilder {
-  class HttpHeaderCaptureBuilder(expression: Option[String], attribute: Option[String])
-      extends HttpCaptureBuilder(expression, attribute, null) {
+import com.excilys.ebi.gatling.http.request.HttpPhase._
 
-    def in(attrKey: String) = new HttpHeaderCaptureBuilder(expression, Some(attrKey))
+object HttpHeaderCaptureBuilder {
+  class HttpHeaderCaptureBuilder(expression: Option[String], attribute: Option[String], httpPhase: Option[HttpPhase])
+      extends AbstractHttpCaptureBuilder[HttpHeaderCaptureBuilder](expression, attribute, httpPhase) {
+
+    def newInstance(expression: Option[String], attribute: Option[String], httpPhase: Option[HttpPhase]) = {
+      new HttpHeaderCaptureBuilder(expression, attribute, httpPhase)
+    }
 
     def build: HttpCapture = new HttpHeaderCapture(expression.get, attribute.get)
   }
 
-  def header(expression: String) = new HttpHeaderCaptureBuilder(Some(expression), None)
+  def header(expression: String) = new HttpHeaderCaptureBuilder(Some(expression), None, None)
 }
