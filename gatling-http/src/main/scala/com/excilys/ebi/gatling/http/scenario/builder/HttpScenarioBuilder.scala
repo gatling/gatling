@@ -8,7 +8,7 @@ import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.scenario.builder.ScenarioBuilder._
 
 import com.excilys.ebi.gatling.http.action.builder.HttpRequestActionBuilder._
-import com.excilys.ebi.gatling.http.request.builder.HttpRequestBuilder
+import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.excilys.ebi.gatling.http.processor.builder.HttpProcessorBuilder
 
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
 object HttpScenarioBuilder {
   class HttpScenarioBuilder(name: String, actionBuilders: List[AbstractActionBuilder]) extends ScenarioBuilder[HttpScenarioBuilder](name, actionBuilders) with Logging {
 
-    def doHttpRequest(reqName: String, requestBuilder: HttpRequestBuilder, processors: HttpProcessorBuilder*): HttpScenarioBuilder = {
+    def doHttpRequest(reqName: String, requestBuilder: AbstractHttpRequestBuilder[_], processors: HttpProcessorBuilder*): HttpScenarioBuilder = {
       val httpRequest = newHttpRequestActionBuilder withRequest (new HttpRequest(reqName, requestBuilder)) withProcessors processors.toList
       logger.debug("Adding HttpRequestAction")
       new HttpScenarioBuilder(name, httpRequest :: actionBuilders)

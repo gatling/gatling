@@ -24,34 +24,15 @@ import java.io.File
 import org.fusesource.scalate._
 
 object DeleteHttpRequestBuilder {
-  class DeleteHttpRequestBuilder(urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]],
-                                 body: Option[HttpRequestBody], followsRedirects: Option[Boolean])
-      extends HttpRequestBuilder(urlFormatter, queryParams, None, headers, body, followsRedirects) with Logging {
-    def withQueryParam(paramKey: String, paramValue: String) = new DeleteHttpRequestBuilder(urlFormatter, Some(queryParams.get + (paramKey -> StringParam(paramValue))), headers, body, followsRedirects)
+  class DeleteHttpRequestBuilder(urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]],
+                                 headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean])
+      extends AbstractHttpRequestWithBodyBuilder[DeleteHttpRequestBuilder](urlFormatter, queryParams, headers, body, followsRedirects) {
 
-    def withQueryParam(paramKey: String, paramValue: FromContext) = new DeleteHttpRequestBuilder(urlFormatter, Some(queryParams.get + (paramKey -> ContextParam(paramValue.attributeKey))), headers, body, followsRedirects)
+    def newInstance(urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean]) = {
+      new DeleteHttpRequestBuilder(urlFormatter, queryParams, headers, body, followsRedirects)
+    }
 
-    def withQueryParam(paramKey: String) = withQueryParam(paramKey, FromContext(paramKey))
-
-    def withHeader(header: Tuple2[String, String]) = new DeleteHttpRequestBuilder(urlFormatter, queryParams, Some(headers.get + (header._1 -> header._2)), body, followsRedirects)
-
-    def withHeaders(givenHeaders: Map[String, String]) = new DeleteHttpRequestBuilder(urlFormatter, queryParams, Some(headers.get ++ givenHeaders), body, followsRedirects)
-
-    def asJSON = new DeleteHttpRequestBuilder(urlFormatter, queryParams, Some(headers.get + (ACCEPT -> APPLICATION_JSON) + (CONTENT_TYPE -> APPLICATION_JSON)), body, followsRedirects)
-
-    def asXML = new DeleteHttpRequestBuilder(urlFormatter, queryParams, Some(headers.get + (ACCEPT -> APPLICATION_XML) + (CONTENT_TYPE -> APPLICATION_XML)), body, followsRedirects)
-
-    def withFile(filePath: String) = new DeleteHttpRequestBuilder(urlFormatter, queryParams, headers, Some(FilePathBody(filePath)), followsRedirects)
-
-    def withBody(body: String) = new DeleteHttpRequestBuilder(urlFormatter, queryParams, headers, Some(StringBody(body)), followsRedirects)
-
-    def withTemplateBodyFromContext(tplPath: String, values: Map[String, String]) = new DeleteHttpRequestBuilder(urlFormatter, queryParams, headers, Some(TemplateBody(tplPath, values.map { value => (value._1, ContextParam(value._2)) })), followsRedirects)
-
-    def withTemplateBody(tplPath: String, values: Map[String, String]) = new DeleteHttpRequestBuilder(urlFormatter, queryParams, headers, Some(TemplateBody(tplPath, values.map { value => (value._1, StringParam(value._2)) })), followsRedirects)
-
-    def followsRedirect(followRedirect: Boolean) = new DeleteHttpRequestBuilder(urlFormatter, queryParams, headers, body, Some(followRedirect))
-
-    def build(context: Context): Request = build(context, "DELETE")
+    def getMethod = "DELETE"
   }
 
   def delete(url: String, interpolations: String*) = new DeleteHttpRequestBuilder(Some((c: Context) => interpolate(c, url, interpolations)), Some(Map()), Some(Map()), None, None)
