@@ -19,13 +19,14 @@ import com.excilys.ebi.gatling.http.request.ContextParam
 import java.io.File
 
 abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]],
-                                                                                              headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean])
-    extends AbstractHttpRequestBuilder[B](urlFormatter, queryParams, headers, followsRedirects) {
+  headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean])
+  extends AbstractHttpRequestBuilder[B](urlFormatter, queryParams, headers, followsRedirects) {
 
-  override def build(context: Context) = {
+  override def getRequestBuilder(context: Context): RequestBuilder = {
+    val requestBuilder = super.getRequestBuilder(context)
     requestBuilder setMethod getMethod
     addBodyTo(requestBuilder, body, context)
-    super.build(context)
+    requestBuilder
   }
 
   def newInstance(urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean]): B

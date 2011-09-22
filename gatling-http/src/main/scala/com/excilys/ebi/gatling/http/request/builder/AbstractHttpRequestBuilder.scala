@@ -23,10 +23,8 @@ import com.excilys.ebi.gatling.http.request.MIMEType._
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
 
 abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val urlFormatter: Option[Context => String], val queryParams: Option[Map[String, Param]],
-                                                                              val headers: Option[Map[String, String]], val followsRedirects: Option[Boolean])
-    extends Logging {
-
-  val requestBuilder = new RequestBuilder
+  val headers: Option[Map[String, String]], val followsRedirects: Option[Boolean])
+  extends Logging {
 
   def newInstance(urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], followsRedirects: Option[Boolean]): B
 
@@ -62,14 +60,20 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
   def getMethod: String
 
-  def build(context: Context): Request = {
-
+  def getRequestBuilder(context: Context): RequestBuilder = {
+    val requestBuilder = new RequestBuilder
     requestBuilder setUrl urlFormatter.get.apply(context) setMethod getMethod setFollowRedirects followsRedirects.getOrElse(false)
 
     addCookiesTo(requestBuilder, context)
     addQueryParamsTo(requestBuilder, context)
     addHeadersTo(requestBuilder, headers)
-    val request = requestBuilder build
+
+    requestBuilder
+  }
+
+  def build(context: Context): Request = {
+
+    val request = getRequestBuilder(context) build
 
     logger.debug("Built {} Request: {})", getMethod, request.getCookies)
     request

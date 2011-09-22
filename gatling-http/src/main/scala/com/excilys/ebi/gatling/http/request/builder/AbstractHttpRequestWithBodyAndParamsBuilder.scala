@@ -13,13 +13,13 @@ import com.excilys.ebi.gatling.http.request.ContextParam
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 
 abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequestWithBodyAndParamsBuilder[B]](urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], params: Option[Map[String, Param]],
-                                                                                                                headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean])
-    extends AbstractHttpRequestWithBodyBuilder[B](urlFormatter, queryParams, headers, body, followsRedirects) {
+  headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean])
+  extends AbstractHttpRequestWithBodyBuilder[B](urlFormatter, queryParams, headers, body, followsRedirects) {
 
-  override def build(context: Context): Request = {
-    requestBuilder setMethod getMethod
+  override def getRequestBuilder(context: Context): RequestBuilder = {
+    val requestBuilder = super.getRequestBuilder(context)
     addParamsTo(requestBuilder, params, context)
-    super.build(context)
+    requestBuilder
   }
 
   def newInstance(urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], params: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean]): B
