@@ -42,7 +42,7 @@ import java.util.Date
 import java.util.concurrent.TimeUnit
 
 class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpProcessor], next: Action, executionStartTime: Long, executionStartDate: Date, requestName: String)
-    extends AsyncHandler[Response] with Logging {
+  extends AsyncHandler[Response] with Logging {
 
   private val identifier = requestName + context.getUserId
 
@@ -161,11 +161,11 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
                 // If the result is true, then we store the value in the context if requested
                 if (result) {
-                  logger.debug("CHECK RESULT: {}", result)
+                  logger.debug("CHECK RESULT: true")
                   if (c.getAttrKey != StringUtils.EMPTY)
                     contextBuilder = contextBuilder setAttribute contextAttribute
                 } else {
-                  logger.warn("CHECK RESULT: {} for {}", result, check)
+                  logger.warn("CHECK RESULT: false expected {} but received {}", check, value.get.toString)
                   // Else, we write the failure in the logs
                   sendLogAndExecuteNext(KO, "Check " + check + " failed", processingStartTime, response)
                   return STATE.ABORT
