@@ -10,15 +10,11 @@ import com.ning.http.client.Request
 
 class HttpRequest(givenName: String, val httpRequestBuilder: AbstractHttpRequestBuilder[_]) extends AbstractRequest(givenName) with Logging {
 
-  private var request: Request = null
-
   def getRequest(context: Context): Request = {
-    request = httpRequestBuilder build (context)
+    val request = httpRequestBuilder build (context)
     logger.debug("Request created: {}", request.getUrl())
     request
   }
-
-  def getRequest = request
 
   override def toString = "[HttpRequest] " + getName
 
