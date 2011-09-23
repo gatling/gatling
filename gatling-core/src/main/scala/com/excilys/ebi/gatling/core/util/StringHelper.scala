@@ -16,4 +16,7 @@ object StringHelper extends Logging {
       }
     }
   }
+
+  // Used in scenarios
+  def interpolate(urlToFormat: String, interpolations: String*) = (c: Context) => interpolateString(c, urlToFormat, interpolations)
 }

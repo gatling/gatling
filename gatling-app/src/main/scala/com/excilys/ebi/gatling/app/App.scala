@@ -126,7 +126,6 @@ import java.util.Date
 startDate.value = new Date
 
 def runSimulations = runSim(startDate.value)_
-def interpolate(urlToFormat: String, interpolations: String*) = (c: Context) => interpolateString(c, urlToFormat, interpolations)
 """
 
     val fileContent = fileHeader + newFileBodyContent
