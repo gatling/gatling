@@ -41,6 +41,7 @@
 			<excludes>
 				<exclude>**/.gitkeep</exclude>
 				<exclude>bin/*</exclude>
+				<exclude>results/*/</exclude>
 			</excludes>
 		</fileSet>
 	</fileSets>
