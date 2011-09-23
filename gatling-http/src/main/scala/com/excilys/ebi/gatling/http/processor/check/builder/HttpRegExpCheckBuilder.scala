@@ -20,8 +20,9 @@ object HttpRegExpCheckBuilder {
       new HttpRegExpCheck(expressionFormatter.get, expected.get, attrKey.get, httpPhase.get)
   }
 
-  def checkRegexpEquals(expression: String, expected: String) = new HttpRegExpCheckBuilder(Some((c: Context) => expression), Some(expected), Some(StringUtils.EMPTY), Some(CompletePageReceived))
   def checkRegexpEquals(expressionFormatter: Context => String, expected: String) = new HttpRegExpCheckBuilder(Some(expressionFormatter), Some(expected), Some(StringUtils.EMPTY), Some(CompletePageReceived))
-  def checkRegexpExists(expression: String) = new HttpRegExpCheckBuilder(Some((c: Context) => expression), Some(StringUtils.EMPTY), Some(StringUtils.EMPTY), Some(CompletePageReceived))
+  def checkRegexpEquals(expression: String, expected: String): HttpRegExpCheckBuilder = checkRegexpEquals((c: Context) => expression, expected)
+
   def checkRegexpExists(expressionFormatter: Context => String) = new HttpRegExpCheckBuilder(Some(expressionFormatter), Some(StringUtils.EMPTY), Some(StringUtils.EMPTY), Some(CompletePageReceived))
+  def checkRegexpExists(expression: String): HttpRegExpCheckBuilder = checkRegexpExists((c: Context) => expression)
 }

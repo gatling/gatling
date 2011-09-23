@@ -20,8 +20,9 @@ object HttpHeaderCheckBuilder {
       new HttpHeaderCheck(expressionFormatter.get, expected.get, attrKey.get)
   }
 
-  def checkHeaderEquals(headerName: String, expected: String) = new HttpHeaderCheckBuilder(Some((c: Context) => headerName), Some(expected), Some(StringUtils.EMPTY))
   def checkHeaderEquals(headerNameFormatter: Context => String, expected: String) = new HttpHeaderCheckBuilder(Some(headerNameFormatter), Some(expected), Some(StringUtils.EMPTY))
-  def checkHeaderExists(headerName: String) = new HttpHeaderCheckBuilder(Some((c: Context) => headerName), Some(StringUtils.EMPTY), Some(StringUtils.EMPTY))
+  def checkHeaderEquals(headerName: String, expected: String): HttpHeaderCheckBuilder = checkHeaderEquals((c: Context) => headerName, expected)
+
   def checkHeaderExists(headerNameFormatter: Context => String) = new HttpHeaderCheckBuilder(Some(headerNameFormatter), Some(StringUtils.EMPTY), Some(StringUtils.EMPTY))
+  def checkHeaderExists(headerName: String): HttpHeaderCheckBuilder = checkHeaderExists((c: Context) => headerName)
 }

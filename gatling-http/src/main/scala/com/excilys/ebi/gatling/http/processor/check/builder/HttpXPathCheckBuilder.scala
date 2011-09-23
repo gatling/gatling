@@ -19,8 +19,9 @@ object HttpXPathCheckBuilder {
     def build = new HttpXPathCheck(expressionFormatter.get, expected.get, attrKey.get, httpPhase.get)
   }
 
-  def checkXpathEquals(expression: String, expected: String) = new HttpXPathCheckBuilder(Some((c: Context) => expression), Some(expected), Some(StringUtils.EMPTY), Some(CompletePageReceived))
   def checkXpathEquals(expressionFormatter: Context => String, expected: String) = new HttpXPathCheckBuilder(Some(expressionFormatter), Some(expected), Some(StringUtils.EMPTY), Some(CompletePageReceived))
-  def checkXpathExists(expression: String) = new HttpXPathCheckBuilder(Some((c: Context) => expression), Some(StringUtils.EMPTY), Some(StringUtils.EMPTY), Some(CompletePageReceived))
+  def checkXpathEquals(expression: String, expected: String): HttpXPathCheckBuilder = checkXpathEquals((c: Context) => expression, expected)
+
   def checkXpathExists(expressionFormatter: Context => String) = new HttpXPathCheckBuilder(Some(expressionFormatter), Some(StringUtils.EMPTY), Some(StringUtils.EMPTY), Some(CompletePageReceived))
+  def checkXpathExists(expression: String): HttpXPathCheckBuilder = checkXpathExists((c: Context) => expression)
 }
