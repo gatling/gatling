@@ -8,8 +8,11 @@ import org.apache.commons.lang3.StringUtils
 
 object HttpStatusAssertionBuilder {
   class HttpStatusAssertionBuilder(expected: Option[String], attrKey: Option[String])
-      extends HttpAssertionBuilder(None, expected, attrKey, Some(StatusReceived)) {
-    def in(attrKey: String) = new HttpStatusAssertionBuilder(expected, Some(attrKey))
+      extends HttpAssertionBuilder[HttpStatusAssertionBuilder](None, expected, attrKey, Some(StatusReceived)) {
+
+    def newInstance(expression: Option[String], expected: Option[String], attrKey: Option[String], httpPhase: Option[HttpPhase]) = {
+      new HttpStatusAssertionBuilder(expected, attrKey)
+    }
 
     def build: HttpAssertion = new HttpStatusAssertion(expected.get, attrKey.get)
   }
