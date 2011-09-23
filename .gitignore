@@ -16,12 +16,5 @@ test-output
 build.log
 
 # project files to ignore
-toto.log
-/gatling_*
-/*.html
-/2011*
-/user-requests/*
-!/user-requests/.gitkeep
-!/user-templates/.gitkeep
-/results/*
+/gatling-assembly/src/main/assembly/assembly-structure/results/*
 !/results/.gitkeep
