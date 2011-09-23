@@ -1,6 +1,7 @@
 package com.excilys.ebi.gatling.http.processor.capture.builder
 
 import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.util.StringHelper._
 
 import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
 import com.excilys.ebi.gatling.http.processor.capture.HttpHeaderCapture
@@ -18,5 +19,7 @@ object HttpHeaderCaptureBuilder {
     def build: HttpCapture = new HttpHeaderCapture(expressionFormatter.get, attribute.get)
   }
 
-  def header(expression: String) = new HttpHeaderCaptureBuilder(Some((c: Context) => expression), None, None)
+  def captureHeader(expressionFormatter: Context => String) = new HttpHeaderCaptureBuilder(Some(expressionFormatter), None, None)
+  def captureHeader(expression: String): HttpHeaderCaptureBuilder = captureHeader((c: Context) => expression)
+  def captureHeader(expressionToFormat: String, interpolations: String*): HttpHeaderCaptureBuilder = captureHeader((c: Context) => interpolateString(c, expressionToFormat, interpolations))
 }

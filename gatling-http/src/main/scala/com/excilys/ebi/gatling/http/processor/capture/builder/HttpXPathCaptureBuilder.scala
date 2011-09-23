@@ -1,6 +1,7 @@
 package com.excilys.ebi.gatling.http.processor.capture.builder
 
 import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.util.StringHelper._
 
 import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
 import com.excilys.ebi.gatling.http.processor.capture.HttpXPathCapture
@@ -17,6 +18,7 @@ object HttpXPathCaptureBuilder {
     def build(): HttpCapture = new HttpXPathCapture(expressionFormatter.get, attribute.get, httpPhase.get)
   }
 
-  def xpath(expression: String) = new HttpXPathCaptureBuilder(Some((c: Context) => expression), None, Some(CompletePageReceived))
-
+  def captureXpath(expressionFormatter: Context => String) = new HttpXPathCaptureBuilder(Some(expressionFormatter), None, Some(CompletePageReceived))
+  def captureXpath(expression: String): HttpXPathCaptureBuilder = captureXpath((c: Context) => expression)
+  def captureXpath(expressionToFormat: String, interpolations: String*): HttpXPathCaptureBuilder = captureXpath((c: Context) => interpolateString(c, expressionToFormat, interpolations))
 }

@@ -1,6 +1,7 @@
 package com.excilys.ebi.gatling.http.processor.capture.builder
 
 import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.util.StringHelper._
 
 import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
 import com.excilys.ebi.gatling.http.processor.capture.HttpRegExpCapture
@@ -17,5 +18,7 @@ object HttpRegExpCaptureBuilder {
     def build: HttpCapture = new HttpRegExpCapture(expressionFormatter.get, attribute.get, httpPhase.get)
   }
 
-  def regexp(expression: String) = new HttpRegExpCaptureBuilder(Some((c: Context) => expression), None, Some(CompletePageReceived))
+  def captureRegexp(expressionFormatter: Context => String) = new HttpRegExpCaptureBuilder(Some(expressionFormatter), None, Some(CompletePageReceived))
+  def captureRegexp(expression: String): HttpRegExpCaptureBuilder = captureRegexp((c: Context) => expression)
+  def captureRegexp(expressionToFormat: String, interpolations: String*): HttpRegExpCaptureBuilder = captureRegexp((c: Context) => interpolateString(c, expressionToFormat, interpolations))
 }

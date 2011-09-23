@@ -3,7 +3,7 @@ val lambdaUser = scenario("Standard User")
   .doHttpRequest(
     "Catégorie Poney",
     get(baseUrl),
-    xpath("//input[@id='text1']/@value") in "aaaa_value")
+    captureXpath("//input[@id='text1']/@value") in "aaaa_value")
   .pause(pause3)
   // Loop
   .iterate(
@@ -47,5 +47,5 @@ val lambdaUser = scenario("Standard User")
   // Second request outside iteration
   .doHttpRequest("Ajout au panier",
     get(baseUrl),
-    regexp("""<input id="text1" type="text" value="(.*)" />""") in "input")
+    captureRegexp("""<input id="text1" type="text" value="(.*)" />""") in "input")
   .pause(pause1)
