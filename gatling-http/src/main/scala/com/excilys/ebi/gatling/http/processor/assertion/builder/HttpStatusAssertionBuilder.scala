@@ -1,5 +1,7 @@
 package com.excilys.ebi.gatling.http.processor.assertion.builder
 
+import com.excilys.ebi.gatling.core.context.Context
+
 import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
 import com.excilys.ebi.gatling.http.processor.assertion.HttpStatusAssertion
@@ -10,7 +12,7 @@ object HttpStatusAssertionBuilder {
   class HttpStatusAssertionBuilder(expected: Option[String], attrKey: Option[String])
       extends HttpAssertionBuilder[HttpStatusAssertionBuilder](None, expected, attrKey, Some(StatusReceived)) {
 
-    def newInstance(expression: Option[String], expected: Option[String], attrKey: Option[String], httpPhase: Option[HttpPhase]) = {
+    def newInstance(expression: Option[Context => String], expected: Option[String], attrKey: Option[String], httpPhase: Option[HttpPhase]) = {
       new HttpStatusAssertionBuilder(expected, attrKey)
     }
 

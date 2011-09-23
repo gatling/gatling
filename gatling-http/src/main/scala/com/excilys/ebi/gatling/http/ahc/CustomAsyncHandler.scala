@@ -110,7 +110,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
       throw new IllegalArgumentException;
     };
 
-    provider.capture(processor.expression)
+    provider.capture(processor.expressionFormatter.apply(context))
   }
 
   private def processResponse(httpPhase: HttpPhase, placeToSearch: Any): STATE = {
