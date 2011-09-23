@@ -155,6 +155,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
                 val result =
                   check.getCheckType match {
                     case EQUALITY => checkEquals(value.get, check.getExpected)
+                    case INEQUALITY => !checkEquals(value.get, check.getExpected)
                     case IN_RANGE => checkInRange(value.get, check.getExpected)
                     case EXISTENCE => true
                   }

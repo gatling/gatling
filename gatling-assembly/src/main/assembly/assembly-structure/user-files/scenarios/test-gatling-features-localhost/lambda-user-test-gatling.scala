@@ -18,7 +18,7 @@ val lambdaUser = scenario("Standard User")
         checkXpathExists(interpolate("//input[@value='{}']/@id", "aaaa_value")) in "ctxParam",
         checkRegexpExists("""<input id="text1" type="text" value="aaaa" />"""),
         checkStatusInRange(200 to 210) in "blablaParam",
-        checkXpathEquals("//input[@value='aaaa']/@id", "text1"),
+        checkXpathNotEquals("//input[@value='aaaa']/@id", "omg"),
         checkXpathEquals("//input[@id='text1']/@value", "aaaa") in "test2")
       .pause(pause2)
       .doHttpRequest("Url from context",

@@ -8,19 +8,17 @@ import com.excilys.ebi.gatling.http.processor.capture.HttpXPathCapture
 
 import org.apache.commons.lang3.StringUtils
 
-class HttpXPathCheck(expressionFormatter: Context => String, expected: String, attrKey: String, httpPhase: HttpPhase)
+class HttpXPathCheck(expressionFormatter: Context => String, expected: String, attrKey: String, httpPhase: HttpPhase, checkType: CheckType)
     extends HttpXPathCapture(expressionFormatter, attrKey, httpPhase) with HttpCheck {
 
-  def getCheckType = expected match {
-    case StringUtils.EMPTY => EXISTENCE
-    case _ => EQUALITY
-  }
+  def getCheckType = checkType
 
   def getExpected = expected
 
   override def toString = getCheckType match {
-    case EQUALITY => "HttpXPathCheck ('" + expressionFormatter + "' must be equal to '" + expected + "')"
     case EXISTENCE => "HttpXPathPresentCheck ('" + expressionFormatter + "' must be present)"
+    case EQUALITY => "HttpXPathCheck ('" + expressionFormatter + "' must be equal to '" + expected + "')"
+    case INEQUALITY => "HttpXPathCheck ('" + expressionFormatter + "' must NOT be equal to '" + expected + "')"
   }
 
   override def equals(that: Any) = {
@@ -28,7 +26,7 @@ class HttpXPathCheck(expressionFormatter: Context => String, expected: String, a
       false
     else {
       val other = that.asInstanceOf[HttpXPathCheck]
-      this.getCheckType == other.getCheckType && this.expressionFormatter == other.expressionFormatter && this.expected == other.getExpected
+      this.checkType == other.getCheckType && this.expressionFormatter == other.expressionFormatter && this.expected == other.getExpected
     }
   }
 

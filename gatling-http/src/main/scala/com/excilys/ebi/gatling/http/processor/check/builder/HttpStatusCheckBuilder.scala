@@ -1,6 +1,7 @@
 package com.excilys.ebi.gatling.http.processor.check.builder
 
 import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.processor.CheckType._
 
 import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.http.processor.check.HttpCheck
@@ -10,9 +11,9 @@ import org.apache.commons.lang3.StringUtils
 
 object HttpStatusCheckBuilder {
   class HttpStatusCheckBuilder(expected: Option[String], attrKey: Option[String])
-      extends HttpCheckBuilder[HttpStatusCheckBuilder](None, expected, attrKey, Some(StatusReceived)) {
+      extends HttpCheckBuilder[HttpStatusCheckBuilder](None, expected, attrKey, Some(StatusReceived), None) {
 
-    def newInstance(expression: Option[Context => String], expected: Option[String], attrKey: Option[String], httpPhase: Option[HttpPhase]) = {
+    def newInstance(expression: Option[Context => String], expected: Option[String], attrKey: Option[String], httpPhase: Option[HttpPhase], checkType: Option[CheckType]) = {
       new HttpStatusCheckBuilder(expected, attrKey)
     }
 
