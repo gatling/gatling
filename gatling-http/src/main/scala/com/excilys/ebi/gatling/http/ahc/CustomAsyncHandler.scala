@@ -3,24 +3,28 @@ package com.excilys.ebi.gatling.http.ahc
 import scala.collection.mutable.{ MultiMap, HashMap }
 import scala.collection.immutable.HashSet
 import scala.collection.{ Set => CSet }
+
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.context.builder.ContextBuilder._
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.provider.capture.RegExpCaptureProvider
+import com.excilys.ebi.gatling.core.provider.capture.XPathCaptureProvider
+import com.excilys.ebi.gatling.core.processor.Check._
+import com.excilys.ebi.gatling.core.processor.CheckType._
+import com.excilys.ebi.gatling.core.provider.ProviderType._
+import com.excilys.ebi.gatling.core.provider.capture.AbstractCaptureProvider
+import com.excilys.ebi.gatling.core.result.message.ResultStatus._
+import com.excilys.ebi.gatling.core.result.message.ActionInfo
+
 import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.http.provider.capture.HttpHeadersCaptureProvider
 import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
-import com.excilys.ebi.gatling.http.processor.assertion.HttpAssertion
+import com.excilys.ebi.gatling.http.processor.check.HttpCheck
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
 import com.excilys.ebi.gatling.http.provider.capture.HttpHeadersCaptureProvider
 import com.excilys.ebi.gatling.http.provider.capture.HttpStatusCaptureProvider
-import com.excilys.ebi.gatling.core.provider.capture.RegExpCaptureProvider
-import com.excilys.ebi.gatling.core.provider.capture.XPathCaptureProvider
-import com.excilys.ebi.gatling.core.processor.Assertion._
-import com.excilys.ebi.gatling.core.processor.AssertionType._
-import com.excilys.ebi.gatling.core.provider.ProviderType._
-import com.excilys.ebi.gatling.core.result.message.ResultStatus._
-import com.excilys.ebi.gatling.core.result.message.ActionInfo
+
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
 import com.ning.http.client.AsyncHandler
@@ -29,11 +33,13 @@ import com.ning.http.client.HttpResponseHeaders
 import com.ning.http.client.HttpResponseStatus
 import com.ning.http.client.Response
 import com.ning.http.client.FluentCaseInsensitiveStringsMap
+
 import akka.actor.Actor.registry._
+
 import org.apache.commons.lang3.StringUtils
+
 import java.util.Date
 import java.util.concurrent.TimeUnit
-import com.excilys.ebi.gatling.core.provider.capture.AbstractCaptureProvider
 
 class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpProcessor], next: Action, executionStartTime: Long, executionStartDate: Date, requestName: String)
     extends AsyncHandler[Response] with Logging {
@@ -142,26 +148,26 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
             } else {
               val contextAttribute = (c.getAttrKey, value.get.toString)
 
-              if (c.isInstanceOf[HttpAssertion]) {
-                // If the Capture is also an assertion
-                val a = c.asInstanceOf[HttpAssertion]
-                // Computing of the result of the assertion
+              if (c.isInstanceOf[HttpCheck]) {
+                // If the Capture is also a check
+                val check = c.asInstanceOf[HttpCheck]
+                // Computing of the result of the check
                 val result =
-                  a.getAssertionType match {
-                    case EQUALITY => assertEquals(value.get, a.getExpected)
-                    case IN_RANGE => assertInRange(value.get, a.getExpected)
+                  check.getCheckType match {
+                    case EQUALITY => checkEquals(value.get, check.getExpected)
+                    case IN_RANGE => checkInRange(value.get, check.getExpected)
                     case EXISTENCE => true
                   }
 
                 // If the result is true, then we store the value in the context if requested
                 if (result) {
-                  logger.debug("ASSERTION RESULT: {}", result)
+                  logger.debug("CHECK RESULT: {}", result)
                   if (c.getAttrKey != StringUtils.EMPTY)
                     contextBuilder = contextBuilder setAttribute contextAttribute
                 } else {
-                  logger.warn("ASSERTION RESULT: {} for {}", result, a)
+                  logger.warn("CHECK RESULT: {} for {}", result, check)
                   // Else, we write the failure in the logs
-                  sendLogAndExecuteNext(KO, "Assertion " + a + " failed", processingStartTime, response)
+                  sendLogAndExecuteNext(KO, "Check " + check + " failed", processingStartTime, response)
                   return STATE.ABORT
                 }
               } else {

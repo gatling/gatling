@@ -14,11 +14,11 @@ val lambdaUser = scenario("Standard User")
       .doHttpRequest(
         "Page accueil",
         get(baseUrl),
-        assertXpath("//input[@value='aaaa']/@id") in "ctxParam",
-        assertRegexp("""<input id="text1" type="text" value="aaaa" />"""),
-        assertStatusInRange(200 to 210) in "blablaParam",
-        assertXpath("//input[@value='aaaa']/@id", "text1"),
-        assertXpath("//input[@id='text1']/@value", "aaaa") in "test2")
+        checkXpath("//input[@value='aaaa']/@id") in "ctxParam",
+        checkRegexp("""<input id="text1" type="text" value="aaaa" />"""),
+        checkStatusInRange(200 to 210) in "blablaParam",
+        checkXpath("//input[@value='aaaa']/@id", "text1"),
+        checkXpath("//input[@id='text1']/@value", "aaaa") in "test2")
       .pause(pause2)
       .doHttpRequest("Url from context",
         get("http://localhost:3000/{}", "test2"))
@@ -27,7 +27,7 @@ val lambdaUser = scenario("Standard User")
       .doHttpRequest(
         "Create Thing blabla",
         post("http://localhost:3000/things") withQueryParam "login" withQueryParam "password" withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON) //,
-      //assertRegexp("""<input value="(.*)"/>""", "blabla"))
+      //checkRegexp("""<input value="(.*)"/>""", "blabla"))
       .pause(pause1)
       // Third request to be repeated
       .doHttpRequest(
@@ -37,12 +37,12 @@ val lambdaUser = scenario("Standard User")
       .doHttpRequest(
         "Test Page",
         get("http://localhost:3000/tests"),
-        assertHeader(CONTENT_TYPE, "text/html; charset=utf-8") in "ctxParam")
+        checkHeader(CONTENT_TYPE, "text/html; charset=utf-8") in "ctxParam")
       // Fourth request to be repeated
       .doHttpRequest(
         "Create Thing omgomg",
         post("http://localhost:3000/things") withQueryParam ("postTest", FromContext("ctxParam")) withTemplateBodyFromContext ("create_thing", Map("name" -> "ctxParam")) asJSON,
-        assertStatus(201) in "status"))
+        checkStatus(201) in "status"))
   // Second request outside iteration
   .doHttpRequest("Ajout au panier",
     get(baseUrl),

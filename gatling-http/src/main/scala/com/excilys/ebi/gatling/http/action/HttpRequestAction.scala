@@ -6,7 +6,7 @@ import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.http.ahc.CustomAsyncHandler
 import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.http.request.HttpRequest
-import com.excilys.ebi.gatling.http.processor.assertion.HttpStatusAssertion
+import com.excilys.ebi.gatling.http.processor.check.HttpStatusCheck
 import com.excilys.ebi.gatling.http.processor.builder.HttpProcessorBuilder
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
 
@@ -35,8 +35,8 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilde
     case None => {}
   }
 
-  // Adds default assertions (they won't be added if overridden by user)
-  processors.addBinding(StatusReceived, new HttpStatusAssertion((200 to 210).mkString(":"), ""))
+  // Adds default checks (they won't be added if overridden by user)
+  processors.addBinding(StatusReceived, new HttpStatusCheck((200 to 210).mkString(":"), ""))
 
   def execute(context: Context) = {
     val objects = new Array[java.lang.Object](3)
