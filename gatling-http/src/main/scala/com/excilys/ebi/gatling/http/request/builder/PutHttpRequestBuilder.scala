@@ -18,6 +18,6 @@ object PutHttpRequestBuilder {
     def getMethod = "PUT"
   }
 
-  def put(url: String, interpolations: String*) = new PutHttpRequestBuilder(Some((c: Context) => interpolate(c, url, interpolations)), Some(Map()), Some(Map()), None, None)
+  def put(url: String, interpolations: String*) = new PutHttpRequestBuilder(Some((c: Context) => interpolateString(c, url, interpolations)), Some(Map()), Some(Map()), None, None)
   def put(f: Context => String) = new PutHttpRequestBuilder(Some(f), Some(Map()), Some(Map()), None, None)
 }

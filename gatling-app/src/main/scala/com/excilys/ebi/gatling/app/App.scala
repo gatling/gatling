@@ -106,6 +106,7 @@ object App extends Logging {
     val fileHeader = """
 import com.excilys.ebi.gatling.core.feeder._
 import com.excilys.ebi.gatling.core.context._
+import com.excilys.ebi.gatling.core.util.StringHelper._
 import com.excilys.ebi.gatling.core.scenario.configuration.builder.ScenarioConfigurationBuilder._
 import com.excilys.ebi.gatling.http.scenario.builder.HttpScenarioBuilder._
 import com.excilys.ebi.gatling.http.processor.capture.builder.HttpRegExpCaptureBuilder._
@@ -125,6 +126,7 @@ import java.util.Date
 startDate.value = new Date
 
 def runSimulations = runSim(startDate.value)_
+def interpolate(urlToFormat: String, interpolations: String*) = (c: Context) => interpolateString(c, urlToFormat, interpolations)
 """
 
     val fileContent = fileHeader + newFileBodyContent

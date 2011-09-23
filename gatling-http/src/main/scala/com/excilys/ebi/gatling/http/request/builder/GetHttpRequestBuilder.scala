@@ -17,6 +17,6 @@ object GetHttpRequestBuilder {
     def getMethod = "GET"
   }
 
-  def get(url: String, interpolations: String*) = new GetHttpRequestBuilder(Some((c: Context) => interpolate(c, url, interpolations)), Some(Map()), Some(Map()), None)
+  def get(url: String, interpolations: String*) = new GetHttpRequestBuilder(Some((c: Context) => interpolateString(c, url, interpolations)), Some(Map()), Some(Map()), None)
   def get(f: Context => String) = new GetHttpRequestBuilder(Some(f), Some(Map()), Some(Map()), None)
 }

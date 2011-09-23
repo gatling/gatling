@@ -4,7 +4,7 @@ import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.log.Logging
 
 object StringHelper extends Logging {
-  def interpolate(context: Context, urlToFormat: String, interpolations: Seq[String]) = {
+  def interpolateString(context: Context, urlToFormat: String, interpolations: Seq[String]) = {
 
     interpolations.size match {
       case 0 => urlToFormat

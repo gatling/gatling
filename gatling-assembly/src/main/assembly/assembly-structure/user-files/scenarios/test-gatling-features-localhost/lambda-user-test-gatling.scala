@@ -2,7 +2,8 @@ val lambdaUser = scenario("Standard User")
   // First request outside iteration
   .doHttpRequest(
     "Catégorie Poney",
-    get(baseUrl))
+    get(baseUrl),
+    xpath("//input[@id='text1']/@value") in "aaaa_value")
   .pause(pause3)
   // Loop
   .iterate(
@@ -14,7 +15,7 @@ val lambdaUser = scenario("Standard User")
       .doHttpRequest(
         "Page accueil",
         get(baseUrl),
-        checkXpathExists("//input[@value='aaaa']/@id") in "ctxParam",
+        checkXpathExists(interpolate("//input[@value='{}']/@id", "aaaa_value")) in "ctxParam",
         checkRegexpExists("""<input id="text1" type="text" value="aaaa" />"""),
         checkStatusInRange(200 to 210) in "blablaParam",
         checkXpathEquals("//input[@value='aaaa']/@id", "text1"),

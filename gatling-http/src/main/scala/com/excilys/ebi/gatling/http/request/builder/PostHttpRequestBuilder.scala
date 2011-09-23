@@ -19,6 +19,6 @@ object PostHttpRequestBuilder {
     def getMethod = "POST"
   }
 
-  def post(url: String, interpolations: String*) = new PostHttpRequestBuilder(Some((c: Context) => interpolate(c, url, interpolations)), Some(Map()), Some(Map()), Some(Map()), None, None)
+  def post(url: String, interpolations: String*) = new PostHttpRequestBuilder(Some((c: Context) => interpolateString(c, url, interpolations)), Some(Map()), Some(Map()), Some(Map()), None, None)
   def post(f: Context => String) = new PostHttpRequestBuilder(Some(f), Some(Map()), Some(Map()), Some(Map()), None, None)
 }
