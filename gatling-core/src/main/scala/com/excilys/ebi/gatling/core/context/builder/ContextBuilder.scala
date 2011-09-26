@@ -2,10 +2,9 @@ package com.excilys.ebi.gatling.core.context.builder
 
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.context.Context
-
 import akka.actor.Uuid
-
 import com.ning.http.client.Cookie
+import scala.collection.mutable.HashMap
 
 abstract class TRUE
 
@@ -35,13 +34,21 @@ object ContextBuilder {
     def setDuration(value: Long) = unsetAttribute(Context.LAST_ACTION_DURATION_ATTR_NAME) setAttribute (Context.LAST_ACTION_DURATION_ATTR_NAME, value.toString)
 
     def setCookies(cookies: java.util.List[Cookie]) = {
-      var cookiesList: List[Cookie] = Nil
+      var cookiesMap: HashMap[String, Cookie] = new HashMap
+      for (cookie <- this.cookies.getOrElse(Nil))
+        cookiesMap += (cookie.getName -> cookie)
+
       val it = cookies.iterator
       while (it.hasNext) {
-        cookiesList = it.next :: cookiesList
+        val cookie = it.next
+        cookiesMap += (cookie.getName -> cookie)
       }
-      // FIXME: will use to many space in memory
-      new ContextBuilder[HSN, HUID, HWAU](scenarioName, userId, writeActorUuid, Some(cookiesList ::: this.cookies.getOrElse(Nil)), data)
+
+      var cookiesList: List[Cookie] = Nil
+      for (c <- cookiesMap)
+        cookiesList = c._2 :: cookiesList
+
+      new ContextBuilder[HSN, HUID, HWAU](scenarioName, userId, writeActorUuid, Some(cookiesList), data)
     }
   }
 
