@@ -33,6 +33,10 @@ import com.ning.http.client.HttpResponseHeaders
 import com.ning.http.client.HttpResponseStatus
 import com.ning.http.client.Response
 import com.ning.http.client.FluentCaseInsensitiveStringsMap
+import com.ning.http.client.Cookie
+import com.ning.http.util.AsyncHttpProviderUtils._
+
+import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
 
 import akka.actor.Actor.registry._
 
@@ -52,17 +56,16 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
   private var hasSentLog = false
 
-  private def isPhaseProcessed(httpPhase: HttpPhase): Boolean = {
-    // FIXME current cookie handling implementation requires to systematically process CompletePageReceived
-    processors.get(httpPhase).isDefined || httpPhase == CompletePageReceived
+  private def isPhaseToBeProcessed(httpPhase: HttpPhase): Boolean = {
+    processors.get(httpPhase).isDefined || httpPhase == HeadersReceived
   }
 
   private def isContinueAfterPhase(httpPhase: HttpPhase): Boolean = {
     httpPhase match {
       case StatusReceived =>
-        isPhaseProcessed(HeadersReceived) || isPhaseProcessed(CompletePageReceived)
+        isPhaseToBeProcessed(HeadersReceived) || isPhaseToBeProcessed(CompletePageReceived)
       case HeadersReceived =>
-        isPhaseProcessed(CompletePageReceived)
+        isPhaseToBeProcessed(CompletePageReceived)
       case CompletePageReceived =>
         false
       case _ =>
@@ -70,13 +73,10 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
     }
   }
 
-  private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String, processingStartTime: Long, response: Option[Response]) = {
+  private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String, processingStartTime: Long) = {
     if (!hasSentLog) {
       actorFor(context.getWriteActorUuid).map { a =>
         a ! ActionInfo(context.getScenarioName, context.getUserId, "Request " + requestName, executionStartDate, TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTime, TimeUnit.NANOSECONDS), requestResult, requestMessage)
-      }
-      response.map { r =>
-        contextBuilder = contextBuilder setCookies r.getCookies
       }
       next.execute(contextBuilder setDuration (System.nanoTime() - processingStartTime) build)
       hasSentLog = true
@@ -121,17 +121,11 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
   private def processResponse(httpPhase: HttpPhase, placeToSearch: Any): STATE = {
 
-    if (isPhaseProcessed(httpPhase)) {
-      val processingStartTime = System.nanoTime
+    val processingStartTime = System.nanoTime
+    if (isPhaseToBeProcessed(httpPhase)) {
       logger.debug("Processors at {} : {}", httpPhase, processors.get(httpPhase))
 
       val phaseProcessors = processors.get(httpPhase).getOrElse(new HashSet[HttpProcessor])
-
-      val response =
-        if (placeToSearch.isInstanceOf[Response])
-          Some(placeToSearch.asInstanceOf[Response])
-        else
-          None
 
       val providers = prepareProviders(phaseProcessors, placeToSearch)
 
@@ -144,7 +138,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
             logger.debug("Captured Value: {}", value)
 
             if (value.isEmpty && (!c.isInstanceOf[HttpCheck] || c.asInstanceOf[HttpCheck].getCheckType != INEXISTENCE)) {
-              sendLogAndExecuteNext(KO, "Capture " + c + " failed", processingStartTime, response)
+              sendLogAndExecuteNext(KO, "Capture " + c + " failed", processingStartTime)
             } else {
               var contextAttribute = (StringUtils.EMPTY, StringUtils.EMPTY)
               if (!value.isEmpty) {
@@ -172,7 +166,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
                 } else {
                   logger.warn("CHECK RESULT: false expected {} but received {}", check, value.get.toString)
                   // Else, we write the failure in the logs
-                  sendLogAndExecuteNext(KO, "Check " + check + " failed", processingStartTime, response)
+                  sendLogAndExecuteNext(KO, "Check " + check + " failed", processingStartTime)
                   return STATE.ABORT
                 }
               } else {
@@ -184,14 +178,14 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
           case _ => throw new IllegalArgumentException
         }
       }
-
-      // FIXME current cookie handling implementation requires to systematically process CompletePageReceived
-      if (httpPhase == CompletePageReceived) {
-        sendLogAndExecuteNext(OK, "Request Executed Successfully", processingStartTime, response)
-      }
     }
 
-    STATE.CONTINUE
+    if (isContinueAfterPhase(httpPhase))
+      STATE.CONTINUE
+    else {
+      sendLogAndExecuteNext(OK, "Request Executed Successfully", processingStartTime)
+      STATE.ABORT
+    }
   }
 
   def onStatusReceived(responseStatus: HttpResponseStatus): STATE = {
@@ -201,7 +195,17 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
   def onHeadersReceived(headers: HttpResponseHeaders): STATE = {
     responseBuilder.accumulate(headers)
-    processResponse(HeadersReceived, headers.getHeaders)
+    val headersMap = headers.getHeaders
+    var cookiesList = new java.util.ArrayList[Cookie]
+
+    val it = headersMap.get(SET_COOKIE).iterator
+    while (it.hasNext == true)
+      cookiesList.add(parseCookie(it.next))
+
+    logger.debug("Cookies extracted: {}", cookiesList)
+    contextBuilder setCookies cookiesList
+
+    processResponse(HeadersReceived, headersMap)
   }
 
   def onBodyPartReceived(bodyPart: HttpResponseBodyPart): STATE = {
@@ -217,7 +221,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
   def onThrowable(throwable: Throwable) = {
     logger.error("{}\n{}", throwable.getClass, throwable.getStackTraceString)
-    sendLogAndExecuteNext(KO, throwable.getMessage, System.nanoTime(), None)
+    sendLogAndExecuteNext(KO, throwable.getMessage, System.nanoTime())
   }
 
 }
