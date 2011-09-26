@@ -1,16 +1,19 @@
 /* URLs */
+//val urlBase = "http://192.168.10.53:8080/excilys-bank-web"
 val urlBase = "http://localhost:8080/excilys-bank-web"
-val urlLogin = urlBase + "/login"
-val urlAccueil = urlBase + "/private/bank/accounts.html"
+val urlLoginGet = urlBase + "/public/login.html"
+val urlLoginPost = urlBase + "/login"
+val urlHome = urlBase + "/private/bank/accounts.html"
+val urlLogout = urlBase + "/logout"
 
 /* Feeder */
 val usersInfos = new TSVFeeder("bank2", List("username", "password", "acc1", "acc2", "acc3", "acc4"))
 
 /* Scenarios */
-include("connection-feeder")
+include("users")
 
 /* Configuration */
-val scnConf = configureScenario(scn) withFeeder usersInfos withUsersNumber 100 withRampOf 100
+val scnConf = configureScenario(scn) withFeeder usersInfos withUsersNumber 1 withRampOf 1
 
 /* Simulation */
 runSimulations(scnConf)
