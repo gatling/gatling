@@ -13,7 +13,7 @@ val usersInfos = new TSVFeeder("bank2", List("username", "password", "acc1", "ac
 include("users")
 
 /* Configuration */
-val scnConf = configureScenario(scn) withFeeder usersInfos withUsersNumber 1 withRampOf 1
+val scnConf = configureScenario(scn) withFeeder usersInfos withUsersNumber 2000 withRampOf 400
 
 /* Simulation */
 runSimulations(scnConf)

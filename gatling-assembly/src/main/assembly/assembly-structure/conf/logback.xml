@@ -12,7 +12,7 @@
 	</appender>
 
 	<root>
-		<level value="DEBUG" />
+		<level value="WARN" />
 		<appender-ref ref="CONSOLE" />
 	</root>
 

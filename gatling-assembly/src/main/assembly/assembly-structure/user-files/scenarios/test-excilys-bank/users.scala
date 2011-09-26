@@ -58,7 +58,7 @@ val scn = scenario("User of Excilys Bank")
 				    , get(urlAccountOperationsData, "acc1")
 				    , checkStatus(200)
 				)
-				.pause(4)
+				.pause(3, 4)
 				
 				// Cards operations page
 				.doHttpRequest(
@@ -72,7 +72,7 @@ val scn = scenario("User of Excilys Bank")
 				    , get(urlAccountCardsData, "acc1")
 				    , checkStatus(200)
 				)
-				.pause(4)
+				.pause(3, 4)
 				
 				// Cards pending operations page
 				.doHttpRequest(
@@ -86,7 +86,7 @@ val scn = scenario("User of Excilys Bank")
 				    , get(urlAccountCardsData, "acc1")
 				    , checkStatus(200)
 				)
-				.pause(4)
+				.pause(3, 4)
 				
 				// Transfers page
 				.doHttpRequest(
@@ -100,14 +100,14 @@ val scn = scenario("User of Excilys Bank")
 				    , get(urlAccountTransfersData, "acc1")
 				    , checkStatus(200)
 				)
-				.pause(4)
+				.pause(3, 4)
 				
 				// Transfer perform page
 				.doHttpRequest(
 				    "Transfer perform"
 				    , get(urlAccountTransferPerform, "acc1")
 				)
-				.pause(6)
+				.pause(5, 6)
 				
 				// Transfer performing
 				.doHttpRequest(
@@ -118,7 +118,7 @@ val scn = scenario("User of Excilys Bank")
 				    	withParam ("amount", "10")
 				    , checkStatus(302)
 				)
-				.pause(4)
+				.pause(3, 4)
 		)
 		
 		// Logout
