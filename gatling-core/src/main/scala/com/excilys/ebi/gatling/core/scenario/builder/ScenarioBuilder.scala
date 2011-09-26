@@ -4,7 +4,6 @@ import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder._
 import com.excilys.ebi.gatling.core.action.builder.EndActionBuilder._
-
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -24,19 +23,27 @@ object ScenarioBuilder {
   def getExecutionTime(scenarioId: Int) = TimeUnit.SECONDS.convert(expectedExecutionDuration.get(scenarioId).get, TimeUnit.MILLISECONDS)
 
   abstract class ScenarioBuilder[B <: ScenarioBuilder[B]](name: String, actionBuilders: List[AbstractActionBuilder]) extends AbstractActionBuilder {
+
     def actionsList = actionBuilders
     def getName = name
 
     def newInstance(name: String, actionBuilders: List[AbstractActionBuilder]): B
 
     def pause(delayValue: Int): B = {
-      pause(delayValue, TimeUnit.SECONDS)
+      pause(delayValue, delayValue, TimeUnit.SECONDS)
     }
 
     def pause(delayValue: Int, delayUnit: TimeUnit): B = {
-      val pause = pauseActionBuilder withDuration delayValue withTimeUnit delayUnit
+      pause(delayValue, delayValue, delayUnit)
+    }
+
+    def pause(delayMinValue: Int, delayMaxValue: Int): B = {
+      pause(delayMinValue * 1000, delayMaxValue * 1000, TimeUnit.MILLISECONDS)
+    }
+
+    def pause(delayMinValue: Int, delayMaxValue: Int, delayUnit: TimeUnit): B = {
       logger.debug("Adding PauseAction")
-      newInstance(name, pause :: actionBuilders)
+      newInstance(name, (pauseActionBuilder withMinDuration delayMinValue withMaxDuration delayMaxValue withTimeUnit delayUnit) :: actionBuilders)
     }
 
     def insertChain(chain: B): B = {

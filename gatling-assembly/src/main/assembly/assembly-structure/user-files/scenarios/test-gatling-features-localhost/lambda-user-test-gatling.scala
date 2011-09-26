@@ -7,7 +7,7 @@ val lambdaUser = scenario("Standard User")
     "Catégorie Poney",
     get(baseUrl),
     captureXpath("//input[@id='text1']/@value") in "aaaa_value")
-  .pause(pause3)
+  .pause(pause2, pause3)
   // Loop
   .iterate(
     // How many times ?
@@ -28,7 +28,7 @@ val lambdaUser = scenario("Standard User")
       .pause(pause2)
       .doHttpRequest("Url from context",
         get("http://localhost:3000/{}", "test2"))
-      .pause(pause1)
+      .pause(1000, 3000, TimeUnit.MILLISECONDS)
       // Second request to be repeated
       .doHttpRequest(
         "Create Thing blabla",
