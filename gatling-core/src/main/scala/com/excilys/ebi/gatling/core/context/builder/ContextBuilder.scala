@@ -48,7 +48,7 @@ object ContextBuilder {
       for (c <- cookiesMap)
         cookiesList = c._2 :: cookiesList
 
-      logger.debug("Cookies in Context: {}", cookiesList)
+      logger.debug("Cookies put in ContextBuilder: {}", cookiesList)
       new ContextBuilder[HSN, HUID, HWAU](scenarioName, userId, writeActorUuid, Some(cookiesList), data)
     }
   }

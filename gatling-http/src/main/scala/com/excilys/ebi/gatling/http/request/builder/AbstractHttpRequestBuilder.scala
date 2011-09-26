@@ -23,8 +23,8 @@ import com.excilys.ebi.gatling.http.request.MIMEType._
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
 
 abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val urlFormatter: Option[Context => String], val queryParams: Option[Map[String, Param]],
-  val headers: Option[Map[String, String]], val followsRedirects: Option[Boolean])
-  extends Logging {
+                                                                              val headers: Option[Map[String, String]], val followsRedirects: Option[Boolean])
+    extends Logging {
 
   def newInstance(urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], followsRedirects: Option[Boolean]): B
 
@@ -80,6 +80,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
   }
 
   private def addCookiesTo(requestBuilder: RequestBuilder, context: Context) = {
+    logger.debug("Adding Cookies to RequestBuilder: {}", context.getCookies)
     for (cookie <- context.getCookies) { requestBuilder.addOrReplaceCookie(cookie) }
   }
 

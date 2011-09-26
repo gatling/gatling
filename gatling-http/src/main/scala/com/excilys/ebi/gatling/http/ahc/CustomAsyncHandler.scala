@@ -78,7 +78,11 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
       actorFor(context.getWriteActorUuid).map { a =>
         a ! ActionInfo(context.getScenarioName, context.getUserId, "Request " + requestName, executionStartDate, TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTime, TimeUnit.NANOSECONDS), requestResult, requestMessage)
       }
-      next.execute(contextBuilder setDuration (System.nanoTime() - processingStartTime) build)
+
+      val sentContext = contextBuilder setDuration (System.nanoTime() - processingStartTime) build
+
+      logger.debug("Context Cookies sent to next action: {}", sentContext.getCookies)
+      next.execute(sentContext)
       hasSentLog = true
     }
   }
@@ -203,7 +207,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
       cookiesList.add(parseCookie(it.next))
 
     logger.debug("Cookies extracted: {}", cookiesList)
-    contextBuilder setCookies cookiesList
+    contextBuilder = contextBuilder setCookies cookiesList
 
     processResponse(HeadersReceived, headersMap)
   }
