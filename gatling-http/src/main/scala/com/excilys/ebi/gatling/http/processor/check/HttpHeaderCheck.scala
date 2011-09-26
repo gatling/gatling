@@ -17,6 +17,7 @@ class HttpHeaderCheck(headerNameFormatter: Context => String, expected: String, 
 
   override def toString = checkType match {
     case EXISTENCE => "HttpHeaderPresentCheck (Header " + expressionFormatter + " must be present')"
+    case INEXISTENCE => "HttpHeaderPresentCheck (Header " + expressionFormatter + " must NOT be present')"
     case EQUALITY => "HttpHeaderCheck (Header " + expressionFormatter + "'s value must be equal to '" + expected + "')"
     case INEQUALITY => "HttpHeaderCheck (Header " + expressionFormatter + "'s value must NOT be equal to '" + expected + "')"
   }

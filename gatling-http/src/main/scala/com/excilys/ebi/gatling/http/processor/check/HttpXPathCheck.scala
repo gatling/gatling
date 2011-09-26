@@ -17,6 +17,7 @@ class HttpXPathCheck(expressionFormatter: Context => String, expected: String, a
 
   override def toString = getCheckType match {
     case EXISTENCE => "HttpXPathPresentCheck ('" + expressionFormatter + "' must be present)"
+    case INEXISTENCE => "HttpXPathPresentCheck ('" + expressionFormatter + "' must NOT be present)"
     case EQUALITY => "HttpXPathCheck ('" + expressionFormatter + "' must be equal to '" + expected + "')"
     case INEQUALITY => "HttpXPathCheck ('" + expressionFormatter + "' must NOT be equal to '" + expected + "')"
   }

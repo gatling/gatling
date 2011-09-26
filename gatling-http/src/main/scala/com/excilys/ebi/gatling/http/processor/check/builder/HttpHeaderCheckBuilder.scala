@@ -29,4 +29,7 @@ object HttpHeaderCheckBuilder {
 
   def checkHeaderExists(headerNameFormatter: Context => String) = new HttpHeaderCheckBuilder(Some(headerNameFormatter), Some(StringUtils.EMPTY), Some(StringUtils.EMPTY), Some(EXISTENCE))
   def checkHeaderExists(headerName: String): HttpHeaderCheckBuilder = checkHeaderExists((c: Context) => headerName)
+
+  def checkHeaderNotExists(headerNameFormatter: Context => String) = new HttpHeaderCheckBuilder(Some(headerNameFormatter), Some(StringUtils.EMPTY), Some(StringUtils.EMPTY), Some(INEXISTENCE))
+  def checkHeaderNotExists(headerName: String): HttpHeaderCheckBuilder = checkHeaderNotExists((c: Context) => headerName)
 }

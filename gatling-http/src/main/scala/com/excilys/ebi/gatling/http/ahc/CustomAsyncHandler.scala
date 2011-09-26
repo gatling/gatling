@@ -42,7 +42,7 @@ import java.util.Date
 import java.util.concurrent.TimeUnit
 
 class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpProcessor], next: Action, executionStartTime: Long, executionStartDate: Date, requestName: String)
-  extends AsyncHandler[Response] with Logging {
+    extends AsyncHandler[Response] with Logging {
 
   private val identifier = requestName + context.getUserId
 
@@ -143,10 +143,13 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
             val value = captureData(c, providers)
             logger.debug("Captured Value: {}", value)
 
-            if (value.isEmpty) {
+            if (value.isEmpty && (!c.isInstanceOf[HttpCheck] || c.asInstanceOf[HttpCheck].getCheckType != INEXISTENCE)) {
               sendLogAndExecuteNext(KO, "Capture " + c + " failed", processingStartTime, response)
             } else {
-              val contextAttribute = (c.getAttrKey, value.get.toString)
+              var contextAttribute = (StringUtils.EMPTY, StringUtils.EMPTY)
+              if (!value.isEmpty) {
+                contextAttribute = (c.getAttrKey, value.get.toString)
+              }
 
               if (c.isInstanceOf[HttpCheck]) {
                 // If the Capture is also a check
@@ -158,6 +161,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
                     case INEQUALITY => !checkEquals(value.get, check.getExpected)
                     case IN_RANGE => checkInRange(value.get, check.getExpected)
                     case EXISTENCE => true
+                    case INEXISTENCE => value.isEmpty
                   }
 
                 // If the result is true, then we store the value in the context if requested

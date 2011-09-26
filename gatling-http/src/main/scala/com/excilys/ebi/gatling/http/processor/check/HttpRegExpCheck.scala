@@ -17,6 +17,7 @@ class HttpRegExpCheck(expressionFormatter: Context => String, val expected: Stri
 
   override def toString = getCheckType match {
     case EXISTENCE => "HttpRegExpPresentCheck ('" + expressionFormatter + "' must be present in response)"
+    case INEXISTENCE => "HttpRegExpPresentCheck ('" + expressionFormatter + "' must NOT be present in response)"
     case EQUALITY => "HttpRegExpCheck ('" + expressionFormatter + "' must be equal to '" + expected + "')"
     case INEQUALITY => "HttpRegExpCheck ('" + expressionFormatter + "' must NOT be equal to '" + expected + "')"
   }

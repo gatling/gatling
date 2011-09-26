@@ -28,4 +28,7 @@ object HttpXPathCheckBuilder {
 
   def checkXpathExists(expressionFormatter: Context => String) = new HttpXPathCheckBuilder(Some(expressionFormatter), Some(StringUtils.EMPTY), Some(StringUtils.EMPTY), Some(CompletePageReceived), Some(EXISTENCE))
   def checkXpathExists(expression: String): HttpXPathCheckBuilder = checkXpathExists((c: Context) => expression)
+
+  def checkXpathNotExists(expressionFormatter: Context => String) = new HttpXPathCheckBuilder(Some(expressionFormatter), Some(StringUtils.EMPTY), Some(StringUtils.EMPTY), Some(CompletePageReceived), Some(INEXISTENCE))
+  def checkXpathNotExists(expression: String): HttpXPathCheckBuilder = checkXpathNotExists((c: Context) => expression)
 }

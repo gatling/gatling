@@ -29,4 +29,7 @@ object HttpRegExpCheckBuilder {
 
   def checkRegexpExists(expressionFormatter: Context => String) = new HttpRegExpCheckBuilder(Some(expressionFormatter), Some(StringUtils.EMPTY), Some(StringUtils.EMPTY), Some(CompletePageReceived), Some(EXISTENCE))
   def checkRegexpExists(expression: String): HttpRegExpCheckBuilder = checkRegexpExists((c: Context) => expression)
+
+  def checkRegexpNotExists(expressionFormatter: Context => String) = new HttpRegExpCheckBuilder(Some(expressionFormatter), Some(StringUtils.EMPTY), Some(StringUtils.EMPTY), Some(CompletePageReceived), Some(INEXISTENCE))
+  def checkRegexpNotExists(expression: String): HttpRegExpCheckBuilder = checkRegexpNotExists((c: Context) => expression)
 }
