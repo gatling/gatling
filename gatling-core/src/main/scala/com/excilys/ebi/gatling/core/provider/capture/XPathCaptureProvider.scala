@@ -3,6 +3,7 @@ package com.excilys.ebi.gatling.core.provider.capture
 import com.ximpleware.CustomVTDGen
 import com.ximpleware.VTDNav
 import com.ximpleware.AutoPilot
+import org.apache.commons.lang3.StringUtils
 
 class XPathCaptureProvider(xmlContent: Array[Byte]) extends AbstractCaptureProvider {
 
@@ -16,9 +17,12 @@ class XPathCaptureProvider(xmlContent: Array[Byte]) extends AbstractCaptureProvi
   def capture(expression: Any): Option[String] = {
     logger.debug("[XPathCaptureProvider] Capturing with expression : {}", expression)
     ap.selectXPath(expression.toString)
-    val value = Some(ap.evalXPathToString)
+    val result = ap.evalXPathToString
+    val value = if (result.equals(StringUtils.EMPTY))
+      None
+    else
+      Some(ap.evalXPathToString)
     logger.debug("XPATH CAPTURE: {}", value)
     value
   }
-
 }
