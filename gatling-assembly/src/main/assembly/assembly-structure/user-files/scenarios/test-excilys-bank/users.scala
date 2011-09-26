@@ -21,13 +21,12 @@ val urlAccountTransferPerform = urlBase + "/private/bank/account/{}/transfers/pe
 /* Scenario */
 val scn = scenario("User of Excilys Bank")
 		// Login page
-		// Not yet working (Now working, but not included in the test) 
-		/*.doHttpRequest(
+		.doHttpRequest(
 		    "Login GET"
 		    , get(urlLoginGet)
 		    , checkStatus(200)
 		)
-		.pause(4)*/
+		.pause(3, 4)
 		// Authenticating
 		.doHttpRequest(
 		    "Authenticating"
@@ -41,8 +40,7 @@ val scn = scenario("User of Excilys Bank")
 		    , get(urlHome)
 		    , checkRegexpExists("""<a href="/excilys-bank-web/logout" class="button blue">Log out</a>""")
 		)
-		.pause(15)
-		
+		.pause(3, 4)
 		.iterate(
 		    20
 		    , chain
