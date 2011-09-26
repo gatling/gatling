@@ -202,12 +202,15 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
     val headersMap = headers.getHeaders
     var cookiesList = new java.util.ArrayList[Cookie]
 
-    val it = headersMap.get(SET_COOKIE).iterator
-    while (it.hasNext == true)
-      cookiesList.add(parseCookie(it.next))
+    val setCookieHeaders = headersMap.get(SET_COOKIE)
+    if (setCookieHeaders != null) {
+      val it = headersMap.get(SET_COOKIE).iterator
+      while (it.hasNext == true)
+        cookiesList.add(parseCookie(it.next))
 
-    logger.debug("Cookies extracted: {}", cookiesList)
-    contextBuilder = contextBuilder setCookies cookiesList
+      logger.debug("Cookies extracted: {}", cookiesList)
+      contextBuilder = contextBuilder setCookies cookiesList
+    }
 
     processResponse(HeadersReceived, headersMap)
   }
