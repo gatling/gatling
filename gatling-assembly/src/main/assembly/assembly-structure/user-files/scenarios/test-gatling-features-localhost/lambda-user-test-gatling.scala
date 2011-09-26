@@ -1,4 +1,7 @@
+val loginChain = chain.doHttpRequest("First Request Chain", get(baseUrl))
+
 val lambdaUser = scenario("Standard User")
+  .insertChain(loginChain)
   // First request outside iteration
   .doHttpRequest(
     "Catégorie Poney",

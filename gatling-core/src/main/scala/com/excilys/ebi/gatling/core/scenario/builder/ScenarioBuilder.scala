@@ -39,6 +39,10 @@ object ScenarioBuilder {
       newInstance(name, pause :: actionBuilders)
     }
 
+    def insertChain(chain: B): B = {
+      newInstance(name, chain.actionsList ::: actionBuilders)
+    }
+
     def iterate(times: Int, chain: B): B = {
       val chainActions: List[AbstractActionBuilder] = chain.actionsList
       var iteratedActions: List[AbstractActionBuilder] = Nil
