@@ -44,7 +44,7 @@ val lambdaUser = scenario("Standard User")
       // Fourth request to be repeated
       .doHttpRequest(
         "Create Thing omgomg",
-        post("http://localhost:3000/things") withQueryParam ("postTest", FromContext("ctxParam")) withTemplateBodyFromContext ("create_thing", Map("name" -> "ctxParam")) asJSON,
+        post("http://localhost:3000/things") withQueryParam ("postTest", FromContext("ctxParam")) withTemplateBody ("create_thing", Map("name" -> FromContext("ctxParam"))) asJSON,
         checkStatus(201) in "status"))
   // Second request outside iteration
   .doHttpRequest("Ajout au panier",

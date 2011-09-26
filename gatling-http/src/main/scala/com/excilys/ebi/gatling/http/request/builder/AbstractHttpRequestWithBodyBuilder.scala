@@ -5,6 +5,7 @@ import org.fusesource.scalate._
 import com.ning.http.client.RequestBuilder
 
 import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.context.FromContext
 import com.excilys.ebi.gatling.core.util.PathHelper._
 import com.excilys.ebi.gatling.core.util.FileHelper._
 
@@ -19,8 +20,8 @@ import com.excilys.ebi.gatling.http.request.ContextParam
 import java.io.File
 
 abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]],
-  headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean])
-  extends AbstractHttpRequestBuilder[B](urlFormatter, queryParams, headers, followsRedirects) {
+                                                                                              headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean])
+    extends AbstractHttpRequestBuilder[B](urlFormatter, queryParams, headers, followsRedirects) {
 
   override def getRequestBuilder(context: Context): RequestBuilder = {
     val requestBuilder = super.getRequestBuilder(context)
@@ -43,12 +44,15 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
     newInstance(urlFormatter, queryParams, headers, Some(StringBody(body)), followsRedirects)
   }
 
-  def withTemplateBodyFromContext(tplPath: String, values: Map[String, String]): B = {
-    newInstance(urlFormatter, queryParams, headers, Some(TemplateBody(tplPath, values.map { value => (value._1, ContextParam(value._2)) })), followsRedirects)
-  }
-
-  def withTemplateBody(tplPath: String, values: Map[String, String]): B = {
-    newInstance(urlFormatter, queryParams, headers, Some(TemplateBody(tplPath, values.map { value => (value._1, StringParam(value._2)) })), followsRedirects)
+  def withTemplateBody(tplPath: String, values: Map[String, Any]): B = {
+    val encapsulatedValues: Map[String, Param] = values.map {
+      value =>
+        (value._1, value._2 match {
+          case FromContext(s) => ContextParam(s)
+          case s => StringParam(s.toString)
+        })
+    }
+    newInstance(urlFormatter, queryParams, headers, Some(TemplateBody(tplPath, encapsulatedValues)), followsRedirects)
   }
 
   def addBodyTo(requestBuilder: RequestBuilder, body: Option[HttpRequestBody], context: Context) = {
