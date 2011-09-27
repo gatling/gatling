@@ -50,6 +50,8 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
   private var hasSentLog = new AtomicBoolean(false)
 
+  private var processingStartTime = 0L
+
   private def isPhaseToBeProcessed(httpPhase: HttpPhase): Boolean = {
     (processors.get(httpPhase).isDefined && !hasSentLog.get()) || httpPhase == HeadersReceived
   }
@@ -118,7 +120,6 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
   private def processResponse(httpPhase: HttpPhase, placeToSearch: Any) {
 
-    val processingStartTime = System.nanoTime
     if (isPhaseToBeProcessed(httpPhase)) {
       logger.debug("Processors at {} : {}", httpPhase, processors.get(httpPhase))
 
@@ -176,12 +177,12 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
         }
       }
     }
-
-    if (!isContinueAfterPhase(httpPhase))
-      sendLogAndExecuteNext(OK, "Request Executed Successfully", processingStartTime)
   }
 
   def onStatusReceived(responseStatus: HttpResponseStatus): STATE = {
+
+    processingStartTime = System.nanoTime()
+
     if (isPhaseToBeProcessed(StatusReceived)) {
       responseBuilder.accumulate(responseStatus)
       processResponse(StatusReceived, responseStatus.getStatusCode)
@@ -222,6 +223,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
       val response = responseBuilder.build
       processResponse(CompletePageReceived, response)
     }
+    sendLogAndExecuteNext(OK, "Request Executed Successfully", processingStartTime)
     null
   }
 
