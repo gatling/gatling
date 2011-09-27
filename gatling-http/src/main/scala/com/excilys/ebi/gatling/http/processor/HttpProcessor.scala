@@ -1,7 +1,7 @@
 package com.excilys.ebi.gatling.http.processor
 
 import com.excilys.ebi.gatling.core.processor.Processor
-import com.excilys.ebi.gatling.core.provider.ProviderType._
+import com.excilys.ebi.gatling.core.provider.ProviderType
 
 import com.excilys.ebi.gatling.http.request.HttpPhase._
 

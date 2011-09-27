@@ -2,7 +2,7 @@ package com.excilys.ebi.gatling.http.processor.capture
 
 import com.excilys.ebi.gatling.core.context.Context
 
-import com.excilys.ebi.gatling.core.provider.ProviderType._
+import com.excilys.ebi.gatling.core.provider.ProviderType
 
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
 import com.excilys.ebi.gatling.http.request.HttpPhase._

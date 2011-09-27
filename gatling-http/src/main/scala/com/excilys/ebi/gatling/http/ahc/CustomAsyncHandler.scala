@@ -11,7 +11,7 @@ import com.excilys.ebi.gatling.core.provider.capture.RegExpCaptureProvider
 import com.excilys.ebi.gatling.core.provider.capture.XPathCaptureProvider
 import com.excilys.ebi.gatling.core.processor.Check._
 import com.excilys.ebi.gatling.core.processor.CheckType._
-import com.excilys.ebi.gatling.core.provider.ProviderType._
+import com.excilys.ebi.gatling.core.provider.ProviderType
 import com.excilys.ebi.gatling.core.provider.capture.AbstractCaptureProvider
 import com.excilys.ebi.gatling.core.result.message.ResultStatus._
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
 class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpProcessor], next: Action, executionStartTime: Long, executionStartDate: Date, requestName: String)
-  extends AsyncHandler[Response] with Logging {
+    extends AsyncHandler[Response] with Logging {
 
   private val identifier = requestName + context.getUserId
 
@@ -86,24 +86,9 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
     val providers: HashMap[ProviderType, AbstractCaptureProvider] = HashMap.empty
     processors.foreach { processor =>
-
-      processor.getProviderType match {
-        case REGEXP_PROVIDER =>
-          logger.debug("Prepared REGEXP_PROVIDER")
-          providers += REGEXP_PROVIDER -> new RegExpCaptureProvider(placeToSearch.asInstanceOf[Response].getResponseBody)
-
-        case XPATH_PROVIDER =>
-          logger.debug("Prepared XPATH_PROVIDER")
-          providers += XPATH_PROVIDER -> new XPathCaptureProvider(placeToSearch.asInstanceOf[Response].getResponseBodyAsBytes)
-
-        case HTTP_HEADERS_PROVIDER =>
-          logger.debug("Prepared HTTP_HEADER_PROVIDER")
-          providers += HTTP_HEADERS_PROVIDER -> new HttpHeadersCaptureProvider(placeToSearch.asInstanceOf[FluentCaseInsensitiveStringsMap])
-
-        case HTTP_STATUS_PROVIDER =>
-          logger.debug("Prepared HTTP_STATUS_PROVIDER")
-          providers += HTTP_STATUS_PROVIDER -> new HttpStatusCaptureProvider(placeToSearch.asInstanceOf[Int])
-      }
+      val providerType = processor.getProviderType
+      if (providers.get(providerType).isEmpty)
+        providers += (providerType -> providerType.getProvider(placeToSearch))
     }
 
     providers
