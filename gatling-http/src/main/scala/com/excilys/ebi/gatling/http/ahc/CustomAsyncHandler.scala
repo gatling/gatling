@@ -3,7 +3,6 @@ package com.excilys.ebi.gatling.http.ahc
 import scala.collection.mutable.{ MultiMap, HashMap }
 import scala.collection.immutable.HashSet
 import scala.collection.{ Set => CSet }
-
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.context.builder.ContextBuilder._
@@ -16,7 +15,6 @@ import com.excilys.ebi.gatling.core.provider.ProviderType._
 import com.excilys.ebi.gatling.core.provider.capture.AbstractCaptureProvider
 import com.excilys.ebi.gatling.core.result.message.ResultStatus._
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
-
 import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.http.provider.capture.HttpHeadersCaptureProvider
 import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
@@ -24,7 +22,6 @@ import com.excilys.ebi.gatling.http.processor.check.HttpCheck
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
 import com.excilys.ebi.gatling.http.provider.capture.HttpHeadersCaptureProvider
 import com.excilys.ebi.gatling.http.provider.capture.HttpStatusCaptureProvider
-
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
 import com.ning.http.client.AsyncHandler
@@ -35,18 +32,15 @@ import com.ning.http.client.Response
 import com.ning.http.client.FluentCaseInsensitiveStringsMap
 import com.ning.http.client.Cookie
 import com.ning.http.util.AsyncHttpProviderUtils._
-
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
-
 import akka.actor.Actor.registry._
-
 import org.apache.commons.lang3.StringUtils
-
 import java.util.Date
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpProcessor], next: Action, executionStartTime: Long, executionStartDate: Date, requestName: String)
-    extends AsyncHandler[Response] with Logging {
+  extends AsyncHandler[Response] with Logging {
 
   private val identifier = requestName + context.getUserId
 
@@ -54,10 +48,10 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
   private var contextBuilder = newContext fromContext context
 
-  private var hasSentLog = false
+  private var hasSentLog = new AtomicBoolean(false)
 
   private def isPhaseToBeProcessed(httpPhase: HttpPhase): Boolean = {
-    processors.get(httpPhase).isDefined || httpPhase == HeadersReceived
+    (processors.get(httpPhase).isDefined && !hasSentLog.get()) || httpPhase == HeadersReceived
   }
 
   private def isContinueAfterPhase(httpPhase: HttpPhase): Boolean = {
@@ -74,7 +68,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
   }
 
   private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String, processingStartTime: Long) = {
-    if (!hasSentLog) {
+    if (hasSentLog.compareAndSet(false, true)) {
       actorFor(context.getWriteActorUuid).map { a =>
         a ! ActionInfo(context.getScenarioName, context.getUserId, "Request " + requestName, executionStartDate, TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTime, TimeUnit.NANOSECONDS), requestResult, requestMessage)
       }
@@ -83,7 +77,6 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
       logger.debug("Context Cookies sent to next action: {}", sentContext.getCookies)
       next.execute(sentContext)
-      hasSentLog = true
     }
   }
 
@@ -123,7 +116,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
     provider.capture(processor.expressionFormatter.apply(context))
   }
 
-  private def processResponse(httpPhase: HttpPhase, placeToSearch: Any): STATE = {
+  private def processResponse(httpPhase: HttpPhase, placeToSearch: Any) {
 
     val processingStartTime = System.nanoTime
     if (isPhaseToBeProcessed(httpPhase)) {
@@ -171,7 +164,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
                   logger.warn("CHECK RESULT: false expected {} but received {}", check, value.get.toString)
                   // Else, we write the failure in the logs
                   sendLogAndExecuteNext(KO, "Check " + check + " failed", processingStartTime)
-                  return STATE.ABORT
+                  return
                 }
               } else {
                 if (c.getAttrKey != StringUtils.EMPTY)
@@ -184,45 +177,51 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
       }
     }
 
-    if (isContinueAfterPhase(httpPhase))
-      STATE.CONTINUE
-    else {
+    if (!isContinueAfterPhase(httpPhase))
       sendLogAndExecuteNext(OK, "Request Executed Successfully", processingStartTime)
-      STATE.ABORT
-    }
   }
 
   def onStatusReceived(responseStatus: HttpResponseStatus): STATE = {
-    responseBuilder.accumulate(responseStatus)
-    processResponse(StatusReceived, responseStatus.getStatusCode)
+    if (isPhaseToBeProcessed(StatusReceived)) {
+      responseBuilder.accumulate(responseStatus)
+      processResponse(StatusReceived, responseStatus.getStatusCode)
+    }
+    STATE.CONTINUE
   }
 
   def onHeadersReceived(headers: HttpResponseHeaders): STATE = {
-    responseBuilder.accumulate(headers)
-    val headersMap = headers.getHeaders
-    var cookiesList = new java.util.ArrayList[Cookie]
+    if (isPhaseToBeProcessed(HeadersReceived)) {
+      responseBuilder.accumulate(headers)
+      val headersMap = headers.getHeaders
+      var cookiesList = new java.util.ArrayList[Cookie]
 
-    val setCookieHeaders = headersMap.get(SET_COOKIE)
-    if (setCookieHeaders != null) {
-      val it = headersMap.get(SET_COOKIE).iterator
-      while (it.hasNext == true)
-        cookiesList.add(parseCookie(it.next))
+      val setCookieHeaders = headersMap.get(SET_COOKIE)
+      if (setCookieHeaders != null) {
+        val it = headersMap.get(SET_COOKIE).iterator
+        while (it.hasNext)
+          cookiesList.add(parseCookie(it.next))
 
-      logger.debug("Cookies extracted: {}", cookiesList)
-      contextBuilder = contextBuilder setCookies cookiesList
+        logger.debug("Cookies extracted: {}", cookiesList)
+        contextBuilder = contextBuilder setCookies cookiesList
+      }
+
+      processResponse(HeadersReceived, headersMap)
     }
-
-    processResponse(HeadersReceived, headersMap)
+    STATE.CONTINUE
   }
 
   def onBodyPartReceived(bodyPart: HttpResponseBodyPart): STATE = {
-    responseBuilder.accumulate(bodyPart)
+    if (isPhaseToBeProcessed(CompletePageReceived)) {
+      responseBuilder.accumulate(bodyPart)
+    }
     STATE.CONTINUE
   }
 
   def onCompleted(): Response = {
-    val response = responseBuilder.build
-    processResponse(CompletePageReceived, response)
+    if (isPhaseToBeProcessed(CompletePageReceived)) {
+      val response = responseBuilder.build
+      processResponse(CompletePageReceived, response)
+    }
     null
   }
 
