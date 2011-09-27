@@ -26,7 +26,7 @@ val scn = scenario("User of Excilys Bank")
 		    , get(urlLoginGet)
 		    , checkStatus(200)
 		)
-		.pause(3, 4)
+		.pause(5, 6)
 		// Authenticating
 		.doHttpRequest(
 		    "Authenticating"
@@ -40,7 +40,7 @@ val scn = scenario("User of Excilys Bank")
 		    , get(urlHome)
 		    , checkRegexpExists("""<a href="/excilys-bank-web/logout" class="button blue">Log out</a>""")
 		)
-		.pause(3, 4)
+		.pause(5, 6)
 		.iterate(
 		    20
 		    , chain
@@ -56,7 +56,7 @@ val scn = scenario("User of Excilys Bank")
 				    , get(urlAccountOperationsData, "acc1")
 				    , checkStatus(200)
 				)
-				.pause(3, 4)
+				.pause(5, 6)
 				
 				// Cards operations page
 				.doHttpRequest(
@@ -70,7 +70,7 @@ val scn = scenario("User of Excilys Bank")
 				    , get(urlAccountCardsData, "acc1")
 				    , checkStatus(200)
 				)
-				.pause(3, 4)
+				.pause(5, 6)
 				
 				// Cards pending operations page
 				.doHttpRequest(
@@ -84,7 +84,7 @@ val scn = scenario("User of Excilys Bank")
 				    , get(urlAccountCardsData, "acc1")
 				    , checkStatus(200)
 				)
-				.pause(3, 4)
+				.pause(5, 6)
 				
 				// Transfers page
 				.doHttpRequest(
@@ -98,7 +98,7 @@ val scn = scenario("User of Excilys Bank")
 				    , get(urlAccountTransfersData, "acc1")
 				    , checkStatus(200)
 				)
-				.pause(3, 4)
+				.pause(5, 6)
 				
 				// Transfer perform page
 				.doHttpRequest(
@@ -116,7 +116,7 @@ val scn = scenario("User of Excilys Bank")
 				    	withParam ("amount", "10")
 				    , checkStatus(302)
 				)
-				.pause(3, 4)
+				.pause(5, 6)
 		)
 		
 		// Logout
