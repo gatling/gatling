@@ -82,13 +82,13 @@ val scn = scenario("User of Excilys Bank")
 				// Cards pending operations page
 				.doHttpRequest(
 					"Cards pending details",
-					get(urlAccountCards, "acc1") withHeaders(headers),
+					get(urlAccountCardsPending, "acc1") withHeaders(headers),
 					checkRegexpExists("""<table class="accountDetails">""")
 				)
 				// Load cards pending operations data
 				.doHttpRequest(
 				    "Cards pending data",
-				    get(urlAccountCardsData, "acc1") withHeaders(headers),
+				    get(urlAccountCardsPendingData, "acc1") withHeaders(headers),
 				    checkStatus(200)
 				)
 				.pause(5, 6)
