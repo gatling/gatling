@@ -16,12 +16,12 @@ import java.util.Date
 
 import akka.actor.Scheduler
 import akka.actor.Actor.actorOf
+import akka.actor.Actor.registry
 
 import org.apache.commons.lang3.time.FastDateFormat
 
 abstract class Runner(val startDate: Date, val scenarioConfigurationBuilders: List[ScenarioConfigurationBuilder], val onFinished: () => Unit) extends Logging {
   var totalNumberOfUsers = 0
-  var totalNumberOfRelevantActions = 0
   var scenarioConfigurations: List[ScenarioConfiguration] = Nil
   var scenarios: List[Action] = Nil
   val statWriter = actorOf[FileDataWriter].start
@@ -32,25 +32,21 @@ abstract class Runner(val startDate: Date, val scenarioConfigurationBuilders: Li
   for (configuration <- scenarioConfigurations)
     totalNumberOfUsers += configuration.numberOfUsers
 
-  val latch: CountDownLatch = new CountDownLatch(totalNumberOfUsers)
+  val latch: CountDownLatch = new CountDownLatch(totalNumberOfUsers + 1)
 
   for (configuration <- scenarioConfigurations) {
     scenarios = configuration.scenarioBuilder.end(latch).build(configuration.scenarioId) :: scenarios
-    totalNumberOfRelevantActions += configuration.numberOfRelevantActions
   }
 
   val scenariosAndConfigurations = scenarioConfigurations zip scenarios.reverse
 
-  logger.debug("[Runner] {} requests to be executed for this simulation.", totalNumberOfRelevantActions)
-  logger.info("total number of users : {}", totalNumberOfUsers)
-  logger.debug("Map of relevant actions: {}", ScenarioBuilder.getNumberOfRelevantActionsByScenario)
-  logger.debug("Number of relevant actions for the simulation: {}", totalNumberOfRelevantActions)
+  logger.info("Total number of users : {}", totalNumberOfUsers)
   // TODO
   // logger.info("[Runner] Simulation execution time will be at least {}s", ScenarioBuilder.getExecutionTime + TimeUnit.SECONDS.convert(ramp.map { r => r._1.toLong }.getOrElse(0L), ramp.map { r => r._2 }.getOrElse(TimeUnit.SECONDS)))
 
   def run = {
 
-    statWriter ! InitializeDataWriter(startDate, totalNumberOfRelevantActions)
+    statWriter ! InitializeDataWriter(startDate, totalNumberOfUsers, latch)
 
     logger.debug("Launching All Scenarios")
 
@@ -62,6 +58,9 @@ abstract class Runner(val startDate: Date, val scenarioConfigurationBuilders: Li
     logger.debug("Finished Launching scenarios executions")
     latch.await(86400, TimeUnit.SECONDS)
     logger.debug("Latch is at 0")
+
+    logger.debug("All scenarios finished, stoping actors")
+    registry.shutdownAll
 
     onFinished
   }

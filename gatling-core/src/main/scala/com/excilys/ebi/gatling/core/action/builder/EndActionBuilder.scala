@@ -1,7 +1,7 @@
 package com.excilys.ebi.gatling.core.action.builder
 
 import com.excilys.ebi.gatling.core.action.Action
-import com.excilys.ebi.gatling.core.action.EndAction
+import com.excilys.ebi.gatling.core.action.EndAction._
 
 import akka.actor.TypedActor
 

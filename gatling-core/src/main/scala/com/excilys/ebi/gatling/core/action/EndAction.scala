@@ -9,16 +9,21 @@ import java.util.Date
 
 import akka.actor.Actor.registry.actorFor
 
-class EndAction(val latch: CountDownLatch) extends Action {
-  def execute(context: Context): Unit = {
-    actorFor(context.getWriteActorUuid).map { a =>
-      a ! ActionInfo(context.getScenarioName, context.getUserId, "End of scenario", new Date, 0, OK, "End of Scenario Reached")
+object EndAction {
+
+  val END_OF_SCENARIO = "End of scenario"
+
+  class EndAction(val latch: CountDownLatch) extends Action {
+    def execute(context: Context): Unit = {
+      actorFor(context.getWriteActorUuid).map { a =>
+        a ! ActionInfo(context.getScenarioName, context.getUserId, END_OF_SCENARIO, new Date, 0, OK, "End of Scenario Reached")
+      }
+
+      latch.countDown
+
+      logger.info("Done user #{}", context.getUserId)
     }
 
-    latch.countDown
-
-    logger.info("Done user #{}", context.getUserId)
+    override def toString = "End Action"
   }
-
-  override def toString = "End Action"
 }

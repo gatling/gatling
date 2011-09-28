@@ -28,7 +28,6 @@ object HttpRequestActionBuilder {
 
     def build(scenarioId: Int): Action = {
       logger.debug("Building HttpRequestAction with request {}", request.get)
-      ScenarioBuilder.addRelevantAction(scenarioId)
       TypedActor.newInstance(classOf[Action], new HttpRequestAction(nextAction.get, request.get, processorBuilders))
     }
 

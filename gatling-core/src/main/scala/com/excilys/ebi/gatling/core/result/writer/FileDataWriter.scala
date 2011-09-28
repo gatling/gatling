@@ -1,24 +1,23 @@
 package com.excilys.ebi.gatling.core.result.writer
 
+import com.excilys.ebi.gatling.core.action.EndAction._
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
 import com.excilys.ebi.gatling.core.util.PathHelper._
-
 import java.io.FileOutputStream
 import java.io.File
 import java.io.BufferedOutputStream
 import java.io.OutputStreamWriter
-
 import org.apache.commons.lang3.time.FastDateFormat
 import org.apache.commons.lang3.StringUtils
-
-import akka.actor.Actor.registry
+import java.util.concurrent.CountDownLatch
 
 class FileDataWriter extends DataWriter {
   var osw: OutputStreamWriter = null
+  var latch: CountDownLatch = null
 
-  var numberOfRelevantActions = 0
-  var numberOfRelevantActionsDone = 0
+  var numberOfUsers = 0
+  var numberOfUsersDone = 0
   var runOn = StringUtils.EMPTY
 
   val formatter: FastDateFormat = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss")
@@ -37,22 +36,23 @@ class FileDataWriter extends DataWriter {
         .append(resultMessage).append("\n")
 
       osw.write(strBuilder.toString)
-      numberOfRelevantActionsDone += 1
-      if (numberOfRelevantActions == numberOfRelevantActionsDone && self.dispatcher.mailboxSize(self) == 0) {
+      if (action == END_OF_SCENARIO)
+        numberOfUsersDone += 1
+      if (numberOfUsers == numberOfUsersDone && self.dispatcher.mailboxSize(self) == 0) {
         osw.flush
         osw.close
-        logger.debug("All scenarios finished, stoping actors")
-        registry.shutdownAll
+        latch.countDown
       }
     }
-    case InitializeDataWriter(runOn, numberOfRelevantActions) ⇒ {
+    case InitializeDataWriter(runOn, numberOfUsers, latch) ⇒ {
       val dir = new File(GATLING_RESULTS_FOLDER + "/" + fileNameFormatter.format(runOn))
       dir.mkdir
       val file = new File(dir, GATLING_SIMULATION_LOG_FILE)
 
       osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file, true)))
       this.runOn = formatter.format(runOn)
-      this.numberOfRelevantActions = numberOfRelevantActions
+      this.numberOfUsers = numberOfUsers
+      this.latch = latch
     }
   }
 }

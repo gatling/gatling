@@ -2,6 +2,7 @@ package com.excilys.ebi.gatling.statistics.extractor
 
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.PathHelper._
+import com.excilys.ebi.gatling.core.action.EndAction._
 
 import com.excilys.ebi.gatling.statistics.result.DetailsRequestsDataResult
 
@@ -23,7 +24,7 @@ class DetailsRequestsDataExtractor(val runOn: String) extends Logging {
       line.split("\t") match {
         // If we have a well formated result
         case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage) => {
-          if (actionName != "End of scenario")
+          if (actionName != END_OF_SCENARIO)
             extractedValues = extractedValues + (actionName ->
               ((executionStartDate, executionDuration.toDouble) :: extractedValues.getOrElse(actionName, Nil)))
         }
