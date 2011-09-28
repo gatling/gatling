@@ -32,8 +32,8 @@ import java.util.Date
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
-class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpProcessor], next: Action, executionStartTime: Long, executionStartDate: Date, requestName: String)
-    extends AsyncHandler[Response] with Logging {
+class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpProcessor], next: Action, executionStartTimeNano: Long, executionStartDate: Date, requestName: String)
+  extends AsyncHandler[Response] with Logging {
 
   private val identifier = requestName + context.getUserId
 
@@ -43,7 +43,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
   private var hasSentLog = new AtomicBoolean(false)
 
-  private var processingStartTime = 0L
+  private var processingStartTimeNano = System.nanoTime()
 
   private def isPhaseToBeProcessed(httpPhase: HttpPhase): Boolean = {
     (processors.get(httpPhase).isDefined && !hasSentLog.get()) || httpPhase == HeadersReceived
@@ -62,13 +62,14 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
     }
   }
 
-  private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String, processingStartTime: Long) = {
+  private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String) = {
     if (hasSentLog.compareAndSet(false, true)) {
       actorFor(context.getWriteActorUuid).map { a =>
-        a ! ActionInfo(context.getScenarioName, context.getUserId, "Request " + requestName, executionStartDate, TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTime, TimeUnit.NANOSECONDS), requestResult, requestMessage)
+        val responseTimeMillis = TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTimeNano, TimeUnit.NANOSECONDS)
+        a ! ActionInfo(context.getScenarioName, context.getUserId, "Request " + requestName, executionStartDate, responseTimeMillis, requestResult, requestMessage)
       }
 
-      val sentContext = contextBuilder setDuration (System.nanoTime() - processingStartTime) build
+      val sentContext = contextBuilder setDuration (System.nanoTime() - processingStartTimeNano) build
 
       logger.debug("Context Cookies sent to next action: {}", sentContext.getCookies)
       next.execute(sentContext)
@@ -128,7 +129,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
                 logger.warn("CHECK RESULT: false expected {} but received {}", c, value)
               else
                 logger.warn("Capture {} could not get value required by user", c)
-              sendLogAndExecuteNext(KO, c + " failed", processingStartTime)
+              sendLogAndExecuteNext(KO, c + " failed")
             }
 
           case _ => throw new IllegalArgumentException
@@ -139,7 +140,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
   def onStatusReceived(responseStatus: HttpResponseStatus): STATE = {
 
-    processingStartTime = System.nanoTime()
+    processingStartTimeNano = System.nanoTime()
 
     if (isPhaseToBeProcessed(StatusReceived)) {
       responseBuilder.accumulate(responseStatus)
@@ -181,13 +182,13 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
       val response = responseBuilder.build
       processResponse(CompletePageReceived, response)
     }
-    sendLogAndExecuteNext(OK, "Request Executed Successfully", processingStartTime)
+    sendLogAndExecuteNext(OK, "Request Executed Successfully")
     null
   }
 
   def onThrowable(throwable: Throwable) = {
     logger.error("{}\n{}", throwable.getClass, throwable.getStackTraceString)
-    sendLogAndExecuteNext(KO, throwable.getMessage, System.nanoTime())
+    sendLogAndExecuteNext(KO, throwable.getMessage)
   }
 
 }
