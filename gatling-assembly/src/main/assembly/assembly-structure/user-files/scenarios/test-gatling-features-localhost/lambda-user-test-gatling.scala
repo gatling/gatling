@@ -1,4 +1,4 @@
-val loginChain = chain.doHttpRequest("First Request Chain", get(baseUrl))
+val loginChain = chain.doHttpRequest("First Request Chain", get(baseUrl)).pause(1,2)
 
 val lambdaUser = scenario("Standard User")
   .insertChain(loginChain)
@@ -25,6 +25,11 @@ val lambdaUser = scenario("Standard User")
         checkStatusInRange(200 to 210) in "blablaParam",
         checkXpathNotEquals("//input[@value='aaaa']/@id", "omg"),
         checkXpathEquals("//input[@id='text1']/@value", "aaaa") in "test2")
+      .pause(pause2)
+      .doIf("test2", "aaaa", 
+          chain.doHttpRequest("IF=TRUE Request", get(baseUrl))
+          //, chain.doHttpRequest("IF=FALSE AAAA Request", get(baseUrl))
+          )
       .pause(pause2)
       .doHttpRequest("Url from context",
         get("http://localhost:3000/{}", "test2"))
