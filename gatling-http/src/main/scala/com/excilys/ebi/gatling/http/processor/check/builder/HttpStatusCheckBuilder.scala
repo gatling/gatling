@@ -1,7 +1,7 @@
 package com.excilys.ebi.gatling.http.processor.check.builder
 
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.processor.CheckType._
+import com.excilys.ebi.gatling.core.processor.CheckType
 
 import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.http.processor.check.HttpCheck

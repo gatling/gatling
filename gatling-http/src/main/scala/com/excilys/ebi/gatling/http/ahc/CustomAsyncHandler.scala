@@ -7,21 +7,14 @@ import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.context.builder.ContextBuilder._
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.provider.capture.RegExpCaptureProvider
-import com.excilys.ebi.gatling.core.provider.capture.XPathCaptureProvider
-import com.excilys.ebi.gatling.core.processor.Check._
-import com.excilys.ebi.gatling.core.processor.CheckType._
-import com.excilys.ebi.gatling.core.provider.ProviderType
 import com.excilys.ebi.gatling.core.provider.capture.AbstractCaptureProvider
+import com.excilys.ebi.gatling.core.provider.ProviderType
 import com.excilys.ebi.gatling.core.result.message.ResultStatus._
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.http.request.HttpPhase._
-import com.excilys.ebi.gatling.http.provider.capture.HttpHeadersCaptureProvider
 import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
 import com.excilys.ebi.gatling.http.processor.check.HttpCheck
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
-import com.excilys.ebi.gatling.http.provider.capture.HttpHeadersCaptureProvider
-import com.excilys.ebi.gatling.http.provider.capture.HttpStatusCaptureProvider
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
 import com.ning.http.client.AsyncHandler
@@ -94,7 +87,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
     providers
   }
 
-  private def captureData(processor: HttpCapture, providers: HashMap[ProviderType, AbstractCaptureProvider]): Option[Any] = {
+  private def captureData(processor: HttpCapture, providers: HashMap[ProviderType, AbstractCaptureProvider]): Option[String] = {
 
     val provider = providers.get(processor.getProviderType).getOrElse {
       throw new IllegalArgumentException;
@@ -120,42 +113,22 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
             val value = captureData(c, providers)
             logger.debug("Captured Value: {}", value)
 
-            if (value.isEmpty && (!c.isInstanceOf[HttpCheck] || c.asInstanceOf[HttpCheck].getCheckType != INEXISTENCE)) {
-              sendLogAndExecuteNext(KO, "Capture " + c + " failed", processingStartTime)
+            // Is the value what is expected ?
+            val isResultValid =
+              if (c.isInstanceOf[HttpCheck])
+                c.asInstanceOf[HttpCheck].getResult(value)
+              else
+                !value.isEmpty
+
+            if (isResultValid) {
+              if (c.getAttrKey != StringUtils.EMPTY && !value.isEmpty)
+                contextBuilder = contextBuilder setAttribute (c.getAttrKey, value.get.toString)
             } else {
-              var contextAttribute = (StringUtils.EMPTY, StringUtils.EMPTY)
-              if (!value.isEmpty) {
-                contextAttribute = (c.getAttrKey, value.get.toString)
-              }
-
-              if (c.isInstanceOf[HttpCheck]) {
-                // If the Capture is also a check
-                val check = c.asInstanceOf[HttpCheck]
-                // Computing of the result of the check
-                val result =
-                  check.getCheckType match {
-                    case EQUALITY => checkEquals(value.get, check.getExpected)
-                    case INEQUALITY => !checkEquals(value.get, check.getExpected)
-                    case IN_RANGE => checkInRange(value.get, check.getExpected)
-                    case EXISTENCE => true
-                    case INEXISTENCE => value.isEmpty
-                  }
-
-                // If the result is true, then we store the value in the context if requested
-                if (result) {
-                  logger.debug("CHECK RESULT: true")
-                  if (c.getAttrKey != StringUtils.EMPTY)
-                    contextBuilder = contextBuilder setAttribute contextAttribute
-                } else {
-                  logger.warn("CHECK RESULT: false expected {} but received {}", check, value.get.toString)
-                  // Else, we write the failure in the logs
-                  sendLogAndExecuteNext(KO, "Check " + check + " failed", processingStartTime)
-                  return
-                }
-              } else {
-                if (c.getAttrKey != StringUtils.EMPTY)
-                  contextBuilder = contextBuilder setAttribute contextAttribute
-              }
+              if (c.isInstanceOf[HttpCheck])
+                logger.warn("CHECK RESULT: false expected {} but received {}", c, value)
+              else
+                logger.warn("Capture {} could not get value required by user", c)
+              sendLogAndExecuteNext(KO, c + " failed", processingStartTime)
             }
 
           case _ => throw new IllegalArgumentException

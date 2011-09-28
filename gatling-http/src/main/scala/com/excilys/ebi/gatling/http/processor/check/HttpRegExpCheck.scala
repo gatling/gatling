@@ -1,7 +1,7 @@
 package com.excilys.ebi.gatling.http.processor.check
 
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.processor.CheckType._
+import com.excilys.ebi.gatling.core.processor.CheckType
 
 import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.http.processor.capture.HttpRegExpCapture
@@ -15,12 +15,7 @@ class HttpRegExpCheck(expressionFormatter: Context => String, val expected: Stri
 
   def getExpected = expected
 
-  override def toString = getCheckType match {
-    case EXISTENCE => "HttpRegExpPresentCheck ('" + expressionFormatter + "' must be present in response)"
-    case INEXISTENCE => "HttpRegExpPresentCheck ('" + expressionFormatter + "' must NOT be present in response)"
-    case EQUALITY => "HttpRegExpCheck ('" + expressionFormatter + "' must be equal to '" + expected + "')"
-    case INEQUALITY => "HttpRegExpCheck ('" + expressionFormatter + "' must NOT be equal to '" + expected + "')"
-  }
+  override def toString = "HttpRegExpCheck"
 
   override def equals(that: Any) = {
     if (!that.isInstanceOf[HttpRegExpCheck])
