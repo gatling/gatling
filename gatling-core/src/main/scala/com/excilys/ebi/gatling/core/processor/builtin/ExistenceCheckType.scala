@@ -3,6 +3,6 @@ import com.excilys.ebi.gatling.core.processor.CheckType
 
 object ExistenceCheckType extends CheckType {
   def doCheck(value: Option[String], range: String) = {
-    !value.isEmpty
+    value.isDefined
   }
 }

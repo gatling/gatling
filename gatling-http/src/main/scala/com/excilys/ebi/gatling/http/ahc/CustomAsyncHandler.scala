@@ -119,10 +119,10 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
               if (c.isInstanceOf[HttpCheck])
                 c.asInstanceOf[HttpCheck].getResult(value)
               else
-                !value.isEmpty
+                value.isDefined
 
             if (isResultValid) {
-              if (c.getAttrKey != StringUtils.EMPTY && !value.isEmpty)
+              if (c.getAttrKey != StringUtils.EMPTY && value.isDefined)
                 contextBuilder = contextBuilder setAttribute (c.getAttrKey, value.get.toString)
             } else {
               if (c.isInstanceOf[HttpCheck])
