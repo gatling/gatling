@@ -13,14 +13,13 @@ import org.apache.commons.lang3.StringUtils
 
 object HttpHeaderCheckBuilder {
   class HttpHeaderCheckBuilder(expressionFormatter: Option[Context => String], expected: Option[String], attrKey: Option[String], checkType: Option[CheckType])
-      extends HttpCheckBuilder[HttpHeaderCheckBuilder](expressionFormatter, expected, attrKey, Some(HeadersReceived), checkType) {
+    extends HttpCheckBuilder[HttpHeaderCheckBuilder](expressionFormatter, expected, attrKey, Some(HeadersReceived), checkType) {
 
     def newInstance(expressionFormatter: Option[Context => String], expected: Option[String], attrKey: Option[String], httpPhase: Option[HttpPhase], checkType: Option[CheckType]) = {
       new HttpHeaderCheckBuilder(expressionFormatter, expected, attrKey, checkType)
     }
 
-    def build: HttpCheck =
-      new HttpHeaderCheck(expressionFormatter.get, expected.get, attrKey.get, checkType.get)
+    def build: HttpCheck = new HttpHeaderCheck(expressionFormatter.get, expected.get, attrKey.get, checkType.get)
   }
 
   def checkHeaderEquals(headerNameFormatter: Context => String, expected: String) = new HttpHeaderCheckBuilder(Some(headerNameFormatter), Some(expected), Some(StringUtils.EMPTY), Some(EqualityCheckType))

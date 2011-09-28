@@ -12,6 +12,7 @@ import com.ning.http.client.AsyncHttpClient
 import scala.collection.mutable.{ HashMap, MultiMap, Set => MSet }
 import java.util.Date
 import com.ning.http.client.AsyncHttpClientConfig
+import org.apache.commons.lang3.StringUtils
 
 object HttpRequestAction {
   val CLIENT: AsyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setCompressionEnabled(true).build())
@@ -33,7 +34,7 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilde
   }
 
   // Adds default checks (they won't be added if overridden by user)
-  processors.addBinding(StatusReceived, new HttpStatusCheck((200 to 210).mkString(":"), ""))
+  processors.addBinding(StatusReceived, new HttpStatusCheck((200 to 210).mkString(":"), StringUtils.EMPTY))
 
   def execute(context: Context) = {
     val objects = new Array[java.lang.Object](3)

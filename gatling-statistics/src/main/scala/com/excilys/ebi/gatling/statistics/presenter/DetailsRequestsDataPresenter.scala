@@ -1,15 +1,14 @@
 package com.excilys.ebi.gatling.statistics.presenter
 
 import com.excilys.ebi.gatling.core.util.FileHelper._
-
 import com.excilys.ebi.gatling.statistics.extractor.DetailsRequestsDataExtractor
 import com.excilys.ebi.gatling.statistics.template.DetailsRequestsTemplate
 import com.excilys.ebi.gatling.statistics.template.TimeSeries
 import com.excilys.ebi.gatling.statistics.template.ColumnSeries
 import com.excilys.ebi.gatling.statistics.writer.TemplateWriter
 import com.excilys.ebi.gatling.statistics.writer.TSVFileWriter
-
 import scala.collection.immutable.TreeMap
+import org.apache.commons.lang3.StringUtils
 
 class DetailsRequestsDataPresenter {
 
@@ -49,5 +48,5 @@ class DetailsRequestsDataPresenter {
     menuItems
   }
 
-  private def requestNameToFileName(requestName: String): String = requestName.replace("-", "_").replace(" ", "_").replace("'", "").toLowerCase
+  private def requestNameToFileName(requestName: String): String = requestName.replace("-", "_").replace(" ", "_").replace("'", StringUtils.EMPTY).toLowerCase
 }

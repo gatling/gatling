@@ -9,13 +9,11 @@ import com.excilys.ebi.gatling.http.processor.capture.HttpRegExpCapture
 import org.apache.commons.lang3.StringUtils
 
 class HttpRegExpCheck(expressionFormatter: Context => String, val expected: String, attrKey: String, httpPhase: HttpPhase, checkType: CheckType)
-    extends HttpRegExpCapture(expressionFormatter, attrKey, httpPhase) with HttpCheck {
+  extends HttpRegExpCapture(expressionFormatter, attrKey, httpPhase) with HttpCheck {
 
   def getCheckType = checkType
 
   def getExpected = expected
-
-  override def toString = "HttpRegExpCheck"
 
   override def equals(that: Any) = {
     if (!that.isInstanceOf[HttpRegExpCheck])

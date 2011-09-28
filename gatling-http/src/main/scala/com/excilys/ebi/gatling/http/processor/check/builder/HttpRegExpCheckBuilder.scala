@@ -13,14 +13,13 @@ import org.apache.commons.lang3.StringUtils
 
 object HttpRegExpCheckBuilder {
   class HttpRegExpCheckBuilder(expressionFormatter: Option[Context => String], expected: Option[String], attrKey: Option[String], httpPhase: Option[HttpPhase], checkType: Option[CheckType])
-      extends HttpCheckBuilder[HttpRegExpCheckBuilder](expressionFormatter, expected, attrKey, httpPhase, checkType) {
+    extends HttpCheckBuilder[HttpRegExpCheckBuilder](expressionFormatter, expected, attrKey, httpPhase, checkType) {
 
     def newInstance(expressionFormatter: Option[Context => String], expected: Option[String], attrKey: Option[String], httpPhase: Option[HttpPhase], checkType: Option[CheckType]) = {
       new HttpRegExpCheckBuilder(expressionFormatter, expected, attrKey, httpPhase, checkType)
     }
 
-    def build: HttpCheck =
-      new HttpRegExpCheck(expressionFormatter.get, expected.get, attrKey.get, httpPhase.get, checkType.get)
+    def build: HttpCheck = new HttpRegExpCheck(expressionFormatter.get, expected.get, attrKey.get, httpPhase.get, checkType.get)
   }
 
   def checkRegexpEquals(expressionFormatter: Context => String, expected: String) = new HttpRegExpCheckBuilder(Some(expressionFormatter), Some(expected), Some(StringUtils.EMPTY), Some(CompletePageReceived), Some(EqualityCheckType))

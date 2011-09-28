@@ -7,10 +7,11 @@ import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.excilys.ebi.gatling.http.processor.builder.HttpProcessorBuilder
 import com.excilys.ebi.gatling.core.action.Action
+import org.apache.commons.lang3.StringUtils
 
 object HttpScenarioBuilder {
   class HttpScenarioBuilder(name: String, actionBuilders: List[AbstractActionBuilder], next: Option[Action])
-      extends ScenarioBuilder[HttpScenarioBuilder](name, actionBuilders, next) {
+    extends ScenarioBuilder[HttpScenarioBuilder](name, actionBuilders, next) {
 
     def doHttpRequest(reqName: String, requestBuilder: AbstractHttpRequestBuilder[_], processors: HttpProcessorBuilder*): HttpScenarioBuilder = {
       val httpRequest = newHttpRequestActionBuilder withRequest (new HttpRequest(reqName, requestBuilder)) withProcessors processors.toList
@@ -23,5 +24,5 @@ object HttpScenarioBuilder {
     }
   }
   def scenario(name: String) = new HttpScenarioBuilder(name, Nil, None)
-  def chain = scenario("")
+  def chain = scenario(StringUtils.EMPTY)
 }

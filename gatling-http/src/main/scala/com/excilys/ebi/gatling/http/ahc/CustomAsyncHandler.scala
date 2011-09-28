@@ -41,7 +41,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
   private var contextBuilder = newContext fromContext context
 
-  private var hasSentLog = new AtomicBoolean(false)
+  private val hasSentLog = new AtomicBoolean(false)
 
   private var processingStartTimeNano = System.nanoTime()
 

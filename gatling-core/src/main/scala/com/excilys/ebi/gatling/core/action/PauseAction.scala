@@ -24,6 +24,4 @@ class PauseAction(next: Action, minDuration: Long, maxDuration: Long, timeUnit: 
 
     Scheduler.scheduleOnce(() => next.execute(context), durationInNanos, TimeUnit.NANOSECONDS)
   }
-
-  override def toString = "Pause Action"
 }

@@ -7,4 +7,6 @@ import com.excilys.ebi.gatling.core.log.Logging
 
 trait Action extends TypedActor with Logging {
   def execute(context: Context)
+
+  override def toString = this.getClass().getSimpleName()
 }

@@ -8,13 +8,11 @@ import com.excilys.ebi.gatling.http.processor.capture.HttpHeaderCapture
 import org.apache.commons.lang3.StringUtils
 
 class HttpHeaderCheck(headerNameFormatter: Context => String, expected: String, attrKey: String, checkType: CheckType)
-    extends HttpHeaderCapture(headerNameFormatter, attrKey) with HttpCheck {
+  extends HttpHeaderCapture(headerNameFormatter, attrKey) with HttpCheck {
 
   def getCheckType = checkType
 
   def getExpected = expected
-
-  override def toString = "HttpHeaderCheck"
 
   override def equals(that: Any) = {
     if (!that.isInstanceOf[HttpHeaderCheck])
