@@ -7,6 +7,6 @@ import com.excilys.ebi.gatling.http.provider.HttpXPathProviderType
 class HttpXPathCapture(expression: Context => String, attrKey: String, httpPhase: HttpPhase)
     extends HttpCapture(expression, attrKey, httpPhase, HttpXPathProviderType) {
 
-  override def toString = "HttpXPathCapture (" + expression + ")"
+  override def toString = "HttpXPathCapture"
 
 }

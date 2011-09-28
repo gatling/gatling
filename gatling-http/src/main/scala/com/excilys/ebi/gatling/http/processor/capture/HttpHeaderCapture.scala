@@ -7,5 +7,5 @@ import com.excilys.ebi.gatling.http.provider.HttpHeaderProviderType
 class HttpHeaderCapture(expression: Context => String, attrKey: String)
     extends HttpCapture(expression, attrKey, HeadersReceived, HttpHeaderProviderType) {
 
-  override def toString = "HttpHeaderCapture (" + expression + ")"
+  override def toString = "HttpHeaderCapture"
 }
