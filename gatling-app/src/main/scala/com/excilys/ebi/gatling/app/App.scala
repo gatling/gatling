@@ -19,7 +19,7 @@ import org.apache.commons.lang3.StringUtils
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
-class DateHolder(var value: Date)
+class DateHolder(var value: DateTime)
 
 object App extends Logging {
 
@@ -116,9 +116,9 @@ import com.excilys.ebi.gatling.http.request.builder.PostHttpRequestBuilder._
 import com.excilys.ebi.gatling.http.runner.HttpRunner._
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
 import java.util.concurrent.TimeUnit
-import java.util.Date
+import org.joda.time.DateTime
 
-startDate.value = new Date
+startDate.value = DateTime.now
 
 def runSimulations = runSim(startDate.value)_
 """
@@ -126,7 +126,7 @@ def runSimulations = runSim(startDate.value)_
     val fileContent = fileHeader + newFileBodyContent
     logger.debug(fileContent)
 
-    val runOn = new DateHolder(new Date)
+    val runOn = new DateHolder(DateTime.now)
     n.bind("startDate", runOn)
     n.interpret(fileContent)
     n.close()
