@@ -4,17 +4,16 @@ import scala.math._
 import scala.collection.mutable.LinkedHashMap
 import scala.collection.mutable.ListBuffer
 
-import org.joda.time.format.DateTimeFormat
 import org.joda.time.DateTime
 import org.joda.time.Duration
 
 import com.excilys.ebi.gatling.core.util.PathHelper._
+import com.excilys.ebi.gatling.core.util.DateHelper._
+import com.excilys.ebi.gatling.statistics.utils.HighChartsHelper._
 
 class ActiveSessionsDataExtractor extends DataExtractor[LinkedHashMap[String, ListBuffer[(String, Double)]]] {
 
   val maxResolution = 100
-
-  val dateTimeFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
 
   val executionWindowByScenarioAndUser = new LinkedHashMap[String, LinkedHashMap[String, (String, String)]]
   var minDate: String = null
@@ -92,15 +91,15 @@ class ActiveSessionsDataExtractor extends DataExtractor[LinkedHashMap[String, Li
   }
 
   private def getTimes(minDate: String, maxDate: String) = {
-    val start = DateTime.parse(minDate, dateTimeFormat);
-    val end: DateTime = DateTime.parse(maxDate, dateTimeFormat);
+    val start = parseResultDate(minDate);
+    val end = parseResultDate(maxDate);
 
     val stepMillis = getStepMillis(start, end)
     var current = start
     val times = new ListBuffer[String]()
 
     while (current.compareTo(end) < 0) {
-      times += dateTimeFormat.print(current);
+      times += printResultDate(current);
       current = current.plus(stepMillis)
     }
 

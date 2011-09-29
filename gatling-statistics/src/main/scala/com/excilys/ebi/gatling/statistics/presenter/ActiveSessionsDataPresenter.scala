@@ -1,6 +1,7 @@
 package com.excilys.ebi.gatling.statistics.presenter
 
 import com.excilys.ebi.gatling.core.util.PathHelper._
+import com.excilys.ebi.gatling.statistics.utils.HighChartsHelper._
 
 import com.excilys.ebi.gatling.statistics.template.ActiveSessionsTemplate
 import com.excilys.ebi.gatling.statistics.template.TimeSeries
@@ -23,7 +24,7 @@ class ActiveSessionsDataPresenter extends DataPresenter[LinkedHashMap[String, Li
       result =>
         val (scenarioName, mutableListOfValues) = result
         val listOfValues = mutableListOfValues.toList
-        seriesList = new TimeSeries(scenarioName, listOfValues.map { e => (getDateForHighcharts(e._1), e._2) }) :: seriesList
+        seriesList = new TimeSeries(scenarioName, listOfValues.map { e => (printHighChartsDate(e._1), e._2) }) :: seriesList
     }
 
     val output = new ActiveSessionsTemplate(runOn, menuItems, seriesList).getOutput

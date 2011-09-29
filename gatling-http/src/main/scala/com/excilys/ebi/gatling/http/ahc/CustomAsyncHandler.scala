@@ -28,11 +28,11 @@ import com.ning.http.util.AsyncHttpProviderUtils._
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
 import akka.actor.Actor.registry._
 import org.apache.commons.lang3.StringUtils
-import java.util.Date
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import org.joda.time.DateTime
 
-class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpProcessor], next: Action, executionStartTimeNano: Long, executionStartDate: Date, requestName: String)
+class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpProcessor], next: Action, executionStartTimeNano: Long, executionStartDate: DateTime, requestName: String)
   extends AsyncHandler[Response] with Logging {
 
   private val identifier = requestName + context.getUserId

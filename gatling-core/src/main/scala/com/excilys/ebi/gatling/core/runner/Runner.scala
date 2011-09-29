@@ -9,18 +9,16 @@ import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.scenario.builder.ScenarioBuilder
 import com.excilys.ebi.gatling.core.scenario.configuration.builder.ScenarioConfigurationBuilder._
 import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfiguration
-
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CountDownLatch
 import java.util.Date
-
 import akka.actor.Scheduler
 import akka.actor.Actor.actorOf
 import akka.actor.Actor.registry
-
 import org.apache.commons.lang3.time.FastDateFormat
+import org.joda.time.DateTime
 
-abstract class Runner(val startDate: Date, val scenarioConfigurationBuilders: List[ScenarioConfigurationBuilder], val onFinished: () => Unit) extends Logging {
+abstract class Runner(val startDate: DateTime, val scenarioConfigurationBuilders: List[ScenarioConfigurationBuilder], val onFinished: () => Unit) extends Logging {
   var totalNumberOfUsers = 0
   var scenarioConfigurations: List[ScenarioConfiguration] = Nil
   var scenarios: List[Action] = Nil
@@ -41,8 +39,6 @@ abstract class Runner(val startDate: Date, val scenarioConfigurationBuilders: Li
   val scenariosAndConfigurations = scenarioConfigurations zip scenarios.reverse
 
   logger.info("Total number of users : {}", totalNumberOfUsers)
-  // TODO
-  // logger.info("[Runner] Simulation execution time will be at least {}s", ScenarioBuilder.getExecutionTime + TimeUnit.SECONDS.convert(ramp.map { r => r._1.toLong }.getOrElse(0L), ramp.map { r => r._2 }.getOrElse(TimeUnit.SECONDS)))
 
   def run = {
 

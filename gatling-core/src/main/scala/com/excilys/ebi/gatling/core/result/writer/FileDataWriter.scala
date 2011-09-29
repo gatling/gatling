@@ -4,6 +4,7 @@ import com.excilys.ebi.gatling.core.action.EndAction._
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
 import com.excilys.ebi.gatling.core.util.PathHelper._
+import com.excilys.ebi.gatling.core.util.DateHelper._
 import java.io.FileOutputStream
 import java.io.File
 import java.io.BufferedOutputStream
@@ -20,9 +21,6 @@ class FileDataWriter extends DataWriter {
   var numberOfUsersDone = 0
   var runOn = StringUtils.EMPTY
 
-  val formatter: FastDateFormat = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss")
-  val fileNameFormatter = FastDateFormat.getInstance("yyyyMMddHHmmss")
-
   def receive = {
     case ActionInfo(scenarioName, userId, action, executionStartDate, executionDuration, resultStatus, resultMessage) ⇒ {
       val strBuilder = new StringBuilder
@@ -30,7 +28,7 @@ class FileDataWriter extends DataWriter {
         .append(scenarioName).append("\t")
         .append(userId).append("\t")
         .append(action).append("\t")
-        .append(formatter.format(executionStartDate)).append("\t")
+        .append(printResultDate(executionStartDate)).append("\t")
         .append(executionDuration).append("\t")
         .append(resultStatus).append("\t")
         .append(resultMessage).append("\n")
@@ -45,12 +43,12 @@ class FileDataWriter extends DataWriter {
       }
     }
     case InitializeDataWriter(runOn, numberOfUsers, latch) ⇒ {
-      val dir = new File(GATLING_RESULTS_FOLDER + "/" + fileNameFormatter.format(runOn))
+      val dir = new File(GATLING_RESULTS_FOLDER + "/" + printFileNameDate(runOn))
       dir.mkdir
       val file = new File(dir, GATLING_SIMULATION_LOG_FILE)
 
       osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file, true)))
-      this.runOn = formatter.format(runOn)
+      this.runOn = printResultDate(runOn)
       this.numberOfUsers = numberOfUsers
       this.latch = latch
     }

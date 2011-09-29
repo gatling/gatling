@@ -7,6 +7,7 @@ import com.excilys.ebi.gatling.statistics.template.GlobalRequestsTemplate
 import com.excilys.ebi.gatling.statistics.template.TimeSeries
 import com.excilys.ebi.gatling.statistics.writer.TemplateWriter
 import com.excilys.ebi.gatling.statistics.writer.TSVFileWriter
+import com.excilys.ebi.gatling.statistics.utils.HighChartsHelper._
 
 import scala.collection.mutable.LinkedHashMap
 import scala.collection.mutable.ListBuffer
@@ -19,10 +20,9 @@ class GlobalRequestsDataPresenter extends DataPresenter[List[(String, (Double, D
     var failureData: List[(String, Double)] = Nil
     var forFile: List[List[String]] = Nil
 
-    //    new GlobalRequestsDataExtractor(runOn).getResults
     results.foreach {
       case (date, (numberOfRequests, numberOfSuccesses, numberOfFailures)) =>
-        val formattedDate = getDateForHighcharts(date)
+        val formattedDate = printHighChartsDate(date)
 
         globalData = (formattedDate, numberOfRequests) :: globalData
         successData = (formattedDate, numberOfSuccesses) :: successData

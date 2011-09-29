@@ -1,28 +1,23 @@
 package com.excilys.ebi.gatling.app
 
 import io.Source
-
 import tools.nsc.interpreter.IMain
 import tools.nsc.Settings
 import tools.nsc.io.Directory
 import tools.nsc._
 import tools.nsc.util.BatchSourceFile
-
 import scala.util.matching.Regex
-
 import java.io.File
 import java.util.Date
-
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.config.GatlingConfig
 import com.excilys.ebi.gatling.core.util.PathHelper._
 import com.excilys.ebi.gatling.core.util.PropertiesHelper._
 import com.excilys.ebi.gatling.core.util.FileHelper._
-
 import com.excilys.ebi.gatling.statistics.GraphicsGenerator
-
-import org.apache.commons.lang3.time.FastDateFormat
 import org.apache.commons.lang3.StringUtils
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 
 class DateHolder(var value: Date)
 
@@ -136,7 +131,6 @@ def runSimulations = runSim(startDate.value)_
     n.interpret(fileContent)
     n.close()
 
-    FastDateFormat.getInstance("yyyyMMddHHmmss").format(runOn.value)
+    DateTimeFormat.forPattern("yyyyMMddHHmmss").print(new DateTime(runOn.value))
   }
-
 }

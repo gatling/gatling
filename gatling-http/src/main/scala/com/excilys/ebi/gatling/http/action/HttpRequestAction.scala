@@ -10,9 +10,9 @@ import com.excilys.ebi.gatling.http.processor.builder.HttpProcessorBuilder
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
 import com.ning.http.client.AsyncHttpClient
 import scala.collection.mutable.{ HashMap, MultiMap, Set => MSet }
-import java.util.Date
 import com.ning.http.client.AsyncHttpClientConfig
 import org.apache.commons.lang3.StringUtils
+import org.joda.time.DateTime
 
 object HttpRequestAction {
   val CLIENT: AsyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setCompressionEnabled(true).build())
@@ -42,6 +42,6 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilde
     objects(1) = context.getScenarioName
     objects(2) = context.getUserId.toString
     logger.info("Sending Request '{}': Scenario '{}', UserId #{}", objects)
-    HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new CustomAsyncHandler(context, processors, next, System.nanoTime, new Date, request.getName))
+    HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new CustomAsyncHandler(context, processors, next, System.nanoTime, DateTime.now(), request.getName))
   }
 }
