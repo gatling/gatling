@@ -6,7 +6,9 @@ import scala.io.Source
 
 import org.apache.commons.io.FileUtils
 
+import com.excilys.ebi.gatling.core.config.GatlingConfig._
 import com.excilys.ebi.gatling.core.util.PathHelper._
+
 import com.excilys.ebi.gatling.statistics.presenter.DetailsRequestsDataPresenter
 
 class GraphicsGenerator {
@@ -25,7 +27,7 @@ class GraphicsGenerator {
 
     val generator = new CompositeGraphicGenerator(new ActiveSessionsGraphicGenerator, new GlobalRequestsGraphicGenerator)
 
-    for (line <- Source.fromFile(GATLING_RESULTS_FOLDER + "/" + runOn + "/" + GATLING_SIMULATION_LOG_FILE, "utf-8").getLines) {
+    for (line <- Source.fromFile(GATLING_RESULTS_FOLDER + "/" + runOn + "/" + GATLING_SIMULATION_LOG_FILE, CONFIG_GATLING_ENCODING).getLines) {
       line.split("\t") match {
         // If we have a well formated result
         case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage) => {

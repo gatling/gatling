@@ -28,5 +28,6 @@ object GatlingConfig extends Logging {
 
   def config = loadConfig
 
-  val CONFIG_GATLING_FEEDER_ENCODING = config.getString("gatling.feeders.encoding", "utf-8")
+  val CONFIG_GATLING_FEEDER_ENCODING = config.getString("gatling.encoding.feeder", "utf-8")
+  val CONFIG_GATLING_ENCODING = config.getString("gatling.encoding.global", "utf-8")
 }
