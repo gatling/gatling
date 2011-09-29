@@ -5,6 +5,7 @@ import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder._
 import com.excilys.ebi.gatling.core.action.builder.EndActionBuilder._
 import com.excilys.ebi.gatling.core.action.builder.IfActionBuilder._
+import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder._
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import com.excilys.ebi.gatling.core.context.Context
@@ -62,6 +63,23 @@ object ScenarioBuilder {
     private def doIf(testFunction: Context => Boolean, chainTrue: B, chainFalse: Option[B]): B = {
       logger.debug("Adding IfAction")
       newInstance(name, (ifActionBuilder withTestFunction testFunction withNextTrue chainTrue withNextFalse chainFalse) :: actionBuilders, next)
+    }
+
+    def doWhile(contextKey: String, value: String, chain: B): B = {
+      doWhile((c: Context) => c.getAttribute(contextKey) == value, chain)
+    }
+
+    def doDuring(durationValue: Int, chain: B): B = {
+      doDuring(durationValue, TimeUnit.SECONDS, chain)
+    }
+
+    def doDuring(durationValue: Int, durationUnit: TimeUnit, chain: B): B = {
+      doWhile((c: Context) => c.getWhileDuration <= durationUnit.toMillis(durationValue), chain)
+    }
+
+    def doWhile(testFunction: Context => Boolean, chain: B): B = {
+      logger.debug("Adding While Action")
+      newInstance(name, (whileActionBuilder withTestFunction testFunction withNextTrue chain) :: actionBuilders, next)
     }
 
     def insertChain(chain: B): B = {
