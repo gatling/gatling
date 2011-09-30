@@ -32,7 +32,7 @@ class FileDataWriter extends DataWriter {
         .append(executionDuration).append("\t")
         .append(resultStatus).append("\t")
         .append(resultMessage).append("\t")
-        .append(groups.mkString("[", "#/#", "]")).append("\n")
+        .append(groups.mkString("|", "|", "|")).append("\n")
 
       osw.write(strBuilder.toString)
       if (action == END_OF_SCENARIO)

@@ -19,7 +19,7 @@ class ActiveSessionsDataExtractor extends DataExtractor[LinkedHashMap[String, Li
   var minDate: String = null
   var maxDate: String = null
 
-  override def onRow(runOn: String, scenarioName: String, userId: String, actionName: String, executionStartDate: String, executionDuration: String, resultStatus: String, resultMessage: String) {
+  override def onRow(runOn: String, scenarioName: String, userId: String, actionName: String, executionStartDate: String, executionDuration: String, resultStatus: String, resultMessage: String, groups: List[String]) {
 
     val executionWindowByUser = executionWindowByScenarioAndUser.get(scenarioName).getOrElse {
       val scenarioWindows = new LinkedHashMap[String, (String, String)]

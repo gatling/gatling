@@ -1,13 +1,11 @@
 package com.excilys.ebi.gatling.statistics.generator
 
 import java.io.File
-
 import scala.io.Source
-
 import org.apache.commons.io.FileUtils
-
 import com.excilys.ebi.gatling.core.config.GatlingConfig._
 import com.excilys.ebi.gatling.core.util.PathHelper._
+import org.apache.commons.lang3.StringUtils
 
 class GraphicsGenerator {
   def generateFor(runOn: String) = {
@@ -27,7 +25,8 @@ class GraphicsGenerator {
       line.split("\t") match {
         // If we have a well formated result
         case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage, groups) =>
-          generator.onRow(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage)
+          val groupsArray = StringUtils.stripAll(Array(groups), "|")(0).split("|")
+          generator.onRow(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage, groupsArray.toList)
         // Else, if the resulting data is not well formated print an error message
         case _ => sys.error("Input file not well formatted")
       }

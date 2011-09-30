@@ -14,7 +14,7 @@ class GlobalRequestsDataExtractor extends DataExtractor[List[(String, (Double, D
   val successRequestData: HashMap[String, Double] = new HashMap[String, Double]
   val allRequestData: HashMap[String, Double] = new HashMap[String, Double]
 
-  def onRow(runOn: String, scenarioName: String, userId: String, actionName: String, executionStartDate: String, executionDuration: String, resultStatus: String, resultMessage: String) {
+  def onRow(runOn: String, scenarioName: String, userId: String, actionName: String, executionStartDate: String, executionDuration: String, resultStatus: String, resultMessage: String, groups: List[String]) {
     if (actionName startsWith "Request") {
       def inc = incrementInMap(executionStartDate)_
 

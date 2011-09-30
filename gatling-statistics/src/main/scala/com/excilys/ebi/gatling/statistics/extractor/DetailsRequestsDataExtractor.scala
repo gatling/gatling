@@ -15,7 +15,7 @@ class DetailsRequestsDataExtractor extends DataExtractor[Map[String, DetailsRequ
 
   var extractedValues: Map[String, List[(String, Double)]] = TreeMap.empty
 
-  def onRow(runOn: String, scenarioName: String, userId: String, actionName: String, executionStartDate: String, executionDuration: String, resultStatus: String, resultMessage: String) {
+  def onRow(runOn: String, scenarioName: String, userId: String, actionName: String, executionStartDate: String, executionDuration: String, resultStatus: String, resultMessage: String, groups: List[String]) {
     if (actionName != END_OF_SCENARIO)
       extractedValues = extractedValues + (actionName ->
         ((executionStartDate, executionDuration.toDouble) :: extractedValues.getOrElse(actionName, Nil)))
@@ -44,4 +44,5 @@ class DetailsRequestsDataExtractor extends DataExtractor[Map[String, DetailsRequ
     }
     results
   }
+
 }
