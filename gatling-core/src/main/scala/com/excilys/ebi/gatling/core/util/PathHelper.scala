@@ -16,12 +16,14 @@ object PathHelper {
 
   val GATLING_GRAPH_ACTIVE_SESSIONS_FILE = "active_sessions.html"
   val GATLING_GRAPH_GLOBAL_REQUESTS_FILE = "requests.html"
+  val GATLING_GRAPH_MENU_JS_FILE = "js/menu.js"
   val GATLING_STATS_GLOBAL_REQUESTS_FILE = "requests.tsv"
 
   val GATLING_TEMPLATE_REQUEST_DETAILS_BODY_FILE = "templates/details_requests_body.ssp"
   val GATLING_TEMPLATE_HIGHCHARTS_COLUMN_FILE = "templates/highcharts_column.ssp"
   val GATLING_TEMPLATE_HIGHCHARTS_TIME_FILE = "templates/highcharts_time.ssp"
   val GATLING_TEMPLATE_LAYOUT_FILE = "templates/layout.ssp"
+  val GATLING_TEMPLATE_MENU_JS_FILE = "templates/menu_js.ssp"
 
   val GATLING_SEEDS_FOLDER = GATLING_USER_FILES_FOLDER + "/seeds"
   val GATLING_SCENARIOS_FOLDER = GATLING_USER_FILES_FOLDER + "/scenarios"
