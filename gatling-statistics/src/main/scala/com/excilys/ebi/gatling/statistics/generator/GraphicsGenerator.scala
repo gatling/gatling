@@ -1,4 +1,4 @@
-package com.excilys.ebi.gatling.statistics
+package com.excilys.ebi.gatling.statistics.generator
 
 import java.io.File
 
@@ -23,7 +23,7 @@ class GraphicsGenerator {
     FileUtils.copyFile(jQueryFile, jQueryFileDest)
     FileUtils.copyFile(highchartsFile, highchartsFileDest)
 
-    val menuItems = (new DetailsRequestsDataPresenter).generateGraphFor(runOn)
+    new DetailsRequestsDataPresenter().generateGraphFor(runOn)
 
     val generator = new CompositeGraphicGenerator(new ActiveSessionsGraphicGenerator, new GlobalRequestsGraphicGenerator)
 

@@ -14,7 +14,7 @@ import com.excilys.ebi.gatling.core.config.GatlingConfig
 import com.excilys.ebi.gatling.core.util.PathHelper._
 import com.excilys.ebi.gatling.core.util.PropertiesHelper._
 import com.excilys.ebi.gatling.core.util.FileHelper._
-import com.excilys.ebi.gatling.statistics.GraphicsGenerator
+import com.excilys.ebi.gatling.statistics.generator.GraphicsGenerator
 import org.apache.commons.lang3.StringUtils
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat

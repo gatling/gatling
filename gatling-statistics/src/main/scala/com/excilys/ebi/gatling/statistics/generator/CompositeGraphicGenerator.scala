@@ -1,4 +1,4 @@
-package com.excilys.ebi.gatling.statistics
+package com.excilys.ebi.gatling.statistics.generator
 
 class CompositeGraphicGenerator(generators: GraphicGenerator*) extends GraphicGenerator {
 
