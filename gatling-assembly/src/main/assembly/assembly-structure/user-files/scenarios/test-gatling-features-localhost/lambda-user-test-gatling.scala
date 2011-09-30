@@ -8,7 +8,7 @@ val lambdaUser = scenario("Standard User")
     get(baseUrl),
     captureXpath("//input[@id='text1']/@value") in "aaaa_value")
   .pause(pause2, pause3)
-  .doDuring(12000, TimeUnit.MILLISECONDS,
+  .doFor(12000, TimeUnit.MILLISECONDS,
       chain
         .doHttpRequest("In During 1", get(baseUrl))
         .pause(2)

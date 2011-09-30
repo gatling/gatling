@@ -69,11 +69,11 @@ object ScenarioBuilder {
       doWhile((c: Context) => c.getAttribute(contextKey) == value, chain)
     }
 
-    def doDuring(durationValue: Int, chain: B): B = {
-      doDuring(durationValue, TimeUnit.SECONDS, chain)
+    def doFor(durationValue: Int, chain: B): B = {
+      doFor(durationValue, TimeUnit.SECONDS, chain)
     }
 
-    def doDuring(durationValue: Int, durationUnit: TimeUnit, chain: B): B = {
+    def doFor(durationValue: Int, durationUnit: TimeUnit, chain: B): B = {
       doWhile((c: Context) => c.getWhileDuration <= durationUnit.toMillis(durationValue), chain)
     }
 
