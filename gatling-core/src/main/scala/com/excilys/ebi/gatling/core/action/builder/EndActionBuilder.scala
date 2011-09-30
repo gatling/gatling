@@ -17,6 +17,8 @@ object EndActionBuilder {
 
     def withNext(next: Action): AbstractActionBuilder = this
 
+    def inGroups(groups: List[String]) = this
+
     override def toString = "End"
   }
 

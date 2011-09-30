@@ -15,7 +15,7 @@ object EndAction {
   class EndAction(val latch: CountDownLatch) extends Action {
     def execute(context: Context): Unit = {
       actorFor(context.getWriteActorUuid).map { a =>
-        a ! ActionInfo(context.getScenarioName, context.getUserId, END_OF_SCENARIO, DateTime.now(), 0, OK, "End of Scenario Reached")
+        a ! ActionInfo(context.getScenarioName, context.getUserId, END_OF_SCENARIO, DateTime.now(), 0, OK, "End of Scenario Reached", Nil)
       }
 
       latch.countDown

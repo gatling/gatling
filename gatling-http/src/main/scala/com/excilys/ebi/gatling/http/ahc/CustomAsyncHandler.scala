@@ -32,8 +32,9 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import org.joda.time.DateTime
 
-class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpProcessor], next: Action, executionStartTimeNano: Long, executionStartDate: DateTime, requestName: String)
-  extends AsyncHandler[Response] with Logging {
+class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpProcessor], next: Action, executionStartTimeNano: Long,
+                         executionStartDate: DateTime, requestName: String, groups: List[String])
+    extends AsyncHandler[Response] with Logging {
 
   private val identifier = requestName + context.getUserId
 
@@ -66,7 +67,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
     if (hasSentLog.compareAndSet(false, true)) {
       actorFor(context.getWriteActorUuid).map { a =>
         val responseTimeMillis = TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTimeNano, TimeUnit.NANOSECONDS)
-        a ! ActionInfo(context.getScenarioName, context.getUserId, "Request " + requestName, executionStartDate, responseTimeMillis, requestResult, requestMessage)
+        a ! ActionInfo(context.getScenarioName, context.getUserId, "Request " + requestName, executionStartDate, responseTimeMillis, requestResult, requestMessage, groups)
       }
 
       val sentContext = contextBuilder setDuration (System.nanoTime() - processingStartTimeNano) build

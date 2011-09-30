@@ -22,7 +22,7 @@ class FileDataWriter extends DataWriter {
   var runOn = StringUtils.EMPTY
 
   def receive = {
-    case ActionInfo(scenarioName, userId, action, executionStartDate, executionDuration, resultStatus, resultMessage) ⇒ {
+    case ActionInfo(scenarioName, userId, action, executionStartDate, executionDuration, resultStatus, resultMessage, groups) ⇒ {
       val strBuilder = new StringBuilder
       strBuilder.append(runOn).append("\t")
         .append(scenarioName).append("\t")
@@ -31,7 +31,8 @@ class FileDataWriter extends DataWriter {
         .append(printResultDate(executionStartDate)).append("\t")
         .append(executionDuration).append("\t")
         .append(resultStatus).append("\t")
-        .append(resultMessage).append("\n")
+        .append(resultMessage).append("\t")
+        .append(groups.mkString("[", "#/#", "]")).append("\n")
 
       osw.write(strBuilder.toString)
       if (action == END_OF_SCENARIO)

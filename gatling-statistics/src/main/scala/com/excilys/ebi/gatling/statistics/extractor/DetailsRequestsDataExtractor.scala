@@ -24,11 +24,10 @@ class DetailsRequestsDataExtractor(val runOn: String) extends Logging {
       // Split each line by tabulation (As we get data from a TSV file)
       line.split("\t") match {
         // If we have a well formated result
-        case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage) => {
+        case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage, groups) =>
           if (actionName != END_OF_SCENARIO)
             extractedValues = extractedValues + (actionName ->
               ((executionStartDate, executionDuration.toDouble) :: extractedValues.getOrElse(actionName, Nil)))
-        }
         // Else, if the resulting data is not well formated print an error message
         case _ => sys.error("Input file not well formatted")
       }

@@ -1,5 +1,9 @@
 val loginChain = chain.doHttpRequest("First Request Chain", get(baseUrl)).pause(1,2)
 
+val loginGroup = "Login"
+val doStuffGroup = "Do Stuff"
+
+
 val lambdaUser = scenario("Standard User")
   .insertChain(loginChain)
   // First request outside iteration
@@ -32,6 +36,7 @@ val lambdaUser = scenario("Standard User")
         checkXpathNotEquals("//input[@value='aaaa']/@id", "omg"),
         checkXpathEquals("//input[@id='text1']/@value", "aaaa") in "test2")
       .pause(pause2)
+      .startGroup(loginGroup)
       .doIf("test2", "aaaa", 
           chain.doHttpRequest("IF=TRUE Request", get(baseUrl))
           //, chain.doHttpRequest("IF=FALSE AAAA Request", get(baseUrl))
@@ -46,6 +51,7 @@ val lambdaUser = scenario("Standard User")
         post("http://localhost:3000/things") withQueryParam "login" withQueryParam "password" withTemplateBody ("create_thing", Map("name" -> "blabla")) asJSON) //,
       //checkRegexpEquals("""<input value="(.*)"/>""", "blabla"))
       .pause(pause1)
+      .endGroup(loginGroup)
       // Third request to be repeated
       .doHttpRequest(
         "Liste Articles",
@@ -61,7 +67,9 @@ val lambdaUser = scenario("Standard User")
         post("http://localhost:3000/things") withQueryParam ("postTest", FromContext("ctxParam")) withTemplateBody ("create_thing", Map("name" -> FromContext("ctxParam"))) asJSON,
         checkStatus(201) in "status"))
   // Second request outside iteration
+  .startGroup(doStuffGroup)
   .doHttpRequest("Ajout au panier",
     get(baseUrl),
     captureRegexp("""<input id="text1" type="text" value="(.*)" />""") in "input")
   .pause(pause1)
+  .endGroup(doStuffGroup)

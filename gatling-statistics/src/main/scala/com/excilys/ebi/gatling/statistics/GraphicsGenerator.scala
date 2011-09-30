@@ -30,10 +30,8 @@ class GraphicsGenerator {
     for (line <- Source.fromFile(GATLING_RESULTS_FOLDER + "/" + runOn + "/" + GATLING_SIMULATION_LOG_FILE, CONFIG_GATLING_ENCODING).getLines) {
       line.split("\t") match {
         // If we have a well formated result
-        case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage) => {
-
+        case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage, groups) =>
           generator.onRow(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage)
-        }
         // Else, if the resulting data is not well formated print an error message
         case _ => sys.error("Input file not well formatted")
       }
