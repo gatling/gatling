@@ -8,9 +8,9 @@ class CompositeGraphicGenerator(generators: GraphicGenerator*) extends GraphicGe
     }
   }
 
-  def generateGraphFor(runOn: String, menuItems: Map[String, String]) {
+  def generateGraphFor(runOn: String) {
     generators.foreach { generator =>
-      generator.generateGraphFor(runOn, menuItems)
+      generator.generateGraphFor(runOn)
     }
   }
 }

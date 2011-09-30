@@ -13,17 +13,9 @@ import org.apache.commons.lang3.StringUtils
 
 class DetailsRequestsDataPresenter {
 
-  def generateGraphFor(runOn: String): Map[String, String] = {
-
-    var menuItems: Map[String, String] = TreeMap.empty
+  def generateGraphFor(runOn: String) = {
 
     val results = new DetailsRequestsDataExtractor(runOn).getResults
-
-    results.foreach {
-      case (requestName, result) =>
-        val fileName = formatToFilename(requestName) + HTML_EXTENSION
-        menuItems = menuItems + (requestName.substring(8) -> fileName)
-    }
 
     results.foreach {
       case (requestName, result) =>
@@ -35,11 +27,9 @@ class DetailsRequestsDataPresenter {
 
         val columnData = new ColumnSeries(requestName.substring(8), result.columnData._1, result.columnData._2)
 
-        val output = new DetailsRequestsTemplate(runOn, menuItems, series, columnData, requestName, result).getOutput
+        val output = new DetailsRequestsTemplate(runOn, series, columnData, requestName, result).getOutput
 
         new TemplateWriter(runOn, formatToFilename(requestName) + HTML_EXTENSION).writeToFile(output)
-
     }
-    menuItems
   }
 }

@@ -14,7 +14,7 @@ import scala.collection.mutable.ListBuffer
 
 class GlobalRequestsDataPresenter extends DataPresenter[List[(String, (Double, Double, Double))]] {
 
-  def generateGraphFor(runOn: String, results: List[(String, (Double, Double, Double))], menuItems: Map[String, String]) {
+  def generateGraphFor(runOn: String, results: List[(String, (Double, Double, Double))]) {
     var globalData: List[(String, Double)] = Nil
     var successData: List[(String, Double)] = Nil
     var failureData: List[(String, Double)] = Nil
@@ -35,7 +35,7 @@ class GlobalRequestsDataPresenter extends DataPresenter[List[(String, (Double, D
 
     val series = List(new TimeSeries("All", globalData), new TimeSeries("Success", successData), new TimeSeries("Failures", failureData))
 
-    val output = new GlobalRequestsTemplate(runOn, menuItems, series).getOutput
+    val output = new GlobalRequestsTemplate(runOn, series).getOutput
 
     new TemplateWriter(runOn, GATLING_GRAPH_GLOBAL_REQUESTS_FILE).writeToFile(output)
   }

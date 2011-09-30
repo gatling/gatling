@@ -6,7 +6,7 @@ import com.excilys.ebi.gatling.core.util.PathHelper._
 
 import com.excilys.ebi.gatling.statistics.result.DetailsRequestsDataResult
 
-class DetailsRequestsTemplate(val runOn: String, val menuItems: Map[String, String], val series: List[TimeSeries], val columnData: ColumnSeries, val requestName: String, val result: DetailsRequestsDataResult) {
+class DetailsRequestsTemplate(val runOn: String, val series: List[TimeSeries], val columnData: ColumnSeries, val requestName: String, val result: DetailsRequestsDataResult) {
 
   val bodyEngine = new TemplateEngine
   bodyEngine.escapeMarkup = false
@@ -20,6 +20,6 @@ class DetailsRequestsTemplate(val runOn: String, val menuItems: Map[String, Stri
     val body = bodyEngine.layout(GATLING_TEMPLATE_REQUEST_DETAILS_BODY_FILE,
       Map("requestName" -> requestName, "result" -> result))
 
-    new LayoutTemplate("Details of '" + requestName + "'", runOn, body, highcharts, menuItems).getOutput
+    new LayoutTemplate("Details of '" + requestName + "'", runOn, body, highcharts).getOutput
   }
 }

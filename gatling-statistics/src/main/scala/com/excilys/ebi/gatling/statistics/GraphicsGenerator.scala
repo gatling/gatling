@@ -37,6 +37,6 @@ class GraphicsGenerator {
       }
     }
 
-    generator.generateGraphFor(runOn, menuItems)
+    generator.generateGraphFor(runOn)
   }
 }

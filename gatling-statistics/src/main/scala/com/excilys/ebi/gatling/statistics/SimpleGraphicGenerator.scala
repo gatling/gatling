@@ -9,7 +9,7 @@ class SimpleGraphicGenerator[R](dataExtractor: DataExtractor[R], dataPresenter: 
     dataExtractor.onRow(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage)
   }
 
-  def generateGraphFor(runOn: String, menuItems: Map[String, String]) {
-    dataPresenter.generateGraphFor(runOn, dataExtractor.getResults(), menuItems)
+  def generateGraphFor(runOn: String) {
+    dataPresenter.generateGraphFor(runOn, dataExtractor.getResults())
   }
 }

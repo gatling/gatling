@@ -13,7 +13,7 @@ import scala.collection.mutable.ListBuffer
 
 class ActiveSessionsDataPresenter extends DataPresenter[LinkedHashMap[String, ListBuffer[(String, Double)]]] {
 
-  def generateGraphFor(runOn: String, results: LinkedHashMap[String, ListBuffer[(String, Double)]], menuItems: Map[String, String]) = {
+  def generateGraphFor(runOn: String, results: LinkedHashMap[String, ListBuffer[(String, Double)]]) = {
 
     // TODO: write file with results
     //new TSVFileWriter(runOn, "active_sessions.tsv").writeToFile(results.map { e => List(e._1, e._2.toString) })
@@ -27,7 +27,7 @@ class ActiveSessionsDataPresenter extends DataPresenter[LinkedHashMap[String, Li
         seriesList = new TimeSeries(scenarioName, listOfValues.map { e => (printHighChartsDate(e._1), e._2) }) :: seriesList
     }
 
-    val output = new ActiveSessionsTemplate(runOn, menuItems, seriesList).getOutput
+    val output = new ActiveSessionsTemplate(runOn, seriesList).getOutput
 
     new TemplateWriter(runOn, GATLING_GRAPH_ACTIVE_SESSIONS_FILE).writeToFile(output)
   }

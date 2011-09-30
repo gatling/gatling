@@ -1,6 +1,5 @@
 <%@ val highcharts: String %>
 <%@ val body: String %>
-<%@ val menuItems: Map[String, String] %>
 <%@ val runOn: String %>
 <%@ val title: String %>
 <!DOCTYPE html>
@@ -19,23 +18,23 @@
 		</style>
 		<script type="text/javascript" src="js/jquery.min.js"></script>
 		<script type="text/javascript" src="js/highcharts.js"></script>
+		<script type="text/javascript" src="js/menu.js"></script>
 	</head>
 	<body>
 	<div id="body">
 		<p id="header"><%= runOn %> - Simulation</p>
 		<ul id="menu">
-			<li>Global
+			<li id="global">Global
 				<ul>
 					<li><a href="active_sessions.html">Active Sessions</a></li>
 					<li><a href="requests.html">Requests</a></li>
 				</ul>
 			</li>
-			<li>Details
-				<ul>
-				<% for(menuItem <- menuItems) {%>
-					<li><a href="<%= menuItem._2 %>"><%= menuItem._1 %></a></li>
-				<% } %>
-				</ul>
+			<li id="details">Details
+				<ul></ul>
+			</li>
+			<li id="groups">Groups
+				<ul></ul>
 			</li>
 		</ul>
 		<div id="content">
