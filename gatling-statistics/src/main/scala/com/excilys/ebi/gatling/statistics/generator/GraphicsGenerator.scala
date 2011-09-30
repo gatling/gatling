@@ -9,8 +9,6 @@ import org.apache.commons.io.FileUtils
 import com.excilys.ebi.gatling.core.config.GatlingConfig._
 import com.excilys.ebi.gatling.core.util.PathHelper._
 
-import com.excilys.ebi.gatling.statistics.presenter.DetailsRequestsDataPresenter
-
 class GraphicsGenerator {
   def generateFor(runOn: String) = {
 
@@ -23,9 +21,7 @@ class GraphicsGenerator {
     FileUtils.copyFile(jQueryFile, jQueryFileDest)
     FileUtils.copyFile(highchartsFile, highchartsFileDest)
 
-    new DetailsRequestsDataPresenter().generateGraphFor(runOn)
-
-    val generator = new CompositeGraphicGenerator(new ActiveSessionsGraphicGenerator, new GlobalRequestsGraphicGenerator)
+    val generator = new CompositeGraphicGenerator(new ActiveSessionsGraphicGenerator, new GlobalRequestsGraphicGenerator, new DetailsRequestsGraphicGenerator)
 
     for (line <- Source.fromFile(GATLING_RESULTS_FOLDER + "/" + runOn + "/" + GATLING_SIMULATION_LOG_FILE, CONFIG_GATLING_ENCODING).getLines) {
       line.split("\t") match {

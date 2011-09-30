@@ -2,6 +2,7 @@ package com.excilys.ebi.gatling.statistics.presenter
 
 import com.excilys.ebi.gatling.core.util.FileHelper._
 import com.excilys.ebi.gatling.statistics.extractor.DetailsRequestsDataExtractor
+import com.excilys.ebi.gatling.statistics.result.DetailsRequestsDataResult
 import com.excilys.ebi.gatling.statistics.template.DetailsRequestsTemplate
 import com.excilys.ebi.gatling.statistics.template.TimeSeries
 import com.excilys.ebi.gatling.statistics.template.ColumnSeries
@@ -11,12 +12,9 @@ import com.excilys.ebi.gatling.statistics.utils.HighChartsHelper._
 import scala.collection.immutable.TreeMap
 import org.apache.commons.lang3.StringUtils
 
-class DetailsRequestsDataPresenter {
+class DetailsRequestsDataPresenter extends DataPresenter[Map[String, DetailsRequestsDataResult]] {
 
-  def generateGraphFor(runOn: String) = {
-
-    val results = new DetailsRequestsDataExtractor(runOn).getResults
-
+  def generateGraphFor(runOn: String, results: Map[String, DetailsRequestsDataResult]) = {
     results.foreach {
       case (requestName, result) =>
 
