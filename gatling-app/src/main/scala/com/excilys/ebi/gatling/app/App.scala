@@ -37,7 +37,7 @@ object App extends Logging {
 
     var folderName = StringUtils.EMPTY
 
-    if (!ONLY_STATS_PROPERTY.equals("true")) {
+    if (!ONLY_STATS_PROPERTY) {
       folderName = filesList.size match {
         case 0 =>
           logger.warn("There are no scenario scripts. Please verify that your scripts are in user-files/scenarios and that they do not start with a _ or a .")
@@ -64,7 +64,7 @@ object App extends Logging {
       }
     }
 
-    if (!NO_STATS_PROPERTY.equals("true"))
+    if (!NO_STATS_PROPERTY)
       generateStats(folderName)
 
   }
