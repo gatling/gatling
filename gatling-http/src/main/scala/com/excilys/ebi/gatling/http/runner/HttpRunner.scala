@@ -1,7 +1,7 @@
 package com.excilys.ebi.gatling.http.runner
 
 import com.excilys.ebi.gatling.core.runner.Runner
-import com.excilys.ebi.gatling.core.scenario.configuration.builder.ScenarioConfigurationBuilder._
+import com.excilys.ebi.gatling.core.scenario.configuration.builder.ScenarioConfigurationBuilder
 import com.excilys.ebi.gatling.http.action.HttpRequestAction
 import org.joda.time.DateTime
 

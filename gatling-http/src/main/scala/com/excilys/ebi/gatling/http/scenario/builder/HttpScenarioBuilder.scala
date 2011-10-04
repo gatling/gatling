@@ -1,7 +1,7 @@
 package com.excilys.ebi.gatling.http.scenario.builder
 
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
-import com.excilys.ebi.gatling.core.scenario.builder.ScenarioBuilder._
+import com.excilys.ebi.gatling.core.scenario.builder.ScenarioBuilder
 import com.excilys.ebi.gatling.http.action.builder.HttpRequestActionBuilder._
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequest
