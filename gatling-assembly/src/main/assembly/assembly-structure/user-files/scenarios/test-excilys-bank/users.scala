@@ -28,107 +28,54 @@ val headers = Map(	"Accept" -> "text/html,application/xhtml+xml,application/xml;
 /* Scenario */
 val scn = scenario("User of Excilys Bank")
 		// Login page
-		.doHttpRequest(
-		    "Login GET",
-		    get(urlLoginGet) withHeaders(headers),
-		    checkStatus(200)
-		)
+		.exec(http("Login GET") get(urlLoginGet) withHeaders(headers) check(status(200)))
 		.pause(5, 6)
 		// Authenticating
-		.doHttpRequest(
-		    "Authenticating",
-		    post(urlLoginPost) withParam ("username", FromContext("username")) withParam ("password", FromContext("password")) withHeaders(headers),
-		    checkStatus(302)
-		)
+		.exec(http("Authenticating") post(urlLoginPost) withParam ("username") withParam ("password") withHeaders(headers) check(status(302)))
 		// Home page
-		.doHttpRequest(
-		    "Home",
-		    get(urlHome) withHeaders(headers),
-		    checkRegexpExists("""<a href="/excilys-bank-web/logout" class="button blue">Log out</a>""")
-		) 
+		.exec(http("Home") get(urlHome) withHeaders(headers) check(regexpExists("""<a href="/excilys-bank-web/logout" class="button blue">Log out</a>"""))) 
 		.pause(5, 6)
 		.iterate(
 		    20,
 		    chain
 				// Operations page
-				.doHttpRequest(
-					"Operations details",
-					get(urlAccountOperations, "acc1") withHeaders(headers),
-					checkRegexpExists("""<table class="accountDetails">""")
-				)
+				.exec(http("Operations details") get(urlAccountOperations, "acc1") withHeaders(headers) check(regexpExists("""<table class="accountDetails">""")))
 				// Load operations data
-				.doHttpRequest(
-				    "Operations data",
-				    get(urlAccountOperationsData, "acc1") withHeaders(headers),
-				    checkStatus(200)
-				)
+				.exec(http("Operations data") get(urlAccountOperationsData, "acc1") withHeaders(headers) check(status(200)))
 				.pause(5, 6)
 				
 				// Cards operations page
-				.doHttpRequest(
-					"Cards details",
-					get(urlAccountCards, "acc1") withHeaders(headers),
-					checkRegexpExists("""<table class="accountDetails">""")
-				)
+				.exec(http("Cards details") get(urlAccountCards, "acc1") withHeaders(headers) check(regexpExists("""<table class="accountDetails">""")))
 				// Load cards operations data
-				.doHttpRequest(
-				    "Cards data",
-				    get(urlAccountCardsData, "acc1")
-				    , checkStatus(200)
-				)
+				.exec(http("Cards data") get(urlAccountCardsData, "acc1") check(status(200)))
 				.pause(5, 6)
 				
 				// Cards pending operations page
-				.doHttpRequest(
-					"Cards pending details",
-					get(urlAccountCardsPending, "acc1") withHeaders(headers),
-					checkRegexpExists("""<table class="accountDetails">""")
-				)
+				.exec(http("Cards pending details") get(urlAccountCardsPending, "acc1") withHeaders(headers) check(regexpExists("""<table class="accountDetails">""")))
 				// Load cards pending operations data
-				.doHttpRequest(
-				    "Cards pending data",
-				    get(urlAccountCardsPendingData, "acc1") withHeaders(headers),
-				    checkStatus(200)
-				)
+				.exec(http("Cards pending data") get(urlAccountCardsPendingData, "acc1") withHeaders(headers) check(status(200)))
 				.pause(5, 6)
 				
 				// Transfers page
-				.doHttpRequest(
-					"Transfers details",
-					get(urlAccountTransfers, "acc1") withHeaders(headers),
-					checkRegexpExists("""<table class="accountDetails">""")
-				)
+				.exec(http("Transfers details") get(urlAccountTransfers, "acc1") withHeaders(headers) check(regexpExists("""<table class="accountDetails">""")))
 				// Load transfers data
-				.doHttpRequest(
-				    "Transfers data",
-				    get(urlAccountTransfersData, "acc1") withHeaders(headers),
-				    checkStatus(200)
-				)
+				.exec(http("Transfers data") get(urlAccountTransfersData, "acc1") withHeaders(headers) check(status(200)))
 				.pause(5, 6)
 				
 				// Transfer perform page
-				.doHttpRequest(
-				    "Transfer perform",
-				    get(urlAccountTransferPerform, "acc1") withHeaders(headers)
-				)
+				.exec(http("Transfer perform") get(urlAccountTransferPerform, "acc1") withHeaders(headers))
 				.pause(5, 6)
 				
 				// Transfer performing
-				.doHttpRequest(
-				    "Transfer performing",
-				    post(urlAccountTransferPerform, "acc1") 
-				    	withParam ("debitedAccountNumber", FromContext("acc1")) 
+				.exec(http("Transfer performing") post(urlAccountTransferPerform, "acc1")
+						withParam ("debitedAccountNumber", FromContext("acc1")) 
 				    	withParam ("creditedAccountNumber", FromContext("acc2")) 
 				    	withParam ("amount", "10")
-				    	withHeaders(headers),
-				    checkStatus(302)
+				    	withHeaders(headers)
+				    	check(status(302)
 				)
 				.pause(5, 6)
 		)
 		
 		// Logout
-		.doHttpRequest(
-		    "Logging out",
-		    get(urlLogout) withHeaders(headers),
-		    checkStatus(302)
-		)
+		.exec(http("Logging out") get(urlLogout) withHeaders(headers) check(status(302)))
