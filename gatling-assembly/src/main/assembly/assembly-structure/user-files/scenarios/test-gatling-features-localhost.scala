@@ -10,7 +10,7 @@ val usersInformation = new TSVFeeder("user_information", List("login", "password
 include("lambda-user-test-gatling")
 include("_admin-user-test-gatling")
 
-val lambdaUserConfig = configureScenario(lambdaUser) withUsersNumber 5 withRampOf 10 withFeeder usersInformation
-val adminConfig = configureScenario(adminUser) withUsersNumber 5 withRampOf 10 startsAt 60 withFeeder usersInformation 
-
-runSimulations(lambdaUserConfig, adminConfig)
+runSimulations(
+    lambdaUser.configure.users(5).ramp(10).feeder(usersInformation)
+    , adminUser.configure.users(5).ramp(10).delay(60).feeder(usersInformation)
+)

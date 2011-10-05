@@ -40,8 +40,7 @@ object EndActionBuilder {
  */
 class EndActionBuilder(val latch: CountDownLatch) extends AbstractActionBuilder {
 
-  def build(scenarioId: Int): Action = {
-    logger.debug("Building EndAction of scenario {}", scenarioId)
+  def build: Action = {
     TypedActor.newInstance(classOf[Action], new EndAction(latch))
   }
 

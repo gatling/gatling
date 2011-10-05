@@ -19,6 +19,7 @@ import com.excilys.ebi.gatling.core.context.Context
 import akka.actor.TypedActor
 import com.excilys.ebi.gatling.core.action.WhileAction
 import akka.actor.Actor
+import com.excilys.ebi.gatling.core.scenario.builder.ChainBuilder
 
 /**
  * Companion of the WhileActionBuilder class
@@ -27,7 +28,7 @@ object WhileActionBuilder {
   /**
    * Creates an initialized WhileActionBuilder
    */
-  def whileActionBuilder = new WhileActionBuilder(None, None, None, Some(Nil))
+  def whileActionBuilder = new WhileActionBuilder(null, null, null, Nil)
 }
 
 /**
@@ -39,7 +40,7 @@ object WhileActionBuilder {
  * @param next action that will be executed if testFunction evaluates to false
  * @param groups groups in which this action and the others inside will be
  */
-class WhileActionBuilder(val testFunction: Option[Context => Boolean], val nextTrue: Option[AbstractActionBuilder], val next: Option[Action], val groups: Option[List[String]])
+class WhileActionBuilder(val testFunction: Context => Boolean, val nextTrue: ChainBuilder, val next: Action, val groups: List[String])
     extends AbstractActionBuilder {
 
   /**
@@ -48,7 +49,7 @@ class WhileActionBuilder(val testFunction: Option[Context => Boolean], val nextT
    * @param testFunction the test function
    * @return a new builder with testFunction set
    */
-  def withTestFunction(testFunction: Context => Boolean) = new WhileActionBuilder(Some(testFunction), nextTrue, next, groups)
+  def withTestFunction(testFunction: Context => Boolean) = new WhileActionBuilder(testFunction, nextTrue, next, groups)
 
   /**
    * Adds nextTrue to builder
@@ -56,16 +57,14 @@ class WhileActionBuilder(val testFunction: Option[Context => Boolean], val nextT
    * @param nextTrue the chain executed if testFunction evaluated to true
    * @return a new builder with nextTrue set
    */
-  def withNextTrue(nextTrue: AbstractActionBuilder) = new WhileActionBuilder(testFunction, Some(nextTrue), next, groups)
+  def withNextTrue(nextTrue: ChainBuilder) = new WhileActionBuilder(testFunction, nextTrue, next, groups)
 
-  def withNext(next: Action) = new WhileActionBuilder(testFunction, nextTrue, Some(next), groups)
+  def withNext(next: Action) = new WhileActionBuilder(testFunction, nextTrue, next, groups)
 
-  def inGroups(groups: List[String]) = new WhileActionBuilder(testFunction, nextTrue, next, Some(groups))
+  def inGroups(groups: List[String]) = new WhileActionBuilder(testFunction, nextTrue, next, groups)
 
-  def build(scenarioId: Int): Action = {
+  def build: Action = {
     logger.debug("Building IfAction")
-
-    TypedActor.newInstance(classOf[Action], new WhileAction(testFunction.get, (w: WhileAction) => nextTrue.get.withNext(w).inGroups(groups.get).build(scenarioId), next.get))
-
+    TypedActor.newInstance(classOf[Action], new WhileAction(testFunction, (w: WhileAction) => nextTrue.withNext(w).inGroups(groups).build, next))
   }
 }

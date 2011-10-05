@@ -25,10 +25,9 @@ trait AbstractActionBuilder extends Logging {
   /**
    * Builds the Action
    *
-   * @param scenarioId The Id of the current User
    * @return The built Action
    */
-  def build(scenarioId: Int): Action
+  def build: Action
 
   /**
    * Adds next action to this builder, to be able to chain the actions

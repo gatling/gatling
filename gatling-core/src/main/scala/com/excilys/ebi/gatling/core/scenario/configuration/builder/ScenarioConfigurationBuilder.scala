@@ -22,18 +22,6 @@ import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfiguration
 import java.util.concurrent.TimeUnit
 
 /**
- * Companion object of class ScenarioConfigurationBuilder
- */
-object ScenarioConfigurationBuilder {
-  /**
-   * Creates an initialized ScenarioConfigurationBuilder
-   *
-   * @param s the scenario to be configured
-   */
-  def configureScenario[B <: ScenarioBuilder[B]](s: B) = new ScenarioConfigurationBuilder(Some(s), Some(500), Some((0, TimeUnit.SECONDS)), Some((0, TimeUnit.SECONDS)), None)
-}
-
-/**
  * This class is used in the DSL to configure scenarios
  *
  * @param s the scenario to be configured
@@ -42,8 +30,12 @@ object ScenarioConfigurationBuilder {
  * @param startTime the time at which the first user will start in the simulation
  * @param feeder the feeder associated with the scenario
  */
-class ScenarioConfigurationBuilder(s: Option[ScenarioBuilder[_ <: ScenarioBuilder[_]]], numUsers: Option[Int], ramp: Option[(Int, TimeUnit)],
-                                   startTime: Option[(Int, TimeUnit)], feeder: Option[Feeder]) {
+class ScenarioConfigurationBuilder(scenarioBuilder: ScenarioBuilder, usersValue: Int, rampValue: (Int, TimeUnit),
+                                   delayValue: (Int, TimeUnit), feederValue: Option[Feeder]) {
+
+  def this(scenarioBuilder: ScenarioBuilder) = {
+    this(scenarioBuilder, 500, (0, TimeUnit.SECONDS), (0, TimeUnit.SECONDS), None)
+  }
 
   /**
    * Method used to set the number of users that will be executed
@@ -51,7 +43,7 @@ class ScenarioConfigurationBuilder(s: Option[ScenarioBuilder[_ <: ScenarioBuilde
    * @param nbUsers the number of users
    * @return a new builder with the number of users set
    */
-  def withUsersNumber(nbUsers: Int) = new ScenarioConfigurationBuilder(s, Some(nbUsers), ramp, startTime, feeder)
+  def users(nbUsers: Int) = new ScenarioConfigurationBuilder(scenarioBuilder, nbUsers, rampValue, delayValue, feederValue)
 
   /**
    * Method used to set the ramp duration in seconds
@@ -59,7 +51,7 @@ class ScenarioConfigurationBuilder(s: Option[ScenarioBuilder[_ <: ScenarioBuilde
    * @param rampTime the duration of the ramp in seconds
    * @return a new builder with ramp duration set
    */
-  def withRampOf(rampTime: Int): ScenarioConfigurationBuilder = withRampOf(rampTime, TimeUnit.SECONDS)
+  def ramp(rampTime: Int): ScenarioConfigurationBuilder = ramp(rampTime, TimeUnit.SECONDS)
 
   /**
    * Method used to set the ramp duration
@@ -68,7 +60,7 @@ class ScenarioConfigurationBuilder(s: Option[ScenarioBuilder[_ <: ScenarioBuilde
    * @param unit the time unit of the ramp duration
    * @return a new builder with the ramp duration set
    */
-  def withRampOf(rampTime: Int, unit: TimeUnit) = new ScenarioConfigurationBuilder(s, numUsers, Some((rampTime, unit)), startTime, feeder)
+  def ramp(rampTime: Int, unit: TimeUnit) = new ScenarioConfigurationBuilder(scenarioBuilder, usersValue, (rampTime, unit), delayValue, feederValue)
 
   /**
    * Method used to set the feeder used by the scenario
@@ -76,7 +68,7 @@ class ScenarioConfigurationBuilder(s: Option[ScenarioBuilder[_ <: ScenarioBuilde
    * @param feeder the feeder to be used by the scenario
    * @return a new builder with the feeder set
    */
-  def withFeeder(feeder: Feeder) = new ScenarioConfigurationBuilder(s, numUsers, ramp, startTime, Some(feeder))
+  def feeder(feederValue: Feeder) = new ScenarioConfigurationBuilder(scenarioBuilder, usersValue, rampValue, delayValue, Some(feederValue))
 
   /**
    * Method used to set the start time of the first user in the simulation in seconds
@@ -84,7 +76,7 @@ class ScenarioConfigurationBuilder(s: Option[ScenarioBuilder[_ <: ScenarioBuilde
    * @param startTime the time at which the first user will start, in seconds
    * @return a new builder with the start time set
    */
-  def startsAt(startTime: Int): ScenarioConfigurationBuilder = startsAt(startTime, TimeUnit.SECONDS)
+  def delay(delayValue: Int): ScenarioConfigurationBuilder = delay(delayValue, TimeUnit.SECONDS)
 
   /**
    * Method used to set the start time of the first user in the simulation
@@ -93,12 +85,12 @@ class ScenarioConfigurationBuilder(s: Option[ScenarioBuilder[_ <: ScenarioBuilde
    * @param unit the unit of the start time
    * @return a new builder with the start time set
    */
-  def startsAt(startTime: Int, unit: TimeUnit) = new ScenarioConfigurationBuilder(s, numUsers, ramp, Some((startTime, unit)), feeder)
+  def delay(delayValue: Int, unit: TimeUnit) = new ScenarioConfigurationBuilder(scenarioBuilder, usersValue, rampValue, (delayValue, unit), feederValue)
 
   /**
    * Builds the configuration of the scenario
    *
    * @return the configuration requested
    */
-  def build(scenarioId: Int): ScenarioConfiguration = new ScenarioConfiguration(scenarioId, s.get, numUsers.get, ramp.get, startTime.get, feeder)
+  def build(scenarioId: Int): ScenarioConfiguration = new ScenarioConfiguration(scenarioId, scenarioBuilder, usersValue, rampValue, delayValue, feederValue)
 }

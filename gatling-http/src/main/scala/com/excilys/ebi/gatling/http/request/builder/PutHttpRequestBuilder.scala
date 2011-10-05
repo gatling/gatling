@@ -5,19 +5,15 @@ import com.excilys.ebi.gatling.core.util.StringHelper._
 
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.excilys.ebi.gatling.http.request.Param
+import com.excilys.ebi.gatling.http.action.builder.HttpRequestActionBuilder
 
-object PutHttpRequestBuilder {
-  class PutHttpRequestBuilder(urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]],
-                              headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean])
-      extends AbstractHttpRequestWithBodyBuilder[PutHttpRequestBuilder](urlFormatter, queryParams, headers, body, followsRedirects) {
+class PutHttpRequestBuilder(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]],
+                            headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean])
+    extends AbstractHttpRequestWithBodyBuilder[PutHttpRequestBuilder](httpRequestActionBuilder, urlFormatter, queryParams, headers, body, followsRedirects) {
 
-    def newInstance(urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean]) = {
-      new PutHttpRequestBuilder(urlFormatter, queryParams, headers, body, followsRedirects)
-    }
-
-    def getMethod = "PUT"
+  def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean]) = {
+    new PutHttpRequestBuilder(httpRequestActionBuilder, urlFormatter, queryParams, headers, body, followsRedirects)
   }
 
-  def put(url: String, interpolations: String*) = new PutHttpRequestBuilder(Some((c: Context) => interpolateString(c, url, interpolations)), Some(Map()), Some(Map()), None, None)
-  def put(f: Context => String) = new PutHttpRequestBuilder(Some(f), Some(Map()), Some(Map()), None, None)
+  def getMethod = "PUT"
 }

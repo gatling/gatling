@@ -67,7 +67,7 @@ class GroupActionBuilder(groupName: Option[String], end: Option[Boolean]) extend
    *
    * @throw UnsupportedOperationException
    */
-  def build(scenarioId: Int) = throw new UnsupportedOperationException
+  def build = throw new UnsupportedOperationException
 
   /**
    * This method should never be called

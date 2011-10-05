@@ -19,6 +19,7 @@ import akka.actor.TypedActor
 import com.excilys.ebi.gatling.core.action.IfAction
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.scenario.builder.ScenarioBuilder
+import com.excilys.ebi.gatling.core.scenario.builder.ChainBuilder
 
 /**
  * Companion Object of IfActionBuilder class
@@ -27,7 +28,7 @@ object IfActionBuilder {
   /**
    * Creates an initialized IfActionBuilder
    */
-  def ifActionBuilder = new IfActionBuilder(None, None, None, None, Some(Nil))
+  def ifActionBuilder = new IfActionBuilder(null, null, null, null, Nil)
 }
 
 /**
@@ -40,8 +41,8 @@ object IfActionBuilder {
  * @param next chain that will be executed if testFunction evaluates to false and there is no nextFalse
  * @param groups groups in which this action and the ones inside will be
  */
-class IfActionBuilder(val testFunction: Option[Context => Boolean], val nextTrue: Option[AbstractActionBuilder], val nextFalse: Option[AbstractActionBuilder],
-                      val next: Option[Action], val groups: Option[List[String]])
+class IfActionBuilder(val testFunction: Context => Boolean, val nextTrue: ChainBuilder, val nextFalse: Option[ChainBuilder],
+                      val next: Action, val groups: List[String])
     extends AbstractActionBuilder {
 
   /**
@@ -50,7 +51,7 @@ class IfActionBuilder(val testFunction: Option[Context => Boolean], val nextTrue
    * @param testFunction the test function
    * @return a new builder with testFunction set
    */
-  def withTestFunction(testFunction: Context => Boolean) = new IfActionBuilder(Some(testFunction), nextTrue, nextFalse, next, groups)
+  def withTestFunction(testFunction: Context => Boolean) = new IfActionBuilder(testFunction, nextTrue, nextFalse, next, groups)
 
   /**
    * Adds nextTrue to builder
@@ -58,7 +59,7 @@ class IfActionBuilder(val testFunction: Option[Context => Boolean], val nextTrue
    * @param nextTrue the chain executed if testFunction evaluated to true
    * @return a new builder with nextTrue set
    */
-  def withNextTrue(nextTrue: AbstractActionBuilder) = new IfActionBuilder(testFunction, Some(nextTrue), nextFalse, next, groups)
+  def withNextTrue(nextTrue: ChainBuilder) = new IfActionBuilder(testFunction, nextTrue, nextFalse, next, groups)
 
   /**
    * Adds nextFalse to builder
@@ -66,20 +67,20 @@ class IfActionBuilder(val testFunction: Option[Context => Boolean], val nextTrue
    * @param nextFalse the chain executed if testFunction evaluated to false
    * @return a new builder with nextFalse set
    */
-  def withNextFalse(nextFalse: Option[AbstractActionBuilder]) = new IfActionBuilder(testFunction, nextTrue, nextFalse, next, groups)
+  def withNextFalse(nextFalse: Option[ChainBuilder]) = new IfActionBuilder(testFunction, nextTrue, nextFalse, next, groups)
 
-  def withNext(next: Action) = new IfActionBuilder(testFunction, nextTrue, nextFalse, Some(next), groups)
+  def withNext(next: Action) = new IfActionBuilder(testFunction, nextTrue, nextFalse, next, groups)
 
-  def inGroups(groups: List[String]) = new IfActionBuilder(testFunction, nextTrue, nextFalse, next, Some(groups))
+  def inGroups(groups: List[String]) = new IfActionBuilder(testFunction, nextTrue, nextFalse, next, groups)
 
-  def build(scenarioId: Int): Action = {
+  def build: Action = {
     logger.debug("Building IfAction")
 
-    val actionTrue = nextTrue.get.withNext(next.get).inGroups(groups.get).build(scenarioId)
+    val actionTrue = nextTrue.withNext(next).inGroups(groups).build
     val actionFalse = nextFalse.map { chain =>
-      chain.withNext(next.get).inGroups(groups.get).build(scenarioId)
+      chain.withNext(next).inGroups(groups).build
     }
 
-    TypedActor.newInstance(classOf[Action], new IfAction(testFunction.get, actionTrue, actionFalse, next.get))
+    TypedActor.newInstance(classOf[Action], new IfAction(testFunction, actionTrue, actionFalse, next))
   }
 }

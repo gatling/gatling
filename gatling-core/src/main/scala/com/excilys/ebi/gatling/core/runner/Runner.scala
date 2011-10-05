@@ -32,11 +32,12 @@ import akka.actor.Actor.actorOf
 import akka.actor.Actor.registry
 import org.apache.commons.lang3.time.FastDateFormat
 import org.joda.time.DateTime
+import com.excilys.ebi.gatling.core.scenario.Scenario
 
 abstract class Runner(val startDate: DateTime, val scenarioConfigurationBuilders: List[ScenarioConfigurationBuilder], val onFinished: () => Unit) extends Logging {
   var totalNumberOfUsers = 0
   var scenarioConfigurations: List[ScenarioConfiguration] = Nil
-  var scenarios: List[Action] = Nil
+  var scenarios: List[Scenario] = Nil
   val statWriter = actorOf[FileDataWriter].start
 
   // stores all scenario configurations
@@ -45,14 +46,14 @@ abstract class Runner(val startDate: DateTime, val scenarioConfigurationBuilders
 
   // Counts the number of users
   for (configuration <- scenarioConfigurations)
-    totalNumberOfUsers += configuration.numberOfUsers
+    totalNumberOfUsers += configuration.users
 
   // Initializes a countdown latch to determine when to stop the application
   val latch: CountDownLatch = new CountDownLatch(totalNumberOfUsers + 1)
 
   // Builds all scenarios
   for (configuration <- scenarioConfigurations) {
-    scenarios = configuration.scenarioBuilder.end(latch).build(configuration.scenarioId) :: scenarios
+    scenarios = configuration.scenarioBuilder.end(latch).build :: scenarios
   }
 
   // Creates a List of Tuples with scenario configuration / scenario 
@@ -72,8 +73,11 @@ abstract class Runner(val startDate: DateTime, val scenarioConfigurationBuilders
 
     // Scheduling all scenarios
     for (scenarioAndConfiguration <- scenariosAndConfigurations) {
-      val startTime = scenarioAndConfiguration._1.startTime
-      Scheduler.scheduleOnce(() => startOneScenario(scenarioAndConfiguration._1, scenarioAndConfiguration._2), startTime._1, startTime._2)
+      val delay = scenarioAndConfiguration._1.delay
+      Scheduler.scheduleOnce(() => {
+        logger.debug("Launching Scenario: {}", scenarioAndConfiguration._2.getFirstAction)
+        startOneScenario(scenarioAndConfiguration._1, scenarioAndConfiguration._2.getFirstAction)
+      }, delay._1, delay._2)
     }
 
     logger.debug("Finished Launching scenarios executions")
@@ -95,7 +99,7 @@ abstract class Runner(val startDate: DateTime, val scenarioConfigurationBuilders
    * @return Nothing
    */
   private def startOneScenario(configuration: ScenarioConfiguration, scenario: Action) = {
-    if (configuration.numberOfUsers == 1) {
+    if (configuration.users == 1) {
       // if only 1 user, execute right now
       val context = buildContext(configuration, 1)
       scenario.execute(context)
@@ -103,9 +107,9 @@ abstract class Runner(val startDate: DateTime, val scenarioConfigurationBuilders
       // otherwise, schedule
       val ramp = configuration.ramp
       // compute ramp period in millis so we can ramp less that one user per second
-      val period = ramp._2.toMillis(ramp._1) / (configuration.numberOfUsers - 1)
+      val period = ramp._2.toMillis(ramp._1) / (configuration.users - 1)
 
-      for (i <- 1 to configuration.numberOfUsers) {
+      for (i <- 1 to configuration.users) {
         val context: Context = buildContext(configuration, i)
         Scheduler.scheduleOnce(() => scenario.execute(context), period * (i - 1), TimeUnit.MILLISECONDS)
       }

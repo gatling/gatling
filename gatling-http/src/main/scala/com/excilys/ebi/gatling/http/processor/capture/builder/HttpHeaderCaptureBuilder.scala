@@ -9,17 +9,16 @@ import com.excilys.ebi.gatling.http.processor.capture.HttpHeaderCapture
 import com.excilys.ebi.gatling.http.request.HttpPhase._
 
 object HttpHeaderCaptureBuilder {
-  class HttpHeaderCaptureBuilder(expressionFormatter: Option[Context => String], attribute: Option[String], httpPhase: Option[HttpPhase])
-      extends AbstractHttpCaptureBuilder[HttpHeaderCaptureBuilder](expressionFormatter, attribute, httpPhase) {
+  def header(expressionFormatter: Context => String) = new HttpHeaderCaptureBuilder(Some(expressionFormatter), None, None)
+  def header(expression: String): HttpHeaderCaptureBuilder = header((c: Context) => expression)
+  def header(expressionToFormat: String, interpolations: String*): HttpHeaderCaptureBuilder = header((c: Context) => interpolateString(c, expressionToFormat, interpolations))
+}
+class HttpHeaderCaptureBuilder(expressionFormatter: Option[Context => String], attribute: Option[String], httpPhase: Option[HttpPhase])
+    extends AbstractHttpCaptureBuilder[HttpHeaderCaptureBuilder](expressionFormatter, attribute, httpPhase) {
 
-    def newInstance(expressionFormatter: Option[Context => String], attribute: Option[String], httpPhase: Option[HttpPhase]) = {
-      new HttpHeaderCaptureBuilder(expressionFormatter, attribute, httpPhase)
-    }
-
-    def build: HttpCapture = new HttpHeaderCapture(expressionFormatter.get, attribute.get)
+  def newInstance(expressionFormatter: Option[Context => String], attribute: Option[String], httpPhase: Option[HttpPhase]) = {
+    new HttpHeaderCaptureBuilder(expressionFormatter, attribute, httpPhase)
   }
 
-  def captureHeader(expressionFormatter: Context => String) = new HttpHeaderCaptureBuilder(Some(expressionFormatter), None, None)
-  def captureHeader(expression: String): HttpHeaderCaptureBuilder = captureHeader((c: Context) => expression)
-  def captureHeader(expressionToFormat: String, interpolations: String*): HttpHeaderCaptureBuilder = captureHeader((c: Context) => interpolateString(c, expressionToFormat, interpolations))
+  def build: HttpCapture = new HttpHeaderCapture(expressionFormatter.get, attribute.get)
 }

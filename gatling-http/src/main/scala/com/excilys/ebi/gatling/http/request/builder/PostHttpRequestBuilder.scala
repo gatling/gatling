@@ -6,19 +6,15 @@ import com.excilys.ebi.gatling.core.util.StringHelper._
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.excilys.ebi.gatling.http.request.Param
 import com.excilys.ebi.gatling.http.request.MIMEType._
+import com.excilys.ebi.gatling.http.action.builder.HttpRequestActionBuilder
 
-object PostHttpRequestBuilder {
-  class PostHttpRequestBuilder(urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], params: Option[Map[String, Param]],
-                               headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean])
-      extends AbstractHttpRequestWithBodyAndParamsBuilder[PostHttpRequestBuilder](urlFormatter, queryParams, params, headers, body, followsRedirects) {
+class PostHttpRequestBuilder(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], params: Option[Map[String, Param]],
+                             headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean])
+    extends AbstractHttpRequestWithBodyAndParamsBuilder[PostHttpRequestBuilder](httpRequestActionBuilder, urlFormatter, queryParams, params, headers, body, followsRedirects) {
 
-    def newInstance(urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], params: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean]) = {
-      new PostHttpRequestBuilder(urlFormatter, queryParams, params, headers, body, followsRedirects)
-    }
-
-    def getMethod = "POST"
+  def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], params: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean]) = {
+    new PostHttpRequestBuilder(httpRequestActionBuilder, urlFormatter, queryParams, params, headers, body, followsRedirects)
   }
 
-  def post(url: String, interpolations: String*) = new PostHttpRequestBuilder(Some((c: Context) => interpolateString(c, url, interpolations)), Some(Map()), Some(Map()), Some(Map()), None, None)
-  def post(f: Context => String) = new PostHttpRequestBuilder(Some(f), Some(Map()), Some(Map()), Some(Map()), None, None)
+  def getMethod = "POST"
 }

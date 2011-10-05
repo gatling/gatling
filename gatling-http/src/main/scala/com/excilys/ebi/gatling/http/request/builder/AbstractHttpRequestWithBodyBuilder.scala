@@ -9,6 +9,7 @@ import com.excilys.ebi.gatling.core.context.FromContext
 import com.excilys.ebi.gatling.core.util.PathHelper._
 import com.excilys.ebi.gatling.core.util.FileHelper._
 
+import com.excilys.ebi.gatling.http.action.builder.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.excilys.ebi.gatling.http.request.FilePathBody
 import com.excilys.ebi.gatling.http.request.StringBody
@@ -19,9 +20,9 @@ import com.excilys.ebi.gatling.http.request.ContextParam
 
 import java.io.File
 
-abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]],
+abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]],
                                                                                               headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean])
-    extends AbstractHttpRequestBuilder[B](urlFormatter, queryParams, headers, followsRedirects) {
+    extends AbstractHttpRequestBuilder[B](httpRequestActionBuilder, urlFormatter, queryParams, headers, followsRedirects) {
 
   override def getRequestBuilder(context: Context): RequestBuilder = {
     val requestBuilder = super.getRequestBuilder(context)
@@ -30,18 +31,18 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
     requestBuilder
   }
 
-  def newInstance(urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean]): B
+  def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean]): B
 
-  def newInstance(urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], followsRedirects: Option[Boolean]): B = {
-    newInstance(urlFormatter, queryParams, headers, body, followsRedirects)
+  def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], followsRedirects: Option[Boolean]): B = {
+    newInstance(httpRequestActionBuilder, urlFormatter, queryParams, headers, body, followsRedirects)
   }
 
   def withFile(filePath: String): B = {
-    newInstance(urlFormatter, queryParams, headers, Some(FilePathBody(filePath)), followsRedirects)
+    newInstance(httpRequestActionBuilder, urlFormatter, queryParams, headers, Some(FilePathBody(filePath)), followsRedirects)
   }
 
   def withBody(body: String): B = {
-    newInstance(urlFormatter, queryParams, headers, Some(StringBody(body)), followsRedirects)
+    newInstance(httpRequestActionBuilder, urlFormatter, queryParams, headers, Some(StringBody(body)), followsRedirects)
   }
 
   def withTemplateBody(tplPath: String, values: Map[String, Any]): B = {
@@ -52,7 +53,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
           case s => StringParam(s.toString)
         })
     }
-    newInstance(urlFormatter, queryParams, headers, Some(TemplateBody(tplPath, encapsulatedValues)), followsRedirects)
+    newInstance(httpRequestActionBuilder, urlFormatter, queryParams, headers, Some(TemplateBody(tplPath, encapsulatedValues)), followsRedirects)
   }
 
   def addBodyTo(requestBuilder: RequestBuilder, body: Option[HttpRequestBody], context: Context) = {

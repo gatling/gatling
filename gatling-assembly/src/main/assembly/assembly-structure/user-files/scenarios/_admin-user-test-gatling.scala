@@ -1,9 +1,7 @@
 val adminUser = scenario("Admin User")
   // First request outside iteration
-  .doHttpRequest(
-    "Catégorie Poney",
-    get(baseUrl))
-  .pause(pause3)
+  .exec( http("Catégorie Poney") get(baseUrl) !)
+  .pause( pause3 )
   // Loop
   .iterate(
     // How many times ?
@@ -11,7 +9,6 @@ val adminUser = scenario("Admin User")
     // What will be repeated ?
     chain
       // First request to be repeated
-      .doHttpRequest(
-        "Page Admin",
-        get(baseUrl) withQueryParam "firstname")
-      .pause(pause2))
+      .exec( http("Page Admin") get(baseUrl) withQueryParam "firstname" !)
+      .pause( pause2 )
+  )

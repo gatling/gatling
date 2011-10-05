@@ -5,19 +5,16 @@ import com.excilys.ebi.gatling.core.util.StringHelper._
 
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.excilys.ebi.gatling.http.request.Param
+import com.excilys.ebi.gatling.http.action.builder.HttpRequestActionBuilder
 
-object DeleteHttpRequestBuilder {
-  class DeleteHttpRequestBuilder(urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]],
-                                 headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean])
-      extends AbstractHttpRequestWithBodyBuilder[DeleteHttpRequestBuilder](urlFormatter, queryParams, headers, body, followsRedirects) {
+class DeleteHttpRequestBuilder(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]],
+                               headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean])
+    extends AbstractHttpRequestWithBodyBuilder[DeleteHttpRequestBuilder](httpRequestActionBuilder, urlFormatter, queryParams, headers, body, followsRedirects) {
 
-    def newInstance(urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean]) = {
-      new DeleteHttpRequestBuilder(urlFormatter, queryParams, headers, body, followsRedirects)
-    }
-
-    def getMethod = "DELETE"
+  def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean]) = {
+    new DeleteHttpRequestBuilder(httpRequestActionBuilder, urlFormatter, queryParams, headers, body, followsRedirects)
   }
 
-  def delete(url: String, interpolations: String*) = new DeleteHttpRequestBuilder(Some((c: Context) => interpolateString(c, url, interpolations)), Some(Map()), Some(Map()), None, None)
-  def delete(f: Context => String) = new DeleteHttpRequestBuilder(Some(f), Some(Map()), Some(Map()), None, None)
+  def getMethod = "DELETE"
 }
+

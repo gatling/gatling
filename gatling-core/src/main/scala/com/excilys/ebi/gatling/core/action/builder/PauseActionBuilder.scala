@@ -83,9 +83,8 @@ class PauseActionBuilder(val minDuration: Option[Long], val maxDuration: Option[
 
   def inGroups(groups: List[String]) = new PauseActionBuilder(minDuration, maxDuration, timeUnit, next, Some(groups))
 
-  def build(scenarioId: Int): Action = {
+  def build: Action = {
     logger.debug("Building PauseAction with duration in : {} - {}ms", TimeUnit.MILLISECONDS.convert(minDuration.get, timeUnit.get), TimeUnit.MILLISECONDS.convert(maxDuration.get, timeUnit.get))
-    ScenarioBuilder.addToExecutionTime(scenarioId, maxDuration.get, timeUnit.get)
     TypedActor.newInstance(classOf[Action], new PauseAction(next.get, minDuration.get, maxDuration.get, timeUnit.get))
   }
 }
