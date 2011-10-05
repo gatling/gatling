@@ -23,8 +23,8 @@ import com.excilys.ebi.gatling.http.processor.check.builder.HttpCheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequest
 
 abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val httpRequestActionBuilder: HttpRequestActionBuilder, val urlFormatter: Option[Context => String], val queryParams: Option[Map[String, Param]],
-                                                                              val headers: Option[Map[String, String]], val followsRedirects: Option[Boolean])
-    extends Logging {
+  val headers: Option[Map[String, String]], val followsRedirects: Option[Boolean])
+  extends Logging {
 
   def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], followsRedirects: Option[Boolean]): B
 
@@ -38,21 +38,21 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
   def ! = httpRequestActionBuilder withRequest (new HttpRequest(httpRequestActionBuilder.getRequestName, this))
 
-  def withQueryParam(paramKey: String, paramValue: String): B = {
+  def queryParam(paramKey: String, paramValue: String): B = {
     newInstance(httpRequestActionBuilder, urlFormatter, Some(queryParams.get + (paramKey -> StringParam(paramValue))), headers, followsRedirects)
   }
 
-  def withQueryParam(paramKey: String, paramValue: FromContext): B = {
+  def queryParam(paramKey: String, paramValue: FromContext): B = {
     newInstance(httpRequestActionBuilder, urlFormatter, Some(queryParams.get + (paramKey -> ContextParam(paramValue.attributeKey))), headers, followsRedirects)
   }
 
-  def withQueryParam(paramKey: String): B = withQueryParam(paramKey, FromContext(paramKey))
+  def queryParam(paramKey: String): B = queryParam(paramKey, FromContext(paramKey))
 
-  def withHeader(header: Tuple2[String, String]): B = {
+  def header(header: Tuple2[String, String]): B = {
     newInstance(httpRequestActionBuilder, urlFormatter, queryParams, Some(headers.get + (header._1 -> header._2)), followsRedirects)
   }
 
-  def withHeaders(givenHeaders: Map[String, String]): B = {
+  def headers(givenHeaders: Map[String, String]): B = {
     newInstance(httpRequestActionBuilder, urlFormatter, queryParams, Some(headers.get ++ givenHeaders), followsRedirects)
   }
 

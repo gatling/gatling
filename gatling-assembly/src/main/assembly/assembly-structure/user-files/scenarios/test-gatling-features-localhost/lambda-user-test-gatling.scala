@@ -44,16 +44,16 @@ val lambdaUser = scenario("Standard User")
       .exec(http("Url from context").get("http://localhost:3000/{}", "test2") !)
       .pause(1000, 3000, TimeUnit.MILLISECONDS)
       // Second request to be repeated
-      .exec(http("Create Thing blabla").post("http://localhost:3000/things").withQueryParam("login").withQueryParam("password").withTemplateBody("create_thing", Map("name" -> "blabla")).asJSON !)
+      .exec(http("Create Thing blabla").post("http://localhost:3000/things").queryParam("login").queryParam("password").withTemplateBody("create_thing", Map("name" -> "blabla")).asJSON !)
       .pause(pause1)
       .endGroup(loginGroup)
       // Third request to be repeated
-      .exec(http("Liste Articles") get("http://localhost:3000/things") withQueryParam "firstname" withQueryParam "lastname" !)
+      .exec(http("Liste Articles") get("http://localhost:3000/things") queryParam "firstname" queryParam "lastname" !)
       .pause(pause1)
       .exec(http("Test Page") get("http://localhost:3000/tests") check(headerEquals(CONTENT_TYPE, "text/html; charset=utf-8") in "ctxParam"))
       // Fourth request to be repeated
       .exec(http("Create Thing omgomg")
-              .post("http://localhost:3000/things").withQueryParam("postTest", FromContext("ctxParam")).withTemplateBody("create_thing", Map("name" -> FromContext("ctxParam"))).asJSON
+              .post("http://localhost:3000/things").queryParam("postTest", FromContext("ctxParam")).withTemplateBody("create_thing", Map("name" -> FromContext("ctxParam"))).asJSON
               .check(status(201) in "status"))
   )
   // Second request outside iteration
