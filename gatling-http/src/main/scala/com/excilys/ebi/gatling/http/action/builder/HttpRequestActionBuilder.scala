@@ -15,13 +15,14 @@ import com.excilys.ebi.gatling.http.request.builder.PutHttpRequestBuilder
 import com.excilys.ebi.gatling.http.processor.capture.builder.AbstractHttpCaptureBuilder
 import com.excilys.ebi.gatling.http.processor.check.builder.HttpCheckBuilder
 import akka.actor.TypedActor
+import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 
 object HttpRequestActionBuilder {
   def http(requestName: String) = new HttpRequestActionBuilder(requestName, None, None, None, Some(Nil))
 }
 
 class HttpRequestActionBuilder(val requestName: String, val request: Option[HttpRequest], val nextAction: Option[Action], val processorBuilders: Option[List[HttpProcessorBuilder]], val groups: Option[List[String]])
-    extends AbstractActionBuilder {
+  extends AbstractActionBuilder {
 
   def getRequestName = requestName
 

@@ -36,8 +36,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
     httpRequestActionBuilder withRequest (new HttpRequest(httpRequestActionBuilder.getRequestName, this)) withProcessors checkBuilders
   }
 
-  def ! = httpRequestActionBuilder withRequest (new HttpRequest(httpRequestActionBuilder.getRequestName, this))
-
   def queryParam(paramKey: String, paramValue: String): B = {
     newInstance(httpRequestActionBuilder, urlFormatter, Some(queryParams.get + (paramKey -> StringParam(paramValue))), headers, followsRedirects)
   }
@@ -108,5 +106,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
     requestBuilder setHeaders (new FluentCaseInsensitiveStringsMap)
     for (header <- headers.get) { requestBuilder addHeader (header._1, header._2) }
   }
+}
 
+object AbstractHttpRequestBuilder {
+  implicit def toHttpRequestActionBuilder[B <: AbstractHttpRequestBuilder[B]](requestBuilder: B) = requestBuilder.httpRequestActionBuilder withRequest (new HttpRequest(requestBuilder.httpRequestActionBuilder.getRequestName, requestBuilder))
 }

@@ -1,4 +1,4 @@
-val loginChain = chain.exec(http("First Request Chain").get(baseUrl) !).pause(1,2)
+val loginChain = chain.exec(http("First Request Chain").get(baseUrl)).pause(1,2)
 
 val loginGroup = "Login"
 val doStuffGroup = "Do Stuff"
@@ -11,9 +11,9 @@ val lambdaUser = scenario("Standard User")
   .pause(pause2, pause3)
   .doFor(12000, TimeUnit.MILLISECONDS,
       chain
-        .exec(http("In During 1").get(baseUrl) !)
+        .exec(http("In During 1").get(baseUrl))
         .pause(2)
-        .exec(http("In During 2").get(baseUrl) !)
+        .exec(http("In During 2").get(baseUrl))
         .pause(2))
   // Loop
   .iterate(
