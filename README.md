@@ -21,9 +21,9 @@ Gatling is built upon :
 ...
 
 
-# State
+# Status
 Currently under development.
-We aim for a 0.9 version by the end of september.
+We aim for a 1.0 release by the end of november.
 
 # Tooling
 YourKit is kindly supporting open source projects with its full-featured Java Profiler.
