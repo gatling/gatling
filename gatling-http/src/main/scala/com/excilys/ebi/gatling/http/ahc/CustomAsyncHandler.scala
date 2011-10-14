@@ -77,23 +77,23 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 		}
 	}
 
-	private def prepareProviders(processors: CSet[HttpProcessor], placeToSearch: Any): HashMap[ProviderType, AbstractCaptureProvider] = {
+	private def processResponse(httpPhase: HttpPhase, placeToSearch: Any) {
 
-		val providers: HashMap[ProviderType, AbstractCaptureProvider] = HashMap.empty
-		processors.foreach { processor =>
-			val providerType = processor.getProviderType
-			if (providers.get(providerType).isEmpty)
-				providers += (providerType -> providerType.getProvider(placeToSearch))
+		def prepareProviders(processors: CSet[HttpProcessor], placeToSearch: Any): HashMap[ProviderType, AbstractCaptureProvider] = {
+
+			val providers: HashMap[ProviderType, AbstractCaptureProvider] = HashMap.empty
+			processors.foreach { processor =>
+				val providerType = processor.getProviderType
+				if (providers.get(providerType).isEmpty)
+					providers += (providerType -> providerType.getProvider(placeToSearch))
+			}
+
+			providers
 		}
 
-		providers
-	}
+		def getPreparedProvider(processor: HttpCapture, providers: HashMap[ProviderType, AbstractCaptureProvider]) = providers.get(processor.getProviderType).getOrElse(throw new IllegalArgumentException);
 
-	private def getPreparedProvider(processor: HttpCapture, providers: HashMap[ProviderType, AbstractCaptureProvider]) = providers.get(processor.getProviderType).getOrElse(throw new IllegalArgumentException);
-
-	private def captureData(processor: HttpCapture, provider: AbstractCaptureProvider) = provider.capture(processor.expressionFormatter.apply(context))
-
-	private def processResponse(httpPhase: HttpPhase, placeToSearch: Any) {
+		def captureData(processor: HttpCapture, provider: AbstractCaptureProvider) = provider.capture(processor.expressionFormatter.apply(context))
 
 		if (isPhaseToBeProcessed(httpPhase)) {
 			logger.debug("Processors at {} : {}", httpPhase, processors.get(httpPhase))
