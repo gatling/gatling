@@ -137,6 +137,7 @@ object App extends Logging {
     import com.excilys.ebi.gatling.core.feeder._
     import com.excilys.ebi.gatling.core.context._
     import com.excilys.ebi.gatling.core.util.StringHelper._
+    import com.excilys.ebi.gatling.core.runner.Runner._
     import com.excilys.ebi.gatling.core.scenario.builder.ScenarioBuilder._
     import com.excilys.ebi.gatling.core.scenario.builder.ChainBuilder._
     import com.excilys.ebi.gatling.http.action.builder.HttpRequestActionBuilder._
@@ -147,7 +148,6 @@ object App extends Logging {
     import com.excilys.ebi.gatling.http.processor.check.builder.HttpRegExpCheckBuilder._
     import com.excilys.ebi.gatling.http.processor.check.builder.HttpStatusCheckBuilder._
     import com.excilys.ebi.gatling.http.processor.check.builder.HttpHeaderCheckBuilder._
-    import com.excilys.ebi.gatling.http.runner.HttpRunner._
     import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
     import java.util.concurrent.TimeUnit
     import org.joda.time.DateTime

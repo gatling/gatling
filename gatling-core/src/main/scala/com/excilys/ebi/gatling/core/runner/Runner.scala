@@ -17,6 +17,7 @@ package com.excilys.ebi.gatling.core.runner
 
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.core.result.writer.FileDataWriter
 import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
 import com.excilys.ebi.gatling.core.context.builder.ContextBuilder._
@@ -34,7 +35,10 @@ import org.apache.commons.lang3.time.FastDateFormat
 import org.joda.time.DateTime
 import com.excilys.ebi.gatling.core.scenario.Scenario
 
-abstract class Runner(val startDate: DateTime, val scenarioConfigurationBuilders: List[ScenarioConfigurationBuilder], val onFinished: () => Unit) extends Logging {
+object Runner {
+  def runSim(startDate: DateTime)(scenarioConfigurations: ScenarioConfigurationBuilder*) = new Runner(startDate, scenarioConfigurations.toList).run
+}
+class Runner(val startDate: DateTime, val scenarioConfigurationBuilders: List[ScenarioConfigurationBuilder]) extends Logging {
   var totalNumberOfUsers = 0
   var scenarioConfigurations: List[ScenarioConfiguration] = Nil
   var scenarios: List[Scenario] = Nil
@@ -87,8 +91,8 @@ abstract class Runner(val startDate: DateTime, val scenarioConfigurationBuilders
     // Shuts down all actors
     registry.shutdownAll
 
-    // Executes the onFinished function
-    onFinished
+    // Closes all the resources used during simulation
+    ResourceRegistry.closeAll
   }
 
   /**

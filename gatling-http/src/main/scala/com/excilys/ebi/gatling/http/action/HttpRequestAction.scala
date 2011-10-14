@@ -2,12 +2,14 @@ package com.excilys.ebi.gatling.http.action
 
 import com.excilys.ebi.gatling.core.action.{ Action, RequestAction }
 import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.http.ahc.CustomAsyncHandler
-import com.excilys.ebi.gatling.http.request.HttpPhase._
-import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.excilys.ebi.gatling.http.processor.check.HttpStatusCheck
 import com.excilys.ebi.gatling.http.processor.builder.HttpProcessorBuilder
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
+import com.excilys.ebi.gatling.http.request.HttpPhase._
+import com.excilys.ebi.gatling.http.request.HttpRequest
+import com.excilys.ebi.gatling.http.resource.HttpClientResource
 import com.ning.http.client.AsyncHttpClient
 import scala.collection.mutable.{ HashMap, MultiMap, Set => MSet }
 import com.ning.http.client.AsyncHttpClientConfig
@@ -16,6 +18,7 @@ import org.joda.time.DateTime
 
 object HttpRequestAction {
   val CLIENT: AsyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setCompressionEnabled(true).build())
+  ResourceRegistry.register(new HttpClientResource(CLIENT))
 }
 class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilders: Option[List[HttpProcessorBuilder]], groups: List[String])
     extends RequestAction(next, request, givenProcessorBuilders, groups) {
