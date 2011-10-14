@@ -96,13 +96,24 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
   }
 
   /**
-   * Sets a value in the context
+   * Sets values in the context
    *
    * @param attributes map containing several values to be stored in context
    * @return Nothing
    */
   def setAttributes(attributes: Map[String, String]) = {
     data ++= attributes
+  }
+
+  /**
+   * Sets a single value in the context
+   *
+   * @param attributeKey the key of the attribute
+   * @param attributeValue the value of the attribute
+   * @return Nothing
+   */
+  def setAttribute(attributeKey: String, attributeValue: String) = {
+    data += (attributeKey -> attributeValue)
   }
 
   /**

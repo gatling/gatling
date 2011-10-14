@@ -134,6 +134,7 @@ object App extends Logging {
 
     // This is the file header, with all needed imports and declarations
     val fileHeader = """
+    import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder._
     import com.excilys.ebi.gatling.core.feeder._
     import com.excilys.ebi.gatling.core.context._
     import com.excilys.ebi.gatling.core.util.StringHelper._

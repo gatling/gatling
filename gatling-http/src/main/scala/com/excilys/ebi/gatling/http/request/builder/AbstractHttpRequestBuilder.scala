@@ -22,9 +22,12 @@ import com.excilys.ebi.gatling.http.processor.capture.builder.AbstractHttpCaptur
 import com.excilys.ebi.gatling.http.processor.check.builder.HttpCheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequest
 
+object AbstractHttpRequestBuilder {
+  implicit def toHttpRequestActionBuilder[B <: AbstractHttpRequestBuilder[B]](requestBuilder: B) = requestBuilder.httpRequestActionBuilder withRequest (new HttpRequest(requestBuilder.httpRequestActionBuilder.getRequestName, requestBuilder))
+}
 abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val httpRequestActionBuilder: HttpRequestActionBuilder, val urlFormatter: Option[Context => String], val queryParams: Option[Map[String, Param]],
-  val headers: Option[Map[String, String]], val followsRedirects: Option[Boolean])
-  extends Logging {
+                                                                              val headers: Option[Map[String, String]], val followsRedirects: Option[Boolean])
+    extends Logging {
 
   def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], followsRedirects: Option[Boolean]): B
 
@@ -106,8 +109,4 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
     requestBuilder setHeaders (new FluentCaseInsensitiveStringsMap)
     for (header <- headers.get) { requestBuilder addHeader (header._1, header._2) }
   }
-}
-
-object AbstractHttpRequestBuilder {
-  implicit def toHttpRequestActionBuilder[B <: AbstractHttpRequestBuilder[B]](requestBuilder: B) = requestBuilder.httpRequestActionBuilder withRequest (new HttpRequest(requestBuilder.httpRequestActionBuilder.getRequestName, requestBuilder))
 }

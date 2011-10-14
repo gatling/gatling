@@ -26,7 +26,7 @@ val lambdaUser = scenario("Standard User")
           http("Page accueil").get(baseUrl)
             .check(
                 xpathExists(interpolate("//input[@value='{}']/@id", "aaaa_value")) in "ctxParam",
-                xpathNotExists(interpolate("//input[@id='{}']/@value", "aaaa_value")) in "ctxParam2",
+                xpathNotExists(interpolate("//input[@id='{}']/@value", "aaaa_value")),
                 regexpExists("""<input id="text1" type="text" value="aaaa" />"""),
                 regexpNotExists("""<input id="text1" type="test" value="aaaa" />"""),
                 statusInRange(200 to 210) in "blablaParam",
@@ -36,12 +36,13 @@ val lambdaUser = scenario("Standard User")
       )
       .pause(pause2)
       .startGroup(loginGroup)
+      .exec( (c:Context) => c.setAttribute("test2", "bbbb") )
       .doIf("test2", "aaaa", 
           chain.exec(http("IF=TRUE Request").get(baseUrl))
-          , chain.exec(http("IF=FALSE AAAA Request").get(baseUrl))
+          , chain.exec(http("IF=FALSE Request").get(baseUrl))
           )
       .pause(pause2)
-      .exec(http("Url from context").get("http://localhost:3000/{}", "test2"))
+      .exec(http("Url from context").get("http://localhost:3000/aaaa"))
       .pause(1000, 3000, TimeUnit.MILLISECONDS)
       // Second request to be repeated
       .exec(http("Create Thing blabla").post("http://localhost:3000/things").queryParam("login").queryParam("password").withTemplateBody("create_thing", Map("name" -> "blabla")).asJSON)
