@@ -28,7 +28,7 @@ class GraphicsGenerator {
           val groupsArray = StringUtils.stripAll(Array(groups), "|")(0).split("\\|")
           generator.onRow(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage, groupsArray.toList)
         // Else, if the resulting data is not well formated print an error message
-        case _ => sys.error("Input file not well formatted")
+        case _ => logger.warn("simulation.log had bad end of file, statistics will be generated but may not be accurate")
       }
     }
 
