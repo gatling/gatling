@@ -23,6 +23,7 @@ import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder._
 import com.excilys.ebi.gatling.core.action.builder.GroupActionBuilder._
 import com.excilys.ebi.gatling.core.action.builder.GroupActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.EndActionBuilder._
+import com.excilys.ebi.gatling.core.action.builder.StartActionBuilder._
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import com.excilys.ebi.gatling.core.context.Context
@@ -31,7 +32,7 @@ import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.scenario.configuration.builder.ScenarioConfigurationBuilder
 
 object ScenarioBuilder {
-  def scenario(scenarioName: String) = new ScenarioBuilder(scenarioName, Nil)
+  def scenario(scenarioName: String) = new ScenarioBuilder(scenarioName, Nil).start
 }
 /**
  * The scenario builder is used in the DSL to define the scenario
@@ -53,6 +54,16 @@ class ScenarioBuilder(name: String, actionBuilders: List[AbstractActionBuilder])
   def getName = name
 
   def configure = new ScenarioConfigurationBuilder(this)
+
+  /**
+   * Method that should not be used in a script. It adds a StartAction to the scenario
+   *
+   * @return a new builder with its first action added
+   */
+  def start: ScenarioBuilder = {
+    logger.debug("Adding StartAction")
+    newInstance(startActionBuilder :: actionBuilders)
+  }
 
   /**
    * Method that should not be used in a script. It adds an EndAction that will
