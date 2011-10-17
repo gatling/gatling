@@ -30,6 +30,7 @@ object FileHelper {
 	val SCALA_EXTENSION = ".scala"
 	val SSP_EXTENSION = ".ssp"
 	val HTML_EXTENSION = ".html"
+	val TXT_EXTENSION = ".txt"
 
 	/**
 	 * Transform a string to a simpler one that can be used
