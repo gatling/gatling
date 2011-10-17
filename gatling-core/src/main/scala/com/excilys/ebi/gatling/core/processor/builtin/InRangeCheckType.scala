@@ -21,5 +21,5 @@ import com.excilys.ebi.gatling.core.processor.CheckType
  * Represents a Check on the presence of value in range expected
  */
 object InRangeCheckType extends CheckType {
-  def doCheck(value: Option[String], range: String) = !value.isEmpty && range.contains(value.get)
+	def doCheck(value: Option[String], range: String) = !value.isEmpty && range.contains(value.get)
 }

@@ -26,22 +26,22 @@ import com.excilys.ebi.gatling.core.context.Context
  */
 class WhileAction(testFunction: Context => Boolean, var nextTrue: WhileAction => Action, nextAfter: Action) extends Action {
 
-  val nextTrueAction = nextTrue.apply(this)
+	val nextTrueAction = nextTrue.apply(this)
 
-  /**
-   * Evaluates the testFunction and if true executes the first action of nextTrue
-   * else it executes the first action of nextAfter
-   *
-   * @param context Context for current user
-   * @return Nothing
-   */
-  def execute(context: Context) = {
+	/**
+	 * Evaluates the testFunction and if true executes the first action of nextTrue
+	 * else it executes the first action of nextAfter
+	 *
+	 * @param context Context for current user
+	 * @return Nothing
+	 */
+	def execute(context: Context) = {
 
-    if (testFunction.apply(context)) {
-      nextTrueAction.execute(context)
-    } else {
-      context.resetWhileDuration
-      nextAfter.execute(context)
-    }
-  }
+		if (testFunction.apply(context)) {
+			nextTrueAction.execute(context)
+		} else {
+			context.resetWhileDuration
+			nextAfter.execute(context)
+		}
+	}
 }

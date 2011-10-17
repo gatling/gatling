@@ -25,10 +25,10 @@ import org.joda.time.DateTime
  * StartAction class companion
  */
 object StartAction {
-  /**
-   * This variable contains the name of the StartAction used in simulation.log
-   */
-  val START_OF_SCENARIO = "Start of Scenario"
+	/**
+	 * This variable contains the name of the StartAction used in simulation.log
+	 */
+	val START_OF_SCENARIO = "Start of Scenario"
 }
 /**
  * StartAction class represents the first action of the scenario, ie: its beginning.
@@ -38,20 +38,20 @@ object StartAction {
  */
 class StartAction(next: Action) extends Action {
 
-  /**
-   * Sends a message to the DataWriter and give hand to next actor
-   *
-   * @param context The context of the current user
-   */
-  def execute(context: Context) = {
-    actorFor(context.getWriteActorUuid).map { a =>
-      a ! ActionInfo(context.getScenarioName, context.getUserId, StartAction.START_OF_SCENARIO, DateTime.now(), 0, OK, "Beginning Scenario", Nil)
-    }
+	/**
+	 * Sends a message to the DataWriter and give hand to next actor
+	 *
+	 * @param context The context of the current user
+	 */
+	def execute(context: Context) = {
+		actorFor(context.getWriteActorUuid).map { a =>
+			a ! ActionInfo(context.getScenarioName, context.getUserId, StartAction.START_OF_SCENARIO, DateTime.now(), 0, OK, "Beginning Scenario", Nil)
+		}
 
-    logger.info("Starting user #{}", context.getUserId)
+		logger.info("Starting user #{}", context.getUserId)
 
-    next.execute(context)
-  }
+		next.execute(context)
+	}
 
-  override def toString = "Start Action"
+	override def toString = "Start Action"
 }

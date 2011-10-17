@@ -26,36 +26,36 @@ import org.apache.commons.lang3.StringUtils
  */
 object GatlingConfig extends Logging {
 
-  /**
-   * Contains the configuration of Gatling
-   */
-  val loadConfig: GatlingConfiguration =
-    try {
-      // Locate configuration file, depending on users options
-      val configFile =
-        if (GATLING_CONFIG_PROPERTY != StringUtils.EMPTY) {
-          logger.info("Loading custom configuration file: conf/{}", GATLING_CONFIG_PROPERTY)
-          GATLING_CONFIG_FOLDER + "/" + GATLING_CONFIG_PROPERTY
-        } else {
-          logger.info("Loading default configuration file")
-          GATLING_CONFIG_FOLDER + "/" + GATLING_CONFIG_FILE
-        }
+	/**
+	 * Contains the configuration of Gatling
+	 */
+	val loadConfig: GatlingConfiguration =
+		try {
+			// Locate configuration file, depending on users options
+			val configFile =
+				if (GATLING_CONFIG_PROPERTY != StringUtils.EMPTY) {
+					logger.info("Loading custom configuration file: conf/{}", GATLING_CONFIG_PROPERTY)
+					GATLING_CONFIG_FOLDER + "/" + GATLING_CONFIG_PROPERTY
+				} else {
+					logger.info("Loading default configuration file")
+					GATLING_CONFIG_FOLDER + "/" + GATLING_CONFIG_FILE
+				}
 
-      GatlingConfiguration.fromFile(configFile)
-    } catch {
-      case e =>
-        logger.error("{}\n{}", e.getMessage, e.getStackTraceString)
-        throw new Exception("Could not parse configuration file.")
-    }
+			GatlingConfiguration.fromFile(configFile)
+		} catch {
+			case e =>
+				logger.error("{}\n{}", e.getMessage, e.getStackTraceString)
+				throw new Exception("Could not parse configuration file.")
+		}
 
-  def config = loadConfig
+	def config = loadConfig
 
-  /**
-   * Gatling feeder encoding value
-   */
-  val CONFIG_GATLING_FEEDER_ENCODING = config.getString("gatling.encoding.feeder", "utf-8")
-  /**
-   * Gatling global encoding value
-   */
-  val CONFIG_GATLING_ENCODING = config.getString("gatling.encoding.global", "utf-8")
+	/**
+	 * Gatling feeder encoding value
+	 */
+	val CONFIG_GATLING_FEEDER_ENCODING = config.getString("gatling.encoding.feeder", "utf-8")
+	/**
+	 * Gatling global encoding value
+	 */
+	val CONFIG_GATLING_ENCODING = config.getString("gatling.encoding.global", "utf-8")
 }

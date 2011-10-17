@@ -34,30 +34,30 @@ import scala.util.Random
  */
 class PauseAction(next: Action, minDuration: Long, maxDuration: Long, timeUnit: TimeUnit) extends Action {
 
-  /**
-   * used to generate random pause durations
-   */
-  val randomGenerator = new Random
+	/**
+	 * used to generate random pause durations
+	 */
+	val randomGenerator = new Random
 
-  /**
-   * Generates a duration if required or use the one given and defer
-   * next actor execution of this duration
-   *
-   * @param context Context of current user
-   * @return Nothing
-   */
-  def execute(context: Context) = {
+	/**
+	 * Generates a duration if required or use the one given and defer
+	 * next actor execution of this duration
+	 *
+	 * @param context Context of current user
+	 * @return Nothing
+	 */
+	def execute(context: Context) = {
 
-    val duration =
-      if (maxDuration - minDuration > 0)
-        randomGenerator.nextInt((maxDuration - minDuration).toInt) + minDuration
-      else
-        minDuration
+		val duration =
+			if (maxDuration - minDuration > 0)
+				randomGenerator.nextInt((maxDuration - minDuration).toInt) + minDuration
+			else
+				minDuration
 
-    val durationInNanos: Long = TimeUnit.NANOSECONDS.convert(duration, timeUnit) - context.getLastActionDuration
+		val durationInNanos: Long = TimeUnit.NANOSECONDS.convert(duration, timeUnit) - context.getLastActionDuration
 
-    logger.info("Waiting for {}ms ({}ms)", TimeUnit.MILLISECONDS.convert(duration, timeUnit), TimeUnit.MILLISECONDS.convert(durationInNanos, TimeUnit.NANOSECONDS))
+		logger.info("Waiting for {}ms ({}ms)", TimeUnit.MILLISECONDS.convert(duration, timeUnit), TimeUnit.MILLISECONDS.convert(durationInNanos, TimeUnit.NANOSECONDS))
 
-    Scheduler.scheduleOnce(() => next.execute(context), durationInNanos, TimeUnit.NANOSECONDS)
-  }
+		Scheduler.scheduleOnce(() => next.execute(context), durationInNanos, TimeUnit.NANOSECONDS)
+	}
 }

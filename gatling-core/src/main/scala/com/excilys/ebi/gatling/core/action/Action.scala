@@ -26,13 +26,13 @@ import com.excilys.ebi.gatling.core.log.Logging
  * An action is a part of a scenario, the chain of actions IS the scenario
  */
 trait Action extends TypedActor with Logging {
-  /**
-   * This method is used to send a message to this actor
-   *
-   * @param context The context of the scenario
-   * @return Nothing
-   */
-  def execute(context: Context)
+	/**
+	 * This method is used to send a message to this actor
+	 *
+	 * @param context The context of the scenario
+	 * @return Nothing
+	 */
+	def execute(context: Context)
 
-  override def toString = this.getClass().getSimpleName()
+	override def toString = this.getClass().getSimpleName()
 }

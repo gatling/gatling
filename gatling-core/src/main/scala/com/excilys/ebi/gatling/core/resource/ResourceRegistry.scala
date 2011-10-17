@@ -24,29 +24,29 @@ import com.excilys.ebi.gatling.core.log.Logging
  */
 object ResourceRegistry extends Logging {
 
-  private var resources: Set[Resource] = Set.empty
+	private var resources: Set[Resource] = Set.empty
 
-  /**
-   * Registers the resource
-   */
-  def register(resource: Resource) = {
-    logger.debug("Registering {}", resource)
-    resources += resource
-  }
+	/**
+	 * Registers the resource
+	 */
+	def register(resource: Resource) = {
+		logger.debug("Registering {}", resource)
+		resources += resource
+	}
 
-  /**
-   * This method tries to close all the resources properly
-   * If one fails the others are still closed and a warning is sent
-   * to the logs
-   */
-  def closeAll = {
-    for (resource <- resources) {
-      logger.debug("Closing {}", resource)
-      try {
-        resource.close
-      } catch {
-        case e => logger.warn("Could not close resource {}: {}", resource, e)
-      }
-    }
-  }
+	/**
+	 * This method tries to close all the resources properly
+	 * If one fails the others are still closed and a warning is sent
+	 * to the logs
+	 */
+	def closeAll = {
+		for (resource <- resources) {
+			logger.debug("Closing {}", resource)
+			try {
+				resource.close
+			} catch {
+				case e => logger.warn("Could not close resource {}: {}", resource, e)
+			}
+		}
+	}
 }

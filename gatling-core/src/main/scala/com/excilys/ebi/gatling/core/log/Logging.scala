@@ -21,12 +21,12 @@ import org.slf4j.{ Logger => SLFLogger, LoggerFactory => SLFLoggerFactory }
  * Trait that add logging capability to any class thanks to logger variable
  */
 trait Logging {
-  @transient
-  lazy val logger = Logger(this.getClass.getName)
+	@transient
+	lazy val logger = Logger(this.getClass.getName)
 }
 
 object Logger {
-  def apply(logger: String): SLFLogger = SLFLoggerFactory getLogger logger
-  def apply(clazz: Class[_]): SLFLogger = apply(clazz.getName)
-  def root: SLFLogger = apply(SLFLogger.ROOT_LOGGER_NAME)
+	def apply(logger: String): SLFLogger = SLFLoggerFactory getLogger logger
+	def apply(clazz: Class[_]): SLFLogger = apply(clazz.getName)
+	def root: SLFLogger = apply(SLFLogger.ROOT_LOGGER_NAME)
 }

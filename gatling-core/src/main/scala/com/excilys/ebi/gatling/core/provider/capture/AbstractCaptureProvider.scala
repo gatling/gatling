@@ -28,11 +28,11 @@ import com.excilys.ebi.gatling.core.log.Logging
  * @param placeToSearch the place in which the search is made
  */
 abstract class AbstractCaptureProvider(placeToSearch: Any) extends Logging {
-  /**
-   * this method does the actual capture of the expression in placeToSearch
-   *
-   * @param expression the expression that defines the capture
-   * @return the result of the search, being None if nothing was found or Some(something)
-   */
-  def capture(expression: Any): Option[String]
+	/**
+	 * this method does the actual capture of the expression in placeToSearch
+	 *
+	 * @param expression the expression that defines the capture
+	 * @return the result of the search, being None if nothing was found or Some(something)
+	 */
+	def capture(expression: Any): Option[String]
 }

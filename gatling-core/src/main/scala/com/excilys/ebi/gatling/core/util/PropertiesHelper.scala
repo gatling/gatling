@@ -21,19 +21,19 @@ import org.apache.commons.lang3.StringUtils
  * This object groups all utilities for properties
  */
 object PropertiesHelper {
-  /**
-   * Property used to specify the location of Gatling configuration file
-   */
-  val GATLING_CONFIG_PROPERTY = Option(System.getProperty("gatling.config")) map (_.trim()) getOrElse StringUtils.EMPTY
+	/**
+	 * Property used to specify the location of Gatling configuration file
+	 */
+	val GATLING_CONFIG_PROPERTY = Option(System.getProperty("gatling.config")) map (_.trim()) getOrElse StringUtils.EMPTY
 
-  /**
-   * Property used to specify whether or not to generate statistics after the simulation
-   */
-  val NO_STATS_PROPERTY = Option(System.getProperty("NoStats")) map (_.toBoolean) getOrElse false
+	/**
+	 * Property used to specify whether or not to generate statistics after the simulation
+	 */
+	val NO_STATS_PROPERTY = Option(System.getProperty("NoStats")) map (_.toBoolean) getOrElse false
 
-  /**
-   * Property used to specify whether or not to generate statistics only from a previous
-   * simulation
-   */
-  val ONLY_STATS_PROPERTY = Option(System.getProperty("OnlyStats")) map (_.toBoolean) getOrElse false
+	/**
+	 * Property used to specify whether or not to generate statistics only from a previous
+	 * simulation
+	 */
+	val ONLY_STATS_PROPERTY = Option(System.getProperty("OnlyStats")) map (_.toBoolean) getOrElse false
 }

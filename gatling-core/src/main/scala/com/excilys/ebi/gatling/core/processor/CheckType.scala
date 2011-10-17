@@ -19,9 +19,9 @@ package com.excilys.ebi.gatling.core.processor
  * This trait is used to define different types of Checks
  */
 trait CheckType {
-  /**
-   * Method that will actually do the verification and see if
-   * value corresponds to what's expected
-   */
-  def doCheck(value: Option[String], expected: String): Boolean
+	/**
+	 * Method that will actually do the verification and see if
+	 * value corresponds to what's expected
+	 */
+	def doCheck(value: Option[String], expected: String): Boolean
 }

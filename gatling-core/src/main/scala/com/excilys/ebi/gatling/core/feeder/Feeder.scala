@@ -24,10 +24,10 @@ import com.excilys.ebi.gatling.core.log.Logging
  * @param mappings the mappings for the feeder, ie the keys of the values in the context
  */
 abstract class Feeder(val filePath: String, val mappings: List[String]) extends Logging {
-  /**
-   * Gets the next line of the feeder
-   *
-   * @return a map containing the values of the line with the feeder keys as keys
-   */
-  def next: Map[String, String]
+	/**
+	 * Gets the next line of the feeder
+	 *
+	 * @return a map containing the values of the line with the feeder keys as keys
+	 */
+	def next: Map[String, String]
 }

@@ -22,26 +22,26 @@ import com.excilys.ebi.gatling.core.log.Logging
  * This trait represents an Action Builder
  */
 trait AbstractActionBuilder extends Logging {
-  /**
-   * Builds the Action
-   *
-   * @return The built Action
-   */
-  def build: Action
+	/**
+	 * Builds the Action
+	 *
+	 * @return The built Action
+	 */
+	def build: Action
 
-  /**
-   * Adds next action to this builder, to be able to chain the actions
-   *
-   * @param next Action that will be executed after the one built by this builder
-   * @return A builder of the same type, with next set
-   */
-  def withNext(next: Action): AbstractActionBuilder
+	/**
+	 * Adds next action to this builder, to be able to chain the actions
+	 *
+	 * @param next Action that will be executed after the one built by this builder
+	 * @return A builder of the same type, with next set
+	 */
+	def withNext(next: Action): AbstractActionBuilder
 
-  /**
-   * Adds group information to current action
-   *
-   * @param groups The List of groups to which the built action will belong
-   * @return A builder of the same type, with groups set
-   */
-  def inGroups(groups: List[String]): AbstractActionBuilder
+	/**
+	 * Adds group information to current action
+	 *
+	 * @param groups The List of groups to which the built action will belong
+	 * @return A builder of the same type, with groups set
+	 */
+	def inGroups(groups: List[String]): AbstractActionBuilder
 }

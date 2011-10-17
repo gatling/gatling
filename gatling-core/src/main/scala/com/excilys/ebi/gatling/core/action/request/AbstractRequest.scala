@@ -24,8 +24,8 @@ package com.excilys.ebi.gatling.core.action.request
  * @param name the name of the request
  */
 abstract class AbstractRequest(val name: String) {
-  /**
-   * @return the name of the request
-   */
-  def getName = name
+	/**
+	 * @return the name of the request
+	 */
+	def getName = name
 }

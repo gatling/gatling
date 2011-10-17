@@ -34,59 +34,59 @@ import java.util.concurrent.CountDownLatch
  * It writes the data of the simulation if a tabulation separated values file
  */
 class FileDataWriter extends DataWriter {
-  /**
-   * The OutputStreamWriter used to write to files
-   */
-  var osw: OutputStreamWriter = null
-  /**
-   * The countdown latch that will be decreased when all messaged are written and all scenarios ended
-   */
-  var latch: CountDownLatch = null
-  /**
-   * The date on which the simulation started
-   */
-  var runOn = StringUtils.EMPTY
+	/**
+	 * The OutputStreamWriter used to write to files
+	 */
+	var osw: OutputStreamWriter = null
+	/**
+	 * The countdown latch that will be decreased when all messaged are written and all scenarios ended
+	 */
+	var latch: CountDownLatch = null
+	/**
+	 * The date on which the simulation started
+	 */
+	var runOn = StringUtils.EMPTY
 
-  /**
-   * Method called when this actor receives a message
-   */
-  def receive = {
-    // If the message comes from an action
-    case ActionInfo(scenarioName, userId, action, executionStartDate, executionDuration, resultStatus, resultMessage, groups) ⇒ {
-      // Builds the line to be written
-      val strBuilder = new StringBuilder
-      strBuilder.append(runOn).append("\t")
-        .append(scenarioName).append("\t")
-        .append(userId).append("\t")
-        .append(action).append("\t")
-        .append(printResultDate(executionStartDate)).append("\t")
-        .append(executionDuration).append("\t")
-        .append(resultStatus).append("\t")
-        .append(resultMessage).append("\t")
-        .append(groups.mkString("|", "|", "|")).append("\n")
+	/**
+	 * Method called when this actor receives a message
+	 */
+	def receive = {
+		// If the message comes from an action
+		case ActionInfo(scenarioName, userId, action, executionStartDate, executionDuration, resultStatus, resultMessage, groups) ⇒ {
+			// Builds the line to be written
+			val strBuilder = new StringBuilder
+			strBuilder.append(runOn).append("\t")
+				.append(scenarioName).append("\t")
+				.append(userId).append("\t")
+				.append(action).append("\t")
+				.append(printResultDate(executionStartDate)).append("\t")
+				.append(executionDuration).append("\t")
+				.append(resultStatus).append("\t")
+				.append(resultMessage).append("\t")
+				.append(groups.mkString("|", "|", "|")).append("\n")
 
-      // Write the line in the file
-      osw.write(strBuilder.toString)
+			// Write the line in the file
+			osw.write(strBuilder.toString)
 
-      if (latch.getCount == 1 && self.dispatcher.mailboxSize(self) == 0) {
-        // Closes the OutputStreamWriter
-        osw.flush
-        osw.close
-        // Decrease the latch (should be at 0 here)
-        latch.countDown
-      }
-    }
+			if (latch.getCount == 1 && self.dispatcher.mailboxSize(self) == 0) {
+				// Closes the OutputStreamWriter
+				osw.flush
+				osw.close
+				// Decrease the latch (should be at 0 here)
+				latch.countDown
+			}
+		}
 
-    // If the message is sent to initialize the writer
-    case InitializeDataWriter(runOn, latch) ⇒ {
-      // Initialize files and folders that will be used to write the logs
-      val dir = new File(GATLING_RESULTS_FOLDER + "/" + printFileNameDate(runOn))
-      dir.mkdir
-      val file = new File(dir, GATLING_SIMULATION_LOG_FILE)
+		// If the message is sent to initialize the writer
+		case InitializeDataWriter(runOn, latch) ⇒ {
+			// Initialize files and folders that will be used to write the logs
+			val dir = new File(GATLING_RESULTS_FOLDER + "/" + printFileNameDate(runOn))
+			dir.mkdir
+			val file = new File(dir, GATLING_SIMULATION_LOG_FILE)
 
-      osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file, true)))
-      this.runOn = printResultDate(runOn)
-      this.latch = latch
-    }
-  }
+			osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file, true)))
+			this.runOn = printResultDate(runOn)
+			this.latch = latch
+		}
+	}
 }

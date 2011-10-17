@@ -5,5 +5,5 @@ import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.http.provider.HttpHeaderProviderType
 
 class HttpHeaderCapture(expression: Context => String, attrKey: String)
-  extends HttpCapture(expression, attrKey, HeadersReceived, HttpHeaderProviderType) {
+		extends HttpCapture(expression, attrKey, HeadersReceived, HttpHeaderProviderType) {
 }

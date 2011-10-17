@@ -17,34 +17,34 @@ import org.apache.commons.lang3.StringUtils
 import org.joda.time.DateTime
 
 object HttpRequestAction {
-  val CLIENT: AsyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setCompressionEnabled(true).build())
-  ResourceRegistry.register(new HttpClientResource(CLIENT))
+	val CLIENT: AsyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setCompressionEnabled(true).build())
+	ResourceRegistry.register(new HttpClientResource(CLIENT))
 }
 class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilders: Option[List[HttpProcessorBuilder]], groups: List[String])
-    extends RequestAction(next, request, givenProcessorBuilders, groups) {
+		extends RequestAction(next, request, givenProcessorBuilders, groups) {
 
-  val processors: MultiMap[HttpPhase, HttpProcessor] = new HashMap[HttpPhase, MSet[HttpProcessor]] with MultiMap[HttpPhase, HttpProcessor]
+	val processors: MultiMap[HttpPhase, HttpProcessor] = new HashMap[HttpPhase, MSet[HttpProcessor]] with MultiMap[HttpPhase, HttpProcessor]
 
-  givenProcessorBuilders match {
-    case Some(list) => {
-      for (processorBuilder <- list) {
-        val processor = processorBuilder.build
-        processors.addBinding(processor.getHttpPhase, processor)
-        logger.debug("  -- Adding {} to {} Phase", processor, processor.getHttpPhase)
-      }
-    }
-    case None => {}
-  }
+	givenProcessorBuilders match {
+		case Some(list) => {
+			for (processorBuilder <- list) {
+				val processor = processorBuilder.build
+				processors.addBinding(processor.getHttpPhase, processor)
+				logger.debug("  -- Adding {} to {} Phase", processor, processor.getHttpPhase)
+			}
+		}
+		case None => {}
+	}
 
-  // Adds default checks (they won't be added if overridden by user)
-  processors.addBinding(StatusReceived, new HttpStatusCheck((200 to 210).mkString(":"), StringUtils.EMPTY))
+	// Adds default checks (they won't be added if overridden by user)
+	processors.addBinding(StatusReceived, new HttpStatusCheck((200 to 210).mkString(":"), StringUtils.EMPTY))
 
-  def execute(context: Context) = {
-    val objects = new Array[java.lang.Object](3)
-    objects(0) = request.name
-    objects(1) = context.getScenarioName
-    objects(2) = context.getUserId.toString
-    logger.info("Sending Request '{}': Scenario '{}', UserId #{}", objects)
-    HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new CustomAsyncHandler(context, processors, next, System.nanoTime, DateTime.now(), request.getName, groups))
-  }
+	def execute(context: Context) = {
+		val objects = new Array[java.lang.Object](3)
+		objects(0) = request.name
+		objects(1) = context.getScenarioName
+		objects(2) = context.getUserId.toString
+		logger.info("Sending Request '{}': Scenario '{}', UserId #{}", objects)
+		HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new CustomAsyncHandler(context, processors, next, System.nanoTime, DateTime.now(), request.getName, groups))
+	}
 }

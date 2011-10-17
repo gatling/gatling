@@ -31,4 +31,4 @@ import java.util.concurrent.TimeUnit
  * @param feeder a feeder that will be consumed by this scenario for each user
  */
 class ScenarioConfiguration(val scenarioId: Int, val scenarioBuilder: ScenarioBuilder, val users: Int, val ramp: (Int, TimeUnit),
-                            val delay: (Int, TimeUnit), val feeder: Option[Feeder])
+	val delay: (Int, TimeUnit), val feeder: Option[Feeder])

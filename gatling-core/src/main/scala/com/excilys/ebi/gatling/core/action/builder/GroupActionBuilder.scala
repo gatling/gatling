@@ -20,27 +20,27 @@ import com.excilys.ebi.gatling.core.action.Action
  * Companion of GroupActionBuilder class
  */
 object GroupActionBuilder {
-  /**
-   * Defines the beginning of a group
-   *
-   * Warning, isEnd is set to true for the beginning because of the chain of builders. Indeed,
-   * it is unfolded in reverse order
-   *
-   * @param groupName the name of the group
-   * @return a GroupActionBuilder that indicates the beginning of the group named groupName.
-   */
-  def startGroupBuilder(groupName: String) = new GroupActionBuilder(Some(groupName), Some(true))
+	/**
+	 * Defines the beginning of a group
+	 *
+	 * Warning, isEnd is set to true for the beginning because of the chain of builders. Indeed,
+	 * it is unfolded in reverse order
+	 *
+	 * @param groupName the name of the group
+	 * @return a GroupActionBuilder that indicates the beginning of the group named groupName.
+	 */
+	def startGroupBuilder(groupName: String) = new GroupActionBuilder(Some(groupName), Some(true))
 
-  /**
-   * Defines the end of a group
-   *
-   * Warning, isEnd is set to false for the end because of the chain of builders. Indeed,
-   * it is unfolded in reverse order
-   *
-   * @param groupName the name of the group
-   * @return a GroupActionBuilder that indicates the end of the group named groupName.
-   */
-  def endGroupBuilder(groupName: String) = new GroupActionBuilder(Some(groupName), Some(false))
+	/**
+	 * Defines the end of a group
+	 *
+	 * Warning, isEnd is set to false for the end because of the chain of builders. Indeed,
+	 * it is unfolded in reverse order
+	 *
+	 * @param groupName the name of the group
+	 * @return a GroupActionBuilder that indicates the end of the group named groupName.
+	 */
+	def endGroupBuilder(groupName: String) = new GroupActionBuilder(Some(groupName), Some(false))
 }
 
 /**
@@ -52,34 +52,34 @@ object GroupActionBuilder {
  */
 class GroupActionBuilder(groupName: Option[String], end: Option[Boolean]) extends AbstractActionBuilder {
 
-  /**
-   * @return the value of end
-   */
-  def isEnd = end.get
+	/**
+	 * @return the value of end
+	 */
+	def isEnd = end.get
 
-  /**
-   * @return the name of the group
-   */
-  def getName = groupName.get
+	/**
+	 * @return the name of the group
+	 */
+	def getName = groupName.get
 
-  /**
-   * This method should never be called
-   *
-   * @throw UnsupportedOperationException
-   */
-  def build = throw new UnsupportedOperationException
+	/**
+	 * This method should never be called
+	 *
+	 * @throw UnsupportedOperationException
+	 */
+	def build = throw new UnsupportedOperationException
 
-  /**
-   * This method should never be called
-   *
-   * @throw UnsupportedOperationException
-   */
-  def withNext(next: Action) = throw new UnsupportedOperationException
+	/**
+	 * This method should never be called
+	 *
+	 * @throw UnsupportedOperationException
+	 */
+	def withNext(next: Action) = throw new UnsupportedOperationException
 
-  /**
-   * This method should never be called
-   *
-   * @throw UnsupportedOperationException
-   */
-  def inGroups(groups: List[String]) = throw new UnsupportedOperationException
+	/**
+	 * This method should never be called
+	 *
+	 * @throw UnsupportedOperationException
+	 */
+	def inGroups(groups: List[String]) = throw new UnsupportedOperationException
 }

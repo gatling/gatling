@@ -36,103 +36,103 @@ import org.joda.time.DateTime
 import com.excilys.ebi.gatling.core.scenario.Scenario
 
 object Runner {
-  def runSim(startDate: DateTime)(scenarioConfigurations: ScenarioConfigurationBuilder*) = new Runner(startDate, scenarioConfigurations.toList).run
+	def runSim(startDate: DateTime)(scenarioConfigurations: ScenarioConfigurationBuilder*) = new Runner(startDate, scenarioConfigurations.toList).run
 }
 class Runner(val startDate: DateTime, val scenarioConfigurationBuilders: List[ScenarioConfigurationBuilder]) extends Logging {
-  var totalNumberOfUsers = 0
-  var scenarioConfigurations: List[ScenarioConfiguration] = Nil
-  var scenarios: List[Scenario] = Nil
-  val statWriter = actorOf[FileDataWriter].start
+	var totalNumberOfUsers = 0
+	var scenarioConfigurations: List[ScenarioConfiguration] = Nil
+	var scenarios: List[Scenario] = Nil
+	val statWriter = actorOf[FileDataWriter].start
 
-  // stores all scenario configurations
-  for (i <- 1 to scenarioConfigurationBuilders.size)
-    scenarioConfigurations = scenarioConfigurationBuilders(i - 1).build(i) :: scenarioConfigurations
+	// stores all scenario configurations
+	for (i <- 1 to scenarioConfigurationBuilders.size)
+		scenarioConfigurations = scenarioConfigurationBuilders(i - 1).build(i) :: scenarioConfigurations
 
-  // Counts the number of users
-  for (configuration <- scenarioConfigurations)
-    totalNumberOfUsers += configuration.users
+	// Counts the number of users
+	for (configuration <- scenarioConfigurations)
+		totalNumberOfUsers += configuration.users
 
-  // Initializes a countdown latch to determine when to stop the application
-  val latch: CountDownLatch = new CountDownLatch(totalNumberOfUsers + 1)
+	// Initializes a countdown latch to determine when to stop the application
+	val latch: CountDownLatch = new CountDownLatch(totalNumberOfUsers + 1)
 
-  // Builds all scenarios
-  for (configuration <- scenarioConfigurations) {
-    scenarios = configuration.scenarioBuilder.end(latch).build :: scenarios
-  }
+	// Builds all scenarios
+	for (configuration <- scenarioConfigurations) {
+		scenarios = configuration.scenarioBuilder.end(latch).build :: scenarios
+	}
 
-  // Creates a List of Tuples with scenario configuration / scenario 
-  val scenariosAndConfigurations = scenarioConfigurations zip scenarios.reverse
+	// Creates a List of Tuples with scenario configuration / scenario 
+	val scenariosAndConfigurations = scenarioConfigurations zip scenarios.reverse
 
-  logger.info("Total number of users : {}", totalNumberOfUsers)
+	logger.info("Total number of users : {}", totalNumberOfUsers)
 
-  /**
-   * This method schedules the beginning of all scenarios
-   */
-  def run = {
+	/**
+	 * This method schedules the beginning of all scenarios
+	 */
+	def run = {
 
-    // Initilization of the data writer
-    statWriter ! InitializeDataWriter(startDate, latch)
+		// Initilization of the data writer
+		statWriter ! InitializeDataWriter(startDate, latch)
 
-    logger.debug("Launching All Scenarios")
+		logger.debug("Launching All Scenarios")
 
-    // Scheduling all scenarios
-    for (scenarioAndConfiguration <- scenariosAndConfigurations) {
-      val delay = scenarioAndConfiguration._1.delay
-      Scheduler.scheduleOnce(() => {
-        logger.debug("Launching Scenario: {}", scenarioAndConfiguration._2.getFirstAction)
-        startOneScenario(scenarioAndConfiguration._1, scenarioAndConfiguration._2.getFirstAction)
-      }, delay._1, delay._2)
-    }
+		// Scheduling all scenarios
+		for (scenarioAndConfiguration <- scenariosAndConfigurations) {
+			val delay = scenarioAndConfiguration._1.delay
+			Scheduler.scheduleOnce(() => {
+				logger.debug("Launching Scenario: {}", scenarioAndConfiguration._2.getFirstAction)
+				startOneScenario(scenarioAndConfiguration._1, scenarioAndConfiguration._2.getFirstAction)
+			}, delay._1, delay._2)
+		}
 
-    logger.debug("Finished Launching scenarios executions")
-    latch.await(86400, TimeUnit.SECONDS)
+		logger.debug("Finished Launching scenarios executions")
+		latch.await(86400, TimeUnit.SECONDS)
 
-    logger.debug("All scenarios finished, stoping actors")
-    // Shuts down all actors
-    registry.shutdownAll
+		logger.debug("All scenarios finished, stoping actors")
+		// Shuts down all actors
+		registry.shutdownAll
 
-    // Closes all the resources used during simulation
-    ResourceRegistry.closeAll
-  }
+		// Closes all the resources used during simulation
+		ResourceRegistry.closeAll
+	}
 
-  /**
-   * This method starts one scenario
-   *
-   * @param configuration the configuration of the scenario
-   * @scenario the scenario that will be executed
-   * @return Nothing
-   */
-  private def startOneScenario(configuration: ScenarioConfiguration, scenario: Action) = {
-    if (configuration.users == 1) {
-      // if only 1 user, execute right now
-      val context = buildContext(configuration, 1)
-      scenario.execute(context)
-    } else {
-      // otherwise, schedule
-      val ramp = configuration.ramp
-      // compute ramp period in millis so we can ramp less that one user per second
-      val period = ramp._2.toMillis(ramp._1) / (configuration.users - 1)
+	/**
+	 * This method starts one scenario
+	 *
+	 * @param configuration the configuration of the scenario
+	 * @scenario the scenario that will be executed
+	 * @return Nothing
+	 */
+	private def startOneScenario(configuration: ScenarioConfiguration, scenario: Action) = {
+		if (configuration.users == 1) {
+			// if only 1 user, execute right now
+			val context = buildContext(configuration, 1)
+			scenario.execute(context)
+		} else {
+			// otherwise, schedule
+			val ramp = configuration.ramp
+			// compute ramp period in millis so we can ramp less that one user per second
+			val period = ramp._2.toMillis(ramp._1) / (configuration.users - 1)
 
-      for (i <- 1 to configuration.users) {
-        val context: Context = buildContext(configuration, i)
-        Scheduler.scheduleOnce(() => scenario.execute(context), period * (i - 1), TimeUnit.MILLISECONDS)
-      }
-    }
-  }
+			for (i <- 1 to configuration.users) {
+				val context: Context = buildContext(configuration, i)
+				Scheduler.scheduleOnce(() => scenario.execute(context), period * (i - 1), TimeUnit.MILLISECONDS)
+			}
+		}
+	}
 
-  /**
-   * This method builds the context that will be sent to the first action of a scenario
-   *
-   * @param configuration the configuration of the scenario
-   * @param userId the id of the current user
-   * @return the built context
-   */
-  private def buildContext(configuration: ScenarioConfiguration, userId: Int) = {
-    val ctx = newContext withUserId userId withWriteActorUuid statWriter.getUuid withScenarioName configuration.scenarioBuilder.getName build
+	/**
+	 * This method builds the context that will be sent to the first action of a scenario
+	 *
+	 * @param configuration the configuration of the scenario
+	 * @param userId the id of the current user
+	 * @return the built context
+	 */
+	private def buildContext(configuration: ScenarioConfiguration, userId: Int) = {
+		val ctx = newContext withUserId userId withWriteActorUuid statWriter.getUuid withScenarioName configuration.scenarioBuilder.getName build
 
-    // Puts all values of one line of the feeder in the context
-    configuration.feeder.map { f => ctx.setAttributes(f.next) }
+		// Puts all values of one line of the feeder in the context
+		configuration.feeder.map { f => ctx.setAttributes(f.next) }
 
-    ctx
-  }
+		ctx
+	}
 }

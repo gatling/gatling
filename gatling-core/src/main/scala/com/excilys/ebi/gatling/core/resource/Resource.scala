@@ -19,8 +19,8 @@ package com.excilys.ebi.gatling.core.resource
  * This trait represents a Resources that has to be closed at some point
  */
 trait Resource {
-  /**
-   * The implementation of this method should lead to the actual closure of the resource
-   */
-  def close
+	/**
+	 * The implementation of this method should lead to the actual closure of the resource
+	 */
+	def close
 }

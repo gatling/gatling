@@ -31,4 +31,4 @@ import org.joda.time.DateTime
  * @param groups the groups in which this action is
  */
 case class ActionInfo(val scenarioName: String, val userId: Int, val action: String, val executionStartDate: DateTime, val executionDuration: Long,
-                      val resultStatus: ResultStatus.ResultStatus, val resultMessage: String, val groups: List[String])
+	val resultStatus: ResultStatus.ResultStatus, val resultMessage: String, val groups: List[String])

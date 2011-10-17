@@ -27,19 +27,19 @@ import com.excilys.ebi.gatling.core.context.Context
  */
 class IfAction(testFunction: Context => Boolean, nextTrue: Action, nextFalse: Option[Action], nextAfter: Action) extends Action {
 
-  /**
-   * Evaluates the testFunction and if true executes the first action of nextTrue
-   * else it executes the first action of nextFalse.
-   *
-   * If there is no nextFalse, then, nextAfter is executed
-   *
-   * @param context Context for current user
-   * @return Nothing
-   */
-  def execute(context: Context) = {
-    if (testFunction.apply(context))
-      nextTrue.execute(context)
-    else
-      nextFalse.getOrElse(nextAfter).execute(context)
-  }
+	/**
+	 * Evaluates the testFunction and if true executes the first action of nextTrue
+	 * else it executes the first action of nextFalse.
+	 *
+	 * If there is no nextFalse, then, nextAfter is executed
+	 *
+	 * @param context Context for current user
+	 * @return Nothing
+	 */
+	def execute(context: Context) = {
+		if (testFunction.apply(context))
+			nextTrue.execute(context)
+		else
+			nextFalse.getOrElse(nextAfter).execute(context)
+	}
 }

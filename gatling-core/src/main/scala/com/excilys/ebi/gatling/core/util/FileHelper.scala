@@ -21,28 +21,28 @@ import org.apache.commons.lang3.StringUtils
  */
 object FileHelper {
 
-  val COMMA_SEPARATOR = ","
-  val SEMICOLON_SEPARATOR = ";"
-  val TABULATION_SEPARATOR = "\t"
-  val CSV_EXTENSION = ".csv"
-  val SSV_EXTENSION = ".ssv"
-  val TSV_EXTENSION = ".tsv"
-  val SCALA_EXTENSION = ".scala"
-  val SSP_EXTENSION = ".ssp"
-  val HTML_EXTENSION = ".html"
+	val COMMA_SEPARATOR = ","
+	val SEMICOLON_SEPARATOR = ";"
+	val TABULATION_SEPARATOR = "\t"
+	val CSV_EXTENSION = ".csv"
+	val SSV_EXTENSION = ".ssv"
+	val TSV_EXTENSION = ".tsv"
+	val SCALA_EXTENSION = ".scala"
+	val SSP_EXTENSION = ".ssp"
+	val HTML_EXTENSION = ".html"
 
-  /**
-   * Transform a string to a simpler one that can be used
-   * safely as file name
-   *
-   * @param s the string to be simplified
-   * @return a simplified string
-   */
-  def formatToFilename(s: String) = {
-    StringUtils.stripAccents(
-      s.replace("-", "_")
-        .replace(" ", "_")
-        .replace("'", "")
-        .toLowerCase)
-  }
+	/**
+	 * Transform a string to a simpler one that can be used
+	 * safely as file name
+	 *
+	 * @param s the string to be simplified
+	 * @return a simplified string
+	 */
+	def formatToFilename(s: String) = {
+		StringUtils.stripAccents(
+			s.replace("-", "_")
+				.replace(" ", "_")
+				.replace("'", "")
+				.toLowerCase)
+	}
 }

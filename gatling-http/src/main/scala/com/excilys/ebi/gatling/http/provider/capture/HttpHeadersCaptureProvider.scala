@@ -6,24 +6,24 @@ import com.ning.http.client.FluentCaseInsensitiveStringsMap
 
 class HttpHeadersCaptureProvider(headersMap: FluentCaseInsensitiveStringsMap) extends AbstractCaptureProvider {
 
-  def capture(headerName: Any): Option[String] = {
-    captureAll(headerName.toString, headersMap).map { list =>
-      if (list.size > 0)
-        Some(list.get(0))
-      else
-        None
-    }.getOrElse(None)
-  }
+	def capture(headerName: Any): Option[String] = {
+		captureAll(headerName.toString, headersMap).map { list =>
+			if (list.size > 0)
+				Some(list.get(0))
+			else
+				None
+		}.getOrElse(None)
+	}
 
-  def captureAll(headerName: String, headersMap: FluentCaseInsensitiveStringsMap): Option[java.util.List[String]] = {
+	def captureAll(headerName: String, headersMap: FluentCaseInsensitiveStringsMap): Option[java.util.List[String]] = {
 
-    val values = headersMap.get(headerName)
+		val values = headersMap.get(headerName)
 
-    logger.debug(" -- Headers Capture Provider - Got header values: {}", values)
+		logger.debug(" -- Headers Capture Provider - Got header values: {}", values)
 
-    if (values == null)
-      None
-    else
-      Some(values)
-  }
+		if (values == null)
+			None
+		else
+			Some(values)
+	}
 }

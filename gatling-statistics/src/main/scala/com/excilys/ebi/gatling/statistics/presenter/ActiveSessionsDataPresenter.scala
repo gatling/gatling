@@ -13,22 +13,22 @@ import scala.collection.mutable.ListBuffer
 
 class ActiveSessionsDataPresenter extends DataPresenter[LinkedHashMap[String, ListBuffer[(String, Double)]]] {
 
-  def generateGraphFor(runOn: String, results: LinkedHashMap[String, ListBuffer[(String, Double)]]) = {
+	def generateGraphFor(runOn: String, results: LinkedHashMap[String, ListBuffer[(String, Double)]]) = {
 
-    // TODO: write file with results
-    //new TSVFileWriter(runOn, "active_sessions.tsv").writeToFile(results.map { e => List(e._1, e._2.toString) })
+		// TODO: write file with results
+		//new TSVFileWriter(runOn, "active_sessions.tsv").writeToFile(results.map { e => List(e._1, e._2.toString) })
 
-    var seriesList: List[TimeSeries] = Nil
+		var seriesList: List[TimeSeries] = Nil
 
-    results.map {
-      result =>
-        val (scenarioName, mutableListOfValues) = result
-        val listOfValues = mutableListOfValues.toList
-        seriesList = new TimeSeries(scenarioName, listOfValues.map { e => (printHighChartsDate(e._1), e._2) }) :: seriesList
-    }
+		results.map {
+			result =>
+				val (scenarioName, mutableListOfValues) = result
+				val listOfValues = mutableListOfValues.toList
+				seriesList = new TimeSeries(scenarioName, listOfValues.map { e => (printHighChartsDate(e._1), e._2) }) :: seriesList
+		}
 
-    val output = new ActiveSessionsTemplate(runOn, seriesList).getOutput
+		val output = new ActiveSessionsTemplate(runOn, seriesList).getOutput
 
-    new TemplateWriter(runOn, GATLING_GRAPH_ACTIVE_SESSIONS_FILE).writeToFile(output)
-  }
+		new TemplateWriter(runOn, GATLING_GRAPH_ACTIVE_SESSIONS_FILE).writeToFile(output)
+	}
 }

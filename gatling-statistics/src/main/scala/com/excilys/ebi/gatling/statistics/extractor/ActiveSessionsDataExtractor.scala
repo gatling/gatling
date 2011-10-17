@@ -13,101 +13,101 @@ import com.excilys.ebi.gatling.statistics.utils.HighChartsHelper._
 
 class ActiveSessionsDataExtractor extends DataExtractor[LinkedHashMap[String, ListBuffer[(String, Double)]]] {
 
-  val maxResolution = 100
+	val maxResolution = 100
 
-  val executionWindowByScenarioAndUser = new LinkedHashMap[String, LinkedHashMap[String, (String, String)]]
-  var minDate: String = null
-  var maxDate: String = null
+	val executionWindowByScenarioAndUser = new LinkedHashMap[String, LinkedHashMap[String, (String, String)]]
+	var minDate: String = null
+	var maxDate: String = null
 
-  override def onRow(runOn: String, scenarioName: String, userId: String, actionName: String, executionStartDate: String, executionDuration: String, resultStatus: String, resultMessage: String, groups: List[String]) {
+	override def onRow(runOn: String, scenarioName: String, userId: String, actionName: String, executionStartDate: String, executionDuration: String, resultStatus: String, resultMessage: String, groups: List[String]) {
 
-    val executionWindowByUser = executionWindowByScenarioAndUser.get(scenarioName).getOrElse {
-      val scenarioWindows = new LinkedHashMap[String, (String, String)]
-      executionWindowByScenarioAndUser += scenarioName -> scenarioWindows
-      scenarioWindows
-    }
+		val executionWindowByUser = executionWindowByScenarioAndUser.get(scenarioName).getOrElse {
+			val scenarioWindows = new LinkedHashMap[String, (String, String)]
+			executionWindowByScenarioAndUser += scenarioName -> scenarioWindows
+			scenarioWindows
+		}
 
-    val executionWindow = executionWindowByUser.get(userId).getOrElse {
+		val executionWindow = executionWindowByUser.get(userId).getOrElse {
 
-      // create new window entry with end date 0
-      val userWindow = (executionStartDate, "0");
-      executionWindowByUser += (userId -> userWindow)
-      userWindow
-    }
+			// create new window entry with end date 0
+			val userWindow = (executionStartDate, "0");
+			executionWindowByUser += (userId -> userWindow)
+			userWindow
+		}
 
-    // update window end date
-    executionWindowByUser += (userId -> (executionWindow._1, executionStartDate))
+		// update window end date
+		executionWindowByUser += (userId -> (executionWindow._1, executionStartDate))
 
-    updateLimits(executionStartDate)
-  }
+		updateLimits(executionStartDate)
+	}
 
-  private def updateLimits(executionStartDate: String) {
-    if (minDate == null || minDate > executionStartDate) {
-      minDate = executionStartDate
-    }
+	private def updateLimits(executionStartDate: String) {
+		if (minDate == null || minDate > executionStartDate) {
+			minDate = executionStartDate
+		}
 
-    if (maxDate == null || maxDate < executionStartDate) {
-      maxDate = executionStartDate
-    }
-  }
+		if (maxDate == null || maxDate < executionStartDate) {
+			maxDate = executionStartDate
+		}
+	}
 
-  def getResults: LinkedHashMap[String, ListBuffer[(String, Double)]] = {
-    val countsByScenarioAndTime = new LinkedHashMap[String, ListBuffer[(String, Double)]]
-    var globalCountByTime = new ListBuffer[(String, Double)]()
+	def getResults: LinkedHashMap[String, ListBuffer[(String, Double)]] = {
+		val countsByScenarioAndTime = new LinkedHashMap[String, ListBuffer[(String, Double)]]
+		var globalCountByTime = new ListBuffer[(String, Double)]()
 
-    getTimes(minDate, maxDate).foreach { time =>
+		getTimes(minDate, maxDate).foreach { time =>
 
-      // iterate on scenarios
-      var activeUsers = 0
-      executionWindowByScenarioAndUser.foreach { scenarioAndWindowsByUser =>
-        val (scenarioName, windowsByUser) = scenarioAndWindowsByUser
+			// iterate on scenarios
+			var activeUsers = 0
+			executionWindowByScenarioAndUser.foreach { scenarioAndWindowsByUser =>
+				val (scenarioName, windowsByUser) = scenarioAndWindowsByUser
 
-        var activeUsersByScenario = 0
-        // iterate on users
-        windowsByUser.foreach { windowByUser =>
-          val (userId, (windowStart, windowEnd)) = windowByUser
+				var activeUsersByScenario = 0
+				// iterate on users
+				windowsByUser.foreach { windowByUser =>
+					val (userId, (windowStart, windowEnd)) = windowByUser
 
-          if (windowStart <= time && time < windowEnd) {
-            activeUsers = activeUsers + 1
-            activeUsersByScenario = activeUsersByScenario + 1
-          }
-        }
+					if (windowStart <= time && time < windowEnd) {
+						activeUsers = activeUsers + 1
+						activeUsersByScenario = activeUsersByScenario + 1
+					}
+				}
 
-        val countsByTime = countsByScenarioAndTime.get(scenarioName).getOrElse {
-          val counts = new ListBuffer[(String, Double)]()
-          countsByScenarioAndTime += (scenarioName -> counts)
-          counts
-        }
+				val countsByTime = countsByScenarioAndTime.get(scenarioName).getOrElse {
+					val counts = new ListBuffer[(String, Double)]()
+					countsByScenarioAndTime += (scenarioName -> counts)
+					counts
+				}
 
-        countsByTime += ((time, activeUsersByScenario))
-      }
+				countsByTime += ((time, activeUsersByScenario))
+			}
 
-      globalCountByTime += ((time, activeUsers))
-    }
+			globalCountByTime += ((time, activeUsers))
+		}
 
-    countsByScenarioAndTime += "All scenarios" -> globalCountByTime
+		countsByScenarioAndTime += "All scenarios" -> globalCountByTime
 
-    countsByScenarioAndTime
-  }
+		countsByScenarioAndTime
+	}
 
-  private def getTimes(minDate: String, maxDate: String) = {
-    val start = parseResultDate(minDate);
-    val end = parseResultDate(maxDate);
+	private def getTimes(minDate: String, maxDate: String) = {
+		val start = parseResultDate(minDate);
+		val end = parseResultDate(maxDate);
 
-    val stepMillis = getStepMillis(start, end)
-    var current = start
-    val times = new ListBuffer[String]()
+		val stepMillis = getStepMillis(start, end)
+		var current = start
+		val times = new ListBuffer[String]()
 
-    while (current.compareTo(end) < 0) {
-      times += printResultDate(current);
-      current = current.plus(stepMillis)
-    }
+		while (current.compareTo(end) < 0) {
+			times += printResultDate(current);
+			current = current.plus(stepMillis)
+		}
 
-    times
-  }
+		times
+	}
 
-  private def getStepMillis(start: DateTime, end: DateTime) = {
-    val between = new Duration(start, end);
-    max(between.getMillis() / maxResolution, 1000);
-  }
+	private def getStepMillis(start: DateTime, end: DateTime) = {
+		val between = new Duration(start, end);
+		max(between.getMillis() / maxResolution, 1000);
+	}
 }

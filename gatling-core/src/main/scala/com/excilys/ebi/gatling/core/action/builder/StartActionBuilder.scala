@@ -23,12 +23,12 @@ import com.excilys.ebi.gatling.core.action.StartAction
  * StartActionBuilder class companion
  */
 object StartActionBuilder {
-  /**
-   * Creates a new StartActionBuilder
-   *
-   * @return A StartActionBuilder ready to use
-   */
-  def startActionBuilder = new StartActionBuilder(null, Nil)
+	/**
+	 * Creates a new StartActionBuilder
+	 *
+	 * @return A StartActionBuilder ready to use
+	 */
+	def startActionBuilder = new StartActionBuilder(null, Nil)
 }
 
 /**
@@ -38,13 +38,13 @@ object StartActionBuilder {
  * @param next the action to be executed after this one
  */
 class StartActionBuilder(next: Action, groups: List[String]) extends AbstractActionBuilder {
-  def withNext(next: Action) = new StartActionBuilder(next, groups)
+	def withNext(next: Action) = new StartActionBuilder(next, groups)
 
-  def inGroups(groups: List[String]) = new StartActionBuilder(next, groups)
+	def inGroups(groups: List[String]) = new StartActionBuilder(next, groups)
 
-  def build: Action = {
-    logger.debug("Building StartAction")
+	def build: Action = {
+		logger.debug("Building StartAction")
 
-    TypedActor.newInstance(classOf[Action], new StartAction(next))
-  }
+		TypedActor.newInstance(classOf[Action], new StartAction(next))
+	}
 }

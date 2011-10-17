@@ -22,37 +22,37 @@ import com.excilys.ebi.gatling.core.log.Logging
  * This object groups all utilities for strings
  */
 object StringHelper extends Logging {
-  /**
-   * Returns a string with all {} replaced by specified values as in :
-   * {{{
-   * //context has attribute "key" set to "interpolation"
-   * interpolate("This is an {}", "key") => "This is an interpolation"
-   * }}}
-   *
-   * @param context the context in which values must be taken
-   * @param stringToFormat the string to be formatted
-   * @param interpolations the keys of the values that will be inserted in stringToFormat
-   * @return the completed string
-   */
-  def interpolateString(context: Context, stringToFormat: String, interpolations: Seq[String]) = {
+	/**
+	 * Returns a string with all {} replaced by specified values as in :
+	 * {{{
+	 * //context has attribute "key" set to "interpolation"
+	 * interpolate("This is an {}", "key") => "This is an interpolation"
+	 * }}}
+	 *
+	 * @param context the context in which values must be taken
+	 * @param stringToFormat the string to be formatted
+	 * @param interpolations the keys of the values that will be inserted in stringToFormat
+	 * @return the completed string
+	 */
+	def interpolateString(context: Context, stringToFormat: String, interpolations: Seq[String]) = {
 
-    interpolations.size match {
-      case 0 => stringToFormat
-      case 1 => MessageFormatter.format(stringToFormat, context.getAttribute(interpolations(0))).getMessage
-      case 2 => MessageFormatter.format(stringToFormat, context.getAttribute(interpolations(0)), context.getAttribute(interpolations(1))).getMessage
-      case _ => {
-        val interpolationsFromContext: Seq[String] = for (interpolation <- interpolations) yield context.getAttribute(interpolation)
-        MessageFormatter.arrayFormat(stringToFormat, interpolationsFromContext.toArray).getMessage
-      }
-    }
-  }
+		interpolations.size match {
+			case 0 => stringToFormat
+			case 1 => MessageFormatter.format(stringToFormat, context.getAttribute(interpolations(0))).getMessage
+			case 2 => MessageFormatter.format(stringToFormat, context.getAttribute(interpolations(0)), context.getAttribute(interpolations(1))).getMessage
+			case _ => {
+				val interpolationsFromContext: Seq[String] = for (interpolation <- interpolations) yield context.getAttribute(interpolation)
+				MessageFormatter.arrayFormat(stringToFormat, interpolationsFromContext.toArray).getMessage
+			}
+		}
+	}
 
-  /**
-   * Method used in scenarios to interpolate strings from context
-   *
-   * @param stringToFormat the string to be formatted
-   * @param interpolations the keys of the values that will be inserted in stringToFormat
-   * @return the completed string
-   */
-  def interpolate(stringToFormat: String, interpolations: String*) = (c: Context) => interpolateString(c, stringToFormat, interpolations)
+	/**
+	 * Method used in scenarios to interpolate strings from context
+	 *
+	 * @param stringToFormat the string to be formatted
+	 * @param interpolations the keys of the values that will be inserted in stringToFormat
+	 * @return the completed string
+	 */
+	def interpolate(stringToFormat: String, interpolations: String*) = (c: Context) => interpolateString(c, stringToFormat, interpolations)
 }

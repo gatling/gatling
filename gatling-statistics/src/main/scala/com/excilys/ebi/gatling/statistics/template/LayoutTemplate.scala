@@ -6,14 +6,14 @@ import com.excilys.ebi.gatling.core.util.PathHelper._
 
 private[template] class LayoutTemplate(val title: String, val runOn: String, val body: String, val highcharts: String) {
 
-  val engine = new TemplateEngine
-  engine.escapeMarkup = false
+	val engine = new TemplateEngine
+	engine.escapeMarkup = false
 
-  def getOutput: String = {
-    engine.layout(GATLING_TEMPLATE_LAYOUT_FILE,
-      Map("title" -> title,
-        "runOn" -> runOn,
-        "body" -> body,
-        "highcharts" -> highcharts))
-  }
+	def getOutput: String = {
+		engine.layout(GATLING_TEMPLATE_LAYOUT_FILE,
+			Map("title" -> title,
+				"runOn" -> runOn,
+				"body" -> body,
+				"highcharts" -> highcharts))
+	}
 }

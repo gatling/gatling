@@ -19,9 +19,9 @@ import com.excilys.ebi.gatling.core.context.Context
 
 class SimpleAction(contextModifier: Context => Unit, next: Action) extends Action {
 
-  def execute(context: Context): Unit = {
-    contextModifier.apply(context)
-    next.execute(context)
-  }
+	def execute(context: Context): Unit = {
+		contextModifier.apply(context)
+		next.execute(context)
+	}
 
 }

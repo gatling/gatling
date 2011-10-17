@@ -34,18 +34,18 @@ import com.excilys.ebi.gatling.core.util.PathHelper._
  */
 abstract class SeparatedValuesFeeder(fileName: String, mappings: List[String], val separator: String, val extension: String) extends Feeder(fileName, mappings) {
 
-  var seeds: Queue[Map[String, String]] = Queue()
+	var seeds: Queue[Map[String, String]] = Queue()
 
-  for (line <- Source.fromFile(GATLING_SEEDS_FOLDER + "/" + fileName + extension, CONFIG_GATLING_FEEDER_ENCODING).getLines) {
-    var lineMap = new HashMap[String, String]
+	for (line <- Source.fromFile(GATLING_SEEDS_FOLDER + "/" + fileName + extension, CONFIG_GATLING_FEEDER_ENCODING).getLines) {
+		var lineMap = new HashMap[String, String]
 
-    for (mapping <- mappings zip line.split(separator).toList)
-      lineMap = lineMap + mapping
+		for (mapping <- mappings zip line.split(separator).toList)
+			lineMap = lineMap + mapping
 
-    seeds += lineMap
-  }
+		seeds += lineMap
+	}
 
-  logger.debug("Feeder Seeds Loaded")
+	logger.debug("Feeder Seeds Loaded")
 
-  def next: Map[String, String] = seeds.dequeue
+	def next: Map[String, String] = seeds.dequeue
 }

@@ -21,5 +21,5 @@ import com.excilys.ebi.gatling.core.processor.CheckType
  * Represents a Check on Non Existence (ie: absence) of value
  */
 object NonExistenceCheckType extends CheckType {
-  def doCheck(value: Option[String], range: String) = value.isEmpty
+	def doCheck(value: Option[String], range: String) = value.isEmpty
 }

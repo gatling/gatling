@@ -28,10 +28,10 @@ import akka.actor.TypedActor
  * Companion Object of PauseActionBuilder class
  */
 object PauseActionBuilder {
-  /**
-   * Creates an initialized PauseActionBuilder with time unit in Seconds
-   */
-  def pauseActionBuilder = new PauseActionBuilder(None, None, Some(TimeUnit.SECONDS), None, Some(Nil))
+	/**
+	 * Creates an initialized PauseActionBuilder with time unit in Seconds
+	 */
+	def pauseActionBuilder = new PauseActionBuilder(None, None, Some(TimeUnit.SECONDS), None, Some(Nil))
 }
 
 /**
@@ -45,46 +45,46 @@ object PauseActionBuilder {
  * @param groups groups in which this action will be
  */
 class PauseActionBuilder(val minDuration: Option[Long], val maxDuration: Option[Long], val timeUnit: Option[TimeUnit], val next: Option[Action], val groups: Option[List[String]])
-    extends AbstractActionBuilder {
+		extends AbstractActionBuilder {
 
-  /**
-   * Adds minDuration to builder
-   *
-   * @param minDuration the minimum duration of the pause
-   * @return a new builder with minDuration set
-   */
-  def withMinDuration(minDuration: Long) = new PauseActionBuilder(Some(minDuration), maxDuration, timeUnit, next, groups)
+	/**
+	 * Adds minDuration to builder
+	 *
+	 * @param minDuration the minimum duration of the pause
+	 * @return a new builder with minDuration set
+	 */
+	def withMinDuration(minDuration: Long) = new PauseActionBuilder(Some(minDuration), maxDuration, timeUnit, next, groups)
 
-  /**
-   * Adds maxDuration to builder
-   *
-   * @param maxDuration the maximum duration of the pause
-   * @return a new builder with maxDuration set
-   */
-  def withMaxDuration(maxDuration: Long) = new PauseActionBuilder(minDuration, Some(maxDuration), timeUnit, next, groups)
+	/**
+	 * Adds maxDuration to builder
+	 *
+	 * @param maxDuration the maximum duration of the pause
+	 * @return a new builder with maxDuration set
+	 */
+	def withMaxDuration(maxDuration: Long) = new PauseActionBuilder(minDuration, Some(maxDuration), timeUnit, next, groups)
 
-  /**
-   * Adds duration to builder
-   *
-   * @param duration the duration of the pause
-   * @return a new builder with duration set
-   */
-  def withDuration(duration: Long) = new PauseActionBuilder(Some(duration), Some(duration), timeUnit, next, groups)
+	/**
+	 * Adds duration to builder
+	 *
+	 * @param duration the duration of the pause
+	 * @return a new builder with duration set
+	 */
+	def withDuration(duration: Long) = new PauseActionBuilder(Some(duration), Some(duration), timeUnit, next, groups)
 
-  /**
-   * Adds timeUnit to builder
-   *
-   * @param timeUnit time unit of the duration
-   * @return a new builder with timeUnit set
-   */
-  def withTimeUnit(timeUnit: TimeUnit) = new PauseActionBuilder(minDuration, maxDuration, Some(timeUnit), next, groups)
+	/**
+	 * Adds timeUnit to builder
+	 *
+	 * @param timeUnit time unit of the duration
+	 * @return a new builder with timeUnit set
+	 */
+	def withTimeUnit(timeUnit: TimeUnit) = new PauseActionBuilder(minDuration, maxDuration, Some(timeUnit), next, groups)
 
-  def withNext(next: Action) = new PauseActionBuilder(minDuration, maxDuration, timeUnit, Some(next), groups)
+	def withNext(next: Action) = new PauseActionBuilder(minDuration, maxDuration, timeUnit, Some(next), groups)
 
-  def inGroups(groups: List[String]) = new PauseActionBuilder(minDuration, maxDuration, timeUnit, next, Some(groups))
+	def inGroups(groups: List[String]) = new PauseActionBuilder(minDuration, maxDuration, timeUnit, next, Some(groups))
 
-  def build: Action = {
-    logger.debug("Building PauseAction with duration in : {} - {}ms", TimeUnit.MILLISECONDS.convert(minDuration.get, timeUnit.get), TimeUnit.MILLISECONDS.convert(maxDuration.get, timeUnit.get))
-    TypedActor.newInstance(classOf[Action], new PauseAction(next.get, minDuration.get, maxDuration.get, timeUnit.get))
-  }
+	def build: Action = {
+		logger.debug("Building PauseAction with duration in : {} - {}ms", TimeUnit.MILLISECONDS.convert(minDuration.get, timeUnit.get), TimeUnit.MILLISECONDS.convert(maxDuration.get, timeUnit.get))
+		TypedActor.newInstance(classOf[Action], new PauseAction(next.get, minDuration.get, maxDuration.get, timeUnit.get))
+	}
 }

@@ -32,7 +32,7 @@ import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.scenario.configuration.builder.ScenarioConfigurationBuilder
 
 object ScenarioBuilder {
-  def scenario(scenarioName: String) = new ScenarioBuilder(scenarioName, Nil).start
+	def scenario(scenarioName: String) = new ScenarioBuilder(scenarioName, Nil).start
 }
 /**
  * The scenario builder is used in the DSL to define the scenario
@@ -45,46 +45,46 @@ object ScenarioBuilder {
  * @param groups the groups for all the actions of this scenario
  */
 class ScenarioBuilder(name: String, actionBuilders: List[AbstractActionBuilder])
-    extends AbstractScenarioBuilder[ScenarioBuilder](actionBuilders) {
+		extends AbstractScenarioBuilder[ScenarioBuilder](actionBuilders) {
 
-  def newInstance(actionBuilders: List[AbstractActionBuilder]) = {
-    new ScenarioBuilder(name, actionBuilders)
-  }
+	def newInstance(actionBuilders: List[AbstractActionBuilder]) = {
+		new ScenarioBuilder(name, actionBuilders)
+	}
 
-  def getName = name
+	def getName = name
 
-  def configure = new ScenarioConfigurationBuilder(this)
+	def configure = new ScenarioConfigurationBuilder(this)
 
-  /**
-   * Method that should not be used in a script. It adds a StartAction to the scenario
-   *
-   * @return a new builder with its first action added
-   */
-  def start: ScenarioBuilder = {
-    logger.debug("Adding StartAction")
-    newInstance(startActionBuilder :: actionBuilders)
-  }
+	/**
+	 * Method that should not be used in a script. It adds a StartAction to the scenario
+	 *
+	 * @return a new builder with its first action added
+	 */
+	def start: ScenarioBuilder = {
+		logger.debug("Adding StartAction")
+		newInstance(startActionBuilder :: actionBuilders)
+	}
 
-  /**
-   * Method that should not be used in a script. It adds an EndAction that will
-   * tell the engine that the scenario is finished
-   *
-   * @param latch the countdown latch used to stop the engine
-   * @return a new builder with its last action added
-   */
-  // TODO important, don't forget to set the end of the scenario when needed !
-  def end(latch: CountDownLatch): ScenarioBuilder = {
-    logger.debug("Adding EndAction")
-    newInstance(endActionBuilder(latch) :: actionBuilders)
-  }
+	/**
+	 * Method that should not be used in a script. It adds an EndAction that will
+	 * tell the engine that the scenario is finished
+	 *
+	 * @param latch the countdown latch used to stop the engine
+	 * @return a new builder with its last action added
+	 */
+	// TODO important, don't forget to set the end of the scenario when needed !
+	def end(latch: CountDownLatch): ScenarioBuilder = {
+		logger.debug("Adding EndAction")
+		newInstance(endActionBuilder(latch) :: actionBuilders)
+	}
 
-  /**
-   * Method that actually builds the scenario
-   *
-   * @param scenarioId the id of the current scenario
-   * @return the first action of the scenario to be executed
-   */
-  def build: Scenario = {
-    new Scenario(name, buildActions(null))
-  }
+	/**
+	 * Method that actually builds the scenario
+	 *
+	 * @param scenarioId the id of the current scenario
+	 * @return the first action of the scenario to be executed
+	 */
+	def build: Scenario = {
+		new Scenario(name, buildActions(null))
+	}
 }

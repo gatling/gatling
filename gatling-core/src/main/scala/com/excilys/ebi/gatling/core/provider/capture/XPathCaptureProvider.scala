@@ -30,29 +30,29 @@ import org.apache.commons.lang3.StringUtils
  */
 class XPathCaptureProvider(xmlContent: Array[Byte]) extends AbstractCaptureProvider {
 
-  val vtdEngine = new CustomVTDGen
-  vtdEngine.setDoc(xmlContent)
-  vtdEngine.parse(false)
+	val vtdEngine = new CustomVTDGen
+	vtdEngine.setDoc(xmlContent)
+	vtdEngine.parse(false)
 
-  var vn = vtdEngine.getNav()
-  var ap = new AutoPilot(vn)
+	var vn = vtdEngine.getNav()
+	var ap = new AutoPilot(vn)
 
-  /**
-   * The actual capture happens here. The XPath expression is searched for and the first
-   * result is returned if existing.
-   *
-   * @param expression a String containing the XPath expression to be searched
-   * @return an option containing the value if found, None otherwise
-   */
-  def capture(expression: Any): Option[String] = {
-    logger.debug("[XPathCaptureProvider] Capturing with expression : {}", expression)
-    ap.selectXPath(expression.toString)
-    val result = ap.evalXPathToString
-    val value = if (result.equals(StringUtils.EMPTY))
-      None
-    else
-      Some(ap.evalXPathToString)
-    logger.debug("XPATH CAPTURE: {}", value)
-    value
-  }
+	/**
+	 * The actual capture happens here. The XPath expression is searched for and the first
+	 * result is returned if existing.
+	 *
+	 * @param expression a String containing the XPath expression to be searched
+	 * @return an option containing the value if found, None otherwise
+	 */
+	def capture(expression: Any): Option[String] = {
+		logger.debug("[XPathCaptureProvider] Capturing with expression : {}", expression)
+		ap.selectXPath(expression.toString)
+		val result = ap.evalXPathToString
+		val value = if (result.equals(StringUtils.EMPTY))
+			None
+		else
+			Some(ap.evalXPathToString)
+		logger.debug("XPATH CAPTURE: {}", value)
+		value
+	}
 }

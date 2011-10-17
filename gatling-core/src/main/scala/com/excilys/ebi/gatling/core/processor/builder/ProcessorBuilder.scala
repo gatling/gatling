@@ -22,5 +22,5 @@ import com.excilys.ebi.gatling.core.processor.Processor
  * Trait that represents a processor builder
  */
 trait ProcessorBuilder extends Logging {
-  def build: Processor
+	def build: Processor
 }

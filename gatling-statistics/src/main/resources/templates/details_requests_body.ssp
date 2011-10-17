@@ -1,4 +1,5 @@
-<%@ val result: com.excilys.ebi.gatling.statistics.result.DetailsRequestsDataResult %>
+<%@ val result:
+com.excilys.ebi.gatling.statistics.result.DetailsRequestsDataResult %>
 <h2>Statistics</h2>
 <p>Here are some statistics for this request.</p>
 <ul>
@@ -9,9 +10,9 @@
 			<li>Max : <%= result.max %>ms</li>
 			<li>Medium : <%= result.medium %>ms</li>
 			<li>Standard Deviation : <%= result.standardDeviation %></li>
-		</ul>
-	</li>
+		</ul></li>
 </ul>
 
 <p>Dispersion of requests by response time</p>
-<div id="container_column" style="height:410px; margin: 0 auto; clear:both; min-width: 600px"></div>
+<div id="container_column"
+	style="height: 410px; margin: 0 auto; clear: both; min-width: 600px"></div>

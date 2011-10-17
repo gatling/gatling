@@ -24,20 +24,20 @@ import scala.util.matching.Regex
  * @param textContent the text where the search will be made
  */
 class RegExpCaptureProvider(textContent: String) extends AbstractCaptureProvider {
-  /**
-   * The actual capture happens here. The regular expression is compiled and the first
-   * result is returned if existing.
-   *
-   * @param expression a String containing the regular expression to be matched
-   * @return an option containing the value if found, None otherwise
-   */
-  def capture(expression: Any): Option[String] = {
-    logger.debug("[RegExpCaptureProvider] Capturing with expression : {}", expression)
-    new Regex(expression.toString).findFirstMatchIn(textContent).map { m =>
-      if (m.groupCount > 0)
-        m.group(1)
-      else
-        m.matched
-    }
-  }
+	/**
+	 * The actual capture happens here. The regular expression is compiled and the first
+	 * result is returned if existing.
+	 *
+	 * @param expression a String containing the regular expression to be matched
+	 * @return an option containing the value if found, None otherwise
+	 */
+	def capture(expression: Any): Option[String] = {
+		logger.debug("[RegExpCaptureProvider] Capturing with expression : {}", expression)
+		new Regex(expression.toString).findFirstMatchIn(textContent).map { m =>
+			if (m.groupCount > 0)
+				m.group(1)
+			else
+				m.matched
+		}
+	}
 }

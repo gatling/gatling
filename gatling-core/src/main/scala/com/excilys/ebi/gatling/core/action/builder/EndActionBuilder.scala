@@ -23,13 +23,13 @@ import akka.actor.TypedActor
 import java.util.concurrent.CountDownLatch
 
 object EndActionBuilder {
-  /**
-   * Creates a new EndActionBuilder
-   *
-   * @param countDownLatch the countdown latch that will stop the simulation execution
-   * @return An EndActionBuilder ready to use
-   */
-  def endActionBuilder(latch: CountDownLatch) = new EndActionBuilder(latch)
+	/**
+	 * Creates a new EndActionBuilder
+	 *
+	 * @param countDownLatch the countdown latch that will stop the simulation execution
+	 * @return An EndActionBuilder ready to use
+	 */
+	def endActionBuilder(latch: CountDownLatch) = new EndActionBuilder(latch)
 }
 
 /**
@@ -40,13 +40,13 @@ object EndActionBuilder {
  */
 class EndActionBuilder(val latch: CountDownLatch) extends AbstractActionBuilder {
 
-  def build: Action = {
-    TypedActor.newInstance(classOf[Action], new EndAction(latch))
-  }
+	def build: Action = {
+		TypedActor.newInstance(classOf[Action], new EndAction(latch))
+	}
 
-  def withNext(next: Action): AbstractActionBuilder = this
+	def withNext(next: Action): AbstractActionBuilder = this
 
-  def inGroups(groups: List[String]) = this
+	def inGroups(groups: List[String]) = this
 
-  override def toString = "End"
+	override def toString = "End"
 }

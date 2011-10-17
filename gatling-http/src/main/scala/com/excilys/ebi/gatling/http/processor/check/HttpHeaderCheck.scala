@@ -8,21 +8,21 @@ import com.excilys.ebi.gatling.http.processor.capture.HttpHeaderCapture
 import org.apache.commons.lang3.StringUtils
 
 class HttpHeaderCheck(headerNameFormatter: Context => String, expected: String, attrKey: String, checkType: CheckType)
-  extends HttpHeaderCapture(headerNameFormatter, attrKey) with HttpCheck {
+		extends HttpHeaderCapture(headerNameFormatter, attrKey) with HttpCheck {
 
-  def getCheckType = checkType
+	def getCheckType = checkType
 
-  def getExpected = expected
+	def getExpected = expected
 
-  override def equals(that: Any) = {
-    if (!that.isInstanceOf[HttpHeaderCheck])
-      false
-    else {
-      val other = that.asInstanceOf[HttpHeaderCheck]
+	override def equals(that: Any) = {
+		if (!that.isInstanceOf[HttpHeaderCheck])
+			false
+		else {
+			val other = that.asInstanceOf[HttpHeaderCheck]
 
-      this.checkType == other.getCheckType && this.expressionFormatter == other.expressionFormatter && this.expected == other.getExpected && this.attrKey == other.attrKey
-    }
-  }
+			this.checkType == other.getCheckType && this.expressionFormatter == other.expressionFormatter && this.expected == other.getExpected && this.attrKey == other.attrKey
+		}
+	}
 
-  override def hashCode = this.expressionFormatter.hashCode + this.expected.size + this.getCheckType.hashCode + this.attrKey.size + this.checkType.hashCode
+	override def hashCode = this.expressionFormatter.hashCode + this.expected.size + this.getCheckType.hashCode + this.attrKey.size + this.checkType.hashCode
 }

@@ -24,5 +24,5 @@ import com.ning.http.client.AsyncHttpClient
  * @param client the AsyncHttpClient references by this resource
  */
 class HttpClientResource(client: AsyncHttpClient) extends Resource {
-  def close = client.close
+	def close = client.close
 }

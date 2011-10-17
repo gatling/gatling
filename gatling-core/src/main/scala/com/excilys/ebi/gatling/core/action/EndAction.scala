@@ -27,10 +27,10 @@ import org.joda.time.DateTime
  * EndAction class companion
  */
 object EndAction {
-  /**
-   * This variable contains the name of the EndAction used in simulation.log
-   */
-  val END_OF_SCENARIO = "End of scenario"
+	/**
+	 * This variable contains the name of the EndAction used in simulation.log
+	 */
+	val END_OF_SCENARIO = "End of scenario"
 }
 /**
  * EndAction class represents the last action of the scenario.
@@ -40,20 +40,20 @@ object EndAction {
  */
 class EndAction(val latch: CountDownLatch) extends Action {
 
-  /**
-   * Sends a message to the DataWriter and decreases the countDownLatch
-   *
-   * @param context The context of the current user that finishes
-   */
-  def execute(context: Context): Unit = {
-    actorFor(context.getWriteActorUuid).map { a =>
-      a ! ActionInfo(context.getScenarioName, context.getUserId, EndAction.END_OF_SCENARIO, DateTime.now(), 0, OK, "End of Scenario Reached", Nil)
-    }
+	/**
+	 * Sends a message to the DataWriter and decreases the countDownLatch
+	 *
+	 * @param context The context of the current user that finishes
+	 */
+	def execute(context: Context): Unit = {
+		actorFor(context.getWriteActorUuid).map { a =>
+			a ! ActionInfo(context.getScenarioName, context.getUserId, EndAction.END_OF_SCENARIO, DateTime.now(), 0, OK, "End of Scenario Reached", Nil)
+		}
 
-    latch.countDown
+		latch.countDown
 
-    logger.info("Done user #{}", context.getUserId)
-  }
+		logger.info("Done user #{}", context.getUserId)
+	}
 
-  override def toString = "End Action"
+	override def toString = "End Action"
 }

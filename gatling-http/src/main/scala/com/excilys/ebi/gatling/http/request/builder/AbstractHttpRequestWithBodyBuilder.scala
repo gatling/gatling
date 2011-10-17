@@ -21,71 +21,71 @@ import com.excilys.ebi.gatling.http.request.ContextParam
 import java.io.File
 
 abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]],
-                                                                                              headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean])
-    extends AbstractHttpRequestBuilder[B](httpRequestActionBuilder, urlFormatter, queryParams, headers, followsRedirects) {
+	headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean])
+		extends AbstractHttpRequestBuilder[B](httpRequestActionBuilder, urlFormatter, queryParams, headers, followsRedirects) {
 
-  override def getRequestBuilder(context: Context): RequestBuilder = {
-    val requestBuilder = super.getRequestBuilder(context)
-    requestBuilder setMethod getMethod
-    addBodyTo(requestBuilder, body, context)
-    requestBuilder
-  }
+	override def getRequestBuilder(context: Context): RequestBuilder = {
+		val requestBuilder = super.getRequestBuilder(context)
+		requestBuilder setMethod getMethod
+		addBodyTo(requestBuilder, body, context)
+		requestBuilder
+	}
 
-  def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean]): B
+	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean]): B
 
-  def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], followsRedirects: Option[Boolean]): B = {
-    newInstance(httpRequestActionBuilder, urlFormatter, queryParams, headers, body, followsRedirects)
-  }
+	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], followsRedirects: Option[Boolean]): B = {
+		newInstance(httpRequestActionBuilder, urlFormatter, queryParams, headers, body, followsRedirects)
+	}
 
-  def withFile(filePath: String): B = {
-    newInstance(httpRequestActionBuilder, urlFormatter, queryParams, headers, Some(FilePathBody(filePath)), followsRedirects)
-  }
+	def withFile(filePath: String): B = {
+		newInstance(httpRequestActionBuilder, urlFormatter, queryParams, headers, Some(FilePathBody(filePath)), followsRedirects)
+	}
 
-  def withBody(body: String): B = {
-    newInstance(httpRequestActionBuilder, urlFormatter, queryParams, headers, Some(StringBody(body)), followsRedirects)
-  }
+	def withBody(body: String): B = {
+		newInstance(httpRequestActionBuilder, urlFormatter, queryParams, headers, Some(StringBody(body)), followsRedirects)
+	}
 
-  def withTemplateBody(tplPath: String, values: Map[String, Any]): B = {
-    val encapsulatedValues: Map[String, Param] = values.map {
-      value =>
-        (value._1, value._2 match {
-          case FromContext(s) => ContextParam(s)
-          case s => StringParam(s.toString)
-        })
-    }
-    newInstance(httpRequestActionBuilder, urlFormatter, queryParams, headers, Some(TemplateBody(tplPath, encapsulatedValues)), followsRedirects)
-  }
+	def withTemplateBody(tplPath: String, values: Map[String, Any]): B = {
+		val encapsulatedValues: Map[String, Param] = values.map {
+			value =>
+				(value._1, value._2 match {
+					case FromContext(s) => ContextParam(s)
+					case s => StringParam(s.toString)
+				})
+		}
+		newInstance(httpRequestActionBuilder, urlFormatter, queryParams, headers, Some(TemplateBody(tplPath, encapsulatedValues)), followsRedirects)
+	}
 
-  def addBodyTo(requestBuilder: RequestBuilder, body: Option[HttpRequestBody], context: Context) = {
-    body match {
-      case Some(thing) =>
-        thing match {
-          case FilePathBody(filePath) => requestBuilder setBody new File(GATLING_REQUEST_BODIES_FOLDER + "/" + filePath)
-          case StringBody(body) => requestBuilder setBody body
-          case TemplateBody(tplPath, values) => requestBuilder setBody compileBody(tplPath, values, context)
-          case _ =>
-        }
-      case None =>
-    }
-  }
+	def addBodyTo(requestBuilder: RequestBuilder, body: Option[HttpRequestBody], context: Context) = {
+		body match {
+			case Some(thing) =>
+				thing match {
+					case FilePathBody(filePath) => requestBuilder setBody new File(GATLING_REQUEST_BODIES_FOLDER + "/" + filePath)
+					case StringBody(body) => requestBuilder setBody body
+					case TemplateBody(tplPath, values) => requestBuilder setBody compileBody(tplPath, values, context)
+					case _ =>
+				}
+			case None =>
+		}
+	}
 
-  def compileBody(tplPath: String, values: Map[String, Param], context: Context): String = {
+	def compileBody(tplPath: String, values: Map[String, Param], context: Context): String = {
 
-    val engine = new TemplateEngine
-    engine.allowCaching = false
+		val engine = new TemplateEngine
+		engine.allowCaching = false
 
-    var bindings: List[Binding] = List()
-    var templateValues: Map[String, String] = Map.empty
+		var bindings: List[Binding] = List()
+		var templateValues: Map[String, String] = Map.empty
 
-    for (value <- values) {
-      bindings = Binding(value._1, "String") :: bindings
-      templateValues = templateValues + (value._1 -> (value._2 match {
-        case StringParam(string) => string
-        case ContextParam(string) => context.getAttribute(string)
-      }))
-    }
+		for (value <- values) {
+			bindings = Binding(value._1, "String") :: bindings
+			templateValues = templateValues + (value._1 -> (value._2 match {
+				case StringParam(string) => string
+				case ContextParam(string) => context.getAttribute(string)
+			}))
+		}
 
-    engine.bindings = bindings
-    engine.layout(GATLING_TEMPLATES_FOLDER + "/" + tplPath + SSP_EXTENSION, templateValues)
-  }
+		engine.bindings = bindings
+		engine.layout(GATLING_TEMPLATES_FOLDER + "/" + tplPath + SSP_EXTENSION, templateValues)
+	}
 }

@@ -8,12 +8,12 @@ import com.excilys.ebi.gatling.http.request.Param
 import com.excilys.ebi.gatling.http.action.builder.HttpRequestActionBuilder
 
 class PutHttpRequestBuilder(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]],
-                            headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean])
-    extends AbstractHttpRequestWithBodyBuilder[PutHttpRequestBuilder](httpRequestActionBuilder, urlFormatter, queryParams, headers, body, followsRedirects) {
+	headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean])
+		extends AbstractHttpRequestWithBodyBuilder[PutHttpRequestBuilder](httpRequestActionBuilder, urlFormatter, queryParams, headers, body, followsRedirects) {
 
-  def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean]) = {
-    new PutHttpRequestBuilder(httpRequestActionBuilder, urlFormatter, queryParams, headers, body, followsRedirects)
-  }
+	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean]) = {
+		new PutHttpRequestBuilder(httpRequestActionBuilder, urlFormatter, queryParams, headers, body, followsRedirects)
+	}
 
-  def getMethod = "PUT"
+	def getMethod = "PUT"
 }

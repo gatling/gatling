@@ -5,15 +5,15 @@ import com.excilys.ebi.gatling.core.processor.builtin.InRangeCheckType
 import com.excilys.ebi.gatling.http.processor.capture.HttpStatusCapture
 
 class HttpStatusCheck(val expected: String, attrKey: String)
-    extends HttpStatusCapture(attrKey) with HttpCheck {
+		extends HttpStatusCapture(attrKey) with HttpCheck {
 
-  def getCheckType = InRangeCheckType
+	def getCheckType = InRangeCheckType
 
-  def getExpected = expected
+	def getExpected = expected
 
-  override def toString = "HttpStatusCheck (Http Response Status must be in '{" + expected + "}')"
+	override def toString = "HttpStatusCheck (Http Response Status must be in '{" + expected + "}')"
 
-  override def equals(that: Any) = that.isInstanceOf[HttpStatusCheck]
+	override def equals(that: Any) = that.isInstanceOf[HttpStatusCheck]
 
-  override def hashCode() = 1
+	override def hashCode() = 1
 }

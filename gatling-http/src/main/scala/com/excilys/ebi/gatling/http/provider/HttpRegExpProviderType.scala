@@ -6,8 +6,8 @@ import com.excilys.ebi.gatling.core.provider.capture.RegExpCaptureProvider
 import com.ning.http.client.Response
 
 object HttpRegExpProviderType extends ProviderType {
-  def getProvider(textContent: Any) = {
-    logger.debug("Instantiation of RegExpCaptureProvider")
-    new RegExpCaptureProvider(textContent.asInstanceOf[Response].getResponseBody)
-  }
+	def getProvider(textContent: Any) = {
+		logger.debug("Instantiation of RegExpCaptureProvider")
+		new RegExpCaptureProvider(textContent.asInstanceOf[Response].getResponseBody)
+	}
 }

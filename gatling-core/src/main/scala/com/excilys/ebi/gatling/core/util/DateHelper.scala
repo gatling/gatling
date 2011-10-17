@@ -23,37 +23,37 @@ import org.joda.time.DateTime
  */
 object DateHelper {
 
-  /**
-   * Formatter for human readable dates (logs)
-   */
-  private val resultDateTimeFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+	/**
+	 * Formatter for human readable dates (logs)
+	 */
+	private val resultDateTimeFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
 
-  /**
-   * Formatter for folder dates
-   */
-  private val fileNameDateTimeFormat = DateTimeFormat.forPattern("yyyyMMddHHmmss")
+	/**
+	 * Formatter for folder dates
+	 */
+	private val fileNameDateTimeFormat = DateTimeFormat.forPattern("yyyyMMddHHmmss")
 
-  /**
-   * Returns a date from a log string
-   *
-   * @param string the date as a string
-   * @return a date from a log string
-   */
-  def parseResultDate(string: String) = DateTime.parse(string, resultDateTimeFormat);
+	/**
+	 * Returns a date from a log string
+	 *
+	 * @param string the date as a string
+	 * @return a date from a log string
+	 */
+	def parseResultDate(string: String) = DateTime.parse(string, resultDateTimeFormat);
 
-  /**
-   * Returns a log string from a date
-   *
-   * @param dateTime the date to be formatted
-   * @return a log string from a date
-   */
-  def printResultDate(dateTime: DateTime) = resultDateTimeFormat.print(dateTime)
+	/**
+	 * Returns a log string from a date
+	 *
+	 * @param dateTime the date to be formatted
+	 * @return a log string from a date
+	 */
+	def printResultDate(dateTime: DateTime) = resultDateTimeFormat.print(dateTime)
 
-  /**
-   * Returns a folder name from a date
-   *
-   * @param dateTime the date to be formatted
-   * @return a folder name from a date
-   */
-  def printFileNameDate(dateTime: DateTime) = fileNameDateTimeFormat.print(dateTime)
+	/**
+	 * Returns a folder name from a date
+	 *
+	 * @param dateTime the date to be formatted
+	 * @return a folder name from a date
+	 */
+	def printFileNameDate(dateTime: DateTime) = fileNameDateTimeFormat.print(dateTime)
 }

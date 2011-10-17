@@ -44,96 +44,96 @@ class DateHolder(var value: DateTime)
  */
 object App extends Logging {
 
-  /**
-   * Entry point of Application
-   *
-   * @param args Arguments of the main method
-   */
-  def main(args: Array[String]) {
+	/**
+	 * Entry point of Application
+	 *
+	 * @param args Arguments of the main method
+	 */
+	def main(args: Array[String]) {
 
-    println("-----------\nGatling cli\n-----------\n")
+		println("-----------\nGatling cli\n-----------\n")
 
-    GatlingConfig // Initializes configuration
+		GatlingConfig // Initializes configuration
 
-    // Getting 
-    val files = for (
-      file <- new Directory(new File(GATLING_SCENARIOS_FOLDER)).files if (!file.name.startsWith(".") && !file.name.startsWith("_"))
-    ) yield file.name
+		// Getting 
+		val files = for (
+			file <- new Directory(new File(GATLING_SCENARIOS_FOLDER)).files if (!file.name.startsWith(".") && !file.name.startsWith("_"))
+		) yield file.name
 
-    val filesList = files.toList
+		val filesList = files.toList
 
-    // We get the folder name of the run simulation
-    val folderName =
-      if (!ONLY_STATS_PROPERTY) {
-        filesList.size match {
-          case 0 =>
-            // If there is no simulation file
-            logger.warn("There are no scenario scripts. Please verify that your scripts are in user-files/scenarios and that they do not start with a _ or a .")
-            sys.exit
-          case 1 =>
-            // If there is only one simulation file
-            logger.info("There is only one scenario, executing it.")
-            run(filesList(0))
-          case _ =>
-            // If there are several simulation files
-            println("Which scenario do you want to execute ?")
-            var i = 0
-            // Prints list of simulation files
-            for (filename <- filesList) {
-              println("  [" + i + "] " + filename)
-              i += 1
-            }
-            val fileChosen = Console.readInt
-            run(filesList(fileChosen))
-        }
-      } else {
-        // If the user wants to execute only statistics generation
-        if (args.length > 0) {
-          // If there is one argument, take it as folder name
-          args(0)
-        } else {
-          // Else throw an error, as the folder name is required
-          logger.error("You specified the property OnlyStats but ommitted the folderName argument.")
-          sys.exit
-        }
-      }
+		// We get the folder name of the run simulation
+		val folderName =
+			if (!ONLY_STATS_PROPERTY) {
+				filesList.size match {
+					case 0 =>
+						// If there is no simulation file
+						logger.warn("There are no scenario scripts. Please verify that your scripts are in user-files/scenarios and that they do not start with a _ or a .")
+						sys.exit
+					case 1 =>
+						// If there is only one simulation file
+						logger.info("There is only one scenario, executing it.")
+						run(filesList(0))
+					case _ =>
+						// If there are several simulation files
+						println("Which scenario do you want to execute ?")
+						var i = 0
+						// Prints list of simulation files
+						for (filename <- filesList) {
+							println("  [" + i + "] " + filename)
+							i += 1
+						}
+						val fileChosen = Console.readInt
+						run(filesList(fileChosen))
+				}
+			} else {
+				// If the user wants to execute only statistics generation
+				if (args.length > 0) {
+					// If there is one argument, take it as folder name
+					args(0)
+				} else {
+					// Else throw an error, as the folder name is required
+					logger.error("You specified the property OnlyStats but ommitted the folderName argument.")
+					sys.exit
+				}
+			}
 
-    // Generation of statistics
-    if (!NO_STATS_PROPERTY)
-      generateStats(folderName)
+		// Generation of statistics
+		if (!NO_STATS_PROPERTY)
+			generateStats(folderName)
 
-  }
+	}
 
-  /**
-   * This method call the statistics module to generate the graphics and statistics
-   *
-   * @param folderName The folder from which the simulation.log will be parsed
-   * @return Nothing
-   */
-  private def generateStats(folderName: String) = {
-    logger.debug("\nGenerating Graphics and Statistics from Folder Name: {}", folderName)
+	/**
+	 * This method call the statistics module to generate the graphics and statistics
+	 *
+	 * @param folderName The folder from which the simulation.log will be parsed
+	 * @return Nothing
+	 */
+	private def generateStats(folderName: String) = {
+		logger.debug("\nGenerating Graphics and Statistics from Folder Name: {}", folderName)
 
-    new GraphicsGenerator().generateFor(folderName)
-  }
+		new GraphicsGenerator().generateFor(folderName)
+	}
 
-  /**
-   * This method actually runs the simulation by interpreting the scripts.
-   *
-   * @param fileName The name of the simulation file that will be executed
-   * @return The name of the folder of this simulation (ie: its date)
-   */
-  private def run(fileName: String) = {
+	/**
+	 * This method actually runs the simulation by interpreting the scripts.
+	 *
+	 * @param fileName The name of the simulation file that will be executed
+	 * @return The name of the folder of this simulation (ie: its date)
+	 */
+	private def run(fileName: String) = {
 
-    logger.info("Executing simulation of file '{}'", fileName)
+		logger.info("Executing simulation of file '{}'", fileName)
 
-    // Sets the interpreter to use the classpath of the java command
-    val settings = new Settings
-    settings.usejavacp.value = true
+		// Sets the interpreter to use the classpath of the java command
+		val settings = new Settings
+		settings.usejavacp.value = true
 
-    val n = new IMain(settings)
+		val n = new IMain(settings)
 
-    // This is the file header, with all needed imports and declarations
-    val fileHeader = """
+		// This is the file header, with all needed imports and declarations
+		val fileHeader = """
     import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder._
     import com.excilys.ebi.gatling.core.feeder._
     import com.excilys.ebi.gatling.core.context._
@@ -158,32 +158,32 @@ object App extends Logging {
     def runSimulations = runSim(startDate.value)_
     """
 
-    // Contains the contents of the simulation file
-    val initialFileBodyContent = Source.fromFile(GATLING_SCENARIOS_FOLDER + "/" + fileName).mkString
+		// Contains the contents of the simulation file
+		val initialFileBodyContent = Source.fromFile(GATLING_SCENARIOS_FOLDER + "/" + fileName).mkString
 
-    // Includes contents of included files into the simulation file 
-    val toBeFound = new Regex("""include\("(.*)"\)""")
-    val newFileBodyContent = toBeFound replaceAllIn (initialFileBodyContent, result => {
-      val partialName = result.group(1)
-      var path =
-        if (partialName.startsWith("_")) {
-          partialName
-        } else {
-          fileName.substring(0, fileName.length() - 6) + "/" + partialName
-        }
-      Source.fromFile(GATLING_SCENARIOS_FOLDER + "/" + path + SCALA_EXTENSION).mkString + "\n\n"
-    })
+		// Includes contents of included files into the simulation file 
+		val toBeFound = new Regex("""include\("(.*)"\)""")
+		val newFileBodyContent = toBeFound replaceAllIn (initialFileBodyContent, result => {
+			val partialName = result.group(1)
+			var path =
+				if (partialName.startsWith("_")) {
+					partialName
+				} else {
+					fileName.substring(0, fileName.length() - 6) + "/" + partialName
+				}
+			Source.fromFile(GATLING_SCENARIOS_FOLDER + "/" + path + SCALA_EXTENSION).mkString + "\n\n"
+		})
 
-    // Complete script
-    val fileContent = fileHeader + newFileBodyContent
-    logger.debug(fileContent)
+		// Complete script
+		val fileContent = fileHeader + newFileBodyContent
+		logger.debug(fileContent)
 
-    val runOn = new DateHolder(DateTime.now)
-    n.bind("startDate", runOn)
-    n.interpret(fileContent) // This is where the simulation starts
-    n.close()
+		val runOn = new DateHolder(DateTime.now)
+		n.bind("startDate", runOn)
+		n.interpret(fileContent) // This is where the simulation starts
+		n.close()
 
-    // Returns the folderName in which the simulation is stored
-    DateTimeFormat.forPattern("yyyyMMddHHmmss").print(new DateTime(runOn.value))
-  }
+		// Returns the folderName in which the simulation is stored
+		DateTimeFormat.forPattern("yyyyMMddHHmmss").print(new DateTime(runOn.value))
+	}
 }
