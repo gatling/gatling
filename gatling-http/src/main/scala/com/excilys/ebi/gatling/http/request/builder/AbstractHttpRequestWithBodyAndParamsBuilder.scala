@@ -42,7 +42,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		for (param <- params.get) {
 			param._2 match {
 				case StringParam(string) => requestBuilder addParameter (param._1, string)
-				case ContextParam(string) => requestBuilder addParameter (param._1, context.getAttribute(string))
+				case ContextParam(string) => requestBuilder addParameter (param._1, context.getAttribute(string).toString)
 			}
 		}
 	}

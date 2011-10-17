@@ -16,11 +16,14 @@ import com.excilys.ebi.gatling.http.request.FilePathBody
 import com.excilys.ebi.gatling.http.request.StringBody
 import com.excilys.ebi.gatling.http.request.TemplateBody
 import com.excilys.ebi.gatling.http.request.MIMEType._
+import com.excilys.ebi.gatling.http.util.GatlingHttpHelper._
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
 import com.excilys.ebi.gatling.http.action.builder.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.processor.capture.builder.AbstractHttpCaptureBuilder
 import com.excilys.ebi.gatling.http.processor.check.builder.HttpCheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequest
+import com.ning.http.client.Cookie
+import scala.collection.immutable.HashMap
 
 object AbstractHttpRequestBuilder {
 	implicit def toHttpRequestActionBuilder[B <: AbstractHttpRequestBuilder[B]](requestBuilder: B) = requestBuilder.httpRequestActionBuilder withRequest (new HttpRequest(requestBuilder.httpRequestActionBuilder.getRequestName, requestBuilder))
@@ -91,16 +94,18 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	}
 
 	private def addCookiesTo(requestBuilder: RequestBuilder, context: Context) = {
-		logger.debug("Adding Cookies to RequestBuilder: {}", context.getCookies)
-		for (cookie <- context.getCookies) { requestBuilder.addOrReplaceCookie(cookie) }
+		logger.debug("Adding Cookies to RequestBuilder: {}", context.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(Map.empty))
+		for ((cookieName, cookie) <- context.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty).asInstanceOf[HashMap[String, Cookie]]) { requestBuilder.addOrReplaceCookie(cookie) }
 	}
 
 	private def addQueryParamsTo(requestBuilder: RequestBuilder, context: Context) = {
 		requestBuilder setQueryParameters (new FluentStringsMap)
 		for (queryParam <- queryParams.get) {
 			queryParam._2 match {
-				case StringParam(string) => requestBuilder addQueryParameter (queryParam._1, string)
-				case ContextParam(string) => requestBuilder addQueryParameter (queryParam._1, context.getAttribute(string))
+				case StringParam(string) =>
+					requestBuilder addQueryParameter (queryParam._1, string)
+				case ContextParam(string) =>
+					requestBuilder addQueryParameter (queryParam._1, context.getAttribute(string).toString)
 			}
 		}
 	}

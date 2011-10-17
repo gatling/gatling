@@ -17,7 +17,6 @@ package com.excilys.ebi.gatling.core.context
 
 import akka.actor.Uuid
 import com.excilys.ebi.gatling.core.log.Logging
-import com.ning.http.client.Cookie
 import org.apache.commons.lang3.StringUtils
 import java.util.concurrent.TimeUnit
 
@@ -29,17 +28,17 @@ object Context {
 	 * Key for last action duration
 	 * This duration is to be substracted to next pause duration
 	 */
-	val LAST_ACTION_DURATION_ATTR_NAME = "gatling.lastActionDuration"
+	val LAST_ACTION_DURATION_ATTR_NAME = "gatling.core.lastActionDuration"
 	/**
 	 * Key for while duration
 	 * This duration is updated each time the while loop has been executed
 	 */
-	val WHILE_DURATION = "gatling.whileDurationElapsed"
+	val WHILE_DURATION = "gatling.core.whileDurationElapsed"
 	/**
 	 * Key for last while access
 	 * When a loop has been executed, this value is updated
 	 */
-	val LAST_WHILE_ACCESS = "gatling.lastWhileAccess"
+	val LAST_WHILE_ACCESS = "gatling.core.lastWhileAccess"
 }
 /**
  * Context class represent the context passing through a scenario for a given user
@@ -50,10 +49,9 @@ object Context {
  * @param scenarioName the name of the current scenario
  * @param userId the id of the current user
  * @param writeActorUuid the uuid of the actor responsible for logging
- * @param cookies the cookies received from server responses
  * @param data the map that stores all values needed
  */
-class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uuid, val cookies: List[Cookie], var data: Map[String, String]) extends Logging {
+class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uuid, var data: Map[String, Any]) extends Logging {
 
 	/**
 	 * @return the current user id
@@ -64,11 +62,6 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 * @return the uuid of the actor responsible for logging
 	 */
 	def getWriteActorUuid = writeActorUuid
-
-	/**
-	 * @return the cookies stored from last requests
-	 */
-	def getCookies = cookies
 
 	/**
 	 * @return the scenario name
@@ -83,16 +76,33 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	/**
 	 * Gets a value from the context
 	 *
-	 * @param key the key of the value requested
+	 * @param key the key of the requested value
 	 * @return the value stored at key, StringUtils.EMPTY if it does not exist
 	 */
-	def getAttribute(key: String): String = {
+	def getAttribute(key: String): Any = {
+		if (key.startsWith("gatling."))
+			throw new UnsupportedOperationException("keys starting with gatling. are reserved for internal purpose. If using this method internally please use getAttributeAsOption instead")
 		val result = data.get(key).getOrElse {
-			logger.warn("No Matching Attribute for key: '{}' in context, setting to ''", key)
+			logger.warn("No Matching Attribute for key: '{}' in context", key)
 			StringUtils.EMPTY
 		}
 		logger.debug("Context('{}') = {}", key, result)
 		result
+	}
+
+	/**
+	 * Gets a value from the context
+	 *
+	 * This method is to be used only internally, prefer using getAttribute in scenarios
+	 *
+	 * @param key the key of the requested value
+	 * @return the value stored at key as an Option
+	 */
+	def getAttributeAsOption(key: String): Option[Any] = {
+		if (key.startsWith("gatling."))
+			data.get(key)
+		else
+			throw new UnsupportedOperationException("This method should not be used with keys that are not reserved, ie: starting with gatling.")
 	}
 
 	/**
@@ -101,7 +111,7 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 * @param attributes map containing several values to be stored in context
 	 * @return Nothing
 	 */
-	def setAttributes(attributes: Map[String, String]) = {
+	def setAttributes(attributes: Map[String, Any]) = {
 		data ++= attributes
 	}
 
@@ -112,7 +122,7 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 * @param attributeValue the value of the attribute
 	 * @return Nothing
 	 */
-	def setAttribute(attributeKey: String, attributeValue: String) = {
+	def setAttribute(attributeKey: String, attributeValue: Any) = {
 		data += (attributeKey -> attributeValue)
 	}
 
@@ -122,8 +132,10 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 * @return last action duration in nanoseconds
 	 */
 	def getLastActionDuration: Long =
-		data.get(Context.LAST_ACTION_DURATION_ATTR_NAME).map { l =>
-			l.toLong
+		data.get(Context.LAST_ACTION_DURATION_ATTR_NAME).map { value =>
+			value match {
+				case s: String => s.toLong
+			}
 		}.getOrElse(0L)
 
 	/**
@@ -132,8 +144,10 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 * @return the number of milliseconds elapsed from the beginning of the while loop
 	 */
 	def getWhileDuration: Long = {
-		val currentValue = data.get(Context.WHILE_DURATION).map { l =>
-			l.toLong
+		val currentValue = data.get(Context.WHILE_DURATION).map { value =>
+			value match {
+				case s: String => s.toLong
+			}
 		}.getOrElse(0L)
 		logger.debug("Current Duration Value: {}", currentValue)
 
@@ -185,8 +199,10 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 * @return the value of last while access in milliseconds
 	 */
 	private def getLastWhileAccess = {
-		data.get(Context.LAST_WHILE_ACCESS).map {
-			l => l.toLong
+		data.get(Context.LAST_WHILE_ACCESS).map { value =>
+			value match {
+				case s: String => s.toLong
+			}
 		}.getOrElse(0L)
 	}
 }

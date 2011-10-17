@@ -1,7 +1,7 @@
 package com.excilys.ebi.gatling.http.ahc
 
 import scala.collection.mutable.{ MultiMap, HashMap }
-import scala.collection.immutable.HashSet
+import scala.collection.immutable.{ HashSet, HashMap => IHashMap }
 import scala.collection.{ Set => CSet }
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.context.Context
@@ -15,6 +15,7 @@ import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
 import com.excilys.ebi.gatling.http.processor.check.HttpCheck
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
+import com.excilys.ebi.gatling.http.util.GatlingHttpHelper._
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
 import com.ning.http.client.AsyncHandler
@@ -72,7 +73,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
 			val sentContext = contextBuilder setDuration (System.nanoTime() - processingStartTimeNano) build
 
-			logger.debug("Context Cookies sent to next action: {}", sentContext.getCookies)
+			logger.debug("Context Cookies sent to next action: {}", sentContext.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(IHashMap.empty))
 			next.execute(sentContext)
 		}
 	}
@@ -147,17 +148,22 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 	def onHeadersReceived(headers: HttpResponseHeaders): STATE = {
 		if (isPhaseToBeProcessed(HeadersReceived)) {
 			responseBuilder.accumulate(headers)
+
 			val headersMap = headers.getHeaders
-			var cookiesList = new java.util.ArrayList[Cookie]
 
 			val setCookieHeaders = headersMap.get(SET_COOKIE)
 			if (setCookieHeaders != null) {
-				val it = headersMap.get(SET_COOKIE).iterator
-				while (it.hasNext)
-					cookiesList.add(parseCookie(it.next))
+				var contextCookies = contextBuilder.getAttribute(COOKIES_CONTEXT_KEY).getOrElse(IHashMap.empty).asInstanceOf[IHashMap[String, Cookie]]
 
-				logger.debug("Cookies extracted: {}", cookiesList)
-				contextBuilder = contextBuilder setCookies cookiesList
+				val it = setCookieHeaders.iterator
+				while (it.hasNext) {
+					val cookie = parseCookie(it.next)
+					contextCookies += (cookie.getName -> cookie)
+				}
+
+				logger.debug("Cookies put in ContextBuilder: {}", contextCookies)
+
+				contextBuilder = contextBuilder setAttribute ((COOKIES_CONTEXT_KEY, contextCookies))
 			}
 
 			processResponse(HeadersReceived, headersMap)

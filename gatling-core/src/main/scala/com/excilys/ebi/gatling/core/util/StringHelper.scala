@@ -41,7 +41,7 @@ object StringHelper extends Logging {
 			case 1 => MessageFormatter.format(stringToFormat, context.getAttribute(interpolations(0))).getMessage
 			case 2 => MessageFormatter.format(stringToFormat, context.getAttribute(interpolations(0)), context.getAttribute(interpolations(1))).getMessage
 			case _ => {
-				val interpolationsFromContext: Seq[String] = for (interpolation <- interpolations) yield context.getAttribute(interpolation)
+				val interpolationsFromContext: Seq[String] = for (interpolation <- interpolations) yield context.getAttribute(interpolation).toString
 				MessageFormatter.arrayFormat(stringToFormat, interpolationsFromContext.toArray).getMessage
 			}
 		}

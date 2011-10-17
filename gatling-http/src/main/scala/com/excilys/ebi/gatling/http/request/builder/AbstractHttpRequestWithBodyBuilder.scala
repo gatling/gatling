@@ -81,7 +81,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 			bindings = Binding(value._1, "String") :: bindings
 			templateValues = templateValues + (value._1 -> (value._2 match {
 				case StringParam(string) => string
-				case ContextParam(string) => context.getAttribute(string)
+				case ContextParam(string) => context.getAttribute(string).toString
 			}))
 		}
 
