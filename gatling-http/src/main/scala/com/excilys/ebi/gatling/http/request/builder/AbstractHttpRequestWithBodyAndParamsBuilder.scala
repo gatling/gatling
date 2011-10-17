@@ -12,8 +12,8 @@ import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.excilys.ebi.gatling.http.action.builder.HttpRequestActionBuilder
 
 abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequestWithBodyAndParamsBuilder[B]](httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], params: Option[Map[String, Param]],
-	headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean])
-		extends AbstractHttpRequestWithBodyBuilder[B](httpRequestActionBuilder, urlFormatter, queryParams, headers, body, followsRedirects) {
+	headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[Tuple2[String, String]])
+		extends AbstractHttpRequestWithBodyBuilder[B](httpRequestActionBuilder, urlFormatter, queryParams, headers, body, followsRedirects, credentials) {
 
 	override def getRequestBuilder(context: Context): RequestBuilder = {
 		val requestBuilder = super.getRequestBuilder(context)
@@ -21,18 +21,18 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		requestBuilder
 	}
 
-	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], params: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean]): B
+	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], params: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[Tuple2[String, String]]): B
 
-	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean]): B = {
-		newInstance(httpRequestActionBuilder, urlFormatter, queryParams, params, headers, body, followsRedirects)
+	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[Tuple2[String, String]]): B = {
+		newInstance(httpRequestActionBuilder, urlFormatter, queryParams, params, headers, body, followsRedirects, credentials)
 	}
 
 	def param(paramKey: String, paramValue: String): B = {
-		newInstance(httpRequestActionBuilder, urlFormatter, queryParams, Some(params.get + (paramKey -> StringParam(paramValue))), headers, body, followsRedirects)
+		newInstance(httpRequestActionBuilder, urlFormatter, queryParams, Some(params.get + (paramKey -> StringParam(paramValue))), headers, body, followsRedirects, credentials)
 	}
 
 	def param(paramKey: String, paramValue: FromContext): B = {
-		newInstance(httpRequestActionBuilder, urlFormatter, queryParams, Some(params.get + (paramKey -> ContextParam(paramValue.attributeKey))), headers, body, followsRedirects)
+		newInstance(httpRequestActionBuilder, urlFormatter, queryParams, Some(params.get + (paramKey -> ContextParam(paramValue.attributeKey))), headers, body, followsRedirects, credentials)
 	}
 
 	def param(paramKey: String): B = param(paramKey, FromContext(paramKey))

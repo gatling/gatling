@@ -47,27 +47,27 @@ class HttpRequestActionBuilder(val requestName: String, val request: Option[Http
 	}
 
 	def delete(url: String, interpolations: String*) =
-		new DeleteHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Some(Map()), Some(Map()), None, None)
+		new DeleteHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Some(Map()), Some(Map()), None, None, None)
 
 	def delete(f: Context => String) =
-		new DeleteHttpRequestBuilder(this, Some(f), Some(Map()), Some(Map()), None, None)
+		new DeleteHttpRequestBuilder(this, Some(f), Some(Map()), Some(Map()), None, None, None)
 
 	def get(url: String, interpolations: String*) =
-		new GetHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Some(Map()), Some(Map()), None)
+		new GetHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Some(Map()), Some(Map()), None, None)
 
 	def get(f: Context => String) =
-		new GetHttpRequestBuilder(this, Some(f), Some(Map()), Some(Map()), None)
+		new GetHttpRequestBuilder(this, Some(f), Some(Map()), Some(Map()), None, None)
 
 	def post(url: String, interpolations: String*) =
-		new PostHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Some(Map()), Some(Map()), Some(Map()), None, None)
+		new PostHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Some(Map()), Some(Map()), Some(Map()), None, None, None)
 
 	def post(f: Context => String) =
-		new PostHttpRequestBuilder(this, Some(f), Some(Map()), Some(Map()), Some(Map()), None, None)
+		new PostHttpRequestBuilder(this, Some(f), Some(Map()), Some(Map()), Some(Map()), None, None, None)
 
 	def put(url: String, interpolations: String*) =
-		new PutHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Some(Map()), Some(Map()), None, None)
+		new PutHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Some(Map()), Some(Map()), None, None, None)
 
 	def put(f: Context => String) =
-		new PutHttpRequestBuilder(this, Some(f), Some(Map()), Some(Map()), None, None)
+		new PutHttpRequestBuilder(this, Some(f), Some(Map()), Some(Map()), None, None, None)
 }
 
