@@ -163,7 +163,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
 				logger.debug("Cookies put in ContextBuilder: {}", contextCookies)
 
-				contextBuilder = contextBuilder setAttribute ((COOKIES_CONTEXT_KEY, contextCookies))
+				contextBuilder = contextBuilder setAttribute (COOKIES_CONTEXT_KEY, contextCookies)
 			}
 
 			processResponse(HeadersReceived, headersMap)

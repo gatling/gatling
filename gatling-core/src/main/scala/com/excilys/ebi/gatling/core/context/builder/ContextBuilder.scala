@@ -108,9 +108,9 @@ class ContextBuilder[HSN, HUID, HWAU](val scenarioName: Option[String], val user
 	 * @param attr the attribute to be added in the context ("key", "value")
 	 * @return a new builder with attribute set
 	 */
-	def setAttribute(attr: Tuple2[String, Any]) = {
-		logger.debug("Setting '{}'='{}'", attr._1, attr._2)
-		new ContextBuilder[HSN, HUID, HWAU](scenarioName, userId, writeActorUuid, Some(data.get + (attr._1 -> attr._2)))
+	def setAttribute(name: String, value: Any) = {
+		logger.debug("Setting '{}'='{}'", name, value)
+		new ContextBuilder[HSN, HUID, HWAU](scenarioName, userId, writeActorUuid, Some(data.get + (name -> value)))
 	}
 
 	/**
