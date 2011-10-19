@@ -86,7 +86,7 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 			logger.warn("No Matching Attribute for key: '{}' in context", key)
 			StringUtils.EMPTY
 		}
-		logger.debug("Context('{}') = {}", key, result)
+		logger.debug("[Context] found '{}' at '{}'", result, key)
 		result
 	}
 

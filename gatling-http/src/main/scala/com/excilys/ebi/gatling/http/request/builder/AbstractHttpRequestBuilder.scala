@@ -102,7 +102,10 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 	private def addCookiesTo(requestBuilder: RequestBuilder, context: Context) = {
 		logger.debug("Adding Cookies to RequestBuilder: {}", context.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(Map.empty))
-		for ((cookieName, cookie) <- context.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty).asInstanceOf[HashMap[String, Cookie]]) { requestBuilder.addOrReplaceCookie(cookie) }
+		for ((cookieName, cookie) <- context.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty).asInstanceOf[HashMap[String, Cookie]]) {
+			logger.debug("Cookie added to request: {}", cookie)
+			requestBuilder.addOrReplaceCookie(cookie)
+		}
 	}
 
 	private def addQueryParamsTo(requestBuilder: RequestBuilder, context: Context) = {
