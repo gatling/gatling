@@ -8,7 +8,7 @@ val baseUrl = "http://localhost:3000"
 val usersInformation = new TSVFeeder("user_information", List("login", "password", "firstname", "lastname"))
 
 include("lambda-user-test-gatling")
-include("_admin-user-test-gatling")
+include("admin-user-test-gatling")
 
 runSimulations(
     lambdaUser.configure.users(5).ramp(10).feeder(usersInformation)

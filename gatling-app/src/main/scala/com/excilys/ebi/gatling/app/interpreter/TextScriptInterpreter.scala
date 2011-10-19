@@ -52,13 +52,7 @@ class TextScriptInterpreter extends Interpreter {
 		// Includes contents of included files into the simulation file 
 		val toBeFound = new Regex("""include\("(.*)"\)""")
 		val newFileBodyContent = toBeFound replaceAllIn (initialFileBodyContent, result => {
-			val partialName = result.group(1)
-			var path =
-				if (partialName.startsWith("_")) {
-					partialName
-				} else {
-					fileName.substring(0, fileName.length() - 4) + "/" + partialName
-				}
+			var path = fileName.substring(0, fileName.length() - 4) + "/" + result.group(1)
 			Source.fromFile(GATLING_SCENARIOS_FOLDER + "/" + path + TXT_EXTENSION).mkString + "\n\n"
 		})
 
