@@ -18,3 +18,11 @@ build.log
 # project files to ignore
 /gatling-assembly/src/main/assembly/assembly-structure/results/*
 !/results/.gitkeep
+
+gatling-http/.cache
+
+gatling-core/.cache
+
+gatling-statistics/.cache
+
+gatling-app/.cache
