@@ -13,7 +13,7 @@ val lambdaUser = scenario("Standard User")
       chain
         .exec(http("In During 1").get(baseUrl))
         .pause(2)
-        .exec( (c: Context) => println(c.getCounter) )
+        .exec( (c: Context) => println("doFor: " + c.getCounter) )
         .exec(http("In During 2").get(baseUrl))
         .pause(2))
   // Loop
@@ -23,6 +23,7 @@ val lambdaUser = scenario("Standard User")
     // What will be repeated ?
     chain
       // First request to be repeated
+      .exec( (c: Context) => println("iterate: " + c.getCounter) )
       .exec(
           http("Page accueil").get(baseUrl)
             .check(

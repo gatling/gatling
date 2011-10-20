@@ -9,6 +9,7 @@ import com.excilys.ebi.gatling.core.action.builder.IfActionBuilder._
 import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder._
 import com.excilys.ebi.gatling.core.action.builder.GroupActionBuilder._
 import com.excilys.ebi.gatling.core.action.builder.GroupActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder._
 
 abstract class AbstractScenarioBuilder[B <: AbstractScenarioBuilder[B]](actionBuilders: List[AbstractActionBuilder])
 		extends Logging {
@@ -216,11 +217,12 @@ abstract class AbstractScenarioBuilder[B <: AbstractScenarioBuilder[B]](actionBu
 	 * @return a new builder with a chain of all actions to be executed added to its actions
 	 */
 	def iterate(times: Int, chain: ChainBuilder): B = {
-		val chainActions: List[AbstractActionBuilder] = chain.getActionBuilders
+		val chainActions: List[AbstractActionBuilder] = chain.getActionBuilders ::: List(simpleActionBuilder((c: Context) => c.incrementCounter))
 		var iteratedActions: List[AbstractActionBuilder] = Nil
 		for (i <- 1 to times) {
 			iteratedActions = chainActions ::: iteratedActions
 		}
+		iteratedActions = simpleActionBuilder((c: Context) => c.expireCounter) :: iteratedActions
 		logger.debug("Adding {} Iterations", times)
 		newInstance(iteratedActions ::: actionBuilders)
 	}

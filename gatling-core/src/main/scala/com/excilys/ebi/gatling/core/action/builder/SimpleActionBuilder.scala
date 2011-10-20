@@ -23,6 +23,7 @@ import akka.actor.TypedActor
 
 object SimpleActionBuilder {
 	implicit def toSimpleActionBuilder(contextModifier: Context => Unit) = new SimpleActionBuilder(contextModifier, null, Nil)
+	def simpleActionBuilder(contextModifier: Context => Unit) = toSimpleActionBuilder(contextModifier)
 }
 
 class SimpleActionBuilder(contextModifier: Context => Unit, next: Action, groups: List[String]) extends AbstractActionBuilder {
