@@ -19,6 +19,7 @@ import akka.actor.Uuid
 import com.excilys.ebi.gatling.core.log.Logging
 import org.apache.commons.lang3.StringUtils
 import java.util.concurrent.TimeUnit
+import scala.collection.immutable.Queue
 
 /**
  * Companion object of Context class
@@ -39,6 +40,11 @@ object Context {
 	 * When a loop has been executed, this value is updated
 	 */
 	val LAST_WHILE_ACCESS = "gatling.core.lastWhileAccess"
+	/**
+	 * Key prefix for while counter
+	 */
+	val COUNTERS_KEY = "gatling.core.counters"
+
 }
 /**
  * Context class represent the context passing through a scenario for a given user
@@ -164,6 +170,36 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 			logger.debug("New Duration Value: {}", newValue)
 			newValue
 		}
+	}
+
+	def getCounter: Int = getCounter(1)
+
+	def getCounter(level: Int): Int = data.get(Context.COUNTERS_KEY).getOrElse(Queue.empty).asInstanceOf[Queue[Int]](level - 1)
+
+	def incrementCounter = {
+		var counters = data.get(Context.COUNTERS_KEY).getOrElse(Queue.empty).asInstanceOf[Queue[Int]]
+
+		val currentCounterValue =
+			if (counters.size == 0)
+				0
+			else {
+				val dequeued = counters.dequeue
+				counters = dequeued._2
+				dequeued._1
+			}
+
+		counters = counters.enqueue(currentCounterValue + 1)
+		data += (Context.COUNTERS_KEY -> counters)
+		logger.debug("Counters: {}", counters)
+	}
+
+	def expireCounter = {
+		val counters = data.get(Context.COUNTERS_KEY).getOrElse(Queue.empty).asInstanceOf[Queue[Int]]
+
+		val newCounters = counters.dequeue._2
+
+		data += (Context.COUNTERS_KEY -> newCounters)
+		logger.debug("NewCounters: {}", newCounters)
 	}
 
 	/**

@@ -13,6 +13,7 @@ val lambdaUser = scenario("Standard User")
       chain
         .exec(http("In During 1").get(baseUrl))
         .pause(2)
+        .exec( (c: Context) => println(c.getCounter) )
         .exec(http("In During 2").get(baseUrl))
         .pause(2))
   // Loop

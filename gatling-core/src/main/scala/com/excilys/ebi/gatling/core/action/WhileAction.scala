@@ -38,9 +38,11 @@ class WhileAction(testFunction: Context => Boolean, var nextTrue: WhileAction =>
 	def execute(context: Context) = {
 
 		if (testFunction.apply(context)) {
+			context.incrementCounter
 			nextTrueAction.execute(context)
 		} else {
 			context.resetWhileDuration
+			context.expireCounter
 			nextAfter.execute(context)
 		}
 	}
