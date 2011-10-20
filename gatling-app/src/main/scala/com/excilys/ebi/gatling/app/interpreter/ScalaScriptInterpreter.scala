@@ -36,7 +36,7 @@ class ScalaScriptInterpreter extends Interpreter {
 		// Attempt compilation
 		val files =
 			if (sourceDirectory.isFile)
-				sourceDirectory :: findFiles(new File(sourceDirectory.getAbsolutePath.substring(0, sourceDirectory.getAbsolutePath.length() - 6)))
+				sourceDirectory :: findFiles(new File(sourceDirectory.getAbsolutePath.substring(0, sourceDirectory.getAbsolutePath.lastIndexOf("@"))))
 			else
 				findFiles(sourceDirectory)
 

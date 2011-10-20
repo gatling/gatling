@@ -35,6 +35,8 @@ import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import com.excilys.ebi.gatling.app.interpreter.ScalaScriptInterpreter
 import com.excilys.ebi.gatling.app.interpreter.TextScriptInterpreter
+import scala.collection.mutable.{ MultiMap, HashMap, Set => MSet }
+import scala.collection.immutable.TreeSet
 
 /**
  * Object containing entry point of application
@@ -52,17 +54,26 @@ object App extends Logging {
 
 		GatlingConfig // Initializes configuration
 
-		// Getting 
+		// Getting files in scenarios folder
 		val files = for (
-			file <- new Directory(new File(GATLING_SCENARIOS_FOLDER)).files if (!file.name.startsWith(".") && !file.name.startsWith("_"))
+			file <- new Directory(new File(GATLING_SCENARIOS_FOLDER)).files if (!file.name.startsWith("."))
 		) yield file.name
 
-		val filesList = files.toList
+		val (files1, files2) = files.duplicate
+
+		// Sorting file names by radical and storing groups for display purpose
+		val sortedFiles: MultiMap[String, String] = new HashMap[String, MSet[String]] with MultiMap[String, String]
+		var sortedGroups: TreeSet[String] = new TreeSet[String]
+
+		for (fileName <- files1) {
+			sortedFiles.addBinding(fileName.substring(0, fileName.indexOf("@")), fileName)
+			sortedGroups += fileName.substring(0, fileName.indexOf("@"))
+		}
 
 		// We get the folder name of the run simulation
 		val folderName =
 			if (!ONLY_STATS_PROPERTY) {
-				filesList.size match {
+				files2.size match {
 					case 0 =>
 						// If there is no simulation file
 						logger.warn("There are no scenario scripts. Please verify that your scripts are in user-files/scenarios and that they do not start with a _ or a .")
@@ -70,18 +81,27 @@ object App extends Logging {
 					case 1 =>
 						// If there is only one simulation file
 						logger.info("There is only one scenario, executing it.")
-						run(filesList(0))
+						run(files.next)
 					case _ =>
 						// If there are several simulation files
 						println("Which scenario do you want to execute ?")
+
 						var i = 0
-						// Prints list of simulation files
-						for (filename <- filesList) {
-							println("  [" + i + "] " + filename)
-							i += 1
+						var filesList: List[String] = Nil
+
+						for (group <- sortedGroups) {
+							println("\n - " + group)
+							sortedFiles.get(group).map { set =>
+								for (fileName <- set) {
+									println("     [" + i + "] " + fileName.substring(fileName.indexOf("@") + 1, fileName.indexOf(".")))
+									filesList = fileName :: filesList
+									i += 1
+								}
+							}
 						}
+
 						val fileChosen = Console.readInt
-						run(filesList(fileChosen))
+						run(filesList.reverse(fileChosen))
 				}
 			} else {
 				// If the user wants to execute only statistics generation
