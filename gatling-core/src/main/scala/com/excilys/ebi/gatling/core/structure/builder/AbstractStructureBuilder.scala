@@ -144,8 +144,8 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 	 * @param chain the chain of actions to be executed
 	 * @return a new builder with a conditional loop added to its actions
 	 */
-	def doFor(durationValue: Int, chain: ChainBuilder): B = {
-		doFor(durationValue, TimeUnit.SECONDS, chain)
+	def loopDuring(durationValue: Int, chain: ChainBuilder): B = {
+		loopDuring(durationValue, TimeUnit.SECONDS, chain)
 	}
 
 	/**
@@ -156,8 +156,8 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 	 * @param chain the chain of actions to be executed
 	 * @return a new builder with a conditional loop added to its actions
 	 */
-	def doFor(durationValue: Int, durationUnit: TimeUnit, chain: ChainBuilder): B = {
-		doWhile((c: Context) => c.getWhileDuration <= durationUnit.toMillis(durationValue), chain)
+	def loopDuring(durationValue: Int, durationUnit: TimeUnit, chain: ChainBuilder): B = {
+		loopWhile((c: Context) => c.getWhileDuration <= durationUnit.toMillis(durationValue), chain)
 	}
 
 	/**
@@ -168,8 +168,8 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 	 * @param chain the chain of actions that will be executed in the loop
 	 * @return a new builder with a conditional loop added to its actions
 	 */
-	def doWhile(contextKey: String, value: String, chain: ChainBuilder): B = {
-		doWhile((c: Context) => c.getAttribute(contextKey) == value, chain)
+	def loopWhile(contextKey: String, value: String, chain: ChainBuilder): B = {
+		loopWhile((c: Context) => c.getAttribute(contextKey) == value, chain)
 	}
 
 	/**
@@ -179,7 +179,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 	 * @param chain the chain of actions that will be executed in the loop
 	 * @return a new builder with a conditional loop added to its actions
 	 */
-	def doWhile(testFunction: Context => Boolean, chain: ChainBuilder): B = {
+	def loopWhile(testFunction: Context => Boolean, chain: ChainBuilder): B = {
 		logger.debug("Adding While Action")
 		newInstance((whileActionBuilder withTestFunction testFunction withNextTrue chain inGroups getCurrentGroups) :: actionBuilders)
 	}
@@ -216,7 +216,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 	 * @param chain the actions to be repeated
 	 * @return a new builder with a chain of all actions to be executed added to its actions
 	 */
-	def iterate(times: Int, chain: ChainBuilder): B = {
+	def loop(times: Int, chain: ChainBuilder): B = {
 		val chainActions: List[AbstractActionBuilder] = chain.getActionBuilders ::: List(simpleActionBuilder((c: Context) => c.incrementCounter))
 		var iteratedActions: List[AbstractActionBuilder] = Nil
 		for (i <- 1 to times) {
