@@ -24,9 +24,6 @@
 					<descriptors>
 						<descriptor>src/main/assembly/gatling-all.xml</descriptor>
 					</descriptors>
-					<descriptorRefs>
-						<descriptorRefs>jar-with-dependencies</descriptorRefs>
-					</descriptorRefs>
 					<archive>
 						<manifest>
 							<mainClass>com.excilys.ebi.gatling.app.App</mainClass>
