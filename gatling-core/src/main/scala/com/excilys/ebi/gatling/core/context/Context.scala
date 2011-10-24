@@ -26,24 +26,8 @@ import com.excilys.ebi.gatling.core.util.StringHelper._
 object Context {
 	/**
 	 * Key for last action duration
-	 * This duration is to be substracted to next pause duration
 	 */
-	val LAST_ACTION_DURATION_ATTR_NAME = "gatling.core.lastActionDuration"
-	/**
-	 * Key for while duration
-	 * This duration is updated each time the while loop has been executed
-	 */
-	val WHILE_DURATION = "gatling.core.whileDurationElapsed"
-	/**
-	 * Key for last while access
-	 * When a loop has been executed, this value is updated
-	 */
-	val LAST_WHILE_ACCESS = "gatling.core.lastWhileAccess"
-	/**
-	 * Key prefix for while counter
-	 */
-	val COUNTERS_KEY = "gatling.core.counters"
-
+	val LAST_ACTION_DURATION_KEY = "gatling.core.lastActionDuration"
 }
 /**
  * Context class represent the context passing through a scenario for a given user
@@ -130,47 +114,20 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 		data += (attributeKey -> attributeValue)
 	}
 
+	def unsetAttribute(attributeKey: String) = {
+		data -= attributeKey
+	}
+
 	/**
 	 * Gets the last action duration
 	 *
 	 * @return last action duration in nanoseconds
 	 */
 	def getLastActionDuration: Long =
-		data.get(Context.LAST_ACTION_DURATION_ATTR_NAME).map { value =>
+		data.get(Context.LAST_ACTION_DURATION_KEY).map { value =>
 			value match {
 				case s: String => s.toLong
 			}
 		}.getOrElse(0L)
 
-	def getTimerValue(timerName: String) = {
-		getAttributeAsOption("gatling.core.timer" + timerName).getOrElse(throw new IllegalAccessError("You must call startTimer before this method is called")).asInstanceOf[Long]
-	}
-
-	def getCounterValue(counterName: String) = {
-		getAttributeAsOption("gatling.core.counter" + counterName).getOrElse(throw new IllegalAccessError("Counter does not exist, check the name of the key")).asInstanceOf[Int]
-	}
-
-	def startTimer(timerName: String) = {
-		if (!data.contains("gatling.core.timer" + timerName))
-			data += ("gatling.core.timer" + timerName -> System.currentTimeMillis)
-	}
-
-	def removeTimer(timerName: String) = {
-		data -= ("gatling.core.timer" + timerName)
-	}
-
-	def startCounter(counterName: String) = {
-		if (!data.contains("gatling.core.counter" + counterName))
-			data += ("gatling.core.counter" + counterName -> -1)
-	}
-
-	def incrementCounter(counterName: String) = {
-		val key = "gatling.core.counter" + counterName
-		val currentValue: Int = getAttributeAsOption(key).getOrElse(throw new IllegalAccessError("You must call startCounter before this method is called")).asInstanceOf[Int]
-		data += (key -> (currentValue + 1))
-	}
-
-	def removeCounter(counterName: String) = {
-		data -= ("gatling.core.counter" + counterName)
-	}
 }

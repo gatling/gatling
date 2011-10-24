@@ -27,6 +27,8 @@ class TextScriptInterpreter extends Interpreter {
     import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder._
     import com.excilys.ebi.gatling.core.feeder._
     import com.excilys.ebi.gatling.core.context._
+    import com.excilys.ebi.gatling.core.context.handler.CounterBasedIterationHandler._
+	import com.excilys.ebi.gatling.core.context.handler.TimerBasedIterationHandler._
     import com.excilys.ebi.gatling.core.util.StringHelper._
     import com.excilys.ebi.gatling.core.runner.Runner._
     import com.excilys.ebi.gatling.core.structure.builder.ScenarioBuilder._

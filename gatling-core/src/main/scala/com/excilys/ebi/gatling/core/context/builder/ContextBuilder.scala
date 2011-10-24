@@ -135,5 +135,5 @@ class ContextBuilder[HSN, HUID, HWAU](val scenarioName: Option[String], val user
 	 * @param value the duration of the last action
 	 * @return a new builder with the duration set
 	 */
-	def setDuration(value: Long) = unsetAttribute(Context.LAST_ACTION_DURATION_ATTR_NAME) setAttribute (Context.LAST_ACTION_DURATION_ATTR_NAME, value.toString)
+	def setDuration(value: Long) = unsetAttribute(Context.LAST_ACTION_DURATION_KEY) setAttribute (Context.LAST_ACTION_DURATION_KEY, value.toString)
 }

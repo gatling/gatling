@@ -15,6 +15,9 @@
  */
 package com.excilys.ebi.gatling.core.action
 import com.excilys.ebi.gatling.core.context.Context
+import java.util.concurrent.atomic.AtomicBoolean
+import com.excilys.ebi.gatling.core.context.handler.CounterBasedIterationHandler
+import com.excilys.ebi.gatling.core.context.handler.TimerBasedIterationHandler
 
 /**
  * Represents a While in the scenario.
@@ -24,9 +27,11 @@ import com.excilys.ebi.gatling.core.context.Context
  * @param loopNext the chain executed if testFunction evaluates to true, passed as a Function for construct time
  * @param next the chain executed if testFunction evaluates to false
  */
-class WhileAction(testFunction: (Context, Action) => Boolean, var loopNext: WhileAction => Action, next: Action, counterName: Option[String]) extends Action {
+class WhileAction(testFunction: (Context, Action) => Boolean, var loopNext: WhileAction => Action, next: Action, counterName: Option[String]) extends Action with TimerBasedIterationHandler with CounterBasedIterationHandler {
 
 	val loopNextAction = loopNext.apply(this)
+
+	var alreadyExecuted = false
 
 	/**
 	 * Evaluates the testFunction and if true executes the first action of loopNext
@@ -36,19 +41,16 @@ class WhileAction(testFunction: (Context, Action) => Boolean, var loopNext: Whil
 	 * @return Nothing
 	 */
 	def execute(context: Context) = {
-		val id = counterName.getOrElse(getContext.uuid.toString)
+		val uuid = getContext.uuid.toString
 
-		context.startCounter(id)
-		context.startTimer(getUuidAsString)
+		init(context, uuid, counterName)
 
-		context.incrementCounter(id)
+		increment(context, uuid, counterName)
 
 		if (testFunction.apply(context, this)) {
 			loopNextAction.execute(context)
 		} else {
-			context.removeCounter(id)
-			context.removeTimer(getUuidAsString)
-
+			expire(context, uuid, counterName)
 			next.execute(context)
 		}
 	}
