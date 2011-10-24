@@ -7,7 +7,7 @@ object ChainBuilder {
 	def chain = new ChainBuilder(Nil, null, Nil)
 }
 class ChainBuilder(actionBuilders: List[AbstractActionBuilder], next: Action, groups: List[String])
-		extends AbstractScenarioBuilder[ChainBuilder](actionBuilders) {
+		extends AbstractStructureBuilder[ChainBuilder](actionBuilders) {
 
 	def newInstance(actionBuilders: List[AbstractActionBuilder]) = {
 		new ChainBuilder(actionBuilders, next, groups)

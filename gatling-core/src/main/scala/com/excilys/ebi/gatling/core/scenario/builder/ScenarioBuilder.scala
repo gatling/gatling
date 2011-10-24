@@ -45,7 +45,7 @@ object ScenarioBuilder {
  * @param groups the groups for all the actions of this scenario
  */
 class ScenarioBuilder(name: String, actionBuilders: List[AbstractActionBuilder])
-		extends AbstractScenarioBuilder[ScenarioBuilder](actionBuilders) {
+		extends AbstractStructureBuilder[ScenarioBuilder](actionBuilders) {
 
 	def newInstance(actionBuilders: List[AbstractActionBuilder]) = {
 		new ScenarioBuilder(name, actionBuilders)
