@@ -86,8 +86,8 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 * @return the value stored at key, StringUtils.EMPTY if it does not exist
 	 */
 	def getAttribute(key: String): Any = {
-		if (key.startsWith("gatling."))
-			throw new UnsupportedOperationException("keys starting with gatling. are reserved for internal purpose. If using this method internally please use getAttributeAsOption instead")
+		assert(!key.startsWith("gatling."), "keys starting with gatling. are reserved for internal purpose. If using this method internally please use getAttributeAsOption instead")
+
 		val result = data.get(key).getOrElse {
 			logger.warn("No Matching Attribute for key: '{}' in context", key)
 			StringUtils.EMPTY
@@ -105,10 +105,9 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 * @return the value stored at key as an Option
 	 */
 	def getAttributeAsOption(key: String): Option[Any] = {
-		if (key.startsWith("gatling."))
-			data.get(key)
-		else
-			throw new UnsupportedOperationException("This method should not be used with keys that are not reserved, ie: starting with gatling.")
+		assert(!key.startsWith("gatling."), "This method should not be used with keys that are not reserved, ie: starting with gatling.")
+
+		data.get(key)
 	}
 
 	/**
