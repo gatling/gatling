@@ -34,52 +34,52 @@ object IfActionBuilder {
  * This class builds an IfAction
  *
  * @constructor create a new IfActionBuilder
- * @param testFunction condition of the if
- * @param nextTrue chain that will be executed if testFunction evaluates to true
- * @param nextFalse chain that will be executed if testFunction evaluates to false
- * @param next chain that will be executed if testFunction evaluates to false and there is no nextFalse
+ * @param conditionFunction condition of the if
+ * @param thenNext chain that will be executed if conditionFunction evaluates to true
+ * @param elseNext chain that will be executed if conditionFunction evaluates to false
+ * @param next chain that will be executed if conditionFunction evaluates to false and there is no elseNext
  * @param groups groups in which this action and the ones inside will be
  */
-class IfActionBuilder(val testFunction: Context => Boolean, val nextTrue: ChainBuilder, val nextFalse: Option[ChainBuilder],
+class IfActionBuilder(val conditionFunction: Context => Boolean, val thenNext: ChainBuilder, val elseNext: Option[ChainBuilder],
 	val next: Action, val groups: List[String])
 		extends AbstractActionBuilder {
 
 	/**
-	 * Adds testFunction to builder
+	 * Adds conditionFunction to builder
 	 *
-	 * @param testFunction the test function
-	 * @return a new builder with testFunction set
+	 * @param conditionFunction the condition function
+	 * @return a new builder with conditionFunction set
 	 */
-	def withTestFunction(testFunction: Context => Boolean) = new IfActionBuilder(testFunction, nextTrue, nextFalse, next, groups)
+	def withConditionFunction(conditionFunction: Context => Boolean) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next, groups)
 
 	/**
-	 * Adds nextTrue to builder
+	 * Adds thenNext to builder
 	 *
-	 * @param nextTrue the chain executed if testFunction evaluated to true
-	 * @return a new builder with nextTrue set
+	 * @param thenNext the chain executed if conditionFunction evaluated to true
+	 * @return a new builder with thenNext set
 	 */
-	def withNextTrue(nextTrue: ChainBuilder) = new IfActionBuilder(testFunction, nextTrue, nextFalse, next, groups)
+	def withThenNext(thenNext: ChainBuilder) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next, groups)
 
 	/**
-	 * Adds nextFalse to builder
+	 * Adds elseNext to builder
 	 *
-	 * @param nextFalse the chain executed if testFunction evaluated to false
-	 * @return a new builder with nextFalse set
+	 * @param elseNext the chain executed if conditionFunction evaluated to false
+	 * @return a new builder with elseNext set
 	 */
-	def withNextFalse(nextFalse: Option[ChainBuilder]) = new IfActionBuilder(testFunction, nextTrue, nextFalse, next, groups)
+	def withElseNext(elseNext: Option[ChainBuilder]) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next, groups)
 
-	def withNext(next: Action) = new IfActionBuilder(testFunction, nextTrue, nextFalse, next, groups)
+	def withNext(next: Action) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next, groups)
 
-	def inGroups(groups: List[String]) = new IfActionBuilder(testFunction, nextTrue, nextFalse, next, groups)
+	def inGroups(groups: List[String]) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next, groups)
 
 	def build: Action = {
 		logger.debug("Building IfAction")
 
-		val actionTrue = nextTrue.withNext(next).inGroups(groups).build
-		val actionFalse = nextFalse.map { chain =>
+		val actionTrue = thenNext.withNext(next).inGroups(groups).build
+		val actionFalse = elseNext.map { chain =>
 			chain.withNext(next).inGroups(groups).build
 		}
 
-		TypedActor.newInstance(classOf[Action], new IfAction(testFunction, actionTrue, actionFalse, next))
+		TypedActor.newInstance(classOf[Action], new IfAction(conditionFunction, actionTrue, actionFalse, next))
 	}
 }

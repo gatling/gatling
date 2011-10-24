@@ -21,16 +21,16 @@ import com.excilys.ebi.gatling.core.context.Context
  *
  * @constructor creates a While loop in the scenario
  * @param testFunction the function that will be used to decide when to stop the loop
- * @param nextTrue the chain executed if testFunction evaluates to true, passed as a Function for construct time
- * @param nextAfter the chain executed if testFunction evaluates to false
+ * @param loopNext the chain executed if testFunction evaluates to true, passed as a Function for construct time
+ * @param next the chain executed if testFunction evaluates to false
  */
-class WhileAction(testFunction: Context => Boolean, var nextTrue: WhileAction => Action, nextAfter: Action) extends Action {
+class WhileAction(testFunction: Context => Boolean, var loopNext: WhileAction => Action, next: Action) extends Action {
 
-	val nextTrueAction = nextTrue.apply(this)
+	val loopNextAction = loopNext.apply(this)
 
 	/**
-	 * Evaluates the testFunction and if true executes the first action of nextTrue
-	 * else it executes the first action of nextAfter
+	 * Evaluates the testFunction and if true executes the first action of loopNext
+	 * else it executes the first action of next
 	 *
 	 * @param context Context for current user
 	 * @return Nothing
@@ -39,11 +39,11 @@ class WhileAction(testFunction: Context => Boolean, var nextTrue: WhileAction =>
 
 		if (testFunction.apply(context)) {
 			context.incrementCounter
-			nextTrueAction.execute(context)
+			loopNextAction.execute(context)
 		} else {
 			context.resetWhileDuration
 			context.expireCounter
-			nextAfter.execute(context)
+			next.execute(context)
 		}
 	}
 }

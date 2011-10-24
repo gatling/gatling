@@ -20,26 +20,21 @@ import com.excilys.ebi.gatling.core.context.Context
  * This class represents a conditional Action
  *
  * @constructor creates an IfAction
- * @param testFunction this function is the condition that decides of what action to execute next
- * @param nextTrue chain of actions executed if testFunction evaluates to true
- * @param nextFalse chain of actions executed if testFunction evaluates to false
- * @param nextAfter chain of actions executed if testFunction evaluates to false and nextFalse equals None
+ * @param conditionFunction this function is the condition that decides of what action to execute next
+ * @param thenNext chain of actions executed if conditionFunction evaluates to true
+ * @param elseNext chain of actions executed if conditionFunction evaluates to false
+ * @param next chain of actions executed if conditionFunction evaluates to false and elseNext equals None
  */
-class IfAction(testFunction: Context => Boolean, nextTrue: Action, nextFalse: Option[Action], nextAfter: Action) extends Action {
+class IfAction(conditionFunction: Context => Boolean, thenNext: Action, elseNext: Option[Action], next: Action) extends Action {
 
 	/**
-	 * Evaluates the testFunction and if true executes the first action of nextTrue
-	 * else it executes the first action of nextFalse.
+	 * Evaluates the conditionFunction and if true executes the first action of thenNext
+	 * else it executes the first action of elseNext.
 	 *
-	 * If there is no nextFalse, then, nextAfter is executed
+	 * If there is no elseNext, then, next is executed
 	 *
 	 * @param context Context for current user
 	 * @return Nothing
 	 */
-	def execute(context: Context) = {
-		if (testFunction.apply(context))
-			nextTrue.execute(context)
-		else
-			nextFalse.getOrElse(nextAfter).execute(context)
-	}
+	def execute(context: Context) = if (conditionFunction.apply(context)) thenNext.execute(context) else elseNext.getOrElse(next).execute(context)
 }

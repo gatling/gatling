@@ -40,7 +40,7 @@ object WhileActionBuilder {
  * @param next action that will be executed if testFunction evaluates to false
  * @param groups groups in which this action and the others inside will be
  */
-class WhileActionBuilder(val testFunction: Context => Boolean, val nextTrue: ChainBuilder, val next: Action, val groups: List[String])
+class WhileActionBuilder(val testFunction: Context => Boolean, val loopNext: ChainBuilder, val next: Action, val groups: List[String])
 		extends AbstractActionBuilder {
 
 	/**
@@ -49,22 +49,22 @@ class WhileActionBuilder(val testFunction: Context => Boolean, val nextTrue: Cha
 	 * @param testFunction the test function
 	 * @return a new builder with testFunction set
 	 */
-	def withTestFunction(testFunction: Context => Boolean) = new WhileActionBuilder(testFunction, nextTrue, next, groups)
+	def withConditionFunction(conditionFunction: Context => Boolean) = new WhileActionBuilder(conditionFunction, loopNext, next, groups)
 
 	/**
-	 * Adds nextTrue to builder
+	 * Adds loopNext to builder
 	 *
-	 * @param nextTrue the chain executed if testFunction evaluated to true
-	 * @return a new builder with nextTrue set
+	 * @param loopNext the chain executed if testFunction evaluated to true
+	 * @return a new builder with loopNext set
 	 */
-	def withNextTrue(nextTrue: ChainBuilder) = new WhileActionBuilder(testFunction, nextTrue, next, groups)
+	def withLoopNext(loopNext: ChainBuilder) = new WhileActionBuilder(testFunction, loopNext, next, groups)
 
-	def withNext(next: Action) = new WhileActionBuilder(testFunction, nextTrue, next, groups)
+	def withNext(next: Action) = new WhileActionBuilder(testFunction, loopNext, next, groups)
 
-	def inGroups(groups: List[String]) = new WhileActionBuilder(testFunction, nextTrue, next, groups)
+	def inGroups(groups: List[String]) = new WhileActionBuilder(testFunction, loopNext, next, groups)
 
 	def build: Action = {
 		logger.debug("Building IfAction")
-		TypedActor.newInstance(classOf[Action], new WhileAction(testFunction, (w: WhileAction) => nextTrue.withNext(w).inGroups(groups).build, next))
+		TypedActor.newInstance(classOf[Action], new WhileAction(testFunction, (w: WhileAction) => loopNext.withNext(w).inGroups(groups).build, next))
 	}
 }

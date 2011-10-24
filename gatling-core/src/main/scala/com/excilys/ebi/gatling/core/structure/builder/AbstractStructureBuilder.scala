@@ -135,7 +135,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 	 */
 	private def doIf(testFunction: Context => Boolean, chainTrue: ChainBuilder, chainFalse: Option[ChainBuilder]): B = {
 		logger.debug("Adding IfAction")
-		newInstance((ifActionBuilder withTestFunction testFunction withNextTrue chainTrue withNextFalse chainFalse inGroups getCurrentGroups) :: actionBuilders)
+		newInstance((ifActionBuilder withConditionFunction testFunction withThenNext chainTrue withElseNext chainFalse inGroups getCurrentGroups) :: actionBuilders)
 	}
 
 	/**

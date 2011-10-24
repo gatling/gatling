@@ -10,7 +10,7 @@ class DurationLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuil
 
 	def build: B = doBuild(
 		List(whileActionBuilder
-			.withTestFunction((c: Context) => c.getWhileDuration <= durationUnit.toMillis(durationValue))
-			.withNextTrue(chain)
+			.withConditionFunction((c: Context) => c.getWhileDuration <= durationUnit.toMillis(durationValue))
+			.withLoopNext(chain)
 			.inGroups(structureBuilder.getCurrentGroups)))
 }
