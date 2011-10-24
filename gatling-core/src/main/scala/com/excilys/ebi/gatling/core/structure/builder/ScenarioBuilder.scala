@@ -51,6 +51,8 @@ class ScenarioBuilder(name: String, actionBuilders: List[AbstractActionBuilder])
 		new ScenarioBuilder(name, actionBuilders)
 	}
 
+	def getInstance = this
+
 	def getName = name
 
 	def configure = new ScenarioConfigurationBuilder(this)

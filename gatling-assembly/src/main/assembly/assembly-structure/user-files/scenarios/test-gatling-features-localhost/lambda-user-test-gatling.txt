@@ -9,17 +9,15 @@ val lambdaUser = scenario("Standard User")
   // First request outside iteration
   .exec(http("Catégorie Poney").get(baseUrl).capture(xpath("//input[@id='text1']/@value") in "aaaa_value"))
   .pause(pause2, pause3)
-  .loopDuring(12000, TimeUnit.MILLISECONDS,
-      chain
+  .loop(chain
         .exec(http("In During 1").get(baseUrl))
         .pause(2)
         .exec( (c: Context) => println("loopDuring: " + c.getCounter) )
         .exec(http("In During 2").get(baseUrl))
         .pause(2))
+  .during(12000, TimeUnit.MILLISECONDS)
   // Loop
   .loop(
-    // How many times ?
-    iterations,
     // What will be repeated ?
     chain
       // First request to be repeated
@@ -58,7 +56,7 @@ val lambdaUser = scenario("Standard User")
       .exec(http("Create Thing omgomg")
               .post("http://localhost:3000/things").queryParam("postTest", FromContext("ctxParam")).withTemplateBody("create_thing", Map("name" -> FromContext("ctxParam"))).asJSON
               .check(status(201) in "status"))
-  )
+  ).times(iterations)
   // Second request outside iteration
   .startGroup(doStuffGroup)
   .exec(http("Ajout au panier") get(baseUrl) capture(regexp("""<input id="text1" type="text" value="(.*)" />""") in "input"))

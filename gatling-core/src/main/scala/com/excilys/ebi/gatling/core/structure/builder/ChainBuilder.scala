@@ -13,6 +13,8 @@ class ChainBuilder(actionBuilders: List[AbstractActionBuilder], next: Action, gr
 		new ChainBuilder(actionBuilders, next, groups)
 	}
 
+	def getInstance = this
+
 	/**
 	 * Method that sets next action (used for chains)
 	 *

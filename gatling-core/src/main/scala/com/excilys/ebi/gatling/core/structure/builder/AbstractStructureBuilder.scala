@@ -10,6 +10,7 @@ import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder._
 import com.excilys.ebi.gatling.core.action.builder.GroupActionBuilder._
 import com.excilys.ebi.gatling.core.action.builder.GroupActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder._
+import com.excilys.ebi.gatling.core.structure.loop.builder.LoopBuilder
 
 abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](actionBuilders: List[AbstractActionBuilder])
 		extends Logging {
@@ -20,7 +21,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 		currentGroups = groups
 	}
 
-	private[builder] def getCurrentGroups = currentGroups
+	private[structure] def getCurrentGroups = currentGroups
 
 	def newInstance(actionBuilders: List[AbstractActionBuilder]): B
 
@@ -138,53 +139,6 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 	}
 
 	/**
-	 * Method used to add a timed loop in the scenario, in seconds
-	 *
-	 * @param durationValue the value, in seconds, of the time that will be spent in the loop
-	 * @param chain the chain of actions to be executed
-	 * @return a new builder with a conditional loop added to its actions
-	 */
-	def loopDuring(durationValue: Int, chain: ChainBuilder): B = {
-		loopDuring(durationValue, TimeUnit.SECONDS, chain)
-	}
-
-	/**
-	 * Method used to add a timed loop in the scenario
-	 *
-	 * @param durationValue the value, in seconds, of the time that will be spent in the loop
-	 * @param durationUnit the time unit of the duration of the loop
-	 * @param chain the chain of actions to be executed
-	 * @return a new builder with a conditional loop added to its actions
-	 */
-	def loopDuring(durationValue: Int, durationUnit: TimeUnit, chain: ChainBuilder): B = {
-		loopWhile((c: Context) => c.getWhileDuration <= durationUnit.toMillis(durationValue), chain)
-	}
-
-	/**
-	 * Method used to add a conditional loop to the scenario
-	 *
-	 * @param contextKey the key of the context value that will be tested for equality
-	 * @param value the value to which the context value will be tested
-	 * @param chain the chain of actions that will be executed in the loop
-	 * @return a new builder with a conditional loop added to its actions
-	 */
-	def loopWhile(contextKey: String, value: String, chain: ChainBuilder): B = {
-		loopWhile((c: Context) => c.getAttribute(contextKey) == value, chain)
-	}
-
-	/**
-	 * Method used to add a conditional loop to the scenario
-	 *
-	 * @param testFunction the function that will determine if the condition is statisfied or not
-	 * @param chain the chain of actions that will be executed in the loop
-	 * @return a new builder with a conditional loop added to its actions
-	 */
-	def loopWhile(testFunction: Context => Boolean, chain: ChainBuilder): B = {
-		logger.debug("Adding While Action")
-		newInstance((whileActionBuilder withTestFunction testFunction withNextTrue chain inGroups getCurrentGroups) :: actionBuilders)
-	}
-
-	/**
 	 * Method used to specify that all succeeding actions will belong to the specified group
 	 *
 	 * @param groupName the name of the group
@@ -208,26 +162,16 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 	def insertChain(chain: ChainBuilder): B = {
 		newInstance(chain.getActionBuilders ::: actionBuilders)
 	}
-	/**
-	 * Method used to loop for a specified number of times. It actually unfold the for and generates
-	 * as much actions as needed.
-	 *
-	 * @param times the number of times that the actions must be repeated
-	 * @param chain the actions to be repeated
-	 * @return a new builder with a chain of all actions to be executed added to its actions
-	 */
-	def loop(times: Int, chain: ChainBuilder): B = {
-		val chainActions: List[AbstractActionBuilder] = chain.getActionBuilders ::: List(simpleActionBuilder((c: Context) => c.incrementCounter))
-		var iteratedActions: List[AbstractActionBuilder] = Nil
-		for (i <- 1 to times) {
-			iteratedActions = chainActions ::: iteratedActions
-		}
-		iteratedActions = simpleActionBuilder((c: Context) => c.expireCounter) :: iteratedActions
-		logger.debug("Adding {} Iterations", times)
-		newInstance(iteratedActions ::: actionBuilders)
-	}
+
+	def loop(chain: ChainBuilder) = new LoopBuilder[B](getInstance, chain, None)
 
 	def build: Any
+
+	protected def getInstance: B
+
+	private[structure] def addActionBuilders(actionBuildersToAdd: List[AbstractActionBuilder]): B = {
+		newInstance(actionBuildersToAdd ::: actionBuilders)
+	}
 
 	private[builder] def buildActions(initialValue: Action): Action = {
 		var previousInList: Action = initialValue

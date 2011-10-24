@@ -59,8 +59,7 @@ object Scenarios {
 		// Home page
 		.exec(http("Home") get(urlHome) headers(headers) check(regexpExists("""<a href="/excilys-bank-web/logout" class="button blue">Log out</a>""")))
 		.pause(5, 6)
-		.iterate(
-			20,
+		.loop(
 			chain
 				// Operations page
 				.exec(http("Operations details") get(urlAccountOperations, "acc1") headers(headers) check(regexpExists("""<table class="accountDetails">""")))
@@ -98,6 +97,7 @@ object Scenarios {
 					headers(headers)
 					check(status(302)))
 				.pause(5, 6))
+		.times(20)
 
 		// Logout
 		.exec(http("Logging out") get(urlLogout) headers(headers) check(status(302)))
