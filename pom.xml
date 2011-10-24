@@ -89,6 +89,7 @@
 		<maven-scala-plugin.version>2.15.2</maven-scala-plugin.version>
 		<maven-surefire-plugin.version>2.10</maven-surefire-plugin.version>
 		<maven-release-plugin.version>2.2.1</maven-release-plugin.version>
+		<maven-scalate-plugin.version>1.5.2</maven-scalate-plugin.version>
 	</properties>
 
 	<dependencyManagement>
@@ -218,13 +219,30 @@
 					<artifactId>maven-jar-plugin</artifactId>
 					<version>${maven-jar-plugin.version}</version>
 				</plugin>
+				<plugin>
+					<groupId>org.fusesource.scalate</groupId>
+					<artifactId>maven-scalate-plugin</artifactId>
+					<version>${maven-scalate-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.scala-tools</groupId>
+					<artifactId>maven-scala-plugin</artifactId>
+					<version>${maven-scala-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>${maven-surefire-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>${maven-release-plugin.version}</version><!--$NO-MVN-MAN-VER$ -->
+				</plugin>
 			</plugins>
 		</pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>org.scala-tools</groupId>
 				<artifactId>maven-scala-plugin</artifactId>
-				<version>${maven-scala-plugin.version}</version>
 				<executions>
 					<execution>
 						<goals>
@@ -243,7 +261,6 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${maven-surefire-plugin.version}</version>
 				<configuration>
 					<useFile>false</useFile>
 					<disableXmlReport>true</disableXmlReport>
@@ -255,7 +272,6 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-release-plugin</artifactId>
-				<version>${maven-release-plugin.version}</version><!--$NO-MVN-MAN-VER$ -->
 				<configuration>
 					<autoVersionSubmodules>true</autoVersionSubmodules>
 					<tagNameFormat>@{project.version}</tagNameFormat>
