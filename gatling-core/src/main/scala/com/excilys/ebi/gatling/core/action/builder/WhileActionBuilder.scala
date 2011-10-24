@@ -28,7 +28,7 @@ object WhileActionBuilder {
 	/**
 	 * Creates an initialized WhileActionBuilder
 	 */
-	def whileActionBuilder = new WhileActionBuilder(null, null, null, Nil)
+	def whileActionBuilder = new WhileActionBuilder(null, null, null, None, Nil)
 }
 
 /**
@@ -40,7 +40,7 @@ object WhileActionBuilder {
  * @param next action that will be executed if testFunction evaluates to false
  * @param groups groups in which this action and the others inside will be
  */
-class WhileActionBuilder(val conditionFunction: Context => Boolean, val loopNext: ChainBuilder, val next: Action, val groups: List[String])
+class WhileActionBuilder(val conditionFunction: (Context, Action) => Boolean, val loopNext: ChainBuilder, val next: Action, val counterName: Option[String], val groups: List[String])
 		extends AbstractActionBuilder {
 
 	/**
@@ -49,22 +49,25 @@ class WhileActionBuilder(val conditionFunction: Context => Boolean, val loopNext
 	 * @param testFunction the test function
 	 * @return a new builder with testFunction set
 	 */
-	def withConditionFunction(conditionFunction: Context => Boolean) = new WhileActionBuilder(conditionFunction, loopNext, next, groups)
+	def withConditionFunction(conditionFunction: Context => Boolean): WhileActionBuilder = withConditionFunction((c: Context, a: Action) => conditionFunction(c))
 
+	def withConditionFunction(conditionFunction: (Context, Action) => Boolean) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName, groups)
 	/**
 	 * Adds loopNext to builder
 	 *
 	 * @param loopNext the chain executed if testFunction evaluated to true
 	 * @return a new builder with loopNext set
 	 */
-	def withLoopNext(loopNext: ChainBuilder) = new WhileActionBuilder(conditionFunction, loopNext, next, groups)
+	def withLoopNext(loopNext: ChainBuilder) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName, groups)
+
+	def withCounterName(counterName: Option[String]) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName, groups)
 
 	def withNext(next: Action) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName, groups)
 
-	def inGroups(groups: List[String]) = new WhileActionBuilder(conditionFunction, loopNext, next, groups)
+	def inGroups(groups: List[String]) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName, groups)
 
 	def build: Action = {
 		logger.debug("Building IfAction")
-		TypedActor.newInstance(classOf[Action], new WhileAction(conditionFunction, (w: WhileAction) => loopNext.withNext(w).inGroups(groups).build, next))
+		TypedActor.newInstance(classOf[Action], new WhileAction(conditionFunction, (w: WhileAction) => loopNext.withNext(w).inGroups(groups).build, next, counterName))
 	}
 }

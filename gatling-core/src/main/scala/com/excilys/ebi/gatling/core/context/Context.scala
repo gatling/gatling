@@ -144,101 +144,35 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 			}
 		}.getOrElse(0L)
 
-	/**
-	 * Gets the duration of current while loop
-	 *
-	 * @return the number of milliseconds elapsed from the beginning of the while loop
-	 */
-	def getWhileDuration: Long = {
-		val currentValue = data.get(Context.WHILE_DURATION).map { value =>
-			value match {
-				case s: String => s.toLong
-			}
-		}.getOrElse(0L)
-		logger.debug("Current Duration Value: {}", currentValue)
-
-		val nowMillis = System.currentTimeMillis
-
-		if (currentValue == 0) {
-			setLastWhileAccess(nowMillis)
-			setWhileDuration(1L)
-			1L
-		} else {
-			val newValue = currentValue + nowMillis - getLastWhileAccess
-			setWhileDuration(newValue)
-			setLastWhileAccess(nowMillis)
-			logger.debug("New Duration Value: {}", newValue)
-			newValue
-		}
+	def getTimerValue(timerName: String) = {
+		getAttributeAsOption("gatling.core.timer" + timerName).getOrElse(throw new IllegalAccessError("You must call startTimer before this method is called")).asInstanceOf[Long]
 	}
 
-	def getCounter: Int = getCounter(1)
-
-	def getCounter(level: Int): Int = data.get(Context.COUNTERS_KEY).getOrElse(Queue.empty).asInstanceOf[Queue[Int]](level - 1)
-
-	def incrementCounter = {
-		var counters = data.get(Context.COUNTERS_KEY).getOrElse(Queue.empty).asInstanceOf[Queue[Int]]
-
-		val currentCounterValue =
-			if (counters.size == 0)
-				0
-			else {
-				val dequeued = counters.dequeue
-				counters = dequeued._2
-				dequeued._1
-			}
-
-		counters = counters.enqueue(currentCounterValue + 1)
-		data += (Context.COUNTERS_KEY -> counters)
-		logger.debug("Counters: {}", counters)
+	def getCounterValue(counterName: String) = {
+		getAttributeAsOption("gatling.core.counter" + counterName).getOrElse(throw new IllegalAccessError("Counter does not exist, check the name of the key")).asInstanceOf[Int]
 	}
 
-	def expireCounter = {
-		val counters = data.get(Context.COUNTERS_KEY).getOrElse(Queue.empty).asInstanceOf[Queue[Int]]
-
-		val newCounters = counters.dequeue._2
-
-		data += (Context.COUNTERS_KEY -> newCounters)
-		logger.debug("NewCounters: {}", newCounters)
+	def startTimer(timerName: String) = {
+		if (!data.contains("gatling.core.timer" + timerName))
+			data += ("gatling.core.timer" + timerName -> System.currentTimeMillis)
 	}
 
-	/**
-	 * Sets the value of while duration to 0 milliseconds
-	 *
-	 * This method must be called at the end of the while loop
-	 *
-	 * @return Nothing
-	 */
-	def resetWhileDuration = setWhileDuration(0L)
-
-	/**
-	 * Sets the value of while duration
-	 *
-	 * @param value the value to be set in milliseconds
-	 */
-	private def setWhileDuration(value: Long) = {
-		data += (Context.WHILE_DURATION -> value.toString)
+	def removeTimer(timerName: String) = {
+		data -= ("gatling.core.timer" + timerName)
 	}
 
-	/**
-	 * Sets the value of last while access
-	 *
-	 * @param value the value to be set in milliseconds
-	 */
-	private def setLastWhileAccess(value: Long) = {
-		data += (Context.LAST_WHILE_ACCESS -> value.toString)
+	def startCounter(counterName: String) = {
+		if (!data.contains("gatling.core.counter" + counterName))
+			data += ("gatling.core.counter" + counterName -> -1)
 	}
 
-	/**
-	 * Gets the value of last while access
-	 *
-	 * @return the value of last while access in milliseconds
-	 */
-	private def getLastWhileAccess = {
-		data.get(Context.LAST_WHILE_ACCESS).map { value =>
-			value match {
-				case s: String => s.toLong
-			}
-		}.getOrElse(0L)
+	def incrementCounter(counterName: String) = {
+		val key = "gatling.core.counter" + counterName
+		val currentValue: Int = getAttributeAsOption(key).getOrElse(throw new IllegalAccessError("You must call startCounter before this method is called")).asInstanceOf[Int]
+		data += (key -> (currentValue + 1))
+	}
+
+	def removeCounter(counterName: String) = {
+		data -= ("gatling.core.counter" + counterName)
 	}
 }

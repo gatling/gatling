@@ -22,11 +22,14 @@ import com.excilys.ebi.gatling.core.action.SimpleAction
 import akka.actor.TypedActor
 
 object SimpleActionBuilder {
-	implicit def toSimpleActionBuilder(contextModifier: Context => Unit) = new SimpleActionBuilder(contextModifier, null, Nil)
-	def simpleActionBuilder(contextModifier: Context => Unit) = toSimpleActionBuilder(contextModifier)
+	implicit def toSimpleActionBuilder(contextModifier: (Context, Action) => Unit) = new SimpleActionBuilder(contextModifier, null, Nil)
+	implicit def toSimpleActionBuilder(contextModifier: Context => Unit): SimpleActionBuilder = toSimpleActionBuilder((c: Context, a: Action) => contextModifier(c))
+
+	def simpleActionBuilder(contextModifier: Context => Unit): SimpleActionBuilder = simpleActionBuilder((c: Context, a: Action) => contextModifier(c))
+	def simpleActionBuilder(contextModifier: (Context, Action) => Unit) = toSimpleActionBuilder(contextModifier)
 }
 
-class SimpleActionBuilder(contextModifier: Context => Unit, next: Action, groups: List[String]) extends AbstractActionBuilder {
+class SimpleActionBuilder(contextModifier: (Context, Action) => Unit, next: Action, groups: List[String]) extends AbstractActionBuilder {
 
 	def withNext(next: Action): AbstractActionBuilder = new SimpleActionBuilder(contextModifier, next, groups)
 

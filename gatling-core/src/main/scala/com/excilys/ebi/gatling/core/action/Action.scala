@@ -34,5 +34,7 @@ trait Action extends TypedActor with Logging {
 	 */
 	def execute(context: Context)
 
+	def getUuidAsString = getContext.uuid.toString
+
 	override def toString = this.getClass().getSimpleName()
 }

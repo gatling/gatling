@@ -24,7 +24,7 @@ import com.excilys.ebi.gatling.core.context.Context
  * @param loopNext the chain executed if testFunction evaluates to true, passed as a Function for construct time
  * @param next the chain executed if testFunction evaluates to false
  */
-class WhileAction(testFunction: Context => Boolean, var loopNext: WhileAction => Action, next: Action) extends Action {
+class WhileAction(testFunction: (Context, Action) => Boolean, var loopNext: WhileAction => Action, next: Action, counterName: Option[String]) extends Action {
 
 	val loopNextAction = loopNext.apply(this)
 
@@ -36,13 +36,19 @@ class WhileAction(testFunction: Context => Boolean, var loopNext: WhileAction =>
 	 * @return Nothing
 	 */
 	def execute(context: Context) = {
+		val id = counterName.getOrElse(getContext.uuid.toString)
 
-		if (testFunction.apply(context)) {
-			context.incrementCounter
+		context.startCounter(id)
+		context.startTimer(getUuidAsString)
+
+		context.incrementCounter(id)
+
+		if (testFunction.apply(context, this)) {
 			loopNextAction.execute(context)
 		} else {
-			context.resetWhileDuration
-			context.expireCounter
+			context.removeCounter(id)
+			context.removeTimer(getUuidAsString)
+
 			next.execute(context)
 		}
 	}

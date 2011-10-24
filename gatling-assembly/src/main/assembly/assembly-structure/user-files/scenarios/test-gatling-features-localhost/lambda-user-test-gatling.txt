@@ -9,19 +9,12 @@ val lambdaUser = scenario("Standard User")
   // First request outside iteration
   .exec(http("Catégorie Poney").get(baseUrl).capture(xpath("//input[@id='text1']/@value") in "aaaa_value"))
   .pause(pause2, pause3)
-  .loop(chain
-        .exec(http("In During 1").get(baseUrl))
-        .pause(2)
-        .exec( (c: Context) => println("loopDuring: " + c.getCounter) )
-        .exec(http("In During 2").get(baseUrl))
-        .pause(2))
-  .during(12000, TimeUnit.MILLISECONDS)
   // Loop
   .loop(
     // What will be repeated ?
     chain
       // First request to be repeated
-      .exec( (c: Context) => println("iterate: " + c.getCounter) )
+      .exec( (c: Context) => println("iterate: " + c.getCounterValue("titi")) )
       .exec(
           http("Page accueil").get(baseUrl)
             .check(
@@ -34,6 +27,14 @@ val lambdaUser = scenario("Standard User")
                 xpathEquals("//input[@id='text1']/@value", "aaaa") in "test2"
             )
       )
+      .loop(chain
+        .exec(http("In During 1").get(baseUrl))
+        .pause(2)
+        .loop(chain.exec( (c: Context) => println("nested loop: " + c.getCounterValue("tutu")))).counterName("tutu").times(2)
+        .exec( (c: Context) => println("loopDuring: " + c.getCounterValue("toto")) )
+        .exec(http("In During 2").get(baseUrl))
+        .pause(2))
+        .counterName("toto").during(12000, TimeUnit.MILLISECONDS)
       .pause(pause2)
       .startGroup(loginGroup)
       .exec( (c:Context) => c.setAttribute("test2", "bbbb") )
@@ -56,7 +57,7 @@ val lambdaUser = scenario("Standard User")
       .exec(http("Create Thing omgomg")
               .post("http://localhost:3000/things").queryParam("postTest", FromContext("ctxParam")).withTemplateBody("create_thing", Map("name" -> FromContext("ctxParam"))).asJSON
               .check(status(201) in "status"))
-  ).times(iterations)
+  ).counterName("titi").times(iterations)
   // Second request outside iteration
   .startGroup(doStuffGroup)
   .exec(http("Ajout au panier") get(baseUrl) capture(regexp("""<input id="text1" type="text" value="(.*)" />""") in "input"))
