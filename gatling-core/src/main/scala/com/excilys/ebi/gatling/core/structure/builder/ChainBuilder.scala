@@ -1,4 +1,4 @@
-package com.excilys.ebi.gatling.core.scenario.builder
+package com.excilys.ebi.gatling.core.structure.builder
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.action.builder.GroupActionBuilder

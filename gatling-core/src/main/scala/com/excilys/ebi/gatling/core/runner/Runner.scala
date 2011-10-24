@@ -22,7 +22,6 @@ import com.excilys.ebi.gatling.core.result.writer.FileDataWriter
 import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
 import com.excilys.ebi.gatling.core.context.builder.ContextBuilder._
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.scenario.builder.ScenarioBuilder
 import com.excilys.ebi.gatling.core.scenario.configuration.builder.ScenarioConfigurationBuilder
 import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfiguration
 import java.util.concurrent.TimeUnit

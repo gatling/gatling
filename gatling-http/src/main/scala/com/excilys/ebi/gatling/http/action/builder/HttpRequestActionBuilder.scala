@@ -3,7 +3,6 @@ package com.excilys.ebi.gatling.http.action.builder
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.scenario.builder.ScenarioBuilder
 import com.excilys.ebi.gatling.core.util.StringHelper._
 import com.excilys.ebi.gatling.http.action.HttpRequestAction
 import com.excilys.ebi.gatling.http.processor.builder.HttpProcessorBuilder

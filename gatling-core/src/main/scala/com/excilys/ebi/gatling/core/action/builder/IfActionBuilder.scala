@@ -18,8 +18,7 @@ import com.excilys.ebi.gatling.core.action.Action
 import akka.actor.TypedActor
 import com.excilys.ebi.gatling.core.action.IfAction
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.scenario.builder.ScenarioBuilder
-import com.excilys.ebi.gatling.core.scenario.builder.ChainBuilder
+import com.excilys.ebi.gatling.core.structure.builder.ChainBuilder
 
 /**
  * Companion Object of IfActionBuilder class

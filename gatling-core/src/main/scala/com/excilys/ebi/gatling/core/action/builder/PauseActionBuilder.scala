@@ -18,8 +18,6 @@ package com.excilys.ebi.gatling.core.action.builder
 import com.excilys.ebi.gatling.core.action.PauseAction
 import com.excilys.ebi.gatling.core.action.Action
 
-import com.excilys.ebi.gatling.core.scenario.builder.ScenarioBuilder
-
 import java.util.concurrent.TimeUnit
 
 import akka.actor.TypedActor

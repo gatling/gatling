@@ -1,4 +1,4 @@
-package com.excilys.ebi.gatling.core.scenario.builder
+package com.excilys.ebi.gatling.core.structure.builder
 import java.util.concurrent.TimeUnit
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.context.Context
