@@ -19,10 +19,6 @@
 			<groupId>org.fusesource.scalate</groupId>
 			<artifactId>scalate-core</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-		</dependency>
 	</dependencies>
 
 	<build>
@@ -30,7 +26,6 @@
 			<plugin>
 				<groupId>org.fusesource.scalate</groupId>
 				<artifactId>maven-scalate-plugin</artifactId>
-				<version>1.5.0</version>
 				<executions>
 					<execution>
 						<goals>
