@@ -1,6 +1,5 @@
 package com.excilys.ebi.gatling.core.context.handler
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.util.ContextHelper._
 import scala.collection.immutable.Stack
 
 object TimerBasedIterationHandler {

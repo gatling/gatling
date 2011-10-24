@@ -12,7 +12,6 @@ import com.excilys.ebi.gatling.core.action.builder.GroupActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder._
 import com.excilys.ebi.gatling.core.structure.loop.builder.LoopBuilder
 import com.excilys.ebi.gatling.core.action.builder.CountBasedIterationActionBuilder._
-import com.excilys.ebi.gatling.core.util.ContextHelper._
 
 abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](actionBuilders: List[AbstractActionBuilder])
 		extends Logging {
