@@ -6,8 +6,6 @@ import com.excilys.ebi.gatling.core.processor.CheckType
 import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.http.processor.capture.HttpRegExpCapture
 
-import org.apache.commons.lang3.StringUtils
-
 class HttpRegExpCheck(expressionFormatter: Context => String, val expected: String, attrKey: String, httpPhase: HttpPhase, checkType: CheckType)
 		extends HttpRegExpCapture(expressionFormatter, attrKey, httpPhase) with HttpCheck {
 

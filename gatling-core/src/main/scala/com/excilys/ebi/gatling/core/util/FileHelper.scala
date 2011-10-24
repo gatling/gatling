@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.util
-import org.apache.commons.lang3.StringUtils
+import com.excilys.ebi.gatling.core.util.StringHelper._
 
 /**
  * This object groups all utilities for files
@@ -40,10 +40,9 @@ object FileHelper {
 	 * @return a simplified string
 	 */
 	def formatToFilename(s: String) = {
-		StringUtils.stripAccents(
-			s.replace("-", "_")
-				.replace(" ", "_")
-				.replace("'", "")
-				.toLowerCase)
+		stripAccents(s.replace("-", "_")
+			.replace(" ", "_")
+			.replace("'", "")
+			.toLowerCase)
 	}
 }

@@ -17,11 +17,18 @@ package com.excilys.ebi.gatling.core.util
 import org.slf4j.helpers.MessageFormatter
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.log.Logging
+import java.util.regex.Pattern
+import java.text.Normalizer
 
 /**
  * This object groups all utilities for strings
  */
 object StringHelper extends Logging {
+
+	val EMPTY = ""
+
+	val jdk6Pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
+
 	/**
 	 * Returns a string with all {} replaced by specified values as in :
 	 * {{{
@@ -55,4 +62,10 @@ object StringHelper extends Logging {
 	 * @return the completed string
 	 */
 	def interpolate(stringToFormat: String, interpolations: String*) = (c: Context) => interpolateString(c, stringToFormat, interpolations)
+
+	def stripAccents(string: String) = {
+
+		val normalized = Normalizer.normalize(string, Normalizer.Form.NFD)
+		jdk6Pattern.matcher(normalized).replaceAll(EMPTY);
+	}
 }

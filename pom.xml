@@ -78,7 +78,6 @@
 		<vtdxml.version>2.10</vtdxml.version>
 		<logback.version>0.9.30</logback.version>
 		<slf4j.version>1.6.3</slf4j.version>
-		<commons.lang3.version>3.0.1</commons.lang3.version>
 		<scalate.version>1.5.2</scalate.version>
 		<commons.io.version>2.1</commons.io.version>
 		<netty.version>3.2.5.Final</netty.version>
@@ -86,6 +85,10 @@
 		<joda-convert.version>1.1</joda-convert.version>
 
 		<maven-assembly-plugin.version>2.2.1</maven-assembly-plugin.version>
+		<maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
+		<maven-scala-plugin.version>2.15.2</maven-scala-plugin.version>
+		<maven-surefire-plugin.version>2.10</maven-surefire-plugin.version>
+		<maven-release-plugin.version>2.2.1</maven-release-plugin.version>
 	</properties>
 
 	<dependencyManagement>
@@ -166,11 +169,6 @@
 				<version>${slf4j.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.apache.commons</groupId>
-				<artifactId>commons-lang3</artifactId>
-				<version>${commons.lang3.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>commons-io</groupId>
 				<artifactId>commons-io</artifactId>
 				<version>${commons.io.version}</version>
@@ -216,13 +214,17 @@
 					<artifactId>maven-assembly-plugin</artifactId>
 					<version>${maven-assembly-plugin.version}</version>
 				</plugin>
+				<plugin>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>${maven-jar-plugin.version}</version>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>org.scala-tools</groupId>
 				<artifactId>maven-scala-plugin</artifactId>
-				<version>2.15.2</version>
+				<version>${maven-scala-plugin.version}</version>
 				<executions>
 					<execution>
 						<goals>
@@ -240,9 +242,8 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.6</version>
+				<version>${maven-surefire-plugin.version}</version>
 				<configuration>
 					<useFile>false</useFile>
 					<disableXmlReport>true</disableXmlReport>
@@ -253,9 +254,8 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
-				<version>2.2.1</version><!--$NO-MVN-MAN-VER$ -->
+				<version>${maven-release-plugin.version}</version><!--$NO-MVN-MAN-VER$ -->
 				<configuration>
 					<autoVersionSubmodules>true</autoVersionSubmodules>
 					<tagNameFormat>@{project.version}</tagNameFormat>

@@ -10,7 +10,6 @@ import com.excilys.ebi.gatling.statistics.writer.TemplateWriter
 import com.excilys.ebi.gatling.statistics.writer.TSVFileWriter
 import com.excilys.ebi.gatling.statistics.utils.HighChartsHelper._
 import scala.collection.immutable.TreeMap
-import org.apache.commons.lang3.StringUtils
 
 class DetailsRequestsDataPresenter extends DataPresenter[Map[String, DetailsRequestsDataResult]] {
 

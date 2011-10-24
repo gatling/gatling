@@ -7,11 +7,11 @@ import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.http.processor.check.HttpCheck
 import com.excilys.ebi.gatling.http.processor.check.HttpStatusCheck
 
-import org.apache.commons.lang3.StringUtils
+import com.excilys.ebi.gatling.core.util.StringHelper._
 
 object HttpStatusCheckBuilder {
-	def statusInRange(range: Range) = new HttpStatusCheckBuilder(Some(range.mkString(":")), Some(StringUtils.EMPTY))
-	def status(status: Int) = new HttpStatusCheckBuilder(Some(status.toString), Some(StringUtils.EMPTY))
+	def statusInRange(range: Range) = new HttpStatusCheckBuilder(Some(range.mkString(":")), Some(EMPTY))
+	def status(status: Int) = new HttpStatusCheckBuilder(Some(status.toString), Some(EMPTY))
 }
 class HttpStatusCheckBuilder(expected: Option[String], attrKey: Option[String])
 		extends HttpCheckBuilder[HttpStatusCheckBuilder](None, expected, attrKey, Some(StatusReceived), None) {

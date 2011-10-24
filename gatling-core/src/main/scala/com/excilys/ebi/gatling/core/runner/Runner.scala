@@ -30,7 +30,6 @@ import java.util.Date
 import akka.actor.Scheduler
 import akka.actor.Actor.actorOf
 import akka.actor.Actor.registry
-import org.apache.commons.lang3.time.FastDateFormat
 import org.joda.time.DateTime
 import com.excilys.ebi.gatling.core.scenario.Scenario
 

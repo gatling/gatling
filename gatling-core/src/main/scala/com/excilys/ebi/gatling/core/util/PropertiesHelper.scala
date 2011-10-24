@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.util
 
-import org.apache.commons.lang3.StringUtils
+import com.excilys.ebi.gatling.core.util.StringHelper._
 
 /**
  * This object groups all utilities for properties
@@ -24,7 +24,7 @@ object PropertiesHelper {
 	/**
 	 * Property used to specify the location of Gatling configuration file
 	 */
-	val GATLING_CONFIG_PROPERTY = Option(System.getProperty("gatling.config")) map (_.trim()) getOrElse StringUtils.EMPTY
+	val GATLING_CONFIG_PROPERTY = Option(System.getProperty("gatling.config")) map (_.trim()) getOrElse EMPTY
 
 	/**
 	 * Property used to specify whether or not to generate statistics after the simulation

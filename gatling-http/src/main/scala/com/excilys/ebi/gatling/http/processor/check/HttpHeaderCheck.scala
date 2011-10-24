@@ -5,8 +5,6 @@ import com.excilys.ebi.gatling.core.processor.CheckType
 
 import com.excilys.ebi.gatling.http.processor.capture.HttpHeaderCapture
 
-import org.apache.commons.lang3.StringUtils
-
 class HttpHeaderCheck(headerNameFormatter: Context => String, expected: String, attrKey: String, checkType: CheckType)
 		extends HttpHeaderCapture(headerNameFormatter, attrKey) with HttpCheck {
 

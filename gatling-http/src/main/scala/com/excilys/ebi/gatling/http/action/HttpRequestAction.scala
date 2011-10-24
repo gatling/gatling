@@ -10,10 +10,10 @@ import com.excilys.ebi.gatling.http.processor.HttpProcessor
 import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.excilys.ebi.gatling.http.resource.HttpClientResource
+import com.excilys.ebi.gatling.core.util.StringHelper._
 import com.ning.http.client.AsyncHttpClient
 import scala.collection.mutable.{ HashMap, MultiMap, Set => MSet }
 import com.ning.http.client.AsyncHttpClientConfig
-import org.apache.commons.lang3.StringUtils
 import org.joda.time.DateTime
 
 object HttpRequestAction {
@@ -37,7 +37,7 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilde
 	}
 
 	// Adds default checks (they won't be added if overridden by user)
-	processors.addBinding(StatusReceived, new HttpStatusCheck((200 to 210).mkString(":"), StringUtils.EMPTY))
+	processors.addBinding(StatusReceived, new HttpStatusCheck((200 to 210).mkString(":"), EMPTY))
 
 	def execute(context: Context) = {
 		val objects = new Array[java.lang.Object](3)

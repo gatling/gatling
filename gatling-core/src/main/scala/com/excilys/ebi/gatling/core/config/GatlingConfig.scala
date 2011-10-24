@@ -18,8 +18,7 @@ package com.excilys.ebi.gatling.core.config
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.PathHelper._
 import com.excilys.ebi.gatling.core.util.PropertiesHelper._
-
-import org.apache.commons.lang3.StringUtils
+import com.excilys.ebi.gatling.core.util.StringHelper._
 
 /**
  * Configuration loader of Gatling
@@ -33,7 +32,7 @@ object GatlingConfig extends Logging {
 		try {
 			// Locate configuration file, depending on users options
 			val configFile =
-				if (GATLING_CONFIG_PROPERTY != StringUtils.EMPTY) {
+				if (GATLING_CONFIG_PROPERTY != EMPTY) {
 					logger.info("Loading custom configuration file: conf/{}", GATLING_CONFIG_PROPERTY)
 					GATLING_CONFIG_FOLDER + "/" + GATLING_CONFIG_PROPERTY
 				} else {

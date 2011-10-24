@@ -20,12 +20,11 @@ import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
 import com.excilys.ebi.gatling.core.util.PathHelper._
 import com.excilys.ebi.gatling.core.util.DateHelper._
+import com.excilys.ebi.gatling.core.util.StringHelper._
 import java.io.FileOutputStream
 import java.io.File
 import java.io.BufferedOutputStream
 import java.io.OutputStreamWriter
-import org.apache.commons.lang3.time.FastDateFormat
-import org.apache.commons.lang3.StringUtils
 import java.util.concurrent.CountDownLatch
 
 /**
@@ -45,7 +44,7 @@ class FileDataWriter extends DataWriter {
 	/**
 	 * The date on which the simulation started
 	 */
-	var runOn = StringUtils.EMPTY
+	var runOn = EMPTY
 
 	/**
 	 * Method called when this actor receives a message

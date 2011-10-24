@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.core.provider.capture
 import com.ximpleware.CustomVTDGen
 import com.ximpleware.VTDNav
 import com.ximpleware.AutoPilot
-import org.apache.commons.lang3.StringUtils
+import com.excilys.ebi.gatling.core.util.StringHelper._
 
 /**
  * This class is a built-in provider that helps searching with XPath Expressions
@@ -48,7 +48,7 @@ class XPathCaptureProvider(xmlContent: Array[Byte]) extends AbstractCaptureProvi
 		logger.debug("[XPathCaptureProvider] Capturing with expression : {}", expression)
 		ap.selectXPath(expression.toString)
 		val result = ap.evalXPathToString
-		val value = if (result.equals(StringUtils.EMPTY))
+		val value = if (result.equals(EMPTY))
 			None
 		else
 			Some(ap.evalXPathToString)

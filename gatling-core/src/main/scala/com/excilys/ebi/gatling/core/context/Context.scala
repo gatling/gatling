@@ -17,9 +17,8 @@ package com.excilys.ebi.gatling.core.context
 
 import akka.actor.Uuid
 import com.excilys.ebi.gatling.core.log.Logging
-import org.apache.commons.lang3.StringUtils
 import java.util.concurrent.TimeUnit
-import scala.collection.immutable.Queue
+import com.excilys.ebi.gatling.core.util.StringHelper._
 
 /**
  * Companion object of Context class
@@ -90,7 +89,7 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 
 		val result = data.get(key).getOrElse {
 			logger.warn("No Matching Attribute for key: '{}' in context", key)
-			StringUtils.EMPTY
+			EMPTY
 		}
 		logger.debug("[Context] found '{}' at '{}'", result, key)
 		result

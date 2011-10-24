@@ -16,6 +16,7 @@ import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
 import com.excilys.ebi.gatling.http.processor.check.HttpCheck
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
 import com.excilys.ebi.gatling.http.util.GatlingHttpHelper._
+import com.excilys.ebi.gatling.core.util.StringHelper._
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
 import com.ning.http.client.AsyncHandler
@@ -28,7 +29,6 @@ import com.ning.http.client.Cookie
 import com.ning.http.util.AsyncHttpProviderUtils._
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
 import akka.actor.Actor.registry._
-import org.apache.commons.lang3.StringUtils
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import org.joda.time.DateTime
@@ -118,7 +118,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 								value.isDefined
 
 						if (isResultValid) {
-							if (c.getAttrKey != StringUtils.EMPTY && value.isDefined)
+							if (c.getAttrKey != EMPTY && value.isDefined)
 								contextBuilder = contextBuilder setAttribute (c.getAttrKey, value.get.toString)
 						} else {
 							if (c.isInstanceOf[HttpCheck])
