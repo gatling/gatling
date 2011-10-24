@@ -54,6 +54,4 @@ class EndAction(val latch: CountDownLatch) extends Action {
 
 		logger.info("Done user #{}", context.getUserId)
 	}
-
-	override def toString = "End Action"
 }
