@@ -3,6 +3,7 @@ package com.excilys.ebi.gatling.statistics.generator
 import scala.io.Source
 import com.excilys.ebi.gatling.core.config.GatlingConfig._
 import com.excilys.ebi.gatling.core.util.PathHelper._
+import com.excilys.ebi.gatling.core.result.writer.FileDataWriter._
 import scala.tools.nsc.io.File
 
 class GraphicsGenerator {
@@ -21,7 +22,7 @@ class GraphicsGenerator {
 			line.split("\t") match {
 				// If we have a well formated result
 				case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage, groups) =>
-					val groupsArray = groups.stripPrefix("|").stripSuffix("|").split("\\|")
+					val groupsArray = groups.stripPrefix(GROUPS_PREFIX).stripSuffix(GROUPS_SUFFIX).split(GROUPS_SEPARATOR)
 					generator.onRow(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage, groupsArray.toList)
 				// Else, if the resulting data is not well formated print an error message
 				case _ => logger.warn("simulation.log had bad end of file, statistics will be generated but may not be accurate")

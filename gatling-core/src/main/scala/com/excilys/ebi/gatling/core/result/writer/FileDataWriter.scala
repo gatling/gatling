@@ -27,12 +27,23 @@ import java.io.BufferedOutputStream
 import java.io.OutputStreamWriter
 import java.util.concurrent.CountDownLatch
 
+object FileDataWriter {
+	val GROUPS_PREFIX = "("
+
+	val GROUPS_SUFFIX = ")"
+
+	val GROUPS_SEPARATOR = ","
+}
+
 /**
  * File implementation of the DataWriter
  *
  * It writes the data of the simulation if a tabulation separated values file
  */
 class FileDataWriter extends DataWriter {
+
+	import FileDataWriter._
+
 	/**
 	 * The OutputStreamWriter used to write to files
 	 */
@@ -62,7 +73,7 @@ class FileDataWriter extends DataWriter {
 				.append(executionDuration).append("\t")
 				.append(resultStatus).append("\t")
 				.append(resultMessage).append("\t")
-				.append(groups.mkString("|", "|", "|")).append("\n")
+				.append(groups.mkString(GROUPS_PREFIX, GROUPS_SEPARATOR, GROUPS_SUFFIX)).append("\n")
 
 			// Write the line in the file
 			osw.write(strBuilder.toString)
