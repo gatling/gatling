@@ -88,7 +88,7 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 * @return the value stored at key as an Option
 	 */
 	def getAttributeAsOption(key: String): Option[Any] = {
-		assert(!key.startsWith("gatling."), "This method should not be used with keys that are not reserved, ie: starting with gatling.")
+		assert(key.startsWith("gatling."), "This method should not be used with keys that are not reserved, ie: starting with gatling.")
 
 		data.get(key)
 	}
