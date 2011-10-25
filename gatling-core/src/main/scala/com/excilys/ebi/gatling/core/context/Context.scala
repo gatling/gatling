@@ -47,6 +47,8 @@ object Context {
  */
 class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uuid, var data: Map[String, Any]) extends Logging {
 
+	def this(scenarioName: String, userId: Int, writeActorUuid: Uuid) = this(scenarioName, userId, writeActorUuid, Map.empty)
+
 	/**
 	 * @return the current user id
 	 */
@@ -129,11 +131,7 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 * @return last action duration in nanoseconds
 	 */
 	def getLastActionDuration: Long =
-		data.get(Context.LAST_ACTION_DURATION_KEY).map { value =>
-			value match {
-				case s: String => s.toLong
-			}
-		}.getOrElse(0L)
+		data.get(Context.LAST_ACTION_DURATION_KEY).getOrElse(0L).asInstanceOf[Long]
 
 	def getProtocolConfiguration(protocolType: String) = {
 		getAttributeAsOption(Context.PROTOCOL_CONFIGURATIONS_KEY).map {
@@ -143,4 +141,9 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 		}.getOrElse(throw new UnsupportedOperationException("The protocol configuration map does not exist."))
 	}
 
+	def setProtocolConfig(configurations: Seq[ProtocolConfiguration]) = {
+		val configSeq = for (config <- configurations) yield (config.getProtocolType -> config)
+
+		setAttribute(Context.PROTOCOL_CONFIGURATIONS_KEY, configSeq.toMap[String, ProtocolConfiguration])
+	}
 }

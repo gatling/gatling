@@ -20,7 +20,6 @@ import scala.collection.immutable.{ HashSet, HashMap => IHashMap }
 import scala.collection.{ Set => CSet }
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.context.builder.ContextBuilder._
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.provider.capture.AbstractCaptureProvider
 import com.excilys.ebi.gatling.core.provider.ProviderType
@@ -56,8 +55,6 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
 	private val responseBuilder: ResponseBuilder = new ResponseBuilder()
 
-	private var contextBuilder = newContext fromContext context
-
 	private val hasSentLog = new AtomicBoolean(false)
 
 	private var processingStartTimeNano = System.nanoTime()
@@ -86,10 +83,10 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 				a ! ActionInfo(context.getScenarioName, context.getUserId, "Request " + requestName, executionStartDate, responseTimeMillis, requestResult, requestMessage, groups)
 			}
 
-			val sentContext = contextBuilder setDuration (System.nanoTime() - processingStartTimeNano) build
+			context.setAttribute(Context.LAST_ACTION_DURATION_KEY, System.nanoTime() - processingStartTimeNano)
 
-			logger.debug("Context Cookies sent to next action: {}", sentContext.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(IHashMap.empty))
-			next.execute(sentContext)
+			logger.debug("Context Cookies sent to next action: {}", context.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(IHashMap.empty))
+			next.execute(context)
 		}
 	}
 
@@ -134,7 +131,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
 						if (isResultValid) {
 							if (c.getAttrKey != EMPTY && value.isDefined)
-								contextBuilder = contextBuilder setAttribute (c.getAttrKey, value.get.toString)
+								context setAttribute (c.getAttrKey, value.get.toString)
 						} else {
 							if (c.isInstanceOf[HttpCheck])
 								logger.warn("CHECK RESULT: false expected {} but received {}", c, value)
@@ -168,7 +165,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
 			val setCookieHeaders = headersMap.get(SET_COOKIE)
 			if (setCookieHeaders != null) {
-				var contextCookies = contextBuilder.getAttribute(COOKIES_CONTEXT_KEY).getOrElse(IHashMap.empty).asInstanceOf[IHashMap[String, Cookie]]
+				var contextCookies = context.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(IHashMap.empty).asInstanceOf[IHashMap[String, Cookie]]
 
 				val it = setCookieHeaders.iterator
 				while (it.hasNext) {
@@ -176,9 +173,9 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 					contextCookies += (cookie.getName -> cookie)
 				}
 
-				logger.debug("Cookies put in ContextBuilder: {}", contextCookies)
+				logger.debug("Cookies put in Context: {}", contextCookies)
 
-				contextBuilder = contextBuilder setAttribute (COOKIES_CONTEXT_KEY, contextCookies)
+				context setAttribute (COOKIES_CONTEXT_KEY, contextCookies)
 			}
 
 			processResponse(HeadersReceived, headersMap)

@@ -20,7 +20,6 @@ import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.core.result.writer.FileDataWriter
 import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
-import com.excilys.ebi.gatling.core.context.builder.ContextBuilder._
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.scenario.configuration.builder.ScenarioConfigurationBuilder
 import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfiguration
@@ -126,8 +125,9 @@ class Runner(val startDate: DateTime, val scenarioConfigurationBuilders: List[Sc
 	 * @return the built context
 	 */
 	private def buildContext(configuration: ScenarioConfiguration, userId: Int) = {
-		val ctx =
-			newContext withUserId userId withWriteActorUuid statWriter.getUuid withScenarioName configuration.scenarioBuilder.getName setProtocolConfig configuration.protocolConfigurations build
+		val ctx = new Context(configuration.scenarioBuilder.getName, userId, statWriter.getUuid)
+
+		ctx.setProtocolConfig(configuration.protocolConfigurations)
 
 		// Puts all values of one line of the feeder in the context
 		configuration.feeder.map { f => ctx.setAttributes(f.next) }
