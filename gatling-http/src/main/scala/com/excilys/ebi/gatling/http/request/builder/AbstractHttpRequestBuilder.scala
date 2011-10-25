@@ -8,6 +8,8 @@ import org.fusesource.scalate._
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.context.FromContext
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
+import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration._
 import com.excilys.ebi.gatling.http.request.Param
 import com.excilys.ebi.gatling.http.request.StringParam
 import com.excilys.ebi.gatling.http.request.ContextParam
@@ -82,7 +84,25 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 	def getRequestBuilder(context: Context): RequestBuilder = {
 		val requestBuilder = new RequestBuilder
-		requestBuilder setUrl urlFormatter.get.apply(context) setMethod getMethod setFollowRedirects followsRedirects.getOrElse(false)
+		requestBuilder setMethod getMethod setFollowRedirects followsRedirects.getOrElse(false)
+
+		val urlProvided = urlFormatter.get.apply(context)
+
+		val httpConfiguration = context.getProtocolConfiguration(HTTP_PROTOCOL_TYPE).map { configuration =>
+			configuration.asInstanceOf[HttpProtocolConfiguration]
+		}
+
+		val url =
+			if (urlProvided.startsWith("http"))
+				urlProvided
+			else if (httpConfiguration.isDefined)
+				httpConfiguration.get.getBaseUrl.map {
+					baseUrl => baseUrl + urlProvided
+				}.getOrElse(urlProvided)
+			else
+				throw new IllegalArgumentException("URL is invalid (does not start with http): " + urlProvided)
+
+		requestBuilder.setUrl(url)
 
 		addCookiesTo(requestBuilder, context)
 		addQueryParamsTo(requestBuilder, context)

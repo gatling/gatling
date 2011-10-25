@@ -102,7 +102,7 @@ class Runner(val startDate: DateTime, val scenarioConfigurationBuilders: List[Sc
 	 */
 	private def startOneScenario(configuration: ScenarioConfiguration, scenario: Action) = {
 		if (configuration.users == 1) {
-			// if only 1 user, execute right now
+			// if single user, execute right now
 			val context = buildContext(configuration, 1)
 			scenario.execute(context)
 		} else {
@@ -126,7 +126,8 @@ class Runner(val startDate: DateTime, val scenarioConfigurationBuilders: List[Sc
 	 * @return the built context
 	 */
 	private def buildContext(configuration: ScenarioConfiguration, userId: Int) = {
-		val ctx = newContext withUserId userId withWriteActorUuid statWriter.getUuid withScenarioName configuration.scenarioBuilder.getName build
+		val ctx =
+			newContext withUserId userId withWriteActorUuid statWriter.getUuid withScenarioName configuration.scenarioBuilder.getName setProtocolConfig configuration.protocolConfigurations build
 
 		// Puts all values of one line of the feeder in the context
 		configuration.feeder.map { f => ctx.setAttributes(f.next) }

@@ -19,6 +19,7 @@ import akka.actor.Uuid
 import com.excilys.ebi.gatling.core.log.Logging
 import java.util.concurrent.TimeUnit
 import com.excilys.ebi.gatling.core.util.StringHelper._
+import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
 
 /**
  * Companion object of Context class
@@ -28,6 +29,10 @@ object Context {
 	 * Key for last action duration
 	 */
 	val LAST_ACTION_DURATION_KEY = "gatling.core.lastActionDuration"
+	/**
+	 * Key for protocol configurations
+	 */
+	val PROTOCOL_CONFIGURATIONS_KEY = "gatling.core.protocolConfigurations"
 }
 /**
  * Context class represent the context passing through a scenario for a given user
@@ -129,5 +134,13 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 				case s: String => s.toLong
 			}
 		}.getOrElse(0L)
+
+	def getProtocolConfiguration(protocolType: String) = {
+		getAttributeAsOption(Context.PROTOCOL_CONFIGURATIONS_KEY).map {
+			value =>
+				val map = value.asInstanceOf[Map[String, ProtocolConfiguration]]
+				map.get(protocolType)
+		}.getOrElse(throw new UnsupportedOperationException("The protocol configuration map does not exist."))
+	}
 
 }

@@ -34,6 +34,7 @@ class TextScriptInterpreter extends Interpreter {
     import com.excilys.ebi.gatling.core.structure.builder.ScenarioBuilder._
     import com.excilys.ebi.gatling.core.structure.builder.ChainBuilder._
     import com.excilys.ebi.gatling.http.action.builder.HttpRequestActionBuilder._
+    import com.excilys.ebi.gatling.http.config.builder.HttpProtocolConfigurationBuilder._
     import com.excilys.ebi.gatling.http.processor.capture.builder.HttpRegExpCaptureBuilder._
     import com.excilys.ebi.gatling.http.processor.capture.builder.HttpXPathCaptureBuilder._
     import com.excilys.ebi.gatling.http.processor.capture.builder.HttpHeaderCaptureBuilder._

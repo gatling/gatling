@@ -18,8 +18,8 @@ package com.excilys.ebi.gatling.core.scenario.configuration.builder
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.structure.builder.ScenarioBuilder
 import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfiguration
-
 import java.util.concurrent.TimeUnit
+import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
 
 /**
  * This class is used in the DSL to configure scenarios
@@ -30,11 +30,11 @@ import java.util.concurrent.TimeUnit
  * @param startTime the time at which the first user will start in the simulation
  * @param feeder the feeder associated with the scenario
  */
-class ScenarioConfigurationBuilder(scenarioBuilder: ScenarioBuilder, usersValue: Int, rampValue: (Int, TimeUnit),
-		delayValue: (Int, TimeUnit), feederValue: Option[Feeder]) {
+class ScenarioConfigurationBuilder(scenarioBuilder: ScenarioBuilder, usersValue: Int, rampValue: (Int, TimeUnit), delayValue: (Int, TimeUnit),
+		feederValue: Option[Feeder], protocolConfigurations: Seq[ProtocolConfiguration]) {
 
 	def this(scenarioBuilder: ScenarioBuilder) = {
-		this(scenarioBuilder, 500, (0, TimeUnit.SECONDS), (0, TimeUnit.SECONDS), None)
+		this(scenarioBuilder, 500, (0, TimeUnit.SECONDS), (0, TimeUnit.SECONDS), None, Seq.empty[ProtocolConfiguration])
 	}
 
 	/**
@@ -43,7 +43,7 @@ class ScenarioConfigurationBuilder(scenarioBuilder: ScenarioBuilder, usersValue:
 	 * @param nbUsers the number of users
 	 * @return a new builder with the number of users set
 	 */
-	def users(nbUsers: Int) = new ScenarioConfigurationBuilder(scenarioBuilder, nbUsers, rampValue, delayValue, feederValue)
+	def users(nbUsers: Int) = new ScenarioConfigurationBuilder(scenarioBuilder, nbUsers, rampValue, delayValue, feederValue, protocolConfigurations)
 
 	/**
 	 * Method used to set the ramp duration in seconds
@@ -60,7 +60,7 @@ class ScenarioConfigurationBuilder(scenarioBuilder: ScenarioBuilder, usersValue:
 	 * @param unit the time unit of the ramp duration
 	 * @return a new builder with the ramp duration set
 	 */
-	def ramp(rampTime: Int, unit: TimeUnit) = new ScenarioConfigurationBuilder(scenarioBuilder, usersValue, (rampTime, unit), delayValue, feederValue)
+	def ramp(rampTime: Int, unit: TimeUnit) = new ScenarioConfigurationBuilder(scenarioBuilder, usersValue, (rampTime, unit), delayValue, feederValue, protocolConfigurations)
 
 	/**
 	 * Method used to set the feeder used by the scenario
@@ -68,7 +68,7 @@ class ScenarioConfigurationBuilder(scenarioBuilder: ScenarioBuilder, usersValue:
 	 * @param feeder the feeder to be used by the scenario
 	 * @return a new builder with the feeder set
 	 */
-	def feeder(feederValue: Feeder) = new ScenarioConfigurationBuilder(scenarioBuilder, usersValue, rampValue, delayValue, Some(feederValue))
+	def feeder(feederValue: Feeder) = new ScenarioConfigurationBuilder(scenarioBuilder, usersValue, rampValue, delayValue, Some(feederValue), protocolConfigurations)
 
 	/**
 	 * Method used to set the start time of the first user in the simulation in seconds
@@ -85,12 +85,17 @@ class ScenarioConfigurationBuilder(scenarioBuilder: ScenarioBuilder, usersValue:
 	 * @param unit the unit of the start time
 	 * @return a new builder with the start time set
 	 */
-	def delay(delayValue: Int, unit: TimeUnit) = new ScenarioConfigurationBuilder(scenarioBuilder, usersValue, rampValue, (delayValue, unit), feederValue)
+	def delay(delayValue: Int, unit: TimeUnit) = new ScenarioConfigurationBuilder(scenarioBuilder, usersValue, rampValue, (delayValue, unit), feederValue, protocolConfigurations)
+
+	/**
+	 *
+	 */
+	def protocolConfig(configurations: ProtocolConfiguration*) = new ScenarioConfigurationBuilder(scenarioBuilder, usersValue, rampValue, delayValue, feederValue, configurations)
 
 	/**
 	 * Builds the configuration of the scenario
 	 *
 	 * @return the configuration requested
 	 */
-	def build(scenarioId: Int): ScenarioConfiguration = new ScenarioConfiguration(scenarioId, scenarioBuilder, usersValue, rampValue, delayValue, feederValue)
+	def build(scenarioId: Int): ScenarioConfiguration = new ScenarioConfiguration(scenarioId, scenarioBuilder, usersValue, rampValue, delayValue, feederValue, protocolConfigurations)
 }

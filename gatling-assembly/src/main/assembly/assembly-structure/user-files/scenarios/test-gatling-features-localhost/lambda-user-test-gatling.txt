@@ -1,4 +1,4 @@
-val loginChain = chain.exec(http("First Request Chain").get(baseUrl)).pause(1,2)
+val loginChain = chain.exec(http("First Request Chain").get("/")).pause(1,2)
 
 val loginGroup = "Login"
 val doStuffGroup = "Do Stuff"
@@ -7,7 +7,7 @@ val doStuffGroup = "Do Stuff"
 val lambdaUser = scenario("Standard User")
   .insertChain(loginChain)
   // First request outside iteration
-  .exec(http("Catégorie Poney").get(baseUrl).capture(xpath("//input[@id='text1']/@value") in "aaaa_value"))
+  .exec(http("Catégorie Poney").get("/").capture(xpath("//input[@id='text1']/@value") in "aaaa_value"))
   .pause(pause2, pause3)
   // Loop
   .loop(
@@ -16,7 +16,7 @@ val lambdaUser = scenario("Standard User")
       // First request to be repeated
       .exec( (c: Context) => println("iterate: " + getCounterValue(c, "titi")) )
       .exec(
-          http("Page accueil").get(baseUrl)
+          http("Page accueil").get("http://localhost:3000")
             .check(
                 xpathExists(interpolate("//input[@value='{}']/@id", "aaaa_value")) in "ctxParam",
                 xpathNotExists(interpolate("//input[@id='{}']/@value", "aaaa_value")),
@@ -28,50 +28,50 @@ val lambdaUser = scenario("Standard User")
             )
       )
       .loop(chain
-        .exec(http("In During 1").get(baseUrl))
+        .exec(http("In During 1").get("htp://localhost:3000"))
         .pause(2)
         .loop(chain.exec( (c: Context) => println("--nested loop: " + getCounterValue(c, "tutu")))).counterName("tutu").times(2)
         .exec( (c: Context) => println("-loopDuring: " + getCounterValue(c, "toto")) )
-        .exec(http("In During 2").get(baseUrl))
+        .exec(http("In During 2").get("/"))
         .pause(2))
         .counterName("toto").during(12000, TimeUnit.MILLISECONDS)
       .pause(pause2)
       .loop(
 	      chain
-	        .exec(http("In During 1").get(baseUrl))
+	        .exec(http("In During 1").get("/"))
 	        .pause(2)
 	        .exec( (c: Context) => println("-iterate1: " + getCounterValue(c, "titi") + ", doFor: " + getCounterValue(c, "hehe")) )
 	        .loop(
 	            chain
 	              .exec((c:Context) => println("--iterate1: " + getCounterValue(c, "titi") + ", doFor: " + getCounterValue(c, "hehe") + ", iterate2: " + getCounterValue(c, "hoho"))))
 	        .counterName("hoho").times(2)
-	        .exec(http("In During 2").get(baseUrl))
+	        .exec(http("In During 2").get("/"))
 	        .pause(2))
 	  .counterName("hehe").during(12000, TimeUnit.MILLISECONDS)
       .startGroup(loginGroup)
       .exec( (c:Context) => c.setAttribute("test2", "bbbb") )
       .doIf("test2", "aaaa", 
-          chain.exec(http("IF=TRUE Request").get(baseUrl))
-          , chain.exec(http("IF=FALSE Request").get(baseUrl))
+          chain.exec(http("IF=TRUE Request").get("/"))
+          , chain.exec(http("IF=FALSE Request").get("/"))
           )
       .pause(pause2)
-      .exec(http("Url from context").get("http://localhost:3000/aaaa"))
+      .exec(http("Url from context").get("/aaaa"))
       .pause(1000, 3000, TimeUnit.MILLISECONDS)
       // Second request to be repeated
-      .exec(http("Create Thing blabla").post("http://localhost:3000/things").queryParam("login").queryParam("password").withTemplateBody("create_thing", Map("name" -> "blabla")).asJSON)
+      .exec(http("Create Thing blabla").post("/things").queryParam("login").queryParam("password").withTemplateBody("create_thing", Map("name" -> "blabla")).asJSON)
       .pause(pause1)
       .endGroup(loginGroup)
       // Third request to be repeated
-      .exec(http("Liste Articles") get("http://localhost:3000/things") queryParam "firstname" queryParam "lastname")
+      .exec(http("Liste Articles") get("/things") queryParam "firstname" queryParam "lastname")
       .pause(pause1)
-      .exec(http("Test Page") get("http://localhost:3000/tests") check(headerEquals(CONTENT_TYPE, "text/html; charset=utf-8") in "ctxParam"))
+      .exec(http("Test Page") get("/tests") check(headerEquals(CONTENT_TYPE, "text/html; charset=utf-8") in "ctxParam"))
       // Fourth request to be repeated
       .exec(http("Create Thing omgomg")
-              .post("http://localhost:3000/things").queryParam("postTest", FromContext("ctxParam")).withTemplateBody("create_thing", Map("name" -> FromContext("ctxParam"))).asJSON
+              .post("/things").queryParam("postTest", FromContext("ctxParam")).withTemplateBody("create_thing", Map("name" -> FromContext("ctxParam"))).asJSON
               .check(status(201) in "status"))
   ).counterName("titi").times(iterations)
   // Second request outside iteration
   .startGroup(doStuffGroup)
-  .exec(http("Ajout au panier") get(baseUrl) capture(regexp("""<input id="text1" type="text" value="(.*)" />""") in "input"))
+  .exec(http("Ajout au panier") get("/") capture(regexp("""<input id="text1" type="text" value="(.*)" />""") in "input"))
   .pause(pause1)
   .endGroup(doStuffGroup)

@@ -17,8 +17,8 @@ package com.excilys.ebi.gatling.core.scenario.configuration
 
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.structure.builder.ScenarioBuilder
-
 import java.util.concurrent.TimeUnit
+import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
 
 /**
  * This class represents the configuration of a scenario
@@ -31,4 +31,4 @@ import java.util.concurrent.TimeUnit
  * @param feeder a feeder that will be consumed by this scenario for each user
  */
 class ScenarioConfiguration(val scenarioId: Int, val scenarioBuilder: ScenarioBuilder, val users: Int, val ramp: (Int, TimeUnit),
-	val delay: (Int, TimeUnit), val feeder: Option[Feeder])
+	val delay: (Int, TimeUnit), val feeder: Option[Feeder], val protocolConfigurations: Seq[ProtocolConfiguration])

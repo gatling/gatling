@@ -19,6 +19,7 @@ import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.context.Context
 import akka.actor.Uuid
 import scala.collection.mutable.HashMap
+import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
 
 /**
  * Class used only as validation for ContextBuilder
@@ -136,4 +137,10 @@ class ContextBuilder[HSN, HUID, HWAU](val scenarioName: Option[String], val user
 	 * @return a new builder with the duration set
 	 */
 	def setDuration(value: Long) = unsetAttribute(Context.LAST_ACTION_DURATION_KEY) setAttribute (Context.LAST_ACTION_DURATION_KEY, value.toString)
+
+	def setProtocolConfig(configurations: Seq[ProtocolConfiguration]) = {
+		val configSeq = for (config <- configurations) yield (config.getProtocolType -> config)
+
+		setAttribute(Context.PROTOCOL_CONFIGURATIONS_KEY, configSeq.toMap[String, ProtocolConfiguration])
+	}
 }

@@ -5,12 +5,14 @@ val pause3 = 3
 
 val baseUrl = "http://localhost:3000"
 
+val httpConf = httpConfig.baseURL(baseUrl)
+
 val usersInformation = new TSVFeeder("user_information", List("login", "password", "firstname", "lastname"))
 
 include("lambda-user-test-gatling")
 include("admin-user-test-gatling")
 
 runSimulations(
-    lambdaUser.configure.users(5).ramp(10).feeder(usersInformation)
+    lambdaUser.configure.users(5).ramp(10).feeder(usersInformation).protocolConfig(httpConf)
     , adminUser.configure.users(5).ramp(10).delay(60).feeder(usersInformation)
 )
