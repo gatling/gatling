@@ -57,15 +57,20 @@ object PathHelper {
 	 * Gatling's templates folder
 	 */
 	val GATLING_TEMPLATES_FOLDER = GATLING_USER_FILES_FOLDER + "/templates"
-
+	/**
+	 * Directory where javascript files are stored in results
+	 */
+	val GATLING_JS = "/js"
+	val GATLING_JQUERY = "/jquery.min.js"
+	val GATLING_HIGHCHARTS = "/highcharts.js"
 	/**
 	 * Path to JQuery library in results
 	 */
-	val GATLING_JS_JQUERY = "/js/jquery.min.js"
+	val GATLING_JS_JQUERY = "/js" + GATLING_JQUERY
 	/**
 	 * Path to Highcharts library in results
 	 */
-	val GATLING_JS_HIGHCHARTS = "/js/highcharts.js"
+	val GATLING_JS_HIGHCHARTS = "/js" + GATLING_HIGHCHARTS
 	/**
 	 * Path to raw results
 	 */

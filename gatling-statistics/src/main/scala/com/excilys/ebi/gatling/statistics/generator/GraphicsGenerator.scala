@@ -20,16 +20,25 @@ import com.excilys.ebi.gatling.core.config.GatlingConfig._
 import com.excilys.ebi.gatling.core.util.PathHelper._
 import com.excilys.ebi.gatling.core.result.writer.FileDataWriter._
 import scala.tools.nsc.io.File
+import com.excilys.ebi.gatling.core.log.Logging
+import scala.tools.nsc.io.Directory
+import java.io.{ File => JFile }
 
-class GraphicsGenerator {
+class GraphicsGenerator extends Logging {
 
 	def generateFor(runOn: String) = {
 
 		val jQueryFile = File(GATLING_ASSETS_JQUERY)
 		val highchartsFile = File(GATLING_ASSETS_HIGHCHARTS)
 
-		jQueryFile.copyTo(GATLING_RESULTS_FOLDER + "/" + runOn + GATLING_JS_JQUERY, true)
-		highchartsFile.copyTo(GATLING_RESULTS_FOLDER + "/" + runOn + GATLING_JS_HIGHCHARTS, true)
+		val jsAssetsPath = GATLING_RESULTS_FOLDER + "/" + runOn + GATLING_JS
+		val jQueryDestPath = jsAssetsPath + GATLING_JQUERY
+		val highchartsDestPath = jsAssetsPath + GATLING_HIGHCHARTS
+
+		new Directory(new JFile(jsAssetsPath)).createDirectory()
+
+		jQueryFile.copyTo(jQueryDestPath, true)
+		highchartsFile.copyTo(highchartsDestPath, true)
 
 		val generator = new CompositeGraphicGenerator(new ActiveSessionsGraphicGenerator, new GlobalRequestsGraphicGenerator, new DetailsRequestsGraphicGenerator, new MenuItemsGraphicGenerator)
 
