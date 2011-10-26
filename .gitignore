@@ -26,3 +26,5 @@ gatling-core/.cache
 gatling-statistics/.cache
 
 gatling-app/.cache
+
+untracked-scenario*
