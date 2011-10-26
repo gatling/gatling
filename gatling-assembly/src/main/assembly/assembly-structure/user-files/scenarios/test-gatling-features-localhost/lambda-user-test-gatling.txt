@@ -3,11 +3,13 @@ val loginChain = chain.exec(http("First Request Chain").get("/")).pause(1,2)
 val loginGroup = "Login"
 val doStuffGroup = "Do Stuff"
 
+val testData = new TSVFeeder("test-data", List("omg", "socool"))
 
 val lambdaUser = scenario("Standard User")
   .insertChain(loginChain)
   // First request outside iteration
-  .exec(http("Catégorie Poney").get("/").capture(xpath("//input[@id='text1']/@value") in "aaaa_value"))
+  .loop( chain.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").capture(xpath("//input[@id='text1']/@value") in "aaaa_value").feeder(testData)) )
+  .times(2)
   .pause(pause2, pause3)
   // Loop
   .loop(
@@ -28,7 +30,7 @@ val lambdaUser = scenario("Standard User")
             )
       )
       .loop(chain
-        .exec(http("In During 1").get("htp://localhost:3000"))
+        .exec(http("In During 1").get("http://localhost:3000/aaaa"))
         .pause(2)
         .loop(chain.exec( (c: Context) => println("--nested loop: " + getCounterValue(c, "tutu")))).counterName("tutu").times(2)
         .exec( (c: Context) => println("-loopDuring: " + getCounterValue(c, "toto")) )

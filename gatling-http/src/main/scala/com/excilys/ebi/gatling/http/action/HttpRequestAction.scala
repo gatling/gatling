@@ -17,6 +17,7 @@ package com.excilys.ebi.gatling.http.action
 
 import com.excilys.ebi.gatling.core.action.{ Action, RequestAction }
 import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.http.ahc.CustomAsyncHandler
 import com.excilys.ebi.gatling.http.processor.check.HttpStatusCheck
@@ -35,8 +36,8 @@ object HttpRequestAction {
 	val CLIENT: AsyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setCompressionEnabled(true).build())
 	ResourceRegistry.register(new HttpClientResource(CLIENT))
 }
-class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilders: Option[List[HttpProcessorBuilder]], groups: List[String])
-		extends RequestAction(next, request, givenProcessorBuilders, groups) {
+class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilders: Option[List[HttpProcessorBuilder]], groups: List[String], feeder: Option[Feeder])
+		extends RequestAction(next, request, givenProcessorBuilders, groups, feeder) {
 
 	val processors: MultiMap[HttpPhase, HttpProcessor] = new HashMap[HttpPhase, MSet[HttpProcessor]] with MultiMap[HttpPhase, HttpProcessor]
 
@@ -60,6 +61,12 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilde
 		objects(1) = context.getScenarioName
 		objects(2) = context.getUserId.toString
 		logger.info("Sending Request '{}': Scenario '{}', UserId #{}", objects)
+
+		feeder.map {
+			feeder =>
+				context.setAttributes(feeder.next)
+		}
+
 		HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new CustomAsyncHandler(context, processors, next, System.nanoTime, DateTime.now(), request.getName, groups))
 	}
 }

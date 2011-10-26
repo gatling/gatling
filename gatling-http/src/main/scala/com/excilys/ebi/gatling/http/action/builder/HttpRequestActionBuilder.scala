@@ -18,6 +18,7 @@ package com.excilys.ebi.gatling.http.action.builder
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.util.StringHelper._
 import com.excilys.ebi.gatling.http.action.HttpRequestAction
 import com.excilys.ebi.gatling.http.processor.builder.HttpProcessorBuilder
@@ -32,32 +33,38 @@ import akka.actor.TypedActor
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 
 object HttpRequestActionBuilder {
-	def http(requestName: String) = new HttpRequestActionBuilder(requestName, None, None, None, Some(Nil))
+	def http(requestName: String) = new HttpRequestActionBuilder(requestName, None, None, None, Some(Nil), None)
 }
 
-class HttpRequestActionBuilder(val requestName: String, val request: Option[HttpRequest], val nextAction: Option[Action], val processorBuilders: Option[List[HttpProcessorBuilder]], val groups: Option[List[String]])
+class HttpRequestActionBuilder(val requestName: String, val request: Option[HttpRequest], val nextAction: Option[Action], val processorBuilders: Option[List[HttpProcessorBuilder]], val groups: Option[List[String]], val feeder: Option[Feeder])
 		extends AbstractActionBuilder {
 
 	def getRequestName = requestName
 
 	private[http] def withProcessors(givenProcessors: Seq[HttpProcessorBuilder]) = {
 		logger.debug("Adding Processors")
-		new HttpRequestActionBuilder(requestName, request, nextAction, Some(givenProcessors.toList ::: processorBuilders.getOrElse(Nil)), groups)
+		new HttpRequestActionBuilder(requestName, request, nextAction, Some(givenProcessors.toList ::: processorBuilders.getOrElse(Nil)), groups, feeder)
+	}
+
+	private[http] def withFeeder(feeder: Feeder) = {
+		new HttpRequestActionBuilder(requestName, request, nextAction, processorBuilders, groups, Some(feeder))
 	}
 
 	def capture(captureBuilders: AbstractHttpCaptureBuilder[_]*) = withProcessors(captureBuilders)
 
 	def check(checkBuilders: HttpCheckBuilder[_]*) = withProcessors(checkBuilders)
 
-	def withRequest(request: HttpRequest) = new HttpRequestActionBuilder(requestName, Some(request), nextAction, processorBuilders, groups)
+	def feeder(feeder: Feeder) = withFeeder(feeder)
 
-	def withNext(next: Action) = new HttpRequestActionBuilder(requestName, request, Some(next), processorBuilders, groups)
+	def withRequest(request: HttpRequest) = new HttpRequestActionBuilder(requestName, Some(request), nextAction, processorBuilders, groups, feeder)
 
-	def inGroups(groups: List[String]) = new HttpRequestActionBuilder(requestName, request, nextAction, processorBuilders, Some(groups))
+	def withNext(next: Action) = new HttpRequestActionBuilder(requestName, request, Some(next), processorBuilders, groups, feeder)
+
+	def inGroups(groups: List[String]) = new HttpRequestActionBuilder(requestName, request, nextAction, processorBuilders, Some(groups), feeder)
 
 	def build: Action = {
 		logger.debug("Building HttpRequestAction with request {}", request.get)
-		TypedActor.newInstance(classOf[Action], new HttpRequestAction(nextAction.get, request.get, processorBuilders, groups.get))
+		TypedActor.newInstance(classOf[Action], new HttpRequestAction(nextAction.get, request.get, processorBuilders, groups.get, feeder))
 	}
 
 	def delete(url: String, interpolations: String*) =
