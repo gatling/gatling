@@ -86,6 +86,37 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 		val requestBuilder = new RequestBuilder
 		requestBuilder setMethod getMethod setFollowRedirects followsRedirects.getOrElse(false)
 
+		addURLTo(requestBuilder, context)
+		addProxyTo(requestBuilder, context)
+		addCookiesTo(requestBuilder, context)
+		addQueryParamsTo(requestBuilder, context)
+		addHeadersTo(requestBuilder, headers)
+		addAuthenticationTo(requestBuilder, credentials)
+
+		requestBuilder
+	}
+
+	def build(context: Context): Request = {
+
+		val request = getRequestBuilder(context) build
+
+		logger.debug("Built {} Request: {})", getMethod, request.getCookies)
+		request
+	}
+
+	private def addProxyTo(requestBuilder: RequestBuilder, context: Context) = {
+		val httpConfiguration = context.getProtocolConfiguration(HTTP_PROTOCOL_TYPE).map { configuration =>
+			configuration.asInstanceOf[HttpProtocolConfiguration]
+		}
+
+		if (httpConfiguration.isDefined)
+			httpConfiguration.get.getProxy.map { proxy =>
+				requestBuilder.setProxyServer(proxy)
+				logger.debug("PROXY SET")
+			}
+	}
+
+	private def addURLTo(requestBuilder: RequestBuilder, context: Context) = {
 		val urlProvided = urlFormatter.get.apply(context)
 
 		val httpConfiguration = context.getProtocolConfiguration(HTTP_PROTOCOL_TYPE).map { configuration =>
@@ -103,21 +134,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 				throw new IllegalArgumentException("URL is invalid (does not start with http): " + urlProvided)
 
 		requestBuilder.setUrl(url)
-
-		addCookiesTo(requestBuilder, context)
-		addQueryParamsTo(requestBuilder, context)
-		addHeadersTo(requestBuilder, headers)
-		addAuthenticationTo(requestBuilder, credentials)
-
-		requestBuilder
-	}
-
-	def build(context: Context): Request = {
-
-		val request = getRequestBuilder(context) build
-
-		logger.debug("Built {} Request: {})", getMethod, request.getCookies)
-		request
 	}
 
 	private def addCookiesTo(requestBuilder: RequestBuilder, context: Context) = {
@@ -129,7 +145,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	}
 
 	private def addQueryParamsTo(requestBuilder: RequestBuilder, context: Context) = {
-		requestBuilder setQueryParameters (new FluentStringsMap)
 		for (queryParam <- queryParams.get) {
 			queryParam._2 match {
 				case StringParam(string) =>
