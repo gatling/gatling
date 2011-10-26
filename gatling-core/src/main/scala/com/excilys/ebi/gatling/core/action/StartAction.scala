@@ -52,6 +52,4 @@ class StartAction(next: Action) extends Action {
 
 		next.execute(context)
 	}
-
-	override def toString = "Start Action"
 }
