@@ -19,6 +19,7 @@ import com.excilys.ebi.gatling.core.config.GatlingConfig._
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.PathHelper._
 import com.excilys.ebi.gatling.core.action.EndAction._
+import com.excilys.ebi.gatling.core.action.StartAction._
 
 import com.excilys.ebi.gatling.statistics.result.DetailsRequestsDataResult
 
@@ -31,7 +32,7 @@ class DetailsRequestsDataExtractor extends DataExtractor[Map[String, DetailsRequ
 	var extractedValues: Map[String, List[(String, Double)]] = TreeMap.empty
 
 	def onRow(runOn: String, scenarioName: String, userId: String, actionName: String, executionStartDate: String, executionDuration: String, resultStatus: String, resultMessage: String, groups: List[String]) {
-		if (actionName != END_OF_SCENARIO)
+		if (actionName != END_OF_SCENARIO && actionName != START_OF_SCENARIO)
 			extractedValues = extractedValues + (actionName ->
 				((executionStartDate, executionDuration.toDouble) :: extractedValues.getOrElse(actionName, Nil)))
 	}
