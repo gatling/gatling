@@ -22,7 +22,6 @@ import com.excilys.ebi.gatling.core.result.writer.FileDataWriter._
 import scala.tools.nsc.io.File
 import com.excilys.ebi.gatling.core.log.Logging
 import scala.tools.nsc.io.Directory
-import java.io.{ File => JFile }
 
 class GraphicsGenerator extends Logging {
 
@@ -35,8 +34,7 @@ class GraphicsGenerator extends Logging {
 		val jQueryDestPath = jsAssetsPath + GATLING_JQUERY
 		val highchartsDestPath = jsAssetsPath + GATLING_HIGHCHARTS
 
-		new Directory(new JFile(jsAssetsPath)).createDirectory()
-
+		File(jsAssetsPath).toDirectory.createDirectory()
 		jQueryFile.copyTo(jQueryDestPath, true)
 		highchartsFile.copyTo(highchartsDestPath, true)
 
