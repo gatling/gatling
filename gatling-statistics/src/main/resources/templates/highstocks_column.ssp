@@ -4,7 +4,7 @@
 <%@ val graphTitle: String %>
 <%@ val xCategories: List[Double]%>
 
-var column_chart = new Highcharts.Chart({ 
+var column_chart = new Highcharts.StockChart({ 
 	chart: { 
 		renderTo: 'container_column',
 		defaultSeriesType: 'column',

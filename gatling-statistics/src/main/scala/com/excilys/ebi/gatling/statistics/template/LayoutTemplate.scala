@@ -19,7 +19,7 @@ import org.fusesource.scalate._
 
 import com.excilys.ebi.gatling.core.util.PathHelper._
 
-private[template] class LayoutTemplate(val title: String, val runOn: String, val body: String, val highcharts: String) {
+private[template] class LayoutTemplate(val title: String, val runOn: String, val body: String, val highstocks: String) {
 
 	val engine = new TemplateEngine
 	engine.escapeMarkup = false
@@ -29,6 +29,6 @@ private[template] class LayoutTemplate(val title: String, val runOn: String, val
 			Map("title" -> title,
 				"runOn" -> runOn,
 				"body" -> body,
-				"highcharts" -> highcharts))
+				"highstocks" -> highstocks))
 	}
 }

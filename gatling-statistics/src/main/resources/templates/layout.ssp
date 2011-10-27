@@ -1,5 +1,7 @@
-<%@ val highcharts: String %> <%@ val body: String %> <%@ val runOn:
-String %> <%@ val title: String %>
+<%@ val highstocks: String %>
+<%@ val body: String %>
+<%@ val runOn: String %>
+<%@ val title: String %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -49,6 +51,7 @@ String %> <%@ val title: String %>
 </style>
 <script type="text/javascript" src="js/jquery.min.js"></script>
 <script type="text/javascript" src="js/highcharts.js"></script>
+<script type="text/javascript" src="js/highstocks.js"></script>
 <script type="text/javascript" src="js/menu.js"></script>
 </head>
 <body>
@@ -77,8 +80,8 @@ String %> <%@ val title: String %>
 	</div>
 	<script type="text/javascript">
 		$(document).ready(function() {
-			<%= highcharts %>
+			<%= highstocks %>
 		});
-		</script>
+	</script>
 </body>
 </html>

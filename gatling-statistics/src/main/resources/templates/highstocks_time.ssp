@@ -5,7 +5,7 @@
 <%@ val yAxisTitle: String %>
 <%@ val graphTitle: String %>
 
-var time_chart = new Highcharts.Chart({ 
+var time_chart = new Highcharts.StockChart({ 
 	chart: {
 		renderTo: 'container',
 		defaultSeriesType: 'spline',
@@ -18,7 +18,8 @@ var time_chart = new Highcharts.Chart({
 		x: -20 //center
 	},
 	xAxis: { 
-		type: 'datetime'
+		type: 'datetime',
+		maxZoom: 10000 // 10 seconds
 	},
 	yAxis: { 
 		title: { 
@@ -44,15 +45,16 @@ var time_chart = new Highcharts.Chart({
 					hover: {
 						enabled: true,
 						symbol: 'circle',
-						radius: 3,
+						radius: 5,
 						lineWidth: 1
 					}
 				}
 			}
 		}
 	},
-	tooltip: { 
-		formatter: function() { return '<span style="font-weight: bold">'+ this.series.name +"</span><br /><%= toolTip.replace("{}",""""+ this.y +"""" ) %> at "+ newDate(this.x).toUTCString().substr(17,8); }
+	tooltip: {
+		   pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
+		   yDecimals: 2
 	},
 	legend: {
 		layout: 'vertical',

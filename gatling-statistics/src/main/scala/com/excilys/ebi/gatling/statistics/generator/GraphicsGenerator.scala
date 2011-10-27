@@ -28,15 +28,15 @@ class GraphicsGenerator extends Logging {
 	def generateFor(runOn: String) = {
 
 		val jQueryFile = File(GATLING_ASSETS_JQUERY)
-		val highchartsFile = File(GATLING_ASSETS_HIGHCHARTS)
+		val highstocksFile = File(GATLING_ASSETS_HIGHSTOCKS)
 
 		val jsAssetsPath = GATLING_RESULTS_FOLDER + "/" + runOn + GATLING_JS
 		val jQueryDestPath = jsAssetsPath + GATLING_JQUERY
-		val highchartsDestPath = jsAssetsPath + GATLING_HIGHCHARTS
+		val highstocksDestPath = jsAssetsPath + GATLING_HIGHSTOCKS
 
 		File(jsAssetsPath).toDirectory.createDirectory()
 		jQueryFile.copyTo(jQueryDestPath, true)
-		highchartsFile.copyTo(highchartsDestPath, true)
+		highstocksFile.copyTo(highstocksDestPath, true)
 
 		val generator = new CompositeGraphicGenerator(new ActiveSessionsGraphicGenerator, new GlobalRequestsGraphicGenerator, new DetailsRequestsGraphicGenerator, new MenuItemsGraphicGenerator)
 

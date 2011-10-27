@@ -48,7 +48,9 @@ class GlobalRequestsDataPresenter extends DataPresenter[List[(String, (Double, D
 
 		new TSVFileWriter(runOn, GATLING_STATS_GLOBAL_REQUESTS_FILE).writeToFile(forFile)
 
-		val series = List(new TimeSeries("All", globalData), new TimeSeries("Success", successData), new TimeSeries("Failures", failureData))
+		def sortData(list: List[(String, Double)]) = list.sort((t1, t2) => t1._1 < t2._1)
+
+		val series = List(new TimeSeries("All", sortData(globalData)), new TimeSeries("Success", sortData(successData)), new TimeSeries("Failures", sortData(failureData)))
 
 		val output = new GlobalRequestsTemplate(runOn, series).getOutput
 
