@@ -28,3 +28,5 @@ gatling-statistics/.cache
 gatling-app/.cache
 
 untracked-scenario*
+
+.DS_Store
