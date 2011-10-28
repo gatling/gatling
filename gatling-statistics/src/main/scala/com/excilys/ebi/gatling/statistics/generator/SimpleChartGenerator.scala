@@ -15,17 +15,16 @@
  */
 package com.excilys.ebi.gatling.statistics.generator
 
-class CompositeGraphicGenerator(generators: GraphicGenerator*) extends GraphicGenerator {
+import com.excilys.ebi.gatling.statistics.presenter.DataPresenter
+import com.excilys.ebi.gatling.statistics.extractor.DataExtractor
+
+abstract class SimpleChartGenerator[R](dataExtractor: DataExtractor[R], dataPresenter: DataPresenter[R]) extends ChartGenerator {
 
 	def onRow(runOn: String, scenarioName: String, userId: String, actionName: String, executionStartDate: String, executionDuration: String, resultStatus: String, resultMessage: String, groups: List[String]) {
-		generators.foreach { generator =>
-			generator.onRow(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage, groups)
-		}
+		dataExtractor.onRow(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage, groups)
 	}
 
-	def generateGraphFor(runOn: String) {
-		generators.foreach { generator =>
-			generator.generateGraphFor(runOn)
-		}
+	def generateChartFor(runOn: String) {
+		dataPresenter.generateChartFor(runOn, dataExtractor.getResults())
 	}
 }

@@ -28,7 +28,7 @@ import scala.collection.immutable.TreeMap
 
 class DetailsRequestsDataPresenter extends DataPresenter[Map[String, DetailsRequestsDataResult]] {
 
-	def generateGraphFor(runOn: String, results: Map[String, DetailsRequestsDataResult]) = {
+	def generateChartFor(runOn: String, results: Map[String, DetailsRequestsDataResult]) = {
 		results.foreach {
 			case (requestName, result) =>
 

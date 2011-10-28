@@ -13,24 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.statistics.template
+package com.excilys.ebi.gatling.statistics.generator.builtin
 
-import org.fusesource.scalate._
+import com.excilys.ebi.gatling.statistics.extractor.ActiveSessionsDataExtractor
+import com.excilys.ebi.gatling.statistics.presenter.ActiveSessionsDataPresenter
+import com.excilys.ebi.gatling.statistics.generator.SimpleChartGenerator
 
-import com.excilys.ebi.gatling.core.util.PathHelper._
-
-private[template] class HighstocksColumnTemplate(val columnData: ColumnSeries, val chartTitle: String, val yAxisTitle: String, val toolTip: String) {
-
-	val highstocksEngine = new TemplateEngine
-	highstocksEngine.escapeMarkup = false
-
-	def getOutput: String = {
-		highstocksEngine.layout(GATLING_TEMPLATE_HIGHSTOCKS_COLUMN_FILE,
-			Map("columnData" -> columnData,
-				"chartTitle" -> chartTitle,
-				"yAxisTitle" -> yAxisTitle,
-				"toolTip" -> toolTip,
-				"xCategories" -> columnData.categories))
-	}
-
-}
+class ActiveSessionsChartGenerator extends SimpleChartGenerator(new ActiveSessionsDataExtractor, new ActiveSessionsDataPresenter)

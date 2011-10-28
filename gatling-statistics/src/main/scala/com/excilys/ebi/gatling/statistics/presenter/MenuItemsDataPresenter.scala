@@ -23,7 +23,7 @@ import com.excilys.ebi.gatling.statistics.writer.TemplateWriter
 
 class MenuItemsDataPresenter extends DataPresenter[List[(MenuItemType, String, String)]] {
 
-	def generateGraphFor(runOn: String, results: List[(MenuItemType, String, String)]) = {
+	def generateChartFor(runOn: String, results: List[(MenuItemType, String, String)]) = {
 		var requestLinks: List[(String, String)] = Nil
 		var groupLinks: List[(String, String)] = Nil
 
@@ -37,6 +37,6 @@ class MenuItemsDataPresenter extends DataPresenter[List[(MenuItemType, String, S
 
 		val output = new MenuItemsTemplate(requestLinks, groupLinks).getOutput
 
-		new TemplateWriter(runOn, GATLING_GRAPH_MENU_JS_FILE).writeToFile(output)
+		new TemplateWriter(runOn, GATLING_CHART_MENU_JS_FILE).writeToFile(output)
 	}
 }

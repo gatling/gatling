@@ -29,7 +29,7 @@ import com.excilys.ebi.gatling.core.config.GatlingConfig
 import com.excilys.ebi.gatling.core.util.PathHelper._
 import com.excilys.ebi.gatling.core.util.PropertiesHelper._
 import com.excilys.ebi.gatling.core.util.FileHelper._
-import com.excilys.ebi.gatling.statistics.generator.GraphicsGenerator
+import com.excilys.ebi.gatling.statistics.generator.ChartsGenerator
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import com.excilys.ebi.gatling.app.interpreter.ScalaScriptInterpreter
@@ -121,15 +121,15 @@ object App extends Logging {
 	}
 
 	/**
-	 * This method call the statistics module to generate the graphics and statistics
+	 * This method call the statistics module to generate the charts and statistics
 	 *
 	 * @param folderName The folder from which the simulation.log will be parsed
 	 * @return Nothing
 	 */
 	private def generateStats(folderName: String) = {
-		logger.debug("\nGenerating Graphics and Statistics from Folder Name: {}", folderName)
+		logger.debug("\nGenerating Charts and Statistics from Folder Name: {}", folderName)
 
-		new GraphicsGenerator().generateFor(folderName)
+		new ChartsGenerator().generateFor(folderName)
 	}
 
 	/**

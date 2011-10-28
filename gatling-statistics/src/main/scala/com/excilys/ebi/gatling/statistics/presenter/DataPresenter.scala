@@ -17,5 +17,5 @@ package com.excilys.ebi.gatling.statistics.presenter
 import com.excilys.ebi.gatling.core.log.Logging
 
 abstract class DataPresenter[R] extends Logging {
-	def generateGraphFor(runOn: String, results: R)
+	def generateChartFor(runOn: String, results: R)
 }

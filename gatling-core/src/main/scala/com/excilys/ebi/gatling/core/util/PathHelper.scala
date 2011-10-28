@@ -93,17 +93,17 @@ object PathHelper {
 	val GATLING_ASSETS_HIGHSTOCKS = GATLING_ASSETS_FOLDER + GATLING_JS_HIGHSTOCKS
 
 	/**
-	 * File name of the active sessions graph
+	 * File name of the active sessions chart
 	 */
-	val GATLING_GRAPH_ACTIVE_SESSIONS_FILE = "active_sessions.html"
+	val GATLING_CHART_ACTIVE_SESSIONS_FILE = "active_sessions.html"
 	/**
-	 * File name of the requests graph
+	 * File name of the requests chart
 	 */
-	val GATLING_GRAPH_GLOBAL_REQUESTS_FILE = "requests.html"
+	val GATLING_CHART_GLOBAL_REQUESTS_FILE = "requests.html"
 	/**
 	 * File name of the javascript menu generator
 	 */
-	val GATLING_GRAPH_MENU_JS_FILE = "js/menu.js"
+	val GATLING_CHART_MENU_JS_FILE = "js/menu.js"
 	/**
 	 * File name of the request log file
 	 */
@@ -114,11 +114,11 @@ object PathHelper {
 	 */
 	val GATLING_TEMPLATE_REQUEST_DETAILS_BODY_FILE = "templates/details_requests_body.ssp"
 	/**
-	 * Path to the template for highstocks column graphs
+	 * Path to the template for highstocks column charts
 	 */
 	val GATLING_TEMPLATE_HIGHSTOCKS_COLUMN_FILE = "templates/highstocks_column.ssp"
 	/**
-	 * Path to the template for highstocks time graphs
+	 * Path to the template for highstocks time charts
 	 */
 	val GATLING_TEMPLATE_HIGHSTOCKS_TIME_FILE = "templates/highstocks_time.ssp"
 	/**

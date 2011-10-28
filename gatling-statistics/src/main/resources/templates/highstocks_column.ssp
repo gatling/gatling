@@ -1,7 +1,7 @@
 <%@ val columnData: com.excilys.ebi.gatling.statistics.template.ColumnSeries %>
 <%@ val toolTip: String %>
 <%@ val yAxisTitle: String %>
-<%@ val graphTitle: String %>
+<%@ val chartTitle: String %>
 <%@ val xCategories: List[Double]%>
 
 var column_chart = new Highcharts.StockChart({ 
@@ -13,7 +13,7 @@ var column_chart = new Highcharts.StockChart({
 		zoomType: 'x'
 	},
 	title: { 
-		text: '<%= graphTitle %>',
+		text: '<%= chartTitle %>',
 		x: -20
 	},
 	xAxis: {

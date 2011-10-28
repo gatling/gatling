@@ -18,8 +18,8 @@ package com.excilys.ebi.gatling.statistics.template
 import com.excilys.ebi.gatling.core.util.PathHelper._
 import org.fusesource.scalate.TemplateEngine
 
-private[template] class HighstocksTimeTemplate(val series: List[TimeSeries], val graphTitle: String, val yAxisTitle: String, val toolTip: String, val plotBand: PlotBand) {
-	def this(series: List[TimeSeries], graphTitle: String, yAxisTitle: String, toolTip: String) = this(series, graphTitle, yAxisTitle, toolTip, new PlotBand(0, 0))
+private[template] class HighstocksTimeTemplate(val series: List[TimeSeries], val chartTitle: String, val yAxisTitle: String, val toolTip: String, val plotBand: PlotBand) {
+	def this(series: List[TimeSeries], chartTitle: String, yAxisTitle: String, toolTip: String) = this(series, chartTitle, yAxisTitle, toolTip, new PlotBand(0, 0))
 
 	val highstocksEngine = new TemplateEngine
 	highstocksEngine.escapeMarkup = false
@@ -27,7 +27,7 @@ private[template] class HighstocksTimeTemplate(val series: List[TimeSeries], val
 	def getOutput: String = {
 		highstocksEngine.layout(GATLING_TEMPLATE_HIGHSTOCKS_TIME_FILE,
 			Map("series" -> series,
-				"graphTitle" -> graphTitle,
+				"chartTitle" -> chartTitle,
 				"yAxisTitle" -> yAxisTitle,
 				"toolTip" -> toolTip,
 				"hasPlotBand" -> (plotBand.maxValue != plotBand.minValue),

@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.statistics.generator
+package com.excilys.ebi.gatling.statistics.generator.builtin
 
-import com.excilys.ebi.gatling.statistics.extractor.ActiveSessionsDataExtractor
-import com.excilys.ebi.gatling.statistics.presenter.ActiveSessionsDataPresenter
+import com.excilys.ebi.gatling.statistics.extractor.DetailsRequestsDataExtractor
+import com.excilys.ebi.gatling.statistics.presenter.DetailsRequestsDataPresenter
+import com.excilys.ebi.gatling.statistics.generator.SimpleChartGenerator
 
-class ActiveSessionsGraphicGenerator extends SimpleGraphicGenerator(new ActiveSessionsDataExtractor, new ActiveSessionsDataPresenter)
+class DetailsRequestsChartGenerator extends SimpleChartGenerator(new DetailsRequestsDataExtractor, new DetailsRequestsDataPresenter)

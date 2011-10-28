@@ -19,11 +19,12 @@ import scala.io.Source
 import com.excilys.ebi.gatling.core.config.GatlingConfig._
 import com.excilys.ebi.gatling.core.util.PathHelper._
 import com.excilys.ebi.gatling.core.result.writer.FileDataWriter._
+import com.excilys.ebi.gatling.statistics.generator.builtin._
 import scala.tools.nsc.io.File
 import com.excilys.ebi.gatling.core.log.Logging
 import scala.tools.nsc.io.Directory
 
-class GraphicsGenerator extends Logging {
+class ChartsGenerator extends Logging {
 
 	def generateFor(runOn: String) = {
 
@@ -38,7 +39,7 @@ class GraphicsGenerator extends Logging {
 		jQueryFile.copyTo(jQueryDestPath, true)
 		highstocksFile.copyTo(highstocksDestPath, true)
 
-		val generator = new CompositeGraphicGenerator(new ActiveSessionsGraphicGenerator, new GlobalRequestsGraphicGenerator, new DetailsRequestsGraphicGenerator, new MenuItemsGraphicGenerator)
+		val generator = new CompositeChartGenerator(new ActiveSessionsChartGenerator, new GlobalRequestsChartGenerator, new DetailsRequestsChartGenerator, new MenuItemsChartGenerator)
 
 		for (line <- Source.fromFile(GATLING_RESULTS_FOLDER + "/" + runOn + "/" + GATLING_SIMULATION_LOG_FILE, CONFIG_GATLING_ENCODING).getLines) {
 			line.split("\t") match {
@@ -51,6 +52,6 @@ class GraphicsGenerator extends Logging {
 			}
 		}
 
-		generator.generateGraphFor(runOn)
+		generator.generateChartFor(runOn)
 	}
 }

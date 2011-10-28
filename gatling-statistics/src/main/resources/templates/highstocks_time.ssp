@@ -3,7 +3,7 @@
 <%@ val plotBand: com.excilys.ebi.gatling.statistics.template.PlotBand %>
 <%@ val hasPlotBand: Boolean %>
 <%@ val yAxisTitle: String %>
-<%@ val graphTitle: String %>
+<%@ val chartTitle: String %>
 
 var time_chart = new Highcharts.StockChart({ 
 	chart: {
@@ -14,7 +14,7 @@ var time_chart = new Highcharts.StockChart({
 		zoomType: 'x'
 	},
 	title: {
-		text: '<%= graphTitle %>',
+		text: '<%= chartTitle %>',
 		x: -20 //center
 	},
 	xAxis: { 
