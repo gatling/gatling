@@ -71,7 +71,7 @@
 				<ul></ul></li>
 		</ul>
 		<div id="content">
-			<h1>Results</h1>
+			<h1><%= title %></h1>
 			<div id="container"
 				style="height: 410px; margin: 0 auto; clear: both; min-width: 600px"></div>
 			<%= body %>

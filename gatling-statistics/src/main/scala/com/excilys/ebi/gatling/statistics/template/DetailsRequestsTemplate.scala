@@ -32,8 +32,8 @@ class DetailsRequestsTemplate(val runOn: String, val series: List[TimeSeries], v
 			new HighstocksColumnTemplate(columnData, "Dispersion", "Number of Requests", "{} Requests").getOutput
 
 		val body = bodyEngine.layout(GATLING_TEMPLATE_REQUEST_DETAILS_BODY_FILE,
-			Map("requestName" -> requestName, "result" -> result))
+			Map("result" -> result))
 
-		new LayoutTemplate("Details of '" + requestName + "'", runOn, body, highstocks).getOutput
+		new LayoutTemplate("Details for: " + requestName, runOn, body, highstocks).getOutput
 	}
 }
