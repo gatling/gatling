@@ -34,8 +34,7 @@ class DetailsRequestsDataPresenter extends DataPresenter[Map[String, DetailsRequ
 
 				new TSVFileWriter(runOn, formatToFilename(requestName) + TSV_EXTENSION).writeToFile(result.timeValues.map { e => List(e._1, e._2.toString) })
 
-				val series = List(new TimeSeries(requestName.substring(8), result.timeValues.map { e => (printHighChartsDate(e._1), e._2) }),
-					new TimeSeries("medium", result.timeValues.map { e => (printHighChartsDate(e._1), result.medium) }))
+				val series = List(new TimeSeries(requestName.substring(8), result.timeValues.map { e => (printHighChartsDate(e._1), e._2) }))
 
 				val columnData = new ColumnSeries(requestName.substring(8), result.columnData._1, result.columnData._2)
 

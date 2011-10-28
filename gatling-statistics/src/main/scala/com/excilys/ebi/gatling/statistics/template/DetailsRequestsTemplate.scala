@@ -27,7 +27,7 @@ class DetailsRequestsTemplate(val runOn: String, val series: List[TimeSeries], v
 	bodyEngine.escapeMarkup = false
 
 	def getOutput: String = {
-		val plotBand = new PlotBand(result.medium - result.standardDeviation, result.medium + result.standardDeviation)
+		val plotBand = new PlotBand(0, 0)
 		val highstocks = new HighstocksTimeTemplate(series, "Response Time", "Response Time in ms", "Response Time of {}ms", plotBand).getOutput +
 			new HighstocksColumnTemplate(columnData, "Dispersion", "Number of Requests", "{} Requests").getOutput
 
