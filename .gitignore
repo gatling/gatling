@@ -4,6 +4,7 @@
 .project
 .manager
 .scala_dependencies
+.cache
 
 # building
 target
@@ -15,18 +16,13 @@ dist
 test-output
 build.log
 
+# misc
+.DS_Store
+
 # project files to ignore
 /gatling-assembly/src/main/assembly/assembly-structure/results/*
 !/results/.gitkeep
 
-gatling-http/.cache
-
-gatling-core/.cache
-
-gatling-statistics/.cache
-
-gatling-app/.cache
-
 untracked-scenario*
 
-.DS_Store
+
