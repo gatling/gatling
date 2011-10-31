@@ -18,11 +18,11 @@ package com.excilys.ebi.gatling.statistics.template
 import com.excilys.ebi.gatling.core.util.PathHelper._
 import org.fusesource.scalate.TemplateEngine
 import com.excilys.ebi.gatling.statistics.series.PlotBand
-import com.excilys.ebi.gatling.statistics.series.TimeSeries
+import com.excilys.ebi.gatling.statistics.series.Series
 import com.excilys.ebi.gatling.statistics.series.YAxis
 
-private[template] class HighstocksTimeTemplate(val series: List[TimeSeries], val chartTitle: String, val yAxis: List[YAxis], val toolTip: String, val plotBand: PlotBand) {
-	def this(series: List[TimeSeries], chartTitle: String, yAxis: List[YAxis], toolTip: String) = this(series, chartTitle, yAxis, toolTip, new PlotBand(0, 0))
+private[template] class HighstocksTimeTemplate(val series: List[Series], val chartTitle: String, val yAxis: List[YAxis], val toolTip: String, val plotBand: PlotBand) {
+	def this(series: List[Series], chartTitle: String, yAxis: List[YAxis], toolTip: String) = this(series, chartTitle, yAxis, toolTip, new PlotBand(0, 0))
 
 	val highstocksEngine = new TemplateEngine
 	highstocksEngine.escapeMarkup = false

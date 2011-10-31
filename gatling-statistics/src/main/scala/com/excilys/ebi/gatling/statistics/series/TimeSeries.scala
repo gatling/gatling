@@ -15,9 +15,9 @@
  */
 package com.excilys.ebi.gatling.statistics.series
 
-class TimeSeries(val name: String, val data: List[(String, Double)], yAxis: Int) extends Series {
+class TimeSeries(name: String, data: List[(String, Double)], yAxis: Int) extends Series(name) {
 	override def toString = {
-		"name: '" + name + "', data: " + data.map { e => "[" + e._1 + ", " + e._2 + "]" }.mkString("[ ", ",", " ]") + ", yAxis: " + yAxis
+		"name: '" + name + "', data: " + data.map { e => "[" + e._1 + ", " + e._2 + "]" }.mkString("[ ", ",", " ]") + ", yAxis: " + yAxis + ", type: 'spline'"
 	}
 
 }

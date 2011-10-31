@@ -15,4 +15,4 @@
  */
 package com.excilys.ebi.gatling.statistics.series
 
-trait Series
+abstract class Series(name: String)

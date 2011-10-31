@@ -16,24 +16,26 @@
 package com.excilys.ebi.gatling.statistics.presenter
 
 import com.excilys.ebi.gatling.core.util.PathHelper._
-
 import com.excilys.ebi.gatling.statistics.extractor.GlobalRequestsDataExtractor
 import com.excilys.ebi.gatling.statistics.series.TimeSeries
 import com.excilys.ebi.gatling.statistics.template.GlobalRequestsTemplate
 import com.excilys.ebi.gatling.statistics.utils.HighChartsHelper._
 import com.excilys.ebi.gatling.statistics.writer.TemplateWriter
 import com.excilys.ebi.gatling.statistics.writer.TSVFileWriter
-
 import scala.collection.mutable.LinkedHashMap
 import scala.collection.mutable.ListBuffer
+import com.excilys.ebi.gatling.statistics.series.PieSeries
 
 class GlobalRequestsDataPresenter extends DataPresenter[List[(String, (Double, Double, Double))]] {
 
-	def generateChartFor(runOn: String, results: List[(String, (Double, Double, Double))]) {
+	def generateChartFor(runOn: String, results: List[(String, (Double, Double, Double))]) = {
 		var globalData: List[(String, Double)] = Nil
 		var successData: List[(String, Double)] = Nil
 		var failureData: List[(String, Double)] = Nil
 		var forFile: List[List[String]] = Nil
+
+		var totalNumberOfFailures: Int = 0
+		var totalNumberOfSuccesses: Int = 0
 
 		results.foreach {
 			case (date, (numberOfRequests, numberOfSuccesses, numberOfFailures)) =>
@@ -43,6 +45,9 @@ class GlobalRequestsDataPresenter extends DataPresenter[List[(String, (Double, D
 				successData = (formattedDate, numberOfSuccesses) :: successData
 				failureData = (formattedDate, numberOfFailures) :: failureData
 
+				totalNumberOfSuccesses += numberOfSuccesses.toInt
+				totalNumberOfFailures += numberOfFailures.toInt
+
 				forFile = List(date, numberOfRequests.toString, numberOfSuccesses.toString, numberOfFailures.toString) :: forFile
 		}
 
@@ -50,7 +55,9 @@ class GlobalRequestsDataPresenter extends DataPresenter[List[(String, (Double, D
 
 		def sortData(list: List[(String, Double)]) = list.sortWith((t1, t2) => t1._1 < t2._1)
 
-		val series = List(new TimeSeries("All", sortData(globalData), 0), new TimeSeries("Success", sortData(successData), 0), new TimeSeries("Failures", sortData(failureData), 0))
+		val pieData = List(("Success", totalNumberOfSuccesses, "#89A54E"), ("Failures", totalNumberOfFailures, "#AA4643"))
+
+		val series = List(new TimeSeries("All", sortData(globalData), 0), new TimeSeries("Success", sortData(successData), 0), new TimeSeries("Failures", sortData(failureData), 0), new PieSeries("Requests results", pieData))
 
 		val output = new GlobalRequestsTemplate(runOn, series).getOutput
 

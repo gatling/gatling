@@ -1,4 +1,4 @@
-<%@ val series: List[com.excilys.ebi.gatling.statistics.series.TimeSeries] %>
+<%@ val series: List[com.excilys.ebi.gatling.statistics.series.Series] %>
 <%@ val toolTip: String %>
 <%@ val plotBand: com.excilys.ebi.gatling.statistics.series.PlotBand %>
 <%@ val hasPlotBand: Boolean %>
@@ -65,8 +65,8 @@ var time_chart = new Highcharts.StockChart({
 		}
 	},
 	tooltip: {
-		   pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
-		   yDecimals: 2
+		 pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b><br/>',
+		 yDecimals: 2
 	},
 	legend: {
 		layout: 'vertical',
