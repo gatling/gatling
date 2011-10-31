@@ -13,6 +13,27 @@ var time_chart = new Highcharts.StockChart({
 		marginBottom: 25,
 		zoomType: 'x'
 	},
+	rangeSelector : {
+		buttons : [{
+			type : 'minute',
+			count : 1,
+			text : '1m'
+		}, {
+			type : 'minute',
+			count : 10,
+			text : '10m'
+		}, {
+			type : 'hour',
+			count : 1,
+			text : '1h'
+		}, {
+		    type : 'all',
+		    count : 1,
+		    text : 'All'
+		}],
+		selected : 3,
+		inputEnabled : false
+	},
 	title: {
 		text: '<%= chartTitle %>',
 		x: -20 //center
