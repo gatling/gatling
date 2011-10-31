@@ -3,14 +3,18 @@
 <%@ val yAxisTitle: String %>
 <%@ val chartTitle: String %>
 <%@ val xCategories: List[Double]%>
+<%@ val container: String %>
 
 var column_chart = new Highcharts.StockChart({ 
 	chart: { 
-		renderTo: 'container_column',
+		renderTo: '<%= container %>',
 		defaultSeriesType: 'column',
 		marginRight: 130,
 		marginBottom: 25,
 		zoomType: 'x'
+	},
+	rangeSelector : {
+		enabled: false
 	},
 	title: { 
 		text: '<%= chartTitle %>',

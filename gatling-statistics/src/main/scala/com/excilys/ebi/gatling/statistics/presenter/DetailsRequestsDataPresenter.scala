@@ -37,9 +37,9 @@ class DetailsRequestsDataPresenter extends DataPresenter[Map[String, DetailsRequ
 
 				val series = List(getShared(ALL_ACTIVE_SESSIONS).asInstanceOf[TimeSeries], new TimeSeries(requestName.substring(8), result.timeValues.map { e => (printHighChartsDate(e._1), e._2) }, 1))
 
-				val columnData = new ColumnSeries(requestName.substring(8), result.columnData._1, result.columnData._2)
+				val dispersionData = new ColumnSeries(requestName.substring(8), result.columnData._1, result.columnData._2)
 
-				val output = new DetailsRequestsTemplate(runOn, series, columnData, requestName, result).getOutput
+				val output = new DetailsRequestsTemplate(runOn, series, dispersionData, requestName, result).getOutput
 
 				new TemplateWriter(runOn, formatToFilename(requestName) + HTML_EXTENSION).writeToFile(output)
 		}

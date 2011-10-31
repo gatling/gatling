@@ -12,5 +12,8 @@
 		</ul></li>
 </ul>
 
-<p>Dispersion of requests by response time</p>
-<div id="container_column" style="height: 410px; margin: 0 auto; clear: both; min-width: 600px"></div>
+<h2>Dispersion of requests by total number of requests per second</h2>
+<div id="<%= com.excilys.ebi.gatling.statistics.template.ChartContainer.DISPERSION_CHART %>" style="height: 410px; margin: 0 auto; clear: both; min-width: 600px"></div>
+
+<h2>Indicators</h2>
+<div id="<%= com.excilys.ebi.gatling.statistics.template.ChartContainer.INDICATORS_CHART %>" style="height: 410px; margin: 0 auto; clear: both; min-width: 600px"></div>

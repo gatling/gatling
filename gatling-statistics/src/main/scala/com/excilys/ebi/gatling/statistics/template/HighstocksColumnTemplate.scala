@@ -19,7 +19,7 @@ import org.fusesource.scalate._
 import com.excilys.ebi.gatling.core.util.PathHelper._
 import com.excilys.ebi.gatling.statistics.series.ColumnSeries
 
-private[template] class HighstocksColumnTemplate(val columnData: ColumnSeries, val chartTitle: String, val yAxisTitle: String, val toolTip: String) {
+private[template] class HighstocksColumnTemplate(val columnData: ColumnSeries, val container: String, val chartTitle: String, val yAxisTitle: String, val toolTip: String) {
 
 	val highstocksEngine = new TemplateEngine
 	highstocksEngine.escapeMarkup = false
@@ -27,6 +27,7 @@ private[template] class HighstocksColumnTemplate(val columnData: ColumnSeries, v
 	def getOutput: String = {
 		highstocksEngine.layout(GATLING_TEMPLATE_HIGHSTOCKS_COLUMN_FILE,
 			Map("columnData" -> columnData,
+				"container" -> container,
 				"chartTitle" -> chartTitle,
 				"yAxisTitle" -> yAxisTitle,
 				"toolTip" -> toolTip,

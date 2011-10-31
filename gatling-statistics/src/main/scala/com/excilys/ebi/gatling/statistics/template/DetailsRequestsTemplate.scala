@@ -22,6 +22,7 @@ import com.excilys.ebi.gatling.statistics.series.TimeSeries
 import com.excilys.ebi.gatling.statistics.series.ColumnSeries
 import com.excilys.ebi.gatling.statistics.series.PlotBand
 import com.excilys.ebi.gatling.statistics.series.YAxis
+import com.excilys.ebi.gatling.statistics.template.ChartContainer._
 
 class DetailsRequestsTemplate(val runOn: String, val series: List[TimeSeries], val columnData: ColumnSeries, val requestName: String, val result: DetailsRequestsDataResult) {
 
@@ -31,7 +32,7 @@ class DetailsRequestsTemplate(val runOn: String, val series: List[TimeSeries], v
 	def getOutput: String = {
 		val plotBand = new PlotBand(0, 0)
 		val highstocks = new HighstocksTimeTemplate(series, "Response Time", List(new YAxis("Active Sessions", " users", true, "#4572A7"), new YAxis("Response Time", "ms", false,  "#89A54E")), "Response Time of {}ms", plotBand).getOutput +
-			new HighstocksColumnTemplate(columnData, "Dispersion", "Number of Requests", "{} Requests").getOutput
+			new HighstocksColumnTemplate(columnData, DISPERSION_CHART, "Dispersion", "Number of Requests", "{} Requests").getOutput
 
 		val body = bodyEngine.layout(GATLING_TEMPLATE_REQUEST_DETAILS_BODY_FILE,
 			Map("result" -> result))
