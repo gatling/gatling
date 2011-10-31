@@ -16,11 +16,13 @@
 package com.excilys.ebi.gatling.statistics.template
 
 import com.excilys.ebi.gatling.core.util.StringHelper._
+import com.excilys.ebi.gatling.statistics.series.TimeSeries
+import com.excilys.ebi.gatling.statistics.series.YAxis
 
 class GlobalRequestsTemplate(val runOn: String, val series: List[TimeSeries]) {
 
 	def getOutput: String = {
-		val highstocks = new HighstocksTimeTemplate(series, "Number of requests per second", "Number of requests per second", "{} requests").getOutput
+		val highstocks = new HighstocksTimeTemplate(series, "Number of requests per second", List(new YAxis("Number of requests per second", "req", false)), "{} requests").getOutput
 		new LayoutTemplate("Requests per second", runOn, EMPTY, highstocks).getOutput
 	}
 

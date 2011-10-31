@@ -13,6 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.statistics.template
+package com.excilys.ebi.gatling.statistics.series
 
-class PlotBand(val minValue: Double, val maxValue: Double)
+class TimeSeries(val name: String, val data: List[(String, Double)], yAxis: Int) extends Series {
+	override def toString = {
+		"name: '" + name + "', data: " + data.map { e => "[" + e._1 + ", " + e._2 + "]" }.mkString("[ ", ",", " ]") + ", yAxis: " + yAxis
+	}
+
+}

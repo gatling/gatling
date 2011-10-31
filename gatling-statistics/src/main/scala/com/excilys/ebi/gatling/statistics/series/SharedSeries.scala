@@ -13,10 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.statistics.template
+package com.excilys.ebi.gatling.statistics.series
+import scala.collection.immutable.HashMap
 
-class TimeSeries(val name: String, val data: List[(String, Double)]) {
-	override def toString = {
-		"name: '" + name + "', data: " + data.map { e => "[" + e._1 + ", " + e._2 + "]" }.mkString("[ ", ",", " ]")
+object SharedSeries {
+	private var series = new HashMap[String, Series]
+
+	val ALL_ACTIVE_SESSIONS = "All scenarios"
+
+	def share(key: String, givenSeries: Series) = {
+		series += (key -> givenSeries)
+	}
+
+	def getShared(key: String): Series = {
+		series.get(key).get
 	}
 }

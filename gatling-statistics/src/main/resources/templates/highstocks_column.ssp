@@ -1,4 +1,4 @@
-<%@ val columnData: com.excilys.ebi.gatling.statistics.template.ColumnSeries %>
+<%@ val columnData: com.excilys.ebi.gatling.statistics.series.ColumnSeries %>
 <%@ val toolTip: String %>
 <%@ val yAxisTitle: String %>
 <%@ val chartTitle: String %>

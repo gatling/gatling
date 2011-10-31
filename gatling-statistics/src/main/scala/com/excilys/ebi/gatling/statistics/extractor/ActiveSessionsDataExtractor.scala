@@ -24,6 +24,7 @@ import org.joda.time.Duration
 
 import com.excilys.ebi.gatling.core.util.PathHelper._
 import com.excilys.ebi.gatling.core.util.DateHelper._
+import com.excilys.ebi.gatling.statistics.series.SharedSeries._
 import com.excilys.ebi.gatling.statistics.utils.HighChartsHelper._
 
 class ActiveSessionsDataExtractor extends DataExtractor[LinkedHashMap[String, ListBuffer[(String, Double)]]] {
@@ -100,7 +101,7 @@ class ActiveSessionsDataExtractor extends DataExtractor[LinkedHashMap[String, Li
 			globalCountByTime += ((time, activeUsers))
 		}
 
-		countsByScenarioAndTime += "All scenarios" -> globalCountByTime
+		countsByScenarioAndTime += ALL_ACTIVE_SESSIONS -> globalCountByTime
 
 		countsByScenarioAndTime
 	}

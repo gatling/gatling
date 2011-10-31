@@ -13,17 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.statistics.template
-import com.excilys.ebi.gatling.core.util.StringHelper._
-import com.excilys.ebi.gatling.statistics.series.TimeSeries
-import com.excilys.ebi.gatling.statistics.series.YAxis
+package com.excilys.ebi.gatling.statistics.series
 
-class ActiveSessionsTemplate(val runOn: String, val series: List[TimeSeries]) {
-
-	def getOutput: String = {
-		val highstocks = new HighstocksTimeTemplate(series, "Active Sessions", List(new YAxis("Active Sessions", "users", false)), "{} users").getOutput
-
-		new LayoutTemplate("Active Sessions", runOn, EMPTY, highstocks).getOutput
+class ColumnSeries(val name: String, val categories: List[Double], val values: List[Double]) extends Series {
+	override def toString = {
+		"name: '" + name + "', data: " + values.mkString("[ ", ",", " ]")
 	}
-
 }

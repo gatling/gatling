@@ -16,8 +16,8 @@
 package com.excilys.ebi.gatling.statistics.template
 
 import org.fusesource.scalate._
-
 import com.excilys.ebi.gatling.core.util.PathHelper._
+import com.excilys.ebi.gatling.statistics.series.ColumnSeries
 
 private[template] class HighstocksColumnTemplate(val columnData: ColumnSeries, val chartTitle: String, val yAxisTitle: String, val toolTip: String) {
 

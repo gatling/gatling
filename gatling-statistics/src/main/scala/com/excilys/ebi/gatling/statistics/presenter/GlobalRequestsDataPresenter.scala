@@ -18,11 +18,11 @@ package com.excilys.ebi.gatling.statistics.presenter
 import com.excilys.ebi.gatling.core.util.PathHelper._
 
 import com.excilys.ebi.gatling.statistics.extractor.GlobalRequestsDataExtractor
+import com.excilys.ebi.gatling.statistics.series.TimeSeries
 import com.excilys.ebi.gatling.statistics.template.GlobalRequestsTemplate
-import com.excilys.ebi.gatling.statistics.template.TimeSeries
+import com.excilys.ebi.gatling.statistics.utils.HighChartsHelper._
 import com.excilys.ebi.gatling.statistics.writer.TemplateWriter
 import com.excilys.ebi.gatling.statistics.writer.TSVFileWriter
-import com.excilys.ebi.gatling.statistics.utils.HighChartsHelper._
 
 import scala.collection.mutable.LinkedHashMap
 import scala.collection.mutable.ListBuffer
@@ -50,7 +50,7 @@ class GlobalRequestsDataPresenter extends DataPresenter[List[(String, (Double, D
 
 		def sortData(list: List[(String, Double)]) = list.sortWith((t1, t2) => t1._1 < t2._1)
 
-		val series = List(new TimeSeries("All", sortData(globalData)), new TimeSeries("Success", sortData(successData)), new TimeSeries("Failures", sortData(failureData)))
+		val series = List(new TimeSeries("All", sortData(globalData), 0), new TimeSeries("Success", sortData(successData), 0), new TimeSeries("Failures", sortData(failureData), 0))
 
 		val output = new GlobalRequestsTemplate(runOn, series).getOutput
 

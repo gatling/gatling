@@ -1,8 +1,8 @@
-<%@ val series: List[com.excilys.ebi.gatling.statistics.template.TimeSeries] %>
+<%@ val series: List[com.excilys.ebi.gatling.statistics.series.TimeSeries] %>
 <%@ val toolTip: String %>
-<%@ val plotBand: com.excilys.ebi.gatling.statistics.template.PlotBand %>
+<%@ val plotBand: com.excilys.ebi.gatling.statistics.series.PlotBand %>
 <%@ val hasPlotBand: Boolean %>
-<%@ val yAxisTitle: String %>
+<%@ val yAxis: List[com.excilys.ebi.gatling.statistics.series.YAxis] %>
 <%@ val chartTitle: String %>
 
 var time_chart = new Highcharts.StockChart({ 
@@ -21,16 +21,7 @@ var time_chart = new Highcharts.StockChart({
 		type: 'datetime',
 		maxZoom: 10000 // 10 seconds
 	},
-	yAxis: { 
-		title: { 
-			text: '<%= yAxisTitle %>' 
-		},
-		plotLines: [{ value: 0, width: 1, color:'#808080' }],
-		<% if(hasPlotBand){ %>
-			plotBands: [{ from: <%= plotBand.minValue.toString %>, to: <%= plotBand.maxValue.toString %>, color: 'rgba(68, 170, 213, 0.1)' }], 
-		<% } %>
-		min: 0
-	},
+	yAxis: [ <%= yAxis.mkString("{ ", " },\n{ ", " }") %> ],
 	plotOptions: {
 		spline: { 
 			lineWidth: 1,
@@ -64,6 +55,6 @@ var time_chart = new Highcharts.StockChart({
 		y: 100,
 		borderWidth: 0
 	},
-	series: [ <%= series.mkString("{ ", "},{", " }") %> ],
+	series: [ <%= series.mkString("{ ", "},\n{", " }") %> ],
 	colors: [ '#4572A7', '#89A54E', '#AA4643', '#80699B', '#3D96AE', '#DB843D', '#92A8CD', '#A47D7C', '#B5CA92' ] 
 });

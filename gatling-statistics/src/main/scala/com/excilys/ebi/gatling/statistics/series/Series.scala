@@ -13,10 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.statistics.template
+package com.excilys.ebi.gatling.statistics.series
 
-class ColumnSeries(val name: String, val categories: List[Double], val values: List[Double]) {
-	override def toString = {
-		"name: '" + name + "', data: " + values.mkString("[ ", ",", " ]")
-	}
-}
+trait Series

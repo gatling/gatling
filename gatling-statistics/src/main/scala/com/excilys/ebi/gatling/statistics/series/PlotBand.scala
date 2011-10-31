@@ -13,17 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.statistics.template
-import com.excilys.ebi.gatling.core.util.StringHelper._
-import com.excilys.ebi.gatling.statistics.series.TimeSeries
-import com.excilys.ebi.gatling.statistics.series.YAxis
+package com.excilys.ebi.gatling.statistics.series
 
-class ActiveSessionsTemplate(val runOn: String, val series: List[TimeSeries]) {
-
-	def getOutput: String = {
-		val highstocks = new HighstocksTimeTemplate(series, "Active Sessions", List(new YAxis("Active Sessions", "users", false)), "{} users").getOutput
-
-		new LayoutTemplate("Active Sessions", runOn, EMPTY, highstocks).getOutput
-	}
-
+class PlotBand(val minValue: Double, val maxValue: Double) {
+	override def toString =
+		"from: " + minValue + ", to: " + maxValue + ", color: 'rgba(68, 170, 213, 0.1)'"
 }

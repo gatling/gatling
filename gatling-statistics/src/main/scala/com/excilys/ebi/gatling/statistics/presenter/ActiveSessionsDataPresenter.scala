@@ -16,10 +16,11 @@
 package com.excilys.ebi.gatling.statistics.presenter
 
 import com.excilys.ebi.gatling.core.util.PathHelper._
-import com.excilys.ebi.gatling.statistics.utils.HighChartsHelper._
 
+import com.excilys.ebi.gatling.statistics.series.SharedSeries._
+import com.excilys.ebi.gatling.statistics.series.TimeSeries
 import com.excilys.ebi.gatling.statistics.template.ActiveSessionsTemplate
-import com.excilys.ebi.gatling.statistics.template.TimeSeries
+import com.excilys.ebi.gatling.statistics.utils.HighChartsHelper._
 import com.excilys.ebi.gatling.statistics.writer.TemplateWriter
 import com.excilys.ebi.gatling.statistics.writer.TSVFileWriter
 
@@ -39,7 +40,11 @@ class ActiveSessionsDataPresenter extends DataPresenter[LinkedHashMap[String, Li
 			result =>
 				val (scenarioName, mutableListOfValues) = result
 				val listOfValues = mutableListOfValues.toList
-				seriesList = new TimeSeries(scenarioName, listOfValues.map { e => (printHighChartsDate(e._1), e._2) }) :: seriesList
+				val series = new TimeSeries(scenarioName, listOfValues.map { e => (printHighChartsDate(e._1), e._2) }, 0)
+				seriesList = series :: seriesList
+
+				if (scenarioName == ALL_ACTIVE_SESSIONS)
+					share(ALL_ACTIVE_SESSIONS, series)
 		}
 
 		val output = new ActiveSessionsTemplate(runOn, seriesList).getOutput
