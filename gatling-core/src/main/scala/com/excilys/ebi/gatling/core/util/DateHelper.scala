@@ -26,7 +26,7 @@ object DateHelper {
 	/**
 	 * Formatter for human readable dates (logs)
 	 */
-	private val resultDateTimeFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+	private val resultDateTimeFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS")
 
 	/**
 	 * Formatter for folder dates
