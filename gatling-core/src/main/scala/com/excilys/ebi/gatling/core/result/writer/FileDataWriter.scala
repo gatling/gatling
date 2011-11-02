@@ -62,7 +62,7 @@ class FileDataWriter extends DataWriter {
 	 */
 	def receive = {
 		// If the message comes from an action
-		case ActionInfo(scenarioName, userId, action, executionStartDate, executionDuration, resultStatus, resultMessage, groups) ⇒ {
+		case ActionInfo(scenarioName, userId, action, executionStartDate, executionDuration, resultStatus, resultMessage, groups) => {
 			// Builds the line to be written
 			val strBuilder = new StringBuilder
 			strBuilder.append(runOn).append("\t")
@@ -88,7 +88,7 @@ class FileDataWriter extends DataWriter {
 		}
 
 		// If the message is sent to initialize the writer
-		case InitializeDataWriter(runOn, latch) ⇒ {
+		case InitializeDataWriter(runOn, latch) => {
 			// Initialize files and folders that will be used to write the logs
 			val dir = new File(GATLING_RESULTS_FOLDER + "/" + printFileNameDate(runOn))
 			dir.mkdir
