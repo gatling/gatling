@@ -63,19 +63,6 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 		(processors.get(httpPhase).isDefined && !hasSentLog.get()) || httpPhase == HeadersReceived
 	}
 
-	private def isContinueAfterPhase(httpPhase: HttpPhase): Boolean = {
-		httpPhase match {
-			case StatusReceived =>
-				isPhaseToBeProcessed(HeadersReceived) || isPhaseToBeProcessed(CompletePageReceived)
-			case HeadersReceived =>
-				isPhaseToBeProcessed(CompletePageReceived)
-			case CompletePageReceived =>
-				false
-			case _ =>
-				throw new IllegalArgumentException("Phase not supported " + httpPhase)
-		}
-	}
-
 	private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String) = {
 		if (hasSentLog.compareAndSet(false, true)) {
 			actorFor(context.getWriteActorUuid).map { a =>
