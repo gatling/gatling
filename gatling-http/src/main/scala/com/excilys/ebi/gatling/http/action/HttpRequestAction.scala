@@ -15,22 +15,21 @@
  */
 package com.excilys.ebi.gatling.http.action
 
-import com.excilys.ebi.gatling.core.action.{ Action, RequestAction }
+
+import scala.collection.mutable.{HashSet => MHashSet}
+
+import com.excilys.ebi.gatling.core.action.{RequestAction, Action}
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.ahc.CustomAsyncHandler
-import com.excilys.ebi.gatling.http.processor.check.HttpStatusCheck
 import com.excilys.ebi.gatling.http.processor.builder.HttpProcessorBuilder
+import com.excilys.ebi.gatling.http.processor.check.HttpStatusCheck
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
-import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.excilys.ebi.gatling.http.resource.HttpClientResource
-import com.excilys.ebi.gatling.core.util.StringHelper._
-import com.ning.http.client.AsyncHttpClient
-import scala.collection.mutable.{ HashMap, MultiMap, Set => MSet }
-import com.ning.http.client.AsyncHttpClientConfig
-import org.joda.time.DateTime
+import com.ning.http.client.{AsyncHttpClientConfig, AsyncHttpClient}
 
 object HttpRequestAction {
 	val CLIENT: AsyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setCompressionEnabled(true).build())
@@ -39,13 +38,13 @@ object HttpRequestAction {
 class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilders: Option[List[HttpProcessorBuilder]], groups: List[String], feeder: Option[Feeder])
 		extends RequestAction(next, request, givenProcessorBuilders, groups, feeder) {
 
-	val processors: MultiMap[HttpPhase, HttpProcessor] = new HashMap[HttpPhase, MSet[HttpProcessor]] with MultiMap[HttpPhase, HttpProcessor]
+	var processors = new MHashSet[HttpProcessor]
 
 	givenProcessorBuilders match {
 		case Some(list) => {
 			for (processorBuilder <- list) {
 				val processor = processorBuilder.build
-				processors.addBinding(processor.getHttpPhase, processor)
+				processors.add(processor)
 				logger.debug("  -- Adding {} to {} Phase", processor, processor.getHttpPhase)
 			}
 		}
@@ -53,20 +52,19 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilde
 	}
 
 	// Adds default checks (they won't be added if overridden by user)
-	processors.addBinding(StatusReceived, new HttpStatusCheck((200 to 210).mkString(":"), EMPTY))
+	processors.add(new HttpStatusCheck((200 to 210).mkString(":"), EMPTY))
 
 	def execute(context: Context) = {
-		val objects = new Array[java.lang.Object](3)
-		objects(0) = request.name
-		objects(1) = context.getScenarioName
-		objects(2) = context.getUserId.toString
-		logger.info("Sending Request '{}': Scenario '{}', UserId #{}", objects)
+
+		if (logger.isInfoEnabled()) {
+			logger.info("Sending Request '{}': Scenario '{}', UserId #{}", Array(request.name, context.getScenarioName, context.getUserId.toString))
+		}
 
 		feeder.map {
 			feeder =>
 				context.setAttributes(feeder.next)
 		}
 
-		HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new CustomAsyncHandler(context, processors, next, System.nanoTime, DateTime.now(), request.getName, groups))
+		HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new CustomAsyncHandler(context, processors, next, request.getName, groups))
 	}
 }

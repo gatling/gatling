@@ -15,41 +15,45 @@
  */
 package com.excilys.ebi.gatling.http.ahc
 
-import scala.collection.mutable.{ MultiMap, HashMap }
-import scala.collection.immutable.{ HashSet, HashMap => IHashMap }
-import scala.collection.{ Set => CSet }
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.TimeUnit
+
+import scala.collection.immutable.HashMap
+import scala.collection.mutable.{Set => MSet, HashMap => MHashMap, MultiMap}
+
+import org.jboss.netty.handler.codec.http.HttpHeaders.Names.SET_COOKIE
+import org.joda.time.DateTime
+
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.provider.capture.AbstractCaptureProvider
 import com.excilys.ebi.gatling.core.provider.ProviderType
-import com.excilys.ebi.gatling.core.result.message.ResultStatus._
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ResultStatus, OK, KO}
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
-import com.excilys.ebi.gatling.http.request.HttpPhase._
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
 import com.excilys.ebi.gatling.http.processor.check.HttpCheck
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
-import com.excilys.ebi.gatling.http.util.GatlingHttpHelper._
-import com.excilys.ebi.gatling.core.util.StringHelper._
+import com.excilys.ebi.gatling.http.request.HttpPhase.{StatusReceived, HttpPhase, HeadersReceived, CompletePageReceived}
+import com.excilys.ebi.gatling.http.util.GatlingHttpHelper.COOKIES_CONTEXT_KEY
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
-import com.ning.http.client.AsyncHandler
-import com.ning.http.client.HttpResponseBodyPart
-import com.ning.http.client.HttpResponseHeaders
-import com.ning.http.client.HttpResponseStatus
-import com.ning.http.client.Response
-import com.ning.http.client.FluentCaseInsensitiveStringsMap
-import com.ning.http.client.Cookie
-import com.ning.http.util.AsyncHttpProviderUtils._
-import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
-import akka.actor.Actor.registry._
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
-import org.joda.time.DateTime
+import com.ning.http.client.{Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler}
+import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
 
-class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpProcessor], next: Action, executionStartTimeNano: Long,
-	executionStartDate: DateTime, requestName: String, groups: List[String])
-		extends AsyncHandler[Response] with Logging {
+import akka.actor.Actor.registry.actorFor
+
+class CustomAsyncHandler(context: Context, processors: MSet[HttpProcessor], next: Action, requestName: String, groups: List[String]) extends AsyncHandler[Response] with Logging {
+
+	private val executionStartTimeNano = System.nanoTime
+
+	private val executionStartDate = DateTime.now()
+	
+	private var processingStartTimeNano = executionStartTimeNano
+
+	private val indexedProcessors: MultiMap[HttpPhase, HttpProcessor] = new MHashMap[HttpPhase, MSet[HttpProcessor]] with MultiMap[HttpPhase, HttpProcessor]
+	processors.foreach(processor => indexedProcessors.addBinding(processor.getHttpPhase, processor))
 
 	private val identifier = requestName + context.getUserId
 
@@ -57,10 +61,8 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
 	private val hasSentLog = new AtomicBoolean(false)
 
-	private var processingStartTimeNano = System.nanoTime()
-
 	private def isPhaseToBeProcessed(httpPhase: HttpPhase): Boolean = {
-		(processors.get(httpPhase).isDefined && !hasSentLog.get()) || httpPhase == HeadersReceived
+		(indexedProcessors.get(httpPhase).isDefined && !hasSentLog.get()) || httpPhase == HeadersReceived
 	}
 
 	private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String) = {
@@ -72,16 +74,16 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
 			context.setAttribute(Context.LAST_ACTION_DURATION_KEY, System.nanoTime() - processingStartTimeNano)
 
-			logger.debug("Context Cookies sent to next action: {}", context.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(IHashMap.empty))
+			logger.debug("Context Cookies sent to next action: {}", context.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty))
 			next.execute(context)
 		}
 	}
 
 	private def processResponse(httpPhase: HttpPhase, placeToSearch: Any) {
 
-		def prepareProviders(processors: CSet[HttpProcessor], placeToSearch: Any): HashMap[ProviderType, AbstractCaptureProvider] = {
+		def prepareProviders(processors: MSet[HttpProcessor], placeToSearch: Any): MHashMap[ProviderType, AbstractCaptureProvider] = {
 
-			val providers: HashMap[ProviderType, AbstractCaptureProvider] = HashMap.empty
+			val providers: MHashMap[ProviderType, AbstractCaptureProvider] = MHashMap.empty
 			processors.foreach { processor =>
 				val providerType = processor.getProviderType
 				if (providers.get(providerType).isEmpty)
@@ -91,14 +93,12 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 			providers
 		}
 
-		def getPreparedProvider(processor: HttpCapture, providers: HashMap[ProviderType, AbstractCaptureProvider]) = providers.get(processor.getProviderType).getOrElse(throw new IllegalArgumentException);
+		def getPreparedProvider(processor: HttpCapture, providers: MHashMap[ProviderType, AbstractCaptureProvider]) = providers.get(processor.getProviderType).getOrElse(throw new IllegalArgumentException);
 
 		def captureData(processor: HttpCapture, provider: AbstractCaptureProvider) = provider.capture(processor.expressionFormatter.apply(context))
 
 		if (isPhaseToBeProcessed(httpPhase)) {
-			logger.debug("Processors at {} : {}", httpPhase, processors.get(httpPhase))
-
-			val phaseProcessors = processors.get(httpPhase).getOrElse(new HashSet[HttpProcessor])
+			val phaseProcessors = indexedProcessors.get(httpPhase).get
 
 			val providers = prepareProviders(phaseProcessors, placeToSearch)
 
@@ -152,7 +152,7 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 
 			val setCookieHeaders = headersMap.get(SET_COOKIE)
 			if (setCookieHeaders != null) {
-				var contextCookies = context.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(IHashMap.empty).asInstanceOf[IHashMap[String, Cookie]]
+				var contextCookies = context.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty).asInstanceOf[HashMap[String, Cookie]]
 
 				val it = setCookieHeaders.iterator
 				while (it.hasNext) {
@@ -189,6 +189,9 @@ class CustomAsyncHandler(context: Context, processors: MultiMap[HttpPhase, HttpP
 	def onThrowable(throwable: Throwable) = {
 		logger.error("{}\n{}", throwable.getClass, throwable.getStackTraceString)
 		sendLogAndExecuteNext(KO, throwable.getMessage)
+	}
+
+xt(KO, throwable.getMessage)
 	}
 
 }
