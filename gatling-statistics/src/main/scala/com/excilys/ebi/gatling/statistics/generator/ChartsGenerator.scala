@@ -30,14 +30,17 @@ class ChartsGenerator extends Logging {
 
 		val jQueryFile = File(GATLING_ASSETS_JQUERY)
 		val highstocksFile = File(GATLING_ASSETS_HIGHSTOCKS)
+		val highchartsFile = File(GATLING_ASSETS_HIGHCHARTS)
 
 		val jsAssetsPath = GATLING_RESULTS_FOLDER + "/" + runOn + GATLING_JS
 		val jQueryDestPath = jsAssetsPath + GATLING_JQUERY
 		val highstocksDestPath = jsAssetsPath + GATLING_HIGHSTOCKS
+		val highchartsDestPath = jsAssetsPath + GATLING_HIGHCHARTS
 
 		File(jsAssetsPath).toDirectory.createDirectory()
 		jQueryFile.copyTo(jQueryDestPath, true)
 		highstocksFile.copyTo(highstocksDestPath, true)
+		highchartsFile.copyTo(highchartsDestPath, true)
 
 		val generator = new CompositeChartGenerator(new ActiveSessionsChartGenerator, new GlobalRequestsChartGenerator, new DetailsRequestsChartGenerator, new MenuItemsChartGenerator)
 

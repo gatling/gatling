@@ -63,6 +63,7 @@ object PathHelper {
 	val GATLING_JS = "/js"
 	val GATLING_JQUERY = "/jquery.min.js"
 	val GATLING_HIGHSTOCKS = "/highstocks.js"
+	val GATLING_HIGHCHARTS = "/highcharts.js"
 	/**
 	 * Path to JQuery library in results
 	 */
@@ -71,6 +72,7 @@ object PathHelper {
 	 * Path to Highstocks library in results
 	 */
 	val GATLING_JS_HIGHSTOCKS = GATLING_JS + GATLING_HIGHSTOCKS
+	val GATLING_JS_HIGHCHARTS = GATLING_JS + GATLING_HIGHCHARTS
 	/**
 	 * Path to raw results
 	 */
@@ -91,6 +93,7 @@ object PathHelper {
 	 * Path to Highstocks library in assets
 	 */
 	val GATLING_ASSETS_HIGHSTOCKS = GATLING_ASSETS_FOLDER + GATLING_JS_HIGHSTOCKS
+	val GATLING_ASSETS_HIGHCHARTS = GATLING_ASSETS_FOLDER + GATLING_JS_HIGHCHARTS
 
 	/**
 	 * File name of the active sessions chart
@@ -116,7 +119,7 @@ object PathHelper {
 	/**
 	 * Path to the template for highstocks column charts
 	 */
-	val GATLING_TEMPLATE_HIGHSTOCKS_COLUMN_FILE = "templates/highstocks_column.ssp"
+	val GATLING_TEMPLATE_HIGHSTOCKS_COLUMN_FILE = "templates/highcharts_column.ssp"
 	/**
 	 * Path to the template for highstocks time charts
 	 */

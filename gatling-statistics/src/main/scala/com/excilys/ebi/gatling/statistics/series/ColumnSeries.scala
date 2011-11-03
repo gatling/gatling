@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.statistics.series
 
-class ColumnSeries(name: String, val categories: List[Double], values: List[Double]) extends Series(name) {
+class ColumnSeries(name: String, val categories: List[String], values: List[Double]) extends Series(name) {
 	override def toString = {
 		"name: '" + name + "', data: " + values.mkString("[ ", ",", " ]") + ", type: 'column'"
 	}
