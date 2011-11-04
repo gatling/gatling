@@ -23,6 +23,6 @@ import com.ning.http.client.Response
 object HttpXPathProviderType extends ProviderType[Response] {
 	def getProvider(response: Response) = {
 		logger.debug("Instantiation of XPathCaptureProvider")
-		new XPathCaptureProvider(response.getResponseBodyAsBytes)
+		new XPathCaptureProvider(response.getResponseBodyAsStream)
 	}
 }

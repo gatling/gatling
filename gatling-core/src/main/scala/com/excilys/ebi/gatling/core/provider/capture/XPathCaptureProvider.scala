@@ -19,7 +19,17 @@ import com.ximpleware.CustomVTDGen
 import com.ximpleware.VTDNav
 import com.ximpleware.AutoPilot
 import com.excilys.ebi.gatling.core.util.StringHelper._
+import javax.xml.parsers.DocumentBuilderFactory
+import java.io.InputStream
+import org.jaxen.XPath
+import org.jaxen.dom.DOMXPath
 
+object XPathCaptureProvider {
+	private val factory = DocumentBuilderFactory.newInstance
+	factory.setNamespaceAware(false) // Should be configurable as well as other features of this factory
+
+	val parser = factory.newDocumentBuilder
+}
 /**
  * This class is a built-in provider that helps searching with XPath Expressions
  *
@@ -28,14 +38,9 @@ import com.excilys.ebi.gatling.core.util.StringHelper._
  * @constructor creates a new XPathCaptureProvider
  * @param xmlContent the XML document as bytes in which the XPath search will be applied
  */
-class XPathCaptureProvider(xmlContent: Array[Byte]) extends AbstractCaptureProvider {
+class XPathCaptureProvider(xmlContent: InputStream) extends AbstractCaptureProvider {
 
-	val vtdEngine = new CustomVTDGen
-	vtdEngine.setDoc(xmlContent)
-	vtdEngine.parse(false)
-
-	var vn = vtdEngine.getNav()
-	var ap = new AutoPilot(vn)
+	val document = XPathCaptureProvider.parser.parse(xmlContent)
 
 	/**
 	 * The actual capture happens here. The XPath expression is searched for and the first
@@ -46,13 +51,17 @@ class XPathCaptureProvider(xmlContent: Array[Byte]) extends AbstractCaptureProvi
 	 */
 	def capture(expression: Any): Option[String] = {
 		logger.debug("[XPathCaptureProvider] Capturing with expression : {}", expression)
-		ap.selectXPath(expression.toString)
-		val result = ap.evalXPathToString
-		val value = if (result.equals(EMPTY))
+
+		val xpathExpression: XPath = new DOMXPath(expression.toString);
+
+		val results = xpathExpression.selectNodes(document)
+
+		val result = if (results.isEmpty())
 			None
 		else
-			Some(ap.evalXPathToString)
-		logger.debug("XPATH CAPTURE: {}", value)
-		value
+			Some(results.get(0).toString) // FIXME: one can choose which result to get
+
+		logger.debug("XPATH CAPTURE: {}", result)
+		result
 	}
 }
