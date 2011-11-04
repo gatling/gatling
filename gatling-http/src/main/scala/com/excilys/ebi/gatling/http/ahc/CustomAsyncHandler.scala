@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.TimeUnit
 
 import scala.collection.immutable.HashMap
-import scala.collection.mutable.{Set => MSet, HashMap => MHashMap, MultiMap}
+import scala.collection.mutable.{ Set => MSet, HashMap => MHashMap, MultiMap }
 
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.SET_COOKIE
 import org.joda.time.DateTime
@@ -29,27 +29,27 @@ import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.provider.capture.AbstractCaptureProvider
 import com.excilys.ebi.gatling.core.provider.ProviderType
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ResultStatus, OK, KO}
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ ResultStatus, OK, KO }
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
 import com.excilys.ebi.gatling.http.processor.check.HttpCheck
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
-import com.excilys.ebi.gatling.http.request.HttpPhase.{StatusReceived, HttpPhase, HeadersReceived, CompletePageReceived}
+import com.excilys.ebi.gatling.http.request.HttpPhase.{ StatusReceived, HttpPhase, HeadersReceived, CompletePageReceived }
 import com.excilys.ebi.gatling.http.util.GatlingHttpHelper.COOKIES_CONTEXT_KEY
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
-import com.ning.http.client.{Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler}
+import com.ning.http.client.{ Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler }
 import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
 
 import akka.actor.Actor.registry.actorFor
 
-class CustomAsyncHandler(context: Context, processors: MSet[HttpProcessor], next: Action, requestName: String, groups: List[String]) extends AsyncHandler[Response] with Logging {
+class CustomAsyncHandler(context: Context, processors: MSet[HttpProcessor], next: Action, requestName: String, groups: List[String]) extends AsyncHandler[Void] with Logging {
 
 	private val executionStartTimeNano = System.nanoTime
 
 	private val executionStartDate = DateTime.now()
-	
+
 	private var processingStartTimeNano = executionStartTimeNano
 
 	private val indexedProcessors: MultiMap[HttpPhase, HttpProcessor] = new MHashMap[HttpPhase, MSet[HttpProcessor]] with MultiMap[HttpPhase, HttpProcessor]
@@ -87,25 +87,23 @@ class CustomAsyncHandler(context: Context, processors: MSet[HttpProcessor], next
 			processors.foreach { processor =>
 				val providerType = processor.getProviderType
 				if (providers.get(providerType).isEmpty)
-					providers += (providerType -> providerType.getProvider(placeToSearch))
+					providers += providerType -> providerType.getProvider(placeToSearch)
 			}
 
 			providers
 		}
-
-		def getPreparedProvider(processor: HttpCapture, providers: MHashMap[ProviderType, AbstractCaptureProvider]) = providers.get(processor.getProviderType).getOrElse(throw new IllegalArgumentException);
 
 		def captureData(processor: HttpCapture, provider: AbstractCaptureProvider) = provider.capture(processor.expressionFormatter.apply(context))
 
 		if (isPhaseToBeProcessed(httpPhase)) {
 			val phaseProcessors = indexedProcessors.get(httpPhase).get
 
-			val providers = prepareProviders(phaseProcessors, placeToSearch)
+			val phaseProviders = prepareProviders(phaseProcessors, placeToSearch)
 
 			for (processor <- phaseProcessors) {
 				processor match {
 					case c: HttpCapture =>
-						val provider = getPreparedProvider(c, providers)
+						val provider = phaseProviders.get(processor.getProviderType).get
 						val value = captureData(c, provider)
 						logger.debug("Captured Value: {}", value)
 
@@ -118,7 +116,7 @@ class CustomAsyncHandler(context: Context, processors: MSet[HttpProcessor], next
 
 						if (isResultValid) {
 							if (c.getAttrKey != EMPTY && value.isDefined)
-								context setAttribute (c.getAttrKey, value.get.toString)
+								context.setAttribute(c.getAttrKey, value.get.toString)
 						} else {
 							if (c.isInstanceOf[HttpCheck])
 								logger.warn("CHECK RESULT: false expected {} but received {}", c, value)
@@ -177,7 +175,7 @@ class CustomAsyncHandler(context: Context, processors: MSet[HttpProcessor], next
 		STATE.CONTINUE
 	}
 
-	def onCompleted(): Response = {
+	def onCompleted(): Void = {
 		if (isPhaseToBeProcessed(CompletePageReceived)) {
 			val response = responseBuilder.build
 			processResponse(CompletePageReceived, response)
@@ -190,8 +188,4 @@ class CustomAsyncHandler(context: Context, processors: MSet[HttpProcessor], next
 		logger.error("{}\n{}", throwable.getClass, throwable.getStackTraceString)
 		sendLogAndExecuteNext(KO, throwable.getMessage)
 	}
-
-xt(KO, throwable.getMessage)
-	}
-
 }
