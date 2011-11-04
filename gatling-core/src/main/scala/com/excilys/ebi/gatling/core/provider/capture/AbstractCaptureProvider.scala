@@ -24,10 +24,8 @@ import com.excilys.ebi.gatling.core.log.Logging
  * Typically, we can think of Regular Expressions.
  *
  * There are built-in providers, but module writers could write their own
- *
- * @param placeToSearch the place in which the search is made
  */
-abstract class AbstractCaptureProvider(placeToSearch: Any) extends Logging {
+abstract class AbstractCaptureProvider extends Logging {
 	/**
 	 * this method does the actual capture of the expression in placeToSearch
 	 *
