@@ -45,7 +45,7 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilde
 			for (processorBuilder <- list) {
 				val processor = processorBuilder.build
 				processors.add(processor)
-				logger.debug("  -- Adding {} to {} Phase", processor, processor.getHttpPhase)
+				logger.debug("  -- Building {} with phase {}", processor, processor.getHttpPhase)
 			}
 		}
 		case None => {}
