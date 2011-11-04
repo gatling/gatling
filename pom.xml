@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.excilys.ebi.gatling</groupId>
 	<artifactId>gatling-parent</artifactId>
@@ -76,6 +77,9 @@
 		<ahc.version>1.7.0-20111026AHC117</ahc.version>
 		<akka.version>1.2</akka.version>
 		<vtdxml.version>2.10</vtdxml.version>
+		<jaxen.version>1.1.3</jaxen.version>
+		<xerces.version>2.11.0</xerces.version>
+		<xml-apis.version>1.4.01</xml-apis.version>
 		<logback.version>1.0.0</logback.version>
 		<slf4j.version>1.6.4</slf4j.version>
 		<scalate.version>1.5.2</scalate.version>
@@ -158,6 +162,43 @@
 				<groupId>com.ximpleware</groupId>
 				<artifactId>vtd-xml</artifactId>
 				<version>${vtdxml.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>jaxen</groupId>
+				<artifactId>jaxen</artifactId>
+				<version>${jaxen.version}</version>
+				<exclusions>
+					<exclusion>
+						<artifactId>xmlParserAPIs</artifactId>
+						<groupId>xerces</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>xalan</artifactId>
+						<groupId>xalan</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>xom</artifactId>
+						<groupId>xom</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>jdom</artifactId>
+						<groupId>jdom</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>dom4j</artifactId>
+						<groupId>dom4j</groupId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>xerces</groupId>
+				<artifactId>xercesImpl</artifactId>
+				<version>${xerces.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>xml-apis</groupId>
+				<artifactId>xml-apis</artifactId>
+				<version>${xml-apis.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>ch.qos.logback</groupId>
