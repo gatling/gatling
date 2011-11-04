@@ -15,9 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.provider.capture
 
-import com.ximpleware.CustomVTDGen
-import com.ximpleware.VTDNav
-import com.ximpleware.AutoPilot
 import com.excilys.ebi.gatling.core.util.StringHelper._
 import javax.xml.parsers.DocumentBuilderFactory
 import java.io.InputStream

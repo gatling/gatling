@@ -25,10 +25,6 @@
 			<artifactId>akka-typed-actor</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.ximpleware</groupId>
-			<artifactId>vtd-xml</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>jaxen</groupId>
 			<artifactId>jaxen</artifactId>
 		</dependency>
