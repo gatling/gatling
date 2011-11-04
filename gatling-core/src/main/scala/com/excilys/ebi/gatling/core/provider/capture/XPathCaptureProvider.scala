@@ -23,6 +23,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 import java.io.InputStream
 import org.jaxen.XPath
 import org.jaxen.dom.DOMXPath
+import org.w3c.dom.Node
 
 object XPathCaptureProvider {
 	private val factory = DocumentBuilderFactory.newInstance
@@ -54,12 +55,12 @@ class XPathCaptureProvider(xmlContent: InputStream) extends AbstractCaptureProvi
 
 		val xpathExpression: XPath = new DOMXPath(expression.toString);
 
-		val results = xpathExpression.selectNodes(document)
+		val results = xpathExpression.selectNodes(document).asInstanceOf[java.util.List[Node]] // FIXME: Node is in org.w3c.dom. Which DOM implementation is the best ?
 
 		val result = if (results.isEmpty())
 			None
 		else
-			Some(results.get(0).toString) // FIXME: one can choose which result to get
+			Some(results.get(0).getTextContent) // FIXME: one can choose which result to get
 
 		logger.debug("XPATH CAPTURE: {}", result)
 		result
