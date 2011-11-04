@@ -20,9 +20,9 @@ import com.excilys.ebi.gatling.http.provider.capture.HttpHeadersCaptureProvider
 import com.ning.http.client.FluentCaseInsensitiveStringsMap
 import com.ning.http.client.Response
 
-object HttpHeaderProviderType extends ProviderType {
-	def getProvider(response: Any) = {
+object HttpHeaderProviderType extends ProviderType[Response] {
+	def getProvider(response: Response) = {
 		logger.debug("Instantiation of HttpHeadersCaptureProvider")
-		new HttpHeadersCaptureProvider(response.asInstanceOf[Response])
+		new HttpHeadersCaptureProvider(response)
 	}
 }

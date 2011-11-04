@@ -21,11 +21,11 @@ import com.excilys.ebi.gatling.core.log.Logging
 /**
  * This trait is used to define different types of Providers
  */
-trait ProviderType extends Logging {
+trait ProviderType[P] extends Logging {
 	/**
 	 * Method that will generate the adequate ProviderBuilder
 	 *
 	 * @param placeToSearch the place in which the search will take place
 	 */
-	def getProvider(placeToSearch: Any): AbstractCaptureProvider
+	def getProvider(placeToSearch: P): AbstractCaptureProvider
 }

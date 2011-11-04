@@ -20,9 +20,9 @@ import com.excilys.ebi.gatling.core.provider.capture.XPathCaptureProvider
 
 import com.ning.http.client.Response
 
-object HttpXPathProviderType extends ProviderType {
-	def getProvider(response: Any) = {
+object HttpXPathProviderType extends ProviderType[Response] {
+	def getProvider(response: Response) = {
 		logger.debug("Instantiation of XPathCaptureProvider")
-		new XPathCaptureProvider(response.asInstanceOf[Response].getResponseBodyAsBytes)
+		new XPathCaptureProvider(response.getResponseBodyAsBytes)
 	}
 }

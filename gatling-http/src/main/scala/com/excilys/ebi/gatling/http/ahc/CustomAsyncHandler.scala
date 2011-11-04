@@ -118,13 +118,13 @@ class CustomAsyncHandler(context: Context, processors: MSet[HttpProcessor], next
 
 	private def processResponse(response: Response) {
 
-		def prepareProviders(processors: MSet[HttpProcessor], placeToSearch: Any): MHashMap[ProviderType, AbstractCaptureProvider] = {
+		def prepareProviders(processors: MSet[HttpProcessor], response: Response): MHashMap[ProviderType[Response], AbstractCaptureProvider] = {
 
-			val providers: MHashMap[ProviderType, AbstractCaptureProvider] = MHashMap.empty
+			val providers: MHashMap[ProviderType[Response], AbstractCaptureProvider] = MHashMap.empty
 			processors.foreach { processor =>
 				val providerType = processor.getProviderType
 				if (providers.get(providerType).isEmpty)
-					providers += providerType -> providerType.getProvider(placeToSearch)
+					providers += providerType -> providerType.getProvider(response)
 			}
 
 			providers
@@ -156,8 +156,8 @@ class CustomAsyncHandler(context: Context, processors: MSet[HttpProcessor], next
 								sendLogAndExecuteNext(KO, c + " failed", Some(processingStartTimeNano))
 								return
 
-							} else if (c.getAttrKey != EMPTY) {
-								context.setAttribute(c.getAttrKey, value.get.toString)
+							} else if (c.attrKey != EMPTY) {
+								context.setAttribute(c.attrKey, value.get.toString)
 							}
 
 						case _ => throw new IllegalArgumentException
