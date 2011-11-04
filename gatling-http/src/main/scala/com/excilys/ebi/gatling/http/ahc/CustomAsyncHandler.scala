@@ -15,11 +15,11 @@
  */
 package com.excilys.ebi.gatling.http.ahc
 
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.TimeUnit
 
 import scala.collection.immutable.HashMap
-import scala.collection.mutable.{ Set => MSet, HashMap => MHashMap, MultiMap }
+import scala.collection.mutable.{Set => MSet}
+import scala.collection.mutable.{MultiMap, HashMap => MHashMap}
 
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.SET_COOKIE
 import org.joda.time.DateTime
@@ -29,17 +29,18 @@ import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.provider.capture.AbstractCaptureProvider
 import com.excilys.ebi.gatling.core.provider.ProviderType
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ ResultStatus, OK, KO }
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ResultStatus, OK, KO}
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.processor.capture.HttpCapture
 import com.excilys.ebi.gatling.http.processor.check.HttpCheck
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
-import com.excilys.ebi.gatling.http.request.HttpPhase.{ StatusReceived, HttpPhase, HeadersReceived, CompletePageReceived }
+import com.excilys.ebi.gatling.http.request.HttpPhase.{HttpPhase, CompletePageReceived}
+import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.excilys.ebi.gatling.http.util.GatlingHttpHelper.COOKIES_CONTEXT_KEY
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
-import com.ning.http.client.{ Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler }
+import com.ning.http.client.{Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler}
 import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
 
 import akka.actor.Actor.registry.actorFor
@@ -50,102 +51,21 @@ class CustomAsyncHandler(context: Context, processors: MSet[HttpProcessor], next
 
 	private val executionStartDate = DateTime.now()
 
-	private var processingStartTimeNano = executionStartTimeNano
-
 	private val indexedProcessors: MultiMap[HttpPhase, HttpProcessor] = new MHashMap[HttpPhase, MSet[HttpProcessor]] with MultiMap[HttpPhase, HttpProcessor]
 	processors.foreach(processor => indexedProcessors.addBinding(processor.getHttpPhase, processor))
 
 	private val identifier = requestName + context.getUserId
 
-	private val responseBuilder: ResponseBuilder = new ResponseBuilder()
-
-	private val hasSentLog = new AtomicBoolean(false)
-
-	private def isPhaseToBeProcessed(httpPhase: HttpPhase): Boolean = {
-		(indexedProcessors.get(httpPhase).isDefined && !hasSentLog.get()) || httpPhase == HeadersReceived
-	}
-
-	private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String) = {
-		if (hasSentLog.compareAndSet(false, true)) {
-			actorFor(context.getWriteActorUuid).map { a =>
-				val responseTimeMillis = TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTimeNano, TimeUnit.NANOSECONDS)
-				a ! ActionInfo(context.getScenarioName, context.getUserId, "Request " + requestName, executionStartDate, responseTimeMillis, requestResult, requestMessage, groups)
-			}
-
-			context.setAttribute(Context.LAST_ACTION_DURATION_KEY, System.nanoTime() - processingStartTimeNano)
-
-			logger.debug("Context Cookies sent to next action: {}", context.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty))
-			next.execute(context)
-		}
-	}
-
-	private def processResponse(httpPhase: HttpPhase, placeToSearch: Any) {
-
-		def prepareProviders(processors: MSet[HttpProcessor], placeToSearch: Any): MHashMap[ProviderType, AbstractCaptureProvider] = {
-
-			val providers: MHashMap[ProviderType, AbstractCaptureProvider] = MHashMap.empty
-			processors.foreach { processor =>
-				val providerType = processor.getProviderType
-				if (providers.get(providerType).isEmpty)
-					providers += providerType -> providerType.getProvider(placeToSearch)
-			}
-
-			providers
-		}
-
-		def captureData(processor: HttpCapture, provider: AbstractCaptureProvider) = provider.capture(processor.expressionFormatter.apply(context))
-
-		if (isPhaseToBeProcessed(httpPhase)) {
-			val phaseProcessors = indexedProcessors.get(httpPhase).get
-
-			val phaseProviders = prepareProviders(phaseProcessors, placeToSearch)
-
-			for (processor <- phaseProcessors) {
-				processor match {
-					case c: HttpCapture =>
-						val provider = phaseProviders.get(processor.getProviderType).get
-						val value = captureData(c, provider)
-						logger.debug("Captured Value: {}", value)
-
-						// Is the value what is expected ?
-						val isResultValid =
-							if (c.isInstanceOf[HttpCheck])
-								c.asInstanceOf[HttpCheck].getResult(value)
-							else
-								value.isDefined
-
-						if (isResultValid) {
-							if (c.getAttrKey != EMPTY && value.isDefined)
-								context.setAttribute(c.getAttrKey, value.get.toString)
-						} else {
-							if (c.isInstanceOf[HttpCheck])
-								logger.warn("CHECK RESULT: false expected {} but received {}", c, value)
-							else
-								logger.warn("Capture {} could not get value required by user", c)
-							sendLogAndExecuteNext(KO, c + " failed")
-						}
-
-					case _ => throw new IllegalArgumentException
-				}
-			}
-		}
-	}
+	private val responseBuilder = new ResponseBuilder()
 
 	def onStatusReceived(responseStatus: HttpResponseStatus): STATE = {
-
-		processingStartTimeNano = System.nanoTime()
-
-		if (isPhaseToBeProcessed(StatusReceived)) {
-			responseBuilder.accumulate(responseStatus)
-			processResponse(StatusReceived, responseStatus.getStatusCode)
-		}
+		responseBuilder.accumulate(responseStatus)
 		STATE.CONTINUE
 	}
 
 	def onHeadersReceived(headers: HttpResponseHeaders): STATE = {
-		if (isPhaseToBeProcessed(HeadersReceived)) {
-			responseBuilder.accumulate(headers)
 
+		def handleCookies(headers: HttpResponseHeaders) {
 			val headersMap = headers.getHeaders
 
 			val setCookieHeaders = headersMap.get(SET_COOKIE)
@@ -162,30 +82,101 @@ class CustomAsyncHandler(context: Context, processors: MSet[HttpProcessor], next
 
 				context setAttribute (COOKIES_CONTEXT_KEY, contextCookies)
 			}
-
-			processResponse(HeadersReceived, headersMap)
 		}
+
+		responseBuilder.accumulate(headers)
+		handleCookies(headers)
+
 		STATE.CONTINUE
 	}
 
 	def onBodyPartReceived(bodyPart: HttpResponseBodyPart): STATE = {
+		// only store bodyparts if they are to be analyzed
 		if (isPhaseToBeProcessed(CompletePageReceived)) {
 			responseBuilder.accumulate(bodyPart)
 		}
 		STATE.CONTINUE
 	}
 
-	def onCompleted(): Void = {
-		if (isPhaseToBeProcessed(CompletePageReceived)) {
-			val response = responseBuilder.build
-			processResponse(CompletePageReceived, response)
+	private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String, processingStartTimeNano: Option[Long]) = {
+		actorFor(context.getWriteActorUuid).map { a =>
+			val responseTimeMillis = TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTimeNano, TimeUnit.NANOSECONDS)
+			a ! ActionInfo(context.getScenarioName, context.getUserId, "Request " + requestName, executionStartDate, responseTimeMillis, requestResult, requestMessage, groups)
 		}
-		sendLogAndExecuteNext(OK, "Request Executed Successfully")
+
+		if (processingStartTimeNano.isDefined) {
+			context.setAttribute(Context.LAST_ACTION_DURATION_KEY, System.nanoTime() - processingStartTimeNano.get)
+		} else {
+			context.removeAttribute(Context.LAST_ACTION_DURATION_KEY);
+		}
+
+		logger.debug("Context Cookies sent to next action: {}", context.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty))
+		next.execute(context)
+	}
+
+	private def isPhaseToBeProcessed(httpPhase: HttpPhase) = indexedProcessors.get(httpPhase).isDefined
+
+	private def processResponse(response: Response) {
+
+		def prepareProviders(processors: MSet[HttpProcessor], placeToSearch: Any): MHashMap[ProviderType, AbstractCaptureProvider] = {
+
+			val providers: MHashMap[ProviderType, AbstractCaptureProvider] = MHashMap.empty
+			processors.foreach { processor =>
+				val providerType = processor.getProviderType
+				if (providers.get(providerType).isEmpty)
+					providers += providerType -> providerType.getProvider(placeToSearch)
+			}
+
+			providers
+		}
+
+		val processingStartTimeNano = System.nanoTime
+
+		HttpPhase.values.foreach { httpPhase =>
+
+			if (isPhaseToBeProcessed(httpPhase)) {
+				val phaseProcessors = indexedProcessors.get(httpPhase).get
+
+				val phaseProviders = prepareProviders(phaseProcessors, response)
+
+				for (processor <- phaseProcessors) {
+					processor match {
+						case c: HttpCapture =>
+							val provider = phaseProviders.get(processor.getProviderType).get
+							val value = provider.capture(c.expressionFormatter.apply(context))
+							logger.debug("Captured Value: {}", value)
+							
+							if (c.isInstanceOf[HttpCheck] && !c.asInstanceOf[HttpCheck].getResult(value)) {
+								logger.warn("CHECK RESULT: false expected {} but received {}", c, value)
+								sendLogAndExecuteNext(KO, c + " failed", Some(processingStartTimeNano))
+								return
+
+							} else if (!value.isDefined) {
+								logger.warn("Capture {} could not get value required by user", c)
+								sendLogAndExecuteNext(KO, c + " failed", Some(processingStartTimeNano))
+								return
+
+							} else if (c.getAttrKey != EMPTY) {
+								context.setAttribute(c.getAttrKey, value.get.toString)
+							}
+
+						case _ => throw new IllegalArgumentException
+					}
+				}
+			}
+		}
+
+		sendLogAndExecuteNext(OK, "Request Executed Successfully", Some(processingStartTimeNano))
+	}
+
+	def onCompleted(): Void = {
+		val response = responseBuilder.build
+		processResponse(response)
 		null
 	}
 
 	def onThrowable(throwable: Throwable) = {
 		logger.error("{}\n{}", throwable.getClass, throwable.getStackTraceString)
-		sendLogAndExecuteNext(KO, throwable.getMessage)
+		sendLogAndExecuteNext(KO, throwable.getMessage, None)
 	}
 }

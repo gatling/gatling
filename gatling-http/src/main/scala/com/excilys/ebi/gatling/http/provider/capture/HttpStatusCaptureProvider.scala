@@ -16,9 +16,10 @@
 package com.excilys.ebi.gatling.http.provider.capture
 
 import com.excilys.ebi.gatling.core.provider.capture.AbstractCaptureProvider
+import com.ning.http.client.Response
 
-class HttpStatusCaptureProvider(statusCode: Int) extends AbstractCaptureProvider {
+class HttpStatusCaptureProvider(response: Response) extends AbstractCaptureProvider {
 	def capture(unused: Any): Option[String] = {
-		Some(statusCode.toString)
+		Some(response.getStatusCode().toString)
 	}
 }

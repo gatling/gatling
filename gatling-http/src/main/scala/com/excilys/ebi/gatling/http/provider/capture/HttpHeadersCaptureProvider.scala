@@ -16,13 +16,13 @@
 package com.excilys.ebi.gatling.http.provider.capture
 
 import com.excilys.ebi.gatling.core.provider.capture.AbstractCaptureProvider
-
 import com.ning.http.client.FluentCaseInsensitiveStringsMap
+import com.ning.http.client.Response
 
-class HttpHeadersCaptureProvider(headersMap: FluentCaseInsensitiveStringsMap) extends AbstractCaptureProvider {
+class HttpHeadersCaptureProvider(response: Response) extends AbstractCaptureProvider {
 
 	def capture(headerName: Any): Option[String] = {
-		captureAll(headerName.toString, headersMap).map { list =>
+		captureAll(headerName.toString, response.getHeaders()).map { list =>
 			if (list.size > 0)
 				Some(list.get(0))
 			else

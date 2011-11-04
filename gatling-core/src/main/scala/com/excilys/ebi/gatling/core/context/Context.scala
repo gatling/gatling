@@ -109,7 +109,7 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	def setAttributes(attributes: Map[String, Any]) = {
 		data ++= attributes
 	}
-
+	
 	/**
 	 * Sets a single value in the context
 	 *
@@ -120,8 +120,8 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	def setAttribute(attributeKey: String, attributeValue: Any) = {
 		data += (attributeKey -> attributeValue)
 	}
-
-	def unsetAttribute(attributeKey: String) = {
+	
+	def removeAttribute(attributeKey: String) = {
 		data -= attributeKey
 	}
 

@@ -17,10 +17,11 @@ package com.excilys.ebi.gatling.http.provider
 
 import com.excilys.ebi.gatling.core.provider.ProviderType
 import com.excilys.ebi.gatling.http.provider.capture.HttpStatusCaptureProvider
+import com.ning.http.client.Response
 
 object HttpStatusProviderType extends ProviderType {
-	def getProvider(statusCode: Any) = {
+	def getProvider(response: Any) = {
 		logger.debug("Instantiation of HttpStatusCaptureProvider")
-		new HttpStatusCaptureProvider(statusCode.asInstanceOf[Int])
+		new HttpStatusCaptureProvider(response.asInstanceOf[Response])
 	}
 }

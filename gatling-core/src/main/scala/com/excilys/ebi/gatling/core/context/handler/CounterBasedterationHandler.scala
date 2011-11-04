@@ -51,7 +51,7 @@ trait CounterBasedIterationHandler extends IterationHandler {
 
 	abstract override def expire(context: Context, uuid: String, userDefinedName: Option[String]) = {
 		super.expire(context, uuid, userDefinedName)
-		context.unsetAttribute(COUNTER_KEY_PREFIX + userDefinedName.getOrElse(uuid))
+		context.removeAttribute(COUNTER_KEY_PREFIX + userDefinedName.getOrElse(uuid))
 	}
 
 }

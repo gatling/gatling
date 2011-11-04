@@ -45,7 +45,7 @@ trait TimerBasedIterationHandler extends IterationHandler {
 
 	abstract override def expire(context: Context, uuid: String, userDefinedName: Option[String]) = {
 		super.expire(context, uuid, userDefinedName)
-		context.unsetAttribute(TIMER_KEY_PREFIX + uuid)
+		context.removeAttribute(TIMER_KEY_PREFIX + uuid)
 	}
 
 }
