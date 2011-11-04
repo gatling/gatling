@@ -17,7 +17,6 @@ package com.excilys.ebi.gatling.http.action
 
 
 import scala.collection.mutable.{HashSet => MHashSet}
-
 import com.excilys.ebi.gatling.core.action.{RequestAction, Action}
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.feeder.Feeder
@@ -30,13 +29,14 @@ import com.excilys.ebi.gatling.http.processor.HttpProcessor
 import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.excilys.ebi.gatling.http.resource.HttpClientResource
 import com.ning.http.client.{AsyncHttpClientConfig, AsyncHttpClient}
+import com.ning.http.client.Response
 
 object HttpRequestAction {
 	val CLIENT: AsyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setCompressionEnabled(true).build())
 	ResourceRegistry.register(new HttpClientResource(CLIENT))
 }
 class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilders: Option[List[HttpProcessorBuilder]], groups: List[String], feeder: Option[Feeder])
-		extends RequestAction(next, request, givenProcessorBuilders, groups, feeder) {
+		extends RequestAction[Response](next, request, givenProcessorBuilders, groups, feeder) {
 
 	var processors = new MHashSet[HttpProcessor]
 

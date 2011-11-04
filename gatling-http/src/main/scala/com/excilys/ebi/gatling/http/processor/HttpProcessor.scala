@@ -20,13 +20,10 @@ import com.excilys.ebi.gatling.core.provider.ProviderType
 import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.ning.http.client.Response
 
-abstract class HttpProcessor(val httpPhase: HttpPhase, providerType : ProviderType[Response]) extends Processor {
+abstract class HttpProcessor(val httpPhase: HttpPhase, providerType : ProviderType[Response]) extends Processor[Response](providerType) {
 
 	// FIXME is this still useful?
 	def getHttpPhase = httpPhase
-
-	// FIXME shouldn't this be in Processor ?
-	def getProviderType: ProviderType[Response] = providerType
 
 	override def toString = this.getClass().getSimpleName()
 }

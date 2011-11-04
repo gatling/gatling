@@ -16,9 +16,9 @@
 package com.excilys.ebi.gatling.http.processor.builder
 
 import com.excilys.ebi.gatling.core.processor.builder.ProcessorBuilder
-
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
+import com.ning.http.client.Response
 
-trait HttpProcessorBuilder extends ProcessorBuilder {
+trait HttpProcessorBuilder extends ProcessorBuilder[Response] {
 	override def build: HttpProcessor
 }

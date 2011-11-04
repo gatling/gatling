@@ -28,6 +28,6 @@ import com.excilys.ebi.gatling.core.feeder.Feeder
  * @param givenProcessors a list of processors that will apply on the response
  * @param groups a list of groups in which this action is
  */
-abstract class RequestAction(next: Action, request: AbstractRequest, givenProcessors: Option[List[ProcessorBuilder]], groups: List[String], feeder: Option[Feeder]) extends Action {
+abstract class RequestAction[P](next: Action, request: AbstractRequest, givenProcessors: Option[List[ProcessorBuilder[P]]], groups: List[String], feeder: Option[Feeder]) extends Action {
 	def execute(context: Context)
 }

@@ -16,8 +16,12 @@
 package com.excilys.ebi.gatling.core.processor
 
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.provider.ProviderType
 
 /**
  * Represents a Processor, ie a capture or check, and maybe more later
  */
-trait Processor extends Logging
+abstract class Processor[P](providerType: ProviderType[P]) extends Logging {
+
+	def getProviderType: ProviderType[P] = providerType
+}
