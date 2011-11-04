@@ -27,7 +27,7 @@ class HttpRequest(givenName: String, val httpRequestBuilder: AbstractHttpRequest
 
 	def getRequest(context: Context): Request = {
 		val request = httpRequestBuilder build context
-		logger.debug("Request created: {}", request.getUrl())
+		logger.warn("Request created: {}, body data: {}", request.getUrl(), request.getStringData())
 		request
 	}
 

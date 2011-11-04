@@ -32,6 +32,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 
 	override def getRequestBuilder(context: Context): RequestBuilder = {
 		val requestBuilder = super.getRequestBuilder(context)
+		logger.debug("Building in with body and params")
 		addParamsTo(requestBuilder, params, context)
 		requestBuilder
 	}
@@ -53,7 +54,6 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	def param(paramKey: String): B = param(paramKey, FromContext(paramKey))
 
 	private def addParamsTo(requestBuilder: RequestBuilder, params: Option[Map[String, Param]], context: Context) = {
-		requestBuilder setParameters new FluentStringsMap
 		for (param <- params.get) {
 			param._2 match {
 				case StringParam(string) => requestBuilder addParameter (param._1, string)

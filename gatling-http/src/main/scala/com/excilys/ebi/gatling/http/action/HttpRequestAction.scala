@@ -15,9 +15,8 @@
  */
 package com.excilys.ebi.gatling.http.action
 
-
-import scala.collection.mutable.{HashSet => MHashSet}
-import com.excilys.ebi.gatling.core.action.{RequestAction, Action}
+import scala.collection.mutable.{ HashSet => MHashSet }
+import com.excilys.ebi.gatling.core.action.{ RequestAction, Action }
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
@@ -28,7 +27,7 @@ import com.excilys.ebi.gatling.http.processor.check.HttpStatusCheck
 import com.excilys.ebi.gatling.http.processor.HttpProcessor
 import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.excilys.ebi.gatling.http.resource.HttpClientResource
-import com.ning.http.client.{AsyncHttpClientConfig, AsyncHttpClient}
+import com.ning.http.client.{ AsyncHttpClientConfig, AsyncHttpClient }
 import com.ning.http.client.Response
 
 object HttpRequestAction {

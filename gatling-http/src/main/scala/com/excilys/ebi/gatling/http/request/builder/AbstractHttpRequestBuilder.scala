@@ -98,6 +98,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	def getMethod: String
 
 	def getRequestBuilder(context: Context): RequestBuilder = {
+		logger.debug("Building in HttpRequestBuilder")
 		val requestBuilder = new RequestBuilder
 		requestBuilder setMethod getMethod setFollowRedirects followsRedirects.getOrElse(false)
 

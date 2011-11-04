@@ -41,6 +41,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 
 	override def getRequestBuilder(context: Context): RequestBuilder = {
 		val requestBuilder = super.getRequestBuilder(context)
+		logger.debug("building in with body")
 		requestBuilder setMethod getMethod
 		addBodyTo(requestBuilder, body, context)
 		requestBuilder
