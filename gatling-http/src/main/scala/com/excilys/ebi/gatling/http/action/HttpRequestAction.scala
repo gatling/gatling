@@ -42,14 +42,16 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenCaptureBuilders
 
 	givenCaptureBuilders match {
 		case Some(list) => {
+			var httpStatusCheckSet = false
 			for (captureBuilder <- list) {
 				val capture = captureBuilder.build
+				httpStatusCheckSet = httpStatusCheckSet || capture.isInstanceOf[HttpStatusCheck]
 				captures.add(capture)
 				logger.debug("  -- Building {} with phase {}", capture, capture.when)
 			}
 
 			// add default HttpStatusCheck if none was set
-			if (list.filter(_.isInstanceOf[HttpStatusCheck]).isEmpty) {
+			if (!httpStatusCheckSet) {
 				captures.add(new HttpStatusCheck((200 to 210).mkString(":"), EMPTY))
 			}
 		}
