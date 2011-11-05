@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.capture.capturer
+package com.excilys.ebi.gatling.http.capture.status.capturer
 
-import com.ning.http.client.Response
 import com.excilys.ebi.gatling.core.capture.capturer.CapturerFactory
-import com.excilys.ebi.gatling.core.capture.capturer.RegExpCapturer
+import com.ning.http.client.Response
 
-object HttpBodyRegExpCapturerFactory extends CapturerFactory[Response] {
+object HttpStatusCapturerFactory extends CapturerFactory[Response] {
 
 	def getCapturer(response: Response) = {
-		logger.debug("Instantiation of RegExpCaptureProvider")
-		new RegExpCapturer(response.getResponseBody)
+		logger.debug("Instantiation of HttpStatusCaptureProvider")
+		new HttpStatusCapturer(response)
 	}
 }

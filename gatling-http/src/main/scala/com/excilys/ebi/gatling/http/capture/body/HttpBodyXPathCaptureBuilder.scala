@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.capture
+package com.excilys.ebi.gatling.http.capture.body
 
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolateString
 import com.excilys.ebi.gatling.http.request.HttpPhase.{HttpPhase, CompletePageReceived}
+import com.excilys.ebi.gatling.http.capture.HttpCapture
+import com.excilys.ebi.gatling.http.capture.HttpCaptureBuilder
 
 object HttpBodyXPathCaptureBuilder {
 	def xpath(expressionFormatter: Context => String) = new HttpBodyXPathCaptureBuilder(Some(expressionFormatter), None, Some(CompletePageReceived))

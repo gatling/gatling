@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.capture
+package com.excilys.ebi.gatling.http.capture.body
 
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
-import com.excilys.ebi.gatling.http.capture.capturer.HttpBodyXPathCapturerFactory
+import com.excilys.ebi.gatling.http.capture.HttpCapture
+import com.excilys.ebi.gatling.http.capture.body.capturer.HttpBodyRegExpCapturerFactory
 
-class HttpBodyXPathCapture(what: Context => String, to: String, when: HttpPhase) extends HttpCapture(what, HttpBodyXPathCapturerFactory, to, when) {
+class HttpBodyRegExpCapture(what: Context => String, to: String, when: HttpPhase) extends HttpCapture(what, HttpBodyRegExpCapturerFactory, to, when) {
 }

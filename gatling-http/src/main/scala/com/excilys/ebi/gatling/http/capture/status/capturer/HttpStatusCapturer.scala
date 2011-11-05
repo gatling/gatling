@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.capture
+package com.excilys.ebi.gatling.http.capture.status.capturer
 
-import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
-import com.excilys.ebi.gatling.http.capture.capturer.HttpStatusCapturerFactory
+import com.ning.http.client.Response
+import com.excilys.ebi.gatling.core.capture.capturer.Capturer
 
-// FIXME no builder?
-class HttpStatusCapture(to: String) extends HttpCapture((c: Context) => EMPTY, HttpStatusCapturerFactory, to, StatusReceived) {
+class HttpStatusCapturer(response: Response) extends Capturer {
+	def capture(unused: String): Option[String] = {
+		Some(response.getStatusCode().toString)
+	}
 }

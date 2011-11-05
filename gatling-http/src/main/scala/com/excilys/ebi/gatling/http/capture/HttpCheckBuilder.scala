@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.capture.check
+package com.excilys.ebi.gatling.http.capture
 
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.core.capture.check.CheckType
-import com.excilys.ebi.gatling.http.capture.HttpCaptureBuilder
 
 abstract class HttpCheckBuilder[B <: HttpCheckBuilder[B]](what: Option[Context => String], to: Option[String], when: Option[HttpPhase], checkType: Option[CheckType], expected: Option[String])
 		extends HttpCaptureBuilder[B](what, to, when) {

@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.capture.check
+package com.excilys.ebi.gatling.http.capture.body.check
 
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.http.capture.HttpHeaderCapture
+import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.core.capture.check.CheckType
+import com.excilys.ebi.gatling.http.capture.HttpCheck
+import com.excilys.ebi.gatling.http.capture.body.HttpBodyXPathCapture
 
-class HttpHeaderCheck(what: Context => String, to: String, checkType: CheckType, expected: String) extends HttpHeaderCapture(what, to) with HttpCheck {
+class HttpBodyXPathCheck(what: Context => String, to: String, when: HttpPhase, checkType: CheckType, expected: String)
+		extends HttpBodyXPathCapture(what, to, when) with HttpCheck {
 
 	def getCheckType = checkType
 

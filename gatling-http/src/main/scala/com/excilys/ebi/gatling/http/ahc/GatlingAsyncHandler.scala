@@ -37,7 +37,7 @@ import akka.actor.Actor.registry.actorFor
 import com.excilys.ebi.gatling.http.capture.HttpCapture
 import com.excilys.ebi.gatling.core.capture.capturer.CapturerFactory
 import com.excilys.ebi.gatling.core.capture.capturer.Capturer
-import com.excilys.ebi.gatling.http.capture.check.HttpCheck
+import com.excilys.ebi.gatling.http.capture.HttpCheck
 
 class GatlingAsyncHandler(context: Context, captures: MSet[HttpCapture], next: Action, requestName: String, groups: List[String]) extends AsyncHandler[Void] with Logging {
 

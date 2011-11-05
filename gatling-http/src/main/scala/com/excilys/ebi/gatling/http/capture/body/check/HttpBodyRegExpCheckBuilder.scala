@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.capture.check
+package com.excilys.ebi.gatling.http.capture.body.check
 
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.http.request.HttpPhase._
@@ -23,6 +23,8 @@ import com.excilys.ebi.gatling.core.capture.check.ExistenceCheckType
 import com.excilys.ebi.gatling.core.capture.check.CheckType
 import com.excilys.ebi.gatling.core.capture.check.EqualityCheckType
 import com.excilys.ebi.gatling.core.capture.check.NonExistenceCheckType
+import com.excilys.ebi.gatling.http.capture.HttpCheck
+import com.excilys.ebi.gatling.http.capture.HttpCheckBuilder
 
 object HttpBodyRegExpCheckBuilder {
 	def regexpEquals(what: Context => String, expected: String) = new HttpBodyRegExpCheckBuilder(Some(what), Some(EMPTY), Some(CompletePageReceived), Some(EqualityCheckType), Some(expected))

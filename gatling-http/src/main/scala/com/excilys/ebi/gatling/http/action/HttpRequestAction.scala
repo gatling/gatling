@@ -28,7 +28,7 @@ import com.ning.http.client.{ AsyncHttpClientConfig, AsyncHttpClient }
 import com.ning.http.client.Response
 import com.excilys.ebi.gatling.http.capture.HttpCapture
 import com.excilys.ebi.gatling.http.capture.HttpCaptureBuilder
-import com.excilys.ebi.gatling.http.capture.check.HttpStatusCheck
+import com.excilys.ebi.gatling.http.capture.status.check.HttpStatusCheck
 
 object HttpRequestAction {
 	val CLIENT: AsyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setCompressionEnabled(true).build())

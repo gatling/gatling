@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.capture.check
+package com.excilys.ebi.gatling.http.capture.body.capturer
 
-import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.http.request.HttpPhase._
-import com.excilys.ebi.gatling.core.capture.check.CheckType
-import com.excilys.ebi.gatling.http.capture.HttpBodyRegExpCapture
+import com.ning.http.client.Response
+import com.excilys.ebi.gatling.core.capture.capturer.CapturerFactory
+import com.excilys.ebi.gatling.core.capture.capturer.XPathCapturer
 
-class HttpBodyRegExpCheck(what: Context => String, to: String, when: HttpPhase, checkType: CheckType, val expected: String)
-		extends HttpBodyRegExpCapture(what, to, when) with HttpCheck {
+object HttpBodyXPathCapturerFactory extends CapturerFactory[Response] {
 
-	def getCheckType = checkType
-
-	def getExpected = expected
+	def getCapturer(response: Response) = {
+		logger.debug("Instantiation of XPathCaptureProvider")
+		new XPathCapturer(response.getResponseBodyAsStream)
+	}
 }

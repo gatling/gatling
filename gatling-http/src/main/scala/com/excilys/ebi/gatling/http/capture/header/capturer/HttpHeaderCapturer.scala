@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.capture.capturer
+package com.excilys.ebi.gatling.http.capture.header.capturer
 
-import com.ning.http.client.{Response, FluentCaseInsensitiveStringsMap}
 import com.excilys.ebi.gatling.core.capture.capturer.Capturer
+import com.ning.http.client.{Response, FluentCaseInsensitiveStringsMap}
 
 class HttpHeaderCapturer(response: Response) extends Capturer {
 

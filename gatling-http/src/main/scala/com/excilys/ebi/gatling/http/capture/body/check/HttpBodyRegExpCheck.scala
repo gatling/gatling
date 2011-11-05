@@ -13,13 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.capture.capturer
+package com.excilys.ebi.gatling.http.capture.body.check
 
-import com.ning.http.client.Response
-import com.excilys.ebi.gatling.core.capture.capturer.Capturer
+import com.excilys.ebi.gatling.core.capture.check.CheckType
+import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.http.capture.body.HttpBodyRegExpCapture
+import com.excilys.ebi.gatling.http.capture.HttpCheck
+import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 
-class HttpStatusCapturer(response: Response) extends Capturer {
-	def capture(unused: String): Option[String] = {
-		Some(response.getStatusCode().toString)
-	}
+class HttpBodyRegExpCheck(what: Context => String, to: String, when: HttpPhase, checkType: CheckType, val expected: String)
+		extends HttpBodyRegExpCapture(what, to, when) with HttpCheck {
+
+	def getCheckType = checkType
+
+	def getExpected = expected
 }

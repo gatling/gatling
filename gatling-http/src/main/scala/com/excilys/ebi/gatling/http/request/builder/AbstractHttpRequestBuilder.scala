@@ -42,7 +42,7 @@ import scala.collection.immutable.HashMap
 import com.ning.http.client.Realm
 import com.ning.http.client.Realm.AuthScheme
 import com.excilys.ebi.gatling.http.capture.HttpCaptureBuilder
-import com.excilys.ebi.gatling.http.capture.check.HttpCheckBuilder
+import com.excilys.ebi.gatling.http.capture.HttpCheckBuilder
 
 object AbstractHttpRequestBuilder {
 	implicit def toHttpRequestActionBuilder[B <: AbstractHttpRequestBuilder[B]](requestBuilder: B) = requestBuilder.httpRequestActionBuilder withRequest (new HttpRequest(requestBuilder.httpRequestActionBuilder.getRequestName, requestBuilder))

@@ -15,9 +15,8 @@
  */
 package com.excilys.ebi.gatling.http.capture
 
-import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
-import com.excilys.ebi.gatling.http.capture.capturer.HttpBodyRegExpCapturerFactory
+import com.ning.http.client.Response
+import com.excilys.ebi.gatling.core.capture.check.Check
 
-class HttpBodyRegExpCapture(what: Context => String, to: String, when: HttpPhase) extends HttpCapture(what, HttpBodyRegExpCapturerFactory, to, when) {
+trait HttpCheck extends HttpCapture with Check[Response] {
 }

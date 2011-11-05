@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.capture.check
+package com.excilys.ebi.gatling.http.capture.status.check
 
 import com.excilys.ebi.gatling.core.capture.check.CheckType
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.util.StringHelper._
 import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.core.capture.check.EqualityCheckType
+import com.excilys.ebi.gatling.http.capture.HttpCheck
+import com.excilys.ebi.gatling.http.capture.HttpCheckBuilder
 
 object HttpStatusCheckBuilder {
 	def statusInRange(range: Range) = new HttpStatusCheckBuilder(Some(range.mkString(":")), Some(EMPTY))

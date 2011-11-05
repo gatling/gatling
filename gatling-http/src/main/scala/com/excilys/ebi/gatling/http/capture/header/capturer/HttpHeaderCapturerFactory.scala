@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.capture.capturer
+package com.excilys.ebi.gatling.http.capture.header.capturer
 
+import com.ning.http.client.FluentCaseInsensitiveStringsMap
 import com.ning.http.client.Response
 import com.excilys.ebi.gatling.core.capture.capturer.CapturerFactory
-import com.excilys.ebi.gatling.core.capture.capturer.XPathCapturer
 
-object HttpBodyXPathCapturerFactory extends CapturerFactory[Response] {
+object HttpHeaderCapturerFactory extends CapturerFactory[Response] {
 
 	def getCapturer(response: Response) = {
-		logger.debug("Instantiation of XPathCaptureProvider")
-		new XPathCapturer(response.getResponseBodyAsStream)
+		logger.debug("Instantiation of HttpHeadersCaptureProvider")
+		new HttpHeaderCapturer(response)
 	}
 }

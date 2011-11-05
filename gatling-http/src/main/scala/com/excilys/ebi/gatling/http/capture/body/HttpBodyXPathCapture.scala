@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.capture.check
-import com.excilys.ebi.gatling.core.capture.check.InRangeCheckType
-import com.excilys.ebi.gatling.http.capture.HttpStatusCapture
+package com.excilys.ebi.gatling.http.capture.body
 
-class HttpStatusCheck(to: String, val expected: String) extends HttpStatusCapture(to) with HttpCheck {
+import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
+import com.excilys.ebi.gatling.http.capture.body.capturer.HttpBodyXPathCapturerFactory
+import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.http.capture.HttpCapture
 
-	def getCheckType = InRangeCheckType
-
-	def getExpected = expected
-
-	override def toString = "HttpStatusCheck (Http Response Status must be in '{" + expected + "}')"
+class HttpBodyXPathCapture(what: Context => String, to: String, when: HttpPhase) extends HttpCapture(what, HttpBodyXPathCapturerFactory, to, when) {
 }

@@ -29,7 +29,7 @@ import com.excilys.ebi.gatling.http.request.builder.PutHttpRequestBuilder
 import akka.actor.TypedActor
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 import com.excilys.ebi.gatling.http.capture.HttpCaptureBuilder
-import com.excilys.ebi.gatling.http.capture.check.HttpCheckBuilder
+import com.excilys.ebi.gatling.http.capture.HttpCheckBuilder
 
 object HttpRequestActionBuilder {
 	def http(requestName: String) = new HttpRequestActionBuilder(requestName, None, None, None, Some(Nil), None)

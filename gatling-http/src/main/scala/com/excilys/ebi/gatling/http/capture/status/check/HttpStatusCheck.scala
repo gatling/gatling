@@ -13,11 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.capture.check
+package com.excilys.ebi.gatling.http.capture.status.check
 
-import com.ning.http.client.Response
-import com.excilys.ebi.gatling.http.capture.HttpCapture
-import com.excilys.ebi.gatling.core.capture.check.Check
+import com.excilys.ebi.gatling.http.capture.status.HttpStatusCapture
+import com.excilys.ebi.gatling.http.capture.HttpCheck
+import com.excilys.ebi.gatling.core.capture.check.InRangeCheckType
 
-trait HttpCheck extends HttpCapture with Check[Response] {
+class HttpStatusCheck(to: String, val expected: String) extends HttpStatusCapture(to) with HttpCheck {
+
+	def getCheckType = InRangeCheckType
+
+	def getExpected = expected
+
+	override def toString = "HttpStatusCheck (Http Response Status must be in '{" + expected + "}')"
 }

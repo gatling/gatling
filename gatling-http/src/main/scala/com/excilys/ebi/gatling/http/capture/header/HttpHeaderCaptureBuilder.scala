@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.capture.capturer
+package com.excilys.ebi.gatling.http.capture.header
 
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolateString
-import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
-import com.excilys.ebi.gatling.http.capture.HttpHeaderCapture
-import com.excilys.ebi.gatling.http.capture.HttpCapture
 import com.excilys.ebi.gatling.http.capture.HttpCaptureBuilder
+import com.excilys.ebi.gatling.http.capture.HttpCapture
+import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 
 object HttpHeaderCaptureBuilder {
 	def header(expressionFormatter: Context => String) = new HttpHeaderCaptureBuilder(Some(expressionFormatter), None, None)
