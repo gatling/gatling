@@ -34,24 +34,26 @@ object HttpRequestAction {
 	val CLIENT: AsyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setCompressionEnabled(true).build())
 	ResourceRegistry.register(new HttpClientResource(CLIENT))
 }
-class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilders: Option[List[HttpCaptureBuilder[_]]], groups: List[String], feeder: Option[Feeder])
-		extends RequestAction[Response](next, request, givenProcessorBuilders, groups, feeder) {
+class HttpRequestAction(next: Action, request: HttpRequest, givenCaptureBuilders: Option[List[HttpCaptureBuilder[_]]], groups: List[String], feeder: Option[Feeder])
+		extends RequestAction[Response](next, request, givenCaptureBuilders, groups, feeder) {
 
-	var processors = new MHashSet[HttpCapture]
+	var captures = new MHashSet[HttpCapture]
 
-	givenProcessorBuilders match {
+	givenCaptureBuilders match {
 		case Some(list) => {
-			for (processorBuilder <- list) {
-				val processor = processorBuilder.build
-				processors.add(processor)
-				logger.debug("  -- Building {} with phase {}", processor, processor.when)
+			for (captureBuilder <- list) {
+				val capture = captureBuilder.build
+				captures.add(capture)
+				logger.debug("  -- Building {} with phase {}", capture, capture.when)
+			}
+			
+			// add default HttpStatusCheck if none was set
+			if (list.filter(_.isInstanceOf[HttpStatusCheck]).isEmpty) {
+				captures.add(new HttpStatusCheck((200 to 210).mkString(":"), EMPTY))
 			}
 		}
 		case None => {}
 	}
-
-	// Adds default checks (they won't be added if overridden by user)
-	processors.add(new HttpStatusCheck((200 to 210).mkString(":"), EMPTY))
 
 	def execute(context: Context) = {
 
@@ -64,6 +66,6 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilde
 				context.setAttributes(feeder.next)
 		}
 
-		HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new GatlingAsyncHandler(context, processors, next, request.getName, groups))
+		HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new GatlingAsyncHandler(context, captures, next, request.getName, groups))
 	}
 }

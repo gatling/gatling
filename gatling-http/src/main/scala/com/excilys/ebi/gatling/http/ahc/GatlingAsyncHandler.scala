@@ -39,14 +39,14 @@ import com.excilys.ebi.gatling.core.capture.capturer.CapturerFactory
 import com.excilys.ebi.gatling.core.capture.capturer.Capturer
 import com.excilys.ebi.gatling.http.capture.check.HttpCheck
 
-class GatlingAsyncHandler(context: Context, processors: MSet[HttpCapture], next: Action, requestName: String, groups: List[String]) extends AsyncHandler[Void] with Logging {
+class GatlingAsyncHandler(context: Context, captures: MSet[HttpCapture], next: Action, requestName: String, groups: List[String]) extends AsyncHandler[Void] with Logging {
 
 	private val executionStartTimeNano = System.nanoTime
 
 	private val executionStartDate = DateTime.now()
 
-	private val indexedProcessors: MultiMap[HttpPhase, HttpCapture] = new MHashMap[HttpPhase, MSet[HttpCapture]] with MultiMap[HttpPhase, HttpCapture]
-	processors.foreach(processor => indexedProcessors.addBinding(processor.when, processor))
+	private val indexedCaptures: MultiMap[HttpPhase, HttpCapture] = new MHashMap[HttpPhase, MSet[HttpCapture]] with MultiMap[HttpPhase, HttpCapture]
+	captures.foreach(capture => indexedCaptures.addBinding(capture.when, capture))
 
 	private val identifier = requestName + context.getUserId
 
@@ -108,20 +108,20 @@ class GatlingAsyncHandler(context: Context, processors: MSet[HttpCapture], next:
 		next.execute(context)
 	}
 
-	private def isPhaseToBeProcessed(httpPhase: HttpPhase) = indexedProcessors.get(httpPhase).isDefined
+	private def isPhaseToBeProcessed(httpPhase: HttpPhase) = indexedCaptures.get(httpPhase).isDefined
 
 	private def processResponse(response: Response) {
 
-		def prepareProviders(processors: MSet[HttpCapture], response: Response): MHashMap[CapturerFactory[Response], Capturer] = {
+		def prepareCapturers(captures: MSet[HttpCapture], response: Response): MHashMap[CapturerFactory[Response], Capturer] = {
 
-			val providers: MHashMap[CapturerFactory[Response], Capturer] = MHashMap.empty
-			processors.foreach { processor =>
-				val providerFactory = processor.how
-				if (providers.get(providerFactory).isEmpty)
-					providers += providerFactory -> providerFactory.getCapturer(response)
+			val capturers: MHashMap[CapturerFactory[Response], Capturer] = MHashMap.empty
+			captures.foreach { capture =>
+				val capturerFactory = capture.how
+				if (capturers.get(capturerFactory).isEmpty)
+					capturers += capturerFactory -> capturerFactory.getCapturer(response)
 			}
 
-			providers
+			capturers
 		}
 
 		val processingStartTimeNano = System.nanoTime
@@ -129,15 +129,15 @@ class GatlingAsyncHandler(context: Context, processors: MSet[HttpCapture], next:
 		HttpPhase.values.foreach { httpPhase =>
 
 			if (isPhaseToBeProcessed(httpPhase)) {
-				val phaseProcessors = indexedProcessors.get(httpPhase).get
+				val phaseCaptures = indexedCaptures.get(httpPhase).get
 
-				val phaseProviders = prepareProviders(phaseProcessors, response)
+				val phaseCapturers = prepareCapturers(phaseCaptures, response)
 
-				for (processor <- phaseProcessors) {
-					processor match {
+				for (capture <- phaseCaptures) {
+					capture match {
 						case c: HttpCapture =>
-							val provider = phaseProviders.get(processor.how).get
-							val value = provider.capture(c.what.apply(context))
+							val capturer = phaseCapturers.get(capture.how).get
+							val value = capturer.capture(c.what.apply(context))
 							logger.debug("Captured Value: {}", value)
 							
 							if (c.isInstanceOf[HttpCheck] && !c.asInstanceOf[HttpCheck].getResult(value)) {
