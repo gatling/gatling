@@ -17,21 +17,21 @@ package com.excilys.ebi.gatling.http.ahc
 
 import java.util.concurrent.TimeUnit
 import scala.collection.immutable.HashMap
-import scala.collection.mutable.{Set => MSet, MultiMap, HashMap => MHashMap}
+import scala.collection.mutable.{ Set => MSet, MultiMap, HashMap => MHashMap }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.SET_COOKIE
 import org.joda.time.DateTime
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ResultStatus, OK, KO}
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ ResultStatus, OK, KO }
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.http.request.HttpPhase.{HttpPhase, CompletePageReceived}
+import com.excilys.ebi.gatling.http.request.HttpPhase.{ HttpPhase, CompletePageReceived }
 import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.excilys.ebi.gatling.http.util.GatlingHttpHelper.COOKIES_CONTEXT_KEY
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
-import com.ning.http.client.{Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler}
+import com.ning.http.client.{ Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler }
 import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
 import akka.actor.Actor.registry.actorFor
 import com.excilys.ebi.gatling.http.capture.HttpCapture
@@ -92,6 +92,17 @@ class GatlingAsyncHandler(context: Context, captures: MSet[HttpCapture], next: A
 		STATE.CONTINUE
 	}
 
+	def onCompleted(): Void = {
+		val response = responseBuilder.build
+		processResponse(response)
+		null
+	}
+
+	def onThrowable(throwable: Throwable) = {
+		logger.error("{}\n{}", throwable.getClass, throwable.getStackTraceString)
+		sendLogAndExecuteNext(KO, throwable.getMessage, None)
+	}
+
 	private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String, processingStartTimeNano: Option[Long]) = {
 		actorFor(context.getWriteActorUuid).map { a =>
 			val responseTimeMillis = TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTimeNano, TimeUnit.NANOSECONDS)
@@ -139,7 +150,7 @@ class GatlingAsyncHandler(context: Context, captures: MSet[HttpCapture], next: A
 							val capturer = phaseCapturers.get(capture.how).get
 							val value = capturer.capture(c.what.apply(context))
 							logger.debug("Captured Value: {}", value)
-							
+
 							if (c.isInstanceOf[HttpCheck] && !c.asInstanceOf[HttpCheck].getResult(value)) {
 								logger.warn("CHECK RESULT: false expected {} but received {}", c, value)
 								sendLogAndExecuteNext(KO, c + " failed", Some(processingStartTimeNano))
@@ -161,16 +172,5 @@ class GatlingAsyncHandler(context: Context, captures: MSet[HttpCapture], next: A
 		}
 
 		sendLogAndExecuteNext(OK, "Request Executed Successfully", Some(processingStartTimeNano))
-	}
-
-	def onCompleted(): Void = {
-		val response = responseBuilder.build
-		processResponse(response)
-		null
-	}
-
-	def onThrowable(throwable: Throwable) = {
-		logger.error("{}\n{}", throwable.getClass, throwable.getStackTraceString)
-		sendLogAndExecuteNext(KO, throwable.getMessage, None)
 	}
 }

@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.http.action
 
-import scala.collection.mutable.{HashSet => MHashSet}
-import com.excilys.ebi.gatling.core.action.{RequestAction, Action}
+import scala.collection.mutable.{ HashSet => MHashSet }
+import com.excilys.ebi.gatling.core.action.{ RequestAction, Action }
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
@@ -34,6 +34,7 @@ object HttpRequestAction {
 	val CLIENT: AsyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setCompressionEnabled(true).build())
 	ResourceRegistry.register(new HttpClientResource(CLIENT))
 }
+
 class HttpRequestAction(next: Action, request: HttpRequest, givenCaptureBuilders: Option[List[HttpCaptureBuilder[_]]], groups: List[String], feeder: Option[Feeder])
 		extends RequestAction[Response](next, request, givenCaptureBuilders, groups, feeder) {
 
@@ -46,7 +47,7 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenCaptureBuilders
 				captures.add(capture)
 				logger.debug("  -- Building {} with phase {}", capture, capture.when)
 			}
-			
+
 			// add default HttpStatusCheck if none was set
 			if (list.filter(_.isInstanceOf[HttpStatusCheck]).isEmpty) {
 				captures.add(new HttpStatusCheck((200 to 210).mkString(":"), EMPTY))
@@ -62,8 +63,7 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenCaptureBuilders
 		}
 
 		feeder.map {
-			feeder =>
-				context.setAttributes(feeder.next)
+			feeder => context.setAttributes(feeder.next)
 		}
 
 		HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new GatlingAsyncHandler(context, captures, next, request.getName, groups))
