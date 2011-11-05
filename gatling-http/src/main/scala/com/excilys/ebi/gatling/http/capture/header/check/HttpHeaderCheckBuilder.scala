@@ -43,11 +43,6 @@ object HttpHeaderCheckBuilder {
 class HttpHeaderCheckBuilder(what: Option[Context => String], to: Option[String], checkType: Option[CheckType], expected: Option[String])
 		extends HttpCheckBuilder[HttpHeaderCheckBuilder](what, to, Some(HeadersReceived), checkType, expected) {
 
-	// FIXME remove
-	def newInstance(what: Option[Context => String], to: Option[String], when: Option[HttpPhase]) = {
-		new HttpHeaderCheckBuilder(what, to, None, None)
-	}
-
 	def newInstance(what: Option[Context => String], to: Option[String], when: Option[HttpPhase], checkType: Option[CheckType], expected: Option[String]) = {
 		new HttpHeaderCheckBuilder(what, to, checkType, expected)
 	}

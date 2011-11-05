@@ -43,11 +43,6 @@ object HttpBodyXPathCheckBuilder {
 class HttpBodyXPathCheckBuilder(what: Option[Context => String], to: Option[String], when: Option[HttpPhase], checkType: Option[CheckType], expected: Option[String])
 		extends HttpCheckBuilder[HttpBodyXPathCheckBuilder](what, to, when, checkType, expected) {
 
-	// FIXME remove
-	def newInstance(what: Option[Context => String], to: Option[String], when: Option[HttpPhase]) = {
-		new HttpBodyXPathCheckBuilder(what, to, when, None, None)
-	}
-
 	def newInstance(what: Option[Context => String], to: Option[String], when: Option[HttpPhase], checkType: Option[CheckType], expected: Option[String]) = {
 		new HttpBodyXPathCheckBuilder(what, to, when, checkType, expected)
 	}

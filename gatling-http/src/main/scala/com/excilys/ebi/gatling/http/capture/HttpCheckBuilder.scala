@@ -19,8 +19,12 @@ import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.core.capture.check.CheckType
 
-abstract class HttpCheckBuilder[B <: HttpCheckBuilder[B]](what: Option[Context => String], to: Option[String], when: Option[HttpPhase], checkType: Option[CheckType], expected: Option[String])
+abstract class HttpCheckBuilder[B <: HttpCheckBuilder[B]](what: Option[Context => String], to: Option[String], when: Option[HttpPhase], val checkType: Option[CheckType], val expected: Option[String])
 		extends HttpCaptureBuilder[B](what, to, when) {
+
+	def newInstance(what: Option[Context => String], to: Option[String], when: Option[HttpPhase]) = {
+		newInstance(what, to, when, checkType, expected)
+	}
 
 	def newInstance(what: Option[Context => String], to: Option[String], when: Option[HttpPhase], checkType: Option[CheckType], expected: Option[String]): B
 

@@ -31,11 +31,6 @@ object HttpStatusCheckBuilder {
 class HttpStatusCheckBuilder(to: Option[String], expected: Option[String])
 		extends HttpCheckBuilder[HttpStatusCheckBuilder](None, to, Some(StatusReceived), None, expected) {
 
-	// FIXME remove
-	def newInstance(what: Option[Context => String], to: Option[String], when: Option[HttpPhase]) = {
-		new HttpStatusCheckBuilder(to, None)
-	}
-
 	def newInstance(what: Option[Context => String], to: Option[String], when: Option[HttpPhase], checkType: Option[CheckType], expected: Option[String]) = {
 		new HttpStatusCheckBuilder(to, expected)
 	}

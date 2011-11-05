@@ -43,11 +43,6 @@ object HttpBodyRegExpCheckBuilder {
 class HttpBodyRegExpCheckBuilder(what: Option[Context => String], to: Option[String], when: Option[HttpPhase], checkType: Option[CheckType], expected: Option[String])
 		extends HttpCheckBuilder[HttpBodyRegExpCheckBuilder](what, to, when, checkType, expected) {
 
-	// FIXME remove
-	def newInstance(what: Option[Context => String], to: Option[String], when: Option[HttpPhase]) = {
-		new HttpBodyRegExpCheckBuilder(what, to, when, None, None)
-	}
-
 	def newInstance(what: Option[Context => String], to: Option[String], when: Option[HttpPhase], checkType: Option[CheckType], expected: Option[String]) = {
 		new HttpBodyRegExpCheckBuilder(what, to, when, checkType, expected)
 	}
