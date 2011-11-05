@@ -31,7 +31,7 @@ class RegExpCapturer(textContent: String) extends Capturer {
 	 * @param expression a String containing the regular expression to be matched
 	 * @return an option containing the value if found, None otherwise
 	 */
-	def capture(expression: Any): Option[String] = {
+	def capture(expression: String): Option[String] = {
 		logger.debug("[RegExpCaptureProvider] Capturing with expression : {}", expression)
 		new Regex(expression.toString).findFirstMatchIn(textContent).map { m =>
 			if (m.groupCount > 0)

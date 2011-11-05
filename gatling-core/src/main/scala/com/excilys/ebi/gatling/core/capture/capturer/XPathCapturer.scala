@@ -48,7 +48,7 @@ class XPathCapturer(xmlContent: InputStream) extends Capturer {
 	 * @param expression a String containing the XPath expression to be searched
 	 * @return an option containing the value if found, None otherwise
 	 */
-	def capture(expression: Any): Option[String] = {
+	def capture(expression: String): Option[String] = {
 		logger.debug("[XPathCaptureProvider] Capturing with expression : {}", expression)
 
 		val xpathExpression: XPath = new DOMXPath(expression.toString);

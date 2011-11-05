@@ -20,8 +20,8 @@ import com.excilys.ebi.gatling.core.capture.capturer.Capturer
 
 class HttpHeaderCapturer(response: Response) extends Capturer {
 
-	def capture(headerName: Any): Option[String] = {
-		captureAll(headerName.toString, response.getHeaders()).map { list =>
+	def capture(headerName: String): Option[String] = {
+		captureAll(headerName, response.getHeaders()).map { list =>
 			if (list.size > 0)
 				Some(list.get(0))
 			else

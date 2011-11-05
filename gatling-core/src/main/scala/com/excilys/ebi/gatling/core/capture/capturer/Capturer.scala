@@ -33,6 +33,5 @@ abstract class Capturer extends Logging {
 	 * @param expression the expression that defines the capture
 	 * @return the result of the search, being None if nothing was found or Some(something)
 	 */
-	// FIXME why not String?
-	def capture(expression: Any): Option[String]
+	def capture(expression: String): Option[String]
 }

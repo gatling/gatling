@@ -19,7 +19,7 @@ import com.ning.http.client.Response
 import com.excilys.ebi.gatling.core.capture.capturer.Capturer
 
 class HttpStatusCapturer(response: Response) extends Capturer {
-	def capture(unused: Any): Option[String] = {
+	def capture(unused: String): Option[String] = {
 		Some(response.getStatusCode().toString)
 	}
 }
