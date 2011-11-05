@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2011 eBusiness Information, Groupe Excilys (www.excilys.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.action
+package com.excilys.ebi.gatling.http.capture
 
-import com.excilys.ebi.gatling.core.action.request.AbstractRequest
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.feeder.Feeder
+import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.core.capture.CaptureBuilder
+import com.ning.http.client.Response
 
-/**
- * Abstract class for all request actions. For example HTTPRequestAction, and later LDAPRequestAction, etc.
- *
- * @param next action that will be executed after the request
- * @param request request that will be sent
- * @param givenProcessors a list of processors that will apply on the response
- * @param groups a list of groups in which this action is
- */
-abstract class RequestAction[P](next: Action, request: AbstractRequest, givenProcessors: Option[List[CaptureBuilder[P]]], groups: List[String], feeder: Option[Feeder]) extends Action {
-	def execute(context: Context)
+abstract class HttpCaptureBuilder[B <: HttpCaptureBuilder[B]](what: Option[Context => String], to: Option[String], when: Option[HttpPhase]) extends CaptureBuilder[Response] {
+
+	def newInstance(what: Option[Context => String], to: Option[String], when: Option[HttpPhase]): B
+
+	def in(to: String): B = {
+		newInstance(what, Some(to), when)
+	}
+
+	override def build: HttpCapture
 }

@@ -15,36 +15,36 @@
  */
 package com.excilys.ebi.gatling.http.action
 
-import scala.collection.mutable.{ HashSet => MHashSet }
-import com.excilys.ebi.gatling.core.action.{ RequestAction, Action }
+import scala.collection.mutable.{HashSet => MHashSet}
+import com.excilys.ebi.gatling.core.action.{RequestAction, Action}
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.http.ahc.CustomAsyncHandler
-import com.excilys.ebi.gatling.http.processor.builder.HttpProcessorBuilder
-import com.excilys.ebi.gatling.http.processor.check.HttpStatusCheck
-import com.excilys.ebi.gatling.http.processor.HttpProcessor
+import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandler
 import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.excilys.ebi.gatling.http.resource.HttpClientResource
 import com.ning.http.client.{ AsyncHttpClientConfig, AsyncHttpClient }
 import com.ning.http.client.Response
+import com.excilys.ebi.gatling.http.capture.HttpCapture
+import com.excilys.ebi.gatling.http.capture.HttpCaptureBuilder
+import com.excilys.ebi.gatling.http.capture.check.HttpStatusCheck
 
 object HttpRequestAction {
 	val CLIENT: AsyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setCompressionEnabled(true).build())
 	ResourceRegistry.register(new HttpClientResource(CLIENT))
 }
-class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilders: Option[List[HttpProcessorBuilder]], groups: List[String], feeder: Option[Feeder])
+class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilders: Option[List[HttpCaptureBuilder[_]]], groups: List[String], feeder: Option[Feeder])
 		extends RequestAction[Response](next, request, givenProcessorBuilders, groups, feeder) {
 
-	var processors = new MHashSet[HttpProcessor]
+	var processors = new MHashSet[HttpCapture]
 
 	givenProcessorBuilders match {
 		case Some(list) => {
 			for (processorBuilder <- list) {
 				val processor = processorBuilder.build
 				processors.add(processor)
-				logger.debug("  -- Building {} with phase {}", processor, processor.getHttpPhase)
+				logger.debug("  -- Building {} with phase {}", processor, processor.when)
 			}
 		}
 		case None => {}
@@ -64,6 +64,6 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenProcessorBuilde
 				context.setAttributes(feeder.next)
 		}
 
-		HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new CustomAsyncHandler(context, processors, next, request.getName, groups))
+		HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new GatlingAsyncHandler(context, processors, next, request.getName, groups))
 	}
 }

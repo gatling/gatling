@@ -36,24 +36,25 @@ import com.excilys.ebi.gatling.http.request.MIMEType._
 import com.excilys.ebi.gatling.http.util.GatlingHttpHelper._
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
 import com.excilys.ebi.gatling.http.action.builder.HttpRequestActionBuilder
-import com.excilys.ebi.gatling.http.processor.capture.builder.AbstractHttpCaptureBuilder
-import com.excilys.ebi.gatling.http.processor.check.builder.HttpCheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.ning.http.client.Cookie
 import scala.collection.immutable.HashMap
 import com.ning.http.client.Realm
 import com.ning.http.client.Realm.AuthScheme
+import com.excilys.ebi.gatling.http.capture.HttpCaptureBuilder
+import com.excilys.ebi.gatling.http.capture.check.HttpCheckBuilder
 
 object AbstractHttpRequestBuilder {
 	implicit def toHttpRequestActionBuilder[B <: AbstractHttpRequestBuilder[B]](requestBuilder: B) = requestBuilder.httpRequestActionBuilder withRequest (new HttpRequest(requestBuilder.httpRequestActionBuilder.getRequestName, requestBuilder))
 }
+
 abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val httpRequestActionBuilder: HttpRequestActionBuilder, val urlFormatter: Option[Context => String], val queryParams: Option[Map[String, Param]],
 	val headers: Option[Map[String, String]], val followsRedirects: Option[Boolean], val credentials: Option[(String, String)])
 		extends Logging {
 
 	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], followsRedirects: Option[Boolean], credentials: Option[Tuple2[String, String]]): B
 
-	def capture(captureBuilders: AbstractHttpCaptureBuilder[_]*) = {
+	def capture(captureBuilders: HttpCaptureBuilder[_]*) = {
 		httpRequestActionBuilder withRequest (new HttpRequest(httpRequestActionBuilder.getRequestName, this)) withProcessors captureBuilders
 	}
 

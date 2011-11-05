@@ -21,27 +21,26 @@ import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.util.StringHelper._
 import com.excilys.ebi.gatling.http.action.HttpRequestAction
-import com.excilys.ebi.gatling.http.processor.builder.HttpProcessorBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.excilys.ebi.gatling.http.request.builder.GetHttpRequestBuilder
 import com.excilys.ebi.gatling.http.request.builder.PostHttpRequestBuilder
 import com.excilys.ebi.gatling.http.request.builder.DeleteHttpRequestBuilder
 import com.excilys.ebi.gatling.http.request.builder.PutHttpRequestBuilder
-import com.excilys.ebi.gatling.http.processor.capture.builder.AbstractHttpCaptureBuilder
-import com.excilys.ebi.gatling.http.processor.check.builder.HttpCheckBuilder
 import akka.actor.TypedActor
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
+import com.excilys.ebi.gatling.http.capture.HttpCaptureBuilder
+import com.excilys.ebi.gatling.http.capture.check.HttpCheckBuilder
 
 object HttpRequestActionBuilder {
 	def http(requestName: String) = new HttpRequestActionBuilder(requestName, None, None, None, Some(Nil), None)
 }
 
-class HttpRequestActionBuilder(val requestName: String, val request: Option[HttpRequest], val nextAction: Option[Action], val processorBuilders: Option[List[HttpProcessorBuilder]], val groups: Option[List[String]], val feeder: Option[Feeder])
+class HttpRequestActionBuilder(val requestName: String, val request: Option[HttpRequest], val nextAction: Option[Action], val processorBuilders: Option[List[HttpCaptureBuilder[_]]], val groups: Option[List[String]], val feeder: Option[Feeder])
 		extends AbstractActionBuilder {
 
 	def getRequestName = requestName
 
-	private[http] def withProcessors(givenProcessors: Seq[HttpProcessorBuilder]) = {
+	private[http] def withProcessors(givenProcessors: Seq[HttpCaptureBuilder[_]]) = {
 		logger.debug("Adding Processors")
 		new HttpRequestActionBuilder(requestName, request, nextAction, Some(givenProcessors.toList ::: processorBuilders.getOrElse(Nil)), groups, feeder)
 	}
@@ -50,7 +49,7 @@ class HttpRequestActionBuilder(val requestName: String, val request: Option[Http
 		new HttpRequestActionBuilder(requestName, request, nextAction, processorBuilders, groups, Some(feeder))
 	}
 
-	def capture(captureBuilders: AbstractHttpCaptureBuilder[_]*) = withProcessors(captureBuilders)
+	def capture(captureBuilders: HttpCaptureBuilder[_]*) = withProcessors(captureBuilders)
 
 	def check(checkBuilders: HttpCheckBuilder[_]*) = withProcessors(checkBuilders)
 
