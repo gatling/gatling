@@ -31,6 +31,9 @@ import com.excilys.ebi.gatling.http.capture.HttpCaptureBuilder
 import com.excilys.ebi.gatling.http.capture.status.check.HttpStatusCheck
 
 object HttpRequestAction {
+	val DEFAULT_HTTP_STATUS_CHECK = new HttpStatusCheck((200 to 210).mkString(":"), EMPTY)
+	
+	// TODO lazy?
 	val CLIENT: AsyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setCompressionEnabled(true).build())
 	ResourceRegistry.register(new HttpClientResource(CLIENT))
 }
@@ -40,22 +43,22 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenCaptureBuilders
 
 	var captures = new MHashSet[HttpCapture]
 
-	givenCaptureBuilders match {
-		case Some(list) => {
-			var httpStatusCheckSet = false
-			for (captureBuilder <- list) {
-				val capture = captureBuilder.build
-				httpStatusCheckSet = httpStatusCheckSet || capture.isInstanceOf[HttpStatusCheck]
-				captures.add(capture)
-				logger.debug("  -- Building {} with phase {}", capture, capture.when)
-			}
+	givenCaptureBuilders.map {
+		list =>
+			{
+				var httpStatusCheckSet = false
+				for (captureBuilder <- list) {
+					val capture = captureBuilder.build
+					httpStatusCheckSet = httpStatusCheckSet || capture.isInstanceOf[HttpStatusCheck]
+					captures.add(capture)
+					logger.debug("  -- Building {} with phase {}", capture, capture.when)
+				}
 
-			// add default HttpStatusCheck if none was set
-			if (!httpStatusCheckSet) {
-				captures.add(new HttpStatusCheck((200 to 210).mkString(":"), EMPTY))
+				// add default HttpStatusCheck if none was set
+				if (!httpStatusCheckSet) {
+					captures.add(HttpRequestAction.DEFAULT_HTTP_STATUS_CHECK)
+				}
 			}
-		}
-		case None => {}
 	}
 
 	def execute(context: Context) = {
