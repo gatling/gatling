@@ -32,7 +32,7 @@ import com.excilys.ebi.gatling.http.capture.status.check.HttpStatusCheck
 import com.excilys.ebi.gatling.http.capture.status.check.HttpStatusCheckBuilder._
 
 object HttpRequestAction {
-	val DEFAULT_HTTP_STATUS_CHECK = statusInRange(Range(200, 207)).build
+	val DEFAULT_HTTP_STATUS_CHECK = statusInRange(Range(200, 210)).build
 	
 	// TODO lazy?
 	val CLIENT: AsyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setCompressionEnabled(true).build())
