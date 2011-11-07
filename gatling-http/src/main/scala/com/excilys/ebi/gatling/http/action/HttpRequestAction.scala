@@ -25,10 +25,10 @@ import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandler
 import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.ning.http.client.{ AsyncHttpClientConfig, AsyncHttpClient }
 import com.ning.http.client.Response
-import com.excilys.ebi.gatling.http.check.status.HttpStatusCheck
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder._
 import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheck
+import com.excilys.ebi.gatling.http.check.status.HttpStatusCheck
 
 object HttpRequestAction {
 	val DEFAULT_HTTP_STATUS_CHECK = statusInRange(Range(200, 210)).build
@@ -45,16 +45,14 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenCaptureBuilders
 	givenCaptureBuilders.map {
 		list =>
 			{
-				var httpStatusCheckSet = false
 				for (captureBuilder <- list) {
 					val capture = captureBuilder.build
-					httpStatusCheckSet = httpStatusCheckSet || capture.isInstanceOf[HttpStatusCheck]
 					captures.add(capture)
 					logger.debug("  -- Building {} with phase {}", capture, capture.when)
 				}
 
 				// add default HttpStatusCheck if none was set
-				if (!httpStatusCheckSet) {
+				if (captures.view.filter(_.isInstanceOf[HttpStatusCheck]).isEmpty) {
 					captures.add(HttpRequestAction.DEFAULT_HTTP_STATUS_CHECK)
 				}
 			}

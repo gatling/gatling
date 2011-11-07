@@ -39,7 +39,7 @@ import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.http.request.HttpPhase
-import com.excilys.ebi.gatling.http.util.GatlingHttpHelper.COOKIES_CONTEXT_KEY
+import com.excilys.ebi.gatling.http.util.HttpHelper.COOKIES_CONTEXT_KEY
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
 import com.ning.http.client.AsyncHandler
@@ -156,15 +156,16 @@ class GatlingAsyncHandler(context: Context, checks: MSet[HttpCheck], next: Actio
 
 				for (check <- phaseChecks) {
 					val extractor = phaseExtractors.get(check.how).get
-					val value = extractor.extract(check.what.apply(context))
-					logger.debug("Captured Value: {}", value)
+					val extractedValue = extractor.extract(check.what.apply(context))
+					logger.debug("Extracted value: {}", extractedValue)
 
-					if (!check.check(value)) {
-						logger.warn("CHECK RESULT: false expected {} but received {}", check, value)
+					if (!check.check(extractedValue)) {
+						logger.warn("Check failed :  expected {} but received {}", check, extractedValue)
 						sendLogAndExecuteNext(KO, check + " failed", processingStartTimeNano)
 						return
-					} else if (value.isDefined && check.to.isDefined) {
-						context.setAttribute(check.to.get, value.get.toString)
+
+					} else if (extractedValue.isDefined && check.to.isDefined) {
+						context.setAttribute(check.to.get, extractedValue.get.toString)
 					}
 				}
 			}

@@ -36,16 +36,12 @@ object HttpRequestActionBuilder {
 class HttpRequestActionBuilder(val requestName: String, val request: Option[HttpRequest], val nextAction: Option[Action], val processorBuilders: Option[List[HttpCheckBuilder[_]]], val groups: Option[List[String]], val feeder: Option[Feeder])
 		extends AbstractActionBuilder {
 
-	def getRequestName = requestName
-
 	private[http] def withProcessors(givenProcessors: Seq[HttpCheckBuilder[_]]) = {
 		logger.debug("Adding Processors")
 		new HttpRequestActionBuilder(requestName, request, nextAction, Some(givenProcessors.toList ::: processorBuilders.getOrElse(Nil)), groups, feeder)
 	}
 
-	private[http] def withFeeder(feeder: Feeder) = {
-		new HttpRequestActionBuilder(requestName, request, nextAction, processorBuilders, groups, Some(feeder))
-	}
+	private[http] def withFeeder(feeder: Feeder) = new HttpRequestActionBuilder(requestName, request, nextAction, processorBuilders, groups, Some(feeder))
 
 	def capture(captureBuilders: HttpCheckBuilder[_]*) = withProcessors(captureBuilders)
 
