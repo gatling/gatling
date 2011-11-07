@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2011 eBusiness Information, Groupe Excilys (www.excilys.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.action
+package com.excilys.ebi.gatling.http.check
 
-import com.excilys.ebi.gatling.core.action.request.AbstractRequest
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.feeder.Feeder
+import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
+import com.excilys.ebi.gatling.core.check.checktype.CheckType
 import com.excilys.ebi.gatling.core.check.CheckBuilder
+import com.ning.http.client.Response
 
-/**
- * Abstract class for all request actions. For example HTTPRequestAction, and later LDAPRequestAction, etc.
- *
- * @param next action that will be executed after the request
- * @param request request that will be sent
- * @param givenProcessors a list of processors that will apply on the response
- * @param groups a list of groups in which this action is
- */
-abstract class RequestAction[P](next: Action, request: AbstractRequest, givenProcessors: Option[List[CheckBuilder[P]]], groups: List[String], feeder: Option[Feeder]) extends Action {
-	def execute(context: Context)
+abstract class HttpCheckBuilder[B <: HttpCheckBuilder[B]](what: Context => String, to: Option[String], checkType: CheckType, expected: Option[String], when: HttpPhase)
+		extends CheckBuilder[Response] {
+
+	def newInstance(what: Context => String, to: Option[String], checkType: CheckType, expected: Option[String]): B
+
+	override def build: HttpCheck
 }

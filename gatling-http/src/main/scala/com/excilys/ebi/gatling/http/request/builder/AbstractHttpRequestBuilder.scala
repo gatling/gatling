@@ -41,8 +41,7 @@ import com.ning.http.client.Cookie
 import scala.collection.immutable.HashMap
 import com.ning.http.client.Realm
 import com.ning.http.client.Realm.AuthScheme
-import com.excilys.ebi.gatling.http.capture.HttpCaptureBuilder
-import com.excilys.ebi.gatling.http.capture.HttpCheckBuilder
+import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
 
 object AbstractHttpRequestBuilder {
 	implicit def toHttpRequestActionBuilder[B <: AbstractHttpRequestBuilder[B]](requestBuilder: B) = requestBuilder.httpRequestActionBuilder withRequest (new HttpRequest(requestBuilder.httpRequestActionBuilder.getRequestName, requestBuilder))
@@ -54,7 +53,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], followsRedirects: Option[Boolean], credentials: Option[Tuple2[String, String]]): B
 
-	def capture(captureBuilders: HttpCaptureBuilder[_]*) = {
+	def capture(captureBuilders: HttpCheckBuilder[_]*) = {
 		httpRequestActionBuilder withRequest (new HttpRequest(httpRequestActionBuilder.getRequestName, this)) withProcessors captureBuilders
 	}
 

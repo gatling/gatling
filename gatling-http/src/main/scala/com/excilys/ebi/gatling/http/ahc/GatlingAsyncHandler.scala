@@ -15,41 +15,52 @@
  */
 package com.excilys.ebi.gatling.http.ahc
 
+import java.lang.Void
 import java.util.concurrent.TimeUnit
 
 import scala.collection.immutable.HashMap
 import scala.collection.mutable.{ Set => MSet }
-import scala.collection.mutable.{ MultiMap, HashMap => MHashMap }
+import scala.collection.mutable.{ HashMap => MHashMap }
+import scala.collection.mutable.MultiMap
 
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.SET_COOKIE
 import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.core.action.Action
-import com.excilys.ebi.gatling.core.capture.extractor.{ ExtractorFactory, Extractor }
+import com.excilys.ebi.gatling.core.check.extractor.Extractor
+import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ ResultStatus, OK, KO }
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.KO
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.OK
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.ResultStatus
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.http.capture.{ HttpCheck, HttpCapture }
-import com.excilys.ebi.gatling.http.request.HttpPhase.{ HttpPhase, CompletePageReceived }
+import com.excilys.ebi.gatling.http.check.HttpCheck
+import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
+import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.excilys.ebi.gatling.http.util.GatlingHttpHelper.COOKIES_CONTEXT_KEY
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
-import com.ning.http.client.{ Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler }
+import com.ning.http.client.AsyncHandler
+import com.ning.http.client.Cookie
+import com.ning.http.client.HttpResponseBodyPart
+import com.ning.http.client.HttpResponseHeaders
+import com.ning.http.client.HttpResponseStatus
+import com.ning.http.client.Response
 import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
 
 import akka.actor.Actor.registry.actorFor
 
-class GatlingAsyncHandler(context: Context, captures: MSet[HttpCapture], next: Action, requestName: String, groups: List[String]) extends AsyncHandler[Void] with Logging {
+class GatlingAsyncHandler(context: Context, checks: MSet[HttpCheck], next: Action, requestName: String, groups: List[String])
+		extends AsyncHandler[Void] with Logging {
 
 	private val executionStartTimeNano = System.nanoTime
 
 	private val executionStartDate = DateTime.now()
 
-	private val indexedCaptures: MultiMap[HttpPhase, HttpCapture] = new MHashMap[HttpPhase, MSet[HttpCapture]] with MultiMap[HttpPhase, HttpCapture]
-	captures.foreach(capture => indexedCaptures.addBinding(capture.when, capture))
+	private val indexedChecks: MultiMap[HttpPhase, HttpCheck] = new MHashMap[HttpPhase, MSet[HttpCheck]] with MultiMap[HttpPhase, HttpCheck]
+	checks.foreach(check => indexedChecks.addBinding(check.when, check))
 
 	private val identifier = requestName + context.getUserId
 
@@ -118,15 +129,15 @@ class GatlingAsyncHandler(context: Context, captures: MSet[HttpCapture], next: A
 		next.execute(context)
 	}
 
-	private def isPhaseToBeProcessed(httpPhase: HttpPhase) = indexedCaptures.get(httpPhase).isDefined
+	private def isPhaseToBeProcessed(httpPhase: HttpPhase) = indexedChecks.get(httpPhase).isDefined
 
 	private def processResponse(response: Response) {
 
-		def prepareExtractors(captures: MSet[HttpCapture], response: Response): MHashMap[ExtractorFactory[Response], Extractor] = {
+		def prepareExtractors(checks: MSet[HttpCheck], response: Response): MHashMap[ExtractorFactory[Response], Extractor] = {
 
 			val extractors: MHashMap[ExtractorFactory[Response], Extractor] = MHashMap.empty
-			captures.foreach { capture =>
-				val extractorFactory = capture.how
+			checks.foreach { check =>
+				val extractorFactory = check.how
 				if (extractors.get(extractorFactory).isEmpty)
 					extractors += extractorFactory -> extractorFactory.getExtractor(response)
 			}
@@ -139,14 +150,14 @@ class GatlingAsyncHandler(context: Context, captures: MSet[HttpCapture], next: A
 		HttpPhase.values.foreach { httpPhase =>
 
 			if (isPhaseToBeProcessed(httpPhase)) {
-				val phaseCaptures = indexedCaptures.get(httpPhase).get
+				val phaseChecks = indexedChecks.get(httpPhase).get
 
-				val phaseExtractors = prepareExtractors(phaseCaptures, response)
+				val phaseExtractors = prepareExtractors(phaseChecks, response)
 
-				for (capture <- phaseCaptures) {
-					capture match {
-						case c: HttpCapture =>
-							val extractor = phaseExtractors.get(capture.how).get
+				for (check <- phaseChecks) {
+					check match {
+						case c: HttpCheck =>
+							val extractor = phaseExtractors.get(check.how).get
 							val value = extractor.extract(c.what.apply(context))
 							logger.debug("Captured Value: {}", value)
 

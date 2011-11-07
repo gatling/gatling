@@ -27,19 +27,18 @@ import com.excilys.ebi.gatling.http.request.builder.DeleteHttpRequestBuilder
 import com.excilys.ebi.gatling.http.request.builder.PutHttpRequestBuilder
 import akka.actor.TypedActor
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
-import com.excilys.ebi.gatling.http.capture.HttpCaptureBuilder
-import com.excilys.ebi.gatling.http.capture.HttpCheckBuilder
+import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
 
 object HttpRequestActionBuilder {
 	def http(requestName: String) = new HttpRequestActionBuilder(requestName, None, None, None, Some(Nil), None)
 }
 
-class HttpRequestActionBuilder(val requestName: String, val request: Option[HttpRequest], val nextAction: Option[Action], val processorBuilders: Option[List[HttpCaptureBuilder[_]]], val groups: Option[List[String]], val feeder: Option[Feeder])
+class HttpRequestActionBuilder(val requestName: String, val request: Option[HttpRequest], val nextAction: Option[Action], val processorBuilders: Option[List[HttpCheckBuilder[_]]], val groups: Option[List[String]], val feeder: Option[Feeder])
 		extends AbstractActionBuilder {
 
 	def getRequestName = requestName
 
-	private[http] def withProcessors(givenProcessors: Seq[HttpCaptureBuilder[_]]) = {
+	private[http] def withProcessors(givenProcessors: Seq[HttpCheckBuilder[_]]) = {
 		logger.debug("Adding Processors")
 		new HttpRequestActionBuilder(requestName, request, nextAction, Some(givenProcessors.toList ::: processorBuilders.getOrElse(Nil)), groups, feeder)
 	}
@@ -48,7 +47,7 @@ class HttpRequestActionBuilder(val requestName: String, val request: Option[Http
 		new HttpRequestActionBuilder(requestName, request, nextAction, processorBuilders, groups, Some(feeder))
 	}
 
-	def capture(captureBuilders: HttpCaptureBuilder[_]*) = withProcessors(captureBuilders)
+	def capture(captureBuilders: HttpCheckBuilder[_]*) = withProcessors(captureBuilders)
 
 	def check(checkBuilders: HttpCheckBuilder[_]*) = withProcessors(checkBuilders)
 

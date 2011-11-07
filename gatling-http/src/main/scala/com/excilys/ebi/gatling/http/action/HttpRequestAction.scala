@@ -26,23 +26,23 @@ import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.excilys.ebi.gatling.http.resource.HttpClientResource
 import com.ning.http.client.{ AsyncHttpClientConfig, AsyncHttpClient }
 import com.ning.http.client.Response
-import com.excilys.ebi.gatling.http.capture.HttpCapture
-import com.excilys.ebi.gatling.http.capture.HttpCaptureBuilder
-import com.excilys.ebi.gatling.http.capture.status.check.HttpStatusCheck
-import com.excilys.ebi.gatling.http.capture.status.check.HttpStatusCheckBuilder._
+import com.excilys.ebi.gatling.http.check.status.check.HttpStatusCheck
+import com.excilys.ebi.gatling.http.check.status.check.HttpStatusCheckBuilder._
+import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
+import com.excilys.ebi.gatling.http.check.HttpCheck
 
 object HttpRequestAction {
 	val DEFAULT_HTTP_STATUS_CHECK = statusInRange(Range(200, 210)).build
-	
+
 	// TODO lazy?
 	val CLIENT: AsyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setCompressionEnabled(true).build())
 	ResourceRegistry.register(new HttpClientResource(CLIENT))
 }
 
-class HttpRequestAction(next: Action, request: HttpRequest, givenCaptureBuilders: Option[List[HttpCaptureBuilder[_]]], groups: List[String], feeder: Option[Feeder])
+class HttpRequestAction(next: Action, request: HttpRequest, givenCaptureBuilders: Option[List[HttpCheckBuilder[_]]], groups: List[String], feeder: Option[Feeder])
 		extends RequestAction[Response](next, request, givenCaptureBuilders, groups, feeder) {
 
-	var captures = new MHashSet[HttpCapture]
+	var captures = new MHashSet[HttpCheck]
 
 	givenCaptureBuilders.map {
 		list =>
