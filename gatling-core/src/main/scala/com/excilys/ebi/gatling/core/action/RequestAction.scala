@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.action.request.AbstractRequest
+import com.excilys.ebi.gatling.core.action.request.Request
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.check.CheckBuilder
@@ -28,6 +28,6 @@ import com.excilys.ebi.gatling.core.check.CheckBuilder
  * @param givenProcessors a list of processors that will apply on the response
  * @param groups a list of groups in which this action is
  */
-abstract class RequestAction[P](next: Action, request: AbstractRequest, givenProcessors: Option[List[CheckBuilder[P]]], groups: List[String], feeder: Option[Feeder]) extends Action {
+abstract class RequestAction[P](next: Action, request: Request, givenProcessors: Option[List[CheckBuilder[P]]], groups: List[String], feeder: Option[Feeder]) extends Action {
 	def execute(context: Context)
 }

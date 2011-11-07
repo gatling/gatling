@@ -68,6 +68,6 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenCaptureBuilders
 			feeder => context.setAttributes(feeder.next)
 		}
 
-		HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new GatlingAsyncHandler(context, captures, next, request.getName, groups))
+		HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new GatlingAsyncHandler(context, captures, next, request.name, groups))
 	}
 }
