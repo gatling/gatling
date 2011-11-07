@@ -15,15 +15,15 @@
  */
 package com.excilys.ebi.gatling.http.capture.body.check
 
-import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.http.request.HttpPhase._
-import com.excilys.ebi.gatling.core.util.StringHelper._
-import com.excilys.ebi.gatling.core.capture.check.NonEqualityCheckType
-import com.excilys.ebi.gatling.core.capture.check.ExistenceCheckType
 import com.excilys.ebi.gatling.core.capture.check.CheckType
 import com.excilys.ebi.gatling.core.capture.check.EqualityCheckType
+import com.excilys.ebi.gatling.core.capture.check.ExistenceCheckType
+import com.excilys.ebi.gatling.core.capture.check.NonEqualityCheckType
 import com.excilys.ebi.gatling.core.capture.check.NonExistenceCheckType
+import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.capture.HttpCheckBuilder
+import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 
 object HttpBodyXPathCheckBuilder {
 

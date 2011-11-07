@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.structure.loop.builder
+package com.excilys.ebi.gatling.core.structure.loop
 import com.excilys.ebi.gatling.core.context.Context
 import java.util.concurrent.TimeUnit
-import com.excilys.ebi.gatling.core.structure.builder.AbstractStructureBuilder
-import com.excilys.ebi.gatling.core.structure.builder.ChainBuilder
-import com.excilys.ebi.gatling.core.structure.loop.handler.builder.TimesLoopHandlerBuilder
-import com.excilys.ebi.gatling.core.structure.loop.handler.builder.DurationLoopHandlerBuilder
-import com.excilys.ebi.gatling.core.structure.loop.handler.builder.ConditionalLoopHandlerBuilder
+import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
+import com.excilys.ebi.gatling.core.structure.ChainBuilder
+import com.excilys.ebi.gatling.core.structure.loop.handler.TimesLoopHandlerBuilder
+import com.excilys.ebi.gatling.core.structure.loop.handler.DurationLoopHandlerBuilder
+import com.excilys.ebi.gatling.core.structure.loop.handler.ConditionalLoopHandlerBuilder
 
 class LoopBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: ChainBuilder, counterName: Option[String]) {
 	def counterName(counterName: String) = new LoopBuilder[B](structureBuilder, chain, Some(counterName))

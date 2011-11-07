@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.structure.loop.handler.builder
+package com.excilys.ebi.gatling.core.structure.loop.handler
 import java.util.concurrent.TimeUnit
 import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder._
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.structure.builder.AbstractStructureBuilder
-import com.excilys.ebi.gatling.core.structure.builder.ChainBuilder
+import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
+import com.excilys.ebi.gatling.core.structure.ChainBuilder
 import akka.actor.TypedActor
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.context.handler.TimerBasedIterationHandler._

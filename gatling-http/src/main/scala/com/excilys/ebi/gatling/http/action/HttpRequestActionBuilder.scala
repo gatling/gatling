@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.action.builder
+package com.excilys.ebi.gatling.http.action
 
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.util.StringHelper._
-import com.excilys.ebi.gatling.http.action.HttpRequestAction
 import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.excilys.ebi.gatling.http.request.builder.GetHttpRequestBuilder
 import com.excilys.ebi.gatling.http.request.builder.PostHttpRequestBuilder

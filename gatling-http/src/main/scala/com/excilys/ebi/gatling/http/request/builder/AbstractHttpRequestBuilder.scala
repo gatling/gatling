@@ -35,7 +35,7 @@ import com.excilys.ebi.gatling.http.request.TemplateBody
 import com.excilys.ebi.gatling.http.request.MIMEType._
 import com.excilys.ebi.gatling.http.util.GatlingHttpHelper._
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
-import com.excilys.ebi.gatling.http.action.builder.HttpRequestActionBuilder
+import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.ning.http.client.Cookie
 import scala.collection.immutable.HashMap

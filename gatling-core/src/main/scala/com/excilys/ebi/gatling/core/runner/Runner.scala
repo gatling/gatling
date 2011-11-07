@@ -21,7 +21,7 @@ import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.core.result.writer.FileDataWriter
 import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.scenario.configuration.builder.ScenarioConfigurationBuilder
+import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfigurationBuilder
 import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfiguration
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.CountDownLatch
@@ -31,6 +31,7 @@ import akka.actor.Actor.actorOf
 import akka.actor.Actor.registry
 import org.joda.time.DateTime
 import com.excilys.ebi.gatling.core.scenario.Scenario
+import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
 
 object Runner {
 	def runSim(startDate: DateTime)(scenarioConfigurations: ScenarioConfigurationBuilder*) = new Runner(startDate, scenarioConfigurations.toList).run

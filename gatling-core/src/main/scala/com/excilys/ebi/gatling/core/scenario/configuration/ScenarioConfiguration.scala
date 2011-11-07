@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.core.scenario.configuration
 
 import com.excilys.ebi.gatling.core.feeder.Feeder
-import com.excilys.ebi.gatling.core.structure.builder.ScenarioBuilder
+import com.excilys.ebi.gatling.core.structure.ScenarioBuilder
 import java.util.concurrent.TimeUnit
 import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
 

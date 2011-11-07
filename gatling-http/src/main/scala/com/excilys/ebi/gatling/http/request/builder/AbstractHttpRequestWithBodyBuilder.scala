@@ -15,25 +15,25 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import org.fusesource.scalate._
+import java.io.File
 
-import com.ning.http.client.RequestBuilder
+import org.fusesource.scalate.Binding
+import org.fusesource.scalate.TemplateEngine
 
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.context.FromContext
-import com.excilys.ebi.gatling.core.util.PathHelper._
-import com.excilys.ebi.gatling.core.util.FileHelper._
-
-import com.excilys.ebi.gatling.http.action.builder.HttpRequestActionBuilder
-import com.excilys.ebi.gatling.http.request.HttpRequestBody
-import com.excilys.ebi.gatling.http.request.FilePathBody
-import com.excilys.ebi.gatling.http.request.StringBody
-import com.excilys.ebi.gatling.http.request.TemplateBody
-import com.excilys.ebi.gatling.http.request.Param
-import com.excilys.ebi.gatling.http.request.StringParam
+import com.excilys.ebi.gatling.core.util.FileHelper.SSP_EXTENSION
+import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_REQUEST_BODIES_FOLDER
+import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_TEMPLATES_FOLDER
+import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.request.ContextParam
-
-import java.io.File
+import com.excilys.ebi.gatling.http.request.FilePathBody
+import com.excilys.ebi.gatling.http.request.HttpRequestBody
+import com.excilys.ebi.gatling.http.request.Param
+import com.excilys.ebi.gatling.http.request.StringBody
+import com.excilys.ebi.gatling.http.request.StringParam
+import com.excilys.ebi.gatling.http.request.TemplateBody
+import com.ning.http.client.RequestBuilder
 
 abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]],
 	headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[Tuple2[String, String]])

@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.scenario.configuration.builder
+package com.excilys.ebi.gatling.core.scenario.configuration
 
 import com.excilys.ebi.gatling.core.feeder.Feeder
-import com.excilys.ebi.gatling.core.structure.builder.ScenarioBuilder
-import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfiguration
+import com.excilys.ebi.gatling.core.structure.ScenarioBuilder
 import java.util.concurrent.TimeUnit
 import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
 

@@ -15,16 +15,14 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import com.ning.http.client.Request
-import com.ning.http.client.RequestBuilder
-import com.ning.http.client.FluentStringsMap
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.context.FromContext
-import com.excilys.ebi.gatling.http.request.Param
-import com.excilys.ebi.gatling.http.request.StringParam
+import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.request.ContextParam
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
-import com.excilys.ebi.gatling.http.action.builder.HttpRequestActionBuilder
+import com.excilys.ebi.gatling.http.request.Param
+import com.excilys.ebi.gatling.http.request.StringParam
+import com.ning.http.client.RequestBuilder
 
 abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequestWithBodyAndParamsBuilder[B]](httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], params: Option[Map[String, Param]],
 	headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[Tuple2[String, String]])

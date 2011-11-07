@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.structure.builder
+package com.excilys.ebi.gatling.core.structure
 import java.util.concurrent.TimeUnit
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.context.Context
@@ -25,7 +25,7 @@ import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder._
 import com.excilys.ebi.gatling.core.action.builder.GroupActionBuilder._
 import com.excilys.ebi.gatling.core.action.builder.GroupActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder._
-import com.excilys.ebi.gatling.core.structure.loop.builder.LoopBuilder
+import com.excilys.ebi.gatling.core.structure.loop.LoopBuilder
 import com.excilys.ebi.gatling.core.action.builder.CountBasedIterationActionBuilder._
 
 abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](actionBuilders: List[AbstractActionBuilder])
@@ -33,7 +33,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 
 	private var currentGroups: List[String] = Nil
 
-	private[builder] def setCurrentGroups(groups: List[String]) = {
+	private[structure] def setCurrentGroups(groups: List[String]) = {
 		currentGroups = groups
 	}
 
@@ -189,7 +189,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 		newInstance(actionBuildersToAdd ::: actionBuilders)
 	}
 
-	private[builder] def buildActions(initialValue: Action): Action = {
+	private[structure] def buildActions(initialValue: Action): Action = {
 		var previousInList: Action = initialValue
 		for (actionBuilder <- actionBuilders) {
 			actionBuilder match {

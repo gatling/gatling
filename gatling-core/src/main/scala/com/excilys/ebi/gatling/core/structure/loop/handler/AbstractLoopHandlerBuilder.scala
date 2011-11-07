@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.structure.loop.handler.builder
+package com.excilys.ebi.gatling.core.structure.loop.handler
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.structure.builder.AbstractStructureBuilder
+import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
 
 abstract class AbstractLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B) extends Logging {
 	def build: B

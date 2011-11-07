@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.core.context.Context
 import akka.actor.TypedActor
 import com.excilys.ebi.gatling.core.action.WhileAction
 import akka.actor.Actor
-import com.excilys.ebi.gatling.core.structure.builder.ChainBuilder
+import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
 /**
  * Companion of the WhileActionBuilder class

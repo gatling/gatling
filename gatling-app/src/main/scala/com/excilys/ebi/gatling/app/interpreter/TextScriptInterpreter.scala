@@ -46,10 +46,10 @@ class TextScriptInterpreter extends Interpreter {
 	import com.excilys.ebi.gatling.core.context.handler.TimerBasedIterationHandler._
     import com.excilys.ebi.gatling.core.util.StringHelper._
     import com.excilys.ebi.gatling.core.runner.Runner._
-    import com.excilys.ebi.gatling.core.structure.builder.ScenarioBuilder._
-    import com.excilys.ebi.gatling.core.structure.builder.ChainBuilder._
-    import com.excilys.ebi.gatling.http.action.builder.HttpRequestActionBuilder._
-    import com.excilys.ebi.gatling.http.config.builder.HttpProtocolConfigurationBuilder._
+    import com.excilys.ebi.gatling.core.structure.ScenarioBuilder._
+    import com.excilys.ebi.gatling.core.structure.ChainBuilder._
+    import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder._
+    import com.excilys.ebi.gatling.http.config.HttpProtocolConfigurationBuilder._
     import com.excilys.ebi.gatling.http.capture.body.HttpBodyRegExpCaptureBuilder._
     import com.excilys.ebi.gatling.http.capture.body.HttpBodyXPathCaptureBuilder._
     import com.excilys.ebi.gatling.http.capture.header.HttpHeaderCaptureBuilder._

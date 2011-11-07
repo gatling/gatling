@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.structure.builder
+package com.excilys.ebi.gatling.core.structure
 
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.scenario.Scenario
-import com.excilys.ebi.gatling.core.scenario.configuration.builder.ScenarioConfigurationBuilder
+import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfigurationBuilder
 
 object ScenarioBuilder {
 	def scenario(scenarioName: String) = new ScenarioBuilder(scenarioName, Nil).start
