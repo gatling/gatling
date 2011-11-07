@@ -15,15 +15,13 @@
  */
 package com.excilys.ebi.gatling.http.check.body
 
+import scala.annotation.implicitNotFound
+
+import com.excilys.ebi.gatling.core.check.strategy.{NonExistenceCheckStrategy, NonEqualityCheckStrategy, ExistenceCheckStrategy, EqualityCheckStrategy, CheckStrategy}
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
-import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
-import com.excilys.ebi.gatling.core.check.strategy.EqualityCheckStrategy
-import com.excilys.ebi.gatling.core.check.strategy.ExistenceCheckStrategy
-import com.excilys.ebi.gatling.core.check.strategy.NonEqualityCheckStrategy
-import com.excilys.ebi.gatling.core.check.strategy.NonExistenceCheckStrategy
-import com.excilys.ebi.gatling.core.check.strategy.CheckStrategy
+import com.excilys.ebi.gatling.http.request.HttpPhase.{HttpPhase, CompletePageReceived}
 
 object HttpBodyXPathCheckBuilder {
 
@@ -46,7 +44,7 @@ object HttpBodyXPathCheckBuilder {
 class HttpBodyXPathCheckBuilder(what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String])
 		extends HttpCheckBuilder[HttpBodyXPathCheckBuilder](what, to, strategy, expected, CompletePageReceived) {
 
-	def newInstance(what: Context => String, to: Option[String], checkType: CheckStrategy, expected: Option[String]) = new HttpBodyXPathCheckBuilder(what, to, checkType, expected)
+	def newInstance(what: Context => String, to: Option[String], checkType: CheckStrategy, expected: Option[String], when: HttpPhase) = new HttpBodyXPathCheckBuilder(what, to, checkType, expected)
 
 	def build = new HttpBodyXPathCheck(what, to, strategy, expected)
 }

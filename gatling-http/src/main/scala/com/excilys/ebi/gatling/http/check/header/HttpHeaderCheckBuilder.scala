@@ -15,15 +15,13 @@
  */
 package com.excilys.ebi.gatling.http.check.header
 
+import scala.annotation.implicitNotFound
+
+import com.excilys.ebi.gatling.core.check.strategy.{NonExistenceCheckStrategy, NonEqualityCheckStrategy, ExistenceCheckStrategy, EqualityCheckStrategy, CheckStrategy}
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilder, HttpCheck }
-import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
-import com.excilys.ebi.gatling.core.check.strategy.EqualityCheckStrategy
-import com.excilys.ebi.gatling.core.check.strategy.ExistenceCheckStrategy
-import com.excilys.ebi.gatling.core.check.strategy.NonEqualityCheckStrategy
-import com.excilys.ebi.gatling.core.check.strategy.NonExistenceCheckStrategy
-import com.excilys.ebi.gatling.core.check.strategy.CheckStrategy
+import com.excilys.ebi.gatling.http.check.{HttpCheckBuilder, HttpCheck}
+import com.excilys.ebi.gatling.http.request.HttpPhase.{HttpPhase, HeadersReceived}
 
 object HttpHeaderCheckBuilder {
 	def headerEquals(what: Context => String, expected: String) = new HttpHeaderCheckBuilder(what, Some(EMPTY), EqualityCheckStrategy, Some(expected))
@@ -45,7 +43,7 @@ object HttpHeaderCheckBuilder {
 class HttpHeaderCheckBuilder(what: Context => String, to: Option[String], checkType: CheckStrategy, expected: Option[String])
 		extends HttpCheckBuilder[HttpHeaderCheckBuilder](what, to, checkType, expected, HeadersReceived) {
 
-	def newInstance(what: Context => String, to: Option[String], checkType: CheckStrategy, expected: Option[String]) = new HttpHeaderCheckBuilder(what, to, checkType, expected)
+	def newInstance(what: Context => String, to: Option[String], checkType: CheckStrategy, expected: Option[String], when: HttpPhase) = new HttpHeaderCheckBuilder(what, to, checkType, expected)
 
 	def build: HttpCheck = new HttpHeaderCheck(what, to, checkType, expected)
 }
