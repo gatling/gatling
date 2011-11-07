@@ -155,27 +155,22 @@ class GatlingAsyncHandler(context: Context, checks: MSet[HttpCheck], next: Actio
 				val phaseExtractors = prepareExtractors(phaseChecks, response)
 
 				for (check <- phaseChecks) {
-					check match {
-						case c: HttpCheck =>
-							val extractor = phaseExtractors.get(check.how).get
-							val value = extractor.extract(c.what.apply(context))
-							logger.debug("Captured Value: {}", value)
+					val extractor = phaseExtractors.get(check.how).get
+					val value = extractor.extract(check.what.apply(context))
+					logger.debug("Captured Value: {}", value)
 
-							if (c.isInstanceOf[HttpCheck] && !c.asInstanceOf[HttpCheck].getResult(value)) {
-								logger.warn("CHECK RESULT: false expected {} but received {}", c, value)
-								sendLogAndExecuteNext(KO, c + " failed", processingStartTimeNano)
-								return
+					if (!check.getResult(value)) {
+						logger.warn("CHECK RESULT: false expected {} but received {}", check, value)
+						sendLogAndExecuteNext(KO, check + " failed", processingStartTimeNano)
+						return
 
-							} else if (!value.isDefined) {
-								logger.warn("Capture {} could not get value required by user", c)
-								sendLogAndExecuteNext(KO, c + " failed", processingStartTimeNano)
-								return
+					} else if (!value.isDefined) {
+						logger.warn("Capture {} could not get value required by user", check)
+						sendLogAndExecuteNext(KO, check + " failed", processingStartTimeNano)
+						return
 
-							} else if (c.to.isDefined) {
-								context.setAttribute(c.to.get, value.get.toString)
-							}
-
-						case _ => throw new IllegalArgumentException
+					} else if (check.to.isDefined) {
+						context.setAttribute(check.to.get, value.get.toString)
 					}
 				}
 			}
