@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.action.builder
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.context.handler.CounterBasedIterationHandler
-import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder._
+import com.excilys.ebi.gatling.core.context.Context
+
+import IterationStep.{ IterationStep, INIT, INCREMENT, EXPIRE }
 
 object IterationStep extends Enumeration {
 	type IterationStep = Value
 	val INIT, INCREMENT, EXPIRE = Value
 }
-
-import IterationStep._
 
 object CountBasedIterationActionBuilder extends CounterBasedIterationHandler {
 	def initCounterAction(counterName: String) = initClass(counterName, INIT)

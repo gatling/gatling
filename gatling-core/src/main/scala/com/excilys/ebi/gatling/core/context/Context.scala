@@ -45,29 +45,10 @@ object Context {
  * @param writeActorUuid the uuid of the actor responsible for logging
  * @param data the map that stores all values needed
  */
+// FIXME investigate if Context should use a mutable map
 class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uuid, var data: Map[String, Any]) extends Logging {
 
 	def this(scenarioName: String, userId: Int, writeActorUuid: Uuid) = this(scenarioName, userId, writeActorUuid, Map.empty)
-
-	/**
-	 * @return the current user id
-	 */
-	def getUserId = userId
-
-	/**
-	 * @return the uuid of the actor responsible for logging
-	 */
-	def getWriteActorUuid = writeActorUuid
-
-	/**
-	 * @return the scenario name
-	 */
-	def getScenarioName = scenarioName
-
-	/**
-	 * @return the map containing all values
-	 */
-	def getData = data
 
 	/**
 	 * Gets a value from the context
@@ -96,7 +77,6 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 */
 	def getAttributeAsOption(key: String): Option[Any] = {
 		assert(key.startsWith("gatling."), "This method should not be used with keys that are not reserved, ie: starting with gatling.")
-
 		data.get(key)
 	}
 
@@ -106,9 +86,7 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 * @param attributes map containing several values to be stored in context
 	 * @return Nothing
 	 */
-	def setAttributes(attributes: Map[String, Any]) = {
-		data ++= attributes
-	}
+	def setAttributes(attributes: Map[String, Any]) = data ++= attributes
 	
 	/**
 	 * Sets a single value in the context
@@ -117,21 +95,16 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 * @param attributeValue the value of the attribute
 	 * @return Nothing
 	 */
-	def setAttribute(attributeKey: String, attributeValue: Any) = {
-		data += (attributeKey -> attributeValue)
-	}
+	def setAttribute(attributeKey: String, attributeValue: Any) = data += (attributeKey -> attributeValue)
 	
-	def removeAttribute(attributeKey: String) = {
-		data -= attributeKey
-	}
+	def removeAttribute(attributeKey: String) = data -= attributeKey
 
 	/**
 	 * Gets the last action duration
 	 *
 	 * @return last action duration in nanoseconds
 	 */
-	def getLastActionDuration: Long =
-		data.get(Context.LAST_ACTION_DURATION_KEY).getOrElse(0L).asInstanceOf[Long]
+	def getLastActionDuration: Long = data.get(Context.LAST_ACTION_DURATION_KEY).getOrElse(0L).asInstanceOf[Long]
 
 	def getProtocolConfiguration(protocolType: String) = {
 		getAttributeAsOption(Context.PROTOCOL_CONFIGURATIONS_KEY).map {

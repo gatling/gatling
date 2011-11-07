@@ -45,13 +45,13 @@ class EndAction(val latch: CountDownLatch) extends Action {
 	 *
 	 * @param context The context of the current user that finishes
 	 */
-	def execute(context: Context): Unit = {
-		actorFor(context.getWriteActorUuid).map { a =>
-			a ! ActionInfo(context.getScenarioName, context.getUserId, EndAction.END_OF_SCENARIO, DateTime.now(), 0, OK, "End of Scenario Reached", Nil)
+	def execute(context: Context) = {
+		actorFor(context.writeActorUuid).map { a =>
+			a ! ActionInfo(context.scenarioName, context.userId, EndAction.END_OF_SCENARIO, DateTime.now(), 0, OK, "End of Scenario Reached", Nil)
 		}
 
 		latch.countDown
 
-		logger.info("Done user #{}", context.getUserId)
+		logger.info("Done user #{}", context.userId)
 	}
 }

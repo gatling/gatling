@@ -36,5 +36,5 @@ class IfAction(conditionFunction: Context => Boolean, thenNext: Action, elseNext
 	 * @param context Context for current user
 	 * @return Nothing
 	 */
-	def execute(context: Context) = if (conditionFunction.apply(context)) thenNext.execute(context) else elseNext.getOrElse(next).execute(context)
+	def execute(context: Context) = if (conditionFunction(context)) thenNext.execute(context) else elseNext.getOrElse(next).execute(context)
 }

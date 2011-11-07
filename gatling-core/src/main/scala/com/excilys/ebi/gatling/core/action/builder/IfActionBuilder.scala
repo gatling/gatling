@@ -24,6 +24,7 @@ import com.excilys.ebi.gatling.core.structure.ChainBuilder
  * Companion Object of IfActionBuilder class
  */
 object IfActionBuilder {
+
 	/**
 	 * Creates an initialized IfActionBuilder
 	 */

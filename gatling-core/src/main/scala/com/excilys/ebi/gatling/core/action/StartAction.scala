@@ -25,6 +25,7 @@ import org.joda.time.DateTime
  * StartAction class companion
  */
 object StartAction {
+
 	/**
 	 * This variable contains the name of the StartAction used in simulation.log
 	 */
@@ -44,11 +45,11 @@ class StartAction(next: Action) extends Action {
 	 * @param context The context of the current user
 	 */
 	def execute(context: Context) = {
-		actorFor(context.getWriteActorUuid).map { a =>
-			a ! ActionInfo(context.getScenarioName, context.getUserId, StartAction.START_OF_SCENARIO, DateTime.now(), 0, OK, "Beginning Scenario", Nil)
+		actorFor(context.writeActorUuid).map { a =>
+			a ! ActionInfo(context.scenarioName, context.userId, StartAction.START_OF_SCENARIO, DateTime.now(), 0, OK, "Beginning Scenario", Nil)
 		}
 
-		logger.info("Starting user #{}", context.getUserId)
+		logger.info("Starting user #{}", context.userId)
 
 		next.execute(context)
 	}

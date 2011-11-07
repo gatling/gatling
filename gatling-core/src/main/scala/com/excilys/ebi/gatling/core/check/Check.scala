@@ -19,11 +19,10 @@ import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.check.strategy.CheckStrategy
+import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
 
 abstract class Check[WHERE](val what: Context => String, val how: ExtractorFactory[WHERE], val to: Option[String], val strategy: CheckStrategy, val expected: Option[String])
-		extends Logging {
+		extends Logging with ClassSimpleNameToString {
 
 	def check(value: Option[String]) = strategy.check(value, expected)
-
-	override def toString = this.getClass().getSimpleName()
 }

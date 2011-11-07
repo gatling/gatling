@@ -19,6 +19,7 @@ import scala.collection.immutable.Stack
 import com.excilys.ebi.gatling.core.context.Context
 
 object CounterBasedIterationHandler {
+
 	/**
 	 * Key prefix for Counters
 	 */

@@ -61,7 +61,7 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenCaptureBuilders
 	def execute(context: Context) = {
 
 		if (logger.isInfoEnabled()) {
-			logger.info("Sending Request '{}': Scenario '{}', UserId #{}", Array(request.name, context.getScenarioName, context.getUserId.toString))
+			logger.info("Sending Request '{}': Scenario '{}', UserId #{}", Array(request.name, context.scenarioName, context.userId))
 		}
 
 		feeder.map {

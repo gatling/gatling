@@ -15,14 +15,15 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
+import java.util.concurrent.CountDownLatch
+
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.action.EndAction
 
 import akka.actor.TypedActor
 
-import java.util.concurrent.CountDownLatch
-
 object EndActionBuilder {
+
 	/**
 	 * Creates a new EndActionBuilder
 	 *
@@ -40,9 +41,7 @@ object EndActionBuilder {
  */
 class EndActionBuilder(val latch: CountDownLatch) extends AbstractActionBuilder {
 
-	def build: Action = {
-		TypedActor.newInstance(classOf[Action], new EndAction(latch))
-	}
+	def build: Action = TypedActor.newInstance(classOf[Action], new EndAction(latch))
 
 	def withNext(next: Action): AbstractActionBuilder = this
 

@@ -44,16 +44,13 @@ object ScenarioBuilder {
  * @param next the action that will be executed after this scenario (that can be a chain as well)
  * @param groups the groups for all the actions of this scenario
  */
-class ScenarioBuilder(name: String, actionBuilders: List[AbstractActionBuilder])
-		extends AbstractStructureBuilder[ScenarioBuilder](actionBuilders) {
+class ScenarioBuilder(val name: String, actionBuilders: List[AbstractActionBuilder]) extends AbstractStructureBuilder[ScenarioBuilder](actionBuilders) {
 
 	def newInstance(actionBuilders: List[AbstractActionBuilder]) = {
 		new ScenarioBuilder(name, actionBuilders)
 	}
 
 	def getInstance = this
-
-	def getName = name
 
 	def configure = new ScenarioConfigurationBuilder(this)
 

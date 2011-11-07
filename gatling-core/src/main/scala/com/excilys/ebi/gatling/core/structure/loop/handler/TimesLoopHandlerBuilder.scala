@@ -31,7 +31,7 @@ class TimesLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder
 
 		val counter = counterName.getOrElse(new Uuid().toString)
 
-		val chainActions: List[AbstractActionBuilder] = chain.getActionBuilders ::: List(incrementCounterAction(counter))
+		val chainActions: List[AbstractActionBuilder] = chain.actionBuilders ::: List(incrementCounterAction(counter))
 		var iteratedActions: List[AbstractActionBuilder] = Nil
 
 		for (i <- 1 to times)

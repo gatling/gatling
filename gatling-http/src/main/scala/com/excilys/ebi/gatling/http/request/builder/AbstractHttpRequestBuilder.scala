@@ -113,7 +113,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	}
 
 	private def addURLTo(requestBuilder: RequestBuilder, context: Context) = {
-		val urlProvided = urlFormatter.get.apply(context)
+		val urlProvided = urlFormatter.get(context)
 
 		val httpConfiguration = context.getProtocolConfiguration(HTTP_PROTOCOL_TYPE).map { configuration =>
 			configuration.asInstanceOf[HttpProtocolConfiguration]

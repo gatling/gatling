@@ -29,9 +29,7 @@ import com.excilys.ebi.gatling.core.context.handler.TimerBasedIterationHandler
  */
 class WhileAction(testFunction: (Context, Action) => Boolean, var loopNext: WhileAction => Action, next: Action, counterName: Option[String]) extends Action with TimerBasedIterationHandler with CounterBasedIterationHandler {
 
-	val loopNextAction = loopNext.apply(this)
-
-	var alreadyExecuted = false
+	val loopNextAction = loopNext(this)
 
 	/**
 	 * Evaluates the testFunction and if true executes the first action of loopNext
@@ -47,7 +45,7 @@ class WhileAction(testFunction: (Context, Action) => Boolean, var loopNext: Whil
 
 		increment(context, uuid, counterName)
 
-		if (testFunction.apply(context, this)) {
+		if (testFunction(context, this)) {
 			loopNextAction.execute(context)
 		} else {
 			expire(context, uuid, counterName)

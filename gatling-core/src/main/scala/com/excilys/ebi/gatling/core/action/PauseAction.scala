@@ -23,6 +23,14 @@ import com.excilys.ebi.gatling.core.context.Context
 
 import scala.util.Random
 
+object PauseAction {
+
+	/**
+	 * used to generate random pause durations
+	 */
+	val randomGenerator = new Random
+}
+
 /**
  * This action represents a pause in the scenario (ie: think time)
  *
@@ -35,11 +43,6 @@ import scala.util.Random
 class PauseAction(next: Action, minDuration: Long, maxDuration: Long, timeUnit: TimeUnit) extends Action {
 
 	/**
-	 * used to generate random pause durations
-	 */
-	val randomGenerator = new Random
-
-	/**
 	 * Generates a duration if required or use the one given and defer
 	 * next actor execution of this duration
 	 *
@@ -48,9 +51,10 @@ class PauseAction(next: Action, minDuration: Long, maxDuration: Long, timeUnit: 
 	 */
 	def execute(context: Context) = {
 
+		val diff = maxDuration - minDuration
 		val duration =
-			if (maxDuration - minDuration > 0)
-				randomGenerator.nextInt((maxDuration - minDuration).toInt) + minDuration
+			if (diff > 0)
+				PauseAction.randomGenerator.nextInt((diff).toInt) + minDuration
 			else
 				minDuration
 

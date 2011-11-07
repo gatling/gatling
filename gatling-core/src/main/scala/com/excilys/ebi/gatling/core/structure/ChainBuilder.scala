@@ -24,9 +24,7 @@ object ChainBuilder {
 class ChainBuilder(actionBuilders: List[AbstractActionBuilder], next: Action, groups: List[String])
 		extends AbstractStructureBuilder[ChainBuilder](actionBuilders) {
 
-	def newInstance(actionBuilders: List[AbstractActionBuilder]) = {
-		new ChainBuilder(actionBuilders, next, groups)
-	}
+	def newInstance(actionBuilders: List[AbstractActionBuilder]) = new ChainBuilder(actionBuilders, next, groups)
 
 	def getInstance = this
 

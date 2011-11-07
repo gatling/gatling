@@ -33,7 +33,7 @@ class RegExpExtractor(textContent: String, occurence: Int) extends Extractor {
 	 */
 	def extract(expression: String): Option[String] = {
 		logger.debug("[RegExpExtractor] Extracting with expression : {}", expression)
-		new Regex(expression.toString).findFirstMatchIn(textContent).map { m =>
+		new Regex(expression).findFirstMatchIn(textContent).map { m =>
 			if (m.groupCount > 0)
 				// TODO check
 				m.group(occurence + 1)

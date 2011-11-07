@@ -28,7 +28,7 @@ object GatlingConfig extends Logging {
 	/**
 	 * Contains the configuration of Gatling
 	 */
-	val loadConfig: GatlingConfiguration =
+	val config: GatlingConfiguration =
 		try {
 			// Locate configuration file, depending on users options
 			val configFile =
@@ -46,8 +46,6 @@ object GatlingConfig extends Logging {
 				logger.error("{}\n{}", e.getMessage, e.getStackTraceString)
 				throw new Exception("Could not parse configuration file.")
 		}
-
-	def config = loadConfig
 
 	/**
 	 * Gatling feeder encoding value

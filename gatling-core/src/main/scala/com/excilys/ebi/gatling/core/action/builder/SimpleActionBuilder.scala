@@ -31,14 +31,12 @@ object SimpleActionBuilder {
 
 class SimpleActionBuilder(contextModifier: (Context, Action) => Unit, next: Action, groups: List[String]) extends AbstractActionBuilder {
 
-	def withNext(next: Action): AbstractActionBuilder = new SimpleActionBuilder(contextModifier, next, groups)
+	def withNext(next: Action) = new SimpleActionBuilder(contextModifier, next, groups)
 
-	def inGroups(groups: List[String]): AbstractActionBuilder = new SimpleActionBuilder(contextModifier, next, groups)
+	def inGroups(groups: List[String]) = new SimpleActionBuilder(contextModifier, next, groups)
 
 	def build(): Action = {
 		logger.debug("Building Simple Action")
-
 		TypedActor.newInstance(classOf[Action], new SimpleAction(contextModifier, next))
 	}
-
 }

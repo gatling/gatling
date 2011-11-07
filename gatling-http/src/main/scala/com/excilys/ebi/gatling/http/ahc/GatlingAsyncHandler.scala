@@ -62,7 +62,7 @@ class GatlingAsyncHandler(context: Context, checks: MSet[HttpCheck], next: Actio
 	private val indexedChecks: MultiMap[HttpPhase, HttpCheck] = new MHashMap[HttpPhase, MSet[HttpCheck]] with MultiMap[HttpPhase, HttpCheck]
 	checks.foreach(check => indexedChecks.addBinding(check.when, check))
 
-	private val identifier = requestName + context.getUserId
+	private val identifier = requestName + context.userId
 
 	private val responseBuilder = new ResponseBuilder()
 
@@ -118,9 +118,9 @@ class GatlingAsyncHandler(context: Context, checks: MSet[HttpCheck], next: Actio
 	}
 
 	private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String, processingStartTimeNano: Long) = {
-		actorFor(context.getWriteActorUuid).map { a =>
+		actorFor(context.writeActorUuid).map { a =>
 			val responseTimeMillis = TimeUnit.MILLISECONDS.convert(processingStartTimeNano - executionStartTimeNano, TimeUnit.NANOSECONDS)
-			a ! ActionInfo(context.getScenarioName, context.getUserId, "Request " + requestName, executionStartDate, responseTimeMillis, requestResult, requestMessage, groups)
+			a ! ActionInfo(context.scenarioName, context.userId, "Request " + requestName, executionStartDate, responseTimeMillis, requestResult, requestMessage, groups)
 		}
 
 		context.setAttribute(Context.LAST_ACTION_DURATION_KEY, System.nanoTime() - processingStartTimeNano)
@@ -156,7 +156,7 @@ class GatlingAsyncHandler(context: Context, checks: MSet[HttpCheck], next: Actio
 
 				for (check <- phaseChecks) {
 					val extractor = phaseExtractors.get(check.how).get
-					val extractedValue = extractor.extract(check.what.apply(context))
+					val extractedValue = extractor.extract(check.what(context))
 					logger.debug("Extracted value: {}", extractedValue)
 
 					if (!check.check(extractedValue)) {
@@ -165,7 +165,7 @@ class GatlingAsyncHandler(context: Context, checks: MSet[HttpCheck], next: Actio
 						return
 
 					} else if (extractedValue.isDefined && check.to.isDefined) {
-						context.setAttribute(check.to.get, extractedValue.get.toString)
+						context.setAttribute(check.to.get, extractedValue.get)
 					}
 				}
 			}

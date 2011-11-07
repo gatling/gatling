@@ -41,6 +41,7 @@ object XPathExtractor {
  */
 class XPathExtractor(xmlContent: InputStream, occurence: Int) extends Extractor {
 
+	// parse the document in the constructor sa that the extractor can be efficiently reused for multiple extractions
 	val document = XPathExtractor.parser.parse(xmlContent)
 
 	/**
@@ -53,7 +54,7 @@ class XPathExtractor(xmlContent: InputStream, occurence: Int) extends Extractor 
 	def extract(expression: String): Option[String] = {
 		logger.debug("[XPathExtractor] Extracting with expression : {}", expression)
 
-		val xpathExpression: XPath = new DOMXPath(expression.toString);
+		val xpathExpression: XPath = new DOMXPath(expression);
 
 		val results = xpathExpression.selectNodes(document).asInstanceOf[java.util.List[Node]]
 

@@ -44,7 +44,6 @@ class StartActionBuilder(next: Action, groups: List[String]) extends AbstractAct
 
 	def build: Action = {
 		logger.debug("Building StartAction")
-
 		TypedActor.newInstance(classOf[Action], new StartAction(next))
 	}
 }

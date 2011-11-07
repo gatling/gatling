@@ -55,11 +55,13 @@ class GroupActionBuilder(groupName: Option[String], end: Option[Boolean]) extend
 	/**
 	 * @return the value of end
 	 */
+	// FIXME not safe
 	def isEnd = end.get
 
 	/**
 	 * @return the name of the group
 	 */
+	// FIXME not safe
 	def getName = groupName.get
 
 	/**

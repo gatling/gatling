@@ -128,7 +128,7 @@ class Runner(val startDate: DateTime, val scenarioConfigurationBuilders: List[Sc
 	 * @return the built context
 	 */
 	private def buildContext(configuration: ScenarioConfiguration, userId: Int) = {
-		val ctx = new Context(configuration.scenarioBuilder.getName, userId, statWriter.getUuid)
+		val ctx = new Context(configuration.scenarioBuilder.name, userId, statWriter.getUuid)
 
 		ctx.setProtocolConfig(configuration.protocolConfigurations)
 

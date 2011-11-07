@@ -28,7 +28,7 @@ import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder._
 import com.excilys.ebi.gatling.core.structure.loop.LoopBuilder
 import com.excilys.ebi.gatling.core.action.builder.CountBasedIterationActionBuilder._
 
-abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](actionBuilders: List[AbstractActionBuilder])
+abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val actionBuilders: List[AbstractActionBuilder])
 		extends Logging {
 
 	private var currentGroups: List[String] = Nil
@@ -40,8 +40,6 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 	private[structure] def getCurrentGroups = currentGroups
 
 	def newInstance(actionBuilders: List[AbstractActionBuilder]): B
-
-	def getActionBuilders = actionBuilders
 
 	def exec(actionBuilder: AbstractActionBuilder): B = newInstance(actionBuilder :: actionBuilders)
 
@@ -159,7 +157,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 	 * @param chain the chain to be included in the scenario
 	 * @return a new builder with all actions from the chain added to its actions
 	 */
-	def insertChain(chain: ChainBuilder): B = newInstance(chain.getActionBuilders ::: actionBuilders)
+	def insertChain(chain: ChainBuilder): B = newInstance(chain.actionBuilders ::: actionBuilders)
 
 	def loop(chain: ChainBuilder) = new LoopBuilder[B](getInstance, chain, None)
 

@@ -16,16 +16,16 @@
 package com.excilys.ebi.gatling.core.action
 
 import akka.actor.TypedActor
-
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
 
 /**
  * This trait represents an Action in Gatling terms.
  *
  * An action is a part of a scenario, the chain of actions IS the scenario
  */
-trait Action extends TypedActor with Logging {
+trait Action extends TypedActor with Logging with ClassSimpleNameToString {
 	/**
 	 * This method is used to send a message to this actor
 	 *
@@ -35,6 +35,4 @@ trait Action extends TypedActor with Logging {
 	def execute(context: Context)
 
 	def getUuidAsString = getContext.uuid.toString
-
-	override def toString = this.getClass().getSimpleName()
 }
