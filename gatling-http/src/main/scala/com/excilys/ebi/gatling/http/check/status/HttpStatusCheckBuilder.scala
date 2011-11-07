@@ -15,22 +15,22 @@
  */
 package com.excilys.ebi.gatling.http.check.status
 
-import com.excilys.ebi.gatling.core.check.checktype.InRangeCheckType.rangeToString
-import com.excilys.ebi.gatling.core.check.checktype.{ InRangeCheckType, EqualityCheckType, CheckType }
+import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy.rangeToString
+import com.excilys.ebi.gatling.core.check.strategy.{InRangeCheckStrategy, EqualityCheckStrategy, CheckStrategy}
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilder, HttpCheck }
+import com.excilys.ebi.gatling.http.check.{HttpCheckBuilder, HttpCheck}
 import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
 
 object HttpStatusCheckBuilder {
-	def statusInRange(range: Range) = new HttpStatusCheckBuilder(None, InRangeCheckType, Some(range))
-	def status(status: Int) = new HttpStatusCheckBuilder(None, EqualityCheckType, Some(status.toString))
+	def statusInRange(range: Range) = new HttpStatusCheckBuilder(None, InRangeCheckStrategy, Some(range))
+	def status(status: Int) = new HttpStatusCheckBuilder(None, EqualityCheckStrategy, Some(status.toString))
 }
 
-class HttpStatusCheckBuilder(to: Option[String], checkType: CheckType, expected: Option[String])
-		extends HttpCheckBuilder[HttpStatusCheckBuilder]((c: Context) => EMPTY, to, checkType, expected, StatusReceived) {
+class HttpStatusCheckBuilder(to: Option[String], strategy: CheckStrategy, expected: Option[String])
+		extends HttpCheckBuilder[HttpStatusCheckBuilder]((c: Context) => EMPTY, to, strategy, expected, StatusReceived) {
 
-	def newInstance(what: Context => String, to: Option[String], checkType: CheckType, expected: Option[String]) = {
+	def newInstance(what: Context => String, to: Option[String], checkType: CheckStrategy, expected: Option[String]) = {
 		new HttpStatusCheckBuilder(to, checkType, expected)
 	}
 

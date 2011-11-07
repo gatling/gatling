@@ -18,14 +18,12 @@ package com.excilys.ebi.gatling.core.check
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.check.checktype.CheckType
+import com.excilys.ebi.gatling.core.check.strategy.CheckStrategy
 
-abstract class Check[WHERE](val what: Context => String, val how: ExtractorFactory[WHERE], val to: Option[String], val checkType: CheckType, val expected: Option[String])
+abstract class Check[WHERE](val what: Context => String, val how: ExtractorFactory[WHERE], val to: Option[String], val strategy: CheckStrategy, val expected: Option[String])
 		extends Logging {
 
-	def getResult(value: Option[String]) = {
-		checkType.doCheck(value, expected)
-	}
+	def check(value: Option[String]) = strategy.check(value, expected)
 
 	override def toString = this.getClass().getSimpleName()
 }

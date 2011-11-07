@@ -15,18 +15,18 @@
  */
 package com.excilys.ebi.gatling.http.check
 
+import com.excilys.ebi.gatling.core.check.strategy.CheckStrategy
+import com.excilys.ebi.gatling.core.check.CheckBuilder
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
-import com.excilys.ebi.gatling.core.check.checktype.CheckType
-import com.excilys.ebi.gatling.core.check.CheckBuilder
 import com.ning.http.client.Response
 
-abstract class HttpCheckBuilder[B <: HttpCheckBuilder[B]](what: Context => String, to: Option[String], checkType: CheckType, expected: Option[String], when: HttpPhase)
+abstract class HttpCheckBuilder[B <: HttpCheckBuilder[B]](what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String], when: HttpPhase)
 		extends CheckBuilder[Response] {
 
-	def newInstance(what: Context => String, to: Option[String], checkType: CheckType, expected: Option[String]): B
+	def newInstance(what: Context => String, to: Option[String], checkType: CheckStrategy, expected: Option[String]): B
 
-	def in(to: String) = newInstance(what, Some(to), checkType, expected)
+	def in(to: String) = newInstance(what, Some(to), strategy, expected)
 
 	override def build: HttpCheck
 }

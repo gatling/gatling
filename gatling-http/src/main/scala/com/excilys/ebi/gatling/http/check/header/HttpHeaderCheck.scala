@@ -15,11 +15,12 @@
  */
 package com.excilys.ebi.gatling.http.check.header
 
-import com.excilys.ebi.gatling.core.check.checktype.CheckType
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.http.check.header.extractor.HttpHeaderExtractorFactory
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
+import com.excilys.ebi.gatling.core.check.strategy.CheckStrategy
 
-class HttpHeaderCheck(what: Context => String, to: Option[String], checkType: CheckType, expected: Option[String])
-	extends HttpCheck(what, HttpHeaderExtractorFactory, to, checkType, expected, CompletePageReceived)
+class HttpHeaderCheck(what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String])
+		extends HttpCheck(what, HttpHeaderExtractorFactory, to, strategy, expected, CompletePageReceived) {
+}

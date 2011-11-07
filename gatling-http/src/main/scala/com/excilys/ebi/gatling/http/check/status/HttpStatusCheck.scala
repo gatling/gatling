@@ -15,14 +15,15 @@
  */
 package com.excilys.ebi.gatling.http.check.status
 
-import com.excilys.ebi.gatling.core.check.checktype.InRangeCheckType
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.check.status.extractor.HttpStatusExtractorFactory
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
+import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy
 
 class HttpStatusCheck(to: Option[String], expected: Option[String])
-		extends HttpCheck((c: Context) => EMPTY, HttpStatusExtractorFactory, to, InRangeCheckType, expected, CompletePageReceived) {
+		extends HttpCheck((c: Context) => EMPTY, HttpStatusExtractorFactory, to, InRangeCheckStrategy, expected, CompletePageReceived) {
+
 	override def toString = "HttpStatusCheck (Http Response Status must be in '{" + expected + "}')"
 }

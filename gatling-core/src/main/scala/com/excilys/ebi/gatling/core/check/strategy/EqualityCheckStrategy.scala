@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.checktype
+package com.excilys.ebi.gatling.core.check.strategy
 
 /**
  * Represents a Check on Equality between value and expected
  */
-object EqualityCheckType extends CheckType {
-	def doCheck(value: Option[String], expected: Option[String]) = !value.isEmpty && value.get == expected.get
+object EqualityCheckStrategy extends CheckStrategy {
+	def check(value: Option[String], expected: Option[String]) = !value.isEmpty && value.get == expected.get
 }

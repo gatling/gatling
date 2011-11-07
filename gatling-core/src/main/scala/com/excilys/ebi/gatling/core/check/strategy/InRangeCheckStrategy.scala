@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.checktype
+package com.excilys.ebi.gatling.core.check.strategy
 
 /**
  * Represents a Check on the presence of value in range expected
  */
-object InRangeCheckType extends CheckType {
+object InRangeCheckStrategy extends CheckStrategy {
 
 	val SEPARATOR = ":"
 
 	implicit def rangeToString(range: Range) = range.mkString(SEPARATOR)
 
-	def doCheck(value: Option[String], expected: Option[String]) = !value.isEmpty && expected.get.split(SEPARATOR).contains(value.get)
+	def check(value: Option[String], expected: Option[String]) = !value.isEmpty && expected.get.split(SEPARATOR).contains(value.get)
 }

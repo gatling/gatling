@@ -15,12 +15,13 @@
  */
 package com.excilys.ebi.gatling.http.check
 
-import com.ning.http.client.Response
-import com.excilys.ebi.gatling.core.check.Check
 import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
+import com.excilys.ebi.gatling.core.check.strategy.CheckStrategy
+import com.excilys.ebi.gatling.core.check.Check
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.http.request.HttpPhase._
-import com.excilys.ebi.gatling.core.check.checktype.CheckType
+import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
+import com.ning.http.client.Response
 
-abstract class HttpCheck(what: Context => String, how: ExtractorFactory[Response], to: Option[String], checkType: CheckType, expected: Option[String], val when: HttpPhase)
-	extends Check[Response](what, how, to, checkType, expected)
+abstract class HttpCheck(what: Context => String, how: ExtractorFactory[Response], to: Option[String], checkType: CheckStrategy, expected: Option[String], val when: HttpPhase)
+		extends Check[Response](what, how, to, checkType, expected) {
+}

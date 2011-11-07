@@ -15,11 +15,12 @@
  */
 package com.excilys.ebi.gatling.http.check.body
 
-import com.excilys.ebi.gatling.core.check.checktype.CheckType
+import com.excilys.ebi.gatling.core.check.strategy.CheckStrategy
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.check.body.extractor.HttpBodyRegExpExtractorFactory
-import com.excilys.ebi.gatling.http.request.HttpPhase._
+import com.excilys.ebi.gatling.http.check.HttpCheck
+import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 
-class HttpBodyRegExpCheck(what: Context => String, to: Option[String], checkType: CheckType, expected: Option[String])
-	extends HttpCheck(what, HttpBodyRegExpExtractorFactory, to, checkType, expected, CompletePageReceived)
+class HttpBodyRegExpCheck(what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String])
+		extends HttpCheck(what, HttpBodyRegExpExtractorFactory, to, strategy, expected, CompletePageReceived) {
+}

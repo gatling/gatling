@@ -159,7 +159,7 @@ class GatlingAsyncHandler(context: Context, checks: MSet[HttpCheck], next: Actio
 					val value = extractor.extract(check.what.apply(context))
 					logger.debug("Captured Value: {}", value)
 
-					if (!check.getResult(value)) {
+					if (!check.check(value)) {
 						logger.warn("CHECK RESULT: false expected {} but received {}", check, value)
 						sendLogAndExecuteNext(KO, check + " failed", processingStartTimeNano)
 						return

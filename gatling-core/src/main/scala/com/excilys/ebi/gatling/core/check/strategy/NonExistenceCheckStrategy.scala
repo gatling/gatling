@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.checktype
+package com.excilys.ebi.gatling.core.check.strategy
 
 /**
- * Represents a Check on Existence of value
+ * Represents a Check on Non Existence (ie: absence) of value
  */
-object ExistenceCheckType extends CheckType {
-	def doCheck(value: Option[String], expected: Option[String]) = value.isDefined
+object NonExistenceCheckStrategy extends CheckStrategy {
+	def check(value: Option[String], expected: Option[String]) = value.isEmpty
 }

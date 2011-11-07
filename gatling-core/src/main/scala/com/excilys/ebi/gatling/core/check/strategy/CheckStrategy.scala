@@ -13,11 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.checktype
+package com.excilys.ebi.gatling.core.check.strategy
 
 /**
- * Represents a Check on Non Equality (ie: difference) between value and expected
+ * This trait is used to define different types of Checks
  */
-object NonEqualityCheckType extends CheckType {
-	def doCheck(value: Option[String], expected: Option[String]) = !value.isEmpty && value.get != expected.get
+trait CheckStrategy {
+	/**
+	 * Method that will actually do the verification and see if
+	 * value corresponds to what's expected
+	 */
+	def check(value: Option[String], expected: Option[String]): Boolean
 }
