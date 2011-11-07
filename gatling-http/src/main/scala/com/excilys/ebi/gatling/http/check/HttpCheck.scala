@@ -22,6 +22,6 @@ import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.ning.http.client.Response
 
-abstract class HttpCheck(what: Context => String, how: ExtractorFactory[Response], to: Option[String], checkType: CheckStrategy, expected: Option[String], val when: HttpPhase)
-		extends Check[Response](what, how, to, checkType, expected) {
+abstract class HttpCheck(what: Context => String, how: ExtractorFactory[Response], to: Option[String], strategy: CheckStrategy, expected: Option[String], val when: HttpPhase)
+		extends Check[Response](what, how, to, strategy, expected) {
 }

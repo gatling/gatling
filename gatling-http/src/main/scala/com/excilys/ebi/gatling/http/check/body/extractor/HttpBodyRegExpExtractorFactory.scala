@@ -18,10 +18,10 @@ package com.excilys.ebi.gatling.http.check.body.extractor
 import com.excilys.ebi.gatling.core.check.extractor.{ RegExpExtractor, ExtractorFactory }
 import com.ning.http.client.Response
 
-object HttpBodyRegExpExtractorFactory extends ExtractorFactory[Response] {
+class HttpBodyRegExpExtractorFactory(occurence: Int) extends ExtractorFactory[Response] {
 
 	def getExtractor(response: Response) = {
 		logger.debug("Instantiation of RegExpExtractor")
-		new RegExpExtractor(response.getResponseBody)
+		new RegExpExtractor(response.getResponseBody, occurence)
 	}
 }

@@ -24,26 +24,36 @@ import com.excilys.ebi.gatling.http.check.{HttpCheckBuilder, HttpCheck}
 import com.excilys.ebi.gatling.http.request.HttpPhase.{HttpPhase, CompletePageReceived}
 
 object HttpBodyRegExpCheckBuilder {
-	def regexpEquals(what: Context => String, expected: String) = new HttpBodyRegExpCheckBuilder(what, Some(EMPTY), EqualityCheckStrategy, Some(expected))
+	def regexpEquals(what: Context => String, occurence: Int, expected: String) = new HttpBodyRegExpCheckBuilder((what, occurence), Some(EMPTY), EqualityCheckStrategy, Some(expected))
+	def regexpEquals(what: Context => String, expected: String): HttpBodyRegExpCheckBuilder = regexpEquals(what, 0, expected)
+	def regexpEquals(expression: String, occurence: Int, expected: String): HttpBodyRegExpCheckBuilder = regexpEquals((c: Context) => expression, occurence, expected)
 	def regexpEquals(expression: String, expected: String): HttpBodyRegExpCheckBuilder = regexpEquals((c: Context) => expression, expected)
 
-	def regexpNotEquals(what: Context => String, expected: String) = new HttpBodyRegExpCheckBuilder(what, Some(EMPTY), NonEqualityCheckStrategy, Some(expected))
+	def regexpNotEquals(what: Context => String, occurence: Int, expected: String) = new HttpBodyRegExpCheckBuilder((what, occurence), Some(EMPTY), NonEqualityCheckStrategy, Some(expected))
+	def regexpNotEquals(what: Context => String, expected: String) : HttpBodyRegExpCheckBuilder = regexpNotEquals(what, 0, expected)
+	def regexpNotEquals(expression: String, occurence: Int, expected: String): HttpBodyRegExpCheckBuilder = regexpNotEquals((c: Context) => expression, occurence, expected)
 	def regexpNotEquals(expression: String, expected: String): HttpBodyRegExpCheckBuilder = regexpNotEquals((c: Context) => expression, expected)
-
-	def regexpExists(what: Context => String) = new HttpBodyRegExpCheckBuilder(what, Some(EMPTY), ExistenceCheckStrategy, Some(EMPTY))
+	
+	def regexpExists(what: Context => String, occurence: Int) = new HttpBodyRegExpCheckBuilder((what, occurence), Some(EMPTY), ExistenceCheckStrategy, Some(EMPTY))
+	def regexpExists(what: Context => String) : HttpBodyRegExpCheckBuilder = regexpExists(what, 0)
+	def regexpExists(expression: String, occurence: Int): HttpBodyRegExpCheckBuilder = regexpExists((c: Context) => expression, occurence)
 	def regexpExists(expression: String): HttpBodyRegExpCheckBuilder = regexpExists((c: Context) => expression)
 
-	def regexpNotExists(what: Context => String) = new HttpBodyRegExpCheckBuilder(what, Some(EMPTY), NonExistenceCheckStrategy, Some(EMPTY))
+	def regexpNotExists(what: Context => String, occurence: Int) = new HttpBodyRegExpCheckBuilder((what, occurence), Some(EMPTY), NonExistenceCheckStrategy, Some(EMPTY))
+	def regexpNotExists(what: Context => String) : HttpBodyRegExpCheckBuilder = regexpNotExists(what, 0)
+	def regexpNotExists(expression: String, occurence: Int): HttpBodyRegExpCheckBuilder = regexpNotExists((c: Context) => expression, occurence)
 	def regexpNotExists(expression: String): HttpBodyRegExpCheckBuilder = regexpNotExists((c: Context) => expression)
 
+	def regexp(what: Context => String, occurence: Int) = regexpExists(what, occurence)
 	def regexp(what: Context => String) = regexpExists(what)
+	def regexp(expression: String, occurence: Int) = regexpExists(expression, occurence)
 	def regexp(expression: String) = regexpExists(expression)
 }
 
-class HttpBodyRegExpCheckBuilder(what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String])
-		extends HttpCheckBuilder[HttpBodyRegExpCheckBuilder](what, to, strategy, expected, CompletePageReceived) {
+class HttpBodyRegExpCheckBuilder(what: (Context => String, Int), to: Option[String], strategy: CheckStrategy, expected: Option[String])
+		extends HttpCheckBuilder[HttpBodyRegExpCheckBuilder](what._1, to, strategy, expected, CompletePageReceived) {
 
-	def newInstance(what: Context => String, to: Option[String], checkType: CheckStrategy, expected: Option[String], when: HttpPhase) = new HttpBodyRegExpCheckBuilder(what, to, checkType, expected)
+	def newInstance(what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String], when: HttpPhase) = new HttpBodyRegExpCheckBuilder((what, this.what._2), to, strategy, expected)
 
 	def build: HttpCheck = new HttpBodyRegExpCheck(what, to, strategy, expected)
 }

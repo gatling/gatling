@@ -40,10 +40,10 @@ object HttpHeaderCheckBuilder {
 	def header(headerName: String) = headerExists(headerName)
 }
 
-class HttpHeaderCheckBuilder(what: Context => String, to: Option[String], checkType: CheckStrategy, expected: Option[String])
-		extends HttpCheckBuilder[HttpHeaderCheckBuilder](what, to, checkType, expected, HeadersReceived) {
+class HttpHeaderCheckBuilder(what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String])
+		extends HttpCheckBuilder[HttpHeaderCheckBuilder](what, to, strategy, expected, HeadersReceived) {
 
-	def newInstance(what: Context => String, to: Option[String], checkType: CheckStrategy, expected: Option[String], when: HttpPhase) = new HttpHeaderCheckBuilder(what, to, checkType, expected)
+	def newInstance(what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String], when: HttpPhase) = new HttpHeaderCheckBuilder(what, to, strategy, expected)
 
-	def build: HttpCheck = new HttpHeaderCheck(what, to, checkType, expected)
+	def build: HttpCheck = new HttpHeaderCheck(what, to, strategy, expected)
 }

@@ -24,7 +24,7 @@ import com.ning.http.client.Response
 abstract class HttpCheckBuilder[B <: HttpCheckBuilder[B]](what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String], val when: HttpPhase)
 		extends CheckBuilder[Response](what, to, strategy, expected) {
 
-	def newInstance(what: Context => String, to: Option[String], checkType: CheckStrategy, expected: Option[String], when: HttpPhase): B
+	def newInstance(what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String], when: HttpPhase): B
 
 	def in(to: String) = newInstance(what, Some(to), strategy, expected, when)
 

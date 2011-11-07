@@ -24,6 +24,8 @@ import org.w3c.dom.Node
 import javax.xml.parsers.DocumentBuilderFactory
 
 object XPathExtractor {
+	// FIXME should use Xerces by default
+	// TODO investigate DOM implem
 	private val factory = DocumentBuilderFactory.newInstance
 	factory.setNamespaceAware(false) // Should be configurable as well as other features of this factory
 
@@ -37,7 +39,7 @@ object XPathExtractor {
  * @constructor creates a new XPathCaptureProvider
  * @param xmlContent the XML document as bytes in which the XPath search will be applied
  */
-class XPathExtractor(xmlContent: InputStream) extends Extractor {
+class XPathExtractor(xmlContent: InputStream, occurence: Int) extends Extractor {
 
 	val document = XPathExtractor.parser.parse(xmlContent)
 
@@ -53,12 +55,12 @@ class XPathExtractor(xmlContent: InputStream) extends Extractor {
 
 		val xpathExpression: XPath = new DOMXPath(expression.toString);
 
-		val results = xpathExpression.selectNodes(document).asInstanceOf[java.util.List[Node]] // FIXME: Node is in org.w3c.dom. Which DOM implementation is the best ?
+		val results = xpathExpression.selectNodes(document).asInstanceOf[java.util.List[Node]]
 
-		val result = if (results.isEmpty())
-			None
+		val result = if (results.size() > occurence)
+			Some(results.get(occurence).getTextContent)
 		else
-			Some(results.get(0).getTextContent) // FIXME: one can choose which result to get
+			None
 
 		logger.debug("XPath Extraction: {}", result)
 		result

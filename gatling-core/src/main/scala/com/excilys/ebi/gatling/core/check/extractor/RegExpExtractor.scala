@@ -23,7 +23,7 @@ import scala.util.matching.Regex
  * @constructor creates a new RegExpCaptureProvider
  * @param textContent the text where the search will be made
  */
-class RegExpExtractor(textContent: String) extends Extractor {
+class RegExpExtractor(textContent: String, occurence: Int) extends Extractor {
 	/**
 	 * The actual capture happens here. The regular expression is compiled and the first
 	 * result is returned if existing.
@@ -35,7 +35,8 @@ class RegExpExtractor(textContent: String) extends Extractor {
 		logger.debug("[RegExpExtractor] Extracting with expression : {}", expression)
 		new Regex(expression.toString).findFirstMatchIn(textContent).map { m =>
 			if (m.groupCount > 0)
-				m.group(1)
+				// TODO check
+				m.group(occurence + 1)
 			else
 				m.matched
 		}

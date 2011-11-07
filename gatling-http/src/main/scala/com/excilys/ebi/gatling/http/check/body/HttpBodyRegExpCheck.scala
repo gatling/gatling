@@ -21,6 +21,6 @@ import com.excilys.ebi.gatling.http.check.body.extractor.HttpBodyRegExpExtractor
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 
-class HttpBodyRegExpCheck(what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String])
-		extends HttpCheck(what, HttpBodyRegExpExtractorFactory, to, strategy, expected, CompletePageReceived) {
+class HttpBodyRegExpCheck(what: (Context => String, Int), to: Option[String], strategy: CheckStrategy, expected: Option[String])
+		extends HttpCheck(what._1, new HttpBodyRegExpExtractorFactory(what._2), to, strategy, expected, CompletePageReceived) {
 }

@@ -19,10 +19,10 @@ import com.ning.http.client.Response
 import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.extractor.XPathExtractor
 
-object HttpBodyXPathExtractorFactory extends ExtractorFactory[Response] {
+class HttpBodyXPathExtractorFactory(occurence: Int) extends ExtractorFactory[Response] {
 
 	def getExtractor(response: Response) = {
 		logger.debug("Instantiation of XPathExtractor")
-		new XPathExtractor(response.getResponseBodyAsStream)
+		new XPathExtractor(response.getResponseBodyAsStream, occurence)
 	}
 }
