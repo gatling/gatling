@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.check.body.check
+package com.excilys.ebi.gatling.http.check.body
 
 import com.excilys.ebi.gatling.core.check.checktype.CheckType
 import com.excilys.ebi.gatling.core.check.checktype.EqualityCheckType
@@ -38,6 +38,9 @@ object HttpBodyXPathCheckBuilder {
 
 	def xpathNotExists(what: Context => String) = new HttpBodyXPathCheckBuilder(what, Some(EMPTY), NonExistenceCheckType, None)
 	def xpathNotExists(expression: String): HttpBodyXPathCheckBuilder = xpathNotExists((c: Context) => expression)
+
+	def xpath(what: Context => String) = xpathExists(what)
+	def xpath(expression: String) = xpathExists(expression)
 }
 
 class HttpBodyXPathCheckBuilder(what: Context => String, to: Option[String], checkType: CheckType, expected: Option[String])

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.check.body.check
+package com.excilys.ebi.gatling.http.check.body
 
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.http.request.HttpPhase._
@@ -38,6 +38,9 @@ object HttpBodyRegExpCheckBuilder {
 
 	def regexpNotExists(what: Context => String) = new HttpBodyRegExpCheckBuilder(what, Some(EMPTY), NonExistenceCheckType, Some(EMPTY))
 	def regexpNotExists(expression: String): HttpBodyRegExpCheckBuilder = regexpNotExists((c: Context) => expression)
+
+	def regexp(what: Context => String) = regexpExists(what)
+	def regexp(expression: String) = regexpExists(expression)
 }
 
 class HttpBodyRegExpCheckBuilder(what: Context => String, to: Option[String], checkType: CheckType, expected: Option[String])

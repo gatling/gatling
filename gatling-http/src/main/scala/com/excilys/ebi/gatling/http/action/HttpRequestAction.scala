@@ -26,8 +26,8 @@ import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.excilys.ebi.gatling.http.resource.HttpClientResource
 import com.ning.http.client.{ AsyncHttpClientConfig, AsyncHttpClient }
 import com.ning.http.client.Response
-import com.excilys.ebi.gatling.http.check.status.check.HttpStatusCheck
-import com.excilys.ebi.gatling.http.check.status.check.HttpStatusCheckBuilder._
+import com.excilys.ebi.gatling.http.check.status.HttpStatusCheck
+import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder._
 import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheck
 

@@ -26,5 +26,7 @@ abstract class HttpCheckBuilder[B <: HttpCheckBuilder[B]](what: Context => Strin
 
 	def newInstance(what: Context => String, to: Option[String], checkType: CheckType, expected: Option[String]): B
 
+	def in(to: String) = newInstance(what, Some(to), checkType, expected)
+
 	override def build: HttpCheck
 }

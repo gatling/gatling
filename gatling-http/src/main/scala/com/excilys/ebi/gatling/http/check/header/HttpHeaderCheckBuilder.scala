@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.check.header.check
+package com.excilys.ebi.gatling.http.check.header
 
 import com.excilys.ebi.gatling.core.check.checktype.{ NonExistenceCheckType, NonEqualityCheckType, ExistenceCheckType, EqualityCheckType, CheckType }
 import com.excilys.ebi.gatling.core.context.Context
@@ -33,6 +33,9 @@ object HttpHeaderCheckBuilder {
 
 	def headerNotExists(what: Context => String) = new HttpHeaderCheckBuilder(what, Some(EMPTY), NonExistenceCheckType, Some(EMPTY))
 	def headerNotExists(headerName: String): HttpHeaderCheckBuilder = headerNotExists((c: Context) => headerName)
+
+	def header(what: Context => String) = headerExists(what)
+	def header(headerName: String) = headerExists(headerName)
 }
 
 class HttpHeaderCheckBuilder(what: Context => String, to: Option[String], checkType: CheckType, expected: Option[String])

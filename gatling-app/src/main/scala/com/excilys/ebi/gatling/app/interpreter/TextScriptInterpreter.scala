@@ -50,13 +50,10 @@ class TextScriptInterpreter extends Interpreter {
     import com.excilys.ebi.gatling.core.structure.ChainBuilder._
     import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder._
     import com.excilys.ebi.gatling.http.config.HttpProtocolConfigurationBuilder._
-    import com.excilys.ebi.gatling.http.capture.body.HttpBodyRegExpCaptureBuilder._
-    import com.excilys.ebi.gatling.http.capture.body.HttpBodyXPathCaptureBuilder._
-    import com.excilys.ebi.gatling.http.capture.header.HttpHeaderCaptureBuilder._
-	import com.excilys.ebi.gatling.http.capture.header.check.HttpHeaderCheckBuilder._
-    import com.excilys.ebi.gatling.http.capture.body.check.HttpBodyXPathCheckBuilder._
-    import com.excilys.ebi.gatling.http.capture.body.check.HttpBodyRegExpCheckBuilder._
-    import com.excilys.ebi.gatling.http.capture.status.check.HttpStatusCheckBuilder._
+    import com.excilys.ebi.gatling.http.check.body.HttpBodyRegExpCheckBuilder._
+    import com.excilys.ebi.gatling.http.check.body.HttpBodyXPathCheckBuilder._
+    import com.excilys.ebi.gatling.http.check.header.HttpHeaderCheckBuilder._
+    import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder._
     import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
     import java.util.concurrent.TimeUnit
     import org.joda.time.DateTime

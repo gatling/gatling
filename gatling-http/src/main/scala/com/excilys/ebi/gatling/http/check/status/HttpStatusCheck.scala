@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.check.status.check
+package com.excilys.ebi.gatling.http.check.status
 
 import com.excilys.ebi.gatling.core.check.checktype.InRangeCheckType
 import com.excilys.ebi.gatling.core.context.Context
