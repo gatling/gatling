@@ -24,14 +24,14 @@ import com.excilys.ebi.gatling.core.log.Logging
  */
 object ResourceRegistry extends Logging {
 
-	private var resources: Set[Resource] = Set.empty
+	private var onCloseCallbacks: Set[() => Any] = Set.empty
 
 	/**
 	 * Registers the resource
 	 */
-	def register(resource: Resource) = {
-		logger.debug("Registering {}", resource)
-		resources += resource
+	def registerOnCloseCallback(onCloseCallback: () => Any) = {
+		logger.debug("Registering {}", onCloseCallback)
+		onCloseCallbacks += onCloseCallback
 	}
 
 	/**
@@ -40,12 +40,12 @@ object ResourceRegistry extends Logging {
 	 * to the logs
 	 */
 	def closeAll = {
-		for (resource <- resources) {
-			logger.debug("Closing {}", resource)
+		for (onCloseCallback <- onCloseCallbacks) {
+			logger.debug("Closing {}", onCloseCallback)
 			try {
-				resource.close
+				onCloseCallback.apply
 			} catch {
-				case e => logger.warn("Could not close resource {}: {}", resource, e)
+				case e => logger.error("Could not close resource {}: {}", onCloseCallback, e)
 			}
 		}
 	}

@@ -23,7 +23,6 @@ import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandler
 import com.excilys.ebi.gatling.http.request.HttpRequest
-import com.excilys.ebi.gatling.http.resource.HttpClientResource
 import com.ning.http.client.{ AsyncHttpClientConfig, AsyncHttpClient }
 import com.ning.http.client.Response
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheck
@@ -34,9 +33,8 @@ import com.excilys.ebi.gatling.http.check.HttpCheck
 object HttpRequestAction {
 	val DEFAULT_HTTP_STATUS_CHECK = statusInRange(Range(200, 210)).build
 
-	// TODO lazy?
 	val CLIENT: AsyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setCompressionEnabled(true).build())
-	ResourceRegistry.register(new HttpClientResource(CLIENT))
+	ResourceRegistry.registerOnCloseCallback(() => CLIENT.close)
 }
 
 class HttpRequestAction(next: Action, request: HttpRequest, givenCaptureBuilders: Option[List[HttpCheckBuilder[_]]], groups: List[String], feeder: Option[Feeder])
