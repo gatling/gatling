@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.http.capture.status.HttpStatusCapture
 import com.excilys.ebi.gatling.http.capture.HttpCheck
 import com.excilys.ebi.gatling.core.capture.check.InRangeCheckType
 
-class HttpStatusCheck(to: String, val expected: String) extends HttpStatusCapture(to) with HttpCheck {
+class HttpStatusCheck(to: String, val expected: Option[String]) extends HttpStatusCapture(to) with HttpCheck {
 
 	def getCheckType = InRangeCheckType
 

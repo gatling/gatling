@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.capture.Capture
 trait Check[WHERE] extends Capture[WHERE] {
 
 	def getCheckType: CheckType
-	def getExpected: String
+	def getExpected: Option[String]
 
 	def getResult(value: Option[String]) = {
 		getCheckType.doCheck(value, getExpected)

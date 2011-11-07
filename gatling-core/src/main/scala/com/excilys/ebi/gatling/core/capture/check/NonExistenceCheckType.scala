@@ -19,5 +19,5 @@ package com.excilys.ebi.gatling.core.capture.check
  * Represents a Check on Non Existence (ie: absence) of value
  */
 object NonExistenceCheckType extends CheckType {
-	def doCheck(value: Option[String], range: String) = value.isEmpty
+	def doCheck(value: Option[String], expected: Option[String]) = value.isEmpty
 }

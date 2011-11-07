@@ -42,5 +42,5 @@ class HttpHeaderCheckBuilder(what: Context => String, to: Option[String], checkT
 		new HttpHeaderCheckBuilder(what, to, checkType, expected)
 	}
 
-	def build: HttpCheck = new HttpHeaderCheck(what, to.get, checkType, expected.get)
+	def build: HttpCheck = new HttpHeaderCheck(what, to.get, checkType, expected)
 }

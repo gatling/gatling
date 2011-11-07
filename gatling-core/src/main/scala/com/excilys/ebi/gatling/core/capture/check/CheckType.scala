@@ -23,5 +23,5 @@ trait CheckType {
 	 * Method that will actually do the verification and see if
 	 * value corresponds to what's expected
 	 */
-	def doCheck(value: Option[String], expected: String): Boolean
+	def doCheck(value: Option[String], expected: Option[String]): Boolean
 }

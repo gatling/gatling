@@ -19,5 +19,5 @@ package com.excilys.ebi.gatling.core.capture.check
  * Represents a Check on Existence of value
  */
 object ExistenceCheckType extends CheckType {
-	def doCheck(value: Option[String], range: String) = value.isDefined
+	def doCheck(value: Option[String], expected: Option[String]) = value.isDefined
 }

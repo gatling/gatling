@@ -34,5 +34,5 @@ class HttpStatusCheckBuilder(to: Option[String], checkType: CheckType, expected:
 		new HttpStatusCheckBuilder(to, checkType, expected)
 	}
 
-	def build: HttpCheck = new HttpStatusCheck(to.get, expected.get)
+	def build: HttpCheck = new HttpStatusCheck(to.get, expected)
 }

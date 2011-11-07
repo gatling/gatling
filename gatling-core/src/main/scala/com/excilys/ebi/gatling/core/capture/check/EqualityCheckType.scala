@@ -19,5 +19,5 @@ package com.excilys.ebi.gatling.core.capture.check
  * Represents a Check on Equality between value and expected
  */
 object EqualityCheckType extends CheckType {
-	def doCheck(value: Option[String], expected: String) = !value.isEmpty && value.get == expected
+	def doCheck(value: Option[String], expected: Option[String]) = !value.isEmpty && value.get == expected.get
 }

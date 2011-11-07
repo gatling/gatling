@@ -47,5 +47,5 @@ class HttpBodyRegExpCheckBuilder(what: Context => String, to: Option[String], ch
 		new HttpBodyRegExpCheckBuilder(what, to, checkType, expected)
 	}
 
-	def build: HttpCheck = new HttpBodyRegExpCheck(what, to.get, checkType, expected.get)
+	def build: HttpCheck = new HttpBodyRegExpCheck(what, to.get, checkType, expected)
 }

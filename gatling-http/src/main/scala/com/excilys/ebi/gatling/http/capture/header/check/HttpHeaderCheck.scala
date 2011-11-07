@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.capture.check.CheckType
 import com.excilys.ebi.gatling.http.capture.header.HttpHeaderCapture
 import com.excilys.ebi.gatling.http.capture.HttpCheck
 
-class HttpHeaderCheck(what: Context => String, to: String, checkType: CheckType, expected: String) extends HttpHeaderCapture(what, to) with HttpCheck {
+class HttpHeaderCheck(what: Context => String, to: String, checkType: CheckType, expected: Option[String]) extends HttpHeaderCapture(what, to) with HttpCheck {
 
 	def getCheckType = checkType
 

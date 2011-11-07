@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.http.capture.body.HttpBodyRegExpCapture
 import com.excilys.ebi.gatling.http.capture.HttpCheck
 
-class HttpBodyRegExpCheck(what: Context => String, to: String, checkType: CheckType, val expected: String)
+class HttpBodyRegExpCheck(what: Context => String, to: String, checkType: CheckType, val expected: Option[String])
 		extends HttpBodyRegExpCapture(what, to) with HttpCheck {
 
 	def getCheckType = checkType

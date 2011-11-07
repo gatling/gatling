@@ -24,5 +24,5 @@ object InRangeCheckType extends CheckType {
 		
 	implicit def rangeToString(range : Range) = range.mkString(SEPARATOR)
 	
-	def doCheck(value: Option[String], range: String) = !value.isEmpty && range.split(SEPARATOR).contains(value.get)
+	def doCheck(value: Option[String], expected: Option[String]) = !value.isEmpty && expected.get.split(SEPARATOR).contains(value.get)
 }
