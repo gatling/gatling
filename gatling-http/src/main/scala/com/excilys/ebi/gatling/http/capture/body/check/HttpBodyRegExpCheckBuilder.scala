@@ -27,25 +27,25 @@ import com.excilys.ebi.gatling.http.capture.HttpCheck
 import com.excilys.ebi.gatling.http.capture.HttpCheckBuilder
 
 object HttpBodyRegExpCheckBuilder {
-	def regexpEquals(what: Context => String, expected: String) = new HttpBodyRegExpCheckBuilder(Some(what), Some(EMPTY), Some(CompletePageReceived), Some(EqualityCheckType), Some(expected))
+	def regexpEquals(what: Context => String, expected: String) = new HttpBodyRegExpCheckBuilder(what, Some(EMPTY), EqualityCheckType, Some(expected))
 	def regexpEquals(expression: String, expected: String): HttpBodyRegExpCheckBuilder = regexpEquals((c: Context) => expression, expected)
 
-	def regexpNotEquals(what: Context => String, expected: String) = new HttpBodyRegExpCheckBuilder(Some(what), Some(EMPTY), Some(CompletePageReceived), Some(NonEqualityCheckType), Some(expected))
+	def regexpNotEquals(what: Context => String, expected: String) = new HttpBodyRegExpCheckBuilder(what, Some(EMPTY), NonEqualityCheckType, Some(expected))
 	def regexpNotEquals(expression: String, expected: String): HttpBodyRegExpCheckBuilder = regexpNotEquals((c: Context) => expression, expected)
 
-	def regexpExists(what: Context => String) = new HttpBodyRegExpCheckBuilder(Some(what), Some(EMPTY), Some(CompletePageReceived), Some(ExistenceCheckType), Some(EMPTY))
+	def regexpExists(what: Context => String) = new HttpBodyRegExpCheckBuilder(what, Some(EMPTY), ExistenceCheckType, Some(EMPTY))
 	def regexpExists(expression: String): HttpBodyRegExpCheckBuilder = regexpExists((c: Context) => expression)
 
-	def regexpNotExists(what: Context => String) = new HttpBodyRegExpCheckBuilder(Some(what), Some(EMPTY), Some(CompletePageReceived), Some(NonExistenceCheckType), Some(EMPTY))
+	def regexpNotExists(what: Context => String) = new HttpBodyRegExpCheckBuilder(what, Some(EMPTY), NonExistenceCheckType, Some(EMPTY))
 	def regexpNotExists(expression: String): HttpBodyRegExpCheckBuilder = regexpNotExists((c: Context) => expression)
 }
 
-class HttpBodyRegExpCheckBuilder(what: Option[Context => String], to: Option[String], when: Option[HttpPhase], checkType: Option[CheckType], expected: Option[String])
-		extends HttpCheckBuilder[HttpBodyRegExpCheckBuilder](what, to, when, checkType, expected) {
+class HttpBodyRegExpCheckBuilder(what: Context => String, to: Option[String], checkType: CheckType, expected: Option[String])
+		extends HttpCheckBuilder[HttpBodyRegExpCheckBuilder](what, to, CompletePageReceived, checkType, expected) {
 
-	def newInstance(what: Option[Context => String], to: Option[String], when: Option[HttpPhase], checkType: Option[CheckType], expected: Option[String]) = {
-		new HttpBodyRegExpCheckBuilder(what, to, when, checkType, expected)
+	def newInstance(what: Context => String, to: Option[String], checkType: CheckType, expected: Option[String]) = {
+		new HttpBodyRegExpCheckBuilder(what, to, checkType, expected)
 	}
 
-	def build: HttpCheck = new HttpBodyRegExpCheck(what.get, to.get, when.get, checkType.get, expected.get)
+	def build: HttpCheck = new HttpBodyRegExpCheck(what, to.get, checkType, expected.get)
 }

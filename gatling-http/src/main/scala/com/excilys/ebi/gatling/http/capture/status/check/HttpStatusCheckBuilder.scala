@@ -15,24 +15,23 @@
  */
 package com.excilys.ebi.gatling.http.capture.status.check
 
-import com.excilys.ebi.gatling.core.capture.check.CheckType
+import com.excilys.ebi.gatling.core.capture.check.InRangeCheckType.rangeToString
+import com.excilys.ebi.gatling.core.capture.check.{InRangeCheckType, EqualityCheckType, CheckType}
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.util.StringHelper._
-import com.excilys.ebi.gatling.http.request.HttpPhase._
-import com.excilys.ebi.gatling.core.capture.check.EqualityCheckType
-import com.excilys.ebi.gatling.http.capture.HttpCheck
-import com.excilys.ebi.gatling.http.capture.HttpCheckBuilder
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.http.capture.{HttpCheckBuilder, HttpCheck}
+import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
 
 object HttpStatusCheckBuilder {
-	def statusInRange(range: Range) = new HttpStatusCheckBuilder(Some(range.mkString(":")), Some(EMPTY))
-	def status(status: Int) = new HttpStatusCheckBuilder(Some(status.toString), Some(EMPTY))
+	def statusInRange(range: Range) = new HttpStatusCheckBuilder(None, InRangeCheckType, Some(range))
+	def status(status: Int) = new HttpStatusCheckBuilder(None, EqualityCheckType, Some(status.toString))
 }
 
-class HttpStatusCheckBuilder(to: Option[String], expected: Option[String])
-		extends HttpCheckBuilder[HttpStatusCheckBuilder](None, to, Some(StatusReceived), None, expected) {
+class HttpStatusCheckBuilder(to: Option[String], checkType: CheckType, expected: Option[String])
+		extends HttpCheckBuilder[HttpStatusCheckBuilder]((c: Context) => EMPTY, to, StatusReceived, checkType, expected) {
 
-	def newInstance(what: Option[Context => String], to: Option[String], when: Option[HttpPhase], checkType: Option[CheckType], expected: Option[String]) = {
-		new HttpStatusCheckBuilder(to, expected)
+	def newInstance(what: Context => String, to: Option[String], checkType: CheckType, expected: Option[String]) = {
+		new HttpStatusCheckBuilder(to, checkType, expected)
 	}
 
 	def build: HttpCheck = new HttpStatusCheck(to.get, expected.get)

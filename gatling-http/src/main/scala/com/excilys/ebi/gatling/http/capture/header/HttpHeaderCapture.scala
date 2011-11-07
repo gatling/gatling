@@ -20,5 +20,4 @@ import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
 import com.excilys.ebi.gatling.http.capture.HttpCapture
 import com.excilys.ebi.gatling.http.capture.header.capturer.HttpHeaderCapturerFactory
 
-class HttpHeaderCapture(what: Context => String, to: String) extends HttpCapture(what, HttpHeaderCapturerFactory, to, HeadersReceived) {
-}
+class HttpHeaderCapture(what: Context => String, to: String) extends HttpCapture(what, HttpHeaderCapturerFactory, to, HeadersReceived)

@@ -17,23 +17,23 @@ package com.excilys.ebi.gatling.http.capture.body
 
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolateString
-import com.excilys.ebi.gatling.http.request.HttpPhase.{HttpPhase, CompletePageReceived}
-import com.excilys.ebi.gatling.http.capture.HttpCapture
 import com.excilys.ebi.gatling.http.capture.HttpCaptureBuilder
+import com.excilys.ebi.gatling.http.capture.HttpCapture
+import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 
 object HttpBodyXPathCaptureBuilder {
-	def xpath(expressionFormatter: Context => String) = new HttpBodyXPathCaptureBuilder(Some(expressionFormatter), None, Some(CompletePageReceived))
+	def xpath(what: Context => String) = new HttpBodyXPathCaptureBuilder(what, None)
 	def xpath(expression: String): HttpBodyXPathCaptureBuilder = xpath((c: Context) => expression)
 	def xpath(expressionToFormat: String, interpolations: String*): HttpBodyXPathCaptureBuilder = xpath((c: Context) => interpolateString(c, expressionToFormat, interpolations))
 }
 
-class HttpBodyXPathCaptureBuilder(expressionFormatter: Option[Context => String], attribute: Option[String], httpPhase: Option[HttpPhase])
-		extends HttpCaptureBuilder[HttpBodyXPathCaptureBuilder](expressionFormatter, attribute, httpPhase)
+class HttpBodyXPathCaptureBuilder(what: Context => String, to: Option[String])
+		extends HttpCaptureBuilder[HttpBodyXPathCaptureBuilder](what, to, CompletePageReceived)
  {
 
-	def newInstance(expressionFormatter: Option[Context => String], attribute: Option[String], httpPhase: Option[HttpPhase]) = {
-		new HttpBodyXPathCaptureBuilder(expressionFormatter, attribute, httpPhase)
+	def newInstance(what: Context => String, to: Option[String]) = {
+		new HttpBodyXPathCaptureBuilder(what, to)
 	}
 
-	def build(): HttpCapture = new HttpBodyXPathCapture(expressionFormatter.get, attribute.get, httpPhase.get)
+	def build(): HttpCapture = new HttpBodyXPathCapture(what, to.get)
 }

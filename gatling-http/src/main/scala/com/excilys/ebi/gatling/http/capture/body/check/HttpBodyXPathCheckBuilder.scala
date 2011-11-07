@@ -27,25 +27,25 @@ import com.excilys.ebi.gatling.http.capture.HttpCheckBuilder
 
 object HttpBodyXPathCheckBuilder {
 
-	def xpathEquals(what: Context => String, expected: String) = new HttpBodyXPathCheckBuilder(Some(what), Some(EMPTY), Some(CompletePageReceived), Some(EqualityCheckType), Some(expected))
+	def xpathEquals(what: Context => String, expected: String) = new HttpBodyXPathCheckBuilder(what, Some(EMPTY), EqualityCheckType, Some(expected))
 	def xpathEquals(expression: String, expected: String): HttpBodyXPathCheckBuilder = xpathEquals((c: Context) => expression, expected)
 
-	def xpathNotEquals(what: Context => String, expected: String) = new HttpBodyXPathCheckBuilder(Some(what), Some(EMPTY), Some(CompletePageReceived), Some(NonEqualityCheckType), Some(expected))
+	def xpathNotEquals(what: Context => String, expected: String) = new HttpBodyXPathCheckBuilder(what, Some(EMPTY), NonEqualityCheckType, Some(expected))
 	def xpathNotEquals(expression: String, expected: String): HttpBodyXPathCheckBuilder = xpathNotEquals((c: Context) => expression, expected)
 
-	def xpathExists(what: Context => String) = new HttpBodyXPathCheckBuilder(Some(what), Some(EMPTY), Some(CompletePageReceived), Some(ExistenceCheckType), None)
+	def xpathExists(what: Context => String) = new HttpBodyXPathCheckBuilder(what, Some(EMPTY), ExistenceCheckType, None)
 	def xpathExists(expression: String): HttpBodyXPathCheckBuilder = xpathExists((c: Context) => expression)
 
-	def xpathNotExists(what: Context => String) = new HttpBodyXPathCheckBuilder(Some(what), Some(EMPTY), Some(CompletePageReceived), Some(NonExistenceCheckType), None)
+	def xpathNotExists(what: Context => String) = new HttpBodyXPathCheckBuilder(what, Some(EMPTY), NonExistenceCheckType, None)
 	def xpathNotExists(expression: String): HttpBodyXPathCheckBuilder = xpathNotExists((c: Context) => expression)
 }
 
-class HttpBodyXPathCheckBuilder(what: Option[Context => String], to: Option[String], when: Option[HttpPhase], checkType: Option[CheckType], expected: Option[String])
-		extends HttpCheckBuilder[HttpBodyXPathCheckBuilder](what, to, when, checkType, expected) {
+class HttpBodyXPathCheckBuilder(what: Context => String, to: Option[String], checkType: CheckType, expected: Option[String])
+		extends HttpCheckBuilder[HttpBodyXPathCheckBuilder](what, to, CompletePageReceived, checkType, expected) {
 
-	def newInstance(what: Option[Context => String], to: Option[String], when: Option[HttpPhase], checkType: Option[CheckType], expected: Option[String]) = {
-		new HttpBodyXPathCheckBuilder(what, to, when, checkType, expected)
+	def newInstance(what: Context => String, to: Option[String], checkType: CheckType, expected: Option[String]) = {
+		new HttpBodyXPathCheckBuilder(what, to, checkType, expected)
 	}
 
-	def build = new HttpBodyXPathCheck(what.get, to.get, when.get, checkType.get, expected.get)
+	def build = new HttpBodyXPathCheck(what, to.get, checkType, expected.get)
 }

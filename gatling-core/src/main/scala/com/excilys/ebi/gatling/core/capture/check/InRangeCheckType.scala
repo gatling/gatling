@@ -19,5 +19,10 @@ package com.excilys.ebi.gatling.core.capture.check
  * Represents a Check on the presence of value in range expected
  */
 object InRangeCheckType extends CheckType {
-	def doCheck(value: Option[String], range: String) = !value.isEmpty && range.contains(value.get)
+	
+	val SEPARATOR = ":"
+		
+	implicit def rangeToString(range : Range) = range.mkString(SEPARATOR)
+	
+	def doCheck(value: Option[String], range: String) = !value.isEmpty && range.split(SEPARATOR).contains(value.get)
 }

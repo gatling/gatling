@@ -17,23 +17,23 @@ package com.excilys.ebi.gatling.http.capture.body
 
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolateString
-import com.excilys.ebi.gatling.http.request.HttpPhase.{HttpPhase, CompletePageReceived}
-import com.excilys.ebi.gatling.http.capture.HttpCapture
 import com.excilys.ebi.gatling.http.capture.HttpCaptureBuilder
+import com.excilys.ebi.gatling.http.capture.HttpCapture
+import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 
 object HttpBodyRegExpCaptureBuilder {
-	def regexp(expressionFormatter: Context => String) = new HttpBodyRegExpCaptureBuilder(Some(expressionFormatter), None, Some(CompletePageReceived))
+	def regexp(expressionFormatter: Context => String) = new HttpBodyRegExpCaptureBuilder(expressionFormatter, None)
 	def regexp(expression: String): HttpBodyRegExpCaptureBuilder = regexp((c: Context) => expression)
 	def regexp(expressionToFormat: String, interpolations: String*): HttpBodyRegExpCaptureBuilder = regexp((c: Context) => interpolateString(c, expressionToFormat, interpolations))
 }
 
-class HttpBodyRegExpCaptureBuilder(expressionFormatter: Option[Context => String], attribute: Option[String], httpPhase: Option[HttpPhase])
-		extends HttpCaptureBuilder[HttpBodyRegExpCaptureBuilder](expressionFormatter, attribute, httpPhase)
+class HttpBodyRegExpCaptureBuilder(what: Context => String, to: Option[String])
+		extends HttpCaptureBuilder[HttpBodyRegExpCaptureBuilder](what, to, CompletePageReceived)
  {
 
-	def newInstance(expressionFormatter: Option[Context => String], attribute: Option[String], httpPhase: Option[HttpPhase]) = {
-		new HttpBodyRegExpCaptureBuilder(expressionFormatter, attribute, httpPhase)
+	def newInstance(what: Context => String, to: Option[String]) = {
+		new HttpBodyRegExpCaptureBuilder(what, to)
 	}
 
-	def build: HttpCapture = new HttpBodyRegExpCapture(expressionFormatter.get, attribute.get, httpPhase.get)
+	def build: HttpCapture = new HttpBodyRegExpCapture(what, to.get)
 }

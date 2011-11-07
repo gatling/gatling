@@ -16,28 +16,31 @@
 package com.excilys.ebi.gatling.http.ahc
 
 import java.util.concurrent.TimeUnit
+
 import scala.collection.immutable.HashMap
-import scala.collection.mutable.{ Set => MSet, MultiMap, HashMap => MHashMap }
+import scala.collection.mutable.{Set => MSet}
+import scala.collection.mutable.{MultiMap, HashMap => MHashMap}
+
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.SET_COOKIE
 import org.joda.time.DateTime
+
 import com.excilys.ebi.gatling.core.action.Action
+import com.excilys.ebi.gatling.core.capture.capturer.{CapturerFactory, Capturer}
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ ResultStatus, OK, KO }
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ResultStatus, OK, KO}
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.http.request.HttpPhase.{ HttpPhase, CompletePageReceived }
+import com.excilys.ebi.gatling.http.capture.{HttpCheck, HttpCapture}
+import com.excilys.ebi.gatling.http.request.HttpPhase.{HttpPhase, CompletePageReceived}
 import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.excilys.ebi.gatling.http.util.GatlingHttpHelper.COOKIES_CONTEXT_KEY
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
-import com.ning.http.client.{ Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler }
+import com.ning.http.client.{Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler}
 import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
+
 import akka.actor.Actor.registry.actorFor
-import com.excilys.ebi.gatling.http.capture.HttpCapture
-import com.excilys.ebi.gatling.core.capture.capturer.CapturerFactory
-import com.excilys.ebi.gatling.core.capture.capturer.Capturer
-import com.excilys.ebi.gatling.http.capture.HttpCheck
 
 class GatlingAsyncHandler(context: Context, captures: MSet[HttpCapture], next: Action, requestName: String, groups: List[String]) extends AsyncHandler[Void] with Logging {
 
@@ -100,20 +103,16 @@ class GatlingAsyncHandler(context: Context, captures: MSet[HttpCapture], next: A
 
 	def onThrowable(throwable: Throwable) = {
 		logger.error("{}\n{}", throwable.getClass, throwable.getStackTraceString)
-		sendLogAndExecuteNext(KO, throwable.getMessage, None)
+		sendLogAndExecuteNext(KO, throwable.getMessage, System.nanoTime)
 	}
 
-	private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String, processingStartTimeNano: Option[Long]) = {
+	private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String, processingStartTimeNano: Long) = {
 		actorFor(context.getWriteActorUuid).map { a =>
-			val responseTimeMillis = TimeUnit.MILLISECONDS.convert(System.nanoTime - executionStartTimeNano, TimeUnit.NANOSECONDS)
+			val responseTimeMillis = TimeUnit.MILLISECONDS.convert(processingStartTimeNano - executionStartTimeNano, TimeUnit.NANOSECONDS)
 			a ! ActionInfo(context.getScenarioName, context.getUserId, "Request " + requestName, executionStartDate, responseTimeMillis, requestResult, requestMessage, groups)
 		}
 
-		if (processingStartTimeNano.isDefined) {
-			context.setAttribute(Context.LAST_ACTION_DURATION_KEY, System.nanoTime() - processingStartTimeNano.get)
-		} else {
-			context.removeAttribute(Context.LAST_ACTION_DURATION_KEY);
-		}
+		context.setAttribute(Context.LAST_ACTION_DURATION_KEY, System.nanoTime() - processingStartTimeNano)
 
 		logger.debug("Context Cookies sent to next action: {}", context.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty))
 		next.execute(context)
@@ -153,12 +152,12 @@ class GatlingAsyncHandler(context: Context, captures: MSet[HttpCapture], next: A
 
 							if (c.isInstanceOf[HttpCheck] && !c.asInstanceOf[HttpCheck].getResult(value)) {
 								logger.warn("CHECK RESULT: false expected {} but received {}", c, value)
-								sendLogAndExecuteNext(KO, c + " failed", Some(processingStartTimeNano))
+								sendLogAndExecuteNext(KO, c + " failed", processingStartTimeNano)
 								return
 
 							} else if (!value.isDefined) {
 								logger.warn("Capture {} could not get value required by user", c)
-								sendLogAndExecuteNext(KO, c + " failed", Some(processingStartTimeNano))
+								sendLogAndExecuteNext(KO, c + " failed", processingStartTimeNano)
 								return
 
 							} else if (c.to != EMPTY) {
@@ -171,6 +170,6 @@ class GatlingAsyncHandler(context: Context, captures: MSet[HttpCapture], next: A
 			}
 		}
 
-		sendLogAndExecuteNext(OK, "Request Executed Successfully", Some(processingStartTimeNano))
+		sendLogAndExecuteNext(OK, "Request Executed Successfully", processingStartTimeNano)
 	}
 }

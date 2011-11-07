@@ -15,17 +15,17 @@
  */
 package com.excilys.ebi.gatling.http.capture
 
+import com.excilys.ebi.gatling.core.capture.CaptureBuilder
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
-import com.excilys.ebi.gatling.core.capture.CaptureBuilder
 import com.ning.http.client.Response
 
-abstract class HttpCaptureBuilder[B <: HttpCaptureBuilder[B]](what: Option[Context => String], to: Option[String], when: Option[HttpPhase]) extends CaptureBuilder[Response] {
+abstract class HttpCaptureBuilder[B <: HttpCaptureBuilder[B]](what: Context => String, to: Option[String], val when: HttpPhase) extends CaptureBuilder[Response] {
 
-	def newInstance(what: Option[Context => String], to: Option[String], when: Option[HttpPhase]): B
+	def newInstance(what: Context => String, to: Option[String]): B
 
 	def in(to: String): B = {
-		newInstance(what, Some(to), when)
+		newInstance(what, Some(to))
 	}
 
 	override def build: HttpCapture

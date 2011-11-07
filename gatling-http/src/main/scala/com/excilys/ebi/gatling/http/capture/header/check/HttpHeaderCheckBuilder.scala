@@ -15,37 +15,32 @@
  */
 package com.excilys.ebi.gatling.http.capture.header.check
 
+import com.excilys.ebi.gatling.core.capture.check.{NonExistenceCheckType, NonEqualityCheckType, ExistenceCheckType, EqualityCheckType, CheckType}
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.http.request.HttpPhase._
-import com.excilys.ebi.gatling.core.util.StringHelper._
-import com.excilys.ebi.gatling.core.capture.check.NonEqualityCheckType
-import com.excilys.ebi.gatling.core.capture.check.ExistenceCheckType
-import com.excilys.ebi.gatling.core.capture.check.CheckType
-import com.excilys.ebi.gatling.core.capture.check.EqualityCheckType
-import com.excilys.ebi.gatling.core.capture.check.NonExistenceCheckType
-import com.excilys.ebi.gatling.http.capture.HttpCheck
-import com.excilys.ebi.gatling.http.capture.HttpCheckBuilder
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.http.capture.{HttpCheckBuilder, HttpCheck}
+import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
 
 object HttpHeaderCheckBuilder {
-	def headerEquals(headerNameFormatter: Context => String, expected: String) = new HttpHeaderCheckBuilder(Some(headerNameFormatter), Some(EMPTY), Some(EqualityCheckType), Some(expected))
+	def headerEquals(what: Context => String, expected: String) = new HttpHeaderCheckBuilder(what, Some(EMPTY), EqualityCheckType, Some(expected))
 	def headerEquals(headerName: String, expected: String): HttpHeaderCheckBuilder = headerEquals((c: Context) => headerName, expected)
 
-	def headerNotEquals(headerNameFormatter: Context => String, expected: String) = new HttpHeaderCheckBuilder(Some(headerNameFormatter), Some(EMPTY), Some(NonEqualityCheckType), Some(expected))
+	def headerNotEquals(what: Context => String, expected: String) = new HttpHeaderCheckBuilder(what, Some(EMPTY), NonEqualityCheckType, Some(expected))
 	def headerNotEquals(headerName: String, expected: String): HttpHeaderCheckBuilder = headerNotEquals((c: Context) => headerName, expected)
 
-	def headerExists(headerNameFormatter: Context => String) = new HttpHeaderCheckBuilder(Some(headerNameFormatter), Some(EMPTY), Some(ExistenceCheckType), Some(EMPTY))
+	def headerExists(what: Context => String) = new HttpHeaderCheckBuilder(what, Some(EMPTY), ExistenceCheckType, Some(EMPTY))
 	def headerExists(headerName: String): HttpHeaderCheckBuilder = headerExists((c: Context) => headerName)
 
-	def headerNotExists(headerNameFormatter: Context => String) = new HttpHeaderCheckBuilder(Some(headerNameFormatter), Some(EMPTY), Some(NonExistenceCheckType), Some(EMPTY))
+	def headerNotExists(what: Context => String) = new HttpHeaderCheckBuilder(what, Some(EMPTY), NonExistenceCheckType, Some(EMPTY))
 	def headerNotExists(headerName: String): HttpHeaderCheckBuilder = headerNotExists((c: Context) => headerName)
 }
 
-class HttpHeaderCheckBuilder(what: Option[Context => String], to: Option[String], checkType: Option[CheckType], expected: Option[String])
-		extends HttpCheckBuilder[HttpHeaderCheckBuilder](what, to, Some(HeadersReceived), checkType, expected) {
+class HttpHeaderCheckBuilder(what: Context => String, to: Option[String], checkType: CheckType, expected: Option[String])
+		extends HttpCheckBuilder[HttpHeaderCheckBuilder](what, to, HeadersReceived, checkType, expected) {
 
-	def newInstance(what: Option[Context => String], to: Option[String], when: Option[HttpPhase], checkType: Option[CheckType], expected: Option[String]) = {
+	def newInstance(what: Context => String, to: Option[String], checkType: CheckType, expected: Option[String]) = {
 		new HttpHeaderCheckBuilder(what, to, checkType, expected)
 	}
 
-	def build: HttpCheck = new HttpHeaderCheck(what.get, to.get, checkType.get, expected.get)
+	def build: HttpCheck = new HttpHeaderCheck(what, to.get, checkType, expected.get)
 }

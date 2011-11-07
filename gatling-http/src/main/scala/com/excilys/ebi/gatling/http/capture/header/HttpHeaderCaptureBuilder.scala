@@ -19,20 +19,20 @@ import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolateString
 import com.excilys.ebi.gatling.http.capture.HttpCaptureBuilder
 import com.excilys.ebi.gatling.http.capture.HttpCapture
-import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
+import com.excilys.ebi.gatling.http.request.HttpPhase._
 
 object HttpHeaderCaptureBuilder {
-	def header(expressionFormatter: Context => String) = new HttpHeaderCaptureBuilder(Some(expressionFormatter), None, None)
+	def header(what: Context => String) = new HttpHeaderCaptureBuilder(what, None)
 	def header(expression: String): HttpHeaderCaptureBuilder = header((c: Context) => expression)
 	def header(expressionToFormat: String, interpolations: String*): HttpHeaderCaptureBuilder = header((c: Context) => interpolateString(c, expressionToFormat, interpolations))
 }
 
-class HttpHeaderCaptureBuilder(expressionFormatter: Option[Context => String], attribute: Option[String], httpPhase: Option[HttpPhase])
-		extends HttpCaptureBuilder[HttpHeaderCaptureBuilder](expressionFormatter, attribute, httpPhase) {
+class HttpHeaderCaptureBuilder(what: Context => String, to: Option[String])
+		extends HttpCaptureBuilder[HttpHeaderCaptureBuilder](what, to, HeadersReceived) {
 
-	def newInstance(expressionFormatter: Option[Context => String], attribute: Option[String], httpPhase: Option[HttpPhase]) = {
-		new HttpHeaderCaptureBuilder(expressionFormatter, attribute, httpPhase)
+	def newInstance(what: Context => String, to: Option[String]) = {
+		new HttpHeaderCaptureBuilder(what, to)
 	}
 
-	def build: HttpCapture = new HttpHeaderCapture(expressionFormatter.get, attribute.get)
+	def build: HttpCapture = new HttpHeaderCapture(what, to.get)
 }

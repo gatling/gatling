@@ -15,14 +15,13 @@
  */
 package com.excilys.ebi.gatling.http.capture.body.check
 
-import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.core.capture.check.CheckType
-import com.excilys.ebi.gatling.http.capture.HttpCheck
+import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.http.capture.body.HttpBodyXPathCapture
+import com.excilys.ebi.gatling.http.capture.HttpCheck
 
-class HttpBodyXPathCheck(what: Context => String, to: String, when: HttpPhase, checkType: CheckType, expected: String)
-		extends HttpBodyXPathCapture(what, to, when) with HttpCheck {
+class HttpBodyXPathCheck(what: Context => String, to: String, checkType: CheckType, expected: String)
+		extends HttpBodyXPathCapture(what, to) with HttpCheck {
 
 	def getCheckType = checkType
 
