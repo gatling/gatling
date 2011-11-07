@@ -50,13 +50,13 @@ class TextScriptInterpreter extends Interpreter {
     import com.excilys.ebi.gatling.core.structure.builder.ChainBuilder._
     import com.excilys.ebi.gatling.http.action.builder.HttpRequestActionBuilder._
     import com.excilys.ebi.gatling.http.config.builder.HttpProtocolConfigurationBuilder._
-    import com.excilys.ebi.gatling.http.processor.capture.builder.HttpRegExpCaptureBuilder._
-    import com.excilys.ebi.gatling.http.processor.capture.builder.HttpXPathCaptureBuilder._
-    import com.excilys.ebi.gatling.http.processor.capture.builder.HttpHeaderCaptureBuilder._
-    import com.excilys.ebi.gatling.http.processor.check.builder.HttpXPathCheckBuilder._
-    import com.excilys.ebi.gatling.http.processor.check.builder.HttpRegExpCheckBuilder._
-    import com.excilys.ebi.gatling.http.processor.check.builder.HttpStatusCheckBuilder._
-    import com.excilys.ebi.gatling.http.processor.check.builder.HttpHeaderCheckBuilder._
+    import com.excilys.ebi.gatling.http.capture.body.HttpBodyRegExpCaptureBuilder._
+    import com.excilys.ebi.gatling.http.capture.body.HttpBodyXPathCaptureBuilder._
+    import com.excilys.ebi.gatling.http.capture.header.HttpHeaderCaptureBuilder._
+	import com.excilys.ebi.gatling.http.capture.header.check.HttpHeaderCheckBuilder._
+    import com.excilys.ebi.gatling.http.capture.body.check.HttpBodyXPathCheckBuilder._
+    import com.excilys.ebi.gatling.http.capture.body.check.HttpBodyRegExpCheckBuilder._
+    import com.excilys.ebi.gatling.http.capture.status.check.HttpStatusCheckBuilder._
     import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
     import java.util.concurrent.TimeUnit
     import org.joda.time.DateTime
