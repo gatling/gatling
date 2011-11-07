@@ -34,5 +34,5 @@ class HttpHeaderCaptureBuilder(what: Context => String, to: Option[String])
 		new HttpHeaderCaptureBuilder(what, to)
 	}
 
-	def build: HttpCapture = new HttpHeaderCapture(what, to.get)
+	def build: HttpCapture = new HttpHeaderCapture(what, to)
 }

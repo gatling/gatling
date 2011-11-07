@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.http.capture.body.HttpBodyXPathCapture
 import com.excilys.ebi.gatling.http.capture.HttpCheck
 
-class HttpBodyXPathCheck(what: Context => String, to: String, checkType: CheckType, expected: Option[String])
+class HttpBodyXPathCheck(what: Context => String, to: Option[String], checkType: CheckType, expected: Option[String])
 		extends HttpBodyXPathCapture(what, to) with HttpCheck {
 
 	def getCheckType = checkType

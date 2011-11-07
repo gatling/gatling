@@ -28,12 +28,11 @@ object HttpBodyXPathCaptureBuilder {
 }
 
 class HttpBodyXPathCaptureBuilder(what: Context => String, to: Option[String])
-		extends HttpCaptureBuilder[HttpBodyXPathCaptureBuilder](what, to, CompletePageReceived)
- {
+		extends HttpCaptureBuilder[HttpBodyXPathCaptureBuilder](what, to, CompletePageReceived) {
 
 	def newInstance(what: Context => String, to: Option[String]) = {
 		new HttpBodyXPathCaptureBuilder(what, to)
 	}
 
-	def build(): HttpCapture = new HttpBodyXPathCapture(what, to.get)
+	def build(): HttpCapture = new HttpBodyXPathCapture(what, to)
 }

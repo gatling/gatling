@@ -21,4 +21,4 @@ import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
 import com.excilys.ebi.gatling.http.capture.HttpCapture
 import com.excilys.ebi.gatling.http.capture.status.capturer.HttpStatusCapturerFactory
 
-class HttpStatusCapture(to: String) extends HttpCapture((c: Context) => EMPTY, HttpStatusCapturerFactory, to, StatusReceived)
+class HttpStatusCapture(to: Option[String]) extends HttpCapture((c: Context) => EMPTY, HttpStatusCapturerFactory, to, StatusReceived)

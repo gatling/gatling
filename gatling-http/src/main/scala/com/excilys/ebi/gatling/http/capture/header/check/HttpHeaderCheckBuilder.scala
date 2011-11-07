@@ -15,10 +15,10 @@
  */
 package com.excilys.ebi.gatling.http.capture.header.check
 
-import com.excilys.ebi.gatling.core.capture.check.{NonExistenceCheckType, NonEqualityCheckType, ExistenceCheckType, EqualityCheckType, CheckType}
+import com.excilys.ebi.gatling.core.capture.check.{ NonExistenceCheckType, NonEqualityCheckType, ExistenceCheckType, EqualityCheckType, CheckType }
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.http.capture.{HttpCheckBuilder, HttpCheck}
+import com.excilys.ebi.gatling.http.capture.{ HttpCheckBuilder, HttpCheck }
 import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
 
 object HttpHeaderCheckBuilder {
@@ -42,5 +42,5 @@ class HttpHeaderCheckBuilder(what: Context => String, to: Option[String], checkT
 		new HttpHeaderCheckBuilder(what, to, checkType, expected)
 	}
 
-	def build: HttpCheck = new HttpHeaderCheck(what, to.get, checkType, expected)
+	def build: HttpCheck = new HttpHeaderCheck(what, to, checkType, expected)
 }

@@ -16,10 +16,10 @@
 package com.excilys.ebi.gatling.http.capture.status.check
 
 import com.excilys.ebi.gatling.core.capture.check.InRangeCheckType.rangeToString
-import com.excilys.ebi.gatling.core.capture.check.{InRangeCheckType, EqualityCheckType, CheckType}
+import com.excilys.ebi.gatling.core.capture.check.{ InRangeCheckType, EqualityCheckType, CheckType }
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.http.capture.{HttpCheckBuilder, HttpCheck}
+import com.excilys.ebi.gatling.http.capture.{ HttpCheckBuilder, HttpCheck }
 import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
 
 object HttpStatusCheckBuilder {
@@ -34,5 +34,5 @@ class HttpStatusCheckBuilder(to: Option[String], checkType: CheckType, expected:
 		new HttpStatusCheckBuilder(to, checkType, expected)
 	}
 
-	def build: HttpCheck = new HttpStatusCheck(to.get, expected)
+	def build: HttpCheck = new HttpStatusCheck(to, expected)
 }

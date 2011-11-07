@@ -20,4 +20,4 @@ import com.excilys.ebi.gatling.http.capture.body.capturer.HttpBodyXPathCapturerF
 import com.excilys.ebi.gatling.http.capture.HttpCapture
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 
-class HttpBodyXPathCapture(what: Context => String, to: String) extends HttpCapture(what, HttpBodyXPathCapturerFactory, to, CompletePageReceived)
+class HttpBodyXPathCapture(what: Context => String, to: Option[String]) extends HttpCapture(what, HttpBodyXPathCapturerFactory, to, CompletePageReceived)

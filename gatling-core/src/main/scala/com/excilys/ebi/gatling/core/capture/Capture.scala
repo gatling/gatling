@@ -22,7 +22,7 @@ import com.excilys.ebi.gatling.core.capture.capturer.CapturerFactory
 /**
  * Represents a Capture, ie a capture or check, and maybe more later
  */
-abstract class Capture[WHERE](val what: Context => String, val how: CapturerFactory[WHERE], val to: String) extends Logging {
+abstract class Capture[WHERE](val what: Context => String, val how: CapturerFactory[WHERE], val to: Option[String]) extends Logging {
 
 	override def toString = this.getClass().getSimpleName()
 }

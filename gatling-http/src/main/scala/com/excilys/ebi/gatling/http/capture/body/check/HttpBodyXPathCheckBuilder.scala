@@ -47,5 +47,5 @@ class HttpBodyXPathCheckBuilder(what: Context => String, to: Option[String], che
 		new HttpBodyXPathCheckBuilder(what, to, checkType, expected)
 	}
 
-	def build = new HttpBodyXPathCheck(what, to.get, checkType, expected)
+	def build = new HttpBodyXPathCheck(what, to, checkType, expected)
 }
