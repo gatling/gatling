@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2011 eBusiness Information, Groupe Excilys (www.excilys.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,19 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.capture.capturer
+package com.excilys.ebi.gatling.http.capture.header.extractor
 
-import com.excilys.ebi.gatling.core.log.Logging
+import com.ning.http.client.FluentCaseInsensitiveStringsMap
+import com.ning.http.client.Response
+import com.excilys.ebi.gatling.core.capture.extractor.ExtractorFactory
 
-/**
- * This trait is used to define different types of Providers
- */
-trait CapturerFactory[WHERE] extends Logging {
+object HttpHeaderExtractorFactory extends ExtractorFactory[Response] {
 
-	/**
-	 * Method that will generate the adequate Capturer
-	 *
-	 * @param where where to capture
-	 */
-	def getCapturer(where: WHERE): Capturer
+	def getExtractor(response: Response) = {
+		logger.debug("Instantiation of HttpHeaderExtractor")
+		new HttpHeaderExtractor(response)
+	}
 }

@@ -17,8 +17,8 @@ package com.excilys.ebi.gatling.http.capture
 
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
-import com.excilys.ebi.gatling.core.capture.capturer.CapturerFactory
+import com.excilys.ebi.gatling.core.capture.extractor.ExtractorFactory
 import com.excilys.ebi.gatling.core.capture.Capture
 import com.ning.http.client.Response
 
-abstract class HttpCapture(what: Context => String, how: CapturerFactory[Response], to: Option[String], val when: HttpPhase) extends Capture[Response](what, how, to)
+abstract class HttpCapture(what: Context => String, how: ExtractorFactory[Response], to: Option[String], val when: HttpPhase) extends Capture[Response](what, how, to)

@@ -13,25 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.capture.capturer
+package com.excilys.ebi.gatling.core.capture.extractor
 
 import com.excilys.ebi.gatling.core.log.Logging
 
 /**
- * This class acts as model for capture providers
- *
- * Capture providers are objects responsible for searching elements in others
- * Typically, we can think of Regular Expressions.
- *
- * There are built-in providers, but module writers could write their own
+ * This trait is used to define different types of Providers
  */
-abstract class Capturer extends Logging {
+trait ExtractorFactory[WHERE] extends Logging {
 
 	/**
-	 * this method does the actual capture of the expression in placeToSearch
+	 * Method that will generate the adequate Capturer
 	 *
-	 * @param expression the expression that defines the capture
-	 * @return the result of the search, being None if nothing was found or Some(something)
+	 * @param where where to capture
 	 */
-	def capture(expression: String): Option[String]
+	def getExtractor(where: WHERE): Extractor
 }

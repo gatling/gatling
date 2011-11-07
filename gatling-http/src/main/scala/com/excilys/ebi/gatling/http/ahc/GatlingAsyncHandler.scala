@@ -25,7 +25,7 @@ import org.jboss.netty.handler.codec.http.HttpHeaders.Names.SET_COOKIE
 import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.core.action.Action
-import com.excilys.ebi.gatling.core.capture.capturer.{ CapturerFactory, Capturer }
+import com.excilys.ebi.gatling.core.capture.extractor.{ ExtractorFactory, Extractor }
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ ResultStatus, OK, KO }
@@ -122,16 +122,16 @@ class GatlingAsyncHandler(context: Context, captures: MSet[HttpCapture], next: A
 
 	private def processResponse(response: Response) {
 
-		def prepareCapturers(captures: MSet[HttpCapture], response: Response): MHashMap[CapturerFactory[Response], Capturer] = {
+		def prepareExtractors(captures: MSet[HttpCapture], response: Response): MHashMap[ExtractorFactory[Response], Extractor] = {
 
-			val capturers: MHashMap[CapturerFactory[Response], Capturer] = MHashMap.empty
+			val extractors: MHashMap[ExtractorFactory[Response], Extractor] = MHashMap.empty
 			captures.foreach { capture =>
-				val capturerFactory = capture.how
-				if (capturers.get(capturerFactory).isEmpty)
-					capturers += capturerFactory -> capturerFactory.getCapturer(response)
+				val extractorFactory = capture.how
+				if (extractors.get(extractorFactory).isEmpty)
+					extractors += extractorFactory -> extractorFactory.getExtractor(response)
 			}
 
-			capturers
+			extractors
 		}
 
 		val processingStartTimeNano = System.nanoTime
@@ -141,13 +141,13 @@ class GatlingAsyncHandler(context: Context, captures: MSet[HttpCapture], next: A
 			if (isPhaseToBeProcessed(httpPhase)) {
 				val phaseCaptures = indexedCaptures.get(httpPhase).get
 
-				val phaseCapturers = prepareCapturers(phaseCaptures, response)
+				val phaseExtractors = prepareExtractors(phaseCaptures, response)
 
 				for (capture <- phaseCaptures) {
 					capture match {
 						case c: HttpCapture =>
-							val capturer = phaseCapturers.get(capture.how).get
-							val value = capturer.capture(c.what.apply(context))
+							val extractor = phaseExtractors.get(capture.how).get
+							val value = extractor.extract(c.what.apply(context))
 							logger.debug("Captured Value: {}", value)
 
 							if (c.isInstanceOf[HttpCheck] && !c.asInstanceOf[HttpCheck].getResult(value)) {

@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.capture.body.capturer
+package com.excilys.ebi.gatling.http.capture.body.extractor
 
+import com.excilys.ebi.gatling.core.capture.extractor.{ RegExpExtractor, ExtractorFactory }
 import com.ning.http.client.Response
-import com.excilys.ebi.gatling.core.capture.capturer.CapturerFactory
-import com.excilys.ebi.gatling.core.capture.capturer.XPathCapturer
 
-object HttpBodyXPathCapturerFactory extends CapturerFactory[Response] {
+object HttpBodyRegExpExtractorFactory extends ExtractorFactory[Response] {
 
-	def getCapturer(response: Response) = {
-		logger.debug("Instantiation of XPathCaptureProvider")
-		new XPathCapturer(response.getResponseBodyAsStream)
+	def getExtractor(response: Response) = {
+		logger.debug("Instantiation of RegExpExtractor")
+		new RegExpExtractor(response.getResponseBody)
 	}
 }

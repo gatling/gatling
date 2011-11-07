@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.capture.capturer
+package com.excilys.ebi.gatling.core.capture.extractor
 
 import java.io.InputStream
 
@@ -23,7 +23,7 @@ import org.w3c.dom.Node
 
 import javax.xml.parsers.DocumentBuilderFactory
 
-object XPathCapturer {
+object XPathExtractor {
 	private val factory = DocumentBuilderFactory.newInstance
 	factory.setNamespaceAware(false) // Should be configurable as well as other features of this factory
 
@@ -37,9 +37,9 @@ object XPathCapturer {
  * @constructor creates a new XPathCaptureProvider
  * @param xmlContent the XML document as bytes in which the XPath search will be applied
  */
-class XPathCapturer(xmlContent: InputStream) extends Capturer {
+class XPathExtractor(xmlContent: InputStream) extends Extractor {
 
-	val document = XPathCapturer.parser.parse(xmlContent)
+	val document = XPathExtractor.parser.parse(xmlContent)
 
 	/**
 	 * The actual capture happens here. The XPath expression is searched for and the first
@@ -48,8 +48,8 @@ class XPathCapturer(xmlContent: InputStream) extends Capturer {
 	 * @param expression a String containing the XPath expression to be searched
 	 * @return an option containing the value if found, None otherwise
 	 */
-	def capture(expression: String): Option[String] = {
-		logger.debug("[XPathCaptureProvider] Capturing with expression : {}", expression)
+	def extract(expression: String): Option[String] = {
+		logger.debug("[XPathExtractor] Extracting with expression : {}", expression)
 
 		val xpathExpression: XPath = new DOMXPath(expression.toString);
 
@@ -60,7 +60,7 @@ class XPathCapturer(xmlContent: InputStream) extends Capturer {
 		else
 			Some(results.get(0).getTextContent) // FIXME: one can choose which result to get
 
-		logger.debug("XPATH CAPTURE: {}", result)
+		logger.debug("XPath Extraction: {}", result)
 		result
 	}
 }

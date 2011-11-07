@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.capture.capturer
+package com.excilys.ebi.gatling.core.capture.extractor
 
 import scala.util.matching.Regex
 
@@ -23,7 +23,7 @@ import scala.util.matching.Regex
  * @constructor creates a new RegExpCaptureProvider
  * @param textContent the text where the search will be made
  */
-class RegExpCapturer(textContent: String) extends Capturer {
+class RegExpExtractor(textContent: String) extends Extractor {
 	/**
 	 * The actual capture happens here. The regular expression is compiled and the first
 	 * result is returned if existing.
@@ -31,8 +31,8 @@ class RegExpCapturer(textContent: String) extends Capturer {
 	 * @param expression a String containing the regular expression to be matched
 	 * @return an option containing the value if found, None otherwise
 	 */
-	def capture(expression: String): Option[String] = {
-		logger.debug("[RegExpCaptureProvider] Capturing with expression : {}", expression)
+	def extract(expression: String): Option[String] = {
+		logger.debug("[RegExpExtractor] Extracting with expression : {}", expression)
 		new Regex(expression.toString).findFirstMatchIn(textContent).map { m =>
 			if (m.groupCount > 0)
 				m.group(1)

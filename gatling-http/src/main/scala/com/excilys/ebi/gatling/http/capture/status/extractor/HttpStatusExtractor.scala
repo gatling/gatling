@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.capture.status.capturer
+package com.excilys.ebi.gatling.http.capture.status.extractor
 
 import com.ning.http.client.Response
-import com.excilys.ebi.gatling.core.capture.capturer.Capturer
+import com.excilys.ebi.gatling.core.capture.extractor.Extractor
 
-class HttpStatusCapturer(response: Response) extends Capturer {
-	def capture(unused: String): Option[String] = {
+class HttpStatusExtractor(response: Response) extends Extractor {
+	def extract(unused: String): Option[String] = {
 		Some(response.getStatusCode().toString)
 	}
 }

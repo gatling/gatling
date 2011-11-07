@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.capture.status.capturer
+package com.excilys.ebi.gatling.http.capture.body.extractor
 
-import com.excilys.ebi.gatling.core.capture.capturer.CapturerFactory
 import com.ning.http.client.Response
+import com.excilys.ebi.gatling.core.capture.extractor.ExtractorFactory
+import com.excilys.ebi.gatling.core.capture.extractor.XPathExtractor
 
-object HttpStatusCapturerFactory extends CapturerFactory[Response] {
+object HttpBodyXPathExtractorFactory extends ExtractorFactory[Response] {
 
-	def getCapturer(response: Response) = {
-		logger.debug("Instantiation of HttpStatusCaptureProvider")
-		new HttpStatusCapturer(response)
+	def getExtractor(response: Response) = {
+		logger.debug("Instantiation of XPathExtractor")
+		new XPathExtractor(response.getResponseBodyAsStream)
 	}
 }

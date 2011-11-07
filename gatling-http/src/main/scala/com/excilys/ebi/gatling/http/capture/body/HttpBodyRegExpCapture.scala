@@ -16,8 +16,8 @@
 package com.excilys.ebi.gatling.http.capture.body
 
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.http.capture.body.capturer.HttpBodyRegExpCapturerFactory
+import com.excilys.ebi.gatling.http.capture.body.extractor.HttpBodyRegExpExtractorFactory
 import com.excilys.ebi.gatling.http.capture.HttpCapture
 import com.excilys.ebi.gatling.http.request.HttpPhase.{ HttpPhase, CompletePageReceived }
 
-class HttpBodyRegExpCapture(what: Context => String, to: Option[String]) extends HttpCapture(what, HttpBodyRegExpCapturerFactory, to, CompletePageReceived)
+class HttpBodyRegExpCapture(what: Context => String, to: Option[String]) extends HttpCapture(what, HttpBodyRegExpExtractorFactory, to, CompletePageReceived)

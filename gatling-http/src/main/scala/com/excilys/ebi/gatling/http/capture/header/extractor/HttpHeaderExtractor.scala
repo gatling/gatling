@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.capture.header.capturer
+package com.excilys.ebi.gatling.http.capture.header.extractor
 
-import com.excilys.ebi.gatling.core.capture.capturer.Capturer
-import com.ning.http.client.{Response, FluentCaseInsensitiveStringsMap}
+import com.excilys.ebi.gatling.core.capture.extractor.Extractor
+import com.ning.http.client.{ Response, FluentCaseInsensitiveStringsMap }
 
-class HttpHeaderCapturer(response: Response) extends Capturer {
+class HttpHeaderExtractor(response: Response) extends Extractor {
 
-	def capture(headerName: String): Option[String] = {
-		captureAll(headerName, response.getHeaders()).map { list =>
+	def extract(headerName: String): Option[String] = {
+		extractAll(headerName, response.getHeaders()).map { list =>
 			if (list.size > 0)
 				Some(list.get(0))
 			else
@@ -29,11 +29,11 @@ class HttpHeaderCapturer(response: Response) extends Capturer {
 		}.getOrElse(None)
 	}
 
-	def captureAll(headerName: String, headersMap: FluentCaseInsensitiveStringsMap): Option[java.util.List[String]] = {
+	def extractAll(headerName: String, headersMap: FluentCaseInsensitiveStringsMap): Option[java.util.List[String]] = {
 
 		val values = headersMap.get(headerName)
 
-		logger.debug(" -- Headers Capture Provider - Got header values: {}", values)
+		logger.debug(" -- HttpHeaderExtractor - Got header values: {}", values)
 
 		if (values == null)
 			None
