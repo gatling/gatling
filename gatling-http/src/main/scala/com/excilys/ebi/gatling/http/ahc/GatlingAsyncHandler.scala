@@ -163,13 +163,7 @@ class GatlingAsyncHandler(context: Context, checks: MSet[HttpCheck], next: Actio
 						logger.warn("CHECK RESULT: false expected {} but received {}", check, value)
 						sendLogAndExecuteNext(KO, check + " failed", processingStartTimeNano)
 						return
-
-					} else if (!value.isDefined) {
-						logger.warn("Capture {} could not get value required by user", check)
-						sendLogAndExecuteNext(KO, check + " failed", processingStartTimeNano)
-						return
-
-					} else if (check.to.isDefined) {
+					} else if (value.isDefined && check.to.isDefined) {
 						context.setAttribute(check.to.get, value.get.toString)
 					}
 				}
