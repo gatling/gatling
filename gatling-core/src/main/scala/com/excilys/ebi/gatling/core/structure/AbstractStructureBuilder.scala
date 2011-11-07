@@ -43,9 +43,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 
 	def getActionBuilders = actionBuilders
 
-	def exec(actionBuilder: AbstractActionBuilder): B = {
-		newInstance(actionBuilder :: actionBuilders)
-	}
+	def exec(actionBuilder: AbstractActionBuilder): B = newInstance(actionBuilder :: actionBuilders)
 
 	/**
 	 * Method used to define a pause of X seconds
@@ -53,9 +51,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 	 * @param delayValue the time, in seconds, for which the user waits/thinks
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pause(delayValue: Int): B = {
-		pause(delayValue, delayValue, TimeUnit.SECONDS)
-	}
+	def pause(delayValue: Int): B = pause(delayValue, delayValue, TimeUnit.SECONDS)
 
 	/**
 	 * Method used to define a pause
@@ -64,9 +60,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 	 * @param delayUnit the time unit of the pause
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pause(delayValue: Int, delayUnit: TimeUnit): B = {
-		pause(delayValue, delayValue, delayUnit)
-	}
+	def pause(delayValue: Int, delayUnit: TimeUnit): B = pause(delayValue, delayValue, delayUnit)
 
 	/**
 	 * Method used to define a random pause in seconds
@@ -75,9 +69,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 	 * @param delayMaxValue the maximum value of the pause, in seconds
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pause(delayMinValue: Int, delayMaxValue: Int): B = {
-		pause(delayMinValue * 1000, delayMaxValue * 1000, TimeUnit.MILLISECONDS)
-	}
+	def pause(delayMinValue: Int, delayMaxValue: Int): B = pause(delayMinValue * 1000, delayMaxValue * 1000, TimeUnit.MILLISECONDS)
 
 	/**
 	 * Method used to define a random pause
@@ -98,9 +90,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 	 * @param chainTrue the chain to be executed if the condition is satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIf(testFunction: Context => Boolean, chainTrue: ChainBuilder): B = {
-		doIf(testFunction, chainTrue, None)
-	}
+	def doIf(testFunction: Context => Boolean, chainTrue: ChainBuilder): B = doIf(testFunction, chainTrue, None)
 
 	/**
 	 * Method used to add a conditional execution in the scenario with a fall back
@@ -111,9 +101,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 	 * @param chainFalse the chain to be executed if the condition is not satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIf(testFunction: Context => Boolean, chainTrue: ChainBuilder, chainFalse: ChainBuilder): B = {
-		doIf(testFunction, chainTrue, Some(chainFalse))
-	}
+	def doIf(testFunction: Context => Boolean, chainTrue: ChainBuilder, chainFalse: ChainBuilder): B = doIf(testFunction, chainTrue, Some(chainFalse))
 
 	/**
 	 * Method used to add a conditional execution in the scenario
@@ -123,9 +111,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 	 * @param chainTrue the chain to be executed if the condition is satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIf(contextKey: String, value: String, chainTrue: ChainBuilder): B = {
-		doIf((c: Context) => c.getAttribute(contextKey) == value, chainTrue)
-	}
+	def doIf(contextKey: String, value: String, chainTrue: ChainBuilder): B = doIf((c: Context) => c.getAttribute(contextKey) == value, chainTrue)
 
 	/**
 	 * Method used to add a conditional execution in the scenario with a fall back
@@ -137,9 +123,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 	 * @param chainFalse the chain to be executed if the condition is not satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIf(contextKey: String, value: String, chainTrue: ChainBuilder, chainFalse: ChainBuilder): B = {
-		doIf((c: Context) => c.getAttribute(contextKey) == value, chainTrue, chainFalse)
-	}
+	def doIf(contextKey: String, value: String, chainTrue: ChainBuilder, chainFalse: ChainBuilder): B = doIf((c: Context) => c.getAttribute(contextKey) == value, chainTrue, chainFalse)
 
 	/**
 	 * Private method that actually adds the If Action to the scenario
@@ -175,9 +159,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 	 * @param chain the chain to be included in the scenario
 	 * @return a new builder with all actions from the chain added to its actions
 	 */
-	def insertChain(chain: ChainBuilder): B = {
-		newInstance(chain.getActionBuilders ::: actionBuilders)
-	}
+	def insertChain(chain: ChainBuilder): B = newInstance(chain.getActionBuilders ::: actionBuilders)
 
 	def loop(chain: ChainBuilder) = new LoopBuilder[B](getInstance, chain, None)
 
@@ -185,9 +167,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 
 	protected def getInstance: B
 
-	private[structure] def addActionBuilders(actionBuildersToAdd: List[AbstractActionBuilder]): B = {
-		newInstance(actionBuildersToAdd ::: actionBuilders)
-	}
+	private[structure] def addActionBuilders(actionBuildersToAdd: List[AbstractActionBuilder]): B = newInstance(actionBuildersToAdd ::: actionBuilders)
 
 	private[structure] def buildActions(initialValue: Action): Action = {
 		var previousInList: Action = initialValue
@@ -205,6 +185,5 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](action
 		}
 		previousInList
 	}
-
 }
 

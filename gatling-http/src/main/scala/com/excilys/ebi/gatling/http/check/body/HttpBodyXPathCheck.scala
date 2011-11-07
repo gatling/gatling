@@ -23,5 +23,4 @@ import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 
 class HttpBodyXPathCheck(what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String])
 		extends HttpCheck(what, HttpBodyXPathExtractorFactory, to, strategy, expected, CompletePageReceived) {
-
 }

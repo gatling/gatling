@@ -19,7 +19,5 @@ import com.ning.http.client.Response
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
 
 class HttpStatusExtractor(response: Response) extends Extractor {
-	def extract(unused: String): Option[String] = {
-		Some(response.getStatusCode().toString)
-	}
+	def extract(unused: String): Option[String] = Some(response.getStatusCode().toString)
 }

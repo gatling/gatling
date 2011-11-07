@@ -53,13 +53,9 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 		newInstance(httpRequestActionBuilder, urlFormatter, queryParams, headers, body, followsRedirects, credentials)
 	}
 
-	def withFile(filePath: String): B = {
-		newInstance(httpRequestActionBuilder, urlFormatter, queryParams, headers, Some(FilePathBody(filePath)), followsRedirects, credentials)
-	}
+	def withFile(filePath: String): B = newInstance(httpRequestActionBuilder, urlFormatter, queryParams, headers, Some(FilePathBody(filePath)), followsRedirects, credentials)
 
-	def withBody(body: String): B = {
-		newInstance(httpRequestActionBuilder, urlFormatter, queryParams, headers, Some(StringBody(body)), followsRedirects, credentials)
-	}
+	def withBody(body: String): B = newInstance(httpRequestActionBuilder, urlFormatter, queryParams, headers, Some(StringBody(body)), followsRedirects, credentials)
 
 	def withTemplateBody(tplPath: String, values: Map[String, Any]): B = {
 		val encapsulatedValues: Map[String, Param] = values.map {

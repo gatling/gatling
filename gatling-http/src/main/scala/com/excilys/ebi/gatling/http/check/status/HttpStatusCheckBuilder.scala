@@ -30,9 +30,7 @@ object HttpStatusCheckBuilder {
 class HttpStatusCheckBuilder(to: Option[String], strategy: CheckStrategy, expected: Option[String])
 		extends HttpCheckBuilder[HttpStatusCheckBuilder]((c: Context) => EMPTY, to, strategy, expected, StatusReceived) {
 
-	def newInstance(what: Context => String, to: Option[String], checkType: CheckStrategy, expected: Option[String]) = {
-		new HttpStatusCheckBuilder(to, checkType, expected)
-	}
+	def newInstance(what: Context => String, to: Option[String], checkType: CheckStrategy, expected: Option[String]) = new HttpStatusCheckBuilder(to, checkType, expected)
 
 	def build: HttpCheck = new HttpStatusCheck(to, expected)
 }

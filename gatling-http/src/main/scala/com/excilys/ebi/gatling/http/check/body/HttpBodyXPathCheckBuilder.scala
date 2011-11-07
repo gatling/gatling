@@ -46,9 +46,7 @@ object HttpBodyXPathCheckBuilder {
 class HttpBodyXPathCheckBuilder(what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String])
 		extends HttpCheckBuilder[HttpBodyXPathCheckBuilder](what, to, strategy, expected, CompletePageReceived) {
 
-	def newInstance(what: Context => String, to: Option[String], checkType: CheckStrategy, expected: Option[String]) = {
-		new HttpBodyXPathCheckBuilder(what, to, checkType, expected)
-	}
+	def newInstance(what: Context => String, to: Option[String], checkType: CheckStrategy, expected: Option[String]) = new HttpBodyXPathCheckBuilder(what, to, checkType, expected)
 
 	def build = new HttpBodyXPathCheck(what, to, strategy, expected)
 }

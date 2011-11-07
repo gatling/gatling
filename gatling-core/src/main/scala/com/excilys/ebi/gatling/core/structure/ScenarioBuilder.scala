@@ -86,7 +86,5 @@ class ScenarioBuilder(name: String, actionBuilders: List[AbstractActionBuilder])
 	 * @param scenarioId the id of the current scenario
 	 * @return the first action of the scenario to be executed
 	 */
-	def build: Scenario = {
-		new Scenario(name, buildActions(null))
-	}
+	def build: Scenario = new Scenario(name, buildActions(null))
 }

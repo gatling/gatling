@@ -53,5 +53,4 @@ trait CounterBasedIterationHandler extends IterationHandler {
 		super.expire(context, uuid, userDefinedName)
 		context.removeAttribute(COUNTER_KEY_PREFIX + userDefinedName.getOrElse(uuid))
 	}
-
 }

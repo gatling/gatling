@@ -74,12 +74,14 @@ class Runner(val startDate: DateTime, val scenarioConfigurationBuilders: List[Sc
 		logger.debug("Launching All Scenarios")
 
 		// Scheduling all scenarios
-		for (scenarioAndConfiguration <- scenariosAndConfigurations) {
-			val delay = scenarioAndConfiguration._1.delay
-			Scheduler.scheduleOnce(() => {
-				logger.debug("Launching Scenario: {}", scenarioAndConfiguration._2.getFirstAction)
-				startOneScenario(scenarioAndConfiguration._1, scenarioAndConfiguration._2.getFirstAction)
-			}, delay._1, delay._2)
+		scenariosAndConfigurations.map {
+			case (scenario, configuration) => {
+				val delay = scenario.delay
+				Scheduler.scheduleOnce(() => {
+					logger.debug("Launching Scenario: {}", configuration.firstAction)
+					startOneScenario(scenario, configuration.firstAction)
+				}, delay._1, delay._2)
+			}
 		}
 
 		logger.debug("Finished Launching scenarios executions")
