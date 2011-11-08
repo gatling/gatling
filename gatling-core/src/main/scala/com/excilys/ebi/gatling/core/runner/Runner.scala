@@ -32,31 +32,26 @@ import akka.actor.Actor.registry
 import org.joda.time.DateTime
 import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
+import com.excilys.ebi.gatling.core.config.GatlingConfig
 
 object Runner {
 	def runSim(startDate: DateTime)(scenarioConfigurations: ScenarioConfigurationBuilder*) = new Runner(startDate, scenarioConfigurations.toList).run
 }
 class Runner(val startDate: DateTime, val scenarioConfigurationBuilders: List[ScenarioConfigurationBuilder]) extends Logging {
-	var totalNumberOfUsers = 0
-	var scenarioConfigurations: List[ScenarioConfiguration] = Nil
-	var scenarios: List[Scenario] = Nil
+
 	val statWriter = actorOf[FileDataWriter].start
 
 	// stores all scenario configurations
-	for (i <- 1 to scenarioConfigurationBuilders.size)
-		scenarioConfigurations = scenarioConfigurationBuilders(i - 1).build(i) :: scenarioConfigurations
+	val scenarioConfigurations = for (i <- 1 to scenarioConfigurationBuilders.size) yield scenarioConfigurationBuilders(i - 1).build(i)
 
 	// Counts the number of users
-	for (configuration <- scenarioConfigurations)
-		totalNumberOfUsers += configuration.users
+	val totalNumberOfUsers = (for (configuration <- scenarioConfigurations) yield configuration.users).sum
 
 	// Initializes a countdown latch to determine when to stop the application
 	val latch: CountDownLatch = new CountDownLatch(totalNumberOfUsers + 1)
 
 	// Builds all scenarios
-	for (configuration <- scenarioConfigurations) {
-		scenarios = configuration.scenarioBuilder.end(latch).build :: scenarios
-	}
+	val scenarios = for (configuration <- scenarioConfigurations) yield configuration.scenarioBuilder.end(latch).build
 
 	// Creates a List of Tuples with scenario configuration / scenario 
 	val scenariosAndConfigurations = scenarioConfigurations zip scenarios.reverse
@@ -76,16 +71,16 @@ class Runner(val startDate: DateTime, val scenarioConfigurationBuilders: List[Sc
 		// Scheduling all scenarios
 		scenariosAndConfigurations.map {
 			case (scenario, configuration) => {
-				val delay = scenario.delay
+				val (delayDuration, delayUnit) = scenario.delay
 				Scheduler.scheduleOnce(() => {
 					logger.debug("Launching Scenario: {}", configuration.firstAction)
 					startOneScenario(scenario, configuration.firstAction)
-				}, delay._1, delay._2)
+				}, delayDuration, delayUnit)
 			}
 		}
 
 		logger.debug("Finished Launching scenarios executions")
-		latch.await(86400, TimeUnit.SECONDS)
+		latch.await(GatlingConfig.CONFIG_DEFAULT_RUN_TIME_OUT, TimeUnit.SECONDS)
 
 		logger.debug("All scenarios finished, stoping actors")
 		// Shuts down all actors
