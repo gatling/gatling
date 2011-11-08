@@ -52,7 +52,7 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenCaptureBuilders
 				}
 
 				// add default HttpStatusCheck if none was set
-				if (captures.view.filter(_.isInstanceOf[HttpStatusCheck]).isEmpty) {
+				if (captures.find(_.isInstanceOf[HttpStatusCheck]).isDefined) {
 					captures.add(HttpRequestAction.DEFAULT_HTTP_STATUS_CHECK)
 				}
 			}
