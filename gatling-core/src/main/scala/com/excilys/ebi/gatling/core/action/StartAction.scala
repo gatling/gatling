@@ -31,6 +31,7 @@ object StartAction {
 	 */
 	val START_OF_SCENARIO = "Start of Scenario"
 }
+
 /**
  * StartAction class represents the first action of the scenario, ie: its beginning.
  *
@@ -45,12 +46,8 @@ class StartAction(next: Action) extends Action {
 	 * @param context The context of the current user
 	 */
 	def execute(context: Context) = {
-		actorFor(context.writeActorUuid).map { a =>
-			a ! ActionInfo(context.scenarioName, context.userId, StartAction.START_OF_SCENARIO, DateTime.now(), 0, OK, "Beginning Scenario", Nil)
-		}
-
+		actorFor(context.writeActorUuid).map(_ ! ActionInfo(context.scenarioName, context.userId, StartAction.START_OF_SCENARIO, DateTime.now(), 0, OK, "Beginning Scenario", Nil))
 		logger.info("Starting user #{}", context.userId)
-
 		next.execute(context)
 	}
 }

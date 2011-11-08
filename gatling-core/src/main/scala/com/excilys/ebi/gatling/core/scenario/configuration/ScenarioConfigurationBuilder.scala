@@ -32,9 +32,7 @@ import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
 class ScenarioConfigurationBuilder(scenarioBuilder: ScenarioBuilder, usersValue: Int, rampValue: (Int, TimeUnit), delayValue: (Int, TimeUnit),
 		feederValue: Option[Feeder], protocolConfigurations: Seq[ProtocolConfiguration]) {
 
-	def this(scenarioBuilder: ScenarioBuilder) = {
-		this(scenarioBuilder, 500, (0, TimeUnit.SECONDS), (0, TimeUnit.SECONDS), None, Seq.empty[ProtocolConfiguration])
-	}
+	def this(scenarioBuilder: ScenarioBuilder) = this(scenarioBuilder, 500, (0, TimeUnit.SECONDS), (0, TimeUnit.SECONDS), None, Seq.empty[ProtocolConfiguration])
 
 	/**
 	 * Method used to set the number of users that will be executed

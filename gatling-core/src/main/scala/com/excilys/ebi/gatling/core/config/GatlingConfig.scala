@@ -55,4 +55,6 @@ object GatlingConfig extends Logging {
 	 * Gatling global encoding value
 	 */
 	val CONFIG_GATLING_ENCODING = config.getString("gatling.encoding.global", "utf-8")
+	
+	val CONFIG_DEFAULT_RUN_TIME_OUT = 86400
 }
