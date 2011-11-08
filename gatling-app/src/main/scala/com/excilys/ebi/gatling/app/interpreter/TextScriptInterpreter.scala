@@ -15,13 +15,15 @@
  */
 package com.excilys.ebi.gatling.app.interpreter
 
-import com.excilys.ebi.gatling.core.util.PathHelper._
-import com.excilys.ebi.gatling.core.util.FileHelper._
-import scala.tools.nsc.Settings
-import scala.tools.nsc.interpreter.IMain
 import scala.io.Source
+import scala.tools.nsc.interpreter.IMain
+import scala.tools.nsc.Settings
 import scala.util.matching.Regex
+
 import org.joda.time.DateTime
+
+import com.excilys.ebi.gatling.core.util.FileHelper.TXT_EXTENSION
+import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_SCENARIOS_FOLDER
 
 /**
  * Simple Class used to get a value from the interpreter
@@ -66,8 +68,8 @@ class TextScriptInterpreter extends Interpreter {
 
 		// Includes contents of included files into the simulation file 
 		val toBeFound = new Regex("""include\("(.*)"\)""")
-		val newFileBodyContent = toBeFound replaceAllIn (initialFileBodyContent, result => {
-			var path = fileName.substring(0, fileName.lastIndexOf("@")) + "/" + result.group(1)
+		val newFileBodyContent = toBeFound.replaceAllIn(initialFileBodyContent, result => {
+			val path = fileName.substring(0, fileName.lastIndexOf("@")) + "/" + result.group(1)
 			Source.fromFile(GATLING_SCENARIOS_FOLDER + "/" + path + TXT_EXTENSION).mkString + "\n\n"
 		})
 

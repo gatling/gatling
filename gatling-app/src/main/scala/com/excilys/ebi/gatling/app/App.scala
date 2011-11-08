@@ -15,27 +15,22 @@
  */
 package com.excilys.ebi.gatling.app
 
-import io.Source
-import tools.nsc.interpreter.IMain
-import tools.nsc.Settings
-import tools.nsc.io.Directory
-import tools.nsc._
-import tools.nsc.util.BatchSourceFile
-import scala.util.matching.Regex
 import java.io.File
-import java.util.Date
-import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.config.GatlingConfig
-import com.excilys.ebi.gatling.core.util.PathHelper._
-import com.excilys.ebi.gatling.core.util.PropertiesHelper._
-import com.excilys.ebi.gatling.core.util.FileHelper._
-import com.excilys.ebi.gatling.statistics.generator.ChartsGenerator
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
-import com.excilys.ebi.gatling.app.interpreter.ScalaScriptInterpreter
-import com.excilys.ebi.gatling.app.interpreter.TextScriptInterpreter
-import scala.collection.mutable.{ MultiMap, HashMap, Set => MSet }
+
 import scala.collection.immutable.TreeSet
+import scala.collection.mutable.{ Set => MSet }
+import scala.collection.mutable.{ MultiMap, HashMap }
+import scala.tools.nsc.io.Directory
+
+import org.joda.time.DateTime
+
+import com.excilys.ebi.gatling.app.interpreter.{ TextScriptInterpreter, ScalaScriptInterpreter }
+import com.excilys.ebi.gatling.core.config.GatlingConfig
+import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.util.DateHelper.printFileNameDate
+import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_SCENARIOS_FOLDER
+import com.excilys.ebi.gatling.core.util.PropertiesHelper.{ ONLY_STATS_PROPERTY, NO_STATS_PROPERTY }
+import com.excilys.ebi.gatling.statistics.generator.ChartsGenerator
 
 /**
  * Object containing entry point of application
@@ -102,16 +97,15 @@ object App extends Logging {
 						val fileChosen = Console.readInt
 						run(filesList.reverse(fileChosen))
 				}
-			} else {
+			} else if (args.length > 0) {
 				// If the user wants to execute only statistics generation
-				if (args.length > 0) {
-					// If there is one argument, take it as folder name
-					args(0)
-				} else {
-					// Else throw an error, as the folder name is required
-					logger.error("You specified the property OnlyStats but ommitted the folderName argument.")
-					sys.exit
-				}
+
+				// If there is one argument, take it as folder name
+				args(0)
+			} else {
+				// Else throw an error, as the folder name is required
+				logger.error("You specified the property OnlyStats but ommitted the folderName argument.")
+				sys.exit
 			}
 
 		// Generation of statistics
@@ -143,15 +137,15 @@ object App extends Logging {
 		logger.info("Executing simulation of file '{}'", fileName)
 
 		val startDate = DateTime.now
+		val interpreter = fileName match {
+			case fn if (fn.endsWith(".scala")) => new ScalaScriptInterpreter()
+			case fn if (fn.endsWith(".txt")) => new TextScriptInterpreter()
+			case _ => throw new UnsupportedOperationException
+		}
 
-		if (fileName.endsWith(".scala"))
-			new ScalaScriptInterpreter().run(fileName, startDate)
-		else if (fileName.endsWith(".txt"))
-			new TextScriptInterpreter().run(fileName, startDate)
-		else
-			throw new UnsupportedOperationException
+		interpreter.run(fileName, startDate)
 
 		// Returns the folderName in which the simulation is stored
-		DateTimeFormat.forPattern("yyyyMMddHHmmss").print(startDate)
+		printFileNameDate(startDate)
 	}
 }

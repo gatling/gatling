@@ -15,16 +15,16 @@
  */
 package com.excilys.ebi.gatling.app.interpreter
 
-import com.excilys.ebi.gatling.core.util.PathHelper._
-import scala.tools.nsc.io.VirtualDirectory
+import java.io.{StringWriter, PrintWriter, File}
+
 import scala.tools.nsc.interpreter.AbstractFileClassLoader
-import java.io.File
-import java.io.StringWriter
-import java.io.PrintWriter
+import scala.tools.nsc.io.VirtualDirectory
 import scala.tools.nsc.reporters.ConsoleReporter
-import scala.tools.nsc.Global
-import scala.tools.nsc.Settings
+import scala.tools.nsc.{Settings, Global}
+
 import org.joda.time.DateTime
+
+import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_SCENARIOS_FOLDER
 
 class ScalaScriptInterpreter extends Interpreter {
 
