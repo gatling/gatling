@@ -55,6 +55,8 @@ object GatlingConfig extends Logging {
 	 * Gatling global encoding value
 	 */
 	val CONFIG_GATLING_ENCODING = config.getString("gatling.encoding.global", "utf-8")
-	
-	val CONFIG_DEFAULT_RUN_TIME_OUT = 86400
+	/**
+	 * Gatling simulation timeout value
+	 */
+	val CONFIG_SIMULATION_TIMEOUT = config.getInt("gatling.simulation.timeout", 86400)
 }

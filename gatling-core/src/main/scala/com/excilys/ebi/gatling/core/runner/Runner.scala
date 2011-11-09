@@ -80,7 +80,7 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: List[ScenarioCo
 		}
 
 		logger.debug("Finished Launching scenarios executions")
-		latch.await(GatlingConfig.CONFIG_DEFAULT_RUN_TIME_OUT, TimeUnit.SECONDS)
+		latch.await(GatlingConfig.CONFIG_SIMULATION_TIMEOUT, TimeUnit.SECONDS)
 
 		logger.debug("All scenarios finished, stoping actors")
 		// Shuts down all actors
