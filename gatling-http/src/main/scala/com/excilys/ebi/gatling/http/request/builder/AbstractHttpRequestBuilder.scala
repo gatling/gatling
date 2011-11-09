@@ -47,33 +47,33 @@ object AbstractHttpRequestBuilder {
 	implicit def toHttpRequestActionBuilder[B <: AbstractHttpRequestBuilder[B]](requestBuilder: B) = requestBuilder.httpRequestActionBuilder withRequest (new HttpRequest(requestBuilder.httpRequestActionBuilder.requestName, requestBuilder))
 }
 
-abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]],
+abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Option[Map[String, Param]],
 	headers: Option[Map[String, String]], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
 		extends Logging {
 
-	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFormatter: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], followsRedirects: Option[Boolean], credentials: Option[Tuple2[String, String]]): B
+	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], followsRedirects: Option[Boolean], credentials: Option[Tuple2[String, String]]): B
 
 	def capture(captureBuilders: HttpCheckBuilder[_]*) = httpRequestActionBuilder withRequest (new HttpRequest(httpRequestActionBuilder.requestName, this)) withProcessors captureBuilders
 
 	def check(checkBuilders: HttpCheckBuilder[_]*) = httpRequestActionBuilder withRequest (new HttpRequest(httpRequestActionBuilder.requestName, this)) withProcessors checkBuilders
 
-	def queryParam(paramKey: String, paramValue: String): B = newInstance(httpRequestActionBuilder, urlFormatter, Some(queryParams.get + (paramKey -> StringParam(paramValue))), headers, followsRedirects, credentials)
+	def queryParam(paramKey: String, paramValue: String): B = newInstance(httpRequestActionBuilder, urlFunction, Some(queryParams.get + (paramKey -> StringParam(paramValue))), headers, followsRedirects, credentials)
 
-	def queryParam(paramKey: String, paramValue: FromContext): B = newInstance(httpRequestActionBuilder, urlFormatter, Some(queryParams.get + (paramKey -> ContextParam(paramValue.attributeKey))), headers, followsRedirects, credentials)
+	def queryParam(paramKey: String, paramValue: FromContext): B = newInstance(httpRequestActionBuilder, urlFunction, Some(queryParams.get + (paramKey -> ContextParam(paramValue.attributeKey))), headers, followsRedirects, credentials)
 
 	def queryParam(paramKey: String): B = queryParam(paramKey, FromContext(paramKey))
 
-	def header(header: Tuple2[String, String]): B = newInstance(httpRequestActionBuilder, urlFormatter, queryParams, Some(headers.get + (header._1 -> header._2)), followsRedirects, credentials)
+	def header(header: Tuple2[String, String]): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, Some(headers.get + (header._1 -> header._2)), followsRedirects, credentials)
 
-	def headers(givenHeaders: Map[String, String]): B = newInstance(httpRequestActionBuilder, urlFormatter, queryParams, Some(headers.get ++ givenHeaders), followsRedirects, credentials)
+	def headers(givenHeaders: Map[String, String]): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, Some(headers.get ++ givenHeaders), followsRedirects, credentials)
 
-	def followsRedirect(followRedirect: Boolean): B = newInstance(httpRequestActionBuilder, urlFormatter, queryParams, headers, Some(followRedirect), credentials)
+	def followsRedirect(followRedirect: Boolean): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers, Some(followRedirect), credentials)
 
-	def asJSON(): B = newInstance(httpRequestActionBuilder, urlFormatter, queryParams, Some(headers.get + (ACCEPT -> APPLICATION_JSON) + (CONTENT_TYPE -> APPLICATION_JSON)), followsRedirects, credentials)
+	def asJSON(): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, Some(headers.get + (ACCEPT -> APPLICATION_JSON) + (CONTENT_TYPE -> APPLICATION_JSON)), followsRedirects, credentials)
 
-	def asXML(): B = newInstance(httpRequestActionBuilder, urlFormatter, queryParams, Some(headers.get + (ACCEPT -> APPLICATION_XML) + (CONTENT_TYPE -> APPLICATION_XML)), followsRedirects, credentials)
+	def asXML(): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, Some(headers.get + (ACCEPT -> APPLICATION_XML) + (CONTENT_TYPE -> APPLICATION_XML)), followsRedirects, credentials)
 
-	def basicAuth(username: String, password: String): B = newInstance(httpRequestActionBuilder, urlFormatter, queryParams, headers, followsRedirects, Some((username, password)))
+	def basicAuth(username: String, password: String): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers, followsRedirects, Some((username, password)))
 
 	def getMethod: String
 
@@ -113,7 +113,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	}
 
 	private def addURLTo(requestBuilder: RequestBuilder, context: Context) = {
-		val urlProvided = urlFormatter.get(context)
+		val urlProvided = urlFunction.get(context)
 
 		val httpConfiguration = context.getProtocolConfiguration(HTTP_PROTOCOL_TYPE).map { configuration =>
 			configuration.asInstanceOf[HttpProtocolConfiguration]
