@@ -20,11 +20,11 @@ import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.excilys.ebi.gatling.http.request.Param
 
-class PostHttpRequestBuilder(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Option[Map[String, Param]], params: Option[Map[String, Param]],
-	headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[Tuple2[String, String]])
+class PostHttpRequestBuilder(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Map[String, Param], params: Map[String, Param],
+	headers: Map[String, String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
 		extends AbstractHttpRequestWithBodyAndParamsBuilder[PostHttpRequestBuilder](httpRequestActionBuilder, urlFunction, queryParams, params, headers, body, followsRedirects, credentials) {
 
-	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Option[Map[String, Param]], params: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[Tuple2[String, String]]) = {
+	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Map[String, Param], params: Map[String, Param], headers: Map[String, String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)]) = {
 		new PostHttpRequestBuilder(httpRequestActionBuilder, urlFunction, queryParams, params, headers, body, followsRedirects, credentials)
 	}
 

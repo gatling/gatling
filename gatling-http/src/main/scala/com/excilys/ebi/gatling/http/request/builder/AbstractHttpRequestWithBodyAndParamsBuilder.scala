@@ -24,8 +24,8 @@ import com.excilys.ebi.gatling.http.request.Param
 import com.excilys.ebi.gatling.http.request.StringParam
 import com.ning.http.client.RequestBuilder
 
-abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequestWithBodyAndParamsBuilder[B]](httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Option[Map[String, Param]], params: Option[Map[String, Param]],
-	headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[Tuple2[String, String]])
+abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequestWithBodyAndParamsBuilder[B]](httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Map[String, Param], params: Map[String, Param],
+	headers: Map[String, String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
 		extends AbstractHttpRequestWithBodyBuilder[B](httpRequestActionBuilder, urlFunction, queryParams, headers, body, followsRedirects, credentials) {
 
 	override def getRequestBuilder(context: Context): RequestBuilder = {
@@ -35,24 +35,24 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		requestBuilder
 	}
 
-	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Option[Map[String, Param]], params: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[Tuple2[String, String]]): B
+	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Map[String, Param], params: Map[String, Param], headers: Map[String, String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
 
-	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[Tuple2[String, String]]): B = {
+	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Map[String, Param], headers: Map[String, String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B = {
 		newInstance(httpRequestActionBuilder, urlFunction, queryParams, params, headers, body, followsRedirects, credentials)
 	}
 
 	def param(paramKey: String, paramValue: String): B = {
-		newInstance(httpRequestActionBuilder, urlFunction, queryParams, Some(params.get + (paramKey -> StringParam(paramValue))), headers, body, followsRedirects, credentials)
+		newInstance(httpRequestActionBuilder, urlFunction, queryParams, params + (paramKey -> StringParam(paramValue)), headers, body, followsRedirects, credentials)
 	}
 
 	def param(paramKey: String, paramValue: FromContext): B = {
-		newInstance(httpRequestActionBuilder, urlFunction, queryParams, Some(params.get + (paramKey -> ContextParam(paramValue.attributeKey))), headers, body, followsRedirects, credentials)
+		newInstance(httpRequestActionBuilder, urlFunction, queryParams, params + (paramKey -> ContextParam(paramValue.attributeKey)), headers, body, followsRedirects, credentials)
 	}
 
 	def param(paramKey: String): B = param(paramKey, FromContext(paramKey))
 
-	private def addParamsTo(requestBuilder: RequestBuilder, params: Option[Map[String, Param]], context: Context) = {
-		for (param <- params.get) {
+	private def addParamsTo(requestBuilder: RequestBuilder, params: Map[String, Param], context: Context) = {
+		for (param <- params) {
 			param._2 match {
 				case StringParam(string) => requestBuilder addParameter (param._1, string)
 				case ContextParam(string) => requestBuilder addParameter (param._1, context.getAttribute(string).toString)

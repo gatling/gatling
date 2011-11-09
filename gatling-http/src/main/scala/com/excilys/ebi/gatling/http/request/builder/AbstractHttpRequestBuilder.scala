@@ -47,31 +47,31 @@ object AbstractHttpRequestBuilder {
 	implicit def toHttpRequestActionBuilder[B <: AbstractHttpRequestBuilder[B]](requestBuilder: B) = requestBuilder.httpRequestActionBuilder withRequest (new HttpRequest(requestBuilder.httpRequestActionBuilder.requestName, requestBuilder))
 }
 
-abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Option[Map[String, Param]],
-	headers: Option[Map[String, String]], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
+abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Map[String, Param],
+	headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
 		extends Logging {
 
-	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], followsRedirects: Option[Boolean], credentials: Option[Tuple2[String, String]]): B
+	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Map[String, Param], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
 
 	def capture(captureBuilders: HttpCheckBuilder[_]*) = httpRequestActionBuilder withRequest (new HttpRequest(httpRequestActionBuilder.requestName, this)) withProcessors captureBuilders
 
 	def check(checkBuilders: HttpCheckBuilder[_]*) = httpRequestActionBuilder withRequest (new HttpRequest(httpRequestActionBuilder.requestName, this)) withProcessors checkBuilders
 
-	def queryParam(paramKey: String, paramValue: String): B = newInstance(httpRequestActionBuilder, urlFunction, Some(queryParams.get + (paramKey -> StringParam(paramValue))), headers, followsRedirects, credentials)
+	def queryParam(paramKey: String, paramValue: String): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams + (paramKey -> StringParam(paramValue)), headers, followsRedirects, credentials)
 
-	def queryParam(paramKey: String, paramValue: FromContext): B = newInstance(httpRequestActionBuilder, urlFunction, Some(queryParams.get + (paramKey -> ContextParam(paramValue.attributeKey))), headers, followsRedirects, credentials)
+	def queryParam(paramKey: String, paramValue: FromContext): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams + (paramKey -> ContextParam(paramValue.attributeKey)), headers, followsRedirects, credentials)
 
 	def queryParam(paramKey: String): B = queryParam(paramKey, FromContext(paramKey))
 
-	def header(header: Tuple2[String, String]): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, Some(headers.get + (header._1 -> header._2)), followsRedirects, credentials)
+	def header(header: (String, String)): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers + (header._1 -> header._2), followsRedirects, credentials)
 
-	def headers(givenHeaders: Map[String, String]): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, Some(headers.get ++ givenHeaders), followsRedirects, credentials)
+	def headers(givenHeaders: Map[String, String]): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers ++ givenHeaders, followsRedirects, credentials)
 
 	def followsRedirect(followRedirect: Boolean): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers, Some(followRedirect), credentials)
 
-	def asJSON(): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, Some(headers.get + (ACCEPT -> APPLICATION_JSON) + (CONTENT_TYPE -> APPLICATION_JSON)), followsRedirects, credentials)
+	def asJSON(): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers + (ACCEPT -> APPLICATION_JSON) + (CONTENT_TYPE -> APPLICATION_JSON), followsRedirects, credentials)
 
-	def asXML(): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, Some(headers.get + (ACCEPT -> APPLICATION_XML) + (CONTENT_TYPE -> APPLICATION_XML)), followsRedirects, credentials)
+	def asXML(): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers + (ACCEPT -> APPLICATION_XML) + (CONTENT_TYPE -> APPLICATION_XML), followsRedirects, credentials)
 
 	def basicAuth(username: String, password: String): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers, followsRedirects, Some((username, password)))
 
@@ -141,7 +141,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	}
 
 	private def addQueryParamsTo(requestBuilder: RequestBuilder, context: Context) = {
-		for (queryParam <- queryParams.get) {
+		for (queryParam <- queryParams) {
 			queryParam._2 match {
 				case StringParam(string) =>
 					requestBuilder addQueryParameter (queryParam._1, string)
@@ -151,12 +151,12 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 		}
 	}
 
-	private def addHeadersTo(requestBuilder: RequestBuilder, headers: Option[Map[String, String]]) = {
+	private def addHeadersTo(requestBuilder: RequestBuilder, headers: Map[String, String]) = {
 		requestBuilder setHeaders (new FluentCaseInsensitiveStringsMap)
-		for (header <- headers.get) { requestBuilder addHeader (header._1, header._2) }
+		for (header <- headers) { requestBuilder addHeader (header._1, header._2) }
 	}
 
-	private def addAuthenticationTo(requestBuilder: RequestBuilder, credentials: Option[Tuple2[String, String]]) = {
+	private def addAuthenticationTo(requestBuilder: RequestBuilder, credentials: Option[(String, String)]) = {
 		credentials.map { c =>
 			val (username, password) = c
 			val realm = new Realm.RealmBuilder().setPrincipal(username).setPassword(password).setUsePreemptiveAuth(true).setScheme(AuthScheme.BASIC).build

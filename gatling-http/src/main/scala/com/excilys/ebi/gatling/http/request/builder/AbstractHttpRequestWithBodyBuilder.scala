@@ -35,8 +35,8 @@ import com.excilys.ebi.gatling.http.request.StringParam
 import com.excilys.ebi.gatling.http.request.TemplateBody
 import com.ning.http.client.RequestBuilder
 
-abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Option[Map[String, Param]],
-	headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[Tuple2[String, String]])
+abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Map[String, Param],
+	headers: Map[String, String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
 		extends AbstractHttpRequestBuilder[B](httpRequestActionBuilder, urlFunction, queryParams, headers, followsRedirects, credentials) {
 
 	override def getRequestBuilder(context: Context): RequestBuilder = {
@@ -47,9 +47,9 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 		requestBuilder
 	}
 
-	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[Tuple2[String, String]]): B
+	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Map[String, Param], headers: Map[String, String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
 
-	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Option[Map[String, Param]], headers: Option[Map[String, String]], followsRedirects: Option[Boolean], credentials: Option[Tuple2[String, String]]): B = {
+	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Map[String, Param], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B = {
 		newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers, body, followsRedirects, credentials)
 	}
 
