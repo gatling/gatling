@@ -1,10 +1,11 @@
 /* URLs */
-//val urlBase = "http://192.168.10.53:8080/excilys-bank-web"
-val urlBase = "http://localhost:8080/excilys-bank-web"
-val urlLoginGet = urlBase + "/public/login.html"
-val urlLoginPost = urlBase + "/login"
-val urlHome = urlBase + "/private/bank/accounts.html"
-val urlLogout = urlBase + "/logout"
+val base = "http://localhost:8080/excilys-bank-web"
+val urlLoginGet = "/public/login.html"
+val urlLoginPost = "/login"
+val urlHome = "/private/bank/accounts.html"
+val urlLogout = "/logout"
+
+val urlBase = httpConfig.baseURL(base)
 
 /* Feeder */
 val usersInfos = new TSVFeeder("bank2", List("username", "password"))
@@ -13,7 +14,7 @@ val usersInfos = new TSVFeeder("bank2", List("username", "password"))
 include("users")
 
 /* Configuration */
-val scnConf = scn.configure feeder(usersInfos) users(1200) ramp(300)
+val scnConf = scn.configure feeder(usersInfos) users(1200) ramp(300) protocolConfig(urlBase)
 
 /* Simulation */
 runSimulations(scnConf)
