@@ -18,6 +18,11 @@ package com.excilys.ebi.gatling.app.interpreter
 import com.excilys.ebi.gatling.core.log.Logging
 import org.joda.time.DateTime
 
+/**
+ * This trait serves as model for all script interpreters. Gatling has two 'interpreters' :
+ *  - Text
+ *  - Scala
+ */
 trait Interpreter extends Logging {
 	def run(fileName: String, startDate: DateTime)
 }

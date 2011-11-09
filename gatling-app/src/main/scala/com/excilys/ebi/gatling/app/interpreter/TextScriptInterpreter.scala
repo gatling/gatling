@@ -30,8 +30,17 @@ import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_SCENARIOS_FOLDER
  */
 class DateHolder(var value: DateTime)
 
+/**
+ * Text interpreter used to interpret .txt simulation files
+ */
 class TextScriptInterpreter extends Interpreter {
 
+	/**
+	 * This method launches the interpretation of the simulation and runs it
+	 *
+	 * @param fileName the name of the file containing the simulation description
+	 * @param startDate the date at which the launch was asked
+	 */
 	def run(fileName: String, startDate: DateTime) = {
 		// Sets the interpreter to use the classpath of the java command
 		val settings = new Settings

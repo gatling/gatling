@@ -85,8 +85,8 @@ object App extends Logging {
 
 						for (group <- sortedGroups) {
 							println("\n - " + group)
-							sortedFiles.get(group).map { set =>
-								for (fileName <- set) {
+							sortedFiles.get(group).map {
+								for (fileName <- _) {
 									println("     [" + i + "] " + fileName.substring(fileName.indexOf("@") + 1, fileName.indexOf(".")))
 									filesList = fileName :: filesList
 									i += 1
