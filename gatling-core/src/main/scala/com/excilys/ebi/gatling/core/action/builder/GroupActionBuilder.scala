@@ -55,21 +55,21 @@ class GroupActionBuilder(val name: String, val head: Boolean) extends AbstractAc
 	/**
 	 * This method should never be called
 	 *
-	 * @throw UnsupportedOperationException
+	 * @throws UnsupportedOperationException
 	 */
 	def build = throw new UnsupportedOperationException
 
 	/**
 	 * This method should never be called
 	 *
-	 * @throw UnsupportedOperationException
+	 * @throws UnsupportedOperationException
 	 */
 	def withNext(next: Action) = throw new UnsupportedOperationException
 
 	/**
 	 * This method should never be called
 	 *
-	 * @throw UnsupportedOperationException
+	 * @throws UnsupportedOperationException
 	 */
 	def inGroups(groups: List[String]) = throw new UnsupportedOperationException
 }

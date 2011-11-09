@@ -115,7 +115,7 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 * Gets a protocol configuration based on its type
 	 *
 	 * @param protocolType the type of the protocol as a string
-	 * @returns the protocol configuration requested
+	 * @return the protocol configuration requested
 	 */
 	def getProtocolConfiguration(protocolType: String) = {
 		getAttributeAsOption(Context.PROTOCOL_CONFIGURATIONS_KEY).map {

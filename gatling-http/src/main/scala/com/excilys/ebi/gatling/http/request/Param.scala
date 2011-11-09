@@ -28,6 +28,6 @@ case class StringParam(string: String) extends Param
 /**
  * This parameter is to be extracted from the context of the scenario
  *
- * @string the context key in which the value should be extracted
+ * @param string the context key in which the value should be extracted
  */
 case class ContextParam(string: String) extends Param

@@ -29,8 +29,8 @@ object HttpBodyXPathCheckBuilder {
 	 * Will check if the value extracted via an XPath expression is equal to a specified value
 	 *
 	 * @param what a function returning the XPath expression
-	 * @occurrence the occurrence of the XPath expression that should be extracted
-	 * @expected the value expected
+	 * @param occurrence the occurrence of the XPath expression that should be extracted
+	 * @param expected the value expected
 	 */
 	def xpathEquals(what: Context => String, occurence: Int, expected: String) = new HttpBodyXPathCheckBuilder((what, occurence), Some(EMPTY), EqualityCheckStrategy, Some(expected))
 	/**
@@ -39,15 +39,15 @@ object HttpBodyXPathCheckBuilder {
 	 * The first occurrence of the XPath expression will be extracted
 	 *
 	 * @param what a function returning the XPath expression
-	 * @expected the value expected
+	 * @param expected the value expected
 	 */
 	def xpathEquals(what: Context => String, expected: String): HttpBodyXPathCheckBuilder = xpathEquals(what, 0, expected)
 	/**
 	 * Will check if the value extracted via an XPath expression is equal to a specified value
 	 *
 	 * @param expression the XPath expression
-	 * @occurrence the occurrence of the XPath expression that should be extracted
-	 * @expected the value expected
+	 * @param occurrence the occurrence of the XPath expression that should be extracted
+	 * @param expected the value expected
 	 */
 	def xpathEquals(expression: String, occurence: Int, expected: String): HttpBodyXPathCheckBuilder = xpathEquals(((c: Context) => expression), occurence, expected)
 	/**
@@ -56,7 +56,7 @@ object HttpBodyXPathCheckBuilder {
 	 * The first occurrence of the XPath expression will be extracted
 	 *
 	 * @param expression the XPath expression
-	 * @expected the value expected
+	 * @param expected the value expected
 	 */
 	def xpathEquals(expression: String, expected: String): HttpBodyXPathCheckBuilder = xpathEquals((c: Context) => expression, expected)
 
@@ -64,8 +64,8 @@ object HttpBodyXPathCheckBuilder {
 	 * Will check if the value extracted via an XPath expression is different from a specified value
 	 *
 	 * @param what a function returning the XPath expression
-	 * @occurrence the occurrence of the XPath expression that should be extracted
-	 * @expected the value expected
+	 * @param occurrence the occurrence of the XPath expression that should be extracted
+	 * @param expected the value expected
 	 */
 	def xpathNotEquals(what: Context => String, occurence: Int, expected: String) = new HttpBodyXPathCheckBuilder((what, occurence), Some(EMPTY), NonEqualityCheckStrategy, Some(expected))
 	/**
@@ -74,15 +74,15 @@ object HttpBodyXPathCheckBuilder {
 	 * The first occurrence of the XPath expression will be extracted
 	 *
 	 * @param what a function returning the XPath expression
-	 * @expected the value expected
+	 * @param expected the value expected
 	 */
 	def xpathNotEquals(what: Context => String, expected: String): HttpBodyXPathCheckBuilder = xpathNotEquals(what, 0, expected)
 	/**
 	 * Will check if the value extracted via an XPath expression is different from a specified value
 	 *
 	 * @param expression the XPath expression
-	 * @occurrence the occurrence of the XPath expression that should be extracted
-	 * @expected the value expected
+	 * @param occurrence the occurrence of the XPath expression that should be extracted
+	 * @param expected the value expected
 	 */
 	def xpathNotEquals(expression: String, occurence: Int, expected: String): HttpBodyXPathCheckBuilder = xpathNotEquals(((c: Context) => expression), occurence, expected)
 	/**
@@ -91,7 +91,7 @@ object HttpBodyXPathCheckBuilder {
 	 * The first occurrence of the XPath expression will be extracted
 	 *
 	 * @param expression the XPath expression
-	 * @expected the value expected
+	 * @param expected the value expected
 	 */
 	def xpathNotEquals(expression: String, expected: String): HttpBodyXPathCheckBuilder = xpathNotEquals((c: Context) => expression, expected)
 
@@ -99,7 +99,7 @@ object HttpBodyXPathCheckBuilder {
 	 * Will check if the XPath expression result exists at least occurrence times
 	 *
 	 * @param what a function returning the XPath expression
-	 * @occurrence the occurrence of the XPath expression that should be extracted
+	 * @param occurrence the occurrence of the XPath expression that should be extracted
 	 */
 	def xpathExists(what: Context => String, occurence: Int) = new HttpBodyXPathCheckBuilder((what, occurence), Some(EMPTY), ExistenceCheckStrategy, None)
 	/**
@@ -112,7 +112,7 @@ object HttpBodyXPathCheckBuilder {
 	 * Will check if the XPath expression result exists at least occurrence times
 	 *
 	 * @param expression the XPath expression
-	 * @occurrence the occurrence of the XPath expression that should be extracted
+	 * @param occurrence the occurrence of the XPath expression that should be extracted
 	 */
 	def xpathExists(expression: String, occurence: Int): HttpBodyXPathCheckBuilder = xpathExists((c: Context) => expression, occurence)
 	/**
@@ -128,7 +128,7 @@ object HttpBodyXPathCheckBuilder {
 	 * Will check if the XPath expression result does not exist more than occurrence times
 	 *
 	 * @param what a function returning the XPath expression
-	 * @occurrence the occurrence of the XPath expression that should be extracted
+	 * @param occurrence the occurrence of the XPath expression that should be extracted
 	 */
 	def xpathNotExists(what: Context => String, occurence: Int) = new HttpBodyXPathCheckBuilder((what, occurence), Some(EMPTY), NonExistenceCheckStrategy, None)
 	/**
@@ -141,7 +141,7 @@ object HttpBodyXPathCheckBuilder {
 	 * Will check if the XPath expression result does not exist more than occurrence times
 	 *
 	 * @param expression the XPath expression
-	 * @occurrence the occurrence of the XPath expression that should be extracted
+	 * @param occurrence the occurrence of the XPath expression that should be extracted
 	 */
 	def xpathNotExists(expression: String, occurence: Int): HttpBodyXPathCheckBuilder = xpathNotExists((c: Context) => expression, occurence)
 	/**

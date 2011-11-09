@@ -29,8 +29,8 @@ object HttpBodyRegExpCheckBuilder {
 	 * Will check if the value extracted via a regular expression is equal to a specified value
 	 *
 	 * @param what a function returning the regular expression
-	 * @occurrence the occurrence of the regular expression that should be extracted
-	 * @expected the value expected
+	 * @param occurrence the occurrence of the regular expression that should be extracted
+	 * @param expected the value expected
 	 */
 	def regexpEquals(what: Context => String, occurrence: Int, expected: String) = new HttpBodyRegExpCheckBuilder((what, occurrence), Some(EMPTY), EqualityCheckStrategy, Some(expected))
 	/**
@@ -39,15 +39,15 @@ object HttpBodyRegExpCheckBuilder {
 	 * The first occurrence of the regular expression will be extracted
 	 *
 	 * @param what a function returning the regular expression
-	 * @expected the value expected
+	 * @param expected the value expected
 	 */
 	def regexpEquals(what: Context => String, expected: String): HttpBodyRegExpCheckBuilder = regexpEquals(what, 0, expected)
 	/**
 	 * Will check if the value extracted via a regular expression is equal to a specified value
 	 *
 	 * @param expression the regular expression
-	 * @occurrence the occurrence of the regular expression that should be extracted
-	 * @expected the value expected
+	 * @param occurrence the occurrence of the regular expression that should be extracted
+	 * @param expected the value expected
 	 */
 	def regexpEquals(expression: String, occurrence: Int, expected: String): HttpBodyRegExpCheckBuilder = regexpEquals((c: Context) => expression, occurrence, expected)
 	/**
@@ -56,7 +56,7 @@ object HttpBodyRegExpCheckBuilder {
 	 * The first occurrence of the regular expression will be extracted
 	 *
 	 * @param expression the regular expression
-	 * @expected the value expected
+	 * @param expected the value expected
 	 */
 	def regexpEquals(expression: String, expected: String): HttpBodyRegExpCheckBuilder = regexpEquals((c: Context) => expression, expected)
 
@@ -64,8 +64,8 @@ object HttpBodyRegExpCheckBuilder {
 	 * Will check if the value extracted via a regular expression is different from a specified value
 	 *
 	 * @param what a function returning the regular expression
-	 * @occurrence the occurrence of the regular expression that should be extracted
-	 * @expected the value expected
+	 * @param occurrence the occurrence of the regular expression that should be extracted
+	 * @param expected the value expected
 	 */
 	def regexpNotEquals(what: Context => String, occurrence: Int, expected: String) = new HttpBodyRegExpCheckBuilder((what, occurrence), Some(EMPTY), NonEqualityCheckStrategy, Some(expected))
 	/**
@@ -74,15 +74,15 @@ object HttpBodyRegExpCheckBuilder {
 	 * The first occurrence of the regular expression will be extracted
 	 *
 	 * @param what a function returning the regular expression
-	 * @expected the value expected
+	 * @param expected the value expected
 	 */
 	def regexpNotEquals(what: Context => String, expected: String): HttpBodyRegExpCheckBuilder = regexpNotEquals(what, 0, expected)
 	/**
 	 * Will check if the value extracted via a regular expression is different from a specified value
 	 *
 	 * @param expression the regular expression
-	 * @occurrence the occurrence of the regular expression that should be extracted
-	 * @expected the value expected
+	 * @param occurrence the occurrence of the regular expression that should be extracted
+	 * @param expected the value expected
 	 */
 	def regexpNotEquals(expression: String, occurrence: Int, expected: String): HttpBodyRegExpCheckBuilder = regexpNotEquals((c: Context) => expression, occurrence, expected)
 	/**
@@ -91,7 +91,7 @@ object HttpBodyRegExpCheckBuilder {
 	 * The first occurrence of the regular expression will be extracted
 	 *
 	 * @param expression the regular expression
-	 * @expected the value expected
+	 * @param expected the value expected
 	 */
 	def regexpNotEquals(expression: String, expected: String): HttpBodyRegExpCheckBuilder = regexpNotEquals((c: Context) => expression, expected)
 
@@ -99,7 +99,7 @@ object HttpBodyRegExpCheckBuilder {
 	 * Will check if the regular expression result exists at least occurrence times
 	 *
 	 * @param what a function returning the regular expression
-	 * @occurrence the occurrence of the regular expression that should be extracted
+	 * @param occurrence the occurrence of the regular expression that should be extracted
 	 */
 	def regexpExists(what: Context => String, occurrence: Int) = new HttpBodyRegExpCheckBuilder((what, occurrence), Some(EMPTY), ExistenceCheckStrategy, Some(EMPTY))
 	/**
@@ -112,7 +112,7 @@ object HttpBodyRegExpCheckBuilder {
 	 * Will check if the regular expression result exists at least occurrence times
 	 *
 	 * @param expression the regular expression
-	 * @occurrence the occurrence of the regular expression that should be extracted
+	 * @param occurrence the occurrence of the regular expression that should be extracted
 	 */
 	def regexpExists(expression: String, occurrence: Int): HttpBodyRegExpCheckBuilder = regexpExists((c: Context) => expression, occurrence)
 	/**
@@ -128,7 +128,7 @@ object HttpBodyRegExpCheckBuilder {
 	 * Will check if the regular expression result does not exist more than occurrence times
 	 *
 	 * @param what a function returning the regular expression
-	 * @occurrence the occurrence of the regular expression that should be extracted
+	 * @param occurrence the occurrence of the regular expression that should be extracted
 	 */
 	def regexpNotExists(what: Context => String, occurrence: Int) = new HttpBodyRegExpCheckBuilder((what, occurrence), Some(EMPTY), NonExistenceCheckStrategy, Some(EMPTY))
 	/**
@@ -141,7 +141,7 @@ object HttpBodyRegExpCheckBuilder {
 	 * Will check if the regular expression result does not exist more than occurrence times
 	 *
 	 * @param expression the regular expression
-	 * @occurrence the occurrence of the regular expression that should be extracted
+	 * @param occurrence the occurrence of the regular expression that should be extracted
 	 */
 	def regexpNotExists(expression: String, occurrence: Int): HttpBodyRegExpCheckBuilder = regexpNotExists((c: Context) => expression, occurrence)
 	/**

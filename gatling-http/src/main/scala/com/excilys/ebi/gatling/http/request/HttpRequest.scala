@@ -24,8 +24,8 @@ import com.ning.http.client.{ Request => AHCRequest }
 /**
  * This class wraps an HTTP Request
  *
- * @givenName the name of the request
- * @httpRequestBuilder the httpRequestBuilder that will build the actual HTTP request
+ * @param givenName the name of the request
+ * @param httpRequestBuilder the httpRequestBuilder that will build the actual HTTP request
  */
 class HttpRequest(givenName: String, val httpRequestBuilder: AbstractHttpRequestBuilder[_]) extends Request(givenName) with Logging {
 
