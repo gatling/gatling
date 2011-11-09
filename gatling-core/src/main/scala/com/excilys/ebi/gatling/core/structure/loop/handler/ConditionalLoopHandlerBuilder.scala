@@ -19,7 +19,20 @@ import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder._
 import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
+/**
+ * This builder creates a conditional loop, using a WhileAction
+ *
+ * @constructor constructs a ConditionalLoopHandlerBuilder
+ * @param structureBuilder the structure builder on which loop was called
+ * @param chain the chain of actions that should be repeated
+ * @param conditionFunction the function that determines whether the loop should continue or not
+ * @param counterName the name of the counter for this loop
+ */
 class ConditionalLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: ChainBuilder, conditionFunction: Context => Boolean, counterName: Option[String])
 		extends AbstractLoopHandlerBuilder[B](structureBuilder) {
+
+	/**
+	 * Actually adds the current conditional loop to the structure builder
+	 */
 	def build: B = doBuild(List(whileActionBuilder withConditionFunction conditionFunction withLoopNext chain inGroups structureBuilder.getCurrentGroups withCounterName counterName))
 }

@@ -15,9 +15,13 @@
  */
 package com.excilys.ebi.gatling.core.context.handler
 
-import scala.collection.immutable.Stack
 import com.excilys.ebi.gatling.core.context.Context
 
+import CounterBasedIterationHandler.COUNTER_KEY_PREFIX
+
+/**
+ * CounterBasedIterationHandler trait 'companion'
+ */
 object CounterBasedIterationHandler {
 
 	/**
@@ -25,13 +29,23 @@ object CounterBasedIterationHandler {
 	 */
 	val COUNTER_KEY_PREFIX = "gatling.core.counter."
 
+	/**
+	 * This method gets the specified counter from the context
+	 *
+	 * @param context the scenario context
+	 * @param counterName the name of the counter
+	 * @return the value of the counter as an integer
+	 */
 	def getCounterValue(context: Context, counterName: String) = {
 		context.getAttributeAsOption(COUNTER_KEY_PREFIX + counterName).getOrElse(throw new IllegalAccessError("Counter does not exist, check the name of the key " + counterName)).asInstanceOf[Int]
 	}
 }
 
-import CounterBasedIterationHandler._
-
+/**
+ * This trait is used for mixin-composition
+ *
+ * It adds counter based iteration behavior to a class
+ */
 trait CounterBasedIterationHandler extends IterationHandler {
 
 	abstract override def init(context: Context, uuid: String, userDefinedName: Option[String]) = {

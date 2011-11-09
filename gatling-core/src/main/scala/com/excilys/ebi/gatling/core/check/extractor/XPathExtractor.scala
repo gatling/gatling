@@ -24,6 +24,9 @@ import javax.xml.parsers.DocumentBuilderFactory
 import java.io.ByteArrayInputStream
 import java.io.StringReader
 
+/**
+ * XPathExtractor class companion
+ */
 object XPathExtractor {
 	System.setProperty("javax.xml.parsers.SAXParserFactory", "org.apache.xerces.jaxp.SAXParserFactoryImpl");
 	System.setProperty("javax.xml.parsers.DOMParserFactory", "org.apache.xerces.jaxp.DOMParserFactoryImpl");
@@ -40,20 +43,21 @@ class NoopEntityResolver extends EntityResolver {
 }
 
 /**
- * This class is a built-in provider that helps searching with XPath Expressions
+ * This class is a built-in extractor that helps searching with XPath Expressions
  *
  * it requires a well formatted XML document, otherwise, it will throw an exception
  *
- * @constructor creates a new XPathCaptureProvider
- * @param xmlContent the XML document as bytes in which the XPath search will be applied
+ * @constructor creates a new XPathExtractor
+ * @param xmlContent the XML document as an InputStream in which the XPath search will be applied
+ * @param occurrence the occurrence of the results that should be returned
  */
-class XPathExtractor(xmlContent: InputStream, occurence: Int) extends Extractor {
+class XPathExtractor(xmlContent: InputStream, occurrence: Int) extends Extractor {
 
-	// parse the document in the constructor so that the extractor can be efficiently reused for multiple extractions
+	// parses the document in the constructor so that the extractor can be efficiently reused for multiple extractions
 	val document = XPathExtractor.parser.parse(xmlContent)
 
 	/**
-	 * The actual capture happens here. The XPath expression is searched for and the first
+	 * The actual extraction happens here. The XPath expression is searched for and the occurrence-th
 	 * result is returned if existing.
 	 *
 	 * @param expression a String containing the XPath expression to be searched
@@ -68,7 +72,7 @@ class XPathExtractor(xmlContent: InputStream, occurence: Int) extends Extractor 
 		val results = xpathExpression.selectNodes(document).asInstanceOf[java.util.List[Node]]
 
 		val result = if (results.size() > 0)
-			Some(results.get(occurence).getTextContent)
+			Some(results.get(occurrence).getTextContent)
 		else
 			None
 

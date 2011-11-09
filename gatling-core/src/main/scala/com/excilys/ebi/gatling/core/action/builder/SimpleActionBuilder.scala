@@ -21,14 +21,46 @@ import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.action.SimpleAction
 import akka.actor.TypedActor
 
+/**
+ * SimpleActionBuilder class companion
+ */
 object SimpleActionBuilder {
-	implicit def toSimpleActionBuilder(contextFunction: (Context, Action) => Unit) = new SimpleActionBuilder(contextFunction, null, Nil)
-	implicit def toSimpleActionBuilder(contextFunction: Context => Unit): SimpleActionBuilder = toSimpleActionBuilder((c: Context, a: Action) => contextFunction(c))
 
+	/**
+	 * Implicit converter from (Context, Action) => Unit to a simple action builder containing this function
+	 *
+	 * @param contextFunction the function that has to be wrapped into a simple action builder
+	 * @return a simple action builder
+	 */
+	implicit def toSimpleActionBuilder(contextFunction: (Context, Action) => Unit) = simpleActionBuilder(contextFunction)
+	/**
+	 * Implicit converter from Context => Unit to a simple action builder containing this function
+	 *
+	 * @param contextFunction the function that has to be wrapped into a simple action builder
+	 */
+	implicit def toSimpleActionBuilder(contextFunction: Context => Unit) = simpleActionBuilder(contextFunction)
+
+	/**
+	 * Function used to create a simple action builder
+	 *
+	 * @param contextFunction the function that will be executed by the built simple action
+	 */
 	def simpleActionBuilder(contextFunction: Context => Unit): SimpleActionBuilder = simpleActionBuilder((c: Context, a: Action) => contextFunction(c))
-	def simpleActionBuilder(contextFunction: (Context, Action) => Unit) = toSimpleActionBuilder(contextFunction)
+	/**
+	 * Function used to create a simple action builder
+	 *
+	 * @param contextFunction the function that will be executed by the built simple action
+	 */
+	def simpleActionBuilder(contextFunction: (Context, Action) => Unit) = new SimpleActionBuilder(contextFunction, null, Nil)
 }
-
+/**
+ * This class builds an SimpleAction
+ *
+ * @constructor creates a SimpleActionBuilder
+ * @param contextFunction the function that will be executed by the simple action
+ * @param next the action that will be executed after the simple action built by this builder
+ * @param groups the groups to which this action belongs
+ */
 class SimpleActionBuilder(contextFunction: (Context, Action) => Unit, next: Action, groups: List[String]) extends AbstractActionBuilder {
 
 	def withNext(next: Action) = new SimpleActionBuilder(contextFunction, next, groups)

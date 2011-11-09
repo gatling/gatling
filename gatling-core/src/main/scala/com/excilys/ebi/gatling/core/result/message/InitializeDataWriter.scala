@@ -25,4 +25,4 @@ import org.joda.time.DateTime
  * @param runOn the date on which the simulation started
  * @param latch the countdown latch that will end the simulation
  */
-case class InitializeDataWriter(val runOn: DateTime, val latch: CountDownLatch)
+case class InitializeDataWriter(runOn: DateTime, latch: CountDownLatch)

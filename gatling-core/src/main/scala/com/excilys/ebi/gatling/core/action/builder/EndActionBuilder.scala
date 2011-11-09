@@ -22,6 +22,9 @@ import com.excilys.ebi.gatling.core.action.EndAction
 
 import akka.actor.TypedActor
 
+/**
+ * EndActionBuilder class companion
+ */
 object EndActionBuilder {
 
 	/**
@@ -39,7 +42,7 @@ object EndActionBuilder {
  * @constructor create an EndActionBuilder with its countdown slatch
  * @param latch The CountDownLatch that will stop the simulation
  */
-class EndActionBuilder(val latch: CountDownLatch) extends AbstractActionBuilder {
+class EndActionBuilder(latch: CountDownLatch) extends AbstractActionBuilder {
 
 	def build: Action = TypedActor.newInstance(classOf[Action], new EndAction(latch))
 

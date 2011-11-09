@@ -32,7 +32,7 @@ import com.excilys.ebi.gatling.core.util.PathHelper._
  * @param separator the separator used by this CSV file (tabulation, comma, etc.)
  * @param extension the extension of the file
  */
-abstract class SeparatedValuesFeeder(fileName: String, mappings: List[String], val separator: String, val extension: String) extends Feeder(fileName, mappings) {
+abstract class SeparatedValuesFeeder(fileName: String, mappings: List[String], separator: String, extension: String) extends Feeder(fileName, mappings) {
 
 	var seeds: Queue[Map[String, String]] = Queue()
 

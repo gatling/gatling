@@ -18,8 +18,20 @@ import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
 
+/**
+ * This class is a model for the Loop handler builders
+ *
+ * These builders are used to create the right structure of actors to allow loops
+ *
+ * @param structureBuilder the structure builder on which loop was called
+ */
 abstract class AbstractLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B) extends Logging {
 	def build: B
 
+	/**
+	 * This method adds the actionBuilders of the loop to the structure builder on which loop was called
+	 *
+	 * @param actionBuilders the list of actions that form the loop
+	 */
 	protected def doBuild(actionBuilders: List[AbstractActionBuilder]) = structureBuilder.addActionBuilders(actionBuilders)
 }

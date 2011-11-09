@@ -22,17 +22,57 @@ import com.excilys.ebi.gatling.core.structure.loop.handler.TimesLoopHandlerBuild
 import com.excilys.ebi.gatling.core.structure.loop.handler.DurationLoopHandlerBuilder
 import com.excilys.ebi.gatling.core.structure.loop.handler.ConditionalLoopHandlerBuilder
 
+/**
+ * This class serves as DSL description of a loop
+ *
+ * @constructor constructs a new LoopBuilder
+ * @param structureBuilder the structure builder on which loop has been called
+ * @param chain the chain that should be repeated
+ * @param counterName the optionnal counter name
+ */
 class LoopBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: ChainBuilder, counterName: Option[String]) {
 
+	/**
+	 * This method defines a counter name for the currently described loop
+	 *
+	 * @param counterName the name of the counter
+	 */
 	def counterName(counterName: String) = new LoopBuilder[B](structureBuilder, chain, Some(counterName))
 
+	/**
+	 * This method sets the number of iterations that should be done by the loop
+	 *
+	 * @param times the number of iterations
+	 */
 	def times(times: Int): B = new TimesLoopHandlerBuilder(structureBuilder, chain, times, counterName).build
 
+	/**
+	 * This method sets the duration of the loop
+	 *
+	 * @param durationValue the value of the duration
+	 * @param durationUnit the unit of the duration
+	 */
 	def during(durationValue: Int, durationUnit: TimeUnit): B = new DurationLoopHandlerBuilder(structureBuilder, chain, durationValue, durationUnit, counterName).build
 
+	/**
+	 * This method sets the duration of the loop in seconds
+	 *
+	 * @param durationValue the value of the duration in seconds
+	 */
 	def during(durationValue: Int): B = during(durationValue, TimeUnit.SECONDS)
 
-	def asLongAs(testFunction: Context => Boolean): B = new ConditionalLoopHandlerBuilder(structureBuilder, chain, testFunction, counterName).build
+	/**
+	 * This method sets the condition that will stop the loop
+	 *
+	 * @param conditionFunction the condition function
+	 */
+	def asLongAs(conditionFunction: Context => Boolean): B = new ConditionalLoopHandlerBuilder(structureBuilder, chain, conditionFunction, counterName).build
 
+	/**
+	 * This method sets the equality condition that will stop the loop
+	 *
+	 * @param contextKey the key of the value in the context
+	 * @param value the value to which the context value is compared
+	 */
 	def asLongAs(contextKey: String, value: String): B = asLongAs((c: Context) => c.getAttribute(contextKey) == value)
 }

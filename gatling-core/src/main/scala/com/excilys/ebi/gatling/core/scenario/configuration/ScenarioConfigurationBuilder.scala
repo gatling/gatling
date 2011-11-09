@@ -85,7 +85,10 @@ class ScenarioConfigurationBuilder(scenarioBuilder: ScenarioBuilder, usersValue:
 	def delay(delayValue: Int, unit: TimeUnit) = new ScenarioConfigurationBuilder(scenarioBuilder, usersValue, rampValue, (delayValue, unit), feederValue, protocolConfigurations)
 
 	/**
+	 * Method used to set the different protocol configurations for this scenario
 	 *
+	 * @param configurations the protocol configurations
+	 * @return a new builder with the protocol configurations set
 	 */
 	def protocolConfig(configurations: ProtocolConfiguration*) = new ScenarioConfigurationBuilder(scenarioBuilder, usersValue, rampValue, delayValue, feederValue, configurations)
 

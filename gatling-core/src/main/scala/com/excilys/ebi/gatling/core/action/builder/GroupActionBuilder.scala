@@ -29,7 +29,7 @@ object GroupActionBuilder {
 	 * @param groupName the name of the group
 	 * @return a GroupActionBuilder that indicates the beginning of the group named groupName.
 	 */
-	def startGroupBuilder(groupName: String) = new GroupActionBuilder(Some(groupName), Some(true))
+	def startGroupBuilder(groupName: String) = new GroupActionBuilder(groupName, true)
 
 	/**
 	 * Defines the end of a group
@@ -40,29 +40,17 @@ object GroupActionBuilder {
 	 * @param groupName the name of the group
 	 * @return a GroupActionBuilder that indicates the end of the group named groupName.
 	 */
-	def endGroupBuilder(groupName: String) = new GroupActionBuilder(Some(groupName), Some(false))
+	def endGroupBuilder(groupName: String) = new GroupActionBuilder(groupName, false)
 }
 
 /**
  * This class is used to group requests
  *
  * @constructor creates a group action builder
- * @param groupName the name of the group to create
+ * @param name the name of the group to create
  * @param end if this builder defines the start or the end of the group
  */
-class GroupActionBuilder(groupName: Option[String], end: Option[Boolean]) extends AbstractActionBuilder {
-
-	/**
-	 * @return the value of end
-	 */
-	// FIXME not safe
-	def isEnd = end.get
-
-	/**
-	 * @return the name of the group
-	 */
-	// FIXME not safe
-	def getName = groupName.get
+class GroupActionBuilder(val name: String, val head: Boolean) extends AbstractActionBuilder {
 
 	/**
 	 * This method should never be called

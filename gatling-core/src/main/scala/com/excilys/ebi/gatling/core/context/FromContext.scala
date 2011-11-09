@@ -16,11 +16,11 @@
 package com.excilys.ebi.gatling.core.context
 
 /**
- * This class is used as a wrapper in DSL
+ * This case class is used as a wrapper in DSL
  *
  * It means that the value must be retrieved at runtime from context with
  * the key specified by attributeKey.
  *
  * @param attributeKey the key of the value requested
  */
-case class FromContext(val attributeKey: String)
+case class FromContext(attributeKey: String)

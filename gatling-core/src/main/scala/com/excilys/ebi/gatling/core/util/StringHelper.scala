@@ -63,8 +63,10 @@ object StringHelper extends Logging {
 	 */
 	def interpolate(stringToFormat: String, interpolations: String*) = (c: Context) => interpolateString(c, stringToFormat, interpolations)
 
+	/**
+	 * Method that strips all accents from a string
+	 */
 	def stripAccents(string: String) = {
-
 		val normalized = Normalizer.normalize(string, Normalizer.Form.NFD)
 		jdk6Pattern.matcher(normalized).replaceAll(EMPTY);
 	}

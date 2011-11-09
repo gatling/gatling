@@ -33,8 +33,7 @@ object FileHelper {
 	val TXT_EXTENSION = ".txt"
 
 	/**
-	 * Transform a string to a simpler one that can be used
-	 * safely as file name
+	 * Transform a string to a simpler one that can be used safely as file name
 	 *
 	 * @param s the string to be simplified
 	 * @return a simplified string

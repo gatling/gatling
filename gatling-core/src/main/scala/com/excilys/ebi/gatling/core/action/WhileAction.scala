@@ -26,8 +26,10 @@ import com.excilys.ebi.gatling.core.context.handler.TimerBasedIterationHandler
  * @param testFunction the function that will be used to decide when to stop the loop
  * @param loopNext the chain executed if testFunction evaluates to true, passed as a Function for construct time
  * @param next the chain executed if testFunction evaluates to false
+ * @param counterName the name of the counter for this loop
  */
-class WhileAction(testFunction: (Context, Action) => Boolean, var loopNext: WhileAction => Action, next: Action, counterName: Option[String]) extends Action with TimerBasedIterationHandler with CounterBasedIterationHandler {
+class WhileAction(testFunction: (Context, Action) => Boolean, var loopNext: WhileAction => Action, next: Action, counterName: Option[String])
+		extends Action with TimerBasedIterationHandler with CounterBasedIterationHandler {
 
 	val loopNextAction = loopNext(this)
 
@@ -35,7 +37,7 @@ class WhileAction(testFunction: (Context, Action) => Boolean, var loopNext: Whil
 	 * Evaluates the testFunction and if true executes the first action of loopNext
 	 * else it executes the first action of next
 	 *
-	 * @param context Context for current user
+	 * @param context Context of the scenario
 	 * @return Nothing
 	 */
 	def execute(context: Context) = {

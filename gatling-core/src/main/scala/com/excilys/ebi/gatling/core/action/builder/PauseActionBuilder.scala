@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
 import akka.actor.TypedActor
 
 /**
- * Companion Object of PauseActionBuilder class
+ * PauseActionBuilder class companion
  */
 object PauseActionBuilder {
 	/**
@@ -35,14 +35,14 @@ object PauseActionBuilder {
 /**
  * This class builds a PauseAction
  *
- * @constructor create a new PauseAction
+ * @constructor create a new PauseActionBuilder
  * @param minDuration minimum duration of the generated pause
  * @param maxDuration maximum duration of the generated pause
  * @param timeUnit time unit of the duration of the generated pause
  * @param next action that will be executed after the generated pause
  * @param groups groups in which this action will be
  */
-class PauseActionBuilder(val minDuration: Option[Long], val maxDuration: Option[Long], val timeUnit: Option[TimeUnit], val next: Option[Action], val groups: Option[List[String]])
+class PauseActionBuilder(minDuration: Option[Long], maxDuration: Option[Long], timeUnit: Option[TimeUnit], next: Option[Action], groups: Option[List[String]])
 		extends AbstractActionBuilder {
 
 	/**
@@ -82,7 +82,8 @@ class PauseActionBuilder(val minDuration: Option[Long], val maxDuration: Option[
 	def inGroups(groups: List[String]) = new PauseActionBuilder(minDuration, maxDuration, timeUnit, next, Some(groups))
 
 	def build: Action = {
-		logger.debug("Building PauseAction with duration in : {} - {}ms", TimeUnit.MILLISECONDS.convert(minDuration.get, timeUnit.get), TimeUnit.MILLISECONDS.convert(maxDuration.get, timeUnit.get))
+		if (logger.isDebugEnabled)
+			logger.debug("Building PauseAction with duration in : {} - {}ms", TimeUnit.MILLISECONDS.convert(minDuration.get, timeUnit.get), TimeUnit.MILLISECONDS.convert(maxDuration.get, timeUnit.get))
 		TypedActor.newInstance(classOf[Action], new PauseAction(next.get, minDuration.get, maxDuration.get, timeUnit.get))
 	}
 }

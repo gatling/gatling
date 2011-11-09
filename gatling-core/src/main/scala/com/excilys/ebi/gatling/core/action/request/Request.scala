@@ -23,5 +23,4 @@ package com.excilys.ebi.gatling.core.action.request
  *
  * @param name the name of the request
  */
-abstract class Request(val name: String) {
-}
+abstract class Request(val name: String)

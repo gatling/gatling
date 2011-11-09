@@ -21,16 +21,38 @@ import com.excilys.ebi.gatling.core.context.Context
 
 import IterationStep.{ IterationStep, INIT, INCREMENT, EXPIRE }
 
+/**
+ * This enumeration lists the different steps in an iteration regarding the counter :
+ *   INIT:      the initialization
+ *   INCREMENT: the incrementation
+ *   EXPIRE:    the release
+ */
 object IterationStep extends Enumeration {
 	type IterationStep = Value
 	val INIT, INCREMENT, EXPIRE = Value
 }
 
+/**
+ * This builder is used to create simple actions containing the functions that
+ * will be used to create a times loop.
+ */
 object CountBasedIterationActionBuilder extends CounterBasedIterationHandler {
+	/**
+	 * Creates a builder for a simple action that initializes the counter
+	 */
 	def initCounterAction(counterName: String) = initClass(counterName, INIT)
+	/**
+	 * Creates a builder for a simple action that increments the counter
+	 */
 	def incrementCounterAction(counterName: String) = initClass(counterName, INCREMENT)
+	/**
+	 * Creates a builder for a simple action that releases the counter
+	 */
 	def expireCounterAction(counterName: String) = initClass(counterName, EXPIRE)
 
+	/**
+	 * Function that actually creates the simple action builder required
+	 */
 	private def initClass(counterName: String, iterationStep: IterationStep) = {
 		val contextFunction = iterationStep match {
 			case INIT => (c: Context, a: Action) => init(c, a.getUuidAsString, Some(counterName))

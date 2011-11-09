@@ -20,9 +20,10 @@ import com.excilys.ebi.gatling.core.log.Logging
 import java.util.concurrent.TimeUnit
 import com.excilys.ebi.gatling.core.util.StringHelper._
 import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
+import scala.collection.mutable.Map
 
 /**
- * Companion object of Context class
+ * Context class companion
  */
 object Context {
 	/**
@@ -45,7 +46,6 @@ object Context {
  * @param writeActorUuid the uuid of the actor responsible for logging
  * @param data the map that stores all values needed
  */
-// FIXME investigate if Context should use a mutable map
 class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uuid, var data: Map[String, Any]) extends Logging {
 
 	def this(scenarioName: String, userId: Int, writeActorUuid: Uuid) = this(scenarioName, userId, writeActorUuid, Map.empty)
@@ -70,7 +70,7 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	/**
 	 * Gets a value from the context
 	 *
-	 * This method is to be used only internally, prefer using getAttribute in scenarios
+	 * This method is to be used only internally, use getAttribute in scenarios
 	 *
 	 * @param key the key of the requested value
 	 * @return the value stored at key as an Option
@@ -86,17 +86,22 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 * @param attributes map containing several values to be stored in context
 	 * @return Nothing
 	 */
-	def setAttributes(attributes: Map[String, Any]) = data ++= attributes
-	
+	def setAttributes(attributes: scala.Predef.Map[String, Any]) = data ++= attributes
+
 	/**
 	 * Sets a single value in the context
 	 *
 	 * @param attributeKey the key of the attribute
 	 * @param attributeValue the value of the attribute
-	 * @return Nothing
+	 * @return Unit
 	 */
-	def setAttribute(attributeKey: String, attributeValue: Any) = data += (attributeKey -> attributeValue)
-	
+	def setAttribute(attributeKey: String, attributeValue: Any): Unit = data += (attributeKey -> attributeValue)
+
+	/**
+	 * Removes an attribute and its value from the context
+	 *
+	 * @param attributeKey the key of the attribute to be removed
+	 */
 	def removeAttribute(attributeKey: String) = data -= attributeKey
 
 	/**
@@ -106,14 +111,23 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 */
 	def getLastActionDuration: Long = data.get(Context.LAST_ACTION_DURATION_KEY).getOrElse(0L).asInstanceOf[Long]
 
+	/**
+	 * Gets a protocol configuration based on its type
+	 *
+	 * @param protocolType the type of the protocol as a string
+	 * @returns the protocol configuration requested
+	 */
 	def getProtocolConfiguration(protocolType: String) = {
 		getAttributeAsOption(Context.PROTOCOL_CONFIGURATIONS_KEY).map {
-			value =>
-				val map = value.asInstanceOf[Map[String, ProtocolConfiguration]]
-				map.get(protocolType)
+			_.asInstanceOf[scala.Predef.Map[String, ProtocolConfiguration]].get(protocolType)
 		}.getOrElse(throw new UnsupportedOperationException("The protocol configuration map does not exist."))
 	}
 
+	/**
+	 * Sets the protocol configuration map in the context
+	 *
+	 * @param configurations the sequence containing all the protocol configurations
+	 */
 	def setProtocolConfig(configurations: Seq[ProtocolConfiguration]) = {
 		val configSeq = for (config <- configurations) yield (config.getProtocolType -> config)
 

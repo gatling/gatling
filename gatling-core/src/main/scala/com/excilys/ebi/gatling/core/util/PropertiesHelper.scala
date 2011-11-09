@@ -32,8 +32,7 @@ object PropertiesHelper {
 	val NO_STATS_PROPERTY = Option(System.getProperty("NoStats")) map (_.toBoolean) getOrElse false
 
 	/**
-	 * Property used to specify whether or not to generate statistics only from a previous
-	 * simulation
+	 * Property used to specify whether or not to generate statistics only from a previous simulation
 	 */
 	val ONLY_STATS_PROPERTY = Option(System.getProperty("OnlyStats")) map (_.toBoolean) getOrElse false
 }

@@ -18,19 +18,17 @@ package com.excilys.ebi.gatling.core.check.extractor
 import com.excilys.ebi.gatling.core.log.Logging
 
 /**
- * This class acts as model for capture providers
+ * This class acts as model for extractors
  *
- * Capture providers are objects responsible for searching elements in others
+ * Extractors are objects responsible for extracting elements in others
  * Typically, we can think of Regular Expressions.
- *
- * There are built-in providers, but module writers could write their own
  */
 abstract class Extractor extends Logging {
 
 	/**
-	 * this method does the actual capture of the expression in placeToSearch
+	 * this method does the actual extraction of what is designed by the expression
 	 *
-	 * @param expression the expression that defines the capture
+	 * @param expression the expression that defines the extraction
 	 * @return the result of the search, being None if nothing was found or Some(something)
 	 */
 	def extract(expression: String): Option[String]

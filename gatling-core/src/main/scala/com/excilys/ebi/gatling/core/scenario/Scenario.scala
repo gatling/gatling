@@ -18,5 +18,4 @@ package com.excilys.ebi.gatling.core.scenario
 import com.excilys.ebi.gatling.core.action.Action
 import java.util.concurrent.TimeUnit
 
-class Scenario(val name: String, val firstAction: Action) {
-}
+class Scenario(name: String, val firstAction: Action)

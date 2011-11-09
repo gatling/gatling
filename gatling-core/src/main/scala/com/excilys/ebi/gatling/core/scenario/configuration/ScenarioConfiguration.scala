@@ -30,5 +30,5 @@ import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
  * @param startTime the time at which the scenario will start in the simulation
  * @param feeder a feeder that will be consumed by this scenario for each user
  */
-class ScenarioConfiguration(val scenarioId: Int, val scenarioBuilder: ScenarioBuilder, val users: Int, val ramp: (Int, TimeUnit),
+class ScenarioConfiguration(scenarioId: Int, val scenarioBuilder: ScenarioBuilder, val users: Int, val ramp: (Int, TimeUnit),
 	val delay: (Int, TimeUnit), val feeder: Option[Feeder], val protocolConfigurations: Seq[ProtocolConfiguration])

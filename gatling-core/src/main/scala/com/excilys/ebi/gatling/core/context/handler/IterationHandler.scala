@@ -18,6 +18,14 @@ import com.excilys.ebi.gatling.core.log.Logging
 import scala.collection.immutable.Stack
 import com.excilys.ebi.gatling.core.context.Context
 
+/**
+ * This trait is used for mixin-composition, it is the top level trait
+ *
+ * The classes that will use this composition will have the iteration behavior that happen in three steps :
+ *   init:      the initiation of the counter
+ *   increment: the incrementation of the counter
+ *   expire:    the release of the counter
+ */
 abstract trait IterationHandler extends Logging {
 
 	def init(context: Context, uuid: String, userDefinedName: Option[String]) = {}

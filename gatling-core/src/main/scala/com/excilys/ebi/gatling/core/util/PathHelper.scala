@@ -61,8 +61,17 @@ object PathHelper {
 	 * Directory where javascript files are stored in results
 	 */
 	val GATLING_JS = "/js"
+	/**
+	 * JQuery file path relative to parent folder
+	 */
 	val GATLING_JQUERY = "/jquery.min.js"
+	/**
+	 * Highstocks file path relative to parent folder
+	 */
 	val GATLING_HIGHSTOCKS = "/highstocks.js"
+	/**
+	 * Highcharts file path relative to parent folder
+	 */
 	val GATLING_HIGHCHARTS = "/highcharts.js"
 	/**
 	 * Path to JQuery library in results
@@ -72,6 +81,9 @@ object PathHelper {
 	 * Path to Highstocks library in results
 	 */
 	val GATLING_JS_HIGHSTOCKS = GATLING_JS + GATLING_HIGHSTOCKS
+	/**
+	 * Path to Highcharts library in results
+	 */
 	val GATLING_JS_HIGHCHARTS = GATLING_JS + GATLING_HIGHCHARTS
 	/**
 	 * Path to raw results
@@ -93,6 +105,9 @@ object PathHelper {
 	 * Path to Highstocks library in assets
 	 */
 	val GATLING_ASSETS_HIGHSTOCKS = GATLING_ASSETS_FOLDER + GATLING_JS_HIGHSTOCKS
+	/**
+	 * Path to Highcharts library in assets
+	 */
 	val GATLING_ASSETS_HIGHCHARTS = GATLING_ASSETS_FOLDER + GATLING_JS_HIGHCHARTS
 
 	/**

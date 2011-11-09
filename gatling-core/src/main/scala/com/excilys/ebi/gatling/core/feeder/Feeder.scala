@@ -23,7 +23,7 @@ import com.excilys.ebi.gatling.core.log.Logging
  * @param filePath file path of the seed file
  * @param mappings the mappings for the feeder, ie the keys of the values in the context
  */
-abstract class Feeder(val filePath: String, val mappings: List[String]) extends Logging {
+abstract class Feeder(filePath: String, mappings: List[String]) extends Logging {
 	/**
 	 * Gets the next line of the feeder
 	 *

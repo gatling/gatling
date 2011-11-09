@@ -24,13 +24,27 @@ import akka.actor.TypedActor
 import com.excilys.ebi.gatling.core.action.Action
 import akka.actor.Uuid
 
+/**
+ * This builder creates a 'for' loop. This is achieved by copying the chain as many times at it should run
+ * and adding simple actions between the chains to initialize, increment and release the counter.
+ *
+ * @constructor constructs a TimesLoopHandlerBuilder
+ * @param structureBuilder the structure builder on which loop was called
+ * @param chain the chain of actions that should be repeated
+ * @param times the number of times that the chain should be repeated
+ * @param counterName the name of the counter for this loop
+ */
 class TimesLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: ChainBuilder, times: Int, counterName: Option[String])
 		extends AbstractLoopHandlerBuilder[B](structureBuilder) {
 
+	/**
+	 * Actually builds the current 'for' loop to the structure builder
+	 */
 	def build: B = {
 
 		val counter = counterName.getOrElse(new Uuid().toString)
 
+		// Adds an increment action after the chain
 		val chainActions: List[AbstractActionBuilder] = chain.actionBuilders ::: List(incrementCounterAction(counter))
 		var iteratedActions: List[AbstractActionBuilder] = Nil
 

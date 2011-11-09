@@ -27,6 +27,9 @@ import java.io.BufferedOutputStream
 import java.io.OutputStreamWriter
 import java.util.concurrent.CountDownLatch
 
+/**
+ * FileDataWriter class companion
+ */
 object FileDataWriter {
 	val GROUPS_PREFIX = "("
 

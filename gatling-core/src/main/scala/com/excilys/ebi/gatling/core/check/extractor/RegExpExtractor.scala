@@ -18,14 +18,15 @@ package com.excilys.ebi.gatling.core.check.extractor
 import java.util.regex.Pattern
 
 /**
- * This class is a built-in provider that helps searching with Regular Expressions
+ * This class is a built-in extractor that helps searching with Regular Expressions
  *
- * @constructor creates a new RegExpCaptureProvider
+ * @constructor creates a new RegExpExtractor
  * @param textContent the text where the search will be made
+ * @param occurence the occurrence of the result that should be returned
  */
-class RegExpExtractor(textContent: String, occurence: Int) extends Extractor {
+class RegExpExtractor(textContent: String, occurrence: Int) extends Extractor {
 	/**
-	 * The actual capture happens here. The regular expression is compiled and the first
+	 * The actual extraction happens here. The regular expression is compiled and the occurrence-th
 	 * result is returned if existing.
 	 *
 	 * @param expression a String containing the regular expression to be matched
@@ -36,7 +37,7 @@ class RegExpExtractor(textContent: String, occurence: Int) extends Extractor {
 
 		val matcher = Pattern.compile(expression).matcher(textContent)
 
-		for (i <- 0 to occurence) {
+		for (i <- 0 to occurrence) {
 			if (!matcher.find)
 				return None
 		}

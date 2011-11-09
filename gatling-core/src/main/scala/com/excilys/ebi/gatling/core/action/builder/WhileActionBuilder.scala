@@ -36,21 +36,26 @@ object WhileActionBuilder {
  *
  * @constructor create a new WhileAction
  * @param conditionFunction the function that determine the condition
- * @param nextTrue chain that will be executed if testFunction evaluates to true
- * @param next action that will be executed if testFunction evaluates to false
+ * @param loopNext chain that will be executed if conditionFunction evaluates to true
+ * @param next action that will be executed if conditionFunction evaluates to false
  * @param groups groups in which this action and the others inside will be
  */
-class WhileActionBuilder(val conditionFunction: (Context, Action) => Boolean, val loopNext: ChainBuilder, val next: Action, val counterName: Option[String], val groups: List[String])
+class WhileActionBuilder(conditionFunction: (Context, Action) => Boolean, loopNext: ChainBuilder, next: Action, counterName: Option[String], groups: List[String])
 		extends AbstractActionBuilder {
 
 	/**
-	 * Adds testFunction to builder
+	 * Adds conditionFunction to this builder
 	 *
-	 * @param testFunction the test function
-	 * @return a new builder with testFunction set
+	 * @param conditionFunction the condition function
+	 * @return a new builder with conditionFunction set
 	 */
 	def withConditionFunction(conditionFunction: Context => Boolean): WhileActionBuilder = withConditionFunction((c: Context, a: Action) => conditionFunction(c))
-
+	/**
+	 * Adds conditionFunction to this builder
+	 *
+	 * @param conditionFunction the condition function
+	 * @return a new builder with conditionFunction set
+	 */
 	def withConditionFunction(conditionFunction: (Context, Action) => Boolean) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName, groups)
 	/**
 	 * Adds loopNext to builder
@@ -59,7 +64,12 @@ class WhileActionBuilder(val conditionFunction: (Context, Action) => Boolean, va
 	 * @return a new builder with loopNext set
 	 */
 	def withLoopNext(loopNext: ChainBuilder) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName, groups)
-
+	/**
+	 * Adds counterName to builder
+	 *
+	 * @param counterName the name of the counter that will be used
+	 * @return a new builder with counterName set to None or Some(name)
+	 */
 	def withCounterName(counterName: Option[String]) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName, groups)
 
 	def withNext(next: Action) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName, groups)

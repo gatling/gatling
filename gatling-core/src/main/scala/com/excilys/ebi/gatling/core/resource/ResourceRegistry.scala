@@ -18,9 +18,10 @@ package com.excilys.ebi.gatling.core.resource
 import com.excilys.ebi.gatling.core.log.Logging
 
 /**
- * The ResourceRegistry is responsible for storing a reference
- * to all the resources that has to be closed. It is the responsibility
- * of the developer not to forgive to register its resources.
+ * The ResourceRegistry is responsible for storing a callback function that closes a resource
+ * for each resource that has to be closed.
+ *
+ * It is the responsibility of the developer not to forgive to register its resources.
  */
 object ResourceRegistry extends Logging {
 

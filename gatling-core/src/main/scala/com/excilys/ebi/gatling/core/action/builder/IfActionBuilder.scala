@@ -41,8 +41,7 @@ object IfActionBuilder {
  * @param next chain that will be executed if conditionFunction evaluates to false and there is no elseNext
  * @param groups groups in which this action and the ones inside will be
  */
-class IfActionBuilder(val conditionFunction: Context => Boolean, val thenNext: ChainBuilder, val elseNext: Option[ChainBuilder],
-	val next: Action, val groups: List[String])
+class IfActionBuilder(conditionFunction: Context => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder], next: Action, groups: List[String])
 		extends AbstractActionBuilder {
 
 	/**
@@ -77,9 +76,7 @@ class IfActionBuilder(val conditionFunction: Context => Boolean, val thenNext: C
 		logger.debug("Building IfAction")
 
 		val actionTrue = thenNext.withNext(next).inGroups(groups).build
-		val actionFalse = elseNext.map { chain =>
-			chain.withNext(next).inGroups(groups).build
-		}
+		val actionFalse = elseNext.map(_.withNext(next).inGroups(groups).build)
 
 		TypedActor.newInstance(classOf[Action], new IfAction(conditionFunction, actionTrue, actionFalse, next))
 	}

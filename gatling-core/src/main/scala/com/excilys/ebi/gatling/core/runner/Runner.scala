@@ -37,7 +37,7 @@ import com.excilys.ebi.gatling.core.config.GatlingConfig
 object Runner {
 	def runSim(startDate: DateTime)(scenarioConfigurations: ScenarioConfigurationBuilder*) = new Runner(startDate, scenarioConfigurations.toList).run
 }
-class Runner(val startDate: DateTime, val scenarioConfigurationBuilders: List[ScenarioConfigurationBuilder]) extends Logging {
+class Runner(startDate: DateTime, scenarioConfigurationBuilders: List[ScenarioConfigurationBuilder]) extends Logging {
 
 	val statWriter = actorOf[FileDataWriter].start
 

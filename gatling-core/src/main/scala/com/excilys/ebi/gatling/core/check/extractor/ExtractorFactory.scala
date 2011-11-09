@@ -18,14 +18,14 @@ package com.excilys.ebi.gatling.core.check.extractor
 import com.excilys.ebi.gatling.core.log.Logging
 
 /**
- * This trait is used to define different types of Providers
+ * This trait is used to define different types of Extractors
  */
 trait ExtractorFactory[WHERE] extends Logging {
 
 	/**
-	 * Method that will generate the adequate Capturer
+	 * Method that will generate the adequate Extractor
 	 *
-	 * @param where where to capture
+	 * @param where where to extract from
 	 */
 	def getExtractor(where: WHERE): Extractor
 }

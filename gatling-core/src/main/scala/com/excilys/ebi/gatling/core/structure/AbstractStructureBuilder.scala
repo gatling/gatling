@@ -28,19 +28,37 @@ import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder._
 import com.excilys.ebi.gatling.core.structure.loop.LoopBuilder
 import com.excilys.ebi.gatling.core.action.builder.CountBasedIterationActionBuilder._
 
+/**
+ * This class defines most of the scenario related DSL
+ *
+ * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
+ */
 abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val actionBuilders: List[AbstractActionBuilder])
 		extends Logging {
 
 	private var currentGroups: List[String] = Nil
 
+	/**
+	 * This method sets the current groups to groups
+	 *
+	 * @param groups the groups that are currently active
+	 */
 	private[structure] def setCurrentGroups(groups: List[String]) = {
 		currentGroups = groups
 	}
 
+	/**
+	 * This method gets the current groups
+	 */
 	private[structure] def getCurrentGroups = currentGroups
 
 	def newInstance(actionBuilders: List[AbstractActionBuilder]): B
 
+	/**
+	 * Method used to execute an action
+	 *
+	 * @param actionBuilder the action builder representing the action to be executed
+	 */
 	def exec(actionBuilder: AbstractActionBuilder): B = newInstance(actionBuilder :: actionBuilders)
 
 	/**
@@ -84,32 +102,32 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	/**
 	 * Method used to add a conditional execution in the scenario
 	 *
-	 * @param testFunction the function that will determine if the condition is satisfied or not
-	 * @param chainTrue the chain to be executed if the condition is satisfied
+	 * @param conditionFunction the function that will determine if the condition is satisfied or not
+	 * @param thenNext the chain to be executed if the condition is satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIf(testFunction: Context => Boolean, chainTrue: ChainBuilder): B = doIf(testFunction, chainTrue, None)
+	def doIf(conditionFunction: Context => Boolean, thenNext: ChainBuilder): B = doIf(conditionFunction, thenNext, None)
 
 	/**
 	 * Method used to add a conditional execution in the scenario with a fall back
 	 * action if condition is not satisfied
 	 *
-	 * @param testFunction the function that will determine if the condition is satisfied or not
-	 * @param chainTrue the chain to be executed if the condition is satisfied
-	 * @param chainFalse the chain to be executed if the condition is not satisfied
+	 * @param conditionFunction the function that will determine if the condition is satisfied or not
+	 * @param thenNext the chain to be executed if the condition is satisfied
+	 * @param elseNext the chain to be executed if the condition is not satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIf(testFunction: Context => Boolean, chainTrue: ChainBuilder, chainFalse: ChainBuilder): B = doIf(testFunction, chainTrue, Some(chainFalse))
+	def doIf(conditionFunction: Context => Boolean, thenNext: ChainBuilder, elseNext: ChainBuilder): B = doIf(conditionFunction, thenNext, Some(elseNext))
 
 	/**
 	 * Method used to add a conditional execution in the scenario
 	 *
 	 * @param contextKey the key of the context value to be tested for equality
 	 * @param value the value to which the context value must be equals
-	 * @param chainTrue the chain to be executed if the condition is satisfied
+	 * @param thenNext the chain to be executed if the condition is satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIf(contextKey: String, value: String, chainTrue: ChainBuilder): B = doIf((c: Context) => c.getAttribute(contextKey) == value, chainTrue)
+	def doIf(contextKey: String, value: String, thenNext: ChainBuilder): B = doIf((c: Context) => c.getAttribute(contextKey) == value, thenNext)
 
 	/**
 	 * Method used to add a conditional execution in the scenario with a fall back
@@ -117,23 +135,23 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 *
 	 * @param contextKey the key of the context value to be tested for equality
 	 * @param value the value to which the context value must be equals
-	 * @param chainTrue the chain to be executed if the condition is satisfied
-	 * @param chainFalse the chain to be executed if the condition is not satisfied
+	 * @param thenNext the chain to be executed if the condition is satisfied
+	 * @param elseNext the chain to be executed if the condition is not satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIf(contextKey: String, value: String, chainTrue: ChainBuilder, chainFalse: ChainBuilder): B = doIf((c: Context) => c.getAttribute(contextKey) == value, chainTrue, chainFalse)
+	def doIf(contextKey: String, value: String, thenNext: ChainBuilder, elseNext: ChainBuilder): B = doIf((c: Context) => c.getAttribute(contextKey) == value, thenNext, elseNext)
 
 	/**
 	 * Private method that actually adds the If Action to the scenario
 	 *
-	 * @param testFunction the function that will determine if the condition is satisfied or not
-	 * @param chainTrue the chain to be executed if the condition is satisfied
-	 * @param chainFalse the chain to be executed if the condition is not satisfied
+	 * @param conditionFunction the function that will determine if the condition is satisfied or not
+	 * @param thenNext the chain to be executed if the condition is satisfied
+	 * @param elseNext the chain to be executed if the condition is not satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	private def doIf(testFunction: Context => Boolean, chainTrue: ChainBuilder, chainFalse: Option[ChainBuilder]): B = {
+	private def doIf(conditionFunction: Context => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]): B = {
 		logger.debug("Adding IfAction")
-		newInstance((ifActionBuilder withConditionFunction testFunction withThenNext chainTrue withElseNext chainFalse inGroups getCurrentGroups) :: actionBuilders)
+		newInstance((ifActionBuilder withConditionFunction conditionFunction withThenNext thenNext withElseNext elseNext inGroups getCurrentGroups) :: actionBuilders)
 	}
 
 	/**
@@ -151,6 +169,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @return a new builder with a group tag added to its actions
 	 */
 	def endGroup(groupName: String): B = newInstance(endGroupBuilder(groupName) :: actionBuilders)
+
 	/**
 	 * Method used to insert an existing chain inside the current scenario
 	 *
@@ -159,6 +178,11 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 */
 	def insertChain(chain: ChainBuilder): B = newInstance(chain.actionBuilders ::: actionBuilders)
 
+	/**
+	 * Method used to declare a loop
+	 *
+	 * @param chain the chain of actions that should be repeated
+	 */
 	def loop(chain: ChainBuilder) = new LoopBuilder[B](getInstance, chain, None)
 
 	def build: Any
@@ -167,16 +191,13 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 
 	private[structure] def addActionBuilders(actionBuildersToAdd: List[AbstractActionBuilder]): B = newInstance(actionBuildersToAdd ::: actionBuilders)
 
+	/// FIXME: Better way to do that ?
 	private[structure] def buildActions(initialValue: Action): Action = {
 		var previousInList: Action = initialValue
 		for (actionBuilder <- actionBuilders) {
 			actionBuilder match {
 				case group: GroupActionBuilder =>
-					setCurrentGroups(
-						if (group.isEnd)
-							getCurrentGroups filterNot (_ == group.getName)
-						else
-							group.getName :: getCurrentGroups)
+					setCurrentGroups(if (group.head) getCurrentGroups filterNot (_ == group.name) else group.name :: getCurrentGroups)
 				case _ =>
 					previousInList = actionBuilder withNext previousInList inGroups getCurrentGroups build
 			}

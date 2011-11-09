@@ -31,13 +31,14 @@ import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfigurationBuilder
 
+/**
+ * ScenarioBuilder class companion
+ */
 object ScenarioBuilder {
 	def scenario(scenarioName: String) = new ScenarioBuilder(scenarioName, Nil).start
 }
 /**
  * The scenario builder is used in the DSL to define the scenario
- *
- * It must be extended by other modules to add functionalities
  *
  * @param name the name of the scenario
  * @param actionBuilders the list of all the actions that compose the scenario

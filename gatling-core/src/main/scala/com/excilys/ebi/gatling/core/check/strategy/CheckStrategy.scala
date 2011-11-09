@@ -20,8 +20,12 @@ package com.excilys.ebi.gatling.core.check.strategy
  */
 trait CheckStrategy {
 	/**
-	 * Method that will actually do the verification and see if
+	 * Method that actually performs the verification and see if
 	 * value corresponds to what's expected
+	 *
+	 * @param value the value extracted from the response of a request
+	 * @param expected the expected content of value
+	 * @return the result of the Check
 	 */
 	def check(value: Option[String], expected: Option[String]): Boolean
 }

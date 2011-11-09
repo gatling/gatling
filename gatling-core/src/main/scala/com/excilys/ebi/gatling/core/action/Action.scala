@@ -23,7 +23,7 @@ import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
 /**
  * This trait represents an Action in Gatling terms.
  *
- * An action is a part of a scenario, the chain of actions IS the scenario
+ * An action can be executed in the scenario via the exec command
  */
 trait Action extends TypedActor with Logging with ClassSimpleNameToString {
 	/**
@@ -34,5 +34,10 @@ trait Action extends TypedActor with Logging with ClassSimpleNameToString {
 	 */
 	def execute(context: Context)
 
+	/**
+	 * This is the Uuid of the current actor
+	 *
+	 * @return a string containing the Uuid of the actor
+	 */
 	def getUuidAsString = getContext.uuid.toString
 }

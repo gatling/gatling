@@ -18,9 +18,22 @@ import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.action.builder.GroupActionBuilder
 
+/**
+ * ChainBuilder class companion
+ */
 object ChainBuilder {
+	/**
+	 * DSL helper that creates a new ChainBuilder
+	 */
 	def chain = new ChainBuilder(Nil, null, Nil)
 }
+/**
+ * This class defines chain related methods
+ *
+ * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
+ * @param next the action that will be executed after this chain
+ * @param groups groups to which all actionBuilders in this chain belong to
+ */
 class ChainBuilder(actionBuilders: List[AbstractActionBuilder], next: Action, groups: List[String])
 		extends AbstractStructureBuilder[ChainBuilder](actionBuilders) {
 
