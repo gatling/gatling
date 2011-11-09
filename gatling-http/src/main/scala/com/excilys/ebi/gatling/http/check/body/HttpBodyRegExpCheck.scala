@@ -21,6 +21,14 @@ import com.excilys.ebi.gatling.http.check.body.extractor.HttpBodyRegExpExtractor
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 
+/**
+ * This class represents a check made on the body of the response with regular expressions
+ *
+ * @param what the function returning the regular expression
+ * @param to the optional context key in which the extracted value will be stored
+ * @param strategy the strategy used to check
+ * @param expected the expected value against which the extracted value will be checked
+ */
 class HttpBodyRegExpCheck(what: (Context => String, Int), to: Option[String], strategy: CheckStrategy, expected: Option[String])
 		extends HttpCheck(what._1, new HttpBodyRegExpExtractorFactory(what._2), to, strategy, expected, CompletePageReceived) {
 }

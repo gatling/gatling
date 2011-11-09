@@ -29,51 +29,116 @@ import akka.actor.TypedActor
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
 
+/**
+ * HttpRequestActionBuilder class companion
+ */
 object HttpRequestActionBuilder {
-	def http(requestName: String) = new HttpRequestActionBuilder(requestName, None, None, None, Some(Nil), None)
+	/**
+	 * This method is used in DSL to declare a new HTTP request
+	 */
+	def http(requestName: String) = new HttpRequestActionBuilder(requestName, null, null, None, Some(Nil), None)
 }
 
-class HttpRequestActionBuilder(val requestName: String, val request: Option[HttpRequest], val nextAction: Option[Action], val processorBuilders: Option[List[HttpCheckBuilder[_]]], val groups: Option[List[String]], val feeder: Option[Feeder])
+/**
+ * Builder for HttpRequestActionBuilder
+ *
+ * @constructor creates an HttpRequestActionBuilder
+ * @param requestName the name of the request
+ * @param request the actual HTTP request that will be sent
+ * @param next the next action to be executed
+ * @param processorBuilders
+ */
+class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, next: Action, processorBuilders: Option[List[HttpCheckBuilder[_]]], groups: Option[List[String]], feeder: Option[Feeder])
 		extends AbstractActionBuilder {
 
+	/**
+	 * Adds givenProcessors to builder
+	 *
+	 * @param givenProcessors the processors specified by the user
+	 * @return a new builder with givenProcessors set
+	 */
 	private[http] def withProcessors(givenProcessors: Seq[HttpCheckBuilder[_]]) = {
 		logger.debug("Adding Processors")
-		new HttpRequestActionBuilder(requestName, request, nextAction, Some(givenProcessors.toList ::: processorBuilders.getOrElse(Nil)), groups, feeder)
+		new HttpRequestActionBuilder(requestName, request, next, Some(givenProcessors.toList ::: processorBuilders.getOrElse(Nil)), groups, feeder)
 	}
 
-	private[http] def withFeeder(feeder: Feeder) = new HttpRequestActionBuilder(requestName, request, nextAction, processorBuilders, groups, Some(feeder))
+	/**
+	 * Adds a feeder to builder
+	 *
+	 * @param feeder the feeder to add
+	 * @return a new builder with feeder set
+	 */
+	def feeder(feeder: Feeder) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders, groups, Some(feeder))
 
-	def capture(captureBuilders: HttpCheckBuilder[_]*) = withProcessors(captureBuilders)
+	def withRequest(request: HttpRequest) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders, groups, feeder)
 
-	def check(checkBuilders: HttpCheckBuilder[_]*) = withProcessors(checkBuilders)
+	def withNext(next: Action) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders, groups, feeder)
 
-	def feeder(feeder: Feeder) = withFeeder(feeder)
-
-	def withRequest(request: HttpRequest) = new HttpRequestActionBuilder(requestName, Some(request), nextAction, processorBuilders, groups, feeder)
-
-	def withNext(next: Action) = new HttpRequestActionBuilder(requestName, request, Some(next), processorBuilders, groups, feeder)
-
-	def inGroups(groups: List[String]) = new HttpRequestActionBuilder(requestName, request, nextAction, processorBuilders, Some(groups), feeder)
+	def inGroups(groups: List[String]) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders, Some(groups), feeder)
 
 	def build: Action = {
-		logger.debug("Building HttpRequestAction with request {}", request.get)
-		TypedActor.newInstance(classOf[Action], new HttpRequestAction(nextAction.get, request.get, processorBuilders, groups.get, feeder))
+		logger.debug("Building HttpRequestAction with request {}", request)
+		TypedActor.newInstance(classOf[Action], new HttpRequestAction(next, request, processorBuilders, groups.get, feeder))
 	}
 
+	/**
+	 * Starts the definition of an HTTP request with word DELETE
+	 *
+	 * @param url the url on which this request will be made
+	 * @param interpolations context keys for interpolation
+	 */
 	def delete(url: String, interpolations: String*) = new DeleteHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Some(Map()), Some(Map()), None, None, None)
 
+	/**
+	 * Starts the definition of an HTTP request with word DELETE
+	 *
+	 * @param f the function returning the url of this request
+	 */
 	def delete(f: Context => String) = new DeleteHttpRequestBuilder(this, Some(f), Some(Map()), Some(Map()), None, None, None)
 
+	/**
+	 * Starts the definition of an HTTP request with word GET
+	 *
+	 * @param url the url on which this request will be made
+	 * @param interpolations context keys for interpolation
+	 */
 	def get(url: String, interpolations: String*) = new GetHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Some(Map()), Some(Map()), None, None)
 
+	/**
+	 * Starts the definition of an HTTP request with word GET
+	 *
+	 * @param f the function returning the url of this request
+	 */
 	def get(f: Context => String) = new GetHttpRequestBuilder(this, Some(f), Some(Map()), Some(Map()), None, None)
 
+	/**
+	 * Starts the definition of an HTTP request with word POST
+	 *
+	 * @param url the url on which this request will be made
+	 * @param interpolations context keys for interpolation
+	 */
 	def post(url: String, interpolations: String*) = new PostHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Some(Map()), Some(Map()), Some(Map()), None, None, None)
 
+	/**
+	 * Starts the definition of an HTTP request with word POST
+	 *
+	 * @param f the function returning the url of this request
+	 */
 	def post(f: Context => String) = new PostHttpRequestBuilder(this, Some(f), Some(Map()), Some(Map()), Some(Map()), None, None, None)
 
+	/**
+	 * Starts the definition of an HTTP request with word PUT
+	 *
+	 * @param url the url on which this request will be made
+	 * @param interpolations context keys for interpolation
+	 */
 	def put(url: String, interpolations: String*) = new PutHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Some(Map()), Some(Map()), None, None, None)
 
+	/**
+	 * Starts the definition of an HTTP request with word PUT
+	 *
+	 * @param f the function returning the url of this request
+	 */
 	def put(f: Context => String) = new PutHttpRequestBuilder(this, Some(f), Some(Map()), Some(Map()), None, None, None)
 }
 

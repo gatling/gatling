@@ -21,11 +21,28 @@ import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.ning.http.client.Response
 
+/**
+ * This class serves as model for the HTTP-specific check builders
+ *
+ * @param what the function returning the expression representing what is to be checked
+ * @param to the optional context key in which the extracted value will be stored
+ * @param strategy the strategy used to check
+ * @param expected the expected value against which the extracted value will be checked
+ * @param when the HttpPhase during which the check will be made
+ */
 abstract class HttpCheckBuilder[B <: HttpCheckBuilder[B]](what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String], val when: HttpPhase)
 		extends CheckBuilder[Response](what, to, strategy, expected) {
 
+	/**
+	 * Method that must be implemented by children classes to get the instance of the child class
+	 */
 	def newInstance(what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String], when: HttpPhase): B
 
+	/**
+	 * Method used in the DSL. It requires the storage of the extracted value in the context
+	 *
+	 * @param to the attribute name in which the value will be stored
+	 */
 	def in(to: String) = newInstance(what, Some(to), strategy, expected, when)
 
 	override def build: HttpCheck

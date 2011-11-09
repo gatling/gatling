@@ -30,19 +30,38 @@ import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheck
 
+/**
+ * HttpRequestAction class companion
+ */
 object HttpRequestAction {
+	/**
+	 * This is the default HTTP check used to verify that the response status is 2XX
+	 */
 	val DEFAULT_HTTP_STATUS_CHECK = statusInRange(Range(200, 210)).build
 
+	/**
+	 * The HTTP client used to send the requests
+	 */
 	val CLIENT: AsyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setCompressionEnabled(true).build())
+	// Registering the client closing
 	ResourceRegistry.registerOnCloseCallback(() => CLIENT.close)
 }
 
-class HttpRequestAction(next: Action, request: HttpRequest, givenCaptureBuilders: Option[List[HttpCheckBuilder[_]]], groups: List[String], feeder: Option[Feeder])
-		extends RequestAction[Response](next, request, givenCaptureBuilders, groups, feeder) {
+/**
+ * This is an action that sends HTTP requests
+ *
+ * @constructor constructs an HttpRequestAction
+ * @param next the next action that will be executed
+ * @param givenCheckBuilders all the checks that will be performed on the response
+ * @param groups the groups to which this action belongs
+ * @param feeder the feeder that will be consumed each time the request will be sent
+ */
+class HttpRequestAction(next: Action, request: HttpRequest, givenCheckBuilders: Option[List[HttpCheckBuilder[_]]], groups: List[String], feeder: Option[Feeder])
+		extends RequestAction[Response](next, request, givenCheckBuilders, groups, feeder) {
 
 	var captures = new MHashSet[HttpCheck]
 
-	givenCaptureBuilders.map {
+	givenCheckBuilders.map {
 		list =>
 			{
 				for (captureBuilder <- list) {

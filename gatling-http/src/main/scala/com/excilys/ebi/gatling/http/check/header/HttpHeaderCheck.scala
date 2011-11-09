@@ -21,6 +21,14 @@ import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 import com.excilys.ebi.gatling.core.check.strategy.CheckStrategy
 
+/**
+ * This class represents a check made on the headers of the response
+ *
+ * @param what the function returning the name of the header to be checked
+ * @param to the optional context key in which the extracted value will be stored
+ * @param strategy the strategy used to check
+ * @param expected the expected value against which the extracted value will be checked
+ */
 class HttpHeaderCheck(what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String])
 		extends HttpCheck(what, HttpHeaderExtractorFactory, to, strategy, expected, CompletePageReceived) {
 }

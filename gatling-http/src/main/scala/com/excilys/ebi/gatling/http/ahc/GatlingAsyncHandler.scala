@@ -52,6 +52,18 @@ import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
 
 import akka.actor.Actor.registry.actorFor
 
+/**
+ * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
+ *
+ * It is part of the HttpRequestAction
+ *
+ * @constructor constructs a GatlingAsyncHandler
+ * @param context the context of the scenario
+ * @param checks the checks that will be done on response
+ * @param next the next action to be executed
+ * @param requestName the name of the request
+ * @param groups the groups to which this action belongs
+ */
 class GatlingAsyncHandler(context: Context, checks: MSet[HttpCheck], next: Action, requestName: String, groups: List[String])
 		extends AsyncHandler[Void] with Logging {
 
@@ -117,6 +129,13 @@ class GatlingAsyncHandler(context: Context, checks: MSet[HttpCheck], next: Actio
 		sendLogAndExecuteNext(KO, throwable.getMessage, System.nanoTime)
 	}
 
+	/**
+	 * This method is used to send a message to the data writer actor and then execute the next action
+	 *
+	 * @param requestResult the result of the request
+	 * @param requestMessage the message that will be logged
+	 * @param processingStartTimeNano date of the beginning of the response processing
+	 */
 	private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String, processingStartTimeNano: Long) = {
 		actorFor(context.writeActorUuid).map { a =>
 			val responseTimeMillis = TimeUnit.MILLISECONDS.convert(processingStartTimeNano - executionStartTimeNano, TimeUnit.NANOSECONDS)
@@ -129,10 +148,24 @@ class GatlingAsyncHandler(context: Context, checks: MSet[HttpCheck], next: Actio
 		next.execute(context)
 	}
 
+	/**
+	 * This method checks whether the given phase is to be processed or not
+	 *
+	 * @param httpPhase the phase that we want to test
+	 */
 	private def isPhaseToBeProcessed(httpPhase: HttpPhase) = indexedChecks.get(httpPhase).isDefined
 
+	/**
+	 * This method processes the response if needed for each checks given by the user
+	 */
 	private def processResponse(response: Response) {
 
+		/**
+		 * This method instantiate the required extractors
+		 *
+		 * @param checks the checks that were given for this reponse
+		 * @param response the response on which the checks will be made
+		 */
 		def prepareExtractors(checks: MSet[HttpCheck], response: Response): MHashMap[ExtractorFactory[Response], Extractor] = {
 
 			val extractors: MHashMap[ExtractorFactory[Response], Extractor] = MHashMap.empty

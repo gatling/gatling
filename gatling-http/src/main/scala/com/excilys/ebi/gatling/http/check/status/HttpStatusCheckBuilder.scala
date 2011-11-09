@@ -18,17 +18,39 @@ package com.excilys.ebi.gatling.http.check.status
 import scala.annotation.implicitNotFound
 
 import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy.rangeToString
-import com.excilys.ebi.gatling.core.check.strategy.{InRangeCheckStrategy, EqualityCheckStrategy, CheckStrategy}
+import com.excilys.ebi.gatling.core.check.strategy.{ InRangeCheckStrategy, EqualityCheckStrategy, CheckStrategy }
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.http.check.{HttpCheckBuilder, HttpCheck}
-import com.excilys.ebi.gatling.http.request.HttpPhase.{StatusReceived, HttpPhase}
+import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilder, HttpCheck }
+import com.excilys.ebi.gatling.http.request.HttpPhase.{ StatusReceived, HttpPhase }
 
+/**
+ * HttpStatusCheckBuilder class companion
+ *
+ * It contains DSL definitions
+ */
 object HttpStatusCheckBuilder {
+	/**
+	 * Will check that the response status is in the specified range
+	 *
+	 * @param range the specified range
+	 */
 	def statusInRange(range: Range) = new HttpStatusCheckBuilder(None, InRangeCheckStrategy, Some(range))
+	/**
+	 * Will check that the response status is equal to the one specified
+	 *
+	 * @param status the expected status code
+	 */
 	def status(status: Int) = new HttpStatusCheckBuilder(None, EqualityCheckStrategy, Some(status.toString))
 }
 
+/**
+ * This class builds a response status check
+ *
+ * @param to the optional context key in which the extracted value will be stored
+ * @param strategy the strategy used to check
+ * @param expected the expected value against which the extracted value will be checked
+ */
 class HttpStatusCheckBuilder(to: Option[String], strategy: CheckStrategy, expected: Option[String])
 		extends HttpCheckBuilder[HttpStatusCheckBuilder]((c: Context) => EMPTY, to, strategy, expected, StatusReceived) {
 

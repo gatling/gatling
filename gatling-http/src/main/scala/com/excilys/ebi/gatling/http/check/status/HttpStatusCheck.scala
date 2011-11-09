@@ -22,6 +22,12 @@ import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy
 
+/**
+ * This class represents a check made on the status of the response
+ *
+ * @param to the optional context key in which the status code will be stored
+ * @param expected the expected value against which the extracted value will be checked
+ */
 class HttpStatusCheck(to: Option[String], expected: Option[String])
 		extends HttpCheck((c: Context) => EMPTY, HttpStatusExtractorFactory, to, InRangeCheckStrategy, expected, CompletePageReceived) {
 
