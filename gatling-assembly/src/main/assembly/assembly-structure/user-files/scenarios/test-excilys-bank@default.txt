@@ -7,7 +7,7 @@ val urlHome = urlBase + "/private/bank/accounts.html"
 val urlLogout = urlBase + "/logout"
 
 /* Feeder */
-val usersInfos = new TSVFeeder("bank2", List("username", "password", "acc1", "acc2", "acc3", "acc4"))
+val usersInfos = new TSVFeeder("bank2", List("username", "password"))
 
 /* Scenarios */
 include("users")
