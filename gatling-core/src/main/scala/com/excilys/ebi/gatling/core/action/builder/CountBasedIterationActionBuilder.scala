@@ -32,12 +32,11 @@ object CountBasedIterationActionBuilder extends CounterBasedIterationHandler {
 	def expireCounterAction(counterName: String) = initClass(counterName, EXPIRE)
 
 	private def initClass(counterName: String, iterationStep: IterationStep) = {
-		val contextModifier =
-			iterationStep match {
-				case INIT => (c: Context, a: Action) => init(c, a.getUuidAsString, Some(counterName))
-				case INCREMENT => (c: Context, a: Action) => increment(c, a.getUuidAsString, Some(counterName))
-				case EXPIRE => (c: Context, a: Action) => expire(c, a.getUuidAsString, Some(counterName))
-			}
-		simpleActionBuilder(contextModifier)
+		val contextOperation = iterationStep match {
+			case INIT => (c: Context, a: Action) => init(c, a.getUuidAsString, Some(counterName))
+			case INCREMENT => (c: Context, a: Action) => increment(c, a.getUuidAsString, Some(counterName))
+			case EXPIRE => (c: Context, a: Action) => expire(c, a.getUuidAsString, Some(counterName))
+		}
+		simpleActionBuilder(contextOperation)
 	}
 }

@@ -22,21 +22,21 @@ import com.excilys.ebi.gatling.core.action.SimpleAction
 import akka.actor.TypedActor
 
 object SimpleActionBuilder {
-	implicit def toSimpleActionBuilder(contextModifier: (Context, Action) => Unit) = new SimpleActionBuilder(contextModifier, null, Nil)
-	implicit def toSimpleActionBuilder(contextModifier: Context => Unit): SimpleActionBuilder = toSimpleActionBuilder((c: Context, a: Action) => contextModifier(c))
+	implicit def toSimpleActionBuilder(contextFunction: (Context, Action) => Unit) = new SimpleActionBuilder(contextFunction, null, Nil)
+	implicit def toSimpleActionBuilder(contextFunction: Context => Unit): SimpleActionBuilder = toSimpleActionBuilder((c: Context, a: Action) => contextFunction(c))
 
-	def simpleActionBuilder(contextModifier: Context => Unit): SimpleActionBuilder = simpleActionBuilder((c: Context, a: Action) => contextModifier(c))
-	def simpleActionBuilder(contextModifier: (Context, Action) => Unit) = toSimpleActionBuilder(contextModifier)
+	def simpleActionBuilder(contextFunction: Context => Unit): SimpleActionBuilder = simpleActionBuilder((c: Context, a: Action) => contextFunction(c))
+	def simpleActionBuilder(contextFunction: (Context, Action) => Unit) = toSimpleActionBuilder(contextFunction)
 }
 
-class SimpleActionBuilder(contextModifier: (Context, Action) => Unit, next: Action, groups: List[String]) extends AbstractActionBuilder {
+class SimpleActionBuilder(contextFunction: (Context, Action) => Unit, next: Action, groups: List[String]) extends AbstractActionBuilder {
 
-	def withNext(next: Action) = new SimpleActionBuilder(contextModifier, next, groups)
+	def withNext(next: Action) = new SimpleActionBuilder(contextFunction, next, groups)
 
-	def inGroups(groups: List[String]) = new SimpleActionBuilder(contextModifier, next, groups)
+	def inGroups(groups: List[String]) = new SimpleActionBuilder(contextFunction, next, groups)
 
 	def build(): Action = {
 		logger.debug("Building Simple Action")
-		TypedActor.newInstance(classOf[Action], new SimpleAction(contextModifier, next))
+		TypedActor.newInstance(classOf[Action], new SimpleAction(contextFunction, next))
 	}
 }
