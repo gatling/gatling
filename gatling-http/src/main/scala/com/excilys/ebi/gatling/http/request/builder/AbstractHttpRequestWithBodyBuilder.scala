@@ -35,8 +35,19 @@ import com.excilys.ebi.gatling.http.request.StringParam
 import com.excilys.ebi.gatling.http.request.TemplateBody
 import com.ning.http.client.RequestBuilder
 
-abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Map[String, Param],
-	headers: Map[String, String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
+/**
+ * This class serves as model to HTTP request with a body
+ *
+ * @param httpRequestActionBuilder the HttpRequestActionBuilder with which this builder is linked
+ * @param urlFunction the function returning the url
+ * @param queryParams the query parameters that should be added to the request
+ * @param headers the headers that should be added to the request
+ * @param body the body that should be added to the request
+ * @param followsRedirects sets the follow redirect option of AHC
+ * @param credentials sets the credentials in case of Basic HTTP Authentication
+ */
+abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String],
+	queryParams: Map[String, Param], headers: Map[String, String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
 		extends AbstractHttpRequestBuilder[B](httpRequestActionBuilder, urlFunction, queryParams, headers, followsRedirects, credentials) {
 
 	override def getRequestBuilder(context: Context): RequestBuilder = {
@@ -47,16 +58,43 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 		requestBuilder
 	}
 
+	/**
+	 * Method overridden in children to create a new instance of the correct type
+	 *
+	 * @param httpRequestActionBuilder the HttpRequestActionBuilder with which this builder is linked
+	 * @param urlFunction the function returning the url
+	 * @param queryParams the query parameters that should be added to the request
+	 * @param headers the headers that should be added to the request
+	 * @param body the body that should be added to the request
+	 * @param followsRedirects sets the follow redirect option of AHC
+	 * @param credentials sets the credentials in case of Basic HTTP Authentication
+	 */
 	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Map[String, Param], headers: Map[String, String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
 
 	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Map[String, Param], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B = {
 		newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers, body, followsRedirects, credentials)
 	}
 
+	/**
+	 * Adds a body from a file to the request
+	 *
+	 * @param filePath the path of the file relative to GATLING_REQUEST_BODIES_FOLDER
+	 */
 	def withFile(filePath: String): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers, Some(FilePathBody(filePath)), followsRedirects, credentials)
 
+	/**
+	 * Adds a body to the request
+	 *
+	 * @param body a string containing the body of the request
+	 */
 	def withBody(body: String): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers, Some(StringBody(body)), followsRedirects, credentials)
 
+	/**
+	 * Adds a body from a template that has to be compiled
+	 *
+	 * @param tplPath the path to the template relative to GATLING_TEMPLATES_FOLDER
+	 * @param values the values that should be merged into the template
+	 */
 	def withTemplateBody(tplPath: String, values: Map[String, Any]): B = {
 		val encapsulatedValues: Map[String, Param] = values.map {
 			value =>
@@ -68,7 +106,14 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 		newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers, Some(TemplateBody(tplPath, encapsulatedValues)), followsRedirects, credentials)
 	}
 
-	def addBodyTo(requestBuilder: RequestBuilder, body: Option[HttpRequestBody], context: Context) = {
+	/**
+	 * This method adds the body to the request builder
+	 *
+	 * @param requestBuilder the request builder to which the body should be added
+	 * @param body the body that should be added
+	 * @param context the context of the current scenario
+	 */
+	private def addBodyTo(requestBuilder: RequestBuilder, body: Option[HttpRequestBody], context: Context) = {
 		body match {
 			case Some(thing) =>
 				thing match {
@@ -81,7 +126,14 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 		}
 	}
 
-	def compileBody(tplPath: String, values: Map[String, Param], context: Context): String = {
+	/**
+	 * This method compiles the template for a TemplateBody
+	 *
+	 * @param tplPath the path to the template relative to GATLING_TEMPLATES_FOLDER
+	 * @param values the values that should be merged into the template
+	 * @param context the context of the current scenario
+	 */
+	private def compileBody(tplPath: String, values: Map[String, Param], context: Context): String = {
 
 		val engine = new TemplateEngine
 		engine.allowCaching = false

@@ -19,6 +19,9 @@ import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.request.Param
 
+/**
+ * This class defines an HTTP request with word GET in the DSL
+ */
 class GetHttpRequestBuilder(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Map[String, Param],
 	headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
 		extends AbstractHttpRequestBuilder[GetHttpRequestBuilder](httpRequestActionBuilder, urlFunction, queryParams, headers, followsRedirects, credentials) {
