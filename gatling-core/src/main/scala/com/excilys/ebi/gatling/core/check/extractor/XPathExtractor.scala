@@ -16,21 +16,29 @@
 package com.excilys.ebi.gatling.core.check.extractor
 
 import java.io.InputStream
-
 import org.jaxen.dom.DOMXPath
 import org.jaxen.XPath
 import org.w3c.dom.Node
-
+import org.xml.sax.{ InputSource, EntityResolver }
 import javax.xml.parsers.DocumentBuilderFactory
+import java.io.ByteArrayInputStream
+import java.io.StringReader
 
 object XPathExtractor {
-	// FIXME should use Xerces by default
-	// TODO investigate DOM implem
+	System.setProperty("javax.xml.parsers.SAXParserFactory", "org.apache.xerces.jaxp.SAXParserFactoryImpl");
+	System.setProperty("javax.xml.parsers.DOMParserFactory", "org.apache.xerces.jaxp.DOMParserFactoryImpl");
 	private val factory = DocumentBuilderFactory.newInstance
-	factory.setNamespaceAware(false) // Should be configurable as well as other features of this factory
-
+	factory.setExpandEntityReferences(false)
 	val parser = factory.newDocumentBuilder
+	parser.setEntityResolver(new NoopEntityResolver())
 }
+
+class NoopEntityResolver extends EntityResolver {
+	def resolveEntity(publicId: String, systemId: String): InputSource = {
+		new InputSource(new StringReader(""));
+	}
+}
+
 /**
  * This class is a built-in provider that helps searching with XPath Expressions
  *
@@ -41,7 +49,7 @@ object XPathExtractor {
  */
 class XPathExtractor(xmlContent: InputStream, occurence: Int) extends Extractor {
 
-	// parse the document in the constructor sa that the extractor can be efficiently reused for multiple extractions
+	// parse the document in the constructor so that the extractor can be efficiently reused for multiple extractions
 	val document = XPathExtractor.parser.parse(xmlContent)
 
 	/**
@@ -52,13 +60,14 @@ class XPathExtractor(xmlContent: InputStream, occurence: Int) extends Extractor 
 	 * @return an option containing the value if found, None otherwise
 	 */
 	def extract(expression: String): Option[String] = {
-		logger.debug("[XPathExtractor] Extracting with expression : {}", expression)
 
 		val xpathExpression: XPath = new DOMXPath(expression);
 
+		logger.debug("[XPathExtractor] Extracting with expression : {}", expression)
+
 		val results = xpathExpression.selectNodes(document).asInstanceOf[java.util.List[Node]]
 
-		val result = if (results.size() > occurence)
+		val result = if (results.size() > 0)
 			Some(results.get(occurence).getTextContent)
 		else
 			None
