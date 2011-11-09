@@ -18,6 +18,18 @@ package com.excilys.ebi.gatling.http.check.status.extractor
 import com.ning.http.client.Response
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
 
+/**
+ * HTTP Status extractor
+ *
+ * @constructor constructs an HttpHeaderExtractor
+ * @param response the response in which the extraction will take place
+ */
 class HttpStatusExtractor(response: Response) extends Extractor {
+	/**
+	 * Extracts the status code from the response
+	 *
+	 * @param unused unused argument
+	 * @return an Option containing the status code of the response
+	 */
 	def extract(unused: String): Option[String] = Some(response.getStatusCode().toString)
 }

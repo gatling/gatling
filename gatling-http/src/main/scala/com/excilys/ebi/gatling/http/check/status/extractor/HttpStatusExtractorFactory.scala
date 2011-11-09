@@ -18,6 +18,9 @@ package com.excilys.ebi.gatling.http.check.status.extractor
 import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
 import com.ning.http.client.Response
 
+/**
+ * Factory for HttpStatusExtractor
+ */
 object HttpStatusExtractorFactory extends ExtractorFactory[Response] {
 
 	def getExtractor(response: Response) = {

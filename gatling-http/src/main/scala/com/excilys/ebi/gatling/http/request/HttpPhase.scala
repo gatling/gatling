@@ -15,6 +15,9 @@
  */
 package com.excilys.ebi.gatling.http.request
 
+/**
+ * Enumeration of the various phases that are available in Http Response treatment
+ */
 object HttpPhase extends Enumeration {
 	type HttpPhase = Value
 	val StatusReceived, HeadersReceived, BodyPartReceived, CompletePageReceived = Value

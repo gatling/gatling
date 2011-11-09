@@ -19,10 +19,22 @@ import com.excilys.ebi.gatling.core.action.request.Request
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
-import com.ning.http.client.{Request => AHCRequest}
+import com.ning.http.client.{ Request => AHCRequest }
 
+/**
+ * This class wraps an HTTP Request
+ *
+ * @givenName the name of the request
+ * @httpRequestBuilder the httpRequestBuilder that will build the actual HTTP request
+ */
 class HttpRequest(givenName: String, val httpRequestBuilder: AbstractHttpRequestBuilder[_]) extends Request(givenName) with Logging {
 
+	/**
+	 * Builds and returns the actual Request
+	 *
+	 * @param context the context of the scenario
+	 * @return an HTTP request
+	 */
 	def getRequest(context: Context): AHCRequest = {
 		val request = httpRequestBuilder build context
 		logger.debug("Request created: {}, body data: {}", request.getUrl(), request.getStringData())

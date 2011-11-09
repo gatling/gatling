@@ -106,7 +106,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 		}
 
 		if (httpConfiguration.isDefined)
-			httpConfiguration.get.getProxy.map { proxy =>
+			httpConfiguration.get.proxy.map { proxy =>
 				requestBuilder.setProxyServer(proxy)
 				logger.debug("PROXY SET")
 			}
@@ -123,7 +123,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 			if (urlProvided.startsWith("http"))
 				urlProvided
 			else if (httpConfiguration.isDefined)
-				httpConfiguration.get.getBaseUrl.map {
+				httpConfiguration.get.baseURL.map {
 					baseUrl => baseUrl + urlProvided
 				}.getOrElse(urlProvided)
 			else

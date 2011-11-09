@@ -18,15 +18,21 @@ package com.excilys.ebi.gatling.http.config
 import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
 import com.ning.http.client.ProxyServer
 
+/**
+ * HttpProtocolConfiguration class companion
+ */
 object HttpProtocolConfiguration {
 	val HTTP_PROTOCOL_TYPE = "httpProtocol"
 }
-class HttpProtocolConfiguration(baseURL: Option[String], proxy: Option[ProxyServer]) extends ProtocolConfiguration {
+
+/**
+ * Class containing the configuration for the HTTP protocol
+ *
+ * @param baseUrl the radix of all the URLs that will be used (eg: http://mywebsite.tld)
+ * @param proxy a proxy through which all the requests must pass to succeed
+ */
+class HttpProtocolConfiguration(val baseURL: Option[String], val proxy: Option[ProxyServer]) extends ProtocolConfiguration {
 	import HttpProtocolConfiguration._
-
-	def getBaseUrl = baseURL
-
-	def getProxy = proxy
 
 	def getProtocolType = HTTP_PROTOCOL_TYPE
 }

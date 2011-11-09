@@ -18,8 +18,20 @@ package com.excilys.ebi.gatling.http.check.header.extractor
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
 import com.ning.http.client.{ Response, FluentCaseInsensitiveStringsMap }
 
+/**
+ * HTTP Header extractor
+ *
+ * @constructor constructs an HttpHeaderExtractor
+ * @param response the response in which the extraction will take place
+ */
 class HttpHeaderExtractor(response: Response) extends Extractor {
 
+	/**
+	 * Extracts the header requested
+	 *
+	 * @param headerName the name of the header
+	 * @return an Option containing the value of the header
+	 */
 	def extract(headerName: String): Option[String] = {
 		extractAll(headerName, response.getHeaders()).map { list =>
 			if (list.size > 0)
@@ -29,6 +41,13 @@ class HttpHeaderExtractor(response: Response) extends Extractor {
 		}.getOrElse(None)
 	}
 
+	/**
+	 * Extracts a header from a FluentCaseInsensitiveStringsMap of headers
+	 *
+	 * @param headerName the name of the header
+	 * @param headersMap the map containing all the headers received
+	 * @return an Option containing the value of the header
+	 */
 	def extractAll(headerName: String, headersMap: FluentCaseInsensitiveStringsMap): Option[java.util.List[String]] = {
 
 		val values = headersMap.get(headerName)

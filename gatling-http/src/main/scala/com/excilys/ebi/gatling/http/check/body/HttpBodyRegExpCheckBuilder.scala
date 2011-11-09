@@ -24,29 +24,156 @@ import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilder, HttpCheck }
 import com.excilys.ebi.gatling.http.request.HttpPhase.{ HttpPhase, CompletePageReceived }
 
 object HttpBodyRegExpCheckBuilder {
-	def regexpEquals(what: Context => String, occurence: Int, expected: String) = new HttpBodyRegExpCheckBuilder((what, occurence), Some(EMPTY), EqualityCheckStrategy, Some(expected))
+
+	/**
+	 * Will check if the value extracted via a regular expression is equal to a specified value
+	 *
+	 * @param what a function returning the regular expression
+	 * @occurrence the occurrence of the regular expression that should be extracted
+	 * @expected the value expected
+	 */
+	def regexpEquals(what: Context => String, occurrence: Int, expected: String) = new HttpBodyRegExpCheckBuilder((what, occurrence), Some(EMPTY), EqualityCheckStrategy, Some(expected))
+	/**
+	 * Will check if the value extracted via a regular expression is equal to a specified value
+	 *
+	 * The first occurrence of the regular expression will be extracted
+	 *
+	 * @param what a function returning the regular expression
+	 * @expected the value expected
+	 */
 	def regexpEquals(what: Context => String, expected: String): HttpBodyRegExpCheckBuilder = regexpEquals(what, 0, expected)
-	def regexpEquals(expression: String, occurence: Int, expected: String): HttpBodyRegExpCheckBuilder = regexpEquals((c: Context) => expression, occurence, expected)
+	/**
+	 * Will check if the value extracted via a regular expression is equal to a specified value
+	 *
+	 * @param expression the regular expression
+	 * @occurrence the occurrence of the regular expression that should be extracted
+	 * @expected the value expected
+	 */
+	def regexpEquals(expression: String, occurrence: Int, expected: String): HttpBodyRegExpCheckBuilder = regexpEquals((c: Context) => expression, occurrence, expected)
+	/**
+	 * Will check if the value extracted via a regular expression is equal to a specified value
+	 *
+	 * The first occurrence of the regular expression will be extracted
+	 *
+	 * @param expression the regular expression
+	 * @expected the value expected
+	 */
 	def regexpEquals(expression: String, expected: String): HttpBodyRegExpCheckBuilder = regexpEquals((c: Context) => expression, expected)
 
-	def regexpNotEquals(what: Context => String, occurence: Int, expected: String) = new HttpBodyRegExpCheckBuilder((what, occurence), Some(EMPTY), NonEqualityCheckStrategy, Some(expected))
+	/**
+	 * Will check if the value extracted via a regular expression is different from a specified value
+	 *
+	 * @param what a function returning the regular expression
+	 * @occurrence the occurrence of the regular expression that should be extracted
+	 * @expected the value expected
+	 */
+	def regexpNotEquals(what: Context => String, occurrence: Int, expected: String) = new HttpBodyRegExpCheckBuilder((what, occurrence), Some(EMPTY), NonEqualityCheckStrategy, Some(expected))
+	/**
+	 * Will check if the value extracted via a regular expression is different from a specified value
+	 *
+	 * The first occurrence of the regular expression will be extracted
+	 *
+	 * @param what a function returning the regular expression
+	 * @expected the value expected
+	 */
 	def regexpNotEquals(what: Context => String, expected: String): HttpBodyRegExpCheckBuilder = regexpNotEquals(what, 0, expected)
-	def regexpNotEquals(expression: String, occurence: Int, expected: String): HttpBodyRegExpCheckBuilder = regexpNotEquals((c: Context) => expression, occurence, expected)
+	/**
+	 * Will check if the value extracted via a regular expression is different from a specified value
+	 *
+	 * @param expression the regular expression
+	 * @occurrence the occurrence of the regular expression that should be extracted
+	 * @expected the value expected
+	 */
+	def regexpNotEquals(expression: String, occurrence: Int, expected: String): HttpBodyRegExpCheckBuilder = regexpNotEquals((c: Context) => expression, occurrence, expected)
+	/**
+	 * Will check if the value extracted via a regular expression is different from a specified value
+	 *
+	 * The first occurrence of the regular expression will be extracted
+	 *
+	 * @param expression the regular expression
+	 * @expected the value expected
+	 */
 	def regexpNotEquals(expression: String, expected: String): HttpBodyRegExpCheckBuilder = regexpNotEquals((c: Context) => expression, expected)
 
-	def regexpExists(what: Context => String, occurence: Int) = new HttpBodyRegExpCheckBuilder((what, occurence), Some(EMPTY), ExistenceCheckStrategy, Some(EMPTY))
+	/**
+	 * Will check if the regular expression result exists at least occurrence times
+	 *
+	 * @param what a function returning the regular expression
+	 * @occurrence the occurrence of the regular expression that should be extracted
+	 */
+	def regexpExists(what: Context => String, occurrence: Int) = new HttpBodyRegExpCheckBuilder((what, occurrence), Some(EMPTY), ExistenceCheckStrategy, Some(EMPTY))
+	/**
+	 * Will check if the regular expression result exists
+	 *
+	 * @param what a function returning the regular expression
+	 */
 	def regexpExists(what: Context => String): HttpBodyRegExpCheckBuilder = regexpExists(what, 0)
-	def regexpExists(expression: String, occurence: Int): HttpBodyRegExpCheckBuilder = regexpExists((c: Context) => expression, occurence)
+	/**
+	 * Will check if the regular expression result exists at least occurrence times
+	 *
+	 * @param expression the regular expression
+	 * @occurrence the occurrence of the regular expression that should be extracted
+	 */
+	def regexpExists(expression: String, occurrence: Int): HttpBodyRegExpCheckBuilder = regexpExists((c: Context) => expression, occurrence)
+	/**
+	 * Will check if the regular expression result exists
+	 *
+	 * The first occurrence of the regular expression will be extracted
+	 *
+	 * @param expression the regular expression
+	 */
 	def regexpExists(expression: String): HttpBodyRegExpCheckBuilder = regexpExists((c: Context) => expression)
 
-	def regexpNotExists(what: Context => String, occurence: Int) = new HttpBodyRegExpCheckBuilder((what, occurence), Some(EMPTY), NonExistenceCheckStrategy, Some(EMPTY))
+	/**
+	 * Will check if the regular expression result does not exist more than occurrence times
+	 *
+	 * @param what a function returning the regular expression
+	 * @occurrence the occurrence of the regular expression that should be extracted
+	 */
+	def regexpNotExists(what: Context => String, occurrence: Int) = new HttpBodyRegExpCheckBuilder((what, occurrence), Some(EMPTY), NonExistenceCheckStrategy, Some(EMPTY))
+	/**
+	 * Will check if the regular expression result does not exist
+	 *
+	 * @param what a function returning the regular expression
+	 */
 	def regexpNotExists(what: Context => String): HttpBodyRegExpCheckBuilder = regexpNotExists(what, 0)
-	def regexpNotExists(expression: String, occurence: Int): HttpBodyRegExpCheckBuilder = regexpNotExists((c: Context) => expression, occurence)
+	/**
+	 * Will check if the regular expression result does not exist more than occurrence times
+	 *
+	 * @param expression the regular expression
+	 * @occurrence the occurrence of the regular expression that should be extracted
+	 */
+	def regexpNotExists(expression: String, occurrence: Int): HttpBodyRegExpCheckBuilder = regexpNotExists((c: Context) => expression, occurrence)
+	/**
+	 * Will check if the regular expression result does not exist
+	 *
+	 * @param expression the regular expression
+	 */
 	def regexpNotExists(expression: String): HttpBodyRegExpCheckBuilder = regexpNotExists((c: Context) => expression)
 
-	def regexp(what: Context => String, occurence: Int) = regexpExists(what, occurence)
+	/**
+	 * Will capture the occurrence-th result of the regular expression
+	 *
+	 * @param what the function returning the regular expression
+	 */
+	def regexp(what: Context => String, occurrence: Int) = regexpExists(what, occurrence)
+	/**
+	 * Will capture the result of the regular expression
+	 *
+	 * @param what the function returning the regular expression
+	 */
 	def regexp(what: Context => String) = regexpExists(what)
-	def regexp(expression: String, occurence: Int) = regexpExists(expression, occurence)
+	/**
+	 * Will capture the occurrence-th result of the regular expression
+	 *
+	 * @param expression the regular expression
+	 */
+	def regexp(expression: String, occurrence: Int) = regexpExists(expression, occurrence)
+	/**
+	 * Will capture the result of the regular expression
+	 *
+	 * @param expression the regular expression
+	 */
 	def regexp(expression: String) = regexpExists(expression)
 }
 

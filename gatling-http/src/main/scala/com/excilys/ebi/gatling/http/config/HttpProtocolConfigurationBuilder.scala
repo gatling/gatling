@@ -16,16 +16,46 @@
 package com.excilys.ebi.gatling.http.config
 import com.ning.http.client.ProxyServer
 
+/**
+ * HttpProtocolConfigurationBuilder class companion
+ */
 object HttpProtocolConfigurationBuilder {
 	def httpConfig = new HttpProtocolConfigurationBuilder(None, None)
 
 	implicit def toHttpProtocolConfiguration(builder: HttpProtocolConfigurationBuilder) = builder.build
 }
+
+/**
+ * Builder for HttpProtocolConfiguration used in DSL
+ *
+ * @param baseUrl the radix of all the URLs that will be used (eg: http://mywebsite.tld)
+ * @param proxy a proxy through which all the requests must pass to succeed
+ */
 class HttpProtocolConfigurationBuilder(baseUrl: Option[String], proxy: Option[ProxyServer]) {
+
+	/**
+	 * Sets the baseURL of the future HttpProtocolConfiguration
+	 *
+	 * @param baseurl the base url that will be set
+	 */
 	def baseURL(baseurl: String) = new HttpProtocolConfigurationBuilder(Some(baseurl), proxy)
 
+	/**
+	 * Sets the proxy of the future HttpProtocolConfiguration
+	 *
+	 * @param host the host of the proxy
+	 * @param port the port of the proxy
+	 */
 	def proxy(host: String, port: Int): HttpProtocolConfigurationBuilder = proxy(host, port, null, null)
 
+	/**
+	 * Sets the proxy of the future HttpProtocolConfiguration
+	 *
+	 * @param host the host of the proxy
+	 * @param port the port of the proxy
+	 * @param username the username used to connect to the proxy
+	 * @param password the password used to connect to the proxy
+	 */
 	def proxy(host: String, port: Int, username: String, password: String) = {
 		val ps = new ProxyServer(ProxyServer.Protocol.HTTP, host, port, username, password)
 		ps.setNtlmDomain(null)

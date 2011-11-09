@@ -15,6 +15,12 @@
  */
 package com.excilys.ebi.gatling.http.util
 
+/**
+ * This object groups all utilities for HTTP module
+ */
 object HttpHelper {
+	/**
+	 * The context key for the cookies
+	 */
 	val COOKIES_CONTEXT_KEY = "gatling.http.cookies"
 }

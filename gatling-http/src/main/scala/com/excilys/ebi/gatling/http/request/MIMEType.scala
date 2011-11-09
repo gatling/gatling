@@ -15,6 +15,9 @@
  */
 package com.excilys.ebi.gatling.http.request
 
+/**
+ * The MIME types used in Gatling HTTP
+ */
 object MIMEType {
 	val APPLICATION_JSON = "application/json"
 	val APPLICATION_XML = "application/xml"

@@ -15,6 +15,19 @@
  */
 package com.excilys.ebi.gatling.http.request
 
+/**
+ * This trait represent a request parameter entered by the user
+ */
 trait Param
-case class StringParam(val string: String) extends Param
-case class ContextParam(val string: String) extends Param
+/**
+ * This parameter is a string, it will be used as is
+ *
+ * @param string the value of the parameter
+ */
+case class StringParam(string: String) extends Param
+/**
+ * This parameter is to be extracted from the context of the scenario
+ *
+ * @string the context key in which the value should be extracted
+ */
+case class ContextParam(string: String) extends Param

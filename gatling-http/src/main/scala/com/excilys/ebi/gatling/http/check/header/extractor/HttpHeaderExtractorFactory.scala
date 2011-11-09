@@ -18,6 +18,9 @@ package com.excilys.ebi.gatling.http.check.header.extractor
 import com.ning.http.client.Response
 import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
 
+/**
+ * Factory for HttpHeaderExtractor
+ */
 object HttpHeaderExtractorFactory extends ExtractorFactory[Response] {
 
 	def getExtractor(response: Response) = {
