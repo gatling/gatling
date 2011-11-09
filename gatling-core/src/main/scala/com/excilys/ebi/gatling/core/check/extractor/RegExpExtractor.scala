@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor
 
-import scala.util.matching.Regex
+import java.util.regex.Pattern
 
 /**
  * This class is a built-in provider that helps searching with Regular Expressions
@@ -33,12 +33,15 @@ class RegExpExtractor(textContent: String, occurence: Int) extends Extractor {
 	 */
 	def extract(expression: String): Option[String] = {
 		logger.debug("[RegExpExtractor] Extracting with expression : {}", expression)
-		new Regex(expression).findFirstMatchIn(textContent).map { m =>
-			if (m.groupCount > 0)
-				// TODO check
-				m.group(occurence + 1)
-			else
-				m.matched
+
+		val matcher = Pattern.compile(expression).matcher(textContent)
+
+		for (i <- 0 to occurence) {
+			if (!matcher.find)
+				return None
 		}
+
+		// if a group is specified, return the group 1, else return group 0 (ie the match)
+		Some(matcher.group(matcher.groupCount min 1))
 	}
 }
