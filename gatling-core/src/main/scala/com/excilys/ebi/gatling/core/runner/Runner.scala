@@ -54,7 +54,7 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: List[ScenarioCo
 	val scenarios = for (configuration <- scenarioConfigurations) yield configuration.scenarioBuilder.end(latch).build
 
 	// Creates a List of Tuples with scenario configuration / scenario 
-	val scenariosAndConfigurations = scenarioConfigurations zip scenarios.reverse
+	val scenariosAndConfigurations = scenarioConfigurations zip scenarios
 
 	logger.info("Total number of users : {}", totalNumberOfUsers)
 
