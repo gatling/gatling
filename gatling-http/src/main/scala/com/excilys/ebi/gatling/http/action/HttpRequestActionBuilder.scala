@@ -87,14 +87,14 @@ class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, ne
 	 * @param url the url on which this request will be made
 	 * @param interpolations context keys for interpolation
 	 */
-	def delete(url: String, interpolations: String*) = new DeleteHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Map(), Map(), None, None, None)
+	def delete(url: String, interpolations: String*) = new DeleteHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Nil, Map(), None, None, None)
 
 	/**
 	 * Starts the definition of an HTTP request with word DELETE
 	 *
 	 * @param f the function returning the url of this request
 	 */
-	def delete(f: Context => String) = new DeleteHttpRequestBuilder(this, Some(f), Map(), Map(), None, None, None)
+	def delete(f: Context => String) = new DeleteHttpRequestBuilder(this, Some(f), Nil, Map(), None, None, None)
 
 	/**
 	 * Starts the definition of an HTTP request with word GET
@@ -102,14 +102,14 @@ class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, ne
 	 * @param url the url on which this request will be made
 	 * @param interpolations context keys for interpolation
 	 */
-	def get(url: String, interpolations: String*) = new GetHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Map(), Map(), None, None)
+	def get(url: String, interpolations: String*) = new GetHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Nil, Map(), None, None)
 
 	/**
 	 * Starts the definition of an HTTP request with word GET
 	 *
 	 * @param f the function returning the url of this request
 	 */
-	def get(f: Context => String) = new GetHttpRequestBuilder(this, Some(f), Map(), Map(), None, None)
+	def get(f: Context => String) = new GetHttpRequestBuilder(this, Some(f), Nil, Map(), None, None)
 
 	/**
 	 * Starts the definition of an HTTP request with word POST
@@ -117,14 +117,14 @@ class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, ne
 	 * @param url the url on which this request will be made
 	 * @param interpolations context keys for interpolation
 	 */
-	def post(url: String, interpolations: String*) = new PostHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Map(), Map(), Map(), None, None, None)
+	def post(url: String, interpolations: String*) = new PostHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Nil, Map(), Map(), None, None, None)
 
 	/**
 	 * Starts the definition of an HTTP request with word POST
 	 *
 	 * @param f the function returning the url of this request
 	 */
-	def post(f: Context => String) = new PostHttpRequestBuilder(this, Some(f), Map(), Map(), Map(), None, None, None)
+	def post(f: Context => String) = new PostHttpRequestBuilder(this, Some(f), Nil, Map(), Map(), None, None, None)
 
 	/**
 	 * Starts the definition of an HTTP request with word PUT
@@ -132,13 +132,13 @@ class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, ne
 	 * @param url the url on which this request will be made
 	 * @param interpolations context keys for interpolation
 	 */
-	def put(url: String, interpolations: String*) = new PutHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Map(), Map(), None, None, None)
+	def put(url: String, interpolations: String*) = new PutHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Nil, Map(), None, None, None)
 
 	/**
 	 * Starts the definition of an HTTP request with word PUT
 	 *
 	 * @param f the function returning the url of this request
 	 */
-	def put(f: Context => String) = new PutHttpRequestBuilder(this, Some(f), Map(), Map(), None, None, None)
+	def put(f: Context => String) = new PutHttpRequestBuilder(this, Some(f), Nil, Map(), None, None, None)
 }
 

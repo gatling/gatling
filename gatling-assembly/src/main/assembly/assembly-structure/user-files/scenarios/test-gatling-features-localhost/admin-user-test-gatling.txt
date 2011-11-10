@@ -7,6 +7,6 @@ val adminUser = scenario("Admin User")
     // What will be repeated ?
     chain
       // First request to be repeated
-      .exec( http("Page Admin") get(baseUrl) queryParam "firstname")
+      .exec( http("Page Admin") get(baseUrl) queryParam ("firstname", FromContext("firstname")))
       .pause( pause2 )
    ).times(iterations)

@@ -42,6 +42,7 @@ import scala.collection.immutable.HashMap
 import com.ning.http.client.Realm
 import com.ning.http.client.Realm.AuthScheme
 import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
+import com.excilys.ebi.gatling.core.util.StringHelper._
 
 /**
  * AbstractHttpRequestBuilder class companion
@@ -66,7 +67,7 @@ object AbstractHttpRequestBuilder {
  * @param credentials sets the credentials in case of Basic HTTP Authentication
  */
 abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String],
-	queryParams: Map[String, Param], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
+	queryParams: List[(Context => String, Context => Option[String])], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
 		extends Logging {
 
 	/**
@@ -79,7 +80,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * @param followsRedirects sets the follow redirect option of AHC
 	 * @param credentials sets the credentials in case of Basic HTTP Authentication
 	 */
-	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: Map[String, Param], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
+	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: List[(Context => String, Context => Option[String])], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
 
 	/**
 	 * Stops defining the request and adds captures on the response
@@ -98,27 +99,61 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	/**
 	 * Adds a query parameter to the request
 	 *
+	 * @param paramKeyFunction a function that returns the key name
+	 * @param paramValueFunction a function that returns the value
+	 */
+	def queryParam(paramKeyFunction: Context => String, paramValueFunction: Context => Option[String]): B = newInstance(httpRequestActionBuilder, urlFunction, (paramKeyFunction, paramValueFunction) :: queryParams, headers, followsRedirects, credentials)
+	/**
+	 * Adds a query parameter to the request
+	 *
+	 * Its key and value are set by the user
+	 *
 	 * @param paramKey the key of the parameter
 	 * @param paramValue the value of the parameter
 	 */
-	def queryParam(paramKey: String, paramValue: String): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams + (paramKey -> StringParam(paramValue)), headers, followsRedirects, credentials)
+	def queryParam(paramKey: String, paramValue: String): B = queryParam((c: Context) => paramKey, (c: Context) => Some(paramValue))
 
 	/**
 	 * Adds a query parameter to the request
 	 *
-	 * @param paramKey the key of the parameter
-	 * @param paramValue a FromContext(contextKey) that indicates the context key from which the value should be extracted
+	 * Its key and value come from the context
+	 *
+	 * @param paramKey the key of the context containing the name of the key
+	 * @param paramValue the key of the context containing the value of the parameter
 	 */
-	def queryParam(paramKey: String, paramValue: FromContext): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams + (paramKey -> ContextParam(paramValue.attributeKey)), headers, followsRedirects, credentials)
-
+	def queryParam(paramKey: FromContext, paramValue: FromContext): B = queryParam((c: Context) => c.getAttribute(paramKey.attributeKey).toString, (c: Context) => Some(c.getAttribute(paramValue.attributeKey).toString))
 	/**
 	 * Adds a query parameter to the request
 	 *
-	 * This method is equivalent to queryParam(paramKey, FromContext(paramKey))
+	 * Its key is set by the user and its value comes from the context
+	 *
+	 * @param paramValue the key of the context containing the value of the parameter
+	 */
+	def queryParam(paramKey: String, paramValue: FromContext): B = queryParam((c: Context) => paramKey, (c: Context) => Some(c.getAttribute(paramValue.attributeKey).toString))
+	/**
+	 * Adds a query parameter to the request
+	 *
+	 * Its key comes from the context and its value is set by the user
+	 *
+	 * @param paramKey the key of the context containing the name of the key
+	 */
+	def queryParam(paramKey: FromContext, paramValue: String): B = queryParam((c: Context) => c.getAttribute(paramKey.attributeKey).toString, (c: Context) => Some(paramValue))
+	/**
+	 * Adds a query parameter to the request
+	 *
+	 * It will only have a key set by the user
 	 *
 	 * @param paramKey the key of the parameter
 	 */
-	def queryParam(paramKey: String): B = queryParam(paramKey, FromContext(paramKey))
+	def queryParam(paramKey: String): B = queryParam((c: Context) => paramKey, (c: Context) => None)
+	/**
+	 * Adds a query parameter to the request
+	 *
+	 * It will only have a key coming from context
+	 *
+	 * @param paramKey the key of the context containing the name of the key
+	 */
+	def queryParam(paramKey: FromContext): B = queryParam((c: Context) => c.getAttribute(paramKey.attributeKey).toString, (c: Context) => None)
 
 	/**
 	 * Adds a header to the request
@@ -261,12 +296,10 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 */
 	private def addQueryParamsTo(requestBuilder: RequestBuilder, context: Context) = {
 		for (queryParam <- queryParams) {
-			queryParam._2 match {
-				case StringParam(string) =>
-					requestBuilder addQueryParameter (queryParam._1, string)
-				case ContextParam(string) =>
-					requestBuilder addQueryParameter (queryParam._1, context.getAttribute(string).toString)
-			}
+			val (keyFunction, valueFunction) = queryParam
+			val (key, value) = (keyFunction.apply(context), valueFunction.apply(context).getOrElse(EMPTY))
+			logger.debug("Key: '{}', Value: '{}'", key, value)
+			requestBuilder addQueryParameter (key, value)
 		}
 	}
 
