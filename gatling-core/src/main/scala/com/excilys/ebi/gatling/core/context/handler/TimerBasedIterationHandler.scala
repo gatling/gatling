@@ -33,7 +33,7 @@ object TimerBasedIterationHandler {
 	 *
 	 * @param context the scenario context
 	 * @param timerName the name of the timer
-	 * @return the value of the timer as an integer
+	 * @return the value of the timer as a long
 	 */
 	def getTimerValue(context: Context, timerName: String) = {
 		context.getAttributeAsOption(TIMER_KEY_PREFIX + timerName).getOrElse(throw new IllegalAccessError("You must call startTimer before this method is called")).asInstanceOf[Long]
