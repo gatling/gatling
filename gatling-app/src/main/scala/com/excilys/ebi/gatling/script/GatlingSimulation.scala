@@ -15,13 +15,11 @@
  */
 package com.excilys.ebi.gatling.script
 
-import org.joda.time.DateTime
-
-import com.excilys.ebi.gatling.core.runner.Runner.runSim
+import com.excilys.ebi.gatling.core.Predef._
 
 /**
  * This trait is to be extended by Scala simulations
  */
 trait GatlingSimulation extends App {
-	def runSimulations = runSim(new DateTime(args(0)))_
+	def runSimulations = runSimFunction(args(0))
 }

@@ -15,28 +15,14 @@
  */
 package com.excilys.ebi.gatling.http.test
 
-import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder._
-import com.excilys.ebi.gatling.core.feeder._
-import com.excilys.ebi.gatling.core.context._
-import com.excilys.ebi.gatling.core.context.handler.CounterBasedIterationHandler._
-import com.excilys.ebi.gatling.core.context.handler.TimerBasedIterationHandler._
-import com.excilys.ebi.gatling.core.util.StringHelper._
-import com.excilys.ebi.gatling.core.runner.Runner._
-import com.excilys.ebi.gatling.core.structure.ScenarioBuilder._
-import com.excilys.ebi.gatling.core.structure.ChainBuilder._
-import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder._
-import com.excilys.ebi.gatling.http.config.HttpProtocolConfigurationBuilder._
-import com.excilys.ebi.gatling.http.check.body.HttpBodyRegExpCheckBuilder._
-import com.excilys.ebi.gatling.http.check.body.HttpBodyXPathCheckBuilder._
-import com.excilys.ebi.gatling.http.check.header.HttpHeaderCheckBuilder._
-import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder._
-import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
-import java.util.concurrent.TimeUnit
+import com.excilys.ebi.gatling.core.Predef._
+import com.excilys.ebi.gatling.http.Predef._
+
 import org.joda.time.DateTime
 
 object CompileTest {
 
-	def runSimulations = runSim(DateTime.now)_
+	def runSimulations = runSimFunction(DateTime.now)
 
 	val iterations = 10
 	val pause1 = 1
@@ -85,7 +71,7 @@ object CompileTest {
 					.exec((c: Context) => println("-loopDuring: " + getCounterValue(c, "toto")))
 					.exec(http("In During 2").get("/"))
 					.pause(2))
-				.counterName("toto").during(12000, TimeUnit.MILLISECONDS)
+				.counterName("toto").during(12000, MILLISECONDS)
 				.pause(pause2)
 				.loop(
 					chain
@@ -98,14 +84,14 @@ object CompileTest {
 						.counterName("hoho").times(2)
 						.exec(http("In During 2").get("/"))
 						.pause(2))
-				.counterName("hehe").during(12000, TimeUnit.MILLISECONDS)
+				.counterName("hehe").during(12000, MILLISECONDS)
 				.startGroup(loginGroup)
 				.exec((c: Context) => c.setAttribute("test2", "bbbb"))
 				.doIf("test2", "aaaa",
 					chain.exec(http("IF=TRUE Request").get("/")), chain.exec(http("IF=FALSE Request").get("/")))
 				.pause(pause2)
 				.exec(http("Url from context").get("/aaaa"))
-				.pause(1000, 3000, TimeUnit.MILLISECONDS)
+				.pause(1000, 3000, MILLISECONDS)
 				// Second request to be repeated
 				.exec(http("Create Thing blabla").post("/things").queryParam("login").queryParam("password").withTemplateBody("create_thing", Map("name" -> "blabla")).asJSON)
 				.pause(pause1)

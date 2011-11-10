@@ -50,26 +50,10 @@ class TextScriptInterpreter extends Interpreter {
 
 		// This is the file header, with all needed imports and declarations
 		val fileHeader = """
-    import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder._
-    import com.excilys.ebi.gatling.core.feeder._
-    import com.excilys.ebi.gatling.core.context._
-    import com.excilys.ebi.gatling.core.context.handler.CounterBasedIterationHandler._
-	import com.excilys.ebi.gatling.core.context.handler.TimerBasedIterationHandler._
-    import com.excilys.ebi.gatling.core.util.StringHelper._
-    import com.excilys.ebi.gatling.core.runner.Runner._
-    import com.excilys.ebi.gatling.core.structure.ScenarioBuilder._
-    import com.excilys.ebi.gatling.core.structure.ChainBuilder._
-    import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder._
-    import com.excilys.ebi.gatling.http.config.HttpProtocolConfigurationBuilder._
-    import com.excilys.ebi.gatling.http.check.body.HttpBodyRegExpCheckBuilder._
-    import com.excilys.ebi.gatling.http.check.body.HttpBodyXPathCheckBuilder._
-    import com.excilys.ebi.gatling.http.check.header.HttpHeaderCheckBuilder._
-    import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder._
-    import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
-    import java.util.concurrent.TimeUnit
-    import org.joda.time.DateTime
+    import com.excilys.ebi.gatling.core.Predef._
+    import com.excilys.ebi.gatling.http.Predef._
     
-    def runSimulations = runSim(startDate.value)_
+    def runSimulations = runSimFunction(startDate.value)
     """
 
 		// Contains the contents of the simulation file

@@ -55,15 +55,6 @@ object StringHelper extends Logging {
 	}
 
 	/**
-	 * Method used in scenarios to interpolate strings from context
-	 *
-	 * @param stringToFormat the string to be formatted
-	 * @param interpolations the keys of the values that will be inserted in stringToFormat
-	 * @return the completed string
-	 */
-	def interpolate(stringToFormat: String, interpolations: String*) = (c: Context) => interpolateString(c, stringToFormat, interpolations)
-
-	/**
 	 * Method that strips all accents from a string
 	 */
 	def stripAccents(string: String) = {
