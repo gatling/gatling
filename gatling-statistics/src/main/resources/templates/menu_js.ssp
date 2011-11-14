@@ -1,7 +1,0 @@
-<%@ val requestLinks: String %>
-<%@ val groupLinks: String %>
-
-$(document).ready(function() { 
-	$("#details ul").append("<%= requestLinks %>");
-	$("#groups ul").append("<%= groupLinks %>"); 
-});

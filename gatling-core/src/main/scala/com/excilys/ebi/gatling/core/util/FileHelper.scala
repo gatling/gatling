@@ -41,7 +41,9 @@ object FileHelper {
 	def formatToFilename(s: String) = {
 		stripAccents(s.replace("-", "_")
 			.replace(" ", "_")
+			.replace("__", "_")
 			.replace("'", "")
+			.replace("__", "_")
 			.toLowerCase)
 	}
 }

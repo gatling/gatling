@@ -16,21 +16,20 @@
 package com.excilys.ebi.gatling.app
 
 import java.io.File
-
 import scala.collection.immutable.TreeSet
 import scala.collection.mutable.{ Set => MSet }
 import scala.collection.mutable.{ MultiMap, HashMap }
 import scala.tools.nsc.io.Directory
-
 import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.app.interpreter.{ TextScriptInterpreter, ScalaScriptInterpreter }
 import com.excilys.ebi.gatling.core.config.GatlingConfig
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.DateHelper.printFileNameDate
 import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_SCENARIOS_FOLDER
 import com.excilys.ebi.gatling.core.util.PropertiesHelper.{ ONLY_STATS_PROPERTY, NO_STATS_PROPERTY }
-import com.excilys.ebi.gatling.statistics.generator.ChartsGenerator
+import com.excilys.ebi.gatling.charts.loader.DataLoader
+import com.excilys.ebi.gatling.charts.report.ReportsGenerator
+//import com.excilys.ebi.gatling.statistics.generator.ChartsGenerator
 
 /**
  * Object containing entry point of application
@@ -123,7 +122,7 @@ object App extends Logging {
 	private def generateStats(folderName: String) = {
 		logger.debug("\nGenerating Charts and Statistics from Folder Name: {}", folderName)
 
-		new ChartsGenerator().generateFor(folderName)
+		ReportsGenerator.generateFor(folderName)
 	}
 
 	/**

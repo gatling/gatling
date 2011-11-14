@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.excilys.ebi.gatling</groupId>
 	<artifactId>gatling-parent</artifactId>
@@ -10,10 +9,10 @@
 	<modules>
 		<module>gatling-core</module>
 		<module>gatling-http</module>
-		<module>gatling-statistics</module>
 		<module>gatling-app</module>
 		<module>gatling-recorder</module>
 		<module>gatling-assembly</module>
+		<module>gatling-charts</module>
 	</modules>
 
 	<licenses>
@@ -109,17 +108,12 @@
 			</dependency>
 			<dependency>
 				<groupId>com.excilys.ebi.gatling</groupId>
-				<artifactId>gatling-statistics</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.excilys.ebi.gatling</groupId>
 				<artifactId>gatling-app</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.excilys.ebi.gatling</groupId>
-				<artifactId>gatling-examples</artifactId>
+				<artifactId>gatling-charts</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -312,8 +306,7 @@
 					<artifactId>maven-license-plugin</artifactId>
 					<version>${maven-licence-plugin.version}</version>
 				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings 
-					only. It has no influence on the Maven build itself. -->
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>

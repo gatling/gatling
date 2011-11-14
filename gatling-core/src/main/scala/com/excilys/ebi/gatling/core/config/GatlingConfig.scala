@@ -59,4 +59,6 @@ object GatlingConfig extends Logging {
 	 * Gatling simulation timeout value
 	 */
 	val CONFIG_SIMULATION_TIMEOUT = config.getInt("gatling.simulation.timeout", 86400)
+
+	val CONFIG_CHARTING_COMPONENT_LIBRARY_CLASS = config.getString("gatling.charting.componentLibraryClass", "com.excilys.ebi.gatling.highcharts.component.HighchartsComponentLibrary")
 }

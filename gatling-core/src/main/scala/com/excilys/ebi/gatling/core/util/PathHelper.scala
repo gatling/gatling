@@ -61,6 +61,9 @@ object PathHelper {
 	 * Directory where javascript files are stored in results
 	 */
 	val GATLING_JS = "/js"
+	val GATLING_ASSETS_JS_FOLDER = GATLING_ASSETS_FOLDER + GATLING_JS
+	val GATLING_STYLE = "/style"
+	val GATLING_ASSETS_STYLE_FOLDER = GATLING_ASSETS_FOLDER + GATLING_STYLE
 	/**
 	 * JQuery file path relative to parent folder
 	 */
@@ -109,43 +112,5 @@ object PathHelper {
 	 * Path to Highcharts library in assets
 	 */
 	val GATLING_ASSETS_HIGHCHARTS = GATLING_ASSETS_FOLDER + GATLING_JS_HIGHCHARTS
-
-	/**
-	 * File name of the active sessions chart
-	 */
-	val GATLING_CHART_ACTIVE_SESSIONS_FILE = "active_sessions.html"
-	/**
-	 * File name of the requests chart
-	 */
-	val GATLING_CHART_GLOBAL_REQUESTS_FILE = "requests.html"
-	/**
-	 * File name of the javascript menu generator
-	 */
-	val GATLING_CHART_MENU_JS_FILE = "js/menu.js"
-	/**
-	 * File name of the request log file
-	 */
-	val GATLING_STATS_GLOBAL_REQUESTS_FILE = "requests.tsv"
-
-	/**
-	 * Path to the template for request details body
-	 */
-	val GATLING_TEMPLATE_REQUEST_DETAILS_BODY_FILE = "templates/details_requests_body.ssp"
-	/**
-	 * Path to the template for highstocks column charts
-	 */
-	val GATLING_TEMPLATE_HIGHCHARTS_COLUMN_FILE = "templates/highcharts_column.ssp"
-	/**
-	 * Path to the template for highstocks time charts
-	 */
-	val GATLING_TEMPLATE_HIGHSTOCK_TIME_FILE = "templates/highstock_time.ssp"
-	/**
-	 * Path to the template for HTML reports
-	 */
-	val GATLING_TEMPLATE_LAYOUT_FILE = "templates/layout.ssp"
-	/**
-	 * Path to the template for the javascript menu generator
-	 */
-	val GATLING_TEMPLATE_MENU_JS_FILE = "templates/menu_js.ssp"
 
 }

@@ -21,7 +21,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.excilys.ebi.gatling</groupId>
-			<artifactId>gatling-statistics</artifactId>
+			<artifactId>gatling-charts</artifactId>
 		</dependency>
 	</dependencies>
 
