@@ -38,20 +38,18 @@ class DetailsRequestsDataPresenter extends DataPresenter[Map[String, DetailsRequ
 
 				val series = List(getShared(ALL_ACTIVE_SESSIONS).asInstanceOf[TimeSeries], new TimeSeries(requestName.substring(8), result.timeValues.map { e => (printHighChartsDate(e._1), e._2) }, 1))
 
-				val dispersionData = new ColumnSeries(requestName.substring(8), result.columnData._1.map { _.toString }, result.columnData._2)
+				val dispersionData = new ColumnSeries(requestName.substring(8), result.columnData._1.map { _.toString }.toList, result.columnData._2.toList)
 
 				val indicatorData = getIndicatorData(result)
 
 				val indicatorsData = new ColumnSeries("Indicators", indicatorData._1, indicatorData._2)
-				
-				val pieData = for{
+
+				val pieData = for {
 					key <- List("ok", "medium", "ko");
 					numberOfRequests <- indicatorData._2;
 					color <- List("#89A54E", "#FF9100", "#AA4643")
 				} yield (key, numberOfRequests.toInt, color)
-					
-				
-				
+
 				val indicatorsPieData = new PieSeries("Result", pieData)
 
 				val output = new DetailsRequestsTemplate(runOn, series, dispersionData, indicatorsData, indicatorsPieData, requestName, result).getOutput

@@ -52,10 +52,11 @@ class DetailsRequestsDataExtractor extends DataExtractor[Map[String, DetailsRequ
 					dateAndResponseTime =>
 						responseTimesToNumberOfRequests += (dateAndResponseTime._2 -> (responseTimesToNumberOfRequests.get(dateAndResponseTime._2).getOrElse(0D) + 1))
 				}
-				val sortedResponseTimes = responseTimesToNumberOfRequests.keys.toList
-				val numberOfRequests = responseTimesToNumberOfRequests.values.toList
+				val sortedResponseTimes = responseTimesToNumberOfRequests.unzip
 
-				val result = new DetailsRequestsDataResult(responseTimes.size, responseTimes.reverse, (sortedResponseTimes, numberOfRequests), min, max, medium, standardDeviation)
+				logger.warn("RESPONSE TIMES: {}", sortedResponseTimes)
+
+				val result = new DetailsRequestsDataResult(responseTimes.size, responseTimes.sortWith(_._1 < _._1), sortedResponseTimes, min, max, medium, standardDeviation)
 				results = results + (requestName -> result)
 		}
 		results
