@@ -55,19 +55,7 @@
 			<name>Akka Maven Repository</name>
 			<url>http://akka.io/repository</url>
 		</repository>
-		<repository>
-			<id>excilys-thirdparty</id>
-			<name>Excilys Third Party Repository</name>
-			<url>http://repository.excilys.com/content/repositories/thirdparty</url>
-		</repository>
 	</repositories>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>scala-tools.org</id>
-			<name>Scala-tools Maven2 Repository</name>
-			<url>http://scala-tools.org/repo-releases</url>
-		</pluginRepository>
-	</pluginRepositories>
 
 	<properties>
 		<maven.compiler.source>1.6</maven.compiler.source>
