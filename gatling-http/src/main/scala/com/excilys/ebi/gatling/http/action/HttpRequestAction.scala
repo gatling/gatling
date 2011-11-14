@@ -71,7 +71,7 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenCheckBuilders: 
 				}
 
 				// add default HttpStatusCheck if none was set
-				if (captures.find(_.isInstanceOf[HttpStatusCheck]).isDefined) {
+				if (captures.find(_.isInstanceOf[HttpStatusCheck]).isEmpty) {
 					captures.add(HttpRequestAction.DEFAULT_HTTP_STATUS_CHECK)
 				}
 			}
