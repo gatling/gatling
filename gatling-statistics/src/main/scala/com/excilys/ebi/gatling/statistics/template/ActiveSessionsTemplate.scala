@@ -21,7 +21,7 @@ import com.excilys.ebi.gatling.statistics.series.YAxis
 class ActiveSessionsTemplate(val runOn: String, val series: List[TimeSeries]) {
 
 	def getOutput: String = {
-		val highstocks = new HighstocksTimeTemplate(series, "Active Sessions", List(new YAxis("Active Sessions", "users", false)), "{} users").getOutput
+		val highstocks = new HighstockTimeTemplate(series, "Active Sessions", List(new YAxis("Active Sessions", "users", false)), "{} users").getOutput
 
 		new LayoutTemplate("Active Sessions", runOn, EMPTY, highstocks).getOutput
 	}

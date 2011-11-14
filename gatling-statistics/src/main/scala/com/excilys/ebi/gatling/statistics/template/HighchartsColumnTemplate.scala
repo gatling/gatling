@@ -15,25 +15,23 @@
  */
 package com.excilys.ebi.gatling.statistics.template
 
+import org.fusesource.scalate._
 import com.excilys.ebi.gatling.core.util.PathHelper._
-import org.fusesource.scalate.TemplateEngine
-import com.excilys.ebi.gatling.statistics.series.PlotBand
-import com.excilys.ebi.gatling.statistics.series.Series
-import com.excilys.ebi.gatling.statistics.series.YAxis
+import com.excilys.ebi.gatling.statistics.series.ColumnSeries
 
-private[template] class HighstocksTimeTemplate(val series: List[Series], val chartTitle: String, val yAxis: List[YAxis], val toolTip: String, val plotBand: PlotBand) {
-	def this(series: List[Series], chartTitle: String, yAxis: List[YAxis], toolTip: String) = this(series, chartTitle, yAxis, toolTip, new PlotBand(0, 0))
+private[template] class HighchartsColumnTemplate(val columnData: ColumnSeries, val container: String, val chartTitle: String, val yAxisTitle: String, val toolTip: String) {
 
 	val highstocksEngine = new TemplateEngine
 	highstocksEngine.escapeMarkup = false
 
 	def getOutput: String = {
-		highstocksEngine.layout(GATLING_TEMPLATE_HIGHSTOCKS_TIME_FILE,
-			Map("series" -> series,
+		highstocksEngine.layout(GATLING_TEMPLATE_HIGHCHARTS_COLUMN_FILE,
+			Map("columnData" -> columnData,
+				"container" -> container,
 				"chartTitle" -> chartTitle,
-				"yAxis" -> yAxis,
+				"yAxisTitle" -> yAxisTitle,
 				"toolTip" -> toolTip,
-				"hasPlotBand" -> (plotBand.maxValue != plotBand.minValue),
-				"plotBand" -> plotBand))
+				"xCategories" -> columnData.categories))
 	}
+
 }

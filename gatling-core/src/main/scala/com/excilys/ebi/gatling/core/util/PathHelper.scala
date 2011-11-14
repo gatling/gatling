@@ -68,7 +68,7 @@ object PathHelper {
 	/**
 	 * Highstocks file path relative to parent folder
 	 */
-	val GATLING_HIGHSTOCKS = "/highstocks.js"
+	val GATLING_HIGHSTOCK = "/highstock.js"
 	/**
 	 * Highcharts file path relative to parent folder
 	 */
@@ -80,7 +80,7 @@ object PathHelper {
 	/**
 	 * Path to Highstocks library in results
 	 */
-	val GATLING_JS_HIGHSTOCKS = GATLING_JS + GATLING_HIGHSTOCKS
+	val GATLING_JS_HIGHSTOCK = GATLING_JS + GATLING_HIGHSTOCK
 	/**
 	 * Path to Highcharts library in results
 	 */
@@ -104,7 +104,7 @@ object PathHelper {
 	/**
 	 * Path to Highstocks library in assets
 	 */
-	val GATLING_ASSETS_HIGHSTOCKS = GATLING_ASSETS_FOLDER + GATLING_JS_HIGHSTOCKS
+	val GATLING_ASSETS_HIGHSTOCK = GATLING_ASSETS_FOLDER + GATLING_JS_HIGHSTOCK
 	/**
 	 * Path to Highcharts library in assets
 	 */
@@ -134,11 +134,11 @@ object PathHelper {
 	/**
 	 * Path to the template for highstocks column charts
 	 */
-	val GATLING_TEMPLATE_HIGHSTOCKS_COLUMN_FILE = "templates/highcharts_column.ssp"
+	val GATLING_TEMPLATE_HIGHCHARTS_COLUMN_FILE = "templates/highcharts_column.ssp"
 	/**
 	 * Path to the template for highstocks time charts
 	 */
-	val GATLING_TEMPLATE_HIGHSTOCKS_TIME_FILE = "templates/highstocks_time.ssp"
+	val GATLING_TEMPLATE_HIGHSTOCK_TIME_FILE = "templates/highstock_time.ssp"
 	/**
 	 * Path to the template for HTML reports
 	 */

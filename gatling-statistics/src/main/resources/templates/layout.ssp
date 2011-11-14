@@ -51,7 +51,7 @@
 </style>
 <script type="text/javascript" src="js/jquery.min.js"></script>
 <script type="text/javascript" src="js/highcharts.js"></script>
-<script type="text/javascript" src="js/highstocks.js"></script>
+<script type="text/javascript" src="js/highstock.js"></script>
 <script type="text/javascript" src="js/menu.js"></script>
 </head>
 <body>

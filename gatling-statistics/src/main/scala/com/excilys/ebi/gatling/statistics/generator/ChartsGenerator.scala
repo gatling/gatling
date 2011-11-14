@@ -29,12 +29,12 @@ class ChartsGenerator extends Logging {
 	def generateFor(runOn: String) = {
 
 		val jQueryFile = File(GATLING_ASSETS_JQUERY)
-		val highstocksFile = File(GATLING_ASSETS_HIGHSTOCKS)
+		val highstocksFile = File(GATLING_ASSETS_HIGHSTOCK)
 		val highchartsFile = File(GATLING_ASSETS_HIGHCHARTS)
 
 		val jsAssetsPath = GATLING_RESULTS_FOLDER + "/" + runOn + GATLING_JS
 		val jQueryDestPath = jsAssetsPath + GATLING_JQUERY
-		val highstocksDestPath = jsAssetsPath + GATLING_HIGHSTOCKS
+		val highstocksDestPath = jsAssetsPath + GATLING_HIGHSTOCK
 		val highchartsDestPath = jsAssetsPath + GATLING_HIGHCHARTS
 
 		File(jsAssetsPath).toDirectory.createDirectory()

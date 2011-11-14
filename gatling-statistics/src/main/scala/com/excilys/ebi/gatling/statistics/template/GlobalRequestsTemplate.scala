@@ -22,7 +22,7 @@ import com.excilys.ebi.gatling.statistics.series.YAxis
 class GlobalRequestsTemplate(val runOn: String, val series: List[Series]) {
 
 	def getOutput: String = {
-		val highstocks = new HighstocksTimeTemplate(series, "Number of requests per second", List(new YAxis("Number of requests per second", "req", false)), "{} requests").getOutput
+		val highstocks = new HighstockTimeTemplate(series, "Number of requests per second", List(new YAxis("Number of requests per second", "req", false)), "{} requests").getOutput
 		new LayoutTemplate("Requests per second", runOn, EMPTY, highstocks).getOutput
 	}
 
