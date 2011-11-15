@@ -16,7 +16,7 @@ Gatling is built upon :
 
 * [Async Http Client](https://github.com/sonatype/async-http-client) and [Netty](http://www.jboss.org/netty) for non blocking HTTP
 * Akka for actions (requests, pauses, assertions, etc...) modeling and orchestration
-* Scala REPL for scripting
+* Scala interpreter for scripting
 ...
 
 
