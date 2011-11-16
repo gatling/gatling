@@ -1,8 +1,7 @@
-package com.excilys.ebi.gatling.script
+import com.excilys.ebi.gatling.example.script.custom.Scenarios._
 
-import org.gatling.example.script.custom.Scenarios._
-
-import com.excilys.ebi.gatling.core.feeder._
+import com.excilys.ebi.gatling.core.Predef._
+import com.excilys.ebi.gatling.http.Predef._
 
 class Simulation extends GatlingSimulation {
 	/* Feeder */

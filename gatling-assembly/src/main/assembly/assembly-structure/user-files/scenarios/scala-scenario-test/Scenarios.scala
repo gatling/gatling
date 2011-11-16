@@ -1,6 +1,6 @@
-package org.gatling.example.script.custom
+package com.excilys.ebi.gatling.example.script.custom
 
-import org.gatling.example.script.custom.Constants._
+import com.excilys.ebi.gatling.example.script.custom.Constants._
 
 import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._

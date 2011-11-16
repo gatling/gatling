@@ -1,4 +1,4 @@
-package org.gatling.example.script.custom
+package com.excilys.ebi.gatling.example.script.custom
 
 object Constants {
 	val urlBase = "http://localhost:8080/excilys-bank-web"
