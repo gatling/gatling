@@ -18,10 +18,10 @@ package com.excilys.ebi.gatling.core.util
 object ReflectionHelper {
 
 	def getNewInstanceByClassName[T](className: String) = {
-		getNewInstanceByClassName[T](this.getClass().getClassLoader, className: String)
+		getNewInstanceByClassName[T](className: String, this.getClass().getClassLoader)
 	}
 
-	def getNewInstanceByClassName[T](classLoader: ClassLoader, className: String) = {
+	def getNewInstanceByClassName[T](className: String, classLoader: ClassLoader) = {
 		val clazz = classLoader.loadClass(className)
 		clazz.asInstanceOf[Class[T]].newInstance
 	}
