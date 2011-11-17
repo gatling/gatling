@@ -12,6 +12,7 @@
 		<module>gatling-http</module>
 		<module>gatling-statistics</module>
 		<module>gatling-app</module>
+		<module>gatling-recorder</module>
 		<module>gatling-assembly</module>
 	</modules>
 
@@ -79,6 +80,9 @@
 		<netty.version>3.2.6.Final</netty.version>
 		<joda-time.version>2.0</joda-time.version>
 		<joda-convert.version>1.1</joda-convert.version>
+		<velocity.version>1.7</velocity.version>
+		<xstream.version>1.4.2</xstream.version>
+		<commons-lang.version>2.6</commons-lang.version>
 
 		<maven-assembly-plugin.version>2.2.1</maven-assembly-plugin.version>
 		<maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
@@ -218,6 +222,31 @@
 				<artifactId>joda-convert</artifactId>
 				<version>${joda-convert.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.apache.velocity</groupId>
+				<artifactId>velocity</artifactId>
+				<version>${velocity.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.thoughtworks.xstream</groupId>
+				<artifactId>xstream</artifactId>
+				<version>${xstream.version}</version>
+				<exclusions>
+					<exclusion>
+						<artifactId>xpp3_min</artifactId>
+						<groupId>xpp3</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>xmlpull</artifactId>
+						<groupId>xmlpull</groupId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>commons-lang</groupId>
+				<artifactId>commons-lang</artifactId>
+				<version>${commons-lang.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -270,6 +299,32 @@
 					<groupId>com.mycila.maven-license-plugin</groupId>
 					<artifactId>maven-license-plugin</artifactId>
 					<version>${maven-licence-plugin.version}</version>
+				</plugin>
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>com.mycila.maven-license-plugin</groupId>
+										<artifactId>maven-license-plugin</artifactId>
+										<versionRange>[1.9.0,)</versionRange>
+										<goals>
+											<goal>format</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
