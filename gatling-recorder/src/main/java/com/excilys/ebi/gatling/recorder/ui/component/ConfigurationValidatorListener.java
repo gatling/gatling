@@ -1,4 +1,4 @@
-package com.excilys.ebi.gatling.recorder.ui;
+package com.excilys.ebi.gatling.recorder.ui.component;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -7,28 +7,21 @@ import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
-import javax.swing.JFrame;
 import javax.swing.border.Border;
 
 import org.apache.commons.lang.StringUtils;
 
 import com.excilys.ebi.gatling.recorder.configuration.Configuration;
 import com.excilys.ebi.gatling.recorder.configuration.ConfigurationHelper;
-import com.excilys.ebi.gatling.recorder.ui.component.ConfigurationFrame;
-import com.excilys.ebi.gatling.recorder.ui.component.RunningFrame;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.Filter;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterType;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
 
 public class ConfigurationValidatorListener implements ActionListener {
 
-	private ConfigurationFrame frame;
-
-	public ConfigurationValidatorListener(ConfigurationFrame frame) {
-		this.frame = frame;
-	}
-
 	public void actionPerformed(ActionEvent e) {
+
+		ConfigurationFrame frame = Controller.getInstance().getConfigurationFrame();
 
 		boolean hasError = false;
 		Border defaultBorder = frame.txtProxyHost.getBorder();
@@ -84,9 +77,10 @@ public class ConfigurationValidatorListener implements ActionListener {
 				config.getResultTypes().add(ResultType.valueOf(cb.getText()));
 			}
 		}
+
 		// If nothing was selected we add by default 'text'
 		if (!tmp)
-			config.getResultTypes().add(ResultType.Text);
+			config.getResultTypes().add(ResultType.TEXT);
 
 		if (hasError)
 			return;
@@ -94,15 +88,12 @@ public class ConfigurationValidatorListener implements ActionListener {
 		if (frame.cbSavePref.isSelected())
 			ConfigurationHelper.saveToDisk(config);
 
-		displayConfiguration(config);
+		logConfiguration(config);
 
-		/* Hide the configuration frame and display the running frame */
-		frame.setVisible(false);
-		JFrame runningFrame = new RunningFrame(config);
-		runningFrame.setVisible(true);
+		Controller.getInstance().onConfigurationValidated(config);
 	}
 
-	public void displayConfiguration(Configuration conf) {
+	public void logConfiguration(Configuration conf) {
 		System.out.println("Configuration");
 		System.out.println("-------------");
 		System.out.println("Proxy port: " + conf.getProxyPort());
