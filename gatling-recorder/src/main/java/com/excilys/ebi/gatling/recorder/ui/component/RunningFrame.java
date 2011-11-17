@@ -3,19 +3,37 @@ package com.excilys.ebi.gatling.recorder.ui.component;
 import static com.excilys.ebi.gatling.recorder.ui.Constants.GATLING_REQUEST_BODIES_DIRECTORY_NAME;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.EventObject;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.*;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextField;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
@@ -37,7 +55,9 @@ import com.excilys.ebi.gatling.recorder.ui.event.HttpEvent;
 @SuppressWarnings("serial")
 public class RunningFrame extends JFrame implements ProxyListener {
 
+	private Configuration configuration;
 	private GatlingHttpProxy proxy;
+	private Date startDate;
 
 	private JTextField txtTag = new JTextField(10);
 	private JButton btnTag = new JButton("Set");
@@ -53,25 +73,7 @@ public class RunningFrame extends JFrame implements ProxyListener {
 	private TreeMap<String, String> urls = new TreeMap<String, String>();
 	private TreeMap<String, Map<String, String>> headers = new TreeMap<String, Map<String, String>>();
 
-	private Filter filter;
-	private FilterType filterType;
-	private List<String> filters;
-	private String resultPath;
-	private List<ResultType> resultType;
-	private Date date = new Date();
-	private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-
-	public RunningFrame(Configuration conf) {
-
-		filter = conf.getFilter();
-		filterType = conf.getFilterType();
-		filters = conf.getFilters();
-		resultPath = conf.getResultPath();
-		resultType = conf.getResultTypes();
-
-		proxy = new GatlingHttpProxy(conf.getProxyPort(), conf.getOutgoingProxyHost(), conf.getOutgoingProxyPort());
-		proxy.addProxyListener(this);
-		proxy.start();
+	public RunningFrame() {
 
 		/* Initialization of the frame */
 		setTitle("Recorder running...");
@@ -185,13 +187,23 @@ public class RunningFrame extends JFrame implements ProxyListener {
 
 		btnStop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				saveScenario();
-				proxy.shutdown();
-				setVisible(false);
-				JFrame confFrame = new ConfigurationFrame();
-				confFrame.setVisible(true);
+				stop();
 			}
 		});
+	}
+
+	public void start(Configuration configuration) {
+		this.configuration = configuration;
+		startDate = new Date();
+		proxy = new GatlingHttpProxy(configuration.getProxyPort(), configuration.getOutgoingProxyHost(), configuration.getOutgoingProxyPort());
+		proxy.addProxyListener(this);
+		proxy.start();
+	}
+
+	private void stop() {
+		saveScenario();
+		proxy.shutdown();
+		Controller.getInstance().onStop();
 	}
 
 	public void onHttpRequest(ProxyEvent e) {
@@ -211,38 +223,40 @@ public class RunningFrame extends JFrame implements ProxyListener {
 			uri = new URI(request.getUri());
 		} catch (URISyntaxException ex) {
 			System.err.println("Can't create URI from request uri (" + request.getUri() + ")" + ex.getStackTrace());
+			// FIXME error handling
+			return false;
 		}
 
-		if (!FilterType.All.equals(filterType)) {
+		if (configuration.getFilterType() == FilterType.All) {
 			Pattern pattern;
 			Matcher matcher;
-			if (Filter.Java.equals(filter)) {
+			if (configuration.getFilter() == Filter.Java) {
 
-				if (FilterType.Only.equals(filterType)) {
-					for (String f : filters) {
+				if (configuration.getFilterType() == FilterType.Only) {
+					for (String f : configuration.getFilters()) {
 						pattern = Pattern.compile(f);
 						matcher = pattern.matcher(uri.toString());
 						if (!matcher.find())
 							add = false;
 					}
-				} else if (FilterType.Except.equals(filterType)) {
-					for (String f : filters) {
+				} else if (configuration.getFilterType() == FilterType.Except) {
+					for (String f : configuration.getFilters()) {
 						pattern = Pattern.compile(f);
 						matcher = pattern.matcher(uri.toString());
 						if (matcher.find())
 							add = false;
 					}
 				}
-			} else if (Filter.Ant.equals(filter)) {
-				if (FilterType.Only.equals(filterType)) {
-					for (String f : filters) {
+			} else if (configuration.getFilter() == Filter.Ant) {
+				if (configuration.getFilterType() == FilterType.Only) {
+					for (String f : configuration.getFilters()) {
 						pattern = Pattern.compile(toRegexp(f));
 						matcher = pattern.matcher(uri.getPath());
 						if (!matcher.find())
 							add = false;
 					}
-				} else if (FilterType.Except.equals(filterType)) {
-					for (String f : filters) {
+				} else if (configuration.getFilterType() == FilterType.Except) {
+					for (String f : configuration.getFilters()) {
 						pattern = Pattern.compile(toRegexp(f));
 						matcher = pattern.matcher(uri.getPath());
 						if (matcher.find())
@@ -320,17 +334,18 @@ public class RunningFrame extends JFrame implements ProxyListener {
 
 	private void dumpRequestBody(int idEvent, String content) {
 		// Dump request body
-		String directoryDump = resultPath + "/" + sdf.format(date) + "_" + GATLING_REQUEST_BODIES_DIRECTORY_NAME;
-		File dir = new File(directoryDump);
+		File dir = new File(configuration.getResultPath(), ResultType.FORMAT.format(startDate) + "_" + GATLING_REQUEST_BODIES_DIRECTORY_NAME);
 		if (!dir.exists())
 			dir.mkdir();
 
 		FileWriter fw = null;
 		try {
-			fw = new FileWriter(directoryDump + "/request_" + idEvent + ".txt");
+			fw = new FileWriter(new File(dir, "request_" + idEvent + ".txt"));
 			fw.write(content);
+
 		} catch (IOException ex) {
 			System.err.println("Error, while dumping request body..." + ex.getStackTrace());
+
 		} finally {
 			if (fw != null) {
 				try {
@@ -358,36 +373,29 @@ public class RunningFrame extends JFrame implements ProxyListener {
 		context.put("name", "Scenario name");
 		context.put("reqs", listRequests);
 
-		Template t = null;
-		FileWriter fw = null;
-		for (ResultType r : resultType) {
+		Template template = null;
+		FileWriter fileWriter = null;
+		for (ResultType resultType : configuration.getResultTypes()) {
+
 			try {
-				if (ResultType.Text.equals(r)) {
-					t = ve.getTemplate("scenarioText.vm");
-					fw = new FileWriter(resultPath + "/" + sdf.format(date) + "_scenario.txt");
-				} else if (ResultType.Scala.equals(r)) {
-					t = ve.getTemplate("scenarioScala.vm");
-					fw = new FileWriter(resultPath + "/" + sdf.format(date) + "_scenario.scala");
-				}
-				t.merge(context, fw);
-				fw.flush();
+				template = ve.getTemplate(resultType.getTemplate());
+				fileWriter = new FileWriter(new File(configuration.getResultPath(), resultType.getScenarioFileName(startDate)));
+				template.merge(context, fileWriter);
+				fileWriter.flush();
 
 			} catch (IOException e) {
-				System.err.println("Error, while saving '" + r + "' scenario..." + e.getStackTrace());
+				System.err.println("Error, while saving '" + resultType + "' scenario..." + e.getStackTrace());
 
 			} finally {
-				if (fw != null) {
+				if (fileWriter != null) {
 					try {
-						fw.close();
+						fileWriter.close();
 					} catch (IOException e) {
 						System.err.println(e);
 					}
 				}
 			}
 		}
-		StringWriter writer = new StringWriter();
-		t.merge(context, writer);
-		System.out.println("\n" + writer.toString());
 	}
 
 	private String toRegexp(String pattern) {

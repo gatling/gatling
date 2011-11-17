@@ -12,7 +12,6 @@ import javax.swing.*;
 
 import com.excilys.ebi.gatling.recorder.configuration.Configuration;
 import com.excilys.ebi.gatling.recorder.configuration.ConfigurationHelper;
-import com.excilys.ebi.gatling.recorder.ui.ConfigurationValidatorListener;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.Filter;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterType;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
@@ -242,7 +241,7 @@ public class ConfigurationFrame extends JFrame {
 			}
 		});
 
-		btnStart.addActionListener(new ConfigurationValidatorListener(this));
+		btnStart.addActionListener(new ConfigurationValidatorListener());
 	}
 
 	private void populateItemsFromConfiguration(Configuration config) {
