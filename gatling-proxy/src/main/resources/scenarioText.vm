@@ -1,0 +1,48 @@
+	val PROTOCOL = "$protocol"
+	val DOMAIN = "$domain"
+#if ($port != -1)
+	val PORT = "$port"
+#end
+	val urlBase = $urlBase
+	
+	val httpConf = httpConfig.baseURL(urlBase)
+	
+#foreach($url in $urls.entrySet())
+	val $url.key = "$url.value"
+#end
+	
+#foreach ($h in $headers.entrySet())
+	val $h.key = Map(
+#foreach ($header in $h.value.entrySet())
+		"$header.key" -> "$header.value"#if($foreach.hasNext), 
+#else
+	
+		)
+#end
+#end
+	
+#end
+	
+	val scn = scenario("$name")
+#foreach($req in $reqs)
+#if($req.class.simpleName == "TagEvent")
+		/* $req.getTag() */
+#else
+		.exec(
+			http("request_$req.getId()")
+			$req.getCorrespondingRequest().getMethod().toString().toLowerCase()(url_$req.getId())
+	#foreach($param in $req.getParams().entrySet())
+#foreach($val in $param.value)
+		param("$param.key", "$val")
+#end
+	#end
+		headers(headers_$req.getId())
+	#if($req.isWithBody())
+		withFile("request_${req.getId()}.txt")
+	#end
+		)
+#end
+#end
+	
+	val scnConf = scn.configure users 1 protocolConfig httpConf
+	runSimulations(scnConf)
