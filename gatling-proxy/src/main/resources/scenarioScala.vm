@@ -1,0 +1,7 @@
+import com.excilys.ebi.gatling.core.Predef._
+import com.excilys.ebi.gatling.http.Predef._
+
+class Simulation extends GatlingSimulation {
+#parse("scenarioText.vm")
+
+}
