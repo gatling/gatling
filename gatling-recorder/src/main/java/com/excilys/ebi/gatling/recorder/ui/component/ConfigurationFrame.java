@@ -304,7 +304,7 @@ public class ConfigurationFrame extends JFrame {
 		txtResultPath.setText(config.getResultPath());
 		for (JCheckBox cb : listResultsType)
 			for (ResultType resultType : config.getResultTypes())
-				if (cb.getText().equals(resultType.name()))
+				if (cb.getText().equals(resultType.getLabel()))
 					cb.setSelected(true);
 	}
 
