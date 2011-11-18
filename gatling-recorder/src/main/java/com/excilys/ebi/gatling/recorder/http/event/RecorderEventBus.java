@@ -13,8 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.ui.enumeration;
+package com.excilys.ebi.gatling.recorder.http.event;
 
-public enum Filter {
-	Java, Ant;
+import com.google.common.eventbus.EventBus;
+
+public class RecorderEventBus {
+
+	private static final EventBus EVENT_BUS = new EventBus();
+	
+	private RecorderEventBus() {
+		throw new UnsupportedOperationException();
+	}
+	
+	public static EventBus getEventBus() {
+		return EVENT_BUS;
+	}
 }

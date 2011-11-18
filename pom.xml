@@ -83,6 +83,8 @@
 		<velocity.version>1.7</velocity.version>
 		<xstream.version>1.4.2</xstream.version>
 		<commons-lang.version>2.6</commons-lang.version>
+		<commons-io.version>2.1</commons-io.version>
+		<guava.version>10.0.1</guava.version>
 
 		<maven-assembly-plugin.version>2.2.1</maven-assembly-plugin.version>
 		<maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
@@ -246,6 +248,16 @@
 				<groupId>commons-lang</groupId>
 				<artifactId>commons-lang</artifactId>
 				<version>${commons-lang.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>${commons-io.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>${guava.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

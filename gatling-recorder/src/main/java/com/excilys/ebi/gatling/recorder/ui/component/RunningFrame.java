@@ -1,7 +1,24 @@
+/**
+ * Copyright 2011 eBusiness Information, Groupe Excilys (www.excilys.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.excilys.ebi.gatling.recorder.ui.component;
 
+import static com.excilys.ebi.gatling.recorder.http.event.RecorderEventBus.getEventBus;
 import static com.excilys.ebi.gatling.recorder.ui.Constants.GATLING_REQUEST_BODIES_DIRECTORY_NAME;
 import static org.apache.commons.lang.StringUtils.EMPTY;
+import static org.apache.commons.io.IOUtils.closeQuietly;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -18,7 +35,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.EventObject;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -44,16 +60,17 @@ import org.jboss.netty.handler.codec.http.QueryStringDecoder;
 
 import com.excilys.ebi.gatling.recorder.configuration.Configuration;
 import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy;
-import com.excilys.ebi.gatling.recorder.http.event.ProxyEvent;
-import com.excilys.ebi.gatling.recorder.http.event.ProxyListener;
+import com.excilys.ebi.gatling.recorder.http.event.ResponseReceivedEvent;
+import com.excilys.ebi.gatling.recorder.http.event.ShowConfigurationFrameEvent;
+import com.excilys.ebi.gatling.recorder.http.event.ShowRunningFrameEvent;
 import com.excilys.ebi.gatling.recorder.http.event.TagEvent;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.Filter;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterType;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
-import com.excilys.ebi.gatling.recorder.ui.event.HttpEvent;
+import com.google.common.eventbus.Subscribe;
 
 @SuppressWarnings("serial")
-public class RunningFrame extends JFrame implements ProxyListener {
+public class RunningFrame extends JFrame {
 
 	private Configuration configuration;
 	private GatlingHttpProxy proxy;
@@ -64,7 +81,7 @@ public class RunningFrame extends JFrame implements ProxyListener {
 	private DefaultListModel listElements = new DefaultListModel();
 	private JList listExecutedRequests = new JList(listElements);
 
-	private List<EventObject> listRequests = new ArrayList<EventObject>();
+	private List<Object> listRequests = new ArrayList<Object>();
 	private String protocol;
 	private String domain;
 	private int port;
@@ -154,11 +171,11 @@ public class RunningFrame extends JFrame implements ProxyListener {
 			public void mouseClicked(MouseEvent e) {
 				if (listExecutedRequests.getSelectedIndex() >= 0) {
 					Object obj = listRequests.get(listExecutedRequests.getSelectedIndex());
-					if (obj instanceof HttpEvent) {
-						HttpEvent request = (HttpEvent) obj;
-						stringRequest.txt.setText(request.getStringRequest());
-						stringResponse.txt.setText(request.getStringResponse());
-						stringRequestBody.txt.setText(request.getContent());
+					if (obj instanceof ResponseReceivedEvent) {
+						ResponseReceivedEvent event = (ResponseReceivedEvent) obj;
+						stringRequest.txt.setText(event.getRequest().toString());
+						stringResponse.txt.setText(event.getResponse().toString());
+						stringRequestBody.txt.setText(new String(event.getRequest().getContent().array()));
 					} else {
 						stringRequest.txt.setText(EMPTY);
 						stringResponse.txt.setText(EMPTY);
@@ -187,36 +204,37 @@ public class RunningFrame extends JFrame implements ProxyListener {
 
 		btnStop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				stop();
+				saveScenario();
+				proxy.shutdown();
+				proxy = null;
+				getEventBus().post(new ShowConfigurationFrameEvent());
+
 			}
 		});
 	}
 
-	public void start(Configuration configuration) {
-		this.configuration = configuration;
+	@Subscribe
+	public void onShowConfigurationFrameEvent(ShowConfigurationFrameEvent event) {
+		setVisible(false);
+	}
+
+	@Subscribe
+	public void onShowRunningFrameEvent(ShowRunningFrameEvent event) {
+		setVisible(true);
+		configuration = event.getConfiguration();
 		startDate = new Date();
 		proxy = new GatlingHttpProxy(configuration.getProxyPort(), configuration.getOutgoingProxyHost(), configuration.getOutgoingProxyPort());
-		proxy.addProxyListener(this);
 		proxy.start();
 	}
 
-	private void stop() {
-		saveScenario();
-		proxy.shutdown();
-		Controller.getInstance().onStop();
+	@Subscribe
+	public void onResponseReceivedEvent(ResponseReceivedEvent event) {
+
+		if (addRequest(event.getRequest()))
+			processRequest(event);
 	}
 
-	public void onHttpRequest(ProxyEvent e) {
-
-	}
-
-	public void onHttpResponse(ProxyEvent e) {
-		if (addRequest(e))
-			processRequest(e);
-	}
-
-	private boolean addRequest(ProxyEvent e) {
-		HttpRequest request = e.getOriginalRequest();
+	private boolean addRequest(HttpRequest request) {
 		boolean add = true;
 		URI uri = null;
 		try {
@@ -268,9 +286,9 @@ public class RunningFrame extends JFrame implements ProxyListener {
 		return add;
 	}
 
-	private void processRequest(ProxyEvent e) {
+	private void processRequest(ResponseReceivedEvent event) {
 
-		HttpRequest request = e.getOriginalRequest();
+		HttpRequest request = event.getRequest();
 
 		URI uri = null;
 		try {
@@ -283,7 +301,7 @@ public class RunningFrame extends JFrame implements ProxyListener {
 		listExecutedRequests.ensureIndexIsVisible(listElements.getSize() - 1);
 
 		int id = listRequests.size() + 1;
-		e.setId(id);
+		event.setId(id);
 
 		/* URLs */
 		if (urlBase == null) {
@@ -315,7 +333,7 @@ public class RunningFrame extends JFrame implements ProxyListener {
 
 		/* Params */
 		QueryStringDecoder decoder = new QueryStringDecoder(request.getUri());
-		e.getRequestParams().putAll((decoder.getParameters()));
+		event.getRequestParams().putAll((decoder.getParameters()));
 
 		/* Content */
 		if (request.getContent().capacity() > 0) {
@@ -323,13 +341,13 @@ public class RunningFrame extends JFrame implements ProxyListener {
 			// We check if it's a form validation and so we extract post params
 			if ("application/x-www-form-urlencoded".equals(request.getHeader("Content-Type"))) {
 				decoder = new QueryStringDecoder("http://localhost/?" + content);
-				e.getRequestParams().putAll(decoder.getParameters());
+				event.getRequestParams().putAll(decoder.getParameters());
 			} else {
-				e.setWithBody(true);
+				event.setWithBody(true);
 				dumpRequestBody(id, content);
 			}
 		}
-		listRequests.add(e);
+		listRequests.add(event);
 	}
 
 	private void dumpRequestBody(int idEvent, String content) {
@@ -347,14 +365,7 @@ public class RunningFrame extends JFrame implements ProxyListener {
 			System.err.println("Error, while dumping request body..." + ex.getStackTrace());
 
 		} finally {
-			if (fw != null) {
-				try {
-					fw.flush();
-					fw.close();
-				} catch (IOException ioe) {
-					System.err.println(ioe);
-				}
-			}
+			closeQuietly(fw);
 		}
 	}
 
@@ -387,13 +398,7 @@ public class RunningFrame extends JFrame implements ProxyListener {
 				System.err.println("Error, while saving '" + resultType + "' scenario..." + e.getStackTrace());
 
 			} finally {
-				if (fileWriter != null) {
-					try {
-						fileWriter.close();
-					} catch (IOException e) {
-						System.err.println(e);
-					}
-				}
+				closeQuietly(fileWriter);
 			}
 		}
 	}
