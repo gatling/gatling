@@ -43,7 +43,7 @@ abstract class HttpCheckBuilder[B <: HttpCheckBuilder[B]](what: Context => Strin
 	 *
 	 * @param to the attribute name in which the value will be stored
 	 */
-	def in(to: String) = newInstance(what, Some(to), strategy, expected, when)
+	def saveAs(to: String) = newInstance(what, Some(to), strategy, expected, when)
 
 	override def build: HttpCheck
 }

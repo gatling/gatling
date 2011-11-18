@@ -34,8 +34,8 @@ val scn = scenario("User of Excilys Bank")
 		.exec(http("Authenticating") post(urlLoginPost) param ("username") param ("password") headers(headers) check(status(302)))
 		// Home page
 		.exec(http("Home") get(urlHome) headers(headers)
-			check(regexp("""<a href="/excilys-bank-web/private/bank/account/(ACC[0-9]*)/operations.html">""", 0) in "acc1")
-			check(regexp("""<a href="/excilys-bank-web/private/bank/account/(ACC[0-9]*)/operations.html">""", 1) in "acc2")
+			check(regexp("""<a href="/excilys-bank-web/private/bank/account/(ACC[0-9]*)/operations.html">""", 0) saveAs "acc1")
+			check(regexp("""<a href="/excilys-bank-web/private/bank/account/(ACC[0-9]*)/operations.html">""", 1) saveAs "acc2")
 		)
 		.pause(5, 6)
 		.loop(
