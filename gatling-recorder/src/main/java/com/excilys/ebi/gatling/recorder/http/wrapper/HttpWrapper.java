@@ -1,4 +1,4 @@
-package com.excilys.ebi.gatling.recorder.wrapper;
+package com.excilys.ebi.gatling.recorder.http.wrapper;
 
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpResponse;
