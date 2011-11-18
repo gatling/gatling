@@ -1,0 +1,22 @@
+<%@ val numberOfRequests: Int %>
+<%@ val min: Int %>
+<%@ val max: Int %>
+<%@ val average: Double %>
+<%@ val stdDeviation: Double %>
+<div id="statistics">
+	<div class="green_block">
+		<h1>Statistics</h1>
+		<h2>about that request</h2>
+		<ul>
+			<li>Executed <b><%= numberOfRequests %></b> times</li>
+			<li>Response Time:
+				<ul>
+					<li>Min : <b><%= min %>ms</b></li>
+					<li>Max : <b><%= max %>ms</b></li>
+					<li>Average : <b><%= average %>ms</b></li>
+					<li>Standard Deviation : <b><%= stdDeviation %></b></li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+</div>

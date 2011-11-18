@@ -1,0 +1,20 @@
+<%@ val requestLinks: List[(String,Option[String],String)] %>
+
+$(document).ready(function() { 
+	$("#details ul").append("<%= requestLinks.map{ entry => "<li><a href='" + entry._1 + "' " + (if(entry._2.isDefined) "title='" + entry._2.get + "'" else "") + ">" + entry._3 + "</a></li>" } %>");
+	setActiveMenu();
+});
+
+function getLink(link){
+	var a = link.split('/');
+	return (a.length<=1)? link : a[a.length-1].toLowerCase();
+}
+ 
+function setActiveMenu(){
+	$("#menu a").each(function(){
+		if($(this).attr('href') == getLink(window.location.pathname)){
+			$(this).parent().attr('class', 'active_link');
+			return false;
+		}
+	});
+}

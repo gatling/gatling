@@ -1,0 +1,53 @@
+<%@ val jsFiles: Seq[String] %>
+<%@ val pageTitle: String %>
+<%@ val pageSubTitle: String %>
+<%@ val pageContent: String %>
+<%@ val javascript: String %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Gatling Stats - <%= pageTitle %></title>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+<% for (jsFile <- jsFiles) { %>
+<script type="text/javascript" src="js/<%= jsFile %>"></script>
+<% } %>
+</head>
+<body>
+	<div id="header">
+		<div id="header_title">Gatling</div>
+	</div>
+
+	<div id="body">
+		<h1>20111114113915 - Simulation</h1>
+		<ul id="menu">
+			<li id="global"><p>Global</p>
+				<ul>
+					<li><a href="active_sessions.html">Active Sessions</a></li>
+					<li><a href="requests.html">Requests /s</a></li>
+				</ul></li>
+			<li id="details"><p>Details</p>
+				<ul></ul></li>
+			<!-- <li id="groups"><p>Groups</p>
+				<ul></ul></li>-->
+		</ul>
+		<div id="content">
+			<div id="page_title">
+				<span class="green_block">
+					<h1><%= pageTitle %></h1>
+					<h2><%= pageSubTitle %></h2>
+				</span>
+			</div>
+
+			<%= pageContent %>
+
+		</div>
+		<div id="footer"></div>
+	</div>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			<%= javascript %>
+		});
+	</script>
+</body>
+</html>
