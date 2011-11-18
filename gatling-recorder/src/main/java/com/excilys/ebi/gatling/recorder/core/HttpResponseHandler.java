@@ -28,9 +28,11 @@ import com.excilys.ebi.gatling.recorder.http.event.ResponseReceivedEvent;
 
 public class HttpResponseHandler extends SimpleChannelHandler {
 	private final HttpRequest request;
+	private final ChannelHandlerContext requestContext;
 
 	public HttpResponseHandler(ChannelHandlerContext context, HttpRequest request) {
 		this.request = request;
+		requestContext = context;
 	}
 
 	@Override
@@ -43,8 +45,7 @@ public class HttpResponseHandler extends SimpleChannelHandler {
 		getEventBus().post(new ResponseReceivedEvent(request, response));
 
 		// Send back to client
-		context.getChannel().write(response);
-
-		context.sendUpstream(e);
+		requestContext.getChannel().write(response);
+		requestContext.sendUpstream(e);
 	}
 }
