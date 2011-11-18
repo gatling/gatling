@@ -53,7 +53,12 @@ object ReportsGenerator {
 
 	private def generateMenu(runOn: String, dataLoader: DataLoader) = {
 
-		val requestLinks: List[(String, String)] = dataLoader.requestNames.map { name => (formatToFilename(name) + HTML_EXTENSION, name.substring(8)) }
+		val requestLinks: List[(String, Option[String], String)] = dataLoader.requestNames.map {
+			requestName =>
+				val title = if (requestName.length > 36) Some(requestName.substring(8)) else None
+				val printedName = if (requestName.length > 36) requestName.substring(8, 36) + "..." else requestName.substring(8)
+				(formatToFilename(requestName) + HTML_EXTENSION, title, printedName)
+		}
 
 		val template = new MenuTemplate(requestLinks)
 
