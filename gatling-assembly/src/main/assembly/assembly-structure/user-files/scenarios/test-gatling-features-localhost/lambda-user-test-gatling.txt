@@ -8,7 +8,7 @@ val testData = new TSVFeeder("test-data", List("omg", "socool"))
 val lambdaUser = scenario("Standard User")
   .insertChain(loginChain)
   // First request outside iteration
-  .loop( chain.exec(http("Catégorie Poney").get("/").queryParam("omg", FromContext("omg")).queryParam("socool", FromContext("socool")).capture(xpath("//input[@id='text1']/@value") in "aaaa_value").feeder(testData)) )
+  .loop( chain.exec(http("Catégorie Poney").get("/").queryParam("omg", SavedValue("omg")).queryParam("socool", SavedValue("socool")).capture(xpath("//input[@id='text1']/@value") in "aaaa_value").feeder(testData)) )
   .times(2)
   .pause(pause2, pause3)
   // Loop
@@ -60,16 +60,16 @@ val lambdaUser = scenario("Standard User")
       .exec(http("Url from context").get("/aaaa"))
       .pause(1000, 3000, MILLISECONDS)
       // Second request to be repeated
-      .exec(http("Create Thing blabla").post("/things").queryParam("login", FromContext("login")).queryParam("password", FromContext("password")).withTemplateBody("create_thing", Map("name" -> "blabla")).asJSON)
+      .exec(http("Create Thing blabla").post("/things").queryParam("login", SavedValue("login")).queryParam("password", SavedValue("password")).withTemplateBody("create_thing", Map("name" -> "blabla")).asJSON)
       .pause(pause1)
       .endGroup(loginGroup)
       // Third request to be repeated
-      .exec(http("Liste Articles") get("/things") queryParam ("firstname", FromContext("firstname")) queryParam ("lastname", FromContext("lastname")))
+      .exec(http("Liste Articles") get("/things") queryParam ("firstname", SavedValue("firstname")) queryParam ("lastname", SavedValue("lastname")))
       .pause(pause1)
       .exec(http("Test Page") get("/tests") check(headerEquals(CONTENT_TYPE, "text/html; charset=utf-8") in "ctxParam"))
       // Fourth request to be repeated
       .exec(http("Create Thing omgomg")
-              .post("/things").queryParam("postTest", FromContext("ctxParam")).withTemplateBody("create_thing", Map("name" -> FromContext("ctxParam"))).asJSON
+              .post("/things").queryParam("postTest", SavedValue("ctxParam")).withTemplateBody("create_thing", Map("name" -> SavedValue("ctxParam"))).asJSON
               .check(status(201) in "status"))
   ).counterName("titi").times(iterations)
   // Second request outside iteration

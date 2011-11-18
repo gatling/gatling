@@ -21,7 +21,7 @@ import org.fusesource.scalate.Binding
 import org.fusesource.scalate.TemplateEngine
 
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.context.FromContext
+import com.excilys.ebi.gatling.core.context.SavedValue
 import com.excilys.ebi.gatling.core.util.FileHelper.SSP_EXTENSION
 import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_REQUEST_BODIES_FOLDER
 import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_TEMPLATES_FOLDER
@@ -99,7 +99,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 		val encapsulatedValues: Map[String, Param] = values.map {
 			value =>
 				(value._1, value._2 match {
-					case FromContext(s) => ContextParam(s)
+					case SavedValue(s) => ContextParam(s)
 					case s => StringParam(s.toString)
 				})
 		}

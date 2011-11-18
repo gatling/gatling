@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.http.request.builder
 
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.context.FromContext
+import com.excilys.ebi.gatling.core.context.SavedValue
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.request.ContextParam
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
@@ -80,20 +80,20 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 * Adds a parameter to the request
 	 *
 	 * @param paramKey the ley of the parameter
-	 * @param paramValue a FromContext(contextKey) that indicates the context key from which the value should be extracted
+	 * @param paramValue a SavedValue(contextKey) that indicates the context key from which the value should be extracted
 	 */
-	def param(paramKey: String, paramValue: FromContext): B = {
+	def param(paramKey: String, paramValue: SavedValue): B = {
 		newInstance(httpRequestActionBuilder, urlFunction, queryParams, params + (paramKey -> ContextParam(paramValue.attributeKey)), headers, body, followsRedirects, credentials)
 	}
 
 	/**
 	 * Adds a parameter to the request
 	 *
-	 * This method is equivalent to param(paramKey, FromContext(paramKey))
+	 * This method is equivalent to param(paramKey, SavedValue(paramKey))
 	 *
 	 * @param paramKey the key of the parameter
 	 */
-	def param(paramKey: String): B = param(paramKey, FromContext(paramKey))
+	def param(paramKey: String): B = param(paramKey, SavedValue(paramKey))
 
 	/**
 	 * This method adds the parameters to the request builder

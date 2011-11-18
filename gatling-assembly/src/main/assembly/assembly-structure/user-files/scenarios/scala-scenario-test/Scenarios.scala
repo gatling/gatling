@@ -77,8 +77,8 @@ object Scenarios {
 
 				// Transfer performing
 				.exec(http("Transfer performing") post(urlAccountTransferPerform, "acc1")
-					param ("debitedAccountNumber", FromContext("acc1"))
-					param ("creditedAccountNumber", FromContext("acc2"))
+					param ("debitedAccountNumber", SavedValue("acc1"))
+					param ("creditedAccountNumber", SavedValue("acc2"))
 					param ("amount", "10")
 					headers(headers)
 					check(status(302)))

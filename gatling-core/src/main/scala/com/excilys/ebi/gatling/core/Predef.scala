@@ -36,7 +36,7 @@ object Predef {
 	type TSVFeeder = feeder.TSVFeeder
 
 	type Context = context.Context
-	val FromContext = context.FromContext
+	val FromContext = context.SavedValue
 
 	val MILLISECONDS = TimeUnit.MILLISECONDS
 	val SECONDS = TimeUnit.SECONDS

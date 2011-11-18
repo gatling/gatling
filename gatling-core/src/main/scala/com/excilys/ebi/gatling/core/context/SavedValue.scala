@@ -23,4 +23,4 @@ package com.excilys.ebi.gatling.core.context
  *
  * @param attributeKey the key of the value requested
  */
-case class FromContext(attributeKey: String)
+case class SavedValue(attributeKey: String)

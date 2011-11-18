@@ -21,7 +21,7 @@ import com.ning.http.client.FluentStringsMap
 import com.ning.http.client.FluentCaseInsensitiveStringsMap
 import org.fusesource.scalate._
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.context.FromContext
+import com.excilys.ebi.gatling.core.context.SavedValue
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration._
@@ -121,7 +121,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * @param paramKey the key of the context containing the name of the key
 	 * @param paramValue the key of the context containing the value of the parameter
 	 */
-	def queryParam(paramKey: FromContext, paramValue: FromContext): B = queryParam((c: Context) => c.getAttribute(paramKey.attributeKey).toString, (c: Context) => Some(c.getAttribute(paramValue.attributeKey).toString))
+	def queryParam(paramKey: SavedValue, paramValue: SavedValue): B = queryParam((c: Context) => c.getAttribute(paramKey.attributeKey).toString, (c: Context) => Some(c.getAttribute(paramValue.attributeKey).toString))
 	/**
 	 * Adds a query parameter to the request
 	 *
@@ -129,7 +129,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 *
 	 * @param paramValue the key of the context containing the value of the parameter
 	 */
-	def queryParam(paramKey: String, paramValue: FromContext): B = queryParam((c: Context) => paramKey, (c: Context) => Some(c.getAttribute(paramValue.attributeKey).toString))
+	def queryParam(paramKey: String, paramValue: SavedValue): B = queryParam((c: Context) => paramKey, (c: Context) => Some(c.getAttribute(paramValue.attributeKey).toString))
 	/**
 	 * Adds a query parameter to the request
 	 *
@@ -137,7 +137,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 *
 	 * @param paramKey the key of the context containing the name of the key
 	 */
-	def queryParam(paramKey: FromContext, paramValue: String): B = queryParam((c: Context) => c.getAttribute(paramKey.attributeKey).toString, (c: Context) => Some(paramValue))
+	def queryParam(paramKey: SavedValue, paramValue: String): B = queryParam((c: Context) => c.getAttribute(paramKey.attributeKey).toString, (c: Context) => Some(paramValue))
 	/**
 	 * Adds a query parameter to the request
 	 *
@@ -153,7 +153,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 *
 	 * @param paramKey the key of the context containing the name of the key
 	 */
-	def queryParam(paramKey: FromContext): B = queryParam((c: Context) => c.getAttribute(paramKey.attributeKey).toString, (c: Context) => None)
+	def queryParam(paramKey: SavedValue): B = queryParam((c: Context) => c.getAttribute(paramKey.attributeKey).toString, (c: Context) => None)
 
 	/**
 	 * Adds a header to the request
