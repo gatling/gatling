@@ -32,6 +32,8 @@ import com.excilys.ebi.gatling.charts.template.RequestDetailsPageTemplate
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
+import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_CHARTING_INDICATORS_HIGHER_BOUND
+import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_CHARTING_INDICATORS_LOWER_BOUND
 import com.excilys.ebi.gatling.core.util.FileHelper.HTML_EXTENSION
 import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
@@ -51,7 +53,7 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 
 				// Get Data
 				val responseTimesData = responseTimeByMillisecondAsList(dataMillis)
-				val indicatorsColumnData = numberOfRequestInResponseTimeRange(dataList, 100, 500) // FIXME make boundaries configurable
+				val indicatorsColumnData = numberOfRequestInResponseTimeRange(dataList, CONFIG_CHARTING_INDICATORS_LOWER_BOUND, CONFIG_CHARTING_INDICATORS_HIGHER_BOUND) // FIXME make boundaries configurable
 				val indicatorsPieData = {
 					val numberOfRequests = dataList.size
 					indicatorsColumnData.map { entry => entry._1 -> (entry._2 / numberOfRequests.toDouble * 100).toInt }
