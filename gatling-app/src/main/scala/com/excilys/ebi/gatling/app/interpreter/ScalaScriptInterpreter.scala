@@ -15,15 +15,16 @@
  */
 package com.excilys.ebi.gatling.app.interpreter
 
-import java.io.{StringWriter, PrintWriter, File}
+import java.io.{ StringWriter, PrintWriter, File }
 
 import scala.tools.nsc.interpreter.AbstractFileClassLoader
 import scala.tools.nsc.io.VirtualDirectory
 import scala.tools.nsc.reporters.ConsoleReporter
-import scala.tools.nsc.{Settings, Global}
+import scala.tools.nsc.{ Settings, Global }
 
 import org.joda.time.DateTime
 
+import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_SIMULATION_SCALA_PACKAGE
 import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_SCENARIOS_FOLDER
 import com.excilys.ebi.gatling.core.util.ReflectionHelper.getNewInstanceByClassName
 
@@ -43,7 +44,7 @@ class ScalaScriptInterpreter extends Interpreter {
 	 */
 	def run(fileName: String, startDate: DateTime) {
 		compile(new File(GATLING_SCENARIOS_FOLDER, fileName))
-		val runner = getNewInstanceByClassName[App]("Simulation", classLoader)
+		val runner = getNewInstanceByClassName[App](CONFIG_SIMULATION_SCALA_PACKAGE + "Simulation", classLoader)
 		runner.main(Array(startDate.toString));
 	}
 
