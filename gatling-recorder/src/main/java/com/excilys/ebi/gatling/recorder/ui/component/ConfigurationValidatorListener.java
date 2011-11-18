@@ -74,7 +74,7 @@ public class ConfigurationValidatorListener implements ActionListener {
 		for (JCheckBox cb : frame.listResultsType) {
 			if (cb.isSelected()) {
 				tmp = true;
-				config.getResultTypes().add(ResultType.valueOf(cb.getText()));
+				config.getResultTypes().add(ResultType.getByLabel(cb.getText()));
 			}
 		}
 

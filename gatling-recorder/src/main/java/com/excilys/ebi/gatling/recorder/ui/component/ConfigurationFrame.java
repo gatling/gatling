@@ -52,7 +52,7 @@ public class ConfigurationFrame extends JFrame {
 		for (FilterType ft : FilterType.values())
 			cbFilterType.addItem(ft);
 		for (ResultType rt : ResultType.values())
-			listResultsType.add(new JCheckBox(rt.name()));
+			listResultsType.add(new JCheckBox(rt.getLabel()));
 		cbSavePref.setHorizontalTextPosition(SwingConstants.LEFT);
 		JButton btnClear = new JButton("Clear");
 		JButton btnStart = new JButton("Start !");

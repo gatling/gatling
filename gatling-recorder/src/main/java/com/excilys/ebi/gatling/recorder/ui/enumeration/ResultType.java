@@ -36,4 +36,13 @@ public enum ResultType {
 	public String getLabel() {
 		return label;
 	}
+	
+	public static ResultType getByLabel(String label) {
+		for (ResultType value : ResultType.values()) {
+			if (value.label.equals(label)) {
+				return value;
+			}
+		}
+		return null;
+	}
 }
