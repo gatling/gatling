@@ -285,12 +285,16 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * @param context the context of the current scenario
 	 */
 	private def addQueryParamsTo(requestBuilder: RequestBuilder, context: Context) = {
-		for (queryParam <- queryParams) {
-			val (keyFunction, valueFunction) = queryParam
-			val (key, value) = (keyFunction.apply(context), valueFunction.apply(context).getOrElse(EMPTY))
-			logger.debug("Key: '{}', Value: '{}'", key, value)
-			requestBuilder addQueryParameter (key, value)
+		val queryParamsMap = new FluentStringsMap
+
+		val keyValues = for ((keyFunction, valueFunction) <- queryParams) yield (keyFunction.apply(context), valueFunction.apply(context).getOrElse(EMPTY))
+
+		keyValues.groupBy(entry => entry._1).foreach { entry =>
+			val (key, values) = entry
+			queryParamsMap.add(key, values.map { value => value._2 }: _*)
 		}
+
+		requestBuilder setQueryParameters queryParamsMap
 	}
 
 	/**

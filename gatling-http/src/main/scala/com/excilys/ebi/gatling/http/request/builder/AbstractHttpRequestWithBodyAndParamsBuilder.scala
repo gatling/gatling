@@ -20,6 +20,7 @@ import com.excilys.ebi.gatling.core.context.SavedValue
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.ning.http.client.RequestBuilder
+import com.ning.http.client.FluentStringsMap
 
 /**
  * This class serves as model to HTTP request with a body and parameters
@@ -41,7 +42,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	override def getRequestBuilder(context: Context): RequestBuilder = {
 		val requestBuilder = super.getRequestBuilder(context)
 		logger.debug("Building in with body and params")
-		addParamsTo(requestBuilder, params, context)
+		addParamsTo(requestBuilder, context)
 		requestBuilder
 	}
 
@@ -96,9 +97,16 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 * @param params the parameters that should be added
 	 * @param context the context of the current scenario
 	 */
-	private def addParamsTo(requestBuilder: RequestBuilder, params: List[(Context => String, Context => String)], context: Context) = {
-		for ((keyFunction, valueFunction) <- params) {
-			requestBuilder addParameter (keyFunction.apply(context), valueFunction.apply(context))
+	private def addParamsTo(requestBuilder: RequestBuilder, context: Context) = {
+		val paramsMap = new FluentStringsMap
+
+		val keyValues = for ((keyFunction, valueFunction) <- params) yield (keyFunction.apply(context), valueFunction.apply(context))
+
+		keyValues.groupBy(entry => entry._1).foreach { entry =>
+			val (key, values) = entry
+			paramsMap.add(key, values.map { value => value._2 }: _*)
 		}
+
+		requestBuilder setParameters paramsMap
 	}
 }
