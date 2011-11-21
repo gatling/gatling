@@ -37,7 +37,7 @@ object HttpRequestAction {
 	/**
 	 * This is the default HTTP check used to verify that the response status is 2XX
 	 */
-	val DEFAULT_HTTP_STATUS_CHECK = statusInRange(Range(200, 210)).build
+	val DEFAULT_HTTP_STATUS_CHECK = status.in(200 to 210).build
 
 	/**
 	 * The HTTP client used to send the requests
@@ -59,20 +59,20 @@ object HttpRequestAction {
 class HttpRequestAction(next: Action, request: HttpRequest, givenCheckBuilders: Option[List[HttpCheckBuilder[_]]], groups: List[String], feeder: Option[Feeder])
 		extends RequestAction[Response](next, request, givenCheckBuilders, groups, feeder) {
 
-	var captures = new MHashSet[HttpCheck]
+	var checks = new MHashSet[HttpCheck]
 
 	givenCheckBuilders.map {
 		list =>
 			{
-				for (captureBuilder <- list) {
-					val capture = captureBuilder.build
-					captures.add(capture)
-					logger.debug("  -- Building {} with phase {}", capture, capture.when)
+				for (checkBuilder <- list) {
+					val check = checkBuilder.build
+					checks.add(check)
+					logger.debug("  -- Building {} with phase {}", check, check.when)
 				}
 
 				// add default HttpStatusCheck if none was set
-				if (captures.find(_.isInstanceOf[HttpStatusCheck]).isEmpty) {
-					captures.add(HttpRequestAction.DEFAULT_HTTP_STATUS_CHECK)
+				if (checks.find(_.isInstanceOf[HttpStatusCheck]).isEmpty) {
+					checks.add(HttpRequestAction.DEFAULT_HTTP_STATUS_CHECK)
 				}
 			}
 	}
@@ -87,6 +87,6 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenCheckBuilders: 
 			feeder => context.setAttributes(feeder.next)
 		}
 
-		HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new GatlingAsyncHandler(context, captures, next, request.name, groups))
+		HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new GatlingAsyncHandler(context, checks, next, request.name, groups))
 	}
 }

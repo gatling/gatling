@@ -8,7 +8,7 @@ val testData = new TSVFeeder("test-data", List("omg", "socool"))
 val lambdaUser = scenario("Standard User")
   .insertChain(loginChain)
   // First request outside iteration
-  .loop( chain.exec(http("Catégorie Poney").get("/").queryParam("omg", SavedValue("omg")).queryParam("socool", SavedValue("socool")).capture(xpath("//input[@id='text1']/@value") saveAs "aaaa_value").feeder(testData)) )
+  .loop( chain.exec(http("Catégorie Poney").get("/").queryParam("omg", SavedValue("omg")).queryParam("socool", SavedValue("socool")).check(xpath("//input[@id='text1']/@value") saveAs "aaaa_value").feeder(testData)) )
   .times(2)
   .pause(pause2, pause3)
   // Loop
@@ -20,13 +20,13 @@ val lambdaUser = scenario("Standard User")
       .exec(
           http("Page accueil").get("http://localhost:3000")
             .check(
-                xpathExists(interpolate("//input[@value='{}']/@id", "aaaa_value")) saveAs "ctxParam",
-                xpathNotExists(interpolate("//input[@id='{}']/@value", "aaaa_value")),
-                regexpExists("""<input id="text1" type="text" value="aaaa" />"""),
-                regexpNotExists("""<input id="text1" type="test" value="aaaa" />"""),
-                statusInRange(200 to 210) saveAs "blablaParam",
-                xpathNotEquals("//input[@value='aaaa']/@id", "omg"),
-                xpathEquals("//input[@id='text1']/@value", "aaaa") saveAs "test2"
+                xpath(interpolate("//input[@value='{}']/@id", "aaaa_value")) saveAs "ctxParam",
+                xpath(interpolate("//input[@id='{}']/@value", "aaaa_value")).notExists,
+                regexp("""<input id="text1" type="text" value="aaaa" />"""),
+                regexp("""<input id="text1" type="test" value="aaaa" />""").notExists,
+                status.in(200 to 210) saveAs "blablaParam",
+                xpath("//input[@value='aaaa']/@id").neq("omg"),
+                xpath("//input[@id='text1']/@value").eq("aaaa") saveAs "test2"
             )
       )
       .loop(chain
@@ -66,14 +66,14 @@ val lambdaUser = scenario("Standard User")
       // Third request to be repeated
       .exec(http("Liste Articles") get("/things") queryParam ("firstname", SavedValue("firstname")) queryParam ("lastname", SavedValue("lastname")))
       .pause(pause1)
-      .exec(http("Test Page") get("/tests") check(headerEquals(CONTENT_TYPE, "text/html; charset=utf-8") saveAs "ctxParam"))
+      .exec(http("Test Page") get("/tests") check(header(CONTENT_TYPE).eq("text/html; charset=utf-8") saveAs "ctxParam"))
       // Fourth request to be repeated
       .exec(http("Create Thing omgomg")
               .post("/things").queryParam("postTest", SavedValue("ctxParam")).withTemplateBody("create_thing", Map("name" -> SavedValue("ctxParam"))).asJSON
-              .check(status(201) saveAs "status"))
+              .check(status.eq(201) saveAs "status"))
   ).counterName("titi").times(iterations)
   // Second request outside iteration
   .startGroup(doStuffGroup)
-  .exec(http("Ajout au panier") get("/") capture(regexp("""<input id="text1" type="text" value="(.*)" />""") saveAs "input"))
+  .exec(http("Ajout au panier") get("/") check(regexp("""<input id="text1" type="text" value="(.*)" />""") saveAs "input"))
   .pause(pause1)
   .endGroup(doStuffGroup)

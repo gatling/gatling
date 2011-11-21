@@ -22,6 +22,7 @@ import com.excilys.ebi.gatling.http.check.body.HttpBodyRegExpCheckBuilder
 import com.excilys.ebi.gatling.http.check.body.HttpBodyXPathCheckBuilder
 import com.excilys.ebi.gatling.http.check.header.HttpHeaderCheckBuilder
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder
+import com.excilys.ebi.gatling.core.check.CheckBuilder
 
 object Predef {
 	def http(requestName: String) = HttpRequestActionBuilder.http(requestName)
@@ -29,61 +30,18 @@ object Predef {
 	def httpConfig = HttpProtocolConfigurationBuilder.httpConfig
 	implicit def toHttpProtocolConfiguration(builder: HttpProtocolConfigurationBuilder) = HttpProtocolConfigurationBuilder.toHttpProtocolConfiguration(builder)
 
-	def regexpEquals(what: Context => String, occurrence: Int, expected: String) = HttpBodyRegExpCheckBuilder.regexpEquals(what, occurrence, expected)
-	def regexpEquals(what: Context => String, expected: String) = HttpBodyRegExpCheckBuilder.regexpEquals(what, expected)
-	def regexpEquals(expression: String, occurrence: Int, expected: String) = HttpBodyRegExpCheckBuilder.regexpEquals(expression, occurrence, expected)
-	def regexpEquals(expression: String, expected: String) = HttpBodyRegExpCheckBuilder.regexpEquals(expression, expected)
-	def regexpNotEquals(what: Context => String, occurrence: Int, expected: String) = HttpBodyRegExpCheckBuilder.regexpNotEquals(what, occurrence, expected)
-	def regexpNotEquals(what: Context => String, expected: String) = HttpBodyRegExpCheckBuilder.regexpNotEquals(what, expected)
-	def regexpNotEquals(expression: String, occurrence: Int, expected: String) = HttpBodyRegExpCheckBuilder.regexpNotEquals(expression, occurrence, expected)
-	def regexpNotEquals(expression: String, expected: String) = HttpBodyRegExpCheckBuilder.regexpNotEquals(expression, expected)
-	def regexpExists(what: Context => String, occurrence: Int) = HttpBodyRegExpCheckBuilder.regexpExists(what, occurrence)
-	def regexpExists(what: Context => String) = HttpBodyRegExpCheckBuilder.regexpExists(what)
-	def regexpExists(expression: String, occurrence: Int) = HttpBodyRegExpCheckBuilder.regexpExists(expression, occurrence)
-	def regexpExists(expression: String) = HttpBodyRegExpCheckBuilder.regexpExists(expression)
-	def regexpNotExists(what: Context => String, occurrence: Int) = HttpBodyRegExpCheckBuilder.regexpNotExists(what, occurrence)
-	def regexpNotExists(what: Context => String) = HttpBodyRegExpCheckBuilder.regexpNotExists(what)
-	def regexpNotExists(expression: String, occurrence: Int) = HttpBodyRegExpCheckBuilder.regexpNotExists(expression, occurrence)
-	def regexpNotExists(expression: String) = HttpBodyRegExpCheckBuilder.regexpNotExists(expression)
-	def regexp(what: Context => String, occurrence: Int) = HttpBodyRegExpCheckBuilder.regexp(what, occurrence)
+	implicit def intToString(i: Int) = CheckBuilder.intToString(i)
+
 	def regexp(what: Context => String) = HttpBodyRegExpCheckBuilder.regexp(what)
-	def regexp(expression: String, occurrence: Int) = HttpBodyRegExpCheckBuilder.regexp(expression, occurrence)
 	def regexp(expression: String) = HttpBodyRegExpCheckBuilder.regexp(expression)
 
-	def xpathEquals(what: Context => String, occurrence: Int, expected: String) = HttpBodyXPathCheckBuilder.xpathEquals(what, occurrence, expected)
-	def xpathEquals(what: Context => String, expected: String) = HttpBodyXPathCheckBuilder.xpathEquals(what, expected)
-	def xpathEquals(expression: String, occurrence: Int, expected: String) = HttpBodyXPathCheckBuilder.xpathEquals(expression, occurrence, expected)
-	def xpathEquals(expression: String, expected: String) = HttpBodyXPathCheckBuilder.xpathEquals(expression, expected)
-	def xpathNotEquals(what: Context => String, occurrence: Int, expected: String) = HttpBodyXPathCheckBuilder.xpathNotEquals(what, occurrence, expected)
-	def xpathNotEquals(what: Context => String, expected: String) = HttpBodyXPathCheckBuilder.xpathNotEquals(what, expected)
-	def xpathNotEquals(expression: String, occurrence: Int, expected: String) = HttpBodyXPathCheckBuilder.xpathNotEquals(expression, occurrence, expected)
-	def xpathNotEquals(expression: String, expected: String) = HttpBodyXPathCheckBuilder.xpathNotEquals(expression, expected)
-	def xpathExists(what: Context => String, occurrence: Int) = HttpBodyXPathCheckBuilder.xpathExists(what, occurrence)
-	def xpathExists(what: Context => String) = HttpBodyXPathCheckBuilder.xpathExists(what)
-	def xpathExists(expression: String, occurrence: Int) = HttpBodyXPathCheckBuilder.xpathExists(expression, occurrence)
-	def xpathExists(expression: String) = HttpBodyXPathCheckBuilder.xpathExists(expression)
-	def xpathNotExists(what: Context => String, occurrence: Int) = HttpBodyXPathCheckBuilder.xpathNotExists(what, occurrence)
-	def xpathNotExists(what: Context => String) = HttpBodyXPathCheckBuilder.xpathNotExists(what)
-	def xpathNotExists(expression: String, occurrence: Int) = HttpBodyXPathCheckBuilder.xpathNotExists(expression, occurrence)
-	def xpathNotExists(expression: String) = HttpBodyXPathCheckBuilder.xpathNotExists(expression)
-	def xpath(what: Context => String, occurrence: Int) = HttpBodyXPathCheckBuilder.xpath(what, occurrence)
 	def xpath(what: Context => String) = HttpBodyXPathCheckBuilder.xpath(what)
-	def xpath(expression: String, occurrence: Int) = HttpBodyXPathCheckBuilder.xpath(expression, occurrence)
 	def xpath(expression: String) = HttpBodyXPathCheckBuilder.xpath(expression)
 
-	def headerEquals(what: Context => String, expected: String) = HttpHeaderCheckBuilder.headerEquals(what, expected)
-	def headerEquals(headerName: String, expected: String) = HttpHeaderCheckBuilder.headerEquals(headerName, expected)
-	def headerNotEquals(what: Context => String, expected: String) = HttpHeaderCheckBuilder.headerNotEquals(what, expected)
-	def headerNotEquals(headerName: String, expected: String) = HttpHeaderCheckBuilder.headerNotEquals(headerName, expected)
-	def headerExists(what: Context => String) = HttpHeaderCheckBuilder.headerExists(what)
-	def headerExists(headerName: String) = HttpHeaderCheckBuilder.headerExists(headerName)
-	def headerNotExists(what: Context => String) = HttpHeaderCheckBuilder.headerNotExists(what)
-	def headerNotExists(headerName: String) = HttpHeaderCheckBuilder.headerNotExists(headerName)
 	def header(what: Context => String) = HttpHeaderCheckBuilder.header(what)
 	def header(headerName: String) = HttpHeaderCheckBuilder.header(headerName)
 
-	def statusInRange(range: Range) = HttpStatusCheckBuilder.statusInRange(range)
-	def status(status: Int) = HttpStatusCheckBuilder.status(status)
+	def status = HttpStatusCheckBuilder.status
 
 	val ACCEPT = "Accept";
 	val ACCEPT_CHARSET = "Accept-Charset";

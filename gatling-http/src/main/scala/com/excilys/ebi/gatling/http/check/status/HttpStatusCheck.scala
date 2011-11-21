@@ -28,8 +28,8 @@ import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy
  * @param to the optional context key in which the status code will be stored
  * @param expected the expected value against which the extracted value will be checked
  */
-class HttpStatusCheck(to: Option[String], expected: Option[String])
-		extends HttpCheck((c: Context) => EMPTY, HttpStatusExtractorFactory, to, InRangeCheckStrategy, expected, CompletePageReceived) {
+class HttpStatusCheck(expected: Option[String], saveAs: Option[String])
+		extends HttpCheck((c: Context) => EMPTY, HttpStatusExtractorFactory, InRangeCheckStrategy, expected, saveAs, CompletePageReceived) {
 
 	override def toString = "HttpStatusCheck (Http Response Status must be in '{" + expected + "}')"
 }

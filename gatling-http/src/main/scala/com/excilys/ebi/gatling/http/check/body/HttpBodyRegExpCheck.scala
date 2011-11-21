@@ -29,6 +29,6 @@ import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
  * @param strategy the strategy used to check
  * @param expected the expected value against which the extracted value will be checked
  */
-class HttpBodyRegExpCheck(what: (Context => String, Int), to: Option[String], strategy: CheckStrategy, expected: Option[String])
-		extends HttpCheck(what._1, new HttpBodyRegExpExtractorFactory(what._2), to, strategy, expected, CompletePageReceived) {
+class HttpBodyRegExpCheck(what: Context => String, occurrence: Int, strategy: CheckStrategy, expected: Option[String], saveAs: Option[String])
+		extends HttpCheck(what, new HttpBodyRegExpExtractorFactory(occurrence), strategy, expected, saveAs, CompletePageReceived) {
 }

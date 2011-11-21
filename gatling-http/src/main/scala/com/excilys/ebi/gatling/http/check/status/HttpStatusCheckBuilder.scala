@@ -35,13 +35,7 @@ object HttpStatusCheckBuilder {
 	 *
 	 * @param range the specified range
 	 */
-	def statusInRange(range: Range) = new HttpStatusCheckBuilder(None, InRangeCheckStrategy, Some(range))
-	/**
-	 * Will check that the response status is equal to the one specified
-	 *
-	 * @param status the expected status code
-	 */
-	def status(status: Int) = new HttpStatusCheckBuilder(None, EqualityCheckStrategy, Some(status.toString))
+	def status = new HttpStatusCheckBuilder(InRangeCheckStrategy, None, None)
 }
 
 /**
@@ -51,10 +45,11 @@ object HttpStatusCheckBuilder {
  * @param strategy the strategy used to check
  * @param expected the expected value against which the extracted value will be checked
  */
-class HttpStatusCheckBuilder(to: Option[String], strategy: CheckStrategy, expected: Option[String])
-		extends HttpCheckBuilder[HttpStatusCheckBuilder]((c: Context) => EMPTY, to, strategy, expected, StatusReceived) {
+class HttpStatusCheckBuilder(strategy: CheckStrategy, expected: Option[String], saveAs: Option[String])
+		extends HttpCheckBuilder[HttpStatusCheckBuilder]((c: Context) => EMPTY, None, strategy, expected, saveAs, StatusReceived) {
 
-	def newInstance(what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String], when: HttpPhase) = new HttpStatusCheckBuilder(to, strategy, expected)
+	def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: Option[String], saveAs: Option[String], when: HttpPhase) =
+		new HttpStatusCheckBuilder(strategy, expected, saveAs)
 
-	def build: HttpCheck = new HttpStatusCheck(to, expected)
+	def build: HttpCheck = new HttpStatusCheck(expected, saveAs)
 }

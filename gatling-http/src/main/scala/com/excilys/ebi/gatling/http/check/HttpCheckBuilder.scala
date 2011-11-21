@@ -30,20 +30,16 @@ import com.ning.http.client.Response
  * @param expected the expected value against which the extracted value will be checked
  * @param when the HttpPhase during which the check will be made
  */
-abstract class HttpCheckBuilder[B <: HttpCheckBuilder[B]](what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String], val when: HttpPhase)
-		extends CheckBuilder[Response](what, to, strategy, expected) {
+abstract class HttpCheckBuilder[B <: HttpCheckBuilder[B]](what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: Option[String], saveAs: Option[String], val when: HttpPhase)
+		extends CheckBuilder[HttpCheckBuilder[B], Response](what, occurrence, strategy, expected, saveAs) {
+
+	def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: Option[String], saveAs: Option[String]): B =
+		newInstance(what, occurrence, strategy, expected, saveAs, when)
 
 	/**
 	 * Method that must be implemented by children classes to get the instance of the child class
 	 */
-	def newInstance(what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String], when: HttpPhase): B
-
-	/**
-	 * Method used in the DSL. It requires the storage of the extracted value in the context
-	 *
-	 * @param to the attribute name in which the value will be stored
-	 */
-	def saveAs(to: String) = newInstance(what, Some(to), strategy, expected, when)
+	protected def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: Option[String], saveAs: Option[String], when: HttpPhase): B
 
 	override def build: HttpCheck
 }

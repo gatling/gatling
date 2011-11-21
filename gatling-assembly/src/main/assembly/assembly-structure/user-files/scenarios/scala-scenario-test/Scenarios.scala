@@ -38,37 +38,37 @@ object Scenarios {
 	/* Scenario */
 	val scn = scenario("User of Excilys Bank")
 		// Login page
-		.exec(http("Login GET") get(urlLoginGet) headers(headers) check(status(200)))
+		.exec(http("Login GET") get(urlLoginGet) headers(headers) check(status.eq(200)))
 		.pause(5, 6)
 		// Authenticating
-		.exec(http("Authenticating") post (urlLoginPost) param ("username") param ("password") headers(headers) check(status(302)))
+		.exec(http("Authenticating") post (urlLoginPost) param ("username") param ("password") headers(headers) check(status.eq(302)))
 		// Home page
-		.exec(http("Home") get(urlHome) headers(headers) check(regexpExists("""<a href="/excilys-bank-web/logout" class="button blue">Log out</a>""")))
+		.exec(http("Home") get(urlHome) headers(headers) check(regexp("""<a href="/excilys-bank-web/logout" class="button blue">Log out</a>""")))
 		.pause(5, 6)
 		.loop(
 			chain
 				// Operations page
-				.exec(http("Operations details") get(urlAccountOperations, "acc1") headers(headers) check(regexpExists("""<table class="accountDetails">""")))
+				.exec(http("Operations details") get(urlAccountOperations, "acc1") headers(headers) check(regexp("""<table class="accountDetails">""")))
 				// Load operations data
-				.exec(http("Operations data") get(urlAccountOperationsData, "acc1") headers(headers) check(status(200)))
+				.exec(http("Operations data") get(urlAccountOperationsData, "acc1") headers(headers) check(status.eq(200)))
 				.pause(5, 6)
 
 				// Cards operations page
-				.exec(http("Cards details") get(urlAccountCards, "acc1") headers(headers) check(regexpExists("""<table class="accountDetails">""")))
+				.exec(http("Cards details") get(urlAccountCards, "acc1") headers(headers) check(regexp("""<table class="accountDetails">""")))
 				// Load cards operations data
-				.exec(http("Cards data") get(urlAccountCardsData, "acc1") check(status(200)))
+				.exec(http("Cards data") get(urlAccountCardsData, "acc1") check(status.eq(200)))
 				.pause(5, 6)
 
 				// Cards pending operations page
-				.exec(http("Cards pending details") get(urlAccountCardsPending, "acc1") headers(headers) check(regexpExists("""<table class="accountDetails">""")))
+				.exec(http("Cards pending details") get(urlAccountCardsPending, "acc1") headers(headers) check(regexp("""<table class="accountDetails">""")))
 				// Load cards pending operations data
-				.exec(http("Cards pending data") get(urlAccountCardsPendingData, "acc1") headers(headers) check(status(200)))
+				.exec(http("Cards pending data") get(urlAccountCardsPendingData, "acc1") headers(headers) check(status.eq(200)))
 				.pause(5, 6)
 
 				// Transfers page
-				.exec(http("Transfers details") get(urlAccountTransfers, "acc1") headers(headers) check(regexpExists("""<table class="accountDetails">""")))
+				.exec(http("Transfers details") get(urlAccountTransfers, "acc1") headers(headers) check(regexp("""<table class="accountDetails">""")))
 				// Load transfers data
-				.exec(http("Transfers data") get(urlAccountTransfersData, "acc1") headers(headers) check(status(200)))
+				.exec(http("Transfers data") get(urlAccountTransfersData, "acc1") headers(headers) check(status.eq(200)))
 				.pause(5, 6)
 
 				// Transfer perform page
@@ -81,10 +81,10 @@ object Scenarios {
 					param ("creditedAccountNumber", SavedValue("acc2"))
 					param ("amount", "10")
 					headers(headers)
-					check(status(302)))
+					check(status.eq(302)))
 				.pause(5, 6))
 		.times(20)
 
 		// Logout
-		.exec(http("Logging out") get(urlLogout) headers(headers) check(status(302)))
+		.exec(http("Logging out") get(urlLogout) headers(headers) check(status.eq(302)))
 }

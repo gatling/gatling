@@ -83,13 +83,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: List[(Context => String, Context => Option[String])], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
 
 	/**
-	 * Stops defining the request and adds captures on the response
-	 *
-	 * @param captureBuilders the captures that will be performed on the response
-	 */
-	def capture(captureBuilders: HttpCheckBuilder[_]*) = httpRequestActionBuilder withRequest (new HttpRequest(httpRequestActionBuilder.requestName, this)) withProcessors captureBuilders
-
-	/**
 	 * Stops defining the request and adds checks on the response
 	 *
 	 * @param checkBuilders the checks that will be performed on the reponse

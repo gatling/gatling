@@ -197,8 +197,8 @@ class GatlingAsyncHandler(context: Context, checks: MSet[HttpCheck], next: Actio
 						sendLogAndExecuteNext(KO, check + " failed", processingStartTimeNano)
 						return
 
-					} else if (extractedValue.isDefined && check.to.isDefined) {
-						context.setAttribute(check.to.get, extractedValue.get)
+					} else if (extractedValue.isDefined && check.saveAs.isDefined) {
+						context.setAttribute(check.saveAs.get, extractedValue.get)
 					}
 				}
 			}

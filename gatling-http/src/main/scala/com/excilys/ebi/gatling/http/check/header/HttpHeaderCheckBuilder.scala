@@ -30,73 +30,17 @@ import com.excilys.ebi.gatling.http.request.HttpPhase.{ HttpPhase, HeadersReceiv
  */
 object HttpHeaderCheckBuilder {
 	/**
-	 * Will check that the specified header's value is equal to the user defined one
-	 *
-	 * @param what the function returning the name of the header
-	 * @param expected the expected value of the header
-	 */
-	def headerEquals(what: Context => String, expected: String) = new HttpHeaderCheckBuilder(what, Some(EMPTY), EqualityCheckStrategy, Some(expected))
-	/**
-	 * Will check that the specified header's value is equal to the user defined one
-	 *
-	 * @param headerName the name of the header
-	 * @param expected the expected value of the header
-	 */
-	def headerEquals(headerName: String, expected: String): HttpHeaderCheckBuilder = headerEquals((c: Context) => headerName, expected)
-
-	/**
-	 * Will check that the specified header's value is different from the user defined one
-	 *
-	 * @param what the function returning the name of the header
-	 * @param expected the expected value of the header
-	 */
-	def headerNotEquals(what: Context => String, expected: String) = new HttpHeaderCheckBuilder(what, Some(EMPTY), NonEqualityCheckStrategy, Some(expected))
-	/**
-	 * Will check that the specified header's value is different from the user defined one
-	 *
-	 * @param headerName the name of the header
-	 * @param expected the expected value of the header
-	 */
-	def headerNotEquals(headerName: String, expected: String): HttpHeaderCheckBuilder = headerNotEquals((c: Context) => headerName, expected)
-
-	/**
-	 * Will check that the specified header exists
+	 * Will check the value of the header in the context
 	 *
 	 * @param what the function returning the name of the header
 	 */
-	def headerExists(what: Context => String) = new HttpHeaderCheckBuilder(what, Some(EMPTY), ExistenceCheckStrategy, Some(EMPTY))
+	def header(what: Context => String) = new HttpHeaderCheckBuilder(what, ExistenceCheckStrategy, None, None)
 	/**
-	 * Will check that the specified header exists
+	 * Will check the value of the header in the context
 	 *
 	 * @param headerName the name of the header
 	 */
-	def headerExists(headerName: String): HttpHeaderCheckBuilder = headerExists((c: Context) => headerName)
-
-	/**
-	 * Will check that the specified header is not present
-	 *
-	 * @param what the function returning the name of the header
-	 */
-	def headerNotExists(what: Context => String) = new HttpHeaderCheckBuilder(what, Some(EMPTY), NonExistenceCheckStrategy, Some(EMPTY))
-	/**
-	 * Will check that the specified header is not present
-	 *
-	 * @param headerName the name of the header
-	 */
-	def headerNotExists(headerName: String): HttpHeaderCheckBuilder = headerNotExists((c: Context) => headerName)
-
-	/**
-	 * Will capture the value of the header in the context
-	 *
-	 * @param what the function returning the name of the header
-	 */
-	def header(what: Context => String) = headerExists(what)
-	/**
-	 * Will capture the value of the header in the context
-	 *
-	 * @param headerName the name of the header
-	 */
-	def header(headerName: String) = headerExists(headerName)
+	def header(headerName: String): HttpHeaderCheckBuilder = header((c: Context) => headerName)
 }
 
 /**
@@ -107,10 +51,11 @@ object HttpHeaderCheckBuilder {
  * @param strategy the strategy used to check
  * @param expected the expected value against which the extracted value will be checked
  */
-class HttpHeaderCheckBuilder(what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String])
-		extends HttpCheckBuilder[HttpHeaderCheckBuilder](what, to, strategy, expected, HeadersReceived) {
+class HttpHeaderCheckBuilder(what: Context => String, strategy: CheckStrategy, expected: Option[String], saveAs: Option[String])
+		extends HttpCheckBuilder[HttpHeaderCheckBuilder](what, None, strategy, expected, saveAs, HeadersReceived) {
 
-	def newInstance(what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String], when: HttpPhase) = new HttpHeaderCheckBuilder(what, to, strategy, expected)
+	def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: Option[String], saveAs: Option[String], when: HttpPhase) =
+		new HttpHeaderCheckBuilder(what, strategy, expected, saveAs)
 
-	def build: HttpCheck = new HttpHeaderCheck(what, to, strategy, expected)
+	def build: HttpCheck = new HttpHeaderCheck(what, strategy, expected, saveAs)
 }

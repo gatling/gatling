@@ -29,6 +29,5 @@ import com.excilys.ebi.gatling.core.check.strategy.CheckStrategy
  * @param strategy the strategy used to check
  * @param expected the expected value against which the extracted value will be checked
  */
-class HttpHeaderCheck(what: Context => String, to: Option[String], strategy: CheckStrategy, expected: Option[String])
-		extends HttpCheck(what, HttpHeaderExtractorFactory, to, strategy, expected, CompletePageReceived) {
-}
+class HttpHeaderCheck(what: Context => String, strategy: CheckStrategy, expected: Option[String], saveAs: Option[String])
+	extends HttpCheck(what, HttpHeaderExtractorFactory, strategy, expected, saveAs, CompletePageReceived)
