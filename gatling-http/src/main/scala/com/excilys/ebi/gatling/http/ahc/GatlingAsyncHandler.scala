@@ -19,35 +19,25 @@ import java.lang.Void
 import java.util.concurrent.TimeUnit
 
 import scala.collection.immutable.HashMap
-import scala.collection.mutable.{ Set => MSet }
-import scala.collection.mutable.{ HashMap => MHashMap }
-import scala.collection.mutable.MultiMap
+import scala.collection.mutable.{Set => MSet}
+import scala.collection.mutable.{HashMap => MHashMap}
 
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.SET_COOKIE
 import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.core.action.Action
-import com.excilys.ebi.gatling.core.check.extractor.Extractor
-import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
+import com.excilys.ebi.gatling.core.check.extractor.{ExtractorFactory, Extractor}
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.KO
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.OK
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.ResultStatus
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ResultStatus, OK, KO}
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
-import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
+import com.excilys.ebi.gatling.http.request.HttpPhase.{HttpPhase, CompletePageReceived}
 import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.excilys.ebi.gatling.http.util.HttpHelper.COOKIES_CONTEXT_KEY
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
-import com.ning.http.client.AsyncHandler
-import com.ning.http.client.Cookie
-import com.ning.http.client.HttpResponseBodyPart
-import com.ning.http.client.HttpResponseHeaders
-import com.ning.http.client.HttpResponseStatus
-import com.ning.http.client.Response
+import com.ning.http.client.{Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler}
 import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
 
 import akka.actor.Actor.registry.actorFor
@@ -70,9 +60,6 @@ class GatlingAsyncHandler(context: Context, checks: MSet[HttpCheck], next: Actio
 	private val executionStartTimeNano = System.nanoTime
 
 	private val executionStartDate = DateTime.now()
-
-	private val indexedChecks: MultiMap[HttpPhase, HttpCheck] = new MHashMap[HttpPhase, MSet[HttpCheck]] with MultiMap[HttpPhase, HttpCheck]
-	checks.foreach(check => indexedChecks.addBinding(check.when, check))
 
 	private val identifier = requestName + context.userId
 
@@ -148,12 +135,14 @@ class GatlingAsyncHandler(context: Context, checks: MSet[HttpCheck], next: Actio
 		next.execute(context)
 	}
 
+	private def getChecksForPhase(httpPhase: HttpPhase) = checks.view.filter(_.when == httpPhase)
+
 	/**
 	 * This method checks whether the given phase is to be processed or not
 	 *
 	 * @param httpPhase the phase that we want to test
 	 */
-	private def isPhaseToBeProcessed(httpPhase: HttpPhase) = indexedChecks.get(httpPhase).isDefined
+	private def isPhaseToBeProcessed(httpPhase: HttpPhase) = !getChecksForPhase(httpPhase).isEmpty
 
 	/**
 	 * This method processes the response if needed for each checks given by the user
@@ -166,7 +155,7 @@ class GatlingAsyncHandler(context: Context, checks: MSet[HttpCheck], next: Actio
 		 * @param checks the checks that were given for this reponse
 		 * @param response the response on which the checks will be made
 		 */
-		def prepareExtractors(checks: MSet[HttpCheck], response: Response): MHashMap[ExtractorFactory[Response], Extractor] = {
+		def prepareExtractors(checks: Iterable[HttpCheck], response: Response): MHashMap[ExtractorFactory[Response], Extractor] = {
 
 			val extractors: MHashMap[ExtractorFactory[Response], Extractor] = MHashMap.empty
 			checks.foreach { check =>
@@ -183,7 +172,7 @@ class GatlingAsyncHandler(context: Context, checks: MSet[HttpCheck], next: Actio
 		HttpPhase.values.foreach { httpPhase =>
 
 			if (isPhaseToBeProcessed(httpPhase)) {
-				val phaseChecks = indexedChecks.get(httpPhase).get
+				val phaseChecks = getChecksForPhase(httpPhase)
 
 				val phaseExtractors = prepareExtractors(phaseChecks, response)
 
