@@ -18,7 +18,6 @@ package com.excilys.ebi.gatling.http.request.builder
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
-import com.excilys.ebi.gatling.http.request.Param
 
 /**
  * This class defines an HTTP request with word DELETE in the DSL

@@ -18,10 +18,7 @@ package com.excilys.ebi.gatling.http.request.builder
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.context.SavedValue
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
-import com.excilys.ebi.gatling.http.request.ContextParam
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
-import com.excilys.ebi.gatling.http.request.Param
-import com.excilys.ebi.gatling.http.request.StringParam
 import com.ning.http.client.RequestBuilder
 
 /**
@@ -37,7 +34,7 @@ import com.ning.http.client.RequestBuilder
  * @param credentials sets the credentials in case of Basic HTTP Authentication
  */
 abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequestWithBodyAndParamsBuilder[B]](httpRequestActionBuilder: HttpRequestActionBuilder,
-	urlFunction: Option[Context => String], queryParams: List[(Context => String, Context => Option[String])], params: Map[String, Param], headers: Map[String, String], body: Option[HttpRequestBody],
+	urlFunction: Option[Context => String], queryParams: List[(Context => String, Context => Option[String])], params: List[(Context => String, Context => String)], headers: Map[String, String], body: Option[HttpRequestBody],
 	followsRedirects: Option[Boolean], credentials: Option[(String, String)])
 		extends AbstractHttpRequestWithBodyBuilder[B](httpRequestActionBuilder, urlFunction, queryParams, headers, body, followsRedirects, credentials) {
 
@@ -60,11 +57,17 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 * @param followsRedirects sets the follow redirect option of AHC
 	 * @param credentials sets the credentials in case of Basic HTTP Authentication
 	 */
-	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: List[(Context => String, Context => Option[String])], params: Map[String, Param], headers: Map[String, String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
+	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: List[(Context => String, Context => Option[String])], params: List[(Context => String, Context => String)], headers: Map[String, String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
 
 	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: List[(Context => String, Context => Option[String])], headers: Map[String, String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B = {
 		newInstance(httpRequestActionBuilder, urlFunction, queryParams, params, headers, body, followsRedirects, credentials)
 	}
+
+	/**
+	 *
+	 */
+	def param(paramKeyFunction: Context => String, paramValueFunction: Context => String): B =
+		newInstance(httpRequestActionBuilder, urlFunction, queryParams, (paramKeyFunction, paramValueFunction) :: params, headers, body, followsRedirects, credentials)
 
 	/**
 	 * Adds a parameter to the request
@@ -72,9 +75,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 * @param paramKey the key of the parameter
 	 * @param paramValue the value of the parameter
 	 */
-	def param(paramKey: String, paramValue: String): B = {
-		newInstance(httpRequestActionBuilder, urlFunction, queryParams, params + (paramKey -> StringParam(paramValue)), headers, body, followsRedirects, credentials)
-	}
+	def param(paramKey: String, paramValue: String): B = param((c: Context) => paramKey, (c: Context) => paramValue)
 
 	/**
 	 * Adds a parameter to the request
@@ -82,18 +83,11 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 * @param paramKey the ley of the parameter
 	 * @param paramValue a SavedValue(contextKey) that indicates the context key from which the value should be extracted
 	 */
-	def param(paramKey: String, paramValue: SavedValue): B = {
-		newInstance(httpRequestActionBuilder, urlFunction, queryParams, params + (paramKey -> ContextParam(paramValue.attributeKey)), headers, body, followsRedirects, credentials)
-	}
+	def param(paramKey: String, paramValue: SavedValue): B = param((c: Context) => paramKey, (c: Context) => c.getAttribute(paramValue.attributeKey).toString)
 
-	/**
-	 * Adds a parameter to the request
-	 *
-	 * This method is equivalent to param(paramKey, SavedValue(paramKey))
-	 *
-	 * @param paramKey the key of the parameter
-	 */
-	def param(paramKey: String): B = param(paramKey, SavedValue(paramKey))
+	def param(paramKey: SavedValue, paramValue: String): B = param((c: Context) => c.getAttribute(paramKey.attributeKey).toString, (c: Context) => paramValue)
+
+	def param(paramKey: SavedValue, paramValue: SavedValue): B = param((c: Context) => c.getAttribute(paramKey.attributeKey).toString, (c: Context) => c.getAttribute(paramValue.attributeKey).toString)
 
 	/**
 	 * This method adds the parameters to the request builder
@@ -102,12 +96,9 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 * @param params the parameters that should be added
 	 * @param context the context of the current scenario
 	 */
-	private def addParamsTo(requestBuilder: RequestBuilder, params: Map[String, Param], context: Context) = {
-		for (param <- params) {
-			param._2 match {
-				case StringParam(string) => requestBuilder addParameter (param._1, string)
-				case ContextParam(string) => requestBuilder addParameter (param._1, context.getAttribute(string).toString)
-			}
+	private def addParamsTo(requestBuilder: RequestBuilder, params: List[(Context => String, Context => String)], context: Context) = {
+		for ((keyFunction, valueFunction) <- params) {
+			requestBuilder addParameter (keyFunction.apply(context), valueFunction.apply(context))
 		}
 	}
 }

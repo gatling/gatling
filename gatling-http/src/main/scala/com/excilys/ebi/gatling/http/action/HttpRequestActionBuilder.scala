@@ -117,14 +117,14 @@ class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, ne
 	 * @param url the url on which this request will be made
 	 * @param interpolations context keys for interpolation
 	 */
-	def post(url: String, interpolations: String*) = new PostHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Nil, Map(), Map(), None, None, None)
+	def post(url: String, interpolations: String*) = new PostHttpRequestBuilder(this, Some((c: Context) => interpolateString(c, url, interpolations)), Nil, Nil, Map(), None, None, None)
 
 	/**
 	 * Starts the definition of an HTTP request with word POST
 	 *
 	 * @param f the function returning the url of this request
 	 */
-	def post(f: Context => String) = new PostHttpRequestBuilder(this, Some(f), Nil, Map(), Map(), None, None, None)
+	def post(f: Context => String) = new PostHttpRequestBuilder(this, Some(f), Nil, Nil, Map(), None, None, None)
 
 	/**
 	 * Starts the definition of an HTTP request with word PUT

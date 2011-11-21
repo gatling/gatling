@@ -25,9 +25,6 @@ import com.excilys.ebi.gatling.core.context.SavedValue
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration._
-import com.excilys.ebi.gatling.http.request.Param
-import com.excilys.ebi.gatling.http.request.StringParam
-import com.excilys.ebi.gatling.http.request.ContextParam
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.excilys.ebi.gatling.http.request.FilePathBody
 import com.excilys.ebi.gatling.http.request.StringBody
