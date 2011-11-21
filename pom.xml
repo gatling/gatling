@@ -183,6 +183,15 @@
 						<artifactId>dom4j</artifactId>
 						<groupId>dom4j</groupId>
 					</exclusion>
+					<!-- who is the idiot that committed such a mess in central?! -->
+					<exclusion>
+						<groupId>maven-plugins</groupId>
+						<artifactId>maven-cobertura-plugin</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>maven-plugins</groupId>
+						<artifactId>maven-findbugs-plugin</artifactId>
+					</exclusion>
 				</exclusions>
 			</dependency>
 			<dependency>
