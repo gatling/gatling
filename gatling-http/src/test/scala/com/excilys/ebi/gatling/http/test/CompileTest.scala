@@ -102,7 +102,7 @@ object CompileTest {
 				.exec(http("Test Page") get ("/tests") check (header(CONTENT_TYPE).eq("text/html; charset=utf-8") saveAs "ctxParam"))
 				// Fourth request to be repeated
 				.exec(http("Create Thing omgomg")
-					.post("/things").queryParam("postTest", FromContext("ctxParam")).withTemplateBody("create_thing", Map("name" -> FromContext("ctxParam"))).asJSON
+					.post("/things").queryParam("postTest", SavedValue("ctxParam")).withTemplateBody("create_thing", Map("name" -> SavedValue("ctxParam"))).asJSON
 					.check(status.eq(201) saveAs "status"))).counterName("titi").times(iterations)
 		// Second request outside iteration
 		.startGroup(doStuffGroup)
