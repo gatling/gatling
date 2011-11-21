@@ -13,19 +13,19 @@ object Scenarios {
 	// Index starts at 0
 	val pageOfOperations = "0"
 
-	val urlAccountOperations = urlBase + "/private/bank/account/{}/operations.html"
-	val urlAccountOperationsData = urlBase + "/private/bank/account/{}/year/" + year + "/month/" + month + "/page/" + pageOfOperations + "/operations.json"
+	val urlAccountOperations = "/private/bank/account/{}/operations.html"
+	val urlAccountOperationsData = "/private/bank/account/{}/year/" + year + "/month/" + month + "/page/" + pageOfOperations + "/operations.json"
 
-	val urlAccountCards = urlBase + "/private/bank/account/{}/cards/all/operations.html"
-	val urlAccountCardsData = urlBase + "/private/bank/account/{}/cards/all/year/" + year + "/month/" + month + "/page/" + pageOfOperations + "/operations.json"
+	val urlAccountCards = "/private/bank/account/{}/cards/all/operations.html"
+	val urlAccountCardsData = "/private/bank/account/{}/cards/all/year/" + year + "/month/" + month + "/page/" + pageOfOperations + "/operations.json"
 
-	val urlAccountCardsPending = urlBase + "/private/bank/account/{}/cards/all/pending/operations.html"
-	val urlAccountCardsPendingData = urlBase + "/private/bank/account/{}/cards/all/pending/page/" + pageOfOperations + "/operations.json"
+	val urlAccountCardsPending = "/private/bank/account/{}/cards/all/pending/operations.html"
+	val urlAccountCardsPendingData = "/private/bank/account/{}/cards/all/pending/page/" + pageOfOperations + "/operations.json"
 
-	val urlAccountTransfers = urlBase + "/private/bank/account/{}/transfers/operations.html"
-	val urlAccountTransfersData = urlBase + "/private/bank/account/{}/transfers/page/" + pageOfOperations + "/operations.json"
+	val urlAccountTransfers = "/private/bank/account/{}/transfers/operations.html"
+	val urlAccountTransfersData = "/private/bank/account/{}/transfers/page/" + pageOfOperations + "/operations.json"
 
-	val urlAccountTransferPerform = urlBase + "/private/bank/account/{}/transfers/perform.html"
+	val urlAccountTransferPerform = "/private/bank/account/{}/transfers/perform.html"
 
 	val headers= Map(
 			"Accept" -> "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
