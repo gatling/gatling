@@ -59,21 +59,15 @@ object HttpRequestAction {
 class HttpRequestAction(next: Action, request: HttpRequest, givenCheckBuilders: Option[List[HttpCheckBuilder[_]]], groups: List[String], feeder: Option[Feeder])
 		extends RequestAction[Response](next, request, givenCheckBuilders, groups, feeder) {
 
-	var checks = new MHashSet[HttpCheck]
+	var checks: List[HttpCheck] = Nil
 
 	givenCheckBuilders.map {
 		list =>
-			{
-				for (checkBuilder <- list) {
-					val check = checkBuilder.build
-					checks.add(check)
-					logger.debug("  -- Building {} with phase {}", check, check.when)
-				}
+			checks = for (checkBuilder <- list) yield checkBuilder.build
 
-				// add default HttpStatusCheck if none was set
-				if (checks.find(_.isInstanceOf[HttpStatusCheck]).isEmpty) {
-					checks.add(HttpRequestAction.DEFAULT_HTTP_STATUS_CHECK)
-				}
+			// add default HttpStatusCheck if none was set
+			if (checks.find(_.isInstanceOf[HttpStatusCheck]).isEmpty) {
+				checks = HttpRequestAction.DEFAULT_HTTP_STATUS_CHECK :: checks
 			}
 	}
 

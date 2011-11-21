@@ -19,25 +19,33 @@ import java.lang.Void
 import java.util.concurrent.TimeUnit
 
 import scala.collection.immutable.HashMap
-import scala.collection.mutable.{Set => MSet}
-import scala.collection.mutable.{HashMap => MHashMap}
+import scala.collection.mutable.{ HashMap => MHashMap }
 
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.SET_COOKIE
 import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.core.action.Action
-import com.excilys.ebi.gatling.core.check.extractor.{ExtractorFactory, Extractor}
+import com.excilys.ebi.gatling.core.check.extractor.Extractor
+import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ResultStatus, OK, KO}
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.KO
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.OK
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.ResultStatus
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.request.HttpPhase.{HttpPhase, CompletePageReceived}
+import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
+import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.excilys.ebi.gatling.http.util.HttpHelper.COOKIES_CONTEXT_KEY
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
-import com.ning.http.client.{Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler}
+import com.ning.http.client.AsyncHandler
+import com.ning.http.client.Cookie
+import com.ning.http.client.HttpResponseBodyPart
+import com.ning.http.client.HttpResponseHeaders
+import com.ning.http.client.HttpResponseStatus
+import com.ning.http.client.Response
 import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
 
 import akka.actor.Actor.registry.actorFor
@@ -54,7 +62,7 @@ import akka.actor.Actor.registry.actorFor
  * @param requestName the name of the request
  * @param groups the groups to which this action belongs
  */
-class GatlingAsyncHandler(context: Context, checks: MSet[HttpCheck], next: Action, requestName: String, groups: List[String])
+class GatlingAsyncHandler(context: Context, checks: List[HttpCheck], next: Action, requestName: String, groups: List[String])
 		extends AsyncHandler[Void] with Logging {
 
 	private val executionStartTimeNano = System.nanoTime
