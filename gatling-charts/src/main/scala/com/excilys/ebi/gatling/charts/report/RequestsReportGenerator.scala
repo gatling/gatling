@@ -15,7 +15,6 @@
  */
 package com.excilys.ebi.gatling.charts.report
 import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.computer.Computer.numberOfFailedRequestsPerSecond
 import com.excilys.ebi.gatling.charts.computer.Computer.numberOfRequestsPerSecondAsList
@@ -25,6 +24,7 @@ import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.template.RequestsPageTemplate
 import com.excilys.ebi.gatling.charts.util.PathHelper.GATLING_CHART_GLOBAL_REQUESTS_FILE
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
+import com.excilys.ebi.gatling.charts.series.SharedSeries
 
 class RequestsReportGenerator(runOn: String, dataLoader: DataLoader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataLoader, componentLibrary) {
 
@@ -42,7 +42,7 @@ class RequestsReportGenerator(runOn: String, dataLoader: DataLoader, componentLi
 		val pieSeries = new Series[String, Int]("Repartition", pieData)
 
 		// Create template
-		val template = new RequestsPageTemplate(componentLibrary.getRequestsChartComponent(allRequests, failedRequests, succeededRequests, pieSeries))
+		val template = new RequestsPageTemplate(componentLibrary.getRequestsChartComponent(allRequests, failedRequests, succeededRequests, pieSeries, SharedSeries.getAllActiveSessionsSeries))
 
 		// Write template result to file
 		new TemplateWriter(runOn, GATLING_CHART_GLOBAL_REQUESTS_FILE).writeToFile(template.getOutput)

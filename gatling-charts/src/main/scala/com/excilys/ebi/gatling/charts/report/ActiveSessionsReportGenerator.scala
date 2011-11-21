@@ -15,7 +15,6 @@
  */
 package com.excilys.ebi.gatling.charts.report
 import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.computer.Computer.numberOfActiveSessionsPerSecondByScenario
 import com.excilys.ebi.gatling.charts.loader.DataLoader
@@ -23,7 +22,11 @@ import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.template.ActiveSessionsPageTemplate
 import com.excilys.ebi.gatling.charts.util.PathHelper.GATLING_CHART_ACTIVE_SESSIONS_FILE
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
+import com.excilys.ebi.gatling.charts.series.SharedSeries
 
+object ActiveSessionsReportGenerator {
+	val ALL_SESSIONS = "All Sessions"
+}
 class ActiveSessionsReportGenerator(runOn: String, dataLoader: DataLoader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataLoader, componentLibrary) {
 	def generate = {
 		// Get Data
@@ -32,7 +35,10 @@ class ActiveSessionsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 		// Create series
 		val activeSessionsSeries = activeSessionsData.map { entry =>
 			val (seriesName, data) = entry
-			new Series[DateTime, Int](seriesName, data)
+			val series = new Series[DateTime, Int](seriesName, data)
+			if (seriesName == ActiveSessionsReportGenerator.ALL_SESSIONS)
+				SharedSeries.setAllActiveSessionsSeries(series)
+			series
 		}.toSeq.reverse
 
 		// Create template

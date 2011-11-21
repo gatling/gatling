@@ -18,9 +18,7 @@ package com.excilys.ebi.gatling.charts.computer
 import scala.collection.immutable.SortedMap
 import scala.math.pow
 import scala.math.sqrt
-
 import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.charts.loader.ResultLine
 import com.excilys.ebi.gatling.charts.util.OrderingHelper.DateTimeOrdering
 import com.excilys.ebi.gatling.charts.util.OrderingHelper.ResultOrdering
@@ -29,6 +27,7 @@ import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.KO
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.OK
+import com.excilys.ebi.gatling.charts.report.ActiveSessionsReportGenerator
 
 object Computer extends Logging {
 
@@ -101,7 +100,7 @@ object Computer extends Logging {
 	}
 
 	def numberOfActiveSessionsPerSecondByScenario(dataIndexedByScenario: Map[String, Map[DateTime, List[ResultLine]]], dataIndexedByDateInSeconds: Map[DateTime, List[ResultLine]]): Map[String, List[(DateTime, Int)]] = {
-		val allScenarioData = dataIndexedByScenario + ("All Sessions" -> dataIndexedByDateInSeconds)
+		val allScenarioData = dataIndexedByScenario + (ActiveSessionsReportGenerator.ALL_SESSIONS -> dataIndexedByDateInSeconds)
 		// Filling the map with each scenario values
 		allScenarioData.map { entry =>
 			val (scenarioName, scenarioData) = entry

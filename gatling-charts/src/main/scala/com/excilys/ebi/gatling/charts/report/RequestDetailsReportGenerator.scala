@@ -15,7 +15,6 @@
  */
 package com.excilys.ebi.gatling.charts.report
 import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.component.StatisticsTextComponent
 import com.excilys.ebi.gatling.charts.computer.Computer.averageResponseTime
@@ -37,6 +36,7 @@ import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_CHARTING_INDICAT
 import com.excilys.ebi.gatling.core.util.FileHelper.HTML_EXTENSION
 import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.charts.series.SharedSeries
 
 class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataLoader, componentLibrary) {
 	def generate = {
@@ -76,7 +76,7 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 				// Create template
 				val template =
 					new RequestDetailsPageTemplate(requestName.substring(8),
-						componentLibrary.getRequestDetailsResponseTimeChartComponent(responseTimesSeries),
+						componentLibrary.getRequestDetailsResponseTimeChartComponent(responseTimesSeries, SharedSeries.getAllActiveSessionsSeries),
 						new StatisticsTextComponent(numberOfRequests, minRespTime, maxRespTime, avgRespTime, respTimeStdDeviation),
 						componentLibrary.getRequestDetailsScatterChartComponent(scatterPlotSeries),
 						componentLibrary.getRequestDetailsIndicatorChartComponent(indicatorsColumnSeries, indicatorsPieSeries))
