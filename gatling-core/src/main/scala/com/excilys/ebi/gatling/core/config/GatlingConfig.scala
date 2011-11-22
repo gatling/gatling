@@ -19,6 +19,7 @@ import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.PathHelper._
 import com.excilys.ebi.gatling.core.util.PropertiesHelper._
 import com.excilys.ebi.gatling.core.util.StringHelper._
+import scala.io.Codec
 
 /**
  * Configuration loader of Gatling
@@ -48,13 +49,9 @@ object GatlingConfig extends Logging {
 		}
 
 	/**
-	 * Gatling feeder encoding value
-	 */
-	val CONFIG_GATLING_FEEDER_ENCODING = config.getString("gatling.encoding.feeder", "utf-8")
-	/**
 	 * Gatling global encoding value
 	 */
-	val CONFIG_GATLING_ENCODING = config.getString("gatling.encoding.global", "utf-8")
+	val CONFIG_ENCODING = config.getString("gatling.encoding", Codec.UTF8.name)
 	/**
 	 * Gatling simulation timeout value
 	 */

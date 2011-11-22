@@ -21,7 +21,7 @@ import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.charts.util.OrderingHelper.DateTimeOrdering
 import com.excilys.ebi.gatling.charts.util.OrderingHelper.ResultOrdering
-import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_GATLING_ENCODING
+import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus
 import com.excilys.ebi.gatling.core.result.writer.FileDataWriter.GROUPS_PREFIX
@@ -39,7 +39,7 @@ class DataLoader(runOn: String) extends Logging {
 
 		var tmpData: List[ResultLine] = Nil
 
-		for (line <- Source.fromFile(GATLING_RESULTS_FOLDER + "/" + runOn + "/" + GATLING_SIMULATION_LOG_FILE, CONFIG_GATLING_ENCODING).getLines) {
+		for (line <- Source.fromFile(GATLING_RESULTS_FOLDER + "/" + runOn + "/" + GATLING_SIMULATION_LOG_FILE, CONFIG_ENCODING).getLines) {
 			line.split("\t") match {
 				// If we have a well formated result
 				case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage, groups) =>

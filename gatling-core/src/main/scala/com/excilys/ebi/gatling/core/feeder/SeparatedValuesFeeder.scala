@@ -36,7 +36,7 @@ abstract class SeparatedValuesFeeder(fileName: String, mappings: List[String], s
 
 	var seeds: Queue[Map[String, String]] = Queue()
 
-	for (line <- Source.fromFile(GATLING_SEEDS_FOLDER + "/" + fileName + extension, CONFIG_GATLING_FEEDER_ENCODING).getLines) {
+	for (line <- Source.fromFile(GATLING_SEEDS_FOLDER + "/" + fileName + extension, CONFIG_ENCODING).getLines) {
 		var lineMap = new HashMap[String, String]
 
 		for (mapping <- mappings zip line.split(separator).toList)
