@@ -105,11 +105,11 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	/**
 	 * Adds a query parameter to the request
 	 *
-	 * It will only have a key set by the user
+	 * The value is a context attribute with the same key
 	 *
 	 * @param paramKey the key of the parameter
 	 */
-	def queryParam(paramKey: String): B = queryParam(interpolate(paramKey), (c: Context) => EMPTY)
+	def queryParam(paramKey: String): B = queryParam(paramKey, paramKey)
 
 	/**
 	 * Adds a header to the request

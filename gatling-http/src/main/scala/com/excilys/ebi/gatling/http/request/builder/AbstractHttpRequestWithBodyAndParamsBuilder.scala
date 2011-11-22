@@ -78,6 +78,8 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 */
 	def param(paramKey: String, paramValue: String): B = param(interpolate(paramKey), interpolate(paramValue))
 
+	def param(paramKey: String): B = param(paramKey, paramKey)
+
 	/**
 	 * This method adds the parameters to the request builder
 	 *
