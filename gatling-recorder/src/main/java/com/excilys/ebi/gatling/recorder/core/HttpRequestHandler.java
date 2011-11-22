@@ -46,42 +46,44 @@ import com.excilys.ebi.gatling.recorder.http.event.MessageReceivedEvent;
  * @author nmaupu
  */
 public class HttpRequestHandler extends SimpleChannelHandler {
-	private String outgoingProxyHost;
-	private int outgoingProxyPort;
+
+	private static final int MAX_CONTENT_LENGTH = 1024 * 1024;
+
+	private final String outgoingProxyHost;
+	private final int outgoingProxyPort;
+
+	public HttpRequestHandler(String outgoingProxyHost, int outgoingProxyPort) {
+		this.outgoingProxyHost = outgoingProxyPort > 0 ? outgoingProxyHost : null;
+		this.outgoingProxyPort = outgoingProxyPort;
+	}
 
 	@Override
-	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+	public void messageReceived(ChannelHandlerContext ctx, MessageEvent event) throws Exception {
 
 		getEventBus().post(new MessageReceivedEvent(ctx.getChannel()));
 
-		final HttpRequest request = (HttpRequest) e.getMessage();
-
-		URI uri = new URI(request.getUri());
-		final String host = uri.getHost();
-		int port = uri.getPort() == -1 ? 80 : uri.getPort();
-
-		// Discard if host is null
-		if (host == null)
-			return;
+		final HttpRequest request = HttpRequest.class.cast(event.getMessage());
 
 		ChannelFactory factory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
 		ClientBootstrap bootstrap = new ClientBootstrap(factory);
 
-		// Create responseHandler and set listeners
-		final HttpResponseHandler rh = new HttpResponseHandler(ctx, request);
+		final HttpResponseHandler responseHandler = new HttpResponseHandler(ctx, request);
 
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			@Override
 			public ChannelPipeline getPipeline() throws Exception {
-				return Channels.pipeline(new HttpRequestEncoder(), new HttpResponseDecoder(), new HttpChunkAggregator(1048576), rh);
+				return Channels.pipeline(new HttpRequestEncoder(), new HttpResponseDecoder(), new HttpChunkAggregator(MAX_CONTENT_LENGTH), responseHandler);
 			}
 		});
 
 		ChannelFuture future;
-		if (outgoingProxyHost == null)
-			future = bootstrap.connect(new InetSocketAddress(host, port));
-		else
+		if (outgoingProxyHost == null) {
+			URI uri = new URI(request.getUri());
+			int port = uri.getPort() == -1 ? 80 : uri.getPort();
+			future = bootstrap.connect(new InetSocketAddress(uri.getHost(), port));
+		} else {
 			future = bootstrap.connect(new InetSocketAddress(outgoingProxyHost, outgoingProxyPort));
+		}
 
 		future.addListener(new ChannelFutureListener() {
 			@Override
@@ -90,7 +92,7 @@ public class HttpRequestHandler extends SimpleChannelHandler {
 			}
 		});
 
-		ctx.sendUpstream(e);
+		ctx.sendUpstream(event);
 	}
 
 	@Override
@@ -107,13 +109,5 @@ public class HttpRequestHandler extends SimpleChannelHandler {
 		});
 
 		ctx.sendUpstream(e);
-	}
-
-	public void setOutgoingProxyHost(String outgoingProxyHost) {
-		this.outgoingProxyHost = outgoingProxyHost;
-	}
-
-	public void setOutgoingProxyPort(int outgoingProxyPort) {
-		this.outgoingProxyPort = outgoingProxyPort;
 	}
 }

@@ -47,18 +47,12 @@ public class GatlingHttpProxy {
 		factory = new NioServerSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
 		bootstrap = new ServerBootstrap(factory);
 
-		final HttpRequestHandler rh = new HttpRequestHandler();
-
-		/* Adding outgoing proxy configuration */
-		if (outgoingProxyPort > 0) {
-			rh.setOutgoingProxyHost(outgoingProxyHost);
-			rh.setOutgoingProxyPort(outgoingProxyPort);
-		}
+		final HttpRequestHandler requestHandler = new HttpRequestHandler(outgoingProxyHost, outgoingProxyPort);
 
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			@Override
 			public ChannelPipeline getPipeline() throws Exception {
-				return Channels.pipeline(new HttpRequestDecoder(), new HttpResponseEncoder(), rh);
+				return Channels.pipeline(new HttpRequestDecoder(), new HttpResponseEncoder(), requestHandler);
 			}
 		});
 
@@ -73,9 +67,7 @@ public class GatlingHttpProxy {
 
 	public void shutdown() {
 		getEventBus().unregister(this);
-		// Now close all channels
 		group.close().awaitUninterruptibly();
-		// Now release resources
 		factory.releaseExternalResources();
 	}
 
