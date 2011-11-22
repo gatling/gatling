@@ -19,7 +19,6 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.excilys.ebi.gatling.recorder.ui.enumeration.Filter;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterType;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
 
@@ -28,9 +27,8 @@ public class Configuration {
 	private int proxyPort;
 	private String outgoingProxyHost;
 	private int outgoingProxyPort;
-	private Filter filter;
 	private FilterType filterType;
-	private List<String> filters;
+	private List<Pattern> patterns;
 	private String resultPath;
 	private List<ResultType> resultTypes;
 
@@ -58,14 +56,6 @@ public class Configuration {
 		this.outgoingProxyPort = outgoingProxyPort;
 	}
 
-	public Filter getFilter() {
-		return filter;
-	}
-
-	public void setFilter(Filter filter) {
-		this.filter = filter;
-	}
-
 	public FilterType getFilterType() {
 		return filterType;
 	}
@@ -74,12 +64,12 @@ public class Configuration {
 		this.filterType = filterType;
 	}
 
-	public List<String> getFilters() {
-		return filters;
+	public List<Pattern> getPatterns() {
+		return patterns;
 	}
 
-	public void setFilters(List<String> filters) {
-		this.filters = filters;
+	public void setPatterns(List<Pattern> patterns) {
+		this.patterns = patterns;
 	}
 
 	public String getResultPath() {

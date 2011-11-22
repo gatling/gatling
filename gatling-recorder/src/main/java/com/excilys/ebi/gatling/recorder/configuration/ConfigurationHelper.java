@@ -35,6 +35,7 @@ public final class ConfigurationHelper {
 	static {
 		XSTREAM.alias("resultType", ResultType.class);
 		XSTREAM.alias("configuration", Configuration.class);
+		XSTREAM.alias("pattern", Pattern.class);
 	}
 
 	private ConfigurationHelper() {

@@ -17,8 +17,8 @@ package com.excilys.ebi.gatling.recorder.ui.component;
 
 import static com.excilys.ebi.gatling.recorder.http.event.RecorderEventBus.getEventBus;
 import static com.excilys.ebi.gatling.recorder.ui.Constants.GATLING_REQUEST_BODIES_DIRECTORY_NAME;
-import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.io.IOUtils.closeQuietly;
+import static org.apache.commons.lang.StringUtils.EMPTY;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -39,8 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -55,16 +53,17 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
+import org.codehaus.plexus.util.SelectorUtils;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.QueryStringDecoder;
 
 import com.excilys.ebi.gatling.recorder.configuration.Configuration;
+import com.excilys.ebi.gatling.recorder.configuration.Pattern;
 import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy;
 import com.excilys.ebi.gatling.recorder.http.event.ResponseReceivedEvent;
 import com.excilys.ebi.gatling.recorder.http.event.ShowConfigurationFrameEvent;
 import com.excilys.ebi.gatling.recorder.http.event.ShowRunningFrameEvent;
 import com.excilys.ebi.gatling.recorder.http.event.TagEvent;
-import com.excilys.ebi.gatling.recorder.ui.enumeration.Filter;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterType;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
 import com.google.common.eventbus.Subscribe;
@@ -159,7 +158,7 @@ public class RunningFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent e) {
 				if (!txtTag.getText().equals(EMPTY)) {
-					listElements.addElement("Tag ! " + txtTag.getText());
+					listElements.addElement("Tag | " + txtTag.getText());
 					listExecutedRequests.ensureIndexIsVisible(listElements.getSize() - 1);
 					listRequests.add(new TagEvent(txtTag.getText()));
 					txtTag.setText(EMPTY);
@@ -223,7 +222,7 @@ public class RunningFrame extends JFrame {
 		if (addRequest(event.getRequest()))
 			processRequest(event);
 	}
-	
+
 	private void clearOldRunning() {
 		listElements.removeAllElements();
 		stringRequest.txt.setText(EMPTY);
@@ -240,7 +239,6 @@ public class RunningFrame extends JFrame {
 	}
 
 	private boolean addRequest(HttpRequest request) {
-		boolean add = true;
 		URI uri = null;
 		try {
 			uri = new URI(request.getUri());
@@ -250,45 +248,31 @@ public class RunningFrame extends JFrame {
 			return false;
 		}
 
-		if (configuration.getFilterType() == FilterType.All) {
-			Pattern pattern;
-			Matcher matcher;
-			if (configuration.getFilter() == Filter.Java) {
+		if (configuration.getFilterType() != FilterType.All) {
 
-				if (configuration.getFilterType() == FilterType.Only) {
-					for (String f : configuration.getFilters()) {
-						pattern = Pattern.compile(f);
-						matcher = pattern.matcher(uri.toString());
-						if (!matcher.find())
-							add = false;
-					}
-				} else if (configuration.getFilterType() == FilterType.Except) {
-					for (String f : configuration.getFilters()) {
-						pattern = Pattern.compile(f);
-						matcher = pattern.matcher(uri.toString());
-						if (matcher.find())
-							add = false;
-					}
+			String p = EMPTY;
+			boolean add = true;
+			if (configuration.getFilterType() == FilterType.Only)
+				add = true;
+			else if (configuration.getFilterType() == FilterType.Except)
+				add = false;
+
+			for (Pattern pattern : configuration.getPatterns()) {
+				switch (pattern.getPatternType()) {
+				case Ant:
+					p = SelectorUtils.ANT_HANDLER_PREFIX;
+					break;
+				case Java:
+					p = SelectorUtils.REGEX_HANDLER_PREFIX;
+					break;
 				}
-			} else if (configuration.getFilter() == Filter.Ant) {
-				if (configuration.getFilterType() == FilterType.Only) {
-					for (String f : configuration.getFilters()) {
-						pattern = Pattern.compile(toRegexp(f));
-						matcher = pattern.matcher(uri.getPath());
-						if (!matcher.find())
-							add = false;
-					}
-				} else if (configuration.getFilterType() == FilterType.Except) {
-					for (String f : configuration.getFilters()) {
-						pattern = Pattern.compile(toRegexp(f));
-						matcher = pattern.matcher(uri.getPath());
-						if (matcher.find())
-							add = false;
-					}
-				}
+				p += pattern.getPattern() + SelectorUtils.PATTERN_HANDLER_SUFFIX;
+				if (SelectorUtils.matchPath(p, uri.getPath()))
+					return add;
 			}
+			return !add;
 		}
-		return add;
+		return true;
 	}
 
 	private void processRequest(ResponseReceivedEvent event) {
@@ -406,14 +390,5 @@ public class RunningFrame extends JFrame {
 				closeQuietly(fileWriter);
 			}
 		}
-	}
-
-	private String toRegexp(String pattern) {
-		String regexpPattern = null;
-		regexpPattern = pattern.replace(".", "\\.");
-		regexpPattern = regexpPattern.replace("**", ".#?#?");
-		regexpPattern = regexpPattern.replace("*", "[^/\\.]*");
-		regexpPattern = regexpPattern.replace("#?#", "*");
-		return regexpPattern;
 	}
 }

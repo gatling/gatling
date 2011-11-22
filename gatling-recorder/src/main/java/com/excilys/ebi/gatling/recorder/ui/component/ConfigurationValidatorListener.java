@@ -30,8 +30,8 @@ import org.apache.commons.lang.StringUtils;
 
 import com.excilys.ebi.gatling.recorder.configuration.Configuration;
 import com.excilys.ebi.gatling.recorder.configuration.ConfigurationHelper;
+import com.excilys.ebi.gatling.recorder.configuration.Pattern;
 import com.excilys.ebi.gatling.recorder.http.event.ShowRunningFrameEvent;
-import com.excilys.ebi.gatling.recorder.ui.enumeration.Filter;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterType;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
 
@@ -74,12 +74,11 @@ public class ConfigurationValidatorListener implements ActionListener {
 			}
 		}
 
-		config.setFilter((Filter) frame.cbFilter.getSelectedItem());
 		config.setFilterType((FilterType) frame.cbFilterType.getSelectedItem());
 		// Set urls filters into a list
-		config.setFilters(new ArrayList<String>());
+		config.setPatterns(new ArrayList<Pattern>());
 		for (int i = 0; i < frame.listElements.size(); i++)
-			config.getFilters().add((String) frame.listElements.get(i));
+			config.getPatterns().add((Pattern) frame.listElements.get(i));
 
 		// Check if a directory was entered
 		config.setResultPath(StringUtils.trimToNull(frame.txtResultPath.getText()));
@@ -121,10 +120,10 @@ public class ConfigurationValidatorListener implements ActionListener {
 		System.out.println("Proxy port: " + conf.getProxyPort());
 		if (conf.getOutgoingProxyHost() != null)
 			System.out.println("Outgoing proxy: " + conf.getOutgoingProxyHost() + ":" + conf.getOutgoingProxyPort());
-		System.out.println("Filters: " + conf.getFilter() + "(" + conf.getFilterType() + ")");
+		System.out.println("Filters: " + conf.getFilterType());
 		if (!conf.getFilterType().equals(FilterType.All))
-			for (String f : conf.getFilters())
-				System.out.println(" - " + f);
+			for (Pattern pattern : conf.getPatterns())
+				System.out.println(" - " + pattern);
 		System.out.println("Results: " + conf.getResultPath());
 		System.out.println("Result type:");
 		for (ResultType r : conf.getResultTypes())

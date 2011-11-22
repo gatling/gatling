@@ -15,6 +15,6 @@
  */
 package com.excilys.ebi.gatling.recorder.ui.enumeration;
 
-public enum Filter {
+public enum PatternType {
 	Java, Ant;
 }

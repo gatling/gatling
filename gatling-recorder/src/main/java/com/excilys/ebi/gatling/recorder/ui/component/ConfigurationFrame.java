@@ -32,6 +32,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -42,15 +43,17 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import com.excilys.ebi.gatling.recorder.configuration.Configuration;
 import com.excilys.ebi.gatling.recorder.configuration.ConfigurationHelper;
+import com.excilys.ebi.gatling.recorder.configuration.Pattern;
 import com.excilys.ebi.gatling.recorder.http.event.ShowConfigurationFrameEvent;
 import com.excilys.ebi.gatling.recorder.http.event.ShowRunningFrameEvent;
-import com.excilys.ebi.gatling.recorder.ui.enumeration.Filter;
+import com.excilys.ebi.gatling.recorder.ui.enumeration.PatternType;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterType;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
 import com.google.common.eventbus.Subscribe;
@@ -61,7 +64,6 @@ public class ConfigurationFrame extends JFrame {
 	public final JTextField txtPort = new JTextField(4);
 	public final JTextField txtProxyHost = new JTextField(10);
 	public final JTextField txtProxyPort = new JTextField(4);
-	public final JComboBox cbFilter = new JComboBox();
 	public final JComboBox cbFilterType = new JComboBox();
 	public final DefaultListModel listElements = new DefaultListModel();
 	public final JList listFilters = new JList(listElements);
@@ -86,8 +88,15 @@ public class ConfigurationFrame extends JFrame {
 		JButton btnFiltersAdd = new JButton("+");
 		JButton btnFiltersDel = new JButton("-");
 		JButton btnPathResults = new JButton("Browse");
-		for (Filter f : Filter.values())
-			cbFilter.addItem(f);
+		final List<JRadioButton> listBtnFilters = new ArrayList<JRadioButton>();
+		ButtonGroup group = new ButtonGroup();
+		JRadioButton rdBtn = null;
+		for (PatternType f : PatternType.values()) {
+			rdBtn = new JRadioButton(f.name());
+			listBtnFilters.add(rdBtn);
+			group.add(rdBtn);
+		}
+		listBtnFilters.get(0).setSelected(true);
 		for (FilterType ft : FilterType.values())
 			cbFilterType.addItem(ft);
 		for (ResultType rt : ResultType.values())
@@ -127,6 +136,12 @@ public class ConfigurationFrame extends JFrame {
 		gbc.gridwidth = 1;
 		add(txtFilters, gbc);
 
+		gbc.gridy = 5;
+		gbc.gridx = GridBagConstraints.RELATIVE;
+		gbc.anchor = GridBagConstraints.CENTER;
+		for (JRadioButton filter : listBtnFilters)
+			add(filter, gbc);
+
 		gbc.gridy = 6;
 		gbc.gridwidth = 2;
 		add(new JLabel("Results :"), gbc);
@@ -163,7 +178,7 @@ public class ConfigurationFrame extends JFrame {
 		add(txtProxyHost, gbc);
 
 		gbc.gridy = 3;
-		add(cbFilter, gbc);
+		add(cbFilterType, gbc);
 
 		gbc.gridy = 6;
 		add(txtResultPath, gbc);
@@ -195,9 +210,6 @@ public class ConfigurationFrame extends JFrame {
 		gbc.gridy = 2;
 		add(txtProxyPort, gbc);
 
-		gbc.gridy = 3;
-		add(cbFilterType, gbc);
-
 		gbc.gridy = 6;
 		add(btnPathResults, gbc);
 
@@ -228,10 +240,16 @@ public class ConfigurationFrame extends JFrame {
 
 		btnFiltersAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (!listElements.contains(txtFilters.getText())) {
-					listElements.addElement(txtFilters.getText());
-					listFilters.ensureIndexIsVisible(listElements.getSize() - 1);
+				String patternType = EMPTY;
+				for (JRadioButton rdBtn : listBtnFilters) {
+					if (rdBtn.isSelected()) {
+						patternType = rdBtn.getText();
+						break;
+					}
 				}
+				listElements.addElement(new Pattern(PatternType
+						.valueOf(patternType), txtFilters.getText()));
+				listFilters.ensureIndexIsVisible(listElements.getSize() - 1);
 				txtFilters.setText(EMPTY);
 			}
 		});
@@ -241,14 +259,6 @@ public class ConfigurationFrame extends JFrame {
 				for (int i : listFilters.getSelectedIndices())
 					listElements.remove(i);
 				txtFilters.setText(EMPTY);
-			}
-		});
-
-		listFilters.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				if (listFilters.getSelectedIndex() >= 0)
-					txtFilters.setText((String) listElements.get(listFilters
-							.getSelectedIndex()));
 			}
 		});
 
@@ -282,12 +292,12 @@ public class ConfigurationFrame extends JFrame {
 
 		btnStart.addActionListener(new ConfigurationValidatorListener(this));
 	}
-	
+
 	@Subscribe
 	public void onShowConfigurationFrameEvent(ShowConfigurationFrameEvent event) {
 		setVisible(true);
 	}
-	
+
 	@Subscribe
 	public void onShowRunningFrameEvent(ShowRunningFrameEvent event) {
 		setVisible(false);
@@ -297,10 +307,9 @@ public class ConfigurationFrame extends JFrame {
 		txtPort.setText(String.valueOf(config.getProxyPort()));
 		txtProxyHost.setText(config.getOutgoingProxyHost());
 		txtProxyPort.setText(String.valueOf(config.getOutgoingProxyPort()));
-		cbFilter.setSelectedItem(config.getFilter());
 		cbFilterType.setSelectedItem(config.getFilterType());
-		for (String filter : config.getFilters())
-			listElements.addElement(filter);
+		for (Pattern pattern : config.getPatterns())
+			listElements.addElement(pattern);
 		txtResultPath.setText(config.getResultPath());
 		for (JCheckBox cb : listResultsType)
 			for (ResultType resultType : config.getResultTypes())
@@ -337,7 +346,8 @@ public class ConfigurationFrame extends JFrame {
 					if (listFilters.getSelectedIndices().length < 1)
 						listFilters.setSelectedIndex(listFilters
 								.locationToIndex(e.getPoint()));
-					popup.show(e.getComponent(), e.getX(), e.getY());
+					if (listFilters.getSelectedIndices().length > 0)
+						popup.show(e.getComponent(), e.getX(), e.getY());
 				}
 			}
 		});
