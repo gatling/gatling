@@ -80,6 +80,9 @@ public class RunningFrame extends JFrame {
 	private JButton btnTag = new JButton("Set");
 	private DefaultListModel listElements = new DefaultListModel();
 	private JList listExecutedRequests = new JList(listElements);
+	private TextAreaPanel stringRequest = new TextAreaPanel("Request:");
+	private TextAreaPanel stringResponse = new TextAreaPanel("Response:");
+	private TextAreaPanel stringRequestBody = new TextAreaPanel("Request Body:");
 
 	private List<Object> listRequests = new ArrayList<Object>();
 	private String protocol;
@@ -108,10 +111,7 @@ public class RunningFrame extends JFrame {
 		JScrollPane panelFilters = new JScrollPane(listExecutedRequests);
 		panelFilters.setPreferredSize(new Dimension(300, 100));
 
-		final TextAreaPanel stringRequest = new TextAreaPanel("Request:");
 		stringRequest.setPreferredSize(new Dimension(330, 100));
-		final TextAreaPanel stringResponse = new TextAreaPanel("Response:");
-		final TextAreaPanel stringRequestBody = new TextAreaPanel("Request Body:");
 		JSplitPane requestResponsePane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(stringRequest), new JScrollPane(stringResponse));
 		final JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, requestResponsePane, stringRequestBody);
 
@@ -187,18 +187,7 @@ public class RunningFrame extends JFrame {
 
 		btnClear.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				listElements.removeAllElements();
-				stringRequest.txt.setText(EMPTY);
-				stringRequestBody.txt.setText(EMPTY);
-				stringResponse.txt.setText(EMPTY);
-				listRequests.clear();
-				urls.clear();
-				headers.clear();
-				protocol = null;
-				domain = null;
-				port = -1;
-				urlBase = null;
-				urlBaseString = null;
+				clearOldRunning();
 			}
 		});
 
@@ -221,6 +210,7 @@ public class RunningFrame extends JFrame {
 	@Subscribe
 	public void onShowRunningFrameEvent(ShowRunningFrameEvent event) {
 		setVisible(true);
+		clearOldRunning();
 		configuration = event.getConfiguration();
 		startDate = new Date();
 		proxy = new GatlingHttpProxy(configuration.getProxyPort(), configuration.getOutgoingProxyHost(), configuration.getOutgoingProxyPort());
@@ -232,6 +222,21 @@ public class RunningFrame extends JFrame {
 
 		if (addRequest(event.getRequest()))
 			processRequest(event);
+	}
+	
+	private void clearOldRunning() {
+		listElements.removeAllElements();
+		stringRequest.txt.setText(EMPTY);
+		stringRequestBody.txt.setText(EMPTY);
+		stringResponse.txt.setText(EMPTY);
+		listRequests.clear();
+		urls.clear();
+		headers.clear();
+		protocol = null;
+		domain = null;
+		port = -1;
+		urlBase = null;
+		urlBaseString = null;
 	}
 
 	private boolean addRequest(HttpRequest request) {
