@@ -95,6 +95,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 			paramsMap.add(key, values.map { value => value._2 }: _*)
 		}
 
-		requestBuilder setParameters paramsMap
+		if (!paramsMap.isEmpty) // FIXME patch AHC so that it won't see parameters if map size == 0
+			requestBuilder setParameters paramsMap
 	}
 }
