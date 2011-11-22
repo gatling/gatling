@@ -15,8 +15,7 @@
  */
 package com.excilys.ebi.gatling.http.check.body
 
-import scala.annotation.implicitNotFound
-
+import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
 import com.excilys.ebi.gatling.core.check.strategy.{ NonExistenceCheckStrategy, NonEqualityCheckStrategy, ExistenceCheckStrategy, EqualityCheckStrategy, CheckStrategy }
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
@@ -31,7 +30,7 @@ object HttpBodyXPathCheckBuilder {
 	/**
 	 *
 	 */
-	def xpath(expression: String): HttpBodyXPathCheckBuilder = xpath((c: Context) => expression)
+	def xpath(expression: String): HttpBodyXPathCheckBuilder = xpath(interpolate(expression))
 }
 
 /**

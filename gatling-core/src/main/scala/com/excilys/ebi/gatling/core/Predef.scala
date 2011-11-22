@@ -20,7 +20,6 @@ import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder
 import com.excilys.ebi.gatling.core.context.handler.CounterBasedIterationHandler
 import com.excilys.ebi.gatling.core.context.handler.TimerBasedIterationHandler
-import com.excilys.ebi.gatling.core.util.StringHelper.interpolateString
 import com.excilys.ebi.gatling.core.runner.Runner.runSim
 import com.excilys.ebi.gatling.core.structure.ScenarioBuilder
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
@@ -36,7 +35,6 @@ object Predef {
 	type TSVFeeder = feeder.TSVFeeder
 
 	type Context = context.Context
-	val SavedValue = context.SavedValue
 
 	val MILLISECONDS = TimeUnit.MILLISECONDS
 	val SECONDS = TimeUnit.SECONDS
@@ -48,8 +46,6 @@ object Predef {
 
 	def getCounterValue(context: Context, counterName: String): Int = CounterBasedIterationHandler.getCounterValue(context, counterName)
 	def getTimerValue(context: Context, timerName: String): Long = TimerBasedIterationHandler.getTimerValue(context, timerName)
-
-	def interpolate(stringToFormat: String, interpolations: String*) = (c: Context) => interpolateString(c, stringToFormat, interpolations)
 
 	def runSimFunction(startDate: String) = runSim(new DateTime(startDate))_
 	def runSimFunction(startDate: DateTime) = runSim(startDate)_

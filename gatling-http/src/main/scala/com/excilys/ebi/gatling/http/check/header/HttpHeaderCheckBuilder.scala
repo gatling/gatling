@@ -15,13 +15,14 @@
  */
 package com.excilys.ebi.gatling.http.check.header
 
-import scala.annotation.implicitNotFound
-
-import com.excilys.ebi.gatling.core.check.strategy.{ NonExistenceCheckStrategy, NonEqualityCheckStrategy, ExistenceCheckStrategy, EqualityCheckStrategy, CheckStrategy }
+import com.excilys.ebi.gatling.core.check.strategy.CheckStrategy
+import com.excilys.ebi.gatling.core.check.strategy.ExistenceCheckStrategy
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilder, HttpCheck }
-import com.excilys.ebi.gatling.http.request.HttpPhase.{ HttpPhase, HeadersReceived }
+import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
+import com.excilys.ebi.gatling.http.check.HttpCheck
+import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
+import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
+import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 
 /**
  * HttpHeaderCheckBuilder class companion
@@ -40,7 +41,7 @@ object HttpHeaderCheckBuilder {
 	 *
 	 * @param headerName the name of the header
 	 */
-	def header(headerName: String): HttpHeaderCheckBuilder = header((c: Context) => headerName)
+	def header(headerName: String): HttpHeaderCheckBuilder = header(interpolate(headerName))
 }
 
 /**

@@ -21,11 +21,11 @@ import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 /**
  * This class defines an HTTP request with word GET in the DSL
  */
-class GetHttpRequestBuilder(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: List[(Context => String, Context => Option[String])],
+class GetHttpRequestBuilder(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Context => String, queryParams: List[(Context => String, Context => String)],
 	headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
 		extends AbstractHttpRequestBuilder[GetHttpRequestBuilder](httpRequestActionBuilder, urlFunction, queryParams, headers, followsRedirects, credentials) {
 
-	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: List[(Context => String, Context => Option[String])], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)]) = {
+	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Context => String, queryParams: List[(Context => String, Context => String)], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)]) = {
 		new GetHttpRequestBuilder(httpRequestActionBuilder, urlFunction, queryParams, headers, followsRedirects, credentials)
 	}
 

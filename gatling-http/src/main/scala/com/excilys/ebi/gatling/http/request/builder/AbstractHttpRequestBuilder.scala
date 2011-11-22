@@ -21,7 +21,6 @@ import com.ning.http.client.FluentStringsMap
 import com.ning.http.client.FluentCaseInsensitiveStringsMap
 import org.fusesource.scalate._
 import com.excilys.ebi.gatling.core.context.Context
-import com.excilys.ebi.gatling.core.context.SavedValue
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration._
@@ -63,8 +62,8 @@ object AbstractHttpRequestBuilder {
  * @param followsRedirects sets the follow redirect option of AHC
  * @param credentials sets the credentials in case of Basic HTTP Authentication
  */
-abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String],
-	queryParams: List[(Context => String, Context => Option[String])], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
+abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Context => String,
+	queryParams: List[(Context => String, Context => String)], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
 		extends Logging {
 
 	/**
@@ -77,7 +76,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * @param followsRedirects sets the follow redirect option of AHC
 	 * @param credentials sets the credentials in case of Basic HTTP Authentication
 	 */
-	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Option[Context => String], queryParams: List[(Context => String, Context => Option[String])], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
+	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Context => String, queryParams: List[(Context => String, Context => String)], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
 
 	/**
 	 * Stops defining the request and adds checks on the response
@@ -92,7 +91,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * @param paramKeyFunction a function that returns the key name
 	 * @param paramValueFunction a function that returns the value
 	 */
-	def queryParam(paramKeyFunction: Context => String, paramValueFunction: Context => Option[String]): B = newInstance(httpRequestActionBuilder, urlFunction, (paramKeyFunction, paramValueFunction) :: queryParams, headers, followsRedirects, credentials)
+	def queryParam(paramKeyFunction: Context => String, paramValueFunction: Context => String): B = newInstance(httpRequestActionBuilder, urlFunction, (paramKeyFunction, paramValueFunction) :: queryParams, headers, followsRedirects, credentials)
 	/**
 	 * Adds a query parameter to the request
 	 *
@@ -101,33 +100,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * @param paramKey the key of the parameter
 	 * @param paramValue the value of the parameter
 	 */
-	def queryParam(paramKey: String, paramValue: String): B = queryParam((c: Context) => paramKey, (c: Context) => Some(paramValue))
+	def queryParam(paramKey: String, paramValue: String): B = queryParam(interpolate(paramKey), interpolate(paramValue))
 
-	/**
-	 * Adds a query parameter to the request
-	 *
-	 * Its key and value come from the context
-	 *
-	 * @param paramKey the key of the context containing the name of the key
-	 * @param paramValue the key of the context containing the value of the parameter
-	 */
-	def queryParam(paramKey: SavedValue, paramValue: SavedValue): B = queryParam((c: Context) => c.getAttribute(paramKey.attributeKey).toString, (c: Context) => Some(c.getAttribute(paramValue.attributeKey).toString))
-	/**
-	 * Adds a query parameter to the request
-	 *
-	 * Its key is set by the user and its value comes from the context
-	 *
-	 * @param paramValue the key of the context containing the value of the parameter
-	 */
-	def queryParam(paramKey: String, paramValue: SavedValue): B = queryParam((c: Context) => paramKey, (c: Context) => Some(c.getAttribute(paramValue.attributeKey).toString))
-	/**
-	 * Adds a query parameter to the request
-	 *
-	 * Its key comes from the context and its value is set by the user
-	 *
-	 * @param paramKey the key of the context containing the name of the key
-	 */
-	def queryParam(paramKey: SavedValue, paramValue: String): B = queryParam((c: Context) => c.getAttribute(paramKey.attributeKey).toString, (c: Context) => Some(paramValue))
 	/**
 	 * Adds a query parameter to the request
 	 *
@@ -135,15 +109,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 *
 	 * @param paramKey the key of the parameter
 	 */
-	def queryParam(paramKey: String): B = queryParam((c: Context) => paramKey, (c: Context) => None)
-	/**
-	 * Adds a query parameter to the request
-	 *
-	 * It will only have a key coming from context
-	 *
-	 * @param paramKey the key of the context containing the name of the key
-	 */
-	def queryParam(paramKey: SavedValue): B = queryParam((c: Context) => c.getAttribute(paramKey.attributeKey).toString, (c: Context) => None)
+	def queryParam(paramKey: String): B = queryParam(interpolate(paramKey), (c: Context) => EMPTY)
 
 	/**
 	 * Adds a header to the request
@@ -244,7 +210,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * @param context the context of the current scenario
 	 */
 	private def addURLTo(requestBuilder: RequestBuilder, context: Context) = {
-		val urlProvided = urlFunction.get(context)
+		val urlProvided = urlFunction(context)
 
 		val httpConfiguration = context.getProtocolConfiguration(HTTP_PROTOCOL_TYPE).map { configuration =>
 			configuration.asInstanceOf[HttpProtocolConfiguration]
@@ -287,7 +253,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	private def addQueryParamsTo(requestBuilder: RequestBuilder, context: Context) = {
 		val queryParamsMap = new FluentStringsMap
 
-		val keyValues = for ((keyFunction, valueFunction) <- queryParams) yield (keyFunction.apply(context), valueFunction.apply(context).getOrElse(EMPTY))
+		val keyValues = for ((keyFunction, valueFunction) <- queryParams) yield (keyFunction.apply(context), valueFunction.apply(context))
 
 		keyValues.groupBy(entry => entry._1).foreach { entry =>
 			val (key, values) = entry

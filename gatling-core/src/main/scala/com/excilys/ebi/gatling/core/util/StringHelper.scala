@@ -19,6 +19,7 @@ import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.log.Logging
 import java.util.regex.Pattern
 import java.text.Normalizer
+import akka.actor.Uuid
 
 /**
  * This object groups all utilities for strings
@@ -29,30 +30,8 @@ object StringHelper extends Logging {
 
 	val jdk6Pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
 
-	/**
-	 * Returns a string with all {} replaced by specified values as in :
-	 * {{{
-	 * //context has attribute "key" set to "interpolation"
-	 * interpolate("This is an {}", "key") => "This is an interpolation"
-	 * }}}
-	 *
-	 * @param context the context in which values must be taken
-	 * @param stringToFormat the string to be formatted
-	 * @param interpolations the keys of the values that will be inserted in stringToFormat
-	 * @return the completed string
-	 */
-	def interpolateString(context: Context, stringToFormat: String, interpolations: Seq[String]) = {
-
-		interpolations.size match {
-			case 0 => stringToFormat
-			case 1 => MessageFormatter.format(stringToFormat, context.getAttribute(interpolations(0))).getMessage
-			case 2 => MessageFormatter.format(stringToFormat, context.getAttribute(interpolations(0)), context.getAttribute(interpolations(1))).getMessage
-			case _ => {
-				val interpolationsFromContext: Seq[String] = for (interpolation <- interpolations) yield context.getAttribute(interpolation).toString
-				MessageFormatter.arrayFormat(stringToFormat, interpolationsFromContext.toArray).getMessage
-			}
-		}
-	}
+	val elPatternString = """\$\{(.*?)\}"""
+	val elPattern = elPatternString.r
 
 	/**
 	 * Method that strips all accents from a string
@@ -60,5 +39,14 @@ object StringHelper extends Logging {
 	def stripAccents(string: String) = {
 		val normalized = Normalizer.normalize(string, Normalizer.Form.NFD)
 		jdk6Pattern.matcher(normalized).replaceAll(EMPTY);
+	}
+
+	def interpolate(stringToFormat: String): Context => String = {
+		val keysFunctions = elPattern.findAllIn(stringToFormat).matchData.map { data => (c: Context) => c.getAttribute(data.group(1)) }.toSeq
+		val strings = stringToFormat.split(elPatternString, -1).toSeq
+
+		val functions = keysFunctions zip strings
+
+		(c: Context) => functions.map { entry => entry._2 + entry._1(c).toString }.mkString + strings.last
 	}
 }

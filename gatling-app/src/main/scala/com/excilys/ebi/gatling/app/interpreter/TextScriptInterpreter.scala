@@ -30,11 +30,13 @@ import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_SCENARIOS_FOLDER
  */
 class DateHolder(var value: DateTime)
 
+object TextScriptInterpreter {
+	val UNIT_SEPARATOR = 31.toChar
+}
 /**
  * Text interpreter used to interpret .txt simulation files
  */
 class TextScriptInterpreter extends Interpreter {
-
 	/**
 	 * This method launches the interpretation of the simulation and runs it
 	 *
@@ -57,18 +59,18 @@ class TextScriptInterpreter extends Interpreter {
     """
 
 		// Contains the contents of the simulation file
-		val initialFileBodyContent = Source.fromFile(GATLING_SCENARIOS_FOLDER + "/" + fileName).mkString
+		val initialFileBodyContent = Source.fromFile(GATLING_SCENARIOS_FOLDER + "/" + fileName).mkString.replace('$', TextScriptInterpreter.UNIT_SEPARATOR)
 
 		// Includes contents of included files into the simulation file 
 		val toBeFound = new Regex("""include\("(.*)"\)""")
 		val newFileBodyContent = toBeFound.replaceAllIn(initialFileBodyContent, result => {
 			val path = fileName.substring(0, fileName.lastIndexOf("@")) + "/" + result.group(1)
-			Source.fromFile(GATLING_SCENARIOS_FOLDER + "/" + path + TXT_EXTENSION).mkString + "\n\n"
-		})
+			Source.fromFile(GATLING_SCENARIOS_FOLDER + "/" + path + TXT_EXTENSION).mkString.replace('$', TextScriptInterpreter.UNIT_SEPARATOR) + "\n\n"
+		}).replace(TextScriptInterpreter.UNIT_SEPARATOR, '$')
 
 		// Complete script
 		val fileContent = fileHeader + newFileBodyContent
-		logger.debug(fileContent)
+		logger.warn(fileContent)
 
 		n.bind("startDate", new DateHolder(startDate))
 		n.interpret(fileContent) // This is where the simulation starts

@@ -67,6 +67,10 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 		result
 	}
 
+	def getAttributeAs[TYPE](key: String): TYPE = {
+		getAttribute(key).asInstanceOf[TYPE]
+	}
+
 	/**
 	 * Gets a value from the context
 	 *

@@ -57,8 +57,8 @@ object CompileTest {
 				.exec(
 					http("Page accueil").get("http://localhost:3000")
 						.check(
-							xpath(interpolate("//input[@value='{}']/@id", "aaaa_value")).exists.saveAs("ctxParam"),
-							xpath(interpolate("//input[@id='{}']/@value", "aaaa_value")).notExists,
+							xpath("//input[@value='${aaaa_value}']/@id").exists.saveAs("ctxParam"),
+							xpath("//input[@id='${aaaa_value}']/@value").notExists,
 							regexp("""<input id="text1" type="text" value="aaaa" />"""),
 							regexp("""<input id="text1" type="test" value="aaaa" />""").notExists,
 							status.in(200 to 210) saveAs "blablaParam",
@@ -102,7 +102,7 @@ object CompileTest {
 				.exec(http("Test Page") get ("/tests") check (header(CONTENT_TYPE).eq("text/html; charset=utf-8") saveAs "ctxParam"))
 				// Fourth request to be repeated
 				.exec(http("Create Thing omgomg")
-					.post("/things").queryParam("postTest", SavedValue("ctxParam")).withTemplateBody("create_thing", Map("name" -> SavedValue("ctxParam"))).asJSON
+					.post("/things").queryParam("postTest", "${ctxParam}").withTemplateBody("create_thing", Map("name" -> "${ctxParam}")).asJSON
 					.check(status.eq(201) saveAs "status"))).counterName("titi").times(iterations)
 		// Second request outside iteration
 		.startGroup(doStuffGroup)
