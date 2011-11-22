@@ -70,7 +70,7 @@ class TextScriptInterpreter extends Interpreter {
 
 		// Complete script
 		val fileContent = fileHeader + newFileBodyContent
-		logger.warn(fileContent)
+		logger.debug(fileContent)
 
 		n.bind("startDate", new DateHolder(startDate))
 		n.interpret(fileContent) // This is where the simulation starts
