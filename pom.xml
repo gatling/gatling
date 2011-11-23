@@ -93,6 +93,7 @@
 		<maven-surefire-plugin.version>2.10</maven-surefire-plugin.version>
 		<maven-release-plugin.version>2.2.1</maven-release-plugin.version>
 		<maven-licence-plugin.version>1.9.0</maven-licence-plugin.version>
+		<maven-shade-plugin.version>1.5</maven-shade-plugin.version>
 	</properties>
 
 	<dependencyManagement>
@@ -271,18 +272,6 @@
 		</dependencies>
 	</dependencyManagement>
 
-	<dependencies>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-		</dependency>
-	</dependencies>
-
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -380,6 +369,10 @@
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
 					</configuration>
+				</plugin>
+				<plugin>
+					<artifactId>maven-shade-plugin</artifactId>
+					<version>${maven-shade-plugin.version}</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
