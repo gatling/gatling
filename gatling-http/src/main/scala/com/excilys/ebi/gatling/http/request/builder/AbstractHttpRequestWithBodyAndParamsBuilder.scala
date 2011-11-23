@@ -41,7 +41,6 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 
 	override def getRequestBuilder(context: Context): RequestBuilder = {
 		val requestBuilder = super.getRequestBuilder(context)
-		logger.debug("Building in with body and params")
 		addParamsTo(requestBuilder, context)
 		requestBuilder
 	}

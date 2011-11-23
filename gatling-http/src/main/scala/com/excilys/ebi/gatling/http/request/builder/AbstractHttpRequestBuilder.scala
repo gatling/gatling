@@ -158,7 +158,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * @param context the context of the current scenario
 	 */
 	def getRequestBuilder(context: Context): RequestBuilder = {
-		logger.debug("Building in HttpRequestBuilder")
 		val requestBuilder = new RequestBuilder
 		requestBuilder setMethod getMethod setFollowRedirects followsRedirects.getOrElse(false)
 
@@ -181,7 +180,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 		val request = getRequestBuilder(context) build
 
-		logger.debug("Built {} Request: {})", getMethod, request.getCookies)
 		request
 	}
 
@@ -197,10 +195,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 		}
 
 		if (httpConfiguration.isDefined)
-			httpConfiguration.get.proxy.map { proxy =>
-				requestBuilder.setProxyServer(proxy)
-				logger.debug("PROXY SET")
-			}
+			httpConfiguration.get.proxy.map { proxy => requestBuilder.setProxyServer(proxy) }
 	}
 
 	/**
@@ -237,9 +232,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * @param context the context of the current scenario
 	 */
 	private def addCookiesTo(requestBuilder: RequestBuilder, context: Context) = {
-		logger.debug("Adding Cookies to RequestBuilder: {}", context.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(Map.empty))
 		for ((cookieName, cookie) <- context.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty).asInstanceOf[HashMap[String, Cookie]]) {
-			logger.debug("Cookie added to request: {}", cookie)
 			requestBuilder.addOrReplaceCookie(cookie)
 		}
 	}

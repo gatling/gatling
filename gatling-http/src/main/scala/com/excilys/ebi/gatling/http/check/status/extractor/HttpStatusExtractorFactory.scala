@@ -23,8 +23,5 @@ import com.ning.http.client.Response
  */
 object HttpStatusExtractorFactory extends ExtractorFactory[Response] {
 
-	def getExtractor(response: Response) = {
-		logger.debug("Instantiation of HttpStatusExtractor")
-		new HttpStatusExtractor(response)
-	}
+	def getExtractor(response: Response) = new HttpStatusExtractor(response)
 }

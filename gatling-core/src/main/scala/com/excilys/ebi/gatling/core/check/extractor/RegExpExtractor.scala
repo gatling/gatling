@@ -33,7 +33,7 @@ class RegExpExtractor(textContent: String, occurrence: Int) extends Extractor {
 	 * @return an option containing the value if found, None otherwise
 	 */
 	def extract(expression: String): Option[String] = {
-		logger.debug("[RegExpExtractor] Extracting with expression : {}", expression)
+		logger.debug("Extracting with expression : {}", expression)
 
 		val matcher = Pattern.compile(expression).matcher(textContent)
 

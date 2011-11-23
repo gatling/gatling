@@ -23,8 +23,5 @@ import com.ning.http.client.Response
  */
 class HttpBodyRegExpExtractorFactory(occurence: Int) extends ExtractorFactory[Response] {
 
-	def getExtractor(response: Response) = {
-		logger.debug("Instantiation of RegExpExtractor")
-		new RegExpExtractor(response.getResponseBody, occurence)
-	}
+	def getExtractor(response: Response) = new RegExpExtractor(response.getResponseBody, occurence)
 }

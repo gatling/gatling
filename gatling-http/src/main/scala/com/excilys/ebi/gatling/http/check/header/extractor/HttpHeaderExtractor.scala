@@ -52,8 +52,6 @@ class HttpHeaderExtractor(response: Response) extends Extractor {
 
 		val values = headersMap.get(headerName)
 
-		logger.debug(" -- HttpHeaderExtractor - Got header values: {}", values)
-
 		if (values == null)
 			None
 		else

@@ -69,7 +69,7 @@ object App extends Logging {
 				files2.size match {
 					case 0 =>
 						// If there is no simulation file
-						logger.warn("There are no scenario scripts. Please verify that your scripts are in user-files/scenarios and that they do not start with a _ or a .")
+						logger.warn("There are no scenario scripts. Please verify that your scripts are in user-files/scenarios and that they do not start with a .")
 						sys.exit
 					case 1 =>
 						// If there is only one simulation file
@@ -119,11 +119,7 @@ object App extends Logging {
 	 * @param folderName The folder from which the simulation.log will be parsed
 	 * @return Nothing
 	 */
-	private def generateStats(folderName: String) = {
-		logger.debug("\nGenerating Charts and Statistics from Folder Name: {}", folderName)
-
-		ReportsGenerator.generateFor(folderName)
-	}
+	private def generateStats(folderName: String) = ReportsGenerator.generateFor(folderName)
 
 	/**
 	 * This method actually runs the simulation by interpreting the scripts.

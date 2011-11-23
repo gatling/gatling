@@ -58,7 +58,6 @@ class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, ne
 	 * @return a new builder with givenProcessors set
 	 */
 	private[http] def withProcessors(givenProcessors: Seq[HttpCheckBuilder[_]]) = {
-		logger.debug("Adding Processors")
 		new HttpRequestActionBuilder(requestName, request, next, Some(givenProcessors.toList ::: processorBuilders.getOrElse(Nil)), groups)
 	}
 
@@ -69,7 +68,6 @@ class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, ne
 	def inGroups(groups: List[String]) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders, Some(groups))
 
 	def build: Action = {
-		logger.debug("Building HttpRequestAction with request {}", request)
 		TypedActor.newInstance(classOf[Action], new HttpRequestAction(next, request, processorBuilders, groups.get))
 	}
 

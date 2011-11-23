@@ -73,7 +73,6 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: List[ScenarioCo
 			case (scenario, configuration) => {
 				val (delayDuration, delayUnit) = scenario.delay
 				Scheduler.scheduleOnce(() => {
-					logger.debug("Launching Scenario: {}", configuration.firstAction)
 					startOneScenario(scenario, configuration.firstAction)
 				}, delayDuration, delayUnit)
 			}

@@ -67,16 +67,13 @@ class XPathExtractor(xmlContent: InputStream, occurrence: Int) extends Extractor
 
 		val xpathExpression: XPath = new DOMXPath(expression);
 
-		logger.debug("[XPathExtractor] Extracting with expression : {}", expression)
+		logger.debug("Extracting with expression : {}", expression)
 
 		val results = xpathExpression.selectNodes(document).asInstanceOf[java.util.List[Node]]
 
-		val result = if (results.size() > 0)
+		if (results.size() > 0)
 			Some(results.get(occurrence).getTextContent)
 		else
 			None
-
-		logger.debug("XPath Extraction: {}", result)
-		result
 	}
 }

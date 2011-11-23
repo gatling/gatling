@@ -29,7 +29,4 @@ import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy
  * @param expected the expected value against which the extracted value will be checked
  */
 class HttpStatusCheck(expected: Option[String], saveAs: Option[String])
-		extends HttpCheck((c: Context) => EMPTY, HttpStatusExtractorFactory, InRangeCheckStrategy, expected, saveAs, CompletePageReceived) {
-
-	override def toString = "HttpStatusCheck (Http Response Status must be in '{" + expected + "}')"
-}
+	extends HttpCheck((c: Context) => EMPTY, HttpStatusExtractorFactory, InRangeCheckStrategy, expected, saveAs, CompletePageReceived)

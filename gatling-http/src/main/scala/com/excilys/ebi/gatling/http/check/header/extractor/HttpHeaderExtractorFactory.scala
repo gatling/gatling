@@ -23,8 +23,5 @@ import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
  */
 object HttpHeaderExtractorFactory extends ExtractorFactory[Response] {
 
-	def getExtractor(response: Response) = {
-		logger.debug("Instantiation of HttpHeaderExtractor")
-		new HttpHeaderExtractor(response)
-	}
+	def getExtractor(response: Response) = new HttpHeaderExtractor(response)
 }

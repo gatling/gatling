@@ -60,10 +60,7 @@ class ScenarioBuilder(val name: String, actionBuilders: List[AbstractActionBuild
 	 *
 	 * @return a new builder with its first action added
 	 */
-	def start: ScenarioBuilder = {
-		logger.debug("Adding StartAction")
-		newInstance(startActionBuilder :: actionBuilders)
-	}
+	def start: ScenarioBuilder = newInstance(startActionBuilder :: actionBuilders)
 
 	/**
 	 * Method that should not be used in a script. It adds an EndAction that will
@@ -73,10 +70,7 @@ class ScenarioBuilder(val name: String, actionBuilders: List[AbstractActionBuild
 	 * @return a new builder with its last action added
 	 */
 	// TODO important, don't forget to set the end of the scenario when needed !
-	def end(latch: CountDownLatch): ScenarioBuilder = {
-		logger.debug("Adding EndAction")
-		newInstance(endActionBuilder(latch) :: actionBuilders)
-	}
+	def end(latch: CountDownLatch): ScenarioBuilder = newInstance(endActionBuilder(latch) :: actionBuilders)
 
 	/**
 	 * Method that actually builds the scenario

@@ -73,8 +73,6 @@ class IfActionBuilder(conditionFunction: Context => Boolean, thenNext: ChainBuil
 	def inGroups(groups: List[String]) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next, groups)
 
 	def build: Action = {
-		logger.debug("Building IfAction")
-
 		val actionTrue = thenNext.withNext(next).inGroups(groups).build
 		val actionFalse = elseNext.map(_.withNext(next).inGroups(groups).build)
 

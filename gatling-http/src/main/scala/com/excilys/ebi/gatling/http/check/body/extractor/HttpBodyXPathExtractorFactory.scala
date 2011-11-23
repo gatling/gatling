@@ -24,8 +24,5 @@ import com.excilys.ebi.gatling.core.check.extractor.XPathExtractor
  */
 class HttpBodyXPathExtractorFactory(occurence: Int) extends ExtractorFactory[Response] {
 
-	def getExtractor(response: Response) = {
-		logger.debug("Instantiation of XPathExtractor")
-		new XPathExtractor(response.getResponseBodyAsStream, occurence)
-	}
+	def getExtractor(response: Response) = new XPathExtractor(response.getResponseBodyAsStream, occurence)
 }

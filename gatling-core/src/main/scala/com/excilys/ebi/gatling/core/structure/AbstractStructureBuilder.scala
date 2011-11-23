@@ -97,7 +97,6 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @return a new builder with a pause added to its actions
 	 */
 	def pause(delayMinValue: Int, delayMaxValue: Int, delayUnit: TimeUnit): B = {
-		logger.debug("Adding PauseAction")
 		newInstance((pauseActionBuilder withMinDuration delayMinValue withMaxDuration delayMaxValue withTimeUnit delayUnit) :: actionBuilders)
 	}
 	/**
@@ -151,7 +150,6 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @return a new builder with a conditional execution added to its actions
 	 */
 	private def doIf(conditionFunction: Context => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]): B = {
-		logger.debug("Adding IfAction")
 		newInstance((ifActionBuilder withConditionFunction conditionFunction withThenNext thenNext withElseNext elseNext inGroups getCurrentGroups) :: actionBuilders)
 	}
 

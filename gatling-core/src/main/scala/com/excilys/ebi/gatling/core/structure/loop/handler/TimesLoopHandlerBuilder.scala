@@ -53,8 +53,6 @@ class TimesLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder
 
 		iteratedActions = expireCounterAction(counter) :: iteratedActions ::: List(initCounterAction(counter))
 
-		logger.debug("Adding {} Iterations", times)
-
 		doBuild(iteratedActions)
 	}
 }

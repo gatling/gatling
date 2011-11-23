@@ -68,7 +68,6 @@ class SimpleActionBuilder(contextFunction: (Context, Action) => Unit, next: Acti
 	def inGroups(groups: List[String]) = new SimpleActionBuilder(contextFunction, next, groups)
 
 	def build(): Action = {
-		logger.debug("Building Simple Action")
 		TypedActor.newInstance(classOf[Action], new SimpleAction(contextFunction, next))
 	}
 }

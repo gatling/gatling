@@ -139,7 +139,6 @@ class GatlingAsyncHandler(context: Context, checks: List[HttpCheck], next: Actio
 
 		context.setAttribute(Context.LAST_ACTION_DURATION_KEY, System.nanoTime() - processingStartTimeNano)
 
-		logger.debug("Context Cookies sent to next action: {}", context.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty))
 		next.execute(context)
 	}
 
@@ -190,7 +189,7 @@ class GatlingAsyncHandler(context: Context, checks: List[HttpCheck], next: Actio
 					logger.debug("Extracted value: {}", extractedValue)
 
 					if (!check.check(extractedValue)) {
-						logger.warn("Check failed :  expected {} but received {}", check, extractedValue)
+						logger.warn("{} failed : received {}", check, extractedValue)
 						sendLogAndExecuteNext(KO, check + " failed", processingStartTimeNano)
 						return
 
