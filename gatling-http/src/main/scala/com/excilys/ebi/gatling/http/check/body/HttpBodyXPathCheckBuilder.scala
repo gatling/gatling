@@ -21,16 +21,19 @@ import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpPhase.{ HttpPhase, CompletePageReceived }
+import com.excilys.ebi.gatling.core.check.CheckBuilderSave
+import com.excilys.ebi.gatling.core.check.CheckBuilderVerify
+import com.excilys.ebi.gatling.core.check.CheckBuilderFind
 
 object HttpBodyXPathCheckBuilder {
 	/**
 	 *
 	 */
-	def xpath(what: Context => String) = new HttpBodyXPathCheckBuilder(what, None, ExistenceCheckStrategy, None, None)
+	def xpath(what: Context => String) = new HttpBodyXPathCheckBuilder(what, None, ExistenceCheckStrategy, None, None) with CheckBuilderFind[HttpCheckBuilder[HttpBodyXPathCheckBuilder]]
 	/**
 	 *
 	 */
-	def xpath(expression: String): HttpBodyXPathCheckBuilder = xpath(interpolate(expression))
+	def xpath(expression: String): HttpBodyXPathCheckBuilder with CheckBuilderFind[HttpCheckBuilder[HttpBodyXPathCheckBuilder]] = xpath(interpolate(expression))
 }
 
 /**
@@ -46,6 +49,12 @@ class HttpBodyXPathCheckBuilder(what: Context => String, occurrence: Option[Int]
 
 	def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: Option[String], saveAs: Option[String], when: HttpPhase) =
 		new HttpBodyXPathCheckBuilder(what, occurrence, strategy, expected, saveAs)
+
+	def newInstanceWithFind(occurrence: Int): HttpCheckBuilder[HttpBodyXPathCheckBuilder] with CheckBuilderVerify[HttpCheckBuilder[HttpBodyXPathCheckBuilder]] =
+		new HttpBodyXPathCheckBuilder(what, Some(occurrence), strategy, expected, saveAs) with CheckBuilderVerify[HttpCheckBuilder[HttpBodyXPathCheckBuilder]]
+
+	def newInstanceWithVerify(strategy: CheckStrategy, expected: Option[String] = None): HttpCheckBuilder[HttpBodyXPathCheckBuilder] with CheckBuilderSave[HttpCheckBuilder[HttpBodyXPathCheckBuilder]] =
+		new HttpBodyXPathCheckBuilder(what, occurrence, strategy, expected, saveAs) with CheckBuilderSave[HttpCheckBuilder[HttpBodyXPathCheckBuilder]]
 
 	def build = new HttpBodyXPathCheck(what, occurrence.getOrElse(0), strategy, expected, saveAs)
 }

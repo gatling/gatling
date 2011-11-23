@@ -16,13 +16,15 @@
 package com.excilys.ebi.gatling.http.check.status
 
 import scala.annotation.implicitNotFound
-
 import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy.rangeToString
 import com.excilys.ebi.gatling.core.check.strategy.{ InRangeCheckStrategy, EqualityCheckStrategy, CheckStrategy }
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilder, HttpCheck }
 import com.excilys.ebi.gatling.http.request.HttpPhase.{ StatusReceived, HttpPhase }
+import com.excilys.ebi.gatling.core.check.CheckBuilderVerify
+import com.excilys.ebi.gatling.core.check.CheckBuilderSave
+import com.excilys.ebi.gatling.core.check.CheckBuilderFind
 
 /**
  * HttpStatusCheckBuilder class companion
@@ -35,7 +37,7 @@ object HttpStatusCheckBuilder {
 	 *
 	 * @param range the specified range
 	 */
-	def status = new HttpStatusCheckBuilder(InRangeCheckStrategy, None, None)
+	def status = new HttpStatusCheckBuilder(InRangeCheckStrategy, None, None) with CheckBuilderFind[HttpCheckBuilder[HttpStatusCheckBuilder]]
 }
 
 /**
@@ -50,6 +52,12 @@ class HttpStatusCheckBuilder(strategy: CheckStrategy, expected: Option[String], 
 
 	def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: Option[String], saveAs: Option[String], when: HttpPhase) =
 		new HttpStatusCheckBuilder(strategy, expected, saveAs)
+
+	def newInstanceWithFind(occurrence: Int): HttpCheckBuilder[HttpStatusCheckBuilder] with CheckBuilderVerify[HttpCheckBuilder[HttpStatusCheckBuilder]] =
+		new HttpStatusCheckBuilder(strategy, expected, saveAs) with CheckBuilderVerify[HttpCheckBuilder[HttpStatusCheckBuilder]]
+
+	def newInstanceWithVerify(strategy: CheckStrategy, expected: Option[String] = None): HttpCheckBuilder[HttpStatusCheckBuilder] with CheckBuilderSave[HttpCheckBuilder[HttpStatusCheckBuilder]] =
+		new HttpStatusCheckBuilder(strategy, expected, saveAs) with CheckBuilderSave[HttpCheckBuilder[HttpStatusCheckBuilder]]
 
 	def build: HttpCheck = new HttpStatusCheck(expected, saveAs)
 }

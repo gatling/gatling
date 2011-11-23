@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.check
-import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy.rangeToString
+
 import com.excilys.ebi.gatling.core.check.strategy.CheckStrategy
 import com.excilys.ebi.gatling.core.check.strategy.EqualityCheckStrategy
 import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy
@@ -22,7 +22,6 @@ import com.excilys.ebi.gatling.core.check.strategy.NonEqualityCheckStrategy
 import com.excilys.ebi.gatling.core.check.strategy.NonExistenceCheckStrategy
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.log.Logging
-
 import strategy.ExistenceCheckStrategy
 
 object CheckBuilder {
@@ -37,29 +36,15 @@ object CheckBuilder {
  * @param strategy the strategy used to perform the Check
  * @param expected the expected value of what has been found
  */
-abstract class CheckBuilder[B <: CheckBuilder[B, WHERE], WHERE](what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: Option[String], saveAs: Option[String]) extends Logging {
-
-	protected def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: Option[String], saveAs: Option[String]): B
-
-	def find(occurrence: Int) = newInstance(what, Some(occurrence), strategy, expected, saveAs): B
-
-	def first = find(0)
-
-	def exists = verify(ExistenceCheckStrategy)
-
-	def notExists = verify(NonExistenceCheckStrategy)
-
-	def eq(expected: String) = verify(EqualityCheckStrategy, expected)
-
-	def neq(expected: String) = verify(NonEqualityCheckStrategy, expected)
-
-	def in(range: Range) = verify(InRangeCheckStrategy, range)
-
-	def verify(strategy: CheckStrategy) = newInstance(what, occurrence, strategy, None, saveAs): B
-
-	def verify(strategy: CheckStrategy, expected: String) = newInstance(what, occurrence, strategy, Some(expected), saveAs): B
-
-	def saveAs(attrName: String) = newInstance(what, occurrence, strategy, expected, Some(attrName)): B
+abstract class CheckBuilder[B <: CheckBuilder[B, WHERE], WHERE](what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: Option[String], saveAs: Option[String])
+		extends Logging {
 
 	def build: Check[WHERE]
+
+	def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: Option[String], saveAs: Option[String]): B
+	def newInstanceWithVerify(strategy: CheckStrategy, expected: Option[String] = None): B with CheckBuilderSave[B]
+	def newInstanceWithFind(occurrence: Int): B with CheckBuilderVerify[B]
+
+	def newInstanceWithSaveAs(saveAs: String): B = newInstance(what, occurrence, strategy, expected, Some(saveAs))
 }
+
