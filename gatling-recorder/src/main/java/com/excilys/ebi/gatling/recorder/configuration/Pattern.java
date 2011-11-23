@@ -39,4 +39,35 @@ public class Pattern {
 	public String toString() {
 		return patternType+" | "+pattern;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((pattern == null) ? 0 : pattern.hashCode());
+		result = prime * result
+				+ ((patternType == null) ? 0 : patternType.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof Pattern))
+			return false;
+		Pattern other = (Pattern) obj;
+		if (pattern == null) {
+			if (other.pattern != null)
+				return false;
+		} else if (!pattern.equals(other.pattern))
+			return false;
+		if (patternType != other.patternType)
+			return false;
+		return true;
+	}
+	
+	
 }

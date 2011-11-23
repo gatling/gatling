@@ -69,16 +69,18 @@ public class FilterTable extends JPanel {
 			@Override
 			public void tableChanged(TableModelEvent e) {
 				// TODO: Vérifier unicité
-				// System.err.println("!! Vérifier unicité");
 			}
 		});
 	}
 
 	public void setEnabled(boolean enabled) {
-		if (!enabled)
+		if (!enabled) {
+			table.setEnabled(false);
 			table.setBackground(Color.LIGHT_GRAY);
-		else
+		} else {
+			table.setEnabled(false);
 			table.setBackground(Color.WHITE);
+		}
 	}
 
 	public void addRow() {

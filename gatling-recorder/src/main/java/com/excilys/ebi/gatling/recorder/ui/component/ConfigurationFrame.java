@@ -23,6 +23,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
@@ -55,9 +57,9 @@ import com.google.common.eventbus.Subscribe;
 @SuppressWarnings("serial")
 public class ConfigurationFrame extends JFrame {
 
-	public final JTextField txtPort = new JTextField("port",4);
-	public final JTextField txtProxyHost = new JTextField("address",10);
-	public final JTextField txtProxyPort = new JTextField("port",4);
+	public final JTextField txtPort = new JTextField("8000", 4);
+	public final JTextField txtProxyHost = new JTextField("address", 10);
+	public final JTextField txtProxyPort = new JTextField("port", 4);
 	public final JComboBox cbFilter = new JComboBox();
 	public final JComboBox cbFilterType = new JComboBox();
 	public final JTextField txtResultPath = new JTextField(15);
@@ -77,6 +79,8 @@ public class ConfigurationFrame extends JFrame {
 
 		/* Declaration of components */
 
+		txtProxyHost.setName("address");
+		txtProxyPort.setName("port");
 		JButton btnFiltersAdd = new JButton("+");
 		JButton btnFiltersDel = new JButton("-");
 		JButton btnPathResults = new JButton("Browse");
@@ -105,36 +109,35 @@ public class ConfigurationFrame extends JFrame {
 		JPanel topPanel = new JPanel();
 		JPanel centerPanel = new JPanel();
 		JPanel bottomPanel = new JPanel();
-		
+
 		JPanel centerBottomPanel = new JPanel();
-		
+
 		this.add(topPanel, BorderLayout.NORTH);
 		this.add(centerPanel, BorderLayout.CENTER);
 		this.add(bottomPanel, BorderLayout.SOUTH);
-		
+
 		topPanel.setBorder(BorderFactory.createTitledBorder("Network"));
 		bottomPanel.setBorder(BorderFactory.createTitledBorder("Results"));
-		
+
 		GridBagConstraints c = new GridBagConstraints();
 		topPanel.setLayout(new GridBagLayout());
 		bottomPanel.setLayout(new GridBagLayout());
 		centerPanel.setLayout(new BorderLayout());
-		
+
 		c.anchor = GridBagConstraints.WEST;
 		c.fill = GridBagConstraints.NONE;
 		c.gridy = 0;
-		topPanel.add(new JLabel("Listening port :"), c);
+		topPanel.add(new JLabel("Listening port *"), c);
 		topPanel.add(txtPort, c);
-		
-		
+
 		c.gridy = 1;
-		c.weightx=0;
-		topPanel.add(new JLabel("Outgoing proxy :   "), c);
+		c.weightx = 0;
+		topPanel.add(new JLabel("Outgoing proxy    "), c);
 		topPanel.add(txtProxyHost, c);
 		topPanel.add(new JLabel(":"), c);
-		c.weightx=1.;
+		c.weightx = 1.;
 		topPanel.add(txtProxyPort, c);
-		
+
 		centerBottomPanel.add(new JLabel("Apply method"));
 		centerBottomPanel.add(cbFilterType);
 		centerBottomPanel.add(btnFiltersAdd);
@@ -144,12 +147,11 @@ public class ConfigurationFrame extends JFrame {
 		centerPanel.add(panelFilters, BorderLayout.CENTER);
 		centerPanel.add(centerBottomPanel, BorderLayout.PAGE_END);
 
-
 		c.gridheight = 1;
 		c.gridwidth = 1;
 		c.gridy = 0;
 		c.gridx = 0;
-		bottomPanel.add(new JLabel("Results :"), c);
+		bottomPanel.add(new JLabel("Results *"), c);
 		c.gridx = 1;
 		bottomPanel.add(txtResultPath, c);
 		c.gridx = 2;
@@ -157,36 +159,41 @@ public class ConfigurationFrame extends JFrame {
 
 		c.gridy = 1;
 		c.gridx = 0;
-		c.weightx=0;
-		bottomPanel.add(new JLabel("Results type: "), c);
+		c.weightx = 0;
+		bottomPanel.add(new JLabel("Results type"), c);
 		c.gridx = 1;
-		for (JCheckBox cb : listResultsType){
+		for (JCheckBox cb : listResultsType) {
 			bottomPanel.add(cb, c);
 			c.gridx++;
 		}
-		
-		c.gridy = 2;
-		c.gridx = 2;
-		c.anchor = GridBagConstraints.EAST;
+
+		c.anchor = GridBagConstraints.WEST;
+		c.gridy = 4;
+		c.gridx = 0;
+		c.gridwidth = 2;
 		bottomPanel.add(cbSavePref, c);
-	
+
+		c.anchor = GridBagConstraints.EAST;
 		c.gridy = 3;
 		c.gridx = 2;
 		bottomPanel.add(btnStart, c);
 
 		/* Listeners */
+
+		txtProxyHost.addFocusListener(new CustomFocusListener());
+		txtProxyPort.addFocusListener(new CustomFocusListener());
+
 		cbFilterType.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				// Switch to '1' when goes active state and '2' for passive
 				// state.
-				if (e.getStateChange() == 1
-						&& e.getItem().equals(FilterType.All))
+				if (e.getStateChange() == 1 && e.getItem().equals(FilterType.All))
 					panelFilters.setEnabled(false);
 				else
 					panelFilters.setEnabled(true);
 			}
 		});
-		
+
 		btnFiltersAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				panelFilters.addRow();
@@ -217,8 +224,8 @@ public class ConfigurationFrame extends JFrame {
 		btnClear.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				txtPort.setText(EMPTY);
-				txtProxyHost.setText(EMPTY);
-				txtProxyPort.setText(EMPTY);
+				txtProxyHost.setText(txtProxyHost.getName());
+				txtProxyPort.setText(txtProxyPort.getName());
 				panelFilters.removeAllElements();
 				txtResultPath.setText(EMPTY);
 				for (JCheckBox cb : listResultsType)
@@ -251,5 +258,22 @@ public class ConfigurationFrame extends JFrame {
 			for (ResultType resultType : config.getResultTypes())
 				if (cb.getText().equals(resultType.getLabel()))
 					cb.setSelected(true);
+	}
+}
+
+class CustomFocusListener implements FocusListener {
+
+	@Override
+	public void focusGained(FocusEvent e) {
+		JTextField src = (JTextField) e.getSource();
+		if (src.getText().equals(src.getName()))
+			src.setText(EMPTY);
+	}
+
+	@Override
+	public void focusLost(FocusEvent e) {
+		JTextField src = (JTextField) e.getSource();
+		if (src.getText().equals(EMPTY))
+			src.setText(src.getName());
 	}
 }

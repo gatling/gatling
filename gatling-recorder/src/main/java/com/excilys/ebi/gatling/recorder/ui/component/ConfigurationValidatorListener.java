@@ -16,6 +16,7 @@
 package com.excilys.ebi.gatling.recorder.ui.component;
 
 import static com.excilys.ebi.gatling.recorder.http.event.RecorderEventBus.getEventBus;
+import static org.apache.commons.lang.StringUtils.EMPTY;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -49,6 +50,11 @@ public class ConfigurationValidatorListener implements ActionListener {
 		Border defaultBorder = frame.txtProxyHost.getBorder();
 
 		Configuration config = new Configuration();
+
+		if (frame.txtProxyHost.getText().equals(frame.txtProxyHost.getName()))
+			frame.txtProxyHost.setText(EMPTY);
+		if (frame.txtProxyPort.getText().equals(frame.txtProxyPort.getName()))
+			frame.txtProxyPort.setText(EMPTY);
 
 		// Parse local proxy port
 		try {
