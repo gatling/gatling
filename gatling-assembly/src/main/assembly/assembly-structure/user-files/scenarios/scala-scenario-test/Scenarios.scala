@@ -31,7 +31,9 @@ object Scenarios {
 		// Authenticating
 		.exec(http("Authenticating").post("/login").param("username").param("password").headers(headers).check(status.eq(302)))
 		// Home page
-		.exec(http("Home").get("/private/bank/accounts.html").headers(headers).check(regexp("""<a href="/excilys-bank-web/logout" class="button blue">Log out</a>""")))
+		.exec(http("Home") get("/private/bank/accounts.html") headers(headers)
+		    check(regexp("""<a href="/excilys-bank-web/private/bank/account/(ACC[0-9]*)/operations.html">""", 0) in "acc1")
+		    check(regexp("""<a href="/excilys-bank-web/private/bank/account/(ACC[0-9]*)/operations.html">""", 1) in "acc2"))
 		.pause(5, 6)
 		.loop(
 			chain
