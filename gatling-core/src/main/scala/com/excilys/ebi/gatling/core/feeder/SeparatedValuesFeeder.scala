@@ -32,14 +32,18 @@ import com.excilys.ebi.gatling.core.util.PathHelper._
  * @param separator the separator used by this CSV file (tabulation, comma, etc.)
  * @param extension the extension of the file
  */
-abstract class SeparatedValuesFeeder(fileName: String, mappings: List[String], separator: String, extension: String) extends Feeder(fileName, mappings) {
+abstract class SeparatedValuesFeeder(fileName: String, separator: String, extension: String) extends Feeder(fileName) {
 
 	var seeds: Queue[Map[String, String]] = Queue()
 
-	for (line <- Source.fromFile(GATLING_SEEDS_FOLDER + "/" + fileName + extension, CONFIG_ENCODING).getLines) {
+	val feederFileLines = Source.fromFile(GATLING_SEEDS_FOLDER + "/" + fileName + extension, CONFIG_ENCODING).getLines
+
+	val getHeaders: List[String] = feederFileLines.next.split(separator).toList
+
+	for (line <- feederFileLines) {
 		var lineMap = new HashMap[String, String]
 
-		for (mapping <- mappings zip line.split(separator).toList)
+		for (mapping <- getHeaders zip line.split(separator).toList)
 			lineMap = lineMap + mapping
 
 		seeds += lineMap

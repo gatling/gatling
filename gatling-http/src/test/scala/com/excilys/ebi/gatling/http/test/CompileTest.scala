@@ -33,14 +33,14 @@ object CompileTest {
 
 	val httpConf = httpConfig.baseURL(baseUrl)
 
-	val usersInformation = new TSVFeeder("user_information", List("login", "password", "firstname", "lastname"))
+	val usersInformation = new TSVFeeder("user_information")
 
 	val loginChain = chain.exec(http("First Request Chain").get("/")).pause(1, 2)
 
 	val loginGroup = "Login"
 	val doStuffGroup = "Do Stuff"
 
-	val testData = new TSVFeeder("test-data", List("omg", "socool"))
+	val testData = new TSVFeeder("test-data")
 
 	val lambdaUser = scenario("Standard User")
 		.insertChain(loginChain)

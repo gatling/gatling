@@ -23,4 +23,4 @@ import com.excilys.ebi.gatling.core.util.FileHelper._
  * Uses separator defined in FileHelper.TABULATION_SEPARATOR and
  * extension defined in FileHelper.TSV_EXTENSION
  */
-class TSVFeeder(filePath: String, mappings: List[String]) extends SeparatedValuesFeeder(filePath, mappings, TABULATION_SEPARATOR, TSV_EXTENSION)
+class TSVFeeder(filePath: String) extends SeparatedValuesFeeder(filePath, TABULATION_SEPARATOR, TSV_EXTENSION)

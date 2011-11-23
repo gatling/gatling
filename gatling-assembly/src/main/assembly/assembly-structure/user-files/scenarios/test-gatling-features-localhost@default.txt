@@ -7,7 +7,7 @@ val baseUrl = "http://localhost:3000"
 
 val httpConf = httpConfig.baseURL(baseUrl)
 
-val usersInformation = new TSVFeeder("user_information", List("login", "password", "firstname", "lastname"))
+val usersInformation = new TSVFeeder("user_information")
 
 include("lambda-user-test-gatling")
 include("admin-user-test-gatling")

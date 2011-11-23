@@ -3,12 +3,12 @@ val loginChain = chain.exec(http("First Request Chain").get("/")).pause(1,2)
 val loginGroup = "Login"
 val doStuffGroup = "Do Stuff"
 
-val testData = new TSVFeeder("test-data", List("omg", "socool"))
+val testData = new TSVFeeder("test-data")
 
 val lambdaUser = scenario("Standard User")
   .insertChain(loginChain)
   // First request outside iteration
-  .loop( chain.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool"").check(xpath("//input[@id='text1']/@value") saveAs "aaaa_value").feeder(testData)) )
+  .loop( chain.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").check(xpath("//input[@id='text1']/@value") saveAs "aaaa_value").feeder(testData)) )
   .times(2)
   .pause(pause2, pause3)
   // Loop

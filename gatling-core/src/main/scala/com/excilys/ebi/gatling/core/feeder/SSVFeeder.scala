@@ -23,4 +23,4 @@ import com.excilys.ebi.gatling.core.util.FileHelper._
  * Uses separator defined in FileHelper.SEMICOLON_SEPARATOR and
  * extension defined in FileHelper.SSV_EXTENSION
  */
-class SSVFeeder(filePath: String, mappings: List[String]) extends SeparatedValuesFeeder(filePath, mappings, SEMICOLON_SEPARATOR, SSV_EXTENSION)
+class SSVFeeder(filePath: String) extends SeparatedValuesFeeder(filePath, SEMICOLON_SEPARATOR, SSV_EXTENSION)

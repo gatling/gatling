@@ -2,7 +2,7 @@
 val config = httpConfig.baseURL("http://localhost:8080/excilys-bank-web")
 
 /* Feeder */
-val usersInfos = new TSVFeeder("bank2", List("username", "password"))
+val usersInfos = new TSVFeeder("bank2")
 
 /* Scenarios */
 include("users")

@@ -23,4 +23,4 @@ import com.excilys.ebi.gatling.core.util.FileHelper._
  * Uses separator defined in FileHelper.COMMA_SEPARATOR and
  * extension defined in FileHelper.CSV_EXTENSION
  */
-class CSVFeeder(filePath: String, mappings: List[String]) extends SeparatedValuesFeeder(filePath, mappings, COMMA_SEPARATOR, CSV_EXTENSION)
+class CSVFeeder(filePath: String) extends SeparatedValuesFeeder(filePath, COMMA_SEPARATOR, CSV_EXTENSION)
