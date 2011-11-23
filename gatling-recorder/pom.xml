@@ -56,9 +56,6 @@
 							</transformers>
 							<artifactSet>
 								<excludes>
-									<exclude>ch.qos.logback:logback-core</exclude>
-									<exclude>ch.qos.logback:logback-classic</exclude>
-									<exclude>org.slf4j:slf4j-api</exclude>
 									<exclude>com.google.code.findbugs:jsr305</exclude>
 									<exclude>javax*:*</exclude>
 								</excludes>
