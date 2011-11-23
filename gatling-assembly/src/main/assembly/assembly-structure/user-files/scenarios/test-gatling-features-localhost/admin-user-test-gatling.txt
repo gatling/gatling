@@ -1,4 +1,5 @@
 val adminUser = scenario("Admin User")
+  .feed(usersInformation)
   // First request outside iteration
   .exec( http("Catégorie Poney") get(baseUrl))
   .pause( pause3 )

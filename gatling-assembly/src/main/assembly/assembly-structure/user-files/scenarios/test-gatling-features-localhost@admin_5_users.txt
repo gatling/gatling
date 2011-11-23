@@ -5,12 +5,13 @@ val pause3 = 3
 
 val baseUrl = "http://localhost:3000"
 
-val usersInformation = new TSVFeeder("user_information")
-
 val httpConf = httpConfig.baseURL(baseUrl)
+
+/* Feeder */
+val usersInformation = new TSVFeeder("user_information")
 
 include("admin-user-test-gatling")
 
 runSimulations(
-    adminUser.configure.users(5).feeder(usersInformation)//.protocolConfig(httpConf)
+    adminUser.configure.users(5)//.protocolConfig(httpConf)
 )

@@ -27,6 +27,7 @@ import com.excilys.ebi.gatling.core.action.builder.GroupActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder._
 import com.excilys.ebi.gatling.core.structure.loop.LoopBuilder
 import com.excilys.ebi.gatling.core.action.builder.CountBasedIterationActionBuilder._
+import com.excilys.ebi.gatling.core.feeder.Feeder
 
 /**
  * This class defines most of the scenario related DSL
@@ -177,6 +178,13 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @return a new builder with all actions from the chain added to its actions
 	 */
 	def insertChain(chain: ChainBuilder): B = newInstance(chain.actionBuilders ::: actionBuilders)
+
+	/**
+	 * Method used to load data from a feeder in the current scenario
+	 *
+	 * @param feeder the feeder from which the values will be loaded
+	 */
+	def feed(feeder: Feeder): B = newInstance(simpleActionBuilder((c: Context) => c.setAttributes(feeder.next)) :: actionBuilders)
 
 	/**
 	 * Method used to declare a loop

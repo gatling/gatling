@@ -56,8 +56,8 @@ object HttpRequestAction {
  * @param groups the groups to which this action belongs
  * @param feeder the feeder that will be consumed each time the request will be sent
  */
-class HttpRequestAction(next: Action, request: HttpRequest, givenCheckBuilders: Option[List[HttpCheckBuilder[_]]], groups: List[String], feeder: Option[Feeder])
-		extends RequestAction[Response](next, request, givenCheckBuilders, groups, feeder) {
+class HttpRequestAction(next: Action, request: HttpRequest, givenCheckBuilders: Option[List[HttpCheckBuilder[_]]], groups: List[String])
+		extends RequestAction[Response](next, request, givenCheckBuilders, groups) {
 
 	var checks: List[HttpCheck] = Nil
 
@@ -73,13 +73,8 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenCheckBuilders: 
 
 	def execute(context: Context) = {
 
-		if (logger.isInfoEnabled()) {
+		if (logger.isInfoEnabled())
 			logger.info("Sending Request '{}': Scenario '{}', UserId #{}", Array(request.name, context.scenarioName, context.userId))
-		}
-
-		feeder.map {
-			feeder => context.setAttributes(feeder.next)
-		}
 
 		HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new GatlingAsyncHandler(context, checks, next, request.name, groups))
 	}

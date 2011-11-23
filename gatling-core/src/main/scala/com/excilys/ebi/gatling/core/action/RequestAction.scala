@@ -29,6 +29,6 @@ import com.excilys.ebi.gatling.core.check.CheckBuilder
  * @param groups a list of groups in which this action is
  * @param feeder the feeder that will be consumed by this request
  */
-abstract class RequestAction[P](next: Action, request: Request, givenProcessors: Option[List[CheckBuilder[_, P]]], groups: List[String], feeder: Option[Feeder]) extends Action {
+abstract class RequestAction[P](next: Action, request: Request, givenProcessors: Option[List[CheckBuilder[_, P]]], groups: List[String]) extends Action {
 	def execute(context: Context)
 }

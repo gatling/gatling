@@ -45,7 +45,10 @@ object CompileTest {
 	val lambdaUser = scenario("Standard User")
 		.insertChain(loginChain)
 		// First request outside iteration
-		.loop(chain.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").check(xpath("//input[@id='text1']/@value") saveAs "aaaa_value").feeder(testData)))
+		.loop(
+			chain
+				.feed(testData)
+				.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").check(xpath("//input[@id='text1']/@value") saveAs "aaaa_value")))
 		.times(2)
 		.pause(pause2, pause3)
 		// Loop
@@ -111,5 +114,5 @@ object CompileTest {
 		.endGroup(doStuffGroup)
 
 	runSimulations(
-		lambdaUser.configure.users(5).ramp(10).feeder(usersInformation).protocolConfig(httpConf))
+		lambdaUser.configure.users(5).ramp(10).protocolConfig(httpConf))
 }

@@ -13,6 +13,6 @@ include("lambda-user-test-gatling")
 include("admin-user-test-gatling")
 
 runSimulations(
-    lambdaUser.configure.users(5).ramp(10).feeder(usersInformation).protocolConfig(httpConf)
-    , adminUser.configure.users(5).ramp(10).delay(60).feeder(usersInformation)
+    lambdaUser.configure.users(5).ramp(10).protocolConfig(httpConf)
+    , adminUser.configure.users(5).ramp(10).delay(60)
 )

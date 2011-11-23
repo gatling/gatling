@@ -36,7 +36,7 @@ object HttpRequestActionBuilder {
 	/**
 	 * This method is used in DSL to declare a new HTTP request
 	 */
-	def http(requestName: String) = new HttpRequestActionBuilder(requestName, null, null, None, Some(Nil), None)
+	def http(requestName: String) = new HttpRequestActionBuilder(requestName, null, null, None, Some(Nil))
 }
 
 /**
@@ -48,7 +48,7 @@ object HttpRequestActionBuilder {
  * @param next the next action to be executed
  * @param processorBuilders
  */
-class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, next: Action, processorBuilders: Option[List[HttpCheckBuilder[_]]], groups: Option[List[String]], feeder: Option[Feeder])
+class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, next: Action, processorBuilders: Option[List[HttpCheckBuilder[_]]], groups: Option[List[String]])
 		extends AbstractActionBuilder {
 
 	/**
@@ -59,26 +59,18 @@ class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, ne
 	 */
 	private[http] def withProcessors(givenProcessors: Seq[HttpCheckBuilder[_]]) = {
 		logger.debug("Adding Processors")
-		new HttpRequestActionBuilder(requestName, request, next, Some(givenProcessors.toList ::: processorBuilders.getOrElse(Nil)), groups, feeder)
+		new HttpRequestActionBuilder(requestName, request, next, Some(givenProcessors.toList ::: processorBuilders.getOrElse(Nil)), groups)
 	}
 
-	/**
-	 * Adds a feeder to builder
-	 *
-	 * @param feeder the feeder to add
-	 * @return a new builder with feeder set
-	 */
-	def feeder(feeder: Feeder) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders, groups, Some(feeder))
+	def withRequest(request: HttpRequest) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders, groups)
 
-	def withRequest(request: HttpRequest) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders, groups, feeder)
+	def withNext(next: Action) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders, groups)
 
-	def withNext(next: Action) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders, groups, feeder)
-
-	def inGroups(groups: List[String]) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders, Some(groups), feeder)
+	def inGroups(groups: List[String]) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders, Some(groups))
 
 	def build: Action = {
 		logger.debug("Building HttpRequestAction with request {}", request)
-		TypedActor.newInstance(classOf[Action], new HttpRequestAction(next, request, processorBuilders, groups.get, feeder))
+		TypedActor.newInstance(classOf[Action], new HttpRequestAction(next, request, processorBuilders, groups.get))
 	}
 
 	/**

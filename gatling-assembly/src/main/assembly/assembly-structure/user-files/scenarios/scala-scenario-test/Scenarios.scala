@@ -19,8 +19,12 @@ object Scenarios {
 			"Referer" -> "http://localhost:8080/excilys-bank-web/private/bank/account/ACC7/cards/CARD5/year/2011/month/7/operations.html",
 			"User-Agent" -> "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_1) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/14.0.835.186 Safari/535.1")
 
+	/* Feeder */
+	val usersInfos = new TSVFeeder("bank2")
+			
 	/* Scenario */
 	val scn = scenario("User of Excilys Bank")
+		.feed(usersInfos)
 		// Login page
 		.exec(http("Login GET").get("/public/login.html").headers(headers).check(status.eq(200)))
 		.pause(5, 6)

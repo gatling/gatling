@@ -127,9 +127,6 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: List[ScenarioCo
 
 		ctx.setProtocolConfig(configuration.protocolConfigurations)
 
-		// Puts all values of one line of the feeder in the context
-		configuration.feeder.map { f => ctx.setAttributes(f.next) }
-
 		ctx
 	}
 }

@@ -44,7 +44,7 @@ object PathHelper {
 	/**
 	 * Gatling's seeds folder
 	 */
-	val GATLING_SEEDS_FOLDER = GATLING_USER_FILES_FOLDER + "/seeds"
+	val GATLING_SEEDS_FOLDER = GATLING_USER_FILES_FOLDER + "/data"
 	/**
 	 * Gatling's scenarios folder
 	 */
