@@ -15,49 +15,27 @@
  */
 package com.excilys.ebi.gatling.recorder.http;
 
+import static com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory.getBootstrapFactory;
 import static com.excilys.ebi.gatling.recorder.http.event.RecorderEventBus.getEventBus;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ServerBootstrap;
-import org.jboss.netty.channel.ChannelFactory;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
-import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
-import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
-import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
 
-import com.excilys.ebi.gatling.recorder.core.HttpRequestHandler;
 import com.excilys.ebi.gatling.recorder.http.event.MessageReceivedEvent;
+import com.excilys.ebi.gatling.recorder.http.handler.HttpRequestHandler;
 import com.google.common.eventbus.Subscribe;
 
 public class GatlingHttpProxy {
-	private int port;
-	private ChannelFactory factory;
-	private ServerBootstrap bootstrap;
+	private final int port;
+	private final ServerBootstrap bootstrap;
 	private final ChannelGroup group = new DefaultChannelGroup("Gatling_Recorder");
 
 	public GatlingHttpProxy(int port, String outgoingProxyHost, int outgoingProxyPort) {
 		this.port = port;
-
-		factory = new NioServerSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
-		bootstrap = new ServerBootstrap(factory);
-
-		final HttpRequestHandler requestHandler = new HttpRequestHandler(outgoingProxyHost, outgoingProxyPort);
-
-		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
-			@Override
-			public ChannelPipeline getPipeline() throws Exception {
-				return Channels.pipeline(new HttpRequestDecoder(), new HttpResponseEncoder(), requestHandler);
-			}
-		});
-
-		bootstrap.setOption("tcpNoDelay", true);
-		bootstrap.setOption("keepAlive", true);
+		this.bootstrap = getBootstrapFactory().newServerBootstrap(new HttpRequestHandler(outgoingProxyHost, outgoingProxyPort));
 	}
 
 	public void start() {
@@ -68,7 +46,7 @@ public class GatlingHttpProxy {
 	public void shutdown() {
 		getEventBus().unregister(this);
 		group.close().awaitUninterruptibly();
-		factory.releaseExternalResources();
+		getBootstrapFactory().releaseExternalResources();
 	}
 
 	@Subscribe
