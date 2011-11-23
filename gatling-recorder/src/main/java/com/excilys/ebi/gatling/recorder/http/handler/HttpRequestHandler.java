@@ -13,41 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.core;
+package com.excilys.ebi.gatling.recorder.http.handler;
 
+import static com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory.getBootstrapFactory;
 import static com.excilys.ebi.gatling.recorder.http.event.RecorderEventBus.getEventBus;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
-import org.jboss.netty.handler.codec.http.HttpChunkAggregator;
 import org.jboss.netty.handler.codec.http.HttpRequest;
-import org.jboss.netty.handler.codec.http.HttpRequestEncoder;
-import org.jboss.netty.handler.codec.http.HttpResponseDecoder;
 
 import com.excilys.ebi.gatling.recorder.http.event.MessageReceivedEvent;
 
-/**
- * Class forwarding an HTTP request to a remote endpoint
- * 
- * @author nmaupu
- */
 public class HttpRequestHandler extends SimpleChannelHandler {
-
-	private static final int MAX_CONTENT_LENGTH = 1024 * 1024;
 
 	private final String outgoingProxyHost;
 	private final int outgoingProxyPort;
@@ -58,23 +43,13 @@ public class HttpRequestHandler extends SimpleChannelHandler {
 	}
 
 	@Override
-	public void messageReceived(ChannelHandlerContext ctx, MessageEvent event) throws Exception {
+	public void messageReceived(final ChannelHandlerContext ctx, MessageEvent event) throws Exception {
 
 		getEventBus().post(new MessageReceivedEvent(ctx.getChannel()));
 
 		final HttpRequest request = HttpRequest.class.cast(event.getMessage());
 
-		ChannelFactory factory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
-		ClientBootstrap bootstrap = new ClientBootstrap(factory);
-
-		final HttpResponseHandler responseHandler = new HttpResponseHandler(ctx, request);
-
-		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
-			@Override
-			public ChannelPipeline getPipeline() throws Exception {
-				return Channels.pipeline(new HttpRequestEncoder(), new HttpResponseDecoder(), new HttpChunkAggregator(MAX_CONTENT_LENGTH), responseHandler);
-			}
-		});
+		ClientBootstrap bootstrap = getBootstrapFactory().newClientBootstrap(new HttpResponseHandler(ctx, request));
 
 		ChannelFuture future;
 		if (outgoingProxyHost == null) {

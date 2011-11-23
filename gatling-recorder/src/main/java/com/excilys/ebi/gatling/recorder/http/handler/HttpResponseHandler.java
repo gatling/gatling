@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.core;
+package com.excilys.ebi.gatling.recorder.http.handler;
 
 import static com.excilys.ebi.gatling.recorder.http.event.RecorderEventBus.getEventBus;
 
@@ -36,16 +36,16 @@ public class HttpResponseHandler extends SimpleChannelHandler {
 	}
 
 	@Override
-	public void messageReceived(ChannelHandlerContext context, MessageEvent e) throws Exception {
+	public void messageReceived(ChannelHandlerContext context, MessageEvent event) throws Exception {
 
 		getEventBus().post(new MessageReceivedEvent(context.getChannel()));
 
-		HttpResponse response = (HttpResponse) e.getMessage();
+		HttpResponse response = HttpResponse.class.cast(event.getMessage());
 
 		getEventBus().post(new ResponseReceivedEvent(request, response));
 
 		// Send back to client
 		requestContext.getChannel().write(response);
-		requestContext.sendUpstream(e);
+		requestContext.sendUpstream(event);
 	}
 }
