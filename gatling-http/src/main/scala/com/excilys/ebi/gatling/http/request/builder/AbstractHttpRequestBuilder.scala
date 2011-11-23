@@ -109,7 +109,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 *
 	 * @param paramKey the key of the parameter
 	 */
-	def queryParam(paramKey: String): B = queryParam(paramKey, "${" + paramKey + "}")
+	def queryParam(paramKey: String): B = queryParam(paramKey, EL_START + paramKey + EL_END)
 
 	/**
 	 * Adds a header to the request

@@ -26,6 +26,10 @@ import akka.actor.Uuid
  */
 object StringHelper extends Logging {
 
+	val EL_START = "${"
+
+	val EL_END = "}"
+
 	val EMPTY = ""
 
 	val jdk6Pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
