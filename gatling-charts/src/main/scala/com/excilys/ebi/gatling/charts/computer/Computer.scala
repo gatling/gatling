@@ -58,7 +58,7 @@ object Computer extends Logging {
 
 	def numberOfRequestInResponseTimeRange(data: List[ResultLine], lowerBound: Int, higherBound: Int): List[(String, Int)] = {
 
-		val groupNames = List("0 < t < " + lowerBound + "ms", lowerBound + "ms < t < " + higherBound + "ms", higherBound + "ms < t")
+		val groupNames = List((1, "t < " + lowerBound + "ms"), (2, lowerBound + "ms < t < " + higherBound + "ms"), (3, higherBound + "ms < t"))
 		val (firstGroup, mediumGroup, lastGroup) = (groupNames(0), groupNames(1), groupNames(2))
 
 		var grouped = data.groupBy {
@@ -72,7 +72,10 @@ object Computer extends Logging {
 			grouped += (name -> grouped.getOrElse(name, Nil))
 		}
 
-		grouped.map(entry => entry._1 -> entry._2.length).toList.sorted
+		// Computes the number of requests per group
+		// Then sorts the list by the order of the groupName
+		// Then creates the list to be returned
+		grouped.map(entry => (entry._1, entry._2.length)).toList.sortBy(entry => entry._1._1).map { entry => (entry._1._2, entry._2) }
 	}
 
 	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: Map[DateTime, Int], requestData: Map[DateTime, List[ResultLine]]): List[(Int, Int)] = {
