@@ -166,6 +166,7 @@ a:link, a:visited, a:hover {
 	-webkit-border-radius: 4px 4px 4px 4px;
 	border-radius: 4px 4px 4px 4px;
 	margin-top: 20px;
+	margin-bottom: 20px;
 	height: 410px; 
 	width: 100%
 }
