@@ -13,6 +13,10 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.ning</groupId>
 			<artifactId>async-http-client</artifactId>
 		</dependency>
@@ -37,4 +41,13 @@
 			<artifactId>joda-convert</artifactId>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.scala-tools</groupId>
+				<artifactId>maven-scala-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
 </project>
