@@ -2,27 +2,21 @@ package com.excilys.ebi.gatling.recorder.ui.component;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.ButtonGroup;
-import javax.swing.DefaultCellEditor;
-import javax.swing.JCheckBox;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JRadioButton;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
@@ -31,8 +25,6 @@ import javax.swing.table.TableCellRenderer;
 
 import com.excilys.ebi.gatling.recorder.configuration.Pattern;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.PatternType;
-
-import scala.actors.threadpool.Arrays;
 
 public class FilterTable extends JPanel {
 
@@ -56,13 +48,13 @@ public class FilterTable extends JPanel {
 		table.getColumn("Style").setCellRenderer(new RadioButtonRenderer());
 		table.getColumn("Style").setCellEditor(new RadioButtonEditor());
 		table.setRowHeight(30);
-		
+
 		model.addTableModelListener(new TableModelListener() {
 
 			@Override
 			public void tableChanged(TableModelEvent e) {
 				// TODO: Vérifier unicité
-				//System.err.println("!! Vérifier unicité");
+				// System.err.println("!! Vérifier unicité");
 			}
 		});
 	}
@@ -106,10 +98,10 @@ public class FilterTable extends JPanel {
 		Pattern p = new Pattern(getPatternTypeAt(row), (String) model.getValueAt(row, 0));
 		return p;
 	}
-	
-	private PatternType getPatternTypeAt(int row){
-		CustomPanel p = (CustomPanel)table.getValueAt(row, 1);
-		return p.isFirstSelected() ? PatternType.Java:PatternType.Ant;
+
+	private PatternType getPatternTypeAt(int row) {
+		CustomPanel p = (CustomPanel) table.getValueAt(row, 1);
+		return p.isFirstSelected() ? PatternType.Java : PatternType.Ant;
 	}
 
 	private void initPopupMenu() {
@@ -143,54 +135,53 @@ public class FilterTable extends JPanel {
 }
 
 class RadioButtonRenderer implements TableCellRenderer {
-	
-	public RadioButtonRenderer() {}
 
-	public Component getTableCellRendererComponent(JTable table, Object value,
-			boolean isSelected, boolean hasFocus, int row, int column){
-		if (value==null){
+	public RadioButtonRenderer() {
+	}
+
+	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+		if (value == null) {
 			value = new CustomPanel();
 			table.setValueAt(value, row, 1);
 		}
-		return (CustomPanel)value;
+		return (CustomPanel) value;
 	}
 }
 
-class RadioButtonEditor extends AbstractCellEditor implements TableCellEditor{
+class RadioButtonEditor extends AbstractCellEditor implements TableCellEditor {
 
 	private static final long serialVersionUID = 1L;
 	CustomPanel customPanel = new CustomPanel();
-	
-	public Component getTableCellEditorComponent(JTable table, Object value,
-			boolean isSelected, int row, int column) {
-		if (value==null){
+
+	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+		if (value == null) {
 			value = new CustomPanel();
 			table.setValueAt(value, row, 1);
 		}
-		customPanel = (CustomPanel)value;
-	    return customPanel;
+		customPanel = (CustomPanel) value;
+		return customPanel;
 	}
 
 	public Object getCellEditorValue() {
-	    return customPanel;
+		return customPanel;
 	}
 }
 
-class CustomPanel extends JPanel{
-	
-	JRadioButton radio1 = new JRadioButton("Java",true);
-	JRadioButton radio2 = new JRadioButton("Ant",false);
-	
-	public CustomPanel(){
+@SuppressWarnings("serial")
+class CustomPanel extends JPanel {
+
+	JRadioButton radio1 = new JRadioButton("Java", true);
+	JRadioButton radio2 = new JRadioButton("Ant", false);
+
+	public CustomPanel() {
 		this.add(radio1);
 		this.add(radio2);
 		ButtonGroup group = new ButtonGroup();
-	    group.add(radio1);
-	    group.add(radio2);
+		group.add(radio1);
+		group.add(radio2);
 	}
-	
-	public boolean isFirstSelected(){
+
+	public boolean isFirstSelected() {
 		return radio1.isSelected();
 	}
-	
 }
