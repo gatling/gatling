@@ -77,8 +77,8 @@ public class ConfigurationValidatorListener implements ActionListener {
 		config.setFilterType((FilterType) frame.cbFilterType.getSelectedItem());
 		// Set urls filters into a list
 		config.setPatterns(new ArrayList<Pattern>());
-		for (int i = 0; i < frame.listElements.size(); i++)
-			config.getPatterns().add((Pattern) frame.listElements.get(i));
+		for (int i = 0; i < frame.panelFilters.getRowCount(); i++)
+			config.getPatterns().add((Pattern) frame.panelFilters.getPattern(i));
 
 		// Check if a directory was entered
 		config.setResultPath(StringUtils.trimToNull(frame.txtResultPath.getText()));
