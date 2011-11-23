@@ -45,7 +45,7 @@
 #else
 		.exec(
 			http("request_$req.getId()")
-			$req.getCorrespondingRequest().getMethod().toString().toLowerCase()(url_$req.getId())
+			$req.getRequest().getMethod().toString().toLowerCase()(url_$req.getId())
 	#foreach($param in $req.getParams().entrySet())
 #foreach($val in $param.value)
 		param("$param.key", "$val")

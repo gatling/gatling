@@ -35,6 +35,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -89,8 +90,8 @@ public class RunningFrame extends JFrame {
 	private int port;
 	private String urlBase = null;
 	private String urlBaseString = null;
-	private TreeMap<String, String> urls = new TreeMap<String, String>();
-	private TreeMap<String, Map<String, String>> headers = new TreeMap<String, Map<String, String>>();
+	private LinkedHashMap<String, String> urls = new LinkedHashMap<String, String>();
+	private LinkedHashMap<String, Map<String, String>> headers = new LinkedHashMap<String, Map<String, String>>();
 
 	public RunningFrame() {
 
