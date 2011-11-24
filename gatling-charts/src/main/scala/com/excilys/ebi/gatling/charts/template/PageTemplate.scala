@@ -20,6 +20,12 @@ import com.excilys.ebi.gatling.charts.component.Component
 import com.excilys.ebi.gatling.charts.util.PathHelper.GATLING_TEMPLATE_LAYOUT_FILE
 import com.excilys.ebi.gatling.core.log.Logging
 
+object PageTemplate {
+	val engine = new TemplateEngine
+	engine.allowReload = false
+	engine.escapeMarkup = false
+}
+
 abstract class PageTemplate(title: String, subTitle: String, components: Component*) extends Logging {
 
 	val jsFiles = (Seq("jquery.min.js", "menu.js") ++ getAdditionnalJSFiles).distinct
@@ -36,11 +42,8 @@ abstract class PageTemplate(title: String, subTitle: String, components: Compone
 		seq
 	}
 
-	val engine = new TemplateEngine
-	engine.escapeMarkup = false
-
 	def getOutput: String = {
-		engine.layout(GATLING_TEMPLATE_LAYOUT_FILE,
+		PageTemplate.engine.layout(GATLING_TEMPLATE_LAYOUT_FILE,
 			Map("jsFiles" -> jsFiles,
 				"pageTitle" -> title,
 				"pageSubTitle" -> subTitle,

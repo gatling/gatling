@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.template
-import org.fusesource.scalate.TemplateEngine
 
-import com.excilys.ebi.gatling.charts.util.PathHelper._
+import com.excilys.ebi.gatling.charts.util.PathHelper.GATLING_TEMPLATE_MENU_JS_FILE
 
 class MenuTemplate(requestLinks: List[(String, Option[String], String)]) {
-	val engine = new TemplateEngine
-	engine.escapeMarkup = false
 
 	def getOutput: String = {
-		engine.layout(GATLING_TEMPLATE_MENU_JS_FILE, Map("requestLinks" -> requestLinks))
+		PageTemplate.engine.layout(GATLING_TEMPLATE_MENU_JS_FILE, Map("requestLinks" -> requestLinks))
 	}
 }

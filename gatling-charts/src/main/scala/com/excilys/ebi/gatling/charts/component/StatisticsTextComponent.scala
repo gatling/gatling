@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.component
-import org.fusesource.scalate.TemplateEngine
-
+import com.excilys.ebi.gatling.charts.template.PageTemplate
 import com.excilys.ebi.gatling.charts.util.PathHelper.GATLING_CHARTS_STATISTICS_TEMPLATE
 
 class StatisticsTextComponent(numberOfRequest: Int, minResponseTime: Int, maxResponseTime: Int, averageResponseTime: Double, responseTimeStandardDeviation: Double)
 		extends Component {
 
-	val engine = new TemplateEngine
-	engine.escapeMarkup = false
-
 	def getHTMLContent: String = {
-		engine.layout(GATLING_CHARTS_STATISTICS_TEMPLATE,
+		PageTemplate.engine.layout(GATLING_CHARTS_STATISTICS_TEMPLATE,
 			Map("numberOfRequests" -> numberOfRequest,
 				"min" -> minResponseTime,
 				"max" -> maxResponseTime,

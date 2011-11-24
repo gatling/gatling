@@ -30,6 +30,7 @@ import com.ning.http.client.RequestBuilder
 object AbstractHttpRequestWithBodyBuilder {
 	val engine = TemplateEngine(List(new File(GATLING_TEMPLATES_FOLDER)), "production")
 	engine.allowReload = false
+	engine.escapeMarkup = false
 }
 
 /**
