@@ -47,9 +47,7 @@ object ReportsGenerator {
 
 		generateMenu(runOn, dataLoader)
 
-		for (reportGenerator <- reportGenerators) {
-			reportGenerator.generate
-		}
+		reportGenerators.foreach(_.generate)
 
 		PageTemplate.engine.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown
 	}
