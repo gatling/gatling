@@ -43,7 +43,7 @@ object HttpRequestAction {
 	 * The HTTP client used to send the requests
 	 */
 	val CLIENT: AsyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setCompressionEnabled(true).build())
-	// Registering the client closing
+	// Register client shutdown
 	ResourceRegistry.registerOnCloseCallback(() => CLIENT.close)
 }
 

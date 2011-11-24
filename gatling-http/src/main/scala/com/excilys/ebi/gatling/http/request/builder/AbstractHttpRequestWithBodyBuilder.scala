@@ -17,20 +17,24 @@ package com.excilys.ebi.gatling.http.request.builder
 
 import java.io.File
 
-import org.fusesource.scalate.{ TemplateEngine, Binding }
+import org.fusesource.scalate.support.ScalaCompiler
+import org.fusesource.scalate.{TemplateEngine, Binding}
 
 import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.core.util.FileHelper.SSP_EXTENSION
-import com.excilys.ebi.gatling.core.util.PathHelper.{ GATLING_TEMPLATES_FOLDER, GATLING_REQUEST_BODIES_FOLDER }
+import com.excilys.ebi.gatling.core.util.PathHelper.{GATLING_TEMPLATES_FOLDER, GATLING_REQUEST_BODIES_FOLDER}
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
-import com.excilys.ebi.gatling.http.request.{ TemplateBody, StringBody, HttpRequestBody, FilePathBody }
+import com.excilys.ebi.gatling.http.request.{TemplateBody, StringBody, HttpRequestBody, FilePathBody}
 import com.ning.http.client.RequestBuilder
 
 object AbstractHttpRequestWithBodyBuilder {
-	val engine = new TemplateEngine(List(new File(GATLING_TEMPLATES_FOLDER)))
-	engine.allowReload = false
-	engine.escapeMarkup = false
+	val ENGINE = new TemplateEngine(List(new File(GATLING_TEMPLATES_FOLDER)))
+	ENGINE.allowReload = false
+	ENGINE.escapeMarkup = false
+	// Register engine shutdown
+	ResourceRegistry.registerOnCloseCallback(() => ENGINE.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown)
 }
 
 /**
@@ -129,6 +133,6 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 		val bindings = for (value <- values) yield Binding(value._1, "String")
 		val templateValues = for (value <- values) yield (value._1 -> (value._2(context)))
 
-		AbstractHttpRequestWithBodyBuilder.engine.layout(tplPath + SSP_EXTENSION, templateValues, bindings)
+		AbstractHttpRequestWithBodyBuilder.ENGINE.layout(tplPath + SSP_EXTENSION, templateValues, bindings)
 	}
 }
