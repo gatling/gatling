@@ -77,7 +77,7 @@
 		<logback.version>1.0.0</logback.version>
 		<slf4j.version>1.6.4</slf4j.version>
 		<scalate.version>1.5.3</scalate.version>
-		<netty.version>3.2.6.Final</netty.version>
+		<netty.version>3.2.7.Final</netty.version>
 		<joda-time.version>2.0</joda-time.version>
 		<joda-convert.version>1.1</joda-convert.version>
 		<velocity.version>1.7</velocity.version>
