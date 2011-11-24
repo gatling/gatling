@@ -32,7 +32,7 @@ import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_SCENARIOS_FOLDER
 class DateHolder(var value: DateTime)
 
 object TextScriptInterpreter {
-	val UNIT_SEPARATOR = 31.toChar
+	val DOLLAR_TEMP_REPLACEMENT = 178.toChar
 }
 /**
  * Text interpreter used to interpret .txt simulation files
@@ -60,14 +60,14 @@ class TextScriptInterpreter extends Interpreter {
     """
 
 		// Contains the contents of the simulation file
-		val initialFileBodyContent = Source.fromFile(GATLING_SCENARIOS_FOLDER + "/" + fileName, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.UNIT_SEPARATOR)
+		val initialFileBodyContent = Source.fromFile(GATLING_SCENARIOS_FOLDER + "/" + fileName, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT)
 
 		// Includes contents of included files into the simulation file 
 		val toBeFound = new Regex("""include\("(.*)"\)""")
 		val newFileBodyContent = toBeFound.replaceAllIn(initialFileBodyContent, result => {
 			val path = fileName.substring(0, fileName.lastIndexOf("@")) + "/" + result.group(1)
-			Source.fromFile(GATLING_SCENARIOS_FOLDER + "/" + path + TXT_EXTENSION, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.UNIT_SEPARATOR) + "\n\n"
-		}).replace(TextScriptInterpreter.UNIT_SEPARATOR, '$')
+			Source.fromFile(GATLING_SCENARIOS_FOLDER + "/" + path + TXT_EXTENSION, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT) + "\n\n"
+		}).replace(TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT, '$')
 
 		// Complete script
 		val fileContent = fileHeader + newFileBodyContent
