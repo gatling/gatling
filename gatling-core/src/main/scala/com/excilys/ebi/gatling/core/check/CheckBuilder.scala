@@ -36,14 +36,15 @@ object CheckBuilder {
  * @param strategy the strategy used to perform the Check
  * @param expected the expected value of what has been found
  */
-abstract class CheckBuilder[B <: CheckBuilder[B, WHERE], WHERE](what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: Option[String], saveAs: Option[String])
+abstract class CheckBuilder[B <: CheckBuilder[B, WHERE], WHERE](what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String])
 		extends Logging {
 
 	def build: Check[WHERE]
 
-	def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: Option[String], saveAs: Option[String]): B
-	def newInstanceWithVerify(strategy: CheckStrategy, expected: Option[String] = None): B with CheckBuilderSave[B]
-	def newInstanceWithFind(occurrence: Int): B with CheckBuilderVerify[B]
+	def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String]): B
+	def newInstanceWithVerify(strategy: CheckStrategy, expected: List[String] = Nil): B with CheckBuilderSave[B]
+	def newInstanceWithFindOne(occurrence: Int): B with CheckBuilderVerifyOne[B]
+	def newInstanceWithFindAll: B with CheckBuilderVerifyAll[B]
 
 	def newInstanceWithSaveAs(saveAs: String): B = newInstance(what, occurrence, strategy, expected, Some(saveAs))
 }

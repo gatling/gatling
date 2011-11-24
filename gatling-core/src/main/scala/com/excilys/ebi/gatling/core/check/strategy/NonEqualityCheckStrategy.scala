@@ -19,5 +19,5 @@ package com.excilys.ebi.gatling.core.check.strategy
  * Represents a Check on Non Equality (ie: difference) between value and expected
  */
 object NonEqualityCheckStrategy extends CheckStrategy {
-	def check(value: Option[String], expected: Option[String]) = !value.isEmpty && value.get != expected.get
+	def check(value: List[String], expected: List[String]) = !value.isEmpty && value != expected
 }

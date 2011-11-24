@@ -18,11 +18,17 @@ package com.excilys.ebi.gatling.http.check.body.extractor
 import com.ning.http.client.Response
 import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.extractor.XPathExtractor
+import com.excilys.ebi.gatling.core.check.extractor.MultiXPathExtractor
 
 /**
  * Factory for HttpBodyXPathExtractor
  */
-class HttpBodyXPathExtractorFactory(occurence: Int) extends ExtractorFactory[Response] {
+class HttpBodyXPathExtractorFactory(occurrence: Option[Int]) extends ExtractorFactory[Response] {
 
-	def getExtractor(response: Response) = new XPathExtractor(response.getResponseBodyAsStream, occurence)
+	def getExtractor(response: Response) =
+		occurrence.map { value =>
+			new XPathExtractor(response.getResponseBodyAsStream, value)
+		}.getOrElse {
+			new MultiXPathExtractor(response.getResponseBodyAsStream)
+		}
 }

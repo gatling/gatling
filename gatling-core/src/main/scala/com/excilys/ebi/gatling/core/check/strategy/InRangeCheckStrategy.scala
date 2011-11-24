@@ -24,5 +24,5 @@ object InRangeCheckStrategy extends CheckStrategy {
 
 	implicit def rangeToString(range: Range) = range.mkString(SEPARATOR)
 
-	def check(value: Option[String], expected: Option[String]) = !value.isEmpty && expected.get.split(SEPARATOR).contains(value.get)
+	def check(value: List[String], expected: List[String]) = !value.isEmpty && !expected.isEmpty && expected(0).split(SEPARATOR).contains(value(0))
 }

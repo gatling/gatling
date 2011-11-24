@@ -15,16 +15,17 @@
  */
 package com.excilys.ebi.gatling.http.check.status
 
-import scala.annotation.implicitNotFound
-import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy.rangeToString
-import com.excilys.ebi.gatling.core.check.strategy.{ InRangeCheckStrategy, EqualityCheckStrategy, CheckStrategy }
+import com.excilys.ebi.gatling.core.check.strategy.CheckStrategy
+import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy
+import com.excilys.ebi.gatling.core.check.CheckBuilderFind
+import com.excilys.ebi.gatling.core.check.CheckBuilderVerifyOne
+import com.excilys.ebi.gatling.core.check.CheckBuilderSave
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilder, HttpCheck }
-import com.excilys.ebi.gatling.http.request.HttpPhase.{ StatusReceived, HttpPhase }
-import com.excilys.ebi.gatling.core.check.CheckBuilderVerify
-import com.excilys.ebi.gatling.core.check.CheckBuilderSave
-import com.excilys.ebi.gatling.core.check.CheckBuilderFind
+import com.excilys.ebi.gatling.http.check.HttpCheck
+import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
+import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
+import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
 
 /**
  * HttpStatusCheckBuilder class companion
@@ -37,7 +38,7 @@ object HttpStatusCheckBuilder {
 	 *
 	 * @param range the specified range
 	 */
-	def status = new HttpStatusCheckBuilder(InRangeCheckStrategy, None, None) with CheckBuilderFind[HttpCheckBuilder[HttpStatusCheckBuilder]]
+	def status = new HttpStatusCheckBuilder(InRangeCheckStrategy, Nil, None) with CheckBuilderFind[HttpCheckBuilder[HttpStatusCheckBuilder]]
 }
 
 /**
@@ -47,16 +48,18 @@ object HttpStatusCheckBuilder {
  * @param strategy the strategy used to check
  * @param expected the expected value against which the extracted value will be checked
  */
-class HttpStatusCheckBuilder(strategy: CheckStrategy, expected: Option[String], saveAs: Option[String])
+class HttpStatusCheckBuilder(strategy: CheckStrategy, expected: List[String], saveAs: Option[String])
 		extends HttpCheckBuilder[HttpStatusCheckBuilder]((c: Context) => EMPTY, None, strategy, expected, saveAs, StatusReceived) {
 
-	def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: Option[String], saveAs: Option[String], when: HttpPhase) =
+	def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String], when: HttpPhase) =
 		new HttpStatusCheckBuilder(strategy, expected, saveAs)
 
-	def newInstanceWithFind(occurrence: Int): HttpCheckBuilder[HttpStatusCheckBuilder] with CheckBuilderVerify[HttpCheckBuilder[HttpStatusCheckBuilder]] =
-		new HttpStatusCheckBuilder(strategy, expected, saveAs) with CheckBuilderVerify[HttpCheckBuilder[HttpStatusCheckBuilder]]
+	def newInstanceWithFindOne(occurrence: Int) =
+		new HttpStatusCheckBuilder(strategy, expected, saveAs) with CheckBuilderVerifyOne[HttpCheckBuilder[HttpStatusCheckBuilder]]
 
-	def newInstanceWithVerify(strategy: CheckStrategy, expected: Option[String] = None): HttpCheckBuilder[HttpStatusCheckBuilder] with CheckBuilderSave[HttpCheckBuilder[HttpStatusCheckBuilder]] =
+	def newInstanceWithFindAll = throw new UnsupportedOperationException("Status checks are single valued")
+
+	def newInstanceWithVerify(strategy: CheckStrategy, expected: List[String] = Nil) =
 		new HttpStatusCheckBuilder(strategy, expected, saveAs) with CheckBuilderSave[HttpCheckBuilder[HttpStatusCheckBuilder]]
 
 	def build: HttpCheck = new HttpStatusCheck(expected, saveAs)

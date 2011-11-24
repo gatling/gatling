@@ -32,6 +32,6 @@ import com.ning.http.client.Response
  * @param expected the expected value against which the extracted value will be checked
  * @param when the HttpPhase during which the check will be made
  */
-abstract class HttpCheck(what: Context => String, how: ExtractorFactory[Response], strategy: CheckStrategy, expected: Option[String], saveAs: Option[String], val when: HttpPhase)
+abstract class HttpCheck(what: Context => String, how: ExtractorFactory[Response], strategy: CheckStrategy, expected: List[String], saveAs: Option[String], val when: HttpPhase)
 		extends Check[Response](what, how, strategy, expected, saveAs) {
 }

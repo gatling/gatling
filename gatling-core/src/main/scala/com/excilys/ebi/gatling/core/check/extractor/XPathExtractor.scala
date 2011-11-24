@@ -63,7 +63,7 @@ class XPathExtractor(xmlContent: InputStream, occurrence: Int) extends Extractor
 	 * @param expression a String containing the XPath expression to be searched
 	 * @return an option containing the value if found, None otherwise
 	 */
-	def extract(expression: String): Option[String] = {
+	def extract(expression: String): List[String] = {
 
 		val xpathExpression: XPath = new DOMXPath(expression);
 
@@ -72,8 +72,8 @@ class XPathExtractor(xmlContent: InputStream, occurrence: Int) extends Extractor
 		val results = xpathExpression.selectNodes(document).asInstanceOf[java.util.List[Node]]
 
 		if (results.size() > 0)
-			Some(results.get(occurrence).getTextContent)
+			List(results.get(occurrence).getTextContent)
 		else
-			None
+			Nil
 	}
 }

@@ -32,18 +32,17 @@ class RegExpExtractor(textContent: String, occurrence: Int) extends Extractor {
 	 * @param expression a String containing the regular expression to be matched
 	 * @return an option containing the value if found, None otherwise
 	 */
-	def extract(expression: String): Option[String] = {
+	def extract(expression: String): List[String] = {
 		logger.debug("Extracting with expression : {}", expression)
 
 		val matcher = Pattern.compile(expression).matcher(textContent)
 
 		for (i <- 0 to occurrence) {
 			if (!matcher.find)
-				return None
+				return Nil
 		}
 
 		// if a group is specified, return the group 1, else return group 0 (ie the match)
-		// instanciate a new String so that we copy the byte array instead of having a view on the whole response body!
-		Some(new String(matcher.group(matcher.groupCount min 1)))
+		List(new String(matcher.group(matcher.groupCount min 1)))
 	}
 }

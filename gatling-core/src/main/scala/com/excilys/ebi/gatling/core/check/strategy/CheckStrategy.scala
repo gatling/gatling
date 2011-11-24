@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.check.strategy
+import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
 
 /**
  * This trait is used to define different types of Checks
  */
-trait CheckStrategy {
+trait CheckStrategy extends ClassSimpleNameToString {
 	/**
 	 * Method that actually performs the verification and see if
 	 * value corresponds to what's expected
@@ -27,5 +28,5 @@ trait CheckStrategy {
 	 * @param expected the expected content of value
 	 * @return the result of the Check
 	 */
-	def check(value: Option[String], expected: Option[String]): Boolean
+	def check(value: List[String], expected: List[String]): Boolean
 }

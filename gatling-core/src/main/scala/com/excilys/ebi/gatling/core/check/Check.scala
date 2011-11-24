@@ -30,7 +30,7 @@ import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
  * @param strategy the strategy used to perform the Check
  * @param expected the expected value of what has been found
  */
-abstract class Check[WHERE](val what: Context => String, val how: ExtractorFactory[WHERE], strategy: CheckStrategy, expected: Option[String], val saveAs: Option[String])
+abstract class Check[WHERE](val what: Context => String, val how: ExtractorFactory[WHERE], val strategy: CheckStrategy, val expected: List[String], val saveAs: Option[String])
 		extends Logging with ClassSimpleNameToString {
 
 	/**
@@ -39,5 +39,5 @@ abstract class Check[WHERE](val what: Context => String, val how: ExtractorFacto
 	 * @param value the value extracted from the WHERE
 	 * @return a boolean that indicates whether the check succeeded or not
 	 */
-	def check(value: Option[String]) = strategy.check(value, expected)
+	def check(value: List[String]) = strategy.check(value, expected)
 }

@@ -36,6 +36,7 @@ object StringHelper extends Logging {
 
 	val elPatternString = """\$\{(.*?)\}"""
 	val elPattern = elPatternString.r
+	val elMultivaluedPattern = """\(\d+\)""".r
 
 	/**
 	 * Method that strips all accents from a string
@@ -46,11 +47,28 @@ object StringHelper extends Logging {
 	}
 
 	def interpolate(stringToFormat: String): Context => String = {
-		val keysFunctions = elPattern.findAllIn(stringToFormat).matchData.map { data => (c: Context) => c.getAttribute(data.group(1)) }.toSeq
+
+		val keysFunctions = elPattern.findAllIn(stringToFormat).matchData.map { data =>
+			val elContent = data.group(1)
+			val multivaluedPart = elMultivaluedPattern.findFirstMatchIn(elContent)
+			if (multivaluedPart.isDefined) {
+				val key = elContent.substring(0, elContent.lastIndexOf("("))
+				(c: Context) => c.getAttribute(key).asInstanceOf[List[String]](multivaluedPart.get.group(1).toInt)
+			} else
+				(c: Context) => c.getAttribute(data.group(1)) match {
+					case l: List[String] => l(0)
+					case s: String => s
+					case x => {
+						logger.warn("Context value was not a String nor a List[String].")
+						x.toString
+					}
+				}
+		}.toSeq
+
 		val strings = stringToFormat.split(elPatternString, -1).toSeq
 
 		val functions = keysFunctions zip strings
 
-		(c: Context) => functions.map { entry => entry._2 + entry._1(c).toString }.mkString + strings.last
+		(c: Context) => functions.map { entry => entry._2 + entry._1(c) }.mkString + strings.last
 	}
 }

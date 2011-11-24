@@ -17,15 +17,15 @@ package com.excilys.ebi.gatling.http.check.header
 
 import com.excilys.ebi.gatling.core.check.strategy.CheckStrategy
 import com.excilys.ebi.gatling.core.check.strategy.ExistenceCheckStrategy
+import com.excilys.ebi.gatling.core.check.CheckBuilderFind
+import com.excilys.ebi.gatling.core.check.CheckBuilderVerifyOne
+import com.excilys.ebi.gatling.core.check.CheckBuilderSave
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
-import com.excilys.ebi.gatling.core.check.CheckBuilderFind
-import com.excilys.ebi.gatling.core.check.CheckBuilderVerify
-import com.excilys.ebi.gatling.core.check.CheckBuilderSave
 
 /**
  * HttpHeaderCheckBuilder class companion
@@ -38,7 +38,7 @@ object HttpHeaderCheckBuilder {
 	 *
 	 * @param what the function returning the name of the header
 	 */
-	def header(what: Context => String) = new HttpHeaderCheckBuilder(what, ExistenceCheckStrategy, None, None) with CheckBuilderFind[HttpCheckBuilder[HttpHeaderCheckBuilder]]
+	def header(what: Context => String) = new HttpHeaderCheckBuilder(what, ExistenceCheckStrategy, Nil, None) with CheckBuilderFind[HttpCheckBuilder[HttpHeaderCheckBuilder]]
 	/**
 	 * Will check the value of the header in the context
 	 *
@@ -55,16 +55,18 @@ object HttpHeaderCheckBuilder {
  * @param strategy the strategy used to check
  * @param expected the expected value against which the extracted value will be checked
  */
-class HttpHeaderCheckBuilder(what: Context => String, strategy: CheckStrategy, expected: Option[String], saveAs: Option[String])
+class HttpHeaderCheckBuilder(what: Context => String, strategy: CheckStrategy, expected: List[String], saveAs: Option[String])
 		extends HttpCheckBuilder[HttpHeaderCheckBuilder](what, None, strategy, expected, saveAs, HeadersReceived) {
 
-	def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: Option[String], saveAs: Option[String], when: HttpPhase) =
+	def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String], when: HttpPhase) =
 		new HttpHeaderCheckBuilder(what, strategy, expected, saveAs)
 
-	def newInstanceWithFind(occurrence: Int): HttpCheckBuilder[HttpHeaderCheckBuilder] with CheckBuilderVerify[HttpCheckBuilder[HttpHeaderCheckBuilder]] =
-		new HttpHeaderCheckBuilder(what, strategy, expected, saveAs) with CheckBuilderVerify[HttpCheckBuilder[HttpHeaderCheckBuilder]]
+	def newInstanceWithFindOne(occurrence: Int) =
+		new HttpHeaderCheckBuilder(what, strategy, expected, saveAs) with CheckBuilderVerifyOne[HttpCheckBuilder[HttpHeaderCheckBuilder]]
 
-	def newInstanceWithVerify(strategy: CheckStrategy, expected: Option[String] = None): HttpCheckBuilder[HttpHeaderCheckBuilder] with CheckBuilderSave[HttpCheckBuilder[HttpHeaderCheckBuilder]] =
+	def newInstanceWithFindAll = throw new UnsupportedOperationException("Header checks are single valued")
+
+	def newInstanceWithVerify(strategy: CheckStrategy, expected: List[String] = Nil) =
 		new HttpHeaderCheckBuilder(what, strategy, expected, saveAs) with CheckBuilderSave[HttpCheckBuilder[HttpHeaderCheckBuilder]]
 
 	def build: HttpCheck = new HttpHeaderCheck(what, strategy, expected, saveAs)

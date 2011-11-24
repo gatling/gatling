@@ -178,16 +178,19 @@ class GatlingAsyncHandler(context: Context, checks: List[HttpCheck], next: Actio
 
 				for (check <- phaseChecks) {
 					val extractor = phaseExtractors.get(check.how).get
-					val extractedValue = extractor.extract(check.what(context))
+					val expression = check.what(context)
+					val extractedValue = extractor.extract(expression)
 					logger.debug("Extracted value: {}", extractedValue)
 
 					if (!check.check(extractedValue)) {
-						logger.warn("{} failed : received {}", check, extractedValue)
+						if (logger.isWarnEnabled) {
+							logger.warn("{} failed : received '{}' instead of '{}' for '{}'", Array[Object](check, extractedValue, check.expected, expression))
+						}
 						sendLogAndExecuteNext(KO, check + " failed", processingStartTimeNano)
 						return
 
-					} else if (extractedValue.isDefined && check.saveAs.isDefined) {
-						context.setAttribute(check.saveAs.get, extractedValue.get)
+					} else if (!extractedValue.isEmpty && check.saveAs.isDefined) {
+						context.setAttribute(check.saveAs.get, extractedValue)
 					}
 				}
 			}

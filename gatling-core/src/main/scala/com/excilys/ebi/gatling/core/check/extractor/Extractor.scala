@@ -31,5 +31,5 @@ abstract class Extractor extends Logging {
 	 * @param expression the expression that defines the extraction
 	 * @return the result of the search, being None if nothing was found or Some(something)
 	 */
-	def extract(expression: String): Option[String]
+	def extract(expression: String): List[String]
 }

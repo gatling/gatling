@@ -19,5 +19,5 @@ package com.excilys.ebi.gatling.core.check.strategy
  * Represents a Check on Non Existence (ie: absence) of value
  */
 object NonExistenceCheckStrategy extends CheckStrategy {
-	def check(value: Option[String], expected: Option[String]) = value.isEmpty
+	def check(value: List[String], expected: List[String]) = value.isEmpty
 }

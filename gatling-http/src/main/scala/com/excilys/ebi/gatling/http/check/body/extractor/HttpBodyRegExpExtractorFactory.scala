@@ -17,11 +17,17 @@ package com.excilys.ebi.gatling.http.check.body.extractor
 
 import com.excilys.ebi.gatling.core.check.extractor.{ RegExpExtractor, ExtractorFactory }
 import com.ning.http.client.Response
+import com.excilys.ebi.gatling.core.check.extractor.MultiRegExpExtractor
 
 /**
  * Factory for HttpBodyRegExpExtractor
  */
-class HttpBodyRegExpExtractorFactory(occurence: Int) extends ExtractorFactory[Response] {
+class HttpBodyRegExpExtractorFactory(occurrence: Option[Int]) extends ExtractorFactory[Response] {
 
-	def getExtractor(response: Response) = new RegExpExtractor(response.getResponseBody, occurence)
+	def getExtractor(response: Response) =
+		occurrence.map { value =>
+			new RegExpExtractor(response.getResponseBody, value)
+		}.getOrElse {
+			new MultiRegExpExtractor(response.getResponseBody)
+		}
 }

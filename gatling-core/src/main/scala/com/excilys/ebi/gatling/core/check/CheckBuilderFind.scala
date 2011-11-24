@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.check
 
-trait CheckBuilderFind[B <: CheckBuilder[B, _]] extends CheckBuilderVerify[B] { this: CheckBuilder[B, _] with CheckBuilderVerify[B] =>
-	def find(occurrence: Int) = newInstanceWithFind(occurrence)
-
+trait CheckBuilderFind[B <: CheckBuilder[B, _]] extends CheckBuilderVerifyOne[B] { this: CheckBuilder[B, _] with CheckBuilderVerify[B] =>
+	def find(occurrence: Int) = newInstanceWithFindOne(occurrence)
+	def findAll = newInstanceWithFindAll
 	def first = find(0)
 }

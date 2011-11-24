@@ -17,6 +17,7 @@ package com.excilys.ebi.gatling.http.check.header.extractor
 
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
 import com.ning.http.client.{ Response, FluentCaseInsensitiveStringsMap }
+import scala.collection.JavaConversions._
 
 /**
  * HTTP Header extractor
@@ -32,29 +33,11 @@ class HttpHeaderExtractor(response: Response) extends Extractor {
 	 * @param headerName the name of the header
 	 * @return an Option containing the value of the header
 	 */
-	def extract(headerName: String): Option[String] = {
-		extractAll(headerName, response.getHeaders()).map { list =>
-			if (list.size > 0)
-				Some(list.get(0))
-			else
-				None
-		}.getOrElse(None)
-	}
+	def extract(headerName: String): List[String] = {
 
-	/**
-	 * Extracts a header from a FluentCaseInsensitiveStringsMap of headers
-	 *
-	 * @param headerName the name of the header
-	 * @param headersMap the map containing all the headers received
-	 * @return an Option containing the value of the header
-	 */
-	def extractAll(headerName: String, headersMap: FluentCaseInsensitiveStringsMap): Option[java.util.List[String]] = {
-
-		val values = headersMap.get(headerName)
-
-		if (values == null)
-			None
-		else
-			Some(values)
+		response.getHeaders().get(headerName) match {
+			case null => Nil
+			case l => l.toList
+		}
 	}
 }

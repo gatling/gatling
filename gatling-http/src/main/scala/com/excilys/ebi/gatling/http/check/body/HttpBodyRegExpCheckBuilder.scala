@@ -24,12 +24,14 @@ import com.excilys.ebi.gatling.http.request.HttpPhase.{ HttpPhase, CompletePageR
 import com.excilys.ebi.gatling.core.check.CheckBuilderVerify
 import com.excilys.ebi.gatling.core.check.CheckBuilderSave
 import com.excilys.ebi.gatling.core.check.CheckBuilderFind
+import com.excilys.ebi.gatling.core.check.CheckBuilderVerifyAll
+import com.excilys.ebi.gatling.core.check.CheckBuilderVerifyOne
 
 object HttpBodyRegExpCheckBuilder {
 	/**
 	 *
 	 */
-	def regexp(what: Context => String) = new HttpBodyRegExpCheckBuilder(what, None, ExistenceCheckStrategy, None, None) with CheckBuilderFind[HttpCheckBuilder[HttpBodyRegExpCheckBuilder]]
+	def regexp(what: Context => String) = new HttpBodyRegExpCheckBuilder(what, Some(0), ExistenceCheckStrategy, Nil, None) with CheckBuilderFind[HttpCheckBuilder[HttpBodyRegExpCheckBuilder]]
 	/**
 	 *
 	 */
@@ -44,17 +46,20 @@ object HttpBodyRegExpCheckBuilder {
  * @param expected the expected value against which the extracted value will be checked
  * @param saveAs the optional context key in which the extracted value will be stored
  */
-class HttpBodyRegExpCheckBuilder(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: Option[String], saveAs: Option[String])
+class HttpBodyRegExpCheckBuilder(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String])
 		extends HttpCheckBuilder[HttpBodyRegExpCheckBuilder](what, occurrence, strategy, expected, saveAs, CompletePageReceived) {
 
-	def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: Option[String], saveAs: Option[String], when: HttpPhase) =
+	def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String], when: HttpPhase) =
 		new HttpBodyRegExpCheckBuilder(what, occurrence, strategy, expected, saveAs)
 
-	def newInstanceWithFind(occurrence: Int): HttpCheckBuilder[HttpBodyRegExpCheckBuilder] with CheckBuilderVerify[HttpCheckBuilder[HttpBodyRegExpCheckBuilder]] =
-		new HttpBodyRegExpCheckBuilder(what, Some(occurrence), strategy, expected, saveAs) with CheckBuilderVerify[HttpCheckBuilder[HttpBodyRegExpCheckBuilder]]
+	def newInstanceWithFindOne(occurrence: Int) =
+		new HttpBodyRegExpCheckBuilder(what, Some(occurrence), strategy, expected, saveAs) with CheckBuilderVerifyOne[HttpCheckBuilder[HttpBodyRegExpCheckBuilder]]
 
-	def newInstanceWithVerify(strategy: CheckStrategy, expected: Option[String] = None): HttpCheckBuilder[HttpBodyRegExpCheckBuilder] with CheckBuilderSave[HttpCheckBuilder[HttpBodyRegExpCheckBuilder]] =
+	def newInstanceWithFindAll =
+		new HttpBodyRegExpCheckBuilder(what, None, strategy, expected, saveAs) with CheckBuilderVerifyAll[HttpCheckBuilder[HttpBodyRegExpCheckBuilder]]
+
+	def newInstanceWithVerify(strategy: CheckStrategy, expected: List[String] = Nil) =
 		new HttpBodyRegExpCheckBuilder(what, occurrence, strategy, expected, saveAs) with CheckBuilderSave[HttpCheckBuilder[HttpBodyRegExpCheckBuilder]]
 
-	def build: HttpCheck = new HttpBodyRegExpCheck(what, occurrence.getOrElse(0), strategy, expected, saveAs: Option[String])
+	def build: HttpCheck = new HttpBodyRegExpCheck(what, occurrence, strategy, expected, saveAs: Option[String])
 }

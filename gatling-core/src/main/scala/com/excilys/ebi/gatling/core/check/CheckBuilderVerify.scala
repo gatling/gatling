@@ -21,12 +21,16 @@ import com.excilys.ebi.gatling.core.check.strategy.EqualityCheckStrategy
 import com.excilys.ebi.gatling.core.check.strategy.NonEqualityCheckStrategy
 import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy
 import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy.rangeToString
+import com.excilys.ebi.gatling.core.check.strategy.ListEqualityCheckStrategy
+import com.excilys.ebi.gatling.core.check.strategy.ListSizeCheckStrategy
 
 trait CheckBuilderVerify[B <: CheckBuilder[B, _]] extends CheckBuilderSave[B] { this: CheckBuilder[B, _] with CheckBuilderSave[B] =>
 	def verify(strategy: CheckStrategy) = newInstanceWithVerify(strategy)
+	def verify(strategy: CheckStrategy, expected: List[String]) = newInstanceWithVerify(strategy, expected)
+	def verify(strategy: CheckStrategy, expected: String) = newInstanceWithVerify(strategy, List(expected))
+}
 
-	def verify(strategy: CheckStrategy, expected: String) = newInstanceWithVerify(strategy, Some(expected))
-
+trait CheckBuilderVerifyOne[B <: CheckBuilder[B, _]] extends CheckBuilderVerify[B] { this: CheckBuilder[B, _] with CheckBuilderSave[B] =>
 	def exists = verify(ExistenceCheckStrategy)
 
 	def notExists = verify(NonExistenceCheckStrategy)
@@ -36,4 +40,10 @@ trait CheckBuilderVerify[B <: CheckBuilder[B, _]] extends CheckBuilderSave[B] { 
 	def neq(expected: String) = verify(NonEqualityCheckStrategy, expected)
 
 	def in(range: Range) = verify(InRangeCheckStrategy, range)
+}
+
+trait CheckBuilderVerifyAll[B <: CheckBuilder[B, _]] extends CheckBuilderVerify[B] { this: CheckBuilder[B, _] with CheckBuilderSave[B] =>
+	def eq(expected: List[String]) = verify(ListEqualityCheckStrategy, expected)
+
+	def size(s: Int) = verify(ListSizeCheckStrategy, s.toString)
 }
