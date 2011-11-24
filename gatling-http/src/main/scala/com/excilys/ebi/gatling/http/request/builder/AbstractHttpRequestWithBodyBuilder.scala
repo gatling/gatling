@@ -17,15 +17,20 @@ package com.excilys.ebi.gatling.http.request.builder
 
 import java.io.File
 
-import org.fusesource.scalate.{TemplateEngine, Binding}
+import org.fusesource.scalate.{ TemplateEngine, Binding }
 
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.util.FileHelper.SSP_EXTENSION
-import com.excilys.ebi.gatling.core.util.PathHelper.{GATLING_TEMPLATES_FOLDER, GATLING_REQUEST_BODIES_FOLDER}
+import com.excilys.ebi.gatling.core.util.PathHelper.{ GATLING_TEMPLATES_FOLDER, GATLING_REQUEST_BODIES_FOLDER }
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
-import com.excilys.ebi.gatling.http.request.{TemplateBody, StringBody, HttpRequestBody, FilePathBody}
+import com.excilys.ebi.gatling.http.request.{ TemplateBody, StringBody, HttpRequestBody, FilePathBody }
 import com.ning.http.client.RequestBuilder
+
+object AbstractHttpRequestWithBodyBuilder {
+	val engine = TemplateEngine(List(new File(GATLING_TEMPLATES_FOLDER)), "production")
+	engine.allowReload = false
+}
 
 /**
  * This class serves as model to HTTP request with a body
@@ -41,8 +46,6 @@ import com.ning.http.client.RequestBuilder
 abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Context => String,
 	queryParams: List[(Context => String, Context => String)], headers: Map[String, String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
 		extends AbstractHttpRequestBuilder[B](httpRequestActionBuilder, urlFunction, queryParams, headers, followsRedirects, credentials) {
-
-	lazy val engine = new TemplateEngine
 
 	override def getRequestBuilder(context: Context): RequestBuilder = {
 		val requestBuilder = super.getRequestBuilder(context)
@@ -122,18 +125,9 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 */
 	private def compileBody(tplPath: String, values: Map[String, Context => String], context: Context): String = {
 
-		engine.allowReload = false
+		val bindings = for (value <- values) yield Binding(value._1, "String")
+		val templateValues = for (value <- values) yield (value._1 -> (value._2(context)))
 
-		var bindings: List[Binding] = List()
-		var templateValues: Map[String, String] = Map.empty
-
-		for (value <- values) {
-			bindings = Binding(value._1, "String") :: bindings
-			templateValues = templateValues + (value._1 -> (value._2(context)))
-		}
-
-		val fileName = new StringBuilder(GATLING_TEMPLATES_FOLDER).append("/").append(tplPath).append(SSP_EXTENSION)
-
-		engine.layout(fileName.toString, templateValues, bindings)
+		AbstractHttpRequestWithBodyBuilder.engine.layout(tplPath + SSP_EXTENSION, templateValues, bindings)
 	}
 }
