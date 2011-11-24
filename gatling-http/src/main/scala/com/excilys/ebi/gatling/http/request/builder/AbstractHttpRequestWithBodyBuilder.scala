@@ -17,20 +17,15 @@ package com.excilys.ebi.gatling.http.request.builder
 
 import java.io.File
 
-import org.fusesource.scalate.Binding
-import org.fusesource.scalate.TemplateEngine
+import org.fusesource.scalate.{TemplateEngine, Binding}
 
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.util.FileHelper.SSP_EXTENSION
-import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_REQUEST_BODIES_FOLDER
-import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_TEMPLATES_FOLDER
+import com.excilys.ebi.gatling.core.util.PathHelper.{GATLING_TEMPLATES_FOLDER, GATLING_REQUEST_BODIES_FOLDER}
+import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
-import com.excilys.ebi.gatling.http.request.FilePathBody
-import com.excilys.ebi.gatling.http.request.HttpRequestBody
-import com.excilys.ebi.gatling.http.request.StringBody
-import com.excilys.ebi.gatling.http.request.TemplateBody
+import com.excilys.ebi.gatling.http.request.{TemplateBody, StringBody, HttpRequestBody, FilePathBody}
 import com.ning.http.client.RequestBuilder
-import com.excilys.ebi.gatling.core.util.StringHelper._
 
 /**
  * This class serves as model to HTTP request with a body
@@ -46,6 +41,8 @@ import com.excilys.ebi.gatling.core.util.StringHelper._
 abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Context => String,
 	queryParams: List[(Context => String, Context => String)], headers: Map[String, String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
 		extends AbstractHttpRequestBuilder[B](httpRequestActionBuilder, urlFunction, queryParams, headers, followsRedirects, credentials) {
+
+	lazy val engine = new TemplateEngine
 
 	override def getRequestBuilder(context: Context): RequestBuilder = {
 		val requestBuilder = super.getRequestBuilder(context)
@@ -125,8 +122,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 */
 	private def compileBody(tplPath: String, values: Map[String, Context => String], context: Context): String = {
 
-		val engine = new TemplateEngine
-		engine.allowCaching = false
+		engine.allowReload = false
 
 		var bindings: List[Binding] = List()
 		var templateValues: Map[String, String] = Map.empty
@@ -136,8 +132,8 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 			templateValues = templateValues + (value._1 -> (value._2(context)))
 		}
 
-		engine.bindings = bindings
 		val fileName = new StringBuilder(GATLING_TEMPLATES_FOLDER).append("/").append(tplPath).append(SSP_EXTENSION)
-		engine.layout(fileName.toString, templateValues)
+
+		engine.layout(fileName.toString, templateValues, bindings)
 	}
 }
