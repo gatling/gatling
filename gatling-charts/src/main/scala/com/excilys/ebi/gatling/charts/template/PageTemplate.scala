@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.template
-import scala.collection.immutable.SortedSet
+import java.io.File
+
 import org.fusesource.scalate.TemplateEngine
+
 import com.excilys.ebi.gatling.charts.component.Component
-import com.excilys.ebi.gatling.charts.util.PathHelper.GATLING_TEMPLATE_LAYOUT_FILE
+import com.excilys.ebi.gatling.charts.util.PathHelper.{ GATLING_TEMPLATE_LAYOUT_FILE, GATLING_CHARTS_TEMPLATE_DIRECTORY }
 import com.excilys.ebi.gatling.core.log.Logging
 
 object PageTemplate {
-	val engine = new TemplateEngine
+	val engine = TemplateEngine(List(new File(GATLING_CHARTS_TEMPLATE_DIRECTORY)), "production")
 	engine.allowReload = false
 	engine.escapeMarkup = false
 }
