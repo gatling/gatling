@@ -43,6 +43,7 @@ class RegExpExtractor(textContent: String, occurrence: Int) extends Extractor {
 		}
 
 		// if a group is specified, return the group 1, else return group 0 (ie the match)
-		Some(matcher.group(matcher.groupCount min 1))
+		// instanciate a new String so that we copy the byte array instead of having a view on the whole response body!
+		Some(new String(matcher.group(matcher.groupCount min 1)))
 	}
 }
