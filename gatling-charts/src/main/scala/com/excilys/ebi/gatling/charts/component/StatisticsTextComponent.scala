@@ -21,7 +21,7 @@ class StatisticsTextComponent(numberOfRequest: Int, minResponseTime: Int, maxRes
 		extends Component {
 
 	def getHTMLContent: String = {
-		PageTemplate.engine.layout(GATLING_CHARTS_STATISTICS_TEMPLATE,
+		PageTemplate.TEMPLATE_ENGINE.layout(GATLING_CHARTS_STATISTICS_TEMPLATE,
 			Map("numberOfRequests" -> numberOfRequest,
 				"min" -> minResponseTime,
 				"max" -> maxResponseTime,

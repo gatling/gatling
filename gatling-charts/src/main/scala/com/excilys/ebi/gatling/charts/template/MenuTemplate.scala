@@ -20,6 +20,6 @@ import com.excilys.ebi.gatling.charts.util.PathHelper.GATLING_TEMPLATE_MENU_JS_F
 class MenuTemplate(requestLinks: List[(String, Option[String], String)]) {
 
 	def getOutput: String = {
-		PageTemplate.engine.layout(GATLING_TEMPLATE_MENU_JS_FILE, Map("requestLinks" -> requestLinks))
+		PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_MENU_JS_FILE, Map("requestLinks" -> requestLinks))
 	}
 }

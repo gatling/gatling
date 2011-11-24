@@ -49,7 +49,7 @@ object ReportsGenerator {
 
 		reportGenerators.foreach(_.generate)
 
-		PageTemplate.engine.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown
+		PageTemplate.TEMPLATE_ENGINE.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown
 	}
 
 	private def generateMenu(runOn: String, dataLoader: DataLoader) = {

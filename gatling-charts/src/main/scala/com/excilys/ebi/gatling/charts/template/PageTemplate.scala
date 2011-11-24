@@ -21,9 +21,9 @@ import com.excilys.ebi.gatling.charts.util.PathHelper.GATLING_TEMPLATE_LAYOUT_FI
 import com.excilys.ebi.gatling.core.log.Logging
 
 object PageTemplate {
-	val engine = new TemplateEngine
-	engine.allowReload = false
-	engine.escapeMarkup = false
+	val TEMPLATE_ENGINE = new TemplateEngine
+	TEMPLATE_ENGINE.allowReload = false
+	TEMPLATE_ENGINE.escapeMarkup = false
 }
 
 abstract class PageTemplate(title: String, subTitle: String, components: Component*) extends Logging {
@@ -43,7 +43,7 @@ abstract class PageTemplate(title: String, subTitle: String, components: Compone
 	}
 
 	def getOutput: String = {
-		PageTemplate.engine.layout(GATLING_TEMPLATE_LAYOUT_FILE,
+		PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_LAYOUT_FILE,
 			Map("jsFiles" -> jsFiles,
 				"pageTitle" -> title,
 				"pageSubTitle" -> subTitle,
