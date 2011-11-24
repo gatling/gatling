@@ -22,6 +22,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Arrays;
 
 import javax.swing.AbstractCellEditor;
@@ -32,6 +33,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
@@ -66,11 +69,78 @@ public class FilterTable extends JPanel {
 
 		model.addTableModelListener(new TableModelListener() {
 
+			CellEditorListener listener = new CellEditorListener() {
+
+				@Override
+				public void editingStopped(ChangeEvent e) {
+					ensureUnicity();
+				}
+
+				@Override
+				public void editingCanceled(ChangeEvent e) {
+					ensureUnicity();
+				}
+
+			};
+
 			@Override
 			public void tableChanged(TableModelEvent e) {
-				// TODO: Vérifier unicité
+				if (table.isEditing()) {
+					table.getCellEditor().addCellEditorListener(listener);
+				}
 			}
 		});
+
+		scrollPane.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				stopCellEditing();
+				addRow();
+			}
+		});
+	}
+
+	public void validateCells() {
+		stopCellEditing();
+		for (int i = 0; i < model.getRowCount(); i++) {
+			if (("").equals((String) model.getValueAt(i, 0))) {
+				model.removeRow(i);
+				return;
+			}
+		}
+	}
+
+	public void stopCellEditing() {
+		if (table.isEditing())
+			table.getCellEditor().stopCellEditing();
+	}
+
+	public void ensureUnicity() {
+		for (int i = 0; i < model.getRowCount(); i++) {
+			for (int j = 0; j < model.getRowCount(); j++) {
+				if (i != j && getPattern(i).equals(getPattern(j))) {
+					model.removeRow(j);
+					return;
+				}
+			}
+		}
 	}
 
 	public void setEnabled(boolean enabled) {
@@ -78,17 +148,25 @@ public class FilterTable extends JPanel {
 			table.setEnabled(false);
 			table.setBackground(Color.LIGHT_GRAY);
 		} else {
-			table.setEnabled(false);
+			table.setEnabled(true);
 			table.setBackground(Color.WHITE);
 		}
 	}
 
 	public void addRow() {
-		model.addRow(new Object[] { "" });
+		stopCellEditing();
+		boolean flag = true;
+		for (int i = 0; i < model.getRowCount(); i++) {
+			if (("").equals((String) model.getValueAt(i, 0)))
+				flag = false;
+		}
+		if (flag)
+			model.addRow(new Object[] { "" });
 	}
 
 	public void addRow(Pattern pattern) {
 		model.addRow(new Object[] { pattern.getPattern() });
+		ensureUnicity();
 	}
 
 	public void removeSelectedRow() {
@@ -118,7 +196,9 @@ public class FilterTable extends JPanel {
 
 	private PatternType getPatternTypeAt(int row) {
 		CustomPanel p = (CustomPanel) table.getValueAt(row, 1);
-		return p.isFirstSelected() ? PatternType.Java : PatternType.Ant;
+		if (p == null)
+			return null;
+		return p.isFirstSelected() ? PatternType.JAVA : PatternType.ANT;
 	}
 
 	private void initPopupMenu() {
@@ -149,6 +229,7 @@ public class FilterTable extends JPanel {
 			}
 		});
 	}
+
 }
 
 class RadioButtonRenderer implements TableCellRenderer {
@@ -182,6 +263,7 @@ class RadioButtonEditor extends AbstractCellEditor implements TableCellEditor {
 	public Object getCellEditorValue() {
 		return customPanel;
 	}
+
 }
 
 @SuppressWarnings("serial")

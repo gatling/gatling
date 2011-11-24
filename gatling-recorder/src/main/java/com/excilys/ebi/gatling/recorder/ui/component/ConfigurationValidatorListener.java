@@ -56,6 +56,8 @@ public class ConfigurationValidatorListener implements ActionListener {
 		if (frame.txtProxyPort.getText().equals(frame.txtProxyPort.getName()))
 			frame.txtProxyPort.setText(EMPTY);
 
+		frame.panelFilters.validateCells();
+
 		// Parse local proxy port
 		try {
 			config.setProxyPort(Integer.parseInt(frame.txtPort.getText()));
@@ -127,7 +129,7 @@ public class ConfigurationValidatorListener implements ActionListener {
 		if (conf.getOutgoingProxyHost() != null)
 			System.out.println("Outgoing proxy: " + conf.getOutgoingProxyHost() + ":" + conf.getOutgoingProxyPort());
 		System.out.println("Filters: " + conf.getFilterType());
-		if (!conf.getFilterType().equals(FilterType.All))
+		if (!conf.getFilterType().equals(FilterType.ALL))
 			for (Pattern pattern : conf.getPatterns())
 				System.out.println(" - " + pattern);
 		System.out.println("Results: " + conf.getResultPath());

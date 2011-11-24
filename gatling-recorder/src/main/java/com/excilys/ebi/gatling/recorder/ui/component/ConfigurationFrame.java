@@ -72,7 +72,7 @@ public class ConfigurationFrame extends JFrame {
 		/* Initialization of the frame */
 		setTitle("Proxy configuration");
 		setLayout(new BorderLayout());
-		setMinimumSize(new Dimension(550, 400));
+		setMinimumSize(new Dimension(800, 640));
 		setResizable(true);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -187,7 +187,7 @@ public class ConfigurationFrame extends JFrame {
 			public void itemStateChanged(ItemEvent e) {
 				// Switch to '1' when goes active state and '2' for passive
 				// state.
-				if (e.getStateChange() == 1 && e.getItem().equals(FilterType.All))
+				if (e.getStateChange() == 1 && e.getItem().equals(FilterType.ALL))
 					panelFilters.setEnabled(false);
 				else
 					panelFilters.setEnabled(true);

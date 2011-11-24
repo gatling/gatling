@@ -249,21 +249,21 @@ public class RunningFrame extends JFrame {
 			return false;
 		}
 
-		if (configuration.getFilterType() != FilterType.All) {
+		if (configuration.getFilterType() != FilterType.ALL) {
 
 			String p = EMPTY;
 			boolean add = true;
-			if (configuration.getFilterType() == FilterType.Only)
+			if (configuration.getFilterType() == FilterType.ONLY)
 				add = true;
-			else if (configuration.getFilterType() == FilterType.Except)
+			else if (configuration.getFilterType() == FilterType.EXEPT)
 				add = false;
 
 			for (Pattern pattern : configuration.getPatterns()) {
 				switch (pattern.getPatternType()) {
-				case Ant:
+				case ANT:
 					p = SelectorUtils.ANT_HANDLER_PREFIX;
 					break;
-				case Java:
+				case JAVA:
 					p = SelectorUtils.REGEX_HANDLER_PREFIX;
 					break;
 				}
