@@ -28,7 +28,7 @@ import com.excilys.ebi.gatling.http.request.{ TemplateBody, StringBody, HttpRequ
 import com.ning.http.client.RequestBuilder
 
 object AbstractHttpRequestWithBodyBuilder {
-	val engine = TemplateEngine(List(new File(GATLING_TEMPLATES_FOLDER)), "production")
+	val engine = new TemplateEngine(List(new File(GATLING_TEMPLATES_FOLDER)))
 	engine.allowReload = false
 	engine.escapeMarkup = false
 }

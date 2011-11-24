@@ -16,7 +16,6 @@
 package com.excilys.ebi.gatling.charts.report
 import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.File
-
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.loader.DataLoader
 import com.excilys.ebi.gatling.charts.template.MenuTemplate
@@ -30,6 +29,8 @@ import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_ASSETS_STYLE_FOLDER
 import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_JS
 import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_RESULTS_FOLDER
 import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_STYLE
+import com.excilys.ebi.gatling.charts.template.PageTemplate
+import org.fusesource.scalate.support.ScalaCompiler
 
 object ReportsGenerator {
 	def generateFor(runOn: String) = {
@@ -49,6 +50,8 @@ object ReportsGenerator {
 		for (reportGenerator <- reportGenerators) {
 			reportGenerator.generate
 		}
+
+		PageTemplate.engine.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown
 	}
 
 	private def generateMenu(runOn: String, dataLoader: DataLoader) = {

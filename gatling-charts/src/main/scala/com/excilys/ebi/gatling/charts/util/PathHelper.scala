@@ -33,18 +33,16 @@ object PathHelper {
 	 */
 	val GATLING_STATS_GLOBAL_REQUESTS_FILE = "requests.tsv"
 
-	val GATLING_CHARTS_TEMPLATE_DIRECTORY = "templates"
-
 	/**
 	 * Path to the template for request details body
 	 */
-	val GATLING_CHARTS_STATISTICS_TEMPLATE = "statistics_component.html.ssp"
+	val GATLING_CHARTS_STATISTICS_TEMPLATE = "templates/statistics_component.html.ssp"
 	/**
 	 * Path to the template for HTML reports
 	 */
-	val GATLING_TEMPLATE_LAYOUT_FILE = "page_layout.html.ssp"
+	val GATLING_TEMPLATE_LAYOUT_FILE = "templates/page_layout.html.ssp"
 	/**
 	 * Path to the template for the javascript menu generator
 	 */
-	val GATLING_TEMPLATE_MENU_JS_FILE = "menu.js.ssp"
+	val GATLING_TEMPLATE_MENU_JS_FILE = "templates/menu.js.ssp"
 }
