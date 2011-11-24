@@ -46,7 +46,6 @@ public class GatlingHttpProxy {
 	public void shutdown() {
 		getEventBus().unregister(this);
 		group.close().awaitUninterruptibly();
-		getBootstrapFactory().releaseExternalResources();
 	}
 
 	@Subscribe

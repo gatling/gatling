@@ -79,9 +79,4 @@ public class BootstrapFactory {
 
 		return bootstrap;
 	}
-
-	public void releaseExternalResources() {
-		clientChannelFactory.releaseExternalResources();
-		serverChannelFactory.releaseExternalResources();
-	}
 }
