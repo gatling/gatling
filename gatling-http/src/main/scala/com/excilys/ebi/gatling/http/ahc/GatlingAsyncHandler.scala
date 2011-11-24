@@ -107,7 +107,7 @@ class GatlingAsyncHandler(context: Context, checks: List[HttpCheck], next: Actio
 
 	def onBodyPartReceived(bodyPart: HttpResponseBodyPart): STATE = {
 		// only store bodyparts if they are to be analyzed
-		if (isPhaseToBeProcessed(CompletePageReceived)) {
+		if (!getChecksForPhase(CompletePageReceived).isEmpty) {
 			responseBuilder.accumulate(bodyPart)
 		}
 		STATE.CONTINUE
@@ -145,13 +145,6 @@ class GatlingAsyncHandler(context: Context, checks: List[HttpCheck], next: Actio
 	private def getChecksForPhase(httpPhase: HttpPhase) = checks.view.filter(_.when == httpPhase)
 
 	/**
-	 * This method checks whether the given phase is to be processed or not
-	 *
-	 * @param httpPhase the phase that we want to test
-	 */
-	private def isPhaseToBeProcessed(httpPhase: HttpPhase) = !getChecksForPhase(httpPhase).isEmpty
-
-	/**
 	 * This method processes the response if needed for each checks given by the user
 	 */
 	private def processResponse(response: Response) {
@@ -178,8 +171,8 @@ class GatlingAsyncHandler(context: Context, checks: List[HttpCheck], next: Actio
 
 		HttpPhase.values.foreach { httpPhase =>
 
-			if (isPhaseToBeProcessed(httpPhase)) {
-				val phaseChecks = getChecksForPhase(httpPhase)
+			val phaseChecks = getChecksForPhase(httpPhase)
+			if (!phaseChecks.isEmpty) {
 
 				val phaseExtractors = prepareExtractors(phaseChecks, response)
 
