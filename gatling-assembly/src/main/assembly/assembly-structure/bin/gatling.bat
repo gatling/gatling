@@ -13,6 +13,7 @@
 @REM See the License for the specific language governing permissions and
 @REM limitations under the License.
 @REM
+@echo off
 
 if "%GATLING_HOME%" == "" goto noGatlingHome
 
