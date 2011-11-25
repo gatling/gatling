@@ -15,6 +15,6 @@
  */
 package com.excilys.ebi.gatling.charts.writer
 
-import com.excilys.ebi.gatling.core.util.FileHelper._
+import com.excilys.ebi.gatling.core.util.FileHelper.COMMA_SEPARATOR
 
 class CSVFileWriter(runOn: String, fileName: String) extends SeparatedValueFileWriter(runOn, fileName, COMMA_SEPARATOR)

@@ -69,7 +69,7 @@ object ReportsGenerator {
 	private def copyAssets(runOn: String) = {
 		// Copy all folders/files unders assets to results folder
 
-		val resultFolder = GATLING_RESULTS_FOLDER + "/" + runOn
+		val resultFolder = GATLING_RESULTS_FOLDER / runOn
 
 		val resultStyleAssetsFolderPath = resultFolder + GATLING_STYLE
 		val resultStyleAssetsFolder = File(resultStyleAssetsFolderPath).toDirectory
@@ -78,7 +78,7 @@ object ReportsGenerator {
 		val styleAssetsFolder = File(GATLING_ASSETS_STYLE_FOLDER).toDirectory
 		styleAssetsFolder.deepFiles.foreach {
 			file =>
-				file.copyTo(resultStyleAssetsFolderPath + "/" + file.name, true)
+				file.copyTo(resultStyleAssetsFolderPath / file.name, true)
 		}
 
 		val resultJSAssetsFolderPath = resultFolder + GATLING_JS
@@ -88,7 +88,7 @@ object ReportsGenerator {
 		val jsAssetsFolder = File(GATLING_ASSETS_JS_FOLDER).toDirectory
 		jsAssetsFolder.deepFiles.foreach {
 			file =>
-				file.copyTo(resultJSAssetsFolderPath + "/" + file.name, true)
+				file.copyTo(resultJSAssetsFolderPath / file.name, true)
 		}
 	}
 }

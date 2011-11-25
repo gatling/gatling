@@ -28,19 +28,14 @@ object PageTemplate {
 
 abstract class PageTemplate(title: String, subTitle: String, components: Component*) extends Logging {
 
+	// FIXME should be defined in PathHelper
 	val jsFiles = (Seq("jquery.min.js", "menu.js") ++ getAdditionnalJSFiles).distinct
 
 	def getContent: String = (for (component <- components) yield component.getHTMLContent).mkString
 
 	def getJavascript: String = (for (component <- components) yield component.getJavascriptContent).mkString
 
-	def getAdditionnalJSFiles: Seq[String] = {
-		var seq: Seq[String] = Seq.empty
-		for (component <- components) {
-			seq ++= component.getJavascriptFiles
-		}
-		seq
-	}
+	def getAdditionnalJSFiles = (for (component <- components) yield component.getJavascriptFiles).flatten.toSeq
 
 	def getOutput: String = {
 		PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_LAYOUT_FILE,

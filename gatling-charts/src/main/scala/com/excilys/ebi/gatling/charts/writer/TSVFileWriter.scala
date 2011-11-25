@@ -15,6 +15,6 @@
  */
 package com.excilys.ebi.gatling.charts.writer
 
-import com.excilys.ebi.gatling.core.util.FileHelper._
+import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 
 class TSVFileWriter(runOn: String, fileName: String) extends SeparatedValueFileWriter(runOn, fileName, TABULATION_SEPARATOR)

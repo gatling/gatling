@@ -25,6 +25,8 @@ import akka.actor.Uuid
  * This object groups all utilities for strings
  */
 object StringHelper extends Logging {
+	
+	val END_OF_LINE = System.getProperty("line.separator")
 
 	val EL_START = "${"
 
