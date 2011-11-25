@@ -17,6 +17,8 @@ package com.excilys.ebi.gatling.http.request.builder
 
 import java.io.File
 
+import scala.tools.nsc.io.Path.string2path
+
 import org.fusesource.scalate.support.ScalaCompiler
 import org.fusesource.scalate.{TemplateEngine, Binding}
 
@@ -112,7 +114,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 		body match {
 			case Some(thing) =>
 				thing match {
-					case FilePathBody(filePath) => requestBuilder setBody new File(GATLING_REQUEST_BODIES_FOLDER + "/" + filePath)
+					case FilePathBody(filePath) => requestBuilder setBody (GATLING_REQUEST_BODIES_FOLDER / filePath).jfile
 					case StringBody(body) => requestBuilder setBody body
 					case TemplateBody(tplPath, values) => requestBuilder setBody compileBody(tplPath, values, context)
 					case _ =>

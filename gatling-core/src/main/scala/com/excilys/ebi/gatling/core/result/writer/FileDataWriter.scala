@@ -15,17 +15,18 @@
  */
 package com.excilys.ebi.gatling.core.result.writer
 
-import com.excilys.ebi.gatling.core.action.EndAction._
-import com.excilys.ebi.gatling.core.result.message.ActionInfo
-import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
-import com.excilys.ebi.gatling.core.util.PathHelper._
-import com.excilys.ebi.gatling.core.util.DateHelper._
-import com.excilys.ebi.gatling.core.util.StringHelper._
-import java.io.FileOutputStream
-import java.io.File
-import java.io.BufferedOutputStream
-import java.io.OutputStreamWriter
+import java.io.{OutputStreamWriter, FileOutputStream, File, BufferedOutputStream}
 import java.util.concurrent.CountDownLatch
+
+import scala.tools.nsc.io.Path.string2path
+
+import com.excilys.ebi.gatling.core.result.message.{InitializeDataWriter, ActionInfo}
+import com.excilys.ebi.gatling.core.util.DateHelper.{printResultDate, printFileNameDate}
+import com.excilys.ebi.gatling.core.util.PathHelper.{GATLING_SIMULATION_LOG_FILE, GATLING_RESULTS_FOLDER}
+import com.excilys.ebi.gatling.core.util.StringHelper.{END_OF_LINE, EMPTY}
+
+import FileDataWriter.{GROUPS_SUFFIX, GROUPS_SEPARATOR, GROUPS_PREFIX}
+import akka.actor.scala2ActorRef
 
 /**
  * FileDataWriter class companion
@@ -76,7 +77,7 @@ class FileDataWriter extends DataWriter {
 				.append(executionDuration).append("\t")
 				.append(resultStatus).append("\t")
 				.append(resultMessage).append("\t")
-				.append(groups.mkString(GROUPS_PREFIX, GROUPS_SEPARATOR, GROUPS_SUFFIX)).append("\n")
+				.append(groups.mkString(GROUPS_PREFIX, GROUPS_SEPARATOR, GROUPS_SUFFIX)).append(END_OF_LINE)
 
 			// Write the line in the file
 			osw.write(strBuilder.toString)
@@ -93,7 +94,7 @@ class FileDataWriter extends DataWriter {
 		// If the message is sent to initialize the writer
 		case InitializeDataWriter(runOn, latch) => {
 			// Initialize files and folders that will be used to write the logs
-			val dir = new File(GATLING_RESULTS_FOLDER + "/" + printFileNameDate(runOn))
+			val dir = (GATLING_RESULTS_FOLDER / printFileNameDate(runOn)).jfile
 			dir.mkdir
 			val file = new File(dir, GATLING_SIMULATION_LOG_FILE)
 

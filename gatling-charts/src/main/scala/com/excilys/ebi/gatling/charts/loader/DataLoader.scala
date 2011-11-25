@@ -16,22 +16,19 @@
 package com.excilys.ebi.gatling.charts.loader
 import scala.collection.immutable.SortedMap
 import scala.io.Source
+import scala.tools.nsc.io.Path.string2path
 
 import org.joda.time.DateTime
 
-import com.excilys.ebi.gatling.charts.util.OrderingHelper.DateTimeOrdering
-import com.excilys.ebi.gatling.charts.util.OrderingHelper.ResultOrdering
+import com.excilys.ebi.gatling.charts.util.OrderingHelper.{ResultOrdering, DateTimeOrdering}
+import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
+import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus
-import com.excilys.ebi.gatling.core.result.writer.FileDataWriter.GROUPS_PREFIX
-import com.excilys.ebi.gatling.core.result.writer.FileDataWriter.GROUPS_SEPARATOR
-import com.excilys.ebi.gatling.core.result.writer.FileDataWriter.GROUPS_SUFFIX
+import com.excilys.ebi.gatling.core.result.writer.FileDataWriter.{GROUPS_SUFFIX, GROUPS_SEPARATOR, GROUPS_PREFIX}
 import com.excilys.ebi.gatling.core.util.DateHelper.parseResultDate
-import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_RESULTS_FOLDER
-import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_SIMULATION_LOG_FILE
-import com.excilys.ebi.gatling.core.action.EndAction._
-import com.excilys.ebi.gatling.core.action.StartAction._
+import com.excilys.ebi.gatling.core.util.PathHelper.{GATLING_SIMULATION_LOG_FILE, GATLING_RESULTS_FOLDER}
 
 class DataLoader(runOn: String) extends Logging {
 
@@ -39,7 +36,7 @@ class DataLoader(runOn: String) extends Logging {
 
 		var tmpData: List[ResultLine] = Nil
 
-		for (line <- Source.fromFile(GATLING_RESULTS_FOLDER + "/" + runOn + "/" + GATLING_SIMULATION_LOG_FILE, CONFIG_ENCODING).getLines) {
+		for (line <- Source.fromFile((GATLING_RESULTS_FOLDER / runOn / GATLING_SIMULATION_LOG_FILE).jfile, CONFIG_ENCODING).getLines) {
 			line.split("\t") match {
 				// If we have a well formated result
 				case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage, groups) =>

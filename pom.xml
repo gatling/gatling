@@ -124,6 +124,11 @@
 				<version>${scala.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.scala-lang</groupId>
+				<artifactId>scala-compiler</artifactId>
+				<version>${scala.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>com.ning</groupId>
 				<artifactId>async-http-client</artifactId>
 				<version>${ahc.version}</version>

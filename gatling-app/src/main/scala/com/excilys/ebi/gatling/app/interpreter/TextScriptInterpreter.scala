@@ -17,6 +17,7 @@ package com.excilys.ebi.gatling.app.interpreter
 
 import scala.io.Source
 import scala.tools.nsc.interpreter.IMain
+import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.Settings
 import scala.util.matching.Regex
 
@@ -25,6 +26,7 @@ import org.joda.time.DateTime
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
 import com.excilys.ebi.gatling.core.util.FileHelper.TXT_EXTENSION
 import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_SCENARIOS_FOLDER
+import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 
 /**
  * Simple Class used to get a value from the interpreter
@@ -60,13 +62,13 @@ class TextScriptInterpreter extends Interpreter {
     """
 
 		// Contains the contents of the simulation file
-		val initialFileBodyContent = Source.fromFile(GATLING_SCENARIOS_FOLDER + "/" + fileName, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT)
+		val initialFileBodyContent = Source.fromFile((GATLING_SCENARIOS_FOLDER / fileName).jfile, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT)
 
 		// Includes contents of included files into the simulation file 
 		val toBeFound = new Regex("""include\("(.*)"\)""")
 		val newFileBodyContent = toBeFound.replaceAllIn(initialFileBodyContent, result => {
-			val path = fileName.substring(0, fileName.lastIndexOf("@")) + "/" + result.group(1)
-			Source.fromFile(GATLING_SCENARIOS_FOLDER + "/" + path + TXT_EXTENSION, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT) + "\n\n"
+			val path = fileName.substring(0, fileName.lastIndexOf("@")) / result.group(1)
+			Source.fromFile(GATLING_SCENARIOS_FOLDER / path + TXT_EXTENSION, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT) + END_OF_LINE + END_OF_LINE
 		}).replace(TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT, '$')
 
 		// Complete script
