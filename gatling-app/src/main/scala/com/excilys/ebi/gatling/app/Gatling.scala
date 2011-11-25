@@ -34,7 +34,7 @@ import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
 /**
  * Object containing entry point of application
  */
-object App extends Logging {
+object Gatling extends Logging {
 
 	/**
 	 * Entry point of Application
