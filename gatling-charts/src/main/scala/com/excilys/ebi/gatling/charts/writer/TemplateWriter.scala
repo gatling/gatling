@@ -17,7 +17,8 @@ package com.excilys.ebi.gatling.charts.writer
 
 import java.io.{ FileWriter, File }
 
-import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_RESULTS_FOLDER
+import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_RESULTS_FOLDER
+import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
 
 class TemplateWriter(val runOn: String, val fileName: String) {
 	def writeToFile(output: String) = {

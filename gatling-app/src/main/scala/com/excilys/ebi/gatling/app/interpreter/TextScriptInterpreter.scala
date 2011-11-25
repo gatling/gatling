@@ -25,7 +25,7 @@ import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
 import com.excilys.ebi.gatling.core.util.FileHelper.TXT_EXTENSION
-import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_SCENARIOS_FOLDER
+import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_SCENARIOS_FOLDER
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 
 /**

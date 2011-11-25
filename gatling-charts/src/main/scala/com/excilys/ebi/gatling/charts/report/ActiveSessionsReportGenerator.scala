@@ -15,14 +15,15 @@
  */
 package com.excilys.ebi.gatling.charts.report
 import org.joda.time.DateTime
+
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.computer.Computer.numberOfActiveSessionsPerSecondByScenario
+import com.excilys.ebi.gatling.charts.config.ChartsConfig.GATLING_CHART_ACTIVE_SESSIONS_FILE
 import com.excilys.ebi.gatling.charts.loader.DataLoader
 import com.excilys.ebi.gatling.charts.series.Series
-import com.excilys.ebi.gatling.charts.template.ActiveSessionsPageTemplate
-import com.excilys.ebi.gatling.charts.util.PathHelper.GATLING_CHART_ACTIVE_SESSIONS_FILE
-import com.excilys.ebi.gatling.charts.writer.TemplateWriter
 import com.excilys.ebi.gatling.charts.series.SharedSeries
+import com.excilys.ebi.gatling.charts.template.ActiveSessionsPageTemplate
+import com.excilys.ebi.gatling.charts.writer.TemplateWriter
 
 object ActiveSessionsReportGenerator {
 	val ALL_SESSIONS = "All Sessions"

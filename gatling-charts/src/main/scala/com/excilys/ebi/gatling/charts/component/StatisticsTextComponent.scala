@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.charts.component
 
+import com.excilys.ebi.gatling.charts.config.ChartsConfig.GATLING_CHARTS_STATISTICS_TEMPLATE
 import com.excilys.ebi.gatling.charts.template.PageTemplate
-import com.excilys.ebi.gatling.charts.util.PathHelper.GATLING_CHARTS_STATISTICS_TEMPLATE
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 class StatisticsTextComponent(numberOfRequest: Int, minResponseTime: Int, maxResponseTime: Int, averageResponseTime: Double, responseTimeStandardDeviation: Double)

@@ -15,16 +15,15 @@
  */
 package com.excilys.ebi.gatling.charts.report
 import org.joda.time.DateTime
+
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
-import com.excilys.ebi.gatling.charts.computer.Computer.numberOfFailedRequestsPerSecond
-import com.excilys.ebi.gatling.charts.computer.Computer.numberOfRequestsPerSecondAsList
-import com.excilys.ebi.gatling.charts.computer.Computer.numberOfSuccessfulRequestsPerSecond
+import com.excilys.ebi.gatling.charts.computer.Computer.{numberOfSuccessfulRequestsPerSecond, numberOfRequestsPerSecondAsList, numberOfFailedRequestsPerSecond}
+import com.excilys.ebi.gatling.charts.config.ChartsConfig.GATLING_CHART_GLOBAL_REQUESTS_FILE
 import com.excilys.ebi.gatling.charts.loader.DataLoader
 import com.excilys.ebi.gatling.charts.series.Series
-import com.excilys.ebi.gatling.charts.template.RequestsPageTemplate
-import com.excilys.ebi.gatling.charts.util.PathHelper.GATLING_CHART_GLOBAL_REQUESTS_FILE
-import com.excilys.ebi.gatling.charts.writer.TemplateWriter
 import com.excilys.ebi.gatling.charts.series.SharedSeries
+import com.excilys.ebi.gatling.charts.template.RequestsPageTemplate
+import com.excilys.ebi.gatling.charts.writer.TemplateWriter
 
 class RequestsReportGenerator(runOn: String, dataLoader: DataLoader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataLoader, componentLibrary) {
 

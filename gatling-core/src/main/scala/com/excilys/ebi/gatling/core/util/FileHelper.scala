@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.util
-import com.excilys.ebi.gatling.core.util.StringHelper._
+import com.excilys.ebi.gatling.core.util.StringHelper.stripAccents
 
 /**
  * This object groups all utilities for files

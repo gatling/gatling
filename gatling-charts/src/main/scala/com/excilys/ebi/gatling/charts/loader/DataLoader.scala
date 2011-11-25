@@ -28,7 +28,7 @@ import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus
 import com.excilys.ebi.gatling.core.result.writer.FileDataWriter.{GROUPS_SUFFIX, GROUPS_SEPARATOR, GROUPS_PREFIX}
 import com.excilys.ebi.gatling.core.util.DateHelper.parseResultDate
-import com.excilys.ebi.gatling.core.util.PathHelper.{GATLING_SIMULATION_LOG_FILE, GATLING_RESULTS_FOLDER}
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{GATLING_SIMULATION_LOG_FILE, GATLING_RESULTS_FOLDER}
 
 class DataLoader(runOn: String) extends Logging {
 

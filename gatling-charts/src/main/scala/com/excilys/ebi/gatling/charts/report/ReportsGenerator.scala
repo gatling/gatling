@@ -16,21 +16,17 @@
 package com.excilys.ebi.gatling.charts.report
 import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.File
+
+import org.fusesource.scalate.support.ScalaCompiler
+
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
+import com.excilys.ebi.gatling.charts.config.ChartsConfig.GATLING_CHART_MENU_JS_FILE
 import com.excilys.ebi.gatling.charts.loader.DataLoader
-import com.excilys.ebi.gatling.charts.template.MenuTemplate
-import com.excilys.ebi.gatling.charts.util.PathHelper.GATLING_CHART_MENU_JS_FILE
+import com.excilys.ebi.gatling.charts.template.{PageTemplate, MenuTemplate}
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_CHARTING_COMPONENT_LIBRARY_CLASS
-import com.excilys.ebi.gatling.core.util.FileHelper.HTML_EXTENSION
-import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename
-import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_ASSETS_JS_FOLDER
-import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_ASSETS_STYLE_FOLDER
-import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_JS
-import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_RESULTS_FOLDER
-import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_STYLE
-import com.excilys.ebi.gatling.charts.template.PageTemplate
-import org.fusesource.scalate.support.ScalaCompiler
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{GATLING_STYLE, GATLING_RESULTS_FOLDER, GATLING_JS, GATLING_ASSETS_STYLE_FOLDER, GATLING_ASSETS_JS_FOLDER}
+import com.excilys.ebi.gatling.core.util.FileHelper.{formatToFilename, HTML_EXTENSION}
 
 object ReportsGenerator {
 	def generateFor(runOn: String) = {
@@ -71,7 +67,7 @@ object ReportsGenerator {
 
 		val resultFolder = GATLING_RESULTS_FOLDER / runOn
 
-		val resultStyleAssetsFolderPath = resultFolder + GATLING_STYLE
+		val resultStyleAssetsFolderPath = resultFolder / GATLING_STYLE
 		val resultStyleAssetsFolder = File(resultStyleAssetsFolderPath).toDirectory
 		resultStyleAssetsFolder.createDirectory()
 
@@ -81,7 +77,7 @@ object ReportsGenerator {
 				file.copyTo(resultStyleAssetsFolderPath / file.name, true)
 		}
 
-		val resultJSAssetsFolderPath = resultFolder + GATLING_JS
+		val resultJSAssetsFolderPath = resultFolder / GATLING_JS
 		val resultJSAssetsFolder = File(resultJSAssetsFolderPath).toDirectory
 		resultJSAssetsFolder.createDirectory()
 

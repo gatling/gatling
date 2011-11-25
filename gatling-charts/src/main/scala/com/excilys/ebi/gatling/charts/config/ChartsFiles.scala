@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.util
+package com.excilys.ebi.gatling.charts.config
 
-object PathHelper {
+object ChartsConfig {
 	/**
 	 * File name of the active sessions chart
 	 */

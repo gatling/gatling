@@ -15,11 +15,14 @@
  */
 package com.excilys.ebi.gatling.core.config
 
-import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.util.PathHelper._
-import com.excilys.ebi.gatling.core.util.PropertiesHelper._
-import com.excilys.ebi.gatling.core.util.StringHelper._
 import scala.io.Codec
+import scala.tools.nsc.io.Path.string2path
+
+import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.util.PropertiesHelper.GATLING_CONFIG_PROPERTY
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+
+import GatlingFiles.{ GATLING_CONFIG_FOLDER, GATLING_CONFIG_FILE }
 
 /**
  * Configuration loader of Gatling
@@ -35,13 +38,13 @@ object GatlingConfig extends Logging {
 			val configFile =
 				if (GATLING_CONFIG_PROPERTY != EMPTY) {
 					logger.info("Loading custom configuration file: conf/{}", GATLING_CONFIG_PROPERTY)
-					GATLING_CONFIG_FOLDER + "/" + GATLING_CONFIG_PROPERTY
+					GATLING_CONFIG_FOLDER / GATLING_CONFIG_PROPERTY
 				} else {
 					logger.info("Loading default configuration file")
-					GATLING_CONFIG_FOLDER + "/" + GATLING_CONFIG_FILE
+					GATLING_CONFIG_FOLDER / GATLING_CONFIG_FILE
 				}
 
-			GatlingConfiguration.fromFile(configFile)
+			GatlingConfiguration.fromFile(configFile.toString)
 		} catch {
 			case e =>
 				logger.error("{}\n{}", e.getMessage, e.getStackTraceString)

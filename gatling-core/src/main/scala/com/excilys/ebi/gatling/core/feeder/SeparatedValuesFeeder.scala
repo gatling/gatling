@@ -15,13 +15,13 @@
  */
 package com.excilys.ebi.gatling.core.feeder
 
-import scala.io.Source
 import scala.collection.immutable.HashMap
 import scala.collection.mutable.Queue
-
-import com.excilys.ebi.gatling.core.config.GatlingConfig._
-import com.excilys.ebi.gatling.core.util.PathHelper._
+import scala.io.Source
 import scala.tools.nsc.io.Path.string2path
+
+import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
+import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_DATA_FOLDER
 
 /**
  * CSV Generic implementation of Feeders
@@ -37,7 +37,7 @@ abstract class SeparatedValuesFeeder(fileName: String, separator: String, extens
 
 	var seeds: Queue[Map[String, String]] = Queue()
 
-	val feederFileLines = Source.fromFile(GATLING_SEEDS_FOLDER / fileName + extension, CONFIG_ENCODING).getLines
+	val feederFileLines = Source.fromFile(GATLING_DATA_FOLDER / fileName + extension, CONFIG_ENCODING).getLines
 
 	val getHeaders: List[String] = feederFileLines.next.split(separator).toList
 

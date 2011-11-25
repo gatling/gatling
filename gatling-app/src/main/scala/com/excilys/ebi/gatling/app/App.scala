@@ -25,11 +25,11 @@ import com.excilys.ebi.gatling.app.interpreter.{ TextScriptInterpreter, ScalaScr
 import com.excilys.ebi.gatling.core.config.GatlingConfig
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.DateHelper.printFileNameDate
-import com.excilys.ebi.gatling.core.util.PathHelper.GATLING_SCENARIOS_FOLDER
+import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_SCENARIOS_FOLDER
 import com.excilys.ebi.gatling.core.util.PropertiesHelper.{ ONLY_STATS_PROPERTY, NO_STATS_PROPERTY }
 import com.excilys.ebi.gatling.charts.loader.DataLoader
 import com.excilys.ebi.gatling.charts.report.ReportsGenerator
-//import com.excilys.ebi.gatling.statistics.generator.ChartsGenerator
+import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
 
 /**
  * Object containing entry point of application
@@ -49,7 +49,7 @@ object App extends Logging {
 
 		// Getting files in scenarios folder
 		val files = for (
-			file <- new Directory(new File(GATLING_SCENARIOS_FOLDER)).files if (!file.name.startsWith("."))
+			file <- new Directory(GATLING_SCENARIOS_FOLDER).files if (!file.name.startsWith("."))
 		) yield file.name
 
 		val (files1, files2) = files.duplicate

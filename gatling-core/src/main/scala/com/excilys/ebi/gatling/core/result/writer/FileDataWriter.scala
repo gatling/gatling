@@ -22,7 +22,7 @@ import scala.tools.nsc.io.Path.string2path
 
 import com.excilys.ebi.gatling.core.result.message.{InitializeDataWriter, ActionInfo}
 import com.excilys.ebi.gatling.core.util.DateHelper.{printResultDate, printFileNameDate}
-import com.excilys.ebi.gatling.core.util.PathHelper.{GATLING_SIMULATION_LOG_FILE, GATLING_RESULTS_FOLDER}
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{GATLING_SIMULATION_LOG_FILE, GATLING_RESULTS_FOLDER}
 import com.excilys.ebi.gatling.core.util.StringHelper.{END_OF_LINE, EMPTY}
 
 import FileDataWriter.{GROUPS_SUFFIX, GROUPS_SEPARATOR, GROUPS_PREFIX}
