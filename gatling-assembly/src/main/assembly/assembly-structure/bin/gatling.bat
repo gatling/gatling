@@ -14,4 +14,16 @@
 @REM limitations under the License.
 @REM
 
-java -cp $GATLING_HOME/lib/**.jar:$GATLING_HOME/lib/deps/**.jar -jar lib/gatling-app-${project.version}.jar
+if "%GATLING_HOME%" == "" goto noGatlingHome
+
+set JAVA_OPTS="-XX:+UseThreadPriorities -XX:ThreadPriorityPolicy=42 -Xms512M -Xmx512M -Xmn100M -Xss512k -XX:+HeapDumpOnOutOfMemoryError -XX:+AggressiveOpts -XX:+OptimizeStringConcat -XX:+UseFastAccessorMethods -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:SurvivorRatio=8 -XX:MaxTenuringThreshold=1 -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly"
+
+java %JAVA_OPTS% -cp %GATLING_HOME%/lib/**.jar:%GATLING_HOME%/lib/deps/**.jar -jar lib/gatling-app-${project.version}.jar
+goto exit
+
+:noGatlingHome
+echo The GATLING_HOME environnement variable is not defined.
+echo It is needed to run Gatling.
+
+:exit
+exit /b 0
