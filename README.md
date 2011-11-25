@@ -26,4 +26,6 @@ We aim for a 1.0 release by the end of november.
 
 # Sponsors
 
-[![eBusiness Information](https://github.com/excilys/gatling/wiki/img/ebi_logo.png) ![Highsoft AS](https://github.com/excilys/gatling/wiki/img/highsoft_logo.png) ![Yourkit](https://github.com/excilys/gatling/wiki/img/yourkit_logo.png)](https://github.com/excilys/gatling/wiki/Sponsors)
+[![eBusiness Information](https://github.com/excilys/gatling/wiki/img/ebi_logo.png)](https://github.com/excilys/gatling/wiki/Sponsors)&nbsp;&nbsp;&nbsp;&nbsp;
+[![Highsoft AS](https://github.com/excilys/gatling/wiki/img/highsoft_logo.png)](https://github.com/excilys/gatling/wiki/Sponsors)&nbsp;&nbsp;&nbsp;&nbsp;
+[![Yourkit](https://github.com/excilys/gatling/wiki/img/yourkit_logo.png)](https://github.com/excilys/gatling/wiki/Sponsors)
