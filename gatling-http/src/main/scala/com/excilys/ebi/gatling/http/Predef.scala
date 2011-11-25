@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.http
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfigurationBuilder
-import com.excilys.ebi.gatling.http.check.body.HttpBodyRegExpCheckBuilder
+import com.excilys.ebi.gatling.http.check.body.HttpBodyRegexCheckBuilder
 import com.excilys.ebi.gatling.http.check.body.HttpBodyXPathCheckBuilder
 import com.excilys.ebi.gatling.http.check.header.HttpHeaderCheckBuilder
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder
@@ -32,8 +32,8 @@ object Predef {
 
 	implicit def intToString(i: Int) = CheckBuilder.intToString(i)
 
-	def regexp(what: Context => String) = HttpBodyRegExpCheckBuilder.regexp(what)
-	def regexp(expression: String) = HttpBodyRegExpCheckBuilder.regexp(expression)
+	def regex(what: Context => String) = HttpBodyRegexCheckBuilder.regex(what)
+	def regex(expression: String) = HttpBodyRegexCheckBuilder.regex(expression)
 
 	def xpath(what: Context => String) = HttpBodyXPathCheckBuilder.xpath(what)
 	def xpath(expression: String) = HttpBodyXPathCheckBuilder.xpath(expression)

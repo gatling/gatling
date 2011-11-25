@@ -62,8 +62,8 @@ object CompileTest {
 						.check(
 							xpath("//input[@value='${aaaa_value}']/@id").exists.saveAs("ctxParam"),
 							xpath("//input[@id='${aaaa_value}']/@value").notExists,
-							regexp("""<input id="text1" type="text" value="aaaa" />"""),
-							regexp("""<input id="text1" type="test" value="aaaa" />""").notExists,
+							regex("""<input id="text1" type="text" value="aaaa" />"""),
+							regex("""<input id="text1" type="test" value="aaaa" />""").notExists,
 							status.in(200 to 210) saveAs "blablaParam",
 							xpath("//input[@value='aaaa']/@id").neq("omg"),
 							xpath("//input[@id='text1']/@value") eq "aaaa" saveAs "test2"))
@@ -109,7 +109,7 @@ object CompileTest {
 					.check(status.eq(201) saveAs "status"))).counterName("titi").times(iterations)
 		// Second request outside iteration
 		.startGroup(doStuffGroup)
-		.exec(http("Ajout au panier") get ("/") check (regexp("""<input id="text1" type="text" value="(.*)" />""") saveAs "input"))
+		.exec(http("Ajout au panier") get ("/") check (regex("""<input id="text1" type="text" value="(.*)" />""") saveAs "input"))
 		.pause(pause1)
 		.endGroup(doStuffGroup)
 

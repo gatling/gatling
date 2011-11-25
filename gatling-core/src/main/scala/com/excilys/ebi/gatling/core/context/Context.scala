@@ -79,7 +79,7 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 * @param key the key of the requested value
 	 * @return the value stored at key as an Option
 	 */
-	def getAttributeAsOption(key: String): Option[Any] = {
+	private[gatling] def getAttributeAsOption(key: String): Option[Any] = {
 		assert(key.startsWith("gatling."), "This method should not be used with keys that are not reserved, ie: starting with gatling.")
 		data.get(key)
 	}
@@ -113,7 +113,7 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 *
 	 * @return last action duration in nanoseconds
 	 */
-	def getLastActionDuration: Long = data.get(Context.LAST_ACTION_DURATION_KEY).getOrElse(0L).asInstanceOf[Long]
+	private[gatling] def getLastActionDuration: Long = data.get(Context.LAST_ACTION_DURATION_KEY).getOrElse(0L).asInstanceOf[Long]
 
 	/**
 	 * Gets a protocol configuration based on its type
@@ -121,7 +121,7 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 * @param protocolType the type of the protocol as a string
 	 * @return the protocol configuration requested
 	 */
-	def getProtocolConfiguration(protocolType: String) = {
+	private[gatling] def getProtocolConfiguration(protocolType: String) = {
 		getAttributeAsOption(Context.PROTOCOL_CONFIGURATIONS_KEY).map {
 			_.asInstanceOf[scala.Predef.Map[String, ProtocolConfiguration]].get(protocolType)
 		}.getOrElse(throw new UnsupportedOperationException("The protocol configuration map does not exist."))
@@ -132,7 +132,7 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 *
 	 * @param configurations the sequence containing all the protocol configurations
 	 */
-	def setProtocolConfig(configurations: Seq[ProtocolConfiguration]) = {
+	private[gatling] def setProtocolConfig(configurations: Seq[ProtocolConfiguration]) = {
 		val configSeq = for (config <- configurations) yield (config.getProtocolType -> config)
 
 		setAttribute(Context.PROTOCOL_CONFIGURATIONS_KEY, configSeq.toMap[String, ProtocolConfiguration])

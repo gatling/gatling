@@ -24,7 +24,7 @@ import java.util.regex.Pattern
  * @param textContent the text where the search will be made
  * @param occurence the occurrence of the result that should be returned
  */
-class RegExpExtractor(textContent: String, occurrence: Int) extends Extractor {
+class RegexExtractor(textContent: String, occurrence: Int) extends Extractor {
 	/**
 	 * The actual extraction happens here. The regular expression is compiled and the occurrence-th
 	 * result is returned if existing.

@@ -26,32 +26,32 @@ val scn = scenario("User of Excilys Bank")
 	// Home page
 	.exec(http("Home") get("/private/bank/accounts.html") headers(headers)
 		check(
-				regexp("""<a href="/excilys-bank-web/private/bank/account/(ACC[0-9]*)/operations.html">""") saveAs("acc1"),
-				regexp("""<a href="/excilys-bank-web/private/bank/account/(ACC[0-9]*)/operations.html">""").find(1).saveAs("acc2")
+				regex("""<a href="/excilys-bank-web/private/bank/account/(ACC[0-9]*)/operations.html">""") saveAs("acc1"),
+				regex("""<a href="/excilys-bank-web/private/bank/account/(ACC[0-9]*)/operations.html">""").find(1).saveAs("acc2")
 			))
 	.pause(2)
 	.loop(
 		chain
 			// Operations page
-			.exec(http("Operations details").get("/private/bank/account/${acc1}/operations.html").headers(headers).check(regexp("""<table class="accountDetails">""")))
+			.exec(http("Operations details").get("/private/bank/account/${acc1}/operations.html").headers(headers).check(regex("""<table class="accountDetails">""")))
 			// Load operations data
 			.exec(http("Operations data").get("/private/bank/account/${acc1}/year/" + year + "/month/" + month + "/page/" + pageOfOperations + "/operations.json").headers(headers).check(status.eq(200)))
 			.pause(2)
 
 			// Cards operations page
-			.exec(http("Cards details").get("/private/bank/account/${acc1}/cards/all/operations.html").headers(headers).check(regexp("""<table class="accountDetails">""")))
+			.exec(http("Cards details").get("/private/bank/account/${acc1}/cards/all/operations.html").headers(headers).check(regex("""<table class="accountDetails">""")))
 			// Load cards operations data
 			.exec(http("Cards data").get( "/private/bank/account/${acc1}/cards/all/year/" + year + "/month/" + month + "/page/" + pageOfOperations + "/operations.json").check(status.eq(200)))
 			.pause(2)
 
 			// Cards pending operations page
-			.exec(http("Cards pending details").get("/private/bank/account/${acc1}/cards/all/pending/operations.html").headers(headers).check(regexp("""<table class="accountDetails">""")))
+			.exec(http("Cards pending details").get("/private/bank/account/${acc1}/cards/all/pending/operations.html").headers(headers).check(regex("""<table class="accountDetails">""")))
 			// Load cards pending operations data
 			.exec(http("Cards pending data").get("/private/bank/account/${acc1}/cards/all/pending/page/" + pageOfOperations + "/operations.json").headers(headers).check(status.eq(200)))
 			.pause(2)
 
 			// Transfers page
-			.exec(http("Transfers details").get("/private/bank/account/${acc1}/transfers/operations.html").headers(headers).check(regexp("""<table class="accountDetails">""")))
+			.exec(http("Transfers details").get("/private/bank/account/${acc1}/transfers/operations.html").headers(headers).check(regex("""<table class="accountDetails">""")))
 			// Load transfers data
 			.exec(http("Transfers data").get("/private/bank/account/${acc1}/transfers/page/" + pageOfOperations + "/operations.json").headers(headers).check(status.eq(200)))
 			.pause(2)
