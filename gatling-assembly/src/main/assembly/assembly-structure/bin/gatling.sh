@@ -27,7 +27,10 @@ else
 	echo "GATLING_HOME not set, using default location ($GATLING_HOME)"
 fi
 
-
 JAVA_OPTS="-XX:+UseThreadPriorities -XX:ThreadPriorityPolicy=42 -Xms512M -Xmx512M -Xmn100M -Xss512k -XX:+HeapDumpOnOutOfMemoryError -XX:+AggressiveOpts -XX:+OptimizeStringConcat -XX:+UseFastAccessorMethods -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:SurvivorRatio=8 -XX:MaxTenuringThreshold=1 -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly"
 
-java $JAVA_OPTS -Dlogback.configurationFile=$GATLING_HOME/conf/logback.xml -cp $GATLING_HOME/lib/*:$GATLING_HOME/lib/deps/* com.excilys.ebi.gatling.app.App
+CLASSPATH="$GATLING_HOME/lib/*:$GATLING_HOME/lib/deps/*"
+
+JAVA_PROPS="-Dlogback.configurationFile=$GATLING_HOME/conf/logback.xml"
+
+java $JAVA_OPTS $JAVA_PROPS -cp $CLASSPATH com.excilys.ebi.gatling.app.Gatling
