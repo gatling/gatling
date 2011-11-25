@@ -62,7 +62,7 @@ object AbstractHttpRequestBuilder {
  * @param followsRedirects sets the follow redirect option of AHC
  * @param credentials sets the credentials in case of Basic HTTP Authentication
  */
-abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Context => String,
+abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val httpRequestActionBuilder: HttpRequestActionBuilder, method: String, urlFunction: Context => String,
 	queryParams: List[(Context => String, Context => String)], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
 		extends Logging {
 
@@ -76,7 +76,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * @param followsRedirects sets the follow redirect option of AHC
 	 * @param credentials sets the credentials in case of Basic HTTP Authentication
 	 */
-	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Context => String, queryParams: List[(Context => String, Context => String)], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
+	private[http] def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Context => String, queryParams: List[(Context => String, Context => String)], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
 
 	/**
 	 * Stops defining the request and adds checks on the response
@@ -150,16 +150,14 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 */
 	def basicAuth(username: String, password: String): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers, followsRedirects, Some((username, password)))
 
-	def getMethod: String
-
 	/**
 	 * This method actually fills the request builder to avoid race conditions
 	 *
 	 * @param context the context of the current scenario
 	 */
-	def getRequestBuilder(context: Context): RequestBuilder = {
+	private[http] def getRequestBuilder(context: Context): RequestBuilder = {
 		val requestBuilder = new RequestBuilder
-		requestBuilder setMethod getMethod setFollowRedirects followsRedirects.getOrElse(false)
+		requestBuilder setMethod method setFollowRedirects followsRedirects.getOrElse(false)
 
 		addURLTo(requestBuilder, context)
 		addProxyTo(requestBuilder, context)
@@ -176,7 +174,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 *
 	 * @param context the context of the current scenario
 	 */
-	def build(context: Context): Request = {
+	private[http] def build(context: Context): Request = {
 
 		val request = getRequestBuilder(context) build
 

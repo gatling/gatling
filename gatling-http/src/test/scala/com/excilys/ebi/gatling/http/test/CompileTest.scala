@@ -96,7 +96,7 @@ object CompileTest {
 				.exec(http("Url from context").get("/aaaa"))
 				.pause(1000, 3000, MILLISECONDS)
 				// Second request to be repeated
-				.exec(http("Create Thing blabla").post("/things").queryParam("login").queryParam("password").withTemplateBody("create_thing", Map("name" -> "blabla")).asJSON)
+				.exec(http("Create Thing blabla").post("/things").queryParam("login").queryParam("password").templateBody("create_thing", Map("name" -> "blabla")).asJSON)
 				.pause(pause1)
 				.endGroup(loginGroup)
 				// Third request to be repeated
@@ -105,7 +105,7 @@ object CompileTest {
 				.exec(http("Test Page") get ("/tests") check (header(CONTENT_TYPE).eq("text/html; charset=utf-8") saveAs "ctxParam"))
 				// Fourth request to be repeated
 				.exec(http("Create Thing omgomg")
-					.post("/things").queryParam("postTest", "${ctxParam}").withTemplateBody("create_thing", Map("name" -> "${ctxParam}")).asJSON
+					.post("/things").queryParam("postTest", "${ctxParam}").templateBody("create_thing", Map("name" -> "${ctxParam}")).asJSON
 					.check(status.eq(201) saveAs "status"))).counterName("titi").times(iterations)
 		// Second request outside iteration
 		.startGroup(doStuffGroup)

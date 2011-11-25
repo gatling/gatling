@@ -49,17 +49,17 @@ object HttpBodyXPathCheckBuilder {
 class HttpBodyXPathCheckBuilder(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String])
 		extends HttpCheckBuilder[HttpBodyXPathCheckBuilder](what, occurrence, strategy, expected, saveAs, CompletePageReceived) {
 
-	def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String], when: HttpPhase) =
+	private[http] def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String], when: HttpPhase) =
 		new HttpBodyXPathCheckBuilder(what, occurrence, strategy, expected, saveAs)
 
-	def newInstanceWithFindOne(occurrence: Int) =
+	private[gatling] def newInstanceWithFindOne(occurrence: Int) =
 		new HttpBodyXPathCheckBuilder(what, Some(occurrence), strategy, expected, saveAs) with CheckBuilderVerifyOne[HttpCheckBuilder[HttpBodyXPathCheckBuilder]]
 
-	def newInstanceWithFindAll =
+	private[gatling] def newInstanceWithFindAll =
 		new HttpBodyXPathCheckBuilder(what, None, strategy, expected, saveAs) with CheckBuilderVerifyAll[HttpCheckBuilder[HttpBodyXPathCheckBuilder]]
 
-	def newInstanceWithVerify(strategy: CheckStrategy, expected: List[String] = Nil) =
+	private[gatling] def newInstanceWithVerify(strategy: CheckStrategy, expected: List[String] = Nil) =
 		new HttpBodyXPathCheckBuilder(what, occurrence, strategy, expected, saveAs) with CheckBuilderSave[HttpCheckBuilder[HttpBodyXPathCheckBuilder]]
 
-	def build = new HttpBodyXPathCheck(what, occurrence, strategy, expected, saveAs)
+	private[gatling] def build = new HttpBodyXPathCheck(what, occurrence, strategy, expected, saveAs)
 }

@@ -53,7 +53,7 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 
 				// Get Data
 				val responseTimesData = responseTimeByMillisecondAsList(dataMillis)
-				val indicatorsColumnData = numberOfRequestInResponseTimeRange(dataList, CONFIG_CHARTING_INDICATORS_LOWER_BOUND, CONFIG_CHARTING_INDICATORS_HIGHER_BOUND) // FIXME make boundaries configurable
+				val indicatorsColumnData = numberOfRequestInResponseTimeRange(dataList, CONFIG_CHARTING_INDICATORS_LOWER_BOUND, CONFIG_CHARTING_INDICATORS_HIGHER_BOUND)
 				val indicatorsPieData = {
 					val numberOfRequests = dataList.size
 					indicatorsColumnData.map { entry => entry._1 -> (entry._2 / numberOfRequests.toDouble * 100).toInt }

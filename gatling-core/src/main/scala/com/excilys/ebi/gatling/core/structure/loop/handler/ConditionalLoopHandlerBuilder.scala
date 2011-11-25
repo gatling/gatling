@@ -34,5 +34,5 @@ class ConditionalLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureB
 	/**
 	 * Actually adds the current conditional loop to the structure builder
 	 */
-	def build: B = doBuild(List(whileActionBuilder withConditionFunction conditionFunction withLoopNext chain inGroups structureBuilder.getCurrentGroups withCounterName counterName))
+	private[core] def build: B = doBuild(List(whileActionBuilder withConditionFunction conditionFunction withLoopNext chain inGroups structureBuilder.getCurrentGroups withCounterName counterName))
 }

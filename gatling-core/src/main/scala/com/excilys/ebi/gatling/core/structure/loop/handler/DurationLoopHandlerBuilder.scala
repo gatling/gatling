@@ -39,7 +39,7 @@ class DurationLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuil
 	/**
 	 * Actually adds the current duration loop to the structure builder
 	 */
-	def build: B = {
+	private[core] def build: B = {
 		doBuild(
 			List(whileActionBuilder
 				.withConditionFunction((c: Context, a: Action) => (System.currentTimeMillis - getTimerValue(c, a.getUuidAsString)) <= durationUnit.toMillis(durationValue))

@@ -62,5 +62,5 @@ class HttpProtocolConfigurationBuilder(baseUrl: Option[String], proxy: Option[Pr
 		new HttpProtocolConfigurationBuilder(baseUrl, Some(ps))
 	}
 
-	def build = new HttpProtocolConfiguration(baseUrl, proxy)
+	private[http] def build = new HttpProtocolConfiguration(baseUrl, proxy)
 }

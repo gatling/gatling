@@ -39,13 +39,12 @@ object CheckBuilder {
 abstract class CheckBuilder[B <: CheckBuilder[B, WHERE], WHERE](what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String])
 		extends Logging {
 
-	def build: Check[WHERE]
+	private[gatling] def build: Check[WHERE]
 
-	def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String]): B
-	def newInstanceWithVerify(strategy: CheckStrategy, expected: List[String] = Nil): B with CheckBuilderSave[B]
-	def newInstanceWithFindOne(occurrence: Int): B with CheckBuilderVerifyOne[B]
-	def newInstanceWithFindAll: B with CheckBuilderVerifyAll[B]
-
-	def newInstanceWithSaveAs(saveAs: String): B = newInstance(what, occurrence, strategy, expected, Some(saveAs))
+	private[gatling] def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String]): B
+	private[gatling] def newInstanceWithVerify(strategy: CheckStrategy, expected: List[String] = Nil): B with CheckBuilderSave[B]
+	private[gatling] def newInstanceWithFindOne(occurrence: Int): B with CheckBuilderVerifyOne[B]
+	private[gatling] def newInstanceWithFindAll: B with CheckBuilderVerifyAll[B]
+	private[gatling] def newInstanceWithSaveAs(saveAs: String): B = newInstance(what, occurrence, strategy, expected, Some(saveAs))
 }
 

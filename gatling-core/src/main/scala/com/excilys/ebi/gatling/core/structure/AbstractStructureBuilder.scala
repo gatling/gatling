@@ -44,16 +44,16 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 *
 	 * @param groups the groups that are currently active
 	 */
-	private[structure] def setCurrentGroups(groups: List[String]) = {
+	private[core] def setCurrentGroups(groups: List[String]) = {
 		currentGroups = groups
 	}
 
 	/**
 	 * This method gets the current groups
 	 */
-	private[structure] def getCurrentGroups = currentGroups
+	private[core] def getCurrentGroups = currentGroups
 
-	def newInstance(actionBuilders: List[AbstractActionBuilder]): B
+	private[core] def newInstance(actionBuilders: List[AbstractActionBuilder]): B
 
 	/**
 	 * Method used to execute an action
@@ -191,14 +191,14 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 */
 	def loop(chain: ChainBuilder) = new LoopBuilder[B](getInstance, chain, None)
 
-	def build: Any
+	private[core] def build: Any
 
-	protected def getInstance: B
+	private[core] def getInstance: B
 
-	private[structure] def addActionBuilders(actionBuildersToAdd: List[AbstractActionBuilder]): B = newInstance(actionBuildersToAdd ::: actionBuilders)
+	private[core] def addActionBuilders(actionBuildersToAdd: List[AbstractActionBuilder]): B = newInstance(actionBuildersToAdd ::: actionBuilders)
 
 	/// FIXME: Better way to do that ?
-	private[structure] def buildActions(initialValue: Action): Action = {
+	private[core] def buildActions(initialValue: Action): Action = {
 		var previousInList: Action = initialValue
 		for (actionBuilder <- actionBuilders) {
 			actionBuilder match {

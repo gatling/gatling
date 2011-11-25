@@ -49,17 +49,17 @@ object HttpBodyRegExpCheckBuilder {
 class HttpBodyRegExpCheckBuilder(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String])
 		extends HttpCheckBuilder[HttpBodyRegExpCheckBuilder](what, occurrence, strategy, expected, saveAs, CompletePageReceived) {
 
-	def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String], when: HttpPhase) =
+	private[http] def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String], when: HttpPhase) =
 		new HttpBodyRegExpCheckBuilder(what, occurrence, strategy, expected, saveAs)
 
-	def newInstanceWithFindOne(occurrence: Int) =
+	private[gatling] def newInstanceWithFindOne(occurrence: Int) =
 		new HttpBodyRegExpCheckBuilder(what, Some(occurrence), strategy, expected, saveAs) with CheckBuilderVerifyOne[HttpCheckBuilder[HttpBodyRegExpCheckBuilder]]
 
-	def newInstanceWithFindAll =
+	private[gatling] def newInstanceWithFindAll =
 		new HttpBodyRegExpCheckBuilder(what, None, strategy, expected, saveAs) with CheckBuilderVerifyAll[HttpCheckBuilder[HttpBodyRegExpCheckBuilder]]
 
-	def newInstanceWithVerify(strategy: CheckStrategy, expected: List[String] = Nil) =
+	private[gatling] def newInstanceWithVerify(strategy: CheckStrategy, expected: List[String] = Nil) =
 		new HttpBodyRegExpCheckBuilder(what, occurrence, strategy, expected, saveAs) with CheckBuilderSave[HttpCheckBuilder[HttpBodyRegExpCheckBuilder]]
 
-	def build: HttpCheck = new HttpBodyRegExpCheck(what, occurrence, strategy, expected, saveAs: Option[String])
+	private[gatling] def build: HttpCheck = new HttpBodyRegExpCheck(what, occurrence, strategy, expected, saveAs: Option[String])
 }

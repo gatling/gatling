@@ -23,11 +23,9 @@ import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
  */
 class GetHttpRequestBuilder(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Context => String, queryParams: List[(Context => String, Context => String)],
 	headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
-		extends AbstractHttpRequestBuilder[GetHttpRequestBuilder](httpRequestActionBuilder, urlFunction, queryParams, headers, followsRedirects, credentials) {
+		extends AbstractHttpRequestBuilder[GetHttpRequestBuilder](httpRequestActionBuilder, "GET", urlFunction, queryParams, headers, followsRedirects, credentials) {
 
-	def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Context => String, queryParams: List[(Context => String, Context => String)], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)]) = {
+	private[http] def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Context => String, queryParams: List[(Context => String, Context => String)], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)]) = {
 		new GetHttpRequestBuilder(httpRequestActionBuilder, urlFunction, queryParams, headers, followsRedirects, credentials)
 	}
-
-	def getMethod = "GET"
 }

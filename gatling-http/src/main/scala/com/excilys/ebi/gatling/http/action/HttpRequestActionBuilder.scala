@@ -61,13 +61,13 @@ class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, ne
 		new HttpRequestActionBuilder(requestName, request, next, Some(givenProcessors.toList ::: processorBuilders.getOrElse(Nil)), groups)
 	}
 
-	def withRequest(request: HttpRequest) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders, groups)
+	private[http] def withRequest(request: HttpRequest) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders, groups)
 
-	def withNext(next: Action) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders, groups)
+	private[gatling] def withNext(next: Action) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders, groups)
 
-	def inGroups(groups: List[String]) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders, Some(groups))
+	private[gatling] def inGroups(groups: List[String]) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders, Some(groups))
 
-	def build: Action = {
+	private[gatling] def build: Action = {
 		TypedActor.newInstance(classOf[Action], new HttpRequestAction(next, request, processorBuilders, groups.get))
 	}
 

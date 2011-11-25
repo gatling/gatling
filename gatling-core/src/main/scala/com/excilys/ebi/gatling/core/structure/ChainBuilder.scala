@@ -37,9 +37,9 @@ object ChainBuilder {
 class ChainBuilder(actionBuilders: List[AbstractActionBuilder], next: Action, groups: List[String])
 		extends AbstractStructureBuilder[ChainBuilder](actionBuilders) {
 
-	def newInstance(actionBuilders: List[AbstractActionBuilder]) = new ChainBuilder(actionBuilders, next, groups)
+	private[core] def newInstance(actionBuilders: List[AbstractActionBuilder]) = new ChainBuilder(actionBuilders, next, groups)
 
-	def getInstance = this
+	private[core] def getInstance = this
 
 	/**
 	 * Method that sets next action (used for chains)
@@ -47,7 +47,7 @@ class ChainBuilder(actionBuilders: List[AbstractActionBuilder], next: Action, gr
 	 * @param next the action to be executed after the chain
 	 * @return the last built action
 	 */
-	def withNext(next: Action) = new ChainBuilder(actionBuilders, next, groups)
+	private[core] def withNext(next: Action) = new ChainBuilder(actionBuilders, next, groups)
 
 	/**
 	 * Method that sets the group of a chain
@@ -55,7 +55,7 @@ class ChainBuilder(actionBuilders: List[AbstractActionBuilder], next: Action, gr
 	 * @param groups the list of groups in which the chain is
 	 * @return a new builder with its groups set
 	 */
-	def inGroups(groups: List[String]) = new ChainBuilder(actionBuilders, next, groups)
+	private[core] def inGroups(groups: List[String]) = new ChainBuilder(actionBuilders, next, groups)
 
 	/**
 	 * Method that actually builds the scenario
@@ -63,5 +63,5 @@ class ChainBuilder(actionBuilders: List[AbstractActionBuilder], next: Action, gr
 	 * @param scenarioId the id of the current scenario
 	 * @return the first action of the scenario to be executed
 	 */
-	def build: Action = buildActions(next)
+	private[core] def build: Action = buildActions(next)
 }

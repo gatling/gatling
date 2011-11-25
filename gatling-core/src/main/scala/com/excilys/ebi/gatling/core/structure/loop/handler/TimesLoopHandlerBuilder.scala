@@ -40,7 +40,7 @@ class TimesLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder
 	/**
 	 * Actually builds the current 'for' loop to the structure builder
 	 */
-	def build: B = {
+	private[core] def build: B = {
 
 		val counter = counterName.getOrElse(new Uuid().toString)
 

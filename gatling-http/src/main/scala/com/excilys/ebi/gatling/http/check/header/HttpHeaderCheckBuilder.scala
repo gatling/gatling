@@ -58,16 +58,16 @@ object HttpHeaderCheckBuilder {
 class HttpHeaderCheckBuilder(what: Context => String, strategy: CheckStrategy, expected: List[String], saveAs: Option[String])
 		extends HttpCheckBuilder[HttpHeaderCheckBuilder](what, None, strategy, expected, saveAs, HeadersReceived) {
 
-	def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String], when: HttpPhase) =
+	private[http] def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String], when: HttpPhase) =
 		new HttpHeaderCheckBuilder(what, strategy, expected, saveAs)
 
-	def newInstanceWithFindOne(occurrence: Int) =
+	private[gatling] def newInstanceWithFindOne(occurrence: Int) =
 		new HttpHeaderCheckBuilder(what, strategy, expected, saveAs) with CheckBuilderVerifyOne[HttpCheckBuilder[HttpHeaderCheckBuilder]]
 
-	def newInstanceWithFindAll = throw new UnsupportedOperationException("Header checks are single valued")
+	private[gatling] def newInstanceWithFindAll = throw new UnsupportedOperationException("Header checks are single valued")
 
-	def newInstanceWithVerify(strategy: CheckStrategy, expected: List[String] = Nil) =
+	private[gatling] def newInstanceWithVerify(strategy: CheckStrategy, expected: List[String] = Nil) =
 		new HttpHeaderCheckBuilder(what, strategy, expected, saveAs) with CheckBuilderSave[HttpCheckBuilder[HttpHeaderCheckBuilder]]
 
-	def build: HttpCheck = new HttpHeaderCheck(what, strategy, expected, saveAs)
+	private[gatling] def build: HttpCheck = new HttpHeaderCheck(what, strategy, expected, saveAs)
 }

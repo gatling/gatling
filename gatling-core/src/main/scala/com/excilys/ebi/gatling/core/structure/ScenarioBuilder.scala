@@ -47,11 +47,11 @@ object ScenarioBuilder {
  */
 class ScenarioBuilder(val name: String, actionBuilders: List[AbstractActionBuilder]) extends AbstractStructureBuilder[ScenarioBuilder](actionBuilders) {
 
-	def newInstance(actionBuilders: List[AbstractActionBuilder]) = {
+	private[core] def newInstance(actionBuilders: List[AbstractActionBuilder]) = {
 		new ScenarioBuilder(name, actionBuilders)
 	}
 
-	def getInstance = this
+	private[core] def getInstance = this
 
 	def configure = new ScenarioConfigurationBuilder(this)
 
@@ -60,7 +60,7 @@ class ScenarioBuilder(val name: String, actionBuilders: List[AbstractActionBuild
 	 *
 	 * @return a new builder with its first action added
 	 */
-	def start: ScenarioBuilder = newInstance(startActionBuilder :: actionBuilders)
+	private[core] def start: ScenarioBuilder = newInstance(startActionBuilder :: actionBuilders)
 
 	/**
 	 * Method that should not be used in a script. It adds an EndAction that will
@@ -70,7 +70,7 @@ class ScenarioBuilder(val name: String, actionBuilders: List[AbstractActionBuild
 	 * @return a new builder with its last action added
 	 */
 	// TODO important, don't forget to set the end of the scenario when needed !
-	def end(latch: CountDownLatch): ScenarioBuilder = newInstance(endActionBuilder(latch) :: actionBuilders)
+	private[core] def end(latch: CountDownLatch): ScenarioBuilder = newInstance(endActionBuilder(latch) :: actionBuilders)
 
 	/**
 	 * Method that actually builds the scenario
@@ -78,5 +78,5 @@ class ScenarioBuilder(val name: String, actionBuilders: List[AbstractActionBuild
 	 * @param scenarioId the id of the current scenario
 	 * @return the first action of the scenario to be executed
 	 */
-	def build: Scenario = new Scenario(name, buildActions(null))
+	private[core] def build: Scenario = new Scenario(name, buildActions(null))
 }
