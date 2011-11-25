@@ -50,11 +50,6 @@ object GatlingFiles {
 	val GATLING_REQUEST_BODIES_FOLDER = GATLING_USER_FILES_FOLDER / "request-bodies"
 
 	/**
-	 * Gatling's templates folder
-	 */
-	val GATLING_TEMPLATES_FOLDER = GATLING_USER_FILES_FOLDER / "templates"
-
-	/**
 	 * Gatling's results folder
 	 */
 	val GATLING_RESULTS_FOLDER = GATLING_HOME / "results"

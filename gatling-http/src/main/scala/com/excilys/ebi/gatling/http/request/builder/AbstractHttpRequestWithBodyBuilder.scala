@@ -20,7 +20,7 @@ import scala.tools.nsc.io.Path.string2path
 import org.fusesource.scalate.support.ScalaCompiler
 import org.fusesource.scalate.{ TemplateEngine, Binding }
 
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_TEMPLATES_FOLDER, GATLING_REQUEST_BODIES_FOLDER }
+import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_REQUEST_BODIES_FOLDER
 import com.excilys.ebi.gatling.core.context.Context
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.core.util.FileHelper.SSP_EXTENSION
@@ -31,7 +31,7 @@ import com.excilys.ebi.gatling.http.request.{ TemplateBody, StringBody, HttpRequ
 import com.ning.http.client.RequestBuilder
 
 object AbstractHttpRequestWithBodyBuilder {
-	val ENGINE = new TemplateEngine(List(GATLING_TEMPLATES_FOLDER))
+	val ENGINE = new TemplateEngine(List(GATLING_REQUEST_BODIES_FOLDER))
 	ENGINE.allowReload = false
 	ENGINE.escapeMarkup = false
 	// Register engine shutdown
