@@ -81,4 +81,6 @@ object GatlingFiles {
 	 * Name of the simulation log
 	 */
 	val GATLING_SIMULATION_LOG_FILE = "simulation.log"
+
+	val GATLING_IMPORTS_FILE = "imports.txt"
 }

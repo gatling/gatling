@@ -24,8 +24,8 @@ import scala.util.matching.Regex
 import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_SCENARIOS_FOLDER, GATLING_IMPORTS_FILE }
 import com.excilys.ebi.gatling.core.util.FileHelper.TXT_EXTENSION
-import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_SCENARIOS_FOLDER
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 
 /**
@@ -47,36 +47,46 @@ class TextScriptInterpreter extends Interpreter {
 	 * @param startDate the date at which the launch was asked
 	 */
 	def run(fileName: String, startDate: DateTime) = {
-		// Sets the interpreter to use the classpath of the java command
-		val settings = new Settings
-		settings.usejavacp.value = true
 
-		val n = new IMain(settings)
+		def getInterpreter = {
+			// Sets the interpreter to use the classpath of the java command
+			val settings = new Settings
+			settings.usejavacp.value = true
 
-		// This is the file header, with all needed imports and declarations
-		val fileHeader = """
-    import com.excilys.ebi.gatling.core.Predef._
-    import com.excilys.ebi.gatling.http.Predef._
-    
-    def runSimulations = runSimFunction(startDate.value)
-    """
+			new IMain(settings)
+		}
 
-		// Contains the contents of the simulation file
-		val initialFileBodyContent = Source.fromFile((GATLING_SCENARIOS_FOLDER / fileName).jfile, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT)
+		def getImports = {
+			var imports: List[String] = Nil
+			val importsResources = this.getClass().getClassLoader().getResources(GATLING_IMPORTS_FILE)
+			while (importsResources.hasMoreElements()) {
+				imports = Source.fromURL(importsResources.nextElement()).mkString :: imports
+			}
+			imports
+		}
 
-		// Includes contents of included files into the simulation file 
-		val toBeFound = new Regex("""include\("(.*)"\)""")
-		val newFileBodyContent = toBeFound.replaceAllIn(initialFileBodyContent, result => {
-			val path = fileName.substring(0, fileName.lastIndexOf("@")) / result.group(1)
-			Source.fromFile(GATLING_SCENARIOS_FOLDER / path + TXT_EXTENSION, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT) + END_OF_LINE + END_OF_LINE
-		}).replace(TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT, '$')
+		def getScenario = {
+			// Contains the contents of the simulation file
+			val initialFileBodyContent = Source.fromFile((GATLING_SCENARIOS_FOLDER / fileName).jfile, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT)
 
-		// Complete script
-		val fileContent = fileHeader + newFileBodyContent
-		logger.debug(fileContent)
+			// Includes contents of included files into the simulation file 
+			val toBeFound = new Regex("""include\("(.*)"\)""")
+			toBeFound.replaceAllIn(initialFileBodyContent, result => {
+				val path = fileName.substring(0, fileName.lastIndexOf("@")) / result.group(1)
+				Source.fromFile(GATLING_SCENARIOS_FOLDER / path + TXT_EXTENSION, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT) + END_OF_LINE + END_OF_LINE
+			}).replace(TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT, '$')
+		}
 
-		n.bind("startDate", new DateHolder(startDate))
-		n.interpret(fileContent) // This is where the simulation starts
-		n.close()
+		val interpreter = getInterpreter
+		val imports = getImports
+		val scenario = getScenario
+
+		logger.debug(scenario)
+
+		interpreter.bind("startDate", new DateHolder(startDate))
+
+		imports.foreach(interpreter.interpret(_))
+		interpreter.interpret(scenario)
+		interpreter.close()
 	}
 }
