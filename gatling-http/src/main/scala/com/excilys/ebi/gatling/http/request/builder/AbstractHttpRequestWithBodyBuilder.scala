@@ -77,13 +77,6 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	}
 
 	/**
-	 * Adds a body from a file to the request
-	 *
-	 * @param filePath the path of the file relative to GATLING_REQUEST_BODIES_FOLDER
-	 */
-	def fileBody(filePath: String): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers, Some(FilePathBody(filePath)), followsRedirects, credentials)
-
-	/**
 	 * Adds a body to the request
 	 *
 	 * @param body a string containing the body of the request
@@ -91,12 +84,19 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	def body(body: String): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers, Some(StringBody(body)), followsRedirects, credentials)
 
 	/**
+	 * Adds a body from a file to the request
+	 *
+	 * @param filePath the path of the file relative to GATLING_REQUEST_BODIES_FOLDER
+	 */
+	def fileBody(filePath: String): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers, Some(FilePathBody(filePath)), followsRedirects, credentials)
+
+	/**
 	 * Adds a body from a template that has to be compiled
 	 *
 	 * @param tplPath the path to the template relative to GATLING_TEMPLATES_FOLDER
 	 * @param values the values that should be merged into the template
 	 */
-	def templateBody(tplPath: String, values: Map[String, String]): B = {
+	def fileBody(tplPath: String, values: Map[String, String]): B = {
 		val interpolatedValues = values.map { entry => entry._1 -> interpolate(entry._2) }
 		newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers, Some(TemplateBody(tplPath, interpolatedValues)), followsRedirects, credentials)
 	}
