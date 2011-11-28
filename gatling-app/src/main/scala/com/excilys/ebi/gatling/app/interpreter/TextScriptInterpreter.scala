@@ -87,6 +87,6 @@ class TextScriptInterpreter extends Interpreter {
 
 		imports.foreach(interpreter.interpret(_))
 		interpreter.interpret(scenario)
-		interpreter.close()
+		interpreter.close
 	}
 }

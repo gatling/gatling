@@ -45,11 +45,8 @@ object GatlingConfiguration {
 
 	def fromFile(filename: String): GatlingConfiguration = {
 		val n = filename.lastIndexOf('/')
-		if (n < 0) {
-			fromFile(defaultPath, filename)
-		} else {
-			fromFile(filename.substring(0, n), filename.substring(n + 1))
-		}
+		if (n < 0) fromFile(defaultPath, filename)
+		else fromFile(filename.substring(0, n), filename.substring(n + 1))
 	}
 }
 

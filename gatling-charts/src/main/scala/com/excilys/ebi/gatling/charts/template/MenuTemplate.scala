@@ -19,7 +19,5 @@ import com.excilys.ebi.gatling.charts.config.ChartsConfig.GATLING_TEMPLATE_MENU_
 
 class MenuTemplate(requestLinks: List[(String, Option[String], String)]) {
 
-	def getOutput: String = {
-		PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_MENU_JS_FILE, Map("requestLinks" -> requestLinks))
-	}
+	def getOutput: String = PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_MENU_JS_FILE, Map("requestLinks" -> requestLinks))
 }

@@ -43,7 +43,5 @@ class StartActionBuilder(next: Action, groups: List[String]) extends AbstractAct
 
 	def inGroups(groups: List[String]) = new StartActionBuilder(next, groups)
 
-	def build: Action = {
-		TypedActor.newInstance(classOf[Action], new StartAction(next))
-	}
+	def build: Action = TypedActor.newInstance(classOf[Action], new StartAction(next))
 }

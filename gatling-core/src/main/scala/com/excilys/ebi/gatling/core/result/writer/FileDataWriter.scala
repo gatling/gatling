@@ -15,17 +15,17 @@
  */
 package com.excilys.ebi.gatling.core.result.writer
 
-import java.io.{OutputStreamWriter, FileOutputStream, File, BufferedOutputStream}
+import java.io.{ OutputStreamWriter, FileOutputStream, File, BufferedOutputStream }
 import java.util.concurrent.CountDownLatch
 
 import scala.tools.nsc.io.Path.string2path
 
-import com.excilys.ebi.gatling.core.result.message.{InitializeDataWriter, ActionInfo}
-import com.excilys.ebi.gatling.core.util.DateHelper.{printResultDate, printFileNameDate}
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{GATLING_SIMULATION_LOG_FILE, GATLING_RESULTS_FOLDER}
-import com.excilys.ebi.gatling.core.util.StringHelper.{END_OF_LINE, EMPTY}
+import com.excilys.ebi.gatling.core.result.message.{ InitializeDataWriter, ActionInfo }
+import com.excilys.ebi.gatling.core.util.DateHelper.{ printResultDate, printFileNameDate }
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_SIMULATION_LOG_FILE, GATLING_RESULTS_FOLDER }
+import com.excilys.ebi.gatling.core.util.StringHelper.{ END_OF_LINE, EMPTY }
 
-import FileDataWriter.{GROUPS_SUFFIX, GROUPS_SEPARATOR, GROUPS_PREFIX}
+import FileDataWriter.{ GROUPS_SUFFIX, GROUPS_SEPARATOR, GROUPS_PREFIX }
 import akka.actor.scala2ActorRef
 
 /**
@@ -83,11 +83,14 @@ class FileDataWriter extends DataWriter {
 			osw.write(strBuilder.toString)
 
 			if (latch.getCount == 1 && self.dispatcher.mailboxSize(self) == 0) {
-				// Closes the OutputStreamWriter
-				osw.flush
-				osw.close
-				// Decrease the latch (should be at 0 here)
-				latch.countDown
+				try {
+					// Closes the OutputStreamWriter
+					osw.flush
+				} finally {
+					// Decrease the latch (should be at 0 here)
+					latch.countDown
+					osw.close
+				}
 			}
 		}
 

@@ -81,7 +81,5 @@ class PauseActionBuilder(minDuration: Option[Long], maxDuration: Option[Long], t
 
 	def inGroups(groups: List[String]) = new PauseActionBuilder(minDuration, maxDuration, timeUnit, next, Some(groups))
 
-	def build: Action = {
-		TypedActor.newInstance(classOf[Action], new PauseAction(next.get, minDuration.get, maxDuration.get, timeUnit.get))
-	}
+	def build: Action = TypedActor.newInstance(classOf[Action], new PauseAction(next.get, minDuration.get, maxDuration.get, timeUnit.get))
 }

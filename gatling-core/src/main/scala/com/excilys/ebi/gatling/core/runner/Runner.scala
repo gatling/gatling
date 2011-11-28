@@ -62,7 +62,6 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: List[ScenarioCo
 	 * This method schedules the beginning of all scenarios
 	 */
 	def run = {
-
 		// Initilization of the data writer
 		statWriter ! InitializeDataWriter(startDate, latch)
 

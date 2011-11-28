@@ -76,7 +76,5 @@ class WhileActionBuilder(conditionFunction: (Context, Action) => Boolean, loopNe
 
 	def inGroups(groups: List[String]) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName, groups)
 
-	def build: Action = {
-		TypedActor.newInstance(classOf[Action], new WhileAction(conditionFunction, (w: WhileAction) => loopNext.withNext(w).inGroups(groups).build, next, counterName))
-	}
+	def build: Action = TypedActor.newInstance(classOf[Action], new WhileAction(conditionFunction, (w: WhileAction) => loopNext.withNext(w).inGroups(groups).build, next, counterName))
 }

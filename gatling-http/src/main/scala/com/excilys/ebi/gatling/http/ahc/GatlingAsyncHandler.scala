@@ -49,6 +49,7 @@ import com.ning.http.client.Response
 import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
 
 import akka.actor.Actor.registry.actorFor
+import scala.collection.JavaConversions._
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
@@ -87,9 +88,8 @@ class GatlingAsyncHandler(context: Context, checks: List[HttpCheck], next: Actio
 			if (setCookieHeaders != null) {
 				var contextCookies = context.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty).asInstanceOf[HashMap[String, Cookie]]
 
-				val it = setCookieHeaders.iterator
-				while (it.hasNext) {
-					val cookie = parseCookie(it.next)
+				setCookieHeaders.foreach { setCookieHeader =>
+					val cookie = parseCookie(setCookieHeader)
 					contextCookies += (cookie.getName -> cookie)
 				}
 
@@ -152,7 +152,7 @@ class GatlingAsyncHandler(context: Context, checks: List[HttpCheck], next: Actio
 		/**
 		 * This method instantiate the required extractors
 		 *
-		 * @param checks the checks that were given for this reponse
+		 * @param checks the checks that were given for this response
 		 * @param response the response on which the checks will be made
 		 */
 		def prepareExtractors(checks: Iterable[HttpCheck], response: Response): MHashMap[ExtractorFactory[Response], Extractor] = {
