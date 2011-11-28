@@ -30,11 +30,11 @@ abstract class PageTemplate(title: String, subTitle: String, components: Compone
 
 	val jsFiles = (Seq(JQUERY_FILE, MENU_FILE) ++ getAdditionnalJSFiles).distinct
 
-	def getContent: String = (for (component <- components) yield component.getHTMLContent).mkString
+	def getContent: String = components.map(_.getHTMLContent).mkString
 
-	def getJavascript: String = (for (component <- components) yield component.getJavascriptContent).mkString
+	def getJavascript: String = components.map(_.getJavascriptContent).mkString
 
-	def getAdditionnalJSFiles = (for (component <- components) yield component.getJavascriptFiles).flatten.toSeq
+	def getAdditionnalJSFiles = components.map(_.getJavascriptFiles).flatten.toSeq
 
 	def getOutput: String = {
 		PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_LAYOUT_FILE,

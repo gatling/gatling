@@ -24,6 +24,7 @@ import com.excilys.ebi.gatling.core.result.message.{ InitializeDataWriter, Actio
 import com.excilys.ebi.gatling.core.util.DateHelper.{ printResultDate, printFileNameDate }
 import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_SIMULATION_LOG_FILE, GATLING_RESULTS_FOLDER }
 import com.excilys.ebi.gatling.core.util.StringHelper.{ END_OF_LINE, EMPTY }
+import com.excilys.ebi.gatling.core.util.FileHelper._
 
 import FileDataWriter.{ GROUPS_SUFFIX, GROUPS_SEPARATOR, GROUPS_PREFIX }
 import akka.actor.scala2ActorRef
@@ -69,14 +70,14 @@ class FileDataWriter extends DataWriter {
 		case ActionInfo(scenarioName, userId, action, executionStartDate, executionDuration, resultStatus, resultMessage, groups) => {
 			// Builds the line to be written
 			val strBuilder = new StringBuilder
-			strBuilder.append(runOn).append("\t")
-				.append(scenarioName).append("\t")
-				.append(userId).append("\t")
-				.append(action).append("\t")
-				.append(printResultDate(executionStartDate)).append("\t")
-				.append(executionDuration).append("\t")
-				.append(resultStatus).append("\t")
-				.append(resultMessage).append("\t")
+			strBuilder.append(runOn).append(TABULATION_SEPARATOR)
+				.append(scenarioName).append(TABULATION_SEPARATOR)
+				.append(userId).append(TABULATION_SEPARATOR)
+				.append(action).append(TABULATION_SEPARATOR)
+				.append(printResultDate(executionStartDate)).append(TABULATION_SEPARATOR)
+				.append(executionDuration).append(TABULATION_SEPARATOR)
+				.append(resultStatus).append(TABULATION_SEPARATOR)
+				.append(resultMessage).append(TABULATION_SEPARATOR)
 				.append(groups.mkString(GROUPS_PREFIX, GROUPS_SEPARATOR, GROUPS_SUFFIX)).append(END_OF_LINE)
 
 			// Write the line in the file

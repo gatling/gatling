@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.charts.report
 import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
-import com.excilys.ebi.gatling.charts.computer.Computer.{numberOfSuccessfulRequestsPerSecond, numberOfRequestsPerSecondAsList, numberOfFailedRequestsPerSecond}
+import com.excilys.ebi.gatling.charts.computer.Computer.{ numberOfSuccessfulRequestsPerSecond, numberOfRequestsPerSecondAsList, numberOfFailedRequestsPerSecond }
 import com.excilys.ebi.gatling.charts.config.ChartsConfig.GATLING_CHART_GLOBAL_REQUESTS_FILE
 import com.excilys.ebi.gatling.charts.loader.DataLoader
 import com.excilys.ebi.gatling.charts.series.Series
@@ -32,7 +32,7 @@ class RequestsReportGenerator(runOn: String, dataLoader: DataLoader, componentLi
 		val allRequestsData = numberOfRequestsPerSecondAsList(dataLoader.dataIndexedByDateInSeconds)
 		val failedRequestsData = numberOfFailedRequestsPerSecond(dataLoader.dataIndexedByDateInSeconds)
 		val succeededRequestsData = numberOfSuccessfulRequestsPerSecond(dataLoader.dataIndexedByDateInSeconds)
-		val pieData = ("Success", succeededRequestsData.map { entry => entry._2 }.sum) :: ("Failures", failedRequestsData.map { entry => entry._2 }.sum) :: Nil
+		val pieData = ("Success", succeededRequestsData.map(_._2).sum) :: ("Failures", failedRequestsData.map(_._2).sum) :: Nil
 
 		// Create series
 		val allRequests = new Series[DateTime, Int]("All requests", allRequestsData)

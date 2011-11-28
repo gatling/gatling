@@ -15,11 +15,11 @@
  */
 package com.excilys.ebi.gatling.app.interpreter
 
+import scala.collection.JavaConversions.enumerationAsScalaIterator
 import scala.io.Source
 import scala.tools.nsc.interpreter.IMain
 import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.Settings
-import scala.util.matching.Regex
 
 import org.joda.time.DateTime
 
@@ -48,7 +48,7 @@ class TextScriptInterpreter extends Interpreter {
 	 */
 	def run(fileName: String, startDate: DateTime) = {
 
-		def getInterpreter = {
+		val interpreter = {
 			// Sets the interpreter to use the classpath of the java command
 			val settings = new Settings
 			settings.usejavacp.value = true
@@ -56,30 +56,22 @@ class TextScriptInterpreter extends Interpreter {
 			new IMain(settings)
 		}
 
-		def getImports = {
-			var imports: List[String] = Nil
-			val importsResources = this.getClass().getClassLoader().getResources(GATLING_IMPORTS_FILE)
-			while (importsResources.hasMoreElements()) {
-				imports = Source.fromURL(importsResources.nextElement()).mkString :: imports
+		val imports =
+			getClass.getClassLoader.getResources(GATLING_IMPORTS_FILE).map { resource =>
+				Source.fromURL(resource).mkString
 			}
-			imports
-		}
 
-		def getScenario = {
+		val scenario = {
 			// Contains the contents of the simulation file
 			val initialFileBodyContent = Source.fromFile((GATLING_SCENARIOS_FOLDER / fileName).jfile, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT)
 
 			// Includes contents of included files into the simulation file 
-			val toBeFound = new Regex("""include\("(.*)"\)""")
-			toBeFound.replaceAllIn(initialFileBodyContent, result => {
-				val path = fileName.substring(0, fileName.lastIndexOf("@")) / result.group(1)
-				Source.fromFile(GATLING_SCENARIOS_FOLDER / path + TXT_EXTENSION, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT) + END_OF_LINE + END_OF_LINE
-			}).replace(TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT, '$')
+			"""include\("(.*)"\)""".r.replaceAllIn(initialFileBodyContent,
+				result => {
+					val path = fileName.substring(0, fileName.lastIndexOf("@")) / result.group(1)
+					Source.fromFile(GATLING_SCENARIOS_FOLDER / path + TXT_EXTENSION, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT) + END_OF_LINE + END_OF_LINE
+				}).replace(TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT, '$')
 		}
-
-		val interpreter = getInterpreter
-		val imports = getImports
-		val scenario = getScenario
 
 		logger.debug(scenario)
 

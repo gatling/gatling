@@ -68,11 +68,11 @@ class GatlingAsyncHandler(context: Context, checks: List[HttpCheck], next: Actio
 
 	private val executionStartTimeNano = System.nanoTime
 
-	private val executionStartDate = DateTime.now()
+	private val executionStartDate = DateTime.now
 
 	private val identifier = requestName + context.userId
 
-	private val responseBuilder = new ResponseBuilder()
+	private val responseBuilder = new ResponseBuilder
 
 	def onStatusReceived(responseStatus: HttpResponseStatus): STATE = {
 		responseBuilder.accumulate(responseStatus)
@@ -86,7 +86,7 @@ class GatlingAsyncHandler(context: Context, checks: List[HttpCheck], next: Actio
 
 			val setCookieHeaders = headersMap.get(SET_COOKIE)
 			if (setCookieHeaders != null) {
-				var contextCookies = context.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty).asInstanceOf[HashMap[String, Cookie]]
+				var contextCookies = context.getAttributeAsOption[HashMap[String, Cookie]](COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty)
 
 				setCookieHeaders.foreach { setCookieHeader =>
 					val cookie = parseCookie(setCookieHeader)
@@ -183,9 +183,9 @@ class GatlingAsyncHandler(context: Context, checks: List[HttpCheck], next: Actio
 					logger.debug("Extracted value: {}", extractedValue)
 
 					if (!check.check(extractedValue)) {
-						if (logger.isWarnEnabled) {
+						if (logger.isWarnEnabled)
 							logger.warn("{} failed : received '{}' instead of '{}' for '{}'", Array[Object](check, extractedValue, check.expected, expression))
-						}
+
 						sendLogAndExecuteNext(KO, check + " failed", processingStartTimeNano)
 						return
 

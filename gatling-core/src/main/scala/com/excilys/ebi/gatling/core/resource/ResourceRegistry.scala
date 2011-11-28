@@ -42,7 +42,7 @@ object ResourceRegistry extends Logging {
 	def closeAll = {
 		for (onCloseCallback <- onCloseCallbacks) {
 			try {
-				onCloseCallback.apply
+				onCloseCallback()
 			} catch {
 				case e => logger.error("Could not close resource: {}", e)
 			}

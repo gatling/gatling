@@ -42,7 +42,7 @@ object HttpRequestAction {
 	/**
 	 * The HTTP client used to send the requests
 	 */
-	val CLIENT: AsyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setCompressionEnabled(true).build())
+	val CLIENT: AsyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setCompressionEnabled(true).build)
 	// Register client shutdown
 	ResourceRegistry.registerOnCloseCallback(() => CLIENT.close)
 }
@@ -63,7 +63,7 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenCheckBuilders: 
 
 	givenCheckBuilders.map {
 		list =>
-			checks = for (checkBuilder <- list) yield checkBuilder.build
+			checks = list.map(_.build)
 
 			// add default HttpStatusCheck if none was set
 			if (checks.find(_.isInstanceOf[HttpStatusCheck]).isEmpty) {

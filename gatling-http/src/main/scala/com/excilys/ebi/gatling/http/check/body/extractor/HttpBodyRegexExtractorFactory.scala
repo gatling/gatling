@@ -25,8 +25,8 @@ import com.excilys.ebi.gatling.core.check.extractor.MultiRegexExtractor
 class HttpBodyRegexExtractorFactory(occurrence: Option[Int]) extends ExtractorFactory[Response] {
 
 	def getExtractor(response: Response) =
-		occurrence.map { value =>
-			new RegexExtractor(response.getResponseBody, value)
+		occurrence.map {
+			new RegexExtractor(response.getResponseBody, _)
 		}.getOrElse {
 			new MultiRegexExtractor(response.getResponseBody)
 		}

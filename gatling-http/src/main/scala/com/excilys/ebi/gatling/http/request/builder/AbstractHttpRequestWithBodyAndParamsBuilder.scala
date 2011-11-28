@@ -89,11 +89,11 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	private def addParamsTo(requestBuilder: RequestBuilder, context: Context) = {
 		val paramsMap = new FluentStringsMap
 
-		val keyValues = for ((keyFunction, valueFunction) <- params) yield (keyFunction.apply(context), valueFunction.apply(context))
+		val keyValues = for ((keyFunction, valueFunction) <- params) yield (keyFunction(context), valueFunction(context))
 
-		keyValues.groupBy(entry => entry._1).foreach { entry =>
+		keyValues.groupBy(_._1).foreach { entry =>
 			val (key, values) = entry
-			paramsMap.add(key, values.map { value => value._2 }: _*)
+			paramsMap.add(key, values.map(_._2): _*)
 		}
 
 		if (!paramsMap.isEmpty) // FIXME patch AHC so that it won't see parameters if map size == 0. Patch submitted : https://github.com/sonatype/async-http-client/pull/36

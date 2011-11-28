@@ -55,8 +55,8 @@ object Gatling extends Logging {
 		val (files1, files2) = files.duplicate
 
 		// Sorting file names by radical and storing groups for display purpose
-		val sortedFiles: MultiMap[String, String] = new HashMap[String, MSet[String]] with MultiMap[String, String]
-		var sortedGroups: TreeSet[String] = new TreeSet[String]
+		val sortedFiles = new HashMap[String, MSet[String]] with MultiMap[String, String]
+		var sortedGroups = new TreeSet[String]
 
 		for (fileName <- files1) {
 			sortedFiles.addBinding(fileName.substring(0, fileName.indexOf("@")), fileName)
@@ -74,7 +74,7 @@ object Gatling extends Logging {
 					case 1 =>
 						// If there is only one simulation file
 						logger.info("There is only one scenario, executing it.")
-						run(files.next)
+						run(files2.next)
 					case _ =>
 						// If there are several simulation files
 						println("Which scenario do you want to execute ?")
@@ -97,9 +97,6 @@ object Gatling extends Logging {
 						run(filesList.reverse(fileChosen))
 				}
 			} else if (args.length > 0) {
-				// If the user wants to execute only statistics generation
-
-				// If there is one argument, take it as folder name
 				args(0)
 			} else {
 				// Else throw an error, as the folder name is required

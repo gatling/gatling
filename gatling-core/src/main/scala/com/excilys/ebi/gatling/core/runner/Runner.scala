@@ -45,13 +45,13 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: List[ScenarioCo
 	val scenarioConfigurations = for (i <- 1 to scenarioConfigurationBuilders.size) yield scenarioConfigurationBuilders(i - 1).build(i)
 
 	// Counts the number of users
-	val totalNumberOfUsers = (for (configuration <- scenarioConfigurations) yield configuration.users).sum
+	val totalNumberOfUsers = scenarioConfigurations.map(_.users).sum
 
 	// Initializes a countdown latch to determine when to stop the application
 	val latch: CountDownLatch = new CountDownLatch(totalNumberOfUsers + 1)
 
 	// Builds all scenarios
-	val scenarios = for (configuration <- scenarioConfigurations) yield configuration.scenarioBuilder.end(latch).build
+	val scenarios = scenarioConfigurations.map(_.scenarioBuilder.end(latch).build)
 
 	// Creates a List of Tuples with scenario configuration / scenario 
 	val scenariosAndConfigurations = scenarioConfigurations zip scenarios

@@ -15,11 +15,11 @@
  */
 package com.excilys.ebi.gatling.charts.writer
 
-import java.io.{FileWriter, File}
+import java.io.{ FileWriter, File }
 
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{GATLING_RESULTS_FOLDER, GATLING_RAWDATA_FOLDER}
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_RESULTS_FOLDER, GATLING_RAWDATA_FOLDER }
 import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
-import com.excilys.ebi.gatling.core.util.StringHelper.{END_OF_LINE, EMPTY}
+import com.excilys.ebi.gatling.core.util.StringHelper.{ END_OF_LINE, EMPTY }
 
 class SeparatedValueFileWriter(val runOn: String, val fileName: String, val separator: String) {
 	def writeToFile(values: List[List[String]]) = {

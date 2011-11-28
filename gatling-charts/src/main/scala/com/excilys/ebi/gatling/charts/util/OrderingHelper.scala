@@ -18,7 +18,6 @@ import com.excilys.ebi.gatling.charts.loader.ResultLine
 import org.joda.time.DateTime
 
 object OrderingHelper {
-
 	implicit object ResultOrdering extends Ordering[ResultLine] {
 		def compare(r1: ResultLine, r2: ResultLine) = r1.executionStartDate.getMillis.compare(r1.executionStartDate.getMillis)
 	}

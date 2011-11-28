@@ -20,15 +20,16 @@ import scala.tools.nsc.io.Path.string2path
 
 import org.joda.time.DateTime
 
-import com.excilys.ebi.gatling.charts.util.OrderingHelper.{ResultOrdering, DateTimeOrdering}
+import com.excilys.ebi.gatling.charts.util.OrderingHelper.{ ResultOrdering, DateTimeOrdering }
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus
-import com.excilys.ebi.gatling.core.result.writer.FileDataWriter.{GROUPS_SUFFIX, GROUPS_SEPARATOR, GROUPS_PREFIX}
+import com.excilys.ebi.gatling.core.result.writer.FileDataWriter.{ GROUPS_SUFFIX, GROUPS_SEPARATOR, GROUPS_PREFIX }
 import com.excilys.ebi.gatling.core.util.DateHelper.parseResultDate
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{GATLING_SIMULATION_LOG_FILE, GATLING_RESULTS_FOLDER}
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_SIMULATION_LOG_FILE, GATLING_RESULTS_FOLDER }
+import com.excilys.ebi.gatling.core.util.FileHelper._
 
 class DataLoader(runOn: String) extends Logging {
 
@@ -37,7 +38,7 @@ class DataLoader(runOn: String) extends Logging {
 		var tmpData: List[ResultLine] = Nil
 
 		for (line <- Source.fromFile((GATLING_RESULTS_FOLDER / runOn / GATLING_SIMULATION_LOG_FILE).jfile, CONFIG_ENCODING).getLines) {
-			line.split("\t") match {
+			line.split(TABULATION_SEPARATOR) match {
 				// If we have a well formated result
 				case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage, groups) =>
 					val groupsList = groups.stripPrefix(GROUPS_PREFIX).stripSuffix(GROUPS_SUFFIX).split(GROUPS_SEPARATOR).toList
@@ -47,22 +48,25 @@ class DataLoader(runOn: String) extends Logging {
 			}
 		}
 
-		tmpData.sortBy(result => result.executionStartDate.getMillis)
+		tmpData.sortBy(_.executionStartDate.getMillis)
 	}
 
 	val dataIndexedByDateInSeconds: SortedMap[DateTime, List[ResultLine]] = SortedMap(data.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
 
 	val dataIndexedByRequestName: Map[String, List[ResultLine]] = data.groupBy(_.requestName).map { entry => entry._1 -> entry._2.sorted }
 
-	val dataIndexedByRequestNameAndDateInMilliseconds: Map[String, SortedMap[DateTime, List[ResultLine]]] = dataIndexedByRequestName.map { entry => entry._1 -> SortedMap(entry._2.groupBy(_.executionStartDate).map(entry => entry._1 -> entry._2.sorted).toSeq: _*) }
+	val dataIndexedByRequestNameAndDateInMilliseconds: Map[String, SortedMap[DateTime, List[ResultLine]]] =
+		dataIndexedByRequestName.map { entry => entry._1 -> SortedMap(entry._2.groupBy(_.executionStartDate).map(entry => entry._1 -> entry._2.sorted).toSeq: _*) }
 
-	val dataIndexedByRequestNameAndDateInSeconds: Map[String, SortedMap[DateTime, List[ResultLine]]] = dataIndexedByRequestName.map { entry => entry._1 -> SortedMap(entry._2.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*) }
+	val dataIndexedByRequestNameAndDateInSeconds: Map[String, SortedMap[DateTime, List[ResultLine]]] =
+		dataIndexedByRequestName.map { entry => entry._1 -> SortedMap(entry._2.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*) }
 
 	val dataIndexedByScenarioName: Map[String, List[ResultLine]] = data.groupBy(_.scenarioName)
 
-	val dataIndexedByScenarioNameAndDateInSeconds: Map[String, SortedMap[DateTime, List[ResultLine]]] = dataIndexedByScenarioName.map { entry => entry._1 -> SortedMap(entry._2.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*) }
+	val dataIndexedByScenarioNameAndDateInSeconds: Map[String, SortedMap[DateTime, List[ResultLine]]] =
+		dataIndexedByScenarioName.map { entry => entry._1 -> SortedMap(entry._2.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*) }
 
-	val requestNames: List[String] = data.map { result => result.requestName }.distinct.filterNot(value => value == END_OF_SCENARIO || value == START_OF_SCENARIO)
+	val requestNames: List[String] = data.map(_.requestName).distinct.filterNot(value => value == END_OF_SCENARIO || value == START_OF_SCENARIO)
 
-	val groupNames: List[String] = data.map { result => result.groups }.flatten
+	val groupNames: List[String] = data.map(_.groups).flatten
 }

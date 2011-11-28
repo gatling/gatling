@@ -15,12 +15,12 @@
  */
 package com.excilys.ebi.gatling.app.interpreter
 
-import java.io.{StringWriter, PrintWriter, File}
+import java.io.{ StringWriter, PrintWriter, File }
 
 import scala.tools.nsc.interpreter.AbstractFileClassLoader
 import scala.tools.nsc.io.VirtualDirectory
 import scala.tools.nsc.reporters.ConsoleReporter
-import scala.tools.nsc.{Settings, Global}
+import scala.tools.nsc.{ Settings, Global }
 
 import org.joda.time.DateTime
 
@@ -90,19 +90,7 @@ class ScalaScriptInterpreter extends Interpreter {
 		if (root.isFile)
 			List(root)
 		else
-			makeList(root.listFiles).flatMap { f => findFiles(f) }
-	}
-
-	/**
-	 * Makes a list from an array
-	 *
-	 * @param a the array to be converted
-	 */
-	private def makeList(a: Array[File]): List[File] = {
-		if (a == null)
-			Nil
-		else
-			a.toList
+			root.listFiles.toList.flatMap { f => findFiles(f) }
 	}
 
 	/**

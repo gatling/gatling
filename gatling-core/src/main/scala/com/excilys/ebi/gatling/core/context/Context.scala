@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit
 import com.excilys.ebi.gatling.core.util.StringHelper._
 import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
 import scala.collection.mutable.Map
+import scala.collection.immutable.{ Map => IMap }
 
 /**
  * Context class companion
@@ -67,10 +68,6 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 		result
 	}
 
-	def getAttributeAs[TYPE](key: String): TYPE = {
-		getAttribute(key).asInstanceOf[TYPE]
-	}
-
 	/**
 	 * Gets a value from the context
 	 *
@@ -79,9 +76,9 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 * @param key the key of the requested value
 	 * @return the value stored at key as an Option
 	 */
-	private[gatling] def getAttributeAsOption(key: String): Option[Any] = {
+	private[gatling] def getAttributeAsOption[TYPE](key: String): Option[TYPE] = {
 		assert(key.startsWith("gatling."), "This method should not be used with keys that are not reserved, ie: starting with gatling.")
-		data.get(key)
+		data.get(key).asInstanceOf[Option[TYPE]]
 	}
 
 	/**
@@ -113,7 +110,7 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 *
 	 * @return last action duration in nanoseconds
 	 */
-	private[gatling] def getLastActionDuration: Long = data.get(Context.LAST_ACTION_DURATION_KEY).getOrElse(0L).asInstanceOf[Long]
+	private[gatling] def getLastActionDuration: Long = getAttributeAsOption[Long](Context.LAST_ACTION_DURATION_KEY).getOrElse(0L)
 
 	/**
 	 * Gets a protocol configuration based on its type
@@ -122,8 +119,8 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 * @return the protocol configuration requested
 	 */
 	private[gatling] def getProtocolConfiguration(protocolType: String) = {
-		getAttributeAsOption(Context.PROTOCOL_CONFIGURATIONS_KEY).map {
-			_.asInstanceOf[scala.Predef.Map[String, ProtocolConfiguration]].get(protocolType)
+		getAttributeAsOption[IMap[String, ProtocolConfiguration]](Context.PROTOCOL_CONFIGURATIONS_KEY).map {
+			_.get(protocolType)
 		}.getOrElse(throw new UnsupportedOperationException("The protocol configuration map does not exist."))
 	}
 

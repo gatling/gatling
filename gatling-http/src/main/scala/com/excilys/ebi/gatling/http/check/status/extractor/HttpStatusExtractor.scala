@@ -31,5 +31,5 @@ class HttpStatusExtractor(response: Response) extends Extractor {
 	 * @param unused unused argument
 	 * @return an Option containing the status code of the response
 	 */
-	def extract(unused: String): List[String] = List(response.getStatusCode().toString)
+	def extract(unused: String): List[String] = List(response.getStatusCode.toString)
 }

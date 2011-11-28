@@ -37,7 +37,7 @@ object CounterBasedIterationHandler {
 	 * @return the value of the counter as an integer
 	 */
 	def getCounterValue(context: Context, counterName: String) = {
-		context.getAttributeAsOption(COUNTER_KEY_PREFIX + counterName).getOrElse(throw new IllegalAccessError("Counter does not exist, check the name of the key " + counterName)).asInstanceOf[Int]
+		context.getAttributeAsOption[Int](COUNTER_KEY_PREFIX + counterName).getOrElse(throw new IllegalAccessError("Counter does not exist, check the name of the key " + counterName))
 	}
 }
 
@@ -59,7 +59,7 @@ trait CounterBasedIterationHandler extends IterationHandler {
 	abstract override def increment(context: Context, uuid: String, userDefinedName: Option[String]) = {
 		super.increment(context, uuid, userDefinedName)
 		val key = COUNTER_KEY_PREFIX + userDefinedName.getOrElse(uuid)
-		val currentValue: Int = context.getAttributeAsOption(key).getOrElse(throw new IllegalAccessError("You must call startCounter before this method is called")).asInstanceOf[Int]
+		val currentValue: Int = context.getAttributeAsOption[Int](key).getOrElse(throw new IllegalAccessError("You must call startCounter before this method is called"))
 
 		context.setAttribute(key, currentValue + 1)
 	}

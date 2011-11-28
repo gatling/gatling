@@ -188,12 +188,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * @param context the context of the current scenario
 	 */
 	private def addProxyTo(requestBuilder: RequestBuilder, context: Context) = {
-		val httpConfiguration = context.getProtocolConfiguration(HTTP_PROTOCOL_TYPE).map { configuration =>
-			configuration.asInstanceOf[HttpProtocolConfiguration]
-		}
-
-		if (httpConfiguration.isDefined)
-			httpConfiguration.get.proxy.map { proxy => requestBuilder.setProxyServer(proxy) }
+		context.getProtocolConfiguration(HTTP_PROTOCOL_TYPE).map(_.asInstanceOf[HttpProtocolConfiguration].proxy.map(requestBuilder.setProxyServer(_)))
 	}
 
 	/**
@@ -205,18 +200,14 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	private def addURLTo(requestBuilder: RequestBuilder, context: Context) = {
 		val urlProvided = urlFunction(context)
 
-		val httpConfiguration = context.getProtocolConfiguration(HTTP_PROTOCOL_TYPE).map { configuration =>
-			configuration.asInstanceOf[HttpProtocolConfiguration]
-		}
+		val httpConfiguration = context.getProtocolConfiguration(HTTP_PROTOCOL_TYPE).map(_.asInstanceOf[HttpProtocolConfiguration])
 
 		// baseUrl implementation
 		val url =
 			if (urlProvided.startsWith("http"))
 				urlProvided
 			else if (httpConfiguration.isDefined)
-				httpConfiguration.get.baseURL.map {
-					baseUrl => baseUrl + urlProvided
-				}.getOrElse(urlProvided)
+				httpConfiguration.get.baseURL.map(_ + urlProvided).getOrElse(urlProvided)
 			else
 				throw new IllegalArgumentException("URL is invalid (does not start with http): " + urlProvided)
 
@@ -230,7 +221,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * @param context the context of the current scenario
 	 */
 	private def addCookiesTo(requestBuilder: RequestBuilder, context: Context) = {
-		for ((cookieName, cookie) <- context.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty).asInstanceOf[HashMap[String, Cookie]]) {
+		for ((cookieName, cookie) <- context.getAttributeAsOption[HashMap[String, Cookie]](COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty)) {
 			requestBuilder.addOrReplaceCookie(cookie)
 		}
 	}
@@ -244,11 +235,11 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	private def addQueryParamsTo(requestBuilder: RequestBuilder, context: Context) = {
 		val queryParamsMap = new FluentStringsMap
 
-		val keyValues = for ((keyFunction, valueFunction) <- queryParams) yield (keyFunction.apply(context), valueFunction.apply(context))
+		val keyValues = for ((keyFunction, valueFunction) <- queryParams) yield (keyFunction(context), valueFunction(context))
 
-		keyValues.groupBy(entry => entry._1).foreach { entry =>
+		keyValues.groupBy(_._1).foreach { entry =>
 			val (key, values) = entry
-			queryParamsMap.add(key, values.map { value => value._2 }: _*)
+			queryParamsMap.add(key, values.map(_._2): _*)
 		}
 
 		requestBuilder setQueryParameters queryParamsMap
@@ -262,7 +253,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 */
 	private def addHeadersTo(requestBuilder: RequestBuilder, headers: Map[String, String]) = {
 		requestBuilder setHeaders (new FluentCaseInsensitiveStringsMap)
-		for (header <- headers) { requestBuilder addHeader (header._1, header._2) }
+		headers.foreach(header => requestBuilder addHeader (header._1, header._2))
 	}
 
 	/**

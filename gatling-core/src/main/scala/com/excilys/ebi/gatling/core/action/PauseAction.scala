@@ -55,11 +55,7 @@ class PauseAction(next: Action, minDuration: Long, maxDuration: Long, timeUnit: 
 	def execute(context: Context) = {
 
 		val diff = maxDuration - minDuration
-		val duration =
-			if (diff > 0)
-				PauseAction.randomGenerator.nextInt(diff.toInt) + minDuration
-			else
-				minDuration
+		val duration = minDuration + (if (diff > 0) PauseAction.randomGenerator.nextInt(diff.toInt) else 0)
 
 		val durationInNanos: Long = TimeUnit.NANOSECONDS.convert(duration, timeUnit) - context.getLastActionDuration
 

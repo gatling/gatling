@@ -26,8 +26,8 @@ import com.excilys.ebi.gatling.core.check.extractor.MultiXPathExtractor
 class HttpBodyXPathExtractorFactory(occurrence: Option[Int]) extends ExtractorFactory[Response] {
 
 	def getExtractor(response: Response) =
-		occurrence.map { value =>
-			new XPathExtractor(response.getResponseBodyAsStream, value)
+		occurrence.map {
+			new XPathExtractor(response.getResponseBodyAsStream, _)
 		}.getOrElse {
 			new MultiXPathExtractor(response.getResponseBodyAsStream)
 		}

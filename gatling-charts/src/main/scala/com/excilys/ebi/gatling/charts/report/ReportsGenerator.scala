@@ -16,23 +16,23 @@
 package com.excilys.ebi.gatling.charts.report
 import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.File
-
 import org.fusesource.scalate.support.ScalaCompiler
-
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.config.ChartsConfig.GATLING_CHART_MENU_JS_FILE
 import com.excilys.ebi.gatling.charts.loader.DataLoader
-import com.excilys.ebi.gatling.charts.template.{PageTemplate, MenuTemplate}
+import com.excilys.ebi.gatling.charts.template.{ PageTemplate, MenuTemplate }
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_CHARTING_COMPONENT_LIBRARY_CLASS
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{GATLING_STYLE, GATLING_RESULTS_FOLDER, GATLING_JS, GATLING_ASSETS_STYLE_FOLDER, GATLING_ASSETS_JS_FOLDER}
-import com.excilys.ebi.gatling.core.util.FileHelper.{formatToFilename, HTML_EXTENSION}
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_STYLE, GATLING_RESULTS_FOLDER, GATLING_JS, GATLING_ASSETS_STYLE_FOLDER, GATLING_ASSETS_JS_FOLDER }
+import com.excilys.ebi.gatling.core.util.FileHelper.{ formatToFilename, HTML_EXTENSION }
+import com.excilys.ebi.gatling.core.util.ReflectionHelper._
+import scala.tools.nsc.io.Path
 
 object ReportsGenerator {
 	def generateFor(runOn: String) = {
 		val dataLoader = new DataLoader(runOn)
 
-		val componentLibrary = getClass.getClassLoader.loadClass(CONFIG_CHARTING_COMPONENT_LIBRARY_CLASS).newInstance.asInstanceOf[ComponentLibrary]
+		val componentLibrary = getNewInstanceByClassName[ComponentLibrary](CONFIG_CHARTING_COMPONENT_LIBRARY_CLASS)
 
 		val reportGenerators =
 			List(new ActiveSessionsReportGenerator(runOn, dataLoader, componentLibrary),
@@ -63,28 +63,17 @@ object ReportsGenerator {
 	}
 
 	private def copyAssets(runOn: String) = {
-		// Copy all folders/files unders assets to results folder
+		def copyFolder(sourceFolderName: Path, destFolderName: Path) = {
+			val destAssetsPath = GATLING_RESULTS_FOLDER / runOn / destFolderName
 
-		val resultFolder = GATLING_RESULTS_FOLDER / runOn
+			destAssetsPath.toDirectory.createDirectory()
 
-		val resultStyleAssetsFolderPath = resultFolder / GATLING_STYLE
-		val resultStyleAssetsFolder = File(resultStyleAssetsFolderPath).toDirectory
-		resultStyleAssetsFolder.createDirectory()
-
-		val styleAssetsFolder = File(GATLING_ASSETS_STYLE_FOLDER).toDirectory
-		styleAssetsFolder.deepFiles.foreach {
-			file =>
-				file.copyTo(resultStyleAssetsFolderPath / file.name, true)
+			sourceFolderName.toDirectory.deepFiles.foreach { file =>
+				file.copyTo(destAssetsPath / file.name, true)
+			}
 		}
 
-		val resultJSAssetsFolderPath = resultFolder / GATLING_JS
-		val resultJSAssetsFolder = File(resultJSAssetsFolderPath).toDirectory
-		resultJSAssetsFolder.createDirectory()
-
-		val jsAssetsFolder = File(GATLING_ASSETS_JS_FOLDER).toDirectory
-		jsAssetsFolder.deepFiles.foreach {
-			file =>
-				file.copyTo(resultJSAssetsFolderPath / file.name, true)
-		}
+		copyFolder(GATLING_ASSETS_STYLE_FOLDER, GATLING_STYLE)
+		copyFolder(GATLING_ASSETS_JS_FOLDER, GATLING_JS)
 	}
 }

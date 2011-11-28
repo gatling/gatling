@@ -43,8 +43,6 @@ class MultiXPathExtractor(xmlContent: InputStream) extends Extractor {
 
 		logger.debug("Extracting with expression : {}", expression)
 
-		xpathExpression.selectNodes(document).asInstanceOf[java.util.List[Node]].map { node =>
-			node.getTextContent
-		}.toList
+		xpathExpression.selectNodes(document).asInstanceOf[java.util.List[Node]].map(_.getTextContent).toList
 	}
 }

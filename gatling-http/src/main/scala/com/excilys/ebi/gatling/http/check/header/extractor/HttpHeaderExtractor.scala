@@ -35,7 +35,7 @@ class HttpHeaderExtractor(response: Response) extends Extractor {
 	 */
 	def extract(headerName: String): List[String] = {
 
-		response.getHeaders().get(headerName) match {
+		response.getHeaders.get(headerName) match {
 			case null => Nil
 			case l => l.toList
 		}
