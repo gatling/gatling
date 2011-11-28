@@ -29,7 +29,7 @@ fi
 
 JAVA_OPTS="-XX:+UseThreadPriorities -XX:ThreadPriorityPolicy=42 -Xms512M -Xmx512M -Xmn100M -Xss512k -XX:+HeapDumpOnOutOfMemoryError -XX:+AggressiveOpts -XX:+OptimizeStringConcat -XX:+UseFastAccessorMethods -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:SurvivorRatio=8 -XX:MaxTenuringThreshold=1 -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly"
 
-CLASSPATH="$GATLING_HOME/lib/*:$GATLING_HOME/lib/deps/*"
+CLASSPATH="$GATLING_HOME/lib/*"
 
 JAVA_PROPS="-Dlogback.configurationFile=$GATLING_HOME/conf/logback.xml"
 

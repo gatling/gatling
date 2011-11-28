@@ -15,24 +15,39 @@
 @REM
 @echo off
 
-if "%GATLING_HOME%" == "" goto noGatlingHome
+rem set GATLING_HOME automatically if possible
+set "CURRENT_DIR=%cd%"
+rem if gatling home is correctly set
+if exist "%GATLING_HOME%\bin\gatling.bat" goto gotHome
+rem if not try current folder
+if "%GATLING_HOME%" == ""
+if exist "%CURRENT_DIR%\gatling.bat"
+cd ..
+set "GATLING_HOME=%cd%" goto gotHome
+rem if not try parent folder
+set "CURRENT_DIR=%cd%"
+if exist "%CURRENT_DIR%\bin\gatling.bat"
+set "GATLING_HOME=%cd%" goto gotHome
+rem else tell user to set GATLING_HOME
+goto :badHome
 
+:gotHome
 set JAVA_OPTS=-XX:+UseThreadPriorities -XX:ThreadPriorityPolicy=42 -Xms512M -Xmx512M -Xmn100M -Xss512k -XX:+HeapDumpOnOutOfMemoryError -XX:+AggressiveOpts -XX:+OptimizeStringConcat -XX:+UseFastAccessorMethods -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:SurvivorRatio=8 -XX:MaxTenuringThreshold=1 -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly
-
-set CLASSPATH=%GATLING_HOME%\lib\deps\*;%GATLING_HOME%\lib\*
-
+set CLASSPATH=%GATLING_HOME%\lib\*
 set JAVA_PROPS=-Dlogback.configurationFile=%GATLING_HOME%\conf\logback.xml
-
 set COMMAND=-cp %CLASSPATH% com.excilys.ebi.gatling.app.Gatling
 
 java %JAVA_OPTS% %COMMAND%
+pause
 
 goto exit
 
-:noGatlingHome
-echo The GATLING_HOME environnement variable is not defined.
-echo It is needed to run Gatling.
+
+:badHome
+echo The GATLING_HOME environnement variable is either not defined or points to the wrong directory.
+echo Please set it to the correct folder and try to launch Gatling again.
 pause
+
 
 :exit
 exit /b 0
