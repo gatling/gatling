@@ -69,7 +69,6 @@ class ScenarioBuilder(val name: String, actionBuilders: List[AbstractActionBuild
 	 * @param latch the countdown latch used to stop the engine
 	 * @return a new builder with its last action added
 	 */
-	// TODO important, don't forget to set the end of the scenario when needed !
 	private[core] def end(latch: CountDownLatch): ScenarioBuilder = newInstance(endActionBuilder(latch) :: actionBuilders)
 
 	/**

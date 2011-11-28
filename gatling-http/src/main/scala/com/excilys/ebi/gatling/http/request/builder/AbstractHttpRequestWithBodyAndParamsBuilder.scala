@@ -96,7 +96,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 			paramsMap.add(key, values.map { value => value._2 }: _*)
 		}
 
-		if (!paramsMap.isEmpty) // FIXME patch AHC so that it won't see parameters if map size == 0
+		if (!paramsMap.isEmpty) // FIXME patch AHC so that it won't see parameters if map size == 0. Patch submitted : https://github.com/sonatype/async-http-client/pull/36
 			requestBuilder setParameters paramsMap
 	}
 }
