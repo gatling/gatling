@@ -26,12 +26,6 @@
 				<dependencySets>
 					<dependencySet>
 						<includes />
-						<excludes>
-							<exclude>com.excilys.ebi.gatling:gatling-core</exclude>
-							<exclude>com.excilys.ebi.gatling:gatling-http</exclude>
-							<exclude>com.excilys.ebi.gatling:gatling-charts</exclude>
-						</excludes>
-						<outputDirectory>lib/deps/</outputDirectory>
 					</dependencySet>
 				</dependencySets>
 			</binaries>
