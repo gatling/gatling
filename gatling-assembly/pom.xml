@@ -13,6 +13,10 @@
 			<groupId>com.excilys.ebi.gatling</groupId>
 			<artifactId>gatling-app</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.excilys.ebi.gatling</groupId>
+			<artifactId>gatling-recorder</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

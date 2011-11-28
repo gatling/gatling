@@ -119,6 +119,11 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>com.excilys.ebi.gatling</groupId>
+				<artifactId>gatling-recorder</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.scala-lang</groupId>
 				<artifactId>scala-library</artifactId>
 				<version>${scala.version}</version>

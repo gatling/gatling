@@ -30,6 +30,22 @@
 				</dependencySets>
 			</binaries>
 		</moduleSet>
+		<moduleSet>
+			<useAllReactorProjects>true</useAllReactorProjects>
+			<includes>
+				<include>com.excilys.ebi.gatling:gatling-recorder</include>
+			</includes>
+			<binaries>
+				<unpack>false</unpack>
+				<outputDirectory>recorder/</outputDirectory>
+				<dependencySets>
+					<dependencySet>
+						<outputDirectory>lib/</outputDirectory>
+						<includes />
+					</dependencySet>
+				</dependencySets>
+			</binaries>
+		</moduleSet>
 	</moduleSets>
 	<fileSets>
 		<fileSet>
