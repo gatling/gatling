@@ -339,6 +339,9 @@
 					<version>${maven-licence-plugin.version}</version>
 					<configuration>
 						<header>src/etc/header.txt</header>
+					<excludes>
+						<exclude>**/imports.txt</exclude>
+					</excludes>
 					</configuration>
 					<executions>
 						<execution>
