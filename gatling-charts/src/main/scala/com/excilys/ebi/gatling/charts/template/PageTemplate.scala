@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.charts.template
 import org.fusesource.scalate.TemplateEngine
 
 import com.excilys.ebi.gatling.charts.component.Component
-import com.excilys.ebi.gatling.charts.config.ChartsConfig.GATLING_TEMPLATE_LAYOUT_FILE
+import com.excilys.ebi.gatling.charts.config.ChartsConfig._
 import com.excilys.ebi.gatling.core.log.Logging
 
 object PageTemplate {
@@ -28,8 +28,7 @@ object PageTemplate {
 
 abstract class PageTemplate(title: String, subTitle: String, components: Component*) extends Logging {
 
-	// FIXME should be defined in PathHelper
-	val jsFiles = (Seq("jquery.min.js", "menu.js") ++ getAdditionnalJSFiles).distinct
+	val jsFiles = (Seq(JQUERY_FILE, MENU_FILE) ++ getAdditionnalJSFiles).distinct
 
 	def getContent: String = (for (component <- components) yield component.getHTMLContent).mkString
 

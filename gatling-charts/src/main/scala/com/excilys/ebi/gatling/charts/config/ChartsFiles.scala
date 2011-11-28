@@ -33,6 +33,9 @@ object ChartsConfig {
 	 */
 	val GATLING_STATS_GLOBAL_REQUESTS_FILE = "requests.tsv"
 
+	val JQUERY_FILE = "jquery.min.js"
+	val MENU_FILE = "menu.js"
+
 	/**
 	 * Path to the template for request details body
 	 */
@@ -45,4 +48,5 @@ object ChartsConfig {
 	 * Path to the template for the javascript menu generator
 	 */
 	val GATLING_TEMPLATE_MENU_JS_FILE = "templates/menu.js.ssp"
+
 }

@@ -197,15 +197,12 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 
 	private[core] def addActionBuilders(actionBuildersToAdd: List[AbstractActionBuilder]): B = newInstance(actionBuildersToAdd ::: actionBuilders)
 
-	/// FIXME: Better way to do that ?
 	private[core] def buildActions(initialValue: Action): Action = {
 		var previousInList: Action = initialValue
-		for (actionBuilder <- actionBuilders) {
+		actionBuilders.foreach { actionBuilder =>
 			actionBuilder match {
-				case group: GroupActionBuilder =>
-					setCurrentGroups(if (group.head) getCurrentGroups filterNot (_ == group.name) else group.name :: getCurrentGroups)
-				case _ =>
-					previousInList = actionBuilder withNext previousInList inGroups getCurrentGroups build
+				case group: GroupActionBuilder => setCurrentGroups(if (group.head) getCurrentGroups filterNot (_ == group.name) else group.name :: getCurrentGroups)
+				case _ => previousInList = actionBuilder withNext previousInList inGroups getCurrentGroups build
 			}
 		}
 		previousInList
