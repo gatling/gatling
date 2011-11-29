@@ -359,6 +359,7 @@
 						<header>src/etc/header.txt</header>
 						<excludes>
 							<exclude>**/imports.txt</exclude>
+							<exclude>**/SecureChat*</exclude>
 						</excludes>
 					</configuration>
 					<executions>
