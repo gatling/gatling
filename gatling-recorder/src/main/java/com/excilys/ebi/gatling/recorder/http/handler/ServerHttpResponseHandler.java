@@ -17,14 +17,11 @@ package com.excilys.ebi.gatling.recorder.http.handler;
 
 import static com.excilys.ebi.gatling.recorder.http.event.RecorderEventBus.getEventBus;
 
-import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
-import org.jboss.netty.handler.codec.http.HttpChunk;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpResponse;
-import org.jboss.netty.util.CharsetUtil;
 
 import com.excilys.ebi.gatling.recorder.http.event.MessageReceivedEvent;
 import com.excilys.ebi.gatling.recorder.http.event.ResponseReceivedEvent;
@@ -32,7 +29,6 @@ import com.excilys.ebi.gatling.recorder.http.event.ResponseReceivedEvent;
 public class ServerHttpResponseHandler extends SimpleChannelHandler {
 	private final HttpRequest request;
 	private final ChannelHandlerContext requestContext;
-	private boolean readingChunks;
 
 	public ServerHttpResponseHandler(ChannelHandlerContext context, HttpRequest request) {
 		this.request = request;
@@ -42,44 +38,6 @@ public class ServerHttpResponseHandler extends SimpleChannelHandler {
 	@Override
 	public void messageReceived(ChannelHandlerContext context, MessageEvent event) throws Exception {
 		
-	     if (!readingChunks) {
-	            HttpResponse response = (HttpResponse) event.getMessage();
-
-	            System.out.println("STATUS: " + response.getStatus());
-	            System.out.println("VERSION: " + response.getProtocolVersion());
-	            System.out.println();
-
-	            if (!response.getHeaderNames().isEmpty()) {
-	                for (String name: response.getHeaderNames()) {
-	                    for (String value: response.getHeaders(name)) {
-	                        System.out.println("HEADER: " + name + " = " + value);
-	                    }
-	                }
-	                System.out.println();
-	            }
-
-	            if (response.isChunked()) {
-	                readingChunks = true;
-	                System.out.println("CHUNKED CONTENT {");
-	            } else {
-	                ChannelBuffer content = response.getContent();
-	                if (content.readable()) {
-	                    System.out.println("CONTENT {");
-	                    System.out.println(content.toString(CharsetUtil.UTF_8));
-	                    System.out.println("} END OF CONTENT");
-	                }
-	            }
-	        } else {
-	            HttpChunk chunk = (HttpChunk) event.getMessage();
-	            if (chunk.isLast()) {
-	                readingChunks = false;
-	                System.out.println("} END OF CHUNKED CONTENT");
-	            } else {
-	                System.out.print(chunk.getContent().toString(CharsetUtil.UTF_8));
-	                System.out.flush();
-	            }
-	        }
-
 		getEventBus().post(new MessageReceivedEvent(context.getChannel()));
 
 		HttpResponse response = HttpResponse.class.cast(event.getMessage());
