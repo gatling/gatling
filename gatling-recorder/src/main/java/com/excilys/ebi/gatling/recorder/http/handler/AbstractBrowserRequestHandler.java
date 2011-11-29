@@ -43,11 +43,16 @@ public abstract class AbstractBrowserRequestHandler extends SimpleChannelHandler
 		getEventBus().post(new MessageReceivedEvent(ctx.getChannel()));
 
 		HttpRequest request = HttpRequest.class.cast(event.getMessage());
+		
+		// remove Proxy-Connection header if it's not significant
+		if (outgoingProxyHost == null)
+			request.removeHeader("Proxy-Connection");
 
-		requestReceived(ctx, request);
+		ChannelFuture future = connectToServerOnBrowserRequestReceived(ctx, request);
+		sendRequestToServerAfterConnection(future, request);
 	}
 
-	protected abstract void requestReceived(ChannelHandlerContext ctx, HttpRequest request) throws Exception;
+	protected abstract ChannelFuture connectToServerOnBrowserRequestReceived(ChannelHandlerContext ctx, HttpRequest request) throws Exception;
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
@@ -63,5 +68,15 @@ public abstract class AbstractBrowserRequestHandler extends SimpleChannelHandler
 			}
 		});
 		ctx.sendUpstream(e);
+	}
+
+	private void sendRequestToServerAfterConnection(ChannelFuture future, final HttpRequest request) {
+		if (future != null)
+			future.addListener(new ChannelFutureListener() {
+				@Override
+				public void operationComplete(ChannelFuture future) throws Exception {
+					future.getChannel().write(request);
+				}
+			});
 	}
 }

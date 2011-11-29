@@ -22,7 +22,6 @@ import java.net.URI;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 
@@ -35,7 +34,7 @@ public class BrowserHttpRequestHandler extends AbstractBrowserRequestHandler {
 	}
 
 	@Override
-	protected void requestReceived(ChannelHandlerContext ctx, final HttpRequest request) throws Exception {
+	protected ChannelFuture connectToServerOnBrowserRequestReceived(ChannelHandlerContext ctx, final HttpRequest request) throws Exception {
 
 		ClientBootstrap bootstrap = getBootstrapFactory().newClientBootstrap(ctx, request, false);
 
@@ -49,11 +48,6 @@ public class BrowserHttpRequestHandler extends AbstractBrowserRequestHandler {
 			future = bootstrap.connect(new InetSocketAddress(outgoingProxyHost, outgoingProxyPort));
 		}
 
-		future.addListener(new ChannelFutureListener() {
-			@Override
-			public void operationComplete(ChannelFuture future) throws Exception {
-				future.getChannel().write(request);
-			}
-		});
+		return future;
 	}
 }
