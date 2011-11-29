@@ -26,6 +26,7 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 
 import com.excilys.ebi.gatling.recorder.http.event.MessageReceivedEvent;
+import com.excilys.ebi.gatling.recorder.http.event.RequestReceivedEvent;
 
 public abstract class AbstractBrowserRequestHandler extends SimpleChannelHandler {
 
@@ -49,6 +50,9 @@ public abstract class AbstractBrowserRequestHandler extends SimpleChannelHandler
 			request.removeHeader("Proxy-Connection");
 
 		ChannelFuture future = connectToServerOnBrowserRequestReceived(ctx, request);
+		
+		getEventBus().post(new RequestReceivedEvent(request));
+		
 		sendRequestToServerAfterConnection(future, request);
 	}
 

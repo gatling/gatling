@@ -15,19 +15,33 @@
  */
 package com.excilys.ebi.gatling.recorder.http.event;
 
-public class TagEvent {
+import com.excilys.ebi.gatling.recorder.ui.enumeration.PauseType;
 
-	private final String tag;
-
-	public TagEvent(String tag) {
-		this.tag = tag;
+public class PauseEvent {
+	
+	private long minDuration;
+	private long maxDuration;
+	private PauseType type;
+	
+	public PauseEvent(long minDuration, long maxDuration, PauseType type) {
+		this.minDuration = minDuration;
+		this.maxDuration = maxDuration;
+		this.type = type;
 	}
-
-	public String getTag() {
-		return tag;
+	
+	public long getMinDuration() {
+		return minDuration;
+	}
+	
+	public long getMaxDuration() {
+		return maxDuration;
+	}
+	
+	public PauseType getType() {
+		return type;
 	}
 	
 	public String toString() {
-		return "TAG | "+tag; 
+		return "PAUSE | BETWEEN "+minDuration+type.getUnit()+" AND "+maxDuration+type.getUnit(); 
 	}
 }

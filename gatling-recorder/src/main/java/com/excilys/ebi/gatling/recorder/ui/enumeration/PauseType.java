@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.http.event;
+package com.excilys.ebi.gatling.recorder.ui.enumeration;
 
-public class TagEvent {
-
-	private final String tag;
-
-	public TagEvent(String tag) {
-		this.tag = tag;
-	}
-
-	public String getTag() {
-		return tag;
+public enum PauseType {
+	SECONDS("s"), MILLISECONDS("ms");
+	
+	private String unit;
+	
+	private PauseType(String unit) {
+		this.unit = unit;
 	}
 	
-	public String toString() {
-		return "TAG | "+tag; 
+	public String getUnit() {
+		return unit;
 	}
 }

@@ -39,21 +39,23 @@
 #end
 	
 	val scn = scenario("$name")
-#foreach($req in $reqs)
-#if($req.class.simpleName == "TagEvent")
-		/* $req.getTag() */
+#foreach(${event} in ${events})
+#if(${event.class.simpleName} == "TagEvent")
+		/* ${event.getTag()} */
+#elseif(${event.class.simpleName} == "PauseEvent")
+		.pause(${event.getMinDuration()}, ${event.getMaxDuration()}#if(${event.getType()} != "SECONDS"), ${event.getType()}#end)
 #else
 		.exec(
-			http("request_$req.getId()")
-			$req.getRequest().getMethod().toString().toLowerCase()(url_$req.getId())
-	#foreach($param in $req.getRequestParams().entrySet())
-#foreach($val in $param.value)
-		param("$param.key", "$val")
+			http("request_${event.getId()}")
+			${event.getRequest().getMethod().toString().toLowerCase()}(url_${event.getId()})
+	#foreach(${param} in ${event.getRequestParams().entrySet()})
+#foreach(${val} in ${param.value})
+		param("${param.key}", "${val}")
 #end
 	#end
-		headers(headers_$req.getId())
-	#if($req.isWithBody())
-		withFile("request_${req.getId()}.txt")
+		headers(headers_${event.getId()})
+	#if(${event.isWithBody()})
+		withFile("request_${event.getId()}.txt")
 	#end
 		)
 #end

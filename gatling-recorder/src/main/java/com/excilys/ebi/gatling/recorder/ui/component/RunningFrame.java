@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -61,11 +62,14 @@ import org.jboss.netty.handler.codec.http.QueryStringDecoder;
 import com.excilys.ebi.gatling.recorder.configuration.Configuration;
 import com.excilys.ebi.gatling.recorder.configuration.Pattern;
 import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy;
+import com.excilys.ebi.gatling.recorder.http.event.PauseEvent;
+import com.excilys.ebi.gatling.recorder.http.event.RequestReceivedEvent;
 import com.excilys.ebi.gatling.recorder.http.event.ResponseReceivedEvent;
 import com.excilys.ebi.gatling.recorder.http.event.ShowConfigurationFrameEvent;
 import com.excilys.ebi.gatling.recorder.http.event.ShowRunningFrameEvent;
 import com.excilys.ebi.gatling.recorder.http.event.TagEvent;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterType;
+import com.excilys.ebi.gatling.recorder.ui.enumeration.PauseType;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
 import com.google.common.eventbus.Subscribe;
 
@@ -75,6 +79,7 @@ public class RunningFrame extends JFrame {
 	private Configuration configuration;
 	private GatlingHttpProxy proxy;
 	private Date startDate;
+	private Date lastRequest;
 
 	private JTextField txtTag = new JTextField(10);
 	private JButton btnTag = new JButton("Set");
@@ -84,7 +89,7 @@ public class RunningFrame extends JFrame {
 	private TextAreaPanel stringResponse = new TextAreaPanel("Response:");
 	private TextAreaPanel stringRequestBody = new TextAreaPanel("Request Body:");
 
-	private List<Object> listRequests = new ArrayList<Object>();
+	private List<Object> listEvents = new ArrayList<Object>();
 	private String protocol;
 	private String host;
 	private int port;
@@ -159,9 +164,10 @@ public class RunningFrame extends JFrame {
 
 			public void actionPerformed(ActionEvent e) {
 				if (!txtTag.getText().equals(EMPTY)) {
-					listElements.addElement("Tag | " + txtTag.getText());
+					TagEvent tag = new TagEvent(txtTag.getText());
+					listElements.addElement(tag.toString());
 					listExecutedRequests.ensureIndexIsVisible(listElements.getSize() - 1);
-					listRequests.add(new TagEvent(txtTag.getText()));
+					listEvents.add(tag);
 					txtTag.setText(EMPTY);
 				}
 			}
@@ -170,7 +176,7 @@ public class RunningFrame extends JFrame {
 		listExecutedRequests.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (listExecutedRequests.getSelectedIndex() >= 0) {
-					Object obj = listRequests.get(listExecutedRequests.getSelectedIndex());
+					Object obj = listEvents.get(listExecutedRequests.getSelectedIndex());
 					if (obj instanceof ResponseReceivedEvent) {
 						ResponseReceivedEvent event = (ResponseReceivedEvent) obj;
 						stringRequest.txt.setText(event.getRequest().toString());
@@ -218,10 +224,36 @@ public class RunningFrame extends JFrame {
 	}
 
 	@Subscribe
-	public void onResponseReceivedEvent(ResponseReceivedEvent event) {
+	public void onRequestReceivedEvent(RequestReceivedEvent event) {
+		if (addRequest(event.getRequest())) {
+			if (lastRequest != null) {
+				Date newRequest = new Date();
+				long diff = newRequest.getTime() - lastRequest.getTime();
+				long pauseMin, pauseMax;
+				PauseType pauseType;
+				if (diff < 1000) {
+					pauseMin = (diff / 100l) * 100;
+					pauseMax = pauseMin + 100;
+					pauseType = PauseType.MILLISECONDS;
+				} else {
+					pauseMin = diff / 1000l;
+					pauseMax = pauseMin + 1;
+					pauseType = PauseType.SECONDS;
+				}
+				lastRequest = newRequest;
+				PauseEvent pause = new PauseEvent(pauseMin, pauseMax, pauseType);
+				listElements.addElement(pause.toString());
+				listEvents.add(pause);
+			}
+		}
+	}
 
-		if (addRequest(event.getRequest()))
+	@Subscribe
+	public void onResponseReceivedEvent(ResponseReceivedEvent event) {
+		if (addRequest(event.getRequest())) {
+			lastRequest = new Date();
 			processRequest(event);
+		}
 	}
 
 	private void clearOldRunning() {
@@ -229,7 +261,7 @@ public class RunningFrame extends JFrame {
 		stringRequest.txt.setText(EMPTY);
 		stringRequestBody.txt.setText(EMPTY);
 		stringResponse.txt.setText(EMPTY);
-		listRequests.clear();
+		listEvents.clear();
 		urls.clear();
 		headers.clear();
 		protocol = null;
@@ -237,6 +269,7 @@ public class RunningFrame extends JFrame {
 		port = -1;
 		urlBase = null;
 		urlBaseString = null;
+		lastRequest = null;
 	}
 
 	private boolean addRequest(HttpRequest request) {
@@ -290,7 +323,7 @@ public class RunningFrame extends JFrame {
 		listElements.addElement(request.getMethod() + " | " + request.getUri());
 		listExecutedRequests.ensureIndexIsVisible(listElements.getSize() - 1);
 
-		int id = listRequests.size() + 1;
+		int id = listEvents.size() + 1;
 		event.setId(id);
 
 		/* URLs */
@@ -337,7 +370,7 @@ public class RunningFrame extends JFrame {
 				dumpRequestBody(id, content);
 			}
 		}
-		listRequests.add(event);
+		listEvents.add(event);
 	}
 
 	private void dumpRequestBody(int idEvent, String content) {
@@ -372,7 +405,7 @@ public class RunningFrame extends JFrame {
 		context.put("urls", urls);
 		context.put("headers", headers);
 		context.put("name", "Scenario name");
-		context.put("reqs", listRequests);
+		context.put("events", listEvents);
 
 		Template template = null;
 		FileWriter fileWriter = null;
