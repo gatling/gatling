@@ -35,7 +35,6 @@ import org.jboss.netty.handler.codec.http.HttpContentDecompressor;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
 import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
-import org.jboss.netty.handler.logging.LoggingHandler;
 import org.jboss.netty.handler.ssl.SslHandler;
 import org.jboss.netty.logging.InternalLogLevel;
 
@@ -77,7 +76,7 @@ public class BootstrapFactory {
 				pipeline.addLast("codec", new HttpClientCodec());
 				pipeline.addLast("inflater", new HttpContentDecompressor());
 				pipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE));
-				pipeline.addLast("log", new LoggingHandler(InternalLogLevel.INFO));
+//				pipeline.addLast("log", new LoggingHandler(InternalLogLevel.INFO));
 				pipeline.addLast("gatling", new ServerHttpResponseHandler(browserCtx, browserRequest));
 
 				return pipeline;
@@ -102,7 +101,7 @@ public class BootstrapFactory {
 				pipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE));
 				pipeline.addLast("encoder", new HttpResponseEncoder());
 				pipeline.addLast("deflater", new HttpContentCompressor());
-				pipeline.addLast("log", new LoggingHandler(InternalLogLevel.INFO));
+//				pipeline.addLast("log", new LoggingHandler(InternalLogLevel.INFO));
 				if (ssl) {
 					pipeline.addLast("gatling", new BrowserHttpsRequestHandler(proxyConfig));
 				} else {

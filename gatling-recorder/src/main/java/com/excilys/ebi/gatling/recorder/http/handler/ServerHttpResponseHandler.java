@@ -46,7 +46,5 @@ public class ServerHttpResponseHandler extends SimpleChannelHandler {
 
 		// Send back to client
 		requestContext.getChannel().write(response);
-		requestContext.sendUpstream(event);
-		context.sendUpstream(event);
 	}
 }

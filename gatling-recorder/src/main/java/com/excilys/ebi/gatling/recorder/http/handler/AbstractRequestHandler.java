@@ -30,8 +30,6 @@ public abstract class AbstractRequestHandler extends SimpleChannelHandler {
 		final HttpRequest request = HttpRequest.class.cast(event.getMessage());
 
 		requestReceived(ctx, request);
-
-		ctx.sendUpstream(event);
 	}
 
 	protected abstract void requestReceived(ChannelHandlerContext ctx, HttpRequest request) throws Exception;
@@ -49,7 +47,6 @@ public abstract class AbstractRequestHandler extends SimpleChannelHandler {
 				future.getChannel().close();
 			}
 		});
-
 		ctx.sendUpstream(e);
 	}
 }
