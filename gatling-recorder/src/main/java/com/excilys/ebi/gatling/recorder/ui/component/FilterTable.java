@@ -62,8 +62,8 @@ public class FilterTable extends JPanel implements MouseListener {
 		TableColumn styleColumn = table.getColumn("Style");
 		styleColumn.setCellRenderer(new RadioButtonRenderer());
 		styleColumn.setCellEditor(new RadioButtonEditor());
-		styleColumn.setMinWidth(120);
-		styleColumn.setPreferredWidth(120);
+		styleColumn.setMinWidth(150);
+		styleColumn.setMaxWidth(150);
 		table.setRowHeight(30);
 
 		scrollPane.addMouseListener(this);

@@ -102,7 +102,7 @@ public class RunningFrame extends JFrame {
 
 		/* Initialization of the frame */
 		setTitle("Recorder running...");
-		setMinimumSize(new Dimension(660, 480));
+		setMinimumSize(new Dimension(800, 640));
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		GridBagLayout gbl = new GridBagLayout();

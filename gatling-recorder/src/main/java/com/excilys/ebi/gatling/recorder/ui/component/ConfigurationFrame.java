@@ -66,7 +66,7 @@ public class ConfigurationFrame extends JFrame {
 
 	public final JComboBox cbFilter = new JComboBox();
 	public final JComboBox cbFilterType = new JComboBox();
-	public final JTextField txtResultPath = new JTextField(15);
+	public final JTextField txtResultPath = new JTextField(40);
 	public final List<JCheckBox> listResultsType = new ArrayList<JCheckBox>();
 	public final JCheckBox cbSavePref = new JCheckBox("Save preferences");
 	public final FilterTable panelFilters = new FilterTable();
@@ -111,7 +111,7 @@ public class ConfigurationFrame extends JFrame {
 		if (config != null)
 			populateItemsFromConfiguration(config);
 
-		JPanel topPanel = new JPanel();
+		JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JPanel centerPanel = new JPanel();
 		JPanel bottomPanel = new JPanel();
 
@@ -124,29 +124,31 @@ public class ConfigurationFrame extends JFrame {
 		topPanel.setBorder(BorderFactory.createTitledBorder("Network"));
 		bottomPanel.setBorder(BorderFactory.createTitledBorder("Results"));
 
-		topPanel.setLayout(new GridLayout(4, 1));
+		topPanel.setLayout(new GridLayout(2, 3));
 		bottomPanel.setLayout(new GridLayout(3, 1));
 		centerPanel.setLayout(new BorderLayout());
 
+		topPanel.add(new JLabel("Listening port *"));
+		topPanel.add(new JLabel("Localhost"));
+
 		JPanel top1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		top1.add(new JLabel("Listening port *    "));
+		top1.add(new JLabel("HTTP"));
 		top1.add(txtPort);
+		top1.add(new JLabel("HTTPS"));
+		top1.add(txtSslPort);
 		topPanel.add(top1);
 
-		JPanel top2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		top2.add(new JLabel("Listening SSL port *    "));
-		top2.add(txtSslPort);
-		topPanel.add(top2);
+		topPanel.add(new JLabel("Outgoing proxy"));
 
 		JPanel top3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		top3.add(new JLabel("Outgoing proxy    "));
+		top3.add(new JLabel("Host"));
 		top3.add(txtProxyHost);
-		top3.add(new JLabel(":"));
-		top3.add(txtProxyPort);
 		topPanel.add(top3);
 
 		JPanel top4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		top4.add(new JLabel("Outgoing proxy SSL port    "));
+		top4.add(new JLabel("HTTP"));
+		top4.add(txtProxyPort);
+		top4.add(new JLabel("HTTPS"));
 		top4.add(txtProxySslPort);
 		topPanel.add(top4);
 
@@ -160,13 +162,13 @@ public class ConfigurationFrame extends JFrame {
 		centerPanel.add(centerBottomPanel, BorderLayout.PAGE_END);
 
 		JPanel top5 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		top5.add(new JLabel("Results *"));
+		top5.add(new JLabel("Directory *  "));
 		top5.add(txtResultPath);
 		top5.add(btnPathResults);
 		bottomPanel.add(top5);
 
 		JPanel top6 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		top6.add(new JLabel("Results type"));
+		top6.add(new JLabel("Type"));
 		for (JCheckBox cb : listResultsType) {
 			top6.add(cb);
 		}
