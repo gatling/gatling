@@ -23,7 +23,7 @@ import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
 public class Configuration {
 
 	private int port;
-	private int sslPort = 4443; // FIXME
+	private int sslPort;
 	private ProxyConfig proxy = new ProxyConfig();
 	private FilterType filterType;
 	private List<Pattern> patterns;
@@ -94,4 +94,5 @@ public class Configuration {
 	public void setSaveConfiguration(boolean saveConfiguration) {
 		this.saveConfiguration = saveConfiguration;
 	}
+
 }

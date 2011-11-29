@@ -19,8 +19,8 @@ import static org.apache.commons.lang.StringUtils.EMPTY;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -58,8 +58,12 @@ import com.google.common.eventbus.Subscribe;
 public class ConfigurationFrame extends JFrame {
 
 	public final JTextField txtPort = new JTextField("8000", 4);
+	public final JTextField txtSslPort = new JTextField("8001", 4);
+
 	public final JTextField txtProxyHost = new JTextField("address", 10);
 	public final JTextField txtProxyPort = new JTextField("port", 4);
+	public final JTextField txtProxySslPort = new JTextField("port", 4);
+
 	public final JComboBox cbFilter = new JComboBox();
 	public final JComboBox cbFilterType = new JComboBox();
 	public final JTextField txtResultPath = new JTextField(15);
@@ -81,6 +85,7 @@ public class ConfigurationFrame extends JFrame {
 
 		txtProxyHost.setName("address");
 		txtProxyPort.setName("port");
+		txtProxySslPort.setName("port");
 		JButton btnFiltersAdd = new JButton("+");
 		JButton btnFiltersDel = new JButton("-");
 		JButton btnPathResults = new JButton("Browse");
@@ -119,24 +124,31 @@ public class ConfigurationFrame extends JFrame {
 		topPanel.setBorder(BorderFactory.createTitledBorder("Network"));
 		bottomPanel.setBorder(BorderFactory.createTitledBorder("Results"));
 
-		GridBagConstraints c = new GridBagConstraints();
-		topPanel.setLayout(new GridBagLayout());
-		bottomPanel.setLayout(new GridBagLayout());
+		topPanel.setLayout(new GridLayout(4, 1));
+		bottomPanel.setLayout(new GridLayout(3, 1));
 		centerPanel.setLayout(new BorderLayout());
 
-		c.anchor = GridBagConstraints.WEST;
-		c.fill = GridBagConstraints.NONE;
-		c.gridy = 0;
-		topPanel.add(new JLabel("Listening port *"), c);
-		topPanel.add(txtPort, c);
+		JPanel top1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		top1.add(new JLabel("Listening port *    "));
+		top1.add(txtPort);
+		topPanel.add(top1);
 
-		c.gridy = 1;
-		c.weightx = 0;
-		topPanel.add(new JLabel("Outgoing proxy    "), c);
-		topPanel.add(txtProxyHost, c);
-		topPanel.add(new JLabel(":"), c);
-		c.weightx = 1.;
-		topPanel.add(txtProxyPort, c);
+		JPanel top2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		top2.add(new JLabel("Listening SSL port *    "));
+		top2.add(txtSslPort);
+		topPanel.add(top2);
+
+		JPanel top3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		top3.add(new JLabel("Outgoing proxy    "));
+		top3.add(txtProxyHost);
+		top3.add(new JLabel(":"));
+		top3.add(txtProxyPort);
+		topPanel.add(top3);
+
+		JPanel top4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		top4.add(new JLabel("Outgoing proxy SSL port    "));
+		top4.add(txtProxySslPort);
+		topPanel.add(top4);
 
 		centerBottomPanel.add(new JLabel("Apply method"));
 		centerBottomPanel.add(cbFilterType);
@@ -147,41 +159,29 @@ public class ConfigurationFrame extends JFrame {
 		centerPanel.add(panelFilters, BorderLayout.CENTER);
 		centerPanel.add(centerBottomPanel, BorderLayout.PAGE_END);
 
-		c.gridheight = 1;
-		c.gridwidth = 1;
-		c.gridy = 0;
-		c.gridx = 0;
-		bottomPanel.add(new JLabel("Results *"), c);
-		c.gridx = 1;
-		bottomPanel.add(txtResultPath, c);
-		c.gridx = 2;
-		bottomPanel.add(btnPathResults, c);
+		JPanel top5 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		top5.add(new JLabel("Results *"));
+		top5.add(txtResultPath);
+		top5.add(btnPathResults);
+		bottomPanel.add(top5);
 
-		c.gridy = 1;
-		c.gridx = 0;
-		c.weightx = 0;
-		bottomPanel.add(new JLabel("Results type"), c);
-		c.gridx = 1;
+		JPanel top6 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		top6.add(new JLabel("Results type"));
 		for (JCheckBox cb : listResultsType) {
-			bottomPanel.add(cb, c);
-			c.gridx++;
+			top6.add(cb);
 		}
+		bottomPanel.add(top6);
 
-		c.anchor = GridBagConstraints.WEST;
-		c.gridy = 4;
-		c.gridx = 0;
-		c.gridwidth = 2;
-		bottomPanel.add(cbSavePref, c);
-
-		c.anchor = GridBagConstraints.EAST;
-		c.gridy = 3;
-		c.gridx = 2;
-		bottomPanel.add(btnStart, c);
+		JPanel top7 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		top7.add(cbSavePref);
+		top7.add(btnStart);
+		bottomPanel.add(top7);
 
 		/* Listeners */
 
 		txtProxyHost.addFocusListener(new CustomFocusListener());
 		txtProxyPort.addFocusListener(new CustomFocusListener());
+		txtProxySslPort.addFocusListener(new CustomFocusListener());
 
 		cbFilterType.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
@@ -224,8 +224,10 @@ public class ConfigurationFrame extends JFrame {
 		btnClear.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				txtPort.setText(EMPTY);
+				txtSslPort.setText(EMPTY);
 				txtProxyHost.setText(txtProxyHost.getName());
 				txtProxyPort.setText(txtProxyPort.getName());
+				txtProxySslPort.setText(txtProxySslPort.getName());
 				panelFilters.removeAllElements();
 				txtResultPath.setText(EMPTY);
 				for (JCheckBox cb : listResultsType)
@@ -248,8 +250,10 @@ public class ConfigurationFrame extends JFrame {
 
 	private void populateItemsFromConfiguration(Configuration config) {
 		txtPort.setText(String.valueOf(config.getPort()));
+		txtSslPort.setText(String.valueOf(config.getSslPort()));
 		txtProxyHost.setText(config.getProxy().getHost());
 		txtProxyPort.setText(String.valueOf(config.getProxy().getPort()));
+		txtProxySslPort.setText(String.valueOf(config.getProxy().getSslPort()));
 		cbFilterType.setSelectedItem(config.getFilterType());
 		for (Pattern pattern : config.getPatterns())
 			panelFilters.addRow(pattern);

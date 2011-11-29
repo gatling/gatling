@@ -55,6 +55,8 @@ public class ConfigurationValidatorListener implements ActionListener {
 			frame.txtProxyHost.setText(EMPTY);
 		if (frame.txtProxyPort.getText().equals(frame.txtProxyPort.getName()))
 			frame.txtProxyPort.setText(EMPTY);
+		if (frame.txtProxySslPort.getText().equals(frame.txtProxySslPort.getName()))
+			frame.txtProxySslPort.setText(EMPTY);
 
 		frame.panelFilters.validateCells();
 
@@ -70,6 +72,18 @@ public class ConfigurationValidatorListener implements ActionListener {
 
 		config.getProxy().setHost(StringUtils.trimToNull(frame.txtProxyHost.getText()));
 
+		// Parse local ssl proxy port
+		try {
+			config.setSslPort(Integer.parseInt(frame.txtSslPort.getText()));
+			frame.txtSslPort.setBorder(defaultBorder);
+		} catch (NumberFormatException nfe) {
+			System.err.println("Error, while parsing proxy SSL port...");
+			frame.txtSslPort.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.red));
+			hasError = true;
+		}
+
+		config.getProxy().setHost(StringUtils.trimToNull(frame.txtProxyHost.getText()));
+
 		// Parse outgoing proxy port
 		if (!StringUtils.isEmpty(config.getProxy().getHost())) {
 			try {
@@ -78,6 +92,18 @@ public class ConfigurationValidatorListener implements ActionListener {
 			} catch (NumberFormatException nfe) {
 				System.err.println("Error, while parsing outgoing proxy port... !");
 				frame.txtProxyPort.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.red));
+				hasError = true;
+			}
+		}
+
+		// Parse outgoing ssl proxy port
+		if (!StringUtils.isEmpty(config.getProxy().getHost())) {
+			try {
+				config.getProxy().setSslPort(Integer.parseInt(frame.txtProxySslPort.getText()));
+				frame.txtProxySslPort.setBorder(defaultBorder);
+			} catch (NumberFormatException nfe) {
+				System.err.println("Error, while parsing outgoing proxy SSL port... !");
+				frame.txtProxySslPort.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.red));
 				hasError = true;
 			}
 		}
