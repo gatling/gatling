@@ -36,12 +36,11 @@ import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
 import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
 import org.jboss.netty.handler.ssl.SslHandler;
-import org.jboss.netty.logging.InternalLogLevel;
 
 import com.excilys.ebi.gatling.recorder.configuration.ProxyConfig;
 import com.excilys.ebi.gatling.recorder.http.handler.BrowserHttpRequestHandler;
-import com.excilys.ebi.gatling.recorder.http.handler.ServerHttpResponseHandler;
 import com.excilys.ebi.gatling.recorder.http.handler.BrowserHttpsRequestHandler;
+import com.excilys.ebi.gatling.recorder.http.handler.ServerHttpResponseHandler;
 import com.excilys.ebi.gatling.recorder.http.ssl.SSLEngineFactory;
 
 public class BootstrapFactory {

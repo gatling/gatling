@@ -6,11 +6,13 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.handler.codec.http.DefaultHttpRequest;
 import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
 import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.jboss.netty.handler.codec.http.HttpMethod;
@@ -41,12 +43,13 @@ public class BrowserHttpsRequestHandler extends AbstractBrowserRequestHandler {
 			ctx.getChannel().write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
 
 		} else {
-			ClientBootstrap bootstrap = getBootstrapFactory().newClientBootstrap(ctx, request, true);
+			String host = request.getHeader(HttpHeaders.Names.HOST);
+			int port = securedHosts.get(host);
+
+			ClientBootstrap bootstrap = getBootstrapFactory().newClientBootstrap(ctx, buildFullUriRequest(request, host, port), true);
 
 			ChannelFuture future;
 			if (outgoingProxyHost == null) {
-				String host = request.getHeader(HttpHeaders.Names.HOST);
-				int port = securedHosts.get(host);
 				future = bootstrap.connect(new InetSocketAddress(host, port));
 
 			} else {
@@ -60,5 +63,17 @@ public class BrowserHttpsRequestHandler extends AbstractBrowserRequestHandler {
 				}
 			});
 		}
+	}
+
+	private HttpRequest buildFullUriRequest(HttpRequest request, String host, int port) {
+
+		String fullUri = new StringBuilder().append("https://").append(host).append(":").append(port).append(request.getUri()).toString();
+		DefaultHttpRequest fullUriRequest = new DefaultHttpRequest(request.getProtocolVersion(), request.getMethod(), fullUri);
+		fullUriRequest.setContent(request.getContent());
+		fullUriRequest.setChunked(request.isChunked());
+		for (Entry<String, String> header : request.getHeaders())
+			fullUriRequest.addHeader(header.getKey(), header.getValue());
+
+		return fullUriRequest;
 	}
 }

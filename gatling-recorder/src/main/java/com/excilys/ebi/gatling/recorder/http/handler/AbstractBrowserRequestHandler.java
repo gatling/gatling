@@ -27,7 +27,7 @@ public abstract class AbstractBrowserRequestHandler extends SimpleChannelHandler
 
 		getEventBus().post(new MessageReceivedEvent(ctx.getChannel()));
 
-		final HttpRequest request = HttpRequest.class.cast(event.getMessage());
+		HttpRequest request = HttpRequest.class.cast(event.getMessage());
 
 		requestReceived(ctx, request);
 	}
