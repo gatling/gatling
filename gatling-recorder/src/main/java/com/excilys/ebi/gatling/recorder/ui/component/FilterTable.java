@@ -40,13 +40,14 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 
 import com.excilys.ebi.gatling.recorder.configuration.Pattern;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.PatternType;
 
+@SuppressWarnings("serial")
 public class FilterTable extends JPanel {
 
-	private static final long serialVersionUID = 1L;
 	private DefaultTableModel model = new DefaultTableModel();
 	private JTable table = new JTable();
 
@@ -61,10 +62,11 @@ public class FilterTable extends JPanel {
 
 		initPopupMenu();
 
-		table.getColumn("Style").setMaxWidth(120);
-		table.getColumn("Style").setMinWidth(120);
-		table.getColumn("Style").setCellRenderer(new RadioButtonRenderer());
-		table.getColumn("Style").setCellEditor(new RadioButtonEditor());
+		TableColumn styleColumn = table.getColumn("Style");
+		styleColumn.setMaxWidth(120);
+		styleColumn.setMinWidth(120);
+		styleColumn.setCellRenderer(new RadioButtonRenderer());
+		styleColumn.setCellEditor(new RadioButtonEditor());
 		table.setRowHeight(30);
 
 		model.addTableModelListener(new TableModelListener() {
@@ -80,7 +82,6 @@ public class FilterTable extends JPanel {
 				public void editingCanceled(ChangeEvent e) {
 					ensureUnicity();
 				}
-
 			};
 
 			@Override

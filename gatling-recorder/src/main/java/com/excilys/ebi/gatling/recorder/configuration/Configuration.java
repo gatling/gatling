@@ -17,43 +17,33 @@ package com.excilys.ebi.gatling.recorder.configuration;
 
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterType;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
 
 public class Configuration {
 
-	private int proxyPort;
-	private String outgoingProxyHost;
-	private int outgoingProxyPort;
+	private int port;
+	private int sslPort = 4443; // FIXME
+	private ProxyConfig proxy = new ProxyConfig();
 	private FilterType filterType;
 	private List<Pattern> patterns;
 	private String resultPath;
 	private List<ResultType> resultTypes;
 
-	public int getProxyPort() {
-		return proxyPort;
+	public int getPort() {
+		return port;
 	}
 
-	public void setProxyPort(int proxyPort) {
-		this.proxyPort = proxyPort;
+	public void setPort(int port) {
+		this.port = port;
 	}
 
-	public String getOutgoingProxyHost() {
-		return outgoingProxyHost;
+	public ProxyConfig getProxy() {
+		return proxy;
 	}
 
-	public void setOutgoingProxyHost(String outgoingProxyHost) {
-		this.outgoingProxyHost = StringUtils.trimToNull(outgoingProxyHost);
-	}
-
-	public int getOutgoingProxyPort() {
-		return outgoingProxyPort;
-	}
-
-	public void setOutgoingProxyPort(int outgoingProxyPort) {
-		this.outgoingProxyPort = outgoingProxyPort;
+	public void setProxy(ProxyConfig proxy) {
+		this.proxy = proxy;
 	}
 
 	public FilterType getFilterType() {
@@ -77,7 +67,7 @@ public class Configuration {
 	}
 
 	public void setResultPath(String resultPath) {
-		this.resultPath = StringUtils.trimToNull(resultPath);
+		this.resultPath = resultPath;
 	}
 
 	public List<ResultType> getResultTypes() {
@@ -86,5 +76,13 @@ public class Configuration {
 
 	public void setResultTypes(List<ResultType> resultTypes) {
 		this.resultTypes = resultTypes;
+	}
+
+	public int getSslPort() {
+		return sslPort;
+	}
+
+	public void setSslPort(int sslPort) {
+		this.sslPort = sslPort;
 	}
 }

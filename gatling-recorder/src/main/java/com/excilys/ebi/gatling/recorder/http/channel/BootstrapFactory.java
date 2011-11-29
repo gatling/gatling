@@ -15,29 +15,41 @@
  */
 package com.excilys.ebi.gatling.recorder.http.channel;
 
+import static org.jboss.netty.channel.Channels.pipeline;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.ChannelFactory;
-import org.jboss.netty.channel.ChannelHandler;
+import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.handler.codec.http.HttpChunkAggregator;
+import org.jboss.netty.handler.codec.http.HttpClientCodec;
+import org.jboss.netty.handler.codec.http.HttpContentCompressor;
+import org.jboss.netty.handler.codec.http.HttpContentDecompressor;
+import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
-import org.jboss.netty.handler.codec.http.HttpRequestEncoder;
-import org.jboss.netty.handler.codec.http.HttpResponseDecoder;
 import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
+import org.jboss.netty.handler.logging.LoggingHandler;
+import org.jboss.netty.handler.ssl.SslHandler;
+import org.jboss.netty.logging.InternalLogLevel;
+
+import com.excilys.ebi.gatling.recorder.configuration.ProxyConfig;
+import com.excilys.ebi.gatling.recorder.http.handler.BrowserHttpRequestHandler;
+import com.excilys.ebi.gatling.recorder.http.handler.ServerHttpResponseHandler;
+import com.excilys.ebi.gatling.recorder.http.handler.BrowserHttpsRequestHandler;
+import com.excilys.ebi.gatling.recorder.http.ssl.SSLEngineFactory;
 
 public class BootstrapFactory {
 
 	private static final BootstrapFactory INSTANCE = new BootstrapFactory();
 
-	private static final int MAX_CONTENT_LENGTH = 1024 * 1024;
+	private static final int CHUNK_MAX_SIZE = 1024 * 1024; // 1Mo
 
 	private final ExecutorService threadPool = Executors.newCachedThreadPool();
 
@@ -52,30 +64,57 @@ public class BootstrapFactory {
 		return INSTANCE;
 	}
 
-	public ClientBootstrap newClientBootstrap(final ChannelHandler handler) {
+	public ClientBootstrap newClientBootstrap(final ChannelHandlerContext browserCtx, final HttpRequest browserRequest, final boolean ssl) {
 		ClientBootstrap bootstrap = new ClientBootstrap(clientChannelFactory);
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			@Override
 			public ChannelPipeline getPipeline() throws Exception {
-				return Channels.pipeline(new HttpRequestEncoder(), new HttpResponseDecoder(), new HttpChunkAggregator(MAX_CONTENT_LENGTH), handler);
+				ChannelPipeline pipeline = pipeline();
+
+				if (ssl) {
+					pipeline.addLast("ssl", new SslHandler(SSLEngineFactory.newClientSSLEngine()));
+				}
+				pipeline.addLast("codec", new HttpClientCodec());
+				pipeline.addLast("inflater", new HttpContentDecompressor());
+				pipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE));
+				pipeline.addLast("log", new LoggingHandler(InternalLogLevel.INFO));
+				pipeline.addLast("gatling", new ServerHttpResponseHandler(browserCtx, browserRequest));
+
+				return pipeline;
 			}
 		});
+
+		bootstrap.setOption("child.tcpNoDelay", true);
+		bootstrap.setOption("child.keepAlive", true);
+
 		return bootstrap;
 	}
 
-	public ServerBootstrap newServerBootstrap(final ChannelHandler handler) {
+	public ServerBootstrap newServerBootstrap(final ProxyConfig proxyConfig, final boolean ssl) {
 
 		ServerBootstrap bootstrap = new ServerBootstrap(serverChannelFactory);
 
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			@Override
 			public ChannelPipeline getPipeline() throws Exception {
-				return Channels.pipeline(new HttpRequestDecoder(), new HttpResponseEncoder(), handler);
+				ChannelPipeline pipeline = pipeline();
+				pipeline.addLast("decoder", new HttpRequestDecoder());
+				pipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE));
+				pipeline.addLast("encoder", new HttpResponseEncoder());
+				pipeline.addLast("deflater", new HttpContentCompressor());
+				pipeline.addLast("log", new LoggingHandler(InternalLogLevel.INFO));
+				if (ssl) {
+					pipeline.addLast("gatling", new BrowserHttpsRequestHandler(proxyConfig));
+				} else {
+					pipeline.addLast("gatling", new BrowserHttpRequestHandler(proxyConfig));
+				}
+
+				return pipeline;
 			}
 		});
 
-		bootstrap.setOption("tcpNoDelay", true);
-		bootstrap.setOption("keepAlive", true);
+		bootstrap.setOption("child.tcpNoDelay", true);
+		bootstrap.setOption("child.keepAlive", true);
 
 		return bootstrap;
 	}

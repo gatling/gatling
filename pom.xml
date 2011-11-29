@@ -55,11 +55,24 @@
 			<id>akka.repository</id>
 			<name>Akka Maven Repository</name>
 			<url>http://akka.io/repository</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
 		</repository>
 		<repository>
 			<id>excilys-thirdparty</id>
 			<name>Excilys Third Party Repository</name>
 			<url>http://repository.excilys.com/content/repositories/thirdparty</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>repository.jboss.org</id>
+			<url>https://repository.jboss.org/nexus/content/repositories/releases/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
 		</repository>
 	</repositories>
 
@@ -344,9 +357,9 @@
 					<version>${maven-licence-plugin.version}</version>
 					<configuration>
 						<header>src/etc/header.txt</header>
-					<excludes>
-						<exclude>**/imports.txt</exclude>
-					</excludes>
+						<excludes>
+							<exclude>**/imports.txt</exclude>
+						</excludes>
 					</configuration>
 					<executions>
 						<execution>

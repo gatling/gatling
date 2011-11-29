@@ -36,6 +36,7 @@ public final class ConfigurationHelper {
 		XSTREAM.alias("resultType", ResultType.class);
 		XSTREAM.alias("configuration", Configuration.class);
 		XSTREAM.alias("pattern", Pattern.class);
+		XSTREAM.alias("proxy", ProxyConfig.class);
 	}
 
 	private ConfigurationHelper() {

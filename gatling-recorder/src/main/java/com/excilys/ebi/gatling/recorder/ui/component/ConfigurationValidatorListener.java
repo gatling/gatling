@@ -60,7 +60,7 @@ public class ConfigurationValidatorListener implements ActionListener {
 
 		// Parse local proxy port
 		try {
-			config.setProxyPort(Integer.parseInt(frame.txtPort.getText()));
+			config.setPort(Integer.parseInt(frame.txtPort.getText()));
 			frame.txtPort.setBorder(defaultBorder);
 		} catch (NumberFormatException nfe) {
 			System.err.println("Error, while parsing proxy port...");
@@ -68,12 +68,12 @@ public class ConfigurationValidatorListener implements ActionListener {
 			hasError = true;
 		}
 
-		config.setOutgoingProxyHost(StringUtils.trimToNull(frame.txtProxyHost.getText()));
+		config.getProxy().setHost(StringUtils.trimToNull(frame.txtProxyHost.getText()));
 
 		// Parse outgoing proxy port
-		if (!StringUtils.isEmpty(config.getOutgoingProxyHost())) {
+		if (!StringUtils.isEmpty(config.getProxy().getHost())) {
 			try {
-				config.setOutgoingProxyPort(Integer.parseInt(frame.txtProxyPort.getText()));
+				config.getProxy().setPort(Integer.parseInt(frame.txtProxyPort.getText()));
 				frame.txtProxyPort.setBorder(defaultBorder);
 			} catch (NumberFormatException nfe) {
 				System.err.println("Error, while parsing outgoing proxy port... !");
@@ -125,9 +125,9 @@ public class ConfigurationValidatorListener implements ActionListener {
 	public void logConfiguration(Configuration conf) {
 		System.out.println("Configuration");
 		System.out.println("-------------");
-		System.out.println("Proxy port: " + conf.getProxyPort());
-		if (conf.getOutgoingProxyHost() != null)
-			System.out.println("Outgoing proxy: " + conf.getOutgoingProxyHost() + ":" + conf.getOutgoingProxyPort());
+		System.out.println("Proxy port: " + conf.getPort());
+		if (conf.getProxy().getHost() != null)
+			System.out.println("Outgoing proxy: " + conf.getProxy());
 		System.out.println("Filters: " + conf.getFilterType());
 		if (!conf.getFilterType().equals(FilterType.ALL))
 			for (Pattern pattern : conf.getPatterns())

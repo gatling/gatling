@@ -213,7 +213,7 @@ public class RunningFrame extends JFrame {
 		clearOldRunning();
 		configuration = event.getConfiguration();
 		startDate = new Date();
-		proxy = new GatlingHttpProxy(configuration.getProxyPort(), configuration.getOutgoingProxyHost(), configuration.getOutgoingProxyPort());
+		proxy = new GatlingHttpProxy(configuration.getPort(), configuration.getSslPort(), configuration.getProxy());
 		proxy.start();
 	}
 

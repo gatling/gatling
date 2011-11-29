@@ -24,23 +24,28 @@ import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 
+import com.excilys.ebi.gatling.recorder.configuration.ProxyConfig;
 import com.excilys.ebi.gatling.recorder.http.event.MessageReceivedEvent;
-import com.excilys.ebi.gatling.recorder.http.handler.HttpRequestHandler;
 import com.google.common.eventbus.Subscribe;
 
 public class GatlingHttpProxy {
 	private final int port;
+	private final int sslPort;
 	private final ServerBootstrap bootstrap;
+	private final ServerBootstrap secureBootstrap;
 	private final ChannelGroup group = new DefaultChannelGroup("Gatling_Recorder");
 
-	public GatlingHttpProxy(int port, String outgoingProxyHost, int outgoingProxyPort) {
+	public GatlingHttpProxy(int port, int sslPort, ProxyConfig proxyConfig) {
 		this.port = port;
-		this.bootstrap = getBootstrapFactory().newServerBootstrap(new HttpRequestHandler(outgoingProxyHost, outgoingProxyPort));
+		this.sslPort = sslPort;
+		this.bootstrap = getBootstrapFactory().newServerBootstrap(proxyConfig, false);
+		this.secureBootstrap = getBootstrapFactory().newServerBootstrap(proxyConfig, true);
 	}
 
 	public void start() {
 		getEventBus().register(this);
 		group.add(bootstrap.bind(new InetSocketAddress(port)));
+		group.add(secureBootstrap.bind(new InetSocketAddress(sslPort)));
 	}
 
 	public void shutdown() {

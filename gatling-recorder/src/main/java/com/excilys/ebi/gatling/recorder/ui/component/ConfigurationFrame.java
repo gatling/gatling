@@ -247,9 +247,9 @@ public class ConfigurationFrame extends JFrame {
 	}
 
 	private void populateItemsFromConfiguration(Configuration config) {
-		txtPort.setText(String.valueOf(config.getProxyPort()));
-		txtProxyHost.setText(config.getOutgoingProxyHost());
-		txtProxyPort.setText(String.valueOf(config.getOutgoingProxyPort()));
+		txtPort.setText(String.valueOf(config.getPort()));
+		txtProxyHost.setText(config.getProxy().getHost());
+		txtProxyPort.setText(String.valueOf(config.getProxy().getPort()));
 		cbFilterType.setSelectedItem(config.getFilterType());
 		for (Pattern pattern : config.getPatterns())
 			panelFilters.addRow(pattern);
