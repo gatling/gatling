@@ -15,18 +15,20 @@
  */
 package com.excilys.ebi.gatling.charts.loader
 import scala.collection.immutable.SortedMap
+import scala.collection.mutable.HashMap
+import scala.collection.mutable.{Map => MMap}
 import scala.io.Source
 
 import org.joda.time.DateTime
 
-import com.excilys.ebi.gatling.charts.util.OrderingHelper.{ ResultOrdering, DateTimeOrdering }
+import com.excilys.ebi.gatling.charts.util.OrderingHelper.{ResultOrdering, DateTimeOrdering}
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus
-import com.excilys.ebi.gatling.core.result.writer.FileDataWriter.{ GROUPS_SUFFIX, GROUPS_SEPARATOR, GROUPS_PREFIX }
+import com.excilys.ebi.gatling.core.result.writer.FileDataWriter.{GROUPS_SUFFIX, GROUPS_SEPARATOR, GROUPS_PREFIX}
 import com.excilys.ebi.gatling.core.util.DateHelper.parseResultDate
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 
@@ -36,12 +38,32 @@ class DataLoader(runOn: String) extends Logging {
 
 		var tmpData: List[ResultLine] = Nil
 
+		// use caches in order to reuse String instances instead of holding multiple references of equal Strings
+		val runOnCache: MMap[String, String] = HashMap[String, String]()
+		val scenarioNameCache: MMap[String, String] = HashMap[String, String]()
+		val userIdCache: MMap[String, String] = HashMap[String, String]()
+		val actionNameCache: MMap[String, String] = HashMap[String, String]()
+		val groupsCache: MMap[String, String] = HashMap[String, String]()
+
 		for (line <- Source.fromFile(simulationLogFile(runOn).jfile, CONFIG_ENCODING).getLines) {
 			line.split(TABULATION_SEPARATOR) match {
 				// If we have a well formated result
 				case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage, groups) =>
-					val groupsList = groups.stripPrefix(GROUPS_PREFIX).stripSuffix(GROUPS_SUFFIX).split(GROUPS_SEPARATOR).toList
-					tmpData = ResultLine(runOn, scenarioName, userId.toInt, actionName, parseResultDate(executionStartDate), executionDuration.toInt, ResultStatus.withName(resultStatus), resultMessage, groupsList) :: tmpData
+					
+					 runOnCache += (runOn -> runOn)
+					 scenarioNameCache += (scenarioName -> scenarioName)
+					 userIdCache += (userId -> userId)
+					 actionNameCache += (actionName -> actionName)
+					 groupsCache += (groups -> groups)
+					 
+					 val cachedRunOn = runOnCache.get(runOn).get
+					 val cachedScenarioName = scenarioNameCache.get(scenarioName).get
+					 val cachedUserId = userIdCache.get(userId).get
+					 val cachedActionName = actionNameCache.get(actionName).get
+					 val cachedGroups = groupsCache.get(groups).get
+					 
+					val groupsList = cachedGroups.stripPrefix(GROUPS_PREFIX).stripSuffix(GROUPS_SUFFIX).split(GROUPS_SEPARATOR).toList
+					tmpData = ResultLine(cachedRunOn, cachedScenarioName, cachedUserId.toInt, cachedActionName, parseResultDate(executionStartDate), executionDuration.toInt, ResultStatus.withName(resultStatus), resultMessage, groupsList) :: tmpData
 				// Else, if the resulting data is not well formated print an error message
 				case _ => logger.warn("simulation.log had bad end of file, statistics will be generated but may not be accurate")
 			}
