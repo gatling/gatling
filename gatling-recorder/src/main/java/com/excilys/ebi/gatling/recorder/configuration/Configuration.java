@@ -29,6 +29,7 @@ public class Configuration {
 	private List<Pattern> patterns;
 	private String resultPath;
 	private List<ResultType> resultTypes;
+	private boolean saveConfiguration;
 
 	public int getPort() {
 		return port;
@@ -84,5 +85,13 @@ public class Configuration {
 
 	public void setSslPort(int sslPort) {
 		this.sslPort = sslPort;
+	}
+
+	public boolean isSaveConfiguration() {
+		return saveConfiguration;
+	}
+
+	public void setSaveConfiguration(boolean saveConfiguration) {
+		this.saveConfiguration = saveConfiguration;
 	}
 }

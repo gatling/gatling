@@ -16,5 +16,5 @@
 package com.excilys.ebi.gatling.recorder.ui.enumeration;
 
 public enum FilterType {
-	ONLY, EXEPT, ALL;
+	ONLY, EXCEPT, ALL;
 }

@@ -29,8 +29,6 @@ a:link, a:visited, a:hover {
 
 #header {
 	position: relative;
-	/*top:0px;
-	left:0px;*/
 	width : 100%;
 	min-width:1240px;
 	height: 70px;
@@ -57,6 +55,7 @@ a:link, a:visited, a:hover {
 	margin: auto;
 	margin-top: 60px;
 	overflow: auto;
+	padding-bottom:10px;
 }
 
 #body>h1 {
@@ -84,7 +83,6 @@ a:link, a:visited, a:hover {
 
 #menu>li {
 	margin-bottom:20px;
-	width: 210px;
 }
 
 #menu>li p {
@@ -104,7 +102,6 @@ a:link, a:visited, a:hover {
 #menu li ul li{
 	border-left: 3px solid #A0B228;
 	margin-bottom:3px;
-	width: 207px;
 	height: 25px;
 }
 
@@ -222,4 +219,13 @@ a:link, a:visited, a:hover {
 #container_indicators {
 	width: 650px;
 	height:225px;
+}
+
+#footer {
+	height: 100px;
+	padding-top: 50px;
+	text-align: center;
+	color: #FFF;
+	text-shadow: rgba(0,0,0,0.6) 0px 1px 0px;
+	
 }

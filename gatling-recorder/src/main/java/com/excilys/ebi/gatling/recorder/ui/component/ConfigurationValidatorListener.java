@@ -107,6 +107,8 @@ public class ConfigurationValidatorListener implements ActionListener {
 			}
 		}
 
+		config.setSaveConfiguration(frame.cbSavePref.isSelected());
+
 		// If nothing was selected we add by default 'text'
 		if (!tmp)
 			config.getResultTypes().add(ResultType.TEXT);

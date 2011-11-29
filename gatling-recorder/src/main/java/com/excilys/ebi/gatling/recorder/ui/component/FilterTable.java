@@ -23,7 +23,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.ButtonGroup;
@@ -33,10 +35,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.event.CellEditorListener;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -46,7 +44,7 @@ import com.excilys.ebi.gatling.recorder.configuration.Pattern;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.PatternType;
 
 @SuppressWarnings("serial")
-public class FilterTable extends JPanel {
+public class FilterTable extends JPanel implements MouseListener {
 
 	private DefaultTableModel model = new DefaultTableModel();
 	private JTable table = new JTable();
@@ -61,75 +59,38 @@ public class FilterTable extends JPanel {
 		add(scrollPane, 0, 0);
 
 		initPopupMenu();
-
 		TableColumn styleColumn = table.getColumn("Style");
-		styleColumn.setMaxWidth(120);
-		styleColumn.setMinWidth(120);
 		styleColumn.setCellRenderer(new RadioButtonRenderer());
 		styleColumn.setCellEditor(new RadioButtonEditor());
+		styleColumn.setMinWidth(120);
+		styleColumn.setPreferredWidth(120);
 		table.setRowHeight(30);
 
-		model.addTableModelListener(new TableModelListener() {
-
-			CellEditorListener listener = new CellEditorListener() {
-
-				@Override
-				public void editingStopped(ChangeEvent e) {
-					ensureUnicity();
-				}
-
-				@Override
-				public void editingCanceled(ChangeEvent e) {
-					ensureUnicity();
-				}
-			};
-
-			@Override
-			public void tableChanged(TableModelEvent e) {
-				if (table.isEditing()) {
-					table.getCellEditor().addCellEditorListener(listener);
-				}
-			}
-		});
-
-		scrollPane.addMouseListener(new MouseListener() {
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				stopCellEditing();
-				addRow();
-			}
-		});
+		scrollPane.addMouseListener(this);
 	}
 
 	public void validateCells() {
 		stopCellEditing();
+		List<Integer> toRemove = new ArrayList<Integer>();
 		for (int i = 0; i < model.getRowCount(); i++) {
 			if (("").equals((String) model.getValueAt(i, 0))) {
-				model.removeRow(i);
-				return;
+				toRemove.add(i);
 			}
 		}
+		removeRows(toRemove);
+		ensureUnicity();
+	}
+
+	public void removeRows(List<Integer> toRemove) {
+		Integer[] selected = new Integer[toRemove.size()];
+		selected = toRemove.toArray(selected);
+		Arrays.sort(selected);
+		for (int i = selected.length - 1; i >= 0; i--)
+			model.removeRow(selected[i]);
 	}
 
 	public void stopCellEditing() {
-		if (table.isEditing())
+		if (table.isEditing() && table.getSelectedRow() != -1)
 			table.getCellEditor().stopCellEditing();
 	}
 
@@ -138,7 +99,6 @@ public class FilterTable extends JPanel {
 			for (int j = 0; j < model.getRowCount(); j++) {
 				if (i != j && getPattern(i).equals(getPattern(j))) {
 					model.removeRow(j);
-					return;
 				}
 			}
 		}
@@ -156,18 +116,11 @@ public class FilterTable extends JPanel {
 
 	public void addRow() {
 		stopCellEditing();
-		boolean flag = true;
-		for (int i = 0; i < model.getRowCount(); i++) {
-			if (("").equals((String) model.getValueAt(i, 0)))
-				flag = false;
-		}
-		if (flag)
-			model.addRow(new Object[] { "" });
+		model.addRow(new Object[] { "" });
 	}
 
 	public void addRow(Pattern pattern) {
-		model.addRow(new Object[] { pattern.getPattern() });
-		ensureUnicity();
+		model.addRow(new Object[] { pattern.getPattern(), new CustomPanel(pattern.getPatternType()) });
 	}
 
 	public void removeSelectedRow() {
@@ -231,6 +184,26 @@ public class FilterTable extends JPanel {
 		});
 	}
 
+	@Override
+	public void mouseReleased(MouseEvent e) {
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		stopCellEditing();
+	}
 }
 
 class RadioButtonRenderer implements TableCellRenderer {
@@ -247,9 +220,9 @@ class RadioButtonRenderer implements TableCellRenderer {
 	}
 }
 
+@SuppressWarnings("serial")
 class RadioButtonEditor extends AbstractCellEditor implements TableCellEditor {
 
-	private static final long serialVersionUID = 1L;
 	CustomPanel customPanel = new CustomPanel();
 
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
@@ -274,14 +247,24 @@ class CustomPanel extends JPanel {
 	JRadioButton radio2 = new JRadioButton("Ant", false);
 
 	public CustomPanel() {
+		this(PatternType.JAVA);
+	}
+
+	public CustomPanel(PatternType patternType) {
 		this.add(radio1);
 		this.add(radio2);
 		ButtonGroup group = new ButtonGroup();
 		group.add(radio1);
 		group.add(radio2);
+		if (patternType == PatternType.JAVA) {
+			radio1.setSelected(true);
+		} else {
+			radio2.setSelected(true);
+		}
 	}
 
 	public boolean isFirstSelected() {
 		return radio1.isSelected();
 	}
+
 }

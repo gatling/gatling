@@ -254,6 +254,7 @@ public class ConfigurationFrame extends JFrame {
 		for (Pattern pattern : config.getPatterns())
 			panelFilters.addRow(pattern);
 		txtResultPath.setText(config.getResultPath());
+		cbSavePref.setSelected(config.isSaveConfiguration());
 		for (JCheckBox cb : listResultsType)
 			for (ResultType resultType : config.getResultTypes())
 				if (cb.getText().equals(resultType.getLabel()))
