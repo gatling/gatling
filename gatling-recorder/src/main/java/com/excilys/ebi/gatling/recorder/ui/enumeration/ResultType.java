@@ -41,7 +41,7 @@ public enum ResultType {
 	}
 
 	public String getScenarioFileName(Date date) {
-		return FORMAT.format(date) + "_scenario." + extension;
+		return FORMAT.format(date) + "_scenario@default_" + extension + "." + extension;
 	}
 
 	public String getTemplate() {
@@ -51,7 +51,7 @@ public enum ResultType {
 	public String getLabel() {
 		return label;
 	}
-	
+
 	public static ResultType getByLabel(String label) {
 		for (ResultType value : ResultType.values()) {
 			if (value.label.equals(label)) {

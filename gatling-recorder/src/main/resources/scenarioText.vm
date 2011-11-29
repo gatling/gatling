@@ -14,7 +14,7 @@
  * limitations under the License.
  *#
 	val PROTOCOL = "$protocol"
-	val DOMAIN = "$domain"
+	val HOST = "$host"
 #if ($port != -1)
 	val PORT = "$port"
 #end

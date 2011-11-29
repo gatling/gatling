@@ -86,7 +86,7 @@ public class RunningFrame extends JFrame {
 
 	private List<Object> listRequests = new ArrayList<Object>();
 	private String protocol;
-	private String domain;
+	private String host;
 	private int port;
 	private String urlBase = null;
 	private String urlBaseString = null;
@@ -233,7 +233,7 @@ public class RunningFrame extends JFrame {
 		urls.clear();
 		headers.clear();
 		protocol = null;
-		domain = null;
+		host = null;
 		port = -1;
 		urlBase = null;
 		urlBaseString = null;
@@ -296,17 +296,17 @@ public class RunningFrame extends JFrame {
 		/* URLs */
 		if (urlBase == null) {
 			protocol = uri.getScheme();
-			domain = uri.getAuthority();
+			host = uri.getHost();
 			port = uri.getPort();
-			urlBase = protocol + "://" + domain;
-			urlBaseString = "PROTOCOL + \"://\" + DOMAIN";
+			urlBase = protocol + "://" + host;
+			urlBaseString = "PROTOCOL + \"://\" + HOST";
 			if (port != -1) {
 				urlBase += ":" + port;
 				urlBaseString += " + \":\" + PORT";
 			}
 		}
 
-		String requestUrlBase = uri.getScheme() + "://" + uri.getAuthority();
+		String requestUrlBase = uri.getScheme() + "://" + uri.getHost();
 		if (uri.getPort() != -1)
 			requestUrlBase += ":" + uri.getPort();
 		if (requestUrlBase.equals(urlBase))
@@ -366,7 +366,7 @@ public class RunningFrame extends JFrame {
 
 		VelocityContext context = new VelocityContext();
 		context.put("protocol", protocol);
-		context.put("domain", domain);
+		context.put("host", host);
 		context.put("port", port);
 		context.put("urlBase", urlBaseString);
 		context.put("urls", urls);
