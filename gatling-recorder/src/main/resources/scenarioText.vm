@@ -46,7 +46,7 @@
 		.exec(
 			http("request_$req.getId()")
 			$req.getRequest().getMethod().toString().toLowerCase()(url_$req.getId())
-	#foreach($param in $req.getParams().entrySet())
+	#foreach($param in $req.getRequestParams().entrySet())
 #foreach($val in $param.value)
 		param("$param.key", "$val")
 #end
