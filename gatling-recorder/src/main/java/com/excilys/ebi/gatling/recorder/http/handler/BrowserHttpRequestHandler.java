@@ -28,7 +28,7 @@ import org.jboss.netty.handler.codec.http.HttpRequest;
 
 import com.excilys.ebi.gatling.recorder.configuration.ProxyConfig;
 
-public class BrowserHttpRequestHandler extends AbstractRequestHandler {
+public class BrowserHttpRequestHandler extends AbstractBrowserRequestHandler {
 
 	public BrowserHttpRequestHandler(ProxyConfig proxyConfig) {
 		super(proxyConfig.getHost(), proxyConfig.getPort());

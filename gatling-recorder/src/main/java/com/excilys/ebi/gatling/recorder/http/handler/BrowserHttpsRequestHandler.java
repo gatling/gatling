@@ -22,7 +22,7 @@ import com.excilys.ebi.gatling.recorder.configuration.ProxyConfig;
 import com.excilys.ebi.gatling.recorder.http.ssl.NextRequestEnabledSslHandler;
 import com.excilys.ebi.gatling.recorder.http.ssl.SSLEngineFactory;
 
-public class BrowserHttpsRequestHandler extends AbstractRequestHandler {
+public class BrowserHttpsRequestHandler extends AbstractBrowserRequestHandler {
 
 	private Map<String, Integer> securedHosts = new HashMap<String, Integer>();
 
