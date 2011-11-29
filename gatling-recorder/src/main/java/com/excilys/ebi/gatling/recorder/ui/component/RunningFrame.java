@@ -255,7 +255,7 @@ public class RunningFrame extends JFrame {
 			boolean add = true;
 			if (configuration.getFilterType() == FilterType.ONLY)
 				add = true;
-			else if (configuration.getFilterType() == FilterType.EXEPT)
+			else if (configuration.getFilterType() == FilterType.EXCEPT)
 				add = false;
 
 			for (Pattern pattern : configuration.getPatterns()) {
