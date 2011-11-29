@@ -15,17 +15,16 @@
  */
 package com.excilys.ebi.gatling.charts.writer
 
-import java.io.{ FileWriter, File }
-
-import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_RESULTS_FOLDER
+import java.io.FileWriter
+import scala.tools.nsc.io.{ File, Directory }
+import com.excilys.ebi.gatling.core.config.GatlingFiles.resultFolder
 import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
+import scala.tools.nsc.io.Path
 
-class TemplateWriter(val runOn: String, val fileName: String) {
+class TemplateWriter(val path: Path) {
 	def writeToFile(output: String) = {
-		val dir = new File(GATLING_RESULTS_FOLDER, runOn)
-		dir.mkdir
-		val file = new File(dir, fileName)
-		val fw = new FileWriter(file)
+		val fw = new FileWriter(File(path))
+
 		try {
 			fw.write(output)
 		} finally {

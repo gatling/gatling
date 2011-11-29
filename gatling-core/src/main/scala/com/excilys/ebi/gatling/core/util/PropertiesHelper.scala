@@ -24,7 +24,7 @@ object PropertiesHelper {
 	/**
 	 * Property used to specify the location of Gatling configuration file
 	 */
-	val GATLING_CONFIG_PROPERTY = Option(System.getProperty("gatling.config")) map (_.trim) getOrElse EMPTY
+	val CONFIG_FILE_PROPERTY = Option(System.getProperty("gatling.config")) map (_.trim) getOrElse EMPTY
 
 	/**
 	 * Property used to specify whether or not to generate statistics after the simulation

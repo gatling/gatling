@@ -18,69 +18,30 @@ package com.excilys.ebi.gatling.core.config
 import scala.tools.nsc.io.Path.string2path
 
 object GatlingFiles {
-
-	/**
-	 * the root folder of gatling application
-	 */
+	/* Global paths */
 	val GATLING_HOME = System.getenv("GATLING_HOME")
-
-	/**
-	 * Gatling's configuration folder
-	 */
-	val GATLING_CONFIG_FOLDER = GATLING_HOME / "conf"
-
-	/**
-	 * Name of the default configuration file
-	 */
-	val GATLING_CONFIG_FILE = "gatling.conf"
-
-	/**
-	 * Gatling's user files folder
-	 */
-	val GATLING_USER_FILES_FOLDER = GATLING_HOME / "user-files"
-
-	/**
-	 * Gatling's data folder
-	 */
-	val GATLING_DATA_FOLDER = GATLING_USER_FILES_FOLDER / "data"
-
-	/**
-	 * Gatling's request bodies folder
-	 */
-	val GATLING_REQUEST_BODIES_FOLDER = GATLING_USER_FILES_FOLDER / "request-bodies"
-
-	/**
-	 * Gatling's results folder
-	 */
-	val GATLING_RESULTS_FOLDER = GATLING_HOME / "results"
-
-	/**
-	 * Gatling's assets folder
-	 */
 	val GATLING_ASSETS_FOLDER = GATLING_HOME / "assets"
-
-	val GATLING_JS = "js"
-
-	val GATLING_ASSETS_JS_FOLDER = GATLING_ASSETS_FOLDER / GATLING_JS
-
-	val GATLING_STYLE = "style"
-
-	val GATLING_ASSETS_STYLE_FOLDER = GATLING_ASSETS_FOLDER / GATLING_STYLE
-
-	/**
-	 * Path to raw results
-	 */
-	val GATLING_RAWDATA_FOLDER = "rawdata"
-
-	/**
-	 * Gatling's scenarios folder
-	 */
+	val GATLING_CONFIG_FOLDER = GATLING_HOME / "conf"
+	val GATLING_RESULTS_FOLDER = GATLING_HOME / "results"
+	val GATLING_USER_FILES_FOLDER = GATLING_HOME / "user-files"
+	val GATLING_DATA_FOLDER = GATLING_USER_FILES_FOLDER / "data"
+	val GATLING_REQUEST_BODIES_FOLDER = GATLING_USER_FILES_FOLDER / "request-bodies"
 	val GATLING_SCENARIOS_FOLDER = GATLING_USER_FILES_FOLDER / "scenarios"
 
-	/**
-	 * Name of the simulation log
-	 */
-	val GATLING_SIMULATION_LOG_FILE = "simulation.log"
+	/* Assets Paths */
+	val GATLING_JS = "js"
+	val GATLING_STYLE = "style"
+	val GATLING_ASSETS_JS_FOLDER = GATLING_ASSETS_FOLDER / GATLING_JS
+	val GATLING_ASSETS_STYLE_FOLDER = GATLING_ASSETS_FOLDER / GATLING_STYLE
 
+	/* Default files and internal constants*/
+	val GATLING_DEFAULT_CONFIG_FILE = GATLING_CONFIG_FOLDER / "gatling.conf"
 	val GATLING_IMPORTS_FILE = "imports.txt"
+
+	/* Results Paths */
+	def resultFolder(runOn: String) = GATLING_RESULTS_FOLDER / runOn
+	def jsFolder(runOn: String) = resultFolder(runOn) / GATLING_JS
+	def styleFolder(runOn: String) = resultFolder(runOn) / GATLING_STYLE
+	def rawdataFolder(runOn: String) = resultFolder(runOn) / "rawdata"
+	def simulationLogFile(runOn: String) = resultFolder(runOn) / "simulation.log"
 }

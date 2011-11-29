@@ -15,38 +15,22 @@
  */
 package com.excilys.ebi.gatling.charts.config
 
-object ChartsConfig {
-	/**
-	 * File name of the active sessions chart
-	 */
-	val GATLING_CHART_ACTIVE_SESSIONS_FILE = "active_sessions.html"
-	/**
-	 * File name of the requests chart
-	 */
-	val GATLING_CHART_GLOBAL_REQUESTS_FILE = "requests.html"
-	/**
-	 * File name of the javascript menu generator
-	 */
-	val GATLING_CHART_MENU_JS_FILE = "js/menu.js"
-	/**
-	 * File name of the request log file
-	 */
-	val GATLING_STATS_GLOBAL_REQUESTS_FILE = "requests.tsv"
+import com.excilys.ebi.gatling.core.config.GatlingFiles._
+import com.excilys.ebi.gatling.core.util.FileHelper._
+import scala.tools.nsc.io.Path.string2path
 
+object ChartsFiles {
 	val JQUERY_FILE = "jquery.min.js"
 	val MENU_FILE = "menu.js"
 
-	/**
-	 * Path to the template for request details body
-	 */
-	val GATLING_CHARTS_STATISTICS_TEMPLATE = "templates/statistics_component.html.ssp"
-	/**
-	 * Path to the template for HTML reports
-	 */
-	val GATLING_TEMPLATE_LAYOUT_FILE = "templates/page_layout.html.ssp"
-	/**
-	 * Path to the template for the javascript menu generator
-	 */
-	val GATLING_TEMPLATE_MENU_JS_FILE = "templates/menu.js.ssp"
+	val GATLING_TEMPLATE = "templates"
+	val GATLING_TEMPLATE_STATISTICS_COMPONENT = GATLING_TEMPLATE / "statistics_component.html.ssp"
+	val GATLING_TEMPLATE_LAYOUT_FILE = GATLING_TEMPLATE / "page_layout.html.ssp"
+	val GATLING_TEMPLATE_MENU_JS_FILE = GATLING_TEMPLATE / "menu.js.ssp"
 
+	def menuFile(runOn: String) = resultFolder(runOn) / GATLING_JS / MENU_FILE
+	def activeSessionsFile(runOn: String) = resultFolder(runOn) / "active_sessions.html"
+	def globalRequestsFile(runOn: String) = resultFolder(runOn) / "requests.html"
+
+	def requestFile(runOn: String, requestName: String) = resultFolder(runOn) / (formatToFilename(requestName) + HTML_EXTENSION)
 }

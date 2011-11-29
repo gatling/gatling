@@ -18,7 +18,7 @@ import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.computer.Computer.{ numberOfSuccessfulRequestsPerSecond, numberOfRequestsPerSecondAsList, numberOfFailedRequestsPerSecond }
-import com.excilys.ebi.gatling.charts.config.ChartsConfig.GATLING_CHART_GLOBAL_REQUESTS_FILE
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.globalRequestsFile
 import com.excilys.ebi.gatling.charts.loader.DataLoader
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.series.SharedSeries
@@ -44,6 +44,6 @@ class RequestsReportGenerator(runOn: String, dataLoader: DataLoader, componentLi
 		val template = new RequestsPageTemplate(componentLibrary.getRequestsChartComponent(allRequests, failedRequests, succeededRequests, pieSeries, SharedSeries.getAllActiveSessionsSeries))
 
 		// Write template result to file
-		new TemplateWriter(runOn, GATLING_CHART_GLOBAL_REQUESTS_FILE).writeToFile(template.getOutput)
+		new TemplateWriter(globalRequestsFile(runOn)).writeToFile(template.getOutput)
 	}
 }

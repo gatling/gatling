@@ -44,7 +44,7 @@ class ScalaScriptInterpreter extends Interpreter {
 	 * @param startDate the date at which the launch was asked
 	 */
 	def run(fileName: String, startDate: DateTime) {
-		compile(new File(GATLING_SCENARIOS_FOLDER, fileName))
+		compile(GATLING_SCENARIOS_FOLDER / fileName)
 		val runner = getNewInstanceByClassName[App](CONFIG_SIMULATION_SCALA_PACKAGE + "Simulation", classLoader)
 		runner.main(Array(startDate.toString));
 	}

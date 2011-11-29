@@ -15,18 +15,20 @@
  */
 package com.excilys.ebi.gatling.charts.writer
 
-import java.io.{ FileWriter, File }
+import java.io.FileWriter
 
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_RESULTS_FOLDER, GATLING_RAWDATA_FOLDER }
+import scala.tools.nsc.io.Path.string2path
+import scala.tools.nsc.io.{ File, Directory }
+
+import com.excilys.ebi.gatling.core.config.GatlingFiles.rawdataFolder
 import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
 import com.excilys.ebi.gatling.core.util.StringHelper.{ END_OF_LINE, EMPTY }
 
 class SeparatedValueFileWriter(val runOn: String, val fileName: String, val separator: String) {
 	def writeToFile(values: List[List[String]]) = {
-		val dir = GATLING_RESULTS_FOLDER / runOn / GATLING_RAWDATA_FOLDER
-		dir.mkdir
-		val file = new File(dir, fileName)
-		val fw = new FileWriter(file, true)
+		Directory(rawdataFolder(runOn)).createDirectory()
+
+		val fw = new FileWriter(File(rawdataFolder(runOn) / fileName), true)
 		try {
 			for (value <- values) {
 				fw.write(value.mkString(EMPTY, separator, END_OF_LINE))

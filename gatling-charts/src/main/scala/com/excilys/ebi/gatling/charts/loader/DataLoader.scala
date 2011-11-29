@@ -16,7 +16,6 @@
 package com.excilys.ebi.gatling.charts.loader
 import scala.collection.immutable.SortedMap
 import scala.io.Source
-import scala.tools.nsc.io.Path.string2path
 
 import org.joda.time.DateTime
 
@@ -24,12 +23,12 @@ import com.excilys.ebi.gatling.charts.util.OrderingHelper.{ ResultOrdering, Date
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
+import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus
 import com.excilys.ebi.gatling.core.result.writer.FileDataWriter.{ GROUPS_SUFFIX, GROUPS_SEPARATOR, GROUPS_PREFIX }
 import com.excilys.ebi.gatling.core.util.DateHelper.parseResultDate
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_SIMULATION_LOG_FILE, GATLING_RESULTS_FOLDER }
-import com.excilys.ebi.gatling.core.util.FileHelper._
+import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 
 class DataLoader(runOn: String) extends Logging {
 
@@ -37,7 +36,7 @@ class DataLoader(runOn: String) extends Logging {
 
 		var tmpData: List[ResultLine] = Nil
 
-		for (line <- Source.fromFile((GATLING_RESULTS_FOLDER / runOn / GATLING_SIMULATION_LOG_FILE).jfile, CONFIG_ENCODING).getLines) {
+		for (line <- Source.fromFile(simulationLogFile(runOn).jfile, CONFIG_ENCODING).getLines) {
 			line.split(TABULATION_SEPARATOR) match {
 				// If we have a well formated result
 				case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage, groups) =>

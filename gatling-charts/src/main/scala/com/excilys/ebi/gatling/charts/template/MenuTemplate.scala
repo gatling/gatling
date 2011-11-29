@@ -15,7 +15,8 @@
  */
 package com.excilys.ebi.gatling.charts.template
 
-import com.excilys.ebi.gatling.charts.config.ChartsConfig.GATLING_TEMPLATE_MENU_JS_FILE
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_MENU_JS_FILE
+import com.excilys.ebi.gatling.core.util.PathHelper._
 
 class MenuTemplate(requestLinks: List[(String, Option[String], String)]) {
 

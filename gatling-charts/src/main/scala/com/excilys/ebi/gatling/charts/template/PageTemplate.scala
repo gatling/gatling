@@ -17,8 +17,9 @@ package com.excilys.ebi.gatling.charts.template
 import org.fusesource.scalate.TemplateEngine
 
 import com.excilys.ebi.gatling.charts.component.Component
-import com.excilys.ebi.gatling.charts.config.ChartsConfig._
+import com.excilys.ebi.gatling.charts.config.ChartsFiles._
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.util.PathHelper._
 
 object PageTemplate {
 	val TEMPLATE_ENGINE = new TemplateEngine

@@ -15,6 +15,7 @@
  */
 package com.excilys.ebi.gatling.charts.report
 import org.joda.time.DateTime
+import com.excilys.ebi.gatling.charts.config.ChartsFiles._
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.component.StatisticsTextComponent
 import com.excilys.ebi.gatling.charts.computer.Computer.averageResponseTime
@@ -82,7 +83,7 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 						componentLibrary.getRequestDetailsIndicatorChartComponent(indicatorsColumnSeries, indicatorsPieSeries))
 
 				// Write template result to file
-				new TemplateWriter(runOn, formatToFilename(requestName) + HTML_EXTENSION).writeToFile(template.getOutput)
+				new TemplateWriter(requestFile(runOn, requestName)).writeToFile(template.getOutput)
 			}
 		}
 

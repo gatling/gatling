@@ -15,18 +15,19 @@
  */
 package com.excilys.ebi.gatling.charts.report
 import scala.tools.nsc.io.Path.string2path
-import scala.tools.nsc.io.File
+import scala.tools.nsc.io.Path
+
 import org.fusesource.scalate.support.ScalaCompiler
+
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
-import com.excilys.ebi.gatling.charts.config.ChartsConfig.GATLING_CHART_MENU_JS_FILE
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.menuFile
 import com.excilys.ebi.gatling.charts.loader.DataLoader
-import com.excilys.ebi.gatling.charts.template.{ PageTemplate, MenuTemplate }
+import com.excilys.ebi.gatling.charts.template.{PageTemplate, MenuTemplate}
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_CHARTING_COMPONENT_LIBRARY_CLASS
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_STYLE, GATLING_RESULTS_FOLDER, GATLING_JS, GATLING_ASSETS_STYLE_FOLDER, GATLING_ASSETS_JS_FOLDER }
-import com.excilys.ebi.gatling.core.util.FileHelper.{ formatToFilename, HTML_EXTENSION }
-import com.excilys.ebi.gatling.core.util.ReflectionHelper._
-import scala.tools.nsc.io.Path
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{styleFolder, jsFolder, GATLING_ASSETS_STYLE_FOLDER, GATLING_ASSETS_JS_FOLDER}
+import com.excilys.ebi.gatling.core.util.FileHelper.{formatToFilename, HTML_EXTENSION}
+import com.excilys.ebi.gatling.core.util.ReflectionHelper.getNewInstanceByClassName
 
 object ReportsGenerator {
 	def generateFor(runOn: String) = {
@@ -59,21 +60,19 @@ object ReportsGenerator {
 
 		val template = new MenuTemplate(requestLinks)
 
-		new TemplateWriter(runOn, GATLING_CHART_MENU_JS_FILE).writeToFile(template.getOutput)
+		new TemplateWriter(menuFile(runOn)).writeToFile(template.getOutput)
 	}
 
 	private def copyAssets(runOn: String) = {
-		def copyFolder(sourceFolderName: Path, destFolderName: Path) = {
-			val destAssetsPath = GATLING_RESULTS_FOLDER / runOn / destFolderName
-
-			destAssetsPath.toDirectory.createDirectory()
+		def copyFolder(sourceFolderName: Path, destFolderPath: Path) = {
+			destFolderPath.toDirectory.createDirectory()
 
 			sourceFolderName.toDirectory.deepFiles.foreach { file =>
-				file.copyTo(destAssetsPath / file.name, true)
+				file.copyTo(destFolderPath / file.name, true)
 			}
 		}
 
-		copyFolder(GATLING_ASSETS_STYLE_FOLDER, GATLING_STYLE)
-		copyFolder(GATLING_ASSETS_JS_FOLDER, GATLING_JS)
+		copyFolder(GATLING_ASSETS_STYLE_FOLDER, styleFolder(runOn))
+		copyFolder(GATLING_ASSETS_JS_FOLDER, jsFolder(runOn))
 	}
 }

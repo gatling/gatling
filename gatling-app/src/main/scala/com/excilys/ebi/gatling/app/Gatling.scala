@@ -48,9 +48,7 @@ object Gatling extends Logging {
 		GatlingConfig // Initializes configuration
 
 		// Getting files in scenarios folder
-		val files = for (
-			file <- new Directory(GATLING_SCENARIOS_FOLDER).files if (!file.name.startsWith("."))
-		) yield file.name
+		val files = Directory(GATLING_SCENARIOS_FOLDER).files.map(_.name).filterNot(_.startsWith("."))
 
 		val (files1, files2) = files.duplicate
 

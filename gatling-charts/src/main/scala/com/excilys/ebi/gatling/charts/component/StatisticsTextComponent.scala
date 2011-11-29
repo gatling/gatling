@@ -15,15 +15,16 @@
  */
 package com.excilys.ebi.gatling.charts.component
 
-import com.excilys.ebi.gatling.charts.config.ChartsConfig.GATLING_CHARTS_STATISTICS_TEMPLATE
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_STATISTICS_COMPONENT
 import com.excilys.ebi.gatling.charts.template.PageTemplate
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.core.util.PathHelper._
 
 class StatisticsTextComponent(numberOfRequest: Int, minResponseTime: Int, maxResponseTime: Int, averageResponseTime: Double, responseTimeStandardDeviation: Double)
 		extends Component {
 
 	def getHTMLContent: String = {
-		PageTemplate.TEMPLATE_ENGINE.layout(GATLING_CHARTS_STATISTICS_TEMPLATE,
+		PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATISTICS_COMPONENT,
 			Map("numberOfRequests" -> numberOfRequest,
 				"min" -> minResponseTime,
 				"max" -> maxResponseTime,
