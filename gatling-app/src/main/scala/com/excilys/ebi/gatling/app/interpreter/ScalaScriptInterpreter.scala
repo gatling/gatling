@@ -16,18 +16,16 @@
 package com.excilys.ebi.gatling.app.interpreter
 
 import java.io.{ StringWriter, PrintWriter, File }
-
 import scala.tools.nsc.interpreter.AbstractFileClassLoader
 import scala.tools.nsc.io.VirtualDirectory
 import scala.tools.nsc.reporters.ConsoleReporter
 import scala.tools.nsc.{ Settings, Global }
-
 import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_SIMULATION_SCALA_PACKAGE
 import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_SCENARIOS_FOLDER
 import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
 import com.excilys.ebi.gatling.core.util.ReflectionHelper.getNewInstanceByClassName
+import scala.tools.nsc.io.Directory
 
 /**
  * This class is used to interpret scala simulations
@@ -66,9 +64,13 @@ class ScalaScriptInterpreter extends Interpreter {
 
 		// Attempt compilation
 		val files =
-			if (sourceDirectory.isFile)
-				sourceDirectory :: findFiles(new File(sourceDirectory.getAbsolutePath.substring(0, sourceDirectory.getAbsolutePath.lastIndexOf("@"))))
-			else
+			if (sourceDirectory.isFile) {
+				val sourceDirectoryName = sourceDirectory.getAbsolutePath.substring(0, sourceDirectory.getAbsolutePath.lastIndexOf("@"))
+				if (Directory(sourceDirectoryName).exists)
+					sourceDirectory :: findFiles(new File(sourceDirectoryName))
+				else
+					sourceDirectory :: Nil
+			} else
 				findFiles(sourceDirectory)
 
 		(new compiler.Run).compile(files.map(_.toString))
