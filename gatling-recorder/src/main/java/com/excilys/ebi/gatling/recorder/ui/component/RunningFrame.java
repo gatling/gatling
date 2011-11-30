@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -80,6 +79,7 @@ public class RunningFrame extends JFrame {
 	private GatlingHttpProxy proxy;
 	private Date startDate;
 	private Date lastRequest;
+	private PauseEvent pause;
 
 	private JTextField txtTag = new JTextField(10);
 	private JButton btnTag = new JButton("Set");
@@ -203,7 +203,6 @@ public class RunningFrame extends JFrame {
 				proxy.shutdown();
 				proxy = null;
 				getEventBus().post(new ShowConfigurationFrameEvent());
-
 			}
 		});
 	}
@@ -241,9 +240,7 @@ public class RunningFrame extends JFrame {
 					pauseType = PauseType.SECONDS;
 				}
 				lastRequest = newRequest;
-				PauseEvent pause = new PauseEvent(pauseMin, pauseMax, pauseType);
-				listElements.addElement(pause.toString());
-				listEvents.add(pause);
+				pause = new PauseEvent(pauseMin, pauseMax, pauseType);
 			}
 		}
 	}
@@ -251,6 +248,11 @@ public class RunningFrame extends JFrame {
 	@Subscribe
 	public void onResponseReceivedEvent(ResponseReceivedEvent event) {
 		if (addRequest(event.getRequest())) {
+			if (pause != null) {
+				listElements.addElement(pause.toString());
+				listExecutedRequests.ensureIndexIsVisible(listElements.getSize() - 1);
+				listEvents.add(pause);
+			}
 			lastRequest = new Date();
 			processRequest(event);
 		}
