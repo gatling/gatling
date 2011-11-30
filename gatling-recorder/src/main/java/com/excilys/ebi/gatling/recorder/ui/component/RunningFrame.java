@@ -350,11 +350,34 @@ public class RunningFrame extends JFrame {
 			urls.put("url_" + id, uri.toString());
 
 		/* Headers */
+		boolean areSame = true;
 		TreeMap<String, String> hm = new TreeMap<String, String>();
-		for (Entry<String, String> entry : request.getHeaders()) {
-			hm.put(entry.getKey(), entry.getValue());
+		if (headers.size() > 0) {
+			for (Entry<String, Map<String, String>> header : headers.entrySet()) {
+				areSame = true;
+				if (request.getHeaders().size() != header.getValue().entrySet().size()) {
+					areSame = false;
+					continue;
+				}
+				for (Entry<String, String> requestHeader : request.getHeaders()) {
+					if (!header.getValue().containsKey(requestHeader.getKey()) || !header.getValue().get(requestHeader.getKey()).equals(requestHeader.getValue())) {
+						areSame = false;
+						break;
+					}
+				}
+				if (areSame) {
+					event.setHeadersId(header.getKey());
+					break;
+				}
+			}
+		} else
+			areSame = false;
+			
+		if (!areSame) {
+			for (Entry<String, String> requestHeader : request.getHeaders())
+				hm.put(requestHeader.getKey(), requestHeader.getValue());
+			headers.put("headers_" + id, hm);
 		}
-		headers.put("headers_" + id, hm);
 
 		/* Params */
 		QueryStringDecoder decoder = new QueryStringDecoder(request.getUri());

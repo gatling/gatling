@@ -28,6 +28,7 @@ public class ResponseReceivedEvent {
 	private final HttpResponse response;
 	private int id;
 	private Map<String, List<String>> requestParams = new LinkedHashMap<String, List<String>>();
+	private String headersId;
 	private boolean withBody;
 	private boolean withUrlBase;
 
@@ -50,6 +51,14 @@ public class ResponseReceivedEvent {
 
 	public void setRequestParams(Map<String, List<String>> requestParams) {
 		this.requestParams = requestParams;
+	}
+	
+	public String getHeadersId() {
+		return headersId;
+	}
+
+	public void setHeadersId(String headersId) {
+		this.headersId = headersId;
 	}
 
 	public boolean isWithBody() {
