@@ -41,12 +41,22 @@
 		<developer>
 			<id>slandelle@excilys.com</id>
 			<name>Stephane Landelle</name>
-			<organization>Excilys</organization>
+			<organization>eBusiness Information, Excilys Group</organization>
 		</developer>
 		<developer>
 			<id>rsertelon@excilys.com</id>
 			<name>Romain Sertelon</name>
-			<organization>Excilys</organization>
+			<organization>eBusiness Information, Excilys Group</organization>
+		</developer>
+		<developer>
+			<id>ybenkhaled@excilys.com</id>
+			<name>Yassine Ben Khaled</name>
+			<organization>eBusiness Information, Excilys Group</organization>
+		</developer>
+		<developer>
+			<id>hcordier@excilys.com</id>
+			<name>Hugo Cordier</name>
+			<organization>eBusiness Information, Excilys Group</organization>
 		</developer>
 	</developers>
 
@@ -55,17 +65,11 @@
 			<id>akka.repository</id>
 			<name>Akka Maven Repository</name>
 			<url>http://akka.io/repository</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
 		</repository>
 		<repository>
 			<id>excilys-thirdparty</id>
 			<name>Excilys Third Party Repository</name>
 			<url>http://repository.excilys.com/content/repositories/thirdparty</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
 		</repository>
 	</repositories>
 
