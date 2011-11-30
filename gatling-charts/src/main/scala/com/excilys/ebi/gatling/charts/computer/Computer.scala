@@ -82,10 +82,8 @@ object Computer extends Logging {
 	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: Map[DateTime, Int], requestData: Map[DateTime, MutableList[ResultLine]]): List[(Int, Int)] = {
 		requestData.map { entry =>
 			val (dateTime, list) = entry
-			requestData.get(dateTime).map {
-				requestsPerSecond.get(dateTime).get -> averageResponseTime(_).toInt
-			}
-		}.filter(_.isDefined).map(_.get).toList
+			requestData.get(dateTime).map(_.map(requestsPerSecond.get(dateTime).get -> _.executionDurationInMillis))
+		}.filter(_.isDefined).map(_.get).toList.flatten
 	}
 
 	def numberOfActiveSessionsPerSecondForAScenario(data: Map[DateTime, MutableList[ResultLine]]): List[(DateTime, Int)] = {
