@@ -15,23 +15,21 @@
  */
 package com.excilys.ebi.gatling.charts.loader
 import scala.collection.immutable.SortedMap
-import scala.collection.mutable.{MutableList, Map => MMap, HashMap}
+import scala.collection.mutable.{ MutableList, Map => MMap, HashMap }
 import scala.io.Source
 
 import org.joda.time.DateTime
 
-import com.excilys.ebi.gatling.charts.util.OrderingHelper.{ResultOrdering, DateTimeOrdering}
+import com.excilys.ebi.gatling.charts.util.OrderingHelper.{ ResultOrdering, DateTimeOrdering }
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus
-import com.excilys.ebi.gatling.core.result.writer.FileDataWriter.{GROUPS_SUFFIX, GROUPS_SEPARATOR, GROUPS_PREFIX}
+import com.excilys.ebi.gatling.core.result.writer.FileDataWriter.{ GROUPS_SUFFIX, GROUPS_SEPARATOR, GROUPS_PREFIX }
 import com.excilys.ebi.gatling.core.util.DateHelper.parseResultDate
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
-
-
 
 class DataLoader(runOn: String) extends Logging {
 
@@ -50,7 +48,7 @@ class DataLoader(runOn: String) extends Logging {
 			}
 			stringCache.get(string).get
 		}
-		
+
 		def cachedInt(string: String) = {
 			if (!intCache.contains(string)) {
 				val newString = new String(string)
@@ -83,11 +81,11 @@ class DataLoader(runOn: String) extends Logging {
 
 	val dataIndexedByDateInSeconds: SortedMap[DateTime, MutableList[ResultLine]] = SortedMap(data.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
 
-	val dataIndexedByRequestName: Map[String, MutableList[ResultLine]] = data.groupBy(_.requestName).map { entry => entry._1 -> entry._2.sorted }
+	def dataIndexedByRequestName(requestName: String): MutableList[ResultLine] = data.filter(_.requestName == requestName)
 
-	val dataIndexedByRequestNameAndDateInMilliseconds: Map[String, SortedMap[DateTime, MutableList[ResultLine]]] = dataIndexedByRequestName.map { entry => entry._1 -> SortedMap(entry._2.groupBy(_.executionStartDate).toSeq: _*) }
+	def dataIndexedByRequestNameAndDateInMilliseconds(requestName: String): SortedMap[DateTime, MutableList[ResultLine]] = SortedMap(dataIndexedByRequestName(requestName).groupBy(_.executionStartDate).toSeq: _*)
 
-	val dataIndexedByRequestNameAndDateInSeconds: Map[String, SortedMap[DateTime, MutableList[ResultLine]]] = dataIndexedByRequestName.map { entry => entry._1 -> SortedMap(entry._2.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*) }
+	def dataIndexedByRequestNameAndDateInSeconds(requestName: String): SortedMap[DateTime, MutableList[ResultLine]] = SortedMap(dataIndexedByRequestName(requestName).groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
 
 	val dataIndexedByScenarioName: Map[String, MutableList[ResultLine]] = data.groupBy(_.scenarioName)
 

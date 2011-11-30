@@ -42,15 +42,12 @@ import com.excilys.ebi.gatling.charts.series.SharedSeries
 class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataLoader, componentLibrary) {
 	def generate = {
 
-		val dataIndexedByRequestNameAndMillis = dataLoader.dataIndexedByRequestNameAndDateInMilliseconds
-		val dataIndexedByRequestNameAndSeconds = dataLoader.dataIndexedByRequestNameAndDateInSeconds
-
-		dataLoader.dataIndexedByRequestName.foreach { entry =>
-			val (requestName, dataList) = entry
+		dataLoader.requestNames.foreach { requestName =>
+			val dataList = dataLoader.dataIndexedByRequestName(requestName)
 
 			if (requestName != END_OF_SCENARIO && requestName != START_OF_SCENARIO) {
-				val dataMillis = dataIndexedByRequestNameAndMillis.getOrElse(requestName, throw new IllegalArgumentException("Data Not Indexed correctly !"))
-				val dataSeconds = dataIndexedByRequestNameAndSeconds.getOrElse(requestName, throw new IllegalArgumentException("Data Not Indexed correctly !"))
+				val dataMillis = dataLoader.dataIndexedByRequestNameAndDateInMilliseconds(requestName)
+				val dataSeconds = dataLoader.dataIndexedByRequestNameAndDateInSeconds(requestName)
 
 				// Get Data
 				val responseTimesData = responseTimeByMillisecondAsList(dataMillis)
