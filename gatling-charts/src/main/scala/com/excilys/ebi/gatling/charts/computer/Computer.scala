@@ -43,6 +43,8 @@ object Computer extends Logging {
 
 	def maxResponseTime(data: MutableList[ResultLine]): Int = data.maxBy(_.executionDurationInMillis).executionDurationInMillis
 
+	def numberOfSuccesses(data: MutableList[ResultLine]): Int = data.filter(_.resultStatus == OK).size
+
 	def responseTimeByMillisecondAsList(data: Map[DateTime, MutableList[ResultLine]]): List[(DateTime, Int)] = SortedMap(data.map { entry => entry._1 -> averageResponseTime(entry._2).toInt }.filterNot(_._2 == 0).toSeq: _*).toList
 
 	def numberOfRequestsPerSecond(data: Map[DateTime, MutableList[ResultLine]]): Map[DateTime, Int] = SortedMap(data.map(entry => entry._1 -> entry._2.length).toSeq: _*)

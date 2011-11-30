@@ -1,4 +1,6 @@
 <%@ val numberOfRequests: Int %>
+<%@ val numberOfSuccesses: Int %>
+<%@ val numberOfFailures: Int %>
 <%@ val min: Int %>
 <%@ val max: Int %>
 <%@ val average: Double %>
@@ -8,13 +10,18 @@
 		<h1>Statistics</h1>
 		<h2>about that request</h2>
 		<ul>
-			<li>Executed <b><%= numberOfRequests %></b> times</li>
+			<li>Executed <b><%= numberOfRequests %></b> times
+				<ul>
+					<li>Successes: <%= numberOfSuccesses %></li>
+					<li>Failures: <%= numberOfFailures %></li>
+				</ul>
+			</li>
 			<li>Response Time:
 				<ul>
-					<li>Min : <b><%= min %>ms</b></li>
-					<li>Max : <b><%= max %>ms</b></li>
-					<li>Average : <b><%= average %>ms</b></li>
-					<li>Standard Deviation : <b><%= stdDeviation %></b></li>
+					<li>Min: <b><%= min %>ms</b></li>
+					<li>Max: <b><%= max %>ms</b></li>
+					<li>Average: <b><%= average %>ms</b></li>
+					<li>Standard Deviation: <b><%= stdDeviation %></b></li>
 				</ul>
 			</li>
 		</ul>

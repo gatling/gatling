@@ -25,7 +25,7 @@ import com.excilys.ebi.gatling.charts.computer.Computer.numberOfRequestInRespons
 import com.excilys.ebi.gatling.charts.computer.Computer.numberOfRequestsPerSecond
 import com.excilys.ebi.gatling.charts.computer.Computer.respTimeAgainstNbOfReqPerSecond
 import com.excilys.ebi.gatling.charts.computer.Computer.responseTimeByMillisecondAsList
-import com.excilys.ebi.gatling.charts.computer.Computer.responseTimeStandardDeviation
+import com.excilys.ebi.gatling.charts.computer.Computer._
 import com.excilys.ebi.gatling.charts.loader.DataLoader
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.template.RequestDetailsPageTemplate
@@ -63,6 +63,8 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 
 				// Statistics
 				val numberOfRequests = dataList.length
+				val numberOfSuccessfulRequests = numberOfSuccesses(dataList)
+				val numberOfFailedRequests = numberOfRequests - numberOfSuccessfulRequests
 				val minRespTime = minResponseTime(dataList)
 				val maxRespTime = maxResponseTime(dataList)
 				val avgRespTime = averageResponseTime(dataList)
@@ -78,7 +80,7 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 				val template =
 					new RequestDetailsPageTemplate(requestName.substring(8),
 						componentLibrary.getRequestDetailsResponseTimeChartComponent(responseTimesSeries, SharedSeries.getAllActiveSessionsSeries),
-						new StatisticsTextComponent(numberOfRequests, minRespTime, maxRespTime, avgRespTime, respTimeStdDeviation),
+						new StatisticsTextComponent(numberOfRequests, numberOfSuccessfulRequests, numberOfFailedRequests, minRespTime, maxRespTime, avgRespTime, respTimeStdDeviation),
 						componentLibrary.getRequestDetailsScatterChartComponent(scatterPlotSeries),
 						componentLibrary.getRequestDetailsIndicatorChartComponent(indicatorsColumnSeries, indicatorsPieSeries))
 
