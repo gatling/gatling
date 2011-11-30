@@ -29,6 +29,7 @@ public class ResponseReceivedEvent {
 	private int id;
 	private Map<String, List<String>> requestParams = new LinkedHashMap<String, List<String>>();
 	private boolean withBody;
+	private boolean withUrlBase;
 
 	public ResponseReceivedEvent(HttpRequest request, HttpResponse response) {
 		this.request = request;
@@ -57,6 +58,14 @@ public class ResponseReceivedEvent {
 
 	public void setWithBody(boolean withBody) {
 		this.withBody = withBody;
+	}
+
+	public boolean isWithUrlBase() {
+		return withUrlBase;
+	}
+
+	public void setWithUrlBase(boolean withUrlBase) {
+		this.withUrlBase = withUrlBase;
 	}
 
 	public HttpRequest getRequest() {

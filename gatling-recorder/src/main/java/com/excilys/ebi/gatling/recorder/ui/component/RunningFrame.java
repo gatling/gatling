@@ -345,7 +345,7 @@ public class RunningFrame extends JFrame {
 		if (uri.getPort() != -1)
 			requestUrlBase += ":" + uri.getPort();
 		if (requestUrlBase.equals(urlBase))
-			urls.put("url_" + id, uri.getPath());
+			event.setWithUrlBase(true);
 		else
 			urls.put("url_" + id, uri.toString());
 
@@ -408,6 +408,8 @@ public class RunningFrame extends JFrame {
 		context.put("headers", headers);
 		context.put("name", "Scenario name");
 		context.put("events", listEvents);
+		URI uri = URI.create("");
+		context.put("URI", uri);
 
 		Template template = null;
 		FileWriter fileWriter = null;

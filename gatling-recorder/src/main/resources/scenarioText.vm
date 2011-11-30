@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *#
-	val PROTOCOL = "$protocol"
-	val HOST = "$host"
-#if ($port != -1)
-	val PORT = "$port"
+	val PROTOCOL = "${protocol}"
+	val HOST = "${host}"
+#if (${port} != -1)
+	val PORT = "${port}"
 #end
-	val urlBase = $urlBase
+	val urlBase = ${urlBase}
 	
 	val httpConf = httpConfig.baseURL(urlBase)
 	
-#foreach($url in $urls.entrySet())
-	val $url.key = "$url.value"
+#foreach(${url} in ${urls.entrySet()})
+	val ${url.key} = "${url.value}"
 #end
 	
-#foreach ($h in $headers.entrySet())
-	val $h.key = Map(
-#foreach ($header in $h.value.entrySet())
-		"$header.key" -> "$header.value"#if($foreach.hasNext), 
+#foreach (${h} in ${headers.entrySet()})
+	val ${h.key} = Map(
+#foreach (${header} in ${h.value.entrySet()})
+		"${header.key}" -> "${header.value}"#if(${foreach.hasNext}),
 #else
 	
 		)
@@ -38,7 +38,7 @@
 	
 #end
 	
-	val scn = scenario("$name")
+	val scn = scenario("${name}")
 #foreach(${event} in ${events})
 #if(${event.class.simpleName} == "TagEvent")
 		/* ${event.getTag()} */
@@ -47,15 +47,15 @@
 #else
 		.exec(
 			http("request_${event.getId()}")
-			${event.getRequest().getMethod().toString().toLowerCase()}(url_${event.getId()})
+			.${event.getRequest().getMethod().toString().toLowerCase()}(#if(${event.isWithUrlBase()})"${URI.create(${event.getRequest().getUri()}).getPath()}"#else url_${event.getId()}#end)
 	#foreach(${param} in ${event.getRequestParams().entrySet()})
 #foreach(${val} in ${param.value})
-		param("${param.key}", "${val}")
+		.param("${param.key}", "${val}")
 #end
 	#end
-		headers(headers_${event.getId()})
+		.headers(headers_${event.getId()})
 	#if(${event.isWithBody()})
-		withFile("request_${event.getId()}.txt")
+		.withFile("request_${event.getId()}.txt")
 	#end
 		)
 #end
