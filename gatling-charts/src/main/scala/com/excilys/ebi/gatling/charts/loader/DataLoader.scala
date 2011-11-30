@@ -15,8 +15,7 @@
  */
 package com.excilys.ebi.gatling.charts.loader
 import scala.collection.immutable.SortedMap
-import scala.collection.mutable.HashMap
-import scala.collection.mutable.{Map => MMap}
+import scala.collection.mutable.{MutableList, Map => MMap, HashMap}
 import scala.io.Source
 
 import org.joda.time.DateTime
@@ -32,62 +31,69 @@ import com.excilys.ebi.gatling.core.result.writer.FileDataWriter.{GROUPS_SUFFIX,
 import com.excilys.ebi.gatling.core.util.DateHelper.parseResultDate
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 
+
+
 class DataLoader(runOn: String) extends Logging {
 
-	val data: List[ResultLine] = {
+	private val data: MutableList[ResultLine] = {
 
-		var tmpData: List[ResultLine] = Nil
+		val tmpData: MutableList[ResultLine] = MutableList.empty
 
 		// use caches in order to reuse String instances instead of holding multiple references of equal Strings
-		val runOnCache: MMap[String, String] = HashMap[String, String]()
-		val scenarioNameCache: MMap[String, String] = HashMap[String, String]()
-		val userIdCache: MMap[String, String] = HashMap[String, String]()
-		val actionNameCache: MMap[String, String] = HashMap[String, String]()
-		val groupsCache: MMap[String, String] = HashMap[String, String]()
+		val stringCache: MMap[String, String] = HashMap[String, String]()
+		val intCache: MMap[String, Int] = HashMap[String, Int]()
+
+		def cachedString(string: String) = {
+			if (!stringCache.contains(string)) {
+				val newString = new String(string)
+				stringCache += (newString -> newString)
+			}
+			stringCache.get(string).get
+		}
+		
+		def cachedInt(string: String) = {
+			if (!intCache.contains(string)) {
+				val newString = new String(string)
+				intCache += (newString -> newString.toInt)
+			}
+			intCache.get(string).get
+		}
 
 		for (line <- Source.fromFile(simulationLogFile(runOn).jfile, CONFIG_ENCODING).getLines) {
 			line.split(TABULATION_SEPARATOR) match {
 				// If we have a well formated result
 				case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage, groups) =>
-					
-					 runOnCache += (runOn -> runOn)
-					 scenarioNameCache += (scenarioName -> scenarioName)
-					 userIdCache += (userId -> userId)
-					 actionNameCache += (actionName -> actionName)
-					 groupsCache += (groups -> groups)
-					 
-					 val cachedRunOn = runOnCache.get(runOn).get
-					 val cachedScenarioName = scenarioNameCache.get(scenarioName).get
-					 val cachedUserId = userIdCache.get(userId).get
-					 val cachedActionName = actionNameCache.get(actionName).get
-					 val cachedGroups = groupsCache.get(groups).get
-					 
+
+					val cachedRunOn = cachedString(runOn)
+					val cachedScenarioName = cachedString(scenarioName)
+					val cachedUserId = cachedInt(userId)
+					val cachedActionName = cachedString(actionName)
+					val cachedGroups = cachedString(groups)
+					val cachedResultMessage = cachedString(resultMessage)
+
 					val groupsList = cachedGroups.stripPrefix(GROUPS_PREFIX).stripSuffix(GROUPS_SUFFIX).split(GROUPS_SEPARATOR).toList
-					tmpData = ResultLine(cachedRunOn, cachedScenarioName, cachedUserId.toInt, cachedActionName, parseResultDate(executionStartDate), executionDuration.toInt, ResultStatus.withName(resultStatus), resultMessage, groupsList) :: tmpData
+					tmpData += ResultLine(cachedRunOn, cachedScenarioName, cachedUserId, cachedActionName, parseResultDate(executionStartDate), executionDuration.toInt, ResultStatus.withName(resultStatus), cachedResultMessage, groupsList)
 				// Else, if the resulting data is not well formated print an error message
 				case _ => logger.warn("simulation.log had bad end of file, statistics will be generated but may not be accurate")
 			}
 		}
 
-		tmpData.sortBy(_.executionStartDate.getMillis)
+		tmpData.sorted
 	}
 
-	val dataIndexedByDateInSeconds: SortedMap[DateTime, List[ResultLine]] = SortedMap(data.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
+	val dataIndexedByDateInSeconds: SortedMap[DateTime, MutableList[ResultLine]] = SortedMap(data.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
 
-	val dataIndexedByRequestName: Map[String, List[ResultLine]] = data.groupBy(_.requestName).map { entry => entry._1 -> entry._2.sorted }
+	val dataIndexedByRequestName: Map[String, MutableList[ResultLine]] = data.groupBy(_.requestName).map { entry => entry._1 -> entry._2.sorted }
 
-	val dataIndexedByRequestNameAndDateInMilliseconds: Map[String, SortedMap[DateTime, List[ResultLine]]] =
-		dataIndexedByRequestName.map { entry => entry._1 -> SortedMap(entry._2.groupBy(_.executionStartDate).map(entry => entry._1 -> entry._2.sorted).toSeq: _*) }
+	val dataIndexedByRequestNameAndDateInMilliseconds: Map[String, SortedMap[DateTime, MutableList[ResultLine]]] = dataIndexedByRequestName.map { entry => entry._1 -> SortedMap(entry._2.groupBy(_.executionStartDate).toSeq: _*) }
 
-	val dataIndexedByRequestNameAndDateInSeconds: Map[String, SortedMap[DateTime, List[ResultLine]]] =
-		dataIndexedByRequestName.map { entry => entry._1 -> SortedMap(entry._2.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*) }
+	val dataIndexedByRequestNameAndDateInSeconds: Map[String, SortedMap[DateTime, MutableList[ResultLine]]] = dataIndexedByRequestName.map { entry => entry._1 -> SortedMap(entry._2.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*) }
 
-	val dataIndexedByScenarioName: Map[String, List[ResultLine]] = data.groupBy(_.scenarioName)
+	val dataIndexedByScenarioName: Map[String, MutableList[ResultLine]] = data.groupBy(_.scenarioName)
 
-	val dataIndexedByScenarioNameAndDateInSeconds: Map[String, SortedMap[DateTime, List[ResultLine]]] =
-		dataIndexedByScenarioName.map { entry => entry._1 -> SortedMap(entry._2.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*) }
+	val dataIndexedByScenarioNameAndDateInSeconds: Map[String, SortedMap[DateTime, MutableList[ResultLine]]] = dataIndexedByScenarioName.map { entry => entry._1 -> SortedMap(entry._2.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*) }
 
-	val requestNames: List[String] = data.map(_.requestName).distinct.filterNot(value => value == END_OF_SCENARIO || value == START_OF_SCENARIO)
+	val requestNames: MutableList[String] = data.map(_.requestName).distinct.filterNot(value => value == END_OF_SCENARIO || value == START_OF_SCENARIO)
 
-	val groupNames: List[String] = data.map(_.groups).flatten
+	val groupNames: MutableList[String] = data.map(_.groups).flatten.distinct
 }

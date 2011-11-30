@@ -28,35 +28,36 @@ import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.KO
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.OK
 import com.excilys.ebi.gatling.charts.report.ActiveSessionsReportGenerator
+import scala.collection.mutable.MutableList
 
 object Computer extends Logging {
 
-	def averageResponseTime(data: List[ResultLine]): Double = data.map(_.executionDurationInMillis).sum / data.length.toDouble
+	def averageResponseTime(data: MutableList[ResultLine]): Double = data.map(_.executionDurationInMillis).sum / data.length.toDouble
 
-	def responseTimeStandardDeviation(data: List[ResultLine]): Double = {
+	def responseTimeStandardDeviation(data: MutableList[ResultLine]): Double = {
 		val avg = averageResponseTime(data)
 		sqrt(data.map(result => pow(result.executionDurationInMillis - avg, 2)).sum / data.length)
 	}
 
-	def minResponseTime(data: List[ResultLine]): Int = data.minBy(_.executionDurationInMillis).executionDurationInMillis
+	def minResponseTime(data: MutableList[ResultLine]): Int = data.minBy(_.executionDurationInMillis).executionDurationInMillis
 
-	def maxResponseTime(data: List[ResultLine]): Int = data.maxBy(_.executionDurationInMillis).executionDurationInMillis
+	def maxResponseTime(data: MutableList[ResultLine]): Int = data.maxBy(_.executionDurationInMillis).executionDurationInMillis
 
-	def responseTimeByMillisecondAsList(data: Map[DateTime, List[ResultLine]]): List[(DateTime, Int)] = SortedMap(data.map { entry => entry._1 -> averageResponseTime(entry._2).toInt }.filterNot(_._2 == 0).toSeq: _*).toList
+	def responseTimeByMillisecondAsList(data: Map[DateTime, MutableList[ResultLine]]): List[(DateTime, Int)] = SortedMap(data.map { entry => entry._1 -> averageResponseTime(entry._2).toInt }.filterNot(_._2 == 0).toSeq: _*).toList
 
-	def numberOfRequestsPerSecond(data: Map[DateTime, List[ResultLine]]): Map[DateTime, Int] = SortedMap(data.map(entry => entry._1 -> entry._2.length).toSeq: _*)
+	def numberOfRequestsPerSecond(data: Map[DateTime, MutableList[ResultLine]]): Map[DateTime, Int] = SortedMap(data.map(entry => entry._1 -> entry._2.length).toSeq: _*)
 
-	def numberOfRequestsPerSecondAsList(data: Map[DateTime, List[ResultLine]]): List[(DateTime, Int)] = numberOfRequestsPerSecond(data).toList
+	def numberOfRequestsPerSecondAsList(data: Map[DateTime, MutableList[ResultLine]]): List[(DateTime, Int)] = numberOfRequestsPerSecond(data).toList
 
-	def numberOfSuccessfulRequestsPerSecond(data: Map[DateTime, List[ResultLine]]): List[(DateTime, Int)] = {
+	def numberOfSuccessfulRequestsPerSecond(data: Map[DateTime, MutableList[ResultLine]]): List[(DateTime, Int)] = {
 		numberOfRequestsPerSecondAsList(data.map(entry => entry._1 -> entry._2.filter(_.resultStatus == OK)))
 	}
 
-	def numberOfFailedRequestsPerSecond(data: Map[DateTime, List[ResultLine]]): List[(DateTime, Int)] = {
+	def numberOfFailedRequestsPerSecond(data: Map[DateTime, MutableList[ResultLine]]): List[(DateTime, Int)] = {
 		numberOfRequestsPerSecondAsList(data.map(entry => entry._1 -> entry._2.filter(_.resultStatus == KO)))
 	}
 
-	def numberOfRequestInResponseTimeRange(data: List[ResultLine], lowerBound: Int, higherBound: Int): List[(String, Int)] = {
+	def numberOfRequestInResponseTimeRange(data: MutableList[ResultLine], lowerBound: Int, higherBound: Int): List[(String, Int)] = {
 
 		val groupNames = List((1, "t < " + lowerBound + "ms"), (2, lowerBound + "ms < t < " + higherBound + "ms"), (3, higherBound + "ms < t"))
 		val (firstGroup, mediumGroup, lastGroup) = (groupNames(0), groupNames(1), groupNames(2))
@@ -68,7 +69,7 @@ object Computer extends Logging {
 		}
 
 		// Adds empty sections
-		groupNames.map { name => grouped += (name -> grouped.getOrElse(name, Nil)) }
+		groupNames.map { name => grouped += (name -> grouped.getOrElse(name, MutableList.empty)) }
 
 		// Computes the number of requests per group
 		// Then sorts the list by the order of the groupName
@@ -76,7 +77,7 @@ object Computer extends Logging {
 		grouped.map(entry => (entry._1, entry._2.length)).toList.sortBy(_._1._1).map { entry => (entry._1._2, entry._2) }
 	}
 
-	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: Map[DateTime, Int], requestData: Map[DateTime, List[ResultLine]]): List[(Int, Int)] = {
+	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: Map[DateTime, Int], requestData: Map[DateTime, MutableList[ResultLine]]): List[(Int, Int)] = {
 		requestData.map { entry =>
 			val (dateTime, list) = entry
 			requestData.get(dateTime).map {
@@ -85,7 +86,7 @@ object Computer extends Logging {
 		}.filter(_.isDefined).map(_.get).toList
 	}
 
-	def numberOfActiveSessionsPerSecondForAScenario(data: Map[DateTime, List[ResultLine]]): List[(DateTime, Int)] = {
+	def numberOfActiveSessionsPerSecondForAScenario(data: Map[DateTime, MutableList[ResultLine]]): List[(DateTime, Int)] = {
 		val endsOnly = data.map(entry => entry._1 -> entry._2.filter(_.requestName == END_OF_SCENARIO))
 		val startsOnly = data.map(entry => entry._1 -> entry._2.filter(_.requestName == START_OF_SCENARIO))
 
@@ -93,14 +94,14 @@ object Computer extends Logging {
 		SortedMap(data.map { entry =>
 			val (dateTime, list) = entry
 			list.foreach { result =>
-				if (endsOnly.getOrElse(dateTime, Nil).contains(result)) ct -= 1
-				if (startsOnly.getOrElse(dateTime, Nil).contains(result)) ct += 1
+				if (endsOnly.getOrElse(dateTime, MutableList.empty).contains(result)) ct -= 1
+				if (startsOnly.getOrElse(dateTime, MutableList.empty).contains(result)) ct += 1
 			}
 			(dateTime, ct)
 		}.toSeq: _*).toList
 	}
 
-	def numberOfActiveSessionsPerSecondByScenario(dataIndexedByScenario: Map[String, Map[DateTime, List[ResultLine]]], dataIndexedByDateInSeconds: Map[DateTime, List[ResultLine]]): Map[String, List[(DateTime, Int)]] = {
+	def numberOfActiveSessionsPerSecondByScenario(dataIndexedByScenario: Map[String, Map[DateTime, MutableList[ResultLine]]], dataIndexedByDateInSeconds: Map[DateTime, MutableList[ResultLine]]): Map[String, List[(DateTime, Int)]] = {
 		val allScenarioData = dataIndexedByScenario + (ActiveSessionsReportGenerator.ALL_SESSIONS -> dataIndexedByDateInSeconds)
 		// Filling the map with each scenario values
 		allScenarioData.map { entry =>

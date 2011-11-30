@@ -17,8 +17,9 @@ package com.excilys.ebi.gatling.charts.template
 
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_MENU_JS_FILE
 import com.excilys.ebi.gatling.core.util.PathHelper._
+import scala.collection.mutable.MutableList
 
-class MenuTemplate(requestLinks: List[(String, Option[String], String)]) {
+class MenuTemplate(requestLinks: MutableList[(String, Option[String], String)]) {
 
 	def getOutput: String = PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_MENU_JS_FILE, Map("requestLinks" -> requestLinks))
 }

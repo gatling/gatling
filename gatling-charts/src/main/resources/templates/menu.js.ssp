@@ -1,4 +1,4 @@
-<%@ val requestLinks: List[(String,Option[String],String)] %>
+<%@ val requestLinks: scala.collection.mutable.MutableList[(String,Option[String],String)] %>
 
 $(document).ready(function() { 
 	$("#details ul").append("<%= requestLinks.map{ entry => "<li><a href='" + entry._1 + "' " + (if(entry._2.isDefined) "title='" + entry._2.get + "'" else "") + ">" + entry._3 + "</a></li>" } %>");

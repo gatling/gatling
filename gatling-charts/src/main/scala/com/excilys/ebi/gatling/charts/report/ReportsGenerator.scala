@@ -16,9 +16,7 @@
 package com.excilys.ebi.gatling.charts.report
 import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.Path
-
 import org.fusesource.scalate.support.ScalaCompiler
-
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.menuFile
 import com.excilys.ebi.gatling.charts.loader.DataLoader
@@ -28,8 +26,10 @@ import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_CHARTING_COMPONE
 import com.excilys.ebi.gatling.core.config.GatlingFiles.{styleFolder, jsFolder, GATLING_ASSETS_STYLE_FOLDER, GATLING_ASSETS_JS_FOLDER}
 import com.excilys.ebi.gatling.core.util.FileHelper.{formatToFilename, HTML_EXTENSION}
 import com.excilys.ebi.gatling.core.util.ReflectionHelper.getNewInstanceByClassName
+import com.excilys.ebi.gatling.core.log.Logging
+import scala.collection.mutable.MutableList
 
-object ReportsGenerator {
+object ReportsGenerator extends Logging {
 	def generateFor(runOn: String) = {
 		val dataLoader = new DataLoader(runOn)
 
@@ -44,14 +44,18 @@ object ReportsGenerator {
 
 		generateMenu(runOn, dataLoader)
 
-		reportGenerators.foreach(_.generate)
+		reportGenerators.foreach{ generator =>
+			
+			generator.generate
+			logger.warn(generator.getClass.getSimpleName + " generated")
+		}
 
 		PageTemplate.TEMPLATE_ENGINE.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown
 	}
 
 	private def generateMenu(runOn: String, dataLoader: DataLoader) = {
 
-		val requestLinks: List[(String, Option[String], String)] = dataLoader.requestNames.map {
+		val requestLinks: MutableList[(String, Option[String], String)] = dataLoader.requestNames.map {
 			requestName =>
 				val title = if (requestName.length > 36) Some(requestName.substring(8)) else None
 				val printedName = if (requestName.length > 36) requestName.substring(8, 36) + "..." else requestName.substring(8)
