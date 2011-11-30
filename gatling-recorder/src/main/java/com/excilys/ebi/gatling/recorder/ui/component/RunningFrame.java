@@ -378,6 +378,10 @@ public class RunningFrame extends JFrame {
 				hm.put(requestHeader.getKey(), requestHeader.getValue());
 			headers.put("headers_" + id, hm);
 		}
+		
+		/* Add check if status is not in 20X */
+		if ((event.getResponse().getStatus().getCode() < 200) || (event.getResponse().getStatus().getCode() > 210))
+			event.setWithCheck(true);
 
 		/* Params */
 		QueryStringDecoder decoder = new QueryStringDecoder(request.getUri());

@@ -58,6 +58,9 @@
 #else
 		.headers(headers_${event.getId()})
 #end
+#if(${event.isWithCheck()})
+			.check(status.eq(${event.getResponse().getStatus().getCode()}))
+#end
 	#if(${event.isWithBody()})
 		.withFile("request_${event.getId()}.txt")
 	#end

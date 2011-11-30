@@ -31,6 +31,7 @@ public class ResponseReceivedEvent {
 	private String headersId;
 	private boolean withBody;
 	private boolean withUrlBase;
+	private boolean withCheck;
 
 	public ResponseReceivedEvent(HttpRequest request, HttpResponse response) {
 		this.request = request;
@@ -83,5 +84,13 @@ public class ResponseReceivedEvent {
 
 	public HttpResponse getResponse() {
 		return response;
+	}
+
+	public boolean isWithCheck() {
+		return withCheck;
+	}
+
+	public void setWithCheck(boolean withCheck) {
+		this.withCheck = withCheck;
 	}
 }
