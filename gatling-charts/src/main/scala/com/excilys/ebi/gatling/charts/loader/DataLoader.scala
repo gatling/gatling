@@ -87,11 +87,11 @@ class DataLoader(runOn: String) extends Logging {
 
 	def dataIndexedByRequestNameAndDateInSeconds(requestName: String): SortedMap[DateTime, MutableList[ResultLine]] = SortedMap(dataIndexedByRequestName(requestName).groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
 
-	val dataIndexedByScenarioName: Map[String, MutableList[ResultLine]] = data.groupBy(_.scenarioName)
-
-	val dataIndexedByScenarioNameAndDateInSeconds: Map[String, SortedMap[DateTime, MutableList[ResultLine]]] = dataIndexedByScenarioName.map { entry => entry._1 -> SortedMap(entry._2.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*) }
+	def dataIndexedByScenarioNameAndDateInSeconds(scenarioName: String): SortedMap[DateTime, MutableList[ResultLine]] = SortedMap(data.filter(_.scenarioName == scenarioName).groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
 
 	val requestNames: MutableList[String] = data.map(_.requestName).distinct.filterNot(value => value == END_OF_SCENARIO || value == START_OF_SCENARIO)
 
 	val groupNames: MutableList[String] = data.map(_.groups).flatten.distinct
+
+	val scenarioNames: MutableList[String] = data.map(_.scenarioName).distinct
 }

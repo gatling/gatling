@@ -103,8 +103,7 @@ object Computer extends Logging {
 		}.toSeq: _*).toList
 	}
 
-	def numberOfActiveSessionsPerSecondByScenario(dataIndexedByScenario: Map[String, Map[DateTime, MutableList[ResultLine]]], dataIndexedByDateInSeconds: Map[DateTime, MutableList[ResultLine]]): Map[String, List[(DateTime, Int)]] = {
-		val allScenarioData = dataIndexedByScenario + (ActiveSessionsReportGenerator.ALL_SESSIONS -> dataIndexedByDateInSeconds)
+	def numberOfActiveSessionsPerSecondByScenario(allScenarioData: MutableList[(String, SortedMap[DateTime, MutableList[ResultLine]])]): MutableList[(String, List[(DateTime, Int)])] = {
 		// Filling the map with each scenario values
 		allScenarioData.map { entry =>
 			val (scenarioName, scenarioData) = entry
