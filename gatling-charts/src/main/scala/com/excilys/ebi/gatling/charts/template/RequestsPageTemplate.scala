@@ -16,4 +16,4 @@
 package com.excilys.ebi.gatling.charts.template
 import com.excilys.ebi.gatling.charts.component.Component
 
-class RequestsPageTemplate(chartComponent: Component) extends PageTemplate("Requests per second", "global", chartComponent)
+class RequestsPageTemplate(chartComponent: Component) extends PageTemplate("Requests per second", chartComponent)

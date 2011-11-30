@@ -27,7 +27,7 @@ object PageTemplate {
 	TEMPLATE_ENGINE.escapeMarkup = false
 }
 
-abstract class PageTemplate(title: String, subTitle: String, components: Component*) extends Logging {
+abstract class PageTemplate(title: String, components: Component*) extends Logging {
 
 	val jsFiles = (Seq(JQUERY_FILE, MENU_FILE) ++ getAdditionnalJSFiles).distinct
 
@@ -41,7 +41,6 @@ abstract class PageTemplate(title: String, subTitle: String, components: Compone
 		PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_LAYOUT_FILE,
 			Map("jsFiles" -> jsFiles,
 				"pageTitle" -> title,
-				"pageSubTitle" -> subTitle,
 				"pageContent" -> getContent,
 				"javascript" -> getJavascript))
 	}

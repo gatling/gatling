@@ -8,7 +8,6 @@
 <div id="statistics">
 	<div class="green_block">
 		<h1>Statistics</h1>
-		<h2>about that request</h2>
 		<ul>
 			<li>Executed <b><%= numberOfRequests %></b> times
 				<ul>

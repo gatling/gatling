@@ -1,6 +1,5 @@
 <%@ val jsFiles: Seq[String] %>
 <%@ val pageTitle: String %>
-<%@ val pageSubTitle: String %>
 <%@ val pageContent: String %>
 <%@ val javascript: String %>
 <!DOCTYPE html>
@@ -35,7 +34,6 @@
 			<div id="page_title">
 				<span class="green_block">
 					<h1><%= pageTitle %></h1>
-					<h2><%= pageSubTitle %></h2>
 				</span>
 			</div>
 
