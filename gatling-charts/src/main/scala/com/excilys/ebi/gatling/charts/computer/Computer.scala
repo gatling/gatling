@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.charts.computer
 
 import scala.collection.immutable.SortedMap
-import scala.math.{sqrt, pow}
+import scala.math.{ sqrt, pow }
 
 import org.joda.time.DateTime
 
@@ -25,7 +25,7 @@ import com.excilys.ebi.gatling.charts.util.OrderingHelper.DateTimeOrdering
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.{OK, KO}
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ OK, KO }
 
 object Computer extends Logging {
 
@@ -58,10 +58,11 @@ object Computer extends Logging {
 
 	def numberOfRequestInResponseTimeRange(data: Seq[ResultLine], lowerBound: Int, higherBound: Int): List[(String, Int)] = {
 
-		val groupNames = List((1, "t < " + lowerBound + "ms"), (2, lowerBound + "ms < t < " + higherBound + "ms"), (3, higherBound + "ms < t"))
-		val (firstGroup, mediumGroup, lastGroup) = (groupNames(0), groupNames(1), groupNames(2))
+		val groupNames = List((1, "t < " + lowerBound + "ms"), (2, lowerBound + "ms < t < " + higherBound + "ms"), (3, higherBound + "ms < t"), (4, "failed"))
+		val (firstGroup, mediumGroup, lastGroup, failedGroup) = (groupNames(0), groupNames(1), groupNames(2), groupNames(3))
 
 		var grouped = data.groupBy {
+			case result if (result.resultStatus == KO) => failedGroup
 			case result if (result.executionDurationInMillis < lowerBound) => firstGroup
 			case result if (result.executionDurationInMillis > higherBound) => lastGroup
 			case _ => mediumGroup

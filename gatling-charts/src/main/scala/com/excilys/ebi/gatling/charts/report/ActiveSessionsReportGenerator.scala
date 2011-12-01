@@ -30,12 +30,9 @@ object ActiveSessionsReportGenerator {
 class ActiveSessionsReportGenerator(runOn: String, dataLoader: DataLoader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataLoader, componentLibrary) {
 	def generate = {
 		// Get Data
-		var scenariosData = dataLoader.scenarioNames.map { scenarioName =>
+		val scenariosData = dataLoader.scenarioNames.map { scenarioName =>
 			(scenarioName, dataLoader.dataIndexedByScenarioNameAndDateInSeconds(scenarioName))
-		}
-
-		// FIXME!!
-		//		scenariosData += (ActiveSessionsReportGenerator.ALL_SESSIONS, dataLoader.dataIndexedByDateInSeconds)
+		} ++ Seq((ActiveSessionsReportGenerator.ALL_SESSIONS, dataLoader.dataIndexedByDateInSeconds))
 
 		val activeSessionsData = numberOfActiveSessionsPerSecondByScenario(scenariosData)
 

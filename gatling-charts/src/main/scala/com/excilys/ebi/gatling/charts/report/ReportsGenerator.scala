@@ -20,11 +20,11 @@ import org.fusesource.scalate.support.ScalaCompiler
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.menuFile
 import com.excilys.ebi.gatling.charts.loader.DataLoader
-import com.excilys.ebi.gatling.charts.template.{PageTemplate, MenuTemplate}
+import com.excilys.ebi.gatling.charts.template.{ PageTemplate, MenuTemplate }
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_CHARTING_COMPONENT_LIBRARY_CLASS
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{styleFolder, jsFolder, GATLING_ASSETS_STYLE_FOLDER, GATLING_ASSETS_JS_FOLDER}
-import com.excilys.ebi.gatling.core.util.FileHelper.{formatToFilename, HTML_EXTENSION}
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{ styleFolder, jsFolder, GATLING_ASSETS_STYLE_FOLDER, GATLING_ASSETS_JS_FOLDER }
+import com.excilys.ebi.gatling.core.util.FileHelper.{ formatToFilename, HTML_EXTENSION }
 import com.excilys.ebi.gatling.core.util.ReflectionHelper.getNewInstanceByClassName
 import com.excilys.ebi.gatling.core.log.Logging
 import scala.collection.mutable.MutableList
@@ -44,11 +44,7 @@ object ReportsGenerator extends Logging {
 
 		generateMenu(runOn, dataLoader)
 
-		reportGenerators.foreach{ generator =>
-			
-			generator.generate
-			logger.warn(generator.getClass.getSimpleName + " generated")
-		}
+		reportGenerators.foreach(_.generate)
 
 		PageTemplate.TEMPLATE_ENGINE.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown
 	}
