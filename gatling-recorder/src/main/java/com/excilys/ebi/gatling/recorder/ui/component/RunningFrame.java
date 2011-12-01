@@ -54,6 +54,7 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
+import org.codehaus.plexus.util.Base64;
 import org.codehaus.plexus.util.SelectorUtils;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.QueryStringDecoder;
@@ -224,6 +225,14 @@ public class RunningFrame extends JFrame {
 
 	@Subscribe
 	public void onRequestReceivedEvent(RequestReceivedEvent event) {
+		String header = event.getRequest().getHeader("Proxy-Authorization");
+		if (header != null) {
+			// Split on " " and take 2nd match (Basic credentialsInBase64==)
+			String credentials = new String(Base64.decodeBase64(header.split(" ")[1].getBytes()));
+			configuration.getProxy().setUsername(credentials.split(":")[0]);
+			configuration.getProxy().setPassword(credentials.split(":")[1]);
+		}
+
 		if (addRequest(event.getRequest())) {
 			if (lastRequest != null) {
 				Date newRequest = new Date();
@@ -431,6 +440,7 @@ public class RunningFrame extends JFrame {
 		context.put("host", host);
 		context.put("port", port);
 		context.put("urlBase", urlBaseString);
+		context.put("proxy", configuration.getProxy());
 		context.put("urls", urls);
 		context.put("headers", headers);
 		context.put("name", "Scenario name");

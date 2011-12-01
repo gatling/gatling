@@ -20,7 +20,7 @@
 #end
 	val urlBase = ${urlBase}
 	
-	val httpConf = httpConfig.baseURL(urlBase)
+	val httpConf = httpConfig.baseURL(urlBase)#if(${proxy.getPort()} != 0).proxy("${proxy.getHost()}", ${proxy.getPort()}, "${proxy.getUsername()}", "${proxy.getPassword()}")#end
 	
 #foreach(${url} in ${urls.entrySet()})
 	val ${url.key} = "${url.value}"

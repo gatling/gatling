@@ -65,6 +65,7 @@
 									<artifact>org.codehaus.plexus:plexus-utils</artifact>
 									<includes>
 										<include>org/codehaus/plexus/util/SelectorUtils.class</include>
+										<include>org/codehaus/plexus/util/Base64.class</include>
 									</includes>
 								</filter>
 								<filter>
