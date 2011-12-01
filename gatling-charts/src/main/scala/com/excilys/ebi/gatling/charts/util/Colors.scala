@@ -17,12 +17,11 @@ package com.excilys.ebi.gatling.charts.util
 
 object Colors extends Enumeration {
 	type Colors = Value
-	val ORANGE = Value("#FF6900")
 	val BLUE = Value("#4572A7")
 	val GREEN = Value("#A0B228")
+	val YELLOW = Value("#FFDD00")
+	val ORANGE = Value("#FF6900")
 	val RED = Value("#DF5353")
-	val BLACK = Value("#888888")
 	val TRANSLUCID_RED = Value("rgba(223, 83, 83, .2)")
 	val TRANSLUCID_BLUE = Value("rgba(69, 114, 167, .2)")
-	val TRANSLUCID_GREY = Value("rgba(136, 136, 136, .2)")
 }
