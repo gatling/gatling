@@ -31,6 +31,6 @@ object HttpProtocolConfiguration {
  * @param baseUrl the radix of all the URLs that will be used (eg: http://mywebsite.tld)
  * @param proxy a proxy through which all the requests must pass to succeed
  */
-class HttpProtocolConfiguration(val baseURL: Option[String], val proxy: Option[ProxyServer]) extends ProtocolConfiguration {
+class HttpProtocolConfiguration(val baseURL: Option[String], val proxy: Option[ProxyServer], val securedProxy: Option[ProxyServer]) extends ProtocolConfiguration {
 	def getProtocolType = HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE
 }

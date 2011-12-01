@@ -23,11 +23,13 @@ import com.excilys.ebi.gatling.http.check.body.HttpBodyXPathCheckBuilder
 import com.excilys.ebi.gatling.http.check.header.HttpHeaderCheckBuilder
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder
 import com.excilys.ebi.gatling.core.check.CheckBuilder
+import com.excilys.ebi.gatling.http.config.HttpProxyBuilder
 
 object Predef {
 	def http(requestName: String) = HttpRequestActionBuilder.http(requestName)
 
 	def httpConfig = HttpProtocolConfigurationBuilder.httpConfig
+	implicit def toHttpProtocolConfiguration(hpb: HttpProxyBuilder) = HttpProxyBuilder.toHttpProtocolConfiguration(hpb)
 	implicit def toHttpProtocolConfiguration(builder: HttpProtocolConfigurationBuilder) = HttpProtocolConfigurationBuilder.toHttpProtocolConfiguration(builder)
 
 	implicit def intToString(i: Int) = CheckBuilder.intToString(i)

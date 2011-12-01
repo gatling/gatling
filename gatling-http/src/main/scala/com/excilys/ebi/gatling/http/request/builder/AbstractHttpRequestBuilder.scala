@@ -159,8 +159,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 		val requestBuilder = new RequestBuilder
 		requestBuilder setMethod method setFollowRedirects followsRedirects.getOrElse(false)
 
-		addURLTo(requestBuilder, context)
-		addProxyTo(requestBuilder, context)
+		val isHttps = addURLTo(requestBuilder, context)
+		addProxyTo(requestBuilder, context, isHttps)
 		addCookiesTo(requestBuilder, context)
 		addQueryParamsTo(requestBuilder, context)
 		addHeadersTo(requestBuilder, headers)
@@ -187,8 +187,11 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * @param requestBuilder the request builder to which the proxy should be added
 	 * @param context the context of the current scenario
 	 */
-	private def addProxyTo(requestBuilder: RequestBuilder, context: Context) = {
-		context.getProtocolConfiguration(HTTP_PROTOCOL_TYPE).map(_.asInstanceOf[HttpProtocolConfiguration].proxy.map(requestBuilder.setProxyServer(_)))
+	private def addProxyTo(requestBuilder: RequestBuilder, context: Context, isHttps: Boolean) = {
+		context.getProtocolConfiguration(HTTP_PROTOCOL_TYPE).map { config =>
+			val httpConfig = config.asInstanceOf[HttpProtocolConfiguration]
+			(if (isHttps) httpConfig.securedProxy else httpConfig.proxy).map(requestBuilder.setProxyServer(_))
+		}
 	}
 
 	/**
@@ -212,6 +215,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 				throw new IllegalArgumentException("URL is invalid (does not start with http): " + urlProvided)
 
 		requestBuilder.setUrl(url)
+
+		url.startsWith("https")
 	}
 
 	/**

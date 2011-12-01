@@ -31,7 +31,7 @@ object CompileTest {
 
 	val baseUrl = "http://localhost:3000"
 
-	val httpConf = httpConfig.baseURL(baseUrl)
+	val httpConf = httpConfig.baseURL(baseUrl).proxy("91.121.211.157", 80).httpsPort(4443).credentials("rom", "test")
 
 	val usersInformation = new TSVFeeder("user_information")
 

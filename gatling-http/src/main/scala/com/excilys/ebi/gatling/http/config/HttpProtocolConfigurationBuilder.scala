@@ -20,7 +20,7 @@ import com.ning.http.client.ProxyServer
  * HttpProtocolConfigurationBuilder class companion
  */
 object HttpProtocolConfigurationBuilder {
-	def httpConfig = new HttpProtocolConfigurationBuilder(None, None)
+	def httpConfig = new HttpProtocolConfigurationBuilder(None, None, None)
 
 	implicit def toHttpProtocolConfiguration(builder: HttpProtocolConfigurationBuilder) = builder.build
 }
@@ -31,14 +31,14 @@ object HttpProtocolConfigurationBuilder {
  * @param baseUrl the radix of all the URLs that will be used (eg: http://mywebsite.tld)
  * @param proxy a proxy through which all the requests must pass to succeed
  */
-class HttpProtocolConfigurationBuilder(baseUrl: Option[String], proxy: Option[ProxyServer]) {
+class HttpProtocolConfigurationBuilder(baseUrl: Option[String], proxy: Option[ProxyServer], securedProxy: Option[ProxyServer]) {
 
 	/**
 	 * Sets the baseURL of the future HttpProtocolConfiguration
 	 *
 	 * @param baseurl the base url that will be set
 	 */
-	def baseURL(baseurl: String) = new HttpProtocolConfigurationBuilder(Some(baseurl), proxy)
+	def baseURL(baseurl: String) = new HttpProtocolConfigurationBuilder(Some(baseurl), proxy, securedProxy)
 
 	/**
 	 * Sets the proxy of the future HttpProtocolConfiguration
@@ -46,21 +46,9 @@ class HttpProtocolConfigurationBuilder(baseUrl: Option[String], proxy: Option[Pr
 	 * @param host the host of the proxy
 	 * @param port the port of the proxy
 	 */
-	def proxy(host: String, port: Int): HttpProtocolConfigurationBuilder = proxy(host, port, null, null)
+	def proxy(host: String, port: Int) = new HttpProxyBuilder(this, host, port)
 
-	/**
-	 * Sets the proxy of the future HttpProtocolConfiguration
-	 *
-	 * @param host the host of the proxy
-	 * @param port the port of the proxy
-	 * @param username the username used to connect to the proxy
-	 * @param password the password used to connect to the proxy
-	 */
-	def proxy(host: String, port: Int, username: String, password: String) = {
-		val ps = new ProxyServer(ProxyServer.Protocol.HTTP, host, port, username, password)
-		ps.setNtlmDomain(null)
-		new HttpProtocolConfigurationBuilder(baseUrl, Some(ps))
-	}
+	private[http] def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = new HttpProtocolConfigurationBuilder(baseUrl, Some(httpProxy), httpsProxy)
 
-	private[http] def build = new HttpProtocolConfiguration(baseUrl, proxy)
+	private[http] def build = new HttpProtocolConfiguration(baseUrl, proxy, securedProxy)
 }
