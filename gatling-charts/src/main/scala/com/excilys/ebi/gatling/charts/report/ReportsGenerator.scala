@@ -16,24 +16,26 @@
 package com.excilys.ebi.gatling.charts.report
 import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.Path
+
 import org.fusesource.scalate.support.ScalaCompiler
+
+import com.excilys.ebi.gatling.charts.component.impl.ComponentLibraryImpl
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.menuFile
 import com.excilys.ebi.gatling.charts.loader.DataLoader
-import com.excilys.ebi.gatling.charts.template.{ PageTemplate, MenuTemplate }
+import com.excilys.ebi.gatling.charts.template.{PageTemplate, MenuTemplate}
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
-import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_CHARTING_COMPONENT_LIBRARY_CLASS
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{ styleFolder, jsFolder, GATLING_ASSETS_STYLE_FOLDER, GATLING_ASSETS_JS_FOLDER }
-import com.excilys.ebi.gatling.core.util.FileHelper.{ formatToFilename, HTML_EXTENSION }
-import com.excilys.ebi.gatling.core.util.ReflectionHelper.getNewInstanceByClassName
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{styleFolder, jsFolder, GATLING_ASSETS_STYLE_FOLDER, GATLING_ASSETS_JS_FOLDER}
 import com.excilys.ebi.gatling.core.log.Logging
-import scala.collection.mutable.MutableList
+import com.excilys.ebi.gatling.core.util.FileHelper.{formatToFilename, HTML_EXTENSION}
 
 object ReportsGenerator extends Logging {
+
+	// TODO issue a warn if multiple instances in classpath
+	val componentLibrary: ComponentLibrary = new ComponentLibraryImpl
+
 	def generateFor(runOn: String) = {
 		val dataLoader = new DataLoader(runOn)
-
-		val componentLibrary = getNewInstanceByClassName[ComponentLibrary](CONFIG_CHARTING_COMPONENT_LIBRARY_CLASS)
 
 		val reportGenerators =
 			List(new ActiveSessionsReportGenerator(runOn, dataLoader, componentLibrary),
