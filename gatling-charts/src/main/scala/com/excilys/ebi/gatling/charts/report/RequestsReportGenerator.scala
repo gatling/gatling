@@ -28,6 +28,7 @@ import com.excilys.ebi.gatling.charts.writer.TemplateWriter
 class RequestsReportGenerator(runOn: String, dataLoader: DataLoader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataLoader, componentLibrary) {
 
 	def generate = {
+		
 		// Get Data
 		val allRequestsData = numberOfRequestsPerSecondAsList(dataLoader.dataIndexedByDateInSeconds)
 		val failedRequestsData = numberOfFailedRequestsPerSecond(dataLoader.dataIndexedByDateInSeconds)

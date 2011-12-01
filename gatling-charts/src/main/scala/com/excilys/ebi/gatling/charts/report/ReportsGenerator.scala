@@ -55,7 +55,7 @@ object ReportsGenerator extends Logging {
 
 	private def generateMenu(runOn: String, dataLoader: DataLoader) = {
 
-		val requestLinks: MutableList[(String, Option[String], String)] = dataLoader.requestNames.map {
+		val requestLinks: Iterable[(String, Option[String], String)] = dataLoader.requestNames.map {
 			requestName =>
 				val title = if (requestName.length > 36) Some(requestName.substring(8)) else None
 				val printedName = if (requestName.length > 36) requestName.substring(8, 36) + "..." else requestName.substring(8)

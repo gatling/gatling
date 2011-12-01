@@ -85,6 +85,5 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 				new TemplateWriter(requestFile(runOn, requestName)).writeToFile(template.getOutput)
 			}
 		}
-
 	}
 }

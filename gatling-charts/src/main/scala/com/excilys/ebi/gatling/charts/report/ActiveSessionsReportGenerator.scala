@@ -20,8 +20,7 @@ import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.computer.Computer.numberOfActiveSessionsPerSecondByScenario
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.activeSessionsFile
 import com.excilys.ebi.gatling.charts.loader.DataLoader
-import com.excilys.ebi.gatling.charts.series.Series
-import com.excilys.ebi.gatling.charts.series.SharedSeries
+import com.excilys.ebi.gatling.charts.series.{ SharedSeries, Series }
 import com.excilys.ebi.gatling.charts.template.ActiveSessionsPageTemplate
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
 
@@ -31,9 +30,12 @@ object ActiveSessionsReportGenerator {
 class ActiveSessionsReportGenerator(runOn: String, dataLoader: DataLoader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataLoader, componentLibrary) {
 	def generate = {
 		// Get Data
-		val scenariosData = dataLoader.scenarioNames.map { scenarioName =>
+		var scenariosData = dataLoader.scenarioNames.map { scenarioName =>
 			(scenarioName, dataLoader.dataIndexedByScenarioNameAndDateInSeconds(scenarioName))
-		} += ((ActiveSessionsReportGenerator.ALL_SESSIONS, dataLoader.dataIndexedByDateInSeconds))
+		}
+
+		// FIXME!!
+		//		scenariosData += (ActiveSessionsReportGenerator.ALL_SESSIONS, dataLoader.dataIndexedByDateInSeconds)
 
 		val activeSessionsData = numberOfActiveSessionsPerSecondByScenario(scenariosData)
 
