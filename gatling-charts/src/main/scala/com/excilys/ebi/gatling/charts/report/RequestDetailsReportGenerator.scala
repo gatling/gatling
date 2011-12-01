@@ -38,6 +38,7 @@ import com.excilys.ebi.gatling.core.util.FileHelper.HTML_EXTENSION
 import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.charts.series.SharedSeries
+import com.excilys.ebi.gatling.core.result.message.ResultStatus._
 
 class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataLoader, componentLibrary) {
 	def generate = {
@@ -56,7 +57,8 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 					val numberOfRequests = dataList.size
 					indicatorsColumnData.map { entry => entry._1 -> (entry._2 / numberOfRequests.toDouble * 100).toInt }
 				}
-				val scatterPlotData = respTimeAgainstNbOfReqPerSecond(numberOfRequestsPerSecond(dataLoader.dataIndexedByDateInSeconds), dataSeconds)
+				val scatterPlotSuccessData = respTimeAgainstNbOfReqPerSecond(numberOfRequestsPerSecond(dataLoader.dataIndexedByDateInSeconds), dataSeconds, OK)
+				val scatterPlotFailuresData = respTimeAgainstNbOfReqPerSecond(numberOfRequestsPerSecond(dataLoader.dataIndexedByDateInSeconds), dataSeconds, KO)
 
 				// Statistics
 				val numberOfRequests = dataList.length
@@ -71,14 +73,15 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 				val responseTimesSeries = new Series[DateTime, Int]("Response Time", responseTimesData)
 				val indicatorsColumnSeries = new Series[String, Int](EMPTY, indicatorsColumnData)
 				val indicatorsPieSeries = new Series[String, Int](EMPTY, indicatorsPieData)
-				val scatterPlotSeries = new Series[Int, Int](EMPTY, scatterPlotData)
+				val scatterPlotSuccessSeries = new Series[Int, Int]("Successes", scatterPlotSuccessData)
+				val scatterPlotFailuresSeries = new Series[Int, Int]("Failures", scatterPlotFailuresData)
 
 				// Create template
 				val template =
 					new RequestDetailsPageTemplate(requestName.substring(8),
 						componentLibrary.getRequestDetailsResponseTimeChartComponent(responseTimesSeries, SharedSeries.getAllActiveSessionsSeries),
 						new StatisticsTextComponent(numberOfRequests, numberOfSuccessfulRequests, numberOfFailedRequests, minRespTime, maxRespTime, avgRespTime, respTimeStdDeviation),
-						componentLibrary.getRequestDetailsScatterChartComponent(scatterPlotSeries),
+						componentLibrary.getRequestDetailsScatterChartComponent(scatterPlotSuccessSeries, scatterPlotFailuresSeries),
 						componentLibrary.getRequestDetailsIndicatorChartComponent(indicatorsColumnSeries, indicatorsPieSeries))
 
 				// Write template result to file

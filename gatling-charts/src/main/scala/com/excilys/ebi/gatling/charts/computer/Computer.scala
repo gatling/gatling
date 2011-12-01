@@ -25,7 +25,7 @@ import com.excilys.ebi.gatling.charts.util.OrderingHelper.DateTimeOrdering
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ OK, KO }
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ OK, KO, ResultStatus }
 
 object Computer extends Logging {
 
@@ -77,10 +77,12 @@ object Computer extends Logging {
 		grouped.map(entry => (entry._1, entry._2.length)).toList.sortBy(_._1._1).map { entry => (entry._1._2, entry._2) }
 	}
 
-	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: Map[DateTime, Int], requestData: Map[DateTime, Seq[ResultLine]]): List[(Int, Int)] = {
+	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: Map[DateTime, Int], requestData: Map[DateTime, Seq[ResultLine]], resultStatus: ResultStatus): List[(Int, Int)] = {
 		requestData.map { entry =>
 			val (dateTime, list) = entry
-			requestData.get(dateTime).map(_.map(requestsPerSecond.get(dateTime).get -> _.executionDurationInMillis))
+			requestData.get(dateTime).map { list =>
+				list.filter(_.resultStatus == resultStatus).map(requestsPerSecond.get(dateTime).get -> _.executionDurationInMillis)
+			}
 		}.filter(_.isDefined).map(_.get).toList.flatten
 	}
 

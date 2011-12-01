@@ -22,5 +22,7 @@ object Colors extends Enumeration {
 	val GREEN = Value("#A0B228")
 	val RED = Value("#DF5353")
 	val BLACK = Value("#888888")
-	val TRANSLUCID_RED = Value("rgba(223, 83, 83, .3)")
+	val TRANSLUCID_RED = Value("rgba(223, 83, 83, .2)")
+	val TRANSLUCID_BLUE = Value("rgba(69, 114, 167, .2)")
+	val TRANSLUCID_GREY = Value("rgba(136, 136, 136, .2)")
 }
