@@ -15,4 +15,4 @@
  */
 package com.excilys.ebi.gatling.charts.series
 
-class Series[X, Y](val name: String, val data: List[(X, Y)], val yAxisInfo: Option[YAxisInfo] = None)
+class Series[X, Y](val name: String, val data: List[(X, Y)], val colors: List[String])

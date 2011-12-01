@@ -24,11 +24,12 @@ import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.series.SharedSeries
 import com.excilys.ebi.gatling.charts.template.RequestsPageTemplate
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
+import com.excilys.ebi.gatling.charts.util.Colors._
 
 class RequestsReportGenerator(runOn: String, dataLoader: DataLoader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataLoader, componentLibrary) {
 
 	def generate = {
-		
+
 		// Get Data
 		val allRequestsData = numberOfRequestsPerSecondAsList(dataLoader.dataIndexedByDateInSeconds)
 		val failedRequestsData = numberOfFailedRequestsPerSecond(dataLoader.dataIndexedByDateInSeconds)
@@ -36,10 +37,10 @@ class RequestsReportGenerator(runOn: String, dataLoader: DataLoader, componentLi
 		val pieData = ("Success", succeededRequestsData.map(_._2).sum) :: ("Failures", failedRequestsData.map(_._2).sum) :: Nil
 
 		// Create series
-		val allRequests = new Series[DateTime, Int]("All requests", allRequestsData)
-		val failedRequests = new Series[DateTime, Int]("Failed requests", failedRequestsData)
-		val succeededRequests = new Series[DateTime, Int]("Succeeded requests", succeededRequestsData)
-		val pieSeries = new Series[String, Int]("Repartition", pieData)
+		val allRequests = new Series[DateTime, Int]("All requests", allRequestsData, List(BLUE))
+		val failedRequests = new Series[DateTime, Int]("Failed requests", failedRequestsData, List(RED))
+		val succeededRequests = new Series[DateTime, Int]("Succeeded requests", succeededRequestsData, List(GREEN))
+		val pieSeries = new Series[String, Int]("Repartition", pieData, List(GREEN, RED))
 
 		// Create template
 		val template = new RequestsPageTemplate(componentLibrary.getRequestsChartComponent(allRequests, failedRequests, succeededRequests, pieSeries, SharedSeries.getAllActiveSessionsSeries))

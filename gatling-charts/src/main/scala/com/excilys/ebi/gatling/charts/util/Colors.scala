@@ -20,8 +20,20 @@ object Colors extends Enumeration {
 	val BLUE = Value("#4572A7")
 	val GREEN = Value("#A0B228")
 	val YELLOW = Value("#FFDD00")
-	val ORANGE = Value("#FF6900")
-	val RED = Value("#DF5353")
-	val TRANSLUCID_RED = Value("rgba(223, 83, 83, .2)")
+	val ORANGE = Value("#FF9D00")
+	val RED = Value("#FF0000")
+	val CYAN = Value("#00D5FF")
+	val LIME = Value("#00FF00")
+	val PURPLE = Value("#9D00FF")
+	val PINK = Value("#FF00E1")
+	val LIGHT_BLUE = Value("#AECAEB")
+	val LIGHT_ORANGE = Value("#FFD085")
+	val LIGHT_RED = Value("#FF9C9C")
+	val LIGHT_LIME = Value("#9EFF9E")
+	val LIGHT_PURPLE = Value("#CF82FF")
+	val LIGHT_PINK = Value("#FF82F0")
+	val TRANSLUCID_RED = Value("rgba(255, 0, 0, .2)")
 	val TRANSLUCID_BLUE = Value("rgba(69, 114, 167, .2)")
+
+	implicit def toString(color: Colors) = color.toString
 }

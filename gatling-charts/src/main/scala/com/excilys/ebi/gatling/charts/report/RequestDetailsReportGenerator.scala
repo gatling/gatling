@@ -39,6 +39,7 @@ import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.charts.series.SharedSeries
 import com.excilys.ebi.gatling.core.result.message.ResultStatus._
+import com.excilys.ebi.gatling.charts.util.Colors._
 
 class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataLoader, componentLibrary) {
 	def generate = {
@@ -71,12 +72,12 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 				val respTimeStdDeviation = responseTimeStandardDeviation(dataList)
 
 				// Create series
-				val responseTimesSuccessSeries = new Series[DateTime, Int]("Response Time (success)", responseTimesSuccessData)
-				val responseTimesFailuresSeries = new Series[DateTime, Int]("Response Time (failure)", responseTimesFailuresData)
-				val indicatorsColumnSeries = new Series[String, Int](EMPTY, indicatorsColumnData)
-				val indicatorsPieSeries = new Series[String, Int](EMPTY, indicatorsPieData)
-				val scatterPlotSuccessSeries = new Series[Int, Int]("Successes", scatterPlotSuccessData)
-				val scatterPlotFailuresSeries = new Series[Int, Int]("Failures", scatterPlotFailuresData)
+				val responseTimesSuccessSeries = new Series[DateTime, Int]("Response Time (success)", responseTimesSuccessData, List(BLUE))
+				val responseTimesFailuresSeries = new Series[DateTime, Int]("Response Time (failure)", responseTimesFailuresData, List(RED))
+				val indicatorsColumnSeries = new Series[String, Int](EMPTY, indicatorsColumnData, List(GREEN, YELLOW, ORANGE, RED))
+				val indicatorsPieSeries = new Series[String, Int](EMPTY, indicatorsPieData, List(GREEN, YELLOW, ORANGE, RED))
+				val scatterPlotSuccessSeries = new Series[Int, Int]("Successes", scatterPlotSuccessData, List(TRANSLUCID_BLUE))
+				val scatterPlotFailuresSeries = new Series[Int, Int]("Failures", scatterPlotFailuresData, List(TRANSLUCID_RED))
 
 				// Create template
 				val template =
