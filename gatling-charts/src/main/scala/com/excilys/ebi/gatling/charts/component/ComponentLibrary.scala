@@ -20,7 +20,7 @@ import org.joda.time.DateTime
 trait ComponentLibrary {
 	def getActiveSessionsChartComponent(series: Series[DateTime, Int]*): Component
 	def getRequestsChartComponent(allRequests: Series[DateTime, Int], failedRequests: Series[DateTime, Int], succeededRequests: Series[DateTime, Int], pieSeries: Series[String, Int], allActiveSessions: Series[DateTime, Int]): Component
-	def getRequestDetailsResponseTimeChartComponent(requestResponseTimes: Series[DateTime, Int], allActiveSessions: Series[DateTime, Int]): Component
+	def getRequestDetailsResponseTimeChartComponent(responseTimesSuccess: Series[DateTime, Int], responseTimesFailures: Series[DateTime, Int], allActiveSessions: Series[DateTime, Int]): Component
 	def getRequestDetailsScatterChartComponent(successData: Series[Int, Int], failuresData: Series[Int, Int]): Component
 	def getRequestDetailsIndicatorChartComponent(columnSeries: Series[String, Int], pieSeries: Series[String, Int]): Component
 }

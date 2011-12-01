@@ -29,7 +29,12 @@ import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ OK, KO, Result
 
 object Computer extends Logging {
 
-	def averageResponseTime(data: Seq[ResultLine]): Double = data.map(_.executionDurationInMillis).sum / data.length.toDouble
+	def averageResponseTime(data: Seq[ResultLine]): Double = {
+		if (data.isEmpty)
+			-1d
+		else
+			data.map(_.executionDurationInMillis).sum / data.length.toDouble
+	}
 
 	def responseTimeStandardDeviation(data: Seq[ResultLine]): Double = {
 		val avg = averageResponseTime(data)
@@ -42,7 +47,11 @@ object Computer extends Logging {
 
 	def numberOfSuccesses(data: Seq[ResultLine]): Int = data.filter(_.resultStatus == OK).size
 
-	def responseTimeByMillisecondAsList(data: Map[DateTime, Seq[ResultLine]]): List[(DateTime, Int)] = SortedMap(data.map { entry => entry._1 -> averageResponseTime(entry._2).toInt }.filterNot(_._2 == 0).toSeq: _*).toList
+	def responseTimeByMillisecondAsList(data: Map[DateTime, Seq[ResultLine]], resultStatus: ResultStatus): List[(DateTime, Int)] =
+		SortedMap(data.map(entry => entry._1 -> entry._2.filter(_.resultStatus == resultStatus)).map { entry =>
+			val (date, list) = entry
+			entry._1 -> averageResponseTime(list).toInt
+		}.toSeq: _*).toList
 
 	def numberOfRequestsPerSecond(data: Map[DateTime, Seq[ResultLine]]): Map[DateTime, Int] = SortedMap(data.map(entry => entry._1 -> entry._2.length).toSeq: _*)
 

@@ -51,7 +51,8 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 				val dataSeconds = dataLoader.dataIndexedByRequestNameAndDateInSeconds(requestName)
 
 				// Get Data
-				val responseTimesData = responseTimeByMillisecondAsList(dataMillis)
+				val responseTimesSuccessData = responseTimeByMillisecondAsList(dataMillis, OK)
+				val responseTimesFailuresData = responseTimeByMillisecondAsList(dataMillis, KO)
 				val indicatorsColumnData = numberOfRequestInResponseTimeRange(dataList, CONFIG_CHARTING_INDICATORS_LOWER_BOUND, CONFIG_CHARTING_INDICATORS_HIGHER_BOUND)
 				val indicatorsPieData = {
 					val numberOfRequests = dataList.size
@@ -70,7 +71,8 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 				val respTimeStdDeviation = responseTimeStandardDeviation(dataList)
 
 				// Create series
-				val responseTimesSeries = new Series[DateTime, Int]("Response Time", responseTimesData)
+				val responseTimesSuccessSeries = new Series[DateTime, Int]("Response Time (success)", responseTimesSuccessData)
+				val responseTimesFailuresSeries = new Series[DateTime, Int]("Response Time (failure)", responseTimesFailuresData)
 				val indicatorsColumnSeries = new Series[String, Int](EMPTY, indicatorsColumnData)
 				val indicatorsPieSeries = new Series[String, Int](EMPTY, indicatorsPieData)
 				val scatterPlotSuccessSeries = new Series[Int, Int]("Successes", scatterPlotSuccessData)
@@ -79,7 +81,7 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 				// Create template
 				val template =
 					new RequestDetailsPageTemplate(requestName.substring(8),
-						componentLibrary.getRequestDetailsResponseTimeChartComponent(responseTimesSeries, SharedSeries.getAllActiveSessionsSeries),
+						componentLibrary.getRequestDetailsResponseTimeChartComponent(responseTimesSuccessSeries, responseTimesFailuresSeries, SharedSeries.getAllActiveSessionsSeries),
 						new StatisticsTextComponent(numberOfRequests, numberOfSuccessfulRequests, numberOfFailedRequests, minRespTime, maxRespTime, avgRespTime, respTimeStdDeviation),
 						componentLibrary.getRequestDetailsScatterChartComponent(scatterPlotSuccessSeries, scatterPlotFailuresSeries),
 						componentLibrary.getRequestDetailsIndicatorChartComponent(indicatorsColumnSeries, indicatorsPieSeries))
