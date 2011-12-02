@@ -15,26 +15,34 @@
  */
 package com.excilys.ebi.gatling.app
 
-import java.io.File
 import scala.collection.immutable.TreeSet
 import scala.collection.mutable.{ Set => MSet }
 import scala.collection.mutable.{ MultiMap, HashMap }
 import scala.tools.nsc.io.Directory
+
 import org.joda.time.DateTime
+
 import com.excilys.ebi.gatling.app.interpreter.{ TextScriptInterpreter, ScalaScriptInterpreter }
+import com.excilys.ebi.gatling.charts.report.ReportsGenerator
+import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_SCENARIOS_FOLDER
 import com.excilys.ebi.gatling.core.config.GatlingConfig
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.DateHelper.printFileNameDate
-import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_SCENARIOS_FOLDER
-import com.excilys.ebi.gatling.core.util.PropertiesHelper.{ ONLY_STATS_PROPERTY, NO_STATS_PROPERTY }
-import com.excilys.ebi.gatling.charts.loader.DataLoader
-import com.excilys.ebi.gatling.charts.report.ReportsGenerator
-import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+
+import scopt.OptionParser
 
 /**
  * Object containing entry point of application
  */
 object Gatling extends Logging {
+
+	val cliOptsParser =
+		new OptionParser("gatling") {
+			opt("nr", "no-reports", "runs simulation but does not generate reports", { CommandLineOptions.setNoReports })
+			opt("ro", "reports-only", "<folderName>", "Generates the reports for the simulation in <folderName>", { v: String => CommandLineOptions.setReportsOnly(v) })
+			opt("cf", "config-file", "<fileName>", "Uses <fileName> as the configuration file", { v: String => CommandLineOptions.setConfigFileName(v) })
+		}
 
 	/**
 	 * Entry point of Application
@@ -43,9 +51,16 @@ object Gatling extends Logging {
 	 */
 	def main(args: Array[String]) {
 
+		if (cliOptsParser.parse(args))
+			displayMenuAndRun
+
+		// if arguments are bad, usage message is displayed
+	}
+
+	def displayMenuAndRun = {
 		println("-----------\nGatling cli\n-----------\n")
 
-		GatlingConfig // Initializes configuration
+		GatlingConfig(CommandLineOptions.options.configFileName) // Initializes configuration
 
 		// Getting files in scenarios folder
 		val files = Directory(GATLING_SCENARIOS_FOLDER).files.map(_.name).filterNot(_.startsWith("."))
@@ -63,7 +78,7 @@ object Gatling extends Logging {
 
 		// We get the folder name of the run simulation
 		val folderName =
-			if (!ONLY_STATS_PROPERTY) {
+			if (!CommandLineOptions.options.reportsOnly) {
 				files2.size match {
 					case 0 =>
 						// If there is no simulation file
@@ -94,18 +109,13 @@ object Gatling extends Logging {
 						val fileChosen = Console.readInt
 						run(filesList.reverse(fileChosen))
 				}
-			} else if (args.length > 0) {
-				args(0)
 			} else {
-				// Else throw an error, as the folder name is required
-				logger.error("You specified the property OnlyStats but ommitted the folderName argument.")
-				sys.exit
+				CommandLineOptions.options.reportsOnlyFolder
 			}
 
 		// Generation of statistics
-		if (!NO_STATS_PROPERTY)
+		if (!CommandLineOptions.options.noReports)
 			generateStats(folderName)
-
 	}
 
 	/**

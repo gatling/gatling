@@ -19,7 +19,6 @@ import scala.io.Codec
 import scala.tools.nsc.io.Path.string2path
 
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.util.PropertiesHelper.CONFIG_FILE_PROPERTY
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 import GatlingFiles.{ GATLING_CONFIG_FOLDER, GATLING_DEFAULT_CONFIG_FILE }
@@ -29,6 +28,12 @@ import GatlingFiles.{ GATLING_CONFIG_FOLDER, GATLING_DEFAULT_CONFIG_FILE }
  */
 object GatlingConfig extends Logging {
 
+	private var configFileName = EMPTY
+
+	def apply(configFileName: String) = {
+		this.configFileName = configFileName
+	}
+
 	/**
 	 * Contains the configuration of Gatling
 	 */
@@ -36,9 +41,9 @@ object GatlingConfig extends Logging {
 		try {
 			// Locate configuration file, depending on users options
 			val configFile =
-				if (CONFIG_FILE_PROPERTY != EMPTY) {
-					logger.info("Loading custom configuration file: conf/{}", CONFIG_FILE_PROPERTY)
-					GATLING_CONFIG_FOLDER / CONFIG_FILE_PROPERTY
+				if (configFileName != EMPTY) {
+					logger.info("Loading custom configuration file: conf/{}", configFileName)
+					GATLING_CONFIG_FOLDER / configFileName
 				} else {
 					logger.info("Loading default configuration file")
 					GATLING_DEFAULT_CONFIG_FILE

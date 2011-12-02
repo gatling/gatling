@@ -71,6 +71,11 @@
 			<name>Excilys Third Party Repository</name>
 			<url>http://repository.excilys.com/content/repositories/thirdparty</url>
 		</repository>
+		<repository>
+			<id>scala-tools</id>
+			<name>Scala Tools Nexus</name>
+			<url>http://nexus.scala-tools.org/content/repositories/releases</url>
+		</repository>
 	</repositories>
 
 	<properties>
@@ -96,6 +101,7 @@
 		<commons-io.version>2.1</commons-io.version>
 		<guava.version>10.0.1</guava.version>
 		<plexus.version>3.0</plexus.version>
+		<scopt.version>1.1.2</scopt.version>
 
 		<maven-assembly-plugin.version>2.2.1</maven-assembly-plugin.version>
 		<maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
@@ -289,6 +295,11 @@
 				<groupId>org.codehaus.plexus</groupId>
 				<artifactId>plexus-utils</artifactId>
 				<version>${plexus.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.github.scopt</groupId>
+				<artifactId>scopt_2.9.1</artifactId>
+				<version>${scopt.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

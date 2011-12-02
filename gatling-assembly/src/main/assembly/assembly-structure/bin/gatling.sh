@@ -33,4 +33,4 @@ CLASSPATH="$GATLING_HOME/lib/*:"
 
 JAVA_PROPS="-Dlogback.configurationFile=$GATLING_HOME/conf/logback.xml"
 
-java $JAVA_OPTS $JAVA_PROPS -cp $CLASSPATH com.excilys.ebi.gatling.app.Gatling
+java $JAVA_OPTS $JAVA_PROPS -cp $CLASSPATH com.excilys.ebi.gatling.app.Gatling $@
