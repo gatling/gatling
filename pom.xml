@@ -12,7 +12,6 @@
 		<module>gatling-http</module>
 		<module>gatling-app</module>
 		<module>gatling-recorder</module>
-		<module>gatling-assembly</module>
 		<module>gatling-charts</module>
 	</modules>
 
