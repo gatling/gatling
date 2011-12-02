@@ -29,6 +29,7 @@ import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder._
 import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheck
+import com.excilys.ebi.gatling.http.config.GatlingHTTPConfig._
 
 /**
  * HttpRequestAction class companion
@@ -39,10 +40,17 @@ object HttpRequestAction {
 	 */
 	val DEFAULT_HTTP_STATUS_CHECK = status.in(200 to 210).build
 
+	val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
+		.setCompressionEnabled(GATLING_HTTP_CONFIG_COMPRESSION_ENABLED)
+		.setConnectionTimeoutInMs(GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT)
+		.setRequestTimeoutInMs(GATLING_HTTP_CONFIG_REQUEST_TIMEOUT)
+		.setMaxRequestRetry(GATLING_HTTP_CONFIG_MAX_RETRY)
+		.build
+
 	/**
 	 * The HTTP client used to send the requests
 	 */
-	val CLIENT: AsyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setCompressionEnabled(true).build)
+	val CLIENT: AsyncHttpClient = new AsyncHttpClient(GATLING_HTTP_CONFIG_PROVIDER_CLASS, ahcConfigBuilder)
 	// Register client shutdown
 	ResourceRegistry.registerOnCloseCallback(() => CLIENT.close)
 }
