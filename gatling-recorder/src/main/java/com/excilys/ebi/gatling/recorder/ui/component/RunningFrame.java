@@ -71,6 +71,8 @@ import com.excilys.ebi.gatling.recorder.http.event.TagEvent;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterType;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.PauseType;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
 import com.google.common.eventbus.Subscribe;
 
 @SuppressWarnings("serial")
@@ -359,35 +361,71 @@ public class RunningFrame extends JFrame {
 			urls.put("url_" + id, uri.toString());
 
 		/* Headers */
-		boolean areSame = true;
-		TreeMap<String, String> hm = new TreeMap<String, String>();
+		Map<String, String> requestHeaders = new TreeMap<String, String>();
+		for (Entry<String, String> entry : request.getHeaders())
+			requestHeaders.put(entry.getKey(), entry.getValue());
+
+		int bestChoice = 0;
+		String headerKey = EMPTY;
+		MapDifference<String, String> diff;
+		Map<String, String> fullHeaders = new TreeMap<String, String>();
+		boolean containsHeaders = false;
+
 		if (headers.size() > 0) {
 			for (Entry<String, Map<String, String>> header : headers.entrySet()) {
-				areSame = true;
-				if (request.getHeaders().size() != header.getValue().entrySet().size()) {
-					areSame = false;
-					continue;
+
+				fullHeaders = new TreeMap<String, String>(header.getValue());
+				containsHeaders = false;
+
+				if (header.getValue().containsKey("headers")) {
+					fullHeaders.putAll(headers.get(header.getValue().get("headers")));
+					fullHeaders.remove("headers");
+					containsHeaders = true;
 				}
-				for (Entry<String, String> requestHeader : request.getHeaders()) {
-					if (!header.getValue().containsKey(requestHeader.getKey()) || !header.getValue().get(requestHeader.getKey()).equals(requestHeader.getValue())) {
-						areSame = false;
-						break;
-					}
-				}
-				if (areSame) {
-					event.setHeadersId(header.getKey());
+
+				diff = Maps.difference(fullHeaders, requestHeaders);
+				if (diff.areEqual()) {
+					headerKey = header.getKey();
+					bestChoice = 1;
 					break;
+				} else if (diff.entriesOnlyOnLeft().size() == 0 && diff.entriesDiffering().size() == 0 && !containsHeaders) {
+					// header are included in requestHeaders
+					headerKey = header.getKey();
+					bestChoice = 2;
+				} else if (bestChoice > 2 && diff.entriesOnlyOnRight().size() == 0 && diff.entriesDiffering().size() == 0 && !containsHeaders) {
+					// requestHeaders are included in header
+					headerKey = header.getKey();
+					bestChoice = 3;
 				}
 			}
-		} else
-			areSame = false;
-			
-		if (!areSame) {
-			for (Entry<String, String> requestHeader : request.getHeaders())
-				hm.put(requestHeader.getKey(), requestHeader.getValue());
-			headers.put("headers_" + id, hm);
 		}
-		
+
+		switch (bestChoice) {
+		case 1:
+			event.setHeadersId(headerKey);
+			break;
+		case 2:
+			diff = Maps.difference(headers.get(headerKey), requestHeaders);
+			TreeMap<String, String> tm2 = new TreeMap<String, String>(diff.entriesOnlyOnRight());
+			headers.put("headers_" + id, tm2);
+			headers.get("headers_" + id).put("headers", headerKey);
+			event.setHeadersId("headers_" + id);
+			break;
+		case 3:
+			diff = Maps.difference(headers.get(headerKey), requestHeaders);
+			TreeMap<String, String> tm3 = new TreeMap<String, String>(diff.entriesInCommon());
+			headers.put("headers_" + id, tm3);
+			event.setHeadersId("headers_" + id);
+			headers.remove(headerKey);
+			tm3 = new TreeMap<String, String>(diff.entriesOnlyOnLeft());
+			headers.put(headerKey, tm3);
+			headers.get(headerKey).put("headers", "headers_" + id);
+			break;
+		default:
+			headers.put("headers_" + id, requestHeaders);
+			event.setHeadersId("headers_" + id);
+		}
+
 		/* Add check if status is not in 20X */
 		if ((event.getResponse().getStatus().getCode() < 200) || (event.getResponse().getStatus().getCode() > 210))
 			event.setWithCheck(true);

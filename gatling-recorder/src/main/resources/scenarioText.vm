@@ -23,13 +23,13 @@
 	val httpConf = httpConfig.baseURL(urlBase)#if(${proxy.getPort()} != 0).proxy("${proxy.getHost()}", ${proxy.getPort()})#if(${proxy.getSslPort()} != 0).httpsPort(${proxy.getSslPort()})#end#if($!{proxy.getUsername()}).credentials("${proxy.getUsername()}", "${proxy.getPassword()}")#end#end
 
 #foreach(${url} in ${urls.entrySet()})
-	val ${url.key} = "${url.value}"
+	val ${url.getKey()} = "${url.getValue()}"
 #end
 	
 #foreach (${h} in ${headers.entrySet()})
-	val ${h.key} = Map(
+	val ${h.getKey()} =#if(${h.getValue().containsKey("headers")}) ${h.getValue().remove("headers")} ++#end Map(
 #foreach (${header} in ${h.value.entrySet()})
-		"${header.key}" -> "${header.value}"#if(${foreach.hasNext}),
+		"${header.getKey()}" -> "${header.getValue()}"#if(${foreach.hasNext}),
 #else
 	
 		)
@@ -49,8 +49,8 @@
 			http("request_${event.getId()}")
 			.${event.getRequest().getMethod().toString().toLowerCase()}(#if(${event.isWithUrlBase()})"${URI.create(${event.getRequest().getUri()}).getPath()}"#else url_${event.getId()}#end)
 	#foreach(${param} in ${event.getRequestParams().entrySet()})
-#foreach(${val} in ${param.value})
-		.param("${param.key}", "${val}")
+#foreach(${val} in ${param.getValue()})
+		.param("${param.getKey()}", "${val}")
 #end
 	#end
 #if($!{event.getHeadersId()})
