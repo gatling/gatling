@@ -13,6 +13,7 @@
 		<module>gatling-app</module>
 		<module>gatling-recorder</module>
 		<module>gatling-charts</module>
+		<module>gatling-bundle</module>
 	</modules>
 
 	<licenses>
@@ -137,6 +138,11 @@
 			<dependency>
 				<groupId>com.excilys.ebi.gatling</groupId>
 				<artifactId>gatling-recorder</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.excilys.ebi.gatling</groupId>
+				<artifactId>gatling-bundle</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
