@@ -364,6 +364,7 @@ public class RunningFrame extends JFrame {
 		Map<String, String> requestHeaders = new TreeMap<String, String>();
 		for (Entry<String, String> entry : request.getHeaders())
 			requestHeaders.put(entry.getKey(), entry.getValue());
+		requestHeaders.remove("Cookie");
 
 		int bestChoice = 0;
 		String headerKey = EMPTY;
