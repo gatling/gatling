@@ -59,15 +59,15 @@ object GatlingConfig extends Logging {
 	/**
 	 * Gatling global encoding value
 	 */
-	val CONFIG_ENCODING = config.getString("gatling.encoding", Codec.UTF8.name)
+	val CONFIG_ENCODING = config("gatling.encoding", Codec.UTF8.name)
 	/**
 	 * Gatling simulation timeout value
 	 */
-	val CONFIG_SIMULATION_TIMEOUT = config.getInt("gatling.simulation.timeout", 86400)
+	val CONFIG_SIMULATION_TIMEOUT = config("gatling.simulation.timeout", 86400)
 
-	val CONFIG_SIMULATION_SCALA_PACKAGE = config.getString("gatling.simulation.scalaPackage", EMPTY)
+	val CONFIG_SIMULATION_SCALA_PACKAGE = config("gatling.simulation.scalaPackage", EMPTY)
 
-	val CONFIG_CHARTING_INDICATORS_LOWER_BOUND = config.getInt("gatling.charting.indicators.lowerBound", 100)
+	val CONFIG_CHARTING_INDICATORS_LOWER_BOUND = config("gatling.charting.indicators.lowerBound", 100)
 
-	val CONFIG_CHARTING_INDICATORS_HIGHER_BOUND = config.getInt("gatling.charting.indicators.higherBound", 500)
+	val CONFIG_CHARTING_INDICATORS_HIGHER_BOUND = config("gatling.charting.indicators.higherBound", 500)
 }

@@ -15,17 +15,17 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 
 /**
  * This class defines an HTTP request with word GET in the DSL
  */
-class GetHttpRequestBuilder(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Context => String, queryParams: List[(Context => String, Context => String)],
+class GetHttpRequestBuilder(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Session => String, queryParams: List[(Session => String, Session => String)],
 	headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
 		extends AbstractHttpRequestBuilder[GetHttpRequestBuilder](httpRequestActionBuilder, "GET", urlFunction, queryParams, headers, followsRedirects, credentials) {
 
-	private[http] def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Context => String, queryParams: List[(Context => String, Context => String)], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)]) = {
+	private[http] def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Session => String, queryParams: List[(Session => String, Session => String)], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)]) = {
 		new GetHttpRequestBuilder(httpRequestActionBuilder, urlFunction, queryParams, headers, followsRedirects, credentials)
 	}
 }

@@ -18,8 +18,8 @@ package com.excilys.ebi.gatling.core
 import com.excilys.ebi.gatling.core._
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder
-import com.excilys.ebi.gatling.core.context.handler.CounterBasedIterationHandler
-import com.excilys.ebi.gatling.core.context.handler.TimerBasedIterationHandler
+import com.excilys.ebi.gatling.core.session.handler.CounterBasedIterationHandler
+import com.excilys.ebi.gatling.core.session.handler.TimerBasedIterationHandler
 import com.excilys.ebi.gatling.core.runner.Runner.runSim
 import com.excilys.ebi.gatling.core.structure.ScenarioBuilder
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
@@ -27,14 +27,14 @@ import org.joda.time.DateTime
 import java.util.concurrent.TimeUnit
 
 object Predef {
-	implicit def toSimpleActionBuilder(contextFunction: (Context, Action) => Unit): SimpleActionBuilder = SimpleActionBuilder.toSimpleActionBuilder(contextFunction)
-	implicit def toSimpleActionBuilder(contextFunction: Context => Unit): SimpleActionBuilder = SimpleActionBuilder.toSimpleActionBuilder(contextFunction)
+	implicit def toSimpleActionBuilder(sessionFunction: (Session, Action) => Unit): SimpleActionBuilder = SimpleActionBuilder.toSimpleActionBuilder(sessionFunction)
+	implicit def toSimpleActionBuilder(sessionFunction: Session => Unit): SimpleActionBuilder = SimpleActionBuilder.toSimpleActionBuilder(sessionFunction)
 
 	type CSVFeeder = feeder.CSVFeeder
 	type SSVFeeder = feeder.SSVFeeder
 	type TSVFeeder = feeder.TSVFeeder
 
-	type Context = context.Context
+	type Session = session.Session
 
 	val MILLISECONDS = TimeUnit.MILLISECONDS
 	val SECONDS = TimeUnit.SECONDS
@@ -44,8 +44,8 @@ object Predef {
 	val HOURS = TimeUnit.HOURS
 	val DAYS = TimeUnit.DAYS
 
-	def getCounterValue(context: Context, counterName: String): Int = CounterBasedIterationHandler.getCounterValue(context, counterName)
-	def getTimerValue(context: Context, timerName: String): Long = TimerBasedIterationHandler.getTimerValue(context, timerName)
+	def getCounterValue(session: Session, counterName: String): Int = CounterBasedIterationHandler.getCounterValue(session, counterName)
+	def getTimerValue(session: Session, timerName: String): Long = TimerBasedIterationHandler.getTimerValue(session, timerName)
 
 	def runSimFunction(startDate: String) = runSim(new DateTime(startDate))_
 	def runSimFunction(startDate: DateTime) = runSim(startDate)_

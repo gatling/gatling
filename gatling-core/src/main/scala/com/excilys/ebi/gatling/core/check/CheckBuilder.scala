@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.check.strategy.EqualityCheckStrategy
 import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy
 import com.excilys.ebi.gatling.core.check.strategy.NonEqualityCheckStrategy
 import com.excilys.ebi.gatling.core.check.strategy.NonExistenceCheckStrategy
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.log.Logging
 import strategy.ExistenceCheckStrategy
 
@@ -32,16 +32,16 @@ object CheckBuilder {
  *
  * @param what the function that returns the expression representing what the check should look for
  * @param how the extractor that will be used by the Check
- * @param saveAs the context attribute that will be used to store the extracted value
+ * @param saveAs the session attribute that will be used to store the extracted value
  * @param strategy the strategy used to perform the Check
  * @param expected the expected value of what has been found
  */
-abstract class CheckBuilder[B <: CheckBuilder[B, WHERE], WHERE](what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String])
+abstract class CheckBuilder[B <: CheckBuilder[B, WHERE], WHERE](what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String])
 		extends Logging {
 
 	private[gatling] def build: Check[WHERE]
 
-	private[gatling] def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String]): B
+	private[gatling] def newInstance(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String]): B
 	private[gatling] def newInstanceWithVerify(strategy: CheckStrategy, expected: List[String] = Nil): B with CheckBuilderSave[B]
 	private[gatling] def newInstanceWithFindOne(occurrence: Int): B with CheckBuilderVerifyOne[B]
 	private[gatling] def newInstanceWithFindAll: B with CheckBuilderVerifyAll[B]

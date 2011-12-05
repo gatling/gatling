@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 import com.excilys.ebi.gatling.core.action.Action
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import akka.actor.TypedActor
 import com.excilys.ebi.gatling.core.action.WhileAction
 import akka.actor.Actor
@@ -40,7 +40,7 @@ object WhileActionBuilder {
  * @param next action that will be executed if conditionFunction evaluates to false
  * @param groups groups in which this action and the others inside will be
  */
-class WhileActionBuilder(conditionFunction: (Context, Action) => Boolean, loopNext: ChainBuilder, next: Action, counterName: Option[String], groups: List[String])
+class WhileActionBuilder(conditionFunction: (Session, Action) => Boolean, loopNext: ChainBuilder, next: Action, counterName: Option[String], groups: List[String])
 		extends AbstractActionBuilder {
 
 	/**
@@ -49,14 +49,14 @@ class WhileActionBuilder(conditionFunction: (Context, Action) => Boolean, loopNe
 	 * @param conditionFunction the condition function
 	 * @return a new builder with conditionFunction set
 	 */
-	def withConditionFunction(conditionFunction: Context => Boolean): WhileActionBuilder = withConditionFunction((c: Context, a: Action) => conditionFunction(c))
+	def withConditionFunction(conditionFunction: Session => Boolean): WhileActionBuilder = withConditionFunction((s: Session, a: Action) => conditionFunction(s))
 	/**
 	 * Adds conditionFunction to this builder
 	 *
 	 * @param conditionFunction the condition function
 	 * @return a new builder with conditionFunction set
 	 */
-	def withConditionFunction(conditionFunction: (Context, Action) => Boolean) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName, groups)
+	def withConditionFunction(conditionFunction: (Session, Action) => Boolean) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName, groups)
 	/**
 	 * Adds loopNext to builder
 	 *

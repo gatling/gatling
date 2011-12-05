@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.http.request
 
 import com.excilys.ebi.gatling.core.action.request.Request
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 import com.ning.http.client.{ Request => AHCRequest }
@@ -32,11 +32,11 @@ class HttpRequest(givenName: String, val httpRequestBuilder: AbstractHttpRequest
 	/**
 	 * Builds and returns the actual Request
 	 *
-	 * @param context the context of the scenario
+	 * @param session the session of the scenario
 	 * @return an HTTP request
 	 */
-	def getRequest(context: Context): AHCRequest = {
-		val request = httpRequestBuilder build context
+	def getRequest(session: Session): AHCRequest = {
+		val request = httpRequestBuilder build session
 		logger.debug("Request created: {}, body data: {}", request.getUrl, request.getStringData)
 		request
 	}

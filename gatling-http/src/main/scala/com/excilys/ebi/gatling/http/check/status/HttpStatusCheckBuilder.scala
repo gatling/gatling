@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy
 import com.excilys.ebi.gatling.core.check.CheckBuilderFind
 import com.excilys.ebi.gatling.core.check.CheckBuilderVerifyOne
 import com.excilys.ebi.gatling.core.check.CheckBuilderSave
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
@@ -44,14 +44,14 @@ object HttpStatusCheckBuilder {
 /**
  * This class builds a response status check
  *
- * @param to the optional context key in which the extracted value will be stored
+ * @param to the optional session key in which the extracted value will be stored
  * @param strategy the strategy used to check
  * @param expected the expected value against which the extracted value will be checked
  */
 class HttpStatusCheckBuilder(strategy: CheckStrategy, expected: List[String], saveAs: Option[String])
-		extends HttpCheckBuilder[HttpStatusCheckBuilder]((c: Context) => EMPTY, None, strategy, expected, saveAs, StatusReceived) {
+		extends HttpCheckBuilder[HttpStatusCheckBuilder]((s: Session) => EMPTY, None, strategy, expected, saveAs, StatusReceived) {
 
-	private[http] def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String], when: HttpPhase) =
+	private[http] def newInstance(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String], when: HttpPhase) =
 		new HttpStatusCheckBuilder(strategy, expected, saveAs)
 
 	private[gatling] def newInstanceWithFindOne(occurrence: Int) =

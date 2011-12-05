@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.http.check.body
 
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
 import com.excilys.ebi.gatling.core.check.strategy.{ NonExistenceCheckStrategy, NonEqualityCheckStrategy, ExistenceCheckStrategy, EqualityCheckStrategy, CheckStrategy }
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilder, HttpCheck }
 import com.excilys.ebi.gatling.http.request.HttpPhase.{ HttpPhase, CompletePageReceived }
@@ -31,7 +31,7 @@ object HttpBodyRegexCheckBuilder {
 	/**
 	 *
 	 */
-	def regex(what: Context => String) = new HttpBodyRegexCheckBuilder(what, Some(0), ExistenceCheckStrategy, Nil, None) with CheckBuilderFind[HttpCheckBuilder[HttpBodyRegexCheckBuilder]]
+	def regex(what: Session => String) = new HttpBodyRegexCheckBuilder(what, Some(0), ExistenceCheckStrategy, Nil, None) with CheckBuilderFind[HttpCheckBuilder[HttpBodyRegexCheckBuilder]]
 	/**
 	 *
 	 */
@@ -44,12 +44,12 @@ object HttpBodyRegexCheckBuilder {
  * @param what the function returning the expression representing what is to be checked
  * @param strategy the strategy used to check
  * @param expected the expected value against which the extracted value will be checked
- * @param saveAs the optional context key in which the extracted value will be stored
+ * @param saveAs the optional session key in which the extracted value will be stored
  */
-class HttpBodyRegexCheckBuilder(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String])
+class HttpBodyRegexCheckBuilder(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String])
 		extends HttpCheckBuilder[HttpBodyRegexCheckBuilder](what, occurrence, strategy, expected, saveAs, CompletePageReceived) {
 
-	def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String], when: HttpPhase) =
+	def newInstance(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String], when: HttpPhase) =
 		new HttpBodyRegexCheckBuilder(what, occurrence, strategy, expected, saveAs)
 
 	def newInstanceWithFindOne(occurrence: Int) =

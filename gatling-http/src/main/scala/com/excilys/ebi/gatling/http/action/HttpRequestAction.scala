@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.http.action
 
 import scala.collection.mutable.{ HashSet => MHashSet }
 import com.excilys.ebi.gatling.core.action.{ RequestAction, Action }
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
@@ -79,11 +79,11 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenCheckBuilders: 
 			}
 	}
 
-	def execute(context: Context) = {
+	def execute(session: Session) = {
 
 		if (logger.isInfoEnabled())
-			logger.info("Sending Request '{}': Scenario '{}', UserId #{}", Array(request.name, context.scenarioName, context.userId))
+			logger.info("Sending Request '{}': Scenario '{}', UserId #{}", Array(request.name, session.scenarioName, session.userId))
 
-		HttpRequestAction.CLIENT.executeRequest(request.getRequest(context), new GatlingAsyncHandler(context, checks, next, request.name, groups))
+		HttpRequestAction.CLIENT.executeRequest(request.getRequest(session), new GatlingAsyncHandler(session, checks, next, request.name, groups))
 	}
 }

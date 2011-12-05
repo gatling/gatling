@@ -58,13 +58,7 @@ class GatlingConfiguration(val map: Map[String, Any]) {
 
 	def keys: Iterable[String] = map.keys
 
-	def getAny(key: String): Option[Any] = {
-		try {
-			Some(map(key))
-		} catch {
-			case _ ⇒ None
-		}
-	}
+	def getAny(key: String): Option[Any] = map.get(key)
 
 	def getAny(key: String, defaultValue: Any): Any = getAny(key).getOrElse(defaultValue)
 

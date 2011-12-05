@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.context.handler
+package com.excilys.ebi.gatling.core.session.handler
 import com.excilys.ebi.gatling.core.log.Logging
 import scala.collection.immutable.Stack
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 
 /**
  * This trait is used for mixin-composition, it is the top level trait
@@ -28,10 +28,10 @@ import com.excilys.ebi.gatling.core.context.Context
  */
 abstract trait IterationHandler extends Logging {
 
-	def init(context: Context, uuid: String, userDefinedName: Option[String]) = {}
+	def init(session: Session, uuid: String, userDefinedName: Option[String]) = {}
 
-	def increment(c: Context, uuid: String, userDefinedName: Option[String]) = {}
+	def increment(session: Session, uuid: String, userDefinedName: Option[String]) = {}
 
-	def expire(c: Context, uuid: String, userDefinedName: Option[String]) = {}
+	def expire(session: Session, uuid: String, userDefinedName: Option[String]) = {}
 
 }

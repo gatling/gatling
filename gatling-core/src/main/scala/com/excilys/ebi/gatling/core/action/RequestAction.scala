@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.core.action
 
 import com.excilys.ebi.gatling.core.action.request.Request
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.check.CheckBuilder
 
@@ -30,5 +30,5 @@ import com.excilys.ebi.gatling.core.check.CheckBuilder
  * @param feeder the feeder that will be consumed by this request
  */
 abstract class RequestAction[P](next: Action, request: Request, givenProcessors: Option[List[CheckBuilder[_, P]]], groups: List[String]) extends Action {
-	def execute(context: Context)
+	def execute(session: Session)
 }

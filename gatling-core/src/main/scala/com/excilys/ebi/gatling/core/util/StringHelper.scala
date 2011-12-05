@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.util
 import org.slf4j.helpers.MessageFormatter
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.log.Logging
 import java.util.regex.Pattern
 import java.text.Normalizer
@@ -25,7 +25,7 @@ import akka.actor.Uuid
  * This object groups all utilities for strings
  */
 object StringHelper extends Logging {
-	
+
 	val END_OF_LINE = System.getProperty("line.separator")
 
 	val EL_START = "${"
@@ -48,20 +48,20 @@ object StringHelper extends Logging {
 		jdk6Pattern.matcher(normalized).replaceAll(EMPTY);
 	}
 
-	def interpolate(stringToFormat: String): Context => String = {
+	def interpolate(stringToFormat: String): Session => String = {
 
 		val keysFunctions = elPattern.findAllIn(stringToFormat).matchData.map { data =>
 			val elContent = data.group(1)
 			val multivaluedPart = elMultivaluedPattern.findFirstMatchIn(elContent)
 			if (multivaluedPart.isDefined) {
 				val key = elContent.substring(0, elContent.lastIndexOf("("))
-				(c: Context) => c.getAttribute(key).asInstanceOf[List[String]](multivaluedPart.get.group(1).toInt)
+				(s: Session) => s.getAttribute(key).asInstanceOf[List[String]](multivaluedPart.get.group(1).toInt)
 			} else
-				(c: Context) => c.getAttribute(data.group(1)) match {
+				(s: Session) => s.getAttribute(data.group(1)) match {
 					case l: List[String] => l(0)
-					case s: String => s
+					case str: String => str
 					case x => {
-						logger.warn("Context value was not a String nor a List[String].")
+						logger.warn("Session value was not a String nor a List[String].")
 						x.toString
 					}
 				}
@@ -71,6 +71,6 @@ object StringHelper extends Logging {
 
 		val functions = keysFunctions zip strings
 
-		(c: Context) => functions.map { entry => entry._2 + entry._1(c) }.mkString + strings.last
+		(s: Session) => functions.map { entry => entry._2 + entry._1(s) }.mkString + strings.last
 	}
 }

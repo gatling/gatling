@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.core.result.message.ResultStatus._
 import akka.actor.Actor.registry.actorFor
@@ -43,11 +43,11 @@ class StartAction(next: Action) extends Action {
 	/**
 	 * Sends a message to the DataWriter and give hand to next actor
 	 *
-	 * @param context The context of the current user
+	 * @param session The session of the current user
 	 */
-	def execute(context: Context) = {
-		actorFor(context.writeActorUuid).map(_ ! ActionInfo(context.scenarioName, context.userId, StartAction.START_OF_SCENARIO, DateTime.now(), 0, OK, "Beginning Scenario", Nil))
-		logger.info("Starting user #{}", context.userId)
-		next.execute(context)
+	def execute(session: Session) = {
+		actorFor(session.writeActorUuid).map(_ ! ActionInfo(session.scenarioName, session.userId, StartAction.START_OF_SCENARIO, DateTime.now, 0, OK, "Beginning Scenario", Nil))
+		logger.info("Starting user #{}", session.userId)
+		next.execute(session)
 	}
 }

@@ -21,7 +21,7 @@ import com.excilys.ebi.gatling.core.log.Logging
  * Abstract class for all Feeders of the application
  *
  * @param filePath file path of the seed file
- * @param mappings the mappings for the feeder, ie the keys of the values in the context
+ * @param mappings the mappings for the feeder, ie the keys of the values in the session
  */
 abstract class Feeder(filePath: String) extends Logging {
 

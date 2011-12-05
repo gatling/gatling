@@ -56,11 +56,11 @@ object CompileTest {
 			// What will be repeated ?
 			chain
 				// First request to be repeated
-				.exec((c: Context) => println("iterate: " + getCounterValue(c, "titi")))
+				.exec((s: Session) => println("iterate: " + getCounterValue(s, "titi")))
 				.exec(
 					http("Page accueil").get("http://localhost:3000")
 						.check(
-							xpath("//input[@value='${aaaa_value}']/@id").exists.saveAs("ctxParam"),
+							xpath("//input[@value='${aaaa_value}']/@id").exists.saveAs("sessionParam"),
 							xpath("//input[@id='${aaaa_value}']/@value").notExists,
 							regex("""<input id="text1" type="text" value="aaaa" />"""),
 							regex("""<input id="text1" type="test" value="aaaa" />""").notExists,
@@ -70,8 +70,8 @@ object CompileTest {
 				.loop(chain
 					.exec(http("In During 1").get("http://localhost:3000/aaaa"))
 					.pause(2)
-					.loop(chain.exec((c: Context) => println("--nested loop: " + getCounterValue(c, "tutu")))).counterName("tutu").times(2)
-					.exec((c: Context) => println("-loopDuring: " + getCounterValue(c, "toto")))
+					.loop(chain.exec((s: Session) => println("--nested loop: " + getCounterValue(s, "tutu")))).counterName("tutu").times(2)
+					.exec((s: Session) => println("-loopDuring: " + getCounterValue(s, "toto")))
 					.exec(http("In During 2").get("/"))
 					.pause(2))
 				.counterName("toto").during(12000, MILLISECONDS)
@@ -80,20 +80,20 @@ object CompileTest {
 					chain
 						.exec(http("In During 1").get("/"))
 						.pause(2)
-						.exec((c: Context) => println("-iterate1: " + getCounterValue(c, "titi") + ", doFor: " + getCounterValue(c, "hehe")))
+						.exec((s: Session) => println("-iterate1: " + getCounterValue(s, "titi") + ", doFor: " + getCounterValue(s, "hehe")))
 						.loop(
 							chain
-								.exec((c: Context) => println("--iterate1: " + getCounterValue(c, "titi") + ", doFor: " + getCounterValue(c, "hehe") + ", iterate2: " + getCounterValue(c, "hoho"))))
+								.exec((s: Session) => println("--iterate1: " + getCounterValue(s, "titi") + ", doFor: " + getCounterValue(s, "hehe") + ", iterate2: " + getCounterValue(s, "hoho"))))
 						.counterName("hoho").times(2)
 						.exec(http("In During 2").get("/"))
 						.pause(2))
 				.counterName("hehe").during(12000, MILLISECONDS)
 				.startGroup(loginGroup)
-				.exec((c: Context) => c.setAttribute("test2", "bbbb"))
+				.exec((s: Session) => s.setAttribute("test2", "bbbb"))
 				.doIf("test2", "aaaa",
 					chain.exec(http("IF=TRUE Request").get("/")), chain.exec(http("IF=FALSE Request").get("/")))
 				.pause(pause2)
-				.exec(http("Url from context").get("/aaaa"))
+				.exec(http("Url from session").get("/aaaa"))
 				.pause(1000, 3000, MILLISECONDS)
 				// Second request to be repeated
 				.exec(http("Create Thing blabla").post("/things").queryParam("login").queryParam("password").fileBody("create_thing", Map("name" -> "blabla")).asJSON)
@@ -102,10 +102,10 @@ object CompileTest {
 				// Third request to be repeated
 				.exec(http("Liste Articles") get ("/things") queryParam "firstname" queryParam "lastname")
 				.pause(pause1)
-				.exec(http("Test Page") get ("/tests") check (header(CONTENT_TYPE).eq("text/html; charset=utf-8") saveAs "ctxParam"))
+				.exec(http("Test Page") get ("/tests") check (header(CONTENT_TYPE).eq("text/html; charset=utf-8") saveAs "sessionParam"))
 				// Fourth request to be repeated
 				.exec(http("Create Thing omgomg")
-					.post("/things").queryParam("postTest", "${ctxParam}").fileBody("create_thing", Map("name" -> "${ctxParam}")).asJSON
+					.post("/things").queryParam("postTest", "${sessionParam}").fileBody("create_thing", Map("name" -> "${sessionParam}")).asJSON
 					.check(status.eq(201) saveAs "status"))).counterName("titi").times(iterations)
 		// Second request outside iteration
 		.startGroup(doStuffGroup)

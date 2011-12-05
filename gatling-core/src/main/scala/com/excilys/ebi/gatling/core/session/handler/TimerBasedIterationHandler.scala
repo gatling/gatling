@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.context.handler
+package com.excilys.ebi.gatling.core.session.handler
 
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 
 import TimerBasedIterationHandler.TIMER_KEY_PREFIX
 
@@ -29,14 +29,14 @@ object TimerBasedIterationHandler {
 	val TIMER_KEY_PREFIX = "gatling.core.timer."
 
 	/**
-	 * This method gets the specified timer from the context
+	 * This method gets the specified timer from the session
 	 *
-	 * @param context the scenario context
+	 * @param session the scenario session
 	 * @param timerName the name of the timer
 	 * @return the value of the timer as a long
 	 */
-	def getTimerValue(context: Context, timerName: String) = {
-		context.getAttributeAsOption[Long](TIMER_KEY_PREFIX + timerName).getOrElse(throw new IllegalAccessError("You must call startTimer before this method is called"))
+	def getTimerValue(session: Session, timerName: String) = {
+		session.getAttributeAsOption[Long](TIMER_KEY_PREFIX + timerName).getOrElse(throw new IllegalAccessError("You must call startTimer before this method is called"))
 	}
 }
 
@@ -47,16 +47,16 @@ object TimerBasedIterationHandler {
  */
 trait TimerBasedIterationHandler extends IterationHandler {
 
-	abstract override def init(context: Context, uuid: String, userDefinedName: Option[String]) = {
-		super.init(context, uuid, userDefinedName)
-		context.getAttributeAsOption(TIMER_KEY_PREFIX + uuid).getOrElse {
-			context.setAttribute(TIMER_KEY_PREFIX + uuid, System.currentTimeMillis)
+	abstract override def init(session: Session, uuid: String, userDefinedName: Option[String]) = {
+		super.init(session, uuid, userDefinedName)
+		session.getAttributeAsOption(TIMER_KEY_PREFIX + uuid).getOrElse {
+			session.setAttribute(TIMER_KEY_PREFIX + uuid, System.currentTimeMillis)
 		}
 	}
 
-	abstract override def expire(context: Context, uuid: String, userDefinedName: Option[String]) = {
-		super.expire(context, uuid, userDefinedName)
-		context.removeAttribute(TIMER_KEY_PREFIX + uuid)
+	abstract override def expire(session: Session, uuid: String, userDefinedName: Option[String]) = {
+		super.expire(session, uuid, userDefinedName)
+		session.removeAttribute(TIMER_KEY_PREFIX + uuid)
 	}
 
 }

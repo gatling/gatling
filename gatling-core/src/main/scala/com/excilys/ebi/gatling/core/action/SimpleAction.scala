@@ -15,25 +15,25 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 
 /**
  * This class represents a simple action. That is to say an action responsible for executing
- * functions that interacts with the context
+ * functions that interacts with the session
  *
  * @constructor Constructs a SimpleAction
- * @param contextModifier the function that will be executed by this action
+ * @param sessionModifier the function that will be executed by this action
  * @param next the action to be executed after this one
  */
-class SimpleAction(contextFunction: (Context, Action) => Unit, next: Action) extends Action {
+class SimpleAction(sessionFunction: (Session, Action) => Unit, next: Action) extends Action {
 
 	/**
-	 * This method applies the function to the Context
+	 * This method applies the function to the Session
 	 *
-	 * @param context The context of the scenario
+	 * @param session The session of the scenario
 	 */
-	def execute(context: Context) = {
-		contextFunction(context, this)
-		next.execute(context)
+	def execute(session: Session) = {
+		sessionFunction(session, this)
+		next.execute(session)
 	}
 }

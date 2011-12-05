@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.action
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import java.util.concurrent.atomic.AtomicBoolean
-import com.excilys.ebi.gatling.core.context.handler.CounterBasedIterationHandler
-import com.excilys.ebi.gatling.core.context.handler.TimerBasedIterationHandler
+import com.excilys.ebi.gatling.core.session.handler.CounterBasedIterationHandler
+import com.excilys.ebi.gatling.core.session.handler.TimerBasedIterationHandler
 
 /**
  * Represents a While in the scenario.
@@ -28,7 +28,7 @@ import com.excilys.ebi.gatling.core.context.handler.TimerBasedIterationHandler
  * @param next the chain executed if testFunction evaluates to false
  * @param counterName the name of the counter for this loop
  */
-class WhileAction(testFunction: (Context, Action) => Boolean, var loopNext: WhileAction => Action, next: Action, counterName: Option[String])
+class WhileAction(testFunction: (Session, Action) => Boolean, var loopNext: WhileAction => Action, next: Action, counterName: Option[String])
 		extends Action with TimerBasedIterationHandler with CounterBasedIterationHandler {
 
 	val loopNextAction = loopNext(this)
@@ -37,21 +37,21 @@ class WhileAction(testFunction: (Context, Action) => Boolean, var loopNext: Whil
 	 * Evaluates the testFunction and if true executes the first action of loopNext
 	 * else it executes the first action of next
 	 *
-	 * @param context Context of the scenario
+	 * @param session Session of the scenario
 	 * @return Nothing
 	 */
-	def execute(context: Context) = {
+	def execute(session: Session) = {
 		val uuid = getContext.uuid.toString
 
-		init(context, uuid, counterName)
+		init(session, uuid, counterName)
 
-		increment(context, uuid, counterName)
+		increment(session, uuid, counterName)
 
-		if (testFunction(context, this)) {
-			loopNextAction.execute(context)
+		if (testFunction(session, this)) {
+			loopNextAction.execute(session)
 		} else {
-			expire(context, uuid, counterName)
-			next.execute(context)
+			expire(session, uuid, counterName)
+			next.execute(session)
 		}
 	}
 }

@@ -16,8 +16,8 @@
 package com.excilys.ebi.gatling.core.action.builder
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
 import com.excilys.ebi.gatling.core.action.Action
-import com.excilys.ebi.gatling.core.context.handler.CounterBasedIterationHandler
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.handler.CounterBasedIterationHandler
+import com.excilys.ebi.gatling.core.session.Session
 
 import IterationStep.{ IterationStep, INIT, INCREMENT, EXPIRE }
 
@@ -54,11 +54,11 @@ object CountBasedIterationActionBuilder extends CounterBasedIterationHandler {
 	 * Function that actually creates the simple action builder required
 	 */
 	private def initClass(counterName: String, iterationStep: IterationStep) = {
-		val contextFunction = iterationStep match {
-			case INIT => (c: Context, a: Action) => init(c, a.getUuidAsString, Some(counterName))
-			case INCREMENT => (c: Context, a: Action) => increment(c, a.getUuidAsString, Some(counterName))
-			case EXPIRE => (c: Context, a: Action) => expire(c, a.getUuidAsString, Some(counterName))
+		val sessionFunction = iterationStep match {
+			case INIT => (s: Session, a: Action) => init(s, a.getUuidAsString, Some(counterName))
+			case INCREMENT => (s: Session, a: Action) => increment(s, a.getUuidAsString, Some(counterName))
+			case EXPIRE => (s: Session, a: Action) => expire(s, a.getUuidAsString, Some(counterName))
 		}
-		simpleActionBuilder(contextFunction)
+		simpleActionBuilder(sessionFunction)
 	}
 }

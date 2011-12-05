@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.context
+package com.excilys.ebi.gatling.core.session
 
 import akka.actor.Uuid
 import com.excilys.ebi.gatling.core.log.Logging
@@ -24,9 +24,9 @@ import scala.collection.mutable.Map
 import scala.collection.immutable.{ Map => IMap }
 
 /**
- * Context class companion
+ * Session class companion
  */
-object Context {
+object Session {
 	/**
 	 * Key for last action duration
 	 */
@@ -37,22 +37,22 @@ object Context {
 	val PROTOCOL_CONFIGURATIONS_KEY = "gatling.core.protocolConfigurations"
 }
 /**
- * Context class represent the context passing through a scenario for a given user
+ * Session class representing the session passing through a scenario for a given user
  *
- * This context stores all needed data between requests
+ * This session stores all needed data between requests
  *
- * @constructor creates a new context
+ * @constructor creates a new session
  * @param scenarioName the name of the current scenario
  * @param userId the id of the current user
  * @param writeActorUuid the uuid of the actor responsible for logging
  * @param data the map that stores all values needed
  */
-class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uuid, var data: Map[String, Any]) extends Logging {
+class Session(val scenarioName: String, val userId: Int, val writeActorUuid: Uuid, var data: Map[String, Any]) extends Logging {
 
 	def this(scenarioName: String, userId: Int, writeActorUuid: Uuid) = this(scenarioName, userId, writeActorUuid, Map.empty)
 
 	/**
-	 * Gets a value from the context
+	 * Gets a value from the session
 	 *
 	 * @param key the key of the requested value
 	 * @return the value stored at key, StringUtils.EMPTY if it does not exist
@@ -61,15 +61,15 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 		assert(!key.startsWith("gatling."), "keys starting with gatling. are reserved for internal purpose. If using this method internally please use getAttributeAsOption instead")
 
 		val result = data.get(key).getOrElse {
-			logger.warn("No Matching Attribute for key: '{}' in context", key)
+			logger.warn("No Matching Attribute for key: '{}' in session", key)
 			EMPTY
 		}
-		logger.debug("[Context] found '{}' at '{}'", result, key)
+		logger.debug("[Session] found '{}' at '{}'", result, key)
 		result
 	}
 
 	/**
-	 * Gets a value from the context
+	 * Gets a value from the session
 	 *
 	 * This method is to be used only internally, use getAttribute in scenarios
 	 *
@@ -82,15 +82,15 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	}
 
 	/**
-	 * Sets values in the context
+	 * Sets values in the session
 	 *
-	 * @param attributes map containing several values to be stored in context
+	 * @param attributes map containing several values to be stored in session
 	 * @return Nothing
 	 */
 	def setAttributes(attributes: scala.Predef.Map[String, Any]) = data ++= attributes
 
 	/**
-	 * Sets a single value in the context
+	 * Sets a single value in the session
 	 *
 	 * @param attributeKey the key of the attribute
 	 * @param attributeValue the value of the attribute
@@ -99,7 +99,7 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	def setAttribute(attributeKey: String, attributeValue: Any): Unit = data += (attributeKey -> attributeValue)
 
 	/**
-	 * Removes an attribute and its value from the context
+	 * Removes an attribute and its value from the session
 	 *
 	 * @param attributeKey the key of the attribute to be removed
 	 */
@@ -110,7 +110,7 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 *
 	 * @return last action duration in nanoseconds
 	 */
-	private[gatling] def getLastActionDuration: Long = getAttributeAsOption[Long](Context.LAST_ACTION_DURATION_KEY).getOrElse(0L)
+	private[gatling] def getLastActionDuration: Long = getAttributeAsOption[Long](Session.LAST_ACTION_DURATION_KEY).getOrElse(0L)
 
 	/**
 	 * Gets a protocol configuration based on its type
@@ -119,19 +119,19 @@ class Context(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	 * @return the protocol configuration requested
 	 */
 	private[gatling] def getProtocolConfiguration(protocolType: String) = {
-		getAttributeAsOption[IMap[String, ProtocolConfiguration]](Context.PROTOCOL_CONFIGURATIONS_KEY).map {
+		getAttributeAsOption[IMap[String, ProtocolConfiguration]](Session.PROTOCOL_CONFIGURATIONS_KEY).map {
 			_.get(protocolType)
 		}.getOrElse(throw new UnsupportedOperationException("The protocol configuration map does not exist."))
 	}
 
 	/**
-	 * Sets the protocol configuration map in the context
+	 * Sets the protocol configuration map in the session
 	 *
 	 * @param configurations the sequence containing all the protocol configurations
 	 */
 	private[gatling] def setProtocolConfig(configurations: Seq[ProtocolConfiguration]) = {
 		val configSeq = for (config <- configurations) yield (config.getProtocolType -> config)
 
-		setAttribute(Context.PROTOCOL_CONFIGURATIONS_KEY, configSeq.toMap[String, ProtocolConfiguration])
+		setAttribute(Session.PROTOCOL_CONFIGURATIONS_KEY, configSeq.toMap[String, ProtocolConfiguration])
 	}
 }

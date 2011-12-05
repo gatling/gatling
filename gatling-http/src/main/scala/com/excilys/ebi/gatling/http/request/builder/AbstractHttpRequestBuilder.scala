@@ -20,7 +20,7 @@ import com.ning.http.client.RequestBuilder
 import com.ning.http.client.FluentStringsMap
 import com.ning.http.client.FluentCaseInsensitiveStringsMap
 import org.fusesource.scalate._
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration._
@@ -62,8 +62,8 @@ object AbstractHttpRequestBuilder {
  * @param followsRedirects sets the follow redirect option of AHC
  * @param credentials sets the credentials in case of Basic HTTP Authentication
  */
-abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val httpRequestActionBuilder: HttpRequestActionBuilder, method: String, urlFunction: Context => String,
-	queryParams: List[(Context => String, Context => String)], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
+abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val httpRequestActionBuilder: HttpRequestActionBuilder, method: String, urlFunction: Session => String,
+	queryParams: List[(Session => String, Session => String)], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
 		extends Logging {
 
 	/**
@@ -76,7 +76,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * @param followsRedirects sets the follow redirect option of AHC
 	 * @param credentials sets the credentials in case of Basic HTTP Authentication
 	 */
-	private[http] def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Context => String, queryParams: List[(Context => String, Context => String)], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
+	private[http] def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Session => String, queryParams: List[(Session => String, Session => String)], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
 
 	/**
 	 * Stops defining the request and adds checks on the response
@@ -91,7 +91,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * @param paramKeyFunction a function that returns the key name
 	 * @param paramValueFunction a function that returns the value
 	 */
-	def queryParam(paramKeyFunction: Context => String, paramValueFunction: Context => String): B = newInstance(httpRequestActionBuilder, urlFunction, (paramKeyFunction, paramValueFunction) :: queryParams, headers, followsRedirects, credentials)
+	def queryParam(paramKeyFunction: Session => String, paramValueFunction: Session => String): B = newInstance(httpRequestActionBuilder, urlFunction, (paramKeyFunction, paramValueFunction) :: queryParams, headers, followsRedirects, credentials)
 	/**
 	 * Adds a query parameter to the request
 	 *
@@ -105,7 +105,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	/**
 	 * Adds a query parameter to the request
 	 *
-	 * The value is a context attribute with the same key
+	 * The value is a session attribute with the same key
 	 *
 	 * @param paramKey the key of the parameter
 	 */
@@ -153,16 +153,16 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	/**
 	 * This method actually fills the request builder to avoid race conditions
 	 *
-	 * @param context the context of the current scenario
+	 * @param session the session of the current scenario
 	 */
-	private[http] def getRequestBuilder(context: Context): RequestBuilder = {
+	private[http] def getRequestBuilder(session: Session): RequestBuilder = {
 		val requestBuilder = new RequestBuilder
 		requestBuilder setMethod method setFollowRedirects followsRedirects.getOrElse(false)
 
-		val isHttps = addURLTo(requestBuilder, context)
-		addProxyTo(requestBuilder, context, isHttps)
-		addCookiesTo(requestBuilder, context)
-		addQueryParamsTo(requestBuilder, context)
+		val isHttps = addURLTo(requestBuilder, session)
+		addProxyTo(requestBuilder, session, isHttps)
+		addCookiesTo(requestBuilder, session)
+		addQueryParamsTo(requestBuilder, session)
 		addHeadersTo(requestBuilder, headers)
 		addAuthenticationTo(requestBuilder, credentials)
 
@@ -172,11 +172,11 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	/**
 	 * This method builds the request that will be sent
 	 *
-	 * @param context the context of the current scenario
+	 * @param session the session of the current scenario
 	 */
-	private[http] def build(context: Context): Request = {
+	private[http] def build(session: Session): Request = {
 
-		val request = getRequestBuilder(context) build
+		val request = getRequestBuilder(session) build
 
 		request
 	}
@@ -185,25 +185,25 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * This method adds proxy information to the request builder if needed
 	 *
 	 * @param requestBuilder the request builder to which the proxy should be added
-	 * @param context the context of the current scenario
+	 * @param session the session of the current scenario
 	 */
-	private def addProxyTo(requestBuilder: RequestBuilder, context: Context, isHttps: Boolean) = {
-		context.getProtocolConfiguration(HTTP_PROTOCOL_TYPE).map { config =>
+	private def addProxyTo(requestBuilder: RequestBuilder, session: Session, isHttps: Boolean) = {
+		session.getProtocolConfiguration(HTTP_PROTOCOL_TYPE).map { config =>
 			val httpConfig = config.asInstanceOf[HttpProtocolConfiguration]
 			(if (isHttps) httpConfig.securedProxy else httpConfig.proxy).map(requestBuilder.setProxyServer(_))
 		}
 	}
 
 	/**
-	 * This method adds the url to the request builder. It does so by applying the urlFunction to the current context
+	 * This method adds the url to the request builder. It does so by applying the urlFunction to the current session
 	 *
 	 * @param requestBuilder the request builder to which the url should be added
-	 * @param context the context of the current scenario
+	 * @param session the session of the current scenario
 	 */
-	private def addURLTo(requestBuilder: RequestBuilder, context: Context) = {
-		val urlProvided = urlFunction(context)
+	private def addURLTo(requestBuilder: RequestBuilder, session: Session) = {
+		val urlProvided = urlFunction(session)
 
-		val httpConfiguration = context.getProtocolConfiguration(HTTP_PROTOCOL_TYPE).map(_.asInstanceOf[HttpProtocolConfiguration])
+		val httpConfiguration = session.getProtocolConfiguration(HTTP_PROTOCOL_TYPE).map(_.asInstanceOf[HttpProtocolConfiguration])
 
 		// baseUrl implementation
 		val url =
@@ -223,10 +223,10 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * This method adds the cookies of last response to the request builder
 	 *
 	 * @param requestBuilder the request builder to which the cookies should be added
-	 * @param context the context of the current scenario
+	 * @param session the session of the current scenario
 	 */
-	private def addCookiesTo(requestBuilder: RequestBuilder, context: Context) = {
-		for ((cookieName, cookie) <- context.getAttributeAsOption[HashMap[String, Cookie]](COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty)) {
+	private def addCookiesTo(requestBuilder: RequestBuilder, session: Session) = {
+		for ((cookieName, cookie) <- session.getAttributeAsOption[HashMap[String, Cookie]](COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty)) {
 			requestBuilder.addOrReplaceCookie(cookie)
 		}
 	}
@@ -235,12 +235,12 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * This method adds the query parameters to the request builder
 	 *
 	 * @param requestBuilder the request builder to which the query parameters should be added
-	 * @param context the context of the current scenario
+	 * @param session the session of the current scenario
 	 */
-	private def addQueryParamsTo(requestBuilder: RequestBuilder, context: Context) = {
+	private def addQueryParamsTo(requestBuilder: RequestBuilder, session: Session) = {
 		val queryParamsMap = new FluentStringsMap
 
-		val keyValues = for ((keyFunction, valueFunction) <- queryParams) yield (keyFunction(context), valueFunction(context))
+		val keyValues = for ((keyFunction, valueFunction) <- queryParams) yield (keyFunction(session), valueFunction(session))
 
 		keyValues.groupBy(_._1).foreach { entry =>
 			val (key, values) = entry
@@ -254,7 +254,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * This method adds the headers to the request builder
 	 *
 	 * @param requestBuilder the request builder to which the headers should be added
-	 * @param context the context of the current scenario
+	 * @param session the session of the current scenario
 	 */
 	private def addHeadersTo(requestBuilder: RequestBuilder, headers: Map[String, String]) = {
 		requestBuilder setHeaders (new FluentCaseInsensitiveStringsMap)

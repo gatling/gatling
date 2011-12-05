@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.structure.loop
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import java.util.concurrent.TimeUnit
 import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
@@ -66,13 +66,13 @@ class LoopBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: 
 	 *
 	 * @param conditionFunction the condition function
 	 */
-	def asLongAs(conditionFunction: Context => Boolean): B = new ConditionalLoopHandlerBuilder(structureBuilder, chain, conditionFunction, counterName).build
+	def asLongAs(conditionFunction: Session => Boolean): B = new ConditionalLoopHandlerBuilder(structureBuilder, chain, conditionFunction, counterName).build
 
 	/**
 	 * This method sets the equality condition that will stop the loop
 	 *
-	 * @param contextKey the key of the value in the context
-	 * @param value the value to which the context value is compared
+	 * @param sessionKey the key of the value in the session
+	 * @param value the value to which the session value is compared
 	 */
-	def asLongAs(contextKey: String, value: String): B = asLongAs((c: Context) => c.getAttribute(contextKey) == value)
+	def asLongAs(sessionKey: String, value: String): B = asLongAs((s: Session) => s.getAttribute(sessionKey) == value)
 }

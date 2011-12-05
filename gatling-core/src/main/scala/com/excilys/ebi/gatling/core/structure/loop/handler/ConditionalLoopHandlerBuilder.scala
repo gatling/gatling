@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.structure.loop.handler
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder._
 import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
@@ -28,7 +28,7 @@ import com.excilys.ebi.gatling.core.structure.ChainBuilder
  * @param conditionFunction the function that determines whether the loop should continue or not
  * @param counterName the name of the counter for this loop
  */
-class ConditionalLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: ChainBuilder, conditionFunction: Context => Boolean, counterName: Option[String])
+class ConditionalLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: ChainBuilder, conditionFunction: Session => Boolean, counterName: Option[String])
 		extends AbstractLoopHandlerBuilder[B](structureBuilder) {
 
 	/**

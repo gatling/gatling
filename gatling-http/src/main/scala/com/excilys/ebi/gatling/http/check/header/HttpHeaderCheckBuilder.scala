@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.check.strategy.ExistenceCheckStrategy
 import com.excilys.ebi.gatling.core.check.CheckBuilderFind
 import com.excilys.ebi.gatling.core.check.CheckBuilderVerifyOne
 import com.excilys.ebi.gatling.core.check.CheckBuilderSave
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
@@ -34,13 +34,13 @@ import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
  */
 object HttpHeaderCheckBuilder {
 	/**
-	 * Will check the value of the header in the context
+	 * Will check the value of the header in the session
 	 *
 	 * @param what the function returning the name of the header
 	 */
-	def header(what: Context => String) = new HttpHeaderCheckBuilder(what, ExistenceCheckStrategy, Nil, None) with CheckBuilderFind[HttpCheckBuilder[HttpHeaderCheckBuilder]]
+	def header(what: Session => String) = new HttpHeaderCheckBuilder(what, ExistenceCheckStrategy, Nil, None) with CheckBuilderFind[HttpCheckBuilder[HttpHeaderCheckBuilder]]
 	/**
-	 * Will check the value of the header in the context
+	 * Will check the value of the header in the session
 	 *
 	 * @param headerName the name of the header
 	 */
@@ -51,14 +51,14 @@ object HttpHeaderCheckBuilder {
  * This class builds a response header check
  *
  * @param what the function returning the header name to be checked
- * @param to the optional context key in which the extracted value will be stored
+ * @param to the optional session key in which the extracted value will be stored
  * @param strategy the strategy used to check
  * @param expected the expected value against which the extracted value will be checked
  */
-class HttpHeaderCheckBuilder(what: Context => String, strategy: CheckStrategy, expected: List[String], saveAs: Option[String])
+class HttpHeaderCheckBuilder(what: Session => String, strategy: CheckStrategy, expected: List[String], saveAs: Option[String])
 		extends HttpCheckBuilder[HttpHeaderCheckBuilder](what, None, strategy, expected, saveAs, HeadersReceived) {
 
-	private[http] def newInstance(what: Context => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String], when: HttpPhase) =
+	private[http] def newInstance(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String], when: HttpPhase) =
 		new HttpHeaderCheckBuilder(what, strategy, expected, saveAs)
 
 	private[gatling] def newInstanceWithFindOne(occurrence: Int) =

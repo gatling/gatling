@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.core.structure
 import java.util.concurrent.TimeUnit
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder._
@@ -106,7 +106,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @param thenNext the chain to be executed if the condition is satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIf(conditionFunction: Context => Boolean, thenNext: ChainBuilder): B = doIf(conditionFunction, thenNext, None)
+	def doIf(conditionFunction: Session => Boolean, thenNext: ChainBuilder): B = doIf(conditionFunction, thenNext, None)
 
 	/**
 	 * Method used to add a conditional execution in the scenario with a fall back
@@ -117,29 +117,29 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @param elseNext the chain to be executed if the condition is not satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIf(conditionFunction: Context => Boolean, thenNext: ChainBuilder, elseNext: ChainBuilder): B = doIf(conditionFunction, thenNext, Some(elseNext))
+	def doIf(conditionFunction: Session => Boolean, thenNext: ChainBuilder, elseNext: ChainBuilder): B = doIf(conditionFunction, thenNext, Some(elseNext))
 
 	/**
 	 * Method used to add a conditional execution in the scenario
 	 *
-	 * @param contextKey the key of the context value to be tested for equality
-	 * @param value the value to which the context value must be equals
+	 * @param sessionKey the key of the session value to be tested for equality
+	 * @param value the value to which the session value must be equals
 	 * @param thenNext the chain to be executed if the condition is satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIf(contextKey: String, value: String, thenNext: ChainBuilder): B = doIf((c: Context) => c.getAttribute(contextKey) == value, thenNext)
+	def doIf(sessionKey: String, value: String, thenNext: ChainBuilder): B = doIf((s: Session) => s.getAttribute(sessionKey) == value, thenNext)
 
 	/**
 	 * Method used to add a conditional execution in the scenario with a fall back
 	 * action if condition is not satisfied
 	 *
-	 * @param contextKey the key of the context value to be tested for equality
-	 * @param value the value to which the context value must be equals
+	 * @param sessionKey the key of the session value to be tested for equality
+	 * @param value the value to which the session value must be equals
 	 * @param thenNext the chain to be executed if the condition is satisfied
 	 * @param elseNext the chain to be executed if the condition is not satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIf(contextKey: String, value: String, thenNext: ChainBuilder, elseNext: ChainBuilder): B = doIf((c: Context) => c.getAttribute(contextKey) == value, thenNext, elseNext)
+	def doIf(sessionKey: String, value: String, thenNext: ChainBuilder, elseNext: ChainBuilder): B = doIf((s: Session) => s.getAttribute(sessionKey) == value, thenNext, elseNext)
 
 	/**
 	 * Private method that actually adds the If Action to the scenario
@@ -149,7 +149,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @param elseNext the chain to be executed if the condition is not satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	private def doIf(conditionFunction: Context => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]): B = {
+	private def doIf(conditionFunction: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]): B = {
 		newInstance((ifActionBuilder withConditionFunction conditionFunction withThenNext thenNext withElseNext elseNext inGroups getCurrentGroups) :: actionBuilders)
 	}
 
@@ -182,7 +182,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 *
 	 * @param feeder the feeder from which the values will be loaded
 	 */
-	def feed(feeder: Feeder): B = newInstance(simpleActionBuilder((c: Context) => c.setAttributes(feeder.next)) :: actionBuilders)
+	def feed(feeder: Feeder): B = newInstance(simpleActionBuilder((s: Session) => s.setAttributes(feeder.next)) :: actionBuilders)
 
 	/**
 	 * Method used to declare a loop

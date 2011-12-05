@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.core.result.writer.FileDataWriter
 import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfigurationBuilder
 import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfiguration
 import java.util.concurrent.TimeUnit
@@ -98,8 +98,8 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: List[ScenarioCo
 	private def startOneScenario(configuration: ScenarioConfiguration, scenario: Action) = {
 		if (configuration.users == 1) {
 			// if single user, execute right now
-			val context = buildContext(configuration, 1)
-			scenario.execute(context)
+			val session = buildSession(configuration, 1)
+			scenario.execute(session)
 		} else {
 			// otherwise, schedule
 			val ramp = configuration.ramp
@@ -107,24 +107,24 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: List[ScenarioCo
 			val period = ramp._2.toMillis(ramp._1) / (configuration.users - 1)
 
 			for (i <- 1 to configuration.users) {
-				val context: Context = buildContext(configuration, i)
-				Scheduler.scheduleOnce(() => scenario.execute(context), period * (i - 1), TimeUnit.MILLISECONDS)
+				val session: Session = buildSession(configuration, i)
+				Scheduler.scheduleOnce(() => scenario.execute(session), period * (i - 1), TimeUnit.MILLISECONDS)
 			}
 		}
 	}
 
 	/**
-	 * This method builds the context that will be sent to the first action of a scenario
+	 * This method builds the session that will be sent to the first action of a scenario
 	 *
 	 * @param configuration the configuration of the scenario
 	 * @param userId the id of the current user
-	 * @return the built context
+	 * @return the built session
 	 */
-	private def buildContext(configuration: ScenarioConfiguration, userId: Int) = {
-		val ctx = new Context(configuration.scenarioBuilder.name, userId, statWriter.getUuid)
+	private def buildSession(configuration: ScenarioConfiguration, userId: Int) = {
+		val session = new Session(configuration.scenarioBuilder.name, userId, statWriter.getUuid)
 
-		ctx.setProtocolConfig(configuration.protocolConfigurations)
+		session.setProtocolConfig(configuration.protocolConfigurations)
 
-		ctx
+		session
 	}
 }

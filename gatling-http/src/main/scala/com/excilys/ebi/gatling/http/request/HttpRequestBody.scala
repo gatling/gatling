@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.request
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 
 /**
  * Class used for polymorphism only
@@ -39,4 +39,4 @@ case class FilePathBody(filePath: String) extends HttpRequestBody
  * @param tplPath the path to the template
  * @param values the values that will be merged in the template
  */
-case class TemplateBody(tplPath: String, values: Map[String, Context => String]) extends HttpRequestBody
+case class TemplateBody(tplPath: String, values: Map[String, Session => String]) extends HttpRequestBody

@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.core.result.message.ResultStatus._
 import java.util.concurrent.CountDownLatch
@@ -43,13 +43,13 @@ class EndAction(val latch: CountDownLatch) extends Action {
 	/**
 	 * Sends a message to the DataWriter and decreases the countDownLatch
 	 *
-	 * @param context The context of the current user that finishes
+	 * @param session The session of the current user that finishes
 	 */
-	def execute(context: Context) = {
-		actorFor(context.writeActorUuid).map(_ ! ActionInfo(context.scenarioName, context.userId, EndAction.END_OF_SCENARIO, DateTime.now(), 0, OK, "End of Scenario Reached", Nil))
+	def execute(session: Session) = {
+		actorFor(session.writeActorUuid).map(_ ! ActionInfo(session.scenarioName, session.userId, EndAction.END_OF_SCENARIO, DateTime.now(), 0, OK, "End of Scenario Reached", Nil))
 
 		latch.countDown
 
-		logger.info("Done user #{}", context.userId)
+		logger.info("Done user #{}", session.userId)
 	}
 }

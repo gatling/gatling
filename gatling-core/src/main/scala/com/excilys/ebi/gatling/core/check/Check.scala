@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.check
 
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.check.strategy.CheckStrategy
 import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
 
@@ -26,11 +26,11 @@ import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
  *
  * @param what the function that returns the expression representing what the check should look for
  * @param how the extractor that will be used by the Check
- * @param saveAs the context attribute that will be used to store the extracted value
+ * @param saveAs the session attribute that will be used to store the extracted value
  * @param strategy the strategy used to perform the Check
  * @param expected the expected value of what has been found
  */
-abstract class Check[WHERE](val what: Context => String, val how: ExtractorFactory[WHERE], val strategy: CheckStrategy, val expected: List[String], val saveAs: Option[String])
+abstract class Check[WHERE](val what: Session => String, val how: ExtractorFactory[WHERE], val strategy: CheckStrategy, val expected: List[String], val saveAs: Option[String])
 		extends Logging with ClassSimpleNameToString {
 
 	/**

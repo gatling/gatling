@@ -19,7 +19,7 @@ import akka.actor.Scheduler
 
 import java.util.concurrent.TimeUnit
 
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 
 import scala.util.Random
 
@@ -49,19 +49,19 @@ class PauseAction(next: Action, minDuration: Long, maxDuration: Long, timeUnit: 
 	 * Generates a duration if required or use the one given and defer
 	 * next actor execution of this duration
 	 *
-	 * @param context Context of current user
+	 * @param session Session of current user
 	 * @return Nothing
 	 */
-	def execute(context: Context) = {
+	def execute(session: Session) = {
 
 		val diff = maxDuration - minDuration
 		val duration = minDuration + (if (diff > 0) PauseAction.randomGenerator.nextInt(diff.toInt) else 0)
 
-		val durationInNanos: Long = TimeUnit.NANOSECONDS.convert(duration, timeUnit) - context.getLastActionDuration
+		val durationInNanos: Long = TimeUnit.NANOSECONDS.convert(duration, timeUnit) - session.getLastActionDuration
 
 		if (logger.isInfoEnabled)
 			logger.info("Waiting for {}ms ({}ms)", TimeUnit.MILLISECONDS.convert(duration, timeUnit), TimeUnit.MILLISECONDS.convert(durationInNanos, TimeUnit.NANOSECONDS))
 
-		Scheduler.scheduleOnce(() => next.execute(context), durationInNanos, TimeUnit.NANOSECONDS)
+		Scheduler.scheduleOnce(() => next.execute(session), durationInNanos, TimeUnit.NANOSECONDS)
 	}
 }

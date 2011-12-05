@@ -20,7 +20,7 @@ package com.excilys.ebi.gatling.http.util
  */
 object HttpHelper {
 	/**
-	 * The context key for the cookies
+	 * The session key for the cookies
 	 */
 	val COOKIES_CONTEXT_KEY = "gatling.http.cookies"
 }

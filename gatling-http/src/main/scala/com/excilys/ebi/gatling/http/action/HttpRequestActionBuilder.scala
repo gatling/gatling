@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.http.action
 
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.util.StringHelper._
 import com.excilys.ebi.gatling.http.request.HttpRequest
@@ -75,7 +75,7 @@ class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, ne
 	 * Starts the definition of an HTTP request with word DELETE
 	 *
 	 * @param url the url on which this request will be made
-	 * @param interpolations context keys for interpolation
+	 * @param interpolations session keys for interpolation
 	 */
 	def delete(url: String) = new DeleteHttpRequestBuilder(this, interpolate(url), Nil, Map(), None, None, None)
 
@@ -84,13 +84,13 @@ class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, ne
 	 *
 	 * @param f the function returning the url of this request
 	 */
-	def delete(f: Context => String) = new DeleteHttpRequestBuilder(this, f, Nil, Map(), None, None, None)
+	def delete(f: Session => String) = new DeleteHttpRequestBuilder(this, f, Nil, Map(), None, None, None)
 
 	/**
 	 * Starts the definition of an HTTP request with word GET
 	 *
 	 * @param url the url on which this request will be made
-	 * @param interpolations context keys for interpolation
+	 * @param interpolations session keys for interpolation
 	 */
 	def get(url: String) = new GetHttpRequestBuilder(this, interpolate(url), Nil, Map(), None, None)
 
@@ -99,13 +99,13 @@ class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, ne
 	 *
 	 * @param f the function returning the url of this request
 	 */
-	def get(f: Context => String) = new GetHttpRequestBuilder(this, f, Nil, Map(), None, None)
+	def get(f: Session => String) = new GetHttpRequestBuilder(this, f, Nil, Map(), None, None)
 
 	/**
 	 * Starts the definition of an HTTP request with word POST
 	 *
 	 * @param url the url on which this request will be made
-	 * @param interpolations context keys for interpolation
+	 * @param interpolations session keys for interpolation
 	 */
 	def post(url: String) = new PostHttpRequestBuilder(this, interpolate(url), Nil, Nil, Map(), None, None, None)
 
@@ -114,13 +114,13 @@ class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, ne
 	 *
 	 * @param f the function returning the url of this request
 	 */
-	def post(f: Context => String) = new PostHttpRequestBuilder(this, f, Nil, Nil, Map(), None, None, None)
+	def post(f: Session => String) = new PostHttpRequestBuilder(this, f, Nil, Nil, Map(), None, None, None)
 
 	/**
 	 * Starts the definition of an HTTP request with word PUT
 	 *
 	 * @param url the url on which this request will be made
-	 * @param interpolations context keys for interpolation
+	 * @param interpolations session keys for interpolation
 	 */
 	def put(url: String) = new PutHttpRequestBuilder(this, interpolate(url), Nil, Map(), None, None, None)
 
@@ -129,6 +129,6 @@ class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, ne
 	 *
 	 * @param f the function returning the url of this request
 	 */
-	def put(f: Context => String) = new PutHttpRequestBuilder(this, f, Nil, Map(), None, None, None)
+	def put(f: Session => String) = new PutHttpRequestBuilder(this, f, Nil, Map(), None, None, None)
 }
 

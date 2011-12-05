@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.core.action
 
 import akka.actor.TypedActor
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
 
@@ -29,10 +29,10 @@ trait Action extends TypedActor with Logging with ClassSimpleNameToString {
 	/**
 	 * This method is used to send a message to this actor
 	 *
-	 * @param context The context of the scenario
+	 * @param session The session of the scenario
 	 * @return Nothing
 	 */
-	def execute(context: Context)
+	def execute(session: Session)
 
 	/**
 	 * This is the Uuid of the current actor

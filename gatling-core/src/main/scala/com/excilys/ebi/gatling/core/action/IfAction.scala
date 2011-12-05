@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.action
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 
 /**
  * This class represents a conditional Action
@@ -25,7 +25,7 @@ import com.excilys.ebi.gatling.core.context.Context
  * @param elseNext chain of actions executed if conditionFunction evaluates to false
  * @param next chain of actions executed if conditionFunction evaluates to false and elseNext equals None
  */
-class IfAction(conditionFunction: Context => Boolean, thenNext: Action, elseNext: Option[Action], next: Action) extends Action {
+class IfAction(conditionFunction: Session => Boolean, thenNext: Action, elseNext: Option[Action], next: Action) extends Action {
 
 	/**
 	 * Evaluates the conditionFunction and if true executes the first action of thenNext
@@ -33,8 +33,8 @@ class IfAction(conditionFunction: Context => Boolean, thenNext: Action, elseNext
 	 *
 	 * If there is no elseNext, then, next is executed
 	 *
-	 * @param context Context for current user
+	 * @param session Session for current user
 	 * @return Nothing
 	 */
-	def execute(context: Context) = if (conditionFunction(context)) thenNext.execute(context) else elseNext.getOrElse(next).execute(context)
+	def execute(session: Session) = if (conditionFunction(session)) thenNext.execute(session) else elseNext.getOrElse(next).execute(session)
 }

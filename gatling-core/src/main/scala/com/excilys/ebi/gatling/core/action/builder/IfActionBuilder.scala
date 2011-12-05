@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.action.builder
 import com.excilys.ebi.gatling.core.action.Action
 import akka.actor.TypedActor
 import com.excilys.ebi.gatling.core.action.IfAction
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
 /**
@@ -41,7 +41,7 @@ object IfActionBuilder {
  * @param next chain that will be executed if conditionFunction evaluates to false and there is no elseNext
  * @param groups groups in which this action and the ones inside will be
  */
-class IfActionBuilder(conditionFunction: Context => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder], next: Action, groups: List[String])
+class IfActionBuilder(conditionFunction: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder], next: Action, groups: List[String])
 		extends AbstractActionBuilder {
 
 	/**
@@ -50,7 +50,7 @@ class IfActionBuilder(conditionFunction: Context => Boolean, thenNext: ChainBuil
 	 * @param conditionFunction the condition function
 	 * @return a new builder with conditionFunction set
 	 */
-	def withConditionFunction(conditionFunction: Context => Boolean) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next, groups)
+	def withConditionFunction(conditionFunction: Session => Boolean) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next, groups)
 
 	/**
 	 * Adds thenNext to builder

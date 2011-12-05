@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.ning.http.client.RequestBuilder
@@ -35,13 +35,13 @@ import com.excilys.ebi.gatling.core.util.StringHelper._
  * @param credentials sets the credentials in case of Basic HTTP Authentication
  */
 abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequestWithBodyAndParamsBuilder[B]](httpRequestActionBuilder: HttpRequestActionBuilder, method: String,
-	urlFunction: Context => String, queryParams: List[(Context => String, Context => String)], params: List[(Context => String, Context => String)], headers: Map[String, String], body: Option[HttpRequestBody],
+	urlFunction: Session => String, queryParams: List[(Session => String, Session => String)], params: List[(Session => String, Session => String)], headers: Map[String, String], body: Option[HttpRequestBody],
 	followsRedirects: Option[Boolean], credentials: Option[(String, String)])
 		extends AbstractHttpRequestWithBodyBuilder[B](httpRequestActionBuilder, method, urlFunction, queryParams, headers, body, followsRedirects, credentials) {
 
-	private[http] override def getRequestBuilder(context: Context): RequestBuilder = {
-		val requestBuilder = super.getRequestBuilder(context)
-		addParamsTo(requestBuilder, context)
+	private[http] override def getRequestBuilder(session: Session): RequestBuilder = {
+		val requestBuilder = super.getRequestBuilder(session)
+		addParamsTo(requestBuilder, session)
 		requestBuilder
 	}
 
@@ -57,16 +57,16 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 * @param followsRedirects sets the follow redirect option of AHC
 	 * @param credentials sets the credentials in case of Basic HTTP Authentication
 	 */
-	private[http] def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Context => String, queryParams: List[(Context => String, Context => String)], params: List[(Context => String, Context => String)], headers: Map[String, String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
+	private[http] def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Session => String, queryParams: List[(Session => String, Session => String)], params: List[(Session => String, Session => String)], headers: Map[String, String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
 
-	private[http] def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Context => String, queryParams: List[(Context => String, Context => String)], headers: Map[String, String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B = {
+	private[http] def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Session => String, queryParams: List[(Session => String, Session => String)], headers: Map[String, String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B = {
 		newInstance(httpRequestActionBuilder, urlFunction, queryParams, params, headers, body, followsRedirects, credentials)
 	}
 
 	/**
 	 *
 	 */
-	def param(paramKeyFunction: Context => String, paramValueFunction: Context => String): B =
+	def param(paramKeyFunction: Session => String, paramValueFunction: Session => String): B =
 		newInstance(httpRequestActionBuilder, urlFunction, queryParams, (paramKeyFunction, paramValueFunction) :: params, headers, body, followsRedirects, credentials)
 
 	/**
@@ -84,12 +84,12 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 *
 	 * @param requestBuilder the request builder to which the parameters should be added
 	 * @param params the parameters that should be added
-	 * @param context the context of the current scenario
+	 * @param session the session of the current scenario
 	 */
-	private def addParamsTo(requestBuilder: RequestBuilder, context: Context) = {
+	private def addParamsTo(requestBuilder: RequestBuilder, session: Session) = {
 		val paramsMap = new FluentStringsMap
 
-		val keyValues = for ((keyFunction, valueFunction) <- params) yield (keyFunction(context), valueFunction(context))
+		val keyValues = for ((keyFunction, valueFunction) <- params) yield (keyFunction(session), valueFunction(session))
 
 		keyValues.groupBy(_._1).foreach { entry =>
 			val (key, values) = entry

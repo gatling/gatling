@@ -27,7 +27,7 @@ import org.joda.time.DateTime
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
 import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.KO
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.OK
@@ -57,20 +57,20 @@ import scala.collection.JavaConversions._
  * It is part of the HttpRequestAction
  *
  * @constructor constructs a GatlingAsyncHandler
- * @param context the context of the scenario
+ * @param session the session of the scenario
  * @param checks the checks that will be done on response
  * @param next the next action to be executed
  * @param requestName the name of the request
  * @param groups the groups to which this action belongs
  */
-class GatlingAsyncHandler(context: Context, checks: List[HttpCheck], next: Action, requestName: String, groups: List[String])
+class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Action, requestName: String, groups: List[String])
 		extends AsyncHandler[Void] with Logging {
 
 	private val executionStartTimeNano = System.nanoTime
 
 	private val executionStartDate = DateTime.now
 
-	private val identifier = requestName + context.userId
+	private val identifier = requestName + session.userId
 
 	private val responseBuilder = new ResponseBuilder
 
@@ -86,16 +86,16 @@ class GatlingAsyncHandler(context: Context, checks: List[HttpCheck], next: Actio
 
 			val setCookieHeaders = headersMap.get(SET_COOKIE)
 			if (setCookieHeaders != null) {
-				var contextCookies = context.getAttributeAsOption[HashMap[String, Cookie]](COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty)
+				var sessionCookies = session.getAttributeAsOption[HashMap[String, Cookie]](COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty)
 
 				setCookieHeaders.foreach { setCookieHeader =>
 					val cookie = parseCookie(setCookieHeader)
-					contextCookies += (cookie.getName -> cookie)
+					sessionCookies += (cookie.getName -> cookie)
 				}
 
-				logger.debug("Cookies put in Context: {}", contextCookies)
+				logger.debug("Cookies put in Session: {}", sessionCookies)
 
-				context setAttribute (COOKIES_CONTEXT_KEY, contextCookies)
+				session setAttribute (COOKIES_CONTEXT_KEY, sessionCookies)
 			}
 		}
 
@@ -132,14 +132,14 @@ class GatlingAsyncHandler(context: Context, checks: List[HttpCheck], next: Actio
 	 * @param processingStartTimeNano date of the beginning of the response processing
 	 */
 	private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String, processingStartTimeNano: Long) = {
-		actorFor(context.writeActorUuid).map { a =>
+		actorFor(session.writeActorUuid).map { a =>
 			val responseTimeMillis = TimeUnit.MILLISECONDS.convert(processingStartTimeNano - executionStartTimeNano, TimeUnit.NANOSECONDS)
-			a ! ActionInfo(context.scenarioName, context.userId, "Request " + requestName, executionStartDate, responseTimeMillis, requestResult, requestMessage, groups)
+			a ! ActionInfo(session.scenarioName, session.userId, "Request " + requestName, executionStartDate, responseTimeMillis, requestResult, requestMessage, groups)
 		}
 
-		context.setAttribute(Context.LAST_ACTION_DURATION_KEY, System.nanoTime() - processingStartTimeNano)
+		session.setAttribute(Session.LAST_ACTION_DURATION_KEY, System.nanoTime() - processingStartTimeNano)
 
-		next.execute(context)
+		next.execute(session)
 	}
 
 	private def getChecksForPhase(httpPhase: HttpPhase) = checks.view.filter(_.when == httpPhase)
@@ -178,7 +178,7 @@ class GatlingAsyncHandler(context: Context, checks: List[HttpCheck], next: Actio
 
 				for (check <- phaseChecks) {
 					val extractor = phaseExtractors.get(check.how).get
-					val expression = check.what(context)
+					val expression = check.what(session)
 					val extractedValue = extractor.extract(expression)
 					logger.debug("Extracted value: {}", extractedValue)
 
@@ -190,7 +190,7 @@ class GatlingAsyncHandler(context: Context, checks: List[HttpCheck], next: Actio
 						return
 
 					} else if (!extractedValue.isEmpty && check.saveAs.isDefined) {
-						context.setAttribute(check.saveAs.get, extractedValue)
+						session.setAttribute(check.saveAs.get, extractedValue)
 					}
 				}
 			}

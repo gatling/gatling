@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.http.check.status
 
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.check.status.extractor.HttpStatusExtractorFactory
 import com.excilys.ebi.gatling.http.check.HttpCheck
@@ -25,8 +25,8 @@ import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy
 /**
  * This class represents a check made on the status of the response
  *
- * @param to the optional context key in which the status code will be stored
+ * @param to the optional session key in which the status code will be stored
  * @param expected the expected value against which the extracted value will be checked
  */
 class HttpStatusCheck(expected: List[String], saveAs: Option[String])
-	extends HttpCheck((c: Context) => EMPTY, HttpStatusExtractorFactory, InRangeCheckStrategy, expected, saveAs, CompletePageReceived)
+	extends HttpCheck((s: Session) => EMPTY, HttpStatusExtractorFactory, InRangeCheckStrategy, expected, saveAs, CompletePageReceived)

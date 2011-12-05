@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.action.builder
 
 import com.excilys.ebi.gatling.core.action.Action
 import scala.collection.immutable.List
-import com.excilys.ebi.gatling.core.context.Context
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.action.SimpleAction
 import akka.actor.TypedActor
 
@@ -27,45 +27,45 @@ import akka.actor.TypedActor
 object SimpleActionBuilder {
 
 	/**
-	 * Implicit converter from (Context, Action) => Unit to a simple action builder containing this function
+	 * Implicit converter from (Session, Action) => Unit to a simple action builder containing this function
 	 *
-	 * @param contextFunction the function that has to be wrapped into a simple action builder
+	 * @param sessionFunction the function that has to be wrapped into a simple action builder
 	 * @return a simple action builder
 	 */
-	implicit def toSimpleActionBuilder(contextFunction: (Context, Action) => Unit) = simpleActionBuilder(contextFunction)
+	implicit def toSimpleActionBuilder(sessionFunction: (Session, Action) => Unit) = simpleActionBuilder(sessionFunction)
 	/**
-	 * Implicit converter from Context => Unit to a simple action builder containing this function
+	 * Implicit converter from Session => Unit to a simple action builder containing this function
 	 *
-	 * @param contextFunction the function that has to be wrapped into a simple action builder
+	 * @param sessionFunction the function that has to be wrapped into a simple action builder
 	 */
-	implicit def toSimpleActionBuilder(contextFunction: Context => Unit) = simpleActionBuilder(contextFunction)
+	implicit def toSimpleActionBuilder(sessionFunction: Session => Unit) = simpleActionBuilder(sessionFunction)
 
 	/**
 	 * Function used to create a simple action builder
 	 *
-	 * @param contextFunction the function that will be executed by the built simple action
+	 * @param sessionFunction the function that will be executed by the built simple action
 	 */
-	def simpleActionBuilder(contextFunction: Context => Unit): SimpleActionBuilder = simpleActionBuilder((c: Context, a: Action) => contextFunction(c))
+	def simpleActionBuilder(sessionFunction: Session => Unit): SimpleActionBuilder = simpleActionBuilder((s: Session, a: Action) => sessionFunction(s))
 	/**
 	 * Function used to create a simple action builder
 	 *
-	 * @param contextFunction the function that will be executed by the built simple action
+	 * @param sessionFunction the function that will be executed by the built simple action
 	 */
-	def simpleActionBuilder(contextFunction: (Context, Action) => Unit) = new SimpleActionBuilder(contextFunction, null, Nil)
+	def simpleActionBuilder(sessionFunction: (Session, Action) => Unit) = new SimpleActionBuilder(sessionFunction, null, Nil)
 }
 /**
  * This class builds an SimpleAction
  *
  * @constructor creates a SimpleActionBuilder
- * @param contextFunction the function that will be executed by the simple action
+ * @param sessionFunction the function that will be executed by the simple action
  * @param next the action that will be executed after the simple action built by this builder
  * @param groups the groups to which this action belongs
  */
-class SimpleActionBuilder(contextFunction: (Context, Action) => Unit, next: Action, groups: List[String]) extends AbstractActionBuilder {
+class SimpleActionBuilder(sessionFunction: (Session, Action) => Unit, next: Action, groups: List[String]) extends AbstractActionBuilder {
 
-	def withNext(next: Action) = new SimpleActionBuilder(contextFunction, next, groups)
+	def withNext(next: Action) = new SimpleActionBuilder(sessionFunction, next, groups)
 
-	def inGroups(groups: List[String]) = new SimpleActionBuilder(contextFunction, next, groups)
+	def inGroups(groups: List[String]) = new SimpleActionBuilder(sessionFunction, next, groups)
 
-	def build(): Action = TypedActor.newInstance(classOf[Action], new SimpleAction(contextFunction, next))
+	def build(): Action = TypedActor.newInstance(classOf[Action], new SimpleAction(sessionFunction, next))
 }
