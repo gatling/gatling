@@ -24,11 +24,15 @@ import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.handler.codec.http.HttpRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.excilys.ebi.gatling.recorder.http.event.MessageReceivedEvent;
 import com.excilys.ebi.gatling.recorder.http.event.RequestReceivedEvent;
 
 public abstract class AbstractBrowserRequestHandler extends SimpleChannelHandler {
+
+	private static final Logger logger = LoggerFactory.getLogger(AbstractBrowserRequestHandler.class);
 
 	protected final String outgoingProxyHost;
 	protected final int outgoingProxyPort;
@@ -60,8 +64,7 @@ public abstract class AbstractBrowserRequestHandler extends SimpleChannelHandler
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-		System.err.println("Exception caught = ");
-		e.getCause().printStackTrace();
+		logger.error("Exception caught = "+e.getCause().getMessage());
 
 		// Properly closing
 		ChannelFuture future = ctx.getChannel().getCloseFuture();

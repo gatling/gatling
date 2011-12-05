@@ -28,6 +28,8 @@ import javax.swing.JCheckBox;
 import javax.swing.border.Border;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.excilys.ebi.gatling.recorder.configuration.Configuration;
 import com.excilys.ebi.gatling.recorder.configuration.ConfigurationHelper;
@@ -37,6 +39,8 @@ import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterType;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
 
 public class ConfigurationValidatorListener implements ActionListener {
+
+	private static final Logger logger = LoggerFactory.getLogger(ConfigurationValidatorListener.class);
 
 	private final ConfigurationFrame frame;
 
@@ -65,7 +69,7 @@ public class ConfigurationValidatorListener implements ActionListener {
 			config.setPort(Integer.parseInt(frame.txtPort.getText()));
 			frame.txtPort.setBorder(defaultBorder);
 		} catch (NumberFormatException nfe) {
-			System.err.println("Error, while parsing proxy port...");
+			logger.error("Error, while parsing proxy port...");
 			frame.txtPort.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.red));
 			hasError = true;
 		}
@@ -77,7 +81,7 @@ public class ConfigurationValidatorListener implements ActionListener {
 			config.setSslPort(Integer.parseInt(frame.txtSslPort.getText()));
 			frame.txtSslPort.setBorder(defaultBorder);
 		} catch (NumberFormatException nfe) {
-			System.err.println("Error, while parsing proxy SSL port...");
+			logger.error("Error, while parsing proxy SSL port...");
 			frame.txtSslPort.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.red));
 			hasError = true;
 		}
@@ -90,7 +94,7 @@ public class ConfigurationValidatorListener implements ActionListener {
 				config.getProxy().setPort(Integer.parseInt(frame.txtProxyPort.getText()));
 				frame.txtProxyPort.setBorder(defaultBorder);
 			} catch (NumberFormatException nfe) {
-				System.err.println("Error, while parsing outgoing proxy port... !");
+				logger.error("Error, while parsing outgoing proxy port... !");
 				frame.txtProxyPort.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.red));
 				hasError = true;
 			}
@@ -102,7 +106,7 @@ public class ConfigurationValidatorListener implements ActionListener {
 				config.getProxy().setSslPort(Integer.parseInt(frame.txtProxySslPort.getText()));
 				frame.txtProxySslPort.setBorder(defaultBorder);
 			} catch (NumberFormatException nfe) {
-				System.err.println("Error, while parsing outgoing proxy SSL port... !");
+				logger.error("Error, while parsing outgoing proxy SSL port... !");
 				frame.txtProxySslPort.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.red));
 				hasError = true;
 			}
@@ -117,7 +121,7 @@ public class ConfigurationValidatorListener implements ActionListener {
 		// Check if a directory was entered
 		config.setResultPath(StringUtils.trimToNull(frame.txtResultPath.getText()));
 		if (config.getResultPath() == null) {
-			System.err.println("Error, no directory selected for results.");
+			logger.error("Error, no directory selected for results.");
 			frame.txtResultPath.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.red));
 			hasError = true;
 		} else
@@ -151,19 +155,19 @@ public class ConfigurationValidatorListener implements ActionListener {
 	}
 
 	public void logConfiguration(Configuration conf) {
-		System.out.println("Configuration");
-		System.out.println("-------------");
-		System.out.println("Proxy port: " + conf.getPort());
+		logger.info("Configuration");
+		logger.info("-------------");
+		logger.info("Proxy port: " + conf.getPort());
+		logger.info("Proxy ssl port: " + conf.getSslPort());
 		if (conf.getProxy().getHost() != null)
-			System.out.println("Outgoing proxy: " + conf.getProxy());
-		System.out.println("Filters: " + conf.getFilterType());
+			logger.info("Outgoing proxy: " + conf.getProxy());
+		logger.info("Filters: " + conf.getFilterType());
 		if (!conf.getFilterType().equals(FilterType.ALL))
 			for (Pattern pattern : conf.getPatterns())
-				System.out.println(" - " + pattern);
-		System.out.println("Results: " + conf.getResultPath());
-		System.out.println("Result type:");
+				logger.info("| - " + pattern);
+					logger.info("Results: " + conf.getResultPath());
+					logger.info("Result type:");
 		for (ResultType r : conf.getResultTypes())
-			System.out.println(" - " + r);
-		System.out.println();
+			logger.info("| - " + r);
 	}
 }

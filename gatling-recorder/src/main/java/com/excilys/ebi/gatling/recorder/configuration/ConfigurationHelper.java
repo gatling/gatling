@@ -22,11 +22,16 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
 public final class ConfigurationHelper {
+
+	private static final Logger logger = LoggerFactory.getLogger(ConfigurationHelper.class);
 
 	private static final XStream XSTREAM = new XStream(new DomDriver());
 
@@ -49,7 +54,7 @@ public final class ConfigurationHelper {
 			try {
 				return (Configuration) XSTREAM.fromXML(CONFIGURATION_FILE);
 			} catch (Exception e) {
-				System.err.println(e);
+				logger.error(e.getMessage());
 				return null;
 			}
 		} else {
@@ -63,10 +68,8 @@ public final class ConfigurationHelper {
 		try {
 			fw = new FileWriter(CONFIGURATION_FILE);
 			XSTREAM.toXML(configuration, fw);
-
 		} catch (IOException e) {
-			System.err.println(e);
-
+			logger.error(e.getMessage());
 		} finally {
 			closeQuietly(fw);
 		}

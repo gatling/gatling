@@ -58,6 +58,8 @@ import org.codehaus.plexus.util.Base64;
 import org.codehaus.plexus.util.SelectorUtils;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.QueryStringDecoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.excilys.ebi.gatling.recorder.configuration.Configuration;
 import com.excilys.ebi.gatling.recorder.configuration.Pattern;
@@ -77,6 +79,8 @@ import com.google.common.eventbus.Subscribe;
 
 @SuppressWarnings("serial")
 public class RunningFrame extends JFrame {
+
+	private static final Logger logger = LoggerFactory.getLogger(RunningFrame.class);
 
 	private Configuration configuration;
 	private GatlingHttpProxy proxy;
@@ -290,7 +294,7 @@ public class RunningFrame extends JFrame {
 		try {
 			uri = new URI(request.getUri());
 		} catch (URISyntaxException ex) {
-			System.err.println("Can't create URI from request uri (" + request.getUri() + ")" + ex.getStackTrace());
+			logger.error("Can't create URI from request uri (" + request.getUri() + ")" + ex.getStackTrace());
 			// FIXME error handling
 			return false;
 		}
@@ -330,7 +334,7 @@ public class RunningFrame extends JFrame {
 		try {
 			uri = new URI(request.getUri());
 		} catch (URISyntaxException ex) {
-			System.err.println("Can't create URI from request uri (" + request.getUri() + ")" + ex.getStackTrace());
+			logger.error("Can't create URI from request uri (" + request.getUri() + ")" + ex.getStackTrace());
 		}
 
 		listElements.addElement(request.getMethod() + " | " + request.getUri());
@@ -462,7 +466,7 @@ public class RunningFrame extends JFrame {
 			fw.write(content);
 
 		} catch (IOException ex) {
-			System.err.println("Error, while dumping request body..." + ex.getStackTrace());
+			logger.error("Error, while dumping request body..." + ex.getStackTrace());
 
 		} finally {
 			closeQuietly(fw);
@@ -498,7 +502,7 @@ public class RunningFrame extends JFrame {
 				fileWriter.flush();
 
 			} catch (IOException e) {
-				System.err.println("Error, while saving '" + resultType + "' scenario..." + e.getStackTrace());
+				logger.error("Error, while saving '" + resultType + "' scenario..." + e.getStackTrace());
 
 			} finally {
 				closeQuietly(fileWriter);

@@ -65,6 +65,6 @@ public class ProxyConfig {
 
 	@Override
 	public String toString() {
-		return "ProxyConfig [host=" + host + ", port=" + port + ", sslPort=" + sslPort + "]";
+		return "ProxyConfig [host=" + host + ", port=" + port + ", ssl port=" + sslPort + "]";
 	}
 }
