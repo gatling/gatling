@@ -51,10 +51,10 @@
 #else
 		.exec(
 			http("request_${event.getId()}")
-			.${event.getRequest().getMethod().toString().toLowerCase()}(#if(${event.isWithUrlBase()})"${URI.create(${event.getRequest().getUri()}).getPath()}"#else url_${event.getId()}#end)
+			.${event.getRequest().getMethod().toString().toLowerCase()}(#if(${event.isWithUrlBase()})"${URI.create(${event.getRequest().getUri()}).getPath()}"#{else}url_${event.getId()}#end)
 	#foreach(${param} in ${event.getRequestParams().entrySet()})
 #foreach(${val} in ${param.getValue()})
-		.param("${param.getKey()}", "${val}")
+		.#if(${event.getRequest().getMethod().toString().toLowerCase()} == "get")queryP#{else}p#{end}aram("${param.getKey()}", "${val}")
 #end
 	#end
 #if($!{event.getHeadersId()})
