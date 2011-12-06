@@ -17,21 +17,26 @@ package com.excilys.ebi.gatling.core.config
 
 import scala.io.Codec
 import scala.tools.nsc.io.Path.string2path
-
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-
-import GatlingFiles.{ GATLING_CONFIG_FOLDER, GATLING_DEFAULT_CONFIG_FILE }
+import GatlingFiles.GATLING_DEFAULT_CONFIG_FILE
+import scala.tools.nsc.io.Path
 
 /**
  * Configuration loader of Gatling
  */
 object GatlingConfig extends Logging {
 
-	private var configFileName = EMPTY
+	private var configFileName: Option[String] = None
+	private var dataFolder: Option[String] = None
+	private var requestBodiesFolder: Option[String] = None
+	private var resultsFolder: Option[String] = None
 
-	def apply(configFileName: String) = {
+	def apply(configFileName: Option[String], dataFolder: Option[String], requestBodiesFolder: Option[String], resultsFolder: Option[String]) = {
 		this.configFileName = configFileName
+		this.dataFolder = dataFolder
+		this.requestBodiesFolder = requestBodiesFolder
+		this.resultsFolder = resultsFolder
 	}
 
 	/**
@@ -41,20 +46,24 @@ object GatlingConfig extends Logging {
 		try {
 			// Locate configuration file, depending on users options
 			val configFile =
-				if (configFileName != EMPTY) {
-					logger.info("Loading custom configuration file: conf/{}", configFileName)
-					configFileName
-				} else {
+				configFileName map { fileName =>
+					logger.info("Loading custom configuration file: conf/{}", fileName)
+					fileName
+				} getOrElse {
 					logger.info("Loading default configuration file")
 					GATLING_DEFAULT_CONFIG_FILE
 				}
 
-			GatlingConfiguration.fromFile(configFile.toString)
+			GatlingConfiguration.fromFile(configFile)
 		} catch {
 			case e =>
 				logger.error("{}\n{}", e.getMessage, e.getStackTraceString)
-				throw new Exception("Could not parse configuration file.")
+				throw new Exception("Could not parse configuration file!")
 		}
+
+	lazy val CONFIG_RESULTS_FOLDER: Option[Path] = resultsFolder.map(s => s)
+	lazy val CONFIG_DATA_FOLDER: Option[Path] = dataFolder.map(s => s)
+	lazy val CONFIG_REQUEST_BODIES_FOLDER: Option[Path] = requestBodiesFolder.map(s => s)
 
 	/**
 	 * Gatling global encoding value

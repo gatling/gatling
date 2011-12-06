@@ -17,7 +17,7 @@ val lambdaUser = scenario("Standard User")
     // What will be repeated ?
     chain
       // First request to be repeated
-      .exec( (c: Context) => println("iterate: " + getCounterValue(c, "titi")) )
+      .exec( (s: Session) => println("iterate: " + getCounterValue(s, "titi")) )
       .exec(
           http("Page accueil").get("http://localhost:3000")
             .check(
@@ -33,8 +33,8 @@ val lambdaUser = scenario("Standard User")
       .loop(chain
         .exec(http("In During 1").get("http://localhost:3000/aaaa"))
         .pause(2)
-        .loop(chain.exec( (c: Context) => println("--nested loop: " + getCounterValue(c, "tutu")))).counterName("tutu").times(2)
-        .exec( (c: Context) => println("-loopDuring: " + getCounterValue(c, "toto")) )
+        .loop(chain.exec( (s: Session) => println("--nested loop: " + getCounterValue(s, "tutu")))).counterName("tutu").times(2)
+        .exec( (s: Session) => println("-loopDuring: " + getCounterValue(s, "toto")) )
         .exec(http("In During 2").get("/"))
         .pause(2))
         .counterName("toto").during(12000, MILLISECONDS)
@@ -43,15 +43,15 @@ val lambdaUser = scenario("Standard User")
 	      chain
 	        .exec(http("In During 1").get("/"))
 	        .pause(2)
-	        .exec( (c: Context) => println("-iterate1: " + getCounterValue(c, "titi") + ", doFor: " + getCounterValue(c, "hehe")) )
+	        .exec( (s: Session) => println("-iterate1: " + getCounterValue(s, "titi") + ", doFor: " + getCounterValue(s, "hehe")) )
 	        .loop(
 	            chain
-	              .exec((c:Context) => println("--iterate1: " + getCounterValue(c, "titi") + ", doFor: " + getCounterValue(c, "hehe") + ", iterate2: " + getCounterValue(c, "hoho"))))
+	              .exec((s: Session) => println("--iterate1: " + getCounterValue(s, "titi") + ", doFor: " + getCounterValue(s, "hehe") + ", iterate2: " + getCounterValue(s, "hoho"))))
 	        .counterName("hoho").times(2)
 	        .exec(http("In During 2").get("/"))
 	        .pause(2))
 	  .counterName("hehe").during(12000, MILLISECONDS)
-      .exec( (c:Context) => c.setAttribute("test2", "bbbb") )
+      .exec( (s: Session) => s.setAttribute("test2", "bbbb") )
       .doIf("test2", "aaaa", 
           chain.exec(http("IF=TRUE Request").get("/"))
           , chain.exec(http("IF=FALSE Request").get("/"))

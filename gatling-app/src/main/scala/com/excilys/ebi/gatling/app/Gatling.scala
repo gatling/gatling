@@ -19,9 +19,7 @@ import scala.collection.immutable.TreeSet
 import scala.collection.mutable.{ Set => MSet }
 import scala.collection.mutable.{ MultiMap, HashMap }
 import scala.tools.nsc.io.Directory
-
 import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.app.interpreter.{ TextScriptInterpreter, ScalaScriptInterpreter }
 import com.excilys.ebi.gatling.charts.report.ReportsGenerator
 import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_SCENARIOS_FOLDER
@@ -30,8 +28,8 @@ import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.DateHelper.printFileNameDate
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.core.util.FileHelper._
-
 import scopt.OptionParser
+import com.excilys.ebi.gatling.app.interpreter.EclipseScalaInterpreter
 
 /**
  * Object containing entry point of application
@@ -43,6 +41,11 @@ object Gatling extends Logging {
 			opt("nr", "no-reports", "runs simulation but does not generate reports", { CommandLineOptions.setNoReports })
 			opt("ro", "reports-only", "<folderName>", "Generates the reports for the simulation in <folderName>", { v: String => CommandLineOptions.setReportsOnly(v) })
 			opt("cf", "config-file", "<fileName>", "Uses <fileName> as the configuration file", { v: String => CommandLineOptions.setConfigFileName(v) })
+			opt("df", "data-folder", "<folderName>", "Uses <folderName> as the folder where feeders are stored", { v: String => CommandLineOptions.setDataFolder(v) })
+			opt("rf", "results-folder", "<folderName>", "Uses <folderName> as the folder where results are stored", { v: String => CommandLineOptions.setResultsFolder(v) })
+			opt("bf", "request-bodies-folder", "<folderName>", "Uses <folderName> as the folder where request bodies are stored", { v: String => CommandLineOptions.setRequestBodiesFolder(v) })
+			opt("esf", "eclipse-simulations-folder", "<folderName>", "Eclipse & Maven Archetype Only -- Uses <folderName> to discover simulations that could be run", { v: String => CommandLineOptions.setEclipseSimulationFolder(v) })
+			opt("esp", "eclipse_simulations-package", "<packageName>", "Eclipse & Maven Archetype Only -- Uses <packageName> to start the simulations", { v: String => CommandLineOptions.setEclipseSimulationPackage(v) })
 		}
 
 	/**
@@ -53,15 +56,33 @@ object Gatling extends Logging {
 	def main(args: Array[String]) {
 
 		if (cliOptsParser.parse(args))
-			displayMenuAndRun
+			runGatling
 
 		// if arguments are bad, usage message is displayed
 	}
 
-	def displayMenuAndRun = {
+	def apply(dataFolder: String, resultsFolder: String, requestBodiesFolder: String, eclipseSimulationFolder: String, eclipseSimulationPackage: String) =
+		main(Array("-nr", "-df", dataFolder, "-rf", resultsFolder, "-bf", requestBodiesFolder, "-esf", eclipseSimulationFolder, "-esp", eclipseSimulationPackage))
+
+	private def runGatling = {
 		println("-----------\nGatling cli\n-----------\n")
 
-		GatlingConfig(CommandLineOptions.options.configFileName) // Initializes configuration
+		import CommandLineOptions.options._
+		GatlingConfig(configFileName, dataFolder, requestBodiesFolder, resultsFolder) // Initializes configuration
+
+		val folderName =
+			if (eclipseSimulationFolder.isDefined)
+				displayMenuAndRunForEclipse
+			else
+				displayMenuAndRun
+
+		// Generation of statistics
+		if (!noReports)
+			generateStats(folderName)
+	}
+
+	private def displayMenuAndRun: String = {
+		import CommandLineOptions.options._
 
 		// Getting files in scenarios folder
 		val files = Directory(GATLING_SCENARIOS_FOLDER).files.map(_.name).filter(name => name.endsWith(TXT_EXTENSION) || name.endsWith(SCALA_EXTENSION)).filterNot(_.startsWith("."))
@@ -78,45 +99,57 @@ object Gatling extends Logging {
 		}
 
 		// We get the folder name of the run simulation
-		val folderName =
-			if (!CommandLineOptions.options.reportsOnly) {
-				files2.size match {
-					case 0 =>
-						// If there is no simulation file
-						logger.warn("There are no scenario scripts. Please verify that your scripts are in user-files/scenarios and that they do not start with a .")
-						sys.exit
-					case 1 =>
-						// If there is only one simulation file
-						logger.info("There is only one scenario, executing it.")
-						run(files2.next)
-					case _ =>
-						// If there are several simulation files
-						println("Which scenario do you want to execute ?")
+		if (!reportsOnly) {
+			files2.size match {
+				case 0 =>
+					// If there is no simulation file
+					logger.warn("There are no simulation scripts. Please verify that your scripts are in user-files/scenarios and that they do not start with a .")
+					sys.exit
+				case 1 =>
+					// If there is only one simulation file
+					logger.info("There is only one simulation, executing it.")
+					run(files2.next)
+				case _ =>
+					// If there are several simulation files
+					println("Which simulation do you want to execute ?")
 
-						var i = 0
-						var filesList: List[String] = Nil
+					var i = 0
+					var filesList: List[String] = Nil
 
-						for (group <- sortedGroups) {
-							println("\n - " + group)
-							sortedFiles.get(group).map {
-								for (fileName <- _) {
-									println("     [" + i + "] " + fileName.substring(fileName.indexOf("@") + 1, fileName.indexOf(".")))
-									filesList = fileName :: filesList
-									i += 1
-								}
+					for (group <- sortedGroups) {
+						println("\n - " + group)
+						sortedFiles.get(group).map {
+							for (fileName <- _) {
+								println("     [" + i + "] " + fileName.substring(fileName.indexOf("@") + 1, fileName.indexOf(".")))
+								filesList = fileName :: filesList
+								i += 1
 							}
 						}
+					}
 
-						val fileChosen = Console.readInt
-						run(filesList.reverse(fileChosen))
-				}
-			} else {
-				CommandLineOptions.options.reportsOnlyFolder
+					val fileChosen = Console.readInt
+					run(filesList.reverse(fileChosen))
 			}
+		} else {
+			reportsOnlyFolder
+		}
+	}
 
-		// Generation of statistics
-		if (!CommandLineOptions.options.noReports)
-			generateStats(folderName)
+	private def displayMenuAndRunForEclipse: String = {
+		import CommandLineOptions.options._
+
+		println("Which simulation do you want to execute ?")
+
+		val files = Directory(eclipseSimulationFolder.get).files.map(_.name.takeWhile(_ != '.')).toSeq
+
+		var i = 0
+		files.foreach { file =>
+			println("   [" + i + "] " + file)
+			i += 1
+		}
+
+		val fileChosen = Console.readInt
+		run(eclipseSimulationPackage.get + "." + files(fileChosen), true)
 	}
 
 	/**
@@ -133,16 +166,20 @@ object Gatling extends Logging {
 	 * @param fileName The name of the simulation file that will be executed
 	 * @return The name of the folder of this simulation (ie: its date)
 	 */
-	private def run(fileName: String) = {
+	private def run(fileName: String, isEclipse: Boolean = false) = {
 
 		logger.info("Executing simulation of file '{}'", fileName)
 
 		val startDate = DateTime.now
-		val interpreter = fileName match {
-			case fn if (fn.endsWith(".scala")) => new ScalaScriptInterpreter()
-			case fn if (fn.endsWith(".txt")) => new TextScriptInterpreter()
-			case _ => throw new UnsupportedOperationException
-		}
+		val interpreter =
+			if (isEclipse)
+				new EclipseScalaInterpreter
+			else
+				fileName match {
+					case fn if (fn.endsWith(".scala")) => new ScalaScriptInterpreter
+					case fn if (fn.endsWith(".txt")) => new TextScriptInterpreter
+					case _ => throw new UnsupportedOperationException
+				}
 
 		interpreter.run(fileName, startDate)
 

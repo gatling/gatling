@@ -16,17 +16,19 @@
 package com.excilys.ebi.gatling.core.config
 
 import scala.tools.nsc.io.Path.string2path
+import GatlingConfig._
 
 object GatlingFiles {
 	/* Global paths */
-	val GATLING_HOME = System.getenv("GATLING_HOME")
+	private val gatlingHomeEnv = System.getenv("GATLING_HOME")
+	val GATLING_HOME = if (gatlingHomeEnv == null) "/tmp" else gatlingHomeEnv // To prevent null pointer exceptions if GATLING_HOME not set
 	val GATLING_ASSETS_FOLDER = GATLING_HOME / "assets"
-	val GATLING_CONFIG_FOLDER = GATLING_HOME / "conf"
-	val GATLING_RESULTS_FOLDER = GATLING_HOME / "results"
 	val GATLING_USER_FILES_FOLDER = GATLING_HOME / "user-files"
-	val GATLING_DATA_FOLDER = GATLING_USER_FILES_FOLDER / "data"
-	val GATLING_REQUEST_BODIES_FOLDER = GATLING_USER_FILES_FOLDER / "request-bodies"
-	val GATLING_SCENARIOS_FOLDER = GATLING_USER_FILES_FOLDER / "scenarios"
+
+	lazy val GATLING_DATA_FOLDER = CONFIG_DATA_FOLDER.getOrElse(GATLING_USER_FILES_FOLDER / "data")
+	lazy val GATLING_RESULTS_FOLDER = CONFIG_RESULTS_FOLDER.getOrElse(GATLING_HOME / "results")
+	lazy val GATLING_REQUEST_BODIES_FOLDER = CONFIG_REQUEST_BODIES_FOLDER.getOrElse(GATLING_USER_FILES_FOLDER / "request-bodies")
+	lazy val GATLING_SCENARIOS_FOLDER = GATLING_USER_FILES_FOLDER / "scenarios"
 
 	/* Assets Paths */
 	val GATLING_JS = "js"
@@ -34,7 +36,7 @@ object GatlingFiles {
 	val GATLING_ASSETS_JS_FOLDER = GATLING_ASSETS_FOLDER / GATLING_JS
 	val GATLING_ASSETS_STYLE_FOLDER = GATLING_ASSETS_FOLDER / GATLING_STYLE
 
-	/* Default files and internal constants*/
+	/* Default files and internal constants */
 	val GATLING_DEFAULT_CONFIG_FILE = "gatling.conf"
 	val GATLING_IMPORTS_FILE = "imports.txt"
 
