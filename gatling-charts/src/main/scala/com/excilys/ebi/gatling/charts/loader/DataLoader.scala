@@ -51,32 +51,32 @@ class DataLoader(runOn: String) extends Logging {
 			if (!stringCache.containsKey(string)) {
 				val newString = new String(string)
 				stringCache.put(newString, newString)
-			} else
-				stringCache.get(string)
+			}
+			stringCache.get(string)
 		}
 
 		def cachedInt(string: String) = {
 			if (!intCache.containsKey(string)) {
 				val newString = new String(string)
 				intCache.put(newString, newString.toInt)
-			} else
-				intCache.get(string)
+			}
+			intCache.get(string)
 		}
 
 		def cachedDateTime(string: String) = {
 			if (!dateTimeCache.containsKey(string)) {
 				val newString = new String(string)
 				dateTimeCache.put(newString, parseResultDate(newString))
-			} else
-				dateTimeCache.get(string)
+			}
+			dateTimeCache.get(string)
 		}
-		
+
 		def cachedGroups(string: String) = {
 			if (!groupsCache.containsKey(string)) {
 				val newString = new String(string)
 				groupsCache.put(newString, parseGroups(newString))
-			} else
-				groupsCache.get(string)
+			}
+			groupsCache.get(string)
 		}
 
 		def parseGroups(string: String) = string.stripPrefix(GROUPS_PREFIX).stripSuffix(GROUPS_SUFFIX).split(GROUPS_SEPARATOR).toList
