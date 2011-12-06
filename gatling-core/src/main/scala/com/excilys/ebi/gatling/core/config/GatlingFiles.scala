@@ -35,7 +35,7 @@ object GatlingFiles {
 	val GATLING_ASSETS_STYLE_FOLDER = GATLING_ASSETS_FOLDER / GATLING_STYLE
 
 	/* Default files and internal constants*/
-	val GATLING_DEFAULT_CONFIG_FILE = GATLING_CONFIG_FOLDER / "gatling.conf"
+	val GATLING_DEFAULT_CONFIG_FILE = "gatling.conf"
 	val GATLING_IMPORTS_FILE = "imports.txt"
 
 	/* Results Paths */

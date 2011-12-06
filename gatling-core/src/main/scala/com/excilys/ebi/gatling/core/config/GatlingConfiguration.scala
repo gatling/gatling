@@ -19,11 +19,11 @@
 package com.excilys.ebi.gatling.core.config
 
 import java.io.File
-
 import akka.config.ConfigParser
 import akka.config.Importer
 import akka.config.FilesystemImporter
 import akka.config.ConfigurationException
+import akka.config.ResourceImporter
 
 object GatlingConfiguration {
 	val defaultPath = new File(".").getCanonicalPath
@@ -39,7 +39,7 @@ object GatlingConfiguration {
 	}
 
 	def fromFile(path: String, filename: String): GatlingConfiguration = {
-		val importer = new FilesystemImporter(path)
+		val importer = new ResourceImporter(getClass.getClassLoader)
 		fromFile(filename, importer)
 	}
 

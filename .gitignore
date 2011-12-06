@@ -23,7 +23,7 @@ build.log
 /gatling-assembly/src/main/assembly/assembly-structure/results/*
 !/results/.gitkeep
 
-untracked-scenario*
+untracked-*
 
 highcharts.js
 highstock.js

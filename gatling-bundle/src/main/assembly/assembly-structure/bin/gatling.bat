@@ -31,8 +31,7 @@ goto :noHome
 
 :gotHome
 set JAVA_OPTS=-XX:+UseThreadPriorities -XX:ThreadPriorityPolicy=42 -Xms512M -Xmx512M -Xmn100M -Xss512k -XX:+HeapDumpOnOutOfMemoryError -XX:+AggressiveOpts -XX:+OptimizeStringConcat -XX:+UseFastAccessorMethods -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:SurvivorRatio=8 -XX:MaxTenuringThreshold=1 -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly
-set CLASSPATH=%GATLING_HOME%\lib\*;
-set JAVA_PROPS=-Dlogback.configurationFile=%GATLING_HOME%\conf\logback.xml
+set CLASSPATH=%GATLING_HOME%\lib\*;%GATLING_HOME%\conf
 set COMMAND=-cp %CLASSPATH% com.excilys.ebi.gatling.app.Gatling
 
 java %JAVA_OPTS% %COMMAND% %1 %2 %3 %4 %5 %6 %7 %8 %9

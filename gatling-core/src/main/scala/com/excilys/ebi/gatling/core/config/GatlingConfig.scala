@@ -43,7 +43,7 @@ object GatlingConfig extends Logging {
 			val configFile =
 				if (configFileName != EMPTY) {
 					logger.info("Loading custom configuration file: conf/{}", configFileName)
-					GATLING_CONFIG_FOLDER / configFileName
+					configFileName
 				} else {
 					logger.info("Loading default configuration file")
 					GATLING_DEFAULT_CONFIG_FILE
