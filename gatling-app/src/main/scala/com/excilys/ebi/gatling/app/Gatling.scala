@@ -29,6 +29,7 @@ import com.excilys.ebi.gatling.core.config.GatlingConfig
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.DateHelper.printFileNameDate
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.core.util.FileHelper._
 
 import scopt.OptionParser
 
@@ -63,7 +64,7 @@ object Gatling extends Logging {
 		GatlingConfig(CommandLineOptions.options.configFileName) // Initializes configuration
 
 		// Getting files in scenarios folder
-		val files = Directory(GATLING_SCENARIOS_FOLDER).files.map(_.name).filterNot(_.startsWith("."))
+		val files = Directory(GATLING_SCENARIOS_FOLDER).files.map(_.name).filter(name => name.endsWith(TXT_EXTENSION) || name.endsWith(SCALA_EXTENSION)).filterNot(_.startsWith("."))
 
 		val (files1, files2) = files.duplicate
 
