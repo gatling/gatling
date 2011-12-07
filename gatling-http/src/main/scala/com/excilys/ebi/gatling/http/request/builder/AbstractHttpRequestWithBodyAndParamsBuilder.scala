@@ -96,6 +96,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 			paramsMap.add(key, values.map(_._2): _*)
 		}
 
-		requestBuilder setParameters paramsMap
+		if (!paramsMap.isEmpty) // AHC removes body if setParameters is called
+			requestBuilder setParameters paramsMap
 	}
 }
