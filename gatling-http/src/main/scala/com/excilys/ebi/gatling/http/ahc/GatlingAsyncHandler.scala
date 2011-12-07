@@ -17,13 +17,10 @@ package com.excilys.ebi.gatling.http.ahc
 
 import java.lang.Void
 import java.util.concurrent.TimeUnit
-
 import scala.collection.immutable.HashMap
 import scala.collection.mutable.{ HashMap => MHashMap }
-
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.SET_COOKIE
 import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
 import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
@@ -47,9 +44,9 @@ import com.ning.http.client.HttpResponseHeaders
 import com.ning.http.client.HttpResponseStatus
 import com.ning.http.client.Response
 import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
-
 import akka.actor.Actor.registry.actorFor
 import scala.collection.JavaConversions._
+import com.excilys.ebi.gatling.core.check.extractor.MultiValuedExtractor
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
@@ -190,7 +187,10 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actio
 						return
 
 					} else if (!extractedValue.isEmpty && check.saveAs.isDefined) {
-						session.setAttribute(check.saveAs.get, extractedValue)
+						session.setAttribute(check.saveAs.get, extractor match {
+							case multi: MultiValuedExtractor => extractedValue
+							case single => extractedValue(0)
+						})
 					}
 				}
 			}

@@ -25,7 +25,7 @@ import java.io.ByteArrayInputStream
 import java.io.StringReader
 import scala.collection.JavaConversions._
 
-class MultiXPathExtractor(xmlContent: InputStream) extends Extractor {
+class MultiXPathExtractor(xmlContent: InputStream) extends Extractor with MultiValuedExtractor {
 
 	// parses the document in the constructor so that the extractor can be efficiently reused for multiple extractions
 	val document = XPathExtractor.parser.parse(xmlContent)

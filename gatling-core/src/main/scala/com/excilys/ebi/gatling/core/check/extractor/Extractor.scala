@@ -33,3 +33,5 @@ abstract class Extractor extends Logging {
 	 */
 	def extract(expression: String): List[String]
 }
+
+trait MultiValuedExtractor

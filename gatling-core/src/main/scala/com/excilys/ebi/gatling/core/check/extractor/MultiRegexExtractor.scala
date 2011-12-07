@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor
 
-class MultiRegexExtractor(textContent: String) extends Extractor {
+class MultiRegexExtractor(textContent: String) extends Extractor with MultiValuedExtractor {
 	/**
 	 * The actual extraction happens here. The regular expression is compiled and the occurrence-th
 	 * result is returned if existing.
