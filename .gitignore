@@ -20,7 +20,7 @@ build.log
 .DS_Store
 
 # project files to ignore
-/gatling-assembly/src/main/assembly/assembly-structure/results/*
+/gatling-bundle/src/main/assembly/assembly-structure/results/*
 !/results/.gitkeep
 
 untracked-*
