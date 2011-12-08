@@ -21,6 +21,13 @@ import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.ning.http.client.RequestBuilder
 import com.ning.http.client.FluentStringsMap
 import com.excilys.ebi.gatling.core.util.StringHelper._
+import com.ning.http.client.FilePart
+import com.excilys.ebi.gatling.http.Predef._
+import com.excilys.ebi.gatling.core.config.GatlingConfig._
+import com.excilys.ebi.gatling.core.config.GatlingFiles._
+import com.excilys.ebi.gatling.core.util.PathHelper.path2string
+import java.io.File
+import com.ning.http.client.StringPart
 
 /**
  * This class serves as model to HTTP request with a body and parameters
@@ -35,13 +42,18 @@ import com.excilys.ebi.gatling.core.util.StringHelper._
  * @param credentials sets the credentials in case of Basic HTTP Authentication
  */
 abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequestWithBodyAndParamsBuilder[B]](httpRequestActionBuilder: HttpRequestActionBuilder, method: String,
-	urlFunction: Session => String, queryParams: List[(Session => String, Session => String)], params: List[(Session => String, Session => String)], headers: Map[String, String], body: Option[HttpRequestBody],
-	followsRedirects: Option[Boolean], credentials: Option[(String, String)])
+	urlFunction: Session => String, queryParams: List[(Session => String, Session => String)], params: List[(Session => String, Session => String)], headers: Map[String, String],
+	body: Option[HttpRequestBody], fileUpload: Option[(String, String, String)], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
 		extends AbstractHttpRequestWithBodyBuilder[B](httpRequestActionBuilder, method, urlFunction, queryParams, headers, body, followsRedirects, credentials) {
 
 	private[http] override def getRequestBuilder(session: Session): RequestBuilder = {
 		val requestBuilder = super.getRequestBuilder(session)
-		addParamsTo(requestBuilder, session)
+		fileUpload.map { fileName =>
+			addStringPartsTo(requestBuilder, session)
+			addBodyPartTo(requestBuilder)
+		}.getOrElse {
+			addParamsTo(requestBuilder, session)
+		}
 		requestBuilder
 	}
 
@@ -57,17 +69,17 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 * @param followsRedirects sets the follow redirect option of AHC
 	 * @param credentials sets the credentials in case of Basic HTTP Authentication
 	 */
-	private[http] def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Session => String, queryParams: List[(Session => String, Session => String)], params: List[(Session => String, Session => String)], headers: Map[String, String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
+	private[http] def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Session => String, queryParams: List[(Session => String, Session => String)], params: List[(Session => String, Session => String)], headers: Map[String, String], body: Option[HttpRequestBody], fileUpload: Option[(String, String, String)], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
 
 	private[http] def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Session => String, queryParams: List[(Session => String, Session => String)], headers: Map[String, String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B = {
-		newInstance(httpRequestActionBuilder, urlFunction, queryParams, params, headers, body, followsRedirects, credentials)
+		newInstance(httpRequestActionBuilder, urlFunction, queryParams, params, headers, body, fileUpload, followsRedirects, credentials)
 	}
 
 	/**
 	 *
 	 */
 	def param(paramKeyFunction: Session => String, paramValueFunction: Session => String): B =
-		newInstance(httpRequestActionBuilder, urlFunction, queryParams, (paramKeyFunction, paramValueFunction) :: params, headers, body, followsRedirects, credentials)
+		newInstance(httpRequestActionBuilder, urlFunction, queryParams, (paramKeyFunction, paramValueFunction) :: params, headers, body, fileUpload, followsRedirects, credentials)
 
 	/**
 	 * Adds a parameter to the request
@@ -78,6 +90,9 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	def param(paramKey: String, paramValue: String): B = param(interpolate(paramKey), interpolate(paramValue))
 
 	def param(paramKey: String): B = param(paramKey, EL_START + paramKey + EL_END)
+
+	def fileUpload(fileName: String, mimeType: String = APPLICATION_OCTET_STREAM, charset: String = CONFIG_ENCODING): B =
+		newInstance(httpRequestActionBuilder, urlFunction, queryParams, params, headers + (CONTENT_TYPE -> MULTIPART_FORM_DATA), body, Some((fileName, mimeType, charset)), followsRedirects, credentials)
 
 	/**
 	 * This method adds the parameters to the request builder
@@ -98,5 +113,18 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 
 		if (!paramsMap.isEmpty) // AHC removes body if setParameters is called
 			requestBuilder setParameters paramsMap
+	}
+
+	private def addBodyPartTo(requestBuilder: RequestBuilder) = {
+		val (fileName, mimeType, charset) = fileUpload.get
+		requestBuilder.addBodyPart(new FilePart(fileName, new File(GATLING_REQUEST_BODIES_FOLDER / fileName), mimeType, charset))
+	}
+
+	private def addStringPartsTo(requestBuilder: RequestBuilder, session: Session) = {
+		params.foreach { entry =>
+			val (key, value) = (entry._1(session), entry._2(session))
+			requestBuilder.addBodyPart(new StringPart(key, value))
+		}
+
 	}
 }

@@ -28,9 +28,8 @@ import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.excilys.ebi.gatling.http.request.FilePathBody
 import com.excilys.ebi.gatling.http.request.StringBody
 import com.excilys.ebi.gatling.http.request.TemplateBody
-import com.excilys.ebi.gatling.http.request.MIMEType._
+import com.excilys.ebi.gatling.http.Predef._
 import com.excilys.ebi.gatling.http.util.HttpHelper._
-import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.ning.http.client.Cookie
@@ -177,6 +176,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	private[http] def build(session: Session): Request = {
 
 		val request = getRequestBuilder(session) build
+
+		logger.warn("req: {}", request.getHeaders())
 
 		request
 	}

@@ -45,6 +45,37 @@ object Predef {
 
 	def status = HttpStatusCheckBuilder.status
 
+	/* MIME types */
+	val APPLICATION_JAVASCRIPT = "application/javascript"
+	val APPLICATION_JSON = "application/json"
+	val APPLICATION_OCTET_STREAM = "application/octet-stream"
+	val APPLICATION_PDF = "application/pdf"
+	val APPLICATION_ZIP = "application/zip"
+	val APPLICATION_GZIP = "application/x-gzip"
+	val APPLICATION_XML = "application/xml"
+	val AUDIO_MP4 = "audio/mp4"
+	val AUDIO_MPEG = "audio/mpeg"
+	val AUDIO_OGG = "audio/ogg"
+	val AUDIO_VORBIS = "audio/vorbis"
+	val AUDIO_WEBM = "audio/webm"
+	val IMAGE_PNG = "image/png"
+	val IMAGE_JPEG = "image/jpeg"
+	val IMAGE_GIF = "image/gif"
+	val IMAGE_SVG = "image/svg+xml"
+	val MULTIPART_FORM_DATA = "multipart/form-data"
+	val TEXT_CSS = "text/css"
+	val TEXT_CSV = "text/csv"
+	val TEXT_HTML = "text/html"
+	val TEXT_JAVASCRIPT = "text/javascript"
+	val TEXT_PLAIN = "text/plain"
+	val TEXT_XML = "text/xml"
+	val VIDEO_MPEG = "video/mpeg"
+	val VIDEO_MP4 = "video/mp4"
+	val VIDEO_OGG = "video/ogg"
+	val VIDEO_WEBM = "video/webm"
+	val VIDEO_QUICKTIME = "video/quicktime"
+
+	/* Headers */
 	val ACCEPT = "Accept";
 	val ACCEPT_CHARSET = "Accept-Charset";
 	val ACCEPT_ENCODING = "Accept-Encoding";
