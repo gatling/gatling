@@ -26,4 +26,5 @@ object GatlingHTTPConfig {
 	val GATLING_HTTP_CONFIG_COMPRESSION_ENABLED = config.getBoolean("gatling.http.compressionEnabled", true)
 	val GATLING_HTTP_CONFIG_REQUEST_TIMEOUT = config.getInt("gatling.http.requestTimeout", 60000)
 	val GATLING_HTTP_CONFIG_MAX_RETRY = config.getInt("gatling.http.maxRetry", 5)
+	val GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION = config.getBoolean("gatling.http.allowPoolingConnection", false)
 }

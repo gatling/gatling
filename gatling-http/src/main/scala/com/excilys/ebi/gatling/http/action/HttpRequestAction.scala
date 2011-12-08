@@ -45,6 +45,7 @@ object HttpRequestAction {
 		.setConnectionTimeoutInMs(GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT)
 		.setRequestTimeoutInMs(GATLING_HTTP_CONFIG_REQUEST_TIMEOUT)
 		.setMaxRequestRetry(GATLING_HTTP_CONFIG_MAX_RETRY)
+		.setAllowPoolingConnection(GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION)
 		.build
 
 	/**
