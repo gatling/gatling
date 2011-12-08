@@ -28,7 +28,7 @@ object WhileActionBuilder {
 	/**
 	 * Creates an initialized WhileActionBuilder
 	 */
-	def whileActionBuilder = new WhileActionBuilder(null, null, null, None, Nil)
+	def whileActionBuilder = new WhileActionBuilder(null, null, null, None)
 }
 
 /**
@@ -38,9 +38,8 @@ object WhileActionBuilder {
  * @param conditionFunction the function that determine the condition
  * @param loopNext chain that will be executed if conditionFunction evaluates to true
  * @param next action that will be executed if conditionFunction evaluates to false
- * @param groups groups in which this action and the others inside will be
  */
-class WhileActionBuilder(conditionFunction: (Session, Action) => Boolean, loopNext: ChainBuilder, next: Action, counterName: Option[String], groups: List[String])
+class WhileActionBuilder(conditionFunction: (Session, Action) => Boolean, loopNext: ChainBuilder, next: Action, counterName: Option[String])
 		extends AbstractActionBuilder {
 
 	/**
@@ -56,25 +55,23 @@ class WhileActionBuilder(conditionFunction: (Session, Action) => Boolean, loopNe
 	 * @param conditionFunction the condition function
 	 * @return a new builder with conditionFunction set
 	 */
-	def withConditionFunction(conditionFunction: (Session, Action) => Boolean) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName, groups)
+	def withConditionFunction(conditionFunction: (Session, Action) => Boolean) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName)
 	/**
 	 * Adds loopNext to builder
 	 *
 	 * @param loopNext the chain executed if testFunction evaluated to true
 	 * @return a new builder with loopNext set
 	 */
-	def withLoopNext(loopNext: ChainBuilder) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName, groups)
+	def withLoopNext(loopNext: ChainBuilder) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName)
 	/**
 	 * Adds counterName to builder
 	 *
 	 * @param counterName the name of the counter that will be used
 	 * @return a new builder with counterName set to None or Some(name)
 	 */
-	def withCounterName(counterName: Option[String]) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName, groups)
+	def withCounterName(counterName: Option[String]) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName)
 
-	def withNext(next: Action) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName, groups)
+	def withNext(next: Action) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName)
 
-	def inGroups(groups: List[String]) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName, groups)
-
-	def build: Action = TypedActor.newInstance(classOf[Action], new WhileAction(conditionFunction, (w: WhileAction) => loopNext.withNext(w).inGroups(groups).build, next, counterName))
+	def build: Action = TypedActor.newInstance(classOf[Action], new WhileAction(conditionFunction, (w: WhileAction) => loopNext.withNext(w).build, next, counterName))
 }

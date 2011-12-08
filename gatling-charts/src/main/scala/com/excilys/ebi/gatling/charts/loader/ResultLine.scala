@@ -18,4 +18,4 @@ import com.excilys.ebi.gatling.core.result.message.ResultStatus._
 import org.joda.time.DateTime
 
 case class ResultLine(runOn: String, scenarioName: String, userId: Int, requestName: String, executionStartDate: DateTime, executionDurationInMillis: Int,
-	resultStatus: ResultStatus, resultMessage: String, groups: List[String])
+	resultStatus: ResultStatus, resultMessage: String)

@@ -46,7 +46,7 @@ class EndAction(val latch: CountDownLatch) extends Action {
 	 * @param session The session of the current user that finishes
 	 */
 	def execute(session: Session) = {
-		actorFor(session.writeActorUuid).map(_ ! ActionInfo(session.scenarioName, session.userId, EndAction.END_OF_SCENARIO, DateTime.now(), 0, OK, "End of Scenario Reached", Nil))
+		actorFor(session.writeActorUuid).map(_ ! ActionInfo(session.scenarioName, session.userId, EndAction.END_OF_SCENARIO, DateTime.now(), 0, OK, "End of Scenario Reached"))
 
 		latch.countDown
 

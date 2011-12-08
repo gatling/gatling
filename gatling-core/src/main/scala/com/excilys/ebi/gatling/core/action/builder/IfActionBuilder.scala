@@ -28,7 +28,7 @@ object IfActionBuilder {
 	/**
 	 * Creates an initialized IfActionBuilder
 	 */
-	def ifActionBuilder = new IfActionBuilder(null, null, null, null, Nil)
+	def ifActionBuilder = new IfActionBuilder(null, null, null, null)
 }
 
 /**
@@ -39,9 +39,8 @@ object IfActionBuilder {
  * @param thenNext chain that will be executed if conditionFunction evaluates to true
  * @param elseNext chain that will be executed if conditionFunction evaluates to false
  * @param next chain that will be executed if conditionFunction evaluates to false and there is no elseNext
- * @param groups groups in which this action and the ones inside will be
  */
-class IfActionBuilder(conditionFunction: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder], next: Action, groups: List[String])
+class IfActionBuilder(conditionFunction: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder], next: Action)
 		extends AbstractActionBuilder {
 
 	/**
@@ -50,7 +49,7 @@ class IfActionBuilder(conditionFunction: Session => Boolean, thenNext: ChainBuil
 	 * @param conditionFunction the condition function
 	 * @return a new builder with conditionFunction set
 	 */
-	def withConditionFunction(conditionFunction: Session => Boolean) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next, groups)
+	def withConditionFunction(conditionFunction: Session => Boolean) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next)
 
 	/**
 	 * Adds thenNext to builder
@@ -58,7 +57,7 @@ class IfActionBuilder(conditionFunction: Session => Boolean, thenNext: ChainBuil
 	 * @param thenNext the chain executed if conditionFunction evaluated to true
 	 * @return a new builder with thenNext set
 	 */
-	def withThenNext(thenNext: ChainBuilder) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next, groups)
+	def withThenNext(thenNext: ChainBuilder) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next)
 
 	/**
 	 * Adds elseNext to builder
@@ -66,15 +65,13 @@ class IfActionBuilder(conditionFunction: Session => Boolean, thenNext: ChainBuil
 	 * @param elseNext the chain executed if conditionFunction evaluated to false
 	 * @return a new builder with elseNext set
 	 */
-	def withElseNext(elseNext: Option[ChainBuilder]) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next, groups)
+	def withElseNext(elseNext: Option[ChainBuilder]) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next)
 
-	def withNext(next: Action) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next, groups)
-
-	def inGroups(groups: List[String]) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next, groups)
+	def withNext(next: Action) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next)
 
 	def build: Action = {
-		val actionTrue = thenNext.withNext(next).inGroups(groups).build
-		val actionFalse = elseNext.map(_.withNext(next).inGroups(groups).build)
+		val actionTrue = thenNext.withNext(next).build
+		val actionFalse = elseNext.map(_.withNext(next).build)
 
 		TypedActor.newInstance(classOf[Action], new IfAction(conditionFunction, actionTrue, actionFalse, next))
 	}

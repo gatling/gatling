@@ -28,7 +28,7 @@ object StartActionBuilder {
 	 *
 	 * @return A StartActionBuilder ready to use
 	 */
-	def startActionBuilder = new StartActionBuilder(null, Nil)
+	def startActionBuilder = new StartActionBuilder(null)
 }
 
 /**
@@ -36,12 +36,9 @@ object StartActionBuilder {
  *
  * @constructor create a StartActionBuilder with its next action
  * @param next the action to be executed after this one
- * @param groups the groups to which this action belongs
  */
-class StartActionBuilder(next: Action, groups: List[String]) extends AbstractActionBuilder {
-	def withNext(next: Action) = new StartActionBuilder(next, groups)
-
-	def inGroups(groups: List[String]) = new StartActionBuilder(next, groups)
+class StartActionBuilder(next: Action) extends AbstractActionBuilder {
+	def withNext(next: Action) = new StartActionBuilder(next)
 
 	def build: Action = TypedActor.newInstance(classOf[Action], new StartAction(next))
 }

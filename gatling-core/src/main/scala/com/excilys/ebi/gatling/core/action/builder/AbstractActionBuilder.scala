@@ -36,12 +36,4 @@ trait AbstractActionBuilder extends Logging {
 	 * @return A builder of the same type, with next set
 	 */
 	private[gatling] def withNext(next: Action): AbstractActionBuilder
-
-	/**
-	 * Adds group information to current action
-	 *
-	 * @param groups The List of groups to which the built action will belong
-	 * @return A builder of the same type, with groups set
-	 */
-	private[gatling] def inGroups(groups: List[String]): AbstractActionBuilder
 }

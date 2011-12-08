@@ -46,7 +46,7 @@ class StartAction(next: Action) extends Action {
 	 * @param session The session of the current user
 	 */
 	def execute(session: Session) = {
-		actorFor(session.writeActorUuid).map(_ ! ActionInfo(session.scenarioName, session.userId, StartAction.START_OF_SCENARIO, DateTime.now, 0, OK, "Beginning Scenario", Nil))
+		actorFor(session.writeActorUuid).map(_ ! ActionInfo(session.scenarioName, session.userId, StartAction.START_OF_SCENARIO, DateTime.now, 0, OK, "Beginning Scenario"))
 		logger.info("Starting user #{}", session.userId)
 		next.execute(session)
 	}

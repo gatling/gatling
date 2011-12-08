@@ -26,9 +26,8 @@ import com.excilys.ebi.gatling.core.check.CheckBuilder
  * @param next action that will be executed after the request
  * @param request request that will be sent
  * @param givenProcessors a list of processors that will apply on the response
- * @param groups a list of groups in which this action is
  * @param feeder the feeder that will be consumed by this request
  */
-abstract class RequestAction[P](next: Action, request: Request, givenProcessors: Option[List[CheckBuilder[_, P]]], groups: List[String]) extends Action {
+abstract class RequestAction[P](next: Action, request: Request, givenProcessors: Option[List[CheckBuilder[_, P]]]) extends Action {
 	def execute(session: Session)
 }

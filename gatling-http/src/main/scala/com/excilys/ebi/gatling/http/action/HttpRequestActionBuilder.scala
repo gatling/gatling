@@ -36,7 +36,7 @@ object HttpRequestActionBuilder {
 	/**
 	 * This method is used in DSL to declare a new HTTP request
 	 */
-	def http(requestName: String) = new HttpRequestActionBuilder(requestName, null, null, None, Some(Nil))
+	def http(requestName: String) = new HttpRequestActionBuilder(requestName, null, null, None)
 }
 
 /**
@@ -48,7 +48,7 @@ object HttpRequestActionBuilder {
  * @param next the next action to be executed
  * @param processorBuilders
  */
-class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, next: Action, processorBuilders: Option[List[HttpCheckBuilder[_]]], groups: Option[List[String]])
+class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, next: Action, processorBuilders: Option[List[HttpCheckBuilder[_]]])
 		extends AbstractActionBuilder {
 
 	/**
@@ -58,17 +58,15 @@ class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, ne
 	 * @return a new builder with givenProcessors set
 	 */
 	private[http] def withProcessors(givenProcessors: Seq[HttpCheckBuilder[_]]) = {
-		new HttpRequestActionBuilder(requestName, request, next, Some(givenProcessors.toList ::: processorBuilders.getOrElse(Nil)), groups)
+		new HttpRequestActionBuilder(requestName, request, next, Some(givenProcessors.toList ::: processorBuilders.getOrElse(Nil)))
 	}
 
-	private[http] def withRequest(request: HttpRequest) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders, groups)
+	private[http] def withRequest(request: HttpRequest) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders)
 
-	private[gatling] def withNext(next: Action) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders, groups)
-
-	private[gatling] def inGroups(groups: List[String]) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders, Some(groups))
+	private[gatling] def withNext(next: Action) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders)
 
 	private[gatling] def build: Action = {
-		TypedActor.newInstance(classOf[Action], new HttpRequestAction(next, request, processorBuilders, groups.get))
+		TypedActor.newInstance(classOf[Action], new HttpRequestAction(next, request, processorBuilders))
 	}
 
 	/**

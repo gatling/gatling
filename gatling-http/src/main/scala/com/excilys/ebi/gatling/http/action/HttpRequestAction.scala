@@ -61,11 +61,10 @@ object HttpRequestAction {
  * @constructor constructs an HttpRequestAction
  * @param next the next action that will be executed
  * @param givenCheckBuilders all the checks that will be performed on the response
- * @param groups the groups to which this action belongs
  * @param feeder the feeder that will be consumed each time the request will be sent
  */
-class HttpRequestAction(next: Action, request: HttpRequest, givenCheckBuilders: Option[List[HttpCheckBuilder[_]]], groups: List[String])
-		extends RequestAction[Response](next, request, givenCheckBuilders, groups) {
+class HttpRequestAction(next: Action, request: HttpRequest, givenCheckBuilders: Option[List[HttpCheckBuilder[_]]])
+		extends RequestAction[Response](next, request, givenCheckBuilders) {
 
 	var checks: List[HttpCheck] = Nil
 
@@ -84,6 +83,6 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenCheckBuilders: 
 		if (logger.isInfoEnabled())
 			logger.info("Sending Request '{}': Scenario '{}', UserId #{}", Array(request.name, session.scenarioName, session.userId))
 
-		HttpRequestAction.CLIENT.executeRequest(request.getRequest(session), new GatlingAsyncHandler(session, checks, next, request.name, groups))
+		HttpRequestAction.CLIENT.executeRequest(request.getRequest(session), new GatlingAsyncHandler(session, checks, next, request.name))
 	}
 }

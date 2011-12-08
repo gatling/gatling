@@ -37,9 +37,6 @@ object CompileTest {
 
 	val loginChain = chain.exec(http("First Request Chain").get("/")).pause(1, 2)
 
-	val loginGroup = "Login"
-	val doStuffGroup = "Do Stuff"
-
 	val testData = new TSVFeeder("test-data")
 
 	val lambdaUser = scenario("Standard User")
@@ -88,7 +85,6 @@ object CompileTest {
 						.exec(http("In During 2").get("/"))
 						.pause(2))
 				.counterName("hehe").during(12000, MILLISECONDS)
-				.startGroup(loginGroup)
 				.exec((s: Session) => s.setAttribute("test2", "bbbb"))
 				.doIf("test2", "aaaa",
 					chain.exec(http("IF=TRUE Request").get("/")), chain.exec(http("IF=FALSE Request").get("/")))
@@ -98,7 +94,6 @@ object CompileTest {
 				// Second request to be repeated
 				.exec(http("Create Thing blabla").post("/things").queryParam("login").queryParam("password").fileBody("create_thing", Map("name" -> "blabla")).asJSON)
 				.pause(pause1)
-				.endGroup(loginGroup)
 				// Third request to be repeated
 				.exec(http("Liste Articles") get ("/things") queryParam "firstname" queryParam "lastname")
 				.pause(pause1)
@@ -108,10 +103,8 @@ object CompileTest {
 					.post("/things").queryParam("postTest", "${sessionParam}").fileBody("create_thing", Map("name" -> "${sessionParam}")).asJSON
 					.check(status.eq(201) saveAs "status"))).counterName("titi").times(iterations)
 		// Second request outside iteration
-		.startGroup(doStuffGroup)
 		.exec(http("Ajout au panier") get ("/") check (regex("""<input id="text1" type="text" value="(.*)" />""") saveAs "input"))
 		.pause(pause1)
-		.endGroup(doStuffGroup)
 
 	runSimulations(
 		lambdaUser.configure.users(5).ramp(10).protocolConfig(httpConf))

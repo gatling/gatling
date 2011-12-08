@@ -22,8 +22,6 @@ import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder._
 import com.excilys.ebi.gatling.core.action.builder.IfActionBuilder._
 import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder._
-import com.excilys.ebi.gatling.core.action.builder.GroupActionBuilder._
-import com.excilys.ebi.gatling.core.action.builder.GroupActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder._
 import com.excilys.ebi.gatling.core.structure.loop.LoopBuilder
 import com.excilys.ebi.gatling.core.action.builder.CountBasedIterationActionBuilder._
@@ -37,22 +35,6 @@ import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
  */
 abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val actionBuilders: List[AbstractActionBuilder])
 		extends Logging {
-
-	private var currentGroups: List[String] = Nil
-
-	/**
-	 * This method sets the current groups to groups
-	 *
-	 * @param groups the groups that are currently active
-	 */
-	private[core] def setCurrentGroups(groups: List[String]) = {
-		currentGroups = groups
-	}
-
-	/**
-	 * This method gets the current groups
-	 */
-	private[core] def getCurrentGroups = currentGroups
 
 	private[core] def newInstance(actionBuilders: List[AbstractActionBuilder]): B
 
@@ -151,24 +133,8 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @return a new builder with a conditional execution added to its actions
 	 */
 	private def doIf(conditionFunction: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]): B = {
-		newInstance((ifActionBuilder withConditionFunction conditionFunction withThenNext thenNext withElseNext elseNext inGroups getCurrentGroups) :: actionBuilders)
+		newInstance((ifActionBuilder withConditionFunction conditionFunction withThenNext thenNext withElseNext elseNext) :: actionBuilders)
 	}
-
-	/**
-	 * Method used to specify that all succeeding actions will belong to the specified group
-	 *
-	 * @param groupName the name of the group
-	 * @return a new builder with a group tag added to its actions
-	 */
-	def startGroup(groupName: String): B = newInstance(startGroupBuilder(groupName) :: actionBuilders)
-
-	/**
-	 * Method used to specify that all succeeding actions will not belong to the specified group
-	 *
-	 * @param groupName the name of the group
-	 * @return a new builder with a group tag added to its actions
-	 */
-	def endGroup(groupName: String): B = newInstance(endGroupBuilder(groupName) :: actionBuilders)
 
 	/**
 	 * Method used to insert an existing chain inside the current scenario
@@ -201,10 +167,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	private[core] def buildActions(initialValue: Action): Action = {
 		var previousInList: Action = initialValue
 		actionBuilders.foreach { actionBuilder =>
-			actionBuilder match {
-				case group: GroupActionBuilder => setCurrentGroups(if (group.head) getCurrentGroups filterNot (_ == group.name) else group.name :: getCurrentGroups)
-				case _ => previousInList = actionBuilder withNext previousInList inGroups getCurrentGroups build
-			}
+			previousInList = actionBuilder withNext previousInList build
 		}
 		previousInList
 	}
