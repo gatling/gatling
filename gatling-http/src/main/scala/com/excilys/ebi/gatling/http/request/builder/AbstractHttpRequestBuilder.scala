@@ -177,8 +177,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 		val request = getRequestBuilder(session) build
 
-		logger.warn("req: {}", request.getHeaders())
-
 		request
 	}
 
