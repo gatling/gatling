@@ -61,7 +61,6 @@ object StringHelper extends Logging {
 					case l: List[String] => l(0)
 					case str: String => str
 					case x => {
-						logger.warn("Session value was not a String nor a List[String].")
 						x.toString
 					}
 				}
