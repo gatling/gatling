@@ -95,6 +95,7 @@ public class RunningFrame extends JFrame {
 	private TextAreaPanel stringRequest = new TextAreaPanel("Request:");
 	private TextAreaPanel stringResponse = new TextAreaPanel("Response:");
 	private TextAreaPanel stringRequestBody = new TextAreaPanel("Request Body:");
+	private int numberOfRequests = 0;
 
 	private List<Object> listEvents = new ArrayList<Object>();
 	private String protocol;
@@ -340,7 +341,8 @@ public class RunningFrame extends JFrame {
 		listElements.addElement(request.getMethod() + " | " + request.getUri());
 		listExecutedRequests.ensureIndexIsVisible(listElements.getSize() - 1);
 
-		int id = listEvents.size() + 1;
+		//int id = listEvents.size() + 1;
+		int id = ++numberOfRequests;
 		event.setId(id);
 
 		/* URLs */
@@ -389,6 +391,7 @@ public class RunningFrame extends JFrame {
 				}
 
 				diff = Maps.difference(fullHeaders, requestHeaders);
+				logger.debug(diff.toString());
 				if (diff.areEqual()) {
 					headerKey = header.getKey();
 					bestChoice = 1;
