@@ -226,15 +226,7 @@ public class ConfigurationFrame extends JFrame {
 
 		btnClear.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				txtPort.setText(EMPTY);
-				txtSslPort.setText(EMPTY);
-				txtProxyHost.setText(txtProxyHost.getName());
-				txtProxyPort.setText(txtProxyPort.getName());
-				txtProxySslPort.setText(txtProxySslPort.getName());
 				panelFilters.removeAllElements();
-				txtOutputFolder.setText(EMPTY);
-				for (JCheckBox cb : listResultsType)
-					cb.setSelected(false);
 			}
 		});
 
