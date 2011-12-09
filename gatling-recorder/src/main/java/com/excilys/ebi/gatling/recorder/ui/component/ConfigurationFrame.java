@@ -58,7 +58,7 @@ import com.google.common.eventbus.Subscribe;
 
 @SuppressWarnings("serial")
 public class ConfigurationFrame extends JFrame {
-	
+
 	public static final Logger logger = LoggerFactory.getLogger(ConfigurationFrame.class);
 
 	public final JTextField txtPort = new JTextField("8000", 4);
@@ -70,7 +70,7 @@ public class ConfigurationFrame extends JFrame {
 
 	public final JComboBox cbFilter = new JComboBox();
 	public final JComboBox cbFilterType = new JComboBox();
-	public final JTextField txtResultPath = new JTextField(40);
+	public final JTextField txtOutputFolder = new JTextField(40);
 	public final List<JCheckBox> listResultsType = new ArrayList<JCheckBox>();
 	public final JCheckBox cbSavePref = new JCheckBox("Save preferences");
 	public final FilterTable panelFilters = new FilterTable();
@@ -86,13 +86,12 @@ public class ConfigurationFrame extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		/* Declaration of components */
-
-		txtProxyHost.setName("address");
-		txtProxyPort.setName("port");
-		txtProxySslPort.setName("port");
+		txtProxyHost.setName("Address");
+		txtProxyPort.setName("Port");
+		txtProxySslPort.setName("Port");
 		JButton btnFiltersAdd = new JButton("+");
 		JButton btnFiltersDel = new JButton("-");
-		JButton btnPathResults = new JButton("Browse");
+		JButton btnOutputFolder = new JButton("Browse");
 		final List<JRadioButton> listBtnFilters = new ArrayList<JRadioButton>();
 		ButtonGroup group = new ButtonGroup();
 		JRadioButton rdBtn = null;
@@ -164,9 +163,9 @@ public class ConfigurationFrame extends JFrame {
 		centerPanel.add(centerBottomPanel, BorderLayout.PAGE_END);
 
 		JPanel top5 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		top5.add(new JLabel("Directory *  "));
-		top5.add(txtResultPath);
-		top5.add(btnPathResults);
+		top5.add(new JLabel("Output folder *  "));
+		top5.add(txtOutputFolder);
+		top5.add(btnOutputFolder);
 		bottomPanel.add(top5);
 
 		JPanel top6 = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -210,7 +209,7 @@ public class ConfigurationFrame extends JFrame {
 			}
 		});
 
-		btnPathResults.addActionListener(new ActionListener() {
+		btnOutputFolder.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser fc = new JFileChooser();
 				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -221,7 +220,7 @@ public class ConfigurationFrame extends JFrame {
 					return;
 
 				File chosenFile = fc.getSelectedFile();
-				txtResultPath.setText(chosenFile.getPath());
+				txtOutputFolder.setText(chosenFile.getPath());
 			}
 		});
 
@@ -233,7 +232,7 @@ public class ConfigurationFrame extends JFrame {
 				txtProxyPort.setText(txtProxyPort.getName());
 				txtProxySslPort.setText(txtProxySslPort.getName());
 				panelFilters.removeAllElements();
-				txtResultPath.setText(EMPTY);
+				txtOutputFolder.setText(EMPTY);
 				for (JCheckBox cb : listResultsType)
 					cb.setSelected(false);
 			}
@@ -262,7 +261,7 @@ public class ConfigurationFrame extends JFrame {
 		cbFilterType.setSelectedItem(Configuration.getInstance().getFilterType());
 		for (Pattern pattern : Configuration.getInstance().getPatterns())
 			panelFilters.addRow(pattern);
-		txtResultPath.setText(Configuration.getInstance().getResultPath());
+		txtOutputFolder.setText(Configuration.getInstance().getOutputFolder());
 		cbSavePref.setSelected(Configuration.getInstance().isSaveConfiguration());
 		for (JCheckBox cb : listResultsType)
 			for (ResultType resultType : Configuration.getInstance().getResultTypes())

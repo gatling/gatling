@@ -33,7 +33,7 @@ public class Configuration {
 		instance.setProxy(c.getProxy());
 		instance.setFilterType(c.getFilterType());
 		instance.setPatterns(c.getPatterns());
-		instance.setResultPath(c.getResultPath());
+		instance.setOutputFolder(c.getOutputFolder());
 		instance.setResultTypes(c.getResultTypes());
 		instance.setSaveConfiguration(true);
 
@@ -46,7 +46,7 @@ public class Configuration {
 		instance.getProxy().setPort(c.getProxyPort());
 		instance.getProxy().setSslPort(c.getProxyPortSsl());
 		if (c.getOutputFolder() != null)
-			instance.setResultPath(c.getOutputFolder());
+			instance.setOutputFolder(c.getOutputFolder());
 
 		instance.getResultTypes().clear();
 		if (c.isResultText())
@@ -67,7 +67,7 @@ public class Configuration {
 	private ProxyConfig proxy = new ProxyConfig();
 	private FilterType filterType = FilterType.ALL;
 	private List<Pattern> patterns = new ArrayList<Pattern>();
-	private String resultPath;
+	private String outputFolder;
 	private List<ResultType> resultTypes = new ArrayList<ResultType>();
 	private boolean saveConfiguration;
 	private transient boolean configurationSkipped;
@@ -109,12 +109,12 @@ public class Configuration {
 		this.patterns = patterns;
 	}
 
-	public String getResultPath() {
-		return resultPath;
+	public String getOutputFolder() {
+		return outputFolder;
 	}
 
-	public void setResultPath(String resultPath) {
-		this.resultPath = resultPath;
+	public void setOutputFolder(String outputFolder) {
+		this.outputFolder = outputFolder;
 	}
 
 	public List<ResultType> getResultTypes() {
@@ -159,7 +159,7 @@ public class Configuration {
 
 	@Override
 	public String toString() {
-		return "Configuration [port=" + port + ", sslPort=" + sslPort + ", proxy=" + proxy + ", filterType=" + filterType + ", patterns=" + patterns + ", resultPath=" + resultPath
+		return "Configuration [port=" + port + ", sslPort=" + sslPort + ", proxy=" + proxy + ", filterType=" + filterType + ", patterns=" + patterns + ", outputFolder=" + outputFolder
 				+ ", resultTypes=" + resultTypes + ", saveConfiguration=" + saveConfiguration + ", configurationSkipped=" + configurationSkipped + "]";
 	}
 }

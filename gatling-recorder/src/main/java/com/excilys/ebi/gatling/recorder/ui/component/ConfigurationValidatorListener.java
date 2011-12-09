@@ -119,13 +119,13 @@ public class ConfigurationValidatorListener implements ActionListener {
 			config.getPatterns().add((Pattern) frame.panelFilters.getPattern(i));
 
 		// Check if a directory was entered
-		config.setResultPath(StringUtils.trimToNull(frame.txtResultPath.getText()));
-		if (config.getResultPath() == null) {
+		config.setOutputFolder(StringUtils.trimToNull(frame.txtOutputFolder.getText()));
+		if (config.getOutputFolder() == null) {
 			logger.error("Error, no directory selected for results.");
-			frame.txtResultPath.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.red));
+			frame.txtOutputFolder.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.red));
 			hasError = true;
 		} else
-			frame.txtResultPath.setBorder(defaultBorder);
+			frame.txtOutputFolder.setBorder(defaultBorder);
 
 		// Set selected results type into a list
 		config.setResultTypes(new ArrayList<ResultType>());
@@ -165,7 +165,7 @@ public class ConfigurationValidatorListener implements ActionListener {
 		if (!Configuration.getInstance().getFilterType().equals(FilterType.ALL))
 			for (Pattern pattern : Configuration.getInstance().getPatterns())
 				logger.info("| - " + pattern);
-					logger.info("Results: " + Configuration.getInstance().getResultPath());
+					logger.info("Results: " + Configuration.getInstance().getOutputFolder());
 					logger.info("Result type:");
 		for (ResultType r : Configuration.getInstance().getResultTypes())
 			logger.info("| - " + r);

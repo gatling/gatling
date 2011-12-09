@@ -461,7 +461,7 @@ public class RunningFrame extends JFrame {
 
 	private void dumpRequestBody(int idEvent, String content) {
 		// Dump request body
-		File dir = new File(configuration.getResultPath(), ResultType.FORMAT.format(startDate) + "_" + GATLING_REQUEST_BODIES_DIRECTORY_NAME);
+		File dir = new File(configuration.getOutputFolder(), ResultType.FORMAT.format(startDate) + "_" + GATLING_REQUEST_BODIES_DIRECTORY_NAME);
 		if (!dir.exists())
 			dir.mkdir();
 
@@ -504,7 +504,7 @@ public class RunningFrame extends JFrame {
 
 			try {
 				template = ve.getTemplate(resultType.getTemplate());
-				fileWriter = new FileWriter(new File(configuration.getResultPath(), resultType.getScenarioFileName(startDate)));
+				fileWriter = new FileWriter(new File(configuration.getOutputFolder(), resultType.getScenarioFileName(startDate)));
 				template.merge(context, fileWriter);
 				fileWriter.flush();
 
