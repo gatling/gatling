@@ -11,7 +11,6 @@
 		<encoding>UTF-8</encoding>
 		<scala.version>2.9.1</scala.version>
 		<gatling.version>1.0.0-SNAPSHOT</gatling.version>
-		<gatling-highcharts.version>1.0.0-SNAPSHOT</gatling-highcharts.version>
 
 		<maven-scala-plugin.version>2.15.2</maven-scala-plugin.version>
 	</properties>
@@ -22,16 +21,17 @@
 				<groupId>com.excilys.ebi.gatling</groupId>
 				<artifactId>gatling-app</artifactId>
 				<version>${gatling.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>ch.qos.logback</groupId>
+						<artifactId>logback-classic</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>com.excilys.ebi.gatling</groupId>
 				<artifactId>gatling-recorder</artifactId>
 				<version>${gatling.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.excilys.ebi.gatling</groupId>
-				<artifactId>gatling-highcharts</artifactId>
-				<version>${gatling-highcharts.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.scala-lang</groupId>
@@ -44,6 +44,10 @@
 		<dependency>
 			<groupId>com.excilys.ebi.gatling</groupId>
 			<artifactId>gatling-app</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.excilys.ebi.gatling</groupId>
+			<artifactId>gatling-recorder</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.scala-lang</groupId>
