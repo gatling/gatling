@@ -95,7 +95,7 @@
 		<scalate.version>1.5.3</scalate.version>
 		<netty.version>3.2.7.Final</netty.version>
 		<joda-time.version>2.0</joda-time.version>
-		<joda-convert.version>1.1</joda-convert.version>
+		<joda-convert.version>1.2</joda-convert.version>
 		<velocity.version>1.7</velocity.version>
 		<xstream.version>1.4.2</xstream.version>
 		<commons-lang.version>2.6</commons-lang.version>
