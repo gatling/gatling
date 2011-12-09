@@ -56,6 +56,8 @@ public class Configuration {
 		
 		if (c.isRunningFrame())
 			instance.setConfigurationSkipped(true);
+		
+		instance.setWithEclipse(c.isWithEclipse());
 	}
 
 	private static final Configuration instance = new Configuration();
@@ -69,6 +71,7 @@ public class Configuration {
 	private List<ResultType> resultTypes = new ArrayList<ResultType>();
 	private boolean saveConfiguration;
 	private transient boolean configurationSkipped;
+	private transient boolean withEclipse;
 
 	private Configuration() {
 
@@ -144,6 +147,14 @@ public class Configuration {
 
 	public void setConfigurationSkipped(boolean skipConfiguration) {
 		this.configurationSkipped = skipConfiguration;
+	}
+	
+	public boolean isWithEclipse() {
+		return withEclipse;
+	}
+
+	public void setWithEclipse(boolean withEclipse) {
+		this.withEclipse = withEclipse;
 	}
 
 	@Override

@@ -45,6 +45,9 @@ public class CommandLineOptions {
 
 	@Option(name = "-run", usage = "Skip the configuration frame (need to set -of, listens on 8000 & 8001)")
 	private boolean runningFrame;
+	
+	@Option(name = "-eclipse", usage = "Eclipse & Archetype only")
+	private boolean withEclipse;
 
 	public int getLocalPort() {
 		return localPort;
@@ -116,5 +119,13 @@ public class CommandLineOptions {
 
 	public void setRunningFrame(boolean runningFrame) {
 		this.runningFrame = runningFrame;
+	}
+
+	public boolean isWithEclipse() {
+		return withEclipse;
+	}
+
+	public void setWithEclipse(boolean withEclipse) {
+		this.withEclipse = withEclipse;
 	}
 }
