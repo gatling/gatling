@@ -493,7 +493,7 @@ public class RunningFrame extends JFrame {
 		context.put("headers", headers);
 		context.put("name", "Scenario name");
 		context.put("events", listEvents);
-		context.put("isWithEclipse", Configuration.getInstance().isWithEclipse());
+		context.put("package", Configuration.getInstance().getEclipsePackage());
 		context.put("date", ResultType.FORMAT.format(startDate));
 		URI uri = URI.create("");
 		context.put("URI", uri);

@@ -47,17 +47,17 @@ public class Configuration {
 		instance.getProxy().setSslPort(c.getProxyPortSsl());
 		if (c.getOutputFolder() != null)
 			instance.setResultPath(c.getOutputFolder());
-		
+
 		instance.getResultTypes().clear();
 		if (c.isResultText())
 			instance.getResultTypes().add(ResultType.TEXT);
 		if (c.isResultScala())
 			instance.getResultTypes().add(ResultType.SCALA);
-		
+
 		if (c.isRunningFrame())
 			instance.setConfigurationSkipped(true);
-		
-		instance.setWithEclipse(c.isWithEclipse());
+
+		instance.setEclipsePackage(c.getEclipsePackage());
 	}
 
 	private static final Configuration instance = new Configuration();
@@ -71,7 +71,7 @@ public class Configuration {
 	private List<ResultType> resultTypes = new ArrayList<ResultType>();
 	private boolean saveConfiguration;
 	private transient boolean configurationSkipped;
-	private transient boolean withEclipse;
+	private transient String eclipsePackage;
 
 	private Configuration() {
 
@@ -148,13 +148,13 @@ public class Configuration {
 	public void setConfigurationSkipped(boolean skipConfiguration) {
 		this.configurationSkipped = skipConfiguration;
 	}
-	
-	public boolean isWithEclipse() {
-		return withEclipse;
+
+	public String getEclipsePackage() {
+		return eclipsePackage;
 	}
 
-	public void setWithEclipse(boolean withEclipse) {
-		this.withEclipse = withEclipse;
+	public void setEclipsePackage(String eclipsePackage) {
+		this.eclipsePackage = eclipsePackage;
 	}
 
 	@Override
