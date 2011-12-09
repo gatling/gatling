@@ -34,11 +34,15 @@ object StringHelper extends Logging {
 
 	val EMPTY = ""
 
+	val INDEX_START = "("
+
+	val INDEX_END = ")"
+
 	val jdk6Pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
 
-	val elPatternString = """\$\{(.*?)\}"""
+	val elPatternString = """\$\{([^\$]*)\}"""
 	val elPattern = elPatternString.r
-	val elMultivaluedPattern = """\(\d+\)""".r
+	val elMultivaluedPattern = """\((\d+)\)""".r
 
 	/**
 	 * Method that strips all accents from a string
@@ -54,15 +58,13 @@ object StringHelper extends Logging {
 			val elContent = data.group(1)
 			val multivaluedPart = elMultivaluedPattern.findFirstMatchIn(elContent)
 			if (multivaluedPart.isDefined) {
-				val key = elContent.substring(0, elContent.lastIndexOf("("))
-				(s: Session) => s.getAttribute(key).asInstanceOf[List[String]](multivaluedPart.get.group(1).toInt)
+				val key = elContent.substring(0, elContent.lastIndexOf(INDEX_START))
+				(session: Session) => session.getAttribute(key).asInstanceOf[List[String]](multivaluedPart.get.group(1).toInt)
 			} else
-				(s: Session) => s.getAttribute(data.group(1)) match {
-					case l: List[String] => l(0)
+				(session: Session) => session.getAttribute(data.group(1)) match {
+					case list: List[String] => list(0)
 					case str: String => str
-					case x => {
-						x.toString
-					}
+					case x => x.toString
 				}
 		}.toSeq
 
