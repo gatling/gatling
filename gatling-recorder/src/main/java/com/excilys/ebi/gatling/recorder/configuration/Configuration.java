@@ -15,6 +15,7 @@
  */
 package com.excilys.ebi.gatling.recorder.configuration;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterType;
@@ -22,14 +23,56 @@ import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
 
 public class Configuration {
 
-	private int port;
-	private int sslPort;
+	public static Configuration getInstance() {
+		return instance;
+	}
+
+	public static void initFromExistingConfig(Configuration c) {
+		instance.setPort(c.getPort());
+		instance.setSslPort(c.getSslPort());
+		instance.setProxy(c.getProxy());
+		instance.setFilterType(c.getFilterType());
+		instance.setPatterns(c.getPatterns());
+		instance.setResultPath(c.getResultPath());
+		instance.setResultTypes(c.getResultTypes());
+		instance.setSaveConfiguration(true);
+
+	}
+
+	public static void initFromCommandLineOptions(CommandLineOptions c) {
+		instance.setPort(c.getLocalPort());
+		instance.setSslPort(c.getLocalPortSsl());
+		instance.getProxy().setHost(c.getProxyHost());
+		instance.getProxy().setPort(c.getProxyPort());
+		instance.getProxy().setSslPort(c.getProxyPortSsl());
+		if (c.getOutputFolder() != null)
+			instance.setResultPath(c.getOutputFolder());
+		
+		instance.getResultTypes().clear();
+		if (c.isResultText())
+			instance.getResultTypes().add(ResultType.TEXT);
+		if (c.isResultScala())
+			instance.getResultTypes().add(ResultType.SCALA);
+		
+		if (c.isRunningFrame())
+			instance.setConfigurationSkipped(true);
+	}
+
+	private static final Configuration instance = new Configuration();
+
+	private int port = 8000;
+	private int sslPort = 8001;
 	private ProxyConfig proxy = new ProxyConfig();
-	private FilterType filterType;
-	private List<Pattern> patterns;
+	private FilterType filterType = FilterType.ALL;
+	private List<Pattern> patterns = new ArrayList<Pattern>();
 	private String resultPath;
-	private List<ResultType> resultTypes;
+	private List<ResultType> resultTypes = new ArrayList<ResultType>();
 	private boolean saveConfiguration;
+	private transient boolean configurationSkipped;
+
+	private Configuration() {
+
+	}
 
 	public int getPort() {
 		return port;
@@ -95,4 +138,17 @@ public class Configuration {
 		this.saveConfiguration = saveConfiguration;
 	}
 
+	public boolean isConfigurationSkipped() {
+		return configurationSkipped;
+	}
+
+	public void setConfigurationSkipped(boolean skipConfiguration) {
+		this.configurationSkipped = skipConfiguration;
+	}
+
+	@Override
+	public String toString() {
+		return "Configuration [port=" + port + ", sslPort=" + sslPort + ", proxy=" + proxy + ", filterType=" + filterType + ", patterns=" + patterns + ", resultPath=" + resultPath
+				+ ", resultTypes=" + resultTypes + ", saveConfiguration=" + saveConfiguration + ", configurationSkipped=" + configurationSkipped + "]";
+	}
 }

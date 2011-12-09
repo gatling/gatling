@@ -44,8 +44,10 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.excilys.ebi.gatling.recorder.configuration.Configuration;
-import com.excilys.ebi.gatling.recorder.configuration.ConfigurationHelper;
 import com.excilys.ebi.gatling.recorder.configuration.Pattern;
 import com.excilys.ebi.gatling.recorder.http.event.ShowConfigurationFrameEvent;
 import com.excilys.ebi.gatling.recorder.http.event.ShowRunningFrameEvent;
@@ -56,6 +58,8 @@ import com.google.common.eventbus.Subscribe;
 
 @SuppressWarnings("serial")
 public class ConfigurationFrame extends JFrame {
+	
+	public static final Logger logger = LoggerFactory.getLogger(ConfigurationFrame.class);
 
 	public final JTextField txtPort = new JTextField("8000", 4);
 	public final JTextField txtSslPort = new JTextField("8001", 4);
@@ -107,9 +111,7 @@ public class ConfigurationFrame extends JFrame {
 		JButton btnStart = new JButton("Start !");
 
 		/* Initialization of components */
-		Configuration config = ConfigurationHelper.readFromDisk();
-		if (config != null)
-			populateItemsFromConfiguration(config);
+		populateItemsFromConfiguration();
 
 		JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JPanel centerPanel = new JPanel();
@@ -250,19 +252,20 @@ public class ConfigurationFrame extends JFrame {
 		setVisible(false);
 	}
 
-	private void populateItemsFromConfiguration(Configuration config) {
-		txtPort.setText(String.valueOf(config.getPort()));
-		txtSslPort.setText(String.valueOf(config.getSslPort()));
-		txtProxyHost.setText(config.getProxy().getHost());
-		txtProxyPort.setText(String.valueOf(config.getProxy().getPort()));
-		txtProxySslPort.setText(String.valueOf(config.getProxy().getSslPort()));
-		cbFilterType.setSelectedItem(config.getFilterType());
-		for (Pattern pattern : config.getPatterns())
+	private void populateItemsFromConfiguration() {
+		logger.debug("Configuration: {}", Configuration.getInstance());
+		txtPort.setText(String.valueOf(Configuration.getInstance().getPort()));
+		txtSslPort.setText(String.valueOf(Configuration.getInstance().getSslPort()));
+		txtProxyHost.setText(Configuration.getInstance().getProxy().getHost());
+		txtProxyPort.setText(String.valueOf(Configuration.getInstance().getProxy().getPort()));
+		txtProxySslPort.setText(String.valueOf(Configuration.getInstance().getProxy().getSslPort()));
+		cbFilterType.setSelectedItem(Configuration.getInstance().getFilterType());
+		for (Pattern pattern : Configuration.getInstance().getPatterns())
 			panelFilters.addRow(pattern);
-		txtResultPath.setText(config.getResultPath());
-		cbSavePref.setSelected(config.isSaveConfiguration());
+		txtResultPath.setText(Configuration.getInstance().getResultPath());
+		cbSavePref.setSelected(Configuration.getInstance().isSaveConfiguration());
 		for (JCheckBox cb : listResultsType)
-			for (ResultType resultType : config.getResultTypes())
+			for (ResultType resultType : Configuration.getInstance().getResultTypes())
 				if (cb.getText().equals(resultType.getLabel()))
 					cb.setSelected(true);
 	}

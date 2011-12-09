@@ -53,7 +53,7 @@ public class ConfigurationValidatorListener implements ActionListener {
 		boolean hasError = false;
 		Border defaultBorder = frame.txtProxyHost.getBorder();
 
-		Configuration config = new Configuration();
+		Configuration config = Configuration.getInstance();
 
 		if (frame.txtProxyHost.getText().equals(frame.txtProxyHost.getName()))
 			frame.txtProxyHost.setText(EMPTY);
@@ -147,27 +147,27 @@ public class ConfigurationValidatorListener implements ActionListener {
 			return;
 
 		if (frame.cbSavePref.isSelected())
-			ConfigurationHelper.saveToDisk(config);
+			ConfigurationHelper.saveToDisk();
 
-		logConfiguration(config);
+		logConfiguration();
 
-		getEventBus().post(new ShowRunningFrameEvent(config));
+		getEventBus().post(new ShowRunningFrameEvent());
 	}
 
-	public void logConfiguration(Configuration conf) {
+	public void logConfiguration() {
 		logger.info("Configuration");
 		logger.info("-------------");
-		logger.info("Proxy port: " + conf.getPort());
-		logger.info("Proxy ssl port: " + conf.getSslPort());
-		if (conf.getProxy().getHost() != null)
-			logger.info("Outgoing proxy: " + conf.getProxy());
-		logger.info("Filters: " + conf.getFilterType());
-		if (!conf.getFilterType().equals(FilterType.ALL))
-			for (Pattern pattern : conf.getPatterns())
+		logger.info("Proxy port: " + Configuration.getInstance().getPort());
+		logger.info("Proxy ssl port: " + Configuration.getInstance().getSslPort());
+		if (Configuration.getInstance().getProxy().getHost() != null)
+			logger.info("Outgoing proxy: " + Configuration.getInstance().getProxy());
+		logger.info("Filters: " + Configuration.getInstance().getFilterType());
+		if (!Configuration.getInstance().getFilterType().equals(FilterType.ALL))
+			for (Pattern pattern : Configuration.getInstance().getPatterns())
 				logger.info("| - " + pattern);
-					logger.info("Results: " + conf.getResultPath());
+					logger.info("Results: " + Configuration.getInstance().getResultPath());
 					logger.info("Result type:");
-		for (ResultType r : conf.getResultTypes())
+		for (ResultType r : Configuration.getInstance().getResultTypes())
 			logger.info("| - " + r);
 	}
 }

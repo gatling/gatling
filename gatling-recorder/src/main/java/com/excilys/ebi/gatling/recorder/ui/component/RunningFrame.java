@@ -210,7 +210,10 @@ public class RunningFrame extends JFrame {
 				saveScenario();
 				proxy.shutdown();
 				proxy = null;
-				getEventBus().post(new ShowConfigurationFrameEvent());
+				if (!Configuration.getInstance().isConfigurationSkipped())
+					getEventBus().post(new ShowConfigurationFrameEvent());
+				else
+					System.exit(0);
 			}
 		});
 	}
@@ -224,7 +227,7 @@ public class RunningFrame extends JFrame {
 	public void onShowRunningFrameEvent(ShowRunningFrameEvent event) {
 		setVisible(true);
 		clearOldRunning();
-		configuration = event.getConfiguration();
+		configuration = Configuration.getInstance();
 		startDate = new Date();
 		proxy = new GatlingHttpProxy(configuration.getPort(), configuration.getSslPort(), configuration.getProxy());
 		proxy.start();
@@ -341,7 +344,6 @@ public class RunningFrame extends JFrame {
 		listElements.addElement(request.getMethod() + " | " + request.getUri());
 		listExecutedRequests.ensureIndexIsVisible(listElements.getSize() - 1);
 
-		//int id = listEvents.size() + 1;
 		int id = ++numberOfRequests;
 		event.setId(id);
 

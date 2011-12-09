@@ -15,24 +15,33 @@
  */
 package com.excilys.ebi.gatling.recorder.ui;
 
+import static com.excilys.ebi.gatling.recorder.http.event.RecorderEventBus.getEventBus;
+
 import java.awt.EventQueue;
 
-import static com.excilys.ebi.gatling.recorder.http.event.RecorderEventBus.*;
-
+import com.excilys.ebi.gatling.recorder.configuration.Configuration;
+import com.excilys.ebi.gatling.recorder.configuration.ConfigurationHelper;
 import com.excilys.ebi.gatling.recorder.http.event.ShowConfigurationFrameEvent;
+import com.excilys.ebi.gatling.recorder.http.event.ShowRunningFrameEvent;
 import com.excilys.ebi.gatling.recorder.ui.component.ConfigurationFrame;
 import com.excilys.ebi.gatling.recorder.ui.component.RunningFrame;
 
 public class GatlingHttpProxyUI {
 	
 	public static void main(String[] args) {
+		
+		ConfigurationHelper.initConfiguration(args);
 
 		EventQueue.invokeLater(new Runnable() {
 
 			public void run() {
-				getEventBus().register(new ConfigurationFrame());
 				getEventBus().register(new RunningFrame());
-				getEventBus().post(new ShowConfigurationFrameEvent());
+				if (Configuration.getInstance().isConfigurationSkipped()) {
+					getEventBus().post(new ShowRunningFrameEvent());
+				} else {
+					getEventBus().register(new ConfigurationFrame());
+					getEventBus().post(new ShowConfigurationFrameEvent());
+				}
 			}
 		});
 	}

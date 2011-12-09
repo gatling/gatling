@@ -15,17 +15,6 @@
  */
 package com.excilys.ebi.gatling.recorder.http.event;
 
-import com.excilys.ebi.gatling.recorder.configuration.Configuration;
-
 public class ShowRunningFrameEvent {
 
-	private final Configuration configuration;
-
-	public ShowRunningFrameEvent(Configuration configuration) {
-		this.configuration = configuration;
-	}
-
-	public Configuration getConfiguration() {
-		return configuration;
-	}
 }
