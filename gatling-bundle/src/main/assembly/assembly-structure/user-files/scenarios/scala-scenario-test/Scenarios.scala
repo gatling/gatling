@@ -20,7 +20,7 @@ object Scenarios {
 			"User-Agent" -> "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_1) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/14.0.835.186 Safari/535.1")
 
 	/* Feeder */
-	val usersInfos = new TSVFeeder("bank2")
+	val usersInfos = tsv("bank2")
 			
 	/* Scenario */
 	val scn = scenario("User of Excilys Bank")

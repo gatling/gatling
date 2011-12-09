@@ -23,6 +23,7 @@ import com.excilys.ebi.gatling.core.session.handler.TimerBasedIterationHandler
 import com.excilys.ebi.gatling.core.runner.Runner.runSim
 import com.excilys.ebi.gatling.core.structure.ScenarioBuilder
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
+import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesFeederBuilder
 import org.joda.time.DateTime
 import java.util.concurrent.TimeUnit
 
@@ -30,9 +31,9 @@ object Predef {
 	implicit def toSimpleActionBuilder(sessionFunction: (Session, Action) => Unit): SimpleActionBuilder = SimpleActionBuilder.toSimpleActionBuilder(sessionFunction)
 	implicit def toSimpleActionBuilder(sessionFunction: Session => Unit): SimpleActionBuilder = SimpleActionBuilder.toSimpleActionBuilder(sessionFunction)
 
-	type CSVFeeder = feeder.CSVFeeder
-	type SSVFeeder = feeder.SSVFeeder
-	type TSVFeeder = feeder.TSVFeeder
+	def csv(fileName: String) = SeparatedValuesFeederBuilder.csv(fileName)
+	def ssv(fileName: String) = SeparatedValuesFeederBuilder.ssv(fileName)
+	def tsv(fileName: String) = SeparatedValuesFeederBuilder.tsv(fileName)
 
 	type Session = session.Session
 

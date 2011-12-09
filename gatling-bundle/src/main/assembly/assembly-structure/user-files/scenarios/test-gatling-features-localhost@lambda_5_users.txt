@@ -3,7 +3,7 @@ val pause1 = 1
 val pause2 = 2
 val pause3 = 3
 
-val usersInformation = new TSVFeeder("user_information")
+val usersInformation = tsv("user_information")
 
 val httpConf = httpConfig.baseURL("http://localhost:3000")
 

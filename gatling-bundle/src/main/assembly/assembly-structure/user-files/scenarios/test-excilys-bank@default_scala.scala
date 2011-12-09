@@ -136,7 +136,7 @@ class Simulation extends GatlingSimulation {
 		"User-Agent" -> "Mozilla/5.0 (X11; Linux i686) AppleWebKit/534.24 (KHTML, like Gecko) Chrome/11.0.696.71 Safari/534.24"	
 		)
 	
-val testData = new TSVFeeder("bank_users")
+val testData = tsv("bank_users")
 	
 val scn = scenario("Test Gatling vs JMeter")
 	.feed(testData)
