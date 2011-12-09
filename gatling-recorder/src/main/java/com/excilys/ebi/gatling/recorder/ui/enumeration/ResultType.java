@@ -44,7 +44,7 @@ public enum ResultType {
 
 	public String getScenarioFileName(Date date) {
 		if (Configuration.getInstance().isWithEclipse())
-			return "Simulation"+FORMAT.format(date) + "." + extension;
+			return "Simulation" + FORMAT.format(date) + "." + extension;
 		else
 			return FORMAT.format(date) + "_scenario@default_" + extension + "." + extension;
 	}
