@@ -33,11 +33,11 @@ object CompileTest {
 
 	val httpConf = httpConfig.baseURL(baseUrl).proxy("91.121.211.157", 80).httpsPort(4443).credentials("rom", "test")
 
-	val usersInformation = tsv("user_information")
+	val usersInformation = tsv("user_information.tsv")
 
 	val loginChain = chain.exec(http("First Request Chain").get("/")).pause(1, 2)
 
-	val testData = tsv("test-data")
+	val testData = tsv("test-data.tsv")
 
 	val lambdaUser = scenario("Standard User")
 		.insertChain(loginChain)

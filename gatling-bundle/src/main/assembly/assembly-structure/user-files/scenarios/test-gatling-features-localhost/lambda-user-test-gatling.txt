@@ -1,6 +1,6 @@
 val loginChain = chain.exec(http("First Request Chain").get("/")).pause(1,2)
 
-val testData = tsv("test-data")
+val testData = tsv("test-data.tsv")
 
 val lambdaUser = scenario("Standard User")
   .feed(usersInformation)

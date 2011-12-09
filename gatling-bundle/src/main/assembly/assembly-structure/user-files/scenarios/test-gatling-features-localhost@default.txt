@@ -7,7 +7,7 @@ val baseUrl = "http://localhost:3000"
 
 val httpConf = httpConfig.baseURL(baseUrl)
 
-val usersInformation = tsv("user_information")
+val usersInformation = tsv("user_information.tsv")
 
 include("lambda-user-test-gatling")
 include("admin-user-test-gatling")
