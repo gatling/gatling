@@ -51,35 +51,34 @@ public final class ConfigurationHelper {
 	private ConfigurationHelper() {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	public static void initConfiguration(String[] args) {
 		initFromDisk();
 		initFromCommandLine(args);
 	}
-	
+
 	private static void initFromCommandLine(String[] args) {
 		CommandLineOptions cliOpts = new CommandLineOptions();
 		CmdLineParser parser = new CmdLineParser(cliOpts);
-		try{
-			parser.parseArgument(args);			
+		try {
+			parser.parseArgument(args);
 			if (!cliOpts.isResultText() && !cliOpts.isResultScala())
 				cliOpts.setResultText(true);
-			
+
 			if (cliOpts.isRunningFrame()) {
 				if (cliOpts.getOutputFolder() == null)
 					throw new CmdLineException(parser, "'-run' must be used with '-of'\n");
 			}
-			
+
 			Configuration.initFromCommandLineOptions(cliOpts);
 		} catch (CmdLineException e) {
-			logger.error(e.getMessage());
-			logger.error("gatling-recorder [options...] arguments...");
+			System.err.println(e.getMessage() + "\n");
 			parser.printUsage(System.err);
-			logger.error("\n\tExample: gatling-recorder {}", parser.printExample(ALL));
+			System.err.println("\n\tExample: gatling-recorder " + parser.printExample(ALL));
 			System.exit(0);
 		}
 	}
-	
+
 	private static void initFromDisk() {
 		if (CONFIGURATION_FILE.exists()) {
 			try {

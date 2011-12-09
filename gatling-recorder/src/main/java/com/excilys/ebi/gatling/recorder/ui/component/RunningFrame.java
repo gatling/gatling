@@ -366,7 +366,7 @@ public class RunningFrame extends JFrame {
 		if (requestUrlBase.equals(urlBase))
 			event.setWithUrlBase(true);
 		else
-			urls.put("url_" + id, uri.toString());
+			urls.put("url_" + id, requestUrlBase+uri.getPath());
 
 		/* Headers */
 		Map<String, String> requestHeaders = new TreeMap<String, String>();
