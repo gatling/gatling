@@ -46,9 +46,9 @@ object CommandLineOptions extends Logging {
 }
 class CommandLineOptions(val reportsOnly: Boolean, val reportsOnlyFolder: String, val noReports: Boolean, val configFileName: Option[String], val dataFolder: Option[String],
 		val requestBodiesFolder: Option[String], val resultsFolder: Option[String], val eclipseSimulationFolder: Option[String], val eclipseSimulationPackage: Option[String]) {
-	override def toString = {
-		val sb = new StringBuilder
-		sb.append("reportsOnly: ").append(reportsOnly)
+	override def toString =
+		new StringBuilder()
+			.append("reportsOnly: ").append(reportsOnly)
 			.append(", reportsOnlyFolder: ").append(reportsOnlyFolder)
 			.append(", noReports: ").append(noReports)
 			.append(", configFileName: ").append(configFileName)
@@ -58,5 +58,4 @@ class CommandLineOptions(val reportsOnly: Boolean, val reportsOnlyFolder: String
 			.append(", eclipseSimulationFolder: ").append(eclipseSimulationFolder)
 			.append(", eclipseSimulationPackage: ").append(eclipseSimulationPackage)
 			.toString
-	}
 }

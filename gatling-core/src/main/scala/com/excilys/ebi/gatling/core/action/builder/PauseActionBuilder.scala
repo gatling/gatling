@@ -29,7 +29,7 @@ object PauseActionBuilder {
 	/**
 	 * Creates an initialized PauseActionBuilder with time unit in Seconds
 	 */
-	def pauseActionBuilder = new PauseActionBuilder(None, None, Some(TimeUnit.SECONDS), None)
+	def pauseActionBuilder = new PauseActionBuilder(0, 0, TimeUnit.SECONDS, null)
 }
 
 /**
@@ -41,7 +41,7 @@ object PauseActionBuilder {
  * @param timeUnit time unit of the duration of the generated pause
  * @param next action that will be executed after the generated pause
  */
-class PauseActionBuilder(minDuration: Option[Long], maxDuration: Option[Long], timeUnit: Option[TimeUnit], next: Option[Action])
+class PauseActionBuilder(minDuration: Long, maxDuration: Long, timeUnit: TimeUnit, next: Action)
 		extends AbstractActionBuilder {
 
 	/**
@@ -50,7 +50,7 @@ class PauseActionBuilder(minDuration: Option[Long], maxDuration: Option[Long], t
 	 * @param minDuration the minimum duration of the pause
 	 * @return a new builder with minDuration set
 	 */
-	def withMinDuration(minDuration: Long) = new PauseActionBuilder(Some(minDuration), maxDuration, timeUnit, next)
+	def withMinDuration(minDuration: Long) = new PauseActionBuilder(minDuration, maxDuration, timeUnit, next)
 
 	/**
 	 * Adds maxDuration to builder
@@ -58,7 +58,7 @@ class PauseActionBuilder(minDuration: Option[Long], maxDuration: Option[Long], t
 	 * @param maxDuration the maximum duration of the pause
 	 * @return a new builder with maxDuration set
 	 */
-	def withMaxDuration(maxDuration: Long) = new PauseActionBuilder(minDuration, Some(maxDuration), timeUnit, next)
+	def withMaxDuration(maxDuration: Long) = new PauseActionBuilder(minDuration, maxDuration, timeUnit, next)
 
 	/**
 	 * Adds duration to builder
@@ -66,7 +66,7 @@ class PauseActionBuilder(minDuration: Option[Long], maxDuration: Option[Long], t
 	 * @param duration the duration of the pause
 	 * @return a new builder with duration set
 	 */
-	def withDuration(duration: Long) = new PauseActionBuilder(Some(duration), Some(duration), timeUnit, next)
+	def withDuration(duration: Long) = new PauseActionBuilder(duration, duration, timeUnit, next)
 
 	/**
 	 * Adds timeUnit to builder
@@ -74,9 +74,9 @@ class PauseActionBuilder(minDuration: Option[Long], maxDuration: Option[Long], t
 	 * @param timeUnit time unit of the duration
 	 * @return a new builder with timeUnit set
 	 */
-	def withTimeUnit(timeUnit: TimeUnit) = new PauseActionBuilder(minDuration, maxDuration, Some(timeUnit), next)
+	def withTimeUnit(timeUnit: TimeUnit) = new PauseActionBuilder(minDuration, maxDuration, timeUnit, next)
 
-	def withNext(next: Action) = new PauseActionBuilder(minDuration, maxDuration, timeUnit, Some(next))
+	def withNext(next: Action) = new PauseActionBuilder(minDuration, maxDuration, timeUnit, next)
 
-	def build: Action = TypedActor.newInstance(classOf[Action], new PauseAction(next.get, minDuration.get, maxDuration.get, timeUnit.get))
+	def build: Action = TypedActor.newInstance(classOf[Action], new PauseAction(next, minDuration, maxDuration, timeUnit))
 }
