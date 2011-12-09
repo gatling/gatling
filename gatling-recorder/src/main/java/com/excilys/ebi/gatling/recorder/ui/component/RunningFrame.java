@@ -366,7 +366,7 @@ public class RunningFrame extends JFrame {
 		if (requestUrlBase.equals(urlBase))
 			event.setWithUrlBase(true);
 		else
-			urls.put("url_" + id, requestUrlBase+uri.getPath());
+			urls.put("url_" + id, requestUrlBase + uri.getPath());
 
 		/* Headers */
 		Map<String, String> requestHeaders = new TreeMap<String, String>();
@@ -460,8 +460,12 @@ public class RunningFrame extends JFrame {
 	}
 
 	private void dumpRequestBody(int idEvent, String content) {
-		// Dump request body
-		File dir = new File(configuration.getOutputFolder(), ResultType.FORMAT.format(startDate) + "_" + GATLING_REQUEST_BODIES_DIRECTORY_NAME);
+		File outputFolder = new File(configuration.getOutputFolder());
+		if (!outputFolder.exists())
+			if (!outputFolder.mkdir())
+				logger.error("Can't create output folder directory...");
+
+		File dir = new File(outputFolder, ResultType.FORMAT.format(startDate) + "_" + GATLING_REQUEST_BODIES_DIRECTORY_NAME);
 		if (!dir.exists())
 			dir.mkdir();
 
@@ -498,13 +502,18 @@ public class RunningFrame extends JFrame {
 		URI uri = URI.create("");
 		context.put("URI", uri);
 
+		File outputFolder = new File(configuration.getOutputFolder());
+		if (!outputFolder.exists())
+			if (!outputFolder.mkdir())
+				logger.error("Can't create output folder directory...");
+
 		Template template = null;
 		FileWriter fileWriter = null;
 		for (ResultType resultType : configuration.getResultTypes()) {
 
 			try {
 				template = ve.getTemplate(resultType.getTemplate());
-				fileWriter = new FileWriter(new File(configuration.getOutputFolder(), resultType.getScenarioFileName(startDate)));
+				fileWriter = new FileWriter(new File(outputFolder, resultType.getScenarioFileName(startDate)));
 				template.merge(context, fileWriter);
 				fileWriter.flush();
 
