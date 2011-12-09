@@ -15,12 +15,14 @@
  */
 package com.excilys.ebi.gatling.core.feeder
 import scala.collection.mutable.Queue
+import java.util.concurrent.ConcurrentLinkedQueue
+import scala.collection.JavaConversions._
 
 class QueueFeeder(feederSource: FeederSource) extends Feeder(feederSource) {
 
-	val values = Queue(feederSource.values: _*)
+	val values = new ConcurrentLinkedQueue(feederSource.values)
 
 	def next: Map[String, String] = {
-		values.dequeue
+		values.poll
 	}
 }
