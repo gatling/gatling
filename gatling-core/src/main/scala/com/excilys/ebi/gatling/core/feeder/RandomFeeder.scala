@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.feeder
+import scala.util.Random
 
-object FeederBuilder {
-	implicit def feederBuilderToFeeder(builder: FeederBuilder[_]) = builder.queue
-}
-abstract class FeederBuilder[B <: FeederSource] {
+class RandomFeeder(feederSource: FeederSource) extends Feeder(feederSource) {
 
-	protected def sourceInstance: B
+	val values = feederSource.values
+	val valuesSize = values.size
+	val random = new Random
 
-	def queue = new QueueFeeder(sourceInstance)
-	
-	def random = new RandomFeeder(sourceInstance)
+	def next: Map[String, String] = {
+		values(random.nextInt(valuesSize))
+	}
 }
