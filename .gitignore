@@ -6,6 +6,12 @@
 .scala_dependencies
 .cache
 
+# idea conf files
+.idea
+*.iml
+*.ipr
+*.iws
+
 # building
 target
 build
