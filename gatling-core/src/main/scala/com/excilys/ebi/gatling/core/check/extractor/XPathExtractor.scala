@@ -15,14 +15,16 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor
 
-import java.io.InputStream
+import java.io.{ StringReader, InputStream }
+
 import org.jaxen.dom.DOMXPath
 import org.jaxen.XPath
 import org.w3c.dom.Node
 import org.xml.sax.{ InputSource, EntityResolver }
+
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+
 import javax.xml.parsers.DocumentBuilderFactory
-import java.io.ByteArrayInputStream
-import java.io.StringReader
 
 /**
  * XPathExtractor class companion
@@ -32,14 +34,13 @@ object XPathExtractor {
 	System.setProperty("javax.xml.parsers.DOMParserFactory", "org.apache.xerces.jaxp.DOMParserFactoryImpl");
 	private val factory = DocumentBuilderFactory.newInstance
 	factory.setExpandEntityReferences(false)
-	val parser = factory.newDocumentBuilder
-	parser.setEntityResolver(new NoopEntityResolver())
-}
 
-class NoopEntityResolver extends EntityResolver {
-	def resolveEntity(publicId: String, systemId: String): InputSource = {
-		new InputSource(new StringReader(""));
-	}
+	val parser = factory.newDocumentBuilder
+	parser.setEntityResolver(new EntityResolver {
+		def resolveEntity(publicId: String, systemId: String): InputSource = {
+			new InputSource(new StringReader(EMPTY));
+		}
+	})
 }
 
 /**
