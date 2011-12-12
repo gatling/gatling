@@ -44,8 +44,9 @@ object Gatling extends Logging {
 			opt("df", "data-folder", "<folderName>", "Uses <folderName> as the folder where feeders are stored", { v: String => CommandLineOptions.setDataFolder(v) })
 			opt("rf", "results-folder", "<folderName>", "Uses <folderName> as the folder where results are stored", { v: String => CommandLineOptions.setResultsFolder(v) })
 			opt("bf", "request-bodies-folder", "<folderName>", "Uses <folderName> as the folder where request bodies are stored", { v: String => CommandLineOptions.setRequestBodiesFolder(v) })
+			opt("eaf", "eclipse-assets-folder", "<folderName>", "Eclipse & Maven Archetype Only -- Uses <folderName> to get assets", { v: String => CommandLineOptions.setEclipseAssetsFolder(v) })
 			opt("esf", "eclipse-simulations-folder", "<folderName>", "Eclipse & Maven Archetype Only -- Uses <folderName> to discover simulations that could be run", { v: String => CommandLineOptions.setEclipseSimulationFolder(v) })
-			opt("esp", "eclipse_simulations-package", "<packageName>", "Eclipse & Maven Archetype Only -- Uses <packageName> to start the simulations", { v: String => CommandLineOptions.setEclipseSimulationPackage(v) })
+			opt("esp", "eclipse-simulations-package", "<packageName>", "Eclipse & Maven Archetype Only -- Uses <packageName> to start the simulations", { v: String => CommandLineOptions.setEclipseSimulationPackage(v) })
 		}
 
 	/**
@@ -61,14 +62,14 @@ object Gatling extends Logging {
 		// if arguments are bad, usage message is displayed
 	}
 
-	def apply(dataFolder: String, resultsFolder: String, requestBodiesFolder: String, eclipseSimulationFolder: String, eclipseSimulationPackage: String) =
-		main(Array("-nr", "-df", dataFolder, "-rf", resultsFolder, "-bf", requestBodiesFolder, "-esf", eclipseSimulationFolder, "-esp", eclipseSimulationPackage))
+	def apply(dataFolder: String, resultsFolder: String, requestBodiesFolder: String, eclipseAssetsFolder: String, eclipseSimulationFolder: String, eclipseSimulationPackage: String) =
+		main(Array("-df", dataFolder, "-rf", resultsFolder, "-bf", requestBodiesFolder, "-eaf", eclipseAssetsFolder, "-esf", eclipseSimulationFolder, "-esp", eclipseSimulationPackage))
 
 	private def runGatling = {
 		println("-----------\nGatling cli\n-----------\n")
 
 		import CommandLineOptions.options._
-		GatlingConfig(configFileName, dataFolder, requestBodiesFolder, resultsFolder) // Initializes configuration
+		GatlingConfig(configFileName, dataFolder, requestBodiesFolder, resultsFolder, eclipseAssetsFolder) // Initializes configuration
 
 		val folderName =
 			if (eclipseSimulationFolder.isDefined)

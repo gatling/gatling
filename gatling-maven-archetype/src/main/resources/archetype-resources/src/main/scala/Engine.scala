@@ -12,7 +12,8 @@ object Engine extends App {
 	val dataFolder = projectDir / "src/main/resources/data"
 	val resultsFolder = projectDir / "target/gatling-results"
 	val requestBodiesFolder = projectDir / "src/main/resources/request-bodies"
+	val eclipseAssetsFolder = projectDir / "src/main/resources/assets"
 	val eclipseSimulationFolder = projectDir / "src/main/scala" / packageName.replace(".", "/")
 
-	Gatling(dataFolder, resultsFolder, requestBodiesFolder, eclipseSimulationFolder, packageName)
+	Gatling(dataFolder, resultsFolder, requestBodiesFolder, eclipseAssetsFolder, eclipseSimulationFolder, packageName)
 }

@@ -28,5 +28,22 @@
 				<include>**/logback.xml</include>
 			</includes>
 		</fileSet>
+		<fileSet encoding="UTF-8">
+			<directory>src/main/resources/assets/js</directory>
+			<includes>
+				<include>**/*.js</include>
+			</includes>
+		</fileSet>
+		<fileSet encoding="UTF-8">
+			<directory>src/main/resources/assets/style</directory>
+			<includes>
+				<include>**/*.css</include>
+				<include>**/*.png</include>
+				<include>**/*.tff</include>
+				<include>**/*.eot</include>
+				<include>**/*.svg</include>
+				<include>**/*.woff</include>
+			</includes>
+		</fileSet>
 	</fileSets>
 </archetype-descriptor>

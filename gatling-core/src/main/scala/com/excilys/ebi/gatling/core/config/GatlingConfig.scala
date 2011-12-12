@@ -31,12 +31,14 @@ object GatlingConfig extends Logging {
 	private var dataFolder: Option[String] = None
 	private var requestBodiesFolder: Option[String] = None
 	private var resultsFolder: Option[String] = None
+	private var assetsFolder: Option[String] = None
 
-	def apply(configFileName: Option[String], dataFolder: Option[String], requestBodiesFolder: Option[String], resultsFolder: Option[String]) = {
+	def apply(configFileName: Option[String], dataFolder: Option[String], requestBodiesFolder: Option[String], resultsFolder: Option[String], assetsFolder: Option[String]) = {
 		this.configFileName = configFileName
 		this.dataFolder = dataFolder
 		this.requestBodiesFolder = requestBodiesFolder
 		this.resultsFolder = resultsFolder
+		this.assetsFolder = assetsFolder
 	}
 
 	/**
@@ -61,6 +63,7 @@ object GatlingConfig extends Logging {
 				throw new Exception("Could not parse configuration file!")
 		}
 
+	lazy val CONFIG_ASSETS_FOLDER: Option[Path] = assetsFolder.map(s => s)
 	lazy val CONFIG_RESULTS_FOLDER: Option[Path] = resultsFolder.map(s => s)
 	lazy val CONFIG_DATA_FOLDER: Option[Path] = dataFolder.map(s => s)
 	lazy val CONFIG_REQUEST_BODIES_FOLDER: Option[Path] = requestBodiesFolder.map(s => s)
