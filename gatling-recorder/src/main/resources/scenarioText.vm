@@ -51,7 +51,7 @@
 			.check(status.eq(${event.getResponse().getStatus().getCode()}))
 #end
 	#if(${event.isWithBody()})
-		.fileBody("request_${event.getId()}.txt")
+		.fileBody("${date}_request_${event.getId()}.txt")
 	#end
 		)
 #end

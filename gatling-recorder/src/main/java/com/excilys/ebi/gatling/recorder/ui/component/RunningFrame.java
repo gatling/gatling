@@ -460,26 +460,38 @@ public class RunningFrame extends JFrame {
 	}
 
 	private void dumpRequestBody(int idEvent, String content) {
-		File outputFolder = new File(configuration.getOutputFolder());
-		if (!outputFolder.exists())
-			if (!outputFolder.mkdir())
-				logger.error("Can't create output folder directory...");
+		File dir = null;
+		if (configuration.getRequestBodiesFolder() == null)
+			dir = new File(getOutputFolder(), ResultType.FORMAT.format(startDate) + "_" + GATLING_REQUEST_BODIES_DIRECTORY_NAME);
+		else
+			dir = getFolder("request bodies", configuration.getRequestBodiesFolder());
 
-		File dir = new File(outputFolder, ResultType.FORMAT.format(startDate) + "_" + GATLING_REQUEST_BODIES_DIRECTORY_NAME);
 		if (!dir.exists())
 			dir.mkdir();
 
 		FileWriter fw = null;
 		try {
-			fw = new FileWriter(new File(dir, "request_" + idEvent + ".txt"));
+			fw = new FileWriter(new File(dir, ResultType.FORMAT.format(startDate) + "_request_" + idEvent + ".txt"));
 			fw.write(content);
-
 		} catch (IOException ex) {
-			logger.error("Error, while dumping request body..." + ex.getStackTrace());
-
+			logger.error("Error, while dumping request body... {}", ex.getStackTrace());
 		} finally {
 			closeQuietly(fw);
 		}
+	}
+
+	private File getOutputFolder() {
+		return getFolder("output", configuration.getOutputFolder());
+	}
+
+	private File getFolder(String folderName, String folderPath) {
+		File folder = new File(folderPath);
+
+		if (!folder.exists())
+			if (!folder.mkdir())
+				throw new RuntimeException("Can't create " + folderName + " folder");
+
+		return folder;
 	}
 
 	private void saveScenario() {
@@ -502,18 +514,12 @@ public class RunningFrame extends JFrame {
 		URI uri = URI.create("");
 		context.put("URI", uri);
 
-		File outputFolder = new File(configuration.getOutputFolder());
-		if (!outputFolder.exists())
-			if (!outputFolder.mkdir())
-				logger.error("Can't create output folder directory...");
-
 		Template template = null;
 		FileWriter fileWriter = null;
 		for (ResultType resultType : configuration.getResultTypes()) {
-
 			try {
 				template = ve.getTemplate(resultType.getTemplate());
-				fileWriter = new FileWriter(new File(outputFolder, resultType.getScenarioFileName(startDate)));
+				fileWriter = new FileWriter(new File(getOutputFolder(), resultType.getScenarioFileName(startDate)));
 				template.merge(context, fileWriter);
 				fileWriter.flush();
 

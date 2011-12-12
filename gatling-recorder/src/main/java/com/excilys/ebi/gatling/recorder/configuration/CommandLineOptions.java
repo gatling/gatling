@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.recorder.configuration;
 import org.kohsuke.args4j.Option;
 
 public class CommandLineOptions {
-	
+
 	@Option(name = "-lp", usage = "Local port", aliases = "--local-port")
 	private int localPort = Configuration.getInstance().getPort();
 
@@ -37,6 +37,9 @@ public class CommandLineOptions {
 	@Option(name = "-of", usage = "Define the output folder for results", aliases = "--output-folder")
 	private String outputFolder;
 
+	@Option(name = "-rbf", usage = "Define the folder in which the request bodies wil be dumped", aliases = "--request-bodies-folder")
+	private String requestBodiesFolder;
+
 	@Option(name = "-text", usage = "Save scenario as Text")
 	private boolean resultText;
 
@@ -45,7 +48,7 @@ public class CommandLineOptions {
 
 	@Option(name = "-run", usage = "Skip the configuration frame (need to set -of, listens on 8000 & 8001)")
 	private boolean runningFrame;
-	
+
 	@Option(name = "-eclipse")
 	private String eclipsePackage;
 
@@ -127,5 +130,13 @@ public class CommandLineOptions {
 
 	public void setEclipsePackage(String eclipsePackage) {
 		this.eclipsePackage = eclipsePackage;
+	}
+
+	public String getRequestBodiesFolder() {
+		return requestBodiesFolder;
+	}
+
+	public void setRequestBodiesFolder(String requestBodiesFolder) {
+		this.requestBodiesFolder = requestBodiesFolder;
 	}
 }

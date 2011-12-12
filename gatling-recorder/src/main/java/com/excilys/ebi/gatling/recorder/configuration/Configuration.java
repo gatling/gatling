@@ -58,6 +58,7 @@ public class Configuration {
 			instance.setConfigurationSkipped(true);
 
 		instance.setEclipsePackage(c.getEclipsePackage());
+		instance.setRequestBodiesFolder(c.getRequestBodiesFolder());
 	}
 
 	private static final Configuration instance = new Configuration();
@@ -70,6 +71,7 @@ public class Configuration {
 	private String outputFolder;
 	private List<ResultType> resultTypes = new ArrayList<ResultType>();
 	private boolean saveConfiguration;
+	private transient String requestBodiesFolder;
 	private transient boolean configurationSkipped;
 	private transient String eclipsePackage;
 
@@ -159,7 +161,15 @@ public class Configuration {
 
 	@Override
 	public String toString() {
-		return "Configuration [port=" + port + ", sslPort=" + sslPort + ", proxy=" + proxy + ", filterType=" + filterType + ", patterns=" + patterns + ", outputFolder=" + outputFolder
-				+ ", resultTypes=" + resultTypes + ", saveConfiguration=" + saveConfiguration + ", configurationSkipped=" + configurationSkipped + "]";
+		return "Configuration [port=" + port + ", sslPort=" + sslPort + ", proxy=" + proxy + ", filterType=" + filterType + ", patterns=" + patterns + ", outputFolder="
+				+ outputFolder + ", resultTypes=" + resultTypes + ", saveConfiguration=" + saveConfiguration + ", configurationSkipped=" + configurationSkipped + "]";
+	}
+
+	public String getRequestBodiesFolder() {
+		return requestBodiesFolder;
+	}
+
+	public void setRequestBodiesFolder(String requestBodiesFolder) {
+		this.requestBodiesFolder = requestBodiesFolder;
 	}
 }
