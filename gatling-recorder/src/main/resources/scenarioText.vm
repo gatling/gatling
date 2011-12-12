@@ -4,13 +4,13 @@
 	val PORT = "${port}"
 #end
 	val urlBase = ${urlBase}
-	
+
 	val httpConf = httpConfig.baseURL(urlBase)#if(${proxy.getPort()} != 0).proxy("${proxy.getHost()}", ${proxy.getPort()})#if(${proxy.getSslPort()} != 0).httpsPort(${proxy.getSslPort()})#end#if($!{proxy.getUsername()}).credentials("${proxy.getUsername()}", "${proxy.getPassword()}")#end#end
 
 #foreach(${url} in ${urls.entrySet()})
 	val ${url.getKey()} = "${url.getValue()}"
 #end
-	
+
 #foreach (${h} in ${headers.entrySet()})
 #* Velocity can't unset a variable from the context, so we pre-defined the variable to false *#
 #set($otherHeaders = false)
@@ -19,14 +19,14 @@
 #foreach (${header} in ${h.value.entrySet()})
 		"${header.getKey()}" -> "${header.getValue()}"#if(${foreach.hasNext}),
 #else
-	
+
 		)
 #end
 #end
 #* We set again the otherHeaders, if we have to dump scala version for the scenario *#
 #set($otherHeaders = ${h.getValue().put("headers", $otherHeaders)})
 #end
-	
+
 	val scn = scenario("${name}")
 #foreach(${event} in ${events})
 #if(${event.class.simpleName} == "TagEvent")
@@ -51,11 +51,11 @@
 			.check(status.eq(${event.getResponse().getStatus().getCode()}))
 #end
 	#if(${event.isWithBody()})
-		.withFile("request_${event.getId()}.txt")
+		.fileBody("request_${event.getId()}.txt")
 	#end
 		)
 #end
 #end
-	
+
 	val scnConf = scn.configure users 1 protocolConfig httpConf
 	runSimulations(scnConf)
