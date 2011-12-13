@@ -116,6 +116,8 @@ public class RunningFrame extends JFrame {
 		GridBagLayout gbl = new GridBagLayout();
 		setLayout(gbl);
 
+		setIconImages(Commons.getIconList());
+
 		/* Declaration & initialization of components */
 		JButton btnClear = new JButton("Clear");
 		final JButton btnStop = new JButton("Stop !");

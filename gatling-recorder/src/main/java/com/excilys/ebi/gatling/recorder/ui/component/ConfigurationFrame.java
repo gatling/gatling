@@ -86,6 +86,7 @@ public class ConfigurationFrame extends JFrame {
 		setResizable(true);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setIconImages(Commons.getIconList());
 
 		/** Initialization of components **/
 
