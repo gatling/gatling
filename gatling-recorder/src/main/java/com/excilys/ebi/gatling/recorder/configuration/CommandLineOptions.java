@@ -37,7 +37,7 @@ public class CommandLineOptions {
 	@Option(name = "-of", usage = "Define the output folder for results", aliases = "--output-folder")
 	private String outputFolder;
 
-	@Option(name = "-rbf", usage = "Define the folder in which the request bodies wil be dumped", aliases = "--request-bodies-folder")
+	@Option(name = "-rbf", usage = "Define the folder in which the request bodies will be dumped", aliases = "--request-bodies-folder")
 	private String requestBodiesFolder;
 
 	@Option(name = "-text", usage = "Save scenario as Text")

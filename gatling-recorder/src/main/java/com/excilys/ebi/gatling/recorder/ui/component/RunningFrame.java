@@ -109,7 +109,7 @@ public class RunningFrame extends JFrame {
 	public RunningFrame() {
 
 		/* Initialization of the frame */
-		setTitle("Recorder running...");
+		setTitle("Gatling Recorder - Running...");
 		setMinimumSize(new Dimension(800, 640));
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
