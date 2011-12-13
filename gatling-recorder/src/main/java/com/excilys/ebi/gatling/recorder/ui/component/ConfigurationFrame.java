@@ -15,16 +15,11 @@
  */
 package com.excilys.ebi.gatling.recorder.ui.component;
 
-import static org.apache.commons.lang.StringUtils.EMPTY;
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
@@ -32,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -40,7 +34,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
@@ -51,8 +44,7 @@ import com.excilys.ebi.gatling.recorder.configuration.Configuration;
 import com.excilys.ebi.gatling.recorder.configuration.Pattern;
 import com.excilys.ebi.gatling.recorder.http.event.ShowConfigurationFrameEvent;
 import com.excilys.ebi.gatling.recorder.http.event.ShowRunningFrameEvent;
-import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterType;
-import com.excilys.ebi.gatling.recorder.ui.enumeration.PatternType;
+import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
 import com.google.common.eventbus.Subscribe;
 
@@ -61,162 +53,220 @@ public class ConfigurationFrame extends JFrame {
 
 	public static final Logger logger = LoggerFactory.getLogger(ConfigurationFrame.class);
 
-	public final JTextField txtPort = new JTextField("8000", 4);
-	public final JTextField txtSslPort = new JTextField("8001", 4);
+	public final JTextField txtPort = new JTextField(null, 4);
+	public final JTextField txtSslPort = new JTextField(null, 4);
 
-	public final JTextField txtProxyHost = new JTextField("address", 10);
-	public final JTextField txtProxyPort = new JTextField("port", 4);
-	public final JTextField txtProxySslPort = new JTextField("port", 4);
+	public final JTextField txtProxyHost = new JTextField(null, 15);
+	public final JTextField txtProxyPort = new JTextField(null, 4);
+	public final JTextField txtProxySslPort = new JTextField(null, 4);
 
-	public final JComboBox cbFilter = new JComboBox();
-	public final JComboBox cbFilterType = new JComboBox();
+	public final JComboBox cbFilterStrategies = new JComboBox();
+	public final JCheckBox chkSavePref = new JCheckBox("Save preferences");
 	public final JTextField txtOutputFolder = new JTextField(40);
-	public final List<JCheckBox> listResultsType = new ArrayList<JCheckBox>();
-	public final JCheckBox cbSavePref = new JCheckBox("Save preferences");
-	public final FilterTable panelFilters = new FilterTable();
+	public final FilterTable tblFilters = new FilterTable();
+	public final List<JCheckBox> resultTypes = new ArrayList<JCheckBox>();
+
+	JButton btnFiltersAdd = new JButton("+");
+	JButton btnFiltersDel = new JButton("-");
+	JButton btnOutputFolder = new JButton("Browse");
+	JButton btnClear = new JButton("Clear");
+	JButton btnStart = new JButton("Start !");
+
+	JPanel pnlTop = null;
+	JPanel pnlCenter = null;
+	JPanel pnlBottom = null;
 
 	public ConfigurationFrame() {
 
-		/* Initialization of the frame */
-		setTitle("Proxy configuration");
+		/** Initialization of the frame **/
+
+		setTitle("Gatling Recorder - Configuration");
 		setLayout(new BorderLayout());
 		setMinimumSize(new Dimension(800, 640));
 		setResizable(true);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		/* Declaration of components */
-		txtProxyHost.setName("Address");
-		txtProxyPort.setName("Port");
-		txtProxySslPort.setName("Port");
-		JButton btnFiltersAdd = new JButton("+");
-		JButton btnFiltersDel = new JButton("-");
-		JButton btnOutputFolder = new JButton("Browse");
-		final List<JRadioButton> listBtnFilters = new ArrayList<JRadioButton>();
-		ButtonGroup group = new ButtonGroup();
-		JRadioButton rdBtn = null;
-		for (PatternType f : PatternType.values()) {
-			rdBtn = new JRadioButton(f.name());
-			listBtnFilters.add(rdBtn);
-			group.add(rdBtn);
-		}
-		listBtnFilters.get(0).setSelected(true);
-		for (FilterType ft : FilterType.values())
-			cbFilterType.addItem(ft);
-		for (ResultType rt : ResultType.values())
-			listResultsType.add(new JCheckBox(rt.getLabel()));
-		cbSavePref.setHorizontalTextPosition(SwingConstants.LEFT);
-		JButton btnClear = new JButton("Clear");
-		JButton btnStart = new JButton("Start !");
+		/** Initialization of components **/
 
-		/* Initialization of components */
+		initTopPanel();
+		initCenterPanel();
+		initBottomPanel();
+
 		populateItemsFromConfiguration();
 
-		JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		JPanel centerPanel = new JPanel();
-		JPanel bottomPanel = new JPanel();
+		setListeners();
+	}
 
-		JPanel centerBottomPanel = new JPanel();
+	private void initTopPanel() {
+		/***** Creating Top Panel (Network) *****/
+		pnlTop = new JPanel(new BorderLayout());
 
-		this.add(topPanel, BorderLayout.NORTH);
-		this.add(centerPanel, BorderLayout.CENTER);
-		this.add(bottomPanel, BorderLayout.SOUTH);
+		/* Gatling Image */
+		JPanel pnlImage = new JPanel();
+		pnlImage.add(new JLabel(Commons.getGatlingImage()));
 
-		topPanel.setBorder(BorderFactory.createTitledBorder("Network"));
-		bottomPanel.setBorder(BorderFactory.createTitledBorder("Results"));
+		/* Network Panel */
+		JPanel pnlNetwork = new JPanel(new BorderLayout());
+		pnlNetwork.setBorder(BorderFactory.createTitledBorder("Network"));
+		pnlNetwork.setLayout(new BorderLayout());
 
-		topPanel.setLayout(new GridLayout(2, 3));
-		bottomPanel.setLayout(new GridLayout(3, 1));
-		centerPanel.setLayout(new BorderLayout());
+		/* Local proxy host panel */
+		JPanel localProxyHostPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		localProxyHostPanel.add(new JLabel("Listening port* : "));
+		localProxyHostPanel.add(new JLabel("                                    localhost"));
 
-		topPanel.add(new JLabel("Listening port *"));
-		topPanel.add(new JLabel("Localhost"));
+		/* Local proxy ports panel */
+		JPanel localProxyPortsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		localProxyPortsPanel.add(new JLabel("HTTP"));
+		localProxyPortsPanel.add(txtPort);
+		localProxyPortsPanel.add(new JLabel("HTTPS"));
+		localProxyPortsPanel.add(txtSslPort);
 
-		JPanel top1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		top1.add(new JLabel("HTTP"));
-		top1.add(txtPort);
-		top1.add(new JLabel("HTTPS"));
-		top1.add(txtSslPort);
-		topPanel.add(top1);
+		/* Local proxy panel */
+		JPanel localProxyPanel = new JPanel(new FlowLayout());
+		localProxyPanel.add(localProxyHostPanel);
+		localProxyPanel.add(localProxyPortsPanel);
 
-		topPanel.add(new JLabel("Outgoing proxy"));
+		/* Outgoing proxy host panel */
+		JPanel outgoingProxyHostPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		outgoingProxyHostPanel.add(new JLabel("Outgoing proxy : "));
 
-		JPanel top3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		top3.add(new JLabel("Host"));
-		top3.add(txtProxyHost);
-		topPanel.add(top3);
+		/* Outgoing proxy ports panel */
+		JPanel outgoingProxyPortsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		outgoingProxyPortsPanel.add(new JLabel("host:"));
+		outgoingProxyPortsPanel.add(txtProxyHost);
+		outgoingProxyPortsPanel.add(new JLabel("HTTP"));
+		outgoingProxyPortsPanel.add(txtProxyPort);
+		outgoingProxyPortsPanel.add(new JLabel("HTTPS"));
+		outgoingProxyPortsPanel.add(txtProxySslPort);
 
-		JPanel top4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		top4.add(new JLabel("HTTP"));
-		top4.add(txtProxyPort);
-		top4.add(new JLabel("HTTPS"));
-		top4.add(txtProxySslPort);
-		topPanel.add(top4);
+		/* Outgoing proxy panel */
+		JPanel outgoingProxyPanel = new JPanel(new FlowLayout());
+		outgoingProxyPanel.add(outgoingProxyHostPanel);
+		outgoingProxyPanel.add(outgoingProxyPortsPanel);
 
-		centerBottomPanel.add(new JLabel("Apply method"));
-		centerBottomPanel.add(cbFilterType);
-		centerBottomPanel.add(btnFiltersAdd);
-		centerBottomPanel.add(btnFiltersDel);
-		centerBottomPanel.add(btnClear);
+		/* Adding panels to newtworkPanel */
+		pnlNetwork.add(localProxyPanel, BorderLayout.NORTH);
+		pnlNetwork.add(outgoingProxyPanel, BorderLayout.SOUTH);
 
-		centerPanel.add(panelFilters, BorderLayout.CENTER);
-		centerPanel.add(centerBottomPanel, BorderLayout.PAGE_END);
+		/* Adding Image and network panel to top panel */
+		pnlTop.add(pnlImage, BorderLayout.WEST);
+		pnlTop.add(pnlNetwork, BorderLayout.EAST);
 
-		JPanel top5 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		top5.add(new JLabel("Output folder *  "));
-		top5.add(txtOutputFolder);
-		top5.add(btnOutputFolder);
-		bottomPanel.add(top5);
+		/* Adding panel to Frame */
+		add(pnlTop, BorderLayout.NORTH);
+	}
 
-		JPanel top6 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		top6.add(new JLabel("Type"));
-		for (JCheckBox cb : listResultsType) {
-			top6.add(cb);
-		}
-		bottomPanel.add(top6);
+	private void initCenterPanel() {
+		/***** Creating Center Panel (Filters) *****/
+		pnlCenter = new JPanel();
+		pnlCenter.setBorder(BorderFactory.createTitledBorder("Filters"));
+		pnlCenter.setLayout(new BorderLayout());
 
-		JPanel top7 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		top7.add(cbSavePref);
-		top7.add(btnStart);
-		bottomPanel.add(top7);
+		// Fill Combo Box for Strategies
+		for (FilterStrategy ft : FilterStrategy.values())
+			cbFilterStrategies.addItem(ft);
 
-		/* Listeners */
+		/* Filter Actions panel */
+		JPanel filterActionsPanel = new JPanel();
+		filterActionsPanel.add(new JLabel("Strategy"));
+		filterActionsPanel.add(cbFilterStrategies);
+		filterActionsPanel.add(btnFiltersAdd);
+		filterActionsPanel.add(btnFiltersDel);
+		filterActionsPanel.add(btnClear);
 
-		txtProxyHost.addFocusListener(new CustomFocusListener());
-		txtProxyPort.addFocusListener(new CustomFocusListener());
-		txtProxySslPort.addFocusListener(new CustomFocusListener());
+		/* Adding panels to centerPanel */
+		pnlCenter.add(tblFilters, BorderLayout.CENTER);
+		pnlCenter.add(filterActionsPanel, BorderLayout.PAGE_END);
 
-		cbFilterType.addItemListener(new ItemListener() {
+		/* Adding panel to Frame */
+		add(pnlCenter, BorderLayout.CENTER);
+	}
+
+	private void initBottomPanel() {
+		/***** Creating Bottom Panel (Output + Start) *****/
+		pnlBottom = new JPanel();
+		pnlBottom.setLayout(new BorderLayout());
+
+		/* Output Folder Panel */
+		JPanel outputFolderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		outputFolderPanel.add(new JLabel("Output folder* : "));
+		outputFolderPanel.add(txtOutputFolder);
+		outputFolderPanel.add(btnOutputFolder);
+
+		/* Output type panel */
+		JPanel outputTypePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		outputTypePanel.add(new JLabel("Type"));
+
+		for (ResultType rt : ResultType.values())
+			resultTypes.add(new JCheckBox(rt.getLabel()));
+		for (JCheckBox cb : resultTypes)
+			outputTypePanel.add(cb);
+
+		/* Output Panel */
+		JPanel outputPanel = new JPanel(new BorderLayout());
+		outputPanel.setBorder(BorderFactory.createTitledBorder("Output"));
+		outputPanel.add(outputFolderPanel, BorderLayout.NORTH);
+		outputPanel.add(outputTypePanel, BorderLayout.SOUTH);
+
+		/* Start Action Panel */
+		JPanel startActionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		startActionPanel.add(chkSavePref);
+		startActionPanel.add(btnStart);
+
+		chkSavePref.setHorizontalTextPosition(SwingConstants.LEFT);
+
+		/* Adding panels to bottomPanel */
+		pnlBottom.add(outputPanel, BorderLayout.NORTH);
+		pnlBottom.add(startActionPanel, BorderLayout.SOUTH);
+
+		/* Adding panel to Frame */
+		add(pnlBottom, BorderLayout.SOUTH);
+	}
+
+	private void setListeners() {
+		// Enables or disables filter edition depending on the selected strategy
+		cbFilterStrategies.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
-				// Switch to '1' when goes active state and '2' for passive
-				// state.
-				if (e.getStateChange() == 1 && e.getItem().equals(FilterType.ALL))
-					panelFilters.setEnabled(false);
-				else
-					panelFilters.setEnabled(true);
+				if (e.getStateChange() == ItemEvent.SELECTED && e.getItem().equals(FilterStrategy.NONE)) {
+					tblFilters.setEnabled(false);
+					tblFilters.setFocusable(false);
+				} else {
+					tblFilters.setEnabled(true);
+					tblFilters.setFocusable(true);
+				}
 			}
 		});
 
+		// Adds a filter row when + button clicked
 		btnFiltersAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				panelFilters.addRow();
+				tblFilters.addRow();
 			}
 		});
 
+		// Removes selected filter when - button clicked
 		btnFiltersDel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				panelFilters.removeSelectedRow();
+				tblFilters.removeSelectedRow();
 			}
 		});
 
+		// Removes all filters when clear button clicked
+		btnClear.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				tblFilters.removeAllElements();
+			}
+		});
+
+		// Opens a save dialog when Browse button clicked
 		btnOutputFolder.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser fc = new JFileChooser();
 				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
-				int choice = fc.showOpenDialog(null);
-
-				if (choice != JFileChooser.APPROVE_OPTION)
+				if (fc.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
 					return;
 
 				File chosenFile = fc.getSelectedFile();
@@ -224,12 +274,7 @@ public class ConfigurationFrame extends JFrame {
 			}
 		});
 
-		btnClear.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				panelFilters.removeAllElements();
-			}
-		});
-
+		// Validates form when Start button clicked
 		btnStart.addActionListener(new ConfigurationValidatorListener(this));
 	}
 
@@ -245,36 +290,20 @@ public class ConfigurationFrame extends JFrame {
 
 	private void populateItemsFromConfiguration() {
 		logger.debug("Configuration: {}", Configuration.getInstance());
+
 		txtPort.setText(String.valueOf(Configuration.getInstance().getPort()));
 		txtSslPort.setText(String.valueOf(Configuration.getInstance().getSslPort()));
 		txtProxyHost.setText(Configuration.getInstance().getProxy().getHost());
 		txtProxyPort.setText(String.valueOf(Configuration.getInstance().getProxy().getPort()));
 		txtProxySslPort.setText(String.valueOf(Configuration.getInstance().getProxy().getSslPort()));
-		cbFilterType.setSelectedItem(Configuration.getInstance().getFilterType());
+		cbFilterStrategies.setSelectedItem(Configuration.getInstance().getFilterStrategy());
 		for (Pattern pattern : Configuration.getInstance().getPatterns())
-			panelFilters.addRow(pattern);
+			tblFilters.addRow(pattern);
 		txtOutputFolder.setText(Configuration.getInstance().getOutputFolder());
-		cbSavePref.setSelected(Configuration.getInstance().isSaveConfiguration());
-		for (JCheckBox cb : listResultsType)
+		chkSavePref.setSelected(Configuration.getInstance().isSaveConfiguration());
+		for (JCheckBox cb : resultTypes)
 			for (ResultType resultType : Configuration.getInstance().getResultTypes())
 				if (cb.getText().equals(resultType.getLabel()))
 					cb.setSelected(true);
-	}
-}
-
-class CustomFocusListener implements FocusListener {
-
-	@Override
-	public void focusGained(FocusEvent e) {
-		JTextField src = (JTextField) e.getSource();
-		if (src.getText().equals(src.getName()))
-			src.setText(EMPTY);
-	}
-
-	@Override
-	public void focusLost(FocusEvent e) {
-		JTextField src = (JTextField) e.getSource();
-		if (src.getText().equals(EMPTY))
-			src.setText(src.getName());
 	}
 }

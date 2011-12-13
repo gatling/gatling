@@ -35,7 +35,7 @@ import com.excilys.ebi.gatling.recorder.configuration.Configuration;
 import com.excilys.ebi.gatling.recorder.configuration.ConfigurationHelper;
 import com.excilys.ebi.gatling.recorder.configuration.Pattern;
 import com.excilys.ebi.gatling.recorder.http.event.ShowRunningFrameEvent;
-import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterType;
+import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
 
 public class ConfigurationValidatorListener implements ActionListener {
@@ -62,7 +62,7 @@ public class ConfigurationValidatorListener implements ActionListener {
 		if (frame.txtProxySslPort.getText().equals(frame.txtProxySslPort.getName()))
 			frame.txtProxySslPort.setText(EMPTY);
 
-		frame.panelFilters.validateCells();
+		frame.tblFilters.validateCells();
 
 		// Parse local proxy port
 		try {
@@ -112,11 +112,11 @@ public class ConfigurationValidatorListener implements ActionListener {
 			}
 		}
 
-		config.setFilterType((FilterType) frame.cbFilterType.getSelectedItem());
+		config.setFilterStrategy((FilterStrategy) frame.cbFilterStrategies.getSelectedItem());
 		// Set urls filters into a list
 		config.setPatterns(new ArrayList<Pattern>());
-		for (int i = 0; i < frame.panelFilters.getRowCount(); i++)
-			config.getPatterns().add((Pattern) frame.panelFilters.getPattern(i));
+		for (int i = 0; i < frame.tblFilters.getRowCount(); i++)
+			config.getPatterns().add((Pattern) frame.tblFilters.getPattern(i));
 
 		// Check if a directory was entered
 		config.setOutputFolder(StringUtils.trimToNull(frame.txtOutputFolder.getText()));
@@ -130,14 +130,14 @@ public class ConfigurationValidatorListener implements ActionListener {
 		// Set selected results type into a list
 		config.setResultTypes(new ArrayList<ResultType>());
 		boolean tmp = false;
-		for (JCheckBox cb : frame.listResultsType) {
+		for (JCheckBox cb : frame.resultTypes) {
 			if (cb.isSelected()) {
 				tmp = true;
 				config.getResultTypes().add(ResultType.getByLabel(cb.getText()));
 			}
 		}
 
-		config.setSaveConfiguration(frame.cbSavePref.isSelected());
+		config.setSaveConfiguration(frame.chkSavePref.isSelected());
 
 		// If nothing was selected we add by default 'text'
 		if (!tmp)
@@ -146,7 +146,7 @@ public class ConfigurationValidatorListener implements ActionListener {
 		if (hasError)
 			return;
 
-		if (frame.cbSavePref.isSelected())
+		if (frame.chkSavePref.isSelected())
 			ConfigurationHelper.saveToDisk();
 
 		logConfiguration();
@@ -161,8 +161,8 @@ public class ConfigurationValidatorListener implements ActionListener {
 		logger.info("Proxy ssl port: " + Configuration.getInstance().getSslPort());
 		if (Configuration.getInstance().getProxy().getHost() != null)
 			logger.info("Outgoing proxy: " + Configuration.getInstance().getProxy());
-		logger.info("Filters: " + Configuration.getInstance().getFilterType());
-		if (!Configuration.getInstance().getFilterType().equals(FilterType.ALL))
+		logger.info("Filters: " + Configuration.getInstance().getFilterStrategy());
+		if (!Configuration.getInstance().getFilterStrategy().equals(FilterStrategy.NONE))
 			for (Pattern pattern : Configuration.getInstance().getPatterns())
 				logger.info("| - " + pattern);
 					logger.info("Results: " + Configuration.getInstance().getOutputFolder());

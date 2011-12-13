@@ -70,7 +70,7 @@ import com.excilys.ebi.gatling.recorder.http.event.ResponseReceivedEvent;
 import com.excilys.ebi.gatling.recorder.http.event.ShowConfigurationFrameEvent;
 import com.excilys.ebi.gatling.recorder.http.event.ShowRunningFrameEvent;
 import com.excilys.ebi.gatling.recorder.http.event.TagEvent;
-import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterType;
+import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.PauseType;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
 import com.google.common.collect.MapDifference;
@@ -303,13 +303,13 @@ public class RunningFrame extends JFrame {
 			return false;
 		}
 
-		if (configuration.getFilterType() != FilterType.ALL) {
+		if (configuration.getFilterStrategy() != FilterStrategy.NONE) {
 
 			String p = EMPTY;
 			boolean add = true;
-			if (configuration.getFilterType() == FilterType.ONLY)
+			if (configuration.getFilterStrategy() == FilterStrategy.ONLY)
 				add = true;
-			else if (configuration.getFilterType() == FilterType.EXCEPT)
+			else if (configuration.getFilterStrategy() == FilterStrategy.EXCEPT)
 				add = false;
 
 			for (Pattern pattern : configuration.getPatterns()) {

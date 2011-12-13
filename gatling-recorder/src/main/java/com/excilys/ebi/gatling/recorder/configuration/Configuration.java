@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.recorder.configuration;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterType;
+import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
 
 public class Configuration {
@@ -31,7 +31,7 @@ public class Configuration {
 		instance.setPort(c.getPort());
 		instance.setSslPort(c.getSslPort());
 		instance.setProxy(c.getProxy());
-		instance.setFilterType(c.getFilterType());
+		instance.setFilterStrategy(c.getFilterStrategy());
 		instance.setPatterns(c.getPatterns());
 		instance.setOutputFolder(c.getOutputFolder());
 		instance.setResultTypes(c.getResultTypes());
@@ -66,7 +66,7 @@ public class Configuration {
 	private int port = 8000;
 	private int sslPort = 8001;
 	private ProxyConfig proxy = new ProxyConfig();
-	private FilterType filterType = FilterType.ALL;
+	private FilterStrategy filterStrategy = FilterStrategy.NONE;
 	private List<Pattern> patterns = new ArrayList<Pattern>();
 	private String outputFolder;
 	private List<ResultType> resultTypes = new ArrayList<ResultType>();
@@ -95,12 +95,12 @@ public class Configuration {
 		this.proxy = proxy;
 	}
 
-	public FilterType getFilterType() {
-		return filterType;
+	public FilterStrategy getFilterStrategy() {
+		return filterStrategy;
 	}
 
-	public void setFilterType(FilterType filterType) {
-		this.filterType = filterType;
+	public void setFilterStrategy(FilterStrategy filterStrategy) {
+		this.filterStrategy = filterStrategy;
 	}
 
 	public List<Pattern> getPatterns() {
@@ -161,7 +161,7 @@ public class Configuration {
 
 	@Override
 	public String toString() {
-		return "Configuration [port=" + port + ", sslPort=" + sslPort + ", proxy=" + proxy + ", filterType=" + filterType + ", patterns=" + patterns + ", outputFolder="
+		return "Configuration [port=" + port + ", sslPort=" + sslPort + ", proxy=" + proxy + ", filterStrategy=" + filterStrategy + ", patterns=" + patterns + ", outputFolder="
 				+ outputFolder + ", resultTypes=" + resultTypes + ", saveConfiguration=" + saveConfiguration + ", configurationSkipped=" + configurationSkipped + "]";
 	}
 
