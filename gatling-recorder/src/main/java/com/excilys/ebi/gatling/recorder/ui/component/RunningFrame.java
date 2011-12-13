@@ -488,7 +488,7 @@ public class RunningFrame extends JFrame {
 		File folder = new File(folderPath);
 
 		if (!folder.exists())
-			if (!folder.mkdir())
+			if (!folder.mkdirs())
 				throw new RuntimeException("Can't create " + folderName + " folder");
 
 		return folder;
