@@ -5,7 +5,7 @@ Development is currently focusing on HTTP support.
 
 # Motivation
 
-* Fed up with fancy GUI that generate huge unreadable XML scenarios. What you want is scripts and a user friendly DSL ?
+* Fed up with fancy GUI that generate huge unreadable XML scenarios. What you want are scripts and a user friendly DSL ?
 * Fed up with having to host a farm of injecting servers because your tool use blocking IO and one-thread-per-user architecture ?
 
 Gatling is for you!
