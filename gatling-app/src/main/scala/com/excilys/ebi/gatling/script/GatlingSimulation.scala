@@ -21,5 +21,5 @@ import com.excilys.ebi.gatling.core.Predef._
  * This trait is to be extended by Scala simulations
  */
 trait GatlingSimulation extends App {
-	def runSimulations = runSimFunction(args(0))
+  def runSimulation = runSimFunction(args(0))
 }

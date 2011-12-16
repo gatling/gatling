@@ -5,7 +5,7 @@ val httpConf = httpConfig.baseURL(urlBase)
 include("scn_scenario")
 include("otherScn_scenario")
 
-runSimulations(
+runSimulation(
 	scn.configure users 10 ramp 10 protocolConfig httpConf,
 	otherScn.configure users 5 ramp 20 delay 30 protocolConfig httpConf
 )

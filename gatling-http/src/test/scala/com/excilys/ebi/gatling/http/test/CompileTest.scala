@@ -22,7 +22,7 @@ import com.sun.corba.se.impl.protocol.NotExistent
 
 object CompileTest {
 
-	def runSimulations = runSimFunction(DateTime.now)
+	def runSimulation = runSimFunction(DateTime.now)
 
 	val iterations = 10
 	val pause1 = 1
@@ -106,6 +106,6 @@ object CompileTest {
 		.exec(http("Ajout au panier") get ("/") check (regex("""<input id="text1" type="text" value="(.*)" />""") saveAs "input"))
 		.pause(pause1)
 
-	runSimulations(
+	runSimulation(
 		lambdaUser.configure.users(5).ramp(10).protocolConfig(httpConf))
 }

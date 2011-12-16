@@ -58,4 +58,4 @@
 #end
 
 	val scnConf = scn.configure users 1 protocolConfig httpConf
-	runSimulations(scnConf)
+	runSimulation(scnConf)
