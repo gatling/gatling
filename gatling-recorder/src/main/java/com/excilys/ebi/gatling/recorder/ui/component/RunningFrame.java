@@ -89,7 +89,7 @@ public class RunningFrame extends JFrame {
 	private Date lastRequest;
 	private PauseEvent pause;
 
-	private JTextField txtTag = new JTextField(10);
+	private JTextField txtTag = new JTextField(15);
 	private JButton btnTag = new JButton("Add");
 	private DefaultListModel listElements = new DefaultListModel();
 	private JList listExecutedRequests = new JList(listElements);
