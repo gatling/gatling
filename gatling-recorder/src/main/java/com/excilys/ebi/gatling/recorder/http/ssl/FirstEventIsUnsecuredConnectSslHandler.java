@@ -23,11 +23,11 @@ import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.ssl.SslHandler;
 
-public class NextRequestEnabledSslHandler extends SslHandler {
+public class FirstEventIsUnsecuredConnectSslHandler extends SslHandler {
 
 	private AtomicBoolean sslEnabled = new AtomicBoolean(false);
 
-	public NextRequestEnabledSslHandler(SSLEngine sslEngine) {
+	public FirstEventIsUnsecuredConnectSslHandler(SSLEngine sslEngine) {
 		super(sslEngine, false);
 	}
 

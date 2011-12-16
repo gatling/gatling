@@ -19,26 +19,27 @@ import static com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory.get
 
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
-import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.netty.handler.codec.http.HttpVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.excilys.ebi.gatling.recorder.configuration.ProxyConfig;
-import com.excilys.ebi.gatling.recorder.http.ssl.NextRequestEnabledSslHandler;
+import com.excilys.ebi.gatling.recorder.http.ssl.FirstEventIsUnsecuredConnectSslHandler;
 import com.excilys.ebi.gatling.recorder.http.ssl.SSLEngineFactory;
 
 public class BrowserHttpsRequestHandler extends AbstractBrowserRequestHandler {
 
-	private Map<String, Integer> securedHosts = new HashMap<String, Integer>();
+	private static final Logger LOGGER = LoggerFactory.getLogger(BrowserHttpsRequestHandler.class);
+
+	private URI targetHostURI;
 
 	public BrowserHttpsRequestHandler(ProxyConfig proxyConfig) {
 		super(proxyConfig.getHost(), proxyConfig.getPort());
@@ -47,28 +48,31 @@ public class BrowserHttpsRequestHandler extends AbstractBrowserRequestHandler {
 	@Override
 	protected ChannelFuture connectToServerOnBrowserRequestReceived(ChannelHandlerContext ctx, final HttpRequest request) throws Exception {
 
-		if (request.getMethod().equals(HttpMethod.CONNECT)) {
-			URI uri = new URI("https://" + request.getUri());
-			securedHosts.put(uri.getHost(), uri.getPort());
+		LOGGER.info("Received {} on {}", request.getMethod(), request.getUri());
 
-			ctx.getPipeline().addFirst("ssl", new NextRequestEnabledSslHandler(SSLEngineFactory.newServerSSLEngine()));
+		if (request.getMethod().equals(HttpMethod.CONNECT)) {
+
+			targetHostURI = new URI("https://" + request.getUri());
+
+			// FIXME should issue an event display on the GUI
+			LOGGER.warn("Trying to connect to {}, make sure you've accepted the recorder certificate for this site", targetHostURI);
+			
+			// FIXME should already be in the pipeline
+			ctx.getPipeline().addFirst("ssl", new FirstEventIsUnsecuredConnectSslHandler(SSLEngineFactory.newServerSSLEngine()));
 			ctx.getChannel().write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
 
 			return null;
 
 		} else {
-			String host = request.getHeader(HttpHeaders.Names.HOST);
-			int port = securedHosts.get(host);
-
 			// set full uri so that it's correctly recorder
-			String fullUri = new StringBuilder().append("https://").append(host).append(":").append(port).append(request.getUri()).toString();
+			String fullUri = new StringBuilder().append(targetHostURI).append(request.getUri()).toString();
 			request.setUri(fullUri);
 
 			ClientBootstrap bootstrap = getBootstrapFactory().newClientBootstrap(ctx, request, true);
 
 			ChannelFuture future;
 			if (outgoingProxyHost == null) {
-				future = bootstrap.connect(new InetSocketAddress(host, port));
+				future = bootstrap.connect(new InetSocketAddress(targetHostURI.getHost(), targetHostURI.getPort()));
 
 			} else {
 				future = bootstrap.connect(new InetSocketAddress(outgoingProxyHost, outgoingProxyPort));

@@ -32,7 +32,7 @@ import com.excilys.ebi.gatling.recorder.http.event.RequestReceivedEvent;
 
 public abstract class AbstractBrowserRequestHandler extends SimpleChannelHandler {
 
-	private static final Logger logger = LoggerFactory.getLogger(AbstractBrowserRequestHandler.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractBrowserRequestHandler.class);
 
 	protected final String outgoingProxyHost;
 	protected final int outgoingProxyPort;
@@ -48,15 +48,15 @@ public abstract class AbstractBrowserRequestHandler extends SimpleChannelHandler
 		getEventBus().post(new MessageReceivedEvent(ctx.getChannel()));
 
 		HttpRequest request = HttpRequest.class.cast(event.getMessage());
-		
+
 		// remove Proxy-Connection header if it's not significant
 		if (outgoingProxyHost == null)
 			request.removeHeader("Proxy-Connection");
 
 		ChannelFuture future = connectToServerOnBrowserRequestReceived(ctx, request);
-		
+
 		getEventBus().post(new RequestReceivedEvent(request));
-		
+
 		sendRequestToServerAfterConnection(future, request);
 	}
 
@@ -64,7 +64,7 @@ public abstract class AbstractBrowserRequestHandler extends SimpleChannelHandler
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-		logger.error("Exception caught = "+e.getCause().getMessage());
+		LOGGER.error("Exception caught", e.getCause());
 
 		// Properly closing
 		ChannelFuture future = ctx.getChannel().getCloseFuture();
