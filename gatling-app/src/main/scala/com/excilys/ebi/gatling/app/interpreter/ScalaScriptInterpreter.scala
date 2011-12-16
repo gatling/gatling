@@ -22,7 +22,7 @@ import scala.tools.nsc.reporters.ConsoleReporter
 import scala.tools.nsc.{ Settings, Global }
 import org.joda.time.DateTime
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_SIMULATION_SCALA_PACKAGE
-import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_SCENARIOS_FOLDER
+import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_SIMULATIONS_FOLDER
 import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
 import com.excilys.ebi.gatling.core.util.ReflectionHelper.getNewInstanceByClassName
 import scala.tools.nsc.io.Directory
@@ -42,7 +42,7 @@ class ScalaScriptInterpreter extends Interpreter {
 	 * @param startDate the date at which the launch was asked
 	 */
 	def run(fileName: String, startDate: DateTime) {
-		compile(GATLING_SCENARIOS_FOLDER / fileName)
+		compile(GATLING_SIMULATIONS_FOLDER / fileName)
 		val runner = getNewInstanceByClassName[App](CONFIG_SIMULATION_SCALA_PACKAGE + "Simulation", classLoader)
 		runner.main(Array(startDate.toString));
 	}

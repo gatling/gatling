@@ -24,7 +24,7 @@ import scala.tools.nsc.Settings
 import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_SCENARIOS_FOLDER, GATLING_IMPORTS_FILE }
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_SIMULATIONS_FOLDER, GATLING_IMPORTS_FILE }
 import com.excilys.ebi.gatling.core.util.FileHelper.TXT_EXTENSION
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 
@@ -63,13 +63,13 @@ class TextScriptInterpreter extends Interpreter {
 
 		val scenario = {
 			// Contains the contents of the simulation file
-			val initialFileBodyContent = Source.fromFile((GATLING_SCENARIOS_FOLDER / fileName).jfile, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT)
+			val initialFileBodyContent = Source.fromFile((GATLING_SIMULATIONS_FOLDER / fileName).jfile, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT)
 
 			// Includes contents of included files into the simulation file 
 			"""include\("(.*)"\)""".r.replaceAllIn(initialFileBodyContent,
 				result => {
 					val path = fileName.substring(0, fileName.lastIndexOf("@")) / result.group(1)
-					Source.fromFile(GATLING_SCENARIOS_FOLDER / path + TXT_EXTENSION, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT) + END_OF_LINE + END_OF_LINE
+					Source.fromFile(GATLING_SIMULATIONS_FOLDER / path + TXT_EXTENSION, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT) + END_OF_LINE + END_OF_LINE
 				}).replace(TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT, '$')
 		}
 
