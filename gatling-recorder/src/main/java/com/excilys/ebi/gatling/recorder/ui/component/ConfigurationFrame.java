@@ -17,6 +17,7 @@ package com.excilys.ebi.gatling.recorder.ui.component;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -281,12 +282,20 @@ public class ConfigurationFrame extends JFrame {
 
 	@Subscribe
 	public void onShowConfigurationFrameEvent(ShowConfigurationFrameEvent event) {
-		setVisible(true);
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				setVisible(true);
+			}
+		});
 	}
 
 	@Subscribe
 	public void onShowRunningFrameEvent(ShowRunningFrameEvent event) {
-		setVisible(false);
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				setVisible(false);
+			}
+		});
 	}
 
 	private void populateItemsFromConfiguration() {

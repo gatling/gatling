@@ -21,6 +21,7 @@ import static org.apache.commons.io.IOUtils.closeQuietly;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -222,61 +223,78 @@ public class RunningFrame extends JFrame {
 
 	@Subscribe
 	public void onShowConfigurationFrameEvent(ShowConfigurationFrameEvent event) {
-		setVisible(false);
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				setVisible(false);
+			}
+		});
 	}
 
 	@Subscribe
 	public void onShowRunningFrameEvent(ShowRunningFrameEvent event) {
-		setVisible(true);
-		clearOldRunning();
-		configuration = Configuration.getInstance();
-		startDate = new Date();
-		proxy = new GatlingHttpProxy(configuration.getPort(), configuration.getSslPort(), configuration.getProxy());
-		proxy.start();
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				setVisible(true);
+				clearOldRunning();
+				configuration = Configuration.getInstance();
+				startDate = new Date();
+				proxy = new GatlingHttpProxy(configuration.getPort(), configuration.getSslPort(), configuration.getProxy());
+				proxy.start();
+			}
+		});
 	}
 
 	@Subscribe
-	public void onRequestReceivedEvent(RequestReceivedEvent event) {
-		String header = event.getRequest().getHeader("Proxy-Authorization");
-		if (header != null) {
-			// Split on " " and take 2nd match (Basic credentialsInBase64==)
-			String credentials = new String(Base64.decodeBase64(header.split(" ")[1].getBytes()));
-			configuration.getProxy().setUsername(credentials.split(":")[0]);
-			configuration.getProxy().setPassword(credentials.split(":")[1]);
-		}
-
-		if (addRequest(event.getRequest())) {
-			if (lastRequest != null) {
-				Date newRequest = new Date();
-				long diff = newRequest.getTime() - lastRequest.getTime();
-				long pauseMin, pauseMax;
-				PauseType pauseType;
-				if (diff < 1000) {
-					pauseMin = (diff / 100l) * 100;
-					pauseMax = pauseMin + 100;
-					pauseType = PauseType.MILLISECONDS;
-				} else {
-					pauseMin = diff / 1000l;
-					pauseMax = pauseMin + 1;
-					pauseType = PauseType.SECONDS;
+	public void onRequestReceivedEvent(final RequestReceivedEvent event) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				String header = event.getRequest().getHeader("Proxy-Authorization");
+				if (header != null) {
+					// Split on " " and take 2nd match (Basic
+					// credentialsInBase64==)
+					String credentials = new String(Base64.decodeBase64(header.split(" ")[1].getBytes()));
+					configuration.getProxy().setUsername(credentials.split(":")[0]);
+					configuration.getProxy().setPassword(credentials.split(":")[1]);
 				}
-				lastRequest = newRequest;
-				pause = new PauseEvent(pauseMin, pauseMax, pauseType);
+
+				if (addRequest(event.getRequest())) {
+					if (lastRequest != null) {
+						Date newRequest = new Date();
+						long diff = newRequest.getTime() - lastRequest.getTime();
+						long pauseMin, pauseMax;
+						PauseType pauseType;
+						if (diff < 1000) {
+							pauseMin = (diff / 100l) * 100;
+							pauseMax = pauseMin + 100;
+							pauseType = PauseType.MILLISECONDS;
+						} else {
+							pauseMin = diff / 1000l;
+							pauseMax = pauseMin + 1;
+							pauseType = PauseType.SECONDS;
+						}
+						lastRequest = newRequest;
+						pause = new PauseEvent(pauseMin, pauseMax, pauseType);
+					}
+				}
 			}
-		}
+		});
 	}
 
 	@Subscribe
-	public void onResponseReceivedEvent(ResponseReceivedEvent event) {
-		if (addRequest(event.getRequest())) {
-			if (pause != null) {
-				listElements.addElement(pause.toString());
-				listExecutedRequests.ensureIndexIsVisible(listElements.getSize() - 1);
-				listEvents.add(pause);
+	public void onResponseReceivedEvent(final ResponseReceivedEvent event) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				if (addRequest(event.getRequest())) {
+					if (pause != null) {
+						listElements.addElement(pause.toString());
+						listExecutedRequests.ensureIndexIsVisible(listElements.getSize() - 1);
+						listEvents.add(pause);
+					}
+					lastRequest = new Date();
+					processRequest(event);
+				}
 			}
-			lastRequest = new Date();
-			processRequest(event);
-		}
+		});
 	}
 
 	private void clearOldRunning() {
