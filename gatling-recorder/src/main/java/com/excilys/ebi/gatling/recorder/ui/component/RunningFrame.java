@@ -90,7 +90,7 @@ public class RunningFrame extends JFrame {
 	private PauseEvent pause;
 
 	private JTextField txtTag = new JTextField(10);
-	private JButton btnTag = new JButton("Set");
+	private JButton btnTag = new JButton("Add");
 	private DefaultListModel listElements = new DefaultListModel();
 	private JList listExecutedRequests = new JList(listElements);
 	private TextAreaPanel stringRequest = new TextAreaPanel("Request:");
