@@ -22,7 +22,7 @@ Gatling is built upon :
 
 # Status
 Currently under development.
-We aim for a 1.0 release by the end of november.
+We aim for a 1.0.0 release on november 20th.
 
 # Sponsors
 
