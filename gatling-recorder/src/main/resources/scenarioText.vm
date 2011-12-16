@@ -1,9 +1,4 @@
-	val PROTOCOL = "${protocol}"
-	val HOST = "${host}"
-#if (${port} != -1)
-	val PORT = "${port}"
-#end
-	val urlBase = ${urlBase}
+	val urlBase = "${protocol}://${host}#if(${port} != -1):${port}#end"
 
 	val httpConf = httpConfig.baseURL(urlBase)#if(${proxy.getPort()} != 0).proxy("${proxy.getHost()}", ${proxy.getPort()})#if(${proxy.getSslPort()} != 0).httpsPort(${proxy.getSslPort()})#end#if($!{proxy.getUsername()}).credentials("${proxy.getUsername()}", "${proxy.getPassword()}")#end#end
 
@@ -51,11 +46,11 @@
 		.fileBody("${date}_request_${event.getId()}.txt")
 	#end
 #if(${event.isWithCheck()})
-			.check(status.eq(${event.getResponse().getStatus().getCode()}))
+		.check(status.eq(${event.getResponse().getStatus().getCode()}))
 #end
 		)
 #end
 #end
-
-	val scnConf = scn.configure users 1 protocolConfig httpConf
-	runSimulation(scnConf)
+	runSimulation(
+		scn.configure users 1 protocolConfig httpConf
+	)
