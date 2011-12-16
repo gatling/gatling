@@ -12,7 +12,7 @@
 #set($otherHeaders = ${h.getValue().remove("headers")})
 	val ${h.getKey()} =#if($otherHeaders) $otherHeaders ++#end Map(
 #foreach (${header} in ${h.value.entrySet()})
-		"${header.getKey()}" -> "${header.getValue()}"#if(${foreach.hasNext}),
+		"${header.getKey()}" -> """${header.getValue()}"""#if(${foreach.hasNext}),
 #else
 
 		)
