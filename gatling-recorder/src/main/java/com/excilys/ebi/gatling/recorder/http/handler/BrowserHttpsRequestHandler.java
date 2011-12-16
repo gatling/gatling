@@ -32,8 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.excilys.ebi.gatling.recorder.configuration.ProxyConfig;
-import com.excilys.ebi.gatling.recorder.http.ssl.FirstEventIsUnsecuredConnectSslHandler;
-import com.excilys.ebi.gatling.recorder.http.ssl.SSLEngineFactory;
 
 public class BrowserHttpsRequestHandler extends AbstractBrowserRequestHandler {
 
@@ -56,9 +54,7 @@ public class BrowserHttpsRequestHandler extends AbstractBrowserRequestHandler {
 
 			// FIXME should issue an event display on the GUI
 			LOGGER.warn("Trying to connect to {}, make sure you've accepted the recorder certificate for this site", targetHostURI);
-			
-			// FIXME should already be in the pipeline
-			ctx.getPipeline().addFirst("ssl", new FirstEventIsUnsecuredConnectSslHandler(SSLEngineFactory.newServerSSLEngine()));
+
 			ctx.getChannel().write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
 
 			return null;

@@ -41,6 +41,7 @@ import com.excilys.ebi.gatling.recorder.configuration.ProxyConfig;
 import com.excilys.ebi.gatling.recorder.http.handler.BrowserHttpRequestHandler;
 import com.excilys.ebi.gatling.recorder.http.handler.BrowserHttpsRequestHandler;
 import com.excilys.ebi.gatling.recorder.http.handler.ServerHttpResponseHandler;
+import com.excilys.ebi.gatling.recorder.http.ssl.FirstEventIsUnsecuredConnectSslHandler;
 import com.excilys.ebi.gatling.recorder.http.ssl.SSLEngineFactory;
 
 public class BootstrapFactory {
@@ -69,13 +70,13 @@ public class BootstrapFactory {
 			public ChannelPipeline getPipeline() throws Exception {
 				ChannelPipeline pipeline = pipeline();
 
-				if (ssl) {
+				if (ssl)
 					pipeline.addLast("ssl", new SslHandler(SSLEngineFactory.newClientSSLEngine()));
-				}
 				pipeline.addLast("codec", new HttpClientCodec());
 				pipeline.addLast("inflater", new HttpContentDecompressor());
 				pipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE));
-//				pipeline.addLast("log", new LoggingHandler(InternalLogLevel.INFO));
+				// pipeline.addLast("log", new
+				// LoggingHandler(InternalLogLevel.INFO));
 				pipeline.addLast("gatling", new ServerHttpResponseHandler(browserCtx, browserRequest));
 
 				return pipeline;
@@ -96,11 +97,13 @@ public class BootstrapFactory {
 			@Override
 			public ChannelPipeline getPipeline() throws Exception {
 				ChannelPipeline pipeline = pipeline();
+				if (ssl)
+					pipeline.addLast("ssl", new FirstEventIsUnsecuredConnectSslHandler(SSLEngineFactory.newServerSSLEngine()));
 				pipeline.addLast("decoder", new HttpRequestDecoder());
 				pipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE));
 				pipeline.addLast("encoder", new HttpResponseEncoder());
 				pipeline.addLast("deflater", new HttpContentCompressor());
-//				pipeline.addLast("log", new LoggingHandler(InternalLogLevel.INFO));
+				// pipeline.addLast("log", new LoggingHandler(InternalLogLevel.INFO));
 				if (ssl) {
 					pipeline.addLast("gatling", new BrowserHttpsRequestHandler(proxyConfig));
 				} else {

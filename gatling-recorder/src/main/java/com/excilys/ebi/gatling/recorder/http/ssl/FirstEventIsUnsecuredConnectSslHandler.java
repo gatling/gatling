@@ -33,16 +33,20 @@ public class FirstEventIsUnsecuredConnectSslHandler extends SslHandler {
 
 	@Override
 	public void handleUpstream(ChannelHandlerContext context, ChannelEvent evt) throws Exception {
-		sslEnabled.set(true);
-		super.handleUpstream(context, evt);
+		if (sslEnabled.get()) {
+			super.handleUpstream(context, evt);
+		} else {
+			context.sendUpstream(evt);
+		}
 	}
 
 	@Override
 	public void handleDownstream(ChannelHandlerContext context, ChannelEvent evt) throws Exception {
-
 		if (sslEnabled.get()) {
 			super.handleDownstream(context, evt);
 		} else {
+			// enable SSL once the CONNECT request has been replied to
+			sslEnabled.set(true);
 			context.sendDownstream(evt);
 		}
 	}
