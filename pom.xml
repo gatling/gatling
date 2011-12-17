@@ -76,6 +76,11 @@
 			<name>Scala Tools Nexus</name>
 			<url>http://nexus.scala-tools.org/content/repositories/releases</url>
 		</repository>
+		<repository>
+			<id>glassfish</id>
+			<name>glassfish</name>
+			<url>http://maven.glassfish.org/content/repositories/public</url>
+		</repository>
 	</repositories>
 
 	<properties>
@@ -102,7 +107,7 @@
 		<guava.version>10.0.1</guava.version>
 		<plexus.version>3.0</plexus.version>
 		<scopt.version>1.1.2</scopt.version>
-		<args4j.version>2.0.16</args4j.version>
+		<args4j.version>2.0.19</args4j.version>
 
 		<maven-assembly-plugin.version>2.2.1</maven-assembly-plugin.version>
 		<maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
