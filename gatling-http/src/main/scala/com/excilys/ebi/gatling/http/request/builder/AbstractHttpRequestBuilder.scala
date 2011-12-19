@@ -62,7 +62,7 @@ object AbstractHttpRequestBuilder {
  * @param credentials sets the credentials in case of Basic HTTP Authentication
  */
 abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val httpRequestActionBuilder: HttpRequestActionBuilder, method: String, urlFunction: Session => String,
-	queryParams: List[(Session => String, Session => String)], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
+	queryParams: List[(Session => String, Session => String)], headers: Map[String, Session => String], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
 		extends Logging {
 
 	/**
@@ -75,7 +75,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * @param followsRedirects sets the follow redirect option of AHC
 	 * @param credentials sets the credentials in case of Basic HTTP Authentication
 	 */
-	private[http] def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Session => String, queryParams: List[(Session => String, Session => String)], headers: Map[String, String], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
+	private[http] def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Session => String, queryParams: List[(Session => String, Session => String)], headers: Map[String, Session => String], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
 
 	/**
 	 * Stops defining the request and adds checks on the response
@@ -115,14 +115,14 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 *
 	 * @param header the header to add, eg: ("Content-Type", "application/json")
 	 */
-	def header(header: (String, String)): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers + (header._1 -> header._2), followsRedirects, credentials)
+	def header(header: (String, String)): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers + (header._1 -> interpolate(header._2)), followsRedirects, credentials)
 
 	/**
 	 * Adds several headers to the request at the same time
 	 *
 	 * @param givenHeaders a scala map containing the headers to add
 	 */
-	def headers(givenHeaders: Map[String, String]): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers ++ givenHeaders, followsRedirects, credentials)
+	def headers(givenHeaders: Map[String, String]): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers ++ givenHeaders.mapValues(interpolate(_)), followsRedirects, credentials)
 
 	/**
 	 * Sets the follow redirect option that will be applied on AHC
@@ -134,12 +134,12 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	/**
 	 * Adds Accept and Content-Type headers to the request set with "application/json" values
 	 */
-	def asJSON(): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers + (ACCEPT -> APPLICATION_JSON) + (CONTENT_TYPE -> APPLICATION_JSON), followsRedirects, credentials)
+	def asJSON(): B = header(ACCEPT, APPLICATION_JSON).header(CONTENT_TYPE, APPLICATION_JSON)
 
 	/**
 	 * Adds Accept and Content-Type headers to the request set with "application/xml" values
 	 */
-	def asXML(): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers + (ACCEPT -> APPLICATION_XML) + (CONTENT_TYPE -> APPLICATION_XML), followsRedirects, credentials)
+	def asXML(): B = header(ACCEPT, APPLICATION_XML).header(CONTENT_TYPE, APPLICATION_XML)
 
 	/**
 	 * Adds BASIC authentication to the request
@@ -162,7 +162,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 		addProxyTo(requestBuilder, session, isHttps)
 		addCookiesTo(requestBuilder, session)
 		addQueryParamsTo(requestBuilder, session)
-		addHeadersTo(requestBuilder, headers)
+		addHeadersTo(requestBuilder, headers, session)
 		addAuthenticationTo(requestBuilder, credentials)
 
 		requestBuilder
@@ -255,9 +255,9 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * @param requestBuilder the request builder to which the headers should be added
 	 * @param session the session of the current scenario
 	 */
-	private def addHeadersTo(requestBuilder: RequestBuilder, headers: Map[String, String]) = {
+	private def addHeadersTo(requestBuilder: RequestBuilder, headers: Map[String, Session => String], session: Session) = {
 		requestBuilder setHeaders (new FluentCaseInsensitiveStringsMap)
-		headers.foreach(header => requestBuilder addHeader (header._1, header._2))
+		headers.foreach(header => requestBuilder addHeader (header._1, header._2(session)))
 	}
 
 	/**
