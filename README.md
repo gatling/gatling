@@ -27,8 +27,8 @@ We aim for a 1.0.0 release on december 20th.
 # Sponsors
 
 [![eBusiness Information](https://github.com/excilys/gatling/wiki/img/ebi_logo.png)](https://github.com/excilys/gatling/wiki/Sponsors)&nbsp;&nbsp;&nbsp;&nbsp;
-[![Yourkit](https://github.com/excilys/gatling/wiki/img/yourkit_logo.png)](https://github.com/excilys/gatling/wiki/Sponsors)
-[![Highsoft AS](https://github.com/excilys/gatling/wiki/img/highsoft_logo.png)](https://github.com/excilys/gatling/wiki/Sponsors)&nbsp;&nbsp;&nbsp;&nbsp;
+[![Yourkit](https://github.com/excilys/gatling/wiki/img/yourkit_logo.png)](https://github.com/excilys/gatling/wiki/Sponsors)&nbsp;&nbsp;&nbsp;&nbsp;
+[![Highsoft AS](https://github.com/excilys/gatling/wiki/img/highsoft_logo.png)](https://github.com/excilys/gatling/wiki/Sponsors)
 
 YourKit is kindly supporting open source projects with its full-featured Java Profiler.
 YourKit, LLC is the creator of innovative and intelligent tools for profiling
