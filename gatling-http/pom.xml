@@ -21,24 +21,12 @@
 			<artifactId>async-http-client</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>se.scalablesolutions.akka</groupId>
-			<artifactId>akka-actor</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>se.scalablesolutions.akka</groupId>
-			<artifactId>akka-typed-actor</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.fusesource.scalate</groupId>
 			<artifactId>scalate-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.netty</groupId>
 			<artifactId>netty</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.aspectwerkz</groupId>
-			<artifactId>aspectwerkz</artifactId>
 		</dependency>
 	</dependencies>
 
