@@ -91,8 +91,10 @@ public class RunningFrame extends JFrame {
 
 	private JTextField txtTag = new JTextField(15);
 	private JButton btnTag = new JButton("Add");
-	private DefaultListModel listElements = new DefaultListModel();
-	private JList listExecutedRequests = new JList(listElements);
+	private DefaultListModel events = new DefaultListModel();
+	private JList executedEvents = new JList(events);
+	private DefaultListModel hostsCertificate = new DefaultListModel();
+	private JList requiredHostsCertificate = new JList(hostsCertificate);
 	private TextAreaPanel stringRequest = new TextAreaPanel("Request:");
 	private TextAreaPanel stringResponse = new TextAreaPanel("Response:");
 	private TextAreaPanel stringRequestBody = new TextAreaPanel("Request Body:");
@@ -124,12 +126,15 @@ public class RunningFrame extends JFrame {
 		final JButton btnStop = new JButton("Stop !");
 		btnStop.setSize(120, 30);
 
-		JScrollPane panelFilters = new JScrollPane(listExecutedRequests);
+		JScrollPane panelFilters = new JScrollPane(executedEvents);
 		panelFilters.setPreferredSize(new Dimension(300, 100));
 
 		stringRequest.setPreferredSize(new Dimension(330, 100));
 		JSplitPane requestResponsePane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(stringRequest), new JScrollPane(stringResponse));
 		final JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, requestResponsePane, stringRequestBody);
+
+		JScrollPane panelHostsCertificate = new JScrollPane(requiredHostsCertificate);
+		panelHostsCertificate.setPreferredSize(new Dimension(300, 100));
 
 		/* Layout */
 		GridBagConstraints gbc = new GridBagConstraints();
@@ -158,17 +163,34 @@ public class RunningFrame extends JFrame {
 
 		gbc.gridx = 0;
 		gbc.gridy = 1;
+		gbc.weightx = 0;
+		gbc.anchor = GridBagConstraints.LINE_START;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
+		add(new JLabel("Executed Events:"), gbc);
+
+		gbc.gridy = 2;
 		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbc.weightx = 1;
-		gbc.weighty = 0.25;
+		gbc.weighty = 0.20;
 		gbc.fill = GridBagConstraints.BOTH;
 		add(panelFilters, gbc);
 
-		gbc.gridy = 3;
+		gbc.gridy = 4;
 		gbc.weightx = 1;
-		gbc.weighty = 0.75;
+		gbc.weighty = 0.60;
 		gbc.fill = GridBagConstraints.BOTH;
 		add(sp, gbc);
+
+		gbc.gridy = 5;
+		gbc.weighty = 0;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
+		gbc.anchor = GridBagConstraints.CENTER;
+		add(new JLabel("Required Hosts Certificate:"), gbc);
+
+		gbc.gridy = 6;
+		gbc.weighty = 0.20;
+		gbc.gridwidth = GridBagConstraints.REMAINDER;
+		add(panelHostsCertificate, gbc);
 
 		/* Listeners */
 		btnTag.addActionListener(new ActionListener() {
@@ -176,18 +198,18 @@ public class RunningFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if (!txtTag.getText().equals(EMPTY)) {
 					TagEvent tag = new TagEvent(txtTag.getText());
-					listElements.addElement(tag.toString());
-					listExecutedRequests.ensureIndexIsVisible(listElements.getSize() - 1);
+					events.addElement(tag.toString());
+					executedEvents.ensureIndexIsVisible(events.getSize() - 1);
 					listEvents.add(tag);
 					txtTag.setText(EMPTY);
 				}
 			}
 		});
 
-		listExecutedRequests.addMouseListener(new MouseAdapter() {
+		executedEvents.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-				if (listExecutedRequests.getSelectedIndex() >= 0) {
-					Object obj = listEvents.get(listExecutedRequests.getSelectedIndex());
+				if (executedEvents.getSelectedIndex() >= 0) {
+					Object obj = listEvents.get(executedEvents.getSelectedIndex());
 					if (obj instanceof ResponseReceivedEvent) {
 						ResponseReceivedEvent event = (ResponseReceivedEvent) obj;
 						stringRequest.txt.setText(event.getRequest().toString());
@@ -248,10 +270,10 @@ public class RunningFrame extends JFrame {
 	public void onRequestReceivedEvent(final RequestReceivedEvent event) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
+
 				String header = event.getRequest().getHeader("Proxy-Authorization");
 				if (header != null) {
-					// Split on " " and take 2nd match (Basic
-					// credentialsInBase64==)
+					// Split on " " and take 2nd group (Basic credentialsInBase64==)
 					String credentials = new String(Base64.decodeBase64(header.split(" ")[1].getBytes()));
 					configuration.getProxy().setUsername(credentials.split(":")[0]);
 					configuration.getProxy().setPassword(credentials.split(":")[1]);
@@ -286,8 +308,8 @@ public class RunningFrame extends JFrame {
 			public void run() {
 				if (addRequest(event.getRequest())) {
 					if (pause != null) {
-						listElements.addElement(pause.toString());
-						listExecutedRequests.ensureIndexIsVisible(listElements.getSize() - 1);
+						events.addElement(pause.toString());
+						executedEvents.ensureIndexIsVisible(events.getSize() - 1);
 						listEvents.add(pause);
 					}
 					lastRequest = new Date();
@@ -298,7 +320,7 @@ public class RunningFrame extends JFrame {
 	}
 
 	private void clearOldRunning() {
-		listElements.removeAllElements();
+		events.removeAllElements();
 		stringRequest.txt.setText(EMPTY);
 		stringRequestBody.txt.setText(EMPTY);
 		stringResponse.txt.setText(EMPTY);
@@ -361,8 +383,8 @@ public class RunningFrame extends JFrame {
 			logger.error("Can't create URI from request uri (" + request.getUri() + ")" + ex.getStackTrace());
 		}
 
-		listElements.addElement(request.getMethod() + " | " + request.getUri());
-		listExecutedRequests.ensureIndexIsVisible(listElements.getSize() - 1);
+		events.addElement(request.getMethod() + " | " + request.getUri());
+		executedEvents.ensureIndexIsVisible(events.getSize() - 1);
 
 		int id = ++numberOfRequests;
 		event.setId(id);
