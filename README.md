@@ -20,9 +20,9 @@ Gatling is built upon :
 ...
 
 
-# Status
-Currently under development.
-We aim for a 1.0.0 release on december 20th.
+# Release Note
+
+* 1.0.0 released on december 20th 2011
 
 # Sponsors
 
