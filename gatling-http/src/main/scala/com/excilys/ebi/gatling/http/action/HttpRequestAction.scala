@@ -82,7 +82,7 @@ class HttpRequestAction(next: Action, request: HttpRequest, givenCheckBuilders: 
 	def execute(session: Session) = {
 
 		if (logger.isInfoEnabled())
-			logger.info("Sending Request '{}': Scenario '{}', UserId #{}", Array(request.name, session.scenarioName, session.userId))
+			logger.info("Sending Request '{}': Scenario '{}', UserId #{}", Array[Object](request.name, session.scenarioName, session.userId: Integer))
 
 		HttpRequestAction.CLIENT.executeRequest(request.getRequest(session), new GatlingAsyncHandler(session, checks, next, request.name))
 	}
