@@ -66,6 +66,7 @@ import org.slf4j.LoggerFactory;
 import com.excilys.ebi.gatling.recorder.configuration.Configuration;
 import com.excilys.ebi.gatling.recorder.configuration.Pattern;
 import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy;
+import com.excilys.ebi.gatling.recorder.http.event.BasicAuth;
 import com.excilys.ebi.gatling.recorder.http.event.PauseEvent;
 import com.excilys.ebi.gatling.recorder.http.event.RequestReceivedEvent;
 import com.excilys.ebi.gatling.recorder.http.event.ResponseReceivedEvent;
@@ -90,6 +91,7 @@ public class RunningFrame extends JFrame {
 	private Date startDate;
 	private Date lastRequest;
 	private PauseEvent pause;
+	private BasicAuth basicAuth = null;
 
 	private JTextField txtTag = new JTextField(15);
 	private JButton btnTag = new JButton("Add");
@@ -423,6 +425,22 @@ public class RunningFrame extends JFrame {
 		else
 			urls.put("url_" + id, requestUrlBase + uri.getPath());
 
+		String headerAuthorization = event.getRequest().getHeader("Authorization");
+		request.removeHeader("Authorization");
+		if (headerAuthorization != null) {
+			if (basicAuth == null) {
+				// Split on " " and take 2nd group (Basic credentialsInBase64==)
+				String credentials = new String(Base64.decodeBase64(headerAuthorization.split(" ")[1].getBytes()));
+				basicAuth = new BasicAuth(requestUrlBase, credentials.split(":")[0], credentials.split(":")[1]);
+				event.setBasicAuth(basicAuth);
+			} else {
+				if (requestUrlBase.equals(basicAuth.getUrlBase()))
+					event.setBasicAuth(basicAuth);
+				else
+					basicAuth = null;
+			}
+		}
+
 		/* Headers */
 		Map<String, String> requestHeaders = new TreeMap<String, String>();
 		for (Entry<String, String> entry : request.getHeaders())
@@ -511,6 +529,7 @@ public class RunningFrame extends JFrame {
 				dumpRequestBody(id, content);
 			}
 		}
+
 		listEvents.add(event);
 	}
 

@@ -32,6 +32,7 @@ public class ResponseReceivedEvent {
 	private boolean withBody;
 	private boolean withUrlBase;
 	private boolean withCheck;
+	private BasicAuth basicAuth;
 
 	public ResponseReceivedEvent(HttpRequest request, HttpResponse response) {
 		this.request = request;
@@ -53,7 +54,7 @@ public class ResponseReceivedEvent {
 	public void setRequestParams(Map<String, List<String>> requestParams) {
 		this.requestParams = requestParams;
 	}
-	
+
 	public String getHeadersId() {
 		return headersId;
 	}
@@ -93,4 +94,13 @@ public class ResponseReceivedEvent {
 	public void setWithCheck(boolean withCheck) {
 		this.withCheck = withCheck;
 	}
+
+	public BasicAuth getBasicAuth() {
+		return basicAuth;
+	}
+
+	public void setBasicAuth(BasicAuth basicAuth) {
+		this.basicAuth = basicAuth;
+	}
+
 }
