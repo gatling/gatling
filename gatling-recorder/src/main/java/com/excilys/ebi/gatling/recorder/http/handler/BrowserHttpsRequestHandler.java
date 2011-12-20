@@ -16,6 +16,7 @@
 package com.excilys.ebi.gatling.recorder.http.handler;
 
 import static com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory.getBootstrapFactory;
+import static com.excilys.ebi.gatling.recorder.http.event.RecorderEventBus.getEventBus;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -32,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.excilys.ebi.gatling.recorder.configuration.ProxyConfig;
+import com.excilys.ebi.gatling.recorder.http.event.SecuredHostConnectionEvent;
 
 public class BrowserHttpsRequestHandler extends AbstractBrowserRequestHandler {
 
@@ -52,8 +54,8 @@ public class BrowserHttpsRequestHandler extends AbstractBrowserRequestHandler {
 
 			targetHostURI = new URI("https://" + request.getUri());
 
-			// FIXME should issue an event display on the GUI
 			LOGGER.warn("Trying to connect to {}, make sure you've accepted the recorder certificate for this site", targetHostURI);
+			getEventBus().post(new SecuredHostConnectionEvent(targetHostURI));
 
 			ctx.getChannel().write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
 
