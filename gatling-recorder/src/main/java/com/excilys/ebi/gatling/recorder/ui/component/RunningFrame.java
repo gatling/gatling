@@ -57,6 +57,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.codehaus.plexus.util.Base64;
 import org.codehaus.plexus.util.SelectorUtils;
+import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.QueryStringDecoder;
 import org.slf4j.Logger;
@@ -68,6 +69,7 @@ import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy;
 import com.excilys.ebi.gatling.recorder.http.event.PauseEvent;
 import com.excilys.ebi.gatling.recorder.http.event.RequestReceivedEvent;
 import com.excilys.ebi.gatling.recorder.http.event.ResponseReceivedEvent;
+import com.excilys.ebi.gatling.recorder.http.event.SecuredHostConnectionEvent;
 import com.excilys.ebi.gatling.recorder.http.event.ShowConfigurationFrameEvent;
 import com.excilys.ebi.gatling.recorder.http.event.ShowRunningFrameEvent;
 import com.excilys.ebi.gatling.recorder.http.event.TagEvent;
@@ -177,7 +179,7 @@ public class RunningFrame extends JFrame {
 
 		gbc.gridy = 4;
 		gbc.weightx = 1;
-		gbc.weighty = 0.60;
+		gbc.weighty = 0.75;
 		gbc.fill = GridBagConstraints.BOTH;
 		add(sp, gbc);
 
@@ -188,7 +190,7 @@ public class RunningFrame extends JFrame {
 		add(new JLabel("Required Hosts Certificate:"), gbc);
 
 		gbc.gridy = 6;
-		gbc.weighty = 0.20;
+		gbc.weighty = 0.05;
 		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		add(panelHostsCertificate, gbc);
 
@@ -267,9 +269,20 @@ public class RunningFrame extends JFrame {
 	}
 
 	@Subscribe
+	public void onSecuredHostConnectionEvent(final SecuredHostConnectionEvent event) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				hostsCertificate.addElement(event.getHostURI());
+			}
+		});
+	}
+
+	@Subscribe
 	public void onRequestReceivedEvent(final RequestReceivedEvent event) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
+				if (event.getRequest().getMethod() == HttpMethod.CONNECT)
+					return;
 
 				String header = event.getRequest().getHeader("Proxy-Authorization");
 				if (header != null) {
