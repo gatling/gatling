@@ -17,6 +17,7 @@ package com.excilys.ebi.gatling.core.util
 
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.DateTime
+import org.joda.time.DateTimeZone
 
 /**
  * This object groups all utilities for dates
@@ -26,7 +27,7 @@ object DateHelper {
 	/**
 	 * Formatter for human readable dates (logs)
 	 */
-	private val resultDateTimeFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS")
+	private val resultDateTimeFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS").withZoneUTC
 
 	/**
 	 * Formatter for folder dates
@@ -39,7 +40,7 @@ object DateHelper {
 	 * @param string the date as a string
 	 * @return a date from a log string
 	 */
-	def parseResultDate(string: String) = DateTime.parse(string, resultDateTimeFormat);
+	def parseResultDate(string: String) = DateTime.parse(string, resultDateTimeFormat)
 
 	/**
 	 * Returns a log string from a date
