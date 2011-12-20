@@ -274,7 +274,8 @@ public class RunningFrame extends JFrame {
 	public void onSecuredHostConnectionEvent(final SecuredHostConnectionEvent event) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				hostsCertificate.addElement(event.getHostURI());
+				if (!hostsCertificate.contains(event.getHostURI()))
+					hostsCertificate.addElement(event.getHostURI());
 			}
 		});
 	}
