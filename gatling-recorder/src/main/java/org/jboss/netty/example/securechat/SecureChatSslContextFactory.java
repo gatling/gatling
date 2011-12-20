@@ -69,12 +69,13 @@ public class SecureChatSslContextFactory {
 
 			byte[] data = new byte[2048];
 			InputStream in = ClassLoader.getSystemResourceAsStream("gatling.jks");
+			char[] gatlingChars = "gatling".toCharArray();
 			in.read(data);
-			ks.load(new ByteArrayInputStream(data), "gatling".toCharArray());
+			ks.load(new ByteArrayInputStream(data), gatlingChars);
 
 			// Set up key manager factory to use our key store
 			KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
-			kmf.init(ks, "gatling".toCharArray());
+			kmf.init(ks, gatlingChars);
 
 			// Initialize the SSLContext to work with our key managers.
 			serverContext = SSLContext.getInstance(PROTOCOL);
