@@ -8,75 +8,48 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Gatling Stats - <%= pageTitle %></title>
 <link rel="shortcut icon" type="image/x-icon" href="style/favicon.ico"/>
-<link href="style/style_new.css" rel="stylesheet" type="text/css" />
+<link href="style/style.css" rel="stylesheet" type="text/css" />
 <% for (jsFile <- jsFiles) { %>
 <script type="text/javascript" src="js/<%= jsFile %>"></script>
 <% } %>
+<title>Gatling Stats - <%= pageTitle %></title>
 </head>
 <body>
 <div class="frise"></div>
-<div class="container">
-<div class="head">
-	<a href="#URL_SITE" title="Accueil"><img alt="Gatling" src="style/logo.png"/></a>
-</div>
-
-
-<div class="main index">
-<div class="cadre">
-			<div class="onglet">
-					<img src="style/cible.png" alt="" />
-					<p>Simulation:&nbsp;&nbsp;&nbsp;<span><%= simulationDate %></span></p>
-			</div>
-		<div class="content">
-			<div class="sous-menu">
-				<div class="item<%if(!isDetails){%> ouvert<%}%>"><a href="active_sessions.html">GLOBAL</a></div>
-				<div class="item<%if(isDetails){%> ouvert<%}%>"><a id="details_link" href="#">DETAILS</a></div>
-			</div>
-			<div class="content-in">
-				<h1><span>> </span><%= pageTitle %></h1>
-				<div class="article">
-					<%= pageContent %>
+<div class="container<%if(isDetails){%> details<%}else{%> global<%}%>">
+	<div class="head">
+		<a href="http://excilys.github.com/gatling" target="blank_" title="Accueil"><img alt="Gatling" src="style/logo.png"/></a>
+	</div>
+	<div class="main">
+		<div class="cadre">
+				<div class="onglet">
+						<img src="style/cible.png" alt="" />
+						<p>Simulation:&nbsp;&nbsp;&nbsp;<span><%= simulationDate %></span></p>
 				</div>
-			</div>
+				<div class="content">
+					<div class="sous-menu">
+						<div class="item<%if(!isDetails){%> ouvert<%}%>"><a href="active_sessions.html">GLOBAL</a></div>
+						<div class="item<%if(isDetails){%> ouvert<%}%>"><a id="details_link" href="#">DETAILS</a></div>
+					</div>
+					<div class="content-in">
+						<h1><span>> </span><%= pageTitle %></h1>
+						<div class="article">
+							<%= pageContent %>
+						</div>
+					</div>
+				</div>
 		</div>
-</div>
-</div>
-
-
-<div class="nav">
-	<ul></ul>
-</div>
-
+	</div>
+	<div class="nav">
+		<ul></ul>
+	</div>
 </div>
 <div class="foot">
-	<div class="foot-in">
-		<a href="http://excilys.github.com/gatling" title="Accueil"><img alt="Gatling" src="style/logo-gatling.jpg"/></a>
-		<p>2012 Ebusiness Information - Tous droits réservés - Mentions légales</p>
-	</div>
+	<a href="http://excilys.github.com/gatling" title="Accueil"><img alt="Gatling" src="style/logo-gatling.jpg"/></a>
 </div>
 <script type="text/javascript">
 		$(document).ready(function() {
-			$('.content').css('height', function() {
-				var c = 0;
-				var content = $('.content').height();
-				var nav = $('.nav').height();
-				var info = $('.infos').height();
-				if (nav > info){
-						c = nav;
-				}else{
-						c = info;
-				}
-				if (c > content){
-					var valeur= parseInt(c) + parseInt("150");
-					var valeur2= parseInt(c) + parseInt("250");
-				}else{
-					var valeur2= parseInt(content) + parseInt("250");		
-				}
-				$('.container').css('height', valeur2);
-			return valeur;
-			});
 			setDetailsLinkUrl();
 			<% if(isDetails){%>
 			setDetailsMenu();
