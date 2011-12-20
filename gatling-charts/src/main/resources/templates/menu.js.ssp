@@ -1,9 +1,17 @@
 <%@ val requestLinks: scala.collection.Iterable[(String,Option[String],String)] %>
+<%@ val firstLink: (String,Option[String],String) = requestLinks.head %>
 
-$(document).ready(function() { 
-	$("#details ul").append("<%= requestLinks.map{ entry => "<li><a href='" + entry._1 + "' " + (if(entry._2.isDefined) "title='" + entry._2.get + "'" else "") + ">" + entry._3 + "</a></li>" } %>");
-	setActiveMenu();
-});
+function setDetailsLinkUrl(){
+    $("#details_link").attr('href', '<%= firstLink._1 %>');
+}
+
+function setDetailsMenu(){
+    $(".nav ul").append("<%= requestLinks.map{ entry => "<li><a href='" + entry._1 + "' " + (if(entry._2.isDefined) "title='" + entry._2.get + "'" else "") + ">" + entry._3 + "</a></li>" } %>");
+}
+
+function setGlobalMenu(){
+    $(".nav ul").append("<li><a href='active_sessions.html'>Active Sessions</a></li><li><a href='requests.html'>Requests per Second</a></li>");
+}
 
 function getLink(link){
 	var a = link.split('/');
@@ -11,9 +19,9 @@ function getLink(link){
 }
  
 function setActiveMenu(){
-	$("#menu a").each(function(){
+	$(".nav a").each(function(){
 		if($(this).attr('href') == getLink(window.location.pathname)){
-			$(this).parent().attr('class', 'active_link');
+			$(this).parent().attr('class', 'on');
 			return false;
 		}
 	});

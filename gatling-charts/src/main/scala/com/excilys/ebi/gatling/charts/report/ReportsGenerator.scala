@@ -23,11 +23,11 @@ import com.excilys.ebi.gatling.charts.component.impl.ComponentLibraryImpl
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.menuFile
 import com.excilys.ebi.gatling.charts.loader.DataLoader
-import com.excilys.ebi.gatling.charts.template.{PageTemplate, MenuTemplate}
+import com.excilys.ebi.gatling.charts.template.{ PageTemplate, MenuTemplate }
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{styleFolder, jsFolder, GATLING_ASSETS_STYLE_FOLDER, GATLING_ASSETS_JS_FOLDER}
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{ styleFolder, jsFolder, GATLING_ASSETS_STYLE_FOLDER, GATLING_ASSETS_JS_FOLDER }
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.util.FileHelper.{formatToFilename, HTML_EXTENSION}
+import com.excilys.ebi.gatling.core.util.FileHelper.{ formatToFilename, HTML_EXTENSION }
 
 object ReportsGenerator extends Logging {
 
@@ -46,6 +46,8 @@ object ReportsGenerator extends Logging {
 
 		generateMenu(runOn, dataLoader)
 
+		PageTemplate.setRunOn(dataLoader.simulationRunOn)
+
 		reportGenerators.foreach(_.generate)
 
 		PageTemplate.TEMPLATE_ENGINE.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown
@@ -53,10 +55,12 @@ object ReportsGenerator extends Logging {
 
 	private def generateMenu(runOn: String, dataLoader: DataLoader) = {
 
+		val maxLength = 50
+
 		val requestLinks: Iterable[(String, Option[String], String)] = dataLoader.requestNames.map {
 			requestName =>
-				val title = if (requestName.length > 36) Some(requestName.substring(8)) else None
-				val printedName = if (requestName.length > 36) requestName.substring(8, 36) + "..." else requestName.substring(8)
+				val title = if (requestName.length > maxLength) Some(requestName.substring(8)) else None
+				val printedName = if (requestName.length > maxLength) requestName.substring(8, maxLength) + "..." else requestName.substring(8)
 				(formatToFilename(requestName) + HTML_EXTENSION, title, printedName)
 		}
 

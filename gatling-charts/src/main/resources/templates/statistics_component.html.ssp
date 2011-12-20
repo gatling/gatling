@@ -5,24 +5,22 @@
 <%@ val max: Int %>
 <%@ val average: Double %>
 <%@ val stdDeviation: Double %>
-<div id="statistics">
-	<div class="green_block">
-		<h1>Statistics</h1>
-		<ul>
-			<li>Executed <b><%= numberOfRequests %></b> times
-				<ul>
-					<li>Successes: <%= numberOfSuccesses %></li>
-					<li>Failures: <%= numberOfFailures %></li>
-				</ul>
-			</li>
-			<li>Response Time:
-				<ul>
-					<li>Min: <b><%= min %>ms</b></li>
-					<li>Max: <b><%= max %>ms</b></li>
-					<li>Average: <b><%= average %>ms</b></li>
-					<li>Standard Deviation: <b><%= stdDeviation %></b></li>
-				</ul>
-			</li>
-		</ul>
-	</div>
-</div>
+
+						<div class="infos">
+							<div class="titre">STATISTICS</div>
+							<div class="infos-in">
+								<div class="repli"></div>								
+								<div class="info">
+								<div class="decor">
+										<h2 class="first">Executed <%= numberOfRequests %> times</h2>
+										<p>> Successes:<strong><%= numberOfSuccesses %></strong>  </p>
+										<p>> Failures:<strong><%= numberOfFailures %></strong>  </p>
+										<h2 class="second">Response Time</h2>
+										<p>> Min: <strong><%= min %>ms</strong></p>
+										<p>> Max: <strong><%= max %>ms</strong></p>
+										<p>> Average: <strong><%= average %>ms</strong></p>
+										<p>> Standard Deviation: <strong><%= stdDeviation %></strong></p>
+								</div>
+								</div>
+							</div>
+						</div>

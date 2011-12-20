@@ -31,6 +31,7 @@ import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus
 import com.excilys.ebi.gatling.core.util.DateHelper.parseResultDate
+import com.excilys.ebi.gatling.core.util.DateHelper.parseFileNameDateFormat
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 import scala.collection.mutable.{ Seq => MSeq }
 
@@ -101,4 +102,6 @@ class DataLoader(runOn: String) extends Logging {
 	val requestNames: MSeq[String] = data.map(_.requestName).distinct.filterNot(value => value == END_OF_SCENARIO || value == START_OF_SCENARIO)
 
 	val scenarioNames: MSeq[String] = data.map(_.scenarioName).distinct
+
+	val simulationRunOn = parseFileNameDateFormat(data.head.runOn)
 }

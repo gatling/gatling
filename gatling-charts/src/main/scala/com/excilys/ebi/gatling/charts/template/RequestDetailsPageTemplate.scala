@@ -17,4 +17,4 @@ package com.excilys.ebi.gatling.charts.template
 import com.excilys.ebi.gatling.charts.component.Component
 
 class RequestDetailsPageTemplate(requestName: String, rtChartComponent: Component, statsTextComponent: Component, scatterChartComponent: Component, indicChartComponent: Component)
-	extends PageTemplate(requestName, statsTextComponent, indicChartComponent, rtChartComponent, scatterChartComponent)
+	extends PageTemplate(requestName, true, statsTextComponent, indicChartComponent, rtChartComponent, scatterChartComponent)

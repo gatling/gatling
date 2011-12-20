@@ -15,19 +15,24 @@
  */
 package com.excilys.ebi.gatling.charts.template
 import org.fusesource.scalate.TemplateEngine
-
 import com.excilys.ebi.gatling.charts.component.Component
 import com.excilys.ebi.gatling.charts.config.ChartsFiles._
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.PathHelper._
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.core.util.DateHelper._
+import org.joda.time.DateTime
 
 object PageTemplate {
 	val TEMPLATE_ENGINE = new TemplateEngine
 	TEMPLATE_ENGINE.allowReload = false
 	TEMPLATE_ENGINE.escapeMarkup = false
+
+	private var runOn: DateTime = null
+	def setRunOn(runOn: DateTime) = { PageTemplate.runOn = runOn }
 }
 
-abstract class PageTemplate(title: String, components: Component*) extends Logging {
+abstract class PageTemplate(title: String, isDetails: Boolean, components: Component*) extends Logging {
 
 	val jsFiles = (Seq(JQUERY_FILE, MENU_FILE) ++ getAdditionnalJSFiles).distinct
 
@@ -42,6 +47,8 @@ abstract class PageTemplate(title: String, components: Component*) extends Loggi
 			Map("jsFiles" -> jsFiles,
 				"pageTitle" -> title,
 				"pageContent" -> getContent,
-				"javascript" -> getJavascript))
+				"javascript" -> getJavascript,
+				"isDetails" -> isDetails,
+				"simulationDate" -> printReadableDate(PageTemplate.runOn)))
 	}
 }

@@ -29,6 +29,8 @@ object DateHelper {
 	 */
 	private val resultDateTimeFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS").withZoneUTC
 
+	private val readableDateTimeFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+
 	/**
 	 * Formatter for folder dates
 	 */
@@ -41,6 +43,8 @@ object DateHelper {
 	 * @return a date from a log string
 	 */
 	def parseResultDate(string: String) = DateTime.parse(string, resultDateTimeFormat)
+
+	def parseFileNameDateFormat(string: String) = DateTime.parse(string, fileNameDateTimeFormat)
 
 	/**
 	 * Returns a log string from a date
@@ -57,4 +61,6 @@ object DateHelper {
 	 * @return a folder name from a date
 	 */
 	def printFileNameDate(dateTime: DateTime) = fileNameDateTimeFormat.print(dateTime)
+
+	def printReadableDate(dateTime: DateTime) = readableDateTimeFormat.print(dateTime)
 }
