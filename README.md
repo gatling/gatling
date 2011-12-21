@@ -26,7 +26,8 @@ Gatling is built upon :
 
 # Questions, help?
 
-Read teh documentation on the [Wiki](https://github.com/excilys/gatling/wiki).
+Read the documentation on the [Wiki](https://github.com/excilys/gatling/wiki).
+
 Join the [Gatling User Group](https://groups.google.com/group/gatling).
 
 # Sponsors
