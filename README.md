@@ -25,7 +25,9 @@ Gatling is built upon :
 * 1.0.0 released on december 20th 2011
 
 # Questions, help?
-Join the [Gatling User Group](https://groups.google.com/group/gatling)!
+
+Read teh documentation on the [Wiki](https://github.com/excilys/gatling/wiki).
+Join the [Gatling User Group](https://groups.google.com/group/gatling).
 
 # Sponsors
 
