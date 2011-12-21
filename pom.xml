@@ -24,7 +24,7 @@
 	</licenses>
 
 	<scm>
-		<connection>scm:git:git://github.com/excilys/gatling.git</connection>
+		<connection>scm:git:git@github.com:excilys/gatling.git</connection>
 		<developerConnection>scm:git:git@github.com:excilys/gatling.git</developerConnection>
 		<url>https://github.com/excilys/gatling</url>
 	</scm>

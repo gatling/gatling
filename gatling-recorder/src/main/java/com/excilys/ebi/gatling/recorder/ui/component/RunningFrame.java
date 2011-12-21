@@ -189,7 +189,7 @@ public class RunningFrame extends JFrame {
 		gbc.weighty = 0;
 		gbc.gridwidth = GridBagConstraints.REMAINDER;
 		gbc.anchor = GridBagConstraints.CENTER;
-		add(new JLabel("Required Hosts Certificate:"), gbc);
+		add(new JLabel("Secured hosts requiring accepting a certificate:"), gbc);
 
 		gbc.gridy = 6;
 		gbc.weighty = 0.05;
