@@ -15,7 +15,7 @@ Gatling is for you!
 Gatling is built upon :
 
 * [Async Http Client](https://github.com/sonatype/async-http-client) and [Netty](http://www.jboss.org/netty) for non blocking HTTP
-* Akka for actions (requests, pauses, assertions, etc...) modeling and orchestration
+* [Akka](http://akka.io) for actions (requests, pauses, assertions, etc...) modeling and orchestration
 * Scala interpreter for scripting
 ...
 
@@ -23,6 +23,9 @@ Gatling is built upon :
 # Release Note
 
 * 1.0.0 released on december 20th 2011
+
+# Questions, help?
+Join the [Gatling User Groupe](https://groups.google.com/group/gatling)!
 
 # Sponsors
 
