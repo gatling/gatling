@@ -75,10 +75,12 @@ class TextScriptInterpreter extends Interpreter {
 
 		logger.debug(scenario)
 
-		interpreter.bind("startDate", new DateHolder(startDate))
+		interpreter.beQuietDuring {
+			interpreter.bind("startDate", new DateHolder(startDate))
 
-		imports.foreach(interpreter.interpret(_))
-		interpreter.interpret(scenario)
+			imports.foreach(interpreter.interpret(_))
+			interpreter.interpret(scenario)
+		}
 		interpreter.close
 	}
 }
