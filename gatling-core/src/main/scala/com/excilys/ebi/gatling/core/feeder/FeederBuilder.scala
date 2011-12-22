@@ -23,6 +23,8 @@ abstract class FeederBuilder[B <: FeederSource] {
 	protected def sourceInstance: B
 
 	def queue = new QueueFeeder(sourceInstance)
-	
+
 	def random = new RandomFeeder(sourceInstance)
+
+	def circular = new CircularFeeder(sourceInstance)
 }

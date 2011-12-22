@@ -67,6 +67,11 @@
 			<artifactId>xml-apis</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>com.twitter</groupId>
+			<artifactId>util-core_2.9.1</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

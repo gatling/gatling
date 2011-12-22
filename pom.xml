@@ -80,6 +80,11 @@
 			<name>glassfish</name>
 			<url>http://maven.glassfish.org/content/repositories/public</url>
 		</repository>
+		<repository>
+			<id>twitter</id>
+			<name>Twitter Repository</name>
+			<url>http://maven.twttr.com</url>
+		</repository>
 	</repositories>
 
 	<properties>
@@ -107,6 +112,7 @@
 		<plexus.version>3.0</plexus.version>
 		<scopt.version>1.1.2</scopt.version>
 		<args4j.version>2.0.19</args4j.version>
+		<twitter-util.version>1.12.8</twitter-util.version>
 
 		<maven-assembly-plugin.version>2.2.1</maven-assembly-plugin.version>
 		<maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
@@ -316,6 +322,11 @@
 				<artifactId>args4j</artifactId>
 				<version>${args4j.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>com.twitter</groupId>
+				<artifactId>util-core_2.9.1</artifactId>
+				<version>${twitter-util.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -394,8 +405,7 @@
 						</execution>
 					</executions>
 				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings
-					only. It has no influence on the Maven build itself. -->
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
