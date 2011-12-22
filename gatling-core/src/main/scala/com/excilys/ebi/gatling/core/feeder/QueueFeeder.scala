@@ -18,11 +18,17 @@ import scala.collection.mutable.Queue
 import java.util.concurrent.ConcurrentLinkedQueue
 import scala.collection.JavaConversions._
 
+import akka.actor.Actor.registry
+
 class QueueFeeder(feederSource: FeederSource) extends Feeder(feederSource) {
 
 	val values = new ConcurrentLinkedQueue(feederSource.values)
 
-	def next: Map[String, String] = {
-		values.poll
-	}
+	def next: Map[String, String] =
+		Option(values.poll).getOrElse {
+			logger.error("There are not enough records in the feeder '{}'.\nPlease add records or use another feeder strategy.\nStopping simulation here...", feederSource.fileName)
+			registry.shutdownAll
+			sys.exit
+		}
+
 }

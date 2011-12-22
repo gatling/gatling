@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.feeder
+import com.excilys.ebi.gatling.core.log.Logging
 
-abstract class Feeder(feederSource: FeederSource) {
+abstract class Feeder(feederSource: FeederSource) extends Logging {
 	def next: Map[String, String]
 }
