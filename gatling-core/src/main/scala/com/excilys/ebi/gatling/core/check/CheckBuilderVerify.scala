@@ -23,11 +23,12 @@ import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy
 import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy.rangeToString
 import com.excilys.ebi.gatling.core.check.strategy.ListEqualityCheckStrategy
 import com.excilys.ebi.gatling.core.check.strategy.ListSizeCheckStrategy
+import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
 
 trait CheckBuilderVerify[B <: CheckBuilder[B, _]] extends CheckBuilderSave[B] { this: CheckBuilder[B, _] with CheckBuilderSave[B] =>
 	def verify(strategy: CheckStrategy) = newInstanceWithVerify(strategy)
-	def verify(strategy: CheckStrategy, expected: List[String]) = newInstanceWithVerify(strategy, expected)
-	def verify(strategy: CheckStrategy, expected: String) = newInstanceWithVerify(strategy, List(expected))
+	def verify(strategy: CheckStrategy, expected: List[String]) = newInstanceWithVerify(strategy, expected.map(interpolate(_)))
+	def verify(strategy: CheckStrategy, expected: String) = newInstanceWithVerify(strategy, List(interpolate(expected)))
 }
 
 trait CheckBuilderVerifyOne[B <: CheckBuilder[B, _]] extends CheckBuilderVerify[B] { this: CheckBuilder[B, _] with CheckBuilderSave[B] =>

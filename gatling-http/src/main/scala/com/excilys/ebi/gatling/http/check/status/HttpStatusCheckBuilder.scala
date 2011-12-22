@@ -48,10 +48,10 @@ object HttpStatusCheckBuilder {
  * @param strategy the strategy used to check
  * @param expected the expected value against which the extracted value will be checked
  */
-class HttpStatusCheckBuilder(strategy: CheckStrategy, expected: List[String], saveAs: Option[String])
+class HttpStatusCheckBuilder(strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String])
 		extends HttpCheckBuilder[HttpStatusCheckBuilder]((s: Session) => EMPTY, None, strategy, expected, saveAs, StatusReceived) {
 
-	private[http] def newInstance(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String], when: HttpPhase) =
+	private[http] def newInstance(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String], when: HttpPhase) =
 		new HttpStatusCheckBuilder(strategy, expected, saveAs)
 
 	private[gatling] def newInstanceWithFindOne(occurrence: Int) =
@@ -59,7 +59,7 @@ class HttpStatusCheckBuilder(strategy: CheckStrategy, expected: List[String], sa
 
 	private[gatling] def newInstanceWithFindAll = throw new UnsupportedOperationException("Status checks are single valued")
 
-	private[gatling] def newInstanceWithVerify(strategy: CheckStrategy, expected: List[String] = Nil) =
+	private[gatling] def newInstanceWithVerify(strategy: CheckStrategy, expected: List[Session => String] = Nil) =
 		new HttpStatusCheckBuilder(strategy, expected, saveAs) with CheckBuilderSave[HttpCheckBuilder[HttpStatusCheckBuilder]]
 
 	private[gatling] def build: HttpCheck = new HttpStatusCheck(expected, saveAs)

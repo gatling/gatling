@@ -47,6 +47,7 @@ import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
 import akka.actor.Actor.registry.actorFor
 import scala.collection.JavaConversions._
 import com.excilys.ebi.gatling.core.check.extractor.MultiValuedExtractor
+import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
@@ -178,7 +179,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actio
 					val extractedValue = extractor.extract(expression)
 					logger.debug("Extracted value: {}", extractedValue)
 
-					if (!check.check(extractedValue)) {
+					if (!check.check(extractedValue, session)) {
 						if (logger.isWarnEnabled)
 							logger.warn("{} failed : received '{}' instead of '{}' for '{}'", Array[Object](check, extractedValue, check.expected, expression))
 

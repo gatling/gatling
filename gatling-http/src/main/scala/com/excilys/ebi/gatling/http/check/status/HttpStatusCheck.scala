@@ -28,5 +28,5 @@ import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy
  * @param to the optional session key in which the status code will be stored
  * @param expected the expected value against which the extracted value will be checked
  */
-class HttpStatusCheck(expected: List[String], saveAs: Option[String])
+class HttpStatusCheck(expected: List[Session => String], saveAs: Option[String])
 	extends HttpCheck((s: Session) => EMPTY, HttpStatusExtractorFactory, InRangeCheckStrategy, expected, saveAs, CompletePageReceived)

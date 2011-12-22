@@ -46,10 +46,10 @@ object HttpBodyRegexCheckBuilder {
  * @param expected the expected value against which the extracted value will be checked
  * @param saveAs the optional session key in which the extracted value will be stored
  */
-class HttpBodyRegexCheckBuilder(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String])
+class HttpBodyRegexCheckBuilder(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String])
 		extends HttpCheckBuilder[HttpBodyRegexCheckBuilder](what, occurrence, strategy, expected, saveAs, CompletePageReceived) {
 
-	def newInstance(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[String], saveAs: Option[String], when: HttpPhase) =
+	def newInstance(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String], when: HttpPhase) =
 		new HttpBodyRegexCheckBuilder(what, occurrence, strategy, expected, saveAs)
 
 	def newInstanceWithFindOne(occurrence: Int) =
@@ -58,7 +58,7 @@ class HttpBodyRegexCheckBuilder(what: Session => String, occurrence: Option[Int]
 	def newInstanceWithFindAll =
 		new HttpBodyRegexCheckBuilder(what, None, strategy, expected, saveAs) with CheckBuilderVerifyAll[HttpCheckBuilder[HttpBodyRegexCheckBuilder]]
 
-	def newInstanceWithVerify(strategy: CheckStrategy, expected: List[String] = Nil) =
+	def newInstanceWithVerify(strategy: CheckStrategy, expected: List[Session => String] = Nil) =
 		new HttpBodyRegexCheckBuilder(what, occurrence, strategy, expected, saveAs) with CheckBuilderSave[HttpCheckBuilder[HttpBodyRegexCheckBuilder]]
 
 	private[gatling] def build: HttpCheck = new HttpBodyRegexCheck(what, occurrence, strategy, expected, saveAs: Option[String])
