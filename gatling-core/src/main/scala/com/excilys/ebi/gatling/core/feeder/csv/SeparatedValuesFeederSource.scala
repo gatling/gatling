@@ -26,7 +26,7 @@ class SeparatedValuesFeederSource(fileName: String, separator: String) extends F
 
 	val headers = lines.next.split(separator).toList
 
-	val values = lines.map { line =>
+	val values = lines.filterNot(_.isEmpty).map { line =>
 		(headers zip line.split(separator).toList).toMap[String, String]
 	}.toList
 }
