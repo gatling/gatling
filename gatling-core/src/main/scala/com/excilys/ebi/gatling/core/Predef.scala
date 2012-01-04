@@ -26,6 +26,7 @@ import com.excilys.ebi.gatling.core.structure.ChainBuilder
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesFeederBuilder
 import org.joda.time.DateTime
 import java.util.concurrent.TimeUnit
+import com.excilys.ebi.gatling.core.feeder.database.DatabaseFeederBuilder
 
 object Predef {
 	implicit def toSimpleActionBuilder(sessionFunction: (Session, Action) => Unit): SimpleActionBuilder = SimpleActionBuilder.toSimpleActionBuilder(sessionFunction)
@@ -34,6 +35,16 @@ object Predef {
 	def csv(fileName: String) = SeparatedValuesFeederBuilder.csv(fileName)
 	def ssv(fileName: String) = SeparatedValuesFeederBuilder.ssv(fileName)
 	def tsv(fileName: String) = SeparatedValuesFeederBuilder.tsv(fileName)
+
+	def databaseFeeder(driverClassName: String, url: String, username: String, password: String, sql: String) = DatabaseFeederBuilder.database(driverClassName, url, username, password, sql)
+	def db2Feeder(url: String, username: String, password: String, sql: String) = DatabaseFeederBuilder.db2(url, username, password, sql)
+	def hsqldbFeeder(url: String, username: String, password: String, sql: String) = DatabaseFeederBuilder.hsqldb(url, username, password, sql)
+	def h2Feeder(url: String, username: String, password: String, sql: String) = DatabaseFeederBuilder.h2(url, username, password, sql)
+	def mssqlFeeder(url: String, username: String, password: String, sql: String) = DatabaseFeederBuilder.mssql(url, username, password, sql)
+	def mysqlFeeder(url: String, username: String, password: String, sql: String) = DatabaseFeederBuilder.mysql(url, username, password, sql)
+	def oracleFeeder(url: String, username: String, password: String, sql: String) = DatabaseFeederBuilder.oracle(url, username, password, sql)
+	def postgresqlFeeder(url: String, username: String, password: String, sql: String) = DatabaseFeederBuilder.postgresql(url, username, password, sql)
+	def sybaseFeeder(url: String, username: String, password: String, sql: String) = DatabaseFeederBuilder.sybase(url, username, password, sql)
 
 	type Session = session.Session
 
