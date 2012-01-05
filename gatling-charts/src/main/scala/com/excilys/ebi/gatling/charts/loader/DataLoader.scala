@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.loader
-import java.util.{ Comparator => JComparator }
-import java.util.{ HashMap => JHashMap, Collections => JCollections, ArrayList => JArrayList }
-
-import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.immutable.SortedMap
+import scala.collection.mutable.{ HashMap, Buffer, ArrayBuffer }
 import scala.io.Source
 
 import org.joda.time.DateTime
@@ -30,44 +27,44 @@ import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus
-import com.excilys.ebi.gatling.core.util.DateHelper.parseResultDate
-import com.excilys.ebi.gatling.core.util.DateHelper.parseFileNameDateFormat
+import com.excilys.ebi.gatling.core.util.DateHelper.{ parseResultDate, parseFileNameDateFormat }
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
-import scala.collection.mutable.{ Seq => MSeq }
 
 class DataLoader(runOn: String) extends Logging {
 
-	private val data: MSeq[ResultLine] = {
+	private val data: Buffer[ResultLine] = {
 
-		val data = new JArrayList[ResultLine]
+		val buffer = new ArrayBuffer[ResultLine]
 
 		// use caches in order to reuse String instances instead of holding multiple references of equal Strings
-		val stringCache = new JHashMap[String, String]
-		val intCache = new JHashMap[String, Int]
-		val dateTimeCache = new JHashMap[String, DateTime]
+		val stringCache = new HashMap[String, String]
+		val intCache = new HashMap[String, Int]
+		val dateTimeCache = new HashMap[String, DateTime]
 
 		def cachedString(string: String) = {
-			if (!stringCache.containsKey(string)) {
+			stringCache.get(string).getOrElse {
 				val newString = new String(string)
 				stringCache.put(newString, newString)
+				newString
 			}
-			stringCache.get(string)
 		}
 
 		def cachedInt(string: String) = {
-			if (!intCache.containsKey(string)) {
+			intCache.get(string).getOrElse {
 				val newString = new String(string)
-				intCache.put(newString, newString.toInt)
+				val int = newString.toInt
+				intCache.put(newString, int)
+				int
 			}
-			intCache.get(string)
 		}
 
 		def cachedDateTime(string: String) = {
-			if (!dateTimeCache.containsKey(string)) {
+			dateTimeCache.get(string).getOrElse {
 				val newString = new String(string)
-				dateTimeCache.put(newString, parseResultDate(newString))
+				val dateTime = parseResultDate(newString)
+				dateTimeCache.put(newString, dateTime)
+				dateTime
 			}
-			dateTimeCache.get(string)
 		}
 
 		for (line <- Source.fromFile(simulationLogFile(runOn).jfile, CONFIG_ENCODING).getLines) {
@@ -75,33 +72,28 @@ class DataLoader(runOn: String) extends Logging {
 				// If we have a well formated result
 				case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage) =>
 
-					data.add(ResultLine(cachedString(runOn), cachedString(scenarioName), cachedInt(userId), cachedString(actionName), cachedDateTime(executionStartDate), cachedInt(executionDuration), ResultStatus.withName(resultStatus), cachedString(resultMessage)))
+					buffer += ResultLine(cachedString(runOn), cachedString(scenarioName), cachedInt(userId), cachedString(actionName), cachedDateTime(executionStartDate), cachedInt(executionDuration), ResultStatus.withName(resultStatus), cachedString(resultMessage))
 				// Else, if the resulting data is not well formated print an error message
 				case _ => logger.warn("simulation.log had bad end of file, statistics will be generated but may not be accurate")
 			}
 		}
 
-		JCollections.sort(data, new JComparator[ResultLine] {
-			def compare(o1: ResultLine, o2: ResultLine) = {
-				o1.executionStartDate.getMillis.compare(o2.executionStartDate.getMillis)
-			}
-		})
-		data
+		buffer.sortBy(_.executionStartDate.getMillis)
 	}
 
-	val dataIndexedByDateInSeconds: SortedMap[DateTime, MSeq[ResultLine]] = SortedMap(data.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
+	val dataIndexedByDateInSeconds: SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(data.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
 
-	def dataIndexedByRequestName(requestName: String): MSeq[ResultLine] = data.filter(_.requestName == requestName)
+	def dataIndexedByRequestName(requestName: String): Buffer[ResultLine] = data.filter(_.requestName == requestName)
 
-	def dataIndexedByRequestNameAndDateInMilliseconds(requestName: String): SortedMap[DateTime, MSeq[ResultLine]] = SortedMap(dataIndexedByRequestName(requestName).groupBy(_.executionStartDate).toSeq: _*)
+	def dataIndexedByRequestNameAndDateInMilliseconds(requestName: String): SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(dataIndexedByRequestName(requestName).groupBy(_.executionStartDate).toSeq: _*)
 
-	def dataIndexedByRequestNameAndDateInSeconds(requestName: String): SortedMap[DateTime, MSeq[ResultLine]] = SortedMap(dataIndexedByRequestName(requestName).groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
+	def dataIndexedByRequestNameAndDateInSeconds(requestName: String): SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(dataIndexedByRequestName(requestName).groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
 
-	def dataIndexedByScenarioNameAndDateInSeconds(scenarioName: String): SortedMap[DateTime, MSeq[ResultLine]] = SortedMap(data.filter(_.scenarioName == scenarioName).groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
+	def dataIndexedByScenarioNameAndDateInSeconds(scenarioName: String): SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(data.filter(_.scenarioName == scenarioName).groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
 
-	val requestNames: MSeq[String] = data.map(_.requestName).distinct.filterNot(value => value == END_OF_SCENARIO || value == START_OF_SCENARIO)
+	val requestNames: Buffer[String] = data.map(_.requestName).distinct.filterNot(value => value == END_OF_SCENARIO || value == START_OF_SCENARIO)
 
-	val scenarioNames: MSeq[String] = data.map(_.scenarioName).distinct
+	val scenarioNames: Buffer[String] = data.map(_.scenarioName).distinct
 
 	val simulationRunOn = parseFileNameDateFormat(data.head.runOn)
 }
