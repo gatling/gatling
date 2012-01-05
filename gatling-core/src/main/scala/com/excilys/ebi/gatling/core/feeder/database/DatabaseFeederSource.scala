@@ -40,7 +40,7 @@ class DatabaseFeederSource(driverClassName: String, url: String, username: Strin
 				results += (columnNames zip vals).toMap[String, String]
 			}
 
-			results.toList
+			results
 
 		} finally {
 			connection.close

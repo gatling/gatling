@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.feeder
+import scala.collection.mutable.Buffer
 
 abstract class FeederSource(val name: String) {
-	val values: List[Map[String, String]]
+	val values: Buffer[Map[String, String]]
 }
