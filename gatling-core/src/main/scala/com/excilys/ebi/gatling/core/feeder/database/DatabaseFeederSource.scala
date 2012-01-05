@@ -17,8 +17,6 @@ package com.excilys.ebi.gatling.core.feeder.database
 import java.sql.ResultSet.{ TYPE_FORWARD_ONLY, CONCUR_READ_ONLY }
 import java.sql.DriverManager
 
-import scala.collection.mutable.ListBuffer
-
 import com.excilys.ebi.gatling.core.feeder.FeederSource
 
 class DatabaseFeederSource(driverClassName: String, url: String, username: String, password: String, sql: String) extends FeederSource(sql) {
@@ -34,13 +32,16 @@ class DatabaseFeederSource(driverClassName: String, url: String, username: Strin
 
 			val columnNames = for (i <- 1 to rsmd.getColumnCount) yield rsmd.getColumnName(i)
 
-			val results = new ListBuffer[Map[String, String]]
-			while (resultSet.next) {
-				val vals = for (i <- 1 to rsmd.getColumnCount) yield resultSet.getString(i)
-				results += (columnNames zip vals).toMap[String, String]
-			}
+			new Iterator[Map[String, String]]() {
 
-			results
+				def hasNext = !resultSet.isLast
+
+				def next = {
+					resultSet.next
+					val vals = for (i <- 1 to rsmd.getColumnCount) yield resultSet.getString(i)
+					(columnNames zip vals).toMap[String, String]
+				}
+			}.toBuffer
 
 		} finally {
 			connection.close

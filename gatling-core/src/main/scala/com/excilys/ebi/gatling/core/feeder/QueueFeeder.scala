@@ -22,13 +22,11 @@ import com.excilys.ebi.gatling.core.log.Logging
 
 class QueueFeeder(feederSource: FeederSource) extends Feeder(feederSource) with Logging {
 
-	val values = new ConcurrentLinkedQueue(feederSource.values)
+	private val values = new ConcurrentLinkedQueue(feederSource.values)
 
-	def next: Map[String, String] =
-		Option(values.poll).getOrElse {
-			logger.error("There are not enough records in the feeder '{}'.\nPlease add records or use another feeder strategy.\nStopping simulation here...", feederSource.name)
-			registry.shutdownAll
-			sys.exit
-		}
-
+	def next: Map[String, String] = Option(values.poll).getOrElse {
+		logger.error("There are not enough records in the feeder '{}'.\nPlease add records or use another feeder strategy.\nStopping simulation here...", feederSource.name)
+		registry.shutdownAll
+		sys.exit
+	}
 }

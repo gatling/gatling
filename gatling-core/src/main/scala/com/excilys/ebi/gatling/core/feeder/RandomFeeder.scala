@@ -18,11 +18,7 @@ import scala.util.Random
 
 class RandomFeeder(feederSource: FeederSource) extends Feeder(feederSource) {
 
-	val values = feederSource.values
-	val valuesSize = values.size
-	val random = new Random
+	private val random = new Random
 
-	def next: Map[String, String] = {
-		values(random.nextInt(valuesSize))
-	}
+	def next: Map[String, String] = feederSource.values(random.nextInt(feederSource.values.size))
 }

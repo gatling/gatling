@@ -7,7 +7,7 @@ class CircularFeeder(feederSource: FeederSource) extends Feeder(feederSource) {
 	private val bufferSize = feederSource.values.size
 	private val currentIndex = new AtomicInteger(0)
 
-	val values = new RingBuffer[Map[String, String]](bufferSize)
+	private val values = new RingBuffer[Map[String, String]](bufferSize)
 
 	values ++= feederSource.values
 
