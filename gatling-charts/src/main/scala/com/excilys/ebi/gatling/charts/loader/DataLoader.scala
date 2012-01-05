@@ -80,20 +80,22 @@ class DataLoader(runOn: String) extends Logging {
 
 		buffer.sortBy(_.executionStartDate.getMillis)
 	}
-
-	val dataIndexedByDateInSeconds: SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(data.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
-
-	def dataIndexedByRequestName(requestName: String): Buffer[ResultLine] = data.filter(_.requestName == requestName)
-
-	def dataIndexedByRequestNameAndDateInMilliseconds(requestName: String): SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(dataIndexedByRequestName(requestName).groupBy(_.executionStartDate).toSeq: _*)
-
-	def dataIndexedByRequestNameAndDateInSeconds(requestName: String): SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(dataIndexedByRequestName(requestName).groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
-
-	def dataIndexedByScenarioNameAndDateInSeconds(scenarioName: String): SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(data.filter(_.scenarioName == scenarioName).groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
+	
+	val simulationRunOn = parseFileNameDateFormat(data.head.runOn)
 
 	val requestNames: Buffer[String] = data.map(_.requestName).distinct.filterNot(value => value == END_OF_SCENARIO || value == START_OF_SCENARIO)
 
 	val scenarioNames: Buffer[String] = data.map(_.scenarioName).distinct
 
-	val simulationRunOn = parseFileNameDateFormat(data.head.runOn)
+	val dataIndexedByDateWithoutMillis: SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(data.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
+
+	def requestData(requestName: String) = data.filter(_.requestName == requestName)
+
+	def scenarioData(scenarioName: String) = data.filter(_.scenarioName == scenarioName)
+
+	def requestDataIndexedByDate(requestName: String): SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(requestData(requestName).groupBy(_.executionStartDate).toSeq: _*)
+
+	def requestDataIndexedByDateWithoutMillis(requestName: String): SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(requestData(requestName).groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
+
+	def scenarioDataIndexedByDateWithoutMillis(scenarioName: String): SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(scenarioData(scenarioName).groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
 }
