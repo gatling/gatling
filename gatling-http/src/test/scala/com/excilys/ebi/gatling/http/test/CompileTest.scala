@@ -39,6 +39,13 @@ object CompileTest {
 
 	val testData = tsv("test-data.tsv")
 
+	val testData2 = postgresqlFeeder("jdbc:postgresql:gatling", "gatling", "gatling", """
+select login as "username", password
+from usr
+where id in (select usr_id from usr_role where role_id='ROLE_USER')
+and id not in (select usr_id from usr_role where role_id='ROLE_ADMIN')
+and (select count(*) from usr_account where usr_id=id) >=2""")
+
 	val lambdaUser = scenario("Standard User")
 		.insertChain(loginChain)
 		// First request outside iteration
