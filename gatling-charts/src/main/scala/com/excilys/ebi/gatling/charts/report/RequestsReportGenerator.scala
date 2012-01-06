@@ -31,9 +31,9 @@ class RequestsReportGenerator(runOn: String, dataLoader: DataLoader, componentLi
 	def generate = {
 
 		// Get Data
-		val allRequestsData = numberOfRequestsPerSecondAsList(dataLoader.dataIndexedByDateInSeconds)
-		val failedRequestsData = numberOfFailedRequestsPerSecond(dataLoader.dataIndexedByDateInSeconds)
-		val succeededRequestsData = numberOfSuccessfulRequestsPerSecond(dataLoader.dataIndexedByDateInSeconds)
+		val allRequestsData = numberOfRequestsPerSecondAsList(dataLoader.dataIndexedByDateWithoutMillis)
+		val failedRequestsData = numberOfFailedRequestsPerSecond(dataLoader.dataIndexedByDateWithoutMillis)
+		val succeededRequestsData = numberOfSuccessfulRequestsPerSecond(dataLoader.dataIndexedByDateWithoutMillis)
 		val pieData = ("Success", succeededRequestsData.map(_._2).sum) :: ("Failures", failedRequestsData.map(_._2).sum) :: Nil
 
 		// Create series
