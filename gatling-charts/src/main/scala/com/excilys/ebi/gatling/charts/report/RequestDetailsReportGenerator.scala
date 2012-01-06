@@ -59,8 +59,9 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 					val numberOfRequests = dataList.size
 					indicatorsColumnData.map { entry => entry._1 -> (entry._2 / numberOfRequests.toDouble * 100).toInt }
 				}
-				val scatterPlotSuccessData = respTimeAgainstNbOfReqPerSecond(numberOfRequestsPerSecond(dataLoader.dataIndexedByDateWithoutMillis), dataSeconds, OK)
-				val scatterPlotFailuresData = respTimeAgainstNbOfReqPerSecond(numberOfRequestsPerSecond(dataLoader.dataIndexedByDateWithoutMillis), dataSeconds, KO)
+				val requestsPerSecond = numberOfRequestsPerSecond(dataLoader.dataIndexedByDateWithoutMillis)
+				val scatterPlotSuccessData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, OK)
+				val scatterPlotFailuresData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, KO)
 
 				// Statistics
 				val numberOfRequests = dataList.length
