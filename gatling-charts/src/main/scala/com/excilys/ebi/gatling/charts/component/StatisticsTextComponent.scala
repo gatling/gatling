@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.charts.component
 
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_STATISTICS_COMPONENT
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_STATISTICS_COMPONENT_URL
 import com.excilys.ebi.gatling.charts.template.PageTemplate
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.core.util.PathHelper._
@@ -24,7 +24,7 @@ class StatisticsTextComponent(numberOfRequest: Int, numberOfSuccesses: Int, numb
 		extends Component {
 
 	def getHTMLContent: String = {
-		PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATISTICS_COMPONENT,
+		PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATISTICS_COMPONENT_URL,
 			Map("numberOfRequests" -> numberOfRequest,
 				"numberOfSuccesses" -> numberOfSuccesses,
 				"numberOfFailures" -> numberOfFailures,

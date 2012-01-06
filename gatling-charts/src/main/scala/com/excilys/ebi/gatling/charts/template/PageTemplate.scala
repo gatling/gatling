@@ -43,7 +43,7 @@ abstract class PageTemplate(title: String, isDetails: Boolean, components: Compo
 	def getAdditionnalJSFiles = components.map(_.getJavascriptFiles).flatten.toSeq
 
 	def getOutput: String = {
-		PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_LAYOUT_FILE,
+		PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_LAYOUT_FILE_URL,
 			Map("jsFiles" -> jsFiles,
 				"pageTitle" -> title,
 				"pageContent" -> getContent,
