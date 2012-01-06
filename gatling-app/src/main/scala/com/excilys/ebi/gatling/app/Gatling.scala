@@ -18,18 +18,21 @@ package com.excilys.ebi.gatling.app
 import scala.collection.immutable.TreeSet
 import scala.collection.mutable.{ Set => MSet }
 import scala.collection.mutable.{ MultiMap, HashMap }
+import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.Directory
+
 import org.joda.time.DateTime
-import com.excilys.ebi.gatling.app.interpreter.{ TextScriptInterpreter, ScalaScriptInterpreter }
+
+import com.excilys.ebi.gatling.app.compiler.{ TextScenarioCompiler, ScalaScenarioCompiler, IdeScenarioCompiler }
 import com.excilys.ebi.gatling.charts.report.ReportsGenerator
 import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_SIMULATIONS_FOLDER
 import com.excilys.ebi.gatling.core.config.GatlingConfig
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.DateHelper.printFileNameDate
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.core.util.FileHelper._
+import com.excilys.ebi.gatling.core.util.FileHelper.{ TXT_EXTENSION, SCALA_EXTENSION }
+
+import CommandLineOptions.options.{ resultsFolder, requestBodiesFolder, reportsOnlyFolder, reportsOnly, noReports, ideSimulationPackage, ideSimulationFolder, ideAssetsFolder, dataFolder, configFileName }
 import scopt.OptionParser
-import com.excilys.ebi.gatling.app.interpreter.EclipseScalaInterpreter
 
 /**
  * Object containing entry point of application
@@ -44,9 +47,9 @@ object Gatling extends Logging {
 			opt("df", "data-folder", "<folderName>", "Uses <folderName> as the folder where feeders are stored", { v: String => CommandLineOptions.setDataFolder(v) })
 			opt("rf", "results-folder", "<folderName>", "Uses <folderName> as the folder where results are stored", { v: String => CommandLineOptions.setResultsFolder(v) })
 			opt("bf", "request-bodies-folder", "<folderName>", "Uses <folderName> as the folder where request bodies are stored", { v: String => CommandLineOptions.setRequestBodiesFolder(v) })
-			opt("eaf", "eclipse-assets-folder", "<folderName>", "Eclipse & Maven Archetype Only -- Uses <folderName> to get assets", { v: String => CommandLineOptions.setEclipseAssetsFolder(v) })
-			opt("esf", "eclipse-simulations-folder", "<folderName>", "Eclipse & Maven Archetype Only -- Uses <folderName> to discover simulations that could be run", { v: String => CommandLineOptions.setEclipseSimulationFolder(v) })
-			opt("esp", "eclipse-simulations-package", "<packageName>", "Eclipse & Maven Archetype Only -- Uses <packageName> to start the simulations", { v: String => CommandLineOptions.setEclipseSimulationPackage(v) })
+			opt("iaf", "ide-assets-folder", "<folderName>", "IDE & Maven Archetype Only -- Uses <folderName> to get assets", { v: String => CommandLineOptions.setEclipseAssetsFolder(v) })
+			opt("isf", "ide-simulations-folder", "<folderName>", "IDE & Maven Archetype Only -- Uses <folderName> to discover simulations that could be run", { v: String => CommandLineOptions.setEclipseSimulationFolder(v) })
+			opt("isp", "ide-simulations-package", "<packageName>", "IDE & Maven Archetype Only -- Uses <packageName> to start the simulations", { v: String => CommandLineOptions.setEclipseSimulationPackage(v) })
 		}
 
 	/**
@@ -62,17 +65,17 @@ object Gatling extends Logging {
 		// if arguments are bad, usage message is displayed
 	}
 
-	def apply(dataFolder: String, resultsFolder: String, requestBodiesFolder: String, eclipseAssetsFolder: String, eclipseSimulationFolder: String, eclipseSimulationPackage: String) =
-		main(Array("-df", dataFolder, "-rf", resultsFolder, "-bf", requestBodiesFolder, "-eaf", eclipseAssetsFolder, "-esf", eclipseSimulationFolder, "-esp", eclipseSimulationPackage))
+	def apply(dataFolder: String, resultsFolder: String, requestBodiesFolder: String, ideAssetsFolder: String, ideSimulationFolder: String, ideSimulationPackage: String) =
+		main(Array("-df", dataFolder, "-rf", resultsFolder, "-bf", requestBodiesFolder, "-eaf", ideAssetsFolder, "-esf", ideSimulationFolder, "-esp", ideSimulationPackage))
 
 	private def runGatling = {
 		println("-----------\nGatling cli\n-----------\n")
 
 		import CommandLineOptions.options._
-		GatlingConfig(configFileName, dataFolder, requestBodiesFolder, resultsFolder, eclipseAssetsFolder) // Initializes configuration
+		GatlingConfig(configFileName, dataFolder, requestBodiesFolder, resultsFolder, ideAssetsFolder) // Initializes configuration
 
 		val folderName =
-			if (eclipseSimulationFolder.isDefined)
+			if (ideSimulationFolder.isDefined)
 				displayMenuAndRunForEclipse
 			else
 				displayMenuAndRun
@@ -146,7 +149,7 @@ object Gatling extends Logging {
 
 		println("Which simulation do you want to execute ?")
 
-		val files = Directory(eclipseSimulationFolder.get).files.map(_.name.takeWhile(_ != '.')).toSeq
+		val files = Directory(ideSimulationFolder.get).files.map(_.name.takeWhile(_ != '.')).toSeq
 
 		var i = 0
 		files.foreach { file =>
@@ -155,7 +158,7 @@ object Gatling extends Logging {
 		}
 
 		val fileChosen = Console.readInt
-		run(eclipseSimulationPackage.get + "." + files(fileChosen), true)
+		run(ideSimulationPackage.get + "." + files(fileChosen), true)
 	}
 
 	/**
@@ -172,18 +175,18 @@ object Gatling extends Logging {
 	 * @param fileName The name of the simulation file that will be executed
 	 * @return The name of the folder of this simulation (ie: its date)
 	 */
-	private def run(fileName: String, isEclipse: Boolean = false) = {
+	private def run(fileName: String, isIde: Boolean = false) = {
 
 		println("Simulation started...")
 
 		val startDate = DateTime.now
 		val interpreter =
-			if (isEclipse)
-				new EclipseScalaInterpreter
+			if (isIde)
+				new IdeScenarioCompiler
 			else
 				fileName match {
-					case fn if (fn.endsWith(".scala")) => new ScalaScriptInterpreter
-					case fn if (fn.endsWith(".txt")) => new TextScriptInterpreter
+					case fn if (fn.endsWith(".scala")) => new ScalaScenarioCompiler
+					case fn if (fn.endsWith(".txt")) => new TextScenarioCompiler
 					case _ => throw new UnsupportedOperationException
 				}
 

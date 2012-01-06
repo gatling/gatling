@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.app.interpreter
+package com.excilys.ebi.gatling.app.compiler
 
 import scala.collection.JavaConversions.enumerationAsScalaIterator
 import scala.io.Source
-import scala.tools.nsc.interpreter.IMain
-import scala.tools.nsc.io.Path.string2path
-import scala.tools.nsc.Settings
+import scala.tools.nsc.io.{ VirtualFile, Path, AbstractFile }
 
 import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_SIMULATIONS_FOLDER, GATLING_IMPORTS_FILE }
+import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_IMPORTS_FILE
 import com.excilys.ebi.gatling.core.util.FileHelper.TXT_EXTENSION
+import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+import scala.tools.nsc.io.Path.string2path
 
 /**
  * Simple Class used to get a value from the interpreter
@@ -39,22 +39,9 @@ object TextScriptInterpreter {
 /**
  * Text interpreter used to interpret .txt simulation files
  */
-class TextScriptInterpreter extends Interpreter {
-	/**
-	 * This method launches the interpretation of the simulation and runs it
-	 *
-	 * @param fileName the name of the file containing the simulation description
-	 * @param startDate the date at which the launch was asked
-	 */
-	def run(fileName: String, startDate: DateTime) = {
+class TextScenarioCompiler extends ScalaScenarioCompiler {
 
-		val interpreter = {
-			// Sets the interpreter to use the classpath of the java command
-			val settings = new Settings
-			settings.usejavacp.value = true
-
-			new IMain(settings)
-		}
+	override def collectSourceFiles(sourceDirectory: Path): List[AbstractFile] = {
 
 		val imports =
 			getClass.getClassLoader.getResources(GATLING_IMPORTS_FILE).map { resource =>
@@ -63,24 +50,37 @@ class TextScriptInterpreter extends Interpreter {
 
 		val scenario = {
 			// Contains the contents of the simulation file
-			val initialFileBodyContent = Source.fromFile((GATLING_SIMULATIONS_FOLDER / fileName).jfile, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT)
+			val initialFileBodyContent = Source.fromFile(sourceDirectory.jfile, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT)
 
 			// Includes contents of included files into the simulation file 
 			"""include\("(.*)"\)""".r.replaceAllIn(initialFileBodyContent,
 				result => {
-					val path = fileName.substring(0, fileName.lastIndexOf("@")) / result.group(1)
-					Source.fromFile(GATLING_SIMULATIONS_FOLDER / path + TXT_EXTENSION, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT) + END_OF_LINE + END_OF_LINE
+					val sourceDirectoryPath = sourceDirectory.getAbsolutePath
+					val includePath = sourceDirectoryPath.substring(0, sourceDirectoryPath.lastIndexOf("@")) / result.group(1) + TXT_EXTENSION
+					Source.fromFile(includePath, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT) + END_OF_LINE + END_OF_LINE
 				}).replace(TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT, '$')
 		}
 
-		logger.debug(scenario)
-
-		interpreter.beQuietDuring {
-			interpreter.bind("startDate", new DateHolder(startDate))
-
-			imports.foreach(interpreter.interpret(_))
-			interpreter.interpret(scenario)
+		val resolvedScenario = {
+			val builder = new StringBuilder
+			imports.foreach(builder.append(_).append('\n'))
+			builder.append("class Simulation extends GatlingSimulation {\n")
+			builder.append(scenario).append("\n}")
+			builder.toString
 		}
-		interpreter.close
+
+		logger.debug(resolvedScenario)
+
+		val file = new VirtualFile("Simulation.scala", "gatling")
+		val output = file.bufferedOutput
+
+		try {
+			output.write(resolvedScenario.getBytes)
+
+		} finally {
+			output.close
+		}
+
+		List(file)
 	}
 }

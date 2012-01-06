@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.app.interpreter
+package com.excilys.ebi.gatling.app.compiler
 
 import com.excilys.ebi.gatling.core.log.Logging
 import org.joda.time.DateTime
 
 /**
- * This trait serves as model for all script interpreters. Gatling has three 'interpreters' :
+ * This trait serves as model for all scenarios compilers. Gatling has three 'compilers' :
  *  - Text
  *  - Scala
  *  - Eclipse
  */
-trait Interpreter extends Logging {
+trait ScenarioCompiler extends Logging {
 	def run(fileName: String, startDate: DateTime)
 }

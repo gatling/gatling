@@ -1,4 +1,3 @@
 import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._
-
-def runSimulation = runSimFunction(startDate.value)
+import com.excilys.ebi.gatling.script.GatlingSimulation

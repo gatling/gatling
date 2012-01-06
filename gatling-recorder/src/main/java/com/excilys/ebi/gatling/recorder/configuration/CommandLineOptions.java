@@ -49,8 +49,8 @@ public class CommandLineOptions {
 	@Option(name = "-run", usage = "Skip the configuration frame (need to set -of, listens on 8000 & 8001)")
 	private boolean runningFrame;
 
-	@Option(name = "-eclipse")
-	private String eclipsePackage;
+	@Option(name = "-ide")
+	private String idePackage;
 
 	public int getLocalPort() {
 		return localPort;
@@ -124,12 +124,12 @@ public class CommandLineOptions {
 		this.runningFrame = runningFrame;
 	}
 
-	public String getEclipsePackage() {
-		return eclipsePackage;
+	public String getIdePackage() {
+		return idePackage;
 	}
 
-	public void setEclipsePackage(String eclipsePackage) {
-		this.eclipsePackage = eclipsePackage;
+	public void setIdePackage(String idePackage) {
+		this.idePackage = idePackage;
 	}
 
 	public String getRequestBodiesFolder() {

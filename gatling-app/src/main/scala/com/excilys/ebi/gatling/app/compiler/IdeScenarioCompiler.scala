@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.app.interpreter
+package com.excilys.ebi.gatling.app.compiler
 
 import com.excilys.ebi.gatling.core.util.ReflectionHelper.getNewInstanceByClassName
 
 import org.joda.time.DateTime
 
-class EclipseScalaInterpreter extends Interpreter {
+class IdeScenarioCompiler extends ScenarioCompiler {
 	def run(className: String, startDate: DateTime) = {
 		val runner = getNewInstanceByClassName[App](className, getClass.getClassLoader)
 		runner.main(Array(startDate.toString));

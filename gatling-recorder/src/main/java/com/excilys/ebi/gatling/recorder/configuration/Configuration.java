@@ -57,7 +57,7 @@ public class Configuration {
 		if (c.isRunningFrame())
 			instance.setConfigurationSkipped(true);
 
-		instance.setEclipsePackage(c.getEclipsePackage());
+		instance.setIdePackage(c.getIdePackage());
 		instance.setRequestBodiesFolder(c.getRequestBodiesFolder());
 	}
 
@@ -73,7 +73,7 @@ public class Configuration {
 	private boolean saveConfiguration;
 	private transient String requestBodiesFolder;
 	private transient boolean configurationSkipped;
-	private transient String eclipsePackage;
+	private transient String idePackage;
 
 	private Configuration() {
 
@@ -151,12 +151,12 @@ public class Configuration {
 		this.configurationSkipped = skipConfiguration;
 	}
 
-	public String getEclipsePackage() {
-		return eclipsePackage;
+	public String getIdePackage() {
+		return idePackage;
 	}
 
-	public void setEclipsePackage(String eclipsePackage) {
-		this.eclipsePackage = eclipsePackage;
+	public void setIdePackage(String idePackage) {
+		this.idePackage = idePackage;
 	}
 
 	@Override

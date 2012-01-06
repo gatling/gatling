@@ -13,24 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.app.interpreter
+package com.excilys.ebi.gatling.app.compiler
 
-import java.io.{ StringWriter, PrintWriter, File }
+import java.io.{StringWriter, PrintWriter}
+
 import scala.tools.nsc.interpreter.AbstractFileClassLoader
-import scala.tools.nsc.io.VirtualDirectory
+import scala.tools.nsc.io.{VirtualDirectory, PlainFile, Path, Directory, AbstractFile}
 import scala.tools.nsc.reporters.ConsoleReporter
-import scala.tools.nsc.{ Settings, Global }
+import scala.tools.nsc.{Settings, Global}
+
 import org.joda.time.DateTime
+
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_SIMULATION_SCALA_PACKAGE
 import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_SIMULATIONS_FOLDER
 import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
 import com.excilys.ebi.gatling.core.util.ReflectionHelper.getNewInstanceByClassName
-import scala.tools.nsc.io.Directory
 
 /**
  * This class is used to interpret scala simulations
  */
-class ScalaScriptInterpreter extends Interpreter {
+class ScalaScenarioCompiler extends ScenarioCompiler {
 
 	val byteCodeDir = new VirtualDirectory("memory", None)
 	val classLoader = new AbstractFileClassLoader(byteCodeDir, this.getClass.getClassLoader)
@@ -52,7 +54,11 @@ class ScalaScriptInterpreter extends Interpreter {
 	 *
 	 * @param sourceDirectory the file containing the simulation description
 	 */
-	def compile(sourceDirectory: File): Unit = {
+	def compile(sourceDirectory: Path): Unit = {
+
+		// Attempt compilation
+		val files = collectSourceFiles(sourceDirectory)
+
 		// Prepare an object for collecting error messages from the compiler
 		val messageCollector = new StringWriter
 		val messageCollectorWrapper = new PrintWriter(messageCollector)
@@ -62,18 +68,7 @@ class ScalaScriptInterpreter extends Interpreter {
 		val reporter = new ConsoleReporter(settings, Console.in, messageCollectorWrapper)
 		val compiler = new Global(settings, reporter)
 
-		// Attempt compilation
-		val files =
-			if (sourceDirectory.isFile) {
-				val sourceDirectoryName = sourceDirectory.getAbsolutePath.substring(0, sourceDirectory.getAbsolutePath.lastIndexOf("@"))
-				if (Directory(sourceDirectoryName).exists)
-					sourceDirectory :: findFiles(new File(sourceDirectoryName))
-				else
-					sourceDirectory :: Nil
-			} else
-				findFiles(sourceDirectory)
-
-		(new compiler.Run).compile(files.map(_.toString))
+		(new compiler.Run).compileFiles(files)
 
 		// Bail out if compilation failed
 		if (reporter.hasErrors) {
@@ -83,16 +78,17 @@ class ScalaScriptInterpreter extends Interpreter {
 		}
 	}
 
-	/**
-	 * Finds all the scala files under root
-	 *
-	 * @param root the root file under which the files should be found
-	 */
-	private def findFiles(root: File): List[File] = {
-		if (root.isFile)
-			List(root)
-		else
-			root.listFiles.toList.flatMap { f => findFiles(f) }
+	def collectSourceFiles(sourceDirectory: Path) : List[AbstractFile] = {
+		if (sourceDirectory.isFile) {
+			val rootFile = PlainFile.fromPath(sourceDirectory)
+			val sourceDirectoryName = sourceDirectory.getAbsolutePath.substring(0, sourceDirectory.getAbsolutePath.lastIndexOf("@"))
+			val dir = Directory(sourceDirectoryName)
+			if (dir.exists)
+				rootFile :: dir.walk.map(PlainFile.fromPath(_)).toList
+			else
+				List(rootFile)
+		} else
+			sourceDirectory.walk.map(PlainFile.fromPath(_)).toList
 	}
 
 	/**
