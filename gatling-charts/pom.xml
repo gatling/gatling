@@ -44,6 +44,20 @@
 					</tasks>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.fusesource.scalate</groupId>
+				<artifactId>maven-scalate-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>precompile</goal>
+						</goals>
+						<configuration>
+							<contextClass>org.fusesource.scalate.DefaultRenderContext</contextClass>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 </project>
