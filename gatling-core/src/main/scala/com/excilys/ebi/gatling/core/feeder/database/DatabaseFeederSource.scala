@@ -32,7 +32,7 @@ class DatabaseFeederSource(driverClassName: String, url: String, username: Strin
 
 			val columnNames = for (i <- 1 to rsmd.getColumnCount) yield rsmd.getColumnName(i)
 
-			new Iterator[Map[String, String]]() {
+			new Iterator[Map[String, String]] {
 
 				def hasNext = !resultSet.isLast
 

@@ -20,10 +20,10 @@ import com.excilys.ebi.gatling.core.feeder.QueueFeeder
 import com.excilys.ebi.gatling.core.feeder.FeederBuilder
 
 object SeparatedValuesFeederBuilder {
-	def csv(fileName: String) = new SeparatedValuesFeederBuilder(fileName, COMMA_SEPARATOR)
-	def tsv(fileName: String) = new SeparatedValuesFeederBuilder(fileName, TABULATION_SEPARATOR)
-	def ssv(fileName: String) = new SeparatedValuesFeederBuilder(fileName, SEMICOLON_SEPARATOR)
+	def csv(fileName: String, escapeChar : Option[Char] = None) = new SeparatedValuesFeederBuilder(fileName, COMMA_SEPARATOR, escapeChar)
+	def tsv(fileName: String, escapeChar : Option[Char] = None) = new SeparatedValuesFeederBuilder(fileName, TABULATION_SEPARATOR, escapeChar)
+	def ssv(fileName: String, escapeChar : Option[Char] = None) = new SeparatedValuesFeederBuilder(fileName, SEMICOLON_SEPARATOR, escapeChar)
 }
-class SeparatedValuesFeederBuilder(fileName: String, separator: String) extends FeederBuilder[SeparatedValuesFeederSource] {
-	def sourceInstance = new SeparatedValuesFeederSource(fileName, separator)
+class SeparatedValuesFeederBuilder(fileName: String, separator: Char, escapeChar : Option[Char] = None) extends FeederBuilder[SeparatedValuesFeederSource] {
+	def sourceInstance = new SeparatedValuesFeederSource(fileName, separator, escapeChar)
 }

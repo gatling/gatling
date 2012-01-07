@@ -21,9 +21,9 @@ import com.excilys.ebi.gatling.core.util.StringHelper.stripAccents
  */
 object FileHelper {
 
-	val COMMA_SEPARATOR = ","
-	val SEMICOLON_SEPARATOR = ";"
-	val TABULATION_SEPARATOR = "\t"
+	val COMMA_SEPARATOR = ','
+	val SEMICOLON_SEPARATOR = ';'
+	val TABULATION_SEPARATOR = '\t'
 	val CSV_EXTENSION = ".csv"
 	val SSV_EXTENSION = ".ssv"
 	val TSV_EXTENSION = ".tsv"

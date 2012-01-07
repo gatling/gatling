@@ -14,19 +14,43 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.feeder.csv
-import scala.io.Source
-import com.excilys.ebi.gatling.core.config.GatlingFiles._
-import com.excilys.ebi.gatling.core.config.GatlingConfig._
+import java.io.FileReader
+
+import scala.Array.canBuildFrom
+import scala.tools.nsc.io.Path.string2path
+
+import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_DATA_FOLDER
 import com.excilys.ebi.gatling.core.feeder.FeederSource
 import com.excilys.ebi.gatling.core.util.PathHelper.path2string
 
-class SeparatedValuesFeederSource(fileName: String, separator: String) extends FeederSource(fileName) {
+import au.com.bytecode.opencsv.CSVReader
 
-	val lines = Source.fromFile(GATLING_DATA_FOLDER / fileName, CONFIG_ENCODING).getLines
+class SeparatedValuesFeederSource(fileName: String, separator: Char, escapeChar: Option[Char]) extends FeederSource(fileName) {
 
-	val headers = lines.next.split(separator).toList
+	val values = {
+		val reader = if (escapeChar.isDefined) {
+			new CSVReader(new FileReader(GATLING_DATA_FOLDER / fileName), separator, escapeChar.get);
+		} else {
+			new CSVReader(new FileReader(GATLING_DATA_FOLDER / fileName), separator);
+		}
 
-	val values = lines.filterNot(_.isEmpty).map { line =>
-		(headers zip line.split(separator).toList).toMap[String, String]
-	}.toBuffer
+		try {
+			val headers = reader.readNext
+
+			new Iterator[Map[String, String]] {
+
+				var line: Array[String] = _
+
+				def hasNext = {
+					line = reader.readNext
+					line != null
+				}
+
+				def next = (headers zip line).toMap[String, String]
+			}.toBuffer
+
+		} finally {
+			reader.close
+		}
+	}
 }

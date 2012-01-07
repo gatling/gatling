@@ -143,6 +143,7 @@
 		<scopt.version>1.1.2</scopt.version>
 		<args4j.version>2.0.19</args4j.version>
 		<twitter-util.version>1.12.8</twitter-util.version>
+		<opencsv.version>2.3</opencsv.version>
 
 		<maven-assembly-plugin.version>2.2.1</maven-assembly-plugin.version>
 		<maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
@@ -356,6 +357,11 @@
 				<groupId>com.twitter</groupId>
 				<artifactId>util-core_2.9.1</artifactId>
 				<version>${twitter-util.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>net.sf.opencsv</groupId>
+				<artifactId>opencsv</artifactId>
+				<version>${opencsv.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
