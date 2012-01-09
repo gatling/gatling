@@ -49,8 +49,6 @@ object ReportsGenerator extends Logging {
 		PageTemplate.setRunOn(dataLoader.simulationRunOn)
 
 		reportGenerators.foreach(_.generate)
-
-		PageTemplate.TEMPLATE_ENGINE.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown
 	}
 
 	private def generateMenu(runOn: String, dataLoader: DataLoader) = {
