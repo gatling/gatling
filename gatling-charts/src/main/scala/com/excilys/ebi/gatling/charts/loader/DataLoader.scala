@@ -34,37 +34,33 @@ class DataLoader(runOn: String) extends Logging {
 
 	private val data: Buffer[ResultLine] = {
 
+		trait Cache[A] {
+			val map = new HashMap[String, A]
+
+			def string2cached(s: String): A
+
+			def get(s: String) = {
+				map.getOrElse(s, {
+					// don't use getOrUpdate as we don't want to store the whole original String as key
+					val newString = new String(s)
+					val cached = string2cached(newString)
+					map.put(newString, cached)
+					cached
+				})
+			}
+		}
+
 		val buffer = new ArrayBuffer[ResultLine]
 
 		// use caches in order to reuse String instances instead of holding multiple references of equal Strings
-		val stringCache = new HashMap[String, String]
-		val intCache = new HashMap[String, Int]
-		val dateTimeCache = new HashMap[String, DateTime]
-
-		def cachedString(string: String) = {
-			stringCache.get(string).getOrElse {
-				val newString = new String(string)
-				stringCache.put(newString, newString)
-				newString
-			}
+		val stringCache = new Cache[String] {
+			def string2cached(s: String) = s
 		}
-
-		def cachedInt(string: String) = {
-			intCache.get(string).getOrElse {
-				val newString = new String(string)
-				val int = newString.toInt
-				intCache.put(newString, int)
-				int
-			}
+		val intCache = new Cache[Int] {
+			def string2cached(s: String) = s.toInt
 		}
-
-		def cachedDateTime(string: String) = {
-			dateTimeCache.get(string).getOrElse {
-				val newString = new String(string)
-				val dateTime = parseResultDate(newString)
-				dateTimeCache.put(newString, dateTime)
-				dateTime
-			}
+		val dateTimeCache = new Cache[DateTime] {
+			def string2cached(s: String) = parseResultDate(s)
 		}
 
 		for (line <- Source.fromFile(simulationLogFile(runOn).jfile, CONFIG_ENCODING).getLines) {
@@ -72,7 +68,7 @@ class DataLoader(runOn: String) extends Logging {
 				// If we have a well formated result
 				case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage) =>
 
-					buffer += ResultLine(cachedString(runOn), cachedString(scenarioName), cachedInt(userId), cachedString(actionName), cachedDateTime(executionStartDate), cachedInt(executionDuration), ResultStatus.withName(resultStatus), cachedString(resultMessage))
+					buffer += ResultLine(stringCache.get(runOn), stringCache.get(scenarioName), intCache.get(userId), stringCache.get(actionName), dateTimeCache.get(executionStartDate), intCache.get(executionDuration), ResultStatus.withName(resultStatus), stringCache.get(resultMessage))
 				// Else, if the resulting data is not well formated print an error message
 				case _ => logger.warn("simulation.log had bad end of file, statistics will be generated but may not be accurate")
 			}
@@ -80,7 +76,7 @@ class DataLoader(runOn: String) extends Logging {
 
 		buffer.sortBy(_.executionStartDate.getMillis)
 	}
-	
+
 	val simulationRunOn = parseFileNameDateFormat(data.head.runOn)
 
 	val requestNames: Buffer[String] = data.map(_.requestName).distinct.filterNot(value => value == END_OF_SCENARIO || value == START_OF_SCENARIO)
