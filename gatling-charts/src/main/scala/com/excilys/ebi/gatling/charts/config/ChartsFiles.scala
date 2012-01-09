@@ -15,9 +15,10 @@
  */
 package com.excilys.ebi.gatling.charts.config
 
-import com.excilys.ebi.gatling.core.config.GatlingFiles._
-import com.excilys.ebi.gatling.core.util.FileHelper._
 import scala.tools.nsc.io.Path.string2path
+
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{ resultFolder, GATLING_JS }
+import com.excilys.ebi.gatling.core.util.FileHelper.{ formatToFilename, HTML_EXTENSION }
 
 object ChartsFiles {
 	val JQUERY_FILE = "jquery.min.js"

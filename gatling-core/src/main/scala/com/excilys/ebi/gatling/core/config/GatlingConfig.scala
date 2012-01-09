@@ -17,10 +17,12 @@ package com.excilys.ebi.gatling.core.config
 
 import scala.io.Codec
 import scala.tools.nsc.io.Path.string2path
+import scala.tools.nsc.io.Path
+
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+
 import GatlingFiles.GATLING_DEFAULT_CONFIG_FILE
-import scala.tools.nsc.io.Path
 
 /**
  * Configuration loader of Gatling

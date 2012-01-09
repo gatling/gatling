@@ -16,11 +16,8 @@
 package com.excilys.ebi.gatling.core.config
 
 import java.io.File
-import akka.config.ConfigParser
-import akka.config.Importer
-import akka.config.FilesystemImporter
-import akka.config.ConfigurationException
-import akka.config.ResourceImporter
+
+import akka.config.{ ResourceImporter, Importer, FilesystemImporter, ConfigurationException, ConfigParser }
 
 object GatlingConfiguration {
 	val defaultPath = new File(".").getCanonicalPath
