@@ -17,8 +17,6 @@ package com.excilys.ebi.gatling.charts.report
 import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.Path
 
-import org.fusesource.scalate.support.ScalaCompiler
-
 import com.excilys.ebi.gatling.charts.component.impl.ComponentLibraryImpl
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.menuFile
