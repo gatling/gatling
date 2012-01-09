@@ -153,6 +153,7 @@
 		<maven-licence-plugin.version>1.9.0</maven-licence-plugin.version>
 		<maven-shade-plugin.version>1.5</maven-shade-plugin.version>
 		<maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
+		<build-helper-maven-plugin.version>1.7</build-helper-maven-plugin.version>
 	</properties>
 
 	<dependencyManagement>
@@ -492,6 +493,11 @@
 				<plugin>
 					<artifactId>maven-antrun-plugin</artifactId>
 					<version>${maven-antrun-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>build-helper-maven-plugin</artifactId>
+					<version>${build-helper-maven-plugin.version}</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
