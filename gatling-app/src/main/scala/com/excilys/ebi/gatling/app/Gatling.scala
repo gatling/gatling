@@ -66,7 +66,7 @@ object Gatling extends Logging {
 	}
 
 	def apply(dataFolder: String, resultsFolder: String, requestBodiesFolder: String, ideAssetsFolder: String, ideSimulationFolder: String, ideSimulationPackage: String) =
-		main(Array("-df", dataFolder, "-rf", resultsFolder, "-bf", requestBodiesFolder, "-eaf", ideAssetsFolder, "-esf", ideSimulationFolder, "-esp", ideSimulationPackage))
+		main(Array("-df", dataFolder, "-rf", resultsFolder, "-bf", requestBodiesFolder, "-iaf", ideAssetsFolder, "-isf", ideSimulationFolder, "-isp", ideSimulationPackage))
 
 	private def runGatling = {
 		println("-----------\nGatling cli\n-----------\n")
