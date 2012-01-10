@@ -33,8 +33,11 @@ object Predef {
 	implicit def toSimpleActionBuilder(sessionFunction: Session => Unit): SimpleActionBuilder = SimpleActionBuilder.toSimpleActionBuilder(sessionFunction)
 
 	def csv(fileName: String) = SeparatedValuesFeederBuilder.csv(fileName)
+	def csv(fileName: String, escapeChar: Char) = SeparatedValuesFeederBuilder.csv(fileName, Some(escapeChar))
 	def ssv(fileName: String) = SeparatedValuesFeederBuilder.ssv(fileName)
+	def ssv(fileName: String, escapeChar: Char) = SeparatedValuesFeederBuilder.ssv(fileName, Some(escapeChar))
 	def tsv(fileName: String) = SeparatedValuesFeederBuilder.tsv(fileName)
+	def tsv(fileName: String, escapeChar: Char) = SeparatedValuesFeederBuilder.tsv(fileName, Some(escapeChar))
 
 	def databaseFeeder(driverClassName: String, url: String, username: String, password: String, sql: String) = DatabaseFeederBuilder.database(driverClassName, url, username, password, sql)
 	def db2Feeder(url: String, username: String, password: String, sql: String) = DatabaseFeederBuilder.db2(url, username, password, sql)
