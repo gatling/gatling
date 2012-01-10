@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.report
+import java.net.URL
+
+import scala.collection.mutable.LinkedHashSet
 import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.Path
 
@@ -29,8 +32,28 @@ import com.excilys.ebi.gatling.core.util.FileHelper.{ formatToFilename, HTML_EXT
 
 object ReportsGenerator extends Logging {
 
-	// TODO issue a warn if multiple instances in classpath
-	val componentLibrary: ComponentLibrary = new ComponentLibraryImpl
+	val STATIC_LIBRARY_BINDER_PATH = "com/excilys/ebi/gatling/charts/component/impl/ComponentLibraryImpl.class"
+
+	val componentLibrary: ComponentLibrary = {
+		val reportsGeneratorClassLoader = this.getClass.getClassLoader
+		val paths = if (reportsGeneratorClassLoader == null) {
+			ClassLoader.getSystemResources(STATIC_LIBRARY_BINDER_PATH)
+		} else {
+			reportsGeneratorClassLoader.getResources(STATIC_LIBRARY_BINDER_PATH)
+		}
+		// LinkedHashSet appropriate here because it preserves insertion order during iteration
+		val implementationSet = new LinkedHashSet[URL]
+		while (paths.hasMoreElements) {
+			val path = paths.nextElement.asInstanceOf[URL]
+			implementationSet += path
+		}
+		if (implementationSet.size > 1) {
+			logger.warn("Class path contains multiple ComponentLibrary bindings")
+			implementationSet.foreach(logger.warn("Found ComponentLibrary binding in {}", _))
+		}
+
+		new ComponentLibraryImpl
+	}
 
 	def generateFor(runOn: String) = {
 		val dataLoader = new DataLoader(runOn)
@@ -66,13 +89,13 @@ object ReportsGenerator extends Logging {
 	}
 
 	private def copyAssets(runOn: String) = {
-		def copyFolder(sourceFolderName: Path, destFolderPath: Path) = {
-			destFolderPath.toDirectory.createDirectory()
+			def copyFolder(sourceFolderName: Path, destFolderPath: Path) = {
+				destFolderPath.toDirectory.createDirectory()
 
-			sourceFolderName.toDirectory.deepFiles.foreach { file =>
-				file.copyTo(destFolderPath / file.name, true)
+				sourceFolderName.toDirectory.deepFiles.foreach { file =>
+					file.copyTo(destFolderPath / file.name, true)
+				}
 			}
-		}
 
 		copyFolder(GATLING_ASSETS_STYLE_FOLDER, styleFolder(runOn))
 		copyFolder(GATLING_ASSETS_JS_FOLDER, jsFolder(runOn))
