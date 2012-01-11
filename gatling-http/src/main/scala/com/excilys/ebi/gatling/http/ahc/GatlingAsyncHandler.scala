@@ -17,37 +17,30 @@ package com.excilys.ebi.gatling.http.ahc
 
 import java.lang.Void
 import java.util.concurrent.TimeUnit
+
+import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.immutable.HashMap
-import scala.collection.mutable.{ HashMap => MHashMap }
-import org.jboss.netty.handler.codec.http.HttpHeaders.Names.SET_COOKIE
+import scala.collection.mutable.{HashMap => MHashMap}
+
 import org.joda.time.DateTime
+
 import com.excilys.ebi.gatling.core.action.Action
-import com.excilys.ebi.gatling.core.check.extractor.Extractor
-import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.check.extractor.{MultiValuedExtractor, ExtractorFactory, Extractor}
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.KO
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.OK
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.ResultStatus
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ResultStatus, OK, KO}
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
+import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.http.Predef.SET_COOKIE
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
-import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
+import com.excilys.ebi.gatling.http.request.HttpPhase.{HttpPhase, CompletePageReceived}
 import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.excilys.ebi.gatling.http.util.HttpHelper.COOKIES_CONTEXT_KEY
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
-import com.ning.http.client.AsyncHandler
-import com.ning.http.client.Cookie
-import com.ning.http.client.HttpResponseBodyPart
-import com.ning.http.client.HttpResponseHeaders
-import com.ning.http.client.HttpResponseStatus
-import com.ning.http.client.Response
+import com.ning.http.client.{Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler}
 import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
+
 import akka.actor.Actor.registry.actorFor
-import scala.collection.JavaConversions._
-import com.excilys.ebi.gatling.core.check.extractor.MultiValuedExtractor
-import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response

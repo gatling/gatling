@@ -11,6 +11,7 @@
 	<description>Gatling HTTP functionnalities</description>
 
 	<dependencies>
+		<!-- compile -->
 		<dependency>
 			<groupId>com.excilys.ebi.gatling</groupId>
 			<artifactId>gatling-core</artifactId>
@@ -23,9 +24,12 @@
 			<groupId>org.fusesource.scalate</groupId>
 			<artifactId>scalate-core</artifactId>
 		</dependency>
+
+		<!-- runtime -->
 		<dependency>
 			<groupId>org.jboss.netty</groupId>
 			<artifactId>netty</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 
