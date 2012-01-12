@@ -19,7 +19,12 @@ if [ -n "${GATLING_HOME+x}" ]; then
 	echo "GATLING_HOME already set to: $GATLING_HOME"
 else
 	if [ $(basename `pwd -P`) = "bin" ]; then
-		export GATLING_HOME=$(dirname $(dirname $(dirname `pwd`/$0)))
+		# If was started with 'sh filename'
+		if [ $0 = "gatling.sh" ]; then
+			export GATLING_HOME=$(dirname $(dirname `pwd -P`/$0))
+		else
+			export GATLING_HOME=$(dirname $(dirname $(dirname `pwd -P`/$0)))
+		fi
 	else
 		export GATLING_HOME=$(cd $(dirname $(dirname $0)); pwd -P)
 	fi
