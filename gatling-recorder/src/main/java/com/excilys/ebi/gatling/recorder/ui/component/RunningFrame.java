@@ -85,6 +85,7 @@ import com.google.common.eventbus.Subscribe;
 public class RunningFrame extends JFrame {
 
 	private static final Logger logger = LoggerFactory.getLogger(RunningFrame.class);
+	private static final int EVENTS_GROUPING = 100;
 
 	private Configuration configuration;
 	private GatlingHttpProxy proxy;
@@ -289,7 +290,8 @@ public class RunningFrame extends JFrame {
 
 				String header = event.getRequest().getHeader("Proxy-Authorization");
 				if (header != null) {
-					// Split on " " and take 2nd group (Basic credentialsInBase64==)
+					// Split on " " and take 2nd group (Basic
+					// credentialsInBase64==)
 					String credentials = new String(Base64.decodeBase64(header.split(" ")[1].getBytes()));
 					configuration.getProxy().setUsername(credentials.split(":")[0]);
 					configuration.getProxy().setPassword(credentials.split(":")[1]);
@@ -583,7 +585,20 @@ public class RunningFrame extends JFrame {
 		context.put("urls", urls);
 		context.put("headers", headers);
 		context.put("name", "Scenario name");
-		context.put("events", listEvents);
+
+		if (listEvents.size() > EVENTS_GROUPING) {
+			List<List<Object>> subListsEvents = new ArrayList<List<Object>>();
+			int numberOfSubLists = listEvents.size() / EVENTS_GROUPING + 1;
+			for (int i = 0; i < numberOfSubLists; i++)
+				subListsEvents.add(listEvents.subList(0 + EVENTS_GROUPING * i, Math.min(EVENTS_GROUPING * (i + 1), listEvents.size() - 1)));
+
+			context.put("chainEvents", subListsEvents);
+			context.put("events", null);
+		} else {
+			context.put("events", listEvents);
+			context.put("chainEvents", null);
+		}
+
 		context.put("package", Configuration.getInstance().getIdePackage());
 		context.put("date", ResultType.FORMAT.format(startDate));
 		URI uri = URI.create("");
