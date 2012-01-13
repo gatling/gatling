@@ -15,8 +15,9 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.log.Logging
+
+import akka.actor.ActorRef
 
 /**
  * This trait represents an Action Builder
@@ -27,7 +28,7 @@ trait AbstractActionBuilder extends Logging {
 	 *
 	 * @return The built Action
 	 */
-	private[gatling] def build: Action
+	private[gatling] def build: ActorRef
 
 	/**
 	 * Adds next action to this builder, to be able to chain the actions
@@ -35,5 +36,5 @@ trait AbstractActionBuilder extends Logging {
 	 * @param next Action that will be executed after the one built by this builder
 	 * @return A builder of the same type, with next set
 	 */
-	private[gatling] def withNext(next: Action): AbstractActionBuilder
+	private[gatling] def withNext(next: ActorRef): AbstractActionBuilder
 }

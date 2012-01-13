@@ -27,6 +27,7 @@ import com.excilys.ebi.gatling.core.structure.loop.LoopBuilder
 import com.excilys.ebi.gatling.core.action.builder.CountBasedIterationActionBuilder._
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
+import akka.actor.ActorRef
 
 /**
  * This class defines most of the scenario related DSL
@@ -164,10 +165,10 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 
 	private[core] def addActionBuilders(actionBuildersToAdd: List[AbstractActionBuilder]): B = newInstance(actionBuildersToAdd ::: actionBuilders)
 
-	private[core] def buildActions(initialValue: Action): Action = {
-		var previousInList: Action = initialValue
+	private[core] def buildActions(initialValue: ActorRef): ActorRef = {
+		var previousInList: ActorRef = initialValue
 		actionBuilders.foreach { actionBuilder =>
-			previousInList = actionBuilder withNext previousInList build
+			previousInList = actionBuilder.withNext(previousInList).build
 		}
 		previousInList
 	}

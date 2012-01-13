@@ -16,12 +16,10 @@
 package com.excilys.ebi.gatling.core.action
 
 import akka.actor.Scheduler
-
 import java.util.concurrent.TimeUnit
-
 import com.excilys.ebi.gatling.core.session.Session
-
 import scala.util.Random
+import akka.actor.ActorRef
 
 /**
  * PauseAction class companion
@@ -43,7 +41,7 @@ object PauseAction {
  * @param maxDuration maximum duration of the pause
  * @param timeUnit time unit of the duration
  */
-class PauseAction(next: Action, minDuration: Long, maxDuration: Long, timeUnit: TimeUnit) extends Action {
+class PauseAction(next: ActorRef, minDuration: Long, maxDuration: Long, timeUnit: TimeUnit) extends Action {
 
 	/**
 	 * Generates a duration if required or use the one given and defer
@@ -62,6 +60,6 @@ class PauseAction(next: Action, minDuration: Long, maxDuration: Long, timeUnit: 
 		if (logger.isInfoEnabled)
 			logger.info("Waiting for {}ms ({}ms)", TimeUnit.MILLISECONDS.convert(duration, timeUnit), TimeUnit.MILLISECONDS.convert(durationInNanos, TimeUnit.NANOSECONDS))
 
-		Scheduler.scheduleOnce(() => next.execute(session), durationInNanos, TimeUnit.NANOSECONDS)
+		Scheduler.scheduleOnce(() => next! session, durationInNanos, TimeUnit.NANOSECONDS)
 	}
 }

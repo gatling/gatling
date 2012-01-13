@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.action.builder
-import com.excilys.ebi.gatling.core.action.Action
-import akka.actor.TypedActor
 import com.excilys.ebi.gatling.core.action.IfAction
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
+
+import akka.actor.Actor.actorOf
+import akka.actor.ActorRef
 
 /**
  * Companion Object of IfActionBuilder class
@@ -40,7 +41,7 @@ object IfActionBuilder {
  * @param elseNext chain that will be executed if conditionFunction evaluates to false
  * @param next chain that will be executed if conditionFunction evaluates to false and there is no elseNext
  */
-class IfActionBuilder(conditionFunction: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder], next: Action)
+class IfActionBuilder(conditionFunction: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder], next: ActorRef)
 		extends AbstractActionBuilder {
 
 	/**
@@ -67,12 +68,12 @@ class IfActionBuilder(conditionFunction: Session => Boolean, thenNext: ChainBuil
 	 */
 	def withElseNext(elseNext: Option[ChainBuilder]) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next)
 
-	def withNext(next: Action) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next)
+	def withNext(next: ActorRef) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next)
 
-	def build: Action = {
+	def build = {
 		val actionTrue = thenNext.withNext(next).build
 		val actionFalse = elseNext.map(_.withNext(next).build)
 
-		TypedActor.newInstance(classOf[Action], new IfAction(conditionFunction, actionTrue, actionFalse, next))
+		actorOf(new IfAction(conditionFunction, actionTrue, actionFalse, next)).start
 	}
 }

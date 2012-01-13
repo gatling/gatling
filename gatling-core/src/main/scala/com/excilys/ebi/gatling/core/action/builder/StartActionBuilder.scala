@@ -15,9 +15,10 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.Action
-import akka.actor.TypedActor
 import com.excilys.ebi.gatling.core.action.StartAction
+
+import akka.actor.Actor.actorOf
+import akka.actor.ActorRef
 
 /**
  * StartActionBuilder class companion
@@ -37,8 +38,8 @@ object StartActionBuilder {
  * @constructor create a StartActionBuilder with its next action
  * @param next the action to be executed after this one
  */
-class StartActionBuilder(next: Action) extends AbstractActionBuilder {
-	def withNext(next: Action) = new StartActionBuilder(next)
+class StartActionBuilder(next: ActorRef) extends AbstractActionBuilder {
+	def withNext(next: ActorRef) = new StartActionBuilder(next)
 
-	def build: Action = TypedActor.newInstance(classOf[Action], new StartAction(next))
+	def build = actorOf(new StartAction(next)).start
 }

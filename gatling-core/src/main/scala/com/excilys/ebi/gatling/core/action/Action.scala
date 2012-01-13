@@ -15,17 +15,23 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import akka.actor.TypedActor
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
+import akka.actor.Actor
 
 /**
  * This trait represents an Action in Gatling terms.
  *
  * An action can be executed in the scenario via the exec command
  */
-trait Action extends TypedActor with Logging with ClassSimpleNameToString {
+trait Action extends Actor with Logging with ClassSimpleNameToString {
+
+	def receive = {
+		case s: Session => execute(s)
+		case _ => throw new IllegalArgumentException("Unknown message type")
+	}
+
 	/**
 	 * This method is used to send a message to this actor
 	 *
@@ -39,5 +45,5 @@ trait Action extends TypedActor with Logging with ClassSimpleNameToString {
 	 *
 	 * @return a string containing the Uuid of the actor
 	 */
-	def getUuidAsString = getContext.uuid.toString
+	def getUuidAsString = self.uuid.toString
 }

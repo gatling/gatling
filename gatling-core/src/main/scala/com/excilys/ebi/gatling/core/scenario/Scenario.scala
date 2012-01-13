@@ -15,7 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.scenario
 
-import com.excilys.ebi.gatling.core.action.Action
-import java.util.concurrent.TimeUnit
+import akka.actor.ActorRef
 
-class Scenario(name: String, val firstAction: Action)
+class Scenario(name: String, val firstAction: ActorRef)

@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.action
+import scala.annotation.implicitNotFound
+
 import com.excilys.ebi.gatling.core.session.Session
+
+import akka.actor.ActorRef
 
 /**
  * This class represents a conditional Action
@@ -25,7 +29,7 @@ import com.excilys.ebi.gatling.core.session.Session
  * @param elseNext chain of actions executed if conditionFunction evaluates to false
  * @param next chain of actions executed if conditionFunction evaluates to false and elseNext equals None
  */
-class IfAction(conditionFunction: Session => Boolean, thenNext: Action, elseNext: Option[Action], next: Action) extends Action {
+class IfAction(conditionFunction: Session => Boolean, thenNext: ActorRef, elseNext: Option[ActorRef], next: ActorRef) extends Action {
 
 	/**
 	 * Evaluates the conditionFunction and if true executes the first action of thenNext
@@ -36,5 +40,5 @@ class IfAction(conditionFunction: Session => Boolean, thenNext: Action, elseNext
 	 * @param session Session for current user
 	 * @return Nothing
 	 */
-	def execute(session: Session) = if (conditionFunction(session)) thenNext.execute(session) else elseNext.getOrElse(next).execute(session)
+	def execute(session: Session) = if (conditionFunction(session)) thenNext !session else elseNext.getOrElse(next) ! session
 }

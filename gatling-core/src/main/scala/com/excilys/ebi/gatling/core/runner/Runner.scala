@@ -33,6 +33,7 @@ import org.joda.time.DateTime
 import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
 import com.excilys.ebi.gatling.core.config.GatlingConfig
+import akka.actor.ActorRef
 
 object Runner {
 	def runSim(startDate: DateTime)(scenarioConfigurations: ScenarioConfigurationBuilder*) = new Runner(startDate, scenarioConfigurations.toList).run
@@ -95,11 +96,11 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: List[ScenarioCo
 	 * @scenario the scenario that will be executed
 	 * @return Nothing
 	 */
-	private def startOneScenario(configuration: ScenarioConfiguration, scenario: Action) = {
+	private def startOneScenario(configuration: ScenarioConfiguration, scenario: ActorRef) = {
 		if (configuration.users == 1) {
 			// if single user, execute right now
 			val session = buildSession(configuration, 1)
-			scenario.execute(session)
+			scenario ! session
 		} else {
 			// otherwise, schedule
 			val ramp = configuration.ramp
@@ -108,7 +109,7 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: List[ScenarioCo
 
 			for (i <- 1 to configuration.users) {
 				val session: Session = buildSession(configuration, i)
-				Scheduler.scheduleOnce(() => scenario.execute(session), period * (i - 1), TimeUnit.MILLISECONDS)
+				Scheduler.scheduleOnce(() => scenario! session, period * (i - 1), TimeUnit.MILLISECONDS)
 			}
 		}
 	}

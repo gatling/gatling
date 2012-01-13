@@ -30,6 +30,7 @@ import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheck
 import com.excilys.ebi.gatling.http.config.GatlingHTTPConfig._
+import akka.actor.ActorRef
 
 /**
  * HttpRequestAction class companion
@@ -64,7 +65,7 @@ object HttpRequestAction {
  * @param givenCheckBuilders all the checks that will be performed on the response
  * @param feeder the feeder that will be consumed each time the request will be sent
  */
-class HttpRequestAction(next: Action, request: HttpRequest, givenCheckBuilders: Option[List[HttpCheckBuilder[_]]])
+class HttpRequestAction(next: ActorRef, request: HttpRequest, givenCheckBuilders: Option[List[HttpCheckBuilder[_]]])
 		extends RequestAction[Response](next, request, givenCheckBuilders) {
 
 	var checks: List[HttpCheck] = Nil

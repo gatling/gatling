@@ -20,6 +20,7 @@ import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.core.result.message.ResultStatus._
 import akka.actor.Actor.registry.actorFor
 import org.joda.time.DateTime
+import akka.actor.ActorRef
 
 /**
  * StartAction class companion
@@ -38,7 +39,7 @@ object StartAction {
  * @constructor creates an StartAction
  * @param next the action to be executed after this one
  */
-class StartAction(next: Action) extends Action {
+class StartAction(next: ActorRef) extends Action {
 
 	/**
 	 * Sends a message to the DataWriter and give hand to next actor
@@ -48,6 +49,6 @@ class StartAction(next: Action) extends Action {
 	def execute(session: Session) = {
 		actorFor(session.writeActorUuid).map(_ ! ActionInfo(session.scenarioName, session.userId, StartAction.START_OF_SCENARIO, DateTime.now, 0, OK, "Beginning Scenario"))
 		logger.info("Starting user #{}", session.userId)
-		next.execute(session)
+		next !session
 	}
 }

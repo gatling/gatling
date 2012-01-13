@@ -16,6 +16,7 @@
 package com.excilys.ebi.gatling.core.structure
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.action.Action
+import akka.actor.ActorRef
 
 /**
  * ChainBuilder class companion
@@ -32,7 +33,7 @@ object ChainBuilder {
  * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
  * @param next the action that will be executed after this chain
  */
-class ChainBuilder(actionBuilders: List[AbstractActionBuilder], next: Action)
+class ChainBuilder(actionBuilders: List[AbstractActionBuilder], next: ActorRef)
 		extends AbstractStructureBuilder[ChainBuilder](actionBuilders) {
 
 	private[core] def newInstance(actionBuilders: List[AbstractActionBuilder]) = new ChainBuilder(actionBuilders, next)
@@ -45,7 +46,7 @@ class ChainBuilder(actionBuilders: List[AbstractActionBuilder], next: Action)
 	 * @param next the action to be executed after the chain
 	 * @return the last built action
 	 */
-	private[core] def withNext(next: Action) = new ChainBuilder(actionBuilders, next)
+	private[core] def withNext(next: ActorRef) = new ChainBuilder(actionBuilders, next)
 
 	/**
 	 * Method that actually builds the scenario
@@ -53,5 +54,5 @@ class ChainBuilder(actionBuilders: List[AbstractActionBuilder], next: Action)
 	 * @param scenarioId the id of the current scenario
 	 * @return the first action of the scenario to be executed
 	 */
-	private[core] def build: Action = buildActions(next)
+	private[core] def build = buildActions(next)
 }

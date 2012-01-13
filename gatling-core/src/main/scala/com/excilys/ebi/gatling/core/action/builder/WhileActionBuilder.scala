@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.action.builder
-import com.excilys.ebi.gatling.core.action.Action
+import com.excilys.ebi.gatling.core.action.{ WhileAction, Action }
 import com.excilys.ebi.gatling.core.session.Session
-import akka.actor.TypedActor
-import com.excilys.ebi.gatling.core.action.WhileAction
-import akka.actor.Actor
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
+
+import akka.actor.Actor.actorOf
+import akka.actor.ActorRef
 
 /**
  * Companion of the WhileActionBuilder class
@@ -39,7 +39,7 @@ object WhileActionBuilder {
  * @param loopNext chain that will be executed if conditionFunction evaluates to true
  * @param next action that will be executed if conditionFunction evaluates to false
  */
-class WhileActionBuilder(conditionFunction: (Session, Action) => Boolean, loopNext: ChainBuilder, next: Action, counterName: Option[String])
+class WhileActionBuilder(conditionFunction: (Session, Action) => Boolean, loopNext: ChainBuilder, next: ActorRef, counterName: Option[String])
 		extends AbstractActionBuilder {
 
 	/**
@@ -71,7 +71,7 @@ class WhileActionBuilder(conditionFunction: (Session, Action) => Boolean, loopNe
 	 */
 	def withCounterName(counterName: Option[String]) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName)
 
-	def withNext(next: Action) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName)
+	def withNext(next: ActorRef) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName)
 
-	def build: Action = TypedActor.newInstance(classOf[Action], new WhileAction(conditionFunction, (w: WhileAction) => loopNext.withNext(w).build, next, counterName))
+	def build = actorOf(new WhileAction(conditionFunction, (w: ActorRef) => loopNext.withNext(w).build, next, counterName)).start
 }

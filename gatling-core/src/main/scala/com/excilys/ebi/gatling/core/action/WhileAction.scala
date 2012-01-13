@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.action
+import scala.annotation.implicitNotFound
+
+import com.excilys.ebi.gatling.core.session.handler.{TimerBasedIterationHandler, CounterBasedIterationHandler}
 import com.excilys.ebi.gatling.core.session.Session
-import java.util.concurrent.atomic.AtomicBoolean
-import com.excilys.ebi.gatling.core.session.handler.CounterBasedIterationHandler
-import com.excilys.ebi.gatling.core.session.handler.TimerBasedIterationHandler
+
+import akka.actor.ActorRef
 
 /**
  * Represents a While in the scenario.
@@ -28,10 +30,10 @@ import com.excilys.ebi.gatling.core.session.handler.TimerBasedIterationHandler
  * @param next the chain executed if testFunction evaluates to false
  * @param counterName the name of the counter for this loop
  */
-class WhileAction(testFunction: (Session, Action) => Boolean, var loopNext: WhileAction => Action, next: Action, counterName: Option[String])
+class WhileAction(testFunction: (Session, Action) => Boolean, var loopNext: ActorRef => ActorRef, next: ActorRef, counterName: Option[String])
 		extends Action with TimerBasedIterationHandler with CounterBasedIterationHandler {
 
-	val loopNextAction = loopNext(this)
+	val loopNextAction = loopNext(self)
 
 	/**
 	 * Evaluates the testFunction and if true executes the first action of loopNext
@@ -41,17 +43,17 @@ class WhileAction(testFunction: (Session, Action) => Boolean, var loopNext: Whil
 	 * @return Nothing
 	 */
 	def execute(session: Session) = {
-		val uuid = getContext.uuid.toString
+		val uuid = self.uuid.toString
 
 		init(session, uuid, counterName)
 
 		increment(session, uuid, counterName)
 
 		if (testFunction(session, this)) {
-			loopNextAction.execute(session)
+			loopNextAction ! session
 		} else {
 			expire(session, uuid, counterName)
-			next.execute(session)
+			next ! session
 		}
 	}
 }

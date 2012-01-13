@@ -15,12 +15,12 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.PauseAction
-import com.excilys.ebi.gatling.core.action.Action
-
 import java.util.concurrent.TimeUnit
 
-import akka.actor.TypedActor
+import com.excilys.ebi.gatling.core.action.PauseAction
+
+import akka.actor.Actor.actorOf
+import akka.actor.ActorRef
 
 /**
  * PauseActionBuilder class companion
@@ -41,7 +41,7 @@ object PauseActionBuilder {
  * @param timeUnit time unit of the duration of the generated pause
  * @param next action that will be executed after the generated pause
  */
-class PauseActionBuilder(minDuration: Long, maxDuration: Long, timeUnit: TimeUnit, next: Action)
+class PauseActionBuilder(minDuration: Long, maxDuration: Long, timeUnit: TimeUnit, next: ActorRef)
 		extends AbstractActionBuilder {
 
 	/**
@@ -76,7 +76,7 @@ class PauseActionBuilder(minDuration: Long, maxDuration: Long, timeUnit: TimeUni
 	 */
 	def withTimeUnit(timeUnit: TimeUnit) = new PauseActionBuilder(minDuration, maxDuration, timeUnit, next)
 
-	def withNext(next: Action) = new PauseActionBuilder(minDuration, maxDuration, timeUnit, next)
+	def withNext(next: ActorRef) = new PauseActionBuilder(minDuration, maxDuration, timeUnit, next)
 
-	def build: Action = TypedActor.newInstance(classOf[Action], new PauseAction(next, minDuration, maxDuration, timeUnit))
+	def build = actorOf(new PauseAction(next, minDuration, maxDuration, timeUnit)).start
 }

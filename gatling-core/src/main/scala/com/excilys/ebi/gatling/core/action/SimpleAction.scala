@@ -16,6 +16,7 @@
 package com.excilys.ebi.gatling.core.action
 
 import com.excilys.ebi.gatling.core.session.Session
+import akka.actor.ActorRef
 
 /**
  * This class represents a simple action. That is to say an action responsible for executing
@@ -25,7 +26,7 @@ import com.excilys.ebi.gatling.core.session.Session
  * @param sessionModifier the function that will be executed by this action
  * @param next the action to be executed after this one
  */
-class SimpleAction(sessionFunction: (Session, Action) => Unit, next: Action) extends Action {
+class SimpleAction(sessionFunction: (Session, Action) => Unit, next: ActorRef) extends Action {
 
 	/**
 	 * This method applies the function to the Session
@@ -34,6 +35,6 @@ class SimpleAction(sessionFunction: (Session, Action) => Unit, next: Action) ext
 	 */
 	def execute(session: Session) = {
 		sessionFunction(session, this)
-		next.execute(session)
+		next ! session
 	}
 }

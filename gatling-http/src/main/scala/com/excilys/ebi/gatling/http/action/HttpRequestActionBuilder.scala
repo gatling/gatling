@@ -25,9 +25,10 @@ import com.excilys.ebi.gatling.http.request.builder.GetHttpRequestBuilder
 import com.excilys.ebi.gatling.http.request.builder.PostHttpRequestBuilder
 import com.excilys.ebi.gatling.http.request.builder.DeleteHttpRequestBuilder
 import com.excilys.ebi.gatling.http.request.builder.PutHttpRequestBuilder
-import akka.actor.TypedActor
+import akka.actor.Actor._
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
+import akka.actor.ActorRef
 
 /**
  * HttpRequestActionBuilder class companion
@@ -48,7 +49,7 @@ object HttpRequestActionBuilder {
  * @param next the next action to be executed
  * @param processorBuilders
  */
-class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, next: Action, processorBuilders: Option[List[HttpCheckBuilder[_]]])
+class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, next: ActorRef, processorBuilders: Option[List[HttpCheckBuilder[_]]])
 		extends AbstractActionBuilder {
 
 	/**
@@ -63,10 +64,10 @@ class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, ne
 
 	private[http] def withRequest(request: HttpRequest) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders)
 
-	private[gatling] def withNext(next: Action) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders)
+	private[gatling] def withNext(next: ActorRef) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders)
 
-	private[gatling] def build: Action = {
-		TypedActor.newInstance(classOf[Action], new HttpRequestAction(next, request, processorBuilders))
+	private[gatling] def build = {
+		actorOf(new HttpRequestAction(next, request, processorBuilders)).start
 	}
 
 	/**

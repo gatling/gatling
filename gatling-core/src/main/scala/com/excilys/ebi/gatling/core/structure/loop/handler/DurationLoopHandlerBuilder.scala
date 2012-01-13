@@ -15,13 +15,12 @@
  */
 package com.excilys.ebi.gatling.core.structure.loop.handler
 import java.util.concurrent.TimeUnit
+
 import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder._
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
-import com.excilys.ebi.gatling.core.structure.ChainBuilder
-import akka.actor.TypedActor
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.session.handler.TimerBasedIterationHandler._
+import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.structure.{ ChainBuilder, AbstractStructureBuilder }
 
 /**
  * This builder creates a duration loop, using a WhileAction

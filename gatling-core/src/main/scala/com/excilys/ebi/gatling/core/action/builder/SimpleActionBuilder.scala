@@ -15,11 +15,13 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.Action
-import scala.collection.immutable.List
+import scala.annotation.implicitNotFound
+
+import com.excilys.ebi.gatling.core.action.{ SimpleAction, Action }
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.action.SimpleAction
-import akka.actor.TypedActor
+
+import akka.actor.Actor.actorOf
+import akka.actor.ActorRef
 
 /**
  * SimpleActionBuilder class companion
@@ -60,9 +62,9 @@ object SimpleActionBuilder {
  * @param sessionFunction the function that will be executed by the simple action
  * @param next the action that will be executed after the simple action built by this builder
  */
-class SimpleActionBuilder(sessionFunction: (Session, Action) => Unit, next: Action) extends AbstractActionBuilder {
+class SimpleActionBuilder(sessionFunction: (Session, Action) => Unit, next: ActorRef) extends AbstractActionBuilder {
 
-	def withNext(next: Action) = new SimpleActionBuilder(sessionFunction, next)
+	def withNext(next: ActorRef) = new SimpleActionBuilder(sessionFunction, next)
 
-	def build(): Action = TypedActor.newInstance(classOf[Action], new SimpleAction(sessionFunction, next))
+	def build() = actorOf(new SimpleAction(sessionFunction, next)).start
 }

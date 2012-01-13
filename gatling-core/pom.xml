@@ -29,14 +29,6 @@
 			<artifactId>akka-actor</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>se.scalablesolutions.akka</groupId>
-			<artifactId>akka-typed-actor</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.aspectwerkz</groupId>
-			<artifactId>aspectwerkz</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>jaxen</groupId>
 			<artifactId>jaxen</artifactId>
 		</dependency>

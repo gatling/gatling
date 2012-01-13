@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.structure.loop.handler
+import com.excilys.ebi.gatling.core.action.builder.CountBasedIterationActionBuilder.{ initCounterAction, incrementCounterAction, expireCounterAction }
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder._
-import com.excilys.ebi.gatling.core.action.builder.CountBasedIterationActionBuilder._
-import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
-import akka.actor.TypedActor
-import com.excilys.ebi.gatling.core.action.Action
+
 import akka.actor.Uuid
 
 /**

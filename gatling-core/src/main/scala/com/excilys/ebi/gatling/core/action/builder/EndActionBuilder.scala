@@ -16,11 +16,9 @@
 package com.excilys.ebi.gatling.core.action.builder
 
 import java.util.concurrent.CountDownLatch
-
-import com.excilys.ebi.gatling.core.action.Action
-import com.excilys.ebi.gatling.core.action.EndAction
-
-import akka.actor.TypedActor
+import com.excilys.ebi.gatling.core.action.{EndAction, Action}
+import akka.actor.Actor.actorOf
+import akka.actor.ActorRef
 
 /**
  * EndActionBuilder class companion
@@ -44,9 +42,9 @@ object EndActionBuilder {
  */
 class EndActionBuilder(latch: CountDownLatch) extends AbstractActionBuilder {
 
-	def build: Action = TypedActor.newInstance(classOf[Action], new EndAction(latch))
-
-	def withNext(next: Action): AbstractActionBuilder = this
+	def build = actorOf(new EndAction(latch)).start
+		
+	def withNext(next: ActorRef): AbstractActionBuilder = this
 
 	override def toString = "End"
 }

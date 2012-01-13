@@ -17,13 +17,10 @@ package com.excilys.ebi.gatling.http.ahc
 
 import java.lang.Void
 import java.util.concurrent.TimeUnit
-
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.immutable.HashMap
 import scala.collection.mutable.{HashMap => MHashMap}
-
 import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.check.extractor.{MultiValuedExtractor, ExtractorFactory, Extractor}
 import com.excilys.ebi.gatling.core.log.Logging
@@ -39,8 +36,8 @@ import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
 import com.ning.http.client.{Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler}
 import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
-
 import akka.actor.Actor.registry.actorFor
+import akka.actor.ActorRef
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
@@ -53,7 +50,7 @@ import akka.actor.Actor.registry.actorFor
  * @param next the next action to be executed
  * @param requestName the name of the request
  */
-class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Action, requestName: String)
+class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: ActorRef, requestName: String)
 		extends AsyncHandler[Void] with Logging {
 
 	private val executionStartTimeNano = System.nanoTime
@@ -129,7 +126,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actio
 
 		session.setAttribute(Session.LAST_ACTION_DURATION_KEY, System.nanoTime() - processingStartTimeNano)
 
-		next.execute(session)
+		next ! session
 	}
 
 	private def getChecksForPhase(httpPhase: HttpPhase) = checks.view.filter(_.when == httpPhase)

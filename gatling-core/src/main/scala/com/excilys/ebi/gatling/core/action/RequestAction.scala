@@ -19,6 +19,7 @@ import com.excilys.ebi.gatling.core.action.request.Request
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.check.CheckBuilder
+import akka.actor.ActorRef
 
 /**
  * Abstract class for all request actions. For example HTTPRequestAction, and later LDAPRequestAction, etc.
@@ -28,6 +29,6 @@ import com.excilys.ebi.gatling.core.check.CheckBuilder
  * @param givenProcessors a list of processors that will apply on the response
  * @param feeder the feeder that will be consumed by this request
  */
-abstract class RequestAction[P](next: Action, request: Request, givenProcessors: Option[List[CheckBuilder[_, P]]]) extends Action {
+abstract class RequestAction[P](next: ActorRef, request: Request, givenProcessors: Option[List[CheckBuilder[_, P]]]) extends Action {
 	def execute(session: Session)
 }
