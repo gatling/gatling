@@ -30,10 +30,10 @@ object CheckBuilder {
  * @param strategy the strategy used to perform the Check
  * @param expected the expected value of what has been found
  */
-abstract class CheckBuilder[B <: CheckBuilder[B, WHERE], WHERE](what: Session => String, occurrence: Option[Int], strategy: (List[String], List[String]) => Boolean, expected: List[Session => String], saveAs: Option[String])
+abstract class CheckBuilder[B <: CheckBuilder[B, T], T](what: Session => String, occurrence: Option[Int], strategy: (List[String], List[String]) => Boolean, expected: List[Session => String], saveAs: Option[String])
 		extends Logging {
 
-	private[gatling] def build: Check[WHERE]
+	private[gatling] def build: Check[T]
 
 	private[gatling] def newInstance(what: Session => String, occurrence: Option[Int], strategy: (List[String], List[String]) => Boolean, expected: List[Session => String], saveAs: Option[String]): B
 	private[gatling] def newInstanceWithVerify(strategy: (List[String], List[String]) => Boolean, expected: List[Session => String] = Nil): B with CheckBuilderSave[B]
