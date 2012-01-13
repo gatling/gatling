@@ -14,37 +14,44 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.check
-import com.excilys.ebi.gatling.core.check.strategy.CheckStrategy
-import com.excilys.ebi.gatling.core.check.strategy.ExistenceCheckStrategy
-import com.excilys.ebi.gatling.core.check.strategy.NonExistenceCheckStrategy
-import com.excilys.ebi.gatling.core.check.strategy.EqualityCheckStrategy
-import com.excilys.ebi.gatling.core.check.strategy.NonEqualityCheckStrategy
-import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy
-import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy.rangeToString
-import com.excilys.ebi.gatling.core.check.strategy.ListEqualityCheckStrategy
-import com.excilys.ebi.gatling.core.check.strategy.ListSizeCheckStrategy
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
+import CheckBuilderVerify.SEPARATOR
+import CheckBuilderVerify.rangeToString
 
+object CheckBuilderVerify {
+	val SEPARATOR = ":"
+
+	implicit def rangeToString(range: Range) = range.mkString(SEPARATOR)
+
+	def exists = (value: List[String], expected: List[String]) => !value.isEmpty
+	def notExists = (value: List[String], expected: List[String]) => value.isEmpty
+	def eq = (value: List[String], expected: List[String]) => !value.isEmpty && !expected.isEmpty && value(0) == expected(0)
+	def neq = (value: List[String], expected: List[String]) => !value.isEmpty && value != expected
+	def in = (value: List[String], expected: List[String]) => !value.isEmpty && !expected.isEmpty && expected(0).split(SEPARATOR).contains(value(0))
+	def listEq = (value: List[String], expected: List[String]) => !value.isEmpty && value == expected
+	def listSize = (value: List[String], expected: List[String]) => value.size == expected(0).toInt
+
+}
 trait CheckBuilderVerify[B <: CheckBuilder[B, _]] extends CheckBuilderSave[B] { this: CheckBuilder[B, _] with CheckBuilderSave[B] =>
-	def verify(strategy: CheckStrategy) = newInstanceWithVerify(strategy)
-	def verify(strategy: CheckStrategy, expected: List[String]) = newInstanceWithVerify(strategy, expected.map(interpolate(_)))
-	def verify(strategy: CheckStrategy, expected: String) = newInstanceWithVerify(strategy, List(interpolate(expected)))
+	def verify(strategy: (List[String], List[String]) => Boolean) = newInstanceWithVerify(strategy)
+	def verify(strategy: (List[String], List[String]) => Boolean, expected: List[String]) = newInstanceWithVerify(strategy, expected.map(interpolate(_)))
+	def verify(strategy: (List[String], List[String]) => Boolean, expected: String) = newInstanceWithVerify(strategy, List(interpolate(expected)))
 }
 
 trait CheckBuilderVerifyOne[B <: CheckBuilder[B, _]] extends CheckBuilderVerify[B] { this: CheckBuilder[B, _] with CheckBuilderSave[B] =>
-	def exists = verify(ExistenceCheckStrategy)
+	def exists = verify(CheckBuilderVerify.exists)
 
-	def notExists = verify(NonExistenceCheckStrategy)
+	def notExists = verify(CheckBuilderVerify.notExists)
 
-	def eq(expected: String) = verify(EqualityCheckStrategy, expected)
+	def eq(expected: String) = verify(CheckBuilderVerify.eq, expected)
 
-	def neq(expected: String) = verify(NonEqualityCheckStrategy, expected)
+	def neq(expected: String) = verify(CheckBuilderVerify.neq, expected)
 
-	def in(range: Range) = verify(InRangeCheckStrategy, range)
+	def in(range: Range) = verify(CheckBuilderVerify.in, range)
 }
 
 trait CheckBuilderVerifyAll[B <: CheckBuilder[B, _]] extends CheckBuilderVerify[B] { this: CheckBuilder[B, _] with CheckBuilderSave[B] =>
-	def eq(expected: List[String]) = verify(ListEqualityCheckStrategy, expected)
+	def eq(expected: List[String]) = verify(CheckBuilderVerify.listEq, expected)
 
-	def size(s: Int) = verify(ListSizeCheckStrategy, s.toString)
+	def size(s: Int) = verify(CheckBuilderVerify.listSize, s.toString)
 }

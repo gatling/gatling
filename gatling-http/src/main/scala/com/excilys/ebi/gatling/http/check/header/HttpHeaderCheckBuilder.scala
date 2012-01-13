@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.http.check.header
 
-import com.excilys.ebi.gatling.core.check.strategy.CheckStrategy
-import com.excilys.ebi.gatling.core.check.strategy.ExistenceCheckStrategy
 import com.excilys.ebi.gatling.core.check.CheckBuilderFind
 import com.excilys.ebi.gatling.core.check.CheckBuilderVerifyOne
 import com.excilys.ebi.gatling.core.check.CheckBuilderSave
@@ -26,6 +24,7 @@ import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
+import com.excilys.ebi.gatling.core.check.CheckBuilderVerify
 
 /**
  * HttpHeaderCheckBuilder class companion
@@ -38,7 +37,7 @@ object HttpHeaderCheckBuilder {
 	 *
 	 * @param what the function returning the name of the header
 	 */
-	def header(what: Session => String) = new HttpHeaderCheckBuilder(what, ExistenceCheckStrategy, Nil, None) with CheckBuilderFind[HttpCheckBuilder[HttpHeaderCheckBuilder]]
+	def header(what: Session => String) = new HttpHeaderCheckBuilder(what, CheckBuilderVerify.exists, Nil, None) with CheckBuilderFind[HttpCheckBuilder[HttpHeaderCheckBuilder]]
 	/**
 	 * Will check the value of the header in the session
 	 *
@@ -55,10 +54,10 @@ object HttpHeaderCheckBuilder {
  * @param strategy the strategy used to check
  * @param expected the expected value against which the extracted value will be checked
  */
-class HttpHeaderCheckBuilder(what: Session => String, strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String])
+class HttpHeaderCheckBuilder(what: Session => String, strategy: (List[String], List[String]) => Boolean, expected: List[Session => String], saveAs: Option[String])
 		extends HttpCheckBuilder[HttpHeaderCheckBuilder](what, None, strategy, expected, saveAs, HeadersReceived) {
 
-	private[http] def newInstance(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String], when: HttpPhase) =
+	private[http] def newInstance(what: Session => String, occurrence: Option[Int], strategy: (List[String], List[String]) => Boolean, expected: List[Session => String], saveAs: Option[String], when: HttpPhase) =
 		new HttpHeaderCheckBuilder(what, strategy, expected, saveAs)
 
 	private[gatling] def newInstanceWithFindOne(occurrence: Int) =
@@ -66,7 +65,7 @@ class HttpHeaderCheckBuilder(what: Session => String, strategy: CheckStrategy, e
 
 	private[gatling] def newInstanceWithFindAll = throw new UnsupportedOperationException("Header checks are single valued")
 
-	private[gatling] def newInstanceWithVerify(strategy: CheckStrategy, expected: List[Session => String] = Nil) =
+	private[gatling] def newInstanceWithVerify(strategy: (List[String], List[String]) => Boolean, expected: List[Session => String] = Nil) =
 		new HttpHeaderCheckBuilder(what, strategy, expected, saveAs) with CheckBuilderSave[HttpCheckBuilder[HttpHeaderCheckBuilder]]
 
 	private[gatling] def build: HttpCheck = new HttpHeaderCheck(what, strategy, expected, saveAs)

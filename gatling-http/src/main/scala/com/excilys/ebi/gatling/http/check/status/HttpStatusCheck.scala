@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.check.status.extractor.HttpStatusExtractorFactory
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
-import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy
+import com.excilys.ebi.gatling.core.check.CheckBuilderVerify
 
 /**
  * This class represents a check made on the status of the response
@@ -29,4 +29,4 @@ import com.excilys.ebi.gatling.core.check.strategy.InRangeCheckStrategy
  * @param expected the expected value against which the extracted value will be checked
  */
 class HttpStatusCheck(expected: List[Session => String], saveAs: Option[String])
-	extends HttpCheck((s: Session) => EMPTY, HttpStatusExtractorFactory, InRangeCheckStrategy, expected, saveAs, CompletePageReceived)
+	extends HttpCheck((s: Session) => EMPTY, HttpStatusExtractorFactory, CheckBuilderVerify.in, expected, saveAs, CompletePageReceived)

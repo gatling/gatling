@@ -18,7 +18,6 @@ package com.excilys.ebi.gatling.core.check
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.check.strategy.CheckStrategy
 import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
 
 /**
@@ -30,7 +29,7 @@ import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
  * @param strategy the strategy used to perform the Check
  * @param expected the expected value of what has been found
  */
-abstract class Check[WHERE](val what: Session => String, val how: ExtractorFactory[WHERE], val strategy: CheckStrategy, val expected: List[Session => String], val saveAs: Option[String])
+abstract class Check[WHERE](val what: Session => String, val how: ExtractorFactory[WHERE], val strategy: (List[String], List[String]) => Boolean, val expected: List[Session => String], val saveAs: Option[String])
 		extends Logging with ClassSimpleNameToString {
 
 	/**
@@ -39,5 +38,5 @@ abstract class Check[WHERE](val what: Session => String, val how: ExtractorFacto
 	 * @param value the value extracted from the WHERE
 	 * @return a boolean that indicates whether the check succeeded or not
 	 */
-	def check(value: List[String], session: Session) = strategy.check(value, expected.map(_(session)))
+	def check(value: List[String], session: Session) = strategy(value, expected.map(_(session)))
 }
