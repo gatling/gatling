@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>gatling-parent</artifactId>
+        <groupId>com.excilys.ebi.gatling</groupId>
+        <version>1.1.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>gatling-maven-plugin</artifactId>
+    <name>${project.artifactId}</name>
+    <packaging>maven-plugin</packaging>
+
+    <properties>
+        <maven.version>2.2.1</maven.version>
+        <ant.version>1.8.2</ant.version>
+    </properties>
+
+    <dependencies>
+        <!-- Gatling Dependencies -->
+        <dependency>
+            <groupId>com.excilys.ebi.gatling</groupId>
+            <artifactId>gatling-app</artifactId>
+        </dependency>
+
+        <!-- Maven Dependencies-->
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-plugin-api</artifactId>
+            <version>${maven.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-project</artifactId>
+            <version>${maven.version}</version>
+        </dependency>
+
+        <!-- Ant Dependencies -->
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant</artifactId>
+            <version>${ant.version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <outputDirectory>${project.build.sourceDirectory}</outputDirectory>
+                            <extractors>
+                                <extractor>java</extractor>
+                            </extractors>
+                        </configuration>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>helpmojo</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+
+</project>
