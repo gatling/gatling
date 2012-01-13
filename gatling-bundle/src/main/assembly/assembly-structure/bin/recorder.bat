@@ -25,7 +25,7 @@ if exist "%CURRENT_DIR%\bin\gatling.bat" set "GATLING_HOME=%cd%" && goto gotHome
 rem if not try parent folder
 cd ..
 set "CURRENT_DIR=%cd%"
-if exist "%CURRENT_DIR%\bin\gatling.bat" set "GATLING_HOME=%cd%" && goto gotHome
+if exist "%CURRENT_DIR%\bin\recorder.bat" set "GATLING_HOME=%cd%" && goto gotHome
 rem else tell user to set GATLING_HOME
 goto :noHome
 

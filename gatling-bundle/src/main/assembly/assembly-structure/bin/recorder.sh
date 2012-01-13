@@ -20,7 +20,7 @@ if [ -n "${GATLING_HOME+x}" ]; then
 else
 	if [ $(basename `pwd -P`) = "bin" ]; then
 		# If was started with 'sh filename'
-		if [ $0 = "gatling.sh" ]; then
+		if [ $0 = "recorder.sh" ]; then
 			export GATLING_HOME=$(dirname $(dirname `pwd -P`/$0))
 		else
 			export GATLING_HOME=$(dirname $(dirname $(dirname `pwd -P`/$0)))
