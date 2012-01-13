@@ -1,23 +1,8 @@
-<!--
-
-    Copyright 2011 eBusiness Information, Groupe Excilys (www.excilys.com)
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-
--->
-<assembly
-	xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<!-- Copyright 2011 eBusiness Information, Groupe Excilys (www.excilys.com) Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance 
+	with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed 
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
+	and limitations under the License. -->
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
 	<id>bundle</id>
 	<formats>
@@ -28,18 +13,8 @@
 	<dependencySets>
 		<dependencySet>
 			<outputDirectory>lib/</outputDirectory>
-			<excludes>
-				<exclude>com.excilys.ebi.gatling:gatling-recorder</exclude>
-			</excludes>
 			<unpack>false</unpack>
 			<useTransitiveDependencies>true</useTransitiveDependencies>
-		</dependencySet>
-		<dependencySet>
-			<outputDirectory>recorder/</outputDirectory>
-			<includes>
-				<include>com.excilys.ebi.gatling:gatling-recorder</include>
-			</includes>
-			<unpack>false</unpack>
 		</dependencySet>
 	</dependencySets>
 	<fileSets>
@@ -52,18 +27,11 @@
 				<exclude>results/*/</exclude>
 			</excludes>
 		</fileSet>
-	</fileSets>
-	<files>
-		<file>
-			<source>src/main/assembly/assembly-structure/bin/gatling.sh</source>
+		<fileSet>
+			<directory>src/main/assembly/assembly-structure/bin</directory>
 			<filtered>true</filtered>
 			<fileMode>0755</fileMode>
 			<outputDirectory>/bin/</outputDirectory>
-		</file>
-		<file>
-			<source>src/main/assembly/assembly-structure/bin/gatling.bat</source>
-			<filtered>true</filtered>
-			<outputDirectory>/bin/</outputDirectory>
-		</file>
-	</files>
+		</fileSet>
+	</fileSets>
 </assembly>
