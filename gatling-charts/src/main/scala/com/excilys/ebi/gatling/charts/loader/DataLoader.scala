@@ -34,34 +34,34 @@ class DataLoader(runOn: String) extends Logging {
 
 	private val data: Buffer[ResultLine] = {
 
-		trait Cache[A] {
-			val map = new HashMap[String, A]
+		class Cache[K, V](computeKey: K => K, computeValue: K => V) {
+			val map = new HashMap[K, V]
 
-			def string2cached(s: String): A
-
-			def get(s: String) = {
-				map.getOrElse(s, {
+			def get(key: K) = {
+				map.getOrElse(key, {
 					// don't use getOrUpdate as we don't want to store the whole original String as key
-					val newString = new String(s)
-					val cached = string2cached(newString)
-					map.put(newString, cached)
-					cached
+					val newKey = computeKey(key)
+					val value = computeValue(newKey)
+					map.put(newKey, value)
+					value
 				})
 			}
 		}
 
+		class StringKeyCache[V](computeValue: String => V) extends Cache[String, V]((s: String) => new String(s), computeValue)
+
+		class StringCache extends StringKeyCache((s: String) => s)
+
+		class IntCache extends StringKeyCache((s: String) => s.toInt)
+
+		class DateTimeCache extends StringKeyCache((s: String) => parseResultDate(s))
+
 		val buffer = new ArrayBuffer[ResultLine]
 
 		// use caches in order to reuse String instances instead of holding multiple references of equal Strings
-		val stringCache = new Cache[String] {
-			def string2cached(s: String) = s
-		}
-		val intCache = new Cache[Int] {
-			def string2cached(s: String) = s.toInt
-		}
-		val dateTimeCache = new Cache[DateTime] {
-			def string2cached(s: String) = parseResultDate(s)
-		}
+		val stringCache = new StringCache()
+		val intCache = new IntCache()
+		val dateTimeCache = new DateTimeCache()
 
 		for (line <- Source.fromFile(simulationLogFile(runOn).jfile, CONFIG_ENCODING).getLines) {
 			line.split(TABULATION_SEPARATOR) match {
@@ -83,7 +83,9 @@ class DataLoader(runOn: String) extends Logging {
 
 	val scenarioNames: Buffer[String] = data.map(_.scenarioName).distinct
 
-	val dataIndexedByDateWithoutMillis: SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(data.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
+	val dataIndexedByDateWithoutMillis: SortedMap[DateTime, Buffer[ResultLine]] = {
+		SortedMap(data.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
+	}
 
 	def requestData(requestName: String) = data.filter(_.requestName == requestName)
 
@@ -91,7 +93,11 @@ class DataLoader(runOn: String) extends Logging {
 
 	def requestDataIndexedByDate(requestName: String): SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(requestData(requestName).groupBy(_.executionStartDate).toSeq: _*)
 
-	def requestDataIndexedByDateWithoutMillis(requestName: String): SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(requestData(requestName).groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
+	def requestDataIndexedByDateWithoutMillis(requestName: String): SortedMap[DateTime, Buffer[ResultLine]] = {
+		SortedMap(requestData(requestName).groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
+	}
 
-	def scenarioDataIndexedByDateWithoutMillis(scenarioName: String): SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(scenarioData(scenarioName).groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
+	def scenarioDataIndexedByDateWithoutMillis(scenarioName: String): SortedMap[DateTime, Buffer[ResultLine]] = {
+		SortedMap(scenarioData(scenarioName).groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
+	}
 }
