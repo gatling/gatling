@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.structure.loop.handler
+
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder

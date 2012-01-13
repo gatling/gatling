@@ -18,10 +18,10 @@ package com.excilys.ebi.gatling.recorder.configuration;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.PatternType;
 
 public class Pattern {
-	
+
 	private final PatternType patternType;
 	private final String pattern;
-	
+
 	public Pattern(PatternType patternType, String pattern) {
 		this.patternType = patternType;
 		this.pattern = pattern;
@@ -34,10 +34,10 @@ public class Pattern {
 	public String getPattern() {
 		return pattern;
 	}
-	
+
 	@Override
 	public String toString() {
-		return patternType+" | "+pattern;
+		return patternType + " | " + pattern;
 	}
 
 	@Override
@@ -45,8 +45,7 @@ public class Pattern {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((pattern == null) ? 0 : pattern.hashCode());
-		result = prime * result
-				+ ((patternType == null) ? 0 : patternType.hashCode());
+		result = prime * result + ((patternType == null) ? 0 : patternType.hashCode());
 		return result;
 	}
 
@@ -68,6 +67,5 @@ public class Pattern {
 			return false;
 		return true;
 	}
-	
-	
+
 }

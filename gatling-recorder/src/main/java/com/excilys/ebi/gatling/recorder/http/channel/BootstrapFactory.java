@@ -103,7 +103,8 @@ public class BootstrapFactory {
 				pipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE));
 				pipeline.addLast("encoder", new HttpResponseEncoder());
 				pipeline.addLast("deflater", new HttpContentCompressor());
-				// pipeline.addLast("log", new LoggingHandler(InternalLogLevel.INFO));
+				// pipeline.addLast("log", new
+				// LoggingHandler(InternalLogLevel.INFO));
 				if (ssl) {
 					pipeline.addLast("gatling", new BrowserHttpsRequestHandler(proxyConfig));
 				} else {

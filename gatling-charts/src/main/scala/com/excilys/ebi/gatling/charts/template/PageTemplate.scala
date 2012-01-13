@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.template
+
 import org.fusesource.scalate.TemplateEngine
-import com.excilys.ebi.gatling.charts.component.Component
-import com.excilys.ebi.gatling.charts.config.ChartsFiles._
-import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.util.PathHelper._
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.core.util.DateHelper._
 import org.joda.time.DateTime
+
+import com.excilys.ebi.gatling.charts.component.Component
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ MENU_FILE, JQUERY_FILE, GATLING_TEMPLATE_LAYOUT_FILE_URL }
+import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.util.DateHelper.printReadableDate
 
 object PageTemplate {
 	val TEMPLATE_ENGINE = new TemplateEngine

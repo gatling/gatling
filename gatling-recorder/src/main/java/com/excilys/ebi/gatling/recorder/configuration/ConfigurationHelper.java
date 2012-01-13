@@ -23,15 +23,14 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
-
-import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
 
 public final class ConfigurationHelper {
 

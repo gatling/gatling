@@ -27,9 +27,9 @@ import com.excilys.ebi.gatling.recorder.ui.component.ConfigurationFrame;
 import com.excilys.ebi.gatling.recorder.ui.component.RunningFrame;
 
 public class GatlingHttpProxyUI {
-	
+
 	public static void main(String[] args) {
-		
+
 		ConfigurationHelper.initConfiguration(args);
 
 		EventQueue.invokeLater(new Runnable() {

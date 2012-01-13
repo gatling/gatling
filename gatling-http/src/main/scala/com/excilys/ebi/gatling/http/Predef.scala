@@ -15,15 +15,13 @@
  */
 package com.excilys.ebi.gatling.http
 
+import com.excilys.ebi.gatling.core.check.CheckBuilder
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
-import com.excilys.ebi.gatling.http.config.HttpProtocolConfigurationBuilder
-import com.excilys.ebi.gatling.http.check.body.HttpBodyRegexCheckBuilder
-import com.excilys.ebi.gatling.http.check.body.HttpBodyXPathCheckBuilder
+import com.excilys.ebi.gatling.http.check.body.{ HttpBodyXPathCheckBuilder, HttpBodyRegexCheckBuilder }
 import com.excilys.ebi.gatling.http.check.header.HttpHeaderCheckBuilder
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder
-import com.excilys.ebi.gatling.core.check.CheckBuilder
-import com.excilys.ebi.gatling.http.config.HttpProxyBuilder
+import com.excilys.ebi.gatling.http.config.{ HttpProxyBuilder, HttpProtocolConfigurationBuilder }
 
 object Predef {
 	def http(requestName: String) = HttpRequestActionBuilder.http(requestName)

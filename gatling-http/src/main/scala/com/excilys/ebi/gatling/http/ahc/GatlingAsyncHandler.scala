@@ -17,11 +17,13 @@ package com.excilys.ebi.gatling.http.ahc
 
 import java.lang.Void
 import java.util.concurrent.TimeUnit
+
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.immutable.HashMap
 import scala.collection.mutable.{HashMap => MHashMap}
+
 import org.joda.time.DateTime
-import com.excilys.ebi.gatling.core.action.Action
+
 import com.excilys.ebi.gatling.core.check.extractor.{MultiValuedExtractor, ExtractorFactory, Extractor}
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ResultStatus, OK, KO}
@@ -36,6 +38,7 @@ import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
 import com.ning.http.client.{Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler}
 import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
+
 import akka.actor.Actor.registry.actorFor
 import akka.actor.ActorRef
 

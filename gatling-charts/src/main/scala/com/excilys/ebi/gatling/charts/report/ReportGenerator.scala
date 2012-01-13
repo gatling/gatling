@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.report
-import com.excilys.ebi.gatling.charts.loader.DataLoader
+
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
+import com.excilys.ebi.gatling.charts.loader.DataLoader
 import com.excilys.ebi.gatling.core.log.Logging
 
 abstract class ReportGenerator(runOn: String, dataLoader: DataLoader, componentLibrary: ComponentLibrary) extends Logging {

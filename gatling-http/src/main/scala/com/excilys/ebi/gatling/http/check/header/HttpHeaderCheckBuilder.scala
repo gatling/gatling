@@ -15,16 +15,12 @@
  */
 package com.excilys.ebi.gatling.http.check.header
 
-import com.excilys.ebi.gatling.core.check.CheckBuilderFind
-import com.excilys.ebi.gatling.core.check.CheckBuilderVerifyOne
-import com.excilys.ebi.gatling.core.check.CheckBuilderSave
+import com.excilys.ebi.gatling.core.check.{CheckBuilderVerifyOne, CheckBuilderFind}
+import com.excilys.ebi.gatling.core.check.{CheckBuilderVerify, CheckBuilderSave}
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
-import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
-import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
-import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
-import com.excilys.ebi.gatling.core.check.CheckBuilderVerify
+import com.excilys.ebi.gatling.http.check.{HttpCheckBuilder, HttpCheck}
+import com.excilys.ebi.gatling.http.request.HttpPhase.{HttpPhase, HeadersReceived}
 
 /**
  * HttpHeaderCheckBuilder class companion

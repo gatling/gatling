@@ -17,7 +17,6 @@ package com.excilys.ebi.gatling.core.util
 
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
 
 /**
  * This object groups all utilities for dates

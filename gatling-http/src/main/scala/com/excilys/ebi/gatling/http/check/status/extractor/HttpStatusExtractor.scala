@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.http.check.status.extractor
 
-import com.ning.http.client.Response
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
+import com.ning.http.client.Response
 
 /**
  * HTTP Status extractor

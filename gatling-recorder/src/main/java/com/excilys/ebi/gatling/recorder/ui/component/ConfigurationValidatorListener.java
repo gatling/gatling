@@ -165,8 +165,8 @@ public class ConfigurationValidatorListener implements ActionListener {
 		if (!Configuration.getInstance().getFilterStrategy().equals(FilterStrategy.NONE))
 			for (Pattern pattern : Configuration.getInstance().getPatterns())
 				logger.info("| - " + pattern);
-					logger.info("Results: " + Configuration.getInstance().getOutputFolder());
-					logger.info("Result type:");
+		logger.info("Results: " + Configuration.getInstance().getOutputFolder());
+		logger.info("Result type:");
 		for (ResultType r : Configuration.getInstance().getResultTypes())
 			logger.info("| - " + r);
 	}

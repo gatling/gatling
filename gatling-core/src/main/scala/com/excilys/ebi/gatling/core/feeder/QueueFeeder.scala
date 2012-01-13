@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.feeder
-import scala.collection.mutable.Queue
+
 import java.util.concurrent.ConcurrentLinkedQueue
-import scala.collection.JavaConversions._
-import akka.actor.Actor.registry
+
+import scala.collection.JavaConversions.bufferAsJavaList
+
 import com.excilys.ebi.gatling.core.log.Logging
+
+import akka.actor.Actor.registry
 
 class QueueFeeder(feederSource: FeederSource) extends Feeder(feederSource) with Logging {
 

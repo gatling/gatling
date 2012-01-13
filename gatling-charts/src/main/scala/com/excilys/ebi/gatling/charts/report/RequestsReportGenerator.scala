@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.report
+
 import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
@@ -23,8 +24,8 @@ import com.excilys.ebi.gatling.charts.loader.DataLoader
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.series.SharedSeries
 import com.excilys.ebi.gatling.charts.template.RequestsPageTemplate
+import com.excilys.ebi.gatling.charts.util.Colors.{ toString, RED, GREEN, BLUE }
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
-import com.excilys.ebi.gatling.charts.util.Colors._
 
 class RequestsReportGenerator(runOn: String, dataLoader: DataLoader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataLoader, componentLibrary) {
 

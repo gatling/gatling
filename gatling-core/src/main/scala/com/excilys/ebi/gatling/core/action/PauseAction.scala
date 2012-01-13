@@ -15,11 +15,13 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import akka.actor.Scheduler
 import java.util.concurrent.TimeUnit
-import com.excilys.ebi.gatling.core.session.Session
+
 import scala.util.Random
-import akka.actor.ActorRef
+
+import com.excilys.ebi.gatling.core.session.Session
+
+import akka.actor.{Scheduler, ActorRef}
 
 /**
  * PauseAction class companion

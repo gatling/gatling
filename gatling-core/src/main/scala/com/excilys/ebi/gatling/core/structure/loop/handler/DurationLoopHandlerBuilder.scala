@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.structure.loop.handler
+
 import java.util.concurrent.TimeUnit
 
-import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder._
+import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder.whileActionBuilder
 import com.excilys.ebi.gatling.core.action.Action
-import com.excilys.ebi.gatling.core.session.handler.TimerBasedIterationHandler._
+import com.excilys.ebi.gatling.core.session.handler.TimerBasedIterationHandler.getTimerValue
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.structure.{ ChainBuilder, AbstractStructureBuilder }
+import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
+import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
 /**
  * This builder creates a duration loop, using a WhileAction

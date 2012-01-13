@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.feeder.database
+
 import com.excilys.ebi.gatling.core.feeder.FeederBuilder
 
 object DatabaseFeederBuilder{

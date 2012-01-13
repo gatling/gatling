@@ -15,11 +15,11 @@
  */
 package com.excilys.ebi.gatling.script
 
-import com.excilys.ebi.gatling.core.Predef._
+import com.excilys.ebi.gatling.core.Predef.runSimFunction
 
 /**
  * This trait is to be extended by Scala simulations
  */
 trait GatlingSimulation extends App {
-  def runSimulation = runSimFunction(args(0))
+	def runSimulation = runSimFunction(args(0))
 }

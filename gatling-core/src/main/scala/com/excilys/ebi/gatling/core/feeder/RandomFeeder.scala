@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.feeder
+
 import scala.util.Random
 
 class RandomFeeder(feederSource: FeederSource) extends Feeder(feederSource) {

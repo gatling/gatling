@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.http.check.header.extractor
 
-import com.ning.http.client.Response
 import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
+import com.ning.http.client.Response
 
 /**
  * Factory for HttpHeaderExtractor

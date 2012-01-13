@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.series
+
 import org.joda.time.DateTime
 
 object SharedSeries {

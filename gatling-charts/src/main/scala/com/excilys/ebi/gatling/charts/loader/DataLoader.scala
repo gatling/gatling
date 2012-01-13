@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.loader
+
 import scala.collection.immutable.SortedMap
-import scala.collection.mutable.{ HashMap, Buffer, ArrayBuffer }
+import scala.collection.mutable.{HashMap, Buffer, ArrayBuffer}
 import scala.io.Source
 
 import org.joda.time.DateTime
@@ -27,7 +28,7 @@ import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus
-import com.excilys.ebi.gatling.core.util.DateHelper.{ parseResultDate, parseFileNameDateFormat }
+import com.excilys.ebi.gatling.core.util.DateHelper.{parseResultDate, parseFileNameDateFormat}
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 
 class DataLoader(runOn: String) extends Logging {

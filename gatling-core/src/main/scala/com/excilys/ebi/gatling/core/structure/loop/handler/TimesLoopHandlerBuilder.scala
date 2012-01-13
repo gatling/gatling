@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.structure.loop.handler
-import com.excilys.ebi.gatling.core.action.builder.CountBasedIterationActionBuilder.{ initCounterAction, incrementCounterAction, expireCounterAction }
+
+import com.excilys.ebi.gatling.core.action.builder.CountBasedIterationActionBuilder.{initCounterAction, incrementCounterAction, expireCounterAction}
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
 import com.excilys.ebi.gatling.core.structure.ChainBuilder

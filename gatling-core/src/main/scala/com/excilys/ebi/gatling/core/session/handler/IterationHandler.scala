@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.session.handler
+
 import com.excilys.ebi.gatling.core.log.Logging
-import scala.collection.immutable.Stack
 import com.excilys.ebi.gatling.core.session.Session
 
 /**

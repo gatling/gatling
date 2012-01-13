@@ -18,6 +18,7 @@ package com.excilys.ebi.gatling.app.compiler
 import java.io.{StringWriter, PrintWriter}
 
 import scala.tools.nsc.interpreter.AbstractFileClassLoader
+import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.{VirtualDirectory, PlainFile, Path, Directory, AbstractFile}
 import scala.tools.nsc.reporters.ConsoleReporter
 import scala.tools.nsc.{Settings, Global}

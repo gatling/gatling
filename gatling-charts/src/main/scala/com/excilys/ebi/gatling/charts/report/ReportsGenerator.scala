@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.report
+
 import java.net.URL
 
 import scala.collection.mutable.LinkedHashSet
@@ -89,13 +90,13 @@ object ReportsGenerator extends Logging {
 	}
 
 	private def copyAssets(runOn: String) = {
-			def copyFolder(sourceFolderName: Path, destFolderPath: Path) = {
-				destFolderPath.toDirectory.createDirectory()
+		def copyFolder(sourceFolderName: Path, destFolderPath: Path) = {
+			destFolderPath.toDirectory.createDirectory()
 
-				sourceFolderName.toDirectory.deepFiles.foreach { file =>
-					file.copyTo(destFolderPath / file.name, true)
-				}
+			sourceFolderName.toDirectory.deepFiles.foreach { file =>
+				file.copyTo(destFolderPath / file.name, true)
 			}
+		}
 
 		copyFolder(GATLING_ASSETS_STYLE_FOLDER, styleFolder(runOn))
 		copyFolder(GATLING_ASSETS_JS_FOLDER, jsFolder(runOn))

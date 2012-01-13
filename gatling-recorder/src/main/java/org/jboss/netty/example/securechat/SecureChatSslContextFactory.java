@@ -29,8 +29,10 @@ import javax.net.ssl.TrustManager;
 import org.jboss.netty.handler.ssl.SslHandler;
 
 /**
- * Creates a bogus {@link SSLContext}. A client-side context created by this factory accepts any certificate even if it is invalid. A server-side context created by this factory
- * sends a bogus certificate defined in {@link SecureChatKeyStore}.
+ * Creates a bogus {@link SSLContext}. A client-side context created by this
+ * factory accepts any certificate even if it is invalid. A server-side context
+ * created by this factory sends a bogus certificate defined in
+ * {@link SecureChatKeyStore}.
  * <p>
  * You will have to create your context differently in a real world application.
  * 
@@ -38,11 +40,18 @@ import org.jboss.netty.handler.ssl.SslHandler;
  * 
  * To enable client certificate authentication:
  * <ul>
- * <li>Enable client authentication on the server side by calling {@link SSLEngine#setNeedClientAuth(boolean)} before creating {@link SslHandler}.</li>
- * <li>When initializing an {@link SSLContext} on the client side, specify the {@link KeyManager} that contains the client certificate as the first argument of
- * {@link SSLContext#init(KeyManager[], javax.net.ssl.TrustManager[], java.security.SecureRandom)}.</li>
- * <li>When initializing an {@link SSLContext} on the server side, specify the proper {@link TrustManager} as the second argument of
- * {@link SSLContext#init(KeyManager[], javax.net.ssl.TrustManager[], java.security.SecureRandom)} to validate the client certificate.</li>
+ * <li>Enable client authentication on the server side by calling
+ * {@link SSLEngine#setNeedClientAuth(boolean)} before creating
+ * {@link SslHandler}.</li>
+ * <li>When initializing an {@link SSLContext} on the client side, specify the
+ * {@link KeyManager} that contains the client certificate as the first argument
+ * of
+ * {@link SSLContext#init(KeyManager[], javax.net.ssl.TrustManager[], java.security.SecureRandom)}
+ * .</li>
+ * <li>When initializing an {@link SSLContext} on the server side, specify the
+ * proper {@link TrustManager} as the second argument of
+ * {@link SSLContext#init(KeyManager[], javax.net.ssl.TrustManager[], java.security.SecureRandom)}
+ * to validate the client certificate.</li>
  * </ul>
  * 
  * @author <a href="http://www.jboss.org/netty/">The Netty Project</a>

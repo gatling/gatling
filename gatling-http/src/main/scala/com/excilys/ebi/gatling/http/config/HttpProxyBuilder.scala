@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.config
+
 import com.ning.http.client.ProxyServer
 
 object HttpProxyBuilder {

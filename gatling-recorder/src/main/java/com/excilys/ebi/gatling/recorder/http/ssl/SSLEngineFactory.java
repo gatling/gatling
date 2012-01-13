@@ -20,7 +20,7 @@ import javax.net.ssl.SSLEngine;
 import org.jboss.netty.example.securechat.SecureChatSslContextFactory;
 
 public class SSLEngineFactory {
-	
+
 	private SSLEngineFactory() {
 		throw new UnsupportedOperationException();
 	}

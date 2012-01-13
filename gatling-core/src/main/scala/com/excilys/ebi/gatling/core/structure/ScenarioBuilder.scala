@@ -15,19 +15,13 @@
  */
 package com.excilys.ebi.gatling.core.structure
 
-import com.excilys.ebi.gatling.core.action.Action
-import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder._
-import com.excilys.ebi.gatling.core.action.builder.IfActionBuilder._
-import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder._
-import com.excilys.ebi.gatling.core.action.builder.EndActionBuilder._
-import com.excilys.ebi.gatling.core.action.builder.StartActionBuilder._
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.scenario.Scenario
+
+import com.excilys.ebi.gatling.core.action.builder.EndActionBuilder.endActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.StartActionBuilder.startActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfigurationBuilder
+import com.excilys.ebi.gatling.core.scenario.Scenario
 
 /**
  * ScenarioBuilder class companion

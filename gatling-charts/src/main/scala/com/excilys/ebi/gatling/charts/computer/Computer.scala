@@ -25,7 +25,7 @@ import com.excilys.ebi.gatling.charts.util.OrderingHelper.DateTimeOrdering
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ OK, KO, ResultStatus }
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ ResultStatus, OK, KO }
 
 object Computer extends Logging {
 

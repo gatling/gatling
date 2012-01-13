@@ -15,9 +15,10 @@
  */
 package com.excilys.ebi.gatling.http.check.header.extractor
 
+import scala.collection.JavaConversions.asScalaBuffer
+
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
-import com.ning.http.client.{ Response, FluentCaseInsensitiveStringsMap }
-import scala.collection.JavaConversions._
+import com.ning.http.client.Response
 
 /**
  * HTTP Header extractor

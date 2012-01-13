@@ -15,8 +15,9 @@
  */
 package com.excilys.ebi.gatling.app.compiler
 
-import com.excilys.ebi.gatling.core.log.Logging
 import org.joda.time.DateTime
+
+import com.excilys.ebi.gatling.core.log.Logging
 
 /**
  * This trait serves as model for all scenarios compilers. Gatling has three 'compilers' :

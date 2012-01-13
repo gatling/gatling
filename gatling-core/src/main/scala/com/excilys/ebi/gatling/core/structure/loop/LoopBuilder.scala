@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.structure.loop
-import com.excilys.ebi.gatling.core.session.Session
+
 import java.util.concurrent.TimeUnit
+
+import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.structure.loop.handler.{TimesLoopHandlerBuilder, DurationLoopHandlerBuilder, ConditionalLoopHandlerBuilder}
 import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
-import com.excilys.ebi.gatling.core.structure.loop.handler.TimesLoopHandlerBuilder
-import com.excilys.ebi.gatling.core.structure.loop.handler.DurationLoopHandlerBuilder
-import com.excilys.ebi.gatling.core.structure.loop.handler.ConditionalLoopHandlerBuilder
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
 
 /**

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.util
-import com.excilys.ebi.gatling.charts.loader.ResultLine
+
 import org.joda.time.DateTime
 
 object OrderingHelper {

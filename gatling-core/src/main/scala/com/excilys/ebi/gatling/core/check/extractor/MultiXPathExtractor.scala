@@ -16,14 +16,12 @@
 package com.excilys.ebi.gatling.core.check.extractor
 
 import java.io.InputStream
+
+import scala.collection.JavaConversions.asScalaBuffer
+
 import org.jaxen.dom.DOMXPath
 import org.jaxen.XPath
 import org.w3c.dom.Node
-import org.xml.sax.{ InputSource, EntityResolver }
-import javax.xml.parsers.DocumentBuilderFactory
-import java.io.ByteArrayInputStream
-import java.io.StringReader
-import scala.collection.JavaConversions._
 
 class MultiXPathExtractor(xmlContent: InputStream) extends Extractor with MultiValuedExtractor {
 

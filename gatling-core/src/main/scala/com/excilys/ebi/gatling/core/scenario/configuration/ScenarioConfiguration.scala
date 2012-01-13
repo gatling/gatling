@@ -15,10 +15,10 @@
  */
 package com.excilys.ebi.gatling.core.scenario.configuration
 
-import com.excilys.ebi.gatling.core.feeder.Feeder
-import com.excilys.ebi.gatling.core.structure.ScenarioBuilder
 import java.util.concurrent.TimeUnit
+
 import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
+import com.excilys.ebi.gatling.core.structure.ScenarioBuilder
 
 /**
  * This class represents the configuration of a scenario

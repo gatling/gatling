@@ -15,17 +15,12 @@
  */
 package com.excilys.ebi.gatling.http.check.body
 
-import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
-import com.excilys.ebi.gatling.core.check.CheckBuilderVerify._
+import com.excilys.ebi.gatling.core.check.{ CheckBuilderVerifyOne, CheckBuilderFind }
+import com.excilys.ebi.gatling.core.check.{ CheckBuilderVerifyAll, CheckBuilderVerify, CheckBuilderSave }
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
 import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilder, HttpCheck }
 import com.excilys.ebi.gatling.http.request.HttpPhase.{ HttpPhase, CompletePageReceived }
-import com.excilys.ebi.gatling.core.check.CheckBuilderVerify
-import com.excilys.ebi.gatling.core.check.CheckBuilderSave
-import com.excilys.ebi.gatling.core.check.CheckBuilderFind
-import com.excilys.ebi.gatling.core.check.CheckBuilderVerifyAll
-import com.excilys.ebi.gatling.core.check.CheckBuilderVerifyOne
 
 object HttpBodyRegexCheckBuilder {
 	/**

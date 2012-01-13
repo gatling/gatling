@@ -37,7 +37,7 @@ public class ServerHttpResponseHandler extends SimpleChannelHandler {
 
 	@Override
 	public void messageReceived(ChannelHandlerContext context, MessageEvent event) throws Exception {
-		
+
 		getEventBus().post(new MessageReceivedEvent(context.getChannel()));
 
 		HttpResponse response = HttpResponse.class.cast(event.getMessage());

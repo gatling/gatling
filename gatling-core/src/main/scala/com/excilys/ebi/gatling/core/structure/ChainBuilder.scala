@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.structure
+
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
-import com.excilys.ebi.gatling.core.action.Action
+
 import akka.actor.ActorRef
 
 /**

@@ -19,7 +19,6 @@ import com.excilys.ebi.gatling.core.check.CheckBuilder
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.ning.http.client.Response
-import com.excilys.ebi.gatling.core.check.CheckBuilderSave
 
 /**
  * This class serves as model for the HTTP-specific check builders

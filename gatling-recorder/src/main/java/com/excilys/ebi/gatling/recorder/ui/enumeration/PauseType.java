@@ -17,13 +17,13 @@ package com.excilys.ebi.gatling.recorder.ui.enumeration;
 
 public enum PauseType {
 	SECONDS("s"), MILLISECONDS("ms");
-	
+
 	private String unit;
-	
+
 	private PauseType(String unit) {
 		this.unit = unit;
 	}
-	
+
 	public String getUnit() {
 		return unit;
 	}

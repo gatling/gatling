@@ -15,9 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.feeder.csv
 
-import com.excilys.ebi.gatling.core.util.FileHelper._
-import com.excilys.ebi.gatling.core.feeder.QueueFeeder
 import com.excilys.ebi.gatling.core.feeder.FeederBuilder
+import com.excilys.ebi.gatling.core.util.FileHelper.{TABULATION_SEPARATOR, SEMICOLON_SEPARATOR, COMMA_SEPARATOR}
 
 object SeparatedValuesFeederBuilder {
 	def csv(fileName: String, escapeChar : Option[Char] = None) = new SeparatedValuesFeederBuilder(fileName, COMMA_SEPARATOR, escapeChar)

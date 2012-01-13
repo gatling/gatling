@@ -14,32 +14,23 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.report
+
 import org.joda.time.DateTime
-import com.excilys.ebi.gatling.charts.config.ChartsFiles._
-import com.excilys.ebi.gatling.charts.component.ComponentLibrary
-import com.excilys.ebi.gatling.charts.component.StatisticsTextComponent
-import com.excilys.ebi.gatling.charts.computer.Computer.averageResponseTime
-import com.excilys.ebi.gatling.charts.computer.Computer.maxResponseTime
-import com.excilys.ebi.gatling.charts.computer.Computer.minResponseTime
-import com.excilys.ebi.gatling.charts.computer.Computer.numberOfRequestInResponseTimeRange
-import com.excilys.ebi.gatling.charts.computer.Computer.numberOfRequestsPerSecond
-import com.excilys.ebi.gatling.charts.computer.Computer.respTimeAgainstNbOfReqPerSecond
-import com.excilys.ebi.gatling.charts.computer.Computer.responseTimeByMillisecondAsList
-import com.excilys.ebi.gatling.charts.computer.Computer._
+
+import com.excilys.ebi.gatling.charts.component.{ StatisticsTextComponent, ComponentLibrary }
+import com.excilys.ebi.gatling.charts.computer.Computer.{ responseTimeStandardDeviation, responseTimeByMillisecondAsList, respTimeAgainstNbOfReqPerSecond, numberOfSuccesses, numberOfRequestsPerSecond, numberOfRequestInResponseTimeRange, minResponseTime, maxResponseTime, averageResponseTime }
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.requestFile
 import com.excilys.ebi.gatling.charts.loader.DataLoader
 import com.excilys.ebi.gatling.charts.series.Series
+import com.excilys.ebi.gatling.charts.series.SharedSeries
 import com.excilys.ebi.gatling.charts.template.RequestDetailsPageTemplate
+import com.excilys.ebi.gatling.charts.util.Colors.{ toString, YELLOW, TRANSLUCID_RED, TRANSLUCID_BLUE, RED, ORANGE, GREEN, BLUE }
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
-import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_CHARTING_INDICATORS_HIGHER_BOUND
-import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_CHARTING_INDICATORS_LOWER_BOUND
-import com.excilys.ebi.gatling.core.util.FileHelper.HTML_EXTENSION
-import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename
+import com.excilys.ebi.gatling.core.config.GatlingConfig.{ CONFIG_CHARTING_INDICATORS_LOWER_BOUND, CONFIG_CHARTING_INDICATORS_HIGHER_BOUND }
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ OK, KO }
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.charts.series.SharedSeries
-import com.excilys.ebi.gatling.core.result.message.ResultStatus._
-import com.excilys.ebi.gatling.charts.util.Colors._
 
 class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataLoader, componentLibrary) {
 	def generate = {

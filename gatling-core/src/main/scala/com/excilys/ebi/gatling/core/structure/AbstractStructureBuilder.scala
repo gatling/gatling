@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.structure
+
 import java.util.concurrent.TimeUnit
+
+import com.excilys.ebi.gatling.core.action.builder.IfActionBuilder.ifActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder.pauseActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
+import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
-import com.excilys.ebi.gatling.core.action.Action
-import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder._
-import com.excilys.ebi.gatling.core.action.builder.IfActionBuilder._
-import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder._
-import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder._
 import com.excilys.ebi.gatling.core.structure.loop.LoopBuilder
-import com.excilys.ebi.gatling.core.action.builder.CountBasedIterationActionBuilder._
-import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
+
 import akka.actor.ActorRef
 
 /**

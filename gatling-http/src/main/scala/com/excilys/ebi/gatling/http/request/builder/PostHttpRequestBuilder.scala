@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import scala.annotation.implicitNotFound
-
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequestBody

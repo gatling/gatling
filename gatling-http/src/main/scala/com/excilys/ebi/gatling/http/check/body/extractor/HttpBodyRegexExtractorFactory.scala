@@ -15,9 +15,8 @@
  */
 package com.excilys.ebi.gatling.http.check.body.extractor
 
-import com.excilys.ebi.gatling.core.check.extractor.{ RegexExtractor, ExtractorFactory }
+import com.excilys.ebi.gatling.core.check.extractor.{RegexExtractor, MultiRegexExtractor, ExtractorFactory}
 import com.ning.http.client.Response
-import com.excilys.ebi.gatling.core.check.extractor.MultiRegexExtractor
 
 /**
  * Factory for HttpBodyRegExpExtractor

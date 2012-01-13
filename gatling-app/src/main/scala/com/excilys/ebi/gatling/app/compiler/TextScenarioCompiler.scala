@@ -17,6 +17,7 @@ package com.excilys.ebi.gatling.app.compiler
 
 import scala.collection.JavaConversions.enumerationAsScalaIterator
 import scala.io.Source
+import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.{ VirtualFile, Path, AbstractFile }
 
 import org.joda.time.DateTime
@@ -26,7 +27,6 @@ import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_IMPORTS_FILE
 import com.excilys.ebi.gatling.core.util.FileHelper.TXT_EXTENSION
 import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
-import scala.tools.nsc.io.Path.string2path
 
 /**
  * Simple Class used to get a value from the interpreter

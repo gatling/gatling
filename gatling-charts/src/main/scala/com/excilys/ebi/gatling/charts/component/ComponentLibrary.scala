@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.component
-import com.excilys.ebi.gatling.charts.series.Series
+
 import org.joda.time.DateTime
+
+import com.excilys.ebi.gatling.charts.series.Series
 
 trait ComponentLibrary {
 	def getActiveSessionsChartComponent(series: Series[DateTime, Int]*): Component

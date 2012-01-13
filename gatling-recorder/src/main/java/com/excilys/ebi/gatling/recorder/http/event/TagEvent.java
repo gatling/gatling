@@ -26,8 +26,8 @@ public class TagEvent {
 	public String getTag() {
 		return tag;
 	}
-	
+
 	public String toString() {
-		return "TAG | "+tag; 
+		return "TAG | " + tag;
 	}
 }

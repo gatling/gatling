@@ -15,11 +15,10 @@
  */
 package com.excilys.ebi.gatling.charts.component.impl
 
-import scala.collection.Seq
-import com.excilys.ebi.gatling.charts.series.Series
-import com.excilys.ebi.gatling.charts.component.ComponentLibrary
-import com.excilys.ebi.gatling.charts.component.Component
 import org.joda.time.DateTime
+
+import com.excilys.ebi.gatling.charts.component.{ComponentLibrary, Component}
+import com.excilys.ebi.gatling.charts.series.Series
 
 class ComponentLibraryImpl extends ComponentLibrary {
 

@@ -15,29 +15,25 @@
  */
 package com.excilys.ebi.gatling.core.runner
 
-import com.excilys.ebi.gatling.core.action.Action
+import java.util.concurrent.{ TimeUnit, CountDownLatch }
+
+import org.joda.time.DateTime
+
+import com.excilys.ebi.gatling.core.config.GatlingConfig
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
+import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
 import com.excilys.ebi.gatling.core.result.writer.FileDataWriter
-import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
+import com.excilys.ebi.gatling.core.scenario.configuration.{ ScenarioConfigurationBuilder, ScenarioConfiguration }
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfigurationBuilder
-import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfiguration
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.CountDownLatch
-import java.util.Date
-import akka.actor.Scheduler
-import akka.actor.Actor.actorOf
-import akka.actor.Actor.registry
-import org.joda.time.DateTime
-import com.excilys.ebi.gatling.core.scenario.Scenario
-import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
-import com.excilys.ebi.gatling.core.config.GatlingConfig
-import akka.actor.ActorRef
+
+import akka.actor.Actor.{ registry, actorOf }
+import akka.actor.{ Scheduler, ActorRef }
 
 object Runner {
 	def runSim(startDate: DateTime)(scenarioConfigurations: ScenarioConfigurationBuilder*) = new Runner(startDate, scenarioConfigurations.toList).run
 }
+
 class Runner(startDate: DateTime, scenarioConfigurationBuilders: List[ScenarioConfigurationBuilder]) extends Logging {
 
 	val statWriter = actorOf[FileDataWriter].start
@@ -109,7 +105,7 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: List[ScenarioCo
 
 			for (i <- 1 to configuration.users) {
 				val session: Session = buildSession(configuration, i)
-				Scheduler.scheduleOnce(() => scenario! session, period * (i - 1), TimeUnit.MILLISECONDS)
+				Scheduler.scheduleOnce(() => scenario ! session, period * (i - 1), TimeUnit.MILLISECONDS)
 			}
 		}
 	}

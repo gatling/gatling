@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.http.check.body
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.check.body.extractor.HttpBodyXPathExtractorFactory
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.request.HttpPhase._
+import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 
 /**
  * This class represents a check made on the body of the response with XPath expressions

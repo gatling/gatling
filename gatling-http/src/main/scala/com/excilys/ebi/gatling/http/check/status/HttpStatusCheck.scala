@@ -15,12 +15,12 @@
  */
 package com.excilys.ebi.gatling.http.check.status
 
+import com.excilys.ebi.gatling.core.check.CheckBuilderVerify
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.check.status.extractor.HttpStatusExtractorFactory
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
-import com.excilys.ebi.gatling.core.check.CheckBuilderVerify
 
 /**
  * This class represents a check made on the status of the response

@@ -15,10 +15,8 @@
  */
 package com.excilys.ebi.gatling.http.check.body.extractor
 
+import com.excilys.ebi.gatling.core.check.extractor.{XPathExtractor, MultiXPathExtractor, ExtractorFactory}
 import com.ning.http.client.Response
-import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
-import com.excilys.ebi.gatling.core.check.extractor.XPathExtractor
-import com.excilys.ebi.gatling.core.check.extractor.MultiXPathExtractor
 
 /**
  * Factory for HttpBodyXPathExtractor

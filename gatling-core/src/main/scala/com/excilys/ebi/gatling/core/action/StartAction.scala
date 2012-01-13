@@ -15,11 +15,13 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.result.message.ActionInfo
-import com.excilys.ebi.gatling.core.result.message.ResultStatus._
-import akka.actor.Actor.registry.actorFor
 import org.joda.time.DateTime
+
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.OK
+import com.excilys.ebi.gatling.core.result.message.ActionInfo
+import com.excilys.ebi.gatling.core.session.Session
+
+import akka.actor.Actor.registry.actorFor
 import akka.actor.ActorRef
 
 /**

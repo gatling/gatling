@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.template
+
 import com.excilys.ebi.gatling.charts.component.Component
 
 class ActiveSessionsPageTemplate(chartComponent: Component) extends PageTemplate("Active Sessions", false, chartComponent)

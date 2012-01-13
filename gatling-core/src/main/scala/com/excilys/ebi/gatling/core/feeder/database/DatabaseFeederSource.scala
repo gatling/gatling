@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.feeder.database
+
 import java.sql.ResultSet.{ TYPE_FORWARD_ONLY, CONCUR_READ_ONLY }
 import java.sql.DriverManager
 

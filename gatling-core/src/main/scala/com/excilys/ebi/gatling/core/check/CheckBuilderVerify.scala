@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.check
+
+import com.excilys.ebi.gatling.core.check.CheckBuilderVerify.rangeToString
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
-import CheckBuilderVerify.SEPARATOR
-import CheckBuilderVerify.rangeToString
 
 object CheckBuilderVerify {
 	val SEPARATOR = ":"
@@ -32,6 +32,7 @@ object CheckBuilderVerify {
 	def listSize = (value: List[String], expected: List[String]) => value.size == expected(0).toInt
 
 }
+
 trait CheckBuilderVerify[B <: CheckBuilder[B, _]] extends CheckBuilderSave[B] { this: CheckBuilder[B, _] with CheckBuilderSave[B] =>
 	def verify(strategy: (List[String], List[String]) => Boolean) = newInstanceWithVerify(strategy)
 	def verify(strategy: (List[String], List[String]) => Boolean, expected: List[String]) = newInstanceWithVerify(strategy, expected.map(interpolate(_)))
@@ -40,18 +41,13 @@ trait CheckBuilderVerify[B <: CheckBuilder[B, _]] extends CheckBuilderSave[B] { 
 
 trait CheckBuilderVerifyOne[B <: CheckBuilder[B, _]] extends CheckBuilderVerify[B] { this: CheckBuilder[B, _] with CheckBuilderSave[B] =>
 	def exists = verify(CheckBuilderVerify.exists)
-
 	def notExists = verify(CheckBuilderVerify.notExists)
-
 	def eq(expected: String) = verify(CheckBuilderVerify.eq, expected)
-
 	def neq(expected: String) = verify(CheckBuilderVerify.neq, expected)
-
 	def in(range: Range) = verify(CheckBuilderVerify.in, range)
 }
 
 trait CheckBuilderVerifyAll[B <: CheckBuilder[B, _]] extends CheckBuilderVerify[B] { this: CheckBuilder[B, _] with CheckBuilderSave[B] =>
 	def eq(expected: List[String]) = verify(CheckBuilderVerify.listEq, expected)
-
 	def size(s: Int) = verify(CheckBuilderVerify.listSize, s.toString)
 }

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.util
-import org.slf4j.helpers.MessageFormatter
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.log.Logging
-import java.util.regex.Pattern
+
 import java.text.Normalizer
-import akka.actor.Uuid
+import java.util.regex.Pattern
+
+import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.session.Session
 
 /**
  * This object groups all utilities for strings

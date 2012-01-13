@@ -18,30 +18,30 @@ package com.excilys.ebi.gatling.recorder.http.event;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.PauseType;
 
 public class PauseEvent {
-	
+
 	private long minDuration;
 	private long maxDuration;
 	private PauseType type;
-	
+
 	public PauseEvent(long minDuration, long maxDuration, PauseType type) {
 		this.minDuration = minDuration;
 		this.maxDuration = maxDuration;
 		this.type = type;
 	}
-	
+
 	public long getMinDuration() {
 		return minDuration;
 	}
-	
+
 	public long getMaxDuration() {
 		return maxDuration;
 	}
-	
+
 	public PauseType getType() {
 		return type;
 	}
-	
+
 	public String toString() {
-		return "PAUSE | BETWEEN "+minDuration+type.getUnit()+" AND "+maxDuration+type.getUnit(); 
+		return "PAUSE | BETWEEN " + minDuration + type.getUnit() + " AND " + maxDuration + type.getUnit();
 	}
 }

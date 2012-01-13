@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.feeder.csv
+
 import java.io.FileReader
 
 import scala.Array.canBuildFrom

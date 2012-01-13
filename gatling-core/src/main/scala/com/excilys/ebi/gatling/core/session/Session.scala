@@ -15,13 +15,14 @@
  */
 package com.excilys.ebi.gatling.core.session
 
-import akka.actor.Uuid
-import com.excilys.ebi.gatling.core.log.Logging
-import java.util.concurrent.TimeUnit
-import com.excilys.ebi.gatling.core.util.StringHelper._
-import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
-import scala.collection.mutable.Map
 import scala.collection.immutable.{ Map => IMap }
+import scala.collection.mutable.Map
+
+import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
+import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+
+import akka.actor.Uuid
 
 /**
  * Session class companion

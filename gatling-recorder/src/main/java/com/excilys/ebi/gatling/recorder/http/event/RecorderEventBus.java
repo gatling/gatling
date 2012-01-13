@@ -20,11 +20,11 @@ import com.google.common.eventbus.EventBus;
 public class RecorderEventBus {
 
 	private static final EventBus EVENT_BUS = new EventBus();
-	
+
 	private RecorderEventBus() {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	public static EventBus getEventBus() {
 		return EVENT_BUS;
 	}

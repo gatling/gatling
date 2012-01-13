@@ -15,9 +15,9 @@
  */
 package com.excilys.ebi.gatling.app.compiler
 
-import com.excilys.ebi.gatling.core.util.ReflectionHelper.getNewInstanceByClassName
-
 import org.joda.time.DateTime
+
+import com.excilys.ebi.gatling.core.util.ReflectionHelper.getNewInstanceByClassName
 
 class IdeScenarioCompiler extends ScenarioCompiler {
 	def run(className: String, startDate: DateTime) = {

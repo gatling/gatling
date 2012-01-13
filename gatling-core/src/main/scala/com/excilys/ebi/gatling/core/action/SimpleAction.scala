@@ -16,6 +16,7 @@
 package com.excilys.ebi.gatling.core.action
 
 import com.excilys.ebi.gatling.core.session.Session
+
 import akka.actor.ActorRef
 
 /**

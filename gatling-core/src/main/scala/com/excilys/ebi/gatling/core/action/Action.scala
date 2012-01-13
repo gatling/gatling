@@ -15,9 +15,10 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
+
 import akka.actor.Actor
 
 /**

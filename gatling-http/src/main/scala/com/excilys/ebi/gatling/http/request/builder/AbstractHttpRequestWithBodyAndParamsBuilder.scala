@@ -15,19 +15,19 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
+import java.io.File
+
+import scala.tools.nsc.io.Path.string2path
+
+import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
+import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_REQUEST_BODIES_FOLDER
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.util.PathHelper.path2string
+import com.excilys.ebi.gatling.core.util.StringHelper.{interpolate, EL_START, EL_END}
+import com.excilys.ebi.gatling.http.Predef.{MULTIPART_FORM_DATA, CONTENT_TYPE, APPLICATION_OCTET_STREAM}
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
-import com.ning.http.client.RequestBuilder
-import com.ning.http.client.FluentStringsMap
-import com.excilys.ebi.gatling.core.util.StringHelper._
-import com.ning.http.client.FilePart
-import com.excilys.ebi.gatling.http.Predef._
-import com.excilys.ebi.gatling.core.config.GatlingConfig._
-import com.excilys.ebi.gatling.core.config.GatlingFiles._
-import com.excilys.ebi.gatling.core.util.PathHelper.path2string
-import java.io.File
-import com.ning.http.client.StringPart
+import com.ning.http.client.{StringPart, RequestBuilder, FluentStringsMap, FilePart}
 
 /**
  * This class serves as model to HTTP request with a body and parameters

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.feeder
+
 import scala.collection.mutable.Buffer
 
 abstract class FeederSource(val name: String) {

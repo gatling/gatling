@@ -15,13 +15,15 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.result.message.ActionInfo
-import com.excilys.ebi.gatling.core.result.message.ResultStatus._
 import java.util.concurrent.CountDownLatch
-import java.util.Date
-import akka.actor.Actor.registry.actorFor
+
 import org.joda.time.DateTime
+
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.OK
+import com.excilys.ebi.gatling.core.result.message.ActionInfo
+import com.excilys.ebi.gatling.core.session.Session
+
+import akka.actor.Actor.registry.actorFor
 
 /**
  * EndAction class companion

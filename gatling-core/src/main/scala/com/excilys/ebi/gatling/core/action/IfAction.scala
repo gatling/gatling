@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.action
-import scala.annotation.implicitNotFound
 
 import com.excilys.ebi.gatling.core.session.Session
 
@@ -40,5 +39,5 @@ class IfAction(conditionFunction: Session => Boolean, thenNext: ActorRef, elseNe
 	 * @param session Session for current user
 	 * @return Nothing
 	 */
-	def execute(session: Session) = if (conditionFunction(session)) thenNext !session else elseNext.getOrElse(next) ! session
+	def execute(session: Session) = if (conditionFunction(session)) thenNext ! session else elseNext.getOrElse(next) ! session
 }

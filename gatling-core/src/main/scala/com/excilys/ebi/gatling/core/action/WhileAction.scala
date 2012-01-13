@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.action
-import scala.annotation.implicitNotFound
 
 import com.excilys.ebi.gatling.core.session.handler.{TimerBasedIterationHandler, CounterBasedIterationHandler}
 import com.excilys.ebi.gatling.core.session.Session
 
+import akka.actor.scala2ActorRef
 import akka.actor.ActorRef
 
 /**
