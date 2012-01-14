@@ -15,11 +15,13 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import java.net.URL
+import java.io.FileOutputStream
+import java.net.{ URL, URI, JarURLConnection }
 
+import scala.collection.JavaConversions.asIterator
 import scala.collection.mutable.LinkedHashSet
 import scala.tools.nsc.io.Path.string2path
-import scala.tools.nsc.io.Path
+import scala.tools.nsc.io.{ Path, File }
 
 import com.excilys.ebi.gatling.charts.component.impl.ComponentLibraryImpl
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
@@ -27,7 +29,7 @@ import com.excilys.ebi.gatling.charts.config.ChartsFiles.menuFile
 import com.excilys.ebi.gatling.charts.loader.DataLoader
 import com.excilys.ebi.gatling.charts.template.{ PageTemplate, MenuTemplate }
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{ styleFolder, jsFolder, GATLING_ASSETS_STYLE_FOLDER, GATLING_ASSETS_JS_FOLDER }
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{ styleFolder, jsFolder, GATLING_ASSETS_STYLE_PACKAGE, GATLING_ASSETS_JS_PACKAGE }
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.FileHelper.{ formatToFilename, HTML_EXTENSION }
 
@@ -90,15 +92,47 @@ object ReportsGenerator extends Logging {
 	}
 
 	private def copyAssets(runOn: String) = {
-		def copyFolder(sourceFolderName: Path, destFolderPath: Path) = {
+		def copyFolder(sourcePackage: String, destFolderPath: Path) = {
 			destFolderPath.toDirectory.createDirectory()
 
-			sourceFolderName.toDirectory.deepFiles.foreach { file =>
-				file.copyTo(destFolderPath / file.name, true)
+			asIterator(getClass.getClassLoader.getResources(sourcePackage)).foreach { packageURL =>
+
+				if (packageURL.getProtocol == "file") {
+					new File(new java.io.File(new URI(packageURL.toString).getSchemeSpecificPart)).toDirectory.deepFiles.foreach { file =>
+						file.copyTo(destFolderPath / file.name, true)
+					}
+
+				} else if (packageURL.getProtocol == "jar") {
+					val jarCon = packageURL.openConnection.asInstanceOf[JarURLConnection]
+					jarCon.setUseCaches(false)
+					val jarEntryName = jarCon.getJarEntry.getName
+					// JRockit predends with /, Hotspot doesn't
+					val rootEntryPath = if (jarEntryName.endsWith("/")) jarEntryName else jarEntryName + "/"
+
+					asIterator(jarCon.getJarFile.entries).foreach { entry =>
+						val entryPath = entry.getName
+						if (entryPath.startsWith(rootEntryPath) && entryPath != rootEntryPath) {
+							val relativePath = entryPath.substring(rootEntryPath.length());
+							val input = getClass.getClassLoader.getResourceAsStream(entryPath)
+							val output = new FileOutputStream((destFolderPath / relativePath.replace('/', java.io.File.separatorChar)).jfile)
+
+							try {
+								val buffer = new Array[Byte](1024 * 4)
+								var n = input.read(buffer)
+								while (n != -1) {
+									output.write(buffer, 0, n);
+									n = input.read(buffer)
+								}
+							} finally {
+								output.close
+							}
+						}
+					}
+				}
 			}
 		}
 
-		copyFolder(GATLING_ASSETS_STYLE_FOLDER, styleFolder(runOn))
-		copyFolder(GATLING_ASSETS_JS_FOLDER, jsFolder(runOn))
+		copyFolder(GATLING_ASSETS_STYLE_PACKAGE, styleFolder(runOn))
+		copyFolder(GATLING_ASSETS_JS_PACKAGE, jsFolder(runOn))
 	}
 }

@@ -17,14 +17,14 @@ package com.excilys.ebi.gatling.core.config
 
 import scala.tools.nsc.io.Path.string2path
 
-import GatlingConfig.{ CONFIG_RESULTS_FOLDER, CONFIG_REQUEST_BODIES_FOLDER, CONFIG_DATA_FOLDER, CONFIG_ASSETS_FOLDER }
+import GatlingConfig.{ CONFIG_RESULTS_FOLDER, CONFIG_REQUEST_BODIES_FOLDER, CONFIG_DATA_FOLDER }
 
 object GatlingFiles {
 	/* Global paths */
 	val GATLING_HOME = Option(System.getenv("GATLING_HOME")).getOrElse("/tmp")
 
 	val GATLING_USER_FILES_FOLDER = GATLING_HOME / "user-files"
-	lazy val GATLING_ASSETS_FOLDER = CONFIG_ASSETS_FOLDER.getOrElse(GATLING_HOME / "assets")
+	lazy val GATLING_ASSETS_PACKAGE = "assets"
 
 	lazy val GATLING_DATA_FOLDER = CONFIG_DATA_FOLDER.getOrElse(GATLING_USER_FILES_FOLDER / "data")
 	lazy val GATLING_RESULTS_FOLDER = CONFIG_RESULTS_FOLDER.getOrElse(GATLING_HOME / "results")
@@ -34,8 +34,8 @@ object GatlingFiles {
 	/* Assets Paths */
 	val GATLING_JS = "js"
 	val GATLING_STYLE = "style"
-	lazy val GATLING_ASSETS_JS_FOLDER = GATLING_ASSETS_FOLDER / GATLING_JS
-	lazy val GATLING_ASSETS_STYLE_FOLDER = GATLING_ASSETS_FOLDER / GATLING_STYLE
+	lazy val GATLING_ASSETS_JS_PACKAGE = GATLING_ASSETS_PACKAGE + "/" + GATLING_JS
+	lazy val GATLING_ASSETS_STYLE_PACKAGE = GATLING_ASSETS_PACKAGE + "/" + GATLING_STYLE
 
 	/* Default files and internal constants */
 	val GATLING_DEFAULT_CONFIG_FILE = "gatling.conf"

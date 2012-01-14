@@ -47,7 +47,6 @@ object Gatling extends Logging {
 			opt("df", "data-folder", "<folderName>", "Uses <folderName> as the folder where feeders are stored", { v: String => CommandLineOptions.setDataFolder(v) })
 			opt("rf", "results-folder", "<folderName>", "Uses <folderName> as the folder where results are stored", { v: String => CommandLineOptions.setResultsFolder(v) })
 			opt("bf", "request-bodies-folder", "<folderName>", "Uses <folderName> as the folder where request bodies are stored", { v: String => CommandLineOptions.setRequestBodiesFolder(v) })
-			opt("iaf", "ide-assets-folder", "<folderName>", "IDE & Maven Archetype Only -- Uses <folderName> to get assets", { v: String => CommandLineOptions.setEclipseAssetsFolder(v) })
 			opt("isf", "ide-simulations-folder", "<folderName>", "IDE & Maven Archetype Only -- Uses <folderName> to discover simulations that could be run", { v: String => CommandLineOptions.setEclipseSimulationFolder(v) })
 			opt("isp", "ide-simulations-package", "<packageName>", "IDE & Maven Archetype Only -- Uses <packageName> to start the simulations", { v: String => CommandLineOptions.setEclipseSimulationPackage(v) })
 		}
@@ -65,14 +64,14 @@ object Gatling extends Logging {
 		// if arguments are bad, usage message is displayed
 	}
 
-	def apply(dataFolder: String, resultsFolder: String, requestBodiesFolder: String, ideAssetsFolder: String, ideSimulationFolder: String, ideSimulationPackage: String) =
-		main(Array("-df", dataFolder, "-rf", resultsFolder, "-bf", requestBodiesFolder, "-iaf", ideAssetsFolder, "-isf", ideSimulationFolder, "-isp", ideSimulationPackage))
+	def apply(dataFolder: String, resultsFolder: String, requestBodiesFolder: String, ideSimulationFolder: String, ideSimulationPackage: String) =
+		main(Array("-df", dataFolder, "-rf", resultsFolder, "-bf", requestBodiesFolder, "-isf", ideSimulationFolder, "-isp", ideSimulationPackage))
 
 	private def runGatling = {
 		println("-----------\nGatling cli\n-----------\n")
 
 		import CommandLineOptions.options._
-		GatlingConfig(configFileName, dataFolder, requestBodiesFolder, resultsFolder, ideAssetsFolder) // Initializes configuration
+		GatlingConfig(configFileName, dataFolder, requestBodiesFolder, resultsFolder) // Initializes configuration
 
 		val folderName =
 			if (ideSimulationFolder.isDefined)

@@ -36,7 +36,7 @@ import com.excilys.ebi.gatling.core.util.ReflectionHelper.getNewInstanceByClassN
 class ScalaScenarioCompiler extends ScenarioCompiler {
 
 	val byteCodeDir = new VirtualDirectory("memory", None)
-	val classLoader = new AbstractFileClassLoader(byteCodeDir, this.getClass.getClassLoader)
+	val classLoader = new AbstractFileClassLoader(byteCodeDir, getClass.getClassLoader)
 
 	/**
 	 * This method launches the interpretation of the simulation and runs it
