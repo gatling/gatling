@@ -16,12 +16,13 @@
 package com.excilys.ebi.gatling.charts.report
 
 import java.io.FileOutputStream
-import java.net.{ URL, URI, JarURLConnection }
+import java.net.{ URL, URI }
+import java.io.{ File => JFile }
 
 import scala.collection.JavaConversions.asIterator
 import scala.collection.mutable.LinkedHashSet
 import scala.tools.nsc.io.Path.string2path
-import scala.tools.nsc.io.{ Path, File }
+import scala.tools.nsc.io.{ Path, Jar, File }
 
 import com.excilys.ebi.gatling.charts.component.impl.ComponentLibraryImpl
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
@@ -32,6 +33,7 @@ import com.excilys.ebi.gatling.charts.writer.TemplateWriter
 import com.excilys.ebi.gatling.core.config.GatlingFiles.{ styleFolder, jsFolder, GATLING_ASSETS_STYLE_PACKAGE, GATLING_ASSETS_JS_PACKAGE }
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.FileHelper.{ formatToFilename, HTML_EXTENSION }
+import com.excilys.ebi.gatling.core.util.IOHelper
 
 object ReportsGenerator extends Logging {
 
@@ -98,35 +100,20 @@ object ReportsGenerator extends Logging {
 			asIterator(getClass.getClassLoader.getResources(sourcePackage)).foreach { packageURL =>
 
 				if (packageURL.getProtocol == "file") {
-					new File(new java.io.File(new URI(packageURL.toString).getSchemeSpecificPart)).toDirectory.deepFiles.foreach { file =>
+					new File(new JFile(new URI(packageURL.toString).getSchemeSpecificPart)).toDirectory.deepFiles.foreach { file =>
 						file.copyTo(destFolderPath / file.name, true)
 					}
 
 				} else if (packageURL.getProtocol == "jar") {
-					val jarCon = packageURL.openConnection.asInstanceOf[JarURLConnection]
-					jarCon.setUseCaches(false)
-					val jarEntryName = jarCon.getJarEntry.getName
-					// JRockit predends with /, Hotspot doesn't
-					val rootEntryPath = if (jarEntryName.endsWith("/")) jarEntryName else jarEntryName + "/"
+					val jarFilePath = packageURL.getPath.substring(0, packageURL.getPath.indexOf('!'))
+					val rootEntryPath = if (sourcePackage.endsWith("/")) sourcePackage else sourcePackage + "/"
 
-					asIterator(jarCon.getJarFile.entries).foreach { entry =>
-						val entryPath = entry.getName
-						if (entryPath.startsWith(rootEntryPath) && entryPath != rootEntryPath) {
-							val relativePath = entryPath.substring(rootEntryPath.length());
-							val input = getClass.getClassLoader.getResourceAsStream(entryPath)
-							val output = new FileOutputStream((destFolderPath / relativePath.replace('/', java.io.File.separatorChar)).jfile)
-
-							try {
-								val buffer = new Array[Byte](1024 * 4)
-								var n = input.read(buffer)
-								while (n != -1) {
-									output.write(buffer, 0, n);
-									n = input.read(buffer)
-								}
-							} finally {
-								output.close
-							}
-						}
+					new Jar(new File(new JFile(new URI(jarFilePath)))).fileishIterator.filter { fileish =>
+						fileish.parent.toString == sourcePackage
+					}.foreach { fileish =>
+						val input = fileish.input()
+						val output = (destFolderPath / fileish.name).toFile.outputStream(false)
+						IOHelper.copy(input, output)
 					}
 				}
 			}
