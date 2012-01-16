@@ -31,7 +31,7 @@ import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.DateHelper.printFileNameDate
 import com.excilys.ebi.gatling.core.util.FileHelper.{ TXT_EXTENSION, SCALA_EXTENSION }
 
-import CommandLineOptions.options.{ resultsFolder, requestBodiesFolder, reportsOnlyFolder, reportsOnly, noReports, ideSimulationPackage, ideSimulationFolder, ideAssetsFolder, dataFolder, configFileName }
+import CommandLineOptions.options.{ resultsFolder, requestBodiesFolder, reportsOnlyFolder, reportsOnly, noReports, ideSimulationPackage, ideSimulationFolder, dataFolder, configFileName }
 import scopt.OptionParser
 
 /**
@@ -41,14 +41,14 @@ object Gatling extends Logging {
 
 	val cliOptsParser =
 		new OptionParser("gatling") {
-			opt("nr", "no-reports", "runs simulation but does not generate reports", { CommandLineOptions.setNoReports })
+			opt("nr", "no-reports", "Runs simulation but does not generate reports", { CommandLineOptions.setNoReports })
 			opt("ro", "reports-only", "<folderName>", "Generates the reports for the simulation in <folderName>", { v: String => CommandLineOptions.setReportsOnly(v) })
 			opt("cf", "config-file", "<fileName>", "Uses <fileName> as the configuration file", { v: String => CommandLineOptions.setConfigFileName(v) })
 			opt("df", "data-folder", "<folderName>", "Uses <folderName> as the folder where feeders are stored", { v: String => CommandLineOptions.setDataFolder(v) })
 			opt("rf", "results-folder", "<folderName>", "Uses <folderName> as the folder where results are stored", { v: String => CommandLineOptions.setResultsFolder(v) })
 			opt("bf", "request-bodies-folder", "<folderName>", "Uses <folderName> as the folder where request bodies are stored", { v: String => CommandLineOptions.setRequestBodiesFolder(v) })
-			opt("isf", "ide-simulations-folder", "<folderName>", "IDE & Maven Archetype Only -- Uses <folderName> to discover simulations that could be run", { v: String => CommandLineOptions.setEclipseSimulationFolder(v) })
-			opt("isp", "ide-simulations-package", "<packageName>", "IDE & Maven Archetype Only -- Uses <packageName> to start the simulations", { v: String => CommandLineOptions.setEclipseSimulationPackage(v) })
+			opt("isf", "ide-simulations-folder", "<folderName>", "IDE & Maven Archetype Only -- Uses <folderName> to discover simulations that could be run", { v: String => CommandLineOptions.setIdeSimulationFolder(v) })
+			opt("isp", "ide-simulations-package", "<packageName>", "IDE & Maven Archetype Only -- Uses <packageName> to start the simulations", { v: String => CommandLineOptions.setIdeSimulationPackage(v) })
 		}
 
 	/**
@@ -75,7 +75,7 @@ object Gatling extends Logging {
 
 		val folderName =
 			if (ideSimulationFolder.isDefined)
-				displayMenuAndRunForEclipse
+				displayMenuAndRunForIde
 			else
 				displayMenuAndRun
 
@@ -109,7 +109,7 @@ object Gatling extends Logging {
 			files2.size match {
 				case 0 =>
 					// If there is no simulation file
-					logger.warn("There are no simulation scripts. Please verify that your scripts are in user-files/simulations and that they do not start with a .")
+					logger.warn("There is no simulation script. Please verify that your scripts are in user-files/simulations and that they do not start with a .")
 					sys.exit
 				case 1 =>
 					// If there is only one simulation file
@@ -143,7 +143,7 @@ object Gatling extends Logging {
 		}
 	}
 
-	private def displayMenuAndRunForEclipse: String = {
+	private def displayMenuAndRunForIde: String = {
 		import CommandLineOptions.options._
 
 		println("Which simulation do you want to execute ?")

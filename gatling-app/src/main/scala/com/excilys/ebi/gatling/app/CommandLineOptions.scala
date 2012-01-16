@@ -41,9 +41,9 @@ object CommandLineOptions extends Logging {
 	def setDataFolder(dataFolder: String) = { this.dataFolder = Some(dataFolder) }
 	def setRequestBodiesFolder(requestBodiesFolder: String) = { this.requestBodiesFolder = Some(requestBodiesFolder) }
 	def setResultsFolder(resultsFolder: String) = { this.resultsFolder = Some(resultsFolder) }
-	def setEclipseAssetsFolder(ideAssetsFolder: String) = { this.ideAssetsFolder = Some(ideAssetsFolder) }
-	def setEclipseSimulationFolder(ideSimulationFolder: String) = { this.ideSimulationFolder = Some(ideSimulationFolder) }
-	def setEclipseSimulationPackage(ideSimulationPackage: String) = { this.ideSimulationPackage = Some(ideSimulationPackage) }
+	def setIdeAssetsFolder(ideAssetsFolder: String) = { this.ideAssetsFolder = Some(ideAssetsFolder) }
+	def setIdeSimulationFolder(ideSimulationFolder: String) = { this.ideSimulationFolder = Some(ideSimulationFolder) }
+	def setIdeSimulationPackage(ideSimulationPackage: String) = { this.ideSimulationPackage = Some(ideSimulationPackage) }
 
 	lazy val options =
 		new CommandLineOptions(reportsOnly, reportsOnlyFolder, noReports, configFileName, dataFolder, requestBodiesFolder, resultsFolder, ideSimulationFolder,
