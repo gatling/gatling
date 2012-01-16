@@ -95,26 +95,26 @@ object ReportsGenerator extends Logging {
 
 	private def copyAssets(runOn: String) = {
 		def copyFolder(sourcePackage: String, destFolderPath: Path) = {
-			destFolderPath.toDirectory.createDirectory()
 
-			asIterator(getClass.getClassLoader.getResources(sourcePackage)).foreach { packageURL =>
+			for (packageURL <- asIterator(getClass.getClassLoader.getResources(sourcePackage))) {
+				packageURL.getProtocol match {
+					case "file" =>
+						for (file <- new File(new JFile(new URI(packageURL.toString).getSchemeSpecificPart)).toDirectory.deepFiles) {
+							file.parent.createDirectory()
+							file.copyTo(destFolderPath / file.name, true)
+						}
 
-				if (packageURL.getProtocol == "file") {
-					new File(new JFile(new URI(packageURL.toString).getSchemeSpecificPart)).toDirectory.deepFiles.foreach { file =>
-						file.copyTo(destFolderPath / file.name, true)
-					}
+					case "jar" =>
+						val jarFilePath = packageURL.getPath.substring(0, packageURL.getPath.indexOf('!'))
+						val rootEntryPath = if (sourcePackage.endsWith("/")) sourcePackage else sourcePackage + "/"
 
-				} else if (packageURL.getProtocol == "jar") {
-					val jarFilePath = packageURL.getPath.substring(0, packageURL.getPath.indexOf('!'))
-					val rootEntryPath = if (sourcePackage.endsWith("/")) sourcePackage else sourcePackage + "/"
-
-					new Jar(new File(new JFile(new URI(jarFilePath)))).fileishIterator.filter { fileish =>
-						fileish.parent.toString == sourcePackage
-					}.foreach { fileish =>
-						val input = fileish.input()
-						val output = (destFolderPath / fileish.name).toFile.outputStream(false)
-						IOHelper.copy(input, output)
-					}
+						for (fileish <- new Jar(new File(new JFile(new URI(jarFilePath)))).fileishIterator.filter(_.parent.toString == sourcePackage)) {
+							fileish.parent.createDirectory()
+							val input = fileish.input()
+							val output = (destFolderPath / fileish.name).toFile.outputStream(false)
+							IOHelper.copy(input, output)
+						}
+					case _ => throw new UnsupportedOperationException
 				}
 			}
 		}

@@ -30,9 +30,9 @@ class SeparatedValuesFeederSource(fileName: String, separator: Char, escapeChar:
 
 	val values = {
 		val reader = if (escapeChar.isDefined) {
-			new CSVReader(new FileReader(GATLING_DATA_FOLDER / fileName), separator, escapeChar.get);
+			new CSVReader(new FileReader(GATLING_DATA_FOLDER / fileName), separator, escapeChar.get)
 		} else {
-			new CSVReader(new FileReader(GATLING_DATA_FOLDER / fileName), separator);
+			new CSVReader(new FileReader(GATLING_DATA_FOLDER / fileName), separator)
 		}
 
 		try {
