@@ -16,16 +16,16 @@
 package com.excilys.ebi.gatling.charts.computer
 
 import scala.collection.immutable.SortedMap
-import scala.math.{ sqrt, pow }
+import scala.math.{sqrt, pow}
 
 import org.joda.time.DateTime
 
-import com.excilys.ebi.gatling.charts.loader.ResultLine
 import com.excilys.ebi.gatling.charts.util.OrderingHelper.DateTimeOrdering
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ ResultStatus, OK, KO }
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ResultStatus, OK, KO}
+import com.excilys.ebi.gatling.core.result.writer.ResultLine
 
 object Computer extends Logging {
 
@@ -41,9 +41,9 @@ object Computer extends Logging {
 		sqrt(data.map(result => pow(result.executionDurationInMillis - avg, 2)).sum / data.length)
 	}
 
-	def minResponseTime(data: Seq[ResultLine]): Int = data.minBy(_.executionDurationInMillis).executionDurationInMillis
+	def minResponseTime(data: Seq[ResultLine]): Long = data.minBy(_.executionDurationInMillis).executionDurationInMillis
 
-	def maxResponseTime(data: Seq[ResultLine]): Int = data.maxBy(_.executionDurationInMillis).executionDurationInMillis
+	def maxResponseTime(data: Seq[ResultLine]): Long = data.maxBy(_.executionDurationInMillis).executionDurationInMillis
 
 	def numberOfSuccesses(data: Seq[ResultLine]): Int = data.filter(_.resultStatus == OK).size
 
@@ -86,7 +86,7 @@ object Computer extends Logging {
 		grouped.map(entry => (entry._1, entry._2.length)).toList.sortBy(_._1._1).map { entry => (entry._1._2, entry._2) }
 	}
 
-	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: Map[DateTime, Int], requestData: Map[DateTime, Seq[ResultLine]], resultStatus: ResultStatus): List[(Int, Int)] = {
+	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: Map[DateTime, Int], requestData: Map[DateTime, Seq[ResultLine]], resultStatus: ResultStatus): List[(Int, Long)] = {
 		requestData.map { entry =>
 			val (dateTime, list) = entry
 			requestData.get(dateTime).map { list =>

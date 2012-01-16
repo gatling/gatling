@@ -100,8 +100,9 @@ object ReportsGenerator extends Logging {
 				packageURL.getProtocol match {
 					case "file" =>
 						for (file <- new File(new JFile(new URI(packageURL.toString).getSchemeSpecificPart)).toDirectory.deepFiles) {
-							file.parent.createDirectory()
-							file.copyTo(destFolderPath / file.name, true)
+							val target = destFolderPath / file.name
+							target.parent.createDirectory()
+							file.copyTo(target, true)
 						}
 
 					case "jar" =>
@@ -109,9 +110,10 @@ object ReportsGenerator extends Logging {
 						val rootEntryPath = if (sourcePackage.endsWith("/")) sourcePackage else sourcePackage + "/"
 
 						for (fileish <- new Jar(new File(new JFile(new URI(jarFilePath)))).fileishIterator.filter(_.parent.toString == sourcePackage)) {
-							fileish.parent.createDirectory()
 							val input = fileish.input()
-							val output = (destFolderPath / fileish.name).toFile.outputStream(false)
+							val target = destFolderPath / fileish.name
+							target.parent.createDirectory()
+							val output = target.toFile.outputStream(false)
 							IOHelper.copy(input, output)
 						}
 					case _ => throw new UnsupportedOperationException

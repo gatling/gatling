@@ -68,8 +68,8 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 				val responseTimesFailuresSeries = new Series[DateTime, Int]("Response Time (failure)", responseTimesFailuresData, List(RED))
 				val indicatorsColumnSeries = new Series[String, Int](EMPTY, indicatorsColumnData, List(GREEN, YELLOW, ORANGE, RED))
 				val indicatorsPieSeries = new Series[String, Int](EMPTY, indicatorsPieData, List(GREEN, YELLOW, ORANGE, RED))
-				val scatterPlotSuccessSeries = new Series[Int, Int]("Successes", scatterPlotSuccessData, List(TRANSLUCID_BLUE))
-				val scatterPlotFailuresSeries = new Series[Int, Int]("Failures", scatterPlotFailuresData, List(TRANSLUCID_RED))
+				val scatterPlotSuccessSeries = new Series[Int, Long]("Successes", scatterPlotSuccessData, List(TRANSLUCID_BLUE))
+				val scatterPlotFailuresSeries = new Series[Int, Long]("Failures", scatterPlotFailuresData, List(TRANSLUCID_RED))
 
 				// Create template
 				val template =

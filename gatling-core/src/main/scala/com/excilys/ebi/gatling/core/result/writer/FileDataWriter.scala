@@ -17,16 +17,15 @@ package com.excilys.ebi.gatling.core.result.writer
 
 import java.io.{ OutputStreamWriter, FileOutputStream, BufferedOutputStream }
 import java.util.concurrent.CountDownLatch
-
 import scala.tools.nsc.io.{ File, Directory }
-
 import com.excilys.ebi.gatling.core.config.GatlingFiles.{ simulationLogFile, resultFolder }
 import com.excilys.ebi.gatling.core.result.message.{ InitializeDataWriter, ActionInfo }
-import com.excilys.ebi.gatling.core.util.DateHelper.{ printResultDate, printFileNameDate }
-import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
-import com.excilys.ebi.gatling.core.util.StringHelper.{ END_OF_LINE, EMPTY }
-
+import com.excilys.ebi.gatling.core.util.DateHelper.printFileNameDate
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 import akka.actor.scala2ActorRef
+import com.excilys.ebi.gatling.core.result.message.ActionInfo
+import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
 
 /**
  * File implementation of the DataWriter
@@ -54,20 +53,9 @@ class FileDataWriter extends DataWriter {
 	def receive = {
 		// If the message comes from an action
 		case ActionInfo(scenarioName, userId, action, executionStartDate, executionDuration, resultStatus, resultMessage) => {
-			// Builds the line to be written
-			val strBuilder = new StringBuilder
-			strBuilder.append(runOn).append(TABULATION_SEPARATOR)
-				.append(scenarioName).append(TABULATION_SEPARATOR)
-				.append(userId).append(TABULATION_SEPARATOR)
-				.append(action).append(TABULATION_SEPARATOR)
-				.append(printResultDate(executionStartDate)).append(TABULATION_SEPARATOR)
-				.append(executionDuration).append(TABULATION_SEPARATOR)
-				.append(resultStatus).append(TABULATION_SEPARATOR)
-				.append(resultMessage).append(TABULATION_SEPARATOR)
-				.append(END_OF_LINE)
 
 			// Write the line in the file
-			osw.write(strBuilder.toString)
+			new ResultLine(runOn, scenarioName, userId, action, executionStartDate, executionDuration, resultStatus, resultMessage).print(osw).append(END_OF_LINE)
 
 			if (latch.getCount == 1 && self.dispatcher.mailboxSize(self) == 0) {
 				try {
@@ -88,6 +76,9 @@ class FileDataWriter extends DataWriter {
 			Directory(resultFolder(this.runOn)).createDirectory()
 
 			osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(File(simulationLogFile(this.runOn)).jfile, true)))
+
+			ResultLine.Headers.print(osw).append(END_OF_LINE)
+
 			this.latch = latch
 		}
 	}

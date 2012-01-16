@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_STATIS
 import com.excilys.ebi.gatling.charts.template.PageTemplate
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
-class StatisticsTextComponent(numberOfRequest: Int, numberOfSuccesses: Int, numberOfFailures: Int, minResponseTime: Int, maxResponseTime: Int, averageResponseTime: Double, responseTimeStandardDeviation: Double)
+class StatisticsTextComponent(numberOfRequest: Int, numberOfSuccesses: Int, numberOfFailures: Int, minResponseTime: Long, maxResponseTime: Long, averageResponseTime: Double, responseTimeStandardDeviation: Double)
 		extends Component {
 
 	def getHTMLContent: String = {

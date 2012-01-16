@@ -1,8 +1,8 @@
 <%@ val numberOfRequests: Int %>
 <%@ val numberOfSuccesses: Int %>
 <%@ val numberOfFailures: Int %>
-<%@ val min: Int %>
-<%@ val max: Int %>
+<%@ val min: Long %>
+<%@ val max: Long %>
 <%@ val average: Double %>
 <%@ val stdDeviation: Double %>
 
