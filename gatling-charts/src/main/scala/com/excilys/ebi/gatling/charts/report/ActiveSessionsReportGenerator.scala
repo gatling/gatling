@@ -34,8 +34,8 @@ class ActiveSessionsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 	def generate = {
 		// Get Data
 		val scenariosData = dataLoader.scenarioNames.map { scenarioName =>
-			(scenarioName, dataLoader.scenarioDataIndexedByDateWithoutMillis(scenarioName))
-		} ++ Seq((ActiveSessionsReportGenerator.ALL_SESSIONS, dataLoader.dataIndexedByDateWithoutMillis))
+			(scenarioName, dataLoader.scenarioDataIndexedBySendDateWithoutMillis(scenarioName))
+		} ++ Seq((ActiveSessionsReportGenerator.ALL_SESSIONS, dataLoader.dataIndexedBySendDateWithoutMillis))
 
 		val activeSessionsData = numberOfActiveSessionsPerSecondByScenario(scenariosData)
 

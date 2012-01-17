@@ -54,7 +54,7 @@ object Computer extends Logging {
 		}.toSeq: _*).toList
 
 	def numberOfRequestsPerSecond(data: Map[DateTime, Seq[ResultLine]]): Map[DateTime, Int] = SortedMap(data.map(entry => entry._1 -> entry._2.length).toSeq: _*)
-
+	
 	def numberOfRequestsPerSecondAsList(data: Map[DateTime, Seq[ResultLine]]): List[(DateTime, Int)] = numberOfRequestsPerSecond(data).toList
 
 	def numberOfSuccessfulRequestsPerSecond(data: Map[DateTime, Seq[ResultLine]]): List[(DateTime, Int)] = {

@@ -19,34 +19,34 @@ import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.computer.Computer.{ numberOfSuccessfulRequestsPerSecond, numberOfRequestsPerSecondAsList, numberOfFailedRequestsPerSecond }
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.globalRequestsFile
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.globalTransactionsFile
 import com.excilys.ebi.gatling.charts.loader.DataLoader
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.series.SharedSeries
-import com.excilys.ebi.gatling.charts.template.RequestsPageTemplate
+import com.excilys.ebi.gatling.charts.template.TransactionsPageTemplate
 import com.excilys.ebi.gatling.charts.util.Colors.{ toString, RED, GREEN, BLUE }
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
 
-class RequestsReportGenerator(runOn: String, dataLoader: DataLoader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataLoader, componentLibrary) {
+class TransactionsReportGenerator(runOn: String, dataLoader: DataLoader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataLoader, componentLibrary) {
 
 	def generate = {
 
 		// Get Data
-		val allRequestsData = numberOfRequestsPerSecondAsList(dataLoader.dataIndexedBySendDateWithoutMillis)
-		val failedRequestsData = numberOfFailedRequestsPerSecond(dataLoader.dataIndexedBySendDateWithoutMillis)
-		val succeededRequestsData = numberOfSuccessfulRequestsPerSecond(dataLoader.dataIndexedBySendDateWithoutMillis)
-		val pieData = ("Success", succeededRequestsData.map(_._2).sum) :: ("Failures", failedRequestsData.map(_._2).sum) :: Nil
+		val allTransactionsData = numberOfRequestsPerSecondAsList(dataLoader.dataIndexedByReceiveDateWithoutMillis)
+		val failedTransactionsData = numberOfFailedRequestsPerSecond(dataLoader.dataIndexedByReceiveDateWithoutMillis)
+		val succeededTransactionsData = numberOfSuccessfulRequestsPerSecond(dataLoader.dataIndexedByReceiveDateWithoutMillis)
+		val pieData = ("Success", succeededTransactionsData.map(_._2).sum) :: ("Failures", failedTransactionsData.map(_._2).sum) :: Nil
 
 		// Create series
-		val allRequests = new Series[DateTime, Int]("All requests", allRequestsData, List(BLUE))
-		val failedRequests = new Series[DateTime, Int]("Failed requests", failedRequestsData, List(RED))
-		val succeededRequests = new Series[DateTime, Int]("Succeeded requests", succeededRequestsData, List(GREEN))
+		val allTransactions = new Series[DateTime, Int]("All requests", allTransactionsData, List(BLUE))
+		val failedTransactions = new Series[DateTime, Int]("Failed requests", failedTransactionsData, List(RED))
+		val succeededTransactions = new Series[DateTime, Int]("Succeeded requests", succeededTransactionsData, List(GREEN))
 		val pieSeries = new Series[String, Int]("Repartition", pieData, List(GREEN, RED))
 
 		// Create template
-		val template = new RequestsPageTemplate(componentLibrary.getRequestsChartComponent(allRequests, failedRequests, succeededRequests, pieSeries, SharedSeries.getAllActiveSessionsSeries))
+		val template = new TransactionsPageTemplate(componentLibrary.getTransactionsChartComponent(allTransactions, failedTransactions, succeededTransactions, pieSeries, SharedSeries.getAllActiveSessionsSeries))
 
 		// Write template result to file
-		new TemplateWriter(globalRequestsFile(runOn)).writeToFile(template.getOutput)
+		new TemplateWriter(globalTransactionsFile(runOn)).writeToFile(template.getOutput)
 	}
 }

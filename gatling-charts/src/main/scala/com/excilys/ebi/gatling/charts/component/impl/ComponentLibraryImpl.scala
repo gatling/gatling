@@ -17,19 +17,16 @@ package com.excilys.ebi.gatling.charts.component.impl
 
 import org.joda.time.DateTime
 
-import com.excilys.ebi.gatling.charts.component.{ComponentLibrary, Component}
+import com.excilys.ebi.gatling.charts.component.{ ComponentLibrary, Component }
 import com.excilys.ebi.gatling.charts.series.Series
 
 class ComponentLibraryImpl extends ComponentLibrary {
 
 	def getActiveSessionsChartComponent(series: Series[DateTime, Int]*): Component = throw new UnsupportedOperationException
-
 	def getRequestsChartComponent(allRequests: Series[DateTime, Int], failedRequests: Series[DateTime, Int], succeededRequests: Series[DateTime, Int], pieSeries: Series[String, Int], allActiveSessions: Series[DateTime, Int]): Component = throw new UnsupportedOperationException
-
+	def getTransactionsChartComponent(allTransactions: Series[DateTime, Int], failedTransactions: Series[DateTime, Int], succeededTransactions: Series[DateTime, Int], pieSeries: Series[String, Int], allActiveSessions: Series[DateTime, Int]): Component = throw new UnsupportedOperationException
 	def getRequestDetailsResponseTimeChartComponent(responseTimesSuccess: Series[DateTime, Int], responseTimesFailures: Series[DateTime, Int], allActiveSessions: Series[DateTime, Int]): Component = throw new UnsupportedOperationException
-
 	def getRequestDetailsScatterChartComponent(successData: Series[Int, Long], failuresData: Series[Int, Long]): Component = throw new UnsupportedOperationException
-
 	def getRequestDetailsIndicatorChartComponent(columnSeries: Series[String, Int], pieSeries: Series[String, Int]): Component = throw new UnsupportedOperationException
 
 }

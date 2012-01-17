@@ -32,6 +32,7 @@ object ChartsFiles {
 	def menuFile(runOn: String) = resultFolder(runOn) / GATLING_JS / MENU_FILE
 	def activeSessionsFile(runOn: String) = resultFolder(runOn) / "active_sessions.html"
 	def globalRequestsFile(runOn: String) = resultFolder(runOn) / "requests.html"
+	def globalTransactionsFile(runOn: String) = resultFolder(runOn) / "transactions.html"
 
 	def requestFile(runOn: String, requestName: String) = resultFolder(runOn) / (formatToFilename(requestName) + HTML_EXTENSION)
 }

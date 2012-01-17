@@ -39,8 +39,8 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 			val dataList = dataLoader.requestData(requestName)
 
 			if (requestName != END_OF_SCENARIO && requestName != START_OF_SCENARIO) {
-				val dataMillis = dataLoader.requestDataIndexedByDate(requestName)
-				val dataSeconds = dataLoader.requestDataIndexedByDateWithoutMillis(requestName)
+				val dataMillis = dataLoader.requestDataIndexedBySendDate(requestName)
+				val dataSeconds = dataLoader.requestDataIndexedBySendDateWithoutMillis(requestName)
 
 				// Get Data
 				val responseTimesSuccessData = responseTimeByMillisecondAsList(dataMillis, OK)
@@ -50,7 +50,7 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 					val numberOfRequests = dataList.size
 					indicatorsColumnData.map { entry => entry._1 -> (entry._2 / numberOfRequests.toDouble * 100).toInt }
 				}
-				val requestsPerSecond = numberOfRequestsPerSecond(dataLoader.dataIndexedByDateWithoutMillis)
+				val requestsPerSecond = numberOfRequestsPerSecond(dataLoader.dataIndexedBySendDateWithoutMillis)
 				val scatterPlotSuccessData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, OK)
 				val scatterPlotFailuresData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, KO)
 

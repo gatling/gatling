@@ -88,21 +88,17 @@ class DataLoader(runOn: String) extends Logging {
 
 	val scenarioNames: Buffer[String] = data.map(_.scenarioName).distinct
 
-	val dataIndexedByDateWithoutMillis: SortedMap[DateTime, Buffer[ResultLine]] = {
-		SortedMap(data.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
-	}
+	val dataIndexedBySendDateWithoutMillis: SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(data.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
+	
+	val dataIndexedByReceiveDateWithoutMillis: SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(data.groupBy(result => result.executionStartDate.plus(result.executionDurationInMillis).withMillisOfSecond(0)).toSeq: _*)
 
 	def requestData(requestName: String) = data.filter(_.requestName == requestName)
 
 	def scenarioData(scenarioName: String) = data.filter(_.scenarioName == scenarioName)
 
-	def requestDataIndexedByDate(requestName: String): SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(requestData(requestName).groupBy(_.executionStartDate).toSeq: _*)
+	def requestDataIndexedBySendDate(requestName: String): SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(requestData(requestName).groupBy(_.executionStartDate).toSeq: _*)
 
-	def requestDataIndexedByDateWithoutMillis(requestName: String): SortedMap[DateTime, Buffer[ResultLine]] = {
-		SortedMap(requestData(requestName).groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
-	}
+	def requestDataIndexedBySendDateWithoutMillis(requestName: String): SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(requestData(requestName).groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
 
-	def scenarioDataIndexedByDateWithoutMillis(scenarioName: String): SortedMap[DateTime, Buffer[ResultLine]] = {
-		SortedMap(scenarioData(scenarioName).groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
-	}
+	def scenarioDataIndexedBySendDateWithoutMillis(scenarioName: String): SortedMap[DateTime, Buffer[ResultLine]] = SortedMap(scenarioData(scenarioName).groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
 }

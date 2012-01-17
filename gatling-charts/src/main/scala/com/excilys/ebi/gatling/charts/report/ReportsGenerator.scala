@@ -66,6 +66,7 @@ object ReportsGenerator extends Logging {
 		val reportGenerators =
 			List(new ActiveSessionsReportGenerator(runOn, dataLoader, componentLibrary),
 				new RequestsReportGenerator(runOn, dataLoader, componentLibrary),
+				new TransactionsReportGenerator(runOn, dataLoader, componentLibrary),
 				new RequestDetailsReportGenerator(runOn, dataLoader, componentLibrary))
 
 		copyAssets(runOn)
