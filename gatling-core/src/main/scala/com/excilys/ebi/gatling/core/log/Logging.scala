@@ -26,7 +26,5 @@ trait Logging {
 }
 
 object Logger {
-	def apply(logger: String): SLFLogger = SLFLoggerFactory getLogger logger
-	def apply(clazz: Class[_]): SLFLogger = apply(clazz.getName)
-	def root: SLFLogger = apply(SLFLogger.ROOT_LOGGER_NAME)
+	def apply(logger: String): SLFLogger = SLFLoggerFactory.getLogger(logger)
 }
