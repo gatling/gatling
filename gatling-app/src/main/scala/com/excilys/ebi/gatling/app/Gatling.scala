@@ -179,7 +179,7 @@ object Gatling extends Logging {
 		println("Simulation started...")
 
 		val startDate = DateTime.now
-		val interpreter =
+		val compiler =
 			if (isIde)
 				new IdeScenarioCompiler
 			else
@@ -189,7 +189,7 @@ object Gatling extends Logging {
 					case _ => throw new UnsupportedOperationException
 				}
 
-		interpreter.run(fileName, startDate)
+		compiler.run(fileName, startDate)
 
 		// Returns the folderName in which the simulation is stored
 		printFileNameDate(startDate)
