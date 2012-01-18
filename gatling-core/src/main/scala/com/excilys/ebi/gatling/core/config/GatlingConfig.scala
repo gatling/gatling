@@ -23,6 +23,7 @@ import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 import GatlingFiles.GATLING_DEFAULT_CONFIG_FILE
+import com.excilys.ebi.gatling.core.util.DateHelper._
 
 /**
  * Configuration loader of Gatling
@@ -81,6 +82,16 @@ object GatlingConfig extends Logging {
 	val CONFIG_CHARTING_INDICATORS_LOWER_BOUND = config("gatling.charting.indicators.lowerBound", 100)
 
 	val CONFIG_CHARTING_INDICATORS_HIGHER_BOUND = config("gatling.charting.indicators.higherBound", 500)
-	
+
 	val CONFIG_CHARTING_MAX_PLOT_PER_SERIE = config("gatling.charting.maxPlotPerSerie", 5000)
+
+	val CONFIG_CHARTING_TIME_WINDOW_LOWER_BOUND = {
+		val value = config("gatling.charting.timeWindow.lowerBound", EMPTY)
+		if (value == EMPTY) None else Option(parseResultDate(value))
+	}
+
+	val CONFIG_CHARTING_TIME_WINDOW_HIGHER_BOUND = {
+		val value = config("gatling.charting.timeWindow.higherBound", EMPTY)
+		if (value == EMPTY) None else Option(parseResultDate(value))
+	}
 }

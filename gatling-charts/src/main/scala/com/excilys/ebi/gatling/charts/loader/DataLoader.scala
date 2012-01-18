@@ -18,9 +18,7 @@ package com.excilys.ebi.gatling.charts.loader
 import scala.collection.immutable.SortedMap
 import scala.collection.mutable.{ HashMap, ArrayBuffer }
 import scala.io.Source
-
 import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.charts.util.OrderingHelper.DateTimeOrdering
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
@@ -31,6 +29,8 @@ import com.excilys.ebi.gatling.core.result.message.ResultStatus
 import com.excilys.ebi.gatling.core.result.writer.ResultLine
 import com.excilys.ebi.gatling.core.util.DateHelper.{ parseResultDate, parseFileNameDateFormat }
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.core.config.GatlingConfig
 
 class DataLoader(runOn: String) extends Logging {
 
@@ -62,13 +62,26 @@ class DataLoader(runOn: String) extends Logging {
 		// check headers correctness
 		ResultLine.Headers.check(lines.next)
 
+		// get time window bounds
+
 		val buffer = new ArrayBuffer[ResultLine]
+
+		def isResultInTimeWindow(result: ResultLine) =
+			((!GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_LOWER_BOUND.isDefined
+				|| result.executionStartDate.equals(GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_LOWER_BOUND.get)
+				|| result.executionStartDate.isAfter(GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_LOWER_BOUND.get)) && (
+					!GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_HIGHER_BOUND.isDefined
+					|| result.executionStartDate.equals(GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_HIGHER_BOUND.get)
+					|| result.executionStartDate.isBefore(GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_HIGHER_BOUND.get)))
 
 		for (line <- lines) {
 			line.split(TABULATION_SEPARATOR) match {
 				// If we have a well formated result
-				case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage) =>
-					buffer += ResultLine(stringCache.get(runOn), stringCache.get(scenarioName), intCache.get(userId), stringCache.get(actionName), dateTimeCache.get(executionStartDate), intCache.get(executionDuration), ResultStatus.withName(resultStatus), stringCache.get(resultMessage))
+				case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage) => {
+					val result = ResultLine(stringCache.get(runOn), stringCache.get(scenarioName), intCache.get(userId), stringCache.get(actionName), dateTimeCache.get(executionStartDate), intCache.get(executionDuration), ResultStatus.withName(resultStatus), stringCache.get(resultMessage))
+					if (isResultInTimeWindow(result))
+						buffer += result
+				}
 
 				// Else, if the resulting data is not well formated print an error message
 				case _ => logger.warn("simulation.log had bad end of file, statistics will be generated but may not be accurate")
