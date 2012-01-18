@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.config
 
 import scala.tools.nsc.io.Path.string2path
 
-import GatlingConfig.{ CONFIG_RESULTS_FOLDER, CONFIG_REQUEST_BODIES_FOLDER, CONFIG_DATA_FOLDER }
+import GatlingConfig.{ CONFIG_RESULTS_FOLDER, CONFIG_REQUEST_BODIES_FOLDER, CONFIG_DATA_FOLDER, CONFIG_SIMULATIONS_FOLDER }
 
 object GatlingFiles {
 	/* Global paths */
@@ -29,7 +29,7 @@ object GatlingFiles {
 	lazy val GATLING_DATA_FOLDER = CONFIG_DATA_FOLDER.getOrElse(GATLING_USER_FILES_FOLDER / "data")
 	lazy val GATLING_RESULTS_FOLDER = CONFIG_RESULTS_FOLDER.getOrElse(GATLING_HOME / "results")
 	lazy val GATLING_REQUEST_BODIES_FOLDER = CONFIG_REQUEST_BODIES_FOLDER.getOrElse(GATLING_USER_FILES_FOLDER / "request-bodies")
-	lazy val GATLING_SIMULATIONS_FOLDER = GATLING_USER_FILES_FOLDER / "simulations"
+	lazy val GATLING_SIMULATIONS_FOLDER = CONFIG_SIMULATIONS_FOLDER.getOrElse(GATLING_USER_FILES_FOLDER / "simulations")
 
 	/* Assets Paths */
 	val GATLING_JS = "js"

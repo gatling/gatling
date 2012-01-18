@@ -28,9 +28,10 @@ object CommandLineOptions extends Logging {
 	private var resultsFolder: Option[String] = None
 	private var dataFolder: Option[String] = None
 	private var requestBodiesFolder: Option[String] = None
-	private var ideSimulationFolder: Option[String] = None
-	private var ideSimulationPackage: Option[String] = None
-	private var ideAssetsFolder: Option[String] = None
+	private var simulationFolder: Option[String] = None
+	private var simulationPackage: Option[String] = None
+	private var assetsFolder: Option[String] = None
+	private var simulations: Option[List[String]] = None
 
 	def setReportsOnly(reportsOnlyFolder: String) = {
 		this.reportsOnly = true
@@ -41,17 +42,18 @@ object CommandLineOptions extends Logging {
 	def setDataFolder(dataFolder: String) = { this.dataFolder = Some(dataFolder) }
 	def setRequestBodiesFolder(requestBodiesFolder: String) = { this.requestBodiesFolder = Some(requestBodiesFolder) }
 	def setResultsFolder(resultsFolder: String) = { this.resultsFolder = Some(resultsFolder) }
-	def setIdeAssetsFolder(ideAssetsFolder: String) = { this.ideAssetsFolder = Some(ideAssetsFolder) }
-	def setIdeSimulationFolder(ideSimulationFolder: String) = { this.ideSimulationFolder = Some(ideSimulationFolder) }
-	def setIdeSimulationPackage(ideSimulationPackage: String) = { this.ideSimulationPackage = Some(ideSimulationPackage) }
-
+	def setAssetsFolder(assetsFolder: String) = { this.assetsFolder = Some(assetsFolder) }
+	def setSimulationFolder(simulationFolder: String) = { this.simulationFolder = Some(simulationFolder) }
+	def setSimulationPackage(simulationPackage: String) = { this.simulationPackage = Some(simulationPackage) }
+	def setSimulations(simulations: String) = { this.simulations = Some(simulations.split(",").toList) }
+	
 	lazy val options =
-		new CommandLineOptions(reportsOnly, reportsOnlyFolder, noReports, configFileName, dataFolder, requestBodiesFolder, resultsFolder, ideSimulationFolder,
-			ideSimulationPackage, ideAssetsFolder)
+		new CommandLineOptions(reportsOnly, reportsOnlyFolder, noReports, configFileName, dataFolder, requestBodiesFolder, resultsFolder, simulationFolder,
+			simulationPackage, assetsFolder, simulations)
 }
 class CommandLineOptions(val reportsOnly: Boolean, val reportsOnlyFolder: String, val noReports: Boolean, val configFileName: Option[String], val dataFolder: Option[String],
-		val requestBodiesFolder: Option[String], val resultsFolder: Option[String], val ideSimulationFolder: Option[String], val ideSimulationPackage: Option[String],
-		val ideAssetsFolder: Option[String]) {
+		val requestBodiesFolder: Option[String], val resultsFolder: Option[String], val simulationFolder: Option[String], val simulationPackage: Option[String],
+		val assetsFolder: Option[String], val simulations: Option[List[String]]) {
 	override def toString =
 		new StringBuilder()
 			.append("reportsOnly: ").append(reportsOnly)
@@ -61,8 +63,9 @@ class CommandLineOptions(val reportsOnly: Boolean, val reportsOnlyFolder: String
 			.append(", resultsFolder: ").append(resultsFolder)
 			.append(", dataFolder: ").append(dataFolder)
 			.append(", requestBodiesFolder: ").append(requestBodiesFolder)
-			.append(", ideSimulationFolder: ").append(ideSimulationFolder)
-			.append(", ideSimulationPackage: ").append(ideSimulationPackage)
-			.append(", ideAssetsFolder: ").append(ideAssetsFolder)
+			.append(", simulationFolder: ").append(simulationFolder)
+			.append(", simulationPackage: ").append(simulationPackage)
+			.append(", assetsFolder: ").append(assetsFolder)
+			.append(", simulations: ").append(simulations)
 			.toString
 }

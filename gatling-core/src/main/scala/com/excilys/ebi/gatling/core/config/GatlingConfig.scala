@@ -34,12 +34,14 @@ object GatlingConfig extends Logging {
 	private var dataFolder: Option[String] = None
 	private var requestBodiesFolder: Option[String] = None
 	private var resultsFolder: Option[String] = None
+	private var simulationsFolder: Option[String] = None
 
-	def apply(configFileName: Option[String], dataFolder: Option[String], requestBodiesFolder: Option[String], resultsFolder: Option[String]) = {
+	def apply(configFileName: Option[String], dataFolder: Option[String], requestBodiesFolder: Option[String], resultsFolder: Option[String], simulationsFolder: Option[String]) = {
 		this.configFileName = configFileName
 		this.dataFolder = dataFolder
 		this.requestBodiesFolder = requestBodiesFolder
 		this.resultsFolder = resultsFolder
+		this.simulationsFolder = simulationsFolder
 	}
 
 	/**
@@ -67,6 +69,7 @@ object GatlingConfig extends Logging {
 	lazy val CONFIG_RESULTS_FOLDER: Option[Path] = resultsFolder.map(s => s)
 	lazy val CONFIG_DATA_FOLDER: Option[Path] = dataFolder.map(s => s)
 	lazy val CONFIG_REQUEST_BODIES_FOLDER: Option[Path] = requestBodiesFolder.map(s => s)
+	lazy val CONFIG_SIMULATIONS_FOLDER: Option[Path] = simulationsFolder.map(s => s)
 
 	/**
 	 * Gatling global encoding value
