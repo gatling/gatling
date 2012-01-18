@@ -26,7 +26,6 @@ class Series[X, Y](val name: String, val data: List[(X, Y)], val colors: List[St
 			data
 		else {
 			var i = 0
-			var start = System.currentTimeMillis
 			// yep, using a mutable buffer is much much much faster!!!
 			(new ArrayBuffer(data.size) ++ data).filter { plot =>
 				i = i + 1
