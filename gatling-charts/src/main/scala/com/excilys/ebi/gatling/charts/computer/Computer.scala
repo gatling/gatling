@@ -28,10 +28,14 @@ import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ResultStatus, O
 import com.excilys.ebi.gatling.core.result.writer.ResultLine
 
 object Computer extends Logging {
+	
+	val AVERAGE_TIME_NO_PLOT_MAGIC_VALUE = -1d
+	
+	val AVERAGE_TIME_NO_PLOT_MAGIC_VALUE_AS_INT = AVERAGE_TIME_NO_PLOT_MAGIC_VALUE.toInt
 
 	def averageResponseTime(data: Seq[ResultLine]): Double = {
 		if (data.isEmpty)
-			-1d
+			AVERAGE_TIME_NO_PLOT_MAGIC_VALUE
 		else
 			data.map(_.executionDurationInMillis).sum / data.length.toDouble
 	}

@@ -15,4 +15,25 @@
  */
 package com.excilys.ebi.gatling.charts.series
 
-class Series[X, Y](val name: String, val data: List[(X, Y)], val colors: List[String])
+import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_CHARTING_MAX_PLOT_PER_SERIE
+import scala.collection.mutable.ArrayBuffer
+
+class Series[X, Y](val name: String, val data: List[(X, Y)], val colors: List[String]) {
+
+	val sample = {
+		val nb = data.size
+		if (nb <= CONFIG_CHARTING_MAX_PLOT_PER_SERIE)
+			data
+		else {
+			var i = 0
+			var start = System.currentTimeMillis
+			// yep, using a mutable buffer is much much much faster!!!
+			(new ArrayBuffer(data.size) ++ data).filter { plot =>
+				i = i + 1
+				isPlotMandatory(plot) || i % (nb / CONFIG_CHARTING_MAX_PLOT_PER_SERIE) == 0
+			}
+		}
+	}
+	
+	def isPlotMandatory(plot: (X, Y)) = false
+}

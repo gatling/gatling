@@ -81,4 +81,6 @@ object GatlingConfig extends Logging {
 	val CONFIG_CHARTING_INDICATORS_LOWER_BOUND = config("gatling.charting.indicators.lowerBound", 100)
 
 	val CONFIG_CHARTING_INDICATORS_HIGHER_BOUND = config("gatling.charting.indicators.higherBound", 500)
+	
+	val CONFIG_CHARTING_MAX_PLOT_PER_SERIE = config("gatling.charting.maxPlotPerSerie", 5000)
 }
