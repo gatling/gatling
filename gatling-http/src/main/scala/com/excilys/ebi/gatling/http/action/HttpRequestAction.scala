@@ -85,6 +85,7 @@ class HttpRequestAction(next: ActorRef, request: HttpRequest, givenCheckBuilders
 		if (logger.isInfoEnabled())
 			logger.info("Sending Request '{}': Scenario '{}', UserId #{}", Array[Object](request.name, session.scenarioName, session.userId.toString))
 
+			
 		HttpRequestAction.CLIENT.executeRequest(request.getRequest(session), new GatlingAsyncHandler(session, checks, next, request.name))
 	}
 }

@@ -20,23 +20,23 @@ import java.util.concurrent.TimeUnit
 
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.immutable.HashMap
-import scala.collection.mutable.{HashMap => MHashMap}
+import scala.collection.mutable.{ HashMap => MHashMap }
 
 import org.joda.time.DateTime
 
-import com.excilys.ebi.gatling.core.check.extractor.{MultiValuedExtractor, ExtractorFactory, Extractor}
+import com.excilys.ebi.gatling.core.check.extractor.{ MultiValuedExtractor, ExtractorFactory, Extractor }
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ResultStatus, OK, KO}
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ ResultStatus, OK, KO }
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.Predef.SET_COOKIE
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.request.HttpPhase.{HttpPhase, CompletePageReceived}
+import com.excilys.ebi.gatling.http.request.HttpPhase.{ HttpPhase, CompletePageReceived }
 import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.excilys.ebi.gatling.http.util.HttpHelper.COOKIES_CONTEXT_KEY
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
-import com.ning.http.client.{Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler}
+import com.ning.http.client.{ Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler }
 import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
 
 import akka.actor.Actor.registry.actorFor
@@ -85,7 +85,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 
 				logger.debug("Cookies put in Session: {}", sessionCookies)
 
-				session setAttribute (COOKIES_CONTEXT_KEY, sessionCookies)
+				session.setAttribute(COOKIES_CONTEXT_KEY, sessionCookies)
 			}
 		}
 

@@ -18,12 +18,10 @@ package com.excilys.ebi.gatling.charts.report
 import java.io.FileOutputStream
 import java.net.{ URL, URI }
 import java.io.{ File => JFile }
-
 import scala.collection.JavaConversions.asIterator
 import scala.collection.mutable.LinkedHashSet
 import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.{ Path, Jar, File }
-
 import com.excilys.ebi.gatling.charts.component.impl.ComponentLibraryImpl
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.menuFile
@@ -34,6 +32,7 @@ import com.excilys.ebi.gatling.core.config.GatlingFiles.{ styleFolder, jsFolder,
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.FileHelper.{ formatToFilename, HTML_EXTENSION }
 import com.excilys.ebi.gatling.core.util.IOHelper
+import com.excilys.ebi.gatling.charts.loader.FileDataLoader
 
 object ReportsGenerator extends Logging {
 
@@ -61,7 +60,7 @@ object ReportsGenerator extends Logging {
 	}
 
 	def generateFor(runOn: String) = {
-		val dataLoader = new DataLoader(runOn)
+		val dataLoader = new FileDataLoader(runOn)
 
 		val reportGenerators =
 			List(new ActiveSessionsReportGenerator(runOn, dataLoader, componentLibrary),
