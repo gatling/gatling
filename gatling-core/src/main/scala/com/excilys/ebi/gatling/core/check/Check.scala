@@ -36,7 +36,12 @@ abstract class Check[T](val what: Session => String, val how: ExtractorFactory[T
 	 * This method performs the check via the strategy used by this Check
 	 *
 	 * @param value the value extracted from the T
-	 * @return a boolean that indicates whether the check succeeded or not
+	 * @return a CheckResult that indicates whether the check succeeded or not
 	 */
-	def check(value: List[String], session: Session) = strategy(value, expected.map(_(session)))
+	def check(value: List[String], session: Session) = {
+
+		val resolvedExpected = expected.map(_(session))
+		val checked = strategy(value, resolvedExpected)
+		new CheckResult(checked, value, resolvedExpected)
+	}
 }
