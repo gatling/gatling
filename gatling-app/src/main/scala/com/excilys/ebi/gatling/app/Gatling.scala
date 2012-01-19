@@ -69,7 +69,7 @@ object Gatling extends Logging {
 			// If simulations is set
 			simulations.map { list =>
 				if (list.size > 1)
-					runSeveralSimulations(list)
+					runMultipleSimulations(list)
 				else
 					run(list.head)
 			}.getOrElse {
@@ -206,12 +206,12 @@ object Gatling extends Logging {
 		}
 	}
 
-	private def runSeveralSimulations(fileNames: List[String]) = {
+	private def runMultipleSimulations(fileNames: List[String]) = {
 		val size = fileNames.size
 		var count = 1
 
 		fileNames.foreach { fileName =>
-			println(">> Running file (" + count + "/" + size + ") - " + fileName)
+			println(">> Running simulation (" + count + "/" + size + ") - " + fileName)
 			run(fileName)
 			count += 1
 		}
