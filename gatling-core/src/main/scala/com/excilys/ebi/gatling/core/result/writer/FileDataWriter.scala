@@ -52,10 +52,10 @@ class FileDataWriter extends DataWriter {
 	 */
 	def receive = {
 		// If the message comes from an action
-		case ActionInfo(scenarioName, userId, action, executionStartDate, executionDuration, resultStatus, resultMessage) => {
+		case ActionInfo(scenarioName, userId, action, executionStartDate, executionDuration, endOfRequestSendingDate, startOfResponseReceivingDate, resultStatus, resultMessage) => {
 
 			// Write the line in the file
-			new ResultLine(runOn, scenarioName, userId, action, executionStartDate, executionDuration, resultStatus, resultMessage).print(osw).append(END_OF_LINE)
+			new ResultLine(runOn, scenarioName, userId, action, executionStartDate, executionDuration, endOfRequestSendingDate, startOfResponseReceivingDate, resultStatus, resultMessage).print(osw).append(END_OF_LINE)
 
 			if (latch.getCount == 1 && self.dispatcher.mailboxSize(self) == 0) {
 				try {

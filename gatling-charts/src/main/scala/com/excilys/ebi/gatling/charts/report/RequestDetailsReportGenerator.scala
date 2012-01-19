@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.charts.report
 import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.charts.component.{ StatisticsTextComponent, ComponentLibrary }
-import com.excilys.ebi.gatling.charts.computer.Computer.{ responseTimeStandardDeviation, responseTimeByMillisecondAsList, respTimeAgainstNbOfReqPerSecond, numberOfSuccesses, numberOfRequestsPerSecond, numberOfRequestInResponseTimeRange, minResponseTime, maxResponseTime, averageResponseTime }
+import com.excilys.ebi.gatling.charts.computer.Computer.{ responseTimeStandardDeviation, responseTimeByMillisecondAsList, latencyByMillisecondAsList, respTimeAgainstNbOfReqPerSecond, numberOfSuccesses, numberOfRequestsPerSecond, numberOfRequestInResponseTimeRange, minResponseTime, maxResponseTime, averageResponseTime }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.requestFile
 import com.excilys.ebi.gatling.charts.loader.DataLoader
 import com.excilys.ebi.gatling.charts.series.Series
@@ -45,6 +45,8 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 				// Get Data
 				val responseTimesSuccessData = responseTimeByMillisecondAsList(dataMillis, OK)
 				val responseTimesFailuresData = responseTimeByMillisecondAsList(dataMillis, KO)
+				val latencySuccessData = latencyByMillisecondAsList(dataMillis, OK)
+				val latencyFailuresData = latencyByMillisecondAsList(dataMillis, KO)
 				val indicatorsColumnData = numberOfRequestInResponseTimeRange(dataList, CONFIG_CHARTING_INDICATORS_LOWER_BOUND, CONFIG_CHARTING_INDICATORS_HIGHER_BOUND)
 				val indicatorsPieData = {
 					val numberOfRequests = dataList.size
@@ -53,7 +55,7 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 				val requestsPerSecond = numberOfRequestsPerSecond(dataLoader.dataIndexedBySendDateWithoutMillis)
 				val scatterPlotSuccessData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, OK)
 				val scatterPlotFailuresData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, KO)
-
+				
 				// Statistics
 				val numberOfRequests = dataList.length
 				val numberOfSuccessfulRequests = numberOfSuccesses(dataList)
@@ -66,6 +68,8 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 				// Create series
 				val responseTimesSuccessSeries = new Series[DateTime, Int]("Response Time (success)", responseTimesSuccessData, List(BLUE))
 				val responseTimesFailuresSeries = new Series[DateTime, Int]("Response Time (failure)", responseTimesFailuresData, List(RED))
+				val latencySuccessSeries = new Series[DateTime, Int]("Latency (success)", latencySuccessData, List(BLUE))
+				val latencyFailuresSeries = new Series[DateTime, Int]("Latency (failure)", latencyFailuresData, List(RED))
 				val indicatorsColumnSeries = new Series[String, Int](EMPTY, indicatorsColumnData, List(GREEN, YELLOW, ORANGE, RED))
 				val indicatorsPieSeries = new Series[String, Int](EMPTY, indicatorsPieData, List(GREEN, YELLOW, ORANGE, RED))
 				val scatterPlotSuccessSeries = new Series[Int, Long]("Successes", scatterPlotSuccessData, List(TRANSLUCID_BLUE))
@@ -75,6 +79,7 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 				val template =
 					new RequestDetailsPageTemplate(requestName.substring(8),
 						componentLibrary.getRequestDetailsResponseTimeChartComponent(responseTimesSuccessSeries, responseTimesFailuresSeries, SharedSeries.getAllActiveSessionsSeries),
+						componentLibrary.getRequestDetailsLatencyChartComponent(latencySuccessSeries, latencyFailuresSeries, SharedSeries.getAllActiveSessionsSeries),
 						new StatisticsTextComponent(numberOfRequests, numberOfSuccessfulRequests, numberOfFailedRequests, minRespTime, maxRespTime, avgRespTime, respTimeStdDeviation),
 						componentLibrary.getRequestDetailsScatterChartComponent(scatterPlotSuccessSeries, scatterPlotFailuresSeries),
 						componentLibrary.getRequestDetailsIndicatorChartComponent(indicatorsColumnSeries, indicatorsPieSeries))

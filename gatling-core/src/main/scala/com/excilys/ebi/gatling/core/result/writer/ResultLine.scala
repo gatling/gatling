@@ -32,6 +32,8 @@ object ResultLine {
 		val REQUEST_NAME = "REQUEST_NAME"
 		val EXECUTION_START_DATE = "EXECUTION_START_DATE"
 		val EXECUTION_DURATION_IN_MILLIS = "EXECUTION_DURATION_IN_MILLIS"
+		val END_OF_REQUEST_SENDING_DATE = "END_OF_REQUEST_SENDING_DATE"
+		val START_OF_RESPONSE_RECEIVING_DATE = "START_OF_RESPONSE_RECEIVING_DATE"
 		val RESULT_STATUS = "RESULT_STATUS"
 		val RESULT_MESSAGE = "RESULT_MESSAGE"
 
@@ -42,6 +44,8 @@ object ResultLine {
 			.append(REQUEST_NAME).append(TABULATION_SEPARATOR)
 			.append(EXECUTION_START_DATE).append(TABULATION_SEPARATOR)
 			.append(EXECUTION_DURATION_IN_MILLIS).append(TABULATION_SEPARATOR)
+			.append(END_OF_REQUEST_SENDING_DATE).append(TABULATION_SEPARATOR)
+			.append(START_OF_RESPONSE_RECEIVING_DATE).append(TABULATION_SEPARATOR)
 			.append(RESULT_STATUS).append(TABULATION_SEPARATOR)
 			.append(RESULT_MESSAGE).append(TABULATION_SEPARATOR)
 
@@ -51,7 +55,7 @@ object ResultLine {
 	}
 }
 
-case class ResultLine(runOn: String, scenarioName: String, userId: Int, requestName: String, executionStartDate: DateTime, executionDurationInMillis: Long, resultStatus: ResultStatus, resultMessage: String) {
+case class ResultLine(runOn: String, scenarioName: String, userId: Int, requestName: String, executionStartDate: DateTime, executionDurationInMillis: Long, endOfRequestSendingDate: DateTime, startOfResponseReceivingDate: DateTime, resultStatus: ResultStatus, resultMessage: String) {
 
 	def print(writer: Writer) = writer
 		.append(runOn).append(TABULATION_SEPARATOR)
@@ -60,6 +64,8 @@ case class ResultLine(runOn: String, scenarioName: String, userId: Int, requestN
 		.append(requestName).append(TABULATION_SEPARATOR)
 		.append(printResultDate(executionStartDate)).append(TABULATION_SEPARATOR)
 		.append(executionDurationInMillis.toString).append(TABULATION_SEPARATOR)
+		.append(printResultDate(endOfRequestSendingDate)).append(TABULATION_SEPARATOR)
+		.append(printResultDate(startOfResponseReceivingDate)).append(TABULATION_SEPARATOR)
 		.append(resultStatus.toString).append(TABULATION_SEPARATOR)
 		.append(resultMessage).append(TABULATION_SEPARATOR)
 }

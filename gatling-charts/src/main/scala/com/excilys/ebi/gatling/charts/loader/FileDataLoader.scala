@@ -75,8 +75,8 @@ class FileDataLoader(runOn: String) extends DataLoader with Logging {
 		for (line <- lines) {
 			line.split(TABULATION_SEPARATOR) match {
 				// If we have a well formated result
-				case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, resultStatus, resultMessage) => {
-					val result = ResultLine(stringCache.get(runOn), stringCache.get(scenarioName), intCache.get(userId), stringCache.get(actionName), dateTimeCache.get(executionStartDate), intCache.get(executionDuration), ResultStatus.withName(resultStatus), stringCache.get(resultMessage))
+				case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, endOfRequestSendingDate, startOfResponseReceivingDate, resultStatus, resultMessage) => {
+					val result = ResultLine(stringCache.get(runOn), stringCache.get(scenarioName), intCache.get(userId), stringCache.get(actionName), dateTimeCache.get(executionStartDate), intCache.get(executionDuration), dateTimeCache.get(endOfRequestSendingDate), dateTimeCache.get(startOfResponseReceivingDate), ResultStatus.withName(resultStatus), stringCache.get(resultMessage))
 					if (isResultInTimeWindow(result))
 						buffer += result
 				}
@@ -89,7 +89,7 @@ class FileDataLoader(runOn: String) extends DataLoader with Logging {
 		buffer.sortBy(_.executionStartDate.getMillis)
 	}
 
-	val simulationRunOn : DateTime = parseFileNameDateFormat(data.head.runOn)
+	val simulationRunOn: DateTime = parseFileNameDateFormat(data.head.runOn)
 
 	val requestNames: Seq[String] = data.map(_.requestName).distinct.filterNot(value => value == END_OF_SCENARIO || value == START_OF_SCENARIO)
 

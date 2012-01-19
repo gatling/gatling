@@ -17,28 +17,30 @@ package com.excilys.ebi.gatling.charts.computer
 
 import scala.collection.immutable.SortedMap
 import scala.math.{sqrt, pow}
-
 import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.charts.util.OrderingHelper.DateTimeOrdering
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ResultStatus, OK, KO}
 import com.excilys.ebi.gatling.core.result.writer.ResultLine
+import org.joda.time.Period
 
 object Computer extends Logging {
 	
-	val AVERAGE_TIME_NO_PLOT_MAGIC_VALUE = -1d
+	val AVERAGE_TIME_NO_PLOT_MAGIC_VALUE = -1
 	
-	val AVERAGE_TIME_NO_PLOT_MAGIC_VALUE_AS_INT = AVERAGE_TIME_NO_PLOT_MAGIC_VALUE.toInt
 
-	def averageResponseTime(data: Seq[ResultLine]): Double = {
+	def averageTime(timeFunction: ResultLine => Long, data: Seq[ResultLine]): Int = {
 		if (data.isEmpty)
 			AVERAGE_TIME_NO_PLOT_MAGIC_VALUE
 		else
-			data.map(_.executionDurationInMillis).sum / data.length.toDouble
+			(data.map(timeFunction(_)).sum / data.length.toDouble).toInt
 	}
+	
+	def averageResponseTime = averageTime((line: ResultLine) => line.executionDurationInMillis, _: Seq[ResultLine])
+	
+	def averageLatency = averageTime((line: ResultLine) => new Period(line.endOfRequestSendingDate, line.startOfResponseReceivingDate).getMillis, _: Seq[ResultLine])
 
 	def responseTimeStandardDeviation(data: Seq[ResultLine]): Double = {
 		val avg = averageResponseTime(data)
@@ -54,7 +56,13 @@ object Computer extends Logging {
 	def responseTimeByMillisecondAsList(data: Map[DateTime, Seq[ResultLine]], resultStatus: ResultStatus): List[(DateTime, Int)] =
 		SortedMap(data.map(entry => entry._1 -> entry._2.filter(_.resultStatus == resultStatus)).map { entry =>
 			val (date, list) = entry
-			entry._1 -> averageResponseTime(list).toInt
+			entry._1 -> averageResponseTime(list)
+		}.toSeq: _*).toList
+		
+	def latencyByMillisecondAsList(data: Map[DateTime, Seq[ResultLine]], resultStatus: ResultStatus): List[(DateTime, Int)] =
+		SortedMap(data.map(entry => entry._1 -> entry._2.filter(_.resultStatus == resultStatus)).map { entry =>
+			val (date, list) = entry
+			entry._1 -> averageLatency(list)
 		}.toSeq: _*).toList
 
 	def numberOfRequestsPerSecond(data: Map[DateTime, Seq[ResultLine]]): Map[DateTime, Int] = SortedMap(data.map(entry => entry._1 -> entry._2.length).toSeq: _*)

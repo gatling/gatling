@@ -17,13 +17,10 @@ package com.excilys.ebi.gatling.http.ahc
 
 import java.lang.Void
 import java.util.concurrent.TimeUnit
-
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.immutable.HashMap
 import scala.collection.mutable.{ HashMap => MHashMap }
-
 import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.core.check.extractor.{ MultiValuedExtractor, ExtractorFactory, Extractor }
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ ResultStatus, OK, KO }
@@ -38,9 +35,9 @@ import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
 import com.ning.http.client.{ Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler }
 import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
-
 import akka.actor.Actor.registry.actorFor
 import akka.actor.ActorRef
+import com.ning.http.client.ProgressAsyncHandler
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
@@ -54,7 +51,7 @@ import akka.actor.ActorRef
  * @param requestName the name of the request
  */
 class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: ActorRef, requestName: String)
-		extends AsyncHandler[Void] with Logging {
+		extends AsyncHandler[Void] with ProgressAsyncHandler[Void] with Logging {
 
 	private val executionStartTimeNano = System.nanoTime
 
@@ -64,7 +61,26 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 
 	private val responseBuilder = new ResponseBuilder
 
+	private var endOfRequestSendingDate: Option[DateTime] = None
+
+	private var startOfResponseReceivingDate: Option[DateTime] = None
+
+	def onHeaderWriteCompleted = {
+		endOfRequestSendingDate = Some(DateTime.now)
+		STATE.CONTINUE
+	}
+
+	def onContentWriteCompleted = {
+		endOfRequestSendingDate = Some(DateTime.now)
+		STATE.CONTINUE
+	}
+
+	def onContentWriteProgress(amount: Long, current: Long, total: Long) = {
+		STATE.CONTINUE
+	}
+
 	def onStatusReceived(responseStatus: HttpResponseStatus): STATE = {
+		startOfResponseReceivingDate = Some(DateTime.now)
 		responseBuilder.accumulate(responseStatus)
 		STATE.CONTINUE
 	}
@@ -111,6 +127,8 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 
 	def onThrowable(throwable: Throwable) = {
 		logger.error("{}\n{}", throwable.getClass, throwable.getStackTraceString)
+		if (!startOfResponseReceivingDate.isDefined)
+			startOfResponseReceivingDate = Some(DateTime.now)
 		sendLogAndExecuteNext(KO, throwable.getMessage, System.nanoTime)
 	}
 
@@ -124,10 +142,10 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 	private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String, processingStartTimeNano: Long) = {
 		actorFor(session.writeActorUuid).map { a =>
 			val responseTimeMillis = TimeUnit.MILLISECONDS.convert(processingStartTimeNano - executionStartTimeNano, TimeUnit.NANOSECONDS)
-			a ! ActionInfo(session.scenarioName, session.userId, "Request " + requestName, executionStartDate, responseTimeMillis, requestResult, requestMessage)
+			a ! ActionInfo(session.scenarioName, session.userId, "Request " + requestName, executionStartDate, responseTimeMillis, endOfRequestSendingDate.get, startOfResponseReceivingDate.get, requestResult, requestMessage)
 		}
 
-		session.setAttribute(Session.LAST_ACTION_DURATION_KEY, System.nanoTime() - processingStartTimeNano)
+		session.setAttribute(Session.LAST_ACTION_DURATION_KEY, System.nanoTime - processingStartTimeNano)
 
 		next ! session
 	}

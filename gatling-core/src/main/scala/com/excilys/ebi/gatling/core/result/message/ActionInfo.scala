@@ -29,5 +29,5 @@ import org.joda.time.DateTime
  * @param resultStatus the status of the action
  * @param resultMessage the message of the action on completion
  */
-case class ActionInfo(scenarioName: String, userId: Int, action: String, executionStartDate: DateTime, executionDuration: Long, resultStatus: ResultStatus.ResultStatus,
+case class ActionInfo(scenarioName: String, userId: Int, action: String, executionStartDate: DateTime, executionDuration: Long, endOfRequestSendingDate: DateTime, startOfResponseReceivingDate: DateTime, resultStatus: ResultStatus.ResultStatus,
 	resultMessage: String)

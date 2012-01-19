@@ -26,7 +26,7 @@ class ComponentLibraryImpl extends ComponentLibrary {
 	def getRequestsChartComponent(allRequests: Series[DateTime, Int], failedRequests: Series[DateTime, Int], succeededRequests: Series[DateTime, Int], pieSeries: Series[String, Int], allActiveSessions: Series[DateTime, Int]): Component = throw new UnsupportedOperationException
 	def getTransactionsChartComponent(allTransactions: Series[DateTime, Int], failedTransactions: Series[DateTime, Int], succeededTransactions: Series[DateTime, Int], pieSeries: Series[String, Int], allActiveSessions: Series[DateTime, Int]): Component = throw new UnsupportedOperationException
 	def getRequestDetailsResponseTimeChartComponent(responseTimesSuccess: Series[DateTime, Int], responseTimesFailures: Series[DateTime, Int], allActiveSessions: Series[DateTime, Int]): Component = throw new UnsupportedOperationException
+	def getRequestDetailsLatencyChartComponent(latencySuccess: Series[DateTime, Int], latencyFailures: Series[DateTime, Int], allActiveSessions: Series[DateTime, Int]): Component = throw new UnsupportedOperationException
 	def getRequestDetailsScatterChartComponent(successData: Series[Int, Long], failuresData: Series[Int, Long]): Component = throw new UnsupportedOperationException
 	def getRequestDetailsIndicatorChartComponent(columnSeries: Series[String, Int], pieSeries: Series[String, Int]): Component = throw new UnsupportedOperationException
-
 }
