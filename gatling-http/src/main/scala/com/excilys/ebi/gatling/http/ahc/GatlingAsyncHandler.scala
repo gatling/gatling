@@ -15,28 +15,31 @@
  */
 package com.excilys.ebi.gatling.http.ahc
 
+import java.lang.System.currentTimeMillis
 import java.lang.Void
-import java.util.concurrent.TimeUnit
+
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.immutable.HashMap
-import scala.collection.mutable.{ HashMap => MHashMap }
-import com.excilys.ebi.gatling.core.check.extractor.{ MultiValuedExtractor, ExtractorFactory, Extractor }
+import scala.collection.mutable.{HashMap => MHashMap}
+
+import com.excilys.ebi.gatling.core.check.extractor.{MultiValuedExtractor, ExtractorFactory, Extractor}
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ ResultStatus, OK, KO }
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ResultStatus, OK, KO}
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.Predef.SET_COOKIE
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.request.HttpPhase.{ HttpPhase, CompletePageReceived }
+import com.excilys.ebi.gatling.http.request.HttpPhase.{HttpPhase, CompletePageReceived}
 import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.excilys.ebi.gatling.http.util.HttpHelper.COOKIES_CONTEXT_KEY
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
-import com.ning.http.client.{ Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler }
+import com.ning.http.client.ProgressAsyncHandler
+import com.ning.http.client.{Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler}
 import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
+
 import akka.actor.Actor.registry.actorFor
 import akka.actor.ActorRef
-import com.ning.http.client.ProgressAsyncHandler
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
@@ -52,7 +55,7 @@ import com.ning.http.client.ProgressAsyncHandler
 class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: ActorRef, requestName: String)
 		extends AsyncHandler[Void] with ProgressAsyncHandler[Void] with Logging {
 
-	private val executionStartDate = System.currentTimeMillis
+	private val executionStartDate = currentTimeMillis
 
 	private val identifier = requestName + session.userId
 
@@ -63,12 +66,12 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 	private var startOfResponseReceivingDate: Option[Long] = None
 
 	def onHeaderWriteCompleted = {
-		endOfRequestSendingDate = Some(System.currentTimeMillis)
+		endOfRequestSendingDate = Some(currentTimeMillis)
 		STATE.CONTINUE
 	}
 
 	def onContentWriteCompleted = {
-		endOfRequestSendingDate = Some(System.currentTimeMillis)
+		endOfRequestSendingDate = Some(currentTimeMillis)
 		STATE.CONTINUE
 	}
 
@@ -77,7 +80,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 	}
 
 	def onStatusReceived(responseStatus: HttpResponseStatus): STATE = {
-		startOfResponseReceivingDate = Some(System.currentTimeMillis)
+		startOfResponseReceivingDate = Some(currentTimeMillis)
 		responseBuilder.accumulate(responseStatus)
 		STATE.CONTINUE
 	}
@@ -125,8 +128,8 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 	def onThrowable(throwable: Throwable) = {
 		logger.error("{}\n{}", throwable.getClass, throwable.getStackTraceString)
 		if (!startOfResponseReceivingDate.isDefined)
-			startOfResponseReceivingDate = Some(System.currentTimeMillis)
-		sendLogAndExecuteNext(KO, throwable.getMessage, System.currentTimeMillis)
+			startOfResponseReceivingDate = Some(currentTimeMillis)
+		sendLogAndExecuteNext(KO, throwable.getMessage, currentTimeMillis)
 	}
 
 	/**
@@ -142,7 +145,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 			a ! ActionInfo(session.scenarioName, session.userId, "Request " + requestName, executionStartDate, responseTimeMillis, endOfRequestSendingDate.get, startOfResponseReceivingDate.get, requestResult, requestMessage)
 		}
 
-		session.setAttribute(Session.LAST_ACTION_DURATION_KEY, System.currentTimeMillis - processingStartDate)
+		session.setAttribute(Session.LAST_ACTION_DURATION_KEY, currentTimeMillis - processingStartDate)
 
 		next ! session
 	}
@@ -172,7 +175,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 			extractors
 		}
 
-		val processingStartTimeMillis = System.currentTimeMillis
+		val processingStartTimeMillis = currentTimeMillis
 
 		HttpPhase.values.foreach { httpPhase =>
 

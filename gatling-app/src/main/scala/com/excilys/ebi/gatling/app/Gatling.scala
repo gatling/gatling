@@ -15,21 +15,23 @@
  */
 package com.excilys.ebi.gatling.app
 
+import java.lang.System.currentTimeMillis
+
 import scala.collection.immutable.TreeSet
-import scala.collection.mutable.{ Set => MSet, MultiMap, HashMap }
+import scala.collection.mutable.{Set => MSet, MultiMap, HashMap}
 import scala.tools.nsc.io.Directory
 
 import org.joda.time.DateTime
 
-import com.excilys.ebi.gatling.app.compiler.{ TextScenarioCompiler, ScalaScenarioCompiler, IdeScenarioCompiler }
+import com.excilys.ebi.gatling.app.compiler.{TextScenarioCompiler, ScalaScenarioCompiler, IdeScenarioCompiler}
 import com.excilys.ebi.gatling.charts.report.ReportsGenerator
 import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_SIMULATIONS_FOLDER
 import com.excilys.ebi.gatling.core.config.GatlingConfig
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.DateHelper.printFileNameDate
-import com.excilys.ebi.gatling.core.util.FileHelper.{ TXT_EXTENSION, SCALA_EXTENSION }
+import com.excilys.ebi.gatling.core.util.FileHelper.{TXT_EXTENSION, SCALA_EXTENSION}
 
-import CommandLineOptions.options.{ simulations, simulationPackage, simulationFolder, resultsFolder, requestBodiesFolder, reportsOnlyFolder, reportsOnly, noReports, dataFolder, configFileName }
+import CommandLineOptions.options.{simulations, simulationPackage, simulationFolder, resultsFolder, requestBodiesFolder, reportsOnlyFolder, reportsOnly, noReports, dataFolder, configFileName}
 import scopt.OptionParser
 
 /**
@@ -198,9 +200,10 @@ object Gatling extends Logging {
 
 		// Returns the folderName in which the simulation is stored
 		if (!noReports) {
+			val start = currentTimeMillis
 			println("Simulation Finished. Generating Reports...")
 			generateStats(printFileNameDate(startDate))
-			println("Reports Generated.")
+			println("Reports Generated in " + (currentTimeMillis - start) / 1000 + "s.")
 		}
 	}
 
