@@ -15,13 +15,11 @@
  */
 package com.excilys.ebi.gatling.charts.series
 
-import org.joda.time.DateTime
-
 object SharedSeries {
 
-	private var allActiveSessionsSeries: Option[Series[DateTime, Int]] = None
+	private var allActiveSessionsSeries: Option[Series[Long, Int]] = None
 
 	def getAllActiveSessionsSeries = allActiveSessionsSeries.getOrElse(throw new IllegalArgumentException("Active sessions series was not set yet"))
 
-	def setAllActiveSessionsSeries(allActiveSessionsSeries: Series[DateTime, Int]) = { this.allActiveSessionsSeries = Some(allActiveSessionsSeries) }
+	def setAllActiveSessionsSeries(allActiveSessionsSeries: Series[Long, Int]) = { this.allActiveSessionsSeries = Some(allActiveSessionsSeries) }
 }

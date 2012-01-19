@@ -38,9 +38,9 @@ class RequestsReportGenerator(runOn: String, dataLoader: DataLoader, componentLi
 		val pieData = ("Success", succeededRequestsData.map(_._2).sum) :: ("Failures", failedRequestsData.map(_._2).sum) :: Nil
 
 		// Create series
-		val allRequests = new Series[DateTime, Int]("All requests", allRequestsData, List(BLUE))
-		val failedRequests = new Series[DateTime, Int]("Failed requests", failedRequestsData, List(RED))
-		val succeededRequests = new Series[DateTime, Int]("Succeeded requests", succeededRequestsData, List(GREEN))
+		val allRequests = new Series[Long, Int]("All requests", allRequestsData, List(BLUE))
+		val failedRequests = new Series[Long, Int]("Failed requests", failedRequestsData, List(RED))
+		val succeededRequests = new Series[Long, Int]("Succeeded requests", succeededRequestsData, List(GREEN))
 		val pieSeries = new Series[String, Int]("Repartition", pieData, List(GREEN, RED))
 
 		// Create template

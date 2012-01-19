@@ -15,12 +15,9 @@
  */
 package com.excilys.ebi.gatling.core.result.writer
 
-import java.io.{ Writer, StringWriter }
-
-import org.joda.time.DateTime
+import java.io.{Writer, StringWriter}
 
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.ResultStatus
-import com.excilys.ebi.gatling.core.util.DateHelper.printResultDate
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 
 object ResultLine {
@@ -55,17 +52,17 @@ object ResultLine {
 	}
 }
 
-case class ResultLine(runOn: String, scenarioName: String, userId: Int, requestName: String, executionStartDate: DateTime, executionDurationInMillis: Long, endOfRequestSendingDate: DateTime, startOfResponseReceivingDate: DateTime, resultStatus: ResultStatus, resultMessage: String) {
+case class ResultLine(runOn: String, scenarioName: String, userId: Int, requestName: String, executionStartDate: Long, executionDurationInMillis: Long, endOfRequestSendingDate: Long, startOfResponseReceivingDate: Long, resultStatus: ResultStatus, resultMessage: String) {
 
 	def print(writer: Writer) = writer
 		.append(runOn).append(TABULATION_SEPARATOR)
 		.append(scenarioName).append(TABULATION_SEPARATOR)
 		.append(userId.toString).append(TABULATION_SEPARATOR)
 		.append(requestName).append(TABULATION_SEPARATOR)
-		.append(printResultDate(executionStartDate)).append(TABULATION_SEPARATOR)
+		.append(executionStartDate.toString).append(TABULATION_SEPARATOR)
 		.append(executionDurationInMillis.toString).append(TABULATION_SEPARATOR)
-		.append(printResultDate(endOfRequestSendingDate)).append(TABULATION_SEPARATOR)
-		.append(printResultDate(startOfResponseReceivingDate)).append(TABULATION_SEPARATOR)
+		.append(endOfRequestSendingDate.toString).append(TABULATION_SEPARATOR)
+		.append(startOfResponseReceivingDate.toString).append(TABULATION_SEPARATOR)
 		.append(resultStatus.toString).append(TABULATION_SEPARATOR)
 		.append(resultMessage).append(TABULATION_SEPARATOR)
 }

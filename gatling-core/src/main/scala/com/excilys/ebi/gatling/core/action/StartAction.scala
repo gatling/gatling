@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.OK
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.core.session.Session
@@ -49,7 +47,7 @@ class StartAction(next: ActorRef) extends Action {
 	 * @param session The session of the current user
 	 */
 	def execute(session: Session) = {
-		val now = DateTime.now
+		val now = System.currentTimeMillis
 		actorFor(session.writeActorUuid).map(_ ! ActionInfo(session.scenarioName, session.userId, StartAction.START_OF_SCENARIO, now, 0, now, now, OK, "Beginning Scenario"))
 		logger.info("Starting user #{}", session.userId)
 		next !session

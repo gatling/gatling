@@ -109,7 +109,7 @@ class Session(val scenarioName: String, val userId: Int, val writeActorUuid: Uui
 	/**
 	 * Gets the last action duration
 	 *
-	 * @return last action duration in nanoseconds
+	 * @return last action duration in milliseconds
 	 */
 	private[gatling] def getLastActionDuration: Long = getAttributeAsOption[Long](Session.LAST_ACTION_DURATION_KEY).getOrElse(0L)
 

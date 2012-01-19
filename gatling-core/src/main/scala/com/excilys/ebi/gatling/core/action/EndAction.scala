@@ -17,8 +17,6 @@ package com.excilys.ebi.gatling.core.action
 
 import java.util.concurrent.CountDownLatch
 
-import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.OK
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.core.session.Session
@@ -48,7 +46,7 @@ class EndAction(val latch: CountDownLatch) extends Action {
 	 * @param session The session of the current user that finishes
 	 */
 	def execute(session: Session) = {
-		val now = DateTime.now()
+		val now = System.currentTimeMillis
 		actorFor(session.writeActorUuid).map(_ ! ActionInfo(session.scenarioName, session.userId, EndAction.END_OF_SCENARIO, now, 0, now, now, OK, "End of Scenario Reached"))
 
 		latch.countDown

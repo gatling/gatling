@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.result.message
 
-import org.joda.time.DateTime
-
 /**
  * This case class is to be sent to the logging actor, it contains all the information
  * required for statistics generation after the simulation has run
@@ -29,5 +27,5 @@ import org.joda.time.DateTime
  * @param resultStatus the status of the action
  * @param resultMessage the message of the action on completion
  */
-case class ActionInfo(scenarioName: String, userId: Int, action: String, executionStartDate: DateTime, executionDuration: Long, endOfRequestSendingDate: DateTime, startOfResponseReceivingDate: DateTime, resultStatus: ResultStatus.ResultStatus,
+case class ActionInfo(scenarioName: String, userId: Int, action: String, executionStartDate: Long, executionDuration: Long, endOfRequestSendingDate: Long, startOfResponseReceivingDate: Long, resultStatus: ResultStatus.ResultStatus,
 	resultMessage: String)

@@ -57,11 +57,10 @@ class PauseAction(next: ActorRef, minDuration: Long, maxDuration: Long, timeUnit
 		val diff = maxDuration - minDuration
 		val duration = minDuration + (if (diff > 0) PauseAction.randomGenerator.nextInt(diff.toInt) else 0)
 
-		val durationInNanos: Long = TimeUnit.NANOSECONDS.convert(duration, timeUnit) - session.getLastActionDuration
-
+		val durationMinusLastActionDurationInMillis: Long = TimeUnit.MILLISECONDS.convert(duration, timeUnit) - session.getLastActionDuration
 		if (logger.isInfoEnabled)
-			logger.info("Waiting for {}ms ({}ms)", TimeUnit.MILLISECONDS.convert(duration, timeUnit), TimeUnit.MILLISECONDS.convert(durationInNanos, TimeUnit.NANOSECONDS))
+			logger.info("Waiting for {}ms ({}ms)", TimeUnit.MILLISECONDS.convert(duration, timeUnit), durationMinusLastActionDurationInMillis)
 
-		Scheduler.scheduleOnce(() => next! session, durationInNanos, TimeUnit.NANOSECONDS)
+		Scheduler.scheduleOnce(() => next! session, durationMinusLastActionDurationInMillis, TimeUnit.MILLISECONDS)
 	}
 }

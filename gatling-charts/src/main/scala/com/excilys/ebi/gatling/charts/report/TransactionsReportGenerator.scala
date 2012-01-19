@@ -38,9 +38,9 @@ class TransactionsReportGenerator(runOn: String, dataLoader: DataLoader, compone
 		val pieData = ("Success", succeededTransactionsData.map(_._2).sum) :: ("Failures", failedTransactionsData.map(_._2).sum) :: Nil
 
 		// Create series
-		val allTransactions = new Series[DateTime, Int]("All requests", allTransactionsData, List(BLUE))
-		val failedTransactions = new Series[DateTime, Int]("Failed requests", failedTransactionsData, List(RED))
-		val succeededTransactions = new Series[DateTime, Int]("Succeeded requests", succeededTransactionsData, List(GREEN))
+		val allTransactions = new Series[Long, Int]("All requests", allTransactionsData, List(BLUE))
+		val failedTransactions = new Series[Long, Int]("Failed requests", failedTransactionsData, List(RED))
+		val succeededTransactions = new Series[Long, Int]("Succeeded requests", succeededTransactionsData, List(GREEN))
 		val pieSeries = new Series[String, Int]("Repartition", pieData, List(GREEN, RED))
 
 		// Create template

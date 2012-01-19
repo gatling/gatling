@@ -15,18 +15,16 @@
  */
 package com.excilys.ebi.gatling.charts.component.impl
 
-import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.charts.component.{ ComponentLibrary, Component }
 import com.excilys.ebi.gatling.charts.series.Series
 
 class ComponentLibraryImpl extends ComponentLibrary {
 
-	def getActiveSessionsChartComponent(series: Series[DateTime, Int]*): Component = throw new UnsupportedOperationException
-	def getRequestsChartComponent(allRequests: Series[DateTime, Int], failedRequests: Series[DateTime, Int], succeededRequests: Series[DateTime, Int], pieSeries: Series[String, Int], allActiveSessions: Series[DateTime, Int]): Component = throw new UnsupportedOperationException
-	def getTransactionsChartComponent(allTransactions: Series[DateTime, Int], failedTransactions: Series[DateTime, Int], succeededTransactions: Series[DateTime, Int], pieSeries: Series[String, Int], allActiveSessions: Series[DateTime, Int]): Component = throw new UnsupportedOperationException
-	def getRequestDetailsResponseTimeChartComponent(responseTimesSuccess: Series[DateTime, Int], responseTimesFailures: Series[DateTime, Int], allActiveSessions: Series[DateTime, Int]): Component = throw new UnsupportedOperationException
-	def getRequestDetailsLatencyChartComponent(latencySuccess: Series[DateTime, Int], latencyFailures: Series[DateTime, Int], allActiveSessions: Series[DateTime, Int]): Component = throw new UnsupportedOperationException
+	def getActiveSessionsChartComponent(series: Series[Long, Int]*): Component = throw new UnsupportedOperationException
+	def getRequestsChartComponent(allRequests: Series[Long, Int], failedRequests: Series[Long, Int], succeededRequests: Series[Long, Int], pieSeries: Series[String, Int], allActiveSessions: Series[Long, Int]): Component = throw new UnsupportedOperationException
+	def getTransactionsChartComponent(allTransactions: Series[Long, Int], failedTransactions: Series[Long, Int], succeededTransactions: Series[Long, Int], pieSeries: Series[String, Int], allActiveSessions: Series[Long, Int]): Component = throw new UnsupportedOperationException
+	def getRequestDetailsResponseTimeChartComponent(responseTimesSuccess: Series[Long, Int], responseTimesFailures: Series[Long, Int], allActiveSessions: Series[Long, Int]): Component = throw new UnsupportedOperationException
+	def getRequestDetailsLatencyChartComponent(latencySuccess: Series[Long, Int], latencyFailures: Series[Long, Int], allActiveSessions: Series[Long, Int]): Component = throw new UnsupportedOperationException
 	def getRequestDetailsScatterChartComponent(successData: Series[Int, Long], failuresData: Series[Int, Long]): Component = throw new UnsupportedOperationException
 	def getRequestDetailsIndicatorChartComponent(columnSeries: Series[String, Int], pieSeries: Series[String, Int]): Component = throw new UnsupportedOperationException
 }

@@ -26,12 +26,12 @@ trait DataLoader {
 	val simulationRunOn: DateTime
 	val requestNames: Seq[String]
 	val scenarioNames: Seq[String]
-	val dataIndexedBySendDateWithoutMillis: SortedMap[DateTime, Seq[ResultLine]]
-	val dataIndexedByReceiveDateWithoutMillis: SortedMap[DateTime, Seq[ResultLine]]
+	val dataIndexedBySendDateWithoutMillis: SortedMap[Long, Seq[ResultLine]]
+	val dataIndexedByReceiveDateWithoutMillis: SortedMap[Long, Seq[ResultLine]]
 
 	def requestData(requestName: String): Seq[ResultLine]
 	def scenarioData(scenarioName: String): Seq[ResultLine]
-	def requestDataIndexedBySendDate(requestName: String): SortedMap[DateTime, Seq[ResultLine]]
-	def requestDataIndexedBySendDateWithoutMillis(requestName: String): SortedMap[DateTime, Seq[ResultLine]]
-	def scenarioDataIndexedBySendDateWithoutMillis(scenarioName: String): SortedMap[DateTime, Seq[ResultLine]]
+	def requestDataIndexedBySendDate(requestName: String): SortedMap[Long, Seq[ResultLine]]
+	def requestDataIndexedBySendDateWithoutMillis(requestName: String): SortedMap[Long, Seq[ResultLine]]
+	def scenarioDataIndexedBySendDateWithoutMillis(scenarioName: String): SortedMap[Long, Seq[ResultLine]]
 }

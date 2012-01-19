@@ -55,6 +55,7 @@ class FileDataLoader(runOn: String) extends DataLoader with Logging {
 		// use caches in order to reuse String instances instead of holding multiple references of equal Strings
 		val stringCache = new StringKeyCache((s: String) => s)
 		val intCache = new StringKeyCache((s: String) => s.toInt)
+		val longCache = new StringKeyCache((s: String) => s.toLong)
 		val dateTimeCache = new StringKeyCache((s: String) => parseResultDate(s))
 
 		val lines = Source.fromFile(simulationLogFile(runOn).jfile, CONFIG_ENCODING).getLines
@@ -66,17 +67,15 @@ class FileDataLoader(runOn: String) extends DataLoader with Logging {
 
 		def isResultInTimeWindow(result: ResultLine) =
 			((!GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_LOWER_BOUND.isDefined
-				|| result.executionStartDate.equals(GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_LOWER_BOUND.get)
-				|| result.executionStartDate.isAfter(GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_LOWER_BOUND.get)) && (
-					!GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_HIGHER_BOUND.isDefined
-					|| result.executionStartDate.equals(GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_HIGHER_BOUND.get)
-					|| result.executionStartDate.isBefore(GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_HIGHER_BOUND.get)))
+				|| result.executionStartDate >= GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_LOWER_BOUND.get)) &&
+				(!GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_HIGHER_BOUND.isDefined
+					|| (result.executionStartDate <= GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_HIGHER_BOUND.get))
 
 		for (line <- lines) {
 			line.split(TABULATION_SEPARATOR) match {
 				// If we have a well formated result
 				case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, endOfRequestSendingDate, startOfResponseReceivingDate, resultStatus, resultMessage) => {
-					val result = ResultLine(stringCache.get(runOn), stringCache.get(scenarioName), intCache.get(userId), stringCache.get(actionName), dateTimeCache.get(executionStartDate), intCache.get(executionDuration), dateTimeCache.get(endOfRequestSendingDate), dateTimeCache.get(startOfResponseReceivingDate), ResultStatus.withName(resultStatus), stringCache.get(resultMessage))
+					val result = ResultLine(stringCache.get(runOn), stringCache.get(scenarioName), intCache.get(userId), stringCache.get(actionName), longCache.get(executionStartDate), intCache.get(executionDuration), longCache.get(endOfRequestSendingDate), longCache.get(startOfResponseReceivingDate), ResultStatus.withName(resultStatus), stringCache.get(resultMessage))
 					if (isResultInTimeWindow(result))
 						buffer += result
 				}
@@ -86,7 +85,7 @@ class FileDataLoader(runOn: String) extends DataLoader with Logging {
 			}
 		}
 
-		buffer.sortBy(_.executionStartDate.getMillis)
+		buffer.sortBy(_.executionStartDate)
 	}
 
 	val simulationRunOn: DateTime = parseFileNameDateFormat(data.head.runOn)
@@ -95,17 +94,17 @@ class FileDataLoader(runOn: String) extends DataLoader with Logging {
 
 	val scenarioNames: Seq[String] = data.map(_.scenarioName).distinct
 
-	val dataIndexedBySendDateWithoutMillis: SortedMap[DateTime, Seq[ResultLine]] = SortedMap(data.groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
+	val dataIndexedBySendDateWithoutMillis: SortedMap[Long, Seq[ResultLine]] = SortedMap(data.groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis).toSeq: _*)
 
-	val dataIndexedByReceiveDateWithoutMillis: SortedMap[DateTime, Seq[ResultLine]] = SortedMap(data.groupBy(result => result.executionStartDate.plus(result.executionDurationInMillis).withMillisOfSecond(0)).toSeq: _*)
+	val dataIndexedByReceiveDateWithoutMillis: SortedMap[Long, Seq[ResultLine]] = SortedMap(data.groupBy(result => new DateTime(result.executionStartDate + result.executionDurationInMillis).withMillisOfSecond(0).getMillis).toSeq: _*)
 
 	def requestData(requestName: String): Seq[ResultLine] = data.filter(_.requestName == requestName)
 
 	def scenarioData(scenarioName: String): Seq[ResultLine] = data.filter(_.scenarioName == scenarioName)
 
-	def requestDataIndexedBySendDate(requestName: String): SortedMap[DateTime, Seq[ResultLine]] = SortedMap(requestData(requestName).groupBy(_.executionStartDate).toSeq: _*)
+	def requestDataIndexedBySendDate(requestName: String): SortedMap[Long, Seq[ResultLine]] = SortedMap(requestData(requestName).groupBy(_.executionStartDate).toSeq: _*)
 
-	def requestDataIndexedBySendDateWithoutMillis(requestName: String): SortedMap[DateTime, Seq[ResultLine]] = SortedMap(requestData(requestName).groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
+	def requestDataIndexedBySendDateWithoutMillis(requestName: String): SortedMap[Long, Seq[ResultLine]] = SortedMap(requestData(requestName).groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis).toSeq: _*)
 
-	def scenarioDataIndexedBySendDateWithoutMillis(scenarioName: String): SortedMap[DateTime, Seq[ResultLine]] = SortedMap(scenarioData(scenarioName).groupBy(_.executionStartDate.withMillisOfSecond(0)).toSeq: _*)
+	def scenarioDataIndexedBySendDateWithoutMillis(scenarioName: String): SortedMap[Long, Seq[ResultLine]] = SortedMap(scenarioData(scenarioName).groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis).toSeq: _*)
 }

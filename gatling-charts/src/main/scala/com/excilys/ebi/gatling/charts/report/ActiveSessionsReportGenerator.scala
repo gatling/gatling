@@ -43,7 +43,7 @@ class ActiveSessionsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 
 		// Create series
 		val series = (activeSessionsData.reverse zip colors).map { tuple =>
-			val s = new Series[DateTime, Int](tuple._1._1, tuple._1._2, List(tuple._2))
+			val s = new Series[Long, Int](tuple._1._1, tuple._1._2, List(tuple._2))
 			if (s.name == ActiveSessionsReportGenerator.ALL_SESSIONS)
 				SharedSeries.setAllActiveSessionsSeries(s)
 			s

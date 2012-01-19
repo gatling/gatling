@@ -90,11 +90,11 @@ object GatlingConfig extends Logging {
 
 	val CONFIG_CHARTING_TIME_WINDOW_LOWER_BOUND = {
 		val value = config("gatling.charting.timeWindow.lowerBound", EMPTY)
-		if (value == EMPTY) None else Option(parseResultDate(value))
+		if (value == EMPTY) None else Option(parseResultDate(value).getMillis)
 	}
 
 	val CONFIG_CHARTING_TIME_WINDOW_HIGHER_BOUND = {
 		val value = config("gatling.charting.timeWindow.higherBound", EMPTY)
-		if (value == EMPTY) None else Option(parseResultDate(value))
+		if (value == EMPTY) None else Option(parseResultDate(value).getMillis)
 	}
 }
