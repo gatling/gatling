@@ -84,11 +84,8 @@ object Gatling extends Logging {
 			}
 
 			if (reportsOnly) {
-				println("Generating reports...")
 				generateStats(reportsOnlyFolder)
-				println("Reports Generated. All Done!")
 			}
-
 		}
 
 		// if arguments are bad, usage message is displayed
@@ -173,7 +170,12 @@ object Gatling extends Logging {
 	 * @param folderName The folder from which the simulation.log will be parsed
 	 * @return Nothing
 	 */
-	private def generateStats(folderName: String) = ReportsGenerator.generateFor(folderName)
+	private def generateStats(folderName: String) = {
+		println("Generating reports...")
+		val start = currentTimeMillis
+		ReportsGenerator.generateFor(folderName)
+		println("Reports generated in " + (currentTimeMillis - start) / 1000 + "s.")
+	}
 
 	/**
 	 * This method actually runs the simulation by interpreting the scripts.
@@ -183,7 +185,7 @@ object Gatling extends Logging {
 	 */
 	private def run(fileName: String, isIde: Boolean = false) = {
 
-		println("Simulation started...")
+		println("Simulation " + fileName + " started...")
 
 		val startDate = DateTime.now
 		val compiler =
@@ -197,13 +199,11 @@ object Gatling extends Logging {
 				}
 
 		compiler.run(fileName, startDate)
-
+		println("Simulation Finished.")
+		
 		// Returns the folderName in which the simulation is stored
 		if (!noReports) {
-			val start = currentTimeMillis
-			println("Simulation Finished. Generating Reports...")
 			generateStats(printFileNameDate(startDate))
-			println("Reports Generated in " + (currentTimeMillis - start) / 1000 + "s.")
 		}
 	}
 
