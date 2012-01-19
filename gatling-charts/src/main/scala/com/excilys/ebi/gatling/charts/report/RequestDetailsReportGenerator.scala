@@ -15,10 +15,8 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.charts.component.{ StatisticsTextComponent, ComponentLibrary }
-import com.excilys.ebi.gatling.charts.computer.Computer.{ responseTimeStandardDeviation, responseTimeByMillisecondAsList, latencyByMillisecondAsList, respTimeAgainstNbOfReqPerSecond, numberOfSuccesses, numberOfRequestsPerSecond, numberOfRequestInResponseTimeRange, minResponseTime, maxResponseTime, averageResponseTime }
+import com.excilys.ebi.gatling.charts.computer.Computer.{ responseTimeStandardDeviation, responseTimeByMillisecondAsList, respTimeAgainstNbOfReqPerSecond, numberOfSuccesses, numberOfRequestsPerSecond, numberOfRequestInResponseTimeRange, minResponseTime, maxResponseTime, latencyByMillisecondAsList, averageResponseTime }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.requestFile
 import com.excilys.ebi.gatling.charts.loader.DataLoader
 import com.excilys.ebi.gatling.charts.series.Series
@@ -55,7 +53,7 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 				val requestsPerSecond = numberOfRequestsPerSecond(dataLoader.dataIndexedBySendDateWithoutMillis)
 				val scatterPlotSuccessData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, OK)
 				val scatterPlotFailuresData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, KO)
-				
+
 				// Statistics
 				val numberOfRequests = dataList.length
 				val numberOfSuccessfulRequests = numberOfSuccesses(dataList)

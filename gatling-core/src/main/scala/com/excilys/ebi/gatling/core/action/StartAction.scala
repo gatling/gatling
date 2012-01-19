@@ -48,7 +48,7 @@ class StartAction(next: ActorRef) extends Action {
 	 */
 	def execute(session: Session) = {
 		val now = System.currentTimeMillis
-		actorFor(session.writeActorUuid).map(_ ! ActionInfo(session.scenarioName, session.userId, StartAction.START_OF_SCENARIO, now, 0, now, now, OK, "Beginning Scenario"))
+		actorFor(session.writeActorUuid).map(_ ! ActionInfo(session.scenarioName, session.userId, StartAction.START_OF_SCENARIO, now, now, now, now, OK, "Beginning Scenario"))
 		logger.info("Starting user #{}", session.userId)
 		next !session
 	}

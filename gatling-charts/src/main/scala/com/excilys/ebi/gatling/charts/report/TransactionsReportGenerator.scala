@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.computer.Computer.{ numberOfSuccessfulRequestsPerSecond, numberOfRequestsPerSecondAsList, numberOfFailedRequestsPerSecond }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.globalTransactionsFile

@@ -17,14 +17,12 @@ package com.excilys.ebi.gatling.charts.computer
 
 import scala.collection.immutable.SortedMap
 import scala.math.{sqrt, pow}
-import org.joda.time.DateTime
-import com.excilys.ebi.gatling.charts.util.OrderingHelper.DateTimeOrdering
+
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ResultStatus, OK, KO}
 import com.excilys.ebi.gatling.core.result.writer.ResultLine
-import org.joda.time.Period
 
 object Computer extends Logging {
 	
@@ -38,18 +36,18 @@ object Computer extends Logging {
 			(data.map(timeFunction(_)).sum / data.length.toDouble).toInt
 	}
 	
-	def averageResponseTime = averageTime((line: ResultLine) => line.executionDurationInMillis, _: Seq[ResultLine])
+	def averageResponseTime = averageTime((line: ResultLine) => line.responseTime, _: Seq[ResultLine])
 	
-	def averageLatency = averageTime((line: ResultLine) => new Period(line.endOfRequestSendingDate, line.startOfResponseReceivingDate).getMillis, _: Seq[ResultLine])
+	def averageLatency = averageTime((line: ResultLine) => line.latency, _: Seq[ResultLine])
 
 	def responseTimeStandardDeviation(data: Seq[ResultLine]): Double = {
 		val avg = averageResponseTime(data)
-		sqrt(data.map(result => pow(result.executionDurationInMillis - avg, 2)).sum / data.length)
+		sqrt(data.map(result => pow(result.responseTime - avg, 2)).sum / data.length)
 	}
 
-	def minResponseTime(data: Seq[ResultLine]): Long = data.minBy(_.executionDurationInMillis).executionDurationInMillis
+	def minResponseTime(data: Seq[ResultLine]): Long = data.minBy(_.responseTime).responseTime
 
-	def maxResponseTime(data: Seq[ResultLine]): Long = data.maxBy(_.executionDurationInMillis).executionDurationInMillis
+	def maxResponseTime(data: Seq[ResultLine]): Long = data.maxBy(_.responseTime).responseTime
 
 	def numberOfSuccesses(data: Seq[ResultLine]): Int = data.filter(_.resultStatus == OK).size
 
@@ -84,8 +82,8 @@ object Computer extends Logging {
 
 		var grouped = data.groupBy {
 			case result if (result.resultStatus == KO) => failedGroup
-			case result if (result.executionDurationInMillis < lowerBound) => firstGroup
-			case result if (result.executionDurationInMillis > higherBound) => lastGroup
+			case result if (result.responseTime < lowerBound) => firstGroup
+			case result if (result.responseTime > higherBound) => lastGroup
 			case _ => mediumGroup
 		}
 
@@ -102,7 +100,7 @@ object Computer extends Logging {
 		requestData.map { entry =>
 			val (dateTime, list) = entry
 			requestData.get(dateTime).map { list =>
-				list.filter(_.resultStatus == resultStatus).map(requestsPerSecond.get(dateTime).get -> _.executionDurationInMillis)
+				list.filter(_.resultStatus == resultStatus).map(requestsPerSecond.get(dateTime).get -> _.responseTime)
 			}
 		}.filter(_.isDefined).map(_.get).toList.flatten
 	}

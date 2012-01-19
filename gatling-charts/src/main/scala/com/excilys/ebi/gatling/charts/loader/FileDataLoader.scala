@@ -16,21 +16,21 @@
 package com.excilys.ebi.gatling.charts.loader
 
 import scala.collection.immutable.SortedMap
-import scala.collection.mutable.{ HashMap, ArrayBuffer }
+import scala.collection.mutable.{HashMap, ArrayBuffer}
 import scala.io.Source
+
 import org.joda.time.DateTime
-import com.excilys.ebi.gatling.charts.util.OrderingHelper.DateTimeOrdering
+
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
+import com.excilys.ebi.gatling.core.config.GatlingConfig
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus
 import com.excilys.ebi.gatling.core.result.writer.ResultLine
-import com.excilys.ebi.gatling.core.util.DateHelper.{ parseResultDate, parseFileNameDateFormat }
+import com.excilys.ebi.gatling.core.util.DateHelper.parseFileNameDateFormat
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.core.config.GatlingConfig
 
 class FileDataLoader(runOn: String) extends DataLoader with Logging {
 
@@ -56,7 +56,6 @@ class FileDataLoader(runOn: String) extends DataLoader with Logging {
 		val stringCache = new StringKeyCache((s: String) => s)
 		val intCache = new StringKeyCache((s: String) => s.toInt)
 		val longCache = new StringKeyCache((s: String) => s.toLong)
-		val dateTimeCache = new StringKeyCache((s: String) => parseResultDate(s))
 
 		val lines = Source.fromFile(simulationLogFile(runOn).jfile, CONFIG_ENCODING).getLines
 
@@ -74,8 +73,8 @@ class FileDataLoader(runOn: String) extends DataLoader with Logging {
 		for (line <- lines) {
 			line.split(TABULATION_SEPARATOR) match {
 				// If we have a well formated result
-				case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionDuration, endOfRequestSendingDate, startOfResponseReceivingDate, resultStatus, resultMessage) => {
-					val result = ResultLine(stringCache.get(runOn), stringCache.get(scenarioName), intCache.get(userId), stringCache.get(actionName), longCache.get(executionStartDate), intCache.get(executionDuration), longCache.get(endOfRequestSendingDate), longCache.get(startOfResponseReceivingDate), ResultStatus.withName(resultStatus), stringCache.get(resultMessage))
+				case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage) => {
+					val result = ResultLine(stringCache.get(runOn), stringCache.get(scenarioName), intCache.get(userId), stringCache.get(actionName), longCache.get(executionStartDate), longCache.get(executionEndDate), longCache.get(requestSendingEndDate), longCache.get(responseReceivingStartDate), ResultStatus.withName(resultStatus), stringCache.get(resultMessage))
 					if (isResultInTimeWindow(result))
 						buffer += result
 				}
@@ -96,7 +95,7 @@ class FileDataLoader(runOn: String) extends DataLoader with Logging {
 
 	val dataIndexedBySendDateWithoutMillis: SortedMap[Long, Seq[ResultLine]] = SortedMap(data.groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis).toSeq: _*)
 
-	val dataIndexedByReceiveDateWithoutMillis: SortedMap[Long, Seq[ResultLine]] = SortedMap(data.groupBy(result => new DateTime(result.executionStartDate + result.executionDurationInMillis).withMillisOfSecond(0).getMillis).toSeq: _*)
+	val dataIndexedByReceiveDateWithoutMillis: SortedMap[Long, Seq[ResultLine]] = SortedMap(data.groupBy(result => new DateTime(result.executionStartDate + result.responseTime).withMillisOfSecond(0).getMillis).toSeq: _*)
 
 	def requestData(requestName: String): Seq[ResultLine] = data.filter(_.requestName == requestName)
 

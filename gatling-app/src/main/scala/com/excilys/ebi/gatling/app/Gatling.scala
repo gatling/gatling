@@ -16,9 +16,7 @@
 package com.excilys.ebi.gatling.app
 
 import scala.collection.immutable.TreeSet
-import scala.collection.mutable.{ Set => MSet }
-import scala.collection.mutable.{ MultiMap, HashMap }
-import scala.tools.nsc.io.Path.string2path
+import scala.collection.mutable.{ Set => MSet, MultiMap, HashMap }
 import scala.tools.nsc.io.Directory
 
 import org.joda.time.DateTime
@@ -31,7 +29,7 @@ import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.DateHelper.printFileNameDate
 import com.excilys.ebi.gatling.core.util.FileHelper.{ TXT_EXTENSION, SCALA_EXTENSION }
 
-import CommandLineOptions.options.{ resultsFolder, requestBodiesFolder, reportsOnlyFolder, reportsOnly, noReports, simulationPackage, simulationFolder, assetsFolder, dataFolder, configFileName, simulations }
+import CommandLineOptions.options.{ simulations, simulationPackage, simulationFolder, resultsFolder, requestBodiesFolder, reportsOnlyFolder, reportsOnly, noReports, dataFolder, configFileName }
 import scopt.OptionParser
 
 /**

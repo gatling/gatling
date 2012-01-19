@@ -20,10 +20,10 @@ import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.Path
 
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.util.DateHelper.parseReadableDate
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 import GatlingFiles.GATLING_DEFAULT_CONFIG_FILE
-import com.excilys.ebi.gatling.core.util.DateHelper._
 
 /**
  * Configuration loader of Gatling
@@ -90,11 +90,11 @@ object GatlingConfig extends Logging {
 
 	val CONFIG_CHARTING_TIME_WINDOW_LOWER_BOUND = {
 		val value = config("gatling.charting.timeWindow.lowerBound", EMPTY)
-		if (value == EMPTY) None else Option(parseResultDate(value).getMillis)
+		if (value == EMPTY) None else Option(parseReadableDate(value).getMillis)
 	}
 
 	val CONFIG_CHARTING_TIME_WINDOW_HIGHER_BOUND = {
 		val value = config("gatling.charting.timeWindow.higherBound", EMPTY)
-		if (value == EMPTY) None else Option(parseResultDate(value).getMillis)
+		if (value == EMPTY) None else Option(parseReadableDate(value).getMillis)
 	}
 }

@@ -23,9 +23,11 @@ package com.excilys.ebi.gatling.core.result.message
  * @param userId the id of the current user being simulated
  * @param action the name of the action that was made
  * @param executionStartDate the date on which the action was made
- * @param executionDuration the duration of the action
+ * @param executionEndDate the date on which the action was completed
+ * @param requestSendingEndDate the date on which the request was finished being sent
+ * @param responseReceivingStartDate the date on which the response was started being received
  * @param resultStatus the status of the action
  * @param resultMessage the message of the action on completion
  */
-case class ActionInfo(scenarioName: String, userId: Int, action: String, executionStartDate: Long, executionDuration: Long, endOfRequestSendingDate: Long, startOfResponseReceivingDate: Long, resultStatus: ResultStatus.ResultStatus,
+case class ActionInfo(scenarioName: String, userId: Int, action: String, executionStartDate: Long, executionEndDate: Long, requestSendingEndDate: Long, responseReceivingStartDate: Long, resultStatus: ResultStatus.ResultStatus,
 	resultMessage: String)

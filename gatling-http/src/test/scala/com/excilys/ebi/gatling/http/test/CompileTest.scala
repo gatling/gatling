@@ -17,12 +17,12 @@ package com.excilys.ebi.gatling.http.test
 
 import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._
-import org.joda.time.DateTime
+import org.joda.time.DateTime._
 import com.sun.corba.se.impl.protocol.NotExistent
 
 object CompileTest {
 
-	def runSimulation = runSimFunction(DateTime.now)
+	def runSimulation = runSimFunction(now)
 
 	val iterations = 10
 	val pause1 = 1
