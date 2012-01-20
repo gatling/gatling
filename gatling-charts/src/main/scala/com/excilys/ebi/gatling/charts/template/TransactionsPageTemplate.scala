@@ -17,4 +17,4 @@ package com.excilys.ebi.gatling.charts.template
 
 import com.excilys.ebi.gatling.charts.component.Component
 
-class TransactionsPageTemplate(chartComponent: Component) extends PageTemplate("Transactions", false, chartComponent)
+class TransactionsPageTemplate(chartComponent: Component) extends PageTemplate("Transactions / sec", false, chartComponent)

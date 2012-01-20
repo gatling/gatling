@@ -10,7 +10,7 @@ function setDetailsMenu(){
 }
 
 function setGlobalMenu(){
-    $(".nav ul").append("<li><a href='active_sessions.html'>Active Sessions</a></li><li><a href='requests.html'>Requests</a></li><li><a href='transactions.html'>Transactions</a></li>");
+    $(".nav ul").append("<li><a href='active_sessions.html'>Active Sessions</a></li><li><a href='requests.html'>Requests / sec</a></li><li><a href='transactions.html'>Transactions / sec</a></li>");
 }
 
 function getLink(link){
