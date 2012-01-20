@@ -16,17 +16,19 @@
 package com.excilys.ebi.gatling.core.runner
 
 import java.util.concurrent.{ TimeUnit, CountDownLatch }
+
 import org.joda.time.DateTime
+
 import com.excilys.ebi.gatling.core.config.GatlingConfig
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
-import com.excilys.ebi.gatling.core.result.writer.FileDataWriter
+import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.scenario.configuration.{ ScenarioConfigurationBuilder, ScenarioConfiguration }
 import com.excilys.ebi.gatling.core.session.Session
-import akka.actor.Actor.{ registry, actorOf }
+
+import akka.actor.Actor.registry
 import akka.actor.{ Scheduler, ActorRef }
-import com.excilys.ebi.gatling.core.result.writer.DataWriter
 
 object Runner {
 	def runSim(startDate: DateTime)(scenarioConfigurations: ScenarioConfigurationBuilder*) = new Runner(startDate, scenarioConfigurations.toList).run

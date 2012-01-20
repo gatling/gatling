@@ -15,24 +15,25 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import java.io.FileOutputStream
-import java.net.{ URL, URI }
-import java.io.{ File => JFile }
+import java.io.{File => JFile}
+import java.net.{URL, URI}
+
 import scala.collection.JavaConversions.asIterator
 import scala.collection.mutable.LinkedHashSet
 import scala.tools.nsc.io.Path.string2path
-import scala.tools.nsc.io.{ Path, Jar, File }
+import scala.tools.nsc.io.{Path, Jar, File}
+
 import com.excilys.ebi.gatling.charts.component.impl.ComponentLibraryImpl
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.menuFile
-import com.excilys.ebi.gatling.charts.loader.DataLoader
-import com.excilys.ebi.gatling.charts.template.{ PageTemplate, MenuTemplate }
+import com.excilys.ebi.gatling.charts.template.{PageTemplate, MenuTemplate}
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{ styleFolder, jsFolder, GATLING_ASSETS_STYLE_PACKAGE, GATLING_ASSETS_JS_PACKAGE }
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{styleFolder, jsFolder, GATLING_ASSETS_STYLE_PACKAGE, GATLING_ASSETS_JS_PACKAGE}
+import com.excilys.ebi.gatling.core.config.GatlingConfig
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.util.FileHelper.{ formatToFilename, HTML_EXTENSION }
+import com.excilys.ebi.gatling.core.result.reader.DataReader
+import com.excilys.ebi.gatling.core.util.FileHelper.{formatToFilename, HTML_EXTENSION}
 import com.excilys.ebi.gatling.core.util.IOHelper
-import com.excilys.ebi.gatling.charts.loader.FileDataLoader
 
 object ReportsGenerator extends Logging {
 
@@ -60,28 +61,28 @@ object ReportsGenerator extends Logging {
 	}
 
 	def generateFor(runOn: String) = {
-		val dataLoader = new FileDataLoader(runOn)
+		val dataReader = GatlingConfig.CONFIG_DATA_READER.getConstructor(classOf[String]).newInstance(runOn)
 
 		val reportGenerators =
-			List(new ActiveSessionsReportGenerator(runOn, dataLoader, componentLibrary),
-				new RequestsReportGenerator(runOn, dataLoader, componentLibrary),
-				new TransactionsReportGenerator(runOn, dataLoader, componentLibrary),
-				new RequestDetailsReportGenerator(runOn, dataLoader, componentLibrary))
+			List(new ActiveSessionsReportGenerator(runOn, dataReader, componentLibrary),
+				new RequestsReportGenerator(runOn, dataReader, componentLibrary),
+				new TransactionsReportGenerator(runOn, dataReader, componentLibrary),
+				new RequestDetailsReportGenerator(runOn, dataReader, componentLibrary))
 
 		copyAssets(runOn)
 
-		generateMenu(runOn, dataLoader)
+		generateMenu(runOn, dataReader)
 
-		PageTemplate.setRunOn(dataLoader.simulationRunOn)
+		PageTemplate.setRunOn(dataReader.simulationRunOn)
 
 		reportGenerators.foreach(_.generate)
 	}
 
-	private def generateMenu(runOn: String, dataLoader: DataLoader) = {
+	private def generateMenu(runOn: String, dataReader: DataReader) = {
 
 		val maxLength = 50
 
-		val requestLinks: Iterable[(String, Option[String], String)] = dataLoader.requestNames.map {
+		val requestLinks: Iterable[(String, Option[String], String)] = dataReader.requestNames.map {
 			requestName =>
 				val title = if (requestName.length > maxLength) Some(requestName.substring(8)) else None
 				val printedName = if (requestName.length > maxLength) requestName.substring(8, maxLength) + "..." else requestName.substring(8)

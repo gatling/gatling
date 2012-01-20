@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.loader
+package com.excilys.ebi.gatling.charts.result.reader
 
 import scala.collection.immutable.SortedMap
 import scala.collection.mutable.{HashMap, ArrayBuffer}
 import scala.io.Source
-
 import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
@@ -31,8 +29,9 @@ import com.excilys.ebi.gatling.core.result.message.ResultStatus
 import com.excilys.ebi.gatling.core.result.writer.ResultLine
 import com.excilys.ebi.gatling.core.util.DateHelper.parseFileNameDateFormat
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
+import com.excilys.ebi.gatling.core.result.reader.DataReader
 
-class FileDataLoader(runOn: String) extends DataLoader with Logging {
+class FileDataReader(runOn: String) extends DataReader with Logging {
 
 	private val data: Seq[ResultLine] = {
 

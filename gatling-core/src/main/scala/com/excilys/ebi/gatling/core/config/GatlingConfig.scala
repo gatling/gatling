@@ -18,12 +18,12 @@ package com.excilys.ebi.gatling.core.config
 import scala.io.Codec
 import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.Path
-
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.DateHelper.parseReadableDate
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-
 import GatlingFiles.GATLING_DEFAULT_CONFIG_FILE
+import com.excilys.ebi.gatling.core.result.writer.DataWriter
+import com.excilys.ebi.gatling.core.result.reader.DataReader
 
 /**
  * Configuration loader of Gatling
@@ -97,4 +97,8 @@ object GatlingConfig extends Logging {
 		val value = config("gatling.charting.timeWindow.higherBound", EMPTY)
 		if (value == EMPTY) None else Option(parseReadableDate(value).getMillis)
 	}
+
+	val CONFIG_DATA_WRITER = Class.forName(config("gatling.data.writer", "com.excilys.ebi.gatling.core.result.writer.FileDataWriter")).asInstanceOf[Class[DataWriter]]
+
+	val CONFIG_DATA_READER = Class.forName(config("gatling.data.reader", "com.excilys.ebi.gatling.charts.result.reader.FileDataReader")).asInstanceOf[Class[DataReader]]
 }

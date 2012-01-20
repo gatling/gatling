@@ -18,22 +18,22 @@ package com.excilys.ebi.gatling.charts.report
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.computer.Computer.numberOfActiveSessionsPerSecondByScenario
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.activeSessionsFile
-import com.excilys.ebi.gatling.charts.loader.DataLoader
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.series.SharedSeries
 import com.excilys.ebi.gatling.charts.template.ActiveSessionsPageTemplate
-import com.excilys.ebi.gatling.charts.util.Colors.{toString, YELLOW, RED, PURPLE, PINK, ORANGE, LIME, LIGHT_RED, LIGHT_PURPLE, LIGHT_PINK, LIGHT_ORANGE, LIGHT_LIME, LIGHT_BLUE, GREEN, CYAN, BLUE}
+import com.excilys.ebi.gatling.charts.util.Colors.{ toString, YELLOW, RED, PURPLE, PINK, ORANGE, LIME, LIGHT_RED, LIGHT_PURPLE, LIGHT_PINK, LIGHT_ORANGE, LIGHT_LIME, LIGHT_BLUE, GREEN, CYAN, BLUE }
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
+import com.excilys.ebi.gatling.core.result.reader.DataReader
 
 object ActiveSessionsReportGenerator {
 	val ALL_SESSIONS = "All Sessions"
 }
-class ActiveSessionsReportGenerator(runOn: String, dataLoader: DataLoader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataLoader, componentLibrary) {
+class ActiveSessionsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 	def generate = {
 		// Get Data
-		val scenariosData = dataLoader.scenarioNames.map { scenarioName =>
-			(scenarioName, dataLoader.scenarioDataIndexedBySendDateWithoutMillis(scenarioName))
-		} ++ Seq((ActiveSessionsReportGenerator.ALL_SESSIONS, dataLoader.dataIndexedBySendDateWithoutMillis))
+		val scenariosData = dataReader.scenarioNames.map { scenarioName =>
+			(scenarioName, dataReader.scenarioDataIndexedBySendDateWithoutMillis(scenarioName))
+		} ++ Seq((ActiveSessionsReportGenerator.ALL_SESSIONS, dataReader.dataIndexedBySendDateWithoutMillis))
 
 		val activeSessionsData = numberOfActiveSessionsPerSecondByScenario(scenariosData)
 

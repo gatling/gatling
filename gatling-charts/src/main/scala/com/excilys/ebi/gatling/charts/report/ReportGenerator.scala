@@ -16,9 +16,9 @@
 package com.excilys.ebi.gatling.charts.report
 
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
-import com.excilys.ebi.gatling.charts.loader.DataLoader
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.result.reader.DataReader
 
-abstract class ReportGenerator(runOn: String, dataLoader: DataLoader, componentLibrary: ComponentLibrary) extends Logging {
+abstract class ReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends Logging {
 	def generate
 }

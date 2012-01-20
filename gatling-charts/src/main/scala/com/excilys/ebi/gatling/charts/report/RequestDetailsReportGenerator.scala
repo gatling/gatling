@@ -18,7 +18,6 @@ package com.excilys.ebi.gatling.charts.report
 import com.excilys.ebi.gatling.charts.component.{ StatisticsTextComponent, ComponentLibrary }
 import com.excilys.ebi.gatling.charts.computer.Computer.{ responseTimeStandardDeviation, responseTimeByMillisecondAsList, respTimeAgainstNbOfReqPerSecond, numberOfSuccesses, numberOfRequestsPerSecond, numberOfRequestInResponseTimeRange, minResponseTime, maxResponseTime, latencyByMillisecondAsList, averageResponseTime }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.requestFile
-import com.excilys.ebi.gatling.charts.loader.DataLoader
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.series.SharedSeries
 import com.excilys.ebi.gatling.charts.template.RequestDetailsPageTemplate
@@ -28,17 +27,18 @@ import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingConfig.{ CONFIG_CHARTING_INDICATORS_LOWER_BOUND, CONFIG_CHARTING_INDICATORS_HIGHER_BOUND }
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ OK, KO }
+import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
-class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataLoader, componentLibrary) {
+class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 	def generate = {
 
-		dataLoader.requestNames.foreach { requestName =>
-			val dataList = dataLoader.requestData(requestName)
+		dataReader.requestNames.foreach { requestName =>
+			val dataList = dataReader.requestData(requestName)
 
 			if (requestName != END_OF_SCENARIO && requestName != START_OF_SCENARIO) {
-				val dataMillis = dataLoader.requestDataIndexedBySendDate(requestName)
-				val dataSeconds = dataLoader.requestDataIndexedBySendDateWithoutMillis(requestName)
+				val dataMillis = dataReader.requestDataIndexedBySendDate(requestName)
+				val dataSeconds = dataReader.requestDataIndexedBySendDateWithoutMillis(requestName)
 
 				// Get Data
 				val responseTimesSuccessData = responseTimeByMillisecondAsList(dataMillis, OK)
@@ -50,7 +50,7 @@ class RequestDetailsReportGenerator(runOn: String, dataLoader: DataLoader, compo
 					val numberOfRequests = dataList.size
 					indicatorsColumnData.map { entry => entry._1 -> (entry._2 / numberOfRequests.toDouble * 100).toInt }
 				}
-				val requestsPerSecond = numberOfRequestsPerSecond(dataLoader.dataIndexedBySendDateWithoutMillis)
+				val requestsPerSecond = numberOfRequestsPerSecond(dataReader.dataIndexedBySendDateWithoutMillis)
 				val scatterPlotSuccessData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, OK)
 				val scatterPlotFailuresData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, KO)
 

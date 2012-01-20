@@ -18,21 +18,21 @@ package com.excilys.ebi.gatling.charts.report
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.computer.Computer.{ numberOfSuccessfulRequestsPerSecond, numberOfRequestsPerSecondAsList, numberOfFailedRequestsPerSecond }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.globalRequestsFile
-import com.excilys.ebi.gatling.charts.loader.DataLoader
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.series.SharedSeries
 import com.excilys.ebi.gatling.charts.template.RequestsPageTemplate
 import com.excilys.ebi.gatling.charts.util.Colors.{ toString, RED, GREEN, BLUE }
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
+import com.excilys.ebi.gatling.core.result.reader.DataReader
 
-class RequestsReportGenerator(runOn: String, dataLoader: DataLoader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataLoader, componentLibrary) {
+class RequestsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 
 	def generate = {
 
 		// Get Data
-		val allRequestsData = numberOfRequestsPerSecondAsList(dataLoader.dataIndexedBySendDateWithoutMillis)
-		val failedRequestsData = numberOfFailedRequestsPerSecond(dataLoader.dataIndexedBySendDateWithoutMillis)
-		val succeededRequestsData = numberOfSuccessfulRequestsPerSecond(dataLoader.dataIndexedBySendDateWithoutMillis)
+		val allRequestsData = numberOfRequestsPerSecondAsList(dataReader.dataIndexedBySendDateWithoutMillis)
+		val failedRequestsData = numberOfFailedRequestsPerSecond(dataReader.dataIndexedBySendDateWithoutMillis)
+		val succeededRequestsData = numberOfSuccessfulRequestsPerSecond(dataReader.dataIndexedBySendDateWithoutMillis)
 		val pieData = ("Success", succeededRequestsData.map(_._2).sum) :: ("Failures", failedRequestsData.map(_._2).sum) :: Nil
 
 		// Create series

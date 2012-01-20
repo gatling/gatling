@@ -18,21 +18,21 @@ package com.excilys.ebi.gatling.charts.report
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.computer.Computer.{ numberOfSuccessfulRequestsPerSecond, numberOfRequestsPerSecondAsList, numberOfFailedRequestsPerSecond }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.globalTransactionsFile
-import com.excilys.ebi.gatling.charts.loader.DataLoader
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.series.SharedSeries
 import com.excilys.ebi.gatling.charts.template.TransactionsPageTemplate
 import com.excilys.ebi.gatling.charts.util.Colors.{ toString, RED, GREEN, BLUE }
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
+import com.excilys.ebi.gatling.core.result.reader.DataReader
 
-class TransactionsReportGenerator(runOn: String, dataLoader: DataLoader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataLoader, componentLibrary) {
+class TransactionsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 
 	def generate = {
 
 		// Get Data
-		val allTransactionsData = numberOfRequestsPerSecondAsList(dataLoader.dataIndexedByReceiveDateWithoutMillis)
-		val failedTransactionsData = numberOfFailedRequestsPerSecond(dataLoader.dataIndexedByReceiveDateWithoutMillis)
-		val succeededTransactionsData = numberOfSuccessfulRequestsPerSecond(dataLoader.dataIndexedByReceiveDateWithoutMillis)
+		val allTransactionsData = numberOfRequestsPerSecondAsList(dataReader.dataIndexedByReceiveDateWithoutMillis)
+		val failedTransactionsData = numberOfFailedRequestsPerSecond(dataReader.dataIndexedByReceiveDateWithoutMillis)
+		val succeededTransactionsData = numberOfSuccessfulRequestsPerSecond(dataReader.dataIndexedByReceiveDateWithoutMillis)
 		val pieData = ("Success", succeededTransactionsData.map(_._2).sum) :: ("Failures", failedTransactionsData.map(_._2).sum) :: Nil
 
 		// Create series

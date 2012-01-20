@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.loader
+package com.excilys.ebi.gatling.core.result.reader
 
 import scala.collection.immutable.SortedMap
 
@@ -21,7 +21,7 @@ import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.core.result.writer.ResultLine
 
-trait DataLoader {
+trait DataReader {
 
 	val simulationRunOn: DateTime
 	val requestNames: Seq[String]
