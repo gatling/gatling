@@ -26,6 +26,7 @@ import com.excilys.ebi.gatling.core.check.extractor.{ MultiValuedExtractor, Extr
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ ResultStatus, OK, KO }
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
+import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.Predef.SET_COOKIE
 import com.excilys.ebi.gatling.http.check.HttpCheck
@@ -39,7 +40,6 @@ import com.ning.http.client.{ Response, HttpResponseStatus, HttpResponseHeaders,
 import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
 
 import akka.actor.ActorRef
-import akka.actor.Actor.registry.actorFor
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
@@ -152,9 +152,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 	 */
 	private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String) = {
 
-		actorFor(session.writeActorUuid).map { writeActor =>
-			writeActor ! ActionInfo(session.scenarioName, session.userId, "Request " + requestName, requestStartDate, responseEndDate.get, endOfRequestSendingDate.get, startOfResponseReceivingDate.get, requestResult, requestMessage)
-		}
+		DataWriter.instance ! ActionInfo(session.scenarioName, session.userId, "Request " + requestName, requestStartDate, responseEndDate.get, endOfRequestSendingDate.get, startOfResponseReceivingDate.get, requestResult, requestMessage)
 
 		session.setAttribute(Session.LAST_ACTION_DURATION_KEY, currentTimeMillis - responseEndDate.get)
 

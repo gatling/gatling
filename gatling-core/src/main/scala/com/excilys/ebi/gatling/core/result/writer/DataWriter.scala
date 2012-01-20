@@ -15,9 +15,15 @@
  */
 package com.excilys.ebi.gatling.core.result.writer
 
+import com.excilys.ebi.gatling.core.log.Logging
+
+import akka.actor.Actor.actorOf
 import akka.actor.Actor
 
-import com.excilys.ebi.gatling.core.log.Logging
+object DataWriter{
+
+	lazy val instance = actorOf[FileDataWriter].start
+}
 
 /**
  * Abstract class for all DataWriters

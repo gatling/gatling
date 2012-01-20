@@ -17,15 +17,15 @@ package com.excilys.ebi.gatling.core.result.writer
 
 import java.io.{ OutputStreamWriter, FileOutputStream, BufferedOutputStream }
 import java.util.concurrent.CountDownLatch
+
 import scala.tools.nsc.io.{ File, Directory }
+
 import com.excilys.ebi.gatling.core.config.GatlingFiles.{ simulationLogFile, resultFolder }
 import com.excilys.ebi.gatling.core.result.message.{ InitializeDataWriter, ActionInfo }
 import com.excilys.ebi.gatling.core.util.DateHelper.printFileNameDate
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+import com.excilys.ebi.gatling.core.util.StringHelper.{ END_OF_LINE, EMPTY }
+
 import akka.actor.scala2ActorRef
-import com.excilys.ebi.gatling.core.result.message.ActionInfo
-import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
 
 /**
  * File implementation of the DataWriter
@@ -81,5 +81,8 @@ class FileDataWriter extends DataWriter {
 
 			this.latch = latch
 		}
+
+		case unknown =>
+			logger.error("Unknow message type " + unknown.getClass)
 	}
 }

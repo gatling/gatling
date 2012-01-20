@@ -16,9 +16,7 @@
 package com.excilys.ebi.gatling.core.runner
 
 import java.util.concurrent.{ TimeUnit, CountDownLatch }
-
 import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.core.config.GatlingConfig
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
@@ -26,17 +24,15 @@ import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
 import com.excilys.ebi.gatling.core.result.writer.FileDataWriter
 import com.excilys.ebi.gatling.core.scenario.configuration.{ ScenarioConfigurationBuilder, ScenarioConfiguration }
 import com.excilys.ebi.gatling.core.session.Session
-
 import akka.actor.Actor.{ registry, actorOf }
 import akka.actor.{ Scheduler, ActorRef }
+import com.excilys.ebi.gatling.core.result.writer.DataWriter
 
 object Runner {
 	def runSim(startDate: DateTime)(scenarioConfigurations: ScenarioConfigurationBuilder*) = new Runner(startDate, scenarioConfigurations.toList).run
 }
 
 class Runner(startDate: DateTime, scenarioConfigurationBuilders: List[ScenarioConfigurationBuilder]) extends Logging {
-
-	val statWriter = actorOf[FileDataWriter].start
 
 	// stores all scenario configurations
 	val scenarioConfigurations = for (i <- 1 to scenarioConfigurationBuilders.size) yield scenarioConfigurationBuilders(i - 1).build(i)
@@ -59,8 +55,8 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: List[ScenarioCo
 	 * This method schedules the beginning of all scenarios
 	 */
 	def run = {
-		// Initilization of the data writer
-		statWriter ! InitializeDataWriter(startDate, latch)
+		// Initialization of the data writer
+		DataWriter.instance ! InitializeDataWriter(startDate, latch)
 
 		logger.debug("Launching All Scenarios")
 
@@ -118,7 +114,7 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: List[ScenarioCo
 	 * @return the built session
 	 */
 	private def buildSession(configuration: ScenarioConfiguration, userId: Int) = {
-		val session = new Session(configuration.scenarioBuilder.name, userId, statWriter.getUuid)
+		val session = new Session(configuration.scenarioBuilder.name, userId)
 
 		session.setProtocolConfig(configuration.protocolConfigurations)
 

@@ -17,12 +17,11 @@ package com.excilys.ebi.gatling.core.action
 
 import java.lang.System.currentTimeMillis
 import java.util.concurrent.CountDownLatch
-
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.OK
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.core.session.Session
-
 import akka.actor.Actor.registry.actorFor
+import com.excilys.ebi.gatling.core.result.writer.DataWriter
 
 /**
  * EndAction class companion
@@ -48,7 +47,7 @@ class EndAction(val latch: CountDownLatch) extends Action {
 	 */
 	def execute(session: Session) = {
 		val now = currentTimeMillis
-		actorFor(session.writeActorUuid).map(_ ! ActionInfo(session.scenarioName, session.userId, EndAction.END_OF_SCENARIO, now, now, now, now, OK, "End of Scenario Reached"))
+		DataWriter.instance ! ActionInfo(session.scenarioName, session.userId, EndAction.END_OF_SCENARIO, now, now, now, now, OK, "End of Scenario Reached")
 
 		latch.countDown
 
