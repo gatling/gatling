@@ -130,7 +130,7 @@
 		<logback.version>1.0.0</logback.version>
 		<slf4j.version>1.6.4</slf4j.version>
 		<scalate.version>1.5.3</scalate.version>
-		<netty.version>3.2.7.Final.FIX142</netty.version>
+		<netty.version>3.3.0.Final</netty.version>
 		<joda-time.version>2.0</joda-time.version>
 		<joda-convert.version>1.2</joda-convert.version>
 		<velocity.version>1.7</velocity.version>
@@ -200,9 +200,17 @@
 				<groupId>com.ning</groupId>
 				<artifactId>async-http-client</artifactId>
 				<version>${ahc.version}</version>
+				<exclusions>
+					<!-- relocated under io.netty -->
+					<!-- TODO remove when AHC 1.7.1 -->
+					<exclusion>
+						<groupId>org.jboss.netty</groupId>
+						<artifactId>netty</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
-				<groupId>org.jboss.netty</groupId>
+				<groupId>io.netty</groupId>
 				<artifactId>netty</artifactId>
 				<version>${netty.version}</version>
 			</dependency>

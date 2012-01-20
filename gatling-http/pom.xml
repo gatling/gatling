@@ -27,7 +27,7 @@
 
 		<!-- runtime -->
 		<dependency>
-			<groupId>org.jboss.netty</groupId>
+			<groupId>io.netty</groupId>
 			<artifactId>netty</artifactId>
 			<scope>runtime</scope>
 		</dependency>

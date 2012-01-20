@@ -11,7 +11,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.jboss.netty</groupId>
+			<groupId>io.netty</groupId>
 			<artifactId>netty</artifactId>
 		</dependency>
 		<dependency>
