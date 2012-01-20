@@ -42,6 +42,12 @@
 			<groupId>args4j</groupId>
 			<artifactId>args4j</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
