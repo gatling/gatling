@@ -31,6 +31,10 @@
 			<artifactId>commons-io</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.codehaus.plexus</groupId>
 			<artifactId>plexus-utils</artifactId>
 		</dependency>
@@ -41,12 +45,6 @@
 		<dependency>
 			<groupId>args4j</groupId>
 			<artifactId>args4j</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 
