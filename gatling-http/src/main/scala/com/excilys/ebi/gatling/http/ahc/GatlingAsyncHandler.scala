@@ -38,8 +38,8 @@ import com.ning.http.client.ProgressAsyncHandler
 import com.ning.http.client.{ Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler }
 import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
 
-import akka.actor.Actor.registry.actorFor
 import akka.actor.ActorRef
+import akka.actor.Actor.registry.actorFor
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
@@ -61,18 +61,22 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 
 	private val requestStartDate = currentTimeMillis
 
-	private var responseEndDate: Option[Long] = None
-
+	// initialized in case the headers can't be sent (connection problem)
 	private var endOfRequestSendingDate: Option[Long] = None
 
+	// start of response or exception
 	private var startOfResponseReceivingDate: Option[Long] = None
-	
+
+	// end of response or exception
+	private var responseEndDate: Option[Long] = None
+
 	def onHeaderWriteCompleted = {
 		endOfRequestSendingDate = Some(currentTimeMillis)
 		STATE.CONTINUE
 	}
 
 	def onContentWriteCompleted = {
+		// reassign in case of request body
 		endOfRequestSendingDate = Some(currentTimeMillis)
 		STATE.CONTINUE
 	}
@@ -128,11 +132,15 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 	}
 
 	def onThrowable(throwable: Throwable) = {
-		responseEndDate = Some(currentTimeMillis)
-		logger.error("Request failed", throwable)
-		if (!startOfResponseReceivingDate.isDefined)
-			startOfResponseReceivingDate = Some(currentTimeMillis)
-		sendLogAndExecuteNext(KO, throwable.getMessage)
+
+		// assign missing dates
+		var now = Some(currentTimeMillis)
+		responseEndDate = now
+		if (!endOfRequestSendingDate.isDefined) endOfRequestSendingDate = now
+		if (!startOfResponseReceivingDate.isDefined) startOfResponseReceivingDate = now
+
+		logger.error("Request '" + requestName + "' failed", throwable)
+		sendLogAndExecuteNext(KO, "" + throwable.getMessage)
 	}
 
 	/**
@@ -143,6 +151,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 	 * @param processingStartDate date of the beginning of the response processing
 	 */
 	private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String) = {
+
 		actorFor(session.writeActorUuid).map { writeActor =>
 			writeActor ! ActionInfo(session.scenarioName, session.userId, "Request " + requestName, requestStartDate, responseEndDate.get, endOfRequestSendingDate.get, startOfResponseReceivingDate.get, requestResult, requestMessage)
 		}
