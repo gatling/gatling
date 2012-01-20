@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.http.check.header
 
 import com.excilys.ebi.gatling.core.check.{CheckBuilderVerifyOne, CheckBuilderFind}
-import com.excilys.ebi.gatling.core.check.{CheckBuilderVerify, CheckBuilderSave}
+import com.excilys.ebi.gatling.core.check.{CheckStrategy, CheckBuilderVerify, CheckBuilderSave}
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
 import com.excilys.ebi.gatling.http.check.{HttpCheckBuilder, HttpCheck}
@@ -50,10 +50,10 @@ object HttpHeaderCheckBuilder {
  * @param strategy the strategy used to check
  * @param expected the expected value against which the extracted value will be checked
  */
-class HttpHeaderCheckBuilder(what: Session => String, strategy: (List[String], List[String]) => Boolean, expected: List[Session => String], saveAs: Option[String])
+class HttpHeaderCheckBuilder(what: Session => String, strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String])
 		extends HttpCheckBuilder[HttpHeaderCheckBuilder](what, None, strategy, expected, saveAs, HeadersReceived) {
 
-	private[http] def newInstance(what: Session => String, occurrence: Option[Int], strategy: (List[String], List[String]) => Boolean, expected: List[Session => String], saveAs: Option[String], when: HttpPhase) =
+	private[http] def newInstance(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String], when: HttpPhase) =
 		new HttpHeaderCheckBuilder(what, strategy, expected, saveAs)
 
 	private[gatling] def newInstanceWithFindOne(occurrence: Int) =
@@ -61,7 +61,7 @@ class HttpHeaderCheckBuilder(what: Session => String, strategy: (List[String], L
 
 	private[gatling] def newInstanceWithFindAll = throw new UnsupportedOperationException("Header checks are single valued")
 
-	private[gatling] def newInstanceWithVerify(strategy: (List[String], List[String]) => Boolean, expected: List[Session => String] = Nil) =
+	private[gatling] def newInstanceWithVerify(strategy: CheckStrategy, expected: List[Session => String] = Nil) =
 		new HttpHeaderCheckBuilder(what, strategy, expected, saveAs) with CheckBuilderSave[HttpCheckBuilder[HttpHeaderCheckBuilder]]
 
 	private[gatling] def build: HttpCheck = new HttpHeaderCheck(what, strategy, expected, saveAs)

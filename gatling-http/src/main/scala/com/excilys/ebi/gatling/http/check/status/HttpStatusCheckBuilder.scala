@@ -21,6 +21,7 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.check.{HttpCheckBuilder, HttpCheck}
 import com.excilys.ebi.gatling.http.request.HttpPhase.{StatusReceived, HttpPhase}
+import com.excilys.ebi.gatling.core.check.CheckStrategy
 
 /**
  * HttpStatusCheckBuilder class companion
@@ -43,10 +44,10 @@ object HttpStatusCheckBuilder {
  * @param strategy the strategy used to check
  * @param expected the expected value against which the extracted value will be checked
  */
-class HttpStatusCheckBuilder(strategy: (List[String], List[String]) => Boolean, expected: List[Session => String], saveAs: Option[String])
+class HttpStatusCheckBuilder(strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String])
 		extends HttpCheckBuilder[HttpStatusCheckBuilder]((s: Session) => EMPTY, None, strategy, expected, saveAs, StatusReceived) {
 
-	private[http] def newInstance(what: Session => String, occurrence: Option[Int], strategy: (List[String], List[String]) => Boolean, expected: List[Session => String], saveAs: Option[String], when: HttpPhase) =
+	private[http] def newInstance(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String], when: HttpPhase) =
 		new HttpStatusCheckBuilder(strategy, expected, saveAs)
 
 	private[gatling] def newInstanceWithFindOne(occurrence: Int) =
@@ -54,7 +55,7 @@ class HttpStatusCheckBuilder(strategy: (List[String], List[String]) => Boolean, 
 
 	private[gatling] def newInstanceWithFindAll = throw new UnsupportedOperationException("Status checks are single valued")
 
-	private[gatling] def newInstanceWithVerify(strategy: (List[String], List[String]) => Boolean, expected: List[Session => String] = Nil) =
+	private[gatling] def newInstanceWithVerify(strategy: CheckStrategy, expected: List[Session => String] = Nil) =
 		new HttpStatusCheckBuilder(strategy, expected, saveAs) with CheckBuilderSave[HttpCheckBuilder[HttpStatusCheckBuilder]]
 
 	private[gatling] def build: HttpCheck = new HttpStatusCheck(expected, saveAs)

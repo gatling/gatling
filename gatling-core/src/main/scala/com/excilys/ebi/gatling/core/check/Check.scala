@@ -19,6 +19,7 @@ import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 /**
  * This class represents a Check
@@ -29,7 +30,7 @@ import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
  * @param strategy the strategy used to perform the Check
  * @param expected the expected value of what has been found
  */
-abstract class Check[T](val what: Session => String, val how: ExtractorFactory[T], val strategy: (List[String], List[String]) => Boolean, val expected: List[Session => String], val saveAs: Option[String])
+abstract class Check[T](val what: Session => String, val how: ExtractorFactory[T], val strategy: CheckStrategy, val expected: List[Session => String], val saveAs: Option[String])
 		extends Logging with ClassSimpleNameToString {
 
 	/**
@@ -41,7 +42,11 @@ abstract class Check[T](val what: Session => String, val how: ExtractorFactory[T
 	def check(value: List[String], session: Session) = {
 
 		val resolvedExpected = expected.map(_(session))
-		val checked = strategy(value, resolvedExpected)
-		new CheckResult(checked, value, resolvedExpected)
+		if (strategy(value, resolvedExpected)) {
+			new CheckResult(true, EMPTY)
+		} else {
+			val message = new StringBuilder().append("Check failed : expected ").append(strategy).append("(").append(resolvedExpected).append(") but found ").append(value)
+			new CheckResult(false, message.toString)
+		}
 	}
 }

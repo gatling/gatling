@@ -15,6 +15,7 @@
  */
 package com.excilys.ebi.gatling.http.check.header
 
+import com.excilys.ebi.gatling.core.check.CheckStrategy
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.check.header.extractor.HttpHeaderExtractorFactory
 import com.excilys.ebi.gatling.http.check.HttpCheck
@@ -28,5 +29,5 @@ import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
  * @param strategy the strategy used to check
  * @param expected the expected value against which the extracted value will be checked
  */
-class HttpHeaderCheck(what: Session => String, strategy: (List[String], List[String]) => Boolean, expected: List[Session => String], saveAs: Option[String])
+class HttpHeaderCheck(what: Session => String, strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String])
 	extends HttpCheck(what, HttpHeaderExtractorFactory, strategy, expected, saveAs, CompletePageReceived)

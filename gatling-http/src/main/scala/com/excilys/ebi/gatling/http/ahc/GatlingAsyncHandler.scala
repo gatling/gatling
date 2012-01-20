@@ -191,11 +191,11 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 					logger.debug("Extracted value: {}", extractedValue)
 
 					val checkResult = check.check(extractedValue, session)
-					if (!checkResult.checked) {
+					if (!checkResult.ok) {
 						if (logger.isWarnEnabled)
-							logger.warn("Check {} on request {} failed : received '{}' instead of '{}' for '{}'", Array[Object](check, requestName, checkResult.value, checkResult.expected, expression))
+							logger.warn("Check on request '{}' with '{}' failed : '{}'", Array[Object](requestName, expression, checkResult.message))
 
-						sendLogAndExecuteNext(KO, check + " failed")
+						sendLogAndExecuteNext(KO, checkResult.message)
 						return
 
 					} else if (!extractedValue.isEmpty && check.saveAs.isDefined) {

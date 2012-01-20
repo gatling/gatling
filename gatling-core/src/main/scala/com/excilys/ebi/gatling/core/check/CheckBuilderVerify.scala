@@ -23,20 +23,40 @@ object CheckBuilderVerify {
 
 	implicit def rangeToString(range: Range) = range.mkString(SEPARATOR)
 
-	def exists = (value: List[String], expected: List[String]) => !value.isEmpty
-	def notExists = (value: List[String], expected: List[String]) => value.isEmpty
-	def eq = (value: List[String], expected: List[String]) => !value.isEmpty && !expected.isEmpty && value(0) == expected(0)
-	def neq = (value: List[String], expected: List[String]) => !value.isEmpty && value != expected
-	def in = (value: List[String], expected: List[String]) => !value.isEmpty && !expected.isEmpty && expected(0).split(SEPARATOR).contains(value(0))
-	def listEq = (value: List[String], expected: List[String]) => !value.isEmpty && value == expected
-	def listSize = (value: List[String], expected: List[String]) => value.size == expected(0).toInt
-
+	val exists : CheckStrategy = new CheckStrategy {
+		def apply(value: List[String], expected: List[String]) = !value.isEmpty
+		override def toString = "exists"
+	}
+	val notExists = new CheckStrategy {
+		def apply(value: List[String], expected: List[String]) = value.isEmpty
+		override def toString = "notExists"
+	}
+	val eq = new CheckStrategy {
+		def apply(value: List[String], expected: List[String]) = !value.isEmpty && !expected.isEmpty && value(0) == expected(0)
+		override def toString = "eq"
+	}
+	val neq = new CheckStrategy {
+		def apply(value: List[String], expected: List[String]) = !value.isEmpty && value != expected
+		override def toString = "neq"
+	}
+	val in = new CheckStrategy {
+		def apply(value: List[String], expected: List[String]) = !value.isEmpty && !expected.isEmpty && expected(0).split(SEPARATOR).contains(value(0))
+		override def toString = "in"
+	}
+	val listEq = new CheckStrategy {
+		def apply(value: List[String], expected: List[String]) = !value.isEmpty && value == expected
+		override def toString = "listEq"
+	}
+	val listSize = new CheckStrategy {
+		def apply(value: List[String], expected: List[String]) = value.size == expected(0).toInt
+		override def toString = "listSize"
+	}
 }
 
 trait CheckBuilderVerify[B <: CheckBuilder[B, _]] extends CheckBuilderSave[B] { this: CheckBuilder[B, _] with CheckBuilderSave[B] =>
-	def verify(strategy: (List[String], List[String]) => Boolean) = newInstanceWithVerify(strategy)
-	def verify(strategy: (List[String], List[String]) => Boolean, expected: List[String]) = newInstanceWithVerify(strategy, expected.map(interpolate(_)))
-	def verify(strategy: (List[String], List[String]) => Boolean, expected: String) = newInstanceWithVerify(strategy, List(interpolate(expected)))
+	def verify(strategy: CheckStrategy) = newInstanceWithVerify(strategy)
+	def verify(strategy: CheckStrategy, expected: List[String]) = newInstanceWithVerify(strategy, expected.map(interpolate(_)))
+	def verify(strategy: CheckStrategy, expected: String) = newInstanceWithVerify(strategy, List(interpolate(expected)))
 }
 
 trait CheckBuilderVerifyOne[B <: CheckBuilder[B, _]] extends CheckBuilderVerify[B] { this: CheckBuilder[B, _] with CheckBuilderSave[B] =>

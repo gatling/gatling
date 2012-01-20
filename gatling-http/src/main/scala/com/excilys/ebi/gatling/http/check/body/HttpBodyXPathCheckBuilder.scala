@@ -15,8 +15,7 @@
  */
 package com.excilys.ebi.gatling.http.check.body
 
-import com.excilys.ebi.gatling.core.check.{CheckBuilderVerifyOne, CheckBuilderFind}
-import com.excilys.ebi.gatling.core.check.{CheckBuilderVerifyAll, CheckBuilderVerify, CheckBuilderSave}
+import com.excilys.ebi.gatling.core.check.{CheckStrategy, CheckBuilderVerifyAll, CheckBuilderVerify, CheckBuilderSave, CheckBuilderVerifyOne, CheckBuilderFind}
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
 import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
@@ -41,10 +40,10 @@ object HttpBodyXPathCheckBuilder {
  * @param strategy the strategy used to check
  * @param expected the expected value against which the extracted value will be checked
  */
-class HttpBodyXPathCheckBuilder(what: Session => String, occurrence: Option[Int], strategy: (List[String], List[String]) => Boolean, expected: List[Session => String], saveAs: Option[String])
+class HttpBodyXPathCheckBuilder(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String])
 		extends HttpCheckBuilder[HttpBodyXPathCheckBuilder](what, occurrence, strategy, expected, saveAs, CompletePageReceived) {
 
-	private[http] def newInstance(what: Session => String, occurrence: Option[Int], strategy: (List[String], List[String]) => Boolean, expected: List[Session => String], saveAs: Option[String], when: HttpPhase) =
+	private[http] def newInstance(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String], when: HttpPhase) =
 		new HttpBodyXPathCheckBuilder(what, occurrence, strategy, expected, saveAs)
 
 	private[gatling] def newInstanceWithFindOne(occurrence: Int) =
@@ -53,7 +52,7 @@ class HttpBodyXPathCheckBuilder(what: Session => String, occurrence: Option[Int]
 	private[gatling] def newInstanceWithFindAll =
 		new HttpBodyXPathCheckBuilder(what, None, strategy, expected, saveAs) with CheckBuilderVerifyAll[HttpCheckBuilder[HttpBodyXPathCheckBuilder]]
 
-	private[gatling] def newInstanceWithVerify(strategy: (List[String], List[String]) => Boolean, expected: List[Session => String] = Nil) =
+	private[gatling] def newInstanceWithVerify(strategy: CheckStrategy, expected: List[Session => String] = Nil) =
 		new HttpBodyXPathCheckBuilder(what, occurrence, strategy, expected, saveAs) with CheckBuilderSave[HttpCheckBuilder[HttpBodyXPathCheckBuilder]]
 
 	private[gatling] def build = new HttpBodyXPathCheck(what, occurrence, strategy, expected, saveAs)

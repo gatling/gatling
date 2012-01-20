@@ -19,6 +19,8 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.check.body.extractor.HttpBodyRegexExtractorFactory
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
+import com.excilys.ebi.gatling.core.check.CheckStrategy
+
 
 /**
  * This class represents a check made on the body of the response with regular expressions
@@ -28,5 +30,5 @@ import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
  * @param strategy the strategy used to check
  * @param expected the expected value against which the extracted value will be checked
  */
-class HttpBodyRegexCheck(what: Session => String, occurrence: Option[Int], strategy: (List[String], List[String]) => Boolean, expected: List[Session => String], saveAs: Option[String])
+class HttpBodyRegexCheck(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String])
 	extends HttpCheck(what, new HttpBodyRegexExtractorFactory(occurrence), strategy, expected, saveAs, CompletePageReceived)
