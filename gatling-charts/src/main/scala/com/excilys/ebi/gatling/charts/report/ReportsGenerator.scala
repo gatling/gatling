@@ -61,7 +61,7 @@ object ReportsGenerator extends Logging {
 	}
 
 	def generateFor(runOn: String) = {
-		val dataReader = GatlingConfig.CONFIG_DATA_READER.getConstructor(classOf[String]).newInstance(runOn)
+		val dataReader = DataReader.newInstance(runOn)
 
 		val reportGenerators =
 			List(new ActiveSessionsReportGenerator(runOn, dataReader, componentLibrary),
