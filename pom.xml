@@ -137,7 +137,7 @@
 		<xstream.version>1.4.2</xstream.version>
 		<commons-lang.version>2.6</commons-lang.version>
 		<commons-io.version>2.1</commons-io.version>
-		<guava.version>11.0</guava.version>
+		<guava.version>11.0.1</guava.version>
 		<plexus.version>3.0</plexus.version>
 		<scopt.version>1.1.2</scopt.version>
 		<args4j.version>2.0.19</args4j.version>
