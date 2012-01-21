@@ -132,13 +132,6 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 	}
 
 	def onThrowable(throwable: Throwable) = {
-
-		// assign missing dates
-		var now = Some(currentTimeMillis)
-		responseEndDate = now
-		if (!endOfRequestSendingDate.isDefined) endOfRequestSendingDate = now
-		if (!startOfResponseReceivingDate.isDefined) startOfResponseReceivingDate = now
-
 		logger.error("Request '" + requestName + "' failed", throwable)
 		sendLogAndExecuteNext(KO, "" + throwable.getMessage)
 	}
@@ -152,7 +145,8 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 	 */
 	private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String) = {
 
-		DataWriter.instance ! ActionInfo(session.scenarioName, session.userId, "Request " + requestName, requestStartDate, responseEndDate.get, endOfRequestSendingDate.get, startOfResponseReceivingDate.get, requestResult, requestMessage)
+		var now = currentTimeMillis
+		DataWriter.instance ! ActionInfo(session.scenarioName, session.userId, "Request " + requestName, requestStartDate, responseEndDate.getOrElse(now), endOfRequestSendingDate.getOrElse(now), startOfResponseReceivingDate.getOrElse(now), requestResult, requestMessage)
 
 		session.setAttribute(Session.LAST_ACTION_DURATION_KEY, currentTimeMillis - responseEndDate.get)
 
