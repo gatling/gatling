@@ -31,7 +31,7 @@ import com.excilys.ebi.gatling.core.util.DateHelper.parseFileNameDateFormat
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 
-class FileDataReader(runOn: String) extends DataReader(runOn) with Logging {
+class FileDataReader(val runOn: String) extends DataReader with Logging {
 
 	private val data: Seq[ResultLine] = {
 

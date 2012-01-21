@@ -24,8 +24,9 @@ object DataReader {
 	def newInstance(runOn: String) = GatlingConfig.CONFIG_DATA_READER.getConstructor(classOf[String]).newInstance(runOn)
 }
 
-abstract class DataReader(runOn: String) {
+trait DataReader {
 
+	val runOn: String
 	val simulationRunOn: DateTime
 	val requestNames: Seq[String]
 	val scenarioNames: Seq[String]

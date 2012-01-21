@@ -111,9 +111,9 @@ object ReportsGenerator extends Logging {
 						val rootEntryPath = if (sourcePackage.endsWith("/")) sourcePackage else sourcePackage + "/"
 
 						for (fileish <- new Jar(new File(new JFile(new URI(jarFilePath)))).fileishIterator.filter(_.parent.toString == sourcePackage)) {
-							val input = fileish.input()
 							val target = destFolderPath / fileish.name
 							target.parent.createDirectory()
+							val input = fileish.input()
 							val output = target.toFile.outputStream(false)
 							IOHelper.copy(input, output)
 						}
