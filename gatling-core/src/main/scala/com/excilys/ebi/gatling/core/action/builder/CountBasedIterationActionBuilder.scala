@@ -58,6 +58,7 @@ object CountBasedIterationActionBuilder extends CounterBasedIterationHandler {
 			case INIT => (s: Session, a: Action) => init(s, a.getUuidAsString, Some(counterName))
 			case INCREMENT => (s: Session, a: Action) => increment(s, a.getUuidAsString, Some(counterName))
 			case EXPIRE => (s: Session, a: Action) => expire(s, a.getUuidAsString, Some(counterName))
+			case _ => throw new UnsupportedOperationException
 		}
 		simpleActionBuilder(sessionFunction)
 	}
