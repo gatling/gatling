@@ -15,13 +15,13 @@
  */
 package com.excilys.ebi.gatling.app.compiler
 
-import java.io.{StringWriter, PrintWriter}
+import java.io.{ StringWriter, PrintWriter }
 
 import scala.tools.nsc.interpreter.AbstractFileClassLoader
 import scala.tools.nsc.io.Path.string2path
-import scala.tools.nsc.io.{VirtualDirectory, PlainFile, Path, Directory, AbstractFile}
+import scala.tools.nsc.io.{ VirtualDirectory, PlainFile, Path, Directory, AbstractFile }
 import scala.tools.nsc.reporters.ConsoleReporter
-import scala.tools.nsc.{Settings, Global}
+import scala.tools.nsc.{ Settings, Global }
 
 import org.joda.time.DateTime
 
@@ -64,22 +64,25 @@ class ScalaScenarioCompiler extends ScenarioCompiler {
 		val messageCollector = new StringWriter
 		val messageCollectorWrapper = new PrintWriter(messageCollector)
 
-		// Initialize the compiler
-		val settings = generateSettings
-		val reporter = new ConsoleReporter(settings, Console.in, messageCollectorWrapper)
-		val compiler = new Global(settings, reporter)
+		try {
+			// Initialize the compiler
+			val settings = generateSettings
+			val reporter = new ConsoleReporter(settings, Console.in, messageCollectorWrapper)
+			val compiler = new Global(settings, reporter)
 
-		(new compiler.Run).compileFiles(files)
+			(new compiler.Run).compileFiles(files)
 
-		// Bail out if compilation failed
-		if (reporter.hasErrors) {
-			reporter.printSummary
+			// Bail out if compilation failed
+			if (reporter.hasErrors) {
+				reporter.printSummary
+				throw new RuntimeException("Compilation failed:\n" + messageCollector.toString)
+			}
+		} finally {
 			messageCollectorWrapper.close
-			throw new RuntimeException("Compilation failed:\n" + messageCollector.toString)
 		}
 	}
 
-	def collectSourceFiles(sourceDirectory: Path) : List[AbstractFile] = {
+	def collectSourceFiles(sourceDirectory: Path): List[AbstractFile] = {
 		if (sourceDirectory.isFile) {
 			val rootFile = PlainFile.fromPath(sourceDirectory)
 			val sourceDirectoryName = sourceDirectory.getAbsolutePath.substring(0, sourceDirectory.getAbsolutePath.lastIndexOf("@"))
