@@ -21,7 +21,8 @@ import scala.util.Random
 
 import com.excilys.ebi.gatling.core.session.Session
 
-import akka.actor.{Scheduler, ActorRef}
+import akka.actor.Scheduler.scheduleOnce
+import akka.actor.ActorRef
 
 /**
  * PauseAction class companion
@@ -61,6 +62,6 @@ class PauseAction(next: ActorRef, minDuration: Long, maxDuration: Long, timeUnit
 		if (logger.isInfoEnabled)
 			logger.info("Waiting for {}ms ({}ms)", TimeUnit.MILLISECONDS.convert(duration, timeUnit), durationMinusLastActionDurationInMillis)
 
-		Scheduler.scheduleOnce(() => next! session, durationMinusLastActionDurationInMillis, TimeUnit.MILLISECONDS)
+		scheduleOnce(() => next ! session, durationMinusLastActionDurationInMillis, TimeUnit.MILLISECONDS)
 	}
 }
