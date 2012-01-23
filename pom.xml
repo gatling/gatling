@@ -61,9 +61,9 @@
 
 	<repositories>
 		<repository>
-			<id>akka.repository</id>
-			<name>Akka Maven Repository</name>
-			<url>http://akka.io/repository</url>
+			<id>typesafe</id>
+			<name>Typesafe Release Repository</name>
+			<url>http://repo.typesafe.com/typesafe/releases</url>
 			<releases>
 				<updatePolicy>never</updatePolicy>
 			</releases>
@@ -71,6 +71,7 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
+		<!-- required for xerces/XercesImpl -->
 		<repository>
 			<id>excilys-thirdparty</id>
 			<name>Excilys Third Party Repository</name>
@@ -82,20 +83,10 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
-		<repository>
-			<id>scala-tools</id>
-			<name>Scala Tools Nexus</name>
-			<url>http://nexus.scala-tools.org/content/repositories/releases</url>
-			<releases>
-				<updatePolicy>never</updatePolicy>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
+		<!-- required for arg4j/arg4j -->
 		<repository>
 			<id>glassfish</id>
-			<name>glassfish</name>
+			<name>Glassfish Repository</name>
 			<url>http://maven.glassfish.org/content/repositories/public</url>
 			<releases>
 				<updatePolicy>never</updatePolicy>
@@ -104,6 +95,7 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
+		<!-- required for com.twitter/util-core_2.9.1 -->
 		<repository>
 			<id>twitter</id>
 			<name>Twitter Repository</name>
