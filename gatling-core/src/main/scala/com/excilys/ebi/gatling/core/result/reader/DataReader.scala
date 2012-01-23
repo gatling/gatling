@@ -16,17 +16,18 @@
 package com.excilys.ebi.gatling.core.result.reader
 
 import scala.collection.immutable.SortedMap
+
 import org.joda.time.DateTime
-import com.excilys.ebi.gatling.core.result.writer.ResultLine
+
 import com.excilys.ebi.gatling.core.config.GatlingConfig
+import com.excilys.ebi.gatling.core.result.writer.ResultLine
 
 object DataReader {
 	def newInstance(runOn: String) = GatlingConfig.CONFIG_DATA_READER.getConstructor(classOf[String]).newInstance(runOn)
 }
 
-trait DataReader {
+abstract class DataReader(runOn: String) {
 
-	val runOn: String
 	val simulationRunOn: DateTime
 	val requestNames: Seq[String]
 	val scenarioNames: Seq[String]
