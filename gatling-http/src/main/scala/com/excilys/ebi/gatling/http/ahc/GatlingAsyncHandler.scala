@@ -125,7 +125,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 		STATE.CONTINUE
 	}
 
-	def onCompleted(): Void = {
+	def onCompleted: Void = {
 		responseEndDate = Some(currentTimeMillis)
 		processResponse(responseBuilder.build)
 		null
