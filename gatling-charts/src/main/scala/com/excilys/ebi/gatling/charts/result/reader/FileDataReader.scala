@@ -15,10 +15,14 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader
 
+import java.util.regex.Pattern
+
 import scala.collection.immutable.SortedMap
-import scala.collection.mutable.{HashMap, ArrayBuffer}
+import scala.collection.mutable.{ HashMap, ArrayBuffer }
 import scala.io.Source
+
 import org.joda.time.DateTime
+
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
@@ -26,42 +30,25 @@ import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
 import com.excilys.ebi.gatling.core.config.GatlingConfig
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus
+import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.result.writer.ResultLine
 import com.excilys.ebi.gatling.core.util.DateHelper.parseFileNameDateFormat
-import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
-import com.excilys.ebi.gatling.core.result.reader.DataReader
+import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR_STRING
+
+import FileDataReader.SPLIT_PATTERN
+
+object FileDataReader {
+	val SPLIT_PATTERN = Pattern.compile(TABULATION_SEPARATOR_STRING)
+}
 
 class FileDataReader(runOn: String) extends DataReader(runOn) with Logging {
 
 	private val data: Seq[ResultLine] = {
 
-		class Cache[K, V](computeKey: K => K, computeValue: K => V) {
-			val map = new HashMap[K, V]
-
-			def get(key: K) = {
-				map.getOrElse(key, {
-					// don't use getOrUpdate as we don't want to store the whole original String as key
-					val newKey = computeKey(key)
-					val value = computeValue(newKey)
-					map.put(newKey, value)
-					value
-				})
-			}
-		}
-
-		class StringKeyCache[V](computeValue: String => V) extends Cache[String, V]((s: String) => new String(s), computeValue)
-
-		// use caches in order to reuse String instances instead of holding multiple references of equal Strings
-		val stringCache = new StringKeyCache((s: String) => s)
-		val intCache = new StringKeyCache((s: String) => s.toInt)
-		val longCache = new StringKeyCache((s: String) => s.toLong)
-
 		val lines = Source.fromFile(simulationLogFile(runOn).jfile, CONFIG_ENCODING).getLines
 
 		// check headers correctness
 		ResultLine.Headers.check(lines.next)
-
-		val buffer = new ArrayBuffer[ResultLine]
 
 		def isResultInTimeWindow(result: ResultLine) =
 			((!GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_LOWER_BOUND.isDefined
@@ -69,21 +56,17 @@ class FileDataReader(runOn: String) extends DataReader(runOn) with Logging {
 				(!GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_HIGHER_BOUND.isDefined
 					|| (result.executionStartDate <= GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_HIGHER_BOUND.get))
 
-		for (line <- lines) {
-			line.split(TABULATION_SEPARATOR) match {
-				// If we have a well formated result
-				case Array(runOn, scenarioName, userId, actionName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage) => {
-					val result = ResultLine(stringCache.get(runOn), stringCache.get(scenarioName), intCache.get(userId), stringCache.get(actionName), longCache.get(executionStartDate), longCache.get(executionEndDate), longCache.get(requestSendingEndDate), longCache.get(responseReceivingStartDate), ResultStatus.withName(resultStatus), stringCache.get(resultMessage))
-					if (isResultInTimeWindow(result))
-						buffer += result
-				}
-
-				// Else, if the resulting data is not well formated print an error message
-				case _ => logger.warn("simulation.log had bad end of file, statistics will be generated but may not be accurate")
-			}
-		}
-
-		buffer.sortBy(_.executionStartDate)
+		(for (line <- lines) yield SPLIT_PATTERN.split(line, 0))
+			.filter(strings =>
+				if (strings.length == ResultLine.Headers.HEADERS_SEQ.length)
+					true
+				else {
+					// Else, if the resulting data is not well formated print an error message
+					logger.warn("simulation.log had bad end of file, statistics will be generated but may not be accurate")
+					false
+				})
+			.map(strings => ResultLine(strings(0), strings(1), strings(2).toInt, strings(3), strings(4).toLong, strings(5).toLong, strings(6).toLong, strings(7).toLong, ResultStatus.withName(strings(8)), strings(9)))
+			.toBuffer[ResultLine].sortBy(_.executionStartDate)
 	}
 
 	val simulationRunOn: DateTime = parseFileNameDateFormat(data.head.runOn)

@@ -33,18 +33,13 @@ object ResultLine {
 		val RESPONSE_RECEIVING_START_DATE = "RESPONSE_RECEIVING_START_DATE"
 		val RESULT_STATUS = "RESULT_STATUS"
 		val RESULT_MESSAGE = "RESULT_MESSAGE"
+			
+		val HEADERS_SEQ = List(RUN_ON, SCENARIO_NAME, USER_ID, REQUEST_NAME, EXECUTION_START_DATE, EXECUTION_END_DATE, REQUEST_SENDING_END_DATE, RESPONSE_RECEIVING_START_DATE, RESULT_STATUS, RESULT_MESSAGE)
 
-		def print(writer: Writer) = writer
-			.append(RUN_ON).append(TABULATION_SEPARATOR)
-			.append(SCENARIO_NAME).append(TABULATION_SEPARATOR)
-			.append(USER_ID).append(TABULATION_SEPARATOR)
-			.append(REQUEST_NAME).append(TABULATION_SEPARATOR)
-			.append(EXECUTION_START_DATE).append(TABULATION_SEPARATOR)
-			.append(EXECUTION_END_DATE).append(TABULATION_SEPARATOR)
-			.append(REQUEST_SENDING_END_DATE).append(TABULATION_SEPARATOR)
-			.append(RESPONSE_RECEIVING_START_DATE).append(TABULATION_SEPARATOR)
-			.append(RESULT_STATUS).append(TABULATION_SEPARATOR)
-			.append(RESULT_MESSAGE).append(TABULATION_SEPARATOR)
+		def print(writer: Writer) = {
+			HEADERS_SEQ.foreach(writer.append(_).append(TABULATION_SEPARATOR))
+			writer
+		}
 
 		def check(s: String) = {
 			if (s != print(new StringWriter()).toString) throw new IllegalArgumentException("The string doesn't match the expected headers")
