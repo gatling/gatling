@@ -81,17 +81,15 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 		STATE.CONTINUE
 	}
 
-	def onContentWriteProgress(amount: Long, current: Long, total: Long) = {
-		STATE.CONTINUE
-	}
+	def onContentWriteProgress(amount: Long, current: Long, total: Long) = STATE.CONTINUE
 
-	def onStatusReceived(responseStatus: HttpResponseStatus): STATE = {
+	def onStatusReceived(responseStatus: HttpResponseStatus) = {
 		startOfResponseReceivingDate = Some(currentTimeMillis)
 		responseBuilder.accumulate(responseStatus)
 		STATE.CONTINUE
 	}
 
-	def onHeadersReceived(headers: HttpResponseHeaders): STATE = {
+	def onHeadersReceived(headers: HttpResponseHeaders) = {
 
 		def handleCookies(headers: HttpResponseHeaders) {
 			val headersMap = headers.getHeaders
@@ -117,7 +115,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 		STATE.CONTINUE
 	}
 
-	def onBodyPartReceived(bodyPart: HttpResponseBodyPart): STATE = {
+	def onBodyPartReceived(bodyPart: HttpResponseBodyPart) = {
 		// only store bodyparts if they are to be analyzed
 		if (!getChecksForPhase(CompletePageReceived).isEmpty) {
 			responseBuilder.accumulate(bodyPart)
