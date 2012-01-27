@@ -38,7 +38,7 @@ object EndAction {
  * @constructor creates an EndAction
  * @param latch The countdown latch that will end the simulation
  */
-class EndAction(val latch: CountDownLatch) extends Action {
+class EndAction(latch: CountDownLatch) extends Action {
 
 	/**
 	 * Sends a message to the DataWriter and decreases the countDownLatch
