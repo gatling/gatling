@@ -15,9 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.session
 
-import scala.collection.immutable.{ Map => IMap }
-import scala.collection.mutable.Map
-
 import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
@@ -48,7 +45,7 @@ object Session {
  * @param writeActorUuid the uuid of the actor responsible for logging
  * @param data the map that stores all values needed
  */
-class Session(val scenarioName: String, val userId: Int, var data: Map[String, Any]) extends Logging {
+class Session(val scenarioName: String, val userId: Int, val data: Map[String, Any]) extends Logging {
 
 	def this(scenarioName: String, userId: Int) = this(scenarioName, userId, Map.empty)
 
@@ -60,13 +57,10 @@ class Session(val scenarioName: String, val userId: Int, var data: Map[String, A
 	 */
 	def getAttribute(key: String): Any = {
 		assert(!key.startsWith("gatling."), "keys starting with gatling. are reserved for internal purpose. If using this method internally please use getAttributeAsOption instead")
-
-		val result = data.get(key).getOrElse {
+		data.get(key).getOrElse {
 			logger.warn("No Matching Attribute for key: '{}' in session", key)
 			EMPTY
 		}
-		logger.debug("[Session] found '{}' at '{}'", result, key)
-		result
 	}
 
 	/**
@@ -88,7 +82,7 @@ class Session(val scenarioName: String, val userId: Int, var data: Map[String, A
 	 * @param attributes map containing several values to be stored in session
 	 * @return Nothing
 	 */
-	def setAttributes(attributes: scala.Predef.Map[String, Any]) = data ++= attributes
+	def setAttributes(attributes: Map[String, Any]) = new Session(scenarioName, userId, data ++ attributes)
 
 	/**
 	 * Sets a single value in the session
@@ -97,14 +91,14 @@ class Session(val scenarioName: String, val userId: Int, var data: Map[String, A
 	 * @param attributeValue the value of the attribute
 	 * @return Unit
 	 */
-	def setAttribute(attributeKey: String, attributeValue: Any): Unit = data += (attributeKey -> attributeValue)
+	def setAttribute(attributeKey: String, attributeValue: Any) = new Session(scenarioName, userId, data + (attributeKey -> attributeValue))
 
 	/**
 	 * Removes an attribute and its value from the session
 	 *
 	 * @param attributeKey the key of the attribute to be removed
 	 */
-	def removeAttribute(attributeKey: String) = data -= attributeKey
+	def removeAttribute(attributeKey: String) = new Session(scenarioName, userId, data - attributeKey)
 
 	/**
 	 * Gets the last action duration
@@ -120,7 +114,7 @@ class Session(val scenarioName: String, val userId: Int, var data: Map[String, A
 	 * @return the protocol configuration requested
 	 */
 	private[gatling] def getProtocolConfiguration(protocolType: String) = {
-		getAttributeAsOption[IMap[String, ProtocolConfiguration]](Session.PROTOCOL_CONFIGURATIONS_KEY).map {
+		getAttributeAsOption[Map[String, ProtocolConfiguration]](Session.PROTOCOL_CONFIGURATIONS_KEY).map {
 			_.get(protocolType)
 		}.getOrElse(throw new UnsupportedOperationException("The protocol configuration map does not exist."))
 	}
@@ -132,7 +126,6 @@ class Session(val scenarioName: String, val userId: Int, var data: Map[String, A
 	 */
 	private[gatling] def setProtocolConfig(configurations: Seq[ProtocolConfiguration]) = {
 		val configSeq = for (config <- configurations) yield (config.getProtocolType -> config)
-
 		setAttribute(Session.PROTOCOL_CONFIGURATIONS_KEY, configSeq.toMap[String, ProtocolConfiguration])
 	}
 }

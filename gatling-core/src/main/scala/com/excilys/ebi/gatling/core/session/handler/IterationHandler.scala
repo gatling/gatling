@@ -28,10 +28,10 @@ import com.excilys.ebi.gatling.core.session.Session
  */
 abstract trait IterationHandler extends Logging {
 
-	def init(session: Session, uuid: String, userDefinedName: Option[String]) = {}
+	def init(session: Session, uuid: String, userDefinedName: Option[String]) = session
 
-	def increment(session: Session, uuid: String, userDefinedName: Option[String]) = {}
+	def increment(session: Session, uuid: String, userDefinedName: Option[String]) = session
 
-	def expire(session: Session, uuid: String, userDefinedName: Option[String]) = {}
+	def expire(session: Session, uuid: String, userDefinedName: Option[String]) = session
 
 }

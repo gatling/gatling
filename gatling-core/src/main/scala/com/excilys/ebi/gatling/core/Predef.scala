@@ -29,8 +29,8 @@ import java.util.concurrent.TimeUnit
 import com.excilys.ebi.gatling.core.feeder.database.DatabaseFeederBuilder
 
 object Predef {
-	implicit def toSimpleActionBuilder(sessionFunction: (Session, Action) => Unit): SimpleActionBuilder = SimpleActionBuilder.toSimpleActionBuilder(sessionFunction)
-	implicit def toSimpleActionBuilder(sessionFunction: Session => Unit): SimpleActionBuilder = SimpleActionBuilder.toSimpleActionBuilder(sessionFunction)
+	implicit def toSimpleActionBuilder(sessionFunction: (Session, Action) => Session): SimpleActionBuilder = SimpleActionBuilder.toSimpleActionBuilder(sessionFunction)
+	implicit def toSimpleActionBuilder(sessionFunction: Session => Session): SimpleActionBuilder = SimpleActionBuilder.toSimpleActionBuilder(sessionFunction)
 
 	def csv(fileName: String) = SeparatedValuesFeederBuilder.csv(fileName)
 	def csv(fileName: String, escapeChar: Char) = SeparatedValuesFeederBuilder.csv(fileName, Some(escapeChar))

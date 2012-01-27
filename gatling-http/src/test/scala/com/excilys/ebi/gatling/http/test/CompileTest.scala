@@ -60,7 +60,10 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 			// What will be repeated ?
 			chain
 				// First request to be repeated
-				.exec((s: Session) => println("iterate: " + getCounterValue(s, "titi")))
+				.exec((s: Session) => {
+					println("iterate: " + getCounterValue(s, "titi"))
+					s
+				})
 				.exec(
 					http("Page accueil").get("http://localhost:3000")
 						.check(
@@ -74,8 +77,14 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				.loop(chain
 					.exec(http("In During 1").get("http://localhost:3000/aaaa"))
 					.pause(2)
-					.loop(chain.exec((s: Session) => println("--nested loop: " + getCounterValue(s, "tutu")))).counterName("tutu").times(2)
-					.exec((s: Session) => println("-loopDuring: " + getCounterValue(s, "toto")))
+					.loop(chain.exec((s: Session) => {
+						println("--nested loop: " + getCounterValue(s, "tutu"))
+						s
+					})).counterName("tutu").times(2)
+					.exec((s: Session) => {
+						println("-loopDuring: " + getCounterValue(s, "toto"))
+						s
+					})
 					.exec(http("In During 2").get("/"))
 					.pause(2))
 				.counterName("toto").during(12000, MILLISECONDS)
@@ -84,10 +93,16 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 					chain
 						.exec(http("In During 1").get("/"))
 						.pause(2)
-						.exec((s: Session) => println("-iterate1: " + getCounterValue(s, "titi") + ", doFor: " + getCounterValue(s, "hehe")))
+						.exec((s: Session) => {
+							println("-iterate1: " + getCounterValue(s, "titi") + ", doFor: " + getCounterValue(s, "hehe"))
+							s
+						})
 						.loop(
 							chain
-								.exec((s: Session) => println("--iterate1: " + getCounterValue(s, "titi") + ", doFor: " + getCounterValue(s, "hehe") + ", iterate2: " + getCounterValue(s, "hoho"))))
+								.exec((s: Session) => {
+									println("--iterate1: " + getCounterValue(s, "titi") + ", doFor: " + getCounterValue(s, "hehe") + ", iterate2: " + getCounterValue(s, "hoho"))
+									s
+								}))
 						.counterName("hoho").times(2)
 						.exec(http("In During 2").get("/"))
 						.pause(2))

@@ -27,7 +27,7 @@ import akka.actor.ActorRef
  * @param sessionModifier the function that will be executed by this action
  * @param next the action to be executed after this one
  */
-class SimpleAction(sessionFunction: (Session, Action) => Unit, next: ActorRef) extends Action {
+class SimpleAction(sessionFunction: (Session, Action) => Session, next: ActorRef) extends Action {
 
 	/**
 	 * This method applies the function to the Session
@@ -35,7 +35,6 @@ class SimpleAction(sessionFunction: (Session, Action) => Unit, next: ActorRef) e
 	 * @param session The session of the scenario
 	 */
 	def execute(session: Session) = {
-		sessionFunction(session, this)
-		next ! session
+		next ! sessionFunction(session, this)
 	}
 }

@@ -91,26 +91,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 
 	def onHeadersReceived(headers: HttpResponseHeaders) = {
 
-		def handleCookies(headers: HttpResponseHeaders) {
-			val headersMap = headers.getHeaders
-
-			val setCookieHeaders = headersMap.get(SET_COOKIE)
-			if (setCookieHeaders != null) {
-				var sessionCookies = session.getAttributeAsOption[HashMap[String, Cookie]](COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty)
-
-				setCookieHeaders.foreach { setCookieHeader =>
-					val cookie = parseCookie(setCookieHeader)
-					sessionCookies += (cookie.getName -> cookie)
-				}
-
-				logger.debug("Cookies put in Session: {}", sessionCookies)
-
-				session.setAttribute(COOKIES_CONTEXT_KEY, sessionCookies)
-			}
-		}
-
 		responseBuilder.accumulate(headers)
-		handleCookies(headers)
 
 		STATE.CONTINUE
 	}
@@ -131,32 +112,51 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 
 	def onThrowable(throwable: Throwable) = {
 		logger.error("Request '" + requestName + "' failed", throwable)
-		sendLogAndExecuteNext(KO, "" + throwable.getMessage)
+		sendLogAndExecuteNext(session, KO, "" + throwable.getMessage)
 	}
 
 	/**
 	 * This method is used to send a message to the data writer actor and then execute the next action
 	 *
+	 * @param session the new Session
 	 * @param requestResult the result of the request
 	 * @param requestMessage the message that will be logged
 	 * @param processingStartDate date of the beginning of the response processing
 	 */
-	private def sendLogAndExecuteNext(requestResult: ResultStatus, requestMessage: String) = {
+	private def sendLogAndExecuteNext(newSession: Session, requestResult: ResultStatus, requestMessage: String) = {
 
 		var now = currentTimeMillis
 		DataWriter.instance ! ActionInfo(session.scenarioName, session.userId, "Request " + requestName, requestStartDate, responseEndDate.getOrElse(now), endOfRequestSendingDate.getOrElse(now), startOfResponseReceivingDate.getOrElse(now), requestResult, requestMessage)
 
-		session.setAttribute(Session.LAST_ACTION_DURATION_KEY, currentTimeMillis - responseEndDate.get)
-
-		next ! session
+		next ! newSession.setAttribute(Session.LAST_ACTION_DURATION_KEY, currentTimeMillis - responseEndDate.get)
 	}
 
-	private def getChecksForPhase(httpPhase: HttpPhase) = checks.view.filter(_.when == httpPhase)
+	def getChecksForPhase(httpPhase: HttpPhase) = checks.view.filter(_.when == httpPhase)
 
 	/**
 	 * This method processes the response if needed for each checks given by the user
 	 */
 	private def processResponse(response: Response) {
+
+		def handleCookies(response: Response): Session = {
+			val headersMap = response.getHeaders
+
+			val setCookieHeaders = headersMap.get(SET_COOKIE)
+			if (setCookieHeaders != null) {
+				var sessionCookies = session.getAttributeAsOption[HashMap[String, Cookie]](COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty)
+
+				setCookieHeaders.foreach { setCookieHeader =>
+					val cookie = parseCookie(setCookieHeader)
+					sessionCookies += (cookie.getName -> cookie)
+				}
+
+				logger.debug("Cookies put in Session: {}", sessionCookies)
+
+				session.setAttribute(COOKIES_CONTEXT_KEY, sessionCookies)
+			} else {
+				session
+			}
+		}
 
 		/**
 		 * This method instantiate the required extractors
@@ -176,6 +176,8 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 			extractors
 		}
 
+		var newSession = handleCookies(response)
+
 		HttpPhase.values.foreach { httpPhase =>
 
 			val phaseChecks = getChecksForPhase(httpPhase)
@@ -194,11 +196,11 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 						if (logger.isWarnEnabled)
 							logger.warn("Check on request '{}' with '{}' failed : '{}'", Array[Object](requestName, expression, checkResult.message))
 
-						sendLogAndExecuteNext(KO, checkResult.message)
+						sendLogAndExecuteNext(newSession, KO, checkResult.message)
 						return
 
 					} else if (!extractedValue.isEmpty && check.saveAs.isDefined) {
-						session.setAttribute(check.saveAs.get, extractor match {
+						newSession = newSession.setAttribute(check.saveAs.get, extractor match {
 							case multi: MultiValuedExtractor => extractedValue
 							case single => extractedValue(0)
 						})
@@ -207,6 +209,6 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 			}
 		}
 
-		sendLogAndExecuteNext(OK, "Request Executed Successfully")
+		sendLogAndExecuteNext(newSession, OK, "Request Executed Successfully")
 	}
 }

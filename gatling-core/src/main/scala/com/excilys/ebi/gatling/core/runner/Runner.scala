@@ -116,10 +116,6 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: List[ScenarioCo
 	 * @return the built session
 	 */
 	private def buildSession(configuration: ScenarioConfiguration, userId: Int) = {
-		val session = new Session(configuration.scenarioBuilder.name, userId)
-
-		session.setProtocolConfig(configuration.protocolConfigurations)
-
-		session
+		new Session(configuration.scenarioBuilder.name, userId).setProtocolConfig(configuration.protocolConfigurations)
 	}
 }
