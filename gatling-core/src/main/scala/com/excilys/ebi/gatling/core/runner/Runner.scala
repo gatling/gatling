@@ -16,9 +16,7 @@
 package com.excilys.ebi.gatling.core.runner
 
 import java.util.concurrent.{ TimeUnit, CountDownLatch }
-
 import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.core.config.GatlingConfig
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
@@ -26,9 +24,9 @@ import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.scenario.configuration.{ ScenarioConfigurationBuilder, ScenarioConfiguration }
 import com.excilys.ebi.gatling.core.session.Session
-
 import akka.actor.Actor.registry
 import akka.actor.{ Scheduler, ActorRef }
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
 object Runner {
 	def runSim(startDate: DateTime)(scenarioConfigurations: ScenarioConfigurationBuilder*) = new Runner(startDate, scenarioConfigurations.toList).run
@@ -46,7 +44,9 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: List[ScenarioCo
 	val latch: CountDownLatch = new CountDownLatch(totalNumberOfUsers + 1)
 
 	// Builds all scenarios
-	val scenarios = scenarioConfigurations.map(_.scenarioBuilder.end(latch).build)
+	val scenarios = scenarioConfigurations.map { scenarioConfiguration =>
+		scenarioConfiguration.scenarioBuilder.end(latch).build(new ProtocolConfigurationRegistry(scenarioConfiguration.protocolConfigurations))
+	}
 
 	// Creates a List of Tuples with scenario configuration / scenario 
 	val scenariosAndConfigurations = scenarioConfigurations zip scenarios
@@ -116,6 +116,6 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: List[ScenarioCo
 	 * @return the built session
 	 */
 	private def buildSession(configuration: ScenarioConfiguration, userId: Int) = {
-		new Session(configuration.scenarioBuilder.name, userId).setProtocolConfig(configuration.protocolConfigurations)
+		new Session(configuration.scenarioBuilder.name, userId)
 	}
 }

@@ -17,9 +17,9 @@ package com.excilys.ebi.gatling.core.action.builder
 import com.excilys.ebi.gatling.core.action.IfAction
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
-
 import akka.actor.Actor.actorOf
 import akka.actor.ActorRef
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
 /**
  * Companion Object of IfActionBuilder class
@@ -70,9 +70,9 @@ class IfActionBuilder(conditionFunction: Session => Boolean, thenNext: ChainBuil
 
 	def withNext(next: ActorRef) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next)
 
-	def build = {
-		val actionTrue = thenNext.withNext(next).build
-		val actionFalse = elseNext.map(_.withNext(next).build)
+	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
+		val actionTrue = thenNext.withNext(next).build(protocolConfigurationRegistry)
+		val actionFalse = elseNext.map(_.withNext(next).build(protocolConfigurationRegistry))
 
 		actorOf(new IfAction(conditionFunction, actionTrue, actionFalse, next)).start
 	}

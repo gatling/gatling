@@ -31,6 +31,9 @@ import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheck
 import com.excilys.ebi.gatling.http.config.GatlingHTTPConfig._
 import akka.actor.ActorRef
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
+import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 
 /**
  * HttpRequestAction class companion
@@ -65,8 +68,8 @@ object HttpRequestAction {
  * @param givenCheckBuilders all the checks that will be performed on the response
  * @param feeder the feeder that will be consumed each time the request will be sent
  */
-class HttpRequestAction(next: ActorRef, request: HttpRequest, givenCheckBuilders: Option[List[HttpCheckBuilder[_]]])
-		extends RequestAction[Response](next, request, givenCheckBuilders) {
+class HttpRequestAction(next: ActorRef, request: HttpRequest, givenCheckBuilders: Option[List[HttpCheckBuilder[_]]], protocolConfiguration: Option[HttpProtocolConfiguration])
+		extends RequestAction[Response, HttpProtocolConfiguration](next, request, givenCheckBuilders, protocolConfiguration) {
 
 	var checks: List[HttpCheck] = Nil
 
@@ -86,6 +89,6 @@ class HttpRequestAction(next: ActorRef, request: HttpRequest, givenCheckBuilders
 			logger.info("Sending Request '{}': Scenario '{}', UserId #{}", Array[Object](request.name, session.scenarioName, session.userId.toString))
 
 			
-		HttpRequestAction.CLIENT.executeRequest(request.getRequest(session), new GatlingAsyncHandler(session, checks, next, request.name))
+		HttpRequestAction.CLIENT.executeRequest(request.getRequest(session, protocolConfiguration), new GatlingAsyncHandler(session, checks, next, request.name))
 	}
 }

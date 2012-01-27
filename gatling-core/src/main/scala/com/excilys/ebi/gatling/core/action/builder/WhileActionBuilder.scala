@@ -17,9 +17,9 @@ package com.excilys.ebi.gatling.core.action.builder
 import com.excilys.ebi.gatling.core.action.{ WhileAction, Action }
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
-
 import akka.actor.Actor.actorOf
 import akka.actor.ActorRef
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
 /**
  * Companion of the WhileActionBuilder class
@@ -73,5 +73,5 @@ class WhileActionBuilder(conditionFunction: (Session, Action) => Boolean, loopNe
 
 	def withNext(next: ActorRef) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName)
 
-	def build = actorOf(new WhileAction(conditionFunction, (w: ActorRef) => loopNext.withNext(w).build, next, counterName)).start
+	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = actorOf(new WhileAction(conditionFunction, (w: ActorRef) => loopNext.withNext(w).build(protocolConfigurationRegistry), next, counterName)).start
 }

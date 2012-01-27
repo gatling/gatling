@@ -29,10 +29,6 @@ object Session {
 	 * Key for last action duration
 	 */
 	val LAST_ACTION_DURATION_KEY = "gatling.core.lastActionDuration"
-	/**
-	 * Key for protocol configurations
-	 */
-	val PROTOCOL_CONFIGURATIONS_KEY = "gatling.core.protocolConfigurations"
 }
 /**
  * Session class representing the session passing through a scenario for a given user
@@ -106,26 +102,4 @@ class Session(val scenarioName: String, val userId: Int, val data: Map[String, A
 	 * @return last action duration in milliseconds
 	 */
 	private[gatling] def getLastActionDuration: Long = getAttributeAsOption[Long](Session.LAST_ACTION_DURATION_KEY).getOrElse(0L)
-
-	/**
-	 * Gets a protocol configuration based on its type
-	 *
-	 * @param protocolType the type of the protocol as a string
-	 * @return the protocol configuration requested
-	 */
-	private[gatling] def getProtocolConfiguration(protocolType: String) = {
-		getAttributeAsOption[Map[String, ProtocolConfiguration]](Session.PROTOCOL_CONFIGURATIONS_KEY).map {
-			_.get(protocolType)
-		}.getOrElse(throw new UnsupportedOperationException("The protocol configuration map does not exist."))
-	}
-
-	/**
-	 * Sets the protocol configuration map in the session
-	 *
-	 * @param configurations the sequence containing all the protocol configurations
-	 */
-	private[gatling] def setProtocolConfig(configurations: Seq[ProtocolConfiguration]) = {
-		val configSeq = for (config <- configurations) yield (config.getProtocolType -> config)
-		setAttribute(Session.PROTOCOL_CONFIGURATIONS_KEY, configSeq.toMap[String, ProtocolConfiguration])
-	}
 }

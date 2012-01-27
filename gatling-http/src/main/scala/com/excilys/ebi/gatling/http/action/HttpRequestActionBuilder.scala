@@ -29,6 +29,8 @@ import akka.actor.Actor._
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
 import akka.actor.ActorRef
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 
 /**
  * HttpRequestActionBuilder class companion
@@ -66,8 +68,8 @@ class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, ne
 
 	private[gatling] def withNext(next: ActorRef) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders)
 
-	private[gatling] def build = {
-		actorOf(new HttpRequestAction(next, request, processorBuilders)).start
+	private[gatling] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
+		actorOf(new HttpRequestAction(next, request, processorBuilders, protocolConfigurationRegistry.getProtocolConfiguration(HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE).as[HttpProtocolConfiguration])).start
 	}
 
 	/**

@@ -16,12 +16,12 @@
 package com.excilys.ebi.gatling.core.structure
 
 import java.util.concurrent.CountDownLatch
-
 import com.excilys.ebi.gatling.core.action.builder.EndActionBuilder.endActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.StartActionBuilder.startActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfigurationBuilder
 import com.excilys.ebi.gatling.core.scenario.Scenario
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
 /**
  * ScenarioBuilder class companion
@@ -68,5 +68,5 @@ class ScenarioBuilder(val name: String, actionBuilders: List[AbstractActionBuild
 	 * @param scenarioId the id of the current scenario
 	 * @return the first action of the scenario to be executed
 	 */
-	private[core] def build: Scenario = new Scenario(name, buildActions(null))
+	private[core] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = new Scenario(name, buildActions(null, protocolConfigurationRegistry))
 }

@@ -16,10 +16,8 @@
 package com.excilys.ebi.gatling.http.request.builder
 
 import scala.tools.nsc.io.Path.string2path
-
 import org.fusesource.scalate.support.ScalaCompiler
 import org.fusesource.scalate.{ TemplateEngine, Binding }
-
 import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_REQUEST_BODIES_FOLDER
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.core.session.Session
@@ -29,6 +27,8 @@ import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.request.{ TemplateBody, StringBody, HttpRequestBody, FilePathBody }
 import com.ning.http.client.RequestBuilder
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 
 object AbstractHttpRequestWithBodyBuilder {
 	val ENGINE = new TemplateEngine(List(GATLING_REQUEST_BODIES_FOLDER))
@@ -53,8 +53,8 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	queryParams: List[(Session => String, Session => String)], headers: Map[String, Session => String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
 		extends AbstractHttpRequestBuilder[B](httpRequestActionBuilder, method, urlFunction, queryParams, headers, followsRedirects, credentials) {
 
-	private[http] override def getRequestBuilder(session: Session): RequestBuilder = {
-		val requestBuilder = super.getRequestBuilder(session)
+	private[http] override def getRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
+		val requestBuilder = super.getRequestBuilder(session, protocolConfiguration)
 		addBodyTo(requestBuilder, body, session)
 		requestBuilder
 	}

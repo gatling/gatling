@@ -38,6 +38,7 @@ import com.ning.http.client.Realm
 import com.ning.http.client.Realm.AuthScheme
 import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
 import com.excilys.ebi.gatling.core.util.StringHelper._
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
 /**
  * AbstractHttpRequestBuilder class companion
@@ -48,7 +49,7 @@ object AbstractHttpRequestBuilder {
 	 *
 	 * @param requestBuilder the request builder to convert
 	 */
-	implicit def toHttpRequestActionBuilder[B <: AbstractHttpRequestBuilder[B]](requestBuilder: B) = requestBuilder.httpRequestActionBuilder withRequest (new HttpRequest(requestBuilder.httpRequestActionBuilder.requestName, requestBuilder))
+	implicit def toHttpRequestActionBuilder[B <: AbstractHttpRequestBuilder[B]](requestBuilder: B) = requestBuilder.httpRequestActionBuilder.withRequest(new HttpRequest(requestBuilder.httpRequestActionBuilder.requestName, requestBuilder))
 }
 
 /**
@@ -154,12 +155,12 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 *
 	 * @param session the session of the current scenario
 	 */
-	private[http] def getRequestBuilder(session: Session): RequestBuilder = {
+	private[http] def getRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
 		val requestBuilder = new RequestBuilder
 		requestBuilder setMethod method setFollowRedirects followsRedirects.getOrElse(false)
 
-		val isHttps = addURLTo(requestBuilder, session)
-		addProxyTo(requestBuilder, session, isHttps)
+		val isHttps = addURLTo(requestBuilder, session, protocolConfiguration)
+		addProxyTo(requestBuilder, session, isHttps, protocolConfiguration)
 		addCookiesTo(requestBuilder, session)
 		addQueryParamsTo(requestBuilder, session)
 		addHeadersTo(requestBuilder, headers, session)
@@ -173,12 +174,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 *
 	 * @param session the session of the current scenario
 	 */
-	private[http] def build(session: Session): Request = {
-
-		val request = getRequestBuilder(session) build
-
-		request
-	}
+	private[http] def build(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): Request = getRequestBuilder(session, protocolConfiguration).build
 
 	/**
 	 * This method adds proxy information to the request builder if needed
@@ -186,10 +182,9 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * @param requestBuilder the request builder to which the proxy should be added
 	 * @param session the session of the current scenario
 	 */
-	private def addProxyTo(requestBuilder: RequestBuilder, session: Session, isHttps: Boolean) = {
-		session.getProtocolConfiguration(HTTP_PROTOCOL_TYPE).map { config =>
-			val httpConfig = config.asInstanceOf[HttpProtocolConfiguration]
-			(if (isHttps) httpConfig.securedProxy else httpConfig.proxy).map(requestBuilder.setProxyServer(_))
+	private def addProxyTo(requestBuilder: RequestBuilder, session: Session, isHttps: Boolean, protocolConfiguration: Option[HttpProtocolConfiguration]) = {
+		protocolConfiguration.map { httpConfiguration =>
+			(if (isHttps) httpConfiguration.securedProxy else httpConfiguration.proxy).map(requestBuilder.setProxyServer(_))
 		}
 	}
 
@@ -199,19 +194,17 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * @param requestBuilder the request builder to which the url should be added
 	 * @param session the session of the current scenario
 	 */
-	private def addURLTo(requestBuilder: RequestBuilder, session: Session) = {
-		val urlProvided = urlFunction(session)
-
-		val httpConfiguration = session.getProtocolConfiguration(HTTP_PROTOCOL_TYPE).map(_.asInstanceOf[HttpProtocolConfiguration])
+	private def addURLTo(requestBuilder: RequestBuilder, session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]) = {
+		val providedUrl = urlFunction(session)
 
 		// baseUrl implementation
 		val url =
-			if (urlProvided.startsWith("http"))
-				urlProvided
-			else if (httpConfiguration.isDefined)
-				httpConfiguration.get.baseURL.map(_ + urlProvided).getOrElse(urlProvided)
+			if (providedUrl.startsWith("http"))
+				providedUrl
+			else if (protocolConfiguration.isDefined)
+				protocolConfiguration.get.baseURL.map(_ + providedUrl).getOrElse(providedUrl)
 			else
-				throw new IllegalArgumentException("URL is invalid (does not start with http): " + urlProvided)
+				throw new IllegalArgumentException("URL is invalid (does not start with http): " + providedUrl)
 
 		requestBuilder.setUrl(url)
 

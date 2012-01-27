@@ -16,8 +16,8 @@
 package com.excilys.ebi.gatling.core.structure
 
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
-
 import akka.actor.ActorRef
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
 /**
  * ChainBuilder class companion
@@ -55,5 +55,5 @@ class ChainBuilder(actionBuilders: List[AbstractActionBuilder], next: ActorRef)
 	 * @param scenarioId the id of the current scenario
 	 * @return the first action of the scenario to be executed
 	 */
-	private[core] def build = buildActions(next)
+	private[core] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = buildActions(next, protocolConfigurationRegistry)
 }

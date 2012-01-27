@@ -16,9 +16,7 @@
 package com.excilys.ebi.gatling.http.request.builder
 
 import java.io.File
-
 import scala.tools.nsc.io.Path.string2path
-
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
 import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_REQUEST_BODIES_FOLDER
 import com.excilys.ebi.gatling.core.session.Session
@@ -28,6 +26,8 @@ import com.excilys.ebi.gatling.http.Predef.{MULTIPART_FORM_DATA, CONTENT_TYPE, A
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.ning.http.client.{StringPart, RequestBuilder, FluentStringsMap, FilePart}
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 
 /**
  * This class serves as model to HTTP request with a body and parameters
@@ -46,8 +46,8 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	body: Option[HttpRequestBody], fileUpload: Option[(String, String, String)], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
 		extends AbstractHttpRequestWithBodyBuilder[B](httpRequestActionBuilder, method, urlFunction, queryParams, headers, body, followsRedirects, credentials) {
 
-	private[http] override def getRequestBuilder(session: Session): RequestBuilder = {
-		val requestBuilder = super.getRequestBuilder(session)
+	private[http] override def getRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
+		val requestBuilder = super.getRequestBuilder(session, protocolConfiguration)
 		fileUpload.map { fileName =>
 			addStringPartsTo(requestBuilder, session)
 			addBodyPartTo(requestBuilder)

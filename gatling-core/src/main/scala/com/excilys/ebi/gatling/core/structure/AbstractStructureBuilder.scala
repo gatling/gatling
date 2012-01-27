@@ -16,7 +16,6 @@
 package com.excilys.ebi.gatling.core.structure
 
 import java.util.concurrent.TimeUnit
-
 import com.excilys.ebi.gatling.core.action.builder.IfActionBuilder.ifActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder.pauseActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
@@ -26,8 +25,8 @@ import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.loop.LoopBuilder
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
-
 import akka.actor.ActorRef
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
 /**
  * This class defines most of the scenario related DSL
@@ -159,16 +158,16 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 */
 	def loop(chain: ChainBuilder) = new LoopBuilder[B](getInstance, chain, None)
 
-	private[core] def build: Any
+	private[core] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry): Any
 
 	private[core] def getInstance: B
 
 	private[core] def addActionBuilders(actionBuildersToAdd: List[AbstractActionBuilder]): B = newInstance(actionBuildersToAdd ::: actionBuilders)
 
-	private[core] def buildActions(initialValue: ActorRef): ActorRef = {
+	private[core] def buildActions(initialValue: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = {
 		var previousInList: ActorRef = initialValue
 		actionBuilders.foreach { actionBuilder =>
-			previousInList = actionBuilder.withNext(previousInList).build
+			previousInList = actionBuilder.withNext(previousInList).build(protocolConfigurationRegistry)
 		}
 		previousInList
 	}

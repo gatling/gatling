@@ -20,6 +20,8 @@ import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 import com.ning.http.client.{ Request => AHCRequest }
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 
 /**
  * This class wraps an HTTP Request
@@ -35,8 +37,8 @@ class HttpRequest(givenName: String, val httpRequestBuilder: AbstractHttpRequest
 	 * @param session the session of the scenario
 	 * @return an HTTP request
 	 */
-	def getRequest(session: Session): AHCRequest = {
-		val request = httpRequestBuilder build session
+	def getRequest(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): AHCRequest = {
+		val request = httpRequestBuilder.build(session, protocolConfiguration)
 		logger.debug("Request created: {}, body data: {}", request.getUrl, request.getStringData)
 		request
 	}

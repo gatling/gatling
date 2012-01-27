@@ -20,6 +20,8 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.check.CheckBuilder
 import akka.actor.ActorRef
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
 
 /**
  * Abstract class for all request actions. For example HTTPRequestAction, and later LDAPRequestAction, etc.
@@ -27,8 +29,8 @@ import akka.actor.ActorRef
  * @param next action that will be executed after the request
  * @param request request that will be sent
  * @param givenProcessors a list of processors that will apply on the response
- * @param feeder the feeder that will be consumed by this request
+ * @param protocolConfiguration the optional protocolConfiguration for this type of request
  */
-abstract class RequestAction[P](next: ActorRef, request: Request, givenProcessors: Option[List[CheckBuilder[_, P]]]) extends Action {
+abstract class RequestAction[P, C <:ProtocolConfiguration](next: ActorRef, request: Request, givenProcessors: Option[List[CheckBuilder[_, P]]], protocolConfiguration: Option[C]) extends Action {
 	def execute(session: Session)
 }

@@ -16,12 +16,11 @@
 package com.excilys.ebi.gatling.core.action.builder
 
 import scala.annotation.implicitNotFound
-
 import com.excilys.ebi.gatling.core.action.{ SimpleAction, Action }
 import com.excilys.ebi.gatling.core.session.Session
-
 import akka.actor.Actor.actorOf
 import akka.actor.ActorRef
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
 /**
  * SimpleActionBuilder class companion
@@ -66,5 +65,5 @@ class SimpleActionBuilder(sessionFunction: (Session, Action) => Session, next: A
 
 	def withNext(next: ActorRef) = new SimpleActionBuilder(sessionFunction, next)
 
-	def build() = actorOf(new SimpleAction(sessionFunction, next)).start
+	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = actorOf(new SimpleAction(sessionFunction, next)).start
 }
