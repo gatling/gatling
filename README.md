@@ -20,9 +20,10 @@ Gatling is built upon :
 ...
 
 
-# Release Note
+# Release
 
-* 1.0.0 released on december 20th 2011
+* 1.0.3 released on january 28th 2012
+More details on [release notes](https://github.com/excilys/gatling/issues/milestones?state=closed)
 
 # Questions, help?
 
