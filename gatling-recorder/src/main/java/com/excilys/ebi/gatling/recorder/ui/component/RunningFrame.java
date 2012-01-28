@@ -593,10 +593,10 @@ public class RunningFrame extends JFrame {
 				subListsEvents.add(listEvents.subList(0 + EVENTS_GROUPING * i, Math.min(EVENTS_GROUPING * (i + 1), listEvents.size() - 1)));
 
 			context.put("chainEvents", subListsEvents);
-			context.put("events", null);
+			context.put("events", new ArrayList<Object>());
 		} else {
 			context.put("events", listEvents);
-			context.put("chainEvents", null);
+			context.put("chainEvents", new ArrayList<List<Object>>());
 		}
 
 		context.put("package", Configuration.getInstance().getIdePackage());
