@@ -62,13 +62,13 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 	private val requestStartDate = currentTimeMillis
 
 	// initialized in case the headers can't be sent (connection problem)
-	private var endOfRequestSendingDate: Option[Long] = None
+	@volatile private var endOfRequestSendingDate: Option[Long] = None
 
 	// start of response or exception
-	private var startOfResponseReceivingDate: Option[Long] = None
+	@volatile private var startOfResponseReceivingDate: Option[Long] = None
 
 	// end of response or exception
-	private var responseEndDate: Option[Long] = None
+	@volatile private var responseEndDate: Option[Long] = None
 
 	def onHeaderWriteCompleted = {
 		endOfRequestSendingDate = Some(currentTimeMillis)
@@ -90,9 +90,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 	}
 
 	def onHeadersReceived(headers: HttpResponseHeaders) = {
-
 		responseBuilder.accumulate(headers)
-
 		STATE.CONTINUE
 	}
 
@@ -125,7 +123,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 	 */
 	private def sendLogAndExecuteNext(newSession: Session, requestResult: ResultStatus, requestMessage: String) = {
 
-		var now = currentTimeMillis
+		val now = currentTimeMillis
 		DataWriter.instance ! ActionInfo(session.scenarioName, session.userId, "Request " + requestName, requestStartDate, responseEndDate.getOrElse(now), endOfRequestSendingDate.getOrElse(now), startOfResponseReceivingDate.getOrElse(now), requestResult, requestMessage)
 
 		next ! newSession.setAttribute(Session.LAST_ACTION_DURATION_KEY, currentTimeMillis - responseEndDate.get)
