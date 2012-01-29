@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 object CommandLineOptions extends Logging {
-	private var clo: CommandLineOptions = null
+	private var clo: CommandLineOptions = _
 	private var reportsOnly = false
 	private var reportsOnlyFolder = EMPTY
 	private var noReports = false
