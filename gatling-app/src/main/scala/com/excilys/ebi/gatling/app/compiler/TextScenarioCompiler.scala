@@ -28,11 +28,6 @@ import com.excilys.ebi.gatling.core.util.FileHelper.TXT_EXTENSION
 import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 
-/**
- * Simple Class used to get a value from the interpreter
- */
-class DateHolder(var value: DateTime)
-
 object TextScriptInterpreter {
 	val DOLLAR_TEMP_REPLACEMENT = 178.toChar
 }
