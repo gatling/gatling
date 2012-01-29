@@ -51,6 +51,6 @@ class StartAction(next: ActorRef) extends Action {
 		val now = currentTimeMillis
 		DataWriter.instance ! ActionInfo(session.scenarioName, session.userId, StartAction.START_OF_SCENARIO, now, now, now, now, OK, "Beginning Scenario")
 		logger.info("Starting user #{}", session.userId)
-		next !session
+		next ! session
 	}
 }
