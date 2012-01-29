@@ -164,12 +164,13 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 
 	private[core] def addActionBuilders(actionBuildersToAdd: List[AbstractActionBuilder]): B = newInstance(actionBuildersToAdd ::: actionBuilders)
 
-	private[core] def buildActions(initialValue: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = {
-		var previousInList: ActorRef = initialValue
-		actionBuilders.foreach { actionBuilder =>
-			previousInList = actionBuilder.withNext(previousInList).build(protocolConfigurationRegistry)
+	protected def buildChainedActions(initialValue: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = buildChainedActions(initialValue, actionBuilders, protocolConfigurationRegistry)
+
+	private def buildChainedActions(actorRef: ActorRef, actionBuilders: List[AbstractActionBuilder], protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = {
+		actionBuilders match {
+			case Nil => actorRef
+			case firstBuilder :: restOfBuilders => buildChainedActions(firstBuilder.withNext(actorRef).build(protocolConfigurationRegistry), restOfBuilders, protocolConfigurationRegistry)
 		}
-		previousInList
 	}
 }
 

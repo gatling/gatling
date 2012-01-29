@@ -68,5 +68,5 @@ class ScenarioBuilder(val name: String, actionBuilders: List[AbstractActionBuild
 	 * @param scenarioId the id of the current scenario
 	 * @return the first action of the scenario to be executed
 	 */
-	private[core] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = new Scenario(name, buildActions(null, protocolConfigurationRegistry))
+	private[core] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = new Scenario(name, buildChainedActions(null, protocolConfigurationRegistry))
 }
