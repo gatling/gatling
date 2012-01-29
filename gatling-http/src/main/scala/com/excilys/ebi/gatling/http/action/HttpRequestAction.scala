@@ -71,24 +71,24 @@ object HttpRequestAction {
 class HttpRequestAction(next: ActorRef, request: HttpRequest, givenCheckBuilders: Option[List[HttpCheckBuilder[_]]], protocolConfiguration: Option[HttpProtocolConfiguration])
 		extends RequestAction[Response, HttpProtocolConfiguration](next, request, givenCheckBuilders, protocolConfiguration) {
 
-	var checks: List[HttpCheck] = Nil
-
-	givenCheckBuilders.map {
-		list =>
-			checks = list.map(_.build)
-
+	def addDefaultHttpStatusCheck(checks: List[HttpCheck]) = {
+		if (checks.find(_.isInstanceOf[HttpStatusCheck]).isEmpty) {
 			// add default HttpStatusCheck if none was set
-			if (checks.find(_.isInstanceOf[HttpStatusCheck]).isEmpty) {
-				checks = HttpRequestAction.DEFAULT_HTTP_STATUS_CHECK :: checks
-			}
+			HttpRequestAction.DEFAULT_HTTP_STATUS_CHECK :: checks
+		} else {
+			checks
+		}
 	}
+
+	val checks = addDefaultHttpStatusCheck(givenCheckBuilders.map {
+		_.map(_.build)
+	}.getOrElse(Nil))
 
 	def execute(session: Session) = {
 
 		if (logger.isInfoEnabled())
 			logger.info("Sending Request '{}': Scenario '{}', UserId #{}", Array[Object](request.name, session.scenarioName, session.userId.toString))
 
-			
 		HttpRequestAction.CLIENT.executeRequest(request.getRequest(session, protocolConfiguration), new GatlingAsyncHandler(session, checks, next, request.name))
 	}
 }
