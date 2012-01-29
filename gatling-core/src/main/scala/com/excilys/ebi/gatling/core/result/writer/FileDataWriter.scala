@@ -37,20 +37,33 @@ class FileDataWriter extends DataWriter {
 	/**
 	 * The OutputStreamWriter used to write to files
 	 */
-	var osw: OutputStreamWriter = null
+	var osw: OutputStreamWriter = _
 	/**
 	 * The countdown latch that will be decreased when all messaged are written and all scenarios ended
 	 */
-	var latch: CountDownLatch = null
+	var latch: CountDownLatch = _
 	/**
 	 * The date on which the simulation started
 	 */
-	var runOn = EMPTY
+	var runOn: String = _
 
 	/**
 	 * Method called when this actor receives a message
 	 */
 	def receive = {
+		// If the message is sent to initialize the writer
+		case InitializeDataWriter(runOn, latch) => {
+			this.runOn = printFileNameDate(runOn)
+			// Initialize files and folders that will be used to write the logs
+			Directory(resultFolder(this.runOn)).createDirectory()
+
+			osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(File(simulationLogFile(this.runOn)).jfile, true)))
+
+			ResultLine.Headers.print(osw).append(END_OF_LINE)
+
+			this.latch = latch
+		}
+
 		// If the message comes from an action
 		case ActionInfo(scenarioName, userId, action, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage) => {
 
@@ -67,19 +80,6 @@ class FileDataWriter extends DataWriter {
 					osw.close
 				}
 			}
-		}
-
-		// If the message is sent to initialize the writer
-		case InitializeDataWriter(runOn, latch) => {
-			this.runOn = printFileNameDate(runOn)
-			// Initialize files and folders that will be used to write the logs
-			Directory(resultFolder(this.runOn)).createDirectory()
-
-			osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(File(simulationLogFile(this.runOn)).jfile, true)))
-
-			ResultLine.Headers.print(osw).append(END_OF_LINE)
-
-			this.latch = latch
 		}
 
 		case unknown =>
