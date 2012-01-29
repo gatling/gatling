@@ -28,7 +28,7 @@ object PageTemplate {
 	TEMPLATE_ENGINE.allowReload = false
 	TEMPLATE_ENGINE.escapeMarkup = false
 
-	private var runOn: DateTime = null
+	private var runOn: DateTime = _
 	def setRunOn(runOn: DateTime) = { PageTemplate.runOn = runOn }
 }
 
