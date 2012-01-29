@@ -44,20 +44,28 @@ object HttpRequestAction {
 	 */
 	val DEFAULT_HTTP_STATUS_CHECK = status.in(200 to 210).build
 
-	val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
-		.setCompressionEnabled(GATLING_HTTP_CONFIG_COMPRESSION_ENABLED)
-		.setConnectionTimeoutInMs(GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT)
-		.setRequestTimeoutInMs(GATLING_HTTP_CONFIG_REQUEST_TIMEOUT)
-		.setMaxRequestRetry(GATLING_HTTP_CONFIG_MAX_RETRY)
-		.setAllowPoolingConnection(GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION)
-		.build
-
 	/**
 	 * The HTTP client used to send the requests
 	 */
-	val CLIENT: AsyncHttpClient = new AsyncHttpClient(GATLING_HTTP_CONFIG_PROVIDER_CLASS, ahcConfigBuilder)
-	// Register client shutdown
-	ResourceRegistry.registerOnCloseCallback(() => CLIENT.close)
+	lazy val CLIENT: AsyncHttpClient = buildAsyncHttpClient
+
+	protected def buildAsyncHttpClient: AsyncHttpClient = {
+
+		val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
+			.setCompressionEnabled(GATLING_HTTP_CONFIG_COMPRESSION_ENABLED)
+			.setConnectionTimeoutInMs(GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT)
+			.setRequestTimeoutInMs(GATLING_HTTP_CONFIG_REQUEST_TIMEOUT)
+			.setMaxRequestRetry(GATLING_HTTP_CONFIG_MAX_RETRY)
+			.setAllowPoolingConnection(GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION)
+			.build
+
+		val client = new AsyncHttpClient(GATLING_HTTP_CONFIG_PROVIDER_CLASS, ahcConfigBuilder)
+
+		// Register client shutdown
+		ResourceRegistry.registerOnCloseCallback(() => client.close)
+
+		client
+	}
 }
 
 /**
