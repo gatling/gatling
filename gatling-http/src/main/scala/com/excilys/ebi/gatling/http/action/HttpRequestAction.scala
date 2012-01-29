@@ -47,9 +47,9 @@ object HttpRequestAction {
 	/**
 	 * The HTTP client used to send the requests
 	 */
-	lazy val CLIENT: AsyncHttpClient = buildAsyncHttpClient
+	lazy val CLIENT = buildAsyncHttpClient
 
-	protected def buildAsyncHttpClient: AsyncHttpClient = {
+	protected def buildAsyncHttpClient = {
 
 		val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
 			.setCompressionEnabled(GATLING_HTTP_CONFIG_COMPRESSION_ENABLED)
@@ -88,9 +88,7 @@ class HttpRequestAction(next: ActorRef, request: HttpRequest, givenCheckBuilders
 		}
 	}
 
-	val checks = addDefaultHttpStatusCheck(givenCheckBuilders.map {
-		_.map(_.build)
-	}.getOrElse(Nil))
+	val checks = addDefaultHttpStatusCheck(givenCheckBuilders.map(_.map(_.build)).getOrElse(Nil))
 
 	def execute(session: Session) = {
 
