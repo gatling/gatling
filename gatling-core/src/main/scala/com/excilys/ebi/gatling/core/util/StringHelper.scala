@@ -68,10 +68,16 @@ object StringHelper extends Logging {
 				}
 		}.toSeq
 
-		val strings = stringToFormat.split(elPatternString, -1).toSeq
+		if (keysFunctions.isEmpty) {
+			// no interpolation
+			(s: Session) => stringToFormat
 
-		val functions = keysFunctions zip strings
+		} else {
+			val strings = stringToFormat.split(elPatternString, -1).toSeq
 
-		(s: Session) => functions.map { entry => entry._2 + entry._1(s) }.mkString + strings.last
+			val functions = keysFunctions zip strings
+
+			(s: Session) => functions.map { entry => entry._2 + entry._1(s) }.mkString + strings.last
+		}
 	}
 }
