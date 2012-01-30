@@ -75,6 +75,7 @@ object GatlingConfig extends Logging {
 	 * Gatling global encoding value
 	 */
 	val CONFIG_ENCODING = config("gatling.encoding", Codec.UTF8.name)
+
 	/**
 	 * Gatling simulation timeout value
 	 */

@@ -20,13 +20,12 @@ import scala.io.Source
 import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.{ VirtualFile, Path, AbstractFile }
 
-import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
 import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_IMPORTS_FILE
 import com.excilys.ebi.gatling.core.util.FileHelper.TXT_EXTENSION
 import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+import com.excilys.ebi.gatling.core.Conventions
 
 object TextScriptInterpreter {
 	val DOLLAR_TEMP_REPLACEMENT = 178.toChar
@@ -51,8 +50,11 @@ class TextScenarioCompiler extends ScalaScenarioCompiler {
 			"""include\("(.*)"\)""".r.replaceAllIn(initialFileBodyContent,
 				result => {
 					val sourceDirectoryPath = sourceDirectory.getAbsolutePath
-					val includePath = sourceDirectoryPath.substring(0, sourceDirectoryPath.lastIndexOf("@")) / result.group(1) + TXT_EXTENSION
-					Source.fromFile(includePath, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT) + END_OF_LINE + END_OF_LINE
+					Conventions.getSourceDirectoryNameFromRootFileName(sourceDirectoryPath).map { sourceDirectoryName =>
+						val includePath = sourceDirectoryName / result.group(1) + TXT_EXTENSION
+						Source.fromFile(includePath, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT) + END_OF_LINE + END_OF_LINE
+					}.getOrElse(throw new IllegalArgumentException("Couldn't find include replacement"))
+
 				}).replace(TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT, '$')
 		}
 

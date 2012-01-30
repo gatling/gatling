@@ -18,20 +18,21 @@ package com.excilys.ebi.gatling.app
 import java.lang.System.currentTimeMillis
 
 import scala.collection.immutable.TreeSet
-import scala.collection.mutable.{Set => MSet, MultiMap, HashMap}
+import scala.collection.mutable.{ Set => MSet, MultiMap, HashMap }
 import scala.tools.nsc.io.Directory
 
 import org.joda.time.DateTime
 
-import com.excilys.ebi.gatling.app.compiler.{TextScenarioCompiler, ScalaScenarioCompiler, IdeScenarioCompiler}
+import com.excilys.ebi.gatling.app.compiler.{ TextScenarioCompiler, ScalaScenarioCompiler, IdeScenarioCompiler }
 import com.excilys.ebi.gatling.charts.report.ReportsGenerator
 import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_SIMULATIONS_FOLDER
 import com.excilys.ebi.gatling.core.config.GatlingConfig
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.DateHelper.printFileNameDate
-import com.excilys.ebi.gatling.core.util.FileHelper.{TXT_EXTENSION, SCALA_EXTENSION}
+import com.excilys.ebi.gatling.core.util.FileHelper.{ TXT_EXTENSION, SCALA_EXTENSION }
+import com.excilys.ebi.gatling.core.Conventions
 
-import CommandLineOptions.options.{simulations, simulationPackage, simulationFolder, resultsFolder, requestBodiesFolder, reportsOnlyFolder, reportsOnly, noReports, dataFolder, configFileName}
+import CommandLineOptions.options.{ simulations, simulationPackage, simulationFolder, resultsFolder, requestBodiesFolder, reportsOnlyFolder, reportsOnly, noReports, dataFolder, configFileName }
 import scopt.OptionParser
 
 /**
@@ -107,8 +108,10 @@ object Gatling extends Logging {
 		var sortedGroups = new TreeSet[String]
 
 		for (fileName <- files1) {
-			sortedFiles.addBinding(fileName.substring(0, fileName.indexOf("@")), fileName)
-			sortedGroups += fileName.substring(0, fileName.indexOf("@"))
+			Conventions.getSourceDirectoryNameFromRootFileName(fileName).map { sourceDirectoryName =>
+				sortedFiles.addBinding(sourceDirectoryName, fileName)
+				sortedGroups += sourceDirectoryName
+			}
 		}
 
 		// We get the folder name of the run simulation
@@ -132,9 +135,11 @@ object Gatling extends Logging {
 					println("\n - " + group)
 					sortedFiles.get(group).map {
 						for (fileName <- _) {
-							println("     [" + i + "] " + fileName.substring(fileName.indexOf("@") + 1, fileName.indexOf(".")))
-							filesList = fileName :: filesList
-							i += 1
+							Conventions.getSimulationSpecificName(fileName).map { simulationSpecificName =>
+								println("     [" + i + "] " + simulationSpecificName)
+								filesList = fileName :: filesList
+								i += 1
+							}
 						}
 					}
 				}
@@ -200,7 +205,7 @@ object Gatling extends Logging {
 
 		compiler.run(fileName, startDate)
 		println("Simulation Finished.")
-		
+
 		// Returns the folderName in which the simulation is stored
 		if (!noReports) {
 			generateStats(printFileNameDate(startDate))

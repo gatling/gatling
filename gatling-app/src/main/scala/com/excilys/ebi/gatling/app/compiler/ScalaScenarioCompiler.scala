@@ -29,6 +29,7 @@ import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_SIMULATION_SCALA
 import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_SIMULATIONS_FOLDER
 import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
 import com.excilys.ebi.gatling.core.util.ReflectionHelper.getNewInstanceByClassName
+import com.excilys.ebi.gatling.core.Conventions
 
 /**
  * This class is used to interpret scala simulations
@@ -85,12 +86,13 @@ class ScalaScenarioCompiler extends ScenarioCompiler {
 	def collectSourceFiles(sourceDirectory: Path): List[AbstractFile] = {
 		if (sourceDirectory.isFile) {
 			val rootFile = PlainFile.fromPath(sourceDirectory)
-			val sourceDirectoryName = sourceDirectory.getAbsolutePath.substring(0, sourceDirectory.getAbsolutePath.lastIndexOf("@"))
-			val dir = Directory(sourceDirectoryName)
-			if (dir.exists)
-				rootFile :: dir.walk.map(PlainFile.fromPath(_)).toList
-			else
-				List(rootFile)
+			Conventions.getSourceDirectoryNameFromRootFileName(sourceDirectory.getAbsolutePath).map { sourceDirectoryName =>
+				val dir = Directory(sourceDirectoryName)
+				if (dir.exists)
+					rootFile :: dir.walk.map(PlainFile.fromPath(_)).toList
+				else
+					List(rootFile)
+			}.getOrElse(Nil)
 		} else
 			sourceDirectory.walk.map(PlainFile.fromPath(_)).toList
 	}
