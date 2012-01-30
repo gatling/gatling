@@ -62,8 +62,7 @@ class FileDataWriter extends DataWriter {
 
 	val failedRequestsCount = new AtomicLong(0)
 
-	// not thread safe but just for logging
-	var lastDisplayTime = currentTimeMillis
+	@volatile var lastDisplayTime = currentTimeMillis
 
 	val displayPeriod = 5 * 1000
 
@@ -109,6 +108,7 @@ class FileDataWriter extends DataWriter {
 				}
 
 				// print sample stats
+				// not thread safe but not critical either
 				val now = currentTimeMillis
 				if (now - lastDisplayTime > displayPeriod) {
 					lastDisplayTime = now
