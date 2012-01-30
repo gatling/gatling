@@ -16,12 +16,14 @@
 package com.excilys.ebi.gatling.core.action
 
 import java.lang.System.currentTimeMillis
+
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.OK
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
-import com.excilys.ebi.gatling.core.session.Session
-import akka.actor.Actor.registry.actorFor
-import akka.actor.ActorRef
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
+import com.excilys.ebi.gatling.core.session.Session
+
+import StartAction.START_OF_SCENARIO
+import akka.actor.ActorRef
 
 /**
  * StartAction class companion
@@ -31,7 +33,7 @@ object StartAction {
 	/**
 	 * This variable contains the name of the StartAction used in simulation.log
 	 */
-	val START_OF_SCENARIO = "Start of Scenario"
+	val START_OF_SCENARIO = "Start of scenario"
 }
 
 /**
@@ -49,7 +51,7 @@ class StartAction(next: ActorRef) extends Action {
 	 */
 	def execute(session: Session) = {
 		val now = currentTimeMillis
-		DataWriter.instance ! ActionInfo(session.scenarioName, session.userId, StartAction.START_OF_SCENARIO, now, now, now, now, OK, "Beginning Scenario")
+		DataWriter.instance ! ActionInfo(session.scenarioName, session.userId, START_OF_SCENARIO, now, now, now, now, OK, START_OF_SCENARIO)
 		logger.info("Starting user #{}", session.userId)
 		next ! session
 	}

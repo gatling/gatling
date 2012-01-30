@@ -19,6 +19,7 @@ import com.excilys.ebi.gatling.core.log.Logging
 import akka.actor.Actor.actorOf
 import akka.actor.Actor
 import com.excilys.ebi.gatling.core.config.GatlingConfig
+import com.excilys.ebi.gatling.core.init.Initializable
 
 object DataWriter{
 	lazy val instance = actorOf(GatlingConfig.CONFIG_DATA_WRITER).start
@@ -30,4 +31,4 @@ object DataWriter{
  * These writers are responsible for writing the logs that will be read to
  * generate the statistics
  */
-abstract class DataWriter extends Actor with Logging
+abstract class DataWriter extends Actor with Initializable with Logging
