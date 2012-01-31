@@ -99,15 +99,13 @@ object Gatling extends Logging {
 		import CommandLineOptions.options._
 
 		// Getting files in scenarios folder
-		val files = Directory(GATLING_SIMULATIONS_FOLDER).files.map(_.name).filter(name => name.endsWith(TXT_EXTENSION) || name.endsWith(SCALA_EXTENSION)).filterNot(_.startsWith("."))
-
-		val (files1, files2) = files.duplicate
+		val files = Directory(GATLING_SIMULATIONS_FOLDER).files.map(_.name).filter(name => name.endsWith(TXT_EXTENSION) || name.endsWith(SCALA_EXTENSION)).filterNot(_.startsWith(".")).toSeq
 
 		// Sorting file names by radical and storing groups for display purpose
 		val sortedFiles = new HashMap[String, MSet[String]] with MultiMap[String, String]
 		var sortedGroups = new TreeSet[String]
 
-		for (fileName <- files1) {
+		for (fileName <- files) {
 			Conventions.getSourceDirectoryNameFromRootFileName(fileName).map { sourceDirectoryName =>
 				sortedFiles.addBinding(sourceDirectoryName, fileName)
 				sortedGroups += sourceDirectoryName
@@ -115,7 +113,7 @@ object Gatling extends Logging {
 		}
 
 		// We get the folder name of the run simulation
-		files2.size match {
+		files.size match {
 			case 0 =>
 				// If there is no simulation file
 				logger.warn("There are no simulation scripts. Please verify that your scripts are in user-files/simulations and that they do not start with a .")
@@ -123,7 +121,7 @@ object Gatling extends Logging {
 			case 1 =>
 				// If there is only one simulation file
 				logger.info("There is only one simulation, executing it.")
-				files2.next
+				files(0)
 			case _ =>
 				// If there are several simulation files
 				println("Which simulation do you want to execute ?")
