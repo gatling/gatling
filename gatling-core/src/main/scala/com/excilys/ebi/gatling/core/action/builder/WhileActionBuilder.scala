@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.action.builder
-import com.excilys.ebi.gatling.core.action.{ WhileAction, Action }
+
+import com.excilys.ebi.gatling.core.action.{WhileAction, Action}
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
+
 import akka.actor.Actor.actorOf
-import akka.actor.ActorRef
-import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+import akka.actor.{Uuid, ActorRef}
 
 /**
  * Companion of the WhileActionBuilder class
@@ -28,7 +30,7 @@ object WhileActionBuilder {
 	/**
 	 * Creates an initialized WhileActionBuilder
 	 */
-	def whileActionBuilder = new WhileActionBuilder(null, null, null, None)
+	def whileActionBuilder = new WhileActionBuilder(null, null, null, new Uuid().toString)
 }
 
 /**
@@ -39,7 +41,7 @@ object WhileActionBuilder {
  * @param loopNext chain that will be executed if conditionFunction evaluates to true
  * @param next action that will be executed if conditionFunction evaluates to false
  */
-class WhileActionBuilder(conditionFunction: (Session, Action) => Boolean, loopNext: ChainBuilder, next: ActorRef, counterName: Option[String])
+class WhileActionBuilder(conditionFunction: (Session, Action) => Boolean, loopNext: ChainBuilder, next: ActorRef, counterName: String)
 		extends AbstractActionBuilder {
 
 	/**
@@ -69,7 +71,7 @@ class WhileActionBuilder(conditionFunction: (Session, Action) => Boolean, loopNe
 	 * @param counterName the name of the counter that will be used
 	 * @return a new builder with counterName set to None or Some(name)
 	 */
-	def withCounterName(counterName: Option[String]) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName)
+	def withCounterName(counterName: String) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName)
 
 	def withNext(next: ActorRef) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName)
 

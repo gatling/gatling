@@ -20,6 +20,8 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
+import akka.actor.Uuid
+
 /**
  * This builder creates a conditional loop, using a WhileAction
  *
@@ -35,5 +37,8 @@ class ConditionalLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureB
 	/**
 	 * Actually adds the current conditional loop to the structure builder
 	 */
-	private[core] def build: B = doBuild(List(whileActionBuilder withConditionFunction conditionFunction withLoopNext chain withCounterName counterName))
+	private[core] def build: B = {
+		val loopCounterName = counterName.getOrElse(new Uuid().toString)
+		doBuild(List(whileActionBuilder.withConditionFunction(conditionFunction).withLoopNext(chain).withCounterName(loopCounterName)))
+	}
 }

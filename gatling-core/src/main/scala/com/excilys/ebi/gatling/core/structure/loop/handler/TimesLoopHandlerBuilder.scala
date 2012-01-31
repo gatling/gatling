@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.structure.loop.handler
 
-import com.excilys.ebi.gatling.core.action.builder.CountBasedIterationActionBuilder.{ initCounterAction, incrementCounterAction, expireCounterAction }
+import com.excilys.ebi.gatling.core.action.builder.CountBasedIterationActionBuilder.{initCounterAction, incrementCounterAction, expireCounterAction}
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
@@ -40,17 +40,17 @@ class TimesLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder
 	 */
 	private[core] def build: B = {
 
-		val counter = counterName.getOrElse(new Uuid().toString)
+		val loopCounterName = counterName.getOrElse(new Uuid().toString)
 
 		// Adds an increment action after the chain
-		val chainActions: List[AbstractActionBuilder] = chain.actionBuilders ::: List(incrementCounterAction(counter))
+		val chainActions: List[AbstractActionBuilder] = chain.actionBuilders ::: List(incrementCounterAction(loopCounterName))
 
 		var iteratedActions: List[AbstractActionBuilder] = Nil
 
 		for (i <- 1 to times)
 			iteratedActions = chainActions ::: iteratedActions
 
-		iteratedActions = expireCounterAction(counter) :: iteratedActions ::: List(initCounterAction(counter))
+		iteratedActions = expireCounterAction(loopCounterName) :: iteratedActions ::: List(initCounterAction(loopCounterName))
 
 		doBuild(iteratedActions)
 	}

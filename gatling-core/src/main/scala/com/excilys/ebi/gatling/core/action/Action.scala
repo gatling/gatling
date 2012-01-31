@@ -40,11 +40,4 @@ trait Action extends Actor with Logging with ClassSimpleNameToString {
 	 * @return Nothing
 	 */
 	def execute(session: Session)
-
-	/**
-	 * This is the Uuid of the current actor
-	 *
-	 * @return a string containing the Uuid of the actor
-	 */
-	lazy val uuidAsString = self.uuid.toString
 }

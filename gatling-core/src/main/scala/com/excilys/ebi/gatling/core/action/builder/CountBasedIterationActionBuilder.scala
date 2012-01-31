@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.action.builder
+
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.session.handler.CounterBasedIterationHandler
@@ -24,16 +25,19 @@ import com.excilys.ebi.gatling.core.session.Session
  * will be used to create a times loop.
  */
 object CountBasedIterationActionBuilder extends CounterBasedIterationHandler {
+
 	/**
 	 * Creates a builder for a simple action that initializes the counter
 	 */
-	def initCounterAction(counterName: String) = simpleActionBuilder((s: Session, a: Action) => init(s, a.uuidAsString, Some(counterName)))
+	def initCounterAction(counterName: String) = simpleActionBuilder((s: Session, a: Action) => init(s, counterName))
+
 	/**
 	 * Creates a builder for a simple action that increments the counter
 	 */
-	def incrementCounterAction(counterName: String) = simpleActionBuilder((s: Session, a: Action) => increment(s, a.uuidAsString, Some(counterName)))
+	def incrementCounterAction(counterName: String) = simpleActionBuilder((s: Session, a: Action) => increment(s, counterName))
+
 	/**
 	 * Creates a builder for a simple action that releases the counter
 	 */
-	def expireCounterAction(counterName: String) = simpleActionBuilder((s: Session, a: Action) => expire(s, a.uuidAsString, Some(counterName)))
+	def expireCounterAction(counterName: String) = simpleActionBuilder((s: Session, a: Action) => expire(s, counterName))
 }

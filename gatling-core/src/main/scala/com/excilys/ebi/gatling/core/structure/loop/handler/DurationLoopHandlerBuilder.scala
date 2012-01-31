@@ -25,6 +25,8 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
+import akka.actor.Uuid
+
 /**
  * This builder creates a duration loop, using a WhileAction
  *
@@ -42,10 +44,11 @@ class DurationLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuil
 	 * Actually adds the current duration loop to the structure builder
 	 */
 	private[core] def build: B = {
+		val loopCounterName = counterName.getOrElse(new Uuid().toString)
 		doBuild(
 			List(whileActionBuilder
-				.withConditionFunction((s: Session, a: Action) => (currentTimeMillis - getTimerValue(s, a.uuidAsString)) <= durationUnit.toMillis(durationValue))
+				.withConditionFunction((s: Session, a: Action) => (currentTimeMillis - getTimerValue(s, loopCounterName)) <= durationUnit.toMillis(durationValue))
 				.withLoopNext(chain)
-				.withCounterName(counterName)))
+				.withCounterName(loopCounterName)))
 	}
 }

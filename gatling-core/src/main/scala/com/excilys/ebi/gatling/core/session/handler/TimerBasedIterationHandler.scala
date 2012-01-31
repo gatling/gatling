@@ -15,6 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.session.handler
 
+import java.lang.System.currentTimeMillis
+
 import com.excilys.ebi.gatling.core.session.Session
 
 import TimerBasedIterationHandler.TIMER_KEY_PREFIX
@@ -27,6 +29,8 @@ object TimerBasedIterationHandler {
 	 * Key prefix for Counters
 	 */
 	val TIMER_KEY_PREFIX = "gatling.core.timer."
+		
+	def getTimerName(counterName: String) = TIMER_KEY_PREFIX + counterName
 
 	/**
 	 * This method gets the specified timer from the session
@@ -35,9 +39,7 @@ object TimerBasedIterationHandler {
 	 * @param timerName the name of the timer
 	 * @return the value of the timer as a long
 	 */
-	def getTimerValue(session: Session, timerName: String) = {
-		session.getAttributeAsOption[Long](TIMER_KEY_PREFIX + timerName).getOrElse(throw new IllegalAccessError("You must call startTimer before this method is called"))
-	}
+	def getTimerValue(session: Session, timerName: String) = session.getAttributeAsOption[Long](getTimerName(timerName)).getOrElse(throw new IllegalAccessError("Timer is not set : " + timerName))
 }
 
 /**
@@ -47,17 +49,17 @@ object TimerBasedIterationHandler {
  */
 trait TimerBasedIterationHandler extends IterationHandler {
 
-	abstract override def init(session: Session, uuid: String, userDefinedName: Option[String]) : Session = {
-		val newSession = super.init(session, uuid, userDefinedName)
-		if (newSession.getAttributeAsOption(TIMER_KEY_PREFIX + uuid).isDefined) {
+	override def init(session: Session, counterName: String) : Session = {
+		
+		val newSession = super.init(session, counterName)
+		val timerName = TimerBasedIterationHandler.getTimerName(counterName)
+		
+		if (newSession.getAttributeAsOption(timerName).isDefined) {
 			newSession
 		} else {
-			newSession.setAttribute(TIMER_KEY_PREFIX + uuid, System.currentTimeMillis)
+			newSession.setAttribute(timerName, currentTimeMillis)
 		}
 	}
 
-	abstract override def expire(session: Session, uuid: String, userDefinedName: Option[String]) = {
-		super.expire(session, uuid, userDefinedName).removeAttribute(TIMER_KEY_PREFIX + uuid)
-	}
-
+	override def expire(session: Session, counterName: String) = super.expire(session, counterName).removeAttribute(TimerBasedIterationHandler.getTimerName(counterName))
 }
