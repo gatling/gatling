@@ -22,6 +22,7 @@ import com.ning.http.client.FluentCaseInsensitiveStringsMap
 import org.fusesource.scalate._
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration._
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
@@ -92,15 +93,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * @param paramValueFunction a function that returns the value
 	 */
 	def queryParam(paramKeyFunction: Session => String, paramValueFunction: Session => String): B = newInstance(httpRequestActionBuilder, urlFunction, (paramKeyFunction, paramValueFunction) :: queryParams, headers, followsRedirects, credentials)
-	/**
-	 * Adds a query parameter to the request
-	 *
-	 * Its key and value are set by the user
-	 *
-	 * @param paramKey the key of the parameter
-	 * @param paramValue the value of the parameter
-	 */
-	def queryParam(paramKey: String, paramValue: String): B = queryParam(interpolate(paramKey), interpolate(paramValue))
 
 	/**
 	 * Adds a query parameter to the request

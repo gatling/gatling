@@ -16,18 +16,20 @@
 package com.excilys.ebi.gatling.http.request.builder
 
 import java.io.File
+
 import scala.tools.nsc.io.Path.string2path
+
+import com.excilys.ebi.gatling.core.Predef.stringToSessionFunction
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
 import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_REQUEST_BODIES_FOLDER
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.PathHelper.path2string
-import com.excilys.ebi.gatling.core.util.StringHelper.{interpolate, EL_START, EL_END}
-import com.excilys.ebi.gatling.http.Predef.{MULTIPART_FORM_DATA, CONTENT_TYPE, APPLICATION_OCTET_STREAM}
+import com.excilys.ebi.gatling.core.util.StringHelper.{ EL_START, EL_END }
+import com.excilys.ebi.gatling.http.Predef.{ MULTIPART_FORM_DATA, CONTENT_TYPE, APPLICATION_OCTET_STREAM }
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
-import com.excilys.ebi.gatling.http.request.HttpRequestBody
-import com.ning.http.client.{StringPart, RequestBuilder, FluentStringsMap, FilePart}
-import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
+import com.excilys.ebi.gatling.http.request.HttpRequestBody
+import com.ning.http.client.{ StringPart, RequestBuilder, FluentStringsMap, FilePart }
 
 /**
  * This class serves as model to HTTP request with a body and parameters
@@ -80,14 +82,6 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 */
 	def param(paramKeyFunction: Session => String, paramValueFunction: Session => String): B =
 		newInstance(httpRequestActionBuilder, urlFunction, queryParams, (paramKeyFunction, paramValueFunction) :: params, headers, body, fileUpload, followsRedirects, credentials)
-
-	/**
-	 * Adds a parameter to the request
-	 *
-	 * @param paramKey the key of the parameter
-	 * @param paramValue the value of the parameter
-	 */
-	def param(paramKey: String, paramValue: String): B = param(interpolate(paramKey), interpolate(paramValue))
 
 	def param(paramKey: String): B = param(paramKey, EL_START + paramKey + EL_END)
 

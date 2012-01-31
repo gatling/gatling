@@ -15,22 +15,23 @@
  */
 package com.excilys.ebi.gatling.core
 
-import com.excilys.ebi.gatling.core._
-import com.excilys.ebi.gatling.core.action.Action
-import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder
-import com.excilys.ebi.gatling.core.session.handler.CounterBasedIterationHandler
-import com.excilys.ebi.gatling.core.session.handler.TimerBasedIterationHandler
-import com.excilys.ebi.gatling.core.runner.Runner.runSim
-import com.excilys.ebi.gatling.core.structure.ScenarioBuilder
-import com.excilys.ebi.gatling.core.structure.ChainBuilder
-import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesFeederBuilder
-import org.joda.time.DateTime
 import java.util.concurrent.TimeUnit
+
+import org.joda.time.DateTime
+
+import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder
+import com.excilys.ebi.gatling.core.action.Action
+import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesFeederBuilder
 import com.excilys.ebi.gatling.core.feeder.database.DatabaseFeederBuilder
+import com.excilys.ebi.gatling.core.runner.Runner.runSim
+import com.excilys.ebi.gatling.core.session.handler.{TimerBasedIterationHandler, CounterBasedIterationHandler}
+import com.excilys.ebi.gatling.core.structure.{ScenarioBuilder, ChainBuilder}
+import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
 
 object Predef {
 	implicit def toSimpleActionBuilder(sessionFunction: (Session, Action) => Session): SimpleActionBuilder = SimpleActionBuilder.toSimpleActionBuilder(sessionFunction)
 	implicit def toSimpleActionBuilder(sessionFunction: Session => Session): SimpleActionBuilder = SimpleActionBuilder.toSimpleActionBuilder(sessionFunction)
+	implicit def stringToSessionFunction(string: String) = interpolate(string)
 
 	def csv(fileName: String) = SeparatedValuesFeederBuilder.csv(fileName)
 	def csv(fileName: String, escapeChar: Char) = SeparatedValuesFeederBuilder.csv(fileName, Some(escapeChar))
