@@ -31,22 +31,5 @@ import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
  * @param expected the expected value of what has been found
  */
 abstract class Check[T](val what: Session => String, val how: ExtractorFactory[T], val strategy: CheckStrategy, val expected: List[Session => String], val saveAs: Option[String])
-		extends Logging with ClassSimpleNameToString {
+	extends Logging with ClassSimpleNameToString
 
-	/**
-	 * This method performs the check via the strategy used by this Check
-	 *
-	 * @param value the value extracted from the T
-	 * @return a CheckResult that indicates whether the check succeeded or not
-	 */
-	def check(value: List[String], session: Session) = {
-
-		val resolvedExpected = expected.map(_(session))
-		if (strategy(value, resolvedExpected)) {
-			new CheckResult(true, EMPTY)
-		} else {
-			val message = new StringBuilder().append("Check failed : expected ").append(strategy).append("(").append(resolvedExpected).append(") but found ").append(value)
-			new CheckResult(false, message.toString)
-		}
-	}
-}

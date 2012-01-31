@@ -20,23 +20,22 @@ import java.lang.Void
 
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.immutable.HashMap
-import scala.collection.mutable.{ HashMap => MHashMap }
 
-import com.excilys.ebi.gatling.core.check.extractor.{ MultiValuedExtractor, ExtractorFactory, Extractor }
+import com.excilys.ebi.gatling.core.check.ResolvedCheck.resolveAndApplyChecks
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ ResultStatus, OK, KO }
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ResultStatus, OK, KO}
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.Predef.SET_COOKIE
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.request.HttpPhase.{ HttpPhase, CompletePageReceived }
+import com.excilys.ebi.gatling.http.request.HttpPhase.{HttpPhase, CompletePageReceived}
 import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.excilys.ebi.gatling.http.util.HttpHelper.COOKIES_CONTEXT_KEY
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
 import com.ning.http.client.ProgressAsyncHandler
-import com.ning.http.client.{ Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler }
+import com.ning.http.client.{Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler}
 import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
 
 import akka.actor.ActorRef
@@ -129,7 +128,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 		next ! newSession.setAttribute(Session.LAST_ACTION_DURATION_KEY, currentTimeMillis - responseEndDate.get)
 	}
 
-	def getChecksForPhase(httpPhase: HttpPhase) = checks.view.filter(_.when == httpPhase)
+	def getChecksForPhase(httpPhase: HttpPhase) = checks.filter(_.when == httpPhase)
 
 	/**
 	 * This method processes the response if needed for each checks given by the user
@@ -156,53 +155,21 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 			}
 		}
 
-		/**
-		 * This method instantiate the required extractors
-		 *
-		 * @param checks the checks that were given for this response
-		 * @param response the response on which the checks will be made
-		 */
-		def prepareExtractors(checks: Iterable[HttpCheck], response: Response): MHashMap[ExtractorFactory[Response], Extractor] = {
-
-			val extractors: MHashMap[ExtractorFactory[Response], Extractor] = MHashMap.empty
-			checks.foreach { check =>
-				val extractorFactory = check.how
-				if (extractors.get(extractorFactory).isEmpty)
-					extractors += extractorFactory -> extractorFactory.getExtractor(response)
-			}
-
-			extractors
-		}
-
 		var newSession = handleCookies(response)
 
 		HttpPhase.values.foreach { httpPhase =>
-
 			val phaseChecks = getChecksForPhase(httpPhase)
 			if (!phaseChecks.isEmpty) {
+				var (newSessionWithSavedValues, checkResult) = resolveAndApplyChecks(newSession, response, phaseChecks)
+				newSession = newSessionWithSavedValues
 
-				val phaseExtractors = prepareExtractors(phaseChecks, response)
+				if (!checkResult.ok) {
+					val errorMessage = checkResult.errorMessage.getOrElse(throw new IllegalArgumentException("Missing error message"))
+					if (logger.isWarnEnabled)
+						logger.warn("Check on request '{}' failed : '{}'", requestName, errorMessage)
 
-				for (check <- phaseChecks) {
-					val extractor = phaseExtractors.get(check.how).get
-					val expression = check.what(session)
-					val extractedValue = extractor.extract(expression)
-					logger.debug("Extracted value: {}", extractedValue)
-
-					val checkResult = check.check(extractedValue, session)
-					if (!checkResult.ok) {
-						if (logger.isWarnEnabled)
-							logger.warn("Check on request '{}' with '{}' failed : '{}'", Array[Object](requestName, expression, checkResult.message))
-
-						sendLogAndExecuteNext(newSession, KO, checkResult.message)
-						return
-
-					} else if (!extractedValue.isEmpty && check.saveAs.isDefined) {
-						newSession = newSession.setAttribute(check.saveAs.get, extractor match {
-							case multi: MultiValuedExtractor => extractedValue
-							case single => extractedValue(0)
-						})
-					}
+					sendLogAndExecuteNext(newSession, KO, errorMessage)
+					return
 				}
 			}
 		}
