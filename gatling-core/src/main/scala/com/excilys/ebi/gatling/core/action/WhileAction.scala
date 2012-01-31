@@ -43,16 +43,15 @@ class WhileAction(testFunction: (Session, Action) => Boolean, loopNext: ActorRef
 	 * @return Nothing
 	 */
 	def execute(session: Session) = {
-		val uuid = self.uuid.toString
 
-		var newSession = init(session, uuid, counterName)
+		var newSession = init(session, uuidAsString, counterName)
 
-		newSession = increment(newSession, uuid, counterName)
+		newSession = increment(newSession, uuidAsString, counterName)
 
 		if (testFunction(newSession, this)) {
 			loopNextAction ! newSession
 		} else {
-			newSession = expire(newSession, uuid, counterName)
+			newSession = expire(newSession, uuidAsString, counterName)
 			next ! newSession
 		}
 	}

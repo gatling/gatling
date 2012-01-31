@@ -27,12 +27,12 @@ import com.excilys.ebi.gatling.core.action.Action
  *   increment: the incrementation of the counter
  *   expire:    the release of the counter
  */
-abstract trait IterationHandler extends Action with Logging {
+abstract trait IterationHandler extends Logging {
 
-	def init(session: Session, userDefinedName: Option[String]) = session
+	def init(session: Session, uuid: String, userDefinedName: Option[String]) = session
 
-	def increment(session: Session, userDefinedName: Option[String]) = session
+	def increment(session: Session, uuid: String, userDefinedName: Option[String]) = session
 
-	def expire(session: Session, userDefinedName: Option[String]) = session
+	def expire(session: Session, uuid: String, userDefinedName: Option[String]) = session
 
 }

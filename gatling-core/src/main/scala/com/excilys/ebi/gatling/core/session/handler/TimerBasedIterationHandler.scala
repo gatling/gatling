@@ -47,17 +47,17 @@ object TimerBasedIterationHandler {
  */
 trait TimerBasedIterationHandler extends IterationHandler {
 
-	abstract override def init(session: Session, userDefinedName: Option[String]) : Session = {
-		val newSession = super.init(session, userDefinedName)
-		if (newSession.getAttributeAsOption(TIMER_KEY_PREFIX + uuidAsString).isDefined) {
+	abstract override def init(session: Session, uuid: String, userDefinedName: Option[String]) : Session = {
+		val newSession = super.init(session, uuid, userDefinedName)
+		if (newSession.getAttributeAsOption(TIMER_KEY_PREFIX + uuid).isDefined) {
 			newSession
 		} else {
-			newSession.setAttribute(TIMER_KEY_PREFIX + uuidAsString, System.currentTimeMillis)
+			newSession.setAttribute(TIMER_KEY_PREFIX + uuid, System.currentTimeMillis)
 		}
 	}
 
-	abstract override def expire(session: Session, userDefinedName: Option[String]) = {
-		super.expire(session, userDefinedName).removeAttribute(TIMER_KEY_PREFIX + uuidAsString)
+	abstract override def expire(session: Session, uuid: String, userDefinedName: Option[String]) = {
+		super.expire(session, uuid, userDefinedName).removeAttribute(TIMER_KEY_PREFIX + uuid)
 	}
 
 }
