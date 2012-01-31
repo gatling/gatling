@@ -19,19 +19,6 @@ import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.session.handler.CounterBasedIterationHandler
 import com.excilys.ebi.gatling.core.session.Session
 
-import IterationStep.{ IterationStep, INIT, INCREMENT, EXPIRE }
-
-/**
- * This enumeration lists the different steps in an iteration regarding the counter :
- *   INIT:      the initialization
- *   INCREMENT: the incrementation
- *   EXPIRE:    the release
- */
-object IterationStep extends Enumeration {
-	type IterationStep = Value
-	val INIT, INCREMENT, EXPIRE = Value
-}
-
 /**
  * This builder is used to create simple actions containing the functions that
  * will be used to create a times loop.
@@ -40,26 +27,13 @@ object CountBasedIterationActionBuilder extends CounterBasedIterationHandler {
 	/**
 	 * Creates a builder for a simple action that initializes the counter
 	 */
-	def initCounterAction(counterName: String) = initClass(counterName, INIT)
+	def initCounterAction(counterName: String) = simpleActionBuilder((s: Session, a: Action) => init(s, a.uuidAsString, Some(counterName)))
 	/**
 	 * Creates a builder for a simple action that increments the counter
 	 */
-	def incrementCounterAction(counterName: String) = initClass(counterName, INCREMENT)
+	def incrementCounterAction(counterName: String) = simpleActionBuilder((s: Session, a: Action) => increment(s, a.uuidAsString, Some(counterName)))
 	/**
 	 * Creates a builder for a simple action that releases the counter
 	 */
-	def expireCounterAction(counterName: String) = initClass(counterName, EXPIRE)
-
-	/**
-	 * Function that actually creates the simple action builder required
-	 */
-	private def initClass(counterName: String, iterationStep: IterationStep) = {
-		val sessionFunction = iterationStep match {
-			case INIT => (s: Session, a: Action) => init(s, a.uuidAsString, Some(counterName))
-			case INCREMENT => (s: Session, a: Action) => increment(s, a.uuidAsString, Some(counterName))
-			case EXPIRE => (s: Session, a: Action) => expire(s, a.uuidAsString, Some(counterName))
-			case _ => throw new UnsupportedOperationException
-		}
-		simpleActionBuilder(sessionFunction)
-	}
+	def expireCounterAction(counterName: String) = simpleActionBuilder((s: Session, a: Action) => expire(s, a.uuidAsString, Some(counterName)))
 }
