@@ -23,7 +23,7 @@ object CheckBuilderVerify {
 
 	implicit def rangeToString(range: Range) = range.mkString(SEPARATOR)
 
-	val exists : CheckStrategy = new CheckStrategy {
+	val exists = new CheckStrategy {
 		def apply(value: List[String], expected: List[String]) = !value.isEmpty
 		override def toString = "exists"
 	}
