@@ -55,9 +55,9 @@ object CountBasedIterationActionBuilder extends CounterBasedIterationHandler {
 	 */
 	private def initClass(counterName: String, iterationStep: IterationStep) = {
 		val sessionFunction = iterationStep match {
-			case INIT => (s: Session, a: Action) => init(s, a.getUuidAsString, Some(counterName))
-			case INCREMENT => (s: Session, a: Action) => increment(s, a.getUuidAsString, Some(counterName))
-			case EXPIRE => (s: Session, a: Action) => expire(s, a.getUuidAsString, Some(counterName))
+			case INIT => (s: Session, a: Action) => init(s, a.uuidAsString, Some(counterName))
+			case INCREMENT => (s: Session, a: Action) => increment(s, a.uuidAsString, Some(counterName))
+			case EXPIRE => (s: Session, a: Action) => expire(s, a.uuidAsString, Some(counterName))
 			case _ => throw new UnsupportedOperationException
 		}
 		simpleActionBuilder(sessionFunction)

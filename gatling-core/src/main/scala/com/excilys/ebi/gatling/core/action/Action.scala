@@ -46,5 +46,5 @@ trait Action extends Actor with Logging with ClassSimpleNameToString {
 	 *
 	 * @return a string containing the Uuid of the actor
 	 */
-	def getUuidAsString = self.uuid.toString
+	lazy val uuidAsString = self.uuid.toString
 }

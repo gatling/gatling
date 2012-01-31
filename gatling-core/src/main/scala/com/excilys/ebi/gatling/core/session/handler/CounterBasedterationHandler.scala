@@ -48,9 +48,9 @@ object CounterBasedIterationHandler {
  */
 trait CounterBasedIterationHandler extends IterationHandler {
 
-	abstract override def init(session: Session, uuid: String, userDefinedName: Option[String]) = {
-		val newSession = super.init(session, uuid, userDefinedName)
-		val counterName = userDefinedName.getOrElse(uuid)
+	abstract override def init(session: Session, userDefinedName: Option[String]) = {
+		val newSession = super.init(session, userDefinedName)
+		val counterName = userDefinedName.getOrElse(uuidAsString)
 		
 		if (newSession.getAttributeAsOption(COUNTER_KEY_PREFIX + counterName).isDefined) {
 			newSession
@@ -59,15 +59,15 @@ trait CounterBasedIterationHandler extends IterationHandler {
 		}
 	}
 
-	abstract override def increment(session: Session, uuid: String, userDefinedName: Option[String]) = {
-		val newSession = super.increment(session, uuid, userDefinedName)
-		val key = COUNTER_KEY_PREFIX + userDefinedName.getOrElse(uuid)
+	abstract override def increment(session: Session, userDefinedName: Option[String]) = {
+		val newSession = super.increment(session, userDefinedName)
+		val key = COUNTER_KEY_PREFIX + userDefinedName.getOrElse(uuidAsString)
 		val currentValue: Int = newSession.getAttributeAsOption[Int](key).getOrElse(throw new IllegalAccessError("You must call startCounter before this method is called"))
 
 		newSession.setAttribute(key, currentValue + 1)
 	}
 
-	abstract override def expire(session: Session, uuid: String, userDefinedName: Option[String]) = {
-		super.expire(session, uuid, userDefinedName).removeAttribute(COUNTER_KEY_PREFIX + userDefinedName.getOrElse(uuid))
+	abstract override def expire(session: Session, userDefinedName: Option[String]) = {
+		super.expire(session, userDefinedName).removeAttribute(COUNTER_KEY_PREFIX + userDefinedName.getOrElse(uuidAsString))
 	}
 }

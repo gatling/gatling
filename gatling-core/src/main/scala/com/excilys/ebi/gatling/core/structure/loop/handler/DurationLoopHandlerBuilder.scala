@@ -15,6 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.structure.loop.handler
 
+import java.lang.System.currentTimeMillis
 import java.util.concurrent.TimeUnit
 
 import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder.whileActionBuilder
@@ -43,7 +44,7 @@ class DurationLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuil
 	private[core] def build: B = {
 		doBuild(
 			List(whileActionBuilder
-				.withConditionFunction((s: Session, a: Action) => (System.currentTimeMillis - getTimerValue(s, a.getUuidAsString)) <= durationUnit.toMillis(durationValue))
+				.withConditionFunction((s: Session, a: Action) => (currentTimeMillis - getTimerValue(s, a.uuidAsString)) <= durationUnit.toMillis(durationValue))
 				.withLoopNext(chain)
 				.withCounterName(counterName)))
 	}

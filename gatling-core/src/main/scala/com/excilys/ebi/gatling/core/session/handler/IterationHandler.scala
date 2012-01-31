@@ -17,6 +17,7 @@ package com.excilys.ebi.gatling.core.session.handler
 
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.action.Action
 
 /**
  * This trait is used for mixin-composition, it is the top level trait
@@ -26,12 +27,12 @@ import com.excilys.ebi.gatling.core.session.Session
  *   increment: the incrementation of the counter
  *   expire:    the release of the counter
  */
-abstract trait IterationHandler extends Logging {
+abstract trait IterationHandler extends Action with Logging {
 
-	def init(session: Session, uuid: String, userDefinedName: Option[String]) = session
+	def init(session: Session, userDefinedName: Option[String]) = session
 
-	def increment(session: Session, uuid: String, userDefinedName: Option[String]) = session
+	def increment(session: Session, userDefinedName: Option[String]) = session
 
-	def expire(session: Session, uuid: String, userDefinedName: Option[String]) = session
+	def expire(session: Session, userDefinedName: Option[String]) = session
 
 }
