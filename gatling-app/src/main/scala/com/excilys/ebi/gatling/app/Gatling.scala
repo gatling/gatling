@@ -200,8 +200,8 @@ object Gatling extends Logging {
 				new IdeScenarioCompiler
 			else
 				fileName match {
-					case fn if (fn.endsWith(".scala")) => new ScalaScenarioCompiler
-					case fn if (fn.endsWith(".txt")) => new TextScenarioCompiler
+					case fn if (fn.endsWith(SCALA_EXTENSION)) => new ScalaScenarioCompiler
+					case fn if (fn.endsWith(TXT_EXTENSION)) => new TextScenarioCompiler
 					case _ => throw new UnsupportedOperationException
 				}
 

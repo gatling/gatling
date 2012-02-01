@@ -46,15 +46,16 @@ object Conventions extends Logging {
 			None
 	}
 
-	def getSimulationSpecificName(rootFileName: String) : Option[String]= {
-		
+	def getSimulationSpecificName(rootFileName: String): Option[String] = {
+
 		val (valid, indexOfAt) = validateRootFileName(rootFileName)
-		
+
 		if (valid)
-			if (rootFileName.endsWith(SCALA_EXTENSION))
-				Some(rootFileName.substring(indexOfAt + 1, rootFileName.length).dropRight(SCALA_EXTENSION.length))
-			else
-				Some(rootFileName.substring(indexOfAt + 1, rootFileName.length).dropRight(TXT_EXTENSION.length))
+			rootFileName match {
+				case name if (name.endsWith(SCALA_EXTENSION)) => Some(name.substring(indexOfAt + 1, name.length).dropRight(SCALA_EXTENSION.length))
+				case name if (name.endsWith(TXT_EXTENSION)) => Some(name.substring(indexOfAt + 1, name.length).dropRight(TXT_EXTENSION.length))
+				case _ => throw new IllegalArgumentException("Unknown file format")
+			}
 		else
 			None
 	}
