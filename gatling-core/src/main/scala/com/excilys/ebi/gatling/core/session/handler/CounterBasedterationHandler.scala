@@ -47,26 +47,24 @@ object CounterBasedIterationHandler {
  * It adds counter based iteration behavior to a class
  */
 trait CounterBasedIterationHandler extends IterationHandler {
+	
+	val counterAttributeName = CounterBasedIterationHandler.getCounterAttributeName(counterName)
 
-	override def init(session: Session, counterName: String) = {
-
-		val counterAttributeName = CounterBasedIterationHandler.getCounterAttributeName(counterName)
+	override def init(session: Session) = {
 
 		session.getAttributeAsOption[Int](counterAttributeName) match {
-			case None => super.init(session, counterName).setAttribute(counterAttributeName, -1)
-			case Some(_) => super.init(session, counterName)
+			case None => super.init(session).setAttribute(counterAttributeName, -1)
+			case Some(_) => super.init(session)
 		}
 	}
 
-	override def increment(session: Session, counterName: String) = {
-
-		val counterAttributeName = CounterBasedIterationHandler.getCounterAttributeName(counterName)
+	override def increment(session: Session) = {
 
 		session.getAttributeAsOption[Int](counterAttributeName) match {
-			case Some(currentValue) => super.increment(session, counterName).setAttribute(counterAttributeName, currentValue + 1)
+			case Some(currentValue) => super.increment(session).setAttribute(counterAttributeName, currentValue + 1)
 			case None => throw new IllegalAccessError("You must call startCounter before this method is called")
 		}
 	}
 
-	override def expire(session: Session, counterName: String) = super.expire(session, counterName).removeAttribute(CounterBasedIterationHandler.getCounterAttributeName(counterName))
+	override def expire(session: Session) = super.expire(session).removeAttribute(CounterBasedIterationHandler.getCounterAttributeName(counterName))
 }

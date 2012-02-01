@@ -48,16 +48,16 @@ object TimerBasedIterationHandler {
  * It adds timer based iteration behavior to a class
  */
 trait TimerBasedIterationHandler extends IterationHandler {
+	
+	val timerAttributeName = TimerBasedIterationHandler.getTimerAttributeName(counterName)
 
-	override def init(session: Session, timerName: String): Session = {
-
-		val timerAttributeName = TimerBasedIterationHandler.getTimerAttributeName(timerName)
+	override def init(session: Session): Session = {
 
 		session.getAttributeAsOption[Int](timerAttributeName) match {
-			case None => super.init(session, timerName).setAttribute(timerAttributeName, currentTimeMillis)
-			case Some(_) => super.init(session, timerName)
+			case None => super.init(session).setAttribute(timerAttributeName, currentTimeMillis)
+			case Some(_) => super.init(session)
 		}
 	}
 
-	override def expire(session: Session, counterName: String) = super.expire(session, counterName).removeAttribute(TimerBasedIterationHandler.getTimerAttributeName(counterName))
+	override def expire(session: Session) = super.expire(session).removeAttribute(TimerBasedIterationHandler.getTimerAttributeName(counterName))
 }

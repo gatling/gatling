@@ -15,12 +15,13 @@
  */
 package com.excilys.ebi.gatling.core.structure.loop.handler
 
-import com.excilys.ebi.gatling.core.action.builder.CountBasedIterationActionBuilder.{initCounterAction, incrementCounterAction, expireCounterAction}
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
-
 import akka.actor.Uuid
+import com.excilys.ebi.gatling.core.session.handler.CounterBasedIterationHandler
+import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder._
+import com.excilys.ebi.gatling.core.session.Session
 
 /**
  * This builder creates a 'for' loop. This is achieved by copying the chain as many times at it should run
@@ -41,16 +42,20 @@ class TimesLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder
 	private[core] def build: B = {
 
 		val loopCounterName = counterName.getOrElse(new Uuid().toString)
+		
+		val hander = new CounterBasedIterationHandler {
+			val counterName = loopCounterName
+		}
 
 		// Adds an increment action after the chain
-		val chainActions: List[AbstractActionBuilder] = chain.actionBuilders ::: List(incrementCounterAction(loopCounterName))
+		val chainActions: List[AbstractActionBuilder] = chain.actionBuilders ::: List(simpleActionBuilder((session: Session) => hander.increment(session)))
 
 		var iteratedActions: List[AbstractActionBuilder] = Nil
 
 		for (i <- 1 to times)
 			iteratedActions = chainActions ::: iteratedActions
 
-		iteratedActions = expireCounterAction(loopCounterName) :: iteratedActions ::: List(initCounterAction(loopCounterName))
+		iteratedActions = simpleActionBuilder((session: Session) => hander.expire(session)) :: iteratedActions ::: List(simpleActionBuilder((session: Session) => hander.init(session)))
 
 		doBuild(iteratedActions)
 	}
