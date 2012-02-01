@@ -31,7 +31,7 @@ import com.excilys.ebi.gatling.core.session.Session
  * @param structureBuilder the structure builder on which loop was called
  * @param chain the chain of actions that should be repeated
  * @param times the number of times that the chain should be repeated
- * @param counterName the name of the counter for this loop
+ * @param userDefinedCounterName the optional user-defined name of the counter for this loop
  */
 class TimesLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: ChainBuilder, times: Int, userDefinedCounterName: Option[String])
 		extends AbstractLoopHandlerBuilder[B](structureBuilder) {
