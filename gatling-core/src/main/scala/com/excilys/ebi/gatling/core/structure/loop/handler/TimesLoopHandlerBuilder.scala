@@ -43,19 +43,19 @@ class TimesLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder
 
 		val loopCounterName = counterName.getOrElse(new Uuid().toString)
 		
-		val hander = new CounterBasedIterationHandler {
+		val handler = new CounterBasedIterationHandler {
 			val counterName = loopCounterName
 		}
 
 		// Adds an increment action after the chain
-		val chainActions: List[AbstractActionBuilder] = chain.actionBuilders ::: List(simpleActionBuilder((session: Session) => hander.increment(session)))
+		val chainActions: List[AbstractActionBuilder] = chain.actionBuilders ::: List(simpleActionBuilder((session: Session) => handler.increment(session)))
 
 		var iteratedActions: List[AbstractActionBuilder] = Nil
 
 		for (i <- 1 to times)
 			iteratedActions = chainActions ::: iteratedActions
 
-		iteratedActions = simpleActionBuilder((session: Session) => hander.expire(session)) :: iteratedActions ::: List(simpleActionBuilder((session: Session) => hander.init(session)))
+		iteratedActions = simpleActionBuilder((session: Session) => handler.expire(session)) :: iteratedActions ::: List(simpleActionBuilder((session: Session) => handler.init(session)))
 
 		doBuild(iteratedActions)
 	}
