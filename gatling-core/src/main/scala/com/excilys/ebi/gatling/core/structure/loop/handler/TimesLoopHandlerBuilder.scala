@@ -33,7 +33,7 @@ import com.excilys.ebi.gatling.core.session.Session
  * @param times the number of times that the chain should be repeated
  * @param counterName the name of the counter for this loop
  */
-class TimesLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: ChainBuilder, times: Int, counterName: Option[String])
+class TimesLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: ChainBuilder, times: Int, userDefinedCounterName: Option[String])
 		extends AbstractLoopHandlerBuilder[B](structureBuilder) {
 
 	/**
@@ -41,10 +41,8 @@ class TimesLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder
 	 */
 	private[core] def build: B = {
 
-		val loopCounterName = counterName.getOrElse(new Uuid().toString)
-		
 		val handler = new CounterBasedIterationHandler {
-			val counterName = loopCounterName
+			val counterName = userDefinedCounterName.getOrElse(new Uuid().toString)
 		}
 
 		// Adds an increment action after the chain
