@@ -76,12 +76,14 @@ object Gatling extends Logging {
 			}.getOrElse {
 				if (!reportsOnly)
 					// Else run with menu
-					if (simulationPackage.isDefined) {
-						val file = displayMenuForIde
-						println(file)
-						runForIde(file)
-					} else
-						run(displayMenu)
+					simulationPackage match {
+						case Some(_) => {
+							val file = displayMenuForIde
+							println(file)
+							runForIde(file)
+						}
+						case None => run(displayMenu)
+					}
 			}
 
 			if (reportsOnly) {

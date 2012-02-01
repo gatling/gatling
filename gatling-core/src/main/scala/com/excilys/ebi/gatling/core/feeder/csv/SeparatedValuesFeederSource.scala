@@ -29,10 +29,9 @@ import au.com.bytecode.opencsv.CSVReader
 class SeparatedValuesFeederSource(fileName: String, separator: Char, escapeChar: Option[Char]) extends FeederSource(fileName) {
 
 	val values = {
-		val reader = if (escapeChar.isDefined) {
-			new CSVReader(new FileReader(GATLING_DATA_FOLDER / fileName), separator, escapeChar.get)
-		} else {
-			new CSVReader(new FileReader(GATLING_DATA_FOLDER / fileName), separator)
+		val reader = escapeChar match {
+			case Some(char) => new CSVReader(new FileReader(GATLING_DATA_FOLDER / fileName), separator, char)
+			case None => new CSVReader(new FileReader(GATLING_DATA_FOLDER / fileName), separator)
 		}
 
 		try {

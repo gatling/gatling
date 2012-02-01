@@ -57,15 +57,19 @@ object StringHelper extends Logging {
 		val keysFunctions = elPattern.findAllIn(stringToFormat).matchData.map { data =>
 			val elContent = data.group(1)
 			val multivaluedPart = elMultivaluedPattern.findFirstMatchIn(elContent)
-			if (multivaluedPart.isDefined) {
-				val key = elContent.substring(0, elContent.lastIndexOf(INDEX_START))
-				(session: Session) => session.getAttribute(key).asInstanceOf[List[String]](multivaluedPart.get.group(1).toInt)
-			} else
-				(session: Session) => session.getAttribute(data.group(1)) match {
-					case list: List[String] => list(0)
-					case str: String => str
-					case x => x.toString
+
+			multivaluedPart match {
+				case Some(multivaluedPartMatch) => {
+					val key = elContent.substring(0, elContent.lastIndexOf(INDEX_START))
+					(session: Session) => session.getAttribute(key).asInstanceOf[List[String]](multivaluedPartMatch.group(1).toInt)
 				}
+				case None => (session: Session) =>
+					session.getAttribute(data.group(1)) match {
+						case list: List[String] => list(0)
+						case str: String => str
+						case x => x.toString
+					}
+			}
 		}.toSeq
 
 		if (keysFunctions.isEmpty) {
