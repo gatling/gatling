@@ -69,7 +69,7 @@ class FileDataReader(runOn: String) extends DataReader(runOn) with Logging {
 			.toBuffer[ResultLine].sortBy(_.executionStartDate)
 	}
 
-	val simulationRunOn: DateTime = parseFileNameDateFormat(data.head.runOn)
+	lazy val simulationRunOn: DateTime = parseFileNameDateFormat(data.head.runOn)
 
 	val requestNames: Seq[String] = data.map(_.requestName).distinct.filterNot(value => value == END_OF_SCENARIO || value == START_OF_SCENARIO)
 

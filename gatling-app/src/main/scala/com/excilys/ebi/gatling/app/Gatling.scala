@@ -179,9 +179,12 @@ object Gatling extends Logging {
 	private def generateStats(folderName: String) = {
 		println("Generating reports...")
 		val start = currentTimeMillis
-		ReportsGenerator.generateFor(folderName)
-		println("Reports generated in " + (currentTimeMillis - start) / 1000 + "s.")
-		println("Please open the following file : " + activeSessionsFile(folderName))
+		if (ReportsGenerator.generateFor(folderName)) {
+			println("Reports generated in " + (currentTimeMillis - start) / 1000 + "s.")
+			println("Please open the following file : " + activeSessionsFile(folderName))
+		} else {
+			println("Reports weren't generated")
+		}
 	}
 
 	/**

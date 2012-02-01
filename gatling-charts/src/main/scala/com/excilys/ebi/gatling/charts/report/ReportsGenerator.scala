@@ -15,24 +15,24 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import java.io.{File => JFile}
-import java.net.{URL, URI}
+import java.io.{ File => JFile }
+import java.net.{ URL, URI }
 
 import scala.collection.JavaConversions.asIterator
 import scala.collection.mutable.LinkedHashSet
 import scala.tools.nsc.io.Path.string2path
-import scala.tools.nsc.io.{Path, Jar, File}
+import scala.tools.nsc.io.{ Path, Jar, File }
 
 import com.excilys.ebi.gatling.charts.component.impl.ComponentLibraryImpl
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.menuFile
-import com.excilys.ebi.gatling.charts.template.{PageTemplate, MenuTemplate}
+import com.excilys.ebi.gatling.charts.template.{ PageTemplate, MenuTemplate }
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{styleFolder, jsFolder, GATLING_ASSETS_STYLE_PACKAGE, GATLING_ASSETS_JS_PACKAGE}
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{ styleFolder, jsFolder, GATLING_ASSETS_STYLE_PACKAGE, GATLING_ASSETS_JS_PACKAGE }
 import com.excilys.ebi.gatling.core.config.GatlingConfig
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.reader.DataReader
-import com.excilys.ebi.gatling.core.util.FileHelper.{formatToFilename, HTML_EXTENSION}
+import com.excilys.ebi.gatling.core.util.FileHelper.{ formatToFilename, HTML_EXTENSION }
 import com.excilys.ebi.gatling.core.util.IOHelper
 
 object ReportsGenerator extends Logging {
@@ -63,19 +63,27 @@ object ReportsGenerator extends Logging {
 	def generateFor(runOn: String) = {
 		val dataReader = DataReader.newInstance(runOn)
 
-		val reportGenerators =
-			List(new ActiveSessionsReportGenerator(runOn, dataReader, componentLibrary),
-				new RequestsReportGenerator(runOn, dataReader, componentLibrary),
-				new TransactionsReportGenerator(runOn, dataReader, componentLibrary),
-				new RequestDetailsReportGenerator(runOn, dataReader, componentLibrary))
+		if (dataReader.requestNames.isEmpty) {
+			logger.warn("There were no requests sent during the simulation, reports won't be generated")
+			false
 
-		copyAssets(runOn)
+		} else {
+			val reportGenerators =
+				List(new ActiveSessionsReportGenerator(runOn, dataReader, componentLibrary),
+					new RequestsReportGenerator(runOn, dataReader, componentLibrary),
+					new TransactionsReportGenerator(runOn, dataReader, componentLibrary),
+					new RequestDetailsReportGenerator(runOn, dataReader, componentLibrary))
 
-		generateMenu(runOn, dataReader)
+			copyAssets(runOn)
 
-		PageTemplate.setRunOn(dataReader.simulationRunOn)
+			generateMenu(runOn, dataReader)
 
-		reportGenerators.foreach(_.generate)
+			PageTemplate.setRunOn(dataReader.simulationRunOn)
+
+			reportGenerators.foreach(_.generate)
+
+			true
+		}
 	}
 
 	private def generateMenu(runOn: String, dataReader: DataReader) = {
