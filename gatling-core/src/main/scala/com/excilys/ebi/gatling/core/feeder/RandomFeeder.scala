@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.feeder
 
 import scala.util.Random
 
-class RandomFeeder(feederSource: FeederSource) extends Feeder(feederSource) {
+class RandomFeeder(feederSource: FeederSource) extends Feeder {
 
 	private val random = new Random
 

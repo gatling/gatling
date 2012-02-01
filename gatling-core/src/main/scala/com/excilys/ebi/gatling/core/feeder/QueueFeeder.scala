@@ -23,7 +23,7 @@ import com.excilys.ebi.gatling.core.log.Logging
 
 import akka.actor.Actor.registry
 
-class QueueFeeder(feederSource: FeederSource) extends Feeder(feederSource) with Logging {
+class QueueFeeder(feederSource: FeederSource) extends Feeder with Logging {
 
 	private val values = new ConcurrentLinkedQueue(feederSource.values)
 

@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import com.twitter.util.RingBuffer
 
-class CircularFeeder(feederSource: FeederSource) extends Feeder(feederSource) {
+class CircularFeeder(feederSource: FeederSource) extends Feeder {
 
 	private val bufferSize = feederSource.values.size
 	private val currentIndex = new AtomicInteger(0)
