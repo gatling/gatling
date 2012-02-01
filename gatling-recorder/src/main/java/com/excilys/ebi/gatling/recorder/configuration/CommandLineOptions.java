@@ -51,6 +51,9 @@ public class CommandLineOptions {
 
 	@Option(name = "-ide")
 	private String idePackage;
+	
+	@Option(name = "-encoding", usage = "Set the encoding for file operations")
+	private String encoding;
 
 	public int getLocalPort() {
 		return localPort;
@@ -138,5 +141,13 @@ public class CommandLineOptions {
 
 	public void setRequestBodiesFolder(String requestBodiesFolder) {
 		this.requestBodiesFolder = requestBodiesFolder;
+	}
+
+	public String getEncoding() {
+		return encoding;
+	}
+
+	public void setEncoding(String encoding) {
+		this.encoding = encoding;
 	}
 }

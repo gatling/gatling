@@ -24,6 +24,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,9 +64,10 @@ public class ConfigurationFrame extends JFrame {
 
 	public final JComboBox cbFilterStrategies = new JComboBox();
 	public final JCheckBox chkSavePref = new JCheckBox("Save preferences");
-	public final JTextField txtOutputFolder = new JTextField(40);
+	public final JTextField txtOutputFolder = new JTextField(49);
 	public final FilterTable tblFilters = new FilterTable();
 	public final List<JCheckBox> resultTypes = new ArrayList<JCheckBox>();
+	public final JComboBox cbOutputEncoding = new JComboBox();
 
 	JButton btnFiltersAdd = new JButton("+");
 	JButton btnFiltersDel = new JButton("-");
@@ -196,21 +198,32 @@ public class ConfigurationFrame extends JFrame {
 		outputFolderPanel.add(new JLabel("Output folder* : "));
 		outputFolderPanel.add(txtOutputFolder);
 		outputFolderPanel.add(btnOutputFolder);
-
+		
 		/* Output type panel */
 		JPanel outputTypePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		outputTypePanel.add(new JLabel("Type"));
+		outputTypePanel.add(new JLabel("Type: "));
 
 		for (ResultType rt : ResultType.values())
 			resultTypes.add(new JCheckBox(rt.getLabel()));
 		for (JCheckBox cb : resultTypes)
 			outputTypePanel.add(cb);
+		
+		for (Charset c : Charset.availableCharsets().values())
+			cbOutputEncoding.addItem(c);
+		
+		cbOutputEncoding.setSelectedItem(Charset.defaultCharset());
 
 		/* Output Panel */
 		JPanel outputPanel = new JPanel(new BorderLayout());
 		outputPanel.setBorder(BorderFactory.createTitledBorder("Output"));
 		outputPanel.add(outputFolderPanel, BorderLayout.NORTH);
-		outputPanel.add(outputTypePanel, BorderLayout.SOUTH);
+		
+		JPanel outputFormatPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		outputFormatPanel.add(new JLabel("Encoding: "));
+		outputFormatPanel.add(cbOutputEncoding);
+		
+		outputPanel.add(outputTypePanel, BorderLayout.EAST);
+		outputPanel.add(outputFormatPanel, BorderLayout.WEST);
 
 		/* Start Action Panel */
 		JPanel startActionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
