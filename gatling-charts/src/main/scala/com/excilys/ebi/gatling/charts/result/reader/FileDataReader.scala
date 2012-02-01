@@ -73,6 +73,11 @@ class FileDataReader(runOn: String) extends DataReader(runOn) with Logging {
 
 	val requestNames: Seq[String] = data.map(_.requestName).distinct.filterNot(value => value == END_OF_SCENARIO || value == START_OF_SCENARIO)
 
+	if(requestNames.isEmpty) {
+		logger.warn("There were no requests sent during the simulation, reports won't be generated")
+		sys.exit
+	}
+	
 	val scenarioNames: Seq[String] = data.map(_.scenarioName).distinct
 
 	val dataIndexedBySendDateWithoutMillis: SortedMap[Long, Seq[ResultLine]] = SortedMap(data.groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis).toSeq: _*)
