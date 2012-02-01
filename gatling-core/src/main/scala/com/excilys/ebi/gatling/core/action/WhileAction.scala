@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.session.handler.{TimerBasedIterationHandler, CounterBasedIterationHandler}
+import com.excilys.ebi.gatling.core.session.handler.{ TimerBasedIterationHandler, CounterBasedIterationHandler }
 import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.scala2ActorRef
@@ -30,8 +30,7 @@ import akka.actor.ActorRef
  * @param next the chain executed if testFunction evaluates to false
  * @param counterName the name of the counter for this loop
  */
-class WhileAction(testFunction: (Session, Action) => Boolean, loopNext: ActorRef => ActorRef, next: ActorRef, counterName: String)
-		extends Action with TimerBasedIterationHandler with CounterBasedIterationHandler {
+class WhileAction(testFunction: (Session, Action) => Boolean, loopNext: ActorRef => ActorRef, next: ActorRef, counterName: String) extends Action with TimerBasedIterationHandler with CounterBasedIterationHandler {
 
 	val loopNextAction = loopNext(self)
 
@@ -44,15 +43,12 @@ class WhileAction(testFunction: (Session, Action) => Boolean, loopNext: ActorRef
 	 */
 	def execute(session: Session) = {
 
-		var newSession = init(session, counterName)
-
-		newSession = increment(newSession, counterName)
-
-		if (testFunction(newSession, this)) {
-			loopNextAction ! newSession
+		val sessionWithTimerIncremented = increment(init(session, counterName), counterName)
+		
+		if (testFunction(sessionWithTimerIncremented, this)) {
+			loopNextAction ! sessionWithTimerIncremented
 		} else {
-			newSession = expire(newSession, counterName)
-			next ! newSession
+			next ! expire(sessionWithTimerIncremented, counterName)
 		}
 	}
 }

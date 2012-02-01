@@ -29,8 +29,8 @@ object TimerBasedIterationHandler {
 	 * Key prefix for Counters
 	 */
 	val TIMER_KEY_PREFIX = "gatling.core.timer."
-		
-	def getTimerName(counterName: String) = TIMER_KEY_PREFIX + counterName
+
+	private def getTimerAttributeName(timerName: String) = TIMER_KEY_PREFIX + timerName
 
 	/**
 	 * This method gets the specified timer from the session
@@ -39,7 +39,7 @@ object TimerBasedIterationHandler {
 	 * @param timerName the name of the timer
 	 * @return the value of the timer as a long
 	 */
-	def getTimerValue(session: Session, timerName: String) = session.getAttributeAsOption[Long](getTimerName(timerName)).getOrElse(throw new IllegalAccessError("Timer is not set : " + timerName))
+	def getTimerValue(session: Session, timerName: String) = session.getAttributeAsOption[Long](getTimerAttributeName(timerName)).getOrElse(throw new IllegalAccessError("Timer is not set : " + timerName))
 }
 
 /**
@@ -49,17 +49,15 @@ object TimerBasedIterationHandler {
  */
 trait TimerBasedIterationHandler extends IterationHandler {
 
-	override def init(session: Session, counterName: String) : Session = {
-		
-		val newSession = super.init(session, counterName)
-		val timerName = TimerBasedIterationHandler.getTimerName(counterName)
-		
-		if (newSession.getAttributeAsOption(timerName).isDefined) {
-			newSession
-		} else {
-			newSession.setAttribute(timerName, currentTimeMillis)
+	override def init(session: Session, timerName: String): Session = {
+
+		val timerAttributeName = TimerBasedIterationHandler.getTimerAttributeName(timerName)
+
+		session.getAttributeAsOption[Int](timerAttributeName) match {
+			case None => super.init(session, timerName).setAttribute(timerAttributeName, currentTimeMillis)
+			case Some(_) => super.init(session, timerName)
 		}
 	}
 
-	override def expire(session: Session, counterName: String) = super.expire(session, counterName).removeAttribute(TimerBasedIterationHandler.getTimerName(counterName))
+	override def expire(session: Session, counterName: String) = super.expire(session, counterName).removeAttribute(TimerBasedIterationHandler.getTimerAttributeName(counterName))
 }

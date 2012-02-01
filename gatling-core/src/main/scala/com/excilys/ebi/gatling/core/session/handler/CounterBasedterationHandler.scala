@@ -29,6 +29,8 @@ object CounterBasedIterationHandler {
 	 */
 	val COUNTER_KEY_PREFIX = "gatling.core.counter."
 
+	private def getCounterAttributeName(counterName: String) = COUNTER_KEY_PREFIX + counterName
+
 	/**
 	 * This method gets the specified counter from the session
 	 *
@@ -36,9 +38,7 @@ object CounterBasedIterationHandler {
 	 * @param counterName the name of the counter
 	 * @return the value of the counter as an integer
 	 */
-	def getCounterValue(session: Session, counterName: String) = {
-		session.getAttributeAsOption[Int](COUNTER_KEY_PREFIX + counterName).getOrElse(throw new IllegalAccessError("Counter does not exist, check the name of the key " + counterName))
-	}
+	def getCounterValue(session: Session, counterName: String) = session.getAttributeAsOption[Int](getCounterAttributeName(counterName)).getOrElse(throw new IllegalAccessError("Counter does not exist, check the name of the key " + counterName))
 }
 
 /**
@@ -48,24 +48,25 @@ object CounterBasedIterationHandler {
  */
 trait CounterBasedIterationHandler extends IterationHandler {
 
-	abstract override def init(session: Session, counterName: String) = {
-		val newSession = super.init(session, counterName)
-		
-		if (newSession.getAttributeAsOption(COUNTER_KEY_PREFIX + counterName).isDefined) {
-			newSession
-		} else {
-			newSession.setAttribute(COUNTER_KEY_PREFIX + counterName, -1)
+	override def init(session: Session, counterName: String) = {
+
+		val counterAttributeName = CounterBasedIterationHandler.getCounterAttributeName(counterName)
+
+		session.getAttributeAsOption[Int](counterAttributeName) match {
+			case None => super.init(session, counterName).setAttribute(counterAttributeName, -1)
+			case Some(_) => super.init(session, counterName)
 		}
 	}
 
-	abstract override def increment(session: Session, counterName: String) = {
-		val newSession = super.increment(session, counterName)
-		val currentValue: Int = newSession.getAttributeAsOption[Int](COUNTER_KEY_PREFIX + counterName).getOrElse(throw new IllegalAccessError("You must call startCounter before this method is called"))
+	override def increment(session: Session, counterName: String) = {
 
-		newSession.setAttribute(COUNTER_KEY_PREFIX + counterName, currentValue + 1)
+		val counterAttributeName = CounterBasedIterationHandler.getCounterAttributeName(counterName)
+
+		session.getAttributeAsOption[Int](counterAttributeName) match {
+			case Some(currentValue) => super.increment(session, counterName).setAttribute(counterAttributeName, currentValue + 1)
+			case None => throw new IllegalAccessError("You must call startCounter before this method is called")
+		}
 	}
 
-	abstract override def expire(session: Session, counterName: String) = {
-		super.expire(session, counterName).removeAttribute(COUNTER_KEY_PREFIX +counterName)
-	}
+	override def expire(session: Session, counterName: String) = super.expire(session, counterName).removeAttribute(CounterBasedIterationHandler.getCounterAttributeName(counterName))
 }
