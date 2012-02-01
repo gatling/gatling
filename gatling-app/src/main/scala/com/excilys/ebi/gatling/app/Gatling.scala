@@ -24,8 +24,9 @@ import scala.tools.nsc.io.Directory
 import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.app.compiler.{ TextScenarioCompiler, ScalaScenarioCompiler, IdeScenarioCompiler }
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.activeSessionsFile
 import com.excilys.ebi.gatling.charts.report.ReportsGenerator
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{ resultFolder, GATLING_SIMULATIONS_FOLDER }
+import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_SIMULATIONS_FOLDER
 import com.excilys.ebi.gatling.core.config.GatlingConfig
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.DateHelper.printFileNameDate
@@ -180,7 +181,7 @@ object Gatling extends Logging {
 		val start = currentTimeMillis
 		ReportsGenerator.generateFor(folderName)
 		println("Reports generated in " + (currentTimeMillis - start) / 1000 + "s.")
-		println("Please go to the following directory : " + resultFolder(folderName))
+		println("Please open the following file : " + activeSessionsFile(folderName))
 	}
 
 	/**
