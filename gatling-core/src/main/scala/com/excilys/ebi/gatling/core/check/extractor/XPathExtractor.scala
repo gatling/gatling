@@ -72,7 +72,7 @@ class XPathExtractor(xmlContent: InputStream, occurrence: Int) extends Extractor
 
 		val results = xpathExpression.selectNodes(document).asInstanceOf[java.util.List[Node]]
 
-		if (results.size() > 0)
+		if (results.size > occurrence)
 			List(results.get(occurrence).getTextContent)
 		else
 			Nil
