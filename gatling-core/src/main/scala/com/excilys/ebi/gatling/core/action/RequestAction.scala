@@ -22,6 +22,8 @@ import com.excilys.ebi.gatling.core.check.CheckBuilder
 import akka.actor.ActorRef
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
+import com.excilys.ebi.gatling.core.check.Check
+import com.excilys.ebi.gatling.core.check.CheckBuilder
 
 /**
  * Abstract class for all request actions. For example HTTPRequestAction, and later LDAPRequestAction, etc.
@@ -31,6 +33,6 @@ import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
  * @param givenProcessors a list of processors that will apply on the response
  * @param protocolConfiguration the optional protocolConfiguration for this type of request
  */
-abstract class RequestAction[P, C <:ProtocolConfiguration](next: ActorRef, request: Request, givenProcessors: Option[List[CheckBuilder[_, P]]], protocolConfiguration: Option[C]) extends Action {
+abstract class RequestAction[C <: Check[R, _], R, P <:ProtocolConfiguration](next: ActorRef, request: Request, givenProcessors: Option[List[C]], protocolConfiguration: Option[P]) extends Action {
 	def execute(session: Session)
 }

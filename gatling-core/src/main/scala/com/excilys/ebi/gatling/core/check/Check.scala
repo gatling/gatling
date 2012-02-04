@@ -14,12 +14,30 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.check
-
 import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
-import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.check.extractor.Extractor
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import CheckContext.doWithCheckContext
+
+object Check {
+	def applyChecks[R](s: Session, response: R, checks: List[Check[R, _]]): (Session, CheckResult[_]) = {
+
+		var newSession = s
+		var lastCheckResult: CheckResult[_] = null
+
+		doWithCheckContext {
+			for (check <- checks) {
+				lastCheckResult = check.check(response, s)
+				if (!lastCheckResult.ok)
+					return (newSession, lastCheckResult)
+				else if (check.saveAs.isDefined)
+					newSession = newSession.setAttribute(check.saveAs.get, lastCheckResult.extractedValue.get)
+			}
+		}
+
+		(newSession, lastCheckResult)
+	}
+}
 
 /**
  * This class represents a Check
@@ -30,6 +48,11 @@ import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
  * @param strategy the strategy used to perform the Check
  * @param expected the expected value of what has been found
  */
-abstract class Check[T](val what: Session => String, val how: ExtractorFactory[T], val strategy: CheckStrategy, val expected: List[Session => String], val saveAs: Option[String])
-	extends Logging with ClassSimpleNameToString
+abstract class Check[R, X](val extractionExpression: Session => String, val extractorFactory: ExtractorFactory[R, X], val strategy: CheckStrategy[X], val saveAs: Option[String]) {
 
+	def check(response: R, s: Session) = {
+		val extractor = extractorFactory.getExtractor(response)
+		val extracted = extractor.extract(extractionExpression(s))
+		strategy(extracted, s)
+	}
+}

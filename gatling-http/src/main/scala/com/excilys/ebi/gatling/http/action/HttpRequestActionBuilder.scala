@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.feeder.Feeder
-import com.excilys.ebi.gatling.core.util.StringHelper._
+import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
 import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.excilys.ebi.gatling.http.request.builder.GetHttpRequestBuilder
 import com.excilys.ebi.gatling.http.request.builder.PostHttpRequestBuilder
@@ -31,6 +31,9 @@ import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
 import akka.actor.ActorRef
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
+import com.excilys.ebi.gatling.core.check.CheckBuilder
+import com.excilys.ebi.gatling.http.check.HttpCheck
+import com.ning.http.client.Response
 
 /**
  * HttpRequestActionBuilder class companion
@@ -51,7 +54,7 @@ object HttpRequestActionBuilder {
  * @param next the next action to be executed
  * @param processorBuilders
  */
-class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, next: ActorRef, processorBuilders: Option[List[HttpCheckBuilder[_]]])
+class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, next: ActorRef, checks: Option[List[HttpCheck[_]]])
 		extends AbstractActionBuilder {
 
 	/**
@@ -60,16 +63,16 @@ class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, ne
 	 * @param givenProcessors the processors specified by the user
 	 * @return a new builder with givenProcessors set
 	 */
-	private[http] def withProcessors(givenProcessors: Seq[HttpCheckBuilder[_]]) = {
-		new HttpRequestActionBuilder(requestName, request, next, Some(givenProcessors.toList ::: processorBuilders.getOrElse(Nil)))
+	private[http] def withProcessors(givenChecks: Seq[HttpCheck[_]]) = {
+		new HttpRequestActionBuilder(requestName, request, next, Some(givenChecks.toList ::: checks.getOrElse(Nil)))
 	}
 
-	private[http] def withRequest(request: HttpRequest) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders)
+	private[http] def withRequest(request: HttpRequest) = new HttpRequestActionBuilder(requestName, request, next, checks)
 
-	private[gatling] def withNext(next: ActorRef) = new HttpRequestActionBuilder(requestName, request, next, processorBuilders)
+	private[gatling] def withNext(next: ActorRef) = new HttpRequestActionBuilder(requestName, request, next, checks)
 
 	private[gatling] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
-		actorOf(new HttpRequestAction(next, request, processorBuilders, protocolConfigurationRegistry.getProtocolConfiguration(HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE).as[HttpProtocolConfiguration])).start
+		actorOf(new HttpRequestAction(next, request, checks, protocolConfigurationRegistry.getProtocolConfiguration(HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE).as[HttpProtocolConfiguration])).start
 	}
 
 	/**

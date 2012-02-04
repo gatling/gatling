@@ -28,12 +28,13 @@ import com.ning.http.client.Response
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder._
 import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.check.status.HttpStatusCheck
 import com.excilys.ebi.gatling.http.config.GatlingHTTPConfig._
 import akka.actor.ActorRef
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
+import com.excilys.ebi.gatling.core.check.CheckBuilder
+import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
 
 /**
  * HttpRequestAction class companion
@@ -42,7 +43,7 @@ object HttpRequestAction {
 	/**
 	 * This is the default HTTP check used to verify that the response status is 2XX
 	 */
-	val DEFAULT_HTTP_STATUS_CHECK = status.in(200 to 210).build
+	val DEFAULT_HTTP_STATUS_CHECK = status.find.in(Session => (200 to 210)).build
 
 	/**
 	 * The HTTP client used to send the requests
@@ -76,11 +77,11 @@ object HttpRequestAction {
  * @param givenCheckBuilders all the checks that will be performed on the response
  * @param feeder the feeder that will be consumed each time the request will be sent
  */
-class HttpRequestAction(next: ActorRef, request: HttpRequest, givenCheckBuilders: Option[List[HttpCheckBuilder[_]]], protocolConfiguration: Option[HttpProtocolConfiguration])
-		extends RequestAction[Response, HttpProtocolConfiguration](next, request, givenCheckBuilders, protocolConfiguration) {
+class HttpRequestAction(next: ActorRef, request: HttpRequest, givenChecks: Option[List[HttpCheck[_]]], protocolConfiguration: Option[HttpProtocolConfiguration])
+		extends RequestAction[HttpCheck[_], Response, HttpProtocolConfiguration](next, request, givenChecks, protocolConfiguration) {
 
-	def addDefaultHttpStatusCheck(checks: List[HttpCheck]) = {
-		if (checks.find(_.isInstanceOf[HttpStatusCheck]).isEmpty) {
+	def addDefaultHttpStatusCheck(checks: List[HttpCheck[_]]) = {
+		if (checks.find(_.when == StatusReceived).isEmpty) {
 			// add default HttpStatusCheck if none was set
 			HttpRequestAction.DEFAULT_HTTP_STATUS_CHECK :: checks
 		} else {
@@ -88,7 +89,7 @@ class HttpRequestAction(next: ActorRef, request: HttpRequest, givenCheckBuilders
 		}
 	}
 
-	val checks = addDefaultHttpStatusCheck(givenCheckBuilders.map(_.map(_.build)).getOrElse(Nil))
+	val checks = addDefaultHttpStatusCheck(givenChecks.getOrElse(Nil))
 
 	def execute(session: Session) = {
 

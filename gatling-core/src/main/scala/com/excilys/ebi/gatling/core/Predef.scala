@@ -21,17 +21,28 @@ import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder
 import com.excilys.ebi.gatling.core.action.Action
+import com.excilys.ebi.gatling.core.check.{ CheckOneBuilder, CheckMultipleBuilder, CheckBuilder, Check }
+import com.excilys.ebi.gatling.core.check.CheckBaseBuilder
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesFeederBuilder
 import com.excilys.ebi.gatling.core.feeder.database.DatabaseFeederBuilder
 import com.excilys.ebi.gatling.core.runner.Runner.runSim
-import com.excilys.ebi.gatling.core.session.handler.{TimerBasedIterationHandler, CounterBasedIterationHandler}
-import com.excilys.ebi.gatling.core.structure.{ScenarioBuilder, ChainBuilder}
+import com.excilys.ebi.gatling.core.session.handler.{ TimerBasedIterationHandler, CounterBasedIterationHandler }
+import com.excilys.ebi.gatling.core.structure.{ ScenarioBuilder, ChainBuilder }
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
 
 object Predef {
 	implicit def toSimpleActionBuilder(sessionFunction: (Session, Action) => Session): SimpleActionBuilder = SimpleActionBuilder.toSimpleActionBuilder(sessionFunction)
 	implicit def toSimpleActionBuilder(sessionFunction: Session => Session): SimpleActionBuilder = SimpleActionBuilder.toSimpleActionBuilder(sessionFunction)
 	implicit def stringToSessionFunction(string: String) = interpolate(string)
+	implicit def toSessionFunction[X](x: X) = (s: Session) => x
+	implicit def checkWithVerifyBuilderToHttpCheck[C <: Check[R, X], R, X](builder: CheckBuilder[C, R, X]) = builder.build
+	implicit def checkOneToExists[C <: Check[R, X], R, X](builder: CheckOneBuilder[C, R, X]) = builder.exists
+	implicit def checkOneToHttpCheck[C <: Check[R, X], R, X](builder: CheckOneBuilder[C, R, X]) = builder.exists.build
+	implicit def checkMultipleToNotEmpty[C <: Check[R, List[X]], R, X](builder: CheckMultipleBuilder[C, R, List[X]]) = builder.notEmpty
+	implicit def checkMultipleToHttpCheck[C <: Check[R, List[X]], R, X](builder: CheckMultipleBuilder[C, R, List[X]]) = builder.notEmpty.build
+	implicit def checkBuilderToCheckOne[C <: Check[R, X], R, X](builder: CheckBaseBuilder[C, R, X]) = builder.find
+	implicit def checkBuilderToExists[C <: Check[R, X], R, X](builder: CheckBaseBuilder[C, R, X]) = builder.find.exists
+	implicit def checkBuilderToCheck[C <: Check[R, X], R, X](builder: CheckBaseBuilder[C, R, X]) = builder.find.exists.build
 
 	def csv(fileName: String) = SeparatedValuesFeederBuilder.csv(fileName)
 	def csv(fileName: String, escapeChar: Char) = SeparatedValuesFeederBuilder.csv(fileName, Some(escapeChar))

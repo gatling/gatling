@@ -15,4 +15,4 @@
  */
 package com.excilys.ebi.gatling.core.check
 
-class CheckResult(val ok: Boolean, val extractedValue: Any, val errorMessage: Option[String] = None)
+case class CheckResult[X](val ok: Boolean, val extractedValue: Option[X], val errorMessage: Option[String] = None)

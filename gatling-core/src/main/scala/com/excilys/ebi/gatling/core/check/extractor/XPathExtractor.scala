@@ -15,12 +15,12 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor
 
-import java.io.{ StringReader, InputStream }
+import java.io.StringReader
 
 import org.jaxen.dom.DOMXPath
 import org.jaxen.XPath
-import org.w3c.dom.Node
-import org.xml.sax.{ InputSource, EntityResolver }
+import org.w3c.dom.{Node, Document}
+import org.xml.sax.{InputSource, EntityResolver}
 
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
@@ -52,10 +52,7 @@ object XPathExtractor {
  * @param xmlContent the XML document as an InputStream in which the XPath search will be applied
  * @param occurrence the occurrence of the results that should be returned
  */
-class XPathExtractor(xmlContent: InputStream, occurrence: Int) extends Extractor {
-
-	// parses the document in the constructor so that the extractor can be efficiently reused for multiple extractions
-	val document = XPathExtractor.parser.parse(xmlContent)
+class XPathExtractor(document: Document, occurrence: Int) extends Extractor[String] {
 
 	/**
 	 * The actual extraction happens here. The XPath expression is searched for and the occurrence-th
@@ -64,17 +61,15 @@ class XPathExtractor(xmlContent: InputStream, occurrence: Int) extends Extractor
 	 * @param expression a String containing the XPath expression to be searched
 	 * @return an option containing the value if found, None otherwise
 	 */
-	def extract(expression: String): List[String] = {
+	def extract(expression: String) = {
 
 		val xpathExpression: XPath = new DOMXPath(expression);
-
-		logger.debug("Extracting with expression : {}", expression)
 
 		val results = xpathExpression.selectNodes(document).asInstanceOf[java.util.List[Node]]
 
 		if (results.size > occurrence)
-			List(results.get(occurrence).getTextContent)
+			results.get(occurrence).getTextContent
 		else
-			Nil
+			None
 	}
 }

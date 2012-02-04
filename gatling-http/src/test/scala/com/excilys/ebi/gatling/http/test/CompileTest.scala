@@ -18,7 +18,6 @@ package com.excilys.ebi.gatling.http.test
 import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._
 import org.joda.time.DateTime._
-import com.sun.corba.se.impl.protocol.NotExistent
 
 object CompileTest {
 
@@ -52,7 +51,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 		.loop(
 			chain
 				.feed(testData)
-				.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").check(xpath("//input[@id='text1']/@value") saveAs "aaaa_value")))
+				.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").check(xpath("//input[@id='text1']/@value").saveAs("aaaa_value"))))
 		.times(2)
 		.pause(pause2, pause3)
 		// Loop
@@ -67,13 +66,13 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				.exec(
 					http("Page accueil").get("http://localhost:3000")
 						.check(
-							xpath("//input[@value='${aaaa_value}']/@id").exists.saveAs("sessionParam"),
+							xpath("//input[@value='${aaaa_value}']/@id").saveAs("sessionParam"),
 							xpath("//input[@id='${aaaa_value}']/@value").notExists,
 							regex("""<input id="text1" type="text" value="aaaa" />"""),
 							regex("""<input id="text1" type="test" value="aaaa" />""").notExists,
-							status.in(200 to 210) saveAs "blablaParam",
-							xpath("//input[@value='aaaa']/@id").neq("omg"),
-							xpath("//input[@id='text1']/@value") eq "aaaa" saveAs "test2"))
+							status.in(200 to 210).saveAs("blablaParam"),
+							xpath("//input[@value='aaaa']/@id").not("omg"),
+							xpath("//input[@id='text1']/@value").is("aaaa").saveAs("test2")))
 				.loop(chain
 					.exec(http("In During 1").get("http://localhost:3000/aaaa"))
 					.pause(2)
@@ -119,13 +118,13 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				// Third request to be repeated
 				.exec(http("Liste Articles") get ("/things") queryParam "firstname" queryParam "lastname")
 				.pause(pause1)
-				.exec(http("Test Page") get ("/tests") check (header(CONTENT_TYPE).eq("text/html; charset=utf-8") saveAs "sessionParam"))
+				.exec(http("Test Page").get("/tests").check(header(CONTENT_TYPE).is("text/html; charset=utf-8").saveAs("sessionParam")))
 				// Fourth request to be repeated
 				.exec(http("Create Thing omgomg")
 					.post("/things").queryParam("postTest", "${sessionParam}").fileBody("create_thing", Map("name" -> "${sessionParam}")).asJSON
-					.check(status.eq(201) saveAs "status"))).counterName("titi").times(iterations)
+					.check(status.is(201).saveAs("status")))).counterName("titi").times(iterations)
 		// Second request outside iteration
-		.exec(http("Ajout au panier") get ("/") check (regex("""<input id="text1" type="text" value="(.*)" />""") saveAs "input"))
+		.exec(http("Ajout au panier").get("/").check(regex("""<input id="text1" type="text" value="(.*)" />""").saveAs("input")))
 		.pause(pause1)
 
 	runSimulation(

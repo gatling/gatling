@@ -23,7 +23,7 @@
 			.fileBody("${date}_request_${event.getId()}.txt")
 #end
 #if(${event.isWithCheck()})
-			.check(status.eq(${event.getResponse().getStatus().getCode()}))
+			.check(status.is(${event.getResponse().getStatus().getCode()}))
 #end
 		)
 #end

@@ -30,7 +30,7 @@ import com.excilys.ebi.gatling.http.request.FilePathBody
 import com.excilys.ebi.gatling.http.request.StringBody
 import com.excilys.ebi.gatling.http.request.TemplateBody
 import com.excilys.ebi.gatling.http.Predef._
-import com.excilys.ebi.gatling.http.util.HttpHelper._
+import com.excilys.ebi.gatling.http.util.HttpHelper.COOKIES_CONTEXT_KEY
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.ning.http.client.Cookie
@@ -40,6 +40,8 @@ import com.ning.http.client.Realm.AuthScheme
 import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
 import com.excilys.ebi.gatling.core.util.StringHelper._
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+import com.excilys.ebi.gatling.http.check.HttpCheck
+import com.ning.http.client.Response
 
 /**
  * AbstractHttpRequestBuilder class companion
@@ -84,7 +86,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 *
 	 * @param checkBuilders the checks that will be performed on the reponse
 	 */
-	def check(checkBuilders: HttpCheckBuilder[_]*) = httpRequestActionBuilder withRequest (new HttpRequest(httpRequestActionBuilder.requestName, this)) withProcessors checkBuilders
+	def check(checks: HttpCheck[_]*) = httpRequestActionBuilder.withRequest(new HttpRequest(httpRequestActionBuilder.requestName, this)).withProcessors(checks)
 
 	/**
 	 * Adds a query parameter to the request

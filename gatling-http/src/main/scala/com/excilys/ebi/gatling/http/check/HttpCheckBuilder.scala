@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.check
-
-import com.excilys.ebi.gatling.core.check.CheckBuilder
+import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
+import com.excilys.ebi.gatling.core.check.CheckBaseBuilder
 import com.excilys.ebi.gatling.core.check.CheckStrategy
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
@@ -30,16 +30,6 @@ import com.ning.http.client.Response
  * @param expected the expected value against which the extracted value will be checked
  * @param when the HttpPhase during which the check will be made
  */
-abstract class HttpCheckBuilder[B <: HttpCheckBuilder[B]](what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String], val when: HttpPhase)
-		extends CheckBuilder[HttpCheckBuilder[B], Response](what, occurrence, strategy, expected, saveAs) {
-
-	private[gatling] def newInstance(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String]): B =
-		newInstance(what, occurrence, strategy, expected, saveAs, when)
-
-	/**
-	 * Method that must be implemented by children classes to get the instance of the child class
-	 */
-	private[http] def newInstance(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String], when: HttpPhase): B
-
-	private[gatling] override def build: HttpCheck
+abstract class HttpCheckBuilder[X](val what: Session => String, val when: HttpPhase) extends CheckBaseBuilder[HttpCheck[X], Response, X] {
+	def checkBuildFunction[X] = (extractorFactory: ExtractorFactory[Response, X], strategy: CheckStrategy[X], saveAs: Option[String]) => new HttpCheck(what, extractorFactory, strategy, saveAs, when)
 }

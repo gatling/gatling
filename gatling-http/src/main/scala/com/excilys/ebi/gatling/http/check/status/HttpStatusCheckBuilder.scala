@@ -15,13 +15,14 @@
  */
 package com.excilys.ebi.gatling.http.check.status
 
-import com.excilys.ebi.gatling.core.check.{CheckBuilderVerifyOne, CheckBuilderFind}
-import com.excilys.ebi.gatling.core.check.{CheckBuilderVerify, CheckBuilderSave}
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
+import com.excilys.ebi.gatling.core.check.extractor.Extractor
+import com.excilys.ebi.gatling.core.check.CheckOneBuilder
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.http.check.{HttpCheckBuilder, HttpCheck}
-import com.excilys.ebi.gatling.http.request.HttpPhase.{StatusReceived, HttpPhase}
-import com.excilys.ebi.gatling.core.check.CheckStrategy
+import com.excilys.ebi.gatling.http.check.HttpCheck
+import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
+import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
+import com.ning.http.client.Response
 
 /**
  * HttpStatusCheckBuilder class companion
@@ -29,12 +30,8 @@ import com.excilys.ebi.gatling.core.check.CheckStrategy
  * It contains DSL definitions
  */
 object HttpStatusCheckBuilder {
-	/**
-	 * Will check that the response status is in the specified range
-	 *
-	 * @param range the specified range
-	 */
-	def status = new HttpStatusCheckBuilder(CheckBuilderVerify.in, Nil, None) with CheckBuilderFind[HttpCheckBuilder[HttpStatusCheckBuilder]]
+
+	def status = new HttpStatusCheckBuilder
 }
 
 /**
@@ -44,19 +41,11 @@ object HttpStatusCheckBuilder {
  * @param strategy the strategy used to check
  * @param expected the expected value against which the extracted value will be checked
  */
-class HttpStatusCheckBuilder(strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String])
-		extends HttpCheckBuilder[HttpStatusCheckBuilder]((s: Session) => EMPTY, None, strategy, expected, saveAs, StatusReceived) {
+class HttpStatusCheckBuilder extends HttpCheckBuilder[Int](Session => EMPTY, StatusReceived) {
 
-	private[http] def newInstance(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String], when: HttpPhase) =
-		new HttpStatusCheckBuilder(strategy, expected, saveAs)
-
-	private[gatling] def newInstanceWithFindOne(occurrence: Int) =
-		new HttpStatusCheckBuilder(strategy, expected, saveAs) with CheckBuilderVerifyOne[HttpCheckBuilder[HttpStatusCheckBuilder]]
-
-	private[gatling] def newInstanceWithFindAll = throw new UnsupportedOperationException("Status checks are single valued")
-
-	private[gatling] def newInstanceWithVerify(strategy: CheckStrategy, expected: List[Session => String] = Nil) =
-		new HttpStatusCheckBuilder(strategy, expected, saveAs) with CheckBuilderSave[HttpCheckBuilder[HttpStatusCheckBuilder]]
-
-	private[gatling] def build: HttpCheck = new HttpStatusCheck(expected, saveAs)
+	def find = new CheckOneBuilder[HttpCheck[Int], Response, Int](checkBuildFunction[Int], new ExtractorFactory[Response, Int] {
+		def getExtractor(response: Response) = new Extractor[Int] {
+			def extract(expression: String) = Some(response.getStatusCode)
+		}
+	})
 }

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.check
-
 import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.Check
 import com.excilys.ebi.gatling.core.check.CheckStrategy
@@ -29,9 +28,6 @@ import com.ning.http.client.Response
  * @param how the extractor factory that will give the method used to extract the value specified by what
  * @param saveAs the optional session key in which the extracted value will be stored
  * @param strategy the strategy used to check
- * @param expected the expected value against which the extracted value will be checked
  * @param when the HttpPhase during which the check will be made
  */
-abstract class HttpCheck(what: Session => String, how: ExtractorFactory[Response], strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String], val when: HttpPhase)
-		extends Check[Response](what, how, strategy, expected, saveAs) {
-}
+class HttpCheck[X](what: Session => String, how: ExtractorFactory[Response, X], strategy: CheckStrategy[X], saveAs: Option[String], val when: HttpPhase) extends Check[Response, X](what, how, strategy, saveAs)

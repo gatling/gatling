@@ -15,15 +15,13 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor
 
-import com.excilys.ebi.gatling.core.log.Logging
-
 /**
  * This class acts as model for extractors
  *
  * Extractors are objects responsible for extracting elements in others
  * Typically, we can think of Regular Expressions.
  */
-abstract class Extractor extends Logging {
+trait Extractor[X] {
 
 	/**
 	 * this method does the actual extraction of what is designed by the expression
@@ -31,7 +29,9 @@ abstract class Extractor extends Logging {
 	 * @param expression the expression that defines the extraction
 	 * @return the result of the search, being None if nothing was found or Some(something)
 	 */
-	def extract(expression: String): List[String]
-}
+	def extract(expression: String): Option[X]
 
-trait MultiValuedExtractor
+	implicit def listToOption[X](values: List[X]): Option[List[X]] = if (values.isEmpty) None else Some(values)
+
+	implicit def toOption[X](value: X): Option[X] = Some(value)
+}

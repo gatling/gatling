@@ -15,18 +15,13 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor
 
-import java.io.InputStream
-
 import scala.collection.JavaConversions.asScalaBuffer
 
 import org.jaxen.dom.DOMXPath
 import org.jaxen.XPath
-import org.w3c.dom.Node
+import org.w3c.dom.{Node, Document}
 
-class MultiXPathExtractor(xmlContent: InputStream) extends Extractor with MultiValuedExtractor {
-
-	// parses the document in the constructor so that the extractor can be efficiently reused for multiple extractions
-	val document = XPathExtractor.parser.parse(xmlContent)
+class MultiXPathExtractor(document: Document) extends Extractor[List[String]] {
 
 	/**
 	 * The actual extraction happens here. The XPath expression is searched for and the occurrence-th
@@ -35,12 +30,8 @@ class MultiXPathExtractor(xmlContent: InputStream) extends Extractor with MultiV
 	 * @param expression a String containing the XPath expression to be searched
 	 * @return an option containing the value if found, None otherwise
 	 */
-	def extract(expression: String): List[String] = {
-
+	def extract(expression: String) = {
 		val xpathExpression: XPath = new DOMXPath(expression);
-
-		logger.debug("Extracting with expression : {}", expression)
-
 		xpathExpression.selectNodes(document).asInstanceOf[java.util.List[Node]].map(_.getTextContent).toList
 	}
 }

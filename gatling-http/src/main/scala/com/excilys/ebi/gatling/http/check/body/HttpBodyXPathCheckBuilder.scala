@@ -14,46 +14,49 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.check.body
-
-import com.excilys.ebi.gatling.core.check.{CheckStrategy, CheckBuilderVerifyAll, CheckBuilderVerify, CheckBuilderSave, CheckBuilderVerifyOne, CheckBuilderFind}
+import com.excilys.ebi.gatling.core.check.CheckContext.{ setAndReturnCheckContextAttribute, getCheckContextAttribute }
+import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
+import com.excilys.ebi.gatling.core.check.extractor.{ XPathExtractor, MultiXPathExtractor }
+import com.excilys.ebi.gatling.core.check.CheckOneBuilder
+import com.excilys.ebi.gatling.core.check.CheckMultipleBuilder
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
-import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
-import com.excilys.ebi.gatling.http.request.HttpPhase.{HttpPhase, CompletePageReceived}
+import com.excilys.ebi.gatling.http.check.{ HttpMultipleCheckBuilder, HttpCheck }
+import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
+import com.ning.http.client.Response
+
+import HttpBodyXPathCheckBuilder.HTTP_RESPONSE_BODY_DOCUMENT_CHECK_CONTEXT_KEY
 
 object HttpBodyXPathCheckBuilder {
-	/**
-	 *
-	 */
-	def xpath(what: Session => String) = new HttpBodyXPathCheckBuilder(what, Some(0), CheckBuilderVerify.exists, Nil, None) with CheckBuilderFind[HttpCheckBuilder[HttpBodyXPathCheckBuilder]]
-	/**
-	 *
-	 */
-	def xpath(expression: String): HttpBodyXPathCheckBuilder with CheckBuilderFind[HttpCheckBuilder[HttpBodyXPathCheckBuilder]] = xpath(interpolate(expression))
+
+	val HTTP_RESPONSE_BODY_DOCUMENT_CHECK_CONTEXT_KEY = "httpResponseBodyDocument"
+
+	def xpath(what: Session => String) = new HttpBodyXPathCheckBuilder(what)
+
+	def xpath(expression: String): HttpBodyXPathCheckBuilder = xpath(interpolate(expression))
 }
 
 /**
  * This class builds a response body check based on XPath expressions
  *
  * @param what the function returning the expression representing what is to be checked
- * @param to the optional session key in which the extracted value will be stored
  * @param strategy the strategy used to check
  * @param expected the expected value against which the extracted value will be checked
+ * @param saveAs the optional session key in which the extracted value will be stored
  */
-class HttpBodyXPathCheckBuilder(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String])
-		extends HttpCheckBuilder[HttpBodyXPathCheckBuilder](what, occurrence, strategy, expected, saveAs, CompletePageReceived) {
+class HttpBodyXPathCheckBuilder(what: Session => String) extends HttpMultipleCheckBuilder[String](what, CompletePageReceived) {
 
-	private[http] def newInstance(what: Session => String, occurrence: Option[Int], strategy: CheckStrategy, expected: List[Session => String], saveAs: Option[String], when: HttpPhase) =
-		new HttpBodyXPathCheckBuilder(what, occurrence, strategy, expected, saveAs)
+	def getResponseBody(response: Response) = getCheckContextAttribute(HTTP_RESPONSE_BODY_DOCUMENT_CHECK_CONTEXT_KEY).getOrElse {
+		setAndReturnCheckContextAttribute(HTTP_RESPONSE_BODY_DOCUMENT_CHECK_CONTEXT_KEY, XPathExtractor.parser.parse(response.getResponseBodyAsStream))
+	}
 
-	private[gatling] def newInstanceWithFindOne(occurrence: Int) =
-		new HttpBodyXPathCheckBuilder(what, Some(occurrence), strategy, expected, saveAs) with CheckBuilderVerifyOne[HttpCheckBuilder[HttpBodyXPathCheckBuilder]]
+	def find: CheckOneBuilder[HttpCheck[String], Response, String] = find(0)
 
-	private[gatling] def newInstanceWithFindAll =
-		new HttpBodyXPathCheckBuilder(what, None, strategy, expected, saveAs) with CheckBuilderVerifyAll[HttpCheckBuilder[HttpBodyXPathCheckBuilder]]
+	def find(occurence: Int) = new CheckOneBuilder(checkBuildFunction[String], new ExtractorFactory[Response, String] {
+		def getExtractor(response: Response) = new XPathExtractor(getResponseBody(response), occurence)
+	})
 
-	private[gatling] def newInstanceWithVerify(strategy: CheckStrategy, expected: List[Session => String] = Nil) =
-		new HttpBodyXPathCheckBuilder(what, occurrence, strategy, expected, saveAs) with CheckBuilderSave[HttpCheckBuilder[HttpBodyXPathCheckBuilder]]
-
-	private[gatling] def build = new HttpBodyXPathCheck(what, occurrence, strategy, expected, saveAs)
+	def findAll = new CheckMultipleBuilder(checkBuildFunction[List[String]], new ExtractorFactory[Response, List[String]] {
+		def getExtractor(response: Response) = new MultiXPathExtractor(getResponseBody(response))
+	})
 }

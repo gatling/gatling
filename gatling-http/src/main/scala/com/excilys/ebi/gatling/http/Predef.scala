@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http
-
-import com.excilys.ebi.gatling.core.check.CheckBuilder
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.check.body.{ HttpBodyXPathCheckBuilder, HttpBodyRegexCheckBuilder }
@@ -29,8 +27,6 @@ object Predef {
 	def httpConfig = HttpProtocolConfigurationBuilder.httpConfig
 	implicit def toHttpProtocolConfiguration(hpb: HttpProxyBuilder) = HttpProxyBuilder.toHttpProtocolConfiguration(hpb)
 	implicit def toHttpProtocolConfiguration(builder: HttpProtocolConfigurationBuilder) = HttpProtocolConfigurationBuilder.toHttpProtocolConfiguration(builder)
-
-	implicit def intToString(i: Int) = CheckBuilder.intToString(i)
 
 	def regex(what: Session => String) = HttpBodyRegexCheckBuilder.regex(what)
 	def regex(expression: String) = HttpBodyRegexCheckBuilder.regex(expression)

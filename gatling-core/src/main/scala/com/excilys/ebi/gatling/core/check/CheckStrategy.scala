@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.check
+import com.excilys.ebi.gatling.core.session.Session
 
-trait CheckStrategy {
-
-	def apply(value: List[String], expected: List[String]): Boolean
+trait CheckStrategy[X] {
+	def apply(value: Option[X], s: Session): CheckResult[X]
 }
