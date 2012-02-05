@@ -15,6 +15,7 @@
  */
 package com.excilys.ebi.gatling.recorder.configuration;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class Configuration {
 		instance.setOutputFolder(c.getOutputFolder());
 		instance.setResultTypes(c.getResultTypes());
 		instance.setSaveConfiguration(true);
-
+		instance.setEncoding(c.getEncoding());
 	}
 
 	public static void initFromCommandLineOptions(CommandLineOptions c) {
@@ -59,6 +60,7 @@ public class Configuration {
 
 		instance.setIdePackage(c.getIdePackage());
 		instance.setRequestBodiesFolder(c.getRequestBodiesFolder());
+		instance.setEncoding(c.getEncoding());
 	}
 
 	private static final Configuration instance = new Configuration();
@@ -68,9 +70,10 @@ public class Configuration {
 	private ProxyConfig proxy = new ProxyConfig();
 	private FilterStrategy filterStrategy = FilterStrategy.NONE;
 	private List<Pattern> patterns = new ArrayList<Pattern>();
-	private String outputFolder;
+	private String outputFolder = System.getProperty("user.home");
 	private List<ResultType> resultTypes = new ArrayList<ResultType>();
 	private boolean saveConfiguration;
+	private String encoding = Charset.defaultCharset().toString();
 	private transient String requestBodiesFolder;
 	private transient boolean configurationSkipped;
 	private transient String idePackage;
@@ -171,5 +174,13 @@ public class Configuration {
 
 	public void setRequestBodiesFolder(String requestBodiesFolder) {
 		this.requestBodiesFolder = requestBodiesFolder;
+	}
+
+	public String getEncoding() {
+		return encoding;
+	}
+
+	public void setEncoding(String encoding) {
+		this.encoding = encoding;
 	}
 }

@@ -574,9 +574,8 @@ public class RunningFrame extends JFrame {
 	private void saveScenario() {
 		VelocityEngine ve = new VelocityEngine();
 		ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
-		// FIXME have this configurable, see #386
-		ve.setProperty("input.encoding", "UTF-8");
-		ve.setProperty("output.encoding", "UTF-8");
+		ve.setProperty("input.encoding", configuration.getEncoding());
+		ve.setProperty("output.encoding", configuration.getEncoding());
 		ve.init();
 
 		VelocityContext context = new VelocityContext();
