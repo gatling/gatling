@@ -13,10 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.check
-import com.excilys.ebi.gatling.core.check.MultipleOccurence
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
-import com.ning.http.client.Response
+package com.excilys.ebi.gatling.core.check.extractor
 
-abstract class HttpMultipleCheckBuilder[X](what: Session => String, when: HttpPhase) extends HttpCheckBuilder[X](what, when) with MultipleOccurence[HttpCheck[X], HttpCheck[List[X]], HttpCheck[Int], Response, X]
+class TransformerExtractor[X, T](delegate: Extractor[X], tranformFunction: X => T) extends Extractor[T] {
+
+	def extract(expression: String): Option[T] = {
+	
+		delegate.extract(expression) match {
+			case Some(delegateValue) => tranformFunction(delegateValue)
+			case None => None
+		}
+	}
+}

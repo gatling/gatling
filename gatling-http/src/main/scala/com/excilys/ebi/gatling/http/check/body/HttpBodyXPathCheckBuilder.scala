@@ -24,8 +24,8 @@ import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
 import com.excilys.ebi.gatling.http.check.{ HttpMultipleCheckBuilder, HttpCheck }
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 import com.ning.http.client.Response
-
 import HttpBodyXPathCheckBuilder.HTTP_RESPONSE_BODY_DOCUMENT_CHECK_CONTEXT_KEY
+import com.excilys.ebi.gatling.core.check.extractor.TransformerExtractor
 
 object HttpBodyXPathCheckBuilder {
 
@@ -58,5 +58,9 @@ class HttpBodyXPathCheckBuilder(what: Session => String) extends HttpMultipleChe
 
 	def findAll = new CheckMultipleBuilder(checkBuildFunction[List[String]], new ExtractorFactory[Response, List[String]] {
 		def getExtractor(response: Response) = new MultiXPathExtractor(getResponseBody(response))
+	})
+
+	def count = new CheckOneBuilder(checkBuildFunction[Int], new ExtractorFactory[Response, Int] {
+		def getExtractor(response: Response) = new TransformerExtractor(new MultiXPathExtractor(getResponseBody(response)), (list: List[_]) => list.size)
 	})
 }

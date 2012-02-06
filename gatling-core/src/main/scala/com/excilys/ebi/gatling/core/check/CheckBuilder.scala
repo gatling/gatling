@@ -21,11 +21,13 @@ trait CheckBaseBuilder[C <: Check[R, X], R, X] {
 	def find: CheckOneBuilder[C, R, X]
 }
 
-trait MultipleOccurence[C <: Check[R, X], CM <: Check[R, List[X]], R, X] extends CheckBaseBuilder[C, R, X] {
+trait MultipleOccurence[C <: Check[R, X], CM <: Check[R, List[X]], CC <: Check[R, Int], R, X] extends CheckBaseBuilder[C, R, X] {
 
 	def find(occurrence: Int): CheckOneBuilder[C, R, X]
 
 	def findAll: CheckMultipleBuilder[CM, R, List[X]]
+	
+	def count: CheckOneBuilder[CC, R, Int]
 }
 
 class CheckOneBuilder[C <: Check[R, X], R, X](f: (ExtractorFactory[R, X], CheckStrategy[X], Option[String]) => C, extractorFactory: ExtractorFactory[R, X]) {

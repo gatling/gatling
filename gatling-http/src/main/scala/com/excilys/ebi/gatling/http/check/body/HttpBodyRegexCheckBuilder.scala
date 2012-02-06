@@ -25,8 +25,8 @@ import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
 import com.excilys.ebi.gatling.http.check.{ HttpMultipleCheckBuilder, HttpCheck }
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 import com.ning.http.client.Response
-
 import HttpBodyRegexCheckBuilder.HTTP_RESPONSE_BODY_CHECK_CONTEXT_KEY
+import com.excilys.ebi.gatling.core.check.extractor.TransformerExtractor
 
 object HttpBodyRegexCheckBuilder {
 
@@ -52,12 +52,16 @@ class HttpBodyRegexCheckBuilder(what: Session => String) extends HttpMultipleChe
 	def getResponseBody(response: Response) = getCheckContextAttribute(HTTP_RESPONSE_BODY_CHECK_CONTEXT_KEY).getOrElse {
 		setAndReturnCheckContextAttribute(HTTP_RESPONSE_BODY_CHECK_CONTEXT_KEY, response.getResponseBody)
 	}
-
+	
 	def find(occurence: Int) = new CheckOneBuilder(checkBuildFunction[String], new ExtractorFactory[Response, String] {
 		def getExtractor(response: Response) = new RegexExtractor(getResponseBody(response), occurence)
 	})
 
 	def findAll = new CheckMultipleBuilder(checkBuildFunction[List[String]], new ExtractorFactory[Response, List[String]] {
 		def getExtractor(response: Response) = new MultiRegexExtractor(getResponseBody(response))
+	})
+
+	def count = new CheckOneBuilder(checkBuildFunction[Int], new ExtractorFactory[Response, Int] {
+		def getExtractor(response: Response) = new TransformerExtractor(new MultiRegexExtractor(getResponseBody(response)), (list: List[_]) => list.size)
 	})
 }
