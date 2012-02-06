@@ -30,8 +30,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -574,8 +577,6 @@ public class RunningFrame extends JFrame {
 	private void saveScenario() {
 		VelocityEngine ve = new VelocityEngine();
 		ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
-		ve.setProperty("input.encoding", configuration.getEncoding());
-		ve.setProperty("output.encoding", configuration.getEncoding());
 		ve.init();
 
 		VelocityContext context = new VelocityContext();
@@ -607,19 +608,19 @@ public class RunningFrame extends JFrame {
 		context.put("URI", uri);
 
 		Template template = null;
-		FileWriter fileWriter = null;
+		Writer writer = null;
 		for (ResultType resultType : configuration.getResultTypes()) {
 			try {
 				template = ve.getTemplate(resultType.getTemplate());
-				fileWriter = new FileWriter(new File(getOutputFolder(), resultType.getScenarioFileName(startDate)));
-				template.merge(context, fileWriter);
-				fileWriter.flush();
+				writer = new OutputStreamWriter(new FileOutputStream(new File(getOutputFolder(), resultType.getScenarioFileName(startDate))), configuration.getEncoding());
+				template.merge(context, writer);
+				writer.flush();
 
 			} catch (IOException e) {
 				logger.error("Error, while saving '" + resultType + "' scenario..." + e.getStackTrace());
 
 			} finally {
-				closeQuietly(fileWriter);
+				closeQuietly(writer);
 			}
 		}
 	}

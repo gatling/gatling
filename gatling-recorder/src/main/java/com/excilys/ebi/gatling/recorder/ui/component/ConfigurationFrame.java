@@ -198,7 +198,7 @@ public class ConfigurationFrame extends JFrame {
 		outputFolderPanel.add(new JLabel("Output folder* : "));
 		outputFolderPanel.add(txtOutputFolder);
 		outputFolderPanel.add(btnOutputFolder);
-		
+
 		/* Output type panel */
 		JPanel outputTypePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		outputTypePanel.add(new JLabel("Type: "));
@@ -207,21 +207,19 @@ public class ConfigurationFrame extends JFrame {
 			resultTypes.add(new JCheckBox(rt.getLabel()));
 		for (JCheckBox cb : resultTypes)
 			outputTypePanel.add(cb);
-		
+
 		for (Charset c : Charset.availableCharsets().values())
 			cbOutputEncoding.addItem(c);
-		
-		cbOutputEncoding.setSelectedItem(Charset.defaultCharset());
 
 		/* Output Panel */
 		JPanel outputPanel = new JPanel(new BorderLayout());
 		outputPanel.setBorder(BorderFactory.createTitledBorder("Output"));
 		outputPanel.add(outputFolderPanel, BorderLayout.NORTH);
-		
+
 		JPanel outputFormatPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		outputFormatPanel.add(new JLabel("Encoding: "));
 		outputFormatPanel.add(cbOutputEncoding);
-		
+
 		outputPanel.add(outputTypePanel, BorderLayout.EAST);
 		outputPanel.add(outputFormatPanel, BorderLayout.WEST);
 
@@ -328,5 +326,6 @@ public class ConfigurationFrame extends JFrame {
 			for (ResultType resultType : Configuration.getInstance().getResultTypes())
 				if (cb.getText().equals(resultType.getLabel()))
 					cb.setSelected(true);
+		cbOutputEncoding.setSelectedItem(Charset.forName(Configuration.getInstance().getEncoding()));
 	}
 }

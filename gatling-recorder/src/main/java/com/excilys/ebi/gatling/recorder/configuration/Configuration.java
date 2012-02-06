@@ -15,7 +15,6 @@
  */
 package com.excilys.ebi.gatling.recorder.configuration;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,7 +59,8 @@ public class Configuration {
 
 		instance.setIdePackage(c.getIdePackage());
 		instance.setRequestBodiesFolder(c.getRequestBodiesFolder());
-		instance.setEncoding(c.getEncoding());
+		if (c.getEncoding() != null)
+			instance.setEncoding(c.getEncoding());
 	}
 
 	private static final Configuration instance = new Configuration();
@@ -73,7 +73,7 @@ public class Configuration {
 	private String outputFolder = System.getProperty("user.home");
 	private List<ResultType> resultTypes = new ArrayList<ResultType>();
 	private boolean saveConfiguration;
-	private String encoding = Charset.defaultCharset().toString();
+	private String encoding = "UTF-8";
 	private transient String requestBodiesFolder;
 	private transient boolean configurationSkipped;
 	private transient String idePackage;
