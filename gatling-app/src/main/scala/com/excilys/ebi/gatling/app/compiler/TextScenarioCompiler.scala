@@ -37,10 +37,7 @@ class TextScenarioCompiler extends ScalaScenarioCompiler {
 
 	override def collectSourceFiles(sourceDirectory: Path): List[AbstractFile] = {
 
-		val imports =
-			getClass.getClassLoader.getResources(GATLING_IMPORTS_FILE).map { resource =>
-				Source.fromURL(resource).mkString
-			}
+		val imports = getClass.getClassLoader.getResources(GATLING_IMPORTS_FILE).map(Source.fromURL(_).mkString)
 
 		val scenario = {
 			// Contains the contents of the simulation file
@@ -60,7 +57,7 @@ class TextScenarioCompiler extends ScalaScenarioCompiler {
 
 		val resolvedScenario = {
 			val builder = new StringBuilder
-			imports.foreach(builder.append(_).append('\n'))
+			imports.foreach(builder.append(_).append("\n"))
 			builder.append("class Simulation extends GatlingSimulation {\n")
 			builder.append(scenario).append("\n}")
 			builder.toString
