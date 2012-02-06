@@ -18,12 +18,12 @@ package com.excilys.ebi.gatling.recorder.ui.component;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.FileDialog;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +55,8 @@ public class ConfigurationFrame extends JFrame {
 
 	public static final Logger logger = LoggerFactory.getLogger(ConfigurationFrame.class);
 
+	public final boolean IS_MAC_OSX = System.getProperty("os.name").startsWith("Mac");
+
 	public final JTextField txtPort = new JTextField(null, 4);
 	public final JTextField txtSslPort = new JTextField(null, 4);
 
@@ -64,7 +66,7 @@ public class ConfigurationFrame extends JFrame {
 
 	public final JComboBox cbFilterStrategies = new JComboBox();
 	public final JCheckBox chkSavePref = new JCheckBox("Save preferences");
-	public final JTextField txtOutputFolder = new JTextField(49);
+	public final JTextField txtOutputFolder = new JTextField(47);
 	public final FilterTable tblFilters = new FilterTable();
 	public final List<JCheckBox> resultTypes = new ArrayList<JCheckBox>();
 	public final JComboBox cbOutputEncoding = new JComboBox();
@@ -75,9 +77,12 @@ public class ConfigurationFrame extends JFrame {
 	JButton btnClear = new JButton("Clear");
 	JButton btnStart = new JButton("Start !");
 
-	JPanel pnlTop = null;
-	JPanel pnlCenter = null;
-	JPanel pnlBottom = null;
+	JPanel pnlTop;
+	JPanel pnlCenter;
+	JPanel pnlBottom;
+
+	FileDialog fileDialog;
+	JFileChooser fileChooser;
 
 	public ConfigurationFrame() {
 
@@ -92,14 +97,28 @@ public class ConfigurationFrame extends JFrame {
 		setIconImages(Commons.getIconList());
 
 		/** Initialization of components **/
-
 		initTopPanel();
 		initCenterPanel();
 		initBottomPanel();
+		initOutputDirectoryChooser();
 
 		populateItemsFromConfiguration();
 
 		setListeners();
+	}
+
+	private void initOutputDirectoryChooser() {
+
+		if (IS_MAC_OSX) {
+			// on mac, use native dialog because JFileChooser is buggy
+			System.setProperty("apple.awt.fileDialogForDirectories", "true");
+			fileDialog = new FileDialog(ConfigurationFrame.this);
+			fileDialog = new FileDialog(ConfigurationFrame.this);
+
+		} else {
+			fileChooser = new JFileChooser();
+			fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		}
 	}
 
 	private void initTopPanel() {
@@ -276,14 +295,25 @@ public class ConfigurationFrame extends JFrame {
 		// Opens a save dialog when Browse button clicked
 		btnOutputFolder.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JFileChooser fc = new JFileChooser();
-				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
-				if (fc.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
-					return;
+				String chosenDirPath = null;
 
-				File chosenFile = fc.getSelectedFile();
-				txtOutputFolder.setText(chosenFile.getPath());
+				if (IS_MAC_OSX) {
+					fileDialog.setVisible(true);
+
+					if (fileDialog.getDirectory() == null)
+						return;
+
+					chosenDirPath = fileDialog.getDirectory() + fileDialog.getFile();
+
+				} else {
+					if (fileChooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
+						return;
+
+					chosenDirPath = fileChooser.getSelectedFile().getPath();
+				}
+
+				txtOutputFolder.setText(chosenDirPath);
 			}
 		});
 
