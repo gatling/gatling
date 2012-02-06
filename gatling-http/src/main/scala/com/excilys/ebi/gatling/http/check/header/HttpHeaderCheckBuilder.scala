@@ -60,10 +60,10 @@ class HttpHeaderCheckBuilder(what: Session => String) extends HttpMultipleCheckB
 
 	def find(occurrence: Int) = new CheckOneBuilder(checkBuildFunction[String], new ExtractorFactory[Response, String] {
 		def getExtractor(response: Response) = new Extractor[String] {
-			def extract(expression: String): Option[String] = {
+			def extract(expression: String) = {
 				val headers = response.getHeaders(expression)
 				if (headers.size > occurrence) {
-					Some(headers.get(occurrence))
+					headers.get(occurrence)
 				} else {
 					None
 				}

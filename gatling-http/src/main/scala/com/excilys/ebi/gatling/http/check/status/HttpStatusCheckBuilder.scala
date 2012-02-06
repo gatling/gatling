@@ -45,7 +45,7 @@ class HttpStatusCheckBuilder extends HttpCheckBuilder[Int](Session => EMPTY, Sta
 
 	def find = new CheckOneBuilder[HttpCheck[Int], Response, Int](checkBuildFunction[Int], new ExtractorFactory[Response, Int] {
 		def getExtractor(response: Response) = new Extractor[Int] {
-			def extract(expression: String) = Some(response.getStatusCode)
+			def extract(expression: String) = response.getStatusCode
 		}
 	})
 }
