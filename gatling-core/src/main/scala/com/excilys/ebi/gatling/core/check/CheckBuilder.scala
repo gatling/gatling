@@ -26,7 +26,7 @@ trait MultipleOccurence[C <: Check[R, X], CM <: Check[R, List[X]], CC <: Check[R
 	def find(occurrence: Int): CheckOneBuilder[C, R, X]
 
 	def findAll: CheckMultipleBuilder[CM, R, List[X]]
-	
+
 	def count: CheckOneBuilder[CC, R, Int]
 }
 

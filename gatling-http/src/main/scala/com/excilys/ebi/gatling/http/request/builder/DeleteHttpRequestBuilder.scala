@@ -30,4 +30,3 @@ class DeleteHttpRequestBuilder(httpRequestActionBuilder: HttpRequestActionBuilde
 		new DeleteHttpRequestBuilder(httpRequestActionBuilder, urlFunction, queryParams, headers, body, followsRedirects, credentials)
 	}
 }
-
