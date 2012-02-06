@@ -21,6 +21,7 @@ import static org.apache.commons.lang.StringUtils.EMPTY;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -138,6 +139,9 @@ public class ConfigurationValidatorListener implements ActionListener {
 		}
 
 		config.setSaveConfiguration(frame.chkSavePref.isSelected());
+
+		// set selected encoding
+		config.setEncoding(Charset.class.cast(frame.cbOutputEncoding.getSelectedItem()).name());
 
 		// If nothing was selected we add by default 'text'
 		if (!tmp)
