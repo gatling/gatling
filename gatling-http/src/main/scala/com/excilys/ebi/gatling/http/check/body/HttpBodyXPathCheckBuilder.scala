@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.check.body
-import scala.annotation.implicitNotFound
-
 import com.excilys.ebi.gatling.core.check.CheckContext.{ setAndReturnCheckContextAttribute, getCheckContextAttribute }
-import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.extractor.XPathExtractor
 import com.excilys.ebi.gatling.core.check.CheckOneBuilder
 import com.excilys.ebi.gatling.core.check.CheckMultipleBuilder
@@ -33,7 +30,7 @@ object HttpBodyXPathCheckBuilder {
 
 	val HTTP_BODY_XPATH_EXTRACTOR_CONTEXT_KEY = "HttpBodyXPathExtractor"
 
-	def xpath(what: Session => String) = new HttpBodyXPathCheckBuilder(what)
+	def xpath(expression: Session => String) = new HttpBodyXPathCheckBuilder(expression)
 
 	def xpath(expression: String): HttpBodyXPathCheckBuilder = xpath(interpolate(expression))
 }
@@ -41,12 +38,9 @@ object HttpBodyXPathCheckBuilder {
 /**
  * This class builds a response body check based on XPath expressions
  *
- * @param what the function returning the expression representing what is to be checked
- * @param strategy the strategy used to check
- * @param expected the expected value against which the extracted value will be checked
- * @param saveAs the optional session key in which the extracted value will be stored
+ * @param expression the function returning the expression representing what is to be checked
  */
-class HttpBodyXPathCheckBuilder(what: Session => String) extends HttpMultipleCheckBuilder[String](what, CompletePageReceived) {
+class HttpBodyXPathCheckBuilder(expression: Session => String) extends HttpMultipleCheckBuilder[String](expression, CompletePageReceived) {
 
 	def getCachedExtractor(response: Response) = getCheckContextAttribute(HTTP_BODY_XPATH_EXTRACTOR_CONTEXT_KEY).getOrElse {
 		setAndReturnCheckContextAttribute(HTTP_BODY_XPATH_EXTRACTOR_CONTEXT_KEY, new XPathExtractor(response.getResponseBodyAsStream))
@@ -54,15 +48,9 @@ class HttpBodyXPathCheckBuilder(what: Session => String) extends HttpMultipleChe
 
 	def find: CheckOneBuilder[HttpCheck[String], Response, String] = find(0)
 
-	def find(occurrence: Int) = new CheckOneBuilder(checkBuildFunction[String], new ExtractorFactory[Response, String] {
-		def getExtractor(response: Response) = getCachedExtractor(response).extractOne(occurrence)
-	})
+	def find(occurrence: Int) = new CheckOneBuilder(checkBuildFunction, (response: Response) => getCachedExtractor(response).extractOne(occurrence))
 
-	def findAll = new CheckMultipleBuilder(checkBuildFunction[List[String]], new ExtractorFactory[Response, List[String]] {
-		def getExtractor(response: Response) = getCachedExtractor(response).extractMultiple
-	})
+	def findAll = new CheckMultipleBuilder(checkBuildFunction, (response: Response) => getCachedExtractor(response).extractMultiple)
 
-	def count = new CheckOneBuilder(checkBuildFunction[Int], new ExtractorFactory[Response, Int] {
-		def getExtractor(response: Response) = getCachedExtractor(response).count
-	})
+	def count = new CheckOneBuilder(checkBuildFunction, (response: Response) => getCachedExtractor(response).count)
 }

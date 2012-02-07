@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.http.check.status
 
-import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
-import com.excilys.ebi.gatling.core.check.extractor.Extractor
 import com.excilys.ebi.gatling.core.check.CheckOneBuilder
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.check.HttpCheck
@@ -42,8 +40,8 @@ object HttpStatusCheckBuilder {
  * @param expected the expected value against which the extracted value will be checked
  */
 class HttpStatusCheckBuilder extends HttpCheckBuilder[Int](Session => EMPTY, StatusReceived) {
+	
+	val toto = (response: Response) => (expression: String) => Some(response.getStatusCode)
 
-	def find = new CheckOneBuilder[HttpCheck[Int], Response, Int](checkBuildFunction[Int], new ExtractorFactory[Response, Int] {
-		def getExtractor(response: Response) = (expression: String) => Some(response.getStatusCode)
-	})
+	def find = new CheckOneBuilder[HttpCheck[Int], Response, Int](checkBuildFunction, (response: Response) => (expression: String) => Some(response.getStatusCode))
 }

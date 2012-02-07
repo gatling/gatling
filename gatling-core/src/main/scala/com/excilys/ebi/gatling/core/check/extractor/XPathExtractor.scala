@@ -15,15 +15,19 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor
 
-import java.io.StringReader
+import java.io.{ StringReader, InputStream }
+
 import scala.collection.JavaConversions.asScalaBuffer
+
 import org.jaxen.dom.DOMXPath
 import org.jaxen.XPath
-import org.w3c.dom.{ Node, Document }
+import org.w3c.dom.Node
 import org.xml.sax.{ InputSource, EntityResolver }
+
+import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, listToOption }
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+
 import javax.xml.parsers.DocumentBuilderFactory
-import java.io.InputStream
 
 /**
  * XPathExtractor class companion
@@ -51,8 +55,8 @@ object XPathExtractor {
  * @param xmlContent the XML document as an InputStream in which the XPath search will be applied
  * @param occurrence the occurrence of the results that should be returned
  */
-class XPathExtractor(inputStream: InputStream) extends Extractor {
-	
+class XPathExtractor(inputStream: InputStream) {
+
 	val document = XPathExtractor.parser.parse(inputStream)
 
 	/**

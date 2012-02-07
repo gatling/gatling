@@ -81,7 +81,7 @@ class HttpRequestAction(next: ActorRef, request: HttpRequest, givenChecks: Optio
 		extends RequestAction[HttpCheck[_], Response, HttpProtocolConfiguration](next, request, givenChecks, protocolConfiguration) {
 
 	def addDefaultHttpStatusCheck(checks: List[HttpCheck[_]]) = {
-		if (checks.find(_.when == StatusReceived).isEmpty) {
+		if (checks.find(_.phase == StatusReceived).isEmpty) {
 			// add default HttpStatusCheck if none was set
 			HttpRequestAction.DEFAULT_HTTP_STATUS_CHECK :: checks
 		} else {

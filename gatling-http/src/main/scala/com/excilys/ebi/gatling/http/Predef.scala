@@ -28,13 +28,13 @@ object Predef {
 	implicit def toHttpProtocolConfiguration(hpb: HttpProxyBuilder) = HttpProxyBuilder.toHttpProtocolConfiguration(hpb)
 	implicit def toHttpProtocolConfiguration(builder: HttpProtocolConfigurationBuilder) = HttpProtocolConfigurationBuilder.toHttpProtocolConfiguration(builder)
 
-	def regex(what: Session => String) = HttpBodyRegexCheckBuilder.regex(what)
+	def regex(expression: Session => String) = HttpBodyRegexCheckBuilder.regex(expression)
 	def regex(expression: String) = HttpBodyRegexCheckBuilder.regex(expression)
 
-	def xpath(what: Session => String) = HttpBodyXPathCheckBuilder.xpath(what)
+	def xpath(expression: Session => String) = HttpBodyXPathCheckBuilder.xpath(expression)
 	def xpath(expression: String) = HttpBodyXPathCheckBuilder.xpath(expression)
 
-	def header(what: Session => String) = HttpHeaderCheckBuilder.header(what)
+	def header(expression: Session => String) = HttpHeaderCheckBuilder.header(expression)
 	def header(headerName: String) = HttpHeaderCheckBuilder.header(headerName)
 
 	def status = HttpStatusCheckBuilder.status

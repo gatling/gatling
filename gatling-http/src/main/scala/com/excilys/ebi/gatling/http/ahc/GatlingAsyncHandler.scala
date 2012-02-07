@@ -126,7 +126,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck[_]], next: Ac
 		next ! newSession.setAttribute(Session.LAST_ACTION_DURATION_KEY, currentTimeMillis - responseEndDate.get)
 	}
 
-	def getChecksForPhase(httpPhase: HttpPhase) = checks.filter(_.when == httpPhase)
+	def getChecksForPhase(httpPhase: HttpPhase) = checks.filter(_.phase == httpPhase)
 
 	/**
 	 * This method processes the response if needed for each checks given by the user

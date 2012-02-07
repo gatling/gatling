@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor
 
-trait Extractor {
+object Extractor {
 
 	implicit def listToOption[X](values: List[X]): Option[List[X]] = if (values.isEmpty) None else Some(values)
 

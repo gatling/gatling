@@ -15,7 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.check
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
 
 trait CheckBaseBuilder[C <: Check[R, X], R, X] {
 	def find: CheckOneBuilder[C, R, X]
@@ -30,7 +29,7 @@ trait MultipleOccurrence[C <: Check[R, X], CM <: Check[R, List[X]], CC <: Check[
 	def count: CheckOneBuilder[CC, R, Int]
 }
 
-class CheckOneBuilder[C <: Check[R, X], R, X](f: (ExtractorFactory[R, X], CheckStrategy[X], Option[String]) => C, extractorFactory: ExtractorFactory[R, X]) {
+class CheckOneBuilder[C <: Check[R, X], R, X](f: (R => String => Option[X], CheckStrategy[X], Option[String]) => C, extractorFactory: R => String => Option[X]) {
 
 	def verify[XP](strategy: CheckStrategy[X]) = new CheckBuilder(f, extractorFactory, strategy) with SaveAsBuilder[C, R, X]
 
@@ -88,7 +87,7 @@ class CheckOneBuilder[C <: Check[R, X], R, X](f: (ExtractorFactory[R, X], CheckS
 	})
 }
 
-class CheckMultipleBuilder[C <: Check[R, X], R, X <: List[_]](f: (ExtractorFactory[R, X], CheckStrategy[X], Option[String]) => C, extractorFactory: ExtractorFactory[R, X]) {
+class CheckMultipleBuilder[C <: Check[R, X], R, X <: List[_]](f: (R => String => Option[X], CheckStrategy[X], Option[String]) => C, extractorFactory: R => String => Option[X]) {
 
 	def verify[XP](strategy: CheckStrategy[X]) = new CheckBuilder(f, extractorFactory, strategy) with SaveAsBuilder[C, R, X]
 
@@ -133,7 +132,7 @@ trait SaveAsBuilder[C <: Check[R, X], R, X] extends CheckBuilder[C, R, X] {
 	def saveAs(saveAs: String) = new CheckBuilder(f, extractorFactory, strategy, Some(saveAs))
 }
 
-class CheckBuilder[C <: Check[R, X], R, X](val f: (ExtractorFactory[R, X], CheckStrategy[X], Option[String]) => C, val extractorFactory: ExtractorFactory[R, X], val strategy: CheckStrategy[X], saveAs: Option[String] = None) {
+class CheckBuilder[C <: Check[R, X], R, X](val f: (R => String => Option[X], CheckStrategy[X], Option[String]) => C, val extractorFactory: R => String => Option[X], val strategy: CheckStrategy[X], saveAs: Option[String] = None) {
 
 	def build: C = f(extractorFactory, strategy, saveAs)
 }

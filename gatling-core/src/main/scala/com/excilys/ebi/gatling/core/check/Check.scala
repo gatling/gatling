@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.check
-import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
 import com.excilys.ebi.gatling.core.session.Session
 import CheckContext.doWithCheckContext
@@ -42,16 +41,15 @@ object Check {
 /**
  * This class represents a Check
  *
- * @param what the function that returns the expression representing what the check should look for
- * @param how the extractor that will be used by the Check
+ * @param expression the function that returns the expression representing what the check should look for
+ * @param extractorFactory the extractor factory that will be used by the Check
  * @param saveAs the session attribute that will be used to store the extracted value
  * @param strategy the strategy used to perform the Check
- * @param expected the expected value of what has been found
  */
-abstract class Check[R, X](val extractionExpression: Session => String, val extractorFactory: ExtractorFactory[R, X], val strategy: CheckStrategy[X], val saveAs: Option[String]) {
+abstract class Check[R, X](val expression: Session => String, val extractorFactory: R => String => Option[X], val strategy: CheckStrategy[X], val saveAs: Option[String]) {
 
 	def check(response: R, s: Session) = {
-		val extracted = extractorFactory.getExtractor(response)(extractionExpression(s))
+		val extracted = extractorFactory(response)(expression(s))
 		strategy(extracted, s)
 	}
 }
