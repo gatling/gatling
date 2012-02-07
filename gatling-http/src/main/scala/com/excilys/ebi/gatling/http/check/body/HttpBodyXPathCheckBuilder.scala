@@ -14,43 +14,24 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.check.body
-import com.excilys.ebi.gatling.core.check.CheckContext.{ setAndReturnCheckContextAttribute, getCheckContextAttribute }
-import com.excilys.ebi.gatling.core.check.extractor.XPathExtractor
-import com.excilys.ebi.gatling.core.check.CheckOneBuilder
-import com.excilys.ebi.gatling.core.check.CheckMultipleBuilder
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
-import com.excilys.ebi.gatling.http.check.{ HttpMultipleCheckBuilder, HttpCheck }
-import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
-import com.ning.http.client.Response
+import scala.annotation.implicitNotFound
 
-import HttpBodyXPathCheckBuilder.HTTP_BODY_XPATH_EXTRACTOR_CONTEXT_KEY
+import com.excilys.ebi.gatling.core.check.CheckContext.{setAndReturnCheckContextAttribute, getCheckContextAttribute}
+import com.excilys.ebi.gatling.core.check.extractor.XPathExtractor
+import com.excilys.ebi.gatling.core.session.Session
+import com.ning.http.client.Response
 
 object HttpBodyXPathCheckBuilder {
 
-	val HTTP_BODY_XPATH_EXTRACTOR_CONTEXT_KEY = "HttpBodyXPathExtractor"
+	def xpath(expression: Session => String) = new HttpBodyCheckBuilder(findExtractorFactory, findAllExtractoryFactory, countExtractoryFactory, expression)
 
-	def xpath(expression: Session => String) = new HttpBodyXPathCheckBuilder(expression)
+	private val HTTP_BODY_XPATH_EXTRACTOR_CONTEXT_KEY = "HttpBodyXPathExtractor"
 
-	def xpath(expression: String): HttpBodyXPathCheckBuilder = xpath(interpolate(expression))
-}
-
-/**
- * This class builds a response body check based on XPath expressions
- *
- * @param expression the function returning the expression representing what is to be checked
- */
-class HttpBodyXPathCheckBuilder(expression: Session => String) extends HttpMultipleCheckBuilder[String](expression, CompletePageReceived) {
-
-	def getCachedExtractor(response: Response) = getCheckContextAttribute(HTTP_BODY_XPATH_EXTRACTOR_CONTEXT_KEY).getOrElse {
+	private def getCachedExtractor(response: Response) = getCheckContextAttribute(HTTP_BODY_XPATH_EXTRACTOR_CONTEXT_KEY).getOrElse {
 		setAndReturnCheckContextAttribute(HTTP_BODY_XPATH_EXTRACTOR_CONTEXT_KEY, new XPathExtractor(response.getResponseBodyAsStream))
 	}
 
-	def find: CheckOneBuilder[HttpCheck[String], Response, String] = find(0)
-
-	def find(occurrence: Int) = new CheckOneBuilder(checkBuildFunction, (response: Response) => getCachedExtractor(response).extractOne(occurrence))
-
-	def findAll = new CheckMultipleBuilder(checkBuildFunction, (response: Response) => getCachedExtractor(response).extractMultiple)
-
-	def count = new CheckOneBuilder(checkBuildFunction, (response: Response) => getCachedExtractor(response).count)
+	private def findExtractorFactory(occurrence: Int) = (response: Response) => getCachedExtractor(response).extractOne(occurrence)(_)
+	private val findAllExtractoryFactory = (response: Response) => getCachedExtractor(response).extractMultiple(_)
+	private val countExtractoryFactory = (response: Response) => getCachedExtractor(response).count(_)
 }

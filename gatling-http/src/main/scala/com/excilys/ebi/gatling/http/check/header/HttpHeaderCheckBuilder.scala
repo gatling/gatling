@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.check.header
+import scala.annotation.implicitNotFound
 import scala.collection.JavaConversions.asScalaIterable
 
+import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, listToOption }
 import com.excilys.ebi.gatling.core.check.CheckOneBuilder
 import com.excilys.ebi.gatling.core.check.CheckMultipleBuilder
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
 import com.excilys.ebi.gatling.http.check.{ HttpMultipleCheckBuilder, HttpCheck }
 import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
 import com.ning.http.client.Response
-import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, listToOption }
+
+import HttpHeaderCheckBuilder.{ findExtractorFactory, findAllExtractoryFactory, countExtractoryFactory }
 
 /**
  * HttpHeaderCheckBuilder class companion
@@ -38,12 +40,17 @@ object HttpHeaderCheckBuilder {
 	 * @param expression the function returning the name of the header
 	 */
 	def header(expression: Session => String) = new HttpHeaderCheckBuilder(expression)
-	/**
-	 * Will check the value of the header in the session
-	 *
-	 * @param headerName the name of the header
-	 */
-	def header(headerName: String): HttpHeaderCheckBuilder = header(interpolate(headerName))
+
+	private def findExtractorFactory(occurrence: Int) = (response: Response) => (expression: String) => {
+		val headers = response.getHeaders(expression)
+		if (headers.size > occurrence) {
+			toOption(headers.get(occurrence))
+		} else {
+			None
+		}
+	}
+	private val findAllExtractoryFactory = (response: Response) => (expression: String) => listToOption(asScalaIterable(response.getHeaders(expression)).toList)
+	private val countExtractoryFactory = (response: Response) => (expression: String) => toOption(response.getHeaders(expression).size)
 }
 
 /**
@@ -55,18 +62,10 @@ class HttpHeaderCheckBuilder(expression: Session => String) extends HttpMultiple
 
 	def find: CheckOneBuilder[HttpCheck[String], Response, String] = find(0)
 
-	def find(occurrence: Int) = new CheckOneBuilder(checkBuildFunction, (response: Response) => (expression: String) => {
-			val headers = response.getHeaders(expression)
-			if (headers.size > occurrence) {
-				headers.get(occurrence)
-			} else {
-				None
-			}
-		}
-	)
+	def find(occurrence: Int) = new CheckOneBuilder(checkBuildFunction, findExtractorFactory(occurrence))
 
-	def findAll = new CheckMultipleBuilder(checkBuildFunction, (response: Response) =>  (expression: String) => asScalaIterable(response.getHeaders(expression)).toList)
+	def findAll = new CheckMultipleBuilder(checkBuildFunction, findAllExtractoryFactory)
 
-	def count = new CheckOneBuilder(checkBuildFunction, (response: Response) =>  (expression: String) => response.getHeaders(expression).size)
+	def count = new CheckOneBuilder(checkBuildFunction, countExtractoryFactory)
 }
 

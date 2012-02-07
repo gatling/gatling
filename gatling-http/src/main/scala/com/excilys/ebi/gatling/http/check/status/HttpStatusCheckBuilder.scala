@@ -15,12 +15,16 @@
  */
 package com.excilys.ebi.gatling.http.check.status
 
+import scala.annotation.implicitNotFound
+
 import com.excilys.ebi.gatling.core.check.CheckOneBuilder
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
 import com.ning.http.client.Response
+
+import HttpStatusCheckBuilder.findExtractorFactory
 
 /**
  * HttpStatusCheckBuilder class companion
@@ -30,6 +34,8 @@ import com.ning.http.client.Response
 object HttpStatusCheckBuilder {
 
 	def status = new HttpStatusCheckBuilder
+
+	private def findExtractorFactory = (response: Response) => (expression: String) => Some(response.getStatusCode)
 }
 
 /**
@@ -40,8 +46,6 @@ object HttpStatusCheckBuilder {
  * @param expected the expected value against which the extracted value will be checked
  */
 class HttpStatusCheckBuilder extends HttpCheckBuilder[Int](Session => EMPTY, StatusReceived) {
-	
-	val toto = (response: Response) => (expression: String) => Some(response.getStatusCode)
 
-	def find = new CheckOneBuilder[HttpCheck[Int], Response, Int](checkBuildFunction, (response: Response) => (expression: String) => Some(response.getStatusCode))
+	def find = new CheckOneBuilder[HttpCheck[Int], Response, Int](checkBuildFunction, findExtractorFactory)
 }

@@ -14,44 +14,24 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.check.body
+import scala.annotation.implicitNotFound
 
-import com.excilys.ebi.gatling.core.check.CheckContext.{ setAndReturnCheckContextAttribute, getCheckContextAttribute }
+import com.excilys.ebi.gatling.core.check.CheckContext.{setAndReturnCheckContextAttribute, getCheckContextAttribute}
 import com.excilys.ebi.gatling.core.check.extractor.RegexExtractor
-import com.excilys.ebi.gatling.core.check.CheckOneBuilder
-import com.excilys.ebi.gatling.core.check.CheckMultipleBuilder
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
-import com.excilys.ebi.gatling.http.check.{ HttpMultipleCheckBuilder, HttpCheck }
-import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 import com.ning.http.client.Response
-
-import HttpBodyRegexCheckBuilder.HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY
 
 object HttpBodyRegexCheckBuilder {
 
-	val HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY = "HttpBodyRegexExtractor"
+	def regex(expression: Session => String) = new HttpBodyCheckBuilder(findExtractorFactory, findAllExtractoryFactory, countExtractoryFactory, expression)
 
-	def regex(expression: Session => String) = new HttpBodyRegexCheckBuilder(expression)
-
-	def regex(expression: String): HttpBodyRegexCheckBuilder = regex(interpolate(expression))
-}
-
-/**
- * This class builds a response body check based on regular expressions
- *
- * @param expression the function returning the expression representing expression is to be checked
- */
-class HttpBodyRegexCheckBuilder(expression: Session => String) extends HttpMultipleCheckBuilder[String](expression, CompletePageReceived) {
-
-	def find: CheckOneBuilder[HttpCheck[String], Response, String] = find(0)
+	private val HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY = "HttpBodyRegexExtractor"
 
 	private def getCachedExtractor(response: Response) = getCheckContextAttribute(HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY).getOrElse {
 		setAndReturnCheckContextAttribute(HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY, new RegexExtractor(response.getResponseBody))
 	}
 
-	def find(occurrence: Int) = new CheckOneBuilder(checkBuildFunction, (response: Response) => getCachedExtractor(response).extractOne(occurrence))
-
-	def findAll = new CheckMultipleBuilder(checkBuildFunction, (response: Response) => getCachedExtractor(response).extractMultiple)
-
-	def count = new CheckOneBuilder(checkBuildFunction, (response: Response) => getCachedExtractor(response).count)
+	private def findExtractorFactory(occurrence: Int) = (response: Response) => getCachedExtractor(response).extractOne(occurrence)(_)
+	private val findAllExtractoryFactory = (response: Response) => getCachedExtractor(response).extractMultiple(_)
+	private val countExtractoryFactory = (response: Response) => getCachedExtractor(response).count(_)
 }
