@@ -29,14 +29,8 @@ object Predef {
 	implicit def toHttpProtocolConfiguration(builder: HttpProtocolConfigurationBuilder) = HttpProtocolConfigurationBuilder.toHttpProtocolConfiguration(builder)
 
 	def regex(expression: Session => String) = HttpBodyRegexCheckBuilder.regex(expression)
-	def regex(expression: String) = HttpBodyRegexCheckBuilder.regex(expression)
-
 	def xpath(expression: Session => String) = HttpBodyXPathCheckBuilder.xpath(expression)
-	def xpath(expression: String) = HttpBodyXPathCheckBuilder.xpath(expression)
-
 	def header(expression: Session => String) = HttpHeaderCheckBuilder.header(expression)
-	def header(headerName: String) = HttpHeaderCheckBuilder.header(headerName)
-
 	def status = HttpStatusCheckBuilder.status
 
 	/* MIME types */
