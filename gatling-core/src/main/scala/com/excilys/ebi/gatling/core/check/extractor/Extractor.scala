@@ -15,21 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor
 
-/**
- * This class acts as model for extractors
- *
- * Extractors are objects responsible for extracting elements in others
- * Typically, we can think of Regular Expressions.
- */
-trait Extractor[X] {
-
-	/**
-	 * this method does the actual extraction of what is designed by the expression
-	 *
-	 * @param expression the expression that defines the extraction
-	 * @return the result of the search, being None if nothing was found or Some(something)
-	 */
-	def extract(expression: String): Option[X]
+object Extractor {
 
 	implicit def listToOption[X](values: List[X]): Option[List[X]] = if (values.isEmpty) None else Some(values)
 

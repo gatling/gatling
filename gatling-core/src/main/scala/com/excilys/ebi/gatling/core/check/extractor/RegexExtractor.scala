@@ -17,14 +17,15 @@ package com.excilys.ebi.gatling.core.check.extractor
 
 import java.util.regex.Pattern
 
+import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, listToOption }
+
 /**
  * This class is a built-in extractor that helps searching with Regular Expressions
  *
  * @constructor creates a new RegExpExtractor
  * @param textContent the text where the search will be made
- * @param occurence the occurrence of the result that should be returned
  */
-class RegexExtractor(textContent: String, occurrence: Int) extends Extractor[String] {
+class RegexExtractor(textContent: String) {
 	/**
 	 * The actual extraction happens here. The regular expression is compiled and the occurrence-th
 	 * result is returned if existing.
@@ -32,7 +33,7 @@ class RegexExtractor(textContent: String, occurrence: Int) extends Extractor[Str
 	 * @param expression a String containing the regular expression to be matched
 	 * @return an option containing the value if found, None otherwise
 	 */
-	def extract(expression: String): Option[String] = {
+	def extractOne(occurrence: Int)(expression: String): Option[String] = {
 
 		val matcher = Pattern.compile(expression).matcher(textContent)
 
@@ -44,4 +45,17 @@ class RegexExtractor(textContent: String, occurrence: Int) extends Extractor[Str
 		// if a group is specified, return the group 1, else return group 0 (ie the match)
 		new String(matcher.group(matcher.groupCount min 1))
 	}
+
+	/**
+	 * The actual extraction happens here. The regular expression is compiled and the occurrence-th
+	 * result is returned if existing.
+	 *
+	 * @param expression a String containing the regular expression to be matched
+	 * @return an option containing the value if found, None otherwise
+	 */
+	def extractMultiple(expression: String): Option[List[String]] = expression.r.findAllIn(textContent).matchData.map { matcher =>
+		new String(matcher.group(1 min matcher.groupCount))
+	}.toList
+
+	def count(expression: String): Option[Int] = expression.r.findAllIn(textContent).size
 }

@@ -51,8 +51,7 @@ object Check {
 abstract class Check[R, X](val extractionExpression: Session => String, val extractorFactory: ExtractorFactory[R, X], val strategy: CheckStrategy[X], val saveAs: Option[String]) {
 
 	def check(response: R, s: Session) = {
-		val extractor = extractorFactory.getExtractor(response)
-		val extracted = extractor.extract(extractionExpression(s))
+		val extracted = extractorFactory.getExtractor(response)(extractionExpression(s))
 		strategy(extracted, s)
 	}
 }

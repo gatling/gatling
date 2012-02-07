@@ -16,15 +16,15 @@
 package com.excilys.ebi.gatling.core.check.extractor
 
 import java.io.StringReader
-
+import scala.collection.JavaConversions.asScalaBuffer
 import org.jaxen.dom.DOMXPath
 import org.jaxen.XPath
-import org.w3c.dom.{Node, Document}
-import org.xml.sax.{InputSource, EntityResolver}
-
+import org.w3c.dom.{ Node, Document }
+import org.xml.sax.{ InputSource, EntityResolver }
+import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, listToOption }
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-
 import javax.xml.parsers.DocumentBuilderFactory
+import java.io.InputStream
 
 /**
  * XPathExtractor class companion
@@ -52,7 +52,9 @@ object XPathExtractor {
  * @param xmlContent the XML document as an InputStream in which the XPath search will be applied
  * @param occurrence the occurrence of the results that should be returned
  */
-class XPathExtractor(document: Document, occurrence: Int) extends Extractor[String] {
+class XPathExtractor(inputStream: InputStream) {
+	
+	val document = XPathExtractor.parser.parse(inputStream)
 
 	/**
 	 * The actual extraction happens here. The XPath expression is searched for and the occurrence-th
@@ -61,7 +63,7 @@ class XPathExtractor(document: Document, occurrence: Int) extends Extractor[Stri
 	 * @param expression a String containing the XPath expression to be searched
 	 * @return an option containing the value if found, None otherwise
 	 */
-	def extract(expression: String) = {
+	def extractOne(occurrence: Int)(expression: String): Option[String] = {
 
 		val xpathExpression: XPath = new DOMXPath(expression);
 
@@ -72,4 +74,15 @@ class XPathExtractor(document: Document, occurrence: Int) extends Extractor[Stri
 		else
 			None
 	}
+
+	/**
+	 * The actual extraction happens here. The XPath expression is searched for and the occurrence-th
+	 * result is returned if existing.
+	 *
+	 * @param expression a String containing the XPath expression to be searched
+	 * @return an option containing the value if found, None otherwise
+	 */
+	def extractMultiple(expression: String): Option[List[String]] = new DOMXPath(expression).selectNodes(document).asInstanceOf[java.util.List[Node]].map(_.getTextContent).toList
+
+	def count(expression: String): Option[Int] = new DOMXPath(expression).selectNodes(document).size
 }

@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.check.header
-import scala.annotation.implicitNotFound
 import scala.collection.JavaConversions.asScalaIterable
 
 import com.excilys.ebi.gatling.core.check.extractor.ExtractorFactory
-import com.excilys.ebi.gatling.core.check.extractor.{TransformerExtractor, Extractor}
 import com.excilys.ebi.gatling.core.check.CheckOneBuilder
 import com.excilys.ebi.gatling.core.check.CheckMultipleBuilder
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
-import com.excilys.ebi.gatling.http.check.{HttpMultipleCheckBuilder, HttpCheck}
+import com.excilys.ebi.gatling.http.check.{ HttpMultipleCheckBuilder, HttpCheck }
 import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
 import com.ning.http.client.Response
 
@@ -61,28 +59,22 @@ class HttpHeaderCheckBuilder(what: Session => String) extends HttpMultipleCheckB
 	def find: CheckOneBuilder[HttpCheck[String], Response, String] = find(0)
 
 	def find(occurrence: Int) = new CheckOneBuilder(checkBuildFunction[String], new ExtractorFactory[Response, String] {
-		def getExtractor(response: Response) = new Extractor[String] {
-			def extract(expression: String) = {
-				val headers = response.getHeaders(expression)
-				if (headers.size > occurrence) {
-					headers.get(occurrence)
-				} else {
-					None
-				}
+		def getExtractor(response: Response) = (expression: String) => {
+			val headers = response.getHeaders(expression)
+			if (headers.size > occurrence) {
+				Some(headers.get(occurrence))
+			} else {
+				None
 			}
 		}
 	})
 
 	def findAll = new CheckMultipleBuilder(checkBuildFunction[List[String]], new ExtractorFactory[Response, List[String]] {
-		def getExtractor(response: Response) = new Extractor[List[String]] {
-			def extract(expression: String) = asScalaIterable(response.getHeaders(expression)).toList
-		}
+		def getExtractor(response: Response) = (expression: String) => Some(asScalaIterable(response.getHeaders(expression)).toList)
 	})
 
 	def count = new CheckOneBuilder(checkBuildFunction[Int], new ExtractorFactory[Response, Int] {
-		def getExtractor(response: Response) = new TransformerExtractor(new Extractor[List[String]] {
-			def extract(expression: String) = asScalaIterable(response.getHeaders(expression)).toList
-		}, (list: List[_]) => list.size)
+		def getExtractor(response: Response) = (expression: String) => Some(response.getHeaders(expression).size)
 	})
 }
 

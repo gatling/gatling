@@ -25,5 +25,5 @@ trait ExtractorFactory[R, X] {
 	 *
 	 * @param response the response from which to perform the extraction
 	 */
-	def getExtractor(response: R): Extractor[X]
+	def getExtractor(response: R): String => Option[X]
 }
