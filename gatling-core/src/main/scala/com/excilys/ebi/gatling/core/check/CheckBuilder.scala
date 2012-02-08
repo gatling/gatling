@@ -53,9 +53,9 @@ class CheckOneBuilder[C <: Check[R, X], R, X](f: (ExtractorFactory[R, X], CheckS
 				if (extracted == expectedValue)
 					CheckResult(true, value)
 				else
-					CheckResult(false, value, Some("Check 'eq' failed, found " + extracted + " but expected " + expectedValue))
+					CheckResult(false, value, Some("Check 'is' failed, found " + extracted + " but expected " + expectedValue))
 			}
-			case None => CheckResult(false, None, Some("Check 'eq' failed, found nothing"))
+			case None => CheckResult(false, None, Some("Check 'is' failed, found nothing"))
 		}
 	})
 
@@ -67,7 +67,7 @@ class CheckOneBuilder[C <: Check[R, X], R, X](f: (ExtractorFactory[R, X], CheckS
 				if (extracted != expectedValue)
 					CheckResult(true, value)
 				else
-					CheckResult(false, None, Some("Check 'neq' failed, found " + extracted + " but expected !" + expectedValue))
+					CheckResult(false, None, Some("Check 'not' failed, found " + extracted + " but expected !" + expectedValue))
 			}
 		}
 	})
@@ -81,7 +81,7 @@ class CheckOneBuilder[C <: Check[R, X], R, X](f: (ExtractorFactory[R, X], CheckS
 				else
 					CheckResult(false, None, Some("Check 'in' failed, found " + extracted + " but expected " + expectedValue))
 			}
-			case None => CheckResult(false, None, Some("Check 'eq' failed, found nothing"))
+			case None => CheckResult(false, None, Some("Check 'in' failed, found nothing"))
 		}
 	})
 }
@@ -119,9 +119,9 @@ class CheckMultipleBuilder[C <: Check[R, X], R, X <: List[_]](f: (ExtractorFacto
 				if (extracted == expectedValue)
 					CheckResult(true, value)
 				else
-					CheckResult(false, None, Some("Check 'eq' failed, found " + extracted + " but expected " + expectedValue))
+					CheckResult(false, None, Some("Check 'is' failed, found " + extracted + " but expected " + expectedValue))
 			}
-			case None => CheckResult(false, None, Some("Check 'eq' failed, found nothing"))
+			case None => CheckResult(false, None, Some("Check 'is' failed, found nothing"))
 		}
 	})
 }
