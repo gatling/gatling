@@ -16,10 +16,8 @@
 package com.excilys.ebi.gatling.http.ahc
 import java.lang.System.currentTimeMillis
 import java.lang.Void
-
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.immutable.HashMap
-
 import com.excilys.ebi.gatling.core.check.Check.applyChecks
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ ResultStatus, OK, KO }
@@ -30,13 +28,13 @@ import com.excilys.ebi.gatling.http.Predef.SET_COOKIE
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.request.HttpPhase.{ HttpPhase, CompletePageReceived }
 import com.excilys.ebi.gatling.http.request.HttpPhase
-import com.excilys.ebi.gatling.http.util.HttpHelper.COOKIES_CONTEXT_KEY
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
 import com.ning.http.client.{ ProgressAsyncHandler, Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler }
 import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
-
 import akka.actor.ActorRef
+import com.excilys.ebi.gatling.http.cookie.CookieHandling
+import scala.collection.JavaConversions._
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
@@ -50,7 +48,7 @@ import akka.actor.ActorRef
  * @param requestName the name of the request
  */
 class GatlingAsyncHandler(session: Session, checks: List[HttpCheck[_]], next: ActorRef, requestName: String)
-		extends AsyncHandler[Void] with ProgressAsyncHandler[Void] with Logging {
+		extends AsyncHandler[Void] with ProgressAsyncHandler[Void] with CookieHandling with Logging {
 
 	private val identifier = requestName + session.userId
 
@@ -133,27 +131,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck[_]], next: Ac
 	 */
 	private def processResponse(response: Response) {
 
-		def handleCookies(response: Response): Session = {
-			val headersMap = response.getHeaders
-
-			val setCookieHeaders = headersMap.get(SET_COOKIE)
-			if (setCookieHeaders != null) {
-				var sessionCookies = session.getAttributeAsOption[HashMap[String, Cookie]](COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty)
-
-				setCookieHeaders.foreach { setCookieHeader =>
-					val cookie = parseCookie(setCookieHeader)
-					sessionCookies += (cookie.getName -> cookie)
-				}
-
-				logger.debug("Cookies put in Session: {}", sessionCookies)
-
-				session.setAttribute(COOKIES_CONTEXT_KEY, sessionCookies)
-			} else {
-				session
-			}
-		}
-
-		var newSession = handleCookies(response)
+		var newSession = storeCookies(session, response.getUri.toString, response.getCookies)
 
 		HttpPhase.values.foreach { httpPhase =>
 			val phaseChecks = getChecksForPhase(httpPhase)

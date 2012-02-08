@@ -30,10 +30,8 @@ import com.excilys.ebi.gatling.http.request.FilePathBody
 import com.excilys.ebi.gatling.http.request.StringBody
 import com.excilys.ebi.gatling.http.request.TemplateBody
 import com.excilys.ebi.gatling.http.Predef._
-import com.excilys.ebi.gatling.http.util.HttpHelper.COOKIES_CONTEXT_KEY
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequest
-import com.ning.http.client.Cookie
 import scala.collection.immutable.HashMap
 import com.ning.http.client.Realm
 import com.ning.http.client.Realm.AuthScheme
@@ -43,6 +41,7 @@ import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.ning.http.client.Response
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
+import com.excilys.ebi.gatling.http.cookie.CookieHandling
 
 /**
  * AbstractHttpRequestBuilder class companion
@@ -68,7 +67,7 @@ object AbstractHttpRequestBuilder {
  */
 abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val httpRequestActionBuilder: HttpRequestActionBuilder, method: String, urlFunction: Session => String,
 	queryParams: List[(Session => String, Session => String)], headers: Map[String, Session => String], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
-		extends Logging {
+		extends CookieHandling with Logging {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type
@@ -87,7 +86,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 *
 	 * @param checkBuilders the checks that will be performed on the reponse
 	 */
-	def check(checks: HttpCheck[_]*) : AbstractActionBuilder = httpRequestActionBuilder.withRequest(new HttpRequest(httpRequestActionBuilder.requestName, this)).withProcessors(checks)
+	def check(checks: HttpCheck[_]*): AbstractActionBuilder = httpRequestActionBuilder.withRequest(new HttpRequest(httpRequestActionBuilder.requestName, this)).withProcessors(checks)
 
 	/**
 	 * Adds a query parameter to the request
@@ -154,9 +153,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 		val requestBuilder = new RequestBuilder
 		requestBuilder setMethod method setFollowRedirects followsRedirects.getOrElse(false)
 
-		val isHttps = addURLTo(requestBuilder, session, protocolConfiguration)
+		val isHttps = addURLAndCookiesTo(requestBuilder, session, protocolConfiguration)
 		addProxyTo(requestBuilder, session, isHttps, protocolConfiguration)
-		addCookiesTo(requestBuilder, session)
 		addQueryParamsTo(requestBuilder, session)
 		addHeadersTo(requestBuilder, headers, session)
 		addAuthenticationTo(requestBuilder, credentials)
@@ -184,12 +182,12 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	}
 
 	/**
-	 * This method adds the url to the request builder. It does so by applying the urlFunction to the current session
+	 * This method adds the url and cookies to the request builder. It does so by applying the urlFunction to the current session
 	 *
 	 * @param requestBuilder the request builder to which the url should be added
 	 * @param session the session of the current scenario
 	 */
-	private def addURLTo(requestBuilder: RequestBuilder, session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]) = {
+	private def addURLAndCookiesTo(requestBuilder: RequestBuilder, session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]) = {
 		val providedUrl = urlFunction(session)
 
 		// baseUrl implementation
@@ -203,19 +201,10 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 		requestBuilder.setUrl(url)
 
-		url.startsWith("https")
-	}
+		for (cookie <- getStoredCookies(session, url))
+			requestBuilder.addCookie(cookie)
 
-	/**
-	 * This method adds the cookies of last response to the request builder
-	 *
-	 * @param requestBuilder the request builder to which the cookies should be added
-	 * @param session the session of the current scenario
-	 */
-	private def addCookiesTo(requestBuilder: RequestBuilder, session: Session) = {
-		for ((cookieName, cookie) <- session.getAttributeAsOption[HashMap[String, Cookie]](COOKIES_CONTEXT_KEY).getOrElse(HashMap.empty)) {
-			requestBuilder.addOrReplaceCookie(cookie)
-		}
+		url.startsWith("https")
 	}
 
 	/**
