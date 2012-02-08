@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.app.compiler
-
 import java.io.{ StringWriter, PrintWriter }
 
 import scala.tools.nsc.interpreter.AbstractFileClassLoader
@@ -29,6 +28,7 @@ import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_SIMULATION_SCALA
 import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_SIMULATIONS_FOLDER
 import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
 import com.excilys.ebi.gatling.core.util.ReflectionHelper.getNewInstanceByClassName
+import com.excilys.ebi.gatling.core.util.Resource.use
 import com.excilys.ebi.gatling.core.Conventions
 
 /**
@@ -63,12 +63,11 @@ class ScalaScenarioCompiler extends ScenarioCompiler {
 
 		// Prepare an object for collecting error messages from the compiler
 		val messageCollector = new StringWriter
-		val messageCollectorWrapper = new PrintWriter(messageCollector)
 
-		try {
+		use(new PrintWriter(messageCollector)) { pw =>
 			// Initialize the compiler
 			val settings = generateSettings
-			val reporter = new ConsoleReporter(settings, Console.in, messageCollectorWrapper)
+			val reporter = new ConsoleReporter(settings, Console.in, pw)
 			val compiler = new Global(settings, reporter)
 
 			(new compiler.Run).compileFiles(files)
@@ -78,8 +77,6 @@ class ScalaScenarioCompiler extends ScenarioCompiler {
 				reporter.printSummary
 				throw new RuntimeException("Compilation failed:\n" + messageCollector.toString)
 			}
-		} finally {
-			messageCollectorWrapper.close
 		}
 	}
 

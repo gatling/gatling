@@ -14,28 +14,25 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.writer
-
 import java.io.FileWriter
 
 import scala.tools.nsc.io.Path.string2path
-import scala.tools.nsc.io.{File, Directory}
+import scala.tools.nsc.io.{ File, Directory }
 
 import com.excilys.ebi.gatling.core.config.GatlingFiles.rawdataFolder
 import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
-import com.excilys.ebi.gatling.core.util.StringHelper.{END_OF_LINE, EMPTY}
+import com.excilys.ebi.gatling.core.util.Resource.use
+import com.excilys.ebi.gatling.core.util.StringHelper.{ END_OF_LINE, EMPTY }
 
 class SeparatedValueFileWriter(val runOn: String, val fileName: String, val separator: Char) {
 	def writeToFile(values: List[List[String]]) = {
 		Directory(rawdataFolder(runOn)).createDirectory()
 		val stringSeparator = separator.toString
 
-		val fw = new FileWriter(File(rawdataFolder(runOn) / fileName), true)
-		try {
+		use(new FileWriter(File(rawdataFolder(runOn) / fileName), true)) { fw =>
 			for (value <- values) {
 				fw.write(value.mkString(EMPTY, stringSeparator, END_OF_LINE))
 			}
-		} finally {
-			fw.close
 		}
 	}
 }

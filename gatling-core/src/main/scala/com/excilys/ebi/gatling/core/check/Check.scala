@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.core.check
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
 import com.excilys.ebi.gatling.core.session.Session
-import CheckContext.doWithCheckContext
+import CheckContext.useCheckContext
 
 object Check {
 	def applyChecks[R](s: Session, response: R, checks: List[Check[R, _]]): (Session, CheckResult[_]) = {
@@ -24,7 +24,7 @@ object Check {
 		var newSession = s
 		var lastCheckResult: CheckResult[_] = null
 
-		doWithCheckContext {
+		useCheckContext {
 			for (check <- checks) {
 				lastCheckResult = check.check(response, s)
 				if (!lastCheckResult.ok)

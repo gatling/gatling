@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.writer
-import java.io.FileWriter
+package com.excilys.ebi.gatling.core.util
+import java.io.Closeable
 
-import scala.tools.nsc.io.{ Path, File }
+object Resource {
 
-import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
-import com.excilys.ebi.gatling.core.util.Resource.use
-
-class TemplateWriter(val path: Path) {
-	def writeToFile(output: String) = use(new FileWriter(File(path)))(_.write(output))
+	def use[T, C <: Closeable](closeable: C)(block: C => T) = {
+		try {
+			block(closeable)
+		} finally {
+			closeable.close
+		}
+	}
 }

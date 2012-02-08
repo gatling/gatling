@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.app.compiler
-
 import scala.collection.JavaConversions.enumerationAsScalaIterator
 import scala.io.Source
 import scala.tools.nsc.io.Path.string2path
@@ -24,6 +23,7 @@ import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
 import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_IMPORTS_FILE
 import com.excilys.ebi.gatling.core.util.FileHelper.TXT_EXTENSION
 import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
+import com.excilys.ebi.gatling.core.util.Resource.use
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 import com.excilys.ebi.gatling.core.Conventions
 
@@ -66,14 +66,7 @@ class TextScenarioCompiler extends ScalaScenarioCompiler {
 		logger.debug(resolvedScenario)
 
 		val file = new VirtualFile("Simulation.scala", "gatling")
-		val output = file.bufferedOutput
-
-		try {
-			output.write(resolvedScenario.getBytes)
-
-		} finally {
-			output.close
-		}
+		use(file.bufferedOutput)(_.write(resolvedScenario.getBytes))
 
 		List(file)
 	}

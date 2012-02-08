@@ -22,9 +22,9 @@ object CheckContext extends Logging {
 
 	private[check] val contextHolder = new ThreadLocal[Map[String, Any]]
 
-	def doWithCheckContext(f: => Unit) = {
+	def useCheckContext(block: => Unit) = {
 		try {
-			f
+			block
 		} finally {
 			contextHolder.set(null)
 		}
