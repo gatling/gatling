@@ -64,8 +64,8 @@ object StringHelper extends Logging {
 					(session: Session) => session.getAttribute(key).asInstanceOf[List[String]](multivaluedPartMatch.group(1).toInt)
 				}
 				case None => (session: Session) =>
-					session.getAttribute(data.group(1)) match {
-						case list: List[String] => list(0)
+					session.getAttribute[Any](data.group(1)) match {
+						case list: List[_] => list(0).toString
 						case str: String => str
 						case x => x.toString
 					}

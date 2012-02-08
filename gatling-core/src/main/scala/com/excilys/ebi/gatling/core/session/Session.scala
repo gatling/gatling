@@ -15,20 +15,19 @@
  */
 package com.excilys.ebi.gatling.core.session
 
-import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-
-import akka.actor.Uuid
 
 /**
  * Session class companion
  */
 object Session {
+
+	val GATLING_PRIVATE_ATTRIBUTE_PREFIX = "gatling."
+
 	/**
 	 * Key for last action duration
 	 */
-	val LAST_ACTION_DURATION_KEY = "gatling.core.lastActionDuration"
+	val LAST_ACTION_DURATION_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.lastActionDuration"
 }
 /**
  * Session class representing the session passing through a scenario for a given user
@@ -51,13 +50,7 @@ class Session(val scenarioName: String, val userId: Int, val data: Map[String, A
 	 * @param key the key of the requested value
 	 * @return the value stored at key, StringUtils.EMPTY if it does not exist
 	 */
-	def getAttribute(key: String): Any = {
-		assert(!key.startsWith("gatling."), "keys starting with gatling. are reserved for internal purpose. If using this method internally please use getAttributeAsOption instead")
-		data.get(key).getOrElse {
-			logger.warn("No Matching Attribute for key: '{}' in session", key)
-			EMPTY
-		}
-	}
+	def getAttribute[X](key: String): X = data.get(key).getOrElse(throw new IllegalArgumentException("No Matching Session attribute for key " + key)).asInstanceOf[X]
 
 	/**
 	 * Gets a value from the session
@@ -67,10 +60,7 @@ class Session(val scenarioName: String, val userId: Int, val data: Map[String, A
 	 * @param key the key of the requested value
 	 * @return the value stored at key as an Option
 	 */
-	private[gatling] def getAttributeAsOption[TYPE](key: String): Option[TYPE] = {
-		assert(key.startsWith("gatling."), "This method should not be used with keys that are not reserved, ie: starting with gatling.")
-		data.get(key).asInstanceOf[Option[TYPE]]
-	}
+	private[gatling] def getAttributeAsOption[T](key: String): Option[T] = data.get(key).asInstanceOf[Option[T]]
 
 	/**
 	 * Sets values in the session
