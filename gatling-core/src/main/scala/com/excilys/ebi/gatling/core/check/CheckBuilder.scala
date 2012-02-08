@@ -54,9 +54,9 @@ class CheckOneBuilder[C <: Check[R, X], R, X](f: (R => String => Option[X], Chec
 				if (extracted == expectedValue)
 					CheckResult(true, value)
 				else
-					CheckResult(false, value, Some("Check 'eq' failed, found " + extracted + " but expected " + expectedValue))
+					CheckResult(false, value, Some("Check 'is' failed, found " + extracted + " but expected " + expectedValue))
 			}
-			case None => CheckResult(false, None, Some("Check 'eq' failed, found nothing"))
+			case None => CheckResult(false, None, Some("Check 'is' failed, found nothing"))
 		}
 	})
 
@@ -68,7 +68,7 @@ class CheckOneBuilder[C <: Check[R, X], R, X](f: (R => String => Option[X], Chec
 				if (extracted != expectedValue)
 					CheckResult(true, value)
 				else
-					CheckResult(false, None, Some("Check 'neq' failed, found " + extracted + " but expected !" + expectedValue))
+					CheckResult(false, None, Some("Check 'not' failed, found " + extracted + " but expected !" + expectedValue))
 			}
 		}
 	})
@@ -82,7 +82,7 @@ class CheckOneBuilder[C <: Check[R, X], R, X](f: (R => String => Option[X], Chec
 				else
 					CheckResult(false, None, Some("Check 'in' failed, found " + extracted + " but expected " + expectedValue))
 			}
-			case None => CheckResult(false, None, Some("Check 'eq' failed, found nothing"))
+			case None => CheckResult(false, None, Some("Check 'in' failed, found nothing"))
 		}
 	})
 }
@@ -120,9 +120,9 @@ class CheckMultipleBuilder[C <: Check[R, X], R, X <: List[_]](f: (R => String =>
 				if (extracted == expectedValue)
 					CheckResult(true, value)
 				else
-					CheckResult(false, None, Some("Check 'eq' failed, found " + extracted + " but expected " + expectedValue))
+					CheckResult(false, None, Some("Check 'is' failed, found " + extracted + " but expected " + expectedValue))
 			}
-			case None => CheckResult(false, None, Some("Check 'eq' failed, found nothing"))
+			case None => CheckResult(false, None, Some("Check 'is' failed, found nothing"))
 		}
 	})
 }
