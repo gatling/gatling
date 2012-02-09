@@ -26,9 +26,9 @@ import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_SIMULATION_SCALA_PACKAGE
 import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_SIMULATIONS_FOLDER
+import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
 import com.excilys.ebi.gatling.core.util.ReflectionHelper.getNewInstanceByClassName
-import com.excilys.ebi.gatling.core.util.Resource.use
 import com.excilys.ebi.gatling.core.Conventions
 
 /**

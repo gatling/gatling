@@ -14,21 +14,31 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.util
-import java.io.{OutputStream, InputStream}
+import java.io.{ OutputStream, InputStream, Closeable }
+
+import scala.annotation.implicitNotFound
 
 object IOHelper {
 
-	def copy(input: InputStream, output: OutputStream) = {
+	def use[T, C <: Closeable](closeable: C)(block: C => T) = {
 		try {
-			val buffer = new Array[Byte](1024 * 4)
-			var n = input.read(buffer)
-			while (n != -1) {
-				output.write(buffer, 0, n);
-				n = input.read(buffer)
-			}
+			block(closeable)
 		} finally {
-			input.close
-			output.close
+			closeable.close
+		}
+	}
+
+	def copy(input: InputStream, output: OutputStream) = {
+		use(input) {
+			input =>
+				use(output) { output =>
+					val buffer = new Array[Byte](1024 * 4)
+					var n = input.read(buffer)
+					while (n != -1) {
+						output.write(buffer, 0, n);
+						n = input.read(buffer)
+					}
+				}
 		}
 	}
 }

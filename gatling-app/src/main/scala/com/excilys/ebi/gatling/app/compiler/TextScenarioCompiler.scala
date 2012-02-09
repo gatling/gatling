@@ -22,8 +22,8 @@ import scala.tools.nsc.io.{ VirtualFile, Path, AbstractFile }
 import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
 import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_IMPORTS_FILE
 import com.excilys.ebi.gatling.core.util.FileHelper.TXT_EXTENSION
+import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
-import com.excilys.ebi.gatling.core.util.Resource.use
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 import com.excilys.ebi.gatling.core.Conventions
 
