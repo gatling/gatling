@@ -54,7 +54,7 @@ class CheckOneBuilder[C <: Check[R, X], R, X](checkBuilderFactory: CheckBuilderF
 				if (extracted == expectedValue)
 					CheckResult(true, value)
 				else
-					CheckResult(false, value, Some("Check 'is' failed, found " + extracted + " but expected " + expectedValue))
+					CheckResult(false, value, Some(new StringBuilder().append("Check 'is' failed, found ").append(extracted).append(" but expected ").append(expectedValue).toString))
 			}
 			case None => CheckResult(false, None, Some("Check 'is' failed, found nothing"))
 		}
@@ -68,7 +68,7 @@ class CheckOneBuilder[C <: Check[R, X], R, X](checkBuilderFactory: CheckBuilderF
 				if (extracted != expectedValue)
 					CheckResult(true, value)
 				else
-					CheckResult(false, None, Some("Check 'not' failed, found " + extracted + " but expected !" + expectedValue))
+					CheckResult(false, None, Some(new StringBuilder().append("Check 'not' failed, found ").append(extracted).append(" but expected different from ").append(expectedValue).toString))
 			}
 		}
 	})
@@ -80,7 +80,7 @@ class CheckOneBuilder[C <: Check[R, X], R, X](checkBuilderFactory: CheckBuilderF
 				if (expectedValue.contains(extracted))
 					CheckResult(true, value)
 				else
-					CheckResult(false, None, Some("Check 'in' failed, found " + extracted + " but expected " + expectedValue))
+					CheckResult(false, None, Some(new StringBuilder().append("Check 'in' failed, found ").append(extracted).append(" but expected ").append(expectedValue).toString))
 			}
 			case None => CheckResult(false, None, Some("Check 'in' failed, found nothing"))
 		}
@@ -120,7 +120,7 @@ class CheckMultipleBuilder[C <: Check[R, X], R, X <: Seq[_]](checkBuilderFactory
 				if (extracted == expectedValue)
 					CheckResult(true, value)
 				else
-					CheckResult(false, None, Some("Check 'is' failed, found " + extracted + " but expected " + expectedValue))
+					CheckResult(false, None, Some(new StringBuilder().append("Check 'is' failed, found ").append(extracted).append(" but expected ").append(expectedValue).toString))
 			}
 			case None => CheckResult(false, None, Some("Check 'is' failed, found nothing"))
 		}
