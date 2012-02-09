@@ -104,6 +104,8 @@ object ReportsGenerator extends Logging {
 
 	private def copyAssets(runOn: String) = {
 		def copyFolder(sourcePackage: String, destFolderPath: Path) = {
+			
+			val sourcePackageAsPath = sourcePackage.replace("/", File.separator)
 
 			for (packageURL <- asIterator(getClass.getClassLoader.getResources(sourcePackage))) {
 				packageURL.getProtocol match {
@@ -116,9 +118,8 @@ object ReportsGenerator extends Logging {
 
 					case "jar" =>
 						val jarFilePath = packageURL.getPath.substring(0, packageURL.getPath.indexOf('!'))
-						val rootEntryPath = if (sourcePackage.endsWith("/")) sourcePackage else sourcePackage + "/"
 
-						for (fileish <- new Jar(new File(new JFile(new URI(jarFilePath)))).fileishIterator.filter(_.parent.toString == sourcePackage)) {
+						for (fileish <- new Jar(new File(new JFile(new URI(jarFilePath)))).fileishIterator.filter(_.parent.toString == sourcePackageAsPath)) {
 							val target = destFolderPath / fileish.name
 							target.parent.createDirectory()
 							val input = fileish.input()
