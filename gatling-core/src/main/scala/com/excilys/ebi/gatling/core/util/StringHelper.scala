@@ -40,7 +40,7 @@ object StringHelper extends Logging {
 
 	val jdk6Pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
 
-	val elPatternString = """\$\{([^\$]*)\}"""
+	val elPatternString = """\$\{([^\$]*?)\}"""
 	val elPattern = elPatternString.r
 	val elOccurrencePattern = """\((\d+)\)""".r
 
