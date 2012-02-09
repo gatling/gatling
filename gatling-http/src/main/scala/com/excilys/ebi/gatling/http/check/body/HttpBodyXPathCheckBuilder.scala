@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.check.body
-import scala.annotation.implicitNotFound
-
-import com.excilys.ebi.gatling.core.check.CheckContext.{setAndReturnCheckContextAttribute, getCheckContextAttribute}
+import com.excilys.ebi.gatling.core.check.CheckContext.{ setAndReturnCheckContextAttribute, getCheckContextAttribute }
 import com.excilys.ebi.gatling.core.check.extractor.XPathExtractor
+import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.session.Session
 import com.ning.http.client.Response
 
@@ -31,7 +30,7 @@ object HttpBodyXPathCheckBuilder {
 		setAndReturnCheckContextAttribute(HTTP_BODY_XPATH_EXTRACTOR_CONTEXT_KEY, new XPathExtractor(response.getResponseBodyAsStream))
 	}
 
-	private def findExtractorFactory(occurrence: Int) = (response: Response) => getCachedExtractor(response).extractOne(occurrence)(_)
-	private val findAllExtractoryFactory = (response: Response) => getCachedExtractor(response).extractMultiple(_)
-	private val countExtractoryFactory = (response: Response) => getCachedExtractor(response).count(_)
+	private def findExtractorFactory(occurrence: Int): ExtractorFactory[Response, String] = (response: Response) => getCachedExtractor(response).extractOne(occurrence)
+	private val findAllExtractoryFactory: ExtractorFactory[Response, Seq[String]] = (response: Response) => getCachedExtractor(response).extractMultiple
+	private val countExtractoryFactory: ExtractorFactory[Response, Int] = (response: Response) => getCachedExtractor(response).count
 }

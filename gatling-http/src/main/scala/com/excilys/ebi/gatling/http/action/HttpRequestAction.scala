@@ -15,7 +15,6 @@
  */
 package com.excilys.ebi.gatling.http.action
 
-import scala.collection.mutable.{ HashSet => MHashSet }
 import com.excilys.ebi.gatling.core.action.{ RequestAction, Action }
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.feeder.Feeder

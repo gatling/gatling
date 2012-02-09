@@ -15,8 +15,7 @@
  */
 package com.excilys.ebi.gatling.http.check.status
 
-import scala.annotation.implicitNotFound
-
+import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.CheckOneBuilder
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.check.HttpCheck
@@ -35,7 +34,7 @@ object HttpStatusCheckBuilder {
 
 	def status = new HttpStatusCheckBuilder
 
-	private def findExtractorFactory = (response: Response) => (expression: String) => Some(response.getStatusCode)
+	private def findExtractorFactory: ExtractorFactory[Response, Int] = (response: Response) => (expression: String) => Some(response.getStatusCode)
 }
 
 /**
@@ -47,5 +46,5 @@ object HttpStatusCheckBuilder {
  */
 class HttpStatusCheckBuilder extends HttpCheckBuilder[Int](Session => EMPTY, StatusReceived) {
 
-	def find = new CheckOneBuilder[HttpCheck[Int], Response, Int](checkBuildFunction, findExtractorFactory)
+	def find = new CheckOneBuilder[HttpCheck[Int], Response, Int](httpCheckBuilderFactory, findExtractorFactory)
 }

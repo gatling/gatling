@@ -24,7 +24,7 @@ import org.jaxen.XPath
 import org.w3c.dom.Node
 import org.xml.sax.{ InputSource, EntityResolver }
 
-import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, listToOption }
+import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 import javax.xml.parsers.DocumentBuilderFactory
@@ -85,7 +85,7 @@ class XPathExtractor(inputStream: InputStream) {
 	 * @param expression a String containing the XPath expression to be searched
 	 * @return an option containing the value if found, None otherwise
 	 */
-	def extractMultiple(expression: String): Option[List[String]] = new DOMXPath(expression).selectNodes(document).asInstanceOf[java.util.List[Node]].map(_.getTextContent).toList
+	def extractMultiple(expression: String): Option[Seq[String]] = new DOMXPath(expression).selectNodes(document).asInstanceOf[java.util.List[Node]].map(_.getTextContent).toSeq
 
 	def count(expression: String): Option[Int] = new DOMXPath(expression).selectNodes(document).size
 }

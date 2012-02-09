@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.extractor
+package com.excilys.ebi.gatling.core
+package object check {
 
-object Extractor {
-
-	implicit def seqToOption[X](values: Seq[X]): Option[Seq[X]] = if (values.isEmpty) None else Some(values)
-
-	implicit def toOption[X](value: X): Option[X] = Some(value)
+	type Extractor[X] = String => Option[X]
+	type ExtractorFactory[R, X] = R => Extractor[X]
+	type CheckBuilderFactory[C <: Check[R, X], R, X] = (ExtractorFactory[R, X], CheckStrategy[X], Option[String]) => C
 }

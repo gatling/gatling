@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.check
-import scala.collection.mutable.{Map, HashMap}
+import scala.collection.mutable
 
 import com.excilys.ebi.gatling.core.log.Logging
 
 object CheckContext extends Logging {
 
-	private[check] val contextHolder = new ThreadLocal[Map[String, Any]]
+	private[check] val contextHolder = new ThreadLocal[mutable.Map[String, Any]]
 
 	def useCheckContext(block: => Unit) = {
 		try {
@@ -33,7 +33,7 @@ object CheckContext extends Logging {
 	private def getContext = {
 		var context = contextHolder.get()
 		if (context == null) {
-			context = new HashMap[String, Any]()
+			context = new mutable.HashMap[String, Any]()
 			contextHolder.set(context)
 		}
 		context

@@ -42,7 +42,7 @@ object StringHelper extends Logging {
 
 	val elPatternString = """\$\{([^\$]*)\}"""
 	val elPattern = elPatternString.r
-	val elMultivaluedPattern = """\((\d+)\)""".r
+	val elOccurrencePattern = """\((\d+)\)""".r
 
 	/**
 	 * Method that strips all accents from a string
@@ -56,16 +56,16 @@ object StringHelper extends Logging {
 
 		val keysFunctions = elPattern.findAllIn(stringToFormat).matchData.map { data =>
 			val elContent = data.group(1)
-			val multivaluedPart = elMultivaluedPattern.findFirstMatchIn(elContent)
+			val occurrencePart = elOccurrencePattern.findFirstMatchIn(elContent)
 
-			multivaluedPart match {
-				case Some(multivaluedPartMatch) => {
+			occurrencePart match {
+				case Some(occurrencePartMatch) => {
 					val key = elContent.substring(0, elContent.lastIndexOf(INDEX_START))
-					(session: Session) => session.getAttribute(key).asInstanceOf[List[String]](multivaluedPartMatch.group(1).toInt)
+					(session: Session) => session.getAttribute(key).asInstanceOf[Seq[_]](occurrencePartMatch.group(1).toInt)
 				}
 				case None => (session: Session) =>
 					session.getAttribute[Any](data.group(1)) match {
-						case list: List[_] => list(0).toString
+						case seq: Seq[_] => seq(0).toString
 						case str: String => str
 						case x => x.toString
 					}

@@ -15,8 +15,9 @@
  */
 package com.excilys.ebi.gatling.core.resource
 
+import scala.collection.mutable
+
 import com.excilys.ebi.gatling.core.log.Logging
-import scala.collection.mutable.HashSet
 
 /**
  * The ResourceRegistry is responsible for storing a callback function that closes a resource
@@ -27,7 +28,7 @@ import scala.collection.mutable.HashSet
 object ResourceRegistry extends Logging {
 
 	// not thread-safe
-	private val onCloseCallbacks: HashSet[() => Any] = HashSet.empty
+	private val onCloseCallbacks: mutable.HashSet[() => Any] = mutable.HashSet.empty
 
 	/**
 	 * Registers the resource

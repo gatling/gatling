@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.check.extractor
 
 import java.util.regex.Pattern
 
-import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, listToOption }
+import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
 
 /**
  * This class is a built-in extractor that helps searching with Regular Expressions
@@ -53,9 +53,9 @@ class RegexExtractor(textContent: String) {
 	 * @param expression a String containing the regular expression to be matched
 	 * @return an option containing the value if found, None otherwise
 	 */
-	def extractMultiple(expression: String): Option[List[String]] = expression.r.findAllIn(textContent).matchData.map { matcher =>
+	def extractMultiple(expression: String): Option[Seq[String]] = expression.r.findAllIn(textContent).matchData.map { matcher =>
 		new String(matcher.group(1 min matcher.groupCount))
-	}.toList
+	}.toSeq
 
 	def count(expression: String): Option[Int] = expression.r.findAllIn(textContent).size
 }

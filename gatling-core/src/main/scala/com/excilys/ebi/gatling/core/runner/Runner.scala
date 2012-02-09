@@ -32,7 +32,7 @@ object Runner {
 	def runSim(startDate: DateTime)(scenarioConfigurations: ScenarioConfigurationBuilder*) = new Runner(startDate, scenarioConfigurations.toList).run
 }
 
-class Runner(startDate: DateTime, scenarioConfigurationBuilders: List[ScenarioConfigurationBuilder]) extends Logging {
+class Runner(startDate: DateTime, scenarioConfigurationBuilders: Seq[ScenarioConfigurationBuilder]) extends Logging {
 
 	// stores all scenario configurations
 	val scenarioConfigurations = for (i <- 1 to scenarioConfigurationBuilders.size) yield scenarioConfigurationBuilders(i - 1).build(i)

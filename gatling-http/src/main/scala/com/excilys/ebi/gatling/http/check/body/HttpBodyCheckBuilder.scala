@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.check.body
-import scala.annotation.implicitNotFound
-
+import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.CheckOneBuilder
 import com.excilys.ebi.gatling.core.check.CheckMultipleBuilder
 import com.excilys.ebi.gatling.core.session.Session
@@ -31,16 +30,16 @@ import com.ning.http.client.Response
  * @param countExtractoryFactory the extractor factory for count
  * @param expression the function returning the expression representing expression is to be checked
  */
-class HttpBodyCheckBuilder(findExtractorFactory: Int => Response => String => Option[String],
-		findAllExtractoryFactory: Response => String => Option[List[String]],
-		countExtractoryFactory: Response => String => Option[Int],
+class HttpBodyCheckBuilder(findExtractorFactory: Int => ExtractorFactory[Response, String],
+		findAllExtractoryFactory: ExtractorFactory[Response, Seq[String]],
+		countExtractoryFactory: ExtractorFactory[Response, Int],
 		expression: Session => String) extends HttpMultipleCheckBuilder[String](expression, CompletePageReceived) {
 
 	def find: CheckOneBuilder[HttpCheck[String], Response, String] = find(0)
 
-	def find(occurrence: Int) = new CheckOneBuilder(checkBuildFunction, findExtractorFactory(occurrence))
+	def find(occurrence: Int) = new CheckOneBuilder(httpCheckBuilderFactory, findExtractorFactory(occurrence))
 
-	def findAll = new CheckMultipleBuilder(checkBuildFunction, findAllExtractoryFactory)
+	def findAll = new CheckMultipleBuilder(httpCheckBuilderFactory, findAllExtractoryFactory)
 
-	def count = new CheckOneBuilder(checkBuildFunction, countExtractoryFactory)
+	def count = new CheckOneBuilder(httpCheckBuilderFactory, countExtractoryFactory)
 }

@@ -19,4 +19,4 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.ning.http.client.Response
 
-abstract class HttpMultipleCheckBuilder[X](expression: Session => String, phase: HttpPhase) extends HttpCheckBuilder[X](expression, phase) with MultipleOccurrence[HttpCheck[X], HttpCheck[List[X]], HttpCheck[Int], Response, X]
+abstract class HttpMultipleCheckBuilder[X](expression: Session => String, phase: HttpPhase) extends HttpCheckBuilder[X](expression, phase) with MultipleOccurrence[HttpCheck[X], HttpCheck[Seq[X]], HttpCheck[Int], Response, X]

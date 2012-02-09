@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.check.header
-import scala.annotation.implicitNotFound
 import scala.collection.JavaConversions.asScalaIterable
 
-import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, listToOption }
+import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
+import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.CheckOneBuilder
 import com.excilys.ebi.gatling.core.check.CheckMultipleBuilder
 import com.excilys.ebi.gatling.core.session.Session
@@ -41,7 +41,7 @@ object HttpHeaderCheckBuilder {
 	 */
 	def header(expression: Session => String) = new HttpHeaderCheckBuilder(expression)
 
-	private def findExtractorFactory(occurrence: Int) = (response: Response) => (expression: String) => {
+	private def findExtractorFactory(occurrence: Int): ExtractorFactory[Response, String] = (response: Response) => (expression: String) => {
 		val headers = response.getHeaders(expression)
 		if (headers.size > occurrence) {
 			toOption(headers.get(occurrence))
@@ -49,8 +49,8 @@ object HttpHeaderCheckBuilder {
 			None
 		}
 	}
-	private val findAllExtractoryFactory = (response: Response) => (expression: String) => listToOption(asScalaIterable(response.getHeaders(expression)).toList)
-	private val countExtractoryFactory = (response: Response) => (expression: String) => toOption(response.getHeaders(expression).size)
+	private val findAllExtractoryFactory: ExtractorFactory[Response, Seq[String]] = (response: Response) => (expression: String) => seqToOption(asScalaIterable(response.getHeaders(expression)).toList)
+	private val countExtractoryFactory: ExtractorFactory[Response, Int] = (response: Response) => (expression: String) => toOption(response.getHeaders(expression).size)
 }
 
 /**
@@ -62,10 +62,10 @@ class HttpHeaderCheckBuilder(expression: Session => String) extends HttpMultiple
 
 	def find: CheckOneBuilder[HttpCheck[String], Response, String] = find(0)
 
-	def find(occurrence: Int) = new CheckOneBuilder(checkBuildFunction, findExtractorFactory(occurrence))
+	def find(occurrence: Int) = new CheckOneBuilder(httpCheckBuilderFactory, findExtractorFactory(occurrence))
 
-	def findAll = new CheckMultipleBuilder(checkBuildFunction, findAllExtractoryFactory)
+	def findAll = new CheckMultipleBuilder(httpCheckBuilderFactory, findAllExtractoryFactory)
 
-	def count = new CheckOneBuilder(checkBuildFunction, countExtractoryFactory)
+	def count = new CheckOneBuilder(httpCheckBuilderFactory, countExtractoryFactory)
 }
 

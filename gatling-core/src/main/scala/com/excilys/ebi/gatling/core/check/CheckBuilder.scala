@@ -20,18 +20,18 @@ trait CheckBaseBuilder[C <: Check[R, X], R, X] {
 	def find: CheckOneBuilder[C, R, X]
 }
 
-trait MultipleOccurrence[C <: Check[R, X], CM <: Check[R, List[X]], CC <: Check[R, Int], R, X] extends CheckBaseBuilder[C, R, X] {
+trait MultipleOccurrence[C <: Check[R, X], CM <: Check[R, Seq[X]], CC <: Check[R, Int], R, X] extends CheckBaseBuilder[C, R, X] {
 
 	def find(occurrence: Int): CheckOneBuilder[C, R, X]
 
-	def findAll: CheckMultipleBuilder[CM, R, List[X]]
+	def findAll: CheckMultipleBuilder[CM, R, Seq[X]]
 
 	def count: CheckOneBuilder[CC, R, Int]
 }
 
-class CheckOneBuilder[C <: Check[R, X], R, X](f: (R => String => Option[X], CheckStrategy[X], Option[String]) => C, extractorFactory: R => String => Option[X]) {
+class CheckOneBuilder[C <: Check[R, X], R, X](checkBuilderFactory: CheckBuilderFactory[C, R, X], extractorFactory: ExtractorFactory[R, X]) {
 
-	def verify[XP](strategy: CheckStrategy[X]) = new CheckBuilder(f, extractorFactory, strategy) with SaveAsBuilder[C, R, X]
+	def verify[XP](strategy: CheckStrategy[X]) = new CheckBuilder(checkBuilderFactory, extractorFactory, strategy) with SaveAsBuilder[C, R, X]
 
 	def exists = verify(new CheckStrategy[X] {
 		def apply(value: Option[X], s: Session) = value match {
@@ -87,9 +87,9 @@ class CheckOneBuilder[C <: Check[R, X], R, X](f: (R => String => Option[X], Chec
 	})
 }
 
-class CheckMultipleBuilder[C <: Check[R, X], R, X <: List[_]](f: (R => String => Option[X], CheckStrategy[X], Option[String]) => C, extractorFactory: R => String => Option[X]) {
+class CheckMultipleBuilder[C <: Check[R, X], R, X <: Seq[_]](checkBuilderFactory: CheckBuilderFactory[C, R, X], extractorFactory: ExtractorFactory[R, X]) {
 
-	def verify[XP](strategy: CheckStrategy[X]) = new CheckBuilder(f, extractorFactory, strategy) with SaveAsBuilder[C, R, X]
+	def verify[XP](strategy: CheckStrategy[X]) = new CheckBuilder(checkBuilderFactory, extractorFactory, strategy) with SaveAsBuilder[C, R, X]
 
 	def notEmpty = verify(new CheckStrategy[X] {
 		def apply(value: Option[X], s: Session) = value match {
@@ -129,11 +129,10 @@ class CheckMultipleBuilder[C <: Check[R, X], R, X <: List[_]](f: (R => String =>
 
 trait SaveAsBuilder[C <: Check[R, X], R, X] extends CheckBuilder[C, R, X] {
 
-	def saveAs(saveAs: String) = new CheckBuilder(f, extractorFactory, strategy, Some(saveAs))
+	def saveAs(saveAs: String) = new CheckBuilder(checkBuilderFactory, extractorFactory, strategy, Some(saveAs))
 }
 
-class CheckBuilder[C <: Check[R, X], R, X](val f: (R => String => Option[X], CheckStrategy[X], Option[String]) => C, val extractorFactory: R => String => Option[X], val strategy: CheckStrategy[X], saveAs: Option[String] = None) {
+class CheckBuilder[C <: Check[R, X], R, X](val checkBuilderFactory: CheckBuilderFactory[C, R, X], val extractorFactory: ExtractorFactory[R, X], val strategy: CheckStrategy[X], saveAs: Option[String] = None) {
 
-	def build: C = f(extractorFactory, strategy, saveAs)
+	def build: C = checkBuilderFactory(extractorFactory, strategy, saveAs)
 }
-
