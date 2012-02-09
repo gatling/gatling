@@ -26,13 +26,15 @@ abstract class HttpRequestBody
  *
  * @param string the string representing the body
  */
-case class StringBody(string: String) extends HttpRequestBody
+case class StringBody(string: Session => String) extends HttpRequestBody
+
 /**
  * Wraps a body that is in a file
  *
  * @param filePath the path to the file containing the body
  */
 case class FilePathBody(filePath: String) extends HttpRequestBody
+
 /**
  * Wraps a body that requires template compilation
  *

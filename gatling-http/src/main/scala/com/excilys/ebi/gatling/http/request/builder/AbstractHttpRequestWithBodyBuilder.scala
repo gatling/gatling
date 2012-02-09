@@ -81,7 +81,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 *
 	 * @param body a string containing the body of the request
 	 */
-	def body(body: String): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers, Some(StringBody(body)), followsRedirects, credentials)
+	def body(body: Session => String): B = newInstance(httpRequestActionBuilder, urlFunction, queryParams, headers, Some(StringBody(body)), followsRedirects, credentials)
 
 	/**
 	 * Adds a body from a file to the request
@@ -112,9 +112,9 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 		body match {
 			case Some(thing) =>
 				thing match {
-					case FilePathBody(filePath) => requestBuilder setBody (GATLING_REQUEST_BODIES_FOLDER / filePath).jfile
-					case StringBody(body) => requestBuilder setBody body
-					case TemplateBody(tplPath, values) => requestBuilder setBody compileBody(tplPath, values, session)
+					case FilePathBody(filePath) => requestBuilder.setBody((GATLING_REQUEST_BODIES_FOLDER / filePath).jfile)
+					case StringBody(body) => requestBuilder.setBody(body(session))
+					case TemplateBody(tplPath, values) => requestBuilder.setBody(compileBody(tplPath, values, session))
 					case _ =>
 				}
 			case None =>
