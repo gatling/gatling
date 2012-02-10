@@ -82,12 +82,12 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 						s
 					})).counterName("tutu").times(2)
 					.exec((s: Session) => {
-						println("-loopDuring: " + getCounterValue(s, "toto"))
+						println("-loopDuring: " + getCounterValue(s, "foo"))
 						s
 					})
 					.exec(http("In During 2").get("/"))
 					.pause(2))
-				.counterName("toto").during(12000, MILLISECONDS)
+				.counterName("foo").during(12000, MILLISECONDS)
 				.pause(pause2)
 				.loop(
 					chain
