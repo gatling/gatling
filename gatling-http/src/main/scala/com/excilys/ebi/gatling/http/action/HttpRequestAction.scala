@@ -79,16 +79,16 @@ object HttpRequestAction {
 class HttpRequestAction(next: ActorRef, request: HttpRequest, givenChecks: Option[List[HttpCheck[_]]], protocolConfiguration: Option[HttpProtocolConfiguration])
 		extends RequestAction[HttpCheck[_], Response, HttpProtocolConfiguration](next, request, givenChecks, protocolConfiguration) {
 
-	def addDefaultHttpStatusCheck(checks: List[HttpCheck[_]]) = {
-		if (checks.find(_.phase == StatusReceived).isEmpty) {
-			// add default HttpStatusCheck if none was set
-			HttpRequestAction.DEFAULT_HTTP_STATUS_CHECK :: checks
-		} else {
-			checks
-		}
+	val checks = givenChecks match {
+		case Some(givenChecksContent) =>
+			if (givenChecksContent.find(_.phase == StatusReceived).isEmpty) {
+				// add default HttpStatusCheck if none was set
+				HttpRequestAction.DEFAULT_HTTP_STATUS_CHECK :: givenChecksContent
+			} else {
+				givenChecksContent
+			}
+		case None => Nil
 	}
-
-	val checks = addDefaultHttpStatusCheck(givenChecks.getOrElse(Nil))
 
 	def execute(session: Session) = {
 
