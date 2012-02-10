@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Copyright 2011-2012 eBusiness Information, Groupe Excilys (www.excilys.com)
 #
@@ -15,21 +15,16 @@
 # limitations under the License.
 #
 
-if [ -n "${GATLING_HOME+x}" ]; then
-	echo "GATLING_HOME already set to: $GATLING_HOME"
-else
-	if [ $(basename `pwd -P`) = "bin" ]; then
-		# If was started with 'sh filename'
-		if [ $0 = "gatling.sh" ]; then
-			export GATLING_HOME=$(dirname $(dirname `pwd -P`/$0))
-		else
-			export GATLING_HOME=$(dirname $(dirname $(dirname `pwd -P`/$0)))
-		fi
-	else
-		export GATLING_HOME=$(cd $(dirname $(dirname $0)); pwd -P)
-	fi
-	echo "GATLING_HOME not set, using default location ($GATLING_HOME)"
-fi
+SCRIPT=`readlink -f $0`
+BIN_DIR=`dirname ${SCRIPT}`
+DEFAULT_GATLING_HOME=`readlink -f ${BIN_DIR}/..`
+
+GATLING_HOME=${GATLING_HOME:=${DEFAULT_GATLING_HOME}}
+GATLING_HOME=`echo ${GATLING_HOME} | sed -e 's/ /\\ /g'`
+export GATLING_HOME
+
+echo "GATLING_HOME is set to ${GATLING_HOME}"
+
 
 JAVA_OPTS="-server -XX:+UseThreadPriorities -XX:ThreadPriorityPolicy=42 -Xms512M -Xmx512M -Xmn100M -Xss1024k -XX:+HeapDumpOnOutOfMemoryError -XX:+AggressiveOpts -XX:+OptimizeStringConcat -XX:+UseFastAccessorMethods -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:SurvivorRatio=8 -XX:MaxTenuringThreshold=1 -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly"
 
