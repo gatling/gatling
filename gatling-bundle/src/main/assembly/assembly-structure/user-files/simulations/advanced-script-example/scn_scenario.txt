@@ -84,7 +84,7 @@ val scn = scenario("Scenario name")
 				http("request_4")
 				.get("/private/bank/accounts.html")
 				.headers(headers_4)
-				.check(regex("""<td class="number">ACC(\\d+)</td>""").saveAs("account_id"))
+				.check(regex("""<td class="number">ACC(\d+)</td>""").saveAs("account_id"))
 			)
 			.pause(7, 8)
 			.exec(

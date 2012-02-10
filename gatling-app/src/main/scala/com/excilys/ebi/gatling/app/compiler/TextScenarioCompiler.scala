@@ -49,7 +49,7 @@ class TextScenarioCompiler extends ScalaScenarioCompiler {
 					val sourceDirectoryPath = sourceDirectory.getAbsolutePath
 					Conventions.getSourceDirectoryNameFromRootFileName(sourceDirectoryPath).map { sourceDirectoryName =>
 						val includePath = sourceDirectoryName / result.group(1) + TXT_EXTENSION
-						Source.fromFile(includePath, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT) + END_OF_LINE + END_OF_LINE
+						Source.fromFile(includePath, CONFIG_ENCODING).mkString.replace('$', TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT).replace("\\", "\\\\") + END_OF_LINE + END_OF_LINE
 					}.getOrElse(throw new IllegalArgumentException("Couldn't find include replacement"))
 
 				}).replace(TextScriptInterpreter.DOLLAR_TEMP_REPLACEMENT, '$')
