@@ -15,6 +15,9 @@
 # limitations under the License.
 #
 
+## Escaping spaces
+GATLING_HOME=`echo ${GATLING_HOME} | sed -e 's/ /\\ /g'`
+
 if [ -n "${GATLING_HOME+x}" ]; then
 	echo "GATLING_HOME already set to: $GATLING_HOME"
 else
