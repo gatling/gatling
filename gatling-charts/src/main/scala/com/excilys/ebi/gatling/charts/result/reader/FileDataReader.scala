@@ -50,11 +50,7 @@ class FileDataReader(runOn: String) extends DataReader(runOn) with Logging {
 		// check headers correctness
 		ResultLine.Headers.check(lines.next)
 
-		def isResultInTimeWindow(result: ResultLine) =
-			((!GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_LOWER_BOUND.isDefined
-				|| result.executionStartDate >= GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_LOWER_BOUND.get)) &&
-				(!GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_HIGHER_BOUND.isDefined
-					|| (result.executionStartDate <= GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_HIGHER_BOUND.get))
+		def isResultInTimeWindow(result: ResultLine) = result.executionStartDate >= GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_LOWER_BOUND && result.executionStartDate <= GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_HIGHER_BOUND
 
 		(for (line <- lines) yield SPLIT_PATTERN.split(line, 0))
 			.filter(strings =>
@@ -66,6 +62,7 @@ class FileDataReader(runOn: String) extends DataReader(runOn) with Logging {
 					false
 				})
 			.map(strings => ResultLine(strings(0), strings(1), strings(2).toInt, strings(3), strings(4).toLong, strings(5).toLong, strings(6).toLong, strings(7).toLong, ResultStatus.withName(strings(8)), strings(9)))
+			.filter(isResultInTimeWindow(_))
 			.toBuffer[ResultLine].sortBy(_.executionStartDate)
 	}
 
