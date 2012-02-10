@@ -34,7 +34,7 @@ import com.ning.http.client.{ ProgressAsyncHandler, Response, HttpResponseStatus
 import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
 import akka.actor.ActorRef
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
-import scala.collection.JavaConversions._
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
@@ -104,8 +104,9 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck[_]], next: Ac
 	}
 
 	def onThrowable(throwable: Throwable) = {
-		logger.error("Request '" + requestName + "' failed", throwable)
-		sendLogAndExecuteNext(session, KO, "" + throwable.getMessage)
+		logger.warn("Request '" + requestName + "' failed", throwable)
+		val errorMessage = if (throwable.getMessage != null) throwable.getMessage else EMPTY
+		sendLogAndExecuteNext(session, KO, errorMessage)
 	}
 
 	/**
