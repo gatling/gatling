@@ -119,9 +119,12 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck[_]], next: Ac
 	private def sendLogAndExecuteNext(newSession: Session, requestResult: ResultStatus, requestMessage: String) = {
 
 		val now = currentTimeMillis
-		DataWriter.instance ! ActionInfo(session.scenarioName, session.userId, "Request " + requestName, requestStartDate, responseEndDate.getOrElse(now), endOfRequestSendingDate.getOrElse(now), startOfResponseReceivingDate.getOrElse(now), requestResult, requestMessage)
+		val effectiveResponseEndDate = responseEndDate.getOrElse(now)
+		val effectiveEndOfRequestSendingDate = endOfRequestSendingDate.getOrElse(now)
+		val effectivestartOfResponseReceivingDate = startOfResponseReceivingDate.getOrElse(now)
+		DataWriter.instance ! ActionInfo(session.scenarioName, session.userId, "Request " + requestName, requestStartDate, effectiveResponseEndDate, effectiveEndOfRequestSendingDate, effectivestartOfResponseReceivingDate, requestResult, requestMessage)
 
-		next ! newSession.setAttribute(Session.LAST_ACTION_DURATION_KEY, currentTimeMillis - responseEndDate.get)
+		next ! newSession.setAttribute(Session.LAST_ACTION_DURATION_KEY, currentTimeMillis - effectiveResponseEndDate)
 	}
 
 	def getChecksForPhase(httpPhase: HttpPhase) = checks.filter(_.phase == httpPhase)
