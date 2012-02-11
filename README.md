@@ -31,6 +31,8 @@ Read the documentation on the [Wiki](https://github.com/excilys/gatling/wiki).
 
 Join the [Gatling User Group](https://groups.google.com/group/gatling).
 
+Got a real problem? Raise an [issue](https://github.com/excilys/gatling/issues?sort=created&direction=desc&state=open).
+
 # Sponsors
 
 [![eBusiness Information](https://github.com/excilys/gatling/wiki/img/ebi_logo.png)](https://github.com/excilys/gatling/wiki/Sponsors)&nbsp;&nbsp;&nbsp;&nbsp;
