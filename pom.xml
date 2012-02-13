@@ -138,7 +138,7 @@
 		<opencsv.version>2.3</opencsv.version>
 		<ant.version>1.8.2</ant.version>
 
-		<maven.version>3.0.4</maven.version>
+		<maven2.version>2.2.1</maven2.version>
 		<maven-assembly-plugin.version>2.2.1</maven-assembly-plugin.version>
 		<maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
 		<maven-scala-plugin.version>2.15.2</maven-scala-plugin.version>
@@ -358,13 +358,13 @@
 			</dependency>
 			<dependency>
 				<groupId>org.apache.maven</groupId>
-				<artifactId>maven-core</artifactId>
-				<version>${maven.version}</version>
+				<artifactId>maven-project</artifactId>
+				<version>${maven2.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.maven</groupId>
 				<artifactId>maven-plugin-api</artifactId>
-				<version>${maven.version}</version>
+				<version>${maven2.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
