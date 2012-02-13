@@ -25,8 +25,10 @@ import org.apache.tools.ant.types.Path;
  * @author <a href="mailto:nicolas.huray@gmail.com">Nicolas Huray</a>
  */
 public class GatlingTask extends Java {
+	
+	public static final String GATLING_CLASSPATH_REF_NAME = "gatling.classpath";
 
-    private String DEFAULT_JVM_ARGS =
+    private static final String DEFAULT_JVM_ARGS =
             "-server -XX:+UseThreadPriorities " +
                     "-XX:ThreadPriorityPolicy=42 " +
                     "-Xms512M -Xmx512M -Xmn100M -Xss1024k " +
@@ -47,11 +49,11 @@ public class GatlingTask extends Java {
         setFork(true);
         setFailonerror(true);
     }
-
+    
     private Path getGatlingClasspath() {
-        Object gatlingClasspath = getProject().getReference("gatling.classpath");
-        if (gatlingClasspath == null || !(gatlingClasspath instanceof Path)) {
-            throw new BuildException("Please create a path with id gatling.classpath");
+        Object gatlingClasspath = getProject().getReference(GATLING_CLASSPATH_REF_NAME);
+        if (!(gatlingClasspath instanceof Path)) {
+            throw new BuildException("Please create a path with id " + GATLING_CLASSPATH_REF_NAME);
         }
         return (Path) gatlingClasspath;
     }

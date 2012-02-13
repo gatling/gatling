@@ -13,7 +13,7 @@
 		<module>gatling-recorder</module>
 		<module>gatling-charts</module>
 		<module>gatling-bundle</module>
-        <module>gatling-maven-plugin</module>
+		<module>gatling-maven-plugin</module>
 	</modules>
 
 	<licenses>
@@ -136,7 +136,9 @@
 		<args4j.version>2.0.19</args4j.version>
 		<twitter-util.version>1.12.12</twitter-util.version>
 		<opencsv.version>2.3</opencsv.version>
+		<ant.version>1.8.2</ant.version>
 
+		<maven.version>3.0.4</maven.version>
 		<maven-assembly-plugin.version>2.2.1</maven-assembly-plugin.version>
 		<maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
 		<maven-scala-plugin.version>2.15.2</maven-scala-plugin.version>
@@ -144,6 +146,7 @@
 		<maven-release-plugin.version>2.2.1</maven-release-plugin.version>
 		<maven-licence-plugin.version>1.9.0</maven-licence-plugin.version>
 		<maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
+		<maven-plugin-plugin.version>2.9</maven-plugin-plugin.version>
 		<build-helper-maven-plugin.version>1.7</build-helper-maven-plugin.version>
 	</properties>
 
@@ -177,6 +180,11 @@
 			<dependency>
 				<groupId>com.excilys.ebi.gatling</groupId>
 				<artifactId>gatling-bundle</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.excilys.ebi.gatling</groupId>
+				<artifactId>gatling-maven-plugin</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -343,6 +351,21 @@
 				<artifactId>opencsv</artifactId>
 				<version>${opencsv.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.apache.ant</groupId>
+				<artifactId>ant</artifactId>
+				<version>${ant.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-core</artifactId>
+				<version>${maven.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-plugin-api</artifactId>
+				<version>${maven.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -473,6 +496,10 @@
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>build-helper-maven-plugin</artifactId>
 					<version>${build-helper-maven-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-plugin-plugin</artifactId>
+					<version>${maven-plugin-plugin.version}</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
