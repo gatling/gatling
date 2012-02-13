@@ -13,6 +13,7 @@
 		<module>gatling-recorder</module>
 		<module>gatling-charts</module>
 		<module>gatling-bundle</module>
+        <module>gatling-maven-plugin</module>
 	</modules>
 
 	<licenses>
