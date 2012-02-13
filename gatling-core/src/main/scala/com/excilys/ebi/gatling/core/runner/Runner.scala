@@ -35,12 +35,12 @@ object Runner {
 class Runner(startDate: DateTime, scenarioConfigurationBuilders: Seq[ScenarioConfigurationBuilder]) extends Logging {
 
 	// stores all scenario configurations
-	val scenarioConfigurations = for (i <- 1 to scenarioConfigurationBuilders.size) yield scenarioConfigurationBuilders(i - 1).build(i)
+	val scenarioConfigurations = for (i <- 0 until scenarioConfigurationBuilders.size) yield scenarioConfigurationBuilders(i).build(i + 1)
 
 	// Counts the number of users
 	val totalNumberOfUsers = scenarioConfigurations.map(_.users).sum
 
-	// Initializes a countdown latch to determine when to stop the application
+	// Initializes a countdown latch to determine when to stop the application (totalNumberOfUsers + 1 DataWriter)
 	val latch: CountDownLatch = new CountDownLatch(totalNumberOfUsers + 1)
 
 	// Builds all scenarios
@@ -66,9 +66,7 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: Seq[ScenarioCon
 		scenariosAndConfigurations.map {
 			case (scenario, configuration) => {
 				val (delayDuration, delayUnit) = scenario.delay
-				Scheduler.scheduleOnce(() => {
-					startOneScenario(scenario, configuration.firstAction)
-				}, delayDuration, delayUnit)
+				Scheduler.scheduleOnce(() => startOneScenario(scenario, configuration.firstAction), delayDuration, delayUnit)
 			}
 		}
 

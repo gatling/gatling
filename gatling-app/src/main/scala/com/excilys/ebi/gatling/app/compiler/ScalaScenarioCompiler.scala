@@ -47,8 +47,8 @@ class ScalaScenarioCompiler extends ScenarioCompiler {
 	 */
 	def run(fileName: String, startDate: DateTime) {
 		compile(GATLING_SIMULATIONS_FOLDER / fileName)
-		val runner = getNewInstanceByClassName[App](CONFIG_SIMULATION_SCALA_PACKAGE + "Simulation", classLoader)
-		runner.main(Array(startDate.toString));
+		val simulation = getNewInstanceByClassName[App](CONFIG_SIMULATION_SCALA_PACKAGE + "Simulation", classLoader)
+		simulation.main(Array(startDate.toString));
 	}
 
 	/**
