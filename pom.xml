@@ -148,6 +148,7 @@
 		<maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
 		<maven-plugin-plugin.version>2.9</maven-plugin-plugin.version>
 		<build-helper-maven-plugin.version>1.7</build-helper-maven-plugin.version>
+        <maven-jdeb-plugin.version>0.8</maven-jdeb-plugin.version>
 	</properties>
 
 	<dependencyManagement>
@@ -501,6 +502,11 @@
 					<artifactId>maven-plugin-plugin</artifactId>
 					<version>${maven-plugin-plugin.version}</version>
 				</plugin>
+                <plugin>
+                    <artifactId>jdeb</artifactId>
+                    <groupId>org.vafer</groupId>
+                    <version>${maven-jdeb-plugin.version}</version>
+                </plugin>
 			</plugins>
 		</pluginManagement>
 		<plugins>
