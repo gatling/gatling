@@ -21,10 +21,9 @@ import GatlingConfig.{ CONFIG_RESULTS_FOLDER, CONFIG_REQUEST_BODIES_FOLDER, CONF
 
 object GatlingFiles {
 	/* Global paths */
-	val GATLING_HOME = Option(System.getenv("GATLING_HOME")).getOrElse("/tmp")
+	val GATLING_HOME = Option(System.getenv("GATLING_HOME")).getOrElse(System.getProperty("java.io.tmpdir"))
 
 	val GATLING_USER_FILES_FOLDER = GATLING_HOME / "user-files"
-	lazy val GATLING_ASSETS_PACKAGE = "assets"
 
 	lazy val GATLING_DATA_FOLDER = CONFIG_DATA_FOLDER.getOrElse(GATLING_USER_FILES_FOLDER / "data")
 	lazy val GATLING_RESULTS_FOLDER = CONFIG_RESULTS_FOLDER.getOrElse(GATLING_HOME / "results")
@@ -32,10 +31,11 @@ object GatlingFiles {
 	lazy val GATLING_SIMULATIONS_FOLDER = CONFIG_SIMULATIONS_FOLDER.getOrElse(GATLING_USER_FILES_FOLDER / "simulations")
 
 	/* Assets Paths */
+	val GATLING_ASSETS_PACKAGE = "assets"
 	val GATLING_JS = "js"
 	val GATLING_STYLE = "style"
-	lazy val GATLING_ASSETS_JS_PACKAGE = GATLING_ASSETS_PACKAGE + "/" + GATLING_JS
-	lazy val GATLING_ASSETS_STYLE_PACKAGE = GATLING_ASSETS_PACKAGE + "/" + GATLING_STYLE
+	val GATLING_ASSETS_JS_PACKAGE = GATLING_ASSETS_PACKAGE + "/" + GATLING_JS
+	val GATLING_ASSETS_STYLE_PACKAGE = GATLING_ASSETS_PACKAGE + "/" + GATLING_STYLE
 
 	/* Default files and internal constants */
 	val GATLING_DEFAULT_CONFIG_FILE = "gatling.conf"

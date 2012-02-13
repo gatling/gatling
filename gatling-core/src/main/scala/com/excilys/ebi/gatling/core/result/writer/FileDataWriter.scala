@@ -113,7 +113,7 @@ class FileDataWriter extends DataWriter {
 				if (now - lastDisplayTime > displayPeriod) {
 					lastDisplayTime = now
 					val timeSinceStartUpInSec = (now - startUpTime) / 1000
-					println(new StringBuilder("Running for ").append(timeSinceStartUpInSec).append(" sec | Users: active=").append(activeUsersCount.get).append("/").append(totalUsersCount.get).append(" | Requests: OK=").append(successfulRequestsCount.get).append(" KO=").append(failedRequestsCount.get))
+					println(new StringBuilder().append(timeSinceStartUpInSec).append(" sec | Users: active=").append(activeUsersCount.get).append("/").append(totalUsersCount.get).append(" | Requests: OK=").append(successfulRequestsCount.get).append(" KO=").append(failedRequestsCount.get))
 				}
 
 				if (latch.getCount == 1 && self.dispatcher.mailboxSize(self) == 0) {

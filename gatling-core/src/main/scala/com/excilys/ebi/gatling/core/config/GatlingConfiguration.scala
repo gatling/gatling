@@ -23,22 +23,14 @@ object GatlingConfiguration {
 	val defaultPath = new File(".").getCanonicalPath
 	val defaultImporter = new FilesystemImporter(defaultPath)
 
-	def load(data: String, givenImporter: Importer = defaultImporter): GatlingConfiguration = {
-		val parser = new ConfigParser(importer = givenImporter)
-		new GatlingConfiguration(parser parse data)
-	}
+	def load(data: String, givenImporter: Importer = defaultImporter) = new GatlingConfiguration(new ConfigParser(importer = givenImporter).parse(data))
 
-	def fromFile(filename: String, importer: Importer): GatlingConfiguration = {
-		load(importer.importFile(filename), importer)
-	}
+	def fromFile(filename: String, importer: Importer) = load(importer.importFile(filename), importer)
 
-	def fromFile(path: String, filename: String): GatlingConfiguration = {
-		val importer = new ResourceImporter(getClass.getClassLoader)
-		fromFile(filename, importer)
-	}
+	def fromFile(path: String, filename: String): GatlingConfiguration = fromFile(filename, new ResourceImporter(getClass.getClassLoader))
 
 	def fromFile(filename: String): GatlingConfiguration = {
-		val n = filename.lastIndexOf('/')
+		val n = filename.lastIndexOf(File.pathSeparatorChar)
 		if (n < 0) fromFile(defaultPath, filename)
 		else fromFile(filename.substring(0, n), filename.substring(n + 1))
 	}
@@ -60,7 +52,7 @@ class GatlingConfiguration(val map: Map[String, Any]) {
 		try {
 			map(key).asInstanceOf[Seq[Any]]
 		} catch {
-			case _ ⇒ Seq.empty[Any]
+			case _ => Seq.empty[Any]
 		}
 	}
 
@@ -72,7 +64,7 @@ class GatlingConfiguration(val map: Map[String, Any]) {
 		try {
 			map(key).asInstanceOf[Seq[String]]
 		} catch {
-			case _ ⇒ Seq.empty[String]
+			case _ => Seq.empty[String]
 		}
 	}
 
@@ -80,7 +72,7 @@ class GatlingConfiguration(val map: Map[String, Any]) {
 		try {
 			Some(map(key).toString.toInt)
 		} catch {
-			case _ ⇒ None
+			case _ => None
 		}
 	}
 
@@ -90,7 +82,7 @@ class GatlingConfiguration(val map: Map[String, Any]) {
 		try {
 			Some(map(key).toString.toLong)
 		} catch {
-			case _ ⇒ None
+			case _ => None
 		}
 	}
 
@@ -100,7 +92,7 @@ class GatlingConfiguration(val map: Map[String, Any]) {
 		try {
 			Some(map(key).toString.toFloat)
 		} catch {
-			case _ ⇒ None
+			case _ => None
 		}
 	}
 
@@ -110,14 +102,14 @@ class GatlingConfiguration(val map: Map[String, Any]) {
 		try {
 			Some(map(key).toString.toDouble)
 		} catch {
-			case _ ⇒ None
+			case _ => None
 		}
 	}
 
 	def getDouble(key: String, defaultValue: Double): Double = getDouble(key).getOrElse(defaultValue)
 
 	def getBoolean(key: String): Option[Boolean] = {
-		getString(key) flatMap { s ⇒
+		getString(key) flatMap { s =>
 			val isTrue = trueValues.contains(s)
 			if (!isTrue && !falseValues.contains(s)) None
 			else Some(isTrue)
@@ -131,8 +123,8 @@ class GatlingConfiguration(val map: Map[String, Any]) {
 	def getBool(key: String, defaultValue: Boolean): Boolean = getBoolean(key, defaultValue)
 
 	def apply(key: String): String = getString(key) match {
-		case None ⇒ throw new ConfigurationException("undefined config: " + key)
-		case Some(v) ⇒ v
+		case None => throw new ConfigurationException("undefined config: " + key)
+		case Some(v) => v
 	}
 
 	def apply(key: String, defaultValue: String) = getString(key, defaultValue)
@@ -142,7 +134,7 @@ class GatlingConfiguration(val map: Map[String, Any]) {
 
 	def getSection(name: String): Option[GatlingConfiguration] = {
 		val l = name.length + 1
-		val m = map.collect { case (k, v) if k.startsWith(name) ⇒ (k.substring(l), v) }
+		val m = map.collect { case (k, v) if k.startsWith(name) => (k.substring(l), v) }
 		if (m.isEmpty) None
 		else Some(new GatlingConfiguration(m))
 	}

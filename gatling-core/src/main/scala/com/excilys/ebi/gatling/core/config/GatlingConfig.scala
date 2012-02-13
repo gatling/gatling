@@ -52,14 +52,13 @@ object GatlingConfig extends Logging {
 	val config: GatlingConfiguration =
 		try {
 			// Locate configuration file, depending on users options
-			val configFile =
-				configFileName map { fileName =>
-					logger.info("Loading custom configuration file: conf/{}", fileName)
-					fileName
-				} getOrElse {
-					logger.info("Loading default configuration file")
-					GATLING_DEFAULT_CONFIG_FILE
-				}
+			val configFile = configFileName map { fileName =>
+				logger.info("Loading custom configuration file: conf/{}", fileName)
+				fileName
+			} getOrElse {
+				logger.info("Loading default configuration file")
+				GATLING_DEFAULT_CONFIG_FILE
+			}
 
 			GatlingConfiguration.fromFile(configFile)
 		} catch {
