@@ -29,10 +29,8 @@ object FileHelper {
 	val CSV_EXTENSION = ".csv"
 	val SSV_EXTENSION = ".ssv"
 	val TSV_EXTENSION = ".tsv"
-	val SCALA_EXTENSION = ".scala"
 	val SSP_EXTENSION = ".ssp"
 	val HTML_EXTENSION = ".html"
-	val TXT_EXTENSION = ".txt"
 
 	/**
 	 * Transform a string to a simpler one that can be used safely as file name

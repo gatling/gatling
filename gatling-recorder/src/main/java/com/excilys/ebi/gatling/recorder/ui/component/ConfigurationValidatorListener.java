@@ -25,7 +25,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
-import javax.swing.JCheckBox;
 import javax.swing.border.Border;
 
 import org.apache.commons.lang.StringUtils;
@@ -37,7 +36,6 @@ import com.excilys.ebi.gatling.recorder.configuration.ConfigurationHelper;
 import com.excilys.ebi.gatling.recorder.configuration.Pattern;
 import com.excilys.ebi.gatling.recorder.http.event.ShowRunningFrameEvent;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy;
-import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
 
 public class ConfigurationValidatorListener implements ActionListener {
 
@@ -128,24 +126,10 @@ public class ConfigurationValidatorListener implements ActionListener {
 		} else
 			frame.txtOutputFolder.setBorder(defaultBorder);
 
-		// Set selected results type into a list
-		config.setResultTypes(new ArrayList<ResultType>());
-		boolean tmp = false;
-		for (JCheckBox cb : frame.resultTypes) {
-			if (cb.isSelected()) {
-				tmp = true;
-				config.getResultTypes().add(ResultType.getByLabel(cb.getText()));
-			}
-		}
-
 		config.setSaveConfiguration(frame.chkSavePref.isSelected());
 
 		// set selected encoding
 		config.setEncoding(Charset.class.cast(frame.cbOutputEncoding.getSelectedItem()).name());
-
-		// If nothing was selected we add by default 'text'
-		if (!tmp)
-			config.getResultTypes().add(ResultType.TEXT);
 
 		if (hasError)
 			return;
@@ -170,8 +154,5 @@ public class ConfigurationValidatorListener implements ActionListener {
 			for (Pattern pattern : Configuration.getInstance().getPatterns())
 				logger.info("| - " + pattern);
 		logger.info("Results: " + Configuration.getInstance().getOutputFolder());
-		logger.info("Result type:");
-		for (ResultType r : Configuration.getInstance().getResultTypes())
-			logger.info("| - " + r);
 	}
 }

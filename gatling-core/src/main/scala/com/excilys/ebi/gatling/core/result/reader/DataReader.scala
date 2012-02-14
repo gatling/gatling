@@ -19,11 +19,11 @@ import scala.collection.immutable.SortedMap
 
 import org.joda.time.DateTime
 
-import com.excilys.ebi.gatling.core.config.GatlingConfig
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.writer.ResultLine
 
 object DataReader {
-	def newInstance(runOn: String) = GatlingConfig.CONFIG_DATA_READER.getConstructor(classOf[String]).newInstance(runOn)
+	def newInstance(runOn: String) = configuration.dataReaderClass.getConstructor(classOf[String]).newInstance(runOn)
 }
 
 abstract class DataReader(runOn: String) {

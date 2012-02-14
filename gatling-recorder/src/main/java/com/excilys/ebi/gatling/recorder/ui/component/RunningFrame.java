@@ -37,6 +37,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.Format;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -54,6 +55,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 
+import org.apache.commons.lang.time.FastDateFormat;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -79,13 +81,14 @@ import com.excilys.ebi.gatling.recorder.http.event.ShowRunningFrameEvent;
 import com.excilys.ebi.gatling.recorder.http.event.TagEvent;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.PauseType;
-import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.Subscribe;
 
 @SuppressWarnings("serial")
 public class RunningFrame extends JFrame {
+
+	public static final Format FORMAT = FastDateFormat.getInstance("yyyyMMddHHmmss");
 
 	private static final Logger logger = LoggerFactory.getLogger(RunningFrame.class);
 	private static final int EVENTS_GROUPING = 100;
@@ -542,7 +545,7 @@ public class RunningFrame extends JFrame {
 	private void dumpRequestBody(int idEvent, String content) {
 		File dir = null;
 		if (configuration.getRequestBodiesFolder() == null)
-			dir = new File(getOutputFolder(), ResultType.FORMAT.format(startDate) + "_" + GATLING_REQUEST_BODIES_DIRECTORY_NAME);
+			dir = new File(getOutputFolder(), FORMAT.format(startDate) + "_" + GATLING_REQUEST_BODIES_DIRECTORY_NAME);
 		else
 			dir = getFolder("request bodies", configuration.getRequestBodiesFolder());
 
@@ -551,7 +554,7 @@ public class RunningFrame extends JFrame {
 
 		FileWriter fw = null;
 		try {
-			fw = new FileWriter(new File(dir, ResultType.FORMAT.format(startDate) + "_request_" + idEvent + ".txt"));
+			fw = new FileWriter(new File(dir, FORMAT.format(startDate) + "_request_" + idEvent + ".txt"));
 			fw.write(content);
 		} catch (IOException ex) {
 			logger.error("Error, while dumping request body... {}", ex.getStackTrace());
@@ -572,6 +575,10 @@ public class RunningFrame extends JFrame {
 				throw new RuntimeException("Can't create " + folderName + " folder");
 
 		return folder;
+	}
+
+	private String getScenarioFileName(Date date) {
+		return "Simulation" + FORMAT.format(date) + ".scala";
 	}
 
 	private void saveScenario() {
@@ -603,25 +610,23 @@ public class RunningFrame extends JFrame {
 		}
 
 		context.put("package", Configuration.getInstance().getIdePackage());
-		context.put("date", ResultType.FORMAT.format(startDate));
+		context.put("date", FORMAT.format(startDate));
 		URI uri = URI.create("");
 		context.put("URI", uri);
 
 		Template template = null;
 		Writer writer = null;
-		for (ResultType resultType : configuration.getResultTypes()) {
-			try {
-				template = ve.getTemplate(resultType.getTemplate());
-				writer = new OutputStreamWriter(new FileOutputStream(new File(getOutputFolder(), resultType.getScenarioFileName(startDate))), configuration.getEncoding());
-				template.merge(context, writer);
-				writer.flush();
+		try {
+			template = ve.getTemplate("simulation.vm");
+			writer = new OutputStreamWriter(new FileOutputStream(new File(getOutputFolder(), getScenarioFileName(startDate))), configuration.getEncoding());
+			template.merge(context, writer);
+			writer.flush();
 
-			} catch (IOException e) {
-				logger.error("Error, while saving '" + resultType + "' scenario..." + e.getStackTrace());
+		} catch (IOException e) {
+			logger.error("Error, while saving scenario..." + e.getStackTrace());
 
-			} finally {
-				closeQuietly(writer);
-			}
+		} finally {
+			closeQuietly(writer);
 		}
 	}
 }

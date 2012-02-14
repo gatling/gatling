@@ -1,3 +1,4 @@
+package advanced
 import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._
 import Headers._

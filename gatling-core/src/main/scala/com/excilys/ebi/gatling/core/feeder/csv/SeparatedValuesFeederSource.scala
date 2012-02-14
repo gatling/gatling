@@ -20,7 +20,7 @@ import java.io.FileReader
 import scala.Array.canBuildFrom
 import scala.tools.nsc.io.Path.string2path
 
-import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_DATA_FOLDER
+import com.excilys.ebi.gatling.core.config.GatlingFiles
 import com.excilys.ebi.gatling.core.feeder.FeederSource
 import com.excilys.ebi.gatling.core.util.PathHelper.path2string
 
@@ -30,8 +30,8 @@ class SeparatedValuesFeederSource(fileName: String, separator: Char, escapeChar:
 
 	val values = {
 		val reader = escapeChar match {
-			case Some(char) => new CSVReader(new FileReader(GATLING_DATA_FOLDER / fileName), separator, char)
-			case None => new CSVReader(new FileReader(GATLING_DATA_FOLDER / fileName), separator)
+			case Some(char) => new CSVReader(new FileReader(GatlingFiles.dataFolder / fileName), separator, char)
+			case None => new CSVReader(new FileReader(GatlingFiles.dataFolder / fileName), separator)
 		}
 
 		try {

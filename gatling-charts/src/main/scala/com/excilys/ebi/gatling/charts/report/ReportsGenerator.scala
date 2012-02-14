@@ -15,13 +15,9 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import java.io.{ File => JFile }
-import java.net.{ URL, URI }
+import java.net.URL
 
-import scala.collection.JavaConversions.asIterator
 import scala.collection.mutable.LinkedHashSet
-import scala.tools.nsc.io.Path.string2path
-import scala.tools.nsc.io.{ Path, Jar, File }
 
 import com.excilys.ebi.gatling.charts.component.impl.ComponentLibraryImpl
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
@@ -29,11 +25,10 @@ import com.excilys.ebi.gatling.charts.config.ChartsFiles.menuFile
 import com.excilys.ebi.gatling.charts.template.{ PageTemplate, MenuTemplate }
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
 import com.excilys.ebi.gatling.core.config.GatlingFiles.{ styleFolder, jsFolder, GATLING_ASSETS_STYLE_PACKAGE, GATLING_ASSETS_JS_PACKAGE }
-import com.excilys.ebi.gatling.core.config.GatlingConfig
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.util.FileHelper.{ formatToFilename, HTML_EXTENSION }
-import com.excilys.ebi.gatling.core.util.IOHelper
+import com.excilys.ebi.gatling.core.util.ScanHelper.deepCopyPackageContent
 
 object ReportsGenerator extends Logging {
 
@@ -103,35 +98,7 @@ object ReportsGenerator extends Logging {
 	}
 
 	private def copyAssets(runOn: String) = {
-		def copyFolder(sourcePackage: String, destFolderPath: Path) = {
-			
-			val sourcePackageAsPath = sourcePackage.replace("/", File.separator)
-
-			for (packageURL <- asIterator(getClass.getClassLoader.getResources(sourcePackage))) {
-				packageURL.getProtocol match {
-					case "file" =>
-						for (file <- new File(new JFile(new URI(packageURL.toString).getSchemeSpecificPart)).toDirectory.deepFiles) {
-							val target = destFolderPath / file.name
-							target.parent.createDirectory()
-							file.copyTo(target, true)
-						}
-
-					case "jar" =>
-						val jarFilePath = packageURL.getPath.substring(0, packageURL.getPath.indexOf('!'))
-
-						for (fileish <- new Jar(new File(new JFile(new URI(jarFilePath)))).fileishIterator.filter(_.parent.toString == sourcePackageAsPath)) {
-							val target = destFolderPath / fileish.name
-							target.parent.createDirectory()
-							val input = fileish.input()
-							val output = target.toFile.outputStream(false)
-							IOHelper.copy(input, output)
-						}
-					case _ => throw new UnsupportedOperationException
-				}
-			}
-		}
-
-		copyFolder(GATLING_ASSETS_STYLE_PACKAGE, styleFolder(runOn))
-		copyFolder(GATLING_ASSETS_JS_PACKAGE, jsFolder(runOn))
+		deepCopyPackageContent(GATLING_ASSETS_STYLE_PACKAGE, styleFolder(runOn))
+		deepCopyPackageContent(GATLING_ASSETS_JS_PACKAGE, jsFolder(runOn))
 	}
 }

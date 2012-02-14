@@ -14,46 +14,32 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.app
-
+import java.io.{ StringWriter, PrintWriter }
 import java.lang.System.currentTimeMillis
 
-import scala.collection.immutable.TreeSet
-import scala.collection.mutable.{ Set => MSet, MultiMap, HashMap }
-import scala.tools.nsc.io.Directory
+import scala.tools.nsc.interpreter.AbstractFileClassLoader
+import scala.tools.nsc.io.{ PlainFile, Path, File, Directory }
+import scala.tools.nsc.reporters.ConsoleReporter
+import scala.tools.nsc.{ Settings, Global }
 
 import org.joda.time.DateTime
 
-import com.excilys.ebi.gatling.app.compiler.{ TextScenarioCompiler, ScalaScenarioCompiler, IdeScenarioCompiler }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.activeSessionsFile
 import com.excilys.ebi.gatling.charts.report.ReportsGenerator
-import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_SIMULATIONS_FOLDER
-import com.excilys.ebi.gatling.core.config.GatlingConfig
+import com.excilys.ebi.gatling.core.config.{ GatlingFiles, GatlingConfiguration }
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.runner.Runner
 import com.excilys.ebi.gatling.core.util.DateHelper.printFileNameDate
-import com.excilys.ebi.gatling.core.util.FileHelper.{ TXT_EXTENSION, SCALA_EXTENSION }
-import com.excilys.ebi.gatling.core.Conventions
+import com.excilys.ebi.gatling.core.util.IOHelper.use
+import com.twitter.io.TempDirectory
+import com.excilys.ebi.gatling.core.util.ReflectionHelper.getNewInstanceByClassName
 
-import CommandLineOptions.options.{ simulations, simulationPackage, simulationFolder, resultsFolder, requestBodiesFolder, reportsOnlyFolder, reportsOnly, noReports, dataFolder, configFileName }
 import scopt.OptionParser
 
 /**
  * Object containing entry point of application
  */
 object Gatling extends Logging {
-
-	val cliOptsParser =
-		new OptionParser("gatling") {
-			opt("nr", "no-reports", "Runs simulation but does not generate reports", { CommandLineOptions.setNoReports })
-			opt("ro", "reports-only", "<folderName>", "Generates the reports for the simulation in <folderName>", { v: String => CommandLineOptions.setReportsOnly(v) })
-			opt("cf", "config-file", "<fileName>", "Uses <fileName> as the configuration file", { v: String => CommandLineOptions.setConfigFileName(v) })
-			opt("df", "data-folder", "<folderName>", "Uses <folderName> as the folder where feeders are stored", { v: String => CommandLineOptions.setDataFolder(v) })
-			opt("rf", "results-folder", "<folderName>", "Uses <folderName> as the folder where results are stored", { v: String => CommandLineOptions.setResultsFolder(v) })
-			opt("bf", "request-bodies-folder", "<folderName>", "Uses <folderName> as the folder where request bodies are stored", { v: String => CommandLineOptions.setRequestBodiesFolder(v) })
-			opt("sf", "simulations-folder", "<folderName>", "Uses <folderName> to discover simulations that could be run", { v: String => CommandLineOptions.setSimulationFolder(v) })
-			opt("af", "assets-folder", "<folderName>", "Uses <assetsFolder> as folder for assets", { v: String => CommandLineOptions.setAssetsFolder(v) })
-			opt("sp", "simulations-package", "<packageName>", "Uses <packageName> to start the simulations", { v: String => CommandLineOptions.setSimulationPackage(v) })
-			opt("s", "simulations", "<simulationNames>", "Runs the <simulationNames> sequentially", { v: String => CommandLineOptions.setSimulations(v) })
-		}
 
 	/**
 	 * Entry point of Application
@@ -62,112 +48,159 @@ object Gatling extends Logging {
 	 */
 	def main(args: Array[String]) {
 
-		if (cliOptsParser.parse(args)) {
-			println("-----------\nGatling cli\n-----------\n")
+		val options: Options = Options()
 
-			import CommandLineOptions.options._
-			GatlingConfig(configFileName, dataFolder, requestBodiesFolder, resultsFolder, simulationFolder) // Initializes configuration
-
-			// If simulations is set
-			simulations.map { list =>
-				if (list.size > 1)
-					runMultipleSimulations(list)
-				else
-					run(list.head)
-			}.getOrElse {
-				if (!reportsOnly)
-					// Else run with menu
-					simulationPackage match {
-						case Some(_) => {
-							val file = displayMenuForIde
-							println(file)
-							runForIde(file)
-						}
-						case None => run(displayMenu)
-					}
-			}
-
-			if (reportsOnly) {
-				generateStats(reportsOnlyFolder)
-			}
+		val cliOptsParser = new OptionParser("gatling") {
+			opt("nr", "no-reports", "Runs simulation but does not generate reports", { options.noReports = true })
+			opt("ro", "reports-only", "<folderName>", "Generates the reports for the simulation in <folderName>", { v: String => options.reportsOnlyFolder = Some(v) })
+			opt("cf", "config-file", "<fileName>", "Uses <fileName> as the configuration file", { v: String => options.configFileName = Some(v) })
+			opt("df", "data-folder", "<folderName>", "Uses <folderName> as the folder where feeders are stored", { v: String => options.dataFolder = Some(v) })
+			opt("rf", "results-folder", "<folderName>", "Uses <folderName> as the folder where results are stored", { v: String => options.resultsFolder = Some(v) })
+			opt("bf", "request-bodies-folder", "<folderName>", "Uses <folderName> as the folder where request bodies are stored", { v: String => options.requestBodiesFolder = Some(v) })
+			opt("sf", "simulations-folder", "<folderName>", "Uses <folderName> to discover simulations that could be run", { v: String => options.simulationSourcesFolder = Some(v) })
+			opt("s", "simulations", "<simulationNames>", "Runs the <simulationNames> sequentially", { v: String => options.simulations = Some(v.split(",").toList) })
 		}
 
-		// if arguments are bad, usage message is displayed
+		if (cliOptsParser.parse(args))
+			start(options)
+
+		// if arguments are incorrect, usage message is displayed
 	}
 
-	def apply(dataFolder: String, resultsFolder: String, requestBodiesFolder: String, ideSimulationFolder: String, ideSimulationPackage: String) =
-		main(Array("-df", dataFolder, "-rf", resultsFolder, "-bf", requestBodiesFolder, "-sf", ideSimulationFolder, "-sp", ideSimulationPackage))
+	def start(options: Options) = new Gatling(options: Options).launch
+}
 
-	private def displayMenu: String = {
-		import CommandLineOptions.options._
+class Gatling(options: Options) extends Logging {
 
-		// Getting files in scenarios folder
-		val files = Directory(GATLING_SIMULATIONS_FOLDER).files.map(_.name).filter(name => name.endsWith(TXT_EXTENSION) || name.endsWith(SCALA_EXTENSION)).filterNot(_.startsWith(".")).toSeq
+	lazy val tempDir = Directory(TempDirectory.create(true))
 
-		// Sorting file names by radical and storing groups for display purpose
-		val sortedFiles = new HashMap[String, MSet[String]] with MultiMap[String, String]
-		var sortedGroups = new TreeSet[String]
+	// Initializes configuration
+	GatlingConfiguration.setUp(options.configFileName, options.dataFolder, options.requestBodiesFolder, options.resultsFolder, options.simulationSourcesFolder)
 
-		for (fileName <- files) {
-			Conventions.getSourceDirectoryNameFromRootFileName(fileName).map { sourceDirectoryName =>
-				sortedFiles.addBinding(sourceDirectoryName, fileName)
-				sortedGroups += sourceDirectoryName
-			}
+	def launch {
+		val reportsFolders = options.reportsOnlyFolder match {
+			case Some(reportsOnlyFolder) => List(reportsOnlyFolder)
+			case None =>
+				val classes = options.simulationBinariesFolder match {
+
+					case Some(simulationBinariesFolder) =>
+						// expect simulations to have been pre-compiled (ex: IDE)
+						val classNames = getClassNamesFromBinariesDirectory(Directory(simulationBinariesFolder))
+						loadSimulationClasses(classNames)
+
+					case None =>
+						// TODO use andThen once I f***g manage to use it with ScalaIDE
+						val scalaFiles = collectFiles(GatlingFiles.simulationsFolder, "scala")
+						val classloader = compile(scalaFiles)
+						val classNames = getClassNamesFromBinariesDirectory(tempDir)
+						loadSimulationClasses(classNames, classloader)
+				}
+
+				val selectedClasses = options.simulations match {
+					case Some(simulations) => classes.filter(clazz => simulations.contains(clazz.getName))
+					case None => List(selectSimulationClass(classes))
+				}
+
+				run(selectedClasses.map(_.newInstance): _*)
 		}
 
-		// We get the folder name of the run simulation
-		files.size match {
+		if (!options.noReports)
+			reportsFolders.foreach(generateReports(_))
+	}
+
+	private def collectFiles(directory: Path, extension: String): List[File] = Directory(directory).deepFiles.filter(_.hasExtension(extension)).toList
+
+	private def compile(files: List[File]): AbstractFileClassLoader = {
+
+		val byteCodeDir = PlainFile.fromPath(tempDir)
+		val classLoader = new AbstractFileClassLoader(byteCodeDir, getClass.getClassLoader)
+
+		def generateSettings: Settings = {
+			val settings = new Settings
+			settings.usejavacp.value = true
+			settings.outputDirs.setSingleOutput(byteCodeDir)
+			settings.deprecation.value = true
+			settings.unchecked.value = true
+			settings
+		}
+
+		// Prepare an object for collecting error messages from the compiler
+		val messageCollector = new StringWriter
+
+		use(new PrintWriter(messageCollector)) { pw =>
+			// Initialize the compiler
+			val settings = generateSettings
+			val reporter = new ConsoleReporter(settings, Console.in, pw)
+			val compiler = new Global(settings, reporter)
+
+			(new compiler.Run).compileFiles(files.map(PlainFile.fromPath(_)))
+
+			// Bail out if compilation failed
+			if (reporter.hasErrors) {
+				reporter.printSummary
+				throw new RuntimeException("Compilation failed:\n" + messageCollector.toString)
+			}
+
+			classLoader
+		}
+	}
+
+	private def pathToClassName(path: Path, root: Path): String = (path.parent / path.stripExtension)
+		.toString
+		.stripPrefix(root + File.separator)
+		.replace(File.separator, ".")
+
+	private def getClassNamesFromBinariesDirectory(dir: Directory): List[String] = dir.deepFiles
+		.filter(_.hasExtension("class"))
+		.map(pathToClassName(_, dir)).toList
+
+	private def loadSimulationClasses(classNames: List[String]): List[Class[Simulation]] = classNames
+		.map(Class.forName(_))
+		.filter(classOf[Simulation].isAssignableFrom(_))
+		.map(_.asInstanceOf[Class[Simulation]]).toList
+
+	private def loadSimulationClasses(classNames: List[String], classLoader: AbstractFileClassLoader): List[Class[Simulation]] = classNames
+		.map(classLoader.findClass(_))
+		.filter(classOf[Simulation].isAssignableFrom(_))
+		.map(_.asInstanceOf[Class[Simulation]]).toList
+
+	private def selectSimulationClass(classes: List[Class[Simulation]]): Class[Simulation] = {
+
+		val selected = classes.size match {
 			case 0 =>
 				// If there is no simulation file
-				logger.warn("There are no simulation scripts. Please verify that your scripts are in user-files/simulations and that they do not start with a .")
+				logger.error("There are no simulation scripts. Please verify that your scripts are in user-files/simulations and that they do not start with a .")
 				sys.exit
 			case 1 =>
 				// If there is only one simulation file
 				logger.info("There is only one simulation, executing it.")
-				files(0)
-			case _ =>
-				// If there are several simulation files
-				println("Which simulation do you want to execute ?")
-
-				var i = 0
-				var filesList: List[String] = Nil
-
-				for (group <- sortedGroups) {
-					println("\n - " + group)
-					sortedFiles.get(group).map {
-						for (fileName <- _) {
-							Conventions.getSimulationSpecificName(fileName).map { simulationSpecificName =>
-								println("     [" + i + "] " + simulationSpecificName)
-								filesList = fileName :: filesList
-								i += 1
-							}
-						}
-					}
+				0
+			case size =>
+				for (i <- 0 until size) {
+					println("     [" + i + "] " + classes(i).getName)
 				}
-
-				println("\nSimulation #: ")
-
-				val fileChosen = Console.readInt
-				filesList.reverse(fileChosen)
+				Console.readInt
 		}
+
+		classes(selected)
 	}
 
-	private def displayMenuForIde: String = {
-		import CommandLineOptions.options._
+	private def run(simulations: Simulation*): Seq[String] = {
 
-		println("Which simulation do you want to execute ?")
+		val size = simulations.size
 
-		val files = Directory(GATLING_SIMULATIONS_FOLDER).files.map(_.name.takeWhile(_ != '.')).toSeq
+		for (i <- 0 until size) yield {
+			val simulation = simulations(i)
+			val name = simulation.getClass.getName
+			println(">> Running simulation (" + (i + 1) + "/" + size + ") - " + name)
+			println("Simulation " + name + " started...")
 
-		var i = 0
-		files.foreach { file =>
-			println("   [" + i + "] " + file)
-			i += 1
+			val startDate = DateTime.now
+			new Runner(startDate, simulation()).run
+			println("Simulation Finished.")
+
+			printFileNameDate(startDate)
 		}
-
-		val fileChosen = Console.readInt
-
-		simulationPackage.get + "." + files(fileChosen)
 	}
 
 	/**
@@ -176,7 +209,7 @@ object Gatling extends Logging {
 	 * @param folderName The folder from which the simulation.log will be parsed
 	 * @return Nothing
 	 */
-	private def generateStats(folderName: String) = {
+	private def generateReports(folderName: String) {
 		println("Generating reports...")
 		val start = currentTimeMillis
 		if (ReportsGenerator.generateFor(folderName)) {
@@ -186,47 +219,4 @@ object Gatling extends Logging {
 			println("Reports weren't generated")
 		}
 	}
-
-	/**
-	 * This method actually runs the simulation by interpreting the scripts.
-	 *
-	 * @param fileName The name of the simulation file that will be executed
-	 * @return The name of the folder of this simulation (ie: its date)
-	 */
-	private def run(fileName: String, isIde: Boolean = false) = {
-
-		println("Simulation " + fileName + " started...")
-
-		val startDate = DateTime.now
-		val compiler =
-			if (isIde)
-				new IdeScenarioCompiler
-			else
-				fileName match {
-					case fn if (fn.endsWith(SCALA_EXTENSION)) => new ScalaScenarioCompiler
-					case fn if (fn.endsWith(TXT_EXTENSION)) => new TextScenarioCompiler
-					case _ => throw new UnsupportedOperationException
-				}
-
-		compiler.run(fileName, startDate)
-		println("Simulation Finished.")
-
-		// Returns the folderName in which the simulation is stored
-		if (!noReports) {
-			generateStats(printFileNameDate(startDate))
-		}
-	}
-
-	private def runMultipleSimulations(fileNames: List[String]) = {
-		val size = fileNames.size
-		var count = 1
-
-		fileNames.foreach { fileName =>
-			println(">> Running simulation (" + count + "/" + size + ") - " + fileName)
-			run(fileName)
-			count += 1
-		}
-	}
-
-	private def runForIde(fileName: String) = run(fileName, true)
 }

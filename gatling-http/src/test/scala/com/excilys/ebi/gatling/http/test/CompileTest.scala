@@ -17,11 +17,8 @@ package com.excilys.ebi.gatling.http.test
 
 import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._
-import org.joda.time.DateTime._
 
 object CompileTest {
-
-	def runSimulation = runSimFunction(now)
 
 	val iterations = 10
 	val pause1 = 1
@@ -128,6 +125,5 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 		.exec(http("Ajout au panier").get("/").check(regex("""<input id="text1" type="text" value="(.*)" />""").saveAs("input")))
 		.pause(pause1)
 
-	runSimulation(
-		lambdaUser.configure.users(5).ramp(10).protocolConfig(httpConf))
+	val config = lambdaUser.configure.users(5).ramp(10).protocolConfig(httpConf)
 }

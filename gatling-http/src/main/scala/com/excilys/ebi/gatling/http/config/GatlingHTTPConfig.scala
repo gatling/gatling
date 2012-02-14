@@ -15,16 +15,16 @@
  */
 package com.excilys.ebi.gatling.http.config
 
-import com.excilys.ebi.gatling.core.config.GatlingConfig.config
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 
 object GatlingHTTPConfig {
 	val GATLING_HTTP_CONFIG_PROVIDER_CLASS = {
-		val chosenProvider = config.getString("gatling.http.provider", "Netty")
-		new StringBuilder("com.ning.http.client.providers.").append(chosenProvider.toLowerCase).append(".").append(chosenProvider).append("AsyncHttpProvider").toString
+		val selectedProvider = configuration.fileConfiguration.getString("gatling.http.provider", "Netty")
+		new StringBuilder("com.ning.http.client.providers.").append(selectedProvider.toLowerCase).append(".").append(selectedProvider).append("AsyncHttpProvider").toString
 	}
-	val GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT = config.getInt("gatling.http.connectionTimeout", 60000)
-	val GATLING_HTTP_CONFIG_COMPRESSION_ENABLED = config.getBoolean("gatling.http.compressionEnabled", true)
-	val GATLING_HTTP_CONFIG_REQUEST_TIMEOUT = config.getInt("gatling.http.requestTimeout", 60000)
-	val GATLING_HTTP_CONFIG_MAX_RETRY = config.getInt("gatling.http.maxRetry", 5)
-	val GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION = config.getBoolean("gatling.http.allowPoolingConnection", true)
+	val GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT = configuration.fileConfiguration.getInt("gatling.http.connectionTimeout", 60000)
+	val GATLING_HTTP_CONFIG_COMPRESSION_ENABLED = configuration.fileConfiguration.getBoolean("gatling.http.compressionEnabled", true)
+	val GATLING_HTTP_CONFIG_REQUEST_TIMEOUT = configuration.fileConfiguration.getInt("gatling.http.requestTimeout", 60000)
+	val GATLING_HTTP_CONFIG_MAX_RETRY = configuration.fileConfiguration.getInt("gatling.http.maxRetry", 5)
+	val GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION = configuration.fileConfiguration.getBoolean("gatling.http.allowPoolingConnection", true)
 }

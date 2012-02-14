@@ -129,4 +129,4 @@ val scn = scenario("Scenario name")
 	)
 
 val scnConf = scn.configure users 10 ramp 10 protocolConfig httpConf
-runSimulation(scnConf)
+List(scnConf)

@@ -15,127 +15,99 @@
  */
 package com.excilys.ebi.gatling.core.config
 
-import java.io.File
+import scala.io.Codec
+import scala.tools.nsc.io.Path.string2path
+import scala.tools.nsc.io.Path
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.GATLING_DEFAULT_CONFIG_FILE
+import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.result.reader.DataReader
+import com.excilys.ebi.gatling.core.result.writer.DataWriter
+import com.excilys.ebi.gatling.core.util.DateHelper.parseReadableDate
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.core.init.Initializable
 
-import akka.config.{ ResourceImporter, Importer, FilesystemImporter, ConfigurationException, ConfigParser }
+/**
+ * Configuration loader of Gatling
+ */
+object GatlingConfiguration extends Initializable {
 
-object GatlingConfiguration {
-	val defaultPath = new File(".").getCanonicalPath
-	val defaultImporter = new FilesystemImporter(defaultPath)
+	val GATLING_DEFAULT_CONFIG_FILE = "gatling.conf"
 
-	def load(data: String, givenImporter: Importer = defaultImporter) = new GatlingConfiguration(new ConfigParser(importer = givenImporter).parse(data))
+	@volatile private var instance: GatlingConfiguration = _
 
-	def fromFile(filename: String, importer: Importer) = load(importer.importFile(filename), importer)
-
-	def fromFile(path: String, filename: String): GatlingConfiguration = fromFile(filename, new ResourceImporter(getClass.getClassLoader))
-
-	def fromFile(filename: String): GatlingConfiguration = {
-		val n = filename.lastIndexOf(File.pathSeparatorChar)
-		if (n < 0) fromFile(defaultPath, filename)
-		else fromFile(filename.substring(0, n), filename.substring(n + 1))
+	def setUp(configFileName: Option[String], dataFolder: Option[String], requestBodiesFolder: Option[String], resultsFolder: Option[String], simulationsFolder: Option[String]) = {
+		if (initialized.compareAndSet(false, true)) {
+			instance = new GatlingConfiguration(configFileName, dataFolder, requestBodiesFolder, resultsFolder, simulationsFolder)
+		} else {
+			throw new UnsupportedOperationException("GatlingConfig already set up")
+		}
 	}
+
+	def configuration = if (initialized.get) instance else throw new UnsupportedOperationException("Can't access configuration instance if it hasn't been set up")
 }
 
-class GatlingConfiguration(val map: Map[String, Any]) {
-	private val trueValues = Set("true", "on")
-	private val falseValues = Set("false", "off")
+class GatlingConfiguration(
+		configFileName: Option[String] = None,
+		dataFolder: Option[String] = None,
+		requestBodiesFolder: Option[String] = None,
+		resultsFolder: Option[String] = None,
+		simulationsFolder: Option[String] = None) extends Logging {
 
-	def contains(key: String): Boolean = map contains key
-
-	def keys: Iterable[String] = map.keys
-
-	def getAny(key: String): Option[Any] = map.get(key)
-
-	def getAny(key: String, defaultValue: Any): Any = getAny(key).getOrElse(defaultValue)
-
-	def getSeqAny(key: String): Seq[Any] = {
+	/**
+	 * Contains the configuration of Gatling
+	 */
+	val fileConfiguration: GatlingFileConfiguration =
 		try {
-			map(key).asInstanceOf[Seq[Any]]
+			// Locate configuration file, depending on users options
+			val configFile = configFileName map { fileName =>
+				logger.info("Loading custom configuration file: conf/{}", fileName)
+				fileName
+			} getOrElse {
+				logger.info("Loading default configuration file")
+				GATLING_DEFAULT_CONFIG_FILE
+			}
+
+			GatlingFileConfiguration.fromFile(configFile)
 		} catch {
-			case _ => Seq.empty[Any]
+			case e =>
+				logger.error("{}\n{}", e.getMessage, e.getStackTraceString)
+				throw new Exception("Could not parse configuration file!")
 		}
+
+	val resultsFolderPath : Option[Path] = resultsFolder.map(s => s)
+	val dataFolderPath: Option[Path] = dataFolder.map(s => s)
+	val requestBodiesFolderPath: Option[Path] = requestBodiesFolder.map(s => s)
+	val simulationsFolderPath: Option[Path] = simulationsFolder.map(s => s)
+
+	/**
+	 * Gatling global encoding value
+	 */
+	val encoding = fileConfiguration("gatling.encoding", Codec.UTF8.name)
+
+	/**
+	 * Gatling simulation timeout value
+	 */
+	val simulationTimeOut = fileConfiguration("gatling.simulation.timeout", 86400)
+
+	val simulationScalaPackage = fileConfiguration("gatling.simulation.scalaPackage", EMPTY)
+
+	val chartingIndicatorsLowerBound = fileConfiguration("gatling.charting.indicators.lowerBound", 100)
+
+	val chartingIndicatorsHigherBound = fileConfiguration("gatling.charting.indicators.higherBound", 500)
+
+	val chartingMaxPlotPerSerie = fileConfiguration("gatling.charting.maxPlotPerSerie", 5000)
+
+	val chartingTimeWindowLowerBound = fileConfiguration("gatling.charting.timeWindow.lowerBound", EMPTY) match {
+		case EMPTY => Long.MinValue
+		case string => parseReadableDate(string).getMillis
 	}
 
-	def getString(key: String): Option[String] = map.get(key).map(_.toString)
-
-	def getString(key: String, defaultValue: String): String = getString(key).getOrElse(defaultValue)
-
-	def getList(key: String): Seq[String] = {
-		try {
-			map(key).asInstanceOf[Seq[String]]
-		} catch {
-			case _ => Seq.empty[String]
-		}
+	val chartingTimeWindowHigherBound = fileConfiguration("gatling.charting.timeWindow.higherBound", EMPTY) match {
+		case EMPTY => Long.MaxValue
+		case string => parseReadableDate(string).getMillis
 	}
 
-	def getInt(key: String): Option[Int] = {
-		try {
-			Some(map(key).toString.toInt)
-		} catch {
-			case _ => None
-		}
-	}
+	val dataWriterClass = Class.forName(fileConfiguration("gatling.data.writer", "com.excilys.ebi.gatling.core.result.writer.FileDataWriter")).asInstanceOf[Class[DataWriter]]
 
-	def getInt(key: String, defaultValue: Int): Int = getInt(key).getOrElse(defaultValue)
-
-	def getLong(key: String): Option[Long] = {
-		try {
-			Some(map(key).toString.toLong)
-		} catch {
-			case _ => None
-		}
-	}
-
-	def getLong(key: String, defaultValue: Long): Long = getLong(key).getOrElse(defaultValue)
-
-	def getFloat(key: String): Option[Float] = {
-		try {
-			Some(map(key).toString.toFloat)
-		} catch {
-			case _ => None
-		}
-	}
-
-	def getFloat(key: String, defaultValue: Float): Float = getFloat(key).getOrElse(defaultValue)
-
-	def getDouble(key: String): Option[Double] = {
-		try {
-			Some(map(key).toString.toDouble)
-		} catch {
-			case _ => None
-		}
-	}
-
-	def getDouble(key: String, defaultValue: Double): Double = getDouble(key).getOrElse(defaultValue)
-
-	def getBoolean(key: String): Option[Boolean] = {
-		getString(key) flatMap { s =>
-			val isTrue = trueValues.contains(s)
-			if (!isTrue && !falseValues.contains(s)) None
-			else Some(isTrue)
-		}
-	}
-
-	def getBoolean(key: String, defaultValue: Boolean): Boolean = getBool(key).getOrElse(defaultValue)
-
-	def getBool(key: String): Option[Boolean] = getBoolean(key)
-
-	def getBool(key: String, defaultValue: Boolean): Boolean = getBoolean(key, defaultValue)
-
-	def apply(key: String): String = getString(key) match {
-		case None => throw new ConfigurationException("undefined config: " + key)
-		case Some(v) => v
-	}
-
-	def apply(key: String, defaultValue: String) = getString(key, defaultValue)
-	def apply(key: String, defaultValue: Int) = getInt(key, defaultValue)
-	def apply(key: String, defaultValue: Long) = getLong(key, defaultValue)
-	def apply(key: String, defaultValue: Boolean) = getBool(key, defaultValue)
-
-	def getSection(name: String): Option[GatlingConfiguration] = {
-		val l = name.length + 1
-		val m = map.collect { case (k, v) if k.startsWith(name) => (k.substring(l), v) }
-		if (m.isEmpty) None
-		else Some(new GatlingConfiguration(m))
-	}
+	val dataReaderClass = Class.forName(fileConfiguration("gatling.data.reader", "com.excilys.ebi.gatling.charts.result.reader.FileDataReader")).asInstanceOf[Class[DataReader]]
 }

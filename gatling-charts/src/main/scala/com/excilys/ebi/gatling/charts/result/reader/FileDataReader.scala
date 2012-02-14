@@ -18,16 +18,14 @@ package com.excilys.ebi.gatling.charts.result.reader
 import java.util.regex.Pattern
 
 import scala.collection.immutable.SortedMap
-import scala.collection.mutable.{ HashMap, ArrayBuffer }
 import scala.io.Source
 
 import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
-import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
-import com.excilys.ebi.gatling.core.config.GatlingConfig
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus
 import com.excilys.ebi.gatling.core.result.reader.DataReader
@@ -45,12 +43,12 @@ class FileDataReader(runOn: String) extends DataReader(runOn) with Logging {
 
 	private val data: Seq[ResultLine] = {
 
-		val lines = Source.fromFile(simulationLogFile(runOn).jfile, CONFIG_ENCODING).getLines
+		val lines = Source.fromFile(simulationLogFile(runOn).jfile, configuration.encoding).getLines
 
 		// check headers correctness
 		ResultLine.Headers.check(lines.next)
 
-		def isResultInTimeWindow(result: ResultLine) = result.executionStartDate >= GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_LOWER_BOUND && result.executionStartDate <= GatlingConfig.CONFIG_CHARTING_TIME_WINDOW_HIGHER_BOUND
+		def isResultInTimeWindow(result: ResultLine) = result.executionStartDate >= configuration.chartingTimeWindowLowerBound && result.executionStartDate <= configuration.chartingTimeWindowHigherBound
 
 		(for (line <- lines) yield SPLIT_PATTERN.split(line, 0))
 			.filter(strings =>

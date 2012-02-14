@@ -40,12 +40,6 @@ public class CommandLineOptions {
 	@Option(name = "-bf", usage = "Define the folder in which the request bodies will be dumped", aliases = "--request-bodies-folder")
 	private String requestBodiesFolder;
 
-	@Option(name = "-text", usage = "Save scenario as Text")
-	private boolean resultText;
-
-	@Option(name = "-scala", usage = "Save scenario as Scala")
-	private boolean resultScala;
-
 	@Option(name = "-run", usage = "Skip the configuration frame (need to set -of, listens on 8000 & 8001)")
 	private boolean runningFrame;
 
@@ -101,22 +95,6 @@ public class CommandLineOptions {
 
 	public void setOutputFolder(String outputFolder) {
 		this.outputFolder = outputFolder;
-	}
-
-	public boolean isResultText() {
-		return resultText;
-	}
-
-	public void setResultText(boolean resultText) {
-		this.resultText = resultText;
-	}
-
-	public boolean isResultScala() {
-		return resultScala;
-	}
-
-	public void setResultScala(boolean resultScala) {
-		this.resultScala = resultScala;
 	}
 
 	public boolean isRunningFrame() {

@@ -18,11 +18,11 @@ package com.excilys.ebi.gatling.core.result.writer
 import com.excilys.ebi.gatling.core.log.Logging
 import akka.actor.Actor.actorOf
 import akka.actor.Actor
-import com.excilys.ebi.gatling.core.config.GatlingConfig
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.init.Initializable
 
 object DataWriter{
-	lazy val instance = actorOf(GatlingConfig.CONFIG_DATA_WRITER).start
+	lazy val instance = actorOf(configuration.dataWriterClass).start
 }
 
 /**

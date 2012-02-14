@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.http.request.builder
 import scala.tools.nsc.io.Path.string2path
 import org.fusesource.scalate.support.ScalaCompiler
 import org.fusesource.scalate.{ TemplateEngine, Binding }
-import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_REQUEST_BODIES_FOLDER
+import com.excilys.ebi.gatling.core.config.GatlingFiles
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.FileHelper.SSP_EXTENSION
@@ -31,7 +31,7 @@ import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 
 object AbstractHttpRequestWithBodyBuilder {
-	val ENGINE = new TemplateEngine(List(GATLING_REQUEST_BODIES_FOLDER))
+	val ENGINE = new TemplateEngine(List(GatlingFiles.requestBodiesFolder))
 	ENGINE.allowReload = false
 	ENGINE.escapeMarkup = false
 	// Register engine shutdown
@@ -112,7 +112,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 		body match {
 			case Some(thing) =>
 				thing match {
-					case FilePathBody(filePath) => requestBuilder.setBody((GATLING_REQUEST_BODIES_FOLDER / filePath).jfile)
+					case FilePathBody(filePath) => requestBuilder.setBody((GatlingFiles.requestBodiesFolder / filePath).jfile)
 					case StringBody(body) => requestBuilder.setBody(body(session))
 					case TemplateBody(tplPath, values) => requestBuilder.setBody(compileBody(tplPath, values, session))
 					case _ =>

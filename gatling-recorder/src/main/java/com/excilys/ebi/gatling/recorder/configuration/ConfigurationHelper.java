@@ -28,7 +28,6 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
@@ -41,7 +40,6 @@ public final class ConfigurationHelper {
 	private static final File CONFIGURATION_FILE = new File(System.getProperty("user.home"), GATLING_RECORDER_FILE_NAME);
 
 	static {
-		XSTREAM.alias("resultType", ResultType.class);
 		XSTREAM.alias("configuration", Configuration.class);
 		XSTREAM.alias("pattern", Pattern.class);
 		XSTREAM.alias("proxy", ProxyConfig.class);
@@ -61,9 +59,6 @@ public final class ConfigurationHelper {
 		CmdLineParser parser = new CmdLineParser(cliOpts);
 		try {
 			parser.parseArgument(args);
-			if (!cliOpts.isResultText() && !cliOpts.isResultScala())
-				cliOpts.setResultText(true);
-
 			if (cliOpts.isRunningFrame()) {
 				if (cliOpts.getOutputFolder() == null)
 					throw new CmdLineException(parser, "'-run' must be used with '-of'\n");

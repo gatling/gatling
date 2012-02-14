@@ -17,32 +17,24 @@ package com.excilys.ebi.gatling.core.config
 
 import scala.tools.nsc.io.Path.string2path
 
-import GatlingConfig.{ CONFIG_RESULTS_FOLDER, CONFIG_REQUEST_BODIES_FOLDER, CONFIG_DATA_FOLDER, CONFIG_SIMULATIONS_FOLDER }
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 
 object GatlingFiles {
-	/* Global paths */
 	val GATLING_HOME = Option(System.getenv("GATLING_HOME")).getOrElse(System.getProperty("java.io.tmpdir"))
-
 	val GATLING_USER_FILES_FOLDER = GATLING_HOME / "user-files"
-
-	lazy val GATLING_DATA_FOLDER = CONFIG_DATA_FOLDER.getOrElse(GATLING_USER_FILES_FOLDER / "data")
-	lazy val GATLING_RESULTS_FOLDER = CONFIG_RESULTS_FOLDER.getOrElse(GATLING_HOME / "results")
-	lazy val GATLING_REQUEST_BODIES_FOLDER = CONFIG_REQUEST_BODIES_FOLDER.getOrElse(GATLING_USER_FILES_FOLDER / "request-bodies")
-	lazy val GATLING_SIMULATIONS_FOLDER = CONFIG_SIMULATIONS_FOLDER.getOrElse(GATLING_USER_FILES_FOLDER / "simulations")
-
-	/* Assets Paths */
 	val GATLING_ASSETS_PACKAGE = "assets"
 	val GATLING_JS = "js"
 	val GATLING_STYLE = "style"
 	val GATLING_ASSETS_JS_PACKAGE = GATLING_ASSETS_PACKAGE + "/" + GATLING_JS
 	val GATLING_ASSETS_STYLE_PACKAGE = GATLING_ASSETS_PACKAGE + "/" + GATLING_STYLE
-
-	/* Default files and internal constants */
-	val GATLING_DEFAULT_CONFIG_FILE = "gatling.conf"
 	val GATLING_IMPORTS_FILE = "imports.txt"
 
-	/* Results Paths */
-	def resultFolder(runOn: String) = GATLING_RESULTS_FOLDER / runOn
+	def dataFolder = configuration.dataFolderPath.getOrElse(GATLING_USER_FILES_FOLDER / "data")
+	def resultsFolder = configuration.resultsFolderPath.getOrElse(GATLING_HOME / "results")
+	def requestBodiesFolder = configuration.requestBodiesFolderPath.getOrElse(GATLING_USER_FILES_FOLDER / "request-bodies")
+	def simulationsFolder = configuration.simulationsFolderPath.getOrElse(GATLING_USER_FILES_FOLDER / "simulations")
+
+	def resultFolder(runOn: String) = resultsFolder / runOn
 	def jsFolder(runOn: String) = resultFolder(runOn) / GATLING_JS
 	def styleFolder(runOn: String) = resultFolder(runOn) / GATLING_STYLE
 	def rawdataFolder(runOn: String) = resultFolder(runOn) / "rawdata"

@@ -25,7 +25,7 @@ import com.excilys.ebi.gatling.charts.util.Colors.{ toString, YELLOW, TRANSLUCID
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
-import com.excilys.ebi.gatling.core.config.GatlingConfig.{ CONFIG_CHARTING_INDICATORS_LOWER_BOUND, CONFIG_CHARTING_INDICATORS_HIGHER_BOUND }
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ OK, KO }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
@@ -45,7 +45,7 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 				val responseTimesFailuresData = responseTimeByMillisecondAsList(dataMillis, KO)
 				val latencySuccessData = latencyByMillisecondAsList(dataMillis, OK)
 				val latencyFailuresData = latencyByMillisecondAsList(dataMillis, KO)
-				val indicatorsColumnData = numberOfRequestInResponseTimeRange(dataList, CONFIG_CHARTING_INDICATORS_LOWER_BOUND, CONFIG_CHARTING_INDICATORS_HIGHER_BOUND)
+				val indicatorsColumnData = numberOfRequestInResponseTimeRange(dataList, configuration.chartingIndicatorsLowerBound, configuration.chartingIndicatorsHigherBound)
 				val indicatorsPieData = {
 					val numberOfRequests = dataList.size
 					indicatorsColumnData.map { entry => entry._1 -> (entry._2 / numberOfRequests.toDouble * 100).toInt }

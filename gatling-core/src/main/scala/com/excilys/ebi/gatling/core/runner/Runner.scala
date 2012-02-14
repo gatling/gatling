@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.runner
 
 import java.util.concurrent.{ TimeUnit, CountDownLatch }
 import org.joda.time.DateTime
-import com.excilys.ebi.gatling.core.config.GatlingConfig
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
@@ -27,10 +27,6 @@ import com.excilys.ebi.gatling.core.session.Session
 import akka.actor.Actor.registry
 import akka.actor.{ Scheduler, ActorRef }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-
-object Runner {
-	def runSim(startDate: DateTime)(scenarioConfigurations: ScenarioConfigurationBuilder*) = new Runner(startDate, scenarioConfigurations.toList).run
-}
 
 class Runner(startDate: DateTime, scenarioConfigurationBuilders: Seq[ScenarioConfigurationBuilder]) extends Logging {
 
@@ -71,7 +67,7 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: Seq[ScenarioCon
 		}
 
 		logger.debug("Finished Launching scenarios executions")
-		latch.await(GatlingConfig.CONFIG_SIMULATION_TIMEOUT, TimeUnit.SECONDS)
+		latch.await(configuration.simulationTimeOut, TimeUnit.SECONDS)
 
 		logger.debug("All scenarios finished, stoping actors")
 		// Shuts down all actors
@@ -113,7 +109,5 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: Seq[ScenarioCon
 	 * @param userId the id of the current user
 	 * @return the built session
 	 */
-	private def buildSession(configuration: ScenarioConfiguration, userId: Int) = {
-		new Session(configuration.scenarioBuilder.name, userId)
-	}
+	private def buildSession(configuration: ScenarioConfiguration, userId: Int) = new Session(configuration.scenarioBuilder.name, userId)
 }

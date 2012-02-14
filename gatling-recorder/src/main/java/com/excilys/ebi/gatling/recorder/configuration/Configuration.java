@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy;
-import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
 
 public class Configuration {
 
@@ -34,7 +33,6 @@ public class Configuration {
 		instance.setFilterStrategy(c.getFilterStrategy());
 		instance.setPatterns(c.getPatterns());
 		instance.setOutputFolder(c.getOutputFolder());
-		instance.setResultTypes(c.getResultTypes());
 		instance.setSaveConfiguration(true);
 		instance.setEncoding(c.getEncoding());
 	}
@@ -47,12 +45,6 @@ public class Configuration {
 		instance.getProxy().setSslPort(c.getProxyPortSsl());
 		if (c.getOutputFolder() != null)
 			instance.setOutputFolder(c.getOutputFolder());
-
-		instance.getResultTypes().clear();
-		if (c.isResultText())
-			instance.getResultTypes().add(ResultType.TEXT);
-		if (c.isResultScala())
-			instance.getResultTypes().add(ResultType.SCALA);
 
 		if (c.isRunningFrame())
 			instance.setConfigurationSkipped(true);
@@ -71,7 +63,6 @@ public class Configuration {
 	private FilterStrategy filterStrategy = FilterStrategy.NONE;
 	private List<Pattern> patterns = new ArrayList<Pattern>();
 	private String outputFolder = System.getProperty("user.home");
-	private List<ResultType> resultTypes = new ArrayList<ResultType>();
 	private boolean saveConfiguration;
 	private String encoding = "UTF-8";
 	private transient String requestBodiesFolder;
@@ -122,14 +113,6 @@ public class Configuration {
 		this.outputFolder = outputFolder;
 	}
 
-	public List<ResultType> getResultTypes() {
-		return resultTypes;
-	}
-
-	public void setResultTypes(List<ResultType> resultTypes) {
-		this.resultTypes = resultTypes;
-	}
-
 	public int getSslPort() {
 		return sslPort;
 	}
@@ -165,7 +148,7 @@ public class Configuration {
 	@Override
 	public String toString() {
 		return "Configuration [port=" + port + ", sslPort=" + sslPort + ", proxy=" + proxy + ", filterStrategy=" + filterStrategy + ", patterns=" + patterns + ", outputFolder="
-				+ outputFolder + ", resultTypes=" + resultTypes + ", saveConfiguration=" + saveConfiguration + ", configurationSkipped=" + configurationSkipped + "]";
+				+ outputFolder + ", saveConfiguration=" + saveConfiguration + ", configurationSkipped=" + configurationSkipped + "]";
 	}
 
 	public String getRequestBodiesFolder() {

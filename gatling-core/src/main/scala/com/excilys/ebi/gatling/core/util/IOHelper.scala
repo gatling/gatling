@@ -16,29 +16,27 @@
 package com.excilys.ebi.gatling.core.util
 import java.io.{ OutputStream, InputStream, Closeable }
 
-import scala.annotation.implicitNotFound
-
 object IOHelper {
 
+	val BYTE_BUFFER_SIZE = 1024 * 4
+
 	def use[T, C <: Closeable](closeable: C)(block: C => T) = {
-		try {
+		try
 			block(closeable)
-		} finally {
+		finally
 			closeable.close
-		}
 	}
 
 	def copy(input: InputStream, output: OutputStream) = {
-		use(input) {
-			input =>
-				use(output) { output =>
-					val buffer = new Array[Byte](1024 * 4)
-					var n = input.read(buffer)
-					while (n != -1) {
-						output.write(buffer, 0, n);
-						n = input.read(buffer)
-					}
+		use(input) { input =>
+			use(output) { output =>
+				val buffer = new Array[Byte](BYTE_BUFFER_SIZE)
+				var n = input.read(buffer)
+				while (n != -1) {
+					output.write(buffer, 0, n)
+					n = input.read(buffer)
 				}
+			}
 		}
 	}
 }

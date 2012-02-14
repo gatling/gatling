@@ -25,8 +25,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -47,7 +45,6 @@ import com.excilys.ebi.gatling.recorder.configuration.Pattern;
 import com.excilys.ebi.gatling.recorder.http.event.ShowConfigurationFrameEvent;
 import com.excilys.ebi.gatling.recorder.http.event.ShowRunningFrameEvent;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy;
-import com.excilys.ebi.gatling.recorder.ui.enumeration.ResultType;
 import com.google.common.eventbus.Subscribe;
 
 @SuppressWarnings("serial")
@@ -68,7 +65,6 @@ public class ConfigurationFrame extends JFrame {
 	public final JCheckBox chkSavePref = new JCheckBox("Save preferences");
 	public final JTextField txtOutputFolder = new JTextField(47);
 	public final FilterTable tblFilters = new FilterTable();
-	public final List<JCheckBox> resultTypes = new ArrayList<JCheckBox>();
 	public final JComboBox cbOutputEncoding = new JComboBox();
 
 	JButton btnFiltersAdd = new JButton("+");
@@ -222,11 +218,6 @@ public class ConfigurationFrame extends JFrame {
 		JPanel outputTypePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		outputTypePanel.add(new JLabel("Type: "));
 
-		for (ResultType rt : ResultType.values())
-			resultTypes.add(new JCheckBox(rt.getLabel()));
-		for (JCheckBox cb : resultTypes)
-			outputTypePanel.add(cb);
-
 		for (Charset c : Charset.availableCharsets().values())
 			cbOutputEncoding.addItem(c);
 
@@ -352,10 +343,6 @@ public class ConfigurationFrame extends JFrame {
 			tblFilters.addRow(pattern);
 		txtOutputFolder.setText(Configuration.getInstance().getOutputFolder());
 		chkSavePref.setSelected(Configuration.getInstance().isSaveConfiguration());
-		for (JCheckBox cb : resultTypes)
-			for (ResultType resultType : Configuration.getInstance().getResultTypes())
-				if (cb.getText().equals(resultType.getLabel()))
-					cb.setSelected(true);
 		cbOutputEncoding.setSelectedItem(Charset.forName(Configuration.getInstance().getEncoding()));
 	}
 }

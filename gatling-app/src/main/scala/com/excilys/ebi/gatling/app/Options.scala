@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.script
+package com.excilys.ebi.gatling.app
 
-import com.excilys.ebi.gatling.core.Predef.runSimFunction
-
-/**
- * This trait is to be extended by Scala simulations
- */
-trait GatlingSimulation extends App {
-	def runSimulation = runSimFunction(args(0))
-}
+case class Options(
+	var reportsOnlyFolder: Option[String] = None,
+	var noReports: Boolean = false,
+	var configFileName: Option[String] = None,
+	var resultsFolder: Option[String] = None,
+	var dataFolder: Option[String] = None,
+	var requestBodiesFolder: Option[String] = None,
+	var simulationSourcesFolder: Option[String] = None,
+	var simulationBinariesFolder: Option[String] = None,
+	var simulations: Option[List[String]] = None)

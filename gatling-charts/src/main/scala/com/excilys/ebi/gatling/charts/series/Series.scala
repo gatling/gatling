@@ -15,23 +15,23 @@
  */
 package com.excilys.ebi.gatling.charts.series
 
-import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_CHARTING_MAX_PLOT_PER_SERIE
-import scala.collection.mutable.ArrayBuffer
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 
 class Series[X, Y](val name: String, val data: List[(X, Y)], val colors: List[String]) {
 
 	val sample = {
+		val nbMax = configuration.chartingMaxPlotPerSerie
 		val nb = data.size
-		if (nb <= CONFIG_CHARTING_MAX_PLOT_PER_SERIE)
+		if (nb <= nbMax)
 			data
 		else {
 			var i = 0
 			data.filter { plot =>
 				i = i + 1
-				isPlotMandatory(plot) || i % (nb / CONFIG_CHARTING_MAX_PLOT_PER_SERIE) == 0
+				isPlotMandatory(plot) || i % (nb / nbMax) == 0
 			}
 		}
 	}
-	
+
 	def isPlotMandatory(plot: (X, Y)) = false
 }

@@ -20,8 +20,8 @@ import java.io.File
 import scala.tools.nsc.io.Path.string2path
 
 import com.excilys.ebi.gatling.core.Predef.stringToSessionFunction
-import com.excilys.ebi.gatling.core.config.GatlingConfig.CONFIG_ENCODING
-import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_REQUEST_BODIES_FOLDER
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.excilys.ebi.gatling.core.config.GatlingFiles
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.PathHelper.path2string
 import com.excilys.ebi.gatling.core.util.StringHelper.{ EL_START, EL_END }
@@ -85,7 +85,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 
 	def param(paramKey: String): B = param(paramKey, EL_START + paramKey + EL_END)
 
-	def fileUpload(fileName: String, mimeType: String = APPLICATION_OCTET_STREAM, charset: String = CONFIG_ENCODING): B =
+	def fileUpload(fileName: String, mimeType: String = APPLICATION_OCTET_STREAM, charset: String = configuration.encoding): B =
 		header(CONTENT_TYPE, MULTIPART_FORM_DATA)
 			.newInstance(httpRequestActionBuilder, urlFunction, queryParams, params, headers, body, Some((fileName, mimeType, charset)), followsRedirects, credentials)
 
@@ -112,7 +112,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 
 	private def addBodyPartTo(requestBuilder: RequestBuilder) = {
 		val (fileName, mimeType, charset) = fileUpload.get
-		requestBuilder.addBodyPart(new FilePart(fileName, new File(GATLING_REQUEST_BODIES_FOLDER / fileName), mimeType, charset))
+		requestBuilder.addBodyPart(new FilePart(fileName, new File(GatlingFiles.requestBodiesFolder / fileName), mimeType, charset))
 	}
 
 	private def addStringPartsTo(requestBuilder: RequestBuilder, session: Session) = {

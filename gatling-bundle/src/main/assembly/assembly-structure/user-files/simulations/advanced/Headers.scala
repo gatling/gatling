@@ -1,3 +1,5 @@
+package advanced
+
 object Headers {
 	val headers_1 = Map(
 		"Accept" -> "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",

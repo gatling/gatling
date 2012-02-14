@@ -25,7 +25,6 @@ import com.excilys.ebi.gatling.core.check.{ CheckOneBuilder, CheckMultipleBuilde
 import com.excilys.ebi.gatling.core.check.CheckBaseBuilder
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesFeederBuilder
 import com.excilys.ebi.gatling.core.feeder.database.DatabaseFeederBuilder
-import com.excilys.ebi.gatling.core.runner.Runner.runSim
 import com.excilys.ebi.gatling.core.session.handler.{ TimerBasedIterationHandler, CounterBasedIterationHandler }
 import com.excilys.ebi.gatling.core.structure.{ ScenarioBuilder, ChainBuilder }
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
@@ -73,9 +72,6 @@ object Predef {
 
 	def getCounterValue(session: Session, counterName: String): Int = CounterBasedIterationHandler.getCounterValue(session, counterName)
 	def getTimerValue(session: Session, timerName: String): Long = TimerBasedIterationHandler.getTimerValue(session, timerName)
-
-	def runSimFunction(startDate: String) = runSim(new DateTime(startDate))_
-	def runSimFunction(startDate: DateTime) = runSim(startDate)_
 
 	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder.scenario(scenarioName)
 	def chain = ChainBuilder.chain
