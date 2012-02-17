@@ -21,13 +21,14 @@ DEFAULT_GATLING_HOME=`readlink -f ${BIN_DIR}/..`
 
 GATLING_HOME=${GATLING_HOME:=${DEFAULT_GATLING_HOME}}
 GATLING_HOME=`echo ${GATLING_HOME} | sed -e 's/ /\\ /g'`
-export GATLING_HOME
+GATLING_CONF=${GATLING_CONF:="$GATLING_HOME/conf"}
+
+export GATLING_HOME GATLING_CONF
 
 echo "GATLING_HOME is set to ${GATLING_HOME}"
 
-
 JAVA_OPTS="-server -XX:+UseThreadPriorities -XX:ThreadPriorityPolicy=42 -Xms512M -Xmx512M -Xmn100M -Xss1024k -XX:+HeapDumpOnOutOfMemoryError -XX:+AggressiveOpts -XX:+OptimizeStringConcat -XX:+UseFastAccessorMethods -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:SurvivorRatio=8 -XX:MaxTenuringThreshold=1 -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly"
 
-CLASSPATH="$GATLING_HOME/lib/*:$GATLING_HOME/conf"
+CLASSPATH="$GATLING_HOME/lib/*:$GATLING_CONF"
 
 java $JAVA_OPTS -cp $CLASSPATH com.excilys.ebi.gatling.app.Gatling $@

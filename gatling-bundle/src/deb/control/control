@@ -1,0 +1,9 @@
+Package: gatling
+Version: [[version]]
+Architecture: all
+Maintainer: Nicolas Huray <nicolas.huray@gmail.com>
+Depends: openjdk-6-jre-headless | sun-java6-jre
+Section: web
+Priority: optional
+Homepage: http://gatling-tool.org/
+Description: Optimized Stress Tool

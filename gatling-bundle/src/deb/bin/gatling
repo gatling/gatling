@@ -1,0 +1,143 @@
+#!/bin/bash
+#
+# Copyright 2011-2012 eBusiness Information, Groupe Excilys (www.excilys.com)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# 		http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+set -e
+
+# Gatling User directory
+GATLING_USER_HOME=${GATLING_USER_HOME:="~/.gatling"}
+
+GATLING_HOME="/usr/share/gatling"
+GATLING_SCRIPT="$GATLING_HOME/bin/gatling.sh"
+VERBOSE="false"
+
+# By default this variables points to $GATLING_USER_HOME directories,
+# but may be defined on the ~/.bashrc script for example.
+
+GATLING_CONF=${GATLING_CONF:="$GATLING_USER_HOME/conf"}
+
+GATLING_CONF_FILE=${GATLING_CONF_FILE:="$GATLING_CONF/gatling.conf"}
+
+GATLING_DATA=${GATLING_DATA:="$GATLING_USER_HOME/user-files/data"}
+
+GATLING_REQUEST_BODIES=${GATLING_REQUEST_BODIES:="$GATLING_USER_HOME/user-files/request-bodies"}
+
+GATLING_SIMULATIONS=${GATLING_SIMULATIONS:="$GATLING_USER_HOME/user-files/simulations"}
+
+GATLING_RESULTS=${GATLING_RESULTS:="$GATLING_USER_HOME/results"}
+
+GATLING_REPORTS_ONLY=${GATLING_REPORTS_ONLY:=""}
+
+# print usage
+print_usage() {
+  sh "$GATLING_SCRIPT" "-h"
+  exit 1
+}
+
+# get_opts : Parse arguments and options.
+get_opts(){
+ OTHER_ARGS=""		
+ until [ $# -eq 0 ]; do
+   local FIRST="${1:0:1}"
+   if [ "$FIRST" = "-" ] ; then
+     local option="${1:1}"
+     case $option in
+        cf|-config-file)
+            shift
+            if [ -z $1 ]; then
+              print_usage
+            fi
+            GATLING_CONF_FILE="$1"
+            GATLING_CONF=`dirname "$GATLING_CONF_FILE"`;;
+        df|-data-folder)
+            shift
+            if [ -z $1 ]; then
+              print_usage
+            fi
+            GATLING_DATA="$1";;
+        rf|-results-folder)
+            shift
+            if [ -z $1 ]; then
+              print_usage
+            fi
+            GATLING_RESULTS="$1";;
+        bf|-request-bodies-folder)
+            shift
+            if [ -z $1 ]; then
+              print_usage
+            fi
+            GATLING_REQUEST_BODIES="$1";;
+        sf|-simulations-folder)
+            shift
+            if [ -z $1 ]; then
+              print_usage
+            fi
+            GATLING_SIMULATIONS="$1";;
+        ro|-reports-only)
+            shift
+            if [ -z $1 ]; then
+              print_usage
+            fi
+            GATLING_REPORTS_ONLY="$1";;
+        v|-verbose)
+            VERBOSE="true";;
+        h|-help) 
+            print_usage;;
+        ?)
+            shift
+            OTHER_ARGS="$OTHER_ARGS -$option $1";;		
+     esac
+   else
+      print_usage
+   fi
+   shift
+ done
+}
+
+
+# Override default variables by command line variables.
+get_opts $@
+
+# Try to create folders
+mkdir -p "$GATLING_CONF" "$GATLING_DATA" "$GATLING_REQUEST_BODIES" "$GATLING_SIMULATIONS" "$GATLING_RESULTS"
+
+
+# Copy default configuration if does not exists
+if [ ! -f  "$GATLING_CONF_FILE" ]; then
+    cp -f /usr/share/gatling/conf/gatling.conf "$GATLING_CONF_FILE"
+fi
+
+# Copy default logging configuration if does not exists
+if [ ! -f  "$GATLING_CONF/logback.xml" ]; then
+    cp -f /usr/share/gatling/conf/logback.xml  "$GATLING_CONF"
+fi
+
+# Export variables used by $GATLING_SCRIPT
+export GATLING_HOME GATLING_CONF
+
+# Create arguments to execute gatling.sh
+GATLING_ARGS="-cf $GATLING_CONF_FILE -df $GATLING_DATA -bf $GATLING_REQUEST_BODIES -sf $GATLING_SIMULATIONS -rf $GATLING_RESULTS $OTHER_ARGS"
+
+if [ -n "$GATLING_REPORTS_ONLY" ];then
+  mkdir -p  "$GATLING_REPORTS_ONLY"
+  GATLING_ARGS="$GATLING_ARGS -ro $GATLING_REPORTS_ONLY"
+fi
+
+if [ "$VERBOSE" = "true" ];then
+  echo "Execute Gatling with args : $GATLING_ARGS"
+fi
+
+# Exec GATLING_SCRIPT with "$GATLING_ARGS"
+exec "$GATLING_SCRIPT" "$GATLING_ARGS"
