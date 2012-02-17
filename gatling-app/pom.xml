@@ -17,6 +17,10 @@
 		</dependency>
 		<dependency>
 			<groupId>com.excilys.ebi.gatling</groupId>
+			<artifactId>gatling-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.excilys.ebi.gatling</groupId>
 			<artifactId>gatling-charts</artifactId>
 		</dependency>
 		<dependency>

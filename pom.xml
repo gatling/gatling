@@ -8,6 +8,7 @@
 	<inceptionYear>2011</inceptionYear>
 	<modules>
 		<module>gatling-core</module>
+		<module>gatling-jdbc</module>
 		<module>gatling-http</module>
 		<module>gatling-app</module>
 		<module>gatling-recorder</module>
@@ -160,6 +161,11 @@
 			<dependency>
 				<groupId>com.excilys.ebi.gatling</groupId>
 				<artifactId>gatling-http</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.excilys.ebi.gatling</groupId>
+				<artifactId>gatling-jdbc</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

@@ -17,14 +17,11 @@ package com.excilys.ebi.gatling.core
 
 import java.util.concurrent.TimeUnit
 
-import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.check.{ CheckOneBuilder, CheckMultipleBuilder, CheckBuilder, Check }
 import com.excilys.ebi.gatling.core.check.CheckBaseBuilder
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesFeederBuilder
-import com.excilys.ebi.gatling.core.feeder.database.DatabaseFeederBuilder
 import com.excilys.ebi.gatling.core.session.handler.{ TimerBasedIterationHandler, CounterBasedIterationHandler }
 import com.excilys.ebi.gatling.core.structure.{ ScenarioBuilder, ChainBuilder }
 import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
@@ -36,9 +33,9 @@ object Predef {
 	implicit def toSessionFunction[X](x: X) = (s: Session) => x
 	implicit def checkWithVerifyBuilderToHttpCheck[C <: Check[R, X], R, X](builder: CheckBuilder[C, R, X]) = builder.build
 	implicit def checkOneToExists[C <: Check[R, X], R, X](builder: CheckOneBuilder[C, R, X]) = builder.exists
-	implicit def checkOneToHttpCheck[C <: Check[R, X], R, X](builder: CheckOneBuilder[C, R, X]) = builder.exists.build
+	implicit def checkOneToCheck[C <: Check[R, X], R, X](builder: CheckOneBuilder[C, R, X]) = builder.exists.build
 	implicit def checkMultipleToNotEmpty[C <: Check[R, Seq[X]], R, X](builder: CheckMultipleBuilder[C, R, Seq[X]]) = builder.notEmpty
-	implicit def checkMultipleToHttpCheck[C <: Check[R, Seq[X]], R, X](builder: CheckMultipleBuilder[C, R, Seq[X]]) = builder.notEmpty.build
+	implicit def checkMultipleToCheck[C <: Check[R, Seq[X]], R, X](builder: CheckMultipleBuilder[C, R, Seq[X]]) = builder.notEmpty.build
 	implicit def checkBuilderToCheckOne[C <: Check[R, X], R, X](builder: CheckBaseBuilder[C, R, X]) = builder.find
 	implicit def checkBuilderToExists[C <: Check[R, X], R, X](builder: CheckBaseBuilder[C, R, X]) = builder.find.exists
 	implicit def checkBuilderToCheck[C <: Check[R, X], R, X](builder: CheckBaseBuilder[C, R, X]) = builder.find.exists.build
@@ -49,16 +46,6 @@ object Predef {
 	def ssv(fileName: String, escapeChar: Char) = SeparatedValuesFeederBuilder.ssv(fileName, Some(escapeChar))
 	def tsv(fileName: String) = SeparatedValuesFeederBuilder.tsv(fileName)
 	def tsv(fileName: String, escapeChar: Char) = SeparatedValuesFeederBuilder.tsv(fileName, Some(escapeChar))
-
-	def databaseFeeder(driverClassName: String, url: String, username: String, password: String, sql: String) = DatabaseFeederBuilder.database(driverClassName, url, username, password, sql)
-	def db2Feeder(url: String, username: String, password: String, sql: String) = DatabaseFeederBuilder.db2(url, username, password, sql)
-	def hsqldbFeeder(url: String, username: String, password: String, sql: String) = DatabaseFeederBuilder.hsqldb(url, username, password, sql)
-	def h2Feeder(url: String, username: String, password: String, sql: String) = DatabaseFeederBuilder.h2(url, username, password, sql)
-	def mssqlFeeder(url: String, username: String, password: String, sql: String) = DatabaseFeederBuilder.mssql(url, username, password, sql)
-	def mysqlFeeder(url: String, username: String, password: String, sql: String) = DatabaseFeederBuilder.mysql(url, username, password, sql)
-	def oracleFeeder(url: String, username: String, password: String, sql: String) = DatabaseFeederBuilder.oracle(url, username, password, sql)
-	def postgresqlFeeder(url: String, username: String, password: String, sql: String) = DatabaseFeederBuilder.postgresql(url, username, password, sql)
-	def sybaseFeeder(url: String, username: String, password: String, sql: String) = DatabaseFeederBuilder.sybase(url, username, password, sql)
 
 	type Session = session.Session
 

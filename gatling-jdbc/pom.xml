@@ -1,0 +1,28 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>gatling-parent</artifactId>
+		<groupId>com.excilys.ebi.gatling</groupId>
+		<version>1.1.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>gatling-jdbc</artifactId>
+	<name>${project.artifactId}</name>
+	<description>Gatling JDBC functionnalities</description>
+
+	<dependencies>
+		<!-- compile -->
+		<dependency>
+			<groupId>com.excilys.ebi.gatling</groupId>
+			<artifactId>gatling-core</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.scala-tools</groupId>
+				<artifactId>maven-scala-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+</project>
