@@ -35,12 +35,11 @@ object ReportsGenerator extends Logging {
 	val STATIC_LIBRARY_BINDER_PATH = "com/excilys/ebi/gatling/charts/component/impl/ComponentLibraryImpl.class"
 
 	val componentLibrary: ComponentLibrary = {
-		val reportsGeneratorClassLoader = this.getClass.getClassLoader
-		val paths = if (reportsGeneratorClassLoader == null) {
-			ClassLoader.getSystemResources(STATIC_LIBRARY_BINDER_PATH)
-		} else {
-			reportsGeneratorClassLoader.getResources(STATIC_LIBRARY_BINDER_PATH)
+		val paths = Option(this.getClass.getClassLoader) match {
+			case Some(classloader) => classloader.getResources(STATIC_LIBRARY_BINDER_PATH)
+			case None => ClassLoader.getSystemResources(STATIC_LIBRARY_BINDER_PATH)
 		}
+
 		// LinkedHashSet appropriate here because it preserves insertion order during iteration
 		val implementationSet = new LinkedHashSet[URL]
 		while (paths.hasMoreElements) {

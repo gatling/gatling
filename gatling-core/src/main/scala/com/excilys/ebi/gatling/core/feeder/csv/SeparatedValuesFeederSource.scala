@@ -41,10 +41,7 @@ class SeparatedValuesFeederSource(fileName: String, separator: Char, escapeChar:
 
 				var line: Array[String] = _
 
-				def hasNext = {
-					line = reader.readNext
-					line != null
-				}
+				def hasNext = Option(reader.readNext).isDefined
 
 				def next = (headers zip line).toMap[String, String]
 			}.toBuffer

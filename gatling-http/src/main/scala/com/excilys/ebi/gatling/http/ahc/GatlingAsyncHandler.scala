@@ -105,7 +105,10 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck[_]], next: Ac
 
 	def onThrowable(throwable: Throwable) = {
 		logger.warn("Request '" + requestName + "' failed", throwable)
-		val errorMessage = if (throwable.getMessage != null) throwable.getMessage else EMPTY
+		val errorMessage = Option(throwable.getMessage) match {
+			case Some(message) => message
+			case None => EMPTY
+		}
 		sendLogAndExecuteNext(session, KO, errorMessage)
 	}
 
