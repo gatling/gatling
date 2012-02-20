@@ -77,11 +77,19 @@ object StringHelper extends Logging {
 			(s: Session) => stringToFormat
 
 		} else {
-			val strings = stringToFormat.split(elPatternString, -1).toSeq
+			val strings = stringToFormat.split(elPatternString, -1)
 
 			val functions = keysFunctions zip strings
 
-			(s: Session) => functions.map { entry => entry._2 + entry._1(s) }.mkString + strings.last
+			(s: Session) => {
+				val buffer = new StringBuilder
+
+				functions.foreach { entry =>
+					buffer.append(entry._2).append(entry._1(s))
+				}
+
+				buffer.append(strings.last).toString
+			}
 		}
 	}
 }
