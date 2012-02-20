@@ -22,6 +22,7 @@ import scala.tools.nsc.io.Path.string2path
 
 import com.excilys.ebi.gatling.core.config.GatlingFiles
 import com.excilys.ebi.gatling.core.feeder.FeederSource
+import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.excilys.ebi.gatling.core.util.PathHelper.path2string
 
 import au.com.bytecode.opencsv.CSVReader
@@ -29,25 +30,29 @@ import au.com.bytecode.opencsv.CSVReader
 class SeparatedValuesFeederSource(fileName: String, separator: Char, escapeChar: Option[Char]) extends FeederSource(fileName) {
 
 	val values = {
-		val reader = escapeChar match {
-			case Some(char) => new CSVReader(new FileReader(GatlingFiles.dataFolder / fileName), separator, char)
-			case None => new CSVReader(new FileReader(GatlingFiles.dataFolder / fileName), separator)
-		}
+		val file = GatlingFiles.dataFolder / fileName
+		if (!file.exists)
+			throw new IllegalArgumentException("file " + file + " doesn't exists")
 
-		try {
+		use(new FileReader(file)) { fileReader =>
+			val reader = escapeChar match {
+				case Some(char) => new CSVReader(fileReader, separator, char)
+				case None => new CSVReader(fileReader, separator)
+			}
+
 			val headers = reader.readNext
 
 			new Iterator[Map[String, String]] {
 
 				var line: Array[String] = _
 
-				def hasNext = Option(reader.readNext).isDefined
+				def hasNext = {
+					line = reader.readNext
+					line != null
+				}
 
 				def next = (headers zip line).toMap[String, String]
 			}.toBuffer
-
-		} finally {
-			reader.close
 		}
 	}
 }
