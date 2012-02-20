@@ -1,7 +1,7 @@
 #if(${event.class.simpleName} == "TagEvent")
 		/* ${event.getTag()} */
 #elseif(${event.class.simpleName} == "PauseEvent")
-		.pause(${event.getMinDuration()}, ${event.getMaxDuration()}#if(${event.getType()} != "SECONDS"), ${event.getType()}#end)
+		.pause(${event.getDurationMillis()}, MILLISECONDS)
 #else
 		.exec(
 			http("request_${event.getId()}")

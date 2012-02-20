@@ -80,7 +80,6 @@ import com.excilys.ebi.gatling.recorder.http.event.ShowConfigurationFrameEvent;
 import com.excilys.ebi.gatling.recorder.http.event.ShowRunningFrameEvent;
 import com.excilys.ebi.gatling.recorder.http.event.TagEvent;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy;
-import com.excilys.ebi.gatling.recorder.ui.enumeration.PauseType;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.Subscribe;
@@ -307,19 +306,8 @@ public class RunningFrame extends JFrame {
 					if (lastRequest != null) {
 						Date newRequest = new Date();
 						long diff = newRequest.getTime() - lastRequest.getTime();
-						long pauseMin, pauseMax;
-						PauseType pauseType;
-						if (diff < 1000) {
-							pauseMin = (diff / 100l) * 100;
-							pauseMax = pauseMin + 100;
-							pauseType = PauseType.MILLISECONDS;
-						} else {
-							pauseMin = diff / 1000l;
-							pauseMax = pauseMin + 1;
-							pauseType = PauseType.SECONDS;
-						}
 						lastRequest = newRequest;
-						pause = new PauseEvent(pauseMin, pauseMax, pauseType);
+						pause = new PauseEvent(diff);
 					}
 				}
 			}
