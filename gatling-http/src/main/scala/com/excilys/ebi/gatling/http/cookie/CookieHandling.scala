@@ -19,19 +19,23 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.ning.http.client.Cookie
 import scala.collection.immutable.ListMap
 
+private case class CookieKey(domain: String, path: String, name: String)
+
 trait CookieHandling {
 
 	val COOKIES_CONTEXT_KEY = "gatling.http.cookies"
 
-	def getStoredCookies(session: Session, url: String) = {
+	def getStoredCookies(session: Session, url: String): List[Cookie] = {
 		session.getAttributeAsOption[Map[CookieKey, Cookie]](COOKIES_CONTEXT_KEY) match {
 			case Some(storedCookies) => {
 				if (!storedCookies.isEmpty) {
 					val uri = URI.create(url)
 					val uriHost = uri.getHost
 					val uriPath = uri.getPath
-					val list = storedCookies.filter(entry => uriHost.endsWith(entry._1.domain) && uriPath.startsWith(entry._1.path)).map(_._2).toList
-					list
+					storedCookies.filter { entry =>
+						val (key, cookie) = entry
+						uriHost.endsWith(key.domain) && uriPath.startsWith(key.path)
+					}.map(_._2).toList
 				} else {
 					Nil
 				}
@@ -55,7 +59,7 @@ trait CookieHandling {
 					case Some(path) => path
 					case None => uriPath
 				}
-				(CookieKey(cookieDomain, cookiePath, cookie.getName) -> cookie)
+				CookieKey(cookieDomain, cookiePath, cookie.getName) -> cookie
 			}
 
 			session.setAttribute(COOKIES_CONTEXT_KEY, newCookies)
@@ -64,5 +68,3 @@ trait CookieHandling {
 		}
 	}
 }
-
-private case class CookieKey(domain: String, path: String, name: String)

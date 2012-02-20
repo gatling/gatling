@@ -71,9 +71,8 @@ class HttpRequestActionBuilder(val requestName: String, request: HttpRequest, ne
 
 	private[gatling] def withNext(next: ActorRef) = new HttpRequestActionBuilder(requestName, request, next, checks)
 
-	private[gatling] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
+	private[gatling] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) =
 		actorOf(new HttpRequestAction(next, request, checks, protocolConfigurationRegistry.getProtocolConfiguration(HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE).as[HttpProtocolConfiguration])).start
-	}
 
 	/**
 	 * Starts the definition of an HTTP request with word DELETE

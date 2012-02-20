@@ -44,11 +44,10 @@ class WhileAction(testFunction: (Session, Action) => Boolean, loopNext: ActorRef
 	def execute(session: Session) = {
 
 		val sessionWithTimerIncremented = increment(init(session))
-		
-		if (testFunction(sessionWithTimerIncremented, this)) {
+
+		if (testFunction(sessionWithTimerIncremented, this))
 			loopNextAction ! sessionWithTimerIncremented
-		} else {
+		else
 			next ! expire(sessionWithTimerIncremented)
-		}
 	}
 }

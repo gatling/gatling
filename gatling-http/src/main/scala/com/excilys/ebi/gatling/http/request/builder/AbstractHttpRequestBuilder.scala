@@ -223,7 +223,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 			queryParamsMap.add(key, values.map(_._2): _*)
 		}
 
-		requestBuilder setQueryParameters queryParamsMap
+		requestBuilder.setQueryParameters(queryParamsMap)
 	}
 
 	/**

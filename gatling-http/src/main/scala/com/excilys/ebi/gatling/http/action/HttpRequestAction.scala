@@ -92,7 +92,7 @@ class HttpRequestAction(next: ActorRef, request: HttpRequest, givenChecks: Optio
 
 	def execute(session: Session) = {
 
-		if (logger.isInfoEnabled())
+		if (logger.isInfoEnabled)
 			logger.info("Sending Request '{}': Scenario '{}', UserId #{}", Array[Object](request.name, session.scenarioName, session.userId.toString))
 
 		HttpRequestAction.CLIENT.executeRequest(request.getRequest(session, protocolConfiguration), new GatlingAsyncHandler(session, checks, next, request.name))

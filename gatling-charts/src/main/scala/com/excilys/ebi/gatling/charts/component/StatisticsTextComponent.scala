@@ -22,16 +22,15 @@ import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 class StatisticsTextComponent(numberOfRequest: Int, numberOfSuccesses: Int, numberOfFailures: Int, minResponseTime: Long, maxResponseTime: Long, averageResponseTime: Double, responseTimeStandardDeviation: Double)
 		extends Component {
 
-	def getHTMLContent: String = {
-		PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATISTICS_COMPONENT_URL,
-			Map("numberOfRequests" -> numberOfRequest,
-				"numberOfSuccesses" -> numberOfSuccesses,
-				"numberOfFailures" -> numberOfFailures,
-				"min" -> minResponseTime,
-				"max" -> maxResponseTime,
-				"average" -> averageResponseTime,
-				"stdDeviation" -> responseTimeStandardDeviation))
-	}
+	def getHTMLContent: String = PageTemplate.TEMPLATE_ENGINE.layout(
+		GATLING_TEMPLATE_STATISTICS_COMPONENT_URL,
+		Map("numberOfRequests" -> numberOfRequest,
+			"numberOfSuccesses" -> numberOfSuccesses,
+			"numberOfFailures" -> numberOfFailures,
+			"min" -> minResponseTime,
+			"max" -> maxResponseTime,
+			"average" -> averageResponseTime,
+			"stdDeviation" -> responseTimeStandardDeviation))
 
 	def getJavascriptContent: String = EMPTY
 

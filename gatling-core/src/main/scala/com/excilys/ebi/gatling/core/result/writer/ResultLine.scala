@@ -33,7 +33,7 @@ object ResultLine {
 		val RESPONSE_RECEIVING_START_DATE = "RESPONSE_RECEIVING_START_DATE"
 		val RESULT_STATUS = "RESULT_STATUS"
 		val RESULT_MESSAGE = "RESULT_MESSAGE"
-			
+
 		val HEADERS_SEQ = List(RUN_ON, SCENARIO_NAME, USER_ID, REQUEST_NAME, EXECUTION_START_DATE, EXECUTION_END_DATE, REQUEST_SENDING_END_DATE, RESPONSE_RECEIVING_START_DATE, RESULT_STATUS, RESULT_MESSAGE)
 
 		def print(writer: Writer) = {
@@ -41,9 +41,7 @@ object ResultLine {
 			writer
 		}
 
-		def check(s: String) = {
-			if (s != print(new StringWriter()).toString) throw new IllegalArgumentException("The string doesn't match the expected headers")
-		}
+		def check(s: String) = if (s != print(new StringWriter()).toString) throw new IllegalArgumentException("The string doesn't match the expected headers")
 	}
 }
 

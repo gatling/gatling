@@ -21,7 +21,7 @@ import akka.actor.Actor
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.init.Initializable
 
-object DataWriter{
+object DataWriter {
 	lazy val instance = actorOf(configuration.dataWriterClass).start
 }
 

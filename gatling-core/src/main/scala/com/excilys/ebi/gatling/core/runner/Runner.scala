@@ -91,9 +91,9 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: Seq[ScenarioCon
 			scenario ! session
 		} else {
 			// otherwise, schedule
-			val ramp = configuration.ramp
+			val (value, unit) = configuration.ramp
 			// compute ramp period in millis so we can ramp less that one user per second
-			val period = ramp._2.toMillis(ramp._1) / (configuration.users - 1)
+			val period = unit.toMillis(value) / (configuration.users - 1)
 
 			for (i <- 1 to configuration.users) {
 				val session: Session = buildSession(configuration, i)
