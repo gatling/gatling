@@ -33,7 +33,7 @@ trait CookieHandling {
 					val uriHost = uri.getHost
 					val uriPath = uri.getPath
 					storedCookies.filter { entry =>
-						val (key, cookie) = entry
+						val key = entry._1
 						uriHost.endsWith(key.domain) && uriPath.startsWith(key.path)
 					}.map(_._2).toList
 				} else {

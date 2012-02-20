@@ -108,7 +108,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 * @param body the body that should be added
 	 * @param session the session of the current scenario
 	 */
-	private def addBodyTo(requestBuilder: RequestBuilder, body: Option[HttpRequestBody], session: Session) = {
+	private def addBodyTo(requestBuilder: RequestBuilder, body: Option[HttpRequestBody], session: Session) {
 		body match {
 			case Some(thing) =>
 				thing match {

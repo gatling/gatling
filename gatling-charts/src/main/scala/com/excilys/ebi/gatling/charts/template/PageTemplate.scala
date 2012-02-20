@@ -29,7 +29,7 @@ object PageTemplate {
 	TEMPLATE_ENGINE.escapeMarkup = false
 
 	private var runOn: DateTime = _
-	def setRunOn(runOn: DateTime) = { PageTemplate.runOn = runOn }
+	def setRunOn(runOn: DateTime) { PageTemplate.runOn = runOn }
 }
 
 abstract class PageTemplate(title: String, isDetails: Boolean, components: Component*) extends Logging {

@@ -53,27 +53,21 @@ object Computer extends Logging {
 
 	def responseTimeByMillisecondAsList(data: SortedMap[Long, Seq[ResultLine]], resultStatus: ResultStatus): List[(Long, Int)] =
 		SortedMap(data.map(entry => entry._1 -> entry._2.filter(_.resultStatus == resultStatus)).map { entry =>
-			val (date, list) = entry
-			entry._1 -> averageResponseTime(list)
+			entry._1 -> averageResponseTime(entry._2)
 		}.toSeq: _*).toList
 		
 	def latencyByMillisecondAsList(data: SortedMap[Long, Seq[ResultLine]], resultStatus: ResultStatus): List[(Long, Int)] =
 		SortedMap(data.map(entry => entry._1 -> entry._2.filter(_.resultStatus == resultStatus)).map { entry =>
-			val (date, list) = entry
-			entry._1 -> averageLatency(list)
+			entry._1 -> averageLatency(entry._2)
 		}.toSeq: _*).toList
 
 	def numberOfRequestsPerSecond(data: SortedMap[Long, Seq[ResultLine]]): SortedMap[Long, Int] = SortedMap(data.map(entry => entry._1 -> entry._2.length).toSeq: _*)
 	
 	def numberOfRequestsPerSecondAsList(data: SortedMap[Long, Seq[ResultLine]]): List[(Long, Int)] = numberOfRequestsPerSecond(data).toList
 
-	def numberOfSuccessfulRequestsPerSecond(data: SortedMap[Long, Seq[ResultLine]]): List[(Long, Int)] = {
-		numberOfRequestsPerSecondAsList(data.map(entry => entry._1 -> entry._2.filter(_.resultStatus == OK)))
-	}
+	def numberOfSuccessfulRequestsPerSecond(data: SortedMap[Long, Seq[ResultLine]]): List[(Long, Int)] = numberOfRequestsPerSecondAsList(data.map(entry => entry._1 -> entry._2.filter(_.resultStatus == OK)))
 
-	def numberOfFailedRequestsPerSecond(data: SortedMap[Long, Seq[ResultLine]]): List[(Long, Int)] = {
-		numberOfRequestsPerSecondAsList(data.map(entry => entry._1 -> entry._2.filter(_.resultStatus == KO)))
-	}
+	def numberOfFailedRequestsPerSecond(data: SortedMap[Long, Seq[ResultLine]]): List[(Long, Int)] = numberOfRequestsPerSecondAsList(data.map(entry => entry._1 -> entry._2.filter(_.resultStatus == KO)))
 
 	def numberOfRequestInResponseTimeRange(data: Seq[ResultLine], lowerBound: Int, higherBound: Int): List[(String, Int)] = {
 
@@ -98,7 +92,7 @@ object Computer extends Logging {
 
 	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: SortedMap[Long, Int], requestData: SortedMap[Long, Seq[ResultLine]], resultStatus: ResultStatus): List[(Int, Long)] = {
 		requestData.map { entry =>
-			val (dateTime, list) = entry
+			val dateTime = entry._1
 			requestData.get(dateTime).map { list =>
 				list.filter(_.resultStatus == resultStatus).map(requestsPerSecond.get(dateTime).get -> _.responseTime)
 			}
@@ -123,9 +117,8 @@ object Computer extends Logging {
 	def numberOfActiveSessionsPerSecondByScenario(allScenarioData: Seq[(String, SortedMap[Long, Seq[ResultLine]])]): Seq[(String, List[(Long, Int)])] = {
 		// Filling the map with each scenario values
 		allScenarioData.map { entry =>
-			val (scenarioName, scenarioData) = entry
-			(scenarioName -> numberOfActiveSessionsPerSecondForAScenario(scenarioData))
+			val (name, data) = entry
+			name -> numberOfActiveSessionsPerSecondForAScenario(data)
 		}
 	}
-
 }

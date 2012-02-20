@@ -96,7 +96,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 * @param params the parameters that should be added
 	 * @param session the session of the current scenario
 	 */
-	private def addParamsTo(requestBuilder: RequestBuilder, session: Session) = {
+	private def addParamsTo(requestBuilder: RequestBuilder, session: Session) {
 		val paramsMap = new FluentStringsMap
 
 		val keyValues = for ((keyFunction, valueFunction) <- params) yield (keyFunction(session), valueFunction(session))
@@ -107,19 +107,19 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		}
 
 		if (!paramsMap.isEmpty) // AHC removes body if setParameters is called
-			requestBuilder setParameters paramsMap
+			requestBuilder.setParameters(paramsMap)
 	}
 
-	private def addBodyPartTo(requestBuilder: RequestBuilder) = {
+	private def addBodyPartTo(requestBuilder: RequestBuilder) {
 		val (fileName, mimeType, charset) = fileUpload.get
 		requestBuilder.addBodyPart(new FilePart(fileName, new File(GatlingFiles.requestBodiesFolder / fileName), mimeType, charset))
 	}
 
-	private def addStringPartsTo(requestBuilder: RequestBuilder, session: Session) = {
+	private def addStringPartsTo(requestBuilder: RequestBuilder, session: Session) {
 		params.foreach { entry =>
-			val (key, value) = (entry._1(session), entry._2(session))
+			val key = entry._1(session)
+			val value = entry._2(session)
 			requestBuilder.addBodyPart(new StringPart(key, value))
 		}
-
 	}
 }

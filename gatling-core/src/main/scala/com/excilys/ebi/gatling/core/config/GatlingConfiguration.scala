@@ -35,7 +35,7 @@ object GatlingConfiguration extends Initializable {
 
 	@volatile private var instance: GatlingConfiguration = _
 
-	def setUp(configFileName: Option[String], dataFolder: Option[String], requestBodiesFolder: Option[String], resultsFolder: Option[String], simulationsFolder: Option[String]) = {
+	def setUp(configFileName: Option[String], dataFolder: Option[String], requestBodiesFolder: Option[String], resultsFolder: Option[String], simulationsFolder: Option[String]) {
 		if (initialized.compareAndSet(false, true)) {
 			instance = new GatlingConfiguration(configFileName, dataFolder, requestBodiesFolder, resultsFolder, simulationsFolder)
 		} else {

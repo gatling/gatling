@@ -103,7 +103,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck[_]], next: Ac
 		null
 	}
 
-	def onThrowable(throwable: Throwable) = {
+	def onThrowable(throwable: Throwable) {
 		logger.warn("Request '" + requestName + "' failed", throwable)
 		val errorMessage = Option(throwable.getMessage) match {
 			case Some(message) => message
@@ -120,7 +120,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck[_]], next: Ac
 	 * @param requestMessage the message that will be logged
 	 * @param processingStartDate date of the beginning of the response processing
 	 */
-	private def sendLogAndExecuteNext(newSession: Session, requestResult: ResultStatus, requestMessage: String) = {
+	private def sendLogAndExecuteNext(newSession: Session, requestResult: ResultStatus, requestMessage: String) {
 
 		val now = currentTimeMillis
 		val effectiveResponseEndDate = responseEndDate.getOrElse(now)
