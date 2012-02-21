@@ -58,7 +58,7 @@ def apply ={
 
 #end
 
-	runSimulation(
+	List(
 		scn.configure users 1 protocolConfig httpConf
 	)
 }
