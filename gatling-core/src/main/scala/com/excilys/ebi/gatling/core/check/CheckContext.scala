@@ -31,12 +31,10 @@ object CheckContext extends Logging {
 	}
 
 	private def getContext = {
-		Option(contextHolder.get()) match {
-			case Some(context) => context
-			case None =>
-				val context = new mutable.HashMap[String, Any]()
-				contextHolder.set(context)
-				context
+		Option(contextHolder.get).getOrElse {
+			val context = new mutable.HashMap[String, Any]()
+			contextHolder.set(context)
+			context
 		}
 	}
 

@@ -51,14 +51,8 @@ trait CookieHandling {
 			val uriHost = uri.getHost
 			val uriPath = uri.getPath
 			val newCookies = storedCookies ++ cookies.map { cookie =>
-				val cookieDomain = Option(cookie.getDomain) match {
-					case Some(domain) => domain
-					case None => uriHost
-				}
-				val cookiePath = Option(cookie.getPath) match {
-					case Some(path) => path
-					case None => uriPath
-				}
+				val cookieDomain = Option(cookie.getDomain).getOrElse(uriHost)
+				val cookiePath = Option(cookie.getPath).getOrElse(uriPath)
 				CookieKey(cookieDomain, cookiePath, cookie.getName) -> cookie
 			}
 
