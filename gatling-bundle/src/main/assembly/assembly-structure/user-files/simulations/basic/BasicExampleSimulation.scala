@@ -118,7 +118,6 @@ class BasicExampleSimulation extends Simulation {
 					.get("/public/login.html")
 					.headers(headers_9))
 
-		val scnConf = scn.configure users 10 ramp 10 protocolConfig httpConf
-		List(scnConf)
+		List(scn.configure.users(10).ramp(10).protocolConfig(httpConf))
 	}
 }
