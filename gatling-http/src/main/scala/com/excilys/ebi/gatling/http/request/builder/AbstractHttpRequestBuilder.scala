@@ -191,13 +191,12 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 		val providedUrl = urlFunction(session)
 
 		// baseUrl implementation
-		val url =
-			if (providedUrl.startsWith("http"))
-				providedUrl
-			else if (protocolConfiguration.isDefined)
-				protocolConfiguration.get.baseURL.map(_ + providedUrl).getOrElse(providedUrl)
-			else
-				throw new IllegalArgumentException("URL is invalid (does not start with http): " + providedUrl)
+		val url = if (providedUrl.startsWith("http"))
+			providedUrl
+		else protocolConfiguration match {
+			case Some(config) => config.baseURL.map(_ + providedUrl).getOrElse(throw new IllegalArgumentException("No protocolConfiguration.baseURL defined but url is relative : " + providedUrl))
+			case None => throw new IllegalArgumentException("No protocolConfiguration defined but url is relative : " + providedUrl)
+		}
 
 		requestBuilder.setUrl(url)
 
