@@ -42,6 +42,7 @@ import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.ning.http.client.Response
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
+import com.ning.http.client.ProxyServer.Protocol
 
 /**
  * AbstractHttpRequestBuilder class companion
@@ -191,11 +192,11 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 		val providedUrl = urlFunction(session)
 
 		// baseUrl implementation
-		val url = if (providedUrl.startsWith("http"))
+		val url = if (providedUrl.startsWith(Protocol.HTTP.getProtocol))
 			providedUrl
 		else protocolConfiguration match {
-			case Some(config) => config.baseURL.map(_ + providedUrl).getOrElse(throw new IllegalArgumentException("No protocolConfiguration.baseURL defined but url is relative : " + providedUrl))
-			case None => throw new IllegalArgumentException("No protocolConfiguration defined but url is relative : " + providedUrl)
+			case Some(config) => config.baseURL.getOrElse(throw new IllegalArgumentException("No protocolConfiguration.baseURL defined but provided url is relative : " + providedUrl)) + providedUrl
+			case None => throw new IllegalArgumentException("No protocolConfiguration defined but provided url is relative : " + providedUrl)
 		}
 
 		requestBuilder.setUrl(url)
@@ -203,7 +204,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 		for (cookie <- getStoredCookies(session, url))
 			requestBuilder.addCookie(cookie)
 
-		url.startsWith("https")
+		url.startsWith(Protocol.HTTPS.getProtocol)
 	}
 
 	/**
