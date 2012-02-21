@@ -38,6 +38,8 @@ object StringHelper extends Logging {
 
 	val INDEX_END = ")"
 
+	val MISSING_SESSION_ATTRIBUTE = "undefined"
+
 	val jdk6Pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
 
 	val elPatternString = """\$\{(.+?)\}"""
@@ -59,18 +61,27 @@ object StringHelper extends Logging {
 			val occurrencePart = elOccurrencePattern.findFirstMatchIn(elContent)
 
 			occurrencePart match {
-				case Some(occurrencePartMatch) => {
+				case Some(occurrencePartMatch) =>
 					val key = elContent.substring(0, elContent.lastIndexOf(INDEX_START))
-					(session: Session) => session.getAttribute(key).asInstanceOf[Seq[_]](occurrencePartMatch.group(1).toInt)
-				}
-				case None => (session: Session) =>
-					session.getAttribute[Any](data.group(1)) match {
-						case seq: Seq[_] => seq(0).toString
-						case str: String => str
-						case x => x.toString
+					val occurrence = occurrencePartMatch.group(1).toInt
+					(session: Session) => session.getAttributeAsOption[Seq[Any]](key) match {
+						case Some(x) if (x.size > occurrence) => x(occurrence)
+						case _ => {
+							logger.error("Couldn't resolve occurrence {} of session multivalued attribute {}", occurrence, key)
+							MISSING_SESSION_ATTRIBUTE
+						}
+					}
+				case None =>
+					val key = data.group(1)
+					(session: Session) => session.getAttributeAsOption[Any](key) match {
+						case Some(x) => x
+						case None => {
+							logger.error("Couldn't resolve session attribute {}", key)
+							MISSING_SESSION_ATTRIBUTE
+						}
 					}
 			}
-		}.toSeq
+		}.toList
 
 		if (keysFunctions.isEmpty) {
 			// no interpolation
