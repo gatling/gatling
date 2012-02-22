@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToO
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.CheckOneBuilder
 import com.excilys.ebi.gatling.core.check.CheckMultipleBuilder
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.ResolvedString
 import com.excilys.ebi.gatling.http.check.{ HttpMultipleCheckBuilder, HttpCheck }
 import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
 import com.ning.http.client.Response
@@ -39,7 +39,7 @@ object HttpHeaderCheckBuilder {
 	 *
 	 * @param expression the function returning the name of the header
 	 */
-	def header(expression: Session => String) = new HttpHeaderCheckBuilder(expression)
+	def header(expression: ResolvedString) = new HttpHeaderCheckBuilder(expression)
 
 	private def findExtractorFactory(occurrence: Int): ExtractorFactory[Response, String] = (response: Response) => (expression: String) => {
 		val headers = response.getHeaders(expression)
@@ -58,7 +58,7 @@ object HttpHeaderCheckBuilder {
  *
  * @param expression the function returning the header name to be checked
  */
-class HttpHeaderCheckBuilder(expression: Session => String) extends HttpMultipleCheckBuilder[String](expression, HeadersReceived) {
+class HttpHeaderCheckBuilder(expression: ResolvedString) extends HttpMultipleCheckBuilder[String](expression, HeadersReceived) {
 
 	def find: CheckOneBuilder[HttpCheck[String], Response, String] = find(0)
 

@@ -19,6 +19,7 @@ import java.text.Normalizer
 import java.util.regex.Pattern
 
 import com.excilys.ebi.gatling.core.log.Logging
+import com.excilys.ebi.gatling.core.session.ResolvedString
 import com.excilys.ebi.gatling.core.session.Session
 
 /**
@@ -54,7 +55,7 @@ object StringHelper extends Logging {
 		jdk6Pattern.matcher(normalized).replaceAll(EMPTY);
 	}
 
-	def interpolate(stringToFormat: String): Session => String = {
+	def interpolate(stringToFormat: String): ResolvedString = {
 
 		val keysFunctions = elPattern.findAllIn(stringToFormat).matchData.map { data =>
 			val elContent = data.group(1)

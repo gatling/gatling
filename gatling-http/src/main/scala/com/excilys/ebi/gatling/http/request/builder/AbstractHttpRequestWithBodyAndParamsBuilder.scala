@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.request.builder
-
 import java.io.File
-
 import scala.tools.nsc.io.Path.string2path
-
 import com.excilys.ebi.gatling.core.Predef.stringToSessionFunction
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.config.GatlingFiles
@@ -26,10 +23,13 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.PathHelper.path2string
 import com.excilys.ebi.gatling.core.util.StringHelper.{ EL_START, EL_END }
 import com.excilys.ebi.gatling.http.Predef.{ MULTIPART_FORM_DATA, CONTENT_TYPE, APPLICATION_OCTET_STREAM }
-import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
-import com.ning.http.client.{ StringPart, RequestBuilder, FluentStringsMap, FilePart }
+import com.ning.http.client.RequestBuilder
+import com.excilys.ebi.gatling.http.check.HttpCheck
+import com.excilys.ebi.gatling.core.session.ResolvedString
+import com.ning.http.client.FluentStringsMap
+import com.ning.http.client.StringPart
 
 /**
  * This class serves as model to HTTP request with a body and parameters
@@ -43,21 +43,19 @@ import com.ning.http.client.{ StringPart, RequestBuilder, FluentStringsMap, File
  * @param followsRedirects sets the follow redirect option of AHC
  * @param credentials sets the credentials in case of Basic HTTP Authentication
  */
-abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequestWithBodyAndParamsBuilder[B]](httpRequestActionBuilder: HttpRequestActionBuilder, method: String,
-	urlFunction: Session => String, queryParams: List[(Session => String, Session => String)], params: List[(Session => String, Session => String)], headers: Map[String, Session => String],
-	body: Option[HttpRequestBody], fileUpload: Option[(String, String, String)], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
-		extends AbstractHttpRequestWithBodyBuilder[B](httpRequestActionBuilder, method, urlFunction, queryParams, headers, body, followsRedirects, credentials) {
-
-	private[http] override def getRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
-		val requestBuilder = super.getRequestBuilder(session, protocolConfiguration)
-		fileUpload.map { fileName =>
-			addStringPartsTo(requestBuilder, session)
-			addBodyPartTo(requestBuilder)
-		}.getOrElse {
-			addParamsTo(requestBuilder, session)
-		}
-		requestBuilder
-	}
+abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequestWithBodyAndParamsBuilder[B]](
+	requestName: String,
+	method: String,
+	urlFunction: ResolvedString,
+	queryParams: List[HttpParam],
+	params: List[HttpParam],
+	headers: Map[String, ResolvedString],
+	body: Option[HttpRequestBody],
+	fileUpload: Option[UploadedFile],
+	followsRedirects: Option[Boolean],
+	credentials: Option[Credentials],
+	checks: Option[List[HttpCheck[_]]])
+		extends AbstractHttpRequestWithBodyBuilder[B](requestName, method, urlFunction, queryParams, headers, body, followsRedirects, credentials, checks) {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type
@@ -71,23 +69,53 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 * @param followsRedirects sets the follow redirect option of AHC
 	 * @param credentials sets the credentials in case of Basic HTTP Authentication
 	 */
-	private[http] def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Session => String, queryParams: List[(Session => String, Session => String)], params: List[(Session => String, Session => String)], headers: Map[String, Session => String], body: Option[HttpRequestBody], fileUpload: Option[(String, String, String)], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B
+	private[http] def newInstance(
+		requestName: String,
+		urlFunction: ResolvedString,
+		queryParams: List[HttpParam],
+		params: List[HttpParam],
+		headers: Map[String, ResolvedString],
+		body: Option[HttpRequestBody],
+		fileUpload: Option[UploadedFile],
+		followsRedirects: Option[Boolean],
+		credentials: Option[Credentials],
+		checks: Option[List[HttpCheck[_]]]): B
 
-	private[http] def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Session => String, queryParams: List[(Session => String, Session => String)], headers: Map[String, Session => String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)]): B = {
-		newInstance(httpRequestActionBuilder, urlFunction, queryParams, params, headers, body, fileUpload, followsRedirects, credentials)
+	private[http] def newInstance(
+		requestName: String,
+		urlFunction: ResolvedString,
+		queryParams: List[HttpParam],
+		headers: Map[String, ResolvedString],
+		body: Option[HttpRequestBody],
+		followsRedirects: Option[Boolean],
+		credentials: Option[Credentials],
+		checks: Option[List[HttpCheck[_]]]): B = {
+		newInstance(requestName, urlFunction, queryParams, params, headers, body, fileUpload, followsRedirects, credentials, checks)
+	}
+
+	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
+		val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
+		fileUpload match {
+			case Some(fileName) =>
+				configureStringParts(requestBuilder, session)
+				configureBodyPart(requestBuilder)
+			case None => configureParams(requestBuilder, session)
+		}
+
+		requestBuilder
 	}
 
 	/**
 	 *
 	 */
-	def param(paramKeyFunction: Session => String, paramValueFunction: Session => String): B =
-		newInstance(httpRequestActionBuilder, urlFunction, queryParams, (paramKeyFunction, paramValueFunction) :: params, headers, body, fileUpload, followsRedirects, credentials)
+	def param(paramKeyFunction: ResolvedString, paramValueFunction: ResolvedString): B =
+		newInstance(requestName, urlFunction, queryParams, (paramKeyFunction, paramValueFunction) :: params, headers, body, fileUpload, followsRedirects, credentials, checks)
 
 	def param(paramKey: String): B = param(paramKey, EL_START + paramKey + EL_END)
 
-	def fileUpload(fileName: String, mimeType: String = APPLICATION_OCTET_STREAM, charset: String = configuration.encoding): B =
+	def upload(fileName: String, mimeType: String = APPLICATION_OCTET_STREAM, charset: String = configuration.encoding): B =
 		header(CONTENT_TYPE, MULTIPART_FORM_DATA)
-			.newInstance(httpRequestActionBuilder, urlFunction, queryParams, params, headers, body, Some((fileName, mimeType, charset)), followsRedirects, credentials)
+			.newInstance(requestName, urlFunction, queryParams, params, headers, body, Some(UploadedFile(fileName, mimeType, charset)), followsRedirects, credentials, checks)
 
 	/**
 	 * This method adds the parameters to the request builder
@@ -96,26 +124,25 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 * @param params the parameters that should be added
 	 * @param session the session of the current scenario
 	 */
-	private def addParamsTo(requestBuilder: RequestBuilder, session: Session) {
+	private def configureParams(requestBuilder: RequestBuilder, session: Session) {
 		val paramsMap = new FluentStringsMap
 
-		val keyValues = for ((keyFunction, valueFunction) <- params) yield (keyFunction(session), valueFunction(session))
+		val resolvedParams = for ((keyFunction, valueFunction) <- params) yield (keyFunction(session), valueFunction(session))
 
-		keyValues.groupBy(_._1).foreach { entry =>
-			val (key, values) = entry
-			paramsMap.add(key, values.map(_._2): _*)
+		resolvedParams.groupBy(_._1).foreach { entry =>
+			val (key, params) = entry
+			paramsMap.add(key, params.map(_._2): _*)
 		}
 
 		if (!paramsMap.isEmpty) // AHC removes body if setParameters is called
 			requestBuilder.setParameters(paramsMap)
 	}
 
-	private def addBodyPartTo(requestBuilder: RequestBuilder) {
-		val (fileName, mimeType, charset) = fileUpload.get
-		requestBuilder.addBodyPart(new FilePart(fileName, new File(GatlingFiles.requestBodiesFolder / fileName), mimeType, charset))
+	private def configureBodyPart(requestBuilder: RequestBuilder) {
+		fileUpload.map(file => requestBuilder.addBodyPart(file.toFilePart))
 	}
 
-	private def addStringPartsTo(requestBuilder: RequestBuilder, session: Session) {
+	private def configureStringParts(requestBuilder: RequestBuilder, session: Session) {
 		params.foreach { entry =>
 			val key = entry._1(session)
 			val value = entry._2(session)

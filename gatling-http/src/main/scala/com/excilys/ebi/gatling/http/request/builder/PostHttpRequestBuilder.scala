@@ -14,19 +14,36 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.request.builder
-
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
+import com.excilys.ebi.gatling.core.session.ResolvedString
+import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 
 /**
  * This class defines an HTTP request with word POST in the DSL
  */
-class PostHttpRequestBuilder(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Session => String, queryParams: List[(Session => String, Session => String)], params: List[(Session => String, Session => String)],
-	headers: Map[String, Session => String], body: Option[HttpRequestBody], fileUpload: Option[(String, String, String)], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
-		extends AbstractHttpRequestWithBodyAndParamsBuilder[PostHttpRequestBuilder](httpRequestActionBuilder, "POST", urlFunction, queryParams, params, headers, body, fileUpload, followsRedirects, credentials) {
+class PostHttpRequestBuilder(
+	requestName: String,
+	urlFunction: ResolvedString,
+	queryParams: List[HttpParam],
+	params: List[HttpParam],
+	headers: Map[String, ResolvedString],
+	body: Option[HttpRequestBody],
+	fileUpload: Option[UploadedFile],
+	followsRedirects: Option[Boolean],
+	credentials: Option[Credentials],
+	checks: Option[List[HttpCheck[_]]])
+		extends AbstractHttpRequestWithBodyAndParamsBuilder[PostHttpRequestBuilder](requestName, "POST", urlFunction, queryParams, params, headers, body, fileUpload, followsRedirects, credentials, checks) {
 
-	private[http] def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Session => String, queryParams: List[(Session => String, Session => String)], params: List[(Session => String, Session => String)], headers: Map[String, Session => String], body: Option[HttpRequestBody], fileUpload: Option[(String, String, String)], followsRedirects: Option[Boolean], credentials: Option[(String, String)]) = {
-		new PostHttpRequestBuilder(httpRequestActionBuilder, urlFunction, queryParams, params, headers, body, fileUpload, followsRedirects, credentials)
+	private[http] def newInstance(
+		requestName: String,
+		urlFunction: ResolvedString,
+		queryParams: List[HttpParam], params: List[HttpParam],
+		headers: Map[String, ResolvedString],
+		body: Option[HttpRequestBody],
+		fileUpload: Option[UploadedFile],
+		followsRedirects: Option[Boolean],
+		credentials: Option[Credentials],
+		checks: Option[List[HttpCheck[_]]]) = {
+		new PostHttpRequestBuilder(requestName, urlFunction, queryParams, params, headers, body, fileUpload, followsRedirects, credentials, checks)
 	}
 }

@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
+import com.excilys.ebi.gatling.core.session.ResolvedString
 import com.excilys.ebi.gatling.http.check.body.{ HttpBodyXPathCheckBuilder, HttpBodyRegexCheckBuilder }
 import com.excilys.ebi.gatling.http.check.header.HttpHeaderCheckBuilder
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder
 import com.excilys.ebi.gatling.http.config.{ HttpProxyBuilder, HttpProtocolConfigurationBuilder }
+import com.excilys.ebi.gatling.http.request.builder.HttpRequestBaseBuilder
 
 object Predef {
-	def http(requestName: String) = HttpRequestActionBuilder.http(requestName)
+	def http(requestName: String) = HttpRequestBaseBuilder.http(requestName)
 
 	def httpConfig = HttpProtocolConfigurationBuilder.httpConfig
 	implicit def toHttpProtocolConfiguration(hpb: HttpProxyBuilder) = HttpProxyBuilder.toHttpProtocolConfiguration(hpb)
 	implicit def toHttpProtocolConfiguration(builder: HttpProtocolConfigurationBuilder) = HttpProtocolConfigurationBuilder.toHttpProtocolConfiguration(builder)
 
-	def regex(expression: Session => String) = HttpBodyRegexCheckBuilder.regex(expression)
-	def xpath(expression: Session => String) = HttpBodyXPathCheckBuilder.xpath(expression)
-	def header(expression: Session => String) = HttpHeaderCheckBuilder.header(expression)
+	def regex(expression: ResolvedString) = HttpBodyRegexCheckBuilder.regex(expression)
+	def xpath(expression: ResolvedString) = HttpBodyXPathCheckBuilder.xpath(expression)
+	def header(expression: ResolvedString) = HttpHeaderCheckBuilder.header(expression)
 	def status = HttpStatusCheckBuilder.status
 
 	/* MIME types */

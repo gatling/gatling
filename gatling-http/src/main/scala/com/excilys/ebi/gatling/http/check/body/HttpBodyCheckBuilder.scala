@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.http.check.body
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.CheckOneBuilder
 import com.excilys.ebi.gatling.core.check.CheckMultipleBuilder
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.ResolvedString
 import com.excilys.ebi.gatling.http.check.{ HttpMultipleCheckBuilder, HttpCheck }
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 import com.ning.http.client.Response
@@ -33,7 +33,7 @@ import com.ning.http.client.Response
 class HttpBodyCheckBuilder(findExtractorFactory: Int => ExtractorFactory[Response, String],
 		findAllExtractoryFactory: ExtractorFactory[Response, Seq[String]],
 		countExtractoryFactory: ExtractorFactory[Response, Int],
-		expression: Session => String) extends HttpMultipleCheckBuilder[String](expression, CompletePageReceived) {
+		expression: ResolvedString) extends HttpMultipleCheckBuilder[String](expression, CompletePageReceived) {
 
 	def find: CheckOneBuilder[HttpCheck[String], Response, String] = find(0)
 

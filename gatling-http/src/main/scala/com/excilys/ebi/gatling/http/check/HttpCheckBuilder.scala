@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.http.check
 import com.excilys.ebi.gatling.core.check.{ ExtractorFactory, CheckBuilderFactory }
 import com.excilys.ebi.gatling.core.check.{ CheckStrategy, CheckBaseBuilder }
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.ResolvedString
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.ning.http.client.Response
 
@@ -29,6 +29,6 @@ import com.ning.http.client.Response
  * @param expected the expected value against which the extracted value will be checked
  * @param phase the HttpPhase during which the check will be made
  */
-abstract class HttpCheckBuilder[X](val expression: Session => String, val phase: HttpPhase) extends CheckBaseBuilder[HttpCheck[X], Response, X] {
+abstract class HttpCheckBuilder[X](val expression: ResolvedString, val phase: HttpPhase) extends CheckBaseBuilder[HttpCheck[X], Response, X] {
 	def httpCheckBuilderFactory[X]: CheckBuilderFactory[HttpCheck[X], Response, X] = (extractorFactory: ExtractorFactory[Response, X], strategy: CheckStrategy[X], saveAs: Option[String]) => new HttpCheck(expression, extractorFactory, strategy, saveAs, phase)
 }

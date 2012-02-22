@@ -16,29 +16,7 @@
 package com.excilys.ebi.gatling.http.request
 import com.excilys.ebi.gatling.core.session.ResolvedString
 
-/**
- * Class used for polymorphism only
- */
-trait HttpRequestBody
+package object builder {
 
-/**
- * Wraps a body represented by a string
- *
- * @param string the string representing the body
- */
-case class StringBody(string: ResolvedString) extends HttpRequestBody
-
-/**
- * Wraps a body that is in a file
- *
- * @param filePath the path to the file containing the body
- */
-case class FilePathBody(filePath: String) extends HttpRequestBody
-
-/**
- * Wraps a body that requires template compilation
- *
- * @param tplPath the path to the template
- * @param values the values that will be merged in the template
- */
-case class TemplateBody(tplPath: String, values: Map[String, ResolvedString]) extends HttpRequestBody
+	type HttpParam = (ResolvedString, ResolvedString)
+}

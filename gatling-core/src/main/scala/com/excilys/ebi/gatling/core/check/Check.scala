@@ -15,7 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.check
 import com.excilys.ebi.gatling.core.session.Session
-import CheckContext.useCheckContext
+import com.excilys.ebi.gatling.core.check.CheckContext.useCheckContext
+import com.excilys.ebi.gatling.core.session.ResolvedString
 
 object Check {
 	def applyChecks[R](s: Session, response: R, checks: Seq[Check[R, _]]): (Session, CheckResult[_]) = {
@@ -45,7 +46,7 @@ object Check {
  * @param saveAs the session attribute that will be used to store the extracted value
  * @param strategy the strategy used to perform the Check
  */
-abstract class Check[R, X](val expression: Session => String, val extractorFactory: ExtractorFactory[R, X], val strategy: CheckStrategy[X], val saveAs: Option[String]) {
+abstract class Check[R, X](val expression: ResolvedString, val extractorFactory: ExtractorFactory[R, X], val strategy: CheckStrategy[X], val saveAs: Option[String]) {
 
 	def check(response: R, s: Session): CheckResult[X] = strategy(extractorFactory(response)(expression(s)), s)
 }

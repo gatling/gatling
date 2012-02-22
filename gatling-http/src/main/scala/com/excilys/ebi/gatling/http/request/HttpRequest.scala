@@ -29,7 +29,7 @@ import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
  * @param givenName the name of the request
  * @param httpRequestBuilder the httpRequestBuilder that will build the actual HTTP request
  */
-class HttpRequest(givenName: String, val httpRequestBuilder: AbstractHttpRequestBuilder[_]) extends Request(givenName) with Logging {
+class HttpRequest(requestBuilder: AbstractHttpRequestBuilder[_]) extends Request(requestBuilder.requestName) with Logging {
 
 	/**
 	 * Builds and returns the actual Request
@@ -37,8 +37,8 @@ class HttpRequest(givenName: String, val httpRequestBuilder: AbstractHttpRequest
 	 * @param session the session of the scenario
 	 * @return an HTTP request
 	 */
-	def getRequest(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): AHCRequest = {
-		val request = httpRequestBuilder.build(session, protocolConfiguration)
+	def buildAHCRequest(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): AHCRequest = {
+		val request = requestBuilder.build(session, protocolConfiguration)
 		logger.debug("Request created: {}, body data: {}", request.getUrl, request.getStringData)
 		request
 	}

@@ -114,7 +114,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				.exec(http("Create Thing blabla").post("/things").queryParam("login").queryParam("password").fileBody("create_thing", Map("name" -> "blabla")).asJSON)
 				.pause(pause1)
 				// Third request to be repeated
-				.exec(http("Liste Articles") get ("/things") queryParam "firstname" queryParam "lastname")
+				.exec(http("Liste Articles").get("/things").queryParam("firstname").queryParam("lastname"))
 				.pause(pause1)
 				.exec(http("Test Page").get("/tests").check(header(CONTENT_TYPE).is("text/html; charset=utf-8").saveAs("sessionParam")))
 				// Fourth request to be repeated

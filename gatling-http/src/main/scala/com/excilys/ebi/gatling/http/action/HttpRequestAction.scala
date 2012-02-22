@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.action
-
 import com.excilys.ebi.gatling.core.action.{ RequestAction, Action }
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.feeder.Feeder
@@ -39,6 +38,7 @@ import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
  * HttpRequestAction class companion
  */
 object HttpRequestAction {
+
 	/**
 	 * This is the default HTTP check used to verify that the response status is 2XX
 	 */
@@ -95,6 +95,6 @@ class HttpRequestAction(next: ActorRef, request: HttpRequest, givenChecks: Optio
 		if (logger.isInfoEnabled)
 			logger.info("Sending Request '{}': Scenario '{}', UserId #{}", Array[Object](request.name, session.scenarioName, session.userId.toString))
 
-		HttpRequestAction.CLIENT.executeRequest(request.getRequest(session, protocolConfiguration), new GatlingAsyncHandler(session, checks, next, request.name))
+		HttpRequestAction.CLIENT.executeRequest(request.buildAHCRequest(session, protocolConfiguration), new GatlingAsyncHandler(session, checks, next, request.name))
 	}
 }

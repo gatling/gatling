@@ -14,19 +14,34 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.request.builder
-
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
+import com.excilys.ebi.gatling.http.check.HttpCheck
+import com.excilys.ebi.gatling.core.session.ResolvedString
 
 /**
  * This class defines an HTTP request with word DELETE in the DSL
  */
-class DeleteHttpRequestBuilder(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Session => String, queryParams: List[(Session => String, Session => String)],
-	headers: Map[String, Session => String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
-		extends AbstractHttpRequestWithBodyBuilder[DeleteHttpRequestBuilder](httpRequestActionBuilder, "DELETE", urlFunction, queryParams, headers, body, followsRedirects, credentials) {
+class DeleteHttpRequestBuilder(
+	requestName: String,
+	urlFunction: ResolvedString,
+	queryParams: List[HttpParam],
+	headers: Map[String, ResolvedString],
+	body: Option[HttpRequestBody],
+	followsRedirects: Option[Boolean],
+	credentials: Option[Credentials],
+	checks: Option[List[HttpCheck[_]]])
+		extends AbstractHttpRequestWithBodyBuilder[DeleteHttpRequestBuilder](requestName, "DELETE", urlFunction, queryParams, headers, body, followsRedirects, credentials, checks) {
 
-	private[http] def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Session => String, queryParams: List[(Session => String, Session => String)], headers: Map[String, Session => String], body: Option[HttpRequestBody], followsRedirects: Option[Boolean], credentials: Option[(String, String)]) = {
-		new DeleteHttpRequestBuilder(httpRequestActionBuilder, urlFunction, queryParams, headers, body, followsRedirects, credentials)
+	private[http] def newInstance(
+		requestName: String,
+		urlFunction: ResolvedString,
+		queryParams: List[HttpParam],
+		headers: Map[String, ResolvedString],
+		body: Option[HttpRequestBody],
+		followsRedirects: Option[Boolean],
+		credentials: Option[Credentials],
+		checks: Option[List[HttpCheck[_]]]) = {
+		new DeleteHttpRequestBuilder(requestName, urlFunction, queryParams, headers, body, followsRedirects, credentials, checks)
 	}
 }

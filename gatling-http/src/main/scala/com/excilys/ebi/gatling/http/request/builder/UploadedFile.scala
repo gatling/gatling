@@ -13,10 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.check
-import com.excilys.ebi.gatling.core.check.MultipleOccurrence
-import com.excilys.ebi.gatling.core.session.ResolvedString
-import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
-import com.ning.http.client.Response
+package com.excilys.ebi.gatling.http.request.builder
+import java.io.File
 
-abstract class HttpMultipleCheckBuilder[X](expression: ResolvedString, phase: HttpPhase) extends HttpCheckBuilder[X](expression, phase) with MultipleOccurrence[HttpCheck[X], HttpCheck[Seq[X]], HttpCheck[Int], Response, X]
+import scala.tools.nsc.io.Path.string2path
+
+import com.excilys.ebi.gatling.core.config.GatlingFiles
+import com.excilys.ebi.gatling.core.util.PathHelper.path2string
+import com.ning.http.client.FilePart
+
+case class UploadedFile(fileName: String, mimeType: String, charset: String) {
+
+	def toFilePart = new FilePart(fileName, new File(GatlingFiles.requestBodiesFolder / fileName), mimeType, charset)
+}

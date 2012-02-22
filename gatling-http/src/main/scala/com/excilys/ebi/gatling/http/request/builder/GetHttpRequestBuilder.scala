@@ -14,18 +14,30 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.request.builder
-
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
+import com.excilys.ebi.gatling.core.session.ResolvedString
+import com.excilys.ebi.gatling.http.check.HttpCheck
 
 /**
  * This class defines an HTTP request with word GET in the DSL
  */
-class GetHttpRequestBuilder(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Session => String, queryParams: List[(Session => String, Session => String)],
-	headers: Map[String, Session => String], followsRedirects: Option[Boolean], credentials: Option[(String, String)])
-		extends AbstractHttpRequestBuilder[GetHttpRequestBuilder](httpRequestActionBuilder, "GET", urlFunction, queryParams, headers, followsRedirects, credentials) {
+class GetHttpRequestBuilder(
+	requestName: String,
+	urlFunction: ResolvedString,
+	queryParams: List[HttpParam],
+	headers: Map[String, ResolvedString],
+	followsRedirects: Option[Boolean],
+	credentials: Option[Credentials],
+	checks: Option[List[HttpCheck[_]]])
+		extends AbstractHttpRequestBuilder[GetHttpRequestBuilder](requestName, "GET", urlFunction, queryParams, headers, followsRedirects, credentials, checks) {
 
-	private[http] def newInstance(httpRequestActionBuilder: HttpRequestActionBuilder, urlFunction: Session => String, queryParams: List[(Session => String, Session => String)], headers: Map[String, Session => String], followsRedirects: Option[Boolean], credentials: Option[(String, String)]) = {
-		new GetHttpRequestBuilder(httpRequestActionBuilder, urlFunction, queryParams, headers, followsRedirects, credentials)
+	private[http] def newInstance(
+		requestName: String,
+		urlFunction: ResolvedString,
+		queryParams: List[HttpParam],
+		headers: Map[String, ResolvedString],
+		followsRedirects: Option[Boolean],
+		credentials: Option[Credentials],
+		checks: Option[List[HttpCheck[_]]]) = {
+		new GetHttpRequestBuilder(requestName, urlFunction, queryParams, headers, followsRedirects, credentials, checks)
 	}
 }
