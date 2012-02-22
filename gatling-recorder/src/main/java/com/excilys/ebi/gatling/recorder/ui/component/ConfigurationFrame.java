@@ -214,10 +214,6 @@ public class ConfigurationFrame extends JFrame {
 		outputFolderPanel.add(txtOutputFolder);
 		outputFolderPanel.add(btnOutputFolder);
 
-		/* Output type panel */
-		JPanel outputTypePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		outputTypePanel.add(new JLabel("Type: "));
-
 		for (Charset c : Charset.availableCharsets().values())
 			cbOutputEncoding.addItem(c);
 
@@ -230,7 +226,6 @@ public class ConfigurationFrame extends JFrame {
 		outputFormatPanel.add(new JLabel("Encoding: "));
 		outputFormatPanel.add(cbOutputEncoding);
 
-		outputPanel.add(outputTypePanel, BorderLayout.EAST);
 		outputPanel.add(outputFormatPanel, BorderLayout.WEST);
 
 		/* Start Action Panel */
