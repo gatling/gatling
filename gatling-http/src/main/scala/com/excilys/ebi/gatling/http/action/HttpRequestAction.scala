@@ -95,6 +95,11 @@ class HttpRequestAction(next: ActorRef, request: HttpRequest, givenChecks: Optio
 		if (logger.isInfoEnabled)
 			logger.info("Sending Request '{}': Scenario '{}', UserId #{}", Array[Object](request.name, session.scenarioName, session.userId.toString))
 
-		HttpRequestAction.CLIENT.executeRequest(request.buildAHCRequest(session, protocolConfiguration), new GatlingAsyncHandler(session, checks, next, request.name))
+		val followRedirect = protocolConfiguration match {
+			case Some(protocolConfiguration) => protocolConfiguration.followRedirect
+			case None => false
+		}
+		val ahcRequest = request.buildAHCRequest(session, protocolConfiguration)
+		HttpRequestAction.CLIENT.executeRequest(ahcRequest, new GatlingAsyncHandler(session, checks, next, request.name, ahcRequest, followRedirect))
 	}
 }

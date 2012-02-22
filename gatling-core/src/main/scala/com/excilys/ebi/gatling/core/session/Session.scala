@@ -40,7 +40,7 @@ object Session {
  * @param writeActorUuid the uuid of the actor responsible for logging
  * @param data the map that stores all values needed
  */
-class Session(val scenarioName: String, val userId: Int, val data: Map[String, Any]) extends Logging {
+class Session(val scenarioName: String, val userId: Int, data: Map[String, Any]) extends Logging {
 
 	def this(scenarioName: String, userId: Int) = this(scenarioName, userId, Map.empty)
 

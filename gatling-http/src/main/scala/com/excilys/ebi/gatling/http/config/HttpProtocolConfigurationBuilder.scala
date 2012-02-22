@@ -21,7 +21,7 @@ import com.ning.http.client.ProxyServer
  * HttpProtocolConfigurationBuilder class companion
  */
 object HttpProtocolConfigurationBuilder {
-	def httpConfig = new HttpProtocolConfigurationBuilder(None, None, None)
+	def httpConfig = new HttpProtocolConfigurationBuilder(None, None, None, false)
 
 	implicit def toHttpProtocolConfiguration(builder: HttpProtocolConfigurationBuilder) = builder.build
 }
@@ -32,14 +32,16 @@ object HttpProtocolConfigurationBuilder {
  * @param baseUrl the radix of all the URLs that will be used (eg: http://mywebsite.tld)
  * @param proxy a proxy through which all the requests must pass to succeed
  */
-class HttpProtocolConfigurationBuilder(baseUrl: Option[String], proxy: Option[ProxyServer], securedProxy: Option[ProxyServer]) {
+class HttpProtocolConfigurationBuilder(baseUrl: Option[String], proxy: Option[ProxyServer], securedProxy: Option[ProxyServer], followRedirect: Boolean) {
 
 	/**
 	 * Sets the baseURL of the future HttpProtocolConfiguration
 	 *
 	 * @param baseurl the base url that will be set
 	 */
-	def baseURL(baseurl: String) = new HttpProtocolConfigurationBuilder(Some(baseurl), proxy, securedProxy)
+	def baseURL(baseUrl: String) = new HttpProtocolConfigurationBuilder(Some(baseUrl), proxy, securedProxy, followRedirect)
+	
+	def followRedirect = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, true)
 
 	/**
 	 * Sets the proxy of the future HttpProtocolConfiguration
@@ -48,8 +50,8 @@ class HttpProtocolConfigurationBuilder(baseUrl: Option[String], proxy: Option[Pr
 	 * @param port the port of the proxy
 	 */
 	def proxy(host: String, port: Int) = new HttpProxyBuilder(this, host, port)
+	
+	private[http] def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = new HttpProtocolConfigurationBuilder(baseUrl, Some(httpProxy), httpsProxy, followRedirect)
 
-	private[http] def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = new HttpProtocolConfigurationBuilder(baseUrl, Some(httpProxy), httpsProxy)
-
-	private[http] def build = new HttpProtocolConfiguration(baseUrl, proxy, securedProxy)
+	private[http] def build = new HttpProtocolConfiguration(baseUrl, proxy, securedProxy, followRedirect)
 }

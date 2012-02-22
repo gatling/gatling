@@ -35,6 +35,12 @@ import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
 import akka.actor.ActorRef
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import java.util.concurrent.atomic.AtomicBoolean
+import com.excilys.ebi.gatling.http.action.HttpRequestAction
+import com.ning.http.client.RequestBuilder
+import com.ning.http.client.Request
+import java.net.URLDecoder
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
@@ -47,14 +53,12 @@ import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
  * @param next the next action to be executed
  * @param requestName the name of the request
  */
-class GatlingAsyncHandler(session: Session, checks: List[HttpCheck[_]], next: ActorRef, requestName: String)
+class GatlingAsyncHandler(session: Session, checks: List[HttpCheck[_]], next: ActorRef, requestName: String, originalRequest: Request, followRedirect: Boolean, requestStartDate: Long = currentTimeMillis)
 		extends AsyncHandler[Void] with ProgressAsyncHandler[Void] with CookieHandling with Logging {
 
 	private val identifier = requestName + session.userId
 
 	private val responseBuilder = new ResponseBuilder
-
-	private val requestStartDate = currentTimeMillis
 
 	// initialized in case the headers can't be sent (connection problem)
 	@volatile private var endOfRequestSendingDate: Option[Long] = None
@@ -137,23 +141,37 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck[_]], next: Ac
 
 		var newSession = storeCookies(session, response.getUri.toString, response.getCookies)
 
-		HttpPhase.values.foreach { httpPhase =>
-			val phaseChecks = getChecksForPhase(httpPhase)
-			if (!phaseChecks.isEmpty) {
-				var (newSessionWithSavedValues, checkResult) = applyChecks(newSession, response, phaseChecks)
-				newSession = newSessionWithSavedValues
+		if (followRedirect && (response.getStatusCode == 301 || response.getStatusCode == 302)) {
+			// follow redirect
+			val url = URLDecoder.decode(response.getHeader("Location"), configuration.encoding)
+			val builder = new RequestBuilder(originalRequest).setMethod("GET").setUrl(url)
 
-				if (!checkResult.ok) {
-					val errorMessage = checkResult.errorMessage.getOrElse(throw new IllegalArgumentException("Missing error message"))
-					if (logger.isWarnEnabled)
-						logger.warn("Check on request '{}' failed : '{}'", requestName, errorMessage)
+			for (cookie <- getStoredCookies(newSession, url))
+				builder.addCookie(cookie)
 
-					sendLogAndExecuteNext(newSession, KO, errorMessage)
-					return
+			val request = builder.build
+
+			HttpRequestAction.CLIENT.executeRequest(request, new GatlingAsyncHandler(newSession, checks, next, requestName, request, followRedirect, requestStartDate))
+
+		} else {
+			HttpPhase.values.foreach { httpPhase =>
+				val phaseChecks = getChecksForPhase(httpPhase)
+				if (!phaseChecks.isEmpty) {
+					var (newSessionWithSavedValues, checkResult) = applyChecks(newSession, response, phaseChecks)
+					newSession = newSessionWithSavedValues
+
+					if (!checkResult.ok) {
+						val errorMessage = checkResult.errorMessage.getOrElse(throw new IllegalArgumentException("Missing error message"))
+						if (logger.isWarnEnabled)
+							logger.warn("Check on request '{}' failed : '{}'", requestName, errorMessage)
+
+						sendLogAndExecuteNext(newSession, KO, errorMessage)
+						return
+					}
 				}
 			}
-		}
 
-		sendLogAndExecuteNext(newSession, OK, "Request Executed Successfully")
+			sendLogAndExecuteNext(newSession, OK, "Request Executed Successfully")
+		}
 	}
 }
