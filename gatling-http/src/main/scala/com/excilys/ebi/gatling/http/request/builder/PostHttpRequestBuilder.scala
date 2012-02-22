@@ -29,10 +29,9 @@ class PostHttpRequestBuilder(
 	headers: Map[String, ResolvedString],
 	body: Option[HttpRequestBody],
 	fileUpload: Option[UploadedFile],
-	followsRedirects: Option[Boolean],
 	credentials: Option[Credentials],
 	checks: Option[List[HttpCheck[_]]])
-		extends AbstractHttpRequestWithBodyAndParamsBuilder[PostHttpRequestBuilder](requestName, "POST", urlFunction, queryParams, params, headers, body, fileUpload, followsRedirects, credentials, checks) {
+		extends AbstractHttpRequestWithBodyAndParamsBuilder[PostHttpRequestBuilder](requestName, "POST", urlFunction, queryParams, params, headers, body, fileUpload, credentials, checks) {
 
 	private[http] def newInstance(
 		requestName: String,
@@ -41,9 +40,8 @@ class PostHttpRequestBuilder(
 		headers: Map[String, ResolvedString],
 		body: Option[HttpRequestBody],
 		fileUpload: Option[UploadedFile],
-		followsRedirects: Option[Boolean],
 		credentials: Option[Credentials],
 		checks: Option[List[HttpCheck[_]]]) = {
-		new PostHttpRequestBuilder(requestName, urlFunction, queryParams, params, headers, body, fileUpload, followsRedirects, credentials, checks)
+		new PostHttpRequestBuilder(requestName, urlFunction, queryParams, params, headers, body, fileUpload, credentials, checks)
 	}
 }

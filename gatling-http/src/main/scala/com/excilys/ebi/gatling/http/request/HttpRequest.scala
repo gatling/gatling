@@ -29,7 +29,7 @@ import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
  * @param givenName the name of the request
  * @param httpRequestBuilder the httpRequestBuilder that will build the actual HTTP request
  */
-class HttpRequest(requestBuilder: AbstractHttpRequestBuilder[_]) extends Request(requestBuilder.requestName) with Logging {
+class HttpRequest(val requestBuilder: AbstractHttpRequestBuilder[_]) extends Request(requestBuilder.requestName) with Logging {
 
 	/**
 	 * Builds and returns the actual Request

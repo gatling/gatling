@@ -47,7 +47,6 @@ object AbstractHttpRequestWithBodyBuilder {
  * @param queryParams the query parameters that should be added to the request
  * @param headers the headers that should be added to the request
  * @param body the body that should be added to the request
- * @param followsRedirects sets the follow redirect option of AHC
  * @param credentials sets the credentials in case of Basic HTTP Authentication
  */
 abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](
@@ -57,10 +56,9 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	queryParams: List[HttpParam],
 	headers: Map[String, ResolvedString],
 	body: Option[HttpRequestBody],
-	followsRedirects: Option[Boolean],
 	credentials: Option[Credentials],
 	checks: Option[List[HttpCheck[_]]])
-		extends AbstractHttpRequestBuilder[B](requestName, method, urlFunction, queryParams, headers, followsRedirects, credentials, checks) {
+		extends AbstractHttpRequestBuilder[B](requestName, method, urlFunction, queryParams, headers, credentials, checks) {
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
 		val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
@@ -76,7 +74,6 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 * @param queryParams the query parameters that should be added to the request
 	 * @param headers the headers that should be added to the request
 	 * @param body the body that should be added to the request
-	 * @param followsRedirects sets the follow redirect option of AHC
 	 * @param credentials sets the credentials in case of Basic HTTP Authentication
 	 */
 	private[http] def newInstance(
@@ -85,7 +82,6 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 		queryParams: List[HttpParam],
 		headers: Map[String, ResolvedString],
 		body: Option[HttpRequestBody],
-		followsRedirects: Option[Boolean],
 		credentials: Option[Credentials],
 		checks: Option[List[HttpCheck[_]]]): B
 
@@ -94,10 +90,9 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 		urlFunction: ResolvedString,
 		queryParams: List[HttpParam],
 		headers: Map[String, ResolvedString],
-		followsRedirects: Option[Boolean],
 		credentials: Option[Credentials],
 		checks: Option[List[HttpCheck[_]]]): B = {
-		newInstance(requestName, urlFunction, queryParams, headers, body, followsRedirects, credentials, checks)
+		newInstance(requestName, urlFunction, queryParams, headers, body, credentials, checks)
 	}
 
 	/**
@@ -105,14 +100,14 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 *
 	 * @param body a string containing the body of the request
 	 */
-	def body(body: ResolvedString): B = newInstance(requestName, urlFunction, queryParams, headers, Some(StringBody(body)), followsRedirects, credentials, checks)
+	def body(body: ResolvedString): B = newInstance(requestName, urlFunction, queryParams, headers, Some(StringBody(body)), credentials, checks)
 
 	/**
 	 * Adds a body from a file to the request
 	 *
 	 * @param filePath the path of the file relative to GATLING_REQUEST_BODIES_FOLDER
 	 */
-	def fileBody(filePath: String): B = newInstance(requestName, urlFunction, queryParams, headers, Some(FilePathBody(filePath)), followsRedirects, credentials, checks)
+	def fileBody(filePath: String): B = newInstance(requestName, urlFunction, queryParams, headers, Some(FilePathBody(filePath)), credentials, checks)
 
 	/**
 	 * Adds a body from a template that has to be compiled
@@ -122,7 +117,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 */
 	def fileBody(tplPath: String, values: Map[String, String]): B = {
 		val interpolatedValues = values.map { entry => entry._1 -> interpolate(entry._2) }
-		newInstance(requestName, urlFunction, queryParams, headers, Some(TemplateBody(tplPath, interpolatedValues)), followsRedirects, credentials, checks)
+		newInstance(requestName, urlFunction, queryParams, headers, Some(TemplateBody(tplPath, interpolatedValues)), credentials, checks)
 	}
 
 	/**

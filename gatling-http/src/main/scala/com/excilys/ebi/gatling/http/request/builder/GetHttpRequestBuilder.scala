@@ -25,19 +25,17 @@ class GetHttpRequestBuilder(
 	urlFunction: ResolvedString,
 	queryParams: List[HttpParam],
 	headers: Map[String, ResolvedString],
-	followsRedirects: Option[Boolean],
 	credentials: Option[Credentials],
 	checks: Option[List[HttpCheck[_]]])
-		extends AbstractHttpRequestBuilder[GetHttpRequestBuilder](requestName, "GET", urlFunction, queryParams, headers, followsRedirects, credentials, checks) {
+		extends AbstractHttpRequestBuilder[GetHttpRequestBuilder](requestName, "GET", urlFunction, queryParams, headers, credentials, checks) {
 
 	private[http] def newInstance(
 		requestName: String,
 		urlFunction: ResolvedString,
 		queryParams: List[HttpParam],
 		headers: Map[String, ResolvedString],
-		followsRedirects: Option[Boolean],
 		credentials: Option[Credentials],
 		checks: Option[List[HttpCheck[_]]]) = {
-		new GetHttpRequestBuilder(requestName, urlFunction, queryParams, headers, followsRedirects, credentials, checks)
+		new GetHttpRequestBuilder(requestName, urlFunction, queryParams, headers, credentials, checks)
 	}
 }

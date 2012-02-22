@@ -45,14 +45,14 @@ class HttpRequestBaseBuilder(val requestName: String) {
 	 * @param url the url on which this request will be made
 	 * @param interpolations session keys for interpolation
 	 */
-	def delete(url: String) = new DeleteHttpRequestBuilder(requestName, interpolate(url), Nil, Map(), None, None, None, None)
+	def delete(url: String) = new DeleteHttpRequestBuilder(requestName, interpolate(url), Nil, Map(), None, None, None)
 
 	/**
 	 * Starts the definition of an HTTP request with word DELETE
 	 *
 	 * @param f the function returning the url of this request
 	 */
-	def delete(f: ResolvedString) = new DeleteHttpRequestBuilder(requestName, f, Nil, Map(), None, None, None, None)
+	def delete(f: ResolvedString) = new DeleteHttpRequestBuilder(requestName, f, Nil, Map(), None, None, None)
 
 	/**
 	 * Starts the definition of an HTTP request with word GET
@@ -60,14 +60,14 @@ class HttpRequestBaseBuilder(val requestName: String) {
 	 * @param url the url on which this request will be made
 	 * @param interpolations session keys for interpolation
 	 */
-	def get(url: String) = new GetHttpRequestBuilder(requestName, interpolate(url), Nil, Map(), None, None, None)
+	def get(url: String) = new GetHttpRequestBuilder(requestName, interpolate(url), Nil, Map(), None, None)
 
 	/**
 	 * Starts the definition of an HTTP request with word GET
 	 *
 	 * @param f the function returning the url of this request
 	 */
-	def get(f: ResolvedString) = new GetHttpRequestBuilder(requestName, f, Nil, Map(), None, None, None)
+	def get(f: ResolvedString) = new GetHttpRequestBuilder(requestName, f, Nil, Map(), None, None)
 
 	/**
 	 * Starts the definition of an HTTP request with word POST
@@ -75,14 +75,14 @@ class HttpRequestBaseBuilder(val requestName: String) {
 	 * @param url the url on which this request will be made
 	 * @param interpolations session keys for interpolation
 	 */
-	def post(url: String) = new PostHttpRequestBuilder(requestName, interpolate(url), Nil, Nil, Map(), None, None, None, None, None)
+	def post(url: String) = new PostHttpRequestBuilder(requestName, interpolate(url), Nil, Nil, Map(), None, None, None, None)
 
 	/**
 	 * Starts the definition of an HTTP request with word POST
 	 *
 	 * @param f the function returning the url of this request
 	 */
-	def post(f: ResolvedString) = new PostHttpRequestBuilder(requestName, f, Nil, Nil, Map(), None, None, None, None, None)
+	def post(f: ResolvedString) = new PostHttpRequestBuilder(requestName, f, Nil, Nil, Map(), None, None, None, None)
 
 	/**
 	 * Starts the definition of an HTTP request with word PUT
@@ -90,13 +90,13 @@ class HttpRequestBaseBuilder(val requestName: String) {
 	 * @param url the url on which this request will be made
 	 * @param interpolations session keys for interpolation
 	 */
-	def put(url: String) = new PutHttpRequestBuilder(requestName, interpolate(url), Nil, Map(), None, None, None, None)
+	def put(url: String) = new PutHttpRequestBuilder(requestName, interpolate(url), Nil, Map(), None, None, None)
 
 	/**
 	 * Starts the definition of an HTTP request with word PUT
 	 *
 	 * @param f the function returning the url of this request
 	 */
-	def put(f: ResolvedString) = new PutHttpRequestBuilder(requestName, f, Nil, Map(), None, None, None, None)
+	def put(f: ResolvedString) = new PutHttpRequestBuilder(requestName, f, Nil, Map(), None, None, None)
 }
 

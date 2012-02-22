@@ -43,8 +43,7 @@ import com.ning.http.client.Response
  * @param next the next action to be executed
  * @param processorBuilders
  */
-class HttpRequestActionBuilder(request: HttpRequest, next: ActorRef, checks: Option[List[HttpCheck[_]]])
-		extends AbstractActionBuilder {
+class HttpRequestActionBuilder(request: HttpRequest, next: ActorRef, checks: Option[List[HttpCheck[_]]]) extends AbstractActionBuilder {
 
 	private[gatling] def withNext(next: ActorRef) = new HttpRequestActionBuilder(request, next, checks)
 

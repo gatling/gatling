@@ -28,10 +28,9 @@ class DeleteHttpRequestBuilder(
 	queryParams: List[HttpParam],
 	headers: Map[String, ResolvedString],
 	body: Option[HttpRequestBody],
-	followsRedirects: Option[Boolean],
 	credentials: Option[Credentials],
 	checks: Option[List[HttpCheck[_]]])
-		extends AbstractHttpRequestWithBodyBuilder[DeleteHttpRequestBuilder](requestName, "DELETE", urlFunction, queryParams, headers, body, followsRedirects, credentials, checks) {
+		extends AbstractHttpRequestWithBodyBuilder[DeleteHttpRequestBuilder](requestName, "DELETE", urlFunction, queryParams, headers, body, credentials, checks) {
 
 	private[http] def newInstance(
 		requestName: String,
@@ -39,9 +38,8 @@ class DeleteHttpRequestBuilder(
 		queryParams: List[HttpParam],
 		headers: Map[String, ResolvedString],
 		body: Option[HttpRequestBody],
-		followsRedirects: Option[Boolean],
 		credentials: Option[Credentials],
 		checks: Option[List[HttpCheck[_]]]) = {
-		new DeleteHttpRequestBuilder(requestName, urlFunction, queryParams, headers, body, followsRedirects, credentials, checks)
+		new DeleteHttpRequestBuilder(requestName, urlFunction, queryParams, headers, body, credentials, checks)
 	}
 }

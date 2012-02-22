@@ -40,7 +40,6 @@ import com.ning.http.client.StringPart
  * @param params the parameters that should be added to the request
  * @param headers the headers that should be added to the request
  * @param body the body that should be added to the request
- * @param followsRedirects sets the follow redirect option of AHC
  * @param credentials sets the credentials in case of Basic HTTP Authentication
  */
 abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequestWithBodyAndParamsBuilder[B]](
@@ -52,10 +51,9 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	headers: Map[String, ResolvedString],
 	body: Option[HttpRequestBody],
 	fileUpload: Option[UploadedFile],
-	followsRedirects: Option[Boolean],
 	credentials: Option[Credentials],
 	checks: Option[List[HttpCheck[_]]])
-		extends AbstractHttpRequestWithBodyBuilder[B](requestName, method, urlFunction, queryParams, headers, body, followsRedirects, credentials, checks) {
+		extends AbstractHttpRequestWithBodyBuilder[B](requestName, method, urlFunction, queryParams, headers, body, credentials, checks) {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type
@@ -66,7 +64,6 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 * @param params the parameters that should be added to the request
 	 * @param headers the headers that should be added to the request
 	 * @param body the body that should be added to the request
-	 * @param followsRedirects sets the follow redirect option of AHC
 	 * @param credentials sets the credentials in case of Basic HTTP Authentication
 	 */
 	private[http] def newInstance(
@@ -77,7 +74,6 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		headers: Map[String, ResolvedString],
 		body: Option[HttpRequestBody],
 		fileUpload: Option[UploadedFile],
-		followsRedirects: Option[Boolean],
 		credentials: Option[Credentials],
 		checks: Option[List[HttpCheck[_]]]): B
 
@@ -87,10 +83,9 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		queryParams: List[HttpParam],
 		headers: Map[String, ResolvedString],
 		body: Option[HttpRequestBody],
-		followsRedirects: Option[Boolean],
 		credentials: Option[Credentials],
 		checks: Option[List[HttpCheck[_]]]): B = {
-		newInstance(requestName, urlFunction, queryParams, params, headers, body, fileUpload, followsRedirects, credentials, checks)
+		newInstance(requestName, urlFunction, queryParams, params, headers, body, fileUpload, credentials, checks)
 	}
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
@@ -109,13 +104,13 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 *
 	 */
 	def param(paramKeyFunction: ResolvedString, paramValueFunction: ResolvedString): B =
-		newInstance(requestName, urlFunction, queryParams, (paramKeyFunction, paramValueFunction) :: params, headers, body, fileUpload, followsRedirects, credentials, checks)
+		newInstance(requestName, urlFunction, queryParams, (paramKeyFunction, paramValueFunction) :: params, headers, body, fileUpload, credentials, checks)
 
 	def param(paramKey: String): B = param(paramKey, EL_START + paramKey + EL_END)
 
 	def upload(fileName: String, mimeType: String = APPLICATION_OCTET_STREAM, charset: String = configuration.encoding): B =
 		header(CONTENT_TYPE, MULTIPART_FORM_DATA)
-			.newInstance(requestName, urlFunction, queryParams, params, headers, body, Some(UploadedFile(fileName, mimeType, charset)), followsRedirects, credentials, checks)
+			.newInstance(requestName, urlFunction, queryParams, params, headers, body, Some(UploadedFile(fileName, mimeType, charset)), credentials, checks)
 
 	/**
 	 * This method adds the parameters to the request builder
