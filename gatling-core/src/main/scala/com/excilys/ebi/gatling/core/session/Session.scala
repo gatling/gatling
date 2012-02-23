@@ -92,4 +92,6 @@ class Session(val scenarioName: String, val userId: Int, data: Map[String, Any])
 	 * @return last action duration in milliseconds
 	 */
 	private[gatling] def getLastActionDuration: Long = getAttributeAsOption[Long](Session.LAST_ACTION_DURATION_KEY).getOrElse(0L)
+
+	override def toString = new StringBuilder().append("scenarioName='").append(scenarioName).append("' userId='").append(userId).append("' data='").append(data).append("'").toString
 }
