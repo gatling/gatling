@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.feeder
 
 import java.util.concurrent.ConcurrentLinkedQueue
 
-import scala.collection.JavaConversions.bufferAsJavaList
+import scala.collection.JavaConverters.bufferAsJavaListConverter
 
 import com.excilys.ebi.gatling.core.log.Logging
 
@@ -25,7 +25,7 @@ import akka.actor.Actor.registry
 
 class QueueFeeder(feederSource: FeederSource) extends Feeder with Logging {
 
-	private val values = new ConcurrentLinkedQueue(feederSource.values)
+	private val values = new ConcurrentLinkedQueue(feederSource.values.asJava)
 
 	def next: Map[String, String] = Option(values.poll).getOrElse {
 		logger.error("There are not enough records in the feeder '{}'.\nPlease add records or use another feeder strategy.\nStopping simulation here...", feederSource.name)

@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.http.ahc
 import java.lang.System.currentTimeMillis
 import java.lang.Void
-import scala.collection.JavaConversions.asScalaBuffer
+import scala.collection.JavaConverters._
 import scala.collection.immutable.HashMap
 import com.excilys.ebi.gatling.core.check.Check.applyChecks
 import com.excilys.ebi.gatling.core.log.Logging
@@ -141,7 +141,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck[_]], next: Ac
 	 */
 	private def processResponse(response: Response) {
 
-		var newSession = storeCookies(session, response.getUri.toString, response.getCookies)
+		var newSession = storeCookies(session, response.getUri.toString, response.getCookies.asScala)
 
 		if (followRedirect && (response.getStatusCode == 301 || response.getStatusCode == 302)) {
 			// follow redirect

@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.check.extractor
 
 import java.io.{ StringReader, InputStream }
 
-import scala.collection.JavaConversions.asScalaBuffer
+import scala.collection.JavaConverters.asScalaBufferConverter
 
 import org.jaxen.dom.DOMXPath
 import org.jaxen.XPath
@@ -85,7 +85,7 @@ class XPathExtractor(inputStream: InputStream) {
 	 * @param expression a String containing the XPath expression to be searched
 	 * @return an option containing the value if found, None otherwise
 	 */
-	def extractMultiple(expression: String): Option[Seq[String]] = new DOMXPath(expression).selectNodes(document).asInstanceOf[java.util.List[Node]].map(_.getTextContent).toSeq
+	def extractMultiple(expression: String): Option[Seq[String]] = new DOMXPath(expression).selectNodes(document).asInstanceOf[java.util.List[Node]].asScala.map(_.getTextContent)
 
 	def count(expression: String): Option[Int] = new DOMXPath(expression).selectNodes(document).size
 }

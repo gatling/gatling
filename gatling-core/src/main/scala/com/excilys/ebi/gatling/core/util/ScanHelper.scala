@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.util
 import java.io.{ File => JFile }
 import java.net.{ URI, JarURLConnection }
 
-import scala.collection.JavaConversions.asIterator
+import scala.collection.JavaConverters.enumerationAsScalaIteratorConverter
 import scala.tools.nsc.io.Path.{ string2path, jfile2path }
 import scala.tools.nsc.io.{ Path, Jar, Fileish, File }
 
@@ -28,7 +28,7 @@ object ScanHelper {
 	def packageToStringPath(pkg: String): String = pkg.replace(".", File.separator)
 
 	def getPackageResources(pkg: String, deep: Boolean): Seq[Resource] = {
-		asIterator(getClass.getClassLoader.getResources(pkg)).map { packageURL =>
+		getClass.getClassLoader.getResources(pkg).asScala.map { packageURL =>
 			packageURL.getProtocol match {
 				case "file" =>
 					val rootDir = File(new JFile(new URI(packageURL.toString).getSchemeSpecificPart)).toDirectory
