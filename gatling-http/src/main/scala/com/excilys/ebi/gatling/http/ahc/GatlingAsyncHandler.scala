@@ -41,6 +41,8 @@ import com.ning.http.client.RequestBuilder
 import com.ning.http.client.Request
 import java.net.URLDecoder
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.ning.http.client.RequestBuilderBase.RequestImpl
+import com.ning.http.client.FluentStringsMap
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
@@ -144,7 +146,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck[_]], next: Ac
 		if (followRedirect && (response.getStatusCode == 301 || response.getStatusCode == 302)) {
 			// follow redirect
 			val url = URLDecoder.decode(response.getHeader("Location"), configuration.encoding)
-			val builder = new RequestBuilder(originalRequest).setMethod("GET").setUrl(url)
+			val builder = new RequestBuilder(originalRequest).setMethod("GET").setQueryParameters(null.asInstanceOf[FluentStringsMap]).setParameters(null.asInstanceOf[FluentStringsMap]).setUrl(url)
 
 			for (cookie <- getStoredCookies(newSession, url))
 				builder.addCookie(cookie)
