@@ -15,9 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.session.handler
 
+import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
 import com.excilys.ebi.gatling.core.session.Session
-
-import CounterBasedIterationHandler.COUNTER_KEY_PREFIX
 
 /**
  * CounterBasedIterationHandler trait 'companion'
@@ -27,7 +26,7 @@ object CounterBasedIterationHandler {
 	/**
 	 * Key prefix for Counters
 	 */
-	val COUNTER_KEY_PREFIX = "gatling.core.counter."
+	val COUNTER_KEY_PREFIX = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.counter."
 
 	private def getCounterAttributeName(counterName: String) = COUNTER_KEY_PREFIX + counterName
 

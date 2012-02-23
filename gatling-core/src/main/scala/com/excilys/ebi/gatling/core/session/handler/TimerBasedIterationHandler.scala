@@ -17,9 +17,8 @@ package com.excilys.ebi.gatling.core.session.handler
 
 import java.lang.System.currentTimeMillis
 
+import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
 import com.excilys.ebi.gatling.core.session.Session
-
-import TimerBasedIterationHandler.TIMER_KEY_PREFIX
 
 /**
  * TimerBasedIterationHandler trait 'companion'
@@ -28,7 +27,7 @@ object TimerBasedIterationHandler {
 	/**
 	 * Key prefix for Counters
 	 */
-	val TIMER_KEY_PREFIX = "gatling.core.timer."
+	val TIMER_KEY_PREFIX = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.timer."
 
 	private def getTimerAttributeName(timerName: String) = TIMER_KEY_PREFIX + timerName
 
@@ -48,7 +47,7 @@ object TimerBasedIterationHandler {
  * It adds timer based iteration behavior to a class
  */
 trait TimerBasedIterationHandler extends IterationHandler {
-	
+
 	lazy val timerAttributeName = TimerBasedIterationHandler.getTimerAttributeName(counterName)
 
 	override def init(session: Session): Session = {

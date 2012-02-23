@@ -16,6 +16,7 @@
 package com.excilys.ebi.gatling.http.cookie
 import java.net.URI
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
 import com.ning.http.client.Cookie
 import scala.collection.immutable.ListMap
 
@@ -23,7 +24,7 @@ private case class CookieKey(domain: String, path: String, name: String)
 
 trait CookieHandling {
 
-	val COOKIES_CONTEXT_KEY = "gatling.http.cookies"
+	val COOKIES_CONTEXT_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "http.cookies"
 
 	def getStoredCookies(session: Session, url: String): List[Cookie] = {
 		session.getAttributeAsOption[Map[CookieKey, Cookie]](COOKIES_CONTEXT_KEY) match {
