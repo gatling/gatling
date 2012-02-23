@@ -48,7 +48,7 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 				val indicatorsColumnData = numberOfRequestInResponseTimeRange(dataList, configuration.chartingIndicatorsLowerBound, configuration.chartingIndicatorsHigherBound)
 				val indicatorsPieData = {
 					val numberOfRequests = dataList.size
-					indicatorsColumnData.map { entry => entry._1 -> (entry._2 / numberOfRequests.toDouble * 100).toInt }
+					indicatorsColumnData.map { case (name, count) => name -> (count / numberOfRequests.toDouble * 100).toInt }
 				}
 				val requestsPerSecond = numberOfRequestsPerSecond(dataReader.dataIndexedBySendDateWithoutMillis)
 				val scatterPlotSuccessData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, OK)

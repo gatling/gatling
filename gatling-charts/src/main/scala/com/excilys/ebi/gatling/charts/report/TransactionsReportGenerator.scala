@@ -16,13 +16,14 @@
 package com.excilys.ebi.gatling.charts.report
 
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
-import com.excilys.ebi.gatling.charts.computer.Computer.{ numberOfSuccessfulRequestsPerSecond, numberOfRequestsPerSecondAsList, numberOfFailedRequestsPerSecond }
+import com.excilys.ebi.gatling.charts.computer.Computer.{ numberOfRequestsPerSecondAsList, numberOfRequestsPerSecond }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.globalTransactionsFile
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.series.SharedSeries
 import com.excilys.ebi.gatling.charts.template.TransactionsPageTemplate
 import com.excilys.ebi.gatling.charts.util.Colors.{ toString, RED, GREEN, BLUE }
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ OK, KO }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 
 class TransactionsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
@@ -31,9 +32,9 @@ class TransactionsReportGenerator(runOn: String, dataReader: DataReader, compone
 
 		// Get Data
 		val allTransactionsData = numberOfRequestsPerSecondAsList(dataReader.dataIndexedByReceiveDateWithoutMillis)
-		val failedTransactionsData = numberOfFailedRequestsPerSecond(dataReader.dataIndexedByReceiveDateWithoutMillis)
-		val succeededTransactionsData = numberOfSuccessfulRequestsPerSecond(dataReader.dataIndexedByReceiveDateWithoutMillis)
-		val pieData = ("Success", succeededTransactionsData.map(_._2).sum) :: ("Failures", failedTransactionsData.map(_._2).sum) :: Nil
+		val failedTransactionsData = numberOfRequestsPerSecond(dataReader.dataIndexedByReceiveDateWithoutMillis, KO)
+		val succeededTransactionsData = numberOfRequestsPerSecond(dataReader.dataIndexedByReceiveDateWithoutMillis, OK)
+		val pieData = ("Success", succeededTransactionsData.map { case (_, count) => count }.sum) :: ("Failures", failedTransactionsData.map { case (_, count) => count }.sum) :: Nil
 
 		// Create series
 		val allTransactions = new Series[Long, Int]("All requests", allTransactionsData, List(BLUE))

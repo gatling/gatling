@@ -15,30 +15,30 @@
  */
 package com.excilys.ebi.gatling.charts.computer
 
+import scala.annotation.implicitNotFound
 import scala.collection.SortedMap
-import scala.math.{sqrt, pow}
+import scala.math.{ sqrt, pow }
 
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ResultStatus, OK, KO}
+import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ ResultStatus, OK, KO }
 import com.excilys.ebi.gatling.core.result.writer.ResultLine
 
 object Computer extends Logging {
-	
-	val AVERAGE_TIME_NO_PLOT_MAGIC_VALUE = -1
-	
 
-	def averageTime(timeFunction: ResultLine => Long, data: Seq[ResultLine]): Int = {
+	val AVERAGE_TIME_NO_PLOT_MAGIC_VALUE = -1
+
+	def averageTime(timeFunction: ResultLine => Long)(data: Seq[ResultLine]): Int = {
 		if (data.isEmpty)
 			AVERAGE_TIME_NO_PLOT_MAGIC_VALUE
 		else
 			(data.map(timeFunction(_)).sum / data.length.toDouble).toInt
 	}
-	
-	def averageResponseTime = averageTime((line: ResultLine) => line.responseTime, _: Seq[ResultLine])
-	
-	def averageLatency = averageTime((line: ResultLine) => line.latency, _: Seq[ResultLine])
+
+	val averageResponseTime = averageTime(_.responseTime) _
+
+	val averageLatency = averageTime(_.latency) _
 
 	def responseTimeStandardDeviation(data: Seq[ResultLine]): Double = {
 		val avg = averageResponseTime(data)
@@ -51,23 +51,26 @@ object Computer extends Logging {
 
 	def numberOfSuccesses(data: Seq[ResultLine]): Int = data.filter(_.resultStatus == OK).size
 
-	def responseTimeByMillisecondAsList(data: SortedMap[Long, Seq[ResultLine]], resultStatus: ResultStatus): List[(Long, Int)] =
-		SortedMap(data.map(entry => entry._1 -> entry._2.filter(_.resultStatus == resultStatus)).map { entry =>
-			entry._1 -> averageResponseTime(entry._2)
-		}.toSeq: _*).toList
-		
-	def latencyByMillisecondAsList(data: SortedMap[Long, Seq[ResultLine]], resultStatus: ResultStatus): List[(Long, Int)] =
-		SortedMap(data.map(entry => entry._1 -> entry._2.filter(_.resultStatus == resultStatus)).map { entry =>
-			entry._1 -> averageLatency(entry._2)
-		}.toSeq: _*).toList
+	def computationByMillisecondAsList(data: SortedMap[Long, Seq[ResultLine]], resultStatus: ResultStatus, computation: Seq[ResultLine] => Int): List[(Long, Int)] =
+		SortedMap(data
+			.map { case (time, results) => time -> results.filter(_.resultStatus == resultStatus) }
+			.map { case (time, results) => time -> computation(results) }
+			.toSeq: _*).toList
 
-	def numberOfRequestsPerSecond(data: SortedMap[Long, Seq[ResultLine]]): SortedMap[Long, Int] = SortedMap(data.map(entry => entry._1 -> entry._2.length).toSeq: _*)
-	
+	def responseTimeByMillisecondAsList(data: SortedMap[Long, Seq[ResultLine]], resultStatus: ResultStatus): List[(Long, Int)] = computationByMillisecondAsList(data, resultStatus, averageResponseTime)
+
+	def latencyByMillisecondAsList(data: SortedMap[Long, Seq[ResultLine]], resultStatus: ResultStatus): List[(Long, Int)] = computationByMillisecondAsList(data, resultStatus, averageLatency)
+
+	def numberOfRequestsPerSecond(data: SortedMap[Long, Seq[ResultLine]]): SortedMap[Long, Int] =
+		SortedMap(data
+			.map { case (time, results) => time -> results.length }
+			.toSeq: _*)
+
 	def numberOfRequestsPerSecondAsList(data: SortedMap[Long, Seq[ResultLine]]): List[(Long, Int)] = numberOfRequestsPerSecond(data).toList
 
-	def numberOfSuccessfulRequestsPerSecond(data: SortedMap[Long, Seq[ResultLine]]): List[(Long, Int)] = numberOfRequestsPerSecondAsList(data.map(entry => entry._1 -> entry._2.filter(_.resultStatus == OK)))
-
-	def numberOfFailedRequestsPerSecond(data: SortedMap[Long, Seq[ResultLine]]): List[(Long, Int)] = numberOfRequestsPerSecondAsList(data.map(entry => entry._1 -> entry._2.filter(_.resultStatus == KO)))
+	def numberOfRequestsPerSecond(data: SortedMap[Long, Seq[ResultLine]], resultStatus: ResultStatus): List[(Long, Int)] =
+		numberOfRequestsPerSecondAsList(data
+			.map { case (time, results) => time -> results.filter(_.resultStatus == resultStatus) })
 
 	def numberOfRequestInResponseTimeRange(data: Seq[ResultLine], lowerBound: Int, higherBound: Int): List[(String, Int)] = {
 
@@ -81,44 +84,46 @@ object Computer extends Logging {
 			case _ => mediumGroup
 		}
 
-		// Adds empty sections
+		// Add empty sections
 		groupNames.map { name => grouped += (name -> grouped.getOrElse(name, Seq.empty)) }
 
 		// Computes the number of requests per group
 		// Then sorts the list by the order of the groupName
 		// Then creates the list to be returned
-		grouped.map(entry => (entry._1, entry._2.length)).toList.sortBy(_._1._1).map { entry => (entry._1._2, entry._2) }
+		grouped
+			.map { case (range, results) => (range, results.length) }
+			.toList
+			.sortBy { case ((rangeId, _), _) => rangeId }
+			.map { case ((_, rangeName), count) => (rangeName, count) }
 	}
 
-	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: SortedMap[Long, Int], requestData: SortedMap[Long, Seq[ResultLine]], resultStatus: ResultStatus): List[(Int, Long)] = {
-		requestData.map { entry =>
-			val dateTime = entry._1
-			requestData.get(dateTime).map { list =>
-				list.filter(_.resultStatus == resultStatus).map(requestsPerSecond.get(dateTime).get -> _.responseTime)
-			}
-		}.filter(_.isDefined).map(_.get).toList.flatten
-	}
+	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: SortedMap[Long, Int], requestData: SortedMap[Long, Seq[ResultLine]], resultStatus: ResultStatus): List[(Int, Long)] =
+		requestData
+			.map {
+				case (time, results) => results
+					.filter(_.resultStatus == resultStatus)
+					.map(requestsPerSecond.get(time).get -> _.responseTime)
+			}.toList.flatten
 
 	def numberOfActiveSessionsPerSecondForAScenario(data: SortedMap[Long, Seq[ResultLine]]): List[(Long, Int)] = {
-		val endsOnly = data.map(entry => entry._1 -> entry._2.filter(_.requestName == END_OF_SCENARIO))
-		val startsOnly = data.map(entry => entry._1 -> entry._2.filter(_.requestName == START_OF_SCENARIO))
+
+		def requestByNameGroupByTime(name: String) = data.map { case (time, results) => time -> results.filter(_.requestName == name) }
+
+		val starts = requestByNameGroupByTime(START_OF_SCENARIO)
+		val ends = requestByNameGroupByTime(END_OF_SCENARIO)
 
 		var ct = 0
-		SortedMap(data.map { entry =>
-			val (dateTime, list) = entry
-			list.foreach { result =>
-				if (endsOnly.getOrElse(dateTime, List.empty).contains(result)) ct -= 1
-				if (startsOnly.getOrElse(dateTime, List.empty).contains(result)) ct += 1
-			}
-			(dateTime, ct)
+		SortedMap(data.map {
+			case (time, results) =>
+				results.foreach { result =>
+					if (starts.getOrElse(time, List.empty).contains(result)) ct += 1
+					else if (ends.getOrElse(time, List.empty).contains(result)) ct -= 1
+				}
+				(time, ct)
 		}.toSeq: _*).toList
 	}
 
-	def numberOfActiveSessionsPerSecondByScenario(allScenarioData: Seq[(String, SortedMap[Long, Seq[ResultLine]])]): Seq[(String, List[(Long, Int)])] = {
+	def numberOfActiveSessionsPerSecondByScenario(allScenarioData: Seq[(String, SortedMap[Long, Seq[ResultLine]])]): Seq[(String, List[(Long, Int)])] =
 		// Filling the map with each scenario values
-		allScenarioData.map { entry =>
-			val (name, data) = entry
-			name -> numberOfActiveSessionsPerSecondForAScenario(data)
-		}
-	}
+		allScenarioData.map { case (name, data) => name -> numberOfActiveSessionsPerSecondForAScenario(data) }
 }
