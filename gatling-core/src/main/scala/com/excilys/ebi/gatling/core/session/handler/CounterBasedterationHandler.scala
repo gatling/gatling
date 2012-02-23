@@ -47,8 +47,8 @@ object CounterBasedIterationHandler {
  * It adds counter based iteration behavior to a class
  */
 trait CounterBasedIterationHandler extends IterationHandler {
-	
-	val counterAttributeName = CounterBasedIterationHandler.getCounterAttributeName(counterName)
+
+	lazy val counterAttributeName = CounterBasedIterationHandler.getCounterAttributeName(counterName)
 
 	override def init(session: Session) = {
 

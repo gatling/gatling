@@ -49,7 +49,7 @@ object TimerBasedIterationHandler {
  */
 trait TimerBasedIterationHandler extends IterationHandler {
 	
-	val timerAttributeName = TimerBasedIterationHandler.getTimerAttributeName(counterName)
+	lazy val timerAttributeName = TimerBasedIterationHandler.getTimerAttributeName(counterName)
 
 	override def init(session: Session): Session = {
 
