@@ -29,7 +29,7 @@ import com.excilys.ebi.gatling.core.action.Action
  */
 trait IterationHandler extends Logging {
 	
-	val counterName: String
+	def counterName: String
 
 	def init(session: Session) = session
 

@@ -36,16 +36,17 @@ import com.excilys.ebi.gatling.core.session.Session
 class TimesLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: ChainBuilder, times: Int, userDefinedCounterName: Option[String])
 		extends AbstractLoopHandlerBuilder[B](structureBuilder) {
 
+	val computedCounterName = userDefinedCounterName.getOrElse(new Uuid().toString)
+
 	/**
 	 * Actually builds the current 'for' loop to the structure builder
 	 */
 	private[core] def build: B = {
 
 		val handler = new CounterBasedIterationHandler {
-			val counterName = userDefinedCounterName.getOrElse(new Uuid().toString)
-			def getCounterName = counterName
+			def counterName = computedCounterName
 		}
-		
+
 		val initAction = simpleActionBuilder((session: Session) => handler.init(session))
 		val incrementAction = simpleActionBuilder((session: Session) => handler.increment(session))
 		val expireAction = simpleActionBuilder((session: Session) => handler.expire(session))
