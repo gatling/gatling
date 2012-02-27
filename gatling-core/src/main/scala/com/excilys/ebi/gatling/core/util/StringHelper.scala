@@ -16,9 +16,12 @@
 package com.excilys.ebi.gatling.core.util
 
 import java.text.Normalizer
+import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Pattern
 
 import scala.annotation.implicitNotFound
+import scala.collection.JavaConverters.asScalaConcurrentMapConverter
+import scala.collection.mutable.ConcurrentMap
 
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.session.EvaluatableString
@@ -28,6 +31,8 @@ import com.excilys.ebi.gatling.core.session.Session
  * This object groups all utilities for strings
  */
 object StringHelper extends Logging {
+
+	val CACHE: ConcurrentMap[String, EvaluatableString] = new ConcurrentHashMap[String, EvaluatableString].asScala
 
 	val END_OF_LINE = System.getProperty("line.separator")
 
@@ -114,6 +119,6 @@ object StringHelper extends Logging {
 			}
 		}
 
-		doParseEvaluatable
+		CACHE.getOrElseUpdate(stringToFormat, doParseEvaluatable)
 	}
 }
