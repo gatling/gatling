@@ -3,7 +3,7 @@
 <%@ val pageContent: String %>
 <%@ val javascript: String %>
 <%@ val isDetails: Boolean %>
-<%@ val simulationDate: String %>
+<%@ val runInfo: com.excilys.ebi.gatling.core.runner.RunInfo %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -25,7 +25,7 @@
 		<div class="cadre">
 				<div class="onglet">
 						<img src="style/cible.png" alt="" />
-						<p>Simulation:&nbsp;&nbsp;&nbsp;<span><%= simulationDate %></span></p>
+						<p>Simulation:&nbsp;&nbsp;&nbsp;<span title="<%= com.excilys.ebi.gatling.core.util.HtmlHelper.htmlEscape(runInfo.runName) %>"><%= runInfo.runId %> on <%= runInfo.readableRunDate %></span></p>
 				</div>
 				<div class="content">
 					<div class="sous-menu">

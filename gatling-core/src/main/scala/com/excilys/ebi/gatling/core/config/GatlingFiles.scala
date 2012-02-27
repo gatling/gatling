@@ -16,8 +16,8 @@
 package com.excilys.ebi.gatling.core.config
 
 import scala.tools.nsc.io.Path.string2path
-
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.excilys.ebi.gatling.core.runner.RunInfo
 
 object GatlingFiles {
 	val GATLING_HOME = Option(System.getenv("GATLING_HOME")).getOrElse(System.getProperty("java.io.tmpdir"))
@@ -34,9 +34,13 @@ object GatlingFiles {
 	def requestBodiesFolder = configuration.requestBodiesFolderPath.getOrElse(GATLING_USER_FILES_FOLDER / "request-bodies")
 	def simulationsFolder = configuration.simulationsFolderPath.getOrElse(GATLING_USER_FILES_FOLDER / "simulations")
 
-	def resultFolder(runOn: String) = resultsFolder / runOn
-	def jsFolder(runOn: String) = resultFolder(runOn) / GATLING_JS
-	def styleFolder(runOn: String) = resultFolder(runOn) / GATLING_STYLE
-	def rawdataFolder(runOn: String) = resultFolder(runOn) / "rawdata"
-	def simulationLogFile(runOn: String) = resultFolder(runOn) / "simulation.log"
+	def resultFolder(runUuid: String) = resultsFolder / runUuid
+	def jsFolder(runUuid: String) = resultFolder(runUuid) / GATLING_JS
+	def styleFolder(runUuid: String) = resultFolder(runUuid) / GATLING_STYLE
+	def rawdataFolder(runUuid: String) = resultFolder(runUuid) / "rawdata"
+	def simulationLogFile(runUuid: String) = {
+		val dir = resultFolder(runUuid)
+		dir.createDirectory()
+		dir / "simulation.log"
+	}
 }

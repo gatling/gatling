@@ -26,7 +26,8 @@ import com.excilys.ebi.gatling.core.config.GatlingFiles.{ simulationLogFile, res
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ OK, KO }
 import com.excilys.ebi.gatling.core.result.message.{ InitializeDataWriter, ActionInfo }
 import com.excilys.ebi.gatling.core.util.DateHelper.printFileNameDate
-import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+import com.excilys.ebi.gatling.core.util.StringHelper.{ END_OF_LINE, EMPTY }
+import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 import akka.actor.scala2ActorRef
 import grizzled.slf4j.Logging
 
@@ -45,10 +46,6 @@ class FileDataWriter extends DataWriter with Logging {
 	 * The countdown latch that will be decreased when all messaged are written and all scenarios ended
 	 */
 	var latch: CountDownLatch = _
-	/**
-	 * The date on which the simulation started
-	 */
-	var runOn: String = _
 
 	val startUpTime = currentTimeMillis
 
@@ -68,22 +65,36 @@ class FileDataWriter extends DataWriter with Logging {
 	 * Method called when this actor receives a message
 	 */
 	def receive = {
+
 		// If the message is sent to initialize the writer
-		case InitializeDataWriter(runOn, latch) => {
+		case InitializeDataWriter(runInfo, latch) => {
 
-			if (initialized.compareAndSet(false, true)) {
-				this.runOn = printFileNameDate(runOn)
-				// Initialize files and folders that will be used to write the logs
-				Directory(resultFolder(this.runOn)).createDirectory()
+			def initStreamWriter {
+				osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(File(simulationLogFile(runInfo.runUuid)).jfile, true)))
+			}
 
-				osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(File(simulationLogFile(this.runOn)).jfile, true)))
+			def printRunInfo {
+				osw.append(ResultLine.RunInfoHeaders.RUN_DATE).append(TABULATION_SEPARATOR).append(printFileNameDate(runInfo.runDate)).append(END_OF_LINE)
+				osw.append(ResultLine.RunInfoHeaders.RUN_ID).append(TABULATION_SEPARATOR).append(runInfo.runId).append(END_OF_LINE)
+				osw.append(ResultLine.RunInfoHeaders.RUN_NAME).append(TABULATION_SEPARATOR).append(runInfo.runName).append(END_OF_LINE)
+			}
 
+			def printDataHeaders {
 				ResultLine.Headers.print(osw).append(END_OF_LINE)
+			}
 
-				this.latch = latch
-
+			def handleCounters {
 				// the latch is set to totalUsersCount + 1 so main thread awaits until this FileDataWriter is closed
 				totalUsersCount.set(latch.getCount - 1)
+			}
+
+			if (initialized.compareAndSet(false, true)) {
+				this.latch = latch
+
+				initStreamWriter
+				printRunInfo
+				printDataHeaders
+				handleCounters
 
 			} else {
 				error("FileDataWriter has already been initialized!")
@@ -92,10 +103,13 @@ class FileDataWriter extends DataWriter with Logging {
 
 		// If the message comes from an action
 		case ActionInfo(scenarioName, userId, action, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage) => {
-			if (initialized.get == true) {
-				// Write the line in the file
-				new ResultLine(runOn, scenarioName, userId, action, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage).print(osw).append(END_OF_LINE)
 
+			def printResultLine {
+				// Write the line in the file
+				new ResultLine(scenarioName, userId, action, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage).print(osw).append(END_OF_LINE)
+			}
+
+			def handleCounters {
 				action match {
 					case START_OF_SCENARIO => activeUsersCount.incrementAndGet
 					case END_OF_SCENARIO => activeUsersCount.decrementAndGet
@@ -104,8 +118,9 @@ class FileDataWriter extends DataWriter with Logging {
 						case KO => failedRequestsCount.incrementAndGet
 					}
 				}
+			}
 
-				// print sample stats
+			def displaySamplingInfo {
 				// not thread safe but not critical either
 				val now = currentTimeMillis
 				if (now - lastDisplayTime > displayPeriod) {
@@ -113,8 +128,10 @@ class FileDataWriter extends DataWriter with Logging {
 					val timeSinceStartUpInSec = (now - startUpTime) / 1000
 					println(new StringBuilder().append(timeSinceStartUpInSec).append(" sec | Users: active=").append(activeUsersCount.get).append("/").append(totalUsersCount.get).append(" | Requests: OK=").append(successfulRequestsCount.get).append(" KO=").append(failedRequestsCount.get))
 				}
+			}
 
-				if (latch.getCount == 1 && self.dispatcher.mailboxSize(self) == 0) {
+			def closeIfLastMessage {
+				if (latch.getCount == 1 && self.dispatcher.mailboxIsEmpty(self)) {
 					try {
 						// Closes the OutputStreamWriter
 						osw.flush
@@ -124,6 +141,14 @@ class FileDataWriter extends DataWriter with Logging {
 						osw.close
 					}
 				}
+			}
+
+			if (initialized.get) {
+				printResultLine
+				handleCounters
+				displaySamplingInfo
+				closeIfLastMessage
+
 			} else {
 				error("FileDataWriter hasn't been initialized!")
 			}

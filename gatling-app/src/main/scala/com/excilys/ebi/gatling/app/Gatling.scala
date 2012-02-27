@@ -16,21 +16,25 @@
 package com.excilys.ebi.gatling.app
 import java.io.{ StringWriter, PrintWriter }
 import java.lang.System.currentTimeMillis
+
 import scala.tools.nsc.interpreter.AbstractFileClassLoader
+import scala.tools.nsc.io.Path.{ string2path, jfile2path }
 import scala.tools.nsc.io.{ PlainFile, Path, File, Directory }
 import scala.tools.nsc.reporters.ConsoleReporter
 import scala.tools.nsc.{ Settings, Global }
-import org.joda.time.DateTime
+
+import org.joda.time.DateTime.now
+
+import com.excilys.ebi.gatling.app.UserSelection.DEFAULT_RUN_ID
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.activeSessionsFile
 import com.excilys.ebi.gatling.charts.report.ReportsGenerator
 import com.excilys.ebi.gatling.core.config.{ GatlingFiles, GatlingConfiguration }
-import com.excilys.ebi.gatling.core.runner.Runner
-import com.excilys.ebi.gatling.core.util.DateHelper.printFileNameDate
+import com.excilys.ebi.gatling.core.runner.{ Runner, RunInfo }
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.twitter.io.TempDirectory
-import com.excilys.ebi.gatling.core.util.ReflectionHelper.getNewInstanceByClassName
-import scopt.OptionParser
+
 import grizzled.slf4j.Logging
+import scopt.OptionParser
 
 /**
  * Object containing entry point of application
@@ -74,7 +78,7 @@ class Gatling(options: Options) extends Logging {
 	GatlingConfiguration.setUp(options.configFileName, options.dataFolder, options.requestBodiesFolder, options.resultsFolder, options.simulationSourcesFolder)
 
 	def launch {
-		val reportsFolders = options.reportsOnlyFolder match {
+		val runUuids = options.reportsOnlyFolder match {
 			case Some(reportsOnlyFolder) => List(reportsOnlyFolder)
 			case None =>
 				val classes = options.simulationBinariesFolder match {
@@ -92,16 +96,34 @@ class Gatling(options: Options) extends Logging {
 						loadSimulationClasses(classNames, classloader)
 				}
 
-				val selectedClasses = options.simulations match {
-					case Some(simulations) => classes.filter(clazz => simulations.contains(clazz.getName))
-					case None => List(selectSimulationClass(classes))
+				val userSelection = options.simulations match {
+					case Some(simulations) => silentSelect(classes, simulations)
+					case None => interactiveSelect(classes)
 				}
 
-				run(selectedClasses.map(_.newInstance): _*)
+				run(userSelection)
 		}
 
 		if (!options.noReports)
-			reportsFolders.foreach(generateReports(_))
+			runUuids.foreach(generateReports(_))
+	}
+
+	private def silentSelect(classes: List[Class[Simulation]], simulations: List[String]): UserSelection = UserSelection(classes.filter(clazz => simulations.contains(clazz.getName)))
+
+	private def interactiveSelect(classes: List[Class[Simulation]]): UserSelection = {
+		val simulation = selectSimulationClass(classes)
+
+		println("Select run id (required, default is '" + DEFAULT_RUN_ID + "'). Accepted characters are a-z, A-Z, 0-9, - and _")
+		val userRunId = Console.readLine.trim
+		val runId = if (userRunId.isEmpty) DEFAULT_RUN_ID else userRunId
+
+		if (!runId.matches("[\\w-_]*"))
+			throw new IllegalArgumentException(runId + " contains illegal characters")
+
+		println("Select run name (optional)")
+		val runName = Console.readLine.trim
+
+		UserSelection(List(simulation), runId, runName)
 	}
 
 	private def collectFiles(directory: Path, extension: String): List[File] = Directory(directory).deepFiles.filter(_.hasExtension(extension)).toList
@@ -181,21 +203,22 @@ class Gatling(options: Options) extends Logging {
 		classes(selected)
 	}
 
-	private def run(simulations: Simulation*): Seq[String] = {
+	private def run(selection: UserSelection): Seq[String] = {
 
-		val size = simulations.size
+		val size = selection.simulationClasses.size
 
 		for (i <- 0 until size) yield {
-			val simulation = simulations(i)
-			val name = simulation.getClass.getName
+			val simulation = selection.simulationClasses(i)
+			val name = simulation.getName
 			println(">> Running simulation (" + (i + 1) + "/" + size + ") - " + name)
 			println("Simulation " + name + " started...")
 
-			val startDate = DateTime.now
-			new Runner(startDate, simulation()).run
+			val runInfo = new RunInfo(now, selection.runId, selection.runName)
+
+			new Runner(runInfo, simulation.newInstance()()).run
 			println("Simulation Finished.")
 
-			printFileNameDate(startDate)
+			runInfo.runUuid
 		}
 	}
 
@@ -205,12 +228,12 @@ class Gatling(options: Options) extends Logging {
 	 * @param folderName The folder from which the simulation.log will be parsed
 	 * @return Nothing
 	 */
-	private def generateReports(folderName: String) {
+	private def generateReports(runUuid: String) {
 		println("Generating reports...")
 		val start = currentTimeMillis
-		if (ReportsGenerator.generateFor(folderName)) {
+		if (ReportsGenerator.generateFor(runUuid)) {
 			println("Reports generated in " + (currentTimeMillis - start) / 1000 + "s.")
-			println("Please open the following file : " + activeSessionsFile(folderName))
+			println("Please open the following file : " + activeSessionsFile(runUuid))
 		} else {
 			println("Reports weren't generated")
 		}

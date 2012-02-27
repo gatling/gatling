@@ -30,17 +30,25 @@ import com.excilys.ebi.gatling.core.util.DateHelper.parseFileNameDateFormat
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR_STRING
 import FileDataReader.SPLIT_PATTERN
 import grizzled.slf4j.Logging
+import com.excilys.ebi.gatling.core.runner.RunInfo
 
 object FileDataReader {
 	val SPLIT_PATTERN = Pattern.compile(TABULATION_SEPARATOR_STRING)
 }
 
-class FileDataReader(runOn: String) extends DataReader(runOn) with Logging {
+class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
+	
+	val lines = Source.fromFile(simulationLogFile(runUuid).jfile, configuration.encoding).getLines
+	
+	val runInfo = {
+		val runDate = parseFileNameDateFormat(lines.next.stripPrefix(ResultLine.RunInfoHeaders.RUN_DATE + SPLIT_PATTERN))
+		val runId = lines.next.stripPrefix(ResultLine.RunInfoHeaders.RUN_ID + SPLIT_PATTERN)
+		val runName = lines.next.stripPrefix(ResultLine.RunInfoHeaders.RUN_NAME + SPLIT_PATTERN)
+		RunInfo(runDate, runId, runName)
+	}
 
 	private val data: Seq[ResultLine] = {
-
-		val lines = Source.fromFile(simulationLogFile(runOn).jfile, configuration.encoding).getLines
-
+		
 		// check headers correctness
 		ResultLine.Headers.check(lines.next)
 
@@ -55,12 +63,10 @@ class FileDataReader(runOn: String) extends DataReader(runOn) with Logging {
 					warn("simulation.log had bad end of file, statistics will be generated but may not be accurate")
 					false
 				})
-			.map(strings => ResultLine(strings(0), strings(1), strings(2).toInt, strings(3), strings(4).toLong, strings(5).toLong, strings(6).toLong, strings(7).toLong, ResultStatus.withName(strings(8)), strings(9)))
+			.map(strings => ResultLine(strings(0), strings(1).toInt, strings(2), strings(3).toLong, strings(4).toLong, strings(5).toLong, strings(6).toLong, ResultStatus.withName(strings(7)), strings(8)))
 			.filter(isResultInTimeWindow(_))
 			.toBuffer[ResultLine].sortBy(_.executionStartDate)
 	}
-
-	lazy val simulationRunOn: DateTime = parseFileNameDateFormat(data.head.runOn)
 
 	val requestNames: Seq[String] = data.map(_.requestName).distinct.filterNot(value => value == END_OF_SCENARIO || value == START_OF_SCENARIO)
 

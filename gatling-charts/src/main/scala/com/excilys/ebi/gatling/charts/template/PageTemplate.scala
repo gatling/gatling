@@ -16,19 +16,18 @@
 package com.excilys.ebi.gatling.charts.template
 
 import org.fusesource.scalate.TemplateEngine
-import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.charts.component.Component
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ MENU_FILE, JQUERY_FILE, GATLING_TEMPLATE_LAYOUT_FILE_URL }
-import com.excilys.ebi.gatling.core.util.DateHelper.printReadableDate
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.{MENU_FILE, JQUERY_FILE, GATLING_TEMPLATE_LAYOUT_FILE_URL}
+import com.excilys.ebi.gatling.core.runner.RunInfo
 
 object PageTemplate {
 	val TEMPLATE_ENGINE = new TemplateEngine
 	TEMPLATE_ENGINE.allowReload = false
 	TEMPLATE_ENGINE.escapeMarkup = false
 
-	private var runOn: DateTime = _
-	def setRunOn(runOn: DateTime) { PageTemplate.runOn = runOn }
+	private var runInfo: RunInfo = _
+	def setRunInfo(runInfo: RunInfo) { PageTemplate.runInfo = runInfo }
 }
 
 abstract class PageTemplate(title: String, isDetails: Boolean, components: Component*) {
@@ -48,6 +47,6 @@ abstract class PageTemplate(title: String, isDetails: Boolean, components: Compo
 				"pageContent" -> getContent,
 				"javascript" -> getJavascript,
 				"isDetails" -> isDetails,
-				"simulationDate" -> printReadableDate(PageTemplate.runOn)))
+				"runInfo" -> PageTemplate.runInfo))
 	}
 }

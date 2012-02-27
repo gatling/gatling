@@ -28,7 +28,7 @@ import akka.actor.{ Scheduler, ActorRef }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import grizzled.slf4j.Logging
 
-class Runner(startDate: DateTime, scenarioConfigurationBuilders: Seq[ScenarioConfigurationBuilder]) extends Logging {
+class Runner(runInfo: RunInfo, scenarioConfigurationBuilders: Seq[ScenarioConfigurationBuilder]) extends Logging {
 
 	// stores all scenario configurations
 	val scenarioConfigurations = for (i <- 0 until scenarioConfigurationBuilders.size) yield scenarioConfigurationBuilders(i).build(i + 1)
@@ -54,7 +54,7 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: Seq[ScenarioCon
 	 */
 	def run = {
 		// Initialization of the data writer
-		DataWriter.instance ! InitializeDataWriter(startDate, latch)
+		DataWriter.instance ! InitializeDataWriter(runInfo, latch)
 
 		debug("Launching All Scenarios")
 

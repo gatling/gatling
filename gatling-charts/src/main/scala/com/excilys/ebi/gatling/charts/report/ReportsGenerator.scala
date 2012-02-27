@@ -52,8 +52,8 @@ object ReportsGenerator extends Logging {
 		new ComponentLibraryImpl
 	}
 
-	def generateFor(runOn: String) = {
-		val dataReader = DataReader.newInstance(runOn)
+	def generateFor(runUuid: String) = {
+		val dataReader = DataReader.newInstance(runUuid)
 
 		if (dataReader.requestNames.isEmpty) {
 			warn("There were no requests sent during the simulation, reports won't be generated")
@@ -61,16 +61,16 @@ object ReportsGenerator extends Logging {
 
 		} else {
 			val reportGenerators =
-				List(new ActiveSessionsReportGenerator(runOn, dataReader, componentLibrary),
-					new RequestsReportGenerator(runOn, dataReader, componentLibrary),
-					new TransactionsReportGenerator(runOn, dataReader, componentLibrary),
-					new RequestDetailsReportGenerator(runOn, dataReader, componentLibrary))
+				List(new ActiveSessionsReportGenerator(runUuid, dataReader, componentLibrary),
+					new RequestsReportGenerator(runUuid, dataReader, componentLibrary),
+					new TransactionsReportGenerator(runUuid, dataReader, componentLibrary),
+					new RequestDetailsReportGenerator(runUuid, dataReader, componentLibrary))
 
-			copyAssets(runOn)
+			copyAssets(runUuid)
 
-			generateMenu(runOn, dataReader)
+			generateMenu(runUuid, dataReader)
 
-			PageTemplate.setRunOn(dataReader.simulationRunOn)
+			PageTemplate.setRunInfo(dataReader.runInfo)
 
 			reportGenerators.foreach(_.generate)
 

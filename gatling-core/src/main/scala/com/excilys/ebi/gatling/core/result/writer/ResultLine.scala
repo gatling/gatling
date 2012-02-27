@@ -21,9 +21,14 @@ import com.excilys.ebi.gatling.core.result.message.ResultStatus.ResultStatus
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 
 object ResultLine {
+	
+	object RunInfoHeaders {
+		val RUN_DATE = "RUN_DATE"
+		val RUN_ID = "RUN_ID"
+		val RUN_NAME = "RUN_NAME"
+	}
 
 	object Headers {
-		val RUN_ON = "RUN_ON"
 		val SCENARIO_NAME = "SCENARIO_NAME"
 		val USER_ID = "USER_ID"
 		val REQUEST_NAME = "REQUEST_NAME"
@@ -34,7 +39,7 @@ object ResultLine {
 		val RESULT_STATUS = "RESULT_STATUS"
 		val RESULT_MESSAGE = "RESULT_MESSAGE"
 
-		val HEADERS_SEQ = List(RUN_ON, SCENARIO_NAME, USER_ID, REQUEST_NAME, EXECUTION_START_DATE, EXECUTION_END_DATE, REQUEST_SENDING_END_DATE, RESPONSE_RECEIVING_START_DATE, RESULT_STATUS, RESULT_MESSAGE)
+		val HEADERS_SEQ = List(SCENARIO_NAME, USER_ID, REQUEST_NAME, EXECUTION_START_DATE, EXECUTION_END_DATE, REQUEST_SENDING_END_DATE, RESPONSE_RECEIVING_START_DATE, RESULT_STATUS, RESULT_MESSAGE)
 
 		def print(writer: Writer) = {
 			HEADERS_SEQ.foreach(writer.append(_).append(TABULATION_SEPARATOR))
@@ -45,14 +50,13 @@ object ResultLine {
 	}
 }
 
-case class ResultLine(runOn: String, scenarioName: String, userId: Int, requestName: String, executionStartDate: Long, executionEndDate: Long, requestSendingEndDate: Long, responseReceivingStartDate: Long, resultStatus: ResultStatus, resultMessage: String) {
+case class ResultLine(scenarioName: String, userId: Int, requestName: String, executionStartDate: Long, executionEndDate: Long, requestSendingEndDate: Long, responseReceivingStartDate: Long, resultStatus: ResultStatus, resultMessage: String) {
 
 	lazy val responseTime = executionEndDate - executionStartDate
 
 	lazy val latency = responseReceivingStartDate - requestSendingEndDate
 
 	def print(writer: Writer) = writer
-		.append(runOn).append(TABULATION_SEPARATOR)
 		.append(scenarioName).append(TABULATION_SEPARATOR)
 		.append(userId.toString).append(TABULATION_SEPARATOR)
 		.append(requestName).append(TABULATION_SEPARATOR)

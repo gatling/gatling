@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.result.message
+package com.excilys.ebi.gatling.app
 
-import java.util.concurrent.CountDownLatch
+import com.excilys.ebi.gatling.app.UserSelection.DEFAULT_RUN_ID
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
-import com.excilys.ebi.gatling.core.runner.RunInfo
+object UserSelection {
+	val DEFAULT_RUN_ID = "run"
+}
 
-/**
- * This case class is to be sent to the logging actor, it contains all the information
- * required for its initialization
- *
- * @param InitializeDataWriter the date on which the simulation started
- * @param latch the countdown latch that will end the simulation
- */
-case class InitializeDataWriter(runInfo: RunInfo, latch: CountDownLatch)
+case class UserSelection(simulationClasses: List[Class[Simulation]], runId: String = DEFAULT_RUN_ID, runName: String = EMPTY)

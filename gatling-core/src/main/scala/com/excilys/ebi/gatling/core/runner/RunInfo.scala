@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.util
+package com.excilys.ebi.gatling.core.runner
 
-object ReflectionHelper {
+import org.joda.time.DateTime
 
-	def getNewInstanceByClassName[T](className: String) = getNewInstanceByClassName[T](className: String, this.getClass().getClassLoader)
+import com.excilys.ebi.gatling.core.util.DateHelper.{ printReadableDate, printFileNameDate }
 
-	def getNewInstanceByClassName[T](className: String, classLoader: ClassLoader) = classLoader.loadClass(className).asInstanceOf[Class[T]].newInstance
+case class RunInfo(runDate: DateTime, runId: String, runName: String) {
+	def runUuid = runId + printFileNameDate(runDate)
+	def readableRunDate = printReadableDate(runDate)
 }
