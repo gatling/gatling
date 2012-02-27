@@ -25,7 +25,7 @@ import com.excilys.ebi.gatling.http.check.{ HttpMultipleCheckBuilder, HttpCheck 
 import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
 import com.ning.http.client.Response
 
-import HttpHeaderCheckBuilder.{ findExtractorFactory, findAllExtractoryFactory, countExtractoryFactory }
+import HttpHeaderCheckBuilder.{ findExtractorFactory, findAllExtractorFactory, countExtractorFactory }
 
 /**
  * HttpHeaderCheckBuilder class companion
@@ -49,8 +49,8 @@ object HttpHeaderCheckBuilder {
 			None
 		}
 	}
-	private val findAllExtractoryFactory: ExtractorFactory[Response, Seq[String]] = (response: Response) => (expression: String) => seqToOption(response.getHeaders(expression).asScala)
-	private val countExtractoryFactory: ExtractorFactory[Response, Int] = (response: Response) => (expression: String) => toOption(response.getHeaders(expression).size)
+	private val findAllExtractorFactory: ExtractorFactory[Response, Seq[String]] = (response: Response) => (expression: String) => seqToOption(response.getHeaders(expression).asScala)
+	private val countExtractorFactory: ExtractorFactory[Response, Int] = (response: Response) => (expression: String) => toOption(response.getHeaders(expression).size)
 }
 
 /**
@@ -64,8 +64,8 @@ class HttpHeaderCheckBuilder(expression: EvaluatableString) extends HttpMultiple
 
 	def find(occurrence: Int) = new CheckOneBuilder(httpCheckBuilderFactory, findExtractorFactory(occurrence))
 
-	def findAll = new CheckMultipleBuilder(httpCheckBuilderFactory, findAllExtractoryFactory)
+	def findAll = new CheckMultipleBuilder(httpCheckBuilderFactory, findAllExtractorFactory)
 
-	def count = new CheckOneBuilder(httpCheckBuilderFactory, countExtractoryFactory)
+	def count = new CheckOneBuilder(httpCheckBuilderFactory, countExtractorFactory)
 }
 

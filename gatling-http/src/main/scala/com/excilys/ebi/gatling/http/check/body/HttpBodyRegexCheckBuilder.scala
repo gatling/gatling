@@ -22,7 +22,7 @@ import com.ning.http.client.Response
 
 object HttpBodyRegexCheckBuilder {
 
-	def regex(expression: EvaluatableString) = new HttpBodyCheckBuilder(findExtractorFactory, findAllExtractoryFactory, countExtractoryFactory, expression)
+	def regex(expression: EvaluatableString) = new HttpBodyCheckBuilder(findExtractorFactory, findAllExtractorFactory, countExtractorFactory, expression)
 
 	private val HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY = "HttpBodyRegexExtractor"
 
@@ -31,6 +31,6 @@ object HttpBodyRegexCheckBuilder {
 	}
 
 	private def findExtractorFactory(occurrence: Int): ExtractorFactory[Response, String] = (response: Response) => getCachedExtractor(response).extractOne(occurrence)
-	private val findAllExtractoryFactory: ExtractorFactory[Response, Seq[String]] = (response: Response) => getCachedExtractor(response).extractMultiple
-	private val countExtractoryFactory: ExtractorFactory[Response, Int] = (response: Response) => getCachedExtractor(response).count
+	private val findAllExtractorFactory: ExtractorFactory[Response, Seq[String]] = (response: Response) => getCachedExtractor(response).extractMultiple
+	private val countExtractorFactory: ExtractorFactory[Response, Int] = (response: Response) => getCachedExtractor(response).count
 }

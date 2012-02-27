@@ -26,20 +26,20 @@ import com.ning.http.client.Response
  * This class builds a response body check based on regular expressions
  *
  * @param findExtractorFactory the extractor factory for find
- * @param findAllExtractoryFactory the extractor factory for findAll
- * @param countExtractoryFactory the extractor factory for count
+ * @param findAllExtractorFactory the extractor factory for findAll
+ * @param countExtractorFactory the extractor factory for count
  * @param expression the function returning the expression representing expression is to be checked
  */
 class HttpBodyCheckBuilder(findExtractorFactory: Int => ExtractorFactory[Response, String],
-		findAllExtractoryFactory: ExtractorFactory[Response, Seq[String]],
-		countExtractoryFactory: ExtractorFactory[Response, Int],
+		findAllExtractorFactory: ExtractorFactory[Response, Seq[String]],
+		countExtractorFactory: ExtractorFactory[Response, Int],
 		expression: EvaluatableString) extends HttpMultipleCheckBuilder[String](expression, CompletePageReceived) {
 
 	def find: CheckOneBuilder[HttpCheck[String], Response, String] = find(0)
 
 	def find(occurrence: Int) = new CheckOneBuilder(httpCheckBuilderFactory, findExtractorFactory(occurrence))
 
-	def findAll = new CheckMultipleBuilder(httpCheckBuilderFactory, findAllExtractoryFactory)
+	def findAll = new CheckMultipleBuilder(httpCheckBuilderFactory, findAllExtractorFactory)
 
-	def count = new CheckOneBuilder(httpCheckBuilderFactory, countExtractoryFactory)
+	def count = new CheckOneBuilder(httpCheckBuilderFactory, countExtractorFactory)
 }
