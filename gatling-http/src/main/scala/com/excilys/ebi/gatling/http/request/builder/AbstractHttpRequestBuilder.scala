@@ -156,8 +156,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * @param session the session of the current scenario
 	 */
 	protected def getAHCRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
-		val requestBuilder = new RequestBuilder
-		requestBuilder.setMethod(method)
+		val requestBuilder = new RequestBuilder(method)
 
 		val isHttps = configureURLAndCookies(requestBuilder, session, protocolConfiguration)
 		configureProxy(requestBuilder, session, isHttps, protocolConfiguration)
@@ -221,7 +220,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * @param requestBuilder the request builder to which the query parameters should be added
 	 * @param session the session of the current scenario
 	 */
-	private def configureQueryParams(requestBuilder: RequestBuilder, session: Session): RequestBuilder = {
+	private def configureQueryParams(requestBuilder: RequestBuilder, session: Session) {
 		val queryParamsMap = new FluentStringsMap
 
 		val keyValues = for ((keyFunction, valueFunction) <- queryParams) yield (keyFunction(session), valueFunction(session))
@@ -231,7 +230,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 			queryParamsMap.add(key, values.map(_._2): _*)
 		}
 
-		requestBuilder.setQueryParameters(queryParamsMap)
+		if (!queryParamsMap.isEmpty)
+			requestBuilder.setQueryParameters(queryParamsMap)
 	}
 
 	/**
