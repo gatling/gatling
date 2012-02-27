@@ -15,16 +15,12 @@
  */
 package com.excilys.ebi.gatling.core.log
 
-import org.slf4j.{ Logger => SLFLogger, LoggerFactory => SLFLoggerFactory }
+import org.slf4j.LoggerFactory.getLogger
 
 /**
  * Trait that add logging capability to any class thanks to logger variable
  */
 trait Logging {
 	@transient
-	lazy val logger = Logger(this.getClass.getName)
-}
-
-object Logger {
-	def apply(logger: String): SLFLogger = SLFLoggerFactory.getLogger(logger)
+	lazy val logger = getLogger(getClass.getName)
 }
