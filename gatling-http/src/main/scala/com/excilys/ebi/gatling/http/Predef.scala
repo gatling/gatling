@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http
-import com.excilys.ebi.gatling.core.session.ResolvedString
+import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.check.body.{ HttpBodyXPathCheckBuilder, HttpBodyRegexCheckBuilder }
 import com.excilys.ebi.gatling.http.check.header.HttpHeaderCheckBuilder
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder
@@ -28,9 +28,9 @@ object Predef {
 	implicit def toHttpProtocolConfiguration(hpb: HttpProxyBuilder) = HttpProxyBuilder.toHttpProtocolConfiguration(hpb)
 	implicit def toHttpProtocolConfiguration(builder: HttpProtocolConfigurationBuilder) = HttpProtocolConfigurationBuilder.toHttpProtocolConfiguration(builder)
 
-	def regex(expression: ResolvedString) = HttpBodyRegexCheckBuilder.regex(expression)
-	def xpath(expression: ResolvedString) = HttpBodyXPathCheckBuilder.xpath(expression)
-	def header(expression: ResolvedString) = HttpHeaderCheckBuilder.header(expression)
+	def regex(expression: EvaluatableString) = HttpBodyRegexCheckBuilder.regex(expression)
+	def xpath(expression: EvaluatableString) = HttpBodyXPathCheckBuilder.xpath(expression)
+	def header(expression: EvaluatableString) = HttpHeaderCheckBuilder.header(expression)
 	def status = HttpStatusCheckBuilder.status
 
 	/* MIME types */

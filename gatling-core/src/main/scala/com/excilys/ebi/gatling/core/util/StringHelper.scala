@@ -18,8 +18,10 @@ package com.excilys.ebi.gatling.core.util
 import java.text.Normalizer
 import java.util.regex.Pattern
 
+import scala.annotation.implicitNotFound
+
 import com.excilys.ebi.gatling.core.log.Logging
-import com.excilys.ebi.gatling.core.session.ResolvedString
+import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.core.session.Session
 
 /**
@@ -55,53 +57,63 @@ object StringHelper extends Logging {
 		jdk6Pattern.matcher(normalized).replaceAll(EMPTY);
 	}
 
-	def interpolate(stringToFormat: String): ResolvedString = {
+	def parseEvaluatable(stringToFormat: String): EvaluatableString = {
 
-		val keysFunctions = elPattern.findAllIn(stringToFormat).matchData.map { data =>
-			val elContent = data.group(1)
-			val occurrencePart = elOccurrencePattern.findFirstMatchIn(elContent)
+		def parseStaticParts: Array[String] = stringToFormat.split(elPatternString, -1)
 
-			occurrencePart match {
-				case Some(occurrencePartMatch) =>
-					val key = elContent.substring(0, elContent.lastIndexOf(INDEX_START))
-					val occurrence = occurrencePartMatch.group(1).toInt
-					(session: Session) => session.getAttributeAsOption[Seq[Any]](key) match {
-						case Some(x) if (x.size > occurrence) => x(occurrence)
-						case _ => {
-							logger.error("Couldn't resolve occurrence {} of session multivalued attribute {}", occurrence, key)
-							MISSING_SESSION_ATTRIBUTE
+		def parseDynamicParts: List[Session => Any] = {
+			elPattern.findAllIn(stringToFormat).matchData.map { data =>
+				val elContent = data.group(1)
+				val occurrencePart = elOccurrencePattern.findFirstMatchIn(elContent)
+
+				occurrencePart match {
+					case Some(occurrencePartMatch) =>
+						val key = elContent.substring(0, elContent.lastIndexOf(INDEX_START))
+						val occurrence = occurrencePartMatch.group(1).toInt
+						(session: Session) => session.getAttributeAsOption[Seq[Any]](key) match {
+							case Some(x) if (x.size > occurrence) => x(occurrence)
+							case _ => {
+								logger.error("Couldn't resolve occurrence {} of session multivalued attribute {}", occurrence, key)
+								MISSING_SESSION_ATTRIBUTE
+							}
 						}
-					}
-				case None =>
-					val key = data.group(1)
-					(session: Session) => session.getAttributeAsOption[Any](key) match {
-						case Some(x) => x
-						case None => {
-							logger.error("Couldn't resolve session attribute {}", key)
-							MISSING_SESSION_ATTRIBUTE
+					case None =>
+						val key = data.group(1)
+						(session: Session) => session.getAttributeAsOption[Any](key) match {
+							case Some(x) => x
+							case None => {
+								logger.error("Couldn't resolve session attribute {}", key)
+								MISSING_SESSION_ATTRIBUTE
+							}
 						}
-					}
-			}
-		}.toList
-
-		if (keysFunctions.isEmpty) {
-			// no interpolation
-			(s: Session) => stringToFormat
-
-		} else {
-			val strings = stringToFormat.split(elPatternString, -1)
-
-			val functions = keysFunctions zip strings
-
-			(s: Session) => {
-				val buffer = new StringBuilder
-
-				functions.foreach { entry =>
-					buffer.append(entry._2).append(entry._1(s))
 				}
+			}.toList
+		}
 
-				buffer.append(strings.last).toString
+		def doParseEvaluatable: EvaluatableString = {
+			val dynamicParts = parseDynamicParts
+
+			if (dynamicParts.isEmpty) {
+				// no interpolation
+				(s: Session) => stringToFormat
+
+			} else {
+				val staticParts = parseStaticParts
+
+				val functions = dynamicParts.zip(staticParts)
+
+				(s: Session) => {
+					val buffer = new StringBuilder
+
+					functions.foreach { entry =>
+						buffer.append(entry._2).append(entry._1(s))
+					}
+
+					buffer.append(staticParts.last).toString
+				}
 			}
 		}
+
+		doParseEvaluatable
 	}
 }

@@ -17,12 +17,12 @@ package com.excilys.ebi.gatling.http.check.body
 import com.excilys.ebi.gatling.core.check.CheckContext.{ setAndReturnCheckContextAttribute, getCheckContextAttribute }
 import com.excilys.ebi.gatling.core.check.extractor.RegexExtractor
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
-import com.excilys.ebi.gatling.core.session.ResolvedString
+import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.ning.http.client.Response
 
 object HttpBodyRegexCheckBuilder {
 
-	def regex(expression: ResolvedString) = new HttpBodyCheckBuilder(findExtractorFactory, findAllExtractoryFactory, countExtractoryFactory, expression)
+	def regex(expression: EvaluatableString) = new HttpBodyCheckBuilder(findExtractorFactory, findAllExtractoryFactory, countExtractoryFactory, expression)
 
 	private val HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY = "HttpBodyRegexExtractor"
 

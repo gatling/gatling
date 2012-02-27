@@ -43,7 +43,7 @@ import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.ning.http.client.ProxyServer.Protocol
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
-import com.excilys.ebi.gatling.core.session.ResolvedString
+import com.excilys.ebi.gatling.core.session.EvaluatableString
 
 /**
  * AbstractHttpRequestBuilder class companion
@@ -70,9 +70,9 @@ object AbstractHttpRequestBuilder {
 abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	val requestName: String,
 	method: String,
-	urlFunction: ResolvedString,
+	urlFunction: EvaluatableString,
 	queryParams: List[HttpParam],
-	headers: Map[String, ResolvedString],
+	headers: Map[String, EvaluatableString],
 	credentials: Option[Credentials],
 	val checks: Option[List[HttpCheck[_]]])
 		extends CookieHandling with Logging {
@@ -88,9 +88,9 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 */
 	private[http] def newInstance(
 		requestName: String,
-		urlFunction: ResolvedString,
+		urlFunction: EvaluatableString,
 		queryParams: List[HttpParam],
-		headers: Map[String, ResolvedString],
+		headers: Map[String, EvaluatableString],
 		credentials: Option[Credentials],
 		checks: Option[List[HttpCheck[_]]]): B
 		
@@ -125,14 +125,14 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 *
 	 * @param header the header to add, eg: ("Content-Type", "application/json")
 	 */
-	def header(header: (String, String)): B = newInstance(requestName, urlFunction, queryParams, headers + (header._1 -> interpolate(header._2)), credentials, checks)
+	def header(header: (String, String)): B = newInstance(requestName, urlFunction, queryParams, headers + (header._1 -> parseEvaluatable(header._2)), credentials, checks)
 
 	/**
 	 * Adds several headers to the request at the same time
 	 *
 	 * @param givenHeaders a scala map containing the headers to add
 	 */
-	def headers(givenHeaders: Map[String, String]): B = newInstance(requestName, urlFunction, queryParams, headers ++ givenHeaders.mapValues(interpolate(_)), credentials, checks)
+	def headers(givenHeaders: Map[String, String]): B = newInstance(requestName, urlFunction, queryParams, headers ++ givenHeaders.mapValues(parseEvaluatable(_)), credentials, checks)
 
 	/**
 	 * Adds Accept and Content-Type headers to the request set with "application/json" values
@@ -242,7 +242,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * @param requestBuilder the request builder to which the headers should be added
 	 * @param session the session of the current scenario
 	 */
-	private def configureHeaders(requestBuilder: RequestBuilder, headers: Map[String, ResolvedString], session: Session) {
+	private def configureHeaders(requestBuilder: RequestBuilder, headers: Map[String, EvaluatableString], session: Session) {
 		requestBuilder setHeaders (new FluentCaseInsensitiveStringsMap)
 		headers.foreach(header => requestBuilder.addHeader(header._1, header._2(session)))
 	}

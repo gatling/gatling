@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.http.check
 import com.excilys.ebi.gatling.core.check.MultipleOccurrence
-import com.excilys.ebi.gatling.core.session.ResolvedString
+import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.ning.http.client.Response
 
-abstract class HttpMultipleCheckBuilder[X](expression: ResolvedString, phase: HttpPhase) extends HttpCheckBuilder[X](expression, phase) with MultipleOccurrence[HttpCheck[X], HttpCheck[Seq[X]], HttpCheck[Int], Response, X]
+abstract class HttpMultipleCheckBuilder[X](expression: EvaluatableString, phase: HttpPhase) extends HttpCheckBuilder[X](expression, phase) with MultipleOccurrence[HttpCheck[X], HttpCheck[Seq[X]], HttpCheck[Int], Response, X]

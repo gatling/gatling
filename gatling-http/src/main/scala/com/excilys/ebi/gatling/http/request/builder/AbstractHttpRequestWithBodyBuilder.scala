@@ -23,13 +23,13 @@ import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.FileHelper.SSP_EXTENSION
 import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
-import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
+import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 import com.excilys.ebi.gatling.http.request.{ TemplateBody, StringBody, HttpRequestBody, FilePathBody }
 import com.ning.http.client.RequestBuilder
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.core.session.ResolvedString
+import com.excilys.ebi.gatling.core.session.EvaluatableString
 
 object AbstractHttpRequestWithBodyBuilder {
 	val ENGINE = new TemplateEngine(List(GatlingFiles.requestBodiesFolder))
@@ -52,9 +52,9 @@ object AbstractHttpRequestWithBodyBuilder {
 abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](
 	requestName: String,
 	method: String,
-	urlFunction: ResolvedString,
+	urlFunction: EvaluatableString,
 	queryParams: List[HttpParam],
-	headers: Map[String, ResolvedString],
+	headers: Map[String, EvaluatableString],
 	body: Option[HttpRequestBody],
 	credentials: Option[Credentials],
 	checks: Option[List[HttpCheck[_]]])
@@ -78,18 +78,18 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 */
 	private[http] def newInstance(
 		requestName: String,
-		urlFunction: ResolvedString,
+		urlFunction: EvaluatableString,
 		queryParams: List[HttpParam],
-		headers: Map[String, ResolvedString],
+		headers: Map[String, EvaluatableString],
 		body: Option[HttpRequestBody],
 		credentials: Option[Credentials],
 		checks: Option[List[HttpCheck[_]]]): B
 
 	private[http] def newInstance(
 		requestName: String,
-		urlFunction: ResolvedString,
+		urlFunction: EvaluatableString,
 		queryParams: List[HttpParam],
-		headers: Map[String, ResolvedString],
+		headers: Map[String, EvaluatableString],
 		credentials: Option[Credentials],
 		checks: Option[List[HttpCheck[_]]]): B = {
 		newInstance(requestName, urlFunction, queryParams, headers, body, credentials, checks)
@@ -100,7 +100,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 *
 	 * @param body a string containing the body of the request
 	 */
-	def body(body: ResolvedString): B = newInstance(requestName, urlFunction, queryParams, headers, Some(StringBody(body)), credentials, checks)
+	def body(body: EvaluatableString): B = newInstance(requestName, urlFunction, queryParams, headers, Some(StringBody(body)), credentials, checks)
 
 	/**
 	 * Adds a body from a file to the request
@@ -116,8 +116,8 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 * @param values the values that should be merged into the template
 	 */
 	def fileBody(tplPath: String, values: Map[String, String]): B = {
-		val interpolatedValues = values.map { entry => entry._1 -> interpolate(entry._2) }
-		newInstance(requestName, urlFunction, queryParams, headers, Some(TemplateBody(tplPath, interpolatedValues)), credentials, checks)
+		val evaluatableValues = values.map { entry => entry._1 -> parseEvaluatable(entry._2) }
+		newInstance(requestName, urlFunction, queryParams, headers, Some(TemplateBody(tplPath, evaluatableValues)), credentials, checks)
 	}
 
 	/**
@@ -147,7 +147,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 * @param values the values that should be merged into the template
 	 * @param session the session of the current scenario
 	 */
-	private def compileBody(tplPath: String, values: Map[String, ResolvedString], session: Session): String = {
+	private def compileBody(tplPath: String, values: Map[String, EvaluatableString], session: Session): String = {
 
 		val bindings = for (value <- values) yield Binding(value._1, "String")
 		val templateValues = for (value <- values) yield (value._1 -> (value._2(session)))

@@ -24,7 +24,7 @@ import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.loop.LoopBuilder
-import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
+import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 import akka.actor.ActorRef
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
@@ -110,7 +110,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @param thenNext the chain to be executed if the condition is satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIf(sessionKey: String, value: String, thenNext: ChainBuilder): B = doIf((s: Session) => interpolate(sessionKey)(s) == value, thenNext)
+	def doIf(sessionKey: String, value: String, thenNext: ChainBuilder): B = doIf((s: Session) => parseEvaluatable(sessionKey)(s) == value, thenNext)
 
 	/**
 	 * Method used to add a conditional execution in the scenario with a fall back
@@ -122,7 +122,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @param elseNext the chain to be executed if the condition is not satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIf(sessionKey: String, value: String, thenNext: ChainBuilder, elseNext: ChainBuilder): B = doIf((s: Session) => interpolate(sessionKey)(s) == value, thenNext, elseNext)
+	def doIf(sessionKey: String, value: String, thenNext: ChainBuilder, elseNext: ChainBuilder): B = doIf((s: Session) => parseEvaluatable(sessionKey)(s) == value, thenNext, elseNext)
 
 	/**
 	 * Private method that actually adds the If Action to the scenario

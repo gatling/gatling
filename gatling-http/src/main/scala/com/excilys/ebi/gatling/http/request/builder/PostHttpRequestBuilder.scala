@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.request.builder
-import com.excilys.ebi.gatling.core.session.ResolvedString
+import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 
@@ -23,10 +23,10 @@ import com.excilys.ebi.gatling.http.request.HttpRequestBody
  */
 class PostHttpRequestBuilder(
 	requestName: String,
-	urlFunction: ResolvedString,
+	urlFunction: EvaluatableString,
 	queryParams: List[HttpParam],
 	params: List[HttpParam],
-	headers: Map[String, ResolvedString],
+	headers: Map[String, EvaluatableString],
 	body: Option[HttpRequestBody],
 	fileUpload: Option[UploadedFile],
 	credentials: Option[Credentials],
@@ -35,9 +35,9 @@ class PostHttpRequestBuilder(
 
 	private[http] def newInstance(
 		requestName: String,
-		urlFunction: ResolvedString,
+		urlFunction: EvaluatableString,
 		queryParams: List[HttpParam], params: List[HttpParam],
-		headers: Map[String, ResolvedString],
+		headers: Map[String, EvaluatableString],
 		body: Option[HttpRequestBody],
 		fileUpload: Option[UploadedFile],
 		credentials: Option[Credentials],

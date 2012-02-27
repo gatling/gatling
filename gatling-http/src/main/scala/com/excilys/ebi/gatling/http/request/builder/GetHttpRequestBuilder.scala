@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.request.builder
-import com.excilys.ebi.gatling.core.session.ResolvedString
+import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.check.HttpCheck
 
 /**
@@ -22,18 +22,18 @@ import com.excilys.ebi.gatling.http.check.HttpCheck
  */
 class GetHttpRequestBuilder(
 	requestName: String,
-	urlFunction: ResolvedString,
+	urlFunction: EvaluatableString,
 	queryParams: List[HttpParam],
-	headers: Map[String, ResolvedString],
+	headers: Map[String, EvaluatableString],
 	credentials: Option[Credentials],
 	checks: Option[List[HttpCheck[_]]])
 		extends AbstractHttpRequestBuilder[GetHttpRequestBuilder](requestName, "GET", urlFunction, queryParams, headers, credentials, checks) {
 
 	private[http] def newInstance(
 		requestName: String,
-		urlFunction: ResolvedString,
+		urlFunction: EvaluatableString,
 		queryParams: List[HttpParam],
-		headers: Map[String, ResolvedString],
+		headers: Map[String, EvaluatableString],
 		credentials: Option[Credentials],
 		checks: Option[List[HttpCheck[_]]]) = {
 		new GetHttpRequestBuilder(requestName, urlFunction, queryParams, headers, credentials, checks)

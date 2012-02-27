@@ -27,7 +27,7 @@ import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.ning.http.client.RequestBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.core.session.ResolvedString
+import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.ning.http.client.FluentStringsMap
 import com.ning.http.client.StringPart
 
@@ -45,10 +45,10 @@ import com.ning.http.client.StringPart
 abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequestWithBodyAndParamsBuilder[B]](
 	requestName: String,
 	method: String,
-	urlFunction: ResolvedString,
+	urlFunction: EvaluatableString,
 	queryParams: List[HttpParam],
 	params: List[HttpParam],
-	headers: Map[String, ResolvedString],
+	headers: Map[String, EvaluatableString],
 	body: Option[HttpRequestBody],
 	fileUpload: Option[UploadedFile],
 	credentials: Option[Credentials],
@@ -68,10 +68,10 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 */
 	private[http] def newInstance(
 		requestName: String,
-		urlFunction: ResolvedString,
+		urlFunction: EvaluatableString,
 		queryParams: List[HttpParam],
 		params: List[HttpParam],
-		headers: Map[String, ResolvedString],
+		headers: Map[String, EvaluatableString],
 		body: Option[HttpRequestBody],
 		fileUpload: Option[UploadedFile],
 		credentials: Option[Credentials],
@@ -79,9 +79,9 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 
 	private[http] def newInstance(
 		requestName: String,
-		urlFunction: ResolvedString,
+		urlFunction: EvaluatableString,
 		queryParams: List[HttpParam],
-		headers: Map[String, ResolvedString],
+		headers: Map[String, EvaluatableString],
 		body: Option[HttpRequestBody],
 		credentials: Option[Credentials],
 		checks: Option[List[HttpCheck[_]]]): B = {
@@ -103,7 +103,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	/**
 	 *
 	 */
-	def param(paramKeyFunction: ResolvedString, paramValueFunction: ResolvedString): B =
+	def param(paramKeyFunction: EvaluatableString, paramValueFunction: EvaluatableString): B =
 		newInstance(requestName, urlFunction, queryParams, (paramKeyFunction, paramValueFunction) :: params, headers, body, fileUpload, credentials, checks)
 
 	def param(paramKey: String): B = param(paramKey, EL_START + paramKey + EL_END)

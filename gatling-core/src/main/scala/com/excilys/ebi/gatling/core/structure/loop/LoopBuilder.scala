@@ -21,7 +21,7 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.loop.handler.{TimesLoopHandlerBuilder, DurationLoopHandlerBuilder, ConditionalLoopHandlerBuilder}
 import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
-import com.excilys.ebi.gatling.core.util.StringHelper.interpolate
+import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 
 /**
  * This class serves as DSL description of a loop
@@ -75,5 +75,5 @@ class LoopBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: 
 	 * @param sessionKey the key of the value in the session
 	 * @param value the value to which the session value is compared
 	 */
-	def asLongAs(sessionKey: String, value: String): B = asLongAs((s: Session) => interpolate(sessionKey)(s) == value)
+	def asLongAs(sessionKey: String, value: String): B = asLongAs((s: Session) => parseEvaluatable(sessionKey)(s) == value)
 }

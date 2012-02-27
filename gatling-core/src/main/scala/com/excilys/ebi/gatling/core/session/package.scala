@@ -17,5 +17,5 @@ package com.excilys.ebi.gatling.core
 
 package object session {
 
-	type ResolvedString = Session => String
+	type EvaluatableString = Session => String
 }

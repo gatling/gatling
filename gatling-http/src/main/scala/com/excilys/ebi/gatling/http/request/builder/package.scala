@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.request
-import com.excilys.ebi.gatling.core.session.ResolvedString
+import com.excilys.ebi.gatling.core.session.EvaluatableString
 
 package object builder {
 
-	type HttpParam = (ResolvedString, ResolvedString)
+	type HttpParam = (EvaluatableString, EvaluatableString)
 }

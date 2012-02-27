@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.http.check
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.Check
 import com.excilys.ebi.gatling.core.check.CheckStrategy
-import com.excilys.ebi.gatling.core.session.ResolvedString
+import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.ning.http.client.Response
 
@@ -30,4 +30,4 @@ import com.ning.http.client.Response
  * @param strategy the strategy used to check
  * @param phase the HttpPhase during which the check will be made
  */
-class HttpCheck[X](expression: ResolvedString, extractorFactory: ExtractorFactory[Response, X], strategy: CheckStrategy[X], saveAs: Option[String], val phase: HttpPhase) extends Check[Response, X](expression, extractorFactory, strategy, saveAs)
+class HttpCheck[X](expression: EvaluatableString, extractorFactory: ExtractorFactory[Response, X], strategy: CheckStrategy[X], saveAs: Option[String], val phase: HttpPhase) extends Check[Response, X](expression, extractorFactory, strategy, saveAs)
