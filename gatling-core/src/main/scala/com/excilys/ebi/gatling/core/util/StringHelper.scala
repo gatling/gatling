@@ -110,9 +110,7 @@ object StringHelper extends Logging {
 				(s: Session) => {
 					val buffer = new StringBuilder
 
-					functions.foreach { entry =>
-						buffer.append(entry._2).append(entry._1(s))
-					}
+					functions.foreach { case (dynamicPart, staticPart) => buffer.append(staticPart).append(dynamicPart(s)) }
 
 					buffer.append(staticParts.last).toString
 				}
