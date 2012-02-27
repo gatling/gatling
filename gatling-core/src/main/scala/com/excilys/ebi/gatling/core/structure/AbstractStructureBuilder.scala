@@ -16,25 +16,25 @@
 package com.excilys.ebi.gatling.core.structure
 
 import java.util.concurrent.TimeUnit
+
 import com.excilys.ebi.gatling.core.action.builder.IfActionBuilder.ifActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder.pauseActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.feeder.Feeder
-import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.loop.LoopBuilder
 import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
+
 import akka.actor.ActorRef
-import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
 /**
  * This class defines most of the scenario related DSL
  *
  * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
  */
-abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val actionBuilders: List[AbstractActionBuilder])
-		extends Logging {
+abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val actionBuilders: List[AbstractActionBuilder]) {
 
 	private[core] def newInstance(actionBuilders: List[AbstractActionBuilder]): B
 

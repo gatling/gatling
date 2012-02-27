@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.feeder
 
-import com.excilys.ebi.gatling.core.log.Logging
-
-abstract class Feeder extends Logging {
+trait Feeder {
 	def next: Map[String, String]
 }

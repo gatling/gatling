@@ -15,14 +15,13 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.log.Logging
 import akka.actor.ActorRef
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
 /**
  * This trait represents an Action Builder
  */
-trait AbstractActionBuilder extends Logging {
+trait AbstractActionBuilder {
 
 	/**
 	 * Adds next action to this builder, to be able to chain the actions

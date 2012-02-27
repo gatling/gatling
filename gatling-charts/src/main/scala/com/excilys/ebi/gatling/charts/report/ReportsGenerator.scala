@@ -16,19 +16,17 @@
 package com.excilys.ebi.gatling.charts.report
 
 import java.net.URL
-
 import scala.collection.mutable.LinkedHashSet
-
 import com.excilys.ebi.gatling.charts.component.impl.ComponentLibraryImpl
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.menuFile
 import com.excilys.ebi.gatling.charts.template.{ PageTemplate, MenuTemplate }
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
 import com.excilys.ebi.gatling.core.config.GatlingFiles.{ styleFolder, jsFolder, GATLING_ASSETS_STYLE_PACKAGE, GATLING_ASSETS_JS_PACKAGE }
-import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.util.FileHelper.{ formatToFilename, HTML_EXTENSION }
 import com.excilys.ebi.gatling.core.util.ScanHelper.deepCopyPackageContent
+import grizzled.slf4j.Logging
 
 object ReportsGenerator extends Logging {
 
@@ -47,8 +45,8 @@ object ReportsGenerator extends Logging {
 			implementationSet += path
 		}
 		if (implementationSet.size > 1) {
-			logger.warn("Class path contains multiple ComponentLibrary bindings")
-			implementationSet.foreach(logger.warn("Found ComponentLibrary binding in {}", _))
+			warn("Class path contains multiple ComponentLibrary bindings")
+			implementationSet.foreach(url => warn("Found ComponentLibrary binding in " + url))
 		}
 
 		new ComponentLibraryImpl
@@ -58,7 +56,7 @@ object ReportsGenerator extends Logging {
 		val dataReader = DataReader.newInstance(runOn)
 
 		if (dataReader.requestNames.isEmpty) {
-			logger.warn("There were no requests sent during the simulation, reports won't be generated")
+			warn("There were no requests sent during the simulation, reports won't be generated")
 			false
 
 		} else {

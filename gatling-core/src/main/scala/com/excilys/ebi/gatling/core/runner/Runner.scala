@@ -18,7 +18,6 @@ package com.excilys.ebi.gatling.core.runner
 import java.util.concurrent.{ TimeUnit, CountDownLatch }
 import org.joda.time.DateTime
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
@@ -27,6 +26,7 @@ import com.excilys.ebi.gatling.core.session.Session
 import akka.actor.Actor.registry
 import akka.actor.{ Scheduler, ActorRef }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+import grizzled.slf4j.Logging
 
 class Runner(startDate: DateTime, scenarioConfigurationBuilders: Seq[ScenarioConfigurationBuilder]) extends Logging {
 
@@ -47,7 +47,7 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: Seq[ScenarioCon
 	// Creates a List of Tuples with scenario configuration / scenario 
 	val scenariosAndConfigurations = scenarioConfigurations zip scenarios
 
-	logger.info("Total number of users : {}", totalNumberOfUsers)
+	info("Total number of users : " + totalNumberOfUsers)
 
 	/**
 	 * This method schedules the beginning of all scenarios
@@ -56,7 +56,7 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: Seq[ScenarioCon
 		// Initialization of the data writer
 		DataWriter.instance ! InitializeDataWriter(startDate, latch)
 
-		logger.debug("Launching All Scenarios")
+		debug("Launching All Scenarios")
 
 		// Scheduling all scenarios
 		scenariosAndConfigurations.map {
@@ -66,10 +66,10 @@ class Runner(startDate: DateTime, scenarioConfigurationBuilders: Seq[ScenarioCon
 			}
 		}
 
-		logger.debug("Finished Launching scenarios executions")
+		debug("Finished Launching scenarios executions")
 		latch.await(configuration.simulationTimeOut, TimeUnit.SECONDS)
 
-		logger.debug("All scenarios finished, stoping actors")
+		debug("All scenarios finished, stoping actors")
 		// Shuts down all actors
 		registry.shutdownAll
 

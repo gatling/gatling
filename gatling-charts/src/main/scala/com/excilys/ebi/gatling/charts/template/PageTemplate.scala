@@ -20,7 +20,6 @@ import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.charts.component.Component
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ MENU_FILE, JQUERY_FILE, GATLING_TEMPLATE_LAYOUT_FILE_URL }
-import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.util.DateHelper.printReadableDate
 
 object PageTemplate {
@@ -32,7 +31,7 @@ object PageTemplate {
 	def setRunOn(runOn: DateTime) { PageTemplate.runOn = runOn }
 }
 
-abstract class PageTemplate(title: String, isDetails: Boolean, components: Component*) extends Logging {
+abstract class PageTemplate(title: String, isDetails: Boolean, components: Component*) {
 
 	val jsFiles = (Seq(JQUERY_FILE, MENU_FILE) ++ getAdditionnalJSFiles).distinct
 

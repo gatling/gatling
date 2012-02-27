@@ -16,25 +16,21 @@
 package com.excilys.ebi.gatling.app
 import java.io.{ StringWriter, PrintWriter }
 import java.lang.System.currentTimeMillis
-
 import scala.tools.nsc.interpreter.AbstractFileClassLoader
 import scala.tools.nsc.io.{ PlainFile, Path, File, Directory }
 import scala.tools.nsc.reporters.ConsoleReporter
 import scala.tools.nsc.{ Settings, Global }
-
 import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.activeSessionsFile
 import com.excilys.ebi.gatling.charts.report.ReportsGenerator
 import com.excilys.ebi.gatling.core.config.{ GatlingFiles, GatlingConfiguration }
-import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.runner.Runner
 import com.excilys.ebi.gatling.core.util.DateHelper.printFileNameDate
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.twitter.io.TempDirectory
 import com.excilys.ebi.gatling.core.util.ReflectionHelper.getNewInstanceByClassName
-
 import scopt.OptionParser
+import grizzled.slf4j.Logging
 
 /**
  * Object containing entry point of application
@@ -169,11 +165,11 @@ class Gatling(options: Options) extends Logging {
 		val selected = classes.size match {
 			case 0 =>
 				// If there is no simulation file
-				logger.error("There are no simulation scripts. Please verify that your scripts are in user-files/simulations and that they do not start with a .")
+				error("There are no simulation scripts. Please verify that your scripts are in user-files/simulations and that they do not start with a .")
 				sys.exit
 			case 1 =>
 				// If there is only one simulation file
-				logger.info("There is only one simulation, executing it.")
+				info("There is only one simulation, executing it.")
 				0
 			case size =>
 				for (i <- 0 until size) {

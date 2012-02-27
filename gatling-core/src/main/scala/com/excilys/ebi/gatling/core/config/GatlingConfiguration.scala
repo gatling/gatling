@@ -19,12 +19,12 @@ import scala.io.Codec
 import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.Path
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.GATLING_DEFAULT_CONFIG_FILE
-import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.util.DateHelper.parseReadableDate
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.core.init.Initializable
+import grizzled.slf4j.Logging
 
 /**
  * Configuration loader of Gatling
@@ -60,17 +60,17 @@ class GatlingConfiguration(
 		try {
 			// Locate configuration file, depending on users options
 			val configFile = configFileName map { fileName =>
-				logger.info("Loading custom configuration file: conf/{}", fileName)
+				info("Loading custom configuration file: conf/" + fileName)
 				fileName
 			} getOrElse {
-				logger.info("Loading default configuration file")
+				info("Loading default configuration file")
 				GATLING_DEFAULT_CONFIG_FILE
 			}
 
 			GatlingFileConfiguration.fromFile(configFile)
 		} catch {
 			case e =>
-				logger.error("{}\n{}", e.getMessage, e.getStackTraceString)
+				error(e)
 				throw new Exception("Could not parse configuration file!")
 		}
 

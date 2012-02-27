@@ -16,7 +16,6 @@
 package com.excilys.ebi.gatling.core.structure.loop.handler
 
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
-import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
 
 /**
@@ -26,7 +25,7 @@ import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
  *
  * @param structureBuilder the structure builder on which loop was called
  */
-abstract class AbstractLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B) extends Logging {
+abstract class AbstractLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B) {
 	private[core] def build: B
 
 	/**

@@ -17,13 +17,12 @@ package com.excilys.ebi.gatling.core.action
 
 import java.lang.System.currentTimeMillis
 import java.util.concurrent.CountDownLatch
-
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.OK
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
-
 import EndAction.END_OF_SCENARIO
+import grizzled.slf4j.Logging
 
 /**
  * EndAction class companion
@@ -40,7 +39,7 @@ object EndAction {
  * @constructor creates an EndAction
  * @param latch The countdown latch that will end the simulation
  */
-class EndAction(latch: CountDownLatch) extends Action {
+class EndAction(latch: CountDownLatch) extends Action with Logging {
 
 	/**
 	 * Sends a message to the DataWriter and decreases the countDownLatch
@@ -53,6 +52,6 @@ class EndAction(latch: CountDownLatch) extends Action {
 
 		latch.countDown
 
-		logger.info("Done user #{}", session.userId)
+		info("Done user #" + session.userId)
 	}
 }

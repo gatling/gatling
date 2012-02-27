@@ -18,14 +18,12 @@ package com.excilys.ebi.gatling.core.util
 import java.text.Normalizer
 import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Pattern
-
 import scala.annotation.implicitNotFound
 import scala.collection.JavaConverters.asScalaConcurrentMapConverter
 import scala.collection.mutable.ConcurrentMap
-
-import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.core.session.Session
+import grizzled.slf4j.Logging
 
 /**
  * This object groups all utilities for strings
@@ -78,7 +76,7 @@ object StringHelper extends Logging {
 						(session: Session) => session.getAttributeAsOption[Seq[Any]](key) match {
 							case Some(x) if (x.size > occurrence) => x(occurrence)
 							case _ => {
-								logger.error("Couldn't resolve occurrence {} of session multivalued attribute {}", occurrence, key)
+								error("Couldn't resolve occurrence " + occurrence + " of session multivalued attribute " + key)
 								MISSING_SESSION_ATTRIBUTE
 							}
 						}
@@ -87,7 +85,7 @@ object StringHelper extends Logging {
 						(session: Session) => session.getAttributeAsOption[Any](key) match {
 							case Some(x) => x
 							case None => {
-								logger.error("Couldn't resolve session attribute {}", key)
+								error("Couldn't resolve session attribute}" + key)
 								MISSING_SESSION_ATTRIBUTE
 							}
 						}

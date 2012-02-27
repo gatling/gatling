@@ -23,6 +23,7 @@ import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.Scheduler.scheduleOnce
 import akka.actor.ActorRef
+import grizzled.slf4j.Logging
 
 /**
  * PauseAction class companion
@@ -44,7 +45,7 @@ object PauseAction {
  * @param maxDuration maximum duration of the pause
  * @param timeUnit time unit of the duration
  */
-class PauseAction(next: ActorRef, minDuration: Long, maxDuration: Long, timeUnit: TimeUnit) extends Action {
+class PauseAction(next: ActorRef, minDuration: Long, maxDuration: Long, timeUnit: TimeUnit) extends Action with Logging {
 
 	/**
 	 * Generates a duration if required or use the one given and defer
@@ -59,8 +60,7 @@ class PauseAction(next: ActorRef, minDuration: Long, maxDuration: Long, timeUnit
 		val duration = minDuration + (if (diff > 0) PauseAction.randomGenerator.nextInt(diff.toInt) else 0)
 
 		val durationMinusLastActionDurationInMillis: Long = TimeUnit.MILLISECONDS.convert(duration, timeUnit) - session.getLastActionDuration
-		if (logger.isInfoEnabled)
-			logger.info("Waiting for {}ms ({}ms)", TimeUnit.MILLISECONDS.convert(duration, timeUnit), durationMinusLastActionDurationInMillis)
+		info("Waiting for " + TimeUnit.MILLISECONDS.convert(duration, timeUnit) + "ms (" + durationMinusLastActionDurationInMillis + "ms)")
 
 		scheduleOnce(() => next ! session, durationMinusLastActionDurationInMillis, TimeUnit.MILLISECONDS)
 	}

@@ -33,6 +33,7 @@ import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.core.check.CheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
+import grizzled.slf4j.Logging
 
 /**
  * HttpRequestAction class companion
@@ -77,7 +78,7 @@ object HttpRequestAction {
  * @param feeder the feeder that will be consumed each time the request will be sent
  */
 class HttpRequestAction(next: ActorRef, request: HttpRequest, givenChecks: Option[List[HttpCheck[_]]], protocolConfiguration: Option[HttpProtocolConfiguration])
-		extends RequestAction[HttpCheck[_], Response, HttpProtocolConfiguration](next, request, givenChecks, protocolConfiguration) {
+		extends RequestAction[HttpCheck[_], Response, HttpProtocolConfiguration](next, request, givenChecks, protocolConfiguration) with Logging {
 
 	val checks = givenChecks match {
 		case Some(givenChecksContent) =>
@@ -91,9 +92,7 @@ class HttpRequestAction(next: ActorRef, request: HttpRequest, givenChecks: Optio
 	}
 
 	def execute(session: Session) = {
-
-		if (logger.isInfoEnabled)
-			logger.info("Sending Request '{}': Scenario '{}', UserId #{}", Array[Object](request.name, session.scenarioName, session.userId.toString))
+		info("Sending Request '" + request.name + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
 
 		val followRedirect = protocolConfiguration match {
 			case Some(protocolConfiguration) => protocolConfiguration.followRedirect

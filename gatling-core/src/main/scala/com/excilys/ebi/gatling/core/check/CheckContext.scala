@@ -16,9 +16,7 @@
 package com.excilys.ebi.gatling.core.check
 import scala.collection.mutable
 
-import com.excilys.ebi.gatling.core.log.Logging
-
-object CheckContext extends Logging {
+object CheckContext {
 
 	private[check] val contextHolder = new ThreadLocal[mutable.Map[String, Any]]
 

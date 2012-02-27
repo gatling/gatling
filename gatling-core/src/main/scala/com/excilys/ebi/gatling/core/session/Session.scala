@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.session
 
-import com.excilys.ebi.gatling.core.log.Logging
-
 /**
  * Session class companion
  */
@@ -40,7 +38,7 @@ object Session {
  * @param writeActorUuid the uuid of the actor responsible for logging
  * @param data the map that stores all values needed
  */
-class Session(val scenarioName: String, val userId: Int, data: Map[String, Any]) extends Logging {
+class Session(val scenarioName: String, val userId: Int, data: Map[String, Any]) {
 
 	def this(scenarioName: String, userId: Int) = this(scenarioName, userId, Map.empty)
 

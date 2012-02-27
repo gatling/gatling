@@ -16,8 +16,7 @@
 package com.excilys.ebi.gatling.core.resource
 
 import scala.collection.mutable
-
-import com.excilys.ebi.gatling.core.log.Logging
+import grizzled.slf4j.Logging
 
 /**
  * The ResourceRegistry is responsible for storing a callback function that closes a resource
@@ -47,7 +46,7 @@ object ResourceRegistry extends Logging {
 			try {
 				onCloseCallback()
 			} catch {
-				case e => logger.error("Could not close resource: {}", e)
+				case e => error("Could not close resource", e)
 			}
 		}
 	}

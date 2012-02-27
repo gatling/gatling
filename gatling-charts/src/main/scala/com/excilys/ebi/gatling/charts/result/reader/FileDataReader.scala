@@ -16,24 +16,20 @@
 package com.excilys.ebi.gatling.charts.result.reader
 
 import java.util.regex.Pattern
-
 import scala.collection.immutable.SortedMap
 import scala.io.Source
-
 import org.joda.time.DateTime
-
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.result.writer.ResultLine
 import com.excilys.ebi.gatling.core.util.DateHelper.parseFileNameDateFormat
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR_STRING
-
 import FileDataReader.SPLIT_PATTERN
+import grizzled.slf4j.Logging
 
 object FileDataReader {
 	val SPLIT_PATTERN = Pattern.compile(TABULATION_SEPARATOR_STRING)
@@ -56,7 +52,7 @@ class FileDataReader(runOn: String) extends DataReader(runOn) with Logging {
 					true
 				else {
 					// Else, if the resulting data is not well formated print an error message
-					logger.warn("simulation.log had bad end of file, statistics will be generated but may not be accurate")
+					warn("simulation.log had bad end of file, statistics will be generated but may not be accurate")
 					false
 				})
 			.map(strings => ResultLine(strings(0), strings(1), strings(2).toInt, strings(3), strings(4).toLong, strings(5).toLong, strings(6).toLong, strings(7).toLong, ResultStatus.withName(strings(8)), strings(9)))

@@ -19,9 +19,7 @@ import java.io.{ OutputStreamWriter, FileOutputStream, BufferedOutputStream }
 import java.lang.System.currentTimeMillis
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.CountDownLatch
-
 import scala.tools.nsc.io.{ File, Directory }
-
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingFiles.{ simulationLogFile, resultFolder }
@@ -29,15 +27,15 @@ import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ OK, KO }
 import com.excilys.ebi.gatling.core.result.message.{ InitializeDataWriter, ActionInfo }
 import com.excilys.ebi.gatling.core.util.DateHelper.printFileNameDate
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
-
 import akka.actor.scala2ActorRef
+import grizzled.slf4j.Logging
 
 /**
  * File implementation of the DataWriter
  *
  * It writes the data of the simulation if a tabulation separated values file
  */
-class FileDataWriter extends DataWriter {
+class FileDataWriter extends DataWriter with Logging {
 
 	/**
 	 * The OutputStreamWriter used to write to files
@@ -88,7 +86,7 @@ class FileDataWriter extends DataWriter {
 				totalUsersCount.set(latch.getCount - 1)
 
 			} else {
-				logger.error("FileDataWriter has already been initialized!")
+				error("FileDataWriter has already been initialized!")
 			}
 		}
 
@@ -127,11 +125,10 @@ class FileDataWriter extends DataWriter {
 					}
 				}
 			} else {
-				logger.error("FileDataWriter hasn't been initialized!")
+				error("FileDataWriter hasn't been initialized!")
 			}
 		}
 
-		case unknown =>
-			logger.error("Unknow message type " + unknown.getClass)
+		case unknown => error("Unknow message type " + unknown.getClass)
 	}
 }

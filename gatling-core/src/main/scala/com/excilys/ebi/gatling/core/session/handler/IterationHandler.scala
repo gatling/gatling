@@ -15,9 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.session.handler
 
-import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.action.Action
 
 /**
  * This trait is used for mixin-composition, it is the top level trait
@@ -27,7 +25,7 @@ import com.excilys.ebi.gatling.core.action.Action
  *   increment: the incrementation of the counter
  *   expire:    the release of the counter
  */
-trait IterationHandler extends Logging {
+trait IterationHandler {
 	
 	def counterName: String
 

@@ -16,14 +16,13 @@
 package com.excilys.ebi.gatling.core.action
 
 import java.lang.System.currentTimeMillis
-
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.OK
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
-
 import StartAction.START_OF_SCENARIO
 import akka.actor.ActorRef
+import grizzled.slf4j.Logging
 
 /**
  * StartAction class companion
@@ -42,7 +41,7 @@ object StartAction {
  * @constructor creates an StartAction
  * @param next the action to be executed after this one
  */
-class StartAction(next: ActorRef) extends Action {
+class StartAction(next: ActorRef) extends Action with Logging {
 
 	/**
 	 * Sends a message to the DataWriter and give hand to next actor
@@ -52,7 +51,7 @@ class StartAction(next: ActorRef) extends Action {
 	def execute(session: Session) = {
 		val now = currentTimeMillis
 		DataWriter.instance ! ActionInfo(session.scenarioName, session.userId, START_OF_SCENARIO, now, now, now, now, OK, START_OF_SCENARIO)
-		logger.info("Starting user #{}", session.userId)
+		info("Starting user #" + session.userId)
 		next ! session
 	}
 }

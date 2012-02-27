@@ -19,7 +19,6 @@ import java.lang.Void
 import scala.collection.JavaConverters._
 import scala.collection.immutable.HashMap
 import com.excilys.ebi.gatling.core.check.Check.applyChecks
-import com.excilys.ebi.gatling.core.log.Logging
 import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ ResultStatus, OK, KO }
 import com.excilys.ebi.gatling.core.result.message.ActionInfo
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
@@ -43,6 +42,7 @@ import java.net.URLDecoder
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.ning.http.client.RequestBuilderBase.RequestImpl
 import com.ning.http.client.FluentStringsMap
+import grizzled.slf4j.Logging
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
@@ -110,7 +110,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck[_]], next: Ac
 	}
 
 	def onThrowable(throwable: Throwable) {
-		logger.warn("Request '" + requestName + "' failed", throwable)
+		warn("Request '" + requestName + "' failed", throwable)
 		val errorMessage = Option(throwable.getMessage).getOrElse(EMPTY)
 		sendLogAndExecuteNext(session, KO, errorMessage)
 	}
@@ -164,8 +164,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck[_]], next: Ac
 
 					if (!checkResult.ok) {
 						val errorMessage = checkResult.errorMessage.getOrElse(throw new IllegalArgumentException("Missing error message"))
-						if (logger.isWarnEnabled)
-							logger.warn("Check on request '{}' failed : '{}'", requestName, errorMessage)
+						warn("Check on request '" + requestName + "' failed : " + errorMessage)
 
 						sendLogAndExecuteNext(newSession, KO, errorMessage)
 						return
