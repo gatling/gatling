@@ -13,13 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.runner
+package com.excilys.ebi.gatling.core.result.message
 
-import org.joda.time.DateTime
-
-import com.excilys.ebi.gatling.core.util.DateHelper.{ printReadableDate, printFileNameDate }
-
-case class RunInfo(runDate: DateTime, runId: String, runName: String) {
-	def runUuid = runId + printFileNameDate(runDate)
-	def readableRunDate = printReadableDate(runDate)
-}
+abstract class Record(recordType: String)

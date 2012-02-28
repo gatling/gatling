@@ -24,7 +24,7 @@ import com.excilys.ebi.gatling.charts.template.RequestsPageTemplate
 import com.excilys.ebi.gatling.charts.util.Colors.{ toString, RED, GREEN, BLUE }
 import com.excilys.ebi.gatling.charts.writer.TemplateWriter
 import com.excilys.ebi.gatling.core.result.reader.DataReader
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ OK, KO }
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
 
 class RequestsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 

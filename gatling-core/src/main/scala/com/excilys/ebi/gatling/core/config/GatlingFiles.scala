@@ -16,8 +16,8 @@
 package com.excilys.ebi.gatling.core.config
 
 import scala.tools.nsc.io.Path.string2path
+
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.runner.RunInfo
 
 object GatlingFiles {
 	val GATLING_HOME = Option(System.getenv("GATLING_HOME")).getOrElse(System.getProperty("java.io.tmpdir"))

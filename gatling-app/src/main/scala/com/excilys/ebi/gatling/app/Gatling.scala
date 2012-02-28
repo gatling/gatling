@@ -29,7 +29,8 @@ import com.excilys.ebi.gatling.app.UserSelection.DEFAULT_RUN_ID
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.activeSessionsFile
 import com.excilys.ebi.gatling.charts.report.ReportsGenerator
 import com.excilys.ebi.gatling.core.config.{ GatlingFiles, GatlingConfiguration }
-import com.excilys.ebi.gatling.core.runner.{ Runner, RunInfo }
+import com.excilys.ebi.gatling.core.result.message.RunRecord
+import com.excilys.ebi.gatling.core.runner.Runner
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.twitter.io.TempDirectory
 
@@ -123,7 +124,7 @@ class Gatling(options: Options) extends Logging {
 		println("Select run name (optional)")
 		val runName = Console.readLine.trim
 
-		UserSelection(List(simulation), runId, runName)
+		UserSelection(List(simulation), runId, if (runName.isEmpty) runId else runName)
 	}
 
 	private def collectFiles(directory: Path, extension: String): List[File] = Directory(directory).deepFiles.filter(_.hasExtension(extension)).toList
@@ -213,7 +214,7 @@ class Gatling(options: Options) extends Logging {
 			println(">> Running simulation (" + (i + 1) + "/" + size + ") - " + name)
 			println("Simulation " + name + " started...")
 
-			val runInfo = new RunInfo(now, selection.runId, selection.runName)
+			val runInfo = new RunRecord(now, selection.runId, selection.runName)
 
 			new Runner(runInfo, simulation.newInstance()()).run
 			println("Simulation Finished.")

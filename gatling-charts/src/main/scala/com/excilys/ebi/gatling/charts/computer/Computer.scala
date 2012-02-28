@@ -18,17 +18,16 @@ package com.excilys.ebi.gatling.charts.computer
 import scala.annotation.implicitNotFound
 import scala.collection.SortedMap
 import scala.math.{ sqrt, pow }
-
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ ResultStatus, OK, KO }
-import com.excilys.ebi.gatling.core.result.writer.ResultLine
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ RequestStatus, OK, KO }
+import com.excilys.ebi.gatling.core.result.message.RequestRecord
 
 object Computer {
 
 	val AVERAGE_TIME_NO_PLOT_MAGIC_VALUE = -1
 
-	def averageTime(timeFunction: ResultLine => Long)(data: Seq[ResultLine]): Int = {
+	def averageTime(timeFunction: RequestRecord => Long)(data: Seq[RequestRecord]): Int = {
 		if (data.isEmpty)
 			AVERAGE_TIME_NO_PLOT_MAGIC_VALUE
 		else
@@ -39,39 +38,39 @@ object Computer {
 
 	val averageLatency = averageTime(_.latency) _
 
-	def responseTimeStandardDeviation(data: Seq[ResultLine]): Double = {
+	def responseTimeStandardDeviation(data: Seq[RequestRecord]): Double = {
 		val avg = averageResponseTime(data)
 		sqrt(data.map(result => pow(result.responseTime - avg, 2)).sum / data.length)
 	}
 
-	def minResponseTime(data: Seq[ResultLine]): Long = data.minBy(_.responseTime).responseTime
+	def minResponseTime(data: Seq[RequestRecord]): Long = data.minBy(_.responseTime).responseTime
 
-	def maxResponseTime(data: Seq[ResultLine]): Long = data.maxBy(_.responseTime).responseTime
+	def maxResponseTime(data: Seq[RequestRecord]): Long = data.maxBy(_.responseTime).responseTime
 
-	def numberOfSuccesses(data: Seq[ResultLine]): Int = data.filter(_.resultStatus == OK).size
+	def numberOfSuccesses(data: Seq[RequestRecord]): Int = data.filter(_.resultStatus == OK).size
 
-	def computationByMillisecondAsList(data: SortedMap[Long, Seq[ResultLine]], resultStatus: ResultStatus, computation: Seq[ResultLine] => Int): List[(Long, Int)] =
+	def computationByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus, computation: Seq[RequestRecord] => Int): List[(Long, Int)] =
 		SortedMap(data
 			.map { case (time, results) => time -> results.filter(_.resultStatus == resultStatus) }
 			.map { case (time, results) => time -> computation(results) }
 			.toSeq: _*).toList
 
-	def responseTimeByMillisecondAsList(data: SortedMap[Long, Seq[ResultLine]], resultStatus: ResultStatus): List[(Long, Int)] = computationByMillisecondAsList(data, resultStatus, averageResponseTime)
+	def responseTimeByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus): List[(Long, Int)] = computationByMillisecondAsList(data, resultStatus, averageResponseTime)
 
-	def latencyByMillisecondAsList(data: SortedMap[Long, Seq[ResultLine]], resultStatus: ResultStatus): List[(Long, Int)] = computationByMillisecondAsList(data, resultStatus, averageLatency)
+	def latencyByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus): List[(Long, Int)] = computationByMillisecondAsList(data, resultStatus, averageLatency)
 
-	def numberOfRequestsPerSecond(data: SortedMap[Long, Seq[ResultLine]]): SortedMap[Long, Int] =
+	def numberOfRequestsPerSecond(data: SortedMap[Long, Seq[RequestRecord]]): SortedMap[Long, Int] =
 		SortedMap(data
 			.map { case (time, results) => time -> results.length }
 			.toSeq: _*)
 
-	def numberOfRequestsPerSecondAsList(data: SortedMap[Long, Seq[ResultLine]]): List[(Long, Int)] = numberOfRequestsPerSecond(data).toList
+	def numberOfRequestsPerSecondAsList(data: SortedMap[Long, Seq[RequestRecord]]): List[(Long, Int)] = numberOfRequestsPerSecond(data).toList
 
-	def numberOfRequestsPerSecond(data: SortedMap[Long, Seq[ResultLine]], resultStatus: ResultStatus): List[(Long, Int)] =
+	def numberOfRequestsPerSecond(data: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus): List[(Long, Int)] =
 		numberOfRequestsPerSecondAsList(data
 			.map { case (time, results) => time -> results.filter(_.resultStatus == resultStatus) })
 
-	def numberOfRequestInResponseTimeRange(data: Seq[ResultLine], lowerBound: Int, higherBound: Int): List[(String, Int)] = {
+	def numberOfRequestInResponseTimeRange(data: Seq[RequestRecord], lowerBound: Int, higherBound: Int): List[(String, Int)] = {
 
 		val groupNames = List((1, "t < " + lowerBound + "ms"), (2, lowerBound + "ms < t < " + higherBound + "ms"), (3, higherBound + "ms < t"), (4, "failed"))
 		val (firstGroup, mediumGroup, lastGroup, failedGroup) = (groupNames(0), groupNames(1), groupNames(2), groupNames(3))
@@ -96,7 +95,7 @@ object Computer {
 			.map { case ((_, rangeName), count) => (rangeName, count) }
 	}
 
-	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: SortedMap[Long, Int], requestData: SortedMap[Long, Seq[ResultLine]], resultStatus: ResultStatus): List[(Int, Long)] =
+	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: SortedMap[Long, Int], requestData: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus): List[(Int, Long)] =
 		requestData
 			.map {
 				case (time, results) => results
@@ -104,7 +103,7 @@ object Computer {
 					.map(requestsPerSecond.get(time).get -> _.responseTime)
 			}.toList.flatten
 
-	def numberOfActiveSessionsPerSecondForAScenario(data: SortedMap[Long, Seq[ResultLine]]): List[(Long, Int)] = {
+	def numberOfActiveSessionsPerSecondForAScenario(data: SortedMap[Long, Seq[RequestRecord]]): List[(Long, Int)] = {
 
 		def requestByNameGroupByTime(name: String) = data.map { case (time, results) => time -> results.filter(_.requestName == name) }
 
@@ -122,7 +121,7 @@ object Computer {
 		}.toSeq: _*).toList
 	}
 
-	def numberOfActiveSessionsPerSecondByScenario(allScenarioData: Seq[(String, SortedMap[Long, Seq[ResultLine]])]): Seq[(String, List[(Long, Int)])] =
+	def numberOfActiveSessionsPerSecondByScenario(allScenarioData: Seq[(String, SortedMap[Long, Seq[RequestRecord]])]): Seq[(String, List[(Long, Int)])] =
 		// Filling the map with each scenario values
 		allScenarioData.map { case (name, data) => name -> numberOfActiveSessionsPerSecondForAScenario(data) }
 }

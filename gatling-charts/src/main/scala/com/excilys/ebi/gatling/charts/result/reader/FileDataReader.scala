@@ -17,72 +17,65 @@ package com.excilys.ebi.gatling.charts.result.reader
 
 import java.util.regex.Pattern
 import scala.collection.immutable.SortedMap
+import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 import org.joda.time.DateTime
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
-import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.ResultStatus
+import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
+import com.excilys.ebi.gatling.core.result.message.RecordType._
+import com.excilys.ebi.gatling.core.result.message.RequestRecord
+import com.excilys.ebi.gatling.core.result.message.RunRecord
 import com.excilys.ebi.gatling.core.result.reader.DataReader
-import com.excilys.ebi.gatling.core.result.writer.ResultLine
 import com.excilys.ebi.gatling.core.util.DateHelper.parseFileNameDateFormat
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR_STRING
 import FileDataReader.SPLIT_PATTERN
 import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.core.runner.RunInfo
+import com.excilys.ebi.gatling.core.result.message.RequestStatus
+import scala.collection.mutable.ListBuffer
 
 object FileDataReader {
 	val SPLIT_PATTERN = Pattern.compile(TABULATION_SEPARATOR_STRING)
 }
 
 class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
-	
-	val lines = Source.fromFile(simulationLogFile(runUuid).jfile, configuration.encoding).getLines
-	
-	val runInfo = {
-		val runDate = parseFileNameDateFormat(lines.next.stripPrefix(ResultLine.RunInfoHeaders.RUN_DATE + SPLIT_PATTERN))
-		val runId = lines.next.stripPrefix(ResultLine.RunInfoHeaders.RUN_ID + SPLIT_PATTERN)
-		val runName = lines.next.stripPrefix(ResultLine.RunInfoHeaders.RUN_NAME + SPLIT_PATTERN)
-		RunInfo(runDate, runId, runName)
-	}
 
-	private val data: Seq[ResultLine] = {
-		
-		// check headers correctness
-		ResultLine.Headers.check(lines.next)
+	private val runRecords = new ListBuffer[RunRecord]
 
-		def isResultInTimeWindow(result: ResultLine) = result.executionStartDate >= configuration.chartingTimeWindowLowerBound && result.executionStartDate <= configuration.chartingTimeWindowHigherBound
+	private val requestRecords = new ListBuffer[RequestRecord]
 
-		(for (line <- lines) yield SPLIT_PATTERN.split(line, 0))
-			.filter(strings =>
-				if (strings.length == ResultLine.Headers.HEADERS_SEQ.length)
-					true
-				else {
-					// Else, if the resulting data is not well formated print an error message
-					warn("simulation.log had bad end of file, statistics will be generated but may not be accurate")
-					false
-				})
-			.map(strings => ResultLine(strings(0), strings(1).toInt, strings(2), strings(3).toLong, strings(4).toLong, strings(5).toLong, strings(6).toLong, ResultStatus.withName(strings(7)), strings(8)))
-			.filter(isResultInTimeWindow(_))
-			.toBuffer[ResultLine].sortBy(_.executionStartDate)
-	}
+	(for (line <- Source.fromFile(simulationLogFile(runUuid).jfile, configuration.encoding).getLines) yield SPLIT_PATTERN.split(line, 0))
+		.foreach {
+			case Array(RUN, runDate, runId, runName) =>
+				runRecords + RunRecord(parseFileNameDateFormat(runDate), runId, runName)
+			case Array(ACTION, scenarioName, userId, requestName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage) =>
+				requestRecords + RequestRecord(scenarioName, userId.toInt, requestName, executionStartDate.toLong, executionEndDate.toLong, requestSendingEndDate.toLong, responseReceivingStartDate.toLong, RequestStatus.withName(resultStatus), resultMessage)
+			case record => logger.warn("Malformed line, skipping it : " + record.toList)
+		}
+
+	private val data: Seq[RequestRecord] = requestRecords
+		// filter on time window
+		.filter(record => record.executionStartDate >= configuration.chartingTimeWindowLowerBound && record.executionStartDate <= configuration.chartingTimeWindowHigherBound)
+		.sortBy(_.executionStartDate)
+
+	val runRecord = runRecords.head
 
 	val requestNames: Seq[String] = data.map(_.requestName).distinct.filterNot(value => value == END_OF_SCENARIO || value == START_OF_SCENARIO)
 
 	val scenarioNames: Seq[String] = data.map(_.scenarioName).distinct
 
-	val dataIndexedBySendDateWithoutMillis: SortedMap[Long, Seq[ResultLine]] = SortedMap(data.groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis).toSeq: _*)
+	val dataIndexedBySendDateWithoutMillis: SortedMap[Long, Seq[RequestRecord]] = SortedMap(data.groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis).toSeq: _*)
 
-	val dataIndexedByReceiveDateWithoutMillis: SortedMap[Long, Seq[ResultLine]] = SortedMap(data.groupBy(result => new DateTime(result.executionStartDate + result.responseTime).withMillisOfSecond(0).getMillis).toSeq: _*)
+	val dataIndexedByReceiveDateWithoutMillis: SortedMap[Long, Seq[RequestRecord]] = SortedMap(data.groupBy(result => new DateTime(result.executionStartDate + result.responseTime).withMillisOfSecond(0).getMillis).toSeq: _*)
 
-	def requestData(requestName: String): Seq[ResultLine] = data.filter(_.requestName == requestName)
+	def requestData(requestName: String): Seq[RequestRecord] = data.filter(_.requestName == requestName)
 
-	def scenarioData(scenarioName: String): Seq[ResultLine] = data.filter(_.scenarioName == scenarioName)
+	def scenarioData(scenarioName: String): Seq[RequestRecord] = data.filter(_.scenarioName == scenarioName)
 
-	def requestDataIndexedBySendDate(requestName: String): SortedMap[Long, Seq[ResultLine]] = SortedMap(requestData(requestName).groupBy(_.executionStartDate).toSeq: _*)
+	def requestDataIndexedBySendDate(requestName: String): SortedMap[Long, Seq[RequestRecord]] = SortedMap(requestData(requestName).groupBy(_.executionStartDate).toSeq: _*)
 
-	def requestDataIndexedBySendDateWithoutMillis(requestName: String): SortedMap[Long, Seq[ResultLine]] = SortedMap(requestData(requestName).groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis).toSeq: _*)
+	def requestDataIndexedBySendDateWithoutMillis(requestName: String): SortedMap[Long, Seq[RequestRecord]] = SortedMap(requestData(requestName).groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis).toSeq: _*)
 
-	def scenarioDataIndexedBySendDateWithoutMillis(scenarioName: String): SortedMap[Long, Seq[ResultLine]] = SortedMap(scenarioData(scenarioName).groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis).toSeq: _*)
+	def scenarioDataIndexedBySendDateWithoutMillis(scenarioName: String): SortedMap[Long, Seq[RequestRecord]] = SortedMap(scenarioData(scenarioName).groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis).toSeq: _*)
 }

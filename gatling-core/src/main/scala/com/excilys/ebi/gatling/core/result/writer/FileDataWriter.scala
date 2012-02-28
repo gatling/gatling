@@ -19,15 +19,19 @@ import java.io.{ OutputStreamWriter, FileOutputStream, BufferedOutputStream }
 import java.lang.System.currentTimeMillis
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.CountDownLatch
-import scala.tools.nsc.io.{ File, Directory }
+
+import scala.tools.nsc.io.File
+
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{ simulationLogFile, resultFolder }
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ OK, KO }
-import com.excilys.ebi.gatling.core.result.message.{ InitializeDataWriter, ActionInfo }
+import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
+import com.excilys.ebi.gatling.core.result.message.RecordType.{ RUN, ACTION }
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
+import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, InitializeDataWriter }
 import com.excilys.ebi.gatling.core.util.DateHelper.printFileNameDate
-import com.excilys.ebi.gatling.core.util.StringHelper.{ END_OF_LINE, EMPTY }
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
+import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+
 import akka.actor.scala2ActorRef
 import grizzled.slf4j.Logging
 
@@ -67,20 +71,18 @@ class FileDataWriter extends DataWriter with Logging {
 	def receive = {
 
 		// If the message is sent to initialize the writer
-		case InitializeDataWriter(runInfo, latch) => {
+		case InitializeDataWriter(runRecord, latch) => {
 
 			def initStreamWriter {
-				osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(File(simulationLogFile(runInfo.runUuid)).jfile, true)))
+				osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(File(simulationLogFile(runRecord.runUuid)).jfile, true)))
 			}
 
-			def printRunInfo {
-				osw.append(ResultLine.RunInfoHeaders.RUN_DATE).append(TABULATION_SEPARATOR).append(printFileNameDate(runInfo.runDate)).append(END_OF_LINE)
-				osw.append(ResultLine.RunInfoHeaders.RUN_ID).append(TABULATION_SEPARATOR).append(runInfo.runId).append(END_OF_LINE)
-				osw.append(ResultLine.RunInfoHeaders.RUN_NAME).append(TABULATION_SEPARATOR).append(runInfo.runName).append(END_OF_LINE)
-			}
-
-			def printDataHeaders {
-				ResultLine.Headers.print(osw).append(END_OF_LINE)
+			def printRunRecord {
+				osw.append(RUN).append(TABULATION_SEPARATOR)
+					.append(printFileNameDate(runRecord.runDate)).append(TABULATION_SEPARATOR)
+					.append(runRecord.runId).append(TABULATION_SEPARATOR)
+					.append(runRecord.runName)
+					.append(END_OF_LINE)
 			}
 
 			def handleCounters {
@@ -92,8 +94,7 @@ class FileDataWriter extends DataWriter with Logging {
 				this.latch = latch
 
 				initStreamWriter
-				printRunInfo
-				printDataHeaders
+				printRunRecord
 				handleCounters
 
 			} else {
@@ -102,15 +103,24 @@ class FileDataWriter extends DataWriter with Logging {
 		}
 
 		// If the message comes from an action
-		case ActionInfo(scenarioName, userId, action, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage) => {
+		case RequestRecord(scenarioName, userId, actionName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage) => {
 
-			def printResultLine {
-				// Write the line in the file
-				new ResultLine(scenarioName, userId, action, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage).print(osw).append(END_OF_LINE)
+			def printRequestRecord {
+				osw.append(ACTION).append(TABULATION_SEPARATOR)
+					.append(scenarioName).append(TABULATION_SEPARATOR)
+					.append(userId.toString).append(TABULATION_SEPARATOR)
+					.append(actionName).append(TABULATION_SEPARATOR)
+					.append(executionStartDate.toString).append(TABULATION_SEPARATOR)
+					.append(executionEndDate.toString).append(TABULATION_SEPARATOR)
+					.append(requestSendingEndDate.toString).append(TABULATION_SEPARATOR)
+					.append(responseReceivingStartDate.toString).append(TABULATION_SEPARATOR)
+					.append(resultStatus.toString).append(TABULATION_SEPARATOR)
+					.append(resultMessage)
+					.append(END_OF_LINE)
 			}
 
 			def handleCounters {
-				action match {
+				actionName match {
 					case START_OF_SCENARIO => activeUsersCount.incrementAndGet
 					case END_OF_SCENARIO => activeUsersCount.decrementAndGet
 					case _ => resultStatus match {
@@ -144,7 +154,7 @@ class FileDataWriter extends DataWriter with Logging {
 			}
 
 			if (initialized.get) {
-				printResultLine
+				printRequestRecord
 				handleCounters
 				displaySamplingInfo
 				closeIfLastMessage

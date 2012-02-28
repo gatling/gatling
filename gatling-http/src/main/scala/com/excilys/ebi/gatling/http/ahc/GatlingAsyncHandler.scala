@@ -19,8 +19,8 @@ import java.lang.Void
 import scala.collection.JavaConverters._
 import scala.collection.immutable.HashMap
 import com.excilys.ebi.gatling.core.check.Check.applyChecks
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.{ ResultStatus, OK, KO }
-import com.excilys.ebi.gatling.core.result.message.ActionInfo
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ RequestStatus, OK, KO }
+import com.excilys.ebi.gatling.core.result.message.RequestRecord
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.Predef.SET_COOKIE
@@ -123,13 +123,13 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck[_]], next: Ac
 	 * @param requestMessage the message that will be logged
 	 * @param processingStartDate date of the beginning of the response processing
 	 */
-	private def sendLogAndExecuteNext(newSession: Session, requestResult: ResultStatus, requestMessage: String) {
+	private def sendLogAndExecuteNext(newSession: Session, requestResult: RequestStatus, requestMessage: String) {
 
 		val now = currentTimeMillis
 		val effectiveResponseEndDate = responseEndDate.getOrElse(now)
 		val effectiveEndOfRequestSendingDate = endOfRequestSendingDate.getOrElse(now)
 		val effectivestartOfResponseReceivingDate = startOfResponseReceivingDate.getOrElse(now)
-		DataWriter.instance ! ActionInfo(session.scenarioName, session.userId, "Request " + requestName, requestStartDate, effectiveResponseEndDate, effectiveEndOfRequestSendingDate, effectivestartOfResponseReceivingDate, requestResult, requestMessage)
+		DataWriter.instance ! RequestRecord(session.scenarioName, session.userId, "Request " + requestName, requestStartDate, effectiveResponseEndDate, effectiveEndOfRequestSendingDate, effectivestartOfResponseReceivingDate, requestResult, requestMessage)
 
 		next ! newSession.setAttribute(Session.LAST_ACTION_DURATION_KEY, currentTimeMillis - effectiveResponseEndDate)
 	}

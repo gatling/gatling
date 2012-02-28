@@ -70,7 +70,7 @@ object ReportsGenerator extends Logging {
 
 			generateMenu(runUuid, dataReader)
 
-			PageTemplate.setRunInfo(dataReader.runInfo)
+			PageTemplate.setRunInfo(dataReader.runRecord)
 
 			reportGenerators.foreach(_.generate)
 

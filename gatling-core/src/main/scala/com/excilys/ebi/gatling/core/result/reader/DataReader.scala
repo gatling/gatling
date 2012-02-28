@@ -16,10 +16,9 @@
 package com.excilys.ebi.gatling.core.result.reader
 
 import scala.collection.immutable.SortedMap
-import org.joda.time.DateTime
+
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.writer.ResultLine
-import com.excilys.ebi.gatling.core.runner.RunInfo
+import com.excilys.ebi.gatling.core.result.message.{ RunRecord, RequestRecord }
 
 object DataReader {
 	def newInstance(runOn: String) = configuration.dataReaderClass.getConstructor(classOf[String]).newInstance(runOn)
@@ -27,15 +26,15 @@ object DataReader {
 
 abstract class DataReader(runUuid: String) {
 
-	val runInfo: RunInfo
+	val runRecord: RunRecord
 	val requestNames: Seq[String]
 	val scenarioNames: Seq[String]
-	val dataIndexedBySendDateWithoutMillis: SortedMap[Long, Seq[ResultLine]]
-	val dataIndexedByReceiveDateWithoutMillis: SortedMap[Long, Seq[ResultLine]]
+	val dataIndexedBySendDateWithoutMillis: SortedMap[Long, Seq[RequestRecord]]
+	val dataIndexedByReceiveDateWithoutMillis: SortedMap[Long, Seq[RequestRecord]]
 
-	def requestData(requestName: String): Seq[ResultLine]
-	def scenarioData(scenarioName: String): Seq[ResultLine]
-	def requestDataIndexedBySendDate(requestName: String): SortedMap[Long, Seq[ResultLine]]
-	def requestDataIndexedBySendDateWithoutMillis(requestName: String): SortedMap[Long, Seq[ResultLine]]
-	def scenarioDataIndexedBySendDateWithoutMillis(scenarioName: String): SortedMap[Long, Seq[ResultLine]]
+	def requestData(requestName: String): Seq[RequestRecord]
+	def scenarioData(scenarioName: String): Seq[RequestRecord]
+	def requestDataIndexedBySendDate(requestName: String): SortedMap[Long, Seq[RequestRecord]]
+	def requestDataIndexedBySendDateWithoutMillis(requestName: String): SortedMap[Long, Seq[RequestRecord]]
+	def scenarioDataIndexedBySendDateWithoutMillis(scenarioName: String): SortedMap[Long, Seq[RequestRecord]]
 }

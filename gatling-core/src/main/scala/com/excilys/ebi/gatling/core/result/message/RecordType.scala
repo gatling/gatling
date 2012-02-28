@@ -15,10 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.result.message
 
-/**
- * This Enumeration lists the possible states of actions' results
- */
-object ResultStatus extends Enumeration {
-	type ResultStatus = Value
-	val OK, KO = Value
+object RecordType {
+	val RUN = "RUN"
+	val ACTION = "ACTION"
 }

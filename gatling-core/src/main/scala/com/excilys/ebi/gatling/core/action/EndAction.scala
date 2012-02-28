@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.action
-
 import java.lang.System.currentTimeMillis
 import java.util.concurrent.CountDownLatch
-import com.excilys.ebi.gatling.core.result.message.ResultStatus.OK
-import com.excilys.ebi.gatling.core.result.message.ActionInfo
+
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
+import com.excilys.ebi.gatling.core.result.message.RequestRecord
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
+
 import EndAction.END_OF_SCENARIO
 import grizzled.slf4j.Logging
 
@@ -48,7 +49,7 @@ class EndAction(latch: CountDownLatch) extends Action with Logging {
 	 */
 	def execute(session: Session) = {
 		val now = currentTimeMillis
-		DataWriter.instance ! ActionInfo(session.scenarioName, session.userId, END_OF_SCENARIO, now, now, now, now, OK, END_OF_SCENARIO)
+		DataWriter.instance ! RequestRecord(session.scenarioName, session.userId, END_OF_SCENARIO, now, now, now, now, OK, END_OF_SCENARIO)
 
 		latch.countDown
 

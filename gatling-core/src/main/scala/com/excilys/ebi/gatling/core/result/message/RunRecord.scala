@@ -15,13 +15,12 @@
  */
 package com.excilys.ebi.gatling.core.result.message
 
-import java.util.concurrent.CountDownLatch
+import org.joda.time.DateTime
 
-/**
- * This case class is to be sent to the logging actor, it contains all the information
- * required for its initialization
- *
- * @param runRecord the data on the simulation run
- * @param latch the countdown latch that will end the simulation
- */
-case class InitializeDataWriter(runRecord: RunRecord, latch: CountDownLatch)
+import com.excilys.ebi.gatling.core.result.message.RecordType.RUN
+import com.excilys.ebi.gatling.core.util.DateHelper.{ printReadableDate, printFileNameDate }
+
+case class RunRecord(runDate: DateTime, runId: String, runName: String) extends Record(RUN) {
+	def runUuid = runId + printFileNameDate(runDate)
+	def readableRunDate = printReadableDate(runDate)
+}

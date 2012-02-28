@@ -18,16 +18,16 @@ package com.excilys.ebi.gatling.charts.template
 import org.fusesource.scalate.TemplateEngine
 
 import com.excilys.ebi.gatling.charts.component.Component
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.{MENU_FILE, JQUERY_FILE, GATLING_TEMPLATE_LAYOUT_FILE_URL}
-import com.excilys.ebi.gatling.core.runner.RunInfo
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ MENU_FILE, JQUERY_FILE, GATLING_TEMPLATE_LAYOUT_FILE_URL }
+import com.excilys.ebi.gatling.core.result.message.RunRecord
 
 object PageTemplate {
 	val TEMPLATE_ENGINE = new TemplateEngine
 	TEMPLATE_ENGINE.allowReload = false
 	TEMPLATE_ENGINE.escapeMarkup = false
 
-	private var runInfo: RunInfo = _
-	def setRunInfo(runInfo: RunInfo) { PageTemplate.runInfo = runInfo }
+	private var runRecord: RunRecord = _
+	def setRunInfo(runRecord: RunRecord) { PageTemplate.runRecord = runRecord }
 }
 
 abstract class PageTemplate(title: String, isDetails: Boolean, components: Component*) {
@@ -47,6 +47,6 @@ abstract class PageTemplate(title: String, isDetails: Boolean, components: Compo
 				"pageContent" -> getContent,
 				"javascript" -> getJavascript,
 				"isDetails" -> isDetails,
-				"runInfo" -> PageTemplate.runInfo))
+				"runRecord" -> PageTemplate.runRecord))
 	}
 }

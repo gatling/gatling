@@ -15,13 +15,10 @@
  */
 package com.excilys.ebi.gatling.core.result.message
 
-import java.util.concurrent.CountDownLatch
-
 /**
- * This case class is to be sent to the logging actor, it contains all the information
- * required for its initialization
- *
- * @param runRecord the data on the simulation run
- * @param latch the countdown latch that will end the simulation
+ * This Enumeration lists the possible states of actions' results
  */
-case class InitializeDataWriter(runRecord: RunRecord, latch: CountDownLatch)
+object RequestStatus extends Enumeration {
+	type RequestStatus = Value
+	val OK, KO = Value
+}

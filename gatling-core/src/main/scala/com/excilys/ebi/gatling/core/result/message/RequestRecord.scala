@@ -15,13 +15,15 @@
  */
 package com.excilys.ebi.gatling.core.result.message
 
+import com.excilys.ebi.gatling.core.result.message.RecordType.ACTION
+
 /**
  * This case class is to be sent to the logging actor, it contains all the information
  * required for statistics generation after the simulation has run
  *
  * @param scenarioName the name of the current scenario
  * @param userId the id of the current user being simulated
- * @param action the name of the action that was made
+ * @param requestName the name of the action that was made
  * @param executionStartDate the date on which the action was made
  * @param executionEndDate the date on which the action was completed
  * @param requestSendingEndDate the date on which the request was finished being sent
@@ -29,5 +31,9 @@ package com.excilys.ebi.gatling.core.result.message
  * @param resultStatus the status of the action
  * @param resultMessage the message of the action on completion
  */
-case class ActionInfo(scenarioName: String, userId: Int, action: String, executionStartDate: Long, executionEndDate: Long, requestSendingEndDate: Long, responseReceivingStartDate: Long, resultStatus: ResultStatus.ResultStatus,
-	resultMessage: String)
+case class RequestRecord(scenarioName: String, userId: Int, requestName: String, executionStartDate: Long, executionEndDate: Long, requestSendingEndDate: Long, responseReceivingStartDate: Long, resultStatus: RequestStatus.RequestStatus, resultMessage: String) extends Record(ACTION) {
+
+	lazy val responseTime = executionEndDate - executionStartDate
+
+	lazy val latency = responseReceivingStartDate - requestSendingEndDate
+}

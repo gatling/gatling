@@ -15,20 +15,21 @@
  */
 package com.excilys.ebi.gatling.core.runner
 
-import java.util.concurrent.{ TimeUnit, CountDownLatch }
-import org.joda.time.DateTime
+import java.util.concurrent.{TimeUnit, CountDownLatch}
+
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.resource.ResourceRegistry
-import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
-import com.excilys.ebi.gatling.core.result.writer.DataWriter
-import com.excilys.ebi.gatling.core.scenario.configuration.{ ScenarioConfigurationBuilder, ScenarioConfiguration }
-import com.excilys.ebi.gatling.core.session.Session
-import akka.actor.Actor.registry
-import akka.actor.{ Scheduler, ActorRef }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+import com.excilys.ebi.gatling.core.resource.ResourceRegistry
+import com.excilys.ebi.gatling.core.result.message.{RunRecord, InitializeDataWriter}
+import com.excilys.ebi.gatling.core.result.writer.DataWriter
+import com.excilys.ebi.gatling.core.scenario.configuration.{ScenarioConfigurationBuilder, ScenarioConfiguration}
+import com.excilys.ebi.gatling.core.session.Session
+
+import akka.actor.Actor.registry
+import akka.actor.{Scheduler, ActorRef}
 import grizzled.slf4j.Logging
 
-class Runner(runInfo: RunInfo, scenarioConfigurationBuilders: Seq[ScenarioConfigurationBuilder]) extends Logging {
+class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioConfigurationBuilder]) extends Logging {
 
 	// stores all scenario configurations
 	val scenarioConfigurations = for (i <- 0 until scenarioConfigurationBuilders.size) yield scenarioConfigurationBuilders(i).build(i + 1)
@@ -54,7 +55,7 @@ class Runner(runInfo: RunInfo, scenarioConfigurationBuilders: Seq[ScenarioConfig
 	 */
 	def run = {
 		// Initialization of the data writer
-		DataWriter.instance ! InitializeDataWriter(runInfo, latch)
+		DataWriter.instance ! InitializeDataWriter(runRecord, latch)
 
 		debug("Launching All Scenarios")
 
