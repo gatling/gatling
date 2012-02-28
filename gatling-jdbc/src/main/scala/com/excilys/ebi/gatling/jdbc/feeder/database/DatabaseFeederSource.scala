@@ -24,22 +24,24 @@ class DatabaseFeederSource(driverClassName: String, url: String, username: Strin
 
 	Class.forName(driverClassName)
 
-	val values = use(DriverManager.getConnection(url, username, password)) { connection =>
-		val preparedStatement = connection.prepareStatement(sql, TYPE_FORWARD_ONLY, CONCUR_READ_ONLY);
-		val resultSet = preparedStatement.executeQuery
-		val rsmd = resultSet.getMetaData
+	val values: IndexedSeq[Map[String, String]] = {
+		use(DriverManager.getConnection(url, username, password)) { connection =>
+			val preparedStatement = connection.prepareStatement(sql, TYPE_FORWARD_ONLY, CONCUR_READ_ONLY);
+			val resultSet = preparedStatement.executeQuery
+			val rsmd = resultSet.getMetaData
 
-		val columnNames = for (i <- 1 to rsmd.getColumnCount) yield rsmd.getColumnName(i)
+			val columnNames = for (i <- 1 to rsmd.getColumnCount) yield rsmd.getColumnName(i)
 
-		new Iterator[Map[String, String]] {
+			new Iterator[Map[String, String]] {
 
-			def hasNext = !resultSet.isLast
+				def hasNext = !resultSet.isLast
 
-			def next = {
-				resultSet.next
-				val vals = for (i <- 1 to rsmd.getColumnCount) yield resultSet.getString(i)
-				(columnNames zip vals).toMap[String, String]
-			}
-		}.toSeq
+				def next = {
+					resultSet.next
+					val vals = for (i <- 1 to rsmd.getColumnCount) yield resultSet.getString(i)
+					(columnNames zip vals).toMap[String, String]
+				}
+			}.toIndexedSeq
+		}
 	}
 }

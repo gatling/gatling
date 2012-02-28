@@ -17,6 +17,8 @@ package com.excilys.ebi.gatling.core.feeder.csv
 
 import java.io.FileReader
 
+import scala.Array.canBuildFrom
+import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.tools.nsc.io.Path.string2path
 
 import com.excilys.ebi.gatling.core.config.GatlingFiles
@@ -28,7 +30,7 @@ import au.com.bytecode.opencsv.CSVReader
 
 class SeparatedValuesFeederSource(fileName: String, separator: Char, escapeChar: Option[Char]) extends FeederSource(fileName) {
 
-	val values = {
+	val values: IndexedSeq[Map[String, String]] = {
 		val file = GatlingFiles.dataFolder / fileName
 		if (!file.exists)
 			throw new IllegalArgumentException("file " + file + " doesn't exists")
@@ -41,17 +43,7 @@ class SeparatedValuesFeederSource(fileName: String, separator: Char, escapeChar:
 
 			val headers = reader.readNext
 
-			new Iterator[Map[String, String]] {
-
-				var line: Array[String] = _
-
-				def hasNext = {
-					line = reader.readNext
-					line != null
-				}
-
-				def next = (headers zip line).toMap[String, String]
-			}.toSeq
+			reader.readAll.asScala.map(line => (headers zip line).toMap[String, String]).toIndexedSeq
 		}
 	}
 }

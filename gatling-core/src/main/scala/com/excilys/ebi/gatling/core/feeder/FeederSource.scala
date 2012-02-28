@@ -16,5 +16,5 @@
 package com.excilys.ebi.gatling.core.feeder
 
 abstract class FeederSource(val name: String) {
-	val values: Seq[Map[String, String]]
+	val values: IndexedSeq[Map[String, String]]
 }
