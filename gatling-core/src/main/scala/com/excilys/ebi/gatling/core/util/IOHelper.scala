@@ -15,6 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.util
 import java.io.{ OutputStream, InputStream, Closeable }
+import scala.annotation.tailrec
 
 object IOHelper {
 
@@ -27,15 +28,20 @@ object IOHelper {
 			closeable.close
 	}
 
-	def copy(input: InputStream, output: OutputStream) = {
+	def copy(input: InputStream, output: OutputStream) {
+
+		@tailrec
+		def copyRec(input: InputStream, output: OutputStream, buffer: Array[Byte]) {
+			val n = input.read(buffer)
+			if (n != -1) {
+				output.write(buffer, 0, n)
+				copyRec(input, output, buffer)
+			}
+		}
+
 		use(input) { input =>
 			use(output) { output =>
-				val buffer = new Array[Byte](BYTE_BUFFER_SIZE)
-				var n = input.read(buffer)
-				while (n != -1) {
-					output.write(buffer, 0, n)
-					n = input.read(buffer)
-				}
+				copyRec(input, output, new Array[Byte](BYTE_BUFFER_SIZE))
 			}
 		}
 	}
