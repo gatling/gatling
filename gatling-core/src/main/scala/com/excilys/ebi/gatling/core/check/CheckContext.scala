@@ -22,19 +22,16 @@ object CheckContext {
 
 	def useCheckContext[T](block: => T) = {
 		try {
+			if (contextHolder.get == null)
+				contextHolder.set(new mutable.HashMap[String, Any]())
+
 			block
 		} finally {
 			contextHolder.set(null)
 		}
 	}
 
-	private def getContext = {
-		Option(contextHolder.get).getOrElse {
-			val context = new mutable.HashMap[String, Any]()
-			contextHolder.set(context)
-			context
-		}
-	}
+	private def getContext = Option(contextHolder.get).getOrElse(throw new UnsupportedOperationException("Context not set. You're probably trying to access the CheckContext outside of the useCheckContext scope"))
 
 	def getCheckContextAttribute[T](key: String): Option[T] = getContext.get(key).asInstanceOf[Option[T]]
 
