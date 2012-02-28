@@ -17,25 +17,31 @@ package com.excilys.ebi.gatling.core.check
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.check.CheckContext.useCheckContext
 import com.excilys.ebi.gatling.core.session.EvaluatableString
+import scala.annotation.tailrec
 
 object Check {
-	def applyChecks[R](s: Session, response: R, checks: Seq[Check[R, _]]): (Session, CheckResult[_]) = {
 
-		var newSession = s
-		var lastCheckResult: CheckResult[_] = null
+	@tailrec
+	private def applyChecksRec[R](session: Session, response: R, checks: List[Check[R, _]], previousCheckResult: CheckResult[_]): (Session, CheckResult[_]) = {
+		checks match {
+			case Nil => (session, previousCheckResult)
+			case check :: otherChecks =>
+				val checkResult = check.check(response, session)
 
-		useCheckContext {
-			for (check <- checks) {
-				lastCheckResult = check.check(response, s)
-				if (!lastCheckResult.ok)
-					return (newSession, lastCheckResult)
-				else if (check.saveAs.isDefined)
-					newSession = newSession.setAttribute(check.saveAs.get, lastCheckResult.extractedValue.get)
-			}
+				if (!checkResult.ok)
+					(session, checkResult)
+
+				else {
+					val extractedValue = checkResult.extractedValue.get
+					val newSession = check.saveAs.map(session.setAttribute(_, extractedValue)).getOrElse(session)
+
+					applyChecksRec(newSession, response, otherChecks, checkResult)
+				}
+
 		}
-
-		(newSession, lastCheckResult)
 	}
+
+	def applyChecks[R](session: Session, response: R, checks: List[Check[R, _]]): (Session, CheckResult[_]) = useCheckContext { applyChecksRec(session, response, checks, null) }
 }
 
 /**
@@ -48,5 +54,10 @@ object Check {
  */
 abstract class Check[R, X](val expression: EvaluatableString, val extractorFactory: ExtractorFactory[R, X], val strategy: CheckStrategy[X], val saveAs: Option[String]) {
 
-	def check(response: R, s: Session): CheckResult[X] = strategy(extractorFactory(response)(expression(s)), s)
+	def check(response: R, session: Session): CheckResult[X] = {
+		val extractor = extractorFactory(response)
+		val evaluatedExpression = expression(session)
+		val extractedValue = extractor(evaluatedExpression)
+		strategy(extractedValue, session)
+	}
 }

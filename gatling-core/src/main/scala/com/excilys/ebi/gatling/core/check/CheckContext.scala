@@ -20,7 +20,7 @@ object CheckContext {
 
 	private[check] val contextHolder = new ThreadLocal[mutable.Map[String, Any]]
 
-	def useCheckContext(block: => Unit) {
+	def useCheckContext[T](block: => T) = {
 		try {
 			block
 		} finally {
