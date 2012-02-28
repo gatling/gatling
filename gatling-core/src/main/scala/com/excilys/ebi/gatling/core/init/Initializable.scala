@@ -18,5 +18,5 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 trait Initializable {
 
-	protected var initialized = new AtomicBoolean(false)
+	protected val initialized = new AtomicBoolean(false)
 }
