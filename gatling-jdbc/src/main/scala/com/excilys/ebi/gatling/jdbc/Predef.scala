@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.jdbc
-import com.excilys.ebi.gatling.core.feeder.database.DatabaseFeederBuilder
+import com.excilys.ebi.gatling.jdbc.feeder.database.DatabaseFeederBuilder
 
 object Predef {
 
