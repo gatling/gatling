@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.report
-
 import java.net.URL
+
 import scala.collection.mutable.LinkedHashSet
+
 import com.excilys.ebi.gatling.charts.component.impl.ComponentLibraryImpl
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.menuFile
 import com.excilys.ebi.gatling.charts.template.{ PageTemplate, MenuTemplate }
-import com.excilys.ebi.gatling.charts.writer.TemplateWriter
 import com.excilys.ebi.gatling.core.config.GatlingFiles.{ styleFolder, jsFolder, GATLING_ASSETS_STYLE_PACKAGE, GATLING_ASSETS_JS_PACKAGE }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.util.FileHelper.{ formatToFilename, HTML_EXTENSION }
 import com.excilys.ebi.gatling.core.util.ScanHelper.deepCopyPackageContent
+
 import grizzled.slf4j.Logging
 
 object ReportsGenerator extends Logging {
@@ -53,7 +54,29 @@ object ReportsGenerator extends Logging {
 	}
 
 	def generateFor(runUuid: String) = {
+
 		val dataReader = DataReader.newInstance(runUuid)
+
+		def generateMenu {
+
+			val maxLength = 50
+
+			val requestLinks: Iterable[(String, Option[String], String)] = dataReader.requestNames.map {
+				requestName =>
+					val title = if (requestName.length > maxLength) Some(requestName.substring(8)) else None
+					val printedName = if (requestName.length > maxLength) requestName.substring(8, maxLength) + "..." else requestName.substring(8)
+					(formatToFilename(requestName) + HTML_EXTENSION, title, printedName)
+			}
+
+			val template = new MenuTemplate(requestLinks)
+
+			new TemplateWriter(menuFile(runUuid)).writeToFile(template.getOutput)
+		}
+
+		def copyAssets {
+			deepCopyPackageContent(GATLING_ASSETS_STYLE_PACKAGE, styleFolder(runUuid))
+			deepCopyPackageContent(GATLING_ASSETS_JS_PACKAGE, jsFolder(runUuid))
+		}
 
 		if (dataReader.requestNames.isEmpty) {
 			warn("There were no requests sent during the simulation, reports won't be generated")
@@ -66,36 +89,12 @@ object ReportsGenerator extends Logging {
 					new TransactionsReportGenerator(runUuid, dataReader, componentLibrary),
 					new RequestDetailsReportGenerator(runUuid, dataReader, componentLibrary))
 
-			copyAssets(runUuid)
-
-			generateMenu(runUuid, dataReader)
-
+			copyAssets
+			generateMenu
 			PageTemplate.setRunInfo(dataReader.runRecord)
-
 			reportGenerators.foreach(_.generate)
-
 			true
 		}
 	}
 
-	private def generateMenu(runOn: String, dataReader: DataReader) = {
-
-		val maxLength = 50
-
-		val requestLinks: Iterable[(String, Option[String], String)] = dataReader.requestNames.map {
-			requestName =>
-				val title = if (requestName.length > maxLength) Some(requestName.substring(8)) else None
-				val printedName = if (requestName.length > maxLength) requestName.substring(8, maxLength) + "..." else requestName.substring(8)
-				(formatToFilename(requestName) + HTML_EXTENSION, title, printedName)
-		}
-
-		val template = new MenuTemplate(requestLinks)
-
-		new TemplateWriter(menuFile(runOn)).writeToFile(template.getOutput)
-	}
-
-	private def copyAssets(runOn: String) = {
-		deepCopyPackageContent(GATLING_ASSETS_STYLE_PACKAGE, styleFolder(runOn))
-		deepCopyPackageContent(GATLING_ASSETS_JS_PACKAGE, jsFolder(runOn))
-	}
 }

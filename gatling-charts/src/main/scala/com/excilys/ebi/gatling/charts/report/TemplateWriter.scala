@@ -13,8 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.writer
+package com.excilys.ebi.gatling.charts.report
+import java.io.FileWriter
 
-import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
+import scala.tools.nsc.io.{ Path, File }
 
-class TSVFileWriter(runOn: String, fileName: String) extends SeparatedValueFileWriter(runOn, fileName, TABULATION_SEPARATOR)
+import com.excilys.ebi.gatling.core.util.IOHelper.use
+import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
+
+class TemplateWriter(val path: Path) {
+	def writeToFile(output: String) = use(new FileWriter(File(path))) { _.write(output) }
+}

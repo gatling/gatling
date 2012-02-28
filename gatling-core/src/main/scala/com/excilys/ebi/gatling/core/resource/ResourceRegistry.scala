@@ -32,9 +32,7 @@ object ResourceRegistry extends Logging {
 	/**
 	 * Registers the resource
 	 */
-	def registerOnCloseCallback(onCloseCallback: () => Any) = {
-		onCloseCallbacks += onCloseCallback
-	}
+	def registerOnCloseCallback(onCloseCallback: () => Any) = onCloseCallbacks += onCloseCallback
 
 	/**
 	 * This method tries to close all the resources properly
@@ -42,12 +40,11 @@ object ResourceRegistry extends Logging {
 	 * to the logs
 	 */
 	def closeAll = {
-		for (onCloseCallback <- onCloseCallbacks) {
+		for (onCloseCallback <- onCloseCallbacks)
 			try {
 				onCloseCallback()
 			} catch {
 				case e => error("Could not close resource", e)
 			}
-		}
 	}
 }

@@ -22,14 +22,15 @@ import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.series.SharedSeries
 import com.excilys.ebi.gatling.charts.template.ActiveSessionsPageTemplate
 import com.excilys.ebi.gatling.charts.util.Colors.{ toString, YELLOW, RED, PURPLE, PINK, ORANGE, LIME, LIGHT_RED, LIGHT_PURPLE, LIGHT_PINK, LIGHT_ORANGE, LIGHT_LIME, LIGHT_BLUE, GREEN, CYAN, BLUE }
-import com.excilys.ebi.gatling.charts.writer.TemplateWriter
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 
 object ActiveSessionsReportGenerator {
 	val ALL_SESSIONS = "All Sessions"
 }
+
 class ActiveSessionsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
-	def generate = {
+
+	def generate {
 		// Get Data
 		val scenariosData = dataReader.scenarioNames.map { scenarioName =>
 			(scenarioName, dataReader.scenarioDataIndexedBySendDateWithoutMillis(scenarioName))
@@ -41,10 +42,10 @@ class ActiveSessionsReportGenerator(runOn: String, dataReader: DataReader, compo
 
 		// Create series
 		val series = (activeSessionsData.reverse zip colors).map { tuple =>
-			val s = new Series[Long, Int](tuple._1._1, tuple._1._2, List(tuple._2))
-			if (s.name == ActiveSessionsReportGenerator.ALL_SESSIONS)
-				SharedSeries.setAllActiveSessionsSeries(s)
-			s
+			val series = new Series[Long, Int](tuple._1._1, tuple._1._2, List(tuple._2))
+			if (series.name == ActiveSessionsReportGenerator.ALL_SESSIONS)
+				SharedSeries.setAllActiveSessionsSeries(series)
+			series
 		}.toSeq
 
 		// Create template

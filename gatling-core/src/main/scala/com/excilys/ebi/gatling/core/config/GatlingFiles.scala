@@ -37,7 +37,7 @@ object GatlingFiles {
 	def resultFolder(runUuid: String) = resultsFolder / runUuid
 	def jsFolder(runUuid: String) = resultFolder(runUuid) / GATLING_JS
 	def styleFolder(runUuid: String) = resultFolder(runUuid) / GATLING_STYLE
-	def rawdataFolder(runUuid: String) = resultFolder(runUuid) / "rawdata"
+	def rawDataFolder(runUuid: String) = resultFolder(runUuid) / "rawdata"
 	def simulationLogFile(runUuid: String) = {
 		val dir = resultFolder(runUuid)
 		dir.createDirectory()

@@ -25,6 +25,7 @@ import com.excilys.ebi.gatling.core.session.Session
  * TimerBasedIterationHandler trait 'companion'
  */
 object TimerBasedIterationHandler {
+
 	/**
 	 * Key prefix for Counters
 	 */
