@@ -54,7 +54,7 @@ object SomeScenario {
 						.get("/private/bank/account/ACC${account_id}/year/2011/month/11/page/0/operations.json")
 						.headers(headers_8))
 				.pause(6, 7)).times(5)
-		.doIf((s: Session) => s.getAttribute("username") != "user7",
+		.doIf((session: Session) => session.getAttribute("username") != "user7",
 			chain
 				.exec(
 					http("request_9")

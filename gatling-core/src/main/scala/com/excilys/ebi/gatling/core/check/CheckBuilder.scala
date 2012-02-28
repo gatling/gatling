@@ -34,23 +34,23 @@ class CheckOneBuilder[C <: Check[R, X], R, X](checkBuilderFactory: CheckBuilderF
 	def verify[XP](strategy: CheckStrategy[X]) = new CheckBuilder(checkBuilderFactory, extractorFactory, strategy) with SaveAsBuilder[C, R, X]
 
 	def exists = verify(new CheckStrategy[X] {
-		def apply(value: Option[X], s: Session) = value match {
+		def apply(value: Option[X], session: Session) = value match {
 			case Some(_) => CheckResult(true, value)
 			case None => CheckResult(false, None, Some("Check 'exists' failed"))
 		}
 	})
 
 	def notExists = verify(new CheckStrategy[X] {
-		def apply(value: Option[X], s: Session) = value match {
+		def apply(value: Option[X], session: Session) = value match {
 			case None => CheckResult(true, value)
 			case Some(extracted) => CheckResult(false, None, Some("Check 'notExists' failed, found " + extracted))
 		}
 	})
 
 	def is(expected: Session => X) = verify(new CheckStrategy[X] {
-		def apply(value: Option[X], s: Session) = value match {
+		def apply(value: Option[X], session: Session) = value match {
 			case Some(extracted) => {
-				val expectedValue = expected(s)
+				val expectedValue = expected(session)
 				if (extracted == expectedValue)
 					CheckResult(true, value)
 				else
@@ -61,10 +61,10 @@ class CheckOneBuilder[C <: Check[R, X], R, X](checkBuilderFactory: CheckBuilderF
 	})
 
 	def not(expected: Session => X) = verify(new CheckStrategy[X] {
-		def apply(value: Option[X], s: Session) = value match {
+		def apply(value: Option[X], session: Session) = value match {
 			case None => CheckResult(true, value)
 			case Some(extracted) => {
-				val expectedValue = expected(s)
+				val expectedValue = expected(session)
 				if (extracted != expectedValue)
 					CheckResult(true, value)
 				else
@@ -74,9 +74,9 @@ class CheckOneBuilder[C <: Check[R, X], R, X](checkBuilderFactory: CheckBuilderF
 	})
 
 	def in(expected: Session => Seq[X]) = verify(new CheckStrategy[X] {
-		def apply(value: Option[X], s: Session) = value match {
+		def apply(value: Option[X], session: Session) = value match {
 			case Some(extracted) => {
-				val expectedValue = expected(s)
+				val expectedValue = expected(session)
 				if (expectedValue.contains(extracted))
 					CheckResult(true, value)
 				else
@@ -92,7 +92,7 @@ class CheckMultipleBuilder[C <: Check[R, X], R, X <: Seq[_]](checkBuilderFactory
 	def verify[XP](strategy: CheckStrategy[X]) = new CheckBuilder(checkBuilderFactory, extractorFactory, strategy) with SaveAsBuilder[C, R, X]
 
 	def notEmpty = verify(new CheckStrategy[X] {
-		def apply(value: Option[X], s: Session) = value match {
+		def apply(value: Option[X], session: Session) = value match {
 			case Some(extracted) =>
 				if (!extracted.isEmpty)
 					CheckResult(true, value)
@@ -103,7 +103,7 @@ class CheckMultipleBuilder[C <: Check[R, X], R, X <: Seq[_]](checkBuilderFactory
 	})
 
 	def empty = verify(new CheckStrategy[X] {
-		def apply(value: Option[X], s: Session) = value match {
+		def apply(value: Option[X], session: Session) = value match {
 			case Some(extracted) =>
 				if (extracted.isEmpty)
 					CheckResult(true, value)
@@ -114,9 +114,9 @@ class CheckMultipleBuilder[C <: Check[R, X], R, X <: Seq[_]](checkBuilderFactory
 	})
 
 	def is(expected: Session => X) = verify(new CheckStrategy[X] {
-		def apply(value: Option[X], s: Session) = value match {
+		def apply(value: Option[X], session: Session) = value match {
 			case Some(extracted) => {
-				val expectedValue = expected(s)
+				val expectedValue = expected(session)
 				if (extracted == expectedValue)
 					CheckResult(true, value)
 				else

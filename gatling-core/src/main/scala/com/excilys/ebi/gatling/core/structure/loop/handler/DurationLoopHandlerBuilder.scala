@@ -47,7 +47,7 @@ class DurationLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuil
 		val loopCounterName = counterName.getOrElse(new Uuid().toString)
 		doBuild(
 			List(whileActionBuilder
-				.withConditionFunction((s: Session, a: Action) => (currentTimeMillis - getTimerValue(s, loopCounterName)) <= durationUnit.toMillis(durationValue))
+				.withConditionFunction((session: Session, action: Action) => (currentTimeMillis - getTimerValue(session, loopCounterName)) <= durationUnit.toMillis(durationValue))
 				.withLoopNext(chain)
 				.withCounterName(loopCounterName)))
 	}

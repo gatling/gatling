@@ -17,5 +17,5 @@ package com.excilys.ebi.gatling.core.check
 import com.excilys.ebi.gatling.core.session.Session
 
 trait CheckStrategy[X] {
-	def apply(value: Option[X], s: Session): CheckResult[X]
+	def apply(value: Option[X], session: Session): CheckResult[X]
 }

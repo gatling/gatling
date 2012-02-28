@@ -30,7 +30,7 @@ object Predef {
 	implicit def toSimpleActionBuilder(sessionFunction: (Session, Action) => Session): SimpleActionBuilder = SimpleActionBuilder.toSimpleActionBuilder(sessionFunction)
 	implicit def toSimpleActionBuilder(sessionFunction: Session => Session): SimpleActionBuilder = SimpleActionBuilder.toSimpleActionBuilder(sessionFunction)
 	implicit def stringToSessionFunction(string: String) = parseEvaluatable(string)
-	implicit def toSessionFunction[X](x: X) = (s: Session) => x
+	implicit def toSessionFunction[X](x: X) = (session: Session) => x
 	implicit def checkWithVerifyBuilderToHttpCheck[C <: Check[R, X], R, X](builder: CheckBuilder[C, R, X]) = builder.build
 	implicit def checkOneToExists[C <: Check[R, X], R, X](builder: CheckOneBuilder[C, R, X]) = builder.exists
 	implicit def checkOneToCheck[C <: Check[R, X], R, X](builder: CheckOneBuilder[C, R, X]) = builder.exists.build

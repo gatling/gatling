@@ -28,7 +28,7 @@ import akka.actor.Actor
 trait Action extends Actor with ClassSimpleNameToString {
 
 	def receive = {
-		case s: Session => execute(s)
+		case session: Session => execute(session)
 		case _ => throw new IllegalArgumentException("Unknown message type")
 	}
 

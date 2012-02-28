@@ -56,9 +56,9 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 			// What will be repeated ?
 			chain
 				// First request to be repeated
-				.exec((s: Session) => {
-					println("iterate: " + getCounterValue(s, "titi"))
-					s
+				.exec((session: Session) => {
+					println("iterate: " + getCounterValue(session, "titi"))
+					session
 				})
 				.exec(
 					http("Page accueil").get("http://localhost:3000")
@@ -74,13 +74,13 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				.loop(chain
 					.exec(http("In During 1").get("http://localhost:3000/aaaa"))
 					.pause(2)
-					.loop(chain.exec((s: Session) => {
-						println("--nested loop: " + getCounterValue(s, "tutu"))
-						s
+					.loop(chain.exec((session: Session) => {
+						println("--nested loop: " + getCounterValue(session, "tutu"))
+						session
 					})).counterName("tutu").times(2)
-					.exec((s: Session) => {
-						println("-loopDuring: " + getCounterValue(s, "foo"))
-						s
+					.exec((session: Session) => {
+						println("-loopDuring: " + getCounterValue(session, "foo"))
+						session
 					})
 					.exec(http("In During 2").get("/"))
 					.pause(2))
@@ -90,21 +90,21 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 					chain
 						.exec(http("In During 1").get("/"))
 						.pause(2)
-						.exec((s: Session) => {
-							println("-iterate1: " + getCounterValue(s, "titi") + ", doFor: " + getCounterValue(s, "hehe"))
-							s
+						.exec((session: Session) => {
+							println("-iterate1: " + getCounterValue(session, "titi") + ", doFor: " + getCounterValue(session, "hehe"))
+							session
 						})
 						.loop(
 							chain
-								.exec((s: Session) => {
-									println("--iterate1: " + getCounterValue(s, "titi") + ", doFor: " + getCounterValue(s, "hehe") + ", iterate2: " + getCounterValue(s, "hoho"))
-									s
+								.exec((session: Session) => {
+									println("--iterate1: " + getCounterValue(session, "titi") + ", doFor: " + getCounterValue(session, "hehe") + ", iterate2: " + getCounterValue(session, "hoho"))
+									session
 								}))
 						.counterName("hoho").times(2)
 						.exec(http("In During 2").get("/"))
 						.pause(2))
 				.counterName("hehe").during(12000, MILLISECONDS)
-				.exec((s: Session) => s.setAttribute("test2", "bbbb"))
+				.exec((session: Session) => session.setAttribute("test2", "bbbb"))
 				.doIf("test2", "aaaa",
 					chain.exec(http("IF=TRUE Request").get("/")), chain.exec(http("IF=FALSE Request").get("/")))
 				.pause(pause2)

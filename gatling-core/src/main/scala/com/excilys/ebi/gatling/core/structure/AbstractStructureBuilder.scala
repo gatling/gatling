@@ -110,7 +110,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @param thenNext the chain to be executed if the condition is satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIf(sessionKey: String, value: String, thenNext: ChainBuilder): B = doIf((s: Session) => parseEvaluatable(sessionKey)(s) == value, thenNext)
+	def doIf(sessionKey: String, value: String, thenNext: ChainBuilder): B = doIf((session: Session) => parseEvaluatable(sessionKey)(session) == value, thenNext)
 
 	/**
 	 * Method used to add a conditional execution in the scenario with a fall back
@@ -122,7 +122,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @param elseNext the chain to be executed if the condition is not satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIf(sessionKey: String, value: String, thenNext: ChainBuilder, elseNext: ChainBuilder): B = doIf((s: Session) => parseEvaluatable(sessionKey)(s) == value, thenNext, elseNext)
+	def doIf(sessionKey: String, value: String, thenNext: ChainBuilder, elseNext: ChainBuilder): B = doIf((session: Session) => parseEvaluatable(sessionKey)(session) == value, thenNext, elseNext)
 
 	/**
 	 * Private method that actually adds the If Action to the scenario
@@ -149,7 +149,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 *
 	 * @param feeder the feeder from which the values will be loaded
 	 */
-	def feed(feeder: Feeder): B = newInstance(simpleActionBuilder((s: Session) => s.setAttributes(feeder.next)) :: actionBuilders)
+	def feed(feeder: Feeder): B = newInstance(simpleActionBuilder((session: Session) => session.setAttributes(feeder.next)) :: actionBuilders)
 
 	/**
 	 * Method used to declare a loop

@@ -98,17 +98,17 @@ object StringHelper extends Logging {
 
 			if (dynamicParts.isEmpty) {
 				// no interpolation
-				(s: Session) => stringToFormat
+				(session: Session) => stringToFormat
 
 			} else {
 				val staticParts = parseStaticParts
 
 				val functions = dynamicParts.zip(staticParts)
 
-				(s: Session) => {
+				(session: Session) => {
 					val buffer = new StringBuilder
 
-					functions.foreach { case (dynamicPart, staticPart) => buffer.append(staticPart).append(dynamicPart(s)) }
+					functions.foreach { case (dynamicPart, staticPart) => buffer.append(staticPart).append(dynamicPart(session)) }
 
 					buffer.append(staticParts.last).toString
 				}

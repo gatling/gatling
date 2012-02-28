@@ -46,7 +46,7 @@ object SimpleActionBuilder {
 	 *
 	 * @param sessionFunction the function that will be executed by the built simple action
 	 */
-	def simpleActionBuilder(sessionFunction: Session => Session): SimpleActionBuilder = simpleActionBuilder((s: Session, a: Action) => sessionFunction(s))
+	def simpleActionBuilder(sessionFunction: Session => Session): SimpleActionBuilder = simpleActionBuilder((session: Session, action: Action) => sessionFunction(session))
 	/**
 	 * Function used to create a simple action builder
 	 *

@@ -75,5 +75,5 @@ class LoopBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: 
 	 * @param sessionKey the key of the value in the session
 	 * @param value the value to which the session value is compared
 	 */
-	def asLongAs(sessionKey: String, value: String): B = asLongAs((s: Session) => parseEvaluatable(sessionKey)(s) == value)
+	def asLongAs(sessionKey: String, value: String): B = asLongAs((session: Session) => parseEvaluatable(sessionKey)(session) == value)
 }

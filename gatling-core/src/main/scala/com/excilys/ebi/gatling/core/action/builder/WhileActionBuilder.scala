@@ -50,7 +50,7 @@ class WhileActionBuilder(conditionFunction: (Session, Action) => Boolean, loopNe
 	 * @param conditionFunction the condition function
 	 * @return a new builder with conditionFunction set
 	 */
-	def withConditionFunction(conditionFunction: Session => Boolean): WhileActionBuilder = withConditionFunction((s: Session, a: Action) => conditionFunction(s))
+	def withConditionFunction(conditionFunction: Session => Boolean): WhileActionBuilder = withConditionFunction((session: Session, action: Action) => conditionFunction(session))
 	/**
 	 * Adds conditionFunction to this builder
 	 *
