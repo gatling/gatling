@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.feeder
 
 import java.util.concurrent.ConcurrentLinkedQueue
 
-import scala.collection.JavaConverters.bufferAsJavaListConverter
+import scala.collection.JavaConverters.seqAsJavaListConverter
 
 import akka.actor.Actor.registry
 import grizzled.slf4j.Logging

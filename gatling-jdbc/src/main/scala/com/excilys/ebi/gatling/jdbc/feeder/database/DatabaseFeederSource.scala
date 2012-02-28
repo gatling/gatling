@@ -41,7 +41,7 @@ class DatabaseFeederSource(driverClassName: String, url: String, username: Strin
 					val vals = for (i <- 1 to rsmd.getColumnCount) yield resultSet.getString(i)
 					(columnNames zip vals).toMap[String, String]
 				}
-			}.toBuffer
+			}.toSeq
 		}
 	}
 }

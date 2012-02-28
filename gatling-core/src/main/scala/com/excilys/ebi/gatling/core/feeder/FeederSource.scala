@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.feeder
 
-import scala.collection.mutable.Buffer
-
 abstract class FeederSource(val name: String) {
-	val values: Buffer[Map[String, String]]
+	val values: Seq[Map[String, String]]
 }
