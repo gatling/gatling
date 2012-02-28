@@ -39,5 +39,9 @@ class IfAction(conditionFunction: Session => Boolean, thenNext: ActorRef, elseNe
 	 * @param session Session for current user
 	 * @return Nothing
 	 */
-	def execute(session: Session) = if (conditionFunction(session)) thenNext ! session else elseNext.getOrElse(next) ! session
+	def execute(session: Session) =
+		if (conditionFunction(session))
+			thenNext ! session
+		else
+			elseNext.getOrElse(next) ! session
 }

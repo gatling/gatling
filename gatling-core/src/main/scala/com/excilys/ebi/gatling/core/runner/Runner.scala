@@ -15,18 +15,19 @@
  */
 package com.excilys.ebi.gatling.core.runner
 
-import java.util.concurrent.{TimeUnit, CountDownLatch}
+import java.util.concurrent.TimeUnit.{ SECONDS, MILLISECONDS }
+import java.util.concurrent.CountDownLatch
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
-import com.excilys.ebi.gatling.core.result.message.{RunRecord, InitializeDataWriter}
+import com.excilys.ebi.gatling.core.result.message.{ RunRecord, InitializeDataWriter }
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
-import com.excilys.ebi.gatling.core.scenario.configuration.{ScenarioConfigurationBuilder, ScenarioConfiguration}
+import com.excilys.ebi.gatling.core.scenario.configuration.{ ScenarioConfigurationBuilder, ScenarioConfiguration }
 import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.Actor.registry
-import akka.actor.{Scheduler, ActorRef}
+import akka.actor.{ Scheduler, ActorRef }
 import grizzled.slf4j.Logging
 
 class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioConfigurationBuilder]) extends Logging {
@@ -68,7 +69,7 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 		}
 
 		debug("Finished Launching scenarios executions")
-		latch.await(configuration.simulationTimeOut, TimeUnit.SECONDS)
+		latch.await(configuration.simulationTimeOut, SECONDS)
 
 		debug("All scenarios finished, stoping actors")
 		// Shuts down all actors
@@ -88,18 +89,16 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 	private def startOneScenario(configuration: ScenarioConfiguration, scenario: ActorRef) = {
 		if (configuration.users == 1) {
 			// if single user, execute right now
-			val session = buildSession(configuration, 1)
-			scenario ! session
+			scenario ! buildSession(configuration, 1)
+
 		} else {
 			// otherwise, schedule
 			val (value, unit) = configuration.ramp
 			// compute ramp period in millis so we can ramp less that one user per second
 			val period = unit.toMillis(value) / (configuration.users - 1)
 
-			for (i <- 1 to configuration.users) {
-				val session: Session = buildSession(configuration, i)
-				Scheduler.scheduleOnce(() => scenario ! session, period * (i - 1), TimeUnit.MILLISECONDS)
-			}
+			for (i <- 1 to configuration.users)
+				Scheduler.scheduleOnce(() => scenario ! buildSession(configuration, i), period * (i - 1), MILLISECONDS)
 		}
 	}
 
