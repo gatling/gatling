@@ -41,15 +41,16 @@ class ActiveSessionsReportGenerator(runOn: String, dataReader: DataReader, compo
 		val colors = List(ORANGE, BLUE, GREEN, RED, YELLOW, CYAN, LIME, PURPLE, PINK, LIGHT_BLUE, LIGHT_ORANGE, LIGHT_RED, LIGHT_LIME, LIGHT_PURPLE, LIGHT_PINK)
 
 		// Create series
-		val series = (activeSessionsData.reverse zip colors).map { tuple =>
-			val series = new Series[Long, Int](tuple._1._1, tuple._1._2, List(tuple._2))
-			if (series.name == ActiveSessionsReportGenerator.ALL_SESSIONS)
-				SharedSeries.setAllActiveSessionsSeries(series)
-			series
-		}.toSeq
+		val series = (activeSessionsData.reverse zip colors).map {
+			case ((scenarioName, data), color) =>
+				val series = new Series[Long, Int](scenarioName, data, List(color))
+				if (series.name == ActiveSessionsReportGenerator.ALL_SESSIONS)
+					SharedSeries.setAllActiveSessionsSeries(series)
+				series
+		}
 
 		// Create template
-		val template = new ActiveSessionsPageTemplate(componentLibrary.getActiveSessionsChartComponent(series: _*))
+		val template = new ActiveSessionsPageTemplate(componentLibrary.getActiveSessionsChartComponent(series))
 
 		// Write template result to file
 		new TemplateWriter(activeSessionsFile(runOn)).writeToFile(template.getOutput)

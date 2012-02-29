@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.charts.component
 import com.excilys.ebi.gatling.charts.series.Series
 
 trait ComponentLibrary {
-	def getActiveSessionsChartComponent(series: Series[Long, Int]*): Component
+	def getActiveSessionsChartComponent(series: Seq[Series[Long, Int]]): Component
 	def getRequestsChartComponent(allRequests: Series[Long, Int], failedRequests: Series[Long, Int], succeededRequests: Series[Long, Int], pieSeries: Series[String, Int], allActiveSessions: Series[Long, Int]): Component
 	def getTransactionsChartComponent(allTransactions: Series[Long, Int], failedTransactions: Series[Long, Int], succeededTransactions: Series[Long, Int], pieSeries: Series[String, Int], allActiveSessions: Series[Long, Int]): Component
 	def getRequestDetailsResponseTimeChartComponent(responseTimesSuccess: Series[Long, Int], responseTimesFailures: Series[Long, Int], allActiveSessions: Series[Long, Int]): Component
