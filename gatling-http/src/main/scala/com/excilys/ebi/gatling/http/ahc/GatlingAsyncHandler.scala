@@ -43,6 +43,8 @@ import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.ning.http.client.RequestBuilderBase.RequestImpl
 import com.ning.http.client.FluentStringsMap
 import grizzled.slf4j.Logging
+import scala.annotation.tailrec
+import com.excilys.ebi.gatling.core.check.CheckResult
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
@@ -141,38 +143,39 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck[_]], next: Ac
 	 */
 	private def processResponse(response: Response) {
 
-		var newSession = storeCookies(session, response.getUri.toString, response.getCookies.asScala)
+		@tailrec
+		def checkPhasesRec(session: Session, phases: List[HttpPhase]) {
+
+			phases match {
+				case Nil => sendLogAndExecuteNext(session, OK, "Request Executed Successfully")
+				case phase :: otherPhases =>
+					var (newSessionWithSavedValues, checkResult) = applyChecks(session, response, getChecksForPhase(phase))
+
+					if (!checkResult.ok) {
+						val errorMessage = checkResult.errorMessage.getOrElse(throw new IllegalArgumentException("Missing error message"))
+						warn("Check on request '" + requestName + "' failed : " + errorMessage)
+						sendLogAndExecuteNext(newSessionWithSavedValues, KO, errorMessage)
+
+					} else
+						checkPhasesRec(newSessionWithSavedValues, otherPhases)
+			}
+		}
+
+		val sessionWithUpdatedCookies = storeCookies(session, response.getUri.toString, response.getCookies.asScala)
 
 		if (followRedirect && (response.getStatusCode == 301 || response.getStatusCode == 302)) {
 			// follow redirect
 			val url = URLDecoder.decode(response.getHeader("Location"), configuration.encoding)
 			val builder = new RequestBuilder(originalRequest).setMethod("GET").setQueryParameters(null.asInstanceOf[FluentStringsMap]).setParameters(null.asInstanceOf[FluentStringsMap]).setUrl(url)
 
-			for (cookie <- getStoredCookies(newSession, url))
+			for (cookie <- getStoredCookies(sessionWithUpdatedCookies, url))
 				builder.addCookie(cookie)
 
 			val request = builder.build
 
-			HttpRequestAction.CLIENT.executeRequest(request, new GatlingAsyncHandler(newSession, checks, next, requestName, request, followRedirect, requestStartDate))
+			HttpRequestAction.CLIENT.executeRequest(request, new GatlingAsyncHandler(sessionWithUpdatedCookies, checks, next, requestName, request, followRedirect, requestStartDate))
 
-		} else {
-			HttpPhase.values.foreach { httpPhase =>
-				val phaseChecks = getChecksForPhase(httpPhase)
-				if (!phaseChecks.isEmpty) {
-					var (newSessionWithSavedValues, checkResult) = applyChecks(newSession, response, phaseChecks)
-					newSession = newSessionWithSavedValues
-
-					if (!checkResult.ok) {
-						val errorMessage = checkResult.errorMessage.getOrElse(throw new IllegalArgumentException("Missing error message"))
-						warn("Check on request '" + requestName + "' failed : " + errorMessage)
-
-						sendLogAndExecuteNext(newSession, KO, errorMessage)
-						return
-					}
-				}
-			}
-
-			sendLogAndExecuteNext(newSession, OK, "Request Executed Successfully")
-		}
+		} else
+			checkPhasesRec(sessionWithUpdatedCookies, HttpPhase.values.toList)
 	}
 }

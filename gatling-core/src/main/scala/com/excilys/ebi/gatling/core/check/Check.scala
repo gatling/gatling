@@ -17,9 +17,12 @@ package com.excilys.ebi.gatling.core.check
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.check.CheckContext.useCheckContext
 import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
 import scala.annotation.tailrec
 
 object Check {
+
+	val DEFAULT_CHECK_RESULT = CheckResult(true, None)
 
 	@tailrec
 	private def applyChecksRec[R](session: Session, response: R, checks: List[Check[R, _]], previousCheckResult: CheckResult[_]): (Session, CheckResult[_]) = {
@@ -41,7 +44,7 @@ object Check {
 		}
 	}
 
-	def applyChecks[R](session: Session, response: R, checks: List[Check[R, _]]): (Session, CheckResult[_]) = useCheckContext { applyChecksRec(session, response, checks, null) }
+	def applyChecks[R](session: Session, response: R, checks: List[Check[R, _]]): (Session, CheckResult[_]) = useCheckContext { applyChecksRec(session, response, checks, DEFAULT_CHECK_RESULT) }
 }
 
 /**
