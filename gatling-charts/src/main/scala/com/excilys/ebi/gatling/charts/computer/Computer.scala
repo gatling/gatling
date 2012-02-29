@@ -50,25 +50,21 @@ object Computer {
 	def numberOfSuccesses(data: Seq[RequestRecord]): Int = data.filter(_.resultStatus == OK).size
 
 	def computationByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus, computation: Seq[RequestRecord] => Int): List[(Long, Int)] =
-		SortedMap(data
+		data
 			.map { case (time, results) => time -> results.filter(_.resultStatus == resultStatus) }
 			.map { case (time, results) => time -> computation(results) }
-			.toSeq: _*).toList
+			.toList
 
 	def responseTimeByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus): List[(Long, Int)] = computationByMillisecondAsList(data, resultStatus, averageResponseTime)
 
 	def latencyByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus): List[(Long, Int)] = computationByMillisecondAsList(data, resultStatus, averageLatency)
 
-	def numberOfRequestsPerSecond(data: SortedMap[Long, Seq[RequestRecord]]): SortedMap[Long, Int] =
-		SortedMap(data
-			.map { case (time, results) => time -> results.length }
-			.toSeq: _*)
+	def numberOfRequestsPerSecond(data: SortedMap[Long, Seq[RequestRecord]]): SortedMap[Long, Int] = data.map { case (time, results) => time -> results.length }
 
 	def numberOfRequestsPerSecondAsList(data: SortedMap[Long, Seq[RequestRecord]]): List[(Long, Int)] = numberOfRequestsPerSecond(data).toList
 
 	def numberOfRequestsPerSecond(data: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus): List[(Long, Int)] =
-		numberOfRequestsPerSecondAsList(data
-			.map { case (time, results) => time -> results.filter(_.resultStatus == resultStatus) })
+		numberOfRequestsPerSecondAsList(data.map { case (time, results) => time -> results.filter(_.resultStatus == resultStatus) })
 
 	def numberOfRequestInResponseTimeRange(data: Seq[RequestRecord], lowerBound: Int, higherBound: Int): List[(String, Int)] = {
 
@@ -111,14 +107,15 @@ object Computer {
 		val ends = requestByNameGroupByTime(END_OF_SCENARIO)
 
 		var ct = 0
-		SortedMap(data.map {
+
+		data.map {
 			case (time, results) =>
 				results.foreach { result =>
 					if (starts.getOrElse(time, List.empty).contains(result)) ct += 1
 					else if (ends.getOrElse(time, List.empty).contains(result)) ct -= 1
 				}
 				(time, ct)
-		}.toSeq: _*).toList
+		}.toList
 	}
 
 	def numberOfActiveSessionsPerSecondByScenario(allScenarioData: Seq[(String, SortedMap[Long, Seq[RequestRecord]])]): Seq[(String, List[(Long, Int)])] =
