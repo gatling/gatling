@@ -30,6 +30,7 @@ import com.ning.http.client.Response
  * @param phase the HttpPhase during which the check will be made
  */
 abstract class HttpCheckBuilder[X](val expression: EvaluatableString, val phase: HttpPhase) extends CheckBaseBuilder[HttpCheck[X], Response, X] {
+
 	def httpCheckBuilderFactory[X]: CheckBuilderFactory[HttpCheck[X], Response, X] =
 		(extractorFactory: ExtractorFactory[Response, X], strategy: CheckStrategy[X], saveAs: Option[String], transform: Option[X => Any]) =>
 			new HttpCheck(expression, extractorFactory, strategy, saveAs, transform, phase)

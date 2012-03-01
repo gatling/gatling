@@ -21,11 +21,8 @@ trait CheckBaseBuilder[C <: Check[R, X], R, X] {
 }
 
 trait MultipleOccurrence[C <: Check[R, X], CM <: Check[R, Seq[X]], CC <: Check[R, Int], R, X] extends CheckBaseBuilder[C, R, X] {
-
 	def find(occurrence: Int): CheckOneBuilder[C, R, X]
-
 	def findAll: CheckMultipleBuilder[CM, R, Seq[X]]
-
 	def count: CheckOneBuilder[CC, R, Int]
 }
 

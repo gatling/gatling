@@ -30,16 +30,15 @@ import com.ning.http.client.Response
  * @param countExtractorFactory the extractor factory for count
  * @param expression the function returning the expression representing expression is to be checked
  */
-class HttpBodyCheckBuilder(findExtractorFactory: Int => ExtractorFactory[Response, String],
-		findAllExtractorFactory: ExtractorFactory[Response, Seq[String]],
-		countExtractorFactory: ExtractorFactory[Response, Int],
-		expression: EvaluatableString) extends HttpMultipleCheckBuilder[String](expression, CompletePageReceived) {
+class HttpBodyCheckBuilder(
+	findExtractorFactory: Int => ExtractorFactory[Response, String],
+	findAllExtractorFactory: ExtractorFactory[Response, Seq[String]],
+	countExtractorFactory: ExtractorFactory[Response, Int],
+	expression: EvaluatableString)
+		extends HttpMultipleCheckBuilder[String](expression, CompletePageReceived) {
 
 	def find: CheckOneBuilder[HttpCheck[String], Response, String] = find(0)
-
 	def find(occurrence: Int) = new CheckOneBuilder(httpCheckBuilderFactory, findExtractorFactory(occurrence))
-
 	def findAll = new CheckMultipleBuilder(httpCheckBuilderFactory, findAllExtractorFactory)
-
 	def count = new CheckOneBuilder(httpCheckBuilderFactory, countExtractorFactory)
 }

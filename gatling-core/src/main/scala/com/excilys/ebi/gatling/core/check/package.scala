@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core
+import com.excilys.ebi.gatling.core.session.Session
 package object check {
 
 	type Extractor[X] = String => Option[X]
 	type ExtractorFactory[R, X] = R => Extractor[X]
+	type CheckStrategy[X] = (Option[X], Session) => CheckStatus
 	type CheckBuilderFactory[C <: Check[R, X], R, X] = (ExtractorFactory[R, X], CheckStrategy[X], Option[String], Option[X => Any]) => C
 }
