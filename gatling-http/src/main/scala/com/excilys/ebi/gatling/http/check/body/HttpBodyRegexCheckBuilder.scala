@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.check.body
-import com.excilys.ebi.gatling.core.check.CheckContext.{ setAndReturnCheckContextAttribute, getCheckContextAttribute }
+import com.excilys.ebi.gatling.core.check.CheckContext.{ setCheckContextAttribute, getCheckContextAttribute }
 import com.excilys.ebi.gatling.core.check.extractor.RegexExtractor
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.session.EvaluatableString
@@ -27,7 +27,7 @@ object HttpBodyRegexCheckBuilder {
 	private val HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY = "HttpBodyRegexExtractor"
 
 	private def getCachedExtractor(response: Response) = getCheckContextAttribute(HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY).getOrElse {
-		setAndReturnCheckContextAttribute(HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY, new RegexExtractor(response.getResponseBody))
+		setCheckContextAttribute(HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY, new RegexExtractor(response.getResponseBody))
 	}
 
 	private def findExtractorFactory(occurrence: Int): ExtractorFactory[Response, String] = (response: Response) => getCachedExtractor(response).extractOne(occurrence)

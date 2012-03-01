@@ -18,7 +18,7 @@ import scala.collection.mutable
 
 object CheckContext {
 
-	private[check] val contextHolder = new ThreadLocal[mutable.Map[String, Any]]
+	private val contextHolder = new ThreadLocal[mutable.Map[String, Any]]
 
 	def useCheckContext[T](block: => T) = {
 		try {
@@ -31,12 +31,12 @@ object CheckContext {
 		}
 	}
 
-	private def getContext = Option(contextHolder.get).getOrElse(throw new UnsupportedOperationException("Context not set. You're probably trying to access the CheckContext outside of the useCheckContext scope"))
+	def context = Option(contextHolder.get).getOrElse(throw new UnsupportedOperationException("Context not set. You're probably trying to access the CheckContext outside of the useCheckContext scope"))
 
-	def getCheckContextAttribute[T](key: String): Option[T] = getContext.get(key).asInstanceOf[Option[T]]
+	def getCheckContextAttribute[T](key: String): Option[T] = context.get(key).asInstanceOf[Option[T]]
 
-	def setAndReturnCheckContextAttribute[T](key: String, value: T): T = {
-		getContext.put(key, value)
+	def setCheckContextAttribute[T](key: String, value: T): T = {
+		context.put(key, value)
 		value
 	}
 }
