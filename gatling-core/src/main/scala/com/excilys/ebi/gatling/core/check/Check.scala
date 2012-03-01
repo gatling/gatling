@@ -14,37 +14,38 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.check
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.check.CheckContext.useCheckContext
-import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
 import scala.annotation.tailrec
+
+import com.excilys.ebi.gatling.core.check.CheckContext.useCheckContext
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
+import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
 
 object Check {
 
-	val DEFAULT_CHECK_RESULT = CheckResult(true, None)
+	val DEFAULT_CHECK_RESULT: CheckStatus = Success(None)
 
 	@tailrec
-	private def applyChecksRec[R](session: Session, response: R, checks: List[Check[R, _]], previousCheckResult: CheckResult[_]): (Session, CheckResult[_]) = {
+	private def applyChecksRec[R](session: Session, response: R, checks: List[Check[R, _]], previousCheckResult: CheckStatus): (Session, CheckStatus) = {
 		checks match {
 			case Nil => (session, previousCheckResult)
 			case check :: otherChecks =>
 				val checkResult = check.check(response, session)
 
-				if (!checkResult.ok)
-					(session, checkResult)
+				checkResult.status match {
+					case failure @ Failure(_) => (session, failure)
+					case success @ Success(extractedValue) =>
+						val newSession = check.saveAs.map {
+							val toBeSaved = checkResult.transformedValue.getOrElse(extractedValue)
+							session.setAttribute(_, toBeSaved)
+						}.getOrElse(session)
 
-				else {
-					val extractedValue = checkResult.extractedValue.get
-					val newSession = check.saveAs.map(session.setAttribute(_, extractedValue)).getOrElse(session)
-
-					applyChecksRec(newSession, response, otherChecks, checkResult)
+						applyChecksRec(newSession, response, otherChecks, success)
 				}
 
 		}
 	}
 
-	def applyChecks[R](session: Session, response: R, checks: List[Check[R, _]]): (Session, CheckResult[_]) = useCheckContext { applyChecksRec(session, response, checks, DEFAULT_CHECK_RESULT) }
+	def applyChecks[R](session: Session, response: R, checks: List[Check[R, _]]): (Session, CheckStatus) = useCheckContext { applyChecksRec(session, response, checks, DEFAULT_CHECK_RESULT) }
 }
 
 /**
@@ -55,12 +56,17 @@ object Check {
  * @param saveAs the session attribute that will be used to store the extracted value
  * @param strategy the strategy used to perform the Check
  */
-abstract class Check[R, X](val expression: EvaluatableString, val extractorFactory: ExtractorFactory[R, X], val strategy: CheckStrategy[X], val saveAs: Option[String]) {
+abstract class Check[R, X](val expression: EvaluatableString, val extractorFactory: ExtractorFactory[R, X], val strategy: CheckStrategy[X], val saveAs: Option[String], val transform: Option[X => Any]) {
 
-	def check(response: R, session: Session): CheckResult[X] = {
+	def check(response: R, session: Session): CheckResult = {
 		val extractor = extractorFactory(response)
 		val evaluatedExpression = expression(session)
 		val extractedValue = extractor(evaluatedExpression)
-		strategy(extractedValue, session)
+		val transformedValue = for {
+			extractedValue <- extractedValue
+			transform <- transform
+		} yield transform(extractedValue)
+		val checkStatus = strategy(extractedValue, session)
+		CheckResult(checkStatus, saveAs, transformedValue)
 	}
 }

@@ -30,4 +30,5 @@ import com.ning.http.client.Response
  * @param strategy the strategy used to check
  * @param phase the HttpPhase during which the check will be made
  */
-class HttpCheck[X](expression: EvaluatableString, extractorFactory: ExtractorFactory[Response, X], strategy: CheckStrategy[X], saveAs: Option[String], val phase: HttpPhase) extends Check[Response, X](expression, extractorFactory, strategy, saveAs)
+class HttpCheck[X](expression: EvaluatableString, extractorFactory: ExtractorFactory[Response, X], strategy: CheckStrategy[X], saveAs: Option[String], transform: Option[X => Any], val phase: HttpPhase)
+	extends Check[Response, X](expression, extractorFactory, strategy, saveAs, transform)

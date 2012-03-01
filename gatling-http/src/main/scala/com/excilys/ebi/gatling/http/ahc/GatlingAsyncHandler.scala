@@ -45,6 +45,8 @@ import com.ning.http.client.FluentStringsMap
 import grizzled.slf4j.Logging
 import scala.annotation.tailrec
 import com.excilys.ebi.gatling.core.check.CheckResult
+import com.excilys.ebi.gatling.core.check.Failure
+import com.excilys.ebi.gatling.core.check.Success
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
@@ -151,13 +153,13 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck[_]], next: Ac
 				case phase :: otherPhases =>
 					var (newSessionWithSavedValues, checkResult) = applyChecks(session, response, getChecksForPhase(phase))
 
-					if (!checkResult.ok) {
-						val errorMessage = checkResult.errorMessage.getOrElse(throw new IllegalArgumentException("Missing error message"))
-						warn("Check on request '" + requestName + "' failed : " + errorMessage)
-						sendLogAndExecuteNext(newSessionWithSavedValues, KO, errorMessage)
+					checkResult match {
+						case Failure(errorMessage) =>
+							warn("Check on request '" + requestName + "' failed : " + errorMessage)
+							sendLogAndExecuteNext(newSessionWithSavedValues, KO, errorMessage)
+						case _ => checkPhasesRec(newSessionWithSavedValues, otherPhases)
 
-					} else
-						checkPhasesRec(newSessionWithSavedValues, otherPhases)
+					}
 			}
 		}
 

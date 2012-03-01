@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core
-package object check {
+package com.excilys.ebi.gatling.core.check
 
-	type Extractor[X] = String => Option[X]
-	type ExtractorFactory[R, X] = R => Extractor[X]
-	type CheckBuilderFactory[C <: Check[R, X], R, X] = (ExtractorFactory[R, X], CheckStrategy[X], Option[String], Option[X => Any]) => C
+sealed trait CheckStatus
+
+case class Success[X](extractedValue: Option[X]) extends CheckStatus {
+	override def toString = new StringBuilder().append("Success, extractedValue=").append(extractedValue).toString
+}
+
+case class Failure(errorMessage: String) extends CheckStatus {
+	override def toString = new StringBuilder().append("Failure, errorMessage=").append(errorMessage).toString
 }

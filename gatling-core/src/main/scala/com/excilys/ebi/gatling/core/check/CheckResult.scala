@@ -15,11 +15,11 @@
  */
 package com.excilys.ebi.gatling.core.check
 
-case class CheckResult[X](val ok: Boolean, val extractedValue: Option[X], val errorMessage: Option[String] = None) {
+case class CheckResult(status: CheckStatus, saveAs: Option[String], transformedValue: Option[Any]) {
 
 	override def toString = new StringBuilder()
-		.append("ok=").append(ok)
-		.append(" extractedValue=").append(extractedValue)
-		.append(" errorMessage=").append(errorMessage)
+		.append(status)
+		.append(" saveAs=").append(saveAs)
+		.append(" transformedValue=").append(transformedValue)
 		.toString
 }

@@ -35,15 +35,15 @@ class CheckOneBuilder[C <: Check[R, X], R, X](checkBuilderFactory: CheckBuilderF
 
 	def exists = verify(new CheckStrategy[X] {
 		def apply(value: Option[X], session: Session) = value match {
-			case Some(_) => CheckResult(true, value)
-			case None => CheckResult(false, None, Some("Check 'exists' failed"))
+			case Some(_) => Success(value)
+			case None => Failure("Check 'exists' failed")
 		}
 	})
 
 	def notExists = verify(new CheckStrategy[X] {
 		def apply(value: Option[X], session: Session) = value match {
-			case None => CheckResult(true, value)
-			case Some(extracted) => CheckResult(false, None, Some("Check 'notExists' failed, found " + extracted))
+			case None => Success(value)
+			case Some(extracted) => Failure("Check 'notExists' failed, found " + extracted)
 		}
 	})
 
@@ -52,23 +52,23 @@ class CheckOneBuilder[C <: Check[R, X], R, X](checkBuilderFactory: CheckBuilderF
 			case Some(extracted) => {
 				val expectedValue = expected(session)
 				if (extracted == expectedValue)
-					CheckResult(true, value)
+					Success(value)
 				else
-					CheckResult(false, value, Some(new StringBuilder().append("Check 'is' failed, found ").append(extracted).append(" but expected ").append(expectedValue).toString))
+					Failure(new StringBuilder().append("Check 'is' failed, found ").append(extracted).append(" but expected ").append(expectedValue).toString)
 			}
-			case None => CheckResult(false, None, Some("Check 'is' failed, found nothing"))
+			case None => Failure("Check 'is' failed, found nothing")
 		}
 	})
 
 	def not(expected: Session => X) = verify(new CheckStrategy[X] {
 		def apply(value: Option[X], session: Session) = value match {
-			case None => CheckResult(true, value)
+			case None => Success(value)
 			case Some(extracted) => {
 				val expectedValue = expected(session)
 				if (extracted != expectedValue)
-					CheckResult(true, value)
+					Success(value)
 				else
-					CheckResult(false, None, Some(new StringBuilder().append("Check 'not' failed, found ").append(extracted).append(" but expected different from ").append(expectedValue).toString))
+					Failure(new StringBuilder().append("Check 'not' failed, found ").append(extracted).append(" but expected different from ").append(expectedValue).toString)
 			}
 		}
 	})
@@ -78,11 +78,11 @@ class CheckOneBuilder[C <: Check[R, X], R, X](checkBuilderFactory: CheckBuilderF
 			case Some(extracted) => {
 				val expectedValue = expected(session)
 				if (expectedValue.contains(extracted))
-					CheckResult(true, value)
+					Success(value)
 				else
-					CheckResult(false, None, Some(new StringBuilder().append("Check 'in' failed, found ").append(extracted).append(" but expected ").append(expectedValue).toString))
+					Failure(new StringBuilder().append("Check 'in' failed, found ").append(extracted).append(" but expected ").append(expectedValue).toString)
 			}
-			case None => CheckResult(false, None, Some("Check 'in' failed, found nothing"))
+			case None => Failure("Check 'in' failed, found nothing")
 		}
 	})
 }
@@ -95,10 +95,10 @@ class CheckMultipleBuilder[C <: Check[R, X], R, X <: Seq[_]](checkBuilderFactory
 		def apply(value: Option[X], session: Session) = value match {
 			case Some(extracted) =>
 				if (!extracted.isEmpty)
-					CheckResult(true, value)
+					Success(value)
 				else
-					CheckResult(false, None, Some("Check 'notEmpty' failed, found empty"))
-			case None => CheckResult(false, None, Some("Check 'notEmpty' failed, found None"))
+					Failure("Check 'notEmpty' failed, found empty")
+			case None => Failure("Check 'notEmpty' failed, found None")
 		}
 	})
 
@@ -106,10 +106,10 @@ class CheckMultipleBuilder[C <: Check[R, X], R, X <: Seq[_]](checkBuilderFactory
 		def apply(value: Option[X], session: Session) = value match {
 			case Some(extracted) =>
 				if (extracted.isEmpty)
-					CheckResult(true, value)
+					Success(value)
 				else
-					CheckResult(false, None, Some("Check 'empty' failed, found " + extracted))
-			case None => CheckResult(false, None, Some("Check 'empty' failed, found None"))
+					Failure("Check 'empty' failed, found " + extracted)
+			case None => Failure("Check 'empty' failed, found None")
 		}
 	})
 
@@ -118,21 +118,23 @@ class CheckMultipleBuilder[C <: Check[R, X], R, X <: Seq[_]](checkBuilderFactory
 			case Some(extracted) => {
 				val expectedValue = expected(session)
 				if (extracted == expectedValue)
-					CheckResult(true, value)
+					Success(value)
 				else
-					CheckResult(false, None, Some(new StringBuilder().append("Check 'is' failed, found ").append(extracted).append(" but expected ").append(expectedValue).toString))
+					Failure(new StringBuilder().append("Check 'is' failed, found ").append(extracted).append(" but expected ").append(expectedValue).toString)
 			}
-			case None => CheckResult(false, None, Some("Check 'is' failed, found nothing"))
+			case None => Failure("Check 'is' failed, found nothing")
 		}
 	})
 }
 
 trait SaveAsBuilder[C <: Check[R, X], R, X] extends CheckBuilder[C, R, X] {
 
-	def saveAs(saveAs: String) = new CheckBuilder(checkBuilderFactory, extractorFactory, strategy, Some(saveAs))
+	def saveAs(saveAs: String): CheckBuilder[C, R, X] = new CheckBuilder(checkBuilderFactory, extractorFactory, strategy, Some(saveAs))
+
+	def saveAs(saveAs: String, transform: X => Any): CheckBuilder[C, R, X] = new CheckBuilder(checkBuilderFactory, extractorFactory, strategy, Some(saveAs), Some(transform))
 }
 
-class CheckBuilder[C <: Check[R, X], R, X](val checkBuilderFactory: CheckBuilderFactory[C, R, X], val extractorFactory: ExtractorFactory[R, X], val strategy: CheckStrategy[X], saveAs: Option[String] = None) {
+class CheckBuilder[C <: Check[R, X], R, X](val checkBuilderFactory: CheckBuilderFactory[C, R, X], val extractorFactory: ExtractorFactory[R, X], val strategy: CheckStrategy[X], saveAs: Option[String] = None, transform: Option[X => Any] = None) {
 
-	def build: C = checkBuilderFactory(extractorFactory, strategy, saveAs)
+	def build: C = checkBuilderFactory(extractorFactory, strategy, saveAs, transform)
 }
