@@ -6,7 +6,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-# 		http://www.apache.org/licenses/LICENSE-2.0
+#   	http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,20 +15,19 @@
 # limitations under the License.
 #
 
-SCRIPT=`readlink -f $0`
-BIN_DIR=`dirname ${SCRIPT}`
-DEFAULT_GATLING_HOME=`readlink -f ${BIN_DIR}/..`
+OLDDIR=`pwd`
+BIN_DIR=`dirname $0`
+cd ${BIN_DIR}/.. && DEFAULT_GATLING_HOME=`pwd` && cd ${OLDDIR}
 
 GATLING_HOME=${GATLING_HOME:=${DEFAULT_GATLING_HOME}}
-GATLING_HOME=`echo ${GATLING_HOME} | sed -e 's/ /\\ /g'`
 GATLING_CONF=${GATLING_CONF:="$GATLING_HOME/conf"}
 
 export GATLING_HOME GATLING_CONF
 
 echo "GATLING_HOME is set to ${GATLING_HOME}"
 
-JAVA_OPTS="-server -XX:+UseThreadPriorities -XX:ThreadPriorityPolicy=42 -Xms512M -Xmx512M -Xmn100M -Xss1024k -XX:+HeapDumpOnOutOfMemoryError -XX:+AggressiveOpts -XX:+OptimizeStringConcat -XX:+UseFastAccessorMethods -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:SurvivorRatio=8 -XX:MaxTenuringThreshold=1 -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly -XX:+UseNUMA"
+JAVA_OPTS="-server -XX:+UseThreadPriorities -XX:ThreadPriorityPolicy=42 -Xms512M -Xmx512M -Xmn100M -Xss1024k -XX:+HeapDumpOnOutOfMemoryError -XX:+AggressiveOpts -XX:+OptimizeStringConcat -XX:+UseFastAccessorMethods -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:SurvivorRatio=8 -XX:MaxTenuringThreshold=1 -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly -XX:+UseNUMA ${JAVA_OPTS}"
 
-CLASSPATH="$GATLING_HOME/lib/*:$GATLING_CONF"
+CLASSPATH="$GATLING_HOME/lib/*:$GATLING_CONF:${JAVA_CLASSPATH}"
 
 java $JAVA_OPTS -cp $CLASSPATH com.excilys.ebi.gatling.app.Gatling $@
