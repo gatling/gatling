@@ -33,6 +33,6 @@ import com.excilys.ebi.gatling.core.check.CheckBuilder
  * @param givenProcessors a list of processors that will apply on the response
  * @param protocolConfiguration the optional protocolConfiguration for this type of request
  */
-abstract class RequestAction[C <: Check[R, _], R, P <:ProtocolConfiguration](next: ActorRef, request: Request, givenProcessors: Option[List[C]], protocolConfiguration: Option[P]) extends Action {
+abstract class RequestAction[C <: Check[R], R, P <:ProtocolConfiguration](next: ActorRef, request: Request, givenProcessors: Option[List[C]], protocolConfiguration: Option[P]) extends Action {
 	def execute(session: Session)
 }

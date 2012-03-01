@@ -77,8 +77,8 @@ object HttpRequestAction {
  * @param givenCheckBuilders all the checks that will be performed on the response
  * @param feeder the feeder that will be consumed each time the request will be sent
  */
-class HttpRequestAction(next: ActorRef, request: HttpRequest, givenChecks: Option[List[HttpCheck[_]]], protocolConfiguration: Option[HttpProtocolConfiguration])
-		extends RequestAction[HttpCheck[_], Response, HttpProtocolConfiguration](next, request, givenChecks, protocolConfiguration) with Logging {
+class HttpRequestAction(next: ActorRef, request: HttpRequest, givenChecks: Option[List[HttpCheck]], protocolConfiguration: Option[HttpProtocolConfiguration])
+		extends RequestAction[HttpCheck, Response, HttpProtocolConfiguration](next, request, givenChecks, protocolConfiguration) with Logging {
 
 	val checks = givenChecks match {
 		case Some(givenChecksContent) =>

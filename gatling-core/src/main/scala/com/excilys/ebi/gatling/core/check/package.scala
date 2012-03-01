@@ -15,10 +15,12 @@
  */
 package com.excilys.ebi.gatling.core
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.EvaluatableString
 package object check {
 
 	type Extractor[X] = String => Option[X]
 	type ExtractorFactory[R, X] = R => Extractor[X]
-	type CheckStrategy[X] = (Option[X], Session) => CheckStatus
-	type CheckBuilderFactory[C <: Check[R, X], R, X] = (ExtractorFactory[R, X], CheckStrategy[X], Option[String], Option[X => Any]) => C
+	type VerificationStrategy[X] = (Option[X], Session) => CheckResult
+	type Verification[R] = (EvaluatableString, Session, R) => CheckResult
+	type CheckBuilderFactory[C <: Check[R], R] = (Verification[R], Option[String]) => C
 }

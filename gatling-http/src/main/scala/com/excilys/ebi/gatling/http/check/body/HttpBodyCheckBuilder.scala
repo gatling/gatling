@@ -15,10 +15,10 @@
  */
 package com.excilys.ebi.gatling.http.check.body
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
-import com.excilys.ebi.gatling.core.check.CheckOneBuilder
-import com.excilys.ebi.gatling.core.check.CheckMultipleBuilder
+import com.excilys.ebi.gatling.core.check.VerifyBuilder
 import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.excilys.ebi.gatling.http.check.{ HttpMultipleCheckBuilder, HttpCheck }
+import com.excilys.ebi.gatling.http.check.HttpMultipleCheckBuilder
+import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 import com.ning.http.client.Response
 
@@ -37,8 +37,11 @@ class HttpBodyCheckBuilder(
 	expression: EvaluatableString)
 		extends HttpMultipleCheckBuilder[String](expression, CompletePageReceived) {
 
-	def find: CheckOneBuilder[HttpCheck[String], Response, String] = find(0)
-	def find(occurrence: Int) = new CheckOneBuilder(httpCheckBuilderFactory, findExtractorFactory(occurrence))
-	def findAll = new CheckMultipleBuilder(httpCheckBuilderFactory, findAllExtractorFactory)
-	def count = new CheckOneBuilder(httpCheckBuilderFactory, countExtractorFactory)
+	def find: VerifyBuilder[HttpCheck, Response, String] = find(0)
+
+	def find(occurrence: Int) = new VerifyBuilder(httpCheckBuilderFactory, findExtractorFactory(occurrence))
+
+	def findAll = new VerifyBuilder(httpCheckBuilderFactory, findAllExtractorFactory)
+
+	def count = new VerifyBuilder(httpCheckBuilderFactory, countExtractorFactory)
 }

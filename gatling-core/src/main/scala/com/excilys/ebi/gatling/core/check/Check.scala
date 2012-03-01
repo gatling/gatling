@@ -22,22 +22,24 @@ import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
 
 object Check {
 
-	val DEFAULT_CHECK_RESULT: CheckStatus = Success(None)
+	val DEFAULT_CHECK_RESULT: CheckResult = Success(None)
 
 	@tailrec
-	private def applyChecksRec[R](session: Session, response: R, checks: List[Check[R, _]], previousCheckResult: CheckStatus): (Session, CheckStatus) = {
+	private def applyChecksRec[R](session: Session, response: R, checks: List[Check[R]], previousCheckResult: CheckResult): (Session, CheckResult) = {
 		checks match {
 			case Nil => (session, previousCheckResult)
 			case check :: otherChecks =>
 				val checkResult = check.check(response, session)
 
-				checkResult.status match {
+				checkResult match {
 					case failure @ Failure(_) => (session, failure)
 					case success @ Success(extractedValue) =>
-						val newSession = check.saveAs.map {
-							val toBeSaved = checkResult.transformedValue.getOrElse(extractedValue)
-							session.setAttribute(_, toBeSaved)
-						}.getOrElse(session)
+						val newSession = (
+							for {
+								extractedValue <- extractedValue
+								saveAs <- check.saveAs
+							} yield session.setAttribute(saveAs, extractedValue))
+							.getOrElse(session)
 
 						applyChecksRec(newSession, response, otherChecks, success)
 				}
@@ -45,7 +47,7 @@ object Check {
 		}
 	}
 
-	def applyChecks[R](session: Session, response: R, checks: List[Check[R, _]]): (Session, CheckStatus) = useCheckContext { applyChecksRec(session, response, checks, DEFAULT_CHECK_RESULT) }
+	def applyChecks[R](session: Session, response: R, checks: List[Check[R]]): (Session, CheckResult) = useCheckContext { applyChecksRec(session, response, checks, DEFAULT_CHECK_RESULT) }
 }
 
 /**
@@ -56,17 +58,7 @@ object Check {
  * @param saveAs the session attribute that will be used to store the extracted value
  * @param strategy the strategy used to perform the Check
  */
-abstract class Check[R, X](val expression: EvaluatableString, val extractorFactory: ExtractorFactory[R, X], val strategy: CheckStrategy[X], val saveAs: Option[String], val transform: Option[X => Any]) {
+abstract class Check[R](expression: EvaluatableString, verification: Verification[R], val saveAs: Option[String]) {
 
-	def check(response: R, session: Session): CheckResult = {
-		val extractor = extractorFactory(response)
-		val evaluatedExpression = expression(session)
-		val extractedValue = extractor(evaluatedExpression)
-		val transformedValue = for {
-			extractedValue <- extractedValue
-			transform <- transform
-		} yield transform(extractedValue)
-		val checkStatus = strategy(extractedValue, session)
-		CheckResult(checkStatus, saveAs, transformedValue)
-	}
+	def check(response: R, session: Session): CheckResult = verification(expression, session, response)
 }

@@ -52,7 +52,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	body: Option[HttpRequestBody],
 	fileUpload: Option[UploadedFile],
 	credentials: Option[Credentials],
-	checks: Option[List[HttpCheck[_]]])
+	checks: Option[List[HttpCheck]])
 		extends AbstractHttpRequestWithBodyBuilder[B](requestName, method, urlFunction, queryParams, headers, body, credentials, checks) {
 
 	/**
@@ -75,7 +75,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		body: Option[HttpRequestBody],
 		fileUpload: Option[UploadedFile],
 		credentials: Option[Credentials],
-		checks: Option[List[HttpCheck[_]]]): B
+		checks: Option[List[HttpCheck]]): B
 
 	private[http] def newInstance(
 		requestName: String,
@@ -84,7 +84,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		headers: Map[String, EvaluatableString],
 		body: Option[HttpRequestBody],
 		credentials: Option[Credentials],
-		checks: Option[List[HttpCheck[_]]]): B = {
+		checks: Option[List[HttpCheck]]): B = {
 		newInstance(requestName, urlFunction, queryParams, params, headers, body, fileUpload, credentials, checks)
 	}
 

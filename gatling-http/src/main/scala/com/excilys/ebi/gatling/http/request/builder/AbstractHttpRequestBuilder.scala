@@ -73,7 +73,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		credentials: Option[Credentials],
-		val checks: Option[List[HttpCheck[_]]]) extends CookieHandling {
+		val checks: Option[List[HttpCheck]]) extends CookieHandling {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type
@@ -90,7 +90,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		credentials: Option[Credentials],
-		checks: Option[List[HttpCheck[_]]]): B
+		checks: Option[List[HttpCheck]]): B
 
 	private[http] def withRequestName(requestName: String): B = newInstance(requestName, urlFunction, queryParams, headers, credentials, checks)
 
@@ -99,7 +99,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 *
 	 * @param checkBuilders the checks that will be performed on the reponse
 	 */
-	def check(checks: HttpCheck[_]*): B = newInstance(requestName, urlFunction, queryParams, headers, credentials, Some(checks.toList))
+	def check(checks: HttpCheck*): B = newInstance(requestName, urlFunction, queryParams, headers, credentials, Some(checks.toList))
 
 	/**
 	 * Adds a query parameter to the request

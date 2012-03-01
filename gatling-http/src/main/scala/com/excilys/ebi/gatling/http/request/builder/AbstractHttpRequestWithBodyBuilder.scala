@@ -57,7 +57,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	headers: Map[String, EvaluatableString],
 	body: Option[HttpRequestBody],
 	credentials: Option[Credentials],
-	checks: Option[List[HttpCheck[_]]])
+	checks: Option[List[HttpCheck]])
 		extends AbstractHttpRequestBuilder[B](requestName, method, urlFunction, queryParams, headers, credentials, checks) {
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
@@ -83,7 +83,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 		headers: Map[String, EvaluatableString],
 		body: Option[HttpRequestBody],
 		credentials: Option[Credentials],
-		checks: Option[List[HttpCheck[_]]]): B
+		checks: Option[List[HttpCheck]]): B
 
 	private[http] def newInstance(
 		requestName: String,
@@ -91,7 +91,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		credentials: Option[Credentials],
-		checks: Option[List[HttpCheck[_]]]): B = {
+		checks: Option[List[HttpCheck]]): B = {
 		newInstance(requestName, urlFunction, queryParams, headers, body, credentials, checks)
 	}
 

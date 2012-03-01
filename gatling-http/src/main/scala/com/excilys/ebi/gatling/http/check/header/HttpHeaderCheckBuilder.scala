@@ -15,17 +15,14 @@
  */
 package com.excilys.ebi.gatling.http.check.header
 import scala.collection.JavaConverters.asScalaBufferConverter
-
 import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
-import com.excilys.ebi.gatling.core.check.CheckOneBuilder
-import com.excilys.ebi.gatling.core.check.CheckMultipleBuilder
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.check.{ HttpMultipleCheckBuilder, HttpCheck }
 import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
 import com.ning.http.client.Response
-
 import HttpHeaderCheckBuilder.{ findExtractorFactory, findAllExtractorFactory, countExtractorFactory }
+import com.excilys.ebi.gatling.core.check.VerifyBuilder
 
 /**
  * HttpHeaderCheckBuilder class companion
@@ -49,7 +46,9 @@ object HttpHeaderCheckBuilder {
 			None
 		}
 	}
+
 	private val findAllExtractorFactory: ExtractorFactory[Response, Seq[String]] = (response: Response) => (expression: String) => seqToOption(response.getHeaders(expression).asScala)
+
 	private val countExtractorFactory: ExtractorFactory[Response, Int] = (response: Response) => (expression: String) => toOption(response.getHeaders(expression).size)
 }
 
@@ -60,12 +59,12 @@ object HttpHeaderCheckBuilder {
  */
 class HttpHeaderCheckBuilder(expression: EvaluatableString) extends HttpMultipleCheckBuilder[String](expression, HeadersReceived) {
 
-	def find: CheckOneBuilder[HttpCheck[String], Response, String] = find(0)
+	def find: VerifyBuilder[HttpCheck, Response, String] = find(0)
 
-	def find(occurrence: Int) = new CheckOneBuilder(httpCheckBuilderFactory, findExtractorFactory(occurrence))
+	def find(occurrence: Int) = new VerifyBuilder(httpCheckBuilderFactory, findExtractorFactory(occurrence))
 
-	def findAll = new CheckMultipleBuilder(httpCheckBuilderFactory, findAllExtractorFactory)
+	def findAll = new VerifyBuilder(httpCheckBuilderFactory, findAllExtractorFactory)
 
-	def count = new CheckOneBuilder(httpCheckBuilderFactory, countExtractorFactory)
+	def count = new VerifyBuilder(httpCheckBuilderFactory, countExtractorFactory)
 }
 

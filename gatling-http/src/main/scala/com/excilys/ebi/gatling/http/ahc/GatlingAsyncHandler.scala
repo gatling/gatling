@@ -59,7 +59,7 @@ import com.excilys.ebi.gatling.core.check.Success
  * @param next the next action to be executed
  * @param requestName the name of the request
  */
-class GatlingAsyncHandler(session: Session, checks: List[HttpCheck[_]], next: ActorRef, requestName: String, originalRequest: Request, followRedirect: Boolean, requestStartDate: Long = currentTimeMillis)
+class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: ActorRef, requestName: String, originalRequest: Request, followRedirect: Boolean, requestStartDate: Long = currentTimeMillis)
 		extends AsyncHandler[Void] with ProgressAsyncHandler[Void] with CookieHandling with Logging {
 
 	private val identifier = requestName + session.userId

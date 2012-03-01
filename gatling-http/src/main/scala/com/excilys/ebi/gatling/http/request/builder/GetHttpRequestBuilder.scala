@@ -26,7 +26,7 @@ class GetHttpRequestBuilder(
 	queryParams: List[HttpParam],
 	headers: Map[String, EvaluatableString],
 	credentials: Option[Credentials],
-	checks: Option[List[HttpCheck[_]]])
+	checks: Option[List[HttpCheck]])
 		extends AbstractHttpRequestBuilder[GetHttpRequestBuilder](requestName, "GET", urlFunction, queryParams, headers, credentials, checks) {
 
 	private[http] def newInstance(
@@ -35,7 +35,7 @@ class GetHttpRequestBuilder(
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		credentials: Option[Credentials],
-		checks: Option[List[HttpCheck[_]]]) = {
+		checks: Option[List[HttpCheck]]) = {
 		new GetHttpRequestBuilder(requestName, urlFunction, queryParams, headers, credentials, checks)
 	}
 }

@@ -28,7 +28,7 @@ class PutHttpRequestBuilder(
 	headers: Map[String, EvaluatableString],
 	body: Option[HttpRequestBody],
 	credentials: Option[Credentials],
-	checks: Option[List[HttpCheck[_]]])
+	checks: Option[List[HttpCheck]])
 		extends AbstractHttpRequestWithBodyBuilder[PutHttpRequestBuilder](requestName, "PUT", urlFunction, queryParams, headers, body, credentials, checks) {
 
 	private[http] def newInstance(
@@ -38,7 +38,7 @@ class PutHttpRequestBuilder(
 		headers: Map[String, EvaluatableString],
 		body: Option[HttpRequestBody],
 		credentials: Option[Credentials],
-		checks: Option[List[HttpCheck[_]]]) = {
+		checks: Option[List[HttpCheck]]) = {
 		new PutHttpRequestBuilder(requestName, urlFunction, queryParams, headers, body, credentials, checks)
 	}
 }

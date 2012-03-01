@@ -15,36 +15,46 @@
  */
 package com.excilys.ebi.gatling.core.check
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.EvaluatableString
 
-trait CheckBaseBuilder[C <: Check[R, X], R, X] {
-	def find: CheckOneBuilder[C, R, X]
+trait CheckBaseBuilder[C <: Check[R], R, X] {
+
+	def find: VerifyBuilder[C, R, X]
 }
 
-trait MultipleOccurrence[C <: Check[R, X], CM <: Check[R, Seq[X]], CC <: Check[R, Int], R, X] extends CheckBaseBuilder[C, R, X] {
-	def find(occurrence: Int): CheckOneBuilder[C, R, X]
-	def findAll: CheckMultipleBuilder[CM, R, Seq[X]]
-	def count: CheckOneBuilder[CC, R, Int]
+trait MultipleOccurrence[C <: Check[R], R, X] extends CheckBaseBuilder[C, R, X] {
+
+	def find(occurrence: Int): VerifyBuilder[C, R, X]
+
+	def findAll: VerifyBuilder[C, R, Seq[X]]
+
+	def count: VerifyBuilder[C, R, Int]
 }
 
-class CheckOneBuilder[C <: Check[R, X], R, X](checkBuilderFactory: CheckBuilderFactory[C, R, X], extractorFactory: ExtractorFactory[R, X]) {
+class VerifyBuilder[C <: Check[R], R, X](checkBuilderFactory: CheckBuilderFactory[C, R], extractorFactory: ExtractorFactory[R, X]) {
 
-	def verify[XP](strategy: CheckStrategy[X]) = new CheckBuilder(checkBuilderFactory, extractorFactory, strategy) with SaveAsBuilder[C, R, X]
-
-	def exists = verify(new CheckStrategy[X] {
-		def apply(value: Option[X], session: Session) = value match {
-			case Some(_) => Success(value)
-			case None => Failure("Check 'exists' failed")
+	def transform[T](transformation: X => T): VerifyBuilder[C, R, T] = new VerifyBuilder(checkBuilderFactory, new ExtractorFactory[R, T] {
+		def apply(response: R) = new Extractor[T] {
+			def apply(expression: String) = extractorFactory(response)(expression) match {
+				case Some(x) => Some(transformation(x))
+				case None => None
+			}
 		}
 	})
 
-	def notExists = verify(new CheckStrategy[X] {
-		def apply(value: Option[X], session: Session) = value match {
-			case None => Success(value)
-			case Some(extracted) => Failure("Check 'notExists' failed, found " + extracted)
-		}
-	})
+	def verify(strategy: VerificationStrategy[X]) = {
 
-	def is(expected: Session => X) = verify(new CheckStrategy[X] {
+		val verification: Verification[R] = (expression: EvaluatableString, session: Session, response: R) => {
+			val evaluatedExpression = expression(session)
+			val extractor = extractorFactory(response)
+			val extractedValue = extractor(evaluatedExpression)
+			strategy(extractedValue, session)
+		}
+
+		new CheckBuilder(checkBuilderFactory, verification) with SaveAsBuilder[C, R]
+	}
+
+	def is(expected: Session => X) = verify(new VerificationStrategy[X] {
 		def apply(value: Option[X], session: Session) = value match {
 			case Some(extracted) => {
 				val expectedValue = expected(session)
@@ -57,7 +67,7 @@ class CheckOneBuilder[C <: Check[R, X], R, X](checkBuilderFactory: CheckBuilderF
 		}
 	})
 
-	def not(expected: Session => X) = verify(new CheckStrategy[X] {
+	def not(expected: Session => X) = verify(new VerificationStrategy[X] {
 		def apply(value: Option[X], session: Session) = value match {
 			case None => Success(value)
 			case Some(extracted) => {
@@ -70,7 +80,21 @@ class CheckOneBuilder[C <: Check[R, X], R, X](checkBuilderFactory: CheckBuilderF
 		}
 	})
 
-	def in(expected: Session => Seq[X]) = verify(new CheckStrategy[X] {
+	def exists = verify(new VerificationStrategy[X] {
+		def apply(value: Option[X], session: Session) = value match {
+			case Some(extracted) if (!extracted.isInstanceOf[Seq[_]] || !extracted.asInstanceOf[Seq[_]].isEmpty) => Success(value)
+			case _ => Failure("Check 'exists' failed, found " + value)
+		}
+	})
+
+	def notExists = verify(new VerificationStrategy[X] {
+		def apply(value: Option[X], session: Session) = value match {
+			case Some(extracted) if (!extracted.isInstanceOf[Seq[_]] || extracted.asInstanceOf[Seq[_]].isEmpty) => Failure("Check 'notExists' failed, found " + extracted)
+			case _ => Success(value)
+		}
+	})
+
+	def in(expected: Session => Seq[X]) = verify(new VerificationStrategy[X] {
 		def apply(value: Option[X], session: Session) = value match {
 			case Some(extracted) => {
 				val expectedValue = expected(session)
@@ -84,54 +108,12 @@ class CheckOneBuilder[C <: Check[R, X], R, X](checkBuilderFactory: CheckBuilderF
 	})
 }
 
-class CheckMultipleBuilder[C <: Check[R, X], R, X <: Seq[_]](checkBuilderFactory: CheckBuilderFactory[C, R, X], extractorFactory: ExtractorFactory[R, X]) {
+trait SaveAsBuilder[C <: Check[R], R] extends CheckBuilder[C, R] {
 
-	def verify[XP](strategy: CheckStrategy[X]) = new CheckBuilder(checkBuilderFactory, extractorFactory, strategy) with SaveAsBuilder[C, R, X]
-
-	def notEmpty = verify(new CheckStrategy[X] {
-		def apply(value: Option[X], session: Session) = value match {
-			case Some(extracted) =>
-				if (!extracted.isEmpty)
-					Success(value)
-				else
-					Failure("Check 'notEmpty' failed, found empty")
-			case None => Failure("Check 'notEmpty' failed, found None")
-		}
-	})
-
-	def empty = verify(new CheckStrategy[X] {
-		def apply(value: Option[X], session: Session) = value match {
-			case Some(extracted) =>
-				if (extracted.isEmpty)
-					Success(value)
-				else
-					Failure("Check 'empty' failed, found " + extracted)
-			case None => Failure("Check 'empty' failed, found None")
-		}
-	})
-
-	def is(expected: Session => X) = verify(new CheckStrategy[X] {
-		def apply(value: Option[X], session: Session) = value match {
-			case Some(extracted) => {
-				val expectedValue = expected(session)
-				if (extracted == expectedValue)
-					Success(value)
-				else
-					Failure(new StringBuilder().append("Check 'is' failed, found ").append(extracted).append(" but expected ").append(expectedValue).toString)
-			}
-			case None => Failure("Check 'is' failed, found nothing")
-		}
-	})
+	def saveAs(saveAs: String): CheckBuilder[C, R] = new CheckBuilder(checkBuilderFactory, verification, Some(saveAs))
 }
 
-trait SaveAsBuilder[C <: Check[R, X], R, X] extends CheckBuilder[C, R, X] {
+class CheckBuilder[C <: Check[R], R](val checkBuilderFactory: CheckBuilderFactory[C, R], val verification: Verification[R], saveAs: Option[String] = None) {
 
-	def saveAs(saveAs: String): CheckBuilder[C, R, X] = new CheckBuilder(checkBuilderFactory, extractorFactory, strategy, Some(saveAs))
-
-	def saveAs(saveAs: String, transform: X => Any): CheckBuilder[C, R, X] = new CheckBuilder(checkBuilderFactory, extractorFactory, strategy, Some(saveAs), Some(transform))
-}
-
-class CheckBuilder[C <: Check[R, X], R, X](val checkBuilderFactory: CheckBuilderFactory[C, R, X], val extractorFactory: ExtractorFactory[R, X], val strategy: CheckStrategy[X], saveAs: Option[String] = None, transform: Option[X => Any] = None) {
-
-	def build: C = checkBuilderFactory(extractorFactory, strategy, saveAs, transform)
+	def build: C = checkBuilderFactory(verification, saveAs)
 }
