@@ -86,7 +86,7 @@ class Session(val scenarioName: String, val userId: Int, data: Map[String, Any])
 	 */
 	def removeAttribute(attributeKey: String) = new Session(scenarioName, userId, data - attributeKey)
 
-	def contains(attributeKey: String) = data.contains(attributeKey)
+	def isAttributeDefined(attributeKey: String) = data.contains(attributeKey)
 
 	/**
 	 * Gets the last action duration
