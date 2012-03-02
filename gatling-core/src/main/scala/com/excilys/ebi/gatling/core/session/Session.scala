@@ -41,14 +41,16 @@ object Session {
 class Session(val scenarioName: String, val userId: Int, data: Map[String, Any]) {
 
 	def this(scenarioName: String, userId: Int) = this(scenarioName, userId, Map.empty)
+	
+	def getAttribute(key: String): Any = getTypedAttribute[Any](key)
 
 	/**
 	 * Gets a value from the session
 	 *
 	 * @param key the key of the requested value
-	 * @return the value stored at key, StringUtils.EMPTY if it does not exist
+	 * @return the value stored at key
 	 */
-	def getAttribute[X](key: String): X = data.get(key).getOrElse(throw new IllegalArgumentException("No Matching Session attribute for key " + key)).asInstanceOf[X]
+	def getTypedAttribute[X](key: String): X = data.get(key).getOrElse(throw new IllegalArgumentException("No Matching Session attribute for key " + key)).asInstanceOf[X]
 
 	/**
 	 * Gets a value from the session
