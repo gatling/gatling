@@ -41,7 +41,7 @@ object Session {
 class Session(val scenarioName: String, val userId: Int, data: Map[String, Any]) {
 
 	def this(scenarioName: String, userId: Int) = this(scenarioName, userId, Map.empty)
-	
+
 	def getAttribute(key: String): Any = getTypedAttribute[Any](key)
 
 	/**
@@ -85,6 +85,8 @@ class Session(val scenarioName: String, val userId: Int, data: Map[String, Any])
 	 * @param attributeKey the key of the attribute to be removed
 	 */
 	def removeAttribute(attributeKey: String) = new Session(scenarioName, userId, data - attributeKey)
+
+	def contains(attributeKey: String) = data.contains(attributeKey)
 
 	/**
 	 * Gets the last action duration
