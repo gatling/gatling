@@ -58,7 +58,7 @@ class Session(val scenarioName: String, val userId: Int, data: Map[String, Any])
 	 * @param key the key of the requested value
 	 * @return the value stored at key as an Option
 	 */
-	private[gatling] def getAttributeAsOption[T](key: String): Option[T] = data.get(key).asInstanceOf[Option[T]]
+	def getAttributeAsOption[T](key: String): Option[T] = data.get(key).asInstanceOf[Option[T]]
 
 	/**
 	 * Sets values in the session
