@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.jdbc.feeder.database
-import com.excilys.ebi.gatling.core.feeder.FeederBuilder
+import com.excilys.ebi.gatling.core.feeder.SourceBasedFeederBuilder
 
 object DatabaseFeederBuilder {
 
@@ -29,6 +29,6 @@ object DatabaseFeederBuilder {
 	def sybase(url: String, username: String, password: String, sql: String) = new DatabaseFeederBuilder("com.sybase.jdbc2.jdbc.SybDriver", url, username, password, sql)
 }
 
-class DatabaseFeederBuilder(driverClassName: String, url: String, username: String, password: String, sql: String) extends FeederBuilder[DatabaseFeederSource] {
-	def sourceInstance = new DatabaseFeederSource(driverClassName, url, username, password, sql)
+class DatabaseFeederBuilder(driverClassName: String, url: String, username: String, password: String, sql: String) extends SourceBasedFeederBuilder[DatabaseFeederSource] {
+	protected lazy val source = new DatabaseFeederSource(driverClassName, url, username, password, sql)
 }

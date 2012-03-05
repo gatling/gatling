@@ -15,16 +15,17 @@
  */
 package com.excilys.ebi.gatling.core.feeder
 
-object FeederBuilder {
-	implicit def feederBuilderToFeeder(builder: FeederBuilder[_]) = builder.queue
+object SourceBasedFeederBuilder {
+	implicit def feederBuilderToFeeder(builder: SourceBasedFeederBuilder[_]) = builder.queue
 }
-abstract class FeederBuilder[B <: FeederSource] {
 
-	protected def sourceInstance: B
+abstract class SourceBasedFeederBuilder[B <: FeederSource] {
 
-	def queue = new QueueFeeder(sourceInstance)
+	protected val source: B
 
-	def random = new RandomFeeder(sourceInstance)
+	def queue = new QueueFeeder(source)
 
-	def circular = new CircularFeeder(sourceInstance)
+	def random = new RandomFeeder(source)
+
+	def circular = new CircularFeeder(source)
 }

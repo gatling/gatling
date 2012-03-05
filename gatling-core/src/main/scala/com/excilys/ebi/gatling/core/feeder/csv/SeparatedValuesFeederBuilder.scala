@@ -15,14 +15,15 @@
  */
 package com.excilys.ebi.gatling.core.feeder.csv
 
-import com.excilys.ebi.gatling.core.feeder.FeederBuilder
-import com.excilys.ebi.gatling.core.util.FileHelper.{TABULATION_SEPARATOR, SEMICOLON_SEPARATOR, COMMA_SEPARATOR}
+import com.excilys.ebi.gatling.core.feeder.SourceBasedFeederBuilder
+import com.excilys.ebi.gatling.core.util.FileHelper.{ TABULATION_SEPARATOR, SEMICOLON_SEPARATOR, COMMA_SEPARATOR }
 
 object SeparatedValuesFeederBuilder {
-	def csv(fileName: String, escapeChar : Option[Char] = None) = new SeparatedValuesFeederBuilder(fileName, COMMA_SEPARATOR, escapeChar)
-	def tsv(fileName: String, escapeChar : Option[Char] = None) = new SeparatedValuesFeederBuilder(fileName, TABULATION_SEPARATOR, escapeChar)
-	def ssv(fileName: String, escapeChar : Option[Char] = None) = new SeparatedValuesFeederBuilder(fileName, SEMICOLON_SEPARATOR, escapeChar)
+	def csv(fileName: String, escapeChar: Option[Char] = None) = new SeparatedValuesFeederBuilder(fileName, COMMA_SEPARATOR, escapeChar)
+	def tsv(fileName: String, escapeChar: Option[Char] = None) = new SeparatedValuesFeederBuilder(fileName, TABULATION_SEPARATOR, escapeChar)
+	def ssv(fileName: String, escapeChar: Option[Char] = None) = new SeparatedValuesFeederBuilder(fileName, SEMICOLON_SEPARATOR, escapeChar)
 }
-class SeparatedValuesFeederBuilder(fileName: String, separator: Char, escapeChar : Option[Char] = None) extends FeederBuilder[SeparatedValuesFeederSource] {
-	def sourceInstance = new SeparatedValuesFeederSource(fileName, separator, escapeChar)
+
+class SeparatedValuesFeederBuilder(fileName: String, separator: Char, escapeChar: Option[Char] = None) extends SourceBasedFeederBuilder[SeparatedValuesFeederSource] {
+	protected lazy val source = new SeparatedValuesFeederSource(fileName, separator, escapeChar)
 }
