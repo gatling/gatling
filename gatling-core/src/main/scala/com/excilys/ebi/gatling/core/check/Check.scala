@@ -29,21 +29,12 @@ object Check {
 		checks match {
 			case Nil => (session, previousCheckResult)
 			case check :: otherChecks =>
-				val checkResult = check.check(response, session)
+				val (newSession, checkResult) = check(response, session)
 
 				checkResult match {
-					case failure @ Failure(_) => (session, failure)
-					case success @ Success(extractedValue) =>
-						val newSession = (
-							for {
-								extractedValue <- extractedValue
-								saveAs <- check.saveAs
-							} yield session.setAttribute(saveAs, extractedValue))
-							.getOrElse(session)
-
-						applyChecksRec(newSession, response, otherChecks, success)
+					case failure @ Failure(_) => (newSession, failure)
+					case success @ Success(extractedValue) => applyChecksRec(newSession, response, otherChecks, success)
 				}
-
 		}
 	}
 
@@ -58,7 +49,19 @@ object Check {
  * @param saveAs the session attribute that will be used to store the extracted value
  * @param strategy the strategy used to perform the Check
  */
-abstract class Check[R](expression: EvaluatableString, matcher: Matcher[R], val saveAs: Option[String]) {
+abstract class Check[R](expression: EvaluatableString, matcher: Matcher[R], saveAs: Option[String]) {
 
-	def check(response: R, session: Session): CheckResult = matcher(expression, session, response)
+	def apply(response: R, session: Session): (Session, CheckResult) = {
+		matcher(expression, session, response)  match {
+			case success @ Success(extractedValue) =>
+				val newSession = (
+					for {
+						extractedValue <- extractedValue
+						saveAs <- saveAs
+					} yield session.setAttribute(saveAs, extractedValue))
+					.getOrElse(session)
+				(newSession, success)
+			case failure => (session, failure)
+		}
+	}
 }
