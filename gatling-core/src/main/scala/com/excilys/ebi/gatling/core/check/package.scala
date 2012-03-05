@@ -20,7 +20,7 @@ package object check {
 
 	type Extractor[X] = String => Option[X]
 	type ExtractorFactory[R, X] = R => Extractor[X]
-	type VerificationStrategy[X] = (Option[X], Session) => CheckResult
-	type Verification[R] = (EvaluatableString, Session, R) => CheckResult
-	type CheckBuilderFactory[C <: Check[R], R] = (Verification[R], Option[String]) => C
+	type MatchStrategy[X] = (Option[X], Session) => CheckResult
+	type Matcher[R] = (EvaluatableString, Session, R) => CheckResult
+	type CheckBuilderFactory[C <: Check[R], R] = (Matcher[R], Option[String]) => C
 }

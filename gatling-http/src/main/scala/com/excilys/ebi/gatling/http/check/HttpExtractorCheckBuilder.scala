@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.check
-import com.excilys.ebi.gatling.core.check.{ ExtractorFactory, CheckBuilderFactory }
+import com.excilys.ebi.gatling.core.check.{ ExtractorFactory, CheckBuilderFactory, ExtractorCheckBuilder, Matcher }
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.ning.http.client.Response
-import com.excilys.ebi.gatling.core.check.Verification
-import com.excilys.ebi.gatling.core.check.CheckBaseBuilder
 
 /**
  * This class serves as model for the HTTP-specific check builders
@@ -30,7 +28,7 @@ import com.excilys.ebi.gatling.core.check.CheckBaseBuilder
  * @param expected the expected value against which the extracted value will be checked
  * @param phase the HttpPhase during which the check will be made
  */
-abstract class HttpCheckBuilder[X](val expression: EvaluatableString, val phase: HttpPhase) extends CheckBaseBuilder[HttpCheck, Response, X] {
+abstract class HttpExtractorCheckBuilder[X](val expression: EvaluatableString, val phase: HttpPhase) extends ExtractorCheckBuilder[HttpCheck, Response, X] {
 
-	def httpCheckBuilderFactory: CheckBuilderFactory[HttpCheck, Response] = (verification: Verification[Response], saveAs: Option[String]) => new HttpCheck(expression, verification, saveAs, phase)
+	def httpCheckBuilderFactory: CheckBuilderFactory[HttpCheck, Response] = (matcher: Matcher[Response], saveAs: Option[String]) => new HttpCheck(expression, matcher, saveAs, phase)
 }

@@ -17,23 +17,23 @@ package com.excilys.ebi.gatling.core.check
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 
-trait CheckBaseBuilder[C <: Check[R], R, X] {
+trait ExtractorCheckBuilder[C <: Check[R], R, X] {
 
-	def find: VerifyBuilder[C, R, X]
+	def find: MatcherCheckBuilder[C, R, X]
 }
 
-trait MultipleOccurrence[C <: Check[R], R, X] extends CheckBaseBuilder[C, R, X] {
+trait MultipleExtractorCheckBuilder[C <: Check[R], R, X] extends ExtractorCheckBuilder[C, R, X] {
 
-	def find(occurrence: Int): VerifyBuilder[C, R, X]
+	def find(occurrence: Int): MatcherCheckBuilder[C, R, X]
 
-	def findAll: VerifyBuilder[C, R, Seq[X]]
+	def findAll: MatcherCheckBuilder[C, R, Seq[X]]
 
-	def count: VerifyBuilder[C, R, Int]
+	def count: MatcherCheckBuilder[C, R, Int]
 }
 
-class VerifyBuilder[C <: Check[R], R, X](checkBuilderFactory: CheckBuilderFactory[C, R], extractorFactory: ExtractorFactory[R, X]) {
+class MatcherCheckBuilder[C <: Check[R], R, X](checkBuilderFactory: CheckBuilderFactory[C, R], extractorFactory: ExtractorFactory[R, X]) {
 
-	def transform[T](transformation: X => T): VerifyBuilder[C, R, T] = new VerifyBuilder(checkBuilderFactory, new ExtractorFactory[R, T] {
+	def transform[T](transformation: X => T): MatcherCheckBuilder[C, R, T] = new MatcherCheckBuilder(checkBuilderFactory, new ExtractorFactory[R, T] {
 		def apply(response: R) = new Extractor[T] {
 			def apply(expression: String) = extractorFactory(response)(expression) match {
 				case Some(x) => Some(transformation(x))
@@ -42,19 +42,19 @@ class VerifyBuilder[C <: Check[R], R, X](checkBuilderFactory: CheckBuilderFactor
 		}
 	})
 
-	def verify(strategy: VerificationStrategy[X]) = {
+	def matchWith(strategy: MatchStrategy[X]) = {
 
-		val verification: Verification[R] = (expression: EvaluatableString, session: Session, response: R) => {
+		val matcher: Matcher[R] = (expression: EvaluatableString, session: Session, response: R) => {
 			val evaluatedExpression = expression(session)
 			val extractor = extractorFactory(response)
 			val extractedValue = extractor(evaluatedExpression)
 			strategy(extractedValue, session)
 		}
 
-		new CheckBuilder(checkBuilderFactory, verification) with SaveAsBuilder[C, R]
+		new CheckBuilder(checkBuilderFactory, matcher) with SaveAsCheckBuilder[C, R]
 	}
 
-	def is(expected: Session => X) = verify(new VerificationStrategy[X] {
+	def is(expected: Session => X) = matchWith(new MatchStrategy[X] {
 		def apply(value: Option[X], session: Session) = value match {
 			case Some(extracted) => {
 				val expectedValue = expected(session)
@@ -67,7 +67,7 @@ class VerifyBuilder[C <: Check[R], R, X](checkBuilderFactory: CheckBuilderFactor
 		}
 	})
 
-	def not(expected: Session => X) = verify(new VerificationStrategy[X] {
+	def not(expected: Session => X) = matchWith(new MatchStrategy[X] {
 		def apply(value: Option[X], session: Session) = value match {
 			case None => Success(value)
 			case Some(extracted) => {
@@ -80,21 +80,21 @@ class VerifyBuilder[C <: Check[R], R, X](checkBuilderFactory: CheckBuilderFactor
 		}
 	})
 
-	def exists = verify(new VerificationStrategy[X] {
+	def exists = matchWith(new MatchStrategy[X] {
 		def apply(value: Option[X], session: Session) = value match {
 			case Some(extracted) if (!extracted.isInstanceOf[Seq[_]] || !extracted.asInstanceOf[Seq[_]].isEmpty) => Success(value)
 			case _ => Failure("Check 'exists' failed, found " + value)
 		}
 	})
 
-	def notExists = verify(new VerificationStrategy[X] {
+	def notExists = matchWith(new MatchStrategy[X] {
 		def apply(value: Option[X], session: Session) = value match {
 			case Some(extracted) if (!extracted.isInstanceOf[Seq[_]] || extracted.asInstanceOf[Seq[_]].isEmpty) => Failure("Check 'notExists' failed, found " + extracted)
 			case _ => Success(value)
 		}
 	})
 
-	def in(expected: Session => Seq[X]) = verify(new VerificationStrategy[X] {
+	def in(expected: Session => Seq[X]) = matchWith(new MatchStrategy[X] {
 		def apply(value: Option[X], session: Session) = value match {
 			case Some(extracted) => {
 				val expectedValue = expected(session)
@@ -108,12 +108,12 @@ class VerifyBuilder[C <: Check[R], R, X](checkBuilderFactory: CheckBuilderFactor
 	})
 }
 
-trait SaveAsBuilder[C <: Check[R], R] extends CheckBuilder[C, R] {
+trait SaveAsCheckBuilder[C <: Check[R], R] extends CheckBuilder[C, R] {
 
-	def saveAs(saveAs: String): CheckBuilder[C, R] = new CheckBuilder(checkBuilderFactory, verification, Some(saveAs))
+	def saveAs(saveAs: String): CheckBuilder[C, R] = new CheckBuilder(checkBuilderFactory, matcher, Some(saveAs))
 }
 
-class CheckBuilder[C <: Check[R], R](val checkBuilderFactory: CheckBuilderFactory[C, R], val verification: Verification[R], saveAs: Option[String] = None) {
+class CheckBuilder[C <: Check[R], R](val checkBuilderFactory: CheckBuilderFactory[C, R], val matcher: Matcher[R], saveAs: Option[String] = None) {
 
-	def build: C = checkBuilderFactory(verification, saveAs)
+	def build: C = checkBuilderFactory(matcher, saveAs)
 }

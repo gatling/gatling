@@ -58,7 +58,7 @@ object Check {
  * @param saveAs the session attribute that will be used to store the extracted value
  * @param strategy the strategy used to perform the Check
  */
-abstract class Check[R](expression: EvaluatableString, verification: Verification[R], val saveAs: Option[String]) {
+abstract class Check[R](expression: EvaluatableString, matcher: Matcher[R], val saveAs: Option[String]) {
 
-	def check(response: R, session: Session): CheckResult = verification(expression, session, response)
+	def check(response: R, session: Session): CheckResult = matcher(expression, session, response)
 }

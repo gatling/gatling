@@ -14,25 +14,19 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.action
-import com.excilys.ebi.gatling.core.action.{ RequestAction, Action }
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.feeder.Feeder
+import com.excilys.ebi.gatling.core.action.RequestAction
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandler
-import com.excilys.ebi.gatling.http.request.HttpRequest
-import com.ning.http.client.{ AsyncHttpClientConfig, AsyncHttpClient }
-import com.ning.http.client.Response
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder.status
-import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.config.GatlingHTTPConfig._
-import akka.actor.ActorRef
-import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
+import com.excilys.ebi.gatling.http.config.GatlingHTTPConfig.{ GATLING_HTTP_CONFIG_REQUEST_TIMEOUT, GATLING_HTTP_CONFIG_PROVIDER_CLASS, GATLING_HTTP_CONFIG_MAX_RETRY, GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT, GATLING_HTTP_CONFIG_COMPRESSION_ENABLED, GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION }
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
-import com.excilys.ebi.gatling.core.check.CheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
+import com.excilys.ebi.gatling.http.request.HttpRequest
+import com.ning.http.client.{ Response, AsyncHttpClientConfig, AsyncHttpClient }
+
+import akka.actor.ActorRef
 import grizzled.slf4j.Logging
 
 /**

@@ -15,34 +15,19 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import com.ning.http.client.Request
-import com.ning.http.client.RequestBuilder
-import com.ning.http.client.FluentStringsMap
-import com.ning.http.client.FluentCaseInsensitiveStringsMap
-import org.fusesource.scalate._
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.Predef._
-import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
-import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration._
-import com.excilys.ebi.gatling.http.request.HttpRequestBody
-import com.excilys.ebi.gatling.http.request.FilePathBody
-import com.excilys.ebi.gatling.http.request.StringBody
-import com.excilys.ebi.gatling.http.request.TemplateBody
-import com.excilys.ebi.gatling.http.Predef._
-import com.excilys.ebi.gatling.http.request.HttpRequest
-import scala.collection.immutable.HashMap
-import com.ning.http.client.Realm
-import com.ning.http.client.Realm.AuthScheme
-import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
-import com.excilys.ebi.gatling.core.util.StringHelper._
-import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.ning.http.client.Response
-import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
-import com.excilys.ebi.gatling.http.cookie.CookieHandling
-import com.ning.http.client.ProxyServer.Protocol
-import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
+import com.excilys.ebi.gatling.core.Predef.stringToSessionFunction
 import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.util.StringHelper.{ parseEvaluatable, EL_START, EL_END }
+import com.excilys.ebi.gatling.http.Predef.{ CONTENT_TYPE, APPLICATION_XML, APPLICATION_JSON, ACCEPT }
+import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
+import com.excilys.ebi.gatling.http.check.HttpCheck
+import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
+import com.excilys.ebi.gatling.http.cookie.CookieHandling
+import com.excilys.ebi.gatling.http.request.HttpRequest
+import com.ning.http.client.ProxyServer.Protocol
+import com.ning.http.client.Realm.AuthScheme
+import com.ning.http.client.{ RequestBuilder, Request, Realm, FluentStringsMap, FluentCaseInsensitiveStringsMap }
 
 /**
  * AbstractHttpRequestBuilder class companion

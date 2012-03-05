@@ -16,9 +16,9 @@
 package com.excilys.ebi.gatling.http.check.status
 
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
-import com.excilys.ebi.gatling.core.check.VerifyBuilder
+import com.excilys.ebi.gatling.core.check.MatcherCheckBuilder
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilder, HttpCheck }
+import com.excilys.ebi.gatling.http.check.{ HttpExtractorCheckBuilder, HttpCheck }
 import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
 import com.ning.http.client.Response
 
@@ -43,7 +43,7 @@ object HttpStatusCheckBuilder {
  * @param strategy the strategy used to check
  * @param expected the expected value against which the extracted value will be checked
  */
-class HttpStatusCheckBuilder extends HttpCheckBuilder[Int](Session => EMPTY, StatusReceived) {
+class HttpStatusCheckBuilder extends HttpExtractorCheckBuilder[Int](Session => EMPTY, StatusReceived) {
 
-	def find = new VerifyBuilder[HttpCheck, Response, Int](httpCheckBuilderFactory, findExtractorFactory)
+	def find = new MatcherCheckBuilder[HttpCheck, Response, Int](httpCheckBuilderFactory, findExtractorFactory)
 }

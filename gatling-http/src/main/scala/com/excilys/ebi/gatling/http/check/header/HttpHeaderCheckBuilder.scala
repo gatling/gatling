@@ -15,14 +15,15 @@
  */
 package com.excilys.ebi.gatling.http.check.header
 import scala.collection.JavaConverters.asScalaBufferConverter
+
 import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
+import com.excilys.ebi.gatling.core.check.{ MultipleExtractorCheckBuilder, MatcherCheckBuilder }
 import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.excilys.ebi.gatling.http.check.{ HttpMultipleCheckBuilder, HttpCheck }
+import com.excilys.ebi.gatling.http.check.header.HttpHeaderCheckBuilder.{ findExtractorFactory, findAllExtractorFactory, countExtractorFactory }
+import com.excilys.ebi.gatling.http.check.{ HttpExtractorCheckBuilder, HttpCheck }
 import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
 import com.ning.http.client.Response
-import HttpHeaderCheckBuilder.{ findExtractorFactory, findAllExtractorFactory, countExtractorFactory }
-import com.excilys.ebi.gatling.core.check.VerifyBuilder
 
 /**
  * HttpHeaderCheckBuilder class companion
@@ -57,14 +58,14 @@ object HttpHeaderCheckBuilder {
  *
  * @param expression the function returning the header name to be checked
  */
-class HttpHeaderCheckBuilder(expression: EvaluatableString) extends HttpMultipleCheckBuilder[String](expression, HeadersReceived) {
+class HttpHeaderCheckBuilder(expression: EvaluatableString) extends HttpExtractorCheckBuilder[String](expression, HeadersReceived) with MultipleExtractorCheckBuilder[HttpCheck, Response, String] {
 
-	def find: VerifyBuilder[HttpCheck, Response, String] = find(0)
+	def find: MatcherCheckBuilder[HttpCheck, Response, String] = find(0)
 
-	def find(occurrence: Int) = new VerifyBuilder(httpCheckBuilderFactory, findExtractorFactory(occurrence))
+	def find(occurrence: Int) = new MatcherCheckBuilder(httpCheckBuilderFactory, findExtractorFactory(occurrence))
 
-	def findAll = new VerifyBuilder(httpCheckBuilderFactory, findAllExtractorFactory)
+	def findAll = new MatcherCheckBuilder(httpCheckBuilderFactory, findAllExtractorFactory)
 
-	def count = new VerifyBuilder(httpCheckBuilderFactory, countExtractorFactory)
+	def count = new MatcherCheckBuilder(httpCheckBuilderFactory, countExtractorFactory)
 }
 

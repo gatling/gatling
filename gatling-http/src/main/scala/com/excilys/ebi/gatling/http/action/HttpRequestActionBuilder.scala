@@ -14,24 +14,14 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.action
-import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.feeder.Feeder
-import com.excilys.ebi.gatling.http.request.HttpRequest
-import com.excilys.ebi.gatling.http.request.builder.GetHttpRequestBuilder
-import com.excilys.ebi.gatling.http.request.builder.PostHttpRequestBuilder
-import com.excilys.ebi.gatling.http.request.builder.DeleteHttpRequestBuilder
-import com.excilys.ebi.gatling.http.request.builder.PutHttpRequestBuilder
-import akka.actor.Actor._
-import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
-import com.excilys.ebi.gatling.http.check.HttpCheckBuilder
-import akka.actor.ActorRef
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
-import com.excilys.ebi.gatling.core.check.CheckBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.ning.http.client.Response
+import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
+import com.excilys.ebi.gatling.http.request.HttpRequest
+
+import akka.actor.Actor.{ toAnyOptionAsTypedOption, actorOf }
+import akka.actor.ActorRef
 
 /**
  * Builder for HttpRequestActionBuilder
