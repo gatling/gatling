@@ -87,9 +87,9 @@
 		</repository>
 		<!-- required for arg4j/arg4j -->
 		<repository>
-			<id>glassfish</id>
-			<name>Glassfish Repository</name>
-			<url>http://maven.glassfish.org/content/repositories/public</url>
+			<id>jenkins</id>
+			<name>Jenkins Release Repository</name>
+			<url>http://maven.jenkins-ci.org/content/repositories/releases</url>
 			<releases>
 				<updatePolicy>never</updatePolicy>
 			</releases>
