@@ -17,6 +17,7 @@ package com.excilys.ebi.gatling.app
 
 import com.excilys.ebi.gatling.app.UserSelection.DEFAULT_RUN_ID
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 
 object UserSelection {
 	val DEFAULT_RUN_ID = "run"

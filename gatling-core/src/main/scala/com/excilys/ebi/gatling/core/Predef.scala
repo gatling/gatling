@@ -47,7 +47,8 @@ object Predef {
 	def tsv(fileName: String) = SeparatedValuesFeederBuilder.tsv(fileName)
 	def tsv(fileName: String, escapeChar: Char) = SeparatedValuesFeederBuilder.tsv(fileName, Some(escapeChar))
 
-	type Session = session.Session
+	type Session = com.excilys.ebi.gatling.core.session.Session
+	type Simulation = com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 
 	val MILLISECONDS = TimeUnit.MILLISECONDS
 	val SECONDS = TimeUnit.SECONDS

@@ -1,7 +1,6 @@
 package advanced
 import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._
-import com.excilys.ebi.gatling.app.Simulation
 
 class AdvancedExampleSimulation extends Simulation {
 

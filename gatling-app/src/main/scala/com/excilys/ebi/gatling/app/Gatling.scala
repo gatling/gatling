@@ -31,6 +31,7 @@ import com.excilys.ebi.gatling.charts.report.ReportsGenerator
 import com.excilys.ebi.gatling.core.config.{ GatlingFiles, GatlingConfiguration }
 import com.excilys.ebi.gatling.core.result.message.RunRecord
 import com.excilys.ebi.gatling.core.runner.Runner
+import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.twitter.io.TempDirectory
 

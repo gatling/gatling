@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.app
-import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfigurationBuilder
+package com.excilys.ebi.gatling.core.scenario.configuration
 
 trait Simulation extends Function0[Seq[ScenarioConfigurationBuilder]]
