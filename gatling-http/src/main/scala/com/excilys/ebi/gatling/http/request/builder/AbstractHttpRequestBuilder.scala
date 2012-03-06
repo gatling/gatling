@@ -147,7 +147,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 		configureProxy(requestBuilder, session, isHttps, protocolConfiguration)
 		configureQueryParams(requestBuilder, session)
 		configureHeaders(requestBuilder, headers, session)
-		configureAuthentication(requestBuilder, credentials)
+		configureAuthentication(requestBuilder, credentials, session)
 
 		requestBuilder
 	}
@@ -236,9 +236,9 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * @param requestBuilder the request builder to which the credentials should be added
 	 * @param credentials the credentials to put in the request builder
 	 */
-	private def configureAuthentication(requestBuilder: RequestBuilder, credentials: Option[Credentials]) = {
+	private def configureAuthentication(requestBuilder: RequestBuilder, credentials: Option[Credentials], session: Session) = {
 		credentials.map { c =>
-			val realm = new Realm.RealmBuilder().setPrincipal(c.username).setPassword(c.password).setUsePreemptiveAuth(true).setScheme(AuthScheme.BASIC).build
+			val realm = new Realm.RealmBuilder().setPrincipal(c.username(session)).setPassword(c.password(session)).setUsePreemptiveAuth(true).setScheme(AuthScheme.BASIC).build
 			requestBuilder.setRealm(realm)
 		}
 	}

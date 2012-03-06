@@ -15,4 +15,6 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-case class Credentials(username: String, password: String)
+import com.excilys.ebi.gatling.core.session.Session
+
+case class Credentials(username: Session => String, password: Session => String)
