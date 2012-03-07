@@ -45,7 +45,7 @@ import com.ning.http.client.StringPart
 abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequestWithBodyAndParamsBuilder[B]](
 	requestName: String,
 	method: String,
-	urlFunction: EvaluatableString,
+	url: EvaluatableString,
 	queryParams: List[HttpParam],
 	params: List[HttpParam],
 	headers: Map[String, EvaluatableString],
@@ -53,7 +53,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	fileUpload: Option[UploadedFile],
 	credentials: Option[Credentials],
 	checks: Option[List[HttpCheck]])
-		extends AbstractHttpRequestWithBodyBuilder[B](requestName, method, urlFunction, queryParams, headers, body, credentials, checks) {
+		extends AbstractHttpRequestWithBodyBuilder[B](requestName, method, url, queryParams, headers, body, credentials, checks) {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type
@@ -68,7 +68,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 */
 	private[http] def newInstance(
 		requestName: String,
-		urlFunction: EvaluatableString,
+		url: EvaluatableString,
 		queryParams: List[HttpParam],
 		params: List[HttpParam],
 		headers: Map[String, EvaluatableString],
@@ -79,13 +79,13 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 
 	private[http] def newInstance(
 		requestName: String,
-		urlFunction: EvaluatableString,
+		url: EvaluatableString,
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		body: Option[HttpRequestBody],
 		credentials: Option[Credentials],
 		checks: Option[List[HttpCheck]]): B = {
-		newInstance(requestName, urlFunction, queryParams, params, headers, body, fileUpload, credentials, checks)
+		newInstance(requestName, url, queryParams, params, headers, body, fileUpload, credentials, checks)
 	}
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
@@ -103,14 +103,14 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	/**
 	 *
 	 */
-	def param(paramKeyFunction: EvaluatableString, paramValueFunction: EvaluatableString): B =
-		newInstance(requestName, urlFunction, queryParams, (paramKeyFunction, paramValueFunction) :: params, headers, body, fileUpload, credentials, checks)
+	def param(key: EvaluatableString, value: EvaluatableString): B =
+		newInstance(requestName, url, queryParams, (key, value) :: params, headers, body, fileUpload, credentials, checks)
 
 	def param(paramKey: String): B = param(paramKey, EL_START + paramKey + EL_END)
 
 	def upload(fileName: String, mimeType: String = APPLICATION_OCTET_STREAM, charset: String = configuration.encoding): B =
 		header(CONTENT_TYPE, MULTIPART_FORM_DATA)
-			.newInstance(requestName, urlFunction, queryParams, params, headers, body, Some(UploadedFile(fileName, mimeType, charset)), credentials, checks)
+			.newInstance(requestName, url, queryParams, params, headers, body, Some(UploadedFile(fileName, mimeType, charset)), credentials, checks)
 
 	/**
 	 * This method adds the parameters to the request builder
@@ -122,11 +122,10 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	private def configureParams(requestBuilder: RequestBuilder, session: Session) {
 		val paramsMap = new FluentStringsMap
 
-		val resolvedParams = for ((keyFunction, valueFunction) <- params) yield (keyFunction(session), valueFunction(session))
+		val resolvedParams = for ((key, value) <- params) yield (key(session), value(session))
 
-		resolvedParams.groupBy(_._1).foreach { entry =>
-			val (key, params) = entry
-			paramsMap.add(key, params.map(_._2): _*)
+		resolvedParams.groupBy(_._1).foreach {
+			case (key, params) => paramsMap.add(key, params.map(_._2): _*)
 		}
 
 		if (!paramsMap.isEmpty) // AHC removes body if setParameters is called
@@ -138,10 +137,8 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	}
 
 	private def configureStringParts(requestBuilder: RequestBuilder, session: Session) {
-		params.foreach { entry =>
-			val key = entry._1(session)
-			val value = entry._2(session)
-			requestBuilder.addBodyPart(new StringPart(key, value))
+		params.foreach {
+			case (key, value) => requestBuilder.addBodyPart(new StringPart(key(session), value(session)))
 		}
 	}
 }

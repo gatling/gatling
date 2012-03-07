@@ -23,7 +23,7 @@ import com.excilys.ebi.gatling.http.request.HttpRequestBody
  */
 class PostHttpRequestBuilder(
 	requestName: String,
-	urlFunction: EvaluatableString,
+	url: EvaluatableString,
 	queryParams: List[HttpParam],
 	params: List[HttpParam],
 	headers: Map[String, EvaluatableString],
@@ -31,17 +31,17 @@ class PostHttpRequestBuilder(
 	fileUpload: Option[UploadedFile],
 	credentials: Option[Credentials],
 	checks: Option[List[HttpCheck]])
-		extends AbstractHttpRequestWithBodyAndParamsBuilder[PostHttpRequestBuilder](requestName, "POST", urlFunction, queryParams, params, headers, body, fileUpload, credentials, checks) {
+		extends AbstractHttpRequestWithBodyAndParamsBuilder[PostHttpRequestBuilder](requestName, "POST", url, queryParams, params, headers, body, fileUpload, credentials, checks) {
 
 	private[http] def newInstance(
 		requestName: String,
-		urlFunction: EvaluatableString,
+		url: EvaluatableString,
 		queryParams: List[HttpParam], params: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		body: Option[HttpRequestBody],
 		fileUpload: Option[UploadedFile],
 		credentials: Option[Credentials],
 		checks: Option[List[HttpCheck]]) = {
-		new PostHttpRequestBuilder(requestName, urlFunction, queryParams, params, headers, body, fileUpload, credentials, checks)
+		new PostHttpRequestBuilder(requestName, url, queryParams, params, headers, body, fileUpload, credentials, checks)
 	}
 }

@@ -24,22 +24,22 @@ import com.excilys.ebi.gatling.core.session.EvaluatableString
  */
 class DeleteHttpRequestBuilder(
 	requestName: String,
-	urlFunction: EvaluatableString,
+	url: EvaluatableString,
 	queryParams: List[HttpParam],
 	headers: Map[String, EvaluatableString],
 	body: Option[HttpRequestBody],
 	credentials: Option[Credentials],
 	checks: Option[List[HttpCheck]])
-		extends AbstractHttpRequestWithBodyBuilder[DeleteHttpRequestBuilder](requestName, "DELETE", urlFunction, queryParams, headers, body, credentials, checks) {
+		extends AbstractHttpRequestWithBodyBuilder[DeleteHttpRequestBuilder](requestName, "DELETE", url, queryParams, headers, body, credentials, checks) {
 
 	private[http] def newInstance(
 		requestName: String,
-		urlFunction: EvaluatableString,
+		url: EvaluatableString,
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		body: Option[HttpRequestBody],
 		credentials: Option[Credentials],
 		checks: Option[List[HttpCheck]]) = {
-		new DeleteHttpRequestBuilder(requestName, urlFunction, queryParams, headers, body, credentials, checks)
+		new DeleteHttpRequestBuilder(requestName, url, queryParams, headers, body, credentials, checks)
 	}
 }

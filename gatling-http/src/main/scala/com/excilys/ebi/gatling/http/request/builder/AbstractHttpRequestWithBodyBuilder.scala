@@ -43,7 +43,7 @@ object AbstractHttpRequestWithBodyBuilder {
  * This class serves as model to HTTP request with a body
  *
  * @param httpRequestActionBuilder the HttpRequestActionBuilder with which this builder is linked
- * @param urlFunction the function returning the url
+ * @param url the function returning the url
  * @param queryParams the query parameters that should be added to the request
  * @param headers the headers that should be added to the request
  * @param body the body that should be added to the request
@@ -52,13 +52,13 @@ object AbstractHttpRequestWithBodyBuilder {
 abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](
 	requestName: String,
 	method: String,
-	urlFunction: EvaluatableString,
+	url: EvaluatableString,
 	queryParams: List[HttpParam],
 	headers: Map[String, EvaluatableString],
 	body: Option[HttpRequestBody],
 	credentials: Option[Credentials],
 	checks: Option[List[HttpCheck]])
-		extends AbstractHttpRequestBuilder[B](requestName, method, urlFunction, queryParams, headers, credentials, checks) {
+		extends AbstractHttpRequestBuilder[B](requestName, method, url, queryParams, headers, credentials, checks) {
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
 		val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
@@ -70,7 +70,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 * Method overridden in children to create a new instance of the correct type
 	 *
 	 * @param httpRequestActionBuilder the HttpRequestActionBuilder with which this builder is linked
-	 * @param urlFunction the function returning the url
+	 * @param url the function returning the url
 	 * @param queryParams the query parameters that should be added to the request
 	 * @param headers the headers that should be added to the request
 	 * @param body the body that should be added to the request
@@ -78,7 +78,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 */
 	private[http] def newInstance(
 		requestName: String,
-		urlFunction: EvaluatableString,
+		url: EvaluatableString,
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		body: Option[HttpRequestBody],
@@ -87,12 +87,12 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 
 	private[http] def newInstance(
 		requestName: String,
-		urlFunction: EvaluatableString,
+		url: EvaluatableString,
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		credentials: Option[Credentials],
 		checks: Option[List[HttpCheck]]): B = {
-		newInstance(requestName, urlFunction, queryParams, headers, body, credentials, checks)
+		newInstance(requestName, url, queryParams, headers, body, credentials, checks)
 	}
 
 	/**
@@ -100,14 +100,14 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 *
 	 * @param body a string containing the body of the request
 	 */
-	def body(body: EvaluatableString): B = newInstance(requestName, urlFunction, queryParams, headers, Some(StringBody(body)), credentials, checks)
+	def body(body: EvaluatableString): B = newInstance(requestName, url, queryParams, headers, Some(StringBody(body)), credentials, checks)
 
 	/**
 	 * Adds a body from a file to the request
 	 *
 	 * @param filePath the path of the file relative to GATLING_REQUEST_BODIES_FOLDER
 	 */
-	def fileBody(filePath: String): B = newInstance(requestName, urlFunction, queryParams, headers, Some(FilePathBody(filePath)), credentials, checks)
+	def fileBody(filePath: String): B = newInstance(requestName, url, queryParams, headers, Some(FilePathBody(filePath)), credentials, checks)
 
 	/**
 	 * Adds a body from a template that has to be compiled
@@ -117,7 +117,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 */
 	def fileBody(tplPath: String, values: Map[String, String]): B = {
 		val evaluatableValues = values.map { entry => entry._1 -> parseEvaluatable(entry._2) }
-		newInstance(requestName, urlFunction, queryParams, headers, Some(TemplateBody(tplPath, evaluatableValues)), credentials, checks)
+		newInstance(requestName, url, queryParams, headers, Some(TemplateBody(tplPath, evaluatableValues)), credentials, checks)
 	}
 
 	/**

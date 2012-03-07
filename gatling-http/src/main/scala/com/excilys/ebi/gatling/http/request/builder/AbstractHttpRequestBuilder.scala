@@ -46,7 +46,7 @@ object AbstractHttpRequestBuilder {
  * This class serves as model for all HttpRequestBuilders
  *
  * @param httpRequestActionBuilder the HttpRequestActionBuilder with which this builder is linked
- * @param urlFunction the function returning the url
+ * @param url the function returning the url
  * @param queryParams the query parameters that should be added to the request
  * @param headers the headers that should be added to the request
  * @param credentials sets the credentials in case of Basic HTTP Authentication
@@ -54,7 +54,7 @@ object AbstractHttpRequestBuilder {
 abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 		val requestName: String,
 		method: String,
-		urlFunction: EvaluatableString,
+		url: EvaluatableString,
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		credentials: Option[Credentials],
@@ -64,27 +64,27 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * Method overridden in children to create a new instance of the correct type
 	 *
 	 * @param httpRequestActionBuilder the HttpRequestActionBuilder with which this builder is linked
-	 * @param urlFunction the function returning the url
+	 * @param url the function returning the url
 	 * @param queryParams the query parameters that should be added to the request
 	 * @param headers the headers that should be added to the request
 	 * @param credentials sets the credentials in case of Basic HTTP Authentication
 	 */
 	private[http] def newInstance(
 		requestName: String,
-		urlFunction: EvaluatableString,
+		url: EvaluatableString,
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		credentials: Option[Credentials],
 		checks: Option[List[HttpCheck]]): B
 
-	private[http] def withRequestName(requestName: String): B = newInstance(requestName, urlFunction, queryParams, headers, credentials, checks)
+	private[http] def withRequestName(requestName: String): B = newInstance(requestName, url, queryParams, headers, credentials, checks)
 
 	/**
 	 * Stops defining the request and adds checks on the response
 	 *
 	 * @param checkBuilders the checks that will be performed on the reponse
 	 */
-	def check(checks: HttpCheck*): B = newInstance(requestName, urlFunction, queryParams, headers, credentials, Some(checks.toList))
+	def check(checks: HttpCheck*): B = newInstance(requestName, url, queryParams, headers, credentials, Some(checks.toList))
 
 	/**
 	 * Adds a query parameter to the request
@@ -92,7 +92,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * @param paramKeyFunction a function that returns the key name
 	 * @param paramValueFunction a function that returns the value
 	 */
-	def queryParam(param: HttpParam): B = newInstance(requestName, urlFunction, param :: queryParams, headers, credentials, checks)
+	def queryParam(param: HttpParam): B = newInstance(requestName, url, param :: queryParams, headers, credentials, checks)
 
 	/**
 	 * Adds a query parameter to the request
@@ -108,14 +108,14 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 *
 	 * @param header the header to add, eg: ("Content-Type", "application/json")
 	 */
-	def header(header: (String, String)): B = newInstance(requestName, urlFunction, queryParams, headers + (header._1 -> parseEvaluatable(header._2)), credentials, checks)
+	def header(header: (String, String)): B = newInstance(requestName, url, queryParams, headers + (header._1 -> parseEvaluatable(header._2)), credentials, checks)
 
 	/**
 	 * Adds several headers to the request at the same time
 	 *
 	 * @param givenHeaders a scala map containing the headers to add
 	 */
-	def headers(givenHeaders: Map[String, String]): B = newInstance(requestName, urlFunction, queryParams, headers ++ givenHeaders.mapValues(parseEvaluatable(_)), credentials, checks)
+	def headers(givenHeaders: Map[String, String]): B = newInstance(requestName, url, queryParams, headers ++ givenHeaders.mapValues(parseEvaluatable(_)), credentials, checks)
 
 	/**
 	 * Adds Accept and Content-Type headers to the request set with "application/json" values
@@ -133,7 +133,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * @param username the username needed
 	 * @param password the password needed
 	 */
-	def basicAuth(username: EvaluatableString, password: EvaluatableString): B = newInstance(requestName, urlFunction, queryParams, headers, Some(Credentials(username, password)), checks)
+	def basicAuth(username: EvaluatableString, password: EvaluatableString): B = newInstance(requestName, url, queryParams, headers, Some(Credentials(username, password)), checks)
 
 	/**
 	 * This method actually fills the request builder to avoid race conditions
@@ -175,28 +175,28 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	}
 
 	/**
-	 * This method adds the url and cookies to the request builder. It does so by applying the urlFunction to the current session
+	 * This method adds the url and cookies to the request builder. It does so by applying the url to the current session
 	 *
 	 * @param requestBuilder the request builder to which the url should be added
 	 * @param session the session of the current scenario
 	 */
 	private def configureURLAndCookies(requestBuilder: RequestBuilder, session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]) = {
-		val providedUrl = urlFunction(session)
+		val providedUrl = url(session)
 
 		// baseUrl implementation
-		val url = if (providedUrl.startsWith(Protocol.HTTP.getProtocol))
+		val resolvedUrl = if (providedUrl.startsWith(Protocol.HTTP.getProtocol))
 			providedUrl
 		else protocolConfiguration match {
 			case Some(config) => config.baseURL.getOrElse(throw new IllegalArgumentException("No protocolConfiguration.baseURL defined but provided url is relative : " + providedUrl)) + providedUrl
 			case None => throw new IllegalArgumentException("No protocolConfiguration defined but provided url is relative : " + providedUrl)
 		}
 
-		requestBuilder.setUrl(url)
+		requestBuilder.setUrl(resolvedUrl)
 
-		for (cookie <- getStoredCookies(session, url))
+		for (cookie <- getStoredCookies(session, resolvedUrl))
 			requestBuilder.addCookie(cookie)
 
-		url.startsWith(Protocol.HTTPS.getProtocol)
+		resolvedUrl.startsWith(Protocol.HTTPS.getProtocol)
 	}
 
 	/**
@@ -210,9 +210,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 
 		val keyValues = for ((keyFunction, valueFunction) <- queryParams) yield (keyFunction(session), valueFunction(session))
 
-		keyValues.groupBy(_._1).foreach { entry =>
-			val (key, values) = entry
-			queryParamsMap.add(key, values.map(_._2): _*)
+		keyValues.groupBy(_._1).foreach {
+			case (key, values) => queryParamsMap.add(key, values.map(_._2): _*)
 		}
 
 		if (!queryParamsMap.isEmpty)
@@ -237,8 +236,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * @param credentials the credentials to put in the request builder
 	 */
 	private def configureAuthentication(requestBuilder: RequestBuilder, credentials: Option[Credentials], session: Session) = {
-		credentials.map { c =>
-			val realm = new Realm.RealmBuilder().setPrincipal(c.username(session)).setPassword(c.password(session)).setUsePreemptiveAuth(true).setScheme(AuthScheme.BASIC).build
+		credentials.map { credentials =>
+			val realm = new Realm.RealmBuilder().setPrincipal(credentials.username(session)).setPassword(credentials.password(session)).setUsePreemptiveAuth(true).setScheme(AuthScheme.BASIC).build
 			requestBuilder.setRealm(realm)
 		}
 	}

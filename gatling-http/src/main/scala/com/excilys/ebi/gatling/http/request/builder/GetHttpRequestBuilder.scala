@@ -22,20 +22,20 @@ import com.excilys.ebi.gatling.http.check.HttpCheck
  */
 class GetHttpRequestBuilder(
 	requestName: String,
-	urlFunction: EvaluatableString,
+	url: EvaluatableString,
 	queryParams: List[HttpParam],
 	headers: Map[String, EvaluatableString],
 	credentials: Option[Credentials],
 	checks: Option[List[HttpCheck]])
-		extends AbstractHttpRequestBuilder[GetHttpRequestBuilder](requestName, "GET", urlFunction, queryParams, headers, credentials, checks) {
+		extends AbstractHttpRequestBuilder[GetHttpRequestBuilder](requestName, "GET", url, queryParams, headers, credentials, checks) {
 
 	private[http] def newInstance(
 		requestName: String,
-		urlFunction: EvaluatableString,
+		url: EvaluatableString,
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		credentials: Option[Credentials],
 		checks: Option[List[HttpCheck]]) = {
-		new GetHttpRequestBuilder(requestName, urlFunction, queryParams, headers, credentials, checks)
+		new GetHttpRequestBuilder(requestName, url, queryParams, headers, credentials, checks)
 	}
 }
