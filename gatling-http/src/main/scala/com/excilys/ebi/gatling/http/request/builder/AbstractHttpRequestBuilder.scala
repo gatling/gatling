@@ -133,7 +133,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * @param username the username needed
 	 * @param password the password needed
 	 */
-	def basicAuth(username: String, password: String): B = newInstance(requestName, urlFunction, queryParams, headers, Some(Credentials(username, password)), checks)
+	def basicAuth(username: EvaluatableString, password: EvaluatableString): B = newInstance(requestName, urlFunction, queryParams, headers, Some(Credentials(username, password)), checks)
 
 	/**
 	 * This method actually fills the request builder to avoid race conditions
