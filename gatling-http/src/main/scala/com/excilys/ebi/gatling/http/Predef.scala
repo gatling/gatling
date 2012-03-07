@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.http
 import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.excilys.ebi.gatling.http.check.body.{ HttpBodyXPathCheckBuilder, HttpBodyRegexCheckBuilder }
+import com.excilys.ebi.gatling.http.check.body.{ HttpBodyXPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyJsonCheckBuilder }
 import com.excilys.ebi.gatling.http.check.header.HttpHeaderCheckBuilder
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder
 import com.excilys.ebi.gatling.http.config.{ HttpProxyBuilder, HttpProtocolConfigurationBuilder }
@@ -30,6 +30,7 @@ object Predef {
 
 	def regex(expression: EvaluatableString) = HttpBodyRegexCheckBuilder.regex(expression)
 	def xpath(expression: EvaluatableString) = HttpBodyXPathCheckBuilder.xpath(expression)
+	def json(expression: EvaluatableString) = HttpBodyJsonCheckBuilder.json(expression)
 	def header(expression: EvaluatableString) = HttpHeaderCheckBuilder.header(expression)
 	def status = HttpStatusCheckBuilder.status
 

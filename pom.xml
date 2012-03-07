@@ -139,6 +139,9 @@
 		<opencsv.version>2.3</opencsv.version>
 		<ant.version>1.8.2</ant.version>
 		<grizzled-slf4j.version>0.6.6</grizzled-slf4j.version>
+		<jackson.version>1.9.5</jackson.version>
+		<junit.version>4.10</junit.version>
+		<specs2.version>1.8.2</specs2.version>
 
 		<maven2.version>2.2.1</maven2.version>
 		<maven-assembly-plugin.version>2.2.1</maven-assembly-plugin.version>
@@ -377,6 +380,21 @@
 				<groupId>org.apache.maven</groupId>
 				<artifactId>maven-plugin-api</artifactId>
 				<version>${maven2.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.jackson</groupId>
+				<artifactId>jackson-mapper-asl</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>${junit.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.specs2</groupId>
+				<artifactId>specs2_2.9.1</artifactId>
+				<version>${specs2.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

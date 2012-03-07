@@ -48,7 +48,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 		.loop(
 			chain
 				.feed(testData)
-				.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform((s: String) => s + "foo").saveAs("aaaa_value"))))
+				.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform((s: String) => s + "foo").saveAs("aaaa_value"), json("//foo/bar[2]/baz"))))
 		.times(2)
 		.pause(pause2, pause3)
 		// Loop
