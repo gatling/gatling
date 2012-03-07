@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.extractor.json
+package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
-import com.excilys.ebi.gatling.core.check.extractor.json.JsonPathMatcher.matchPath
 import org.specs2.runner.JUnitRunner
+
+import com.excilys.ebi.gatling.core.check.extractor.jsonpath.JsonPathMatcher.matchPath;
 
 @RunWith(classOf[JUnitRunner])
 class JsonPathMatcherSpec extends Specification {

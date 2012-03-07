@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.extractor.json
+package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 import scala.annotation.tailrec
-import com.excilys.ebi.gatling.core.check.extractor.json.JsonTokenizer.unstack
+
+import com.excilys.ebi.gatling.core.check.extractor.jsonpath.JsonPathTokenizer.{ unstack, tokenize }
 
 object JsonPathMatcher {
 
@@ -37,8 +38,8 @@ object JsonPathMatcher {
 	}
 
 	def matchPath(expected: String, actual: String): Boolean = {
-		val actualPath = JsonTokenizer.tokenize(actual)
-		val expectedPath = JsonTokenizer.tokenize(expected)
+		val actualPath = tokenize(actual)
+		val expectedPath = tokenize(expected)
 		val unstackedExpectedPath = unstack(expectedPath, actualPath.length)
 		matchPath(unstackedExpectedPath, actualPath)
 	}

@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.extractor.json
+package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
-import JsonExtractorSpec.extractor
+
+import com.excilys.ebi.gatling.core.check.extractor.jsonpath.JsonExtractorSpec.extractor
 
 object JsonExtractorSpec {
 	// @formatter:off
@@ -59,7 +60,7 @@ object JsonExtractorSpec {
 			"}"
 	// @formatter:on
 
-	val extractor = new JsonExtractor(document)
+	val extractor = new JsonPathExtractor(document)
 }
 
 @RunWith(classOf[JUnitRunner])

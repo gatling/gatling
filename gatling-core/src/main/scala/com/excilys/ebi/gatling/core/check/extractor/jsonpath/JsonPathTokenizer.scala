@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.extractor.json
-import scala.annotation.tailrec
+package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 import java.util.regex.Pattern
+
+import scala.annotation.tailrec
+
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
-class JsonTokenizerException(expression: String) extends IllegalArgumentException("Malformed expression: " + expression)
+class JsonPathTokenizerException(expression: String) extends IllegalArgumentException("Malformed expression: " + expression)
 
-object JsonTokenizer {
+object JsonPathTokenizer {
 
 	val SPLIT_PATTERN = Pattern.compile("/")
 	val ARRAY_ELEMENT_PATTERN = Pattern.compile("""(.+?)\[(\d+?)\]""")
@@ -36,7 +38,7 @@ object JsonTokenizer {
 						if (elements == Nil)
 							JsonRootWildCard
 						else
-							throw new JsonTokenizerException(string)
+							throw new JsonPathTokenizerException(string)
 					case "*" => NodeWildCard
 					case str =>
 						val matcher = ARRAY_ELEMENT_PATTERN.matcher(str)
@@ -50,7 +52,7 @@ object JsonTokenizer {
 		}
 
 		if (!string.startsWith("/"))
-			throw new JsonTokenizerException(string)
+			throw new JsonPathTokenizerException(string)
 
 		analyze(SPLIT_PATTERN.split(string.stripPrefix("/"), 0).toList, Nil)
 	}

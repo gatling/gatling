@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.extractor.json
-import org.codehaus.jackson.JsonFactory
-import com.excilys.ebi.gatling.core.util.IOHelper.use
-import com.excilys.ebi.gatling.core.check.extractor.json.JsonExtractor.FACTORY
-import scala.collection.immutable.Stack
-import org.codehaus.jackson.JsonToken
-import org.codehaus.jackson.JsonParser
+package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 import scala.annotation.tailrec
-import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
+import scala.collection.immutable.Stack
 
-object JsonExtractor {
+import org.codehaus.jackson.{ JsonToken, JsonParser, JsonFactory }
+
+import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
+import com.excilys.ebi.gatling.core.check.extractor.jsonpath.JsonPathExtractor.FACTORY
+import com.excilys.ebi.gatling.core.check.extractor.jsonpath.JsonPathTokenizer.{ unstack, tokenize }
+import com.excilys.ebi.gatling.core.util.IOHelper.use
+
+object JsonPathExtractor {
 	lazy val FACTORY = new JsonFactory
 }
 
-class JsonExtractor(textContent: String) {
+class JsonPathExtractor(textContent: String) {
 
 	@tailrec
 	private def walkRec(expectedPath: List[JsonPathElement], parser: JsonParser, stack: Stack[JsonPathElement], stackAsList: Option[List[JsonPathElement]], unstackedExpectedPath: Option[List[JsonPathElement]], depth: Int, results: List[String]): List[String] = {
@@ -60,7 +61,7 @@ class JsonExtractor(textContent: String) {
 		def handleValue: (Stack[JsonPathElement], Option[List[JsonPathElement]], Option[List[JsonPathElement]], Int, List[String]) = {
 			val newStackAsList = stackAsList.getOrElse(stack.toList)
 			val actualPath = SimpleNode(parser.getCurrentName) :: newStackAsList
-			val newUnstackedExpectedPath = unstackedExpectedPath.getOrElse(JsonTokenizer.unstack(expectedPath, actualPath.length))
+			val newUnstackedExpectedPath = unstackedExpectedPath.getOrElse(unstack(expectedPath, actualPath.length))
 			val newResults = if (JsonPathMatcher.matchPath(newUnstackedExpectedPath, actualPath)) parser.getText :: results else results
 			(stack, Some(newStackAsList), Some(newUnstackedExpectedPath), depth, newResults)
 		}
@@ -86,7 +87,7 @@ class JsonExtractor(textContent: String) {
 	}
 
 	def extractMultiple(expression: String): Option[Seq[String]] = use(FACTORY.createJsonParser(textContent)) { parser =>
-		val expected = JsonTokenizer.tokenize(expression)
+		val expected = tokenize(expression)
 		parser.nextToken
 		val results = walkRec(expected, parser, Stack[JsonPathElement](), None, None, 1, Nil)
 		results.reverse

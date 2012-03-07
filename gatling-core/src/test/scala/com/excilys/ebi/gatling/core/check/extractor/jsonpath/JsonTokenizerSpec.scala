@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.extractor.json
+package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
-import com.excilys.ebi.gatling.core.check.extractor.json.JsonTokenizer.tokenize
 import org.specs2.runner.JUnitRunner
+
+import com.excilys.ebi.gatling.core.check.extractor.jsonpath.JsonPathTokenizer.tokenize;
 
 @RunWith(classOf[JUnitRunner])
 class JsonTokenizerSpec extends Specification {
@@ -64,14 +65,11 @@ class JsonTokenizerSpec extends Specification {
 			tokenize("/a[1]/b") must equalTo(List(SimpleNode("b"), ArrayElementNode("a", 1)))
 		}
 	}
-	
-		"a" should {
+
+	"a" should {
 
 		"throw a JsonTokenizerException" in {
-			tokenize("a") must throwA[JsonTokenizerException]
+			tokenize("a") must throwA[JsonPathTokenizerException]
 		}
 	}
-
-	//	println(tokenize("//*"));
-	//		println(tokenize("BBB"));
 }
