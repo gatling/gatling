@@ -33,9 +33,9 @@ class JsonPathExtractor(textContent: String) {
 	@tailrec
 	private def walkRec(expectedPath: List[JsonPathElement], parser: JsonParser, stack: Stack[JsonPathElement], stackAsList: Option[List[JsonPathElement]], unstackedExpectedPath: Option[List[JsonPathElement]], depth: Int, results: List[String]): List[String] = {
 
-		def handleStartArray: (Stack[JsonPathElement], Option[List[JsonPathElement]], Option[List[JsonPathElement]], Int, List[String]) = (stack.push(ArrayElementNode(parser.getCurrentName, 0)), None, None, depth + 1, results)
+		def handleStartArray = (stack.push(ArrayElementNode(parser.getCurrentName, 0)), None, None, depth + 1, results)
 
-		def handleStartObject: (Stack[JsonPathElement], Option[List[JsonPathElement]], Option[List[JsonPathElement]], Int, List[String]) = {
+		def handleStartObject = {
 			val head = if (stack.isEmpty) None else Some(stack.head)
 			val newStack = head match {
 				case Some(ArrayElementNode(name, index)) => stack.pop.push(ArrayElementNode(name, index + 1))
@@ -44,9 +44,9 @@ class JsonPathExtractor(textContent: String) {
 			(newStack, None, None, depth + 1, results)
 		}
 
-		def handleEndArray: (Stack[JsonPathElement], Option[List[JsonPathElement]], Option[List[JsonPathElement]], Int, List[String]) = (stack.pop, None, None, depth - 1, results)
+		def handleEndArray = (stack.pop, None, None, depth - 1, results)
 
-		def handleEndObject: (Stack[JsonPathElement], Option[List[JsonPathElement]], Option[List[JsonPathElement]], Int, List[String]) = {
+		def handleEndObject = {
 			val head = if (stack.isEmpty) None else Some(stack.head)
 			val newStack = head match {
 				case Some(ArrayElementNode(name, index)) => stack
@@ -56,9 +56,9 @@ class JsonPathExtractor(textContent: String) {
 			(newStack, None, None, depth - 1, results)
 		}
 
-		def handleFieldName: (Stack[JsonPathElement], Option[List[JsonPathElement]], Option[List[JsonPathElement]], Int, List[String]) = (stack, stackAsList, unstackedExpectedPath, depth, results)
+		def handleFieldName = (stack, stackAsList, unstackedExpectedPath, depth, results)
 
-		def handleValue: (Stack[JsonPathElement], Option[List[JsonPathElement]], Option[List[JsonPathElement]], Int, List[String]) = {
+		def handleValue = {
 			val newStackAsList = stackAsList.getOrElse(stack.toList)
 			val actualPath = SimpleNode(parser.getCurrentName) :: newStackAsList
 			val newUnstackedExpectedPath = unstackedExpectedPath.getOrElse(unstack(expectedPath, actualPath.length))
