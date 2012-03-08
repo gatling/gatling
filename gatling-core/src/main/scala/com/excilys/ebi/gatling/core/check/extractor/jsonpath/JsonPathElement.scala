@@ -19,10 +19,6 @@ sealed trait JsonPathElement {
 	def accept(other: JsonPathElement): Boolean
 }
 
-case object JsonRoot extends JsonPathElement {
-	def accept(other: JsonPathElement) = this.eq(other)
-}
-
 case object JsonRootWildCard extends JsonPathElement {
 	def accept(other: JsonPathElement) = throw new UnsupportedOperationException("JsonRootWildCard shouldn't be used for path matching")
 }
