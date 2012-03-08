@@ -31,13 +31,13 @@ import grizzled.slf4j.Logging
 object PauseAction {
 
 	/**
-	 * used to generate random pause durations
+	 * Used to generate random pause durations
 	 */
 	val randomGenerator = new Random
 }
 
 /**
- * This action represents a pause in the scenario (ie: think time)
+ * An action in charge of "pausing" a user (ie: think time)
  *
  * @constructor creates a PauseAction
  * @param next action that will be executed after the pause duration
@@ -51,10 +51,10 @@ class PauseAction(next: ActorRef, minDuration: Long, maxDuration: Long, timeUnit
 	 * Generates a duration if required or use the one given and defer
 	 * next actor execution of this duration
 	 *
-	 * @param session Session of current user
+	 * @param session the session of the virtual user
 	 * @return Nothing
 	 */
-	def execute(session: Session) = {
+	def execute(session: Session) {
 
 		val diff = maxDuration - minDuration
 		val duration = minDuration + (if (diff > 0) PauseAction.randomGenerator.nextInt(diff.toInt) else 0)

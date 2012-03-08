@@ -26,13 +26,11 @@ import com.excilys.ebi.gatling.core.check.Check
 import com.excilys.ebi.gatling.core.check.CheckBuilder
 
 /**
- * Abstract class for all request actions. For example HTTPRequestAction, and later LDAPRequestAction, etc.
+ * An abstraction for Actions in charge of sending Requests, such as HTTP requests.
  *
  * @param next action that will be executed after the request
  * @param request request that will be sent
- * @param givenProcessors a list of processors that will apply on the response
+ * @param checks the checks to apply on the response
  * @param protocolConfiguration the optional protocolConfiguration for this type of request
  */
-abstract class RequestAction[C <: Check[R], R, P <:ProtocolConfiguration](next: ActorRef, request: Request, givenProcessors: Option[List[C]], protocolConfiguration: Option[P]) extends Action {
-	def execute(session: Session)
-}
+abstract class RequestAction[C <: Check[R], R, P <:ProtocolConfiguration](next: ActorRef, request: Request, checks: Option[List[C]], protocolConfiguration: Option[P]) extends Action

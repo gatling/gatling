@@ -20,28 +20,30 @@ import com.excilys.ebi.gatling.core.session.Session
 import akka.actor.ActorRef
 
 /**
- * This class represents a conditional Action
+ * A conditional Action
  *
  * @constructor creates an IfAction
- * @param conditionFunction this function is the condition that decides of what action to execute next
- * @param thenNext chain of actions executed if conditionFunction evaluates to true
- * @param elseNext chain of actions executed if conditionFunction evaluates to false
- * @param next chain of actions executed if conditionFunction evaluates to false and elseNext equals None
+ * @param condition the condition that decides whether to execute thenNext or elseNext
+ * @param thenNext the chain of actions executed if condition evaluates to true
+ * @param elseNext chain of actions executed if condition evaluates to false
+ * @param next chain of actions executed if condition evaluates to false and elseNext equals None
  */
-class IfAction(conditionFunction: Session => Boolean, thenNext: ActorRef, elseNext: Option[ActorRef], next: ActorRef) extends Action {
+class IfAction(condition: Session => Boolean, thenNext: ActorRef, elseNext: Option[ActorRef], next: ActorRef) extends Action {
 
 	/**
-	 * Evaluates the conditionFunction and if true executes the first action of thenNext
+	 * Evaluates the condition and if true executes the first action of thenNext
 	 * else it executes the first action of elseNext.
 	 *
 	 * If there is no elseNext, then, next is executed
 	 *
-	 * @param session Session for current user
+	 * @param session the session of the virtual user
 	 * @return Nothing
 	 */
-	def execute(session: Session) =
-		if (conditionFunction(session))
+	def execute(session: Session) {
+
+		if (condition(session))
 			thenNext ! session
 		else
 			elseNext.getOrElse(next) ! session
+	}
 }

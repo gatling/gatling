@@ -35,7 +35,7 @@ object StartAction {
 }
 
 /**
- * StartAction class represents the first action of the scenario, ie: its beginning.
+ * An Action that is automatically prepended at the beginnin of a scenario.
  *
  * @constructor creates an StartAction
  * @param next the action to be executed after this one
@@ -45,12 +45,15 @@ class StartAction(next: ActorRef) extends Action with Logging {
 	/**
 	 * Sends a message to the DataWriter and give hand to next actor
 	 *
-	 * @param session The session of the current user
+	 * @param session the session of the virtual user
 	 */
-	def execute(session: Session) = {
+	def execute(session: Session) {
+
 		val now = currentTimeMillis
 		DataWriter.instance ! RequestRecord(session.scenarioName, session.userId, START_OF_SCENARIO, now, now, now, now, OK, START_OF_SCENARIO)
+
 		info("Starting user #" + session.userId)
+
 		next ! session
 	}
 }

@@ -15,37 +15,38 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.session.handler.{ TimerBasedIterationHandler, CounterBasedIterationHandler }
+import scala.annotation.implicitNotFound
+
+import com.excilys.ebi.gatling.core.session.handler.{TimerBasedIterationHandler, CounterBasedIterationHandler}
 import com.excilys.ebi.gatling.core.session.Session
 
-import akka.actor.scala2ActorRef
 import akka.actor.ActorRef
 
 /**
- * Represents a While in the scenario.
+ * Action in charge of controlling a while loop execution.
  *
  * @constructor creates a While loop in the scenario
- * @param testFunction the function that will be used to decide when to stop the loop
- * @param loopNext the chain executed if testFunction evaluates to true, passed as a Function for construct time
+ * @param condition the condition that decides when to exit the loop
+ * @param loopNext the chain executed if condition evaluates to true, passed as a Function for build time
  * @param next the chain executed if testFunction evaluates to false
  * @param counterName the name of the counter for this loop
  */
-class WhileAction(testFunction: (Session, Action) => Boolean, loopNext: ActorRef => ActorRef, next: ActorRef, val counterName: String) extends Action with TimerBasedIterationHandler with CounterBasedIterationHandler {
+class WhileAction(condition: (Session, Action) => Boolean, loopNext: ActorRef => ActorRef, next: ActorRef, val counterName: String) extends Action with TimerBasedIterationHandler with CounterBasedIterationHandler {
 
 	val loopNextAction = loopNext(self)
 
 	/**
-	 * Evaluates the testFunction and if true executes the first action of loopNext
-	 * else it executes the first action of next
+	 * Evaluates the condition and if true executes the first action of loopNext
+	 * else it executes next
 	 *
-	 * @param session Session of the scenario
+	 * @param session the session of the virtual user
 	 * @return Nothing
 	 */
-	def execute(session: Session) = {
+	def execute(session: Session) {
 
 		val sessionWithTimerIncremented = increment(init(session))
 
-		if (testFunction(sessionWithTimerIncremented, this))
+		if (condition(sessionWithTimerIncremented, this))
 			loopNextAction ! sessionWithTimerIncremented
 		else
 			next ! expire(sessionWithTimerIncremented)

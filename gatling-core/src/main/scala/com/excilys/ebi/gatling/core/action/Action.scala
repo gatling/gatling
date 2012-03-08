@@ -21,9 +21,8 @@ import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
 import akka.actor.Actor
 
 /**
- * This trait represents an Action in Gatling terms.
- *
- * An action can be executed in the scenario via the exec command
+ * Top level abstraction in charge or executing concrete actions along a scenario, for example sending an HTTP request.
+ * It is implemented as an Akka Actor that receives Session messages.
  */
 trait Action extends Actor with ClassSimpleNameToString {
 
@@ -33,9 +32,9 @@ trait Action extends Actor with ClassSimpleNameToString {
 	}
 
 	/**
-	 * This method is used to send a message to this actor
+	 * Core method executed when the Action received a Session message
 	 *
-	 * @param session The session of the scenario
+	 * @param session the session of the virtual user
 	 * @return Nothing
 	 */
 	def execute(session: Session)

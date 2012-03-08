@@ -41,6 +41,7 @@ object SimpleActionBuilder {
 	 */
 	def simpleActionBuilder(sessionFunction: Session => Session) = new SimpleActionBuilder(sessionFunction, null)
 }
+
 /**
  * This class builds an SimpleAction
  *

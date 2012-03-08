@@ -20,11 +20,10 @@ import com.excilys.ebi.gatling.core.session.Session
 import akka.actor.ActorRef
 
 /**
- * This class represents a simple action. That is to say an action responsible for executing
- * functions that interacts with the session
+ * Hook for interacting with the Session
  *
  * @constructor Constructs a SimpleAction
- * @param sessionModifier the function that will be executed by this action
+ * @param sessionFunction a function for manipulating the Session
  * @param next the action to be executed after this one
  */
 class SimpleAction(sessionFunction: Session => Session, next: ActorRef) extends Action {
@@ -32,9 +31,9 @@ class SimpleAction(sessionFunction: Session => Session, next: ActorRef) extends 
 	/**
 	 * This method applies the function to the Session
 	 *
-	 * @param session The session of the scenario
+	 * @param session the session of the virtual user
 	 */
-	def execute(session: Session) = {
+	def execute(session: Session) {
 		next ! sessionFunction(session)
 	}
 }
