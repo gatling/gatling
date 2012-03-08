@@ -22,7 +22,7 @@ import com.ning.http.client.Response
 
 object HttpBodyJsonPathCheckBuilder {
 
-	def json(expression: EvaluatableString) = new HttpBodyCheckBuilder(findExtractorFactory, findAllExtractorFactory, countExtractorFactory, expression)
+	def jsonPath(expression: EvaluatableString) = new HttpBodyCheckBuilder(findExtractorFactory, findAllExtractorFactory, countExtractorFactory, expression)
 
 	private val HTTP_BODY_JSON_EXTRACTOR_CONTEXT_KEY = "HttpBodyJsonExtractor"
 

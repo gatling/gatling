@@ -30,7 +30,7 @@ object Predef {
 
 	def regex(expression: EvaluatableString) = HttpBodyRegexCheckBuilder.regex(expression)
 	def xpath(expression: EvaluatableString) = HttpBodyXPathCheckBuilder.xpath(expression)
-	def jsonPath(expression: EvaluatableString) = HttpBodyJsonPathCheckBuilder.json(expression)
+	def jsonPath(expression: EvaluatableString) = HttpBodyJsonPathCheckBuilder.jsonPath(expression)
 	def header(expression: EvaluatableString) = HttpHeaderCheckBuilder.header(expression)
 	def status = HttpStatusCheckBuilder.status
 

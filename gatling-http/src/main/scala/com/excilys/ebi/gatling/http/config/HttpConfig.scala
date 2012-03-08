@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.http.config
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 
-object GatlingHTTPConfig {
+object HttpConfig {
 	val GATLING_HTTP_CONFIG_PROVIDER_CLASS = {
 		val selectedProvider = configuration.fileConfiguration.getString("gatling.http.provider", "Netty")
 		new StringBuilder("com.ning.http.client.providers.").append(selectedProvider.toLowerCase).append(".").append(selectedProvider).append("AsyncHttpProvider").toString
