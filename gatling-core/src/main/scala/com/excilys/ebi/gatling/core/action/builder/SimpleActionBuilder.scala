@@ -28,13 +28,6 @@ import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 object SimpleActionBuilder {
 
 	/**
-	 * Implicit converter from (Session, Action) => Unit to a simple action builder containing this function
-	 *
-	 * @param sessionFunction the function that has to be wrapped into a simple action builder
-	 * @return a simple action builder
-	 */
-	implicit def toSimpleActionBuilder(sessionFunction: (Session, Action) => Session) = simpleActionBuilder(sessionFunction)
-	/**
 	 * Implicit converter from Session => Unit to a simple action builder containing this function
 	 *
 	 * @param sessionFunction the function that has to be wrapped into a simple action builder
@@ -46,13 +39,7 @@ object SimpleActionBuilder {
 	 *
 	 * @param sessionFunction the function that will be executed by the built simple action
 	 */
-	def simpleActionBuilder(sessionFunction: Session => Session): SimpleActionBuilder = simpleActionBuilder((session: Session, action: Action) => sessionFunction(session))
-	/**
-	 * Function used to create a simple action builder
-	 *
-	 * @param sessionFunction the function that will be executed by the built simple action
-	 */
-	def simpleActionBuilder(sessionFunction: (Session, Action) => Session) = new SimpleActionBuilder(sessionFunction, null)
+	def simpleActionBuilder(sessionFunction: Session => Session) = new SimpleActionBuilder(sessionFunction, null)
 }
 /**
  * This class builds an SimpleAction
@@ -61,7 +48,7 @@ object SimpleActionBuilder {
  * @param sessionFunction the function that will be executed by the simple action
  * @param next the action that will be executed after the simple action built by this builder
  */
-class SimpleActionBuilder(sessionFunction: (Session, Action) => Session, next: ActorRef) extends ActionBuilder {
+class SimpleActionBuilder(sessionFunction: Session => Session, next: ActorRef) extends ActionBuilder {
 
 	def withNext(next: ActorRef) = new SimpleActionBuilder(sessionFunction, next)
 
