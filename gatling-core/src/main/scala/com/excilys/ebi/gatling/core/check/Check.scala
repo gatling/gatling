@@ -51,17 +51,14 @@ object Check {
  */
 abstract class Check[R](expression: EvaluatableString, matcher: Matcher[R], saveAs: Option[String]) {
 
-	def apply(response: R, session: Session): (Session, CheckResult) = {
-		matcher(expression, session, response)  match {
-			case success @ Success(extractedValue) =>
-				val newSession = (
-					for {
-						extractedValue <- extractedValue
-						saveAs <- saveAs
-					} yield session.setAttribute(saveAs, extractedValue))
-					.getOrElse(session)
-				(newSession, success)
-			case failure => (session, failure)
-		}
+	def apply(response: R, session: Session): (Session, CheckResult) = matcher(expression, session, response) match {
+		case success @ Success(extractedValue) =>
+			val newSessionWithSaved = for {
+				extractedValue <- extractedValue
+				saveAs <- saveAs
+			} yield session.setAttribute(saveAs, extractedValue)
+
+			(newSessionWithSaved.getOrElse(session), success)
+		case failure => (session, failure)
 	}
 }
