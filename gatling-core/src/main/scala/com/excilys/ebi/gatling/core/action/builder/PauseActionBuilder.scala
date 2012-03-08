@@ -40,8 +40,7 @@ object PauseActionBuilder {
  * @param timeUnit time unit of the duration of the generated pause
  * @param next action that will be executed after the generated pause
  */
-class PauseActionBuilder(minDuration: Long, maxDuration: Long, timeUnit: TimeUnit, next: ActorRef)
-		extends AbstractActionBuilder {
+class PauseActionBuilder(minDuration: Long, maxDuration: Long, timeUnit: TimeUnit, next: ActorRef) extends ActionBuilder {
 
 	/**
 	 * Adds minDuration to builder

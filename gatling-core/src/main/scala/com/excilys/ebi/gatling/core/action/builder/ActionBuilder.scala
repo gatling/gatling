@@ -19,9 +19,9 @@ import akka.actor.ActorRef
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
 /**
- * This trait represents an Action Builder
+ * Top level abstraction for components in charge of building Actions
  */
-trait AbstractActionBuilder {
+trait ActionBuilder {
 
 	/**
 	 * Adds next action to this builder, to be able to chain the actions
@@ -29,7 +29,7 @@ trait AbstractActionBuilder {
 	 * @param next Action that will be executed after the one built by this builder
 	 * @return A builder of the same type, with next set
 	 */
-	private[gatling] def withNext(next: ActorRef): AbstractActionBuilder
+	private[gatling] def withNext(next: ActorRef): ActionBuilder
 
 	/**
 	 * Builds the Action

@@ -41,11 +41,11 @@ object EndActionBuilder {
  * @constructor create an EndActionBuilder with its countdown slatch
  * @param latch The CountDownLatch that will stop the simulation
  */
-class EndActionBuilder(latch: CountDownLatch) extends AbstractActionBuilder {
+class EndActionBuilder(latch: CountDownLatch) extends ActionBuilder {
 
 	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = actorOf(new EndAction(latch)).start
 		
-	def withNext(next: ActorRef): AbstractActionBuilder = this
+	def withNext(next: ActorRef): ActionBuilder = this
 
 	override def toString = "End"
 }

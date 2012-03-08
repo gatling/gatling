@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.structure
 
-import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
 import akka.actor.ActorRef
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
@@ -34,10 +34,10 @@ object ChainBuilder {
  * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
  * @param next the action that will be executed after this chain
  */
-class ChainBuilder(actionBuilders: List[AbstractActionBuilder], next: ActorRef)
+class ChainBuilder(actionBuilders: List[ActionBuilder], next: ActorRef)
 		extends AbstractStructureBuilder[ChainBuilder](actionBuilders) {
 
-	private[core] def newInstance(actionBuilders: List[AbstractActionBuilder]) = new ChainBuilder(actionBuilders, next)
+	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = new ChainBuilder(actionBuilders, next)
 
 	private[core] def getInstance = this
 

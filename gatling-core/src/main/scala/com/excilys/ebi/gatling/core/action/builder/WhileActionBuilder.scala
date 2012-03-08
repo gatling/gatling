@@ -41,8 +41,7 @@ object WhileActionBuilder {
  * @param loopNext chain that will be executed if conditionFunction evaluates to true
  * @param next action that will be executed if conditionFunction evaluates to false
  */
-class WhileActionBuilder(conditionFunction: (Session, Action) => Boolean, loopNext: ChainBuilder, next: ActorRef, counterName: String)
-		extends AbstractActionBuilder {
+class WhileActionBuilder(conditionFunction: (Session, Action) => Boolean, loopNext: ChainBuilder, next: ActorRef, counterName: String) extends ActionBuilder {
 
 	/**
 	 * Adds conditionFunction to this builder

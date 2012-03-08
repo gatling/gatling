@@ -41,8 +41,7 @@ object IfActionBuilder {
  * @param elseNext chain that will be executed if conditionFunction evaluates to false
  * @param next chain that will be executed if conditionFunction evaluates to false and there is no elseNext
  */
-class IfActionBuilder(conditionFunction: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder], next: ActorRef)
-		extends AbstractActionBuilder {
+class IfActionBuilder(conditionFunction: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder], next: ActorRef) extends ActionBuilder {
 
 	/**
 	 * Adds conditionFunction to builder

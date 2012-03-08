@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
 import com.excilys.ebi.gatling.core.action.builder.IfActionBuilder.ifActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder.pauseActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.session.Session
@@ -34,16 +34,16 @@ import akka.actor.ActorRef
  *
  * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
  */
-abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val actionBuilders: List[AbstractActionBuilder]) {
+abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val actionBuilders: List[ActionBuilder]) {
 
-	private[core] def newInstance(actionBuilders: List[AbstractActionBuilder]): B
+	private[core] def newInstance(actionBuilders: List[ActionBuilder]): B
 
 	/**
 	 * Method used to execute an action
 	 *
 	 * @param actionBuilder the action builder representing the action to be executed
 	 */
-	def exec(actionBuilder: AbstractActionBuilder): B = newInstance(actionBuilder :: actionBuilders)
+	def exec(actionBuilder: ActionBuilder): B = newInstance(actionBuilder :: actionBuilders)
 
 	/**
 	 * Method used to define a pause of X seconds
@@ -162,11 +162,11 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 
 	private[core] def getInstance: B
 
-	private[core] def addActionBuilders(actionBuildersToAdd: List[AbstractActionBuilder]): B = newInstance(actionBuildersToAdd ::: actionBuilders)
+	private[core] def addActionBuilders(actionBuildersToAdd: List[ActionBuilder]): B = newInstance(actionBuildersToAdd ::: actionBuilders)
 
 	protected def buildChainedActions(initialValue: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = buildChainedActions(initialValue, actionBuilders, protocolConfigurationRegistry)
 
-	private def buildChainedActions(actorRef: ActorRef, actionBuilders: List[AbstractActionBuilder], protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = {
+	private def buildChainedActions(actorRef: ActorRef, actionBuilders: List[ActionBuilder], protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = {
 		actionBuilders match {
 			case Nil => actorRef
 			case firstBuilder :: restOfBuilders => buildChainedActions(firstBuilder.withNext(actorRef).build(protocolConfigurationRegistry), restOfBuilders, protocolConfigurationRegistry)

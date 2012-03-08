@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.structure.loop.handler
 
-import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
 import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
 
 /**
@@ -33,5 +33,5 @@ abstract class AbstractLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](stru
 	 *
 	 * @param actionBuilders the list of actions that form the loop
 	 */
-	private[core] def doBuild(actionBuilders: List[AbstractActionBuilder]) = structureBuilder.addActionBuilders(actionBuilders)
+	private[core] def doBuild(actionBuilders: List[ActionBuilder]) = structureBuilder.addActionBuilders(actionBuilders)
 }

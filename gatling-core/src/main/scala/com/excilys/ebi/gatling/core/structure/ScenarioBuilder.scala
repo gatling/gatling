@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.core.structure
 import java.util.concurrent.CountDownLatch
 import com.excilys.ebi.gatling.core.action.builder.EndActionBuilder.endActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.StartActionBuilder.startActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
 import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfigurationBuilder
 import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
@@ -36,9 +36,9 @@ object ScenarioBuilder {
  * @param actionBuilders the list of all the actions that compose the scenario
  * @param next the action that will be executed after this scenario (that can be a chain as well)
  */
-class ScenarioBuilder(val name: String, actionBuilders: List[AbstractActionBuilder]) extends AbstractStructureBuilder[ScenarioBuilder](actionBuilders) {
+class ScenarioBuilder(val name: String, actionBuilders: List[ActionBuilder]) extends AbstractStructureBuilder[ScenarioBuilder](actionBuilders) {
 
-	private[core] def newInstance(actionBuilders: List[AbstractActionBuilder]) = {
+	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = {
 		new ScenarioBuilder(name, actionBuilders)
 	}
 

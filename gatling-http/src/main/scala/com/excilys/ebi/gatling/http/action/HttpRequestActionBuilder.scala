@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.action
-import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
@@ -32,7 +32,7 @@ import akka.actor.ActorRef
  * @param next the next action to be executed
  * @param processorBuilders
  */
-class HttpRequestActionBuilder(request: HttpRequest, next: ActorRef, checks: Option[List[HttpCheck]]) extends AbstractActionBuilder {
+class HttpRequestActionBuilder(request: HttpRequest, next: ActorRef, checks: Option[List[HttpCheck]]) extends ActionBuilder {
 
 	private[gatling] def withNext(next: ActorRef) = new HttpRequestActionBuilder(request, next, checks)
 

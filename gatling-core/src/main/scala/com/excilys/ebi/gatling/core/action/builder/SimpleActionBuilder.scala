@@ -61,7 +61,7 @@ object SimpleActionBuilder {
  * @param sessionFunction the function that will be executed by the simple action
  * @param next the action that will be executed after the simple action built by this builder
  */
-class SimpleActionBuilder(sessionFunction: (Session, Action) => Session, next: ActorRef) extends AbstractActionBuilder {
+class SimpleActionBuilder(sessionFunction: (Session, Action) => Session, next: ActorRef) extends ActionBuilder {
 
 	def withNext(next: ActorRef) = new SimpleActionBuilder(sessionFunction, next)
 

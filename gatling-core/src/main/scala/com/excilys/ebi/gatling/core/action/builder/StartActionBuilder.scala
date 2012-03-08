@@ -38,7 +38,7 @@ object StartActionBuilder {
  * @constructor create a StartActionBuilder with its next action
  * @param next the action to be executed after this one
  */
-class StartActionBuilder(next: ActorRef) extends AbstractActionBuilder {
+class StartActionBuilder(next: ActorRef) extends ActionBuilder {
 	def withNext(next: ActorRef) = new StartActionBuilder(next)
 
 	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = actorOf(new StartAction(next)).start

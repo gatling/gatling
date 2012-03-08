@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.structure.loop.handler
 
-import com.excilys.ebi.gatling.core.action.builder.AbstractActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
 import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
 import akka.actor.Uuid
@@ -54,7 +54,7 @@ class TimesLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder
 		// Adds an increment action after the chain
 		val chainActions = chain.actionBuilders ::: List(incrementAction)
 
-		var iteratedActions: List[AbstractActionBuilder] = Nil
+		var iteratedActions: List[ActionBuilder] = Nil
 
 		for (i <- 0 until times)
 			iteratedActions = chainActions ::: iteratedActions
