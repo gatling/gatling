@@ -41,11 +41,10 @@ object HttpHeaderCheckBuilder {
 
 	private def findExtractorFactory(occurrence: Int): ExtractorFactory[Response, String] = (response: Response) => (expression: String) => {
 		val headers = response.getHeaders(expression)
-		if (headers.size > occurrence) {
+		if (headers.size > occurrence)
 			toOption(headers.get(occurrence))
-		} else {
+		else
 			None
-		}
 	}
 
 	private val findAllExtractorFactory: ExtractorFactory[Response, Seq[String]] = (response: Response) => (expression: String) => seqToOption(response.getHeaders(expression).asScala)
