@@ -28,10 +28,10 @@ import akka.actor.Uuid
  * @constructor constructs a ConditionalLoopHandlerBuilder
  * @param structureBuilder the structure builder on which loop was called
  * @param chain the chain of actions that should be repeated
- * @param conditionFunction the function that determines whether the loop should continue or not
+ * @param condition the function that determines whether the loop should continue or not
  * @param counterName the name of the counter for this loop
  */
-class ConditionalLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: ChainBuilder, conditionFunction: Session => Boolean, counterName: Option[String])
+class ConditionalLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: ChainBuilder, condition: Session => Boolean, counterName: Option[String])
 		extends AbstractLoopHandlerBuilder[B](structureBuilder) {
 
 	/**
@@ -39,6 +39,6 @@ class ConditionalLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureB
 	 */
 	private[core] def build: B = {
 		val loopCounterName = counterName.getOrElse(new Uuid().toString)
-		doBuild(List(whileActionBuilder.withConditionFunction(conditionFunction).withLoopNext(chain).withCounterName(loopCounterName)))
+		doBuild(List(whileActionBuilder.withCondition(condition).withLoopNext(chain).withCounterName(loopCounterName)))
 	}
 }

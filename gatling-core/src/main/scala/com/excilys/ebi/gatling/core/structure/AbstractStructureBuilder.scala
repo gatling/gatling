@@ -17,15 +17,17 @@ package com.excilys.ebi.gatling.core.structure
 
 import java.util.concurrent.TimeUnit
 
+import scala.annotation.implicitNotFound
+
 import com.excilys.ebi.gatling.core.action.builder.IfActionBuilder.ifActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder.pauseActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.feeder.Feeder
+import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.loop.LoopBuilder
-import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 
 import akka.actor.ActorRef
 
@@ -79,28 +81,27 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @param delayUnit the time unit of the specified values
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pause(delayMinValue: Int, delayMaxValue: Int, delayUnit: TimeUnit): B = {
-		newInstance((pauseActionBuilder withMinDuration delayMinValue withMaxDuration delayMaxValue withTimeUnit delayUnit) :: actionBuilders)
-	}
+	def pause(delayMinValue: Int, delayMaxValue: Int, delayUnit: TimeUnit): B = newInstance((pauseActionBuilder withMinDuration delayMinValue withMaxDuration delayMaxValue withTimeUnit delayUnit) :: actionBuilders)
+
 	/**
 	 * Method used to add a conditional execution in the scenario
 	 *
-	 * @param conditionFunction the function that will determine if the condition is satisfied or not
+	 * @param condition the function that will determine if the condition is satisfied or not
 	 * @param thenNext the chain to be executed if the condition is satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIf(conditionFunction: Session => Boolean, thenNext: ChainBuilder): B = doIf(conditionFunction, thenNext, None)
+	def doIf(condition: Session => Boolean, thenNext: ChainBuilder): B = doIf(condition, thenNext, None)
 
 	/**
 	 * Method used to add a conditional execution in the scenario with a fall back
 	 * action if condition is not satisfied
 	 *
-	 * @param conditionFunction the function that will determine if the condition is satisfied or not
+	 * @param condition the function that will determine if the condition is satisfied or not
 	 * @param thenNext the chain to be executed if the condition is satisfied
 	 * @param elseNext the chain to be executed if the condition is not satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIf(conditionFunction: Session => Boolean, thenNext: ChainBuilder, elseNext: ChainBuilder): B = doIf(conditionFunction, thenNext, Some(elseNext))
+	def doIf(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: ChainBuilder): B = doIf(condition, thenNext, Some(elseNext))
 
 	/**
 	 * Method used to add a conditional execution in the scenario
@@ -110,7 +111,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @param thenNext the chain to be executed if the condition is satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIf(sessionKey: String, value: String, thenNext: ChainBuilder): B = doIf((session: Session) => parseEvaluatable(sessionKey)(session) == value, thenNext)
+	def doIf(sessionKey: EvaluatableString, value: String, thenNext: ChainBuilder): B = doIf((session: Session) => sessionKey(session) == value, thenNext)
 
 	/**
 	 * Method used to add a conditional execution in the scenario with a fall back
@@ -122,19 +123,17 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @param elseNext the chain to be executed if the condition is not satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIf(sessionKey: String, value: String, thenNext: ChainBuilder, elseNext: ChainBuilder): B = doIf((session: Session) => parseEvaluatable(sessionKey)(session) == value, thenNext, elseNext)
+	def doIf(sessionKey: EvaluatableString, value: String, thenNext: ChainBuilder, elseNext: ChainBuilder): B = doIf((session: Session) => sessionKey(session) == value, thenNext, elseNext)
 
 	/**
 	 * Private method that actually adds the If Action to the scenario
 	 *
-	 * @param conditionFunction the function that will determine if the condition is satisfied or not
+	 * @param condition the function that will determine if the condition is satisfied or not
 	 * @param thenNext the chain to be executed if the condition is satisfied
 	 * @param elseNext the chain to be executed if the condition is not satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	private def doIf(conditionFunction: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]): B = {
-		newInstance((ifActionBuilder withConditionFunction conditionFunction withThenNext thenNext withElseNext elseNext) :: actionBuilders)
-	}
+	private def doIf(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]): B = newInstance(ifActionBuilder.withCondition(condition).withThenNext(thenNext).withElseNext(elseNext) :: actionBuilders)
 
 	/**
 	 * Method used to insert an existing chain inside the current scenario

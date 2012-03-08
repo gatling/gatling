@@ -30,7 +30,7 @@ object EndActionBuilder {
 	 * Creates a new EndActionBuilder
 	 *
 	 * @param countDownLatch the countdown latch that will stop the simulation execution
-	 * @return An EndActionBuilder ready to use
+	 * @return a ready to use EndActionBuilder
 	 */
 	def endActionBuilder(latch: CountDownLatch) = new EndActionBuilder(latch)
 }
@@ -46,6 +46,4 @@ class EndActionBuilder(latch: CountDownLatch) extends ActionBuilder {
 	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = actorOf(new EndAction(latch)).start
 		
 	def withNext(next: ActorRef): ActionBuilder = this
-
-	override def toString = "End"
 }

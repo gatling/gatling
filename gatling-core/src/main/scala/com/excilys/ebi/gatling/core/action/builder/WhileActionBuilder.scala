@@ -15,13 +15,13 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.{WhileAction, Action}
+import com.excilys.ebi.gatling.core.action.{ WhileAction, Action }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
 import akka.actor.Actor.actorOf
-import akka.actor.{Uuid, ActorRef}
+import akka.actor.{ Uuid, ActorRef }
 
 /**
  * Companion of the WhileActionBuilder class
@@ -37,42 +37,37 @@ object WhileActionBuilder {
  * This class builds a WhileActionBuilder
  *
  * @constructor create a new WhileAction
- * @param conditionFunction the function that determine the condition
- * @param loopNext chain that will be executed if conditionFunction evaluates to true
- * @param next action that will be executed if conditionFunction evaluates to false
+ * @param condition the function that determine the condition
+ * @param loopNext chain that will be executed if condition evaluates to true
+ * @param next action that will be executed if condition evaluates to false
  */
-class WhileActionBuilder(conditionFunction: (Session, Action) => Boolean, loopNext: ChainBuilder, next: ActorRef, counterName: String) extends ActionBuilder {
+class WhileActionBuilder(condition: Session => Boolean, loopNext: ChainBuilder, next: ActorRef, counterName: String) extends ActionBuilder {
 
 	/**
-	 * Adds conditionFunction to this builder
+	 * Adds condition to this builder
 	 *
-	 * @param conditionFunction the condition function
-	 * @return a new builder with conditionFunction set
+	 * @param condition the condition function
+	 * @return a new builder with condition set
 	 */
-	def withConditionFunction(conditionFunction: Session => Boolean): WhileActionBuilder = withConditionFunction((session: Session, action: Action) => conditionFunction(session))
-	/**
-	 * Adds conditionFunction to this builder
-	 *
-	 * @param conditionFunction the condition function
-	 * @return a new builder with conditionFunction set
-	 */
-	def withConditionFunction(conditionFunction: (Session, Action) => Boolean) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName)
+	def withCondition(condition: Session => Boolean): WhileActionBuilder = new WhileActionBuilder(condition, loopNext, next, counterName)
+
 	/**
 	 * Adds loopNext to builder
 	 *
 	 * @param loopNext the chain executed if testFunction evaluated to true
 	 * @return a new builder with loopNext set
 	 */
-	def withLoopNext(loopNext: ChainBuilder) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName)
+	def withLoopNext(loopNext: ChainBuilder) = new WhileActionBuilder(condition, loopNext, next, counterName)
+
 	/**
 	 * Adds counterName to builder
 	 *
 	 * @param counterName the name of the counter that will be used
 	 * @return a new builder with counterName set to None or Some(name)
 	 */
-	def withCounterName(counterName: String) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName)
+	def withCounterName(counterName: String) = new WhileActionBuilder(condition, loopNext, next, counterName)
 
-	def withNext(next: ActorRef) = new WhileActionBuilder(conditionFunction, loopNext, next, counterName)
+	def withNext(next: ActorRef) = new WhileActionBuilder(condition, loopNext, next, counterName)
 
-	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = actorOf(new WhileAction(conditionFunction, (w: ActorRef) => loopNext.withNext(w).build(protocolConfigurationRegistry), next, counterName)).start
+	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = actorOf(new WhileAction(condition, (next: ActorRef) => loopNext.withNext(next).build(protocolConfigurationRegistry), next, counterName)).start
 }

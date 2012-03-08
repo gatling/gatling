@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.action.builder
+
 import com.excilys.ebi.gatling.core.action.IfAction
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
+
 import akka.actor.Actor.actorOf
 import akka.actor.ActorRef
-import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
 /**
  * Companion Object of IfActionBuilder class
@@ -33,46 +35,46 @@ object IfActionBuilder {
 }
 
 /**
- * This class builds an IfAction
+ * Builder for IfAction
  *
  * @constructor create a new IfActionBuilder
- * @param conditionFunction condition of the if
- * @param thenNext chain that will be executed if conditionFunction evaluates to true
- * @param elseNext chain that will be executed if conditionFunction evaluates to false
- * @param next chain that will be executed if conditionFunction evaluates to false and there is no elseNext
+ * @param condition condition of the if
+ * @param thenNext chain that will be executed if condition evaluates to true
+ * @param elseNext chain that will be executed if condition evaluates to false
+ * @param next chain that will be executed if condition evaluates to false and there is no elseNext
  */
-class IfActionBuilder(conditionFunction: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder], next: ActorRef) extends ActionBuilder {
+class IfActionBuilder(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder], next: ActorRef) extends ActionBuilder {
 
 	/**
-	 * Adds conditionFunction to builder
+	 * Adds condition to builder
 	 *
-	 * @param conditionFunction the condition function
-	 * @return a new builder with conditionFunction set
+	 * @param condition the condition function
+	 * @return a new builder with condition set
 	 */
-	def withConditionFunction(conditionFunction: Session => Boolean) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next)
+	def withCondition(condition: Session => Boolean) = new IfActionBuilder(condition, thenNext, elseNext, next)
 
 	/**
 	 * Adds thenNext to builder
 	 *
-	 * @param thenNext the chain executed if conditionFunction evaluated to true
+	 * @param thenNext the chain executed if condition evaluated to true
 	 * @return a new builder with thenNext set
 	 */
-	def withThenNext(thenNext: ChainBuilder) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next)
+	def withThenNext(thenNext: ChainBuilder) = new IfActionBuilder(condition, thenNext, elseNext, next)
 
 	/**
 	 * Adds elseNext to builder
 	 *
-	 * @param elseNext the chain executed if conditionFunction evaluated to false
+	 * @param elseNext the chain executed if condition evaluated to false
 	 * @return a new builder with elseNext set
 	 */
-	def withElseNext(elseNext: Option[ChainBuilder]) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next)
+	def withElseNext(elseNext: Option[ChainBuilder]) = new IfActionBuilder(condition, thenNext, elseNext, next)
 
-	def withNext(next: ActorRef) = new IfActionBuilder(conditionFunction, thenNext, elseNext, next)
+	def withNext(next: ActorRef) = new IfActionBuilder(condition, thenNext, elseNext, next)
 
 	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
 		val actionTrue = thenNext.withNext(next).build(protocolConfigurationRegistry)
 		val actionFalse = elseNext.map(_.withNext(next).build(protocolConfigurationRegistry))
 
-		actorOf(new IfAction(conditionFunction, actionTrue, actionFalse, next)).start
+		actorOf(new IfAction(condition, actionTrue, actionFalse, next)).start
 	}
 }

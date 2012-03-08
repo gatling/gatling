@@ -24,18 +24,14 @@ import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 trait ActionBuilder {
 
 	/**
-	 * Adds next action to this builder, to be able to chain the actions
-	 *
-	 * @param next Action that will be executed after the one built by this builder
-	 * @return A builder of the same type, with next set
+	 * @param next the Action that will be chained with the Action build by this builder
+	 * @return a new builder instance, with next set
 	 */
 	private[gatling] def withNext(next: ActorRef): ActionBuilder
 
 	/**
-	 * Builds the Action
-	 *
 	 * @param protocolConfigurationRegistry
-	 * @return The built Action
+	 * @return the built Action
 	 */
 	private[gatling] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef
 }

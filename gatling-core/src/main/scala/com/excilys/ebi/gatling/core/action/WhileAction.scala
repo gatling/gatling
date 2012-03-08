@@ -31,7 +31,7 @@ import akka.actor.ActorRef
  * @param next the chain executed if testFunction evaluates to false
  * @param counterName the name of the counter for this loop
  */
-class WhileAction(condition: (Session, Action) => Boolean, loopNext: ActorRef => ActorRef, next: ActorRef, val counterName: String) extends Action with TimerBasedIterationHandler with CounterBasedIterationHandler {
+class WhileAction(condition: Session => Boolean, loopNext: ActorRef => ActorRef, next: ActorRef, val counterName: String) extends Action with TimerBasedIterationHandler with CounterBasedIterationHandler {
 
 	val loopNextAction = loopNext(self)
 
@@ -46,7 +46,7 @@ class WhileAction(condition: (Session, Action) => Boolean, loopNext: ActorRef =>
 
 		val sessionWithTimerIncremented = increment(init(session))
 
-		if (condition(sessionWithTimerIncremented, this))
+		if (condition(sessionWithTimerIncremented))
 			loopNextAction ! sessionWithTimerIncremented
 		else
 			next ! expire(sessionWithTimerIncremented)
