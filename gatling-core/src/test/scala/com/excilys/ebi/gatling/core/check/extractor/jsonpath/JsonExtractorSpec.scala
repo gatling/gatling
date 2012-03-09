@@ -100,6 +100,20 @@ class JsonExtractorSpec extends Specification {
 		}
 	}
 
+	"/store/book[@author='Nigel Rees']/title" should {
+
+		"have extractOne(0) return Sayings of the Century" in {
+			extractor.extractOne(0)("/store/book[@author = 'Nigel Rees']/title") must beEqualTo(Some("Sayings of the Century"))
+		}
+	}
+
+	"//book[last()]/title" should {
+
+		"have extractOne(0) return The Lord of the Rings" in {
+			extractor.extractOne(0)("//book[last()]/title") must beEqualTo(Some("The Lord of the Rings"))
+		}
+	}
+
 	"//display-price" should {
 
 		"have extractMultiple return List(8.95, 12.99, 8.99, 22.99, 19.95)" in {
