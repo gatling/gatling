@@ -29,7 +29,7 @@ object Predef {
 	implicit def toHttpProtocolConfiguration(builder: HttpProtocolConfigurationBuilder) = HttpProtocolConfigurationBuilder.toHttpProtocolConfiguration(builder)
 
 	def regex(expression: EvaluatableString) = HttpBodyRegexCheckBuilder.regex(expression)
-	def xpath(expression: EvaluatableString) = HttpBodyXPathCheckBuilder.xpath(expression)
+	def xpath(expression: EvaluatableString, namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)
 	def jsonPath(expression: EvaluatableString) = HttpBodyJsonPathCheckBuilder.jsonPath(expression)
 	def header(expression: EvaluatableString) = HttpHeaderCheckBuilder.header(expression)
 	def status = HttpStatusCheckBuilder.status

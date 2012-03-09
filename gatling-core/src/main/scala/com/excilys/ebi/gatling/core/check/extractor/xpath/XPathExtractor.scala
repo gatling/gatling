@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.extractor
+package com.excilys.ebi.gatling.core.check.extractor.xpath
 
 import java.io.{ StringReader, InputStream }
 
@@ -37,6 +37,7 @@ object XPathExtractor {
 	System.setProperty("javax.xml.parsers.DOMParserFactory", "org.apache.xerces.jaxp.DOMParserFactoryImpl");
 	private val factory = DocumentBuilderFactory.newInstance
 	factory.setExpandEntityReferences(false)
+	factory.setNamespaceAware(true)
 
 	val parser = factory.newDocumentBuilder
 	parser.setEntityResolver(new EntityResolver {
@@ -59,6 +60,14 @@ class XPathExtractor(inputStream: InputStream) {
 
 	val document = XPathExtractor.parser.parse(inputStream)
 
+	def xpath(expression: String, namespaces: List[(String, String)]) = {
+		val xpathExpression = new DOMXPath(expression)
+		namespaces.foreach {
+			case (prefix, uri) => xpathExpression.addNamespace(prefix, uri)
+		}
+		xpathExpression
+	}
+
 	/**
 	 * The actual extraction happens here. The XPath expression is searched for and the occurrence-th
 	 * result is returned if existing.
@@ -66,11 +75,9 @@ class XPathExtractor(inputStream: InputStream) {
 	 * @param expression a String containing the XPath expression to be searched
 	 * @return an option containing the value if found, None otherwise
 	 */
-	def extractOne(occurrence: Int)(expression: String): Option[String] = {
+	def extractOne(occurrence: Int, namespaces: List[(String, String)])(expression: String): Option[String] = {
 
-		val xpathExpression: XPath = new DOMXPath(expression);
-
-		val results = xpathExpression.selectNodes(document).asInstanceOf[java.util.List[Node]]
+		val results = xpath(expression, namespaces).selectNodes(document).asInstanceOf[java.util.List[Node]]
 
 		if (results.size > occurrence)
 			results.get(occurrence).getTextContent
@@ -85,7 +92,7 @@ class XPathExtractor(inputStream: InputStream) {
 	 * @param expression a String containing the XPath expression to be searched
 	 * @return an option containing the value if found, None otherwise
 	 */
-	def extractMultiple(expression: String): Option[Seq[String]] = new DOMXPath(expression).selectNodes(document).asInstanceOf[java.util.List[Node]].asScala.map(_.getTextContent)
+	def extractMultiple(namespaces: List[(String, String)])(expression: String): Option[Seq[String]] = xpath(expression, namespaces).selectNodes(document).asInstanceOf[java.util.List[Node]].asScala.map(_.getTextContent)
 
-	def count(expression: String): Option[Int] = new DOMXPath(expression).selectNodes(document).size
+	def count(namespaces: List[(String, String)])(expression: String): Option[Int] = xpath(expression, namespaces).selectNodes(document).size
 }

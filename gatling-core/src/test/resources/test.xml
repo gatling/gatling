@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test xmlns:foo="http://foo/foo">
+	<store>
+		<book att="foo">
+			<category>reference</category>
+			<author>Nigel Rees</author>
+			<title>Sayings of the Century</title>
+			<display-price>8.95</display-price>
+		</book>
+		<book>
+			<category>fiction</category>
+			<author>Evelyn Waugh</author>
+			<title>Sword of Honour</title>
+			<display-price>12.99</display-price>
+		</book>
+		<book>
+			<category>fiction</category>
+			<author>Herman Melville</author>
+			<title>Moby Dick</title>
+			<isbn>0-553-21311-3</isbn>
+			<display-price>8.99</display-price>
+		</book>
+		<book>
+			<category>fiction</category>
+			<author>J. R. R. Tolkien</author>
+			<title>The Lord of the Rings</title>
+			<isbn>0-395-19395-8</isbn>
+			<display-price>22.99</display-price>
+		</book>
+		<bicycle>
+			<color>red</color>
+			<display-price>19.95</display-price>
+			<foo:bar>fooBar</foo:bar>
+		</bicycle>
+	</store>
+	<foo bar="baz" />
+</test>
