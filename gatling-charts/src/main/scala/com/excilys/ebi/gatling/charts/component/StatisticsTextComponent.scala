@@ -16,21 +16,15 @@
 package com.excilys.ebi.gatling.charts.component
 
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_STATISTICS_COMPONENT_URL
-import com.excilys.ebi.gatling.charts.template.PageTemplate
+import com.excilys.ebi.gatling.charts.template.PageTemplate.TEMPLATE_ENGINE
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
-class StatisticsTextComponent(numberOfRequest: Int, numberOfSuccesses: Int, numberOfFailures: Int, minResponseTime: Long, maxResponseTime: Long, averageResponseTime: Double, responseTimeStandardDeviation: Double)
+case class Statistics[T](val name: String, val total: T, val success: T, val failure: T)
+
+class StatisticsTextComponent(statistics: Statistics[_]*)
 		extends Component {
 
-	def getHTMLContent: String = PageTemplate.TEMPLATE_ENGINE.layout(
-		GATLING_TEMPLATE_STATISTICS_COMPONENT_URL,
-		Map("numberOfRequests" -> numberOfRequest,
-			"numberOfSuccesses" -> numberOfSuccesses,
-			"numberOfFailures" -> numberOfFailures,
-			"min" -> minResponseTime,
-			"max" -> maxResponseTime,
-			"average" -> averageResponseTime,
-			"stdDeviation" -> responseTimeStandardDeviation))
+	def getHTMLContent: String = TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATISTICS_COMPONENT_URL, statistics.map(stats => (stats.name, stats)).toMap[String, Statistics[_]])
 
 	def getJavascriptContent: String = EMPTY
 

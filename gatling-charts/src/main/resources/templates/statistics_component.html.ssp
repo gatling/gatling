@@ -1,10 +1,8 @@
-<%@ val numberOfRequests: Int %>
-<%@ val numberOfSuccesses: Int %>
-<%@ val numberOfFailures: Int %>
-<%@ val min: Long %>
-<%@ val max: Long %>
-<%@ val average: Double %>
-<%@ val stdDeviation: Double %>
+<%@ val numberOfRequests: com.excilys.ebi.gatling.charts.component.Statistics[Int] %>
+<%@ val min: com.excilys.ebi.gatling.charts.component.Statistics[Long] %>
+<%@ val max: com.excilys.ebi.gatling.charts.component.Statistics[Long] %>
+<%@ val average: com.excilys.ebi.gatling.charts.component.Statistics[Double] %>
+<%@ val stdDeviation: com.excilys.ebi.gatling.charts.component.Statistics[Double] %>
 
 						<div class="infos">
 							<div class="titre">STATISTICS</div>
@@ -12,14 +10,13 @@
 								<div class="repli"></div>								
 								<div class="info">
 								<div class="decor">
-										<h2 class="first">Executed <%= numberOfRequests %> times</h2>
-										<p>> Successes:<strong><%= numberOfSuccesses %></strong>  </p>
-										<p>> Failures:<strong><%= numberOfFailures %></strong>  </p>
-										<h2 class="second">Response Time</h2>
-										<p>> Min: <strong><%= min %>ms</strong></p>
-										<p>> Max: <strong><%= max %>ms</strong></p>
-										<p>> Average: <strong><%= average %>ms</strong></p>
-										<p>> Standard Deviation: <strong><%= stdDeviation %></strong></p>
+										<h2 class="first">Executions (tot | ok | ko)</h2>
+										<p>> <%= numberOfRequests.total %> | <%= numberOfRequests.success %> | <%= numberOfRequests.failure %></p>
+										<h2 class="second">Response Time (tot | ok | ko)</h2>
+										<p>> Min (ms): <strong><%= min.total %></strong> | <strong><%= min.success %></strong> | <strong><%= min.failure %></strong></p>
+										<p>> Max (ms): <strong><%= max.total %></strong> | <strong><%= max.success %></strong> | <strong><%= max.failure %></strong></p>
+										<p>> Average (ms): <strong><%= average.total %></strong> | <strong><%= average.success %></strong> | <strong><%= average.failure %></strong></p>
+										<p>> Standard Deviation: <strong><%= stdDeviation.total %></strong> | <strong><%= stdDeviation.success %></strong> | <strong><%= stdDeviation.failure %></strong></p>
 								</div>
 								</div>
 							</div>

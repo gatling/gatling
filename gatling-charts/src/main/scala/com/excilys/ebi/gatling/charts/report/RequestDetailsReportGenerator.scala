@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.report
-import com.excilys.ebi.gatling.charts.component.{ StatisticsTextComponent, ComponentLibrary }
-import com.excilys.ebi.gatling.charts.computer.Computer.{ responseTimeStandardDeviation, responseTimeByMillisecondAsList, respTimeAgainstNbOfReqPerSecond, numberOfSuccesses, numberOfRequestsPerSecond, numberOfRequestInResponseTimeRange, minResponseTime, maxResponseTime, latencyByMillisecondAsList, averageResponseTime }
+import com.excilys.ebi.gatling.charts.component.{ StatisticsTextComponent, Statistics, ComponentLibrary }
+import com.excilys.ebi.gatling.charts.computer.Computer.{ responseTimeStandardDeviation, responseTimeByMillisecondAsList, respTimeAgainstNbOfReqPerSecond, numberOfRequestsPerSecond, numberOfRequestInResponseTimeRange, minResponseTime, maxResponseTime, latencyByMillisecondAsList, averageResponseTime }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.requestFile
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.series.SharedSeries
@@ -53,13 +53,11 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 				val scatterPlotFailuresData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, KO)
 
 				// Statistics
-				val numberOfRequests = dataList.length
-				val numberOfSuccessfulRequests = numberOfSuccesses(dataList)
+				val successRequests = dataList.filter(_.resultStatus == OK)
+				val failedRequests = dataList.filter(_.resultStatus != OK)
+				val numberOfRequests = dataList.size
+				val numberOfSuccessfulRequests = successRequests.size
 				val numberOfFailedRequests = numberOfRequests - numberOfSuccessfulRequests
-				val minRespTime = minResponseTime(dataList)
-				val maxRespTime = maxResponseTime(dataList)
-				val avgRespTime = averageResponseTime(dataList)
-				val respTimeStdDeviation = responseTimeStandardDeviation(dataList)
 
 				// Create series
 				val responseTimesSuccessSeries = new Series[Long, Int]("Response Time (success)", responseTimesSuccessData, List(BLUE))
@@ -71,12 +69,18 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 				val scatterPlotSuccessSeries = new Series[Int, Long]("Successes", scatterPlotSuccessData, List(TRANSLUCID_BLUE))
 				val scatterPlotFailuresSeries = new Series[Int, Long]("Failures", scatterPlotFailuresData, List(TRANSLUCID_RED))
 
+				val numberOfRequestsStatistics = new Statistics("numberOfRequests", numberOfRequests, numberOfSuccessfulRequests, numberOfFailedRequests)
+				val minResponseTimeStatistics = new Statistics("min", minResponseTime(dataList), minResponseTime(successRequests), minResponseTime(failedRequests))
+				val maxResponseTimeStatistics = new Statistics("max", maxResponseTime(dataList), maxResponseTime(successRequests), maxResponseTime(failedRequests))
+				val averageStatistics = new Statistics("average", averageResponseTime(dataList), averageResponseTime(successRequests), averageResponseTime(failedRequests))
+				val stdDeviationStatistics = new Statistics("stdDeviation", responseTimeStandardDeviation(dataList), responseTimeStandardDeviation(successRequests), responseTimeStandardDeviation(failedRequests))
+
 				// Create template
 				val template =
 					new RequestDetailsPageTemplate(requestName.substring(8),
 						componentLibrary.getRequestDetailsResponseTimeChartComponent(responseTimesSuccessSeries, responseTimesFailuresSeries, SharedSeries.getAllActiveSessionsSeries),
 						componentLibrary.getRequestDetailsLatencyChartComponent(latencySuccessSeries, latencyFailuresSeries, SharedSeries.getAllActiveSessionsSeries),
-						new StatisticsTextComponent(numberOfRequests, numberOfSuccessfulRequests, numberOfFailedRequests, minRespTime, maxRespTime, avgRespTime, respTimeStdDeviation),
+						new StatisticsTextComponent(numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, averageStatistics, stdDeviationStatistics),
 						componentLibrary.getRequestDetailsScatterChartComponent(scatterPlotSuccessSeries, scatterPlotFailuresSeries),
 						componentLibrary.getRequestDetailsIndicatorChartComponent(indicatorsColumnSeries, indicatorsPieSeries))
 
