@@ -91,9 +91,9 @@ class GatlingConfiguration(
 
 	val simulationScalaPackage = fileConfiguration("gatling.simulation.scalaPackage", EMPTY)
 
-	val chartingIndicatorsLowerBound = fileConfiguration("gatling.charting.indicators.lowerBound", 100)
+	val chartingIndicatorsLowerBound = fileConfiguration("gatling.charting.indicators.lowerBound", 800)
 
-	val chartingIndicatorsHigherBound = fileConfiguration("gatling.charting.indicators.higherBound", 500)
+	val chartingIndicatorsHigherBound = fileConfiguration("gatling.charting.indicators.higherBound", 1200)
 
 	val chartingMaxPlotPerSerie = fileConfiguration("gatling.charting.maxPlotPerSerie", 5000)
 
