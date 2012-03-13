@@ -18,8 +18,13 @@ package com.excilys.ebi.gatling.charts.component
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_STATISTICS_COMPONENT_URL
 import com.excilys.ebi.gatling.charts.template.PageTemplate.TEMPLATE_ENGINE
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.charts.computer.Computer.NO_PLOT_MAGIC_VALUE
 
-case class Statistics[T](val name: String, val total: T, val success: T, val failure: T)
+case class Statistics[T](val name: String, val total: T, val success: T, val failure: T) {
+	val printableTotal: String = if (total != NO_PLOT_MAGIC_VALUE) total.toString else "-"
+	val printableSuccess: String = if (success != NO_PLOT_MAGIC_VALUE) success.toString else "-"
+	val printableFailure: String = if (failure != NO_PLOT_MAGIC_VALUE) failure.toString else "-"
+}
 
 class StatisticsTextComponent(statistics: Statistics[_]*)
 		extends Component {

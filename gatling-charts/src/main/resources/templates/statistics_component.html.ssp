@@ -11,12 +11,12 @@
 								<div class="info">
 								<div class="decor">
 										<h2 class="first">Executions (tot | ok | ko)</h2>
-										<p>> <%= numberOfRequests.total %> | <%= numberOfRequests.success %> | <%= numberOfRequests.failure %></p>
+										<p>> <%= numberOfRequests.printableTotal %> | <%= numberOfRequests.printableSuccess %> | <%= numberOfRequests.printableFailure %></p>
 										<h2 class="second">Response Time (tot | ok | ko)</h2>
-										<p>> Min (ms): <strong><%= min.total %></strong> | <strong><%= min.success %></strong> | <strong><%= min.failure %></strong></p>
-										<p>> Max (ms): <strong><%= max.total %></strong> | <strong><%= max.success %></strong> | <strong><%= max.failure %></strong></p>
-										<p>> Average (ms): <strong><%= average.total %></strong> | <strong><%= average.success %></strong> | <strong><%= average.failure %></strong></p>
-										<p>> Standard Deviation: <strong><%= stdDeviation.total %></strong> | <strong><%= stdDeviation.success %></strong> | <strong><%= stdDeviation.failure %></strong></p>
+										<p>> Min (ms): <strong><%= min.printableTotal %></strong> | <strong><%= min.printableSuccess %></strong> | <strong><%= min.printableFailure %></strong></p>
+										<p>> Max (ms): <strong><%= max.printableTotal %></strong> | <strong><%= max.printableSuccess %></strong> | <strong><%= max.printableFailure %></strong></p>
+										<p>> Average (ms): <strong><%= average.printableTotal %></strong> | <strong><%= average.printableSuccess %></strong> | <strong><%= average.printableFailure %></strong></p>
+										<p>> Standard Deviation: <strong><%= stdDeviation.printableTotal %></strong> | <strong><%= stdDeviation.printableSuccess %></strong> | <strong><%= stdDeviation.printableFailure %></strong></p>
 								</div>
 								</div>
 							</div>
