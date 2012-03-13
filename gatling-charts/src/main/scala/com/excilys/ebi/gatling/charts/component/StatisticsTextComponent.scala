@@ -22,15 +22,17 @@ import com.excilys.ebi.gatling.charts.computer.Computer.NO_PLOT_MAGIC_VALUE
 
 case class Statistics(val name: String, val total: Long, val success: Long, val failure: Long) {
 
-	val printableTotal: String = if (total != NO_PLOT_MAGIC_VALUE) total.toString else "-"
+	private def makePrintable(value: Long) = if (value != NO_PLOT_MAGIC_VALUE) value.toString else "-"
 
-	val printableSuccess: String = if (success != NO_PLOT_MAGIC_VALUE) success.toString else "-"
+	val printableTotal: String = makePrintable(total)
 
-	val printableFailure: String = if (failure != NO_PLOT_MAGIC_VALUE) failure.toString else "-"
+	val printableSuccess: String = makePrintable(success)
+
+	val printableFailure: String = makePrintable(failure)
 }
 
 class StatisticsTextComponent(statistics: Statistics*) extends Component {
-	
+
 	val statisticsIndexedByName = statistics.map(stats => (stats.name, stats)).toMap[String, Statistics]
 
 	def getHTMLContent: String = TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATISTICS_COMPONENT_URL, statisticsIndexedByName)
