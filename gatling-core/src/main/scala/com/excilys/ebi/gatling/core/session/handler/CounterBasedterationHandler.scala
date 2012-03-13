@@ -28,16 +28,7 @@ object CounterBasedIterationHandler {
 	 */
 	val COUNTER_KEY_PREFIX = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.counter."
 
-	private def getCounterAttributeName(counterName: String) = COUNTER_KEY_PREFIX + counterName
-
-	/**
-	 * This method gets the specified counter from the session
-	 *
-	 * @param session the scenario session
-	 * @param counterName the name of the counter
-	 * @return the value of the counter as an integer
-	 */
-	def getCounterValue(session: Session, counterName: String) = session.getAttributeAsOption[Int](getCounterAttributeName(counterName)).getOrElse(throw new IllegalAccessError("Counter does not exist, check the name of the key " + counterName))
+	def getCounterAttributeName(counterName: String) = COUNTER_KEY_PREFIX + counterName
 }
 
 /**

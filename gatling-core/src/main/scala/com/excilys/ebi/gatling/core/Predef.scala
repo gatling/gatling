@@ -17,19 +17,16 @@ package com.excilys.ebi.gatling.core
 
 import java.util.concurrent.TimeUnit
 
-import scala.annotation.implicitNotFound
-
-import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder
-import com.excilys.ebi.gatling.core.action.Action
-import com.excilys.ebi.gatling.core.check.{ CheckBuilder, Check }
-import com.excilys.ebi.gatling.core.check.{ MatcherCheckBuilder, ExtractorCheckBuilder }
+import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.toSimpleActionBuilder
+import com.excilys.ebi.gatling.core.check.{ ExtractorCheckBuilder, CheckBuilder, Check }
+import com.excilys.ebi.gatling.core.check.MatcherCheckBuilder
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesFeederBuilder
 import com.excilys.ebi.gatling.core.session.handler.{ TimerBasedIterationHandler, CounterBasedIterationHandler }
 import com.excilys.ebi.gatling.core.structure.{ ScenarioBuilder, ChainBuilder }
 import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 
 object Predef {
-	implicit def toSimpleActionBuilder(sessionFunction: Session => Session): SimpleActionBuilder = SimpleActionBuilder.toSimpleActionBuilder(sessionFunction)
+	implicit def sessionFunctionToSimpleActionBuilder(sessionFunction: Session => Session) = toSimpleActionBuilder(sessionFunction)
 	implicit def stringToSessionFunction(string: String) = parseEvaluatable(string)
 	implicit def toSessionFunction[X](x: X) = (session: Session) => x
 	implicit def checkBuilderToCheck[C <: Check[R], R](checkBuilder: CheckBuilder[C, R]) = checkBuilder.build
@@ -56,9 +53,6 @@ object Predef {
 	val MINUTES = TimeUnit.MINUTES
 	val HOURS = TimeUnit.HOURS
 	val DAYS = TimeUnit.DAYS
-
-	def getCounterValue(session: Session, counterName: String): Int = CounterBasedIterationHandler.getCounterValue(session, counterName)
-	def getTimerValue(session: Session, timerName: String): Long = TimerBasedIterationHandler.getTimerValue(session, timerName)
 
 	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder.scenario(scenarioName)
 	def chain = ChainBuilder.chain

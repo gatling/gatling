@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit
 
 import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder.whileActionBuilder
 import com.excilys.ebi.gatling.core.action.Action
-import com.excilys.ebi.gatling.core.session.handler.TimerBasedIterationHandler.getTimerValue
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
@@ -47,7 +46,7 @@ class DurationLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuil
 		val loopCounterName = counterName.getOrElse(new Uuid().toString)
 		doBuild(
 			List(whileActionBuilder
-				.withCondition((session: Session) => (currentTimeMillis - getTimerValue(session, loopCounterName)) <= durationUnit.toMillis(durationValue))
+				.withCondition((session: Session) => (currentTimeMillis - session.getTimerValue(loopCounterName)) <= durationUnit.toMillis(durationValue))
 				.withLoopNext(chain)
 				.withCounterName(loopCounterName)))
 	}

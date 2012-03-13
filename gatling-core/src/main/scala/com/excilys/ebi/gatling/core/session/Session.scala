@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.session
+import com.excilys.ebi.gatling.core.session.handler.CounterBasedIterationHandler
+import com.excilys.ebi.gatling.core.session.handler.TimerBasedIterationHandler
 
 /**
  * Session class companion
@@ -87,6 +89,22 @@ class Session(val scenarioName: String, val userId: Int, data: Map[String, Any])
 	def removeAttribute(attributeKey: String) = new Session(scenarioName, userId, data - attributeKey)
 
 	def isAttributeDefined(attributeKey: String) = data.contains(attributeKey)
+
+	/**
+	 * This method gets the specified counter from the session
+	 *
+	 * @param counterName the name of the counter
+	 * @return the value of the counter as an integer
+	 */
+	def getCounterValue(counterName: String) = getAttributeAsOption[Int](CounterBasedIterationHandler.getCounterAttributeName(counterName)).getOrElse(throw new IllegalAccessError("Counter does not exist, check the name of the key " + counterName))
+
+	/**
+	 * This method gets the specified timer from the session
+	 *
+	 * @param timerName the name of the timer
+	 * @return the value of the timer as a long
+	 */
+	def getTimerValue(timerName: String) = getAttributeAsOption[Long](TimerBasedIterationHandler.getTimerAttributeName(timerName)).getOrElse(throw new IllegalAccessError("Timer is not set : " + timerName))
 
 	/**
 	 * Gets the last action duration

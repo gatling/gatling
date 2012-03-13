@@ -57,7 +57,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 			chain
 				// First request to be repeated
 				.exec((session: Session) => {
-					println("iterate: " + getCounterValue(session, "titi"))
+					println("iterate: " + session.getCounterValue("titi"))
 					session
 				})
 				.exec(
@@ -75,11 +75,11 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 					.exec(http("In During 1").get("http://localhost:3000/aaaa"))
 					.pause(2)
 					.loop(chain.exec((session: Session) => {
-						println("--nested loop: " + getCounterValue(session, "tutu"))
+						println("--nested loop: " + session.getCounterValue("tutu"))
 						session
 					})).counterName("tutu").times(2)
 					.exec((session: Session) => {
-						println("-loopDuring: " + getCounterValue(session, "foo"))
+						println("-loopDuring: " + session.getCounterValue("foo"))
 						session
 					})
 					.exec(http("In During 2").get("/"))
@@ -91,13 +91,13 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 						.exec(http("In During 1").get("/"))
 						.pause(2)
 						.exec((session: Session) => {
-							println("-iterate1: " + getCounterValue(session, "titi") + ", doFor: " + getCounterValue(session, "hehe"))
+							println("-iterate1: " + session.getCounterValue("titi") + ", doFor: " + session.getCounterValue("hehe"))
 							session
 						})
 						.loop(
 							chain
 								.exec((session: Session) => {
-									println("--iterate1: " + getCounterValue(session, "titi") + ", doFor: " + getCounterValue(session, "hehe") + ", iterate2: " + getCounterValue(session, "hoho"))
+									println("--iterate1: " + session.getCounterValue("titi") + ", doFor: " + session.getCounterValue("hehe") + ", iterate2: " + session.getCounterValue("hoho"))
 									session
 								}))
 						.counterName("hoho").times(2)

@@ -31,16 +31,7 @@ object TimerBasedIterationHandler {
 	 */
 	val TIMER_KEY_PREFIX = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.timer."
 
-	private def getTimerAttributeName(timerName: String) = TIMER_KEY_PREFIX + timerName
-
-	/**
-	 * This method gets the specified timer from the session
-	 *
-	 * @param session the scenario session
-	 * @param timerName the name of the timer
-	 * @return the value of the timer as a long
-	 */
-	def getTimerValue(session: Session, timerName: String) = session.getAttributeAsOption[Long](getTimerAttributeName(timerName)).getOrElse(throw new IllegalAccessError("Timer is not set : " + timerName))
+	def getTimerAttributeName(timerName: String) = TIMER_KEY_PREFIX + timerName
 }
 
 /**
