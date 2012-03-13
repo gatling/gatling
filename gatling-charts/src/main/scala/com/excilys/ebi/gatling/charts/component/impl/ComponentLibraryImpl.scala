@@ -18,13 +18,25 @@ package com.excilys.ebi.gatling.charts.component.impl
 import com.excilys.ebi.gatling.charts.component.{ ComponentLibrary, Component }
 import com.excilys.ebi.gatling.charts.series.Series
 
+/**
+ * Mock implementation that is removed from the binary.
+ * A unique implementation is expected to be present in the classpath.
+ *
+ * @author stephanelandelle
+ */
 class ComponentLibraryImpl extends ComponentLibrary {
 
 	def getActiveSessionsChartComponent(series: Seq[Series[Long, Int]]): Component = throw new UnsupportedOperationException
+
 	def getRequestsChartComponent(allRequests: Series[Long, Int], failedRequests: Series[Long, Int], succeededRequests: Series[Long, Int], pieSeries: Series[String, Int], allActiveSessions: Series[Long, Int]): Component = throw new UnsupportedOperationException
+
 	def getTransactionsChartComponent(allTransactions: Series[Long, Int], failedTransactions: Series[Long, Int], succeededTransactions: Series[Long, Int], pieSeries: Series[String, Int], allActiveSessions: Series[Long, Int]): Component = throw new UnsupportedOperationException
+
 	def getRequestDetailsResponseTimeChartComponent(responseTimesSuccess: Series[Long, Long], responseTimesFailures: Series[Long, Long], allActiveSessions: Series[Long, Int]): Component = throw new UnsupportedOperationException
+
 	def getRequestDetailsLatencyChartComponent(latencySuccess: Series[Long, Long], latencyFailures: Series[Long, Long], allActiveSessions: Series[Long, Int]): Component = throw new UnsupportedOperationException
+
 	def getRequestDetailsScatterChartComponent(successData: Series[Int, Long], failuresData: Series[Int, Long]): Component = throw new UnsupportedOperationException
+
 	def getRequestDetailsIndicatorChartComponent(columnSeries: Series[String, Int], pieSeries: Series[String, Int]): Component = throw new UnsupportedOperationException
 }

@@ -99,7 +99,7 @@ class Gatling(options: Options) extends Logging {
 				}
 
 				val userSelection = options.simulations match {
-					case Some(simulations) => silentSelect(classes, simulations)
+					case Some(simulations) => autoSelect(classes, simulations)
 					case None => interactiveSelect(classes)
 				}
 
@@ -110,22 +110,28 @@ class Gatling(options: Options) extends Logging {
 			runUuids.foreach(generateReports(_))
 	}
 
-	private def silentSelect(classes: List[Class[Simulation]], simulations: List[String]): UserSelection = UserSelection(classes.filter(clazz => simulations.contains(clazz.getName)))
+	private def autoSelect(classes: List[Class[Simulation]], simulations: List[String]): UserSelection = UserSelection(classes.filter(clazz => simulations.contains(clazz.getName)))
 
 	private def interactiveSelect(classes: List[Class[Simulation]]): UserSelection = {
+
 		val simulation = selectSimulationClass(classes)
 
 		println("Select run id (required, default is '" + DEFAULT_RUN_ID + "'). Accepted characters are a-z, A-Z, 0-9, - and _")
-		val userRunId = Console.readLine.trim
-		val runId = if (userRunId.isEmpty) DEFAULT_RUN_ID else userRunId
+		val runId = {
+			val userInput = Console.readLine.trim
+			if (userInput.isEmpty) DEFAULT_RUN_ID else userInput
+		}
 
 		if (!runId.matches("[\\w-_]*"))
 			throw new IllegalArgumentException(runId + " contains illegal characters")
 
 		println("Select run name (optional)")
-		val runName = Console.readLine.trim
+		val runName = {
+			val userInput = Console.readLine.trim
+			if (userInput.isEmpty) runId else userInput
+		}
 
-		UserSelection(List(simulation), runId, if (runName.isEmpty) runId else runName)
+		UserSelection(List(simulation), runId, runName)
 	}
 
 	private def collectFiles(directory: Path, extension: String): List[File] = Directory(directory).deepFiles.filter(_.hasExtension(extension)).toList
@@ -135,21 +141,17 @@ class Gatling(options: Options) extends Logging {
 		val byteCodeDir = PlainFile.fromPath(tempDir)
 		val classLoader = new AbstractFileClassLoader(byteCodeDir, getClass.getClassLoader)
 
-		def generateSettings: Settings = {
-			val settings = new Settings
-			settings.usejavacp.value = true
-			settings.outputDirs.setSingleOutput(byteCodeDir)
-			settings.deprecation.value = true
-			settings.unchecked.value = true
-			settings
-		}
+		val settings = new Settings
+		settings.usejavacp.value = true
+		settings.outputDirs.setSingleOutput(byteCodeDir)
+		settings.deprecation.value = true
+		settings.unchecked.value = true
 
 		// Prepare an object for collecting error messages from the compiler
 		val messageCollector = new StringWriter
 
 		use(new PrintWriter(messageCollector)) { pw =>
 			// Initialize the compiler
-			val settings = generateSettings
 			val reporter = new ConsoleReporter(settings, Console.in, pw)
 			val compiler = new Global(settings, reporter)
 
@@ -170,7 +172,8 @@ class Gatling(options: Options) extends Logging {
 		.stripPrefix(root + File.separator)
 		.replace(File.separator, ".")
 
-	private def getClassNamesFromBinariesDirectory(dir: Directory): List[String] = dir.deepFiles
+	private def getClassNamesFromBinariesDirectory(dir: Directory): List[String] = dir
+		.deepFiles
 		.filter(_.hasExtension("class"))
 		.map(pathToClassName(_, dir)).toList
 
@@ -186,7 +189,7 @@ class Gatling(options: Options) extends Logging {
 
 	private def selectSimulationClass(classes: List[Class[Simulation]]): Class[Simulation] = {
 
-		val selected = classes.size match {
+		val selection = classes.size match {
 			case 0 =>
 				// If there is no simulation file
 				error("There are no simulation scripts. Please check that your scripts are in user-files/simulations and that they do not start with a .")
@@ -202,7 +205,7 @@ class Gatling(options: Options) extends Logging {
 				Console.readInt
 		}
 
-		classes(selected)
+		classes(selection)
 	}
 
 	private def run(selection: UserSelection): Seq[String] = {
