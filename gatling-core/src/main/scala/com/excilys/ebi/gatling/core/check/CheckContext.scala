@@ -35,9 +35,9 @@ object CheckContext {
 
 	def getCheckContextAttribute[T](key: String): Option[T] = context.get(key).asInstanceOf[Option[T]]
 
-	def getOrUpdateCheckContextAttribute[T](key: String, value: () => T): T = {
+	def getOrUpdateCheckContextAttribute[T](key: String, value: => T): T = {
 		context.get(key).asInstanceOf[Option[T]].getOrElse {
-			val resolvedValue = value()
+			val resolvedValue = value
 			context.put(key, resolvedValue)
 			resolvedValue
 		}
