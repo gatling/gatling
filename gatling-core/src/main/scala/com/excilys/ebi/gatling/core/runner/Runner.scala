@@ -39,11 +39,12 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 	val totalNumberOfUsers = scenarioConfigurations.map(_.users).sum
 
 	// Initializes a countdown latch to determine when to stop the application (totalNumberOfUsers + 1 DataWriter)
-	val latch: CountDownLatch = new CountDownLatch(totalNumberOfUsers + 1)
+	val latch = new CountDownLatch(totalNumberOfUsers + 1)
 
 	// Builds all scenarios
 	val scenarios = scenarioConfigurations.map { scenarioConfiguration =>
-		scenarioConfiguration.scenarioBuilder.end(latch).build(new ProtocolConfigurationRegistry(scenarioConfiguration.protocolConfigurations))
+		val protocolRegistry = new ProtocolConfigurationRegistry(scenarioConfiguration.protocolConfigurations)
+		scenarioConfiguration.scenarioBuilder.end(latch).build(protocolRegistry)
 	}
 
 	// Creates a List of Tuples with scenario configuration / scenario 
@@ -54,29 +55,33 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 	/**
 	 * This method schedules the beginning of all scenarios
 	 */
-	def run = {
-		// Initialization of the data writer
-		DataWriter.instance ! InitializeDataWriter(runRecord, latch)
+	def run {
+		try {
+			// Initialization of the data writer
+			DataWriter.instance ! InitializeDataWriter(runRecord, latch)
 
-		debug("Launching All Scenarios")
+			debug("Launching All Scenarios")
 
-		// Scheduling all scenarios
-		scenariosAndConfigurations.map {
-			case (scenario, configuration) => {
-				val (delayDuration, delayUnit) = scenario.delay
-				Scheduler.scheduleOnce(() => startOneScenario(scenario, configuration.firstAction), delayDuration, delayUnit)
+			// Scheduling all scenarios
+			scenariosAndConfigurations.map {
+				case (scenario, configuration) => {
+					val (delayDuration, delayUnit) = scenario.delay
+					Scheduler.scheduleOnce(() => startOneScenario(scenario, configuration.firstAction), delayDuration, delayUnit)
+				}
 			}
+
+			debug("Finished Launching scenarios executions")
+			latch.await(configuration.simulationTimeOut, SECONDS)
+
+			debug("All scenarios finished, stoping actors")
+
+		} finally {
+			// shut all actors down
+			registry.shutdownAll
+
+			// closes all the resources used during simulation
+			ResourceRegistry.closeAll
 		}
-
-		debug("Finished Launching scenarios executions")
-		latch.await(configuration.simulationTimeOut, SECONDS)
-
-		debug("All scenarios finished, stoping actors")
-		// Shuts down all actors
-		registry.shutdownAll
-
-		// Closes all the resources used during simulation
-		ResourceRegistry.closeAll
 	}
 
 	/**
@@ -93,9 +98,9 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 
 		} else {
 			// otherwise, schedule
-			val (value, unit) = configuration.ramp
+			val (rampValue, rampUnit) = configuration.ramp
 			// compute ramp period in millis so we can ramp less that one user per second
-			val period = unit.toMillis(value) / (configuration.users - 1)
+			val period = rampUnit.toMillis(rampValue) / (configuration.users - 1)
 
 			for (i <- 1 to configuration.users)
 				Scheduler.scheduleOnce(() => scenario ! buildSession(configuration, i), period * (i - 1), MILLISECONDS)

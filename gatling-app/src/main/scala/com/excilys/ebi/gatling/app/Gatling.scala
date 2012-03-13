@@ -91,7 +91,6 @@ class Gatling(options: Options) extends Logging {
 						loadSimulationClasses(classNames)
 
 					case None =>
-						// TODO use andThen once I f***g manage to use it with ScalaIDE
 						val scalaFiles = collectFiles(GatlingFiles.simulationsFolder, "scala")
 						val classloader = compile(scalaFiles)
 						val classNames = getClassNamesFromBinariesDirectory(tempDir)
@@ -107,7 +106,7 @@ class Gatling(options: Options) extends Logging {
 		}
 
 		if (!options.noReports)
-			runUuids.foreach(generateReports(_))
+			runUuids.foreach(generateReports)
 	}
 
 	private def autoSelect(classes: List[Class[Simulation]], simulations: List[String]): UserSelection = UserSelection(classes.filter(clazz => simulations.contains(clazz.getName)))
