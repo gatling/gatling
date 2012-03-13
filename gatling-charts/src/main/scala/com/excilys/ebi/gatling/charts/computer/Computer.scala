@@ -22,6 +22,7 @@ import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ RequestStatus, OK, KO }
 import com.excilys.ebi.gatling.core.result.message.RequestRecord
+import scala.annotation.tailrec
 
 object Computer {
 
@@ -84,13 +85,13 @@ object Computer {
 			.map { case ((_, rangeName), count) => (rangeName, count) }
 	}
 
-	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: SortedMap[Long, Int], requestData: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus): List[(Int, Long)] =
-		requestData
-			.map {
-				case (time, results) => results
-					.filter(_.resultStatus == resultStatus)
-					.map(requestsPerSecond.get(time).get -> _.responseTime)
-			}.toList.flatten
+	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: SortedMap[Long, Int], requestData: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus): List[(Int, Long)] = requestData
+		.map {
+			case (time, results) => results
+				.filter(_.resultStatus == resultStatus)
+				.map(requestsPerSecond.get(time).get -> _.responseTime)
+		}.toList
+		.flatten
 
 	def numberOfActiveSessionsPerSecondForAScenario(data: SortedMap[Long, Seq[RequestRecord]]): List[(Long, Int)] = {
 
@@ -99,16 +100,25 @@ object Computer {
 		val starts = requestByNameGroupByTime(START_OF_SCENARIO)
 		val ends = requestByNameGroupByTime(END_OF_SCENARIO)
 
-		var ct = 0
-
-		data.map {
-			case (time, results) =>
-				results.foreach { result =>
-					if (starts.getOrElse(time, List.empty).contains(result)) ct += 1
-					else if (ends.getOrElse(time, List.empty).contains(result)) ct -= 1
+		@tailrec
+		def countRec(data: List[(Long, Seq[RequestRecord])], counts: List[(Long, Int)], currentCount: Int): List[(Long, Int)] = {
+			data match {
+				case Nil => counts
+				case (time, results) :: otherData => {
+					val newCount = currentCount + results.map { result =>
+						if (starts.getOrElse(time, List.empty).contains(result))
+							1
+						else if (ends.getOrElse(time, List.empty).contains(result))
+							-1
+						else
+							0
+					}.sum
+					countRec(otherData, (time, newCount) :: counts, newCount)
 				}
-				(time, ct)
-		}.toList
+			}
+		}
+
+		countRec(data.toList, Nil, 0).reverse
 	}
 
 	def numberOfActiveSessionsPerSecondByScenario(allScenarioData: Seq[(String, SortedMap[Long, Seq[RequestRecord]])]): Seq[(String, List[(Long, Int)])] =
