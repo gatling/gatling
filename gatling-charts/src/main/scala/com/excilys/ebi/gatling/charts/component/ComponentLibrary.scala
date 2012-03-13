@@ -21,8 +21,8 @@ trait ComponentLibrary {
 	def getActiveSessionsChartComponent(series: Seq[Series[Long, Int]]): Component
 	def getRequestsChartComponent(allRequests: Series[Long, Int], failedRequests: Series[Long, Int], succeededRequests: Series[Long, Int], pieSeries: Series[String, Int], allActiveSessions: Series[Long, Int]): Component
 	def getTransactionsChartComponent(allTransactions: Series[Long, Int], failedTransactions: Series[Long, Int], succeededTransactions: Series[Long, Int], pieSeries: Series[String, Int], allActiveSessions: Series[Long, Int]): Component
-	def getRequestDetailsResponseTimeChartComponent(responseTimesSuccess: Series[Long, Int], responseTimesFailures: Series[Long, Int], allActiveSessions: Series[Long, Int]): Component
-	def getRequestDetailsLatencyChartComponent(latencySuccess: Series[Long, Int], latencyFailures: Series[Long, Int], allActiveSessions: Series[Long, Int]): Component
+	def getRequestDetailsResponseTimeChartComponent(responseTimesSuccess: Series[Long, Long], responseTimesFailures: Series[Long, Long], allActiveSessions: Series[Long, Int]): Component
+	def getRequestDetailsLatencyChartComponent(latencySuccess: Series[Long, Long], latencyFailures: Series[Long, Long], allActiveSessions: Series[Long, Int]): Component
 	def getRequestDetailsScatterChartComponent(successData: Series[Int, Long], failuresData: Series[Int, Long]): Component
 	def getRequestDetailsIndicatorChartComponent(columnSeries: Series[String, Int], pieSeries: Series[String, Int]): Component
 }

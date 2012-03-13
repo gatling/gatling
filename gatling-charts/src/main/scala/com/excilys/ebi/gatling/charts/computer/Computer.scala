@@ -27,30 +27,30 @@ object Computer {
 
 	val NO_PLOT_MAGIC_VALUE = -1
 
-	def averageTime(timeFunction: RequestRecord => Long)(data: Seq[RequestRecord]): Int = if (data.isEmpty) NO_PLOT_MAGIC_VALUE else (data.map(timeFunction(_)).sum / data.length.toDouble).toInt
+	def averageTime(timeFunction: RequestRecord => Long)(data: Seq[RequestRecord]): Long = if (data.isEmpty) NO_PLOT_MAGIC_VALUE else (data.map(timeFunction(_)).sum / data.length.toDouble).toLong
 
 	val averageResponseTime = averageTime(_.responseTime) _
 
 	val averageLatency = averageTime(_.latency) _
 
-	def responseTimeStandardDeviation(data: Seq[RequestRecord]): Double = {
+	def responseTimeStandardDeviation(data: Seq[RequestRecord]): Long = {
 		val avg = averageResponseTime(data)
-		if (avg != NO_PLOT_MAGIC_VALUE) sqrt(data.map(result => pow(result.responseTime - avg, 2)).sum / data.length) else NO_PLOT_MAGIC_VALUE
+		if (avg != NO_PLOT_MAGIC_VALUE) sqrt(data.map(result => pow(result.responseTime - avg, 2)).sum / data.length).toLong else NO_PLOT_MAGIC_VALUE
 	}
 
 	def minResponseTime(data: Seq[RequestRecord]): Long = if (data.isEmpty) NO_PLOT_MAGIC_VALUE else data.minBy(_.responseTime).responseTime
 
 	def maxResponseTime(data: Seq[RequestRecord]): Long = if (data.isEmpty) NO_PLOT_MAGIC_VALUE else data.maxBy(_.responseTime).responseTime
 
-	def computationByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus, computation: Seq[RequestRecord] => Int): List[(Long, Int)] =
+	def computationByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus, computation: Seq[RequestRecord] => Long): List[(Long, Long)] =
 		data
 			.map { case (time, results) => time -> results.filter(_.resultStatus == resultStatus) }
 			.map { case (time, results) => time -> computation(results) }
 			.toList
 
-	def responseTimeByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus): List[(Long, Int)] = computationByMillisecondAsList(data, resultStatus, averageResponseTime)
+	def responseTimeByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus): List[(Long, Long)] = computationByMillisecondAsList(data, resultStatus, averageResponseTime)
 
-	def latencyByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus): List[(Long, Int)] = computationByMillisecondAsList(data, resultStatus, averageLatency)
+	def latencyByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus): List[(Long, Long)] = computationByMillisecondAsList(data, resultStatus, averageLatency)
 
 	def numberOfRequestsPerSecond(data: SortedMap[Long, Seq[RequestRecord]]): SortedMap[Long, Int] = data.map { case (time, results) => time -> results.length }
 

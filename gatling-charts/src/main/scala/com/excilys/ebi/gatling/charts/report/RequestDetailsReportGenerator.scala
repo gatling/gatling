@@ -60,10 +60,10 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 				val numberOfFailedRequests = numberOfRequests - numberOfSuccessfulRequests
 
 				// Create series
-				val responseTimesSuccessSeries = new Series[Long, Int]("Response Time (success)", responseTimesSuccessData, List(BLUE))
-				val responseTimesFailuresSeries = new Series[Long, Int]("Response Time (failure)", responseTimesFailuresData, List(RED))
-				val latencySuccessSeries = new Series[Long, Int]("Latency (success)", latencySuccessData, List(BLUE))
-				val latencyFailuresSeries = new Series[Long, Int]("Latency (failure)", latencyFailuresData, List(RED))
+				val responseTimesSuccessSeries = new Series[Long, Long]("Response Time (success)", responseTimesSuccessData, List(BLUE))
+				val responseTimesFailuresSeries = new Series[Long, Long]("Response Time (failure)", responseTimesFailuresData, List(RED))
+				val latencySuccessSeries = new Series[Long, Long]("Latency (success)", latencySuccessData, List(BLUE))
+				val latencyFailuresSeries = new Series[Long, Long]("Latency (failure)", latencyFailuresData, List(RED))
 				val indicatorsColumnSeries = new Series[String, Int](EMPTY, indicatorsColumnData, List(GREEN, YELLOW, ORANGE, RED))
 				val indicatorsPieSeries = new Series[String, Int](EMPTY, indicatorsPieData, List(GREEN, YELLOW, ORANGE, RED))
 				val scatterPlotSuccessSeries = new Series[Int, Long]("Successes", scatterPlotSuccessData, List(TRANSLUCID_BLUE))

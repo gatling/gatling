@@ -1,8 +1,8 @@
-<%@ val numberOfRequests: com.excilys.ebi.gatling.charts.component.Statistics[Int] %>
-<%@ val min: com.excilys.ebi.gatling.charts.component.Statistics[Long] %>
-<%@ val max: com.excilys.ebi.gatling.charts.component.Statistics[Long] %>
-<%@ val average: com.excilys.ebi.gatling.charts.component.Statistics[Double] %>
-<%@ val stdDeviation: com.excilys.ebi.gatling.charts.component.Statistics[Double] %>
+<%@ val numberOfRequests: com.excilys.ebi.gatling.charts.component.Statistics %>
+<%@ val min: com.excilys.ebi.gatling.charts.component.Statistics %>
+<%@ val max: com.excilys.ebi.gatling.charts.component.Statistics %>
+<%@ val average: com.excilys.ebi.gatling.charts.component.Statistics %>
+<%@ val stdDeviation: com.excilys.ebi.gatling.charts.component.Statistics %>
 
 						<div class="infos">
 							<div class="titre">STATISTICS</div>
