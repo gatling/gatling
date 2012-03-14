@@ -15,14 +15,14 @@
  */
 package com.excilys.ebi.gatling.charts.computer
 
-import scala.annotation.implicitNotFound
+import scala.annotation.{ tailrec, implicitNotFound }
 import scala.collection.SortedMap
 import scala.math.{ sqrt, pow }
+
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ RequestStatus, OK, KO }
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ RequestStatus, KO }
 import com.excilys.ebi.gatling.core.result.message.RequestRecord
-import scala.annotation.tailrec
 
 object Computer {
 
@@ -95,24 +95,14 @@ object Computer {
 
 	def numberOfActiveSessionsPerSecondForAScenario(data: SortedMap[Long, Seq[RequestRecord]]): List[(Long, Int)] = {
 
-		def requestByNameGroupByTime(name: String) = data.map { case (time, results) => time -> results.filter(_.requestName == name) }
-
-		val starts = requestByNameGroupByTime(START_OF_SCENARIO)
-		val ends = requestByNameGroupByTime(END_OF_SCENARIO)
-
 		@tailrec
 		def countRec(data: List[(Long, Seq[RequestRecord])], counts: List[(Long, Int)], currentCount: Int): List[(Long, Int)] = {
 			data match {
 				case Nil => counts
 				case (time, results) :: otherData => {
-					val newCount = currentCount + results.map { result =>
-						if (starts.getOrElse(time, List.empty).contains(result))
-							1
-						else if (ends.getOrElse(time, List.empty).contains(result))
-							-1
-						else
-							0
-					}.sum
+					val starts = results.count(_.requestName == START_OF_SCENARIO)
+					val ends = results.count(_.requestName == END_OF_SCENARIO)
+					val newCount = currentCount + starts - ends
 					countRec(otherData, (time, newCount) :: counts, newCount)
 				}
 			}
