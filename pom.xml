@@ -138,7 +138,7 @@
 		<twitter-util.version>1.12.12</twitter-util.version>
 		<opencsv.version>2.3</opencsv.version>
 		<ant.version>1.8.2</ant.version>
-		<grizzled-slf4j.version>0.6.6</grizzled-slf4j.version>
+		<grizzled-slf4j.version>0.6.8</grizzled-slf4j.version>
 		<jackson.version>1.9.5</jackson.version>
 		<junit.version>4.10</junit.version>
 		<specs2.version>1.8.2</specs2.version>
@@ -368,7 +368,7 @@
 			</dependency>
 			<dependency>
 				<groupId>org.clapper</groupId>
-				<artifactId>grizzled-slf4j_2.9.1</artifactId>
+				<artifactId>grizzled-slf4j_2.9.1-1</artifactId>
 				<version>${grizzled-slf4j.version}</version>
 			</dependency>
 			<dependency>
