@@ -23,27 +23,14 @@ import org.joda.time.DateTime
  */
 object DateHelper {
 
-	/**
-	 * Formatter for human readable dates (logs)
-	 */
 	private val humanDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
 
-	/**
-	 * Formatter for folder dates
-	 */
 	private val timestampFormat = DateTimeFormat.forPattern("yyyyMMddHHmmss")
 
-
 	def parseTimestampString(string: String) = DateTime.parse(string, timestampFormat)
-	
+
 	def parseHumanDateString(string: String) = DateTime.parse(string, humanDateFormat)
 
-	/**
-	 * Returns a folder name from a date
-	 *
-	 * @param dateTime the date to be formatted
-	 * @return a folder name from a date
-	 */
 	def toTimestamp(dateTime: DateTime) = timestampFormat.print(dateTime)
 
 	def toHumanDate(dateTime: DateTime) = humanDateFormat.print(dateTime)

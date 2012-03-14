@@ -30,13 +30,13 @@ import com.excilys.ebi.gatling.core.result.message.RunRecord
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR_STRING
-import FileDataReader.SPLIT_PATTERN
+import FileDataReader.TABULATION_PATTERN
 import grizzled.slf4j.Logging
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
 import scala.collection.mutable.ListBuffer
 
 object FileDataReader {
-	val SPLIT_PATTERN = Pattern.compile(TABULATION_SEPARATOR_STRING)
+	val TABULATION_PATTERN = Pattern.compile(TABULATION_SEPARATOR_STRING)
 }
 
 class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
@@ -45,7 +45,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	private val requestRecords = new ListBuffer[RequestRecord]
 
-	(for (line <- Source.fromFile(simulationLogFile(runUuid).jfile, configuration.encoding).getLines) yield SPLIT_PATTERN.split(line, 0))
+	(for (line <- Source.fromFile(simulationLogFile(runUuid).jfile, configuration.encoding).getLines) yield TABULATION_PATTERN.split(line, 0))
 		.foreach {
 			case Array(RUN, runDate, runId, runName) =>
 				runRecords + RunRecord(parseTimestampString(runDate), runId, runName)
@@ -59,9 +59,9 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		.filter(record => record.executionStartDate >= configuration.chartingTimeWindowLowerBound && record.executionStartDate <= configuration.chartingTimeWindowHigherBound)
 		.sortBy(_.executionStartDate)
 
-	val runRecord = runRecords.head
+	val runRecord = if (runRecords.size == 1) runRecords.head else throw new IllegalAccessException("Expecting one and only one RunRecord")
 
-	val requestNames: Seq[String] = data.map(_.requestName).distinct.filterNot(value => value == END_OF_SCENARIO || value == START_OF_SCENARIO)
+	val requestNames: Seq[String] = data.map(_.requestName).distinct.filter(value => value != END_OF_SCENARIO && value != START_OF_SCENARIO)
 
 	val scenarioNames: Seq[String] = data.map(_.scenarioName).distinct
 
