@@ -50,7 +50,7 @@ object StringHelper extends Logging {
 
 	val elPatternString = """\$\{(.+?)\}"""
 	val elPattern = elPatternString.r
-	val elOccurrencePattern = """\((\d+)\)""".r
+	val elOccurrencePattern = """(.+?)\((\d+)\)""".r
 
 	/**
 	 * Method that strips all accents from a string
@@ -63,7 +63,7 @@ object StringHelper extends Logging {
 	def parseEvaluatable(stringToFormat: String): EvaluatableString = {
 
 		def parseStaticParts: Array[String] = stringToFormat.split(elPatternString, -1)
-
+		
 		def parseDynamicParts: List[Session => Any] = {
 			elPattern.findAllIn(stringToFormat).matchData.map { data =>
 				val elContent = data.group(1)
@@ -71,8 +71,8 @@ object StringHelper extends Logging {
 
 				occurrencePart match {
 					case Some(occurrencePartMatch) =>
-						val key = elContent.substring(0, elContent.lastIndexOf(INDEX_START))
-						val occurrence = occurrencePartMatch.group(1).toInt
+						val key = occurrencePartMatch.group(1)
+						val occurrence = occurrencePartMatch.group(2).toInt
 						(session: Session) => session.getAttributeAsOption[Seq[Any]](key) match {
 							case Some(x) if (x.size > occurrence) => x(occurrence)
 							case _ => {
