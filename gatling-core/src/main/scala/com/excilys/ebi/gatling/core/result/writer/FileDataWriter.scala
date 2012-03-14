@@ -28,7 +28,7 @@ import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
 import com.excilys.ebi.gatling.core.result.message.RecordType.{ RUN, ACTION }
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
 import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, InitializeDataWriter }
-import com.excilys.ebi.gatling.core.util.DateHelper.printFileNameDate
+import com.excilys.ebi.gatling.core.util.DateHelper.toTimestamp
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 
@@ -79,7 +79,7 @@ class FileDataWriter extends DataWriter with Logging {
 
 			def printRunRecord {
 				osw.append(RUN).append(TABULATION_SEPARATOR)
-					.append(printFileNameDate(runRecord.runDate)).append(TABULATION_SEPARATOR)
+					.append(toTimestamp(runRecord.runDate)).append(TABULATION_SEPARATOR)
 					.append(runRecord.runId).append(TABULATION_SEPARATOR)
 					.append(runRecord.runName)
 					.append(END_OF_LINE)

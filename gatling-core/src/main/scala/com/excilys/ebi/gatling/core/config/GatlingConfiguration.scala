@@ -21,7 +21,7 @@ import scala.tools.nsc.io.Path
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.GATLING_DEFAULT_CONFIG_FILE
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
-import com.excilys.ebi.gatling.core.util.DateHelper.parseReadableDate
+import com.excilys.ebi.gatling.core.util.DateHelper.parseHumanDateString
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.core.init.Initializable
 import grizzled.slf4j.Logging
@@ -99,12 +99,12 @@ class GatlingConfiguration(
 
 	val chartingTimeWindowLowerBound = fileConfiguration("gatling.charting.timeWindow.lowerBound", EMPTY) match {
 		case EMPTY => Long.MinValue
-		case string => parseReadableDate(string).getMillis
+		case string => parseHumanDateString(string).getMillis
 	}
 
 	val chartingTimeWindowHigherBound = fileConfiguration("gatling.charting.timeWindow.higherBound", EMPTY) match {
 		case EMPTY => Long.MaxValue
-		case string => parseReadableDate(string).getMillis
+		case string => parseHumanDateString(string).getMillis
 	}
 
 	val dataWriterClass = Class.forName(fileConfiguration("gatling.data.writer", "com.excilys.ebi.gatling.core.result.writer.FileDataWriter")).asInstanceOf[Class[DataWriter]]

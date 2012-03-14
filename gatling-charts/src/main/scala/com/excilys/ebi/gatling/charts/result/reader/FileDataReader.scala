@@ -28,7 +28,7 @@ import com.excilys.ebi.gatling.core.result.message.RecordType._
 import com.excilys.ebi.gatling.core.result.message.RequestRecord
 import com.excilys.ebi.gatling.core.result.message.RunRecord
 import com.excilys.ebi.gatling.core.result.reader.DataReader
-import com.excilys.ebi.gatling.core.util.DateHelper.parseFileNameDateFormat
+import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR_STRING
 import FileDataReader.SPLIT_PATTERN
 import grizzled.slf4j.Logging
@@ -48,7 +48,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	(for (line <- Source.fromFile(simulationLogFile(runUuid).jfile, configuration.encoding).getLines) yield SPLIT_PATTERN.split(line, 0))
 		.foreach {
 			case Array(RUN, runDate, runId, runName) =>
-				runRecords + RunRecord(parseFileNameDateFormat(runDate), runId, runName)
+				runRecords + RunRecord(parseTimestampString(runDate), runId, runName)
 			case Array(ACTION, scenarioName, userId, requestName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage) =>
 				requestRecords + RequestRecord(scenarioName, userId.toInt, requestName, executionStartDate.toLong, executionEndDate.toLong, requestSendingEndDate.toLong, responseReceivingStartDate.toLong, RequestStatus.withName(resultStatus), resultMessage)
 			case record => logger.warn("Malformed line, skipping it : " + record.toList)

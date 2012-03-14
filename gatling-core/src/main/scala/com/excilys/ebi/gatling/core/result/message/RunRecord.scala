@@ -18,9 +18,9 @@ package com.excilys.ebi.gatling.core.result.message
 import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.core.result.message.RecordType.RUN
-import com.excilys.ebi.gatling.core.util.DateHelper.{ printReadableDate, printFileNameDate }
+import com.excilys.ebi.gatling.core.util.DateHelper.{ toTimestamp, toHumanDate }
 
 case class RunRecord(runDate: DateTime, runId: String, runName: String) extends Record(RUN) {
-	def runUuid = runId + printFileNameDate(runDate)
-	def readableRunDate = printReadableDate(runDate)
+	def runUuid = runId + toTimestamp(runDate)
+	def readableRunDate = toHumanDate(runDate)
 }
