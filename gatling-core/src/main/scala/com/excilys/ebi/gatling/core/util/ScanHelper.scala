@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.util
-import java.io.{ File => JFile }
-import java.net.{ URI, JarURLConnection }
+import java.io.{File => JFile}
+import java.net.{URI, JarURLConnection}
 
 import scala.collection.JavaConverters.enumerationAsScalaIteratorConverter
-import scala.tools.nsc.io.Path.{ string2path, jfile2path }
-import scala.tools.nsc.io.{ Path, Jar, Fileish, File }
+import scala.tools.nsc.io.{Path, Jar, Fileish, File}
 
+import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.twitter.io.StreamIO
 
 object ScanHelper {
 
@@ -79,8 +80,11 @@ case class FileishResource(fileish: Fileish) extends Resource {
 	def path = fileish.path
 	def copyTo(target: Path) {
 		target.parent.createDirectory()
-		val input = fileish.input()
-		val output = target.toFile.outputStream(false)
-		IOHelper.copy(input, output)
+
+		use(fileish.input()) { input =>
+			use(target.toFile.outputStream(false)) { output =>
+				StreamIO.copy(input, output)
+			}
+		}
 	}
 }

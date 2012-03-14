@@ -19,30 +19,10 @@ import scala.annotation.tailrec
 
 object IOHelper {
 
-	val BYTE_BUFFER_SIZE = 1024 * 4
-
 	def use[T, C <: Closeable](closeable: C)(block: C => T) = {
 		try
 			block(closeable)
 		finally
 			closeable.close
-	}
-
-	def copy(input: InputStream, output: OutputStream) {
-
-		@tailrec
-		def copyRec(input: InputStream, output: OutputStream, buffer: Array[Byte]) {
-			val n = input.read(buffer)
-			if (n != -1) {
-				output.write(buffer, 0, n)
-				copyRec(input, output, buffer)
-			}
-		}
-
-		use(input) { input =>
-			use(output) { output =>
-				copyRec(input, output, new Array[Byte](BYTE_BUFFER_SIZE))
-			}
-		}
 	}
 }
