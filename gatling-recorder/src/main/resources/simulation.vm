@@ -4,7 +4,7 @@ import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._
 import com.excilys.ebi.gatling.jdbc.Predef._
 
-class Simulation${date} extends Simulation {
+class ${className} extends Simulation {
 
 	def apply = {
 		val urlBase = "${baseURI.getScheme()}://${baseURI.getHost()}#if(${baseURI.getPort()} != -1):${baseURI.getPort()}#end"

@@ -15,6 +15,8 @@
  */
 package com.excilys.ebi.gatling.recorder.configuration;
 
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.CLASS_NAME_ALIAS;
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.CLASS_NAME_OPTION;
 import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.ENCODING_ALIAS;
 import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.ENCODING_OPTION;
 import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.FOLLOW_REDIRECT_ALIAS;
@@ -64,8 +66,11 @@ public class CommandLineOptions {
 	@Option(name = REQUEST_BODIES_FOLDER_OPTION, usage = "Define the folder in which the request bodies will be dumped", aliases = REQUEST_BODIES_FOLDER_ALIAS)
 	private String requestBodiesFolder;
 
+	@Option(name = CLASS_NAME_OPTION, usage = "Set the name of the generated Simulation class", aliases = CLASS_NAME_ALIAS)
+	private String simulationClassName;
+
 	@Option(name = PACKAGE_OPTION, usage = "Set the package of the generated Simulation class", aliases = PACKAGE_ALIAS)
-	private String idePackage;
+	private String simulationPackage;
 
 	@Option(name = ENCODING_OPTION, usage = "Set the encoding for file operations", aliases = ENCODING_ALIAS)
 	private String encoding;
@@ -126,14 +131,6 @@ public class CommandLineOptions {
 		this.outputFolder = outputFolder;
 	}
 
-	public String getIdePackage() {
-		return idePackage;
-	}
-
-	public void setIdePackage(String idePackage) {
-		this.idePackage = idePackage;
-	}
-
 	public String getRequestBodiesFolder() {
 		return requestBodiesFolder;
 	}
@@ -148,5 +145,21 @@ public class CommandLineOptions {
 
 	public void setEncoding(String encoding) {
 		this.encoding = encoding;
+	}
+
+	public String getSimulationClassName() {
+		return simulationClassName;
+	}
+
+	public void setSimulationClassName(String simulationClassName) {
+		this.simulationClassName = simulationClassName;
+	}
+
+	public String getSimulationPackage() {
+		return simulationPackage;
+	}
+
+	public void setSimulationPackage(String simulationPackage) {
+		this.simulationPackage = simulationPackage;
 	}
 }

@@ -16,7 +16,6 @@
 package com.excilys.ebi.gatling.recorder.ui.component;
 
 import static com.excilys.ebi.gatling.recorder.http.event.RecorderEventBus.getEventBus;
-import static com.excilys.ebi.gatling.recorder.ui.Constants.GATLING_REQUEST_BODIES_DIRECTORY_NAME;
 import static org.apache.commons.io.IOUtils.closeQuietly;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 
@@ -87,14 +86,14 @@ import com.google.common.eventbus.Subscribe;
 @SuppressWarnings("serial")
 public class RunningFrame extends JFrame {
 
-	public static final Format FORMAT = FastDateFormat.getInstance("yyyyMMddHHmmss");
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(RunningFrame.class);
+	private static final Format DATE_FORMAT = FastDateFormat.getInstance("yyyyMMddHHmmss");
 	private static final int EVENTS_GROUPING = 100;
 
 	private Configuration configuration;
 	private GatlingHttpProxy proxy;
 	private Date startDate;
+	private String startDateString;
 	private Date lastRequestDate;
 	private PauseEvent pause;
 	private BasicAuth basicAuth = null;
@@ -267,6 +266,7 @@ public class RunningFrame extends JFrame {
 				clearOldRunning();
 				configuration = Configuration.getInstance();
 				startDate = new Date();
+				startDateString = DATE_FORMAT.format(startDate);
 				proxy = new GatlingHttpProxy(configuration.getPort(), configuration.getSslPort(), configuration.getProxy());
 				proxy.start();
 			}
@@ -345,7 +345,7 @@ public class RunningFrame extends JFrame {
 		try {
 			uri = new URI(request.getUri());
 		} catch (URISyntaxException ex) {
-			LOGGER.error("Can't create URI from request uri (" + request.getUri() + ")" + ex.getStackTrace());
+			LOGGER.error("Can't create URI from request uri ({}) {}", request.getUri(), ex.getStackTrace());
 			// FIXME error handling
 			return false;
 		}
@@ -474,42 +474,37 @@ public class RunningFrame extends JFrame {
 	}
 
 	private void dumpRequestBody(int idEvent, String content) {
-		File dir = null;
-		if (configuration.getRequestBodiesFolder() == null)
-			dir = new File(getOutputFolder(), FORMAT.format(startDate) + "_" + GATLING_REQUEST_BODIES_DIRECTORY_NAME);
-		else
-			dir = getFolder("request bodies", configuration.getRequestBodiesFolder());
 
-		if (!dir.exists())
-			dir.mkdir();
-
+		File dir = getRequestBodiesOutputFolder();
 		FileWriter fw = null;
 		try {
-			fw = new FileWriter(new File(dir, FORMAT.format(startDate) + "_request_" + idEvent + ".txt"));
+			fw = new FileWriter(new File(dir, startDateString + "_request_" + idEvent + ".txt"));
 			fw.write(content);
-		} catch (IOException ex) {
-			LOGGER.error("Error, while dumping request body... {}", ex.getStackTrace());
+		} catch (IOException e) {
+			LOGGER.error("Error, while dumping request body... {}", e);
 		} finally {
 			closeQuietly(fw);
 		}
 	}
 
-	private File getOutputFolder() {
-		return getFolder("output", configuration.getOutputFolder());
+	private File getRequestBodiesOutputFolder() {
+		File dir = new File(configuration.getRequestBodiesFolder());
+		dir.mkdir();
+		return dir;
 	}
 
-	private File getFolder(String folderName, String folderPath) {
-		File folder = new File(folderPath);
-
-		if (!folder.exists())
-			if (!folder.mkdirs())
-				throw new RuntimeException("Can't create " + folderName + " folder");
-
-		return folder;
+	private File getSimulationOutputFolder() {
+		String path = new StringBuilder()//
+				.append(configuration.getOutputFolder())//
+				.append(File.separator)//
+				.append(configuration.getSimulationPackage().replace(".", File.separator)).toString();
+		File dir = new File(path);
+		dir.mkdirs();
+		return dir;
 	}
 
-	private String getScenarioFileName(Date date) {
-		return "Simulation" + FORMAT.format(date) + ".scala";
+	private String getSimulationFileName() {
+		return Configuration.getInstance().getSimulationClassName() + startDateString;
 	}
 
 	private boolean isRedirect(HttpResponse response) {
@@ -581,6 +576,8 @@ public class RunningFrame extends JFrame {
 
 		List<Object> filteredEvents = filterEvents();
 		Map<String, Map<String, String>> filteredHeaders = filterHeaders(filteredEvents);
+		File simulationOutputFolder = getSimulationOutputFolder();
+		String simulationClassName = getSimulationFileName();
 
 		VelocityEngine ve = new VelocityEngine();
 		ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
@@ -606,16 +603,15 @@ public class RunningFrame extends JFrame {
 			context.put("chainEvents", new ArrayList<List<Object>>());
 		}
 
-		context.put("package", Configuration.getInstance().getIdePackage());
-		context.put("date", FORMAT.format(startDate));
-		URI uri = URI.create(EMPTY);
-		context.put("URI", uri);
+		context.put("package", Configuration.getInstance().getSimulationPackage());
+		context.put("className", simulationClassName);
+		context.put("date", startDateString);
 
 		Template template = null;
 		Writer writer = null;
 		try {
 			template = ve.getTemplate("simulation.vm");
-			writer = new OutputStreamWriter(new FileOutputStream(new File(getOutputFolder(), getScenarioFileName(startDate))), configuration.getEncoding());
+			writer = new OutputStreamWriter(new FileOutputStream(new File(simulationOutputFolder, simulationClassName + ".scala")), configuration.getEncoding());
 			template.merge(context, writer);
 			writer.flush();
 

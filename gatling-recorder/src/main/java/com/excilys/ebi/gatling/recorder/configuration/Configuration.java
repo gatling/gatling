@@ -15,6 +15,9 @@
  */
 package com.excilys.ebi.gatling.recorder.configuration;
 
+import static org.apache.commons.lang.StringUtils.EMPTY;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +34,8 @@ public class Configuration {
 		instance.setSslPort(c.getSslPort());
 		instance.setProxy(c.getProxy());
 		instance.setFollowRedirect(c.isFollowRedirect());
+		instance.setSimulationClassName(c.getSimulationClassName());
+		instance.setSimulationPackage(c.getSimulationPackage());
 		instance.setFilterStrategy(c.getFilterStrategy());
 		instance.setPatterns(c.getPatterns());
 		instance.setOutputFolder(c.getOutputFolder());
@@ -47,7 +52,9 @@ public class Configuration {
 		if (c.getOutputFolder() != null)
 			instance.setOutputFolder(c.getOutputFolder());
 
-		instance.setIdePackage(c.getIdePackage());
+		if (c.getSimulationClassName() != null)
+			instance.setSimulationClassName(c.getSimulationClassName());
+		instance.setSimulationPackage(c.getSimulationPackage());
 		instance.setRequestBodiesFolder(c.getRequestBodiesFolder());
 		if (c.getEncoding() != null)
 			instance.setEncoding(c.getEncoding());
@@ -61,14 +68,22 @@ public class Configuration {
 	private boolean followRedirect;
 	private FilterStrategy filterStrategy = FilterStrategy.NONE;
 	private List<Pattern> patterns = new ArrayList<Pattern>();
-	private String outputFolder = System.getProperty("user.home");
+	private String outputFolder = System.getenv("GATLING_HOME") + File.separator + "user-files" + File.separator + "simulations";
 	private boolean saveConfiguration;
 	private String encoding = "UTF-8";
-	private transient String requestBodiesFolder;
-	private transient String idePackage;
+	private String requestBodiesFolder = System.getenv("GATLING_HOME") + File.separator + "user-files" + File.separator + "requests-bodies";
+	private String simulationPackage = EMPTY;
+	private String simulationClassName = "Simulation";
 
 	private Configuration() {
 
+	}
+
+	@Override
+	public String toString() {
+		return new StringBuilder().append("Configuration [port=").append(port).append(", sslPort=").append(sslPort).append(", proxy=").append(proxy).append(", filterStrategy=")
+				.append(filterStrategy).append(", patterns=").append(patterns).append(", outputFolder=").append(outputFolder).append(", saveConfiguration=")
+				.append(saveConfiguration).append("]").toString();
 	}
 
 	public int getPort() {
@@ -127,18 +142,20 @@ public class Configuration {
 		this.saveConfiguration = saveConfiguration;
 	}
 
-	public String getIdePackage() {
-		return idePackage;
+	public String getSimulationPackage() {
+		return simulationPackage;
 	}
 
-	public void setIdePackage(String idePackage) {
-		this.idePackage = idePackage;
+	public void setSimulationPackage(String simulationPackage) {
+		this.simulationPackage = simulationPackage;
 	}
 
-	@Override
-	public String toString() {
-		return "Configuration [port=" + port + ", sslPort=" + sslPort + ", proxy=" + proxy + ", filterStrategy=" + filterStrategy + ", patterns=" + patterns + ", outputFolder="
-				+ outputFolder + ", saveConfiguration=" + saveConfiguration + "]";
+	public String getSimulationClassName() {
+		return simulationClassName;
+	}
+
+	public void setSimulationClassName(String simulationClassName) {
+		this.simulationClassName = simulationClassName;
 	}
 
 	public String getRequestBodiesFolder() {

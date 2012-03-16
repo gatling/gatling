@@ -41,6 +41,8 @@ public class ConfigurationValidatorListener implements ActionListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(ConfigurationValidatorListener.class);
 
+	private static final java.util.regex.Pattern PACKAGE_NAME_PATTERN = java.util.regex.Pattern.compile("^([a-z_]{1}[a-z0-9_]*(\\.[a-z_]{1}[a-z0-9_]*)*)$");
+
 	private final ConfigurationFrame frame;
 
 	public ConfigurationValidatorListener(ConfigurationFrame frame) {
@@ -111,9 +113,6 @@ public class ConfigurationValidatorListener implements ActionListener {
 			}
 		}
 
-		// Set follow redirect
-		config.setFollowRedirect(frame.chkFollowRedirect.isSelected());
-
 		config.setFilterStrategy((FilterStrategy) frame.cbFilterStrategies.getSelectedItem());
 		// Set urls filters into a list
 		config.setPatterns(new ArrayList<Pattern>());
@@ -133,6 +132,29 @@ public class ConfigurationValidatorListener implements ActionListener {
 
 		// set selected encoding
 		config.setEncoding(Charset.class.cast(frame.cbOutputEncoding.getSelectedItem()).name());
+
+		// Set follow redirect
+		config.setFollowRedirect(frame.chkFollowRedirect.isSelected());
+
+		// set class name
+		String rawClassName = StringUtils.capitalize(frame.txtSimulationClassName.getText().trim());
+		frame.txtSimulationClassName.setText(rawClassName);
+		if (rawClassName.length() == 0) {
+			logger.error("Invalid class name");
+			hasError = true;
+		} else {
+			config.setSimulationClassName(rawClassName);
+		}
+
+		// set package
+		String rawPackage = frame.txtSimulationPackage.getText().trim().toLowerCase();
+		frame.txtSimulationPackage.setText(rawPackage);
+		if (!PACKAGE_NAME_PATTERN.matcher(rawPackage).matches()) {
+			logger.error("Invalid package name");
+			hasError = true;
+		} else {
+			config.setSimulationPackage(rawPackage);
+		}
 
 		if (hasError)
 			return;

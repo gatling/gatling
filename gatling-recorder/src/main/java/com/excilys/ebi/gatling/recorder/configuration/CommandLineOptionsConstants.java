@@ -28,7 +28,7 @@ public class CommandLineOptionsConstants {
 
 	public static final String PROXY_HTTP_PORT_OPTION = "-pp";
 	public static final String PROXY_HTTP_PORT_ALIAS = "--proxy-port";
-	
+
 	public static final String FOLLOW_REDIRECT_OPTION = "-fr";
 	public static final String FOLLOW_REDIRECT_ALIAS = "--follow-redirect";
 
@@ -40,6 +40,9 @@ public class CommandLineOptionsConstants {
 
 	public static final String REQUEST_BODIES_FOLDER_OPTION = "-bf";
 	public static final String REQUEST_BODIES_FOLDER_ALIAS = "--request-bodies-folder";
+
+	public static final String CLASS_NAME_OPTION = "-cn";
+	public static final String CLASS_NAME_ALIAS = "--class-name";
 
 	public static final String PACKAGE_OPTION = "-pkg";
 	public static final String PACKAGE_ALIAS = "--package";

@@ -61,13 +61,15 @@ public class ConfigurationFrame extends JFrame {
 	public final JTextField txtProxyPort = new JTextField(null, 4);
 	public final JTextField txtProxySslPort = new JTextField(null, 4);
 
-	public final JCheckBox chkFollowRedirect = new JCheckBox("Follow redirect");
-
 	public final JComboBox cbFilterStrategies = new JComboBox();
 	public final JCheckBox chkSavePref = new JCheckBox("Save preferences");
-	public final JTextField txtOutputFolder = new JTextField(47);
+
+	public final JTextField txtOutputFolder = new JTextField(65);
 	public final FilterTable tblFilters = new FilterTable();
 	public final JComboBox cbOutputEncoding = new JComboBox();
+	public final JCheckBox chkFollowRedirect = new JCheckBox("Follow redirect");
+	public final JTextField txtSimulationPackage = new JTextField(40);
+	public final JTextField txtSimulationClassName = new JTextField(20);
 
 	JButton btnFiltersAdd = new JButton("+");
 	JButton btnFiltersDel = new JButton("-");
@@ -76,8 +78,8 @@ public class ConfigurationFrame extends JFrame {
 	JButton btnStart = new JButton("Start !");
 
 	JPanel pnlTop;
-	JPanel pnlCenter;
-	JPanel pnlBottom;
+	JPanel bottomPanel;
+	JPanel centerPannel;
 
 	FileDialog fileDialog;
 	JFileChooser fileChooser;
@@ -167,14 +169,9 @@ public class ConfigurationFrame extends JFrame {
 		outgoingProxyPanel.add(outgoingProxyHostPanel);
 		outgoingProxyPanel.add(outgoingProxyPortsPanel);
 
-		// Follow redirect pannel
-		JPanel followRedirectPannel = new JPanel(new FlowLayout());
-		followRedirectPannel.add(chkFollowRedirect);
-
 		// Adding panels to newtworkPanel
 		pnlNetwork.add(localProxyPanel, BorderLayout.NORTH);
-		pnlNetwork.add(outgoingProxyPanel, BorderLayout.CENTER);
-		pnlNetwork.add(followRedirectPannel, BorderLayout.SOUTH);
+		pnlNetwork.add(outgoingProxyPanel, BorderLayout.SOUTH);
 
 		// Adding Image and network panel to top panel
 		pnlTop.add(pnlImage, BorderLayout.WEST);
@@ -185,35 +182,9 @@ public class ConfigurationFrame extends JFrame {
 	}
 
 	private void initCenterPanel() {
-		/***** Creating Center Panel (Filters) *****/
-		pnlCenter = new JPanel();
-		pnlCenter.setBorder(BorderFactory.createTitledBorder("Filters"));
-		pnlCenter.setLayout(new BorderLayout());
-
-		// Fill Combo Box for Strategies
-		for (FilterStrategy ft : FilterStrategy.values())
-			cbFilterStrategies.addItem(ft);
-
-		// Filter Actions panel
-		JPanel filterActionsPanel = new JPanel();
-		filterActionsPanel.add(new JLabel("Strategy"));
-		filterActionsPanel.add(cbFilterStrategies);
-		filterActionsPanel.add(btnFiltersAdd);
-		filterActionsPanel.add(btnFiltersDel);
-		filterActionsPanel.add(btnClear);
-
-		// Adding panels to centerPanel
-		pnlCenter.add(tblFilters, BorderLayout.CENTER);
-		pnlCenter.add(filterActionsPanel, BorderLayout.PAGE_END);
-
-		// Adding panel to Frame
-		add(pnlCenter, BorderLayout.CENTER);
-	}
-
-	private void initBottomPanel() {
 		/***** Creating Bottom Panel (Output + Start) *****/
-		pnlBottom = new JPanel();
-		pnlBottom.setLayout(new BorderLayout());
+		centerPannel = new JPanel();
+		centerPannel.setLayout(new BorderLayout());
 
 		// Output Folder Panel
 		JPanel outputFolderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -232,8 +203,45 @@ public class ConfigurationFrame extends JFrame {
 		JPanel outputFormatPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		outputFormatPanel.add(new JLabel("Encoding: "));
 		outputFormatPanel.add(cbOutputEncoding);
-
 		outputPanel.add(outputFormatPanel, BorderLayout.WEST);
+
+		// Follow redirect panel
+		JPanel followRedirectPannel = new JPanel(new FlowLayout());
+		followRedirectPannel.add(chkFollowRedirect);
+		outputPanel.add(followRedirectPannel, BorderLayout.EAST);
+
+		// class panel
+		JPanel classPannel = new JPanel(new FlowLayout());
+		classPannel.add(new JLabel("Package : "));
+		classPannel.add(txtSimulationPackage);
+		classPannel.add(new JLabel("Class name* : "));
+		classPannel.add(txtSimulationClassName);
+		outputPanel.add(classPannel, BorderLayout.SOUTH);
+
+		// Adding panels to bottomPanel
+		centerPannel.add(outputPanel, BorderLayout.NORTH);
+
+		// Adding panel to Frame
+		add(centerPannel, BorderLayout.CENTER);
+	}
+
+	private void initBottomPanel() {
+		/***** Creating Center Panel (Filters) *****/
+		bottomPanel = new JPanel();
+		bottomPanel.setBorder(BorderFactory.createTitledBorder("Filters"));
+		bottomPanel.setLayout(new BorderLayout());
+
+		// Fill Combo Box for Strategies
+		for (FilterStrategy ft : FilterStrategy.values())
+			cbFilterStrategies.addItem(ft);
+
+		// Filter Actions panel
+		JPanel filterActionsPanel = new JPanel();
+		filterActionsPanel.add(new JLabel("Strategy"));
+		filterActionsPanel.add(cbFilterStrategies);
+		filterActionsPanel.add(btnFiltersAdd);
+		filterActionsPanel.add(btnFiltersDel);
+		filterActionsPanel.add(btnClear);
 
 		// Start Action Panel
 		JPanel startActionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -242,12 +250,13 @@ public class ConfigurationFrame extends JFrame {
 
 		chkSavePref.setHorizontalTextPosition(SwingConstants.LEFT);
 
-		// Adding panels to bottomPanel
-		pnlBottom.add(outputPanel, BorderLayout.NORTH);
-		pnlBottom.add(startActionPanel, BorderLayout.SOUTH);
+		// Adding panels to centerPanel
+		bottomPanel.add(tblFilters, BorderLayout.CENTER);
+		bottomPanel.add(filterActionsPanel, BorderLayout.SOUTH);
+		bottomPanel.add(startActionPanel, BorderLayout.PAGE_END);
 
 		// Adding panel to Frame
-		add(pnlBottom, BorderLayout.SOUTH);
+		add(bottomPanel, BorderLayout.SOUTH);
 	}
 
 	private void setListeners() {
@@ -340,12 +349,16 @@ public class ConfigurationFrame extends JFrame {
 		txtProxyHost.setText(Configuration.getInstance().getProxy().getHost());
 		txtProxyPort.setText(String.valueOf(Configuration.getInstance().getProxy().getPort()));
 		txtProxySslPort.setText(String.valueOf(Configuration.getInstance().getProxy().getSslPort()));
-		chkFollowRedirect.setSelected(Configuration.getInstance().isFollowRedirect());
-		cbFilterStrategies.setSelectedItem(Configuration.getInstance().getFilterStrategy());
-		for (Pattern pattern : Configuration.getInstance().getPatterns())
-			tblFilters.addRow(pattern);
 		txtOutputFolder.setText(Configuration.getInstance().getOutputFolder());
 		chkSavePref.setSelected(Configuration.getInstance().isSaveConfiguration());
 		cbOutputEncoding.setSelectedItem(Charset.forName(Configuration.getInstance().getEncoding()));
+		chkFollowRedirect.setSelected(Configuration.getInstance().isFollowRedirect());
+		txtSimulationPackage.setText(Configuration.getInstance().getSimulationPackage());
+		txtSimulationClassName.setText(Configuration.getInstance().getSimulationClassName());
+
+		cbFilterStrategies.setSelectedItem(Configuration.getInstance().getFilterStrategy());
+		for (Pattern pattern : Configuration.getInstance().getPatterns())
+			tblFilters.addRow(pattern);
+
 	}
 }
