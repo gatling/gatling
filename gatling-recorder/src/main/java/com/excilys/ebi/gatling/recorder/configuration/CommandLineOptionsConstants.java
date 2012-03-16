@@ -28,6 +28,9 @@ public class CommandLineOptionsConstants {
 
 	public static final String PROXY_HTTP_PORT_OPTION = "-pp";
 	public static final String PROXY_HTTP_PORT_ALIAS = "--proxy-port";
+	
+	public static final String FOLLOW_REDIRECT_OPTION = "-fr";
+	public static final String FOLLOW_REDIRECT_ALIAS = "--follow-redirect";
 
 	public static final String PROXY_HTTPS_PORT_OPTION = "-pps";
 	public static final String PROXY_HTTPS_PORT_ALIAS = "--proxy-port-ssl";

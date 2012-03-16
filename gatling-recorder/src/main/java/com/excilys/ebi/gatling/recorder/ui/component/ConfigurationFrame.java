@@ -61,6 +61,8 @@ public class ConfigurationFrame extends JFrame {
 	public final JTextField txtProxyPort = new JTextField(null, 4);
 	public final JTextField txtProxySslPort = new JTextField(null, 4);
 
+	public final JCheckBox chkFollowRedirect = new JCheckBox("Follow redirect");
+
 	public final JComboBox cbFilterStrategies = new JComboBox();
 	public final JCheckBox chkSavePref = new JCheckBox("Save preferences");
 	public final JTextField txtOutputFolder = new JTextField(47);
@@ -121,37 +123,37 @@ public class ConfigurationFrame extends JFrame {
 		/***** Creating Top Panel (Network) *****/
 		pnlTop = new JPanel(new BorderLayout());
 
-		/* Gatling Image */
+		// Gatling Image
 		JPanel pnlImage = new JPanel();
 		pnlImage.add(new JLabel(Commons.getGatlingImage()));
 
-		/* Network Panel */
+		// Network Panel
 		JPanel pnlNetwork = new JPanel(new BorderLayout());
 		pnlNetwork.setBorder(BorderFactory.createTitledBorder("Network"));
 		pnlNetwork.setLayout(new BorderLayout());
 
-		/* Local proxy host panel */
+		// Local proxy host panel
 		JPanel localProxyHostPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		localProxyHostPanel.add(new JLabel("Listening port* : "));
 		localProxyHostPanel.add(new JLabel("                                    localhost"));
 
-		/* Local proxy ports panel */
+		// Local proxy ports panel
 		JPanel localProxyPortsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		localProxyPortsPanel.add(new JLabel("HTTP"));
 		localProxyPortsPanel.add(txtPort);
 		localProxyPortsPanel.add(new JLabel("HTTPS"));
 		localProxyPortsPanel.add(txtSslPort);
 
-		/* Local proxy panel */
+		// Local proxy panel
 		JPanel localProxyPanel = new JPanel(new FlowLayout());
 		localProxyPanel.add(localProxyHostPanel);
 		localProxyPanel.add(localProxyPortsPanel);
 
-		/* Outgoing proxy host panel */
+		// Outgoing proxy host panel
 		JPanel outgoingProxyHostPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		outgoingProxyHostPanel.add(new JLabel("Outgoing proxy : "));
 
-		/* Outgoing proxy ports panel */
+		// Outgoing proxy ports panel
 		JPanel outgoingProxyPortsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		outgoingProxyPortsPanel.add(new JLabel("host:"));
 		outgoingProxyPortsPanel.add(txtProxyHost);
@@ -160,20 +162,25 @@ public class ConfigurationFrame extends JFrame {
 		outgoingProxyPortsPanel.add(new JLabel("HTTPS"));
 		outgoingProxyPortsPanel.add(txtProxySslPort);
 
-		/* Outgoing proxy panel */
+		// Outgoing proxy panel
 		JPanel outgoingProxyPanel = new JPanel(new FlowLayout());
 		outgoingProxyPanel.add(outgoingProxyHostPanel);
 		outgoingProxyPanel.add(outgoingProxyPortsPanel);
 
-		/* Adding panels to newtworkPanel */
-		pnlNetwork.add(localProxyPanel, BorderLayout.NORTH);
-		pnlNetwork.add(outgoingProxyPanel, BorderLayout.SOUTH);
+		// Follow redirect pannel
+		JPanel followRedirectPannel = new JPanel(new FlowLayout());
+		followRedirectPannel.add(chkFollowRedirect);
 
-		/* Adding Image and network panel to top panel */
+		// Adding panels to newtworkPanel
+		pnlNetwork.add(localProxyPanel, BorderLayout.NORTH);
+		pnlNetwork.add(outgoingProxyPanel, BorderLayout.CENTER);
+		pnlNetwork.add(followRedirectPannel, BorderLayout.SOUTH);
+
+		// Adding Image and network panel to top panel
 		pnlTop.add(pnlImage, BorderLayout.WEST);
 		pnlTop.add(pnlNetwork, BorderLayout.EAST);
 
-		/* Adding panel to Frame */
+		// Adding panel to Frame
 		add(pnlTop, BorderLayout.NORTH);
 	}
 
@@ -187,7 +194,7 @@ public class ConfigurationFrame extends JFrame {
 		for (FilterStrategy ft : FilterStrategy.values())
 			cbFilterStrategies.addItem(ft);
 
-		/* Filter Actions panel */
+		// Filter Actions panel
 		JPanel filterActionsPanel = new JPanel();
 		filterActionsPanel.add(new JLabel("Strategy"));
 		filterActionsPanel.add(cbFilterStrategies);
@@ -195,11 +202,11 @@ public class ConfigurationFrame extends JFrame {
 		filterActionsPanel.add(btnFiltersDel);
 		filterActionsPanel.add(btnClear);
 
-		/* Adding panels to centerPanel */
+		// Adding panels to centerPanel
 		pnlCenter.add(tblFilters, BorderLayout.CENTER);
 		pnlCenter.add(filterActionsPanel, BorderLayout.PAGE_END);
 
-		/* Adding panel to Frame */
+		// Adding panel to Frame
 		add(pnlCenter, BorderLayout.CENTER);
 	}
 
@@ -208,7 +215,7 @@ public class ConfigurationFrame extends JFrame {
 		pnlBottom = new JPanel();
 		pnlBottom.setLayout(new BorderLayout());
 
-		/* Output Folder Panel */
+		// Output Folder Panel
 		JPanel outputFolderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		outputFolderPanel.add(new JLabel("Output folder* : "));
 		outputFolderPanel.add(txtOutputFolder);
@@ -217,7 +224,7 @@ public class ConfigurationFrame extends JFrame {
 		for (Charset c : Charset.availableCharsets().values())
 			cbOutputEncoding.addItem(c);
 
-		/* Output Panel */
+		// Output Panel
 		JPanel outputPanel = new JPanel(new BorderLayout());
 		outputPanel.setBorder(BorderFactory.createTitledBorder("Output"));
 		outputPanel.add(outputFolderPanel, BorderLayout.NORTH);
@@ -228,18 +235,18 @@ public class ConfigurationFrame extends JFrame {
 
 		outputPanel.add(outputFormatPanel, BorderLayout.WEST);
 
-		/* Start Action Panel */
+		// Start Action Panel
 		JPanel startActionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		startActionPanel.add(chkSavePref);
 		startActionPanel.add(btnStart);
 
 		chkSavePref.setHorizontalTextPosition(SwingConstants.LEFT);
 
-		/* Adding panels to bottomPanel */
+		// Adding panels to bottomPanel
 		pnlBottom.add(outputPanel, BorderLayout.NORTH);
 		pnlBottom.add(startActionPanel, BorderLayout.SOUTH);
 
-		/* Adding panel to Frame */
+		// Adding panel to Frame
 		add(pnlBottom, BorderLayout.SOUTH);
 	}
 
@@ -333,6 +340,7 @@ public class ConfigurationFrame extends JFrame {
 		txtProxyHost.setText(Configuration.getInstance().getProxy().getHost());
 		txtProxyPort.setText(String.valueOf(Configuration.getInstance().getProxy().getPort()));
 		txtProxySslPort.setText(String.valueOf(Configuration.getInstance().getProxy().getSslPort()));
+		chkFollowRedirect.setSelected(Configuration.getInstance().isFollowRedirect());
 		cbFilterStrategies.setSelectedItem(Configuration.getInstance().getFilterStrategy());
 		for (Pattern pattern : Configuration.getInstance().getPatterns())
 			tblFilters.addRow(pattern);

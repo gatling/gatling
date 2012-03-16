@@ -6,25 +6,24 @@ import com.excilys.ebi.gatling.jdbc.Predef._
 
 class Simulation${date} extends Simulation {
 
-def apply ={
-	val urlBase = "${protocol}://${host}#if(${port} != -1):${port}#end"
+	def apply = {
+		val urlBase = "${baseURI.getScheme()}://${baseURI.getHost()}#if(${baseURI.getPort()} != -1):${baseURI.getPort()}#end"
 
-	val httpConf = httpConfig.baseURL(urlBase)#if(${proxy.getPort()} != 0).proxy("${proxy.getHost()}", ${proxy.getPort()})#if(${proxy.getSslPort()} != 0).httpsPort(${proxy.getSslPort()})#end#if($!{proxy.getUsername()}).credentials("${proxy.getUsername()}", "${proxy.getPassword()}")#end#end
-
-#foreach(${url} in ${urls.entrySet()})
-	val ${url.getKey()} = "${url.getValue()}"
-#end
+		val httpConf = httpConfig
+						.baseURL(urlBase)
+#if(${proxy.getPort()} != 0)						.proxy("${proxy.getHost()}", ${proxy.getPort()})
+#if(${proxy.getSslPort()} != 0)						.httpsPort(${proxy.getSslPort()})#end
+#if($!{proxy.getUsername()})						.credentials("${proxy.getUsername()}", "${proxy.getPassword()}")#end#end
+#if(${followRedirect})						.followRedirect#end
 
 #foreach (${h} in ${headers.entrySet()})
 #* Velocity can't unset a variable from the context, so we pre-defined the variable to false *#
 #set($otherHeaders = false)
 #set($otherHeaders = ${h.getValue().remove("headers")})
-	val ${h.getKey()} =#if($otherHeaders) $otherHeaders ++#end Map(
+		val ${h.getKey()} =#if($otherHeaders) $otherHeaders ++#end Map(
 #foreach (${header} in ${h.value.entrySet()})
-		"${header.getKey()}" -> """${header.getValue()}"""#if(${foreach.hasNext}),
-#else
-
-	)
+			"${header.getKey()}" -> """${header.getValue()}"""#if(${foreach.hasNext}),
+#else)
 #end
 #end
 #* We set again the otherHeaders, if we have to dump scala version for the scenario *#
@@ -34,31 +33,27 @@ def apply ={
 #if(!${chainEvents.isEmpty()})
 	#set($chain_number = 0)
 	#foreach(${chain} in ${chainEvents})
-	val chain_${chain_number} = chain
+		val chain_${chain_number} = chain
 	#foreach(${event} in ${chain})
 #parse("event.vm")
 	#end
 	#set($chain_number = $chain_number + 1)
-	
 	#end
-	
-	val scn = scenario("${name}")
+
+		val scn = scenario("${name}")
 		#set($chain_number = 0)
 		#foreach(${chain} in ${chainEvents})
-			.insertChain( chain_${chain_number} )
+				.insertChain( chain_${chain_number} )
 			#set($chain_number = $chain_number + 1)
 		#end
 #else
-
-	val scn = scenario("${name}")
+		val scn = scenario("${name}")
 #foreach(${event} in ${events})
 	#parse("event.vm")
 #end
 
 #end
 
-	List(
-		scn.configure users 1 protocolConfig httpConf
-	)
-}
+		List(scn.configure.users(1).protocolConfig(httpConf))
+	}
 }

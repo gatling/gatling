@@ -15,6 +15,8 @@
  */
 package com.excilys.ebi.gatling.recorder.http.event;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,15 +34,46 @@ public class ResponseReceivedEvent {
 	private Map<String, List<String>> requestParams = new LinkedHashMap<String, List<String>>();
 	private String headersId;
 	private boolean withBody;
-	private boolean withUrlBase;
 	private boolean withCheck;
 	private BasicAuth basicAuth;
+
+	private String requestUrl;
+	private String requestAbsoluteUrl;
 
 	public ResponseReceivedEvent(HttpRequest request, HttpResponse response, String requestContent, String responseContent) {
 		this.request = request;
 		this.response = response;
 		this.requestContent = requestContent;
 		this.responseContent = responseContent;
+	}
+
+	public void computeUrls(URI scenarioBaseURI) {
+
+		try {
+			URI uri = new URI(request.getUri());
+			requestAbsoluteUrl = new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), uri.getPath(), null, null).toString();
+
+			if (uri.getScheme().equals(scenarioBaseURI.getScheme()) //
+					&& uri.getHost().equals(scenarioBaseURI.getHost()) //
+					&& uri.getPort() == scenarioBaseURI.getPort()) {
+				requestUrl = uri.getPath();
+
+			} else {
+				requestUrl = requestAbsoluteUrl;
+			}
+
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+	}
+
+	public String getRequestUrl() {
+		return requestUrl;
+	}
+
+	public String getRequestAbsoluteUrl() {
+		return requestAbsoluteUrl;
 	}
 
 	public int getId() {
@@ -73,14 +106,6 @@ public class ResponseReceivedEvent {
 
 	public void setWithBody(boolean withBody) {
 		this.withBody = withBody;
-	}
-
-	public boolean isWithUrlBase() {
-		return withUrlBase;
-	}
-
-	public void setWithUrlBase(boolean withUrlBase) {
-		this.withUrlBase = withUrlBase;
 	}
 
 	public HttpRequest getRequest() {

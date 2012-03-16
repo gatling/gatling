@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -64,6 +65,7 @@ import org.codehaus.plexus.util.Base64;
 import org.codehaus.plexus.util.SelectorUtils;
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.netty.handler.codec.http.HttpRequest;
+import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.jboss.netty.handler.codec.http.QueryStringDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,8 +82,6 @@ import com.excilys.ebi.gatling.recorder.http.event.ShowConfigurationFrameEvent;
 import com.excilys.ebi.gatling.recorder.http.event.ShowRunningFrameEvent;
 import com.excilys.ebi.gatling.recorder.http.event.TagEvent;
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy;
-import com.google.common.collect.MapDifference;
-import com.google.common.collect.Maps;
 import com.google.common.eventbus.Subscribe;
 
 @SuppressWarnings("serial")
@@ -95,7 +95,7 @@ public class RunningFrame extends JFrame {
 	private Configuration configuration;
 	private GatlingHttpProxy proxy;
 	private Date startDate;
-	private Date lastRequest;
+	private Date lastRequestDate;
 	private PauseEvent pause;
 	private BasicAuth basicAuth = null;
 
@@ -109,16 +109,11 @@ public class RunningFrame extends JFrame {
 	private TextAreaPanel stringResponse = new TextAreaPanel("Response:");
 	private TextAreaPanel stringRequestBody = new TextAreaPanel("Request Body:");
 	private TextAreaPanel stringResponseBody = new TextAreaPanel("Response Body:");
-	private int numberOfRequests = 0;
 
-	private List<Object> listEvents = new ArrayList<Object>();
-	private String protocol;
-	private String host;
-	private int port;
-	private String urlBase = null;
-	private String urlBaseString = null;
-	private LinkedHashMap<String, String> urls = new LinkedHashMap<String, String>();
-	private LinkedHashMap<String, Map<String, String>> headers = new LinkedHashMap<String, Map<String, String>>();
+	private List<Object> scenarioEvents = new ArrayList<Object>();
+	private AtomicInteger requestCount = new AtomicInteger();
+	private URI baseURI = null;
+	private Map<String, Map<String, String>> headers = new LinkedHashMap<String, Map<String, String>>();
 
 	public RunningFrame() {
 
@@ -212,7 +207,7 @@ public class RunningFrame extends JFrame {
 					TagEvent tag = new TagEvent(txtTag.getText());
 					events.addElement(tag.toString());
 					executedEvents.ensureIndexIsVisible(events.getSize() - 1);
-					listEvents.add(tag);
+					scenarioEvents.add(tag);
 					txtTag.setText(EMPTY);
 				}
 			}
@@ -221,7 +216,7 @@ public class RunningFrame extends JFrame {
 		executedEvents.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (executedEvents.getSelectedIndex() >= 0) {
-					Object obj = listEvents.get(executedEvents.getSelectedIndex());
+					Object obj = scenarioEvents.get(executedEvents.getSelectedIndex());
 					if (obj instanceof ResponseReceivedEvent) {
 						ResponseReceivedEvent event = (ResponseReceivedEvent) obj;
 						stringRequest.txt.setText(event.getRequest().toString());
@@ -305,10 +300,10 @@ public class RunningFrame extends JFrame {
 				}
 
 				if (addRequest(event.getRequest())) {
-					if (lastRequest != null) {
+					if (lastRequestDate != null) {
 						Date newRequest = new Date();
-						long diff = newRequest.getTime() - lastRequest.getTime();
-						lastRequest = newRequest;
+						long diff = newRequest.getTime() - lastRequestDate.getTime();
+						lastRequestDate = newRequest;
 						pause = new PauseEvent(diff);
 					}
 				}
@@ -324,9 +319,9 @@ public class RunningFrame extends JFrame {
 					if (pause != null) {
 						events.addElement(pause.toString());
 						executedEvents.ensureIndexIsVisible(events.getSize() - 1);
-						listEvents.add(pause);
+						scenarioEvents.add(pause);
 					}
-					lastRequest = new Date();
+					lastRequestDate = new Date();
 					processRequest(event);
 				}
 			}
@@ -339,15 +334,10 @@ public class RunningFrame extends JFrame {
 		stringRequestBody.txt.setText(EMPTY);
 		stringResponseBody.txt.setText(EMPTY);
 		stringResponse.txt.setText(EMPTY);
-		listEvents.clear();
-		urls.clear();
+		scenarioEvents.clear();
 		headers.clear();
-		protocol = null;
-		host = null;
-		port = -1;
-		urlBase = null;
-		urlBaseString = null;
-		lastRequest = null;
+		baseURI = null;
+		lastRequestDate = null;
 	}
 
 	private boolean addRequest(HttpRequest request) {
@@ -387,43 +377,34 @@ public class RunningFrame extends JFrame {
 		return true;
 	}
 
+	private void initBaseURI(URI uri) {
+		if (baseURI == null) {
+			baseURI = uri;
+		}
+	}
+
 	private void processRequest(ResponseReceivedEvent event) {
+
+		// set id
+		int id = requestCount.getAndIncrement();
+		event.setId(id);
 
 		HttpRequest request = event.getRequest();
 
 		URI uri = null;
 		try {
 			uri = new URI(request.getUri());
-		} catch (URISyntaxException ex) {
-			LOGGER.error("Can't create URI from request uri (" + request.getUri() + ")" + ex.getStackTrace());
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
 		}
 
 		events.addElement(request.getMethod() + " | " + request.getUri());
 		executedEvents.ensureIndexIsVisible(events.getSize() - 1);
 
-		int id = ++numberOfRequests;
-		event.setId(id);
-
 		/* URLs */
-		if (urlBase == null) {
-			protocol = uri.getScheme();
-			host = uri.getHost();
-			port = uri.getPort();
-			urlBase = protocol + "://" + host;
-			urlBaseString = "PROTOCOL + \"://\" + HOST";
-			if (port != -1) {
-				urlBase += ":" + port;
-				urlBaseString += " + \":\" + PORT";
-			}
-		}
+		initBaseURI(uri);
 
-		String requestUrlBase = uri.getScheme() + "://" + uri.getHost();
-		if (uri.getPort() != -1)
-			requestUrlBase += ":" + uri.getPort();
-		if (requestUrlBase.equals(urlBase))
-			event.setWithUrlBase(true);
-		else
-			urls.put("url_" + id, requestUrlBase + uri.getPath());
+		event.computeUrls(baseURI);
 
 		String headerAuthorization = event.getRequest().getHeader("Authorization");
 		request.removeHeader("Authorization");
@@ -431,10 +412,10 @@ public class RunningFrame extends JFrame {
 			if (basicAuth == null) {
 				// Split on " " and take 2nd group (Basic credentialsInBase64==)
 				String credentials = new String(Base64.decodeBase64(headerAuthorization.split(" ")[1].getBytes()));
-				basicAuth = new BasicAuth(requestUrlBase, credentials.split(":")[0], credentials.split(":")[1]);
+				basicAuth = new BasicAuth(event.getRequestAbsoluteUrl(), credentials.split(":")[0], credentials.split(":")[1]);
 				event.setBasicAuth(basicAuth);
 			} else {
-				if (requestUrlBase.equals(basicAuth.getUrlBase()))
+				if (event.getRequestAbsoluteUrl().equals(basicAuth.getUrlBase()))
 					event.setBasicAuth(basicAuth);
 				else
 					basicAuth = null;
@@ -443,71 +424,30 @@ public class RunningFrame extends JFrame {
 
 		/* Headers */
 		Map<String, String> requestHeaders = new TreeMap<String, String>();
-		for (Entry<String, String> entry : request.getHeaders())
-			requestHeaders.put(entry.getKey(), entry.getValue());
-		requestHeaders.remove("Cookie");
 
-		int bestChoice = 0;
-		String headerKey = EMPTY;
-		MapDifference<String, String> diff;
-		Map<String, String> fullHeaders = new TreeMap<String, String>();
-		boolean containsHeaders = false;
+		for (Entry<String, String> entry : request.getHeaders()) {
+			if (!entry.getKey().equals("Cookie"))
+				requestHeaders.put(entry.getKey(), entry.getValue());
+		}
 
-		if (headers.size() > 0) {
-			for (Entry<String, Map<String, String>> header : headers.entrySet()) {
+		String headersId = null;
+		for (Entry<String, Map<String, String>> headersEntry : headers.entrySet()) {
 
-				fullHeaders = new TreeMap<String, String>(header.getValue());
-				containsHeaders = false;
+			Map<String, String> headersGroup = headersEntry.getValue();
 
-				if (header.getValue().containsKey("headers")) {
-					fullHeaders.putAll(headers.get(header.getValue().get("headers")));
-					fullHeaders.remove("headers");
-					containsHeaders = true;
-				}
-
-				diff = Maps.difference(fullHeaders, requestHeaders);
-				LOGGER.debug(diff.toString());
-				if (diff.areEqual()) {
-					headerKey = header.getKey();
-					bestChoice = 1;
-					break;
-				} else if (diff.entriesOnlyOnLeft().size() == 0 && diff.entriesDiffering().size() == 0 && !containsHeaders) {
-					// header are included in requestHeaders
-					headerKey = header.getKey();
-					bestChoice = 2;
-				} else if (bestChoice > 2 && diff.entriesOnlyOnRight().size() == 0 && diff.entriesDiffering().size() == 0 && !containsHeaders) {
-					// requestHeaders are included in header
-					headerKey = header.getKey();
-					bestChoice = 3;
-				}
+			if (headersGroup.equals(requestHeaders)) {
+				headersId = headersEntry.getKey();
+				break;
 			}
 		}
 
-		switch (bestChoice) {
-		case 1:
-			event.setHeadersId(headerKey);
-			break;
-		case 2:
-			diff = Maps.difference(headers.get(headerKey), requestHeaders);
-			TreeMap<String, String> tm2 = new TreeMap<String, String>(diff.entriesOnlyOnRight());
-			headers.put("headers_" + id, tm2);
-			headers.get("headers_" + id).put("headers", headerKey);
-			event.setHeadersId("headers_" + id);
-			break;
-		case 3:
-			diff = Maps.difference(headers.get(headerKey), requestHeaders);
-			TreeMap<String, String> tm3 = new TreeMap<String, String>(diff.entriesInCommon());
-			headers.put("headers_" + id, tm3);
-			event.setHeadersId("headers_" + id);
-			headers.remove(headerKey);
-			tm3 = new TreeMap<String, String>(diff.entriesOnlyOnLeft());
-			headers.put(headerKey, tm3);
-			headers.get(headerKey).put("headers", "headers_" + id);
-			break;
-		default:
-			headers.put("headers_" + id, requestHeaders);
-			event.setHeadersId("headers_" + id);
+		if (headersId == null) {
+			headersId = "headers_" + headers.size();
+			headers.put(headersId, requestHeaders);
+
 		}
+
+		event.setHeadersId(headersId);
 
 		/* Add check if status is not in 20X */
 		if ((event.getResponse().getStatus().getCode() < 200) || (event.getResponse().getStatus().getCode() > 210))
@@ -530,7 +470,7 @@ public class RunningFrame extends JFrame {
 			}
 		}
 
-		listEvents.add(event);
+		scenarioEvents.add(event);
 	}
 
 	private void dumpRequestBody(int idEvent, String content) {
@@ -572,37 +512,103 @@ public class RunningFrame extends JFrame {
 		return "Simulation" + FORMAT.format(date) + ".scala";
 	}
 
+	private boolean isRedirect(HttpResponse response) {
+		int responseStatus = response.getStatus().getCode();
+		return responseStatus == 301 || responseStatus == 302;
+	}
+
+	private List<Object> filterEvents() {
+
+		if (configuration.isFollowRedirect()) {
+
+			List<Object> filteredEvents = new ArrayList<Object>();
+
+			ResponseReceivedEvent redirectChainStart = null;
+
+			for (Object event : scenarioEvents) {
+
+				if (event instanceof ResponseReceivedEvent) {
+					ResponseReceivedEvent responseReceivedEvent = ResponseReceivedEvent.class.cast(event);
+
+					if (isRedirect(responseReceivedEvent.getResponse())) {
+
+						if (redirectChainStart == null)
+							// reaching start of redirect chain
+							redirectChainStart = responseReceivedEvent;
+
+					} else if (redirectChainStart != null) {
+						// reaching end of redirect chain
+						// create a new wrapper event
+						ResponseReceivedEvent wrapper = new ResponseReceivedEvent(redirectChainStart.getRequest(), responseReceivedEvent.getResponse(), null, null);
+						wrapper.setId(redirectChainStart.getId());
+						wrapper.setHeadersId(redirectChainStart.getHeadersId());
+						wrapper.computeUrls(baseURI);
+						filteredEvents.add(wrapper);
+
+						// reset
+						redirectChainStart = null;
+
+					} else {
+						filteredEvents.add(event);
+					}
+				} else if (redirectChainStart != null) {
+					// not inside a redirect chain
+					filteredEvents.add(event);
+				}
+			}
+			return filteredEvents;
+
+		} else {
+			return scenarioEvents;
+		}
+	}
+
+	private Map<String, Map<String, String>> filterHeaders(List<Object> events) {
+
+		Map<String, Map<String, String>> filteredHeaders = new TreeMap<String, Map<String, String>>();
+
+		for (Object scenarioEvent : events) {
+			if (scenarioEvent instanceof ResponseReceivedEvent) {
+				String headersId = ResponseReceivedEvent.class.cast(scenarioEvent).getHeadersId();
+				filteredHeaders.put(headersId, headers.get(headersId));
+			}
+		}
+
+		return filteredHeaders;
+	}
+
 	private void saveScenario() {
+
+		List<Object> filteredEvents = filterEvents();
+		Map<String, Map<String, String>> filteredHeaders = filterHeaders(filteredEvents);
+
 		VelocityEngine ve = new VelocityEngine();
 		ve.setProperty("file.resource.loader.class", ClasspathResourceLoader.class.getName());
 		ve.init();
 
 		VelocityContext context = new VelocityContext();
-		context.put("protocol", protocol);
-		context.put("host", host);
-		context.put("port", port);
-		context.put("urlBase", urlBaseString);
+		context.put("baseURI", baseURI);
 		context.put("proxy", configuration.getProxy());
-		context.put("urls", urls);
-		context.put("headers", headers);
+		context.put("followRedirect", configuration.isFollowRedirect());
+		context.put("headers", filteredHeaders);
 		context.put("name", "Scenario name");
 
-		if (listEvents.size() > EVENTS_GROUPING) {
+		if (filteredEvents.size() > EVENTS_GROUPING) {
 			List<List<Object>> subListsEvents = new ArrayList<List<Object>>();
-			int numberOfSubLists = listEvents.size() / EVENTS_GROUPING + 1;
+			int numberOfSubLists = filteredEvents.size() / EVENTS_GROUPING + 1;
 			for (int i = 0; i < numberOfSubLists; i++)
-				subListsEvents.add(listEvents.subList(0 + EVENTS_GROUPING * i, Math.min(EVENTS_GROUPING * (i + 1), listEvents.size() - 1)));
+				subListsEvents.add(filteredEvents.subList(0 + EVENTS_GROUPING * i, Math.min(EVENTS_GROUPING * (i + 1), filteredEvents.size() - 1)));
 
 			context.put("chainEvents", subListsEvents);
 			context.put("events", new ArrayList<Object>());
 		} else {
-			context.put("events", listEvents);
+			context.put("events", filteredEvents);
 			context.put("chainEvents", new ArrayList<List<Object>>());
 		}
 
 		context.put("package", Configuration.getInstance().getIdePackage());
 		context.put("date", FORMAT.format(startDate));
-		URI uri = URI.create("");
+		URI uri = URI.create(EMPTY);
 		context.put("URI", uri);
 
 		Template template = null;

@@ -111,6 +111,9 @@ public class ConfigurationValidatorListener implements ActionListener {
 			}
 		}
 
+		// Set follow redirect
+		config.setFollowRedirect(frame.chkFollowRedirect.isSelected());
+
 		config.setFilterStrategy((FilterStrategy) frame.cbFilterStrategies.getSelectedItem());
 		// Set urls filters into a list
 		config.setPatterns(new ArrayList<Pattern>());

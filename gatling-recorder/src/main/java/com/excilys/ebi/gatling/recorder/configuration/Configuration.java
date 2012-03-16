@@ -30,6 +30,7 @@ public class Configuration {
 		instance.setPort(c.getPort());
 		instance.setSslPort(c.getSslPort());
 		instance.setProxy(c.getProxy());
+		instance.setFollowRedirect(c.isFollowRedirect());
 		instance.setFilterStrategy(c.getFilterStrategy());
 		instance.setPatterns(c.getPatterns());
 		instance.setOutputFolder(c.getOutputFolder());
@@ -57,6 +58,7 @@ public class Configuration {
 	private int port = 8000;
 	private int sslPort = 8001;
 	private ProxyConfig proxy = new ProxyConfig();
+	private boolean followRedirect;
 	private FilterStrategy filterStrategy = FilterStrategy.NONE;
 	private List<Pattern> patterns = new ArrayList<Pattern>();
 	private String outputFolder = System.getProperty("user.home");
@@ -153,5 +155,13 @@ public class Configuration {
 
 	public void setEncoding(String encoding) {
 		this.encoding = encoding;
+	}
+
+	public boolean isFollowRedirect() {
+		return followRedirect;
+	}
+
+	public void setFollowRedirect(boolean followRedirect) {
+		this.followRedirect = followRedirect;
 	}
 }

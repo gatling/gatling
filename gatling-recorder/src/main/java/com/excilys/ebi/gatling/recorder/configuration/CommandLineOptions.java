@@ -17,6 +17,8 @@ package com.excilys.ebi.gatling.recorder.configuration;
 
 import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.ENCODING_ALIAS;
 import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.ENCODING_OPTION;
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.FOLLOW_REDIRECT_ALIAS;
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.FOLLOW_REDIRECT_OPTION;
 import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.LOCAL_HTTPS_PORT_ALIAS;
 import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.LOCAL_HTTPS_PORT_OPTION;
 import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.LOCAL_HTTP_PORT_ALIAS;
@@ -52,6 +54,9 @@ public class CommandLineOptions {
 
 	@Option(name = PROXY_HTTPS_PORT_OPTION, usage = "Outgoing proxy SSL port", aliases = PROXY_HTTPS_PORT_ALIAS)
 	private int proxyPortSsl = Configuration.getInstance().getProxy().getSslPort();
+
+	@Option(name = FOLLOW_REDIRECT_OPTION, usage = "Outgoing proxy SSL port", aliases = FOLLOW_REDIRECT_ALIAS)
+	private boolean followRedirect = Configuration.getInstance().isFollowRedirect();
 
 	@Option(name = OUTPUT_FOLDER_OPTION, usage = "Define the output folder for results", aliases = OUTPUT_FOLDER_ALIAS)
 	private String outputFolder;
@@ -103,6 +108,14 @@ public class CommandLineOptions {
 
 	public void setProxyPortSsl(int proxyPortSsl) {
 		this.proxyPortSsl = proxyPortSsl;
+	}
+
+	public boolean isFollowRedirect() {
+		return followRedirect;
+	}
+
+	public void setFollowRedirect(boolean followRedirect) {
+		this.followRedirect = followRedirect;
 	}
 
 	public String getOutputFolder() {
