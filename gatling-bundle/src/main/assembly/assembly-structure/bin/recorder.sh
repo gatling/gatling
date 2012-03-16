@@ -15,24 +15,19 @@
 # limitations under the License.
 #
 
-if [ -n "${GATLING_HOME+x}" ]; then
-	echo "GATLING_HOME already set to: $GATLING_HOME"
-else
-	if [ $(basename `pwd -P`) = "bin" ]; then
-		# If was started with 'sh filename'
-		if [ $0 = "recorder.sh" ]; then
-			export GATLING_HOME=$(dirname $(dirname `pwd -P`/$0))
-		else
-			export GATLING_HOME=$(dirname $(dirname $(dirname `pwd -P`/$0)))
-		fi
-	else
-		export GATLING_HOME=$(cd $(dirname $(dirname $0)); pwd -P)
-	fi
-	echo "GATLING_HOME not set, using default location ($GATLING_HOME)"
-fi
+OLDDIR=`pwd`
+BIN_DIR=`dirname $0`
+cd ${BIN_DIR}/.. && DEFAULT_GATLING_HOME=`pwd` && cd ${OLDDIR}
 
-JAVA_OPTS="-server -XX:+UseThreadPriorities -XX:ThreadPriorityPolicy=42 -Xms512M -Xmx512M -Xmn100M -Xss1024k -XX:+HeapDumpOnOutOfMemoryError -XX:+AggressiveOpts -XX:+OptimizeStringConcat -XX:+UseFastAccessorMethods -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:SurvivorRatio=8 -XX:MaxTenuringThreshold=1 -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly -XX:+UseNUMA"
+GATLING_HOME=${GATLING_HOME:=${DEFAULT_GATLING_HOME}}
+GATLING_CONF=${GATLING_CONF:="$GATLING_HOME/conf"}
 
-CLASSPATH="$GATLING_HOME/lib/*:$GATLING_HOME/conf"
+export GATLING_HOME GATLING_CONF
+
+echo "GATLING_HOME is set to ${GATLING_HOME}"
+
+JAVA_OPTS="-server -XX:+UseThreadPriorities -XX:ThreadPriorityPolicy=42 -Xms512M -Xmx512M -Xmn100M -Xss1024k -XX:+HeapDumpOnOutOfMemoryError -XX:+AggressiveOpts -XX:+OptimizeStringConcat -XX:+UseFastAccessorMethods -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:SurvivorRatio=8 -XX:MaxTenuringThreshold=1 -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly -XX:+UseNUMA ${JAVA_OPTS}"
+
+CLASSPATH="$GATLING_HOME/lib/*:$GATLING_CONF:${JAVA_CLASSPATH}"
 
 java $JAVA_OPTS -cp $CLASSPATH com.excilys.ebi.gatling.recorder.ui.GatlingHttpProxyUI $@
