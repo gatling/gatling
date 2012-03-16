@@ -119,7 +119,7 @@ public class RunningFrame extends JFrame {
 
 		/* Initialization of the frame */
 		setTitle("Gatling Recorder - Running...");
-		setMinimumSize(new Dimension(800, 640));
+		setMinimumSize(new Dimension(1024, 768));
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		GridBagLayout gbl = new GridBagLayout();

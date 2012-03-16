@@ -88,7 +88,7 @@ public class ConfigurationFrame extends JFrame {
 
 		setTitle("Gatling Recorder - Configuration");
 		setLayout(new BorderLayout());
-		setMinimumSize(new Dimension(800, 640));
+		setMinimumSize(new Dimension(1024, 768));
 		setResizable(true);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
