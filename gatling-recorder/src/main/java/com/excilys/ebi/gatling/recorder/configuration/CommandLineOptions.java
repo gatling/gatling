@@ -15,38 +15,54 @@
  */
 package com.excilys.ebi.gatling.recorder.configuration;
 
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.ENCODING_ALIAS;
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.ENCODING_OPTION;
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.LOCAL_HTTPS_PORT_ALIAS;
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.LOCAL_HTTPS_PORT_OPTION;
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.LOCAL_HTTP_PORT_ALIAS;
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.LOCAL_HTTP_PORT_OPTION;
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.OUTPUT_FOLDER_ALIAS;
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.OUTPUT_FOLDER_OPTION;
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.PACKAGE_ALIAS;
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.PACKAGE_OPTION;
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.PROXY_HOST_ALIAS;
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.PROXY_HOST_OPTION;
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.PROXY_HTTPS_PORT_ALIAS;
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.PROXY_HTTPS_PORT_OPTION;
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.PROXY_HTTP_PORT_ALIAS;
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.PROXY_HTTP_PORT_OPTION;
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.REQUEST_BODIES_FOLDER_ALIAS;
+import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.REQUEST_BODIES_FOLDER_OPTION;
+
 import org.kohsuke.args4j.Option;
 
 public class CommandLineOptions {
 
-	@Option(name = "-lp", usage = "Local port", aliases = "--local-port")
+	@Option(name = LOCAL_HTTP_PORT_OPTION, usage = "Local port", aliases = LOCAL_HTTP_PORT_ALIAS)
 	private int localPort = Configuration.getInstance().getPort();
 
-	@Option(name = "-lps", usage = "Local SSL port", aliases = "--local-port-ssl")
+	@Option(name = LOCAL_HTTPS_PORT_OPTION, usage = "Local SSL port", aliases = LOCAL_HTTPS_PORT_ALIAS)
 	private int localPortSsl = Configuration.getInstance().getSslPort();
 
-	@Option(name = "-ph", usage = "Outgoing proxy host", aliases = "--proxy-host")
+	@Option(name = PROXY_HOST_OPTION, usage = "Outgoing proxy host", aliases = PROXY_HOST_ALIAS)
 	private String proxyHost = Configuration.getInstance().getProxy().getHost();
 
-	@Option(name = "-pp", usage = "Outgoing proxy port", aliases = "--proxy-port")
+	@Option(name = PROXY_HTTP_PORT_OPTION, usage = "Outgoing proxy port", aliases = PROXY_HTTP_PORT_ALIAS)
 	private int proxyPort = Configuration.getInstance().getProxy().getPort();
 
-	@Option(name = "-pps", usage = "Outgoing proxy SSL port", aliases = "--proxy-port-ssl")
+	@Option(name = PROXY_HTTPS_PORT_OPTION, usage = "Outgoing proxy SSL port", aliases = PROXY_HTTPS_PORT_ALIAS)
 	private int proxyPortSsl = Configuration.getInstance().getProxy().getSslPort();
 
-	@Option(name = "-of", usage = "Define the output folder for results", aliases = "--output-folder")
+	@Option(name = OUTPUT_FOLDER_OPTION, usage = "Define the output folder for results", aliases = OUTPUT_FOLDER_ALIAS)
 	private String outputFolder;
 
-	@Option(name = "-bf", usage = "Define the folder in which the request bodies will be dumped", aliases = "--request-bodies-folder")
+	@Option(name = REQUEST_BODIES_FOLDER_OPTION, usage = "Define the folder in which the request bodies will be dumped", aliases = REQUEST_BODIES_FOLDER_ALIAS)
 	private String requestBodiesFolder;
 
-	@Option(name = "-run", usage = "Skip the configuration frame (need to set -of, listens on 8000 & 8001)")
-	private boolean runningFrame;
-
-	@Option(name = "-ide")
+	@Option(name = PACKAGE_OPTION, usage = "Set the package of the generated Simulation class", aliases = PACKAGE_ALIAS)
 	private String idePackage;
-	
-	@Option(name = "-encoding", usage = "Set the encoding for file operations")
+
+	@Option(name = ENCODING_OPTION, usage = "Set the encoding for file operations", aliases = ENCODING_ALIAS)
 	private String encoding;
 
 	public int getLocalPort() {
@@ -95,14 +111,6 @@ public class CommandLineOptions {
 
 	public void setOutputFolder(String outputFolder) {
 		this.outputFolder = outputFolder;
-	}
-
-	public boolean isRunningFrame() {
-		return runningFrame;
-	}
-
-	public void setRunningFrame(boolean runningFrame) {
-		this.runningFrame = runningFrame;
 	}
 
 	public String getIdePackage() {

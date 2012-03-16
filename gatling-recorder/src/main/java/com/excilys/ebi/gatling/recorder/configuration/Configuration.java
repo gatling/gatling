@@ -46,9 +46,6 @@ public class Configuration {
 		if (c.getOutputFolder() != null)
 			instance.setOutputFolder(c.getOutputFolder());
 
-		if (c.isRunningFrame())
-			instance.setConfigurationSkipped(true);
-
 		instance.setIdePackage(c.getIdePackage());
 		instance.setRequestBodiesFolder(c.getRequestBodiesFolder());
 		if (c.getEncoding() != null)
@@ -66,7 +63,6 @@ public class Configuration {
 	private boolean saveConfiguration;
 	private String encoding = "UTF-8";
 	private transient String requestBodiesFolder;
-	private transient boolean configurationSkipped;
 	private transient String idePackage;
 
 	private Configuration() {
@@ -129,14 +125,6 @@ public class Configuration {
 		this.saveConfiguration = saveConfiguration;
 	}
 
-	public boolean isConfigurationSkipped() {
-		return configurationSkipped;
-	}
-
-	public void setConfigurationSkipped(boolean skipConfiguration) {
-		this.configurationSkipped = skipConfiguration;
-	}
-
 	public String getIdePackage() {
 		return idePackage;
 	}
@@ -148,7 +136,7 @@ public class Configuration {
 	@Override
 	public String toString() {
 		return "Configuration [port=" + port + ", sslPort=" + sslPort + ", proxy=" + proxy + ", filterStrategy=" + filterStrategy + ", patterns=" + patterns + ", outputFolder="
-				+ outputFolder + ", saveConfiguration=" + saveConfiguration + ", configurationSkipped=" + configurationSkipped + "]";
+				+ outputFolder + ", saveConfiguration=" + saveConfiguration + "]";
 	}
 
 	public String getRequestBodiesFolder() {

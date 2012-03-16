@@ -89,7 +89,7 @@ public class RunningFrame extends JFrame {
 
 	public static final Format FORMAT = FastDateFormat.getInstance("yyyyMMddHHmmss");
 
-	private static final Logger logger = LoggerFactory.getLogger(RunningFrame.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(RunningFrame.class);
 	private static final int EVENTS_GROUPING = 100;
 
 	private Configuration configuration;
@@ -245,10 +245,7 @@ public class RunningFrame extends JFrame {
 				saveScenario();
 				proxy.shutdown();
 				proxy = null;
-				if (!Configuration.getInstance().isConfigurationSkipped())
-					getEventBus().post(new ShowConfigurationFrameEvent());
-				else
-					System.exit(0);
+				getEventBus().post(new ShowConfigurationFrameEvent());
 			}
 		});
 	}
@@ -352,7 +349,7 @@ public class RunningFrame extends JFrame {
 		try {
 			uri = new URI(request.getUri());
 		} catch (URISyntaxException ex) {
-			logger.error("Can't create URI from request uri (" + request.getUri() + ")" + ex.getStackTrace());
+			LOGGER.error("Can't create URI from request uri (" + request.getUri() + ")" + ex.getStackTrace());
 			// FIXME error handling
 			return false;
 		}
@@ -392,7 +389,7 @@ public class RunningFrame extends JFrame {
 		try {
 			uri = new URI(request.getUri());
 		} catch (URISyntaxException ex) {
-			logger.error("Can't create URI from request uri (" + request.getUri() + ")" + ex.getStackTrace());
+			LOGGER.error("Can't create URI from request uri (" + request.getUri() + ")" + ex.getStackTrace());
 		}
 
 		events.addElement(request.getMethod() + " | " + request.getUri());
@@ -463,7 +460,7 @@ public class RunningFrame extends JFrame {
 				}
 
 				diff = Maps.difference(fullHeaders, requestHeaders);
-				logger.debug(diff.toString());
+				LOGGER.debug(diff.toString());
 				if (diff.areEqual()) {
 					headerKey = header.getKey();
 					bestChoice = 1;
@@ -545,7 +542,7 @@ public class RunningFrame extends JFrame {
 			fw = new FileWriter(new File(dir, FORMAT.format(startDate) + "_request_" + idEvent + ".txt"));
 			fw.write(content);
 		} catch (IOException ex) {
-			logger.error("Error, while dumping request body... {}", ex.getStackTrace());
+			LOGGER.error("Error, while dumping request body... {}", ex.getStackTrace());
 		} finally {
 			closeQuietly(fw);
 		}
@@ -611,7 +608,7 @@ public class RunningFrame extends JFrame {
 			writer.flush();
 
 		} catch (IOException e) {
-			logger.error("Error, while saving scenario..." + e.getStackTrace());
+			LOGGER.error("Error, while saving scenario..." + e.getStackTrace());
 
 		} finally {
 			closeQuietly(writer);

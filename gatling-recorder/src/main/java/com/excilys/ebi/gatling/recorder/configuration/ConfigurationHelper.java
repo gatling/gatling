@@ -59,11 +59,6 @@ public final class ConfigurationHelper {
 		CmdLineParser parser = new CmdLineParser(cliOpts);
 		try {
 			parser.parseArgument(args);
-			if (cliOpts.isRunningFrame()) {
-				if (cliOpts.getOutputFolder() == null)
-					throw new CmdLineException(parser, "'-run' must be used with '-of'\n");
-			}
-
 			Configuration.initFromCommandLineOptions(cliOpts);
 		} catch (CmdLineException e) {
 			System.err.println(e.getMessage() + "\n");
