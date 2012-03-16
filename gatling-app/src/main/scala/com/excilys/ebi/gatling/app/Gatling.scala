@@ -69,7 +69,7 @@ object Gatling extends Logging {
 		// if arguments are incorrect, usage message is displayed
 	}
 
-	def start(options: Options) = new Gatling(options: Options).launch
+	def start(options: Options) = new Gatling(options: Options)
 }
 
 class Gatling(options: Options) extends Logging {
@@ -79,7 +79,7 @@ class Gatling(options: Options) extends Logging {
 	// Initializes configuration
 	GatlingConfiguration.setUp(options.configFileName, options.dataFolder, options.requestBodiesFolder, options.resultsFolder, options.simulationSourcesFolder)
 
-	def launch {
+	def apply {
 		val runUuids = options.reportsOnlyFolder match {
 			case Some(reportsOnlyFolder) => List(reportsOnlyFolder)
 			case None =>
