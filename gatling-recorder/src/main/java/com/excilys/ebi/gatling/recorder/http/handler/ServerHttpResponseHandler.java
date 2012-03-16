@@ -16,17 +16,27 @@
 package com.excilys.ebi.gatling.recorder.http.handler;
 
 import static com.excilys.ebi.gatling.recorder.http.event.RecorderEventBus.getEventBus;
+import static org.apache.commons.lang.StringUtils.EMPTY;
 
+import java.io.UnsupportedEncodingException;
+
+import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.excilys.ebi.gatling.recorder.configuration.Configuration;
 import com.excilys.ebi.gatling.recorder.http.event.MessageReceivedEvent;
 import com.excilys.ebi.gatling.recorder.http.event.ResponseReceivedEvent;
 
 public class ServerHttpResponseHandler extends SimpleChannelHandler {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ServerHttpResponseHandler.class);
+
 	private final HttpRequest request;
 	private final ChannelHandlerContext requestContext;
 
@@ -42,9 +52,28 @@ public class ServerHttpResponseHandler extends SimpleChannelHandler {
 
 		HttpResponse response = HttpResponse.class.cast(event.getMessage());
 
-		getEventBus().post(new ResponseReceivedEvent(request, response));
+		String requestContent = decodeContent(request.getContent());
+		String responseContent = decodeContent(response.getContent());
+
+		getEventBus().post(new ResponseReceivedEvent(request, response, requestContent, responseContent));
 
 		// Send back to client
 		requestContext.getChannel().write(response);
+	}
+
+	private String decodeContent(ChannelBuffer channelBuffer) {
+		int read = channelBuffer.readableBytes();
+		int index = channelBuffer.readerIndex();
+
+		byte[] rb = new byte[read];
+		channelBuffer.readBytes(rb);
+		channelBuffer.readerIndex(index);
+
+		try {
+			return new String(rb, Configuration.getInstance().getEncoding());
+		} catch (UnsupportedEncodingException e) {
+			LOGGER.error("Couldn't decode content", e);
+			return EMPTY;
+		}
 	}
 }

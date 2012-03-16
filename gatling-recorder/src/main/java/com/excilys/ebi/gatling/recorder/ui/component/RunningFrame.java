@@ -108,6 +108,7 @@ public class RunningFrame extends JFrame {
 	private TextAreaPanel stringRequest = new TextAreaPanel("Request:");
 	private TextAreaPanel stringResponse = new TextAreaPanel("Response:");
 	private TextAreaPanel stringRequestBody = new TextAreaPanel("Request Body:");
+	private TextAreaPanel stringResponseBody = new TextAreaPanel("Response Body:");
 	private int numberOfRequests = 0;
 
 	private List<Object> listEvents = new ArrayList<Object>();
@@ -141,7 +142,8 @@ public class RunningFrame extends JFrame {
 
 		stringRequest.setPreferredSize(new Dimension(330, 100));
 		JSplitPane requestResponsePane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(stringRequest), new JScrollPane(stringResponse));
-		final JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, requestResponsePane, stringRequestBody);
+		JSplitPane bodiesPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, stringRequestBody, stringResponseBody);
+		final JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, requestResponsePane, bodiesPane);
 
 		JScrollPane panelHostsCertificate = new JScrollPane(requiredHostsCertificate);
 		panelHostsCertificate.setPreferredSize(new Dimension(300, 100));
@@ -224,11 +226,14 @@ public class RunningFrame extends JFrame {
 						ResponseReceivedEvent event = (ResponseReceivedEvent) obj;
 						stringRequest.txt.setText(event.getRequest().toString());
 						stringResponse.txt.setText(event.getResponse().toString());
-						stringRequestBody.txt.setText(new String(event.getRequest().getContent().array()));
+						stringRequestBody.txt.setText(event.getRequestContent());
+						stringResponseBody.txt.setText(event.getResponseContent());
+
 					} else {
 						stringRequest.txt.setText(EMPTY);
 						stringResponse.txt.setText(EMPTY);
 						stringRequestBody.txt.setText(EMPTY);
+						stringResponseBody.txt.setText(EMPTY);
 					}
 				}
 			}
@@ -332,6 +337,7 @@ public class RunningFrame extends JFrame {
 		events.removeAllElements();
 		stringRequest.txt.setText(EMPTY);
 		stringRequestBody.txt.setText(EMPTY);
+		stringResponseBody.txt.setText(EMPTY);
 		stringResponse.txt.setText(EMPTY);
 		listEvents.clear();
 		urls.clear();

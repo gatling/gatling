@@ -26,6 +26,8 @@ public class ResponseReceivedEvent {
 
 	private final HttpRequest request;
 	private final HttpResponse response;
+	private final String requestContent;
+	private final String responseContent;
 	private int id;
 	private Map<String, List<String>> requestParams = new LinkedHashMap<String, List<String>>();
 	private String headersId;
@@ -34,9 +36,11 @@ public class ResponseReceivedEvent {
 	private boolean withCheck;
 	private BasicAuth basicAuth;
 
-	public ResponseReceivedEvent(HttpRequest request, HttpResponse response) {
+	public ResponseReceivedEvent(HttpRequest request, HttpResponse response, String requestContent, String responseContent) {
 		this.request = request;
 		this.response = response;
+		this.requestContent = requestContent;
+		this.responseContent = responseContent;
 	}
 
 	public int getId() {
@@ -103,4 +107,11 @@ public class ResponseReceivedEvent {
 		this.basicAuth = basicAuth;
 	}
 
+	public String getRequestContent() {
+		return requestContent;
+	}
+
+	public String getResponseContent() {
+		return responseContent;
+	}
 }
