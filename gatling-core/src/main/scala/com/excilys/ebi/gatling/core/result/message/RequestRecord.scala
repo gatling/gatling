@@ -28,10 +28,10 @@ import com.excilys.ebi.gatling.core.result.message.RecordType.ACTION
  * @param executionEndDate the date on which the action was completed
  * @param requestSendingEndDate the date on which the request was finished being sent
  * @param responseReceivingStartDate the date on which the response was started being received
- * @param resultStatus the status of the action
- * @param resultMessage the message of the action on completion
+ * @param requestStatus the status of the action
+ * @param requestMessage the message of the action on completion
  */
-case class RequestRecord(scenarioName: String, userId: Int, requestName: String, executionStartDate: Long, executionEndDate: Long, requestSendingEndDate: Long, responseReceivingStartDate: Long, resultStatus: RequestStatus.RequestStatus, resultMessage: String) extends Record(ACTION) {
+case class RequestRecord(scenarioName: String, userId: Int, requestName: String, executionStartDate: Long, executionEndDate: Long, requestSendingEndDate: Long, responseReceivingStartDate: Long, requestStatus: RequestStatus.RequestStatus, requestMessage: String) extends Record(ACTION) {
 
 	lazy val responseTime = executionEndDate - executionStartDate
 

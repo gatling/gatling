@@ -15,7 +15,15 @@
  */
 package com.excilys.ebi.gatling.mojo;
 
-import com.excilys.ebi.gatling.ant.GatlingTask;
+import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
+import static java.util.Arrays.asList;
+import static org.codehaus.plexus.util.StringUtils.join;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
@@ -30,14 +38,8 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.Commandline;
 import org.apache.tools.ant.types.Path;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static java.util.Arrays.asList;
-import static org.codehaus.plexus.util.StringUtils.join;
-import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
+import com.excilys.ebi.gatling.ant.GatlingTask;
+import com.excilys.ebi.gatling.app.OptionsConstants;
 
 /**
  * Mojo to execute Gatling.
@@ -49,12 +51,12 @@ import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME
  */
 public class GatlingMojo extends AbstractMojo {
 
-	public static final String[] DEFAULT_INCLUDES = { "*.txt", "*.scala" };
+	public static final String[] DEFAULT_INCLUDES = { "**/*.scala" };
 
 	/**
 	 * Runs simulation but does not generate reports. By default false.
 	 * 
-	 * @parameter expression="${gatling.noReports}" alias="nr" 
+	 * @parameter expression="${gatling.noReports}" alias="nr"
 	 *            default-value="false"
 	 * @description Runs simulation but does not generate reports
 	 */
@@ -111,15 +113,7 @@ public class GatlingMojo extends AbstractMojo {
 	 * @parameter expression="${gatling.simulations}" alias="s"
 	 * @description A comma-separated list of simulations to run
 	 */
-	protected String simulations;
-
-	/**
-	 * Uses this package to start the simulations
-	 * 
-	 * @parameter expression="${gatling.simulationsPackage}" alias="sp"
-	 * @description Uses this package to start the simulations
-	 */
-	protected String simulationsPackage;
+	protected String simulations = OptionsConstants.SIMULATIONS_ALL;
 
 	/**
 	 * Uses this folder as the folder where feeders are stored
@@ -139,14 +133,6 @@ public class GatlingMojo extends AbstractMojo {
 	 *              stored
 	 */
 	protected File requestBodiesFolder;
-
-	/**
-	 * Uses this folder as folder for assets
-	 * 
-	 * @parameter expression="${gatling.assetsFolder}" alias="af"
-	 * @description Uses this folder as folder for assets
-	 */
-	protected File assetsFolder;
 
 	/**
 	 * Uses this folder as the folder where results are stored
@@ -255,23 +241,19 @@ public class GatlingMojo extends AbstractMojo {
 
 			// Arguments
 			List<String> args = new ArrayList<String>();
-			args.addAll(asList("-cf", configFile.getCanonicalPath(), "-df", dataFolder.getCanonicalPath(), "-rf", resultsFolder.getCanonicalPath(), "-bf",
-					requestBodiesFolder.getCanonicalPath(), "-sf", simulationsFolder.getCanonicalPath(), "-s", simulations));
+			args.addAll(asList("-" + OptionsConstants.CONFIG_FILE_OPTION, configFile.getCanonicalPath(),//
+					"-" + OptionsConstants.DATA_FOLDER_OPTION, dataFolder.getCanonicalPath(),//
+					"-" + OptionsConstants.RESULTS_FOLDER_OPTION, resultsFolder.getCanonicalPath(),//
+					"-" + OptionsConstants.REQUEST_BODIES_FOLDER_OPTION, requestBodiesFolder.getCanonicalPath(),//
+					"-" + OptionsConstants.SIMULATIONS_FOLDER_OPTION, simulationsFolder.getCanonicalPath(),//
+					"-" + OptionsConstants.SIMULATIONS_OPTION, simulations));
 
 			if (noReports) {
-				args.add("-nr");
+				args.add("-" + OptionsConstants.NO_REPORTS_OPTION);
 			}
 
 			if (reportsOnly != null) {
-				args.addAll(asList("-ro", reportsOnly.getCanonicalPath()));
-			}
-
-			if (assetsFolder != null) {
-				args.addAll(asList("-af", assetsFolder.getCanonicalPath()));
-			}
-
-			if (simulationsPackage != null) {
-				args.addAll(asList("-sp", simulationsPackage));
+				args.addAll(asList("-" + OptionsConstants.REPORTS_ONLY_OPTION, reportsOnly.getCanonicalPath()));
 			}
 
 			return args;

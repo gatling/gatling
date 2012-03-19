@@ -25,43 +25,31 @@ import org.apache.tools.ant.types.Path;
  * @author <a href="mailto:nicolas.huray@gmail.com">Nicolas Huray</a>
  */
 public class GatlingTask extends Java {
-	
+
 	public static final String GATLING_CLASSPATH_REF_NAME = "gatling.classpath";
 
-    private static final String DEFAULT_JVM_ARGS =
-            "-server -XX:+UseThreadPriorities " +
-                    "-XX:ThreadPriorityPolicy=42 " +
-                    "-Xms512M -Xmx512M -Xmn100M -Xss1024k " +
-                    "-XX:+HeapDumpOnOutOfMemoryError " +
-                    "-XX:+AggressiveOpts " +
-                    "-XX:+OptimizeStringConcat " +
-                    "-XX:+UseFastAccessorMethods " + "" +
-                    "-XX:+UseParNewGC " +
-                    "-XX:+UseConcMarkSweepGC " +
-                    "-XX:+CMSParallelRemarkEnabled " +
-                    "-XX:SurvivorRatio=8 " +
-                    "-XX:MaxTenuringThreshold=1 " +
-                    "-XX:CMSInitiatingOccupancyFraction=75 " +
-                    "-XX:+UseCMSInitiatingOccupancyOnly";
+	private static final String DEFAULT_JVM_ARGS = "-server -XX:+UseThreadPriorities " + "-XX:ThreadPriorityPolicy=42 " + "-Xms512M -Xmx512M -Xmn100M -Xss1024k "
+			+ "-XX:+HeapDumpOnOutOfMemoryError " + "-XX:+AggressiveOpts " + "-XX:+OptimizeStringConcat " + "-XX:+UseFastAccessorMethods " + "" + "-XX:+UseParNewGC "
+			+ "-XX:+UseConcMarkSweepGC " + "-XX:+CMSParallelRemarkEnabled " + "-XX:SurvivorRatio=8 " + "-XX:MaxTenuringThreshold=1 " + "-XX:CMSInitiatingOccupancyFraction=75 "
+			+ "-XX:+UseCMSInitiatingOccupancyOnly";
 
-    public GatlingTask() {
-        createJvmarg().setLine(DEFAULT_JVM_ARGS);
-        setFork(true);
-        setFailonerror(true);
-    }
-    
-    private Path getGatlingClasspath() {
-        Object gatlingClasspath = getProject().getReference(GATLING_CLASSPATH_REF_NAME);
-        if (!(gatlingClasspath instanceof Path)) {
-            throw new BuildException("Please create a path with id " + GATLING_CLASSPATH_REF_NAME);
-        }
-        return (Path) gatlingClasspath;
-    }
+	public GatlingTask() {
+		createJvmarg().setLine(DEFAULT_JVM_ARGS);
+		setFork(true);
+		setFailonerror(true);
+	}
 
+	private Path getGatlingClasspath() {
+		Object gatlingClasspath = getProject().getReference(GATLING_CLASSPATH_REF_NAME);
+		if (!(gatlingClasspath instanceof Path)) {
+			throw new BuildException("Please create a path with id " + GATLING_CLASSPATH_REF_NAME);
+		}
+		return (Path) gatlingClasspath;
+	}
 
-    public void execute() {
-        setClasspath(getGatlingClasspath());
-        setClassname("com.excilys.ebi.gatling.app.Gatling");
-        super.execute();
-    }
+	public void execute() {
+		setClasspath(getGatlingClasspath());
+		setClassname("com.excilys.ebi.gatling.app.Gatling");
+		super.execute();
+	}
 }

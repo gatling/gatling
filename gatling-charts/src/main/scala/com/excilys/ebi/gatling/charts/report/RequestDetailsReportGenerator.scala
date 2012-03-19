@@ -53,8 +53,8 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 				val scatterPlotFailuresData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, KO)
 
 				// Statistics
-				val successRequests = dataList.filter(_.resultStatus == OK)
-				val failedRequests = dataList.filter(_.resultStatus != OK)
+				val successRequests = dataList.filter(_.requestStatus == OK)
+				val failedRequests = dataList.filter(_.requestStatus != OK)
 				val numberOfRequests = dataList.size
 				val numberOfSuccessfulRequests = successRequests.size
 				val numberOfFailedRequests = numberOfRequests - numberOfSuccessfulRequests

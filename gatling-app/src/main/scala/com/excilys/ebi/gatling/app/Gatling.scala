@@ -25,18 +25,22 @@ import scala.tools.nsc.{ Settings, Global }
 
 import org.joda.time.DateTime.now
 
+import com.excilys.ebi.gatling.app.OptionsConstants.{ SIMULATIONS_OPTION, SIMULATIONS_FOLDER_OPTION, SIMULATIONS_FOLDER_ALIAS, SIMULATIONS_ALL, SIMULATIONS_ALIAS, RESULTS_FOLDER_OPTION, RESULTS_FOLDER_ALIAS, REQUEST_BODIES_FOLDER_OPTION, REQUEST_BODIES_FOLDER_ALIAS, REPORTS_ONLY_OPTION, REPORTS_ONLY_ALIAS, NO_REPORTS_OPTION, NO_REPORTS_ALIAS, DATA_FOLDER_OPTION, DATA_FOLDER_ALIAS, CONFIG_FILE_OPTION, CONFIG_FILE_ALIAS }
 import com.excilys.ebi.gatling.app.UserSelection.DEFAULT_RUN_ID
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.activeSessionsFile
 import com.excilys.ebi.gatling.charts.report.ReportsGenerator
 import com.excilys.ebi.gatling.core.config.{ GatlingFiles, GatlingConfiguration }
+import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.core.result.message.RunRecord
 import com.excilys.ebi.gatling.core.runner.Runner
 import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.twitter.io.TempDirectory
 
+import akka.actor.Actor.registry
 import grizzled.slf4j.Logging
 import scopt.OptionParser
+import com.excilys.ebi.gatling.app.Gatling.useActorSystem
 
 /**
  * Object containing entry point of application
@@ -53,19 +57,32 @@ object Gatling extends Logging {
 		val options: Options = Options()
 
 		val cliOptsParser = new OptionParser("gatling") {
-			opt("nr", "no-reports", "Runs simulation but does not generate reports", { options.noReports = true })
-			opt("ro", "reports-only", "<folderName>", "Generates the reports for the simulation in <folderName>", { v: String => options.reportsOnlyFolder = Some(v) })
-			opt("cf", "config-file", "<fileName>", "Uses <fileName> as the configuration file", { v: String => options.configFileName = Some(v) })
-			opt("df", "data-folder", "<folderName>", "Uses <folderName> as the folder where feeders are stored", { v: String => options.dataFolder = Some(v) })
-			opt("rf", "results-folder", "<folderName>", "Uses <folderName> as the folder where results are stored", { v: String => options.resultsFolder = Some(v) })
-			opt("bf", "request-bodies-folder", "<folderName>", "Uses <folderName> as the folder where request bodies are stored", { v: String => options.requestBodiesFolder = Some(v) })
-			opt("sf", "simulations-folder", "<folderName>", "Uses <folderName> to discover simulations that could be run", { v: String => options.simulationSourcesFolder = Some(v) })
-			opt("s", "simulations", "<simulationNames>", "Runs the <simulationNames> sequentially", { v: String => options.simulations = Some(v.split(",").toList) })
+			opt(NO_REPORTS_OPTION, NO_REPORTS_ALIAS, "Runs simulation but does not generate reports", { options.noReports = true })
+			opt(REPORTS_ONLY_OPTION, REPORTS_ONLY_ALIAS, "<folderName>", "Generates the reports for the simulation in <folderName>", { v: String => options.reportsOnlyFolder = Some(v) })
+			opt(CONFIG_FILE_OPTION, CONFIG_FILE_ALIAS, "<fileName>", "Uses <fileName> as the configuration file", { v: String => options.configFileName = Some(v) })
+			opt(DATA_FOLDER_OPTION, DATA_FOLDER_ALIAS, "<folderName>", "Uses <folderName> as the folder where feeders are stored", { v: String => options.dataFolder = Some(v) })
+			opt(RESULTS_FOLDER_OPTION, RESULTS_FOLDER_ALIAS, "<folderName>", "Uses <folderName> as the folder where results are stored", { v: String => options.resultsFolder = Some(v) })
+			opt(REQUEST_BODIES_FOLDER_OPTION, REQUEST_BODIES_FOLDER_ALIAS, "<folderName>", "Uses <folderName> as the folder where request bodies are stored", { v: String => options.requestBodiesFolder = Some(v) })
+			opt(SIMULATIONS_FOLDER_OPTION, SIMULATIONS_FOLDER_ALIAS, "<folderName>", "Uses <folderName> to discover simulations that could be run", { v: String => options.simulationSourcesFolder = Some(v) })
+			opt(SIMULATIONS_OPTION, SIMULATIONS_ALIAS, "<simulationNames>", "Runs the <simulationNames> sequentially", { v: String => options.simulations = Some(v.split(",").toList) })
 		}
 
 		// if arguments are incorrect, usage message is displayed
 		if (cliOptsParser.parse(args))
 			new Gatling(options).start
+	}
+
+	def useActorSystem[T](block: => T): T = {
+		try {
+			block
+
+		} finally {
+			// shut all actors down
+			registry.shutdownAll
+
+			// closes all the resources used during simulation
+			ResourceRegistry.closeAll
+		}
 	}
 }
 
@@ -95,6 +112,7 @@ class Gatling(options: Options) extends Logging {
 				}
 
 				val userSelection = options.simulations match {
+					case Some(List(SIMULATIONS_ALL)) => autoSelect(classes, classes.map(_.getName))
 					case Some(simulations) => autoSelect(classes, simulations)
 					case None => interactiveSelect(classes)
 				}
@@ -208,18 +226,22 @@ class Gatling(options: Options) extends Logging {
 
 		val size = selection.simulationClasses.size
 
-		for (i <- 0 until size) yield {
-			val simulation = selection.simulationClasses(i)
-			val name = simulation.getName
-			println(">> Running simulation (" + (i + 1) + "/" + size + ") - " + name)
-			println("Simulation " + name + " started...")
+		useActorSystem {
+			for (i <- 0 until size) yield {
+				val simulationClass = selection.simulationClasses(i)
+				val name = simulationClass.getName
+				println(">> Running simulation (" + (i + 1) + "/" + size + ") - " + name)
+				println("Simulation " + name + " started...")
 
-			val runInfo = new RunRecord(now, selection.runId, selection.runName)
+				val runInfo = new RunRecord(now, selection.runId, selection.runName)
 
-			new Runner(runInfo, simulation.newInstance()()).run
-			println("Simulation Finished.")
+				val simulation = simulationClass.newInstance()
+				val configurations = simulation()
+				new Runner(runInfo, configurations).run
 
-			runInfo.runUuid
+				println("Simulation Finished.")
+				runInfo.runUuid
+			}
 		}
 	}
 

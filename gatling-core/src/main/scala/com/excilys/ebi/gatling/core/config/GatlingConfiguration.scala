@@ -59,8 +59,8 @@ class GatlingConfiguration(
 	val fileConfiguration: GatlingFileConfiguration =
 		try {
 			// Locate configuration file, depending on users options
-			val configFile = configFileName map { fileName =>
-				info("Loading custom configuration file: conf/" + fileName)
+			val configFile = configFileName.map { fileName =>
+				info("Loading custom configuration file: " + fileName)
 				fileName
 			} getOrElse {
 				info("Loading default configuration file")
@@ -71,10 +71,10 @@ class GatlingConfiguration(
 		} catch {
 			case e =>
 				error(e)
-				throw new Exception("Could not parse configuration file!")
+				throw new RuntimeException("Could not parse configuration file!", e)
 		}
 
-	val resultsFolderPath : Option[Path] = resultsFolder.map(s => s)
+	val resultsFolderPath: Option[Path] = resultsFolder.map(s => s)
 	val dataFolderPath: Option[Path] = dataFolder.map(s => s)
 	val requestBodiesFolderPath: Option[Path] = requestBodiesFolder.map(s => s)
 	val simulationsFolderPath: Option[Path] = simulationsFolder.map(s => s)

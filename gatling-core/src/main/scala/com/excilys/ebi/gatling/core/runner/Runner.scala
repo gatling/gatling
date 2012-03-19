@@ -20,13 +20,11 @@ import java.util.concurrent.CountDownLatch
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.resource.ResourceRegistry
-import com.excilys.ebi.gatling.core.result.message.{ RunRecord, InitializeDataWriter }
+import com.excilys.ebi.gatling.core.result.message.RunRecord
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.scenario.configuration.{ ScenarioConfigurationBuilder, ScenarioConfiguration }
 import com.excilys.ebi.gatling.core.session.Session
 
-import akka.actor.Actor.registry
 import akka.actor.{ Scheduler, ActorRef }
 import grizzled.slf4j.Logging
 
@@ -56,32 +54,22 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 	 * This method schedules the beginning of all scenarios
 	 */
 	def run {
-		try {
-			// Initialization of the data writer
-			DataWriter.instance ! InitializeDataWriter(runRecord, latch)
+		DataWriter.init(runRecord, latch)
 
-			debug("Launching All Scenarios")
+		debug("Launching All Scenarios")
 
-			// Scheduling all scenarios
-			scenariosAndConfigurations.map {
-				case (scenario, configuration) => {
-					val (delayDuration, delayUnit) = scenario.delay
-					Scheduler.scheduleOnce(() => startOneScenario(scenario, configuration.firstAction), delayDuration, delayUnit)
-				}
+		// Scheduling all scenarios
+		scenariosAndConfigurations.map {
+			case (scenario, configuration) => {
+				val (delayDuration, delayUnit) = scenario.delay
+				Scheduler.scheduleOnce(() => startOneScenario(scenario, configuration.firstAction), delayDuration, delayUnit)
 			}
-
-			debug("Finished Launching scenarios executions")
-			latch.await(configuration.simulationTimeOut, SECONDS)
-
-			debug("All scenarios finished, stoping actors")
-
-		} finally {
-			// shut all actors down
-			registry.shutdownAll
-
-			// closes all the resources used during simulation
-			ResourceRegistry.closeAll
 		}
+
+		debug("Finished Launching scenarios executions")
+		latch.await(configuration.simulationTimeOut, SECONDS)
+
+		debug("All scenarios finished, stoping actors")
 	}
 
 	/**

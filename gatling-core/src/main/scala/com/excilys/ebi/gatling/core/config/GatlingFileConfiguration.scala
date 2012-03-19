@@ -16,29 +16,32 @@
 package com.excilys.ebi.gatling.core.config
 
 import java.io.File
-
 import akka.config.{ ResourceImporter, Importer, FilesystemImporter, ConfigurationException, ConfigParser }
+import grizzled.slf4j.Logging
 
-object GatlingFileConfiguration {
-	val defaultPath = new File(".").getCanonicalPath
-	val defaultImporter = new FilesystemImporter(defaultPath)
+object GatlingFileConfiguration extends Logging {
+	val defaultPath = new File(Option(System.getenv("GATLING_HOME")).getOrElse(".")).getCanonicalPath
+	lazy val filesystemImporter = new FilesystemImporter(defaultPath)
+	lazy val resourceImporter = new ResourceImporter(getClass.getClassLoader)
 
-	def load(data: String, givenImporter: Importer = defaultImporter) = new GatlingFileConfiguration(new ConfigParser(importer = givenImporter).parse(data))
+	private def load(data: String, givenImporter: Importer) = new GatlingFileConfiguration(new ConfigParser(importer = givenImporter).parse(data))
 
-	def fromFile(filename: String, importer: Importer) = load(importer.importFile(filename), importer)
-
-	def fromFile(path: String, filename: String): GatlingFileConfiguration = fromFile(filename, new ResourceImporter(getClass.getClassLoader))
+	private def fromFile(filename: String, importer: Importer) = load(importer.importFile(filename), importer)
 
 	def fromFile(filename: String): GatlingFileConfiguration = {
-		val n = filename.lastIndexOf(File.pathSeparatorChar)
-		if (n < 0) fromFile(defaultPath, filename)
-		else fromFile(filename.substring(0, n), filename.substring(n + 1))
+
+		if (new File(filename).exists || new File(defaultPath, filename).exists) {
+			info("loading conf file from filesystem " + filename)
+			fromFile(filename, filesystemImporter)
+
+		} else {
+			info("loading conf file from classpath " + filename)
+			fromFile(filename, resourceImporter)
+		}
 	}
 }
 
-class GatlingFileConfiguration(val map: Map[String, Any]) {
-	private val trueValues = Set("true", "on")
-	private val falseValues = Set("false", "off")
+class GatlingFileConfiguration(map: Map[String, Any]) extends Logging {
 
 	def contains(key: String): Boolean = map contains key
 
@@ -48,89 +51,50 @@ class GatlingFileConfiguration(val map: Map[String, Any]) {
 
 	def getAny(key: String, defaultValue: Any): Any = getAny(key).getOrElse(defaultValue)
 
-	def getSeqAny(key: String): Seq[Any] = {
-		try {
-			map(key).asInstanceOf[Seq[Any]]
-		} catch {
-			case _ => Seq.empty[Any]
-		}
-	}
+	def getSeqAny(key: String): Seq[Any] = map
+		.get(key)
+		.getOrElse {
+			debug(key + " config is not defined")
+			Seq.empty[Any]
+		}.asInstanceOf[Seq[Any]]
 
 	def getString(key: String): Option[String] = map.get(key).map(_.toString)
 
 	def getString(key: String, defaultValue: String): String = getString(key).getOrElse(defaultValue)
 
-	def getList(key: String): Seq[String] = {
-		try {
-			map(key).asInstanceOf[Seq[String]]
-		} catch {
-			case _ => Seq.empty[String]
-		}
-	}
+	def getList(key: String): Seq[String] = map
+		.get(key)
+		.getOrElse {
+			debug(key + " config is not defined")
+			Seq.empty[String]
+		}.asInstanceOf[Seq[String]]
 
-	def getInt(key: String): Option[Int] = {
-		try {
-			Some(map(key).toString.toInt)
-		} catch {
-			case _ => None
-		}
-	}
+	def getInt(key: String): Option[Int] = getString(key).map(_.toInt)
 
 	def getInt(key: String, defaultValue: Int): Int = getInt(key).getOrElse(defaultValue)
 
-	def getLong(key: String): Option[Long] = {
-		try {
-			Some(map(key).toString.toLong)
-		} catch {
-			case _ => None
-		}
-	}
+	def getLong(key: String): Option[Long] = getString(key).map(_.toLong)
 
 	def getLong(key: String, defaultValue: Long): Long = getLong(key).getOrElse(defaultValue)
 
-	def getFloat(key: String): Option[Float] = {
-		try {
-			Some(map(key).toString.toFloat)
-		} catch {
-			case _ => None
-		}
-	}
+	def getFloat(key: String): Option[Float] = getString(key).map(_.toFloat)
 
 	def getFloat(key: String, defaultValue: Float): Float = getFloat(key).getOrElse(defaultValue)
 
-	def getDouble(key: String): Option[Double] = {
-		try {
-			Some(map(key).toString.toDouble)
-		} catch {
-			case _ => None
-		}
-	}
+	def getDouble(key: String): Option[Double] = getString(key).map(_.toDouble)
 
 	def getDouble(key: String, defaultValue: Double): Double = getDouble(key).getOrElse(defaultValue)
 
-	def getBoolean(key: String): Option[Boolean] = {
-		getString(key) flatMap { s =>
-			val isTrue = trueValues.contains(s)
-			if (!isTrue && !falseValues.contains(s)) None
-			else Some(isTrue)
-		}
-	}
+	def getBoolean(key: String): Option[Boolean] = getString(key).map(_.toBoolean)
 
-	def getBoolean(key: String, defaultValue: Boolean): Boolean = getBool(key).getOrElse(defaultValue)
+	def getBoolean(key: String, defaultValue: Boolean): Boolean = getBoolean(key).getOrElse(defaultValue)
 
-	def getBool(key: String): Option[Boolean] = getBoolean(key)
-
-	def getBool(key: String, defaultValue: Boolean): Boolean = getBoolean(key, defaultValue)
-
-	def apply(key: String): String = getString(key) match {
-		case None => throw new ConfigurationException("undefined config: " + key)
-		case Some(v) => v
-	}
+	def apply(key: String): String = getString(key).getOrElse(throw new ConfigurationException("undefined config: " + key))
 
 	def apply(key: String, defaultValue: String) = getString(key, defaultValue)
 	def apply(key: String, defaultValue: Int) = getInt(key, defaultValue)
 	def apply(key: String, defaultValue: Long) = getLong(key, defaultValue)
-	def apply(key: String, defaultValue: Boolean) = getBool(key, defaultValue)
+	def apply(key: String, defaultValue: Boolean) = getBoolean(key, defaultValue)
 
 	def getSection(name: String): Option[GatlingFileConfiguration] = {
 		val l = name.length + 1

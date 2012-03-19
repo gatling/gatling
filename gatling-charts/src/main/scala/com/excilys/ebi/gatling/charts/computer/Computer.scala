@@ -43,22 +43,22 @@ object Computer {
 
 	def maxResponseTime(data: Seq[RequestRecord]): Long = if (data.isEmpty) NO_PLOT_MAGIC_VALUE else data.maxBy(_.responseTime).responseTime
 
-	def computationByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus, computation: Seq[RequestRecord] => Long): List[(Long, Long)] =
+	def computationByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], requestStatus: RequestStatus, computation: Seq[RequestRecord] => Long): List[(Long, Long)] =
 		data
-			.map { case (time, results) => time -> results.filter(_.resultStatus == resultStatus) }
+			.map { case (time, results) => time -> results.filter(_.requestStatus == requestStatus) }
 			.map { case (time, results) => time -> computation(results) }
 			.toList
 
-	def responseTimeByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus): List[(Long, Long)] = computationByMillisecondAsList(data, resultStatus, averageResponseTime)
+	def responseTimeByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], requestStatus: RequestStatus): List[(Long, Long)] = computationByMillisecondAsList(data, requestStatus, averageResponseTime)
 
-	def latencyByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus): List[(Long, Long)] = computationByMillisecondAsList(data, resultStatus, averageLatency)
+	def latencyByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], requestStatus: RequestStatus): List[(Long, Long)] = computationByMillisecondAsList(data, requestStatus, averageLatency)
 
 	def numberOfRequestsPerSecond(data: SortedMap[Long, Seq[RequestRecord]]): SortedMap[Long, Int] = data.map { case (time, results) => time -> results.length }
 
 	def numberOfRequestsPerSecondAsList(data: SortedMap[Long, Seq[RequestRecord]]): List[(Long, Int)] = numberOfRequestsPerSecond(data).toList
 
-	def numberOfRequestsPerSecond(data: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus): List[(Long, Int)] =
-		numberOfRequestsPerSecondAsList(data.map { case (time, results) => time -> results.filter(_.resultStatus == resultStatus) })
+	def numberOfRequestsPerSecond(data: SortedMap[Long, Seq[RequestRecord]], requestStatus: RequestStatus): List[(Long, Int)] =
+		numberOfRequestsPerSecondAsList(data.map { case (time, results) => time -> results.filter(_.requestStatus == requestStatus) })
 
 	def numberOfRequestInResponseTimeRange(data: Seq[RequestRecord], lowerBound: Int, higherBound: Int): List[(String, Int)] = {
 
@@ -66,7 +66,7 @@ object Computer {
 		val (firstGroup, mediumGroup, lastGroup, failedGroup) = (groupNames(0), groupNames(1), groupNames(2), groupNames(3))
 
 		var grouped = data.groupBy {
-			case result if (result.resultStatus == KO) => failedGroup
+			case result if (result.requestStatus == KO) => failedGroup
 			case result if (result.responseTime < lowerBound) => firstGroup
 			case result if (result.responseTime > higherBound) => lastGroup
 			case _ => mediumGroup
@@ -85,10 +85,10 @@ object Computer {
 			.map { case ((_, rangeName), count) => (rangeName, count) }
 	}
 
-	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: SortedMap[Long, Int], requestData: SortedMap[Long, Seq[RequestRecord]], resultStatus: RequestStatus): List[(Int, Long)] = requestData
+	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: SortedMap[Long, Int], requestData: SortedMap[Long, Seq[RequestRecord]], requestStatus: RequestStatus): List[(Int, Long)] = requestData
 		.map {
 			case (time, results) => results
-				.filter(_.resultStatus == resultStatus)
+				.filter(_.requestStatus == requestStatus)
 				.map(requestsPerSecond.get(time).get -> _.responseTime)
 		}.toList
 		.flatten

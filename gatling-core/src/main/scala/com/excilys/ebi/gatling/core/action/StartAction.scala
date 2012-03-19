@@ -15,11 +15,10 @@
  */
 package com.excilys.ebi.gatling.core.action
 import java.lang.System.currentTimeMillis
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
-import com.excilys.ebi.gatling.core.result.message.RequestRecord
+
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
-import StartAction.START_OF_SCENARIO
+
 import akka.actor.ActorRef
 import grizzled.slf4j.Logging
 
@@ -49,8 +48,7 @@ class StartAction(next: ActorRef) extends Action with Logging {
 	 */
 	def execute(session: Session) {
 
-		val now = currentTimeMillis
-		DataWriter.instance ! RequestRecord(session.scenarioName, session.userId, START_OF_SCENARIO, now, now, now, now, OK, START_OF_SCENARIO)
+		DataWriter.startUser(session.scenarioName, session.userId, currentTimeMillis)
 
 		info("Starting user #" + session.userId)
 
