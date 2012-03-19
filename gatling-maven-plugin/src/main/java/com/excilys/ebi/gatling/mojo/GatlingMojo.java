@@ -18,6 +18,7 @@ package com.excilys.ebi.gatling.mojo;
 import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
 import static java.util.Arrays.asList;
 import static org.codehaus.plexus.util.StringUtils.join;
+import static org.codehaus.plexus.util.StringUtils.stripEnd;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -113,7 +114,7 @@ public class GatlingMojo extends AbstractMojo {
 	 * @parameter expression="${gatling.simulations}" alias="s"
 	 * @description A comma-separated list of simulations to run
 	 */
-	protected String simulations = OptionsConstants.SIMULATIONS_ALL;
+	protected String simulations;
 
 	/**
 	 * Uses this folder as the folder where feeders are stored
@@ -262,11 +263,15 @@ public class GatlingMojo extends AbstractMojo {
 		}
 	}
 
+	protected String fileNametoClassName(String fileName) {
+		return stripEnd(fileName, ".scala").replace('/', '.');
+	}
+
 	/**
 	 * Resolve simulation files to execute from the simulation folder and
 	 * includes/excludes.
 	 * 
-	 * @return a comma separated String of simulation files.
+	 * @return a comma separated String of simulation class names.
 	 */
 	protected String resolveSimulations(File simulationsFolder, List<String> includes, List<String> excludes) {
 		DirectoryScanner scanner = new DirectoryScanner();
@@ -289,7 +294,14 @@ public class GatlingMojo extends AbstractMojo {
 		// Resolve simulations to execute
 		scanner.scan();
 
-		return join(scanner.getIncludedFiles(), ",");
+		String[] includedFiles = scanner.getIncludedFiles();
+
+		List<String> includedClassNames = new ArrayList<String>(includedFiles.length);
+		for (String includedFile : includedFiles) {
+			includedClassNames.add(fileNametoClassName(includedFile));
+		}
+
+		return join(includedClassNames.iterator(), ",");
 	}
 
 	protected Project getProject() throws MojoExecutionException {

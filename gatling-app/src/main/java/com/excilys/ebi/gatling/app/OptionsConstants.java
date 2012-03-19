@@ -33,5 +33,4 @@ public class OptionsConstants {
 	public static final String SIMULATIONS_FOLDER_ALIAS = "simulations-folder";
 	public static final String SIMULATIONS_OPTION = "s";
 	public static final String SIMULATIONS_ALIAS = "simulations";
-	public static final String SIMULATIONS_ALL = "*";
 }
