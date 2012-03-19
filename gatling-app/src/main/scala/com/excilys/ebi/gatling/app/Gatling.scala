@@ -63,13 +63,10 @@ object Gatling extends Logging {
 			opt("s", "simulations", "<simulationNames>", "Runs the <simulationNames> sequentially", { v: String => options.simulations = Some(v.split(",").toList) })
 		}
 
-		if (cliOptsParser.parse(args))
-			start(options)
-
 		// if arguments are incorrect, usage message is displayed
+		if (cliOptsParser.parse(args))
+			new Gatling(options).start
 	}
-
-	def start(options: Options) = new Gatling(options: Options)
 }
 
 class Gatling(options: Options) extends Logging {
@@ -79,7 +76,7 @@ class Gatling(options: Options) extends Logging {
 	// Initializes configuration
 	GatlingConfiguration.setUp(options.configFileName, options.dataFolder, options.requestBodiesFolder, options.resultsFolder, options.simulationSourcesFolder)
 
-	def apply {
+	def start {
 		val runUuids = options.reportsOnlyFolder match {
 			case Some(reportsOnlyFolder) => List(reportsOnlyFolder)
 			case None =>
