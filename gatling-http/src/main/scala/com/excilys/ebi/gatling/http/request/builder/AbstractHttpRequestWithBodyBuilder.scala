@@ -30,13 +30,19 @@ import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestWithBodyBuilder.TEMPLATE_ENGINE
 
 object AbstractHttpRequestWithBodyBuilder {
-	val ENGINE = new TemplateEngine(List(GatlingFiles.requestBodiesFolder))
-	ENGINE.allowReload = false
-	ENGINE.escapeMarkup = false
-	// Register engine shutdown
-	ResourceRegistry.registerOnCloseCallback(() => ENGINE.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown)
+	lazy val TEMPLATE_ENGINE = initEngine
+
+	def initEngine: TemplateEngine = {
+		val engine = new TemplateEngine(List(GatlingFiles.requestBodiesFolder))
+		TEMPLATE_ENGINE.allowReload = false
+		TEMPLATE_ENGINE.escapeMarkup = false
+		// Register engine shutdown
+		ResourceRegistry.registerOnCloseCallback(() => engine.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown)
+		engine
+	}
 }
 
 /**
@@ -152,6 +158,6 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 		val bindings = for (value <- values) yield Binding(value._1, "String")
 		val templateValues = for (value <- values) yield (value._1 -> (value._2(session)))
 
-		AbstractHttpRequestWithBodyBuilder.ENGINE.layout(tplPath + SSP_EXTENSION, templateValues, bindings)
+		TEMPLATE_ENGINE.layout(tplPath + SSP_EXTENSION, templateValues, bindings)
 	}
 }
