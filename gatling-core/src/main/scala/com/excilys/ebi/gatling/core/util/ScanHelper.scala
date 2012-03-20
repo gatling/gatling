@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.util
-import java.io.{File => JFile}
-import java.net.{URI, JarURLConnection}
+import java.io.{ File => JFile }
+import java.net.{ URI, JarURLConnection }
 
+import scala.annotation.tailrec
 import scala.collection.JavaConverters.enumerationAsScalaIteratorConverter
-import scala.tools.nsc.io.{Path, Jar, Fileish, File}
+import scala.tools.nsc.io.{ Path, Jar, Fileish, File }
 
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
@@ -26,10 +27,10 @@ import com.twitter.io.StreamIO
 
 object ScanHelper {
 
-	def packageToStringPath(pkg: String): String = pkg.replace(".", File.separator)
+	val SEPARATOR = Character.valueOf(28).toString
 
-	def getPackageResources(pkg: String, deep: Boolean): Seq[Resource] = {
-		getClass.getClassLoader.getResources(pkg).asScala.map { packageURL =>
+	def getPackageResources(pkg: Path, deep: Boolean): Seq[Resource] = {
+		getClass.getClassLoader.getResources(pkg.toString.replace("\\", "/")).asScala.map { packageURL =>
 			packageURL.getProtocol match {
 				case "file" =>
 					val rootDir = File(new JFile(new URI(packageURL.toString).getSchemeSpecificPart)).toDirectory
@@ -52,12 +53,16 @@ object ScanHelper {
 		}.toList.flatten
 	}
 
-	def deepCopyPackageContent(pkg: String, targetDirectoryPath: Path) {
+	def deepCopyPackageContent(pkg: Path, targetDirectoryPath: Path) {
 
-		def getPathAfterPackage(path: Path, pkg: String): String = path.toString.split(packageToStringPath(pkg))(1)
+		def getPathStringAfterPackage(path: Path, pkg: Path): Path = {
+			val pathString = path.segments.mkString(SEPARATOR)
+			val pkgString = pkg.segments.mkString(SEPARATOR)
+			Path(pathString.split(pkgString).last.split(SEPARATOR))
+		}
 
 		getPackageResources(pkg, true).foreach { resource =>
-			val target = targetDirectoryPath / getPathAfterPackage(resource.path, pkg)
+			val target = targetDirectoryPath / getPathStringAfterPackage(resource.path, pkg)
 			resource.copyTo(target)
 		}
 	}
