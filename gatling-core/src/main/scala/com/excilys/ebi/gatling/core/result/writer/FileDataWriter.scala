@@ -19,9 +19,7 @@ import java.io.{ OutputStreamWriter, FileOutputStream, BufferedOutputStream }
 import java.lang.System.currentTimeMillis
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.CountDownLatch
-
 import scala.tools.nsc.io.File
-
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
@@ -31,9 +29,9 @@ import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, InitializeDa
 import com.excilys.ebi.gatling.core.util.DateHelper.toTimestamp
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
-
 import akka.actor.scala2ActorRef
 import grizzled.slf4j.Logging
+import com.excilys.ebi.gatling.core.util.IOHelper.use
 
 /**
  * File implementation of the DataWriter
@@ -142,13 +140,14 @@ class FileDataWriter extends DataWriter with Logging {
 
 			def closeIfLastMessage {
 				if (latch.getCount == 1 && self.dispatcher.mailboxIsEmpty(self)) {
-					try {
-						// Closes the OutputStreamWriter
-						osw.flush
-					} finally {
-						// Decrease the latch (should be at 0 here)
-						latch.countDown
-						osw.close
+					use(osw) { osw =>
+						try {
+							osw.flush
+						} finally {
+							// Decrease the latch (should be at 0 here)
+							latch.countDown
+							initialized.set(false)
+						}
 					}
 				}
 			}
