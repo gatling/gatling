@@ -67,12 +67,11 @@ class FileDataWriter extends DataWriter with Logging {
 	 * Method called when this actor receives a message
 	 */
 	def receive = {
-
 		// If the message is sent to initialize the writer
 		case InitializeDataWriter(runRecord, latch) => {
 
 			def initStreamWriter {
-				osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(File(simulationLogFile(runRecord.runUuid)).jfile, true)))
+				osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(simulationLogFile(runRecord.runUuid).toString)))
 			}
 
 			def printRunRecord {
