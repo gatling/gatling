@@ -63,7 +63,7 @@ object StringHelper extends Logging {
 	def parseEvaluatable(stringToFormat: String): EvaluatableString = {
 
 		def parseStaticParts: Array[String] = stringToFormat.split(elPatternString, -1)
-		
+
 		def parseDynamicParts: List[Session => Any] = {
 			elPattern.findAllIn(stringToFormat).matchData.map { data =>
 				val elContent = data.group(1)
@@ -85,7 +85,7 @@ object StringHelper extends Logging {
 						(session: Session) => session.getAttributeAsOption[Any](key) match {
 							case Some(x) => x
 							case None => {
-								error("Couldn't resolve session attribute}" + key)
+								error("Couldn't resolve session attribute " + key)
 								MISSING_SESSION_ATTRIBUTE
 							}
 						}
