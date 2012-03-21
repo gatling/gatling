@@ -16,21 +16,26 @@
 @REM
 
 rem set GATLING_HOME automatically if possible
-set "CURRENT_DIR=%cd%"
+set "OLD_DIR=%cd%"
+cd ..
+set "DEFAULT_GATLING_HOME=%cd%"
+cd %OLD_DIR%
+
 rem if gatling home is correctly set
 if exist "%GATLING_HOME%\bin\gatling.bat" goto gotHome
 rem if gatling home is not correctly set
 if not "%GATLING_HOME%" == "" goto badHome
 rem if not try current folder
-if exist "%CURRENT_DIR%\bin\gatling.bat" set "GATLING_HOME=%cd%" && goto gotHome
+if exist "%OLD_DIR%\bin\gatling.bat" set "GATLING_HOME=%OLD_DIR%" && goto gotHome
 rem if not try parent folder
-cd ..
-set "CURRENT_DIR=%cd%"
-if exist "%CURRENT_DIR%\bin\gatling.bat" set "GATLING_HOME=%cd%" && goto gotHome
+if exist "%DEFAULT_GATLING_HOME%\bin\gatling.bat" set "GATLING_HOME=%DEFAULT_GATLING_HOME%" && goto gotHome
 rem else tell user to set GATLING_HOME
 goto :noHome
 
 :gotHome
+
+echo GATLING_HOME is set to "%GATLING_HOME%"
+
 set JAVA_OPTS=-server -XX:+UseThreadPriorities -XX:ThreadPriorityPolicy=42 -Xms512M -Xmx512M -Xmn100M -Xss1024k -XX:+HeapDumpOnOutOfMemoryError -XX:+AggressiveOpts -XX:+OptimizeStringConcat -XX:+UseFastAccessorMethods -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:SurvivorRatio=8 -XX:MaxTenuringThreshold=1 -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly -XX:+UseNUMA %JAVA_OPTS%
 
 set CLASSPATH="%GATLING_HOME%"\lib\*;"%GATLING_HOME%"\conf;%JAVA_CLASSPATH%
