@@ -20,6 +20,7 @@ import java.net.URLDecoder
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters.asScalaBufferConverter
+import scala.collection.JavaConverters._
 
 import com.excilys.ebi.gatling.core.check.Check.applyChecks
 import com.excilys.ebi.gatling.core.check.Failure
@@ -29,6 +30,7 @@ import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.action.HttpRequestAction
+import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandler.REDIRECTED_REQUEST_NAME_PATTERN
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.request.HttpPhase.{ HttpPhase, CompletePageReceived }
@@ -41,6 +43,10 @@ import com.ning.http.client.{ Response, RequestBuilder, Request, HttpResponseSta
 import akka.actor.ActorRef
 import grizzled.slf4j.Logging
 
+object GatlingAsyncHandler {
+	val REDIRECTED_REQUEST_NAME_PATTERN = """(.+?) Redirect (\d+)""".r
+}
+
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
  *
@@ -52,12 +58,12 @@ import grizzled.slf4j.Logging
  * @param next the next action to be executed
  * @param requestName the name of the request
  */
-class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: ActorRef, requestName: String, originalRequest: Request, followRedirect: Boolean, requestStartDate: Long = currentTimeMillis)
+class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: ActorRef, requestName: String, originalRequest: Request, followRedirect: Boolean)
 		extends AsyncHandler[Void] with ProgressAsyncHandler[Void] with CookieHandling with Logging {
 
-	private val identifier = requestName + session.userId
-
 	private val responseBuilder = new ResponseBuilder
+
+	private val requestStartDate: Long = currentTimeMillis
 
 	// initialized in case the headers can't be sent (connection problem)
 	@volatile private var endOfRequestSendingDate: Option[Long] = None
@@ -109,7 +115,20 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 	def onThrowable(throwable: Throwable) {
 		warn("Request '" + requestName + "' failed", throwable)
 		val errorMessage = Option(throwable.getMessage).getOrElse(EMPTY)
-		sendLogAndExecuteNext(session, KO, errorMessage)
+		logAndExecuteNext(session, KO, errorMessage)
+	}
+
+	private def logRequest(newSession: Session, requestResult: RequestStatus, requestMessage: String): Long = {
+		val now = currentTimeMillis
+		val effectiveResponseEndDate = responseEndDate.getOrElse(now)
+		val effectiveEndOfRequestSendingDate = endOfRequestSendingDate.getOrElse(now)
+		val effectiveStartOfResponseReceivingDate = startOfResponseReceivingDate.getOrElse(now)
+		DataWriter.logRequest(session.scenarioName, session.userId, "Request " + requestName, requestStartDate, effectiveResponseEndDate, effectiveEndOfRequestSendingDate, effectiveStartOfResponseReceivingDate, requestResult, requestMessage)
+		effectiveResponseEndDate
+	}
+
+	private def executeNext(newSession: Session, effectiveResponseEndDate: Long) {
+		next ! newSession.setAttribute(Session.LAST_ACTION_DURATION_KEY, currentTimeMillis - effectiveResponseEndDate)
 	}
 
 	/**
@@ -120,15 +139,10 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 	 * @param requestMessage the message that will be logged
 	 * @param processingStartDate date of the beginning of the response processing
 	 */
-	private def sendLogAndExecuteNext(newSession: Session, requestResult: RequestStatus, requestMessage: String) {
+	private def logAndExecuteNext(newSession: Session, requestResult: RequestStatus, requestMessage: String) {
 
-		val now = currentTimeMillis
-		val effectiveResponseEndDate = responseEndDate.getOrElse(now)
-		val effectiveEndOfRequestSendingDate = endOfRequestSendingDate.getOrElse(now)
-		val effectivestartOfResponseReceivingDate = startOfResponseReceivingDate.getOrElse(now)
-		DataWriter.logRequest(session.scenarioName, session.userId, "Request " + requestName, requestStartDate, effectiveResponseEndDate, effectiveEndOfRequestSendingDate, effectivestartOfResponseReceivingDate, requestResult, requestMessage)
-
-		next ! newSession.setAttribute(Session.LAST_ACTION_DURATION_KEY, currentTimeMillis - effectiveResponseEndDate)
+		val effectiveResponseEndDate = logRequest(newSession, requestResult, requestMessage)
+		executeNext(newSession, effectiveResponseEndDate)
 	}
 
 	def getChecksForPhase(httpPhase: HttpPhase) = checks.filter(_.phase == httpPhase)
@@ -142,14 +156,14 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 		def checkPhasesRec(session: Session, phases: List[HttpPhase]) {
 
 			phases match {
-				case Nil => sendLogAndExecuteNext(session, OK, "Request Executed Successfully")
+				case Nil => logAndExecuteNext(session, OK, "Request Executed Successfully")
 				case phase :: otherPhases =>
 					var (newSessionWithSavedValues, checkResult) = applyChecks(session, response, getChecksForPhase(phase))
 
 					checkResult match {
 						case Failure(errorMessage) =>
 							warn("Check on request '" + requestName + "' failed : " + errorMessage)
-							sendLogAndExecuteNext(newSessionWithSavedValues, KO, errorMessage)
+							logAndExecuteNext(newSessionWithSavedValues, KO, errorMessage)
 						case _ => checkPhasesRec(newSessionWithSavedValues, otherPhases)
 
 					}
@@ -167,7 +181,16 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 			val request = builder.build
 			request.getHeaders().remove("Content-Length")
 
-			HttpRequestAction.CLIENT.executeRequest(request, new GatlingAsyncHandler(sessionWithUpdatedCookies, checks, next, requestName, request, followRedirect, requestStartDate))
+			val newRequestName = REDIRECTED_REQUEST_NAME_PATTERN.findFirstMatchIn(requestName) match {
+				case Some(nameMatch) =>
+					val requestBaseName = nameMatch.group(1)
+					val redirectCount = nameMatch.group(2).toInt
+					requestBaseName + " Redirect " + (redirectCount + 1)
+				case None => requestName + " Redirect 1"
+			}
+
+			logRequest(sessionWithUpdatedCookies, OK, newRequestName)
+			HttpRequestAction.CLIENT.executeRequest(request, new GatlingAsyncHandler(sessionWithUpdatedCookies, checks, next, newRequestName, request, followRedirect))
 		}
 
 		val sessionWithUpdatedCookies = storeCookies(session, response.getUri.toString, response.getCookies.asScala)
