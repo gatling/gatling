@@ -205,7 +205,7 @@ class Gatling(options: Options) extends Logging {
 		val selection = classes.size match {
 			case 0 =>
 				// If there is no simulation file
-				error("There are no simulation scripts. Please check that your scripts are in user-files/simulations and that they do not start with a .")
+				println("There is no simulation script. Please check that your scripts are in user-files/simulations")
 				sys.exit
 			case 1 =>
 				// If there is only one simulation file

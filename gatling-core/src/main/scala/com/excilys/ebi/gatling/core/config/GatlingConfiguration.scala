@@ -69,9 +69,7 @@ class GatlingConfiguration(
 
 			GatlingFileConfiguration.fromFile(configFile)
 		} catch {
-			case e =>
-				error(e)
-				throw new RuntimeException("Could not parse configuration file!", e)
+			case e => throw new RuntimeException("Could not parse configuration file!", e)
 		}
 
 	val resultsFolderPath: Option[Path] = resultsFolder.map(s => s)
