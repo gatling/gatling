@@ -44,12 +44,9 @@ object StringHelper extends Logging {
 
 	val INDEX_END = ")"
 
-	val MISSING_SESSION_ATTRIBUTE = "undefined"
-
 	val jdk6Pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
 
-	val elPatternString = """\$\{(.+?)\}"""
-	val elPattern = elPatternString.r
+	val elPattern = """\$\{(.+?)\}""".r
 	val elOccurrencePattern = """(.+?)\((\d+)\)""".r
 
 	/**
@@ -62,22 +59,20 @@ object StringHelper extends Logging {
 
 	def parseEvaluatable(stringToFormat: String): EvaluatableString = {
 
-		def parseStaticParts: Array[String] = stringToFormat.split(elPatternString, -1)
+		def parseStaticParts: Array[String] = elPattern.pattern.split(stringToFormat, -1)
 
 		def parseDynamicParts: List[Session => Any] = {
 			elPattern.findAllIn(stringToFormat).matchData.map { data =>
 				val elContent = data.group(1)
-				val occurrencePart = elOccurrencePattern.findFirstMatchIn(elContent)
-
-				occurrencePart match {
+				elOccurrencePattern.findFirstMatchIn(elContent) match {
 					case Some(occurrencePartMatch) =>
 						val key = occurrencePartMatch.group(1)
 						val occurrence = occurrencePartMatch.group(2).toInt
 						(session: Session) => session.getAttributeAsOption[Seq[Any]](key) match {
 							case Some(x) if (x.size > occurrence) => x(occurrence)
 							case _ => {
-								error("Couldn't resolve occurrence " + occurrence + " of session multivalued attribute " + key)
-								MISSING_SESSION_ATTRIBUTE
+								error(StringBuilder.newBuilder.append("Couldn't resolve occurrence ").append(occurrence).append(" of session multivalued attribute ").append(key))
+								EMPTY
 							}
 						}
 					case None =>
@@ -86,7 +81,7 @@ object StringHelper extends Logging {
 							case Some(x) => x
 							case None => {
 								error("Couldn't resolve session attribute " + key)
-								MISSING_SESSION_ATTRIBUTE
+								EMPTY
 							}
 						}
 				}
