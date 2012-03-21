@@ -16,37 +16,30 @@
 package com.excilys.ebi.gatling.http.ahc
 import java.lang.System.currentTimeMillis
 import java.lang.Void
-import scala.collection.JavaConverters._
-import scala.collection.immutable.HashMap
+import java.net.URLDecoder
+
+import scala.annotation.tailrec
+import scala.collection.JavaConverters.asScalaBufferConverter
+
 import com.excilys.ebi.gatling.core.check.Check.applyChecks
+import com.excilys.ebi.gatling.core.check.Failure
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ RequestStatus, OK, KO }
-import com.excilys.ebi.gatling.core.result.message.RequestRecord
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.http.Predef.SET_COOKIE
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.http.action.HttpRequestAction
 import com.excilys.ebi.gatling.http.check.HttpCheck
+import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.request.HttpPhase.{ HttpPhase, CompletePageReceived }
 import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
-import com.ning.http.client.{ ProgressAsyncHandler, Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, Cookie, AsyncHandler }
-import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
+import com.ning.http.client.ProgressAsyncHandler
+import com.ning.http.client.{ Response, RequestBuilder, Request, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, FluentStringsMap, AsyncHandler }
+
 import akka.actor.ActorRef
-import com.excilys.ebi.gatling.http.cookie.CookieHandling
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import java.util.concurrent.atomic.AtomicBoolean
-import com.excilys.ebi.gatling.http.action.HttpRequestAction
-import com.ning.http.client.RequestBuilder
-import com.ning.http.client.Request
-import java.net.URLDecoder
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.ning.http.client.RequestBuilderBase.RequestImpl
-import com.ning.http.client.FluentStringsMap
 import grizzled.slf4j.Logging
-import scala.annotation.tailrec
-import com.excilys.ebi.gatling.core.check.CheckResult
-import com.excilys.ebi.gatling.core.check.Failure
-import com.excilys.ebi.gatling.core.check.Success
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
@@ -163,19 +156,24 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 			}
 		}
 
-		val sessionWithUpdatedCookies = storeCookies(session, response.getUri.toString, response.getCookies.asScala)
-
-		if (followRedirect && (response.getStatusCode == 301 || response.getStatusCode == 302)) {
-			// follow redirect
+		def handleFollowRedirect(sessionWithUpdatedCookies: Session) {
 			val url = URLDecoder.decode(response.getHeader("Location"), configuration.encoding)
+
 			val builder = new RequestBuilder(originalRequest).setMethod("GET").setQueryParameters(null.asInstanceOf[FluentStringsMap]).setParameters(null.asInstanceOf[FluentStringsMap]).setUrl(url)
 
 			for (cookie <- getStoredCookies(sessionWithUpdatedCookies, url))
 				builder.addCookie(cookie)
 
 			val request = builder.build
+			request.getHeaders().remove("Content-Length")
 
 			HttpRequestAction.CLIENT.executeRequest(request, new GatlingAsyncHandler(sessionWithUpdatedCookies, checks, next, requestName, request, followRedirect, requestStartDate))
+		}
+
+		val sessionWithUpdatedCookies = storeCookies(session, response.getUri.toString, response.getCookies.asScala)
+
+		if (followRedirect && (response.getStatusCode == 301 || response.getStatusCode == 302)) {
+			handleFollowRedirect(sessionWithUpdatedCookies)
 
 		} else
 			checkPhasesRec(sessionWithUpdatedCookies, HttpPhase.values.toList)
