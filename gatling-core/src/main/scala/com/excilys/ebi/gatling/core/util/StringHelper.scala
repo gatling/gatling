@@ -71,7 +71,7 @@ object StringHelper extends Logging {
 						(session: Session) => session.getAttributeAsOption[Seq[Any]](key) match {
 							case Some(x) if (x.size > occurrence) => x(occurrence)
 							case _ => {
-								error(StringBuilder.newBuilder.append("Couldn't resolve occurrence ").append(occurrence).append(" of session multivalued attribute ").append(key))
+								warn(StringBuilder.newBuilder.append("Couldn't resolve occurrence ").append(occurrence).append(" of session multivalued attribute ").append(key))
 								EMPTY
 							}
 						}
@@ -80,7 +80,7 @@ object StringHelper extends Logging {
 						(session: Session) => session.getAttributeAsOption[Any](key) match {
 							case Some(x) => x
 							case None => {
-								error("Couldn't resolve session attribute " + key)
+								warn("Couldn't resolve session attribute " + key)
 								EMPTY
 							}
 						}
