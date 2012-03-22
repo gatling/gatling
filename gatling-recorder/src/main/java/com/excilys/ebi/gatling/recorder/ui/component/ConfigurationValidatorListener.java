@@ -17,6 +17,7 @@ package com.excilys.ebi.gatling.recorder.ui.component;
 
 import static com.excilys.ebi.gatling.recorder.http.event.RecorderEventBus.getEventBus;
 import static org.apache.commons.lang.StringUtils.EMPTY;
+import static org.apache.commons.lang.StringUtils.trimToNull;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -149,11 +150,11 @@ public class ConfigurationValidatorListener implements ActionListener {
 		// set package
 		String rawPackage = frame.txtSimulationPackage.getText().trim().toLowerCase();
 		frame.txtSimulationPackage.setText(rawPackage);
-		if (!PACKAGE_NAME_PATTERN.matcher(rawPackage).matches()) {
+		if (!rawPackage.isEmpty() && !PACKAGE_NAME_PATTERN.matcher(rawPackage).matches()) {
 			logger.error("Invalid package name");
 			hasError = true;
 		} else {
-			config.setSimulationPackage(rawPackage);
+			config.setSimulationPackage(trimToNull(rawPackage));
 		}
 
 		if (hasError)
