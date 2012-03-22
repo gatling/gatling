@@ -23,11 +23,25 @@ public class PauseEvent {
 		this.durationMillis = durationMillis;
 	}
 
+	public long getDuration() {
+		if (durationMillis < 1000)
+			return durationMillis;
+		else
+			return Math.round((float) durationMillis / 1000);
+	}
+
+	public String getDurationUnit() {
+		if (durationMillis < 1000)
+			return "MILLISECONDS";
+		else
+			return "SECONDS";
+	}
+
 	public long getDurationMillis() {
 		return durationMillis;
 	}
 
 	public String toString() {
-		return "PAUSE " + durationMillis  + " ms";
+		return "PAUSE " + getDuration() + " " + getDurationUnit();
 	}
 }
