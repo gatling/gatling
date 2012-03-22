@@ -102,14 +102,11 @@ border-top-left-radius:8px}
 .nav .on a{color:#FFF;background-color:#E37400;border-radius:8px}
 
 .article{position:relative;}
-.infos{position:absolute;top:0;right:-63px;width:250px;color:#FFF;}
+.infos{position:absolute;top:0;right:-63px;width:300px;color:#FFF;}
 .infos-in{padding:0 0 25px 0;position:relative;}
-.info{margin:0;height:100%;background:#CF6900 url('stat-fond.png') repeat-x;}
+.info{margin:0;height:100%;background:#CF6900 url('stat-fond.png') repeat-x;padding:15px 0px 15px 0}
 .repli{position:absolute;bottom:0;right:0;background:url('stat-fleche-bas.png') no-repeat top left;height:25px;width:22px;}
-.decor{background:url('stat-forme.jpg') no-repeat 170px 0;width:100%;padding:15px 0px 15px 0;}
 
-.infos p{margin:3px 0px 3px 40px}
-.infos p strong{font-weight:bold;margin-left:10px;}
 .titre{background:#ff9916;text-align:center;width:120px;height:15px;font-weight:bold;
 	border-top-left-radius: 8px;
 	border-top-right-radius: 8px;
@@ -121,23 +118,30 @@ border-top-left-radius:8px}
 }
 
 .infos h2{font-size:13px;font-weight:bold;margin:0;padding:3px 0 0 25px;color:#FFF;height:19px;width:165px;
-border-top-right-radius:8px;
-border-bottom-right-radius:8px;
 -moz-border-top-right-radius:8px;
 -moz-border-bottom-right-radius:8px;
 -webkit-border-top-right-radius:8px;
 -webkit-border-bottom-right-radius:8px;
+-ms-border-top-right-radius:8px;
+-ms-border-bottom-right-radius:8px;
+-o-border-top-right-radius:8px;
+-o-border-bottom-right-radius:8px;
+border-top-right-radius:8px;
+border-bottom-right-radius:8px;
 }
 
-.infos .first {
-	background: url('stat-l-roue.png') no-repeat 3px 3px #d16b00;
-}
-.infos .second {
-	background: url('stat-l-temps.png') no-repeat 3px 3px #d16b00;
-}
+.infos .first  {background: url('stat-l-roue.png') no-repeat 3px 3px #d16b00}
+.infos .second {background: url('stat-l-temps.png') no-repeat 3px 3px #d16b00}
+
+.infos th {text-align:center}
+.infos td {font-weight:bold;width:50px;text-align:right;padding:4px;-webkit-border-radius:4px;-moz-border-radius:4px;-ms-border-radius:4px;-o-border-radius:4px;border-radius:4px}
+.infos .title{width:95px}
+.infos .ok{background-color:rgba(160,178,40,0.5)}
+.infos .total{background-color:rgba(120,120,120,0.2)}
+.infos .ko{-webkit-border-radius:4px;background-color:rgba(255,0,0,0.5)}
 
 .schema{background:#EAEAEA;border-radius:8px;border:1px solid #EAEAEA;margin-bottom:20px}
-.demi{width:670px;height:205px;}
+.demi{width:630px;height:260px;}
 .geant{width:900px;height:350px;}
 .chart_title{
 	background:#b0b0a8;

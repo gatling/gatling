@@ -9,15 +9,37 @@
 							<div class="infos-in">
 								<div class="repli"></div>								
 								<div class="info">
-								<div class="decor">
-										<h2 class="first">Executions (tot | ok | ko)</h2>
-										<p>> <%= numberOfRequests.printableTotal %> | <%= numberOfRequests.printableSuccess %> | <%= numberOfRequests.printableFailure %></p>
-										<h2 class="second">Response Time (tot | ok | ko)</h2>
-										<p>> Min (ms): <strong><%= min.printableTotal %></strong> | <strong><%= min.printableSuccess %></strong> | <strong><%= min.printableFailure %></strong></p>
-										<p>> Max (ms): <strong><%= max.printableTotal %></strong> | <strong><%= max.printableSuccess %></strong> | <strong><%= max.printableFailure %></strong></p>
-										<p>> Average (ms): <strong><%= average.printableTotal %></strong> | <strong><%= average.printableSuccess %></strong> | <strong><%= average.printableFailure %></strong></p>
-										<p>> Standard Deviation: <strong><%= stdDeviation.printableTotal %></strong> | <strong><%= stdDeviation.printableSuccess %></strong> | <strong><%= stdDeviation.printableFailure %></strong></p>
-								</div>
+									<h2 class="first">Executions</h2>
+									<table>
+										<thead>
+											<tr><th></th><th>Total</th><th>OK</th><th>KO</th></tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td  class="title"></td><td class="total"><%= numberOfRequests.printableTotal %></td><td class="ok"><%= numberOfRequests.printableSuccess %></td><td class="ko"><%= numberOfRequests.printableFailure %></td>
+											</tr>
+										</tbody>
+									</table>
+									<h2 class="second">Response Time (ms)</h2>
+									<table>
+										<thead>
+											<tr><th></th><th>Total</th><th>OK</th><th>KO</th></tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td class="title">Min</td><td class="total"><%= min.printableTotal %></td><td class="ok"><%= min.printableSuccess %></td><td class="ko"><%= min.printableFailure %></td>
+											</tr>
+											<tr>
+												<td class="title">Max</td><td class="total"><%= max.printableTotal %></td><td class="ok"><%= max.printableSuccess %></td><td class="ko"><%= max.printableFailure %></td>
+											</tr>
+											<tr>
+												<td class="title">Average</td><td class="total"><%= average.printableTotal %></td><td class="ok"><%= average.printableSuccess %></td><td class="ko"><%= average.printableFailure %></td>
+											</tr>
+											<tr>
+												<td class="title">Std Deviation</td><td class="total"><%= stdDeviation.printableTotal %></td><td class="ok"><%= stdDeviation.printableSuccess %></td><td class="ko"><%= stdDeviation.printableFailure %></td>
+											</tr>
+										</tbody>
+									</table>
 								</div>
 							</div>
 						</div>
