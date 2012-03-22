@@ -54,7 +54,7 @@ public class FilterTable extends JPanel implements MouseListener {
 		model.addColumn("Style");
 
 		table.setModel(model);
-		this.setLayout(new GridLayout(1, 1));
+		setLayout(new GridLayout(1, 1));
 		JScrollPane scrollPane = new JScrollPane(table);
 		add(scrollPane, 0, 0);
 
@@ -152,7 +152,7 @@ public class FilterTable extends JPanel implements MouseListener {
 		CustomPanel p = (CustomPanel) table.getValueAt(row, 1);
 		if (p == null)
 			return null;
-		return p.isFirstSelected() ? PatternType.JAVA : PatternType.ANT;
+		return p.getSelectedSyle();
 	}
 
 	private void initPopupMenu() {
@@ -243,28 +243,27 @@ class RadioButtonEditor extends AbstractCellEditor implements TableCellEditor {
 @SuppressWarnings("serial")
 class CustomPanel extends JPanel {
 
-	JRadioButton radio1 = new JRadioButton("Java", true);
-	JRadioButton radio2 = new JRadioButton("Ant", false);
+	private JRadioButton antStyle = new JRadioButton("Ant", true);
+	private JRadioButton javaStyle = new JRadioButton("Java", false);
 
 	public CustomPanel() {
-		this(PatternType.JAVA);
+		this(PatternType.ANT);
 	}
 
 	public CustomPanel(PatternType patternType) {
-		this.add(radio1);
-		this.add(radio2);
+		this.add(antStyle);
+		this.add(javaStyle);
 		ButtonGroup group = new ButtonGroup();
-		group.add(radio1);
-		group.add(radio2);
-		if (patternType == PatternType.JAVA) {
-			radio1.setSelected(true);
+		group.add(antStyle);
+		group.add(javaStyle);
+		if (patternType == PatternType.ANT) {
+			antStyle.setSelected(true);
 		} else {
-			radio2.setSelected(true);
+			javaStyle.setSelected(true);
 		}
 	}
 
-	public boolean isFirstSelected() {
-		return radio1.isSelected();
+	public PatternType getSelectedSyle() {
+		return antStyle.isSelected() ? PatternType.ANT : PatternType.JAVA;
 	}
-
 }

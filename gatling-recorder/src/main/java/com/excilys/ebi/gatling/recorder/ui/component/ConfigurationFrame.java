@@ -92,7 +92,7 @@ public class ConfigurationFrame extends JFrame {
 
 		setTitle("Gatling Recorder - Configuration");
 		setLayout(new BorderLayout());
-		setMinimumSize(new Dimension(1024, 768));
+		setMinimumSize(new Dimension(1024, 815));
 		setResizable(true);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -184,7 +184,7 @@ public class ConfigurationFrame extends JFrame {
 	}
 
 	private void initCenterPanel() {
-		/***** Creating Bottom Panel (Output + Start) *****/
+		/***** Creating Center Panel (Output) *****/
 		centerPannel = new JPanel();
 		centerPannel.setLayout(new BorderLayout());
 
@@ -220,7 +220,7 @@ public class ConfigurationFrame extends JFrame {
 		classPannel.add(txtSimulationClassName);
 		outputPanel.add(classPannel, BorderLayout.SOUTH);
 
-		// Adding panels to bottomPanel
+		// Adding panels to centerPannel
 		centerPannel.add(outputPanel, BorderLayout.NORTH);
 
 		// Adding panel to Frame
@@ -228,9 +228,8 @@ public class ConfigurationFrame extends JFrame {
 	}
 
 	private void initBottomPanel() {
-		/***** Creating Center Panel (Filters) *****/
+		/***** Creating Bottom Panel (Filter + Start) *****/
 		bottomPanel = new JPanel();
-		bottomPanel.setBorder(BorderFactory.createTitledBorder("Filters"));
 		bottomPanel.setLayout(new BorderLayout());
 
 		// Fill Combo Box for Strategies
@@ -252,9 +251,14 @@ public class ConfigurationFrame extends JFrame {
 
 		chkSavePref.setHorizontalTextPosition(SwingConstants.LEFT);
 
-		// Adding panels to centerPanel
-		bottomPanel.add(tblFilters, BorderLayout.NORTH);
-		bottomPanel.add(filterActionsPanel, BorderLayout.CENTER);
+		// Adding panels to bottomPanel
+		JPanel filterPanel = new JPanel();
+		filterPanel.setBorder(BorderFactory.createTitledBorder("Filters"));
+		filterPanel.setLayout(new BorderLayout());
+		filterPanel.add(tblFilters, BorderLayout.NORTH);
+		filterPanel.add(filterActionsPanel, BorderLayout.SOUTH);
+
+		bottomPanel.add(filterPanel, BorderLayout.NORTH);
 		bottomPanel.add(startActionPanel, BorderLayout.SOUTH);
 
 		// Adding panel to Frame
