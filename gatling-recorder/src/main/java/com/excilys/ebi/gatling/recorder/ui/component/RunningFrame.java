@@ -496,11 +496,10 @@ public class RunningFrame extends JFrame {
 	}
 
 	private File getSimulationOutputFolder() {
-		String path = new StringBuilder()//
-				.append(configuration.getOutputFolder())//
-				.append(File.separator)//
-				.append(configuration.getSimulationPackage().replace(".", File.separator)).toString();
-		File dir = new File(path);
+		StringBuilder path = new StringBuilder().append(configuration.getOutputFolder());
+		if (configuration.getSimulationPackage() != null)
+			path.append(File.separator).append(configuration.getSimulationPackage().replace(".", File.separator)).toString();
+		File dir = new File(path.toString());
 		dir.mkdirs();
 		return dir;
 	}
