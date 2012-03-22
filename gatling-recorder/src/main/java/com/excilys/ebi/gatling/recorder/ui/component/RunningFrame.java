@@ -66,6 +66,7 @@ import org.codehaus.plexus.util.SelectorUtils;
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpResponse;
+import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.netty.handler.codec.http.QueryStringDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -452,7 +453,7 @@ public class RunningFrame extends JFrame {
 		event.setHeadersId(headersId);
 
 		/* Add check if status is not in 20X */
-		if ((event.getResponse().getStatus().getCode() < 200) || (event.getResponse().getStatus().getCode() > 210))
+		if (isStatusCodeNon2XX(event.getResponse().getStatus()))
 			event.setWithCheck(true);
 
 		/* Params */
@@ -473,6 +474,10 @@ public class RunningFrame extends JFrame {
 		}
 
 		scenarioEvents.add(event);
+	}
+
+	private boolean isStatusCodeNon2XX(HttpResponseStatus status) {
+		return status.getCode() < 200 || status.getCode() > 210;
 	}
 
 	private void dumpRequestBody(int idEvent, String content) {
@@ -537,6 +542,10 @@ public class RunningFrame extends JFrame {
 						ResponseReceivedEvent wrapper = new ResponseReceivedEvent(redirectChainStart.getRequest(), responseReceivedEvent.getResponse(), null, null);
 						wrapper.setId(redirectChainStart.getId());
 						wrapper.setHeadersId(redirectChainStart.getHeadersId());
+						wrapper.setBasicAuth(redirectChainStart.getBasicAuth());
+						wrapper.setRequestParams(redirectChainStart.getRequestParams());
+						wrapper.setWithBody(redirectChainStart.isWithBody());
+						wrapper.setWithCheck(isStatusCodeNon2XX(responseReceivedEvent.getResponse().getStatus()));
 						wrapper.computeUrls(baseURI);
 						filteredEvents.add(wrapper);
 
