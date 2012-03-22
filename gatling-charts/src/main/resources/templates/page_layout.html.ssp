@@ -25,12 +25,13 @@
 		<div class="cadre">
 				<div class="onglet">
 						<img src="style/cible.png" />
-						<p>Simulation:&nbsp;&nbsp;&nbsp;<span <%=if(!runRecord.runDescription.isEmpty) "title=\"" + com.excilys.ebi.gatling.core.util.HtmlHelper.htmlEscape(runRecord.runDescription) +"\"" %>><%= runRecord.runId %> on <%= runRecord.readableRunDate %></span></p>
+						<p>Simulation:&nbsp;&nbsp;&nbsp;<span><%= runRecord.runId %> on <%= runRecord.readableRunDate %></span></p>
 				</div>
 				<div class="content">
 					<div class="sous-menu">
 						<div class="item<%if(!isDetails){%> ouvert<%}%>"><a href="active_sessions.html">GLOBAL</a></div>
 						<div class="item<%if(isDetails){%> ouvert<%}%>"><a id="details_link" href="#">DETAILS</a></div>
+						<p class="sim_desc"><%= com.excilys.ebi.gatling.core.util.HtmlHelper.htmlEscape(runRecord.runDescription) %></p>
 					</div>
 					<div class="content-in">
 						<h1><span>> </span><%= pageTitle %></h1>

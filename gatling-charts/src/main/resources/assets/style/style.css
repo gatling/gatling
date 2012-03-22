@@ -30,6 +30,7 @@ h1 span{color:#D1D1CE;}
 
 .head{height:100px;width:600px;padding:10px 0 0 160px;background:url('fond-lueur.gif') no-repeat;background-position:70px 0;position:absolute;top:0;left:0;}
 
+.sim_desc{float:right;padding:0;margin:0}
 
 .foot{background:#92918C;width:100%;color:#FFF;}
 .foot a{width:85px;height:27px;margin:3px auto;display:block}
