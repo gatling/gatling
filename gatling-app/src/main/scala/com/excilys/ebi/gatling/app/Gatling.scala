@@ -148,6 +148,8 @@ class Gatling(options: Options) extends Logging {
 
 	private def compile(files: List[File]): AbstractFileClassLoader = {
 
+		println("Collecting simulations...")
+
 		val byteCodeDir = PlainFile.fromPath(tempDir)
 		val classLoader = new AbstractFileClassLoader(byteCodeDir, getClass.getClassLoader)
 
@@ -209,6 +211,7 @@ class Gatling(options: Options) extends Logging {
 				info("There is only one simulation, executing it.")
 				0
 			case size =>
+				println("Choose a simulation number:")
 				for (i <- 0 until size) {
 					println("     [" + i + "] " + classes(i).getName)
 				}
