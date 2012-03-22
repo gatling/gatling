@@ -253,9 +253,9 @@ public class ConfigurationFrame extends JFrame {
 		chkSavePref.setHorizontalTextPosition(SwingConstants.LEFT);
 
 		// Adding panels to centerPanel
-		bottomPanel.add(tblFilters, BorderLayout.CENTER);
-		bottomPanel.add(filterActionsPanel, BorderLayout.SOUTH);
-		bottomPanel.add(startActionPanel, BorderLayout.PAGE_END);
+		bottomPanel.add(tblFilters, BorderLayout.NORTH);
+		bottomPanel.add(filterActionsPanel, BorderLayout.CENTER);
+		bottomPanel.add(startActionPanel, BorderLayout.SOUTH);
 
 		// Adding panel to Frame
 		add(bottomPanel, BorderLayout.SOUTH);
