@@ -203,7 +203,7 @@ public class RunningFrame extends JFrame {
 		btnTag.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				if (!txtTag.getText().equals(EMPTY)) {
+				if (!txtTag.getText().isEmpty()) {
 					TagEvent tag = new TagEvent(txtTag.getText());
 					events.addElement(tag.toString());
 					executedEvents.ensureIndexIsVisible(events.getSize() - 1);
@@ -522,7 +522,6 @@ public class RunningFrame extends JFrame {
 			ResponseReceivedEvent redirectChainStart = null;
 
 			for (Object event : scenarioEvents) {
-
 				if (event instanceof ResponseReceivedEvent) {
 					ResponseReceivedEvent responseReceivedEvent = ResponseReceivedEvent.class.cast(event);
 
@@ -545,12 +544,14 @@ public class RunningFrame extends JFrame {
 						redirectChainStart = null;
 
 					} else {
+						// not inside a redirect chain
 						filteredEvents.add(event);
 					}
-				} else if (redirectChainStart != null) {
+				} else if (redirectChainStart == null) {
 					// not inside a redirect chain
 					filteredEvents.add(event);
 				}
+				// else, dropping it
 			}
 			return filteredEvents;
 
