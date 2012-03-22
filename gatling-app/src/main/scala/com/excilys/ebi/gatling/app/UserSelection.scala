@@ -23,4 +23,4 @@ object UserSelection {
 	val DEFAULT_RUN_ID = "run"
 }
 
-case class UserSelection(simulationClasses: List[Class[Simulation]], runId: String = DEFAULT_RUN_ID, runName: String = DEFAULT_RUN_ID)
+case class UserSelection(simulationClasses: List[Class[Simulation]], runId: String = DEFAULT_RUN_ID, runDescription: String = EMPTY)

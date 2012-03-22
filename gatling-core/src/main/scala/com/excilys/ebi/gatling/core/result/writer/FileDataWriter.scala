@@ -78,7 +78,8 @@ class FileDataWriter extends DataWriter with Logging {
 				osw.append(RUN).append(TABULATION_SEPARATOR)
 					.append(toTimestamp(runRecord.runDate)).append(TABULATION_SEPARATOR)
 					.append(runRecord.runId).append(TABULATION_SEPARATOR)
-					.append(runRecord.runName)
+					// hack for being able to deserialize in FileDataReader
+					.append(if (runRecord.runDescription.isEmpty) " " else runRecord.runDescription)
 					.append(END_OF_LINE)
 			}
 

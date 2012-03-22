@@ -129,7 +129,7 @@ class Gatling(options: Options) extends Logging {
 
 		val simulation = selectSimulationClass(classes)
 
-		println("Select run id (required, default is '" + DEFAULT_RUN_ID + "'). Accepted characters are a-z, A-Z, 0-9, - and _")
+		println("Select run id (default is '" + DEFAULT_RUN_ID + "'). Accepted characters are a-z, A-Z, 0-9, - and _")
 		val runId = {
 			val userInput = Console.readLine.trim
 			if (userInput.isEmpty) DEFAULT_RUN_ID else userInput
@@ -138,13 +138,10 @@ class Gatling(options: Options) extends Logging {
 		if (!runId.matches("[\\w-_]*"))
 			throw new IllegalArgumentException(runId + " contains illegal characters")
 
-		println("Select run name (optional)")
-		val runName = {
-			val userInput = Console.readLine.trim
-			if (userInput.isEmpty) runId else userInput
-		}
+		println("Select run description (optional)")
+		val runDescription = Console.readLine.trim
 
-		UserSelection(List(simulation), runId, runName)
+		UserSelection(List(simulation), runId, runDescription)
 	}
 
 	private def collectFiles(directory: Path, extension: String): List[File] = Directory(directory).deepFiles.filter(_.hasExtension(extension)).toList
@@ -232,7 +229,7 @@ class Gatling(options: Options) extends Logging {
 				println(">> Running simulation (" + (i + 1) + "/" + size + ") - " + name)
 				println("Simulation " + name + " started...")
 
-				val runInfo = new RunRecord(now, selection.runId, selection.runName)
+				val runInfo = new RunRecord(now, selection.runId, selection.runDescription)
 
 				val simulation = simulationClass.newInstance()
 				val configurations = simulation()

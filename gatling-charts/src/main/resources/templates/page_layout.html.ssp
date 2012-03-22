@@ -24,8 +24,8 @@
 	<div class="main">
 		<div class="cadre">
 				<div class="onglet">
-						<img src="style/cible.png" alt="" />
-						<p>Simulation:&nbsp;&nbsp;&nbsp;<span title="<%= com.excilys.ebi.gatling.core.util.HtmlHelper.htmlEscape(runRecord.runName) %>"><%= runRecord.runId %> on <%= runRecord.readableRunDate %></span></p>
+						<img src="style/cible.png" />
+						<p>Simulation:&nbsp;&nbsp;&nbsp;<span <%=if(!runRecord.runDescription.isEmpty) "title=\"" + com.excilys.ebi.gatling.core.util.HtmlHelper.htmlEscape(runRecord.runDescription) +"\"" %>><%= runRecord.runId %> on <%= runRecord.readableRunDate %></span></p>
 				</div>
 				<div class="content">
 					<div class="sous-menu">

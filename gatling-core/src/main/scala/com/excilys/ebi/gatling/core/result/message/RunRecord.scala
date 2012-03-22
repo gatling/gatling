@@ -20,7 +20,7 @@ import org.joda.time.DateTime
 import com.excilys.ebi.gatling.core.result.message.RecordType.RUN
 import com.excilys.ebi.gatling.core.util.DateHelper.{ toTimestamp, toHumanDate }
 
-case class RunRecord(runDate: DateTime, runId: String, runName: String) extends Record(RUN) {
+case class RunRecord(runDate: DateTime, runId: String, runDescription: String) extends Record(RUN) {
 	def runUuid = runId + toTimestamp(runDate)
 	def readableRunDate = toHumanDate(runDate)
 }
