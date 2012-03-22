@@ -1,7 +1,7 @@
 #if(${event.class.simpleName} == "TagEvent")
 			/* ${event.getTag()} */
-#elseif(${event.class.simpleName} == "PauseEvent")
-			.pause(${event.getDurationMillis()}, MILLISECONDS)
+#elseif(${event.class.simpleName} == "PauseEvent" && ${event.getDurationMillis()} > 10)
+			.pause(${event.getDuration()}, ${event.getDurationUnit()})
 #elseif(${event.class.simpleName} == "ResponseReceivedEvent")
 			.exec(http("request_${event.getId()}")
 					.${event.getRequest().getMethod().toString().toLowerCase()}("${event.getRequestUrl()}")
