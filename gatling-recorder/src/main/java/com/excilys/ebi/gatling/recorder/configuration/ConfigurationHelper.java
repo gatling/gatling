@@ -15,6 +15,9 @@
  */
 package com.excilys.ebi.gatling.recorder.configuration;
 
+import static com.excilys.ebi.gatling.recorder.configuration.Configuration.getConfigurationInstance;
+import static com.excilys.ebi.gatling.recorder.configuration.Configuration.initConfigurationFromCommandLineOptions;
+import static com.excilys.ebi.gatling.recorder.configuration.Configuration.initConfigurationFromExistingConfig;
 import static com.excilys.ebi.gatling.recorder.ui.Constants.GATLING_RECORDER_FILE_NAME;
 import static org.apache.commons.io.IOUtils.closeQuietly;
 import static org.kohsuke.args4j.ExampleMode.ALL;
@@ -59,7 +62,7 @@ public final class ConfigurationHelper {
 		CmdLineParser parser = new CmdLineParser(cliOpts);
 		try {
 			parser.parseArgument(args);
-			Configuration.initFromCommandLineOptions(cliOpts);
+			initConfigurationFromCommandLineOptions(cliOpts);
 		} catch (CmdLineException e) {
 			System.err.println(e.getMessage() + "\n");
 			parser.printUsage(System.err);
@@ -72,7 +75,7 @@ public final class ConfigurationHelper {
 		if (CONFIGURATION_FILE.exists()) {
 			try {
 				Configuration c = (Configuration) XSTREAM.fromXML(CONFIGURATION_FILE);
-				Configuration.initFromExistingConfig(c);
+				initConfigurationFromExistingConfig(c);
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 			}
@@ -84,7 +87,7 @@ public final class ConfigurationHelper {
 		FileWriter fw = null;
 		try {
 			fw = new FileWriter(CONFIGURATION_FILE);
-			XSTREAM.toXML(Configuration.getInstance(), fw);
+			XSTREAM.toXML(getConfigurationInstance(), fw);
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		} finally {

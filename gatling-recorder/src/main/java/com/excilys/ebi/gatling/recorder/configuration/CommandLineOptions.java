@@ -37,28 +37,29 @@ import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsC
 import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.PROXY_HTTP_PORT_OPTION;
 import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.REQUEST_BODIES_FOLDER_ALIAS;
 import static com.excilys.ebi.gatling.recorder.configuration.CommandLineOptionsConstants.REQUEST_BODIES_FOLDER_OPTION;
+import static com.excilys.ebi.gatling.recorder.configuration.Configuration.getConfigurationInstance;
 
 import org.kohsuke.args4j.Option;
 
 public class CommandLineOptions {
 
 	@Option(name = LOCAL_HTTP_PORT_OPTION, usage = "Local port", aliases = LOCAL_HTTP_PORT_ALIAS)
-	private int localPort = Configuration.getInstance().getPort();
+	private int localPort = getConfigurationInstance().getPort();
 
 	@Option(name = LOCAL_HTTPS_PORT_OPTION, usage = "Local SSL port", aliases = LOCAL_HTTPS_PORT_ALIAS)
-	private int localPortSsl = Configuration.getInstance().getSslPort();
+	private int localPortSsl = getConfigurationInstance().getSslPort();
 
 	@Option(name = PROXY_HOST_OPTION, usage = "Outgoing proxy host", aliases = PROXY_HOST_ALIAS)
-	private String proxyHost = Configuration.getInstance().getProxy().getHost();
+	private String proxyHost = getConfigurationInstance().getProxy().getHost();
 
 	@Option(name = PROXY_HTTP_PORT_OPTION, usage = "Outgoing proxy port", aliases = PROXY_HTTP_PORT_ALIAS)
-	private int proxyPort = Configuration.getInstance().getProxy().getPort();
+	private int proxyPort = getConfigurationInstance().getProxy().getPort();
 
 	@Option(name = PROXY_HTTPS_PORT_OPTION, usage = "Outgoing proxy SSL port", aliases = PROXY_HTTPS_PORT_ALIAS)
-	private int proxyPortSsl = Configuration.getInstance().getProxy().getSslPort();
+	private int proxyPortSsl = getConfigurationInstance().getProxy().getSslPort();
 
 	@Option(name = FOLLOW_REDIRECT_OPTION, usage = "Outgoing proxy SSL port", aliases = FOLLOW_REDIRECT_ALIAS)
-	private boolean followRedirect = Configuration.getInstance().isFollowRedirect();
+	private boolean followRedirect = getConfigurationInstance().isFollowRedirect();
 
 	@Option(name = OUTPUT_FOLDER_OPTION, usage = "Define the output folder for results", aliases = OUTPUT_FOLDER_ALIAS)
 	private String outputFolder;

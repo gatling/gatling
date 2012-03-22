@@ -15,6 +15,7 @@
  */
 package com.excilys.ebi.gatling.recorder.ui.component;
 
+import static com.excilys.ebi.gatling.recorder.configuration.Configuration.getConfigurationInstance;
 import static com.excilys.ebi.gatling.recorder.http.event.RecorderEventBus.getEventBus;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.trimToNull;
@@ -55,7 +56,7 @@ public class ConfigurationValidatorListener implements ActionListener {
 		boolean hasError = false;
 		Border defaultBorder = frame.txtProxyHost.getBorder();
 
-		Configuration config = Configuration.getInstance();
+		Configuration config = getConfigurationInstance();
 
 		if (frame.txtProxyHost.getText().equals(frame.txtProxyHost.getName()))
 			frame.txtProxyHost.setText(EMPTY);
@@ -169,16 +170,17 @@ public class ConfigurationValidatorListener implements ActionListener {
 	}
 
 	public void logConfiguration() {
+		Configuration configuration = getConfigurationInstance();
 		logger.info("Configuration");
 		logger.info("-------------");
-		logger.info("Proxy port: " + Configuration.getInstance().getPort());
-		logger.info("Proxy ssl port: " + Configuration.getInstance().getSslPort());
-		if (Configuration.getInstance().getProxy().getHost() != null)
-			logger.info("Outgoing proxy: " + Configuration.getInstance().getProxy());
-		logger.info("Filters: " + Configuration.getInstance().getFilterStrategy());
-		if (!Configuration.getInstance().getFilterStrategy().equals(FilterStrategy.NONE))
-			for (Pattern pattern : Configuration.getInstance().getPatterns())
+		logger.info("Proxy port: " + configuration.getPort());
+		logger.info("Proxy ssl port: " + configuration.getSslPort());
+		if (configuration.getProxy().getHost() != null)
+			logger.info("Outgoing proxy: " + configuration.getProxy());
+		logger.info("Filters: " + configuration.getFilterStrategy());
+		if (!configuration.getFilterStrategy().equals(FilterStrategy.NONE))
+			for (Pattern pattern : configuration.getPatterns())
 				logger.info("| - " + pattern);
-		logger.info("Results: " + Configuration.getInstance().getOutputFolder());
+		logger.info("Results: " + configuration.getOutputFolder());
 	}
 }

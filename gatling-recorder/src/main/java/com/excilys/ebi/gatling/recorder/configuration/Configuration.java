@@ -25,11 +25,11 @@ import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy;
 
 public class Configuration {
 
-	public static Configuration getInstance() {
+	public static Configuration getConfigurationInstance() {
 		return instance;
 	}
 
-	public static void initFromExistingConfig(Configuration c) {
+	public static void initConfigurationFromExistingConfig(Configuration c) {
 		instance.setPort(c.getPort());
 		instance.setSslPort(c.getSslPort());
 		instance.setProxy(c.getProxy());
@@ -43,7 +43,7 @@ public class Configuration {
 		instance.setEncoding(c.getEncoding());
 	}
 
-	public static void initFromCommandLineOptions(CommandLineOptions c) {
+	public static void initConfigurationFromCommandLineOptions(CommandLineOptions c) {
 		instance.setPort(c.getLocalPort());
 		instance.setSslPort(c.getLocalPortSsl());
 		instance.getProxy().setHost(c.getProxyHost());

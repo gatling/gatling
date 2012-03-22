@@ -15,6 +15,7 @@
  */
 package com.excilys.ebi.gatling.recorder.http.handler;
 
+import static com.excilys.ebi.gatling.recorder.configuration.Configuration.getConfigurationInstance;
 import static com.excilys.ebi.gatling.recorder.http.event.RecorderEventBus.getEventBus;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 
@@ -29,7 +30,6 @@ import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.excilys.ebi.gatling.recorder.configuration.Configuration;
 import com.excilys.ebi.gatling.recorder.http.event.MessageReceivedEvent;
 import com.excilys.ebi.gatling.recorder.http.event.ResponseReceivedEvent;
 
@@ -70,7 +70,7 @@ public class ServerHttpResponseHandler extends SimpleChannelHandler {
 		channelBuffer.readerIndex(index);
 
 		try {
-			return new String(rb, Configuration.getInstance().getEncoding());
+			return new String(rb, getConfigurationInstance().getEncoding());
 		} catch (UnsupportedEncodingException e) {
 			LOGGER.error("Couldn't decode content", e);
 			return EMPTY;

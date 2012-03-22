@@ -15,6 +15,7 @@
  */
 package com.excilys.ebi.gatling.recorder.ui.component;
 
+import static com.excilys.ebi.gatling.recorder.configuration.Configuration.getConfigurationInstance;
 import static com.excilys.ebi.gatling.recorder.http.event.RecorderEventBus.getEventBus;
 import static org.apache.commons.io.IOUtils.closeQuietly;
 import static org.apache.commons.lang.StringUtils.EMPTY;
@@ -264,7 +265,7 @@ public class RunningFrame extends JFrame {
 			public void run() {
 				setVisible(true);
 				clearOldRunning();
-				configuration = Configuration.getInstance();
+				configuration = getConfigurationInstance();
 				startDate = new Date();
 				startDateString = DATE_FORMAT.format(startDate);
 				proxy = new GatlingHttpProxy(configuration.getPort(), configuration.getSslPort(), configuration.getProxy());
@@ -505,7 +506,7 @@ public class RunningFrame extends JFrame {
 	}
 
 	private String getSimulationFileName() {
-		return Configuration.getInstance().getSimulationClassName() + startDateString;
+		return getConfigurationInstance().getSimulationClassName() + startDateString;
 	}
 
 	private boolean isRedirect(HttpResponse response) {
@@ -604,7 +605,7 @@ public class RunningFrame extends JFrame {
 			context.put("chainEvents", new ArrayList<List<Object>>());
 		}
 
-		context.put("package", Configuration.getInstance().getSimulationPackage());
+		context.put("package", getConfigurationInstance().getSimulationPackage());
 		context.put("className", simulationClassName);
 		context.put("date", startDateString);
 

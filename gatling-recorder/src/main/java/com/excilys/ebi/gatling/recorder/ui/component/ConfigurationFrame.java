@@ -15,6 +15,8 @@
  */
 package com.excilys.ebi.gatling.recorder.ui.component;
 
+import static com.excilys.ebi.gatling.recorder.configuration.Configuration.getConfigurationInstance;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -342,22 +344,25 @@ public class ConfigurationFrame extends JFrame {
 	}
 
 	private void populateItemsFromConfiguration() {
-		logger.debug("Configuration: {}", Configuration.getInstance());
 
-		txtPort.setText(String.valueOf(Configuration.getInstance().getPort()));
-		txtSslPort.setText(String.valueOf(Configuration.getInstance().getSslPort()));
-		txtProxyHost.setText(Configuration.getInstance().getProxy().getHost());
-		txtProxyPort.setText(String.valueOf(Configuration.getInstance().getProxy().getPort()));
-		txtProxySslPort.setText(String.valueOf(Configuration.getInstance().getProxy().getSslPort()));
-		txtOutputFolder.setText(Configuration.getInstance().getOutputFolder());
-		chkSavePref.setSelected(Configuration.getInstance().isSaveConfiguration());
-		cbOutputEncoding.setSelectedItem(Charset.forName(Configuration.getInstance().getEncoding()));
-		chkFollowRedirect.setSelected(Configuration.getInstance().isFollowRedirect());
-		txtSimulationPackage.setText(Configuration.getInstance().getSimulationPackage());
-		txtSimulationClassName.setText(Configuration.getInstance().getSimulationClassName());
+		Configuration configuration = getConfigurationInstance();
 
-		cbFilterStrategies.setSelectedItem(Configuration.getInstance().getFilterStrategy());
-		for (Pattern pattern : Configuration.getInstance().getPatterns())
+		logger.debug("Configuration: {}", configuration);
+
+		txtPort.setText(String.valueOf(configuration.getPort()));
+		txtSslPort.setText(String.valueOf(configuration.getSslPort()));
+		txtProxyHost.setText(configuration.getProxy().getHost());
+		txtProxyPort.setText(String.valueOf(configuration.getProxy().getPort()));
+		txtProxySslPort.setText(String.valueOf(configuration.getProxy().getSslPort()));
+		txtOutputFolder.setText(configuration.getOutputFolder());
+		chkSavePref.setSelected(configuration.isSaveConfiguration());
+		cbOutputEncoding.setSelectedItem(Charset.forName(configuration.getEncoding()));
+		chkFollowRedirect.setSelected(configuration.isFollowRedirect());
+		txtSimulationPackage.setText(configuration.getSimulationPackage());
+		txtSimulationClassName.setText(configuration.getSimulationClassName());
+
+		cbFilterStrategies.setSelectedItem(configuration.getFilterStrategy());
+		for (Pattern pattern : configuration.getPatterns())
 			tblFilters.addRow(pattern);
 
 	}
