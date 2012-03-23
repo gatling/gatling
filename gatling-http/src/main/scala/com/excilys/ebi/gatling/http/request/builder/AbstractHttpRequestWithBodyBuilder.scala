@@ -37,8 +37,8 @@ object AbstractHttpRequestWithBodyBuilder {
 
 	def initEngine: TemplateEngine = {
 		val engine = new TemplateEngine(List(GatlingFiles.requestBodiesFolder))
-		TEMPLATE_ENGINE.allowReload = false
-		TEMPLATE_ENGINE.escapeMarkup = false
+		engine.allowReload = false
+		engine.escapeMarkup = false
 		// Register engine shutdown
 		ResourceRegistry.registerOnCloseCallback(() => engine.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown)
 		engine
