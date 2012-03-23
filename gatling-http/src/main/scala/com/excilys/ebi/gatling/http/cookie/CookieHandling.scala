@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PR
 import com.ning.http.client.Cookie
 import scala.collection.immutable.ListMap
 
-private case class CookieKey(domain: String, path: String, name: String)
+case class CookieKey(domain: String, path: String, name: String)
 
 trait CookieHandling {
 
