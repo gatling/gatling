@@ -17,14 +17,15 @@ package com.excilys.ebi.gatling.http.action
 import com.excilys.ebi.gatling.core.action.RequestAction
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandler
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder.status
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.config.HttpConfig.{ GATLING_HTTP_CONFIG_REQUEST_TIMEOUT, GATLING_HTTP_CONFIG_PROVIDER_CLASS, GATLING_HTTP_CONFIG_MAX_RETRY, GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT, GATLING_HTTP_CONFIG_COMPRESSION_ENABLED, GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION }
+import com.excilys.ebi.gatling.http.config.HttpConfig.{GATLING_HTTP_CONFIG_REQUEST_TIMEOUT, GATLING_HTTP_CONFIG_PROVIDER_CLASS, GATLING_HTTP_CONFIG_MAX_RETRY, GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT, GATLING_HTTP_CONFIG_COMPRESSION_ENABLED, GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION}
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
 import com.excilys.ebi.gatling.http.request.HttpRequest
-import com.ning.http.client.{ Response, AsyncHttpClientConfig, AsyncHttpClient }
+import com.ning.http.client.{Response, AsyncHttpClientConfig, AsyncHttpClient}
 
 import akka.actor.ActorRef
 import grizzled.slf4j.Logging
@@ -42,7 +43,7 @@ object HttpRequestAction {
 	/**
 	 * The HTTP client used to send the requests
 	 */
-	lazy val CLIENT = buildAsyncHttpClient
+	lazy val HTTP_CLIENT = buildAsyncHttpClient
 
 	protected def buildAsyncHttpClient = {
 
@@ -67,14 +68,15 @@ object HttpRequestAction {
  * This is an action that sends HTTP requests
  *
  * @constructor constructs an HttpRequestAction
- * @param next the next action that will be executed
- * @param givenCheckBuilders all the checks that will be performed on the response
- * @param feeder the feeder that will be consumed each time the request will be sent
+ * @param next the next action that will be executed after the request
+ * @param request the request that will be executed
+ * @param checks the checks that will be performed on the response
+ * @param protocolConfiguration the protocol specific configuration
  */
-class HttpRequestAction(next: ActorRef, request: HttpRequest, givenChecks: Option[List[HttpCheck]], protocolConfiguration: Option[HttpProtocolConfiguration])
-		extends RequestAction[HttpCheck, Response, HttpProtocolConfiguration](next, request, givenChecks, protocolConfiguration) with Logging {
+class HttpRequestAction(next: ActorRef, request: HttpRequest, checks: Option[List[HttpCheck]], protocolConfiguration: Option[HttpProtocolConfiguration])
+		extends RequestAction[HttpCheck, Response, HttpProtocolConfiguration](next, request, checks, protocolConfiguration) with Logging {
 
-	val checks = givenChecks match {
+	val resolvedChecks = checks match {
 		case Some(givenChecksContent) =>
 			if (givenChecksContent.find(_.phase == StatusReceived).isEmpty) {
 				// add default HttpStatusCheck if none was set
@@ -93,6 +95,7 @@ class HttpRequestAction(next: ActorRef, request: HttpRequest, givenChecks: Optio
 			case None => false
 		}
 		val ahcRequest = request.buildAHCRequest(session, protocolConfiguration)
-		HttpRequestAction.CLIENT.executeRequest(ahcRequest, new GatlingAsyncHandler(session, checks, next, request.name, ahcRequest, followRedirect))
+		val ahcHandler = new GatlingAsyncHandler(session, resolvedChecks, next, request.name, ahcRequest, followRedirect)
+		HTTP_CLIENT.executeRequest(ahcRequest, ahcHandler)
 	}
 }

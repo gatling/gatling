@@ -20,7 +20,6 @@ import java.net.URLDecoder
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters.asScalaBufferConverter
-import scala.collection.JavaConverters._
 
 import com.excilys.ebi.gatling.core.check.Check.applyChecks
 import com.excilys.ebi.gatling.core.check.Failure
@@ -29,7 +28,7 @@ import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ RequestStatus
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.http.action.HttpRequestAction
+import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandler.REDIRECTED_REQUEST_NAME_PATTERN
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
@@ -190,7 +189,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 			}
 
 			logRequest(sessionWithUpdatedCookies, OK, newRequestName)
-			HttpRequestAction.CLIENT.executeRequest(request, new GatlingAsyncHandler(sessionWithUpdatedCookies, checks, next, newRequestName, request, followRedirect))
+			HTTP_CLIENT.executeRequest(request, new GatlingAsyncHandler(sessionWithUpdatedCookies, checks, next, newRequestName, request, followRedirect))
 		}
 
 		val sessionWithUpdatedCookies = storeCookies(session, response.getUri.toString, response.getCookies.asScala)

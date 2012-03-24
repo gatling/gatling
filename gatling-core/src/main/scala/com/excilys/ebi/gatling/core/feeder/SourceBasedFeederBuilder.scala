@@ -21,7 +21,7 @@ object SourceBasedFeederBuilder {
 
 abstract class SourceBasedFeederBuilder[B <: FeederSource] {
 
-	protected val source: B
+	protected def source: B
 
 	def queue = new QueueFeeder(source)
 
