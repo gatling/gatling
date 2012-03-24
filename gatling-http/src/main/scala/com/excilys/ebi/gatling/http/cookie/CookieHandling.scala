@@ -28,38 +28,42 @@ trait CookieHandling {
 
 	def getStoredCookies(session: Session, url: String): List[Cookie] = {
 		session.getAttributeAsOption[Map[CookieKey, Cookie]](COOKIES_CONTEXT_KEY) match {
-			case Some(storedCookies) => {
-				if (!storedCookies.isEmpty) {
-					val uri = URI.create(url)
-					val uriHost = uri.getHost
-					val uriPath = uri.getPath
-					storedCookies
-						.filter { case (key, _) => uriHost.endsWith(key.domain) && uriPath.startsWith(key.path) }
-						.map { case (_, cookie) => cookie }
-						.toList
-				} else {
-					Nil
-				}
+			case Some(storedCookies) if (!storedCookies.isEmpty) => {
+				val uri = URI.create(url)
+				val uriHost = uri.getHost
+				val uriPath = uri.getPath
+				storedCookies
+					.filter { case (key, _) => uriHost.endsWith(key.domain) && uriPath.startsWith(key.path) }
+					.map { case (_, cookie) => cookie }
+					.toList
 			}
-			case None => Nil
+			case _ => Nil
 		}
 	}
 
 	def storeCookies(session: Session, url: String, cookies: Seq[Cookie]) = {
+
+		def newCookieKey(cookie: Cookie, uriHost: String, uriPath: String) = {
+			val cookieDomain = Option(cookie.getDomain).getOrElse(uriHost)
+			val cookiePath = Option(cookie.getPath).getOrElse(uriPath)
+			CookieKey(cookieDomain, cookiePath, cookie.getName)
+		}
+
 		if (!cookies.isEmpty) {
-			val storedCookies = session.getAttributeAsOption[Map[CookieKey, Cookie]](COOKIES_CONTEXT_KEY).getOrElse(new ListMap[CookieKey, Cookie])
+			val storedCookies: Map[CookieKey, Cookie] = session.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(new ListMap[CookieKey, Cookie])
+
 			val uri = URI.create(url)
 			val uriHost = uri.getHost
 			val uriPath = uri.getPath
-			val newCookies = storedCookies ++ cookies.map { cookie =>
-				val cookieDomain = Option(cookie.getDomain).getOrElse(uriHost)
-				val cookiePath = Option(cookie.getPath).getOrElse(uriPath)
-				CookieKey(cookieDomain, cookiePath, cookie.getName) -> cookie
-			}
+
+			val expiringCookieKeys = cookies.filter(_.getMaxAge <= 0).map(newCookieKey(_, uriHost, uriPath))
+			val nonExpiredStoredCookies = storedCookies.filterKeys(!expiringCookieKeys.contains(_))
+
+			val nonExpiringCookies = cookies.filter(_.getMaxAge > 0)
+			val newCookies = nonExpiredStoredCookies ++ nonExpiringCookies.map { cookie => newCookieKey(cookie, uriHost, uriPath) -> cookie }
 
 			session.setAttribute(COOKIES_CONTEXT_KEY, newCookies)
-		} else {
+		} else
 			session
-		}
 	}
 }
