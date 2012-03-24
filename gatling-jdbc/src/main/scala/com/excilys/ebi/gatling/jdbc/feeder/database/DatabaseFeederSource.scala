@@ -24,7 +24,7 @@ class DatabaseFeederSource(driverClassName: String, url: String, username: Strin
 
 	Class.forName(driverClassName)
 
-	val values: IndexedSeq[Map[String, String]] = use(DriverManager.getConnection(url, username, password)) { connection =>
+	lazy val values: IndexedSeq[Map[String, String]] = use(DriverManager.getConnection(url, username, password)) { connection =>
 		val preparedStatement = connection.prepareStatement(sql, TYPE_FORWARD_ONLY, CONCUR_READ_ONLY);
 		val resultSet = preparedStatement.executeQuery
 		val rsmd = resultSet.getMetaData

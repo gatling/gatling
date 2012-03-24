@@ -30,7 +30,7 @@ import au.com.bytecode.opencsv.CSVReader
 
 class SeparatedValuesFeederSource(fileName: String, separator: Char, escapeChar: Option[Char]) extends FeederSource(fileName) {
 
-	val values: IndexedSeq[Map[String, String]] = {
+	lazy val values: IndexedSeq[Map[String, String]] = {
 		val file = GatlingFiles.dataFolder / fileName
 		if (!file.exists)
 			throw new IllegalArgumentException("file " + file + " doesn't exists")
