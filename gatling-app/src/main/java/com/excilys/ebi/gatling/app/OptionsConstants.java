@@ -31,6 +31,8 @@ public class OptionsConstants {
 	public static final String REQUEST_BODIES_FOLDER_ALIAS = "request-bodies-folder";
 	public static final String SIMULATIONS_FOLDER_OPTION = "sf";
 	public static final String SIMULATIONS_FOLDER_ALIAS = "simulations-folder";
+	public static final String SIMULATIONS_BINARIES_FOLDER_OPTION = "sbf";
+	public static final String SIMULATIONS_BINARIES_FOLDER_ALIAS = "simulations-binaries-folder";
 	public static final String SIMULATIONS_OPTION = "s";
 	public static final String SIMULATIONS_ALIAS = "simulations";
 }
