@@ -120,12 +120,12 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	/**
 	 * Adds Accept and Content-Type headers to the request set with "application/json" values
 	 */
-	def asJSON(): B = header(ACCEPT, APPLICATION_JSON).header(CONTENT_TYPE, APPLICATION_JSON)
+	def asJSON: B = header(ACCEPT, APPLICATION_JSON).header(CONTENT_TYPE, APPLICATION_JSON)
 
 	/**
 	 * Adds Accept and Content-Type headers to the request set with "application/xml" values
 	 */
-	def asXML(): B = header(ACCEPT, APPLICATION_XML).header(CONTENT_TYPE, APPLICATION_XML)
+	def asXML: B = header(ACCEPT, APPLICATION_XML).header(CONTENT_TYPE, APPLICATION_XML)
 
 	/**
 	 * Adds BASIC authentication to the request

@@ -19,5 +19,5 @@ package com.excilys.ebi.gatling.core.util
  * This trait overrides the toString method
  */
 trait ClassSimpleNameToString {
-	override def toString = this.getClass().getSimpleName()
+	override def toString = this.getClass.getSimpleName
 }

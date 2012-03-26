@@ -27,7 +27,7 @@ class JacksonNavigator extends DefaultNavigator with NamedAccessNavigator {
 	def getChildAxisIterator(contextNode: Object, localName: String, namespacePrefix: String, namespaceURI: String) = {
 
 		val results = contextNode.asInstanceOf[JsonNode].findValues(localName)
-		if (results.size() == 1 && results.get(0).isInstanceOf[ArrayNode])
+		if (results.size == 1 && results.get(0).isInstanceOf[ArrayNode])
 			results.get(0).getElements
 		else
 			results.iterator

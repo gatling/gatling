@@ -23,7 +23,7 @@ object CheckContext {
 	def useCheckContext[T](block: => T) = {
 		try {
 			if (contextHolder.get == null)
-				contextHolder.set(new mutable.HashMap[String, Any]())
+				contextHolder.set(new mutable.HashMap[String, Any])
 
 			block
 		} finally {

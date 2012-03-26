@@ -178,7 +178,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 				builder.addCookie(cookie)
 
 			val request = builder.build
-			request.getHeaders().remove("Content-Length")
+			request.getHeaders.remove("Content-Length")
 
 			val newRequestName = REDIRECTED_REQUEST_NAME_PATTERN.findFirstMatchIn(requestName) match {
 				case Some(nameMatch) =>

@@ -235,7 +235,7 @@ class Gatling(cliOptions: Options) extends Logging {
 
 				val runInfo = new RunRecord(now, selection.runId, selection.runDescription)
 
-				val simulation = simulationClass.newInstance()
+				val simulation = simulationClass.newInstance
 				val configurations = simulation()
 				new Runner(runInfo, configurations).run
 
