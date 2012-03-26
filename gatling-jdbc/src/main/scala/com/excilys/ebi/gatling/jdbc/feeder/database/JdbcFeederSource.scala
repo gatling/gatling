@@ -20,7 +20,7 @@ import java.sql.DriverManager
 import com.excilys.ebi.gatling.core.feeder.FeederSource
 import com.excilys.ebi.gatling.jdbc.util.JdbcHelper.use
 
-class DatabaseFeederSource(driverClassName: String, url: String, username: String, password: String, sql: String) extends FeederSource(sql) {
+class JdbcFeederSource(driverClassName: String, url: String, username: String, password: String, sql: String) extends FeederSource(sql) {
 
 	Class.forName(driverClassName)
 
