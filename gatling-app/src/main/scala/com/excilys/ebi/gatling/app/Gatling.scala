@@ -54,23 +54,23 @@ object Gatling extends Logging {
 	 */
 	def main(args: Array[String]) {
 
-		val options: Options = Options()
+		val cliOptions: Options = Options()
 
 		val cliOptsParser = new OptionParser("gatling") {
-			opt(NO_REPORTS_OPTION, NO_REPORTS_ALIAS, "Runs simulation but does not generate reports", { options.noReports = true })
-			opt(REPORTS_ONLY_OPTION, REPORTS_ONLY_ALIAS, "<folderName>", "Generates the reports for the simulation in <folderName>", { v: String => options.reportsOnlyFolder = Some(v) })
-			opt(CONFIG_FILE_OPTION, CONFIG_FILE_ALIAS, "<fileName>", "Uses <fileName> as the configuration file", { v: String => options.configFileName = Some(v) })
-			opt(DATA_FOLDER_OPTION, DATA_FOLDER_ALIAS, "<folderName>", "Uses <folderName> as the folder where feeders are stored", { v: String => options.dataFolder = Some(v) })
-			opt(RESULTS_FOLDER_OPTION, RESULTS_FOLDER_ALIAS, "<folderName>", "Uses <folderName> as the folder where results are stored", { v: String => options.resultsFolder = Some(v) })
-			opt(REQUEST_BODIES_FOLDER_OPTION, REQUEST_BODIES_FOLDER_ALIAS, "<folderName>", "Uses <folderName> as the folder where request bodies are stored", { v: String => options.requestBodiesFolder = Some(v) })
-			opt(SIMULATIONS_FOLDER_OPTION, SIMULATIONS_FOLDER_ALIAS, "<folderName>", "Uses <folderName> to discover simulations that could be run", { v: String => options.simulationSourcesFolder = Some(v) })
-			opt(SIMULATIONS_BINARIES_FOLDER_OPTION, SIMULATIONS_BINARIES_FOLDER_ALIAS, "<folderName>", "Uses <folderName> to already compiled simulations", { v: String => options.simulationBinariesFolder = Some(v) })
-			opt(SIMULATIONS_OPTION, SIMULATIONS_ALIAS, "<simulationNames>", "Runs the <simulationNames> sequentially", { v: String => options.simulations = Some(v.split(",").toList) })
+			opt(NO_REPORTS_OPTION, NO_REPORTS_ALIAS, "Runs simulation but does not generate reports", { cliOptions.noReports = true })
+			opt(REPORTS_ONLY_OPTION, REPORTS_ONLY_ALIAS, "<folderName>", "Generates the reports for the simulation in <folderName>", { v: String => cliOptions.reportsOnlyFolder = Some(v) })
+			opt(CONFIG_FILE_OPTION, CONFIG_FILE_ALIAS, "<fileName>", "Uses <fileName> as the configuration file", { v: String => cliOptions.configFileName = Some(v) })
+			opt(DATA_FOLDER_OPTION, DATA_FOLDER_ALIAS, "<folderName>", "Uses <folderName> as the folder where feeders are stored", { v: String => cliOptions.dataFolder = Some(v) })
+			opt(RESULTS_FOLDER_OPTION, RESULTS_FOLDER_ALIAS, "<folderName>", "Uses <folderName> as the folder where results are stored", { v: String => cliOptions.resultsFolder = Some(v) })
+			opt(REQUEST_BODIES_FOLDER_OPTION, REQUEST_BODIES_FOLDER_ALIAS, "<folderName>", "Uses <folderName> as the folder where request bodies are stored", { v: String => cliOptions.requestBodiesFolder = Some(v) })
+			opt(SIMULATIONS_FOLDER_OPTION, SIMULATIONS_FOLDER_ALIAS, "<folderName>", "Uses <folderName> to discover simulations that could be run", { v: String => cliOptions.simulationSourcesFolder = Some(v) })
+			opt(SIMULATIONS_BINARIES_FOLDER_OPTION, SIMULATIONS_BINARIES_FOLDER_ALIAS, "<folderName>", "Uses <folderName> to already compiled simulations", { v: String => cliOptions.simulationBinariesFolder = Some(v) })
+			opt(SIMULATIONS_OPTION, SIMULATIONS_ALIAS, "<simulationNames>", "Runs the <simulationNames> sequentially", { v: String => cliOptions.simulations = Some(v.split(",").toList) })
 		}
 
 		// if arguments are incorrect, usage message is displayed
 		if (cliOptsParser.parse(args))
-			new Gatling(options).start
+			new Gatling(cliOptions).start
 	}
 
 	def useActorSystem[T](block: => T): T = {
@@ -87,18 +87,18 @@ object Gatling extends Logging {
 	}
 }
 
-class Gatling(options: Options) extends Logging {
+class Gatling(cliOptions: Options) extends Logging {
 
 	lazy val tempDir = Directory(TempDirectory.create(true))
 
 	// Initializes configuration
-	GatlingConfiguration.setUp(options.configFileName, options.dataFolder, options.requestBodiesFolder, options.resultsFolder, options.simulationSourcesFolder)
+	GatlingConfiguration.setUp(cliOptions.configFileName, cliOptions.dataFolder, cliOptions.requestBodiesFolder, cliOptions.resultsFolder, cliOptions.simulationSourcesFolder)
 
 	def start {
-		val runUuids = options.reportsOnlyFolder match {
+		val runUuids = cliOptions.reportsOnlyFolder match {
 			case Some(reportsOnlyFolder) => List(reportsOnlyFolder)
 			case None =>
-				val classes = options.simulationBinariesFolder match {
+				val classes = cliOptions.simulationBinariesFolder match {
 
 					case Some(simulationBinariesFolder) =>
 						// expect simulations to have been pre-compiled (ex: IDE)
@@ -112,7 +112,7 @@ class Gatling(options: Options) extends Logging {
 						loadSimulationClasses(classNames, classloader)
 				}
 
-				val userSelection = options.simulations match {
+				val userSelection = cliOptions.simulations match {
 					case Some(simulations) => autoSelect(classes, simulations)
 					case None => interactiveSelect(classes)
 				}
@@ -120,7 +120,7 @@ class Gatling(options: Options) extends Logging {
 				run(userSelection)
 		}
 
-		if (!options.noReports)
+		if (!cliOptions.noReports)
 			runUuids.foreach(generateReports)
 	}
 
