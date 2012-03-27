@@ -34,6 +34,7 @@ import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.request.HttpPhase.{ HttpPhase, CompletePageReceived }
 import com.excilys.ebi.gatling.http.request.HttpPhase
+import com.excilys.ebi.gatling.http.util.HttpHelper.toRichResponse
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
 import com.ning.http.client.ProgressAsyncHandler
@@ -118,6 +119,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 	}
 
 	private def logRequest(newSession: Session, requestResult: RequestStatus, requestMessage: String): Long = {
+
 		val now = currentTimeMillis
 		val effectiveResponseEndDate = responseEndDate.getOrElse(now)
 		val effectiveEndOfRequestSendingDate = endOfRequestSendingDate.getOrElse(now)
@@ -161,7 +163,11 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 
 					checkResult match {
 						case Failure(errorMessage) =>
-							warn("Check on request '" + requestName + "' failed : " + errorMessage)
+							if (isDebugEnabled)
+								debug(new StringBuilder().append("Check on request '").append(requestName).append("' failed : ").append(errorMessage).append(", response was:").append(response.dump))
+							else
+								warn(new StringBuilder().append("Check on request '").append(requestName).append("' failed : ").append(errorMessage))
+
 							logAndExecuteNext(newSessionWithSavedValues, KO, errorMessage)
 						case _ => checkPhasesRec(newSessionWithSavedValues, otherPhases)
 
