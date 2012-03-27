@@ -17,8 +17,7 @@ package com.excilys.ebi.gatling.core.check
 import scala.annotation.tailrec
 
 import com.excilys.ebi.gatling.core.check.CheckContext.useCheckContext
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
-import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
+import com.excilys.ebi.gatling.core.session.{ EvaluatableString, Session }
 
 object Check {
 
