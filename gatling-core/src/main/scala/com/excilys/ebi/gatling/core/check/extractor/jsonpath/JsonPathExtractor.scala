@@ -16,10 +16,8 @@
 package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 import scala.collection.JavaConverters.asScalaBufferConverter
 
-import org.codehaus.jackson.map.ObjectMapper
-import org.codehaus.jackson.JsonNode
-
 import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
+import com.fasterxml.jackson.databind.{ ObjectMapper, JsonNode }
 
 object JsonPathExtractor {
 	lazy val MAPPER = new ObjectMapper

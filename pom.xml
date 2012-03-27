@@ -139,7 +139,7 @@
 		<opencsv.version>2.3</opencsv.version>
 		<ant.version>1.8.2</ant.version>
 		<grizzled-slf4j.version>0.6.8</grizzled-slf4j.version>
-		<jackson.version>1.9.5</jackson.version>
+		<jackson.version>2.0.0</jackson.version>
 		<junit.version>4.10</junit.version>
 		<specs2.version>1.8.2</specs2.version>
 
@@ -382,8 +382,8 @@
 				<version>${maven2.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.codehaus.jackson</groupId>
-				<artifactId>jackson-mapper-asl</artifactId>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
 				<version>${jackson.version}</version>
 			</dependency>
 			<dependency>

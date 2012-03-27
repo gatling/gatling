@@ -16,9 +16,9 @@
 package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 import org.jaxen.NamedAccessNavigator
 import org.jaxen.DefaultNavigator
-import org.codehaus.jackson.JsonNode
-import org.codehaus.jackson.node.ArrayNode
-import org.codehaus.jackson.node.TextNode
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.TextNode
 
 class JacksonNavigator extends DefaultNavigator with NamedAccessNavigator {
 
@@ -28,7 +28,7 @@ class JacksonNavigator extends DefaultNavigator with NamedAccessNavigator {
 
 		val results = contextNode.asInstanceOf[JsonNode].findValues(localName)
 		if (results.size == 1 && results.get(0).isInstanceOf[ArrayNode])
-			results.get(0).getElements
+			results.get(0).elements
 		else
 			results.iterator
 	}
