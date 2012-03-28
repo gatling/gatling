@@ -18,9 +18,9 @@ package com.excilys.ebi.gatling.core.check
 sealed trait CheckResult
 
 case class Success(extractedValue: Option[_]) extends CheckResult {
-	override def toString = new StringBuilder().append("Success, extractedValue=").append(extractedValue).toString
+	override def toString = "Success, extractedValue=" + extractedValue
 }
 
 case class Failure(errorMessage: String) extends CheckResult {
-	override def toString = new StringBuilder().append("Failure, errorMessage=").append(errorMessage).toString
+	override def toString = "Failure, errorMessage=" + errorMessage
 }
