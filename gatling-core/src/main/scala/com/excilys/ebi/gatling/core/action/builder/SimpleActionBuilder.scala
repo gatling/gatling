@@ -22,20 +22,10 @@ import akka.actor.Actor.actorOf
 import akka.actor.ActorRef
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
-/**
- * SimpleActionBuilder class companion
- */
 object SimpleActionBuilder {
 
 	/**
-	 * Implicit converter from Session => Unit to a simple action builder containing this function
-	 *
-	 * @param sessionFunction the function that has to be wrapped into a simple action builder
-	 */
-	implicit def toSimpleActionBuilder(sessionFunction: Session => Session) = simpleActionBuilder(sessionFunction)
-
-	/**
-	 * Function used to create a simple action builder
+	 * Creates a simple action builder
 	 *
 	 * @param sessionFunction the function that will be executed by the built simple action
 	 */
@@ -43,7 +33,7 @@ object SimpleActionBuilder {
 }
 
 /**
- * This class builds an SimpleAction
+ * Builder for SimpleAction
  *
  * @constructor creates a SimpleActionBuilder
  * @param sessionFunction the function that will be executed by the simple action
