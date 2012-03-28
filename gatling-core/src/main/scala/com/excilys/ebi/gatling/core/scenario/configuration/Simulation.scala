@@ -15,4 +15,4 @@
  */
 package com.excilys.ebi.gatling.core.scenario.configuration
 
-trait Simulation extends Function0[Seq[ScenarioConfigurationBuilder]]
+trait Simulation extends (() => Seq[ScenarioConfigurationBuilder])
