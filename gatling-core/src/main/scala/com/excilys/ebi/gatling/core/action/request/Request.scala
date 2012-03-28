@@ -16,10 +16,7 @@
 package com.excilys.ebi.gatling.core.action.request
 
 /**
- * AbstractRequest is a model for all requests of gatling modules.
- *
- * Currently it has just a name, but it will eventually contain more information as the
- * number of modules will grow
+ * Protocol agnostic request abstraction
  *
  * @param name the name of the request
  */

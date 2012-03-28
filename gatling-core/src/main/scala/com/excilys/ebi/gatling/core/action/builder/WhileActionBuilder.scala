@@ -23,9 +23,6 @@ import com.excilys.ebi.gatling.core.structure.ChainBuilder
 import akka.actor.Actor.actorOf
 import akka.actor.{ Uuid, ActorRef }
 
-/**
- * Companion of the WhileActionBuilder class
- */
 object WhileActionBuilder {
 	/**
 	 * Creates an initialized WhileActionBuilder
@@ -34,7 +31,7 @@ object WhileActionBuilder {
 }
 
 /**
- * This class builds a WhileActionBuilder
+ * Builder for WhileActionBuilder
  *
  * @constructor create a new WhileAction
  * @param condition the function that determine the condition

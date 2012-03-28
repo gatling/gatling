@@ -15,12 +15,21 @@
  */
 package com.excilys.ebi.gatling.core.check
 
+/**
+ * The outcome of a check
+ */
 sealed trait CheckResult
 
+/**
+ * The outcome in case of success
+ */
 case class Success(extractedValue: Option[_]) extends CheckResult {
 	override def toString = "Success, extractedValue=" + extractedValue
 }
 
+/**
+ * The outcome in case of failure
+ */
 case class Failure(errorMessage: String) extends CheckResult {
 	override def toString = "Failure, errorMessage=" + errorMessage
 }

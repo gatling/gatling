@@ -20,6 +20,9 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.TextNode
 
+/**
+ * A Jaxen navigator for a Jackson tree
+ */
 class JacksonNavigator extends DefaultNavigator with NamedAccessNavigator {
 
 	def getAttributeAxisIterator(contextNode: Object, localName: String, namespacePrefix: String, namespaceURI: String) = getChildAxisIterator(contextNode, localName, namespacePrefix, namespaceURI);

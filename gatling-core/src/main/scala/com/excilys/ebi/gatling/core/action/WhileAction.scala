@@ -40,7 +40,6 @@ class WhileAction(condition: Session => Boolean, loopNext: ActorRef => ActorRef,
 	 * else it executes next
 	 *
 	 * @param session the session of the virtual user
-	 * @return Nothing
 	 */
 	def execute(session: Session) {
 

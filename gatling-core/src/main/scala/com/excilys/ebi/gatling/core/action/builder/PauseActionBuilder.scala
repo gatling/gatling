@@ -21,10 +21,8 @@ import akka.actor.Actor.actorOf
 import akka.actor.ActorRef
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
-/**
- * PauseActionBuilder class companion
- */
 object PauseActionBuilder {
+
 	/**
 	 * Creates an initialized PauseActionBuilder with time unit in Seconds
 	 */
@@ -32,7 +30,7 @@ object PauseActionBuilder {
 }
 
 /**
- * This class builds a PauseAction
+ * Builder for PauseAction
  *
  * @constructor create a new PauseActionBuilder
  * @param minDuration minimum duration of the generated pause

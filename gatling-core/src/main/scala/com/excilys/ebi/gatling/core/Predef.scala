@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core
 
 import java.util.concurrent.TimeUnit
 
-import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.toSimpleActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
 import com.excilys.ebi.gatling.core.check.{ ExtractorCheckBuilder, CheckBuilder, Check }
 import com.excilys.ebi.gatling.core.check.MatcherCheckBuilder
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesFeederBuilder
@@ -26,7 +26,7 @@ import com.excilys.ebi.gatling.core.structure.{ ScenarioBuilder, ChainBuilder }
 import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 
 object Predef {
-	implicit def sessionFunctionToSimpleActionBuilder(sessionFunction: Session => Session) = toSimpleActionBuilder(sessionFunction)
+	implicit def sessionFunctionToSimpleActionBuilder(sessionFunction: Session => Session) = simpleActionBuilder(sessionFunction)
 	implicit def stringToSessionFunction(string: String) = parseEvaluatable(string)
 	implicit def toSessionFunction[X](x: X) = (session: Session) => x
 	implicit def checkBuilderToCheck[C <: Check[R], R](checkBuilder: CheckBuilder[C, R]) = checkBuilder.build

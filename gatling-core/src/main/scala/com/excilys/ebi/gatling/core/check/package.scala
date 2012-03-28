@@ -18,9 +18,28 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 package object check {
 
+	/**
+	 * A function for extracting from a string
+	 */
 	type Extractor[X] = String => Option[X]
+
+	/**
+	 * A function for producing an Extractor from a Response
+	 */
 	type ExtractorFactory[R, X] = R => Extractor[X]
+
+	/**
+	 * A strategy for matching an extracted value
+	 */
 	type MatchStrategy[X] = (Option[X], Session) => CheckResult
+
+	/**
+	 * A function to be applied on an extracted value to produce a CheckResult
+	 */
 	type Matcher[R] = (EvaluatableString, Session, R) => CheckResult
+	
+	/**
+	 * A function for production a complete CheckBuilder
+	 */
 	type CheckBuilderFactory[C <: Check[R], R] = (Matcher[R], Option[String]) => C
 }

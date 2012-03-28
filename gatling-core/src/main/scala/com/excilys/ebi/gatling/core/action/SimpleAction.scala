@@ -29,7 +29,7 @@ import akka.actor.ActorRef
 class SimpleAction(sessionFunction: Session => Session, next: ActorRef) extends Action {
 
 	/**
-	 * This method applies the function to the Session
+	 * Applies the function to the Session
 	 *
 	 * @param session the session of the virtual user
 	 */

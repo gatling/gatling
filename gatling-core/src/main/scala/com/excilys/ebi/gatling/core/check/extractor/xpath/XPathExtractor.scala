@@ -29,9 +29,6 @@ import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 import javax.xml.parsers.DocumentBuilderFactory
 
-/**
- * XPathExtractor class companion
- */
 object XPathExtractor {
 	System.setProperty("javax.xml.parsers.SAXParserFactory", "org.apache.xerces.jaxp.SAXParserFactoryImpl");
 	System.setProperty("javax.xml.parsers.DOMParserFactory", "org.apache.xerces.jaxp.DOMParserFactoryImpl");
@@ -48,13 +45,12 @@ object XPathExtractor {
 }
 
 /**
- * This class is a built-in extractor that helps searching with XPath Expressions
+ * A built-in extractorfor extracting values with XPath Expressions
  *
- * it requires a well formatted XML document, otherwise, it will throw an exception
+ * It requires a well formatted XML document, otherwise, it will throw an exception
  *
  * @constructor creates a new XPathExtractor
- * @param xmlContent the XML document as an InputStream in which the XPath search will be applied
- * @param occurrence the occurrence of the results that should be returned
+ * @param inputStream the XML document in which the XPath search will be applied
  */
 class XPathExtractor(inputStream: InputStream) {
 

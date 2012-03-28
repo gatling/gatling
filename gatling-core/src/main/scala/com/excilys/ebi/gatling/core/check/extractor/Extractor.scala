@@ -17,7 +17,16 @@ package com.excilys.ebi.gatling.core.check.extractor
 
 object Extractor {
 
+	/**
+	 * @param value
+	 * @return the value as an option
+	 */
+	implicit def toOption[X](value: X): Option[X] = Some(value)
+
+	/**
+	 * @param values
+	 * @return the values as an option if they are not empty, elseNone
+	 */
 	implicit def seqToOption[X](values: Seq[X]): Option[Seq[X]] = if (values.isEmpty) None else Some(values)
 
-	implicit def toOption[X](value: X): Option[X] = Some(value)
 }

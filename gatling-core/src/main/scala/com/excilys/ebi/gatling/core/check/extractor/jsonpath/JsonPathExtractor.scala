@@ -20,22 +20,45 @@ import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToO
 import com.fasterxml.jackson.databind.{ ObjectMapper, JsonNode }
 
 object JsonPathExtractor {
+
+	/**
+	 * The singleton ObjectMapper. Used in a threadsafe mannner as configuration never changes on the fly.
+	 */
 	lazy val MAPPER = new ObjectMapper
 }
 
+/**
+ * A built-in extractor for extracting values with  Xpath like expressions for Json
+ *
+ * @constructor creates a new JsonPathExtractor
+ * @param textContent the text where the search will be made
+ */
 class JsonPathExtractor(textContent: String) {
 
 	val json = JsonPathExtractor.MAPPER.readValue(textContent, classOf[JsonNode])
 
+	/**
+	 * @param occurrence
+	 * @param expression
+	 * @return extract the occurrence of the given rank matching the expression
+	 */
 	def extractOne(occurrence: Int)(expression: String): Option[String] = extractMultiple(expression) match {
 		case Some(results) if (results.length > occurrence) => results(occurrence)
 		case _ => None
 	}
 
+	/**
+	 * @param expression
+	 * @return extract all the occurrences matching the expression
+	 */
 	def extractMultiple(expression: String): Option[Seq[String]] = {
 		val results = new JaxenJackson(expression).selectNodes(json).asScala.map(_.asInstanceOf[JsonNode].asText)
 		results
 	}
 
+	/**
+	 * @param expression
+	 * @return count all the occurrences matching the expression
+	 */
 	def count(expression: String): Option[Int] = extractMultiple(expression).map(_.size)
 }

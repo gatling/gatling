@@ -22,36 +22,31 @@ import com.excilys.ebi.gatling.core.session.Session
 import akka.actor.ActorRef
 import grizzled.slf4j.Logging
 
-/**
- * StartAction class companion
- */
 object StartAction {
 
 	/**
-	 * This variable contains the name of the StartAction used in simulation.log
+	 * Name of the StartAction used in simulation.log
 	 */
 	val START_OF_SCENARIO = "Start of scenario"
 }
 
 /**
- * An Action that is automatically prepended at the beginnin of a scenario.
+ * An Action that is automatically prepended at the beginning of a scenario.
  *
- * @constructor creates an StartAction
+ * @constructor create an StartAction
  * @param next the action to be executed after this one
  */
 class StartAction(next: ActorRef) extends Action with Logging {
 
 	/**
-	 * Sends a message to the DataWriter and give hand to next actor
+	 * Sends a message to the DataWriter and gives hand to next actor
 	 *
 	 * @param session the session of the virtual user
 	 */
 	def execute(session: Session) {
 
 		DataWriter.startUser(session.scenarioName, session.userId, currentTimeMillis)
-
 		info("Starting user #" + session.userId)
-
 		next ! session
 	}
 }

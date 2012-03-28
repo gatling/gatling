@@ -23,9 +23,6 @@ import com.excilys.ebi.gatling.core.structure.ChainBuilder
 import akka.actor.Actor.actorOf
 import akka.actor.ActorRef
 
-/**
- * Companion Object of IfActionBuilder class
- */
 object IfActionBuilder {
 
 	/**

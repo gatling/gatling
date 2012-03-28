@@ -20,10 +20,8 @@ import akka.actor.Actor.actorOf
 import akka.actor.ActorRef
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
-/**
- * StartActionBuilder class companion
- */
 object StartActionBuilder {
+
 	/**
 	 * Creates a new StartActionBuilder
 	 *

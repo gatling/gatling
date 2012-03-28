@@ -16,4 +16,7 @@
 package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 import org.jaxen.BaseXPath
 
+/**
+ * A Jackson based BaseXPath
+ */
 class JaxenJackson(expression: String) extends BaseXPath(expression, new JacksonNavigator)

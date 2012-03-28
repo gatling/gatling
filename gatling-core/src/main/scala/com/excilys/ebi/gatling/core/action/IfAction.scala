@@ -22,7 +22,7 @@ import akka.actor.ActorRef
 /**
  * A conditional Action
  *
- * @constructor creates an IfAction
+ * @constructor create an IfAction
  * @param condition the condition that decides whether to execute thenNext or elseNext
  * @param thenNext the chain of actions executed if condition evaluates to true
  * @param elseNext chain of actions executed if condition evaluates to false
@@ -31,19 +31,13 @@ import akka.actor.ActorRef
 class IfAction(condition: Session => Boolean, thenNext: ActorRef, elseNext: Option[ActorRef], next: ActorRef) extends Action {
 
 	/**
-	 * Evaluates the condition and if true executes the first action of thenNext
-	 * else it executes the first action of elseNext.
-	 *
-	 * If there is no elseNext, then, next is executed
+	 * Evaluates the condition and decides what to do next
 	 *
 	 * @param session the session of the virtual user
-	 * @return Nothing
 	 */
 	def execute(session: Session) {
 
-		if (condition(session))
-			thenNext ! session
-		else
-			elseNext.getOrElse(next) ! session
+		val nextAction = if (condition(session)) thenNext else elseNext.getOrElse(next)
+		nextAction ! session
 	}
 }

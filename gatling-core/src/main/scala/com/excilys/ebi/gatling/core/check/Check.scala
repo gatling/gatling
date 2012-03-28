@@ -37,15 +37,23 @@ object Check {
 		}
 	}
 
+	/**
+	 * Applies a list of checks on a given response
+	 * 
+	 * @param session the session of the virtual user
+	 * @param response the reponse
+	 * @param checks the checks to be applied
+	 * @return the result of the checks: Success or the first encountered Failure
+	 */
 	def applyChecks[R](session: Session, response: R, checks: List[Check[R]]): (Session, CheckResult) = useCheckContext { applyChecksRec(session, response, checks, DEFAULT_CHECK_RESULT) }
 }
 
 /**
- * This class represents a Check
+ * Model for Checks
  *
  * @param expression the function that returns the expression representing what the check should look for
- * @param extractorFactory the extractor factory that will be used by the Check
- * @param saveAs the session attribute that will be used to store the extracted value
+ * @param matcher the matcher that will try to match the result of the extraction
+ * @param saveAs the session attribute that will be used to store the extracted value if the checks are successful
  * @param strategy the strategy used to perform the Check
  */
 abstract class Check[R](expression: EvaluatableString, matcher: Matcher[R], saveAs: Option[String]) {

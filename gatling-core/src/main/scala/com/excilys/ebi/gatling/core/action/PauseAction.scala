@@ -25,7 +25,7 @@ import akka.actor.ActorRef
 import grizzled.slf4j.Logging
 
 /**
- * An action in charge of "pausing" a user (ie: think time)
+ * An action for "pausing" a user (ie: think time)
  *
  * @constructor creates a PauseAction
  * @param next action that will be executed after the pause duration
@@ -39,11 +39,10 @@ class PauseAction(next: ActorRef, minDuration: Long, maxDuration: Option[Long], 
 	val maxDurationInMillis = maxDuration.map(TimeUnit.MILLISECONDS.convert(_, timeUnit))
 
 	/**
-	 * Generate a duration if required or use the one given and defer
+	 * Generates a duration if required or use the one given and defer
 	 * next actor execution of this duration
 	 *
 	 * @param session the session of the virtual user
-	 * @return Nothing
 	 */
 	def execute(session: Session) {
 

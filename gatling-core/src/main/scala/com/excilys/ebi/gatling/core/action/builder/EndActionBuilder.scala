@@ -21,9 +21,6 @@ import akka.actor.Actor.actorOf
 import akka.actor.ActorRef
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
-/**
- * EndActionBuilder class companion
- */
 object EndActionBuilder {
 
 	/**

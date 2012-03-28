@@ -21,7 +21,7 @@ import java.util.regex.Matcher
 import scala.annotation.tailrec
 
 /**
- * This class is a built-in extractor that helps searching with Regular Expressions
+ * A built-in extractor for extracting values with Regular Expressions
  *
  * @constructor creates a new RegExpExtractor
  * @param textContent the text where the search will be made
