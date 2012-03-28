@@ -48,40 +48,42 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	def exec(actionBuilder: ActionBuilder): B = newInstance(actionBuilder :: actionBuilders)
 
 	/**
-	 * Method used to define a pause of X seconds
-	 *
-	 * @param delayValue the time, in seconds, for which the user waits/thinks
-	 * @return a new builder with a pause added to its actions
-	 */
-	def pause(delayValue: Int): B = pause(delayValue, delayValue, TimeUnit.SECONDS)
-
-	/**
 	 * Method used to define a pause
 	 *
-	 * @param delayValue the time for which the user waits/thinks
-	 * @param delayUnit the time unit of the pause
+	 * @param duration the time for which the user waits/thinks
+	 * @param durationUnit the time unit of the pause
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pause(delayValue: Int, delayUnit: TimeUnit): B = pause(delayValue, delayValue, delayUnit)
+	def pause(duration: Long, durationUnit: TimeUnit): B = pause(duration, None, durationUnit)
 
 	/**
 	 * Method used to define a random pause in seconds
 	 *
-	 * @param delayMinValue the minimum value of the pause, in seconds
-	 * @param delayMaxValue the maximum value of the pause, in seconds
+	 * @param minDuration the minimum value of the pause, in seconds
+	 * @param maxDuration the maximum value of the pause, in seconds
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pause(delayMinValue: Int, delayMaxValue: Int): B = pause(delayMinValue * 1000, delayMaxValue * 1000, TimeUnit.MILLISECONDS)
+	def pause(minDuration: Long, maxDuration: Long): B = pause(minDuration, Some(maxDuration))
 
+	/**
+	 * Method used to define a random pause in seconds
+	 *
+	 * @param minDuration the minimum value of the pause, in seconds
+	 * @param maxDuration the maximum value of the pause, in seconds
+	 * @param durationUnit the time unit of the pause
+	 * @return a new builder with a pause added to its actions
+	 */
+	def pause(minDuration: Long, maxDuration: Long, durationUnit: TimeUnit): B = pause(minDuration, Some(maxDuration), durationUnit)
+	
 	/**
 	 * Method used to define a random pause
 	 *
-	 * @param delayMinValue the minimum value of the pause
-	 * @param delayMaxValue the maximum value of the pause
-	 * @param delayUnit the time unit of the specified values
+	 * @param minDuration the minimum value of the pause
+	 * @param maxDuration the maximum value of the pause
+	 * @param durationUnit the time unit of the specified values
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pause(delayMinValue: Int, delayMaxValue: Int, delayUnit: TimeUnit): B = newInstance((pauseActionBuilder withMinDuration delayMinValue withMaxDuration delayMaxValue withTimeUnit delayUnit) :: actionBuilders)
+	def pause(minDuration: Long, maxDuration: Option[Long] = None, durationUnit: TimeUnit = TimeUnit.SECONDS): B = newInstance((pauseActionBuilder.withMinDuration(minDuration).withMaxDuration(maxDuration).withTimeUnit(durationUnit)) :: actionBuilders)
 
 	/**
 	 * Method used to add a conditional execution in the scenario

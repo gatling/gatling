@@ -17,24 +17,12 @@ package com.excilys.ebi.gatling.core.action
 
 import java.util.concurrent.TimeUnit
 
-import scala.util.Random
-
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.util.NumberHelper.getRandomLong
 
 import akka.actor.Scheduler.scheduleOnce
 import akka.actor.ActorRef
 import grizzled.slf4j.Logging
-
-/**
- * PauseAction class companion
- */
-object PauseAction {
-
-	/**
-	 * Used to generate random pause durations
-	 */
-	val randomGenerator = new Random
-}
 
 /**
  * An action in charge of "pausing" a user (ie: think time)
@@ -45,10 +33,13 @@ object PauseAction {
  * @param maxDuration maximum duration of the pause
  * @param timeUnit time unit of the duration
  */
-class PauseAction(next: ActorRef, minDuration: Long, maxDuration: Long, timeUnit: TimeUnit) extends Action with Logging {
+class PauseAction(next: ActorRef, minDuration: Long, maxDuration: Option[Long], timeUnit: TimeUnit) extends Action with Logging {
+
+	val minDurationInMillis = TimeUnit.MILLISECONDS.convert(minDuration, timeUnit)
+	val maxDurationInMillis = maxDuration.map(TimeUnit.MILLISECONDS.convert(_, timeUnit))
 
 	/**
-	 * Generates a duration if required or use the one given and defer
+	 * Generate a duration if required or use the one given and defer
 	 * next actor execution of this duration
 	 *
 	 * @param session the session of the virtual user
@@ -56,11 +47,10 @@ class PauseAction(next: ActorRef, minDuration: Long, maxDuration: Long, timeUnit
 	 */
 	def execute(session: Session) {
 
-		val diff = maxDuration - minDuration
-		val duration = minDuration + (if (diff > 0) PauseAction.randomGenerator.nextInt(diff.toInt) else 0)
+		val durationInMillis = maxDurationInMillis.map(getRandomLong(minDurationInMillis, _)).getOrElse(minDurationInMillis)
 
-		val durationMinusLastActionDurationInMillis: Long = TimeUnit.MILLISECONDS.convert(duration, timeUnit) - session.getLastActionDuration
-		info("Waiting for " + TimeUnit.MILLISECONDS.convert(duration, timeUnit) + "ms (" + durationMinusLastActionDurationInMillis + "ms)")
+		val durationMinusLastActionDurationInMillis = durationInMillis - session.getLastActionDuration
+		info(new StringBuilder().append("Waiting for ").append(durationInMillis).append("ms (").append(durationMinusLastActionDurationInMillis).append("ms)"))
 
 		scheduleOnce(() => next ! session, durationMinusLastActionDurationInMillis, TimeUnit.MILLISECONDS)
 	}
