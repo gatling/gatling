@@ -15,10 +15,12 @@
  */
 package com.excilys.ebi.gatling.http.cookie
 import java.net.URI
-import com.excilys.ebi.gatling.core.session.Session
+
 import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
+import com.excilys.ebi.gatling.core.session.Session
 import com.ning.http.client.Cookie
-import scala.collection.immutable.ListMap
+
+
 
 case class CookieKey(domain: String, path: String, name: String)
 
@@ -50,17 +52,18 @@ trait CookieHandling {
 		}
 
 		if (!cookies.isEmpty) {
-			val storedCookies: Map[CookieKey, Cookie] = session.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(new ListMap[CookieKey, Cookie])
+			val storedCookies: Map[CookieKey, Cookie] = session.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(Map.empty[CookieKey, Cookie])
 
 			val uri = URI.create(url)
 			val uriHost = uri.getHost
 			val uriPath = uri.getPath
 
-			val expiringCookieKeys = cookies.filter(_.getMaxAge <= 0).map(newCookieKey(_, uriHost, uriPath))
-			val nonExpiredStoredCookies = storedCookies.filterKeys(!expiringCookieKeys.contains(_))
+			val (deletedCookies, nonDeletedCookies) = cookies.partition(_.getValue == "deleted")
 
-			val nonExpiringCookies = cookies.filter(_.getMaxAge > 0)
-			val newCookies = nonExpiredStoredCookies ++ nonExpiringCookies.map { cookie => newCookieKey(cookie, uriHost, uriPath) -> cookie }
+			val deletedCookieKeys = deletedCookies.map(newCookieKey(_, uriHost, uriPath))
+			val nonDeletedStoredCookies = storedCookies.filterKeys(!deletedCookieKeys.contains(_))
+
+			val newCookies = nonDeletedStoredCookies ++ nonDeletedCookies.map { cookie => newCookieKey(cookie, uriHost, uriPath) -> cookie }
 
 			session.setAttribute(COOKIES_CONTEXT_KEY, newCookies)
 		} else
