@@ -144,12 +144,12 @@
 		<specs2.version>1.8.2</specs2.version>
 
 		<maven2.version>2.2.1</maven2.version>
-		<maven-assembly-plugin.version>2.2.1</maven-assembly-plugin.version>
-		<maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
+		<maven-assembly-plugin.version>2.3</maven-assembly-plugin.version>
+		<maven-jar-plugin.version>2.4</maven-jar-plugin.version>
 		<maven-scala-plugin.version>2.15.2</maven-scala-plugin.version>
-		<maven-surefire-plugin.version>2.10</maven-surefire-plugin.version>
-		<maven-release-plugin.version>2.2.1</maven-release-plugin.version>
-		<maven-licence-plugin.version>1.9.0</maven-licence-plugin.version>
+		<maven-surefire-plugin.version>2.12</maven-surefire-plugin.version>
+		<maven-release-plugin.version>2.2.2</maven-release-plugin.version>
+		<maven-license-plugin.version>1.10.b1</maven-license-plugin.version>
 		<maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
 		<maven-plugin-plugin.version>2.9</maven-plugin-plugin.version>
 		<build-helper-maven-plugin.version>1.7</build-helper-maven-plugin.version>
@@ -458,7 +458,7 @@
 				<plugin>
 					<groupId>com.mycila.maven-license-plugin</groupId>
 					<artifactId>maven-license-plugin</artifactId>
-					<version>${maven-licence-plugin.version}</version>
+					<version>${maven-license-plugin.version}</version>
 					<configuration>
 						<header>src/etc/header.txt</header>
 						<excludes>
