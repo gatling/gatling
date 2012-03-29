@@ -50,7 +50,7 @@ trait CookieHandling {
 		}
 
 		if (!cookies.isEmpty) {
-			val storedCookies: Map[CookieKey, Cookie] = session.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(Map.empty[CookieKey, Cookie])
+			val storedCookies: Map[CookieKey, Cookie] = session.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(Map.empty)
 
 			val uri = URI.create(url)
 			val uriHost = uri.getHost
