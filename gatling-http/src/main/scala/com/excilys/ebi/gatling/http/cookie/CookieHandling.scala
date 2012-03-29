@@ -20,8 +20,6 @@ import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PR
 import com.excilys.ebi.gatling.core.session.Session
 import com.ning.http.client.Cookie
 
-
-
 case class CookieKey(domain: String, path: String, name: String)
 
 trait CookieHandling {
