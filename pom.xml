@@ -135,7 +135,7 @@
 		<plexus.version>3.0</plexus.version>
 		<scopt.version>2.0.1</scopt.version>
 		<args4j.version>2.0.19</args4j.version>
-		<twitter-util.version>2.0.0</twitter-util.version>
+		<twitter-util.version>3.0.0</twitter-util.version>
 		<opencsv.version>2.3</opencsv.version>
 		<ant.version>1.8.2</ant.version>
 		<grizzled-slf4j.version>0.6.8</grizzled-slf4j.version>
