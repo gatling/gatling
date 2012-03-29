@@ -462,7 +462,7 @@
 					<configuration>
 						<header>src/etc/header.txt</header>
 						<excludes>
-							<exclude>**/imports.txt</exclude>
+							<exclude>**/jquery.min.js</exclude>
 						</excludes>
 					</configuration>
 					<executions>
