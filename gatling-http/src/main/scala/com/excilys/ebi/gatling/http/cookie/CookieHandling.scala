@@ -56,7 +56,7 @@ trait CookieHandling {
 			val uriHost = uri.getHost
 			val uriPath = uri.getPath
 
-			val (deletedCookies, nonDeletedCookies) = cookies.partition(_.getValue.equalsIgnoreCase("deleted"))
+			val (deletedCookies, nonDeletedCookies) = cookies.partition(_.getMaxAge == 0)
 
 			val deletedCookieKeys = deletedCookies.map(newCookieKey(_, uriHost, uriPath))
 			val nonDeletedStoredCookies = storedCookies.filterKeys(!deletedCookieKeys.contains(_))
