@@ -146,7 +146,7 @@
 		<maven2.version>2.2.1</maven2.version>
 		<maven-assembly-plugin.version>2.3</maven-assembly-plugin.version>
 		<maven-jar-plugin.version>2.4</maven-jar-plugin.version>
-		<maven-scala-plugin.version>2.15.2</maven-scala-plugin.version>
+		<scala-maven-plugin.version>3.0.1</scala-maven-plugin.version>
 		<maven-surefire-plugin.version>2.12</maven-surefire-plugin.version>
 		<maven-release-plugin.version>2.2.2</maven-release-plugin.version>
 		<maven-license-plugin.version>1.10.b1</maven-license-plugin.version>
@@ -412,13 +412,13 @@
 				</plugin>
 				<plugin>
 					<groupId>org.fusesource.scalate</groupId>
-					<artifactId>maven-scalate-plugin</artifactId>
+					<artifactId>scala-mavente-plugin</artifactId>
 					<version>${scalate.version}</version>
 				</plugin>
 				<plugin>
-					<groupId>org.scala-tools</groupId>
-					<artifactId>maven-scala-plugin</artifactId>
-					<version>${maven-scala-plugin.version}</version>
+					<groupId>net.alchim31.maven</groupId>
+					<artifactId>scala-maven-plugin</artifactId>
+					<version>${scala-maven-plugin.version}</version>
 					<executions>
 						<execution>
 							<goals>

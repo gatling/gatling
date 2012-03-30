@@ -32,8 +32,8 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.scala-tools</groupId>
-				<artifactId>maven-scala-plugin</artifactId>
+				<groupId>net.alchim31.maven</groupId>
+				<artifactId>scala-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>
