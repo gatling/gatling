@@ -412,7 +412,7 @@
 				</plugin>
 				<plugin>
 					<groupId>org.fusesource.scalate</groupId>
-					<artifactId>scala-mavente-plugin</artifactId>
+					<artifactId>maven-scalate-plugin</artifactId>
 					<version>${scalate.version}</version>
 				</plugin>
 				<plugin>
