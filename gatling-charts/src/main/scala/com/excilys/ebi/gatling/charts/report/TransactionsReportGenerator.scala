@@ -28,9 +28,10 @@ class TransactionsReportGenerator(runOn: String, dataReader: DataReader, compone
 
 	def generate {
 		// Get Data
-		val allTransactionsData = numberOfRequestsPerSecondAsList(dataReader.dataIndexedByReceiveDateWithoutMillis)
-		val failedTransactionsData = numberOfRequestsPerSecond(dataReader.dataIndexedByReceiveDateWithoutMillis, KO)
-		val succeededTransactionsData = numberOfRequestsPerSecond(dataReader.dataIndexedByReceiveDateWithoutMillis, OK)
+		val requestData = dataReader.requestDataIndexedByReceiveDateWithoutMillis
+		val allTransactionsData = numberOfRequestsPerSecondAsList(requestData)
+		val failedTransactionsData = numberOfRequestsPerSecond(requestData, KO)
+		val succeededTransactionsData = numberOfRequestsPerSecond(requestData, OK)
 		val pieData = ("Success", succeededTransactionsData.map { case (_, count) => count }.sum) :: ("Failures", failedTransactionsData.map { case (_, count) => count }.sum) :: Nil
 
 		// Create series

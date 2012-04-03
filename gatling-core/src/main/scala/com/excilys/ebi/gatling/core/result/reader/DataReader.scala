@@ -26,11 +26,12 @@ object DataReader {
 
 abstract class DataReader(runUuid: String) {
 
-	val runRecord: RunRecord
-	val requestNames: Seq[String]
-	val scenarioNames: Seq[String]
-	val dataIndexedBySendDateWithoutMillis: SortedMap[Long, Seq[RequestRecord]]
-	val dataIndexedByReceiveDateWithoutMillis: SortedMap[Long, Seq[RequestRecord]]
+	def runRecord: RunRecord
+	def requestNames: Seq[String]
+	def scenarioNames: Seq[String]
+	def dataIndexedBySendDateWithoutMillis: SortedMap[Long, Seq[RequestRecord]]
+	def requestDataIndexedBySendDateWithoutMillis: SortedMap[Long, Seq[RequestRecord]]
+	def requestDataIndexedByReceiveDateWithoutMillis: SortedMap[Long, Seq[RequestRecord]]
 
 	def requestData(requestName: String): Seq[RequestRecord]
 	def requestDataIndexedBySendDate(requestName: String): SortedMap[Long, Seq[RequestRecord]]

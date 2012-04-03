@@ -59,20 +59,31 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		.filter(record => record.executionStartDate >= configuration.chartingTimeWindowLowerBound && record.executionStartDate <= configuration.chartingTimeWindowHigherBound)
 		.sortBy(_.executionStartDate)
 
+	private val rawRequestData = data.filter(record => record.requestName != START_OF_SCENARIO && record.requestName != END_OF_SCENARIO)
+
 	val runRecord = if (runRecords.size == 1) runRecords.head else throw new IllegalAccessException("Expecting one and only one RunRecord")
 
-	val requestNames: Seq[String] = data.map(_.requestName).distinct.filter(value => value != END_OF_SCENARIO && value != START_OF_SCENARIO)
+	val requestNames: Seq[String] = rawRequestData
+		.map(_.requestName)
+		.distinct
 
-	val scenarioNames: Seq[String] = data.map(_.scenarioName).distinct
+	val scenarioNames: Seq[String] = rawRequestData
+		.map(_.scenarioName)
+		.distinct
 
 	val dataIndexedBySendDateWithoutMillis: SortedMap[Long, Seq[RequestRecord]] = SortedMap(
 		data
 			.groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis)
 			.toSeq: _*)
 
-	val dataIndexedByReceiveDateWithoutMillis: SortedMap[Long, Seq[RequestRecord]] = SortedMap(
-		data
-			.groupBy(result => new DateTime(result.executionStartDate + result.responseTime).withMillisOfSecond(0).getMillis)
+	val requestDataIndexedBySendDateWithoutMillis: SortedMap[Long, Seq[RequestRecord]] = SortedMap(
+		rawRequestData
+			.groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis)
+			.toSeq: _*)
+
+	val requestDataIndexedByReceiveDateWithoutMillis: SortedMap[Long, Seq[RequestRecord]] = SortedMap(
+		rawRequestData
+			.groupBy(record => new DateTime(record.executionStartDate + record.responseTime).withMillisOfSecond(0).getMillis)
 			.toSeq: _*)
 
 	def requestData(requestName: String): Seq[RequestRecord] = data.filter(_.requestName == requestName)
