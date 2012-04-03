@@ -22,7 +22,7 @@ import com.excilys.ebi.gatling.core.config.GatlingFiles
 import com.excilys.ebi.gatling.core.util.PathHelper.path2string
 import com.ning.http.client.FilePart
 
-case class UploadedFile(fileName: String, mimeType: String, charset: String) {
+case class UploadedFile(paramKey: String, fileName: String, mimeType: String, charset: String) {
 
-	def toFilePart = new FilePart(fileName, new File(GatlingFiles.requestBodiesFolder / fileName), mimeType, charset)
+	def toFilePart = new FilePart(paramKey, new File(GatlingFiles.requestBodiesFolder / fileName), mimeType, charset)
 }

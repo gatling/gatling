@@ -50,7 +50,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	params: List[HttpParam],
 	headers: Map[String, EvaluatableString],
 	body: Option[HttpRequestBody],
-	fileUpload: Option[UploadedFile],
+	uploadedFile: Option[UploadedFile],
 	credentials: Option[Credentials],
 	checks: Option[List[HttpCheck]])
 		extends AbstractHttpRequestWithBodyBuilder[B](requestName, method, url, queryParams, headers, body, credentials, checks) {
@@ -73,7 +73,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		params: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		body: Option[HttpRequestBody],
-		fileUpload: Option[UploadedFile],
+		uploadedFile: Option[UploadedFile],
 		credentials: Option[Credentials],
 		checks: Option[List[HttpCheck]]): B
 
@@ -85,12 +85,12 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		body: Option[HttpRequestBody],
 		credentials: Option[Credentials],
 		checks: Option[List[HttpCheck]]): B = {
-		newInstance(requestName, url, queryParams, params, headers, body, fileUpload, credentials, checks)
+		newInstance(requestName, url, queryParams, params, headers, body, uploadedFile, credentials, checks)
 	}
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
 		val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
-		fileUpload match {
+		uploadedFile match {
 			case Some(fileName) =>
 				configureStringParts(requestBuilder, session)
 				configureBodyPart(requestBuilder)
@@ -104,13 +104,13 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 *
 	 */
 	def param(key: EvaluatableString, value: EvaluatableString): B =
-		newInstance(requestName, url, queryParams, (key, value) :: params, headers, body, fileUpload, credentials, checks)
+		newInstance(requestName, url, queryParams, (key, value) :: params, headers, body, uploadedFile, credentials, checks)
 
 	def param(paramKey: String): B = param(paramKey, EL_START + paramKey + EL_END)
 
-	def upload(fileName: String, mimeType: String = APPLICATION_OCTET_STREAM, charset: String = configuration.encoding): B =
+	def upload(paramKey: String, fileName: String, mimeType: String = APPLICATION_OCTET_STREAM, charset: String = configuration.encoding): B =
 		header(CONTENT_TYPE, MULTIPART_FORM_DATA)
-			.newInstance(requestName, url, queryParams, params, headers, body, Some(UploadedFile(fileName, mimeType, charset)), credentials, checks)
+			.newInstance(requestName, url, queryParams, params, headers, body, Some(UploadedFile(paramKey, fileName, mimeType, charset)), credentials, checks)
 
 	/**
 	 * This method adds the parameters to the request builder
@@ -133,7 +133,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	}
 
 	private def configureBodyPart(requestBuilder: RequestBuilder) {
-		fileUpload.map(file => requestBuilder.addBodyPart(file.toFilePart))
+		uploadedFile.map(file => requestBuilder.addBodyPart(file.toFilePart))
 	}
 
 	private def configureStringParts(requestBuilder: RequestBuilder, session: Session) {
