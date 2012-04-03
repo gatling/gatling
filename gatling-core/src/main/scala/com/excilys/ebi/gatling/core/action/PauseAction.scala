@@ -20,8 +20,8 @@ import java.util.concurrent.TimeUnit
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.NumberHelper.getRandomLong
 
-import akka.actor.Scheduler.scheduleOnce
 import akka.actor.ActorRef
+import akka.util.duration.longToDurationLong
 import grizzled.slf4j.Logging
 
 /**
@@ -51,6 +51,6 @@ class PauseAction(next: ActorRef, minDuration: Long, maxDuration: Option[Long], 
 		val durationMinusLastActionDurationInMillis = durationInMillis - session.getLastActionDuration
 		info(new StringBuilder().append("Waiting for ").append(durationInMillis).append("ms (").append(durationMinusLastActionDurationInMillis).append("ms)"))
 
-		scheduleOnce(() => next ! session, durationMinusLastActionDurationInMillis, TimeUnit.MILLISECONDS)
+		system.scheduler.scheduleOnce(durationMinusLastActionDurationInMillis milliseconds, next, session)
 	}
 }

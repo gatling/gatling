@@ -16,10 +16,12 @@
 package com.excilys.ebi.gatling.core.action.builder
 
 import java.util.concurrent.CountDownLatch
-import com.excilys.ebi.gatling.core.action.{EndAction, Action}
-import akka.actor.Actor.actorOf
-import akka.actor.ActorRef
+
+import com.excilys.ebi.gatling.core.action.system
+import com.excilys.ebi.gatling.core.action.EndAction
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+
+import akka.actor.{ Props, ActorRef }
 
 object EndActionBuilder {
 
@@ -40,7 +42,7 @@ object EndActionBuilder {
  */
 class EndActionBuilder(latch: CountDownLatch) extends ActionBuilder {
 
-	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = actorOf(new EndAction(latch)).start
-		
+	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new EndAction(latch)))
+
 	def withNext(next: ActorRef): ActionBuilder = this
 }

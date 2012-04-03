@@ -95,11 +95,4 @@ class GatlingFileConfiguration(map: Map[String, Any]) extends Logging {
 	def apply(key: String, defaultValue: Int) = getInt(key, defaultValue)
 	def apply(key: String, defaultValue: Long) = getLong(key, defaultValue)
 	def apply(key: String, defaultValue: Boolean) = getBoolean(key, defaultValue)
-
-	def getSection(name: String): Option[GatlingFileConfiguration] = {
-		val l = name.length + 1
-		val m = map.collect { case (k, v) if k.startsWith(name) => (k.substring(l), v) }
-		if (m.isEmpty) None
-		else Some(new GatlingFileConfiguration(m))
-	}
 }

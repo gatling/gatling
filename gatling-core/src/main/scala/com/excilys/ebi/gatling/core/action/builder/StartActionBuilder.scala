@@ -15,10 +15,11 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
+import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.action.StartAction
-import akka.actor.Actor.actorOf
-import akka.actor.ActorRef
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+
+import akka.actor.{ Props, ActorRef }
 
 object StartActionBuilder {
 
@@ -39,5 +40,5 @@ object StartActionBuilder {
 class StartActionBuilder(next: ActorRef) extends ActionBuilder {
 	def withNext(next: ActorRef) = new StartActionBuilder(next)
 
-	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = actorOf(new StartAction(next)).start
+	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new StartAction(next)))
 }

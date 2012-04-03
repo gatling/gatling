@@ -16,10 +16,12 @@
 package com.excilys.ebi.gatling.core.action.builder
 
 import java.util.concurrent.TimeUnit
+
+import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.action.PauseAction
-import akka.actor.Actor.actorOf
-import akka.actor.ActorRef
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+
+import akka.actor.{ Props, ActorRef }
 
 object PauseActionBuilder {
 
@@ -74,5 +76,5 @@ class PauseActionBuilder(minDuration: Long, maxDuration: Option[Long] = None, ti
 
 	def withNext(next: ActorRef) = new PauseActionBuilder(minDuration, maxDuration, timeUnit, next)
 
-	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = actorOf(new PauseAction(next, minDuration, maxDuration, timeUnit)).start
+	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new PauseAction(next, minDuration, maxDuration, timeUnit)))
 }

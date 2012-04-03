@@ -15,13 +15,13 @@
  */
 package com.excilys.ebi.gatling.http.action
 import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
+import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpRequest
 
-import akka.actor.Actor.{ toAnyOptionAsTypedOption, actorOf }
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 
 /**
  * Builder for HttpRequestActionBuilder
@@ -37,7 +37,7 @@ class HttpRequestActionBuilder(request: HttpRequest, next: ActorRef, checks: Opt
 	private[gatling] def withNext(next: ActorRef) = new HttpRequestActionBuilder(request, next, checks)
 
 	private[gatling] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
-		val httpConfig = protocolConfigurationRegistry.getProtocolConfiguration(HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE).as[HttpProtocolConfiguration]
-		actorOf(new HttpRequestAction(next, request, checks, httpConfig)).start
+		val httpConfig = protocolConfigurationRegistry.getProtocolConfiguration(HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE).map(_.asInstanceOf[HttpProtocolConfiguration])
+		system.actorOf(Props(new HttpRequestAction(next, request, checks, httpConfig)))
 	}
 }

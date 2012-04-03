@@ -15,17 +15,21 @@
  */
 package com.excilys.ebi.gatling.core.runner
 
-import java.util.concurrent.TimeUnit.{SECONDS, MILLISECONDS}
+import java.util.concurrent.TimeUnit.SECONDS
 import java.util.concurrent.CountDownLatch
 
+import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.result.message.RunRecord
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
-import com.excilys.ebi.gatling.core.scenario.configuration.{ScenarioConfigurationBuilder, ScenarioConfiguration}
+import com.excilys.ebi.gatling.core.scenario.configuration.{ ScenarioConfigurationBuilder, ScenarioConfiguration }
 import com.excilys.ebi.gatling.core.session.Session
 
-import akka.actor.{Scheduler, ActorRef}
+import akka.actor.actorRef2Scala
+import akka.actor.ActorRef
+import akka.util.duration.longToDurationLong
+import akka.util.Duration
 import grizzled.slf4j.Logging
 
 class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioConfigurationBuilder]) extends Logging {
@@ -65,7 +69,9 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 		scenariosAndConfigurations.map {
 			case (scenario, configuration) => {
 				val (delayDuration, delayUnit) = scenario.delay
-				Scheduler.scheduleOnce(() => startOneScenario(scenario, configuration.firstAction), delayDuration, delayUnit)
+				system.scheduler.scheduleOnce(Duration(delayDuration, delayUnit), new Runnable {
+					def run = startOneScenario(scenario, configuration.firstAction)
+				})
 			}
 		}
 
@@ -97,7 +103,7 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 			val period = rampUnit.toMillis(rampValue) / (configuration.users - 1)
 
 			for (i <- 1 to configuration.users)
-				Scheduler.scheduleOnce(() => scenario ! buildSession(configuration, i), period * (i - 1), MILLISECONDS)
+				system.scheduler.scheduleOnce(period * (i - 1) milliseconds, scenario, buildSession(configuration, i))
 		}
 	}
 

@@ -16,20 +16,25 @@
 package com.excilys.ebi.gatling.core.result.writer
 
 import java.util.concurrent.CountDownLatch
-
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.init.Initializable
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
 import com.excilys.ebi.gatling.core.result.message.{ RunRecord, RequestStatus, RequestRecord, InitializeDataWriter }
-
-import akka.actor.Actor.actorOf
 import akka.actor.{ PoisonPill, ActorRef, Actor }
+import com.excilys.ebi.gatling.core.result.message.RequestRecord
+import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
+import com.excilys.ebi.gatling.core.action._
+import com.excilys.ebi.gatling.core.result.message.RequestRecord
+import akka.actor.Props
+import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
 
 object DataWriter {
 
-	private lazy val instance: ActorRef = actorOf(configuration.dataWriterClass).start
+	private lazy val instance: ActorRef = init
+
+	private def init = system.actorOf(Props(configuration.dataWriterClass))
 
 	def init(runRecord: RunRecord, latch: CountDownLatch) = instance ! InitializeDataWriter(runRecord, latch)
 

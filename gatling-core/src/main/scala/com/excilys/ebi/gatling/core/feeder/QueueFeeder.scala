@@ -19,7 +19,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 import scala.collection.JavaConverters.seqAsJavaListConverter
 
-import akka.actor.Actor.registry
+import com.excilys.ebi.gatling.core.action.system
+
 import grizzled.slf4j.Logging
 
 class QueueFeeder(feederSource: FeederSource) extends Feeder with Logging {
@@ -28,7 +29,7 @@ class QueueFeeder(feederSource: FeederSource) extends Feeder with Logging {
 
 	def next: Map[String, String] = Option(values.poll).getOrElse {
 		error("There are not enough records in the feeder '" + feederSource.name + "'.\nPlease add records or use another feeder strategy.\nStopping simulation here...")
-		registry.shutdownAll
+		system.shutdown
 		sys.exit
 	}
 }

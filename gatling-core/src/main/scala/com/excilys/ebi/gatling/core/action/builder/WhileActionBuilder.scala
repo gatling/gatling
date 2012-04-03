@@ -15,13 +15,14 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.{ WhileAction, Action }
+import com.excilys.ebi.gatling.core.action.system
+import com.excilys.ebi.gatling.core.action.WhileAction
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
-import akka.actor.Actor.actorOf
-import akka.actor.{ Uuid, ActorRef }
+import akka.actor.Uuid
+import akka.actor.{ Props, ActorRef }
 
 object WhileActionBuilder {
 	/**
@@ -66,5 +67,5 @@ class WhileActionBuilder(condition: Session => Boolean, loopNext: ChainBuilder, 
 
 	def withNext(next: ActorRef) = new WhileActionBuilder(condition, loopNext, next, counterName)
 
-	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = actorOf(new WhileAction(condition, (next: ActorRef) => loopNext.withNext(next).build(protocolConfigurationRegistry), next, counterName)).start
+	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new WhileAction(condition, (next: ActorRef) => loopNext.withNext(next).build(protocolConfigurationRegistry), next, counterName)))
 }

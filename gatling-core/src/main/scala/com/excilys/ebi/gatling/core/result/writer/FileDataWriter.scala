@@ -141,7 +141,8 @@ class FileDataWriter extends DataWriter with Logging {
 			}
 		}
 
-		case unknown => error("Unknow message type " + unknown.getClass)
+		case unknown: AnyRef => error("Unknow message type " + unknown.getClass)
+		case unknown: Any => error("Unknow message type " + unknown)
 	}
 
 	override def postStop {

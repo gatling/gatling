@@ -15,13 +15,13 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
+import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.action.IfAction
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
-import akka.actor.Actor.actorOf
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 
 object IfActionBuilder {
 
@@ -72,6 +72,6 @@ class IfActionBuilder(condition: Session => Boolean, thenNext: ChainBuilder, els
 		val actionTrue = thenNext.withNext(next).build(protocolConfigurationRegistry)
 		val actionFalse = elseNext.map(_.withNext(next).build(protocolConfigurationRegistry))
 
-		actorOf(new IfAction(condition, actionTrue, actionFalse, next)).start
+		system.actorOf(Props(new IfAction(condition, actionTrue, actionFalse, next)))
 	}
 }

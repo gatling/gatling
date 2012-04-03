@@ -37,7 +37,7 @@ import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.twitter.io.TempDirectory
 
-import akka.actor.Actor.registry
+import com.excilys.ebi.gatling.core.action.system
 import grizzled.slf4j.Logging
 import scopt.OptionParser
 import com.excilys.ebi.gatling.app.Gatling.useActorSystem
@@ -79,7 +79,7 @@ object Gatling extends Logging {
 
 		} finally {
 			// shut all actors down
-			registry.shutdownAll
+			system.shutdown
 
 			// closes all the resources used during simulation
 			ResourceRegistry.closeAll
