@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.node.TextNode
  */
 class JacksonNavigator extends DefaultNavigator with NamedAccessNavigator {
 
-	def getAttributeAxisIterator(contextNode: Object, localName: String, namespacePrefix: String, namespaceURI: String) = getChildAxisIterator(contextNode, localName, namespacePrefix, namespaceURI);
+	def getAttributeAxisIterator(contextNode: Object, localName: String, namespacePrefix: String, namespaceURI: String) = getChildAxisIterator(contextNode, localName, namespacePrefix, namespaceURI)
 
 	def getChildAxisIterator(contextNode: Object, localName: String, namespacePrefix: String, namespaceURI: String) = {
 

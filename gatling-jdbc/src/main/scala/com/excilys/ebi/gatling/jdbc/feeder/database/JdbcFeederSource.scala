@@ -25,7 +25,7 @@ class JdbcFeederSource(driverClassName: String, url: String, username: String, p
 	Class.forName(driverClassName)
 
 	lazy val values: IndexedSeq[Map[String, String]] = use(DriverManager.getConnection(url, username, password)) { connection =>
-		val preparedStatement = connection.prepareStatement(sql, TYPE_FORWARD_ONLY, CONCUR_READ_ONLY);
+		val preparedStatement = connection.prepareStatement(sql, TYPE_FORWARD_ONLY, CONCUR_READ_ONLY)
 		val resultSet = preparedStatement.executeQuery
 		val rsmd = resultSet.getMetaData
 
