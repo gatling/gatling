@@ -69,9 +69,7 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 		scenariosAndConfigurations.map {
 			case (scenario, configuration) => {
 				val (delayDuration, delayUnit) = scenario.delay
-				system.scheduler.scheduleOnce(Duration(delayDuration, delayUnit), new Runnable {
-					def run = startOneScenario(scenario, configuration.firstAction)
-				})
+				system.scheduler.scheduleOnce(Duration(delayDuration, delayUnit))(startOneScenario(scenario, configuration.firstAction))
 			}
 		}
 
