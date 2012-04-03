@@ -15,17 +15,17 @@
  */
 package com.excilys.ebi.gatling.core.runner
 
-import java.util.concurrent.TimeUnit.{ SECONDS, MILLISECONDS }
+import java.util.concurrent.TimeUnit.{SECONDS, MILLISECONDS}
 import java.util.concurrent.CountDownLatch
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.result.message.RunRecord
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
-import com.excilys.ebi.gatling.core.scenario.configuration.{ ScenarioConfigurationBuilder, ScenarioConfiguration }
+import com.excilys.ebi.gatling.core.scenario.configuration.{ScenarioConfigurationBuilder, ScenarioConfiguration}
 import com.excilys.ebi.gatling.core.session.Session
 
-import akka.actor.{ Scheduler, ActorRef }
+import akka.actor.{Scheduler, ActorRef}
 import grizzled.slf4j.Logging
 
 class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioConfigurationBuilder]) extends Logging {
@@ -36,13 +36,16 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 	// Counts the number of users
 	val totalNumberOfUsers = scenarioConfigurations.map(_.users).sum
 
-	// Initializes a countdown latch to determine when to stop the application (totalNumberOfUsers + 1 DataWriter)
-	val latch = new CountDownLatch(totalNumberOfUsers + 1)
+	// latch for determining when to send a PoisonPill to the DataWriter
+	val userLatch = new CountDownLatch(totalNumberOfUsers)
+
+	// latch for determining when to stop the application
+	val dataWriterLatch = new CountDownLatch(1)
 
 	// Builds all scenarios
 	val scenarios = scenarioConfigurations.map { scenarioConfiguration =>
 		val protocolRegistry = new ProtocolConfigurationRegistry(scenarioConfiguration.protocolConfigurations)
-		scenarioConfiguration.scenarioBuilder.end(latch).build(protocolRegistry)
+		scenarioConfiguration.scenarioBuilder.end(userLatch).build(protocolRegistry)
 	}
 
 	// Creates a List of Tuples with scenario configuration / scenario 
@@ -54,7 +57,7 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 	 * This method schedules the beginning of all scenarios
 	 */
 	def run {
-		DataWriter.init(runRecord, latch)
+		DataWriter.init(runRecord, dataWriterLatch)
 
 		debug("Launching All Scenarios")
 
@@ -67,7 +70,10 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 		}
 
 		debug("Finished Launching scenarios executions")
-		latch.await(configuration.simulationTimeOut, SECONDS)
+		userLatch.await(configuration.simulationTimeOut, SECONDS)
+
+		DataWriter.askShutDown
+		dataWriterLatch.await(configuration.simulationTimeOut, SECONDS)
 
 		debug("All scenarios finished, stoping actors")
 	}

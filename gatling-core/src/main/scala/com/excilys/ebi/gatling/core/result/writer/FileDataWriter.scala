@@ -15,22 +15,21 @@
  */
 package com.excilys.ebi.gatling.core.result.writer
 
-import java.io.{OutputStreamWriter, FileOutputStream, BufferedOutputStream}
+import java.io.{ OutputStreamWriter, FileOutputStream, BufferedOutputStream }
 import java.lang.System.currentTimeMillis
 import java.util.concurrent.CountDownLatch
 
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
-import com.excilys.ebi.gatling.core.result.message.RecordType.{RUN, ACTION}
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.{OK, KO}
-import com.excilys.ebi.gatling.core.result.message.{RequestRecord, InitializeDataWriter}
+import com.excilys.ebi.gatling.core.result.message.RecordType.{ RUN, ACTION }
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
+import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, InitializeDataWriter }
 import com.excilys.ebi.gatling.core.util.DateHelper.toTimestamp
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 
-import akka.actor.scala2ActorRef
 import grizzled.slf4j.Logging
 
 /**
@@ -83,17 +82,11 @@ class FileDataWriter extends DataWriter with Logging {
 					.append(END_OF_LINE)
 			}
 
-			def handleCounters {
-				// the latch is set to totalUsersCount + 1 so main thread awaits until this FileDataWriter is closed
-				totalUsersCount = latch.getCount - 1
-			}
-
 			if (initialized.compareAndSet(false, true)) {
 				this.latch = latch
 
 				initStreamWriter
 				printRunRecord
-				handleCounters
 
 			} else {
 				error("FileDataWriter has already been initialized!")
@@ -138,25 +131,10 @@ class FileDataWriter extends DataWriter with Logging {
 				}
 			}
 
-			def closeIfLastMessage {
-				if (latch.getCount == 1 && self.dispatcher.mailboxIsEmpty(self)) {
-					use(osw) { osw =>
-						try {
-							osw.flush
-						} finally {
-							// Decrease the latch (should be at 0 here)
-							latch.countDown
-							initialized.set(false)
-						}
-					}
-				}
-			}
-
 			if (initialized.get) {
 				printRequestRecord
 				handleCounters
 				displaySamplingInfo
-				closeIfLastMessage
 
 			} else {
 				error("FileDataWriter hasn't been initialized!")
@@ -164,5 +142,19 @@ class FileDataWriter extends DataWriter with Logging {
 		}
 
 		case unknown => error("Unknow message type " + unknown.getClass)
+	}
+
+	override def postStop {
+		info("Received PoisonPill")
+
+		use(osw) { osw =>
+			try {
+				osw.flush
+			} finally {
+				// Decrease the latch (should be at 0 here)
+				latch.countDown
+				initialized.set(false)
+			}
+		}
 	}
 }
