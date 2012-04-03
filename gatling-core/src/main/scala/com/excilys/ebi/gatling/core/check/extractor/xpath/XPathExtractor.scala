@@ -20,41 +20,52 @@ import java.io.{ StringReader, InputStream }
 import scala.collection.JavaConverters.asScalaBufferConverter
 
 import org.jaxen.dom.DOMXPath
-import org.jaxen.XPath
-import org.w3c.dom.Node
+import org.w3c.dom.{ Node, Document }
 import org.xml.sax.{ InputSource, EntityResolver }
 
 import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
-import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.parsers.{ DocumentBuilderFactory, DocumentBuilder }
 
 object XPathExtractor {
-	System.setProperty("javax.xml.parsers.SAXParserFactory", "org.apache.xerces.jaxp.SAXParserFactoryImpl");
-	System.setProperty("javax.xml.parsers.DOMParserFactory", "org.apache.xerces.jaxp.DOMParserFactoryImpl");
+	System.setProperty("javax.xml.parsers.SAXParserFactory", "org.apache.xerces.jaxp.SAXParserFactoryImpl")
+	System.setProperty("javax.xml.parsers.DOMParserFactory", "org.apache.xerces.jaxp.DOMParserFactoryImpl")
 	private val factory = DocumentBuilderFactory.newInstance
 	factory.setExpandEntityReferences(false)
 	factory.setNamespaceAware(true)
 
-	val parser = factory.newDocumentBuilder
-	parser.setEntityResolver(new EntityResolver {
-		def resolveEntity(publicId: String, systemId: String): InputSource = {
-			new InputSource(new StringReader(EMPTY));
+	val noopEntityResolver = new EntityResolver {
+		def resolveEntity(publicId: String, systemId: String) = new InputSource(new StringReader(EMPTY))
+	}
+
+	val parserHolder = new ThreadLocal[DocumentBuilder] {
+		override def initialValue: DocumentBuilder = {
+			val documentBuilder = factory.newDocumentBuilder
+			documentBuilder.setEntityResolver(noopEntityResolver)
+			documentBuilder
 		}
-	})
+	}
+
+	def apply(inputStream: InputStream) = {
+		val parser = XPathExtractor.parserHolder.get
+		val document = try
+			parser.parse(inputStream)
+		finally
+			parser.reset
+		new XPathExtractor(document)
+	}
 }
 
 /**
- * A built-in extractorfor extracting values with XPath Expressions
+ * A built-in extractor for extracting values with XPath Expressions
  *
  * It requires a well formatted XML document, otherwise, it will throw an exception
  *
  * @constructor creates a new XPathExtractor
  * @param inputStream the XML document in which the XPath search will be applied
  */
-class XPathExtractor(inputStream: InputStream) {
-
-	val document = XPathExtractor.parser.parse(inputStream)
+class XPathExtractor(document: Document) {
 
 	def xpath(expression: String, namespaces: List[(String, String)]) = {
 		val xpathExpression = new DOMXPath(expression)
