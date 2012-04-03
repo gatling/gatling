@@ -65,17 +65,31 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	val scenarioNames: Seq[String] = data.map(_.scenarioName).distinct
 
-	val dataIndexedBySendDateWithoutMillis: SortedMap[Long, Seq[RequestRecord]] = SortedMap(data.groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis).toSeq: _*)
+	val dataIndexedBySendDateWithoutMillis: SortedMap[Long, Seq[RequestRecord]] = SortedMap(
+		data
+			.groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis)
+			.toSeq: _*)
 
-	val dataIndexedByReceiveDateWithoutMillis: SortedMap[Long, Seq[RequestRecord]] = SortedMap(data.groupBy(result => new DateTime(result.executionStartDate + result.responseTime).withMillisOfSecond(0).getMillis).toSeq: _*)
+	val dataIndexedByReceiveDateWithoutMillis: SortedMap[Long, Seq[RequestRecord]] = SortedMap(
+		data
+			.groupBy(result => new DateTime(result.executionStartDate + result.responseTime).withMillisOfSecond(0).getMillis)
+			.toSeq: _*)
 
 	def requestData(requestName: String): Seq[RequestRecord] = data.filter(_.requestName == requestName)
 
-	def scenarioData(scenarioName: String): Seq[RequestRecord] = data.filter(_.scenarioName == scenarioName)
+	def requestDataIndexedBySendDate(requestName: String): SortedMap[Long, Seq[RequestRecord]] = SortedMap(
+		requestData(requestName)
+			.groupBy(_.executionStartDate)
+			.toSeq: _*)
 
-	def requestDataIndexedBySendDate(requestName: String): SortedMap[Long, Seq[RequestRecord]] = SortedMap(requestData(requestName).groupBy(_.executionStartDate).toSeq: _*)
+	def requestDataIndexedBySendDateWithoutMillis(requestName: String): SortedMap[Long, Seq[RequestRecord]] = SortedMap(
+		requestData(requestName)
+			.groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis)
+			.toSeq: _*)
 
-	def requestDataIndexedBySendDateWithoutMillis(requestName: String): SortedMap[Long, Seq[RequestRecord]] = SortedMap(requestData(requestName).groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis).toSeq: _*)
-
-	def scenarioDataIndexedBySendDateWithoutMillis(scenarioName: String): SortedMap[Long, Seq[RequestRecord]] = SortedMap(scenarioData(scenarioName).groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis).toSeq: _*)
+	def scenarioDataIndexedBySendDateWithoutMillis(scenarioName: String): SortedMap[Long, Seq[RequestRecord]] = SortedMap(
+		data
+			.filter(_.scenarioName == scenarioName)
+			.groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis)
+			.toSeq: _*)
 }

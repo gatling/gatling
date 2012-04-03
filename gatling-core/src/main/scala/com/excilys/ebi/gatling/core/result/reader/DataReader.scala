@@ -33,7 +33,6 @@ abstract class DataReader(runUuid: String) {
 	val dataIndexedByReceiveDateWithoutMillis: SortedMap[Long, Seq[RequestRecord]]
 
 	def requestData(requestName: String): Seq[RequestRecord]
-	def scenarioData(scenarioName: String): Seq[RequestRecord]
 	def requestDataIndexedBySendDate(requestName: String): SortedMap[Long, Seq[RequestRecord]]
 	def requestDataIndexedBySendDateWithoutMillis(requestName: String): SortedMap[Long, Seq[RequestRecord]]
 	def scenarioDataIndexedBySendDateWithoutMillis(scenarioName: String): SortedMap[Long, Seq[RequestRecord]]
