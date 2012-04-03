@@ -15,23 +15,23 @@
  */
 package com.excilys.ebi.gatling.core.result.writer
 
-import java.io.{ OutputStreamWriter, FileOutputStream, BufferedOutputStream }
+import java.io.{OutputStreamWriter, FileOutputStream, BufferedOutputStream}
 import java.lang.System.currentTimeMillis
-import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.CountDownLatch
-import scala.tools.nsc.io.File
+
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
-import com.excilys.ebi.gatling.core.result.message.RecordType.{ RUN, ACTION }
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
-import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, InitializeDataWriter }
+import com.excilys.ebi.gatling.core.result.message.RecordType.{RUN, ACTION}
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.{OK, KO}
+import com.excilys.ebi.gatling.core.result.message.{RequestRecord, InitializeDataWriter}
 import com.excilys.ebi.gatling.core.util.DateHelper.toTimestamp
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
+import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+
 import akka.actor.scala2ActorRef
 import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.core.util.IOHelper.use
 
 /**
  * File implementation of the DataWriter
@@ -43,25 +43,25 @@ class FileDataWriter extends DataWriter with Logging {
 	/**
 	 * The OutputStreamWriter used to write to files
 	 */
-	var osw: OutputStreamWriter = _
+	private var osw: OutputStreamWriter = _
 	/**
 	 * The countdown latch that will be decreased when all messaged are written and all scenarios ended
 	 */
-	var latch: CountDownLatch = _
+	private var latch: CountDownLatch = _
 
-	val startUpTime = currentTimeMillis
+	private val startUpTime = currentTimeMillis
 
-	val activeUsersCount = new AtomicLong(0)
+	private var activeUsersCount = 0
 
-	val totalUsersCount = new AtomicLong(0)
+	private var totalUsersCount = 0L
 
-	val successfulRequestsCount = new AtomicLong(0)
+	private var successfulRequestsCount = 0
 
-	val failedRequestsCount = new AtomicLong(0)
+	private var failedRequestsCount = 0
 
-	@volatile var lastDisplayTime = currentTimeMillis
+	private var lastDisplayTime = currentTimeMillis
 
-	val displayPeriod = 5 * 1000
+	private val displayPeriod = 5 * 1000
 
 	/**
 	 * Method called when this actor receives a message
@@ -85,7 +85,7 @@ class FileDataWriter extends DataWriter with Logging {
 
 			def handleCounters {
 				// the latch is set to totalUsersCount + 1 so main thread awaits until this FileDataWriter is closed
-				totalUsersCount.set(latch.getCount - 1)
+				totalUsersCount = latch.getCount - 1
 			}
 
 			if (initialized.compareAndSet(false, true)) {
@@ -119,11 +119,11 @@ class FileDataWriter extends DataWriter with Logging {
 
 			def handleCounters {
 				actionName match {
-					case START_OF_SCENARIO => activeUsersCount.incrementAndGet
-					case END_OF_SCENARIO => activeUsersCount.decrementAndGet
+					case START_OF_SCENARIO => activeUsersCount += 1
+					case END_OF_SCENARIO => activeUsersCount += 1
 					case _ => resultStatus match {
-						case OK => successfulRequestsCount.incrementAndGet
-						case KO => failedRequestsCount.incrementAndGet
+						case OK => successfulRequestsCount += 1
+						case KO => failedRequestsCount += 1
 					}
 				}
 			}
@@ -134,7 +134,7 @@ class FileDataWriter extends DataWriter with Logging {
 				if (now - lastDisplayTime > displayPeriod) {
 					lastDisplayTime = now
 					val timeSinceStartUpInSec = (now - startUpTime) / 1000
-					println(new StringBuilder().append(timeSinceStartUpInSec).append(" sec | Users: active=").append(activeUsersCount.get).append("/").append(totalUsersCount.get).append(" | Requests: OK=").append(successfulRequestsCount.get).append(" KO=").append(failedRequestsCount.get))
+					println(new StringBuilder().append(timeSinceStartUpInSec).append(" sec | Users: active=").append(activeUsersCount).append("/").append(totalUsersCount).append(" | Requests: OK=").append(successfulRequestsCount).append(" KO=").append(failedRequestsCount))
 				}
 			}
 
