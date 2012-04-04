@@ -27,14 +27,18 @@ object DataReader {
 abstract class DataReader(runUuid: String) {
 
 	def runRecord: RunRecord
+
 	def requestNames: Seq[String]
 	def scenarioNames: Seq[String]
-	def dataIndexedBySendDateWithoutMillis: SortedMap[Long, Seq[RequestRecord]]
-	def requestDataIndexedBySendDateWithoutMillis: SortedMap[Long, Seq[RequestRecord]]
-	def requestDataIndexedByReceiveDateWithoutMillis: SortedMap[Long, Seq[RequestRecord]]
 
-	def requestData(requestName: String): Seq[RequestRecord]
-	def requestDataIndexedBySendDate(requestName: String): SortedMap[Long, Seq[RequestRecord]]
-	def requestDataIndexedBySendDateWithoutMillis(requestName: String): SortedMap[Long, Seq[RequestRecord]]
-	def scenarioDataIndexedBySendDateWithoutMillis(scenarioName: String): SortedMap[Long, Seq[RequestRecord]]
+	def requestRecordsGroupByExecutionStartDateInSeconds: SortedMap[Long, Seq[RequestRecord]]
+	def scenarioRequestRecordsGroupByExecutionStartDateInSeconds(scenarioName: String): SortedMap[Long, Seq[RequestRecord]]
+
+	def realRequestRecordsGroupByExecutionStartDateInSeconds: SortedMap[Long, Seq[RequestRecord]]
+	def realRequestRecordsGroupByExecutionEndDateInSeconds: SortedMap[Long, Seq[RequestRecord]]
+
+	def requestRecords(requestName: String): Seq[RequestRecord]
+	def requestRecordsGroupByExecutionStartDate(requestName: String): SortedMap[Long, Seq[RequestRecord]]
+	def requestRecordsGroupByExecutionStartDateInSeconds(requestName: String): SortedMap[Long, Seq[RequestRecord]]
+
 }

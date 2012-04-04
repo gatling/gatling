@@ -32,61 +32,59 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 
 	def generate {
 		dataReader.requestNames.foreach { requestName =>
-			val dataList = dataReader.requestData(requestName)
+			val dataList = dataReader.requestRecords(requestName)
 
-			if (requestName != END_OF_SCENARIO && requestName != START_OF_SCENARIO) {
-				val dataMillis = dataReader.requestDataIndexedBySendDate(requestName)
-				val dataSeconds = dataReader.requestDataIndexedBySendDateWithoutMillis(requestName)
+			val dataMillis = dataReader.requestRecordsGroupByExecutionStartDate(requestName)
+			val dataSeconds = dataReader.requestRecordsGroupByExecutionStartDateInSeconds(requestName)
 
-				// Get Data
-				val responseTimesSuccessData = responseTimeByMillisecondAsList(dataMillis, OK)
-				val responseTimesFailuresData = responseTimeByMillisecondAsList(dataMillis, KO)
-				val latencySuccessData = latencyByMillisecondAsList(dataMillis, OK)
-				val latencyFailuresData = latencyByMillisecondAsList(dataMillis, KO)
-				val indicatorsColumnData = numberOfRequestInResponseTimeRange(dataList, configuration.chartingIndicatorsLowerBound, configuration.chartingIndicatorsHigherBound)
-				val indicatorsPieData = {
-					val numberOfRequests = dataList.size
-					indicatorsColumnData.map { case (name, count) => name -> (count / numberOfRequests.toDouble * 100).toInt }
-				}
-				val requestsPerSecond = numberOfRequestsPerSecond(dataReader.dataIndexedBySendDateWithoutMillis)
-				val scatterPlotSuccessData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, OK)
-				val scatterPlotFailuresData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, KO)
-
-				// Statistics
-				val successRequests = dataList.filter(_.requestStatus == OK)
-				val failedRequests = dataList.filter(_.requestStatus != OK)
+			// Get Data
+			val responseTimesSuccessData = responseTimeByMillisecondAsList(dataMillis, OK)
+			val responseTimesFailuresData = responseTimeByMillisecondAsList(dataMillis, KO)
+			val latencySuccessData = latencyByMillisecondAsList(dataMillis, OK)
+			val latencyFailuresData = latencyByMillisecondAsList(dataMillis, KO)
+			val indicatorsColumnData = numberOfRequestInResponseTimeRange(dataList, configuration.chartingIndicatorsLowerBound, configuration.chartingIndicatorsHigherBound)
+			val indicatorsPieData = {
 				val numberOfRequests = dataList.size
-				val numberOfSuccessfulRequests = successRequests.size
-				val numberOfFailedRequests = numberOfRequests - numberOfSuccessfulRequests
-
-				// Create series
-				val responseTimesSuccessSeries = new Series[Long, Long]("Response Time (success)", responseTimesSuccessData, List(BLUE))
-				val responseTimesFailuresSeries = new Series[Long, Long]("Response Time (failure)", responseTimesFailuresData, List(RED))
-				val latencySuccessSeries = new Series[Long, Long]("Latency (success)", latencySuccessData, List(BLUE))
-				val latencyFailuresSeries = new Series[Long, Long]("Latency (failure)", latencyFailuresData, List(RED))
-				val indicatorsColumnSeries = new Series[String, Int](EMPTY, indicatorsColumnData, List(GREEN, YELLOW, ORANGE, RED))
-				val indicatorsPieSeries = new Series[String, Int](EMPTY, indicatorsPieData, List(GREEN, YELLOW, ORANGE, RED))
-				val scatterPlotSuccessSeries = new Series[Int, Long]("Successes", scatterPlotSuccessData, List(TRANSLUCID_BLUE))
-				val scatterPlotFailuresSeries = new Series[Int, Long]("Failures", scatterPlotFailuresData, List(TRANSLUCID_RED))
-
-				val numberOfRequestsStatistics = new Statistics("numberOfRequests", numberOfRequests, numberOfSuccessfulRequests, numberOfFailedRequests)
-				val minResponseTimeStatistics = new Statistics("min", minResponseTime(dataList), minResponseTime(successRequests), minResponseTime(failedRequests))
-				val maxResponseTimeStatistics = new Statistics("max", maxResponseTime(dataList), maxResponseTime(successRequests), maxResponseTime(failedRequests))
-				val averageStatistics = new Statistics("average", averageResponseTime(dataList), averageResponseTime(successRequests), averageResponseTime(failedRequests))
-				val stdDeviationStatistics = new Statistics("stdDeviation", responseTimeStandardDeviation(dataList), responseTimeStandardDeviation(successRequests), responseTimeStandardDeviation(failedRequests))
-
-				// Create template
-				val template =
-					new RequestDetailsPageTemplate(requestName.substring(8),
-						componentLibrary.getRequestDetailsResponseTimeChartComponent(responseTimesSuccessSeries, responseTimesFailuresSeries, SharedSeries.getAllActiveSessionsSeries),
-						componentLibrary.getRequestDetailsLatencyChartComponent(latencySuccessSeries, latencyFailuresSeries, SharedSeries.getAllActiveSessionsSeries),
-						new StatisticsTextComponent(numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, averageStatistics, stdDeviationStatistics),
-						componentLibrary.getRequestDetailsScatterChartComponent(scatterPlotSuccessSeries, scatterPlotFailuresSeries),
-						componentLibrary.getRequestDetailsIndicatorChartComponent(indicatorsColumnSeries, indicatorsPieSeries))
-
-				// Write template result to file
-				new TemplateWriter(requestFile(runOn, requestName)).writeToFile(template.getOutput)
+				indicatorsColumnData.map { case (name, count) => name -> (count / numberOfRequests.toDouble * 100).toInt }
 			}
+			val requestsPerSecond = numberOfRequestsPerSecond(dataReader.requestRecordsGroupByExecutionStartDateInSeconds)
+			val scatterPlotSuccessData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, OK)
+			val scatterPlotFailuresData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, KO)
+
+			// Statistics
+			val successRequests = dataList.filter(_.requestStatus == OK)
+			val failedRequests = dataList.filter(_.requestStatus != OK)
+			val numberOfRequests = dataList.size
+			val numberOfSuccessfulRequests = successRequests.size
+			val numberOfFailedRequests = numberOfRequests - numberOfSuccessfulRequests
+
+			// Create series
+			val responseTimesSuccessSeries = new Series[Long, Long]("Response Time (success)", responseTimesSuccessData, List(BLUE))
+			val responseTimesFailuresSeries = new Series[Long, Long]("Response Time (failure)", responseTimesFailuresData, List(RED))
+			val latencySuccessSeries = new Series[Long, Long]("Latency (success)", latencySuccessData, List(BLUE))
+			val latencyFailuresSeries = new Series[Long, Long]("Latency (failure)", latencyFailuresData, List(RED))
+			val indicatorsColumnSeries = new Series[String, Int](EMPTY, indicatorsColumnData, List(GREEN, YELLOW, ORANGE, RED))
+			val indicatorsPieSeries = new Series[String, Int](EMPTY, indicatorsPieData, List(GREEN, YELLOW, ORANGE, RED))
+			val scatterPlotSuccessSeries = new Series[Int, Long]("Successes", scatterPlotSuccessData, List(TRANSLUCID_BLUE))
+			val scatterPlotFailuresSeries = new Series[Int, Long]("Failures", scatterPlotFailuresData, List(TRANSLUCID_RED))
+
+			val numberOfRequestsStatistics = new Statistics("numberOfRequests", numberOfRequests, numberOfSuccessfulRequests, numberOfFailedRequests)
+			val minResponseTimeStatistics = new Statistics("min", minResponseTime(dataList), minResponseTime(successRequests), minResponseTime(failedRequests))
+			val maxResponseTimeStatistics = new Statistics("max", maxResponseTime(dataList), maxResponseTime(successRequests), maxResponseTime(failedRequests))
+			val averageStatistics = new Statistics("average", averageResponseTime(dataList), averageResponseTime(successRequests), averageResponseTime(failedRequests))
+			val stdDeviationStatistics = new Statistics("stdDeviation", responseTimeStandardDeviation(dataList), responseTimeStandardDeviation(successRequests), responseTimeStandardDeviation(failedRequests))
+
+			// Create template
+			val template =
+				new RequestDetailsPageTemplate(requestName.substring(8),
+					componentLibrary.getRequestDetailsResponseTimeChartComponent(responseTimesSuccessSeries, responseTimesFailuresSeries, SharedSeries.getAllActiveSessionsSeries),
+					componentLibrary.getRequestDetailsLatencyChartComponent(latencySuccessSeries, latencyFailuresSeries, SharedSeries.getAllActiveSessionsSeries),
+					new StatisticsTextComponent(numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, averageStatistics, stdDeviationStatistics),
+					componentLibrary.getRequestDetailsScatterChartComponent(scatterPlotSuccessSeries, scatterPlotFailuresSeries),
+					componentLibrary.getRequestDetailsIndicatorChartComponent(indicatorsColumnSeries, indicatorsPieSeries))
+
+			// Write template result to file
+			new TemplateWriter(requestFile(runOn, requestName)).writeToFile(template.getOutput)
 		}
 	}
 }

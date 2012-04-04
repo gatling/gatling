@@ -28,7 +28,7 @@ class RequestsReportGenerator(runOn: String, dataReader: DataReader, componentLi
 
 	def generate {
 		// Get Data
-		val requestData = dataReader.requestDataIndexedBySendDateWithoutMillis
+		val requestData = dataReader.realRequestRecordsGroupByExecutionStartDateInSeconds
 
 		val allRequestsData = numberOfRequestsPerSecondAsList(requestData)
 		val succeededRequestsData = numberOfRequestsPerSecond(requestData, OK)

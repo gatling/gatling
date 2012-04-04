@@ -28,7 +28,7 @@ class TransactionsReportGenerator(runOn: String, dataReader: DataReader, compone
 
 	def generate {
 		// Get Data
-		val requestData = dataReader.requestDataIndexedByReceiveDateWithoutMillis
+		val requestData = dataReader.realRequestRecordsGroupByExecutionEndDateInSeconds
 		val allTransactionsData = numberOfRequestsPerSecondAsList(requestData)
 		val failedTransactionsData = numberOfRequestsPerSecond(requestData, KO)
 		val succeededTransactionsData = numberOfRequestsPerSecond(requestData, OK)
