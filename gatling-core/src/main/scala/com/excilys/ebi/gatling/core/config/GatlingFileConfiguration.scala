@@ -16,11 +16,14 @@
 package com.excilys.ebi.gatling.core.config
 
 import java.io.File
+
+import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_HOME
+
 import akka.config.{ ResourceImporter, Importer, FilesystemImporter, ConfigurationException, ConfigParser }
 import grizzled.slf4j.Logging
 
 object GatlingFileConfiguration extends Logging {
-	val defaultPath = new File(Option(System.getenv("GATLING_HOME")).getOrElse(".")).getCanonicalPath
+	val defaultPath = new File(GATLING_HOME).getCanonicalPath
 	lazy val filesystemImporter = new FilesystemImporter(defaultPath)
 	lazy val resourceImporter = new ResourceImporter(getClass.getClassLoader)
 
