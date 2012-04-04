@@ -31,28 +31,39 @@ object ActiveSessionsReportGenerator {
 class ActiveSessionsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 
 	def generate {
-		// Get Data
-		val scenariosData = dataReader.scenarioNames.map { scenarioName =>
-			(scenarioName, dataReader.scenarioRequestRecordsGroupByExecutionStartDateInSeconds(scenarioName))
-		} ++ Seq((ActiveSessionsReportGenerator.ALL_SESSIONS, dataReader.requestRecordsGroupByExecutionStartDateInSeconds))
 
-		val activeSessionsData = scenariosData.map { case (scenarioName, scenarioData) => scenarioName -> numberOfActiveSessionsPerSecond(scenarioData) }
-
-		val colors = List(ORANGE, BLUE, GREEN, RED, YELLOW, CYAN, LIME, PURPLE, PINK, LIGHT_BLUE, LIGHT_ORANGE, LIGHT_RED, LIGHT_LIME, LIGHT_PURPLE, LIGHT_PINK)
-
-		// Create series
-		val series = (activeSessionsData.reverse zip colors).map {
-			case ((scenarioName, data), color) =>
-				val series = new Series[Long, Int](scenarioName, data, List(color))
-				if (series.name == ActiveSessionsReportGenerator.ALL_SESSIONS)
-					SharedSeries.setAllActiveSessionsSeries(series)
-				series
+		def storeAllSessionsSeries(series: Seq[Series[Long, Int]]) {
+			val allSessionsSeries = series.find(_.name == ActiveSessionsReportGenerator.ALL_SESSIONS).getOrElse(throw new IllegalArgumentException("Couldn't find All Sessions series"))
+			SharedSeries.setAllActiveSessionsSeries(allSessionsSeries)
 		}
 
-		// Create template
-		val template = new ActiveSessionsPageTemplate(componentLibrary.getActiveSessionsChartComponent(series))
+		def generatePage(series: Seq[Series[Long, Int]]) {
 
-		// Write template result to file
-		new TemplateWriter(activeSessionsFile(runOn)).writeToFile(template.getOutput)
+			val template = new ActiveSessionsPageTemplate(componentLibrary.getActiveSessionsChartComponent(series))
+
+			new TemplateWriter(activeSessionsFile(runOn)).writeToFile(template.getOutput)
+		}
+
+		val series = {
+
+			val activeSessionsData = {
+				val scenariosData = dataReader.scenarioNames.map { scenarioName =>
+					(scenarioName, dataReader.scenarioRequestRecordsGroupByExecutionStartDateInSeconds(scenarioName))
+				} ++ Seq((ActiveSessionsReportGenerator.ALL_SESSIONS, dataReader.requestRecordsGroupByExecutionStartDateInSeconds))
+
+				scenariosData
+					.map { case (scenarioName, scenarioData) => scenarioName -> numberOfActiveSessionsPerSecond(scenarioData) }
+					.reverse
+			}
+
+			activeSessionsData
+				.zip(List(ORANGE, BLUE, GREEN, RED, YELLOW, CYAN, LIME, PURPLE, PINK, LIGHT_BLUE, LIGHT_ORANGE, LIGHT_RED, LIGHT_LIME, LIGHT_PURPLE, LIGHT_PINK))
+				.map {
+					case ((scenarioName, data), color) => new Series[Long, Int](scenarioName, data, List(color))
+				}
+		}
+
+		storeAllSessionsSeries(series)
+		generatePage(series)
 	}
 }
