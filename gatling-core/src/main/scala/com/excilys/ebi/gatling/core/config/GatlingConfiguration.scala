@@ -95,16 +95,6 @@ class GatlingConfiguration(
 
 	val chartingMaxPlotPerSerie = fileConfiguration("gatling.charting.maxPlotPerSerie", 5000)
 
-	val chartingTimeWindowLowerBound = fileConfiguration("gatling.charting.timeWindow.lowerBound", EMPTY) match {
-		case EMPTY => Long.MinValue
-		case string => parseHumanDateString(string).getMillis
-	}
-
-	val chartingTimeWindowHigherBound = fileConfiguration("gatling.charting.timeWindow.higherBound", EMPTY) match {
-		case EMPTY => Long.MaxValue
-		case string => parseHumanDateString(string).getMillis
-	}
-
 	val dataWriterClass = Class.forName(fileConfiguration("gatling.data.writer", "com.excilys.ebi.gatling.core.result.writer.FileDataWriter")).asInstanceOf[Class[DataWriter]]
 
 	val dataReaderClass = Class.forName(fileConfiguration("gatling.data.reader", "com.excilys.ebi.gatling.charts.result.reader.FileDataReader")).asInstanceOf[Class[DataReader]]

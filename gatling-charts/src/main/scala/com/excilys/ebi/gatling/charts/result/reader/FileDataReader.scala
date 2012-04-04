@@ -54,10 +54,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			case record => logger.warn("Malformed line, skipping it : " + record.toList)
 		}
 
-	private val data: Seq[RequestRecord] = requestRecords
-		// filter on time window
-		.filter(record => record.executionStartDate >= configuration.chartingTimeWindowLowerBound && record.executionStartDate <= configuration.chartingTimeWindowHigherBound)
-		.sortBy(_.executionStartDate)
+	private val data: Seq[RequestRecord] = requestRecords.sortBy(_.executionStartDate)
 
 	private val rawRequestData = data.filter(record => record.requestName != START_OF_SCENARIO && record.requestName != END_OF_SCENARIO)
 
