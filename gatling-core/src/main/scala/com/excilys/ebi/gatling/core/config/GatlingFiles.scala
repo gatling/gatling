@@ -20,7 +20,7 @@ import scala.tools.nsc.io.Path.string2path
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 
 object GatlingFiles {
-	val GATLING_HOME = Option(System.getenv("GATLING_HOME")).getOrElse(System.getProperty("."))
+	val GATLING_HOME = Option(System.getenv("GATLING_HOME")).getOrElse(".")
 	val GATLING_USER_FILES_FOLDER = GATLING_HOME / "user-files"
 	val GATLING_ASSETS_PACKAGE = "assets"
 	val GATLING_JS = "js"

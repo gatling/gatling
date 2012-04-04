@@ -16,79 +16,60 @@
 package com.excilys.ebi.gatling.core.config
 
 import java.io.File
-
 import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_HOME
-
-import akka.config.{ ResourceImporter, Importer, FilesystemImporter, ConfigurationException, ConfigParser }
 import grizzled.slf4j.Logging
+import com.typesafe.config.ConfigFactory
+import com.typesafe.config.Config
+import collection.JavaConversions._
+import akka.config.ConfigurationException
 
 object GatlingFileConfiguration extends Logging {
 	val defaultPath = new File(GATLING_HOME).getCanonicalPath
-	lazy val filesystemImporter = new FilesystemImporter(defaultPath)
-	lazy val resourceImporter = new ResourceImporter(getClass.getClassLoader)
 
-	private def load(data: String, givenImporter: Importer) = new GatlingFileConfiguration(new ConfigParser(importer = givenImporter).parse(data))
-
-	private def fromFile(filename: String, importer: Importer) = load(importer.importFile(filename), importer)
+	private def fromFileSystem(file: File) = ConfigFactory.parseFile(file)
+	
+	private def fromClasspath(filename: String) = ConfigFactory.parseResources(getClass.getClassLoader, filename)
 
 	def fromFile(filename: String): GatlingFileConfiguration = {
-
-		if (new File(filename).exists || new File(defaultPath, filename).exists) {
-			info("loading conf file from filesystem " + filename)
-			fromFile(filename, filesystemImporter)
-
-		} else {
-			info("loading conf file from classpath " + filename)
-			fromFile(filename, resourceImporter)
+		
+		val config = {
+			val absoluteFile = new File(filename)
+			val relativeFile = new File(defaultPath, filename)
+			if (absoluteFile.exists)
+				fromFileSystem(absoluteFile)
+			else if (relativeFile.exists)
+				fromFileSystem(relativeFile)
+			else
+				fromClasspath(filename)
 		}
+
+		new GatlingFileConfiguration(config)
 	}
 }
 
-class GatlingFileConfiguration(map: Map[String, Any]) extends Logging {
+class GatlingFileConfiguration(map: Config) extends Logging {
 
-	def contains(key: String): Boolean = map contains key
+	def contains(key: String): Boolean = map.hasPath(key)
 
-	def keys: Iterable[String] = map.keys
-
-	def getAny(key: String): Option[Any] = map.get(key)
-
-	def getAny(key: String, defaultValue: Any): Any = getAny(key).getOrElse(defaultValue)
-
-	def getSeqAny(key: String): Seq[Any] = map
-		.get(key)
-		.getOrElse {
-			debug(key + " config is not defined")
-			Seq.empty[Any]
-		}.asInstanceOf[Seq[Any]]
-
-	def getString(key: String): Option[String] = map.get(key).map(_.toString)
+	def getString(key: String): Option[String] = if (contains(key)) Some(map.getString(key)) else None
 
 	def getString(key: String, defaultValue: String): String = getString(key).getOrElse(defaultValue)
 
-	def getList(key: String): Seq[String] = map
-		.get(key)
-		.getOrElse {
-			debug(key + " config is not defined")
-			Seq.empty[String]
-		}.asInstanceOf[Seq[String]]
+	def getList(key: String): Seq[String] = if (contains(key)) map.getStringList(key) else List.empty
 
-	def getInt(key: String): Option[Int] = getString(key).map(_.toInt)
+	def getInt(key: String): Option[Int] = if (contains(key)) Some(map.getInt(key)) else None
 
 	def getInt(key: String, defaultValue: Int): Int = getInt(key).getOrElse(defaultValue)
 
-	def getLong(key: String): Option[Long] = getString(key).map(_.toLong)
+	def getLong(key: String): Option[Long] = if (contains(key)) Some(map.getLong(key)) else None
 
 	def getLong(key: String, defaultValue: Long): Long = getLong(key).getOrElse(defaultValue)
 
-	def getFloat(key: String): Option[Float] = getString(key).map(_.toFloat)
-
-	def getFloat(key: String, defaultValue: Float): Float = getFloat(key).getOrElse(defaultValue)
-
-	def getDouble(key: String): Option[Double] = getString(key).map(_.toDouble)
+	def getDouble(key: String): Option[Double] = if (contains(key)) Some(map.getDouble(key)) else None
 
 	def getDouble(key: String, defaultValue: Double): Double = getDouble(key).getOrElse(defaultValue)
 
-	def getBoolean(key: String): Option[Boolean] = getString(key).map(_.toBoolean)
+	def getBoolean(key: String): Option[Boolean] = if (contains(key)) Some(map.getBoolean(key)) else None
 
 	def getBoolean(key: String, defaultValue: Boolean): Boolean = getBoolean(key).getOrElse(defaultValue)
 
