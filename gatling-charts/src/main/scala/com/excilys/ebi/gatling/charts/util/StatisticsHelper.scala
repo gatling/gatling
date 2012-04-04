@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.computer
-
-import scala.annotation.{ tailrec, implicitNotFound }
+package com.excilys.ebi.gatling.charts.util
+import scala.annotation.tailrec
 import scala.collection.SortedMap
 import scala.math.{ sqrt, pow }
 
@@ -24,7 +23,7 @@ import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ RequestStatus, KO }
 import com.excilys.ebi.gatling.core.result.message.RequestRecord
 
-object Computer {
+object StatisticsHelper {
 
 	val NO_PLOT_MAGIC_VALUE = -1
 
@@ -39,9 +38,9 @@ object Computer {
 		if (avg != NO_PLOT_MAGIC_VALUE) sqrt(data.map(result => pow(result.responseTime - avg, 2)).sum / data.length).toLong else NO_PLOT_MAGIC_VALUE
 	}
 
-	def minResponseTime(data: Seq[RequestRecord]): Long = if (data.isEmpty) NO_PLOT_MAGIC_VALUE else data.minBy(_.responseTime).responseTime
+	def minResponseTime(data: Seq[RequestRecord]): Long = if (data.isEmpty) NO_PLOT_MAGIC_VALUE else data.map(_.responseTime).min
 
-	def maxResponseTime(data: Seq[RequestRecord]): Long = if (data.isEmpty) NO_PLOT_MAGIC_VALUE else data.maxBy(_.responseTime).responseTime
+	def maxResponseTime(data: Seq[RequestRecord]): Long = if (data.isEmpty) NO_PLOT_MAGIC_VALUE else data.map(_.responseTime).max
 
 	def computationByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], requestStatus: RequestStatus, computation: Seq[RequestRecord] => Long): List[(Long, Long)] =
 		data
@@ -93,7 +92,7 @@ object Computer {
 		}.toList
 		.flatten
 
-	def numberOfActiveSessionsPerSecondForAScenario(data: SortedMap[Long, Seq[RequestRecord]]): List[(Long, Int)] = {
+	def numberOfActiveSessionsPerSecond(data: SortedMap[Long, Seq[RequestRecord]]): List[(Long, Int)] = {
 
 		@tailrec
 		def countRec(data: List[(Long, Seq[RequestRecord])], counts: List[(Long, Int)], currentCount: Int): List[(Long, Int)] = {
@@ -110,8 +109,4 @@ object Computer {
 
 		countRec(data.toList, Nil, 0).reverse
 	}
-
-	def numberOfActiveSessionsPerSecondByScenario(allScenarioData: Seq[(String, SortedMap[Long, Seq[RequestRecord]])]): Seq[(String, List[(Long, Int)])] =
-		// Filling the map with each scenario values
-		allScenarioData.map { case (name, data) => name -> numberOfActiveSessionsPerSecondForAScenario(data) }
 }

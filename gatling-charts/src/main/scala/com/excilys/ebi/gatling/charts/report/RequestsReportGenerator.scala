@@ -15,14 +15,14 @@
  */
 package com.excilys.ebi.gatling.charts.report
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
-import com.excilys.ebi.gatling.charts.computer.Computer.{ numberOfRequestsPerSecond, numberOfRequestsPerSecondAsList }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.globalRequestsFile
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.series.SharedSeries
 import com.excilys.ebi.gatling.charts.template.RequestsPageTemplate
 import com.excilys.ebi.gatling.charts.util.Colors.{ toString, RED, GREEN, BLUE }
-import com.excilys.ebi.gatling.core.result.reader.DataReader
+import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ numberOfRequestsPerSecondAsList, numberOfRequestsPerSecond }
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
+import com.excilys.ebi.gatling.core.result.reader.DataReader
 
 class RequestsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 

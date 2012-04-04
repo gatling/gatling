@@ -16,12 +16,12 @@
 package com.excilys.ebi.gatling.charts.report
 
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
-import com.excilys.ebi.gatling.charts.computer.Computer.numberOfActiveSessionsPerSecondByScenario
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.activeSessionsFile
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.series.SharedSeries
 import com.excilys.ebi.gatling.charts.template.ActiveSessionsPageTemplate
 import com.excilys.ebi.gatling.charts.util.Colors.{ toString, YELLOW, RED, PURPLE, PINK, ORANGE, LIME, LIGHT_RED, LIGHT_PURPLE, LIGHT_PINK, LIGHT_ORANGE, LIGHT_LIME, LIGHT_BLUE, GREEN, CYAN, BLUE }
+import com.excilys.ebi.gatling.charts.util.StatisticsHelper.numberOfActiveSessionsPerSecond
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 
 object ActiveSessionsReportGenerator {
@@ -36,7 +36,7 @@ class ActiveSessionsReportGenerator(runOn: String, dataReader: DataReader, compo
 			(scenarioName, dataReader.scenarioDataIndexedBySendDateWithoutMillis(scenarioName))
 		} ++ Seq((ActiveSessionsReportGenerator.ALL_SESSIONS, dataReader.dataIndexedBySendDateWithoutMillis))
 
-		val activeSessionsData = numberOfActiveSessionsPerSecondByScenario(scenariosData)
+		val activeSessionsData = scenariosData.map { case (scenarioName, scenarioData) => scenarioName -> numberOfActiveSessionsPerSecond(scenarioData) }
 
 		val colors = List(ORANGE, BLUE, GREEN, RED, YELLOW, CYAN, LIME, PURPLE, PINK, LIGHT_BLUE, LIGHT_ORANGE, LIGHT_RED, LIGHT_LIME, LIGHT_PURPLE, LIGHT_PINK)
 
