@@ -38,9 +38,9 @@ object StatisticsHelper {
 		if (avg != NO_PLOT_MAGIC_VALUE) sqrt(data.map(result => pow(result.responseTime - avg, 2)).sum / data.length).toLong else NO_PLOT_MAGIC_VALUE
 	}
 
-	def minResponseTime(data: Seq[RequestRecord]): Long = if (data.isEmpty) NO_PLOT_MAGIC_VALUE else data.map(_.responseTime).min
+	def minResponseTime(data: Seq[RequestRecord]): Long = if (data.isEmpty) NO_PLOT_MAGIC_VALUE else data.minBy(_.responseTime).responseTime
 
-	def maxResponseTime(data: Seq[RequestRecord]): Long = if (data.isEmpty) NO_PLOT_MAGIC_VALUE else data.map(_.responseTime).max
+	def maxResponseTime(data: Seq[RequestRecord]): Long = if (data.isEmpty) NO_PLOT_MAGIC_VALUE else data.maxBy(_.responseTime).responseTime
 
 	def computationByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], requestStatus: RequestStatus, computation: Seq[RequestRecord] => Long): List[(Long, Long)] =
 		data
