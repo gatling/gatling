@@ -48,7 +48,7 @@ public class BootstrapFactory {
 
 	private static final BootstrapFactory INSTANCE = new BootstrapFactory();
 
-	private static final int CHUNK_MAX_SIZE = 1024 * 1024; // 1Mo
+	private static final int CHUNK_MAX_SIZE = 100 * 1024 * 1024; // 1Mo
 
 	private final ExecutorService threadPool = Executors.newCachedThreadPool();
 
