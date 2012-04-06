@@ -36,6 +36,8 @@ import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
 import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
 import org.jboss.netty.handler.ssl.SslHandler;
+import org.jboss.netty.logging.InternalLoggerFactory;
+import org.jboss.netty.logging.Slf4JLoggerFactory;
 
 import com.excilys.ebi.gatling.recorder.configuration.ProxyConfig;
 import com.excilys.ebi.gatling.recorder.http.handler.BrowserHttpRequestHandler;
@@ -45,6 +47,10 @@ import com.excilys.ebi.gatling.recorder.http.ssl.FirstEventIsUnsecuredConnectSsl
 import com.excilys.ebi.gatling.recorder.http.ssl.SSLEngineFactory;
 
 public class BootstrapFactory {
+
+	static {
+		InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory());
+	}
 
 	private static final BootstrapFactory INSTANCE = new BootstrapFactory();
 
