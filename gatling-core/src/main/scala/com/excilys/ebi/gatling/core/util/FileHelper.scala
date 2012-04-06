@@ -43,6 +43,13 @@ object FileHelper {
 			.replace(" ", "_")
 			.replace("__", "_")
 			.replace("'", "")
+			.replace('/', '_')
+			.replace(':', '_')
+			.replace('?', '_')
+			.replace('"', '_')
+			.replace('<', '_')
+			.replace('>', '_')
+			.replace('|', '_')
 			.replace("__", "_")
 			.toLowerCase)
 	}
