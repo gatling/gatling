@@ -21,6 +21,8 @@ import java.net.URLDecoder
 import scala.annotation.tailrec
 import scala.collection.JavaConverters.asScalaBufferConverter
 
+import org.jboss.netty.handler.codec.http.HttpHeaders
+
 import com.excilys.ebi.gatling.core.check.Check.applyChecks
 import com.excilys.ebi.gatling.core.check.Failure
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
@@ -40,6 +42,7 @@ import com.ning.http.client.Response.ResponseBuilder
 import com.ning.http.client.ProgressAsyncHandler
 import com.ning.http.client.{ Response, RequestBuilder, Request, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, FluentStringsMap, AsyncHandler }
 
+import akka.actor.actorRef2Scala
 import akka.actor.ActorRef
 import grizzled.slf4j.Logging
 
@@ -176,7 +179,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 		}
 
 		def handleFollowRedirect(sessionWithUpdatedCookies: Session) {
-			val url = URLDecoder.decode(response.getHeader("Location"), configuration.encoding)
+			val url = URLDecoder.decode(response.getHeader(HttpHeaders.Names.LOCATION), configuration.encoding)
 
 			val builder = new RequestBuilder(originalRequest).setMethod("GET").setQueryParameters(null.asInstanceOf[FluentStringsMap]).setParameters(null.asInstanceOf[FluentStringsMap]).setUrl(url)
 
@@ -184,7 +187,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 				builder.addCookie(cookie)
 
 			val request = builder.build
-			request.getHeaders.remove("Content-Length")
+			request.getHeaders.remove(HttpHeaders.Names.CONTENT_LENGTH)
 
 			val newRequestName = REDIRECTED_REQUEST_NAME_PATTERN.findFirstMatchIn(requestName) match {
 				case Some(nameMatch) =>

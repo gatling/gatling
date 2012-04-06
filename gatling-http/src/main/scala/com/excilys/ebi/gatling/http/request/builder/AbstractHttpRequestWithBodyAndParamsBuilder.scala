@@ -14,22 +14,16 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.request.builder
-import java.io.File
-import scala.tools.nsc.io.Path.string2path
 import com.excilys.ebi.gatling.core.Predef.stringToSessionFunction
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.config.GatlingFiles
+import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.util.PathHelper.path2string
 import com.excilys.ebi.gatling.core.util.StringHelper.{ EL_START, EL_END }
 import com.excilys.ebi.gatling.http.Predef.{ MULTIPART_FORM_DATA, CONTENT_TYPE, APPLICATION_OCTET_STREAM }
+import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
-import com.ning.http.client.RequestBuilder
-import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.ning.http.client.FluentStringsMap
-import com.ning.http.client.StringPart
+import com.ning.http.client.{ StringPart, RequestBuilder, FluentStringsMap }
 
 /**
  * This class serves as model to HTTP request with a body and parameters
