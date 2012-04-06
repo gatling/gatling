@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.action
+import org.jboss.netty.logging.{ Slf4JLoggerFactory, InternalLoggerFactory }
+
 import com.excilys.ebi.gatling.core.action.RequestAction
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.core.session.Session
@@ -21,11 +23,11 @@ import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandler
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder.status
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.config.HttpConfig.{GATLING_HTTP_CONFIG_REQUEST_TIMEOUT, GATLING_HTTP_CONFIG_PROVIDER_CLASS, GATLING_HTTP_CONFIG_MAX_RETRY, GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT, GATLING_HTTP_CONFIG_COMPRESSION_ENABLED, GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION}
+import com.excilys.ebi.gatling.http.config.HttpConfig.{ GATLING_HTTP_CONFIG_REQUEST_TIMEOUT, GATLING_HTTP_CONFIG_PROVIDER_CLASS, GATLING_HTTP_CONFIG_MAX_RETRY, GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT, GATLING_HTTP_CONFIG_COMPRESSION_ENABLED, GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION }
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
 import com.excilys.ebi.gatling.http.request.HttpRequest
-import com.ning.http.client.{Response, AsyncHttpClientConfig, AsyncHttpClient}
+import com.ning.http.client.{ Response, AsyncHttpClientConfig, AsyncHttpClient }
 
 import akka.actor.ActorRef
 import grizzled.slf4j.Logging
@@ -54,6 +56,9 @@ object HttpRequestAction {
 			.setMaxRequestRetry(GATLING_HTTP_CONFIG_MAX_RETRY)
 			.setAllowPoolingConnection(GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION)
 			.build
+
+		// set up Netty LoggerFactory for slf4j instead of default JDK
+		InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
 
 		val client = new AsyncHttpClient(GATLING_HTTP_CONFIG_PROVIDER_CLASS, ahcConfigBuilder)
 
