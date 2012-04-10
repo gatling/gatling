@@ -17,6 +17,7 @@ package com.excilys.ebi.gatling.app.test
 import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._
 import com.excilys.ebi.gatling.jdbc.Predef._
+import com.excilys.ebi.gatling.http.Headers.Names._
 
 object CompileTest {
 

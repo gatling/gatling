@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.request.builder
-
 import com.excilys.ebi.gatling.core.Predef.stringToSessionFunction
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.{ parseEvaluatable, EL_START, EL_END }
-import com.excilys.ebi.gatling.http.Predef.{ CONTENT_TYPE, APPLICATION_XML, APPLICATION_JSON, ACCEPT }
+import com.excilys.ebi.gatling.http.Headers.{ Values => HeaderValues, Names => HeaderNames }
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
@@ -120,12 +119,12 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	/**
 	 * Adds Accept and Content-Type headers to the request set with "application/json" values
 	 */
-	def asJSON: B = header(ACCEPT, APPLICATION_JSON).header(CONTENT_TYPE, APPLICATION_JSON)
+	def asJSON: B = header(HeaderNames.ACCEPT, HeaderValues.APPLICATION_JSON).header(HeaderNames.CONTENT_TYPE, HeaderValues.APPLICATION_JSON)
 
 	/**
 	 * Adds Accept and Content-Type headers to the request set with "application/xml" values
 	 */
-	def asXML: B = header(ACCEPT, APPLICATION_XML).header(CONTENT_TYPE, APPLICATION_XML)
+	def asXML: B = header(HeaderNames.ACCEPT, HeaderValues.APPLICATION_XML).header(HeaderNames.CONTENT_TYPE, HeaderValues.APPLICATION_XML)
 
 	/**
 	 * Adds BASIC authentication to the request

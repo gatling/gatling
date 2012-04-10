@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.action
-import org.jboss.netty.logging.{ Slf4JLoggerFactory, InternalLoggerFactory }
 
 import com.excilys.ebi.gatling.core.action.RequestAction
 import com.excilys.ebi.gatling.core.resource.ResourceRegistry
@@ -35,7 +34,7 @@ import grizzled.slf4j.Logging
 /**
  * HttpRequestAction class companion
  */
-object HttpRequestAction {
+object HttpRequestAction extends Logging {
 
 	/**
 	 * This is the default HTTP check used to verify that the response status is 2XX
@@ -49,6 +48,19 @@ object HttpRequestAction {
 
 	protected def buildAsyncHttpClient = {
 
+		def setUpNettyLogger {
+			// set up Netty LoggerFactory for slf4j instead of default JDK
+			try {
+				val nettyInternalLoggerFactoryClass = Class.forName("org.jboss.netty.logging.InternalLoggerFactory")
+				val nettySlf4JLoggerFactoryInstance = Class.forName("org.jboss.netty.logging.Slf4JLoggerFactory").newInstance
+				val setDefaultFactoryMethod = nettyInternalLoggerFactoryClass.getMethod("setDefaultFactory", nettyInternalLoggerFactoryClass)
+				setDefaultFactoryMethod.invoke(nettySlf4JLoggerFactoryInstance)
+
+			} catch {
+				case e => logger.info("Netty logger wasn't set up")
+			}
+		}
+
 		val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
 			.setCompressionEnabled(GATLING_HTTP_CONFIG_COMPRESSION_ENABLED)
 			.setConnectionTimeoutInMs(GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT)
@@ -56,9 +68,6 @@ object HttpRequestAction {
 			.setMaxRequestRetry(GATLING_HTTP_CONFIG_MAX_RETRY)
 			.setAllowPoolingConnection(GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION)
 			.build
-
-		// set up Netty LoggerFactory for slf4j instead of default JDK
-		InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
 
 		val client = new AsyncHttpClient(GATLING_HTTP_CONFIG_PROVIDER_CLASS, ahcConfigBuilder)
 

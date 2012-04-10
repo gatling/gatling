@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.{ EL_START, EL_END }
-import com.excilys.ebi.gatling.http.Predef.{ MULTIPART_FORM_DATA, CONTENT_TYPE, APPLICATION_OCTET_STREAM }
+import com.excilys.ebi.gatling.http.Headers.{ Values => HeaderValues, Names => HeaderNames }
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
@@ -102,8 +102,8 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 
 	def param(paramKey: String): B = param(paramKey, EL_START + paramKey + EL_END)
 
-	def upload(paramKey: String, fileName: String, mimeType: String = APPLICATION_OCTET_STREAM, charset: String = configuration.encoding): B =
-		header(CONTENT_TYPE, MULTIPART_FORM_DATA)
+	def upload(paramKey: String, fileName: String, mimeType: String = HeaderValues.APPLICATION_OCTET_STREAM, charset: String = configuration.encoding): B =
+		header(HeaderNames.CONTENT_TYPE, HeaderValues.MULTIPART_FORM_DATA)
 			.newInstance(requestName, url, queryParams, params, headers, body, Some(UploadedFile(paramKey, fileName, mimeType, charset)), credentials, checks)
 
 	/**
