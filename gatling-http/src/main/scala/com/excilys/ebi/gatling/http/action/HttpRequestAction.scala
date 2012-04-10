@@ -61,6 +61,8 @@ object HttpRequestAction extends Logging {
 			}
 		}
 
+		setUpNettyLogger
+
 		val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
 			.setCompressionEnabled(GATLING_HTTP_CONFIG_COMPRESSION_ENABLED)
 			.setConnectionTimeoutInMs(GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT)
