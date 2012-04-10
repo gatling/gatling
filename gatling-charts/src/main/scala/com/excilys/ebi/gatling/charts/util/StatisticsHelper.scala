@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.charts.util
 import scala.annotation.tailrec
 import scala.collection.SortedMap
-import scala.math.{ sqrt, pow }
+import scala.math.{ sqrt, pow, abs }
 
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
@@ -108,5 +108,16 @@ object StatisticsHelper {
 		}
 
 		countRec(data.toList, Nil, 0).reverse
+	}
+
+	def windowInPercentileRange(average: Long, limit: Double, records: Seq[RequestRecord]): (Long, Long) = {
+
+		val maxCount = (records.size * limit).toInt
+		val recordsSortedByDistanceToAverage = records.sortBy(record => abs(record.responseTime - average)).take(maxCount)
+
+		var min = recordsSortedByDistanceToAverage.minBy(_.responseTime).responseTime
+		var max = recordsSortedByDistanceToAverage.maxBy(_.responseTime).responseTime
+
+		(min, max)
 	}
 }
