@@ -15,6 +15,7 @@
  */
 package org.jboss.netty.example.securechat;
 
+import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -74,14 +75,14 @@ public class SecureChatSslContextFactory {
 
 		SSLContext serverContext = null;
 		SSLContext clientContext = null;
+
+		InputStream in = null;
 		try {
 			KeyStore ks = KeyStore.getInstance("JKS");
 
-			byte[] data = new byte[2048];
-			InputStream in = ClassLoader.getSystemResourceAsStream("gatling.jks");
+			in = ClassLoader.getSystemResourceAsStream("gatling.jks");
 			char[] gatlingChars = "gatling".toCharArray();
-			in.read(data);
-			ks.load(new ByteArrayInputStream(data), gatlingChars);
+			ks.load(in, gatlingChars);
 
 			// Set up key manager factory to use our key store
 			KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
@@ -92,6 +93,14 @@ public class SecureChatSslContextFactory {
 			serverContext.init(kmf.getKeyManagers(), null, null);
 		} catch (Exception e) {
 			throw new Error("Failed to initialize the server-side SSLContext", e);
+		} finally {
+			try {
+				if (in != null) {
+					in.close();
+				}
+			} catch (IOException e) {
+				throw new Error("Failed to close ", e);
+			}
 		}
 
 		try {
