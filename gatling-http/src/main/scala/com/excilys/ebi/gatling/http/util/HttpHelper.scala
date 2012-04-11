@@ -14,12 +14,33 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.util
-import com.ning.http.client.Response
+import java.net.URI
+
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+import com.ning.http.client.Response
 
 object HttpHelper {
 
 	implicit def toRichResponse(response: Response) = new RichResponse(response)
+
+	def computeRedirectUrl(locationHeader: String, originalRequestUrl: String) = {
+		if (locationHeader.startsWith("http"))
+			locationHeader
+		else {
+			val originalRequestURI = new URI(originalRequestUrl)
+			val originalRequestPath = originalRequestURI.getPath
+			val newPath = if (locationHeader.startsWith("/"))
+				locationHeader
+			else {
+				val index = originalRequestPath.lastIndexOf('/')
+				if (index == -1)
+					"/" + locationHeader
+				else
+					originalRequestPath.substring(0, index + 1) + locationHeader
+			}
+			new URI(originalRequestURI.getScheme, null, originalRequestURI.getHost, originalRequestURI.getPort, newPath, null, null).toString
+		}
+	}
 }
 
 class RichResponse(response: Response) {

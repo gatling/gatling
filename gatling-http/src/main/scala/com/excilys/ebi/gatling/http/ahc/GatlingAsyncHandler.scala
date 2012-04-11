@@ -35,7 +35,7 @@ import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.request.HttpPhase.{ HttpPhase, CompletePageReceived }
 import com.excilys.ebi.gatling.http.request.HttpPhase
-import com.excilys.ebi.gatling.http.util.HttpHelper.toRichResponse
+import com.excilys.ebi.gatling.http.util.HttpHelper.{ toRichResponse, computeRedirectUrl }
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
 import com.ning.http.client.ProgressAsyncHandler
@@ -178,11 +178,12 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 		}
 
 		def handleFollowRedirect(sessionWithUpdatedCookies: Session) {
-			val url = URLDecoder.decode(response.getHeader(HeaderNames.LOCATION), configuration.encoding)
 
-			val builder = new RequestBuilder(originalRequest).setMethod("GET").setQueryParameters(null.asInstanceOf[FluentStringsMap]).setParameters(null.asInstanceOf[FluentStringsMap]).setUrl(url)
+			val redirectUrl = computeRedirectUrl(URLDecoder.decode(response.getHeader(HeaderNames.LOCATION), configuration.encoding), originalRequest.getUrl)
 
-			for (cookie <- getStoredCookies(sessionWithUpdatedCookies, url))
+			val builder = new RequestBuilder(originalRequest).setMethod("GET").setQueryParameters(null.asInstanceOf[FluentStringsMap]).setParameters(null.asInstanceOf[FluentStringsMap]).setUrl(redirectUrl)
+
+			for (cookie <- getStoredCookies(sessionWithUpdatedCookies, redirectUrl))
 				builder.addCookie(cookie)
 
 			val request = builder.build
