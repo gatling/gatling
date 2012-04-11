@@ -104,123 +104,17 @@ public class RunningFrame extends JFrame {
 	private final TextAreaPanel stringRequestBody = new TextAreaPanel("Request Body:");
 	private final TextAreaPanel stringResponseBody = new TextAreaPanel("Response Body:");
 
-	private final RunningFrameState state = new RunningFrameState();
-
-	public static class RunningFrameState {
-		private Configuration configuration = null;
-		private GatlingHttpProxy proxy = null;
-		private Date startDate = new Date();
-		private String startDateString = null;
-		private PauseEvent pause = null;
-		private BasicAuth basicAuth = null;
-		private AtomicInteger requestCount = new AtomicInteger();
-
-		private Date lastRequestDate = new Date();
-		private URI baseURI = null;
-		private Map<String, Map<String, String>> headers = Collections.synchronizedMap(new LinkedHashMap<String, Map<String, String>>());
-		private List<Object> scenarioEvents = Collections.synchronizedList(new ArrayList<Object>());
-
-		public synchronized void initBaseURI(URI uri) {
-			if (baseURI == null)
-				baseURI = uri;
-		}
-
-		public synchronized void clear() {
-			scenarioEvents.clear();
-			headers.clear();
-			baseURI = null;
-			lastRequestDate = null;
-		}
-
-		public synchronized Configuration getConfiguration() {
-			return configuration;
-		}
-
-		public synchronized void setConfiguration(Configuration configuration) {
-			this.configuration = configuration;
-		}
-
-		public synchronized GatlingHttpProxy getProxy() {
-			return proxy;
-		}
-
-		public synchronized void setProxy(GatlingHttpProxy proxy) {
-			this.proxy = proxy;
-		}
-
-		public synchronized Date getStartDate() {
-			return startDate;
-		}
-
-		public synchronized void setStartDate(Date startDate) {
-			this.startDate = startDate;
-			this.startDateString = DATE_FORMAT.format(startDate);
-		}
-
-		public synchronized String getStartDateString() {
-			return startDateString;
-		}
-
-		public synchronized void setStartDateString(String startDateString) {
-			this.startDateString = startDateString;
-		}
-
-		public synchronized Date getLastRequestDate() {
-			return lastRequestDate;
-		}
-
-		public synchronized void setLastRequestDate(Date lastRequestDate) {
-			this.lastRequestDate = lastRequestDate;
-		}
-
-		public synchronized PauseEvent getPause() {
-			return pause;
-		}
-
-		public synchronized void setPause(PauseEvent pause) {
-			this.pause = pause;
-		}
-
-		public synchronized BasicAuth getBasicAuth() {
-			return basicAuth;
-		}
-
-		public synchronized void setBasicAuth(BasicAuth basicAuth) {
-			this.basicAuth = basicAuth;
-		}
-
-		public synchronized AtomicInteger getRequestCount() {
-			return requestCount;
-		}
-
-		public synchronized void setRequestCount(AtomicInteger requestCount) {
-			this.requestCount = requestCount;
-		}
-
-		public synchronized URI getBaseURI() {
-			return baseURI;
-		}
-
-		public synchronized void setBaseURI(URI baseURI) {
-			this.baseURI = baseURI;
-		}
-
-		public synchronized Map<String, Map<String, String>> getHeaders() {
-			return headers;
-		}
-
-		public synchronized void setHeaders(Map<String, Map<String, String>> headers) {
-			this.headers = headers;
-		}
-
-		public synchronized List<Object> getScenarioEvents() {
-			return scenarioEvents;
-		}
-
-		public synchronized void setScenarioEvents(List<Object> scenarioEvents) {
-			this.scenarioEvents = scenarioEvents;
-		}
-	}
+	private volatile Configuration configuration;
+	private volatile GatlingHttpProxy proxy;
+	private volatile Date startDate;
+	private volatile String startDateString;
+	private volatile Date lastRequestDate;
+	private volatile PauseEvent pause;
+	private volatile BasicAuth basicAuth;
+	private final List<Object> scenarioEvents = Collections.synchronizedList(new ArrayList<Object>());
+	private final AtomicInteger requestCount = new AtomicInteger();
+	private volatile URI baseURI;
+	private final Map<String, Map<String, String>> headers = Collections.synchronizedMap(new LinkedHashMap<String, Map<String, String>>());
 
 	public RunningFrame() {
 
@@ -308,13 +202,12 @@ public class RunningFrame extends JFrame {
 
 		/* Listeners */
 		btnTag.addActionListener(new ActionListener() {
-
 			public void actionPerformed(ActionEvent e) {
 				if (!txtTag.getText().isEmpty()) {
 					TagEvent tag = new TagEvent(txtTag.getText());
 					events.addElement(tag.toString());
 					executedEvents.ensureIndexIsVisible(events.getSize() - 1);
-					state.getScenarioEvents().add(tag);
+					scenarioEvents.add(tag);
 					txtTag.setText(EMPTY);
 				}
 			}
@@ -323,7 +216,7 @@ public class RunningFrame extends JFrame {
 		executedEvents.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (executedEvents.getSelectedIndex() >= 0) {
-					Object obj = state.getScenarioEvents().get(executedEvents.getSelectedIndex());
+					Object obj = scenarioEvents.get(executedEvents.getSelectedIndex());
 					if (obj instanceof ResponseReceivedEvent) {
 						ResponseReceivedEvent event = (ResponseReceivedEvent) obj;
 						stringRequest.txt.setText(event.getRequest().toString());
@@ -350,8 +243,8 @@ public class RunningFrame extends JFrame {
 		btnStop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				saveScenario();
-				state.getProxy().shutdown();
-				state.setProxy(null);
+				proxy.shutdown();
+				proxy = null;
 				getEventBus().post(new ShowConfigurationFrameEvent());
 			}
 		});
@@ -372,67 +265,68 @@ public class RunningFrame extends JFrame {
 			public void run() {
 				setVisible(true);
 				clearOldRunning();
-				Configuration configuration = getConfigurationInstance();
-				state.setConfiguration(configuration);
-				state.setStartDate(new Date());
-				GatlingHttpProxy proxy = new GatlingHttpProxy(configuration.getPort(), configuration.getSslPort(), configuration.getProxy());
-				state.setProxy(proxy);
+				configuration = getConfigurationInstance();
+				startDate = new Date();
+				startDateString = DATE_FORMAT.format(startDate);
+				proxy = new GatlingHttpProxy(configuration.getPort(), configuration.getSslPort(), configuration.getProxy());
 				proxy.start();
 			}
 		});
 	}
 
 	@Subscribe
-	public void onSecuredHostConnectionEvent(final SecuredHostConnectionEvent event) {
+	public void onSecuredHostConnectionEvent(SecuredHostConnectionEvent event) {
+
+		final URI hostUri = event.getHostURI();
+
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				if (!hostsCertificate.contains(event.getHostURI()))
-					hostsCertificate.addElement(event.getHostURI());
+				if (!hostsCertificate.contains(hostUri))
+					hostsCertificate.addElement(hostUri);
 			}
 		});
 	}
 
 	@Subscribe
-	public void onRequestReceivedEvent(final RequestReceivedEvent event) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				if (event.getRequest().getMethod() == HttpMethod.CONNECT)
-					return;
+	public void onRequestReceivedEvent(RequestReceivedEvent event) {
 
-				String header = event.getRequest().getHeader("Proxy-Authorization");
-				if (header != null) {
-					// Split on " " and take 2nd group (Basic
-					// credentialsInBase64==)
-					String credentials = new String(Base64.decodeBase64(header.split(" ")[1].getBytes()));
-					state.getConfiguration().getProxy().setUsername(credentials.split(":")[0]);
-					state.getConfiguration().getProxy().setPassword(credentials.split(":")[1]);
-				}
+		final HttpRequest request = event.getRequest();
 
-				if (addRequest(event.getRequest())) {
-					Date lastRequestDate = state.getLastRequestDate();
-					if (lastRequestDate != null) {
-						Date newRequest = new Date();
-						long diff = newRequest.getTime() - lastRequestDate.getTime();
-						state.setLastRequestDate(newRequest);
-						state.setPause(new PauseEvent(diff));
+		if (!request.getMethod().equals(HttpMethod.CONNECT))
+			EventQueue.invokeLater(new Runnable() {
+				public void run() {
+					String header = request.getHeader("Proxy-Authorization");
+					if (header != null) {
+						// Split on " " and take 2nd group (Basic
+						// credentialsInBase64==)
+						String credentials = new String(Base64.decodeBase64(header.split(" ")[1].getBytes()));
+						configuration.getProxy().setUsername(credentials.split(":")[0]);
+						configuration.getProxy().setPassword(credentials.split(":")[1]);
+					}
+
+					if (addRequest(request)) {
+						if (lastRequestDate != null) {
+							Date newRequest = new Date();
+							long diff = newRequest.getTime() - lastRequestDate.getTime();
+							lastRequestDate = newRequest;
+							pause = new PauseEvent(diff);
+						}
 					}
 				}
-			}
-		});
+			});
 	}
 
 	@Subscribe
-	public void onResponseReceivedEvent(final ResponseReceivedEvent event) {
+	public synchronized void onResponseReceivedEvent(final ResponseReceivedEvent event) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				if (addRequest(event.getRequest())) {
-					PauseEvent pause = state.getPause();
 					if (pause != null) {
 						events.addElement(pause.toString());
 						executedEvents.ensureIndexIsVisible(events.getSize() - 1);
-						state.getScenarioEvents().add(pause);
+						scenarioEvents.add(pause);
 					}
-					state.setLastRequestDate(new Date());
+					lastRequestDate = new Date();
 					processRequest(event);
 				}
 			}
@@ -445,7 +339,10 @@ public class RunningFrame extends JFrame {
 		stringRequestBody.txt.setText(EMPTY);
 		stringResponseBody.txt.setText(EMPTY);
 		stringResponse.txt.setText(EMPTY);
-		state.clear();
+		scenarioEvents.clear();
+		headers.clear();
+		baseURI = null;
+		lastRequestDate = null;
 	}
 
 	private boolean addRequest(HttpRequest request) {
@@ -458,7 +355,6 @@ public class RunningFrame extends JFrame {
 			return false;
 		}
 
-		Configuration configuration = state.getConfiguration();
 		if (configuration.getFilterStrategy() != FilterStrategy.NONE) {
 
 			String p = EMPTY;
@@ -486,42 +382,41 @@ public class RunningFrame extends JFrame {
 		return true;
 	}
 
+	private void initBaseURI(URI uri) {
+		if (baseURI == null) {
+			baseURI = uri;
+		}
+	}
+
 	private void processRequest(ResponseReceivedEvent event) {
 
 		// set id
-		int id = state.getRequestCount().getAndIncrement();
+		int id = requestCount.getAndIncrement();
 		event.setId(id);
 
 		HttpRequest request = event.getRequest();
 
-		URI uri = null;
 		try {
-			uri = new URI(request.getUri());
+			initBaseURI(new URI(request.getUri()));
 		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
 
-		events.addElement(request.getMethod() + " | " + request.getUri());
-		executedEvents.ensureIndexIsVisible(events.getSize() - 1);
-
-		/* URLs */
-		state.initBaseURI(uri);
-
-		event.computeUrls(state.getBaseURI());
+		event.computeUrls(baseURI);
 
 		String headerAuthorization = event.getRequest().getHeader("Authorization");
 		request.removeHeader("Authorization");
 		if (headerAuthorization != null) {
-			if (state.getBasicAuth() == null) {
+			if (basicAuth == null) {
 				// Split on " " and take 2nd group (Basic credentialsInBase64==)
 				String credentials = new String(Base64.decodeBase64(headerAuthorization.split(" ")[1].getBytes()));
-				state.setBasicAuth(new BasicAuth(event.getRequestAbsoluteUrl(), credentials.split(":")[0], credentials.split(":")[1]));
-				event.setBasicAuth(state.getBasicAuth());
+				basicAuth = new BasicAuth(event.getRequestAbsoluteUrl(), credentials.split(":")[0], credentials.split(":")[1]);
+				event.setBasicAuth(basicAuth);
 			} else {
-				if (event.getRequestAbsoluteUrl().equals(state.getBasicAuth().getUrlBase()))
-					event.setBasicAuth(state.getBasicAuth());
+				if (event.getRequestAbsoluteUrl().equals(basicAuth.getUrlBase()))
+					event.setBasicAuth(basicAuth);
 				else
-					state.setBasicAuth(null);
+					basicAuth = null;
 			}
 		}
 
@@ -535,7 +430,7 @@ public class RunningFrame extends JFrame {
 		}
 
 		String headersId = null;
-		for (Entry<String, Map<String, String>> headersEntry : state.getHeaders().entrySet()) {
+		for (Entry<String, Map<String, String>> headersEntry : headers.entrySet()) {
 
 			Map<String, String> headersGroup = headersEntry.getValue();
 
@@ -546,8 +441,8 @@ public class RunningFrame extends JFrame {
 		}
 
 		if (headersId == null) {
-			headersId = "headers_" + state.getHeaders().size();
-			state.getHeaders().put(headersId, requestHeaders);
+			headersId = "headers_" + headers.size();
+			headers.put(headersId, requestHeaders);
 
 		}
 
@@ -574,7 +469,9 @@ public class RunningFrame extends JFrame {
 			}
 		}
 
-		state.getScenarioEvents().add(event);
+		events.addElement(request.getMethod() + " | " + request.getUri());
+		executedEvents.ensureIndexIsVisible(events.getSize() - 1);
+		scenarioEvents.add(event);
 	}
 
 	private boolean isStatusCodeNon2XX(HttpResponseStatus status) {
@@ -586,7 +483,7 @@ public class RunningFrame extends JFrame {
 		File dir = getRequestBodiesOutputFolder();
 		FileWriter fw = null;
 		try {
-			fw = new FileWriter(new File(dir, state.getStartDateString() + "_request_" + idEvent + ".txt"));
+			fw = new FileWriter(new File(dir, startDateString + "_request_" + idEvent + ".txt"));
 			fw.write(content);
 		} catch (IOException e) {
 			LOGGER.error("Error, while dumping request body... {}", e);
@@ -596,13 +493,12 @@ public class RunningFrame extends JFrame {
 	}
 
 	private File getRequestBodiesOutputFolder() {
-		File dir = new File(state.getConfiguration().getRequestBodiesFolder());
+		File dir = new File(configuration.getRequestBodiesFolder());
 		dir.mkdir();
 		return dir;
 	}
 
 	private File getSimulationOutputFolder() {
-		Configuration configuration = state.getConfiguration();
 		StringBuilder path = new StringBuilder().append(configuration.getOutputFolder());
 		if (configuration.getSimulationPackage() != null)
 			path.append(File.separator).append(configuration.getSimulationPackage().replace(".", File.separator)).toString();
@@ -612,7 +508,7 @@ public class RunningFrame extends JFrame {
 	}
 
 	private String getSimulationFileName() {
-		return getConfigurationInstance().getSimulationClassName() + state.getStartDateString();
+		return getConfigurationInstance().getSimulationClassName() + startDateString;
 	}
 
 	private boolean isRedirect(HttpResponse response) {
@@ -622,13 +518,13 @@ public class RunningFrame extends JFrame {
 
 	private List<Object> filterEvents() {
 
-		if (state.getConfiguration().isFollowRedirect()) {
+		if (configuration.isFollowRedirect()) {
 
 			List<Object> filteredEvents = new ArrayList<Object>();
 
 			ResponseReceivedEvent redirectChainStart = null;
 
-			for (Object event : state.getScenarioEvents()) {
+			for (Object event : scenarioEvents) {
 				if (event instanceof ResponseReceivedEvent) {
 					ResponseReceivedEvent responseReceivedEvent = ResponseReceivedEvent.class.cast(event);
 
@@ -648,7 +544,7 @@ public class RunningFrame extends JFrame {
 						wrapper.setRequestParams(redirectChainStart.getRequestParams());
 						wrapper.setWithBody(redirectChainStart.isWithBody());
 						wrapper.setWithCheck(isStatusCodeNon2XX(responseReceivedEvent.getResponse().getStatus()));
-						wrapper.computeUrls(state.getBaseURI());
+						wrapper.computeUrls(baseURI);
 						filteredEvents.add(wrapper);
 
 						// reset
@@ -667,7 +563,7 @@ public class RunningFrame extends JFrame {
 			return filteredEvents;
 
 		} else {
-			return state.getScenarioEvents();
+			return scenarioEvents;
 		}
 	}
 
@@ -678,7 +574,7 @@ public class RunningFrame extends JFrame {
 		for (Object scenarioEvent : events) {
 			if (scenarioEvent instanceof ResponseReceivedEvent) {
 				String headersId = ResponseReceivedEvent.class.cast(scenarioEvent).getHeadersId();
-				filteredHeaders.put(headersId, state.getHeaders().get(headersId));
+				filteredHeaders.put(headersId, headers.get(headersId));
 			}
 		}
 
@@ -697,9 +593,9 @@ public class RunningFrame extends JFrame {
 		ve.init();
 
 		VelocityContext context = new VelocityContext();
-		context.put("baseURI", state.getBaseURI());
-		context.put("proxy", state.getConfiguration().getProxy());
-		context.put("followRedirect", state.getConfiguration().isFollowRedirect());
+		context.put("baseURI", baseURI);
+		context.put("proxy", configuration.getProxy());
+		context.put("followRedirect", configuration.isFollowRedirect());
 		context.put("headers", filteredHeaders);
 		context.put("name", "Scenario name");
 
@@ -718,13 +614,13 @@ public class RunningFrame extends JFrame {
 
 		context.put("package", getConfigurationInstance().getSimulationPackage());
 		context.put("className", simulationClassName);
-		context.put("date", state.getStartDateString());
+		context.put("date", startDateString);
 
 		Template template = null;
 		Writer writer = null;
 		try {
 			template = ve.getTemplate("simulation.vm");
-			writer = new OutputStreamWriter(new FileOutputStream(new File(simulationOutputFolder, simulationClassName + ".scala")), state.getConfiguration().getEncoding());
+			writer = new OutputStreamWriter(new FileOutputStream(new File(simulationOutputFolder, simulationClassName + ".scala")), configuration.getEncoding());
 			template.merge(context, writer);
 			writer.flush();
 
