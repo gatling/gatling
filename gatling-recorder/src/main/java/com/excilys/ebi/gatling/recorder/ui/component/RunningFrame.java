@@ -425,7 +425,7 @@ public class RunningFrame extends JFrame {
 
 		for (Entry<String, String> entry : request.getHeaders()) {
 			String headerName = entry.getKey();
-			if (!headerName.equals("Cookie") || !headerName.equals("Content-Length"))
+			if (!headerName.equals("Cookie") && !headerName.equals("Content-Length"))
 				requestHeaders.put(entry.getKey(), entry.getValue());
 		}
 
