@@ -44,7 +44,7 @@ class FileDataWriter extends DataWriter with Logging {
 	 */
 	private var osw: OutputStreamWriter = _
 	/**
-	 * The countdown latch that will be decreased when all messaged are written and all scenarios ended
+	 * The countdown latch that will be decreased when all message are written and all scenarios ended
 	 */
 	private var latch: CountDownLatch = _
 
@@ -67,7 +67,7 @@ class FileDataWriter extends DataWriter with Logging {
 	 */
 	def receive = {
 		// If the message is sent to initialize the writer
-		case InitializeDataWriter(runRecord, latch) => {
+		case InitializeDataWriter(runRecord, totalUsersCount, latch) => {
 
 			def initStreamWriter {
 				osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(simulationLogFile(runRecord.runUuid).toString)))
@@ -84,7 +84,7 @@ class FileDataWriter extends DataWriter with Logging {
 
 			if (initialized.compareAndSet(false, true)) {
 				this.latch = latch
-
+				this.totalUsersCount = totalUsersCount
 				initStreamWriter
 				printRunRecord
 
@@ -113,7 +113,7 @@ class FileDataWriter extends DataWriter with Logging {
 			def handleCounters {
 				actionName match {
 					case START_OF_SCENARIO => activeUsersCount += 1
-					case END_OF_SCENARIO => activeUsersCount += 1
+					case END_OF_SCENARIO => activeUsersCount -= 1
 					case _ => resultStatus match {
 						case OK => successfulRequestsCount += 1
 						case KO => failedRequestsCount += 1

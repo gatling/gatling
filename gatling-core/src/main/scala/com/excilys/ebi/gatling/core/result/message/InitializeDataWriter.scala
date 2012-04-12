@@ -22,6 +22,7 @@ import java.util.concurrent.CountDownLatch
  * required for its initialization
  *
  * @param runRecord the data on the simulation run
+ * @param totalUsersCount the number of toutal users
  * @param latch the countdown latch that will end the simulation
  */
-case class InitializeDataWriter(runRecord: RunRecord, latch: CountDownLatch)
+case class InitializeDataWriter(runRecord: RunRecord, totalUsersCount: Long, latch: CountDownLatch)
