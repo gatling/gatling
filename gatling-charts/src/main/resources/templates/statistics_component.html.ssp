@@ -1,3 +1,4 @@
+<%  import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration %>
 <%@ val numberOfRequests: com.excilys.ebi.gatling.charts.component.Statistics %>
 <%@ val min: com.excilys.ebi.gatling.charts.component.Statistics %>
 <%@ val max: com.excilys.ebi.gatling.charts.component.Statistics %>
@@ -41,10 +42,10 @@
 												<td class="title">Std Deviation</td><td class="total"><%= stdDeviation.printableTotal %></td><td class="ok"><%= stdDeviation.printableSuccess %></td><td class="ko"><%= stdDeviation.printableFailure %></td>
 											</tr>
 											<tr>
-												<td class="title">95% Low Bound</td><td class="total"><%= minPercentiles.printableTotal %></td><td class="ok"><%= minPercentiles.printableSuccess %></td><td class="ko"><%= minPercentiles.printableFailure %></td>
+												<td class="title"><%=configuration.chartingIndicatorsPercentiles%>% Low Bound</td><td class="total"><%= minPercentiles.printableTotal %></td><td class="ok"><%= minPercentiles.printableSuccess %></td><td class="ko"><%= minPercentiles.printableFailure %></td>
 											</tr>
 											<tr>
-												<td class="title">95% High Bound</td><td class="total"><%= maxPercentiles.printableTotal %></td><td class="ok"><%= maxPercentiles.printableSuccess %></td><td class="ko"><%= maxPercentiles.printableFailure %></td>
+												<td class="title"><%=configuration.chartingIndicatorsPercentiles%>% High Bound</td><td class="total"><%= maxPercentiles.printableTotal %></td><td class="ok"><%= maxPercentiles.printableSuccess %></td><td class="ko"><%= maxPercentiles.printableFailure %></td>
 											</tr>
 										</tbody>
 									</table>

@@ -61,9 +61,10 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			val globalAverageResponseTime = averageResponseTime(dataList)
 			val successAverageResponseTime = averageResponseTime(successRequests)
 			val failedAverageResponseTime = averageResponseTime(failedRequests)
-			val (globalMinPercentiles, globalMaxPercentiles) = windowInPercentileRange(globalAverageResponseTime, 0.95, dataList)
-			val (successMinPercentiles, successMaxPercentiles) = windowInPercentileRange(successAverageResponseTime, 0.95, successRequests)
-			val (failedMinPercentiles, failedMaxPercentiles) = windowInPercentileRange(failedAverageResponseTime, 0.95, failedRequests)
+			val percentiles = configuration.chartingIndicatorsPercentiles / 100.0
+			val (globalMinPercentiles, globalMaxPercentiles) = windowInPercentileRange(globalAverageResponseTime, percentiles, dataList)
+			val (successMinPercentiles, successMaxPercentiles) = windowInPercentileRange(successAverageResponseTime, percentiles, successRequests)
+			val (failedMinPercentiles, failedMaxPercentiles) = windowInPercentileRange(failedAverageResponseTime, percentiles, failedRequests)
 
 			// Create series
 			val responseTimesSuccessSeries = new Series[Long, Long]("Response Time (success)", responseTimesSuccessData, List(BLUE))

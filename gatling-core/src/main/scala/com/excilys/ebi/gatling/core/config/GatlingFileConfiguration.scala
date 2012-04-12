@@ -24,14 +24,15 @@ import collection.JavaConversions._
 import akka.config.ConfigurationException
 
 object GatlingFileConfiguration extends Logging {
+
 	val defaultPath = new File(GATLING_HOME).getCanonicalPath
 
 	private def fromFileSystem(file: File) = ConfigFactory.parseFile(file)
-	
+
 	private def fromClasspath(filename: String) = ConfigFactory.parseResources(getClass.getClassLoader, filename)
 
 	def fromFile(filename: String): GatlingFileConfiguration = {
-		
+
 		val config = {
 			val absoluteFile = new File(filename)
 			val relativeFile = new File(defaultPath, filename)
@@ -52,31 +53,26 @@ class GatlingFileConfiguration(map: Config) extends Logging {
 	def contains(key: String): Boolean = map.hasPath(key)
 
 	def getString(key: String): Option[String] = if (contains(key)) Some(map.getString(key)) else None
-
 	def getString(key: String, defaultValue: String): String = getString(key).getOrElse(defaultValue)
 
 	def getList(key: String): Seq[String] = if (contains(key)) map.getStringList(key) else List.empty
 
 	def getInt(key: String): Option[Int] = if (contains(key)) Some(map.getInt(key)) else None
-
 	def getInt(key: String, defaultValue: Int): Int = getInt(key).getOrElse(defaultValue)
 
 	def getLong(key: String): Option[Long] = if (contains(key)) Some(map.getLong(key)) else None
-
 	def getLong(key: String, defaultValue: Long): Long = getLong(key).getOrElse(defaultValue)
 
 	def getDouble(key: String): Option[Double] = if (contains(key)) Some(map.getDouble(key)) else None
-
 	def getDouble(key: String, defaultValue: Double): Double = getDouble(key).getOrElse(defaultValue)
 
 	def getBoolean(key: String): Option[Boolean] = if (contains(key)) Some(map.getBoolean(key)) else None
-
 	def getBoolean(key: String, defaultValue: Boolean): Boolean = getBoolean(key).getOrElse(defaultValue)
 
 	def apply(key: String): String = getString(key).getOrElse(throw new ConfigurationException("undefined config: " + key))
-
 	def apply(key: String, defaultValue: String) = getString(key, defaultValue)
 	def apply(key: String, defaultValue: Int) = getInt(key, defaultValue)
 	def apply(key: String, defaultValue: Long) = getLong(key, defaultValue)
+	def apply(key: String, defaultValue: Double) = getDouble(key, defaultValue)
 	def apply(key: String, defaultValue: Boolean) = getBoolean(key, defaultValue)
 }
