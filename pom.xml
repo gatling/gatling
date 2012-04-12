@@ -74,11 +74,8 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
-		<!-- required for xerces/XercesImpl -->
 		<!-- http://repo.typesafe.com/typesafe/releases -->
-		<!-- required for arg4j/arg4j -->
 		<!-- http://maven.jenkins-ci.org/content/repositories/releases -->
-		<!-- required for com.twitter/util-core_2.9.1 -->
 		<!-- http://maven.twttr.com -->
 	</repositories>
 
