@@ -404,20 +404,22 @@ public class RunningFrame extends JFrame {
 
 		event.computeUrls(baseURI);
 
-		String headerAuthorization = event.getRequest().getHeader("Authorization");
-		request.removeHeader("Authorization");
+		String headerAuthorization = request.getHeader("Authorization");
 		if (headerAuthorization != null) {
-			if (basicAuth == null) {
-				// Split on " " and take 2nd group (Basic credentialsInBase64==)
-				String credentials = new String(Base64.decodeBase64(headerAuthorization.split(" ")[1].getBytes()));
-				basicAuth = new BasicAuth(event.getRequestAbsoluteUrl(), credentials.split(":")[0], credentials.split(":")[1]);
-				event.setBasicAuth(basicAuth);
-			} else {
-				if (event.getRequestAbsoluteUrl().equals(basicAuth.getUrlBase()))
+			request.removeHeader("Authorization");
+			if (headerAuthorization.startsWith("Basic "))
+				if (basicAuth == null) {
+					// Split on " " and take 2nd group (Basic
+					// credentialsInBase64==)
+					String encodedCredentials = headerAuthorization.substring("Basic ".length());
+					String credentials = new String(Base64.decodeBase64(encodedCredentials.getBytes()));
+					String[] credentialParts = credentials.split(":");
+					basicAuth = new BasicAuth(event.getRequestAbsoluteUrl(), credentialParts[0], credentialParts[1]);
+					event.setBasicAuth(basicAuth);
+				} else if (event.getRequestAbsoluteUrl().equals(basicAuth.getUrlBase()))
 					event.setBasicAuth(basicAuth);
 				else
 					basicAuth = null;
-			}
 		}
 
 		/* Headers */
