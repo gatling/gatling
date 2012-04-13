@@ -14,7 +14,7 @@
 					.headers(${event.getHeadersId()})
 #end
 #if(${event.getBasicAuth()})
-					.basicAuth("${event.getBasicAuth().getUsername()}", "${event.getBasicAuth().getPassword()}")
+					.basicAuth("""${event.getBasicAuth().getUsername()}""", """${event.getBasicAuth().getPassword()}""")
 #end
 #if(${event.isWithBody()})
 					.fileBody("${date}_request_${event.getId()}.txt")
