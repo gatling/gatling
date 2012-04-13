@@ -18,7 +18,7 @@ import com.excilys.ebi.gatling.core.feeder.SourceBasedFeederBuilder
 
 object JdbcFeederBuilder {
 
-	def database(driverClassName: String, url: String, username: String, password: String, sql: String) = new JdbcFeederBuilder(driverClassName, url, username, password, sql)
+	def jdbcFeeder(driverClassName: String, url: String, username: String, password: String, sql: String) = new JdbcFeederBuilder(driverClassName, url, username, password, sql)
 	def db2(url: String, username: String, password: String, sql: String) = new JdbcFeederBuilder("com.ibm.db2.jdbc.app.DB2Driver", url, username, password, sql)
 	def hsqldb(url: String, username: String, password: String, sql: String) = new JdbcFeederBuilder("org.hsql.jdbcDriver", url, username, password, sql)
 	def h2(url: String, username: String, password: String, sql: String) = new JdbcFeederBuilder("org.h2.Driver", url, username, password, sql)

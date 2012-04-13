@@ -18,7 +18,7 @@ import com.excilys.ebi.gatling.jdbc.feeder.database.JdbcFeederBuilder
 
 object Predef {
 
-	def databaseFeeder(driverClassName: String, url: String, username: String, password: String, sql: String) = JdbcFeederBuilder.database(driverClassName, url, username, password, sql)
+	def jdbcFeeder(driverClassName: String, url: String, username: String, password: String, sql: String) = JdbcFeederBuilder.jdbcFeeder(driverClassName, url, username, password, sql)
 	def db2Feeder(url: String, username: String, password: String, sql: String) = JdbcFeederBuilder.db2(url, username, password, sql)
 	def hsqldbFeeder(url: String, username: String, password: String, sql: String) = JdbcFeederBuilder.hsqldb(url, username, password, sql)
 	def h2Feeder(url: String, username: String, password: String, sql: String) = JdbcFeederBuilder.h2(url, username, password, sql)
