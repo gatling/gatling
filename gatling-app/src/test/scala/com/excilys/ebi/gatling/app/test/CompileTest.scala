@@ -36,7 +36,7 @@ object CompileTest {
 
 	val testData = tsv("test-data.tsv")
 
-	val testData2 = postgresqlFeeder("jdbc:postgresql:gatling", "gatling", "gatling", """
+	val testData2 = jdbcFeeder("jdbc:postgresql:gatling", "gatling", "gatling", """
 select login as "username", password
 from usr
 where id in (select usr_id from usr_role where role_id='ROLE_USER')

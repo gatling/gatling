@@ -17,18 +17,9 @@ package com.excilys.ebi.gatling.jdbc.feeder.database
 import com.excilys.ebi.gatling.core.feeder.SourceBasedFeederBuilder
 
 object JdbcFeederBuilder {
-
-	def jdbcFeeder(driverClassName: String, url: String, username: String, password: String, sql: String) = new JdbcFeederBuilder(driverClassName, url, username, password, sql)
-	def db2(url: String, username: String, password: String, sql: String) = new JdbcFeederBuilder("com.ibm.db2.jdbc.app.DB2Driver", url, username, password, sql)
-	def hsqldb(url: String, username: String, password: String, sql: String) = new JdbcFeederBuilder("org.hsql.jdbcDriver", url, username, password, sql)
-	def h2(url: String, username: String, password: String, sql: String) = new JdbcFeederBuilder("org.h2.Driver", url, username, password, sql)
-	def mssql(url: String, username: String, password: String, sql: String) = new JdbcFeederBuilder("com.microsoft.sqlserver.jdbc.SQLServerDriver", url, username, password, sql)
-	def mysql(url: String, username: String, password: String, sql: String) = new JdbcFeederBuilder("org.gjt.mm.mysql.Driver", url, username, password, sql)
-	def oracle(url: String, username: String, password: String, sql: String) = new JdbcFeederBuilder("oracle.jdbc.driver.OracleDriver", url, username, password, sql)
-	def postgresql(url: String, username: String, password: String, sql: String) = new JdbcFeederBuilder("org.postgresql.Driver", url, username, password, sql)
-	def sybase(url: String, username: String, password: String, sql: String) = new JdbcFeederBuilder("com.sybase.jdbc2.jdbc.SybDriver", url, username, password, sql)
+	def jdbcFeeder(url: String, username: String, password: String, sql: String) = new JdbcFeederBuilder(url, username, password, sql)
 }
 
-class JdbcFeederBuilder(driverClassName: String, url: String, username: String, password: String, sql: String) extends SourceBasedFeederBuilder[JdbcFeederSource] {
-	protected lazy val source = new JdbcFeederSource(driverClassName, url, username, password, sql)
+class JdbcFeederBuilder(url: String, username: String, password: String, sql: String) extends SourceBasedFeederBuilder[JdbcFeederSource] {
+	protected lazy val source = new JdbcFeederSource(url, username, password, sql)
 }

@@ -17,15 +17,5 @@ package com.excilys.ebi.gatling.jdbc
 import com.excilys.ebi.gatling.jdbc.feeder.database.JdbcFeederBuilder
 
 object Predef {
-
-	def jdbcFeeder(driverClassName: String, url: String, username: String, password: String, sql: String) = JdbcFeederBuilder.jdbcFeeder(driverClassName, url, username, password, sql)
-	def db2Feeder(url: String, username: String, password: String, sql: String) = JdbcFeederBuilder.db2(url, username, password, sql)
-	def hsqldbFeeder(url: String, username: String, password: String, sql: String) = JdbcFeederBuilder.hsqldb(url, username, password, sql)
-	def h2Feeder(url: String, username: String, password: String, sql: String) = JdbcFeederBuilder.h2(url, username, password, sql)
-	def mssqlFeeder(url: String, username: String, password: String, sql: String) = JdbcFeederBuilder.mssql(url, username, password, sql)
-	def mysqlFeeder(url: String, username: String, password: String, sql: String) = JdbcFeederBuilder.mysql(url, username, password, sql)
-	def oracleFeeder(url: String, username: String, password: String, sql: String) = JdbcFeederBuilder.oracle(url, username, password, sql)
-	def postgresqlFeeder(url: String, username: String, password: String, sql: String) = JdbcFeederBuilder.postgresql(url, username, password, sql)
-	def sybaseFeeder(url: String, username: String, password: String, sql: String) = JdbcFeederBuilder.sybase(url, username, password, sql)
-
+	def jdbcFeeder(url: String, username: String, password: String, sql: String) = JdbcFeederBuilder.jdbcFeeder(url, username, password, sql)
 }
