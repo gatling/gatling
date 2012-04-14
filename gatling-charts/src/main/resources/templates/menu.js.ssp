@@ -2,11 +2,14 @@
 <%@ val firstLink: (String,Option[String],String) = requestLinks.head %>
 
 function setDetailsLinkUrl(){
-    $("#details_link").attr('href', '<%= firstLink._1 %>');
+    $("#details_link").attr('href', encodeURIComponent('<%= firstLink._1 %>'));
 }
 
 function setDetailsMenu(){
-    $(".nav ul").append("<%= requestLinks.map{ entry => "<li><a href='" + entry._1 + "' " + (if(entry._2.isDefined) "title='" + entry._2.get + "'" else "") + ">" + entry._3 + "</a></li>" } %>");
+    var menu = $(".nav ul");
+#for (entry <- requestLinks)
+    $("<a>").attr({href: encodeURIComponent('<%= entry._1 %>')#if (entry._2.isDefined) , title: '<%= entry._2.get %>' #end}).text('<%= entry._3 %>').wrap("<li>").parent().appendTo(menu);
+#end
 }
 
 function setGlobalMenu(){
@@ -15,7 +18,7 @@ function setGlobalMenu(){
 
 function getLink(link){
 	var a = link.split('/');
-	return (a.length<=1)? link : a[a.length-1].toLowerCase();
+	return (a.length<=1)? link : a[a.length-1];
 }
  
 function setActiveMenu(){
