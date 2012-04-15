@@ -219,11 +219,13 @@ class Gatling(cliOptions: Options) extends Logging {
 				Console.readInt
 		}
 
-    if(selection >= 0 && selection < classes.size){
-		  classes(selection)
-      } else {
-      selectSimulationClass(classes)
-    }
+		val validRange = 0 to classes.size
+		if (validRange contains selection)
+			classes(selection)
+		else {
+			println("Invalid selection, must be in " + validRange)
+			selectSimulationClass(classes)
+		}
 	}
 
 	private def run(selection: UserSelection): Seq[String] = {
