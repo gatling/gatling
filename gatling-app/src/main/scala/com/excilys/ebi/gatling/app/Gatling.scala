@@ -219,7 +219,11 @@ class Gatling(cliOptions: Options) extends Logging {
 				Console.readInt
 		}
 
-		classes(selection)
+    if(selection >= 0 && selection < classes.size){
+		  classes(selection)
+      } else {
+      selectSimulationClass(classes)
+    }
 	}
 
 	private def run(selection: UserSelection): Seq[String] = {
