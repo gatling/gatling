@@ -97,7 +97,7 @@
 		<velocity.version>1.7</velocity.version>
 		<xstream.version>1.4.2</xstream.version>
 		<commons-lang.version>2.6</commons-lang.version>
-		<commons-io.version>2.2</commons-io.version>
+		<commons-io.version>2.3</commons-io.version>
 		<guava.version>11.0.2</guava.version>
 		<plexus.version>3.0</plexus.version>
 		<scopt.version>2.0.1</scopt.version>
