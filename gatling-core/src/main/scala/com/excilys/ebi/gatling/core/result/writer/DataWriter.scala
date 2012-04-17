@@ -36,7 +36,7 @@ object DataWriter {
 
 	private def init = system.actorOf(Props(configuration.dataWriterClass))
 
-	def init(runRecord: RunRecord, totalUsersCount: Long, latch: CountDownLatch) = instance ! InitializeDataWriter(runRecord, totalUsersCount, latch)
+	def init(runRecord: RunRecord, totalUsersCount: Long, latch: CountDownLatch, encoding: String) = instance ! InitializeDataWriter(runRecord, totalUsersCount, latch, encoding)
 
 	def startUser(scenarioName: String, userId: Int, time: Long) = DataWriter.instance ! RequestRecord(scenarioName, userId, START_OF_SCENARIO, time, time, time, time, OK, START_OF_SCENARIO)
 
