@@ -44,24 +44,17 @@ object HttpRequestAction extends Logging {
 	/**
 	 * The HTTP client used to send the requests
 	 */
-	lazy val HTTP_CLIENT = buildAsyncHttpClient
+	val HTTP_CLIENT = {
+		// set up Netty LoggerFactory for slf4j instead of default JDK
+		try {
+			val nettyInternalLoggerFactoryClass = Class.forName("org.jboss.netty.logging.InternalLoggerFactory")
+			val nettySlf4JLoggerFactoryInstance = Class.forName("org.jboss.netty.logging.Slf4JLoggerFactory").newInstance
+			val setDefaultFactoryMethod = nettyInternalLoggerFactoryClass.getMethod("setDefaultFactory", nettyInternalLoggerFactoryClass)
+			setDefaultFactoryMethod.invoke(nettySlf4JLoggerFactoryInstance)
 
-	protected def buildAsyncHttpClient = {
-
-		def setUpNettyLogger {
-			// set up Netty LoggerFactory for slf4j instead of default JDK
-			try {
-				val nettyInternalLoggerFactoryClass = Class.forName("org.jboss.netty.logging.InternalLoggerFactory")
-				val nettySlf4JLoggerFactoryInstance = Class.forName("org.jboss.netty.logging.Slf4JLoggerFactory").newInstance
-				val setDefaultFactoryMethod = nettyInternalLoggerFactoryClass.getMethod("setDefaultFactory", nettyInternalLoggerFactoryClass)
-				setDefaultFactoryMethod.invoke(nettySlf4JLoggerFactoryInstance)
-
-			} catch {
-				case e => logger.info("Netty logger wasn't set up")
-			}
+		} catch {
+			case e => logger.info("Netty logger wasn't set up")
 		}
-
-		setUpNettyLogger
 
 		val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
 			.setCompressionEnabled(GATLING_HTTP_CONFIG_COMPRESSION_ENABLED)
