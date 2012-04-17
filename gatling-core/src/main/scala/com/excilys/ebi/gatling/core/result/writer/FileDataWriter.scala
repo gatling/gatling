@@ -67,10 +67,10 @@ class FileDataWriter extends DataWriter with Logging {
 	 */
 	def receive = {
 		// If the message is sent to initialize the writer
-		case InitializeDataWriter(runRecord, totalUsersCount, latch) => {
+		case InitializeDataWriter(runRecord, totalUsersCount, latch, encoding) => {
 
 			def initStreamWriter {
-				osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(simulationLogFile(runRecord.runUuid).toString)))
+				osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(simulationLogFile(runRecord.runUuid).toString)), encoding)
 			}
 
 			def printRunRecord {
