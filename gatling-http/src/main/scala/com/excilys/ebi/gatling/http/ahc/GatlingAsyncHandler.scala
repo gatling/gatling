@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.ahc
+
 import java.lang.System.currentTimeMillis
 import java.lang.Void
 import java.net.URLDecoder
+import java.util.concurrent.atomic.AtomicReference
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters.asScalaBufferConverter
@@ -27,6 +29,7 @@ import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ RequestStatus, OK, KO }
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.util.Atomic.toAtomic
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames }
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
@@ -38,8 +41,7 @@ import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.excilys.ebi.gatling.http.util.HttpHelper.{ toRichResponse, computeRedirectUrl }
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.Response.ResponseBuilder
-import com.ning.http.client.ProgressAsyncHandler
-import com.ning.http.client.{ Response, RequestBuilder, Request, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, FluentStringsMap, AsyncHandler }
+import com.ning.http.client.{ Response, RequestBuilder, Request, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, FluentStringsMap, AsyncHandler, ProgressAsyncHandler }
 
 import akka.actor.actorRef2Scala
 import akka.actor.ActorRef
@@ -65,32 +67,23 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 
 	private val responseBuilder = new ResponseBuilder
 
-	private val requestStartDate: Long = currentTimeMillis
-
-	// initialized in case the headers can't be sent (connection problem)
-	@volatile private var endOfRequestSendingDate: Option[Long] = None
-
-	// start of response or exception
-	@volatile private var startOfResponseReceivingDate: Option[Long] = None
-
-	// end of response or exception
-	@volatile private var responseEndDate: Option[Long] = None
+	private val times = new AtomicReference(new Times)
 
 	def onHeaderWriteCompleted = {
-		endOfRequestSendingDate = Some(currentTimeMillis)
+		times.update(_.updateEndOfRequestSendingDate)
 		STATE.CONTINUE
 	}
 
 	def onContentWriteCompleted = {
 		// reassign in case of request body
-		endOfRequestSendingDate = Some(currentTimeMillis)
+		times.update(_.updateEndOfRequestSendingDate)
 		STATE.CONTINUE
 	}
 
 	def onContentWriteProgress(amount: Long, current: Long, total: Long) = STATE.CONTINUE
 
 	def onStatusReceived(responseStatus: HttpResponseStatus) = {
-		startOfResponseReceivingDate = Some(currentTimeMillis)
+		times.update(_.updateStartOfResponseReceivingDate)
 		responseBuilder.accumulate(responseStatus)
 		STATE.CONTINUE
 	}
@@ -109,7 +102,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 	}
 
 	def onCompleted: Void = {
-		responseEndDate = Some(currentTimeMillis)
+		times.update(_.updateResponseEndDate)
 		processResponse(responseBuilder.build)
 		null
 	}
@@ -121,13 +114,9 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 	}
 
 	private def logRequest(newSession: Session, requestResult: RequestStatus, requestMessage: String): Long = {
-
-		val now = currentTimeMillis
-		val effectiveResponseEndDate = responseEndDate.getOrElse(now)
-		val effectiveEndOfRequestSendingDate = endOfRequestSendingDate.getOrElse(now)
-		val effectiveStartOfResponseReceivingDate = startOfResponseReceivingDate.getOrElse(now)
-		DataWriter.logRequest(session.scenarioName, session.userId, "Request " + requestName, requestStartDate, effectiveResponseEndDate, effectiveEndOfRequestSendingDate, effectiveStartOfResponseReceivingDate, requestResult, requestMessage)
-		effectiveResponseEndDate
+		val (requestStartDate, responseEndDate, endOfRequestSendingDate, startOfResponseReceivingDate) = times.get.getTimes
+		DataWriter.logRequest(session.scenarioName, session.userId, "Request " + requestName, requestStartDate, responseEndDate, endOfRequestSendingDate, endOfRequestSendingDate, requestResult, requestMessage)
+		responseEndDate
 	}
 
 	private def executeNext(newSession: Session, effectiveResponseEndDate: Long) {
