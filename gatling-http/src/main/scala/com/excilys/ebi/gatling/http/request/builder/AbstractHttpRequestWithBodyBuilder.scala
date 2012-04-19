@@ -31,6 +31,7 @@ import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestWithBodyBuilder.TEMPLATE_ENGINE
+import com.ning.http.client.Realm
 
 object AbstractHttpRequestWithBodyBuilder {
 	lazy val TEMPLATE_ENGINE = initEngine
@@ -53,7 +54,7 @@ object AbstractHttpRequestWithBodyBuilder {
  * @param queryParams the query parameters that should be added to the request
  * @param headers the headers that should be added to the request
  * @param body the body that should be added to the request
- * @param credentials sets the credentials in case of Basic HTTP Authentication
+ * @param realm sets the realm in case of Basic HTTP Authentication
  */
 abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](
 	requestName: String,
@@ -62,9 +63,9 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	queryParams: List[HttpParam],
 	headers: Map[String, EvaluatableString],
 	body: Option[HttpRequestBody],
-	credentials: Option[Credentials],
+	realm: Option[Session => Realm],
 	checks: Option[List[HttpCheck]])
-		extends AbstractHttpRequestBuilder[B](requestName, method, url, queryParams, headers, credentials, checks) {
+		extends AbstractHttpRequestBuilder[B](requestName, method, url, queryParams, headers, realm, checks) {
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
 		val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
@@ -80,7 +81,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 * @param queryParams the query parameters that should be added to the request
 	 * @param headers the headers that should be added to the request
 	 * @param body the body that should be added to the request
-	 * @param credentials sets the credentials in case of Basic HTTP Authentication
+	 * @param realm sets the realm in case of Basic HTTP Authentication
 	 */
 	private[http] def newInstance(
 		requestName: String,
@@ -88,7 +89,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		body: Option[HttpRequestBody],
-		credentials: Option[Credentials],
+		realm: Option[Session => Realm],
 		checks: Option[List[HttpCheck]]): B
 
 	private[http] def newInstance(
@@ -96,9 +97,9 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 		url: EvaluatableString,
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
-		credentials: Option[Credentials],
+		realm: Option[Session => Realm],
 		checks: Option[List[HttpCheck]]): B = {
-		newInstance(requestName, url, queryParams, headers, body, credentials, checks)
+		newInstance(requestName, url, queryParams, headers, body, realm, checks)
 	}
 
 	/**
@@ -106,14 +107,14 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 *
 	 * @param body a string containing the body of the request
 	 */
-	def body(body: EvaluatableString): B = newInstance(requestName, url, queryParams, headers, Some(StringBody(body)), credentials, checks)
+	def body(body: EvaluatableString): B = newInstance(requestName, url, queryParams, headers, Some(StringBody(body)), realm, checks)
 
 	/**
 	 * Adds a body from a file to the request
 	 *
 	 * @param filePath the path of the file relative to GATLING_REQUEST_BODIES_FOLDER
 	 */
-	def fileBody(filePath: String): B = newInstance(requestName, url, queryParams, headers, Some(FilePathBody(filePath)), credentials, checks)
+	def fileBody(filePath: String): B = newInstance(requestName, url, queryParams, headers, Some(FilePathBody(filePath)), realm, checks)
 
 	/**
 	 * Adds a body from a template that has to be compiled
@@ -123,7 +124,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 */
 	def fileBody(tplPath: String, values: Map[String, String]): B = {
 		val evaluatableValues = values.map { entry => entry._1 -> parseEvaluatable(entry._2) }
-		newInstance(requestName, url, queryParams, headers, Some(TemplateBody(tplPath, evaluatableValues)), credentials, checks)
+		newInstance(requestName, url, queryParams, headers, Some(TemplateBody(tplPath, evaluatableValues)), realm, checks)
 	}
 
 	/**

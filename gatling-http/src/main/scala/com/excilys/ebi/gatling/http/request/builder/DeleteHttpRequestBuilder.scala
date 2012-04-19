@@ -18,6 +18,7 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.ning.http.client.Realm
 
 /**
  * This class defines an HTTP request with word DELETE in the DSL
@@ -28,9 +29,9 @@ class DeleteHttpRequestBuilder(
 	queryParams: List[HttpParam],
 	headers: Map[String, EvaluatableString],
 	body: Option[HttpRequestBody],
-	credentials: Option[Credentials],
+	realm: Option[Session => Realm],
 	checks: Option[List[HttpCheck]])
-		extends AbstractHttpRequestWithBodyBuilder[DeleteHttpRequestBuilder](requestName, "DELETE", url, queryParams, headers, body, credentials, checks) {
+		extends AbstractHttpRequestWithBodyBuilder[DeleteHttpRequestBuilder](requestName, "DELETE", url, queryParams, headers, body, realm, checks) {
 
 	private[http] def newInstance(
 		requestName: String,
@@ -38,8 +39,8 @@ class DeleteHttpRequestBuilder(
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		body: Option[HttpRequestBody],
-		credentials: Option[Credentials],
+		realm: Option[Session => Realm],
 		checks: Option[List[HttpCheck]]) = {
-		new DeleteHttpRequestBuilder(requestName, url, queryParams, headers, body, credentials, checks)
+		new DeleteHttpRequestBuilder(requestName, url, queryParams, headers, body, realm, checks)
 	}
 }

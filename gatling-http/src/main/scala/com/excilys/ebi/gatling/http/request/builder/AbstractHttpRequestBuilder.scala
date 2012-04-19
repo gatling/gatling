@@ -56,7 +56,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 		url: EvaluatableString,
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
-		credentials: Option[Credentials],
+		realm: Option[Session => Realm],
 		val checks: Option[List[HttpCheck]]) extends CookieHandling {
 
 	/**
@@ -73,17 +73,17 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 		url: EvaluatableString,
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
-		credentials: Option[Credentials],
+		credentials: Option[Session => Realm],
 		checks: Option[List[HttpCheck]]): B
 
-	private[http] def withRequestName(requestName: String): B = newInstance(requestName, url, queryParams, headers, credentials, checks)
+	private[http] def withRequestName(requestName: String): B = newInstance(requestName, url, queryParams, headers, realm, checks)
 
 	/**
 	 * Stops defining the request and adds checks on the response
 	 *
 	 * @param checkBuilders the checks that will be performed on the reponse
 	 */
-	def check(checks: HttpCheck*): B = newInstance(requestName, url, queryParams, headers, credentials, Some(checks.toList))
+	def check(checks: HttpCheck*): B = newInstance(requestName, url, queryParams, headers, realm, Some(checks.toList))
 
 	/**
 	 * Adds a query parameter to the request
@@ -91,7 +91,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * @param paramKeyFunction a function that returns the key name
 	 * @param paramValueFunction a function that returns the value
 	 */
-	def queryParam(param: HttpParam): B = newInstance(requestName, url, param :: queryParams, headers, credentials, checks)
+	def queryParam(param: HttpParam): B = newInstance(requestName, url, param :: queryParams, headers, realm, checks)
 
 	/**
 	 * Adds a query parameter to the request
@@ -107,14 +107,14 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 *
 	 * @param header the header to add, eg: ("Content-Type", "application/json")
 	 */
-	def header(header: (String, String)): B = newInstance(requestName, url, queryParams, headers + (header._1 -> parseEvaluatable(header._2)), credentials, checks)
+	def header(header: (String, String)): B = newInstance(requestName, url, queryParams, headers + (header._1 -> parseEvaluatable(header._2)), realm, checks)
 
 	/**
 	 * Adds several headers to the request at the same time
 	 *
 	 * @param givenHeaders a scala map containing the headers to add
 	 */
-	def headers(givenHeaders: Map[String, String]): B = newInstance(requestName, url, queryParams, headers ++ givenHeaders.mapValues(parseEvaluatable(_)), credentials, checks)
+	def headers(givenHeaders: Map[String, String]): B = newInstance(requestName, url, queryParams, headers ++ givenHeaders.mapValues(parseEvaluatable(_)), realm, checks)
 
 	/**
 	 * Adds Accept and Content-Type headers to the request set with "application/json" values
@@ -132,7 +132,10 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * @param username the username needed
 	 * @param password the password needed
 	 */
-	def basicAuth(username: EvaluatableString, password: EvaluatableString): B = newInstance(requestName, url, queryParams, headers, Some(Credentials(username, password)), checks)
+	def basicAuth(username: EvaluatableString, password: EvaluatableString): B = {
+		val buildRealm = (session: Session) => new Realm.RealmBuilder().setPrincipal(username(session)).setPassword(password(session)).setUsePreemptiveAuth(true).setScheme(AuthScheme.BASIC).build
+		newInstance(requestName, url, queryParams, headers, Some(buildRealm), checks)
+	}
 
 	/**
 	 * This method actually fills the request builder to avoid race conditions
@@ -146,7 +149,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 		configureProxy(requestBuilder, session, isHttps, protocolConfiguration)
 		configureQueryParams(requestBuilder, session)
 		configureHeaders(requestBuilder, headers, session)
-		configureAuthentication(requestBuilder, credentials, session)
+		configureRealm(requestBuilder, realm, session)
 
 		requestBuilder
 	}
@@ -234,10 +237,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * @param requestBuilder the request builder to which the credentials should be added
 	 * @param credentials the credentials to put in the request builder
 	 */
-	private def configureAuthentication(requestBuilder: RequestBuilder, credentials: Option[Credentials], session: Session) = {
-		credentials.map { credentials =>
-			val realm = new Realm.RealmBuilder().setPrincipal(credentials.username(session)).setPassword(credentials.password(session)).setUsePreemptiveAuth(true).setScheme(AuthScheme.BASIC).build
-			requestBuilder.setRealm(realm)
-		}
+	private def configureRealm(requestBuilder: RequestBuilder, realm: Option[Session => Realm], session: Session) = {
+		realm.map { realm => requestBuilder.setRealm(realm(session)) }
 	}
 }

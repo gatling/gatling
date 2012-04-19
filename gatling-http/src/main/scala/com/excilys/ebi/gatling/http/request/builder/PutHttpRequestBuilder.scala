@@ -17,6 +17,8 @@ package com.excilys.ebi.gatling.http.request.builder
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.excilys.ebi.gatling.http.check.HttpCheck
+import com.ning.http.client.Realm
+import com.excilys.ebi.gatling.core.session.Session
 
 /**
  * This class defines an HTTP request with word PUT in the DSL
@@ -27,9 +29,9 @@ class PutHttpRequestBuilder(
 	queryParams: List[HttpParam],
 	headers: Map[String, EvaluatableString],
 	body: Option[HttpRequestBody],
-	credentials: Option[Credentials],
+	realm: Option[Session => Realm],
 	checks: Option[List[HttpCheck]])
-		extends AbstractHttpRequestWithBodyBuilder[PutHttpRequestBuilder](requestName, "PUT", url, queryParams, headers, body, credentials, checks) {
+		extends AbstractHttpRequestWithBodyBuilder[PutHttpRequestBuilder](requestName, "PUT", url, queryParams, headers, body, realm, checks) {
 
 	private[http] def newInstance(
 		requestName: String,
@@ -37,8 +39,8 @@ class PutHttpRequestBuilder(
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		body: Option[HttpRequestBody],
-		credentials: Option[Credentials],
+		realm: Option[Session => Realm],
 		checks: Option[List[HttpCheck]]) = {
-		new PutHttpRequestBuilder(requestName, url, queryParams, headers, body, credentials, checks)
+		new PutHttpRequestBuilder(requestName, url, queryParams, headers, body, realm, checks)
 	}
 }

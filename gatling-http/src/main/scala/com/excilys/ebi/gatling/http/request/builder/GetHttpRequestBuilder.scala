@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.request.builder
+
 import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.check.HttpCheck
+import com.ning.http.client.Realm
 
 /**
  * This class defines an HTTP request with word GET in the DSL
@@ -25,17 +28,17 @@ class GetHttpRequestBuilder(
 	url: EvaluatableString,
 	queryParams: List[HttpParam],
 	headers: Map[String, EvaluatableString],
-	credentials: Option[Credentials],
+	realm: Option[Session => Realm],
 	checks: Option[List[HttpCheck]])
-		extends AbstractHttpRequestBuilder[GetHttpRequestBuilder](requestName, "GET", url, queryParams, headers, credentials, checks) {
+		extends AbstractHttpRequestBuilder[GetHttpRequestBuilder](requestName, "GET", url, queryParams, headers, realm, checks) {
 
 	private[http] def newInstance(
 		requestName: String,
 		url: EvaluatableString,
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
-		credentials: Option[Credentials],
+		realm: Option[Session => Realm],
 		checks: Option[List[HttpCheck]]) = {
-		new GetHttpRequestBuilder(requestName, url, queryParams, headers, credentials, checks)
+		new GetHttpRequestBuilder(requestName, url, queryParams, headers, realm, checks)
 	}
 }
