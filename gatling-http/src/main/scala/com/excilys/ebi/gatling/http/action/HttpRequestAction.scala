@@ -50,7 +50,7 @@ object HttpRequestAction extends Logging {
 			val nettyInternalLoggerFactoryClass = Class.forName("org.jboss.netty.logging.InternalLoggerFactory")
 			val nettySlf4JLoggerFactoryInstance = Class.forName("org.jboss.netty.logging.Slf4JLoggerFactory").newInstance
 			val setDefaultFactoryMethod = nettyInternalLoggerFactoryClass.getMethod("setDefaultFactory", nettyInternalLoggerFactoryClass)
-			setDefaultFactoryMethod.invoke(nettySlf4JLoggerFactoryInstance)
+			setDefaultFactoryMethod.invoke(null, nettySlf4JLoggerFactoryInstance.asInstanceOf[AnyRef])
 
 		} catch {
 			case e => logger.info("Netty logger wasn't set up")
