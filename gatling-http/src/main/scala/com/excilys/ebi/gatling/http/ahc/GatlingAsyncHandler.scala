@@ -182,7 +182,7 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 				case Some(nameMatch) =>
 					val requestBaseName = nameMatch.group(1)
 					val redirectCount = nameMatch.group(2).toInt
-					requestBaseName + " Redirect " + (redirectCount + 1)
+					new StringBuilder().append(requestBaseName).append(" Redirect ").append(redirectCount + 1).toString
 				case None => requestName + " Redirect 1"
 			}
 
