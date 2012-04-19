@@ -101,7 +101,8 @@ class HttpRequestAction(next: ActorRef, request: HttpRequest, checks: Option[Lis
 			case None => false
 		}
 		val ahcRequest = request.buildAHCRequest(session, protocolConfiguration)
+		val client = HTTP_CLIENT
 		val ahcHandler = new GatlingAsyncHandler(session, resolvedChecks, next, request.name, ahcRequest, followRedirect)
-		HTTP_CLIENT.executeRequest(ahcRequest, ahcHandler)
+		client.executeRequest(ahcRequest, ahcHandler)
 	}
 }
