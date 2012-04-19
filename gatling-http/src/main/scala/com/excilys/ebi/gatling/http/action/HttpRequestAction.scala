@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.http.action
 
+import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.action.RequestAction
-import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandler
@@ -67,7 +67,7 @@ object HttpRequestAction extends Logging {
 		val client = new AsyncHttpClient(GATLING_HTTP_CONFIG_PROVIDER_CLASS, ahcConfigBuilder)
 
 		// Register client shutdown
-		ResourceRegistry.registerOnCloseCallback(() => client.close)
+		system.registerOnTermination(client.close)
 
 		client
 	}

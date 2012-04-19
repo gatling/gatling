@@ -16,32 +16,32 @@
 package com.excilys.ebi.gatling.http.request.builder
 
 import scala.tools.nsc.io.Path.string2path
+
 import org.fusesource.scalate.support.ScalaCompiler
 import org.fusesource.scalate.{ TemplateEngine, Binding }
+
+import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingFiles
-import com.excilys.ebi.gatling.core.resource.ResourceRegistry
+import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.FileHelper.SSP_EXTENSION
 import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
 import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
-import com.excilys.ebi.gatling.http.request.{ TemplateBody, StringBody, HttpRequestBody, FilePathBody }
-import com.ning.http.client.RequestBuilder
-import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestWithBodyBuilder.TEMPLATE_ENGINE
-import com.ning.http.client.Realm
+import com.excilys.ebi.gatling.http.request.{ TemplateBody, StringBody, HttpRequestBody, FilePathBody }
+import com.ning.http.client.{ RequestBuilder, Realm }
 
 object AbstractHttpRequestWithBodyBuilder {
-	lazy val TEMPLATE_ENGINE = initEngine
+	val TEMPLATE_ENGINE = initEngine
 
 	def initEngine: TemplateEngine = {
 		val engine = new TemplateEngine(List(GatlingFiles.requestBodiesFolder))
 		engine.allowReload = false
 		engine.escapeMarkup = false
 		// Register engine shutdown
-		ResourceRegistry.registerOnCloseCallback(() => engine.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown)
+		system.registerOnTermination(engine.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown)
 		engine
 	}
 }

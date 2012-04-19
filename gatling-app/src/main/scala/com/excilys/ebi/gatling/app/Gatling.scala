@@ -30,7 +30,6 @@ import com.excilys.ebi.gatling.app.UserSelection.DEFAULT_RUN_ID
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.activeSessionsFile
 import com.excilys.ebi.gatling.charts.report.ReportsGenerator
 import com.excilys.ebi.gatling.core.config.{ GatlingFiles, GatlingConfiguration }
-import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.core.result.message.RunRecord
 import com.excilys.ebi.gatling.core.runner.Runner
 import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
@@ -80,9 +79,6 @@ object Gatling extends Logging {
 		} finally {
 			// shut all actors down
 			system.shutdown
-
-			// closes all the resources used during simulation
-			ResourceRegistry.closeAll
 		}
 	}
 }
