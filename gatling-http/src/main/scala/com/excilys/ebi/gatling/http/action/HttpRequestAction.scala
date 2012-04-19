@@ -87,12 +87,9 @@ class HttpRequestAction(next: ActorRef, request: HttpRequest, checks: Option[Lis
 
 	val resolvedChecks = checks match {
 		case Some(givenChecksContent) =>
-			if (givenChecksContent.find(_.phase == StatusReceived).isEmpty) {
-				// add default HttpStatusCheck if none was set
-				HttpRequestAction.DEFAULT_HTTP_STATUS_CHECK :: givenChecksContent
-			} else {
-				givenChecksContent
-			}
+			givenChecksContent.find(_.phase == StatusReceived)
+				.map(_ => HttpRequestAction.DEFAULT_HTTP_STATUS_CHECK :: givenChecksContent)
+				.getOrElse(givenChecksContent)
 		case None => Nil
 	}
 
