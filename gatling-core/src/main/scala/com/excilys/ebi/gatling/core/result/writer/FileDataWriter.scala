@@ -27,7 +27,6 @@ import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
 import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, InitializeDataWriter, FlushDataWriter }
 import com.excilys.ebi.gatling.core.util.DateHelper.toTimestamp
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
-import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 
 import grizzled.slf4j.Logging
@@ -153,14 +152,13 @@ class FileDataWriter extends DataWriter with Logging {
 		case FlushDataWriter => {
 			info("Received flush order")
 
-			use(osw) { osw =>
-				try {
-					osw.flush
-				} finally {
-					// Decrease the latch (should be at 0 here)
-					latch.countDown
-					initialized.set(false)
-				}
+			try {
+				osw.flush
+			} finally {
+				// Decrease the latch (should be at 0 here)
+				initialized.set(false)
+				osw.close
+				latch.countDown
 			}
 		}
 		case unknown: AnyRef => error("Unknow message type " + unknown.getClass)
