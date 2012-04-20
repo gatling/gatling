@@ -24,7 +24,7 @@ import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
 import com.excilys.ebi.gatling.core.result.message.RecordType.{ RUN, ACTION }
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
-import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, InitializeDataWriter }
+import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, InitializeDataWriter, FlushDataWriter }
 import com.excilys.ebi.gatling.core.util.DateHelper.toTimestamp
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 import com.excilys.ebi.gatling.core.util.IOHelper.use
@@ -127,7 +127,16 @@ class FileDataWriter extends DataWriter with Logging {
 				if (now - lastDisplayTime > displayPeriod) {
 					lastDisplayTime = now
 					val timeSinceStartUpInSec = (now - startUpTime) / 1000
-					println(new StringBuilder().append(timeSinceStartUpInSec).append(" sec | Users: active=").append(activeUsersCount).append("/").append(totalUsersCount).append(" | Requests: OK=").append(successfulRequestsCount).append(" KO=").append(failedRequestsCount))
+					println(new StringBuilder()
+						.append(timeSinceStartUpInSec)
+						.append(" sec | Users: active=")
+						.append(activeUsersCount)
+						.append("/")
+						.append(totalUsersCount)
+						.append(" | Requests: OK=")
+						.append(successfulRequestsCount)
+						.append(" KO=")
+						.append(failedRequestsCount))
 				}
 			}
 
@@ -141,21 +150,20 @@ class FileDataWriter extends DataWriter with Logging {
 			}
 		}
 
-		case unknown: AnyRef => error("Unknow message type " + unknown.getClass)
-		case unknown: Any => error("Unknow message type " + unknown)
-	}
+		case FlushDataWriter => {
+			info("Received flush order")
 
-	override def postStop {
-		info("Received PoisonPill")
-
-		use(osw) { osw =>
-			try {
-				osw.flush
-			} finally {
-				// Decrease the latch (should be at 0 here)
-				latch.countDown
-				initialized.set(false)
+			use(osw) { osw =>
+				try {
+					osw.flush
+				} finally {
+					// Decrease the latch (should be at 0 here)
+					latch.countDown
+					initialized.set(false)
+				}
 			}
 		}
+		case unknown: AnyRef => error("Unknow message type " + unknown.getClass)
+		case unknown: Any => error("Unknow message type " + unknown)
 	}
 }

@@ -16,19 +16,17 @@
 package com.excilys.ebi.gatling.core.result.writer
 
 import java.util.concurrent.CountDownLatch
+
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
+import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.init.Initializable
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
-import com.excilys.ebi.gatling.core.result.message.{ RunRecord, RequestStatus, RequestRecord, InitializeDataWriter }
-import akka.actor.{ PoisonPill, ActorRef, Actor }
-import com.excilys.ebi.gatling.core.result.message.RequestRecord
-import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
-import com.excilys.ebi.gatling.core.action._
-import com.excilys.ebi.gatling.core.result.message.RequestRecord
-import akka.actor.Props
-import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
+import com.excilys.ebi.gatling.core.result.message.{ RunRecord, RequestStatus, RequestRecord, InitializeDataWriter, FlushDataWriter }
+
+import akka.actor.actorRef2Scala
+import akka.actor.{ Props, ActorRef, Actor }
 
 object DataWriter {
 
@@ -42,7 +40,7 @@ object DataWriter {
 
 	def endUser(scenarioName: String, userId: Int, time: Long) = DataWriter.instance ! RequestRecord(scenarioName, userId, END_OF_SCENARIO, time, time, time, time, OK, END_OF_SCENARIO)
 
-	def askShutDown = instance ! PoisonPill
+	def askFlush = instance ! FlushDataWriter
 
 	def logRequest(scenarioName: String, userId: Int, requestName: String, executionStartDate: Long, executionEndDate: Long, requestSendingEndDate: Long, responseReceivingStartDate: Long, requestResult: RequestStatus.RequestStatus, requestMessage: String) =
 		instance ! RequestRecord(scenarioName, userId, requestName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, requestResult, requestMessage)
