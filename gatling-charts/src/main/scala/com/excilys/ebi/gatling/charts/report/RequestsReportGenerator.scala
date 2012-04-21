@@ -20,21 +20,22 @@ import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.series.SharedSeries
 import com.excilys.ebi.gatling.charts.template.RequestsPageTemplate
 import com.excilys.ebi.gatling.charts.util.Colors.{ toString, RED, GREEN, BLUE }
-import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ numberOfRequestsPerSecondAsList, numberOfRequestsPerSecond }
+import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ count, numberOfRequestsPerSecondAsList, numberOfRequestsPerSecond }
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 
 class RequestsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 
 	def generate {
+		
 		// Get Data
 		val requestData = dataReader.realRequestRecordsGroupByExecutionStartDateInSeconds
 
 		val allRequestsData = numberOfRequestsPerSecondAsList(requestData)
 		val succeededRequestsData = numberOfRequestsPerSecond(requestData, OK)
 		val failedRequestsData = numberOfRequestsPerSecond(requestData, KO)
-		val pieData = ("Success", succeededRequestsData.map { case (_, count) => count }.sum) :: ("Failures", failedRequestsData.map { case (_, count) => count }.sum) :: Nil
-
+		val pieData = ("Success", count(succeededRequestsData)) :: ("Failures", count(failedRequestsData)) :: Nil
+				
 		// Create series
 		val allRequests = new Series[Long, Int]("All requests", allRequestsData, List(BLUE))
 		val failedRequests = new Series[Long, Int]("Failed requests", failedRequestsData, List(RED))

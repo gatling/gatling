@@ -120,4 +120,7 @@ object StatisticsHelper {
 
 		(min, max)
 	}
+
+	def count(data: List[(Long, Int)]) = data.foldLeft(0)((sum, entry) => sum + entry._2)
+	def count(data: SortedMap[Long, Seq[RequestRecord]]) = data.foldLeft(0)((sum, entry) => sum + entry._2.length)
 }
