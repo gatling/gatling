@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.series.SharedSeries
 import com.excilys.ebi.gatling.charts.template.TransactionsPageTemplate
 import com.excilys.ebi.gatling.charts.util.Colors.{ toString, RED, GREEN, BLUE }
-import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ numberOfRequestsPerSecondAsList, numberOfRequestsPerSecond }
+import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ count, numberOfRequestsPerSecondAsList, numberOfRequestsPerSecond }
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 
@@ -32,7 +32,7 @@ class TransactionsReportGenerator(runOn: String, dataReader: DataReader, compone
 		val allTransactionsData = numberOfRequestsPerSecondAsList(requestData)
 		val failedTransactionsData = numberOfRequestsPerSecond(requestData, KO)
 		val succeededTransactionsData = numberOfRequestsPerSecond(requestData, OK)
-		val pieData = ("Success", succeededTransactionsData.map { case (_, count) => count }.sum) :: ("Failures", failedTransactionsData.map { case (_, count) => count }.sum) :: Nil
+		val pieData = ("Success", count(succeededTransactionsData)) :: ("Failures", count(failedTransactionsData)) :: Nil
 
 		// Create series
 		val allTransactions = new Series[Long, Int]("All requests", allTransactionsData, List(BLUE))

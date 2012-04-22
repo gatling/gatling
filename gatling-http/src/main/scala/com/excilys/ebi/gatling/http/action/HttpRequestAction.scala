@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.http.action
 
+import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.action.RequestAction
-import com.excilys.ebi.gatling.core.resource.ResourceRegistry
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandler
@@ -50,7 +50,7 @@ object HttpRequestAction extends Logging {
 			val nettyInternalLoggerFactoryClass = Class.forName("org.jboss.netty.logging.InternalLoggerFactory")
 			val nettySlf4JLoggerFactoryInstance = Class.forName("org.jboss.netty.logging.Slf4JLoggerFactory").newInstance
 			val setDefaultFactoryMethod = nettyInternalLoggerFactoryClass.getMethod("setDefaultFactory", nettyInternalLoggerFactoryClass)
-			setDefaultFactoryMethod.invoke(nettySlf4JLoggerFactoryInstance)
+			setDefaultFactoryMethod.invoke(null, nettySlf4JLoggerFactoryInstance.asInstanceOf[AnyRef])
 
 		} catch {
 			case e => logger.info("Netty logger wasn't set up")
@@ -67,7 +67,7 @@ object HttpRequestAction extends Logging {
 		val client = new AsyncHttpClient(GATLING_HTTP_CONFIG_PROVIDER_CLASS, ahcConfigBuilder)
 
 		// Register client shutdown
-		ResourceRegistry.registerOnCloseCallback(() => client.close)
+		system.registerOnTermination(client.close)
 
 		client
 	}
@@ -87,12 +87,9 @@ class HttpRequestAction(next: ActorRef, request: HttpRequest, checks: Option[Lis
 
 	val resolvedChecks = checks match {
 		case Some(givenChecksContent) =>
-			if (givenChecksContent.find(_.phase == StatusReceived).isEmpty) {
-				// add default HttpStatusCheck if none was set
-				HttpRequestAction.DEFAULT_HTTP_STATUS_CHECK :: givenChecksContent
-			} else {
-				givenChecksContent
-			}
+			givenChecksContent.find(_.phase == StatusReceived)
+				.map(_ => HttpRequestAction.DEFAULT_HTTP_STATUS_CHECK :: givenChecksContent)
+				.getOrElse(givenChecksContent)
 		case None => Nil
 	}
 
@@ -104,7 +101,8 @@ class HttpRequestAction(next: ActorRef, request: HttpRequest, checks: Option[Lis
 			case None => false
 		}
 		val ahcRequest = request.buildAHCRequest(session, protocolConfiguration)
+		val client = HTTP_CLIENT
 		val ahcHandler = new GatlingAsyncHandler(session, resolvedChecks, next, request.name, ahcRequest, followRedirect)
-		HTTP_CLIENT.executeRequest(ahcRequest, ahcHandler)
+		client.executeRequest(ahcRequest, ahcHandler)
 	}
 }

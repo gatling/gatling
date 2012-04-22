@@ -13,8 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.request.builder
+package com.excilys.ebi.gatling.core.util
 
-import com.excilys.ebi.gatling.core.session.EvaluatableString
+import annotation.tailrec
+import java.util.concurrent.atomic.AtomicReference
 
-case class Credentials(username: EvaluatableString, password: EvaluatableString)
+object Atomic {
+	def apply[T](obj: T) = new Atomic(new AtomicReference(obj))
+	implicit def toAtomic[T](ref: AtomicReference[T]): Atomic[T] = new Atomic(ref)
+}
+
+class Atomic[T](val atomic: AtomicReference[T]) {
+	@tailrec
+	final def update(f: T => T): T = {
+		val oldValue = atomic.get()
+		val newValue = f(oldValue)
+		if (atomic.compareAndSet(oldValue, newValue)) newValue else update(f)
+	}
+
+	def get = atomic.get
+}

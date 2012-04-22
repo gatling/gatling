@@ -40,7 +40,7 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 	// Counts the number of users
 	val totalNumberOfUsers = scenarioConfigurations.map(_.users).sum
 
-	// latch for determining when to send a PoisonPill to the DataWriter
+	// latch for determining when to send a flush order to the DataWriter
 	val userLatch = new CountDownLatch(totalNumberOfUsers)
 
 	// latch for determining when to stop the application
@@ -77,7 +77,7 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 		debug("Finished Launching scenarios executions")
 		userLatch.await(configuration.simulationTimeOut, SECONDS)
 
-		DataWriter.askShutDown
+		DataWriter.askFlush
 		dataWriterLatch.await(configuration.simulationTimeOut, SECONDS)
 
 		debug("All scenarios finished, stoping actors")

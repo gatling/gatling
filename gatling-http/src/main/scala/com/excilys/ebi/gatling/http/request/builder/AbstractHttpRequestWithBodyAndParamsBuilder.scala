@@ -24,6 +24,7 @@ import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.ning.http.client.{ StringPart, RequestBuilder, FluentStringsMap }
+import com.ning.http.client.Realm
 
 /**
  * This class serves as model to HTTP request with a body and parameters
@@ -34,7 +35,7 @@ import com.ning.http.client.{ StringPart, RequestBuilder, FluentStringsMap }
  * @param params the parameters that should be added to the request
  * @param headers the headers that should be added to the request
  * @param body the body that should be added to the request
- * @param credentials sets the credentials in case of Basic HTTP Authentication
+ * @param realm sets the realm in case of Basic HTTP Authentication
  */
 abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequestWithBodyAndParamsBuilder[B]](
 	requestName: String,
@@ -45,9 +46,9 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	headers: Map[String, EvaluatableString],
 	body: Option[HttpRequestBody],
 	uploadedFile: Option[UploadedFile],
-	credentials: Option[Credentials],
+	realm: Option[Session => Realm],
 	checks: Option[List[HttpCheck]])
-		extends AbstractHttpRequestWithBodyBuilder[B](requestName, method, url, queryParams, headers, body, credentials, checks) {
+		extends AbstractHttpRequestWithBodyBuilder[B](requestName, method, url, queryParams, headers, body, realm, checks) {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type
@@ -58,7 +59,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 * @param params the parameters that should be added to the request
 	 * @param headers the headers that should be added to the request
 	 * @param body the body that should be added to the request
-	 * @param credentials sets the credentials in case of Basic HTTP Authentication
+	 * @param realm sets the realm in case of Basic HTTP Authentication
 	 */
 	private[http] def newInstance(
 		requestName: String,
@@ -68,7 +69,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		headers: Map[String, EvaluatableString],
 		body: Option[HttpRequestBody],
 		uploadedFile: Option[UploadedFile],
-		credentials: Option[Credentials],
+		realm: Option[Session => Realm],
 		checks: Option[List[HttpCheck]]): B
 
 	private[http] def newInstance(
@@ -77,9 +78,9 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		body: Option[HttpRequestBody],
-		credentials: Option[Credentials],
+		realm: Option[Session => Realm],
 		checks: Option[List[HttpCheck]]): B = {
-		newInstance(requestName, url, queryParams, params, headers, body, uploadedFile, credentials, checks)
+		newInstance(requestName, url, queryParams, params, headers, body, uploadedFile, realm, checks)
 	}
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
@@ -98,13 +99,13 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 *
 	 */
 	def param(key: EvaluatableString, value: EvaluatableString): B =
-		newInstance(requestName, url, queryParams, (key, value) :: params, headers, body, uploadedFile, credentials, checks)
+		newInstance(requestName, url, queryParams, (key, value) :: params, headers, body, uploadedFile, realm, checks)
 
 	def param(paramKey: String): B = param(paramKey, EL_START + paramKey + EL_END)
 
 	def upload(paramKey: String, fileName: String, mimeType: String = HeaderValues.APPLICATION_OCTET_STREAM, charset: String = configuration.encoding): B =
 		header(HeaderNames.CONTENT_TYPE, HeaderValues.MULTIPART_FORM_DATA)
-			.newInstance(requestName, url, queryParams, params, headers, body, Some(UploadedFile(paramKey, fileName, mimeType, charset)), credentials, checks)
+			.newInstance(requestName, url, queryParams, params, headers, body, Some(UploadedFile(paramKey, fileName, mimeType, charset)), realm, checks)
 
 	/**
 	 * This method adds the parameters to the request builder
