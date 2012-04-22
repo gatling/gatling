@@ -17,9 +17,9 @@ package com.excilys.ebi.gatling.charts.series
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 
-class Series[X, Y](val name: String, val data: List[(X, Y)], val colors: List[String]) {
+class Series[X, Y](val name: String, val data: Seq[(X, Y)], val colors: List[String]) {
 
-	val sample = {
+	lazy val sample = {
 		val nbMax = configuration.chartingMaxPlotPerSerie
 		val nb = data.size
 		if (nb <= nbMax)
