@@ -86,7 +86,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.specs2</groupId>
-			<artifactId>specs2_2.9.1-1</artifactId>
+			<artifactId>specs2_2.9.2</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

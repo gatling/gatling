@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.excilys.ebi.gatling</groupId>
 	<artifactId>gatling-parent</artifactId>
@@ -106,7 +107,9 @@
 		<opencsv.version>2.3</opencsv.version>
 		<ant.version>1.8.2</ant.version>
 		<grizzled-slf4j.version>0.6.8</grizzled-slf4j.version>
-		<jackson.version>2.0.0</jackson.version>
+		<jackson-core.version>2.0.1</jackson-core.version>
+		<jackson-annotations.version>2.0.1</jackson-annotations.version>
+		<jackson-databind.version>2.0.0</jackson-databind.version>
 		<junit.version>4.10</junit.version>
 		<specs2.version>1.9</specs2.version>
 
@@ -342,8 +345,18 @@
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-core</artifactId>
+				<version>${jackson-core.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-annotations</artifactId>
+				<version>${jackson-annotations.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>${jackson.version}</version>
+				<version>${jackson-databind.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
@@ -352,7 +365,7 @@
 			</dependency>
 			<dependency>
 				<groupId>org.specs2</groupId>
-				<artifactId>specs2_2.9.1-1</artifactId>
+				<artifactId>specs2_2.9.2</artifactId>
 				<version>${specs2.version}</version>
 			</dependency>
 		</dependencies>
