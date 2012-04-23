@@ -73,8 +73,8 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			// Create series
 			val responseTimesSuccessSeries = new Series[Long, Long]("Response Time (success)", responseTimesSuccessData, List(BLUE))
 			val responseTimesFailuresSeries = new Series[Long, Long]("Response Time (failure)", responseTimesFailuresData, List(RED))
-			val responseTimesSuccessDistributionSeries = new Series[Long, Int]("OK", successDistribution, List(BLUE))
-			val responseTimesFailuresDistributionSeries = new Series[Long, Int]("KO", failedDistribution, List(RED))
+			val responseTimesSuccessDistributionSeries = new Series[Long, Int]("Success", successDistribution, List(BLUE))
+			val responseTimesFailuresDistributionSeries = new Series[Long, Int]("Failure", failedDistribution, List(RED))
 			val latencySuccessSeries = new Series[Long, Long]("Latency (success)", latencySuccessData, List(BLUE))
 			val latencyFailuresSeries = new Series[Long, Long]("Latency (failure)", latencyFailuresData, List(RED))
 			val indicatorsColumnSeries = new Series[String, Int](EMPTY, indicatorsColumnData, List(GREEN, YELLOW, ORANGE, RED))
