@@ -77,4 +77,12 @@ class StringHelperSpec extends Specification {
 			StringHelper.parseEvaluatable("{foo${bar(1)}}")(session) must beEqualTo("{fooBAR2}")
 		}
 	}
+
+	"""{foo${bar(baz)}}""" should {
+
+		"""produce {fooBAR2} with Map("bar" -> List("BAR1", "BAR2"), "baz" -> 1)""" in {
+			val session = new Session("scenario", 1, Map("bar" -> List("BAR1", "BAR2"), "baz" -> 1))
+			StringHelper.parseEvaluatable("{foo${bar(1)}}")(session) must beEqualTo("{fooBAR2}")
+		}
+	}
 }

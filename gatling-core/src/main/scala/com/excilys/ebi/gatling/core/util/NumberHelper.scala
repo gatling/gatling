@@ -24,4 +24,6 @@ object NumberHelper {
 	val RANDOM = new Random
 
 	def getRandomLong(min: Long, max: Long): Long = min + ((RANDOM.nextDouble * (max - min))).toLong
+	
+	def isNumeric(string: String) = string.forall(_.isDigit)
 }
