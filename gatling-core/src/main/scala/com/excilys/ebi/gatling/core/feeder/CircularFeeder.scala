@@ -28,5 +28,5 @@ class CircularFeeder(feederSource: FeederSource) extends Feeder {
 
 	values ++= feederSource.values
 
-	def next: Map[String, String] = values(currentIndex.getAndAdd(1) % bufferSize)
+	def next: Map[String, String] = values(currentIndex.getAndIncrement % bufferSize)
 }
