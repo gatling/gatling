@@ -25,7 +25,6 @@ import com.excilys.ebi.gatling.core.init.Initializable
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
 import com.excilys.ebi.gatling.core.result.message.{ RunRecord, RequestStatus, RequestRecord, InitializeDataWriter, FlushDataWriter }
 
-import akka.actor.actorRef2Scala
 import akka.actor.{ Props, ActorRef, Actor }
 
 object DataWriter {
