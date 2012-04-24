@@ -105,11 +105,11 @@
 		<args4j.version>2.0.19</args4j.version>
 		<twitter-util.version>3.0.0</twitter-util.version>
 		<opencsv.version>2.3</opencsv.version>
-		<ant.version>1.8.2</ant.version>
+		<ant.version>1.8.3</ant.version>
 		<grizzled-slf4j.version>0.6.8</grizzled-slf4j.version>
 		<jackson-core.version>2.0.1</jackson-core.version>
 		<jackson-annotations.version>2.0.1</jackson-annotations.version>
-		<jackson-databind.version>2.0.0</jackson-databind.version>
+		<jackson-databind.version>2.0.1</jackson-databind.version>
 		<junit.version>4.10</junit.version>
 		<specs2.version>1.9</specs2.version>
 
