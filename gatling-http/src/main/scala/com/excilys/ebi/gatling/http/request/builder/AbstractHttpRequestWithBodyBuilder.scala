@@ -34,16 +34,11 @@ import com.excilys.ebi.gatling.http.request.{ TemplateBody, StringBody, HttpRequ
 import com.ning.http.client.{ RequestBuilder, Realm }
 
 object AbstractHttpRequestWithBodyBuilder {
-	val TEMPLATE_ENGINE = initEngine
-
-	def initEngine: TemplateEngine = {
-		val engine = new TemplateEngine(List(GatlingFiles.requestBodiesFolder))
-		engine.allowReload = false
-		engine.escapeMarkup = false
-		// Register engine shutdown
-		system.registerOnTermination(engine.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown)
-		engine
-	}
+	val TEMPLATE_ENGINE = new TemplateEngine(List(GatlingFiles.requestBodiesFolder))
+	TEMPLATE_ENGINE.allowReload = false
+	TEMPLATE_ENGINE.escapeMarkup = false
+	// Register engine shutdown
+	system.registerOnTermination(TEMPLATE_ENGINE.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown)
 }
 
 /**
