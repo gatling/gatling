@@ -29,7 +29,7 @@ import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames }
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
-import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.REDIRECTED_REQUEST_NAME_PATTERN
+import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.{REDIRECTED_REQUEST_NAME_PATTERN, REDIRECT_STATUS_CODES}
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
@@ -43,6 +43,7 @@ import grizzled.slf4j.Logging
 
 object GatlingAsyncHandlerActor {
 	val REDIRECTED_REQUEST_NAME_PATTERN = """(.+?) Redirect (\d+)""".r
+	val REDIRECT_STATUS_CODES = 301 to 303
 }
 
 class GatlingAsyncHandlerActor(session: Session, checks: List[HttpCheck], next: ActorRef, requestName: String, originalRequest: Request, followRedirect: Boolean) extends Actor with Logging with CookieHandling {
@@ -150,7 +151,7 @@ class GatlingAsyncHandlerActor(session: Session, checks: List[HttpCheck], next: 
 
 		val sessionWithUpdatedCookies = storeCookies(session, response.getUri.toString, response.getCookies.asScala)
 
-		if ((response.getStatusCode == 301 || response.getStatusCode == 302) && followRedirect) {
+		if (REDIRECT_STATUS_CODES.contains(response.getStatusCode) && followRedirect) {
 			handleFollowRedirect(sessionWithUpdatedCookies)
 
 		} else
