@@ -102,7 +102,7 @@
 		<guava.version>11.0.2</guava.version>
 		<plexus.version>3.0</plexus.version>
 		<scopt.version>2.0.1</scopt.version>
-		<args4j.version>2.0.19</args4j.version>
+		<args4j.version>2.0.21</args4j.version>
 		<twitter-util.version>3.0.0</twitter-util.version>
 		<opencsv.version>2.3</opencsv.version>
 		<ant.version>1.8.3</ant.version>
