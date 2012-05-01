@@ -96,7 +96,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 
 		def handleFollowRedirect(sessionWithUpdatedCookies: Session) {
 
-			def setNewState(newSession: Session, newRequestName: String, newRequest: Request) {
+			def configureForNextRedirect(newSession: Session, newRequestName: String, newRequest: Request) {
 				this.session = newSession
 				this.requestName = newRequestName
 				this.request = newRequest
@@ -126,7 +126,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 				case None => requestName + " Redirect 1"
 			}
 
-			setNewState(sessionWithUpdatedCookies, newRequestName, newRequest)
+			configureForNextRedirect(sessionWithUpdatedCookies, newRequestName, newRequest)
 
 			HTTP_CLIENT.executeRequest(newRequest, new GatlingAsyncHandler(checks, newRequestName, self))
 		}
