@@ -16,14 +16,14 @@
 package com.excilys.ebi.gatling.http.action
 
 import com.excilys.ebi.gatling.core.action.system
-import com.excilys.ebi.gatling.core.action.RequestAction
+import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor }
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpConfig.{ GATLING_HTTP_CONFIG_REQUEST_TIMEOUT, GATLING_HTTP_CONFIG_PROVIDER_CLASS, GATLING_HTTP_CONFIG_MAX_RETRY, GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT, GATLING_HTTP_CONFIG_COMPRESSION_ENABLED, GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION }
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
-import com.excilys.ebi.gatling.http.request.HttpRequest
+import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 import com.ning.http.client.{ Response, AsyncHttpClientConfig, AsyncHttpClient }
 
 import akka.actor.{ ActorRef, Props }
@@ -59,7 +59,6 @@ object HttpRequestAction extends Logging {
 
 		val client = new AsyncHttpClient(GATLING_HTTP_CONFIG_PROVIDER_CLASS, ahcConfigBuilder)
 
-		// Register client shutdown
 		system.registerOnTermination(client.close)
 
 		client
@@ -70,23 +69,24 @@ object HttpRequestAction extends Logging {
  * This is an action that sends HTTP requests
  *
  * @constructor constructs an HttpRequestAction
+ * @param requestName the name of the request
  * @param next the next action that will be executed after the request
- * @param request the request that will be executed
+ * @param requestBuilder the builder for the request that will be executed
  * @param checks the checks that will be performed on the response
  * @param protocolConfiguration the protocol specific configuration
  */
-class HttpRequestAction(next: ActorRef, request: HttpRequest, checks: List[HttpCheck], protocolConfiguration: Option[HttpProtocolConfiguration])
-		extends RequestAction[HttpCheck, Response, HttpProtocolConfiguration](next, request, checks, protocolConfiguration) with Logging {
+class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck], protocolConfiguration: Option[HttpProtocolConfiguration])
+		extends Action with Logging {
 
 	val followRedirect = protocolConfiguration.map(_.followRedirect).getOrElse(false)
 
 	def execute(session: Session) {
-		info("Sending Request '" + request.name + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
+		info("Sending Request '" + requestName + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
 
-		val ahcRequest = request.buildAHCRequest(session, protocolConfiguration)
+		val ahcRequest = requestBuilder.build(session, protocolConfiguration)
 		val client = HTTP_CLIENT
-		val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(session, checks, next, request.name, ahcRequest, followRedirect)))
-		val ahcHandler = new GatlingAsyncHandler(checks, request.name, actor)
+		val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(session, checks, next, requestName, ahcRequest, followRedirect)))
+		val ahcHandler = new GatlingAsyncHandler(checks, requestName, actor)
 		client.executeRequest(ahcRequest, ahcHandler)
 	}
 }

@@ -68,23 +68,20 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 			endOfRequestSendingDate = if (endOfRequestSendingDate != 0L) endOfRequestSendingDate else time
 			startOfResponseReceivingDate = if (startOfResponseReceivingDate != 0L) startOfResponseReceivingDate else time
 			responseEndDate = if (responseEndDate != 0L) responseEndDate else time
-			logAndExecuteNext(session, KO, Some(errorMessage))
+			logRequest(KO, errorMessage)
+			executeNext(session)
 
 		case m => throw new IllegalArgumentException("Unknown message type " + m)
 	}
 
-	private def logRequest(requestResult: RequestStatus, requestMessage: Option[String] = None) = DataWriter.logRequest(session.scenarioName, session.userId, "Request " + requestName, requestStartDate, responseEndDate, endOfRequestSendingDate, endOfRequestSendingDate, requestResult, requestMessage.getOrElse("Request executed successfully"))
+	private def logRequest(requestResult: RequestStatus, requestMessage: String = "Request executed successfully") = DataWriter.logRequest(session.scenarioName, session.userId, "Request " + requestName, requestStartDate, responseEndDate, endOfRequestSendingDate, endOfRequestSendingDate, requestResult, requestMessage)
 
 	/**
 	 * This method is used to send a message to the data writer actor and then execute the next action
 	 *
 	 * @param session the new Session
-	 * @param requestResult the result of the request
-	 * @param requestMessage the message that will be logged
-	 * @param processingStartDate date of the beginning of the response processing
 	 */
-	private def logAndExecuteNext(newSession: Session, requestResult: RequestStatus, requestMessage: Option[String] = None) {
-		logRequest(requestResult, requestMessage)
+	private def executeNext(newSession: Session) {
 		next ! newSession.setAttribute(Session.LAST_ACTION_DURATION_KEY, currentTimeMillis - responseEndDate)
 		context.stop(self)
 	}
@@ -135,7 +132,10 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 		def checkPhasesRec(session: Session, phases: List[HttpPhase]) {
 
 			phases match {
-				case Nil => logAndExecuteNext(session, OK)
+				case Nil =>
+					logRequest(OK)
+					executeNext(session)
+
 				case phase :: otherPhases =>
 					val phaseChecks = checks.filter(_.phase == phase)
 					var (newSessionWithSavedValues, checkResult) = applyChecks(session, response, phaseChecks)
@@ -147,7 +147,9 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 							else
 								warn(new StringBuilder().append("Check on request '").append(requestName).append("' failed : ").append(errorMessage))
 
-							logAndExecuteNext(newSessionWithSavedValues, KO, Some(errorMessage))
+							logRequest(KO, errorMessage)
+							executeNext(newSessionWithSavedValues)
+
 						case _ => checkPhasesRec(newSessionWithSavedValues, otherPhases)
 					}
 			}
