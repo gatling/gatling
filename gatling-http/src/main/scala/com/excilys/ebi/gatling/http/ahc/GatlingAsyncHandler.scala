@@ -21,7 +21,6 @@ import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 import com.ning.http.client.AsyncHandler.STATE.CONTINUE
 import com.ning.http.client.{ Request, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, AsyncHandler, ProgressAsyncHandler }
@@ -42,7 +41,7 @@ import grizzled.slf4j.Logging
  * @param requestName the name of the request
  */
 class GatlingAsyncHandler(checks: List[HttpCheck], requestName: String, actor: ActorRef)
-		extends AsyncHandler[Void] with ProgressAsyncHandler[Void] with CookieHandling with Logging {
+		extends AsyncHandler[Void] with ProgressAsyncHandler[Void] with Logging {
 
 	val responseBuilder = new ResponseBuilder
 
