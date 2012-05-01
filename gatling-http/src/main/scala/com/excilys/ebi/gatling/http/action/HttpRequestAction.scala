@@ -78,13 +78,11 @@ object HttpRequestAction extends Logging {
 class HttpRequestAction(next: ActorRef, request: HttpRequest, checks: List[HttpCheck], protocolConfiguration: Option[HttpProtocolConfiguration])
 		extends RequestAction[HttpCheck, Response, HttpProtocolConfiguration](next, request, checks, protocolConfiguration) with Logging {
 
+	val followRedirect = protocolConfiguration.map(_.followRedirect).getOrElse(false)
+
 	def execute(session: Session) {
 		info("Sending Request '" + request.name + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
 
-		val followRedirect = protocolConfiguration match {
-			case Some(protocolConfiguration) => protocolConfiguration.followRedirect
-			case None => false
-		}
 		val ahcRequest = request.buildAHCRequest(session, protocolConfiguration)
 		val client = HTTP_CLIENT
 		val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(session, checks, next, request.name, ahcRequest, followRedirect)))
