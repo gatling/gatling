@@ -16,16 +16,12 @@
 package com.excilys.ebi.gatling.http.ahc
 
 import java.lang.System.currentTimeMillis
-import com.ning.http.client.HttpResponseStatus
-import com.ning.http.client.HttpResponseHeaders
-import com.ning.http.client.HttpResponseBodyPart
+import com.ning.http.client.Response
 
 sealed trait AHCMessage
 
 case class OnHeaderWriteCompleted(time: Long = currentTimeMillis) extends AHCMessage
 case class OnContentWriteCompleted(time: Long = currentTimeMillis) extends AHCMessage
-case class OnStatusReceived(responseStatus: HttpResponseStatus, time: Long = currentTimeMillis) extends AHCMessage
-case class OnHeadersReceived(headers: HttpResponseHeaders) extends AHCMessage
-case class OnBodyPartReceived(bodyPart: HttpResponseBodyPart) extends AHCMessage
-case class OnCompleted(time: Long = currentTimeMillis) extends AHCMessage
+case class OnStatusReceived(time: Long = currentTimeMillis) extends AHCMessage
+case class OnCompleted(response: Response, time: Long = currentTimeMillis) extends AHCMessage
 case class OnThrowable(errorMessage: String, time: Long = currentTimeMillis) extends AHCMessage

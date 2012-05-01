@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.action.RequestAction
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
-import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandler
+import com.excilys.ebi.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor }
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder.status
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpConfig.{ GATLING_HTTP_CONFIG_REQUEST_TIMEOUT, GATLING_HTTP_CONFIG_PROVIDER_CLASS, GATLING_HTTP_CONFIG_MAX_RETRY, GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT, GATLING_HTTP_CONFIG_COMPRESSION_ENABLED, GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION }
@@ -28,7 +28,7 @@ import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
 import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.ning.http.client.{ Response, AsyncHttpClientConfig, AsyncHttpClient }
 
-import akka.actor.ActorRef
+import akka.actor.{ ActorRef, Props }
 import grizzled.slf4j.Logging
 
 /**
@@ -103,7 +103,8 @@ class HttpRequestAction(next: ActorRef, request: HttpRequest, checks: Option[Lis
 		}
 		val ahcRequest = request.buildAHCRequest(session, protocolConfiguration)
 		val client = HTTP_CLIENT
-		val ahcHandler = new GatlingAsyncHandler(session, resolvedChecks, next, request.name, ahcRequest, followRedirect)
+		val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(session, resolvedChecks, next, request.name, ahcRequest, followRedirect)))
+		val ahcHandler = new GatlingAsyncHandler(resolvedChecks, request.name, actor)
 		client.executeRequest(ahcRequest, ahcHandler)
 	}
 }

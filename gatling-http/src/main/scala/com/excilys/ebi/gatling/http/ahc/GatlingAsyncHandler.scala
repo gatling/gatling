@@ -25,6 +25,7 @@ import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 import com.ning.http.client.AsyncHandler.STATE.CONTINUE
 import com.ning.http.client.{ Request, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, AsyncHandler, ProgressAsyncHandler }
+import com.ning.http.client.Response.ResponseBuilder
 
 import akka.actor.{ Props, ActorRef }
 import grizzled.slf4j.Logging
@@ -40,10 +41,10 @@ import grizzled.slf4j.Logging
  * @param next the next action to be executed
  * @param requestName the name of the request
  */
-class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: ActorRef, requestName: String, originalRequest: Request, followRedirect: Boolean)
+class GatlingAsyncHandler(checks: List[HttpCheck], requestName: String, actor: ActorRef)
 		extends AsyncHandler[Void] with ProgressAsyncHandler[Void] with CookieHandling with Logging {
 
-	private val actor = system.actorOf(Props(new GatlingAsyncHandlerActor(session, checks, next, requestName, originalRequest, followRedirect)))
+	val responseBuilder = new ResponseBuilder
 
 	// only store bodyparts if they are to be analyzed
 	val useBodyParts = checks.find(_.phase == CompletePageReceived).isDefined
@@ -61,24 +62,24 @@ class GatlingAsyncHandler(session: Session, checks: List[HttpCheck], next: Actor
 	def onContentWriteProgress(amount: Long, current: Long, total: Long) = CONTINUE
 
 	def onStatusReceived(responseStatus: HttpResponseStatus) = {
-		actor ! new OnStatusReceived(responseStatus)
+		responseBuilder.accumulate(responseStatus)
+		actor ! new OnStatusReceived
 		CONTINUE
 	}
 
 	def onHeadersReceived(headers: HttpResponseHeaders) = {
-		actor ! new OnHeadersReceived(headers)
+		responseBuilder.accumulate(headers)
 		CONTINUE
 	}
 
 	def onBodyPartReceived(bodyPart: HttpResponseBodyPart) = {
-		if (useBodyParts) {
-			actor ! new OnBodyPartReceived(bodyPart)
-		}
+		if (useBodyParts)
+			responseBuilder.accumulate(bodyPart)
 		CONTINUE
 	}
 
 	def onCompleted: Void = {
-		actor ! new OnCompleted
+		actor ! new OnCompleted(responseBuilder.build)
 		null
 	}
 

@@ -29,15 +29,15 @@ import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames }
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
-import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.{REDIRECTED_REQUEST_NAME_PATTERN, REDIRECT_STATUS_CODES}
+import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.{ REDIRECT_STATUS_CODES, REDIRECTED_REQUEST_NAME_PATTERN }
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.excilys.ebi.gatling.http.util.HttpHelper.{ toRichResponse, computeRedirectUrl }
-import com.ning.http.client.Response.ResponseBuilder
 import com.ning.http.client.{ Response, RequestBuilder, Request, FluentStringsMap }
 
+import akka.actor.actorRef2Scala
 import akka.actor.{ ActorRef, Actor }
 import grizzled.slf4j.Logging
 
@@ -46,10 +46,9 @@ object GatlingAsyncHandlerActor {
 	val REDIRECT_STATUS_CODES = 301 to 303
 }
 
-class GatlingAsyncHandlerActor(session: Session, checks: List[HttpCheck], next: ActorRef, requestName: String, originalRequest: Request, followRedirect: Boolean) extends Actor with Logging with CookieHandling {
+class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], next: ActorRef, var requestName: String, var request: Request, followRedirect: Boolean) extends Actor with Logging with CookieHandling {
 
-	val responseBuilder = new ResponseBuilder
-	val requestStartDate = currentTimeMillis
+	var requestStartDate = currentTimeMillis
 	var endOfRequestSendingDate = 0L
 	var startOfResponseReceivingDate = 0L
 	var responseEndDate = 0L
@@ -59,28 +58,19 @@ class GatlingAsyncHandlerActor(session: Session, checks: List[HttpCheck], next: 
 
 		case OnContentWriteCompleted(time) => endOfRequestSendingDate = time
 
-		case OnStatusReceived(responseStatus, time) =>
-			startOfResponseReceivingDate = time
-			responseBuilder.accumulate(responseStatus)
+		case OnStatusReceived(time) => startOfResponseReceivingDate = time
 
-		case OnHeadersReceived(headers) => responseBuilder.accumulate(headers)
-
-		case OnBodyPartReceived(bodyPart) => responseBuilder.accumulate(bodyPart)
-
-		case OnCompleted(time) =>
+		case OnCompleted(response, time) =>
 			responseEndDate = time
-			processResponse(responseBuilder.build)
-			context.stop(self)
+			processResponse(response)
 
 		case OnThrowable(errorMessage, time) =>
 			endOfRequestSendingDate = if (endOfRequestSendingDate != 0L) endOfRequestSendingDate else time
 			startOfResponseReceivingDate = if (startOfResponseReceivingDate != 0L) startOfResponseReceivingDate else time
 			responseEndDate = if (responseEndDate != 0L) responseEndDate else time
 			logAndExecuteNext(session, KO, Some(errorMessage))
-			context.stop(self)
 
-		case m =>
-			throw new IllegalArgumentException("Unknown message type " + m)
+		case m => throw new IllegalArgumentException("Unknown message type " + m)
 	}
 
 	private def logRequest(requestResult: RequestStatus, requestMessage: Option[String] = None) = DataWriter.logRequest(session.scenarioName, session.userId, "Request " + requestName, requestStartDate, responseEndDate, endOfRequestSendingDate, endOfRequestSendingDate, requestResult, requestMessage.getOrElse("Request executed successfully"))
@@ -96,6 +86,7 @@ class GatlingAsyncHandlerActor(session: Session, checks: List[HttpCheck], next: 
 	private def logAndExecuteNext(newSession: Session, requestResult: RequestStatus, requestMessage: Option[String] = None) {
 		logRequest(requestResult, requestMessage)
 		next ! newSession.setAttribute(Session.LAST_ACTION_DURATION_KEY, currentTimeMillis - responseEndDate)
+		context.stop(self)
 	}
 
 	/**
@@ -105,15 +96,27 @@ class GatlingAsyncHandlerActor(session: Session, checks: List[HttpCheck], next: 
 
 		def handleFollowRedirect(sessionWithUpdatedCookies: Session) {
 
-			val redirectUrl = computeRedirectUrl(URLDecoder.decode(response.getHeader(HeaderNames.LOCATION), configuration.encoding), originalRequest.getUrl)
+			def setNewState(newSession: Session, newRequestName: String, newRequest: Request) {
+				this.session = newSession
+				this.requestName = newRequestName
+				this.request = newRequest
+				this.requestStartDate = currentTimeMillis
+				this.endOfRequestSendingDate = 0L
+				this.startOfResponseReceivingDate = 0L
+				this.responseEndDate = 0L
+			}
 
-			val requestBuilder = new RequestBuilder(originalRequest).setMethod("GET").setQueryParameters(null.asInstanceOf[FluentStringsMap]).setParameters(null.asInstanceOf[FluentStringsMap]).setUrl(redirectUrl)
+			logRequest(OK)
+
+			val redirectUrl = computeRedirectUrl(URLDecoder.decode(response.getHeader(HeaderNames.LOCATION), configuration.encoding), request.getUrl)
+
+			val requestBuilder = new RequestBuilder(request).setMethod("GET").setQueryParameters(null.asInstanceOf[FluentStringsMap]).setParameters(null.asInstanceOf[FluentStringsMap]).setUrl(redirectUrl)
 
 			for (cookie <- getStoredCookies(sessionWithUpdatedCookies, redirectUrl))
 				requestBuilder.addCookie(cookie)
 
-			val request = requestBuilder.build
-			request.getHeaders.remove(HeaderNames.CONTENT_LENGTH)
+			val newRequest = requestBuilder.build
+			newRequest.getHeaders.remove(HeaderNames.CONTENT_LENGTH)
 
 			val newRequestName = REDIRECTED_REQUEST_NAME_PATTERN.findFirstMatchIn(requestName) match {
 				case Some(nameMatch) =>
@@ -123,8 +126,9 @@ class GatlingAsyncHandlerActor(session: Session, checks: List[HttpCheck], next: 
 				case None => requestName + " Redirect 1"
 			}
 
-			logRequest(OK)
-			HTTP_CLIENT.executeRequest(request, new GatlingAsyncHandler(sessionWithUpdatedCookies, checks, next, newRequestName, request, followRedirect))
+			setNewState(sessionWithUpdatedCookies, newRequestName, newRequest)
+
+			HTTP_CLIENT.executeRequest(newRequest, new GatlingAsyncHandler(checks, newRequestName, self))
 		}
 
 		@tailrec
@@ -151,10 +155,9 @@ class GatlingAsyncHandlerActor(session: Session, checks: List[HttpCheck], next: 
 
 		val sessionWithUpdatedCookies = storeCookies(session, response.getUri.toString, response.getCookies.asScala)
 
-		if (REDIRECT_STATUS_CODES.contains(response.getStatusCode) && followRedirect) {
+		if (REDIRECT_STATUS_CODES.contains(response.getStatusCode) && followRedirect)
 			handleFollowRedirect(sessionWithUpdatedCookies)
-
-		} else
+		else
 			checkPhasesRec(sessionWithUpdatedCookies, HttpPhase.phases)
 	}
 }
