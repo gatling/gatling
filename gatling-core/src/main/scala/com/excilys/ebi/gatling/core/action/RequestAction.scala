@@ -33,4 +33,4 @@ import com.excilys.ebi.gatling.core.check.CheckBuilder
  * @param checks the checks to apply on the response
  * @param protocolConfiguration the optional protocolConfiguration for this type of request
  */
-abstract class RequestAction[C <: Check[R], R, P <:ProtocolConfiguration](next: ActorRef, request: Request, checks: Option[List[C]], protocolConfiguration: Option[P]) extends Action
+abstract class RequestAction[C <: Check[R], R, P <:ProtocolConfiguration](next: ActorRef, request: Request, checks: List[C], protocolConfiguration: Option[P]) extends Action

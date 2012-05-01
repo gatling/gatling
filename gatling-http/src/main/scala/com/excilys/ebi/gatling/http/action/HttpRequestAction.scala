@@ -20,11 +20,9 @@ import com.excilys.ebi.gatling.core.action.RequestAction
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor }
-import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder.status
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpConfig.{ GATLING_HTTP_CONFIG_REQUEST_TIMEOUT, GATLING_HTTP_CONFIG_PROVIDER_CLASS, GATLING_HTTP_CONFIG_MAX_RETRY, GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT, GATLING_HTTP_CONFIG_COMPRESSION_ENABLED, GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION }
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
-import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
 import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.ning.http.client.{ Response, AsyncHttpClientConfig, AsyncHttpClient }
 
@@ -35,11 +33,6 @@ import grizzled.slf4j.Logging
  * HttpRequestAction class companion
  */
 object HttpRequestAction extends Logging {
-
-	/**
-	 * This is the default HTTP check used to verify that the response status is 2XX
-	 */
-	val DEFAULT_HTTP_STATUS_CHECK = status.find.in(Session => (200 to 210)).build
 
 	/**
 	 * The HTTP client used to send the requests
@@ -82,19 +75,10 @@ object HttpRequestAction extends Logging {
  * @param checks the checks that will be performed on the response
  * @param protocolConfiguration the protocol specific configuration
  */
-class HttpRequestAction(next: ActorRef, request: HttpRequest, checks: Option[List[HttpCheck]], protocolConfiguration: Option[HttpProtocolConfiguration])
+class HttpRequestAction(next: ActorRef, request: HttpRequest, checks: List[HttpCheck], protocolConfiguration: Option[HttpProtocolConfiguration])
 		extends RequestAction[HttpCheck, Response, HttpProtocolConfiguration](next, request, checks, protocolConfiguration) with Logging {
 
-	val resolvedChecks = checks match {
-		case Some(givenChecksContent) =>
-			givenChecksContent.find(_.phase == StatusReceived) match {
-				case None => HttpRequestAction.DEFAULT_HTTP_STATUS_CHECK :: givenChecksContent
-				case _ => givenChecksContent
-			}
-		case None => Nil
-	}
-
-	def execute(session: Session) = {
+	def execute(session: Session) {
 		info("Sending Request '" + request.name + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
 
 		val followRedirect = protocolConfiguration match {
@@ -103,8 +87,8 @@ class HttpRequestAction(next: ActorRef, request: HttpRequest, checks: Option[Lis
 		}
 		val ahcRequest = request.buildAHCRequest(session, protocolConfiguration)
 		val client = HTTP_CLIENT
-		val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(session, resolvedChecks, next, request.name, ahcRequest, followRedirect)))
-		val ahcHandler = new GatlingAsyncHandler(resolvedChecks, request.name, actor)
+		val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(session, checks, next, request.name, ahcRequest, followRedirect)))
+		val ahcHandler = new GatlingAsyncHandler(checks, request.name, actor)
 		client.executeRequest(ahcRequest, ahcHandler)
 	}
 }
