@@ -20,11 +20,11 @@ package com.excilys.ebi.gatling.core.config
  */
 class ProtocolConfigurationRegistry(configurations: Seq[ProtocolConfiguration]) {
 
-	private val map = configurations.groupBy(_.protocolType)
+	private val map = configurations.map(protocol => (protocol.protocolType -> protocol)).toMap
 
 	/**
 	 * @param protocolType
 	 * @return a registered ProtocolConfiguration according to its type
 	 */
-	def getProtocolConfiguration(protocolType: String) = map.get(protocolType)
+	def getProtocolConfiguration(protocolType: String): Option[ProtocolConfiguration] = map.get(protocolType)
 }
