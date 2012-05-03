@@ -114,6 +114,7 @@
 		<specs2.version>1.9</specs2.version>
 
 		<maven2.version>2.2.1</maven2.version>
+		<maven-compiler-plugin.version>2.4</maven-compiler-plugin.version>
 		<maven-assembly-plugin.version>2.3</maven-assembly-plugin.version>
 		<maven-jar-plugin.version>2.4</maven-jar-plugin.version>
 		<scala-maven-plugin.version>3.0.1</scala-maven-plugin.version>
@@ -374,6 +375,10 @@
 	<build>
 		<pluginManagement>
 			<plugins>
+				<plugin>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>${maven-compiler-plugin.version}</version>
+				</plugin>
 				<plugin>
 					<artifactId>maven-assembly-plugin</artifactId>
 					<version>${maven-assembly-plugin.version}</version>
