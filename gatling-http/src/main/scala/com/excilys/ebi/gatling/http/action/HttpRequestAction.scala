@@ -21,7 +21,7 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor }
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.config.HttpConfig.{ GATLING_HTTP_CONFIG_REQUEST_TIMEOUT, GATLING_HTTP_CONFIG_PROVIDER_CLASS, GATLING_HTTP_CONFIG_MAX_RETRY, GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT, GATLING_HTTP_CONFIG_COMPRESSION_ENABLED, GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION, GATLING_HTTP_CONFIG_USE_RAW_URL }
+import com.excilys.ebi.gatling.http.config.HttpConfig._
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 import com.ning.http.client.{ Response, AsyncHttpClientConfig, AsyncHttpClient }
@@ -50,11 +50,21 @@ object HttpRequestAction extends Logging {
 		}
 
 		val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
+			.setAllowPoolingConnection(GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION)
+			.setAllowSslConnectionPool(GATLING_HTTP_CONFIG_ALLOW_SSL_CONNECTION_POOL)
 			.setCompressionEnabled(GATLING_HTTP_CONFIG_COMPRESSION_ENABLED)
 			.setConnectionTimeoutInMs(GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT)
 			.setRequestTimeoutInMs(GATLING_HTTP_CONFIG_REQUEST_TIMEOUT)
+			.setIdleConnectionInPoolTimeoutInMs(GATLING_HTTP_CONFIG_IDLE_CONNECTION_IN_POOL_TIMEOUT_IN_MS)
+			.setIdleConnectionTimeoutInMs(GATLING_HTTP_CONFIG_IDLE_CONNECTION_TIMEOUT_IN_MS)
+			.setIOThreadMultiplier(GATLING_HTTP_CONFIG_IO_THREAD_MULTIPLIER)
+			.setMaximumConnectionsPerHost(GATLING_HTTP_MAXIMUM_CONNECTIONS_PER_HOST)
+			.setMaximumConnectionsTotal(GATLING_HTTP_MAXIMUM_CONNECTIONS_TOTAL)
 			.setMaxRequestRetry(GATLING_HTTP_CONFIG_MAX_RETRY)
-			.setAllowPoolingConnection(GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION)
+			.setRequestCompressionLevel(GATLING_HTTP_CONFIG_REQUEST_COMPRESSION_LEVEL)
+			.setRequestTimeoutInMs(GATLING_HTTP_CONFIG_REQUEST_TIMEOUT_IN_MS)
+			.setUseProxyProperties(GATLING_HTTP_CONFIG_USE_PROXY_PROPERTIES)
+			.setUserAgent(GATLING_HTTP_CONFIG_USER_AGENT)
 			.setUseRawUrl(GATLING_HTTP_CONFIG_USE_RAW_URL)
 			.build
 
