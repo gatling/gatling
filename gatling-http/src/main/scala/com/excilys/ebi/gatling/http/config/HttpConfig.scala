@@ -27,4 +27,5 @@ object HttpConfig {
 	val GATLING_HTTP_CONFIG_REQUEST_TIMEOUT = configuration.fileConfiguration.getInt("gatling.http.requestTimeout", 60000)
 	val GATLING_HTTP_CONFIG_MAX_RETRY = configuration.fileConfiguration.getInt("gatling.http.maxRetry", 5)
 	val GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION = configuration.fileConfiguration.getBoolean("gatling.http.allowPoolingConnection", true)
+	val GATLING_HTTP_CONFIG_USE_RAW_URL = configuration.fileConfiguration.getBoolean("gatling.http.useRawUrl", false)
 }
