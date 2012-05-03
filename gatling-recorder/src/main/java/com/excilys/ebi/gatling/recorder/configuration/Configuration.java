@@ -29,35 +29,37 @@ public class Configuration {
 		return instance;
 	}
 
-	public static void initConfigurationFromExistingConfig(Configuration c) {
-		instance.setPort(c.getPort());
-		instance.setSslPort(c.getSslPort());
-		instance.setProxy(c.getProxy());
-		instance.setFollowRedirect(c.isFollowRedirect());
-		instance.setSimulationClassName(c.getSimulationClassName());
-		instance.setSimulationPackage(c.getSimulationPackage());
-		instance.setFilterStrategy(c.getFilterStrategy());
-		instance.setPatterns(c.getPatterns());
-		instance.setOutputFolder(c.getOutputFolder());
+	public static void initConfigurationFromExistingConfig(Configuration cconfiguration) {
+		instance.setPort(cconfiguration.getPort());
+		instance.setSslPort(cconfiguration.getSslPort());
+		instance.setProxy(cconfiguration.getProxy());
+		instance.setFollowRedirect(cconfiguration.isFollowRedirect());
+		instance.setSimulationClassName(cconfiguration.getSimulationClassName());
+		instance.setSimulationPackage(cconfiguration.getSimulationPackage());
+		instance.setFilterStrategy(cconfiguration.getFilterStrategy());
+		instance.setPatterns(cconfiguration.getPatterns());
+		instance.setOutputFolder(cconfiguration.getOutputFolder());
 		instance.setSaveConfiguration(true);
-		instance.setEncoding(c.getEncoding());
+		instance.setEncoding(cconfiguration.getEncoding());
+		instance.setRequestBodiesFolder(cconfiguration.getRequestBodiesFolder());
 	}
 
-	public static void initConfigurationFromCommandLineOptions(CommandLineOptions c) {
-		instance.setPort(c.getLocalPort());
-		instance.setSslPort(c.getLocalPortSsl());
-		instance.getProxy().setHost(c.getProxyHost());
-		instance.getProxy().setPort(c.getProxyPort());
-		instance.getProxy().setSslPort(c.getProxyPortSsl());
-		if (c.getOutputFolder() != null)
-			instance.setOutputFolder(c.getOutputFolder());
-
-		if (c.getSimulationClassName() != null)
-			instance.setSimulationClassName(c.getSimulationClassName());
-		instance.setSimulationPackage(c.getSimulationPackage());
-		instance.setRequestBodiesFolder(c.getRequestBodiesFolder());
-		if (c.getEncoding() != null)
-			instance.setEncoding(c.getEncoding());
+	public static void initConfigurationFromCommandLineOptions(CommandLineOptions cli) {
+		instance.setPort(cli.getLocalPort());
+		instance.setSslPort(cli.getLocalPortSsl());
+		instance.getProxy().setHost(cli.getProxyHost());
+		instance.getProxy().setPort(cli.getProxyPort());
+		instance.getProxy().setSslPort(cli.getProxyPortSsl());
+		if (cli.getOutputFolder() != null)
+			instance.setOutputFolder(cli.getOutputFolder());
+		if (cli.getSimulationClassName() != null)
+			instance.setSimulationClassName(cli.getSimulationClassName());
+		if (cli.getSimulationPackage() != null)
+			instance.setSimulationPackage(cli.getSimulationPackage());
+		if (cli.getRequestBodiesFolder() != null)
+			instance.setRequestBodiesFolder(cli.getRequestBodiesFolder());
+		if (cli.getEncoding() != null)
+			instance.setEncoding(cli.getEncoding());
 	}
 
 	private static final Configuration instance = new Configuration();
@@ -82,8 +84,8 @@ public class Configuration {
 	@Override
 	public String toString() {
 		return new StringBuilder().append("Configuration [port=").append(port).append(", sslPort=").append(sslPort).append(", proxy=").append(proxy).append(", filterStrategy=")
-				.append(filterStrategy).append(", patterns=").append(patterns).append(", outputFolder=").append(outputFolder).append(", saveConfiguration=")
-				.append(saveConfiguration).append("]").toString();
+		        .append(filterStrategy).append(", patterns=").append(patterns).append(", outputFolder=").append(outputFolder).append(", saveConfiguration=")
+		        .append(saveConfiguration).append("]").toString();
 	}
 
 	public int getPort() {
