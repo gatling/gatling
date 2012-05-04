@@ -74,7 +74,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 		case m => throw new IllegalArgumentException("Unknown message type " + m)
 	}
 
-	private def logRequest(requestResult: RequestStatus, requestMessage: String = "Request executed successfully") = DataWriter.logRequest(session.scenarioName, session.userId, "Request " + requestName, requestStartDate, responseEndDate, endOfRequestSendingDate, endOfRequestSendingDate, requestResult, requestMessage)
+	private def logRequest(requestResult: RequestStatus, requestMessage: String = "Request executed successfully") = DataWriter.logRequest(session.scenarioName, session.userId, "Request " + requestName, requestStartDate, responseEndDate, startOfResponseReceivingDate, endOfRequestSendingDate, requestResult, requestMessage)
 
 	/**
 	 * This method is used to send a message to the data writer actor and then execute the next action
