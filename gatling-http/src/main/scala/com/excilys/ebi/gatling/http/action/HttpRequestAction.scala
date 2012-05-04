@@ -94,10 +94,14 @@ class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: Abs
 	def execute(session: Session) {
 		info("Sending Request '" + requestName + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
 
-		val ahcRequest = requestBuilder.build(session, protocolConfiguration)
-		val client = HTTP_CLIENT
-		val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(session, checks, next, requestName, ahcRequest, followRedirect)))
-		val ahcHandler = new GatlingAsyncHandler(checks, requestName, actor)
-		client.executeRequest(ahcRequest, ahcHandler)
+		try {
+			val ahcRequest = requestBuilder.build(session, protocolConfiguration)
+			val client = HTTP_CLIENT
+			val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(session, checks, next, requestName, ahcRequest, followRedirect)))
+			val ahcHandler = new GatlingAsyncHandler(checks, requestName, actor)
+			client.executeRequest(ahcRequest, ahcHandler)
+		} catch {
+			case e => error("Failure while building request " + requestName + " engine will hang (to be fixed, see #423", e)
+		}
 	}
 }
