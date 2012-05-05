@@ -54,7 +54,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.clapper</groupId>
-			<artifactId>grizzled-slf4j_2.9.1-1</artifactId>
+			<artifactId>grizzled-slf4j_2.9.2</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
