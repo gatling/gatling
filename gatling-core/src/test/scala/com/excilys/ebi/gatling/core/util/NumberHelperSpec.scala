@@ -25,28 +25,64 @@ import scala.math.abs
 class NumberHelperSpec extends Specification {
 
   "getRandomLong" should {
+
+    "be zero when min and max are zero" in {
+      NumberHelper.getRandomLong(0, 0) must beEqualTo(0)
+    }
+
     "produce uniformly-distributed random numbers within the specified range" in {
-      val min:Long = 1; val max:Long = 100;
-      val numSamples: Int = 10000
+      val min:Long = 0; val max:Long = 100;
+      val expectedAverage:Double = (max + min) / 2
+      val numSamples: Int = 1000
+      var withinOneStdDev = 0
+      var withinTwoStdDev = 0
+      var numTests = 100
 
-      var sum:Long = 0
+      var differences = List[Double]()
 
-      for(i <- 0 until numSamples) {
-        val uniformSample: Long = NumberHelper.getRandomLong(min, max)
+      for (n <- 0 until numTests) {
+        var samples = List[Long]()
+        var sum: Long = 0
 
-        uniformSample must beGreaterThanOrEqualTo(min)
-        uniformSample must beLessThanOrEqualTo(max)
+        for (i <- 0 until numSamples) {
+          val uniformSample: Long = NumberHelper.getRandomLong(min, max)
+          samples ::= uniformSample
 
-        sum += uniformSample
-       }
+          uniformSample must beGreaterThanOrEqualTo(min)
+          uniformSample must beLessThanOrEqualTo(max)
 
-      val average:Long = sum / numSamples
+          sum += uniformSample
+        }
 
-      average must beCloseTo( max / 2, 1)
+        samples.length mustEqual (numSamples)
+
+        val average: Double = sum.toDouble / numSamples
+        val diffFromAverage: Double = average - expectedAverage
+        differences ::= diffFromAverage
+        if (abs(diffFromAverage) < 1 /* within one stddev */){
+          withinOneStdDev += 1
+        }
+
+        if (abs(diffFromAverage) < 2 /* within two stddev */){
+          withinTwoStdDev += 1
+        }
+
+      }
+
+      /* expect about 68.2% of tests to have fallen within the first standard deviation */
+      withinOneStdDev.toDouble / numTests.toDouble must beGreaterThanOrEqualTo(0.65)
+
+      /* expect about 95.4% of tests to have fallen within the second standard deviation */
+      withinTwoStdDev.toDouble / numTests.toDouble must beGreaterThanOrEqualTo(0.93)
     }
   }
 
   "getRandomDoubleFromExponential" should {
+
+    "be zero when expectedAverage is zero" in {
+      NumberHelper.getRandomDoubleFromExp(0) should beEqualTo(0)
+    }
+
     "produce exponentially-distributed random doubles around the specified average" in {
       val expectedAverage: Long = 10
       val numSamples: Int = 1000
@@ -77,6 +113,11 @@ class NumberHelperSpec extends Specification {
   }
 
   "getRandomLongFromExponential" should {
+
+    "be zero when expectedAverage is zero" in {
+      NumberHelper.getRandomLongFromExp(0) should beEqualTo(0)
+    }
+
     "produce exponentially-distributed random longs around the specified average" in {
       val expectedAverage: Long = 10
       val numSamples: Int = 1000
