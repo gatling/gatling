@@ -16,6 +16,7 @@
 package com.excilys.ebi.gatling.core.util
 import java.util.Random
 import scala.math.log
+import scala.math.round;
 
 object NumberHelper {
 
@@ -48,5 +49,5 @@ object NumberHelper {
    * @return
    * @see http://perfdynamics.blogspot.com/2012/03/how-to-generate-exponential-delays.html#more
    */
-  def getRandomLongFromExp(avg:Double): Long = getRandomDoubleFromExp(avg).toLong
+  def getRandomLongFromExp(avg:Double): Long = round(getRandomDoubleFromExp(avg))
 }

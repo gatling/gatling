@@ -47,7 +47,7 @@ class NumberHelperSpec extends Specification {
   }
 
   "getRandomDoubleFromExponential" should {
-    "produce exponentially-distributed random numbers around the specified average" in {
+    "produce exponentially-distributed random doubles around the specified average" in {
       val expectedAverage: Long = 10
       val numSamples: Int = 1000
       var timesCloseToExpectedAverage = 0
@@ -66,13 +66,44 @@ class NumberHelperSpec extends Specification {
         samples.length mustEqual (numSamples)
 
         val average: Double = sum / numSamples
-        if (abs(average - expectedAverage) < 1.0){
+        if (abs(average - expectedAverage) <= 1.0){
           timesCloseToExpectedAverage += 1
         }
       }
 
       val percentageOfTestsWithinRange: Double = timesCloseToExpectedAverage.toDouble / numTests.toDouble
-      percentageOfTestsWithinRange must beGreaterThanOrEqualTo(0.99)
+      percentageOfTestsWithinRange must beGreaterThanOrEqualTo(0.98)
+    }
+  }
+
+  "getRandomLongFromExponential" should {
+    "produce exponentially-distributed random longs around the specified average" in {
+      val expectedAverage: Long = 10
+      val numSamples: Int = 1000
+      var timesCloseToExpectedAverage = 0
+      var numTests = 100
+
+      for (n <- 0 until numTests) {
+        var samples = List[Long]()
+        var sum: Long = 0
+
+        for (i <- 0 until numSamples) {
+          val exponentialSample: Long = NumberHelper.getRandomLongFromExp(expectedAverage)
+          samples ::= exponentialSample
+          sum += exponentialSample
+        }
+
+        samples.length mustEqual (numSamples)
+
+        val average: Double = sum / numSamples
+        val diffFromAverage: Double = average - expectedAverage
+        if (abs(diffFromAverage) <= 1.0){
+          timesCloseToExpectedAverage += 1
+        }
+      }
+
+      val percentageOfTestsWithinRange: Double = timesCloseToExpectedAverage.toDouble / numTests.toDouble
+      percentageOfTestsWithinRange must beGreaterThanOrEqualTo(0.98)
     }
   }
 
