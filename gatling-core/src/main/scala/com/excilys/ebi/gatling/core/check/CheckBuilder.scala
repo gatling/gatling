@@ -57,6 +57,26 @@ trait MultipleExtractorCheckBuilder[C <: Check[R], R, X] extends ExtractorCheckB
 	def count: MatcherCheckBuilder[C, R, Int]
 }
 
+object MatcherCheckBuilder {
+	val existsStrategy = new MatchStrategy[Any] {
+		def apply(value: Option[Any], session: Session) = value match {
+			case Some(extracted) if (!extracted.isInstanceOf[Seq[_]] || !extracted.asInstanceOf[Seq[_]].isEmpty) => Success(value)
+			case _ => Failure("Check 'exists' failed, found " + value)
+		}
+	}
+
+	val notExistsStrategy = new MatchStrategy[Any] {
+		def apply(value: Option[Any], session: Session) = value match {
+			case Some(extracted) if (!extracted.isInstanceOf[Seq[_]] || extracted.asInstanceOf[Seq[_]].isEmpty) => Failure("Check 'notExists' failed, found " + extracted)
+			case _ => Success(value)
+		}
+	}
+
+	val maybeStrategy = new MatchStrategy[Any] {
+		def apply(value: Option[Any], session: Session) = Success(value)
+	}
+}
+
 /**
  * A partial CheckBuilder that might transform and match the extracted value
  *
@@ -80,7 +100,7 @@ class MatcherCheckBuilder[C <: Check[R], R, X](checkBuilderFactory: CheckBuilder
 	})
 
 	/**
-	 * @param strategy the strategy for matching the extraction/trasformation result
+	 * @param strategy the strategy for matching the extraction/transformation result
 	 * @return a partial CheckBuilder
 	 */
 	def matchWith(strategy: MatchStrategy[X]) = {
@@ -132,22 +152,12 @@ class MatcherCheckBuilder[C <: Check[R], R, X](checkBuilderFactory: CheckBuilder
 	/**
 	 * @return a partial CheckBuilder with a "is defined and is not an empty Seq" MatchStrategy
 	 */
-	def exists = matchWith(new MatchStrategy[X] {
-		def apply(value: Option[X], session: Session) = value match {
-			case Some(extracted) if (!extracted.isInstanceOf[Seq[_]] || !extracted.asInstanceOf[Seq[_]].isEmpty) => Success(value)
-			case _ => Failure("Check 'exists' failed, found " + value)
-		}
-	})
+	def exists = matchWith(MatcherCheckBuilder.existsStrategy)
 
 	/**
 	 * @return a partial CheckBuilder with a "is not defined or is an empty Seq" MatchStrategy
 	 */
-	def notExists = matchWith(new MatchStrategy[X] {
-		def apply(value: Option[X], session: Session) = value match {
-			case Some(extracted) if (!extracted.isInstanceOf[Seq[_]] || extracted.asInstanceOf[Seq[_]].isEmpty) => Failure("Check 'notExists' failed, found " + extracted)
-			case _ => Success(value)
-		}
-	})
+	def notExists = matchWith(MatcherCheckBuilder.notExistsStrategy)
 
 	/**
 	 * @param expected the expected sequence
@@ -165,6 +175,11 @@ class MatcherCheckBuilder[C <: Check[R], R, X](checkBuilderFactory: CheckBuilder
 			case None => Failure("Check 'in' failed, found nothing")
 		}
 	})
+
+	/**
+	 * @return a partial CheckBuilder with a "maybe (always true)" MatchStrategy
+	 */
+	def maybe = matchWith(MatcherCheckBuilder.maybeStrategy)
 }
 
 /**

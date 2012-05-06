@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 		http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.util
+
 import java.util.Random
 import scala.math.log
 import scala.math.round;
 
 object NumberHelper {
 
-	/**
-	 * Used to generate random pause durations
-	 */
-	val RANDOM = new Random
+  /**
+   * Used to generate random pause durations
+   */
+  val RANDOM = new Random
 
   /**
    * Get a random long from a uniform distribution between the values min and max.
@@ -40,7 +41,7 @@ object NumberHelper {
    * @return
    * @see http://perfdynamics.blogspot.com/2012/03/how-to-generate-exponential-delays.html#more
    */
-  def getRandomDoubleFromExp(avg:Double): Double = (-avg * log(RANDOM.nextDouble()))
+  def getRandomDoubleFromExp(avg: Double): Double = (-avg * log(RANDOM.nextDouble()))
 
   /**
    * Get a random long from an exponential distribution with the specified average value.
@@ -49,5 +50,7 @@ object NumberHelper {
    * @return
    * @see http://perfdynamics.blogspot.com/2012/03/how-to-generate-exponential-delays.html#more
    */
-  def getRandomLongFromExp(avg:Double): Long = round(getRandomDoubleFromExp(avg))
+  def getRandomLongFromExp(avg: Double): Long = round(getRandomDoubleFromExp(avg))
+
+  def isNumeric(string: String) = string.forall(_.isDigit)
 }

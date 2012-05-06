@@ -84,7 +84,8 @@ object ReportsGenerator extends Logging {
 
 		} else {
 			val reportGenerators =
-				List(new ActiveSessionsReportGenerator(runUuid, dataReader, componentLibrary),
+				List(new AllSessionsReportGenerator(runUuid, dataReader, componentLibrary),
+					new ActiveSessionsReportGenerator(runUuid, dataReader, componentLibrary),
 					new RequestsReportGenerator(runUuid, dataReader, componentLibrary),
 					new TransactionsReportGenerator(runUuid, dataReader, componentLibrary),
 					new RequestDetailsReportGenerator(runUuid, dataReader, componentLibrary))

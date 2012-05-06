@@ -17,7 +17,6 @@ package com.excilys.ebi.gatling.charts.report
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.globalTransactionsFile
 import com.excilys.ebi.gatling.charts.series.Series
-import com.excilys.ebi.gatling.charts.series.SharedSeries
 import com.excilys.ebi.gatling.charts.template.TransactionsPageTemplate
 import com.excilys.ebi.gatling.charts.util.Colors.{ toString, RED, GREEN, BLUE }
 import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ count, numberOfRequestsPerSecondAsList, numberOfRequestsPerSecond }
@@ -41,7 +40,7 @@ class TransactionsReportGenerator(runOn: String, dataReader: DataReader, compone
 		val pieSeries = new Series[String, Int]("Repartition", pieData, List(GREEN, RED))
 
 		// Create template
-		val template = new TransactionsPageTemplate(componentLibrary.getTransactionsChartComponent(allTransactions, failedTransactions, succeededTransactions, pieSeries, SharedSeries.getAllActiveSessionsSeries))
+		val template = new TransactionsPageTemplate(componentLibrary.getTransactionsChartComponent(allTransactions, failedTransactions, succeededTransactions, pieSeries))
 
 		// Write template result to file
 		new TemplateWriter(globalTransactionsFile(runOn)).writeToFile(template.getOutput)

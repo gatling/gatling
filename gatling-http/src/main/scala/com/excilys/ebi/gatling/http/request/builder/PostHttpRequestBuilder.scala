@@ -32,7 +32,7 @@ class PostHttpRequestBuilder(
 	body: Option[HttpRequestBody],
 	uploadedFile: Option[UploadedFile],
 	realm: Option[Session => Realm],
-	checks: Option[List[HttpCheck]])
+	checks: List[HttpCheck])
 		extends AbstractHttpRequestWithBodyAndParamsBuilder[PostHttpRequestBuilder](requestName, "POST", url, queryParams, params, headers, body, uploadedFile, realm, checks) {
 
 	private[http] def newInstance(
@@ -43,7 +43,7 @@ class PostHttpRequestBuilder(
 		body: Option[HttpRequestBody],
 		uploadedFile: Option[UploadedFile],
 		realm: Option[Session => Realm],
-		checks: Option[List[HttpCheck]]) = {
+		checks: List[HttpCheck]) = {
 		new PostHttpRequestBuilder(requestName, url, queryParams, params, headers, body, uploadedFile, realm, checks)
 	}
 }

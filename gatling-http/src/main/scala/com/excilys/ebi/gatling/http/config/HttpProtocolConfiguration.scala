@@ -32,5 +32,5 @@ object HttpProtocolConfiguration {
  * @param proxy a proxy through which all the requests must pass to succeed
  */
 class HttpProtocolConfiguration(val baseURL: Option[String], val proxy: Option[ProxyServer], val securedProxy: Option[ProxyServer], val followRedirect: Boolean) extends ProtocolConfiguration {
-	def getProtocolType = HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE
+	def protocolType = HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE
 }

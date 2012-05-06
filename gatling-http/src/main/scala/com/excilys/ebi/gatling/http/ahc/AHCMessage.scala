@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.series
+package com.excilys.ebi.gatling.http.ahc
 
-object SharedSeries {
+import java.lang.System.currentTimeMillis
+import com.ning.http.client.Response
 
-	private var allActiveSessionsSeries: Option[Series[Long, Int]] = None
+sealed trait AHCMessage
 
-	def getAllActiveSessionsSeries = allActiveSessionsSeries.getOrElse(throw new IllegalArgumentException("Active sessions series was not set yet"))
-
-	def setAllActiveSessionsSeries(allActiveSessionsSeries: Series[Long, Int]) = { this.allActiveSessionsSeries = Some(allActiveSessionsSeries) }
-}
+case class OnHeaderWriteCompleted(time: Long = currentTimeMillis) extends AHCMessage
+case class OnContentWriteCompleted(time: Long = currentTimeMillis) extends AHCMessage
+case class OnStatusReceived(time: Long = currentTimeMillis) extends AHCMessage
+case class OnCompleted(response: Response, time: Long = currentTimeMillis) extends AHCMessage
+case class OnThrowable(errorMessage: String, time: Long = currentTimeMillis) extends AHCMessage

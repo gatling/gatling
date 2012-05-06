@@ -17,12 +17,17 @@ package com.excilys.ebi.gatling.recorder.http.handler;
 
 import static com.excilys.ebi.gatling.recorder.http.event.RecorderEventBus.getEventBus;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Map.Entry;
+
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
+import org.jboss.netty.handler.codec.http.DefaultHttpRequest;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,8 +87,21 @@ public abstract class AbstractBrowserRequestHandler extends SimpleChannelHandler
 			future.addListener(new ChannelFutureListener() {
 				@Override
 				public void operationComplete(ChannelFuture future) throws Exception {
-					future.getChannel().write(request);
+					// once connected, must use a relative URI
+					HttpRequest newRequest = buildRequestWithRelativeURI(request);
+					future.getChannel().write(newRequest);
 				}
 			});
+	}
+
+	private HttpRequest buildRequestWithRelativeURI(HttpRequest request) throws URISyntaxException {
+		URI uri = new URI(request.getUri());
+		String newUri = new URI(null, null, null, -1, uri.getPath(), uri.getQuery(), uri.getFragment()).toString();
+		DefaultHttpRequest newRequest = new DefaultHttpRequest(request.getProtocolVersion(), request.getMethod(), newUri);
+		newRequest.setChunked(request.isChunked());
+		newRequest.setContent(request.getContent());
+		for (Entry<String, String> header : request.getHeaders())
+			newRequest.addHeader(header.getKey(), header.getValue());
+		return newRequest;
 	}
 }

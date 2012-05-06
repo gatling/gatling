@@ -62,7 +62,7 @@ public class BrowserHttpsRequestHandler extends AbstractBrowserRequestHandler {
 			return null;
 
 		} else {
-			// set full uri so that it's correctly recorder
+			// set full uri so that it's correctly recorded
 			String fullUri = new StringBuilder().append(targetHostURI).append(request.getUri()).toString();
 			request.setUri(fullUri);
 

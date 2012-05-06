@@ -515,7 +515,7 @@ public class RunningFrame extends JFrame {
 
 	private boolean isRedirect(HttpResponse response) {
 		int responseStatus = response.getStatus().getCode();
-		return responseStatus == 301 || responseStatus == 302;
+		return responseStatus == 301 || responseStatus == 302 || responseStatus == 303;
 	}
 
 	private List<Object> filterEvents() {

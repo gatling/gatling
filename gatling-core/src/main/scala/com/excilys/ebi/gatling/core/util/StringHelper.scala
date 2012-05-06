@@ -24,7 +24,7 @@ import scala.collection.mutable.ConcurrentMap
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.core.session.Session
 import grizzled.slf4j.Logging
-
+import com.excilys.ebi.gatling.core.util.NumberHelper.isNumeric
 /**
  * This object groups all utilities for strings
  */
@@ -47,7 +47,7 @@ object StringHelper extends Logging {
 	val jdk6Pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
 
 	val elPattern = """\$\{(.+?)\}""".r
-	val elOccurrencePattern = """(.+?)\((\d+)\)""".r
+	val elOccurrencePattern = """(.+?)\((.+)\)""".r
 
 	/**
 	 * Method that strips all accents from a string
@@ -67,12 +67,20 @@ object StringHelper extends Logging {
 				elOccurrencePattern.findFirstMatchIn(elContent) match {
 					case Some(occurrencePartMatch) =>
 						val key = occurrencePartMatch.group(1)
-						val occurrence = occurrencePartMatch.group(2).toInt
-						(session: Session) => session.getAttributeAsOption[Seq[Any]](key) match {
-							case Some(x) if (x.size > occurrence) => x(occurrence)
-							case _ => {
-								warn(StringBuilder.newBuilder.append("Couldn't resolve occurrence ").append(occurrence).append(" of session multivalued attribute ").append(key))
-								EMPTY
+						val occurrence = occurrencePartMatch.group(2)
+						val occurrenceFunction =
+							if (isNumeric(occurrence))
+								(session: Session) => occurrence.toInt
+							else
+								(session: Session) => session.getTypedAttribute[Int](occurrence)
+						(session: Session) => {
+							val resolvedOccurrence = occurrenceFunction(session)
+							session.getAttributeAsOption[Seq[Any]](key) match {
+								case Some(x) if (x.size > resolvedOccurrence) => x(resolvedOccurrence)
+								case _ => {
+									warn(StringBuilder.newBuilder.append("Couldn't resolve occurrence ").append(resolvedOccurrence).append(" of session multivalued attribute ").append(key))
+									EMPTY
+								}
 							}
 						}
 					case None =>

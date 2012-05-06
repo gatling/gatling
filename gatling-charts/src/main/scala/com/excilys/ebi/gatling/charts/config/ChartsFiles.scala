@@ -23,13 +23,16 @@ import com.excilys.ebi.gatling.core.util.FileHelper.{ formatToFilename, HTML_EXT
 object ChartsFiles {
 	val JQUERY_FILE = "jquery.min.js"
 	val MENU_FILE = "menu.js"
+	val ALL_SESSIONS_FILE = "all_sessions.js"
 
 	val GATLING_TEMPLATE = "templates/"
 	val GATLING_TEMPLATE_STATISTICS_COMPONENT_URL = GATLING_TEMPLATE + "statistics_component.html.ssp"
 	val GATLING_TEMPLATE_LAYOUT_FILE_URL = GATLING_TEMPLATE + "page_layout.html.ssp"
+	val GATLING_TEMPLATE_ALL_SESSIONS_JS_FILE_URL = GATLING_TEMPLATE + "all_sessions.js.ssp"
 	val GATLING_TEMPLATE_MENU_JS_FILE_URL = GATLING_TEMPLATE + "menu.js.ssp"
 
 	def menuFile(runOn: String) = resultFolder(runOn) / GATLING_JS / MENU_FILE
+	def allSessionsFile(runOn: String) = resultFolder(runOn) / GATLING_JS / ALL_SESSIONS_FILE
 	def activeSessionsFile(runOn: String) = resultFolder(runOn) / "active_sessions.html"
 	def globalRequestsFile(runOn: String) = resultFolder(runOn) / "requests.html"
 	def globalTransactionsFile(runOn: String) = resultFolder(runOn) / "transactions.html"

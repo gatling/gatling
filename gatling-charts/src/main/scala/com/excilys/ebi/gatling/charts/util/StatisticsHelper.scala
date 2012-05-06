@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.util
+
 import scala.annotation.tailrec
 import scala.collection.SortedMap
 import scala.math.{ sqrt, pow, abs }
@@ -113,6 +114,26 @@ object StatisticsHelper {
 		}
 
 		countRec(data.toList, Nil, 0).reverse
+	}
+
+	def responseTimeDistribution(records: Seq[RequestRecord], minTime: Long, maxTime: Long, slotsNumber: Int, total: Int): Seq[(Long, Int)] = {
+
+		val width = maxTime - minTime
+
+		val step = math.max(width / slotsNumber, 1)
+		val actualSlotNumber = if (step == 1) width.toInt else slotsNumber
+
+		val percentiles = if (records.isEmpty)
+			Map.empty[Long, Int]
+		else
+			records
+				.groupBy(record => minTime + ((record.responseTime - minTime) / step) * step)
+				.map { case (time, records) => time -> math.round(records.size * 100.0 / total).toInt }
+
+		for (i <- 0 until actualSlotNumber) yield {
+			val range = minTime + i * step
+			(range -> percentiles.get(range).getOrElse(0))
+		}
 	}
 
 	def windowInPercentileRange(average: Long, limit: Double, records: Seq[RequestRecord]): (Long, Long) = {

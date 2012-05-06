@@ -29,7 +29,7 @@ class GetHttpRequestBuilder(
 	queryParams: List[HttpParam],
 	headers: Map[String, EvaluatableString],
 	realm: Option[Session => Realm],
-	checks: Option[List[HttpCheck]])
+	checks: List[HttpCheck])
 		extends AbstractHttpRequestBuilder[GetHttpRequestBuilder](requestName, "GET", url, queryParams, headers, realm, checks) {
 
 	private[http] def newInstance(
@@ -38,7 +38,7 @@ class GetHttpRequestBuilder(
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		realm: Option[Session => Realm],
-		checks: Option[List[HttpCheck]]) = {
+		checks: List[HttpCheck]) = {
 		new GetHttpRequestBuilder(requestName, url, queryParams, headers, realm, checks)
 	}
 }

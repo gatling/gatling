@@ -23,7 +23,6 @@ import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
-import com.excilys.ebi.gatling.http.request.HttpRequest
 import com.ning.http.client.ProxyServer.Protocol
 import com.ning.http.client.Realm.AuthScheme
 import com.ning.http.client.{ RequestBuilder, Request, Realm, FluentStringsMap, FluentCaseInsensitiveStringsMap }
@@ -38,7 +37,7 @@ object AbstractHttpRequestBuilder {
 	 *
 	 * @param requestBuilder the request builder to convert
 	 */
-	implicit def toActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) = new HttpRequestActionBuilder(new HttpRequest(requestBuilder), null, requestBuilder.checks)
+	implicit def toActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) = requestBuilder.toActionBuilder
 }
 
 /**
@@ -51,13 +50,13 @@ object AbstractHttpRequestBuilder {
  * @param credentials sets the credentials in case of Basic HTTP Authentication
  */
 abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
-		val requestName: String,
+		requestName: String,
 		method: String,
 		url: EvaluatableString,
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		realm: Option[Session => Realm],
-		val checks: Option[List[HttpCheck]]) extends CookieHandling {
+		checks: List[HttpCheck]) extends CookieHandling {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type
@@ -74,7 +73,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		credentials: Option[Session => Realm],
-		checks: Option[List[HttpCheck]]): B
+		checks: List[HttpCheck]): B
 
 	private[http] def withRequestName(requestName: String): B = newInstance(requestName, url, queryParams, headers, realm, checks)
 
@@ -83,7 +82,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 *
 	 * @param checkBuilders the checks that will be performed on the reponse
 	 */
-	def check(checks: HttpCheck*): B = newInstance(requestName, url, queryParams, headers, realm, Some(checks.toList))
+	def check(checks: HttpCheck*): B = newInstance(requestName, url, queryParams, headers, realm, checks.toList)
 
 	/**
 	 * Adds a query parameter to the request
@@ -237,7 +236,9 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * @param requestBuilder the request builder to which the credentials should be added
 	 * @param credentials the credentials to put in the request builder
 	 */
-	private def configureRealm(requestBuilder: RequestBuilder, realm: Option[Session => Realm], session: Session) = {
+	private def configureRealm(requestBuilder: RequestBuilder, realm: Option[Session => Realm], session: Session) {
 		realm.map { realm => requestBuilder.setRealm(realm(session)) }
 	}
+	
+	private[gatling] def toActionBuilder = new HttpRequestActionBuilder(requestName, this, null, checks)
 }

@@ -16,30 +16,23 @@
 package com.excilys.ebi.gatling.http.action
 
 import com.excilys.ebi.gatling.core.action.system
-import com.excilys.ebi.gatling.core.action.RequestAction
+import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
-import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandler
-import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder.status
+import com.excilys.ebi.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor }
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.config.HttpConfig.{ GATLING_HTTP_CONFIG_REQUEST_TIMEOUT, GATLING_HTTP_CONFIG_PROVIDER_CLASS, GATLING_HTTP_CONFIG_MAX_RETRY, GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT, GATLING_HTTP_CONFIG_COMPRESSION_ENABLED, GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION }
+import com.excilys.ebi.gatling.http.config.HttpConfig._
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
-import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
-import com.excilys.ebi.gatling.http.request.HttpRequest
+import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 import com.ning.http.client.{ Response, AsyncHttpClientConfig, AsyncHttpClient }
 
-import akka.actor.ActorRef
+import akka.actor.{ ActorRef, Props }
 import grizzled.slf4j.Logging
 
 /**
  * HttpRequestAction class companion
  */
 object HttpRequestAction extends Logging {
-
-	/**
-	 * This is the default HTTP check used to verify that the response status is 2XX
-	 */
-	val DEFAULT_HTTP_STATUS_CHECK = status.find.in(Session => (200 to 210)).build
 
 	/**
 	 * The HTTP client used to send the requests
@@ -57,16 +50,26 @@ object HttpRequestAction extends Logging {
 		}
 
 		val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
+			.setAllowPoolingConnection(GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION)
+			.setAllowSslConnectionPool(GATLING_HTTP_CONFIG_ALLOW_SSL_CONNECTION_POOL)
 			.setCompressionEnabled(GATLING_HTTP_CONFIG_COMPRESSION_ENABLED)
 			.setConnectionTimeoutInMs(GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT)
 			.setRequestTimeoutInMs(GATLING_HTTP_CONFIG_REQUEST_TIMEOUT)
+			.setIdleConnectionInPoolTimeoutInMs(GATLING_HTTP_CONFIG_IDLE_CONNECTION_IN_POOL_TIMEOUT_IN_MS)
+			.setIdleConnectionTimeoutInMs(GATLING_HTTP_CONFIG_IDLE_CONNECTION_TIMEOUT_IN_MS)
+			.setIOThreadMultiplier(GATLING_HTTP_CONFIG_IO_THREAD_MULTIPLIER)
+			.setMaximumConnectionsPerHost(GATLING_HTTP_MAXIMUM_CONNECTIONS_PER_HOST)
+			.setMaximumConnectionsTotal(GATLING_HTTP_MAXIMUM_CONNECTIONS_TOTAL)
 			.setMaxRequestRetry(GATLING_HTTP_CONFIG_MAX_RETRY)
-			.setAllowPoolingConnection(GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION)
+			.setRequestCompressionLevel(GATLING_HTTP_CONFIG_REQUEST_COMPRESSION_LEVEL)
+			.setRequestTimeoutInMs(GATLING_HTTP_CONFIG_REQUEST_TIMEOUT_IN_MS)
+			.setUseProxyProperties(GATLING_HTTP_CONFIG_USE_PROXY_PROPERTIES)
+			.setUserAgent(GATLING_HTTP_CONFIG_USER_AGENT)
+			.setUseRawUrl(GATLING_HTTP_CONFIG_USE_RAW_URL)
 			.build
 
 		val client = new AsyncHttpClient(GATLING_HTTP_CONFIG_PROVIDER_CLASS, ahcConfigBuilder)
 
-		// Register client shutdown
 		system.registerOnTermination(client.close)
 
 		client
@@ -77,32 +80,28 @@ object HttpRequestAction extends Logging {
  * This is an action that sends HTTP requests
  *
  * @constructor constructs an HttpRequestAction
+ * @param requestName the name of the request
  * @param next the next action that will be executed after the request
- * @param request the request that will be executed
+ * @param requestBuilder the builder for the request that will be executed
  * @param checks the checks that will be performed on the response
  * @param protocolConfiguration the protocol specific configuration
  */
-class HttpRequestAction(next: ActorRef, request: HttpRequest, checks: Option[List[HttpCheck]], protocolConfiguration: Option[HttpProtocolConfiguration])
-		extends RequestAction[HttpCheck, Response, HttpProtocolConfiguration](next, request, checks, protocolConfiguration) with Logging {
+class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck], protocolConfiguration: Option[HttpProtocolConfiguration])
+		extends Action with Logging {
 
-	val resolvedChecks = checks match {
-		case Some(givenChecksContent) =>
-			givenChecksContent.find(_.phase == StatusReceived)
-				.map(_ => HttpRequestAction.DEFAULT_HTTP_STATUS_CHECK :: givenChecksContent)
-				.getOrElse(givenChecksContent)
-		case None => Nil
-	}
+	val followRedirect = protocolConfiguration.map(_.followRedirect).getOrElse(false)
 
-	def execute(session: Session) = {
-		info("Sending Request '" + request.name + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
+	def execute(session: Session) {
+		info("Sending Request '" + requestName + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
 
-		val followRedirect = protocolConfiguration match {
-			case Some(protocolConfiguration) => protocolConfiguration.followRedirect
-			case None => false
+		try {
+			val ahcRequest = requestBuilder.build(session, protocolConfiguration)
+			val client = HTTP_CLIENT
+			val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(session, checks, next, requestName, ahcRequest, followRedirect)))
+			val ahcHandler = new GatlingAsyncHandler(checks, requestName, actor)
+			client.executeRequest(ahcRequest, ahcHandler)
+		} catch {
+			case e => error("Failure while building request " + requestName + " engine will hang (to be fixed, see #423", e)
 		}
-		val ahcRequest = request.buildAHCRequest(session, protocolConfiguration)
-		val client = HTTP_CLIENT
-		val ahcHandler = new GatlingAsyncHandler(session, resolvedChecks, next, request.name, ahcRequest, followRedirect)
-		client.executeRequest(ahcRequest, ahcHandler)
 	}
 }

@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.structure
 
 import java.util.concurrent.TimeUnit
 
-import scala.annotation.implicitNotFound
+import scala.annotation.tailrec
 
 import com.excilys.ebi.gatling.core.action.builder.IfActionBuilder.ifActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder.pauseActionBuilder
@@ -74,7 +74,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @return a new builder with a pause added to its actions
 	 */
 	def pause(minDuration: Long, maxDuration: Long, durationUnit: TimeUnit): B = pause(minDuration, Some(maxDuration), durationUnit)
-	
+
 	/**
 	 * Method used to define a random pause
 	 *
@@ -165,13 +165,17 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 
 	private[core] def addActionBuilders(actionBuildersToAdd: List[ActionBuilder]): B = newInstance(actionBuildersToAdd ::: actionBuilders)
 
-	protected def buildChainedActions(initialValue: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = buildChainedActions(initialValue, actionBuilders, protocolConfigurationRegistry)
+	protected def buildChainedActions(initialValue: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = {
 
-	private def buildChainedActions(actorRef: ActorRef, actionBuilders: List[ActionBuilder], protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = {
-		actionBuilders match {
-			case Nil => actorRef
-			case firstBuilder :: restOfBuilders => buildChainedActions(firstBuilder.withNext(actorRef).build(protocolConfigurationRegistry), restOfBuilders, protocolConfigurationRegistry)
+		@tailrec
+		def buildChainedActions(actorRef: ActorRef, actionBuilders: List[ActionBuilder], protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = {
+			actionBuilders match {
+				case Nil => actorRef
+				case firstBuilder :: restOfBuilders => buildChainedActions(firstBuilder.withNext(actorRef).build(protocolConfigurationRegistry), restOfBuilders, protocolConfigurationRegistry)
+			}
 		}
+
+		buildChainedActions(initialValue, actionBuilders, protocolConfigurationRegistry)
 	}
 }
 

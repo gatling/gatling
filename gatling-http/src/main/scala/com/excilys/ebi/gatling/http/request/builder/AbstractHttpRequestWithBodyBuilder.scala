@@ -34,16 +34,11 @@ import com.excilys.ebi.gatling.http.request.{ TemplateBody, StringBody, HttpRequ
 import com.ning.http.client.{ RequestBuilder, Realm }
 
 object AbstractHttpRequestWithBodyBuilder {
-	val TEMPLATE_ENGINE = initEngine
-
-	def initEngine: TemplateEngine = {
-		val engine = new TemplateEngine(List(GatlingFiles.requestBodiesFolder))
-		engine.allowReload = false
-		engine.escapeMarkup = false
-		// Register engine shutdown
-		system.registerOnTermination(engine.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown)
-		engine
-	}
+	val TEMPLATE_ENGINE = new TemplateEngine(List(GatlingFiles.requestBodiesFolder))
+	TEMPLATE_ENGINE.allowReload = false
+	TEMPLATE_ENGINE.escapeMarkup = false
+	// Register engine shutdown
+	system.registerOnTermination(TEMPLATE_ENGINE.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown)
 }
 
 /**
@@ -64,7 +59,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	headers: Map[String, EvaluatableString],
 	body: Option[HttpRequestBody],
 	realm: Option[Session => Realm],
-	checks: Option[List[HttpCheck]])
+	checks: List[HttpCheck])
 		extends AbstractHttpRequestBuilder[B](requestName, method, url, queryParams, headers, realm, checks) {
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
@@ -90,7 +85,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 		headers: Map[String, EvaluatableString],
 		body: Option[HttpRequestBody],
 		realm: Option[Session => Realm],
-		checks: Option[List[HttpCheck]]): B
+		checks: List[HttpCheck]): B
 
 	private[http] def newInstance(
 		requestName: String,
@@ -98,7 +93,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		realm: Option[Session => Realm],
-		checks: Option[List[HttpCheck]]): B = {
+		checks: List[HttpCheck]): B = {
 		newInstance(requestName, url, queryParams, headers, body, realm, checks)
 	}
 
