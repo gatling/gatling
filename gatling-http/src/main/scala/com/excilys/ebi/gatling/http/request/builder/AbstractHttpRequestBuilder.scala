@@ -43,11 +43,13 @@ object AbstractHttpRequestBuilder {
 /**
  * This class serves as model for all HttpRequestBuilders
  *
- * @param httpRequestActionBuilder the HttpRequestActionBuilder with which this builder is linked
+ * @param requestName is the name of the request
+ * @param method is the HTTP method
  * @param url the function returning the url
  * @param queryParams the query parameters that should be added to the request
  * @param headers the headers that should be added to the request
- * @param credentials sets the credentials in case of Basic HTTP Authentication
+ * @param realm is the session/realm the request should operate within
+ * @param checks is a list of checks to execute on the response
  */
 abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 		requestName: String,
@@ -61,7 +63,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	/**
 	 * Method overridden in children to create a new instance of the correct type
 	 *
-	 * @param httpRequestActionBuilder the HttpRequestActionBuilder with which this builder is linked
+   * @param requestName is the name of the request
 	 * @param url the function returning the url
 	 * @param queryParams the query parameters that should be added to the request
 	 * @param headers the headers that should be added to the request
@@ -80,15 +82,14 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	/**
 	 * Stops defining the request and adds checks on the response
 	 *
-	 * @param checkBuilders the checks that will be performed on the reponse
+	 * @param checks the checks that will be performed on the response
 	 */
 	def check(checks: HttpCheck*): B = newInstance(requestName, url, queryParams, headers, realm, checks.toList)
 
 	/**
 	 * Adds a query parameter to the request
 	 *
-	 * @param paramKeyFunction a function that returns the key name
-	 * @param paramValueFunction a function that returns the value
+	 * @param param is a query parameter
 	 */
 	def queryParam(param: HttpParam): B = newInstance(requestName, url, param :: queryParams, headers, realm, checks)
 
@@ -234,7 +235,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * This method adds authentication to the request builder if needed
 	 *
 	 * @param requestBuilder the request builder to which the credentials should be added
-	 * @param credentials the credentials to put in the request builder
+	 * @param realm the credentials to put in the request builder
+   * @param session the session of the current scenario
 	 */
 	private def configureRealm(requestBuilder: RequestBuilder, realm: Option[Session => Realm], session: Session) {
 		realm.map { realm => requestBuilder.setRealm(realm(session)) }
