@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.excilys.ebi.gatling</groupId>
 	<artifactId>gatling-parent</artifactId>
@@ -123,6 +124,7 @@
 		<maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
 		<maven-plugin-plugin.version>2.9</maven-plugin-plugin.version>
 		<build-helper-maven-plugin.version>1.7</build-helper-maven-plugin.version>
+		<maven-specs2-plugin.version>0.3.0</maven-specs2-plugin.version>
 	</properties>
 
 	<dependencyManagement>
@@ -507,6 +509,20 @@
 				<plugin>
 					<artifactId>maven-plugin-plugin</artifactId>
 					<version>${maven-plugin-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>com.mmakowski</groupId>
+					<artifactId>maven-specs2-plugin</artifactId>
+					<version>${maven-specs2-plugin.version}</version>
+					<executions>
+						<execution>
+							<id>verify</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>run-specs</goal>
+							</goals>
+						</execution>
+					</executions>
 				</plugin>
 			</plugins>
 		</pluginManagement>

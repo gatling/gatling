@@ -28,7 +28,7 @@
         </dependency>
         <dependency>
             <groupId>org.specs2</groupId>
-            <artifactId>specs2_2.9.1-1</artifactId>
+            <artifactId>specs2_2.9.2</artifactId>
             <scope>test</scope>
         </dependency>
 	</dependencies>
@@ -89,16 +89,6 @@
             <plugin>
                 <groupId>com.mmakowski</groupId>
                 <artifactId>maven-specs2-plugin</artifactId>
-                <version>0.2.1</version>
-                <executions>
-                    <execution>
-                        <id>verify</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>run-specs</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
 	</build>

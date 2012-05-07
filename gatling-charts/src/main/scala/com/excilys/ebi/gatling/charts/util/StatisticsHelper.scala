@@ -34,11 +34,11 @@ object StatisticsHelper {
 
 	val averageLatency = averageTime(_.latency) _
 
-  /**
-   * Compute the population standard deviation of the provided data.
-   *
-   * @param data is all the RequestRecords from a test run
-   */
+	/**
+	 * Compute the population standard deviation of the provided data.
+	 *
+	 * @param data is all the RequestRecords from a test run
+	 */
 	def responseTimeStandardDeviation(data: Seq[RequestRecord]): Long = {
 		val avg = averageResponseTime(data)
 		if (avg != NO_PLOT_MAGIC_VALUE) sqrt(data.map(result => pow(result.responseTime - avg, 2)).sum / data.length).toLong else NO_PLOT_MAGIC_VALUE
