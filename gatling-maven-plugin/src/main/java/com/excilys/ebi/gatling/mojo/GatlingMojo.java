@@ -15,16 +15,8 @@
  */
 package com.excilys.ebi.gatling.mojo;
 
-import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
-import static java.util.Arrays.asList;
-import static org.codehaus.plexus.util.StringUtils.join;
-import static org.codehaus.plexus.util.StringUtils.stripEnd;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import com.excilys.ebi.gatling.ant.GatlingTask;
+import com.excilys.ebi.gatling.app.OptionsConstants;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
@@ -39,8 +31,15 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.Commandline;
 import org.apache.tools.ant.types.Path;
 
-import com.excilys.ebi.gatling.ant.GatlingTask;
-import com.excilys.ebi.gatling.app.OptionsConstants;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
+import static java.util.Arrays.asList;
+import static org.codehaus.plexus.util.StringUtils.join;
+import static org.codehaus.plexus.util.StringUtils.stripEnd;
 
 /**
  * Mojo to execute Gatling.
@@ -264,7 +263,7 @@ public class GatlingMojo extends AbstractMojo {
 	}
 
 	protected String fileNametoClassName(String fileName) {
-		return stripEnd(fileName, ".scala").replace('/', '.');
+		return stripEnd(fileName, ".scala").replace(File.separatorChar, '.');
 	}
 
 	/**
@@ -277,6 +276,7 @@ public class GatlingMojo extends AbstractMojo {
 		DirectoryScanner scanner = new DirectoryScanner();
 
 		// Set Base Directory
+        getLog().debug("effective simulationsFolder: " + simulationsFolder.getPath());
 		scanner.setBasedir(simulationsFolder);
 
 		// Resolve includes
@@ -301,7 +301,9 @@ public class GatlingMojo extends AbstractMojo {
 			includedClassNames.add(fileNametoClassName(includedFile));
 		}
 
-		return join(includedClassNames.iterator(), ",");
+        getLog().debug("resolved simulation classes: " + includedClassNames);
+
+        return join(includedClassNames.iterator(), ",");
 	}
 
 	protected Project getProject() throws MojoExecutionException {
