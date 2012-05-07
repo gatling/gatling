@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>gatling-parent</artifactId>
@@ -20,17 +21,17 @@
 			<artifactId>scalate-core</artifactId>
 		</dependency>
 
-        <!-- test -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.specs2</groupId>
-            <artifactId>specs2_2.9.2</artifactId>
-            <scope>test</scope>
-        </dependency>
+		<!-- test -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.specs2</groupId>
+			<artifactId>specs2_2.9.2</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -40,20 +41,12 @@
 				<artifactId>scala-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>process-classes</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-				</executions>
+				<artifactId>maven-jar-plugin</artifactId>
 				<configuration>
-					<tasks>
-						<echo>Removing gatling-charts's dummy ComponentLibrary</echo>
-						<delete dir="target/classes/com/excilys/ebi/gatling/charts/component/impl" />
-					</tasks>
+					<excludes>
+						<!-- Removing gatling-charts's dummy ComponentLibrary -->
+						<exclude>**/com/excilys/ebi/gatling/charts/component/impl/*</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -86,10 +79,10 @@
 					</execution>
 				</executions>
 			</plugin>
-            <plugin>
-                <groupId>com.mmakowski</groupId>
-                <artifactId>maven-specs2-plugin</artifactId>
-            </plugin>
-        </plugins>
+			<plugin>
+				<groupId>com.mmakowski</groupId>
+				<artifactId>maven-specs2-plugin</artifactId>
+			</plugin>
+		</plugins>
 	</build>
 </project>
