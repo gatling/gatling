@@ -51,7 +51,7 @@ import static org.codehaus.plexus.util.StringUtils.stripEnd;
  */
 public class GatlingMojo extends AbstractMojo {
 
-	public static final String[] DEFAULT_INCLUDES = { "**" + File.separator + "*.scala" };
+	public static final String[] DEFAULT_INCLUDES = { "**/*.scala" };
 
 	/**
 	 * Runs simulation but does not generate reports. By default false.
