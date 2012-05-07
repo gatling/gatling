@@ -58,7 +58,8 @@ class StatisticsHelperSpec extends Specification {
     val requestRecords: ListBuffer[RequestRecord] = new ListBuffer[RequestRecord]
     // Wolfram Alpha reports the following statistics for {2000, 4000, 4000, 4000, 5000, 5000, 7000, 9000}:
     //   average (mean): 5000
-    //   stddev: 2138
+    //   population stddev: 2000 - provided by Wikipedia & NeoOffice
+    //   sample stddev: 2138
     //   median: 4500
     // http://www.wolframalpha.com/input/?i=2000%2C+4000%2C+4000%2C+4000%2C+5000%2C+5000%2C+7000%2C+9000
     requestRecords + createRequestRecord(1000, 3000, 3500, 5000)
