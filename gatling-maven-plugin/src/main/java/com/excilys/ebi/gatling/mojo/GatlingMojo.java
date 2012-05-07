@@ -15,16 +15,8 @@
  */
 package com.excilys.ebi.gatling.mojo;
 
-import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
-import static java.util.Arrays.asList;
-import static org.codehaus.plexus.util.StringUtils.join;
-import static org.codehaus.plexus.util.StringUtils.stripEnd;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import com.excilys.ebi.gatling.ant.GatlingTask;
+import com.excilys.ebi.gatling.app.OptionsConstants;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
@@ -39,8 +31,15 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.Commandline;
 import org.apache.tools.ant.types.Path;
 
-import com.excilys.ebi.gatling.ant.GatlingTask;
-import com.excilys.ebi.gatling.app.OptionsConstants;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
+import static java.util.Arrays.asList;
+import static org.codehaus.plexus.util.StringUtils.join;
+import static org.codehaus.plexus.util.StringUtils.stripEnd;
 
 /**
  * Mojo to execute Gatling.
@@ -52,7 +51,7 @@ import com.excilys.ebi.gatling.app.OptionsConstants;
  */
 public class GatlingMojo extends AbstractMojo {
 
-	public static final String[] DEFAULT_INCLUDES = { "**/*.scala" };
+	public static final String[] DEFAULT_INCLUDES = { "**" + File.separator + "*.scala" };
 
 	/**
 	 * Runs simulation but does not generate reports. By default false.
@@ -264,7 +263,7 @@ public class GatlingMojo extends AbstractMojo {
 	}
 
 	protected String fileNametoClassName(String fileName) {
-		return stripEnd(fileName, ".scala").replace('/', '.');
+		return stripEnd(fileName, ".scala").replace(File.separatorChar, '.');
 	}
 
 	/**
@@ -274,6 +273,10 @@ public class GatlingMojo extends AbstractMojo {
 	 * @return a comma separated String of simulation class names.
 	 */
 	protected String resolveSimulations(File simulationsFolder, List<String> includes, List<String> excludes) {
+        getLog().debug("simulationsFolder: " + simulationsFolder.getPath());
+        getLog().debug("includes: " + includes);
+        getLog().debug("excludes: " + excludes);
+
 		DirectoryScanner scanner = new DirectoryScanner();
 
 		// Set Base Directory
@@ -286,10 +289,6 @@ public class GatlingMojo extends AbstractMojo {
 			scanner.setIncludes(DEFAULT_INCLUDES);
 		}
 
-		// Resolve excludes
-		if (excludes != null && !excludes.isEmpty()) {
-			scanner.setExcludes(excludes.toArray(new String[excludes.size()]));
-		}
 
 		// Resolve simulations to execute
 		scanner.scan();
@@ -301,7 +300,10 @@ public class GatlingMojo extends AbstractMojo {
 			includedClassNames.add(fileNametoClassName(includedFile));
 		}
 
-		return join(includedClassNames.iterator(), ",");
+        final String joinedIncludedClassnames = join(includedClassNames.iterator(), ",");
+        getLog().debug("scanner includes: " + joinedIncludedClassnames);
+
+        return joinedIncludedClassnames;
 	}
 
 	protected Project getProject() throws MojoExecutionException {
