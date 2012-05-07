@@ -98,10 +98,6 @@
 				<groupId>net.alchim31.maven</groupId>
 				<artifactId>scala-maven-plugin</artifactId>
 			</plugin>
-			<plugin>
-				<groupId>com.mmakowski</groupId>
-				<artifactId>maven-specs2-plugin</artifactId>
-			</plugin>
 		</plugins>
 	</build>
 </project>

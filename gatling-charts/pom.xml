@@ -79,10 +79,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>com.mmakowski</groupId>
-				<artifactId>maven-specs2-plugin</artifactId>
-			</plugin>
 		</plugins>
 	</build>
 </project>
