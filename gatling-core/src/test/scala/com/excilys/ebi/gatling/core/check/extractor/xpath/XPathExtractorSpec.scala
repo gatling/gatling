@@ -21,7 +21,7 @@ import com.excilys.ebi.gatling.core.check.extractor.xpath.XPathExtractorSpec.ext
 import scala.io.Source
 
 object XPathExtractorSpec {
-	val extractor = XPathExtractor(getClass.getResourceAsStream("/test.xml"))
+	def extractor = XPathExtractor(getClass.getResourceAsStream("/test.xml"))
 }
 
 @RunWith(classOf[JUnitRunner])
