@@ -273,13 +273,10 @@ public class GatlingMojo extends AbstractMojo {
 	 * @return a comma separated String of simulation class names.
 	 */
 	protected String resolveSimulations(File simulationsFolder, List<String> includes, List<String> excludes) {
-        getLog().debug("simulationsFolder: " + simulationsFolder.getPath());
-        getLog().debug("includes: " + includes);
-        getLog().debug("excludes: " + excludes);
-
 		DirectoryScanner scanner = new DirectoryScanner();
 
 		// Set Base Directory
+        getLog().debug("effective simulationsFolder: " + simulationsFolder.getPath());
 		scanner.setBasedir(simulationsFolder);
 
 		// Resolve includes
@@ -289,6 +286,10 @@ public class GatlingMojo extends AbstractMojo {
 			scanner.setIncludes(DEFAULT_INCLUDES);
 		}
 
+		// Resolve excludes
+		if (excludes != null && !excludes.isEmpty()) {
+			scanner.setExcludes(excludes.toArray(new String[excludes.size()]));
+		}
 
 		// Resolve simulations to execute
 		scanner.scan();
@@ -300,10 +301,9 @@ public class GatlingMojo extends AbstractMojo {
 			includedClassNames.add(fileNametoClassName(includedFile));
 		}
 
-        final String joinedIncludedClassnames = join(includedClassNames.iterator(), ",");
-        getLog().debug("scanner includes: " + joinedIncludedClassnames);
+        getLog().debug("resolved simulation classes: " + includedClassNames);
 
-        return joinedIncludedClassnames;
+        return join(includedClassNames.iterator(), ",");
 	}
 
 	protected Project getProject() throws MojoExecutionException {
