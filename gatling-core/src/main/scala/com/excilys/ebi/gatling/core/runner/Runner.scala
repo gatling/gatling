@@ -48,7 +48,7 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 
 	// Builds all scenarios
 	val scenarios = scenarioConfigurations.map { scenarioConfiguration =>
-		val protocolRegistry = new ProtocolConfigurationRegistry(scenarioConfiguration.protocolConfigurations)
+		val protocolRegistry = ProtocolConfigurationRegistry(scenarioConfiguration.protocolConfigurations)
 		scenarioConfiguration.scenarioBuilder.end(userLatch).build(protocolRegistry)
 	}
 

@@ -15,16 +15,31 @@
  */
 package com.excilys.ebi.gatling.core.config
 
+import grizzled.slf4j.Logging
+
+object ProtocolConfigurationRegistry extends Logging {
+
+	def apply(configurations: Seq[ProtocolConfiguration]): ProtocolConfigurationRegistry = {
+		val indexedConfigurations = configurations
+			.groupBy(_.protocolType)
+			.map {
+				case (protocolType, configs) =>
+					if (configs.length > 1) throw new ExceptionInInitializerError("Multiple configurations defined for propocol " + protocolType)
+					(protocolType -> configs.head)
+			}.toMap
+
+		new ProtocolConfigurationRegistry(indexedConfigurations)
+	}
+}
+
 /**
  * A placeholder for ProtocolConfigurations
  */
-class ProtocolConfigurationRegistry(configurations: Seq[ProtocolConfiguration]) {
-
-	private val map = configurations.map(protocol => (protocol.getProtocolType -> protocol)).toMap
+class ProtocolConfigurationRegistry(configurations: Map[String, ProtocolConfiguration]) {
 
 	/**
 	 * @param protocolType
 	 * @return a registered ProtocolConfiguration according to its type
 	 */
-	def getProtocolConfiguration(protocolType: String) = map.get(protocolType)
+	def getProtocolConfiguration(protocolType: String): Option[ProtocolConfiguration] = configurations.get(protocolType)
 }

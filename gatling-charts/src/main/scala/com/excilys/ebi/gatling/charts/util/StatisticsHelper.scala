@@ -34,6 +34,11 @@ object StatisticsHelper {
 
 	val averageLatency = averageTime(_.latency) _
 
+	/**
+	 * Compute the population standard deviation of the provided data.
+	 *
+	 * @param data is all the RequestRecords from a test run
+	 */
 	def responseTimeStandardDeviation(data: Seq[RequestRecord]): Long = {
 		val avg = averageResponseTime(data)
 		if (avg != NO_PLOT_MAGIC_VALUE) sqrt(data.map(result => pow(result.responseTime - avg, 2)).sum / data.length).toLong else NO_PLOT_MAGIC_VALUE
@@ -134,10 +139,10 @@ object StatisticsHelper {
 	def windowInPercentileRange(average: Long, limit: Double, records: Seq[RequestRecord]): (Long, Long) = {
 
 		val maxCount = (records.size * limit).toInt
-		val recordsSortedByDistanceToAverage = records.sortBy(record => abs(record.responseTime - average)).take(maxCount)
+		val recordsSortedByDistanceToAverage = records.sortBy(record => abs(record.responseTime - average))
 
-		var min = if (recordsSortedByDistanceToAverage.isEmpty) NO_PLOT_MAGIC_VALUE else recordsSortedByDistanceToAverage.minBy(_.responseTime).responseTime
-		var max = if (recordsSortedByDistanceToAverage.isEmpty) NO_PLOT_MAGIC_VALUE else recordsSortedByDistanceToAverage.maxBy(_.responseTime).responseTime
+		val min = if (recordsSortedByDistanceToAverage.isEmpty) NO_PLOT_MAGIC_VALUE else recordsSortedByDistanceToAverage.takeRight(maxCount).minBy(_.responseTime).responseTime
+		val max = if (recordsSortedByDistanceToAverage.isEmpty) NO_PLOT_MAGIC_VALUE else recordsSortedByDistanceToAverage.take(maxCount).maxBy(_.responseTime).responseTime
 
 		(min, max)
 	}

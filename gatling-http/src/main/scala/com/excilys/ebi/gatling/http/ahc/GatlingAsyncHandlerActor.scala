@@ -48,33 +48,33 @@ object GatlingAsyncHandlerActor {
 
 class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], next: ActorRef, var requestName: String, var request: Request, followRedirect: Boolean) extends Actor with Logging with CookieHandling {
 
-	var requestStartDate = currentTimeMillis
-	var endOfRequestSendingDate = 0L
-	var startOfResponseReceivingDate = 0L
-	var responseEndDate = 0L
+	var executionStartDate = currentTimeMillis
+	var requestSendingEndDate = 0L
+	var responseReceivingStartDate = 0L
+	var executionEndDate = 0L
 
 	def receive = {
-		case OnHeaderWriteCompleted(time) => endOfRequestSendingDate = time
+		case OnHeaderWriteCompleted(time) => requestSendingEndDate = time
 
-		case OnContentWriteCompleted(time) => endOfRequestSendingDate = time
+		case OnContentWriteCompleted(time) => requestSendingEndDate = time
 
-		case OnStatusReceived(time) => startOfResponseReceivingDate = time
+		case OnStatusReceived(time) => responseReceivingStartDate = time
 
 		case OnCompleted(response, time) =>
-			responseEndDate = time
+			executionEndDate = time
 			processResponse(response)
 
 		case OnThrowable(errorMessage, time) =>
-			endOfRequestSendingDate = if (endOfRequestSendingDate != 0L) endOfRequestSendingDate else time
-			startOfResponseReceivingDate = if (startOfResponseReceivingDate != 0L) startOfResponseReceivingDate else time
-			responseEndDate = if (responseEndDate != 0L) responseEndDate else time
+			requestSendingEndDate = if (requestSendingEndDate != 0L) requestSendingEndDate else time
+			responseReceivingStartDate = if (responseReceivingStartDate != 0L) responseReceivingStartDate else time
+			executionEndDate = if (executionEndDate != 0L) executionEndDate else time
 			logRequest(KO, errorMessage)
 			executeNext(session)
 
 		case m => throw new IllegalArgumentException("Unknown message type " + m)
 	}
 
-	private def logRequest(requestResult: RequestStatus, requestMessage: String = "Request executed successfully") = DataWriter.logRequest(session.scenarioName, session.userId, "Request " + requestName, requestStartDate, responseEndDate, endOfRequestSendingDate, endOfRequestSendingDate, requestResult, requestMessage)
+	private def logRequest(requestResult: RequestStatus, requestMessage: String = "Request executed successfully") = DataWriter.logRequest(session.scenarioName, session.userId, "Request " + requestName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, requestResult, requestMessage)
 
 	/**
 	 * This method is used to send a message to the data writer actor and then execute the next action
@@ -82,7 +82,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 	 * @param session the new Session
 	 */
 	private def executeNext(newSession: Session) {
-		next ! newSession.setAttribute(Session.LAST_ACTION_DURATION_KEY, currentTimeMillis - responseEndDate)
+		next ! newSession.setAttribute(Session.LAST_ACTION_DURATION_KEY, currentTimeMillis - executionEndDate)
 		context.stop(self)
 	}
 
@@ -97,10 +97,10 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 				this.session = newSession
 				this.requestName = newRequestName
 				this.request = newRequest
-				this.requestStartDate = currentTimeMillis
-				this.endOfRequestSendingDate = 0L
-				this.startOfResponseReceivingDate = 0L
-				this.responseEndDate = 0L
+				this.executionStartDate = currentTimeMillis
+				this.requestSendingEndDate = 0L
+				this.responseReceivingStartDate = 0L
+				this.executionEndDate = 0L
 			}
 
 			logRequest(OK)
