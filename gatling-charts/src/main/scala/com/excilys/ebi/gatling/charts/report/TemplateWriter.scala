@@ -18,9 +18,11 @@ import java.io.FileWriter
 
 import scala.tools.nsc.io.{ Path, File }
 
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
 
 class TemplateWriter(val path: Path) {
-	def writeToFile(output: String) = use(new FileWriter(File(path))) { _.write(output) }
+	
+	def writeToFile(output: String) = use(new FileWriter(File(path)(configuration.encoding))) { _.write(output) }
 }
