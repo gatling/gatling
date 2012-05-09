@@ -32,7 +32,7 @@ class ProtocolConfigurationRegistrySpec extends Specification {
 			ProtocolConfigurationRegistry(List(newConfig("foo"))).getProtocolConfiguration("foo") must beSome.which(_.protocolType == "foo")
 		}
 
-		"return the configurations when 2 different configuration" in {
+		"return the configurations when 2 different configurations" in {
 			val registry = ProtocolConfigurationRegistry(List(newConfig("foo"), newConfig("bar")))
 			registry.getProtocolConfiguration("foo") must beSome.which(_.protocolType == "foo")
 			registry.getProtocolConfiguration("bar") must beSome.which(_.protocolType == "bar")
