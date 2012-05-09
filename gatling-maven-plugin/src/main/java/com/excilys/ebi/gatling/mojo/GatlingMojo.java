@@ -264,7 +264,7 @@ public class GatlingMojo extends AbstractMojo {
 	}
 
 	protected String fileNametoClassName(String fileName) {
-		return stripEnd(fileName, ".scala").replace('/', '.');
+		return stripEnd(fileName, ".scala").replace(File.separatorChar, '.');
 	}
 
 	/**
@@ -277,6 +277,7 @@ public class GatlingMojo extends AbstractMojo {
 		DirectoryScanner scanner = new DirectoryScanner();
 
 		// Set Base Directory
+		getLog().debug("effective simulationsFolder: " + simulationsFolder.getPath());
 		scanner.setBasedir(simulationsFolder);
 
 		// Resolve includes
@@ -301,6 +302,7 @@ public class GatlingMojo extends AbstractMojo {
 			includedClassNames.add(fileNametoClassName(includedFile));
 		}
 
+		getLog().debug("resolved simulation classes: " + includedClassNames);
 		return join(includedClassNames.iterator(), ",");
 	}
 
