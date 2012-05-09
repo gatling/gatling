@@ -15,16 +15,13 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import java.io.FileWriter
-
 import scala.io.Codec.string2codec
 import scala.tools.nsc.io.{ Path, File }
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.util.IOHelper.use
-import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
 
 class TemplateWriter(path: Path) {
 
-	def writeToFile(output: String) = use(new FileWriter(File(path)(configuration.encoding))) { _.write(output) }
+	def writeToFile(output: String) = use(File(path)(configuration.encoding).writer) { _.write(output) }
 }
