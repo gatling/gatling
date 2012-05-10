@@ -73,7 +73,7 @@ public class Configuration {
 	private String outputFolder = System.getenv("GATLING_HOME") + File.separator + "user-files" + File.separator + "simulations";
 	private boolean saveConfiguration;
 	private String encoding = "UTF-8";
-	private String requestBodiesFolder = System.getenv("GATLING_HOME") + File.separator + "user-files" + File.separator + "requests-bodies";
+	private String requestBodiesFolder = System.getenv("GATLING_HOME") + File.separator + "user-files" + File.separator + "request-bodies";
 	private String simulationPackage = EMPTY;
 	private String simulationClassName = "Simulation";
 
