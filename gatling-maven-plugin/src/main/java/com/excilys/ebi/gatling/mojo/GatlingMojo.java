@@ -264,7 +264,7 @@ public class GatlingMojo extends AbstractMojo {
 	}
 
 	protected String fileNametoClassName(String fileName) {
-		return stripEnd(fileName, ".scala").replace(File.separatorChar, '.');
+		return fileName.substring(0, fileName.lastIndexOf('.')).replace(File.separatorChar, '.');
 	}
 
 	/**
