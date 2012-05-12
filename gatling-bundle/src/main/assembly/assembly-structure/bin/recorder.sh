@@ -30,4 +30,4 @@ JAVA_OPTS="-server -XX:+UseThreadPriorities -XX:ThreadPriorityPolicy=42 -Xms512M
 
 CLASSPATH="$GATLING_HOME/lib/*:$GATLING_CONF:${JAVA_CLASSPATH}"
 
-java $JAVA_OPTS -cp $CLASSPATH com.excilys.ebi.gatling.recorder.ui.GatlingHttpProxyUI $@
+java $JAVA_OPTS -cp $CLASSPATH com.excilys.ebi.gatling.recorder.GatlingRecorder $@

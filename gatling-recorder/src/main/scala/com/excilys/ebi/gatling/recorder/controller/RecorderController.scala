@@ -1,0 +1,196 @@
+/**
+ * Copyright 2011-2012 eBusiness Information, Groupe Excilys (www.excilys.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * 		http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.excilys.ebi.gatling.recorder.controller
+
+import java.awt.EventQueue
+import java.net.URI
+import java.util.Date
+
+import scala.math.round
+import scala.tools.nsc.io.Path.string2path
+import scala.tools.nsc.io.Directory
+
+import org.codehaus.plexus.util.SelectorUtils
+import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
+import org.jboss.netty.handler.codec.http.HttpMethod
+import org.jboss.netty.handler.codec.http.HttpRequest
+import org.jboss.netty.handler.codec.http.HttpResponse
+
+import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
+import com.excilys.ebi.gatling.recorder.config.Configuration
+import com.excilys.ebi.gatling.recorder.config.Options
+import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy
+import com.excilys.ebi.gatling.recorder.scenario.PauseElement
+import com.excilys.ebi.gatling.recorder.scenario.PauseUnit
+import com.excilys.ebi.gatling.recorder.scenario.RequestElement
+import com.excilys.ebi.gatling.recorder.scenario.ScenarioElement
+import com.excilys.ebi.gatling.recorder.scenario.ScenarioExporter
+import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy
+import com.excilys.ebi.gatling.recorder.ui.enumeration.PatternType
+import com.excilys.ebi.gatling.recorder.ui.frame.ConfigurationFrame
+import com.excilys.ebi.gatling.recorder.ui.frame.RunningFrame
+import com.excilys.ebi.gatling.recorder.ui.info.PauseInfo
+import com.excilys.ebi.gatling.recorder.ui.info.RequestInfo
+import com.excilys.ebi.gatling.recorder.ui.info.SSLInfo
+import com.ning.http.util.Base64
+
+import grizzled.slf4j.Logging
+
+object RecorderController extends Logging {
+	private val runningFrame: RunningFrame = new RunningFrame
+	private val configurationFrame: ConfigurationFrame = new ConfigurationFrame
+
+	private var startDate: Date = null
+	private var lastRequestDate: Date = null
+
+	private var scenarioElements = List[ScenarioElement]()
+	
+	def apply(options: Options) {
+		Configuration(options)
+		configurationFrame.populateItemsFromConfiguration(configuration)
+		showConfigurationFrame
+	}
+
+	def startRecording {
+		GatlingHttpProxy(configuration.port, configuration.sslPort, configuration.proxy)
+
+		startDate = new Date
+
+		showRunningFrame
+	}
+
+	def stopRecording {
+		GatlingHttpProxy.shutdown
+
+		// Save Scenario to Disk only if there are recorded elements
+		if(!scenarioElements.isEmpty)
+			ScenarioExporter.saveScenario(startDate, scenarioElements.reverse)
+
+		clearRecorderState
+
+		showConfigurationFrame
+	}
+	
+	def receiveRequest(request: HttpRequest) {
+		// If Outgoing Proxy set, we record the credentials to use them when sending the request
+		Option(request.getHeader(PROXY_AUTHORIZATION)).map { header =>
+			// Split on " " and take 2nd group (Basic credentialsInBase64==)
+			val credentials = new String(Base64.decode(header.split(" ")(1))).split(":")
+			configuration.proxy.username = Some(credentials(0))
+			configuration.proxy.password = Some(credentials(1))
+		}
+	}
+
+	def receiveResponse(request: HttpRequest, response: HttpResponse) {
+		if (isRequestToBeAdded(request)) {
+			processRequest(request, response)
+			
+			// Pause calculation
+			if (lastRequestDate != null) {
+				val newRequestDate = new Date
+				val diff = newRequestDate.getTime - lastRequestDate.getTime
+				if(diff > 10){
+					
+					val pauseValueAndUnit = 
+						if(diff > 1000) 
+							(round(diff / 1000).toLong, PauseUnit.SECONDS)
+						else
+							(diff, PauseUnit.MILLISECONDS)
+					
+					lastRequestDate = newRequestDate
+					EventQueue.invokeLater(new Runnable() {
+						def run {
+							runningFrame.receiveEventInfo(new PauseInfo(pauseValueAndUnit._1, pauseValueAndUnit._2))
+						}
+					})
+					scenarioElements = new PauseElement(pauseValueAndUnit._1, pauseValueAndUnit._2) :: scenarioElements
+				}
+			} else {
+				lastRequestDate = new Date
+			}
+		}
+	}
+
+	def secureConnection(securedHostURI: URI) {
+		EventQueue.invokeLater(new Runnable() {
+			def run {
+				runningFrame.receiveEventInfo(new SSLInfo(securedHostURI.toString))
+			}
+		})
+	}
+
+	private def showRunningFrame {
+		runningFrame.setVisible(true)
+		configurationFrame.setVisible(false)
+	}
+
+	private def showConfigurationFrame {
+		configurationFrame.setVisible(true)
+		runningFrame.setVisible(false)
+	}
+
+	def clearRecorderState {
+		runningFrame.clearState
+
+		scenarioElements = Nil
+		startDate = new Date
+		lastRequestDate = null
+	}
+
+	private def isRequestToBeAdded(request: HttpRequest): Boolean = {
+		val uri = new URI(request.getUri)
+		if(Array(HttpMethod.POST, HttpMethod.GET, HttpMethod.PUT, HttpMethod.DELETE).contains(request.getMethod)) {
+			if (configuration.filterStrategy != FilterStrategy.NONE) {
+
+				val uriMatched = (for (configPattern <- configuration.patterns) yield {
+					val pattern = configPattern.patternType match {
+						case PatternType.ANT => SelectorUtils.ANT_HANDLER_PREFIX
+						case PatternType.JAVA => SelectorUtils.REGEX_HANDLER_PREFIX
+					}
+					
+					SelectorUtils.matchPath(pattern + configPattern.pattern + SelectorUtils.PATTERN_HANDLER_SUFFIX, uri.getPath)
+				}).foldLeft(false)(_ || _)
+				
+				if(configuration.filterStrategy == FilterStrategy.ONLY)
+					uriMatched
+				else
+					!uriMatched
+			} else
+				true
+		} else
+			false
+
+	}
+
+	private def getFolder(folderName: String, folderPath: String): Directory = Directory(folderPath).createDirectory()
+
+	private def getOutputFolder = getFolder("output", configuration.outputFolder)
+
+	private def processRequest(request: HttpRequest, response: HttpResponse) {
+
+		// Store request in scenario elements
+		scenarioElements = new RequestElement(request, response.getStatus.getCode, None) :: scenarioElements
+
+		// Send request information to view
+		EventQueue.invokeLater(new Runnable() {
+			def run {
+				runningFrame.receiveEventInfo(new RequestInfo(request, response))
+			}
+		})
+	}
+
+	
+}

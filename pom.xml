@@ -96,7 +96,6 @@
 		<joda-convert.version>1.2</joda-convert.version>
 		<velocity.version>1.7</velocity.version>
 		<xstream.version>1.4.2</xstream.version>
-		<commons-lang.version>2.6</commons-lang.version>
 		<commons-io.version>2.3</commons-io.version>
 		<guava.version>11.0.2</guava.version>
 		<plexus.version>3.0</plexus.version>
@@ -281,11 +280,6 @@
 						<groupId>xmlpull</groupId>
 					</exclusion>
 				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>commons-lang</groupId>
-				<artifactId>commons-lang</artifactId>
-				<version>${commons-lang.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-io</groupId>
