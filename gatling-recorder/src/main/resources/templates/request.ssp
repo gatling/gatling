@@ -1,0 +1,31 @@
+<%@ val method: String %>
+<%@ val printedUrl: String %>
+<%@ val queryParams: List[(String, String)] %>
+<%@ val params: List[(String, String)] %>
+<%@ val hasBody: Boolean %> 
+<%@ val statusCode: Int %>
+<%@ val id: Int %>
+<%@ val credentials: Option[(String,String)] %>
+<%@ val simulationClass: String %>
+
+			.exec(
+				http("request_<%= id %>")
+					.<%= method.toLowerCase %>("<%= printedUrl %>")
+					.headers(headers_<%= id %>)
+<% for (queryParam <- queryParams) { %>
+					.queryParam("""<%= queryParam._1 %>""", """<%= queryParam._2 %>""")
+<% } %>
+<% for (param <- params) { %>
+					.param("""<%= param._1 %>""", """<%= param._2 %>""")
+<% } %>
+<% if(hasBody) { %>
+					.fileBody("<%= simulationClass %>_request_<%= id %>.txt")
+<% } %>
+<% credentials.map { case (username, password) => %>
+					.basicAuth("""<%= username %>""","""<%= password %>""")
+<% } %>
+<% if(statusCode > 210 || statusCode < 200){ %>
+					.check(status.is(<%= statusCode %>))
+<% } %>
+			)
+			

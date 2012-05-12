@@ -16,7 +16,6 @@
 package org.jboss.netty.example.securechat;
 
 import java.io.IOException;
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.Security;
