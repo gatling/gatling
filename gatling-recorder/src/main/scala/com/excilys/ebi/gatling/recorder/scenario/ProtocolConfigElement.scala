@@ -21,14 +21,14 @@ class ProtocolConfigElement(baseUrl: String, proxy: ProxyConfig, followRedirect:
 	override def toString = {
 		val sb = new StringBuilder
 		sb.append(".baseURL(\"").append(baseUrl).append("\")")
-		if ( proxy.host.isDefined && proxy.port.isDefined ) {
+		if (proxy.host.isDefined && proxy.port.isDefined) {
 			sb.append(".proxy(").append(proxy.host.get).append(", ").append(proxy.port.get).append(")")
-			if ( proxy.sslPort.isDefined )
+			if (proxy.sslPort.isDefined)
 				sb.append(".httpsPort(").append(proxy.sslPort.get).append(")")
 		}
-		if ( proxy.hasCredentials )
+		if (proxy.hasCredentials)
 			sb.append(".credentials(").append(proxy.username.get).append(", ").append(proxy.password.get).append(")")
-		if ( followRedirect )
+		if (followRedirect)
 			sb.append(".followRedirect")
 		sb.toString
 	}

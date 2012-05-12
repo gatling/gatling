@@ -16,8 +16,7 @@
 package com.excilys.ebi.gatling.recorder.ui;
 
 import java.awt.Image
-import java.util.ArrayList
-import java.util.List
+import java.util.{ List, ArrayList }
 
 import javax.swing.ImageIcon
 
@@ -33,7 +32,7 @@ object Commons {
 	private val imageList = new ArrayList[Image]
 
 	val GATLING_RECORDER_FILE_NAME = "gatling-recorder.ini"
-	
+
 	imageList.add(favSmall.getImage)
 	imageList.add(favBig.getImage)
 	imageList.add(pictoSmall.getImage)

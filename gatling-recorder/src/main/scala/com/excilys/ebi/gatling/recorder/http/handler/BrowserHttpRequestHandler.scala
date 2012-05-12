@@ -15,11 +15,9 @@
  */
 package com.excilys.ebi.gatling.recorder.http.handler;
 
-import java.net.InetSocketAddress
-import java.net.URI
+import java.net.{ URI, InetSocketAddress }
 
-import org.jboss.netty.channel.ChannelFuture
-import org.jboss.netty.channel.ChannelHandlerContext
+import org.jboss.netty.channel.{ ChannelHandlerContext, ChannelFuture }
 import org.jboss.netty.handler.codec.http.HttpRequest
 
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
@@ -31,12 +29,16 @@ class BrowserHttpRequestHandler(proxyConfig: ProxyConfig) extends AbstractBrowse
 
 		val bootstrap = bootstrapFactory.newClientBootstrap(ctx, request, false)
 
-		if(outgoingProxyHost.isDefined && outgoingProxyPort.isDefined) {
-			bootstrap.connect(new InetSocketAddress(outgoingProxyHost.get, outgoingProxyPort.get))
-		} else {
-			val uri = new URI(request.getUri)
-			val port = if(uri.getPort == -1) 80 else uri.getPort
-			bootstrap.connect(new InetSocketAddress(uri.getHost, port))
-		}
+		val (proxyHost, proxyPort) = (for {
+			host <- outgoingProxyHost
+			port <- outgoingProxyPort
+		} yield (host, port))
+			.getOrElse {
+				val uri = new URI(request.getUri)
+				val port = if (uri.getPort == -1) 80 else uri.getPort
+				(uri.getHost, port)
+			}
+
+		bootstrap.connect(new InetSocketAddress(proxyHost, proxyPort))
 	}
 }

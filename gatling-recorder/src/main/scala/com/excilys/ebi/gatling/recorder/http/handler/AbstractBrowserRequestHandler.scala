@@ -15,26 +15,20 @@
  */
 package com.excilys.ebi.gatling.recorder.http.handler;
 
-import org.jboss.netty.channel.ChannelFuture
-import org.jboss.netty.channel.ChannelFutureListener
-import org.jboss.netty.channel.ChannelHandlerContext
-import org.jboss.netty.channel.ExceptionEvent
-import org.jboss.netty.channel.MessageEvent
-import org.jboss.netty.channel.SimpleChannelHandler
-import org.jboss.netty.handler.codec.http.HttpRequest
-import org.jboss.netty.handler.codec.http.DefaultHttpRequest
+import java.net.URI
+
+import scala.collection.JavaConversions.asScalaBuffer
+
+import org.jboss.netty.channel.{ SimpleChannelHandler, MessageEvent, ExceptionEvent, ChannelHandlerContext, ChannelFutureListener, ChannelFuture }
+import org.jboss.netty.handler.codec.http.{ HttpRequest, DefaultHttpRequest }
 
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy
 
-import scala.collection.JavaConversions._
-
 import grizzled.slf4j.Logging
 
-import java.net.URI
-
-abstract class AbstractBrowserRequestHandler(val outgoingProxyHost: Option[String], val outgoingProxyPort: Option[Int]) 
-	extends SimpleChannelHandler with Logging {
+abstract class AbstractBrowserRequestHandler(val outgoingProxyHost: Option[String], val outgoingProxyPort: Option[Int])
+		extends SimpleChannelHandler with Logging {
 
 	override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent) {
 
@@ -43,7 +37,7 @@ abstract class AbstractBrowserRequestHandler(val outgoingProxyHost: Option[Strin
 		val request = event.getMessage.asInstanceOf[HttpRequest]
 
 		// remove Proxy-Connection header if it's not significant
-		if(outgoingProxyHost.isEmpty){
+		if (outgoingProxyHost.isEmpty) {
 			request.removeHeader("Proxy-Connection")
 		}
 
@@ -73,7 +67,7 @@ abstract class AbstractBrowserRequestHandler(val outgoingProxyHost: Option[Strin
 				def operationComplete(future: ChannelFuture) = future.getChannel.write(buildRequestWithRelativeURI(request))
 			})
 	}
-	
+
 	private def buildRequestWithRelativeURI(request: HttpRequest) = {
 		val uri = new URI(request.getUri)
 		val newUri = new URI(null, null, null, -1, uri.getPath, uri.getQuery, uri.getFragment).toString

@@ -25,26 +25,15 @@ import scala.tools.nsc.io.Directory
 
 import org.codehaus.plexus.util.SelectorUtils
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
-import org.jboss.netty.handler.codec.http.HttpMethod
-import org.jboss.netty.handler.codec.http.HttpRequest
-import org.jboss.netty.handler.codec.http.HttpResponse
+import org.jboss.netty.handler.codec.http.{ HttpResponse, HttpRequest, HttpMethod }
 
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
-import com.excilys.ebi.gatling.recorder.config.Configuration
-import com.excilys.ebi.gatling.recorder.config.Options
+import com.excilys.ebi.gatling.recorder.config.{ Options, Configuration }
 import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy
-import com.excilys.ebi.gatling.recorder.scenario.PauseElement
-import com.excilys.ebi.gatling.recorder.scenario.PauseUnit
-import com.excilys.ebi.gatling.recorder.scenario.RequestElement
-import com.excilys.ebi.gatling.recorder.scenario.ScenarioElement
-import com.excilys.ebi.gatling.recorder.scenario.ScenarioExporter
-import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy
-import com.excilys.ebi.gatling.recorder.ui.enumeration.PatternType
-import com.excilys.ebi.gatling.recorder.ui.frame.ConfigurationFrame
-import com.excilys.ebi.gatling.recorder.ui.frame.RunningFrame
-import com.excilys.ebi.gatling.recorder.ui.info.PauseInfo
-import com.excilys.ebi.gatling.recorder.ui.info.RequestInfo
-import com.excilys.ebi.gatling.recorder.ui.info.SSLInfo
+import com.excilys.ebi.gatling.recorder.scenario.{ ScenarioExporter, ScenarioElement, RequestElement, PauseUnit, PauseElement }
+import com.excilys.ebi.gatling.recorder.ui.enumeration.{ PatternType, FilterStrategy }
+import com.excilys.ebi.gatling.recorder.ui.frame.{ RunningFrame, ConfigurationFrame }
+import com.excilys.ebi.gatling.recorder.ui.info.{ SSLInfo, RequestInfo, PauseInfo }
 import com.ning.http.util.Base64
 
 import grizzled.slf4j.Logging
@@ -57,7 +46,7 @@ object RecorderController extends Logging {
 	private var lastRequestDate: Date = null
 
 	private var scenarioElements = List[ScenarioElement]()
-	
+
 	def apply(options: Options) {
 		Configuration(options)
 		configurationFrame.populateItemsFromConfiguration(configuration)
@@ -76,14 +65,14 @@ object RecorderController extends Logging {
 		GatlingHttpProxy.shutdown
 
 		// Save Scenario to Disk only if there are recorded elements
-		if(!scenarioElements.isEmpty)
+		if (!scenarioElements.isEmpty)
 			ScenarioExporter.saveScenario(startDate, scenarioElements.reverse)
 
 		clearRecorderState
 
 		showConfigurationFrame
 	}
-	
+
 	def receiveRequest(request: HttpRequest) {
 		// If Outgoing Proxy set, we record the credentials to use them when sending the request
 		Option(request.getHeader(PROXY_AUTHORIZATION)).map { header =>
@@ -97,19 +86,19 @@ object RecorderController extends Logging {
 	def receiveResponse(request: HttpRequest, response: HttpResponse) {
 		if (isRequestToBeAdded(request)) {
 			processRequest(request, response)
-			
+
 			// Pause calculation
 			if (lastRequestDate != null) {
 				val newRequestDate = new Date
 				val diff = newRequestDate.getTime - lastRequestDate.getTime
-				if(diff > 10){
-					
-					val pauseValueAndUnit = 
-						if(diff > 1000) 
+				if (diff > 10) {
+
+					val pauseValueAndUnit =
+						if (diff > 1000)
 							(round(diff / 1000).toLong, PauseUnit.SECONDS)
 						else
 							(diff, PauseUnit.MILLISECONDS)
-					
+
 					lastRequestDate = newRequestDate
 					EventQueue.invokeLater(new Runnable() {
 						def run {
@@ -127,7 +116,7 @@ object RecorderController extends Logging {
 	def secureConnection(securedHostURI: URI) {
 		EventQueue.invokeLater(new Runnable() {
 			def run {
-				runningFrame.receiveEventInfo(new SSLInfo(securedHostURI.toString))
+				runningFrame.receiveEventInfo(SSLInfo(securedHostURI.toString))
 			}
 		})
 	}
@@ -152,7 +141,7 @@ object RecorderController extends Logging {
 
 	private def isRequestToBeAdded(request: HttpRequest): Boolean = {
 		val uri = new URI(request.getUri)
-		if(Array(HttpMethod.POST, HttpMethod.GET, HttpMethod.PUT, HttpMethod.DELETE).contains(request.getMethod)) {
+		if (Vector(HttpMethod.POST, HttpMethod.GET, HttpMethod.PUT, HttpMethod.DELETE).contains(request.getMethod)) {
 			if (configuration.filterStrategy != FilterStrategy.NONE) {
 
 				val uriMatched = (for (configPattern <- configuration.patterns) yield {
@@ -160,11 +149,11 @@ object RecorderController extends Logging {
 						case PatternType.ANT => SelectorUtils.ANT_HANDLER_PREFIX
 						case PatternType.JAVA => SelectorUtils.REGEX_HANDLER_PREFIX
 					}
-					
+
 					SelectorUtils.matchPath(pattern + configPattern.pattern + SelectorUtils.PATTERN_HANDLER_SUFFIX, uri.getPath)
 				}).foldLeft(false)(_ || _)
-				
-				if(configuration.filterStrategy == FilterStrategy.ONLY)
+
+				if (configuration.filterStrategy == FilterStrategy.ONLY)
 					uriMatched
 				else
 					!uriMatched
@@ -191,6 +180,4 @@ object RecorderController extends Logging {
 			}
 		})
 	}
-
-	
 }

@@ -15,34 +15,17 @@
  */
 package com.excilys.ebi.gatling.recorder.ui.frame;
 
-import java.awt.event.ActionEvent
-import java.awt.event.ActionListener
-import java.awt.BorderLayout
-import java.awt.Dimension
-import java.awt.FlowLayout
+import java.awt.event.{ ActionListener, ActionEvent }
+import java.awt.{ FlowLayout, Dimension, BorderLayout }
 
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.ui.component.TextAreaPanel
-import com.excilys.ebi.gatling.recorder.ui.info.EventInfo
-import com.excilys.ebi.gatling.recorder.ui.info.PauseInfo
-import com.excilys.ebi.gatling.recorder.ui.info.RequestInfo
-import com.excilys.ebi.gatling.recorder.ui.info.SSLInfo
-import com.excilys.ebi.gatling.recorder.ui.info.TagInfo
+import com.excilys.ebi.gatling.recorder.ui.info.{ TagInfo, SSLInfo, RequestInfo, PauseInfo, EventInfo }
 import com.excilys.ebi.gatling.recorder.ui.Commons
 
-import javax.swing.event.ListSelectionEvent
-import javax.swing.event.ListSelectionListener
-import javax.swing.BorderFactory
-import javax.swing.DefaultListModel
-import javax.swing.JButton
-import javax.swing.JFrame
-import javax.swing.JLabel
-import javax.swing.JList
-import javax.swing.JPanel
-import javax.swing.JScrollPane
-import javax.swing.JSplitPane
-import javax.swing.JTextField
+import javax.swing.event.{ ListSelectionListener, ListSelectionEvent }
+import javax.swing.{ JTextField, JSplitPane, JScrollPane, JPanel, JList, JLabel, JFrame, JButton, DefaultListModel, BorderFactory }
 
 class RunningFrame extends JFrame {
 
@@ -54,10 +37,10 @@ class RunningFrame extends JFrame {
 
 	private val eventsInfo = new DefaultListModel
 	private val hostsCertificate = new DefaultListModel
-	
+
 	private val eventsInfoJList = new JList(eventsInfo)
 	private val requiredHostsCertificate = new JList(hostsCertificate)
-	
+
 	private val requestHeadersInfo = new TextAreaPanel("Summary")
 	private val responseHeadersInfo = new TextAreaPanel("Summary")
 	private val requestBodyInfo = new TextAreaPanel("Body")
@@ -69,46 +52,46 @@ class RunningFrame extends JFrame {
 	setMinimumSize(new Dimension(1024, 830))
 	setLocationRelativeTo(null)
 	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
-	
+
 	setIconImages(Commons.getIconList)
 
 	/* Top Panel */
 	val topPanel = new JPanel(new BorderLayout)
 	topPanel.setBorder(BorderFactory.createTitledBorder("Controls"))
-	
+
 	val tagPanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
 	tagPanel.add(new JLabel("Tag :"))
 	tagPanel.add(txtTag)
 	tagPanel.add(btnTag)
-	
+
 	val clearPanel = new JPanel(new FlowLayout(FlowLayout.CENTER))
 	clearPanel.add(btnClear)
-	
+
 	val stopPanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
 	stopPanel.add(btnStop)
 
 	topPanel.add(tagPanel, BorderLayout.WEST)
 	topPanel.add(clearPanel, BorderLayout.CENTER)
 	topPanel.add(stopPanel, BorderLayout.EAST)
-	
+
 	/* Center Panel */
 	val centerPanel = new JPanel(new BorderLayout)
-	
+
 	val elementsPanel = new JPanel(new BorderLayout)
 	elementsPanel.setBorder(BorderFactory.createTitledBorder("Executed Events"))
 	elementsPanel.add(new JScrollPane(eventsInfoJList), BorderLayout.CENTER)
-	
-	val defaultDimension = new Dimension(472,150)
-	
+
+	val defaultDimension = new Dimension(472, 150)
+
 	requestHeadersInfo.setPreferredSize(defaultDimension)
 	responseHeadersInfo.setPreferredSize(defaultDimension)
 	requestBodyInfo.setPreferredSize(defaultDimension)
 	responseBodyInfo.setPreferredSize(defaultDimension)
-	
+
 	val requestInformationPanel = new JPanel(new BorderLayout)
 	requestInformationPanel.setBorder(BorderFactory.createTitledBorder("Request Information"))
 	requestInformationPanel.add(new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(requestHeadersInfo), new JScrollPane(requestBodyInfo)), BorderLayout.CENTER)
-	
+
 	val responseInformationPanel = new JPanel(new BorderLayout)
 	responseInformationPanel.setBorder(BorderFactory.createTitledBorder("Response Information"))
 	responseInformationPanel.add(new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(responseHeadersInfo), new JScrollPane(responseBodyInfo)), BorderLayout.CENTER)
@@ -116,23 +99,23 @@ class RunningFrame extends JFrame {
 	centerPanel.add(elementsPanel, BorderLayout.NORTH)
 	centerPanel.add(requestInformationPanel, BorderLayout.WEST)
 	centerPanel.add(responseInformationPanel, BorderLayout.EAST)
-	
+
 	/* Bottom Panel */
-	
+
 	val bottomPanel = new JPanel(new BorderLayout)
 	bottomPanel.setBorder(BorderFactory.createTitledBorder("Secured hosts requiring accepting a certificate:"))
-	
+
 	val panelHostsCertificate = new JScrollPane(requiredHostsCertificate)
 
 	bottomPanel.add(panelHostsCertificate, BorderLayout.CENTER)
-	
+
 	/* Layout */
 	add(topPanel, BorderLayout.NORTH)
 	add(centerPanel, BorderLayout.CENTER)
 	add(bottomPanel, BorderLayout.SOUTH)
 
 	setListeners
-	
+
 	private def setListeners {
 		/* Listeners */
 		btnTag.addActionListener(new ActionListener {
@@ -145,9 +128,9 @@ class RunningFrame extends JFrame {
 				}
 			}
 		});
-		
-		eventsInfoJList.addListSelectionListener(new ListSelectionListener(){
-			override def valueChanged(e: ListSelectionEvent){
+
+		eventsInfoJList.addListSelectionListener(new ListSelectionListener() {
+			override def valueChanged(e: ListSelectionEvent) {
 				if (eventsInfoJList.getSelectedIndex() >= 0) {
 					val obj = eventsInfo.get(eventsInfoJList.getSelectedIndex());
 					if (obj.isInstanceOf[RequestInfo]) {
@@ -196,8 +179,8 @@ class RunningFrame extends JFrame {
 		responseBodyInfo.txt.setText(EMPTY)
 		eventsInfo.clear
 	}
-	
-	def receiveEventInfo(eventInfo: EventInfo){
+
+	def receiveEventInfo(eventInfo: EventInfo) {
 		eventInfo match {
 			case pauseInfo: PauseInfo =>
 				eventsInfo.addElement(pauseInfo)
@@ -205,9 +188,7 @@ class RunningFrame extends JFrame {
 			case requestInfo: RequestInfo =>
 				eventsInfo.addElement(requestInfo)
 				eventsInfoJList.ensureIndexIsVisible(eventsInfo.getSize - 1)
-			case sslInfo: SSLInfo =>
-				if (!hostsCertificate.contains(sslInfo.uri))
-					hostsCertificate.addElement(sslInfo.uri)
+			case SSLInfo(uri) if (!hostsCertificate.contains(uri)) => hostsCertificate.addElement(uri)
 		}
 	}
 }

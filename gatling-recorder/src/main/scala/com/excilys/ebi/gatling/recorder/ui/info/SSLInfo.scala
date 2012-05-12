@@ -15,4 +15,4 @@
  */
 package com.excilys.ebi.gatling.recorder.ui.info
 
-class SSLInfo(val uri: String) extends EventInfo
+case class SSLInfo(uri: String) extends EventInfo

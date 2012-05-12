@@ -17,29 +17,16 @@ package com.excilys.ebi.gatling.recorder.http.channel;
 
 import java.util.concurrent.Executors
 
-import org.jboss.netty.bootstrap.ClientBootstrap
-import org.jboss.netty.bootstrap.ServerBootstrap
+import org.jboss.netty.bootstrap.{ ServerBootstrap, ClientBootstrap }
 import org.jboss.netty.channel.Channels.pipeline
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory
-import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory
-import org.jboss.netty.channel.ChannelHandlerContext
-import org.jboss.netty.channel.ChannelPipeline
-import org.jboss.netty.channel.ChannelPipelineFactory
-import org.jboss.netty.handler.codec.http.HttpChunkAggregator
-import org.jboss.netty.handler.codec.http.HttpClientCodec
-import org.jboss.netty.handler.codec.http.HttpContentCompressor
-import org.jboss.netty.handler.codec.http.HttpContentDecompressor
-import org.jboss.netty.handler.codec.http.HttpRequest
-import org.jboss.netty.handler.codec.http.HttpRequestDecoder
-import org.jboss.netty.handler.codec.http.HttpResponseEncoder
+import org.jboss.netty.channel.socket.nio.{ NioServerSocketChannelFactory, NioClientSocketChannelFactory }
+import org.jboss.netty.channel.{ ChannelPipelineFactory, ChannelPipeline, ChannelHandlerContext }
+import org.jboss.netty.handler.codec.http.{ HttpResponseEncoder, HttpRequestDecoder, HttpRequest, HttpContentDecompressor, HttpContentCompressor, HttpClientCodec, HttpChunkAggregator }
 import org.jboss.netty.handler.ssl.SslHandler
 
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
-import com.excilys.ebi.gatling.recorder.http.handler.BrowserHttpRequestHandler
-import com.excilys.ebi.gatling.recorder.http.handler.BrowserHttpsRequestHandler
-import com.excilys.ebi.gatling.recorder.http.handler.ServerHttpResponseHandler
-import com.excilys.ebi.gatling.recorder.http.ssl.FirstEventIsUnsecuredConnectSslHandler
-import com.excilys.ebi.gatling.recorder.http.ssl.SSLEngineFactory
+import com.excilys.ebi.gatling.recorder.http.handler.{ ServerHttpResponseHandler, BrowserHttpsRequestHandler, BrowserHttpRequestHandler }
+import com.excilys.ebi.gatling.recorder.http.ssl.{ SSLEngineFactory, FirstEventIsUnsecuredConnectSslHandler }
 
 object BootstrapFactory {
 	val bootstrapFactory = new BootstrapFactory
@@ -47,7 +34,7 @@ object BootstrapFactory {
 
 class BootstrapFactory {
 
-	private val CHUNK_MAX_SIZE = 100 * 1024 * 1024; // 1Mo
+	private val CHUNK_MAX_SIZE = 100 * 1024 * 1024; // 100Mo
 
 	private val threadPool = Executors.newCachedThreadPool
 

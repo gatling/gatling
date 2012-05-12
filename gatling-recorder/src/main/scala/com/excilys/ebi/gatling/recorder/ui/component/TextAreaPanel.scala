@@ -17,10 +17,7 @@ package com.excilys.ebi.gatling.recorder.ui.component;
 
 import java.awt.BorderLayout
 
-import javax.swing.JLabel
-import javax.swing.JPanel
-import javax.swing.JTextArea
-import javax.swing.SwingConstants
+import javax.swing.{ SwingConstants, JTextArea, JPanel, JLabel }
 
 class TextAreaPanel(title: String) extends JPanel {
 
@@ -31,7 +28,7 @@ class TextAreaPanel(title: String) extends JPanel {
 
 	val lblTitle = new JLabel(title)
 	lblTitle.setHorizontalAlignment(SwingConstants.CENTER)
-	
+
 	add(lblTitle, BorderLayout.NORTH)
 	add(txt, BorderLayout.CENTER)
 }

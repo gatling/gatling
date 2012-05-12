@@ -15,8 +15,7 @@
  */
 package com.excilys.ebi.gatling.recorder.ui.component;
 
-import java.awt.event.ActionEvent
-import java.awt.event.ActionListener
+import java.awt.event.{ ActionListener, ActionEvent }
 import java.nio.charset.Charset
 
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
@@ -41,11 +40,11 @@ class SaveConfigurationListener(configurationFrame: ConfigurationFrame) extends 
 		configuration.sslPort = configurationFrame.txtSslPort.getText.toInt
 
 		val uiProxyHost = configurationFrame.txtProxyHost.getText.trim
-		configuration.proxy.host = 
-		  if(uiProxyHost.isEmpty)
-			  None
-		  else
-		      Some(uiProxyHost)
+		configuration.proxy.host =
+			if (uiProxyHost.isEmpty)
+				None
+			else
+				Some(uiProxyHost)
 
 		if (!configuration.proxy.host.isEmpty) {
 			// Parse outgoing proxy port
@@ -56,29 +55,30 @@ class SaveConfigurationListener(configurationFrame: ConfigurationFrame) extends 
 		}
 
 		configuration.filterStrategy = configurationFrame.cbFilterStrategies.getSelectedItem.asInstanceOf[FilterStrategy]
-		
+
 		// Set urls filters
 		configuration.patterns = (for (i <- 0 until configurationFrame.tblFilters.getRowCount) yield configurationFrame.tblFilters.getPattern(i)).toList
-		
+
 		// Check if a directory was entered
 		configuration.outputFolder = configurationFrame.txtOutputFolder.getText.trim
 
 		configuration.saveConfiguration = configurationFrame.chkSavePref.isSelected
 
 		configuration.followRedirect = configurationFrame.chkFollowRedirect.isSelected
-		
+
 		// set selected encoding
 		configuration.encoding = classOf[Charset].cast(configurationFrame.cbOutputEncoding.getSelectedItem).name
-		
-		val uiSimulationPackage = configurationFrame.txtSimulationPackage.getText.trim
-		configuration.simulationPackage = 
-			if(uiSimulationPackage.isEmpty)
+
+		configuration.simulationPackage = {
+			val uiSimulationPackage = configurationFrame.txtSimulationPackage.getText.trim
+			if (uiSimulationPackage.isEmpty)
 				None
 			else
-		    	Some(uiSimulationPackage)
-		
-		configuration.simulationClassName =	configurationFrame.txtSimulationClassName.getText
-		
+				Some(uiSimulationPackage)
+		}
+
+		configuration.simulationClassName = configurationFrame.txtSimulationClassName.getText
+
 		if (configuration.saveConfiguration)
 			Configuration.saveToDisk
 

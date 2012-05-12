@@ -94,10 +94,7 @@
 		<netty.version>3.4.4.Final</netty.version>
 		<joda-time.version>2.1</joda-time.version>
 		<joda-convert.version>1.2</joda-convert.version>
-		<velocity.version>1.7</velocity.version>
 		<xstream.version>1.4.2</xstream.version>
-		<commons-io.version>2.3</commons-io.version>
-		<guava.version>11.0.2</guava.version>
 		<scopt.version>2.0.1</scopt.version>
 		<args4j.version>2.0.21</args4j.version>
 		<twitter-util.version>3.0.0</twitter-util.version>
@@ -261,11 +258,6 @@
 				<version>${joda-convert.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.apache.velocity</groupId>
-				<artifactId>velocity</artifactId>
-				<version>${velocity.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>com.thoughtworks.xstream</groupId>
 				<artifactId>xstream</artifactId>
 				<version>${xstream.version}</version>
@@ -279,16 +271,6 @@
 						<groupId>xmlpull</groupId>
 					</exclusion>
 				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>commons-io</groupId>
-				<artifactId>commons-io</artifactId>
-				<version>${commons-io.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.google.guava</groupId>
-				<artifactId>guava</artifactId>
-				<version>${guava.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.github.scopt</groupId>

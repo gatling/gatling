@@ -15,8 +15,9 @@
  */
 package com.excilys.ebi.gatling.recorder.config
 
-import com.excilys.ebi.gatling.recorder.ui.enumeration.PatternType._
 import scala.reflect.BeanProperty
+
+import com.excilys.ebi.gatling.recorder.ui.enumeration.PatternType.PatternType
 
 class Pattern(@BeanProperty val patternType: PatternType, @BeanProperty val pattern: String) {
 	override def toString = patternType + " | " + pattern
@@ -24,17 +25,16 @@ class Pattern(@BeanProperty val patternType: PatternType, @BeanProperty val patt
 	override def hashCode: Int = {
 		val prime = 31
 		var result = 1
-		result = prime * result + (if(pattern == null) 0 else pattern.hashCode)
-		result = prime * result + (if(patternType == null) 0 else patternType.hashCode)
+		result = prime * result + (if (pattern == null) 0 else pattern.hashCode)
+		result = prime * result + (if (patternType == null) 0 else patternType.hashCode)
 		result
 	}
 
 	override def equals(obj: Any): Boolean = {
 		obj match {
-      case p: Pattern =>
-        p.pattern == pattern && p.patternType == patternType
-      case _ => false
-    }
+			case p: Pattern =>
+				p.pattern == pattern && p.patternType == patternType
+			case _ => false
+		}
 	}
-
 }

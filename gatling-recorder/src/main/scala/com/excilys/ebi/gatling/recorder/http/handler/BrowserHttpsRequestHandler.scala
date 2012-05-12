@@ -15,16 +15,10 @@
  */
 package com.excilys.ebi.gatling.recorder.http.handler;
 
-import java.net.InetSocketAddress
-import java.net.URI
+import java.net.{ URI, InetSocketAddress }
 
-import org.jboss.netty.channel.ChannelFuture
-import org.jboss.netty.channel.ChannelHandlerContext
-import org.jboss.netty.handler.codec.http.DefaultHttpResponse
-import org.jboss.netty.handler.codec.http.HttpMethod
-import org.jboss.netty.handler.codec.http.HttpRequest
-import org.jboss.netty.handler.codec.http.HttpResponseStatus
-import org.jboss.netty.handler.codec.http.HttpVersion
+import org.jboss.netty.channel.{ ChannelHandlerContext, ChannelFuture }
+import org.jboss.netty.handler.codec.http.{ HttpVersion, HttpResponseStatus, HttpRequest, HttpMethod, DefaultHttpResponse }
 
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
@@ -45,7 +39,7 @@ class BrowserHttpsRequestHandler(proxyConfig: ProxyConfig) extends AbstractBrows
 			targetHostURI = new URI("https://" + request.getUri());
 
 			warn("Trying to connect to " + targetHostURI + ", make sure you've accepted the recorder certificate for this site")
-			
+
 			RecorderController.secureConnection(targetHostURI)
 
 			ctx.getChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
@@ -59,11 +53,12 @@ class BrowserHttpsRequestHandler(proxyConfig: ProxyConfig) extends AbstractBrows
 
 			val bootstrap = bootstrapFactory.newClientBootstrap(ctx, request, true)
 
-			if(outgoingProxyHost.isDefined && outgoingProxyPort.isDefined){
-				bootstrap.connect(new InetSocketAddress(outgoingProxyHost.get, outgoingProxyPort.get))
-			} else {
-				bootstrap.connect(new InetSocketAddress(targetHostURI.getHost, targetHostURI.getPort))
-			}
+			val (host, port) = (for {
+				host <- outgoingProxyHost
+				port <- outgoingProxyPort
+			} yield (host, port)).getOrElse(targetHostURI.getHost, targetHostURI.getPort)
+
+			bootstrap.connect(new InetSocketAddress(host, port))
 		}
 	}
 }

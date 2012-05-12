@@ -15,36 +15,21 @@
  */
 package com.excilys.ebi.gatling.recorder.ui.frame;
 
-import java.awt.event.ActionEvent
-import java.awt.event.ActionListener
-import java.awt.event.ItemEvent
-import java.awt.event.ItemListener
-import java.awt.BorderLayout
-import java.awt.Dimension
-import java.awt.FileDialog
-import java.awt.FlowLayout
+import java.awt.event.{ ItemListener, ItemEvent, ActionListener, ActionEvent }
+import java.awt.{ FlowLayout, FileDialog, Dimension, BorderLayout }
 import java.nio.charset.Charset
+
 import scala.collection.JavaConversions.collectionAsScalaIterable
-import com.excilys.ebi.gatling.recorder.ui.Commons.getIconList
-import com.excilys.ebi.gatling.recorder.ui.component.FilterTable
-import com.excilys.ebi.gatling.recorder.ui.component.SaveConfigurationListener
-import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy
-import com.excilys.ebi.gatling.recorder.ui.frame.ValidationHelper.intValidator
-import com.excilys.ebi.gatling.recorder.ui.frame.ValidationHelper.nonEmptyValidator
-import com.excilys.ebi.gatling.recorder.ui.frame.ValidationHelper.proxyHostValidator
-import com.excilys.ebi.gatling.recorder.ui.Commons
-import grizzled.slf4j.Logging
-import javax.swing.BorderFactory
-import javax.swing.JButton
-import javax.swing.JCheckBox
-import javax.swing.JComboBox
-import javax.swing.JFileChooser
-import javax.swing.JFrame
-import javax.swing.JLabel
-import javax.swing.JPanel
-import javax.swing.JTextField
-import javax.swing.SwingConstants
+
 import com.excilys.ebi.gatling.recorder.config.Configuration
+import com.excilys.ebi.gatling.recorder.ui.Commons.getIconList
+import com.excilys.ebi.gatling.recorder.ui.component.{ SaveConfigurationListener, FilterTable }
+import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy
+import com.excilys.ebi.gatling.recorder.ui.frame.ValidationHelper.{ proxyHostValidator, nonEmptyValidator, intValidator }
+import com.excilys.ebi.gatling.recorder.ui.Commons
+
+import grizzled.slf4j.Logging
+import javax.swing.{ SwingConstants, JTextField, JPanel, JLabel, JFrame, JFileChooser, JComboBox, JCheckBox, JButton, BorderFactory }
 
 class ConfigurationFrame extends JFrame with Logging {
 
@@ -76,7 +61,7 @@ class ConfigurationFrame extends JFrame with Logging {
 
 	private var pnlTop: JPanel = null
 	private var pnlCenter: JPanel = null
-	private var pnlBottom: JPanel= null
+	private var pnlBottom: JPanel = null
 
 	private var fileDialog: FileDialog = null
 	private var fileChooser: JFileChooser = null
@@ -98,7 +83,7 @@ class ConfigurationFrame extends JFrame with Logging {
 	initOutputDirectoryChooser
 
 	setListeners
-	
+
 	setValidationListeners
 
 	private def initOutputDirectoryChooser {
@@ -174,7 +159,6 @@ class ConfigurationFrame extends JFrame with Logging {
 		add(pnlTop, BorderLayout.NORTH)
 	}
 
-
 	private def initCenterPanel {
 		/***** Creating Center Panel (Output + Start) *****/
 		pnlCenter = new JPanel
@@ -188,7 +172,7 @@ class ConfigurationFrame extends JFrame with Logging {
 
 		for (c <- Charset.availableCharsets.values)
 			cbOutputEncoding.addItem(c)
-		
+
 		/* Output Panel */
 		val outputPanel = new JPanel(new BorderLayout)
 		outputPanel.setBorder(BorderFactory.createTitledBorder("Output"))
@@ -199,37 +183,35 @@ class ConfigurationFrame extends JFrame with Logging {
 
 		outputPanel.add(outputFolderPanel, BorderLayout.NORTH)
 		outputPanel.add(outputFormatPanel, BorderLayout.SOUTH)
-		
-		
+
 		/* Simulation information panel */
 		val simulationInfoPanel = new JPanel(new BorderLayout)
-		
+
 		val packageNamePanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
 		packageNamePanel.add(new JLabel("Package: "))
 		packageNamePanel.add(txtSimulationPackage)
-		
+
 		val simulationNamePanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
 		simulationNamePanel.add(new JLabel("Class Name*: "))
 		simulationNamePanel.add(txtSimulationClassName)
-		
+
 		simulationInfoPanel.add(packageNamePanel, BorderLayout.WEST)
 		simulationInfoPanel.add(simulationNamePanel, BorderLayout.EAST)
-		
+
 		val simulationConfigPanel = new JPanel(new BorderLayout)
 		simulationConfigPanel.setBorder(BorderFactory.createTitledBorder("Simulation Information"))
-		
+
 		simulationConfigPanel.add(simulationInfoPanel, BorderLayout.NORTH)
 		simulationConfigPanel.add(chkFollowRedirect, BorderLayout.WEST)
-		
-		
+
 		/* Filters Panel */
 		val filtersPanel = new JPanel(new BorderLayout);
 		filtersPanel.setBorder(BorderFactory.createTitledBorder("Filters"))
-		
+
 		// Fill Combo Box for Strategies
 		for (ft <- FilterStrategy.values)
 			cbFilterStrategies.addItem(ft)
-			
+
 		/* Filter Actions panel */
 		val filterActionsPanel = new JPanel
 		filterActionsPanel.add(new JLabel("Strategy"))
@@ -237,10 +219,10 @@ class ConfigurationFrame extends JFrame with Logging {
 		filterActionsPanel.add(btnFiltersAdd)
 		filterActionsPanel.add(btnFiltersDel)
 		filterActionsPanel.add(btnClear)
-		
+
 		/* Adding panels to filterPanel */
 		filtersPanel.add(tblFilters, BorderLayout.CENTER)
-		filtersPanel.add(filterActionsPanel, BorderLayout.SOUTH)		
+		filtersPanel.add(filterActionsPanel, BorderLayout.SOUTH)
 
 		/* Adding panels to bottomPanel */
 		pnlCenter.add(simulationConfigPanel, BorderLayout.NORTH)
@@ -255,16 +237,16 @@ class ConfigurationFrame extends JFrame with Logging {
 		/***** Creating Bottom Panel (Filters) *****/
 		pnlBottom = new JPanel
 		pnlBottom.setLayout(new BorderLayout)
-		
+
 		/* Start Action Panel */
 		val startActionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT))
 		startActionPanel.add(chkSavePref)
 		startActionPanel.add(btnStart)
-		
+
 		chkSavePref.setHorizontalTextPosition(SwingConstants.LEFT);
-		
+
 		pnlBottom.add(startActionPanel, BorderLayout.SOUTH);
-		
+
 		/* Adding panel to Frame */
 		add(pnlBottom, BorderLayout.SOUTH)
 	}
@@ -346,7 +328,7 @@ class ConfigurationFrame extends JFrame with Logging {
 	def populateItemsFromConfiguration(configuration: Configuration) {
 		txtPort.setText(configuration.port.toString)
 		txtSslPort.setText(configuration.sslPort.toString)
-		if(configuration.proxy.host.isDefined){
+		if (configuration.proxy.host.isDefined) {
 			txtProxyHost.setText(configuration.proxy.host.getOrElse(""))
 			txtProxyPort.setText(configuration.proxy.port.getOrElse(0).toString)
 			txtProxySslPort.setText(configuration.proxy.sslPort.getOrElse(0).toString)

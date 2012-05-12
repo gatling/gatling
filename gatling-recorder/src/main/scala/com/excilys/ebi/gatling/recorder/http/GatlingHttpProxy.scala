@@ -23,18 +23,18 @@ import org.jboss.netty.channel.Channel
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
 import com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory.bootstrapFactory
 
-object GatlingHttpProxy{
-	
+object GatlingHttpProxy {
+
 	private var instance: GatlingHttpProxy = null
-	
-	def apply(port: Int, sslPort: Int, proxyConfig: ProxyConfig){
+
+	def apply(port: Int, sslPort: Int, proxyConfig: ProxyConfig) {
 		instance = new GatlingHttpProxy(port, sslPort, proxyConfig)
 		instance.start
 	}
-	
+
 	def shutdown = instance.shutdown
-	
-	def receiveMessage(channel: Channel){
+
+	def receiveMessage(channel: Channel) {
 		instance.onMessageReceived(channel)
 	}
 }

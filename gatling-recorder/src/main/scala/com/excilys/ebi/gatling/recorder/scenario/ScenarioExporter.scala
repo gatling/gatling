@@ -15,31 +15,29 @@
  */
 package com.excilys.ebi.gatling.recorder.scenario;
 
-import java.io.FileWriter
-import java.io.IOException
+import java.io.{ IOException, FileWriter }
+import java.text.{ SimpleDateFormat, Format }
 import java.util.Date
+
 import scala.Option.option2Iterable
 import scala.math.min
 import scala.tools.nsc.io.Path.string2path
-import scala.tools.nsc.io.Directory
-import scala.tools.nsc.io.File
-import org.apache.commons.io.IOUtils.closeQuietly
+import scala.tools.nsc.io.{ File, Directory }
+
 import org.fusesource.scalate.TemplateEngine
-import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_REQUEST_BODIES
+
 import com.excilys.ebi.gatling.core.util.IOHelper.use
+import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.REDIRECT_STATUS_CODES
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
 import com.excilys.ebi.gatling.recorder.config.Configuration
-import com.excilys.ebi.gatling.recorder.controller.RecorderController
+
 import grizzled.slf4j.Logging
-import java.text.Format
-import java.text.SimpleDateFormat
-import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.REDIRECT_STATUS_CODES
 
 object ScenarioExporter extends Logging {
 	val DATE_FORMATTER: Format = new SimpleDateFormat("yyyyMMddHHmmss")
-	
+
 	private val EVENTS_GROUPING = 100
-	
+
 	val TPL_ENGINE = new TemplateEngine
 	TPL_ENGINE.allowReload = false
 	TPL_ENGINE.escapeMarkup = false
@@ -47,15 +45,15 @@ object ScenarioExporter extends Logging {
 	def saveScenario(startDate: Date, scenarioElements: List[ScenarioElement]) = {
 
 		val baseUrl = getBaseUrl(scenarioElements)
-		
+
 		val protocolConfigElement = new ProtocolConfigElement(baseUrl, configuration.proxy, configuration.followRedirect)
 
-		val simulationClass = 
-			if(configuration.simulationClassName != Configuration.DEFAULT_CLASS_NAME)
+		val simulationClass =
+			if (configuration.simulationClassName != Configuration.DEFAULT_CLASS_NAME)
 				configuration.simulationClassName
 			else
 				configuration.simulationClassName + DATE_FORMATTER.format(startDate)
-		
+
 		// If follow redirect, discard some recorded elements
 		def getStatusCode(se: ScenarioElement) = {
 			se match {
@@ -63,44 +61,44 @@ object ScenarioExporter extends Logging {
 				case _ => 0
 			}
 		}
-		
+
 		def filterRedirectsAndNonAuthorized(l: List[(ScenarioElement, Int)], e: ScenarioElement) = {
-			if(l.isEmpty)
+			if (l.isEmpty)
 				e match {
 					case r: RequestElement => List((r, r.statusCode))
 					case x => List((x, 0))
 				}
 			else
-				l.head match{
+				l.head match {
 					case (lastRequestElement: RequestElement, lastStatusCode: Int) =>
-						if(REDIRECT_STATUS_CODES.contains(lastStatusCode))
-							e match{
+						if (REDIRECT_STATUS_CODES.contains(lastStatusCode))
+							e match {
 								case r: RequestElement => (RequestElement(lastRequestElement, r.statusCode), r.statusCode) :: l.tail
 								case _ => l
 							}
 						else
 							(e, getStatusCode(e)) :: l
-					case _ => (e, getStatusCode (e)) :: l
+					case _ => (e, getStatusCode(e)) :: l
 				}
 		}
 
 		val filteredElements =
-			if(configuration.followRedirect)
-				scenarioElements.foldLeft(List[(ScenarioElement,Int)]())(filterRedirectsAndNonAuthorized).map{
+			if (configuration.followRedirect)
+				scenarioElements.foldLeft(List[(ScenarioElement, Int)]())(filterRedirectsAndNonAuthorized).map {
 					case (element, statusCode) => element
 				}.reverse
 			else
 				scenarioElements
 
 		// Add simulationClass to request elements
-		val elementsList = filteredElements.map{
-			case e:RequestElement => RequestElement(e, simulationClass)
+		val elementsList = filteredElements.map {
+			case e: RequestElement => RequestElement(e, simulationClass)
 			case e => e
 		}
-				
+
 		// Updates URLs that contain baseUrl, set ids on requests and dump request body if needed
 		var i = 0
-		elementsList.foreach{
+		elementsList.foreach {
 			case e: RequestElement => {
 				i = i + 1
 				e.updateUrl(baseUrl).setId(i)
@@ -110,17 +108,16 @@ object ScenarioExporter extends Logging {
 			}
 			case _ =>
 		}
-		
+
 		// Aggregate headers
-		val headers = elementsList.map{
+		val headers = elementsList.map {
 			case e: RequestElement => Some(
-				(e.id, e.headers.filterNot(header => Array("Authorization", "Cookie", "Content-Length").contains(header._1)))
-			)
+				(e.id, e.headers.filterNot(header => Array("Authorization", "Cookie", "Content-Length").contains(header._1))))
 			case _ => None
 		}.flatten
-				
+
 		val (newScenarioElements, chains) = getChains(elementsList)
-		
+
 		val output = ScenarioExporter.TPL_ENGINE.layout("templates/simulation.ssp",
 			Map("protocolConfig" -> protocolConfigElement,
 				"headers" -> headers,
@@ -134,42 +131,39 @@ object ScenarioExporter extends Logging {
 	}
 
 	private def getBaseUrl(scenarioElements: List[ScenarioElement]): String = {
-		val baseUrls = scenarioElements.map{ 
+		val baseUrls = scenarioElements.map {
 			case reqElm: RequestElement => Some(reqElm.baseUrl)
 			case _ => None
-		}.flatten.groupBy(url => url).map{case (url, urls) => (url, urls.size)}
-		
-		baseUrls.maxBy{ case (url, nbOfOccurrences) => nbOfOccurrences }._1
+		}.flatten.groupBy(url => url).map { case (url, urls) => (url, urls.size) }
+
+		baseUrls.maxBy { case (url, nbOfOccurrences) => nbOfOccurrences }._1
 	}
-	
-	private def getChains(scenarioElements: List[ScenarioElement]) : (List[ScenarioElement], List[List[ScenarioElement]]) = {
+
+	private def getChains(scenarioElements: List[ScenarioElement]): (List[ScenarioElement], List[List[ScenarioElement]]) = {
 		var chains: List[List[ScenarioElement]] = Nil
 		var newScenarioElements: List[ScenarioElement] = Nil
 
 		if (scenarioElements.size > ScenarioExporter.EVENTS_GROUPING) {
 			val numberOfSubLists = scenarioElements.size / ScenarioExporter.EVENTS_GROUPING + 1
 			// Creates the content of the chains
-			for (i <- 0 until numberOfSubLists){
+			for (i <- 0 until numberOfSubLists) {
 				chains = scenarioElements.slice(0 + ScenarioExporter.EVENTS_GROUPING * i, min(ScenarioExporter.EVENTS_GROUPING * (i + 1), scenarioElements.size - 1)) :: chains
 			}
 		} else {
 			newScenarioElements = scenarioElements
 		}
-		
+
 		(newScenarioElements, chains.reverse)
 	}
-	
-	private def dumpRequestBody(idEvent: Int, content: String, simulationClass: String) {
 
-		var fw: FileWriter = null
-		try {
-			fw = new FileWriter(File(getFolder(configuration.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)
-			fw.write(content)
-		} catch {
-			case e: IOException =>
-				error("Error, while dumping request body... \n" + e.getStackTrace)
-		} finally {
-			closeQuietly(fw)
+	private def dumpRequestBody(idEvent: Int, content: String, simulationClass: String) {
+		use(new FileWriter(File(getFolder(configuration.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)) { fw =>
+			try {
+				fw.write(content)
+			} catch {
+				case e: IOException =>
+					error("Error, while dumping request body... \n" + e.getStackTrace)
+			}
 		}
 	}
 

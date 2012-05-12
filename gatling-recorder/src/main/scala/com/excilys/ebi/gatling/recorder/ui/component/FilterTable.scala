@@ -15,34 +15,17 @@
  */
 package com.excilys.ebi.gatling.recorder.ui.component;
 
-import java.awt.event.ActionEvent
-import java.awt.event.ActionListener
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
-import java.awt.event.MouseListener
-import java.awt.BorderLayout
-import java.awt.Color
-import java.awt.Component
+import java.awt.event.{ MouseListener, MouseEvent, MouseAdapter, ActionListener, ActionEvent }
+import java.awt.{ Component, Color, BorderLayout }
 import java.lang.Override
 
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.recorder.config.Pattern
-import com.excilys.ebi.gatling.recorder.ui.enumeration.PatternType.ANT
-import com.excilys.ebi.gatling.recorder.ui.enumeration.PatternType.JAVA
-import com.excilys.ebi.gatling.recorder.ui.enumeration.PatternType.PatternType
+import com.excilys.ebi.gatling.recorder.ui.enumeration.PatternType.{ PatternType, JAVA, ANT }
 
 import grizzled.slf4j.Logging
-import javax.swing.table.DefaultTableModel
-import javax.swing.table.TableCellEditor
-import javax.swing.table.TableCellRenderer
-import javax.swing.AbstractCellEditor
-import javax.swing.ButtonGroup
-import javax.swing.JMenuItem
-import javax.swing.JPanel
-import javax.swing.JPopupMenu
-import javax.swing.JRadioButton
-import javax.swing.JScrollPane
-import javax.swing.JTable
+import javax.swing.table.{ TableCellRenderer, TableCellEditor, DefaultTableModel }
+import javax.swing.{ JTable, JScrollPane, JRadioButton, JPopupMenu, JPanel, JMenuItem, ButtonGroup, AbstractCellEditor }
 
 class FilterTable extends JPanel with MouseListener {
 
@@ -57,14 +40,14 @@ class FilterTable extends JPanel with MouseListener {
 	table.getTableHeader.setReorderingAllowed(false)
 
 	setLayout(new BorderLayout)
-	
+
 	val scrollPane = new JScrollPane(table)
 	add(scrollPane, BorderLayout.CENTER)
 
 	scrollPane.addMouseListener(this)
 
 	initPopupMenu
-	
+
 	val styleColumn = table.getColumn("Style")
 	styleColumn.setCellRenderer(new RadioButtonRenderer)
 	styleColumn.setCellEditor(new RadioButtonEditor)
@@ -83,7 +66,7 @@ class FilterTable extends JPanel with MouseListener {
 	}
 
 	def removeRows(toRemove: List[Int]) {
-		toRemove.sorted.reverse.foreach{
+		toRemove.sorted.reverse.foreach {
 			model.removeRow(_)
 		}
 	}
@@ -102,7 +85,7 @@ class FilterTable extends JPanel with MouseListener {
 
 	override def setEnabled(enabled: Boolean) {
 		table.setEnabled(enabled)
-		table.setBackground(if(enabled) Color.WHITE else Color.LIGHT_GRAY)
+		table.setBackground(if (enabled) Color.WHITE else Color.LIGHT_GRAY)
 	}
 
 	def addRow {
@@ -134,7 +117,7 @@ class FilterTable extends JPanel with MouseListener {
 				removeSelectedRow
 			}
 		})
-		
+
 		popup.add(menuItem)
 
 		table.addMouseListener(new MouseAdapter() {
@@ -148,7 +131,7 @@ class FilterTable extends JPanel with MouseListener {
 			}
 
 			private def maybeShowPopup(e: MouseEvent) {
-				if (e.isPopupTrigger) 
+				if (e.isPopupTrigger)
 					popup.show(e.getComponent, e.getX, e.getY)
 			}
 		})
@@ -175,7 +158,7 @@ class FilterTable extends JPanel with MouseListener {
 class RadioButtonRenderer extends TableCellRenderer {
 
 	def getTableCellRendererComponent(table: JTable, value: Object, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int): Component = {
-		Option(value.asInstanceOf[SelectPatternPanel]).getOrElse{
+		Option(value.asInstanceOf[SelectPatternPanel]).getOrElse {
 			val newValue = SelectPatternPanel()
 			table.setValueAt(newValue, row, 1)
 			newValue
@@ -187,7 +170,7 @@ class RadioButtonEditor extends AbstractCellEditor with TableCellEditor with Log
 
 	var customPanel = SelectPatternPanel()
 
-	def getTableCellEditorComponent(table: JTable, value: Object, isSelected: Boolean, row: Int, column: Int): Component  = {
+	def getTableCellEditorComponent(table: JTable, value: Object, isSelected: Boolean, row: Int, column: Int): Component = {
 		customPanel = value.asInstanceOf[SelectPatternPanel]
 		value.asInstanceOf[SelectPatternPanel]
 	}
@@ -195,10 +178,8 @@ class RadioButtonEditor extends AbstractCellEditor with TableCellEditor with Log
 	def getCellEditorValue = customPanel
 }
 
-object SelectPatternPanel{
-	def apply(): SelectPatternPanel = {
-		new SelectPatternPanel(ANT)
-	}
+object SelectPatternPanel {
+	def apply(): SelectPatternPanel = new SelectPatternPanel(ANT)
 }
 
 class SelectPatternPanel(patternType: PatternType) extends JPanel {
@@ -209,19 +190,14 @@ class SelectPatternPanel(patternType: PatternType) extends JPanel {
 	val group = new ButtonGroup
 	group.add(radio1)
 	group.add(radio2)
-	
-	patternType match{
+
+	patternType match {
 		case ANT => radio1.setSelected(true)
 		case JAVA => radio2.setSelected(true)
 	}
 
 	add(radio1)
 	add(radio2)
-	
-	def getPatternType = 
-		if(radio1.isSelected)
-			ANT
-		else
-			JAVA
 
+	def getPatternType = if (radio1.isSelected) ANT else JAVA
 }
