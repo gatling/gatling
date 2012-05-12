@@ -15,24 +15,23 @@
  */
 package com.excilys.ebi.gatling.recorder.ui.info
 
-import org.jboss.netty.handler.codec.http.HttpMessage
-import org.jboss.netty.handler.codec.http.HttpRequest
-import org.jboss.netty.handler.codec.http.HttpResponse
+import org.jboss.netty.handler.codec.http.{ HttpResponse, HttpRequest, HttpMessage }
 
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
 
-class RequestInfo(val request: HttpRequest, val response: HttpResponse)	extends EventInfo {
-	
+class RequestInfo(val request: HttpRequest, val response: HttpResponse) extends EventInfo {
+
 	private def getHttpBody(message: HttpMessage) = {
-		if(message.getContent.hasArray)
-			new String(message.getContent.array)
+		if (message.getContent.hasArray)
+			new String(message.getContent.array, configuration.encoding)
 		else
 			EMPTY
 	}
-	
-	val requestBody =  getHttpBody(request)
-	
-	val responseBody = getHttpBody(response) 
-	
+
+	val requestBody = getHttpBody(request)
+
+	val responseBody = getHttpBody(response)
+
 	override def toString = request.getMethod + " | " + request.getUri
 }
