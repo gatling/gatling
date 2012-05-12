@@ -24,10 +24,6 @@
 			<artifactId>gatling-http</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty</artifactId>
 		</dependency>
@@ -56,8 +52,8 @@
 				<artifactId>maven-license-plugin</artifactId>
 				<configuration>
 					<excludes>
-						<exclude>src/main/java/*</exclude>
-						<exclude>src/main/resources/*</exclude>
+						<exclude>src/main/java/**</exclude>
+						<exclude>src/main/resources/**</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
