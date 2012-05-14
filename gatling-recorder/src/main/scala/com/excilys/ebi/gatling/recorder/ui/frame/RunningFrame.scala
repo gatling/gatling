@@ -20,14 +20,15 @@ import java.awt.{ FlowLayout, Dimension, BorderLayout }
 
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
+import com.excilys.ebi.gatling.recorder.ui.Commons.iconList
 import com.excilys.ebi.gatling.recorder.ui.component.TextAreaPanel
 import com.excilys.ebi.gatling.recorder.ui.info.{ TagInfo, SSLInfo, RequestInfo, PauseInfo, EventInfo }
-import com.excilys.ebi.gatling.recorder.ui.Commons.iconList
 
+import grizzled.slf4j.Logging
 import javax.swing.event.{ ListSelectionListener, ListSelectionEvent }
 import javax.swing.{ JTextField, JSplitPane, JScrollPane, JPanel, JList, JLabel, JFrame, JButton, DefaultListModel, BorderFactory }
 
-class RunningFrame extends JFrame {
+class RunningFrame extends JFrame with Logging {
 
 	private val btnTag = new JButton("Add")
 	private val btnClear = new JButton("Clear")
@@ -189,6 +190,7 @@ class RunningFrame extends JFrame {
 				eventsInfo.addElement(requestInfo)
 				eventsInfoJList.ensureIndexIsVisible(eventsInfo.getSize - 1)
 			case SSLInfo(uri) if (!hostsCertificate.contains(uri)) => hostsCertificate.addElement(uri)
+			case e => debug("dropping event " + e)
 		}
 	}
 }

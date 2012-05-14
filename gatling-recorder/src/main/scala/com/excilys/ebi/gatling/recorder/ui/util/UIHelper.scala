@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.config
+package com.excilys.ebi.gatling.recorder.ui.util
 
-case class Options(
-	var localPort: Option[Int] = None,
-	var localPortSsl: Option[Int] = None,
-	var proxyHost: Option[String] = None,
-	var proxyPort: Option[Int] = None,
-	var proxyPortSsl: Option[Int] = None,
-	var outputFolder: Option[String] = None,
-	var requestBodiesFolder: Option[String] = None,
-	var simulationClassName: Option[String] = None,
-	var simulationPackage: Option[String] = None,
-	var encoding: Option[String] = None,
-	var followRedirect: Option[Boolean] = None)
+import java.awt.EventQueue
+
+object UIHelper {
+
+	def useUIThread(block: => Unit) {
+		EventQueue.invokeLater(new Runnable {
+			def run {
+				block
+			}
+		})
+	}
+}

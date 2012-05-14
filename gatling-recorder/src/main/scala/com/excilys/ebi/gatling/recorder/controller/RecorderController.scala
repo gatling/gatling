@@ -15,7 +15,6 @@
  */
 package com.excilys.ebi.gatling.recorder.controller
 
-import java.awt.EventQueue
 import java.net.URI
 import java.util.Date
 
@@ -34,6 +33,7 @@ import com.excilys.ebi.gatling.recorder.scenario.{ ScenarioExporter, ScenarioEle
 import com.excilys.ebi.gatling.recorder.ui.enumeration.{ PatternType, FilterStrategy }
 import com.excilys.ebi.gatling.recorder.ui.frame.{ RunningFrame, ConfigurationFrame }
 import com.excilys.ebi.gatling.recorder.ui.info.{ SSLInfo, RequestInfo, PauseInfo }
+import com.excilys.ebi.gatling.recorder.ui.util.UIHelper.useUIThread
 import com.ning.http.util.Base64
 
 import grizzled.slf4j.Logging
@@ -103,11 +103,10 @@ object RecorderController extends Logging {
 								(diff, PauseUnit.MILLISECONDS)
 
 						lastRequestDate = newRequestDate
-						EventQueue.invokeLater(new Runnable() {
-							def run {
-								runningFrame.receiveEventInfo(new PauseInfo(pauseValueAndUnit._1, pauseValueAndUnit._2))
-							}
-						})
+						useUIThread {
+							runningFrame.receiveEventInfo(new PauseInfo(pauseValueAndUnit._1, pauseValueAndUnit._2))
+						}
+
 						scenarioElements = new PauseElement(pauseValueAndUnit._1, pauseValueAndUnit._2) :: scenarioElements
 					}
 				} else {
@@ -118,11 +117,9 @@ object RecorderController extends Logging {
 	}
 
 	def secureConnection(securedHostURI: URI) {
-		EventQueue.invokeLater(new Runnable() {
-			def run {
-				runningFrame.receiveEventInfo(SSLInfo(securedHostURI.toString))
-			}
-		})
+		useUIThread {
+			runningFrame.receiveEventInfo(SSLInfo(securedHostURI.toString))
+		}
 	}
 
 	private def showRunningFrame {
@@ -178,10 +175,8 @@ object RecorderController extends Logging {
 		scenarioElements = new RequestElement(request, response.getStatus.getCode, None) :: scenarioElements
 
 		// Send request information to view
-		EventQueue.invokeLater(new Runnable() {
-			def run {
-				runningFrame.receiveEventInfo(new RequestInfo(request, response))
-			}
-		})
+		useUIThread {
+			runningFrame.receiveEventInfo(new RequestInfo(request, response))
+		}
 	}
 }

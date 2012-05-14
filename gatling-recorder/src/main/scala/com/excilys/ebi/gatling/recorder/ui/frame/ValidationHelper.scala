@@ -16,8 +16,10 @@
 package com.excilys.ebi.gatling.recorder.ui.frame
 
 import java.awt.event.{ KeyListener, KeyEvent }
-import java.awt.{ EventQueue, Color }
+import java.awt.Color
 import java.util.Date
+
+import com.excilys.ebi.gatling.recorder.ui.util.UIHelper.useUIThread
 
 import grizzled.slf4j.Logging
 import javax.swing.{ JTextField, BorderFactory }
@@ -83,11 +85,9 @@ object ValidationHelper extends Logging {
 				cFrame.txtProxyPort.setText("0")
 				cFrame.txtProxyPort.getKeyListeners.foreach {
 					case kl: KeyListener =>
-						EventQueue.invokeLater(new Runnable() {
-							def run {
-								kl.keyReleased(new KeyEvent(cFrame.txtProxyPort, 0, new Date().getTime, 0, 0))
-							}
-						})
+						useUIThread {
+							kl.keyReleased(new KeyEvent(cFrame.txtProxyPort, 0, new Date().getTime, 0, 0))
+						}
 				}
 				cFrame.txtProxySslPort.setEnabled(false)
 				cFrame.txtProxySslPort.setText("0")
