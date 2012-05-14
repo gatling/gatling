@@ -16,28 +16,22 @@
 package com.excilys.ebi.gatling.recorder.ui;
 
 import java.awt.Image
-import java.util.{ List, ArrayList }
+import java.util.{ List => JList }
+
+import scala.collection.JavaConversions.seqAsJavaList
 
 import javax.swing.ImageIcon
 
 class Commons
 
 object Commons {
-	private val favSmall = new ImageIcon(classOf[Commons].getResource("img/fav_small.png"))
-	private val favBig = new ImageIcon(classOf[Commons].getResource("img/fav_big.png"))
-	private val pictoSmall = new ImageIcon(classOf[Commons].getResource("img/picto_small.png"))
-	private val pictoBig = new ImageIcon(classOf[Commons].getResource("img/picto_big.png"))
-	val logoSmall = new ImageIcon(classOf[Commons].getResource("img/logo_small.png"))
-
-	private val imageList = new ArrayList[Image]
+	private val favSmall = new ImageIcon(getClass.getResource("img/fav_small.png"))
+	private val favBig = new ImageIcon(getClass.getResource("img/fav_big.png"))
+	private val pictoSmall = new ImageIcon(getClass.getResource("img/picto_small.png"))
+	private val pictoBig = new ImageIcon(getClass.getResource("img/picto_big.png"))
+	val logoSmall = new ImageIcon(getClass.getResource("img/logo_small.png"))
 
 	val GATLING_RECORDER_FILE_NAME = "gatling-recorder.ini"
 
-	imageList.add(favSmall.getImage)
-	imageList.add(favBig.getImage)
-	imageList.add(pictoSmall.getImage)
-	imageList.add(pictoBig.getImage)
-
-	val getIconList: List[Image] = imageList
-
+	val iconList: JList[Image] = List(favSmall.getImage, favBig.getImage, pictoSmall.getImage, pictoBig.getImage)
 }

@@ -22,7 +22,7 @@ import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.ui.component.TextAreaPanel
 import com.excilys.ebi.gatling.recorder.ui.info.{ TagInfo, SSLInfo, RequestInfo, PauseInfo, EventInfo }
-import com.excilys.ebi.gatling.recorder.ui.Commons
+import com.excilys.ebi.gatling.recorder.ui.Commons.iconList
 
 import javax.swing.event.{ ListSelectionListener, ListSelectionEvent }
 import javax.swing.{ JTextField, JSplitPane, JScrollPane, JPanel, JList, JLabel, JFrame, JButton, DefaultListModel, BorderFactory }
@@ -53,7 +53,7 @@ class RunningFrame extends JFrame {
 	setLocationRelativeTo(null)
 	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
 
-	setIconImages(Commons.getIconList)
+	setIconImages(iconList)
 
 	/* Top Panel */
 	val topPanel = new JPanel(new BorderLayout)

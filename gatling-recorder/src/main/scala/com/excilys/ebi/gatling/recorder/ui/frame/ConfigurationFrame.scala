@@ -22,7 +22,7 @@ import java.nio.charset.Charset
 import scala.collection.JavaConversions.collectionAsScalaIterable
 
 import com.excilys.ebi.gatling.recorder.config.Configuration
-import com.excilys.ebi.gatling.recorder.ui.Commons.getIconList
+import com.excilys.ebi.gatling.recorder.ui.Commons.iconList
 import com.excilys.ebi.gatling.recorder.ui.component.{ SaveConfigurationListener, FilterTable }
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy
 import com.excilys.ebi.gatling.recorder.ui.frame.ValidationHelper.{ proxyHostValidator, nonEmptyValidator, intValidator }
@@ -74,7 +74,7 @@ class ConfigurationFrame extends JFrame with Logging {
 	setResizable(true)
 	setLocationRelativeTo(null)
 	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
-	setIconImages(getIconList)
+	setIconImages(iconList)
 
 	/** Initialization of components **/
 	initTopPanel
