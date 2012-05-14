@@ -28,7 +28,7 @@ import grizzled.slf4j.Logging
 
 class BrowserHttpsRequestHandler(proxyConfig: ProxyConfig) extends AbstractBrowserRequestHandler(proxyConfig: ProxyConfig) with Logging {
 
-	var targetHostURI: URI = null
+	@volatile var targetHostURI: URI = _
 
 	def connectToServerOnBrowserRequestReceived(ctx: ChannelHandlerContext, request: HttpRequest): ChannelFuture = {
 

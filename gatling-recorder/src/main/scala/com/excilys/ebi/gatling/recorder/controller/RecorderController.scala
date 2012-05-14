@@ -42,10 +42,10 @@ object RecorderController extends Logging {
 	private val runningFrame: RunningFrame = new RunningFrame
 	private val configurationFrame: ConfigurationFrame = new ConfigurationFrame
 
-	private var startDate: Date = null
-	private var lastRequestDate: Date = null
+	@volatile private var startDate: Date = _
+	@volatile private var lastRequestDate: Date = _
 
-	private var scenarioElements = List[ScenarioElement]()
+	@volatile private var scenarioElements = List[ScenarioElement]()
 
 	def apply(options: Options) {
 		Configuration(options)
