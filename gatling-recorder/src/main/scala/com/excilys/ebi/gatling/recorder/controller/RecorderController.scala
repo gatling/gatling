@@ -74,41 +74,45 @@ object RecorderController extends Logging {
 	}
 
 	def receiveRequest(request: HttpRequest) {
-		// If Outgoing Proxy set, we record the credentials to use them when sending the request
-		Option(request.getHeader(PROXY_AUTHORIZATION)).map { header =>
-			// Split on " " and take 2nd group (Basic credentialsInBase64==)
-			val credentials = new String(Base64.decode(header.split(" ")(1))).split(":")
-			configuration.proxy.username = Some(credentials(0))
-			configuration.proxy.password = Some(credentials(1))
+		synchronized {
+			// If Outgoing Proxy set, we record the credentials to use them when sending the request
+			Option(request.getHeader(PROXY_AUTHORIZATION)).map { header =>
+				// Split on " " and take 2nd group (Basic credentialsInBase64==)
+				val credentials = new String(Base64.decode(header.split(" ")(1))).split(":")
+				configuration.proxy.username = Some(credentials(0))
+				configuration.proxy.password = Some(credentials(1))
+			}
 		}
 	}
 
 	def receiveResponse(request: HttpRequest, response: HttpResponse) {
-		if (isRequestToBeAdded(request)) {
-			processRequest(request, response)
+		synchronized {
+			if (isRequestToBeAdded(request)) {
+				processRequest(request, response)
 
-			// Pause calculation
-			if (lastRequestDate != null) {
-				val newRequestDate = new Date
-				val diff = newRequestDate.getTime - lastRequestDate.getTime
-				if (diff > 10) {
+				// Pause calculation
+				if (lastRequestDate != null) {
+					val newRequestDate = new Date
+					val diff = newRequestDate.getTime - lastRequestDate.getTime
+					if (diff > 10) {
 
-					val pauseValueAndUnit =
-						if (diff > 1000)
-							(round(diff / 1000).toLong, PauseUnit.SECONDS)
-						else
-							(diff, PauseUnit.MILLISECONDS)
+						val pauseValueAndUnit =
+							if (diff > 1000)
+								(round(diff / 1000).toLong, PauseUnit.SECONDS)
+							else
+								(diff, PauseUnit.MILLISECONDS)
 
-					lastRequestDate = newRequestDate
-					EventQueue.invokeLater(new Runnable() {
-						def run {
-							runningFrame.receiveEventInfo(new PauseInfo(pauseValueAndUnit._1, pauseValueAndUnit._2))
-						}
-					})
-					scenarioElements = new PauseElement(pauseValueAndUnit._1, pauseValueAndUnit._2) :: scenarioElements
+						lastRequestDate = newRequestDate
+						EventQueue.invokeLater(new Runnable() {
+							def run {
+								runningFrame.receiveEventInfo(new PauseInfo(pauseValueAndUnit._1, pauseValueAndUnit._2))
+							}
+						})
+						scenarioElements = new PauseElement(pauseValueAndUnit._1, pauseValueAndUnit._2) :: scenarioElements
+					}
+				} else {
+					lastRequestDate = new Date
 				}
-			} else {
-				lastRequestDate = new Date
 			}
 		}
 	}
