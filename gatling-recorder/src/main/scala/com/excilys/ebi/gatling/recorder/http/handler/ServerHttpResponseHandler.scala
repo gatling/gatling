@@ -21,8 +21,7 @@ import org.jboss.netty.handler.codec.http.{ HttpResponse, HttpRequest }
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy
 
-class ServerHttpResponseHandler(requestContext: ChannelHandlerContext, request: HttpRequest)
-		extends SimpleChannelHandler {
+class ServerHttpResponseHandler(requestContext: ChannelHandlerContext, request: HttpRequest) extends SimpleChannelHandler {
 
 	override def messageReceived(context: ChannelHandlerContext, event: MessageEvent) {
 
