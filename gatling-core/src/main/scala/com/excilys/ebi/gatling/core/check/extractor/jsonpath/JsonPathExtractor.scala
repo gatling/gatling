@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.check.extractor.jsonpath
-import scala.collection.JavaConverters.asScalaBufferConverter
+
+import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
 import com.fasterxml.jackson.databind.{ ObjectMapper, JsonNode }
@@ -52,7 +53,7 @@ class JsonPathExtractor(textContent: String) {
 	 * @return extract all the occurrences matching the expression
 	 */
 	def extractMultiple(expression: String): Option[Seq[String]] = {
-		val results = new JaxenJackson(expression).selectNodes(json).asScala.map(_.asInstanceOf[JsonNode].asText)
+		val results = new JaxenJackson(expression).selectNodes(json).map(_.asInstanceOf[JsonNode].asText)
 		results
 	}
 

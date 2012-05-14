@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.check.header
-import scala.collection.JavaConverters.asScalaBufferConverter
+
+import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
@@ -47,7 +48,7 @@ object HttpHeaderCheckBuilder {
 			None
 	}
 
-	private val findAllExtractorFactory: ExtractorFactory[Response, Seq[String]] = (response: Response) => (expression: String) => seqToOption(response.getHeaders(expression).asScala)
+	private val findAllExtractorFactory: ExtractorFactory[Response, Seq[String]] = (response: Response) => (expression: String) => seqToOption(response.getHeaders(expression))
 
 	private val countExtractorFactory: ExtractorFactory[Response, Int] = (response: Response) => (expression: String) => toOption(response.getHeaders(expression).size)
 }

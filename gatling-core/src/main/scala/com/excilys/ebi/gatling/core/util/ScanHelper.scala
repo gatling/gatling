@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.util
+
 import java.io.{ File => JFile }
 import java.net.{ URI, JarURLConnection }
 
-import scala.collection.JavaConverters.enumerationAsScalaIteratorConverter
+import scala.collection.JavaConversions.enumerationAsScalaIterator
 import scala.tools.nsc.io.Path.{ string2path, jfile2path }
 import scala.tools.nsc.io.{ Path, Jar, Fileish, File }
 
@@ -30,7 +31,7 @@ object ScanHelper {
 	val SEPARATOR = Character.valueOf(28).toString
 
 	def getPackageResources(pkg: Path, deep: Boolean): Seq[Resource] = {
-		getClass.getClassLoader.getResources(pkg.toString.replace("\\", "/")).asScala.map { packageURL =>
+		getClass.getClassLoader.getResources(pkg.toString.replace("\\", "/")).map { packageURL =>
 			packageURL.getProtocol match {
 				case "file" =>
 					val rootDir = File(new JFile(new URI(packageURL.toString).getSchemeSpecificPart)).toDirectory

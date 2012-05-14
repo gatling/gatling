@@ -19,7 +19,7 @@ import java.lang.System.currentTimeMillis
 import java.net.URLDecoder
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters.asScalaBufferConverter
+import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.check.Check.applyChecks
 import com.excilys.ebi.gatling.core.check.Failure
@@ -155,7 +155,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 			}
 		}
 
-		val sessionWithUpdatedCookies = storeCookies(session, response.getUri.toString, response.getCookies.asScala)
+		val sessionWithUpdatedCookies = storeCookies(session, response.getUri.toString, response.getCookies)
 
 		if (REDIRECT_STATUS_CODES.contains(response.getStatusCode) && followRedirect)
 			handleFollowRedirect(sessionWithUpdatedCookies)
