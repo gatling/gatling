@@ -23,15 +23,15 @@ import org.jboss.netty.handler.codec.http.HttpRequest
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
 import com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory.bootstrapFactory
 
-class BrowserHttpRequestHandler(proxyConfig: ProxyConfig) extends AbstractBrowserRequestHandler(proxyConfig.host, proxyConfig.port) {
+class BrowserHttpRequestHandler(proxyConfig: ProxyConfig) extends AbstractBrowserRequestHandler(proxyConfig: ProxyConfig) {
 
 	def connectToServerOnBrowserRequestReceived(ctx: ChannelHandlerContext, request: HttpRequest): ChannelFuture = {
 
 		val bootstrap = bootstrapFactory.newClientBootstrap(ctx, request, false)
 
 		val (proxyHost, proxyPort) = (for {
-			host <- outgoingProxyHost
-			port <- outgoingProxyPort
+			host <- proxyConfig.host
+			port <- proxyConfig.port
 		} yield (host, port))
 			.getOrElse {
 				val uri = new URI(request.getUri)

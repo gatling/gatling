@@ -22,13 +22,13 @@ import scala.collection.JavaConversions.asScalaBuffer
 import org.jboss.netty.channel.{ SimpleChannelHandler, MessageEvent, ExceptionEvent, ChannelHandlerContext, ChannelFutureListener, ChannelFuture }
 import org.jboss.netty.handler.codec.http.{ HttpRequest, DefaultHttpRequest }
 
+import com.excilys.ebi.gatling.recorder.config.ProxyConfig
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy
 
 import grizzled.slf4j.Logging
 
-abstract class AbstractBrowserRequestHandler(val outgoingProxyHost: Option[String], val outgoingProxyPort: Option[Int])
-		extends SimpleChannelHandler with Logging {
+abstract class AbstractBrowserRequestHandler(proxyConfig: ProxyConfig) extends SimpleChannelHandler with Logging {
 
 	override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent) {
 
@@ -37,7 +37,7 @@ abstract class AbstractBrowserRequestHandler(val outgoingProxyHost: Option[Strin
 		val request = event.getMessage.asInstanceOf[HttpRequest]
 
 		// remove Proxy-Connection header if it's not significant
-		if (outgoingProxyHost.isEmpty) {
+		if (proxyConfig.host.isEmpty) {
 			request.removeHeader("Proxy-Connection")
 		}
 

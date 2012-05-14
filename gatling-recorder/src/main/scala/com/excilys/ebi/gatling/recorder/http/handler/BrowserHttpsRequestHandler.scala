@@ -26,7 +26,7 @@ import com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory.bootstrapF
 
 import grizzled.slf4j.Logging
 
-class BrowserHttpsRequestHandler(proxyConfig: ProxyConfig) extends AbstractBrowserRequestHandler(proxyConfig.host, proxyConfig.port) with Logging {
+class BrowserHttpsRequestHandler(proxyConfig: ProxyConfig) extends AbstractBrowserRequestHandler(proxyConfig: ProxyConfig) with Logging {
 
 	var targetHostURI: URI = null
 
@@ -47,15 +47,15 @@ class BrowserHttpsRequestHandler(proxyConfig: ProxyConfig) extends AbstractBrows
 			null
 
 		} else {
-			// set full uri so that it's correctly recorder
+			// set full uri so that it's correctly recorded
 			val fullUri = new StringBuilder().append(targetHostURI).append(request.getUri).toString
 			request.setUri(fullUri)
 
 			val bootstrap = bootstrapFactory.newClientBootstrap(ctx, request, true)
 
 			val (host, port) = (for {
-				host <- outgoingProxyHost
-				port <- outgoingProxyPort
+				host <- proxyConfig.host
+				port <- proxyConfig.port
 			} yield (host, port)).getOrElse(targetHostURI.getHost, targetHostURI.getPort)
 
 			bootstrap.connect(new InetSocketAddress(host, port))
