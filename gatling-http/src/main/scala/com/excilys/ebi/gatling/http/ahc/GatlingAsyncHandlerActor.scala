@@ -155,7 +155,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 			}
 		}
 
-		val sessionWithUpdatedCookies = storeCookies(session, response.getUri.toString, response.getCookies)
+		val sessionWithUpdatedCookies = storeCookies(session, response.getUri, response.getCookies)
 
 		if (REDIRECT_STATUS_CODES.contains(response.getStatusCode) && followRedirect)
 			handleFollowRedirect(sessionWithUpdatedCookies)
