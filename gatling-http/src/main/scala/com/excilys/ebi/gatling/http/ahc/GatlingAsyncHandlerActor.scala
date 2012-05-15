@@ -138,7 +138,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 
 				case phase :: otherPhases =>
 					val phaseChecks = checks.filter(_.phase == phase)
-					var (newSessionWithSavedValues, checkResult) = applyChecks(session, response, phaseChecks)
+					var (newSession, checkResult) = applyChecks(session, response, phaseChecks)
 
 					checkResult match {
 						case Failure(errorMessage) =>
@@ -148,9 +148,9 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 								warn(new StringBuilder().append("Check on request '").append(requestName).append("' failed : ").append(errorMessage))
 
 							logRequest(KO, errorMessage)
-							executeNext(newSessionWithSavedValues)
+							executeNext(newSession)
 
-						case _ => checkPhasesRec(newSessionWithSavedValues, otherPhases)
+						case _ => checkPhasesRec(newSession, otherPhases)
 					}
 			}
 		}

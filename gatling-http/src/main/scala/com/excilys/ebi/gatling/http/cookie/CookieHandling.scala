@@ -29,15 +29,13 @@ trait CookieHandling {
 
 	def getStoredCookies(session: Session, url: String): List[Cookie] = {
 		session.getAttributeAsOption[Map[CookieKey, Cookie]](COOKIES_CONTEXT_KEY) match {
-			case Some(storedCookies) if (!storedCookies.isEmpty) => {
+			case Some(storedCookies) if (!storedCookies.isEmpty) =>
 				val uri = URI.create(url)
-				val uriHost = uri.getHost
-				val uriPath = uri.getPath
 				storedCookies
-					.filter { case (key, _) => uriHost.endsWith(key.domain) && uriPath.startsWith(key.path) }
+					.filter { case (key, _) => uri.getHost.endsWith(key.domain) && uri.getPath.startsWith(key.path) }
 					.map { case (_, cookie) => cookie }
 					.toList
-			}
+
 			case _ => Nil
 		}
 	}

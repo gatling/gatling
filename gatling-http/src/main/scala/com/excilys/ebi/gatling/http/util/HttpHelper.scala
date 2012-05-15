@@ -29,7 +29,7 @@ object HttpHelper {
 		else {
 			val originalRequestURI = new URI(originalRequestUrl)
 			val originalRequestPath = originalRequestURI.getPath
-			val newPath = if (locationHeader.startsWith("/"))
+			val newPath = if (locationHeader.charAt(0) == '/')
 				locationHeader
 			else {
 				val index = originalRequestPath.lastIndexOf('/')
