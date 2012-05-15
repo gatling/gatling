@@ -61,7 +61,6 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 	 * This method schedules the beginning of all scenarios
 	 */
 	def run {
-	  
 		DataWriter.init(runRecord, totalNumberOfUsers, dataWriterLatch, configuration.encoding)
 
 		debug("Launching All Scenarios")

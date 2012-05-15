@@ -16,14 +16,10 @@
 package com.excilys.ebi.gatling.core.result.writer
 
 import java.io.{ OutputStreamWriter, FileOutputStream, BufferedOutputStream }
-import java.lang.System.currentTimeMillis
 import java.util.concurrent.CountDownLatch
 
-import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
-import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
 import com.excilys.ebi.gatling.core.result.message.RecordType.{ RUN, ACTION }
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
 import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, InitializeDataWriter, FlushDataWriter }
 import com.excilys.ebi.gatling.core.util.DateHelper.toTimestamp
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
@@ -42,24 +38,11 @@ class FileDataWriter extends DataWriter with Logging {
 	 * The OutputStreamWriter used to write to files
 	 */
 	private var osw: OutputStreamWriter = _
+
 	/**
 	 * The countdown latch that will be decreased when all message are written and all scenarios ended
 	 */
 	private var latch: CountDownLatch = _
-
-	private val startUpTime = currentTimeMillis
-
-	private var activeUsersCount = 0
-
-	private var totalUsersCount = 0L
-
-	private var successfulRequestsCount = 0
-
-	private var failedRequestsCount = 0
-
-	private var lastDisplayTime = currentTimeMillis
-
-	private val displayPeriod = 5 * 1000
 
 	/**
 	 * Method called when this actor receives a message
@@ -68,34 +51,24 @@ class FileDataWriter extends DataWriter with Logging {
 		// If the message is sent to initialize the writer
 		case InitializeDataWriter(runRecord, totalUsersCount, latch, encoding) => {
 
-			def initStreamWriter {
+			if (initialized.compareAndSet(false, true)) {
+				this.latch = latch
 				osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(simulationLogFile(runRecord.runUuid).toString)), encoding)
-			}
-
-			def printRunRecord {
 				osw.append(RUN).append(TABULATION_SEPARATOR)
 					.append(toTimestamp(runRecord.runDate)).append(TABULATION_SEPARATOR)
 					.append(runRecord.runId).append(TABULATION_SEPARATOR)
 					// hack for being able to deserialize in FileDataReader
 					.append(if (runRecord.runDescription.isEmpty) " " else runRecord.runDescription)
 					.append(END_OF_LINE)
-			}
 
-			if (initialized.compareAndSet(false, true)) {
-				this.latch = latch
-				this.totalUsersCount = totalUsersCount
-				initStreamWriter
-				printRunRecord
-
-			} else {
+			} else
 				error("FileDataWriter has already been initialized!")
-			}
 		}
 
 		// If the message comes from an action
 		case RequestRecord(scenarioName, userId, actionName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage) => {
 
-			def printRequestRecord {
+			if (initialized.get)
 				osw.append(ACTION).append(TABULATION_SEPARATOR)
 					.append(scenarioName).append(TABULATION_SEPARATOR)
 					.append(userId.toString).append(TABULATION_SEPARATOR)
@@ -107,46 +80,9 @@ class FileDataWriter extends DataWriter with Logging {
 					.append(resultStatus.toString).append(TABULATION_SEPARATOR)
 					.append(resultMessage)
 					.append(END_OF_LINE)
-			}
 
-			def handleCounters {
-				actionName match {
-					case START_OF_SCENARIO => activeUsersCount += 1
-					case END_OF_SCENARIO => activeUsersCount -= 1
-					case _ => resultStatus match {
-						case OK => successfulRequestsCount += 1
-						case KO => failedRequestsCount += 1
-					}
-				}
-			}
-
-			def displaySamplingInfo {
-				// not thread safe but not critical either
-				val now = currentTimeMillis
-				if (now - lastDisplayTime > displayPeriod) {
-					lastDisplayTime = now
-					val timeSinceStartUpInSec = (now - startUpTime) / 1000
-					println(new StringBuilder()
-						.append(timeSinceStartUpInSec)
-						.append(" sec | Users: active=")
-						.append(activeUsersCount)
-						.append("/")
-						.append(totalUsersCount)
-						.append(" | Requests: OK=")
-						.append(successfulRequestsCount)
-						.append(" KO=")
-						.append(failedRequestsCount))
-				}
-			}
-
-			if (initialized.get) {
-				printRequestRecord
-				handleCounters
-				displaySamplingInfo
-
-			} else {
+			else
 				error("FileDataWriter hasn't been initialized!")
-			}
 		}
 
 		case FlushDataWriter => {

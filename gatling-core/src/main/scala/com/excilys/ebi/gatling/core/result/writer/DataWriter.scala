@@ -29,20 +29,26 @@ import akka.actor.{ Props, ActorRef, Actor }
 
 object DataWriter {
 
-	private lazy val instance: ActorRef = init
+	private lazy val dataWriter: ActorRef = init
+	private val console: ActorRef = system.actorOf(Props(classOf[ConsoleDataWriter]))
 
 	private def init = system.actorOf(Props(configuration.dataWriterClass))
 
-	def init(runRecord: RunRecord, totalUsersCount: Long, latch: CountDownLatch, encoding: String) = instance ! InitializeDataWriter(runRecord, totalUsersCount, latch, encoding)
+	private def dispatch(message: Any) {
+		dataWriter ! message
+		console ! message
+	}
 
-	def startUser(scenarioName: String, userId: Int, time: Long) = DataWriter.instance ! RequestRecord(scenarioName, userId, START_OF_SCENARIO, time, time, time, time, OK, START_OF_SCENARIO)
+	def init(runRecord: RunRecord, totalUsersCount: Int, latch: CountDownLatch, encoding: String) = dispatch(InitializeDataWriter(runRecord, totalUsersCount, latch, encoding))
 
-	def endUser(scenarioName: String, userId: Int, time: Long) = DataWriter.instance ! RequestRecord(scenarioName, userId, END_OF_SCENARIO, time, time, time, time, OK, END_OF_SCENARIO)
+	def startUser(scenarioName: String, userId: Int, time: Long) = dispatch(RequestRecord(scenarioName, userId, START_OF_SCENARIO, time, time, time, time, OK, START_OF_SCENARIO))
 
-	def askFlush = instance ! FlushDataWriter
+	def endUser(scenarioName: String, userId: Int, time: Long) = dispatch(RequestRecord(scenarioName, userId, END_OF_SCENARIO, time, time, time, time, OK, END_OF_SCENARIO))
+
+	def askFlush = dispatch(FlushDataWriter)
 
 	def logRequest(scenarioName: String, userId: Int, requestName: String, executionStartDate: Long, executionEndDate: Long, requestSendingEndDate: Long, responseReceivingStartDate: Long, requestResult: RequestStatus.RequestStatus, requestMessage: String) =
-		instance ! RequestRecord(scenarioName, userId, requestName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, requestResult, requestMessage)
+		dispatch(RequestRecord(scenarioName, userId, requestName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, requestResult, requestMessage))
 }
 
 /**
