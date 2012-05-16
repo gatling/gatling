@@ -72,15 +72,21 @@ object StringHelper extends Logging {
 						val occurrence = occurrencePartMatch.group(2)
 						val occurrenceFunction =
 							if (isNumeric(occurrence))
-								(session: Session) => occurrence.toInt
+								(session: Session) => Some(occurrence.toInt)
 							else
-								(session: Session) => session.getTypedAttribute[Int](occurrence)
+								(session: Session) => session.getAttributeAsOption(occurrence)
+
 						(session: Session) => {
-							val resolvedOccurrence = occurrenceFunction(session)
-							session.getAttributeAsOption[Seq[Any]](key) match {
-								case Some(x) if (x.size > resolvedOccurrence) => x(resolvedOccurrence)
-								case _ => {
-									warn(StringBuilder.newBuilder.append("Couldn't resolve occurrence ").append(resolvedOccurrence).append(" of session multivalued attribute ").append(key))
+							occurrenceFunction(session) match {
+								case Some(resolvedOccurrence) => session.getAttributeAsOption[Seq[Any]](key) match {
+									case Some(seq) if (seq.isDefinedAt(resolvedOccurrence)) => seq(resolvedOccurrence)
+									case _ => {
+										warn(StringBuilder.newBuilder.append("Couldn't resolve occurrence ").append(resolvedOccurrence).append(" of session multivalued attribute ").append(key))
+										EMPTY
+									}
+								}
+								case None => {
+									warn("Couldn't resolve index session attribute " + occurrence)
 									EMPTY
 								}
 							}

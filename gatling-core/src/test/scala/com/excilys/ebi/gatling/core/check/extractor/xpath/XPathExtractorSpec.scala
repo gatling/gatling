@@ -29,63 +29,55 @@ class XPathExtractorSpec extends Specification {
 
 	val namespaces = List("foo" -> "http://foo/foo")
 
-	"//author" should {
+	"count" should {
 
-		"have count return 4" in {
+		"return expected result with anywhere expression" in {
 			extractor.count(namespaces)("//author") must beEqualTo(Some(4))
 		}
 
-		"have extractMultiple return List(Nigel Rees, Evelyn Waugh, Herman Melville, J. R. R. Tolkien)" in {
-			extractor.extractMultiple(namespaces)("//author") must beEqualTo(Some(List("Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien")))
-		}
-
-		"have extractOne(1) return Evelyn Waugh" in {
-			extractor.extractOne(1, namespaces)("//author") must beEqualTo(Some("Evelyn Waugh"))
+		"return expected result with array expression" in {
+			extractor.count(namespaces)("/test/store/book[3]/author") must beEqualTo(Some(1))
 		}
 	}
 
-	"/test/store/book[3]/author" should {
+	"extractOne" should {
 
-		"have count return 1" in {
-			extractor.count(namespaces)("/test/store/book[3]/author") must beEqualTo(Some(1))
+		"return expected result with anywhere expression and rank 0" in {
+			extractor.extractOne(0, namespaces)("//author") must beEqualTo(Some("Nigel Rees"))
 		}
 
-		"have extractMultiple return List(Herman Melville)" in {
-			extractor.extractMultiple(namespaces)("/test/store/book[3]/author") must beEqualTo(Some(List("Herman Melville")))
+		"return expected result with anywhere expression and rank 1" in {
+			extractor.extractOne(1, namespaces)("//author") must beEqualTo(Some("Evelyn Waugh"))
 		}
 
-		"have extractOne(0) return None" in {
+		"return expected result with array expression" in {
 			extractor.extractOne(0, namespaces)("/test/store/book[3]/author") must beEqualTo(Some("Herman Melville"))
 		}
 
-		"have extractOne(1) return None" in {
+		"return expected None with array expression" in {
 			extractor.extractOne(1, namespaces)("/test/store/book[3]/author") must beEqualTo(None)
 		}
-	}
 
-	"/test/store/book[@author='Nigel Rees']/title" should {
-
-		"have extractOne(0) return Sayings of the Century" in {
+		"return expected result with attribute expression" in {
 			extractor.extractOne(0, namespaces)("/test/store/book[@att = 'foo']/title") must beEqualTo(Some("Sayings of the Century"))
 		}
-	}
 
-	"//book[last()]/title" should {
-
-		"have extractOne(0) return The Lord of the Rings" in {
+		"return expected result with last function expression" in {
 			extractor.extractOne(0, namespaces)("//book[last()]/title") must beEqualTo(Some("The Lord of the Rings"))
 		}
 	}
 
-	"//display-price" should {
+	"extractMultiple" should {
 
-		"have extractMultiple return List(8.95, 12.99, 8.99, 22.99, 19.95)" in {
-			extractor.extractMultiple(namespaces)("//display-price") must beEqualTo(Some(List("8.95", "12.99", "8.99", "22.99", "19.95")))
+		"return expected result with anywhere expression" in {
+			extractor.extractMultiple(namespaces)("//author") must beEqualTo(Some(List("Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien")))
 		}
-	}
 
-	"//foo:bar" should {
-		"have extractMultiple return List(fooBar)" in {
+		"return expected result with array expression" in {
+			extractor.extractMultiple(namespaces)("/test/store/book[3]/author") must beEqualTo(Some(List("Herman Melville")))
+		}
+
+		"return expected result with anywhere namespaced element" in {
 			extractor.extractMultiple(namespaces)("//foo:bar") must beEqualTo(Some(List("fooBar")))
 		}
 	}

@@ -22,67 +22,61 @@ import com.excilys.ebi.gatling.core.session.Session
 @RunWith(classOf[JUnitRunner])
 class StringHelperSpec extends Specification {
 
-	"""foo${bar}""" should {
+	"parseEvaluatable" should {
 
-		"""produce fooBAR with Map("bar" -> "BAR")""" in {
+		"return expected result with 1 monovalued expression at the end of the string" in {
 			val session = new Session("scenario", 1, Map("bar" -> "BAR"))
 			StringHelper.parseEvaluatable("foo${bar}")(session) must beEqualTo("fooBAR")
 		}
-	}
 
-	"""${bar}baz""" should {
-
-		"""produce BARbaz with Map("bar" -> "BAR")""" in {
+		"return expected result with 1 monovalued expression at the beginning of the string" in {
 			val session = new Session("scenario", 1, Map("bar" -> "BAR"))
 			StringHelper.parseEvaluatable("${bar}baz")(session) must beEqualTo("BARbaz")
 		}
-	}
 
-	"""${bar}baz""" should {
-
-		"""produce BARbaz with Map("bar" -> "BAR")""" in {
-			val session = new Session("scenario", 1, Map("bar" -> "BAR"))
-			StringHelper.parseEvaluatable("${bar}baz")(session) must beEqualTo("BARbaz")
-		}
-	}
-
-	"""${foo} ${bar}""" should {
-
-		"""produce FOO BAR with Map("foo" -> "FOO", "bar" -> "BAR")""" in {
-			val session = new Session("scenario", 1, Map("foo" -> "FOO", "bar" -> "BAR"))
-			StringHelper.parseEvaluatable("${foo} ${bar}")(session) must beEqualTo("FOO BAR")
-		}
-	}
-
-	"""foo${bar}baz""" should {
-
-		"""produce fooBARbaz with Map("bar" -> "BAR")""" in {
+		"return expected result with 1 monovalued expression in the middle of the string" in {
 			val session = new Session("scenario", 1, Map("bar" -> "BAR"))
 			StringHelper.parseEvaluatable("foo${bar}baz")(session) must beEqualTo("fooBARbaz")
 		}
-	}
 
-	"""foo${bar(1)}""" should {
+		"return expected result with 2 monovalued expressions" in {
+			val session = new Session("scenario", 1, Map("foo" -> "FOO", "bar" -> "BAR"))
+			StringHelper.parseEvaluatable("${foo} ${bar}")(session) must beEqualTo("FOO BAR")
+		}
 
-		"""produce fooBAR2 with Map("bar" -> List("BAR1", "BAR2"))""" in {
+		"handle gracefully monovalued expression with missing attribute" in {
+			val session = new Session("scenario", 1, Map.empty)
+			StringHelper.parseEvaluatable("foo${bar}")(session) must beEqualTo("foo")
+		}
+
+		"return expected result with multivalued expression with static index" in {
 			val session = new Session("scenario", 1, Map("bar" -> List("BAR1", "BAR2")))
 			StringHelper.parseEvaluatable("foo${bar(1)}")(session) must beEqualTo("fooBAR2")
 		}
-	}
 
-	"""{foo${bar(1)}}""" should {
-
-		"""produce {fooBAR2} with Map("bar" -> List("BAR1", "BAR2"))""" in {
-			val session = new Session("scenario", 1, Map("bar" -> List("BAR1", "BAR2")))
-			StringHelper.parseEvaluatable("{foo${bar(1)}}")(session) must beEqualTo("{fooBAR2}")
-		}
-	}
-
-	"""{foo${bar(baz)}}""" should {
-
-		"""produce {fooBAR2} with Map("bar" -> List("BAR1", "BAR2"), "baz" -> 1)""" in {
+		"return expected result with multivalued expression with resolved index" in {
 			val session = new Session("scenario", 1, Map("bar" -> List("BAR1", "BAR2"), "baz" -> 1))
-			StringHelper.parseEvaluatable("{foo${bar(1)}}")(session) must beEqualTo("{fooBAR2}")
+			StringHelper.parseEvaluatable("{foo${bar(baz)}}")(session) must beEqualTo("{fooBAR2}")
+		}
+
+		"handle gracefully multivalued expression with static index and missing attribute" in {
+			val session = new Session("scenario", 1, Map.empty)
+			StringHelper.parseEvaluatable("foo${bar(1)}")(session) must beEqualTo("foo")
+		}
+
+		"handle gracefully multivalued expression with static index and empty attribute" in {
+			val session = new Session("scenario", 1, Map("bar" -> Nil))
+			StringHelper.parseEvaluatable("foo${bar(1)}")(session) must beEqualTo("foo")
+		}
+
+		"handle gracefully multivalued expression with static index and missing index" in {
+			val session = new Session("scenario", 1, Map("bar" -> List("BAR1")))
+			StringHelper.parseEvaluatable("foo${bar(1)}")(session) must beEqualTo("foo")
+		}
+
+		"handle gracefully multivalued expression with missing resolved index attribute" in {
+			val session = new Session("scenario", 1, Map("bar" -> List("BAR1", "BAR2")))
+			StringHelper.parseEvaluatable("{foo${bar(baz)}}")(session) must beEqualTo("{foo}")
 		}
 	}
 }
