@@ -33,16 +33,18 @@ import grizzled.slf4j.Logging
 object Configuration extends Logging {
 
 	GatlingConfiguration.setUp(None, None, None, None, None)
-
-	val configuration = new Configuration
 	val DEFAULT_CLASS_NAME = "Simulation"
 
-	private val XSTREAM = new XStream(new DomDriver)
+	private val XSTREAM = {
+		val xstream = new XStream(new DomDriver)
+		xstream.alias("configuration", classOf[Configuration])
+		xstream.alias("pattern", classOf[Pattern])
+		xstream.alias("proxy", classOf[ProxyConfig])
+		xstream
+	}
 	private val CONFIGURATION_FILE = File(System.getProperty("user.home") / GATLING_RECORDER_FILE_NAME)
 
-	XSTREAM.alias("configuration", classOf[Configuration])
-	XSTREAM.alias("pattern", classOf[Pattern])
-	XSTREAM.alias("proxy", classOf[ProxyConfig])
+	val configuration = new Configuration
 
 	def apply(options: Options) {
 		initFromDisk

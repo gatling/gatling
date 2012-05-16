@@ -19,6 +19,8 @@ import java.awt.event.{ KeyListener, KeyEvent }
 import java.awt.Color
 import java.util.Date
 
+import scala.collection.mutable
+
 import com.excilys.ebi.gatling.recorder.ui.util.UIHelper.useUIThread
 
 import grizzled.slf4j.Logging
@@ -26,11 +28,11 @@ import javax.swing.{ JTextField, BorderFactory }
 
 object ValidationHelper extends Logging {
 
-	val standardBorder = BorderFactory.createMatteBorder(1, 1, 1, 1, Color.darkGray)
-	val errorBorder = BorderFactory.createMatteBorder(2, 2, 2, 2, Color.red)
-	val disabledBorder = BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(184, 207, 229))
+	private val standardBorder = BorderFactory.createMatteBorder(1, 1, 1, 1, Color.darkGray)
+	private val errorBorder = BorderFactory.createMatteBorder(2, 2, 2, 2, Color.red)
+	private val disabledBorder = BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(184, 207, 229))
 
-	var validationStatus = Map.empty[String, Boolean]
+	private val validationStatus = mutable.Map.empty[String, Boolean]
 
 	// TODO: move table validation here
 
@@ -99,12 +101,12 @@ object ValidationHelper extends Logging {
 		def keyTyped(e: KeyEvent) {}
 	}
 
-	def updateValidationStatus(id: String, status: Boolean, cfgFrame: ConfigurationFrame) {
+	private def updateValidationStatus(id: String, status: Boolean, cfgFrame: ConfigurationFrame) {
 		validationStatus += (id -> status)
 		updateStartButtonStatus(cfgFrame)
 	}
 
-	def updateStartButtonStatus(cfgFrame: ConfigurationFrame) {
+	private def updateStartButtonStatus(cfgFrame: ConfigurationFrame) {
 		val newStatus = validationStatus.values.foldLeft(true)((b1, b2) => b1 && b2)
 		cfgFrame.btnStart.setEnabled(newStatus)
 	}
