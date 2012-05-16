@@ -91,7 +91,7 @@
 		<logback.version>1.0.3</logback.version>
 		<slf4j.version>1.6.4</slf4j.version>
 		<scalate.version>1.5.3</scalate.version>
-		<netty.version>3.4.4.Final</netty.version>
+		<netty.version>3.4.5.Final</netty.version>
 		<joda-time.version>2.1</joda-time.version>
 		<joda-convert.version>1.2</joda-convert.version>
 		<xstream.version>1.4.2</xstream.version>
