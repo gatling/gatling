@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.charts.template.PageTemplate.TEMPLATE_ENGINE
 import com.excilys.ebi.gatling.charts.util.StatisticsHelper.NO_PLOT_MAGIC_VALUE
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
-case class Statistics(val name: String, val total: Long, val success: Long, val failure: Long) {
+case class Statistics(name: String, total: Long, success: Long, failure: Long) {
 
 	private def makePrintable(value: Long) = if (value != NO_PLOT_MAGIC_VALUE) value.toString else "-"
 

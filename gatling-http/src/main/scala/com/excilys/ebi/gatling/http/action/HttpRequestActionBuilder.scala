@@ -31,7 +31,7 @@ object HttpRequestActionBuilder {
 	/**
 	 * This is the default HTTP check used to verify that the response status is 2XX
 	 */
-	val DEFAULT_HTTP_STATUS_CHECK = status.find.in(Session => (200 to 210)).build
+	val DEFAULT_HTTP_STATUS_CHECK = status.find.in(Session => 200 to 210).build
 }
 
 /**
@@ -51,7 +51,7 @@ class HttpRequestActionBuilder(requestName: String, requestBuilder: AbstractHttp
 		case _ => checks
 	}
 
-	private[gatling] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
+	private[gatling] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = {
 		val httpConfig = protocolConfigurationRegistry.getProtocolConfiguration(HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE).map(_.asInstanceOf[HttpProtocolConfiguration])
 		system.actorOf(Props(new HttpRequestAction(requestName, next, requestBuilder, resolvedChecks, httpConfig)))
 	}

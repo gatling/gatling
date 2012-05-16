@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.util
-import java.io.{ OutputStream, InputStream, Closeable }
-import scala.annotation.tailrec
+
+import java.io.Closeable
 
 object IOHelper {
 

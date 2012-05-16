@@ -38,8 +38,8 @@ import java.util.List;
 
 import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
 import static java.util.Arrays.asList;
+import static org.codehaus.plexus.util.StringUtils.chompLast;
 import static org.codehaus.plexus.util.StringUtils.join;
-import static org.codehaus.plexus.util.StringUtils.stripEnd;
 
 /**
  * Mojo to execute Gatling.
@@ -242,11 +242,11 @@ public class GatlingMojo extends AbstractMojo {
 			// Arguments
 			List<String> args = new ArrayList<String>();
 			args.addAll(asList("-" + OptionsConstants.CONFIG_FILE_OPTION, configFile.getCanonicalPath(),//
-					"-" + OptionsConstants.DATA_FOLDER_OPTION, dataFolder.getCanonicalPath(),//
-					"-" + OptionsConstants.RESULTS_FOLDER_OPTION, resultsFolder.getCanonicalPath(),//
-					"-" + OptionsConstants.REQUEST_BODIES_FOLDER_OPTION, requestBodiesFolder.getCanonicalPath(),//
-					"-" + OptionsConstants.SIMULATIONS_FOLDER_OPTION, simulationsFolder.getCanonicalPath(),//
-					"-" + OptionsConstants.SIMULATIONS_OPTION, simulations));
+			        "-" + OptionsConstants.DATA_FOLDER_OPTION, dataFolder.getCanonicalPath(),//
+			        "-" + OptionsConstants.RESULTS_FOLDER_OPTION, resultsFolder.getCanonicalPath(),//
+			        "-" + OptionsConstants.REQUEST_BODIES_FOLDER_OPTION, requestBodiesFolder.getCanonicalPath(),//
+			        "-" + OptionsConstants.SIMULATIONS_FOLDER_OPTION, simulationsFolder.getCanonicalPath(),//
+			        "-" + OptionsConstants.SIMULATIONS_OPTION, simulations));
 
 			if (noReports) {
 				args.add("-" + OptionsConstants.NO_REPORTS_OPTION);
@@ -263,7 +263,7 @@ public class GatlingMojo extends AbstractMojo {
 	}
 
 	protected String fileNametoClassName(String fileName) {
-		return stripEnd(fileName, ".scala").replace(File.separatorChar, '.');
+		return chompLast(fileName).replace(File.separatorChar, '.');
 	}
 
 	/**
@@ -276,7 +276,7 @@ public class GatlingMojo extends AbstractMojo {
 		DirectoryScanner scanner = new DirectoryScanner();
 
 		// Set Base Directory
-        getLog().debug("effective simulationsFolder: " + simulationsFolder.getPath());
+		getLog().debug("effective simulationsFolder: " + simulationsFolder.getPath());
 		scanner.setBasedir(simulationsFolder);
 
 		// Resolve includes
@@ -301,9 +301,8 @@ public class GatlingMojo extends AbstractMojo {
 			includedClassNames.add(fileNametoClassName(includedFile));
 		}
 
-        getLog().debug("resolved simulation classes: " + includedClassNames);
-
-        return join(includedClassNames.iterator(), ",");
+		getLog().debug("resolved simulation classes: " + includedClassNames);
+		return join(includedClassNames.iterator(), ",");
 	}
 
 	protected Project getProject() throws MojoExecutionException {
@@ -314,8 +313,8 @@ public class GatlingMojo extends AbstractMojo {
 			Path classpath = new Path(project);
 			append(classpath, pluginArtifacts); // Add jars
 			classpath.setPath(configFile.getParent()); // Set dirname of config
-														// file into the
-														// classpath
+			                                           // file into the
+			                                           // classpath
 			getLog().debug("Gatling classpath : " + classpath);
 			project.addReference(GATLING_CLASSPATH_REF_NAME, classpath);
 			return project;

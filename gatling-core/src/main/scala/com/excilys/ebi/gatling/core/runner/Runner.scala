@@ -48,7 +48,7 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 
 	// Builds all scenarios
 	val scenarios = scenarioConfigurations.map { scenarioConfiguration =>
-		val protocolRegistry = new ProtocolConfigurationRegistry(scenarioConfiguration.protocolConfigurations)
+		val protocolRegistry = ProtocolConfigurationRegistry(scenarioConfiguration.protocolConfigurations)
 		scenarioConfiguration.scenarioBuilder.end(userLatch).build(protocolRegistry)
 	}
 
@@ -61,7 +61,6 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 	 * This method schedules the beginning of all scenarios
 	 */
 	def run {
-	  
 		DataWriter.init(runRecord, totalNumberOfUsers, dataWriterLatch, configuration.encoding)
 
 		debug("Launching All Scenarios")

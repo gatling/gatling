@@ -26,4 +26,4 @@ import java.util.concurrent.CountDownLatch
  * @param latch the countdown latch that will end the simulation
  * @param encoding the file encoding
  */
-case class InitializeDataWriter(runRecord: RunRecord, totalUsersCount: Long, latch: CountDownLatch, encoding: String)
+case class InitializeDataWriter(runRecord: RunRecord, totalUsersCount: Int, latch: CountDownLatch, encoding: String)
