@@ -40,10 +40,6 @@ object StringHelper extends Logging {
 
 	val EMPTY = ""
 
-	val INDEX_START = "("
-
-	val INDEX_END = ")"
-
 	val jdk6Pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
 
 	val elPattern = """\$\{(.+?)\}""".r
