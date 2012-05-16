@@ -55,11 +55,9 @@ object ScenarioExporter extends Logging {
 				configuration.simulationClassName + DATE_FORMATTER.format(startDate)
 
 		// If follow redirect, discard some recorded elements
-		def getStatusCode(se: ScenarioElement) = {
-			se match {
-				case r: RequestElement => r.statusCode
-				case _ => 0
-			}
+		def getStatusCode(se: ScenarioElement) = se match {
+			case r: RequestElement => r.statusCode
+			case _ => 0
 		}
 
 		def filterRedirectsAndNonAuthorized(l: List[(ScenarioElement, Int)], e: ScenarioElement) = {
@@ -84,9 +82,10 @@ object ScenarioExporter extends Logging {
 
 		val filteredElements =
 			if (configuration.followRedirect)
-				scenarioElements.foldLeft(List[(ScenarioElement, Int)]())(filterRedirectsAndNonAuthorized).map {
-					case (element, statusCode) => element
-				}.reverse
+				scenarioElements
+					.foldLeft(List[(ScenarioElement, Int)]())(filterRedirectsAndNonAuthorized)
+					.map { case (element, statusCode) => element }
+					.reverse
 			else
 				scenarioElements
 
@@ -110,9 +109,10 @@ object ScenarioExporter extends Logging {
 		}
 
 		// Aggregate headers
+		val filteredHeaders = Set("Authorization", "Cookie", "Content-Length")
 		val headers = elementsList.map {
 			case e: RequestElement => Some(
-				(e.id, e.headers.filterNot(header => Array("Authorization", "Cookie", "Content-Length").contains(header._1))))
+				(e.id, e.headers.filterNot(header => filteredHeaders.contains(header._1))))
 			case _ => None
 		}.flatten
 
@@ -134,15 +134,16 @@ object ScenarioExporter extends Logging {
 		val baseUrls = scenarioElements.map {
 			case reqElm: RequestElement => Some(reqElm.baseUrl)
 			case _ => None
-		}.flatten.groupBy(url => url).map { case (url, urls) => (url, urls.size) }
+		}.flatten.groupBy(url => url).toSeq
 
-		baseUrls.maxBy { case (url, nbOfOccurrences) => nbOfOccurrences }._1
+		baseUrls.maxBy { case (url, occurrences) => occurrences.size }._1
 	}
 
 	private def getChains(scenarioElements: List[ScenarioElement]): (List[ScenarioElement], List[List[ScenarioElement]]) = {
 		var chains: List[List[ScenarioElement]] = Nil
 		var newScenarioElements: List[ScenarioElement] = Nil
 
+		// TODO clean up, use Either
 		if (scenarioElements.size > ScenarioExporter.EVENTS_GROUPING) {
 			val numberOfSubLists = scenarioElements.size / ScenarioExporter.EVENTS_GROUPING + 1
 			// Creates the content of the chains
@@ -157,6 +158,7 @@ object ScenarioExporter extends Logging {
 	}
 
 	private def dumpRequestBody(idEvent: Int, content: String, simulationClass: String) {
+		println(configuration.requestBodiesFolder);
 		use(new FileWriter(File(getFolder(configuration.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)) { fw =>
 			try {
 				fw.write(content)
@@ -167,9 +169,7 @@ object ScenarioExporter extends Logging {
 		}
 	}
 
-	private def getScenarioFileName(date: Date): String = {
-		"Simulation" + DATE_FORMATTER.format(date) + ".scala"
-	}
+	private def getScenarioFileName(date: Date): String = "Simulation" + DATE_FORMATTER.format(date) + ".scala"
 
 	def getOutputFolder = getFolder(configuration.outputFolder)
 

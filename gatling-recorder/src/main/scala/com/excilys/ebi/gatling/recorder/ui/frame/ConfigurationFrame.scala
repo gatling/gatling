@@ -50,7 +50,7 @@ class ConfigurationFrame extends JFrame with Logging {
 	val txtOutputFolder = new JTextField(70)
 	val tblFilters = new FilterTable
 	val cbOutputEncoding = new JComboBox
-	val txtSimulationPackage = new JTextField(40)
+	val txtSimulationPackage = new JTextField(30)
 	val txtSimulationClassName = new JTextField(30)
 
 	private val btnFiltersAdd = new JButton("+")
@@ -70,7 +70,7 @@ class ConfigurationFrame extends JFrame with Logging {
 
 	setTitle("Gatling Recorder - Configuration")
 	setLayout(new BorderLayout)
-	setMinimumSize(new Dimension(1024, 830))
+	setMinimumSize(new Dimension(1024, 768))
 	setResizable(true)
 	setLocationRelativeTo(null)
 	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
@@ -182,7 +182,7 @@ class ConfigurationFrame extends JFrame with Logging {
 		outputFormatPanel.add(cbOutputEncoding)
 
 		outputPanel.add(outputFolderPanel, BorderLayout.NORTH)
-		outputPanel.add(outputFormatPanel, BorderLayout.SOUTH)
+		outputPanel.add(outputFormatPanel, BorderLayout.CENTER)
 
 		/* Simulation information panel */
 		val simulationInfoPanel = new JPanel(new BorderLayout)
