@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.check
+
 import scala.collection.mutable
 
 /**
@@ -35,7 +36,7 @@ object CheckContext {
 	 */
 	def useCheckContext[T](block: => T) = {
 		try {
-			contextHolder.set(new mutable.HashMap[String, Any])
+			contextHolder.set(mutable.Map.empty[String, Any])
 
 			block
 		} finally {

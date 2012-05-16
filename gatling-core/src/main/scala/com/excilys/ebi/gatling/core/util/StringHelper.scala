@@ -30,7 +30,7 @@ import grizzled.slf4j.Logging
  */
 object StringHelper extends Logging {
 
-	val CACHE: mutable.Map[String, EvaluatableString] = new mutable.HashMap[String, EvaluatableString]
+	val CACHE = mutable.Map.empty[String, EvaluatableString]
 
 	val END_OF_LINE = System.getProperty("line.separator")
 
