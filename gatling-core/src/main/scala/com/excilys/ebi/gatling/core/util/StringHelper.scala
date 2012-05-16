@@ -16,11 +16,9 @@
 package com.excilys.ebi.gatling.core.util
 
 import java.text.Normalizer
-import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.Pattern
 
-import scala.collection.JavaConversions.asScalaConcurrentMap
-import scala.collection.mutable.ConcurrentMap
+import scala.collection.mutable
 
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.core.session.Session
@@ -32,7 +30,7 @@ import grizzled.slf4j.Logging
  */
 object StringHelper extends Logging {
 
-	val CACHE: ConcurrentMap[String, EvaluatableString] = new ConcurrentHashMap[String, EvaluatableString]
+	val CACHE: mutable.Map[String, EvaluatableString] = new mutable.HashMap[String, EvaluatableString]
 
 	val END_OF_LINE = System.getProperty("line.separator")
 
