@@ -139,10 +139,10 @@ object StatisticsHelper {
 	def windowInPercentileRange(average: Long, limit: Double, records: Seq[RequestRecord]): (Long, Long) = {
 
 		val maxCount = (records.size * limit).toInt
-		val recordsSortedByDistanceToAverage = records.sortBy(record => abs(record.responseTime - average))
+		val recordsSortedByDistanceToAverage = records.sortBy(record => abs(record.responseTime - average)).take(maxCount)
 
-		val min = if (recordsSortedByDistanceToAverage.isEmpty) NO_PLOT_MAGIC_VALUE else recordsSortedByDistanceToAverage.takeRight(maxCount).minBy(_.responseTime).responseTime
-		val max = if (recordsSortedByDistanceToAverage.isEmpty) NO_PLOT_MAGIC_VALUE else recordsSortedByDistanceToAverage.take(maxCount).maxBy(_.responseTime).responseTime
+		var min = if (recordsSortedByDistanceToAverage.isEmpty) NO_PLOT_MAGIC_VALUE else recordsSortedByDistanceToAverage.minBy(_.responseTime).responseTime
+		var max = if (recordsSortedByDistanceToAverage.isEmpty) NO_PLOT_MAGIC_VALUE else recordsSortedByDistanceToAverage.maxBy(_.responseTime).responseTime
 
 		(min, max)
 	}
