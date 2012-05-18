@@ -16,12 +16,11 @@
 package com.excilys.ebi.gatling.core.check.extractor.xpath
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
 import com.excilys.ebi.gatling.core.check.extractor.xpath.XPathExtractorSpec.extractor
-import scala.io.Source
+import org.specs2.runner.JUnitRunner
 
 object XPathExtractorSpec {
-	def extractor = XPathExtractor(getClass.getResourceAsStream("/test.xml"))
+	val extractor = XPathExtractor(getClass.getResourceAsStream("/test.xml"))
 }
 
 @RunWith(classOf[JUnitRunner])
