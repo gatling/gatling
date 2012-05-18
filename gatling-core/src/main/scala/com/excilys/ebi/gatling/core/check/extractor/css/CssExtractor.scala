@@ -55,8 +55,7 @@ class CssExtractor(text: String) {
 	 * @return an option containing the values if found, None otherwise
 	 */
 	def extractMultiple(expression: String): Option[Seq[String]] = {
-		val res = selector.select(expression).map(_.getTextContent.trim())
-		res
+		selector.select(expression).map(_.getTextContent.trim())
 	}
 
 	/**
