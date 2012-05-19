@@ -61,6 +61,24 @@
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
 
+		<!-- CSSelly : used for implementing the CSS checks -->
+		<dependency>
+			<groupId>org.jodd</groupId>
+			<artifactId>jodd-wot</artifactId>
+			<version>3.3.3</version>
+			<exclusions>
+			<exclusion>
+				<groupId>asm</groupId>
+				<artifactId>asm</artifactId>
+			</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+		<groupId>org.ow2.asm</groupId>
+			<artifactId>asm</artifactId>
+			<version>4.0</version>
+		</dependency>
+
 		<!-- runtime -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
