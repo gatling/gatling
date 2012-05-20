@@ -49,9 +49,9 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		(for (line <- Source.fromFile(simulationLogFile(runUuid).jfile, configuration.encoding).getLines) yield TABULATION_PATTERN.split(line, 0))
 			.foreach {
 				case Array(RUN, runDate, runId, runDescription) =>
-					runRecords + RunRecord(parseTimestampString(runDate), runId, runDescription.trim)
+					runRecords + RunRecord(parseTimestampString(runDate), runId.intern, runDescription.trim.intern)
 				case Array(ACTION, scenarioName, userId, requestName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage) =>
-					records + RequestRecord(scenarioName, userId.toInt, requestName, executionStartDate.toLong, executionEndDate.toLong, requestSendingEndDate.toLong, responseReceivingStartDate.toLong, RequestStatus.withName(resultStatus), resultMessage)
+					records + RequestRecord(scenarioName.intern, userId.toInt, requestName.intern, executionStartDate.toLong, executionEndDate.toLong, requestSendingEndDate.toLong, responseReceivingStartDate.toLong, RequestStatus.withName(resultStatus), resultMessage.intern)
 				case record => logger.warn("Malformed line, skipping it : " + record.toList)
 			}
 
