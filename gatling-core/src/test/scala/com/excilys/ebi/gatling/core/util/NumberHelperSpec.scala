@@ -24,6 +24,7 @@ import org.apache.commons.math3.random.EmpiricalDistribution
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary
 import org.apache.commons.math3.stat.StatUtils
 import org.apache.commons.math3.distribution.{UniformIntegerDistribution, ExponentialDistribution}
+import org.apache.commons.math3.exception.NotStrictlyPositiveException
 
 @RunWith(classOf[JUnitRunner])
 class NumberHelperSpec extends Specification {
@@ -77,8 +78,8 @@ class NumberHelperSpec extends Specification {
 
   "getRandomDoubleFromExponential" should {
 
-    "be zero when expectedAverage is zero" in {
-      NumberHelper.getRandomDoubleFromExp(0) should beEqualTo(0)
+    "throw exception when expected average is zero" in {
+      NumberHelper.getRandomDoubleFromExp(0) should throwA[NotStrictlyPositiveException]
     }
 
     "produce exponentially-distributed random doubles around the specified average" in {
@@ -119,8 +120,8 @@ class NumberHelperSpec extends Specification {
 
   "getRandomLongFromExponential" should {
 
-    "be zero when expectedAverage is zero" in {
-      NumberHelper.getRandomLongFromExp(0) should beEqualTo(0)
+    "throw exception when expected average is zero" in {
+      NumberHelper.getRandomLongFromExp(0) should throwA[NotStrictlyPositiveException]
     }
 
     "produce exponentially-distributed random longs around the specified average" in {
