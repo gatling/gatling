@@ -50,7 +50,7 @@ class RunningFrame extends JFrame with Logging {
 	/* Initialization of the frame */
 	setTitle("Gatling Recorder - Running...")
 	setLayout(new BorderLayout)
-	setMinimumSize(new Dimension(1024, 830))
+	setMinimumSize(new Dimension(1024, 768))
 	setLocationRelativeTo(null)
 	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
 

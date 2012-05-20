@@ -16,8 +16,7 @@
 package com.excilys.ebi.gatling.recorder.ui.component;
 
 import java.awt.event.{ MouseListener, MouseEvent, MouseAdapter, ActionListener, ActionEvent }
-import java.awt.{ Component, Color, BorderLayout }
-import java.lang.Override
+import java.awt.{ Dimension, Component, Color, BorderLayout }
 
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.recorder.config.Pattern
@@ -42,8 +41,8 @@ class FilterTable extends JPanel with MouseListener {
 	setLayout(new BorderLayout)
 
 	val scrollPane = new JScrollPane(table)
-	add(scrollPane, BorderLayout.CENTER)
-
+	scrollPane.setPreferredSize(new Dimension(200, 300))
+	add(scrollPane)
 	scrollPane.addMouseListener(this)
 
 	initPopupMenu

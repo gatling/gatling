@@ -72,7 +72,7 @@ object MatcherCheckBuilder {
 		}
 	}
 
-	val maybeStrategy = new MatchStrategy[Any] {
+	val whateverStrategy = new MatchStrategy[Any] {
 		def apply(value: Option[Any], session: Session) = Success(value)
 	}
 }
@@ -179,7 +179,7 @@ class MatcherCheckBuilder[C <: Check[R], R, X](checkBuilderFactory: CheckBuilder
 	/**
 	 * @return a partial CheckBuilder with a "maybe (always true)" MatchStrategy
 	 */
-	def maybe = matchWith(MatcherCheckBuilder.maybeStrategy)
+	def whatever = matchWith(MatcherCheckBuilder.whateverStrategy)
 }
 
 /**

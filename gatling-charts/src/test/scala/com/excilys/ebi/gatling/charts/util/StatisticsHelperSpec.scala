@@ -15,64 +15,129 @@
  */
 package com.excilys.ebi.gatling.charts.util
 
-import scala.collection.mutable.ListBuffer
-
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ responseTimeStandardDeviation, averageTime }
+import com.excilys.ebi.gatling.charts.util.StatisticsHelper._
 import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RequestRecord }
 
 @RunWith(classOf[JUnitRunner])
 class StatisticsHelperSpec extends Specification {
 
-	val emptyRequestData: Seq[RequestRecord] = new ListBuffer[RequestRecord]
-	val testRequestRecords: Seq[RequestRecord] = createTestRequestRecords
-
-	"empty request data: { }" should {
-
-		"should return NO_PLOT_MAGIC_VALUE for averageTime(_.responseTime)" in {
-			averageTime(_.responseTime)(emptyRequestData) must beEqualTo(StatisticsHelper.NO_PLOT_MAGIC_VALUE)
-		}
-
-		"return NO_PLOT_MAGIC_VALUE for responseTimeStandardDeviation" in {
-			responseTimeStandardDeviation(emptyRequestData) must beEqualTo(StatisticsHelper.NO_PLOT_MAGIC_VALUE)
-		}
-
-	}
-
-	"real request data: {2000, 4000, 4000, 4000, 5000, 5000, 7000, 9000}" should {
-		"return 5000 for averageTime(_.responseTime)" in {
-			averageTime(_.responseTime)(testRequestRecords) must beEqualTo(5000)
-		}
-
-		"return 2000 for responseTimeStandardDeviation" in {
-			responseTimeStandardDeviation(testRequestRecords) must beEqualTo(2000)
-		}
-
-	}
-
-	private def createTestRequestRecords(): Seq[RequestRecord] = {
-		val requestRecords: ListBuffer[RequestRecord] = new ListBuffer[RequestRecord]
-		// Wolfram Alpha reports the following statistics for {2000, 4000, 4000, 4000, 5000, 5000, 7000, 9000}:
-		//   average (mean): 5000
-		//   population stddev: 2000 - provided by Wikipedia & NeoOffice
-		//   sample stddev: 2138
-		//   median: 4500
-		// http://www.wolframalpha.com/input/?i=2000%2C+4000%2C+4000%2C+4000%2C+5000%2C+5000%2C+7000%2C+9000
-		requestRecords + createRequestRecord(1000, 3000, 3500, 5000)
-		requestRecords + createRequestRecord(2000, 6000, 3500, 5000)
-		requestRecords + createRequestRecord(3000, 7000, 3500, 5000)
-		requestRecords + createRequestRecord(4000, 8000, 3500, 5000)
-		requestRecords + createRequestRecord(5000, 10000, 3500, 5000)
-		requestRecords + createRequestRecord(5000, 10000, 3500, 5000)
-		requestRecords + createRequestRecord(7000, 14000, 3500, 5000)
-		requestRecords + createRequestRecord(0, 9000, 3500, 5000)
-
-		requestRecords
-	}
+	// Wolfram Alpha reports the following statistics for {2000, 4000, 4000, 4000, 5000, 5000, 7000, 9000}:
+	//   average (mean): 5000
+	//   population stddev: 2000 - provided by Wikipedia & NeoOffice
+	//   sample stddev: 2138
+	//   median: 4500
+	// http://www.wolframalpha.com/input/?i=2000%2C+4000%2C+4000%2C+4000%2C+5000%2C+5000%2C+7000%2C+9000
+	val testRequestRecords = List(
+		createRequestRecord(1000, 3000, 3500, 5000),
+		createRequestRecord(1000, 10000, 3500, 5000),
+		createRequestRecord(2000, 6000, 3500, 5000),
+		createRequestRecord(3000, 7000, 3500, 5000),
+		createRequestRecord(4000, 8000, 3500, 5000),
+		createRequestRecord(5000, 10000, 3500, 5000),
+		createRequestRecord(5000, 10000, 3500, 5000),
+		createRequestRecord(7000, 14000, 3500, 5000))
+	val knownAverageResponseTime = 5000
 
 	private def createRequestRecord(execStart: Long, execEnd: Long, sendEnd: Long, responseRecvStart: Long): RequestRecord = RequestRecord(
 		"testScenario", 1, "Test Request", execStart, execEnd, sendEnd, responseRecvStart, RequestStatus.OK, "test request record")
+
+	"minResponseTime" should {
+
+		"return NO_PLOT_MAGIC_VALUE for empty request data" in {
+			minResponseTime(Nil) must beEqualTo(NO_PLOT_MAGIC_VALUE)
+		}
+
+		"return expected result for correct request data" in {
+			minResponseTime(testRequestRecords) must beEqualTo(2000)
+		}
+	}
+
+	"maxResponseTime" should {
+
+		"return NO_PLOT_MAGIC_VALUE for empty request data" in {
+			maxResponseTime(Nil) must beEqualTo(NO_PLOT_MAGIC_VALUE)
+		}
+
+		"return expected result for correct request data" in {
+			maxResponseTime(testRequestRecords) must beEqualTo(9000)
+		}
+	}
+
+	"averageResponseTime" should {
+
+		"return NO_PLOT_MAGIC_VALUE for empty request data" in {
+			averageResponseTime(Nil) must beEqualTo(NO_PLOT_MAGIC_VALUE)
+		}
+
+		"return expected result for correct request data" in {
+			averageResponseTime(testRequestRecords) must beEqualTo(knownAverageResponseTime)
+		}
+	}
+
+	"averageLatency" should {
+
+		"return NO_PLOT_MAGIC_VALUE for empty request data" in {
+			averageLatency(Nil) must beEqualTo(NO_PLOT_MAGIC_VALUE)
+		}
+
+		"return expected result for correct request data" in {
+			averageLatency(testRequestRecords) must beEqualTo(1500)
+		}
+	}
+
+	"responseTimeStandardDeviation" should {
+
+		"return NO_PLOT_MAGIC_VALUE for empty request data" in {
+			responseTimeStandardDeviation(Nil) must beEqualTo(NO_PLOT_MAGIC_VALUE)
+		}
+
+		"return expected result for correct request data" in {
+			responseTimeStandardDeviation(testRequestRecords) must beEqualTo(2000)
+		}
+	}
+
+	"windowInPercentileRange" should {
+		"return NO_PLOT_MAGIC_VALUE for the 0 percentile range window" in {
+			windowInPercentileRange(knownAverageResponseTime, 0, testRequestRecords) must beEqualTo(NO_PLOT_MAGIC_VALUE, NO_PLOT_MAGIC_VALUE)
+		}
+		"return expected result for the 70 percentile range window" in {
+			windowInPercentileRange(knownAverageResponseTime, 0.70, testRequestRecords) must beEqualTo(4000, 5000)
+		}
+
+		"return expected result for the 95 percentile range window" in {
+			windowInPercentileRange(knownAverageResponseTime, 0.95, testRequestRecords) must beEqualTo(2000, 7000)
+		}
+
+		"return expected result for the 99.99 percentile range window" in {
+			windowInPercentileRange(knownAverageResponseTime, 0.9999, testRequestRecords) must beEqualTo(2000, 7000)
+		}
+
+		"return expected result for the 100 percentile range window" in {
+			windowInPercentileRange(knownAverageResponseTime, 1, testRequestRecords) must beEqualTo(2000, 9000)
+		}
+	}
+
+	"numberOfRequestInResponseTimeRange" should {
+		"indicate that all the request have their response time in between 0 and 100000" in {
+			numberOfRequestInResponseTimeRange(testRequestRecords, 0, 100000).map(_._2) must beEqualTo(List(0, 8, 0, 0))
+		}
+
+		val nRequestInResponseTimeRange = numberOfRequestInResponseTimeRange(testRequestRecords, 2500, 5000).map(_._2)
+		
+		"indicate that 1 request had a response time below 2500ms" in {
+			nRequestInResponseTimeRange(0) must beEqualTo(1)
+		}
+		"indicate that 5 request had a response time in between 2500ms and 5000ms" in {
+			nRequestInResponseTimeRange(1) must beEqualTo(5)
+		}
+		
+		"indicate that 2 request had a response time above 5000ms" in {
+			nRequestInResponseTimeRange(2) must beEqualTo(2)
+		}
+	}
+
 }

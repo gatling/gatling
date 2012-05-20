@@ -44,6 +44,7 @@ class RequestElement(val request: HttpRequest, val statusCode: Int, val simulati
 	val requestBody = if (request.getContent.capacity > 0 && !containsFormParams) Some(new String(request.getContent.array)) else None
 
 	private val uri = URI.create(request.getUri)
+	val baseUrl = uri.getScheme() + "://" + uri.getAuthority
 	private var printedUrl = baseUrl + uri.getPath
 	val completeUrl = request.getUri
 
@@ -57,8 +58,6 @@ class RequestElement(val request: HttpRequest, val statusCode: Int, val simulati
 			convertParamsFromJavaToScala(paramDecoder.getParameters)
 		} else
 			Nil
-
-	val baseUrl = uri.getScheme() + "://" + uri.getAuthority
 
 	var id: Int = 0
 
