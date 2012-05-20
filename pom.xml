@@ -102,6 +102,7 @@
 		<ant.version>1.8.3</ant.version>
 		<grizzled-slf4j.version>0.6.9</grizzled-slf4j.version>
 		<jackson.version>2.0.2</jackson.version>
+		<commons-math.version>3.0</commons-math.version>
 		<junit.version>4.10</junit.version>
 		<specs2.version>1.9</specs2.version>
 
@@ -314,6 +315,11 @@
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
 				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-math3</artifactId>
+				<version>${commons-math.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
