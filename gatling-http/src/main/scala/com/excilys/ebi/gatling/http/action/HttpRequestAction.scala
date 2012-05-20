@@ -15,8 +15,12 @@
  */
 package com.excilys.ebi.gatling.http.action
 
+import java.lang.System.currentTimeMillis
+
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.action.Action
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.KO
+import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor }
@@ -94,14 +98,23 @@ class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: Abs
 	def execute(session: Session) {
 		info("Sending Request '" + requestName + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
 
-		try {
-			val ahcRequest = requestBuilder.build(session, protocolConfiguration)
-			val client = HTTP_CLIENT
-			val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(session, checks, next, requestName, ahcRequest, followRedirect)))
-			val ahcHandler = new GatlingAsyncHandler(checks, requestName, actor)
-			client.executeRequest(ahcRequest, ahcHandler)
+		val ahcRequest = try {
+			Some(requestBuilder.build(session, protocolConfiguration))
 		} catch {
-			case e => error("Failure while building request " + requestName + " engine will hang (to be fixed, see #423", e)
+			case e => {
+				error("Failure while building request " + requestName, e)
+				val now = currentTimeMillis
+				DataWriter.logRequest(session.scenarioName, session.userId, "Request " + requestName, now, now, now, now, KO, e.getMessage)
+				next ! session.setAttribute(Session.LAST_ACTION_DURATION_KEY, 0)
+				None
+			}
+		}
+
+		ahcRequest.map { request =>
+			val client = HTTP_CLIENT
+			val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(session, checks, next, requestName, request, followRedirect)))
+			val ahcHandler = new GatlingAsyncHandler(checks, requestName, actor)
+			client.executeRequest(request, ahcHandler)
 		}
 	}
 }
