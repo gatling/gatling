@@ -17,11 +17,9 @@ package com.excilys.ebi.gatling.core.check.extractor.css
 
 import scala.collection.JavaConversions.asScalaBuffer
 
-import com.excilys.ebi.gatling.core.check.extractor.Extractor.seqToOption
-import com.excilys.ebi.gatling.core.check.extractor.Extractor.toOption
+import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
 
-import jodd.lagarto.dom.LagartoDOMBuilder
-import jodd.lagarto.dom.NodeSelector
+import jodd.lagarto.dom.{ NodeSelector, LagartoDOMBuilder }
 
 object CssExtractor {
 
@@ -46,7 +44,7 @@ class CssExtractor(text: String) {
 	 * @return an option containing the value if found, None otherwise
 	 */
 	def extractOne(occurrence: Int)(expression: String): Option[String] = extractMultiple(expression) match {
-		case Some(results) if (results.length > occurrence) => results(occurrence)
+		case Some(results) if (results.isDefinedAt(occurrence)) => results(occurrence)
 		case _ => None
 	}
 
@@ -54,9 +52,7 @@ class CssExtractor(text: String) {
 	 * @param expression a String containing the CSS selector
 	 * @return an option containing the values if found, None otherwise
 	 */
-	def extractMultiple(expression: String): Option[Seq[String]] = {
-		selector.select(expression).map(_.getTextContent.trim())
-	}
+	def extractMultiple(expression: String): Option[Seq[String]] = selector.select(expression).map(_.getTextContent.trim())
 
 	/**
 	 * @param expression a String containing the CSS selector

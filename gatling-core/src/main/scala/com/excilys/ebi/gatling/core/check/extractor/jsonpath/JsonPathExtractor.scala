@@ -44,7 +44,7 @@ class JsonPathExtractor(textContent: String) {
 	 * @return extract the occurrence of the given rank matching the expression
 	 */
 	def extractOne(occurrence: Int)(expression: String): Option[String] = extractMultiple(expression) match {
-		case Some(results) if (results.length > occurrence) => results(occurrence)
+		case Some(results) if (results.isDefinedAt(occurrence)) => results(occurrence)
 		case _ => None
 	}
 
