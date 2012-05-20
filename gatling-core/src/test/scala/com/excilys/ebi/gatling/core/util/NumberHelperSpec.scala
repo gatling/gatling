@@ -20,10 +20,10 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import org.specs2.mutable.Specification
 import scala.math.abs
-import org.apache.commons.math3.distribution.ExponentialDistribution
 import org.apache.commons.math3.random.EmpiricalDistribution
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary
 import org.apache.commons.math3.stat.StatUtils
+import org.apache.commons.math3.distribution.{UniformIntegerDistribution, ExponentialDistribution}
 
 @RunWith(classOf[JUnitRunner])
 class NumberHelperSpec extends Specification {
@@ -35,49 +35,43 @@ class NumberHelperSpec extends Specification {
     }
 
     "produce uniformly-distributed random numbers within the specified range" in {
-      val min:Long = 0; val max:Long = 100;
+      val min:Int = 0; val max:Int = 100;
       val expectedAverage:Double = (max + min) / 2
       val numSamples: Int = 1000
-      var withinOneStdDev = 0
-      var withinTwoStdDev = 0
-      var numTests = 100
+      val numTests = 100
+      var timesMatchingDistribution = 0
 
-      var differences = List[Double]()
+      val uniformDistribution: UniformIntegerDistribution = new UniformIntegerDistribution(min, max)
 
       for (n <- 0 until numTests) {
-        var samples = List[Long]()
-        var sum: Long = 0
+        var samples = List[Double]()
 
         for (i <- 0 until numSamples) {
           val uniformSample: Long = NumberHelper.getRandomLong(min, max)
           samples ::= uniformSample
 
-          uniformSample must beGreaterThanOrEqualTo(min)
-          uniformSample must beLessThanOrEqualTo(max)
-
-          sum += uniformSample
+          uniformSample must beGreaterThanOrEqualTo(min.toLong)
+          uniformSample must beLessThanOrEqualTo(max.toLong)
         }
 
-        samples.length mustEqual (numSamples)
+        val samplesArray: Array[Double] = samples.toArray
+        val empiricalDistribution = new EmpiricalDistribution
+        empiricalDistribution.load(samplesArray)
+        val sampleStats: StatisticalSummary = empiricalDistribution.getSampleStats
+        val twentyFifthPercentileVal: Long = StatUtils.percentile(samplesArray, 25.0).round
+        val seventyFifthPercentileVal: Long = StatUtils.percentile(samplesArray, 75.0).round
 
-        val average: Double = sum.toDouble / numSamples
-        val diffFromAverage: Double = average - expectedAverage
-        differences ::= diffFromAverage
-        if (abs(diffFromAverage) < 1 /* within one stddev */){
-          withinOneStdDev += 1
-        }
-
-        if (abs(diffFromAverage) < 2 /* within two stddev */){
-          withinTwoStdDev += 1
+        if (sampleStats.getN == numSamples
+          && isCloseTo(sampleStats.getMean, expectedAverage, 2)
+          && isCloseTo(uniformDistribution.cumulativeProbability(twentyFifthPercentileVal.toInt), 0.25, 0.15)
+          && isCloseTo(uniformDistribution.cumulativeProbability(seventyFifthPercentileVal.toInt), 0.75, 0.15)) {
+          timesMatchingDistribution += 1
         }
 
       }
 
-      /* expect about 68.2% of tests to have fallen within the first standard deviation */
-      withinOneStdDev.toDouble / numTests.toDouble must beGreaterThanOrEqualTo(0.65)
-
-      /* expect about 95.4% of tests to have fallen within the second standard deviation */
-      withinTwoStdDev.toDouble / numTests.toDouble must beGreaterThanOrEqualTo(0.93)
+      val percentTestsMatchingDistribution: Double = timesMatchingDistribution.toDouble / numTests.toDouble
+      percentTestsMatchingDistribution must beGreaterThanOrEqualTo(0.95)
     }
   }
 
@@ -91,7 +85,7 @@ class NumberHelperSpec extends Specification {
       val expectedAverage: Long = 10
       val numSamples: Int = 1000
       val numTests = 100
-      var timesCloseToExpectedAverage = 0
+      var timesMatchingDistribution = 0
 
       val exponentialDistribution: ExponentialDistribution = new ExponentialDistribution(expectedAverage)
 
@@ -114,12 +108,12 @@ class NumberHelperSpec extends Specification {
           && isCloseTo(sampleStats.getMean, expectedAverage, 1)
           && isCloseTo(exponentialDistribution.cumulativeProbability(twentyFifthPercentileVal), 0.25, 0.05)
           && isCloseTo(exponentialDistribution.cumulativeProbability(seventyFifthPercentileVal), 0.75, 0.05)) {
-          timesCloseToExpectedAverage += 1
+          timesMatchingDistribution += 1
         }
       }
 
-      val percentTestsMatchingExponentialDist: Double = timesCloseToExpectedAverage.toDouble / numTests.toDouble
-      percentTestsMatchingExponentialDist must beGreaterThanOrEqualTo(0.95)
+      val percentTestsMatchingDistribution: Double = timesMatchingDistribution.toDouble / numTests.toDouble
+      percentTestsMatchingDistribution must beGreaterThanOrEqualTo(0.95)
     }
   }
 
@@ -133,7 +127,7 @@ class NumberHelperSpec extends Specification {
       val expectedAverage: Long = 10
       val numSamples: Int = 1000
       val numTests = 100
-      var timesCloseToExpectedAverage = 0
+      var timesMatchingDistribution = 0
 
       val exponentialDistribution: ExponentialDistribution = new ExponentialDistribution(expectedAverage)
 
@@ -156,12 +150,12 @@ class NumberHelperSpec extends Specification {
           && isCloseTo(sampleStats.getMean, expectedAverage, 1)
           && isCloseTo(exponentialDistribution.cumulativeProbability(twentyFifthPercentileVal), 0.25, 0.05)
           && isCloseTo(exponentialDistribution.cumulativeProbability(seventyFifthPercentileVal), 0.75, 0.05)) {
-          timesCloseToExpectedAverage += 1
+          timesMatchingDistribution += 1
         }
       }
 
-      val percentTestsMatchingExponentialDist: Double = timesCloseToExpectedAverage.toDouble / numTests.toDouble
-      percentTestsMatchingExponentialDist must beGreaterThanOrEqualTo(0.95)
+      val percentTestsMatchingDistribution: Double = timesMatchingDistribution.toDouble / numTests.toDouble
+      percentTestsMatchingDistribution must beGreaterThanOrEqualTo(0.95)
     }
   }
 
