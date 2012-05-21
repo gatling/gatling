@@ -16,6 +16,7 @@
 package com.excilys.ebi.gatling.core.action
 
 import com.excilys.ebi.gatling.core.session.Session
+
 import akka.actor.ActorRef
 import grizzled.slf4j.Logging
 
@@ -34,14 +35,13 @@ class SimpleAction(sessionFunction: Session => Session, next: ActorRef) extends 
 	 * @param session the session of the virtual user
 	 */
 	def execute(session: Session) {
-		try {
-			val newSession = sessionFunction(session)
-			next ! sessionFunction(session)
-
+		val newSession = try {
+			sessionFunction(session)
 		} catch {
 			case e =>
 				error("Error while executing simple action", e)
-				next ! session
+				session
 		}
+		next ! newSession
 	}
 }
