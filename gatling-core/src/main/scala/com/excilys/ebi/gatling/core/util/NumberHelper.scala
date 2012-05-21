@@ -15,6 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.util
 import java.util.Random
+import scala.math.log
 
 object NumberHelper {
 
@@ -23,7 +24,31 @@ object NumberHelper {
 	 */
 	val RANDOM = new Random
 
+  /**
+   * Get a random long from a uniform distribution between the values min and max.
+   * @param min is the minimum value of the uniform distribution
+   * @param max is the maximum value of the uniform distribution
+   * @return
+   */
 	def getRandomLong(min: Long, max: Long): Long = min + ((RANDOM.nextDouble * (max - min))).toLong
-	
-	def isNumeric(string: String) = string.forall(_.isDigit)
+
+  /**
+   * Get a random double from an exponential distribution with the specified average value.
+   *
+   * @param avg is the desired average value of the exponential distribution
+   * @return
+   * @see http://perfdynamics.blogspot.com/2012/03/how-to-generate-exponential-delays.html#more
+   */
+  def getRandomDoubleFromExp(avg:Double): Double = (-avg * log(RANDOM.nextDouble()))
+
+  /**
+   * Get a random long from an exponential distribution with the specified average value.
+   *
+   * @param avg is the desired average value of the exponential distribution
+   * @return
+   * @see http://perfdynamics.blogspot.com/2012/03/how-to-generate-exponential-delays.html#more
+   */
+  def getRandomLongFromExp(avg:Double): Long = getRandomDoubleFromExp(avg).toLong
+
+        def isNumeric(string: String) = string.forall(_.isDigit)
 }
