@@ -20,6 +20,10 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import org.specs2.mutable.Specification
 import scala.math.abs
+import org.apache.commons.math3.distribution.ExponentialDistribution
+import org.apache.commons.math3.random.EmpiricalDistribution
+import org.apache.commons.math3.stat.descriptive.StatisticalSummary
+import org.apache.commons.math3.stat.StatUtils
 
 @RunWith(classOf[JUnitRunner])
 class NumberHelperSpec extends Specification {
@@ -86,29 +90,36 @@ class NumberHelperSpec extends Specification {
     "produce exponentially-distributed random doubles around the specified average" in {
       val expectedAverage: Long = 10
       val numSamples: Int = 1000
+      val numTests = 100
       var timesCloseToExpectedAverage = 0
-      var numTests = 100
+
+      val exponentialDistribution: ExponentialDistribution = new ExponentialDistribution(expectedAverage)
 
       for (n <- 0 until numTests) {
         var samples = List[Double]()
-        var sum: Double = 0
 
         for (i <- 0 until numSamples) {
           val exponentialSample: Double = NumberHelper.getRandomDoubleFromExp(expectedAverage)
           samples ::= exponentialSample
-          sum += exponentialSample
         }
 
-        samples.length mustEqual (numSamples)
+        val samplesArray: Array[Double] = samples.toArray
+        val empiricalDistribution = new EmpiricalDistribution
+        empiricalDistribution.load(samplesArray)
+        val sampleStats: StatisticalSummary = empiricalDistribution.getSampleStats
+        val twentyFifthPercentileVal: Double = StatUtils.percentile(samplesArray, 25.0)
+        val seventyFifthPercentileVal: Double = StatUtils.percentile(samplesArray, 75.0)
 
-        val average: Double = sum / numSamples
-        if (abs(average - expectedAverage) <= 1.0){
+        if (sampleStats.getN == numSamples
+          && isCloseTo(sampleStats.getMean, expectedAverage, 1)
+          && isCloseTo(exponentialDistribution.cumulativeProbability(twentyFifthPercentileVal), 0.25, 0.05)
+          && isCloseTo(exponentialDistribution.cumulativeProbability(seventyFifthPercentileVal), 0.75, 0.05)) {
           timesCloseToExpectedAverage += 1
         }
       }
 
-      val percentageOfTestsWithinRange: Double = timesCloseToExpectedAverage.toDouble / numTests.toDouble
-      percentageOfTestsWithinRange must beGreaterThanOrEqualTo(0.98)
+      val percentTestsMatchingExponentialDist: Double = timesCloseToExpectedAverage.toDouble / numTests.toDouble
+      percentTestsMatchingExponentialDist must beGreaterThanOrEqualTo(0.98)
     }
   }
 
@@ -147,5 +158,8 @@ class NumberHelperSpec extends Specification {
       percentageOfTestsWithinRange must beGreaterThanOrEqualTo(0.98)
     }
   }
+
+  def isCloseTo(expected:Double, actual:Double, tolerance:Double):Boolean = abs(actual - expected) <= tolerance
+  def isCloseTo(expected:Long, actual:Long, tolerance:Long):Boolean = abs(actual - expected) <= tolerance
 
 }
