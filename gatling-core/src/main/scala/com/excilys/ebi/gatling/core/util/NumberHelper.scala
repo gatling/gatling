@@ -16,8 +16,9 @@
 package com.excilys.ebi.gatling.core.util
 
 import java.util.Random
-import scala.math.log
-import scala.math.round;
+import scala.math.round
+import org.apache.commons.math3.distribution.ExponentialDistribution
+;
 
 object NumberHelper {
 
@@ -41,7 +42,7 @@ object NumberHelper {
    * @return
    * @see http://perfdynamics.blogspot.com/2012/03/how-to-generate-exponential-delays.html#more
    */
-  def getRandomDoubleFromExp(avg: Double): Double = (-avg * log(RANDOM.nextDouble()))
+  def getRandomDoubleFromExp(avg: Double): Double = new ExponentialDistribution(avg).sample()
 
   /**
    * Get a random long from an exponential distribution with the specified average value.
