@@ -26,6 +26,7 @@ import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.ning.http.client.ProxyServer.Protocol
 import com.ning.http.client.Realm.AuthScheme
 import com.ning.http.client.{ RequestBuilder, Request, Realm, FluentStringsMap, FluentCaseInsensitiveStringsMap }
+import com.excilys.ebi.gatling.http.Headers
 
 /**
  * AbstractHttpRequestBuilder class companion
@@ -147,7 +148,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 		val isHttps = configureURLAndCookies(requestBuilder, session, protocolConfiguration)
 		configureProxy(requestBuilder, session, isHttps, protocolConfiguration)
 		configureQueryParams(requestBuilder, session)
-		configureHeaders(requestBuilder, headers, session)
+		configureHeaders(requestBuilder, headers, session, protocolConfiguration)
 		configureRealm(requestBuilder, realm, session)
 
 		requestBuilder
@@ -225,9 +226,13 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * @param requestBuilder the request builder to which the headers should be added
 	 * @param session the session of the current scenario
 	 */
-	private def configureHeaders(requestBuilder: RequestBuilder, headers: Map[String, EvaluatableString], session: Session) {
-		requestBuilder setHeaders (new FluentCaseInsensitiveStringsMap)
-		headers.foreach(header => requestBuilder.addHeader(header._1, header._2(session)))
+	private def configureHeaders(requestBuilder: RequestBuilder, headers: Map[String, EvaluatableString], session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]) {
+		requestBuilder.setHeaders(new FluentCaseInsensitiveStringsMap)
+
+		val commonHeaders = protocolConfiguration.map(_.headers).getOrElse(Map.empty)
+		val resolvedRequestHeaders = headers.map { case (headerName, headerValue) => (headerName -> headerValue(session)) }
+
+		(commonHeaders ++ resolvedRequestHeaders).foreach { case (headerName, headerValue) => requestBuilder.addHeader(headerName, headerValue) }
 	}
 
 	/**
@@ -239,6 +244,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	private def configureRealm(requestBuilder: RequestBuilder, realm: Option[Session => Realm], session: Session) {
 		realm.map { realm => requestBuilder.setRealm(realm(session)) }
 	}
-	
+
 	private[gatling] def toActionBuilder = new HttpRequestActionBuilder(requestName, this, null, checks)
 }
