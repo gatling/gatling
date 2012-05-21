@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.request.builder
+
 import com.excilys.ebi.gatling.core.Predef.stringToSessionFunction
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.EvaluatableString
@@ -23,8 +24,7 @@ import com.excilys.ebi.gatling.http.Headers.{ Values => HeaderValues, Names => H
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
-import com.ning.http.client.{ StringPart, RequestBuilder, FluentStringsMap }
-import com.ning.http.client.Realm
+import com.ning.http.client.{ StringPart, RequestBuilder, Realm, FluentStringsMap }
 
 /**
  * This class serves as model to HTTP request with a body and parameters

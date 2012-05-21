@@ -18,9 +18,8 @@ package com.excilys.ebi.gatling.core.structure.loop
 import java.util.concurrent.TimeUnit
 
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.structure.loop.handler.{TimesLoopHandlerBuilder, DurationLoopHandlerBuilder, ConditionalLoopHandlerBuilder}
-import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
-import com.excilys.ebi.gatling.core.structure.ChainBuilder
+import com.excilys.ebi.gatling.core.structure.loop.handler.{ TimesLoopHandlerBuilder, DurationLoopHandlerBuilder, ConditionalLoopHandlerBuilder }
+import com.excilys.ebi.gatling.core.structure.{ ChainBuilder, AbstractStructureBuilder }
 import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 
 /**

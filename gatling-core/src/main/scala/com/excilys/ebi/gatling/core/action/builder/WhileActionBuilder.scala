@@ -15,20 +15,21 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
+import java.util.UUID.randomUUID
+
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.action.WhileAction
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
-import akka.actor.Uuid
 import akka.actor.{ Props, ActorRef }
 
 object WhileActionBuilder {
 	/**
 	 * Creates an initialized WhileActionBuilder
 	 */
-	def whileActionBuilder = new WhileActionBuilder(null, null, null, new Uuid().toString)
+	def whileActionBuilder = new WhileActionBuilder(null, null, null, randomUUID.toString)
 }
 
 /**

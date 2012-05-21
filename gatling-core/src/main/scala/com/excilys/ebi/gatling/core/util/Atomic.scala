@@ -15,8 +15,9 @@
  */
 package com.excilys.ebi.gatling.core.util
 
-import annotation.tailrec
 import java.util.concurrent.atomic.AtomicReference
+
+import annotation.tailrec
 
 object Atomic {
 	def apply[T](obj: T) = new Atomic(new AtomicReference(obj))

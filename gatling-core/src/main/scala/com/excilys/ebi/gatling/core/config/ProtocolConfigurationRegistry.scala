@@ -15,9 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.config
 
-import grizzled.slf4j.Logging
-
-object ProtocolConfigurationRegistry extends Logging {
+object ProtocolConfigurationRegistry {
 
 	def apply(configurations: Seq[ProtocolConfiguration]): ProtocolConfigurationRegistry = {
 		val indexedConfigurations = configurations

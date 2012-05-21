@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.request.builder
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.http.request.HttpRequestBody
-import com.excilys.ebi.gatling.http.check.HttpCheck
+
 import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.http.check.HttpCheck
+import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.ning.http.client.Realm
 
 /**

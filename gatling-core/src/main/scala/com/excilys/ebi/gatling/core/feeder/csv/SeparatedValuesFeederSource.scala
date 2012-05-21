@@ -17,7 +17,6 @@ package com.excilys.ebi.gatling.core.feeder.csv
 
 import java.io.FileReader
 
-import scala.Array.canBuildFrom
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.tools.nsc.io.Path.string2path
 

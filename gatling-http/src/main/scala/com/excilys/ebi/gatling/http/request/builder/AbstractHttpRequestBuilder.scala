@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.request.builder
+
 import com.excilys.ebi.gatling.core.Predef.stringToSessionFunction
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.core.session.Session
@@ -26,7 +27,6 @@ import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.ning.http.client.ProxyServer.Protocol
 import com.ning.http.client.Realm.AuthScheme
 import com.ning.http.client.{ RequestBuilder, Request, Realm, FluentStringsMap, FluentCaseInsensitiveStringsMap }
-import com.excilys.ebi.gatling.http.Headers
 
 /**
  * AbstractHttpRequestBuilder class companion

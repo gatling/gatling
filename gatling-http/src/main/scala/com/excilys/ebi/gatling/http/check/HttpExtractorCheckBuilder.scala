@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.check
+
 import com.excilys.ebi.gatling.core.check.{ ExtractorFactory, CheckBuilderFactory, ExtractorCheckBuilder, Matcher }
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase

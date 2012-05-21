@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.http.config
 
-import com.ning.http.client.ProxyServer
 import com.excilys.ebi.gatling.http.Headers
+import com.ning.http.client.ProxyServer
 
 /**
  * HttpProtocolConfigurationBuilder class companion

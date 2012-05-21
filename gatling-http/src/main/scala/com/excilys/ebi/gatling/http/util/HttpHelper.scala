@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.util
+
 import java.net.URI
 
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE

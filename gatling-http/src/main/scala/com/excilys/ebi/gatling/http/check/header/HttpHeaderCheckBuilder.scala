@@ -18,8 +18,7 @@ package com.excilys.ebi.gatling.http.check.header
 import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
-import com.excilys.ebi.gatling.core.check.ExtractorFactory
-import com.excilys.ebi.gatling.core.check.{ MultipleExtractorCheckBuilder, MatcherCheckBuilder }
+import com.excilys.ebi.gatling.core.check.{ ExtractorFactory, MultipleExtractorCheckBuilder, MatcherCheckBuilder }
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.check.header.HttpHeaderCheckBuilder.{ findExtractorFactory, findAllExtractorFactory, countExtractorFactory }
 import com.excilys.ebi.gatling.http.check.{ HttpExtractorCheckBuilder, HttpCheck }

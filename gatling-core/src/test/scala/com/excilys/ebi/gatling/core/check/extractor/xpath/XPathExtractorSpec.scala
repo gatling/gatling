@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.check.extractor.xpath
+
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
-import com.excilys.ebi.gatling.core.check.extractor.xpath.XPathExtractorSpec.extractor
 import org.specs2.runner.JUnitRunner
+
+import com.excilys.ebi.gatling.core.check.extractor.xpath.XPathExtractorSpec.extractor
 
 object XPathExtractorSpec {
 	val extractor = XPathExtractor(getClass.getResourceAsStream("/test.xml"))
