@@ -31,7 +31,7 @@ object NumberHelper {
    * @param max is the maximum value of the uniform distribution
    * @return
    */
-	def getRandomLong(min: Long, max: Long): Long = min + ((RANDOM.nextDouble * (max - min))).toLong
+  def getRandomLong(min: Long, max: Long): Long = round(min.toDouble + (RANDOM.nextDouble * (max - min).toDouble))
 
   /**
    * Get a random double from an exponential distribution with the specified average value.
