@@ -15,16 +15,8 @@
  */
 package com.excilys.ebi.gatling.mojo;
 
-import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
-import static java.util.Arrays.asList;
-import static org.codehaus.plexus.util.StringUtils.chompLast;
-import static org.codehaus.plexus.util.StringUtils.join;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import com.excilys.ebi.gatling.ant.GatlingTask;
+import com.excilys.ebi.gatling.app.OptionsConstants;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
@@ -39,8 +31,15 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.Commandline;
 import org.apache.tools.ant.types.Path;
 
-import com.excilys.ebi.gatling.ant.GatlingTask;
-import com.excilys.ebi.gatling.app.OptionsConstants;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
+import static java.util.Arrays.asList;
+import static org.codehaus.plexus.util.StringUtils.chompLast;
+import static org.codehaus.plexus.util.StringUtils.join;
 
 /**
  * Mojo to execute Gatling.
