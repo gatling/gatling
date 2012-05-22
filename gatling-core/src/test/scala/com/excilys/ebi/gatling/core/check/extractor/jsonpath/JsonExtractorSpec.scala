@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.check.extractor.jsonpath
+
+import scala.io.Source
+
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
+
 import com.excilys.ebi.gatling.core.check.extractor.jsonpath.JsonExtractorSpec.extractor
-import scala.io.Source
 
 object JsonExtractorSpec {
 	val document = Source.fromInputStream(getClass.getResourceAsStream("/test.json")).mkString

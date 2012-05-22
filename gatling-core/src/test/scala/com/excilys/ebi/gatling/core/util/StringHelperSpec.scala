@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.util
+
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
 import org.specs2.mutable.Specification
+import org.specs2.runner.JUnitRunner
+
 import com.excilys.ebi.gatling.core.session.Session
 
 @RunWith(classOf[JUnitRunner])

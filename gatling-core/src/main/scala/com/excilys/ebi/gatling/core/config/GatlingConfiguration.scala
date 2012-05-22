@@ -18,12 +18,13 @@ package com.excilys.ebi.gatling.core.config
 import scala.io.Codec
 import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.Path
+
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.GATLING_DEFAULT_CONFIG_FILE
+import com.excilys.ebi.gatling.core.init.Initializable
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
-import com.excilys.ebi.gatling.core.util.DateHelper.parseHumanDateString
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.core.init.Initializable
+
 import grizzled.slf4j.Logging
 
 /**
@@ -92,7 +93,7 @@ class GatlingConfiguration(
 	val chartingIndicatorsLowerBound = fileConfiguration("gatling.charting.indicators.lowerBound", 800)
 
 	val chartingIndicatorsHigherBound = fileConfiguration("gatling.charting.indicators.higherBound", 1200)
-	
+
 	val chartingIndicatorsPercentiles = fileConfiguration("gatling.charting.indicators.percentiles", 95)
 
 	val chartingMaxPlotPerSerie = fileConfiguration("gatling.charting.maxPlotPerSerie", 5000)

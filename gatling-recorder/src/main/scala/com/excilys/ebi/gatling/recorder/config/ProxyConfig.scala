@@ -29,6 +29,4 @@ class ProxyConfig(@BeanProperty var host: Option[String] = None, @BeanProperty v
 			.append("sslPort=").append(sslPort)
 			.append("]")
 			.toString
-	
-	def hasCredentials = username.isDefined && password.isDefined
 }

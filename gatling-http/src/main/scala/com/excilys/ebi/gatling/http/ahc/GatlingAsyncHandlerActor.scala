@@ -24,22 +24,21 @@ import scala.collection.JavaConversions.asScalaBuffer
 import com.excilys.ebi.gatling.core.check.Check.applyChecks
 import com.excilys.ebi.gatling.core.check.Failure
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.{RequestStatus, OK, KO}
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ RequestStatus, OK, KO }
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.http.Headers.{Names => HeaderNames}
+import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames }
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
-import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.{REDIRECT_STATUS_CODES, REDIRECTED_REQUEST_NAME_PATTERN}
+import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.{ REDIRECT_STATUS_CODES, REDIRECTED_REQUEST_NAME_PATTERN }
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpConfig
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.http.request.HttpPhase
-import com.excilys.ebi.gatling.http.util.HttpHelper.{toRichResponse, computeRedirectUrl}
-import com.ning.http.client.{Response, RequestBuilder, Request, FluentStringsMap}
+import com.excilys.ebi.gatling.http.util.HttpHelper.{ toRichResponse, computeRedirectUrl }
+import com.ning.http.client.{ Response, RequestBuilder, Request, FluentStringsMap }
 
-import akka.actor.actorRef2Scala
-import akka.actor.{ReceiveTimeout, ActorRef, Actor}
+import akka.actor.{ ReceiveTimeout, ActorRef, Actor }
 import akka.util.duration.intToDurationInt
 import grizzled.slf4j.Logging
 
@@ -77,7 +76,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 		case OnThrowable(errorMessage, time) =>
 			requestSendingEndDate = if (requestSendingEndDate != 0L) requestSendingEndDate else time
 			responseReceivingStartDate = if (responseReceivingStartDate != 0L) responseReceivingStartDate else time
-			executionEndDate = if (executionEndDate != 0L) executionEndDate else time
+			executionEndDate = time
 			logRequest(KO, errorMessage)
 			executeNext(session)
 

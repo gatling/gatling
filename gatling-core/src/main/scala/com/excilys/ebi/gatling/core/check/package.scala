@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core
-import com.excilys.ebi.gatling.core.session.Session
+
 import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.core.session.Session
+
 package object check {
 
 	/**

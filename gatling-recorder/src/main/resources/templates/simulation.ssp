@@ -1,5 +1,5 @@
 <%@ val protocolConfig: com.excilys.ebi.gatling.recorder.scenario.ProtocolConfigElement %>
-<%@ val headers: List[(Int,List[(String,String)])] %>
+<%@ val headers: Map[Int, List[(String, String)]] %>
 <%@ val scenarioName: String %>
 <%@ val simulationClassName: String %>
 <%@ val packageName: Option[String] %>
@@ -42,7 +42,7 @@ class <%= simulationClassName %> extends Simulation {
 				
 			
 		List(
-			scn.configure users 1 protocolConfig httpConf
+			scn.configure.users(1).protocolConfig(httpConf)
 		)
 	}
 }

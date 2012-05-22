@@ -23,7 +23,6 @@ import org.specs2.runner.JUnitRunner
 
 import CssExtractorSpec.extractor
 
-
 object CssExtractorSpec {
 
 	val html = Source.fromInputStream(getClass.getResourceAsStream("/GatlingHomePage.html")).mkString

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.check.body
+
 import com.excilys.ebi.gatling.core.check.CheckContext.getOrUpdateCheckContextAttribute
 import com.excilys.ebi.gatling.core.check.extractor.jsonpath.JsonPathExtractor
 import com.excilys.ebi.gatling.core.check.ExtractorFactory

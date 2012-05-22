@@ -15,16 +15,14 @@
  */
 package com.excilys.ebi.gatling.core.result.writer
 
-import com.excilys.ebi.gatling.core.init.Initializable
-import akka.actor.Actor
 import java.lang.System.currentTimeMillis
-import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
-import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.core.result.message.RequestRecord
+
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
-import com.excilys.ebi.gatling.core.result.message.FlushDataWriter
+import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, InitializeDataWriter, FlushDataWriter }
+
+import grizzled.slf4j.Logging
 
 class ConsoleDataWriter extends DataWriter with Logging {
 

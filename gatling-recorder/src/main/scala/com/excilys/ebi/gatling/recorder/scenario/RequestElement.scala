@@ -47,6 +47,7 @@ class RequestElement(val request: HttpRequest, val statusCode: Int, val simulati
 	val baseUrl = uri.getScheme() + "://" + uri.getAuthority
 	private var printedUrl = baseUrl + uri.getPath
 	val completeUrl = request.getUri
+	var filteredHeadersId: Option[Int] = None
 
 	val headers: List[(String, String)] = request.getHeaders.map { entry => (entry.getKey, entry.getValue) }.toList
 
@@ -91,7 +92,8 @@ class RequestElement(val request: HttpRequest, val statusCode: Int, val simulati
 
 	override def toString = {
 		ScenarioExporter.TPL_ENGINE.layout("templates/request.ssp",
-			Map("method" -> method,
+			Map("headersId" -> filteredHeadersId,
+				"method" -> method,
 				"printedUrl" -> printedUrl,
 				"queryParams" -> queryParams,
 				"params" -> params,

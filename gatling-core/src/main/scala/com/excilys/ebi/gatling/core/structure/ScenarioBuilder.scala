@@ -16,12 +16,13 @@
 package com.excilys.ebi.gatling.core.structure
 
 import java.util.concurrent.CountDownLatch
+
 import com.excilys.ebi.gatling.core.action.builder.EndActionBuilder.endActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.StartActionBuilder.startActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfigurationBuilder
 import com.excilys.ebi.gatling.core.scenario.Scenario
-import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
 /**
  * ScenarioBuilder class companion
