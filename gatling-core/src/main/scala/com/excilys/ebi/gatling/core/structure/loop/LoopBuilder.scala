@@ -16,11 +16,11 @@
 package com.excilys.ebi.gatling.core.structure.loop
 
 import java.util.concurrent.TimeUnit
-
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.loop.handler.{ TimesLoopHandlerBuilder, DurationLoopHandlerBuilder, ConditionalLoopHandlerBuilder }
 import com.excilys.ebi.gatling.core.structure.{ ChainBuilder, AbstractStructureBuilder }
 import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
+import java.util.UUID
 
 /**
  * This class serves as DSL description of a loop
@@ -44,7 +44,18 @@ class LoopBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: 
 	 *
 	 * @param times the number of iterations
 	 */
-	def times(times: Int): B = new TimesLoopHandlerBuilder(structureBuilder, chain, times, counterName).build
+	def times(timesValue: Int): B = new TimesLoopHandlerBuilder(structureBuilder, chain, timesValue, counterName).build
+
+	def times(timesValue: String): B = times((s: Session) => s.getTypedAttribute[Int](timesValue))
+
+	def times(timesValue: Session => Int): B = {
+		counterName match {
+			case Some(counter) => asLongAs((s: Session) => s.getCounterValue(counter) < timesValue(s))
+			case None =>
+				val counter = counterName.getOrElse(UUID.randomUUID.toString)
+				counterName(counter).asLongAs((s: Session) => s.getCounterValue(counter) < timesValue(s))
+		}
+	}
 
 	/**
 	 * This method sets the duration of the loop
