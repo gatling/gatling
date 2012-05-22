@@ -61,6 +61,7 @@ object Configuration extends Logging {
 		configuration.simulationClassName = c.simulationClassName
 		configuration.simulationPackage = c.simulationPackage
 		configuration.followRedirect = c.followRedirect
+		configuration.automaticReferer = c.automaticReferer
 		configuration.saveConfiguration = true
 		configuration.encoding = c.encoding
 	}
@@ -97,6 +98,7 @@ object Configuration extends Logging {
 		o.requestBodiesFolder.map(configuration.requestBodiesFolder = _)
 		o.encoding.map(configuration.encoding = _)
 		o.followRedirect.map(configuration.followRedirect = _)
+		o.automaticReferer.map(configuration.automaticReferer = _)
 	}
 }
 
@@ -114,6 +116,7 @@ class Configuration {
 	@BeanProperty var simulationPackage: Option[String] = None
 	@BeanProperty var simulationClassName: String = Configuration.DEFAULT_CLASS_NAME
 	@BeanProperty var followRedirect: Boolean = false
+	@BeanProperty var automaticReferer: Boolean = false
 
 	override def toString =
 		new StringBuilder("Configuration [")
@@ -129,5 +132,6 @@ class Configuration {
 			.append("simulationPackage=").append(simulationPackage).append(", ")
 			.append("simulationClassName=").append(simulationClassName).append(", ")
 			.append("followRedirect=").append(followRedirect)
+			.append("automaticReferer=").append(automaticReferer)
 			.append("]").toString
 }
