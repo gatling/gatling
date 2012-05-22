@@ -27,6 +27,8 @@ class ProxyConfig(@BeanProperty var host: Option[String] = None, @BeanProperty v
 			.append("host=").append(host).append(", ")
 			.append("port=").append(port).append(", ")
 			.append("sslPort=").append(sslPort)
+			.append("username=").append(username).append(", ")
+			.append("password=").append(password).append(", ")
 			.append("]")
 			.toString
 }

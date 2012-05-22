@@ -27,6 +27,7 @@ import com.excilys.ebi.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandl
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpConfig._
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
+import com.excilys.ebi.gatling.http.referer.RefererHandling
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 import com.ning.http.client.{ Response, AsyncHttpClientConfig, AsyncHttpClient }
 
@@ -91,14 +92,14 @@ object HttpRequestAction extends Logging {
  * @param protocolConfiguration the protocol specific configuration
  */
 class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck], protocolConfiguration: Option[HttpProtocolConfiguration])
-		extends Action with Logging {
+		extends Action with Logging with RefererHandling {
 
 	val followRedirect = protocolConfiguration.map(_.followRedirect).getOrElse(false)
 
 	def execute(session: Session) {
 		info("Sending Request '" + requestName + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
 
-		val ahcRequest = try {
+		val request = try {
 			Some(requestBuilder.build(session, protocolConfiguration))
 		} catch {
 			case e => {
@@ -110,9 +111,10 @@ class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: Abs
 			}
 		}
 
-		ahcRequest.map { request =>
+		request.map { request =>
+			val newSession = storeReferer(request, session, protocolConfiguration)
 			val client = HTTP_CLIENT
-			val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(session, checks, next, requestName, request, followRedirect)))
+			val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(newSession, checks, next, requestName, request, followRedirect)))
 			val ahcHandler = new GatlingAsyncHandler(checks, requestName, actor)
 			client.executeRequest(request, ahcHandler)
 		}

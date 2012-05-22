@@ -83,6 +83,7 @@ object Headers {
 		val WEBSOCKET_ORIGIN = "WebSocket-Origin"
 		val WEBSOCKET_PROTOCOL = "WebSocket-Protocol"
 		val WWW_AUTHENTICATE = "WWW-Authenticate"
+		val X_REQUESTED_WITH = "X-Requested-With"
 	}
 
 	object Values {

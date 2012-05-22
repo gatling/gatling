@@ -19,11 +19,13 @@ import com.excilys.ebi.gatling.core.Predef.stringToSessionFunction
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.{ parseEvaluatable, EL_START, EL_END }
+import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.http.Headers.{ Values => HeaderValues, Names => HeaderNames }
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
+import com.excilys.ebi.gatling.http.referer.RefererHandling
 import com.ning.http.client.ProxyServer.Protocol
 import com.ning.http.client.Realm.AuthScheme
 import com.ning.http.client.{ RequestBuilder, Request, Realm, FluentStringsMap, FluentCaseInsensitiveStringsMap }
@@ -57,7 +59,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		realm: Option[Session => Realm],
-		checks: List[HttpCheck]) extends CookieHandling {
+		checks: List[HttpCheck]) extends CookieHandling with RefererHandling {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type
@@ -229,10 +231,11 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	private def configureHeaders(requestBuilder: RequestBuilder, headers: Map[String, EvaluatableString], session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]) {
 		requestBuilder.setHeaders(new FluentCaseInsensitiveStringsMap)
 
-		val commonHeaders = protocolConfiguration.map(_.headers).getOrElse(Map.empty)
+		val baseHeaders = protocolConfiguration.map(_.baseHeaders).getOrElse(Map.empty)
 		val resolvedRequestHeaders = headers.map { case (headerName, headerValue) => (headerName -> headerValue(session)) }
 
-		(commonHeaders ++ resolvedRequestHeaders).foreach { case (headerName, headerValue) => requestBuilder.addHeader(headerName, headerValue) }
+		val newHeaders = addStoredRefererHeader(baseHeaders ++ resolvedRequestHeaders, session, protocolConfiguration)
+		newHeaders.foreach { case (headerName, headerValue) => requestBuilder.addHeader(headerName, headerValue) }
 	}
 
 	/**

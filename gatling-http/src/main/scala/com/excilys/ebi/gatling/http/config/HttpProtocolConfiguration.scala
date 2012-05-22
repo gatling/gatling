@@ -31,6 +31,6 @@ object HttpProtocolConfiguration {
  * @param baseUrl the radix of all the URLs that will be used (eg: http://mywebsite.tld)
  * @param proxy a proxy through which all the requests must pass to succeed
  */
-case class HttpProtocolConfiguration(baseURL: Option[String], proxy: Option[ProxyServer], securedProxy: Option[ProxyServer], followRedirect: Boolean, headers: Map[String, String]) extends ProtocolConfiguration {
+case class HttpProtocolConfiguration(baseURL: Option[String], proxy: Option[ProxyServer], securedProxy: Option[ProxyServer], followRedirect: Boolean, automaticReferer: Boolean, baseHeaders: Map[String, String]) extends ProtocolConfiguration {
 	def protocolType = HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE
 }
