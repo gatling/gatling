@@ -47,7 +47,7 @@ class ConfigurationFrame extends JFrame with Logging {
 	val cbFilterStrategies = new JComboBox
 	val chkSavePref = new JCheckBox("Save preferences")
 	val chkFollowRedirect = new JCheckBox("Follow Redirects?")
-	val txtOutputFolder = new JTextField(70)
+	val txtOutputFolder = new JTextField(66)
 	val tblFilters = new FilterTable
 	val cbOutputEncoding = new JComboBox
 	val txtSimulationPackage = new JTextField(30)
