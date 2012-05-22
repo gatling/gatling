@@ -38,11 +38,7 @@ trait RefererHandling {
 
 	def storeReferer(request: Request, session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): Session = {
 
-		def isRealPage(request: Request): Boolean = {
-			val is = !request.getHeaders.containsKey(Headers.Names.X_REQUESTED_WITH) && Option(request.getHeaders.get(Headers.Names.ACCEPT)).map(_.head.contains("html")).isDefined
-			println("isRealPage" + is)
-			is
-		}
+		def isRealPage(request: Request): Boolean = !request.getHeaders.containsKey(Headers.Names.X_REQUESTED_WITH) && Option(request.getHeaders.get(Headers.Names.ACCEPT)).map(_.head.contains("html")).isDefined
 
 		if (isAutoReferer(protocolConfiguration) && isRealPage(request)) session.setAttribute(REFERER_CONTEXT_KEY, request.getUrl) else session
 	}
