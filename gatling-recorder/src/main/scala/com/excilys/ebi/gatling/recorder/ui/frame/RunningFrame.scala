@@ -132,7 +132,7 @@ class RunningFrame extends JFrame with Logging {
 			}
 		});
 
-		eventsInfoJList.addListSelectionListener(new ListSelectionListener() {
+		eventsInfoJList.addListSelectionListener(new ListSelectionListener {
 			override def valueChanged(e: ListSelectionEvent) {
 				if (eventsInfoJList.getSelectedIndex() >= 0) {
 					val obj = eventsInfo.get(eventsInfoJList.getSelectedIndex());
@@ -161,20 +161,20 @@ class RunningFrame extends JFrame with Logging {
 			}
 		})
 
-		btnClear.addActionListener(new ActionListener() {
+		btnClear.addActionListener(new ActionListener {
 			def actionPerformed(e: ActionEvent) {
 				RecorderController.clearRecorderState
 			}
 		})
 		
-		btnCancel.addActionListener(new ActionListener() {
+		btnCancel.addActionListener(new ActionListener {
 			def actionPerformed(e: ActionEvent) {
 				RecorderController.clearRecorderState
 				RecorderController.stopRecording
 			}
 		})
 
-		btnStop.addActionListener(new ActionListener() {
+		btnStop.addActionListener(new ActionListener {
 			def actionPerformed(e: ActionEvent) {
 				RecorderController.stopRecording
 			}

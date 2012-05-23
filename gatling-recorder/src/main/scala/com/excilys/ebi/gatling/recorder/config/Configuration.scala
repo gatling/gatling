@@ -106,7 +106,7 @@ class Configuration {
 
 	@BeanProperty var port = 8000
 	@BeanProperty var sslPort = 8001
-	@BeanProperty var proxy = ProxyConfig()
+	@BeanProperty var proxy = new ProxyConfig
 	@BeanProperty var filterStrategy = NONE
 	@BeanProperty var patterns: List[Pattern] = Nil
 	@BeanProperty var outputFolder: String = Option(System.getenv("GATLING_HOME")).map(_ => GatlingFiles.simulationsFolder.toString).getOrElse(System.getProperty("user.home"))

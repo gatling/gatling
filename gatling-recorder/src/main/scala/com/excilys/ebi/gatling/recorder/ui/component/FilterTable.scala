@@ -178,7 +178,7 @@ class RadioButtonEditor extends AbstractCellEditor with TableCellEditor with Log
 }
 
 object SelectPatternPanel {
-	def apply(): SelectPatternPanel = new SelectPatternPanel(ANT)
+	def apply() = new SelectPatternPanel(ANT)
 }
 
 class SelectPatternPanel(patternType: PatternType) extends JPanel {

@@ -17,12 +17,8 @@ package com.excilys.ebi.gatling.recorder.config
 
 import scala.reflect.BeanProperty
 
-object ProxyConfig{
-	def apply() = new ProxyConfig
-}
-
 class ProxyConfig(@BeanProperty var host: Option[String] = None, @BeanProperty var port: Option[Int] = None, @BeanProperty var sslPort: Option[Int] = None, @BeanProperty var username: Option[String] = None, @BeanProperty var password: Option[String] = None) {
-	override def toString = 
+	override def toString =
 		new StringBuilder("ProxyConfig [")
 			.append("host=").append(host).append(", ")
 			.append("port=").append(port).append(", ")

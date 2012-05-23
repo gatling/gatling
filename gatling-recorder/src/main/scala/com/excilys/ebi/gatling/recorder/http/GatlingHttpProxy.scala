@@ -32,7 +32,10 @@ object GatlingHttpProxy {
 		instance.start
 	}
 
-	def shutdown = instance.shutdown
+	def shutdown = {
+		instance.shutdown
+		instance = null
+	}
 
 	def receiveMessage(channel: Channel) {
 		instance.onMessageReceived(channel)
