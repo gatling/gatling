@@ -32,6 +32,7 @@ class RunningFrame extends JFrame with Logging {
 
 	private val btnTag = new JButton("Add")
 	private val btnClear = new JButton("Clear")
+	private val btnCancel = new JButton("Cancel")
 	private val btnStop = new JButton("Stop & Save")
 
 	private val txtTag = new JTextField(15)
@@ -69,6 +70,7 @@ class RunningFrame extends JFrame with Logging {
 	clearPanel.add(btnClear)
 
 	val stopPanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
+	stopPanel.add(btnCancel)
 	stopPanel.add(btnStop)
 
 	topPanel.add(tagPanel, BorderLayout.WEST)
@@ -162,6 +164,13 @@ class RunningFrame extends JFrame with Logging {
 		btnClear.addActionListener(new ActionListener() {
 			def actionPerformed(e: ActionEvent) {
 				RecorderController.clearRecorderState
+			}
+		})
+		
+		btnCancel.addActionListener(new ActionListener() {
+			def actionPerformed(e: ActionEvent) {
+				RecorderController.clearRecorderState
+				RecorderController.stopRecording
 			}
 		})
 
