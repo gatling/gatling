@@ -22,7 +22,7 @@ import com.ning.http.client.ProxyServer
  * HttpProtocolConfigurationBuilder class companion
  */
 object HttpProtocolConfigurationBuilder {
-	def httpConfig = new HttpProtocolConfigurationBuilder(None, None, None, false, false, Map.empty)
+	def httpConfig = new HttpProtocolConfigurationBuilder(None, None, None, true, true, Map.empty)
 
 	implicit def toHttpProtocolConfiguration(builder: HttpProtocolConfigurationBuilder) = builder.build
 }
@@ -42,9 +42,9 @@ class HttpProtocolConfigurationBuilder(baseUrl: Option[String], proxy: Option[Pr
 	 */
 	def baseURL(baseUrl: String) = new HttpProtocolConfigurationBuilder(Some(baseUrl), proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders)
 
-	def followRedirect = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, true, automaticRefererParam, baseHeaders)
+	def disableFollowRedirect = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, false, automaticRefererParam, baseHeaders)
 
-	def automaticReferer = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, true, baseHeaders)
+	def disableAutomaticReferer = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, false, baseHeaders)
 
 	def acceptHeader(value: String) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders + (Headers.Names.ACCEPT -> value))
 

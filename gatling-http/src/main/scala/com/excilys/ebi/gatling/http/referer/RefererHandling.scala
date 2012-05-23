@@ -29,7 +29,7 @@ trait RefererHandling {
 
 	def getStoredReferer(session: Session): Option[String] = session.getAttributeAsOption(REFERER_CONTEXT_KEY)
 
-	private def isAutoReferer(protocolConfiguration: Option[HttpProtocolConfiguration]) = protocolConfiguration.map(_.automaticReferer).getOrElse(false)
+	private def isAutoReferer(protocolConfiguration: Option[HttpProtocolConfiguration]) = protocolConfiguration.map(_.automaticRefererEnabled).getOrElse(true)
 
 	def addStoredRefererHeader(headers: Map[String, String], session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): Map[String, String] = getStoredReferer(session) match {
 		case Some(referer) if (isAutoReferer(protocolConfiguration) && !headers.contains(Headers.Names.REFERER)) => headers + (Headers.Names.REFERER -> referer)

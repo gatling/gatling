@@ -115,8 +115,8 @@ class Configuration {
 	@transient var requestBodiesFolder: String = GatlingFiles.requestBodiesFolder.toString
 	@BeanProperty var simulationPackage: Option[String] = None
 	@BeanProperty var simulationClassName: String = Configuration.DEFAULT_CLASS_NAME
-	@BeanProperty var followRedirect: Boolean = false
-	@BeanProperty var automaticReferer: Boolean = false
+	@BeanProperty var followRedirect: Boolean = true
+	@BeanProperty var automaticReferer: Boolean = true
 
 	override def toString =
 		new StringBuilder("Configuration [")

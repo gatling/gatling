@@ -94,7 +94,7 @@ object HttpRequestAction extends Logging {
 class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck], protocolConfiguration: Option[HttpProtocolConfiguration])
 		extends Action with Logging with RefererHandling {
 
-	val followRedirect = protocolConfiguration.map(_.followRedirect).getOrElse(false)
+	val followRedirect = protocolConfiguration.map(_.followRedirectEnabled).getOrElse(true)
 
 	def execute(session: Session) {
 		info("Sending Request '" + requestName + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)

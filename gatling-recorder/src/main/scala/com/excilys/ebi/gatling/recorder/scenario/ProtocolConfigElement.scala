@@ -44,11 +44,11 @@ class ProtocolConfigElement(baseUrl: String, proxy: ProxyConfig, followRedirect:
 			sb.append(""".credentials("""").append(proxyUsername).append("""", """").append(proxyPassword).append("""")""").append(END_OF_LINE)
 		}
 
-		if (followRedirect)
-			sb.append(".followRedirect").append(END_OF_LINE)
+		if (!followRedirect)
+			sb.append(".disableFollowRedirect").append(END_OF_LINE)
 
-		if (automaticReferer)
-			sb.append(".automaticReferer").append(END_OF_LINE)
+		if (!automaticReferer)
+			sb.append(".disableAutomaticReferer").append(END_OF_LINE)
 
 		baseHeaders.foreach {
 			case (headerName, headerValue) => headerName match {
