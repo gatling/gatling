@@ -224,7 +224,6 @@ object ScenarioExporter extends Logging {
 	}
 
 	private def dumpRequestBody(idEvent: Int, content: String, simulationClass: String) {
-		println(configuration.requestBodiesFolder);
 		use(new FileWriter(File(getFolder(configuration.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)) { fw =>
 			try {
 				fw.write(content)
