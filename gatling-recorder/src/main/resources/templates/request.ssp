@@ -8,7 +8,6 @@
 <%@ val id: Int %>
 <%@ val credentials: Option[(String,String)] %>
 <%@ val simulationClass: String %>
-
 			.exec(
 				http("request_<%= id %>")
 					.<%= method.toLowerCase %>("<%= printedUrl %>")
@@ -31,4 +30,3 @@
 					.check(status.is(<%= statusCode %>))
 <% } %>
 			)
-			

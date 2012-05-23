@@ -168,7 +168,7 @@ object ScenarioExporter extends Logging {
 			SortedMap(generateHeaders(requestElements, Map.empty).toSeq: _*)
 		}
 
-		val (newScenarioElements, chains) = getChains(elementsList)
+		val newScenarioElements = getChains(elementsList)
 
 		val output = ScenarioExporter.TPL_ENGINE.layout("templates/simulation.ssp",
 			Map("protocolConfig" -> protocolConfigElement,
@@ -176,7 +176,6 @@ object ScenarioExporter extends Logging {
 				"simulationClassName" -> simulationClass,
 				"scenarioName" -> "Scenario Name",
 				"packageName" -> configuration.simulationPackage,
-				"chains" -> chains,
 				"scenarioElements" -> newScenarioElements))
 
 		use(new FileWriter(File(getOutputFolder / getScenarioFileName(startDate)).jfile)) { _.write(output) }
@@ -205,22 +204,21 @@ object ScenarioExporter extends Logging {
 		}
 	}
 
-	private def getChains(scenarioElements: List[ScenarioElement]): (List[ScenarioElement], List[List[ScenarioElement]]) = {
-		var chains: List[List[ScenarioElement]] = Nil
-		var newScenarioElements: List[ScenarioElement] = Nil
+	private def getChains(scenarioElements: List[ScenarioElement]): Either[List[ScenarioElement], List[List[ScenarioElement]]] = {
 
-		// TODO clean up, use Either
 		if (scenarioElements.size > ScenarioExporter.EVENTS_GROUPING) {
 			val numberOfSubLists = scenarioElements.size / ScenarioExporter.EVENTS_GROUPING + 1
+			var chains: List[List[ScenarioElement]] = Nil
 			// Creates the content of the chains
 			for (i <- 0 until numberOfSubLists) {
 				chains = scenarioElements.slice(0 + ScenarioExporter.EVENTS_GROUPING * i, min(ScenarioExporter.EVENTS_GROUPING * (i + 1), scenarioElements.size - 1)) :: chains
 			}
-		} else {
-			newScenarioElements = scenarioElements
-		}
 
-		(newScenarioElements, chains.reverse)
+			Right(chains.reverse)
+
+		} else {
+			Left(scenarioElements)
+		}
 	}
 
 	private def dumpRequestBody(idEvent: Int, content: String, simulationClass: String) {
