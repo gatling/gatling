@@ -16,7 +16,6 @@
 package com.excilys.ebi.gatling.http.action
 
 import java.lang.System.currentTimeMillis
-
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.action.Action
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.KO
@@ -30,9 +29,9 @@ import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.referer.RefererHandling
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 import com.ning.http.client.{ Response, AsyncHttpClientConfig, AsyncHttpClient }
-
 import akka.actor.{ ActorRef, Props }
 import grizzled.slf4j.Logging
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration
 
 /**
  * HttpRequestAction class companion
@@ -91,7 +90,7 @@ object HttpRequestAction extends Logging {
  * @param checks the checks that will be performed on the response
  * @param protocolConfiguration the protocol specific configuration
  */
-class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck], protocolConfiguration: Option[HttpProtocolConfiguration])
+class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck], protocolConfiguration: Option[HttpProtocolConfiguration], gatlingConfiguration: GatlingConfiguration)
 		extends Action with Logging with RefererHandling {
 
 	val followRedirect = protocolConfiguration.map(_.followRedirectEnabled).getOrElse(true)
@@ -114,7 +113,7 @@ class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: Abs
 		request.map { request =>
 			val newSession = storeReferer(request, session, protocolConfiguration)
 			val client = HTTP_CLIENT
-			val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(newSession, checks, next, requestName, request, followRedirect)))
+			val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(newSession, checks, next, requestName, request, followRedirect, gatlingConfiguration)))
 			val ahcHandler = new GatlingAsyncHandler(checks, requestName, actor)
 			client.executeRequest(request, ahcHandler)
 		}
