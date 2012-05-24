@@ -22,7 +22,7 @@ import org.jboss.netty.handler.codec.http.{ HttpVersion, HttpResponseStatus, Htt
 
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
-import com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory.bootstrapFactory
+import com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory.newClientBootstrap
 
 import grizzled.slf4j.Logging
 
@@ -51,7 +51,7 @@ class BrowserHttpsRequestHandler(proxyConfig: ProxyConfig) extends AbstractBrows
 			val fullUri = new StringBuilder().append(targetHostURI).append(request.getUri).toString
 			request.setUri(fullUri)
 
-			val bootstrap = bootstrapFactory.newClientBootstrap(ctx, request, true)
+			val bootstrap = newClientBootstrap(ctx, request, true)
 
 			val (host, port) = (for {
 				host <- proxyConfig.host

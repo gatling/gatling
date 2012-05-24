@@ -15,10 +15,11 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor.regex
 
-import java.util.regex.Pattern
-import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
-import java.util.regex.Matcher
+import java.util.regex.{ Pattern, Matcher }
+
 import scala.annotation.tailrec
+
+import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
 
 /**
  * A built-in extractor for extracting values with Regular Expressions

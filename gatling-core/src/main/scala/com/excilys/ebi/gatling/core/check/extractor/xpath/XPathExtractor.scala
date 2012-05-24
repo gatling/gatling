@@ -86,7 +86,7 @@ class XPathExtractor(document: Document) {
 
 		val results = xpath(expression, namespaces).selectNodes(document).asInstanceOf[java.util.List[Node]]
 
-		if (results.size > occurrence)
+		if (results.isDefinedAt(occurrence))
 			results.get(occurrence).getTextContent
 		else
 			None

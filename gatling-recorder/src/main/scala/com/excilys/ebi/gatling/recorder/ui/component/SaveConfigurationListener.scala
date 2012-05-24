@@ -65,6 +65,7 @@ class SaveConfigurationListener(configurationFrame: ConfigurationFrame) extends 
 		configuration.saveConfiguration = configurationFrame.chkSavePref.isSelected
 
 		configuration.followRedirect = configurationFrame.chkFollowRedirect.isSelected
+		configuration.automaticReferer = configurationFrame.chkAutomaticReferer.isSelected
 
 		// set selected encoding
 		configuration.encoding = classOf[Charset].cast(configurationFrame.cbOutputEncoding.getSelectedItem).name

@@ -47,7 +47,8 @@ class ConfigurationFrame extends JFrame with Logging {
 	val cbFilterStrategies = new JComboBox
 	val chkSavePref = new JCheckBox("Save preferences")
 	val chkFollowRedirect = new JCheckBox("Follow Redirects?")
-	val txtOutputFolder = new JTextField(70)
+	val chkAutomaticReferer = new JCheckBox("Automatic Referers?")
+	val txtOutputFolder = new JTextField(66)
 	val tblFilters = new FilterTable
 	val cbOutputEncoding = new JComboBox
 	val txtSimulationPackage = new JTextField(30)
@@ -203,6 +204,7 @@ class ConfigurationFrame extends JFrame with Logging {
 
 		simulationConfigPanel.add(simulationInfoPanel, BorderLayout.NORTH)
 		simulationConfigPanel.add(chkFollowRedirect, BorderLayout.WEST)
+		simulationConfigPanel.add(chkAutomaticReferer, BorderLayout.EAST)
 
 		/* Filters Panel */
 		val filtersPanel = new JPanel(new BorderLayout);
@@ -339,6 +341,7 @@ class ConfigurationFrame extends JFrame with Logging {
 		txtSimulationClassName.setText(configuration.simulationClassName)
 		cbFilterStrategies.setSelectedItem(configuration.filterStrategy)
 		chkFollowRedirect.setSelected(configuration.followRedirect)
+		chkAutomaticReferer.setSelected(configuration.automaticReferer)
 		for (pattern <- configuration.patterns)
 			tblFilters.addRow(pattern)
 		txtOutputFolder.setText(configuration.outputFolder)

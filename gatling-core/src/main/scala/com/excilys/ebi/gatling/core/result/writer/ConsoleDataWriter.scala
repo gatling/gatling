@@ -15,16 +15,14 @@
  */
 package com.excilys.ebi.gatling.core.result.writer
 
-import com.excilys.ebi.gatling.core.init.Initializable
-import akka.actor.Actor
 import java.lang.System.currentTimeMillis
-import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
-import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.core.result.message.RequestRecord
+
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
-import com.excilys.ebi.gatling.core.result.message.FlushDataWriter
+import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, InitializeDataWriter, FlushDataWriter }
+
+import grizzled.slf4j.Logging
 
 class ConsoleDataWriter extends DataWriter with Logging {
 
@@ -37,12 +35,31 @@ class ConsoleDataWriter extends DataWriter with Logging {
 
 	private val displayPeriod = 5 * 1000
 
+	private def displaySamplingInfo {
+		// not thread safe but not critical either
+		val now = currentTimeMillis
+		if (now - lastDisplayTime > displayPeriod) {
+			lastDisplayTime = now
+			val timeSinceStartUpInSec = (now - startUpTime) / 1000
+			println(new StringBuilder()
+				.append(timeSinceStartUpInSec)
+				.append(" sec | Users: active=")
+				.append(activeUsersCount)
+				.append("/")
+				.append(totalUsersCount)
+				.append(" | Requests: OK=")
+				.append(successfulRequestsCount)
+				.append(" KO=")
+				.append(failedRequestsCount))
+		}
+	}
+
 	/**
 	 * Method called when this actor receives a message
 	 */
 	def receive = {
 		// If the message is sent to initialize the writer
-		case InitializeDataWriter(_, totalUsersCount, _, _) => {
+		case InitializeDataWriter(_, totalUsersCount, _, _) =>
 
 			if (initialized.compareAndSet(false, true)) {
 				startUpTime = currentTimeMillis
@@ -52,10 +69,8 @@ class ConsoleDataWriter extends DataWriter with Logging {
 				lastDisplayTime = currentTimeMillis
 				this.totalUsersCount = totalUsersCount
 
-			} else {
+			} else
 				error("FileDataWriter has already been initialized!")
-			}
-		}
 
 		// If the message comes from an action
 		case RequestRecord(scenarioName, userId, actionName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage) => {
@@ -71,25 +86,6 @@ class ConsoleDataWriter extends DataWriter with Logging {
 				}
 			}
 
-			def displaySamplingInfo {
-				// not thread safe but not critical either
-				val now = currentTimeMillis
-				if (now - lastDisplayTime > displayPeriod) {
-					lastDisplayTime = now
-					val timeSinceStartUpInSec = (now - startUpTime) / 1000
-					println(new StringBuilder()
-						.append(timeSinceStartUpInSec)
-						.append(" sec | Users: active=")
-						.append(activeUsersCount)
-						.append("/")
-						.append(totalUsersCount)
-						.append(" | Requests: OK=")
-						.append(successfulRequestsCount)
-						.append(" KO=")
-						.append(failedRequestsCount))
-				}
-			}
-
 			if (initialized.get) {
 				handleCounters
 				displaySamplingInfo
@@ -99,7 +95,10 @@ class ConsoleDataWriter extends DataWriter with Logging {
 			}
 		}
 
-		case FlushDataWriter => initialized.set(false)
+		case FlushDataWriter =>
+			displaySamplingInfo
+			initialized.set(false)
+
 		case unknown: AnyRef => error("Unknow message type " + unknown.getClass)
 		case unknown: Any => error("Unknow message type " + unknown)
 	}

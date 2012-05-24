@@ -1,3 +1,4 @@
+<%@ val headersId: Option[Int] %>
 <%@ val method: String %>
 <%@ val printedUrl: String %>
 <%@ val queryParams: List[(String, String)] %>
@@ -7,11 +8,12 @@
 <%@ val id: Int %>
 <%@ val credentials: Option[(String,String)] %>
 <%@ val simulationClass: String %>
-
 			.exec(
 				http("request_<%= id %>")
 					.<%= method.toLowerCase %>("<%= printedUrl %>")
-					.headers(headers_<%= id %>)
+<% headersId.map { headersId => %>
+					.headers(headers_<%= headersId %>)
+<% } %>
 <% for (queryParam <- queryParams) { %>
 					.queryParam("""<%= queryParam._1 %>""", """<%= queryParam._2 %>""")
 <% } %>
@@ -28,4 +30,3 @@
 					.check(status.is(<%= statusCode %>))
 <% } %>
 			)
-			

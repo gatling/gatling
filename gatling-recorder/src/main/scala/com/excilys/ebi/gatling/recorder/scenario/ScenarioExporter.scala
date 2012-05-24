@@ -19,15 +19,16 @@ import java.io.{ IOException, FileWriter }
 import java.text.{ SimpleDateFormat, Format }
 import java.util.Date
 
-import scala.Option.option2Iterable
+import scala.annotation.tailrec
+import scala.collection.immutable.SortedMap
 import scala.math.min
-import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.{ File, Directory }
 
 import org.fusesource.scalate.TemplateEngine
 
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.REDIRECT_STATUS_CODES
+import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
 import com.excilys.ebi.gatling.recorder.config.Configuration
 
@@ -46,7 +47,25 @@ object ScenarioExporter extends Logging {
 
 		val baseUrl = getBaseUrl(scenarioElements)
 
-		val protocolConfigElement = new ProtocolConfigElement(baseUrl, configuration.proxy, configuration.followRedirect)
+		val baseHeaders: Map[String, String] = {
+
+			def addHeader(appendTo: Map[String, String], headerName: String): Map[String, String] = {
+				getMostFrequentHeaderValue(scenarioElements, headerName) match {
+					case Some(headerValue) => appendTo + (headerName -> headerValue)
+					case None => appendTo
+				}
+			}
+
+			@tailrec
+			def resolveBaseHeaders(headers: Map[String, String], headerNames: List[String]): Map[String, String] = headerNames match {
+				case Nil => headers
+				case headerName :: others => resolveBaseHeaders(addHeader(headers, headerName), others)
+			}
+
+			resolveBaseHeaders(Map.empty, List(Headers.Names.ACCEPT, Headers.Names.ACCEPT_CHARSET, Headers.Names.ACCEPT_ENCODING, Headers.Names.ACCEPT_LANGUAGE, Headers.Names.HOST, Headers.Names.USER_AGENT))
+		}
+
+		val protocolConfigElement = new ProtocolConfigElement(baseUrl, configuration.proxy, configuration.followRedirect, configuration.automaticReferer, baseHeaders)
 
 		val simulationClass =
 			if (configuration.simulationClassName != Configuration.DEFAULT_CLASS_NAME)
@@ -90,7 +109,7 @@ object ScenarioExporter extends Logging {
 				scenarioElements
 
 		// Add simulationClass to request elements
-		val elementsList = filteredElements.map {
+		val elementsList: List[ScenarioElement] = filteredElements.map {
 			case e: RequestElement => RequestElement(e, simulationClass)
 			case e => e
 		}
@@ -109,14 +128,47 @@ object ScenarioExporter extends Logging {
 		}
 
 		// Aggregate headers
-		val filteredHeaders = Set("Authorization", "Cookie", "Content-Length")
-		val headers = elementsList.map {
-			case e: RequestElement => Some(
-				(e.id, e.headers.filterNot(header => filteredHeaders.contains(header._1))))
-			case _ => None
-		}.flatten
+		val filteredHeaders = Set("Authorization", "Cookie", "Content-Length") ++ (if (configuration.automaticReferer) Set("Referer") else Set.empty)
 
-		val (newScenarioElements, chains) = getChains(elementsList)
+		val headers: Map[Int, List[(String, String)]] = {
+
+			@tailrec
+			def generateHeaders(elements: List[RequestElement], headers: Map[Int, List[(String, String)]]): Map[Int, List[(String, String)]] = elements match {
+				case Nil => headers
+				case element :: others => {
+					val acceptedHeaders = element.headers
+						.filterNot { case (headerName, headerValue) => filteredHeaders.contains(headerName) || baseHeaders.get(headerName).map(baseValue => baseValue == headerValue).getOrElse(false) }
+						.sortBy(_._1)
+
+					val newHeaders = if (acceptedHeaders.isEmpty) {
+						element.filteredHeadersId = None
+						headers
+
+					} else {
+						val headersSeq = headers.toSeq
+						headersSeq.indexWhere { case (id, existingHeaders) => existingHeaders == acceptedHeaders } match {
+							case -1 =>
+								element.filteredHeadersId = Some(element.id)
+								headers + (element.id -> acceptedHeaders)
+							case index =>
+								element.filteredHeadersId = Some(headersSeq(index)._1)
+								headers
+						}
+					}
+
+					generateHeaders(others, newHeaders)
+				}
+			}
+
+			val requestElements = elementsList.map {
+				case request: RequestElement => Some(request)
+				case _ => None
+			}.flatten
+
+			SortedMap(generateHeaders(requestElements, Map.empty).toSeq: _*)
+		}
+
+		val newScenarioElements = getChains(elementsList)
 
 		val output = ScenarioExporter.TPL_ENGINE.layout("templates/simulation.ssp",
 			Map("protocolConfig" -> protocolConfigElement,
@@ -124,7 +176,6 @@ object ScenarioExporter extends Logging {
 				"simulationClassName" -> simulationClass,
 				"scenarioName" -> "Scenario Name",
 				"packageName" -> configuration.simulationPackage,
-				"chains" -> chains,
 				"scenarioElements" -> newScenarioElements))
 
 		use(new FileWriter(File(getOutputFolder / getScenarioFileName(startDate)).jfile)) { _.write(output) }
@@ -139,26 +190,38 @@ object ScenarioExporter extends Logging {
 		baseUrls.maxBy { case (url, occurrences) => occurrences.size }._1
 	}
 
-	private def getChains(scenarioElements: List[ScenarioElement]): (List[ScenarioElement], List[List[ScenarioElement]]) = {
-		var chains: List[List[ScenarioElement]] = Nil
-		var newScenarioElements: List[ScenarioElement] = Nil
+	private def getMostFrequentHeaderValue(scenarioElements: List[ScenarioElement], headerName: String): Option[String] = {
+		val headers = scenarioElements.map {
+			case reqElm: RequestElement => reqElm.headers.filter(_._1 == headerName).map(_._2)
+			case _ => Nil
+		}.flatten
 
-		// TODO clean up, use Either
+		headers match {
+			case Nil => None
+			case _ =>
+				val mostFrequentValue = headers.groupBy(value => value).maxBy { case (value, occurrences) => occurrences.size }._1
+				Some(mostFrequentValue)
+		}
+	}
+
+	private def getChains(scenarioElements: List[ScenarioElement]): Either[List[ScenarioElement], List[List[ScenarioElement]]] = {
+
 		if (scenarioElements.size > ScenarioExporter.EVENTS_GROUPING) {
 			val numberOfSubLists = scenarioElements.size / ScenarioExporter.EVENTS_GROUPING + 1
+			var chains: List[List[ScenarioElement]] = Nil
 			// Creates the content of the chains
 			for (i <- 0 until numberOfSubLists) {
 				chains = scenarioElements.slice(0 + ScenarioExporter.EVENTS_GROUPING * i, min(ScenarioExporter.EVENTS_GROUPING * (i + 1), scenarioElements.size - 1)) :: chains
 			}
-		} else {
-			newScenarioElements = scenarioElements
-		}
 
-		(newScenarioElements, chains.reverse)
+			Right(chains.reverse)
+
+		} else {
+			Left(scenarioElements)
+		}
 	}
 
 	private def dumpRequestBody(idEvent: Int, content: String, simulationClass: String) {
-		println(configuration.requestBodiesFolder);
 		use(new FileWriter(File(getFolder(configuration.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)) { fw =>
 			try {
 				fw.write(content)

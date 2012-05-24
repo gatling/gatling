@@ -15,8 +15,9 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import akka.actor.ActorRef
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+
+import akka.actor.ActorRef
 
 /**
  * Top level abstraction for components in charge of building Actions

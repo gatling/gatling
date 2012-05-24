@@ -15,21 +15,52 @@
  */
 package com.excilys.ebi.gatling.recorder.scenario
 
+import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
 
-class ProtocolConfigElement(baseUrl: String, proxy: ProxyConfig, followRedirect: Boolean) extends ScenarioElement {
+import grizzled.slf4j.Logging
+
+class ProtocolConfigElement(baseUrl: String, proxy: ProxyConfig, followRedirect: Boolean, automaticReferer: Boolean, baseHeaders: Map[String, String]) extends ScenarioElement with Logging {
+
 	override def toString = {
 		val sb = new StringBuilder
-		sb.append(".baseURL(\"").append(baseUrl).append("\")")
-		if (proxy.host.isDefined && proxy.port.isDefined) {
-			sb.append(".proxy(").append(proxy.host.get).append(", ").append(proxy.port.get).append(")")
-			if (proxy.sslPort.isDefined)
-				sb.append(".httpsPort(").append(proxy.sslPort.get).append(")")
+
+		sb.append(""".baseURL("""").append(baseUrl).append("""")""").append(END_OF_LINE)
+
+		for {
+			val proxyHost <- proxy.host
+			val proxyPort <- proxy.port
+		} {
+			sb.append(""".proxy("""").append(proxyHost).append("""", """).append(proxyPort).append(")")
+			proxy.sslPort.map(proxySslPort => sb.append(".httpsPort(").append(proxySslPort).append(")"))
+			sb.append(END_OF_LINE)
 		}
-		if (proxy.hasCredentials)
-			sb.append(".credentials(").append(proxy.username.get).append(", ").append(proxy.password.get).append(")")
-		if (followRedirect)
-			sb.append(".followRedirect")
+
+		for {
+			val proxyUsername <- proxy.username
+			val proxyPassword <- proxy.password
+		} {
+			sb.append(""".credentials("""").append(proxyUsername).append("""", """").append(proxyPassword).append("""")""").append(END_OF_LINE)
+		}
+
+		if (!followRedirect)
+			sb.append(".disableFollowRedirect").append(END_OF_LINE)
+
+		if (!automaticReferer)
+			sb.append(".disableAutomaticReferer").append(END_OF_LINE)
+
+		baseHeaders.foreach {
+			case (headerName, headerValue) => headerName match {
+				case Headers.Names.ACCEPT => sb.append(""".acceptHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
+				case Headers.Names.ACCEPT_CHARSET => sb.append(""".acceptCharsetHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
+				case Headers.Names.ACCEPT_ENCODING => sb.append(""".acceptEncodingHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
+				case Headers.Names.ACCEPT_LANGUAGE => sb.append(""".acceptLanguageHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
+				case Headers.Names.HOST => sb.append(""".hostHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
+				case Headers.Names.USER_AGENT => sb.append(""".userAgentHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
+				case name => warn("Base header not supported " + name)
+			}
+		}
 		sb.toString
 	}
 }

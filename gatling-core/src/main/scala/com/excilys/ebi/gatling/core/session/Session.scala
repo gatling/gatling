@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.session
-import com.excilys.ebi.gatling.core.session.handler.CounterBasedIterationHandler
-import com.excilys.ebi.gatling.core.session.handler.TimerBasedIterationHandler
+
+import com.excilys.ebi.gatling.core.session.handler.{ TimerBasedIterationHandler, CounterBasedIterationHandler }
 
 /**
  * Session class companion

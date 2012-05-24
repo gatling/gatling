@@ -17,8 +17,7 @@ package com.excilys.ebi.gatling.core.structure.loop.handler
 
 import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder.whileActionBuilder
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
-import com.excilys.ebi.gatling.core.structure.ChainBuilder
+import com.excilys.ebi.gatling.core.structure.{ ChainBuilder, AbstractStructureBuilder }
 
 import akka.actor.Uuid
 

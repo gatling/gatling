@@ -13,35 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.extractor.jsonpath
+package com.excilys.ebi.gatling.core.check.extractor.css
 
 import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
-import com.fasterxml.jackson.databind.{ ObjectMapper, JsonNode }
 
-object JsonPathExtractor {
+import jodd.lagarto.dom.{ NodeSelector, LagartoDOMBuilder }
+
+object CssExtractor {
 
 	/**
-	 * The singleton ObjectMapper. Used in a threadsafe mannner as configuration never changes on the fly.
+	 * The DOM Builder singleton
 	 */
-	lazy val MAPPER = new ObjectMapper
+	lazy val domBuilder = new LagartoDOMBuilder
 }
 
 /**
- * A built-in extractor for extracting values with  Xpath like expressions for Json
+ * A built-in extractor for extracting values with Css Selectors
  *
- * @constructor creates a new JsonPathExtractor
- * @param textContent the text where the search will be made
+ * @constructor creates a new CssExtractor
+ * @param text the text where the search will be made
  */
-class JsonPathExtractor(textContent: String) {
+class CssExtractor(text: String) {
 
-	val json = JsonPathExtractor.MAPPER.readValue(textContent, classOf[JsonNode])
+	val selector = new NodeSelector(CssExtractor.domBuilder.parse(text))
 
 	/**
-	 * @param occurrence
-	 * @param expression
-	 * @return extract the occurrence of the given rank matching the expression
+	 * @param expression a String containing the CSS selector
+	 * @return an option containing the value if found, None otherwise
 	 */
 	def extractOne(occurrence: Int)(expression: String): Option[String] = extractMultiple(expression) match {
 		case Some(results) if (results.isDefinedAt(occurrence)) => results(occurrence)
@@ -49,17 +49,15 @@ class JsonPathExtractor(textContent: String) {
 	}
 
 	/**
-	 * @param expression
-	 * @return extract all the occurrences matching the expression
+	 * @param expression a String containing the CSS selector
+	 * @return an option containing the values if found, None otherwise
 	 */
-	def extractMultiple(expression: String): Option[Seq[String]] = {
-		val results = new JaxenJackson(expression).selectNodes(json).map(_.asInstanceOf[JsonNode].asText)
-		results
-	}
+	def extractMultiple(expression: String): Option[Seq[String]] = selector.select(expression).map(_.getTextContent.trim())
 
 	/**
-	 * @param expression
-	 * @return count all the occurrences matching the expression
+	 * @param expression a String containing the CSS selector
+	 * @return an option containing the number of values if found, None otherwise
 	 */
 	def count(expression: String): Option[Int] = extractMultiple(expression).map(_.size)
+
 }

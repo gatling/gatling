@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.request
+
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 
 package object builder {

@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.recorder.http.channel;
 
-import java.util.concurrent.Executors
-
 import org.jboss.netty.bootstrap.{ ServerBootstrap, ClientBootstrap }
 import org.jboss.netty.channel.Channels.pipeline
 import org.jboss.netty.channel.socket.nio.{ NioServerSocketChannelFactory, NioClientSocketChannelFactory }
@@ -29,21 +27,15 @@ import com.excilys.ebi.gatling.recorder.http.handler.{ ServerHttpResponseHandler
 import com.excilys.ebi.gatling.recorder.http.ssl.{ SSLEngineFactory, FirstEventIsUnsecuredConnectSslHandler }
 
 object BootstrapFactory {
-	val bootstrapFactory = new BootstrapFactory
-}
-
-class BootstrapFactory {
 
 	private val CHUNK_MAX_SIZE = 100 * 1024 * 1024; // 100Mo
 
-	private val threadPool = Executors.newCachedThreadPool
+	private val clientChannelFactory = new NioClientSocketChannelFactory
 
-	private val clientChannelFactory = new NioClientSocketChannelFactory(threadPool, threadPool);
-
-	private val serverChannelFactory = new NioServerSocketChannelFactory(threadPool, threadPool);
+	private val serverChannelFactory = new NioServerSocketChannelFactory
 
 	def newClientBootstrap(browserCtx: ChannelHandlerContext, browserRequest: HttpRequest, ssl: Boolean): ClientBootstrap = {
-		val bootstrap = new ClientBootstrap(clientChannelFactory);
+		val bootstrap = new ClientBootstrap(clientChannelFactory)
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			def getPipeline: ChannelPipeline = {
 				val tmpPipeline = pipeline()
@@ -67,7 +59,7 @@ class BootstrapFactory {
 
 	def newServerBootstrap(proxyConfig: ProxyConfig, ssl: Boolean): ServerBootstrap = {
 
-		val bootstrap = new ServerBootstrap(serverChannelFactory);
+		val bootstrap = new ServerBootstrap(serverChannelFactory)
 
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			def getPipeline: ChannelPipeline = {

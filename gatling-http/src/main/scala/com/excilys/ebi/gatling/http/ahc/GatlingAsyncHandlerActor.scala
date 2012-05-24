@@ -31,14 +31,15 @@ import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames }
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.{ REDIRECT_STATUS_CODES, REDIRECTED_REQUEST_NAME_PATTERN }
 import com.excilys.ebi.gatling.http.check.HttpCheck
+import com.excilys.ebi.gatling.http.config.HttpConfig
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.excilys.ebi.gatling.http.util.HttpHelper.{ toRichResponse, computeRedirectUrl }
 import com.ning.http.client.{ Response, RequestBuilder, Request, FluentStringsMap }
 
-import akka.actor.actorRef2Scala
-import akka.actor.{ ActorRef, Actor }
+import akka.actor.{ ReceiveTimeout, ActorRef, Actor }
+import akka.util.duration.intToDurationInt
 import grizzled.slf4j.Logging
 
 object GatlingAsyncHandlerActor {
@@ -53,12 +54,20 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 	var responseReceivingStartDate = 0L
 	var executionEndDate = 0L
 
+	resetTimeout
+
 	def receive = {
-		case OnHeaderWriteCompleted(time) => requestSendingEndDate = time
+		case OnHeaderWriteCompleted(time) =>
+			resetTimeout
+			requestSendingEndDate = time
 
-		case OnContentWriteCompleted(time) => requestSendingEndDate = time
+		case OnContentWriteCompleted(time) =>
+			resetTimeout
+			requestSendingEndDate = time
 
-		case OnStatusReceived(time) => responseReceivingStartDate = time
+		case OnStatusReceived(time) =>
+			resetTimeout
+			responseReceivingStartDate = time
 
 		case OnCompleted(response, time) =>
 			executionEndDate = time
@@ -67,12 +76,19 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 		case OnThrowable(errorMessage, time) =>
 			requestSendingEndDate = if (requestSendingEndDate != 0L) requestSendingEndDate else time
 			responseReceivingStartDate = if (responseReceivingStartDate != 0L) responseReceivingStartDate else time
-			executionEndDate = if (executionEndDate != 0L) executionEndDate else time
+			executionEndDate = time
 			logRequest(KO, errorMessage)
+			executeNext(session)
+
+		case ReceiveTimeout =>
+			error("GatlingAsyncHandlerActor timed out")
+			logRequest(KO, "GatlingAsyncHandlerActor timed out")
 			executeNext(session)
 
 		case m => throw new IllegalArgumentException("Unknown message type " + m)
 	}
+
+	def resetTimeout = context.setReceiveTimeout(HttpConfig.GATLING_HTTP_CONFIG_REQUEST_TIMEOUT milliseconds)
 
 	private def logRequest(requestResult: RequestStatus, requestMessage: String = "Request executed successfully") = DataWriter.logRequest(session.scenarioName, session.userId, "Request " + requestName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, requestResult, requestMessage)
 

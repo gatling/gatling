@@ -16,6 +16,7 @@
 package com.excilys.ebi.gatling.http.ahc
 
 import java.lang.System.currentTimeMillis
+
 import com.ning.http.client.Response
 
 sealed trait AHCMessage
