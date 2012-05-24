@@ -44,60 +44,51 @@ class FileDataWriter extends DataWriter with Logging {
 	 */
 	private var latch: CountDownLatch = _
 
-	/**
-	 * Method called when this actor receives a message
-	 */
-	def receive = {
-		// If the message is sent to initialize the writer
-		case InitializeDataWriter(runRecord, totalUsersCount, latch, encoding) => {
+	def uninitialized: Receive = {
+		case InitializeDataWriter(runRecord, totalUsersCount, latch, encoding) =>
+			this.latch = latch
+			osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(simulationLogFile(runRecord.runUuid).toString)), encoding)
+			osw.append(RUN).append(TABULATION_SEPARATOR)
+				.append(toTimestamp(runRecord.runDate)).append(TABULATION_SEPARATOR)
+				.append(runRecord.runId).append(TABULATION_SEPARATOR)
+				// hack for being able to deserialize in FileDataReader
+				.append(if (runRecord.runDescription.isEmpty) " " else runRecord.runDescription)
+				.append(END_OF_LINE)
+			context.become(initialized)
 
-			if (initialized.compareAndSet(false, true)) {
-				this.latch = latch
-				osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(simulationLogFile(runRecord.runUuid).toString)), encoding)
-				osw.append(RUN).append(TABULATION_SEPARATOR)
-					.append(toTimestamp(runRecord.runDate)).append(TABULATION_SEPARATOR)
-					.append(runRecord.runId).append(TABULATION_SEPARATOR)
-					// hack for being able to deserialize in FileDataReader
-					.append(if (runRecord.runDescription.isEmpty) " " else runRecord.runDescription)
-					.append(END_OF_LINE)
+		case unknown: AnyRef => error("Unsupported message type in uninilialized state" + unknown.getClass)
+		case unknown: Any => error("Unsupported message type in uninilialized state " + unknown)
+	}
 
-			} else
-				error("FileDataWriter has already been initialized!")
-		}
+	def initialized: Receive = {
+		case RequestRecord(scenarioName, userId, actionName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage) =>
+			osw.append(ACTION).append(TABULATION_SEPARATOR)
+				.append(scenarioName).append(TABULATION_SEPARATOR)
+				.append(userId.toString).append(TABULATION_SEPARATOR)
+				.append(actionName).append(TABULATION_SEPARATOR)
+				.append(executionStartDate.toString).append(TABULATION_SEPARATOR)
+				.append(executionEndDate.toString).append(TABULATION_SEPARATOR)
+				.append(requestSendingEndDate.toString).append(TABULATION_SEPARATOR)
+				.append(responseReceivingStartDate.toString).append(TABULATION_SEPARATOR)
+				.append(resultStatus.toString).append(TABULATION_SEPARATOR)
+				.append(resultMessage)
+				.append(END_OF_LINE)
 
-		// If the message comes from an action
-		case RequestRecord(scenarioName, userId, actionName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage) => {
-
-			if (initialized.get)
-				osw.append(ACTION).append(TABULATION_SEPARATOR)
-					.append(scenarioName).append(TABULATION_SEPARATOR)
-					.append(userId.toString).append(TABULATION_SEPARATOR)
-					.append(actionName).append(TABULATION_SEPARATOR)
-					.append(executionStartDate.toString).append(TABULATION_SEPARATOR)
-					.append(executionEndDate.toString).append(TABULATION_SEPARATOR)
-					.append(requestSendingEndDate.toString).append(TABULATION_SEPARATOR)
-					.append(responseReceivingStartDate.toString).append(TABULATION_SEPARATOR)
-					.append(resultStatus.toString).append(TABULATION_SEPARATOR)
-					.append(resultMessage)
-					.append(END_OF_LINE)
-
-			else
-				error("FileDataWriter hasn't been initialized!")
-		}
-
-		case FlushDataWriter => {
+		case FlushDataWriter =>
 			info("Received flush order")
 
 			try {
 				osw.flush
 			} finally {
+				context.unbecome() // return to uninitialized state
 				// Decrease the latch (should be at 0 here)
-				initialized.set(false)
 				osw.close
 				latch.countDown
 			}
-		}
-		case unknown: AnyRef => error("Unknow message type " + unknown.getClass)
-		case unknown: Any => error("Unknow message type " + unknown)
+
+		case unknown: AnyRef => error("Unsupported message type in inilialized state " + unknown.getClass)
+		case unknown: Any => error("Unsupported message type in inilialized state " + unknown)
 	}
+
+	def receive = uninitialized
 }
