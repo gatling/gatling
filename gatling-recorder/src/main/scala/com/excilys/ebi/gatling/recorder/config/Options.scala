@@ -26,4 +26,5 @@ case class Options(
 	var simulationClassName: Option[String] = None,
 	var simulationPackage: Option[String] = None,
 	var encoding: Option[String] = None,
-	var followRedirect: Option[Boolean] = None)
+	var followRedirect: Option[Boolean] = None,
+	var automaticReferer: Option[Boolean] = None)

@@ -1,7 +1,3 @@
 <%@ val duration: String %>
 <%@ val inMilliseconds: Boolean %>
-<% if(inMilliseconds) { %>
-			.pause(<%= duration %>, MILLISECONDS)
-<% } else { %>
-			.pause(<%= duration %>)
-<% } %>
+			.pause(<%= duration %><% if(inMilliseconds){%>, MILLISECONDS<%}%>)

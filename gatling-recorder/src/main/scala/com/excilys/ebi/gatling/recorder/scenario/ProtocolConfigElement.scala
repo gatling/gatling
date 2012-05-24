@@ -21,7 +21,7 @@ import com.excilys.ebi.gatling.recorder.config.ProxyConfig
 
 import grizzled.slf4j.Logging
 
-class ProtocolConfigElement(baseUrl: String, proxy: ProxyConfig, followRedirect: Boolean, baseHeaders: Map[String, String]) extends ScenarioElement with Logging {
+class ProtocolConfigElement(baseUrl: String, proxy: ProxyConfig, followRedirect: Boolean, automaticReferer: Boolean, baseHeaders: Map[String, String]) extends ScenarioElement with Logging {
 
 	override def toString = {
 		val sb = new StringBuilder
@@ -44,8 +44,11 @@ class ProtocolConfigElement(baseUrl: String, proxy: ProxyConfig, followRedirect:
 			sb.append(""".credentials("""").append(proxyUsername).append("""", """").append(proxyPassword).append("""")""").append(END_OF_LINE)
 		}
 
-		if (followRedirect)
-			sb.append(".followRedirect").append(END_OF_LINE)
+		if (!followRedirect)
+			sb.append(".disableFollowRedirect").append(END_OF_LINE)
+
+		if (!automaticReferer)
+			sb.append(".disableAutomaticReferer").append(END_OF_LINE)
 
 		baseHeaders.foreach {
 			case (headerName, headerValue) => headerName match {

@@ -65,7 +65,7 @@ object ScenarioExporter extends Logging {
 			resolveBaseHeaders(Map.empty, List(Headers.Names.ACCEPT, Headers.Names.ACCEPT_CHARSET, Headers.Names.ACCEPT_ENCODING, Headers.Names.ACCEPT_LANGUAGE, Headers.Names.HOST, Headers.Names.USER_AGENT))
 		}
 
-		val protocolConfigElement = new ProtocolConfigElement(baseUrl, configuration.proxy, configuration.followRedirect, baseHeaders)
+		val protocolConfigElement = new ProtocolConfigElement(baseUrl, configuration.proxy, configuration.followRedirect, configuration.automaticReferer, baseHeaders)
 
 		val simulationClass =
 			if (configuration.simulationClassName != Configuration.DEFAULT_CLASS_NAME)
@@ -128,18 +128,34 @@ object ScenarioExporter extends Logging {
 		}
 
 		// Aggregate headers
-		val filteredHeaders = Set("Authorization", "Cookie", "Content-Length")
+		val filteredHeaders = Set("Authorization", "Cookie", "Content-Length") ++ (if (configuration.automaticReferer) Set("Referer") else Set.empty)
 
-		// TODO remove duplicates
 		val headers: Map[Int, List[(String, String)]] = {
+
 			@tailrec
 			def generateHeaders(elements: List[RequestElement], headers: Map[Int, List[(String, String)]]): Map[Int, List[(String, String)]] = elements match {
 				case Nil => headers
 				case element :: others => {
 					val acceptedHeaders = element.headers
 						.filterNot { case (headerName, headerValue) => filteredHeaders.contains(headerName) || baseHeaders.get(headerName).map(baseValue => baseValue == headerValue).getOrElse(false) }
-					val newHeaders = if (acceptedHeaders.isEmpty) headers else headers + (element.id -> acceptedHeaders)
-					element.filteredHeadersId = if (acceptedHeaders.isEmpty) None else Some(element.id)
+						.sortBy(_._1)
+
+					val newHeaders = if (acceptedHeaders.isEmpty) {
+						element.filteredHeadersId = None
+						headers
+
+					} else {
+						val headersSeq = headers.toSeq
+						headersSeq.indexWhere { case (id, existingHeaders) => existingHeaders == acceptedHeaders } match {
+							case -1 =>
+								element.filteredHeadersId = Some(element.id)
+								headers + (element.id -> acceptedHeaders)
+							case index =>
+								element.filteredHeadersId = Some(headersSeq(index)._1)
+								headers
+						}
+					}
+
 					generateHeaders(others, newHeaders)
 				}
 			}
@@ -152,7 +168,7 @@ object ScenarioExporter extends Logging {
 			SortedMap(generateHeaders(requestElements, Map.empty).toSeq: _*)
 		}
 
-		val (newScenarioElements, chains) = getChains(elementsList)
+		val newScenarioElements = getChains(elementsList)
 
 		val output = ScenarioExporter.TPL_ENGINE.layout("templates/simulation.ssp",
 			Map("protocolConfig" -> protocolConfigElement,
@@ -160,7 +176,6 @@ object ScenarioExporter extends Logging {
 				"simulationClassName" -> simulationClass,
 				"scenarioName" -> "Scenario Name",
 				"packageName" -> configuration.simulationPackage,
-				"chains" -> chains,
 				"scenarioElements" -> newScenarioElements))
 
 		use(new FileWriter(File(getOutputFolder / getScenarioFileName(startDate)).jfile)) { _.write(output) }
@@ -189,26 +204,24 @@ object ScenarioExporter extends Logging {
 		}
 	}
 
-	private def getChains(scenarioElements: List[ScenarioElement]): (List[ScenarioElement], List[List[ScenarioElement]]) = {
-		var chains: List[List[ScenarioElement]] = Nil
-		var newScenarioElements: List[ScenarioElement] = Nil
+	private def getChains(scenarioElements: List[ScenarioElement]): Either[List[ScenarioElement], List[List[ScenarioElement]]] = {
 
-		// TODO clean up, use Either
 		if (scenarioElements.size > ScenarioExporter.EVENTS_GROUPING) {
 			val numberOfSubLists = scenarioElements.size / ScenarioExporter.EVENTS_GROUPING + 1
+			var chains: List[List[ScenarioElement]] = Nil
 			// Creates the content of the chains
 			for (i <- 0 until numberOfSubLists) {
 				chains = scenarioElements.slice(0 + ScenarioExporter.EVENTS_GROUPING * i, min(ScenarioExporter.EVENTS_GROUPING * (i + 1), scenarioElements.size - 1)) :: chains
 			}
-		} else {
-			newScenarioElements = scenarioElements
-		}
 
-		(newScenarioElements, chains.reverse)
+			Right(chains.reverse)
+
+		} else {
+			Left(scenarioElements)
+		}
 	}
 
 	private def dumpRequestBody(idEvent: Int, content: String, simulationClass: String) {
-		println(configuration.requestBodiesFolder);
 		use(new FileWriter(File(getFolder(configuration.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)) { fw =>
 			try {
 				fw.write(content)

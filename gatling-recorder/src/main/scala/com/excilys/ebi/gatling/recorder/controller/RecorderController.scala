@@ -96,7 +96,7 @@ object RecorderController extends Logging {
 					val diff = newRequestDate.getTime - lastRequestDate.getTime
 					if (diff > 10) {
 
-						val pauseValueAndUnit =
+						val (pauseValue, pauseUnit) =
 							if (diff > 1000)
 								(round(diff / 1000).toLong, PauseUnit.SECONDS)
 							else
@@ -104,10 +104,10 @@ object RecorderController extends Logging {
 
 						lastRequestDate = newRequestDate
 						useUIThread {
-							runningFrame.receiveEventInfo(new PauseInfo(pauseValueAndUnit._1, pauseValueAndUnit._2))
+							runningFrame.receiveEventInfo(new PauseInfo(pauseValue, pauseUnit))
 						}
 
-						scenarioElements = new PauseElement(pauseValueAndUnit._1, pauseValueAndUnit._2) :: scenarioElements
+						scenarioElements = new PauseElement(pauseValue, pauseUnit) :: scenarioElements
 					}
 				} else {
 					lastRequestDate = new Date

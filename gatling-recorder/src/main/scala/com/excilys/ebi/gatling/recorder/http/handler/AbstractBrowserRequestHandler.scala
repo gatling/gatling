@@ -34,18 +34,21 @@ abstract class AbstractBrowserRequestHandler(proxyConfig: ProxyConfig) extends S
 
 		GatlingHttpProxy.receiveMessage(ctx.getChannel)
 
-		val request = event.getMessage.asInstanceOf[HttpRequest]
+		event.getMessage match {
+			case request: HttpRequest =>
+				// remove Proxy-Connection header if it's not significant
+				if (proxyConfig.host.isEmpty) {
+					request.removeHeader("Proxy-Connection")
+				}
 
-		// remove Proxy-Connection header if it's not significant
-		if (proxyConfig.host.isEmpty) {
-			request.removeHeader("Proxy-Connection")
+				val future = connectToServerOnBrowserRequestReceived(ctx, request)
+
+				RecorderController.receiveRequest(request)
+
+				sendRequestToServerAfterConnection(future, request);
+
+			case _ => // whatever
 		}
-
-		val future = connectToServerOnBrowserRequestReceived(ctx, request)
-
-		RecorderController.receiveRequest(request)
-
-		sendRequestToServerAfterConnection(future, request);
 	}
 
 	def connectToServerOnBrowserRequestReceived(ctx: ChannelHandlerContext, request: HttpRequest): ChannelFuture
@@ -55,17 +58,19 @@ abstract class AbstractBrowserRequestHandler(proxyConfig: ProxyConfig) extends S
 
 		// Properly closing
 		val future = ctx.getChannel.getCloseFuture
-		future.addListener(new ChannelFutureListener() {
+		future.addListener(new ChannelFutureListener {
 			def operationComplete(future: ChannelFuture) = future.getChannel.close
 		})
 		ctx.sendUpstream(e)
 	}
 
 	private def sendRequestToServerAfterConnection(future: ChannelFuture, request: HttpRequest) {
-		if (future != null)
-			future.addListener(new ChannelFutureListener() {
+
+		Option(future).map { future =>
+			future.addListener(new ChannelFutureListener {
 				def operationComplete(future: ChannelFuture) = future.getChannel.write(buildRequestWithRelativeURI(request))
 			})
+		}
 	}
 
 	private def buildRequestWithRelativeURI(request: HttpRequest) = {
