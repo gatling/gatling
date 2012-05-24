@@ -19,10 +19,10 @@ import java.lang.System.currentTimeMillis
 
 import com.ning.http.client.Response
 
-sealed trait AHCMessage
+sealed trait HttpEvent
 
-case class OnHeaderWriteCompleted(time: Long = currentTimeMillis) extends AHCMessage
-case class OnContentWriteCompleted(time: Long = currentTimeMillis) extends AHCMessage
-case class OnStatusReceived(time: Long = currentTimeMillis) extends AHCMessage
-case class OnCompleted(response: Response, time: Long = currentTimeMillis) extends AHCMessage
-case class OnThrowable(errorMessage: String, time: Long = currentTimeMillis) extends AHCMessage
+case class OnHeaderWriteCompleted(time: Long = currentTimeMillis) extends HttpEvent
+case class OnContentWriteCompleted(time: Long = currentTimeMillis) extends HttpEvent
+case class OnStatusReceived(time: Long = currentTimeMillis) extends HttpEvent
+case class OnCompleted(response: Response, time: Long = currentTimeMillis) extends HttpEvent
+case class OnThrowable(errorMessage: String, time: Long = currentTimeMillis) extends HttpEvent

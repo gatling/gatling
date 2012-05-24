@@ -330,8 +330,9 @@ class ConfigurationFrame extends JFrame with Logging {
 	def populateItemsFromConfiguration(configuration: Configuration) {
 		txtPort.setText(configuration.port.toString)
 		txtSslPort.setText(configuration.sslPort.toString)
-		if (configuration.proxy.host.isDefined) {
-			txtProxyHost.setText(configuration.proxy.host.getOrElse(""))
+
+		configuration.proxy.host.map { proxyHost =>
+			txtProxyHost.setText(proxyHost)
 			txtProxyPort.setText(configuration.proxy.port.getOrElse(0).toString)
 			txtProxySslPort.setText(configuration.proxy.sslPort.getOrElse(0).toString)
 			txtProxyPort.setEnabled(true)

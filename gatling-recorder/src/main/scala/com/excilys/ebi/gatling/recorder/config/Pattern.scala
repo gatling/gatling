@@ -32,8 +32,7 @@ class Pattern(@BeanProperty val patternType: PatternType, @BeanProperty val patt
 
 	override def equals(obj: Any): Boolean = {
 		obj match {
-			case p: Pattern =>
-				p.pattern == pattern && p.patternType == patternType
+			case p: Pattern => p.pattern == pattern && p.patternType == patternType
 			case _ => false
 		}
 	}
