@@ -82,6 +82,8 @@ object ValidationHelper extends Logging {
 			if (!txtField.getText.trim.isEmpty) {
 				cFrame.txtProxyPort.setEnabled(true)
 				cFrame.txtProxySslPort.setEnabled(true)
+				cFrame.txtProxyUsername.setEnabled(true)
+				cFrame.txtProxyPassword.setEnabled(true)
 			} else {
 				cFrame.txtProxyPort.setEnabled(false)
 				cFrame.txtProxyPort.setText("0")
@@ -93,6 +95,10 @@ object ValidationHelper extends Logging {
 				}
 				cFrame.txtProxySslPort.setEnabled(false)
 				cFrame.txtProxySslPort.setText("0")
+				cFrame.txtProxyUsername.setEnabled(false)
+				cFrame.txtProxyUsername.setText(null)
+				cFrame.txtProxyPassword.setEnabled(false)
+				cFrame.txtProxyPassword.setText(null)
 			}
 		}
 

@@ -25,7 +25,7 @@ class ServerHttpResponseHandler(requestContext: ChannelHandlerContext, request: 
 
 	override def messageReceived(context: ChannelHandlerContext, event: MessageEvent) {
 
-		GatlingHttpProxy.receiveMessage(context.getChannel)
+		GatlingHttpProxy.registerChannel(context.getChannel)
 
 		event.getMessage match {
 			case response: HttpResponse =>

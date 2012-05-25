@@ -43,6 +43,10 @@ class ConfigurationFrame extends JFrame with Logging {
 	txtProxyPort.setEnabled(false)
 	val txtProxySslPort = new JTextField(null, 4)
 	txtProxySslPort.setEnabled(false)
+	val txtProxyUsername = new JTextField(null, 12)
+	txtProxyUsername.setEnabled(false)
+	val txtProxyPassword = new JTextField(null, 12)
+	txtProxyPassword.setEnabled(false)
 
 	val cbFilterStrategies = new JComboBox
 	val chkSavePref = new JCheckBox("Save preferences")
@@ -133,20 +137,24 @@ class ConfigurationFrame extends JFrame with Logging {
 		/* Outgoing proxy host panel */
 		val outgoingProxyHostPanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
 		outgoingProxyHostPanel.add(new JLabel("Outgoing proxy : "))
+		outgoingProxyHostPanel.add(new JLabel("host:"))
+		outgoingProxyHostPanel.add(txtProxyHost)
+		outgoingProxyHostPanel.add(new JLabel("HTTP"))
+		outgoingProxyHostPanel.add(txtProxyPort)
+		outgoingProxyHostPanel.add(new JLabel("HTTPS"))
+		outgoingProxyHostPanel.add(txtProxySslPort)
 
 		/* Outgoing proxy ports panel */
-		val outgoingProxyPortsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT))
-		outgoingProxyPortsPanel.add(new JLabel("host:"))
-		outgoingProxyPortsPanel.add(txtProxyHost)
-		outgoingProxyPortsPanel.add(new JLabel("HTTP"))
-		outgoingProxyPortsPanel.add(txtProxyPort)
-		outgoingProxyPortsPanel.add(new JLabel("HTTPS"))
-		outgoingProxyPortsPanel.add(txtProxySslPort)
+		val outgoingProxyCredentialsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT))
+		outgoingProxyCredentialsPanel.add(new JLabel("Username"))
+		outgoingProxyCredentialsPanel.add(txtProxyUsername)
+		outgoingProxyCredentialsPanel.add(new JLabel("Password"))
+		outgoingProxyCredentialsPanel.add(txtProxyPassword)
 
 		/* Outgoing proxy panel */
-		val outgoingProxyPanel = new JPanel(new FlowLayout)
-		outgoingProxyPanel.add(outgoingProxyHostPanel)
-		outgoingProxyPanel.add(outgoingProxyPortsPanel)
+		val outgoingProxyPanel = new JPanel(new BorderLayout)
+		outgoingProxyPanel.add(outgoingProxyHostPanel, BorderLayout.NORTH)
+		outgoingProxyPanel.add(outgoingProxyCredentialsPanel, BorderLayout.SOUTH)
 
 		/* Adding panels to newtworkPanel */
 		pnlNetwork.add(localProxyPanel, BorderLayout.NORTH)
@@ -335,8 +343,12 @@ class ConfigurationFrame extends JFrame with Logging {
 			txtProxyHost.setText(proxyHost)
 			txtProxyPort.setText(configuration.proxy.port.getOrElse(0).toString)
 			txtProxySslPort.setText(configuration.proxy.sslPort.getOrElse(0).toString)
+			txtProxyUsername.setText(configuration.proxy.getUsername.getOrElse(null))
+			txtProxyPassword.setText(configuration.proxy.getPassword.getOrElse(null))
 			txtProxyPort.setEnabled(true)
 			txtProxySslPort.setEnabled(true)
+			txtProxyUsername.setEnabled(true)
+			txtProxyPassword.setEnabled(true)
 		}
 		configuration.simulationPackage.map(txtSimulationPackage.setText(_))
 		txtSimulationClassName.setText(configuration.simulationClassName)
