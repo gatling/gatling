@@ -98,7 +98,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 	 * @param session the new Session
 	 */
 	private def executeNext(newSession: Session) {
-		next ! newSession.setAttribute(Session.LAST_ACTION_DURATION_KEY, currentTimeMillis - executionEndDate)
+		next ! newSession.increaseTimeShift(currentTimeMillis - executionEndDate)
 		context.stop(self)
 	}
 

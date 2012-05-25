@@ -105,7 +105,7 @@ class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: Abs
 				error("Failure while building request " + requestName, e)
 				val now = currentTimeMillis
 				DataWriter.logRequest(session.scenarioName, session.userId, "Request " + requestName, now, now, now, now, KO, e.getMessage)
-				next ! session.setAttribute(Session.LAST_ACTION_DURATION_KEY, 0)
+				next ! session
 				None
 			}
 		}
