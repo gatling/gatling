@@ -125,6 +125,8 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				.exec(http("Create Thing omgomg")
 					.post("/things").queryParam("postTest", "${sessionParam}").fileBody("create_thing", Map("name" -> "${sessionParam}")).asJSON
 					.check(status.is(201).saveAs("status")))).counterName("titi").times(iterations)
+				// Head request
+				.exec(http("head on root").head("/"))
 		// Second request outside iteration
 		.exec(http("Ajout au panier").get("/").check(regex("""<input id="text1" type="text" value="(.*)" />""").saveAs("input")))
 		.pause(pause1)
