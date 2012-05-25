@@ -103,6 +103,8 @@
 		<ant.version>1.8.3</ant.version>
 		<grizzled-slf4j.version>0.6.9</grizzled-slf4j.version>
 		<jackson.version>2.0.2</jackson.version>
+		<jodd.version>3.3.3</jodd.version>
+		<asm.version>4.0</asm.version>
 		<junit.version>4.10</junit.version>
 		<specs2.version>1.10</specs2.version>
 
@@ -190,6 +192,7 @@
 				<artifactId>jaxen</artifactId>
 				<version>${jaxen.version}</version>
 				<exclusions>
+					<!-- seriously, what a mess!!! -->
 					<exclusion>
 						<artifactId>xmlParserAPIs</artifactId>
 						<groupId>xerces</groupId>
@@ -210,7 +213,6 @@
 						<artifactId>dom4j</artifactId>
 						<groupId>dom4j</groupId>
 					</exclusion>
-					<!-- who is the idiot that committed such a mess in central?! -->
 					<exclusion>
 						<groupId>maven-plugins</groupId>
 						<artifactId>maven-cobertura-plugin</artifactId>
@@ -315,6 +317,22 @@
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
 				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jodd</groupId>
+				<artifactId>jodd-wot</artifactId>
+				<version>${jodd.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>asm</groupId>
+						<artifactId>asm</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.ow2.asm</groupId>
+				<artifactId>asm</artifactId>
+				<version>${asm.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>

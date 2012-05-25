@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>gatling-parent</artifactId>
@@ -60,23 +61,9 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
-
-		<!-- CSSelly : used for implementing the CSS checks -->
 		<dependency>
 			<groupId>org.jodd</groupId>
 			<artifactId>jodd-wot</artifactId>
-			<version>3.3.3</version>
-			<exclusions>
-			<exclusion>
-				<groupId>asm</groupId>
-				<artifactId>asm</artifactId>
-			</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-		<groupId>org.ow2.asm</groupId>
-			<artifactId>asm</artifactId>
-			<version>4.0</version>
 		</dependency>
 
 		<!-- runtime -->
@@ -93,6 +80,11 @@
 		<dependency>
 			<groupId>xml-apis</groupId>
 			<artifactId>xml-apis</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.asm</groupId>
+			<artifactId>asm</artifactId>
 			<scope>runtime</scope>
 		</dependency>
 
