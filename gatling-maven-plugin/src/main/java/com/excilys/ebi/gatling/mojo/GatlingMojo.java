@@ -264,7 +264,7 @@ public class GatlingMojo extends AbstractMojo {
 	}
 
 	protected String fileNametoClassName(String fileName) {
-		return chompLast(fileName).replace(File.separatorChar, '.');
+		return chompLast(fileName, ".scala").replace(File.separatorChar, '.');
 	}
 
 	/**
