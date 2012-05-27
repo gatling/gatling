@@ -29,7 +29,7 @@ import grizzled.slf4j.Logging
  * An action for "pausing" a user with a "think time" coming from an exponential distribution with the specified
  * average duration.
  *
- * @constructor creates a PauseAction
+ * @constructor creates an ExpPauseAction
  * @param next action that will be executed after the pause duration
  * @param averageDuration average duration of the pause
  * @param timeUnit time unit of the duration
@@ -48,11 +48,16 @@ class ExpPauseAction(next: ActorRef, averageDuration: Long, timeUnit: TimeUnit) 
 
     val delayInMs = getRandomLongFromExp(averageDurationInMillis)
 
-    val delayAdjustedForLastActionInMs = delayInMs - session.getTimeShift
+    val delayAdjustedForTimeShiftInMs = delayInMs - session.getTimeShift
 
-    info(new StringBuilder().append("Waiting for ").append(delayInMs).append("ms (")
-      .append(delayAdjustedForLastActionInMs).append("ms)"))
+    if (delayAdjustedForTimeShiftInMs > 0) {
+      info(new StringBuilder().append("Waiting for ").append(delayInMs).append("ms (")
+        .append(delayAdjustedForTimeShiftInMs).append("ms)"))
 
-    system.scheduler.scheduleOnce(delayAdjustedForLastActionInMs milliseconds, next, session)
+      system.scheduler.scheduleOnce(delayAdjustedForTimeShiftInMs milliseconds, next, session)
+    } else {
+      info(new StringBuilder().append("can't pause (remaining time shift=").append(delayAdjustedForTimeShiftInMs).append("ms)"))
+      			next ! session.setTimeShift(delayAdjustedForTimeShiftInMs)
+    }
   }
 }
