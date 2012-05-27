@@ -28,13 +28,13 @@ import grizzled.slf4j.Logging
 /**
  * An action for "pausing" a user (ie: think time)
  *
- * @constructor creates a PauseAction
+ * @constructor creates a UniformPauseAction
  * @param next action that will be executed after the pause duration
  * @param minDuration minimum duration of the pause
  * @param maxDuration maximum duration of the pause
  * @param timeUnit time unit of the duration
  */
-class PauseAction(next: ActorRef, minDuration: Long, maxDuration: Option[Long], timeUnit: TimeUnit) extends Action with Logging {
+class UniformPauseAction(next: ActorRef, minDuration: Long, maxDuration: Option[Long], timeUnit: TimeUnit) extends Action with Logging {
 
 	val minDurationInMillis = TimeUnit.MILLISECONDS.convert(minDuration, timeUnit)
 	val maxDurationInMillis = maxDuration.map(TimeUnit.MILLISECONDS.convert(_, timeUnit))
@@ -47,7 +47,7 @@ class PauseAction(next: ActorRef, minDuration: Long, maxDuration: Option[Long], 
 	 */
 	def execute(session: Session) {
 
-		val durationInMillis = maxDurationInMillis.map(getRandomLong(minDurationInMillis, _)).getOrElse(minDurationInMillis)
+		val durationInMillis = generateDelayInMillis
 		val timeShift = session.getTimeShift
 
 		if (durationInMillis > timeShift) {
@@ -65,4 +65,8 @@ class PauseAction(next: ActorRef, minDuration: Long, maxDuration: Option[Long], 
 			next ! session.setTimeShift(remainingTimeShift)
 		}
 	}
+
+  def generateDelayInMillis: Long = {
+    maxDurationInMillis.map(getRandomLong(minDurationInMillis, _)).getOrElse(minDurationInMillis)
+  }
 }

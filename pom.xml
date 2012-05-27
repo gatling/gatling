@@ -339,7 +339,10 @@
 				<groupId>org.ow2.asm</groupId>
 				<artifactId>asm</artifactId>
 				<version>${asm.version}</version>
+<<<<<<< HEAD
 >>>>>>> 9eb1d32345c70a7280d33dbaf1adbf0d69cf5f74
+=======
+>>>>>>> 38d1dc2
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
