@@ -15,16 +15,8 @@
  */
 package com.excilys.ebi.gatling.mojo;
 
-import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
-import static java.util.Arrays.asList;
-import static org.codehaus.plexus.util.StringUtils.chompLast;
-import static org.codehaus.plexus.util.StringUtils.join;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import com.excilys.ebi.gatling.ant.GatlingTask;
+import com.excilys.ebi.gatling.app.OptionsConstants;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
@@ -39,8 +31,15 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.Commandline;
 import org.apache.tools.ant.types.Path;
 
-import com.excilys.ebi.gatling.ant.GatlingTask;
-import com.excilys.ebi.gatling.app.OptionsConstants;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
+import static java.util.Arrays.asList;
+import static org.codehaus.plexus.util.StringUtils.join;
+import static org.codehaus.plexus.util.StringUtils.trim;
 
 /**
  * Mojo to execute Gatling.
@@ -263,8 +262,15 @@ public class GatlingMojo extends AbstractMojo {
 		}
 	}
 
-	protected String fileNametoClassName(String fileName) {
-		return chompLast(fileName, ".scala").replace(File.separatorChar, '.');
+	protected String fileNameToClassName(String fileName) {
+        String trimmedFileName = trim(fileName);
+
+        int lastIndexOfExtensionDelim = trimmedFileName.lastIndexOf(".");
+        String strippedFileName = lastIndexOfExtensionDelim > 0 ?
+                trimmedFileName.substring(0, lastIndexOfExtensionDelim) :
+                trimmedFileName;
+
+        return strippedFileName.replace(File.separatorChar, '.');
 	}
 
 	/**
@@ -299,7 +305,7 @@ public class GatlingMojo extends AbstractMojo {
 
 		List<String> includedClassNames = new ArrayList<String>(includedFiles.length);
 		for (String includedFile : includedFiles) {
-			includedClassNames.add(fileNametoClassName(includedFile));
+			includedClassNames.add(fileNameToClassName(includedFile));
 		}
 
 		getLog().debug("resolved simulation classes: " + includedClassNames);
