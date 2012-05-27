@@ -72,7 +72,7 @@ class NumberHelperSpec extends Specification {
       }
 
       val percentTestsMatchingDistribution: Double = timesMatchingDistribution.toDouble / numTests.toDouble
-      percentTestsMatchingDistribution must beGreaterThanOrEqualTo(0.95)
+      percentTestsMatchingDistribution must beGreaterThanOrEqualTo(0.90)
     }
   }
 
@@ -114,7 +114,7 @@ class NumberHelperSpec extends Specification {
       }
 
       val percentTestsMatchingDistribution: Double = timesMatchingDistribution.toDouble / numTests.toDouble
-      percentTestsMatchingDistribution must beGreaterThanOrEqualTo(0.95)
+      percentTestsMatchingDistribution must beGreaterThanOrEqualTo(0.90)
     }
   }
 
@@ -156,7 +156,7 @@ class NumberHelperSpec extends Specification {
       }
 
       val percentTestsMatchingDistribution: Double = timesMatchingDistribution.toDouble / numTests.toDouble
-      percentTestsMatchingDistribution must beGreaterThanOrEqualTo(0.95)
+      percentTestsMatchingDistribution must beGreaterThanOrEqualTo(0.90)
     }
   }
 
