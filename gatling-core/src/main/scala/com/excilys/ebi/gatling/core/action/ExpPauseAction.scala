@@ -18,46 +18,24 @@ package com.excilys.ebi.gatling.core.action
 
 import java.util.concurrent.TimeUnit
 
-import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.NumberHelper.getRandomLongFromExp
 
 import akka.actor.ActorRef
-import akka.util.duration.longToDurationLong
-import grizzled.slf4j.Logging
 
 /**
  * An action for "pausing" a user with a "think time" coming from an exponential distribution with the specified
  * average duration.
  *
  * @constructor creates an ExpPauseAction
- * @param next action that will be executed after the pause duration
+ * @param nextAction action that will be executed after the pause duration
  * @param averageDuration average duration of the pause
  * @param timeUnit time unit of the duration
  */
-class ExpPauseAction(next: ActorRef, averageDuration: Long, timeUnit: TimeUnit) extends Action with Logging {
+class ExpPauseAction(nextAction: ActorRef, averageDuration: Long, timeUnit: TimeUnit)
+  extends PauseAction {
 
+  val next: ActorRef = nextAction;
   val averageDurationInMillis = TimeUnit.MILLISECONDS.convert(averageDuration, timeUnit)
 
-  /**
-   * Generates a pause using an exponential distribution.
-   * next actor execution of this duration
-   *
-   * @param session the session of the virtual user
-   */
-  def execute(session: Session) {
-
-    val delayInMs = getRandomLongFromExp(averageDurationInMillis)
-
-    val delayAdjustedForTimeShiftInMs = delayInMs - session.getTimeShift
-
-    if (delayAdjustedForTimeShiftInMs > 0) {
-      info(new StringBuilder().append("Waiting for ").append(delayInMs).append("ms (")
-        .append(delayAdjustedForTimeShiftInMs).append("ms)"))
-
-      system.scheduler.scheduleOnce(delayAdjustedForTimeShiftInMs milliseconds, next, session)
-    } else {
-      info(new StringBuilder().append("can't pause (remaining time shift=").append(delayAdjustedForTimeShiftInMs).append("ms)"))
-      			next ! session.setTimeShift(delayAdjustedForTimeShiftInMs)
-    }
-  }
+  def generateDelayInMillis() = getRandomLongFromExp(averageDurationInMillis)
 }
