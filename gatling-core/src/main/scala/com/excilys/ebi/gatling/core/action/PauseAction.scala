@@ -15,6 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.action
 
+import java.lang.System.currentTimeMillis
 import java.util.concurrent.TimeUnit
 
 import com.excilys.ebi.gatling.core.session.Session
@@ -47,10 +48,21 @@ class PauseAction(next: ActorRef, minDuration: Long, maxDuration: Option[Long], 
 	def execute(session: Session) {
 
 		val durationInMillis = maxDurationInMillis.map(getRandomLong(minDurationInMillis, _)).getOrElse(minDurationInMillis)
+		val timeShift = session.getTimeShift
 
-		val durationMinusLastActionDurationInMillis = durationInMillis - session.getLastActionDuration
-		info(new StringBuilder().append("Waiting for ").append(durationInMillis).append("ms (").append(durationMinusLastActionDurationInMillis).append("ms)"))
+		if (durationInMillis > timeShift) {
+			// can make pause
+			val durationMinusTimeShift = durationInMillis - timeShift
+			info(new StringBuilder().append("Pausing for ").append(durationInMillis).append("ms (real=").append(durationMinusTimeShift).append("ms)"))
 
-		system.scheduler.scheduleOnce(durationMinusLastActionDurationInMillis milliseconds, next, session)
+			val pauseStart = currentTimeMillis
+			system.scheduler.scheduleOnce(durationMinusTimeShift milliseconds)(next ! session.setTimeShift(currentTimeMillis - pauseStart))
+
+		} else {
+			// time shift is too big
+			val remainingTimeShift = timeShift - durationInMillis
+			info(new StringBuilder().append("can't pause (remaining time shift=").append(remainingTimeShift).append("ms)"))
+			next ! session.setTimeShift(remainingTimeShift)
+		}
 	}
 }

@@ -120,7 +120,15 @@ class Gatling(cliOptions: Options) extends Logging {
 			runUuids.foreach(generateReports)
 	}
 
-	private def autoSelect(classes: List[Class[Simulation]], simulations: List[String]): UserSelection = UserSelection(classes.filter(clazz => simulations.contains(clazz.getName)))
+	private def autoSelect(classes: List[Class[Simulation]], simulations: List[String]): UserSelection = {
+
+		val classNames = classes.map(_.getName)
+		val notFounds = simulations.filterNot(classNames.contains(_))
+		if (!notFounds.isEmpty)
+			println("The following simulation names didn't match any Simulation class name and were filtered out: " + notFounds)
+
+		UserSelection(classes.filter(clazz => simulations.contains(clazz.getName)))
+	}
 
 	private def interactiveSelect(classes: List[Class[Simulation]]): UserSelection = {
 

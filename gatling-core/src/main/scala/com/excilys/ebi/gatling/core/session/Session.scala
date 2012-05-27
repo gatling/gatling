@@ -27,7 +27,7 @@ object Session {
 	/**
 	 * Key for last action duration
 	 */
-	val LAST_ACTION_DURATION_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.lastActionDuration"
+	val TIME_SHIFT_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.timeShift"
 }
 /**
  * Session class representing the session passing through a scenario for a given user
@@ -103,12 +103,11 @@ class Session(val scenarioName: String, val userId: Int, data: Map[String, Any] 
 	 */
 	def getTimerValue(timerName: String) = getAttributeAsOption[Long](TimerBasedIterationHandler.getTimerAttributeName(timerName)).getOrElse(throw new IllegalAccessError("Timer is not set : " + timerName))
 
-	/**
-	 * Gets the last action duration
-	 *
-	 * @return last action duration in milliseconds
-	 */
-	private[gatling] def getLastActionDuration: Long = getAttributeAsOption[Long](Session.LAST_ACTION_DURATION_KEY).getOrElse(0L)
+	private[gatling] def setTimeShift(timeShift: Long): Session = setAttribute(Session.TIME_SHIFT_KEY, timeShift)
+
+	private[gatling] def increaseTimeShift(time: Long): Session = setTimeShift(time + getTimeShift)
+
+	private[gatling] def getTimeShift: Long = getAttributeAsOption[Long](Session.TIME_SHIFT_KEY).getOrElse(0L)
 
 	override def toString = new StringBuilder().append("scenarioName='").append(scenarioName).append("' userId='").append(userId).append("' data='").append(data).append("'").toString
 }

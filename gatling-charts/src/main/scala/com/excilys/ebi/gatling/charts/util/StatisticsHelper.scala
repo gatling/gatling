@@ -141,8 +141,8 @@ object StatisticsHelper {
 		val maxCount = (records.size * limit).toInt
 		val recordsSortedByDistanceToAverage = records.sortBy(record => abs(record.responseTime - average)).take(maxCount)
 
-		var min = if (recordsSortedByDistanceToAverage.isEmpty) NO_PLOT_MAGIC_VALUE else recordsSortedByDistanceToAverage.minBy(_.responseTime).responseTime
-		var max = if (recordsSortedByDistanceToAverage.isEmpty) NO_PLOT_MAGIC_VALUE else recordsSortedByDistanceToAverage.maxBy(_.responseTime).responseTime
+		val min = if (recordsSortedByDistanceToAverage.isEmpty) NO_PLOT_MAGIC_VALUE else recordsSortedByDistanceToAverage.minBy(_.responseTime).responseTime
+		val max = if (recordsSortedByDistanceToAverage.isEmpty) NO_PLOT_MAGIC_VALUE else recordsSortedByDistanceToAverage.maxBy(_.responseTime).responseTime
 
 		(min, max)
 	}
