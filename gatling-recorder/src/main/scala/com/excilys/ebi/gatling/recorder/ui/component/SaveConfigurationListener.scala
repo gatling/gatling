@@ -17,18 +17,22 @@ package com.excilys.ebi.gatling.recorder.ui.component;
 
 import java.awt.event.{ ActionListener, ActionEvent }
 import java.nio.charset.Charset
-
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
 import com.excilys.ebi.gatling.recorder.config.Configuration
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy.FilterStrategy
 import com.excilys.ebi.gatling.recorder.ui.frame.ConfigurationFrame
-
 import grizzled.slf4j.Logging
+import javax.swing.JTextField
 
 class SaveConfigurationListener(configurationFrame: ConfigurationFrame) extends ActionListener with Logging {
 
 	def actionPerformed(e: ActionEvent) {
+		
+		def trimOptionalField(field: JTextField) = {
+			val value = field.getText.trim
+			if (value.isEmpty) None else Some(value)
+		}
 
 		// validate filters
 		configurationFrame.tblFilters.validateCells
@@ -39,12 +43,7 @@ class SaveConfigurationListener(configurationFrame: ConfigurationFrame) extends 
 		// Parse local ssl proxy port
 		configuration.sslPort = configurationFrame.txtSslPort.getText.toInt
 
-		val uiProxyHost = configurationFrame.txtProxyHost.getText.trim
-		configuration.proxy.host =
-			if (uiProxyHost.isEmpty)
-				None
-			else
-				Some(uiProxyHost)
+		configuration.proxy.host = trimOptionalField(configurationFrame.txtProxyHost)
 
 		if (!configuration.proxy.host.isEmpty) {
 			// Parse outgoing proxy port
@@ -52,6 +51,10 @@ class SaveConfigurationListener(configurationFrame: ConfigurationFrame) extends 
 
 			// Parse outgoing ssl proxy port
 			configuration.proxy.sslPort = Some(configurationFrame.txtProxySslPort.getText.toInt)
+
+			configuration.proxy.username = trimOptionalField(configurationFrame.txtProxyUsername)
+
+			configuration.proxy.password = trimOptionalField(configurationFrame.txtProxyPassword)
 		}
 
 		configuration.filterStrategy = configurationFrame.cbFilterStrategies.getSelectedItem.asInstanceOf[FilterStrategy]
@@ -70,15 +73,9 @@ class SaveConfigurationListener(configurationFrame: ConfigurationFrame) extends 
 		// set selected encoding
 		configuration.encoding = classOf[Charset].cast(configurationFrame.cbOutputEncoding.getSelectedItem).name
 
-		configuration.simulationPackage = {
-			val uiSimulationPackage = configurationFrame.txtSimulationPackage.getText.trim
-			if (uiSimulationPackage.isEmpty)
-				None
-			else
-				Some(uiSimulationPackage)
-		}
+		configuration.simulationPackage = trimOptionalField(configurationFrame.txtSimulationPackage)
 
-		configuration.simulationClassName = configurationFrame.txtSimulationClassName.getText
+		configuration.simulationClassName = configurationFrame.txtSimulationClassName.getText.trim
 
 		if (configuration.saveConfiguration)
 			Configuration.saveToDisk

@@ -48,7 +48,7 @@ class ExpPauseAction(next: ActorRef, averageDuration: Long, timeUnit: TimeUnit) 
 
     val delayInMs = getRandomLongFromExp(averageDurationInMillis)
 
-    val delayAdjustedForLastActionInMs = delayInMs - session.getLastActionDuration
+    val delayAdjustedForLastActionInMs = delayInMs - session.getTimeShift
 
     info(new StringBuilder().append("Waiting for ").append(delayInMs).append("ms (")
       .append(delayAdjustedForLastActionInMs).append("ms)"))

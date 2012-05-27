@@ -16,29 +16,34 @@
 package com.excilys.ebi.gatling.recorder.http.handler;
 
 import java.net.URI
-
 import scala.collection.JavaConversions.asScalaBuffer
-
 import org.jboss.netty.channel.{ SimpleChannelHandler, MessageEvent, ExceptionEvent, ChannelHandlerContext, ChannelFutureListener, ChannelFuture }
 import org.jboss.netty.handler.codec.http.{ HttpRequest, DefaultHttpRequest }
-
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy
-
 import grizzled.slf4j.Logging
+import com.excilys.ebi.gatling.http.Headers
+import com.ning.http.util.Base64
 
 abstract class AbstractBrowserRequestHandler(proxyConfig: ProxyConfig) extends SimpleChannelHandler with Logging {
 
 	override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent) {
 
-		GatlingHttpProxy.receiveMessage(ctx.getChannel)
+		GatlingHttpProxy.registerChannel(ctx.getChannel)
 
 		event.getMessage match {
 			case request: HttpRequest =>
-				// remove Proxy-Connection header if it's not significant
-				if (proxyConfig.host.isEmpty) {
-					request.removeHeader("Proxy-Connection")
+				proxyConfig.host match {
+					case Some(_) =>
+						for {
+							val username <- proxyConfig.username
+							val password <- proxyConfig.password
+						} {
+							val proxyAuth = "Basic " + Base64.encode((username + ":" + password).getBytes)
+							request.setHeader(Headers.Names.PROXY_AUTHORIZATION, proxyAuth)
+						}
+					case None => request.removeHeader("Proxy-Connection") // remove Proxy-Connection header if it's not significant
 				}
 
 				val future = connectToServerOnBrowserRequestReceived(ctx, request)

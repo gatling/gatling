@@ -84,7 +84,7 @@
 		<maven.compiler.target>1.6</maven.compiler.target>
 		<encoding>UTF-8</encoding>
 		<scala.version>2.9.2</scala.version>
-		<ahc.version>1.7.4</ahc.version>
+		<ahc.version>1.7.5</ahc.version>
 		<akka.version>2.0.1</akka.version>
 		<jaxen.version>1.1.4</jaxen.version>
 		<xerces.version>2.11.0</xerces.version>
@@ -104,6 +104,8 @@
 		<grizzled-slf4j.version>0.6.9</grizzled-slf4j.version>
 		<jackson.version>2.0.2</jackson.version>
 		<commons-math.version>3.0</commons-math.version>
+		<jodd.version>3.3.3</jodd.version>
+		<asm.version>4.0</asm.version>
 		<junit.version>4.10</junit.version>
 		<specs2.version>1.10</specs2.version>
 
@@ -111,9 +113,9 @@
 		<maven-compiler-plugin.version>2.4</maven-compiler-plugin.version>
 		<maven-assembly-plugin.version>2.3</maven-assembly-plugin.version>
 		<maven-jar-plugin.version>2.4</maven-jar-plugin.version>
-		<scala-maven-plugin.version>3.0.1</scala-maven-plugin.version>
+		<scala-maven-plugin.version>3.0.2</scala-maven-plugin.version>
 		<maven-surefire-plugin.version>2.12</maven-surefire-plugin.version>
-		<maven-release-plugin.version>2.3</maven-release-plugin.version>
+		<maven-release-plugin.version>2.3.1</maven-release-plugin.version>
 		<maven-license-plugin.version>1.10.b1</maven-license-plugin.version>
 		<maven-plugin-plugin.version>2.9</maven-plugin-plugin.version>
 		<build-helper-maven-plugin.version>1.7</build-helper-maven-plugin.version>
@@ -191,6 +193,7 @@
 				<artifactId>jaxen</artifactId>
 				<version>${jaxen.version}</version>
 				<exclusions>
+					<!-- seriously, what a mess!!! -->
 					<exclusion>
 						<artifactId>xmlParserAPIs</artifactId>
 						<groupId>xerces</groupId>
@@ -211,7 +214,6 @@
 						<artifactId>dom4j</artifactId>
 						<groupId>dom4j</groupId>
 					</exclusion>
-					<!-- who is the idiot that committed such a mess in central?! -->
 					<exclusion>
 						<groupId>maven-plugins</groupId>
 						<artifactId>maven-cobertura-plugin</artifactId>
@@ -317,10 +319,26 @@
 				<artifactId>jackson-databind</artifactId>
 				<version>${jackson.version}</version>
 			</dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-math3</artifactId>
+                <version>${commons-math.version}</version>
+            </dependency>
+            <dependency>
+            <groupId>org.jodd</groupId>
+				<artifactId>jodd-wot</artifactId>
+				<version>${jodd.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>asm</groupId>
+						<artifactId>asm</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
 			<dependency>
-				<groupId>org.apache.commons</groupId>
-				<artifactId>commons-math3</artifactId>
-				<version>${commons-math.version}</version>
+				<groupId>org.ow2.asm</groupId>
+				<artifactId>asm</artifactId>
+				<version>${asm.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>

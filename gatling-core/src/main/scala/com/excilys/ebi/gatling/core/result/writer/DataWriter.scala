@@ -21,7 +21,6 @@ import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.init.Initializable
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
 import com.excilys.ebi.gatling.core.result.message.{ RunRecord, RequestStatus, RequestRecord, InitializeDataWriter, FlushDataWriter }
 
@@ -57,4 +56,4 @@ object DataWriter {
  * These writers are responsible for writing the logs that will be read to
  * generate the statistics
  */
-abstract class DataWriter extends Actor with Initializable
+abstract class DataWriter extends Actor

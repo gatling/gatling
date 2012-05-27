@@ -90,8 +90,12 @@ object Configuration extends Logging {
 	private def initFromCli(o: Options) {
 		o.localPort.map(configuration.port = _)
 		o.localPortSsl.map(configuration.sslPort = _)
-		if (o.proxyHost.isDefined && o.proxyPort.isDefined)
-			configuration.proxy = new ProxyConfig(o.proxyHost, o.proxyPort, o.proxyPortSsl, None, None)
+		for {
+			val proxyHost <- o.proxyHost
+			val proxyPort <- o.proxyPort
+		} {
+			configuration.proxy = new ProxyConfig(Some(proxyHost), Some(proxyPort), o.proxyPortSsl, None, None)
+		}
 		o.outputFolder.map(configuration.outputFolder = _)
 		o.simulationClassName.map(configuration.simulationClassName = _)
 		o.simulationPackage.map(pkg => configuration.simulationPackage = Some(pkg))
