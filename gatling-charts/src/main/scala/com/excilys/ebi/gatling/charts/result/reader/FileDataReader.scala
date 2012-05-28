@@ -58,7 +58,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		(runRecords, records.sortBy(_.executionStartDate))
 	}
 
-	private val realRequestRecords = allRequestRecords.filter(record => record.requestName != START_OF_SCENARIO && record.requestName != END_OF_SCENARIO)
+	val realRequestRecords = allRequestRecords.filter(record => record.requestName != START_OF_SCENARIO && record.requestName != END_OF_SCENARIO)
 
 	val runRecord = if (allRunRecords.size == 1) allRunRecords.head else throw new IllegalAccessException("Expecting one and only one RunRecord")
 

@@ -27,6 +27,7 @@ object DataReader {
 abstract class DataReader(runUuid: String) {
 
 	def runRecord: RunRecord
+	def realRequestRecords: Seq[RequestRecord]
 
 	def requestNames: Seq[String]
 	def scenarioNames: Seq[String]
