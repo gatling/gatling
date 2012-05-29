@@ -17,18 +17,20 @@ package com.excilys.ebi.gatling.recorder.ui.component;
 
 import java.awt.event.{ ActionListener, ActionEvent }
 import java.nio.charset.Charset
+
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
 import com.excilys.ebi.gatling.recorder.config.Configuration
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy.FilterStrategy
 import com.excilys.ebi.gatling.recorder.ui.frame.ConfigurationFrame
+
 import grizzled.slf4j.Logging
 import javax.swing.JTextField
 
 class SaveConfigurationListener(configurationFrame: ConfigurationFrame) extends ActionListener with Logging {
 
 	def actionPerformed(e: ActionEvent) {
-		
+
 		def trimOptionalField(field: JTextField) = {
 			val value = field.getText.trim
 			if (value.isEmpty) None else Some(value)

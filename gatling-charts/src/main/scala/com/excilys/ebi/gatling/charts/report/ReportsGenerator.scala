@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.report
+
 import java.net.URL
 
 import scala.collection.mutable.LinkedHashSet

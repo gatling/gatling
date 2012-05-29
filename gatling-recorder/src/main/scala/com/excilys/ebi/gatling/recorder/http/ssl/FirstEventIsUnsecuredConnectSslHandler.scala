@@ -17,8 +17,7 @@ package com.excilys.ebi.gatling.recorder.http.ssl;
 
 import java.util.concurrent.atomic.AtomicBoolean
 
-import org.jboss.netty.channel.ChannelEvent
-import org.jboss.netty.channel.ChannelHandlerContext
+import org.jboss.netty.channel.{ ChannelHandlerContext, ChannelEvent }
 import org.jboss.netty.handler.ssl.SslHandler
 
 import javax.net.ssl.SSLEngine
@@ -30,7 +29,7 @@ class FirstEventIsUnsecuredConnectSslHandler(sslEngine: SSLEngine) extends SslHa
 	override def handleUpstream(context: ChannelHandlerContext, evt: ChannelEvent) {
 		if (sslEnabled.get)
 			super.handleUpstream(context, evt)
-		else 
+		else
 			context.sendUpstream(evt)
 	}
 

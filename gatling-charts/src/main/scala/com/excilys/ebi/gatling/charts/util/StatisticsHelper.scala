@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.charts.util
 
 import scala.annotation.tailrec
 import scala.collection.SortedMap
-import scala.math.{ sqrt, round, pow }
+import scala.math.{ sqrt, round, pow, max }
 
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
@@ -120,7 +120,7 @@ object StatisticsHelper {
 
 		val width = maxTime - minTime
 
-		val step = math.max(width / slotsNumber, 1)
+		val step = max(width / slotsNumber, 1)
 		val actualSlotNumber = if (step == 1) width.toInt else slotsNumber
 
 		val percentiles = if (records.isEmpty)
@@ -137,13 +137,13 @@ object StatisticsHelper {
 	}
 
 	/**
-	 * @param records records, sorted by response time
+	 * @param sortedRecords records, sorted by response time
 	 * @param percent
 	 * @return the percentile
 	 */
-	def responseTimePercentile(records: Seq[RequestRecord], percent: Double): Long = {
-		val limitIndex = round(percent * records.size + 0.5).toInt - 1
-		if (records.isEmpty) NO_PLOT_MAGIC_VALUE else records(limitIndex).responseTime
+	def responseTimePercentile(sortedRecords: Seq[RequestRecord], percent: Double): Long = {
+		val limitIndex = round(percent * sortedRecords.size + 0.5).toInt - 1
+		if (sortedRecords.isEmpty) NO_PLOT_MAGIC_VALUE else sortedRecords(limitIndex).responseTime
 	}
 
 	def count(data: List[(Long, Int)]) = data.foldLeft(0)((sum, entry) => sum + entry._2)

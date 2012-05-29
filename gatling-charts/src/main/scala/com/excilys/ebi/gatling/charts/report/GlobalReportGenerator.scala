@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.charts.config.ChartsFiles.globalFile
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.template.GlobalPageTemplate
 import com.excilys.ebi.gatling.charts.util.Colors.{ toString, YELLOW, RED, PURPLE, PINK, ORANGE, LIME, LIGHT_RED, LIGHT_PURPLE, LIGHT_PINK, LIGHT_ORANGE, LIGHT_LIME, LIGHT_BLUE, GREEN, CYAN, BLUE }
-import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ responseTimeStandardDeviation, responseTimeDistribution, responseTimePercentile, numberOfRequestsPerSecondAsList, numberOfRequestsPerSecond, numberOfRequestInResponseTimeRange, numberOfActiveSessionsPerSecond, minResponseTime, maxResponseTime, count, averageResponseTime }
+import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ responseTimeStandardDeviation, responseTimePercentile, responseTimeDistribution, numberOfRequestsPerSecondAsList, numberOfRequestsPerSecond, numberOfRequestInResponseTimeRange, numberOfActiveSessionsPerSecond, minResponseTime, maxResponseTime, count, averageResponseTime }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
 import com.excilys.ebi.gatling.core.result.reader.DataReader

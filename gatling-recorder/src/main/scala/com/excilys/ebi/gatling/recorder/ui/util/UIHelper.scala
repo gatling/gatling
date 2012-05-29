@@ -15,15 +15,13 @@
  */
 package com.excilys.ebi.gatling.recorder.ui.util
 
-import java.awt.EventQueue
+import java.awt.EventQueue.invokeLater
 
 object UIHelper {
 
 	def useUIThread(block: => Unit) {
-		EventQueue.invokeLater(new Runnable {
-			def run {
-				block
-			}
+		invokeLater(new Runnable {
+			def run = block
 		})
 	}
 }

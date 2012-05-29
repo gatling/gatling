@@ -18,6 +18,8 @@ package com.excilys.ebi.gatling.recorder.ui.frame;
 import java.awt.event.{ ActionListener, ActionEvent }
 import java.awt.{ FlowLayout, Dimension, BorderLayout }
 
+import scala.collection.JavaConversions.seqAsJavaList
+
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.ui.Commons.iconList

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.template
+
 import com.excilys.ebi.gatling.charts.component.Component
 
 class GlobalPageTemplate(statisticsComponent: Component, indicatorsComponent: Component,activeSessionsComponent: Component,requestsComponent: Component,transactionsComponent: Component) 

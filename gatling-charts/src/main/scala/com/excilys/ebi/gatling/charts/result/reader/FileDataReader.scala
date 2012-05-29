@@ -16,24 +16,25 @@
 package com.excilys.ebi.gatling.charts.result.reader
 
 import java.util.regex.Pattern
+
 import scala.collection.immutable.SortedMap
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.ListBuffer
 import scala.io.Source
+
 import org.joda.time.DateTime
+
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
-import com.excilys.ebi.gatling.core.result.message.RecordType._
-import com.excilys.ebi.gatling.core.result.message.RequestRecord
-import com.excilys.ebi.gatling.core.result.message.RunRecord
+import com.excilys.ebi.gatling.core.result.message.RecordType.{ RUN, ACTION }
+import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RunRecord, RequestStatus }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR_STRING
-import FileDataReader.TABULATION_PATTERN
+import com.excilys.ebi.gatling.charts.result.reader.FileDataReader.TABULATION_PATTERN
+
 import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
-import scala.collection.mutable.ListBuffer
 
 object FileDataReader {
 	val TABULATION_PATTERN = Pattern.compile(TABULATION_SEPARATOR_STRING)

@@ -20,6 +20,7 @@ import java.awt.{ FlowLayout, FileDialog, Dimension, BorderLayout }
 import java.nio.charset.Charset
 
 import scala.collection.JavaConversions.collectionAsScalaIterable
+import scala.collection.JavaConversions.seqAsJavaList
 
 import com.excilys.ebi.gatling.recorder.config.Configuration
 import com.excilys.ebi.gatling.recorder.ui.Commons.iconList
