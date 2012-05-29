@@ -4,8 +4,8 @@
 <%@ val max: com.excilys.ebi.gatling.charts.component.Statistics %>
 <%@ val average: com.excilys.ebi.gatling.charts.component.Statistics %>
 <%@ val stdDeviation: com.excilys.ebi.gatling.charts.component.Statistics %>
-<%@ val minPercentiles: com.excilys.ebi.gatling.charts.component.Statistics %>
-<%@ val maxPercentiles: com.excilys.ebi.gatling.charts.component.Statistics %>
+<%@ val percentiles95: com.excilys.ebi.gatling.charts.component.Statistics %>
+<%@ val percentiles99: com.excilys.ebi.gatling.charts.component.Statistics %>
 
 						<div class="infos">
 							<div class="titre">STATISTICS</div>
@@ -42,10 +42,10 @@
 												<td class="title">Std Deviation</td><td class="total"><%= stdDeviation.printableTotal %></td><td class="ok"><%= stdDeviation.printableSuccess %></td><td class="ko"><%= stdDeviation.printableFailure %></td>
 											</tr>
 											<tr>
-												<td class="title"><%=configuration.chartingIndicatorsPercentiles%>% Low Bound</td><td class="total"><%= minPercentiles.printableTotal %></td><td class="ok"><%= minPercentiles.printableSuccess %></td><td class="ko"><%= minPercentiles.printableFailure %></td>
+												<td class="title">95 percentile</td><td class="total"><%= percentiles95.printableTotal %></td><td class="ok"><%= percentiles95.printableSuccess %></td><td class="ko"><%= percentiles95.printableFailure %></td>
 											</tr>
 											<tr>
-												<td class="title"><%=configuration.chartingIndicatorsPercentiles%>% High Bound</td><td class="total"><%= maxPercentiles.printableTotal %></td><td class="ok"><%= maxPercentiles.printableSuccess %></td><td class="ko"><%= maxPercentiles.printableFailure %></td>
+												<td class="title">99 percentile</td><td class="total"><%= percentiles99.printableTotal %></td><td class="ok"><%= percentiles99.printableSuccess %></td><td class="ko"><%= percentiles99.printableFailure %></td>
 											</tr>
 										</tbody>
 									</table>

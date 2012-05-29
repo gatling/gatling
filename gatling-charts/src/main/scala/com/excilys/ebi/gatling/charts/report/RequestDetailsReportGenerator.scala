@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.report
+
 import com.excilys.ebi.gatling.charts.component.{ StatisticsTextComponent, Statistics, ComponentLibrary }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.requestFile
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.template.RequestDetailsPageTemplate
 import com.excilys.ebi.gatling.charts.util.Colors.{ toString, YELLOW, TRANSLUCID_RED, TRANSLUCID_BLUE, RED, ORANGE, GREEN, BLUE }
-import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ responseTimeStandardDeviation, responseTimeByMillisecondAsList, respTimeAgainstNbOfReqPerSecond, numberOfRequestsPerSecond, numberOfRequestInResponseTimeRange, minResponseTime, maxResponseTime, latencyByMillisecondAsList, averageResponseTime, windowInPercentileRange, responseTimeDistribution }
-import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
-import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
+import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ responseTimeStandardDeviation, responseTimeDistribution, responseTimeByMillisecondAsList, respTimeAgainstNbOfReqPerSecond, responseTimePercentile, numberOfRequestsPerSecond, numberOfRequestInResponseTimeRange, minResponseTime, maxResponseTime, latencyByMillisecondAsList, averageResponseTime }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
@@ -64,10 +63,17 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			val globalAverageResponseTime = averageResponseTime(requests)
 			val successAverageResponseTime = averageResponseTime(successRequests)
 			val failedAverageResponseTime = averageResponseTime(failedRequests)
-			val percentiles = configuration.chartingIndicatorsPercentiles / 100.0
-			val (globalMinPercentiles, globalMaxPercentiles) = windowInPercentileRange(globalAverageResponseTime, percentiles, requests)
-			val (successMinPercentiles, successMaxPercentiles) = windowInPercentileRange(successAverageResponseTime, percentiles, successRequests)
-			val (failedMinPercentiles, failedMaxPercentiles) = windowInPercentileRange(failedAverageResponseTime, percentiles, failedRequests)
+
+			val sortedRequests = requests.sortBy(_.responseTime)
+			val sortedSuccessRequests = successRequests.sortBy(_.responseTime)
+			val sortedFailedRequests = successRequests.sortBy(_.responseTime)
+
+			val global95Percentile = responseTimePercentile(sortedRequests, 0.95)
+			val success95Percentile = responseTimePercentile(sortedRequests, 0.95)
+			val failed95Percentile = responseTimePercentile(sortedFailedRequests, 0.95)
+			val global99Percentile = responseTimePercentile(sortedRequests, 0.99)
+			val success99Percentile = responseTimePercentile(sortedRequests, 0.99)
+			val failed99Percentile = responseTimePercentile(sortedFailedRequests, 0.99)
 
 			// Create series
 			val responseTimesSuccessSeries = new Series[Long, Long]("Response Time (success)", responseTimesSuccessData, List(BLUE))
@@ -86,8 +92,8 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			val maxResponseTimeStatistics = new Statistics("max", globalMaxResponseTime, maxResponseTime(successRequests), maxResponseTime(failedRequests))
 			val averageStatistics = new Statistics("average", globalAverageResponseTime, successAverageResponseTime, failedAverageResponseTime)
 			val stdDeviationStatistics = new Statistics("stdDeviation", responseTimeStandardDeviation(requests), responseTimeStandardDeviation(successRequests), responseTimeStandardDeviation(failedRequests))
-			val minPercentiles = new Statistics("minPercentiles", globalMinPercentiles, successMinPercentiles, failedMinPercentiles)
-			val maxPercentiles = new Statistics("maxPercentiles", globalMaxPercentiles, successMaxPercentiles, failedMaxPercentiles)
+			val percentiles95 = new Statistics("percentiles95", global95Percentile, success95Percentile, failed95Percentile)
+			val percentiles99 = new Statistics("percentiles99", global99Percentile, success99Percentile, failed99Percentile)
 
 			// Create template
 			val template =
@@ -95,7 +101,7 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 					componentLibrary.getRequestDetailsResponseTimeChartComponent(responseTimesSuccessSeries, responseTimesFailuresSeries),
 					componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(responseTimesSuccessDistributionSeries, responseTimesFailuresDistributionSeries),
 					componentLibrary.getRequestDetailsLatencyChartComponent(latencySuccessSeries, latencyFailuresSeries),
-					new StatisticsTextComponent(numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, averageStatistics, stdDeviationStatistics, minPercentiles, maxPercentiles),
+					new StatisticsTextComponent(numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, averageStatistics, stdDeviationStatistics, percentiles95, percentiles99),
 					componentLibrary.getRequestDetailsScatterChartComponent(scatterPlotSuccessSeries, scatterPlotFailuresSeries),
 					componentLibrary.getRequestDetailsIndicatorChartComponent(indicatorsColumnSeries, indicatorsPieSeries))
 
