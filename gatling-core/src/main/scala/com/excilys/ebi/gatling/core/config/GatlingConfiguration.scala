@@ -97,6 +97,10 @@ class GatlingConfiguration(
 
 	val chartingIndicatorsHigherBound = fileConfiguration("gatling.charting.indicators.higherBound", 1200)
 
+	val chartingIndicatorsPercentile1 = fileConfiguration("gatling.charting.indicators.percentile1", 95)
+
+	val chartingIndicatorsPercentile2 = fileConfiguration("gatling.charting.indicators.percentile2", 99)
+
 	val chartingMaxPlotPerSerie = fileConfiguration("gatling.charting.maxPlotPerSerie", 5000)
 
 	lazy val dataWriterClass = Class.forName(fileConfiguration("gatling.data.writer", "com.excilys.ebi.gatling.core.result.writer.FileDataWriter")).asInstanceOf[Class[DataWriter]]

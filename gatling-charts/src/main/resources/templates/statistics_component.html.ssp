@@ -4,8 +4,8 @@
 <%@ val max: com.excilys.ebi.gatling.charts.component.Statistics %>
 <%@ val average: com.excilys.ebi.gatling.charts.component.Statistics %>
 <%@ val stdDeviation: com.excilys.ebi.gatling.charts.component.Statistics %>
-<%@ val percentiles95: com.excilys.ebi.gatling.charts.component.Statistics %>
-<%@ val percentiles99: com.excilys.ebi.gatling.charts.component.Statistics %>
+<%@ val percentiles1: com.excilys.ebi.gatling.charts.component.Statistics %>
+<%@ val percentiles2: com.excilys.ebi.gatling.charts.component.Statistics %>
 
 						<div class="infos">
 							<div class="titre">STATISTICS</div>
@@ -42,10 +42,10 @@
 												<td class="title">Std Deviation</td><td class="total"><%= stdDeviation.printableTotal %></td><td class="ok"><%= stdDeviation.printableSuccess %></td><td class="ko"><%= stdDeviation.printableFailure %></td>
 											</tr>
 											<tr>
-												<td class="title">95 percentile</td><td class="total"><%= percentiles95.printableTotal %></td><td class="ok"><%= percentiles95.printableSuccess %></td><td class="ko"><%= percentiles95.printableFailure %></td>
+												<td class="title"><%=configuration.chartingIndicatorsPercentile1%> percentile</td><td class="total"><%= percentiles1.printableTotal %></td><td class="ok"><%= percentiles1.printableSuccess %></td><td class="ko"><%= percentiles1.printableFailure %></td>
 											</tr>
 											<tr>
-												<td class="title">99 percentile</td><td class="total"><%= percentiles99.printableTotal %></td><td class="ok"><%= percentiles99.printableSuccess %></td><td class="ko"><%= percentiles99.printableFailure %></td>
+												<td class="title"><%=configuration.chartingIndicatorsPercentile2%> percentile</td><td class="total"><%= percentiles2.printableTotal %></td><td class="ok"><%= percentiles2.printableSuccess %></td><td class="ko"><%= percentiles2.printableFailure %></td>
 											</tr>
 										</tbody>
 									</table>

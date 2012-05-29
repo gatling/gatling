@@ -90,12 +90,14 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 		val sortedSuccessRequests = successRequests.sortBy(_.responseTime)
 		val sortedFailedRequests = successRequests.sortBy(_.responseTime)
 
-		val global95Percentile = responseTimePercentile(sortedRequests, 0.95)
-		val success95Percentile = responseTimePercentile(sortedRequests, 0.95)
-		val failed95Percentile = responseTimePercentile(sortedFailedRequests, 0.95)
-		val global99Percentile = responseTimePercentile(sortedRequests, 0.99)
-		val success99Percentile = responseTimePercentile(sortedRequests, 0.99)
-		val failed99Percentile = responseTimePercentile(sortedFailedRequests, 0.99)
+		val percent1 = configuration.chartingIndicatorsPercentile1 / 100
+		val percent2 = configuration.chartingIndicatorsPercentile2 / 100
+		val globalPercentile1 = responseTimePercentile(sortedRequests, percent1)
+		val successPercentile1 = responseTimePercentile(sortedRequests, percent1)
+		val failedPercentile1 = responseTimePercentile(sortedFailedRequests, percent1)
+		val globalPercentile2 = responseTimePercentile(sortedRequests, percent2)
+		val successPercentile2 = responseTimePercentile(sortedRequests, percent2)
+		val failedPercentile2 = responseTimePercentile(sortedFailedRequests, percent2)
 
 		// Create series
 		val responseTimesSuccessDistributionSeries = new Series[Long, Int]("Success", successDistribution, List(BLUE))
@@ -107,8 +109,8 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 		val maxResponseTimeStatistics = new Statistics("max", globalMaxResponseTime, maxResponseTime(successRequests), maxResponseTime(failedRequests))
 		val averageStatistics = new Statistics("average", globalAverageResponseTime, successAverageResponseTime, failedAverageResponseTime)
 		val stdDeviationStatistics = new Statistics("stdDeviation", responseTimeStandardDeviation(requests), responseTimeStandardDeviation(successRequests), responseTimeStandardDeviation(failedRequests))
-		val percentiles95 = new Statistics("percentiles95", global95Percentile, success95Percentile, failed95Percentile)
-		val percentiles99 = new Statistics("percentiles99", global99Percentile, success99Percentile, failed99Percentile)
+		val percentiles1 = new Statistics("percentiles1", globalPercentile1, successPercentile1, failedPercentile1)
+		val percentiles2 = new Statistics("percentiles2", globalPercentile2, successPercentile2, failedPercentile2)
 
 		// Indicators Series
 		val indicatorsColumnData = numberOfRequestInResponseTimeRange(requests, configuration.chartingIndicatorsLowerBound, configuration.chartingIndicatorsHigherBound)
@@ -118,7 +120,7 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 		val indicatorsPieSeries = new Series[String, Int](EMPTY, indicatorsPieData, List(GREEN, YELLOW, ORANGE, RED))
 
 		val template = new GlobalPageTemplate(
-			new StatisticsTextComponent(numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, averageStatistics, stdDeviationStatistics, percentiles95, percentiles99),
+			new StatisticsTextComponent(numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, averageStatistics, stdDeviationStatistics, percentiles1, percentiles2),
 			componentLibrary.getRequestDetailsIndicatorChartComponent(indicatorsColumnSeries, indicatorsPieSeries),
 			componentLibrary.getActiveSessionsChartComponent(activeSessionsSeries),
 			componentLibrary.getRequestsChartComponent(allRequestsSeries, failedRequestsSeries, succeededRequestsSeries, pieRequestsSeries),
