@@ -16,48 +16,51 @@
 package com.excilys.ebi.gatling.core.util
 
 import java.util.Random
+
 import scala.math.round
+
 import org.apache.commons.math3.distribution.ExponentialDistribution
-;
 
 object NumberHelper {
 
-  /**
-   * Used to generate random pause durations
-   */
-  val RANDOM = new Random
+	/**
+	 * Used to generate random pause durations
+	 */
+	val RANDOM = new Random
 
-  /**
-   * Create a function that generates uniformly-distributed random longs between the values min and max.
-   * @param min is the minimum value of the uniform distribution
-   * @param max is the maximum value of the uniform distribution
-   * @return
-   */
-  def createUniformRandomLongGenerator(min: Long, max: Long): () => Long = {
-    () => round(min.toDouble + (RANDOM.nextDouble * (max - min).toDouble))
-  }
+	/**
+	 * Create a function that generates uniformly-distributed random longs between the values min and max.
+	 * @param min is the minimum value of the uniform distribution
+	 * @param max is the maximum value of the uniform distribution
+	 * @return
+	 */
+	def createUniformRandomLongGenerator(min: Long, max: Long): () => Long = {
+		val minAsDouble = min.toDouble
+		val rangeAsDouble = (max - min).toDouble
+		() => round(minAsDouble + RANDOM.nextDouble * rangeAsDouble)
+	}
 
-  /**
-   * Create a function that generates exponentially-distributed random doubles with the provided average.
-   *
-   * @param avg is the desired average of the exponential distribution
-   * @return
-   */
-  def createExpRandomDoubleGenerator(avg: Double): () => Double = {
-    val dist: ExponentialDistribution = new ExponentialDistribution(avg)
-    () => dist.sample()
-  }
+	/**
+	 * Create a function that generates exponentially-distributed random doubles with the provided average.
+	 *
+	 * @param avg is the desired average of the exponential distribution
+	 * @return
+	 */
+	def createExpRandomDoubleGenerator(avg: Double): () => Double = {
+		val dist: ExponentialDistribution = new ExponentialDistribution(avg)
+		() => dist.sample()
+	}
 
-  /**
-   * Create a function that generates exponentially-distributed random longs with the provided average.
-   *
-   * @param avg is the desired average of the exponential distribution
-   * @return
-   */
-  def createExpRandomLongGenerator(avg: Double): () => Long = {
-    val generator = createExpRandomDoubleGenerator(avg)
-    () => round(generator())
-  }
+	/**
+	 * Create a function that generates exponentially-distributed random longs with the provided average.
+	 *
+	 * @param avg is the desired average of the exponential distribution
+	 * @return
+	 */
+	def createExpRandomLongGenerator(avg: Double): () => Long = {
+		val generator = createExpRandomDoubleGenerator(avg)
+		() => round(generator())
+	}
 
-  def isNumeric(string: String) = string.forall(_.isDigit)
+	def isNumeric(string: String) = string.forall(_.isDigit)
 }

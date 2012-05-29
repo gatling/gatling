@@ -21,7 +21,7 @@ import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
 import akka.actor.{ Props, ActorRef }
 import com.excilys.ebi.gatling.core.util.NumberHelper.createUniformRandomLongGenerator
-import com.excilys.ebi.gatling.core.action.{PauseAction, system}
+import com.excilys.ebi.gatling.core.action.{ PauseAction, system }
 
 object PauseActionBuilder {
 
@@ -77,15 +77,12 @@ class PauseActionBuilder(minDuration: Long, maxDuration: Option[Long] = None, ti
 	def withNext(next: ActorRef) = new PauseActionBuilder(minDuration, maxDuration, timeUnit, next)
 
 	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
-    val minDurationInMillis = TimeUnit.MILLISECONDS.convert(minDuration, timeUnit)
-    val maxDurationInMillis = maxDuration.map(TimeUnit.MILLISECONDS.convert(_, timeUnit))
+		val minDurationInMillis = TimeUnit.MILLISECONDS.convert(minDuration, timeUnit)
+		val maxDurationInMillis = maxDuration.map(TimeUnit.MILLISECONDS.convert(_, timeUnit))
 
-    val delayGenerator: () => Long = maxDurationInMillis.map(
-      createUniformRandomLongGenerator(minDurationInMillis, _))
-      .getOrElse({
-      () => minDurationInMillis
-    }
-    )
-    system.actorOf(Props(new PauseAction(next, delayGenerator)))
-  }
+		val delayGenerator: () => Long = maxDurationInMillis.map(
+			createUniformRandomLongGenerator(minDurationInMillis, _))
+			.getOrElse(() => minDurationInMillis)
+		system.actorOf(Props(new PauseAction(next, delayGenerator)))
+	}
 }

@@ -19,7 +19,6 @@ import com.excilys.ebi.gatling.core.Predef.stringToSessionFunction
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.{ parseEvaluatable, EL_START, EL_END }
-import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.http.Headers.{ Values => HeaderValues, Names => HeaderNames }
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheck
@@ -66,7 +65,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	/**
 	 * Method overridden in children to create a new instance of the correct type
 	 *
-   * @param requestName is the name of the request
+	 * @param requestName is the name of the request
 	 * @param url the function returning the url
 	 * @param queryParams the query parameters that should be added to the request
 	 * @param headers the headers that should be added to the request
@@ -244,7 +243,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 *
 	 * @param requestBuilder the request builder to which the credentials should be added
 	 * @param realm the credentials to put in the request builder
-   * @param session the session of the current scenario
+	 * @param session the session of the current scenario
 	 */
 	private def configureRealm(requestBuilder: RequestBuilder, realm: Option[Session => Realm], session: Session) {
 		realm.map { realm => requestBuilder.setRealm(realm(session)) }
