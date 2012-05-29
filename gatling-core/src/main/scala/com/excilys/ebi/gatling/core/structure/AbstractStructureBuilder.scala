@@ -21,6 +21,7 @@ import scala.annotation.tailrec
 
 import com.excilys.ebi.gatling.core.action.builder.IfActionBuilder.ifActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder.pauseActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.ExpPauseActionBuilder.expPauseActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
@@ -76,7 +77,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	def pause(minDuration: Long, maxDuration: Long, durationUnit: TimeUnit): B = pause(minDuration, Some(maxDuration), durationUnit)
 
 	/**
-	 * Method used to define a random pause
+	 * Method used to define a uniformly-distributed random pause
 	 *
 	 * @param minDuration the minimum value of the pause
 	 * @param maxDuration the maximum value of the pause
@@ -84,6 +85,15 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @return a new builder with a pause added to its actions
 	 */
 	def pause(minDuration: Long, maxDuration: Option[Long] = None, durationUnit: TimeUnit = TimeUnit.SECONDS): B = newInstance((pauseActionBuilder.withMinDuration(minDuration).withMaxDuration(maxDuration).withTimeUnit(durationUnit)) :: actionBuilders)
+
+	/**
+	 * Method used to define drawn from an exponential distribution with the specified average duration.
+	 *
+	 * @param averageDuration the average duration of the pause
+	 * @param durationUnit the time unit of the specified values
+	 * @return a new builder with a pause added to its actions
+	 */
+	def pauseExp(averageDuration: Long, durationUnit: TimeUnit = TimeUnit.SECONDS): B = newInstance((expPauseActionBuilder.withAverageDuration(averageDuration).withTimeUnit(durationUnit)) :: actionBuilders)
 
 	/**
 	 * Method used to add a conditional execution in the scenario

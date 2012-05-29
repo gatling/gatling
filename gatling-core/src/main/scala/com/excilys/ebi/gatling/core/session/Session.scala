@@ -37,7 +37,6 @@ object Session {
  * @constructor creates a new session
  * @param scenarioName the name of the current scenario
  * @param userId the id of the current user
- * @param writeActorUuid the uuid of the actor responsible for logging
  * @param data the map that stores all values needed
  */
 class Session(val scenarioName: String, val userId: Int, data: Map[String, Any] = Map.empty) {
