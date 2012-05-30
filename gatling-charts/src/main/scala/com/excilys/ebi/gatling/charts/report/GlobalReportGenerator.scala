@@ -77,7 +77,6 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 		val globalMinResponseTime = minResponseTime(requests)
 		val globalMaxResponseTime = maxResponseTime(requests)
 
-		// percentiles
 		val successDistribution = responseTimeDistribution(successRequests, globalMinResponseTime, globalMaxResponseTime, 100, numberOfRequests)
 		val failedDistribution = responseTimeDistribution(failedRequests, globalMinResponseTime, globalMaxResponseTime, 100, numberOfRequests)
 
@@ -123,6 +122,7 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 			new StatisticsTextComponent(numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, averageStatistics, stdDeviationStatistics, percentiles1, percentiles2),
 			componentLibrary.getRequestDetailsIndicatorChartComponent(indicatorsColumnSeries, indicatorsPieSeries),
 			componentLibrary.getActiveSessionsChartComponent(activeSessionsSeries),
+			componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(responseTimesSuccessDistributionSeries, responseTimesFailuresDistributionSeries),
 			componentLibrary.getRequestsChartComponent(allRequestsSeries, failedRequestsSeries, succeededRequestsSeries, pieRequestsSeries),
 			componentLibrary.getTransactionsChartComponent(allTransactions, failedTransactions, succeededTransactions, pieTransactionsSeries))
 
