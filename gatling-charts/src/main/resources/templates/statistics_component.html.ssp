@@ -42,10 +42,10 @@
 												<td class="title">Std Deviation</td><td class="total"><%= stdDeviation.printableTotal %></td><td class="ok"><%= stdDeviation.printableSuccess %></td><td class="ko"><%= stdDeviation.printableFailure %></td>
 											</tr>
 											<tr>
-												<td class="title"><%=configuration.chartingIndicatorsPercentile1%> percentile</td><td class="total"><%= percentiles1.printableTotal %></td><td class="ok"><%= percentiles1.printableSuccess %></td><td class="ko"><%= percentiles1.printableFailure %></td>
+												<td class="title"><%=configuration.chartingIndicatorsPercentile1%>th percentile</td><td class="total"><%= percentiles1.printableTotal %></td><td class="ok"><%= percentiles1.printableSuccess %></td><td class="ko"><%= percentiles1.printableFailure %></td>
 											</tr>
 											<tr>
-												<td class="title"><%=configuration.chartingIndicatorsPercentile2%> percentile</td><td class="total"><%= percentiles2.printableTotal %></td><td class="ok"><%= percentiles2.printableSuccess %></td><td class="ko"><%= percentiles2.printableFailure %></td>
+												<td class="title"><%=configuration.chartingIndicatorsPercentile2%>th percentile</td><td class="total"><%= percentiles2.printableTotal %></td><td class="ok"><%= percentiles2.printableSuccess %></td><td class="ko"><%= percentiles2.printableFailure %></td>
 											</tr>
 										</tbody>
 									</table>
