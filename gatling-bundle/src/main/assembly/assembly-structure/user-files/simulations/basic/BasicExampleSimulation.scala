@@ -8,7 +8,7 @@ class BasicExampleSimulation extends Simulation {
 
 		val urlBase = "http://excilys-bank-web.cloudfoundry.com"
 
-		val httpConf = httpConfig.baseURL(urlBase)
+		val httpConf = httpConfig.baseURL(urlBase).disableFollowRedirect
 
 		val headers_1 = Map(
 			"Accept" -> "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -16,19 +16,11 @@ class BasicExampleSimulation extends Simulation {
 			"Accept-Encoding" -> "gzip,deflate",
 			"Accept-Language" -> "fr,en-us;q=0.7,en;q=0.3",
 			"Host" -> "excilys-bank-web.cloudfoundry.com",
-			"Keep-Alive" -> "115",
-			"User-Agent" -> "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.17) Gecko/20110422 Ubuntu/9.10 (karmic) Firefox/3.6.17")
+			"Keep-Alive" -> "115")
 
 		val headers_3 = headers_1 ++ Map(
 			"Content-Length" -> "33",
-			"Content-Type" -> "application/x-www-form-urlencoded",
-			"Referer" -> "http://excilys-bank-web.cloudfoundry.com/public/login.html")
-
-		val headers_4 = headers_1 ++ Map(
-			"Referer" -> "http://excilys-bank-web.cloudfoundry.com/public/login.html")
-
-		val headers_5 = headers_1 ++ Map(
-			"Referer" -> "http://excilys-bank-web.cloudfoundry.com/private/bank/accounts.html")
+			"Content-Type" -> "application/x-www-form-urlencoded")
 
 		val headers_6 = Map(
 			"Accept" -> "application/json, text/javascript, */*; q=0.01",
@@ -37,12 +29,7 @@ class BasicExampleSimulation extends Simulation {
 			"Accept-Language" -> "fr,en-us;q=0.7,en;q=0.3",
 			"Host" -> "excilys-bank-web.cloudfoundry.com",
 			"Keep-Alive" -> "115",
-			"Referer" -> "http://excilys-bank-web.cloudfoundry.com/private/bank/account/ACC4/operations.html",
-			"User-Agent" -> "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.17) Gecko/20110422 Ubuntu/9.10 (karmic) Firefox/3.6.17",
 			"X-Requested-With" -> "XMLHttpRequest")
-
-		val headers_7 = headers_1 ++ Map(
-			"Referer" -> "http://excilys-bank-web.cloudfoundry.com/private/bank/account/ACC4/operations.html")
 
 		val headers_8 = Map(
 			"Accept" -> "application/json, text/javascript, */*; q=0.01",
@@ -51,12 +38,7 @@ class BasicExampleSimulation extends Simulation {
 			"Accept-Language" -> "fr,en-us;q=0.7,en;q=0.3",
 			"Host" -> "excilys-bank-web.cloudfoundry.com",
 			"Keep-Alive" -> "115",
-			"Referer" -> "http://excilys-bank-web.cloudfoundry.com/private/bank/account/ACC4/year/2011/month/11/operations.html",
-			"User-Agent" -> "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.17) Gecko/20110422 Ubuntu/9.10 (karmic) Firefox/3.6.17",
 			"X-Requested-With" -> "XMLHttpRequest")
-
-		val headers_9 = headers_1 ++ Map(
-			"Referer" -> "http://excilys-bank-web.cloudfoundry.com/private/bank/account/ACC4/year/2011/month/11/operations.html")
 
 		val scn = scenario("Scenario name")
 			.exec(
@@ -84,12 +66,12 @@ class BasicExampleSimulation extends Simulation {
 					.exec(
 						http("request_4")
 							.get("/private/bank/accounts.html")
-							.headers(headers_4))
+							.headers(headers_1))
 					.pause(7, 8)
 					.exec(
 						http("request_5")
 							.get("/private/bank/account/ACC${account_id}/operations.html")
-							.headers(headers_5))
+							.headers(headers_1))
 					.pause(100, 200, MILLISECONDS)
 					.exec(
 						http("request_6")
@@ -99,7 +81,7 @@ class BasicExampleSimulation extends Simulation {
 					.exec(
 						http("request_7")
 							.get("/private/bank/account/ACC${account_id}/year/2011/month/11/operations.html")
-							.headers(headers_7))
+							.headers(headers_1))
 					.pause(100, 200, MILLISECONDS)
 					.exec(
 						http("request_8")
@@ -109,13 +91,13 @@ class BasicExampleSimulation extends Simulation {
 			.exec(
 				http("request_9")
 					.get("/logout")
-					.headers(headers_9)
+					.headers(headers_1)
 					.check(status.is(302)))
 			.pause(0, 100, MILLISECONDS)
 			.exec(
 				http("request_10")
 					.get("/public/login.html")
-					.headers(headers_9))
+					.headers(headers_1))
 
 		List(scn.configure.users(10).ramp(10).protocolConfig(httpConf))
 	}

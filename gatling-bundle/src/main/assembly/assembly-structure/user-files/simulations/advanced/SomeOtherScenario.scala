@@ -26,7 +26,7 @@ object SomeOtherScenario {
 		.exec(
 			http("other_request_9")
 				.get("/logout")
-				.headers(headers_9)
+				.headers(headers_1)
 				.check(status.is(302)))
 		.pause(0, 100, MILLISECONDS)
 		.exec(
