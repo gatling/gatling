@@ -21,7 +21,7 @@ import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import scopt.OptionParser
 
 object GatlingRecorder {
-	
+
 	val LOCAL_PORT_OPTION = "lp"
 	val LOCAL_PORT_ALIAS = "local-port"
 	val LOCAL_PORT_SSL_OPTION = "lps"
@@ -44,11 +44,11 @@ object GatlingRecorder {
 	val ENCODING_ALIAS = "encoding"
 	val FOLLOW_REDIRECT_OPTION = "fr"
 	val FOLLOW_REDIRECT_ALIAS = "follow-redirect"
-	  
+
 	private val o = new Options()
 
 	private val cliOptsParser = new OptionParser("gatling-recorder") {
-		intOpt(LOCAL_PORT_OPTION, LOCAL_PORT_ALIAS, "<port>", "Local port used by Gatling Proxy for HTTP", { v: Int => o.localPort = Some(v)})
+		intOpt(LOCAL_PORT_OPTION, LOCAL_PORT_ALIAS, "<port>", "Local port used by Gatling Proxy for HTTP", { v: Int => o.localPort = Some(v) })
 		intOpt(LOCAL_PORT_SSL_OPTION, LOCAL_PORT_SSL_ALIAS, "<port>", "Local port used by Gatling Proxy for HTTPS", { v: Int => o.localPortSsl = Some(v) })
 		opt(PROXY_HOST_OPTION, PROXY_HOST_ALIAS, "<host>", "Outgoing proxy host", { v: String => o.proxyHost = Some(v) })
 		intOpt(PROXY_PORT_OPTION, PROXY_PORT_ALIAS, "<port>", "Outgoing proxy port for HTTP", { v: Int => o.proxyPort = Some(v) })
@@ -56,12 +56,12 @@ object GatlingRecorder {
 		opt(OUTPUT_FOLDER_OPTION, OUTPUT_FOLDER_ALIAS, "<folderName>", "Uses <folderName> as the folder where generated simulations will be stored", { v: String => o.outputFolder = Some(v) })
 		opt(REQUEST_BODIES_FOLDER_OPTION, REQUEST_BODIES_FOLDER_ALIAS, "<folderName>", "Uses <folderName> as the folder where request bodies are stored", { v: String => o.requestBodiesFolder = Some(v) })
 		opt(CLASS_NAME_OPTION, CLASS_NAME_ALIAS, "Sets the name of the generated class", { v: String => o.simulationClassName = Some(v) })
-		opt(PACKAGE_OPTION, PACKAGE_ALIAS, "Sets the package of the generated class", { v: String => o.simulationPackage = Some(v)})
-		opt(ENCODING_OPTION, ENCODING_ALIAS, "Sets the encoding used in the recorder", {v:String => o.encoding = Some(v)})
-		booleanOpt(FOLLOW_REDIRECT_OPTION, FOLLOW_REDIRECT_ALIAS, "Sets the follow redirect option to true", {v: Boolean => o.followRedirect = Some(v)})
+		opt(PACKAGE_OPTION, PACKAGE_ALIAS, "Sets the package of the generated class", { v: String => o.simulationPackage = Some(v) })
+		opt(ENCODING_OPTION, ENCODING_ALIAS, "Sets the encoding used in the recorder", { v: String => o.encoding = Some(v) })
+		booleanOpt(FOLLOW_REDIRECT_OPTION, FOLLOW_REDIRECT_ALIAS, "Sets the follow redirect option to true", { v: Boolean => o.followRedirect = Some(v) })
 	}
-	
-	def main(args: Array[String]){
+
+	def main(args: Array[String]) {
 		if (cliOptsParser.parse(args))
 			RecorderController(o)
 	}
