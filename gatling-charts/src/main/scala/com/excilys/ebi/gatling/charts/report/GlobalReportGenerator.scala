@@ -89,13 +89,13 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 		val sortedSuccessRequests = successRequests.sortBy(_.responseTime)
 		val sortedFailedRequests = failedRequests.sortBy(_.responseTime)
 
-		val percent1 = configuration.chartingIndicatorsPercentile1 / 100
-		val percent2 = configuration.chartingIndicatorsPercentile2 / 100
+		val percent1 = configuration.chartingIndicatorsPercentile1 / 100.0
+		val percent2 = configuration.chartingIndicatorsPercentile2 / 100.0
 		val globalPercentile1 = responseTimePercentile(sortedRequests, percent1)
-		val successPercentile1 = responseTimePercentile(sortedRequests, percent1)
+		val successPercentile1 = responseTimePercentile(sortedSuccessRequests, percent1)
 		val failedPercentile1 = responseTimePercentile(sortedFailedRequests, percent1)
 		val globalPercentile2 = responseTimePercentile(sortedRequests, percent2)
-		val successPercentile2 = responseTimePercentile(sortedRequests, percent2)
+		val successPercentile2 = responseTimePercentile(sortedSuccessRequests, percent2)
 		val failedPercentile2 = responseTimePercentile(sortedFailedRequests, percent2)
 
 		// Create series
