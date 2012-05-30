@@ -41,6 +41,7 @@ import grizzled.slf4j.Logging
 object RecorderController extends Logging {
 	private val runningFrame: RunningFrame = new RunningFrame
 	private val configurationFrame: ConfigurationFrame = new ConfigurationFrame
+	private val supportedHttpMethods = Vector(HttpMethod.POST, HttpMethod.GET, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.HEAD)
 
 	@volatile private var startDate: Date = _
 	@volatile private var lastRequestDate: Date = _
@@ -142,7 +143,7 @@ object RecorderController extends Logging {
 
 	private def isRequestToBeAdded(request: HttpRequest): Boolean = {
 		val uri = new URI(request.getUri)
-		if (Vector(HttpMethod.POST, HttpMethod.GET, HttpMethod.PUT, HttpMethod.DELETE).contains(request.getMethod)) {
+		if (supportedHttpMethods.contains(request.getMethod)) {
 			if (configuration.filterStrategy != FilterStrategy.NONE) {
 
 				val uriMatched = (for (configPattern <- configuration.patterns) yield {

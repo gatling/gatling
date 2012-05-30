@@ -99,5 +99,20 @@ class HttpRequestBaseBuilder(val requestName: String) {
 	 * @param f the function returning the url of this request
 	 */
 	def put(f: EvaluatableString) = new PutHttpRequestBuilder(requestName, f, Nil, Map.empty, None, None, Nil)
+
+	/**
+	 * Starts the definition of an HTTP request with word HEAD
+	 *
+	 * @param url the url on which this request will be made
+	 * @param interpolations session keys for interpolation
+	 */
+	def head(url: String) = new HeadHttpRequestBuilder(requestName, parseEvaluatable(url), Nil, Map.empty, None, Nil)
+
+	/**
+	 * Starts the definition of an HTTP request with word HEAD
+	 *
+	 * @param f the function returning the url of this request
+	 */
+	def head(f: EvaluatableString) = new HeadHttpRequestBuilder(requestName, f, Nil, Map.empty, None, Nil)
 }
 

@@ -21,16 +21,16 @@ import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.ning.http.client.Realm
 
 /**
- * This class defines an HTTP request with word GET in the DSL
+ * This class defines an HTTP request with word HEAD in the DSL
  */
-class GetHttpRequestBuilder(
+class HeadHttpRequestBuilder(
 	requestName: String,
 	url: EvaluatableString,
 	queryParams: List[HttpParam],
 	headers: Map[String, EvaluatableString],
 	realm: Option[Session => Realm],
 	checks: List[HttpCheck])
-		extends AbstractHttpRequestBuilder[GetHttpRequestBuilder](requestName, "GET", url, queryParams, headers, realm, checks) {
+	extends AbstractHttpRequestBuilder[HeadHttpRequestBuilder](requestName, "HEAD", url, queryParams, headers, realm, checks) {
 
 	private[http] def newInstance(
 		requestName: String,
@@ -39,6 +39,6 @@ class GetHttpRequestBuilder(
 		headers: Map[String, EvaluatableString],
 		realm: Option[Session => Realm],
 		checks: List[HttpCheck]) = {
-		new GetHttpRequestBuilder(requestName, url, queryParams, headers, realm, checks)
+		new HeadHttpRequestBuilder(requestName, url, queryParams, headers, realm, checks)
 	}
 }
