@@ -417,6 +417,7 @@
 					<version>${maven-license-plugin.version}</version>
 					<configuration>
 						<header>src/etc/header.txt</header>
+						<strictCheck>false</strictCheck>
 						<excludes>
 							<exclude>**/jquery.min.js</exclude>
 						</excludes>
