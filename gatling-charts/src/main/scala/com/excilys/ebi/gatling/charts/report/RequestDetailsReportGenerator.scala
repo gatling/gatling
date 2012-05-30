@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.charts.config.ChartsFiles.requestFile
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.template.RequestDetailsPageTemplate
 import com.excilys.ebi.gatling.charts.util.Colors.{ toString, YELLOW, TRANSLUCID_RED, TRANSLUCID_BLUE, RED, ORANGE, GREEN, BLUE }
-import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ responseTimeStandardDeviation, responseTimePercentile, responseTimeDistribution, responseTimeByMillisecondAsList, respTimeAgainstNbOfReqPerSecond, numberOfRequestsPerSecond, numberOfRequestInResponseTimeRange, minResponseTime, maxResponseTime, latencyByMillisecondAsList, averageResponseTime }
+import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ responseTimeStandardDeviation, responseTimePercentile, responseTimeDistribution, responseTimeByMillisecondAsList, respTimeAgainstNbOfReqPerSecond, numberOfRequestsPerSecond, numberOfRequestInResponseTimeRange, minResponseTime, maxResponseTime, latencyByMillisecondAsList, meanResponseTime }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
@@ -60,9 +60,9 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			val failedDistribution = responseTimeDistribution(failedRequests, globalMinResponseTime, globalMaxResponseTime, 100, numberOfRequests)
 
 			// Statistics
-			val globalAverageResponseTime = averageResponseTime(requests)
-			val successAverageResponseTime = averageResponseTime(successRequests)
-			val failedAverageResponseTime = averageResponseTime(failedRequests)
+			val globalMeanResponseTime = meanResponseTime(requests)
+			val successMeanResponseTime = meanResponseTime(successRequests)
+			val failedMeanResponseTime = meanResponseTime(failedRequests)
 
 			val sortedRequests = requests.sortBy(_.responseTime)
 			val sortedSuccessRequests = successRequests.sortBy(_.responseTime)
@@ -92,7 +92,7 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			val numberOfRequestsStatistics = new Statistics("numberOfRequests", numberOfRequests, numberOfSuccessfulRequests, numberOfFailedRequests)
 			val minResponseTimeStatistics = new Statistics("min", globalMinResponseTime, minResponseTime(successRequests), minResponseTime(failedRequests))
 			val maxResponseTimeStatistics = new Statistics("max", globalMaxResponseTime, maxResponseTime(successRequests), maxResponseTime(failedRequests))
-			val averageStatistics = new Statistics("average", globalAverageResponseTime, successAverageResponseTime, failedAverageResponseTime)
+			val meanStatistics = new Statistics("mean", globalMeanResponseTime, successMeanResponseTime, failedMeanResponseTime)
 			val stdDeviationStatistics = new Statistics("stdDeviation", responseTimeStandardDeviation(requests), responseTimeStandardDeviation(successRequests), responseTimeStandardDeviation(failedRequests))
 			val percentiles1 = new Statistics("percentiles1", globalPercentile1, successPercentile1, failedPercentile1)
 			val percentiles2 = new Statistics("percentiles2", globalPercentile2, successPercentile2, failedPercentile2)
@@ -103,7 +103,7 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 					componentLibrary.getRequestDetailsResponseTimeChartComponent(responseTimesSuccessSeries, responseTimesFailuresSeries),
 					componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(responseTimesSuccessDistributionSeries, responseTimesFailuresDistributionSeries),
 					componentLibrary.getRequestDetailsLatencyChartComponent(latencySuccessSeries, latencyFailuresSeries),
-					new StatisticsTextComponent(numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, averageStatistics, stdDeviationStatistics, percentiles1, percentiles2),
+					new StatisticsTextComponent(numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanStatistics, stdDeviationStatistics, percentiles1, percentiles2),
 					componentLibrary.getRequestDetailsScatterChartComponent(scatterPlotSuccessSeries, scatterPlotFailuresSeries),
 					componentLibrary.getRequestDetailsIndicatorChartComponent(indicatorsColumnSeries, indicatorsPieSeries))
 

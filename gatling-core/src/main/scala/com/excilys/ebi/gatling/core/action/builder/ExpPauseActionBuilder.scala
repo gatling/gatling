@@ -36,22 +36,22 @@ object ExpPauseActionBuilder {
 
 /**
  * Builder for the 'pauseExp' action.  Creates PauseActions for a user with a delay coming from
- * an exponential distribution with the specified average duration.
+ * an exponential distribution with the specified mean duration.
  *
  * @constructor create a new ExpPauseActionBuilder
- * @param averageDuration average duration of the generated pause
+ * @param meanDuration mean duration of the generated pause
  * @param timeUnit time unit of the duration of the generated pause
  * @param next action that will be executed after the generated pause
  */
-class ExpPauseActionBuilder(averageDuration: Long, timeUnit: TimeUnit, next: ActorRef) extends ActionBuilder {
+class ExpPauseActionBuilder(meanDuration: Long, timeUnit: TimeUnit, next: ActorRef) extends ActionBuilder {
 
 	/**
-	 * Adds averageDuration to builder
+	 * Adds meanDuration to builder
 	 *
-	 * @param averageDuration the minimum duration of the pause
+	 * @param meanDuration the minimum duration of the pause
 	 * @return a new builder with minDuration set
 	 */
-	def withAverageDuration(averageDuration: Long) = new ExpPauseActionBuilder(averageDuration, timeUnit, next)
+	def withMeanDuration(meanDuration: Long) = new ExpPauseActionBuilder(meanDuration, timeUnit, next)
 
 	/**
 	 * Adds timeUnit to builder
@@ -59,13 +59,13 @@ class ExpPauseActionBuilder(averageDuration: Long, timeUnit: TimeUnit, next: Act
 	 * @param timeUnit time unit of the duration
 	 * @return a new builder with timeUnit set
 	 */
-	def withTimeUnit(timeUnit: TimeUnit) = new ExpPauseActionBuilder(averageDuration, timeUnit, next)
+	def withTimeUnit(timeUnit: TimeUnit) = new ExpPauseActionBuilder(meanDuration, timeUnit, next)
 
-	def withNext(next: ActorRef) = new ExpPauseActionBuilder(averageDuration, timeUnit, next)
+	def withNext(next: ActorRef) = new ExpPauseActionBuilder(meanDuration, timeUnit, next)
 
 	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
-		val averageDurationInMillis = TimeUnit.MILLISECONDS.convert(averageDuration, timeUnit)
-		val delayGenerator: () => Long = createExpRandomLongGenerator(averageDurationInMillis)
+		val meanDurationInMillis = TimeUnit.MILLISECONDS.convert(meanDuration, timeUnit)
+		val delayGenerator: () => Long = createExpRandomLongGenerator(meanDurationInMillis)
 
 		system.actorOf(Props(new PauseAction(next, delayGenerator)))
 	}

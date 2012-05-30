@@ -2,7 +2,7 @@
 <%@ val numberOfRequests: com.excilys.ebi.gatling.charts.component.Statistics %>
 <%@ val min: com.excilys.ebi.gatling.charts.component.Statistics %>
 <%@ val max: com.excilys.ebi.gatling.charts.component.Statistics %>
-<%@ val average: com.excilys.ebi.gatling.charts.component.Statistics %>
+<%@ val mean: com.excilys.ebi.gatling.charts.component.Statistics %>
 <%@ val stdDeviation: com.excilys.ebi.gatling.charts.component.Statistics %>
 <%@ val percentiles1: com.excilys.ebi.gatling.charts.component.Statistics %>
 <%@ val percentiles2: com.excilys.ebi.gatling.charts.component.Statistics %>
@@ -36,7 +36,7 @@
 												<td class="title">Max</td><td class="total"><%= max.printableTotal %></td><td class="ok"><%= max.printableSuccess %></td><td class="ko"><%= max.printableFailure %></td>
 											</tr>
 											<tr>
-												<td class="title">Average</td><td class="total"><%= average.printableTotal %></td><td class="ok"><%= average.printableSuccess %></td><td class="ko"><%= average.printableFailure %></td>
+												<td class="title">Mean</td><td class="total"><%= mean.printableTotal %></td><td class="ok"><%= mean.printableSuccess %></td><td class="ko"><%= mean.printableFailure %></td>
 											</tr>
 											<tr>
 												<td class="title">Std Deviation</td><td class="total"><%= stdDeviation.printableTotal %></td><td class="ok"><%= stdDeviation.printableSuccess %></td><td class="ko"><%= stdDeviation.printableFailure %></td>

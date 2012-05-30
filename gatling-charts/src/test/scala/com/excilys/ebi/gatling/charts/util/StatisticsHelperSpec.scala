@@ -19,14 +19,14 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ responseTimeStandardDeviation, responseTimePercentile, numberOfRequestInResponseTimeRange, minResponseTime, maxResponseTime, averageResponseTime, averageLatency, NO_PLOT_MAGIC_VALUE }
+import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ responseTimeStandardDeviation, responseTimePercentile, numberOfRequestInResponseTimeRange, minResponseTime, maxResponseTime, meanResponseTime, meanLatency, NO_PLOT_MAGIC_VALUE }
 import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RequestRecord }
 
 @RunWith(classOf[JUnitRunner])
 class StatisticsHelperSpec extends Specification {
 
 	// Wolfram Alpha reports the following statistics for {2000, 4000, 4000, 4000, 5000, 5000, 7000, 9000}:
-	//   average (mean): 5000
+	//   mean: 5000
 	//   population stddev: 2000 - provided by Wikipedia & NeoOffice
 	//   sample stddev: 2138
 	//   median: 4500
@@ -67,25 +67,25 @@ class StatisticsHelperSpec extends Specification {
 		}
 	}
 
-	"averageResponseTime" should {
+	"meanResponseTime" should {
 
 		"return NO_PLOT_MAGIC_VALUE for empty request data" in {
-			averageResponseTime(Nil) must beEqualTo(NO_PLOT_MAGIC_VALUE)
+			meanResponseTime(Nil) must beEqualTo(NO_PLOT_MAGIC_VALUE)
 		}
 
 		"return expected result for correct request data" in {
-			averageResponseTime(testRequestRecords) must beEqualTo(knownAverageResponseTime)
+			meanResponseTime(testRequestRecords) must beEqualTo(knownAverageResponseTime)
 		}
 	}
 
-	"averageLatency" should {
+	"meanLatency" should {
 
 		"return NO_PLOT_MAGIC_VALUE for empty request data" in {
-			averageLatency(Nil) must beEqualTo(NO_PLOT_MAGIC_VALUE)
+			meanLatency(Nil) must beEqualTo(NO_PLOT_MAGIC_VALUE)
 		}
 
 		"return expected result for correct request data" in {
-			averageLatency(testRequestRecords) must beEqualTo(1500)
+			meanLatency(testRequestRecords) must beEqualTo(1500)
 		}
 	}
 

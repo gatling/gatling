@@ -41,9 +41,9 @@ object NumberHelper {
 	}
 
 	/**
-	 * Create a function that generates exponentially-distributed random doubles with the provided average.
+	 * Create a function that generates exponentially-distributed random doubles with the provided mean.
 	 *
-	 * @param avg is the desired average of the exponential distribution
+	 * @param avg is the desired mean of the exponential distribution
 	 * @return
 	 */
 	def createExpRandomDoubleGenerator(avg: Double): () => Double = {
@@ -52,13 +52,13 @@ object NumberHelper {
 	}
 
 	/**
-	 * Create a function that generates exponentially-distributed random longs with the provided average.
+	 * Create a function that generates exponentially-distributed random longs with the provided mean.
 	 *
-	 * @param avg is the desired average of the exponential distribution
+	 * @param mean is the desired mean of the exponential distribution
 	 * @return
 	 */
-	def createExpRandomLongGenerator(avg: Double): () => Long = {
-		val generator = createExpRandomDoubleGenerator(avg)
+	def createExpRandomLongGenerator(mean: Double): () => Long = {
+		val generator = createExpRandomDoubleGenerator(mean)
 		() => round(generator())
 	}
 
