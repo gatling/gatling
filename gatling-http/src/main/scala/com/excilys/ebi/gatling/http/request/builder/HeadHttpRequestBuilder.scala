@@ -30,7 +30,7 @@ class HeadHttpRequestBuilder(
 	headers: Map[String, EvaluatableString],
 	realm: Option[Session => Realm],
 	checks: List[HttpCheck])
-	extends AbstractHttpRequestBuilder[HeadHttpRequestBuilder](requestName, "HEAD", url, queryParams, headers, realm, checks) {
+		extends AbstractHttpRequestBuilder[HeadHttpRequestBuilder](requestName, "HEAD", url, queryParams, headers, realm, checks) {
 
 	private[http] def newInstance(
 		requestName: String,
