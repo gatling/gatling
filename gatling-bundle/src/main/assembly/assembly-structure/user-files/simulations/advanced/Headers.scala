@@ -15,12 +15,6 @@ object Headers {
 		"Content-Type" -> "application/x-www-form-urlencoded",
 		"Referer" -> "http://excilys-bank-web.cloudfoundry.com/public/login.html")
 
-	val headers_4 = headers_1 ++ Map(
-		"Referer" -> "http://excilys-bank-web.cloudfoundry.com/public/login.html")
-
-	val headers_5 = headers_1 ++ Map(
-		"Referer" -> "http://excilys-bank-web.cloudfoundry.com/private/bank/accounts.html")
-
 	val headers_6 = Map(
 		"Accept" -> "application/json, text/javascript, */*; q=0.01",
 		"Accept-Charset" -> "ISO-8859-1,utf-8;q=0.7,*;q=0.7",
@@ -32,9 +26,6 @@ object Headers {
 		"User-Agent" -> "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.17) Gecko/20110422 Ubuntu/9.10 (karmic) Firefox/3.6.17",
 		"X-Requested-With" -> "XMLHttpRequest")
 
-	val headers_7 = headers_1 ++ Map(
-		"Referer" -> "http://excilys-bank-web.cloudfoundry.com/private/bank/account/ACC4/operations.html")
-
 	val headers_8 = Map(
 		"Accept" -> "application/json, text/javascript, */*; q=0.01",
 		"Accept-Charset" -> "ISO-8859-1,utf-8;q=0.7,*;q=0.7",
@@ -45,7 +36,4 @@ object Headers {
 		"Referer" -> "http://excilys-bank-web.cloudfoundry.com/private/bank/account/ACC4/year/2011/month/11/operations.html",
 		"User-Agent" -> "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.17) Gecko/20110422 Ubuntu/9.10 (karmic) Firefox/3.6.17",
 		"X-Requested-With" -> "XMLHttpRequest")
-
-	val headers_9 = headers_1 ++ Map(
-		"Referer" -> "http://excilys-bank-web.cloudfoundry.com/private/bank/account/ACC4/year/2011/month/11/operations.html")
 }
