@@ -103,7 +103,7 @@
 		<ant.version>1.8.3</ant.version>
 		<grizzled-slf4j.version>0.6.9</grizzled-slf4j.version>
 		<jackson.version>2.0.2</jackson.version>
-		<commons-math.version>3.0</commons-math.version>
+		<commons-math3.version>3.0</commons-math3.version>
 		<jodd.version>3.3.3</jodd.version>
 		<asm.version>4.0</asm.version>
 		<junit.version>4.10</junit.version>
@@ -322,7 +322,7 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-math3</artifactId>
-				<version>${commons-math.version}</version>
+				<version>${commons-math3.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.jodd</groupId>
@@ -399,15 +399,13 @@
 					<configuration>
 						<useFile>false</useFile>
 						<includes>
-							<include>**/*Test.*</include>
-							<include>**/*Suite.*</include>
 							<include>**/*Spec.*</include>
 						</includes>
 					</configuration>
 				</plugin>
 				<plugin>
 					<artifactId>maven-release-plugin</artifactId>
-					<version>${maven-release-plugin.version}</version><!--$NO-MVN-MAN-VER$ -->
+					<version>${maven-release-plugin.version}</version>
 					<configuration>
 						<autoVersionSubmodules>true</autoVersionSubmodules>
 						<tagNameFormat>@{project.version}</tagNameFormat>

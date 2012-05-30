@@ -16,22 +16,24 @@
 package com.excilys.ebi.gatling.http.action
 
 import java.lang.System.currentTimeMillis
+
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.action.Action
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.KO
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
-import com.excilys.ebi.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor }
+import com.excilys.ebi.gatling.http.ahc.{ GatlingAsyncHandlerActor, GatlingAsyncHandler }
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpConfig._
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.referer.RefererHandling
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
-import com.ning.http.client.{ Response, AsyncHttpClientConfig, AsyncHttpClient }
-import akka.actor.{ ActorRef, Props }
+import com.ning.http.client.{ AsyncHttpClientConfig, AsyncHttpClient }
+
+import akka.actor.{ Props, ActorRef }
 import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration
 
 /**
  * HttpRequestAction class companion

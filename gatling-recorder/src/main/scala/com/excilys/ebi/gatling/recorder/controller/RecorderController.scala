@@ -163,7 +163,6 @@ object RecorderController extends Logging {
 				true
 		} else
 			false
-
 	}
 
 	private def getFolder(folderName: String, folderPath: String): Directory = Directory(folderPath).createDirectory()
