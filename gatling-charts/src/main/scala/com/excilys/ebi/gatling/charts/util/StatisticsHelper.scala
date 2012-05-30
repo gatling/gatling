@@ -128,9 +128,9 @@ object StatisticsHelper {
 		else
 			records
 				.groupBy(record => minTime + ((record.responseTime - minTime) / step) * step)
-				.map { case (time, records) => time -> math.round(records.size * 100.0 / total).toInt }
-
-		for (i <- 0 until actualSlotNumber) yield {
+				.map { case (time, records) => time -> round(records.size * 100.0 / total).toInt }
+		
+		for (i <- 0 to actualSlotNumber) yield {
 			val range = minTime + i * step
 			(range -> percentiles.get(range).getOrElse(0))
 		}
