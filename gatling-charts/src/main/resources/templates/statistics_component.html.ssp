@@ -19,7 +19,7 @@
 										</thead>
 										<tbody>
 											<tr>
-												<td  class="title"></td><td class="total"><%= numberOfRequests.printableTotal %></td><td class="ok"><%= numberOfRequests.printableSuccess %></td><td class="ko"><%= numberOfRequests.printableFailure %></td>
+												<td class="title"></td><td class="total"><%= numberOfRequests.printableTotal %></td><td class="ok"><%= numberOfRequests.printableSuccess %></td><td class="ko"><%= numberOfRequests.printableFailure %></td>
 											</tr>
 										</tbody>
 									</table>

@@ -26,6 +26,11 @@ class StringHelperSpec extends Specification {
 
 	"parseEvaluatable" should {
 
+		"return expected result with 1 monovalued expression that is the whole string" in {
+			val session = new Session("scenario", 1, Map("bar" -> "BAR"))
+			StringHelper.parseEvaluatable("${bar}")(session) must beEqualTo("BAR")
+		}
+
 		"return expected result with 1 monovalued expression at the end of the string" in {
 			val session = new Session("scenario", 1, Map("bar" -> "BAR"))
 			StringHelper.parseEvaluatable("foo${bar}")(session) must beEqualTo("fooBAR")
