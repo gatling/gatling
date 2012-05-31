@@ -42,7 +42,7 @@ class SeparatedValuesFeederSource(fileName: String, separator: Char, escapeChar:
 
 			val headers = reader.readNext
 
-			reader.readAll.map(line => (headers zip line).toMap[String, String]).toIndexedSeq
+			reader.readAll.filterNot(line => line.length == 1 && line(0).isEmpty).map(line => (headers zip line).toMap[String, String]).toIndexedSeq
 		}
 	}
 }
