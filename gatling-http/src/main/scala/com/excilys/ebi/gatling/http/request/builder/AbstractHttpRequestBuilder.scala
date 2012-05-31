@@ -86,7 +86,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 *
 	 * @param checks the checks that will be performed on the response
 	 */
-	def check(checks: HttpCheck*): B = newInstance(requestName, url, queryParams, headers, realm, checks.toList)
+	def check(checks: HttpCheck*): B = newInstance(requestName, url, queryParams, headers, realm, this.checks ::: checks.toList)
 
 	/**
 	 * Adds a query parameter to the request
