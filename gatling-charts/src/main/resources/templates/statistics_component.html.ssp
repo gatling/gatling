@@ -2,10 +2,10 @@
 <%@ val numberOfRequests: com.excilys.ebi.gatling.charts.component.Statistics %>
 <%@ val min: com.excilys.ebi.gatling.charts.component.Statistics %>
 <%@ val max: com.excilys.ebi.gatling.charts.component.Statistics %>
-<%@ val average: com.excilys.ebi.gatling.charts.component.Statistics %>
+<%@ val mean: com.excilys.ebi.gatling.charts.component.Statistics %>
 <%@ val stdDeviation: com.excilys.ebi.gatling.charts.component.Statistics %>
-<%@ val minPercentiles: com.excilys.ebi.gatling.charts.component.Statistics %>
-<%@ val maxPercentiles: com.excilys.ebi.gatling.charts.component.Statistics %>
+<%@ val percentiles1: com.excilys.ebi.gatling.charts.component.Statistics %>
+<%@ val percentiles2: com.excilys.ebi.gatling.charts.component.Statistics %>
 
 						<div class="infos">
 							<div class="titre">STATISTICS</div>
@@ -19,7 +19,7 @@
 										</thead>
 										<tbody>
 											<tr>
-												<td  class="title"></td><td class="total"><%= numberOfRequests.printableTotal %></td><td class="ok"><%= numberOfRequests.printableSuccess %></td><td class="ko"><%= numberOfRequests.printableFailure %></td>
+												<td class="title"></td><td class="total"><%= numberOfRequests.printableTotal %></td><td class="ok"><%= numberOfRequests.printableSuccess %></td><td class="ko"><%= numberOfRequests.printableFailure %></td>
 											</tr>
 										</tbody>
 									</table>
@@ -36,16 +36,16 @@
 												<td class="title">Max</td><td class="total"><%= max.printableTotal %></td><td class="ok"><%= max.printableSuccess %></td><td class="ko"><%= max.printableFailure %></td>
 											</tr>
 											<tr>
-												<td class="title">Average</td><td class="total"><%= average.printableTotal %></td><td class="ok"><%= average.printableSuccess %></td><td class="ko"><%= average.printableFailure %></td>
+												<td class="title">Mean</td><td class="total"><%= mean.printableTotal %></td><td class="ok"><%= mean.printableSuccess %></td><td class="ko"><%= mean.printableFailure %></td>
 											</tr>
 											<tr>
 												<td class="title">Std Deviation</td><td class="total"><%= stdDeviation.printableTotal %></td><td class="ok"><%= stdDeviation.printableSuccess %></td><td class="ko"><%= stdDeviation.printableFailure %></td>
 											</tr>
 											<tr>
-												<td class="title"><%=configuration.chartingIndicatorsPercentiles%>% Low Bound</td><td class="total"><%= minPercentiles.printableTotal %></td><td class="ok"><%= minPercentiles.printableSuccess %></td><td class="ko"><%= minPercentiles.printableFailure %></td>
+												<td class="title"><%=configuration.chartingIndicatorsPercentile1%>th percentile</td><td class="total"><%= percentiles1.printableTotal %></td><td class="ok"><%= percentiles1.printableSuccess %></td><td class="ko"><%= percentiles1.printableFailure %></td>
 											</tr>
 											<tr>
-												<td class="title"><%=configuration.chartingIndicatorsPercentiles%>% High Bound</td><td class="total"><%= maxPercentiles.printableTotal %></td><td class="ok"><%= maxPercentiles.printableSuccess %></td><td class="ko"><%= maxPercentiles.printableFailure %></td>
+												<td class="title"><%=configuration.chartingIndicatorsPercentile2%>th percentile</td><td class="total"><%= percentiles2.printableTotal %></td><td class="ok"><%= percentiles2.printableSuccess %></td><td class="ko"><%= percentiles2.printableFailure %></td>
 											</tr>
 										</tbody>
 									</table>

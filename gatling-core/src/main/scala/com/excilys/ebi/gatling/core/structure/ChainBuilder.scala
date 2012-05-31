@@ -16,8 +16,9 @@
 package com.excilys.ebi.gatling.core.structure
 
 import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
-import akka.actor.ActorRef
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+
+import akka.actor.ActorRef
 
 /**
  * ChainBuilder class companion

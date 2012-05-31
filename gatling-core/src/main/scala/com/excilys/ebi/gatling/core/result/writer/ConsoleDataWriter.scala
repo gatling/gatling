@@ -15,16 +15,14 @@
  */
 package com.excilys.ebi.gatling.core.result.writer
 
-import com.excilys.ebi.gatling.core.init.Initializable
-import akka.actor.Actor
 import java.lang.System.currentTimeMillis
-import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
-import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.core.result.message.RequestRecord
+
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
-import com.excilys.ebi.gatling.core.result.message.FlushDataWriter
+import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, InitializeDataWriter, FlushDataWriter }
+
+import grizzled.slf4j.Logging
 
 class ConsoleDataWriter extends DataWriter with Logging {
 
@@ -37,70 +35,53 @@ class ConsoleDataWriter extends DataWriter with Logging {
 
 	private val displayPeriod = 5 * 1000
 
-	/**
-	 * Method called when this actor receives a message
-	 */
-	def receive = {
-		// If the message is sent to initialize the writer
-		case InitializeDataWriter(_, totalUsersCount, _, _) => {
+	def uninitialized: Receive = {
+		case InitializeDataWriter(_, totalUsersCount, _, _) =>
+			startUpTime = currentTimeMillis
+			activeUsersCount = 0
+			successfulRequestsCount = 0
+			failedRequestsCount = 0
+			lastDisplayTime = currentTimeMillis
+			this.totalUsersCount = totalUsersCount
+			context.become(initialized)
 
-			if (initialized.compareAndSet(false, true)) {
-				startUpTime = currentTimeMillis
-				activeUsersCount = 0
-				successfulRequestsCount = 0
-				failedRequestsCount = 0
-				lastDisplayTime = currentTimeMillis
-				this.totalUsersCount = totalUsersCount
-
-			} else {
-				error("FileDataWriter has already been initialized!")
-			}
-		}
-
-		// If the message comes from an action
-		case RequestRecord(scenarioName, userId, actionName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage) => {
-
-			def handleCounters {
-				actionName match {
-					case START_OF_SCENARIO => activeUsersCount += 1
-					case END_OF_SCENARIO => activeUsersCount -= 1
-					case _ => resultStatus match {
-						case OK => successfulRequestsCount += 1
-						case KO => failedRequestsCount += 1
-					}
-				}
-			}
-
-			def displaySamplingInfo {
-				// not thread safe but not critical either
-				val now = currentTimeMillis
-				if (now - lastDisplayTime > displayPeriod) {
-					lastDisplayTime = now
-					val timeSinceStartUpInSec = (now - startUpTime) / 1000
-					println(new StringBuilder()
-						.append(timeSinceStartUpInSec)
-						.append(" sec | Users: active=")
-						.append(activeUsersCount)
-						.append("/")
-						.append(totalUsersCount)
-						.append(" | Requests: OK=")
-						.append(successfulRequestsCount)
-						.append(" KO=")
-						.append(failedRequestsCount))
-				}
-			}
-
-			if (initialized.get) {
-				handleCounters
-				displaySamplingInfo
-
-			} else {
-				error("FileDataWriter hasn't been initialized!")
-			}
-		}
-
-		case FlushDataWriter => initialized.set(false)
-		case unknown: AnyRef => error("Unknow message type " + unknown.getClass)
-		case unknown: Any => error("Unknow message type " + unknown)
+		case unknown: AnyRef => error("Unsupported message type in uninilialized state" + unknown.getClass)
+		case unknown: Any => error("Unsupported message type in uninilialized state " + unknown)
 	}
+
+	def initialized: Receive = {
+		case RequestRecord(scenarioName, userId, actionName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage) =>
+
+			actionName match {
+				case START_OF_SCENARIO => activeUsersCount += 1
+				case END_OF_SCENARIO => activeUsersCount -= 1
+				case _ => resultStatus match {
+					case OK => successfulRequestsCount += 1
+					case KO => failedRequestsCount += 1
+				}
+			}
+
+			val now = currentTimeMillis
+			if (now - lastDisplayTime > displayPeriod) {
+				lastDisplayTime = now
+				val timeSinceStartUpInSec = (now - startUpTime) / 1000
+				println(new StringBuilder()
+					.append(timeSinceStartUpInSec)
+					.append(" sec | Users: active=")
+					.append(activeUsersCount)
+					.append("/")
+					.append(totalUsersCount)
+					.append(" | Requests: OK=")
+					.append(successfulRequestsCount)
+					.append(" KO=")
+					.append(failedRequestsCount))
+			}
+
+		case FlushDataWriter => context.unbecome() // return to uninitialized state
+
+		case unknown: AnyRef => error("Unsupported message type in inilialized state " + unknown.getClass)
+		case unknown: Any => error("Unsupported message type in inilialized state " + unknown)
+	}
+
+	def receive = uninitialized
 }

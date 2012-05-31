@@ -18,6 +18,8 @@ package com.excilys.ebi.gatling.recorder.ui.frame;
 import java.awt.event.{ ActionListener, ActionEvent }
 import java.awt.{ FlowLayout, Dimension, BorderLayout }
 
+import scala.collection.JavaConversions.seqAsJavaList
+
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.ui.Commons.iconList
@@ -32,6 +34,7 @@ class RunningFrame extends JFrame with Logging {
 
 	private val btnTag = new JButton("Add")
 	private val btnClear = new JButton("Clear")
+	private val btnCancel = new JButton("Cancel")
 	private val btnStop = new JButton("Stop & Save")
 
 	private val txtTag = new JTextField(15)
@@ -69,6 +72,7 @@ class RunningFrame extends JFrame with Logging {
 	clearPanel.add(btnClear)
 
 	val stopPanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
+	stopPanel.add(btnCancel)
 	stopPanel.add(btnStop)
 
 	topPanel.add(tagPanel, BorderLayout.WEST)
@@ -130,7 +134,7 @@ class RunningFrame extends JFrame with Logging {
 			}
 		});
 
-		eventsInfoJList.addListSelectionListener(new ListSelectionListener() {
+		eventsInfoJList.addListSelectionListener(new ListSelectionListener {
 			override def valueChanged(e: ListSelectionEvent) {
 				if (eventsInfoJList.getSelectedIndex() >= 0) {
 					val obj = eventsInfo.get(eventsInfoJList.getSelectedIndex());
@@ -159,13 +163,20 @@ class RunningFrame extends JFrame with Logging {
 			}
 		})
 
-		btnClear.addActionListener(new ActionListener() {
+		btnClear.addActionListener(new ActionListener {
 			def actionPerformed(e: ActionEvent) {
 				RecorderController.clearRecorderState
 			}
 		})
+		
+		btnCancel.addActionListener(new ActionListener {
+			def actionPerformed(e: ActionEvent) {
+				RecorderController.clearRecorderState
+				RecorderController.stopRecording
+			}
+		})
 
-		btnStop.addActionListener(new ActionListener() {
+		btnStop.addActionListener(new ActionListener {
 			def actionPerformed(e: ActionEvent) {
 				RecorderController.stopRecording
 			}

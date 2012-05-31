@@ -31,13 +31,13 @@ object SomeScenario {
 				.exec(
 					http("request_4")
 						.get("/private/bank/accounts.html")
-						.headers(headers_4)
+						.headers(headers_1)
 						.check(regex("""<td class="number">ACC(\d+)</td>""").saveAs("account_id")))
 				.pause(7, 8)
 				.exec(
 					http("request_5")
 						.get("/private/bank/account/ACC${account_id}/operations.html")
-						.headers(headers_5))
+						.headers(headers_1))
 				.pause(100, 200, MILLISECONDS)
 				.exec(
 					http("request_6")
@@ -47,7 +47,7 @@ object SomeScenario {
 				.exec(
 					http("request_7")
 						.get("/private/bank/account/ACC${account_id}/year/2011/month/11/operations.html")
-						.headers(headers_7))
+						.headers(headers_1))
 				.pause(100, 200, MILLISECONDS)
 				.exec(
 					http("request_8")
@@ -59,11 +59,11 @@ object SomeScenario {
 				.exec(
 					http("request_9")
 						.get("/logout")
-						.headers(headers_9)
+						.headers(headers_1)
 						.check(status.is(302)))
 				.pause(0, 100, MILLISECONDS)
 				.exec(
 					http("request_10")
 						.get("/public/login.html")
-						.headers(headers_9)))
+						.headers(headers_1)))
 }

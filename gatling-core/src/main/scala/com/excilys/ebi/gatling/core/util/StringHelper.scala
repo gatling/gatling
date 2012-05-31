@@ -25,6 +25,7 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.NumberHelper.isNumeric
 
 import grizzled.slf4j.Logging
+
 /**
  * This object groups all utilities for strings
  */

@@ -17,8 +17,8 @@ package com.excilys.ebi.gatling.mojo;
 
 import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
 import static java.util.Arrays.asList;
-import static org.codehaus.plexus.util.StringUtils.chompLast;
 import static org.codehaus.plexus.util.StringUtils.join;
+import static org.codehaus.plexus.util.StringUtils.trim;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -235,19 +235,18 @@ public class GatlingMojo extends AbstractMojo {
 				simulations = resolveSimulations(simulationsFolder, includes, excludes);
 			}
 
-			if (simulations.length() == 0) {
+			if (simulations.isEmpty()) {
 				getLog().error("No simulations to run");
 				throw new MojoFailureException("No simulations to run");
 			}
 
 			// Arguments
-			List<String> args = new ArrayList<String>();
-			args.addAll(asList("-" + OptionsConstants.CONFIG_FILE_OPTION, configFile.getCanonicalPath(),//
+			List<String> args = asList("-" + OptionsConstants.CONFIG_FILE_OPTION, configFile.getCanonicalPath(),//
 			        "-" + OptionsConstants.DATA_FOLDER_OPTION, dataFolder.getCanonicalPath(),//
 			        "-" + OptionsConstants.RESULTS_FOLDER_OPTION, resultsFolder.getCanonicalPath(),//
 			        "-" + OptionsConstants.REQUEST_BODIES_FOLDER_OPTION, requestBodiesFolder.getCanonicalPath(),//
 			        "-" + OptionsConstants.SIMULATIONS_FOLDER_OPTION, simulationsFolder.getCanonicalPath(),//
-			        "-" + OptionsConstants.SIMULATIONS_OPTION, simulations));
+			        "-" + OptionsConstants.SIMULATIONS_OPTION, simulations);
 
 			if (noReports) {
 				args.add("-" + OptionsConstants.NO_REPORTS_OPTION);
@@ -263,8 +262,13 @@ public class GatlingMojo extends AbstractMojo {
 		}
 	}
 
-	protected String fileNametoClassName(String fileName) {
-		return chompLast(fileName).replace(File.separatorChar, '.');
+	protected String fileNameToClassName(String fileName) {
+		String trimmedFileName = trim(fileName);
+
+		int lastIndexOfExtensionDelim = trimmedFileName.lastIndexOf(".");
+		String strippedFileName = lastIndexOfExtensionDelim > 0 ? trimmedFileName.substring(0, lastIndexOfExtensionDelim) : trimmedFileName;
+
+		return strippedFileName.replace(File.separatorChar, '.');
 	}
 
 	/**
@@ -299,7 +303,7 @@ public class GatlingMojo extends AbstractMojo {
 
 		List<String> includedClassNames = new ArrayList<String>(includedFiles.length);
 		for (String includedFile : includedFiles) {
-			includedClassNames.add(fileNametoClassName(includedFile));
+			includedClassNames.add(fileNameToClassName(includedFile));
 		}
 
 		getLog().debug("resolved simulation classes: " + includedClassNames);

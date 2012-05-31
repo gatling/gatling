@@ -26,7 +26,6 @@ import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.scenario.configuration.{ ScenarioConfigurationBuilder, ScenarioConfiguration }
 import com.excilys.ebi.gatling.core.session.Session
 
-import akka.actor.actorRef2Scala
 import akka.actor.ActorRef
 import akka.util.duration.longToDurationLong
 import akka.util.Duration

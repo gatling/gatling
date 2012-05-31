@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.request.builder
+
 import com.excilys.ebi.gatling.core.Predef.stringToSessionFunction
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.core.session.Session
@@ -23,6 +24,7 @@ import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
+import com.excilys.ebi.gatling.http.referer.RefererHandling
 import com.ning.http.client.ProxyServer.Protocol
 import com.ning.http.client.Realm.AuthScheme
 import com.ning.http.client.{ RequestBuilder, Request, Realm, FluentStringsMap, FluentCaseInsensitiveStringsMap }
@@ -43,11 +45,13 @@ object AbstractHttpRequestBuilder {
 /**
  * This class serves as model for all HttpRequestBuilders
  *
- * @param httpRequestActionBuilder the HttpRequestActionBuilder with which this builder is linked
+ * @param requestName is the name of the request
+ * @param method is the HTTP method
  * @param url the function returning the url
  * @param queryParams the query parameters that should be added to the request
  * @param headers the headers that should be added to the request
- * @param credentials sets the credentials in case of Basic HTTP Authentication
+ * @param realm is the session/realm the request should operate within
+ * @param checks is a list of checks to execute on the response
  */
 abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 		requestName: String,
@@ -56,12 +60,12 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		realm: Option[Session => Realm],
-		checks: List[HttpCheck]) extends CookieHandling {
+		checks: List[HttpCheck]) extends CookieHandling with RefererHandling {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type
 	 *
-	 * @param httpRequestActionBuilder the HttpRequestActionBuilder with which this builder is linked
+	 * @param requestName is the name of the request
 	 * @param url the function returning the url
 	 * @param queryParams the query parameters that should be added to the request
 	 * @param headers the headers that should be added to the request
@@ -80,15 +84,14 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	/**
 	 * Stops defining the request and adds checks on the response
 	 *
-	 * @param checkBuilders the checks that will be performed on the reponse
+	 * @param checks the checks that will be performed on the response
 	 */
-	def check(checks: HttpCheck*): B = newInstance(requestName, url, queryParams, headers, realm, checks.toList)
+	def check(checks: HttpCheck*): B = newInstance(requestName, url, queryParams, headers, realm, this.checks ::: checks.toList)
 
 	/**
 	 * Adds a query parameter to the request
 	 *
-	 * @param paramKeyFunction a function that returns the key name
-	 * @param paramValueFunction a function that returns the value
+	 * @param param is a query parameter
 	 */
 	def queryParam(param: HttpParam): B = newInstance(requestName, url, param :: queryParams, headers, realm, checks)
 
@@ -147,7 +150,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 		val isHttps = configureURLAndCookies(requestBuilder, session, protocolConfiguration)
 		configureProxy(requestBuilder, session, isHttps, protocolConfiguration)
 		configureQueryParams(requestBuilder, session)
-		configureHeaders(requestBuilder, headers, session)
+		configureHeaders(requestBuilder, headers, session, protocolConfiguration)
 		configureRealm(requestBuilder, realm, session)
 
 		requestBuilder
@@ -225,20 +228,26 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * @param requestBuilder the request builder to which the headers should be added
 	 * @param session the session of the current scenario
 	 */
-	private def configureHeaders(requestBuilder: RequestBuilder, headers: Map[String, EvaluatableString], session: Session) {
-		requestBuilder setHeaders (new FluentCaseInsensitiveStringsMap)
-		headers.foreach(header => requestBuilder.addHeader(header._1, header._2(session)))
+	private def configureHeaders(requestBuilder: RequestBuilder, headers: Map[String, EvaluatableString], session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]) {
+		requestBuilder.setHeaders(new FluentCaseInsensitiveStringsMap)
+
+		val baseHeaders = protocolConfiguration.map(_.baseHeaders).getOrElse(Map.empty)
+		val resolvedRequestHeaders = headers.map { case (headerName, headerValue) => (headerName -> headerValue(session)) }
+
+		val newHeaders = addStoredRefererHeader(baseHeaders ++ resolvedRequestHeaders, session, protocolConfiguration)
+		newHeaders.foreach { case (headerName, headerValue) => requestBuilder.addHeader(headerName, headerValue) }
 	}
 
 	/**
 	 * This method adds authentication to the request builder if needed
 	 *
 	 * @param requestBuilder the request builder to which the credentials should be added
-	 * @param credentials the credentials to put in the request builder
+	 * @param realm the credentials to put in the request builder
+	 * @param session the session of the current scenario
 	 */
 	private def configureRealm(requestBuilder: RequestBuilder, realm: Option[Session => Realm], session: Session) {
 		realm.map { realm => requestBuilder.setRealm(realm(session)) }
 	}
-	
+
 	private[gatling] def toActionBuilder = new HttpRequestActionBuilder(requestName, this, null, checks)
 }

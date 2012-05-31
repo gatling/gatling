@@ -14,15 +14,22 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.util
+
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
 import org.specs2.mutable.Specification
+import org.specs2.runner.JUnitRunner
+
 import com.excilys.ebi.gatling.core.session.Session
 
 @RunWith(classOf[JUnitRunner])
 class StringHelperSpec extends Specification {
 
 	"parseEvaluatable" should {
+
+		"return expected result with 1 monovalued expression that is the whole string" in {
+			val session = new Session("scenario", 1, Map("bar" -> "BAR"))
+			StringHelper.parseEvaluatable("${bar}")(session) must beEqualTo("BAR")
+		}
 
 		"return expected result with 1 monovalued expression at the end of the string" in {
 			val session = new Session("scenario", 1, Map("bar" -> "BAR"))

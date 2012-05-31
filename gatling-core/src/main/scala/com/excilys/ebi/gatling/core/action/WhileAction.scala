@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import scala.annotation.implicitNotFound
-
 import com.excilys.ebi.gatling.core.session.handler.{TimerBasedIterationHandler, CounterBasedIterationHandler}
 import com.excilys.ebi.gatling.core.session.Session
 

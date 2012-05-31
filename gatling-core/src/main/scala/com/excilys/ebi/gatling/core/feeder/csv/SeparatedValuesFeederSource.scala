@@ -17,7 +17,6 @@ package com.excilys.ebi.gatling.core.feeder.csv
 
 import java.io.FileReader
 
-import scala.Array.canBuildFrom
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.tools.nsc.io.Path.string2path
 
@@ -43,7 +42,7 @@ class SeparatedValuesFeederSource(fileName: String, separator: Char, escapeChar:
 
 			val headers = reader.readNext
 
-			reader.readAll.map(line => (headers zip line).toMap[String, String]).toIndexedSeq
+			reader.readAll.filterNot(line => line.length == 1 && line(0).isEmpty).map(line => (headers zip line).toMap[String, String]).toIndexedSeq
 		}
 	}
 }

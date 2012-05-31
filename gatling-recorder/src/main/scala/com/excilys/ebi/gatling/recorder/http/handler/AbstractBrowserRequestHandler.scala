@@ -22,9 +22,11 @@ import scala.collection.JavaConversions.asScalaBuffer
 import org.jboss.netty.channel.{ SimpleChannelHandler, MessageEvent, ExceptionEvent, ChannelHandlerContext, ChannelFutureListener, ChannelFuture }
 import org.jboss.netty.handler.codec.http.{ HttpRequest, DefaultHttpRequest }
 
+import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy
+import com.ning.http.util.Base64
 
 import grizzled.slf4j.Logging
 
@@ -32,20 +34,30 @@ abstract class AbstractBrowserRequestHandler(proxyConfig: ProxyConfig) extends S
 
 	override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent) {
 
-		GatlingHttpProxy.receiveMessage(ctx.getChannel)
+		GatlingHttpProxy.registerChannel(ctx.getChannel)
 
-		val request = event.getMessage.asInstanceOf[HttpRequest]
+		event.getMessage match {
+			case request: HttpRequest =>
+				proxyConfig.host match {
+					case Some(_) =>
+						for {
+							val username <- proxyConfig.username
+							val password <- proxyConfig.password
+						} {
+							val proxyAuth = "Basic " + Base64.encode((username + ":" + password).getBytes)
+							request.setHeader(Headers.Names.PROXY_AUTHORIZATION, proxyAuth)
+						}
+					case None => request.removeHeader("Proxy-Connection") // remove Proxy-Connection header if it's not significant
+				}
 
-		// remove Proxy-Connection header if it's not significant
-		if (proxyConfig.host.isEmpty) {
-			request.removeHeader("Proxy-Connection")
+				val future = connectToServerOnBrowserRequestReceived(ctx, request)
+
+				RecorderController.receiveRequest(request)
+
+				sendRequestToServerAfterConnection(future, request);
+
+			case _ => // whatever
 		}
-
-		val future = connectToServerOnBrowserRequestReceived(ctx, request)
-
-		RecorderController.receiveRequest(request)
-
-		sendRequestToServerAfterConnection(future, request);
 	}
 
 	def connectToServerOnBrowserRequestReceived(ctx: ChannelHandlerContext, request: HttpRequest): ChannelFuture
@@ -55,17 +67,19 @@ abstract class AbstractBrowserRequestHandler(proxyConfig: ProxyConfig) extends S
 
 		// Properly closing
 		val future = ctx.getChannel.getCloseFuture
-		future.addListener(new ChannelFutureListener() {
+		future.addListener(new ChannelFutureListener {
 			def operationComplete(future: ChannelFuture) = future.getChannel.close
 		})
 		ctx.sendUpstream(e)
 	}
 
 	private def sendRequestToServerAfterConnection(future: ChannelFuture, request: HttpRequest) {
-		if (future != null)
-			future.addListener(new ChannelFutureListener() {
+
+		Option(future).map { future =>
+			future.addListener(new ChannelFutureListener {
 				def operationComplete(future: ChannelFuture) = future.getChannel.write(buildRequestWithRelativeURI(request))
 			})
+		}
 	}
 
 	private def buildRequestWithRelativeURI(request: HttpRequest) = {

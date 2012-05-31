@@ -15,13 +15,15 @@
  */
 package com.excilys.ebi.gatling.core.structure.loop.handler
 
+import java.util.UUID.randomUUID
+
+import scala.annotation.tailrec
+
+import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
-import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
-import com.excilys.ebi.gatling.core.structure.ChainBuilder
-import akka.actor.Uuid
 import com.excilys.ebi.gatling.core.session.handler.CounterBasedIterationHandler
-import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder._
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.structure.{ ChainBuilder, AbstractStructureBuilder }
 
 /**
  * This builder creates a 'for' loop. This is achieved by copying the chain as many times at it should run
@@ -36,7 +38,7 @@ import com.excilys.ebi.gatling.core.session.Session
 class TimesLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: ChainBuilder, times: Int, userDefinedCounterName: Option[String])
 		extends AbstractLoopHandlerBuilder[B](structureBuilder) {
 
-	val computedCounterName = userDefinedCounterName.getOrElse(new Uuid().toString)
+	val computedCounterName = userDefinedCounterName.getOrElse(randomUUID.toString)
 
 	/**
 	 * Actually builds the current 'for' loop to the structure builder
@@ -52,13 +54,16 @@ class TimesLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder
 		val expireAction = simpleActionBuilder((session: Session) => handler.expire(session))
 
 		// Adds an increment action after the chain
-		val chainActions = chain.actionBuilders ::: List(incrementAction)
+		val loopedActions = chain.actionBuilders ::: List(incrementAction)
 
-		var iteratedActions: List[ActionBuilder] = Nil
+		@tailrec
+		def buildChain(chain: List[ActionBuilder] = Nil, count: Int = 0): List[ActionBuilder] = {
+			if (count == times)
+				chain
+			else
+				buildChain(loopedActions ::: chain, count + 1)
+		}
 
-		for (i <- 0 until times)
-			iteratedActions = chainActions ::: iteratedActions
-
-		doBuild(expireAction :: iteratedActions ::: List(initAction))
+		doBuild(expireAction :: buildChain() ::: List(initAction))
 	}
 }

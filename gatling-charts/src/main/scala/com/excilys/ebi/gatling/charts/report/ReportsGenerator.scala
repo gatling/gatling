@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.charts.report
+
 import java.net.URL
 
 import scala.collection.mutable.LinkedHashSet
@@ -85,9 +86,7 @@ object ReportsGenerator extends Logging {
 		} else {
 			val reportGenerators =
 				List(new AllSessionsReportGenerator(runUuid, dataReader, componentLibrary),
-					new ActiveSessionsReportGenerator(runUuid, dataReader, componentLibrary),
-					new RequestsReportGenerator(runUuid, dataReader, componentLibrary),
-					new TransactionsReportGenerator(runUuid, dataReader, componentLibrary),
+					new GlobalReportGenerator(runUuid, dataReader, componentLibrary),
 					new RequestDetailsReportGenerator(runUuid, dataReader, componentLibrary))
 
 			copyAssets

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http.request.builder
+
 import java.io.File
 
 import scala.tools.nsc.io.Path.string2path

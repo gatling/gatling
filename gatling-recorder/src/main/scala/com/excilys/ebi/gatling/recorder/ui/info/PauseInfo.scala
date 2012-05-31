@@ -18,7 +18,5 @@ package com.excilys.ebi.gatling.recorder.ui.info
 import com.excilys.ebi.gatling.recorder.scenario.PauseUnit
 
 class PauseInfo(duration: Long, unit: PauseUnit) extends EventInfo {
-	override def toString: String = {
-		"PAUSE " + duration + unit.toPrint
-	}	
+	override def toString = "PAUSE " + duration + unit.toPrint
 }

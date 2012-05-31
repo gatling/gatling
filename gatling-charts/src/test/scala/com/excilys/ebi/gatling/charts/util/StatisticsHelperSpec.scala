@@ -19,14 +19,14 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import com.excilys.ebi.gatling.charts.util.StatisticsHelper._
+import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ responseTimeStandardDeviation, responseTimePercentile, numberOfRequestInResponseTimeRange, minResponseTime, maxResponseTime, meanResponseTime, meanLatency, NO_PLOT_MAGIC_VALUE }
 import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RequestRecord }
 
 @RunWith(classOf[JUnitRunner])
 class StatisticsHelperSpec extends Specification {
 
 	// Wolfram Alpha reports the following statistics for {2000, 4000, 4000, 4000, 5000, 5000, 7000, 9000}:
-	//   average (mean): 5000
+	//   mean: 5000
 	//   population stddev: 2000 - provided by Wikipedia & NeoOffice
 	//   sample stddev: 2138
 	//   median: 4500
@@ -67,25 +67,25 @@ class StatisticsHelperSpec extends Specification {
 		}
 	}
 
-	"averageResponseTime" should {
+	"meanResponseTime" should {
 
 		"return NO_PLOT_MAGIC_VALUE for empty request data" in {
-			averageResponseTime(Nil) must beEqualTo(NO_PLOT_MAGIC_VALUE)
+			meanResponseTime(Nil) must beEqualTo(NO_PLOT_MAGIC_VALUE)
 		}
 
 		"return expected result for correct request data" in {
-			averageResponseTime(testRequestRecords) must beEqualTo(knownAverageResponseTime)
+			meanResponseTime(testRequestRecords) must beEqualTo(knownAverageResponseTime)
 		}
 	}
 
-	"averageLatency" should {
+	"meanLatency" should {
 
 		"return NO_PLOT_MAGIC_VALUE for empty request data" in {
-			averageLatency(Nil) must beEqualTo(NO_PLOT_MAGIC_VALUE)
+			meanLatency(Nil) must beEqualTo(NO_PLOT_MAGIC_VALUE)
 		}
 
 		"return expected result for correct request data" in {
-			averageLatency(testRequestRecords) must beEqualTo(1500)
+			meanLatency(testRequestRecords) must beEqualTo(1500)
 		}
 	}
 
@@ -100,24 +100,24 @@ class StatisticsHelperSpec extends Specification {
 		}
 	}
 
-	"windowInPercentileRange" should {
-		"return NO_PLOT_MAGIC_VALUE for the 0 percentile range window" in {
-			windowInPercentileRange(knownAverageResponseTime, 0, testRequestRecords) must beEqualTo(NO_PLOT_MAGIC_VALUE, NO_PLOT_MAGIC_VALUE)
+	"responseTimePercentile" should {
+		"return expected result for the 0 percentile" in {
+			responseTimePercentile(testRequestRecords.sortBy(_.responseTime), 0) must beEqualTo(2000)
 		}
-		"return expected result for the 70 percentile range window" in {
-			windowInPercentileRange(knownAverageResponseTime, 0.70, testRequestRecords) must beEqualTo(4000, 5000)
-		}
-
-		"return expected result for the 95 percentile range window" in {
-			windowInPercentileRange(knownAverageResponseTime, 0.95, testRequestRecords) must beEqualTo(2000, 7000)
+		"return expected result for the 70 percentile" in {
+			responseTimePercentile(testRequestRecords.sortBy(_.responseTime), 0.70) must beEqualTo(5000)
 		}
 
-		"return expected result for the 99.99 percentile range window" in {
-			windowInPercentileRange(knownAverageResponseTime, 0.9999, testRequestRecords) must beEqualTo(2000, 7000)
+		"return expected result for the 95 percentile" in {
+			responseTimePercentile(testRequestRecords.sortBy(_.responseTime), 0.95) must beEqualTo(9000)
 		}
 
-		"return expected result for the 100 percentile range window" in {
-			windowInPercentileRange(knownAverageResponseTime, 1, testRequestRecords) must beEqualTo(2000, 9000)
+		"return expected result for the 99.99 percentile" in {
+			responseTimePercentile(testRequestRecords.sortBy(_.responseTime), 0.9999) must beEqualTo(9000)
+		}
+
+		"return expected result for the 100 percentile" in {
+			responseTimePercentile(testRequestRecords.sortBy(_.responseTime), 1) must throwA[IndexOutOfBoundsException]
 		}
 	}
 
@@ -127,14 +127,14 @@ class StatisticsHelperSpec extends Specification {
 		}
 
 		val nRequestInResponseTimeRange = numberOfRequestInResponseTimeRange(testRequestRecords, 2500, 5000).map(_._2)
-		
+
 		"indicate that 1 request had a response time below 2500ms" in {
 			nRequestInResponseTimeRange(0) must beEqualTo(1)
 		}
 		"indicate that 5 request had a response time in between 2500ms and 5000ms" in {
 			nRequestInResponseTimeRange(1) must beEqualTo(5)
 		}
-		
+
 		"indicate that 2 request had a response time above 5000ms" in {
 			nRequestInResponseTimeRange(2) must beEqualTo(2)
 		}

@@ -21,35 +21,35 @@ import org.jboss.netty.channel.group.DefaultChannelGroup
 import org.jboss.netty.channel.Channel
 
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
-import com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory.bootstrapFactory
+import com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory.newServerBootstrap
 
 object GatlingHttpProxy {
 
-	private var instance: GatlingHttpProxy = null
+	@volatile private var instance: GatlingHttpProxy = _
 
 	def apply(port: Int, sslPort: Int, proxyConfig: ProxyConfig) {
 		instance = new GatlingHttpProxy(port, sslPort, proxyConfig)
-		instance.start
 	}
 
-	def shutdown = instance.shutdown
+	def shutdown = {
+		instance.shutdown
+		instance = null
+	}
 
-	def receiveMessage(channel: Channel) {
-		instance.onMessageReceived(channel)
+	def registerChannel(channel: Channel) {
+		instance.registerChannel(channel)
 	}
 }
 
 class GatlingHttpProxy(port: Int, sslPort: Int, proxyConfig: ProxyConfig) {
-	private val bootstrap = bootstrapFactory.newServerBootstrap(proxyConfig, false)
-	private val secureBootstrap = bootstrapFactory.newServerBootstrap(proxyConfig, true)
+	private val bootstrap = newServerBootstrap(proxyConfig, false)
+	private val secureBootstrap = newServerBootstrap(proxyConfig, true)
 	private val group = new DefaultChannelGroup("Gatling_Recorder")
 
-	def start {
-		group.add(bootstrap.bind(new InetSocketAddress(port)))
-		group.add(secureBootstrap.bind(new InetSocketAddress(sslPort)))
-	}
+	group.add(bootstrap.bind(new InetSocketAddress(port)))
+	group.add(secureBootstrap.bind(new InetSocketAddress(sslPort)))
 
 	def shutdown = group.close.awaitUninterruptibly
 
-	def onMessageReceived(channel: Channel) = group.add(channel)
+	def registerChannel(channel: Channel) = group.add(channel)
 }

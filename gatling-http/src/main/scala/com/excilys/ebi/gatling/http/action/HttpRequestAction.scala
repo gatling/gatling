@@ -15,18 +15,24 @@
  */
 package com.excilys.ebi.gatling.http.action
 
+import java.lang.System.currentTimeMillis
+
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.action.Action
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.KO
+import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
-import com.excilys.ebi.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor }
+import com.excilys.ebi.gatling.http.ahc.{ GatlingAsyncHandlerActor, GatlingAsyncHandler }
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpConfig._
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
+import com.excilys.ebi.gatling.http.referer.RefererHandling
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
-import com.ning.http.client.{ Response, AsyncHttpClientConfig, AsyncHttpClient }
+import com.ning.http.client.{ AsyncHttpClientConfig, AsyncHttpClient }
 
-import akka.actor.{ ActorRef, Props }
+import akka.actor.{ Props, ActorRef }
 import grizzled.slf4j.Logging
 
 /**
@@ -86,22 +92,32 @@ object HttpRequestAction extends Logging {
  * @param checks the checks that will be performed on the response
  * @param protocolConfiguration the protocol specific configuration
  */
-class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck], protocolConfiguration: Option[HttpProtocolConfiguration])
-		extends Action with Logging {
+class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck], protocolConfiguration: Option[HttpProtocolConfiguration], gatlingConfiguration: GatlingConfiguration)
+		extends Action with Logging with RefererHandling {
 
-	val followRedirect = protocolConfiguration.map(_.followRedirect).getOrElse(false)
+	val followRedirect = protocolConfiguration.map(_.followRedirectEnabled).getOrElse(true)
 
 	def execute(session: Session) {
 		info("Sending Request '" + requestName + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
 
-		try {
-			val ahcRequest = requestBuilder.build(session, protocolConfiguration)
-			val client = HTTP_CLIENT
-			val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(session, checks, next, requestName, ahcRequest, followRedirect)))
-			val ahcHandler = new GatlingAsyncHandler(checks, requestName, actor)
-			client.executeRequest(ahcRequest, ahcHandler)
+		val request = try {
+			Some(requestBuilder.build(session, protocolConfiguration))
 		} catch {
-			case e => error("Failure while building request " + requestName + " engine will hang (to be fixed, see #423", e)
+			case e => {
+				error("Failure while building request " + requestName, e)
+				val now = currentTimeMillis
+				DataWriter.logRequest(session.scenarioName, session.userId, "Request " + requestName, now, now, now, now, KO, e.getMessage)
+				next ! session
+				None
+			}
+		}
+
+		request.map { request =>
+			val newSession = storeReferer(request, session, protocolConfiguration)
+			val client = HTTP_CLIENT
+			val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(newSession, checks, next, requestName, request, followRedirect, gatlingConfiguration)))
+			val ahcHandler = new GatlingAsyncHandler(checks, requestName, actor)
+			client.executeRequest(request, ahcHandler)
 		}
 	}
 }

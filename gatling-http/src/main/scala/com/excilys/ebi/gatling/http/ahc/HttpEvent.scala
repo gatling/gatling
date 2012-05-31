@@ -13,23 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.util
+package com.excilys.ebi.gatling.http.ahc
 
-import annotation.tailrec
-import java.util.concurrent.atomic.AtomicReference
+import java.lang.System.currentTimeMillis
 
-object Atomic {
-	def apply[T](obj: T) = new Atomic(new AtomicReference(obj))
-	implicit def toAtomic[T](ref: AtomicReference[T]): Atomic[T] = new Atomic(ref)
-}
+import com.ning.http.client.Response
 
-class Atomic[T](val atomic: AtomicReference[T]) {
-	@tailrec
-	final def update(f: T => T): T = {
-		val oldValue = atomic.get()
-		val newValue = f(oldValue)
-		if (atomic.compareAndSet(oldValue, newValue)) newValue else update(f)
-	}
+sealed trait HttpEvent
 
-	def get = atomic.get
-}
+case class OnHeaderWriteCompleted(time: Long = currentTimeMillis) extends HttpEvent
+case class OnContentWriteCompleted(time: Long = currentTimeMillis) extends HttpEvent
+case class OnStatusReceived(time: Long = currentTimeMillis) extends HttpEvent
+case class OnCompleted(response: Response, time: Long = currentTimeMillis) extends HttpEvent
+case class OnThrowable(errorMessage: String, time: Long = currentTimeMillis) extends HttpEvent

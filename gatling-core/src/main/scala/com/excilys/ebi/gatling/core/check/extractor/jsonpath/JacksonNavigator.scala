@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.check.extractor.jsonpath
-import org.jaxen.NamedAccessNavigator
-import org.jaxen.DefaultNavigator
+
+import org.jaxen.{ NamedAccessNavigator, DefaultNavigator }
+
+import com.fasterxml.jackson.databind.node.{ TextNode, ArrayNode }
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.ArrayNode
-import com.fasterxml.jackson.databind.node.TextNode
 
 /**
  * A Jaxen navigator for a Jackson tree

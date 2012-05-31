@@ -61,6 +61,7 @@ object Configuration extends Logging {
 		configuration.simulationClassName = c.simulationClassName
 		configuration.simulationPackage = c.simulationPackage
 		configuration.followRedirect = c.followRedirect
+		configuration.automaticReferer = c.automaticReferer
 		configuration.saveConfiguration = true
 		configuration.encoding = c.encoding
 	}
@@ -89,14 +90,19 @@ object Configuration extends Logging {
 	private def initFromCli(o: Options) {
 		o.localPort.map(configuration.port = _)
 		o.localPortSsl.map(configuration.sslPort = _)
-		if (o.proxyHost.isDefined && o.proxyPort.isDefined)
-			configuration.proxy = new ProxyConfig(o.proxyHost, o.proxyPort, o.proxyPortSsl, None, None)
+		for {
+			val proxyHost <- o.proxyHost
+			val proxyPort <- o.proxyPort
+		} {
+			configuration.proxy = new ProxyConfig(Some(proxyHost), Some(proxyPort), o.proxyPortSsl, None, None)
+		}
 		o.outputFolder.map(configuration.outputFolder = _)
 		o.simulationClassName.map(configuration.simulationClassName = _)
 		o.simulationPackage.map(pkg => configuration.simulationPackage = Some(pkg))
 		o.requestBodiesFolder.map(configuration.requestBodiesFolder = _)
 		o.encoding.map(configuration.encoding = _)
 		o.followRedirect.map(configuration.followRedirect = _)
+		o.automaticReferer.map(configuration.automaticReferer = _)
 	}
 }
 
@@ -104,7 +110,7 @@ class Configuration {
 
 	@BeanProperty var port = 8000
 	@BeanProperty var sslPort = 8001
-	@BeanProperty var proxy = ProxyConfig()
+	@BeanProperty var proxy = new ProxyConfig
 	@BeanProperty var filterStrategy = NONE
 	@BeanProperty var patterns: List[Pattern] = Nil
 	@BeanProperty var outputFolder: String = Option(System.getenv("GATLING_HOME")).map(_ => GatlingFiles.simulationsFolder.toString).getOrElse(System.getProperty("user.home"))
@@ -113,7 +119,8 @@ class Configuration {
 	@transient var requestBodiesFolder: String = GatlingFiles.requestBodiesFolder.toString
 	@BeanProperty var simulationPackage: Option[String] = None
 	@BeanProperty var simulationClassName: String = Configuration.DEFAULT_CLASS_NAME
-	@BeanProperty var followRedirect: Boolean = false
+	@BeanProperty var followRedirect: Boolean = true
+	@BeanProperty var automaticReferer: Boolean = true
 
 	override def toString =
 		new StringBuilder("Configuration [")
@@ -129,5 +136,6 @@ class Configuration {
 			.append("simulationPackage=").append(simulationPackage).append(", ")
 			.append("simulationClassName=").append(simulationClassName).append(", ")
 			.append("followRedirect=").append(followRedirect)
+			.append("automaticReferer=").append(automaticReferer)
 			.append("]").toString
 }

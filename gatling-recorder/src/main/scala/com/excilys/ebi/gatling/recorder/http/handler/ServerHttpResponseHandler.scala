@@ -25,13 +25,13 @@ class ServerHttpResponseHandler(requestContext: ChannelHandlerContext, request: 
 
 	override def messageReceived(context: ChannelHandlerContext, event: MessageEvent) {
 
-		GatlingHttpProxy.receiveMessage(context.getChannel)
+		GatlingHttpProxy.registerChannel(context.getChannel)
 
-		val response = event.getMessage.asInstanceOf[HttpResponse]
-
-		RecorderController.receiveResponse(request, response)
-
-		// Send back to client
-		requestContext.getChannel.write(response)
+		event.getMessage match {
+			case response: HttpResponse =>
+				RecorderController.receiveResponse(request, response)
+				requestContext.getChannel.write(response) // Send back to client
+			case _ => // whatever
+		}
 	}
 }

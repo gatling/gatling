@@ -15,28 +15,23 @@
  */
 package com.excilys.ebi.gatling.core.action
 
+import java.lang.System.currentTimeMillis
 import java.util.concurrent.TimeUnit
 
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.util.NumberHelper.getRandomLong
 
+import akka.actor.actorRef2Scala
 import akka.actor.ActorRef
 import akka.util.duration.longToDurationLong
 import grizzled.slf4j.Logging
 
 /**
- * An action for "pausing" a user (ie: think time)
+ * PauseAction provides a convenient means to implement pause actions based on random distributions.
  *
- * @constructor creates a PauseAction
- * @param next action that will be executed after the pause duration
- * @param minDuration minimum duration of the pause
- * @param maxDuration maximum duration of the pause
- * @param timeUnit time unit of the duration
+ * @param next the next action to execute, which will be notified after the pause is complete
+ * @param generateDelayInMillis a function that can be used to generate a delays for the pause action
  */
-class PauseAction(next: ActorRef, minDuration: Long, maxDuration: Option[Long], timeUnit: TimeUnit) extends Action with Logging {
-
-	val minDurationInMillis = TimeUnit.MILLISECONDS.convert(minDuration, timeUnit)
-	val maxDurationInMillis = maxDuration.map(TimeUnit.MILLISECONDS.convert(_, timeUnit))
+class PauseAction(next: ActorRef, generateDelayInMillis: () => Long) extends Action with Logging {
 
 	/**
 	 * Generates a duration if required or use the one given and defer
@@ -46,11 +41,23 @@ class PauseAction(next: ActorRef, minDuration: Long, maxDuration: Option[Long], 
 	 */
 	def execute(session: Session) {
 
-		val durationInMillis = maxDurationInMillis.map(getRandomLong(minDurationInMillis, _)).getOrElse(minDurationInMillis)
+		val durationInMillis: Long = generateDelayInMillis()
+		val timeShift = session.getTimeShift
 
-		val durationMinusLastActionDurationInMillis = durationInMillis - session.getLastActionDuration
-		info(new StringBuilder().append("Waiting for ").append(durationInMillis).append("ms (").append(durationMinusLastActionDurationInMillis).append("ms)"))
+		if (durationInMillis > timeShift) {
+			// can make pause
+			val durationMinusTimeShift = durationInMillis - timeShift
+			info(new StringBuilder().append("Pausing for ").append(durationInMillis).append("ms (real=").append(durationMinusTimeShift).append("ms)"))
 
-		system.scheduler.scheduleOnce(durationMinusLastActionDurationInMillis milliseconds, next, session)
+			val pauseStart = currentTimeMillis
+
+			system.scheduler.scheduleOnce(durationMinusTimeShift milliseconds)(next ! session.setTimeShift(currentTimeMillis - pauseStart))
+
+		} else {
+			// time shift is too big
+			val remainingTimeShift = timeShift - durationInMillis
+			info(new StringBuilder().append("can't pause (remaining time shift=").append(remainingTimeShift).append("ms)"))
+			next ! session.setTimeShift(remainingTimeShift)
+		}
 	}
 }

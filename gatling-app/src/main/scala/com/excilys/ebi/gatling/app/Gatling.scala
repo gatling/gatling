@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.app
+
 import java.io.{ StringWriter, PrintWriter }
 import java.lang.System.currentTimeMillis
 
@@ -25,10 +26,12 @@ import scala.tools.nsc.{ Settings, Global }
 
 import org.joda.time.DateTime.now
 
-import com.excilys.ebi.gatling.app.OptionsConstants.{ SIMULATIONS_OPTION, SIMULATIONS_FOLDER_OPTION, SIMULATIONS_FOLDER_ALIAS, SIMULATIONS_ALIAS, RESULTS_FOLDER_OPTION, RESULTS_FOLDER_ALIAS, REQUEST_BODIES_FOLDER_OPTION, REQUEST_BODIES_FOLDER_ALIAS, REPORTS_ONLY_OPTION, REPORTS_ONLY_ALIAS, NO_REPORTS_OPTION, NO_REPORTS_ALIAS, DATA_FOLDER_OPTION, DATA_FOLDER_ALIAS, CONFIG_FILE_OPTION, CONFIG_FILE_ALIAS, SIMULATIONS_BINARIES_FOLDER_OPTION, SIMULATIONS_BINARIES_FOLDER_ALIAS }
+import com.excilys.ebi.gatling.app.Gatling.useActorSystem
+import com.excilys.ebi.gatling.app.OptionsConstants.{ SIMULATIONS_OPTION, SIMULATIONS_FOLDER_OPTION, SIMULATIONS_FOLDER_ALIAS, SIMULATIONS_BINARIES_FOLDER_OPTION, SIMULATIONS_BINARIES_FOLDER_ALIAS, SIMULATIONS_ALIAS, RESULTS_FOLDER_OPTION, RESULTS_FOLDER_ALIAS, REQUEST_BODIES_FOLDER_OPTION, REQUEST_BODIES_FOLDER_ALIAS, REPORTS_ONLY_OPTION, REPORTS_ONLY_ALIAS, NO_REPORTS_OPTION, NO_REPORTS_ALIAS, DATA_FOLDER_OPTION, DATA_FOLDER_ALIAS, CONFIG_FILE_OPTION, CONFIG_FILE_ALIAS }
 import com.excilys.ebi.gatling.app.UserSelection.DEFAULT_RUN_ID
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.activeSessionsFile
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.globalFile
 import com.excilys.ebi.gatling.charts.report.ReportsGenerator
+import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.{ GatlingFiles, GatlingConfiguration }
 import com.excilys.ebi.gatling.core.result.message.RunRecord
 import com.excilys.ebi.gatling.core.runner.Runner
@@ -36,10 +39,8 @@ import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.twitter.io.TempDirectory
 
-import com.excilys.ebi.gatling.core.action.system
 import grizzled.slf4j.Logging
 import scopt.OptionParser
-import com.excilys.ebi.gatling.app.Gatling.useActorSystem
 
 /**
  * Object containing entry point of application
@@ -120,7 +121,15 @@ class Gatling(cliOptions: Options) extends Logging {
 			runUuids.foreach(generateReports)
 	}
 
-	private def autoSelect(classes: List[Class[Simulation]], simulations: List[String]): UserSelection = UserSelection(classes.filter(clazz => simulations.contains(clazz.getName)))
+	private def autoSelect(classes: List[Class[Simulation]], simulations: List[String]): UserSelection = {
+
+		val classNames = classes.map(_.getName)
+		val notFounds = simulations.filterNot(classNames.contains(_))
+		if (!notFounds.isEmpty)
+			println("The following simulation names didn't match any Simulation class name and were filtered out: " + notFounds)
+
+		UserSelection(classes.filter(clazz => simulations.contains(clazz.getName)))
+	}
 
 	private def interactiveSelect(classes: List[Class[Simulation]]): UserSelection = {
 
@@ -258,7 +267,7 @@ class Gatling(cliOptions: Options) extends Logging {
 		val start = currentTimeMillis
 		if (ReportsGenerator.generateFor(runUuid)) {
 			println("Reports generated in " + (currentTimeMillis - start) / 1000 + "s.")
-			println("Please open the following file : " + activeSessionsFile(runUuid))
+			println("Please open the following file : " + globalFile(runUuid))
 		} else {
 			println("Reports weren't generated")
 		}

@@ -15,21 +15,25 @@
  */
 package com.excilys.ebi.gatling.core.config
 
+import java.util.concurrent.atomic.AtomicBoolean
+
 import scala.io.Codec
 import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.Path
+
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.GATLING_DEFAULT_CONFIG_FILE
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
-import com.excilys.ebi.gatling.core.util.DateHelper.parseHumanDateString
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.core.init.Initializable
+
 import grizzled.slf4j.Logging
 
 /**
  * Configuration loader of Gatling
  */
-object GatlingConfiguration extends Initializable {
+object GatlingConfiguration {
+
+	private val initialized = new AtomicBoolean(false)
 
 	val GATLING_DEFAULT_CONFIG_FILE = "gatling.conf"
 
@@ -92,12 +96,14 @@ class GatlingConfiguration(
 	val chartingIndicatorsLowerBound = fileConfiguration("gatling.charting.indicators.lowerBound", 800)
 
 	val chartingIndicatorsHigherBound = fileConfiguration("gatling.charting.indicators.higherBound", 1200)
-	
-	val chartingIndicatorsPercentiles = fileConfiguration("gatling.charting.indicators.percentiles", 95)
+
+	val chartingIndicatorsPercentile1 = fileConfiguration("gatling.charting.indicators.percentile1", 95)
+
+	val chartingIndicatorsPercentile2 = fileConfiguration("gatling.charting.indicators.percentile2", 99)
 
 	val chartingMaxPlotPerSerie = fileConfiguration("gatling.charting.maxPlotPerSerie", 5000)
 
-	val dataWriterClass = Class.forName(fileConfiguration("gatling.data.writer", "com.excilys.ebi.gatling.core.result.writer.FileDataWriter")).asInstanceOf[Class[DataWriter]]
+	lazy val dataWriterClass = Class.forName(fileConfiguration("gatling.data.writer", "com.excilys.ebi.gatling.core.result.writer.FileDataWriter")).asInstanceOf[Class[DataWriter]]
 
-	val dataReaderClass = Class.forName(fileConfiguration("gatling.data.reader", "com.excilys.ebi.gatling.charts.result.reader.FileDataReader")).asInstanceOf[Class[DataReader]]
+	lazy val dataReaderClass = Class.forName(fileConfiguration("gatling.data.reader", "com.excilys.ebi.gatling.charts.result.reader.FileDataReader")).asInstanceOf[Class[DataReader]]
 }

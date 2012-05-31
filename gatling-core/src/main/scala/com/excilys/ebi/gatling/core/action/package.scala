@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core
+
 import akka.actor.ActorSystem
 
 package object action {

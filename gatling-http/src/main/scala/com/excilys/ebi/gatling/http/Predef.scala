@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.http
+
 import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.excilys.ebi.gatling.http.check.body.{ HttpBodyXPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyJsonPathCheckBuilder }
+import com.excilys.ebi.gatling.http.check.body.{ HttpBodyXPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyCssCheckBuilder }
 import com.excilys.ebi.gatling.http.check.header.HttpHeaderCheckBuilder
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder
 import com.excilys.ebi.gatling.http.config.{ HttpProxyBuilder, HttpProtocolConfigurationBuilder }
@@ -31,6 +32,7 @@ object Predef {
 
 	def regex(expression: EvaluatableString) = HttpBodyRegexCheckBuilder.regex(expression)
 	def xpath(expression: EvaluatableString, namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)
+	def css(expression: EvaluatableString) = HttpBodyCssCheckBuilder.css(expression)
 	def jsonPath(expression: EvaluatableString) = HttpBodyJsonPathCheckBuilder.jsonPath(expression)
 	def header(expression: EvaluatableString) = HttpHeaderCheckBuilder.header(expression)
 	def status = HttpStatusCheckBuilder.status

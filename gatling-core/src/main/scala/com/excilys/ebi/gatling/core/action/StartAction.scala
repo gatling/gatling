@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.core.action
+
 import java.lang.System.currentTimeMillis
 
 import com.excilys.ebi.gatling.core.result.writer.DataWriter

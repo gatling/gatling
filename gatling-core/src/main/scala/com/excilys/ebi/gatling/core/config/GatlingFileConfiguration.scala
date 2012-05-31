@@ -16,12 +16,14 @@
 package com.excilys.ebi.gatling.core.config
 
 import java.io.File
+
+import scala.collection.JavaConversions.asScalaBuffer
+
 import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_HOME
-import grizzled.slf4j.Logging
-import com.typesafe.config.ConfigFactory
-import com.typesafe.config.Config
-import collection.JavaConversions._
+import com.typesafe.config.{ ConfigFactory, Config }
+
 import akka.config.ConfigurationException
+import grizzled.slf4j.Logging
 
 object GatlingFileConfiguration extends Logging {
 

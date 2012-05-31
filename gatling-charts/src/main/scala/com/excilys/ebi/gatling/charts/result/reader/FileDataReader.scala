@@ -16,24 +16,25 @@
 package com.excilys.ebi.gatling.charts.result.reader
 
 import java.util.regex.Pattern
+
 import scala.collection.immutable.SortedMap
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.ListBuffer
 import scala.io.Source
+
 import org.joda.time.DateTime
+
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
-import com.excilys.ebi.gatling.core.result.message.RecordType._
-import com.excilys.ebi.gatling.core.result.message.RequestRecord
-import com.excilys.ebi.gatling.core.result.message.RunRecord
+import com.excilys.ebi.gatling.core.result.message.RecordType.{ RUN, ACTION }
+import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RunRecord, RequestStatus }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR_STRING
-import FileDataReader.TABULATION_PATTERN
+import com.excilys.ebi.gatling.charts.result.reader.FileDataReader.TABULATION_PATTERN
+
 import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
-import scala.collection.mutable.ListBuffer
 
 object FileDataReader {
 	val TABULATION_PATTERN = Pattern.compile(TABULATION_SEPARATOR_STRING)
@@ -49,16 +50,16 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		(for (line <- Source.fromFile(simulationLogFile(runUuid).jfile, configuration.encoding).getLines) yield TABULATION_PATTERN.split(line, 0))
 			.foreach {
 				case Array(RUN, runDate, runId, runDescription) =>
-					runRecords + RunRecord(parseTimestampString(runDate), runId, runDescription.trim)
+					runRecords + RunRecord(parseTimestampString(runDate), runId.intern, runDescription.trim.intern)
 				case Array(ACTION, scenarioName, userId, requestName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage) =>
-					records + RequestRecord(scenarioName, userId.toInt, requestName, executionStartDate.toLong, executionEndDate.toLong, requestSendingEndDate.toLong, responseReceivingStartDate.toLong, RequestStatus.withName(resultStatus), resultMessage)
+					records + RequestRecord(scenarioName.intern, userId.toInt, requestName.intern, executionStartDate.toLong, executionEndDate.toLong, requestSendingEndDate.toLong, responseReceivingStartDate.toLong, RequestStatus.withName(resultStatus), resultMessage.intern)
 				case record => logger.warn("Malformed line, skipping it : " + record.toList)
 			}
 
 		(runRecords, records.sortBy(_.executionStartDate))
 	}
 
-	private val realRequestRecords = allRequestRecords.filter(record => record.requestName != START_OF_SCENARIO && record.requestName != END_OF_SCENARIO)
+	val realRequestRecords = allRequestRecords.filter(record => record.requestName != START_OF_SCENARIO && record.requestName != END_OF_SCENARIO)
 
 	val runRecord = if (allRunRecords.size == 1) allRunRecords.head else throw new IllegalAccessException("Expecting one and only one RunRecord")
 

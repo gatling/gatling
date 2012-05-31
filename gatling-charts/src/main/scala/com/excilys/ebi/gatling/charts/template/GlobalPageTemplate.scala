@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.init
-import java.util.concurrent.atomic.AtomicBoolean
+package com.excilys.ebi.gatling.charts.template
 
-trait Initializable {
+import com.excilys.ebi.gatling.charts.component.Component
 
-	protected val initialized = new AtomicBoolean(false)
-}
+class GlobalPageTemplate(statisticsComponent: Component, indicatorsComponent: Component, activeSessionsComponent: Component, responseTimeDistributionChartComponent: Component, requestsComponent: Component, transactionsComponent: Component)
+	extends PageTemplate("Global Information", false, statisticsComponent, indicatorsComponent, activeSessionsComponent, responseTimeDistributionChartComponent, requestsComponent, transactionsComponent)

@@ -17,14 +17,12 @@ package com.excilys.ebi.gatling.http.ahc
 
 import java.lang.Void
 
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 import com.ning.http.client.AsyncHandler.STATE.CONTINUE
 import com.ning.http.client.Response.ResponseBuilder
 import com.ning.http.client.{ HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, AsyncHandler, ProgressAsyncHandler }
 
-import akka.actor.actorRef2Scala
 import akka.actor.ActorRef
 import grizzled.slf4j.Logging
 

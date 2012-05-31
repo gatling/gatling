@@ -41,6 +41,7 @@ import grizzled.slf4j.Logging
 object RecorderController extends Logging {
 	private val runningFrame: RunningFrame = new RunningFrame
 	private val configurationFrame: ConfigurationFrame = new ConfigurationFrame
+	private val supportedHttpMethods = Vector(HttpMethod.POST, HttpMethod.GET, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.HEAD)
 
 	@volatile private var startDate: Date = _
 	@volatile private var lastRequestDate: Date = _
@@ -96,7 +97,7 @@ object RecorderController extends Logging {
 					val diff = newRequestDate.getTime - lastRequestDate.getTime
 					if (diff > 10) {
 
-						val pauseValueAndUnit =
+						val (pauseValue, pauseUnit) =
 							if (diff > 1000)
 								(round(diff / 1000).toLong, PauseUnit.SECONDS)
 							else
@@ -104,10 +105,10 @@ object RecorderController extends Logging {
 
 						lastRequestDate = newRequestDate
 						useUIThread {
-							runningFrame.receiveEventInfo(new PauseInfo(pauseValueAndUnit._1, pauseValueAndUnit._2))
+							runningFrame.receiveEventInfo(new PauseInfo(pauseValue, pauseUnit))
 						}
 
-						scenarioElements = new PauseElement(pauseValueAndUnit._1, pauseValueAndUnit._2) :: scenarioElements
+						scenarioElements = new PauseElement(pauseValue, pauseUnit) :: scenarioElements
 					}
 				} else {
 					lastRequestDate = new Date
@@ -142,7 +143,7 @@ object RecorderController extends Logging {
 
 	private def isRequestToBeAdded(request: HttpRequest): Boolean = {
 		val uri = new URI(request.getUri)
-		if (Vector(HttpMethod.POST, HttpMethod.GET, HttpMethod.PUT, HttpMethod.DELETE).contains(request.getMethod)) {
+		if (supportedHttpMethods.contains(request.getMethod)) {
 			if (configuration.filterStrategy != FilterStrategy.NONE) {
 
 				val uriMatched = (for (configPattern <- configuration.patterns) yield {
@@ -162,7 +163,6 @@ object RecorderController extends Logging {
 				true
 		} else
 			false
-
 	}
 
 	private def getFolder(folderName: String, folderPath: String): Directory = Directory(folderPath).createDirectory()

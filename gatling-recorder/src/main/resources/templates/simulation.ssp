@@ -1,48 +1,50 @@
 <%@ val protocolConfig: com.excilys.ebi.gatling.recorder.scenario.ProtocolConfigElement %>
-<%@ val headers: List[(Int,List[(String,String)])] %>
+<%@ val headers: Map[Int, List[(String, String)]] %>
 <%@ val scenarioName: String %>
 <%@ val simulationClassName: String %>
 <%@ val packageName: Option[String] %>
-<%@ val chains: List[List[com.excilys.ebi.gatling.recorder.scenario.ScenarioElement]] %>
-<%@ val scenarioElements: List[com.excilys.ebi.gatling.recorder.scenario.ScenarioElement] %>
+<%@ val scenarioElements: Either[List[com.excilys.ebi.gatling.recorder.scenario.ScenarioElement], List[List[com.excilys.ebi.gatling.recorder.scenario.ScenarioElement]]] %>
 <% if(packageName.isDefined) { %>package <%= packageName.get %> <% } %>
 
 import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._
 import com.excilys.ebi.gatling.jdbc.Predef._
+import com.excilys.ebi.gatling.http.Headers.Names._
 
 class <%= simulationClassName %> extends Simulation {
 
 	def apply = {
-	
+
 		val httpConf = httpConfig
 			<%= protocolConfig %>
-						
+
 <% for( header <- headers ) { %>			 
 		val headers_<%= header._1 %> = Map(
 <%= (for { headerElem <- header._2 } yield "\t\t\t\"" + headerElem._1 + "\" -> \"\"\"" + headerElem._2 + "\"\"\"").mkString(",\n") %>
 		)
-		
+
 <% } %>
-		
-<% for( (i, chain) <- (0 to chains.size).zip(chains) ) { %>
-		val chain_<%= i %> = chain
-<% for (element <- chain) { %>
-<%= element %>
-<% } %>
-<% } %> 
-		
+
+<% scenarioElements match {%>
+<% case Left(elements) =>%>
 		val scn = scenario("<%= scenarioName %>")
-<% if(!chains.isEmpty) for (i <- 0 until chains.size ) { %>
-			.insertChain( chain_<%= i %> )
+<% for (element <- elements) {%>
+<%=element%>
+<%}%>
+<% case Right(chains) =>%>
+<% for((i, chain) <- (0 to chains.size).zip(chains)) { %>
+		val chain_<%= i %> = chain
+<% for (element <- chain) {%>
+<%=element%>
+<%}%>
 <% } %>
-<% if(!scenarioElements.isEmpty) for (element <- scenarioElements) { %>
-<%= element %>
-<% } %>
-				
-			
-		List(
-			scn.configure users 1 protocolConfig httpConf
-		)
+
+		val scn = scenario("<%= scenarioName %>")
+<% for (i <- 0 until chains.size ) {%>
+			.insertChain(chain_<%= i %>)
+<%}%>
+<%}%>
+
+		List(scn.configure.users(1).protocolConfig(httpConf))
 	}
 }

@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.charts.util
 
 import scala.annotation.tailrec
 import scala.collection.SortedMap
-import scala.math.{ sqrt, pow, abs }
+import scala.math.{ sqrt, round, pow, max }
 
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
@@ -28,11 +28,11 @@ object StatisticsHelper {
 
 	val NO_PLOT_MAGIC_VALUE = -1
 
-	def averageTime(timeFunction: RequestRecord => Long)(data: Seq[RequestRecord]): Long = if (data.isEmpty) NO_PLOT_MAGIC_VALUE else (data.map(timeFunction(_)).sum / data.length.toDouble).toLong
+	def meanTime(timeFunction: RequestRecord => Long)(data: Seq[RequestRecord]): Long = if (data.isEmpty) NO_PLOT_MAGIC_VALUE else (data.map(timeFunction(_)).sum / data.length.toDouble).toLong
 
-	val averageResponseTime = averageTime(_.responseTime) _
+	val meanResponseTime = meanTime(_.responseTime) _
 
-	val averageLatency = averageTime(_.latency) _
+	val meanLatency = meanTime(_.latency) _
 
 	/**
 	 * Compute the population standard deviation of the provided data.
@@ -40,7 +40,7 @@ object StatisticsHelper {
 	 * @param data is all the RequestRecords from a test run
 	 */
 	def responseTimeStandardDeviation(data: Seq[RequestRecord]): Long = {
-		val avg = averageResponseTime(data)
+		val avg = meanResponseTime(data)
 		if (avg != NO_PLOT_MAGIC_VALUE) sqrt(data.map(result => pow(result.responseTime - avg, 2)).sum / data.length).toLong else NO_PLOT_MAGIC_VALUE
 	}
 
@@ -54,9 +54,9 @@ object StatisticsHelper {
 			.map { case (time, results) => time -> computation(results) }
 			.toList
 
-	def responseTimeByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], requestStatus: RequestStatus): List[(Long, Long)] = computationByMillisecondAsList(data, requestStatus, averageResponseTime)
+	def responseTimeByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], requestStatus: RequestStatus): List[(Long, Long)] = computationByMillisecondAsList(data, requestStatus, meanResponseTime)
 
-	def latencyByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], requestStatus: RequestStatus): List[(Long, Long)] = computationByMillisecondAsList(data, requestStatus, averageLatency)
+	def latencyByMillisecondAsList(data: SortedMap[Long, Seq[RequestRecord]], requestStatus: RequestStatus): List[(Long, Long)] = computationByMillisecondAsList(data, requestStatus, meanLatency)
 
 	def numberOfRequestsPerSecond(data: SortedMap[Long, Seq[RequestRecord]]): SortedMap[Long, Int] = data.map { case (time, results) => time -> results.length }
 
@@ -120,7 +120,7 @@ object StatisticsHelper {
 
 		val width = maxTime - minTime
 
-		val step = math.max(width / slotsNumber, 1)
+		val step = max(width / slotsNumber, 1)
 		val actualSlotNumber = if (step == 1) width.toInt else slotsNumber
 
 		val percentiles = if (records.isEmpty)
@@ -128,23 +128,22 @@ object StatisticsHelper {
 		else
 			records
 				.groupBy(record => minTime + ((record.responseTime - minTime) / step) * step)
-				.map { case (time, records) => time -> math.round(records.size * 100.0 / total).toInt }
-
-		for (i <- 0 until actualSlotNumber) yield {
+				.map { case (time, records) => time -> round(records.size * 100.0 / total).toInt }
+		
+		for (i <- 0 to actualSlotNumber) yield {
 			val range = minTime + i * step
 			(range -> percentiles.get(range).getOrElse(0))
 		}
 	}
 
-	def windowInPercentileRange(average: Long, limit: Double, records: Seq[RequestRecord]): (Long, Long) = {
-
-		val maxCount = (records.size * limit).toInt
-		val recordsSortedByDistanceToAverage = records.sortBy(record => abs(record.responseTime - average)).take(maxCount)
-
-		var min = if (recordsSortedByDistanceToAverage.isEmpty) NO_PLOT_MAGIC_VALUE else recordsSortedByDistanceToAverage.minBy(_.responseTime).responseTime
-		var max = if (recordsSortedByDistanceToAverage.isEmpty) NO_PLOT_MAGIC_VALUE else recordsSortedByDistanceToAverage.maxBy(_.responseTime).responseTime
-
-		(min, max)
+	/**
+	 * @param sortedRecords records, sorted by response time
+	 * @param percent
+	 * @return the percentile
+	 */
+	def responseTimePercentile(sortedRecords: Seq[RequestRecord], percent: Double): Long = {
+		val limitIndex = round(percent * sortedRecords.size + 0.5).toInt - 1
+		if (sortedRecords.isEmpty) NO_PLOT_MAGIC_VALUE else sortedRecords(limitIndex).responseTime
 	}
 
 	def count(data: List[(Long, Int)]) = data.foldLeft(0)((sum, entry) => sum + entry._2)

@@ -23,7 +23,7 @@ import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.check.Check.applyChecks
 import com.excilys.ebi.gatling.core.check.Failure
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ RequestStatus, OK, KO }
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
@@ -31,14 +31,15 @@ import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames }
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.{ REDIRECT_STATUS_CODES, REDIRECTED_REQUEST_NAME_PATTERN }
 import com.excilys.ebi.gatling.http.check.HttpCheck
+import com.excilys.ebi.gatling.http.config.HttpConfig
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.excilys.ebi.gatling.http.util.HttpHelper.{ toRichResponse, computeRedirectUrl }
 import com.ning.http.client.{ Response, RequestBuilder, Request, FluentStringsMap }
 
-import akka.actor.actorRef2Scala
-import akka.actor.{ ActorRef, Actor }
+import akka.actor.{ ReceiveTimeout, ActorRef, Actor }
+import akka.util.duration.intToDurationInt
 import grizzled.slf4j.Logging
 
 object GatlingAsyncHandlerActor {
@@ -46,19 +47,27 @@ object GatlingAsyncHandlerActor {
 	val REDIRECT_STATUS_CODES = 301 to 303
 }
 
-class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], next: ActorRef, var requestName: String, var request: Request, followRedirect: Boolean) extends Actor with Logging with CookieHandling {
+class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], next: ActorRef, var requestName: String, var request: Request, followRedirect: Boolean, gatlingConfiguration: GatlingConfiguration) extends Actor with Logging with CookieHandling {
 
 	var executionStartDate = currentTimeMillis
 	var requestSendingEndDate = 0L
 	var responseReceivingStartDate = 0L
 	var executionEndDate = 0L
 
+	resetTimeout
+
 	def receive = {
-		case OnHeaderWriteCompleted(time) => requestSendingEndDate = time
+		case OnHeaderWriteCompleted(time) =>
+			resetTimeout
+			requestSendingEndDate = time
 
-		case OnContentWriteCompleted(time) => requestSendingEndDate = time
+		case OnContentWriteCompleted(time) =>
+			resetTimeout
+			requestSendingEndDate = time
 
-		case OnStatusReceived(time) => responseReceivingStartDate = time
+		case OnStatusReceived(time) =>
+			resetTimeout
+			responseReceivingStartDate = time
 
 		case OnCompleted(response, time) =>
 			executionEndDate = time
@@ -67,12 +76,19 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 		case OnThrowable(errorMessage, time) =>
 			requestSendingEndDate = if (requestSendingEndDate != 0L) requestSendingEndDate else time
 			responseReceivingStartDate = if (responseReceivingStartDate != 0L) responseReceivingStartDate else time
-			executionEndDate = if (executionEndDate != 0L) executionEndDate else time
+			executionEndDate = time
 			logRequest(KO, errorMessage)
+			executeNext(session)
+
+		case ReceiveTimeout =>
+			error("GatlingAsyncHandlerActor timed out")
+			logRequest(KO, "GatlingAsyncHandlerActor timed out")
 			executeNext(session)
 
 		case m => throw new IllegalArgumentException("Unknown message type " + m)
 	}
+
+	def resetTimeout = context.setReceiveTimeout(HttpConfig.GATLING_HTTP_CONFIG_REQUEST_TIMEOUT milliseconds)
 
 	private def logRequest(requestResult: RequestStatus, requestMessage: String = "Request executed successfully") = DataWriter.logRequest(session.scenarioName, session.userId, "Request " + requestName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, requestResult, requestMessage)
 
@@ -82,7 +98,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 	 * @param session the new Session
 	 */
 	private def executeNext(newSession: Session) {
-		next ! newSession.setAttribute(Session.LAST_ACTION_DURATION_KEY, currentTimeMillis - executionEndDate)
+		next ! newSession.increaseTimeShift(currentTimeMillis - executionEndDate)
 		context.stop(self)
 	}
 
@@ -105,7 +121,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 
 			logRequest(OK)
 
-			val redirectUrl = computeRedirectUrl(URLDecoder.decode(response.getHeader(HeaderNames.LOCATION), configuration.encoding), request.getUrl)
+			val redirectUrl = computeRedirectUrl(URLDecoder.decode(response.getHeader(HeaderNames.LOCATION), gatlingConfiguration.encoding), request.getUrl)
 
 			val requestBuilder = new RequestBuilder(request).setMethod("GET").setQueryParameters(null.asInstanceOf[FluentStringsMap]).setParameters(null.asInstanceOf[FluentStringsMap]).setUrl(redirectUrl)
 
