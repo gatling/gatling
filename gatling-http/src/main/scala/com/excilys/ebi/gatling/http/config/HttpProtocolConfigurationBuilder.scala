@@ -19,6 +19,8 @@ import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.Headers
 import com.ning.http.client.{ RequestBuilder, ProxyServer }
 
+import grizzled.slf4j.Logging
+
 /**
  * HttpProtocolConfigurationBuilder class companion
  */
@@ -34,7 +36,7 @@ object HttpProtocolConfigurationBuilder {
  * @param baseUrl the radix of all the URLs that will be used (eg: http://mywebsite.tld)
  * @param proxy a proxy through which all the requests must pass to succeed
  */
-class HttpProtocolConfigurationBuilder(baseUrl: Option[String], proxy: Option[ProxyServer], securedProxy: Option[ProxyServer], followRedirectParam: Boolean, automaticRefererParam: Boolean, baseHeaders: Map[String, String], warmUpUrl: Option[String]) {
+class HttpProtocolConfigurationBuilder(baseUrl: Option[String], proxy: Option[ProxyServer], securedProxy: Option[ProxyServer], followRedirectParam: Boolean, automaticRefererParam: Boolean, baseHeaders: Map[String, String], warmUpUrl: Option[String]) extends Logging {
 
 	/**
 	 * Sets the baseURL of the future HttpProtocolConfiguration
@@ -77,17 +79,14 @@ class HttpProtocolConfigurationBuilder(baseUrl: Option[String], proxy: Option[Pr
 		warmUpUrl.map { url =>
 			val requestBuilder = new RequestBuilder().setUrl(url)
 
-			proxy.map { proxy =>
-				if (url.startsWith("http://"))
-					requestBuilder.setProxyServer(proxy)
-			}
+			proxy.map { proxy => if (url.startsWith("http://")) requestBuilder.setProxyServer(proxy) }
+			securedProxy.map { proxy => if (url.startsWith("https://")) requestBuilder.setProxyServer(proxy) }
 
-			securedProxy.map { proxy =>
-				if (url.startsWith("https://"))
-					requestBuilder.setProxyServer(proxy)
+			try {
+				HTTP_CLIENT.executeRequest(requestBuilder.build).get
+			} catch {
+				case e => info("Couln't execute warm up request " + url, e)
 			}
-
-			HTTP_CLIENT.executeRequest(requestBuilder.build).get
 		}
 
 		HttpProtocolConfiguration(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders)
