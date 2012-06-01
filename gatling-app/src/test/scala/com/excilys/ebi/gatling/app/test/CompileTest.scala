@@ -30,6 +30,17 @@ object CompileTest {
 
 	val httpConf = httpConfig.baseURL(baseUrl).proxy("91.121.211.157", 80).httpsPort(4443).credentials("rom", "test")
 
+	val httpConf2 = httpConfig
+		.baseURL("http://172.30.5.143:8080")
+		.proxy("172.31.76.106", 8080)
+		.httpsPort(8081)
+		.acceptHeader("*/*")
+		.acceptCharsetHeader("ISO-8859-1,utf-8;q=0.7,*;q=0.3")
+		.acceptLanguageHeader("fr-FR,fr;q=0.8,en-US;q=0.6,en;q=0.4")
+		.acceptEncodingHeader("gzip,deflate,sdch")
+		.userAgentHeader("Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.19 (KHTML, like Gecko) Ubuntu/12.04 Chromium/18.0.1025.151 Chrome/18.0.1025.151 Safari/535.19")
+		.hostHeader("172.30.5.143:8080")
+
 	val usersInformation = tsv("user_information.tsv")
 
 	val loginChain = chain.exec(http("First Request Chain").get("/")).pause(1, 2)

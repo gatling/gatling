@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.http.config
 import com.ning.http.client.ProxyServer
 
 object HttpProxyBuilder {
-	implicit def toHttpProtocolConfiguration(hpb: HttpProxyBuilder) = {
+	implicit def toHttpProtocolConfigurationBuilder(hpb: HttpProxyBuilder) = {
 
 		def getProxyServer(builder: HttpProxyBuilder, protocol: ProxyServer.Protocol, port: Int) = {
 			val securedProxyServer = for {
@@ -33,7 +33,7 @@ object HttpProxyBuilder {
 
 		val httpsProxy = hpb.sslPort.map(getProxyServer(hpb, ProxyServer.Protocol.HTTPS, _))
 
-		hpb.configBuilder.addProxies(httpProxy, httpsProxy).build
+		hpb.configBuilder.addProxies(httpProxy, httpsProxy)
 	}
 }
 class HttpProxyBuilder(val configBuilder: HttpProtocolConfigurationBuilder, val host: String, val port: Int, val sslPort: Option[Int], val username: Option[String], val password: Option[String]) {
