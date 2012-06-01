@@ -32,5 +32,5 @@ object HttpProtocolConfiguration {
  * @param proxy a proxy through which all the requests must pass to succeed
  */
 case class HttpProtocolConfiguration(baseURL: Option[String], proxy: Option[ProxyServer], securedProxy: Option[ProxyServer], followRedirectEnabled: Boolean, automaticRefererEnabled: Boolean, baseHeaders: Map[String, String]) extends ProtocolConfiguration {
-	def protocolType = HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE
+	val protocolType = HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE
 }

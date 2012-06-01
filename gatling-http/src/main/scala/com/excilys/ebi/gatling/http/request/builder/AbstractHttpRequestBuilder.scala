@@ -210,16 +210,19 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * @param session the session of the current scenario
 	 */
 	private def configureQueryParams(requestBuilder: RequestBuilder, session: Session) {
-		val queryParamsMap = new FluentStringsMap
 
-		val keyValues = for ((keyFunction, valueFunction) <- queryParams) yield (keyFunction(session), valueFunction(session))
+		if (!queryParams.isEmpty) {
 
-		keyValues.groupBy(_._1).foreach {
-			case (key, values) => queryParamsMap.add(key, values.map(_._2): _*)
-		}
+			val queryParamsMap = new FluentStringsMap
 
-		if (!queryParamsMap.isEmpty)
+			queryParams.map { case (keyFunction, valueFunction) => (keyFunction(session), valueFunction(session)) }
+				.groupBy(_._1)
+				.foreach {
+					case (key, values) => queryParamsMap.add(key, values.map(_._2): _*)
+				}
+
 			requestBuilder.setQueryParameters(queryParamsMap)
+		}
 	}
 
 	/**

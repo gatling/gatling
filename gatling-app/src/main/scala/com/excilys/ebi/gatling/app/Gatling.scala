@@ -268,8 +268,7 @@ class Gatling(cliOptions: Options) extends Logging {
 		if (ReportsGenerator.generateFor(runUuid)) {
 			println("Reports generated in " + (currentTimeMillis - start) / 1000 + "s.")
 			println("Please open the following file : " + globalFile(runUuid))
-		} else {
+		} else
 			println("Reports weren't generated")
-		}
 	}
 }

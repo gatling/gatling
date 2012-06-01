@@ -58,7 +58,7 @@ object StringHelper extends Logging {
 
 		def parseStaticParts: Array[String] = elPattern.pattern.split(stringToFormat, -1)
 
-		def parseDynamicParts: List[Session => Any] = {
+		def parseDynamicParts: Seq[Session => Any] = {
 			elPattern.findAllIn(stringToFormat).matchData.map { data =>
 				val elContent = data.group(1)
 				elOccurrencePattern.findFirstMatchIn(elContent) match {
@@ -96,7 +96,7 @@ object StringHelper extends Logging {
 							}
 						}
 				}
-			}.toList
+			}.toSeq
 		}
 
 		def doParseEvaluatable: EvaluatableString = {

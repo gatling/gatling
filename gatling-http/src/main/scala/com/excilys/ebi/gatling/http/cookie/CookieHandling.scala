@@ -27,14 +27,13 @@ trait CookieHandling {
 
 	val COOKIES_CONTEXT_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "http.cookies"
 
-	def getStoredCookies(session: Session, url: String): List[Cookie] = {
+	def getStoredCookies(session: Session, url: String): Iterable[Cookie] = {
 		session.getAttributeAsOption[Map[CookieKey, Cookie]](COOKIES_CONTEXT_KEY) match {
 			case Some(storedCookies) if (!storedCookies.isEmpty) =>
 				val uri = URI.create(url)
 				storedCookies
 					.filter { case (key, _) => uri.getHost.endsWith(key.domain) && uri.getPath.startsWith(key.path) }
 					.map { case (_, cookie) => cookie }
-					.toList
 
 			case _ => Nil
 		}
