@@ -90,7 +90,7 @@ object ValidationHelper extends Logging {
 				cFrame.txtProxyPort.getKeyListeners.foreach {
 					case kl: KeyListener =>
 						useUIThread {
-							kl.keyReleased(new KeyEvent(cFrame.txtProxyPort, 0, new Date().getTime, 0, 0))
+							kl.keyReleased(new KeyEvent(cFrame.txtProxyPort, 0, new Date().getTime, 0, 0, '0'))
 						}
 				}
 				cFrame.txtProxySslPort.setEnabled(false)

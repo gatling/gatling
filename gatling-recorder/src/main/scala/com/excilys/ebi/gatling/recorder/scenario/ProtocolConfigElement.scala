@@ -29,8 +29,8 @@ class ProtocolConfigElement(baseUrl: String, proxy: ProxyConfig, followRedirect:
 		sb.append(""".baseURL("""").append(baseUrl).append("""")""").append(END_OF_LINE)
 
 		for {
-			val proxyHost <- proxy.host
-			val proxyPort <- proxy.port
+			proxyHost <- proxy.host
+			proxyPort <- proxy.port
 		} {
 			sb.append(""".proxy("""").append(proxyHost).append("""", """).append(proxyPort).append(")")
 			proxy.sslPort.map(proxySslPort => sb.append(".httpsPort(").append(proxySslPort).append(")"))
@@ -38,8 +38,8 @@ class ProtocolConfigElement(baseUrl: String, proxy: ProxyConfig, followRedirect:
 		}
 
 		for {
-			val proxyUsername <- proxy.username
-			val proxyPassword <- proxy.password
+			proxyUsername <- proxy.username
+			proxyPassword <- proxy.password
 		} {
 			sb.append(""".credentials("""").append(proxyUsername).append("""", """").append(proxyPassword).append("""")""").append(END_OF_LINE)
 		}

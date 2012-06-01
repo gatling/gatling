@@ -41,8 +41,8 @@ abstract class AbstractBrowserRequestHandler(proxyConfig: ProxyConfig) extends S
 				proxyConfig.host match {
 					case Some(_) =>
 						for {
-							val username <- proxyConfig.username
-							val password <- proxyConfig.password
+							username <- proxyConfig.username
+							password <- proxyConfig.password
 						} {
 							val proxyAuth = "Basic " + Base64.encode((username + ":" + password).getBytes)
 							request.setHeader(Headers.Names.PROXY_AUTHORIZATION, proxyAuth)

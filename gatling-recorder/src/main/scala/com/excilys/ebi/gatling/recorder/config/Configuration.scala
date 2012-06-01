@@ -91,8 +91,8 @@ object Configuration extends Logging {
 		o.localPort.map(configuration.port = _)
 		o.localPortSsl.map(configuration.sslPort = _)
 		for {
-			val proxyHost <- o.proxyHost
-			val proxyPort <- o.proxyPort
+			proxyHost <- o.proxyHost
+			proxyPort <- o.proxyPort
 		} {
 			configuration.proxy = new ProxyConfig(Some(proxyHost), Some(proxyPort), o.proxyPortSsl, None, None)
 		}
