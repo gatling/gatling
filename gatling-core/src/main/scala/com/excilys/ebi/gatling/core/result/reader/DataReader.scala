@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.core.result.reader
 import scala.collection.immutable.SortedMap
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.{ RunRecord, RequestRecord }
+import com.excilys.ebi.gatling.core.result.message.RunRecord
 
 object DataReader {
 	def newInstance(runOn: String) = configuration.dataReaderClass.getConstructor(classOf[String]).newInstance(runOn)
@@ -27,19 +27,19 @@ object DataReader {
 abstract class DataReader(runUuid: String) {
 
 	def runRecord: RunRecord
-	def realRequestRecords: Seq[RequestRecord]
+	def realChartRequestRecords: Seq[ChartRequestRecord]
 
 	def requestNames: Seq[String]
 	def scenarioNames: Seq[String]
 
-	def requestRecordsGroupByExecutionStartDateInSeconds: SortedMap[Long, Seq[RequestRecord]]
-	def scenarioRequestRecordsGroupByExecutionStartDateInSeconds(scenarioName: String): SortedMap[Long, Seq[RequestRecord]]
+	def requestRecordsGroupByExecutionStartDateInSeconds: SortedMap[Long, Seq[ChartRequestRecord]]
+	def scenarioChartRequestRecordsGroupByExecutionStartDateInSeconds(scenarioName: String): SortedMap[Long, Seq[ChartRequestRecord]]
 
-	def realRequestRecordsGroupByExecutionStartDateInSeconds: SortedMap[Long, Seq[RequestRecord]]
-	def realRequestRecordsGroupByExecutionEndDateInSeconds: SortedMap[Long, Seq[RequestRecord]]
+	def realChartRequestRecordsGroupByExecutionStartDateInSeconds: SortedMap[Long, Seq[ChartRequestRecord]]
+	def realChartRequestRecordsGroupByExecutionEndDateInSeconds: SortedMap[Long, Seq[ChartRequestRecord]]
 
-	def requestRecords(requestName: String): Seq[RequestRecord]
-	def requestRecordsGroupByExecutionStartDate(requestName: String): SortedMap[Long, Seq[RequestRecord]]
-	def requestRecordsGroupByExecutionStartDateInSeconds(requestName: String): SortedMap[Long, Seq[RequestRecord]]
+	def requestRecords(requestName: String): Seq[ChartRequestRecord]
+	def requestRecordsGroupByExecutionStartDate(requestName: String): SortedMap[Long, Seq[ChartRequestRecord]]
+	def requestRecordsGroupByExecutionStartDateInSeconds(requestName: String): SortedMap[Long, Seq[ChartRequestRecord]]
 
 }

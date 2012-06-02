@@ -19,8 +19,8 @@ import java.util.regex.Pattern
 
 import scala.collection.immutable.SortedMap
 import scala.collection.mutable
-import scala.util.Sorting.quickSort
 import scala.io.Source
+import scala.util.Sorting
 
 import org.joda.time.DateTime
 
@@ -29,11 +29,12 @@ import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
 import com.excilys.ebi.gatling.core.result.message.RecordType.{ RUN, ACTION }
-import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RunRecord, RequestStatus }
+import com.excilys.ebi.gatling.core.result.message.{ RunRecord, RequestStatus }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR_STRING
 import com.excilys.ebi.gatling.charts.result.reader.FileDataReader.TABULATION_PATTERN
+import com.excilys.ebi.gatling.core.result.reader.ChartRequestRecord
 
 import grizzled.slf4j.Logging
 
@@ -43,24 +44,10 @@ object FileDataReader {
 
 class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
-	val (allRunRecords, allRequestRecords, requestNames, scenarioNames): (Seq[RunRecord], Seq[RequestRecord], Seq[String], Seq[String]) = {
-
-		implicit val executionStartDateOrdering = new Ordering[RequestRecord] {
-			def compare(x: RequestRecord, y: RequestRecord): Int = {
-				if (x.executionStartDate < y.executionStartDate) -1
-				else if (x.executionStartDate == y.executionStartDate) 0
-				else 1
-			}
-		}
-
-		def sort(records: Seq[RequestRecord]): Seq[RequestRecord] = {
-			val array = records.toArray
-			quickSort(array)
-			array.toSeq
-		}
+	val (allRunRecords, allChartRequestRecords, requestNames, scenarioNames): (Seq[RunRecord], Seq[ChartRequestRecord], Seq[String], Seq[String]) = {
 
 		val runRecords = new mutable.ListBuffer[RunRecord]
-		val records = new mutable.ListBuffer[RequestRecord]
+		val records = new mutable.ListBuffer[ChartRequestRecord]
 		val requestNames = new mutable.HashSet[String]
 		val scenarioNames = new mutable.HashSet[String]
 
@@ -69,54 +56,56 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 				case Array(RUN, runDate, runId, runDescription) =>
 					runRecords += RunRecord(parseTimestampString(runDate), runId.intern, runDescription.trim.intern)
 				case Array(ACTION, scenarioName, userId, requestName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage) =>
-					val requestRecord = RequestRecord(new String(scenarioName).intern, userId.toInt, new String(requestName).intern, executionStartDate.toLong, executionEndDate.toLong, requestSendingEndDate.toLong, responseReceivingStartDate.toLong, RequestStatus.withName(resultStatus), new String(resultMessage).intern)
-					records += requestRecord
+					records += ChartRequestRecord(scenarioName, userId.toInt, requestName, executionStartDate.toLong, executionEndDate.toLong, requestSendingEndDate.toLong, responseReceivingStartDate.toLong, RequestStatus.withName(resultStatus))
 					if (requestName != START_OF_SCENARIO && requestName != END_OF_SCENARIO)
 						requestNames += requestName
 					scenarioNames += scenarioName
 				case record => logger.warn("Malformed line, skipping it : " + record.toList)
 			}
 
-		(runRecords, sort(records), requestNames.toSeq, scenarioNames.toSeq)
+		implicit val ordering = Ordering.by((_: ChartRequestRecord).executionStartDateNoMillis)
+		val sortedRecords = Sorting.stableSort(records)
+
+		(runRecords, sortedRecords.toSeq, requestNames.toSeq, scenarioNames.toSeq)
 	}
 
-	val realRequestRecords = allRequestRecords.view.filter(record => record.requestName != START_OF_SCENARIO && record.requestName != END_OF_SCENARIO)
+	val realChartRequestRecords = allChartRequestRecords.filter(record => record.requestName != START_OF_SCENARIO && record.requestName != END_OF_SCENARIO)
 
 	val runRecord = {
 		if (allRunRecords.size != 1) warn("Expecting one and only one RunRecord")
 		allRunRecords.head
 	}
 
-	def requestRecordsGroupByExecutionStartDateInSeconds: SortedMap[Long, Seq[RequestRecord]] = SortedMap(
-		allRequestRecords
-			.groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis)
+	def requestRecordsGroupByExecutionStartDateInSeconds: SortedMap[Long, Seq[ChartRequestRecord]] = SortedMap(
+		allChartRequestRecords
+			.groupBy(_.executionStartDateNoMillis)
 			.toSeq: _*)
 
-	def scenarioRequestRecordsGroupByExecutionStartDateInSeconds(scenarioName: String): SortedMap[Long, Seq[RequestRecord]] = SortedMap(
-		allRequestRecords
+	def scenarioChartRequestRecordsGroupByExecutionStartDateInSeconds(scenarioName: String): SortedMap[Long, Seq[ChartRequestRecord]] = SortedMap(
+		allChartRequestRecords
 			.filter(_.scenarioName == scenarioName)
-			.groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis)
+			.groupBy(_.executionStartDateNoMillis)
 			.toSeq: _*)
 
-	def realRequestRecordsGroupByExecutionStartDateInSeconds: SortedMap[Long, Seq[RequestRecord]] = SortedMap(
-		realRequestRecords
-			.groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis)
+	def realChartRequestRecordsGroupByExecutionStartDateInSeconds: SortedMap[Long, Seq[ChartRequestRecord]] = SortedMap(
+		realChartRequestRecords
+			.groupBy(_.executionStartDateNoMillis)
 			.toSeq: _*)
 
-	def realRequestRecordsGroupByExecutionEndDateInSeconds: SortedMap[Long, Seq[RequestRecord]] = SortedMap(
-		realRequestRecords
-			.groupBy(record => new DateTime(record.executionStartDate + record.responseTime).withMillisOfSecond(0).getMillis)
+	def realChartRequestRecordsGroupByExecutionEndDateInSeconds: SortedMap[Long, Seq[ChartRequestRecord]] = SortedMap(
+		realChartRequestRecords
+			.groupBy(_.executionEndDateNoMillis)
 			.toSeq: _*)
 
-	def requestRecords(requestName: String): Seq[RequestRecord] = realRequestRecords.filter(_.requestName == requestName)
+	def requestRecords(requestName: String): Seq[ChartRequestRecord] = realChartRequestRecords.filter(_.requestName == requestName)
 
-	def requestRecordsGroupByExecutionStartDate(requestName: String): SortedMap[Long, Seq[RequestRecord]] = SortedMap(
+	def requestRecordsGroupByExecutionStartDate(requestName: String): SortedMap[Long, Seq[ChartRequestRecord]] = SortedMap(
 		requestRecords(requestName)
-			.groupBy(_.executionStartDate)
+			.groupBy(_.executionStartDateNoMillis)
 			.toSeq: _*)
 
-	def requestRecordsGroupByExecutionStartDateInSeconds(requestName: String): SortedMap[Long, Seq[RequestRecord]] = SortedMap(
+	def requestRecordsGroupByExecutionStartDateInSeconds(requestName: String): SortedMap[Long, Seq[ChartRequestRecord]] = SortedMap(
 		requestRecords(requestName)
-			.groupBy(line => new DateTime(line.executionStartDate).withMillisOfSecond(0).getMillis)
+			.groupBy(_.executionStartDateNoMillis)
 			.toSeq: _*)
 }

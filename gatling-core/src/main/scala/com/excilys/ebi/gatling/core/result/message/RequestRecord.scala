@@ -31,9 +31,4 @@ import com.excilys.ebi.gatling.core.result.message.RecordType.ACTION
  * @param requestStatus the status of the action
  * @param requestMessage the message of the action on completion
  */
-case class RequestRecord(scenarioName: String, userId: Int, requestName: String, executionStartDate: Long, executionEndDate: Long, requestSendingEndDate: Long, responseReceivingStartDate: Long, requestStatus: RequestStatus.RequestStatus, requestMessage: String) extends Record(ACTION) {
-
-	lazy val responseTime = executionEndDate - executionStartDate
-
-	lazy val latency = responseReceivingStartDate - requestSendingEndDate
-}
+case class RequestRecord(scenarioName: String, userId: Int, requestName: String, executionStartDate: Long, executionEndDate: Long, requestSendingEndDate: Long, responseReceivingStartDate: Long, requestStatus: RequestStatus.RequestStatus, requestMessage: String) extends Record(ACTION)
