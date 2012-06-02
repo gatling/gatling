@@ -51,7 +51,7 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			val latencyFailuresData = latencyByMillisecondAsList(dataMillis, KO)
 			val indicatorsColumnData = numberOfRequestInResponseTimeRange(requests, configuration.chartingIndicatorsLowerBound, configuration.chartingIndicatorsHigherBound)
 			val indicatorsPieData = indicatorsColumnData.map { case (name, count) => name -> count * 100 / numberOfRequests }
-			val requestsPerSecond = numberOfRequestsPerSecond(dataReader.requestRecordsGroupByExecutionStartDateInSeconds)
+			val requestsPerSecond = numberOfRequestsPerSecond(dataReader.realRequestRecordsGroupByExecutionStartDateInSeconds)
 			val scatterPlotSuccessData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, OK)
 			val scatterPlotFailuresData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, KO)
 
