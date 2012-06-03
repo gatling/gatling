@@ -66,5 +66,4 @@ class ViewHelperSpec extends Specification {
 			ordinalNumberSuffix(12311) must beEqualTo("th")
 		}
 	}
-
 }

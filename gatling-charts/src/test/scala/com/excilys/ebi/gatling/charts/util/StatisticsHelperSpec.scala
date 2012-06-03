@@ -43,7 +43,7 @@ class StatisticsHelperSpec extends Specification {
 	val knownAverageResponseTime = 5000
 
 	private def createChartRequestRecord(execStart: Long, execEnd: Long, sendEnd: Long, responseRecvStart: Long): ChartRequestRecord =
-		new ChartRequestRecord("testScenario", 1, "Test Request", execStart, execEnd, sendEnd, responseRecvStart, RequestStatus.OK)
+		ChartRequestRecord("testScenario", 1, "Test Request", execStart, execEnd, sendEnd, responseRecvStart, RequestStatus.OK)
 
 	"minResponseTime" should {
 
