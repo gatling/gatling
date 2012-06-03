@@ -46,8 +46,8 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	val (allRunRecords, allChartRequestRecords, requestNames, scenarioNames): (Seq[RunRecord], Seq[ChartRequestRecord], Seq[String], Seq[String]) = {
 
-		val runRecords = new mutable.ListBuffer[RunRecord]
-		val records = new mutable.ListBuffer[ChartRequestRecord]
+		val runRecords = new mutable.ArrayBuffer[RunRecord]
+		val records = new mutable.ArrayBuffer[ChartRequestRecord]
 		val requestNames = new mutable.HashSet[String]
 		val scenarioNames = new mutable.HashSet[String]
 
