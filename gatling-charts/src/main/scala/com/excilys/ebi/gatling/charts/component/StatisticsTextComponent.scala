@@ -20,24 +20,25 @@ import com.excilys.ebi.gatling.charts.template.PageTemplate.TEMPLATE_ENGINE
 import com.excilys.ebi.gatling.charts.util.StatisticsHelper.NO_PLOT_MAGIC_VALUE
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
-case class Statistics(name: String, total: Long, success: Long, failure: Long) {
+class Statistics(val name: String, val total: Long, val success: Long, val failure: Long) {
 
 	private def makePrintable(value: Long) = if (value != NO_PLOT_MAGIC_VALUE) value.toString else "-"
 
-	val printableTotal: String = makePrintable(total)
+	def printableTotal: String = makePrintable(total)
 
-	val printableSuccess: String = makePrintable(success)
+	def printableSuccess: String = makePrintable(success)
 
-	val printableFailure: String = makePrintable(failure)
+	def printableFailure: String = makePrintable(failure)
 }
 
 class StatisticsTextComponent(statistics: Statistics*) extends Component {
 
-	val statisticsIndexedByName = statistics.map(stats => (stats.name, stats)).toMap[String, Statistics]
+	def getHTMLContent: String = {
+		val statisticsIndexedByName = statistics.map(stats => (stats.name, stats)).toMap[String, Statistics]
+		TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATISTICS_COMPONENT_URL, statisticsIndexedByName)
+	}
 
-	def getHTMLContent: String = TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATISTICS_COMPONENT_URL, statisticsIndexedByName)
+	val getJavascriptContent: String = EMPTY
 
-	def getJavascriptContent: String = EMPTY
-
-	def getJavascriptFiles: Seq[String] = Seq.empty
+	val getJavascriptFiles: Seq[String] = Seq.empty
 }

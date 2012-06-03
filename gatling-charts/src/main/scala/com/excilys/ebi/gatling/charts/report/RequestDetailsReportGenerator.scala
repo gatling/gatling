@@ -36,8 +36,6 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			val (successRequests, failedRequests) = requests.partition(_.requestStatus == OK)
 
 			val numberOfRequests = requests.length
-			val numberOfSuccessfulRequests = successRequests.length
-			val numberOfFailedRequests = numberOfRequests - numberOfSuccessfulRequests
 
 			val globalMinResponseTime = minResponseTime(requests)
 			val globalMaxResponseTime = maxResponseTime(requests)
@@ -64,7 +62,6 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			}
 
 			def requestDetailsLatencyChartComponent = {
-
 				val latencySuccessData = latencyByMillisecondAsList(dataMillis, OK)
 				val latencyFailuresData = latencyByMillisecondAsList(dataMillis, KO)
 
@@ -91,6 +88,9 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 				val (successPercentile1, successPercentile2) = percentiles(successRequests)
 				val (failedPercentile1, failedPercentile2) = percentiles(failedRequests)
 
+				val numberOfSuccessfulRequests = successRequests.length
+				val numberOfFailedRequests = numberOfRequests - numberOfSuccessfulRequests
+
 				val numberOfRequestsStatistics = new Statistics("numberOfRequests", numberOfRequests, numberOfSuccessfulRequests, numberOfFailedRequests)
 				val minResponseTimeStatistics = new Statistics("min", globalMinResponseTime, minResponseTime(successRequests), minResponseTime(failedRequests))
 				val maxResponseTimeStatistics = new Statistics("max", globalMaxResponseTime, maxResponseTime(successRequests), maxResponseTime(failedRequests))
@@ -103,7 +103,6 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			}
 
 			def requestDetailsScatterChartComponent = {
-
 				val requestsPerSecond = numberOfRequestsPerSecond(dataReader.realChartRequestRecordsGroupByExecutionStartDateInSeconds)
 				val dataSeconds = dataReader.requestRecordsGroupByExecutionStartDateInSeconds(requestName)
 				val scatterPlotSuccessData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, OK)
@@ -115,7 +114,6 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			}
 
 			def requestDetailsIndicatorChartComponent = {
-
 				val indicatorsColumnData = numberOfRequestInResponseTimeRange(requests, configuration.chartingIndicatorsLowerBound, configuration.chartingIndicatorsHigherBound)
 				val indicatorsPieData = indicatorsColumnData.map { case (name, count) => name -> count * 100 / numberOfRequests }
 				val indicatorsColumnSeries = new Series[String, Int](EMPTY, indicatorsColumnData, List(GREEN, YELLOW, ORANGE, RED))

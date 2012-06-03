@@ -35,20 +35,17 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 		val (successRequests, failedRequests) = requests.partition(_.requestStatus == OK)
 
 		val numberOfRequests = requests.length
-		val numberOfSuccessfulRequests = successRequests.length
-		val numberOfFailedRequests = numberOfRequests - numberOfSuccessfulRequests
 
 		val globalMinResponseTime = minResponseTime(requests)
 		val globalMaxResponseTime = maxResponseTime(requests)
 
 		def activeSessionsChartComponent = {
-			val activeSessionsData = dataReader
+			val activeSessionsSeries = dataReader
 				.scenarioNames
-				.map { scenarioName => (scenarioName, dataReader.scenarioChartRequestRecordsGroupByExecutionStartDateInSeconds(scenarioName)) }
-				.map { case (scenarioName, scenarioData) => scenarioName -> numberOfActiveSessionsPerSecond(scenarioData) }
-				.reverse
-
-			val activeSessionsSeries = activeSessionsData
+				.map { scenarioName =>
+					val scenarioData = dataReader.scenarioChartRequestRecordsGroupByExecutionStartDateInSeconds(scenarioName)
+					scenarioName -> numberOfActiveSessionsPerSecond(scenarioData)
+				}.reverse
 				.zip(List(BLUE, GREEN, RED, YELLOW, CYAN, LIME, PURPLE, PINK, LIGHT_BLUE, LIGHT_ORANGE, LIGHT_RED, LIGHT_LIME, LIGHT_PURPLE, LIGHT_PINK))
 				.map { case ((scenarioName, data), color) => new Series[Long, Int](scenarioName, data, List(color)) }
 
@@ -106,6 +103,9 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 			val (globalPercentile1, globalPercentile2) = percentiles(requests)
 			val (successPercentile1, successPercentile2) = percentiles(successRequests)
 			val (failedPercentile1, failedPercentile2) = percentiles(failedRequests)
+
+			val numberOfSuccessfulRequests = successRequests.length
+			val numberOfFailedRequests = numberOfRequests - numberOfSuccessfulRequests
 
 			val numberOfRequestsStatistics = new Statistics("numberOfRequests", numberOfRequests, numberOfSuccessfulRequests, numberOfFailedRequests)
 			val minResponseTimeStatistics = new Statistics("min", globalMinResponseTime, minResponseTime(successRequests), minResponseTime(failedRequests))
