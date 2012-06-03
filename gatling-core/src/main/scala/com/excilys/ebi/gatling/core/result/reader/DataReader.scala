@@ -16,9 +16,9 @@
 package com.excilys.ebi.gatling.core.result.reader
 
 import scala.collection.immutable.SortedMap
-
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RunRecord
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.RequestStatus
 
 object DataReader {
 	def newInstance(runOn: String) = configuration.dataReaderClass.getConstructor(classOf[String]).newInstance(runOn)
@@ -27,19 +27,18 @@ object DataReader {
 abstract class DataReader(runUuid: String) {
 
 	def runRecord: RunRecord
-	def realChartRequestRecords: Seq[ChartRequestRecord]
-
 	def requestNames: Seq[String]
 	def scenarioNames: Seq[String]
-
-	def requestRecordsGroupByExecutionStartDateInSeconds: SortedMap[Long, Seq[ChartRequestRecord]]
-	def scenarioChartRequestRecordsGroupByExecutionStartDateInSeconds(scenarioName: String): SortedMap[Long, Seq[ChartRequestRecord]]
-
-	def realChartRequestRecordsGroupByExecutionStartDateInSeconds: SortedMap[Long, Seq[ChartRequestRecord]]
-	def realChartRequestRecordsGroupByExecutionEndDateInSeconds: SortedMap[Long, Seq[ChartRequestRecord]]
-
-	def requestRecords(requestName: String): Seq[ChartRequestRecord]
-	def requestRecordsGroupByExecutionStartDate(requestName: String): SortedMap[Long, Seq[ChartRequestRecord]]
-	def requestRecordsGroupByExecutionStartDateInSeconds(requestName: String): SortedMap[Long, Seq[ChartRequestRecord]]
-
+	def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): List[(Long, Int)]
+	def numberOfEventsPerSecond(event: ChartRequestRecord => Long, status: Option[RequestStatus] = None, requestName: Option[String] = None): Map[Long, Int]
+	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String] = None): (Seq[(Long, Int)], Seq[(Long, Int)])
+	def percentiles(percentage1: Double, percentage2: Double, status: Option[RequestStatus] = None, requestName: Option[String] = None): (Long, Long)
+	def minResponseTime(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
+	def maxResponseTime(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
+	def countRequests(status: Option[RequestStatus] = None, requestName: Option[String] = None): Int
+	def meanResponseTime(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
+	def meanLatency(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
+	def responseTimeStandardDeviation(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
+	def numberOfRequestInResponseTimeRange(lowerBound: Int, higherBound: Int, requestName: Option[String] = None): List[(String, Int)]
+	def requestRecordsGroupByExecutionStartDate(requestName: String): Seq[(Long, Seq[ChartRequestRecord])]
 }

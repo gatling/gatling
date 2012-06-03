@@ -18,7 +18,8 @@ package com.excilys.ebi.gatling.charts.util
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
-import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ responseTimeStandardDeviation, responseTimePercentile, numberOfRequestInResponseTimeRange, minResponseTime, maxResponseTime, meanResponseTime, meanLatency, NO_PLOT_MAGIC_VALUE }
+
+import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ responseTimeStandardDeviation, percentiles, numberOfRequestInResponseTimeRange, minResponseTime, meanResponseTime, meanLatency, maxResponseTime, NO_PLOT_MAGIC_VALUE }
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
 import com.excilys.ebi.gatling.core.result.reader.ChartRequestRecord
 
@@ -48,22 +49,22 @@ class StatisticsHelperSpec extends Specification {
 	"minResponseTime" should {
 
 		"return NO_PLOT_MAGIC_VALUE for empty request data" in {
-			minResponseTime(Nil) must beEqualTo(NO_PLOT_MAGIC_VALUE)
+			minResponseTime(Nil, None, None) must beEqualTo(NO_PLOT_MAGIC_VALUE)
 		}
 
 		"return expected result for correct request data" in {
-			minResponseTime(testChartRequestRecords) must beEqualTo(2000)
+			minResponseTime(testChartRequestRecords, None, None) must beEqualTo(2000)
 		}
 	}
 
 	"maxResponseTime" should {
 
 		"return NO_PLOT_MAGIC_VALUE for empty request data" in {
-			maxResponseTime(Nil) must beEqualTo(NO_PLOT_MAGIC_VALUE)
+			maxResponseTime(Nil, None, None) must beEqualTo(NO_PLOT_MAGIC_VALUE)
 		}
 
 		"return expected result for correct request data" in {
-			maxResponseTime(testChartRequestRecords) must beEqualTo(9000)
+			maxResponseTime(testChartRequestRecords, None, None) must beEqualTo(9000)
 		}
 	}
 
@@ -101,32 +102,21 @@ class StatisticsHelperSpec extends Specification {
 	}
 
 	"responseTimePercentile" should {
-		"return expected result for the 0 percentile" in {
-			responseTimePercentile(testChartRequestRecords.sortBy(_.responseTime), 0) must beEqualTo(2000)
-		}
-		"return expected result for the 70 percentile" in {
-			responseTimePercentile(testChartRequestRecords.sortBy(_.responseTime), 0.70) must beEqualTo(5000)
+		"return expected result for the (0, 0.7) percentiles" in {
+			percentiles(testChartRequestRecords.sortBy(_.responseTime), 0, 0.7, None, None) must beEqualTo((2000, 5000))
 		}
 
-		"return expected result for the 95 percentile" in {
-			responseTimePercentile(testChartRequestRecords.sortBy(_.responseTime), 0.95) must beEqualTo(9000)
-		}
-
-		"return expected result for the 99.99 percentile" in {
-			responseTimePercentile(testChartRequestRecords.sortBy(_.responseTime), 0.9999) must beEqualTo(9000)
-		}
-
-		"return expected result for the 100 percentile" in {
-			responseTimePercentile(testChartRequestRecords.sortBy(_.responseTime), 1) must throwA[IndexOutOfBoundsException]
+		"return expected result for the (99.99, 100) percentiles" in {
+			percentiles(testChartRequestRecords.sortBy(_.responseTime), 0.9999, 1, None, None) must beEqualTo(9000)
 		}
 	}
 
 	"numberOfRequestInResponseTimeRange" should {
 		"indicate that all the request have their response time in between 0 and 100000" in {
-			numberOfRequestInResponseTimeRange(testChartRequestRecords, 0, 100000).map(_._2) must beEqualTo(List(0, 8, 0, 0))
+			numberOfRequestInResponseTimeRange(testChartRequestRecords, 0, 100000, None).map(_._2) must beEqualTo(List(0, 8, 0, 0))
 		}
 
-		val nRequestInResponseTimeRange = numberOfRequestInResponseTimeRange(testChartRequestRecords, 2500, 5000).map(_._2)
+		val nRequestInResponseTimeRange = numberOfRequestInResponseTimeRange(testChartRequestRecords, 2500, 5000, None).map(_._2)
 
 		"indicate that 1 request had a response time below 2500ms" in {
 			nRequestInResponseTimeRange(0) must beEqualTo(1)
