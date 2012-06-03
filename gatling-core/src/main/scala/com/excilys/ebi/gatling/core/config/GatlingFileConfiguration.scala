@@ -27,7 +27,7 @@ import grizzled.slf4j.Logging
 
 object GatlingFileConfiguration extends Logging {
 
-	val defaultPath = new File(GATLING_HOME).getCanonicalPath
+	val defaultPath = new File(GATLING_HOME).getCanonicalPath + "/conf"
 
 	private def fromFileSystem(file: File) = ConfigFactory.parseFile(file)
 
