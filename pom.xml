@@ -85,11 +85,11 @@
 		<encoding>UTF-8</encoding>
 		<scala.version>2.9.2</scala.version>
 		<ahc.version>1.7.5</ahc.version>
-		<akka.version>2.0.2-RC1</akka.version>
+		<akka.version>2.0.2</akka.version>
 		<jaxen.version>1.1.4</jaxen.version>
 		<xerces.version>2.11.0</xerces.version>
 		<xml-apis.version>1.4.01</xml-apis.version>
-		<logback.version>1.0.3</logback.version>
+		<logback.version>1.0.4</logback.version>
 		<slf4j.version>1.6.4</slf4j.version>
 		<scalate.version>1.5.3</scalate.version>
 		<netty.version>3.4.6.Final</netty.version>
