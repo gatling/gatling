@@ -80,7 +80,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		allRunRecords.head
 	}
 
-	def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): List[(Long, Int)] =
+	def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): Seq[(Long, Int)] =
 		StatisticsHelper.numberOfActiveSessionsPerSecond(requestRecords, scenarioName)
 
 	def numberOfEventsPerSecond(event: ChartRequestRecord => Long, status: Option[RequestStatus] = None, requestName: Option[String] = None): Map[Long, Int] =
@@ -110,7 +110,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	def responseTimeStandardDeviation(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long =
 		StatisticsHelper.responseTimeStandardDeviation(requestRecords, status, requestName): Long
 
-	def numberOfRequestInResponseTimeRange(lowerBound: Int, higherBound: Int, requestName: Option[String] = None): List[(String, Int)] =
+	def numberOfRequestInResponseTimeRange(lowerBound: Int, higherBound: Int, requestName: Option[String] = None): Seq[(String, Int)] =
 		StatisticsHelper.numberOfRequestInResponseTimeRange(requestRecords, lowerBound, higherBound, requestName)
 
 	def requestRecordsGroupByExecutionStartDate(requestName: String): Seq[(Long, Seq[ChartRequestRecord])] =

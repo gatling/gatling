@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.charts.config.ChartsFiles.requestFile
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.template.RequestDetailsPageTemplate
 import com.excilys.ebi.gatling.charts.util.Colors.{ toString, YELLOW, TRANSLUCID_RED, TRANSLUCID_BLUE, RED, ORANGE, GREEN, BLUE }
-import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ responseTimeByMillisecondAsList, respTimeAgainstNbOfReqPerSecond, latencyByMillisecondAsList }
+import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ responseTimeOverTime, respTimeAgainstNbOfReqPerSecond, latencyOverTime }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
 import com.excilys.ebi.gatling.core.result.reader.{ DataReader, ChartRequestRecord }
@@ -43,8 +43,8 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			val dataMillis = dataReader.requestRecordsGroupByExecutionStartDate(requestName)
 
 			def responseTimeChartComponent = {
-				val responseTimesSuccessData = responseTimeByMillisecondAsList(dataMillis, OK)
-				val responseTimesFailuresData = responseTimeByMillisecondAsList(dataMillis, KO)
+				val responseTimesSuccessData = responseTimeOverTime(dataMillis, OK)
+				val responseTimesFailuresData = responseTimeOverTime(dataMillis, KO)
 				val responseTimesSuccessSeries = new Series[Long, Long]("Response Time (success)", responseTimesSuccessData, List(BLUE))
 				val responseTimesFailuresSeries = new Series[Long, Long]("Response Time (failure)", responseTimesFailuresData, List(RED))
 
@@ -60,8 +60,8 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			}
 
 			def latencyChartComponent = {
-				val latencySuccessData = latencyByMillisecondAsList(dataMillis, OK)
-				val latencyFailuresData = latencyByMillisecondAsList(dataMillis, KO)
+				val latencySuccessData = latencyOverTime(dataMillis, OK)
+				val latencyFailuresData = latencyOverTime(dataMillis, KO)
 
 				val latencySuccessSeries = new Series[Long, Long]("Latency (success)", latencySuccessData, List(BLUE))
 				val latencyFailuresSeries = new Series[Long, Long]("Latency (failure)", latencyFailuresData, List(RED))

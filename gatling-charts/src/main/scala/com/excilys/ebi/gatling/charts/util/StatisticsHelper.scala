@@ -56,7 +56,7 @@ object StatisticsHelper {
 
 	def count(data: Seq[(Long, Int)]) = data.foldLeft(0)((sum, entry) => sum + entry._2)
 
-	def numberOfActiveSessionsPerSecond(requestRecords: Seq[ChartRequestRecord], scenarioName: Option[String]): List[(Long, Int)] = {
+	def numberOfActiveSessionsPerSecond(requestRecords: Seq[ChartRequestRecord], scenarioName: Option[String]): Seq[(Long, Int)] = {
 
 		val deltas = requestRecords.foldLeft(Map.empty[Long, Int]) { (map: Map[Long, Int], record: ChartRequestRecord) =>
 
@@ -242,7 +242,7 @@ object StatisticsHelper {
 			NO_PLOT_MAGIC_VALUE
 	}
 
-	def numberOfRequestInResponseTimeRange(data: Seq[ChartRequestRecord], lowerBound: Int, higherBound: Int, requestName: Option[String]): List[(String, Int)] = {
+	def numberOfRequestInResponseTimeRange(data: Seq[ChartRequestRecord], lowerBound: Int, higherBound: Int, requestName: Option[String]): Seq[(String, Int)] = {
 
 		val (firstCount, mediumCount, lastCount, koCount) = data.foldLeft((0, 0, 0, 0)) { (counts, record) =>
 			if (isRealRequest(record) && isRecordWithRequestName(record, requestName)) {
@@ -261,8 +261,7 @@ object StatisticsHelper {
 				counts
 		}
 
-		List(
-			("t < " + lowerBound + "ms", firstCount),
+		List(("t < " + lowerBound + "ms", firstCount),
 			(lowerBound + "ms < t < " + higherBound + "ms", mediumCount),
 			(higherBound + "ms < t", lastCount),
 			("failed", koCount))
@@ -273,13 +272,13 @@ object StatisticsHelper {
 		.groupBy(_.executionStartDateNoMillis)
 		.toSeq
 
-	def computationByMillisecondAsList(data: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus, computation: Seq[ChartRequestRecord] => Long): List[(Long, Long)] =
+	private def computationOverTime(data: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus, computation: Seq[ChartRequestRecord] => Long): Seq[(Long, Long)] =
 		data
 			.map { case (time, results) => time -> results.filter(_.requestStatus == requestStatus) }
 			.map { case (time, results) => time -> computation(results) }
-			.toList.sortBy(_._1)
+			.sortBy(_._1)
 
-	def responseTimeByMillisecondAsList(data: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus): List[(Long, Long)] = computationByMillisecondAsList(data, requestStatus, meanResponseTime)
+	def responseTimeOverTime(data: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus): Seq[(Long, Long)] = computationOverTime(data, requestStatus, meanResponseTime)
 
-	def latencyByMillisecondAsList(data: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus): List[(Long, Long)] = computationByMillisecondAsList(data, requestStatus, meanLatency)
+	def latencyOverTime(data: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus): Seq[(Long, Long)] = computationOverTime(data, requestStatus, meanLatency)
 }
