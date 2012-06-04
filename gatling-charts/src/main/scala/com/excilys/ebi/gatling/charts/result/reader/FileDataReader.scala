@@ -56,21 +56,21 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 					val executionStartDateLong = executionStartDate.toLong
 					requestRecords += ChartRequestRecord(scenarioName, userId.toInt, requestName, executionStartDateLong, executionEndDate.toLong, requestSendingEndDate.toLong, responseReceivingStartDate.toLong, RequestStatus.withName(resultStatus))
 					if (requestName != START_OF_SCENARIO && requestName != END_OF_SCENARIO) {
-						
+
 						val entryTime = requestNames.getOrElse(requestName, Long.MaxValue)
 						if (executionStartDateLong < entryTime)
 							requestNames += (requestName -> executionStartDateLong)
 					}
-					
+
 					val entryTime = scenarioNames.getOrElse(scenarioName, Long.MaxValue)
 					if (executionStartDateLong < entryTime)
-							scenarioNames += (scenarioName -> executionStartDateLong)
-					
+						scenarioNames += (scenarioName -> executionStartDateLong)
+
 				case record => logger.warn("Malformed line, skipping it : " + record.toList)
 			}
-		
+
 		val sortedRequestNames = requestNames.toSeq.sortBy(_._2).map(_._1)
-		val sortedScenarioNames = requestNames.toSeq.sortBy(_._2).map(_._1)
+		val sortedScenarioNames = scenarioNames.toSeq.sortBy(_._2).map(_._1)
 
 		(runRecords, requestRecords, sortedRequestNames, sortedScenarioNames)
 	}
