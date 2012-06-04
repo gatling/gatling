@@ -16,6 +16,7 @@
 package com.excilys.ebi.gatling.http.request
 
 import com.excilys.ebi.gatling.core.session.EvaluatableString
+import akka.util.ByteString
 
 /**
  * Class used for polymorphism only
@@ -35,6 +36,14 @@ case class StringBody(string: EvaluatableString) extends HttpRequestBody
  * @param filePath the path to the file containing the body
  */
 case class FilePathBody(filePath: String) extends HttpRequestBody
+
+/**
+ * Wraps a body that is an immutable byteString
+ *
+ * @param byte the bytestring containing the body
+*/
+
+case class ByteStringBody(byteString : ByteString) extends HttpRequestBody
 
 /**
  * Wraps a body that requires template compilation

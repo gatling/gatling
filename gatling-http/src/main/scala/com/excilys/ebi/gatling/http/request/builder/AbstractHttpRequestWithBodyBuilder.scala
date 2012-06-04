@@ -30,8 +30,9 @@ import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestWithBodyBuilder.TEMPLATE_ENGINE
-import com.excilys.ebi.gatling.http.request.{ TemplateBody, StringBody, HttpRequestBody, FilePathBody }
+import com.excilys.ebi.gatling.http.request.{ TemplateBody,ByteStringBody, StringBody, HttpRequestBody, FilePathBody }
 import com.ning.http.client.{ RequestBuilder, Realm }
+import akka.util.ByteString
 
 object AbstractHttpRequestWithBodyBuilder {
 	val TEMPLATE_ENGINE = new TemplateEngine(List(GatlingFiles.requestBodiesFolder))
@@ -112,6 +113,13 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	def fileBody(filePath: String): B = newInstance(requestName, url, queryParams, headers, Some(FilePathBody(filePath)), realm, checks)
 
 	/**
+	 * Adds a body from a byteString to the request
+	 *
+	 * @param byteString - The ByteString from which to build the body
+	 */
+	def byteStringBody(byteString : ByteString): B = newInstance(requestName, url, queryParams, headers, Some(ByteStringBody(byteString)), realm, checks)
+
+	/**
 	 * Adds a body from a template that has to be compiled
 	 *
 	 * @param tplPath the path to the template relative to GATLING_TEMPLATES_FOLDER
@@ -134,6 +142,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 			case Some(thing) =>
 				thing match {
 					case FilePathBody(filePath) => requestBuilder.setBody((GatlingFiles.requestBodiesFolder / filePath).jfile)
+					case ByteStringBody(byteString) => requestBuilder.setBody(byteString.toByteBuffer.array)
 					case StringBody(body) => requestBuilder.setBody(body(session))
 					case TemplateBody(tplPath, values) => requestBuilder.setBody(compileBody(tplPath, values, session))
 					case _ =>
