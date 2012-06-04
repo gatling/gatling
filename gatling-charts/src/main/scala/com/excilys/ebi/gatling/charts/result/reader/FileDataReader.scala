@@ -72,7 +72,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		val sortedRequestNames = requestNames.toSeq.sortBy(_._2).map(_._1)
 		val sortedScenarioNames = requestNames.toSeq.sortBy(_._2).map(_._1)
 
-		(runRecords, requestRecords, sortedScenarioNames, sortedScenarioNames)
+		(runRecords, requestRecords, sortedRequestNames, sortedScenarioNames)
 	}
 
 	val runRecord = {
@@ -80,7 +80,6 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		allRunRecords.head
 	}
 
-	/////////////////////////////////////
 	def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): List[(Long, Int)] =
 		StatisticsHelper.numberOfActiveSessionsPerSecond(requestRecords, scenarioName)
 
