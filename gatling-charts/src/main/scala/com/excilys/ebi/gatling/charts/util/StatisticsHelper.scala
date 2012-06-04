@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.charts.util
 
 import scala.annotation.{ tailrec, implicitNotFound }
 import scala.collection.SortedMap
-import scala.math.{ sqrt, round, pow, max }
+import scala.math.{ sqrt, round, pow, max, min }
 import scala.util.Sorting
 
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
@@ -181,7 +181,7 @@ object StatisticsHelper {
 			if (sortedRecords.length == 0)
 				NO_PLOT_MAGIC_VALUE
 			else {
-				val limitIndex = round(percentage * sortedRecords.length + 0.5).toInt - 1
+				val limitIndex = min(round(percentage * sortedRecords.length + 0.5).toInt, sortedRecords.length)  - 1
 				sortedRecords(limitIndex)
 			}
 		}

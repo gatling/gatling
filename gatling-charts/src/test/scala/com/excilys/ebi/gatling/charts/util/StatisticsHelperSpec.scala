@@ -103,11 +103,11 @@ class StatisticsHelperSpec extends Specification {
 
 	"responseTimePercentile" should {
 		"return expected result for the (0, 0.7) percentiles" in {
-			percentiles(testChartRequestRecords.sortBy(_.responseTime), 0, 0.7, None, None) must beEqualTo((2000, 5000))
+			percentiles(testChartRequestRecords.sortBy(_.responseTime), 0, 0.7, None, None) must beEqualTo((2000, 7000))
 		}
 
 		"return expected result for the (99.99, 100) percentiles" in {
-			percentiles(testChartRequestRecords.sortBy(_.responseTime), 0.9999, 1, None, None) must beEqualTo(9000)
+			percentiles(testChartRequestRecords.sortBy(_.responseTime), 0.9999, 1, None, None) must beEqualTo(9000, 9000)
 		}
 	}
 
