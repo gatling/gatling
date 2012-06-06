@@ -43,7 +43,7 @@ case class FilePathBody(filePath: String) extends HttpRequestBody
  * @param byte the bytestring containing the body
 */
 
-case class ByteStringBody(byteString : ByteString) extends HttpRequestBody
+case class ByteArrayBody(byteArray : () => Array[Byte]) extends HttpRequestBody
 
 /**
  * Wraps a body that requires template compilation
