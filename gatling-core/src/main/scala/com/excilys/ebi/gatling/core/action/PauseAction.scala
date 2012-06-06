@@ -50,8 +50,10 @@ class PauseAction(next: ActorRef, generateDelayInMillis: () => Long) extends Act
 			info(new StringBuilder().append("Pausing for ").append(durationInMillis).append("ms (real=").append(durationMinusTimeShift).append("ms)"))
 
 			val pauseStart = currentTimeMillis
-
-			system.scheduler.scheduleOnce(durationMinusTimeShift milliseconds)(next ! session.setTimeShift(currentTimeMillis - pauseStart))
+			system.scheduler.scheduleOnce(durationMinusTimeShift milliseconds) {
+				val newTimeShift = currentTimeMillis - pauseStart - durationInMillis
+				next ! session.setTimeShift(newTimeShift)
+			}
 
 		} else {
 			// time shift is too big
