@@ -30,10 +30,8 @@ import akka.actor.{ Props, ActorRef, Actor }
 
 object DataWriter {
 
-	private lazy val dataWriter: ActorRef = init
+	private lazy val dataWriter: ActorRef = system.actorOf(Props(configuration.dataWriterClass))
 	private val console: ActorRef = system.actorOf(Props(classOf[ConsoleDataWriter]))
-
-	private def init = system.actorOf(Props(configuration.dataWriterClass))
 
 	private def dispatch(message: Any) {
 		dataWriter ! message
