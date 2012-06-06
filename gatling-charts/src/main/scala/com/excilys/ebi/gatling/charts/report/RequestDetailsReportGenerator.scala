@@ -15,14 +15,12 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import scala.util.Sorting
-
 import com.excilys.ebi.gatling.charts.component.{ StatisticsTextComponent, Statistics, ComponentLibrary }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.requestFile
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.template.RequestDetailsPageTemplate
 import com.excilys.ebi.gatling.charts.util.Colors.{ toString, YELLOW, TRANSLUCID_RED, TRANSLUCID_BLUE, RED, ORANGE, GREEN, BLUE }
-import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ responseTimeStandardDeviation, responseTimePercentile, responseTimeDistribution, responseTimeByMillisecondAsList, respTimeAgainstNbOfReqPerSecond, numberOfRequestsPerSecond, numberOfRequestInResponseTimeRange, minResponseTime, meanResponseTime, maxResponseTime, latencyByMillisecondAsList }
+import com.excilys.ebi.gatling.charts.util.StatisticsHelper.{ responseTimeOverTime, respTimeAgainstNbOfReqPerSecond, latencyOverTime }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
 import com.excilys.ebi.gatling.core.result.reader.{ DataReader, ChartRequestRecord }
@@ -32,41 +30,38 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 
 	def generate {
 		dataReader.requestNames.foreach { requestName =>
-			val requests = dataReader.requestRecords(requestName)
-			val (successRequests, failedRequests) = requests.partition(_.requestStatus == OK)
-
-			val numberOfRequests = requests.length
-			val numberOfSuccessfulRequests = successRequests.length
-			val numberOfFailedRequests = numberOfRequests - numberOfSuccessfulRequests
-
-			val globalMinResponseTime = minResponseTime(requests)
-			val globalMaxResponseTime = maxResponseTime(requests)
+			val totalCount = dataReader.countRequests(None, Some(requestName))
+			val okCount = dataReader.countRequests(Some(OK), Some(requestName))
+			val koCount = totalCount - okCount
+			val globalMinResponseTime = dataReader.minResponseTime(None, Some(requestName))
+			val globalMaxResponseTime = dataReader.maxResponseTime(None, Some(requestName))
+			val okMinResponseTime = dataReader.minResponseTime(Some(OK), Some(requestName))
+			val okMaxResponseTime = dataReader.maxResponseTime(Some(OK), Some(requestName))
+			val koMinResponseTime = dataReader.minResponseTime(Some(KO), Some(requestName))
+			val koMaxResponseTime = dataReader.maxResponseTime(Some(KO), Some(requestName))
 
 			val dataMillis = dataReader.requestRecordsGroupByExecutionStartDate(requestName)
 
-			def requestDetailsResponseTimeChartComponent = {
-				val responseTimesSuccessData = responseTimeByMillisecondAsList(dataMillis, OK)
-				val responseTimesFailuresData = responseTimeByMillisecondAsList(dataMillis, KO)
+			def responseTimeChartComponent = {
+				val responseTimesSuccessData = responseTimeOverTime(dataMillis, OK)
+				val responseTimesFailuresData = responseTimeOverTime(dataMillis, KO)
 				val responseTimesSuccessSeries = new Series[Long, Long]("Response Time (success)", responseTimesSuccessData, List(BLUE))
 				val responseTimesFailuresSeries = new Series[Long, Long]("Response Time (failure)", responseTimesFailuresData, List(RED))
 
 				componentLibrary.getRequestDetailsResponseTimeChartComponent(responseTimesSuccessSeries, responseTimesFailuresSeries)
 			}
 
-			def requestDetailsResponseTimeDistributionChartComponent = {
-				val successDistribution = responseTimeDistribution(successRequests, globalMinResponseTime, globalMaxResponseTime, 100, numberOfRequests)
-				val failedDistribution = responseTimeDistribution(failedRequests, globalMinResponseTime, globalMaxResponseTime, 100, numberOfRequests)
+			def responseTimeDistributionChartComponent = {
+				val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100, Some(requestName))
+				val okDistributionSeries = new Series[Long, Int]("Success", okDistribution, List(BLUE))
+				val koDistributionSeries = new Series[Long, Int]("Failure", koDistribution, List(RED))
 
-				val responseTimesSuccessDistributionSeries = new Series[Long, Int]("Success", successDistribution, List(BLUE))
-				val responseTimesFailuresDistributionSeries = new Series[Long, Int]("Failure", failedDistribution, List(RED))
-
-				componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(responseTimesSuccessDistributionSeries, responseTimesFailuresDistributionSeries)
+				componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
 			}
 
-			def requestDetailsLatencyChartComponent = {
-
-				val latencySuccessData = latencyByMillisecondAsList(dataMillis, OK)
-				val latencyFailuresData = latencyByMillisecondAsList(dataMillis, KO)
+			def latencyChartComponent = {
+				val latencySuccessData = latencyOverTime(dataMillis, OK)
+				val latencyFailuresData = latencyOverTime(dataMillis, KO)
 
 				val latencySuccessSeries = new Series[Long, Long]("Latency (success)", latencySuccessData, List(BLUE))
 				val latencyFailuresSeries = new Series[Long, Long]("Latency (failure)", latencyFailuresData, List(RED))
@@ -74,50 +69,46 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 				componentLibrary.getRequestDetailsLatencyChartComponent(latencySuccessSeries, latencyFailuresSeries)
 			}
 
-			def statisticsTextComponent = {
+			def statisticsComponent = {
 				val percent1 = configuration.chartingIndicatorsPercentile1 / 100.0
 				val percent2 = configuration.chartingIndicatorsPercentile2 / 100.0
 
-				def percentiles(requests: Seq[ChartRequestRecord]) = {
-					implicit val ordering = Ordering.by((_: ChartRequestRecord).responseTime)
-					val sortedRequests = Sorting.stableSort(requests)
-					val percentile1 = responseTimePercentile(sortedRequests, percent1)
-					val percentile2 = responseTimePercentile(sortedRequests, percent2)
+				val (globalPercentile1, globalPercentile2) = dataReader.percentiles(percent1, percent2, None, Some(requestName))
+				val (successPercentile1, successPercentile2) = dataReader.percentiles(percent1, percent2, Some(OK), Some(requestName))
+				val (failedPercentile1, failedPercentile2) = dataReader.percentiles(percent1, percent2, Some(KO), Some(requestName))
 
-					(percentile1, percentile2)
-				}
+				val globalMeanResponseTime = dataReader.meanResponseTime(None, Some(requestName))
+				val okMeanResponseTime = dataReader.meanResponseTime(Some(OK), Some(requestName))
+				val koMeanResponseTime = dataReader.meanResponseTime(Some(KO), Some(requestName))
+				val globalStandardDeviation = dataReader.responseTimeStandardDeviation(None, Some(requestName))
+				val okStandardDeviation = dataReader.responseTimeStandardDeviation(Some(OK), Some(requestName))
+				val koStandardDeviation = dataReader.responseTimeStandardDeviation(Some(KO), Some(requestName))
 
-				val (globalPercentile1, globalPercentile2) = percentiles(requests)
-				val (successPercentile1, successPercentile2) = percentiles(successRequests)
-				val (failedPercentile1, failedPercentile2) = percentiles(failedRequests)
-
-				val numberOfRequestsStatistics = new Statistics("numberOfRequests", numberOfRequests, numberOfSuccessfulRequests, numberOfFailedRequests)
-				val minResponseTimeStatistics = new Statistics("min", globalMinResponseTime, minResponseTime(successRequests), minResponseTime(failedRequests))
-				val maxResponseTimeStatistics = new Statistics("max", globalMaxResponseTime, maxResponseTime(successRequests), maxResponseTime(failedRequests))
-				val meanStatistics = new Statistics("mean", meanResponseTime(requests), meanResponseTime(successRequests), meanResponseTime(failedRequests))
-				val stdDeviationStatistics = new Statistics("stdDeviation", responseTimeStandardDeviation(requests), responseTimeStandardDeviation(successRequests), responseTimeStandardDeviation(failedRequests))
+				val numberOfRequestsStatistics = new Statistics("numberOfRequests", totalCount, okCount, koCount)
+				val minResponseTimeStatistics = new Statistics("min", globalMinResponseTime, okMinResponseTime, koMinResponseTime)
+				val maxResponseTimeStatistics = new Statistics("max", globalMaxResponseTime, okMaxResponseTime, koMaxResponseTime)
+				val meanStatistics = new Statistics("mean", globalMeanResponseTime, okMeanResponseTime, koMeanResponseTime)
+				val stdDeviationStatistics = new Statistics("stdDeviation", globalStandardDeviation, okStandardDeviation, koStandardDeviation)
 				val percentiles1 = new Statistics("percentiles1", globalPercentile1, successPercentile1, failedPercentile1)
 				val percentiles2 = new Statistics("percentiles2", globalPercentile2, successPercentile2, failedPercentile2)
 
 				new StatisticsTextComponent(numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanStatistics, stdDeviationStatistics, percentiles1, percentiles2)
 			}
 
-			def requestDetailsScatterChartComponent = {
-
-				val requestsPerSecond = numberOfRequestsPerSecond(dataReader.realChartRequestRecordsGroupByExecutionStartDateInSeconds)
-				val dataSeconds = dataReader.requestRecordsGroupByExecutionStartDateInSeconds(requestName)
-				val scatterPlotSuccessData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, OK)
-				val scatterPlotFailuresData = respTimeAgainstNbOfReqPerSecond(requestsPerSecond, dataSeconds, KO)
+			def scatterChartComponent = {
+				val all = dataReader.numberOfEventsPerSecond((record: ChartRequestRecord) => record.executionStartDateNoMillis)
+				val dataSeconds = dataReader.requestRecordsGroupByExecutionStartDate(requestName)
+				val scatterPlotSuccessData = respTimeAgainstNbOfReqPerSecond(all, dataSeconds, OK)
+				val scatterPlotFailuresData = respTimeAgainstNbOfReqPerSecond(all, dataSeconds, KO)
 				val scatterPlotSuccessSeries = new Series[Int, Long]("Successes", scatterPlotSuccessData, List(TRANSLUCID_BLUE))
 				val scatterPlotFailuresSeries = new Series[Int, Long]("Failures", scatterPlotFailuresData, List(TRANSLUCID_RED))
 
 				componentLibrary.getRequestDetailsScatterChartComponent(scatterPlotSuccessSeries, scatterPlotFailuresSeries)
 			}
 
-			def requestDetailsIndicatorChartComponent = {
-
-				val indicatorsColumnData = numberOfRequestInResponseTimeRange(requests, configuration.chartingIndicatorsLowerBound, configuration.chartingIndicatorsHigherBound)
-				val indicatorsPieData = indicatorsColumnData.map { case (name, count) => name -> count * 100 / numberOfRequests }
+			def indicatorChartComponent = {
+				val indicatorsColumnData = dataReader.numberOfRequestInResponseTimeRange(configuration.chartingIndicatorsLowerBound, configuration.chartingIndicatorsHigherBound, Some(requestName))
+				val indicatorsPieData = indicatorsColumnData.map { case (name, count) => name -> count * 100 / totalCount }
 				val indicatorsColumnSeries = new Series[String, Int](EMPTY, indicatorsColumnData, List(GREEN, YELLOW, ORANGE, RED))
 				val indicatorsPieSeries = new Series[String, Int](EMPTY, indicatorsPieData, List(GREEN, YELLOW, ORANGE, RED))
 
@@ -127,12 +118,12 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			// Create template
 			val template =
 				new RequestDetailsPageTemplate(requestName.substring(8),
-					requestDetailsResponseTimeChartComponent,
-					requestDetailsResponseTimeDistributionChartComponent,
-					requestDetailsLatencyChartComponent,
-					statisticsTextComponent,
-					requestDetailsScatterChartComponent,
-					requestDetailsIndicatorChartComponent)
+					responseTimeChartComponent,
+					responseTimeDistributionChartComponent,
+					latencyChartComponent,
+					statisticsComponent,
+					scatterChartComponent,
+					indicatorChartComponent)
 
 			// Write template result to file
 			new TemplateWriter(requestFile(runOn, requestName)).writeToFile(template.getOutput)
