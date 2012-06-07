@@ -35,6 +35,5 @@ class RedisQueueFeeder(feederSource: RedisSource) extends Feeder with Logging {
         }
         Map(feederSource.key -> value)
     }
-
   }
 }

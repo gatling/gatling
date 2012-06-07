@@ -16,7 +16,6 @@
 package com.excilys.ebi.gatling.http.request
 
 import com.excilys.ebi.gatling.core.session.EvaluatableString
-import akka.util.ByteString
 
 /**
  * Class used for polymorphism only
