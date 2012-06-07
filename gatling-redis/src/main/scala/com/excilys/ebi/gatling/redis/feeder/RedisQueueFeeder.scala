@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.feeder.redis
+package com.excilys.ebi.gatling.redis.feeder
 
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.redis.RedisClientPool
@@ -29,6 +29,7 @@ class RedisQueueFeeder(feederSource: RedisSource) extends Feeder with Logging {
       client =>
         val value = client.lpop(feederSource.key).getOrElse {
           error("There are not enough records in the feeder '" + feederSource.key + "'.\nPlease add records or use another feeder strategy.\nStopping simulation here...")
+          feederSource.clientPool.pool.close
           system.shutdown
           sys.exit
         }

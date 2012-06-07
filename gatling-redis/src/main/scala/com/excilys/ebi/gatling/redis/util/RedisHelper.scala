@@ -13,12 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.feeder.redis
+package com.excilys.ebi.gatling.core.feeder.redis.util
 
-import com.redis.RedisClientPool
+object RedisHelper {
 
-class RedisFeederSource(_clientPool : RedisClientPool,
-					    _key: String) extends RedisSource {
-  lazy val key: String = _key
-  lazy val clientPool : RedisClientPool = _clientPool
+  /* 
+    Generate Redis protocol required for mass insert
+    i.e  generateRedisProtocol("LPUSH", "SIM", "SOMETHING COOL!")
+  */
+  def generateRedisProtocol(d: String*) = {
+    var protocol = ""
+    val length = d.toList.length
+    protocol = "*" + length + "\r\n"
+    d.toList map {
+      case x =>
+        protocol = protocol + "$" + x.length + "\r\n" + x + "\r\n"
+    }
+    protocol
+  }
+
 }

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.feeder.redis
+package com.excilys.ebi.gatling.redis.feeder
 
 
 object RedisBasedFeederBuilder {
-	implicit def redisFeederBuilderToFeeder(builder: RedisBasedFeederBuilder[_]) = builder.queue
+   implicit def redisFeederBuilderToFeeder(builder: RedisBasedFeederBuilder[_]) = builder.queue
 }
 
 abstract class RedisBasedFeederBuilder[B <: RedisSource] {
@@ -28,9 +28,9 @@ abstract class RedisBasedFeederBuilder[B <: RedisSource] {
 	def queue = new RedisQueueFeeder(source)
 
 	//With SRAND
-	//def random = new RandomFeeder(source)
+	//def random = new RedisRandomFeeder(source)
 
 	//With Redis Lists RPOPLPUSH ??
-	//def circular = new CircularFeeder(source)
+	//def circular = new RedisCircularFeeder(source)
 }
 

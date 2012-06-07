@@ -25,7 +25,6 @@ import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesFeederBuilder
 import com.excilys.ebi.gatling.core.session.handler.{ TimerBasedIterationHandler, CounterBasedIterationHandler }
 import com.excilys.ebi.gatling.core.structure.{ ScenarioBuilder, ChainBuilder }
 import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
-import com.excilys.ebi.gatling.core.feeder.redis.RedisFeederBuilder
 
 object Predef {
 	implicit def sessionFunctionToSimpleActionBuilder(sessionFunction: Session => Session) = simpleActionBuilder(sessionFunction)
@@ -44,8 +43,6 @@ object Predef {
 	def ssv(fileName: String, escapeChar: Char) = SeparatedValuesFeederBuilder.ssv(fileName, Some(escapeChar))
 	def tsv(fileName: String) = SeparatedValuesFeederBuilder.tsv(fileName)
 	def tsv(fileName: String, escapeChar: Char) = SeparatedValuesFeederBuilder.tsv(fileName, Some(escapeChar))
-
-	def redisfeed(clients: RedisClientPool, key: String) = RedisFeederBuilder.redisFeeder(clients, key)
 	
 	type Session = com.excilys.ebi.gatling.core.session.Session
 	type Simulation = com.excilys.ebi.gatling.core.scenario.configuration.Simulation

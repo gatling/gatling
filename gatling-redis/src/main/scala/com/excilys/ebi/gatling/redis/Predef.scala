@@ -13,17 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.feeder.redis
-
-import com.excilys.ebi.gatling.core.feeder.SourceBasedFeederBuilder
+package com.excilys.ebi.gatling.redis
+import com.excilys.ebi.gatling.redis.feeder.RedisFeederBuilder
 import com.redis.RedisClientPool
 
-object RedisFeederBuilder {
-	def redisFeeder(clients : RedisClientPool, key: String) = new RedisFeederBuilder(clients, key)
+object Predef {
+    def redisfeed(clients: RedisClientPool, key: String) = RedisFeederBuilder.redisFeeder(clients, key)
 }
-
-class RedisFeederBuilder(clients : RedisClientPool, key: String) extends RedisBasedFeederBuilder[RedisFeederSource] {
-	protected lazy val source = new RedisFeederSource(clients, key)
-}
-
-

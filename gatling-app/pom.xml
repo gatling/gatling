@@ -21,6 +21,10 @@
 		</dependency>
 		<dependency>
 			<groupId>com.excilys.ebi.gatling</groupId>
+			<artifactId>gatling-redis</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.excilys.ebi.gatling</groupId>
 			<artifactId>gatling-charts</artifactId>
 		</dependency>
 		<dependency>
