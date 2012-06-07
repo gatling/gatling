@@ -38,9 +38,9 @@ case class StringBody(string: EvaluatableString) extends HttpRequestBody
 case class FilePathBody(filePath: String) extends HttpRequestBody
 
 /**
- * Wraps a body that is an immutable byteString
+ * Wraps a body that is a Byte Array
  *
- * @param byte the bytestring containing the body
+ * @param byteArray the Array[Byte] for the body
 */
 
 case class ByteArrayBody(byteArray : () => Array[Byte]) extends HttpRequestBody

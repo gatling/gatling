@@ -24,7 +24,7 @@ abstract class RedisBasedFeederBuilder[B <: RedisSource] {
 
 	protected def source: B
 
-	//With SPOP
+	//With LPOP
 	def queue = new RedisQueueFeeder(source)
 
 	//With SRAND
