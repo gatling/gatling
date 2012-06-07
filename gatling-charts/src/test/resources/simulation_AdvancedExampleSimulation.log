@@ -1,5 +1,5 @@
-RUN	20120607202804	run	 
-ACTION	Scenario name	1	Start of scenario	1339093685791	1339093685791	1339093685791	1339093685791	OK	Start of scenario
+RUN	20120607202804	run1	interesting test run	some extra noisy informations
+ACTION	Scenario name	1	Start of scenario	1339093685791	1339093685791	1339093685791	1339093685791	OK	Start of scenario	this is an extra info	this one too
 ACTION	Scenario name	1	Request request_1	1339093685804	1339093686361	1339093686175	1339093686360	OK	Request executed successfully
 ACTION	Scenario name	1	Request request_2	1339093686443	1339093686638	1339093686447	1339093686638	OK	Request executed successfully
 ACTION	Scenario name	2	Start of scenario	1339093686891	1339093686891	1339093686891	1339093686891	OK	Start of scenario

@@ -51,11 +51,11 @@ class FileDataReader(path: Path) extends DataReader(path) with Logging {
 		val requestNames = new mutable.HashMap[String, Long]
 		val scenarioNames = new mutable.HashMap[String, Long]
 
-		(for (line <- Source.fromFile(path.jfile, configuration.encoding).getLines) yield TABULATION_PATTERN.split(line, 0))
+		(for (line <- Source.fromFile(path.jfile, configuration.encoding).getLines) yield TABULATION_PATTERN.split(line, 0).toList)
 			.foreach {
-				case Array(RUN, runDate, runId, runDescription) =>
+				case RUN :: runDate :: runId :: runDescription :: l =>
 					runRecords += RunRecord(parseTimestampString(runDate), runId.intern, runDescription.trim.intern)
-				case Array(ACTION, scenarioName, userId, requestName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage) =>
+				case ACTION :: scenarioName :: userId :: requestName :: executionStartDate :: executionEndDate :: requestSendingEndDate :: responseReceivingStartDate :: resultStatus :: resultMessage :: l =>
 					val executionStartDateLong = executionStartDate.toLong
 					requestRecords += ChartRequestRecord(scenarioName, userId.toInt, requestName, executionStartDateLong, executionEndDate.toLong, requestSendingEndDate.toLong, responseReceivingStartDate.toLong, RequestStatus.withName(resultStatus))
 					if (requestName != START_OF_SCENARIO && requestName != END_OF_SCENARIO) {
@@ -69,7 +69,7 @@ class FileDataReader(path: Path) extends DataReader(path) with Logging {
 					if (executionStartDateLong < entryTime)
 						scenarioNames += (scenarioName -> executionStartDateLong)
 
-				case record => logger.warn("Malformed line, skipping it : " + record.toList)
+				case record => logger.warn("Malformed line, skipping it : " + record)
 			}
 
 		val sortedRequestNames = requestNames.toSeq.sortBy(_._2).map(_._1)
