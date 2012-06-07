@@ -17,4 +17,15 @@ package com.excilys.ebi.gatling.core.feeder.redis
 
 object RedisHelper {
 
+  def generateRedisProtocol(d: String*) = {
+    var protocol = ""
+    val length = d.toList.length
+    protocol = "*" + length + "\r\n"
+    d.toList map {
+      case x =>
+        protocol = protocol + "$" + x.length + "\r\n" + x + "\r\n"
+    }
+    protocol
+  }
+
 }

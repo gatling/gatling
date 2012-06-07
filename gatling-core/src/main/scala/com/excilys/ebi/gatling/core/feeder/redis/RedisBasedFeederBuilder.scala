@@ -20,7 +20,6 @@ object RedisBasedFeederBuilder {
 	implicit def redisFeederBuilderToFeeder(builder: RedisBasedFeederBuilder[_]) = builder.queue
 }
 
-
 abstract class RedisBasedFeederBuilder[B <: RedisSource] {
 
 	protected def source: B

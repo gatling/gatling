@@ -16,20 +16,11 @@
 package com.excilys.ebi.gatling.core.feeder.redis
 
 import com.excilys.ebi.gatling.core.feeder.Feeder
-
 import com.redis.RedisClientPool
-
-import java.util.concurrent.ConcurrentLinkedQueue
-
-import scala.collection.JavaConverters.seqAsJavaListConverter
 import com.redis._
 import serialization._
-
 import com.excilys.ebi.gatling.core.action.system
-
 import grizzled.slf4j.Logging
-
-//import Parse.Implicits.parseByteArray
 
 class RedisQueueFeeder(feederSource: RedisSource) extends Feeder with Logging {
 
