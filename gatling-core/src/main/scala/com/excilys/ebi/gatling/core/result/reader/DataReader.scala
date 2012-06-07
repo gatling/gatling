@@ -15,15 +15,17 @@
  */
 package com.excilys.ebi.gatling.core.result.reader
 
+import scala.tools.nsc.io.Path
+
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.RequestStatus
 import com.excilys.ebi.gatling.core.result.message.RunRecord
 
 object DataReader {
-	def newInstance(runOn: String) = configuration.dataReaderClass.getConstructor(classOf[String]).newInstance(runOn)
+	def newInstance(runOn: Path) = configuration.dataReaderClass.getConstructor(classOf[Path]).newInstance(runOn)
 }
 
-abstract class DataReader(runUuid: String) {
+abstract class DataReader(path: Path) {
 
 	def runRecord: RunRecord
 	def requestNames: Seq[String]
