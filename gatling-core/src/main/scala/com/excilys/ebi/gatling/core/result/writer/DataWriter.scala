@@ -17,8 +17,6 @@ package com.excilys.ebi.gatling.core.result.writer
 
 import java.util.concurrent.CountDownLatch
 
-import scala.math.max
-
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.system
@@ -46,11 +44,8 @@ object DataWriter {
 
 	def askFlush = dispatch(FlushDataWriter)
 
-	def logRequest(scenarioName: String, userId: Int, requestName: String, executionStartDate: Long, executionEndDate: Long, requestSendingEndDate: Long, responseReceivingStartDate: Long, requestResult: RequestStatus.RequestStatus, requestMessage: String) = {
-		val coherentExecutionEndDate = max(executionStartDate, executionEndDate)
-		val coherentResponseReceivingStartDate = max(requestSendingEndDate, responseReceivingStartDate)
-		dispatch(RequestRecord(scenarioName, userId, requestName, executionStartDate, coherentExecutionEndDate, requestSendingEndDate, coherentResponseReceivingStartDate, requestResult, requestMessage))
-	}
+	def logRequest(scenarioName: String, userId: Int, requestName: String, executionStartDate: Long, executionEndDate: Long, requestSendingEndDate: Long, responseReceivingStartDate: Long, requestResult: RequestStatus.RequestStatus, requestMessage: String) =
+		dispatch(RequestRecord(scenarioName, userId, requestName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, requestResult, requestMessage))
 }
 
 /**
