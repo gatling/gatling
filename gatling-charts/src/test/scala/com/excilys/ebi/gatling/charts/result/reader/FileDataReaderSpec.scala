@@ -17,10 +17,9 @@ package com.excilys.ebi.gatling.charts.result.reader
 
 import scala.tools.nsc.io.Path
 
-import org.joda.time.DateTime
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
 import org.specs2.mutable.Specification
+import org.specs2.runner.JUnitRunner
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration
 import com.excilys.ebi.gatling.core.result.message.RunRecord
@@ -29,7 +28,7 @@ import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
 @RunWith(classOf[JUnitRunner])
 class FileDataReaderSpec extends Specification {
 
-	val advancedSimulationLog = Path("src/test/resources/simulation_AdvancedExampleSimulation.log")
+	def advancedSimulationLog(foo: String) = Path(List("src", "test", "resources")).toDirectory
 
 	//The file data reader needs to know the encoding, use default conf.
 	GatlingConfiguration.setUp(None, None, None, None, None)
@@ -39,12 +38,12 @@ class FileDataReaderSpec extends Specification {
 	"FileDataReader" should {
 
 		"be able to read a simulation_AdvancedExampleSimulation.log file" in {
-			advancedDataReader = new FileDataReader(advancedSimulationLog)
+			advancedDataReader = new FileDataReader("", advancedSimulationLog)
 			advancedDataReader must not be null
 		}
 
 		"find the two correct scenarios" in {
-			advancedDataReader.scenarioNames must haveTheSameElementsAs(List("Scenario name", "Other Scenario Name"))
+			advancedDataReader.scenarioNames must beEqualTo(List("Scenario name", "Other Scenario Name"))
 		}
 
 		"find the two correct scenarios" in {

@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.core.result.writer
 import java.io.{ OutputStreamWriter, FileOutputStream, BufferedOutputStream }
 import java.util.concurrent.CountDownLatch
 
-import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogFile
+import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogDirectory
 import com.excilys.ebi.gatling.core.result.message.RecordType.{ RUN, ACTION }
 import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, InitializeDataWriter, FlushDataWriter }
 import com.excilys.ebi.gatling.core.util.DateHelper.toTimestamp
@@ -47,7 +47,8 @@ class FileDataWriter extends DataWriter with Logging {
 	def uninitialized: Receive = {
 		case InitializeDataWriter(runRecord, totalUsersCount, latch, encoding) =>
 			this.latch = latch
-			osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(simulationLogFile(runRecord.runUuid).toString)), encoding)
+			val simulationLog = simulationLogDirectory(runRecord.runUuid) / "simulation.log"
+			osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(simulationLog.toString)), encoding)
 			osw.append(RUN).append(TABULATION_SEPARATOR)
 				.append(toTimestamp(runRecord.runDate)).append(TABULATION_SEPARATOR)
 				.append(runRecord.runId).append(TABULATION_SEPARATOR)

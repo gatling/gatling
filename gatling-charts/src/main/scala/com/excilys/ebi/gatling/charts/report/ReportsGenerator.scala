@@ -23,7 +23,7 @@ import com.excilys.ebi.gatling.charts.component.impl.ComponentLibraryImpl
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.menuFile
 import com.excilys.ebi.gatling.charts.template.{ PageTemplate, MenuTemplate }
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{ simulationLogFile, styleFolder, jsFolder, GATLING_ASSETS_STYLE_PACKAGE, GATLING_ASSETS_JS_PACKAGE }
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{ styleFolder, jsFolder, GATLING_ASSETS_STYLE_PACKAGE, GATLING_ASSETS_JS_PACKAGE }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.util.FileHelper.{ formatToFilename, HTML_EXTENSION }
 import com.excilys.ebi.gatling.core.util.ScanHelper.deepCopyPackageContent
@@ -56,8 +56,7 @@ object ReportsGenerator extends Logging {
 
 	def generateFor(runUuid: String) = {
 
-		val simulationLog = simulationLogFile(runUuid)
-		val dataReader = DataReader.newInstance(simulationLog)
+		val dataReader = DataReader.newInstance(runUuid)
 
 		def generateMenu {
 
