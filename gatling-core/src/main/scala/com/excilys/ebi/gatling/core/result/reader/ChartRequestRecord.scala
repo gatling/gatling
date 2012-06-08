@@ -23,8 +23,8 @@ object ChartRequestRecord {
 
 	def apply(scenarioName: String, userId: Int, requestName: String, executionStartDate: Long, executionEndDate: Long, requestSendingEndDate: Long, responseReceivingStartDate: Long, requestStatus: RequestStatus) = {
 
-		val responseTime = executionEndDate - executionStartDate;
-		val latency = responseReceivingStartDate - requestSendingEndDate;
+		val responseTime = executionEndDate - executionStartDate
+		val latency = responseReceivingStartDate - requestSendingEndDate
 		val executionStartDateNoMillis = new DateTime(executionStartDate).withMillisOfSecond(0).getMillis
 		val executionEndDateNoMillis = new DateTime(executionEndDate).withMillisOfSecond(0).getMillis
 

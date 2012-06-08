@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import java.lang.System.currentTimeMillis
-
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 
@@ -46,7 +44,7 @@ class StartAction(next: ActorRef) extends Action with Logging {
 	 */
 	def execute(session: Session) {
 
-		DataWriter.startUser(session.scenarioName, session.userId, currentTimeMillis)
+		DataWriter.startUser(session.scenarioName, session.userId)
 		info("Starting user #" + session.userId)
 		next ! session
 	}

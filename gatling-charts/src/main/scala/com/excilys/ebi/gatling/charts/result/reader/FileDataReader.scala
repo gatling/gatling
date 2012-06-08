@@ -51,20 +51,25 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		(for (line <- Source.fromFile(simulationLogFile(runUuid).jfile, configuration.encoding).getLines) yield TABULATION_PATTERN.split(line, 0))
 			.foreach {
 				case Array(RUN, runDate, runId, runDescription) =>
-					runRecords += RunRecord(parseTimestampString(runDate), runId.intern, runDescription.trim.intern)
+					runRecords += RunRecord(parseTimestampString(runDate), runId, runDescription)
 				case Array(ACTION, scenarioName, userId, requestName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage) =>
 					val executionStartDateLong = executionStartDate.toLong
-					requestRecords += ChartRequestRecord(scenarioName, userId.toInt, requestName, executionStartDateLong, executionEndDate.toLong, requestSendingEndDate.toLong, responseReceivingStartDate.toLong, RequestStatus.withName(resultStatus))
-					if (requestName != START_OF_SCENARIO && requestName != END_OF_SCENARIO) {
+					val record = ChartRequestRecord(scenarioName, userId.toInt, requestName, executionStartDateLong, executionEndDate.toLong, requestSendingEndDate.toLong, responseReceivingStartDate.toLong, RequestStatus.withName(resultStatus))
 
-						val entryTime = requestNames.getOrElse(requestName, Long.MaxValue)
+					if (record.responseTime >= 0) {
+						requestRecords += record
+						if (requestName != START_OF_SCENARIO && requestName != END_OF_SCENARIO) {
+
+							val entryTime = requestNames.getOrElse(requestName, Long.MaxValue)
+							if (executionStartDateLong < entryTime)
+								requestNames += (requestName -> executionStartDateLong)
+						}
+
+						val entryTime = scenarioNames.getOrElse(scenarioName, Long.MaxValue)
 						if (executionStartDateLong < entryTime)
-							requestNames += (requestName -> executionStartDateLong)
-					}
-
-					val entryTime = scenarioNames.getOrElse(scenarioName, Long.MaxValue)
-					if (executionStartDateLong < entryTime)
-						scenarioNames += (scenarioName -> executionStartDateLong)
+							scenarioNames += (scenarioName -> executionStartDateLong)
+					} else
+						logger.info("Point is irrelevant, probably due to currentTimeMillis unprecision, skipping it" + record.requestName + " at " + record.executionStartDateNoMillis)
 
 				case record => logger.warn("Malformed line, skipping it : " + record.toList)
 			}

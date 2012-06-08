@@ -15,7 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import java.lang.System.currentTimeMillis
 import java.util.concurrent.CountDownLatch
 
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
@@ -47,7 +46,7 @@ class EndAction(latch: CountDownLatch) extends Action with Logging {
 	 */
 	def execute(session: Session) {
 
-		DataWriter.endUser(session.scenarioName, session.userId, currentTimeMillis)
+		DataWriter.endUser(session.scenarioName, session.userId)
 		latch.countDown
 		info("Done user #" + session.userId)
 	}
