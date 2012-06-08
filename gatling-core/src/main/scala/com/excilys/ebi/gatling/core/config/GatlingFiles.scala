@@ -16,8 +16,9 @@
 package com.excilys.ebi.gatling.core.config
 
 import scala.tools.nsc.io.Path.string2path
+import scala.tools.nsc.io.{ Path, Directory }
+
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import scala.tools.nsc.io.Path
 
 object GatlingFiles {
 	val GATLING_HOME = Option(System.getenv("GATLING_HOME")).getOrElse(".")
@@ -39,9 +40,8 @@ object GatlingFiles {
 	def jsFolder(runUuid: String): Path = resultFolder(runUuid) / GATLING_JS
 	def styleFolder(runUuid: String): Path = resultFolder(runUuid) / GATLING_STYLE
 	def rawDataFolder(runUuid: String): Path = resultFolder(runUuid) / "rawdata"
-	def simulationLogDirectory(runUuid: String): Path = {
+	def simulationLogDirectory(runUuid: String): Directory = {
 		val dir = resultFolder(runUuid)
 		dir.createDirectory()
-		dir
 	}
 }
