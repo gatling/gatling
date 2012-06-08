@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>gatling-parent</artifactId>
 		<groupId>com.excilys.ebi.gatling</groupId>
-		<version>1.2.1-SNAPSHOT</version>
+		<version>1.2.1</version>
 	</parent>
 	<artifactId>gatling-charts</artifactId>
 	<name>${project.artifactId}</name>
