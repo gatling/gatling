@@ -16,6 +16,7 @@
 package com.excilys.ebi.gatling.http.ahc
 
 import java.lang.System.currentTimeMillis
+import java.lang.System.nanoTime
 import java.net.URLDecoder
 
 import scala.annotation.tailrec
@@ -50,27 +51,30 @@ object GatlingAsyncHandlerActor {
 class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], next: ActorRef, var requestName: String, var request: Request, followRedirect: Boolean, gatlingConfiguration: GatlingConfiguration) extends Actor with Logging with CookieHandling {
 
 	var executionStartDate = currentTimeMillis
+	var executionStartDateNanos = nanoTime
 	var requestSendingEndDate = 0L
 	var responseReceivingStartDate = 0L
 	var executionEndDate = 0L
 
 	resetTimeout
+	
+	private def computeTimeFromNanos(nanos: Long) = (nanos - executionStartDateNanos) / 1000000 + executionStartDate
 
 	def receive = {
-		case OnHeaderWriteCompleted(time) =>
+		case OnHeaderWriteCompleted(nanos) =>
 			resetTimeout
-			requestSendingEndDate = time
+			requestSendingEndDate = computeTimeFromNanos(nanos)
 
-		case OnContentWriteCompleted(time) =>
+		case OnContentWriteCompleted(nanos) =>
 			resetTimeout
-			requestSendingEndDate = time
+			requestSendingEndDate = computeTimeFromNanos(nanos)
 
-		case OnStatusReceived(time) =>
+		case OnStatusReceived(nanos) =>
 			resetTimeout
-			responseReceivingStartDate = time
+			responseReceivingStartDate = computeTimeFromNanos(nanos)
 
-		case OnCompleted(response, time) =>
-			executionEndDate = time
+		case OnCompleted(response, nanos) =>
+			executionEndDate = computeTimeFromNanos(nanos)
 			processResponse(response)
 
 		case OnThrowable(errorMessage, time) =>
@@ -114,6 +118,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 				this.requestName = newRequestName
 				this.request = newRequest
 				this.executionStartDate = currentTimeMillis
+				this.executionStartDateNanos = nanoTime
 				this.requestSendingEndDate = 0L
 				this.responseReceivingStartDate = 0L
 				this.executionEndDate = 0L
