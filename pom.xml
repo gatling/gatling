@@ -119,6 +119,8 @@
 		<maven-license-plugin.version>1.10.b1</maven-license-plugin.version>
 		<maven-plugin-plugin.version>2.9</maven-plugin-plugin.version>
 		<build-helper-maven-plugin.version>1.7</build-helper-maven-plugin.version>
+
+		<header.basedir>${project.basedir}</header.basedir>
 	</properties>
 
 	<dependencyManagement>
@@ -414,7 +416,7 @@
 					<artifactId>maven-license-plugin</artifactId>
 					<version>${maven-license-plugin.version}</version>
 					<configuration>
-						<header>src/etc/header.txt</header>
+						<header>${header.basedir}/src/etc/header.txt</header>
 						<strictCheck>false</strictCheck>
 						<excludes>
 							<exclude>**/jquery.min.js</exclude>
