@@ -51,11 +51,11 @@ class FileDataReader(path: Path) extends DataReader(path) with Logging {
 		val requestNames = new mutable.HashMap[String, Long]
 		val scenarioNames = new mutable.HashMap[String, Long]
 
-		(for (line <- Source.fromFile(path.jfile, configuration.encoding).getLines) yield TABULATION_PATTERN.split(line, 0))
+		(for (line <- Source.fromFile(path.jfile, configuration.encoding).getLines) yield TABULATION_PATTERN.split(line, 0).toList)
 			.foreach {
-				case Array(RUN, runDate, runId, runDescription) =>
+				case RUN :: runDate :: runId :: runDescription :: l =>
 					runRecords += RunRecord(parseTimestampString(runDate), runId, runDescription)
-				case Array(ACTION, scenarioName, userId, requestName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage) =>
+				case ACTION :: scenarioName :: userId :: requestName :: executionStartDate :: executionEndDate :: requestSendingEndDate :: responseReceivingStartDate :: resultStatus :: resultMessage :: l =>
 					val executionStartDateLong = executionStartDate.toLong
 					val record = ChartRequestRecord(scenarioName, userId.toInt, requestName, executionStartDateLong, executionEndDate.toLong, requestSendingEndDate.toLong, responseReceivingStartDate.toLong, RequestStatus.withName(resultStatus))
 
@@ -74,7 +74,7 @@ class FileDataReader(path: Path) extends DataReader(path) with Logging {
 					} else
 						logger.info("Point is irrelevant, probably due to currentTimeMillis unprecision, skipping it" + record.requestName + " at " + record.executionStartDateNoMillis)
 
-				case record => logger.warn("Malformed line, skipping it : " + record.toList)
+				case record => logger.warn("Malformed line, skipping it : " + record)
 			}
 
 		val sortedRequestNames = requestNames.toSeq.sortBy(_._2).map(_._1)
