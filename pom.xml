@@ -15,6 +15,7 @@
 		<module>gatling-charts</module>
 		<module>gatling-bundle</module>
 		<module>gatling-maven-plugin</module>
+		<module>gatling-redis</module>
 	</modules>
 
 	<licenses>
@@ -136,6 +137,11 @@
 			<dependency>
 				<groupId>com.excilys.ebi.gatling</groupId>
 				<artifactId>gatling-jdbc</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.excilys.ebi.gatling</groupId>
+				<artifactId>gatling-redis</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

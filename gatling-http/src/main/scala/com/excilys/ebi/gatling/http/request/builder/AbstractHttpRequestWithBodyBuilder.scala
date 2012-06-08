@@ -30,15 +30,16 @@ import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestWithBodyBuilder.TEMPLATE_ENGINE
-import com.excilys.ebi.gatling.http.request.{ TemplateBody, StringBody, HttpRequestBody, FilePathBody }
+import com.excilys.ebi.gatling.http.request.{ TemplateBody, ByteArrayBody, StringBody, HttpRequestBody, FilePathBody }
 import com.ning.http.client.{ RequestBuilder, Realm }
+import akka.util.ByteString
 
 object AbstractHttpRequestWithBodyBuilder {
-	val TEMPLATE_ENGINE = new TemplateEngine(List(GatlingFiles.requestBodiesFolder))
-	TEMPLATE_ENGINE.allowReload = false
-	TEMPLATE_ENGINE.escapeMarkup = false
-	// Register engine shutdown
-	system.registerOnTermination(TEMPLATE_ENGINE.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown)
+  val TEMPLATE_ENGINE = new TemplateEngine(List(GatlingFiles.requestBodiesFolder))
+  TEMPLATE_ENGINE.allowReload = false
+  TEMPLATE_ENGINE.escapeMarkup = false
+  // Register engine shutdown
+  system.registerOnTermination(TEMPLATE_ENGINE.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown)
 }
 
 /**
@@ -52,108 +53,120 @@ object AbstractHttpRequestWithBodyBuilder {
  * @param realm sets the realm in case of Basic HTTP Authentication
  */
 abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](
-	requestName: String,
-	method: String,
-	url: EvaluatableString,
-	queryParams: List[HttpParam],
-	headers: Map[String, EvaluatableString],
-	body: Option[HttpRequestBody],
-	realm: Option[Session => Realm],
-	checks: List[HttpCheck])
-		extends AbstractHttpRequestBuilder[B](requestName, method, url, queryParams, headers, realm, checks) {
+  requestName: String,
+  method: String,
+  url: EvaluatableString,
+  queryParams: List[HttpParam],
+  headers: Map[String, EvaluatableString],
+  body: Option[HttpRequestBody],
+  realm: Option[Session => Realm],
+  checks: List[HttpCheck])
+  extends AbstractHttpRequestBuilder[B](requestName, method, url, queryParams, headers, realm, checks) {
 
-	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
-		val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
-		configureBody(requestBuilder, body, session)
-		requestBuilder
-	}
+  protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
+    val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
+    configureBody(requestBuilder, body, session)
+    requestBuilder
+  }
 
-	/**
-	 * Method overridden in children to create a new instance of the correct type
-	 *
-	 * @param httpRequestActionBuilder the HttpRequestActionBuilder with which this builder is linked
-	 * @param url the function returning the url
-	 * @param queryParams the query parameters that should be added to the request
-	 * @param headers the headers that should be added to the request
-	 * @param body the body that should be added to the request
-	 * @param realm sets the realm in case of Basic HTTP Authentication
-	 */
-	private[http] def newInstance(
-		requestName: String,
-		url: EvaluatableString,
-		queryParams: List[HttpParam],
-		headers: Map[String, EvaluatableString],
-		body: Option[HttpRequestBody],
-		realm: Option[Session => Realm],
-		checks: List[HttpCheck]): B
+  /**
+   * Method overridden in children to create a new instance of the correct type
+   *
+   * @param httpRequestActionBuilder the HttpRequestActionBuilder with which this builder is linked
+   * @param url the function returning the url
+   * @param queryParams the query parameters that should be added to the request
+   * @param headers the headers that should be added to the request
+   * @param body the body that should be added to the request
+   * @param realm sets the realm in case of Basic HTTP Authentication
+   */
+  private[http] def newInstance(
+    requestName: String,
+    url: EvaluatableString,
+    queryParams: List[HttpParam],
+    headers: Map[String, EvaluatableString],
+    body: Option[HttpRequestBody],
+    realm: Option[Session => Realm],
+    checks: List[HttpCheck]): B
 
-	private[http] def newInstance(
-		requestName: String,
-		url: EvaluatableString,
-		queryParams: List[HttpParam],
-		headers: Map[String, EvaluatableString],
-		realm: Option[Session => Realm],
-		checks: List[HttpCheck]): B = {
-		newInstance(requestName, url, queryParams, headers, body, realm, checks)
-	}
+  private[http] def newInstance(
+    requestName: String,
+    url: EvaluatableString,
+    queryParams: List[HttpParam],
+    headers: Map[String, EvaluatableString],
+    realm: Option[Session => Realm],
+    checks: List[HttpCheck]): B = {
+    newInstance(requestName, url, queryParams, headers, body, realm, checks)
+  }
 
-	/**
-	 * Adds a body to the request
-	 *
-	 * @param body a string containing the body of the request
-	 */
-	def body(body: EvaluatableString): B = newInstance(requestName, url, queryParams, headers, Some(StringBody(body)), realm, checks)
+  /**
+   * Adds a body to the request
+   *
+   * @param body a string containing the body of the request
+   */
+  def body(body: EvaluatableString): B = newInstance(requestName, url, queryParams, headers, Some(StringBody(body)), realm, checks)
 
-	/**
-	 * Adds a body from a file to the request
-	 *
-	 * @param filePath the path of the file relative to GATLING_REQUEST_BODIES_FOLDER
-	 */
-	def fileBody(filePath: String): B = newInstance(requestName, url, queryParams, headers, Some(FilePathBody(filePath)), realm, checks)
+  /**
+   * Adds a body from a file to the request
+   *
+   * @param filePath the path of the file relative to GATLING_REQUEST_BODIES_FOLDER
+   */
+  def fileBody(filePath: String): B = newInstance(requestName, url, queryParams, headers, Some(FilePathBody(filePath)), realm, checks)
 
-	/**
-	 * Adds a body from a template that has to be compiled
-	 *
-	 * @param tplPath the path to the template relative to GATLING_TEMPLATES_FOLDER
-	 * @param values the values that should be merged into the template
-	 */
-	def fileBody(tplPath: String, values: Map[String, String]): B = {
-		val evaluatableValues = values.map { entry => entry._1 -> parseEvaluatable(entry._2) }
-		newInstance(requestName, url, queryParams, headers, Some(TemplateBody(tplPath, evaluatableValues)), realm, checks)
-	}
+  /**
+   * Adds a body from a byteString to the request
+   *
+   * @param byteString - The ByteString from which to build the body
+   */
+  def byteArrayBody(byteString: () => Array[Byte]): B = newInstance(requestName, url, queryParams, headers, Some(ByteArrayBody(byteString)), realm, checks)
 
-	/**
-	 * This method adds the body to the request builder
-	 *
-	 * @param requestBuilder the request builder to which the body should be added
-	 * @param body the body that should be added
-	 * @param session the session of the current scenario
-	 */
-	private def configureBody(requestBuilder: RequestBuilder, body: Option[HttpRequestBody], session: Session) {
-		body match {
-			case Some(thing) =>
-				thing match {
-					case FilePathBody(filePath) => requestBuilder.setBody((GatlingFiles.requestBodiesFolder / filePath).jfile)
-					case StringBody(body) => requestBuilder.setBody(body(session))
-					case TemplateBody(tplPath, values) => requestBuilder.setBody(compileBody(tplPath, values, session))
-					case _ =>
-				}
-			case None =>
-		}
-	}
+  /**
+   * Adds a body from a template that has to be compiled
+   *
+   * @param tplPath the path to the template relative to GATLING_TEMPLATES_FOLDER
+   * @param values the values that should be merged into the template
+   */
+  def fileBody(tplPath: String, values: Map[String, String]): B = {
+    val evaluatableValues = values.map { entry => entry._1 -> parseEvaluatable(entry._2) }
+    newInstance(requestName, url, queryParams, headers, Some(TemplateBody(tplPath, evaluatableValues)), realm, checks)
+  }
 
-	/**
-	 * This method compiles the template for a TemplateBody
-	 *
-	 * @param tplPath the path to the template relative to GATLING_TEMPLATES_FOLDER
-	 * @param values the values that should be merged into the template
-	 * @param session the session of the current scenario
-	 */
-	private def compileBody(tplPath: String, values: Map[String, EvaluatableString], session: Session): String = {
+  /**
+   * This method adds the body to the request builder
+   *
+   * @param requestBuilder the request builder to which the body should be added
+   * @param body the body that should be added
+   * @param session the session of the current scenario
+   */
+  private def configureBody(requestBuilder: RequestBuilder, body: Option[HttpRequestBody], session: Session) {
+    body match {
+      case Some(thing) =>
+        thing match {
+          case FilePathBody(filePath) => requestBuilder.setBody((GatlingFiles.requestBodiesFolder / filePath).jfile)
+          case ByteArrayBody(byteArray) =>
+            val body = byteArray()
+            requestBuilder.setBody(body)
+            requestBuilder.setHeader("Content-Length",
+            						 body.length.toString)
+          case StringBody(body) => requestBuilder.setBody(body(session))
+          case TemplateBody(tplPath, values) => requestBuilder.setBody(compileBody(tplPath, values, session))
+          case _ =>
+        }
+      case None =>
+    }
+  }
 
-		val bindings = for (value <- values) yield Binding(value._1, "String")
-		val templateValues = for (value <- values) yield (value._1 -> (value._2(session)))
+  /**
+   * This method compiles the template for a TemplateBody
+   *
+   * @param tplPath the path to the template relative to GATLING_TEMPLATES_FOLDER
+   * @param values the values that should be merged into the template
+   * @param session the session of the current scenario
+   */
+  private def compileBody(tplPath: String, values: Map[String, EvaluatableString], session: Session): String = {
 
-		TEMPLATE_ENGINE.layout(tplPath + SSP_EXTENSION, templateValues, bindings)
-	}
+    val bindings = for (value <- values) yield Binding(value._1, "String")
+    val templateValues = for (value <- values) yield (value._1 -> (value._2(session)))
+
+    TEMPLATE_ENGINE.layout(tplPath + SSP_EXTENSION, templateValues, bindings)
+  }
 }

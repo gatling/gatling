@@ -16,6 +16,7 @@
 package com.excilys.ebi.gatling.core
 
 import java.util.concurrent.TimeUnit
+import com.redis.RedisClientPool
 
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
 import com.excilys.ebi.gatling.core.check.{ ExtractorCheckBuilder, CheckBuilder, Check }
@@ -42,7 +43,7 @@ object Predef {
 	def ssv(fileName: String, escapeChar: Char) = SeparatedValuesFeederBuilder.ssv(fileName, Some(escapeChar))
 	def tsv(fileName: String) = SeparatedValuesFeederBuilder.tsv(fileName)
 	def tsv(fileName: String, escapeChar: Char) = SeparatedValuesFeederBuilder.tsv(fileName, Some(escapeChar))
-
+	
 	type Session = com.excilys.ebi.gatling.core.session.Session
 	type Simulation = com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 
