@@ -24,21 +24,20 @@ import org.specs2.runner.JUnitRunner
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration
 import com.excilys.ebi.gatling.core.result.message.RunRecord
 import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 @RunWith(classOf[JUnitRunner])
 class FileDataReaderSpec extends Specification {
 
-	def advancedSimulationLog(foo: String) = Path(List("src", "test", "resources")).toDirectory
-
 	//The file data reader needs to know the encoding, use default conf.
-	GatlingConfiguration.setUp(None, None, None, None, None)
+	GatlingConfiguration.setUp(None, None, None, Some(Path(List("src", "test", "resources")).toString), None)
 
 	var advancedDataReader: FileDataReader = null
 
 	"FileDataReader" should {
 
 		"be able to read a simulation_AdvancedExampleSimulation.log file" in {
-			advancedDataReader = new FileDataReader("", advancedSimulationLog)
+			advancedDataReader = new FileDataReader(EMPTY)
 			advancedDataReader must not be null
 		}
 
