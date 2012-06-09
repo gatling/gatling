@@ -30,7 +30,7 @@ import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestWithBodyBuilder.TEMPLATE_ENGINE
-import com.excilys.ebi.gatling.http.request.{ TemplateBody, StringBody, HttpRequestBody, FilePathBody }
+import com.excilys.ebi.gatling.http.request.{ TemplateBody, StringBody,ByteArrayBody, HttpRequestBody, FilePathBody }
 import com.ning.http.client.{ RequestBuilder, Realm }
 
 object AbstractHttpRequestWithBodyBuilder {
@@ -123,6 +123,14 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	}
 
 	/**
+	   * Adds a body from a byteArray to the request
+	   *
+	   * @param byteArray - The callback function which returns the ByteArray from which to build the body
+	*/
+	def byteArrayBody(byteArray: () => Array[Byte]): B = newInstance(requestName, url, queryParams, headers, Some(ByteArrayBody(byteArray)), 		realm, checks)
+
+
+	/**
 	 * This method adds the body to the request builder
 	 *
 	 * @param requestBuilder the request builder to which the body should be added
@@ -136,6 +144,11 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 					case FilePathBody(filePath) => requestBuilder.setBody((GatlingFiles.requestBodiesFolder / filePath).jfile)
 					case StringBody(body) => requestBuilder.setBody(body(session))
 					case TemplateBody(tplPath, values) => requestBuilder.setBody(compileBody(tplPath, values, session))
+					case ByteArrayBody(byteArray) =>
+							    val body = byteArray()
+							    requestBuilder.setBody(body)
+							    requestBuilder.setHeader("Content-Length",
+							   			    body.length.toString)
 					case _ =>
 				}
 			case None =>
