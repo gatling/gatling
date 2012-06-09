@@ -27,7 +27,7 @@ class RequestRecordSpec extends Specification {
     "have sensible defaults for optional parameters" in {
       val record: RequestRecord = RequestRecord("scenarioName", 1, "requestName", 0L, 0L, 0L, 0L, OK, "requestMessage")
 
-      record.extraRequestInfo should beEmpty
+      record.extraInfo should beEmpty
     }
 
   }

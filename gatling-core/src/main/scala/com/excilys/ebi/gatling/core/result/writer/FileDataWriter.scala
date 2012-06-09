@@ -27,6 +27,31 @@ import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 
 import grizzled.slf4j.Logging
 
+object FileDataWriter {
+
+  private[writer] def append(appendable:Appendable, requestRecord:RequestRecord) {
+
+    appendable.append(ACTION).append(TABULATION_SEPARATOR)
+      .append(requestRecord.scenarioName).append(TABULATION_SEPARATOR)
+      .append(requestRecord.userId.toString).append(TABULATION_SEPARATOR)
+      .append(requestRecord.requestName).append(TABULATION_SEPARATOR)
+      .append(requestRecord.executionStartDate.toString).append(TABULATION_SEPARATOR)
+      .append(requestRecord.executionEndDate.toString).append(TABULATION_SEPARATOR)
+      .append(requestRecord.requestSendingEndDate.toString).append(TABULATION_SEPARATOR)
+      .append(requestRecord.responseReceivingStartDate.toString).append(TABULATION_SEPARATOR)
+      .append(requestRecord.requestStatus.toString).append(TABULATION_SEPARATOR)
+      .append(requestRecord.requestMessage)
+
+    requestRecord.extraInfo.foreach((info: String) => {
+      //TODO sanitize info
+      appendable.append(TABULATION_SEPARATOR).append(info)
+    })
+
+    appendable.append(END_OF_LINE)
+  }
+
+}
+
 /**
  * File implementation of the DataWriter
  *
@@ -62,18 +87,8 @@ class FileDataWriter extends DataWriter with Logging {
 	}
 
 	def initialized: Receive = {
-		case RequestRecord(scenarioName, userId, actionName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage, extraRequestInfo, extraResponseInfo) =>
-			osw.append(ACTION).append(TABULATION_SEPARATOR)
-				.append(scenarioName).append(TABULATION_SEPARATOR)
-				.append(userId.toString).append(TABULATION_SEPARATOR)
-				.append(actionName).append(TABULATION_SEPARATOR)
-				.append(executionStartDate.toString).append(TABULATION_SEPARATOR)
-				.append(executionEndDate.toString).append(TABULATION_SEPARATOR)
-				.append(requestSendingEndDate.toString).append(TABULATION_SEPARATOR)
-				.append(responseReceivingStartDate.toString).append(TABULATION_SEPARATOR)
-				.append(resultStatus.toString).append(TABULATION_SEPARATOR)
-				.append(resultMessage)
-				.append(END_OF_LINE)
+		case requestRecord:RequestRecord =>
+			FileDataWriter.append(osw, requestRecord)
 
 		case FlushDataWriter =>
 			info("Received flush order")

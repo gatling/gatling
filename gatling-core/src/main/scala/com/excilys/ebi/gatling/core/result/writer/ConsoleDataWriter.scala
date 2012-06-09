@@ -50,7 +50,7 @@ class ConsoleDataWriter extends DataWriter with Logging {
 	}
 
 	def initialized: Receive = {
-		case RequestRecord(scenarioName, userId, actionName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage, extraRequestInfo, extraResponseInfo) =>
+		case RequestRecord(scenarioName, userId, actionName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage, extraInfo) =>
 
 			actionName match {
 				case START_OF_SCENARIO => activeUsersCount += 1
