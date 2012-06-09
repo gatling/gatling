@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 		http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,21 +16,26 @@
 package com.excilys.ebi.gatling.http.config
 
 import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
-import com.ning.http.client.ProxyServer
+import com.ning.http.client.{Request, ProxyServer}
 
 /**
  * HttpProtocolConfiguration class companion
  */
 object HttpProtocolConfiguration {
-	val HTTP_PROTOCOL_TYPE = "httpProtocol"
+  val HTTP_PROTOCOL_TYPE = "httpProtocol"
 }
 
 /**
  * Class containing the configuration for the HTTP protocol
  *
- * @param baseUrl the radix of all the URLs that will be used (eg: http://mywebsite.tld)
+ * @param baseURL the radix of all the URLs that will be used (eg: http://mywebsite.tld)
  * @param proxy a proxy through which all the requests must pass to succeed
  */
-case class HttpProtocolConfiguration(baseURL: Option[String], proxy: Option[ProxyServer], securedProxy: Option[ProxyServer], followRedirectEnabled: Boolean, automaticRefererEnabled: Boolean, baseHeaders: Map[String, String]) extends ProtocolConfiguration {
-	val protocolType = HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE
+case class HttpProtocolConfiguration(baseURL: Option[String],
+                                     proxy: Option[ProxyServer], securedProxy: Option[ProxyServer],
+                                     followRedirectEnabled: Boolean, automaticRefererEnabled: Boolean,
+                                     baseHeaders: Map[String, String],
+                                     extraRequestInfoExtractor: Option[(Request => List[String])])
+  extends ProtocolConfiguration {
+  val protocolType = HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE
 }

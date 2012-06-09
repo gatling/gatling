@@ -25,6 +25,18 @@
 			<artifactId>scalate-core</artifactId>
 		</dependency>
 
+        <!-- test -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.specs2</groupId>
+            <artifactId>specs2_2.9.2</artifactId>
+            <scope>test</scope>
+        </dependency>
+
 		<!-- runtime -->
 		<dependency>
 			<groupId>io.netty</groupId>
