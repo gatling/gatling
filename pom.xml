@@ -9,6 +9,7 @@
 	<modules>
 		<module>gatling-core</module>
 		<module>gatling-jdbc</module>
+		<module>gatling-redis</module>
 		<module>gatling-http</module>
 		<module>gatling-app</module>
 		<module>gatling-recorder</module>
@@ -136,6 +137,11 @@
 			<dependency>
 				<groupId>com.excilys.ebi.gatling</groupId>
 				<artifactId>gatling-jdbc</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.excilys.ebi.gatling</groupId>
+				<artifactId>gatling-redis</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
