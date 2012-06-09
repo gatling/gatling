@@ -15,9 +15,8 @@
  */
 package com.excilys.ebi.gatling.redis.feeder
 
-
 object RedisBasedFeederBuilder {
-   implicit def redisFeederBuilderToFeeder(builder: RedisBasedFeederBuilder[_]) = builder.queue
+	implicit def redisFeederBuilderToFeeder(builder: RedisBasedFeederBuilder[_]) = builder.queue
 }
 
 abstract class RedisBasedFeederBuilder[B <: RedisSource] {
@@ -33,4 +32,3 @@ abstract class RedisBasedFeederBuilder[B <: RedisSource] {
 	//With Redis Lists RPOPLPUSH ??
 	//def circular = new RedisCircularFeeder(source)
 }
-

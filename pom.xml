@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.excilys.ebi.gatling</groupId>
 	<artifactId>gatling-parent</artifactId>
@@ -30,8 +31,8 @@
 		<connection>scm:git:git@github.com:excilys/gatling.git</connection>
 		<developerConnection>scm:git:git@github.com:excilys/gatling.git</developerConnection>
 		<url>https://github.com/excilys/gatling</url>
-	  <tag>HEAD</tag>
-  </scm>
+		<tag>HEAD</tag>
+	</scm>
 
 	<distributionManagement>
 		<repository>
@@ -107,6 +108,7 @@
 		<commons-math3.version>3.0</commons-math3.version>
 		<jodd.version>3.3.3</jodd.version>
 		<asm.version>4.0</asm.version>
+		<redis.version>2.5</redis.version>
 		<junit.version>4.10</junit.version>
 		<specs2.version>1.10</specs2.version>
 
@@ -340,6 +342,11 @@
 						<artifactId>asm</artifactId>
 					</exclusion>
 				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>net.debasishg</groupId>
+				<artifactId>redisclient_2.9.1</artifactId>
+				<version>${redis.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.ow2.asm</groupId>

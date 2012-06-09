@@ -17,7 +17,4 @@ package com.excilys.ebi.gatling.redis.feeder
 
 import com.redis.RedisClientPool
 
-class RedisFeederSource(_clientPool : RedisClientPool, _key: String) extends RedisSource {
-  lazy val key: String = _key
-  lazy val clientPool : RedisClientPool = _clientPool
-}
+class RedisFeederSource(val clientPool: RedisClientPool, val key: String) extends RedisSource

@@ -15,25 +15,23 @@
  */
 package com.excilys.ebi.gatling.redis.feeder
 
-import com.excilys.ebi.gatling.core.feeder.Feeder
-import com.redis.RedisClientPool
-import com.redis._
-import serialization._
 import com.excilys.ebi.gatling.core.action.system
+import com.excilys.ebi.gatling.core.feeder.Feeder
+
 import grizzled.slf4j.Logging
 
 class RedisQueueFeeder(feederSource: RedisSource) extends Feeder with Logging {
 
-  def next: Map[String, String] = {
-    feederSource.clientPool.withClient {
-      client =>
-        val value = client.lpop(feederSource.key).getOrElse {
-          error("There are not enough records in the feeder '" + feederSource.key + "'.\nPlease add records or use another feeder strategy.\nStopping simulation here...")
-          feederSource.clientPool.pool.close
-          system.shutdown
-          sys.exit
-        }
-        Map(feederSource.key -> value)
-    }
-  }
+	def next: Map[String, String] = {
+		feederSource.clientPool.withClient {
+			client =>
+				val value = client.lpop(feederSource.key).getOrElse {
+					error("There are not enough records in the feeder '" + feederSource.key + "'.\nPlease add records or use another feeder strategy.\nStopping simulation here...")
+					feederSource.clientPool.pool.close
+					system.shutdown
+					sys.exit
+				}
+				Map(feederSource.key -> value)
+		}
+	}
 }

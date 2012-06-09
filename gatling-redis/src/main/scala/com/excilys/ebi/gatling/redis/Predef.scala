@@ -18,5 +18,5 @@ import com.excilys.ebi.gatling.redis.feeder.RedisFeederBuilder
 import com.redis.RedisClientPool
 
 object Predef {
-    def redisfeed(clients: RedisClientPool, key: String) = RedisFeederBuilder.redisFeeder(clients, key)
+	def redisFeeder(clients: RedisClientPool, key: String) = RedisFeederBuilder.redisFeeder(clients, key)
 }

@@ -48,6 +48,6 @@ case class TemplateBody(tplPath: String, values: Map[String, EvaluatableString])
  * Wraps a body that is a Byte Array
  *
  * @param byteArray the callback function that returns the Array[Byte] for the body
-*/
-case class ByteArrayBody(byteArray : () => Array[Byte]) extends HttpRequestBody
+ */
+case class ByteArrayBody(byteArray: () => Array[Byte]) extends HttpRequestBody
 

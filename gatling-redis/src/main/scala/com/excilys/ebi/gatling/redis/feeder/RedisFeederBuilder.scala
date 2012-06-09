@@ -15,15 +15,12 @@
  */
 package com.excilys.ebi.gatling.redis.feeder
 
-import com.excilys.ebi.gatling.core.feeder.SourceBasedFeederBuilder
 import com.redis.RedisClientPool
 
 object RedisFeederBuilder {
-	def redisFeeder(clients : RedisClientPool, key: String) = new RedisFeederBuilder(clients, key)
+	def redisFeeder(clients: RedisClientPool, key: String) = new RedisFeederBuilder(clients, key)
 }
 
-class RedisFeederBuilder(clients : RedisClientPool, key: String) extends RedisBasedFeederBuilder[RedisFeederSource] {
+class RedisFeederBuilder(clients: RedisClientPool, key: String) extends RedisBasedFeederBuilder[RedisFeederSource] {
 	protected lazy val source = new RedisFeederSource(clients, key)
 }
-
-
