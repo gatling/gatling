@@ -62,7 +62,7 @@ class FileDataWriter extends DataWriter with Logging {
 	}
 
 	def initialized: Receive = {
-		case RequestRecord(scenarioName, userId, actionName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage) =>
+		case RequestRecord(scenarioName, userId, actionName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage, extraRequestInfo) =>
 			osw.append(ACTION).append(TABULATION_SEPARATOR)
 				.append(scenarioName).append(TABULATION_SEPARATOR)
 				.append(userId.toString).append(TABULATION_SEPARATOR)
