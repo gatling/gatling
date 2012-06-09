@@ -17,7 +17,10 @@ package com.excilys.ebi.gatling.http.config
 
 import org.specs2.mutable.Specification
 import com.ning.http.client.{Response, Request}
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
 class HttpProtocolConfigurationBuilderSpec extends Specification {
 
   "http protocol configuration builder" should {
