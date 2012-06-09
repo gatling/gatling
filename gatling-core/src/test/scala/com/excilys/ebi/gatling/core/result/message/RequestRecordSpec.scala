@@ -6,7 +6,7 @@ import org.specs2.runner.JUnitRunner
 import com.excilys.ebi.gatling.core.result.message.RequestStatus._
 
 @RunWith(classOf[JUnitRunner])
-class RequestRecordTest extends Specification {
+class RequestRecordSpec extends Specification {
 
   "constructor" should {
     "have sensible defaults for optional parameters" in {
