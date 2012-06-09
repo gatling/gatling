@@ -65,12 +65,12 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 								val entryTime = requestNames.getOrElse(requestName, Long.MaxValue)
 								if (executionStartDateLong < entryTime)
-									requestNames += (requestName -> executionStartDateLong)
+									requestNames += (record.requestName -> executionStartDateLong)
 							}
 
 							val entryTime = scenarioNames.getOrElse(scenarioName, Long.MaxValue)
 							if (executionStartDateLong < entryTime)
-								scenarioNames += (scenarioName -> executionStartDateLong)
+								scenarioNames += (record.scenarioName -> executionStartDateLong)
 						} else
 							logger.info("Point is irrelevant, probably due to currentTimeMillis unprecision, skipping it" + record.requestName + " at " + record.executionStartDateNoMillis)
 
