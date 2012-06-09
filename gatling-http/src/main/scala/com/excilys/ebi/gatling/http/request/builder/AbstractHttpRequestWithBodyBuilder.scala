@@ -44,7 +44,7 @@ object AbstractHttpRequestWithBodyBuilder {
 /**
  * This class serves as model to HTTP request with a body
  *
- * @param httpRequestActionBuilder the HttpRequestActionBuilder with which this builder is linked
+ * @param requestName name of the request under test
  * @param url the function returning the url
  * @param queryParams the query parameters that should be added to the request
  * @param headers the headers that should be added to the request
@@ -71,7 +71,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	/**
 	 * Method overridden in children to create a new instance of the correct type
 	 *
-	 * @param httpRequestActionBuilder the HttpRequestActionBuilder with which this builder is linked
+	 * @param requestName name of the request under test
 	 * @param url the function returning the url
 	 * @param queryParams the query parameters that should be added to the request
 	 * @param headers the headers that should be added to the request
