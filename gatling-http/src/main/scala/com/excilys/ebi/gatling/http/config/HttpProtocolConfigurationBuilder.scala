@@ -19,13 +19,13 @@ import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.Headers
 
 import grizzled.slf4j.Logging
-import com.ning.http.client.{Request, RequestBuilder, ProxyServer}
+import com.ning.http.client.{Response, Request, RequestBuilder, ProxyServer}
 
 /**
  * HttpProtocolConfigurationBuilder class companion
  */
 object HttpProtocolConfigurationBuilder {
-	def httpConfig = new HttpProtocolConfigurationBuilder(None, None, None, true, true, Map.empty, Some("http://gatling-tool.org"), None)
+	def httpConfig = new HttpProtocolConfigurationBuilder(None, None, None, true, true, Map.empty, Some("http://gatling-tool.org"), None, None)
 
 	implicit def toHttpProtocolConfiguration(builder: HttpProtocolConfigurationBuilder) = builder.build
 }
@@ -41,7 +41,8 @@ class HttpProtocolConfigurationBuilder(baseUrl: Option[String],
                                        followRedirectParam: Boolean, automaticRefererParam: Boolean,
                                        baseHeaders: Map[String, String],
                                        warmUpUrl: Option[String],
-                                       extraRequestInfoExtractor: Option[(Request => List[String])])
+                                       extraRequestInfoExtractor: Option[(Request => List[String])],
+                                       extraResponseInfoExtractor: Option[(Response => List[String])])
   extends Logging {
 
 	/**
@@ -49,29 +50,31 @@ class HttpProtocolConfigurationBuilder(baseUrl: Option[String],
 	 *
 	 * @param baseUrl the base url that will be set
 	 */
-	def baseURL(baseUrl: String) = new HttpProtocolConfigurationBuilder(Some(baseUrl), proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders, warmUpUrl, extraRequestInfoExtractor)
+	def baseURL(baseUrl: String) = new HttpProtocolConfigurationBuilder(Some(baseUrl), proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders, warmUpUrl, extraRequestInfoExtractor, extraResponseInfoExtractor)
 
-	def disableFollowRedirect = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, false, automaticRefererParam, baseHeaders, warmUpUrl,extraRequestInfoExtractor)
+	def disableFollowRedirect = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, false, automaticRefererParam, baseHeaders, warmUpUrl, extraRequestInfoExtractor, extraResponseInfoExtractor)
 
-	def disableAutomaticReferer = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, false, baseHeaders, warmUpUrl, extraRequestInfoExtractor)
+	def disableAutomaticReferer = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, false, baseHeaders, warmUpUrl, extraRequestInfoExtractor, extraResponseInfoExtractor)
 
-	def acceptHeader(value: String) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders + (Headers.Names.ACCEPT -> value), warmUpUrl, extraRequestInfoExtractor)
+	def acceptHeader(value: String) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders + (Headers.Names.ACCEPT -> value), warmUpUrl, extraRequestInfoExtractor, extraResponseInfoExtractor)
 
-	def acceptCharsetHeader(value: String) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders + (Headers.Names.ACCEPT_CHARSET -> value), warmUpUrl, extraRequestInfoExtractor)
+	def acceptCharsetHeader(value: String) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders + (Headers.Names.ACCEPT_CHARSET -> value), warmUpUrl, extraRequestInfoExtractor, extraResponseInfoExtractor)
 
-	def acceptEncodingHeader(value: String) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders + (Headers.Names.ACCEPT_ENCODING -> value), warmUpUrl, extraRequestInfoExtractor)
+	def acceptEncodingHeader(value: String) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders + (Headers.Names.ACCEPT_ENCODING -> value), warmUpUrl, extraRequestInfoExtractor, extraResponseInfoExtractor)
 
-	def acceptLanguageHeader(value: String) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders + (Headers.Names.ACCEPT_LANGUAGE -> value), warmUpUrl, extraRequestInfoExtractor)
+	def acceptLanguageHeader(value: String) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders + (Headers.Names.ACCEPT_LANGUAGE -> value), warmUpUrl, extraRequestInfoExtractor, extraResponseInfoExtractor)
 
-	def hostHeader(value: String) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders + (Headers.Names.HOST -> value), warmUpUrl, extraRequestInfoExtractor)
+	def hostHeader(value: String) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders + (Headers.Names.HOST -> value), warmUpUrl, extraRequestInfoExtractor, extraResponseInfoExtractor)
 
-	def userAgentHeader(value: String) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders + (Headers.Names.USER_AGENT -> value), warmUpUrl, extraRequestInfoExtractor)
+	def userAgentHeader(value: String) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders + (Headers.Names.USER_AGENT -> value), warmUpUrl, extraRequestInfoExtractor, extraResponseInfoExtractor)
 
-	def warmUp(warmUpUrl: String) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders, Some(warmUpUrl), extraRequestInfoExtractor)
+	def warmUp(warmUpUrl: String) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders, Some(warmUpUrl), extraRequestInfoExtractor, extraResponseInfoExtractor)
 
-	def disableWarmUp = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders, None, extraRequestInfoExtractor)
+	def disableWarmUp = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders, None, extraRequestInfoExtractor, extraResponseInfoExtractor)
 
-  def extraRequestInfoExtractor(value: (Request => List[String])) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders, None, Some(value))
+  def requestInfoExtractor(value: (Request => List[String])) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders, warmUpUrl, Some(value), extraResponseInfoExtractor)
+
+  def responseInfoExtractor(value: (Response) => List[String]) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders, warmUpUrl, extraRequestInfoExtractor, Some(value))
 
 	/**
 	 * Sets the proxy of the future HttpProtocolConfiguration
@@ -81,7 +84,7 @@ class HttpProtocolConfigurationBuilder(baseUrl: Option[String],
 	 */
 	def proxy(host: String, port: Int) = new HttpProxyBuilder(this, host, port)
 
-	private[http] def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = new HttpProtocolConfigurationBuilder(baseUrl, Some(httpProxy), httpsProxy, followRedirectParam, automaticRefererParam, baseHeaders, warmUpUrl, extraRequestInfoExtractor)
+	private[http] def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = new HttpProtocolConfigurationBuilder(baseUrl, Some(httpProxy), httpsProxy, followRedirectParam, automaticRefererParam, baseHeaders, warmUpUrl, extraRequestInfoExtractor, extraResponseInfoExtractor)
 
 	private[http] def build = {
 		warmUpUrl.map { url =>
@@ -97,6 +100,6 @@ class HttpProtocolConfigurationBuilder(baseUrl: Option[String],
 			}
 		}
 
-		HttpProtocolConfiguration(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders, extraRequestInfoExtractor)
+		HttpProtocolConfiguration(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders, extraRequestInfoExtractor, extraResponseInfoExtractor)
 	}
 }
