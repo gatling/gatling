@@ -73,6 +73,12 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 			resetTimeout
 			responseReceivingStartDate = computeTimeFromNanos(nanos)
 
+		case OnHeadersReceived =>
+			resetTimeout
+
+		case OnBodyPartReceived =>
+			resetTimeout
+
 		case OnCompleted(response, nanos) =>
 			executionEndDate = computeTimeFromNanos(nanos)
 			processResponse(response)
@@ -140,7 +146,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 				case REDIRECTED_REQUEST_NAME_PATTERN(requestBaseName, redirectCount) =>
 					new StringBuilder().append(requestBaseName).append(" Redirect ").append(redirectCount.toInt + 1).toString
 
-				case _ => 
+				case _ =>
 					requestName + " Redirect 1"
 			}
 

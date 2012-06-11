@@ -24,5 +24,7 @@ sealed trait HttpEvent
 case class OnHeaderWriteCompleted(time: Long = nanoTime) extends HttpEvent
 case class OnContentWriteCompleted(time: Long = nanoTime) extends HttpEvent
 case class OnStatusReceived(time: Long = nanoTime) extends HttpEvent
+case class OnHeadersReceived extends HttpEvent
+case class OnBodyPartReceived extends HttpEvent
 case class OnCompleted(response: Response, time: Long = nanoTime) extends HttpEvent
 case class OnThrowable(errorMessage: String, time: Long = nanoTime) extends HttpEvent

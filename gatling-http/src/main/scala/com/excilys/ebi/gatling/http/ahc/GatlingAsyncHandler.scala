@@ -65,12 +65,14 @@ class GatlingAsyncHandler(checks: List[HttpCheck], requestName: String, actor: A
 
 	def onHeadersReceived(headers: HttpResponseHeaders) = {
 		responseBuilder.accumulate(headers)
+		actor ! new OnHeadersReceived
 		CONTINUE
 	}
 
 	def onBodyPartReceived(bodyPart: HttpResponseBodyPart) = {
 		if (useBodyParts)
 			responseBuilder.accumulate(bodyPart)
+		actor ! new OnBodyPartReceived
 		CONTINUE
 	}
 
