@@ -162,6 +162,14 @@ public class GatlingMojo extends AbstractMojo {
 	protected boolean failOnError = true;
 
 	/**
+	 * Force the name of the directory generated for the results of the run
+	 * 
+	 * @parameter expression="${gatling.runName}" alias="rn" default-value="run"
+	 * @description Uses this folder as the name of the run results folder
+	 */
+	protected String runName;
+
+	/**
 	 * The Maven Project
 	 * 
 	 * @parameter expression="${project}"
@@ -255,6 +263,9 @@ public class GatlingMojo extends AbstractMojo {
 			if (reportsOnly != null) {
 				args.addAll(asList("-" + OptionsConstants.REPORTS_ONLY_OPTION, reportsOnly.getCanonicalPath()));
 			}
+
+			if (runName != null)
+				args.addAll(asList("-" + OptionsConstants.RUN_NAME_OPTION, runName));
 
 			return args;
 		} catch (Exception e) {
