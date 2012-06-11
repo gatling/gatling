@@ -10,6 +10,10 @@
 	<name>${project.artifactId}</name>
 	<packaging>maven-plugin</packaging>
 
+	<properties>
+		<header.basedir>${project.parent.basedir}</header.basedir>
+	</properties>
+
 	<dependencies>
 		<!-- Gatling Dependencies -->
 		<dependency>
