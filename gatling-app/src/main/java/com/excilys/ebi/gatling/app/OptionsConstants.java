@@ -35,4 +35,6 @@ public class OptionsConstants {
 	public static final String SIMULATIONS_BINARIES_FOLDER_ALIAS = "simulations-binaries-folder";
 	public static final String SIMULATIONS_OPTION = "s";
 	public static final String SIMULATIONS_ALIAS = "simulations";
+	public static final String RUN_NAME_OPTION = "rn";
+	public static final String RUN_NAME_ALIAS = "run-name";
 }
