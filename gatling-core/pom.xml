@@ -11,6 +11,10 @@
 	<name>${project.artifactId}</name>
 	<description>Gatling Core functionnalities</description>
 
+	<properties>
+		<header.basedir>${project.parent.basedir}</header.basedir>
+	</properties>
+
 	<dependencies>
 		<!-- compile -->
 		<dependency>

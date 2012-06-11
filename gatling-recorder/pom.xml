@@ -9,6 +9,10 @@
 	<name>${project.artifactId}</name>
 	<description>Gatling HTTP functionnalities</description>
 
+	<properties>
+		<header.basedir>${project.parent.basedir}</header.basedir>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.thoughtworks.xstream</groupId>
