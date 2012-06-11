@@ -85,12 +85,12 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 			requestSendingEndDate = if (requestSendingEndDate != 0L) requestSendingEndDate else time
 			responseReceivingStartDate = if (responseReceivingStartDate != 0L) responseReceivingStartDate else time
 			executionEndDate = time
-			logRequest(KO, errorMessage, extractExtraRequestInfo())
+			logRequest(KO, errorMessage, extractExtraRequestInfo(protocolConfiguration, request))
 			executeNext(session)
 
 		case ReceiveTimeout =>
 			error("GatlingAsyncHandlerActor timed out")
-			logRequest(KO, "GatlingAsyncHandlerActor timed out", extractExtraRequestInfo())
+			logRequest(KO, "GatlingAsyncHandlerActor timed out", extractExtraRequestInfo(protocolConfiguration, request))
 			executeNext(session)
 
 		case m => throw new IllegalArgumentException("Unknown message type " + m)
@@ -164,7 +164,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 
 			phases match {
 				case Nil =>
-					logRequest(OK, extraInfo = extractExtraRequestInfo())
+					logRequest(OK, extraInfo = extractExtraRequestInfo(protocolConfiguration, request))
 					executeNext(session)
 
 				case phase :: otherPhases =>
@@ -178,7 +178,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 							else
 								warn(new StringBuilder().append("Check on request '").append(requestName).append("' failed : ").append(errorMessage))
 
-							logRequest(KO, errorMessage, extractExtraRequestInfo())
+							logRequest(KO, errorMessage, extractExtraRequestInfo(protocolConfiguration, request))
 							executeNext(newSession)
 
 						case _ => checkPhasesRec(newSession, otherPhases)
@@ -194,30 +194,6 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 			checkPhasesRec(sessionWithUpdatedCookies, HttpPhase.phases)
 	}
 
-  private def extractExtraRequestInfo():List[String] = {
-    if(request != null && protocolConfiguration.isDefined){
-      val httpProtocolConfig: HttpProtocolConfiguration = protocolConfiguration.get
-      if(httpProtocolConfig.extraRequestInfoExtractor.isDefined){
-        val extractor: (Request => List[String]) = httpProtocolConfig.extraRequestInfoExtractor.get
-        //TODO wrap extractor in try/catch
-        return extractor(request)
-      }
-    }
-    List()
-  }
-
-  private def extractExtraResponseInfo(response:Response):List[String] = {
-    if(response != null && protocolConfiguration.isDefined){
-      val httpProtocolConfig: HttpProtocolConfiguration = protocolConfiguration.get
-      if(httpProtocolConfig.extraResponseInfoExtractor.isDefined){
-        val extractor: (Response => List[String]) = httpProtocolConfig.extraResponseInfoExtractor.get
-        //TODO wrap extractor in try/catch
-        return extractor(response)
-      }
-    }
-    List()
-  }
-
   /**
    * Extract extra info from both request and response.
    *
@@ -225,8 +201,40 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
    * @return
    */
   private def extractExtraInfo(response: Response): List[String] = {
-    val extraInfo: List[String] = extractExtraRequestInfo()
-    extraInfo :: extractExtraResponseInfo(response)
+    val extraInfo: List[String] = extractExtraRequestInfo(protocolConfiguration, request)
+    extraInfo :: extractExtraResponseInfo(protocolConfiguration, response)
     extraInfo
   }
+
+  private[ahc] def extractExtraRequestInfo(protocolConfiguration:Option[HttpProtocolConfiguration], request:Request):List[String] = {
+    try {
+      if (request != null && protocolConfiguration.isDefined) {
+        val httpProtocolConfig: HttpProtocolConfiguration = protocolConfiguration.get
+        if (httpProtocolConfig.extraRequestInfoExtractor.isDefined) {
+          val extractor: (Request => List[String]) = httpProtocolConfig.extraRequestInfoExtractor.get
+          return extractor(request)
+        }
+      }
+    } catch {
+      case e:Exception => warn("Encountered error while extracting extra request info", e)
+    }
+    List()
+  }
+
+  private[ahc] def extractExtraResponseInfo(protocolConfiguration:Option[HttpProtocolConfiguration], response:Response):List[String] = {
+    try {
+      if (response != null && protocolConfiguration.isDefined) {
+        val httpProtocolConfig: HttpProtocolConfiguration = protocolConfiguration.get
+        if (httpProtocolConfig.extraResponseInfoExtractor.isDefined) {
+          val extractor: (Response => List[String]) = httpProtocolConfig.extraResponseInfoExtractor.get
+          return extractor(response)
+        }
+      }
+    }
+    catch {
+      case e:Exception => warn("Encountered error while extracting extra request info", e)
+    }
+    List()
+  }
+
 }
