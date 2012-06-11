@@ -57,7 +57,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 	var executionEndDate = 0L
 
 	resetTimeout
-	
+
 	private def computeTimeFromNanos(nanos: Long) = (nanos - executionStartDateNanos) / 1000000 + executionStartDate
 
 	def receive = {
@@ -136,12 +136,12 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 			val newRequest = requestBuilder.build
 			newRequest.getHeaders.remove(HeaderNames.CONTENT_LENGTH)
 
-			val newRequestName = REDIRECTED_REQUEST_NAME_PATTERN.findFirstMatchIn(requestName) match {
-				case Some(nameMatch) =>
-					val requestBaseName = nameMatch.group(1)
-					val redirectCount = nameMatch.group(2).toInt
-					new StringBuilder().append(requestBaseName).append(" Redirect ").append(redirectCount + 1).toString
-				case None => requestName + " Redirect 1"
+			val newRequestName = requestName match {
+				case REDIRECTED_REQUEST_NAME_PATTERN(requestBaseName, redirectCount) =>
+					new StringBuilder().append(requestBaseName).append(" Redirect ").append(redirectCount.toInt + 1).toString
+
+				case _ => 
+					requestName + " Redirect 1"
 			}
 
 			configureForNextRedirect(sessionWithUpdatedCookies, newRequestName, newRequest)
