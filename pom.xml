@@ -91,7 +91,7 @@
 		<jaxen.version>1.1.4</jaxen.version>
 		<xerces.version>2.11.0</xerces.version>
 		<xml-apis.version>1.4.01</xml-apis.version>
-		<logback.version>1.0.5</logback.version>
+		<logback.version>1.0.6</logback.version>
 		<slf4j.version>1.6.5</slf4j.version>
 		<scalate.version>1.5.3</scalate.version>
 		<netty.version>3.5.0.Final</netty.version>
@@ -110,7 +110,7 @@
 		<asm.version>4.0</asm.version>
 		<redis.version>2.5</redis.version>
 		<junit.version>4.10</junit.version>
-		<specs2.version>1.10</specs2.version>
+		<specs2.version>1.11</specs2.version>
 
 		<maven2.version>2.2.1</maven2.version>
 		<maven-compiler-plugin.version>2.4</maven-compiler-plugin.version>
