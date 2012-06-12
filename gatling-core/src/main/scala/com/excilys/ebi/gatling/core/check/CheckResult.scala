@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.core.check
 /**
  * The outcome of a check
  */
-sealed trait CheckResult
+sealed abstract class CheckResult
 
 /**
  * The outcome in case of success

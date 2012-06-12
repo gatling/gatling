@@ -69,7 +69,7 @@ object ScanHelper {
 	}
 }
 
-trait Resource {
+sealed abstract class Resource {
 	def path: Path
 	def copyTo(target: Path)
 }

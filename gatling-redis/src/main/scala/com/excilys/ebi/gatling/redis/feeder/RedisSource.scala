@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.redis.feeder
 
 import com.redis.RedisClientPool
 
-trait RedisSource {
+abstract class RedisSource {
 	def key: String
 	def clientPool : RedisClientPool
 }

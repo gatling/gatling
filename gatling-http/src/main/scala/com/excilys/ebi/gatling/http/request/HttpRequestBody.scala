@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.session.EvaluatableString
 /**
  * Class used for polymorphism only
  */
-trait HttpRequestBody
+sealed abstract class HttpRequestBody
 
 /**
  * Wraps a body represented by a string

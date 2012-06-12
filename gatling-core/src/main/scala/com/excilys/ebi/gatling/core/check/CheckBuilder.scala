@@ -25,7 +25,7 @@ import com.excilys.ebi.gatling.core.session.EvaluatableString
  * @param <R> the type of response
  * @param <X> the type of extracted value
  */
-trait ExtractorCheckBuilder[C <: Check[R], R, X] {
+abstract class ExtractorCheckBuilder[C <: Check[R], R, X] {
 
 	/**
 	 * @return a partial CheckBuilder with an Extractor for the first value

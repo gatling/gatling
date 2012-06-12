@@ -15,4 +15,4 @@
  */
 package com.excilys.ebi.gatling.recorder.scenario
 
-trait ScenarioElement
+abstract class ScenarioElement
