@@ -40,7 +40,7 @@ class GatlingAsyncHandler(checks: List[HttpCheck], requestName: String, actor: A
 		extends AsyncHandler[Void] with ProgressAsyncHandler[Void] with Logging {
 
 	// only store bodyparts if they are to be analyzed
-	val useBodyParts = checks.find(check => check.phase == BodyPartReceived || check.phase == CompletePageReceived).isDefined
+	val useBodyParts = checks.exists(check => check.phase == BodyPartReceived || check.phase == CompletePageReceived)
 
 	def onHeaderWriteCompleted = {
 		actor ! new OnHeaderWriteCompleted

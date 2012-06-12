@@ -26,7 +26,7 @@ object CssExtractor {
 	/**
 	 * The DOM Builder singleton
 	 */
-	lazy val domBuilder = new LagartoDOMBuilder
+	val domBuilder = new LagartoDOMBuilder
 }
 
 /**

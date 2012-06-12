@@ -54,8 +54,8 @@ object GatlingAsyncHandlerActor {
 class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], next: ActorRef, var requestName: String, var request: Request, followRedirect: Boolean, gatlingConfiguration: GatlingConfiguration) extends Actor with Logging with CookieHandling {
 
 	val checksumChecks = checks.filter(_.phase == BodyPartReceived)
-	val storeBodyParts = checks.find(check => check.phase == CompletePageReceived).isDefined
-	val checksums = new mutable.HashMap[String, MessageDigest]
+	val storeBodyParts = checks.exists(check => check.phase == CompletePageReceived)
+	val checksums = mutable.Map[String, MessageDigest]()
 
 	var responseBuilder = new ResponseBuilder
 	var executionStartDate = currentTimeMillis

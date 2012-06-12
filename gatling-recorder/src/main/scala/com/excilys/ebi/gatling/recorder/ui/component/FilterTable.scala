@@ -18,7 +18,6 @@ package com.excilys.ebi.gatling.recorder.ui.component;
 import java.awt.event.{ MouseListener, MouseEvent, MouseAdapter, ActionListener, ActionEvent }
 import java.awt.{ Dimension, Component, Color, BorderLayout }
 
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.recorder.config.Pattern
 import com.excilys.ebi.gatling.recorder.ui.enumeration.PatternType.{ PatternType, JAVA, ANT }
 
@@ -56,10 +55,9 @@ class FilterTable extends JPanel with MouseListener {
 	def validateCells {
 		stopCellEditing
 		var toRemove = List[Int]()
-		for (i <- 0 until model.getRowCount) {
-			if (model.getValueAt(i, 0).toString == EMPTY)
-				toRemove = i :: toRemove
-		}
+		for (i <- 0 until model.getRowCount if (model.getValueAt(i, 0).toString.isEmpty))
+			toRemove = i :: toRemove
+
 		removeRows(toRemove)
 		removeDuplicates
 	}
@@ -76,10 +74,11 @@ class FilterTable extends JPanel with MouseListener {
 	}
 
 	def removeDuplicates {
-		for (i <- 0 until model.getRowCount)
-			for (j <- 0 until model.getRowCount)
-				if (i != j && getPattern(i) == getPattern(j))
-					model.removeRow(j)
+		for (
+			i <- (0 until model.getRowCount);
+			j <- (0 until model.getRowCount);
+			if (i != j && getPattern(i) == getPattern(j))
+		) model.removeRow(j)
 	}
 
 	override def setEnabled(enabled: Boolean) {

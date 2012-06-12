@@ -47,8 +47,8 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 		val runRecords = new mutable.ArrayBuffer[RunRecord]
 		val requestRecords = new mutable.ArrayBuffer[ChartRequestRecord]
-		val requestNames = new mutable.HashMap[String, Long]
-		val scenarioNames = new mutable.HashMap[String, Long]
+		val requestNames = mutable.Map[String, Long]()
+		val scenarioNames = mutable.Map[String, Long]()
 
 		def readFile(file: File) {
 			(for (line <- Source.fromFile(file.jfile, configuration.encoding).getLines) yield TABULATION_PATTERN.split(line, 0).toList)

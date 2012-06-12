@@ -46,7 +46,7 @@ class HttpRequestActionBuilder(requestName: String, requestBuilder: AbstractHttp
 
 	private[gatling] def withNext(next: ActorRef) = new HttpRequestActionBuilder(requestName, requestBuilder, next, checks)
 
-	private[gatling] lazy val resolvedChecks = checks.find(_.phase == StatusReceived) match {
+	private[gatling] val resolvedChecks = checks.find(_.phase == StatusReceived) match {
 		case None => HttpRequestActionBuilder.DEFAULT_HTTP_STATUS_CHECK :: checks
 		case _ => checks
 	}
