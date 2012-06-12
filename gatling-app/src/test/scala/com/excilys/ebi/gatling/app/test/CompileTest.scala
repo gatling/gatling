@@ -85,7 +85,8 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 							regex("""<input id="text1" type="test" value="aaaa" />""").notExists,
 							status.in(200 to 210).saveAs("blablaParam"),
 							xpath("//input[@value='aaaa']/@id").not("omg"),
-							xpath("//input[@id='text1']/@value").is("aaaa").saveAs("test2")))
+							xpath("//input[@id='text1']/@value").is("aaaa").saveAs("test2"),
+							md5.is("0xA59E79AB53EEF2883D72B8F8398C9AC3")))
 				.loop(chain
 					.exec(http("In During 1").get("http://localhost:3000/aaaa"))
 					.pause(2)

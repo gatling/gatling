@@ -18,9 +18,8 @@ package com.excilys.ebi.gatling.http.ahc
 import java.lang.Void
 
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
+import com.excilys.ebi.gatling.http.request.HttpPhase.{ CompletePageReceived, BodyPartReceived }
 import com.ning.http.client.AsyncHandler.STATE.CONTINUE
-import com.ning.http.client.Response.ResponseBuilder
 import com.ning.http.client.{ HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, AsyncHandler, ProgressAsyncHandler }
 
 import akka.actor.ActorRef
@@ -40,10 +39,8 @@ import grizzled.slf4j.Logging
 class GatlingAsyncHandler(checks: List[HttpCheck], requestName: String, actor: ActorRef)
 		extends AsyncHandler[Void] with ProgressAsyncHandler[Void] with Logging {
 
-	val responseBuilder = new ResponseBuilder
-
 	// only store bodyparts if they are to be analyzed
-	val useBodyParts = checks.find(_.phase == CompletePageReceived).isDefined
+	val useBodyParts = checks.find(check => check.phase == BodyPartReceived || check.phase == CompletePageReceived).isDefined
 
 	def onHeaderWriteCompleted = {
 		actor ! new OnHeaderWriteCompleted
@@ -58,26 +55,25 @@ class GatlingAsyncHandler(checks: List[HttpCheck], requestName: String, actor: A
 	def onContentWriteProgress(amount: Long, current: Long, total: Long) = CONTINUE
 
 	def onStatusReceived(responseStatus: HttpResponseStatus) = {
-		responseBuilder.accumulate(responseStatus)
-		actor ! new OnStatusReceived
+		actor ! new OnStatusReceived(responseStatus)
 		CONTINUE
 	}
 
 	def onHeadersReceived(headers: HttpResponseHeaders) = {
-		responseBuilder.accumulate(headers)
-		actor ! new OnHeadersReceived
+		actor ! new OnHeadersReceived(headers)
 		CONTINUE
 	}
 
 	def onBodyPartReceived(bodyPart: HttpResponseBodyPart) = {
 		if (useBodyParts)
-			responseBuilder.accumulate(bodyPart)
-		actor ! new OnBodyPartReceived
+			actor ! new OnBodyPartReceived(Some(bodyPart))
+		else
+			actor ! new OnBodyPartReceived()
 		CONTINUE
 	}
 
 	def onCompleted: Void = {
-		actor ! new OnCompleted(responseBuilder.build)
+		actor ! new OnCompleted
 		null
 	}
 

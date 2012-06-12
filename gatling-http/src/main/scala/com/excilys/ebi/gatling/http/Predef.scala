@@ -16,12 +16,12 @@
 package com.excilys.ebi.gatling.http
 
 import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.http.check.bodypart.HttpBodyPartCheckBuilder
 import com.excilys.ebi.gatling.http.check.body.{ HttpBodyXPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyCssCheckBuilder }
 import com.excilys.ebi.gatling.http.check.header.HttpHeaderCheckBuilder
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder
-import com.excilys.ebi.gatling.http.config.{ HttpProxyBuilder, HttpProtocolConfigurationBuilder }
+import com.excilys.ebi.gatling.http.config.{ HttpProxyBuilder, HttpProtocolConfigurationBuilder, HttpProtocolConfiguration }
 import com.excilys.ebi.gatling.http.request.builder.HttpRequestBaseBuilder
-import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 
 object Predef {
 
@@ -38,4 +38,6 @@ object Predef {
 	def jsonPath(expression: EvaluatableString) = HttpBodyJsonPathCheckBuilder.jsonPath(expression)
 	def header(expression: EvaluatableString) = HttpHeaderCheckBuilder.header(expression)
 	def status = HttpStatusCheckBuilder.status
+	def md5 = HttpBodyPartCheckBuilder.checksum("MD5")
+	def sha1 = HttpBodyPartCheckBuilder.checksum("SHA-1")
 }

@@ -61,7 +61,7 @@ object Check {
  * @param saveAs the session attribute that will be used to store the extracted value if the checks are successful
  * @param strategy the strategy used to perform the Check
  */
-class Check[R](expression: EvaluatableString, matcher: Matcher[R], saveAs: Option[String]) {
+class Check[R](val expression: EvaluatableString, matcher: Matcher[R], saveAs: Option[String]) {
 
 	def apply(response: R, session: Session): (Session, CheckResult) = matcher(expression, session, response) match {
 		case success @ Success(extractedValue) =>
