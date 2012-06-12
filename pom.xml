@@ -106,6 +106,7 @@
 		<grizzled-slf4j.version>0.6.9</grizzled-slf4j.version>
 		<jackson.version>2.0.2</jackson.version>
 		<commons-math3.version>3.0</commons-math3.version>
+		<commons-io.version>2.3</commons-io.version>
 		<jodd.version>3.3.3</jodd.version>
 		<asm.version>4.0</asm.version>
 		<redis.version>2.5</redis.version>
@@ -344,6 +345,11 @@
 						<artifactId>asm</artifactId>
 					</exclusion>
 				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>${commons-io.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>net.debasishg</groupId>
