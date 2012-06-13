@@ -99,14 +99,14 @@ class StringHelperSpec extends Specification {
 			val md = MessageDigest.getInstance("SHA-1")
 			md.update(fileBytes)
 			val digestBytes = md.digest
-			StringHelper.bytes2Hex(digestBytes) must beEqualTo("aefb180cba67752f54c7eacf45356dd55db4dcc4")
+			StringHelper.bytes2Hex(digestBytes) must beEqualTo("9331a03417da827ef2c68e665feea395661604c5")
 		}
 
 		"correctly compute file md5" in {
 			val md = MessageDigest.getInstance("MD5")
 			md.update(fileBytes)
 			val digestBytes = md.digest
-			StringHelper.bytes2Hex(digestBytes) must beEqualTo("694ad6ef693b035d5207506efa2a6d39")
+			StringHelper.bytes2Hex(digestBytes) must beEqualTo("b58c6eaa50a040068f1505bb70c2284d")
 		}
 	}
 }
