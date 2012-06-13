@@ -17,11 +17,9 @@ package com.excilys.ebi.gatling.http.ahc
 
 import java.lang.System.{ nanoTime, currentTimeMillis }
 import java.net.URLDecoder
-import java.security.MessageDigest
 
 import scala.annotation.tailrec
 import scala.collection.JavaConversions.asScalaBuffer
-import scala.collection.mutable
 
 import com.excilys.ebi.gatling.core.check.Check.applyChecks
 import com.excilys.ebi.gatling.core.check.Failure
@@ -32,14 +30,12 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames }
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.{ REDIRECT_STATUS_CODES, REDIRECTED_REQUEST_NAME_PATTERN }
-import com.excilys.ebi.gatling.http.check.bodypart.ResponseWithChecksums
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpConfig
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
-import com.excilys.ebi.gatling.http.request.HttpPhase.{ HttpPhase, CompletePageReceived, BodyPartReceived }
+import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.excilys.ebi.gatling.http.util.HttpHelper.{ toRichResponse, computeRedirectUrl }
-import com.ning.http.client.Response.ResponseBuilder
 import com.ning.http.client.{ Response, RequestBuilder, Request, FluentStringsMap }
 
 import akka.actor.{ ReceiveTimeout, ActorRef, Actor }
@@ -53,11 +49,7 @@ object GatlingAsyncHandlerActor {
 
 class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], next: ActorRef, var requestName: String, var request: Request, followRedirect: Boolean, gatlingConfiguration: GatlingConfiguration) extends Actor with Logging with CookieHandling {
 
-	val checksumChecks = checks.filter(_.phase == BodyPartReceived)
-	val storeBodyParts = checks.exists(check => check.phase == CompletePageReceived)
-	val checksums = mutable.Map[String, MessageDigest]()
-
-	var responseBuilder = new ResponseBuilder
+	var responseBuilder = new ExtendedResponseBuilder(session, checks)
 	var executionStartDate = currentTimeMillis
 	var executionStartDateNanos = nanoTime
 	var requestSendingEndDate = 0L
@@ -88,25 +80,11 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 
 		case OnBodyPartReceived(bodyPart) =>
 			resetTimeout
-			bodyPart.map { part =>
-
-				for (check <- checksumChecks) {
-					val algorithm = check.expression(session)
-					checksums.getOrElseUpdate(algorithm, MessageDigest.getInstance(algorithm)).update(part.getBodyPartBytes)
-				}
-
-				if (storeBodyParts)
-					responseBuilder.accumulate(part)
-			}
+			responseBuilder.accumulate(bodyPart)
 
 		case OnCompleted(nanos) =>
 			executionEndDate = computeTimeFromNanos(nanos)
-			val response = responseBuilder.build
-
-			if (checksumChecks.isEmpty)
-				processResponse(response)
-			else
-				processResponse(new ResponseWithChecksums(response, checksums))
+			processResponse(responseBuilder.build)
 
 		case OnThrowable(errorMessage, time) =>
 			requestSendingEndDate = if (requestSendingEndDate != 0L) requestSendingEndDate else time
@@ -145,9 +123,8 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 		def handleFollowRedirect(sessionWithUpdatedCookies: Session) {
 
 			def configureForNextRedirect(newSession: Session, newRequestName: String, newRequest: Request) {
-				this.responseBuilder = new ResponseBuilder
-				this.checksums.clear
 				this.session = newSession
+				this.responseBuilder = new ExtendedResponseBuilder(session, checks)
 				this.requestName = newRequestName
 				this.request = newRequest
 				this.executionStartDate = currentTimeMillis

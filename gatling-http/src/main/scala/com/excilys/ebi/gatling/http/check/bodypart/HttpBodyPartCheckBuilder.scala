@@ -15,18 +15,13 @@
  */
 package com.excilys.ebi.gatling.http.check.bodypart
 
-import com.excilys.ebi.gatling.core.check.ExtractorFactory
-import com.excilys.ebi.gatling.core.check.MatcherCheckBuilder
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.core.check.{ ExtractorFactory, MatcherCheckBuilder }
+import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.http.ahc.ExtendedResponse
+import com.excilys.ebi.gatling.http.check.bodypart.HttpBodyPartCheckBuilder.findExtractorFactory
 import com.excilys.ebi.gatling.http.check.{ HttpExtractorCheckBuilder, HttpCheck }
 import com.excilys.ebi.gatling.http.request.HttpPhase.BodyPartReceived
 import com.ning.http.client.Response
-import com.excilys.ebi.gatling.http.check.bodypart.HttpBodyPartCheckBuilder.findExtractorFactory
-import com.excilys.ebi.gatling.core.session.EvaluatableString
-import scala.collection.mutable
-import java.security.MessageDigest
-import com.excilys.ebi.gatling.core.util.StringHelper.bytes2Hex
-import com.excilys.ebi.gatling.core.session.Session
 
 /**
  * HttpBodyPartCheckBuilder class companion
@@ -38,11 +33,7 @@ object HttpBodyPartCheckBuilder {
 	def checksum(algorythm: String) = new HttpBodyPartCheckBuilder(algorythm)
 
 	private def findExtractorFactory: ExtractorFactory[Response, String] = (response: Response) =>
-		(expression: String) =>
-			response
-				.asInstanceOf[ResponseWithChecksums]
-				.checksums.get(expression)
-				.map(md => bytes2Hex(md.digest))
+		(expression: String) => response.asInstanceOf[ExtendedResponse].checksum(expression)
 }
 
 /**
@@ -51,45 +42,4 @@ object HttpBodyPartCheckBuilder {
 class HttpBodyPartCheckBuilder(algorythm: String) extends HttpExtractorCheckBuilder[String]((session: Session) => algorythm, BodyPartReceived) {
 
 	def find = new MatcherCheckBuilder[HttpCheck, Response, String](httpCheckBuilderFactory, findExtractorFactory)
-}
-
-class ResponseWithChecksums(response: Response, val checksums: mutable.Map[String, MessageDigest]) extends Response {
-
-	def getStatusCode = response.getStatusCode
-
-	def getStatusText = response.getStatusText
-
-	def getResponseBodyAsBytes = response.getResponseBodyAsBytes
-
-	def getResponseBodyAsStream = response.getResponseBodyAsStream
-
-	def getResponseBodyExcerpt(maxLength: Int, charset: String) = response.getResponseBodyExcerpt(maxLength, charset)
-
-	def getResponseBody(charset: String) = response.getResponseBody(charset)
-
-	def getResponseBodyExcerpt(maxLength: Int) = response.getResponseBodyExcerpt(maxLength)
-
-	def getResponseBody = response.getResponseBody
-
-	def getUri = response.getUri
-
-	def getContentType = response.getContentType
-
-	def getHeader(name: String) = response.getHeader(name)
-
-	def getHeaders(name: String) = response.getHeaders(name)
-
-	def getHeaders = response.getHeaders
-
-	def isRedirected = response.isRedirected
-
-	override def toString = response.toString
-
-	def getCookies = response.getCookies
-
-	def hasResponseStatus = response.hasResponseStatus
-
-	def hasResponseHeaders = response.hasResponseHeaders
-
-	def hasResponseBody = response.hasResponseBody
 }
