@@ -17,8 +17,6 @@ package com.excilys.ebi.gatling.http.ahc
 
 import java.lang.Void
 
-import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.request.HttpPhase.{ CompletePageReceived, BodyPartReceived }
 import com.ning.http.client.AsyncHandler.STATE.CONTINUE
 import com.ning.http.client.{ HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, AsyncHandler, ProgressAsyncHandler }
 
@@ -36,11 +34,8 @@ import grizzled.slf4j.Logging
  * @param next the next action to be executed
  * @param requestName the name of the request
  */
-class GatlingAsyncHandler(checks: List[HttpCheck], requestName: String, actor: ActorRef)
+class GatlingAsyncHandler(useBodyParts: Boolean, requestName: String, actor: ActorRef)
 		extends AsyncHandler[Void] with ProgressAsyncHandler[Void] with Logging {
-
-	// only store bodyparts if they are to be analyzed
-	val useBodyParts = checks.exists(check => check.phase == BodyPartReceived || check.phase == CompletePageReceived)
 
 	def onHeaderWriteCompleted = {
 		actor ! new OnHeaderWriteCompleted
@@ -65,10 +60,8 @@ class GatlingAsyncHandler(checks: List[HttpCheck], requestName: String, actor: A
 	}
 
 	def onBodyPartReceived(bodyPart: HttpResponseBodyPart) = {
-		if (useBodyParts)
-			actor ! new OnBodyPartReceived(Some(bodyPart))
-		else
-			actor ! new OnBodyPartReceived()
+		val httpEvent = if (useBodyParts) new OnBodyPartReceived(Some(bodyPart)) else new OnBodyPartReceived()
+		actor ! httpEvent
 		CONTINUE
 	}
 
