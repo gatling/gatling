@@ -18,6 +18,7 @@ import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._
 import com.excilys.ebi.gatling.jdbc.Predef._
 import com.excilys.ebi.gatling.http.Headers.Names._
+import com.ning.http.client.{Response, Request}
 
 object CompileTest {
 
@@ -40,6 +41,10 @@ object CompileTest {
 		.acceptEncodingHeader("gzip,deflate,sdch")
 		.userAgentHeader("Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.19 (KHTML, like Gecko) Ubuntu/12.04 Chromium/18.0.1025.151 Chrome/18.0.1025.151 Safari/535.19")
 		.hostHeader("172.30.5.143:8080")
+
+  val httpConfToVerifyUserProvidedInfoExtractors = httpConfig
+    .requestInfoExtractor((request: Request) => { List[String]()})
+    .responseInfoExtractor((response: Response) => { List[String]()})
 
 	val usersInformation = tsv("user_information.tsv")
 
