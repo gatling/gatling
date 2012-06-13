@@ -47,7 +47,7 @@ object GatlingAsyncHandlerActor {
 	val REDIRECT_STATUS_CODES = 301 to 303
 }
 
-class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], next: ActorRef, var requestName: String, var request: Request, followRedirect: Boolean, gatlingConfiguration: GatlingConfiguration) extends Actor with Logging with CookieHandling {
+class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], next: ActorRef, var requestName: String, var request: Request, followRedirect: Boolean, useBodyParts: Boolean, gatlingConfiguration: GatlingConfiguration) extends Actor with Logging with CookieHandling {
 
 	var responseBuilder = new ExtendedResponseBuilder(session, checks)
 	var executionStartDate = currentTimeMillis
@@ -156,7 +156,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 
 			configureForNextRedirect(sessionWithUpdatedCookies, newRequestName, newRequest)
 
-			HTTP_CLIENT.executeRequest(newRequest, new GatlingAsyncHandler(checks, newRequestName, self))
+			HTTP_CLIENT.executeRequest(newRequest, new GatlingAsyncHandler(useBodyParts, newRequestName, self))
 		}
 
 		@tailrec

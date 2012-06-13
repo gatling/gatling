@@ -30,8 +30,8 @@ import com.excilys.ebi.gatling.http.config.HttpConfig._
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.referer.RefererHandling
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
-import com.ning.http.client.{ AsyncHttpClientConfig, AsyncHttpClient }
 import com.excilys.ebi.gatling.http.request.HttpPhase.{ CompletePageReceived, BodyPartReceived }
+import com.ning.http.client.{ AsyncHttpClientConfig, AsyncHttpClient }
 
 import akka.actor.{ Props, ActorRef }
 import grizzled.slf4j.Logging
@@ -96,9 +96,8 @@ object HttpRequestAction extends Logging {
 class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck], protocolConfiguration: Option[HttpProtocolConfiguration], gatlingConfiguration: GatlingConfiguration)
 		extends Action with Logging with RefererHandling {
 
+	val client = HTTP_CLIENT
 	val followRedirect = protocolConfiguration.map(_.followRedirectEnabled).getOrElse(true)
-
-	// only store bodyparts if they are to be analyzed
 	val useBodyParts = checks.exists(check => check.phase == BodyPartReceived || check.phase == CompletePageReceived)
 
 	def execute(session: Session) {
@@ -107,8 +106,7 @@ class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: Abs
 		try {
 			val request = requestBuilder.build(session, protocolConfiguration)
 			val newSession = storeReferer(request, session, protocolConfiguration)
-			val client = HTTP_CLIENT
-			val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(newSession, checks, next, requestName, request, followRedirect, gatlingConfiguration)))
+			val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(newSession, checks, next, requestName, request, followRedirect, useBodyParts, gatlingConfiguration)))
 			val ahcHandler = new GatlingAsyncHandler(useBodyParts, requestName, actor)
 			client.executeRequest(request, ahcHandler)
 

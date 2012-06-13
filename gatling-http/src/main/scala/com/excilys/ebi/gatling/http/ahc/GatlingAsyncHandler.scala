@@ -29,10 +29,9 @@ import grizzled.slf4j.Logging
  * It is part of the HttpRequestAction
  *
  * @constructor constructs a GatlingAsyncHandler
- * @param session the session of the scenario
- * @param checks the checks that will be done on response
- * @param next the next action to be executed
+ * @param useBodyParts id body parts should be sent to the actor
  * @param requestName the name of the request
+ * @param actor the actor that will perform the loogic outside of the IO thread
  */
 class GatlingAsyncHandler(useBodyParts: Boolean, requestName: String, actor: ActorRef)
 		extends AsyncHandler[Void] with ProgressAsyncHandler[Void] with Logging {
@@ -60,8 +59,7 @@ class GatlingAsyncHandler(useBodyParts: Boolean, requestName: String, actor: Act
 	}
 
 	def onBodyPartReceived(bodyPart: HttpResponseBodyPart) = {
-		val httpEvent = if (useBodyParts) new OnBodyPartReceived(Some(bodyPart)) else new OnBodyPartReceived()
-		actor ! httpEvent
+		actor ! new OnBodyPartReceived(if (useBodyParts) Some(bodyPart) else None)
 		CONTINUE
 	}
 
