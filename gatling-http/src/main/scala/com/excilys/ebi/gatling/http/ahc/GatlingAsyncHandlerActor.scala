@@ -101,7 +101,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 		case m => throw new IllegalArgumentException("Unknown message type " + m)
 	}
 
-	def resetTimeout = context.setReceiveTimeout(HttpConfig.GATLING_HTTP_CONFIG_REQUEST_TIMEOUT milliseconds)
+	def resetTimeout = context.setReceiveTimeout(HttpConfig.GATLING_HTTP_CONFIG_REQUEST_TIMEOUT_IN_MS milliseconds)
 
 	private def logRequest(requestResult: RequestStatus, requestMessage: String = "Request executed successfully") = DataWriter.logRequest(session.scenarioName, session.userId, "Request " + requestName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, requestResult, requestMessage)
 
