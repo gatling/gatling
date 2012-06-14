@@ -17,18 +17,13 @@ package com.excilys.ebi.gatling.app
 
 import java.io.{ StringWriter, PrintWriter }
 import java.lang.System.currentTimeMillis
-
-import scala.tools.nsc.interpreter.AbstractFileClassLoader
 import scala.tools.nsc.io.Path.{ string2path, jfile2path }
 import scala.tools.nsc.io.{ PlainFile, Path, File, Directory }
 import scala.tools.nsc.reporters.ConsoleReporter
 import scala.tools.nsc.{ Settings, Global }
-
 import org.joda.time.DateTime.now
-
 import com.excilys.ebi.gatling.app.Gatling.useActorSystem
-import com.excilys.ebi.gatling.app.OptionsConstants.{ SIMULATIONS_OPTION, SIMULATIONS_FOLDER_OPTION, SIMULATIONS_FOLDER_ALIAS, SIMULATIONS_BINARIES_FOLDER_OPTION, SIMULATIONS_BINARIES_FOLDER_ALIAS, SIMULATIONS_ALIAS, RESULTS_FOLDER_OPTION, RESULTS_FOLDER_ALIAS, REQUEST_BODIES_FOLDER_OPTION, REQUEST_BODIES_FOLDER_ALIAS, REPORTS_ONLY_OPTION, REPORTS_ONLY_ALIAS, NO_REPORTS_OPTION, NO_REPORTS_ALIAS, DATA_FOLDER_OPTION, DATA_FOLDER_ALIAS, CONFIG_FILE_OPTION, CONFIG_FILE_ALIAS }
-import com.excilys.ebi.gatling.app.UserSelection.DEFAULT_RUN_ID
+import com.excilys.ebi.gatling.app.OptionsConstants.{ SIMULATIONS_OPTION, SIMULATIONS_FOLDER_OPTION, SIMULATIONS_FOLDER_ALIAS, SIMULATIONS_BINARIES_FOLDER_OPTION, SIMULATIONS_BINARIES_FOLDER_ALIAS, SIMULATIONS_ALIAS, RUN_NAME_OPTION, RUN_NAME_ALIAS, RESULTS_FOLDER_OPTION, RESULTS_FOLDER_ALIAS, REQUEST_BODIES_FOLDER_OPTION, REQUEST_BODIES_FOLDER_ALIAS, REPORTS_ONLY_OPTION, REPORTS_ONLY_ALIAS, NO_REPORTS_OPTION, NO_REPORTS_ALIAS, DATA_FOLDER_OPTION, DATA_FOLDER_ALIAS, CONFIG_FILE_OPTION, CONFIG_FILE_ALIAS }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.globalFile
 import com.excilys.ebi.gatling.charts.report.ReportsGenerator
 import com.excilys.ebi.gatling.core.action.system
@@ -38,9 +33,9 @@ import com.excilys.ebi.gatling.core.runner.Runner
 import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.twitter.io.TempDirectory
-
 import grizzled.slf4j.Logging
 import scopt.OptionParser
+import scala.tools.nsc.interpreter.AbstractFileClassLoader
 
 /**
  * Object containing entry point of application
@@ -66,6 +61,7 @@ object Gatling extends Logging {
 			opt(SIMULATIONS_FOLDER_OPTION, SIMULATIONS_FOLDER_ALIAS, "<folderName>", "Uses <folderName> to discover simulations that could be run", { v: String => cliOptions.simulationSourcesFolder = Some(v) })
 			opt(SIMULATIONS_BINARIES_FOLDER_OPTION, SIMULATIONS_BINARIES_FOLDER_ALIAS, "<folderName>", "Uses <folderName> to already compiled simulations", { v: String => cliOptions.simulationBinariesFolder = Some(v) })
 			opt(SIMULATIONS_OPTION, SIMULATIONS_ALIAS, "<simulationNames>", "Runs the <simulationNames> sequentially", { v: String => cliOptions.simulations = Some(v.split(",").toList) })
+			opt(RUN_NAME_OPTION, RUN_NAME_ALIAS, "<runName>", "Use <runName> for the output directory", { v: String => cliOptions.runName = v })
 		}
 
 		// if arguments are incorrect, usage message is displayed
@@ -110,8 +106,8 @@ class Gatling(cliOptions: Options) extends Logging {
 				}
 
 				val userSelection = cliOptions.simulations match {
-					case Some(simulations) => autoSelect(classes, simulations)
-					case None => interactiveSelect(classes)
+					case Some(simulations) => autoSelect(classes, simulations, cliOptions)
+					case None => interactiveSelect(classes, cliOptions)
 				}
 
 				run(userSelection)
@@ -121,28 +117,32 @@ class Gatling(cliOptions: Options) extends Logging {
 			runUuids.foreach(generateReports)
 	}
 
-	private def autoSelect(classes: List[Class[Simulation]], simulations: List[String]): UserSelection = {
+	private def autoSelect(classes: List[Class[Simulation]], simulations: List[String], cliOptions: Options): UserSelection = {
 
 		val classNames = classes.map(_.getName)
 		val notFounds = simulations.filterNot(classNames.contains(_))
 		if (!notFounds.isEmpty)
 			println("The following simulation names didn't match any Simulation class name and were filtered out: " + notFounds)
 
-		UserSelection(classes.filter(clazz => simulations.contains(clazz.getName)))
+		val runId = cliOptions.runName
+		val runDescription = "run"
+
+		UserSelection(classes.filter(clazz => simulations.contains(clazz.getName)), runId, runDescription)
 	}
 
-	private def interactiveSelect(classes: List[Class[Simulation]]): UserSelection = {
+	private def interactiveSelect(classes: List[Class[Simulation]], cliOptions: Options): UserSelection = {
 
 		val simulation = selectSimulationClass(classes)
 
-		println("Select run id (default is '" + DEFAULT_RUN_ID + "'). Accepted characters are a-z, A-Z, 0-9, - and _")
+		println("Select run id (default is '" + Options.DEFAULT_RUN_ID + "'). Accepted characters are a-z, A-Z, 0-9, - and _")
 		val runId = {
 			val userInput = Console.readLine.trim
-			if (userInput.isEmpty) DEFAULT_RUN_ID else userInput
-		}
 
-		if (!runId.matches("[\\w-_]*"))
-			throw new IllegalArgumentException(runId + " contains illegal characters")
+			if (!userInput.matches("[\\w-_]*"))
+				throw new IllegalArgumentException(userInput + " contains illegal characters")
+
+			if (!userInput.isEmpty) userInput else cliOptions.runName
+		}
 
 		println("Select run description (optional)")
 		val runDescription = Console.readLine.trim

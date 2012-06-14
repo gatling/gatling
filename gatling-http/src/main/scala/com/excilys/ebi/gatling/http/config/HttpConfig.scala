@@ -27,7 +27,6 @@ object HttpConfig {
 	val GATLING_HTTP_CONFIG_ALLOW_SSL_CONNECTION_POOL = configuration.fileConfiguration.getBoolean("gatling.http.allowSslConnectionPool", true)
 	val GATLING_HTTP_CONFIG_COMPRESSION_ENABLED = configuration.fileConfiguration.getBoolean("gatling.http.compressionEnabled", true)
 	val GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT = configuration.fileConfiguration.getInt("gatling.http.connectionTimeout", 60 * 1000)
-	val GATLING_HTTP_CONFIG_REQUEST_TIMEOUT = configuration.fileConfiguration.getInt("gatling.http.requestTimeout", 60 * 1000)
 	val GATLING_HTTP_CONFIG_IDLE_CONNECTION_IN_POOL_TIMEOUT_IN_MS = configuration.fileConfiguration.getInt("gatling.http.idleConnectionInPoolTimeoutInMs", 60 * 1000)
 	val GATLING_HTTP_CONFIG_IDLE_CONNECTION_TIMEOUT_IN_MS = configuration.fileConfiguration.getInt("gatling.http.idleConnectionTimeoutInMs", 60 * 1000)
 	val GATLING_HTTP_CONFIG_IO_THREAD_MULTIPLIER = configuration.fileConfiguration.getInt("gatling.http.ioThreadMultiplier", 2)

@@ -18,6 +18,6 @@ package com.excilys.ebi.gatling.core.config
 /**
  * This trait is a model to all protocol specific configuration
  */
-trait ProtocolConfiguration {
+abstract class ProtocolConfiguration {
 	def protocolType: String
 }

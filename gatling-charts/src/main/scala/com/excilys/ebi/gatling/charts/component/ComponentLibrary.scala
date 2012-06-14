@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.charts.component
 
 import com.excilys.ebi.gatling.charts.series.Series
 
-trait ComponentLibrary {
+abstract class ComponentLibrary {
 
 	def getAllSessionsJs(series: Series[Long, Int]): String
 

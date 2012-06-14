@@ -23,12 +23,21 @@ import com.excilys.ebi.gatling.core.session.Session
 
 object Check {
 
-	val DEFAULT_CHECK_RESULT: CheckResult = Success(None)
+	/**
+	 * Applies a list of checks on a given response
+	 *
+	 * @param session the session of the virtual user
+	 * @param response the response
+	 * @param checks the checks to be applied
+	 * @return the result of the checks: Success or the first encountered Failure
+	 */
+	def applyChecks[R](session: Session, response: R, checks: List[Check[R]]): (Session, CheckResult) = {
 
-	@tailrec
-	private def applyChecksRec[R](session: Session, response: R, checks: List[Check[R]], previousCheckResult: CheckResult): (Session, CheckResult) = {
-		checks match {
-			case Nil => (session, previousCheckResult)
+		@tailrec
+		def applyChecksRec[R](session: Session, response: R, checks: List[Check[R]], previousCheckResult: CheckResult): (Session, CheckResult) = checks match {
+			case Nil =>
+				(session, previousCheckResult)
+
 			case check :: otherChecks =>
 				val (newSession, checkResult) = check(response, session)
 
@@ -37,17 +46,11 @@ object Check {
 					case success @ Success(extractedValue) => applyChecksRec(newSession, response, otherChecks, success)
 				}
 		}
-	}
 
-	/**
-	 * Applies a list of checks on a given response
-	 * 
-	 * @param session the session of the virtual user
-	 * @param response the reponse
-	 * @param checks the checks to be applied
-	 * @return the result of the checks: Success or the first encountered Failure
-	 */
-	def applyChecks[R](session: Session, response: R, checks: List[Check[R]]): (Session, CheckResult) = useCheckContext { applyChecksRec(session, response, checks, DEFAULT_CHECK_RESULT) }
+		useCheckContext {
+			applyChecksRec(session, response, checks, Success(None))
+		}
+	}
 }
 
 /**
@@ -58,7 +61,7 @@ object Check {
  * @param saveAs the session attribute that will be used to store the extracted value if the checks are successful
  * @param strategy the strategy used to perform the Check
  */
-abstract class Check[R](expression: EvaluatableString, matcher: Matcher[R], saveAs: Option[String]) {
+class Check[R](val expression: EvaluatableString, matcher: Matcher[R], saveAs: Option[String]) {
 
 	def apply(response: R, session: Session): (Session, CheckResult) = matcher(expression, session, response) match {
 		case success @ Success(extractedValue) =>
@@ -68,6 +71,7 @@ abstract class Check[R](expression: EvaluatableString, matcher: Matcher[R], save
 			} yield session.setAttribute(saveAs, extractedValue)
 
 			(newSessionWithSaved.getOrElse(session), success)
+
 		case failure => (session, failure)
 	}
 }

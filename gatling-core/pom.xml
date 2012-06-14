@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>gatling-parent</artifactId>
@@ -9,6 +10,10 @@
 	<artifactId>gatling-core</artifactId>
 	<name>${project.artifactId}</name>
 	<description>Gatling Core functionnalities</description>
+
+	<properties>
+		<header.basedir>${project.parent.basedir}</header.basedir>
+	</properties>
 
 	<dependencies>
 		<!-- compile -->
@@ -64,7 +69,6 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>
 		</dependency>
-
 		<!-- CSSelly : used for implementing the CSS checks -->
 		<dependency>
 			<groupId>org.jodd</groupId>
@@ -104,6 +108,11 @@
 			<artifactId>specs2_2.9.2</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -111,6 +120,15 @@
 			<plugin>
 				<groupId>net.alchim31.maven</groupId>
 				<artifactId>scala-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>com.mycila.maven-license-plugin</groupId>
+				<artifactId>maven-license-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>src/test/resources/gatling-core-1.2.1.pom</exclude>
+					</excludes>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

@@ -15,6 +15,10 @@
  */
 package com.excilys.ebi.gatling.core.util
 
+import java.io.File
+import java.security.MessageDigest
+
+import org.apache.commons.io.FileUtils
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
@@ -23,6 +27,8 @@ import com.excilys.ebi.gatling.core.session.Session
 
 @RunWith(classOf[JUnitRunner])
 class StringHelperSpec extends Specification {
+
+	val fileBytes = FileUtils.readFileToByteArray(new File("src/test/resources/gatling-core-1.2.1.pom"))
 
 	"parseEvaluatable" should {
 
@@ -84,6 +90,23 @@ class StringHelperSpec extends Specification {
 		"handle gracefully multivalued expression with missing resolved index attribute" in {
 			val session = new Session("scenario", 1, Map("bar" -> List("BAR1", "BAR2")))
 			StringHelper.parseEvaluatable("{foo${bar(baz)}}")(session) must beEqualTo("{foo}")
+		}
+	}
+
+	"bytes2Hex" should {
+
+		"correctly compute file sha-1" in {
+			val md = MessageDigest.getInstance("SHA-1")
+			md.update(fileBytes)
+			val digestBytes = md.digest
+			StringHelper.bytes2Hex(digestBytes) must beEqualTo("aefb180cba67752f54c7eacf45356dd55db4dcc4")
+		}
+
+		"correctly compute file md5" in {
+			val md = MessageDigest.getInstance("MD5")
+			md.update(fileBytes)
+			val digestBytes = md.digest
+			StringHelper.bytes2Hex(digestBytes) must beEqualTo("694ad6ef693b035d5207506efa2a6d39")
 		}
 	}
 }

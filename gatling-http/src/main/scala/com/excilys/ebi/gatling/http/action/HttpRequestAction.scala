@@ -30,6 +30,7 @@ import com.excilys.ebi.gatling.http.config.HttpConfig._
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.referer.RefererHandling
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
+import com.excilys.ebi.gatling.http.request.HttpPhase.{ CompletePageReceived, BodyPartReceived }
 import com.ning.http.client.{ AsyncHttpClientConfig, AsyncHttpClient }
 
 import akka.actor.{ Props, ActorRef }
@@ -60,7 +61,6 @@ object HttpRequestAction extends Logging {
 			.setAllowSslConnectionPool(GATLING_HTTP_CONFIG_ALLOW_SSL_CONNECTION_POOL)
 			.setCompressionEnabled(GATLING_HTTP_CONFIG_COMPRESSION_ENABLED)
 			.setConnectionTimeoutInMs(GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT)
-			.setRequestTimeoutInMs(GATLING_HTTP_CONFIG_REQUEST_TIMEOUT)
 			.setIdleConnectionInPoolTimeoutInMs(GATLING_HTTP_CONFIG_IDLE_CONNECTION_IN_POOL_TIMEOUT_IN_MS)
 			.setIdleConnectionTimeoutInMs(GATLING_HTTP_CONFIG_IDLE_CONNECTION_TIMEOUT_IN_MS)
 			.setIOThreadMultiplier(GATLING_HTTP_CONFIG_IO_THREAD_MULTIPLIER)
@@ -95,29 +95,28 @@ object HttpRequestAction extends Logging {
 class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck], protocolConfiguration: Option[HttpProtocolConfiguration], gatlingConfiguration: GatlingConfiguration)
 		extends Action with Logging with RefererHandling {
 
+	val client = HTTP_CLIENT
 	val followRedirect = protocolConfiguration.map(_.followRedirectEnabled).getOrElse(true)
+	val useBodyParts = checks.exists(check => check.phase == BodyPartReceived || check.phase == CompletePageReceived)
 
 	def execute(session: Session) {
 		info("Sending Request '" + requestName + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
 
-		val request = try {
-			Some(requestBuilder.build(session, protocolConfiguration))
+		try {
+			val request = requestBuilder.build(session, protocolConfiguration)
+			val newSession = storeReferer(request, session, protocolConfiguration)
+			val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(newSession, checks, next, requestName, request, followRedirect, useBodyParts, protocolConfiguration, gatlingConfiguration)))
+			val ahcHandler = new GatlingAsyncHandler(useBodyParts, requestName, actor)
+			client.executeRequest(request, ahcHandler)
+
 		} catch {
 			case e => {
-				error("Failure while building request " + requestName, e)
+				error("request " + requestName + " building crashed, skipping it", e)
 				val now = currentTimeMillis
 				DataWriter.logRequest(session.scenarioName, session.userId, "Request " + requestName, now, now, now, now, KO, e.getMessage)
 				next ! session
 				None
 			}
-		}
-
-		request.map { request =>
-			val newSession = storeReferer(request, session, protocolConfiguration)
-			val client = HTTP_CLIENT
-			val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(newSession, checks, next, requestName, request, followRedirect, protocolConfiguration, gatlingConfiguration)))
-			val ahcHandler = new GatlingAsyncHandler(checks, requestName, actor)
-			client.executeRequest(request, ahcHandler)
 		}
 	}
 }

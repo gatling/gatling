@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.session.EvaluatableString
 /**
  * Class used for polymorphism only
  */
-trait HttpRequestBody
+sealed abstract class HttpRequestBody
 
 /**
  * Wraps a body represented by a string
@@ -43,3 +43,11 @@ case class FilePathBody(filePath: String) extends HttpRequestBody
  * @param values the values that will be merged in the template
  */
 case class TemplateBody(tplPath: String, values: Map[String, EvaluatableString]) extends HttpRequestBody
+
+/**
+ * Wraps a body that is a Byte Array
+ *
+ * @param byteArray the callback function that returns the Array[Byte] for the body
+ */
+case class ByteArrayBody(byteArray: () => Array[Byte]) extends HttpRequestBody
+

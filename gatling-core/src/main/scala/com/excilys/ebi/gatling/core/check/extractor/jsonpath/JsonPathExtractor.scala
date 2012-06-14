@@ -25,7 +25,7 @@ object JsonPathExtractor {
 	/**
 	 * The singleton ObjectMapper. Used in a threadsafe mannner as configuration never changes on the fly.
 	 */
-	lazy val MAPPER = new ObjectMapper
+	val mapper = new ObjectMapper
 }
 
 /**
@@ -36,7 +36,7 @@ object JsonPathExtractor {
  */
 class JsonPathExtractor(textContent: String) {
 
-	val json = JsonPathExtractor.MAPPER.readValue(textContent, classOf[JsonNode])
+	val json = JsonPathExtractor.mapper.readValue(textContent, classOf[JsonNode])
 
 	/**
 	 * @param occurrence

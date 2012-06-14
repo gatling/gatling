@@ -15,8 +15,7 @@
  */
 package com.excilys.ebi.gatling.http.ahc
 
-import java.lang.System.currentTimeMillis
-import java.lang.System.nanoTime
+import java.lang.System.{ nanoTime, currentTimeMillis }
 import java.net.URLDecoder
 
 import scala.annotation.tailrec
@@ -50,10 +49,12 @@ object GatlingAsyncHandlerActor {
 
 class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], next: ActorRef,
                                var requestName: String, var request: Request, followRedirect: Boolean,
+                               useBodyParts: Boolean,
                                protocolConfiguration: Option[HttpProtocolConfiguration],
                                gatlingConfiguration: GatlingConfiguration)
   extends Actor with Logging with CookieHandling {
 
+	var responseBuilder = new ExtendedResponseBuilder(session, checks)
 	var executionStartDate = currentTimeMillis
 	var executionStartDateNanos = nanoTime
 	var requestSendingEndDate = 0L
@@ -61,7 +62,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 	var executionEndDate = 0L
 
 	resetTimeout
-	
+
 	private def computeTimeFromNanos(nanos: Long) = (nanos - executionStartDateNanos) / 1000000 + executionStartDate
 
 	def receive = {
@@ -73,13 +74,22 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 			resetTimeout
 			requestSendingEndDate = computeTimeFromNanos(nanos)
 
-		case OnStatusReceived(nanos) =>
+		case OnStatusReceived(status, nanos) =>
 			resetTimeout
 			responseReceivingStartDate = computeTimeFromNanos(nanos)
+			responseBuilder.accumulate(status)
 
-		case OnCompleted(response, nanos) =>
+		case OnHeadersReceived(headers) =>
+			resetTimeout
+			responseBuilder.accumulate(headers)
+
+		case OnBodyPartReceived(bodyPart) =>
+			resetTimeout
+			responseBuilder.accumulate(bodyPart)
+
+		case OnCompleted(nanos) =>
 			executionEndDate = computeTimeFromNanos(nanos)
-			processResponse(response)
+			processResponse(responseBuilder.build)
 
 		case OnThrowable(errorMessage, time) =>
 			requestSendingEndDate = if (requestSendingEndDate != 0L) requestSendingEndDate else time
@@ -96,7 +106,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 		case m => throw new IllegalArgumentException("Unknown message type " + m)
 	}
 
-	def resetTimeout = context.setReceiveTimeout(HttpConfig.GATLING_HTTP_CONFIG_REQUEST_TIMEOUT milliseconds)
+	def resetTimeout = context.setReceiveTimeout(HttpConfig.GATLING_HTTP_CONFIG_REQUEST_TIMEOUT_IN_MS milliseconds)
 
 	private def logRequest(requestResult: RequestStatus,
                          requestMessage: String = "Request executed successfully",
@@ -125,6 +135,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 
 			def configureForNextRedirect(newSession: Session, newRequestName: String, newRequest: Request) {
 				this.session = newSession
+				this.responseBuilder = new ExtendedResponseBuilder(session, checks)
 				this.requestName = newRequestName
 				this.request = newRequest
 				this.executionStartDate = currentTimeMillis
@@ -146,17 +157,17 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 			val newRequest = requestBuilder.build
 			newRequest.getHeaders.remove(HeaderNames.CONTENT_LENGTH)
 
-			val newRequestName = REDIRECTED_REQUEST_NAME_PATTERN.findFirstMatchIn(requestName) match {
-				case Some(nameMatch) =>
-					val requestBaseName = nameMatch.group(1)
-					val redirectCount = nameMatch.group(2).toInt
-					new StringBuilder().append(requestBaseName).append(" Redirect ").append(redirectCount + 1).toString()
-				case None => requestName + " Redirect 1"
+			val newRequestName = requestName match {
+				case REDIRECTED_REQUEST_NAME_PATTERN(requestBaseName, redirectCount) =>
+					new StringBuilder().append(requestBaseName).append(" Redirect ").append(redirectCount.toInt + 1).toString
+
+				case _ =>
+					requestName + " Redirect 1"
 			}
 
 			configureForNextRedirect(sessionWithUpdatedCookies, newRequestName, newRequest)
 
-			HTTP_CLIENT.executeRequest(newRequest, new GatlingAsyncHandler(checks, newRequestName, self))
+			HTTP_CLIENT.executeRequest(newRequest, new GatlingAsyncHandler(useBodyParts, newRequestName, self))
 		}
 
 		@tailrec

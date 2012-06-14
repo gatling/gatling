@@ -38,10 +38,6 @@ object HttpStatusCheckBuilder {
 
 /**
  * This class builds a response status check
- *
- * @param to the optional session key in which the extracted value will be stored
- * @param strategy the strategy used to check
- * @param expected the expected value against which the extracted value will be checked
  */
 class HttpStatusCheckBuilder extends HttpExtractorCheckBuilder[Int](Session => EMPTY, StatusReceived) {
 

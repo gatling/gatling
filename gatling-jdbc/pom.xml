@@ -9,6 +9,10 @@
 	<name>${project.artifactId}</name>
 	<description>Gatling JDBC functionnalities</description>
 
+	<properties>
+		<header.basedir>${project.parent.basedir}</header.basedir>
+	</properties>
+
 	<dependencies>
 		<!-- compile -->
 		<dependency>

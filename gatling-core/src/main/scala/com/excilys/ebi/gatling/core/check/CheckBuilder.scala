@@ -25,7 +25,7 @@ import com.excilys.ebi.gatling.core.session.EvaluatableString
  * @param <R> the type of response
  * @param <X> the type of extracted value
  */
-trait ExtractorCheckBuilder[C <: Check[R], R, X] {
+abstract class ExtractorCheckBuilder[C <: Check[R], R, X] {
 
 	/**
 	 * @return a partial CheckBuilder with an Extractor for the first value
@@ -106,11 +106,13 @@ class MatcherCheckBuilder[C <: Check[R], R, X](checkBuilderFactory: CheckBuilder
 	 */
 	def matchWith(strategy: MatchStrategy[X]) = {
 
-		val matcher: Matcher[R] = (expression: EvaluatableString, session: Session, response: R) => {
-			val evaluatedExpression = expression(session)
-			val extractor = extractorFactory(response)
-			val extractedValue = extractor(evaluatedExpression)
-			strategy(extractedValue, session)
+		val matcher = new Matcher[R] {
+			def apply(expression: EvaluatableString, session: Session, response: R) = {
+				val evaluatedExpression = expression(session)
+				val extractor = extractorFactory(response)
+				val extractedValue = extractor(evaluatedExpression)
+				strategy(extractedValue, session)
+			}
 		}
 
 		new CheckBuilder(checkBuilderFactory, matcher) with SaveAsCheckBuilder[C, R]

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.excilys.ebi.gatling</groupId>
 	<artifactId>gatling-parent</artifactId>
@@ -9,6 +10,7 @@
 	<modules>
 		<module>gatling-core</module>
 		<module>gatling-jdbc</module>
+		<module>gatling-redis</module>
 		<module>gatling-http</module>
 		<module>gatling-app</module>
 		<module>gatling-recorder</module>
@@ -29,8 +31,8 @@
 		<connection>scm:git:git@github.com:excilys/gatling.git</connection>
 		<developerConnection>scm:git:git@github.com:excilys/gatling.git</developerConnection>
 		<url>https://github.com/excilys/gatling</url>
-	  <tag>HEAD</tag>
-  </scm>
+		<tag>HEAD</tag>
+	</scm>
 
 	<distributionManagement>
 		<repository>
@@ -100,10 +102,11 @@
 		<jaxen.version>1.1.4</jaxen.version>
 		<xerces.version>2.11.0</xerces.version>
 		<xml-apis.version>1.4.01</xml-apis.version>
-		<logback.version>1.0.5</logback.version>
+		<logback.version>1.0.6</logback.version>
 		<slf4j.version>1.6.5</slf4j.version>
 		<scalate.version>1.5.3</scalate.version>
-		<netty.version>3.4.6.Final</netty.version>
+		<netty.version>3.5.0.Final</netty.version>
+		<grizzly.version>2.2.8</grizzly.version>
 		<joda-time.version>2.1</joda-time.version>
 		<joda-convert.version>1.2</joda-convert.version>
 		<xstream.version>1.4.2</xstream.version>
@@ -115,10 +118,12 @@
 		<grizzled-slf4j.version>0.6.9</grizzled-slf4j.version>
 		<jackson.version>2.0.2</jackson.version>
 		<commons-math3.version>3.0</commons-math3.version>
+		<commons-io.version>2.3</commons-io.version>
 		<jodd.version>3.3.3</jodd.version>
 		<asm.version>4.0</asm.version>
+		<redis.version>2.5</redis.version>
 		<junit.version>4.10</junit.version>
-		<specs2.version>1.10</specs2.version>
+		<specs2.version>1.11</specs2.version>
 
 		<maven2.version>2.2.1</maven2.version>
 		<maven-compiler-plugin.version>2.4</maven-compiler-plugin.version>
@@ -130,6 +135,8 @@
 		<maven-license-plugin.version>1.10.b1</maven-license-plugin.version>
 		<maven-plugin-plugin.version>2.9</maven-plugin-plugin.version>
 		<build-helper-maven-plugin.version>1.7</build-helper-maven-plugin.version>
+
+		<header.basedir>${project.basedir}</header.basedir>
 	</properties>
 
 	<dependencyManagement>
@@ -147,6 +154,11 @@
 			<dependency>
 				<groupId>com.excilys.ebi.gatling</groupId>
 				<artifactId>gatling-jdbc</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.excilys.ebi.gatling</groupId>
+				<artifactId>gatling-redis</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -193,6 +205,11 @@
 				<groupId>io.netty</groupId>
 				<artifactId>netty</artifactId>
 				<version>${netty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.glassfish.grizzly</groupId>
+				<artifactId>grizzly-websockets</artifactId>
+				<version>${grizzly.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.typesafe.akka</groupId>
@@ -352,6 +369,16 @@
 				</exclusions>
 			</dependency>
 			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>${commons-io.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>net.debasishg</groupId>
+				<artifactId>redisclient_2.9.1</artifactId>
+				<version>${redis.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.ow2.asm</groupId>
 				<artifactId>asm</artifactId>
 				<version>${asm.version}</version>
@@ -430,7 +457,7 @@
 					<artifactId>maven-license-plugin</artifactId>
 					<version>${maven-license-plugin.version}</version>
 					<configuration>
-						<header>src/etc/header.txt</header>
+						<header>${header.basedir}/src/etc/header.txt</header>
 						<strictCheck>false</strictCheck>
 						<excludes>
 							<exclude>**/jquery.min.js</exclude>

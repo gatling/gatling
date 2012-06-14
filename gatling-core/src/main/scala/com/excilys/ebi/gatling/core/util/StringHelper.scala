@@ -123,4 +123,10 @@ object StringHelper extends Logging {
 
 		CACHE.getOrElseUpdate(stringToFormat, doParseEvaluatable)
 	}
+
+	def bytes2Hex(bytes: Array[Byte]): String = bytes.foldLeft(new StringBuilder) { (buff, b) =>
+		if ((b & 0xff) < 0x10)
+			buff.append("0")
+		buff.append(java.lang.Long.toString(b & 0xff, 16))
+	}.toString
 }

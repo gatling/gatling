@@ -15,4 +15,4 @@
  */
 package com.excilys.ebi.gatling.recorder.ui.info
 
-trait EventInfo
+abstract class EventInfo

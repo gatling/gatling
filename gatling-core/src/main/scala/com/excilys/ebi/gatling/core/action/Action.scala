@@ -24,7 +24,7 @@ import akka.actor.Actor
  * Top level abstraction in charge or executing concrete actions along a scenario, for example sending an HTTP request.
  * It is implemented as an Akka Actor that receives Session messages.
  */
-trait Action extends Actor with ClassSimpleNameToString {
+abstract class Action extends Actor with ClassSimpleNameToString {
 
 	def receive = {
 		case session: Session => execute(session)

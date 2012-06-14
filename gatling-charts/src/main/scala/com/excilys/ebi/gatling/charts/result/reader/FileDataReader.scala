@@ -39,17 +39,16 @@ import grizzled.slf4j.Logging
 object FileDataReader {
 	val TABULATION_PATTERN = Pattern.compile(TABULATION_SEPARATOR_STRING)
 	val SIMULATION_FILES_NAME_PATTERN = """.*\.log"""
-	def defaultDirectory(runUuid: String) = simulationLogDirectory(runUuid).toDirectory
 }
 
-class FileDataReader(runUuid: String, directory: String => Directory = FileDataReader.defaultDirectory) extends DataReader(runUuid) with Logging {
+class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	val (allRunRecords, requestRecords, requestNames, scenarioNames): (Seq[RunRecord], Seq[ChartRequestRecord], Seq[String], Seq[String]) = {
 
 		val runRecords = new mutable.ArrayBuffer[RunRecord]
 		val requestRecords = new mutable.ArrayBuffer[ChartRequestRecord]
-		val requestNames = new mutable.HashMap[String, Long]
-		val scenarioNames = new mutable.HashMap[String, Long]
+		val requestNames = mutable.Map[String, Long]()
+		val scenarioNames = mutable.Map[String, Long]()
 
 		def readFile(file: File) {
 			(for (line <- Source.fromFile(file.jfile, configuration.encoding).getLines) yield TABULATION_PATTERN.split(line, 0).toList)
@@ -66,12 +65,12 @@ class FileDataReader(runUuid: String, directory: String => Directory = FileDataR
 
 								val entryTime = requestNames.getOrElse(requestName, Long.MaxValue)
 								if (executionStartDateLong < entryTime)
-									requestNames += (requestName -> executionStartDateLong)
+									requestNames += (record.requestName -> executionStartDateLong)
 							}
 
 							val entryTime = scenarioNames.getOrElse(scenarioName, Long.MaxValue)
 							if (executionStartDateLong < entryTime)
-								scenarioNames += (scenarioName -> executionStartDateLong)
+								scenarioNames += (record.scenarioName -> executionStartDateLong)
 						} else
 							logger.info("Point is irrelevant, probably due to currentTimeMillis unprecision, skipping it" + record.requestName + " at " + record.executionStartDateNoMillis)
 
@@ -79,7 +78,7 @@ class FileDataReader(runUuid: String, directory: String => Directory = FileDataR
 				}
 		}
 
-		directory(runUuid).files.filter(_.jfile.getName.matches(FileDataReader.SIMULATION_FILES_NAME_PATTERN)).foreach(readFile(_))
+		simulationLogDirectory(runUuid).toDirectory.files.filter(_.jfile.getName.matches(FileDataReader.SIMULATION_FILES_NAME_PATTERN)).foreach(readFile(_))
 
 		val sortedRequestNames = requestNames.toSeq.sortBy(_._2).map(_._1)
 		val sortedScenarioNames = scenarioNames.toSeq.sortBy(_._2).map(_._1)

@@ -15,6 +15,10 @@
  */
 package com.excilys.ebi.gatling.app
 
+object Options {
+	val DEFAULT_RUN_ID = "run"
+}
+
 case class Options(
 	var reportsOnlyFolder: Option[String] = None,
 	var noReports: Boolean = false,
@@ -24,4 +28,5 @@ case class Options(
 	var requestBodiesFolder: Option[String] = None,
 	var simulationSourcesFolder: Option[String] = None,
 	var simulationBinariesFolder: Option[String] = None,
-	var simulations: Option[List[String]] = None)
+	var simulations: Option[List[String]] = None,
+	var runName: String = Options.DEFAULT_RUN_ID)

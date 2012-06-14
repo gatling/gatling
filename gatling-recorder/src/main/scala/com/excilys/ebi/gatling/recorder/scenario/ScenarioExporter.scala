@@ -210,9 +210,8 @@ object ScenarioExporter extends Logging {
 			val numberOfSubLists = scenarioElements.size / ScenarioExporter.EVENTS_GROUPING + 1
 			var chains: List[List[ScenarioElement]] = Nil
 			// Creates the content of the chains
-			for (i <- 0 until numberOfSubLists) {
+			for (i <- 0 until numberOfSubLists)
 				chains = scenarioElements.slice(0 + ScenarioExporter.EVENTS_GROUPING * i, min(ScenarioExporter.EVENTS_GROUPING * (i + 1), scenarioElements.size - 1)) :: chains
-			}
 
 			Right(chains.reverse)
 
