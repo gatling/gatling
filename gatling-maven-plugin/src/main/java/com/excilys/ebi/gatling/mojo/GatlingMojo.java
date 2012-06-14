@@ -15,16 +15,8 @@
  */
 package com.excilys.ebi.gatling.mojo;
 
-import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
-import static java.util.Arrays.asList;
-import static org.codehaus.plexus.util.StringUtils.join;
-import static org.codehaus.plexus.util.StringUtils.trim;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import com.excilys.ebi.gatling.ant.GatlingTask;
+import com.excilys.ebi.gatling.app.OptionsConstants;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
@@ -39,8 +31,15 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.Commandline;
 import org.apache.tools.ant.types.Path;
 
-import com.excilys.ebi.gatling.ant.GatlingTask;
-import com.excilys.ebi.gatling.app.OptionsConstants;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
+import static java.util.Arrays.asList;
+import static org.codehaus.plexus.util.StringUtils.join;
+import static org.codehaus.plexus.util.StringUtils.trim;
 
 /**
  * Mojo to execute Gatling.
@@ -249,12 +248,12 @@ public class GatlingMojo extends AbstractMojo {
 			}
 
 			// Arguments
-			List<String> args = asList("-" + OptionsConstants.CONFIG_FILE_OPTION, configFile.getCanonicalPath(),//
+			List<String> args = new ArrayList<String>(asList("-" + OptionsConstants.CONFIG_FILE_OPTION, configFile.getCanonicalPath(),//
 			        "-" + OptionsConstants.DATA_FOLDER_OPTION, dataFolder.getCanonicalPath(),//
 			        "-" + OptionsConstants.RESULTS_FOLDER_OPTION, resultsFolder.getCanonicalPath(),//
 			        "-" + OptionsConstants.REQUEST_BODIES_FOLDER_OPTION, requestBodiesFolder.getCanonicalPath(),//
 			        "-" + OptionsConstants.SIMULATIONS_FOLDER_OPTION, simulationsFolder.getCanonicalPath(),//
-			        "-" + OptionsConstants.SIMULATIONS_OPTION, simulations);
+			        "-" + OptionsConstants.SIMULATIONS_OPTION, simulations));
 
 			if (noReports) {
 				args.add("-" + OptionsConstants.NO_REPORTS_OPTION);
@@ -264,8 +263,9 @@ public class GatlingMojo extends AbstractMojo {
 				args.addAll(asList("-" + OptionsConstants.REPORTS_ONLY_OPTION, reportsOnly.getCanonicalPath()));
 			}
 
-			if (runName != null)
+			if (runName != null) {
 				args.addAll(asList("-" + OptionsConstants.RUN_NAME_OPTION, runName));
+            }
 
 			return args;
 		} catch (Exception e) {
