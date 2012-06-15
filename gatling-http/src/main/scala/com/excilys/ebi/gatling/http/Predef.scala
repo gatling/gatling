@@ -22,6 +22,7 @@ import com.excilys.ebi.gatling.http.check.header.HttpHeaderCheckBuilder
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder
 import com.excilys.ebi.gatling.http.config.{ HttpProxyBuilder, HttpProtocolConfigurationBuilder, HttpProtocolConfiguration }
 import com.excilys.ebi.gatling.http.request.builder.HttpRequestBaseBuilder
+import com.ning.http.client.{ Response, Request }
 
 object Predef {
 
@@ -40,4 +41,8 @@ object Predef {
 	def status = HttpStatusCheckBuilder.status
 	def md5 = HttpBodyPartCheckBuilder.checksum("MD5")
 	def sha1 = HttpBodyPartCheckBuilder.checksum("SHA-1")
+
+	val requestUrl = (request: Request) => List(request.getUrl())
+	val requestRawUrl = (request: Request) => List(request.getRawUrl())
+	val responseStatusCode = (response: Response) => List(response.getStatusCode.toString)
 }
