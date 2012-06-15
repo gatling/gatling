@@ -55,5 +55,11 @@ class FileDataWriterSpec extends Specification {
       loggedRequestRecord must beEqualTo("ACTION\tscenario\t1\trequestName\t2\t3\t4\t5\tOK\tmessage\tsome\textra info\tfor the log" + END_OF_LINE)
     }
 
+    "sanitize extra info so that simulation log format is preserved" in {
+      FileDataWriter.sanitize("\nnewlines \n are\nnot \n\n allowed\n") must beEqualTo(" newlines   are not    allowed ")
+      FileDataWriter.sanitize("\rcarriage returns \r are\rnot \r\r allowed\r") must beEqualTo(" carriage returns   are not    allowed ")
+      FileDataWriter.sanitize("\ttabs \t are\tnot \t\t allowed\t") must beEqualTo(" tabs   are not    allowed ")
+    }
+
   }
 }

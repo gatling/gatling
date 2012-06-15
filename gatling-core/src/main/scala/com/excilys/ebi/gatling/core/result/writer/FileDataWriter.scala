@@ -28,6 +28,7 @@ import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 import grizzled.slf4j.Logging
 
 object FileDataWriter {
+  val sanitizerPattern = """[\n\r\t]""".r
 
   private[writer] def append(appendable:Appendable, requestRecord:RequestRecord) {
 
@@ -43,11 +44,19 @@ object FileDataWriter {
       .append(requestRecord.requestMessage)
 
     requestRecord.extraInfo.foreach((info: String) => {
-      //TODO sanitize info
-      appendable.append(TABULATION_SEPARATOR).append(info)
+      appendable.append(TABULATION_SEPARATOR).append(sanitize(info))
     })
 
     appendable.append(END_OF_LINE)
+  }
+
+  /**
+   * Converts whitespace characters that would break the simulation log format into spaces.
+   * @param input
+   * @return
+   */
+  private[writer] def sanitize(input:String):String = {
+    sanitizerPattern.replaceAllIn(input, " ")
   }
 
 }
