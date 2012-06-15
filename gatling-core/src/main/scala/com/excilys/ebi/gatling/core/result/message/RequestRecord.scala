@@ -36,5 +36,5 @@ case class RequestRecord(scenarioName: String, userId: Int, requestName: String,
                          executionStartDate: Long, executionEndDate: Long,
                          requestSendingEndDate: Long, responseReceivingStartDate: Long,
                          requestStatus: RequestStatus.RequestStatus, requestMessage: String,
-                         extraInfo: List[String] = List())
+                         extraInfo: List[String] = Nil)
   extends Record(ACTION)

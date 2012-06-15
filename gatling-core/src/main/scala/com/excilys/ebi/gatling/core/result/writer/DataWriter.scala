@@ -53,7 +53,7 @@ object DataWriter {
 
   def logRequest(scenarioName: String, userId: Int, requestName: String,
                  executionStartDate: Long, executionEndDate: Long, requestSendingEndDate: Long, responseReceivingStartDate: Long,
-                 requestResult: RequestStatus.RequestStatus, requestMessage: String, extraInfo: List[String] = List()) = {
+                 requestResult: RequestStatus.RequestStatus, requestMessage: String, extraInfo: List[String] = Nil) = {
 
     dispatch(RequestRecord(scenarioName, userId, requestName,
       executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate,

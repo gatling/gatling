@@ -26,9 +26,7 @@ class HttpProtocolConfigurationBuilderSpec extends Specification {
   "http protocol configuration builder" should {
     "support an optional extra request info extractor" in {
 
-      val expectedExtractor: (Request => List[String]) = {
-        (Request) => List()
-      }
+      val expectedExtractor: (Request => List[String]) = (Request) => Nil
 
       val builder = HttpProtocolConfigurationBuilder.httpConfig
         .disableWarmUp
@@ -40,9 +38,7 @@ class HttpProtocolConfigurationBuilderSpec extends Specification {
 
     "support an optional extra response info extractor" in {
 
-      val expectedExtractor: (Response => List[String]) = {
-        (Response) => List()
-      }
+      val expectedExtractor: (Response => List[String]) = (Response) => Nil
 
       val builder = HttpProtocolConfigurationBuilder.httpConfig
         .disableWarmUp
