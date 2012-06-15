@@ -68,9 +68,9 @@ class ExtendedResponse(response: Response, checksums: Map[String, MessageDigest]
 }
 
 object ExtendedResponseBuilder {
-	
+
 	def newExtendedResponseBuilder(checks: List[HttpCheck]): ExtendedResponseBuilderFactory = {
-		
+
 		val checksumChecks = checks.filter(_.phase == BodyPartReceived)
 		val storeBodyPart = checks.exists(_.phase == CompletePageReceived)
 		(session: Session) => new ExtendedResponseBuilder(session, checksumChecks, storeBodyPart)
@@ -108,7 +108,6 @@ class ExtendedResponseBuilder(session: Session, checksumChecks: List[HttpCheck],
 
 	def build: Response = {
 		val response = responseBuilder.build
-		responseBuilder.reset
 		if (checksumChecks.isEmpty) response else new ExtendedResponse(response, checksums)
 	}
 }
