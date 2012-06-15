@@ -107,7 +107,7 @@ class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: Abs
 		try {
 			val request = requestBuilder.build(session, protocolConfiguration)
 			val newSession = storeReferer(request, session, protocolConfiguration)
-			val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(newSession, checks, next, requestName, request, followRedirect, gatlingConfiguration, handlerFactory, responseBuilderFactory)))
+			val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(newSession, checks, next, requestName, request, followRedirect, protocolConfiguration, gatlingConfiguration, handlerFactory, responseBuilderFactory)))
 			val ahcHandler = handlerFactory(requestName, actor)
 			client.executeRequest(request, ahcHandler)
 
