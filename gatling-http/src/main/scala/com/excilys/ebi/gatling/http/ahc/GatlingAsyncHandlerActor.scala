@@ -175,7 +175,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 
 			phases match {
 				case Nil =>
-					logRequest(OK, extraInfo = extractExtraRequestInfo(protocolConfiguration, request))
+					logRequest(OK, extraInfo=extractExtraInfo(response))
 					executeNext(session)
 
 				case phase :: otherPhases =>
@@ -189,7 +189,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 							else
 								warn(new StringBuilder().append("Check on request '").append(requestName).append("' failed : ").append(errorMessage))
 
-							logRequest(KO, errorMessage, extractExtraRequestInfo(protocolConfiguration, request))
+							logRequest(KO, errorMessage, extraInfo=extractExtraInfo(response))
 							executeNext(newSession)
 
 						case _ => checkPhasesRec(newSession, otherPhases)
@@ -208,16 +208,15 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
   /**
    * Extract extra info from both request and response.
    *
-   * @param response
+   * @param response is the response to extract data from; request is retrieved from the property
    * @return
    */
   private def extractExtraInfo(response: Response): List[String] = {
     val extraInfo: List[String] = extractExtraRequestInfo(protocolConfiguration, request)
-    extraInfo :: extractExtraResponseInfo(protocolConfiguration, response)
-    extraInfo
+    extraInfo ::: extractExtraResponseInfo(protocolConfiguration, response)
   }
 
-  private[ahc] def extractExtraRequestInfo(protocolConfiguration:Option[HttpProtocolConfiguration], request:Request):List[String] = {
+  private def extractExtraRequestInfo(protocolConfiguration:Option[HttpProtocolConfiguration], request:Request):List[String] = {
     try {
       if (request != null && protocolConfiguration.isDefined) {
         val httpProtocolConfig: HttpProtocolConfiguration = protocolConfiguration.get
@@ -232,7 +231,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
     List()
   }
 
-  private[ahc] def extractExtraResponseInfo(protocolConfiguration:Option[HttpProtocolConfiguration], response:Response):List[String] = {
+  private def extractExtraResponseInfo(protocolConfiguration:Option[HttpProtocolConfiguration], response:Response):List[String] = {
     try {
       if (response != null && protocolConfiguration.isDefined) {
         val httpProtocolConfig: HttpProtocolConfiguration = protocolConfiguration.get
@@ -243,7 +242,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
       }
     }
     catch {
-      case e:Exception => warn("Encountered error while extracting extra request info", e)
+      case e:Exception => warn("Encountered error while extracting extra response info", e)
     }
     List()
   }
