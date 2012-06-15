@@ -49,12 +49,12 @@ object GatlingAsyncHandlerActor {
 
 class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], next: ActorRef,
                                var requestName: String, var request: Request, followRedirect: Boolean,
-                               useBodyParts: Boolean,
                                protocolConfiguration: Option[HttpProtocolConfiguration],
-                               gatlingConfiguration: GatlingConfiguration)
+                               gatlingConfiguration: GatlingConfiguration,
+                               handlerFactory: HandlerFactory, responseBuilderFactory: ExtendedResponseBuilderFactory)
   extends Actor with Logging with CookieHandling {
 
-	var responseBuilder = new ExtendedResponseBuilder(session, checks)
+	var responseBuilder = responseBuilderFactory(session)
 	var executionStartDate = currentTimeMillis
 	var executionStartDateNanos = nanoTime
 	var requestSendingEndDate = 0L
@@ -91,11 +91,11 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 			executionEndDate = computeTimeFromNanos(nanos)
 			processResponse(responseBuilder.build)
 
-		case OnThrowable(errorMessage, time) =>
-			requestSendingEndDate = if (requestSendingEndDate != 0L) requestSendingEndDate else time
-			responseReceivingStartDate = if (responseReceivingStartDate != 0L) responseReceivingStartDate else time
-			executionEndDate = time
-			logRequest(KO, errorMessage, extractExtraRequestInfo(protocolConfiguration, request))
+		case OnThrowable(errorMessage, nanos) =>
+			executionEndDate = computeTimeFromNanos(nanos)
+			requestSendingEndDate = if (requestSendingEndDate != 0L) requestSendingEndDate else executionEndDate
+			responseReceivingStartDate = if (responseReceivingStartDate != 0L) responseReceivingStartDate else executionEndDate
+      logRequest(KO, errorMessage, extractExtraRequestInfo(protocolConfiguration, request))
 			executeNext(session)
 
 		case ReceiveTimeout =>
@@ -135,7 +135,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 
 			def configureForNextRedirect(newSession: Session, newRequestName: String, newRequest: Request) {
 				this.session = newSession
-				this.responseBuilder = new ExtendedResponseBuilder(session, checks)
+				this.responseBuilder = responseBuilderFactory(session)
 				this.requestName = newRequestName
 				this.request = newRequest
 				this.executionStartDate = currentTimeMillis
@@ -167,7 +167,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 
 			configureForNextRedirect(sessionWithUpdatedCookies, newRequestName, newRequest)
 
-			HTTP_CLIENT.executeRequest(newRequest, new GatlingAsyncHandler(useBodyParts, newRequestName, self))
+			HTTP_CLIENT.executeRequest(newRequest, handlerFactory(newRequestName, self))
 		}
 
 		@tailrec
