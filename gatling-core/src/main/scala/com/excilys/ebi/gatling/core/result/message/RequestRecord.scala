@@ -30,5 +30,11 @@ import com.excilys.ebi.gatling.core.result.message.RecordType.ACTION
  * @param responseReceivingStartDate the date on which the response was started being received
  * @param requestStatus the status of the action
  * @param requestMessage the message of the action on completion
+ * @param extraInfo information about the request and response extracted via a user-defined function
  */
-case class RequestRecord(scenarioName: String, userId: Int, requestName: String, executionStartDate: Long, executionEndDate: Long, requestSendingEndDate: Long, responseReceivingStartDate: Long, requestStatus: RequestStatus.RequestStatus, requestMessage: String) extends Record(ACTION)
+case class RequestRecord(scenarioName: String, userId: Int, requestName: String,
+                         executionStartDate: Long, executionEndDate: Long,
+                         requestSendingEndDate: Long, responseReceivingStartDate: Long,
+                         requestStatus: RequestStatus.RequestStatus, requestMessage: String,
+                         extraInfo: List[String] = List())
+  extends Record(ACTION)
