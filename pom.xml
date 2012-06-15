@@ -75,7 +75,18 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
-		<!-- http://repo.typesafe.com/typesafe/releases -->
+        <repository>
+            <id>typesafe</id>
+            <name>Typesafe Repository</name>
+            <url>http://repo.typesafe.com/typesafe/releases/</url>
+            <releases>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <!-- http://repo.typesafe.com/typesafe/releases -->
 		<!-- http://maven.jenkins-ci.org/content/repositories/releases -->
 		<!-- http://maven.twttr.com -->
 	</repositories>
@@ -202,6 +213,11 @@
 			<dependency>
 				<groupId>com.typesafe.akka</groupId>
 				<artifactId>akka-actor</artifactId>
+				<version>${akka.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.typesafe.akka</groupId>
+				<artifactId>akka-testkit</artifactId>
 				<version>${akka.version}</version>
 			</dependency>
 			<dependency>
