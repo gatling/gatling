@@ -51,8 +51,8 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		val scenarioNames = mutable.Map[String, Long]()
 
 		def readFile(file: File) {
-			(for (line <- Source.fromFile(file.jfile, configuration.encoding).getLines) yield TABULATION_PATTERN.split(line, 0).toList)
-				.foreach {
+			for (line <- Source.fromFile(file.jfile, configuration.encoding).getLines) {
+				TABULATION_PATTERN.split(line, 0).toList match {
 					case RUN :: runDate :: runId :: runDescription :: l =>
 						runRecords += RunRecord(parseTimestampString(runDate), runId, runDescription)
 					case ACTION :: scenarioName :: userId :: requestName :: executionStartDate :: executionEndDate :: requestSendingEndDate :: responseReceivingStartDate :: resultStatus :: resultMessage :: l =>
@@ -76,6 +76,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 					case record => logger.warn("Malformed line, skipping it : " + record)
 				}
+			}
 		}
 
 		simulationLogDirectory(runUuid).toDirectory.files.filter(_.jfile.getName.matches(FileDataReader.SIMULATION_FILES_NAME_PATTERN)).foreach(readFile(_))
