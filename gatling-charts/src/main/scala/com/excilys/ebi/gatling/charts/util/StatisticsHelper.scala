@@ -78,7 +78,7 @@ object StatisticsHelper {
 				set + record.executionStartDateNoMillis
 			else
 				set
-		}.toList.sortBy(date => date)
+		}.toList.sorted
 
 		@tailrec
 		def build(lastCount: Int, times: List[Long], counts: List[(Long, Int)]): List[(Long, Int)] = times match {
