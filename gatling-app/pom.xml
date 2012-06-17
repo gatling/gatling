@@ -33,7 +33,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.github.scopt</groupId>
-			<artifactId>scopt_2.9.1</artifactId>
+			<artifactId>scopt_2.9.2</artifactId>
 		</dependency>
 	</dependencies>
 
