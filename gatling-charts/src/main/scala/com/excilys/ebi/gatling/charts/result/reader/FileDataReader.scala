@@ -55,7 +55,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 				TABULATION_PATTERN.split(line, 0).toList match {
 					case RUN :: runDate :: runId :: runDescription :: l =>
 						runRecords += RunRecord(parseTimestampString(runDate), runId, runDescription)
-					case ACTION :: scenarioName :: userId :: requestName :: executionStartDate :: executionEndDate :: requestSendingEndDate :: responseReceivingStartDate :: resultStatus :: resultMessage :: l =>
+					case ACTION :: scenarioName :: userId :: requestName :: executionStartDate :: executionEndDate :: requestSendingEndDate :: responseReceivingStartDate :: resultStatus :: l =>
 						val executionStartDateLong = executionStartDate.toLong
 						val record = ChartRequestRecord(scenarioName, userId.toInt, requestName, executionStartDateLong, executionEndDate.toLong, requestSendingEndDate.toLong, responseReceivingStartDate.toLong, RequestStatus.withName(resultStatus))
 

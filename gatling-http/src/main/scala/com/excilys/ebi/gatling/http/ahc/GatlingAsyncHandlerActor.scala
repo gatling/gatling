@@ -95,12 +95,12 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 			executionEndDate = computeTimeFromNanos(nanos)
 			requestSendingEndDate = if (requestSendingEndDate != 0L) requestSendingEndDate else executionEndDate
 			responseReceivingStartDate = if (responseReceivingStartDate != 0L) responseReceivingStartDate else executionEndDate
-			logRequest(KO, errorMessage, extractExtraInfo())
+			logRequest(KO, Some(errorMessage))
 			executeNext(session)
 
 		case ReceiveTimeout =>
 			error("GatlingAsyncHandlerActor timed out")
-			logRequest(KO, "GatlingAsyncHandlerActor timed out", extractExtraInfo())
+			logRequest(KO, Some("GatlingAsyncHandlerActor timed out"))
 			executeNext(session)
 
 		case m => throw new IllegalArgumentException("Unknown message type " + m)
@@ -109,11 +109,11 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 	def resetTimeout = context.setReceiveTimeout(HttpConfig.GATLING_HTTP_CONFIG_REQUEST_TIMEOUT_IN_MS milliseconds)
 
 	private def logRequest(requestResult: RequestStatus,
-		requestMessage: String = "Request executed successfully",
-		extraInfo: List[String] = Nil) = {
+		requestMessage: Option[String] = None,
+		response: Option[Response] = None) = {
 		DataWriter.logRequest(session.scenarioName, session.userId, "Request " + requestName,
 			executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate,
-			requestResult, requestMessage, extraInfo)
+			requestResult, requestMessage, extractExtraInfo(response))
 	}
 
 	/**
@@ -145,7 +145,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 				this.executionEndDate = 0L
 			}
 
-			logRequest(OK, extraInfo = extractExtraInfo(response))
+			logRequest(OK, response = Some(response))
 
 			val redirectUrl = computeRedirectUrl(URLDecoder.decode(response.getHeader(HeaderNames.LOCATION), gatlingConfiguration.encoding), request.getUrl)
 
@@ -175,7 +175,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 
 			phases match {
 				case Nil =>
-					logRequest(OK, extraInfo = extractExtraInfo(response))
+					logRequest(OK, response = Some(response))
 					executeNext(session)
 
 				case phase :: otherPhases =>
@@ -189,7 +189,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 							else
 								warn(new StringBuilder().append("Check on request '").append(requestName).append("' failed : ").append(errorMessage))
 
-							logRequest(KO, errorMessage, extraInfo = extractExtraInfo(response))
+							logRequest(KO, Some(errorMessage), Some(response))
 							executeNext(newSession)
 
 						case _ => checkPhasesRec(newSession, otherPhases)
@@ -204,8 +204,6 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 		else
 			checkPhasesRec(sessionWithUpdatedCookies, HttpPhase.phases)
 	}
-
-	private def extractExtraInfo(response: Response): List[String] = extractExtraInfo(Some(response))
 
 	/**
 	 * Extract extra info from both request and response.

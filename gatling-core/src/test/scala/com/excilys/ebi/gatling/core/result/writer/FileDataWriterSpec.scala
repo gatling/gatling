@@ -31,7 +31,7 @@ class FileDataWriterSpec extends Specification {
   "file data writer" should {
 
     "log a standard request record" in {
-      val record = new RequestRecord("scenario", 1, "requestName", 2L, 3L, 4L, 5L, RequestStatus.OK, "message")
+      val record = new RequestRecord("scenario", 1, "requestName", 2L, 3L, 4L, 5L, RequestStatus.OK, Some("message"))
 
       val stringWriter = new StringWriter()
 
@@ -44,7 +44,7 @@ class FileDataWriterSpec extends Specification {
 
     "append extra info to request records" in {
       val extraInfo:List[String] = List("some", "extra info", "for the log")
-      val record = new RequestRecord("scenario", 1, "requestName", 2L, 3L, 4L, 5L, RequestStatus.OK, "message", extraInfo)
+      val record = new RequestRecord("scenario", 1, "requestName", 2L, 3L, 4L, 5L, RequestStatus.OK, Some("message"), extraInfo)
 
       val stringWriter = new StringWriter()
 

@@ -35,6 +35,6 @@ import com.excilys.ebi.gatling.core.result.message.RecordType.ACTION
 case class RequestRecord(scenarioName: String, userId: Int, requestName: String,
                          executionStartDate: Long, executionEndDate: Long,
                          requestSendingEndDate: Long, responseReceivingStartDate: Long,
-                         requestStatus: RequestStatus.RequestStatus, requestMessage: String,
+                         requestStatus: RequestStatus.RequestStatus, requestMessage: Option[String] = None,
                          extraInfo: List[String] = Nil)
   extends Record(ACTION)
