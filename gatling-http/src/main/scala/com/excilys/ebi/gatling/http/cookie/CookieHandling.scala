@@ -23,7 +23,7 @@ import com.ning.http.client.Cookie
 
 case class CookieKey(domain: String, path: String, name: String)
 
-trait CookieHandling {
+object CookieHandling {
 
 	val COOKIES_CONTEXT_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "http.cookies"
 
@@ -31,21 +31,38 @@ trait CookieHandling {
 		session.getAttributeAsOption[Map[CookieKey, Cookie]](COOKIES_CONTEXT_KEY) match {
 			case Some(storedCookies) if (!storedCookies.isEmpty) =>
 				val uri = URI.create(url)
-				storedCookies
-					.filter { case (key, _) => uri.getHost.endsWith(key.domain) && uri.getPath.startsWith(key.path) }
-					.map { case (_, cookie) => cookie }
+
+				val cookiesWithExactPath = storedCookies
+					.foldLeft(Map.empty[String, Cookie]) { (cookies, entry) =>
+						val (key, cookie) = entry
+						if (uri.getHost.endsWith(key.domain) && uri.getPath == key.path)
+							cookies + (cookie.getName -> cookie)
+						else
+							cookies
+					}
+
+				val cookiesWithSubPath = storedCookies
+					.foldLeft(List.empty[Cookie]) { (cookies, entry) =>
+						val (key, cookie) = entry
+						if (!cookiesWithExactPath.contains(key.name) && uri.getHost.endsWith(key.domain) && uri.getPath.startsWith(key.path))
+							cookie :: cookies
+						else
+							cookies
+					}
+
+				cookiesWithExactPath.values.toList ::: cookiesWithSubPath
 
 			case _ => Nil
 		}
 	}
 
-	def storeCookies(session: Session, uri: URI, cookies: Seq[Cookie]): Session = {
+	private[gatling] def newCookieKey(cookie: Cookie, uri: URI) = {
+		val cookieDomain = Option(cookie.getDomain).getOrElse(uri.getHost)
+		val cookiePath = Option(cookie.getPath).getOrElse(uri.getPath)
+		CookieKey(cookieDomain, cookiePath, cookie.getName)
+	}
 
-		def newCookieKey(cookie: Cookie, uri: URI) = {
-			val cookieDomain = Option(cookie.getDomain).getOrElse(uri.getHost)
-			val cookiePath = Option(cookie.getPath).getOrElse(uri.getPath)
-			CookieKey(cookieDomain, cookiePath, cookie.getName)
-		}
+	def storeCookies(session: Session, uri: URI, cookies: Seq[Cookie]): Session = {
 
 		if (!cookies.isEmpty) {
 			val storedCookies: Map[CookieKey, Cookie] = session.getAttributeAsOption(COOKIES_CONTEXT_KEY).getOrElse(Map.empty)

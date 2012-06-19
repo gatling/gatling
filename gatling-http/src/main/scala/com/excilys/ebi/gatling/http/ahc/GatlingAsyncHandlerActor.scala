@@ -52,7 +52,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 	protocolConfiguration: Option[HttpProtocolConfiguration],
 	gatlingConfiguration: GatlingConfiguration,
 	handlerFactory: HandlerFactory, responseBuilderFactory: ExtendedResponseBuilderFactory)
-		extends Actor with Logging with CookieHandling {
+		extends Actor with Logging {
 
 	var responseBuilder = responseBuilderFactory(session)
 	var executionStartDate = currentTimeMillis
@@ -151,7 +151,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 
 			val requestBuilder = new RequestBuilder(request).setMethod("GET").setQueryParameters(null.asInstanceOf[FluentStringsMap]).setParameters(null.asInstanceOf[FluentStringsMap]).setUrl(redirectUrl)
 
-			for (cookie <- getStoredCookies(sessionWithUpdatedCookies, redirectUrl))
+			for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatedCookies, redirectUrl))
 				requestBuilder.addCookie(cookie)
 
 			val newRequest = requestBuilder.build
@@ -197,7 +197,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], ne
 			}
 		}
 
-		val sessionWithUpdatedCookies = storeCookies(session, response.getUri, response.getCookies)
+		val sessionWithUpdatedCookies = CookieHandling.storeCookies(session, response.getUri, response.getCookies)
 
 		if (REDIRECT_STATUS_CODES.contains(response.getStatusCode) && followRedirect)
 			handleFollowRedirect(sessionWithUpdatedCookies)

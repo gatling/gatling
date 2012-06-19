@@ -60,7 +60,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		realm: Option[Session => Realm],
-		checks: List[HttpCheck]) extends CookieHandling with RefererHandling {
+		checks: List[HttpCheck]) {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type
@@ -197,7 +197,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 
 		requestBuilder.setUrl(resolvedUrl)
 
-		for (cookie <- getStoredCookies(session, resolvedUrl))
+		for (cookie <- CookieHandling.getStoredCookies(session, resolvedUrl))
 			requestBuilder.addCookie(cookie)
 
 		resolvedUrl.startsWith(Protocol.HTTPS.getProtocol)
@@ -237,7 +237,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 		val baseHeaders = protocolConfiguration.map(_.baseHeaders).getOrElse(Map.empty)
 		val resolvedRequestHeaders = headers.map { case (headerName, headerValue) => (headerName -> headerValue(session)) }
 
-		val newHeaders = addStoredRefererHeader(baseHeaders ++ resolvedRequestHeaders, session, protocolConfiguration)
+		val newHeaders = RefererHandling.addStoredRefererHeader(baseHeaders ++ resolvedRequestHeaders, session, protocolConfiguration)
 		newHeaders.foreach { case (headerName, headerValue) => requestBuilder.addHeader(headerName, headerValue) }
 	}
 

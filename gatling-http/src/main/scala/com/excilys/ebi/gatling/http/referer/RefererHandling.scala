@@ -23,7 +23,7 @@ import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.Headers
 import com.ning.http.client.Request
 
-trait RefererHandling {
+object RefererHandling {
 
 	val REFERER_CONTEXT_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "http.referer"
 
