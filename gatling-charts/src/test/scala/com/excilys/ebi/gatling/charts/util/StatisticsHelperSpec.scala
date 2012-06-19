@@ -68,28 +68,6 @@ class StatisticsHelperSpec extends Specification {
 		}
 	}
 
-	"meanResponseTime" should {
-
-		"return NO_PLOT_MAGIC_VALUE for empty request data" in {
-			meanResponseTime(Nil) must beEqualTo(NO_PLOT_MAGIC_VALUE)
-		}
-
-		"return expected result for correct request data" in {
-			meanResponseTime(testChartRequestRecords) must beEqualTo(knownAverageResponseTime)
-		}
-	}
-
-	"meanLatency" should {
-
-		"return NO_PLOT_MAGIC_VALUE for empty request data" in {
-			meanLatency(Nil) must beEqualTo(NO_PLOT_MAGIC_VALUE)
-		}
-
-		"return expected result for correct request data" in {
-			meanLatency(testChartRequestRecords) must beEqualTo(1500)
-		}
-	}
-
 	"responseTimeStandardDeviation" should {
 
 		"return NO_PLOT_MAGIC_VALUE for empty request data" in {

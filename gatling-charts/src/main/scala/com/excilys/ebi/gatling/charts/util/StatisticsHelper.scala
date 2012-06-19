@@ -33,8 +33,10 @@ object StatisticsHelper {
 	private def isRecordWithStatus(record: ChartRequestRecord, status: Option[RequestStatus]) = status.map(_ == record.requestStatus).getOrElse(true)
 	private def isRealRequest(record: ChartRequestRecord) = record.requestName != START_OF_SCENARIO && record.requestName != END_OF_SCENARIO
 	private def meanTime(timeFunction: ChartRequestRecord => Long)(data: Seq[ChartRequestRecord]): Long = if (data.isEmpty) NO_PLOT_MAGIC_VALUE else (data.map(timeFunction(_)).sum / data.length.toDouble).toLong
-	val meanResponseTime = meanTime(_.responseTime) _
-	val meanLatency = meanTime(_.latency) _
+	private def maxTime(timeFunction: ChartRequestRecord => Long)(data: Seq[ChartRequestRecord]): Long = if (data.isEmpty) NO_PLOT_MAGIC_VALUE else timeFunction(data.maxBy(timeFunction(_)))
+	private val meanResponseTime = meanTime(_.responseTime) _
+	private val maxResponseTime = meanTime(_.responseTime) _
+	private val maxLatency = maxTime(_.latency) _
 
 	/**
 	 * Compute the population standard deviation of the provided data.
@@ -278,7 +280,7 @@ object StatisticsHelper {
 			.map { case (time, results) => time -> computation(results) }
 			.sortBy(_._1)
 
-	def responseTimeOverTime(data: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus): Seq[(Long, Long)] = computationOverTime(data, requestStatus, meanResponseTime)
+	def responseTimeOverTime(data: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus): Seq[(Long, Long)] = computationOverTime(data, requestStatus, maxResponseTime)
 
-	def latencyOverTime(data: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus): Seq[(Long, Long)] = computationOverTime(data, requestStatus, meanLatency)
+	def latencyOverTime(data: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus): Seq[(Long, Long)] = computationOverTime(data, requestStatus, maxLatency)
 }
