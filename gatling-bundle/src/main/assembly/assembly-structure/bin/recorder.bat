@@ -15,6 +15,8 @@
 @REM limitations under the License.
 @REM
 
+setlocal
+
 rem set GATLING_HOME automatically if possible
 set "OLD_DIR=%cd%"
 cd ..
@@ -58,4 +60,5 @@ goto exit
 
 :exit
 pause
+endlocal
 exit /b 0
