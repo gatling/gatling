@@ -31,7 +31,7 @@ class PutHttpRequestBuilder(
 	headers: Map[String, EvaluatableString],
 	body: Option[HttpRequestBody],
 	realm: Option[Session => Realm],
-	checks: List[HttpCheck])
+	checks: List[HttpCheck[_]])
 		extends AbstractHttpRequestWithBodyBuilder[PutHttpRequestBuilder](requestName, "PUT", url, queryParams, headers, body, realm, checks) {
 
 	private[http] def newInstance(
@@ -41,7 +41,7 @@ class PutHttpRequestBuilder(
 		headers: Map[String, EvaluatableString],
 		body: Option[HttpRequestBody],
 		realm: Option[Session => Realm],
-		checks: List[HttpCheck]) = {
+		checks: List[HttpCheck[_]]) = {
 		new PutHttpRequestBuilder(requestName, url, queryParams, headers, body, realm, checks)
 	}
 }

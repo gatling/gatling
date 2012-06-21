@@ -29,12 +29,12 @@ object Predef {
 	implicit def sessionFunctionToSimpleActionBuilder(sessionFunction: Session => Session) = simpleActionBuilder(sessionFunction)
 	implicit def stringToSessionFunction(string: String) = parseEvaluatable(string)
 	implicit def toSessionFunction[X](x: X) = (session: Session) => x
-	implicit def checkBuilderToCheck[C <: Check[R], R](checkBuilder: CheckBuilder[C, R]) = checkBuilder.build
-	implicit def matcherCheckBuilderToCheckBuilder[C <: Check[R], R, X](matcherCheckBuilder: MatcherCheckBuilder[C, R, X]) = matcherCheckBuilder.exists
-	implicit def matcherCheckBuilderToCheck[C <: Check[R], R, X](matcherCheckBuilder: MatcherCheckBuilder[C, R, X]) = matcherCheckBuilder.exists.build
-	implicit def extractorCheckBuilderToMatcherCheckBuilder[C <: Check[R], R, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, X]) = extractorCheckBuilder.find
-	implicit def extractorCheckBuilderToCheckBuilder[C <: Check[R], R, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, X]) = extractorCheckBuilder.find.exists
-	implicit def extractorCheckBuilderToCheck[C <: Check[R], R, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, X]) = extractorCheckBuilder.find.exists.build
+	implicit def checkBuilderToCheck[C <: Check[R, XC], R, XC](checkBuilder: CheckBuilder[C, R, XC]) = checkBuilder.build
+	implicit def matcherCheckBuilderToCheckBuilder[C <: Check[R, XC], R, XC, X](matcherCheckBuilder: MatcherCheckBuilder[C, R, XC, X]) = matcherCheckBuilder.exists
+	implicit def matcherCheckBuilderToCheck[C <: Check[R, XC], R, XC, X](matcherCheckBuilder: MatcherCheckBuilder[C, R, XC, X]) = matcherCheckBuilder.exists.build
+	implicit def extractorCheckBuilderToMatcherCheckBuilder[C <: Check[R, XC], R, XC, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, XC, X]) = extractorCheckBuilder.find
+	implicit def extractorCheckBuilderToCheckBuilder[C <: Check[R, XC], R, XC, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, XC, X]) = extractorCheckBuilder.find.exists
+	implicit def extractorCheckBuilderToCheck[C <: Check[R, XC], R, XC, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, XC, X]) = extractorCheckBuilder.find.exists.build
 
 	def csv(fileName: String) = SeparatedValuesFeederBuilder.csv(fileName)
 	def csv(fileName: String, escapeChar: Char) = SeparatedValuesFeederBuilder.csv(fileName, Some(escapeChar))

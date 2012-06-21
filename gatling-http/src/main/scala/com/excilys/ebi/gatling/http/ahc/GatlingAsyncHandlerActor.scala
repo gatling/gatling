@@ -47,7 +47,7 @@ object GatlingAsyncHandlerActor {
 	val REDIRECT_STATUS_CODES = 301 to 303
 }
 
-class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck], next: ActorRef,
+class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]], next: ActorRef,
 	var requestName: String, var request: Request, followRedirect: Boolean,
 	protocolConfiguration: Option[HttpProtocolConfiguration],
 	gatlingConfiguration: GatlingConfiguration,

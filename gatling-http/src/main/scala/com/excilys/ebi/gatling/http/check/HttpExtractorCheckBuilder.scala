@@ -19,6 +19,7 @@ import com.excilys.ebi.gatling.core.check.{ ExtractorFactory, CheckBuilderFactor
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.ning.http.client.Response
+import com.excilys.ebi.gatling.core.session.Session
 
 /**
  * This class serves as model for the HTTP-specific check builders
@@ -26,7 +27,7 @@ import com.ning.http.client.Response
  * @param expression the function returning the expression representing what is to be checked
  * @param phase the HttpPhase during which the check will be made
  */
-abstract class HttpExtractorCheckBuilder[X](expression: EvaluatableString, phase: HttpPhase) extends ExtractorCheckBuilder[HttpCheck, Response, X] {
+abstract class HttpExtractorCheckBuilder[X, XC](expression: Session => XC, phase: HttpPhase) extends ExtractorCheckBuilder[HttpCheck[XC], Response, XC, X] {
 
-	def httpCheckBuilderFactory: CheckBuilderFactory[HttpCheck, Response] = (matcher: Matcher[Response], saveAs: Option[String]) => new HttpCheck(expression, matcher, saveAs, phase)
+	def httpCheckBuilderFactory: CheckBuilderFactory[HttpCheck[XC], Response, XC] = (matcher: Matcher[Response, XC], saveAs: Option[String]) => new HttpCheck(expression, matcher, saveAs, phase)
 }

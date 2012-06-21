@@ -23,12 +23,12 @@ package object check {
 	/**
 	 * A function for extracting from a string
 	 */
-	type Extractor[X] = String => Option[X]
+	type Extractor[XC, X] = XC => Option[X]
 
 	/**
 	 * A function for producing an Extractor from a Response
 	 */
-	type ExtractorFactory[R, X] = R => Extractor[X]
+	type ExtractorFactory[R, XC, X] = R => Extractor[XC, X]
 
 	/**
 	 * A strategy for matching an extracted value
@@ -38,10 +38,10 @@ package object check {
 	/**
 	 * A function to be applied on an extracted value to produce a CheckResult
 	 */
-	type Matcher[R] = (EvaluatableString, Session, R) => CheckResult
+	type Matcher[R, XC] = (Session => XC, Session, R) => CheckResult
 	
 	/**
 	 * A function for production a complete CheckBuilder
 	 */
-	type CheckBuilderFactory[C <: Check[R], R] = (Matcher[R], Option[String]) => C
+	type CheckBuilderFactory[C <: Check[R, XC], R, XC] = (Matcher[R, XC], Option[String]) => C
 }

@@ -32,14 +32,14 @@ object HttpBodyPartCheckBuilder {
 
 	def checksum(algorythm: String) = new HttpBodyPartCheckBuilder(algorythm)
 
-	private def findExtractorFactory: ExtractorFactory[Response, String] = (response: Response) =>
+	private def findExtractorFactory: ExtractorFactory[Response, String, String] = (response: Response) =>
 		(expression: String) => response.asInstanceOf[ExtendedResponse].checksum(expression)
 }
 
 /**
  * This class builds a body part check
  */
-class HttpBodyPartCheckBuilder(algorythm: String) extends HttpExtractorCheckBuilder[String]((session: Session) => algorythm, BodyPartReceived) {
+class HttpBodyPartCheckBuilder(algorythm: String) extends HttpExtractorCheckBuilder[String, String]((session: Session) => algorythm, BodyPartReceived) {
 
-	def find = new MatcherCheckBuilder[HttpCheck, Response, String](httpCheckBuilderFactory, findExtractorFactory)
+	def find = new MatcherCheckBuilder[HttpCheck[String], Response, String, String](httpCheckBuilderFactory, findExtractorFactory)
 }

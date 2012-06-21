@@ -35,21 +35,21 @@ object HttpHeaderCheckBuilder {
 	/**
 	 * Will check the value of the header in the session
 	 *
-	 * @param expression the function returning the name of the header
+	 * @param headerName the function returning the name of the header
 	 */
-	def header(expression: EvaluatableString) = new HttpHeaderCheckBuilder(expression)
+	def header(headerName: EvaluatableString) = new HttpHeaderCheckBuilder(headerName)
 
-	private def findExtractorFactory(occurrence: Int): ExtractorFactory[Response, String] = (response: Response) => (expression: String) => {
-		val headers = response.getHeaders(expression)
+	private def findExtractorFactory(occurrence: Int): ExtractorFactory[Response, String, String] = (response: Response) => (headerName: String) => {
+		val headers = response.getHeaders(headerName)
 		if (headers.size > occurrence)
-			toOption(headers.get(occurrence))
+			headers.get(occurrence)
 		else
 			None
 	}
 
-	private val findAllExtractorFactory: ExtractorFactory[Response, Seq[String]] = (response: Response) => (expression: String) => seqToOption(response.getHeaders(expression))
+	private val findAllExtractorFactory: ExtractorFactory[Response, String, Seq[String]] = (response: Response) => (headerName: String) => seqToOption(response.getHeaders(headerName))
 
-	private val countExtractorFactory: ExtractorFactory[Response, Int] = (response: Response) => (expression: String) => toOption(response.getHeaders(expression).size)
+	private val countExtractorFactory: ExtractorFactory[Response, String, Int] = (response: Response) => (headerName: String) => toOption(response.getHeaders(headerName).size)
 }
 
 /**
@@ -57,9 +57,9 @@ object HttpHeaderCheckBuilder {
  *
  * @param expression the function returning the header name to be checked
  */
-class HttpHeaderCheckBuilder(expression: EvaluatableString) extends HttpExtractorCheckBuilder[String](expression, HeadersReceived) with MultipleExtractorCheckBuilder[HttpCheck, Response, String] {
+class HttpHeaderCheckBuilder(headerName: EvaluatableString) extends HttpExtractorCheckBuilder[String, String](headerName, HeadersReceived) with MultipleExtractorCheckBuilder[HttpCheck[String], Response, String, String] {
 
-	def find: MatcherCheckBuilder[HttpCheck, Response, String] = find(0)
+	def find: MatcherCheckBuilder[HttpCheck[String], Response, String, String] = find(0)
 
 	def find(occurrence: Int) = new MatcherCheckBuilder(httpCheckBuilderFactory, findExtractorFactory(occurrence))
 

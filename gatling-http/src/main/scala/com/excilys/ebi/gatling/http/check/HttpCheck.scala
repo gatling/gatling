@@ -19,6 +19,7 @@ import com.excilys.ebi.gatling.core.check.{ Check, Matcher, ExtractorFactory }
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.ning.http.client.Response
+import com.excilys.ebi.gatling.core.session.Session
 
 /**
  * This class serves as model for the HTTP-specific checks
@@ -29,4 +30,4 @@ import com.ning.http.client.Response
  * @param strategy the strategy used to check
  * @param phase the HttpPhase during which the check will be made
  */
-class HttpCheck(expression: EvaluatableString, matcher: Matcher[Response], saveAs: Option[String], val phase: HttpPhase) extends Check[Response](expression, matcher, saveAs)
+class HttpCheck[XC](expression: Session => XC, matcher: Matcher[Response, XC], saveAs: Option[String], val phase: HttpPhase) extends Check[Response, XC](expression, matcher, saveAs)

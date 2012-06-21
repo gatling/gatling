@@ -69,7 +69,7 @@ class ExtendedResponse(response: Response, checksums: Map[String, MessageDigest]
 
 object ExtendedResponseBuilder {
 
-	def newExtendedResponseBuilder(checks: List[HttpCheck]): ExtendedResponseBuilderFactory = {
+	def newExtendedResponseBuilder(checks: List[HttpCheck[_]]): ExtendedResponseBuilderFactory = {
 
 		val checksumChecks = checks.filter(_.phase == BodyPartReceived)
 		val storeBodyPart = checks.exists(_.phase == CompletePageReceived)
@@ -77,7 +77,7 @@ object ExtendedResponseBuilder {
 	}
 }
 
-class ExtendedResponseBuilder(session: Session, checksumChecks: List[HttpCheck], storeBodyParts: Boolean) {
+class ExtendedResponseBuilder(session: Session, checksumChecks: List[HttpCheck[_]], storeBodyParts: Boolean) {
 
 	val responseBuilder = new ResponseBuilder
 	var checksums = Map.empty[String, MessageDigest]
@@ -93,7 +93,8 @@ class ExtendedResponseBuilder(session: Session, checksumChecks: List[HttpCheck],
 	def accumulate(bodyPart: Option[HttpResponseBodyPart]) {
 		bodyPart.map { part =>
 			for (check <- checksumChecks) {
-				val algorithm = check.expression(session)
+				// FIXME ugly hack
+				val algorithm = check.expression(session).asInstanceOf[String]
 				checksums.getOrElse(algorithm, {
 					val md = MessageDigest.getInstance(algorithm)
 					checksums += (algorithm -> md)

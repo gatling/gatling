@@ -25,12 +25,12 @@ import com.excilys.ebi.gatling.core.session.EvaluatableString
  * @param <R> the type of response
  * @param <X> the type of extracted value
  */
-abstract class ExtractorCheckBuilder[C <: Check[R], R, X] {
+abstract class ExtractorCheckBuilder[C <: Check[R, XC], R, XC, X] {
 
 	/**
 	 * @return a partial CheckBuilder with an Extractor for the first value
 	 */
-	def find: MatcherCheckBuilder[C, R, X]
+	def find: MatcherCheckBuilder[C, R, XC, X]
 }
 
 /**
@@ -40,22 +40,22 @@ abstract class ExtractorCheckBuilder[C <: Check[R], R, X] {
  * @param <R> the type of response
  * @param <X> the type of extracted value
  */
-trait MultipleExtractorCheckBuilder[C <: Check[R], R, X] extends ExtractorCheckBuilder[C, R, X] {
+trait MultipleExtractorCheckBuilder[C <: Check[R, XC], R, XC, X] extends ExtractorCheckBuilder[C, R, XC, X] {
 
 	/**
 	 * @return a partial CheckBuilder with an Extractor for the given occurrence
 	 */
-	def find(occurrence: Int): MatcherCheckBuilder[C, R, X]
+	def find(occurrence: Int): MatcherCheckBuilder[C, R, XC, X]
 
 	/**
 	 * @return a partial CheckBuilder with an Extractor for all the occurrences
 	 */
-	def findAll: MatcherCheckBuilder[C, R, Seq[X]]
+	def findAll: MatcherCheckBuilder[C, R, XC, Seq[X]]
 
 	/**
 	 * @return a partial CheckBuilder with an Extractor for the count of occurrences
 	 */
-	def count: MatcherCheckBuilder[C, R, Int]
+	def count: MatcherCheckBuilder[C, R, XC, Int]
 }
 
 object MatcherCheckBuilder {
@@ -85,15 +85,15 @@ object MatcherCheckBuilder {
  * @param <R> the type of response
  * @param <X> the type of extracted value
  */
-class MatcherCheckBuilder[C <: Check[R], R, X](checkBuilderFactory: CheckBuilderFactory[C, R], extractorFactory: ExtractorFactory[R, X]) {
+class MatcherCheckBuilder[C <: Check[R, XC], R, XC, X](checkBuilderFactory: CheckBuilderFactory[C, R, XC], extractorFactory: ExtractorFactory[R, XC, X]) {
 
 	/**
 	 * @param transformation a function for transforming the extracted value of type X into a value of type T
 	 * @return a partial CheckBuilder
 	 */
-	def transform[T](transformation: X => T): MatcherCheckBuilder[C, R, T] = new MatcherCheckBuilder(checkBuilderFactory, new ExtractorFactory[R, T] {
-		def apply(response: R) = new Extractor[T] {
-			def apply(expression: String) = extractorFactory(response)(expression) match {
+	def transform[T](transformation: X => T): MatcherCheckBuilder[C, R, XC, T] = new MatcherCheckBuilder(checkBuilderFactory, new ExtractorFactory[R, XC, T] {
+		def apply(response: R) = new Extractor[XC, T] {
+			def apply(expression: XC) = extractorFactory(response)(expression) match {
 				case Some(x) => Some(transformation(x))
 				case None => None
 			}
@@ -106,8 +106,8 @@ class MatcherCheckBuilder[C <: Check[R], R, X](checkBuilderFactory: CheckBuilder
 	 */
 	def matchWith(strategy: MatchStrategy[X]) = {
 
-		val matcher = new Matcher[R] {
-			def apply(expression: EvaluatableString, session: Session, response: R) = {
+		val matcher = new Matcher[R, XC] {
+			def apply(expression: Session => XC, session: Session, response: R) = {
 				val evaluatedExpression = expression(session)
 				val extractor = extractorFactory(response)
 				val extractedValue = extractor(evaluatedExpression)
@@ -115,7 +115,7 @@ class MatcherCheckBuilder[C <: Check[R], R, X](checkBuilderFactory: CheckBuilder
 			}
 		}
 
-		new CheckBuilder(checkBuilderFactory, matcher) with SaveAsCheckBuilder[C, R]
+		new CheckBuilder(checkBuilderFactory, matcher) with SaveAsCheckBuilder[C, R, XC]
 	}
 
 	/**
@@ -191,9 +191,9 @@ class MatcherCheckBuilder[C <: Check[R], R, X](checkBuilderFactory: CheckBuilder
  * @param <C> the type of Check
  * @param <R> the type of response
  */
-trait SaveAsCheckBuilder[C <: Check[R], R] extends CheckBuilder[C, R] {
+trait SaveAsCheckBuilder[C <: Check[R, XC], R, XC] extends CheckBuilder[C, R, XC] {
 
-	def saveAs(saveAs: String): CheckBuilder[C, R] = new CheckBuilder(checkBuilderFactory, matcher, Some(saveAs))
+	def saveAs(saveAs: String): CheckBuilder[C, R, XC] = new CheckBuilder(checkBuilderFactory, matcher, Some(saveAs))
 }
 
 /**
@@ -202,7 +202,7 @@ trait SaveAsCheckBuilder[C <: Check[R], R] extends CheckBuilder[C, R] {
  * @param <C> the type of Check
  * @param <R> the type of response
  */
-class CheckBuilder[C <: Check[R], R](val checkBuilderFactory: CheckBuilderFactory[C, R], val matcher: Matcher[R], saveAs: Option[String] = None) {
+class CheckBuilder[C <: Check[R, XC], R, XC](val checkBuilderFactory: CheckBuilderFactory[C, R, XC], val matcher: Matcher[R, XC], saveAs: Option[String] = None) {
 
 	def build: C = checkBuilderFactory(matcher, saveAs)
 }

@@ -29,9 +29,9 @@ object HttpBodyXPathCheckBuilder {
 
 	private def getCachedExtractor(response: Response) = getOrUpdateCheckContextAttribute(HTTP_BODY_XPATH_EXTRACTOR_CONTEXT_KEY, XPathExtractor(response.getResponseBodyAsStream))
 
-	private def findExtractorFactory(namespaces: List[(String, String)])(occurrence: Int): ExtractorFactory[Response, String] = (response: Response) => getCachedExtractor(response).extractOne(occurrence, namespaces)
+	private def findExtractorFactory(namespaces: List[(String, String)])(occurrence: Int): ExtractorFactory[Response, String, String] = (response: Response) => getCachedExtractor(response).extractOne(occurrence, namespaces)
 
-	private def findAllExtractorFactory(namespaces: List[(String, String)]): ExtractorFactory[Response, Seq[String]] = (response: Response) => getCachedExtractor(response).extractMultiple(namespaces)
+	private def findAllExtractorFactory(namespaces: List[(String, String)]): ExtractorFactory[Response, String, Seq[String]] = (response: Response) => getCachedExtractor(response).extractMultiple(namespaces)
 
-	private def countExtractorFactory(namespaces: List[(String, String)]): ExtractorFactory[Response, Int] = (response: Response) => getCachedExtractor(response).count(namespaces)
+	private def countExtractorFactory(namespaces: List[(String, String)]): ExtractorFactory[Response, String, Int] = (response: Response) => getCachedExtractor(response).count(namespaces)
 }

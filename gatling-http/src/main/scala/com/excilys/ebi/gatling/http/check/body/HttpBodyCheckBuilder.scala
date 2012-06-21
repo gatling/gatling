@@ -20,6 +20,7 @@ import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.check.{ HttpExtractorCheckBuilder, HttpCheck }
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 import com.ning.http.client.Response
+import com.excilys.ebi.gatling.core.session.Session
 
 /**
  * This class builds a response body check based on regular expressions
@@ -29,15 +30,15 @@ import com.ning.http.client.Response
  * @param countExtractorFactory the extractor factory for count
  * @param expression the function returning the expression representing expression is to be checked
  */
-class HttpBodyCheckBuilder(
-	findExtractorFactory: Int => ExtractorFactory[Response, String],
-	findAllExtractorFactory: ExtractorFactory[Response, Seq[String]],
-	countExtractorFactory: ExtractorFactory[Response, Int],
-	expression: EvaluatableString)
-		extends HttpExtractorCheckBuilder[String](expression, CompletePageReceived)
-		with MultipleExtractorCheckBuilder[HttpCheck, Response, String] {
+class HttpBodyCheckBuilder[XC](
+	findExtractorFactory: Int => ExtractorFactory[Response, XC, String],
+	findAllExtractorFactory: ExtractorFactory[Response, XC, Seq[String]],
+	countExtractorFactory: ExtractorFactory[Response, XC, Int],
+	expression: Session => XC)
+		extends HttpExtractorCheckBuilder[String, XC](expression, CompletePageReceived)
+		with MultipleExtractorCheckBuilder[HttpCheck[XC], Response, XC, String] {
 
-	def find: MatcherCheckBuilder[HttpCheck, Response, String] = find(0)
+	def find: MatcherCheckBuilder[HttpCheck[XC], Response, XC, String] = find(0)
 
 	def find(occurrence: Int) = new MatcherCheckBuilder(httpCheckBuilderFactory, findExtractorFactory(occurrence))
 

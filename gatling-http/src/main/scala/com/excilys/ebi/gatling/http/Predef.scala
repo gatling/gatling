@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.http
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.check.bodypart.HttpBodyPartCheckBuilder
 import com.excilys.ebi.gatling.http.check.body.{ HttpBodyXPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyCssCheckBuilder }
-import com.excilys.ebi.gatling.http.check.header.HttpHeaderCheckBuilder
+import com.excilys.ebi.gatling.http.check.header.{ HttpHeaderCheckBuilder, HttpHeaderRegexCheckBuilder }
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder
 import com.excilys.ebi.gatling.http.config.{ HttpProxyBuilder, HttpProtocolConfigurationBuilder, HttpProtocolConfiguration }
 import com.excilys.ebi.gatling.http.request.builder.HttpRequestBaseBuilder
@@ -33,11 +33,12 @@ object Predef {
 	implicit def toHttpProtocolConfiguration(hpb: HttpProxyBuilder): HttpProtocolConfiguration = HttpProxyBuilder.toHttpProtocolConfigurationBuilder(hpb)
 	implicit def toHttpProtocolConfiguration(builder: HttpProtocolConfigurationBuilder): HttpProtocolConfiguration = HttpProtocolConfigurationBuilder.toHttpProtocolConfiguration(builder)
 
-	def regex(expression: EvaluatableString) = HttpBodyRegexCheckBuilder.regex(expression)
+	def regex(pattern: EvaluatableString) = HttpBodyRegexCheckBuilder.regex(pattern)
 	def xpath(expression: EvaluatableString, namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)
-	def css(expression: EvaluatableString) = HttpBodyCssCheckBuilder.css(expression)
+	def css(selector: EvaluatableString) = HttpBodyCssCheckBuilder.css(selector)
 	def jsonPath(expression: EvaluatableString) = HttpBodyJsonPathCheckBuilder.jsonPath(expression)
-	def header(expression: EvaluatableString) = HttpHeaderCheckBuilder.header(expression)
+	def header(headerName: EvaluatableString) = HttpHeaderCheckBuilder.header(headerName)
+	def headerRegex(headerName: EvaluatableString, pattern: EvaluatableString) = HttpHeaderRegexCheckBuilder.headerRegex(headerName, pattern)
 	def status = HttpStatusCheckBuilder.status
 	def md5 = HttpBodyPartCheckBuilder.checksum("MD5")
 	def sha1 = HttpBodyPartCheckBuilder.checksum("SHA-1")

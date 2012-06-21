@@ -31,7 +31,7 @@ class DeleteHttpRequestBuilder(
 	headers: Map[String, EvaluatableString],
 	body: Option[HttpRequestBody],
 	realm: Option[Session => Realm],
-	checks: List[HttpCheck])
+	checks: List[HttpCheck[_]])
 		extends AbstractHttpRequestWithBodyBuilder[DeleteHttpRequestBuilder](requestName, "DELETE", url, queryParams, headers, body, realm, checks) {
 
 	private[http] def newInstance(
@@ -41,7 +41,7 @@ class DeleteHttpRequestBuilder(
 		headers: Map[String, EvaluatableString],
 		body: Option[HttpRequestBody],
 		realm: Option[Session => Realm],
-		checks: List[HttpCheck]) = {
+		checks: List[HttpCheck[_]]) = {
 		new DeleteHttpRequestBuilder(requestName, url, queryParams, headers, body, realm, checks)
 	}
 }

@@ -31,10 +31,10 @@ object Check {
 	 * @param checks the checks to be applied
 	 * @return the result of the checks: Success or the first encountered Failure
 	 */
-	def applyChecks[R](session: Session, response: R, checks: List[Check[R]]): (Session, CheckResult) = {
+	def applyChecks[R](session: Session, response: R, checks: List[Check[R, _]]): (Session, CheckResult) = {
 
 		@tailrec
-		def applyChecksRec[R](session: Session, response: R, checks: List[Check[R]], previousCheckResult: CheckResult): (Session, CheckResult) = checks match {
+		def applyChecksRec[R](session: Session, response: R, checks: List[Check[R, _]], previousCheckResult: CheckResult): (Session, CheckResult) = checks match {
 			case Nil =>
 				(session, previousCheckResult)
 
@@ -61,7 +61,7 @@ object Check {
  * @param saveAs the session attribute that will be used to store the extracted value if the checks are successful
  * @param strategy the strategy used to perform the Check
  */
-class Check[R](val expression: EvaluatableString, matcher: Matcher[R], saveAs: Option[String]) {
+class Check[R, XC](val expression: Session => XC, matcher: Matcher[R, XC], saveAs: Option[String]) {
 
 	def apply(response: R, session: Session): (Session, CheckResult) = matcher(expression, session, response) match {
 		case success @ Success(extractedValue) =>

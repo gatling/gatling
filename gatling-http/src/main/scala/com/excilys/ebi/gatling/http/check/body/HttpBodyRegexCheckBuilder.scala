@@ -23,15 +23,15 @@ import com.ning.http.client.Response
 
 object HttpBodyRegexCheckBuilder {
 
-	def regex(expression: EvaluatableString) = new HttpBodyCheckBuilder(findExtractorFactory, findAllExtractorFactory, countExtractorFactory, expression)
+	def regex(pattern: EvaluatableString) = new HttpBodyCheckBuilder(findExtractorFactory, findAllExtractorFactory, countExtractorFactory, pattern)
 
 	private val HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY = "HttpBodyRegexExtractor"
 
 	private def getCachedExtractor(response: Response) = getOrUpdateCheckContextAttribute(HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY, new RegexExtractor(response.getResponseBody))
 
-	private def findExtractorFactory(occurrence: Int): ExtractorFactory[Response, String] = (response: Response) => getCachedExtractor(response).extractOne(occurrence)
+	private def findExtractorFactory(occurrence: Int): ExtractorFactory[Response, String, String] = (response: Response) => getCachedExtractor(response).extractOne(occurrence)
 
-	private val findAllExtractorFactory: ExtractorFactory[Response, Seq[String]] = (response: Response) => getCachedExtractor(response).extractMultiple
+	private val findAllExtractorFactory: ExtractorFactory[Response, String, Seq[String]] = (response: Response) => getCachedExtractor(response).extractMultiple
 
-	private val countExtractorFactory: ExtractorFactory[Response, Int] = (response: Response) => getCachedExtractor(response).count
+	private val countExtractorFactory: ExtractorFactory[Response, String, Int] = (response: Response) => getCachedExtractor(response).count
 }

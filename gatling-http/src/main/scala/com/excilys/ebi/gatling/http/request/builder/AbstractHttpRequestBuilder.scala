@@ -60,7 +60,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		realm: Option[Session => Realm],
-		checks: List[HttpCheck]) {
+		checks: List[HttpCheck[_]]) {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type
@@ -77,7 +77,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 		queryParams: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		credentials: Option[Session => Realm],
-		checks: List[HttpCheck]): B
+		checks: List[HttpCheck[_]]): B
 
 	private[http] def withRequestName(requestName: String): B = newInstance(requestName, url, queryParams, headers, realm, checks)
 
@@ -86,7 +86,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 *
 	 * @param checks the checks that will be performed on the response
 	 */
-	def check(checks: HttpCheck*): B = newInstance(requestName, url, queryParams, headers, realm, this.checks ::: checks.toList)
+	def check(checks: HttpCheck[_]*): B = newInstance(requestName, url, queryParams, headers, realm, this.checks ::: checks.toList)
 
 	/**
 	 * Adds a query parameter to the request

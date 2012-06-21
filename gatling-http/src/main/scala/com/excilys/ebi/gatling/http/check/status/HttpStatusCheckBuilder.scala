@@ -33,13 +33,13 @@ object HttpStatusCheckBuilder {
 
 	def status = new HttpStatusCheckBuilder
 
-	private def findExtractorFactory: ExtractorFactory[Response, Int] = (response: Response) => (expression: String) => Some(response.getStatusCode)
+	private def findExtractorFactory: ExtractorFactory[Response, String, Int] = (response: Response) => (expression: String) => Some(response.getStatusCode)
 }
 
 /**
  * This class builds a response status check
  */
-class HttpStatusCheckBuilder extends HttpExtractorCheckBuilder[Int](Session => EMPTY, StatusReceived) {
+class HttpStatusCheckBuilder extends HttpExtractorCheckBuilder[Int, String](Session => EMPTY, StatusReceived) {
 
-	def find = new MatcherCheckBuilder[HttpCheck, Response, Int](httpCheckBuilderFactory, findExtractorFactory)
+	def find = new MatcherCheckBuilder[HttpCheck[String], Response, String, Int](httpCheckBuilderFactory, findExtractorFactory)
 }

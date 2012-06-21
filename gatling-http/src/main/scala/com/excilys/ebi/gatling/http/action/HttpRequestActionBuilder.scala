@@ -42,7 +42,7 @@ object HttpRequestActionBuilder {
  * @param next the next action to be executed
  * @param checks the checks to be applied on the response
  */
-class HttpRequestActionBuilder(requestName: String, requestBuilder: AbstractHttpRequestBuilder[_], next: ActorRef, checks: List[HttpCheck]) extends ActionBuilder {
+class HttpRequestActionBuilder(requestName: String, requestBuilder: AbstractHttpRequestBuilder[_], next: ActorRef, checks: List[HttpCheck[_]]) extends ActionBuilder {
 
 	private[gatling] def withNext(next: ActorRef) = new HttpRequestActionBuilder(requestName, requestBuilder, next, checks)
 
