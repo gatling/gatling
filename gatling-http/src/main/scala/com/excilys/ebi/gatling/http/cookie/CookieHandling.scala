@@ -24,9 +24,7 @@ object CookieHandling {
 
 	val COOKIES_CONTEXT_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "http.cookies"
 
-	def cookiesToHttpCookies(cookies: Seq[Cookie]) = cookies.map(c => new HttpCookie(c))
-
-	def getStoredCookies(session: Session, url: String): Iterable[HttpCookie] = {
+	def getStoredCookies(session: Session, url: String): Iterable[Cookie] = {
 
 		session.getAttributeAsOption[CookieStore](COOKIES_CONTEXT_KEY) match {
 			case Some(cookieStore) => {
@@ -38,12 +36,10 @@ object CookieHandling {
 	}
 
 	def storeCookies(session: Session, uri: URI, cookies: Seq[Cookie]): Session = {
-
 		if (!cookies.isEmpty) {
-			val httpCookies = cookiesToHttpCookies(cookies)
 			session.getAttributeAsOption[CookieStore](COOKIES_CONTEXT_KEY) match {
-				case Some(cookieStore) => session.setAttribute(COOKIES_CONTEXT_KEY, cookieStore.add(uri, httpCookies))
-				case _ => session.setAttribute(COOKIES_CONTEXT_KEY, new CookieStore(Map(uri -> httpCookies)))
+				case Some(cookieStore) => session.setAttribute(COOKIES_CONTEXT_KEY, cookieStore.add(uri, cookies))
+				case _ => session.setAttribute(COOKIES_CONTEXT_KEY, new CookieStore(Map(uri -> cookies)))
 			}
 		} else
 			session
