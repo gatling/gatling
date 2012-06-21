@@ -62,6 +62,10 @@
 			<name>Hugo Cordier</name>
 			<organization>eBusiness Information, Excilys Group</organization>
 		</developer>
+		<developer>
+			<id>nicolas.remond@gmail.com</id>
+			<name>Nicolas Remond</name>
+		</developer>
 	</developers>
 
 	<repositories>
