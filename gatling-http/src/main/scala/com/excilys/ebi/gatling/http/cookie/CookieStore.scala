@@ -19,7 +19,7 @@ import java.net.URI
 import scala.annotation.tailrec
 import com.ning.http.client.Cookie
 
-class CookieStore(store: Map[URI, Seq[Cookie]]) {
+class CookieStore(store: Map[URI, List[Cookie]]) {
 
 	private val MAX_AGE_UNSPECIFIED = -1l;
 
@@ -29,16 +29,14 @@ class CookieStore(store: Map[URI, Seq[Cookie]]) {
 			c1.getPath != null && c1.getPath == c2.getPath
 	}
 
-	private def contains(cookies: Seq[Cookie], c: Cookie) = cookies.exists(equals(_, c))
+	private def contains(cookies: List[Cookie], c: Cookie) = cookies.exists(equals(_, c))
 
-	private def hasExpired(c: Cookie): Boolean = {
-		return c.getMaxAge != MAX_AGE_UNSPECIFIED && c.getMaxAge <= 0
-	}
+	private def hasExpired(c: Cookie): Boolean = c.getMaxAge != MAX_AGE_UNSPECIFIED && c.getMaxAge <= 0
 
 	private def getEffectiveUri(uri: URI) =
-		new URI(uri.getScheme(),
-			uri.getAuthority(),
-			uri.getPath(),
+		new URI(uri.getScheme,
+			uri.getAuthority,
+			uri.getPath,
 			null, // query component
 			null) // fragment component
 
@@ -48,20 +46,19 @@ class CookieStore(store: Map[URI, Seq[Cookie]]) {
 	 *                  with an URI
 	 * @param cookie    the cookie to store
 	 */
-	def add(rawURI: URI, newCookies: Seq[Cookie]) = {
+	def add(rawURI: URI, newCookies: List[Cookie]) = {
 		val uri = getEffectiveUri(rawURI)
-		val cookiesWithDiffURI = store.filter(pair => pair._1 != uri)
+		val cookiesWithDiffURI = store.filter { case (cookieUri, _) => cookieUri != uri }
 
-		def replaceCookie(newCookie: Cookie, cookies: Seq[Cookie]) = cookies.map(c => if (equals(c, newCookie)) newCookie else c)
+		def replaceCookie(newCookie: Cookie, cookies: List[Cookie]) = cookies.map(cookie => if (equals(cookie, newCookie)) newCookie else cookie)
 
 		@tailrec
-		def addOrReplaceCookies(newCookies: Seq[Cookie], oldCookies: Seq[Cookie]): Seq[Cookie] =
-			newCookies match {
-				case newCookie :: moreNewCookies => addOrReplaceCookies(moreNewCookies, if (contains(oldCookies, newCookie)) replaceCookie(newCookie, oldCookies) else newCookie :: oldCookies.toList)
-				case _ => oldCookies
-			}
+		def addOrReplaceCookies(newCookies: List[Cookie], oldCookies: List[Cookie]): List[Cookie] = newCookies match {
+			case newCookie :: moreNewCookies => addOrReplaceCookies(moreNewCookies, if (contains(oldCookies, newCookie)) replaceCookie(newCookie, oldCookies) else newCookie :: oldCookies)
+			case _ => oldCookies
+		}
 
-		val nonExpiredNewCookies = newCookies.filter(c => !hasExpired(c))
+		val nonExpiredNewCookies = newCookies.filterNot(c => hasExpired(c))
 		val cookiesWithExactURI = store.get(uri) match {
 			case Some(cookies) => addOrReplaceCookies(nonExpiredNewCookies, cookies)
 			case _ => nonExpiredNewCookies
@@ -75,15 +72,19 @@ class CookieStore(store: Map[URI, Seq[Cookie]]) {
 	 */
 	def get(rawURI: URI) = {
 		val uri = getEffectiveUri(rawURI)
-		val cookiesWithExactURI = store.get(uri) match {
-			case Some(cookies) => cookies
-			case _ => Nil
+		val cookiesWithExactURI = store.get(uri).getOrElse(Nil)
+
+		def domainAndPathFilter(cookies: List[Cookie]) = cookies.filter { cookie =>
+			!contains(cookiesWithExactURI, cookie) && java.net.HttpCookie.domainMatches(cookie.getDomain, uri.getHost) && uri.getPath.startsWith(cookie.getPath)
 		}
 
-		def domainAndPathFilter(cookies: Seq[Cookie]) = {
-			cookies.filter(c => !contains(cookiesWithExactURI, c) && java.net.HttpCookie.domainMatches(c.getDomain, uri.getHost) && (uri.getPath startsWith c.getPath))
+		val cookiesWithSubPath = store.foldLeft(List[Cookie]()) { (cookies, storedEntry) =>
+			val (sortedUri, storedCookies) = storedEntry
+			if (sortedUri != uri)
+				cookies ++ domainAndPathFilter(storedCookies)
+			else
+				cookies
 		}
-		val cookiesWithSubPath = store.foldLeft(List[Cookie]())((cookies, pair) => if (pair._1 != uri) cookies ++ domainAndPathFilter(pair._2) else Nil)
 
 		cookiesWithExactURI ++ cookiesWithSubPath
 	}

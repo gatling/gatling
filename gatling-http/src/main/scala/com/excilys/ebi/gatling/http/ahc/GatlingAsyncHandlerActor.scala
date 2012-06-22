@@ -31,6 +31,7 @@ import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames }
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.{ REDIRECT_STATUS_CODES, REDIRECTED_REQUEST_NAME_PATTERN }
 import com.excilys.ebi.gatling.http.check.HttpCheck
+import com.excilys.ebi.gatling.http.config.{ HttpProtocolConfiguration, HttpConfig }
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.http.request.HttpPhase
@@ -40,7 +41,6 @@ import com.ning.http.client.{ Response, RequestBuilder, Request, FluentStringsMa
 import akka.actor.{ ReceiveTimeout, ActorRef, Actor }
 import akka.util.duration.intToDurationInt
 import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.http.config.{ HttpProtocolConfiguration, HttpConfig }
 
 object GatlingAsyncHandlerActor {
 	val REDIRECTED_REQUEST_NAME_PATTERN = """(.+?) Redirect (\d+)""".r
@@ -197,7 +197,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 			}
 		}
 
-		val sessionWithUpdatedCookies = CookieHandling.storeCookies(session, response.getUri, response.getCookies)
+		val sessionWithUpdatedCookies = CookieHandling.storeCookies(session, response.getUri, response.getCookies.toList)
 
 		if (REDIRECT_STATUS_CODES.contains(response.getStatusCode) && followRedirect)
 			handleFollowRedirect(sessionWithUpdatedCookies)

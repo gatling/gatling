@@ -35,7 +35,7 @@ object CookieHandling {
 		}
 	}
 
-	def storeCookies(session: Session, uri: URI, cookies: Seq[Cookie]): Session = {
+	def storeCookies(session: Session, uri: URI, cookies: List[Cookie]): Session = {
 		if (!cookies.isEmpty) {
 			session.getAttributeAsOption[CookieStore](COOKIES_CONTEXT_KEY) match {
 				case Some(cookieStore) => session.setAttribute(COOKIES_CONTEXT_KEY, cookieStore.add(uri, cookies))
