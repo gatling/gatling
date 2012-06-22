@@ -66,6 +66,10 @@
 			<id>nicolas.remond@gmail.com</id>
 			<name>Nicolas Remond</name>
 		</developer>
+		<developer>
+			<id>skuenzli@gmail.com</id>
+			<name>Stephen Kuenzli</name>
+		</developer>
 	</developers>
 
 	<repositories>
