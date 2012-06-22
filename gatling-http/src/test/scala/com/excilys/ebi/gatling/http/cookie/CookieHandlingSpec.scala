@@ -26,44 +26,30 @@ import com.ning.http.util.AsyncHttpProviderUtils
 @RunWith(classOf[JUnitRunner])
 class CookieHandlingSpec extends Specification {
 
-	val originalCookie = AsyncHttpProviderUtils.parseCookie("Set-Cookie: NAME=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-	val originalURI = new URI("http://docs.foo.com/accounts")
-	val originalCookieKey = CookieHandling.newCookieKey(originalCookie, originalURI)
-	val originalCookieMap = Map(originalCookieKey -> originalCookie)
-	val originalSession = new Session("scenarioName", 1, Map(CookieHandling.COOKIES_CONTEXT_KEY -> originalCookieMap))
+	val originalCookie = AsyncHttpProviderUtils.parseCookie("ALPHA=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
+	val originalURI = new URI("https://docs.foo.com/accounts")
+	val originalCookieStore = new CookieStore(Map(originalURI -> List(originalCookie)))
+	val originalSession = new Session("scenarioName", 1, Map(CookieHandling.COOKIES_CONTEXT_KEY -> originalCookieStore))
+
+	val emptySession = new Session("scenarioName", 2, Map())
+
+	"getStoredCookies" should {
+		"be able to get a cookie from session" in {
+			CookieHandling.getStoredCookies(originalSession, "https://docs.foo.com/accounts").map(x => x.getValue) must beEqualTo(List("VALUE1"))
+		}
+
+		"be called with an empty session" in {
+			CookieHandling.getStoredCookies(emptySession, "https://docs.foo.com/accounts") must beEmpty
+		}
+
+	}
 
 	"storeCookies" should {
+		"be able to store a cookie in an empty session" in {
+			val newCookie = AsyncHttpProviderUtils.parseCookie("ALPHA=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
+			CookieHandling.storeCookies(emptySession, new URI("https://docs.foo.com/accounts"), List(newCookie))
 
-		"overwrite cookie when setting a new one with the same path" in {
-
-			val newCookie = AsyncHttpProviderUtils.parseCookie("Set-Cookie: NAME=VALUE2; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-			val newSession = CookieHandling.storeCookies(originalSession, originalURI, List(newCookie))
-
-			val newCookies = CookieHandling.getStoredCookies(newSession, "http://docs.foo.com/accounts").toList
-			newCookies.length must beEqualTo(1)
-			newCookies.head.getValue must beEqualTo("VALUE2")
-		}
-
-		"return original cookie when setting a new one with a sub path and requesting the original path" in {
-
-			val newCookie = AsyncHttpProviderUtils.parseCookie("Set-Cookie: NAME=VALUE2; Domain=docs.foo.com; Path=/accounts/foo; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-			val newURI = new URI("http://docs.foo.com/accounts/foo")
-			val newSession = CookieHandling.storeCookies(originalSession, newURI, List(newCookie))
-
-			val newCookies = CookieHandling.getStoredCookies(newSession, "http://docs.foo.com/accounts").toList
-			newCookies.length must beEqualTo(1)
-			newCookies.head.getValue must beEqualTo("VALUE1")
-		}
-
-		"return updated cookie when setting a new one with a sub path and requesting the sub path" in {
-
-			val newCookie = AsyncHttpProviderUtils.parseCookie("Set-Cookie: NAME=VALUE2; Domain=docs.foo.com; Path=/accounts/foo; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-			val newURI = new URI("http://docs.foo.com/accounts/foo")
-			val newSession = CookieHandling.storeCookies(originalSession, newURI, List(newCookie))
-
-			val newCookies = CookieHandling.getStoredCookies(newSession, "http://docs.foo.com/accounts/foo").toList
-			newCookies.length must beEqualTo(1)
-			newCookies.head.getValue must beEqualTo("VALUE2")
+			CookieHandling.getStoredCookies(emptySession, "https://docs.foo.com/accounts") must beEmpty
 		}
 	}
 }
