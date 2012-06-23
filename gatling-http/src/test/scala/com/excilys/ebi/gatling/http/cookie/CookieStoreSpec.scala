@@ -44,11 +44,19 @@ class CookieStoreSpec extends Specification {
 			newCookies.head.getValue must beEqualTo("VALUE1")
 		}
 
-		"not return any expired cookies" in {
+		"not return any expired cookies when adding an new expired one" in {
 			val expiredCookie = AsyncHttpProviderUtils.parseCookie("BETA=EXPIRED; Domain=docs.foo.com; Path=/home; Expires=Wed, 24-Jan-1982 22:23:01 GMT; Secure; HttpOnly")
 			val newCookieStore = originalCookieStore.add(new URI("https://docs.foo.com/home"), List(expiredCookie))
 
 			val newCookies = newCookieStore.get(new URI("https://docs.foo.com/home"))
+			newCookies must beEmpty
+		}
+
+		"not return any expired cookies when expiring an existing one" in {
+			val expiredCookie = AsyncHttpProviderUtils.parseCookie("ALPHA=EXPIRED; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 24-Jan-1982 22:23:01 GMT; Secure; HttpOnly")
+			val newCookieStore = originalCookieStore.add(new URI("https://docs.foo.com/accounts"), List(expiredCookie))
+
+			val newCookies = newCookieStore.get(new URI("https://docs.foo.com/accounts"))
 			newCookies must beEmpty
 		}
 

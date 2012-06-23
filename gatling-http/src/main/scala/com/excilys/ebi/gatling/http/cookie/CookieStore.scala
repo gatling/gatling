@@ -21,17 +21,7 @@ import com.ning.http.client.Cookie
 
 class CookieStore(store: Map[URI, List[Cookie]]) {
 
-	private val MAX_AGE_UNSPECIFIED = -1l;
-
-	private def equals(c1: Cookie, c2: Cookie) = {
-		c1.getName.equalsIgnoreCase(c2.getName) &&
-			c1.getDomain != null && c1.getDomain.equalsIgnoreCase(c2.getDomain) &&
-			c1.getPath != null && c1.getPath == c2.getPath
-	}
-
-	private def contains(cookies: List[Cookie], c: Cookie) = cookies.exists(equals(_, c))
-
-	private def hasExpired(c: Cookie): Boolean = c.getMaxAge != MAX_AGE_UNSPECIFIED && c.getMaxAge <= 0
+	private val MAX_AGE_UNSPECIFIED = -1L
 
 	private def getEffectiveUri(uri: URI) =
 		new URI(uri.getScheme,
@@ -46,46 +36,54 @@ class CookieStore(store: Map[URI, List[Cookie]]) {
 	 *                  with an URI
 	 * @param cookie    the cookie to store
 	 */
-	def add(rawURI: URI, newCookies: List[Cookie]) = {
-		val uri = getEffectiveUri(rawURI)
-		val cookiesWithDiffURI = store.filter { case (cookieUri, _) => cookieUri != uri }
+	def add(rawURI: URI, newCookies: Iterable[Cookie]): CookieStore = {
 
-		def replaceCookie(newCookie: Cookie, cookies: List[Cookie]) = cookies.map(cookie => if (equals(cookie, newCookie)) newCookie else cookie)
+		def cookiesEquals(c1: Cookie, c2: Cookie) = {
+			c1.getName.equalsIgnoreCase(c2.getName) &&
+				c1.getDomain != null && c1.getDomain.equalsIgnoreCase(c2.getDomain) &&
+				c1.getPath != null && c1.getPath == c2.getPath
+		}
+
+		def hasExpired(c: Cookie): Boolean = c.getMaxAge != MAX_AGE_UNSPECIFIED && c.getMaxAge <= 0
 
 		@tailrec
-		def addOrReplaceCookies(newCookies: List[Cookie], oldCookies: List[Cookie]): List[Cookie] = newCookies match {
-			case newCookie :: moreNewCookies => addOrReplaceCookies(moreNewCookies, if (contains(oldCookies, newCookie)) replaceCookie(newCookie, oldCookies) else newCookie :: oldCookies)
-			case _ => oldCookies
+		def addOrReplaceCookies(newCookies: Iterable[Cookie], oldCookies: List[Cookie]): List[Cookie] = newCookies match {
+			case Nil => oldCookies
+			case newCookie :: moreNewCookies =>
+				val updatedCookies = newCookie :: oldCookies.filterNot(cookiesEquals(_, newCookie))
+				addOrReplaceCookies(moreNewCookies, updatedCookies)
 		}
 
-		val nonExpiredNewCookies = newCookies.filterNot(c => hasExpired(c))
+		val uri = getEffectiveUri(rawURI)
+
 		val cookiesWithExactURI = store.get(uri) match {
-			case Some(cookies) => addOrReplaceCookies(nonExpiredNewCookies, cookies)
-			case _ => nonExpiredNewCookies
+			case Some(cookies) => addOrReplaceCookies(newCookies, cookies)
+			case _ => newCookies.toList
 		}
-
-		new CookieStore(cookiesWithDiffURI ++ Map(uri -> cookiesWithExactURI))
+		val nonExpiredCookies = cookiesWithExactURI.filterNot(hasExpired(_))
+		new CookieStore(store + (uri -> nonExpiredCookies))
 	}
 
-	/**
-	 * @return an immutable list of HttpCookie, an empty list if no cookies match the given URI
-	 */
-	def get(rawURI: URI) = {
+	def get(rawURI: URI): List[Cookie] = {
+
 		val uri = getEffectiveUri(rawURI)
 		val cookiesWithExactURI = store.get(uri).getOrElse(Nil)
+		val cookiesWithExactURINames = cookiesWithExactURI.map(_.getName)
 
-		def domainAndPathFilter(cookies: List[Cookie]) = cookies.filter { cookie =>
-			!contains(cookiesWithExactURI, cookie) && java.net.HttpCookie.domainMatches(cookie.getDomain, uri.getHost) && uri.getPath.startsWith(cookie.getPath)
+		def filterDomainAndPathMatches(cookies: List[Cookie]) = cookies.filter { cookie =>
+			!cookiesWithExactURINames.contains(cookie.getName) && java.net.HttpCookie.domainMatches(cookie.getDomain, uri.getHost) && uri.getPath.startsWith(cookie.getPath)
 		}
 
+		// known limitation: might return duplicates if more than 1 cookie with a given name with non exact uri
 		val cookiesWithSubPath = store.foldLeft(List[Cookie]()) { (cookies, storedEntry) =>
-			val (sortedUri, storedCookies) = storedEntry
-			if (sortedUri != uri)
-				cookies ++ domainAndPathFilter(storedCookies)
+			val (storedUri, storedCookies) = storedEntry
+			if (storedUri != uri)
+				cookies ++ filterDomainAndPathMatches(storedCookies)
 			else
 				cookies
 		}
 
+		// known limitation: don't handle runtime expiration, intended for stress test
 		cookiesWithExactURI ++ cookiesWithSubPath
 	}
 }
