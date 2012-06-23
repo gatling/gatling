@@ -16,7 +16,9 @@
 package com.excilys.ebi.gatling.http.cookie
 
 import java.net.URI
+
 import scala.annotation.tailrec
+
 import com.ning.http.client.Cookie
 
 class CookieStore(store: Map[URI, List[Cookie]]) {
