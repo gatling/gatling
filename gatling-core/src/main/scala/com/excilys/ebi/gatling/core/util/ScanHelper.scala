@@ -30,8 +30,8 @@ object ScanHelper {
 
 	val SEPARATOR = Character.valueOf(28).toString
 
-	def getPackageResources(pkg: Path, deep: Boolean): Seq[Resource] = {
-		getClass.getClassLoader.getResources(pkg.toString.replace("\\", "/")).map { packageURL =>
+	def getPackageResources(pkg: Path, deep: Boolean): Iterator[Resource] = {
+		getClass.getClassLoader.getResources(pkg.toString.replace("\\", "/")).flatMap { packageURL =>
 			packageURL.getProtocol match {
 				case "file" =>
 					val rootDir = File(new JFile(new URI(packageURL.toString).getSchemeSpecificPart)).toDirectory
@@ -51,7 +51,7 @@ object ScanHelper {
 
 				case _ => throw new UnsupportedOperationException
 			}
-		}.toList.flatten
+		}
 	}
 
 	def deepCopyPackageContent(pkg: Path, targetDirectoryPath: Path) {

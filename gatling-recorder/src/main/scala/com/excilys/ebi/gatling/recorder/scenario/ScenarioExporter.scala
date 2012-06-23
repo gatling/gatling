@@ -160,10 +160,10 @@ object ScenarioExporter extends Logging {
 				}
 			}
 
-			val requestElements = elementsList.map {
+			val requestElements = elementsList.flatMap {
 				case request: RequestElement => Some(request)
 				case _ => None
-			}.flatten
+			}
 
 			SortedMap(generateHeaders(requestElements, Map.empty).toSeq: _*)
 		}
@@ -182,25 +182,25 @@ object ScenarioExporter extends Logging {
 	}
 
 	private def getBaseUrl(scenarioElements: List[ScenarioElement]): String = {
-		val baseUrls = scenarioElements.map {
+		val baseUrls = scenarioElements.flatMap {
 			case reqElm: RequestElement => Some(reqElm.baseUrl)
 			case _ => None
-		}.flatten.groupBy(url => url).toSeq
+		}.groupBy(url => url).toSeq
 
 		baseUrls.maxBy { case (url, occurrences) => occurrences.size }._1
 	}
 
 	private def getMostFrequentHeaderValue(scenarioElements: List[ScenarioElement], headerName: String): Option[String] = {
-		val headers = scenarioElements.map {
+		val headers = scenarioElements.flatMap {
 			case reqElm: RequestElement => reqElm.headers.filter(_._1 == headerName).map(_._2)
 			case _ => Nil
-		}.flatten
+		}
 
-		headers match {
-			case Nil => None
-			case _ =>
-				val mostFrequentValue = headers.groupBy(value => value).maxBy { case (value, occurrences) => occurrences.size }._1
-				Some(mostFrequentValue)
+		if (headers.isEmpty)
+			None
+		else {
+			val mostFrequentValue = headers.groupBy(value => value).maxBy { case (_, occurrences) => occurrences.size }._1
+			Some(mostFrequentValue)
 		}
 	}
 

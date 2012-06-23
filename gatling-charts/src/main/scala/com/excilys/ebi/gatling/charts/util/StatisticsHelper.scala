@@ -48,13 +48,12 @@ object StatisticsHelper {
 		if (avg != NO_PLOT_MAGIC_VALUE) sqrt(data.map(result => pow(result.responseTime - avg, 2)).sum / data.length).toLong else NO_PLOT_MAGIC_VALUE
 	}
 
-	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: Map[Long, Int], requestData: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus): List[(Int, Long)] = requestData
-		.map {
+	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: Map[Long, Int], requestData: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus): Seq[(Int, Long)] = requestData
+		.flatMap {
 			case (time, results) => results
 				.filter(_.requestStatus == requestStatus)
 				.map(requestsPerSecond.get(time).get -> _.responseTime)
-		}.toList
-		.flatten
+		}
 
 	def count(data: Seq[(Long, Int)]) = data.foldLeft(0)((sum, entry) => sum + entry._2)
 

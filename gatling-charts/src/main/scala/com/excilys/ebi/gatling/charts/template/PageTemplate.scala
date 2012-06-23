@@ -38,7 +38,7 @@ abstract class PageTemplate(title: String, isDetails: Boolean, components: Compo
 
 	def getJavascript: String = components.map(_.getJavascriptContent).mkString
 
-	def getAdditionnalJSFiles = components.map(_.getJavascriptFiles).flatten.toSeq
+	def getAdditionnalJSFiles = components.flatMap(_.getJavascriptFiles)
 
 	def getOutput: String = {
 		PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_LAYOUT_FILE_URL,
