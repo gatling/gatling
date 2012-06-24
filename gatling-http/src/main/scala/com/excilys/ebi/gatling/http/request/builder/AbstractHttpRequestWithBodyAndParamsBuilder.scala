@@ -15,6 +15,8 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
+import scala.collection.JavaConversions.asJavaCollection
+
 import com.excilys.ebi.gatling.core.Predef.stringToSessionFunction
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.EvaluatableString
@@ -115,16 +117,17 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 * @param session the session of the current scenario
 	 */
 	private def configureParams(requestBuilder: RequestBuilder, session: Session) {
-		val paramsMap = new FluentStringsMap
 
-		val resolvedParams = for ((key, value) <- params) yield (key(session), value(session))
+		if (!params.isEmpty) {
+			val paramsMap = new FluentStringsMap
 
-		resolvedParams.groupBy(_._1).foreach {
-			case (key, params) => paramsMap.add(key, params.map(_._2): _*)
-		}
+			params
+				.map { case (key, value) => (key(session), value(session)) }
+				.groupBy(_._1)
+				.foreach { case (key, params) => paramsMap.add(key, params.map(_._2)) }
 
-		if (!paramsMap.isEmpty) // AHC removes body if setParameters is called
 			requestBuilder.setParameters(paramsMap)
+		}
 	}
 
 	private def configureBodyPart(requestBuilder: RequestBuilder, filePart: FilePart) {
