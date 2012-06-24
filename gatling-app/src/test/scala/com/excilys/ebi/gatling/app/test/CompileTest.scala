@@ -136,9 +136,10 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				.pause(pause1)
 				// Third request to be repeated
 				.exec(http("Liste Articles").get("/things").queryParam("firstname").queryParam("lastname"))
-				.pause(pause1)
+				.pauseExp(pause1)
 				.exec(http("Test Page").get("/tests").check(header(CONTENT_TYPE).is("text/html; charset=utf-8").saveAs("sessionParam")))
 				// Fourth request to be repeated
+				.pauseExp(100, MILLISECONDS)
 				.exec(http("Create Thing omgomg")
 					.post("/things").queryParam("postTest", "${sessionParam}").fileBody("create_thing", Map("name" -> "${sessionParam}")).asJSON
 					.check(status.is(201).saveAs("status")))).counterName("titi").times(iterations)
