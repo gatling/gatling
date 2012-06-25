@@ -15,8 +15,9 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.session.handler.{ TimerBasedIterationHandler, CounterBasedIterationHandler }
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.handler.{ TimerBasedIterationHandler, CounterBasedIterationHandler }
+
 import akka.actor.ActorRef
 import grizzled.slf4j.Logging
 

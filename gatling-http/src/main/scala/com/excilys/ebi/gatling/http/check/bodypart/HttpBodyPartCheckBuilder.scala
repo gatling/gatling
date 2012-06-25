@@ -15,11 +15,11 @@
  */
 package com.excilys.ebi.gatling.http.check.bodypart
 
-import com.excilys.ebi.gatling.core.check.{ ExtractorFactory, MatcherCheckBuilder }
+import com.excilys.ebi.gatling.core.check.{ MatcherCheckBuilder, ExtractorFactory }
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.ahc.ExtendedResponse
-import com.excilys.ebi.gatling.http.check.bodypart.HttpBodyPartCheckBuilder.findExtractorFactory
 import com.excilys.ebi.gatling.http.check.{ HttpExtractorCheckBuilder, HttpCheck }
+import com.excilys.ebi.gatling.http.check.bodypart.HttpBodyPartCheckBuilder.findExtractorFactory
 import com.excilys.ebi.gatling.http.request.HttpPhase.BodyPartReceived
 import com.ning.http.client.Response
 

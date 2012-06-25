@@ -18,8 +18,8 @@ package com.excilys.ebi.gatling.core.config
 import java.util.concurrent.atomic.AtomicBoolean
 
 import scala.io.Codec
-import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.Path
+import scala.tools.nsc.io.Path.string2path
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.GATLING_DEFAULT_CONFIG_FILE
 import com.excilys.ebi.gatling.core.result.reader.DataReader

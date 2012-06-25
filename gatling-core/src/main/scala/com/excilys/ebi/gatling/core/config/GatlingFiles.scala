@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.config
 
-import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.{ Path, Directory }
+import scala.tools.nsc.io.Path.string2path
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 

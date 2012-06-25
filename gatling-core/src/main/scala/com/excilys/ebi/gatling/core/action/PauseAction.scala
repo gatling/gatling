@@ -16,11 +16,9 @@
 package com.excilys.ebi.gatling.core.action
 
 import java.lang.System.currentTimeMillis
-import java.util.concurrent.TimeUnit
 
 import com.excilys.ebi.gatling.core.session.Session
 
-import akka.actor.actorRef2Scala
 import akka.actor.ActorRef
 import akka.util.duration.longToDurationLong
 import grizzled.slf4j.Logging

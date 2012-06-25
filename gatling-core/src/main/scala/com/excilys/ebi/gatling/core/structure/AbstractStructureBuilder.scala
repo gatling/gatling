@@ -19,15 +19,14 @@ import java.util.concurrent.TimeUnit
 
 import scala.annotation.tailrec
 
+import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.ExpPauseActionBuilder.expPauseActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.IfActionBuilder.ifActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder.pauseActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.feeder.Feeder
-import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
 import com.excilys.ebi.gatling.core.structure.loop.LoopBuilder
 
 import akka.actor.ActorRef

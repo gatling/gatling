@@ -15,19 +15,18 @@
  */
 package com.excilys.ebi.gatling.recorder.ui.frame;
 
-import java.awt.event.{ ItemListener, ItemEvent, ActionListener, ActionEvent }
 import java.awt.{ FlowLayout, FileDialog, Dimension, BorderLayout }
+import java.awt.event.{ ItemListener, ItemEvent, ActionListener, ActionEvent }
 import java.nio.charset.Charset
 
-import scala.collection.JavaConversions.collectionAsScalaIterable
-import scala.collection.JavaConversions.seqAsJavaList
+import scala.collection.JavaConversions.{ seqAsJavaList, collectionAsScalaIterable }
 
 import com.excilys.ebi.gatling.recorder.config.Configuration
+import com.excilys.ebi.gatling.recorder.ui.Commons
 import com.excilys.ebi.gatling.recorder.ui.Commons.iconList
 import com.excilys.ebi.gatling.recorder.ui.component.{ SaveConfigurationListener, FilterTable }
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy
 import com.excilys.ebi.gatling.recorder.ui.frame.ValidationHelper.{ proxyHostValidator, nonEmptyValidator, intValidator }
-import com.excilys.ebi.gatling.recorder.ui.Commons
 
 import grizzled.slf4j.Logging
 import javax.swing.{ SwingConstants, JTextField, JPanel, JLabel, JFrame, JFileChooser, JComboBox, JCheckBox, JButton, BorderFactory }

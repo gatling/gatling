@@ -15,7 +15,6 @@
  */
 package com.excilys.ebi.gatling.core
 
-import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.core.session.Session
 
 package object check {

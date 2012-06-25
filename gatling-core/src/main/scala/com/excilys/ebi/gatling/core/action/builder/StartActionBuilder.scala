@@ -15,8 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.system
-import com.excilys.ebi.gatling.core.action.StartAction
+import com.excilys.ebi.gatling.core.action.{ system, StartAction }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
 import akka.actor.{ Props, ActorRef }

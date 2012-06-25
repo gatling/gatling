@@ -15,11 +15,11 @@
  */
 package com.excilys.ebi.gatling.http.config
 
-import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.Headers
+import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
+import com.ning.http.client.{ Response, RequestBuilder, Request, ProxyServer }
 
 import grizzled.slf4j.Logging
-import com.ning.http.client.{Response, Request, RequestBuilder, ProxyServer}
 
 /**
  * HttpProtocolConfigurationBuilder class companion
@@ -37,13 +37,13 @@ object HttpProtocolConfigurationBuilder {
  * @param proxy a proxy through which all the requests must pass to succeed
  */
 class HttpProtocolConfigurationBuilder(baseUrl: Option[String],
-                                       proxy: Option[ProxyServer], securedProxy: Option[ProxyServer],
-                                       followRedirectParam: Boolean, automaticRefererParam: Boolean,
-                                       baseHeaders: Map[String, String],
-                                       warmUpUrl: Option[String],
-                                       extraRequestInfoExtractor: Option[(Request => List[String])],
-                                       extraResponseInfoExtractor: Option[(Response => List[String])])
-  extends Logging {
+	proxy: Option[ProxyServer], securedProxy: Option[ProxyServer],
+	followRedirectParam: Boolean, automaticRefererParam: Boolean,
+	baseHeaders: Map[String, String],
+	warmUpUrl: Option[String],
+	extraRequestInfoExtractor: Option[(Request => List[String])],
+	extraResponseInfoExtractor: Option[(Response => List[String])])
+		extends Logging {
 
 	/**
 	 * Sets the baseURL of the future HttpProtocolConfiguration
@@ -72,9 +72,9 @@ class HttpProtocolConfigurationBuilder(baseUrl: Option[String],
 
 	def disableWarmUp = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders, None, extraRequestInfoExtractor, extraResponseInfoExtractor)
 
-  def requestInfoExtractor(value: (Request => List[String])) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders, warmUpUrl, Some(value), extraResponseInfoExtractor)
+	def requestInfoExtractor(value: (Request => List[String])) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders, warmUpUrl, Some(value), extraResponseInfoExtractor)
 
-  def responseInfoExtractor(value: (Response) => List[String]) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders, warmUpUrl, extraRequestInfoExtractor, Some(value))
+	def responseInfoExtractor(value: (Response) => List[String]) = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders, warmUpUrl, extraRequestInfoExtractor, Some(value))
 
 	/**
 	 * Sets the proxy of the future HttpProtocolConfiguration

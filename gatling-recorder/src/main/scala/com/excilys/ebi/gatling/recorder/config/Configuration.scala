@@ -18,15 +18,15 @@ package com.excilys.ebi.gatling.recorder.config
 import java.io.{ IOException, FileWriter }
 
 import scala.reflect.BeanProperty
-import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.File
+import scala.tools.nsc.io.Path.string2path
 
 import com.excilys.ebi.gatling.core.config.{ GatlingFiles, GatlingConfiguration }
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.excilys.ebi.gatling.recorder.ui.Commons.GATLING_RECORDER_FILE_NAME
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy.NONE
-import com.thoughtworks.xstream.io.xml.DomDriver
 import com.thoughtworks.xstream.XStream
+import com.thoughtworks.xstream.io.xml.DomDriver
 
 import grizzled.slf4j.Logging
 

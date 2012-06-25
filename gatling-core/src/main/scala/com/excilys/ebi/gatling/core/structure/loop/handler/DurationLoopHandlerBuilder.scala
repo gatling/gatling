@@ -16,13 +16,12 @@
 package com.excilys.ebi.gatling.core.structure.loop.handler
 
 import java.lang.System.currentTimeMillis
+import java.util.UUID.randomUUID
 import java.util.concurrent.TimeUnit
 
 import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder.whileActionBuilder
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.{ ChainBuilder, AbstractStructureBuilder }
-
-import akka.actor.Uuid
 
 /**
  * This builder creates a duration loop, using a WhileAction
@@ -41,7 +40,7 @@ class DurationLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuil
 	 * Actually adds the current duration loop to the structure builder
 	 */
 	private[core] def build: B = {
-		val loopCounterName = counterName.getOrElse(new Uuid().toString)
+		val loopCounterName = counterName.getOrElse(randomUUID.toString)
 		doBuild(
 			List(whileActionBuilder
 				.withCondition((session: Session) => (currentTimeMillis - session.getTimerValue(loopCounterName)) <= durationUnit.toMillis(durationValue))

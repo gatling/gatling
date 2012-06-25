@@ -15,8 +15,7 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.ning.http.client.Realm
 

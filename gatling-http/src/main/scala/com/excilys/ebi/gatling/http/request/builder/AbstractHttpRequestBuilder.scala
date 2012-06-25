@@ -16,8 +16,7 @@
 package com.excilys.ebi.gatling.http.request.builder
 
 import com.excilys.ebi.gatling.core.Predef.stringToSessionFunction
-import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
 import com.excilys.ebi.gatling.core.util.StringHelper.{ parseEvaluatable, EL_START, EL_END }
 import com.excilys.ebi.gatling.http.Headers.{ Values => HeaderValues, Names => HeaderNames }
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
@@ -25,9 +24,9 @@ import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.referer.RefererHandling
+import com.ning.http.client.{ FluentStringsMap, FluentCaseInsensitiveStringsMap, RequestBuilder, Request, Realm }
 import com.ning.http.client.ProxyServer.Protocol
 import com.ning.http.client.Realm.AuthScheme
-import com.ning.http.client.{ RequestBuilder, Request, Realm, FluentStringsMap, FluentCaseInsensitiveStringsMap }
 
 /**
  * AbstractHttpRequestBuilder class companion

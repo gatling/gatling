@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.recorder.ui.frame;
 
-import java.awt.event.{ ActionListener, ActionEvent }
 import java.awt.{ FlowLayout, Dimension, BorderLayout }
+import java.awt.event.{ ActionListener, ActionEvent }
 
 import scala.collection.JavaConversions.seqAsJavaList
 
@@ -27,8 +27,8 @@ import com.excilys.ebi.gatling.recorder.ui.component.TextAreaPanel
 import com.excilys.ebi.gatling.recorder.ui.info.{ TagInfo, SSLInfo, RequestInfo, PauseInfo, EventInfo }
 
 import grizzled.slf4j.Logging
-import javax.swing.event.{ ListSelectionListener, ListSelectionEvent }
 import javax.swing.{ JTextField, JSplitPane, JScrollPane, JPanel, JList, JLabel, JFrame, JButton, DefaultListModel, BorderFactory }
+import javax.swing.event.{ ListSelectionListener, ListSelectionEvent }
 
 class RunningFrame extends JFrame with Logging {
 
@@ -168,7 +168,7 @@ class RunningFrame extends JFrame with Logging {
 				RecorderController.clearRecorderState
 			}
 		})
-		
+
 		btnCancel.addActionListener(new ActionListener {
 			def actionPerformed(e: ActionEvent) {
 				RecorderController.clearRecorderState

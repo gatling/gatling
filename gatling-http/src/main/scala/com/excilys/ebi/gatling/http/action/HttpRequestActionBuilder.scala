@@ -18,8 +18,8 @@ package com.excilys.ebi.gatling.http.action
 import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.{ ProtocolConfigurationRegistry, GatlingConfiguration }
-import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder.status
 import com.excilys.ebi.gatling.http.check.HttpCheck
+import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder.status
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder

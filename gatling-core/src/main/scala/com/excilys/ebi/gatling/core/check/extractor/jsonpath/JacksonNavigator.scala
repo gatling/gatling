@@ -17,8 +17,8 @@ package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 
 import org.jaxen.{ NamedAccessNavigator, DefaultNavigator }
 
-import com.fasterxml.jackson.databind.node.{ TextNode, ArrayNode }
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.{ TextNode, ArrayNode }
 
 /**
  * A Jaxen navigator for a Jackson tree

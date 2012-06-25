@@ -17,8 +17,8 @@ package com.excilys.ebi.gatling.http.cookie
 
 import java.net.URI
 
-import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
 import com.ning.http.client.Cookie
 
 object CookieHandling {

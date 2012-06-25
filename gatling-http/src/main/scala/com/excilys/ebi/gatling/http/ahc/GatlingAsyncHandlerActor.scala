@@ -33,8 +33,8 @@ import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.{ REDIRECT_STAT
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.{ HttpProtocolConfiguration, HttpConfig }
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
-import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.http.request.HttpPhase
+import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.http.util.HttpHelper.{ toRichResponse, computeRedirectUrl }
 import com.ning.http.client.{ Response, RequestBuilder, Request, FluentStringsMap }
 

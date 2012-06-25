@@ -17,8 +17,8 @@ package com.excilys.ebi.gatling.recorder.http;
 
 import java.net.InetSocketAddress
 
-import org.jboss.netty.channel.group.DefaultChannelGroup
 import org.jboss.netty.channel.Channel
+import org.jboss.netty.channel.group.DefaultChannelGroup
 
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
 import com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory.newServerBootstrap

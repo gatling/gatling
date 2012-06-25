@@ -19,8 +19,8 @@ import java.net.URI
 
 import scala.collection.JavaConversions.{ mapAsScalaMap, asScalaBuffer }
 
-import org.jboss.netty.handler.codec.http.HttpHeaders.Names.{ CONTENT_TYPE, AUTHORIZATION }
 import org.jboss.netty.handler.codec.http.{ QueryStringDecoder, HttpRequest }
+import org.jboss.netty.handler.codec.http.HttpHeaders.Names.{ CONTENT_TYPE, AUTHORIZATION }
 
 import com.ning.http.util.Base64
 

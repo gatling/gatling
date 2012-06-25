@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.jdbc.util
+
 import java.sql.Connection
 
 object JdbcHelper {

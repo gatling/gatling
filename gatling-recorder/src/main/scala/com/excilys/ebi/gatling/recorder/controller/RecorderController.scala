@@ -19,15 +19,15 @@ import java.net.URI
 import java.util.Date
 
 import scala.math.round
-import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.Directory
+import scala.tools.nsc.io.Path.string2path
 
 import org.codehaus.plexus.util.SelectorUtils
-import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
 import org.jboss.netty.handler.codec.http.{ HttpResponse, HttpRequest, HttpMethod }
+import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
 
+import com.excilys.ebi.gatling.recorder.config.{ Configuration, Options }
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
-import com.excilys.ebi.gatling.recorder.config.{ Options, Configuration }
 import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy
 import com.excilys.ebi.gatling.recorder.scenario.{ ScenarioExporter, ScenarioElement, RequestElement, PauseUnit, PauseElement }
 import com.excilys.ebi.gatling.recorder.ui.enumeration.{ PatternType, FilterStrategy }

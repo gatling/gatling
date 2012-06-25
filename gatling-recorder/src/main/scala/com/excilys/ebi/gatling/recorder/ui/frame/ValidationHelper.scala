@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.recorder.ui.frame
 
-import java.awt.event.{ KeyListener, KeyEvent }
 import java.awt.Color
+import java.awt.event.{ KeyListener, KeyEvent }
 import java.util.Date
 
 import scala.collection.mutable

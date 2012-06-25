@@ -19,14 +19,13 @@ import scala.collection.JavaConversions.asJavaCollection
 
 import com.excilys.ebi.gatling.core.Predef.stringToSessionFunction
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
 import com.excilys.ebi.gatling.core.util.StringHelper.{ EL_START, EL_END }
 import com.excilys.ebi.gatling.http.Headers.{ Values => HeaderValues, Names => HeaderNames }
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
-import com.ning.http.client.{ StringPart, FilePart, RequestBuilder, Realm, FluentStringsMap }
+import com.ning.http.client.{ StringPart, RequestBuilder, Realm, FluentStringsMap, FilePart }
 
 /**
  * This class serves as model to HTTP request with a body and parameters

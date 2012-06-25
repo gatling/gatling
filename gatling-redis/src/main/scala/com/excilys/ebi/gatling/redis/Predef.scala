@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.excilys.ebi.gatling.redis
+
 import com.excilys.ebi.gatling.redis.feeder.RedisFeederBuilder
 import com.redis.RedisClientPool
 

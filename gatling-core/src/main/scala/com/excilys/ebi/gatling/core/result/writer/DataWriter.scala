@@ -15,15 +15,15 @@
  */
 package com.excilys.ebi.gatling.core.result.writer
 
-import java.util.concurrent.CountDownLatch
 import java.lang.System.currentTimeMillis
+import java.util.concurrent.CountDownLatch
 
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RequestRecord, RunRecord, InitializeDataWriter, FlushDataWriter }
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
-import com.excilys.ebi.gatling.core.result.message.{ RunRecord, RequestStatus, RequestRecord, InitializeDataWriter, FlushDataWriter }
 
 import akka.actor.{ Props, ActorRef, Actor }
 
@@ -51,14 +51,14 @@ object DataWriter {
 
 	def askFlush = dispatch(FlushDataWriter)
 
-  def logRequest(scenarioName: String, userId: Int, requestName: String,
-                 executionStartDate: Long, executionEndDate: Long, requestSendingEndDate: Long, responseReceivingStartDate: Long,
-                 requestResult: RequestStatus.RequestStatus, requestMessage: Option[String] = None, extraInfo: List[String] = Nil) = {
+	def logRequest(scenarioName: String, userId: Int, requestName: String,
+		executionStartDate: Long, executionEndDate: Long, requestSendingEndDate: Long, responseReceivingStartDate: Long,
+		requestResult: RequestStatus.RequestStatus, requestMessage: Option[String] = None, extraInfo: List[String] = Nil) = {
 
-    dispatch(RequestRecord(scenarioName, userId, requestName,
-      executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate,
-      requestResult, requestMessage, extraInfo))
-  }
+		dispatch(RequestRecord(scenarioName, userId, requestName,
+			executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate,
+			requestResult, requestMessage, extraInfo))
+	}
 }
 
 /**

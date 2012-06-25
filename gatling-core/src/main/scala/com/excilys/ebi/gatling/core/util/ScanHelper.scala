@@ -19,8 +19,8 @@ import java.io.{ File => JFile }
 import java.net.{ URI, JarURLConnection }
 
 import scala.collection.JavaConversions.enumerationAsScalaIterator
-import scala.tools.nsc.io.Path.{ string2path, jfile2path }
 import scala.tools.nsc.io.{ Path, Jar, Fileish, File }
+import scala.tools.nsc.io.Path.{ string2path, jfile2path }
 
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY

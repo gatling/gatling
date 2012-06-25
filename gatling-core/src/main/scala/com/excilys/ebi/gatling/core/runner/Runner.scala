@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.runner
 
-import java.util.concurrent.TimeUnit.SECONDS
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit.SECONDS
 
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
@@ -27,8 +27,8 @@ import com.excilys.ebi.gatling.core.scenario.configuration.{ ScenarioConfigurati
 import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.ActorRef
-import akka.util.duration.longToDurationLong
 import akka.util.Duration
+import akka.util.duration.longToDurationLong
 import grizzled.slf4j.Logging
 
 class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioConfigurationBuilder]) extends Logging {

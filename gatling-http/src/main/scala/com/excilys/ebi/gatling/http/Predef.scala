@@ -16,9 +16,9 @@
 package com.excilys.ebi.gatling.http
 
 import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.excilys.ebi.gatling.http.check.bodypart.HttpBodyPartCheckBuilder
 import com.excilys.ebi.gatling.http.check.body.{ HttpBodyXPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyCssCheckBuilder }
-import com.excilys.ebi.gatling.http.check.header.{ HttpHeaderCheckBuilder, HttpHeaderRegexCheckBuilder }
+import com.excilys.ebi.gatling.http.check.bodypart.HttpBodyPartCheckBuilder
+import com.excilys.ebi.gatling.http.check.header.{ HttpHeaderRegexCheckBuilder, HttpHeaderCheckBuilder }
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder
 import com.excilys.ebi.gatling.http.config.{ HttpProxyBuilder, HttpProtocolConfigurationBuilder, HttpProtocolConfiguration }
 import com.excilys.ebi.gatling.http.request.builder.HttpRequestBaseBuilder

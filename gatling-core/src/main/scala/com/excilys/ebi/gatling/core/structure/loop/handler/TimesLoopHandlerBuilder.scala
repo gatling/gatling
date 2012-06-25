@@ -19,11 +19,11 @@ import java.util.UUID.randomUUID
 
 import scala.annotation.tailrec
 
-import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
-import com.excilys.ebi.gatling.core.session.handler.CounterBasedIterationHandler
+import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.structure.{ ChainBuilder, AbstractStructureBuilder }
+import com.excilys.ebi.gatling.core.session.handler.CounterBasedIterationHandler
+import com.excilys.ebi.gatling.core.structure.{ChainBuilder, AbstractStructureBuilder}
 
 /**
  * This builder creates a 'for' loop. This is achieved by copying the chain as many times at it should run

@@ -15,8 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.system
-import com.excilys.ebi.gatling.core.action.SimpleAction
+import com.excilys.ebi.gatling.core.action.{ system, SimpleAction }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.session.Session
 

@@ -17,8 +17,7 @@ package com.excilys.ebi.gatling.core.action.builder
 
 import java.util.concurrent.TimeUnit
 
-import com.excilys.ebi.gatling.core.action.system
-import com.excilys.ebi.gatling.core.action.PauseAction
+import com.excilys.ebi.gatling.core.action.{ system, PauseAction }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.util.NumberHelper.createExpRandomLongGenerator
 

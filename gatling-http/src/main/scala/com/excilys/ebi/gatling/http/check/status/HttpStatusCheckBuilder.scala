@@ -15,8 +15,7 @@
  */
 package com.excilys.ebi.gatling.http.check.status
 
-import com.excilys.ebi.gatling.core.check.ExtractorFactory
-import com.excilys.ebi.gatling.core.check.MatcherCheckBuilder
+import com.excilys.ebi.gatling.core.check.{ MatcherCheckBuilder, ExtractorFactory }
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.check.{ HttpExtractorCheckBuilder, HttpCheck }
 import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived

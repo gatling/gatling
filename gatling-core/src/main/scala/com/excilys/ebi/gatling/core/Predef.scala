@@ -18,10 +18,8 @@ package com.excilys.ebi.gatling.core
 import java.util.concurrent.TimeUnit
 
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
-import com.excilys.ebi.gatling.core.check.{ ExtractorCheckBuilder, CheckBuilder, Check }
-import com.excilys.ebi.gatling.core.check.MatcherCheckBuilder
+import com.excilys.ebi.gatling.core.check.{ MatcherCheckBuilder, ExtractorCheckBuilder, CheckBuilder, Check }
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesFeederBuilder
-import com.excilys.ebi.gatling.core.session.handler.{ TimerBasedIterationHandler, CounterBasedIterationHandler }
 import com.excilys.ebi.gatling.core.structure.{ ScenarioBuilder, ChainBuilder }
 import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 

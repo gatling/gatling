@@ -16,9 +16,9 @@
 package com.excilys.ebi.gatling.recorder.http.channel;
 
 import org.jboss.netty.bootstrap.{ ServerBootstrap, ClientBootstrap }
+import org.jboss.netty.channel.{ ChannelPipelineFactory, ChannelPipeline, ChannelHandlerContext }
 import org.jboss.netty.channel.Channels.pipeline
 import org.jboss.netty.channel.socket.nio.{ NioServerSocketChannelFactory, NioClientSocketChannelFactory }
-import org.jboss.netty.channel.{ ChannelPipelineFactory, ChannelPipeline, ChannelHandlerContext }
 import org.jboss.netty.handler.codec.http.{ HttpResponseEncoder, HttpRequestDecoder, HttpRequest, HttpContentDecompressor, HttpContentCompressor, HttpClientCodec, HttpChunkAggregator }
 import org.jboss.netty.handler.ssl.SslHandler
 

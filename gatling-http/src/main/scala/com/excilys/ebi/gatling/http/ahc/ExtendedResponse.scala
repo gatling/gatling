@@ -21,8 +21,8 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.bytes2Hex
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.request.HttpPhase.{ CompletePageReceived, BodyPartReceived }
-import com.ning.http.client.Response.ResponseBuilder
 import com.ning.http.client.{ Response, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart }
+import com.ning.http.client.Response.ResponseBuilder
 
 class ExtendedResponse(response: Response, checksums: Map[String, MessageDigest]) extends Response {
 

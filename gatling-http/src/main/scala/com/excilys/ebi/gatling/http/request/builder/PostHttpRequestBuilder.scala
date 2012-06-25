@@ -15,11 +15,10 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
-import com.ning.http.client.{ FilePart, Realm }
+import com.ning.http.client.{ Realm, FilePart }
 
 /**
  * This class defines an HTTP request with word POST in the DSL

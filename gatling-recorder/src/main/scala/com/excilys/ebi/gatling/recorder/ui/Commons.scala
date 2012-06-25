@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.recorder.ui;
 
-import java.awt.Image
-
 import javax.swing.ImageIcon
 
 class Commons

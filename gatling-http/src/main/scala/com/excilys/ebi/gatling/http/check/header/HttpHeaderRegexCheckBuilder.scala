@@ -16,13 +16,13 @@
 package com.excilys.ebi.gatling.http.check.header
 
 import scala.collection.JavaConversions.asScalaBuffer
+
+import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
 import com.excilys.ebi.gatling.core.check.extractor.regex.RegexExtractor
-import com.excilys.ebi.gatling.core.check.ExtractorFactory
-import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.excilys.ebi.gatling.core.session.Session
-import com.ning.http.client.Response
+import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
 import com.excilys.ebi.gatling.http.check.body.HttpBodyCheckBuilder
+import com.ning.http.client.Response
 
 object HttpHeaderRegexCheckBuilder {
 

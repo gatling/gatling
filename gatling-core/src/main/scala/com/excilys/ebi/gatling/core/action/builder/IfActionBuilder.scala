@@ -15,8 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.system
-import com.excilys.ebi.gatling.core.action.IfAction
+import com.excilys.ebi.gatling.core.action.{ system, IfAction }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.ChainBuilder

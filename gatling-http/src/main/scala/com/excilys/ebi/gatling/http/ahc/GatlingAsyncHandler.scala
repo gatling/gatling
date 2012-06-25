@@ -19,8 +19,8 @@ import java.lang.Void
 
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.request.HttpPhase.{ CompletePageReceived, BodyPartReceived }
+import com.ning.http.client.{ AsyncHandler, ProgressAsyncHandler, HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart }
 import com.ning.http.client.AsyncHandler.STATE.CONTINUE
-import com.ning.http.client.{ HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart, AsyncHandler, ProgressAsyncHandler }
 
 import akka.actor.ActorRef
 import grizzled.slf4j.Logging

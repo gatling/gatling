@@ -17,11 +17,11 @@ package com.excilys.ebi.gatling.core.action.builder
 
 import java.util.concurrent.TimeUnit
 
+import com.excilys.ebi.gatling.core.action.{ system, PauseAction }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+import com.excilys.ebi.gatling.core.util.NumberHelper.createUniformRandomLongGenerator
 
 import akka.actor.{ Props, ActorRef }
-import com.excilys.ebi.gatling.core.util.NumberHelper.createUniformRandomLongGenerator
-import com.excilys.ebi.gatling.core.action.{ PauseAction, system }
 
 object PauseActionBuilder {
 

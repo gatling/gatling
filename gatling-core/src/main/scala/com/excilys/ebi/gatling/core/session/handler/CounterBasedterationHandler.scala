@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.session.handler
 
-import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
 
 /**
  * CounterBasedIterationHandler trait 'companion'

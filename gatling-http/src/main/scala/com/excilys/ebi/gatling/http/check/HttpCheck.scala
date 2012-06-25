@@ -15,11 +15,10 @@
  */
 package com.excilys.ebi.gatling.http.check
 
-import com.excilys.ebi.gatling.core.check.{ Check, Matcher, ExtractorFactory }
-import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.core.check.{ Matcher, Check }
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.ning.http.client.Response
-import com.excilys.ebi.gatling.core.session.Session
 
 /**
  * This class serves as model for the HTTP-specific checks

@@ -17,10 +17,10 @@ package com.excilys.ebi.gatling.http.referer
 
 import scala.collection.JavaConversions.asScalaBuffer
 
-import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
+import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
 import com.excilys.ebi.gatling.http.Headers
+import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.ning.http.client.Request
 
 object RefererHandling {

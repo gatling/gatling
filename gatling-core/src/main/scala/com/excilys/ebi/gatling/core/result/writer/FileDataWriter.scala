@@ -19,8 +19,8 @@ import java.io.{ OutputStreamWriter, FileOutputStream, BufferedOutputStream }
 import java.util.concurrent.CountDownLatch
 
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogDirectory
+import com.excilys.ebi.gatling.core.result.message.{ InitializeDataWriter, FlushDataWriter, RequestRecord }
 import com.excilys.ebi.gatling.core.result.message.RecordType.{ RUN, ACTION }
-import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, InitializeDataWriter, FlushDataWriter }
 import com.excilys.ebi.gatling.core.util.DateHelper.toTimestamp
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
@@ -28,9 +28,9 @@ import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 import grizzled.slf4j.Logging
 
 object FileDataWriter {
-	
+
 	val emptyField = " "
-	
+
 	val sanitizerPattern = """[\n\r\t]""".r
 
 	private[writer] def append(appendable: Appendable, requestRecord: RequestRecord) {

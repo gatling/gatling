@@ -27,10 +27,10 @@ import scala.tools.nsc.io.{ File, Directory }
 import org.fusesource.scalate.TemplateEngine
 
 import com.excilys.ebi.gatling.core.util.IOHelper.use
-import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.REDIRECT_STATUS_CODES
 import com.excilys.ebi.gatling.http.Headers
-import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
+import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.REDIRECT_STATUS_CODES
 import com.excilys.ebi.gatling.recorder.config.Configuration
+import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
 
 import grizzled.slf4j.Logging
 
