@@ -265,10 +265,15 @@ class Gatling(cliOptions: Options) extends Logging {
 	private def generateReports(runUuid: String) {
 		println("Generating reports...")
 		val start = currentTimeMillis
-		if (ReportsGenerator.generateFor(runUuid)) {
+		try {
+			ReportsGenerator.generateFor(runUuid)
 			println("Reports generated in " + (currentTimeMillis - start) / 1000 + "s.")
 			println("Please open the following file : " + globalFile(runUuid))
-		} else
-			println("Reports weren't generated")
+
+		} catch {
+			case e =>
+				error(e)
+				println("Reports weren't generated")
+		}
 	}
 }

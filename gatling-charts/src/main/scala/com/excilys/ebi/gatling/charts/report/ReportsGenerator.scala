@@ -15,12 +15,10 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import java.net.URL
+import scala.collection.JavaConversions.enumerationAsScalaIterator
 
-import scala.collection.mutable.LinkedHashSet
-
-import com.excilys.ebi.gatling.charts.component.impl.ComponentLibraryImpl
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
+import com.excilys.ebi.gatling.charts.component.impl.ComponentLibraryImpl
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.menuFile
 import com.excilys.ebi.gatling.charts.template.{ PageTemplate, MenuTemplate }
 import com.excilys.ebi.gatling.core.config.GatlingFiles.{ styleFolder, jsFolder, GATLING_ASSETS_STYLE_PACKAGE, GATLING_ASSETS_JS_PACKAGE }
@@ -40,26 +38,19 @@ object ReportsGenerator extends Logging {
 			case None => ClassLoader.getSystemResources(STATIC_LIBRARY_BINDER_PATH)
 		}
 
-		// LinkedHashSet appropriate here because it preserves insertion order during iteration
-		val implementationSet = new LinkedHashSet[URL]
-		while (paths.hasMoreElements) {
-			val path = paths.nextElement.asInstanceOf[URL]
-			implementationSet += path
-		}
-		if (implementationSet.size > 1) {
+		if (paths.size > 1) {
 			warn("Class path contains multiple ComponentLibrary bindings")
-			implementationSet.foreach(url => warn("Found ComponentLibrary binding in " + url))
+			paths.foreach(url => warn("Found ComponentLibrary binding in " + url))
 		}
 
 		new ComponentLibraryImpl
 	}
 
-	def generateFor(runUuid: String) = {
+	def generateFor(runUuid: String) {
 
 		val dataReader = DataReader.newInstance(runUuid)
 
 		def generateMenu {
-
 			val maxLength = 50
 
 			val requestLinks: Iterable[(String, Option[String], String)] = dataReader.requestNames.map {
@@ -80,8 +71,7 @@ object ReportsGenerator extends Logging {
 		}
 
 		if (dataReader.requestNames.isEmpty) {
-			warn("There were no requests sent during the simulation, reports won't be generated")
-			false
+			throw new UnsupportedOperationException("There were no requests sent during the simulation, reports won't be generated")
 
 		} else {
 			val reportGenerators =
@@ -93,7 +83,6 @@ object ReportsGenerator extends Logging {
 			generateMenu
 			PageTemplate.setRunInfo(dataReader.runRecord)
 			reportGenerators.foreach(_.generate)
-			true
 		}
 	}
 
