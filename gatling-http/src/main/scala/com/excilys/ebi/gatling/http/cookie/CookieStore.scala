@@ -38,7 +38,7 @@ class CookieStore(store: Map[URI, List[Cookie]]) {
 	 *                  with an URI
 	 * @param cookie    the cookie to store
 	 */
-	def add(rawURI: URI, newCookies: Iterable[Cookie]): CookieStore = {
+	def add(rawURI: URI, newCookies: List[Cookie]): CookieStore = {
 
 		def cookiesEquals(c1: Cookie, c2: Cookie) = {
 			c1.getName.equalsIgnoreCase(c2.getName) &&
@@ -49,7 +49,7 @@ class CookieStore(store: Map[URI, List[Cookie]]) {
 		def hasExpired(c: Cookie): Boolean = c.getMaxAge != MAX_AGE_UNSPECIFIED && c.getMaxAge <= 0
 
 		@tailrec
-		def addOrReplaceCookies(newCookies: Iterable[Cookie], oldCookies: List[Cookie]): List[Cookie] = newCookies match {
+		def addOrReplaceCookies(newCookies: List[Cookie], oldCookies: List[Cookie]): List[Cookie] = newCookies match {
 			case Nil => oldCookies
 			case newCookie :: moreNewCookies =>
 				val updatedCookies = newCookie :: oldCookies.filterNot(cookiesEquals(_, newCookie))
@@ -60,7 +60,7 @@ class CookieStore(store: Map[URI, List[Cookie]]) {
 
 		val cookiesWithExactURI = store.get(uri) match {
 			case Some(cookies) => addOrReplaceCookies(newCookies, cookies)
-			case _ => newCookies.toList
+			case _ => newCookies
 		}
 		val nonExpiredCookies = cookiesWithExactURI.filterNot(hasExpired(_))
 		new CookieStore(store + (uri -> nonExpiredCookies))
