@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.http.handler;
+package com.excilys.ebi.gatling.recorder.http.handler
 
 import java.net.{ URI, InetSocketAddress }
 
@@ -21,13 +21,14 @@ import org.jboss.netty.channel.{ ChannelHandlerContext, ChannelFuture }
 import org.jboss.netty.handler.codec.http.HttpRequest
 
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
+import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory.newClientBootstrap
 
-class BrowserHttpRequestHandler(proxyConfig: ProxyConfig) extends AbstractBrowserRequestHandler(proxyConfig: ProxyConfig) {
+class BrowserHttpRequestHandler(controller: RecorderController, proxyConfig: ProxyConfig) extends AbstractBrowserRequestHandler(controller, proxyConfig) {
 
 	def connectToServerOnBrowserRequestReceived(ctx: ChannelHandlerContext, request: HttpRequest): ChannelFuture = {
 
-		val bootstrap = newClientBootstrap(ctx, request, false)
+		val bootstrap = newClientBootstrap(controller, ctx, request, false)
 
 		val (proxyHost, proxyPort) = (for {
 			host <- proxyConfig.host

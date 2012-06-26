@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.ui.frame;
+package com.excilys.ebi.gatling.recorder.ui.frame
 
 import java.awt.{ FlowLayout, Dimension, BorderLayout }
 import java.awt.event.{ ActionListener, ActionEvent }
@@ -30,7 +30,7 @@ import grizzled.slf4j.Logging
 import javax.swing.{ JTextField, JSplitPane, JScrollPane, JPanel, JList, JLabel, JFrame, JButton, DefaultListModel, BorderFactory }
 import javax.swing.event.{ ListSelectionListener, ListSelectionEvent }
 
-class RunningFrame extends JFrame with Logging {
+class RunningFrame(controller: RecorderController) extends JFrame with Logging {
 
 	private val btnTag = new JButton("Add")
 	private val btnClear = new JButton("Clear")
@@ -165,20 +165,20 @@ class RunningFrame extends JFrame with Logging {
 
 		btnClear.addActionListener(new ActionListener {
 			def actionPerformed(e: ActionEvent) {
-				RecorderController.clearRecorderState
+				controller.clearRecorderState
 			}
 		})
 
 		btnCancel.addActionListener(new ActionListener {
 			def actionPerformed(e: ActionEvent) {
-				RecorderController.clearRecorderState
-				RecorderController.stopRecording
+				controller.clearRecorderState
+				controller.stopRecording
 			}
 		})
 
 		btnStop.addActionListener(new ActionListener {
 			def actionPerformed(e: ActionEvent) {
-				RecorderController.stopRecording
+				controller.stopRecording
 			}
 		})
 	}

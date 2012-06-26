@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.http.handler;
+package com.excilys.ebi.gatling.recorder.http.handler
 
 import java.net.{ URI, InetSocketAddress }
 
@@ -26,7 +26,7 @@ import com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory.newClientB
 
 import grizzled.slf4j.Logging
 
-class BrowserHttpsRequestHandler(proxyConfig: ProxyConfig) extends AbstractBrowserRequestHandler(proxyConfig: ProxyConfig) with Logging {
+class BrowserHttpsRequestHandler(controller: RecorderController, proxyConfig: ProxyConfig) extends AbstractBrowserRequestHandler(controller, proxyConfig) with Logging {
 
 	@volatile var targetHostURI: URI = _
 
@@ -40,7 +40,7 @@ class BrowserHttpsRequestHandler(proxyConfig: ProxyConfig) extends AbstractBrows
 
 			warn("Trying to connect to " + targetHostURI + ", make sure you've accepted the recorder certificate for this site")
 
-			RecorderController.secureConnection(targetHostURI)
+			controller.secureConnection(targetHostURI)
 
 			ctx.getChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
 
@@ -51,7 +51,7 @@ class BrowserHttpsRequestHandler(proxyConfig: ProxyConfig) extends AbstractBrows
 			val fullUri = new StringBuilder().append(targetHostURI).append(request.getUri).toString
 			request.setUri(fullUri)
 
-			val bootstrap = newClientBootstrap(ctx, request, true)
+			val bootstrap = newClientBootstrap(controller, ctx, request, true)
 
 			val (host, port) = (for {
 				host <- proxyConfig.host

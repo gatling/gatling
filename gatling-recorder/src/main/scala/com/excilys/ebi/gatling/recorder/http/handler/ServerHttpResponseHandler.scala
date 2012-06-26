@@ -13,23 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.http.handler;
+package com.excilys.ebi.gatling.recorder.http.handler
 
 import org.jboss.netty.channel.{ SimpleChannelHandler, MessageEvent, ChannelHandlerContext }
 import org.jboss.netty.handler.codec.http.{ HttpResponse, HttpRequest }
 
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
-import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy
 
-class ServerHttpResponseHandler(requestContext: ChannelHandlerContext, request: HttpRequest) extends SimpleChannelHandler {
+class ServerHttpResponseHandler(controller: RecorderController, requestContext: ChannelHandlerContext, request: HttpRequest) extends SimpleChannelHandler {
 
 	override def messageReceived(context: ChannelHandlerContext, event: MessageEvent) {
 
-		GatlingHttpProxy.registerChannel(context.getChannel)
+		controller.registerChannel(context.getChannel)
 
 		event.getMessage match {
 			case response: HttpResponse =>
-				RecorderController.receiveResponse(request, response)
+				controller.receiveResponse(request, response)
 				requestContext.getChannel.write(response) // Send back to client
 			case _ => // whatever
 		}

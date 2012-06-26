@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.ui.frame;
+package com.excilys.ebi.gatling.recorder.ui.frame
 
 import java.awt.{ FlowLayout, FileDialog, Dimension, BorderLayout }
 import java.awt.event.{ ItemListener, ItemEvent, ActionListener, ActionEvent }
@@ -22,6 +22,8 @@ import java.nio.charset.Charset
 import scala.collection.JavaConversions.{ seqAsJavaList, collectionAsScalaIterable }
 
 import com.excilys.ebi.gatling.recorder.config.Configuration
+import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
+import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.ui.Commons
 import com.excilys.ebi.gatling.recorder.ui.Commons.iconList
 import com.excilys.ebi.gatling.recorder.ui.component.{ SaveConfigurationListener, FilterTable }
@@ -31,7 +33,7 @@ import com.excilys.ebi.gatling.recorder.ui.frame.ValidationHelper.{ proxyHostVal
 import grizzled.slf4j.Logging
 import javax.swing.{ SwingConstants, JTextField, JPanel, JLabel, JFrame, JFileChooser, JComboBox, JCheckBox, JButton, BorderFactory }
 
-class ConfigurationFrame extends JFrame with Logging {
+class ConfigurationFrame(controller: RecorderController) extends JFrame with Logging {
 
 	private val IS_MAC_OSX = System.getProperty("os.name").startsWith("Mac");
 
@@ -90,6 +92,8 @@ class ConfigurationFrame extends JFrame with Logging {
 	setListeners
 
 	setValidationListeners
+
+	populateItemsFromConfiguration(configuration)
 
 	private def initOutputDirectoryChooser {
 
@@ -322,7 +326,7 @@ class ConfigurationFrame extends JFrame with Logging {
 		})
 
 		// Validates form when Start button clicked
-		btnStart.addActionListener(new SaveConfigurationListener(this))
+		btnStart.addActionListener(new SaveConfigurationListener(controller, this))
 	}
 
 	private def setValidationListeners {

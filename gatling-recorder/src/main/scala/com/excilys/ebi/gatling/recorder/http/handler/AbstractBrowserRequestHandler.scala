@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.http.handler;
+package com.excilys.ebi.gatling.recorder.http.handler
 
 import java.net.URI
 
@@ -25,16 +25,15 @@ import org.jboss.netty.handler.codec.http.{ HttpRequest, DefaultHttpRequest }
 import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
-import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy
 import com.ning.http.util.Base64
 
 import grizzled.slf4j.Logging
 
-abstract class AbstractBrowserRequestHandler(proxyConfig: ProxyConfig) extends SimpleChannelHandler with Logging {
+abstract class AbstractBrowserRequestHandler(controller: RecorderController, proxyConfig: ProxyConfig) extends SimpleChannelHandler with Logging {
 
 	override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent) {
 
-		GatlingHttpProxy.registerChannel(ctx.getChannel)
+		controller.registerChannel(ctx.getChannel)
 
 		event.getMessage match {
 			case request: HttpRequest =>
@@ -52,7 +51,7 @@ abstract class AbstractBrowserRequestHandler(proxyConfig: ProxyConfig) extends S
 
 				val future = connectToServerOnBrowserRequestReceived(ctx, request)
 
-				RecorderController.receiveRequest(request)
+				controller.receiveRequest(request)
 
 				sendRequestToServerAfterConnection(future, request);
 

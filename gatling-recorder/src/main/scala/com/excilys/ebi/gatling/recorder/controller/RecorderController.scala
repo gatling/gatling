@@ -23,11 +23,13 @@ import scala.tools.nsc.io.Directory
 import scala.tools.nsc.io.Path.string2path
 
 import org.codehaus.plexus.util.SelectorUtils
+import org.jboss.netty.channel.Channel
 import org.jboss.netty.handler.codec.http.{ HttpResponse, HttpRequest, HttpMethod }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
 
-import com.excilys.ebi.gatling.recorder.config.{ Configuration, Options }
+import com.excilys.ebi.gatling.recorder.config.Configuration
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
+import com.excilys.ebi.gatling.recorder.config.Options
 import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy
 import com.excilys.ebi.gatling.recorder.scenario.{ ScenarioExporter, ScenarioElement, RequestElement, PauseUnit, PauseElement }
 import com.excilys.ebi.gatling.recorder.ui.enumeration.{ PatternType, FilterStrategy }
@@ -38,40 +40,48 @@ import com.ning.http.util.Base64
 
 import grizzled.slf4j.Logging
 
-object RecorderController extends Logging {
-	private val runningFrame: RunningFrame = new RunningFrame
-	private val configurationFrame: ConfigurationFrame = new ConfigurationFrame
+object RecorderController {
+
+	def apply(options: Options) = {
+		Configuration(options)
+		val controller = new RecorderController
+		controller.showConfigurationFrame
+	}
+}
+
+class RecorderController extends Logging {
+	private lazy val runningFrame: RunningFrame = new RunningFrame(this)
+	private lazy val configurationFrame: ConfigurationFrame = new ConfigurationFrame(this)
 	private val supportedHttpMethods = Vector(HttpMethod.POST, HttpMethod.GET, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.HEAD)
 
 	@volatile private var startDate: Date = _
 	@volatile private var lastRequestDate: Date = _
-
-	@volatile private var scenarioElements = List[ScenarioElement]()
-
-	def apply(options: Options) {
-		Configuration(options)
-		configurationFrame.populateItemsFromConfiguration(configuration)
-		showConfigurationFrame
-	}
+	@volatile private var proxy: GatlingHttpProxy = _
+	@volatile private var scenarioElements: List[ScenarioElement] = Nil
 
 	def startRecording {
-		GatlingHttpProxy(configuration.port, configuration.sslPort, configuration.proxy)
-
+		proxy = new GatlingHttpProxy(this, configuration.port, configuration.sslPort, configuration.proxy)
 		startDate = new Date
-
 		showRunningFrame
 	}
 
 	def stopRecording {
-		GatlingHttpProxy.shutdown
+		try {
+			if (scenarioElements.isEmpty)
+				info("Nothing was recorded, skipping scenario generation")
+			else
+				ScenarioExporter.saveScenario(startDate, scenarioElements.reverse)
 
-		// Save Scenario to Disk only if there are recorded elements
-		if (!scenarioElements.isEmpty)
-			ScenarioExporter.saveScenario(startDate, scenarioElements.reverse)
+			proxy.shutdown
 
-		clearRecorderState
+		} finally {
+			clearRecorderState
+			showConfigurationFrame
+		}
+	}
 
-		showConfigurationFrame
+	def registerChannel(channel: Channel) {
+		proxy.registerChannel(channel)
 	}
 
 	def receiveRequest(request: HttpRequest) {
@@ -110,9 +120,8 @@ object RecorderController extends Logging {
 
 						scenarioElements = new PauseElement(pauseValue, pauseUnit) :: scenarioElements
 					}
-				} else {
+				} else
 					lastRequestDate = new Date
-				}
 			}
 		}
 	}

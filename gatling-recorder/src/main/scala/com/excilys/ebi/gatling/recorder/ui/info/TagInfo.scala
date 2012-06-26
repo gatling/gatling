@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.ui.info;
+package com.excilys.ebi.gatling.recorder.ui.info
 
 class TagInfo(tag: String) extends EventInfo {
 	override def toString = "TAG | " + tag

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.http;
+package com.excilys.ebi.gatling.recorder.http
 
 import java.net.InetSocketAddress
 
@@ -21,35 +21,23 @@ import org.jboss.netty.channel.Channel
 import org.jboss.netty.channel.group.DefaultChannelGroup
 
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
+import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory.newServerBootstrap
 
-object GatlingHttpProxy {
+class GatlingHttpProxy(controller: RecorderController, port: Int, sslPort: Int, proxyConfig: ProxyConfig) {
 
-	@volatile private var instance: GatlingHttpProxy = _
-
-	def apply(port: Int, sslPort: Int, proxyConfig: ProxyConfig) {
-		instance = new GatlingHttpProxy(port, sslPort, proxyConfig)
-	}
-
-	def shutdown = {
-		instance.shutdown
-		instance = null
-	}
-
-	def registerChannel(channel: Channel) {
-		instance.registerChannel(channel)
-	}
-}
-
-class GatlingHttpProxy(port: Int, sslPort: Int, proxyConfig: ProxyConfig) {
-	private val bootstrap = newServerBootstrap(proxyConfig, false)
-	private val secureBootstrap = newServerBootstrap(proxyConfig, true)
 	private val group = new DefaultChannelGroup("Gatling_Recorder")
+	private val bootstrap = newServerBootstrap(controller, proxyConfig, false)
+	private val secureBootstrap = newServerBootstrap(controller, proxyConfig, true)
 
 	group.add(bootstrap.bind(new InetSocketAddress(port)))
 	group.add(secureBootstrap.bind(new InetSocketAddress(sslPort)))
 
-	def shutdown = group.close.awaitUninterruptibly
+	def registerChannel(channel: Channel) {
+		group.add(channel)
+	}
 
-	def registerChannel(channel: Channel) = group.add(channel)
+	def shutdown {
+		group.close.awaitUninterruptibly
+	}
 }

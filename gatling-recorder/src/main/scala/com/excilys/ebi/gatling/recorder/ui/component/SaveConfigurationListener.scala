@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.ui.component;
+package com.excilys.ebi.gatling.recorder.ui.component
 
 import java.awt.event.{ ActionListener, ActionEvent }
 import java.nio.charset.Charset
@@ -27,7 +27,7 @@ import com.excilys.ebi.gatling.recorder.ui.frame.ConfigurationFrame
 import grizzled.slf4j.Logging
 import javax.swing.JTextField
 
-class SaveConfigurationListener(configurationFrame: ConfigurationFrame) extends ActionListener with Logging {
+class SaveConfigurationListener(controller: RecorderController, configurationFrame: ConfigurationFrame) extends ActionListener with Logging {
 
 	def actionPerformed(e: ActionEvent) {
 
@@ -84,6 +84,6 @@ class SaveConfigurationListener(configurationFrame: ConfigurationFrame) extends 
 
 		debug(configuration)
 
-		RecorderController.startRecording
+		controller.startRecording
 	}
 }

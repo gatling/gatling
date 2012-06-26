@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.http.channel;
+package com.excilys.ebi.gatling.recorder.http.channel
 
 import org.jboss.netty.bootstrap.{ ServerBootstrap, ClientBootstrap }
 import org.jboss.netty.channel.{ ChannelPipelineFactory, ChannelPipeline, ChannelHandlerContext }
@@ -23,6 +23,7 @@ import org.jboss.netty.handler.codec.http.{ HttpResponseEncoder, HttpRequestDeco
 import org.jboss.netty.handler.ssl.SslHandler
 
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
+import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.http.handler.{ ServerHttpResponseHandler, BrowserHttpsRequestHandler, BrowserHttpRequestHandler }
 import com.excilys.ebi.gatling.recorder.http.ssl.{ SSLEngineFactory, FirstEventIsUnsecuredConnectSslHandler }
 
@@ -34,7 +35,7 @@ object BootstrapFactory {
 
 	private val serverChannelFactory = new NioServerSocketChannelFactory
 
-	def newClientBootstrap(browserCtx: ChannelHandlerContext, browserRequest: HttpRequest, ssl: Boolean): ClientBootstrap = {
+	def newClientBootstrap(controller: RecorderController, browserCtx: ChannelHandlerContext, browserRequest: HttpRequest, ssl: Boolean): ClientBootstrap = {
 		val bootstrap = new ClientBootstrap(clientChannelFactory)
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			def getPipeline: ChannelPipeline = {
@@ -45,7 +46,7 @@ object BootstrapFactory {
 				tmpPipeline.addLast("codec", new HttpClientCodec)
 				tmpPipeline.addLast("inflater", new HttpContentDecompressor)
 				tmpPipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE))
-				tmpPipeline.addLast("gatling", new ServerHttpResponseHandler(browserCtx, browserRequest))
+				tmpPipeline.addLast("gatling", new ServerHttpResponseHandler(controller, browserCtx, browserRequest))
 
 				tmpPipeline
 			}
@@ -57,7 +58,7 @@ object BootstrapFactory {
 		bootstrap
 	}
 
-	def newServerBootstrap(proxyConfig: ProxyConfig, ssl: Boolean): ServerBootstrap = {
+	def newServerBootstrap(controller: RecorderController, proxyConfig: ProxyConfig, ssl: Boolean): ServerBootstrap = {
 
 		val bootstrap = new ServerBootstrap(serverChannelFactory)
 
@@ -71,9 +72,9 @@ object BootstrapFactory {
 				tmpPipeline.addLast("encoder", new HttpResponseEncoder)
 				tmpPipeline.addLast("deflater", new HttpContentCompressor)
 				if (ssl)
-					tmpPipeline.addLast("gatling", new BrowserHttpsRequestHandler(proxyConfig))
+					tmpPipeline.addLast("gatling", new BrowserHttpsRequestHandler(controller, proxyConfig))
 				else
-					tmpPipeline.addLast("gatling", new BrowserHttpRequestHandler(proxyConfig))
+					tmpPipeline.addLast("gatling", new BrowserHttpRequestHandler(controller, proxyConfig))
 
 				tmpPipeline
 			}
