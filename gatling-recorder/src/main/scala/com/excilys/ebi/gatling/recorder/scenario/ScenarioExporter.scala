@@ -16,7 +16,6 @@
 package com.excilys.ebi.gatling.recorder.scenario
 
 import java.io.{ IOException, FileWriter }
-import java.text.{ SimpleDateFormat, Format }
 import java.util.Date
 
 import scala.annotation.tailrec
@@ -27,16 +26,14 @@ import scala.tools.nsc.io.{ File, Directory }
 import org.fusesource.scalate.TemplateEngine
 
 import com.excilys.ebi.gatling.core.util.IOHelper.use
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.REDIRECT_STATUS_CODES
-import com.excilys.ebi.gatling.recorder.config.Configuration
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
 
 import grizzled.slf4j.Logging
 
 object ScenarioExporter extends Logging {
-	val DATE_FORMATTER: Format = new SimpleDateFormat("yyyyMMddHHmmss")
-
 	private val EVENTS_GROUPING = 100
 
 	val TPL_ENGINE = new TemplateEngine
@@ -66,12 +63,6 @@ object ScenarioExporter extends Logging {
 		}
 
 		val protocolConfigElement = new ProtocolConfigElement(baseUrl, configuration.proxy, configuration.followRedirect, configuration.automaticReferer, baseHeaders)
-
-		val simulationClass =
-			if (configuration.simulationClassName != Configuration.DEFAULT_CLASS_NAME)
-				configuration.simulationClassName
-			else
-				configuration.simulationClassName + DATE_FORMATTER.format(startDate)
 
 		// If follow redirect, discard some recorded elements
 		def getStatusCode(se: ScenarioElement) = se match {
@@ -110,7 +101,7 @@ object ScenarioExporter extends Logging {
 
 		// Add simulationClass to request elements
 		val elementsList: List[ScenarioElement] = filteredElements.map {
-			case e: RequestElement => RequestElement(e, simulationClass)
+			case e: RequestElement => RequestElement(e, configuration.simulationClassName)
 			case e => e
 		}
 
@@ -121,7 +112,7 @@ object ScenarioExporter extends Logging {
 				i = i + 1
 				e.updateUrl(baseUrl).setId(i)
 				e.requestBody.foreach { content =>
-					dumpRequestBody(i, content, simulationClass)
+					dumpRequestBody(i, content, configuration.simulationClassName)
 				}
 			}
 			case _ =>
@@ -173,12 +164,12 @@ object ScenarioExporter extends Logging {
 		val output = ScenarioExporter.TPL_ENGINE.layout("templates/simulation.ssp",
 			Map("protocolConfig" -> protocolConfigElement,
 				"headers" -> headers,
-				"simulationClassName" -> simulationClass,
+				"simulationClassName" -> configuration.simulationClassName,
 				"scenarioName" -> "Scenario Name",
 				"packageName" -> configuration.simulationPackage,
 				"scenarioElements" -> newScenarioElements))
 
-		use(new FileWriter(File(getOutputFolder / getScenarioFileName(startDate)).jfile)) { _.write(output) }
+		use(new FileWriter(File(getOutputFolder / getSimulationFileName(startDate)).jfile)) { _.write(output) }
 	}
 
 	private def getBaseUrl(scenarioElements: List[ScenarioElement]): String = {
@@ -231,9 +222,15 @@ object ScenarioExporter extends Logging {
 		}
 	}
 
-	private def getScenarioFileName(date: Date): String = "Simulation" + DATE_FORMATTER.format(date) + ".scala"
+	private def getSimulationFileName(date: Date): String = configuration.simulationClassName + ".scala"
 
-	def getOutputFolder = getFolder(configuration.outputFolder)
+	def getOutputFolder = {
+		val path = configuration.outputFolder + configuration.simulationPackage.map { pkg =>
+			File.separator + pkg.replace(".", File.separator)
+		}.getOrElse(EMPTY)
+
+		getFolder(path)
+	}
 
 	private def getFolder(folderPath: String) = Directory(folderPath).createDirectory()
 }
