@@ -164,6 +164,7 @@ class Gatling(cliOptions: Options) extends Logging {
 		settings.outputDirs.setSingleOutput(byteCodeDir)
 		settings.deprecation.value = true
 		settings.unchecked.value = true
+		settings.encoding.value = GatlingConfiguration.configuration.encoding
 
 		// Prepare an object for collecting error messages from the compiler
 		val messageCollector = new StringWriter
