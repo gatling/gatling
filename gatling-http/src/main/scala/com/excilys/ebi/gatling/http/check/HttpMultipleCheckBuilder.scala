@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.check.body
+package com.excilys.ebi.gatling.http.check
 
 import com.excilys.ebi.gatling.core.check.{ MultipleExtractorCheckBuilder, MatcherCheckBuilder, ExtractorFactory }
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.http.check.{ HttpExtractorCheckBuilder, HttpCheck }
-import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
+import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
 /**
@@ -29,12 +28,13 @@ import com.excilys.ebi.gatling.http.response.ExtendedResponse
  * @param countExtractorFactory the extractor factory for count
  * @param expression the function returning the expression representing expression is to be checked
  */
-class HttpBodyCheckBuilder[XC](
+class HttpMultipleCheckBuilder[XC](
 	findExtractorFactory: Int => ExtractorFactory[ExtendedResponse, XC, String],
 	findAllExtractorFactory: ExtractorFactory[ExtendedResponse, XC, Seq[String]],
 	countExtractorFactory: ExtractorFactory[ExtendedResponse, XC, Int],
-	expression: Session => XC)
-		extends HttpExtractorCheckBuilder[String, XC](expression, CompletePageReceived)
+	expression: Session => XC,
+	phase: HttpPhase)
+		extends HttpExtractorCheckBuilder[String, XC](expression, phase)
 		with MultipleExtractorCheckBuilder[HttpCheck[XC], ExtendedResponse, XC, String] {
 
 	def find: MatcherCheckBuilder[HttpCheck[XC], ExtendedResponse, XC, String] = find(0)

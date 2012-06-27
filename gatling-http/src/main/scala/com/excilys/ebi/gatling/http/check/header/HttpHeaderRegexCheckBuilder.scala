@@ -16,21 +16,16 @@
 package com.excilys.ebi.gatling.http.check.header
 
 import scala.collection.JavaConversions.asScalaBuffer
+
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
 import com.excilys.ebi.gatling.core.check.extractor.regex.RegexExtractor
 import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
-import com.excilys.ebi.gatling.http.check.body.HttpBodyCheckBuilder
+import com.excilys.ebi.gatling.http.check.HttpMultipleCheckBuilder
+import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
 object HttpHeaderRegexCheckBuilder {
-
-	def headerRegex(headerName: EvaluatableString, pattern: EvaluatableString) = {
-
-		val expression = (s: Session) => (headerName(s), pattern(s))
-
-		new HttpBodyCheckBuilder(findExtractorFactory, findAllExtractorFactory, countExtractorFactory, expression)
-	}
 
 	private def findExtractorFactory(occurrence: Int): ExtractorFactory[ExtendedResponse, (String, String), String] =
 		(response: ExtendedResponse) =>
@@ -61,4 +56,10 @@ object HttpHeaderRegexCheckBuilder {
 					case _ => 0
 				}
 			}
+
+	def headerRegex(headerName: EvaluatableString, pattern: EvaluatableString) = {
+
+		val expression = (s: Session) => (headerName(s), pattern(s))
+		new HttpMultipleCheckBuilder(findExtractorFactory, findAllExtractorFactory, countExtractorFactory, expression, HeadersReceived)
+	}
 }

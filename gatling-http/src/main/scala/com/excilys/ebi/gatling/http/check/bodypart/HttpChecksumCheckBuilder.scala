@@ -15,12 +15,10 @@
  */
 package com.excilys.ebi.gatling.http.check.bodypart
 
-import scala.annotation.implicitNotFound
-
-import com.excilys.ebi.gatling.core.check.{ MatcherCheckBuilder, Matcher, ExtractorFactory, CheckBuilderFactory }
+import com.excilys.ebi.gatling.core.check.{ Matcher, ExtractorFactory, CheckBuilderFactory }
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.http.check.{ HttpExtractorCheckBuilder, HttpCheck }
-import com.excilys.ebi.gatling.http.check.bodypart.HttpChecksumCheckBuilder.findExtractorFactory
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.http.check.{ HttpSingleCheckBuilder, HttpCheck }
 import com.excilys.ebi.gatling.http.request.HttpPhase.BodyPartReceived
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
@@ -31,18 +29,18 @@ import com.excilys.ebi.gatling.http.response.ExtendedResponse
  */
 object HttpChecksumCheckBuilder {
 
-	def checksum(algorythm: String) = new HttpChecksumCheckBuilder(algorythm)
+	def checksum(algorythm: String) = {
 
-	private val findExtractorFactory: ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) =>
-		(expression: String) => response.checksum(expression)
+		val checksumCheckBuilderFactory = (matcher: Matcher[ExtendedResponse, String], saveAs: Option[String]) => new ChecksumCheck(algorythm, matcher, saveAs)
+		val findExtractorFactory = (response: ExtendedResponse) => (unused: String) => response.checksum(algorythm)
+
+		new HttpChecksumCheckBuilder(checksumCheckBuilderFactory, findExtractorFactory)
+	}
 }
 
 /**
  * This class builds a checksum check
  */
-class HttpChecksumCheckBuilder(algorythm: String) extends HttpExtractorCheckBuilder[String, String]((session: Session) => algorythm, BodyPartReceived) {
-
-	val checksumCheckBuilderFactory: CheckBuilderFactory[HttpCheck[String], ExtendedResponse, String] = (matcher: Matcher[ExtendedResponse, String], saveAs: Option[String]) => new ChecksumCheck(algorythm, matcher, saveAs)
-
-	def find = new MatcherCheckBuilder[HttpCheck[String], ExtendedResponse, String, String](checksumCheckBuilderFactory, findExtractorFactory)
-}
+class HttpChecksumCheckBuilder(
+	override val httpCheckBuilderFactory: CheckBuilderFactory[HttpCheck[String], ExtendedResponse, String],
+	findExtractorFactory: ExtractorFactory[ExtendedResponse, String, String]) extends HttpSingleCheckBuilder[String, String](findExtractorFactory, (session: Session) => EMPTY, BodyPartReceived)
