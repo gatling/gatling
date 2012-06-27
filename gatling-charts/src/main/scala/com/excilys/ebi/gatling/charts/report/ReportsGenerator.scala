@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import scala.collection.JavaConversions.enumerationAsScalaIterator
+import scala.collection.JavaConversions._
 
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.component.impl.ComponentLibraryImpl
@@ -33,10 +33,10 @@ object ReportsGenerator extends Logging {
 	val STATIC_LIBRARY_BINDER_PATH = "com/excilys/ebi/gatling/charts/component/impl/ComponentLibraryImpl.class"
 
 	val componentLibrary: ComponentLibrary = {
-		val paths = Option(this.getClass.getClassLoader) match {
+		val paths = (Option(this.getClass.getClassLoader) match {
 			case Some(classloader) => classloader.getResources(STATIC_LIBRARY_BINDER_PATH)
 			case None => ClassLoader.getSystemResources(STATIC_LIBRARY_BINDER_PATH)
-		}
+		}).toList
 
 		if (paths.size > 1) {
 			warn("Class path contains multiple ComponentLibrary bindings")
