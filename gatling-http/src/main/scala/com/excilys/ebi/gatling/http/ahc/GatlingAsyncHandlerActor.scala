@@ -45,6 +45,31 @@ import grizzled.slf4j.Logging
 object GatlingAsyncHandlerActor {
 	val REDIRECTED_REQUEST_NAME_PATTERN = """(.+?) Redirect (\d+)""".r
 	val REDIRECT_STATUS_CODES = 301 to 303
+
+	def newAsyncHandlerActorFactory(
+		checks: List[HttpCheck[_]],
+		next: ActorRef,
+		requestName: String,
+		protocolConfiguration: Option[HttpProtocolConfiguration],
+		gatlingConfiguration: GatlingConfiguration) = {
+
+		val followRedirect = protocolConfiguration.map(_.followRedirectEnabled).getOrElse(true)
+		val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks)
+		val responseBuilderFactory = ExtendedResponseBuilder.newExtendedResponseBuilder(checks)
+
+		(request: Request, session: Session) =>
+			new GatlingAsyncHandlerActor(
+				session,
+				checks,
+				next,
+				requestName,
+				request,
+				followRedirect,
+				protocolConfiguration,
+				gatlingConfiguration,
+				handlerFactory,
+				responseBuilderFactory)
+	}
 }
 
 class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]], next: ActorRef,

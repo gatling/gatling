@@ -15,7 +15,6 @@
  */
 package com.excilys.ebi.gatling.http.action
 
-
 import com.excilys.ebi.gatling.core.action.{ system, Action }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration
 import com.excilys.ebi.gatling.core.session.Session
@@ -90,11 +89,9 @@ object HttpRequestAction extends Logging {
 class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]], protocolConfiguration: Option[HttpProtocolConfiguration], gatlingConfiguration: GatlingConfiguration)
 		extends Action with Logging {
 
-	val handlerFactory: HandlerFactory = GatlingAsyncHandler.newHandlerFactory(checks)
-	val responseBuilderFactory = ExtendedResponseBuilder.newExtendedResponseBuilder(checks)
-
+	val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks)
+	val asyncHandlerActorFactory = GatlingAsyncHandlerActor.newAsyncHandlerActorFactory(checks, next, requestName, protocolConfiguration, gatlingConfiguration)
 	val client = HTTP_CLIENT
-	val followRedirect = protocolConfiguration.map(_.followRedirectEnabled).getOrElse(true)
 
 	def execute(session: Session) {
 		info("Sending Request '" + requestName + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
@@ -102,7 +99,7 @@ class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: Abs
 		try {
 			val request = requestBuilder.build(session, protocolConfiguration)
 			val newSession = RefererHandling.storeReferer(request, session, protocolConfiguration)
-			val actor = context.actorOf(Props(new GatlingAsyncHandlerActor(newSession, checks, next, requestName, request, followRedirect, protocolConfiguration, gatlingConfiguration, handlerFactory, responseBuilderFactory)))
+			val actor = context.actorOf(Props(asyncHandlerActorFactory(request, newSession)))
 			val ahcHandler = handlerFactory(requestName, actor)
 			client.executeRequest(request, ahcHandler)
 
