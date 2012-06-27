@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.core.check.CheckContext.getOrUpdateCheckContextAt
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.extractor.jsonpath.JsonPathExtractor
 import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.ning.http.client.Response
+import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
 object HttpBodyJsonPathCheckBuilder {
 
@@ -27,11 +27,11 @@ object HttpBodyJsonPathCheckBuilder {
 
 	private val HTTP_BODY_JSON_EXTRACTOR_CONTEXT_KEY = "HttpBodyJsonExtractor"
 
-	private def getCachedExtractor(response: Response) = getOrUpdateCheckContextAttribute(HTTP_BODY_JSON_EXTRACTOR_CONTEXT_KEY, new JsonPathExtractor(response.getResponseBody))
+	private def getCachedExtractor(response: ExtendedResponse) = getOrUpdateCheckContextAttribute(HTTP_BODY_JSON_EXTRACTOR_CONTEXT_KEY, new JsonPathExtractor(response.getResponseBody))
 
-	private def findExtractorFactory(occurrence: Int): ExtractorFactory[Response, String, String] = (response: Response) => getCachedExtractor(response).extractOne(occurrence)
+	private def findExtractorFactory(occurrence: Int): ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => getCachedExtractor(response).extractOne(occurrence)
 
-	private val findAllExtractorFactory: ExtractorFactory[Response, String, Seq[String]] = (response: Response) => getCachedExtractor(response).extractMultiple
+	private val findAllExtractorFactory: ExtractorFactory[ExtendedResponse, String, Seq[String]] = (response: ExtendedResponse) => getCachedExtractor(response).extractMultiple
 
-	private val countExtractorFactory: ExtractorFactory[Response, String, Int] = (response: Response) => getCachedExtractor(response).count
+	private val countExtractorFactory: ExtractorFactory[ExtendedResponse, String, Int] = (response: ExtendedResponse) => getCachedExtractor(response).count
 }

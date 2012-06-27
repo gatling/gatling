@@ -16,13 +16,12 @@
 package com.excilys.ebi.gatling.http.check.header
 
 import scala.collection.JavaConversions.asScalaBuffer
-
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
 import com.excilys.ebi.gatling.core.check.extractor.regex.RegexExtractor
 import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
 import com.excilys.ebi.gatling.http.check.body.HttpBodyCheckBuilder
-import com.ning.http.client.Response
+import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
 object HttpHeaderRegexCheckBuilder {
 
@@ -33,8 +32,8 @@ object HttpHeaderRegexCheckBuilder {
 		new HttpBodyCheckBuilder(findExtractorFactory, findAllExtractorFactory, countExtractorFactory, expression)
 	}
 
-	private def findExtractorFactory(occurrence: Int): ExtractorFactory[Response, (String, String), String] =
-		(response: Response) =>
+	private def findExtractorFactory(occurrence: Int): ExtractorFactory[ExtendedResponse, (String, String), String] =
+		(response: ExtendedResponse) =>
 			(headerAndPattern: (String, String)) => {
 				findAllExtractorFactory(response)(headerAndPattern) match {
 					case Some(results) if results.isDefinedAt(occurrence) => Some(results(occurrence))
@@ -42,7 +41,7 @@ object HttpHeaderRegexCheckBuilder {
 				}
 			}
 
-	private val findAllExtractorFactory: ExtractorFactory[Response, (String, String), Seq[String]] = (response: Response) =>
+	private val findAllExtractorFactory: ExtractorFactory[ExtendedResponse, (String, String), Seq[String]] = (response: ExtendedResponse) =>
 		(headerAndPattern: (String, String)) => {
 			val (headerName, pattern) = headerAndPattern
 
@@ -54,8 +53,8 @@ object HttpHeaderRegexCheckBuilder {
 			}
 		}
 
-	private val countExtractorFactory: ExtractorFactory[Response, (String, String), Int] =
-		(response: Response) =>
+	private val countExtractorFactory: ExtractorFactory[ExtendedResponse, (String, String), Int] =
+		(response: ExtendedResponse) =>
 			(headerAndPattern: (String, String)) => {
 				findAllExtractorFactory(response)(headerAndPattern) match {
 					case Some(results) => results.length

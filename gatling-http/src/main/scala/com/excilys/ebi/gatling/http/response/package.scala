@@ -15,11 +15,10 @@
  */
 package com.excilys.ebi.gatling.http
 
-import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandler
+import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.http.response.ExtendedResponseBuilder
 
-import akka.actor.ActorRef
+package object response {
 
-package object ahc {
-
-	type HandlerFactory = (String, ActorRef) => GatlingAsyncHandler
+	type ExtendedResponseBuilderFactory = Session => ExtendedResponseBuilder
 }

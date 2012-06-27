@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.http.ahc
 
-import java.lang.System.{ nanoTime, currentTimeMillis }
+import java.lang.System.currentTimeMillis
 import java.net.URLDecoder
 
 import scala.annotation.tailrec
@@ -35,8 +35,9 @@ import com.excilys.ebi.gatling.http.config.{ HttpProtocolConfiguration, HttpConf
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
-import com.excilys.ebi.gatling.http.util.HttpHelper.{ toRichResponse, computeRedirectUrl }
-import com.ning.http.client.{ Response, RequestBuilder, Request, FluentStringsMap }
+import com.excilys.ebi.gatling.http.response.{ ExtendedResponseBuilderFactory, ExtendedResponseBuilder, ExtendedResponse }
+import com.excilys.ebi.gatling.http.util.HttpHelper.computeRedirectUrl
+import com.ning.http.client.{ RequestBuilder, Request, FluentStringsMap }
 
 import akka.actor.{ ReceiveTimeout, ActorRef, Actor }
 import akka.util.duration.intToDurationInt
@@ -80,28 +81,21 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 		extends Actor with Logging {
 
 	var responseBuilder = responseBuilderFactory(session)
-	var executionStartDate = currentTimeMillis
-	var executionStartDateNanos = nanoTime
-	var requestSendingEndDate = 0L
-	var responseReceivingStartDate = 0L
-	var executionEndDate = 0L
 
 	resetTimeout
-
-	private def computeTimeFromNanos(nanos: Long) = (nanos - executionStartDateNanos) / 1000000 + executionStartDate
 
 	def receive = {
 		case OnHeaderWriteCompleted(nanos) =>
 			resetTimeout
-			requestSendingEndDate = computeTimeFromNanos(nanos)
+			responseBuilder.updateRequestSendingEndDate(nanos)
 
 		case OnContentWriteCompleted(nanos) =>
 			resetTimeout
-			requestSendingEndDate = computeTimeFromNanos(nanos)
+			responseBuilder.updateRequestSendingEndDate(nanos)
 
 		case OnStatusReceived(status, nanos) =>
 			resetTimeout
-			responseReceivingStartDate = computeTimeFromNanos(nanos)
+			responseBuilder.updateResponseReceivingStartDate(nanos)
 			responseBuilder.accumulate(status)
 
 		case OnHeadersReceived(headers) =>
@@ -113,13 +107,11 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 			responseBuilder.accumulate(bodyPart)
 
 		case OnCompleted(nanos) =>
-			executionEndDate = computeTimeFromNanos(nanos)
+			responseBuilder.computeExecutionEndDateFromNanos(nanos)
 			processResponse(responseBuilder.build)
 
 		case OnThrowable(errorMessage, nanos) =>
-			executionEndDate = computeTimeFromNanos(nanos)
-			requestSendingEndDate = if (requestSendingEndDate != 0L) requestSendingEndDate else executionEndDate
-			responseReceivingStartDate = if (responseReceivingStartDate != 0L) responseReceivingStartDate else executionEndDate
+			responseBuilder.computeExecutionEndDateFromNanos(nanos)
 			logRequest(KO, Some(errorMessage))
 			executeNext(session)
 
@@ -135,9 +127,9 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 
 	private def logRequest(requestResult: RequestStatus,
 		requestMessage: Option[String] = None,
-		response: Option[Response] = None) = {
+		response: Option[ExtendedResponse] = None) = {
 		DataWriter.logRequest(session.scenarioName, session.userId, "Request " + requestName,
-			executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate,
+			responseBuilder.executionStartDate, responseBuilder.executionEndDate, responseBuilder.requestSendingEndDate, responseBuilder.responseReceivingStartDate,
 			requestResult, requestMessage, extractExtraInfo(response))
 	}
 
@@ -147,14 +139,14 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 	 * @param newSession the new Session
 	 */
 	private def executeNext(newSession: Session) {
-		next ! newSession.increaseTimeShift(currentTimeMillis - executionEndDate)
+		next ! newSession.increaseTimeShift(currentTimeMillis - responseBuilder.executionEndDate)
 		context.stop(self)
 	}
 
 	/**
 	 * This method processes the response if needed for each checks given by the user
 	 */
-	private def processResponse(response: Response) {
+	private def processResponse(response: ExtendedResponse) {
 
 		def handleFollowRedirect(sessionWithUpdatedCookies: Session) {
 
@@ -163,11 +155,6 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 				this.responseBuilder = responseBuilderFactory(session)
 				this.requestName = newRequestName
 				this.request = newRequest
-				this.executionStartDate = currentTimeMillis
-				this.executionStartDateNanos = nanoTime
-				this.requestSendingEndDate = 0L
-				this.responseReceivingStartDate = 0L
-				this.executionEndDate = 0L
 			}
 
 			logRequest(OK, response = Some(response))
@@ -236,7 +223,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 	 * @param response is the response to extract data from; request is retrieved from the property
 	 * @return the extracted Strings
 	 */
-	private def extractExtraInfo(response: Option[Response] = None): List[String] = {
+	private def extractExtraInfo(response: Option[ExtendedResponse] = None): List[String] = {
 
 		def extractExtraRequestInfo(protocolConfiguration: Option[HttpProtocolConfiguration], request: Request): List[String] = {
 			val extracted = try {
@@ -254,7 +241,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 			extracted.getOrElse(Nil)
 		}
 
-		def extractExtraResponseInfo(protocolConfiguration: Option[HttpProtocolConfiguration], response: Option[Response]): List[String] = {
+		def extractExtraResponseInfo(protocolConfiguration: Option[HttpProtocolConfiguration], response: Option[ExtendedResponse]): List[String] = {
 			val extracted = try {
 				for (
 					httpProtocolConfig <- protocolConfiguration;

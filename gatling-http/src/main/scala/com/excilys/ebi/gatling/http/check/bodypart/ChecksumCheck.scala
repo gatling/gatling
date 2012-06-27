@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http
+package com.excilys.ebi.gatling.http.check.bodypart
 
-import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandler
+import com.excilys.ebi.gatling.core.check.Matcher
+import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.http.request.HttpPhase.BodyPartReceived
+import com.excilys.ebi.gatling.http.response.ExtendedResponse
+import com.excilys.ebi.gatling.http.check.HttpCheck
 
-import akka.actor.ActorRef
-
-package object ahc {
-
-	type HandlerFactory = (String, ActorRef) => GatlingAsyncHandler
-}
+class ChecksumCheck(val algorithm: String, matcher: Matcher[ExtendedResponse, String], saveAs: Option[String]) extends HttpCheck((s: Session) => EMPTY, matcher, saveAs, BodyPartReceived)

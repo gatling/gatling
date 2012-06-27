@@ -17,6 +17,7 @@ package com.excilys.ebi.gatling.http.config
 
 import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
 import com.ning.http.client.{ Response, Request, ProxyServer }
+import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
 /**
  * HttpProtocolConfiguration class companion
@@ -36,7 +37,7 @@ case class HttpProtocolConfiguration(baseURL: Option[String],
 	followRedirectEnabled: Boolean, automaticRefererEnabled: Boolean,
 	baseHeaders: Map[String, String],
 	extraRequestInfoExtractor: Option[(Request => List[String])],
-	extraResponseInfoExtractor: Option[(Response => List[String])])
+	extraResponseInfoExtractor: Option[(ExtendedResponse => List[String])])
 		extends ProtocolConfiguration {
 	val protocolType = HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE
 }

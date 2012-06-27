@@ -18,10 +18,9 @@ package com.excilys.ebi.gatling.http.check.status
 import com.excilys.ebi.gatling.core.check.{ MatcherCheckBuilder, ExtractorFactory }
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.check.{ HttpExtractorCheckBuilder, HttpCheck }
+import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder.findExtractorFactory
 import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
-import com.ning.http.client.Response
-
-import HttpStatusCheckBuilder.findExtractorFactory
+import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
 /**
  * HttpStatusCheckBuilder class companion
@@ -32,7 +31,7 @@ object HttpStatusCheckBuilder {
 
 	def status = new HttpStatusCheckBuilder
 
-	private def findExtractorFactory: ExtractorFactory[Response, String, Int] = (response: Response) => (expression: String) => Some(response.getStatusCode)
+	private def findExtractorFactory: ExtractorFactory[ExtendedResponse, String, Int] = (response: ExtendedResponse) => (expression: String) => Some(response.getStatusCode)
 }
 
 /**
@@ -40,5 +39,5 @@ object HttpStatusCheckBuilder {
  */
 class HttpStatusCheckBuilder extends HttpExtractorCheckBuilder[Int, String](Session => EMPTY, StatusReceived) {
 
-	def find = new MatcherCheckBuilder[HttpCheck[String], Response, String, Int](httpCheckBuilderFactory, findExtractorFactory)
+	def find = new MatcherCheckBuilder[HttpCheck[String], ExtendedResponse, String, Int](httpCheckBuilderFactory, findExtractorFactory)
 }

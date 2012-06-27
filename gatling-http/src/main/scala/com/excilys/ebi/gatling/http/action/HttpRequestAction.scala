@@ -19,12 +19,13 @@ import com.excilys.ebi.gatling.core.action.{ system, Action }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
-import com.excilys.ebi.gatling.http.ahc.{ HandlerFactory, GatlingAsyncHandlerActor, GatlingAsyncHandler, ExtendedResponseBuilder }
+import com.excilys.ebi.gatling.http.ahc.{ HandlerFactory, GatlingAsyncHandlerActor, GatlingAsyncHandler}
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpConfig._
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.referer.RefererHandling
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
+import com.excilys.ebi.gatling.http.response.ExtendedResponseBuilder
 import com.ning.http.client.{ AsyncHttpClientConfig, AsyncHttpClient }
 
 import akka.actor.{ Props, ActorRef }

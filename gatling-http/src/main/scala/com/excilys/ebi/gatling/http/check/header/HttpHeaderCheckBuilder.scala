@@ -16,14 +16,13 @@
 package com.excilys.ebi.gatling.http.check.header
 
 import scala.collection.JavaConversions.asScalaBuffer
-
 import com.excilys.ebi.gatling.core.check.{ MultipleExtractorCheckBuilder, MatcherCheckBuilder, ExtractorFactory }
 import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.check.{ HttpExtractorCheckBuilder, HttpCheck }
 import com.excilys.ebi.gatling.http.check.header.HttpHeaderCheckBuilder.{ findExtractorFactory, findAllExtractorFactory, countExtractorFactory }
 import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
-import com.ning.http.client.Response
+import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
 /**
  * HttpHeaderCheckBuilder class companion
@@ -39,7 +38,7 @@ object HttpHeaderCheckBuilder {
 	 */
 	def header(headerName: EvaluatableString) = new HttpHeaderCheckBuilder(headerName)
 
-	private def findExtractorFactory(occurrence: Int): ExtractorFactory[Response, String, String] = (response: Response) => (headerName: String) => {
+	private def findExtractorFactory(occurrence: Int): ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => (headerName: String) => {
 		val headers = response.getHeaders(headerName)
 		if (headers.size > occurrence)
 			headers.get(occurrence)
@@ -47,9 +46,9 @@ object HttpHeaderCheckBuilder {
 			None
 	}
 
-	private val findAllExtractorFactory: ExtractorFactory[Response, String, Seq[String]] = (response: Response) => (headerName: String) => seqToOption(response.getHeaders(headerName))
+	private val findAllExtractorFactory: ExtractorFactory[ExtendedResponse, String, Seq[String]] = (response: ExtendedResponse) => (headerName: String) => seqToOption(response.getHeaders(headerName))
 
-	private val countExtractorFactory: ExtractorFactory[Response, String, Int] = (response: Response) => (headerName: String) => toOption(response.getHeaders(headerName).size)
+	private val countExtractorFactory: ExtractorFactory[ExtendedResponse, String, Int] = (response: ExtendedResponse) => (headerName: String) => toOption(response.getHeaders(headerName).size)
 }
 
 /**
@@ -57,9 +56,9 @@ object HttpHeaderCheckBuilder {
  *
  * @param expression the function returning the header name to be checked
  */
-class HttpHeaderCheckBuilder(headerName: EvaluatableString) extends HttpExtractorCheckBuilder[String, String](headerName, HeadersReceived) with MultipleExtractorCheckBuilder[HttpCheck[String], Response, String, String] {
+class HttpHeaderCheckBuilder(headerName: EvaluatableString) extends HttpExtractorCheckBuilder[String, String](headerName, HeadersReceived) with MultipleExtractorCheckBuilder[HttpCheck[String], ExtendedResponse, String, String] {
 
-	def find: MatcherCheckBuilder[HttpCheck[String], Response, String, String] = find(0)
+	def find: MatcherCheckBuilder[HttpCheck[String], ExtendedResponse, String, String] = find(0)
 
 	def find(occurrence: Int) = new MatcherCheckBuilder(httpCheckBuilderFactory, findExtractorFactory(occurrence))
 

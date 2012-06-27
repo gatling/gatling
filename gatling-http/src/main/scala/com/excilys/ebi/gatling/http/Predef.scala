@@ -16,13 +16,14 @@
 package com.excilys.ebi.gatling.http
 
 import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.excilys.ebi.gatling.http.check.body.{ HttpBodyXPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyCssCheckBuilder }
-import com.excilys.ebi.gatling.http.check.bodypart.HttpBodyPartCheckBuilder
+import com.excilys.ebi.gatling.http.check.body.{ HttpBodyXPathCheckBuilder, HttpBodyResponseTimeCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyCssCheckBuilder }
+import com.excilys.ebi.gatling.http.check.bodypart.HttpChecksumCheckBuilder
 import com.excilys.ebi.gatling.http.check.header.{ HttpHeaderRegexCheckBuilder, HttpHeaderCheckBuilder }
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder
 import com.excilys.ebi.gatling.http.config.{ HttpProxyBuilder, HttpProtocolConfigurationBuilder, HttpProtocolConfiguration }
 import com.excilys.ebi.gatling.http.request.builder.HttpRequestBaseBuilder
-import com.ning.http.client.{ Response, Request }
+import com.ning.http.client.Request
+import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
 object Predef {
 
@@ -40,10 +41,12 @@ object Predef {
 	def header(headerName: EvaluatableString) = HttpHeaderCheckBuilder.header(headerName)
 	def headerRegex(headerName: EvaluatableString, pattern: EvaluatableString) = HttpHeaderRegexCheckBuilder.headerRegex(headerName, pattern)
 	def status = HttpStatusCheckBuilder.status
-	def md5 = HttpBodyPartCheckBuilder.checksum("MD5")
-	def sha1 = HttpBodyPartCheckBuilder.checksum("SHA-1")
+	def md5 = HttpChecksumCheckBuilder.checksum("MD5")
+	def sha1 = HttpChecksumCheckBuilder.checksum("SHA-1")
+	def responseTimeInMillis = HttpBodyResponseTimeCheckBuilder.responseTimeInMillis
+	def latencyInMillis = HttpBodyResponseTimeCheckBuilder.latencyInMillis
 
 	val requestUrl = (request: Request) => List(request.getUrl())
 	val requestRawUrl = (request: Request) => List(request.getRawUrl())
-	val responseStatusCode = (response: Response) => List(response.getStatusCode.toString)
+	val responseStatusCode = (response: ExtendedResponse) => List(response.getStatusCode.toString)
 }

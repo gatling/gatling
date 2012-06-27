@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.core.check.CheckContext.getOrUpdateCheckContextAt
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.extractor.xpath.XPathExtractor
 import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.ning.http.client.Response
+import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
 object HttpBodyXPathCheckBuilder {
 
@@ -27,11 +27,11 @@ object HttpBodyXPathCheckBuilder {
 
 	private val HTTP_BODY_XPATH_EXTRACTOR_CONTEXT_KEY = "HttpBodyXPathExtractor"
 
-	private def getCachedExtractor(response: Response) = getOrUpdateCheckContextAttribute(HTTP_BODY_XPATH_EXTRACTOR_CONTEXT_KEY, XPathExtractor(response.getResponseBodyAsStream))
+	private def getCachedExtractor(response: ExtendedResponse) = getOrUpdateCheckContextAttribute(HTTP_BODY_XPATH_EXTRACTOR_CONTEXT_KEY, XPathExtractor(response.getResponseBodyAsStream))
 
-	private def findExtractorFactory(namespaces: List[(String, String)])(occurrence: Int): ExtractorFactory[Response, String, String] = (response: Response) => getCachedExtractor(response).extractOne(occurrence, namespaces)
+	private def findExtractorFactory(namespaces: List[(String, String)])(occurrence: Int): ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => getCachedExtractor(response).extractOne(occurrence, namespaces)
 
-	private def findAllExtractorFactory(namespaces: List[(String, String)]): ExtractorFactory[Response, String, Seq[String]] = (response: Response) => getCachedExtractor(response).extractMultiple(namespaces)
+	private def findAllExtractorFactory(namespaces: List[(String, String)]): ExtractorFactory[ExtendedResponse, String, Seq[String]] = (response: ExtendedResponse) => getCachedExtractor(response).extractMultiple(namespaces)
 
-	private def countExtractorFactory(namespaces: List[(String, String)]): ExtractorFactory[Response, String, Int] = (response: Response) => getCachedExtractor(response).count(namespaces)
+	private def countExtractorFactory(namespaces: List[(String, String)]): ExtractorFactory[ExtendedResponse, String, Int] = (response: ExtendedResponse) => getCachedExtractor(response).count(namespaces)
 }

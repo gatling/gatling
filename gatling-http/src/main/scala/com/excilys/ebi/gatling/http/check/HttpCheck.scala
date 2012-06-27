@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.http.check
 import com.excilys.ebi.gatling.core.check.{ Matcher, Check }
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
-import com.ning.http.client.Response
+import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
 /**
  * This class serves as model for the HTTP-specific checks
@@ -29,4 +29,4 @@ import com.ning.http.client.Response
  * @param strategy the strategy used to check
  * @param phase the HttpPhase during which the check will be made
  */
-class HttpCheck[XC](expression: Session => XC, matcher: Matcher[Response, XC], saveAs: Option[String], val phase: HttpPhase) extends Check[Response, XC](expression, matcher, saveAs)
+class HttpCheck[XC](expression: Session => XC, matcher: Matcher[ExtendedResponse, XC], saveAs: Option[String], val phase: HttpPhase) extends Check[ExtendedResponse, XC](expression, matcher, saveAs)

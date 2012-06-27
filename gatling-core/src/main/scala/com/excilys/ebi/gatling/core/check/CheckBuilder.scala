@@ -134,6 +134,38 @@ class MatcherCheckBuilder[C <: Check[R, XC], R, XC, X](checkBuilderFactory: Chec
 		}
 	})
 
+	def lessThan(expected: Session => X) = matchWith(new MatchStrategy[X] {
+
+		def compare(expected: X, extracted: X, ok: Boolean) = {
+			if (ok)
+				Success(Some(extracted))
+			else
+				Failure(new StringBuilder().append("Check 'lessThan' failed, found ").append(extracted).append(" but expected ").append(expected).toString)
+		}
+
+		def apply(value: Option[X], session: Session) = value match {
+			case Some(extracted) => {
+				val expectedValue = expected(session)
+
+				if (extracted.isInstanceOf[Long] & expectedValue.isInstanceOf[Long]) {
+					compare(expectedValue, extracted, extracted.asInstanceOf[Long] <= expectedValue.asInstanceOf[Long])
+
+				} else if (extracted.isInstanceOf[Int] & expectedValue.isInstanceOf[Int]) {
+					compare(expectedValue, extracted, extracted.asInstanceOf[Int] <= expectedValue.asInstanceOf[Int])
+
+				} else if (extracted.isInstanceOf[Double] & expectedValue.isInstanceOf[Double]) {
+					compare(expectedValue, extracted, extracted.asInstanceOf[Double] <= expectedValue.asInstanceOf[Double])
+
+				} else if (extracted.isInstanceOf[Float] & expectedValue.isInstanceOf[Float]) {
+					compare(expectedValue, extracted, extracted.asInstanceOf[Float] <= expectedValue.asInstanceOf[Float])
+
+				} else
+					Failure(new StringBuilder().append("Check 'lessThan' failed trying to compare thing that are not numbers of the same type, found ").append(extracted).append(" but expected ").append(expectedValue).toString)
+			}
+			case None => Failure("Check 'lessThan' failed, found nothing")
+		}
+	})
+
 	/**
 	 * @param expected the expected value
 	 * @return a partial CheckBuilder with a "is different from" MatchStrategy
