@@ -46,7 +46,10 @@ object Predef {
 	def responseTimeInMillis = HttpBodyResponseTimeCheckBuilder.responseTimeInMillis
 	def latencyInMillis = HttpBodyResponseTimeCheckBuilder.latencyInMillis
 
-	val requestUrl = (request: Request) => List(request.getUrl())
-	val requestRawUrl = (request: Request) => List(request.getRawUrl())
+	val requestUrl = (request: Request) => List(request.getUrl)
+	val requestRawUrl = (request: Request) => List(request.getRawUrl)
 	val responseStatusCode = (response: ExtendedResponse) => List(response.getStatusCode.toString)
+	val responseStatusText = (response: ExtendedResponse) => List(response.getStatusText)
+	val responseContentType = (response: ExtendedResponse) => List(response.getContentType)
+	val responseUri = (response: ExtendedResponse) => List(response.getUri.toString)
 }
