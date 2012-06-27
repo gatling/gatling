@@ -15,12 +15,16 @@
  */
 package com.excilys.ebi.gatling.http.check.header
 
+import java.net.URLDecoder
+
 import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
 import com.excilys.ebi.gatling.core.check.extractor.regex.RegexExtractor
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
+import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.http.check.HttpMultipleCheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
@@ -31,7 +35,7 @@ object HttpHeaderRegexCheckBuilder {
 		(response: ExtendedResponse) =>
 			(headerAndPattern: (String, String)) => {
 				findAllExtractorFactory(response)(headerAndPattern) match {
-					case Some(results) if results.isDefinedAt(occurrence) => Some(results(occurrence))
+					case Some(results) if results.isDefinedAt(occurrence) => results(occurrence)
 					case _ => None
 				}
 			}
@@ -39,8 +43,13 @@ object HttpHeaderRegexCheckBuilder {
 	private val findAllExtractorFactory: ExtractorFactory[ExtendedResponse, (String, String), Seq[String]] = (response: ExtendedResponse) =>
 		(headerAndPattern: (String, String)) => {
 			val (headerName, pattern) = headerAndPattern
+			val headerValues = response.getHeaders(headerName)
+			val decodedHeaderValues = if (headerName == Headers.Names.LOCATION)
+				headerValues.map(URLDecoder.decode(_, configuration.encoding))
+			else
+				headerValues.toSeq
 
-			response.getHeaders(headerName).foldLeft(Seq.empty[String]) { (matches, header) =>
+			decodedHeaderValues.foldLeft(Seq.empty[String]) { (matches, header) =>
 				new RegexExtractor(headerName).extractMultiple(pattern) match {
 					case Some(newMatches) => newMatches ++ matches
 					case None => matches

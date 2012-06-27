@@ -15,11 +15,15 @@
  */
 package com.excilys.ebi.gatling.http.check.header
 
+import java.net.URLDecoder
+
 import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.http.check.HttpMultipleCheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
@@ -33,13 +37,25 @@ object HttpHeaderCheckBuilder {
 
 	private def findExtractorFactory(occurrence: Int): ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => (headerName: String) => {
 		val headers = response.getHeaders(headerName)
-		if (headers.size > occurrence)
-			headers.get(occurrence)
-		else
+		if (headers.size > occurrence) {
+			val headerValue = headers.get(occurrence)
+			if (headerName == Headers.Names.LOCATION)
+				URLDecoder.decode(headerValue, configuration.encoding)
+			else
+				headerValue
+
+		} else
 			None
 	}
 
-	private val findAllExtractorFactory: ExtractorFactory[ExtendedResponse, String, Seq[String]] = (response: ExtendedResponse) => (headerName: String) => seqToOption(response.getHeaders(headerName))
+	private val findAllExtractorFactory: ExtractorFactory[ExtendedResponse, String, Seq[String]] = (response: ExtendedResponse) => (headerName: String) => {
+
+		val headerValues = response.getHeaders(headerName)
+		if (headerName == Headers.Names.LOCATION)
+			headerValues.map(URLDecoder.decode(_, configuration.encoding))
+		else
+			headerValues.toSeq
+	}
 
 	private val countExtractorFactory: ExtractorFactory[ExtendedResponse, String, Int] = (response: ExtendedResponse) => (headerName: String) => toOption(response.getHeaders(headerName).size)
 

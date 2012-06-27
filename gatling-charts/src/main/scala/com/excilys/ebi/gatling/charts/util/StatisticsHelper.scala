@@ -178,7 +178,7 @@ object StatisticsHelper {
 	def percentiles(records: Seq[ChartRequestRecord], percentage1: Double, percentage2: Double, status: Option[RequestStatus], requestName: Option[String]): (Long, Long) = {
 
 		def percentile(sortedRecords: Array[Long], percentage: Double): Long = {
-			if (sortedRecords.length == 0)
+			if (sortedRecords.isEmpty)
 				NO_PLOT_MAGIC_VALUE
 			else {
 				val limitIndex = min(round(percentage * sortedRecords.length + 0.5).toInt, sortedRecords.length) - 1
