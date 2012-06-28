@@ -18,11 +18,11 @@ package com.excilys.ebi.gatling.core.config
 object ProtocolConfigurationRegistry {
 
 	def apply(configurations: Seq[ProtocolConfiguration]): ProtocolConfigurationRegistry = {
-		val indexedConfigurations = configurations
-			.groupBy(_.protocolType)
+		val indexedConfigurations: Map[Class[_ <: ProtocolConfiguration], ProtocolConfiguration] = configurations
+			.groupBy(_.getClass)
 			.map {
 				case (protocolType, configs) =>
-					if (configs.length > 1) throw new ExceptionInInitializerError("Multiple configurations defined for propocol " + protocolType)
+					if (configs.length > 1) throw new ExceptionInInitializerError("Multiple configurations defined for propocol " + protocolType.getName)
 					(protocolType -> configs.head)
 			}.toMap
 
@@ -33,11 +33,11 @@ object ProtocolConfigurationRegistry {
 /**
  * A placeholder for ProtocolConfigurations
  */
-class ProtocolConfigurationRegistry(configurations: Map[String, ProtocolConfiguration]) {
+class ProtocolConfigurationRegistry(configurations: Map[Class[_ <: ProtocolConfiguration], ProtocolConfiguration]) {
 
 	/**
 	 * @param protocolType
 	 * @return a registered ProtocolConfiguration according to its type
 	 */
-	def getProtocolConfiguration(protocolType: String): Option[ProtocolConfiguration] = configurations.get(protocolType)
+	def getProtocolConfiguration[T <: ProtocolConfiguration: ClassManifest]: Option[T] = configurations.get(implicitly[ClassManifest[T]].erasure.asInstanceOf[Class[T]]).map(_.asInstanceOf[T])
 }

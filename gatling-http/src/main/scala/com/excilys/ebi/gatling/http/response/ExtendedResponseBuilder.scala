@@ -30,10 +30,10 @@ object ExtendedResponseBuilder {
 	def newExtendedResponseBuilder(checks: List[HttpCheck[_]]): ExtendedResponseBuilderFactory = {
 
 		val checksumChecks = checks.foldLeft(List.empty[ChecksumCheck]) { (checksumChecks, check) =>
-			if (check.isInstanceOf[ChecksumCheck])
-				check.asInstanceOf[ChecksumCheck] :: checksumChecks
-			else
-				checksumChecks
+			check match {
+				case checksumCheck: ChecksumCheck => checksumCheck :: checksumChecks
+				case _ => checksumChecks
+			}
 		}
 
 		val storeBodyPart = checks.exists(_.phase == CompletePageReceived)

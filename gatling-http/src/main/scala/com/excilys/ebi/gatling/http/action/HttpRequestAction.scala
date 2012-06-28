@@ -21,7 +21,7 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.ahc.{ HandlerFactory, GatlingAsyncHandlerActor, GatlingAsyncHandler }
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.config.HttpConfig._
+import com.excilys.ebi.gatling.http.config.HttpConfig
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.referer.RefererHandling
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
@@ -52,24 +52,24 @@ object HttpRequestAction extends Logging {
 		}
 
 		val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
-			.setAllowPoolingConnection(GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION)
-			.setAllowSslConnectionPool(GATLING_HTTP_CONFIG_ALLOW_SSL_CONNECTION_POOL)
-			.setCompressionEnabled(GATLING_HTTP_CONFIG_COMPRESSION_ENABLED)
-			.setConnectionTimeoutInMs(GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT)
-			.setIdleConnectionInPoolTimeoutInMs(GATLING_HTTP_CONFIG_IDLE_CONNECTION_IN_POOL_TIMEOUT_IN_MS)
-			.setIdleConnectionTimeoutInMs(GATLING_HTTP_CONFIG_IDLE_CONNECTION_TIMEOUT_IN_MS)
-			.setIOThreadMultiplier(GATLING_HTTP_CONFIG_IO_THREAD_MULTIPLIER)
-			.setMaximumConnectionsPerHost(GATLING_HTTP_MAXIMUM_CONNECTIONS_PER_HOST)
-			.setMaximumConnectionsTotal(GATLING_HTTP_MAXIMUM_CONNECTIONS_TOTAL)
-			.setMaxRequestRetry(GATLING_HTTP_CONFIG_MAX_RETRY)
-			.setRequestCompressionLevel(GATLING_HTTP_CONFIG_REQUEST_COMPRESSION_LEVEL)
-			.setRequestTimeoutInMs(GATLING_HTTP_CONFIG_REQUEST_TIMEOUT_IN_MS)
-			.setUseProxyProperties(GATLING_HTTP_CONFIG_USE_PROXY_PROPERTIES)
-			.setUserAgent(GATLING_HTTP_CONFIG_USER_AGENT)
-			.setUseRawUrl(GATLING_HTTP_CONFIG_USE_RAW_URL)
+			.setAllowPoolingConnection(HttpConfig.GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION)
+			.setAllowSslConnectionPool(HttpConfig.GATLING_HTTP_CONFIG_ALLOW_SSL_CONNECTION_POOL)
+			.setCompressionEnabled(HttpConfig.GATLING_HTTP_CONFIG_COMPRESSION_ENABLED)
+			.setConnectionTimeoutInMs(HttpConfig.GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT)
+			.setIdleConnectionInPoolTimeoutInMs(HttpConfig.GATLING_HTTP_CONFIG_IDLE_CONNECTION_IN_POOL_TIMEOUT_IN_MS)
+			.setIdleConnectionTimeoutInMs(HttpConfig.GATLING_HTTP_CONFIG_IDLE_CONNECTION_TIMEOUT_IN_MS)
+			.setIOThreadMultiplier(HttpConfig.GATLING_HTTP_CONFIG_IO_THREAD_MULTIPLIER)
+			.setMaximumConnectionsPerHost(HttpConfig.GATLING_HTTP_MAXIMUM_CONNECTIONS_PER_HOST)
+			.setMaximumConnectionsTotal(HttpConfig.GATLING_HTTP_MAXIMUM_CONNECTIONS_TOTAL)
+			.setMaxRequestRetry(HttpConfig.GATLING_HTTP_CONFIG_MAX_RETRY)
+			.setRequestCompressionLevel(HttpConfig.GATLING_HTTP_CONFIG_REQUEST_COMPRESSION_LEVEL)
+			.setRequestTimeoutInMs(HttpConfig.GATLING_HTTP_CONFIG_REQUEST_TIMEOUT_IN_MS)
+			.setUseProxyProperties(HttpConfig.GATLING_HTTP_CONFIG_USE_PROXY_PROPERTIES)
+			.setUserAgent(HttpConfig.GATLING_HTTP_CONFIG_USER_AGENT)
+			.setUseRawUrl(HttpConfig.GATLING_HTTP_CONFIG_USE_RAW_URL)
 			.build
 
-		val client = new AsyncHttpClient(GATLING_HTTP_CONFIG_PROVIDER_CLASS, ahcConfigBuilder)
+		val client = new AsyncHttpClient(HttpConfig.GATLING_HTTP_CONFIG_PROVIDER_CLASS, ahcConfigBuilder)
 
 		system.registerOnTermination(client.close)
 

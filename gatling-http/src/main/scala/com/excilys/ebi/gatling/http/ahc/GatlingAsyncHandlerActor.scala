@@ -161,7 +161,12 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 
 			val redirectUrl = computeRedirectUrl(response.getHeader(HeaderNames.LOCATION), request.getUrl)
 
-			val requestBuilder = new RequestBuilder(request).setMethod("GET").setBodyEncoding(configuration.encoding).setQueryParameters(null.asInstanceOf[FluentStringsMap]).setParameters(null.asInstanceOf[FluentStringsMap]).setUrl(redirectUrl)
+			val requestBuilder = new RequestBuilder(request)
+				.setMethod("GET")
+				.setBodyEncoding(configuration.encoding)
+				.setQueryParameters(null.asInstanceOf[FluentStringsMap])
+				.setParameters(null.asInstanceOf[FluentStringsMap])
+				.setUrl(redirectUrl)
 
 			for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatedCookies, redirectUrl))
 				requestBuilder.addCookie(cookie)

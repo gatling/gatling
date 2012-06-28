@@ -21,29 +21,28 @@ import org.specs2.runner.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class ProtocolConfigurationRegistrySpec extends Specification {
-
-	def newConfig(theType: String) = new ProtocolConfiguration {
-		val protocolType = theType
-	}
+	
+	class FooProtocolConfiguration(val foo: String) extends ProtocolConfiguration
+	class BarProtocolConfiguration(val bar: String) extends ProtocolConfiguration
 
 	"building registry" should {
 
 		"return the configuration when 1 configuration" in {
-			ProtocolConfigurationRegistry(List(newConfig("foo"))).getProtocolConfiguration("foo") must beSome.which(_.protocolType == "foo")
+			ProtocolConfigurationRegistry(List(new FooProtocolConfiguration("foo"))).getProtocolConfiguration[FooProtocolConfiguration] must beSome.which(_.foo == "foo")
 		}
 
 		"return the configurations when 2 different configurations" in {
-			val registry = ProtocolConfigurationRegistry(List(newConfig("foo"), newConfig("bar")))
-			registry.getProtocolConfiguration("foo") must beSome.which(_.protocolType == "foo")
-			registry.getProtocolConfiguration("bar") must beSome.which(_.protocolType == "bar")
+			val registry = ProtocolConfigurationRegistry(List(new FooProtocolConfiguration("foo"), new BarProtocolConfiguration("bar")))
+			registry.getProtocolConfiguration[FooProtocolConfiguration] must beSome.which(_.foo == "foo")
+			registry.getProtocolConfiguration[BarProtocolConfiguration] must beSome.which(_.bar == "bar")
 		}
 
 		"not fail when no configuration" in {
-			ProtocolConfigurationRegistry(List.empty).getProtocolConfiguration("foo") must beNone
+			ProtocolConfigurationRegistry(List.empty).getProtocolConfiguration[FooProtocolConfiguration] must beNone
 		}
 
 		"fail when multiple configurations of the same type" in {
-			ProtocolConfigurationRegistry(List(newConfig("foo"), newConfig("foo"))) must throwA[ExceptionInInitializerError]
+			ProtocolConfigurationRegistry(List(new FooProtocolConfiguration("foo1"), new FooProtocolConfiguration("foo2"))) must throwA[ExceptionInInitializerError]
 		}
 	}
 }
