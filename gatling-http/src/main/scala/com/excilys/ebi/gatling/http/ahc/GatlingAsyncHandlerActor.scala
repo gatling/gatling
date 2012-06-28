@@ -16,7 +16,6 @@
 package com.excilys.ebi.gatling.http.ahc
 
 import java.lang.System.currentTimeMillis
-import java.net.URLDecoder
 
 import scala.annotation.tailrec
 import scala.collection.JavaConversions.asScalaBuffer
@@ -159,9 +158,9 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 
 			logRequest(OK, response = Some(response))
 
-			val redirectUrl = computeRedirectUrl(URLDecoder.decode(response.getHeader(HeaderNames.LOCATION), gatlingConfiguration.encoding), request.getUrl)
+			val redirectUrl = computeRedirectUrl(response.getHeader(HeaderNames.LOCATION), request.getUrl)
 
-			val requestBuilder = new RequestBuilder(request).setMethod("GET").setQueryParameters(null.asInstanceOf[FluentStringsMap]).setParameters(null.asInstanceOf[FluentStringsMap]).setUrl(redirectUrl)
+			val requestBuilder = new RequestBuilder(request).setMethod("GET").setBodyEncoding(configuration.encoding).setQueryParameters(null.asInstanceOf[FluentStringsMap]).setParameters(null.asInstanceOf[FluentStringsMap]).setUrl(redirectUrl)
 
 			for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatedCookies, redirectUrl))
 				requestBuilder.addCookie(cookie)

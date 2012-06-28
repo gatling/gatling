@@ -16,6 +16,7 @@
 package com.excilys.ebi.gatling.http.request.builder
 
 import com.excilys.ebi.gatling.core.Predef.stringToSessionFunction
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
 import com.excilys.ebi.gatling.core.util.StringHelper.{ parseEvaluatable, EL_START, EL_END }
 import com.excilys.ebi.gatling.http.Headers.{ Values => HeaderValues, Names => HeaderNames }
@@ -144,7 +145,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * @param session the session of the current scenario
 	 */
 	protected def getAHCRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
-		val requestBuilder = new RequestBuilder(method, true)
+		val requestBuilder = new RequestBuilder(method, true).setBodyEncoding(configuration.encoding)
 
 		val isHttps = configureURLAndCookies(requestBuilder, session, protocolConfiguration)
 		configureProxy(requestBuilder, session, isHttps, protocolConfiguration)

@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.recorder.scenario
 
-import java.net.{ URLEncoder, URI }
+import java.net.URI
 import java.nio.charset.Charset
 
 import scala.collection.JavaConversions.{ mapAsScalaMap, asScalaBuffer }
@@ -82,7 +82,7 @@ class RequestElement(val request: HttpRequest, val statusCode: Int, val simulati
 	}
 
 	private def convertParamsFromJavaToScala(params: java.util.Map[String, java.util.List[String]]): List[(String, String)] = {
-		(for ((key, list) <- params) yield (for (e <- list) yield (key, URLEncoder.encode(e, configuration.encoding)))).toList.flatten
+		(for ((key, list) <- params) yield (for (e <- list) yield (key, e))).toList.flatten
 	}
 
 	private val basicAuthCredentials: Option[(String, String)] = {
