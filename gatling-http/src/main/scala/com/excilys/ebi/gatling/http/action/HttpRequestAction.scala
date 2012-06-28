@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.core.action.{ system, Action }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
-import com.excilys.ebi.gatling.http.ahc.{ HandlerFactory, GatlingAsyncHandlerActor, GatlingAsyncHandler}
+import com.excilys.ebi.gatling.http.ahc.{ HandlerFactory, GatlingAsyncHandlerActor, GatlingAsyncHandler }
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpConfig._
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
@@ -97,18 +97,18 @@ class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: Abs
 	def execute(session: Session) {
 		info("Sending Request '" + requestName + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
 
-		try {
-			val request = requestBuilder.build(session, protocolConfiguration)
-			val newSession = RefererHandling.storeReferer(request, session, protocolConfiguration)
-			val actor = context.actorOf(Props(asyncHandlerActorFactory(request, newSession)))
-			val ahcHandler = handlerFactory(requestName, actor)
-			client.executeRequest(request, ahcHandler)
+		val request = requestBuilder.build(session, protocolConfiguration)
+		val newSession = RefererHandling.storeReferer(request, session, protocolConfiguration)
+		val actor = context.actorOf(Props(asyncHandlerActorFactory(request, newSession)))
+		val ahcHandler = handlerFactory(requestName, actor)
+		client.executeRequest(request, ahcHandler)
+	}
 
-		} catch {
-			case e => {
-				error("request " + requestName + " building crashed, skipping it", e)
-				next ! session
-			}
+	override def preRestart(reason: Throwable, message: Option[Any]) {
+		error("request " + requestName + " building crashed, skipping it", reason)
+		message match {
+			case Some(session: Session) => next ! session
+			case _ =>
 		}
 	}
 }

@@ -44,17 +44,17 @@ class WhileAction(condition: Session => Boolean, loopNext: ActorRef => ActorRef,
 
 		val sessionWithTimerIncremented = increment(init(session))
 
-		val continue = try {
-			condition(sessionWithTimerIncremented)
-		} catch {
-			case e =>
-				error("'loop' condition evaluation crashed, exiting block for this user", e)
-				false
-		}
-
-		if (continue)
+		if (condition(sessionWithTimerIncremented))
 			loopNextAction ! sessionWithTimerIncremented
 		else
-			next ! expire(sessionWithTimerIncremented)
+			next ! expire(session)
+	}
+
+	override def preRestart(reason: Throwable, message: Option[Any]) {
+		error("'loop' condition evaluation crashed, exiting block for this user", reason)
+		message match {
+			case Some(session: Session) => next ! expire(session)
+			case _ =>
+		}
 	}
 }

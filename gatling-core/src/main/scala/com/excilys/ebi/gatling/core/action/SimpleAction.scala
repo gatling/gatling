@@ -35,13 +35,14 @@ class SimpleAction(sessionFunction: Session => Session, next: ActorRef) extends 
 	 * @param session the session of the virtual user
 	 */
 	def execute(session: Session) {
-		val newSession = try {
-			sessionFunction(session)
-		} catch {
-			case e =>
-				error("Error while executing simple action", e)
-				session
+		next ! sessionFunction(session)
+	}
+
+	override def preRestart(reason: Throwable, message: Option[Any]) {
+		error("Error while executing simple action", reason)
+		message match {
+			case Some(session: Session) => next ! session
+			case _ =>
 		}
-		next ! newSession
 	}
 }

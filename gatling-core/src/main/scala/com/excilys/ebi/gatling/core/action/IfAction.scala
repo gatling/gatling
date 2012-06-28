@@ -38,14 +38,15 @@ class IfAction(condition: Session => Boolean, thenNext: ActorRef, elseNext: Opti
 	 */
 	def execute(session: Session) {
 
-		val nextAction =
-			try {
-				if (condition(session)) thenNext else elseNext.getOrElse(next)
-			} catch {
-				case e =>
-					error("'if' condition evaluation crashed, exiting block for this user", e)
-					next
-			}
+		val nextAction = if (condition(session)) thenNext else elseNext.getOrElse(next)
 		nextAction ! session
+	}
+
+	override def preRestart(reason: Throwable, message: Option[Any]) {
+		error("'if' condition evaluation crashed, exiting block for this user", reason)
+		message match {
+			case Some(session: Session) => next ! session
+			case _ =>
+		}
 	}
 }
