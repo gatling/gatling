@@ -23,6 +23,7 @@ import scala.collection.JavaConversions.asScalaBuffer
 import com.excilys.ebi.gatling.core.check.Check.applyChecks
 import com.excilys.ebi.gatling.core.check.Failure
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ RequestStatus, OK, KO }
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
