@@ -50,7 +50,7 @@ object HttpHeaderRegexCheckBuilder {
 				headerValues.toSeq
 
 			decodedHeaderValues.foldLeft(Seq.empty[String]) { (matches, header) =>
-				new RegexExtractor(headerName).extractMultiple(pattern) match {
+				new RegexExtractor(header).extractMultiple(pattern) match {
 					case Some(newMatches) => newMatches ++ matches
 					case None => matches
 				}
@@ -67,7 +67,6 @@ object HttpHeaderRegexCheckBuilder {
 			}
 
 	def headerRegex(headerName: EvaluatableString, pattern: EvaluatableString) = {
-
 		val expression = (s: Session) => (headerName(s), pattern(s))
 		new HttpMultipleCheckBuilder(findExtractorFactory, findAllExtractorFactory, countExtractorFactory, expression, HeadersReceived)
 	}
