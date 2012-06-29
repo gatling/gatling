@@ -23,13 +23,9 @@ sealed abstract class CheckResult
 /**
  * The outcome in case of success
  */
-case class Success(extractedValue: Option[_]) extends CheckResult {
-	override def toString = "Success, extractedValue=" + extractedValue
-}
+case class Success(extractedValue: Option[_]) extends CheckResult
 
 /**
  * The outcome in case of failure
  */
-case class Failure(errorMessage: String) extends CheckResult {
-	override def toString = "Failure, errorMessage=" + errorMessage
-}
+case class Failure(errorMessage: String) extends CheckResult

@@ -15,7 +15,27 @@
  */
 package com.excilys.ebi.gatling.core.result.message
 
-import com.excilys.ebi.gatling.core.result.message.RecordType.ACTION
+import java.util.concurrent.CountDownLatch
+
+import org.joda.time.DateTime
+
+import com.excilys.ebi.gatling.core.result.message.RecordType.{ RUN, ACTION }
+import com.excilys.ebi.gatling.core.util.DateHelper.{ toTimestamp, toHumanDate }
+
+sealed trait DataWriterMessage
+
+/**
+ * This case class is to be sent to the logging actor, it contains all the information
+ * required for its initialization
+ *
+ * @param runRecord the data on the simulation run
+ * @param totalUsersCount the number of total users
+ * @param latch the countdown latch that will end the simulation
+ * @param encoding the file encoding
+ */
+case class InitializeDataWriter(runRecord: RunRecord, totalUsersCount: Int, latch: CountDownLatch, encoding: String) extends DataWriterMessage
+
+case object FlushDataWriter extends DataWriterMessage
 
 /**
  * This case class is to be sent to the logging actor, it contains all the information
@@ -33,8 +53,15 @@ import com.excilys.ebi.gatling.core.result.message.RecordType.ACTION
  * @param extraInfo information about the request and response extracted via a user-defined function
  */
 case class RequestRecord(scenarioName: String, userId: Int, requestName: String,
-                         executionStartDate: Long, executionEndDate: Long,
-                         requestSendingEndDate: Long, responseReceivingStartDate: Long,
-                         requestStatus: RequestStatus.RequestStatus, requestMessage: Option[String] = None,
-                         extraInfo: List[String] = Nil)
-  extends Record(ACTION)
+	executionStartDate: Long, executionEndDate: Long,
+	requestSendingEndDate: Long, responseReceivingStartDate: Long,
+	requestStatus: RequestStatus.RequestStatus, requestMessage: Option[String] = None,
+	extraInfo: List[String] = Nil) extends DataWriterMessage {
+	val recordType = ACTION
+}
+
+case class RunRecord(runDate: DateTime, runId: String, runDescription: String) extends DataWriterMessage {
+	val recordType = RUN
+	def runUuid = runId + toTimestamp(runDate)
+	def readableRunDate = toHumanDate(runDate)
+}
