@@ -38,7 +38,16 @@ class CookieStore(store: Map[URI, List[Cookie]]) {
 	 *                  with an URI
 	 * @param cookie    the cookie to store
 	 */
-	def add(rawURI: URI, newCookies: List[Cookie]): CookieStore = {
+	def add(rawURI: URI, rawCookies: List[Cookie]): CookieStore = {
+		val newCookies = rawCookies.map {cookie =>
+			Option(cookie.getDomain) match {
+				case Some(_) => cookie
+				case None =>
+					val newCookie = new Cookie(rawURI.getHost, cookie.getName, cookie.getValue, "/", cookie.getMaxAge, cookie.isSecure, cookie.getVersion)
+					newCookie.setPorts(cookie.getPorts)
+					newCookie
+			}
+		}
 
 		def cookiesEquals(c1: Cookie, c2: Cookie) = {
 			c1.getName.equalsIgnoreCase(c2.getName) &&
