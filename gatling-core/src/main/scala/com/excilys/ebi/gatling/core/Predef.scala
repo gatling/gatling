@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
 import com.excilys.ebi.gatling.core.check.{ MatcherCheckBuilder, ExtractorCheckBuilder, CheckBuilder, Check }
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesFeederBuilder
+import com.excilys.ebi.gatling.core.feeder.simple.SimpleFeederBuilder
 import com.excilys.ebi.gatling.core.structure.{ ScenarioBuilder, ChainBuilder }
 import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 
@@ -40,6 +41,8 @@ object Predef {
 	def ssv(fileName: String, escapeChar: Char) = SeparatedValuesFeederBuilder.ssv(fileName, Some(escapeChar))
 	def tsv(fileName: String) = SeparatedValuesFeederBuilder.tsv(fileName)
 	def tsv(fileName: String, escapeChar: Char) = SeparatedValuesFeederBuilder.tsv(fileName, Some(escapeChar))
+
+	def simpleFeeder(name: String, data: Map[String, String]*) = SimpleFeederBuilder.simpleFeeder(name, data.toIndexedSeq)
 
 	type Session = com.excilys.ebi.gatling.core.session.Session
 	type Simulation = com.excilys.ebi.gatling.core.scenario.configuration.Simulation
