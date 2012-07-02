@@ -125,6 +125,13 @@ class CookieStoreSpec extends Specification {
 			cookieStore.get(new URI("http://www.foo.com")).length must beEqualTo(1)
 		}
 
+		"return the cookie when it's issued from a request with a subpath" in {
+			val cookie = parseCookie("ALPHA; path=/")
+			val cookieStore = CookieStore(new URI("http://www.foo.com/bar"), List(cookie))
+
+			cookieStore.get(new URI("http://www.foo.com")).length must beEqualTo(1)
+		}
+
 		"handle missing path as request path when from root dir" in {
 			val cookie = parseCookie("ALPHA=VALUE1")
 			val uri = new URI("http://www.foo.com")
