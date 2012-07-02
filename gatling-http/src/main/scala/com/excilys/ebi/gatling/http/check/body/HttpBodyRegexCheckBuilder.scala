@@ -18,6 +18,7 @@ package com.excilys.ebi.gatling.http.check.body
 import com.excilys.ebi.gatling.core.check.CheckContext.getOrUpdateCheckContextAttribute
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.extractor.regex.RegexExtractor
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.check.HttpMultipleCheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
@@ -27,7 +28,7 @@ object HttpBodyRegexCheckBuilder {
 
 	private val HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY = "HttpBodyRegexExtractor"
 
-	private def getCachedExtractor(response: ExtendedResponse) = getOrUpdateCheckContextAttribute(HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY, new RegexExtractor(response.getResponseBody))
+	private def getCachedExtractor(response: ExtendedResponse) = getOrUpdateCheckContextAttribute(HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY, new RegexExtractor(response.getResponseBody(configuration.encoding)))
 
 	private def findExtractorFactory(occurrence: Int): ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => getCachedExtractor(response).extractOne(occurrence)
 

@@ -18,6 +18,7 @@ package com.excilys.ebi.gatling.http.check.body
 import com.excilys.ebi.gatling.core.check.CheckContext.getOrUpdateCheckContextAttribute
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.extractor.jsonpath.JsonPathExtractor
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.check.HttpMultipleCheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
@@ -27,7 +28,7 @@ object HttpBodyJsonPathCheckBuilder {
 
 	private val HTTP_BODY_JSON_EXTRACTOR_CONTEXT_KEY = "HttpBodyJsonExtractor"
 
-	private def getCachedExtractor(response: ExtendedResponse) = getOrUpdateCheckContextAttribute(HTTP_BODY_JSON_EXTRACTOR_CONTEXT_KEY, new JsonPathExtractor(response.getResponseBody))
+	private def getCachedExtractor(response: ExtendedResponse) = getOrUpdateCheckContextAttribute(HTTP_BODY_JSON_EXTRACTOR_CONTEXT_KEY, new JsonPathExtractor(response.getResponseBody(configuration.encoding)))
 
 	private def findExtractorFactory(occurrence: Int): ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => getCachedExtractor(response).extractOne(occurrence)
 
