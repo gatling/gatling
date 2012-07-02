@@ -18,7 +18,6 @@ package com.excilys.ebi.gatling.charts.report
 import scala.collection.JavaConversions._
 
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
-import com.excilys.ebi.gatling.charts.component.impl.ComponentLibraryImpl
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.menuFile
 import com.excilys.ebi.gatling.charts.template.{ PageTemplate, MenuTemplate }
 import com.excilys.ebi.gatling.core.config.GatlingFiles.{ styleFolder, jsFolder, GATLING_ASSETS_STYLE_PACKAGE, GATLING_ASSETS_JS_PACKAGE }
@@ -29,22 +28,6 @@ import com.excilys.ebi.gatling.core.util.ScanHelper.deepCopyPackageContent
 import grizzled.slf4j.Logging
 
 object ReportsGenerator extends Logging {
-
-	val STATIC_LIBRARY_BINDER_PATH = "com/excilys/ebi/gatling/charts/component/impl/ComponentLibraryImpl.class"
-
-	val componentLibrary: ComponentLibrary = {
-		val paths = (Option(this.getClass.getClassLoader) match {
-			case Some(classloader) => classloader.getResources(STATIC_LIBRARY_BINDER_PATH)
-			case None => ClassLoader.getSystemResources(STATIC_LIBRARY_BINDER_PATH)
-		}).toList
-
-		if (paths.size > 1) {
-			warn("Class path contains multiple ComponentLibrary bindings")
-			paths.foreach(url => warn("Found ComponentLibrary binding in " + url))
-		}
-
-		new ComponentLibraryImpl
-	}
 
 	def generateFor(runUuid: String) {
 
@@ -75,9 +58,9 @@ object ReportsGenerator extends Logging {
 
 		} else {
 			val reportGenerators =
-				List(new AllSessionsReportGenerator(runUuid, dataReader, componentLibrary),
-					new GlobalReportGenerator(runUuid, dataReader, componentLibrary),
-					new RequestDetailsReportGenerator(runUuid, dataReader, componentLibrary))
+				List(new AllSessionsReportGenerator(runUuid, dataReader, ComponentLibrary.instance),
+					new GlobalReportGenerator(runUuid, dataReader, ComponentLibrary.instance),
+					new RequestDetailsReportGenerator(runUuid, dataReader, ComponentLibrary.instance))
 
 			copyAssets
 			generateMenu

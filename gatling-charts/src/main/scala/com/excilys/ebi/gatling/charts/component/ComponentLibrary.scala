@@ -15,7 +15,32 @@
  */
 package com.excilys.ebi.gatling.charts.component
 
+import scala.collection.JavaConversions.enumerationAsScalaIterator
+
+import com.excilys.ebi.gatling.charts.component.impl.ComponentLibraryImpl
 import com.excilys.ebi.gatling.charts.series.Series
+
+import grizzled.slf4j.Logging
+
+object ComponentLibrary extends Logging {
+
+	val instance: ComponentLibrary = {
+
+		val STATIC_LIBRARY_BINDER_PATH = "com/excilys/ebi/gatling/charts/component/impl/ComponentLibraryImpl.class"
+
+		val paths = (Option(this.getClass.getClassLoader) match {
+			case Some(classloader) => classloader.getResources(STATIC_LIBRARY_BINDER_PATH)
+			case None => ClassLoader.getSystemResources(STATIC_LIBRARY_BINDER_PATH)
+		}).toList
+
+		if (paths.size > 1) {
+			warn("Class path contains multiple ComponentLibrary bindings")
+			paths.foreach(url => warn("Found ComponentLibrary binding in " + url))
+		}
+
+		new ComponentLibraryImpl
+	}
+}
 
 abstract class ComponentLibrary {
 
