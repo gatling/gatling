@@ -134,5 +134,16 @@ class CookieStoreSpec extends Specification {
 			newCookies.length must beEqualTo(1)
 			newCookies.head.getValue must beEqualTo("VALUE2")
 		}
+
+		"serve cookie on sub path when domain is missing" in {
+			val newCookie = AsyncHttpProviderUtils.parseCookie("ALPHA=VALUE2; path=/")
+			val newURI = new URI("https://docs2.foo.com")
+			val newCookieStore = originalCookieStore.add(newURI, List(newCookie))
+			val newSubURI = new URI("https://docs2.foo.com/bar")
+
+			val newCookies = newCookieStore.get(newSubURI)
+			newCookies.length must beEqualTo(1)
+			newCookies.head.getValue must beEqualTo("VALUE2")
+		}
 	}
 }
