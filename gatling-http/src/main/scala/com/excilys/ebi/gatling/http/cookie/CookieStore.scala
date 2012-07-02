@@ -39,14 +39,17 @@ class CookieStore(store: Map[URI, List[Cookie]]) {
 	 * @param cookie    the cookie to store
 	 */
 	def add(rawURI: URI, rawCookies: List[Cookie]): CookieStore = {
-		val newCookies = rawCookies.map {cookie =>
-			Option(cookie.getDomain) match {
-				case Some(_) => cookie
-				case None =>
-					val newCookie = new Cookie(rawURI.getHost, cookie.getName, cookie.getValue, "/", cookie.getMaxAge, cookie.isSecure, cookie.getVersion)
-					newCookie.setPorts(cookie.getPorts)
-					newCookie
-			}
+		val newCookies = rawCookies.map { cookie =>
+
+			val fixedDomain = Option(cookie.getDomain).getOrElse(rawURI.getHost)
+			val fixedPath = Option(cookie.getPath).getOrElse("/")
+
+			if (fixedDomain != cookie.getDomain || fixedPath != cookie.getPath) {
+				val newCookie = new Cookie(fixedDomain, cookie.getName, cookie.getValue, fixedPath, cookie.getMaxAge, cookie.isSecure, cookie.getVersion)
+				newCookie.setPorts(cookie.getPorts)
+				newCookie
+			} else
+				cookie
 		}
 
 		def cookiesEquals(c1: Cookie, c2: Cookie) = {
