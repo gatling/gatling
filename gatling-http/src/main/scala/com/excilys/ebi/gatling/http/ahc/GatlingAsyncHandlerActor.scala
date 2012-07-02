@@ -169,7 +169,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 				.setUrl(redirectUrl)
 
 			for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatedCookies, redirectUrl))
-				requestBuilder.addCookie(cookie)
+				requestBuilder.addOrReplaceCookie(cookie)
 
 			val newRequest = requestBuilder.build
 			newRequest.getHeaders.remove(HeaderNames.CONTENT_LENGTH)

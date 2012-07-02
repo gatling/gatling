@@ -21,14 +21,19 @@ import scala.annotation.tailrec
 
 import com.ning.http.client.Cookie
 
-class CookieStore(store: Map[URI, List[Cookie]]) {
+object CookieStore {
+
+	def apply(uri: URI, cookies: List[Cookie]) = new CookieStore(Map.empty).add(uri, cookies)
+}
+
+private[cookie] class CookieStore(store: Map[URI, List[Cookie]]) {
 
 	private val MAX_AGE_UNSPECIFIED = -1L
 
 	private def getEffectiveUri(uri: URI) =
 		new URI(uri.getScheme,
 			uri.getAuthority,
-			uri.getPath,
+			null, // path component
 			null, // query component
 			null) // fragment component
 
@@ -52,11 +57,7 @@ class CookieStore(store: Map[URI, List[Cookie]]) {
 				cookie
 		}
 
-		def cookiesEquals(c1: Cookie, c2: Cookie) = {
-			c1.getName.equalsIgnoreCase(c2.getName) &&
-				c1.getDomain != null && c1.getDomain.equalsIgnoreCase(c2.getDomain) &&
-				c1.getPath != null && c1.getPath == c2.getPath
-		}
+		def cookiesEquals(c1: Cookie, c2: Cookie) = c1.getName.equalsIgnoreCase(c2.getName) && c1.getDomain.equalsIgnoreCase(c2.getDomain) && c1.getPath == c2.getPath
 
 		def hasExpired(c: Cookie): Boolean = c.getMaxAge != MAX_AGE_UNSPECIFIED && c.getMaxAge <= 0
 
@@ -81,11 +82,11 @@ class CookieStore(store: Map[URI, List[Cookie]]) {
 	def get(rawURI: URI): List[Cookie] = {
 
 		val uri = getEffectiveUri(rawURI)
-		val cookiesWithExactURI = store.get(uri).getOrElse(Nil)
+		val cookiesWithExactURI = store.get(uri).getOrElse(Nil).filter(cookie => rawURI.getPath.startsWith(cookie.getPath))
 		val cookiesWithExactURINames = cookiesWithExactURI.map(_.getName)
 
 		def filterDomainAndPathMatches(cookies: List[Cookie]) = cookies.filter { cookie =>
-			!cookiesWithExactURINames.contains(cookie.getName) && java.net.HttpCookie.domainMatches(cookie.getDomain, uri.getHost) && uri.getPath.startsWith(cookie.getPath)
+			!cookiesWithExactURINames.contains(cookie.getName) && java.net.HttpCookie.domainMatches(cookie.getDomain, uri.getHost) && rawURI.getPath.startsWith(cookie.getPath)
 		}
 
 		// known limitation: might return duplicates if more than 1 cookie with a given name with non exact uri
@@ -100,4 +101,6 @@ class CookieStore(store: Map[URI, List[Cookie]]) {
 		// known limitation: don't handle runtime expiration, intended for stress test
 		cookiesWithExactURI ++ cookiesWithSubPath
 	}
+
+	override def toString = "CookieStore=" + store.toString
 }
