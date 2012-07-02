@@ -26,7 +26,7 @@ import grizzled.slf4j.Logging
 
 class ConsoleDataWriter extends DataWriter with Logging {
 
-	private var inProgressUsersCount = 0
+	private var runningUsersCount = 0
 	private var doneUsersCount = 0
 	private var totalUsersCount = 0
 	private var successfulRequestsCount = 0
@@ -38,7 +38,7 @@ class ConsoleDataWriter extends DataWriter with Logging {
 
 	def uninitialized: Receive = {
 		case InitializeDataWriter(_, total, _, _) =>
-			inProgressUsersCount = 0
+			runningUsersCount = 0
 			doneUsersCount = 0
 			totalUsersCount = total
 			successfulRequestsCount = 0
@@ -55,8 +55,8 @@ class ConsoleDataWriter extends DataWriter with Logging {
 		case RequestRecord(scenarioName, userId, actionName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage, extraInfo) =>
 
 			actionName match {
-				case START_OF_SCENARIO => inProgressUsersCount += 1
-				case END_OF_SCENARIO => inProgressUsersCount -= 1; doneUsersCount += 1
+				case START_OF_SCENARIO => runningUsersCount += 1
+				case END_OF_SCENARIO => runningUsersCount -= 1; doneUsersCount += 1
 				case _ => resultStatus match {
 					case OK => successfulRequestsCount += 1
 					case KO => failedRequestsCount += 1
@@ -70,9 +70,9 @@ class ConsoleDataWriter extends DataWriter with Logging {
 				println(new StringBuilder()
 					.append(timeSinceStartUpInSec)
 					.append(" sec\tUsers: waiting=")
-					.append(totalUsersCount - inProgressUsersCount - doneUsersCount)
-					.append(" in progress=")
-					.append(inProgressUsersCount)
+					.append(totalUsersCount - runningUsersCount - doneUsersCount)
+					.append(" running=")
+					.append(runningUsersCount)
 					.append(" done=")
 					.append(doneUsersCount)
 					.append("\tRequests: OK=")

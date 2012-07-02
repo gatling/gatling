@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import scala.collection.JavaConversions._
-
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.menuFile
 import com.excilys.ebi.gatling.charts.template.{ PageTemplate, MenuTemplate }
