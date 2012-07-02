@@ -19,6 +19,7 @@ import java.net.URI
 
 import scala.annotation.tailrec
 
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.ning.http.client.Cookie
 
 object CookieStore {
@@ -47,7 +48,7 @@ private[cookie] class CookieStore(store: Map[URI, List[Cookie]]) {
 		val newCookies = rawCookies.map { cookie =>
 
 			val fixedDomain = Option(cookie.getDomain).getOrElse(rawURI.getHost)
-			val fixedPath = Option(cookie.getPath).getOrElse("/")
+			val fixedPath = Option(cookie.getPath).getOrElse(rawURI.getPath)
 
 			if (fixedDomain != cookie.getDomain || fixedPath != cookie.getPath) {
 				val newCookie = new Cookie(fixedDomain, cookie.getName, cookie.getValue, fixedPath, cookie.getMaxAge, cookie.isSecure, cookie.getVersion)
@@ -81,25 +82,24 @@ private[cookie] class CookieStore(store: Map[URI, List[Cookie]]) {
 
 	def get(rawURI: URI): List[Cookie] = {
 
+		val fixedPath = if (rawURI.getPath == EMPTY) "/" else rawURI.getPath
 		val uri = getEffectiveUri(rawURI)
-		val cookiesWithExactURI = store.get(uri).getOrElse(Nil).filter(cookie => rawURI.getPath.startsWith(cookie.getPath))
-		val cookiesWithExactURINames = cookiesWithExactURI.map(_.getName)
+		
+		def domainMatches(cookie: Cookie) = java.net.HttpCookie.domainMatches(cookie.getDomain, rawURI.getHost)
+		def pathMatches(cookie: Cookie) = fixedPath.startsWith(cookie.getPath)
 
-		def filterDomainAndPathMatches(cookies: List[Cookie]) = cookies.filter { cookie =>
-			!cookiesWithExactURINames.contains(cookie.getName) && java.net.HttpCookie.domainMatches(cookie.getDomain, uri.getHost) && rawURI.getPath.startsWith(cookie.getPath)
-		}
+		val cookiesWithExactDomain = store.get(uri).getOrElse(Nil).filter(pathMatches)
+		val cookiesWithExactDomainNames = cookiesWithExactDomain.map(_.getName.toLowerCase)
 
-		// known limitation: might return duplicates if more than 1 cookie with a given name with non exact uri
-		val cookiesWithSubPath = store.foldLeft(List[Cookie]()) { (cookies, storedEntry) =>
-			val (storedUri, storedCookies) = storedEntry
-			if (storedUri != uri)
-				cookies ++ filterDomainAndPathMatches(storedCookies)
-			else
-				cookies
-		}
+		// known limitation: might return duplicates if more than 1 cookie with a given name with non exact domain
+		val cookiesWithMatchingDomain = store
+			.filterKeys(_ != uri)
+			.values
+			.flatten
+			.filter(cookie => !cookiesWithExactDomainNames.contains(cookie.getName.toLowerCase) && domainMatches(cookie) && pathMatches(cookie))
 
 		// known limitation: don't handle runtime expiration, intended for stress test
-		cookiesWithExactURI ++ cookiesWithSubPath
+		cookiesWithExactDomain ++ cookiesWithMatchingDomain
 	}
 
 	override def toString = "CookieStore=" + store.toString

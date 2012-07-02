@@ -15,134 +15,163 @@
  */
 package com.excilys.ebi.gatling.http.cookie
 
-import org.specs2.mutable.Specification
-import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
-import com.excilys.ebi.gatling.core.session.Session
-import com.ning.http.client.Cookie
 import java.net.URI
-import com.ning.http.util.AsyncHttpProviderUtils
+
+import org.junit.runner.RunWith
+import org.specs2.mutable.Specification
+import org.specs2.runner.JUnitRunner
+
+import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
 
 @RunWith(classOf[JUnitRunner])
 class CookieStoreSpec extends Specification {
 
-	val originalCookie = AsyncHttpProviderUtils.parseCookie("ALPHA=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-	val originalURI = new URI("https://docs.foo.com/accounts")
-	val originalCookieStore = new CookieStore(Map.empty).add(originalURI, List(originalCookie))
-
 	"storeCookies" should {
 
-		"return the original cookie when requesting the original session" in {
-			val newCookies = originalCookieStore.get(new URI("https://docs.foo.com/accounts"))
-			newCookies.length must beEqualTo(1)
-			newCookies.head.getValue must beEqualTo("VALUE1")
+		"return nothing when it's empty" in {
+			new CookieStore(Map.empty).get(new URI("http://docs.foo.com")) must beEmpty
 		}
 
-		"return the original cookie when requesting the original session with a sub path" in {
-			val newCookies = originalCookieStore.get(new URI("https://docs.foo.com/accounts/baz"))
-			newCookies.length must beEqualTo(1)
-			newCookies.head.getValue must beEqualTo("VALUE1")
+		"not return cookie when it was set on another domain" in {
+			val cookie = parseCookie("ALPHA; Domain=www.foo.com")
+			val cookieStore = CookieStore(new URI("http://www.foo.com"), List(cookie))
+
+			cookieStore.get(new URI("http://www.bar.com")) must beEmpty
 		}
 
-		"not return any expired cookies when adding an new expired one" in {
-			val expiredCookie = AsyncHttpProviderUtils.parseCookie("BETA=EXPIRED; Domain=docs.foo.com; Path=/home; Expires=Wed, 24-Jan-1982 22:23:01 GMT; Secure; HttpOnly")
-			val newCookieStore = originalCookieStore.add(new URI("https://docs.foo.com/home"), List(expiredCookie))
+		"return the cookie when domain and path exactly match" in {
+			val cookie = parseCookie("ALPHA; Domain=www.foo.com; path=/bar")
+			val cookieStore = CookieStore(new URI("http://www.foo.com/bar"), List(cookie))
 
-			val newCookies = newCookieStore.get(new URI("https://docs.foo.com/home"))
-			newCookies must beEmpty
+			cookieStore.get(new URI("http://www.foo.com/bar")).length must beEqualTo(1)
 		}
 
-		"not return any expired cookies when expiring an existing one" in {
-			val expiredCookie = AsyncHttpProviderUtils.parseCookie("ALPHA=EXPIRED; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 24-Jan-1982 22:23:01 GMT; Secure; HttpOnly")
-			val newCookieStore = originalCookieStore.add(new URI("https://docs.foo.com/accounts"), List(expiredCookie))
+		"not return the cookie when domain matches but path is different" in {
+			val cookie = parseCookie("ALPHA; Domain=www.foo.com; path=/bar")
+			val cookieStore = CookieStore(new URI("http://www.foo.com/bar"), List(cookie))
 
-			val newCookies = newCookieStore.get(new URI("https://docs.foo.com/accounts"))
-			newCookies must beEmpty
+			cookieStore.get(new URI("http://www.foo.com/baz")) must beEmpty
 		}
 
-		"overwrite cookie when setting a new one with the same path" in {
-			val newCookie = AsyncHttpProviderUtils.parseCookie("ALPHA=VALUE2; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-			val newCookieStore = originalCookieStore.add(new URI("https://docs.foo.com/accounts"), List(newCookie))
+		"not return the cookie when domain matches but path is a parent" in {
+			val cookie = parseCookie("ALPHA; Domain=www.foo.com; path=/bar")
+			val cookieStore = CookieStore(new URI("http://www.foo.com/bar"), List(cookie))
 
-			val newCookies = newCookieStore.get(originalURI)
-			newCookies.length must beEqualTo(1)
-			newCookies.head.getValue must beEqualTo("VALUE2")
+			cookieStore.get(new URI("http://www.foo.com")) must beEmpty
 		}
 
-		"return original cookie when setting a new one with a sub path and requesting the original path" in {
-			val newCookie = AsyncHttpProviderUtils.parseCookie("ALPHA=VALUE2; Domain=docs.foo.com; Path=/accounts/foo; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-			val newCookieStore = originalCookieStore.add(new URI("https://docs.foo.com/accounts/foo"), List(newCookie))
+		"return the cookie when domain matches and path is a child" in {
+			val cookie = parseCookie("ALPHA; Domain=www.foo.com; path=/bar")
+			val cookieStore = CookieStore(new URI("http://www.foo.com/bar"), List(cookie))
 
-			val newCookies = newCookieStore.get(originalURI)
-			newCookies.length must beEqualTo(1)
-			newCookies.head.getValue must beEqualTo("VALUE1")
+			cookieStore.get(new URI("http://www.foo.com/bar/baz")).length must beEqualTo(1)
 		}
 
-		"return updated cookie when setting a new one with a sub path and requesting the sub path" in {
-			val newCookie = AsyncHttpProviderUtils.parseCookie("ALPHA=VALUE2; Domain=docs.foo.com; Path=/accounts/foo; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-			val newCookieStore = originalCookieStore.add(new URI("https://docs.foo.com/accounts/foo"), List(newCookie))
+		"return cookie when it was set on a sub domain" in {
+			val cookie = parseCookie("ALPHA; Domain=.foo.com")
+			val cookieStore = CookieStore(new URI("http://www.foo.com"), List(cookie))
 
-			val newCookies = newCookieStore.get(new URI("http://docs.foo.com/accounts/foo"))
-			newCookies.length must beEqualTo(2)
-			newCookies.map(c => c.getValue()) must haveTheSameElementsAs(List("VALUE1", "VALUE2"))
+			cookieStore.get(new URI("http://bar.foo.com")).length must beEqualTo(1)
 		}
 
-		"be to store a new cookie and replace the value of a existant one" in {
-			val newCookie1 = AsyncHttpProviderUtils.parseCookie("ALPHA=VALUE2; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-			val newCookie2 = AsyncHttpProviderUtils.parseCookie("BETA=VALUE3; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-			val newCookieStore = originalCookieStore.add(new URI("https://docs.foo.com/accounts"), List(newCookie1, newCookie2))
+		"replace cookie when set on the same domain and path" in {
+			val cookie = parseCookie("ALPHA=VALUE1; Domain=www.foo.com; path=/bar")
+			val uri = new URI("http://www.foo.com/bar")
+			val cookieStore = CookieStore(uri, List(cookie))
 
-			val newCookies = newCookieStore.get(new URI("https://docs.foo.com/accounts/foo"))
-			newCookies.map(c => c.getValue()) must haveTheSameElementsAs(List("VALUE2", "VALUE3"))
+			val cookies = cookieStore.add(uri, List(parseCookie("ALPHA=VALUE2; Domain=www.foo.com; path=/bar"))).get(uri)
+			cookies.length must beEqualTo(1)
+			cookies.head.getValue must beEqualTo("VALUE2")
+		}
+
+		"not replace cookies when they don't have the same name" in {
+			val cookie = parseCookie("BETA=VALUE1; Domain=www.foo.com; path=/bar")
+			val uri = new URI("http://www.foo.com/bar")
+			val cookieStore = CookieStore(uri, List(cookie))
+
+			val cookies = cookieStore.add(uri, List(parseCookie("ALPHA=VALUE2; Domain=www.foo.com; path=/bar"))).get(uri)
+			cookies.length must beEqualTo(2)
+		}
+
+		"expire cookie when set with a date in the past" in {
+			val cookie = parseCookie("ALPHA=VALUE1; Domain=www.foo.com; path=/bar")
+			val uri = new URI("http://www.foo.com/bar")
+			val cookieStore = CookieStore(uri, List(cookie))
+
+			val cookies = cookieStore.add(uri, List(parseCookie("ALPHA=EXPIRED; Domain=www.foo.com; Path=/bar; Expires=Wed, 24-Jan-1982 22:23:01 GMT"))).get(uri)
+			cookies must beEmpty
+		}
+
+		"have cookie of the same name co-exist if not set on the same domain" in {
+			val cookie1 = parseCookie("ALPHA=VALUE1; Domain=www.foo.com")
+			val uri1 = new URI("http://www.foo.com")
+			val cookie2 = parseCookie("ALPHA=VALUE2; Domain=www.bar.com")
+			val uri2 = new URI("http://www.bar.com")
+			val cookieStore = CookieStore(uri1, List(cookie1)).add(uri2, List(cookie2))
+
+			val cookies1 = cookieStore.get(uri1)
+			cookies1.length must beEqualTo(1)
+			cookies1.head.getValue must beEqualTo("VALUE1")
+			val cookies2 = cookieStore.get(uri2)
+			cookies2.length must beEqualTo(1)
+			cookies2.head.getValue must beEqualTo("VALUE2")
+		}
+
+		"handle missing domain as request host" in {
+			val cookie = parseCookie("ALPHA=VALUE1; Path=/")
+			val uri = new URI("http://www.foo.com")
+			val cookieStore = CookieStore(uri, List(cookie))
+
+			cookieStore.get(new URI("http://www.foo.com")).length must beEqualTo(1)
+		}
+
+		"handle missing path as request path when from root dir" in {
+			val cookie = parseCookie("ALPHA=VALUE1")
+			val uri = new URI("http://www.foo.com")
+			val cookieStore = CookieStore(uri, List(cookie))
+
+			cookieStore.get(new URI("http://www.foo.com")).length must beEqualTo(1)
+		}
+
+		"handle missing path as request path when path is not empty" in {
+			val cookie = parseCookie("ALPHA=VALUE1")
+			val uri = new URI("http://www.foo.com/bar")
+			val cookieStore = CookieStore(uri, List(cookie))
+
+			cookieStore.get(new URI("http://www.foo.com/bar")).length must beEqualTo(1)
 		}
 
 		"handle the domain in a case-insensitive manner (RFC 2965 sec. 3.3.3)" in {
-			val newCookies = originalCookieStore.get(new URI("https://dOcs.fOO.cOm/accounts"))
-			newCookies.length must beEqualTo(1)
-			newCookies.head.getValue must beEqualTo("VALUE1")
+			val cookie = parseCookie("ALPHA=VALUE1")
+			val uri = new URI("http://www.foo.com/bar")
+			val cookieStore = CookieStore(uri, List(cookie))
+
+			cookieStore.get(new URI("http://www.FoO.com/bar")).length must beEqualTo(1)
 		}
 
 		"handle the cookie name in a case-insensitive manner (RFC 2965 sec. 3.3.3)" in {
-			val newCookie = AsyncHttpProviderUtils.parseCookie("aLpHa=VALUE2; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-			val newCookieStore = originalCookieStore.add(originalURI, List(newCookie))
+			val cookie = parseCookie("ALPHA=VALUE1; Domain=www.foo.com; path=/bar")
+			val uri = new URI("http://www.foo.com/bar")
+			val cookieStore = CookieStore(uri, List(cookie))
 
-			val newCookies = newCookieStore.get(originalURI)
-			newCookies.length must beEqualTo(1)
-			newCookies.head.getValue must beEqualTo("VALUE2")
+			val cookies = cookieStore.add(uri, List(parseCookie("alpha=VALUE2; Domain=www.foo.com; path=/bar"))).get(uri)
+			cookies.length must beEqualTo(1)
+			cookies.head.getValue must beEqualTo("VALUE2")
 		}
 
 		"handle the cookie path in a case-sensitive manner (RFC 2965 sec. 3.3.3)" in {
-			val newCookies = originalCookieStore.get(new URI("https://docs.foo.com/aCCounts"))
-			newCookies must beEmpty
+			val cookie = parseCookie("ALPHA=VALUE1")
+			val uri = new URI("http://www.foo.com/bar")
+			val cookieStore = CookieStore(uri, List(cookie))
+
+			cookieStore.get(new URI("http://www.FoO.com/bAr")) must beEmpty
 		}
 
 		"not take into account the query parameter in the URI" in {
-			val newCookie = AsyncHttpProviderUtils.parseCookie("ALPHA=VALUE2; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-			val newCookieStore = originalCookieStore.add(new URI("https://docs.foo.com/accounts?query1=foo"), List(newCookie))
+			val cookie = parseCookie("ALPHA; Domain=www.foo.com; path=/bar")
+			val cookieStore = CookieStore(new URI("http://www.foo.com/bar?query1"), List(cookie))
 
-			val newCookies = newCookieStore.get(new URI("https://docs.foo.com/accounts?query2=quix"))
-			newCookies.length must beEqualTo(1)
-			newCookies.head.getValue must beEqualTo("VALUE2")
-		}
-
-		"support missing domain" in {
-			val newCookie = AsyncHttpProviderUtils.parseCookie("ALPHA=VALUE2; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-			val newURI = new URI("https://docs.foo.com/accounts/foo")
-			val newCookieStore = originalCookieStore.add(newURI, List(newCookie))
-
-			val newCookies = newCookieStore.get(newURI)
-			newCookies.length must beEqualTo(2)
-		}
-
-		"serve cookie on sub path when domain is missing" in {
-			val newCookie = AsyncHttpProviderUtils.parseCookie("ALPHA; path=/")
-			val newURI = new URI("https://docs2.foo.com/bar/baz")
-			val newCookieStore = originalCookieStore.add(newURI, List(newCookie))
-			val newSubURI = new URI("https://docs2.foo.com/bar")
-
-			val newCookies = newCookieStore.get(newSubURI)
-			newCookies.length must beEqualTo(1)
-			newCookies.head.getName must beEqualTo("ALPHA")
+			cookieStore.get(new URI("http://www.foo.com/bar?query2")).length must beEqualTo(1)
 		}
 	}
 }
