@@ -26,23 +26,25 @@ import grizzled.slf4j.Logging
 
 class ConsoleDataWriter extends DataWriter with Logging {
 
-	private var startUpTime: Long = _
-	private var lastDisplayTime: Long = _
-	private var activeUsersCount: Int = _
-	private var totalUsersCount: Int = _
-	private var successfulRequestsCount: Int = _
-	private var failedRequestsCount: Int = _
+	private var inProgressUsersCount = 0
+	private var doneUsersCount = 0
+	private var totalUsersCount = 0
+	private var successfulRequestsCount = 0
+	private var failedRequestsCount = 0
+	private var startUpTime = 0L
+	private var lastDisplayTime = 0L
 
 	private val displayPeriod = 5 * 1000
 
 	def uninitialized: Receive = {
-		case InitializeDataWriter(_, totalUsersCount, _, _) =>
-			startUpTime = currentTimeMillis
-			activeUsersCount = 0
+		case InitializeDataWriter(_, total, _, _) =>
+			inProgressUsersCount = 0
+			doneUsersCount = 0
+			totalUsersCount = total
 			successfulRequestsCount = 0
 			failedRequestsCount = 0
+			startUpTime = currentTimeMillis
 			lastDisplayTime = currentTimeMillis
-			this.totalUsersCount = totalUsersCount
 			context.become(initialized)
 
 		case unknown: AnyRef => error("Unsupported message type in uninilialized state" + unknown.getClass)
@@ -53,8 +55,8 @@ class ConsoleDataWriter extends DataWriter with Logging {
 		case RequestRecord(scenarioName, userId, actionName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage, extraInfo) =>
 
 			actionName match {
-				case START_OF_SCENARIO => activeUsersCount += 1
-				case END_OF_SCENARIO => activeUsersCount -= 1
+				case START_OF_SCENARIO => inProgressUsersCount += 1
+				case END_OF_SCENARIO => inProgressUsersCount -= 1; doneUsersCount += 1
 				case _ => resultStatus match {
 					case OK => successfulRequestsCount += 1
 					case KO => failedRequestsCount += 1
@@ -67,11 +69,13 @@ class ConsoleDataWriter extends DataWriter with Logging {
 				val timeSinceStartUpInSec = (now - startUpTime) / 1000
 				println(new StringBuilder()
 					.append(timeSinceStartUpInSec)
-					.append(" sec | Users: active=")
-					.append(activeUsersCount)
-					.append("/")
-					.append(totalUsersCount)
-					.append(" | Requests: OK=")
+					.append(" sec\tUsers: waiting=")
+					.append(totalUsersCount - inProgressUsersCount - doneUsersCount)
+					.append(" in progress=")
+					.append(inProgressUsersCount)
+					.append(" done=")
+					.append(doneUsersCount)
+					.append("\tRequests: OK=")
 					.append(successfulRequestsCount)
 					.append(" KO=")
 					.append(failedRequestsCount))
