@@ -26,6 +26,7 @@ object ChartsFiles {
 	val ALL_SESSIONS_FILE = "all_sessions.js"
 	val STATS_JS_FILE = "stats.js"
 	val STATS_TSV_FILE = "stats.tsv"
+	val GLOBAL_PAGE_NAME = "Global Information"
 
 	val GATLING_TEMPLATE = "templates/"
 	val GATLING_TEMPLATE_STATISTICS_COMPONENT_URL = GATLING_TEMPLATE + "statistics_component.html.ssp"
@@ -41,5 +42,5 @@ object ChartsFiles {
 
 	def requestFile(runOn: String, requestName: String) = resultFolder(runOn) / (formatToFilename(requestName) + HTML_EXTENSION)
 	def jsStatsFile(runOn: String) = resultFolder(runOn) / GATLING_JS / STATS_JS_FILE
-	def tsvStatsFile(runOn: String) = resultFolder(runOn) / STATS_JS_FILE
+	def tsvStatsFile(runOn: String) = resultFolder(runOn) / STATS_TSV_FILE
 }
