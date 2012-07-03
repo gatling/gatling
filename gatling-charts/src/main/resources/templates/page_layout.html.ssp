@@ -1,3 +1,5 @@
+<% import com.excilys.ebi.gatling.core.util.HtmlHelper.htmlEscape %>
+<% import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename %>
 <%@ val jsFiles: Seq[String] %>
 <%@ val pageTitle: String %>
 <%@ val pageContent: String %>
@@ -10,9 +12,6 @@
 <meta charset="UTF-8">
 <link rel="shortcut icon" type="image/x-icon" href="style/favicon.ico"/>
 <link href="style/style.css" rel="stylesheet" type="text/css" />
-<% for (jsFile <- jsFiles) { %>
-<script type="text/javascript" src="js/<%= jsFile %>"></script>
-<% } %>
 <title>Gatling Stats - <%= pageTitle %></title>
 </head>
 <body>
@@ -31,7 +30,7 @@
 					<div class="sous-menu">
 						<div class="item<%if(!isDetails){%> ouvert<%}%>"><a href="index.html">GLOBAL</a></div>
 						<div class="item<%if(isDetails){%> ouvert<%}%>"><a id="details_link" href="#">DETAILS</a></div>
-						<p class="sim_desc"><%= com.excilys.ebi.gatling.core.util.HtmlHelper.htmlEscape(runRecord.runDescription) %></p>
+						<p class="sim_desc"><%= htmlEscape(runRecord.runDescription) %></p>
 					</div>
 					<div class="content-in">
 						<h1><span>> </span><%= pageTitle %></h1>
@@ -49,6 +48,9 @@
 <div class="foot">
 	<a href="http://gatling-tool.org" title="Gatling Home Page"><img alt="Gatling" src="style/logo-gatling.jpg"/></a>
 </div>
+<% for (jsFile <- jsFiles) { %>
+<script type="text/javascript" src="js/<%= jsFile %>"></script>
+<% } %>
 <script type="text/javascript">
 		$(document).ready(function() {
 			setDetailsLinkUrl();
@@ -58,6 +60,7 @@
 			setGlobalMenu();
 			<%}%>
 			setActiveMenu();
+			fillStats(stats.<%=formatToFilename(pageTitle)%>);
 			<%= javascript %>
 		});
 	</script>

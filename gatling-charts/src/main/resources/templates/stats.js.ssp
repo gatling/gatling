@@ -1,0 +1,74 @@
+<% import com.excilys.ebi.gatling.charts.component.RequestStatistics %>
+<% import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename %>
+<%@ val stats: Map[String, RequestStatistics] %>
+var stats = {
+<% stats.values.foreach { stat => %>
+	<%=formatToFilename(stat.name)%>: {
+		numberOfRequests : {
+			total: "<%=stat.numberOfRequestsStatistics.printableTotal%>",
+			ok: "<%=stat.numberOfRequestsStatistics.printableSuccess%>",
+			ko: "<%=stat.numberOfRequestsStatistics.printableFailure%>"
+		},
+		minResponseTime : {
+			total: "<%=stat.minResponseTimeStatistics.printableTotal%>",
+			ok: "<%=stat.minResponseTimeStatistics.printableSuccess%>",
+			ko: "<%=stat.minResponseTimeStatistics.printableFailure%>"
+		},
+		maxResponseTime : {
+			total: "<%=stat.maxResponseTimeStatistics.printableTotal%>",
+			ok: "<%=stat.maxResponseTimeStatistics.printableSuccess%>",
+			ko: "<%=stat.maxResponseTimeStatistics.printableFailure%>"
+		},
+		meanResponseTime : {
+			total: "<%=stat.meanStatistics.printableTotal%>",
+			ok: "<%=stat.meanStatistics.printableSuccess%>",
+			ko: "<%=stat.meanStatistics.printableFailure%>"
+		},
+		standardDeviation : {
+			total: "<%=stat.stdDeviationStatistics.printableTotal%>",
+			ok: "<%=stat.stdDeviationStatistics.printableSuccess%>",
+			ko: "<%=stat.stdDeviationStatistics.printableFailure%>"
+		},
+		percentiles1 : {
+			total: "<%=stat.percentiles1.printableTotal%>",
+			ok: "<%=stat.percentiles1.printableSuccess%>",
+			ko: "<%=stat.percentiles1.printableFailure%>"
+		},
+		percentiles2 : {
+			total: "<%=stat.percentiles2.printableTotal%>",
+			ok: "<%=stat.percentiles2.printableSuccess%>",
+			ko: "<%=stat.percentiles2.printableFailure%>"
+		}
+	},
+<%}%>
+}
+
+function fillStats(stat){
+    $("#numberOfRequests").append(stat.numberOfRequests.total);
+    $("#numberOfRequestsOK").append(stat.numberOfRequests.ok);
+    $("#numberOfRequestsKO").append(stat.numberOfRequests.ko);
+    
+    $("#minResponseTime").append(stat.minResponseTime.total);
+    $("#minResponseTimeOK").append(stat.minResponseTime.ok);
+    $("#minResponseTimeKO").append(stat.minResponseTime.ko);
+    
+    $("#maxResponseTime").append(stat.maxResponseTime.total);
+    $("#maxResponseTimeOK").append(stat.maxResponseTime.ok);
+    $("#maxResponseTimeKO").append(stat.maxResponseTime.ko);
+    
+    $("#meanResponseTime").append(stat.meanResponseTime.total);
+    $("#meanResponseTimeOK").append(stat.meanResponseTime.ok);
+    $("#meanResponseTimeKO").append(stat.meanResponseTime.ko);
+    
+    $("#standardDeviation").append(stat.standardDeviation.total);
+    $("#standardDeviationOK").append(stat.standardDeviation.ok);
+    $("#standardDeviationKO").append(stat.standardDeviation.ko);
+    
+    $("#percentiles1").append(stat.percentiles1.total);
+    $("#percentiles1OK").append(stat.percentiles1.ok);
+    $("#percentiles1KO").append(stat.percentiles1.ko);
+    
+    $("#percentiles2").append(stat.percentiles2.total);
+    $("#percentiles2OK").append(stat.percentiles2.ok);
+    $("#percentiles2KO").append(stat.percentiles2.ko);
+}

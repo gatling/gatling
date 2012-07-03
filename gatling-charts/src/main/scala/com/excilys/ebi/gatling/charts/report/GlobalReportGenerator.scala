@@ -29,16 +29,6 @@ import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 
 	def generate {
-		val totalCount = dataReader.countRequests()
-		val okCount = dataReader.countRequests(Some(OK))
-		val koCount = totalCount - okCount
-		val globalMinResponseTime = dataReader.minResponseTime()
-		val globalMaxResponseTime = dataReader.maxResponseTime()
-		val okMinResponseTime = dataReader.minResponseTime(Some(OK))
-		val okMaxResponseTime = dataReader.maxResponseTime(Some(OK))
-		val koMinResponseTime = dataReader.minResponseTime(Some(KO))
-		val koMaxResponseTime = dataReader.maxResponseTime(Some(KO))
-
 		def activeSessionsChartComponent = {
 			val activeSessionsSeries = dataReader
 				.scenarioNames
@@ -84,33 +74,10 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 			componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
 		}
 
-		def statisticsComponent = {
-			val percent1 = configuration.chartingIndicatorsPercentile1 / 100.0
-			val percent2 = configuration.chartingIndicatorsPercentile2 / 100.0
-
-			val (globalPercentile1, globalPercentile2) = dataReader.percentiles(percent1, percent2)
-			val (successPercentile1, successPercentile2) = dataReader.percentiles(percent1, percent2, Some(OK))
-			val (failedPercentile1, failedPercentile2) = dataReader.percentiles(percent1, percent2, Some(KO))
-
-			val globalMeanResponseTime = dataReader.meanResponseTime()
-			val okMeanResponseTime = dataReader.meanResponseTime(Some(OK))
-			val koMeanResponseTime = dataReader.meanResponseTime(Some(KO))
-			val globalStandardDeviation = dataReader.responseTimeStandardDeviation()
-			val okStandardDeviation = dataReader.responseTimeStandardDeviation(Some(OK))
-			val koStandardDeviation = dataReader.responseTimeStandardDeviation(Some(KO))
-
-			val numberOfRequestsStatistics = new Statistics("numberOfRequests", totalCount, okCount, koCount)
-			val minResponseTimeStatistics = new Statistics("min", globalMinResponseTime, okMinResponseTime, koMinResponseTime)
-			val maxResponseTimeStatistics = new Statistics("max", globalMaxResponseTime, okMaxResponseTime, koMaxResponseTime)
-			val meanStatistics = new Statistics("mean", globalMeanResponseTime, okMeanResponseTime, koMeanResponseTime)
-			val stdDeviationStatistics = new Statistics("stdDeviation", globalStandardDeviation, okStandardDeviation, koStandardDeviation)
-			val percentiles1 = new Statistics("percentiles1", globalPercentile1, successPercentile1, failedPercentile1)
-			val percentiles2 = new Statistics("percentiles2", globalPercentile2, successPercentile2, failedPercentile2)
-
-			new StatisticsTextComponent(numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanStatistics, stdDeviationStatistics, percentiles1, percentiles2)
-		}
+		def statisticsComponent = new StatisticsTextComponent
 
 		def indicatorChartComponent = {
+			val totalCount = dataReader.countRequests()
 			val indicatorsColumnData = dataReader.numberOfRequestInResponseTimeRange(configuration.chartingIndicatorsLowerBound, configuration.chartingIndicatorsHigherBound)
 			val indicatorsPieData = indicatorsColumnData.map { case (name, count) => name -> count * 100 / totalCount }
 			val indicatorsColumnSeries = new Series[String, Int](EMPTY, indicatorsColumnData, List(GREEN, YELLOW, ORANGE, RED))

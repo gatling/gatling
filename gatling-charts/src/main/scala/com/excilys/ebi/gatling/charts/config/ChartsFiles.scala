@@ -24,16 +24,22 @@ object ChartsFiles {
 	val JQUERY_FILE = "jquery.min.js"
 	val MENU_FILE = "menu.js"
 	val ALL_SESSIONS_FILE = "all_sessions.js"
+	val STATS_JS_FILE = "stats.js"
+	val STATS_TSV_FILE = "stats.tsv"
 
 	val GATLING_TEMPLATE = "templates/"
 	val GATLING_TEMPLATE_STATISTICS_COMPONENT_URL = GATLING_TEMPLATE + "statistics_component.html.ssp"
 	val GATLING_TEMPLATE_LAYOUT_FILE_URL = GATLING_TEMPLATE + "page_layout.html.ssp"
 	val GATLING_TEMPLATE_ALL_SESSIONS_JS_FILE_URL = GATLING_TEMPLATE + "all_sessions.js.ssp"
 	val GATLING_TEMPLATE_MENU_JS_FILE_URL = GATLING_TEMPLATE + "menu.js.ssp"
+	val GATLING_TEMPLATE_STATS_JS_FILE_URL = GATLING_TEMPLATE + "stats.js.ssp"
+	val GATLING_TEMPLATE_STATS_TSV_FILE_URL = GATLING_TEMPLATE + "stats.tsv.ssp"
 
 	def menuFile(runOn: String) = resultFolder(runOn) / GATLING_JS / MENU_FILE
 	def allSessionsFile(runOn: String) = resultFolder(runOn) / GATLING_JS / ALL_SESSIONS_FILE
 	def globalFile(runOn: String) = resultFolder(runOn) / "index.html"
 
 	def requestFile(runOn: String, requestName: String) = resultFolder(runOn) / (formatToFilename(requestName) + HTML_EXTENSION)
+	def jsStatsFile(runOn: String) = resultFolder(runOn) / GATLING_JS / STATS_JS_FILE
+	def tsvStatsFile(runOn: String) = resultFolder(runOn) / STATS_JS_FILE
 }

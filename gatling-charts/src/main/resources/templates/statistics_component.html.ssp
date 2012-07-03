@@ -1,13 +1,5 @@
 <%  import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration %>
 <%  import com.excilys.ebi.gatling.charts.view.util.ViewHelper.ordinalNumberSuffix %>
-<%@ val numberOfRequests: com.excilys.ebi.gatling.charts.component.Statistics %>
-<%@ val min: com.excilys.ebi.gatling.charts.component.Statistics %>
-<%@ val max: com.excilys.ebi.gatling.charts.component.Statistics %>
-<%@ val mean: com.excilys.ebi.gatling.charts.component.Statistics %>
-<%@ val stdDeviation: com.excilys.ebi.gatling.charts.component.Statistics %>
-<%@ val percentiles1: com.excilys.ebi.gatling.charts.component.Statistics %>
-<%@ val percentiles2: com.excilys.ebi.gatling.charts.component.Statistics %>
-
 
 						<div class="infos">
 							<div class="titre">STATISTICS</div>
@@ -21,7 +13,10 @@
 										</thead>
 										<tbody>
 											<tr>
-												<td class="title"></td><td class="total"><%= numberOfRequests.printableTotal %></td><td class="ok"><%= numberOfRequests.printableSuccess %></td><td class="ko"><%= numberOfRequests.printableFailure %></td>
+												<td class="title"></td>
+												<td id="numberOfRequests" class="total"></td>
+												<td id="numberOfRequestsOK" class="ok"></td>
+												<td id="numberOfRequestsKO" class="ko"></td>
 											</tr>
 										</tbody>
 									</table>
@@ -32,22 +27,40 @@
 										</thead>
 										<tbody>
 											<tr>
-												<td class="title">Min</td><td class="total"><%= min.printableTotal %></td><td class="ok"><%= min.printableSuccess %></td><td class="ko"><%= min.printableFailure %></td>
+												<td class="title">Min</td>
+												<td id="minResponseTime" class="total"></td>
+												<td id="minResponseTimeOK" class="ok"></td>
+												<td id="minResponseTimeKO" class="ko"></td>
 											</tr>
 											<tr>
-												<td class="title">Max</td><td class="total"><%= max.printableTotal %></td><td class="ok"><%= max.printableSuccess %></td><td class="ko"><%= max.printableFailure %></td>
+												<td class="title">Max</td>
+												<td id="maxResponseTime" class="total"></td>
+												<td id="maxResponseTimeOK" class="ok"></td>
+												<td id="maxResponseTimeKO" class="ko"></td>
 											</tr>
 											<tr>
-												<td class="title">Mean</td><td class="total"><%= mean.printableTotal %></td><td class="ok"><%= mean.printableSuccess %></td><td class="ko"><%= mean.printableFailure %></td>
+												<td class="title">Mean</td>
+												<td id="meanResponseTime" class="total"></td>
+												<td id="meanResponseTime" class="ok"></td>
+												<td id="meanResponseTime" class="ko"></td>
 											</tr>
 											<tr>
-												<td class="title">Std Deviation</td><td class="total"><%= stdDeviation.printableTotal %></td><td class="ok"><%= stdDeviation.printableSuccess %></td><td class="ko"><%= stdDeviation.printableFailure %></td>
+												<td class="title">Std Deviation</td>
+												<td id="standardDeviation" class="total"></td>
+												<td id="standardDeviationOK" class="ok"></td>
+												<td id="standardDeviationKO" class="ko"></td>
 											</tr>
 											<tr>
-												<td class="title"><%=configuration.chartingIndicatorsPercentile1%><%=ordinalNumberSuffix(configuration.chartingIndicatorsPercentile1)%> percentile</td><td class="total"><%= percentiles1.printableTotal %></td><td class="ok"><%= percentiles1.printableSuccess %></td><td class="ko"><%= percentiles1.printableFailure %></td>
+												<td class="title"><%=configuration.chartingIndicatorsPercentile1%><%=ordinalNumberSuffix(configuration.chartingIndicatorsPercentile1)%> percentile</td>
+												<td id="percentiles1" class="total"></td>
+												<td id="percentiles1OK" class="ok"></td>
+												<td id="percentiles1KO" class="ko"></td>
 											</tr>
 											<tr>
-												<td class="title"><%=configuration.chartingIndicatorsPercentile2%><%=ordinalNumberSuffix(configuration.chartingIndicatorsPercentile2)%> percentile</td><td class="total"><%= percentiles2.printableTotal %></td><td class="ok"><%= percentiles2.printableSuccess %></td><td class="ko"><%= percentiles2.printableFailure %></td>
+												<td class="title"><%=configuration.chartingIndicatorsPercentile2%><%=ordinalNumberSuffix(configuration.chartingIndicatorsPercentile2)%> percentile</td>
+												<td id="percentiles2" class="total"></td>
+												<td id="percentiles2OK" class="ok"></td>
+												<td id="percentiles2KO" class="ko"></td>
 											</tr>
 										</tbody>
 									</table>

@@ -22,12 +22,12 @@ import com.excilys.ebi.gatling.core.config.GatlingFiles.{ styleFolder, jsFolder,
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.util.FileHelper.{ formatToFilename, HTML_EXTENSION }
 import com.excilys.ebi.gatling.core.util.ScanHelper.deepCopyPackageContent
-
 import grizzled.slf4j.Logging
+import com.excilys.ebi.gatling.charts.component.RequestStatistics
 
 object ReportsGenerator extends Logging {
 
-	def generateFor(runUuid: String) {
+	def generateFor(runUuid: String): Map[String, RequestStatistics] = {
 
 		val dataReader = DataReader.newInstance(runUuid)
 
@@ -36,8 +36,8 @@ object ReportsGenerator extends Logging {
 
 			val requestLinks: Iterable[(String, Option[String], String)] = dataReader.requestNames.map {
 				requestName =>
-					val title = if (requestName.length > maxLength) Some(requestName.substring(8)) else None
-					val printedName = if (requestName.length > maxLength) requestName.substring(8, maxLength) + "..." else requestName.substring(8)
+					val title = if (requestName.length > maxLength) Some(requestName) else None
+					val printedName = if (requestName.length > maxLength) requestName.substring(maxLength) + "..." else requestName
 					(formatToFilename(requestName) + HTML_EXTENSION, title, printedName)
 			}
 
@@ -45,6 +45,8 @@ object ReportsGenerator extends Logging {
 
 			new TemplateWriter(menuFile(runUuid)).writeToFile(template.getOutput)
 		}
+
+		def generateStats: Map[String, RequestStatistics] = new StatsReportGenerator(runUuid, dataReader, ComponentLibrary.instance).generate
 
 		def copyAssets {
 			deepCopyPackageContent(GATLING_ASSETS_STYLE_PACKAGE, styleFolder(runUuid))
@@ -64,7 +66,7 @@ object ReportsGenerator extends Logging {
 			generateMenu
 			PageTemplate.setRunInfo(dataReader.runRecord)
 			reportGenerators.foreach(_.generate)
+			generateStats
 		}
 	}
-
 }
