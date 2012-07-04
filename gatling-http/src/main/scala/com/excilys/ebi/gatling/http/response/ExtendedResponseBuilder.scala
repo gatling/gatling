@@ -18,6 +18,8 @@ package com.excilys.ebi.gatling.http.response
 import java.lang.System.{ nanoTime, currentTimeMillis }
 import java.security.MessageDigest
 
+import scala.math.max
+
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.check.bodypart.ChecksumCheck
@@ -73,11 +75,6 @@ class ExtendedResponseBuilder(session: Session, checksumChecks: List[ChecksumChe
 		_executionEndDate = computeTimeFromNanos(nanos)
 	}
 
-	def executionStartDate = _executionStartDate
-	def requestSendingEndDate = _requestSendingEndDate
-	def responseReceivingStartDate = _responseReceivingStartDate
-	def executionEndDate = _executionEndDate
-
 	def accumulate(bodyPart: Option[HttpResponseBodyPart]) {
 		bodyPart.map { part =>
 			for (check <- checksumChecks) {
@@ -95,7 +92,10 @@ class ExtendedResponseBuilder(session: Session, checksumChecks: List[ChecksumChe
 	}
 
 	def build: ExtendedResponse = {
-		val response = responseBuilder.build
+		_requestSendingEndDate = max(_requestSendingEndDate, _executionStartDate)
+		_responseReceivingStartDate = max(_responseReceivingStartDate, _requestSendingEndDate)
+		_executionEndDate = max(_executionEndDate, _executionEndDate)
+		val response = Option(responseBuilder.build)
 		new ExtendedResponse(response, checksums, _executionStartDate, _requestSendingEndDate, _responseReceivingStartDate, _executionEndDate)
 	}
 }

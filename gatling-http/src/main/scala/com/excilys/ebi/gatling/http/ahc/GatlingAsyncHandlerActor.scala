@@ -112,13 +112,15 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 
 		case OnThrowable(errorMessage, nanos) =>
 			responseBuilder.computeExecutionEndDateFromNanos(nanos)
-			logRequest(KO, Some(errorMessage))
-			executeNext(session)
+			val response = responseBuilder.build
+			logRequest(KO, response, Some(errorMessage))
+			executeNext(session, response)
 
 		case ReceiveTimeout =>
 			error("GatlingAsyncHandlerActor timed out")
-			logRequest(KO, Some("GatlingAsyncHandlerActor timed out"))
-			executeNext(session)
+			val response = responseBuilder.build
+			logRequest(KO, response, Some("GatlingAsyncHandlerActor timed out"))
+			executeNext(session, response)
 
 		case m => throw new IllegalArgumentException("Unknown message type " + m)
 	}
@@ -126,10 +128,10 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 	def resetTimeout = context.setReceiveTimeout(HttpConfig.GATLING_HTTP_CONFIG_REQUEST_TIMEOUT_IN_MS milliseconds)
 
 	private def logRequest(requestResult: RequestStatus,
-		requestMessage: Option[String] = None,
-		response: Option[ExtendedResponse] = None) = {
+		response: ExtendedResponse,
+		requestMessage: Option[String] = None) = {
 		DataWriter.logRequest(session.scenarioName, session.userId, requestName,
-			responseBuilder.executionStartDate, responseBuilder.executionEndDate, responseBuilder.requestSendingEndDate, responseBuilder.responseReceivingStartDate,
+			response.executionStartDate, response.executionEndDate, response.requestSendingEndDate, response.responseReceivingStartDate,
 			requestResult, requestMessage, extractExtraInfo(response))
 	}
 
@@ -138,8 +140,8 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 	 *
 	 * @param newSession the new Session
 	 */
-	private def executeNext(newSession: Session) {
-		next ! newSession.increaseTimeShift(currentTimeMillis - responseBuilder.executionEndDate)
+	private def executeNext(newSession: Session, response: ExtendedResponse) {
+		next ! newSession.increaseTimeShift(currentTimeMillis - response.executionEndDate)
 		context.stop(self)
 	}
 
@@ -157,7 +159,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 				this.request = newRequest
 			}
 
-			logRequest(OK, response = Some(response))
+			logRequest(OK, response)
 
 			val redirectUrl = computeRedirectUrl(response.getHeader(HeaderNames.LOCATION), request.getUrl)
 
@@ -192,8 +194,8 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 
 			phases match {
 				case Nil =>
-					logRequest(OK, response = Some(response))
-					executeNext(session)
+					logRequest(OK, response)
+					executeNext(session, response)
 
 				case phase :: otherPhases =>
 					val phaseChecks = checks.filter(_.phase == phase)
@@ -206,8 +208,8 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 							else
 								warn(new StringBuilder().append("Check on request '").append(requestName).append("' failed : ").append(errorMessage))
 
-							logRequest(KO, Some(errorMessage), Some(response))
-							executeNext(newSession)
+							logRequest(KO, response, Some(errorMessage))
+							executeNext(newSession, response)
 
 						case _ => checkPhasesRec(newSession, otherPhases)
 					}
@@ -228,7 +230,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 	 * @param response is the response to extract data from; request is retrieved from the property
 	 * @return the extracted Strings
 	 */
-	private def extractExtraInfo(response: Option[ExtendedResponse] = None): List[String] = {
+	private def extractExtraInfo(response: ExtendedResponse): List[String] = {
 
 		def extractExtraRequestInfo(protocolConfiguration: Option[HttpProtocolConfiguration], request: Request): List[String] = {
 			val extracted = try {
@@ -246,21 +248,24 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 			extracted.getOrElse(Nil)
 		}
 
-		def extractExtraResponseInfo(protocolConfiguration: Option[HttpProtocolConfiguration], response: Option[ExtendedResponse]): List[String] = {
-			val extracted = try {
-				for (
-					httpProtocolConfig <- protocolConfiguration;
-					extractor <- httpProtocolConfig.extraResponseInfoExtractor;
-					response <- response
-				) yield extractor(response)
+		def extractExtraResponseInfo(protocolConfiguration: Option[HttpProtocolConfiguration], response: ExtendedResponse): List[String] = {
 
-			} catch {
-				case e: Exception =>
-					warn("Encountered error while extracting extra response info", e)
-					None
-			}
+			if (response.isBuilt) {
+				val extracted = try {
+					for (
+						httpProtocolConfig <- protocolConfiguration;
+						extractor <- httpProtocolConfig.extraResponseInfoExtractor
+					) yield extractor(response)
 
-			extracted.getOrElse(Nil)
+				} catch {
+					case e: Exception =>
+						warn("Encountered error while extracting extra response info", e)
+						None
+				}
+
+				extracted.getOrElse(Nil)
+			} else
+				Nil
 		}
 
 		val extraRequestInfo = extractExtraRequestInfo(protocolConfiguration, request)
