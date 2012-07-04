@@ -129,7 +129,7 @@ object StatisticsHelper {
 	def countRequests(records: Seq[ChartRequestRecord], status: Option[RequestStatus], requestName: Option[String]): Int =
 		records.count { record => isRealRequest(record) && isRecordWithRequestName(record, requestName) && isRecordWithStatus(record, status) }
 
-	def responseTimeDistribution(records: Seq[ChartRequestRecord], slotsNumber: Int, requestName: Option[String]): (Seq[(Long, Int)], Seq[(Long, Int)]) = {
+	def responseTimeDistribution(records: Seq[ChartRequestRecord], maxSlotsNumber: Int, requestName: Option[String]): (Seq[(Long, Int)], Seq[(Long, Int)]) = {
 
 		val total = countRequests(records, None, requestName)
 
@@ -138,15 +138,16 @@ object StatisticsHelper {
 			val maxTime = maxResponseTime(records, None, requestName)
 
 			val width = maxTime - minTime
-			val step = max(width / slotsNumber, 1)
-			val actualSlotNumber = if (step == 1) width.toInt else slotsNumber
+
+			val actualSlotNumber = min(width.toInt, 100)
+			val step = max(width.toDouble / (maxSlotsNumber - 1), 1.0)
 
 			val (okPercentiles, koPercentiles) = records.foldLeft((Map.empty[Long, Int], Map.empty[Long, Int])) { (maps, record) =>
 
 				if (isRealRequest(record) && isRecordWithRequestName(record, requestName)) {
 					val (oks, kos) = maps
 
-					val time = minTime + ((record.responseTime - minTime) / step) * step
+					val time: Long = minTime + (((record.responseTime - minTime) / step).toInt * step).toLong
 
 					if (record.requestStatus == OK) {
 						val okEntry = oks.getOrElse(time, 0)
@@ -163,8 +164,8 @@ object StatisticsHelper {
 					maps
 			}
 
-			def distribution(percentiles: Map[Long, Int]): Seq[(Long, Int)] = for (i <- 0 to actualSlotNumber) yield {
-				val range = minTime + i * step
+			def distribution(percentiles: Map[Long, Int]): Seq[(Long, Int)] = for (i <- 0 to actualSlotNumber + 1) yield {
+				val range = (minTime + i * step).toLong
 				val count = percentiles.get(range).getOrElse(0)
 				val percentage = round(count * 100.0 / total).toInt
 				(range, percentage)
