@@ -52,6 +52,7 @@
 <script type="text/javascript" src="js/<%= jsFile %>"></script>
 <% } %>
 <script type="text/javascript">
+	var pageStats = stats.<%=formatToFilename(pageTitle)%>;
 		$(document).ready(function() {
 			setDetailsLinkUrl();
 			<% if(isDetails){%>
@@ -60,7 +61,7 @@
 			setGlobalMenu();
 			<%}%>
 			setActiveMenu();
-			fillStats(stats.<%=formatToFilename(pageTitle)%>);
+			fillStats(pageStats);
 			<%= javascript %>
 		});
 	</script>

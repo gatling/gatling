@@ -2,7 +2,9 @@
 <% import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename %>
 <%@ val stats: Map[String, RequestStatistics] %>
 var stats = {
-<% stats.values.foreach { stat => %>
+<% val it = stats.values.iterator %>
+<% while (it.hasNext) { %>
+<% val stat = it.next %>
 	<%=formatToFilename(stat.name)%>: {
 		numberOfRequests : {
 			total: "<%=stat.numberOfRequestsStatistics.printableTotal%>",
@@ -38,8 +40,28 @@ var stats = {
 			total: "<%=stat.percentiles2.printableTotal%>",
 			ok: "<%=stat.percentiles2.printableSuccess%>",
 			ko: "<%=stat.percentiles2.printableFailure%>"
+		},
+		group1 : {
+			name: "<%=stat.groupedCounts(0)._1%>",
+			count: <%=stat.groupedCounts(0)._2.toString%>,
+			percentage: <%=stat.groupedCounts(0)._3.toString%>
+		},
+		group2 : {
+			name: "<%=stat.groupedCounts(1)._1%>",
+			count: <%=stat.groupedCounts(1)._2.toString%>,
+			percentage: <%=stat.groupedCounts(1)._3.toString%>
+		},
+		group3 : {
+			name: "<%=stat.groupedCounts(2)._1%>",
+			count: <%=stat.groupedCounts(2)._2.toString%>,
+			percentage: <%=stat.groupedCounts(2)._3.toString%>
+		},
+		group4 : {
+			name: "<%=stat.groupedCounts(3)._1%>",
+			count: <%=stat.groupedCounts(3)._2.toString%>,
+			percentage: <%=stat.groupedCounts(3)._3.toString%>
 		}
-	},
+	}<% if (it.hasNext) {%>,<%}%>
 <%}%>
 }
 

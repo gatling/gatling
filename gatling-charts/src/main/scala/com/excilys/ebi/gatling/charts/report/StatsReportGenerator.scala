@@ -65,7 +65,11 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 				val percentiles1 = Statistics("percentiles1", globalPercentile1, successPercentile1, failedPercentile1)
 				val percentiles2 = Statistics("percentiles2", globalPercentile2, successPercentile2, failedPercentile2)
 
-				(name -> RequestStatistics(name, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanStatistics, stdDeviationStatistics, percentiles1, percentiles2))
+				val groupedCounts = dataReader
+					.numberOfRequestInResponseTimeRange(configuration.chartingIndicatorsLowerBound, configuration.chartingIndicatorsHigherBound, requestName)
+					.map { case (name, count) => (name, count, count * 100 / totalCount) }
+
+				(name -> RequestStatistics(name, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanStatistics, stdDeviationStatistics, percentiles1, percentiles2, groupedCounts))
 		}.toMap
 
 		new TemplateWriter(jsStatsFile(runOn)).writeToFile(new StatsJsTemplate(stats).getOutput)

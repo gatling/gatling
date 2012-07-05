@@ -60,5 +60,5 @@ abstract class ComponentLibrary {
 
 	def getRequestDetailsScatterChartComponent(successData: Series[Int, Long], failuresData: Series[Int, Long]): Component
 
-	def getRequestDetailsIndicatorChartComponent(columnSeries: Series[String, Int], pieSeries: Series[String, Int]): Component
+	def getRequestDetailsIndicatorChartComponent: Component
 }

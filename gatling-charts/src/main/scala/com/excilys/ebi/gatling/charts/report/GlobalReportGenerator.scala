@@ -15,16 +15,14 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import com.excilys.ebi.gatling.charts.component.{ StatisticsTextComponent, Statistics, ComponentLibrary }
+import com.excilys.ebi.gatling.charts.component.{ StatisticsTextComponent, ComponentLibrary }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.globalFile
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.template.GlobalPageTemplate
-import com.excilys.ebi.gatling.charts.util.Colors.{ toString, YELLOW, RED, PURPLE, PINK, ORANGE, LIME, LIGHT_RED, LIGHT_PURPLE, LIGHT_PINK, LIGHT_ORANGE, LIGHT_LIME, LIGHT_BLUE, GREEN, CYAN, BLUE }
+import com.excilys.ebi.gatling.charts.util.Colors.{ toString, YELLOW, RED, PURPLE, PINK, LIME, LIGHT_RED, LIGHT_PURPLE, LIGHT_PINK, LIGHT_ORANGE, LIGHT_LIME, LIGHT_BLUE, GREEN, CYAN, BLUE }
 import com.excilys.ebi.gatling.charts.util.StatisticsHelper.count
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
 import com.excilys.ebi.gatling.core.result.reader.{ DataReader, ChartRequestRecord }
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 
@@ -76,15 +74,7 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 
 		def statisticsComponent = new StatisticsTextComponent
 
-		def indicatorChartComponent = {
-			val totalCount = dataReader.countRequests()
-			val indicatorsColumnData = dataReader.numberOfRequestInResponseTimeRange(configuration.chartingIndicatorsLowerBound, configuration.chartingIndicatorsHigherBound)
-			val indicatorsPieData = indicatorsColumnData.map { case (name, count) => name -> count * 100 / totalCount }
-			val indicatorsColumnSeries = new Series[String, Int](EMPTY, indicatorsColumnData, List(GREEN, YELLOW, ORANGE, RED))
-			val indicatorsPieSeries = new Series[String, Int](EMPTY, indicatorsPieData, List(GREEN, YELLOW, ORANGE, RED))
-
-			componentLibrary.getRequestDetailsIndicatorChartComponent(indicatorsColumnSeries, indicatorsPieSeries)
-		}
+		def indicatorChartComponent = componentLibrary.getRequestDetailsIndicatorChartComponent
 
 		val template = new GlobalPageTemplate(
 			statisticsComponent,
