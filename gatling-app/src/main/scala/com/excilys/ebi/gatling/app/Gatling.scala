@@ -273,8 +273,7 @@ class Gatling(cliOptions: Options) extends Logging {
 
 		} catch {
 			case e =>
-				error(e)
-				println("Reports weren't generated")
+				error("Reports weren't generated", e)
 		}
 	}
 }
