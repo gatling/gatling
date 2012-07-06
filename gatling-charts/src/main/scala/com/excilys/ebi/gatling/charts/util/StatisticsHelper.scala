@@ -32,30 +32,30 @@ object StatisticsHelper {
 	private def isRecordWithRequestName(record: ChartRequestRecord, requestName: Option[String]) = requestName.map(_ == record.requestName).getOrElse(true)
 	private def isRecordWithStatus(record: ChartRequestRecord, status: Option[RequestStatus]) = status.map(_ == record.requestStatus).getOrElse(true)
 	private def isRealRequest(record: ChartRequestRecord) = record.requestName != START_OF_SCENARIO && record.requestName != END_OF_SCENARIO
-	private def meanTime(timeFunction: ChartRequestRecord => Long)(data: Seq[ChartRequestRecord]): Long = if (data.isEmpty) NO_PLOT_MAGIC_VALUE else (data.map(timeFunction(_)).sum / data.length.toDouble).toLong
-	private def maxTime(timeFunction: ChartRequestRecord => Long)(data: Seq[ChartRequestRecord]): Long = if (data.isEmpty) NO_PLOT_MAGIC_VALUE else timeFunction(data.maxBy(timeFunction(_)))
+	private def meanTime(timeFunction: ChartRequestRecord => Long)(records: Seq[ChartRequestRecord]): Long = if (records.isEmpty) NO_PLOT_MAGIC_VALUE else (records.map(timeFunction(_)).sum / records.length.toDouble).toLong
+	private def maxTime(timeFunction: ChartRequestRecord => Long)(records: Seq[ChartRequestRecord]): Long = if (records.isEmpty) NO_PLOT_MAGIC_VALUE else timeFunction(records.maxBy(timeFunction(_)))
 	private val meanResponseTime = meanTime(_.responseTime) _
 	private val maxResponseTime = meanTime(_.responseTime) _
 	private val maxLatency = maxTime(_.latency) _
 
 	/**
-	 * Compute the population standard deviation of the provided data.
+	 * Compute the population standard deviation of the provided records.
 	 *
-	 * @param data is all the ChartRequestRecords from a test run
+	 * @param records is all the ChartRequestRecords from a test run
 	 */
-	def responseTimeStandardDeviation(data: Seq[ChartRequestRecord]): Long = {
-		val avg = meanResponseTime(data)
-		if (avg != NO_PLOT_MAGIC_VALUE) sqrt(data.map(result => pow(result.responseTime - avg, 2)).sum / data.length).toLong else NO_PLOT_MAGIC_VALUE
+	def responseTimeStandardDeviation(records: Seq[ChartRequestRecord]): Long = {
+		val avg = meanResponseTime(records)
+		if (avg != NO_PLOT_MAGIC_VALUE) sqrt(records.map(result => pow(result.responseTime - avg, 2)).sum / records.length).toLong else NO_PLOT_MAGIC_VALUE
 	}
 
-	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: Map[Long, Int], requestData: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus): Seq[(Int, Long)] = requestData
+	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: Map[Long, Int], records: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus): Seq[(Int, Long)] = records
 		.flatMap {
 			case (time, results) => results
 				.filter(_.requestStatus == requestStatus)
 				.map(requestsPerSecond.get(time).get -> _.responseTime)
 		}
 
-	def count(data: Seq[(Long, Int)]) = data.foldLeft(0)((sum, entry) => sum + entry._2)
+	def count(records: Seq[(Long, Int)]) = records.foldLeft(0)((sum, entry) => sum + entry._2)
 
 	def numberOfActiveSessionsPerSecond(requestRecords: Seq[ChartRequestRecord], scenarioName: Option[String]): Seq[(Long, Int)] = {
 
@@ -106,20 +106,24 @@ object StatisticsHelper {
 		}
 	}
 
-	def minResponseTime(records: Seq[ChartRequestRecord], status: Option[RequestStatus], requestName: Option[String]): Long = {
+	def minResponseTime(records: Seq[ChartRequestRecord], status: Option[RequestStatus], requestName: Option[String]): Long = minTime((record: ChartRequestRecord) => record.responseTime, records, status, requestName)
+
+	def maxResponseTime(records: Seq[ChartRequestRecord], status: Option[RequestStatus], requestName: Option[String]): Long = maxTime((record: ChartRequestRecord) => record.responseTime, records, status, requestName)
+
+	private def minTime(timeFunction: ChartRequestRecord => Long, records: Seq[ChartRequestRecord], status: Option[RequestStatus], requestName: Option[String]): Long = {
 		val temp = records.foldLeft(Long.MaxValue) { (min, record) =>
-			if (isRealRequest(record) && isRecordWithRequestName(record, requestName) && isRecordWithStatus(record, status) && record.responseTime < min)
-				record.responseTime
+			if (isRealRequest(record) && isRecordWithRequestName(record, requestName) && isRecordWithStatus(record, status) && timeFunction(record) < min)
+				timeFunction(record)
 			else
 				min
 		}
 		if (temp == Long.MaxValue) NO_PLOT_MAGIC_VALUE else temp
 	}
 
-	def maxResponseTime(records: Seq[ChartRequestRecord], status: Option[RequestStatus], requestName: Option[String]): Long = {
+	private def maxTime(timeFunction: ChartRequestRecord => Long, records: Seq[ChartRequestRecord], status: Option[RequestStatus], requestName: Option[String]): Long = {
 		val temp = records.foldLeft(Long.MinValue) { (max, record) =>
-			if (isRealRequest(record) && isRecordWithRequestName(record, requestName) && isRecordWithStatus(record, status) && record.responseTime > max)
-				record.responseTime
+			if (isRealRequest(record) && isRecordWithRequestName(record, requestName) && isRecordWithStatus(record, status) && timeFunction(record) > max)
+				timeFunction(record)
 			else
 				max
 		}
@@ -200,14 +204,14 @@ object StatisticsHelper {
 		(percentile(sortedRequests, percentage1), percentile(sortedRequests, percentage2))
 	}
 
-	private def meanTime(data: Seq[ChartRequestRecord], timeFunction: ChartRequestRecord => Long, status: Option[RequestStatus], requestName: Option[String]): Long = {
+	private def meanTime(records: Seq[ChartRequestRecord], timeFunction: ChartRequestRecord => Long, status: Option[RequestStatus], requestName: Option[String]): Long = {
 
-		val count = countRequests(data, status, requestName)
+		val count = countRequests(records, status, requestName)
 
 		if (count == 0)
 			NO_PLOT_MAGIC_VALUE
 		else {
-			val sum = data.foldLeft(0L) { (count, record) =>
+			val sum = records.foldLeft(0L) { (count, record) =>
 				if (isRealRequest(record) && isRecordWithRequestName(record, requestName) && isRecordWithStatus(record, status)) {
 					count + timeFunction(record)
 				} else
@@ -218,35 +222,50 @@ object StatisticsHelper {
 		}
 	}
 
-	def meanResponseTime(data: Seq[ChartRequestRecord], status: Option[RequestStatus], requestName: Option[String]): Long = meanTime(data, _.responseTime, status, requestName)
+	def meanResponseTime(records: Seq[ChartRequestRecord], status: Option[RequestStatus], requestName: Option[String]): Long = meanTime(records, _.responseTime, status, requestName)
 
-	def meanLatency(data: Seq[ChartRequestRecord], status: Option[RequestStatus], requestName: Option[String]): Long = meanTime(data, _.latency, status, requestName)
+	def meanLatency(records: Seq[ChartRequestRecord], status: Option[RequestStatus], requestName: Option[String]): Long = meanTime(records, _.latency, status, requestName)
+
+	def meanNumberOfRequestsPerSecond(records: Seq[ChartRequestRecord], status: Option[RequestStatus], requestName: Option[String]): Long = {
+
+		val count = countRequests(records, status, requestName)
+
+		if (count != 0) {
+			val minStartTime = minTime((record: ChartRequestRecord) => record.executionStartDateNoMillis, records, status, requestName)
+			val maxEndTime = maxTime((record: ChartRequestRecord) => record.executionEndDateNoMillis, records, status, requestName)
+			
+			println(maxEndTime - minStartTime);
+			count * 1000 / (maxEndTime - minStartTime)
+
+		} else
+			NO_PLOT_MAGIC_VALUE
+	}
 
 	/**
-	 * Compute the population standard deviation of the provided data.
+	 * Compute the population standard deviation of the provided records.
 	 *
-	 * @param data is all the ChartRequestRecords from a test run
+	 * @param records is all the ChartRequestRecords from a test run
 	 */
-	def responseTimeStandardDeviation(data: Seq[ChartRequestRecord], status: Option[RequestStatus], requestName: Option[String]): Long = {
-		val avg = meanResponseTime(data, status, requestName)
+	def responseTimeStandardDeviation(records: Seq[ChartRequestRecord], status: Option[RequestStatus], requestName: Option[String]): Long = {
+		val avg = meanResponseTime(records, status, requestName)
 		if (avg != NO_PLOT_MAGIC_VALUE) {
-			val sum = data.foldLeft(0.0) { (count, record) =>
+			val sum = records.foldLeft(0.0) { (count, record) =>
 				if (isRealRequest(record) && isRecordWithRequestName(record, requestName) && isRecordWithStatus(record, status)) {
 					count + pow(record.responseTime - avg, 2)
 				} else
 					count
 			}
 
-			val count = countRequests(data, status, requestName)
+			val count = countRequests(records, status, requestName)
 
 			sqrt(sum / count).toLong
 		} else
 			NO_PLOT_MAGIC_VALUE
 	}
 
-	def numberOfRequestInResponseTimeRange(data: Seq[ChartRequestRecord], lowerBound: Int, higherBound: Int, requestName: Option[String]): Seq[(String, Int)] = {
+	def numberOfRequestInResponseTimeRange(records: Seq[ChartRequestRecord], lowerBound: Int, higherBound: Int, requestName: Option[String]): Seq[(String, Int)] = {
 
-		val (firstCount, mediumCount, lastCount, koCount) = data.foldLeft((0, 0, 0, 0)) { (counts, record) =>
+		val (firstCount, mediumCount, lastCount, koCount) = records.foldLeft((0, 0, 0, 0)) { (counts, record) =>
 			if (isRealRequest(record) && isRecordWithRequestName(record, requestName)) {
 				val (firstCount, mediumCount, lastCount, koCount) = counts
 
@@ -269,18 +288,18 @@ object StatisticsHelper {
 			("failed", koCount))
 	}
 
-	def requestRecordsGroupByExecutionStartDate(data: Seq[ChartRequestRecord], requestName: String): Seq[(Long, Seq[ChartRequestRecord])] = data
+	def requestRecordsGroupByExecutionStartDate(records: Seq[ChartRequestRecord], requestName: String): Seq[(Long, Seq[ChartRequestRecord])] = records
 		.filter(_.requestName == requestName)
 		.groupBy(_.executionStartDateNoMillis)
 		.toSeq
 
-	private def computationOverTime(data: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus, computation: Seq[ChartRequestRecord] => Long): Seq[(Long, Long)] =
-		data
+	private def computationOverTime(records: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus, computation: Seq[ChartRequestRecord] => Long): Seq[(Long, Long)] =
+		records
 			.map { case (time, results) => time -> results.filter(_.requestStatus == requestStatus) }
 			.map { case (time, results) => time -> computation(results) }
 			.sortBy(_._1)
 
-	def responseTimeOverTime(data: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus): Seq[(Long, Long)] = computationOverTime(data, requestStatus, maxResponseTime)
+	def responseTimeOverTime(records: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus): Seq[(Long, Long)] = computationOverTime(records, requestStatus, maxResponseTime)
 
-	def latencyOverTime(data: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus): Seq[(Long, Long)] = computationOverTime(data, requestStatus, maxLatency)
+	def latencyOverTime(records: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus): Seq[(Long, Long)] = computationOverTime(records, requestStatus, maxLatency)
 }

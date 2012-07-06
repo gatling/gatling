@@ -40,7 +40,8 @@ case class RequestStatistics(name: String,
 		stdDeviationStatistics: Statistics,
 		percentiles1: Statistics,
 		percentiles2: Statistics,
-		groupedCounts: Seq[(String, Int, Int)]) {
+		groupedCounts: Seq[(String, Int, Int)],
+		meanNumberOfRequestsPerSecondStatistics: Statistics) {
 
 	def mkString: String = {
 		new StringBuilder().append(name).append(TABULATION_SEPARATOR_STRING)
@@ -76,7 +77,10 @@ case class RequestStatistics(name: String,
 			.append(groupedCounts(2)._3).append(TABULATION_SEPARATOR_STRING)
 			.append(groupedCounts(3)._1).append(TABULATION_SEPARATOR_STRING)
 			.append(groupedCounts(3)._2).append(TABULATION_SEPARATOR_STRING)
-			.append(groupedCounts(3)._3)
+			.append(groupedCounts(3)._3).append(TABULATION_SEPARATOR_STRING)
+			.append(meanNumberOfRequestsPerSecondStatistics.total).append(TABULATION_SEPARATOR_STRING)
+			.append(meanNumberOfRequestsPerSecondStatistics.success).append(TABULATION_SEPARATOR_STRING)
+			.append(meanNumberOfRequestsPerSecondStatistics.failure)
 			.toString
 	}
 }
