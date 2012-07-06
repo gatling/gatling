@@ -16,7 +16,7 @@
 body{font-family:arial;margin:0;padding:0;background:#DCDBD4;color:#000;font-size:12px;}
 .container{width:1200px;margin:0 auto;position:relative;overflow:visible;}
 .frise{background:url('fond-degrade.gif') repeat-x;height:530px;width: 100%;position:absolute;top:60px;z-index:-1;}
-.details{height:2095px;}
+.details{height:2115px;}
 .global{height:650px}
 
 a{text-decoration:none;color:#E37400;}
