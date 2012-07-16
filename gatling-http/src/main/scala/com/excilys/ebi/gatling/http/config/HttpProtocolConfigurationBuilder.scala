@@ -20,6 +20,7 @@ import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.ning.http.client.{ Response, RequestBuilder, Request, ProxyServer }
 
 import grizzled.slf4j.Logging
+import util.Random
 
 /**
  * HttpProtocolConfigurationBuilder class companion
@@ -36,7 +37,7 @@ object HttpProtocolConfigurationBuilder {
  * @param baseUrl the radix of all the URLs that will be used (eg: http://mywebsite.tld)
  * @param proxy a proxy through which all the requests must pass to succeed
  */
-class HttpProtocolConfigurationBuilder(baseUrl: Option[String],
+class HttpProtocolConfigurationBuilder(baseUrl: Option[() => String],
 	proxy: Option[ProxyServer], securedProxy: Option[ProxyServer],
 	followRedirectParam: Boolean, automaticRefererParam: Boolean,
 	baseHeaders: Map[String, String],
@@ -45,12 +46,16 @@ class HttpProtocolConfigurationBuilder(baseUrl: Option[String],
 	extraResponseInfoExtractor: Option[(Response => List[String])])
 		extends Logging {
 
+  val rand = new Random()
+
 	/**
 	 * Sets the baseURL of the future HttpProtocolConfiguration
 	 *
 	 * @param baseUrl the base url that will be set
 	 */
-	def baseURL(baseUrl: String) = new HttpProtocolConfigurationBuilder(Some(baseUrl), proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders, warmUpUrl, extraRequestInfoExtractor, extraResponseInfoExtractor)
+	def baseURL(baseUrl: String) = new HttpProtocolConfigurationBuilder(Some(() => baseUrl), proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders, warmUpUrl, extraRequestInfoExtractor, extraResponseInfoExtractor)
+
+  def baseURLs(baseUrls: Array[String]) = new HttpProtocolConfigurationBuilder(Some(() => {baseUrls(rand.nextInt(baseUrls.length))}), proxy, securedProxy, followRedirectParam, automaticRefererParam, baseHeaders, warmUpUrl, extraRequestInfoExtractor, extraResponseInfoExtractor)
 
 	def disableFollowRedirect = new HttpProtocolConfigurationBuilder(baseUrl, proxy, securedProxy, false, automaticRefererParam, baseHeaders, warmUpUrl, extraRequestInfoExtractor, extraResponseInfoExtractor)
 
