@@ -32,7 +32,7 @@ object HttpProtocolConfiguration {
  * @param baseURL the radix of all the URLs that will be used (eg: http://mywebsite.tld)
  * @param proxy a proxy through which all the requests must pass to succeed
  */
-case class HttpProtocolConfiguration(baseURL: Option[String],
+case class HttpProtocolConfiguration(baseURL: Option[() => String],
 	proxy: Option[ProxyServer], securedProxy: Option[ProxyServer],
 	followRedirectEnabled: Boolean, automaticRefererEnabled: Boolean,
 	baseHeaders: Map[String, String],
