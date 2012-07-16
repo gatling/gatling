@@ -191,7 +191,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 		val resolvedUrl = if (providedUrl.startsWith(Protocol.HTTP.getProtocol))
 			providedUrl
 		else protocolConfiguration match {
-			case Some(config) => config.baseURL.getOrElse(throw new IllegalArgumentException("No protocolConfiguration.baseURL defined but provided url is relative : " + providedUrl)) + providedUrl
+			case Some(config) => config.baseURL.getOrElse(throw new IllegalArgumentException("No protocolConfiguration.baseURL defined but provided url is relative : " + providedUrl))() + providedUrl
 			case None => throw new IllegalArgumentException("No protocolConfiguration defined but provided url is relative : " + providedUrl)
 		}
 
