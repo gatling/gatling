@@ -24,6 +24,8 @@ import com.excilys.ebi.gatling.core.util.DateHelper.{ toTimestamp, toHumanDate }
 
 sealed trait DataWriterMessage
 
+case class ShortScenarioDescription(name: String, nbUsers :Int)
+
 /**
  * This case class is to be sent to the logging actor, it contains all the information
  * required for its initialization
@@ -33,7 +35,7 @@ sealed trait DataWriterMessage
  * @param latch the countdown latch that will end the simulation
  * @param encoding the file encoding
  */
-case class InitializeDataWriter(runRecord: RunRecord, totalUsersCount: Int, latch: CountDownLatch, encoding: String) extends DataWriterMessage
+case class InitializeDataWriter(runRecord: RunRecord, scenarios :Seq[ShortScenarioDescription], latch: CountDownLatch, encoding: String) extends DataWriterMessage
 
 case object FlushDataWriter extends DataWriterMessage
 
