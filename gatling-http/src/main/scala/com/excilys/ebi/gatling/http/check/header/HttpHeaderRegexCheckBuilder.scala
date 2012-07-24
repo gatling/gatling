@@ -43,11 +43,15 @@ object HttpHeaderRegexCheckBuilder {
 	private val findAllExtractorFactory: ExtractorFactory[ExtendedResponse, (String, String), Seq[String]] = (response: ExtendedResponse) =>
 		(headerAndPattern: (String, String)) => {
 			val (headerName, pattern) = headerAndPattern
-			val headerValues = response.getHeaders(headerName)
-			val decodedHeaderValues = if (headerName == Headers.Names.LOCATION)
-				headerValues.map(URLDecoder.decode(_, configuration.encoding))
-			else
-				headerValues.toSeq
+
+			val decodedHeaderValues = Option(response.getHeaders(headerName)) match {
+				case Some(headerValues) =>
+					if (headerName == Headers.Names.LOCATION)
+						headerValues.map(URLDecoder.decode(_, configuration.encoding))
+					else
+						headerValues.toSeq
+				case None => Nil
+			}
 
 			decodedHeaderValues.foldLeft(Seq.empty[String]) { (matches, header) =>
 				new RegexExtractor(header).extractMultiple(pattern) match {
