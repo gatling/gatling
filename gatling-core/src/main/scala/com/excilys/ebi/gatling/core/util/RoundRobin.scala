@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.feeder
+package com.excilys.ebi.gatling.core.util
 
-import com.excilys.ebi.gatling.core.util.RoundRobin
+class RoundRobin[T](values: Iterable[T]) {
 
-class CircularFeeder(feederSource: FeederSource) extends RoundRobin(feederSource.values) with Feeder
+	private val generator = (for (url <- Stream.continually(values).flatten) yield url).iterator
+
+	def next(): T = generator.next
+}

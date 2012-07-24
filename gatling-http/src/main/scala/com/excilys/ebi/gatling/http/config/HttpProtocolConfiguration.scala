@@ -16,14 +16,9 @@
 package com.excilys.ebi.gatling.http.config
 
 import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
-import com.ning.http.client.{ Response, Request, ProxyServer }
+import com.excilys.ebi.gatling.core.util.RoundRobin
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
-
-class RoundRobin(val urls: Seq[String]) {
-	val generator = (for (url <- Stream.continually(urls).flatten) yield url).iterator
-
-	def next() = generator.next
-}
+import com.ning.http.client.{ Request, ProxyServer }
 
 /**
  * HttpProtocolConfiguration class companion
@@ -44,17 +39,11 @@ case class HttpProtocolConfiguration(baseURLs: Option[Seq[String]],
 	baseHeaders: Map[String, String],
 	extraRequestInfoExtractor: Option[(Request => List[String])],
 	extraResponseInfoExtractor: Option[(ExtendedResponse => List[String])])
-	extends ProtocolConfiguration {
+		extends ProtocolConfiguration {
 
 	val protocolType = HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE
 
-	val roundRobinUrls = baseURLs match {
-		case Some(urls) => Some(new RoundRobin(urls))
-		case _ => None
-	}
+	val roundRobinUrls = baseURLs.map(new RoundRobin(_))
 
-	def baseURL(): Option[String] = roundRobinUrls match {
-		case Some(rr) => Some(rr.next)
-		case _ => None
-	}
+	def baseURL(): Option[String] = roundRobinUrls.map(_.next)
 }

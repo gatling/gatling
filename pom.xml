@@ -108,13 +108,12 @@
 		<xstream.version>1.4.2</xstream.version>
 		<scopt.version>2.1.0</scopt.version>
 		<args4j.version>2.0.21</args4j.version>
-		<twitter-util.version>3.0.0</twitter-util.version>
 		<opencsv.version>2.3</opencsv.version>
 		<ant.version>1.8.3</ant.version>
 		<grizzled-slf4j.version>0.6.9</grizzled-slf4j.version>
 		<jackson.version>2.0.4</jackson.version>
 		<commons-math3.version>3.0</commons-math3.version>
-		<commons-io.version>2.3</commons-io.version>
+		<commons-io.version>2.4</commons-io.version>
 		<jodd.version>3.3.4</jodd.version>
 		<asm.version>4.0</asm.version>
 		<redis.version>2.5</redis.version>
@@ -312,11 +311,6 @@
 				<groupId>args4j</groupId>
 				<artifactId>args4j</artifactId>
 				<version>${args4j.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.twitter</groupId>
-				<artifactId>util-core_2.9.1</artifactId>
-				<version>${twitter-util.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.opencsv</groupId>
