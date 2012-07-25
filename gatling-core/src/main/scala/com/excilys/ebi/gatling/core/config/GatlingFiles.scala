@@ -40,8 +40,11 @@ object GatlingFiles {
 	def jsFolder(runUuid: String): Path = resultFolder(runUuid) / GATLING_JS
 	def styleFolder(runUuid: String): Path = resultFolder(runUuid) / GATLING_STYLE
 	def rawDataFolder(runUuid: String): Path = resultFolder(runUuid) / "rawdata"
-	def simulationLogDirectory(runUuid: String): Directory = {
+	def simulationLogDirectory(runUuid: String, create: Boolean = true): Directory = {
 		val dir = resultFolder(runUuid)
-		dir.createDirectory()
+		if (create) dir.createDirectory()
+		else if (!dir.exists) throw new IllegalArgumentException("simulation directory '" + dir + "' doesn't exist")
+		else if (!dir.isDirectory) throw new IllegalArgumentException("simulation directory '" + dir + "' is not a directory")
+		else dir.toDirectory
 	}
 }

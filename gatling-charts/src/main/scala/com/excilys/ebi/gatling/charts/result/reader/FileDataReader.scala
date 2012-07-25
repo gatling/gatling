@@ -79,7 +79,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			}
 		}
 
-		simulationLogDirectory(runUuid).toDirectory.files.filter(_.jfile.getName.matches(FileDataReader.SIMULATION_FILES_NAME_PATTERN)).foreach(readFile(_))
+		simulationLogDirectory(runUuid, false).files.filter(_.jfile.getName.matches(FileDataReader.SIMULATION_FILES_NAME_PATTERN)).foreach(readFile(_))
 
 		val sortedRequestNames = requestNames.toSeq.sortBy(_._2).map(_._1)
 		val sortedScenarioNames = scenarioNames.toSeq.sortBy(_._2).map(_._1)
@@ -109,8 +109,8 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	def meanResponseTime(status: Option[RequestStatus], requestName: Option[String]): Long = StatisticsHelper.meanResponseTime(requestRecords, status, requestName)
 
 	def meanLatency(status: Option[RequestStatus], requestName: Option[String]): Long = StatisticsHelper.meanLatency(requestRecords, status, requestName)
-	
-	def meanNumberOfRequestsPerSecond(status: Option[RequestStatus], requestName: Option[String]) : Long = StatisticsHelper.meanNumberOfRequestsPerSecond(requestRecords, status, requestName)
+
+	def meanNumberOfRequestsPerSecond(status: Option[RequestStatus], requestName: Option[String]): Long = StatisticsHelper.meanNumberOfRequestsPerSecond(requestRecords, status, requestName)
 
 	def responseTimeStandardDeviation(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long = StatisticsHelper.responseTimeStandardDeviation(requestRecords, status, requestName): Long
 
