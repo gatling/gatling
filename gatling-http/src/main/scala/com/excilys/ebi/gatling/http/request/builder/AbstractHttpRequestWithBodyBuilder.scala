@@ -31,7 +31,7 @@ import com.excilys.ebi.gatling.http.request.{ TemplateBody, StringBody, SessionB
 import com.ning.http.client.{ RequestBuilder, Realm }
 
 object AbstractHttpRequestWithBodyBuilder {
-	val TEMPLATE_ENGINE = new TemplateEngine(List(GatlingFiles.requestBodiesFolder))
+	val TEMPLATE_ENGINE = new TemplateEngine(List(GatlingFiles.requestBodiesDirectory))
 	TEMPLATE_ENGINE.allowReload = false
 	TEMPLATE_ENGINE.escapeMarkup = false
 	// Register engine shutdown
@@ -144,7 +144,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 
 		body match {
 			case Some(FilePathBody(filePath)) =>
-				requestBuilder.setBody((GatlingFiles.requestBodiesFolder / filePath).jfile)
+				requestBuilder.setBody((GatlingFiles.requestBodiesDirectory / filePath).jfile)
 
 			case Some(StringBody(body)) =>
 				requestBuilder.setBody(body(session))

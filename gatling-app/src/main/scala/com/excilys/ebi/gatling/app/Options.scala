@@ -20,13 +20,13 @@ object Options {
 }
 
 case class Options(
-	var reportsOnlyFolder: Option[String] = None,
+	var reportsOnlyDirectoryName: Option[String] = None,
 	var noReports: Boolean = false,
-	var configFileName: Option[String] = None,
-	var resultsFolder: Option[String] = None,
-	var dataFolder: Option[String] = None,
-	var requestBodiesFolder: Option[String] = None,
-	var simulationSourcesFolder: Option[String] = None,
-	var simulationBinariesFolder: Option[String] = None,
-	var simulations: Option[List[String]] = None,
+	var configFilePath: Option[String] = None,
+	var resultsDirectoryPath: Option[String] = None,
+	var dataDirectoryPath: Option[String] = None,
+	var requestBodiesDirectoryPath: Option[String] = None,
+	var simulationSourcesDirectoryPath: Option[String] = None,
+	var simulationBinariesDirectoryPath: Option[String] = None,
+	var simulationClassNames: Option[List[String]] = None,
 	var runName: String = Options.DEFAULT_RUN_ID)

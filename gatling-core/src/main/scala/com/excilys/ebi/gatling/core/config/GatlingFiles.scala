@@ -31,17 +31,17 @@ object GatlingFiles {
 	val GATLING_ASSETS_STYLE_PACKAGE = GATLING_ASSETS_PACKAGE / GATLING_STYLE
 	val GATLING_IMPORTS_FILE = "imports.txt"
 
-	def dataFolder: Path = configuration.dataFolderPath.getOrElse(GATLING_USER_FILES_FOLDER / "data")
-	def resultsFolder: Path = configuration.resultsFolderPath.getOrElse(GATLING_HOME / "results")
-	def requestBodiesFolder: Path = configuration.requestBodiesFolderPath.getOrElse(GATLING_USER_FILES_FOLDER / GATLING_REQUEST_BODIES)
-	def simulationsFolder: Path = configuration.simulationsFolderPath.getOrElse(GATLING_USER_FILES_FOLDER / "simulations")
+	def dataDirectory: Path = configuration.dataDirectoryPath.getOrElse(GATLING_USER_FILES_FOLDER / "data")
+	def resultsDirectory: Path = configuration.resultsDirectoryPath.getOrElse(GATLING_HOME / "results")
+	def requestBodiesDirectory: Path = configuration.requestBodiesDirectoryPath.getOrElse(GATLING_USER_FILES_FOLDER / GATLING_REQUEST_BODIES)
+	def simulationsDirectory: Path = configuration.simulationsDirectoryPath.getOrElse(GATLING_USER_FILES_FOLDER / "simulations")
 
-	def resultFolder(runUuid: String): Path = resultsFolder / runUuid
-	def jsFolder(runUuid: String): Path = resultFolder(runUuid) / GATLING_JS
-	def styleFolder(runUuid: String): Path = resultFolder(runUuid) / GATLING_STYLE
-	def rawDataFolder(runUuid: String): Path = resultFolder(runUuid) / "rawdata"
+	def resultDirectory(runUuid: String): Path = resultsDirectory / runUuid
+	def jsDirectory(runUuid: String): Path = resultDirectory(runUuid) / GATLING_JS
+	def styleDirectory(runUuid: String): Path = resultDirectory(runUuid) / GATLING_STYLE
+	def rawDataDirectory(runUuid: String): Path = resultDirectory(runUuid) / "rawdata"
 	def simulationLogDirectory(runUuid: String, create: Boolean = true): Directory = {
-		val dir = resultFolder(runUuid)
+		val dir = resultDirectory(runUuid)
 		if (create) dir.createDirectory()
 		else if (!dir.exists) throw new IllegalArgumentException("simulation directory '" + dir + "' doesn't exist")
 		else if (!dir.isDirectory) throw new IllegalArgumentException("simulation directory '" + dir + "' is not a directory")
