@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.http.ahc
 
 import java.lang.System.currentTimeMillis
-
+import java.net.URLDecoder
 import scala.annotation.tailrec
 import scala.collection.JavaConversions.asScalaBuffer
 
@@ -78,7 +78,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 	protocolConfiguration: Option[HttpProtocolConfiguration],
 	gatlingConfiguration: GatlingConfiguration,
 	handlerFactory: HandlerFactory, responseBuilderFactory: ExtendedResponseBuilderFactory)
-		extends Actor with Logging {
+	extends Actor with Logging {
 
 	var responseBuilder = responseBuilderFactory(session)
 
@@ -161,7 +161,8 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 
 			logRequest(OK, response)
 
-			val redirectUrl = computeRedirectUrl(response.getHeader(HeaderNames.LOCATION), request.getUrl)
+			val encodedRedirectUrl = computeRedirectUrl(response.getHeader(HeaderNames.LOCATION), request.getUrl)
+			val redirectUrl = if (HttpConfig.GATLING_HTTP_CONFIG_USE_RAW_URL) encodedRedirectUrl else URLDecoder.decode(encodedRedirectUrl, configuration.encoding)
 
 			val requestBuilder = new RequestBuilder(request)
 				.setMethod("GET")
