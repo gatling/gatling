@@ -228,7 +228,7 @@ class Gatling(cliOptions: Options) extends Logging {
 				Console.readInt
 		}
 
-		val validRange = 0 to classes.size
+		val validRange = 0 until classes.size
 		if (validRange contains selection)
 			classes(selection)
 		else {
