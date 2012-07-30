@@ -161,9 +161,8 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 
 			logRequest(OK, response)
 
-			val encodedRedirectUrl = computeRedirectUrl(response.getHeader(HeaderNames.LOCATION), request.getUrl)
-			val redirectUrl = if (HttpConfig.GATLING_HTTP_CONFIG_USE_RAW_URL) encodedRedirectUrl else URLDecoder.decode(encodedRedirectUrl, configuration.encoding)
-
+			val redirectUrl = computeRedirectUrl(response.getHeader(HeaderNames.LOCATION), request.getUrl)
+	
 			val requestBuilder = new RequestBuilder(request)
 				.setMethod("GET")
 				.setBodyEncoding(configuration.encoding)

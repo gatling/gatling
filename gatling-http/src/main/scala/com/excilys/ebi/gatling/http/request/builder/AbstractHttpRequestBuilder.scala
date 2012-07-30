@@ -22,7 +22,7 @@ import com.excilys.ebi.gatling.core.util.StringHelper.{ parseEvaluatable, EL_STA
 import com.excilys.ebi.gatling.http.Headers.{ Values => HeaderValues, Names => HeaderNames }
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
+import com.excilys.ebi.gatling.http.config.{ HttpConfig, HttpProtocolConfiguration }
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.referer.RefererHandling
 import com.ning.http.client.{ FluentStringsMap, FluentCaseInsensitiveStringsMap, RequestBuilder, Request, Realm }
@@ -54,13 +54,13 @@ object AbstractHttpRequestBuilder {
  * @param checks is a list of checks to execute on the response
  */
 abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
-		requestName: String,
-		method: String,
-		url: EvaluatableString,
-		queryParams: List[HttpParam],
-		headers: Map[String, EvaluatableString],
-		realm: Option[Session => Realm],
-		checks: List[HttpCheck[_]]) {
+	requestName: String,
+	method: String,
+	url: EvaluatableString,
+	queryParams: List[HttpParam],
+	headers: Map[String, EvaluatableString],
+	realm: Option[Session => Realm],
+	checks: List[HttpCheck[_]]) {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type
@@ -145,7 +145,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * @param session the session of the current scenario
 	 */
 	protected def getAHCRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
-		val requestBuilder = new RequestBuilder(method, true).setBodyEncoding(configuration.encoding)
+		val requestBuilder = new RequestBuilder(method, HttpConfig.GATLING_HTTP_CONFIG_USE_RAW_URL).setBodyEncoding(configuration.encoding)
 
 		val isHttps = configureURLAndCookies(requestBuilder, session, protocolConfiguration)
 		configureProxy(requestBuilder, session, isHttps, protocolConfiguration)
