@@ -233,8 +233,7 @@ object StatisticsHelper {
 		if (count != 0) {
 			val minStartTime = minTime((record: ChartRequestRecord) => record.executionStartDateNoMillis, records, status, requestName)
 			val maxEndTime = maxTime((record: ChartRequestRecord) => record.executionEndDateNoMillis, records, status, requestName)
-			
-			println(maxEndTime - minStartTime);
+
 			count * 1000 / (maxEndTime - minStartTime)
 
 		} else
