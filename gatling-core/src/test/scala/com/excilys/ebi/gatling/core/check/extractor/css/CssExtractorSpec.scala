@@ -26,7 +26,6 @@ import CssExtractorSpec.extractor
 object CssExtractorSpec {
 
 	val html = Source.fromInputStream(getClass.getResourceAsStream("/GatlingHomePage.html")).mkString
-
 	val extractor = new CssExtractor(html)
 }
 
@@ -95,6 +94,15 @@ class CssExtractorSpec extends Specification {
 
 		"return None when the selector doesn't match anything" in {
 			extractor.extractOne(1)("bad_selector") must beEqualTo(None)
+		}
+	}
+
+	"CssExtractor" should {
+		"support browser conditional tests and behave as a non-IE browser" in {
+			val html = Source.fromInputStream(getClass.getResourceAsStream("/IeConditionalTests.html")).mkString
+			val extractor = new CssExtractor(html)
+
+			extractor.count("#helloworld") must beEqualTo(Some(1))
 		}
 	}
 }
