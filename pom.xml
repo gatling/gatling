@@ -114,7 +114,7 @@
 		<jackson.version>2.0.5</jackson.version>
 		<commons-math3.version>3.0</commons-math3.version>
 		<commons-io.version>2.4</commons-io.version>
-		<jodd.version>3.3.4</jodd.version>
+		<jodd.version>3.3.7</jodd.version>
 		<asm.version>4.0</asm.version>
 		<redis.version>2.5</redis.version>
 		<junit.version>4.10</junit.version>
