@@ -26,13 +26,26 @@ import grizzled.slf4j.Logging
  *
  * @constructor creates a While loop in the scenario
  * @param condition the condition that decides when to exit the loop
- * @param loopNext the chain executed if condition evaluates to true, passed as a Function for build time
  * @param next the chain executed if testFunction evaluates to false
  * @param counterName the name of the counter for this loop
  */
-class WhileAction(condition: Session => Boolean, loopNext: ActorRef => ActorRef, next: ActorRef, val counterName: String) extends Action with TimerBasedIterationHandler with CounterBasedIterationHandler with Logging {
+class WhileAction(condition: Session => Boolean, next: ActorRef, val counterName: String) extends Action with TimerBasedIterationHandler with CounterBasedIterationHandler with Logging {
 
-	val loopNextAction = loopNext(self)
+	var loopNextAction: ActorRef = _
+
+	def uninitialized: Receive = {
+		case actor: ActorRef =>
+			loopNextAction = actor
+			context.become(initialized)
+		case unknown => throw new IllegalArgumentException("Unknown message type in uninitialized state: " + unknown)
+	}
+
+	def initialized: Receive = {
+		case session: Session => execute(session)
+		case unknown => throw new IllegalArgumentException("Unknown message type in uninitialized state: " + unknown)
+	}
+
+	override def receive = uninitialized
 
 	/**
 	 * Evaluates the condition and if true executes the first action of loopNext

@@ -67,5 +67,10 @@ class WhileActionBuilder(condition: Session => Boolean, loopNext: ChainBuilder, 
 
 	def withNext(next: ActorRef) = new WhileActionBuilder(condition, loopNext, next, counterName)
 
-	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new WhileAction(condition, (next: ActorRef) => loopNext.withNext(next).build(protocolConfigurationRegistry), next, counterName)))
+	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
+		val whileActor = system.actorOf(Props(new WhileAction(condition, next, counterName)))
+		val loopContent = loopNext.withNext(whileActor).build(protocolConfigurationRegistry)
+		whileActor ! loopContent
+		whileActor
+	}
 }
