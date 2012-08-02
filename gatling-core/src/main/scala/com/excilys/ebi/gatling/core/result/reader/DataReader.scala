@@ -37,6 +37,7 @@ abstract class DataReader(runUuid: String) {
 	def countRequests(status: Option[RequestStatus] = None, requestName: Option[String] = None): Int
 	def meanResponseTime(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
 	def meanLatency(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
+	def meanNumberOfRequestsPerSecond(status: Option[RequestStatus], requestName: Option[String]) : Long
 	def responseTimeStandardDeviation(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
 	def numberOfRequestInResponseTimeRange(lowerBound: Int, higherBound: Int, requestName: Option[String] = None): Seq[(String, Int)]
 	def requestRecordsGroupByExecutionStartDate(requestName: String): Seq[(Long, Seq[ChartRequestRecord])]

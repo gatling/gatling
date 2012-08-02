@@ -79,7 +79,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			}
 		}
 
-		simulationLogDirectory(runUuid).toDirectory.files.filter(_.jfile.getName.matches(FileDataReader.SIMULATION_FILES_NAME_PATTERN)).foreach(readFile(_))
+		simulationLogDirectory(runUuid, false).files.filter(_.jfile.getName.matches(FileDataReader.SIMULATION_FILES_NAME_PATTERN)).foreach(readFile(_))
 
 		val sortedRequestNames = requestNames.toSeq.sortBy(_._2).map(_._1)
 		val sortedScenarioNames = scenarioNames.toSeq.sortBy(_._2).map(_._1)
@@ -92,39 +92,29 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		allRunRecords.head
 	}
 
-	def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): Seq[(Long, Int)] =
-		StatisticsHelper.numberOfActiveSessionsPerSecond(requestRecords, scenarioName)
+	def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): Seq[(Long, Int)] = StatisticsHelper.numberOfActiveSessionsPerSecond(requestRecords, scenarioName)
 
-	def numberOfEventsPerSecond(event: ChartRequestRecord => Long, status: Option[RequestStatus] = None, requestName: Option[String] = None): Map[Long, Int] =
-		StatisticsHelper.numberOfEventsPerSecond(requestRecords, event, status, requestName)
+	def numberOfEventsPerSecond(event: ChartRequestRecord => Long, status: Option[RequestStatus] = None, requestName: Option[String] = None): Map[Long, Int] = StatisticsHelper.numberOfEventsPerSecond(requestRecords, event, status, requestName)
 
-	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String] = None) =
-		StatisticsHelper.responseTimeDistribution(requestRecords, slotsNumber, requestName)
+	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String] = None) = StatisticsHelper.responseTimeDistribution(requestRecords, slotsNumber, requestName)
 
-	def percentiles(percentage1: Double, percentage2: Double, status: Option[RequestStatus] = None, requestName: Option[String] = None): (Long, Long) =
-		StatisticsHelper.percentiles(requestRecords, percentage1, percentage2, status, requestName)
+	def percentiles(percentage1: Double, percentage2: Double, status: Option[RequestStatus] = None, requestName: Option[String] = None): (Long, Long) = StatisticsHelper.percentiles(requestRecords, percentage1, percentage2, status, requestName)
 
-	def countRequests(status: Option[RequestStatus] = None, requestName: Option[String] = None): Int =
-		StatisticsHelper.countRequests(requestRecords, status, requestName)
+	def countRequests(status: Option[RequestStatus] = None, requestName: Option[String] = None): Int = StatisticsHelper.countRequests(requestRecords, status, requestName)
 
-	def minResponseTime(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long =
-		StatisticsHelper.minResponseTime(requestRecords, status, requestName)
+	def minResponseTime(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long = StatisticsHelper.minResponseTime(requestRecords, status, requestName)
 
-	def maxResponseTime(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long =
-		StatisticsHelper.maxResponseTime(requestRecords, status, requestName)
+	def maxResponseTime(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long = StatisticsHelper.maxResponseTime(requestRecords, status, requestName)
 
-	def meanResponseTime(status: Option[RequestStatus], requestName: Option[String]): Long =
-		StatisticsHelper.meanResponseTime(requestRecords, status, requestName)
+	def meanResponseTime(status: Option[RequestStatus], requestName: Option[String]): Long = StatisticsHelper.meanResponseTime(requestRecords, status, requestName)
 
-	def meanLatency(status: Option[RequestStatus], requestName: Option[String]): Long =
-		StatisticsHelper.meanLatency(requestRecords, status, requestName)
+	def meanLatency(status: Option[RequestStatus], requestName: Option[String]): Long = StatisticsHelper.meanLatency(requestRecords, status, requestName)
 
-	def responseTimeStandardDeviation(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long =
-		StatisticsHelper.responseTimeStandardDeviation(requestRecords, status, requestName): Long
+	def meanNumberOfRequestsPerSecond(status: Option[RequestStatus], requestName: Option[String]): Long = StatisticsHelper.meanNumberOfRequestsPerSecond(requestRecords, status, requestName)
 
-	def numberOfRequestInResponseTimeRange(lowerBound: Int, higherBound: Int, requestName: Option[String] = None): Seq[(String, Int)] =
-		StatisticsHelper.numberOfRequestInResponseTimeRange(requestRecords, lowerBound, higherBound, requestName)
+	def responseTimeStandardDeviation(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long = StatisticsHelper.responseTimeStandardDeviation(requestRecords, status, requestName): Long
 
-	def requestRecordsGroupByExecutionStartDate(requestName: String): Seq[(Long, Seq[ChartRequestRecord])] =
-		StatisticsHelper.requestRecordsGroupByExecutionStartDate(requestRecords, requestName)
+	def numberOfRequestInResponseTimeRange(lowerBound: Int, higherBound: Int, requestName: Option[String] = None): Seq[(String, Int)] = StatisticsHelper.numberOfRequestInResponseTimeRange(requestRecords, lowerBound, higherBound, requestName)
+
+	def requestRecordsGroupByExecutionStartDate(requestName: String): Seq[(Long, Seq[ChartRequestRecord])] = StatisticsHelper.requestRecordsGroupByExecutionStartDate(requestRecords, requestName)
 }

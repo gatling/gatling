@@ -19,7 +19,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 import scala.io.Codec
 import scala.tools.nsc.io.Path
-import scala.tools.nsc.io.Path.string2path
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.GATLING_DEFAULT_CONFIG_FILE
 import com.excilys.ebi.gatling.core.result.reader.DataReader
@@ -31,7 +30,7 @@ import grizzled.slf4j.Logging
 /**
  * Configuration loader of Gatling
  */
-object GatlingConfiguration {
+object GatlingConfiguration extends Logging {
 
 	private val initialized = new AtomicBoolean(false)
 
@@ -40,46 +39,51 @@ object GatlingConfiguration {
 	@volatile private var instance: GatlingConfiguration = _
 
 	def setUp(configFileName: Option[String], dataFolder: Option[String], requestBodiesFolder: Option[String], resultsFolder: Option[String], simulationsFolder: Option[String]) {
-		if (initialized.compareAndSet(false, true)) {
-			instance = new GatlingConfiguration(configFileName, dataFolder, requestBodiesFolder, resultsFolder, simulationsFolder)
-		} else {
+		if (initialized.compareAndSet(false, true))
+			instance = GatlingConfiguration(configFileName, dataFolder, requestBodiesFolder, resultsFolder, simulationsFolder)
+		else
 			throw new UnsupportedOperationException("GatlingConfig already set up")
-		}
 	}
 
 	def configuration = if (initialized.get) instance else throw new UnsupportedOperationException("Can't access configuration instance if it hasn't been set up")
+
+	def apply(configFilePath: Option[String], dataDirectoryPathString: Option[String], requestBodiesDirectoryPathString: Option[String], resultsDirectoryPathString: Option[String], simulationsDirectoryPathString: Option[String]) = {
+
+		val fileConfiguration: GatlingFileConfiguration =
+			try {
+				// Locate configuration file, depending on users options
+				val configFile = configFilePath.map { path =>
+					info("Loading custom configuration file: " + path)
+					path
+				} getOrElse {
+					info("Loading default configuration file")
+					GATLING_DEFAULT_CONFIG_FILE
+				}
+
+				GatlingFileConfiguration.fromFile(configFile)
+			} catch {
+				case e => throw new RuntimeException("Could not parse configuration file!", e)
+			}
+
+		val resultsDirectoryPath: Option[Path] = resultsDirectoryPathString.map(Path(_))
+		val dataDirectoryPath: Option[Path] = dataDirectoryPathString.map(Path(_))
+		val requestBodiesDirectoryPath: Option[Path] = requestBodiesDirectoryPathString.map(Path(_))
+		val simulationsDirectoryPath: Option[Path] = simulationsDirectoryPathString.map(Path(_))
+
+		new GatlingConfiguration(fileConfiguration, dataDirectoryPath, requestBodiesDirectoryPath, resultsDirectoryPath, simulationsDirectoryPath)
+	}
 }
 
 class GatlingConfiguration(
-		configFileName: Option[String] = None,
-		dataFolder: Option[String] = None,
-		requestBodiesFolder: Option[String] = None,
-		resultsFolder: Option[String] = None,
-		simulationsFolder: Option[String] = None) extends Logging {
+		val fileConfiguration: GatlingFileConfiguration,
+		val dataDirectoryPath: Option[Path],
+		val requestBodiesDirectoryPath: Option[Path],
+		val resultsDirectoryPath: Option[Path],
+		val simulationsDirectoryPath: Option[Path]) extends Logging {
 
 	/**
 	 * Contains the configuration of Gatling
 	 */
-	val fileConfiguration: GatlingFileConfiguration =
-		try {
-			// Locate configuration file, depending on users options
-			val configFile = configFileName.map { fileName =>
-				info("Loading custom configuration file: " + fileName)
-				fileName
-			} getOrElse {
-				info("Loading default configuration file")
-				GATLING_DEFAULT_CONFIG_FILE
-			}
-
-			GatlingFileConfiguration.fromFile(configFile)
-		} catch {
-			case e => throw new RuntimeException("Could not parse configuration file!", e)
-		}
-
-	val resultsFolderPath: Option[Path] = resultsFolder.map(s => s)
-	val dataFolderPath: Option[Path] = dataFolder.map(s => s)
-	val requestBodiesFolderPath: Option[Path] = requestBodiesFolder.map(s => s)
-	val simulationsFolderPath: Option[Path] = simulationsFolder.map(s => s)
 
 	/**
 	 * Gatling global encoding value

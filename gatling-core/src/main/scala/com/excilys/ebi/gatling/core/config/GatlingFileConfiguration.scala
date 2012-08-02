@@ -37,20 +37,22 @@ object GatlingFileConfiguration extends Logging {
 
 		val config = {
 			val absoluteFile = new File(filename)
-			val relativeFile = new File(defaultPath, filename)
 			if (absoluteFile.exists)
 				fromFileSystem(absoluteFile)
-			else if (relativeFile.exists)
-				fromFileSystem(relativeFile)
-			else
-				fromClasspath(filename)
+			else {
+				val relativeFile = new File(defaultPath, filename)
+				if (relativeFile.exists)
+					fromFileSystem(relativeFile)
+				else
+					fromClasspath(filename)
+			}
 		}
 
 		new GatlingFileConfiguration(config)
 	}
 }
 
-class GatlingFileConfiguration(map: Config) extends Logging {
+class GatlingFileConfiguration(map: Config) {
 
 	def contains(key: String): Boolean = map.hasPath(key)
 

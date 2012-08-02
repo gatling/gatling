@@ -25,7 +25,7 @@ import com.ning.http.client.FilePart
 
 object UploadedFile {
 	def apply(paramKey: String, fileName: String, mimeType: String, charset: String) = {
-		val path = GatlingFiles.requestBodiesFolder / fileName
+		val path = GatlingFiles.requestBodiesDirectory / fileName
 		val file = new File(path)
 		if (!file.exists)
 			throw new IllegalArgumentException("Uploaded file %s does not exist".format(path))

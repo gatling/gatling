@@ -1,5 +1,5 @@
-<%  import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration %>
-<%  import com.excilys.ebi.gatling.charts.view.util.ViewHelper.ordinalNumberSuffix %>
+<% import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration %>
+<% import com.excilys.ebi.gatling.charts.view.util.ViewHelper.ordinalNumberSuffix %>
 
 						<div class="infos">
 							<div class="titre">STATISTICS</div>
@@ -23,7 +23,12 @@
 									<h2 class="second">Response Time (ms)</h2>
 									<table>
 										<thead>
-											<tr><th></th><th>Total</th><th>OK</th><th>KO</th></tr>
+											<tr>
+												<th></th>
+												<th>Total</th>
+												<th>OK</th>
+												<th>KO</th>
+											</tr>
 										</thead>
 										<tbody>
 											<tr>
@@ -41,8 +46,8 @@
 											<tr>
 												<td class="title">Mean</td>
 												<td id="meanResponseTime" class="total"></td>
-												<td id="meanResponseTime" class="ok"></td>
-												<td id="meanResponseTime" class="ko"></td>
+												<td id="meanResponseTimeOK" class="ok"></td>
+												<td id="meanResponseTimeKO" class="ko"></td>
 											</tr>
 											<tr>
 												<td class="title">Std Deviation</td>
@@ -61,6 +66,12 @@
 												<td id="percentiles2" class="total"></td>
 												<td id="percentiles2OK" class="ok"></td>
 												<td id="percentiles2KO" class="ko"></td>
+											</tr>
+											<tr>
+												<td class="title">Mean req/s</td>
+												<td id="meanNumberOfRequestsPerSecond" class="total"></td>
+												<td id="meanNumberOfRequestsPerSecondOK" class="ok"></td>
+												<td id="meanNumberOfRequestsPerSecondKO" class="ko"></td>
 											</tr>
 										</tbody>
 									</table>

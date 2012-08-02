@@ -13,20 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.app
+package com.excilys.ebi.gatling.core.util
 
-object Options {
-	val DEFAULT_RUN_ID = "run"
+class RoundRobin[T](values: Iterable[T]) {
+
+	private val generator = if (values.isEmpty)
+		Iterator.empty
+	else
+		Stream.continually(values).flatten.iterator
+
+	def next(): T = generator.next
 }
-
-case class Options(
-	var reportsOnlyDirectoryName: Option[String] = None,
-	var noReports: Boolean = false,
-	var configFilePath: Option[String] = None,
-	var resultsDirectoryPath: Option[String] = None,
-	var dataDirectoryPath: Option[String] = None,
-	var requestBodiesDirectoryPath: Option[String] = None,
-	var simulationSourcesDirectoryPath: Option[String] = None,
-	var simulationBinariesDirectoryPath: Option[String] = None,
-	var simulationClassNames: Option[List[String]] = None,
-	var runName: String = Options.DEFAULT_RUN_ID)

@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.http.request
 
-import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
 
 /**
  * Class used for polymorphism only
@@ -50,4 +50,11 @@ case class TemplateBody(tplPath: String, values: Map[String, EvaluatableString])
  * @param byteArray the callback function that returns the Array[Byte] for the body
  */
 case class ByteArrayBody(byteArray: () => Array[Byte]) extends HttpRequestBody
+
+/**
+ * Wraps a body that is a Byte Array generated from the Session
+ *
+ * @param byteArray the callback function that generates the Array[Byte] for the body from the Session
+ */
+case class SessionByteArrayBody(byteArray: Session => Array[Byte]) extends HttpRequestBody
 

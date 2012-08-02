@@ -15,18 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.feeder
 
-import java.util.concurrent.atomic.AtomicInteger
+import com.excilys.ebi.gatling.core.util.RoundRobin
 
-import com.twitter.util.RingBuffer
-
-class CircularFeeder(feederSource: FeederSource) extends Feeder {
-
-	private val bufferSize = feederSource.values.size
-	private val currentIndex = new AtomicInteger(0)
-
-	private val values = new RingBuffer[Map[String, String]](bufferSize)
-
-	values ++= feederSource.values
-
-	def next: Map[String, String] = values(currentIndex.getAndIncrement % bufferSize)
-}
+class CircularFeeder(feederSource: FeederSource) extends RoundRobin(feederSource.values) with Feeder

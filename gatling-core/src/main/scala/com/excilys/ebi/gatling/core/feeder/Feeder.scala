@@ -15,6 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.feeder
 
-abstract class Feeder {
+trait Feeder {
 	def next: Map[String, String]
 }

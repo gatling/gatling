@@ -113,10 +113,10 @@ class Configuration {
 	@BeanProperty var proxy = new ProxyConfig
 	@BeanProperty var filterStrategy = NONE
 	@BeanProperty var patterns: List[Pattern] = Nil
-	@BeanProperty var outputFolder: String = Option(System.getenv("GATLING_HOME")).map(_ => GatlingFiles.simulationsFolder.toString).getOrElse(System.getProperty("user.home"))
+	@BeanProperty var outputFolder: String = Option(System.getenv("GATLING_HOME")).map(_ => GatlingFiles.simulationsDirectory.toString).getOrElse(System.getProperty("user.home"))
 	@transient var saveConfiguration = false
 	@BeanProperty var encoding = "UTF-8"
-	@transient var requestBodiesFolder: String = GatlingFiles.requestBodiesFolder.toString
+	@transient var requestBodiesFolder: String = GatlingFiles.requestBodiesDirectory.toString
 	@BeanProperty var simulationPackage: Option[String] = None
 	@BeanProperty var simulationClassName: String = Configuration.DEFAULT_CLASS_NAME
 	@BeanProperty var followRedirect: Boolean = true

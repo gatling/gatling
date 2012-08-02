@@ -16,36 +16,63 @@
 package com.excilys.ebi.gatling.http.config
 
 import org.specs2.mutable.Specification
-import com.ning.http.client.{Response, Request}
+import com.ning.http.client.{ Response, Request }
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class HttpProtocolConfigurationBuilderSpec extends Specification {
 
-  "http protocol configuration builder" should {
-    "support an optional extra request info extractor" in {
+	"http protocol configuration builder" should {
+		"support an optional extra request info extractor" in {
 
-      val expectedExtractor: (Request => List[String]) = (Request) => Nil
+			val expectedExtractor: (Request => List[String]) = (Request) => Nil
 
-      val builder = HttpProtocolConfigurationBuilder.httpConfig
-        .disableWarmUp
-        .requestInfoExtractor(expectedExtractor)
-      val config: HttpProtocolConfiguration = builder.build
+			val builder = HttpProtocolConfigurationBuilder.httpConfig
+				.disableWarmUp
+				.requestInfoExtractor(expectedExtractor)
+			val config: HttpProtocolConfiguration = builder.build
 
-      config.extraRequestInfoExtractor.get should beEqualTo(expectedExtractor)
-    }
+			config.extraRequestInfoExtractor.get should beEqualTo(expectedExtractor)
+		}
 
-    "support an optional extra response info extractor" in {
+		"support an optional extra response info extractor" in {
 
-      val expectedExtractor: (Response => List[String]) = (Response) => Nil
+			val expectedExtractor: (Response => List[String]) = (Response) => Nil
 
-      val builder = HttpProtocolConfigurationBuilder.httpConfig
-        .disableWarmUp
-        .responseInfoExtractor(expectedExtractor)
-      val config: HttpProtocolConfiguration = builder.build
+			val builder = HttpProtocolConfigurationBuilder.httpConfig
+				.disableWarmUp
+				.responseInfoExtractor(expectedExtractor)
+			val config: HttpProtocolConfiguration = builder.build
 
-      config.extraResponseInfoExtractor.get should beEqualTo(expectedExtractor)
-    }
-  }
+			config.extraResponseInfoExtractor.get should beEqualTo(expectedExtractor)
+		}
+
+		
+		"be able to support a base URL" in {
+			val url = "http://url"
+
+			val builder = HttpProtocolConfigurationBuilder
+				.httpConfig.baseURL(url)
+				.disableWarmUp
+
+			val config: HttpProtocolConfiguration = builder.build
+
+			Seq(config.baseURL.get, config.baseURL.get, config.baseURL.get) must be equalTo (Seq(url, url, url))
+		}
+		
+		"provide a Round-Robin strategy when multiple urls are provided" in {
+			val url1 = "http://url1"
+			val url2 = "http://url2"
+
+			val builder = HttpProtocolConfigurationBuilder
+				.httpConfig.baseURLs(List(url1, url2))
+				.disableWarmUp
+
+			val config: HttpProtocolConfiguration = builder.build
+
+			Seq(config.baseURL.get, config.baseURL.get, config.baseURL.get) must be equalTo (Seq(url1, url2, url1))
+		}
+
+	}
 }

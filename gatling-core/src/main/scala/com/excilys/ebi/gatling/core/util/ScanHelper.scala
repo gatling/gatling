@@ -22,9 +22,10 @@ import scala.collection.JavaConversions.enumerationAsScalaIterator
 import scala.tools.nsc.io.{ Path, Jar, Fileish, File }
 import scala.tools.nsc.io.Path.{ string2path, jfile2path }
 
+import org.apache.commons.io.IOUtils
+
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.twitter.io.StreamIO
 
 object ScanHelper {
 
@@ -89,7 +90,7 @@ case class FileishResource(fileish: Fileish) extends Resource {
 
 		use(fileish.input()) { input =>
 			use(target.toFile.outputStream(false)) { output =>
-				StreamIO.copy(input, output)
+				IOUtils.copy(input, output)
 			}
 		}
 	}

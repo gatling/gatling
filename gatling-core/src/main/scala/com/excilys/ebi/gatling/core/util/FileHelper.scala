@@ -15,6 +15,10 @@
  */
 package com.excilys.ebi.gatling.core.util
 
+import java.io.File
+
+import org.apache.commons.io.FileUtils
+
 import com.excilys.ebi.gatling.core.util.StringHelper.stripAccents
 
 /**
@@ -52,5 +56,25 @@ object FileHelper {
 			.replace('|', '_')
 			.replace("__", "_")
 			.toLowerCase)
+	}
+
+	/**
+	 * Create a new temporary directory, which will be deleted upon the exit of the VM.
+	 *
+	 * @returns File representing the directory
+	 */
+	def createTempDirectory(deleteAtExit: Boolean = true): File = {
+		var file = File.createTempFile("temp", "dir")
+		file.delete
+		file.mkdir
+
+		if (deleteAtExit)
+			Runtime.getRuntime.addShutdownHook(new Thread {
+				override def run {
+					FileUtils.deleteDirectory(file)
+				}
+			})
+
+		file
 	}
 }
