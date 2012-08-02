@@ -121,7 +121,7 @@
 				<artifactId>maven-license-plugin</artifactId>
 				<configuration>
 					<excludes>
-						<exclude>src/test/resources/gatling-core-1.2.1.pom</exclude>
+						<exclude>src/test/resources/*.*</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
