@@ -15,12 +15,32 @@
  */
 package com.excilys.ebi.gatling.core.util
 
-class RoundRobin[T](values: Iterable[T]) {
+import org.junit.runner.RunWith
+import org.specs2.mutable.Specification
+import org.specs2.runner.JUnitRunner
 
-	private val generator = if (values.isEmpty)
-		Iterator.empty
-	else
-		Stream.continually(values).flatten.iterator
+@RunWith(classOf[JUnitRunner])
+class RoundRobinSpec extends Specification {
 
-	def next(): T = generator.next
+	"round robin" should {
+
+		"work fine with non empty Iterable" in {
+
+			val rr = new RoundRobin(List(1, 2, 3))
+
+			rr.next should beEqualTo(1)
+			rr.next should beEqualTo(2)
+			rr.next should beEqualTo(3)
+			rr.next should beEqualTo(1)
+			rr.next should beEqualTo(2)
+			rr.next should beEqualTo(3)
+		}
+
+		"throw NoSuchElementException with iterating on an empty Iterable" in {
+
+			val rr = new RoundRobin(List.empty[Int])
+
+			rr.next should throwA[NoSuchElementException]
+		}
+	}
 }
