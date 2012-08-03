@@ -16,16 +16,15 @@
 package com.excilys.ebi.gatling.core.result.writer
 
 import java.lang.System.currentTimeMillis
-
 import scala.collection.mutable.{ LinkedHashMap, Map, HashMap }
 import scala.math.{ max, ceil, floor }
-
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
 import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, InitializeDataWriter, FlushDataWriter }
-
 import grizzled.slf4j.Logging
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.DateTime
 
 case class UserCounters(val totalCount: Int, var runningCount: Int, var doneCount: Int) {
 	def userStart() = runningCount += 1
@@ -38,6 +37,8 @@ case class RequestCounters(var successfulCount: Int, var failedCount: Int)
 
 object ConsoleSummary {
 	val newlineSeparator = System.getProperty("line.separator")
+	val iso8601Format = "yyyy-mm-dd HH:MM:SS"
+	val dateTimeFormat = DateTimeFormat.forPattern(iso8601Format)
 
 	def apply(elapsedTime: Long, usersCounters: Map[String, UserCounters], requestsCounters: Map[String, RequestCounters]) = {
 		val summary = new ConsoleSummary(80)
@@ -73,11 +74,15 @@ class ConsoleSummary(val outputLength: Int) {
 	private val blockSeparator = "=" * outputLength
 	private val requestPattern = "> %-" + (outputLength - 23) + "s  OK=%-6d KO=%-6d"
 	private val usersPattern = "          waiting:%-5d / running:%-5d / done:%-5d"
+	private val timePattern = "%s %" + (outputLength - ConsoleSummary.iso8601Format.length - 10) + "ds elapsed"
 
 	def newBlock(): Unit = buff.append(blockSeparator).append(ConsoleSummary.newlineSeparator)
 
 	//TODO should we add a timestamp ?
-	def appendTimeInfos(elapsedTimeInSec: Long): Unit = buff.append("Elapsed: ").append(elapsedTimeInSec).append("s").append(ConsoleSummary.newlineSeparator)
+	def appendTimeInfos(elapsedTimeInSec: Long): Unit = {
+		val now = ConsoleSummary.dateTimeFormat.print(new DateTime)
+		buff.append(timePattern.format(now, elapsedTimeInSec)).append(ConsoleSummary.newlineSeparator)
+	}
 
 	def appendSubTitle(title: String) =
 		buff.append("---- ").append(title).append(" ").append("-" * max(outputLength - title.length - 6, 0)).append(ConsoleSummary.newlineSeparator)
