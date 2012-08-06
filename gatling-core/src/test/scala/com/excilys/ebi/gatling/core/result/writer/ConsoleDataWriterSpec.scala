@@ -26,28 +26,28 @@ class ConsoleDataWriterSpec extends Specification {
 
 		"handle it correctly when all the users are waiting" in {
 			val consoleSummary = new ConsoleSummary(25)
-			consoleSummary.appendUsersProgressBar(UserCounters(11, 0, 0))
+			consoleSummary.appendUsersProgressBar(new UserCounters(11, 0, 0))
 
 			consoleSummary.toString() must beEqualTo("Users  : [          ]  0%\n")
 		}
 
 		"handle it correctly when all the users are running" in {
 			val consoleSummary = new ConsoleSummary(25)
-			consoleSummary.appendUsersProgressBar(UserCounters(11, 11, 0))
+			consoleSummary.appendUsersProgressBar(new UserCounters(11, 11, 0))
 
 			consoleSummary.toString() must beEqualTo("Users  : [----------]  0%\n")
 		}
 
 		"handle it correctly when all the users are done" in {
 			val consoleSummary = new ConsoleSummary(25)
-			consoleSummary.appendUsersProgressBar(UserCounters(11, 0,11))
+			consoleSummary.appendUsersProgressBar(new UserCounters(11, 0,11))
 
 			consoleSummary.toString() must beEqualTo("Users  : [##########]100%\n")
 		}
 
 		"handle it correctly when there are running and done users" in {
 			val consoleSummary = new ConsoleSummary(25)
-			consoleSummary.appendUsersProgressBar(UserCounters(11, 1, 10))
+			consoleSummary.appendUsersProgressBar(new UserCounters(11, 1, 10))
 
 			consoleSummary.toString() must beEqualTo("Users  : [#########-] 90%\n")
 		}
