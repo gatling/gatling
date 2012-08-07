@@ -17,111 +17,29 @@ package com.excilys.ebi.gatling.core.result.writer
 
 import java.lang.System.currentTimeMillis
 
-import scala.collection.mutable.{ LinkedHashMap, Map, HashMap }
-import scala.math.{ max, floor, ceil }
-
-import org.joda.time.format.DateTimeFormat
-import org.joda.time.DateTime
+import scala.collection.mutable.{ HashMap, LinkedHashMap }
 
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
-import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, InitializeDataWriter, FlushDataWriter }
-import com.excilys.ebi.gatling.core.util.StringHelper.{ END_OF_LINE, padRight, padLeft }
+import com.excilys.ebi.gatling.core.result.message.{ FlushDataWriter, InitializeDataWriter, RequestRecord }
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
 
 import grizzled.slf4j.Logging
 
-class UserCounters(val totalCount: Int, private[this] var _runningCount: Int = 0, private[this] var _doneCount: Int = 0) {
+class UserCounters(val totalCount: Int) {
+
+	private var _runningCount: Int = 0
+	private var _doneCount: Int = 0
+
 	def runningCount = _runningCount
 	def doneCount = _doneCount
 
-	def userStart = _runningCount += 1
-	def userDone: Unit = { _runningCount -= 1; _doneCount += 1 }
+	def userStart { _runningCount += 1 }
+	def userDone { _runningCount -= 1; _doneCount += 1 }
 	def waitingCount = totalCount - _runningCount - _doneCount
 }
 
 case class RequestCounters(var successfulCount: Int, var failedCount: Int)
-
-object ConsoleSummary {
-	val iso8601Format = "yyyy-mm-dd HH:MM:SS"
-	val dateTimeFormat = DateTimeFormat.forPattern(iso8601Format)
-
-	def apply(elapsedTime: Long, usersCounters: Map[String, UserCounters], requestsCounters: Map[String, RequestCounters]) = {
-		val summary = new ConsoleSummary(80)
-		summary.newBlock()
-
-		summary.appendTimeInfos(elapsedTime)
-
-		//Users
-		usersCounters.foreach {
-			case (scenarioName, usersStats) => {
-				summary.appendSubTitle(scenarioName)
-				summary.appendUsersProgressBar(usersStats)
-				summary.appendUserCounters(usersStats)
-			}
-		}
-
-		//Requests
-		summary.appendSubTitle("Requests")
-		requestsCounters.foreach {
-			case (actionName, requestCounters) => {
-				summary.appendRequestCounters(actionName, requestCounters)
-			}
-		}
-		summary.newBlock()
-
-		summary
-	}
-}
-
-class ConsoleSummary(val outputLength: Int) {
-	private val buff = new StringBuilder
-	private val blockSeparator = "=" * outputLength
-
-	def newBlock(): Unit = buff.append(blockSeparator).append(END_OF_LINE)
-
-	def appendTimeInfos(elapsedTimeInSec: Long): Unit = {
-		val now = ConsoleSummary.dateTimeFormat.print(new DateTime)
-		buff.append(now)
-			.append(padLeft(elapsedTimeInSec.toString, outputLength - ConsoleSummary.iso8601Format.length - 9))
-			.append("s elapsed")
-			.append(END_OF_LINE)
-	}
-
-	def appendSubTitle(title: String) =
-		buff.append("---- ").append(title).append(" ").append("-" * max(outputLength - title.length - 6, 0)).append(END_OF_LINE)
-
-	def appendUsersProgressBar(usersStats: UserCounters) = {
-		val width = outputLength - 15
-
-		val totalCount = usersStats.totalCount
-		val runningCount = usersStats.runningCount
-		val doneCount = usersStats.doneCount
-
-		val donePercent = floor(100 * doneCount.toDouble / totalCount).toInt
-		val done = floor(width * doneCount.toDouble / totalCount).toInt
-		val running = ceil(width * runningCount.toDouble / totalCount).toInt
-		val waiting = width - done - running
-
-		buff.append("Users  : [").append("#" * done).append("-" * running).append(" " * waiting).append("]")
-			.append(padLeft(donePercent.toString, 3)).append("%")
-			.append(END_OF_LINE)
-	}
-
-	def appendUserCounters(userCounters: UserCounters) =
-		buff.append("          waiting:").append(padRight(userCounters.waitingCount.toString, 5))
-			.append(" / running:").append(padRight(userCounters.runningCount.toString, 5))
-			.append(" / done:").append(padRight(userCounters.doneCount.toString, 5))
-			.append(END_OF_LINE)
-
-	def appendRequestCounters(actionName: String, requestCounters: RequestCounters) =
-		buff.append("> ").append(padRight(actionName, outputLength - 22))
-			.append(" OK=").append(padRight(requestCounters.successfulCount.toString, 6))
-			.append(" KO=").append(padRight(requestCounters.failedCount.toString, 6))
-			.append(END_OF_LINE)
-
-	override def toString = buff.toString()
-}
 
 class ConsoleDataWriter extends DataWriter with Logging {
 
@@ -141,9 +59,9 @@ class ConsoleDataWriter extends DataWriter with Logging {
 
 			context.become(initialized)
 
-			usersCounters.clear()
+			usersCounters.clear
 			scenarios.foreach(scenario => usersCounters.put(scenario.name, new UserCounters(scenario.nbUsers)))
-			requestsCounters.clear()
+			requestsCounters.clear
 
 		case unknown: AnyRef => error("Unsupported message type in uninilialized state" + unknown.getClass)
 		case unknown: Any => error("Unsupported message type in uninilialized state " + unknown)

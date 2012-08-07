@@ -26,30 +26,42 @@ class ConsoleDataWriterSpec extends Specification {
 
 		"handle it correctly when all the users are waiting" in {
 			val consoleSummary = new ConsoleSummary(25)
-			consoleSummary.appendUsersProgressBar(new UserCounters(11, 0, 0))
+			consoleSummary.appendUsersProgressBar(new UserCounters(11))
 
-			consoleSummary.toString() must beEqualTo("Users  : [          ]  0%\n")
+			consoleSummary.toString must beEqualTo("Users  : [          ]  0%\n")
 		}
 
 		"handle it correctly when all the users are running" in {
 			val consoleSummary = new ConsoleSummary(25)
-			consoleSummary.appendUsersProgressBar(new UserCounters(11, 11, 0))
+			val counters = new UserCounters(11)
+			for (i <- 1 to 11) counters.userStart
 
-			consoleSummary.toString() must beEqualTo("Users  : [----------]  0%\n")
+			consoleSummary.appendUsersProgressBar(counters)
+
+			consoleSummary.toString must beEqualTo("Users  : [----------]  0%\n")
 		}
 
 		"handle it correctly when all the users are done" in {
 			val consoleSummary = new ConsoleSummary(25)
-			consoleSummary.appendUsersProgressBar(new UserCounters(11, 0,11))
+			val counters = new UserCounters(11)
+			for (i <- 1 to 11) counters.userStart
+			for (i <- 1 to 11) counters.userDone
 
-			consoleSummary.toString() must beEqualTo("Users  : [##########]100%\n")
+			consoleSummary.appendUsersProgressBar(counters)
+
+			consoleSummary.toString must beEqualTo("Users  : [##########]100%\n")
 		}
 
 		"handle it correctly when there are running and done users" in {
 			val consoleSummary = new ConsoleSummary(25)
-			consoleSummary.appendUsersProgressBar(new UserCounters(11, 1, 10))
 
-			consoleSummary.toString() must beEqualTo("Users  : [#########-] 90%\n")
+			val counters = new UserCounters(11)
+			for (i <- 1 to 11) counters.userStart
+			for (i <- 1 to 10) counters.userDone
+
+			consoleSummary.appendUsersProgressBar(counters)
+
+			consoleSummary.toString must beEqualTo("Users  : [#########-] 90%\n")
 		}
 	}
 }

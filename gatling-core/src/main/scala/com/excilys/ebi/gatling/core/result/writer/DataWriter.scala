@@ -32,8 +32,8 @@ object DataWriter {
 	private val console: ActorRef = system.actorOf(Props(classOf[ConsoleDataWriter]))
 
 	private def dispatch(message: Any) {
-		dataWriter ! message
 		console ! message
+		dataWriter ! message
 	}
 
 	def init(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription], latch: CountDownLatch, encoding: String) = dispatch(InitializeDataWriter(runRecord, scenarios, latch, encoding))
