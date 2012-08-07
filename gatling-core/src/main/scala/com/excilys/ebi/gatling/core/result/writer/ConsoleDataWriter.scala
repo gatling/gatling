@@ -27,7 +27,7 @@ import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
 import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, InitializeDataWriter, FlushDataWriter }
-import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+import com.excilys.ebi.gatling.core.util.StringHelper.{ END_OF_LINE, padRight, padLeft }
 
 import grizzled.slf4j.Logging
 
@@ -76,17 +76,16 @@ object ConsoleSummary {
 
 class ConsoleSummary(val outputLength: Int) {
 	private val buff = new StringBuilder
-
 	private val blockSeparator = "=" * outputLength
-	private val requestPattern = "> %-" + (outputLength - 23) + "s  OK=%-6d KO=%-6d"
-	private val usersPattern = "          waiting:%-5d / running:%-5d / done:%-5d"
-	private val timePattern = "%s %" + (outputLength - ConsoleSummary.iso8601Format.length - 10) + "ds elapsed"
 
 	def newBlock(): Unit = buff.append(blockSeparator).append(END_OF_LINE)
 
 	def appendTimeInfos(elapsedTimeInSec: Long): Unit = {
 		val now = ConsoleSummary.dateTimeFormat.print(new DateTime)
-		buff.append(timePattern.format(now, elapsedTimeInSec)).append(END_OF_LINE)
+		buff.append(now)
+			.append(padLeft(elapsedTimeInSec.toString, outputLength - ConsoleSummary.iso8601Format.length - 9))
+			.append("s elapsed")
+			.append(END_OF_LINE)
 	}
 
 	def appendSubTitle(title: String) =
@@ -105,16 +104,20 @@ class ConsoleSummary(val outputLength: Int) {
 		val waiting = width - done - running
 
 		buff.append("Users  : [").append("#" * done).append("-" * running).append(" " * waiting).append("]")
-			.append("%3d" format (donePercent)).append("%")
+			.append(padLeft(donePercent.toString, 3)).append("%")
 			.append(END_OF_LINE)
 	}
 
 	def appendUserCounters(userCounters: UserCounters) =
-		buff.append(usersPattern format (userCounters.waitingCount.intValue(), userCounters.runningCount.intValue(), userCounters.doneCount.intValue()))
+		buff.append("          waiting:").append(padRight(userCounters.waitingCount.toString, 5))
+			.append(" / running:").append(padRight(userCounters.runningCount.toString, 5))
+			.append(" / done:").append(padRight(userCounters.doneCount.toString, 5))
 			.append(END_OF_LINE)
 
 	def appendRequestCounters(actionName: String, requestCounters: RequestCounters) =
-		buff.append(requestPattern format (actionName, requestCounters.successfulCount.intValue(), requestCounters.failedCount.intValue()))
+		buff.append("> ").append(padRight(actionName, outputLength - 22))
+			.append(" OK=").append(padRight(requestCounters.successfulCount.toString, 6))
+			.append(" KO=").append(padRight(requestCounters.failedCount.toString, 6))
 			.append(END_OF_LINE)
 
 	override def toString = buff.toString()

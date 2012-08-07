@@ -109,4 +109,26 @@ class StringHelperSpec extends Specification {
 			StringHelper.bytes2Hex(digestBytes) must beEqualTo("694ad6ef693b035d5207506efa2a6d39")
 		}
 	}
+
+	
+	"padLeft" should {
+		"pad correctly a two digits number" in {
+			StringHelper.padLeft("12", 6) must beEqualTo("    12")
+		}
+
+		"not pad when the number of digits is higher than the expected string size" in {
+			StringHelper.padLeft("123456", 4) must beEqualTo("123456")
+		}
+	}
+	
+	"padRight" should {
+		"pad correctly a two digits number" in {
+			StringHelper.padRight("12", 6) must beEqualTo("12    ")
+		}
+
+		"not pad when the number of digits is higher than the expected string size" in {
+			StringHelper.padRight("123456", 4) must beEqualTo("123456")
+		}
+	}
+
 }

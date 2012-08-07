@@ -19,6 +19,7 @@ import java.text.Normalizer
 import java.util.regex.Pattern
 
 import scala.collection.mutable
+import scala.math.{ log10, ceil, max }
 
 import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
 import com.excilys.ebi.gatling.core.util.NumberHelper.isNumeric
@@ -128,4 +129,14 @@ object StringHelper extends Logging {
 			buff.append("0")
 		buff.append(java.lang.Long.toString(b & 0xff, 16))
 	}.toString
+
+	def padLeft(s: String, size: Int): String = {
+		val paddingSize = s.length
+		" " * max(size - paddingSize, 0) + s
+	}
+
+	def padRight(s: String, size: Int): String = {
+		val paddingSize = s.length
+		s + " " * max(size - paddingSize, 0)
+	}
 }
