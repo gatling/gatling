@@ -19,6 +19,7 @@ import java.text.Normalizer
 import java.util.regex.Pattern
 
 import scala.collection.mutable
+import scala.math.{ log10, ceil, max }
 
 import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
 import com.excilys.ebi.gatling.core.util.NumberHelper.isNumeric

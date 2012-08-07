@@ -17,15 +17,14 @@ package com.excilys.ebi.gatling.core.result.writer
 
 import java.lang.System.currentTimeMillis
 import java.util.concurrent.CountDownLatch
-
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RequestRecord, RunRecord, InitializeDataWriter, FlushDataWriter }
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
-
 import akka.actor.{ Props, ActorRef, Actor }
+import com.excilys.ebi.gatling.core.result.message.ShortScenarioDescription
 
 object DataWriter {
 
@@ -33,11 +32,11 @@ object DataWriter {
 	private val console: ActorRef = system.actorOf(Props(classOf[ConsoleDataWriter]))
 
 	private def dispatch(message: Any) {
-		dataWriter ! message
 		console ! message
+		dataWriter ! message
 	}
 
-	def init(runRecord: RunRecord, totalUsersCount: Int, latch: CountDownLatch, encoding: String) = dispatch(InitializeDataWriter(runRecord, totalUsersCount, latch, encoding))
+	def init(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription], latch: CountDownLatch, encoding: String) = dispatch(InitializeDataWriter(runRecord, scenarios, latch, encoding))
 
 	def startUser(scenarioName: String, userId: Int) = {
 		val time = currentTimeMillis
