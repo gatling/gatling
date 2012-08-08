@@ -34,7 +34,7 @@ object JsonPathExtractor {
  * @constructor creates a new JsonPathExtractor
  * @param textContent the text where the search will be made
  */
-class JsonPathExtractor(textContent: String) {
+class JsonPathExtractor(textContent: Array[Byte]) {
 
 	val json = JsonPathExtractor.mapper.readValue(textContent, classOf[JsonNode])
 

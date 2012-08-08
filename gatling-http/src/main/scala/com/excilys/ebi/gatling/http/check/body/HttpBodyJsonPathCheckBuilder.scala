@@ -28,7 +28,7 @@ object HttpBodyJsonPathCheckBuilder {
 
 	private val HTTP_BODY_JSON_EXTRACTOR_CONTEXT_KEY = "HttpBodyJsonExtractor"
 
-	private def getCachedExtractor(response: ExtendedResponse) = getOrUpdateCheckContextAttribute(HTTP_BODY_JSON_EXTRACTOR_CONTEXT_KEY, new JsonPathExtractor(response.getResponseBody(configuration.encoding)))
+	private def getCachedExtractor(response: ExtendedResponse) = getOrUpdateCheckContextAttribute(HTTP_BODY_JSON_EXTRACTOR_CONTEXT_KEY, new JsonPathExtractor(response.getResponseBodyAsBytes))
 
 	private def findExtractorFactory(occurrence: Int): ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => getCachedExtractor(response).extractOne(occurrence)
 

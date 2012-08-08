@@ -24,7 +24,7 @@ import org.specs2.runner.JUnitRunner
 import com.excilys.ebi.gatling.core.check.extractor.jsonpath.JsonExtractorSpec.extractor
 
 object JsonExtractorSpec {
-	val document = Source.fromInputStream(getClass.getResourceAsStream("/test.json")).mkString
+	val document = Source.fromInputStream(getClass.getResourceAsStream("/test.json")).mkString.getBytes
 
 	val extractor = new JsonPathExtractor(document)
 }
