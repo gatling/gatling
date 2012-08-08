@@ -22,11 +22,11 @@ import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
 /**
- * Builder for HTTP status check
+ * Builder for current location (ie current request URL) check
  */
-object HttpStatusCheckBuilder {
+object CurrentLocationCheckBuilder {
 
-	private def findExtractorFactory: ExtractorFactory[ExtendedResponse, String, Int] = (response: ExtendedResponse) => (unused: String) => Some(response.getStatusCode)
+	private def findExtractorFactory: ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => (unused: String) => Some(response.request.getUrl)
 
-	def status = new HttpSingleCheckBuilder(findExtractorFactory, Session => EMPTY, StatusReceived)
+	def currentLocation = new HttpSingleCheckBuilder(findExtractorFactory, Session => EMPTY, StatusReceived)
 }

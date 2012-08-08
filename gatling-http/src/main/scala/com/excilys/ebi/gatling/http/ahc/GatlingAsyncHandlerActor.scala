@@ -80,7 +80,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 	handlerFactory: HandlerFactory, responseBuilderFactory: ExtendedResponseBuilderFactory)
 	extends Actor with Logging {
 
-	var responseBuilder = responseBuilderFactory(session)
+	var responseBuilder = responseBuilderFactory(request, session)
 
 	resetTimeout
 
@@ -154,7 +154,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 
 			def configureForNextRedirect(newSession: Session, newRequestName: String, newRequest: Request) {
 				this.session = newSession
-				this.responseBuilder = responseBuilderFactory(session)
+				this.responseBuilder = responseBuilderFactory(request, session)
 				this.requestName = newRequestName
 				this.request = newRequest
 			}

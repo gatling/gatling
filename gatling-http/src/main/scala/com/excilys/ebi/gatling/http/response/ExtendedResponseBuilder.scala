@@ -17,15 +17,14 @@ package com.excilys.ebi.gatling.http.response
 
 import java.lang.System.{ nanoTime, currentTimeMillis }
 import java.security.MessageDigest
-
 import scala.math.max
-
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.check.bodypart.ChecksumCheck
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 import com.ning.http.client.{ HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart }
 import com.ning.http.client.Response.ResponseBuilder
+import com.ning.http.client.Request
 
 object ExtendedResponseBuilder {
 
@@ -39,11 +38,11 @@ object ExtendedResponseBuilder {
 		}
 
 		val storeBodyPart = checks.exists(_.phase == CompletePageReceived)
-		(session: Session) => new ExtendedResponseBuilder(session, checksumChecks, storeBodyPart)
+		(request: Request, session: Session) => new ExtendedResponseBuilder(request, session, checksumChecks, storeBodyPart)
 	}
 }
 
-class ExtendedResponseBuilder(session: Session, checksumChecks: List[ChecksumCheck], storeBodyParts: Boolean) {
+class ExtendedResponseBuilder(request: Request, session: Session, checksumChecks: List[ChecksumCheck], storeBodyParts: Boolean) {
 
 	private val responseBuilder = new ResponseBuilder
 	private var checksums = Map.empty[String, MessageDigest]
@@ -96,6 +95,6 @@ class ExtendedResponseBuilder(session: Session, checksumChecks: List[ChecksumChe
 		_responseReceivingStartDate = max(_responseReceivingStartDate, _requestSendingEndDate)
 		_executionEndDate = max(_executionEndDate, _executionEndDate)
 		val response = Option(responseBuilder.build)
-		new ExtendedResponse(response, checksums, _executionStartDate, _requestSendingEndDate, _responseReceivingStartDate, _executionEndDate)
+		new ExtendedResponse(request, response, checksums, _executionStartDate, _requestSendingEndDate, _responseReceivingStartDate, _executionEndDate)
 	}
 }
