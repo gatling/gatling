@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit
 import scala.annotation.tailrec
 
 import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.CustomPauseActionBuilder.customPauseActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.ExpPauseActionBuilder.expPauseActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.IfActionBuilder.ifActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder.pauseActionBuilder
@@ -93,6 +94,14 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @return a new builder with a pause added to its actions
 	 */
 	def pauseExp(meanDuration: Long, durationUnit: TimeUnit = TimeUnit.SECONDS): B = newInstance((expPauseActionBuilder.withMeanDuration(meanDuration).withTimeUnit(durationUnit)) :: actionBuilders)
+
+    /**
+	 * Method used to define custom delay generation function
+	 *
+	 * @param delayGenerator a function that can be used to generate a delays for the pause action, in milliseconds
+	 * @return a new builder with a pause added to its actions
+	 */
+	def pauseCustom(delayGenerator: () => Long): B = newInstance((customPauseActionBuilder.withDelayGenerator(delayGenerator)) :: actionBuilders)
 
 	/**
 	 * Method used to add a conditional execution in the scenario

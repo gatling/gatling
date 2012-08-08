@@ -18,6 +18,7 @@ package com.excilys.ebi.gatling.core.result.writer
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
+import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 
 @RunWith(classOf[JUnitRunner])
 class ConsoleDataWriterSpec extends Specification {
@@ -28,7 +29,7 @@ class ConsoleDataWriterSpec extends Specification {
 			val consoleSummary = new ConsoleSummary(25)
 			consoleSummary.appendUsersProgressBar(new UserCounters(11))
 
-			consoleSummary.toString must beEqualTo("Users  : [          ]  0%\n")
+			consoleSummary.toString must beEqualTo("Users  : [          ]  0%" + END_OF_LINE)
 		}
 
 		"handle it correctly when all the users are running" in {
@@ -38,7 +39,7 @@ class ConsoleDataWriterSpec extends Specification {
 
 			consoleSummary.appendUsersProgressBar(counters)
 
-			consoleSummary.toString must beEqualTo("Users  : [----------]  0%\n")
+			consoleSummary.toString must beEqualTo("Users  : [----------]  0%" + END_OF_LINE)
 		}
 
 		"handle it correctly when all the users are done" in {
@@ -49,7 +50,7 @@ class ConsoleDataWriterSpec extends Specification {
 
 			consoleSummary.appendUsersProgressBar(counters)
 
-			consoleSummary.toString must beEqualTo("Users  : [##########]100%\n")
+			consoleSummary.toString must beEqualTo("Users  : [##########]100%" + END_OF_LINE)
 		}
 
 		"handle it correctly when there are running and done users" in {
@@ -61,7 +62,7 @@ class ConsoleDataWriterSpec extends Specification {
 
 			consoleSummary.appendUsersProgressBar(counters)
 
-			consoleSummary.toString must beEqualTo("Users  : [#########-] 90%\n")
+			consoleSummary.toString must beEqualTo("Users  : [#########-] 90%" + END_OF_LINE)
 		}
 	}
 }
