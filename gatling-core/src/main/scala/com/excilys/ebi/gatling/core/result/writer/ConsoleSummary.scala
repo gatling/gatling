@@ -25,7 +25,7 @@ import com.excilys.ebi.gatling.core.util.PaddableStringBuilder.toPaddable
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 
 object ConsoleSummary {
-	val iso8601Format = "yyyy-mm-dd HH:MM:SS"
+	val iso8601Format = "yyyy-MM-dd HH:mm:ss"
 	val dateTimeFormat = DateTimeFormat.forPattern(iso8601Format)
 
 	def apply(elapsedTime: Long, usersCounters: Map[String, UserCounters], requestsCounters: Map[String, RequestCounters]) = {
