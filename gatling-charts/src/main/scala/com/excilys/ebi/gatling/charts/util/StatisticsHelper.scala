@@ -191,13 +191,13 @@ object StatisticsHelper {
 			}
 		}
 
-		val responseTimes = records.foldLeft(Set.empty[Long]) { (times, record) =>
+		val responseTimes = records.foldLeft(List.empty[Long]) { (times, record) =>
 			if (isRealRequest(record) && isRecordWithRequestName(record, requestName) && isRecordWithStatus(record, status)) {
-				times + record.responseTime
+				record.responseTime :: times
 
 			} else
 				times
-		}.toSeq
+		}
 
 		val sortedRequests = Sorting.stableSort(responseTimes)
 
