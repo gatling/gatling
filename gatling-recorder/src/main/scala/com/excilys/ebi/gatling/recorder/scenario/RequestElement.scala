@@ -18,10 +18,11 @@ package com.excilys.ebi.gatling.recorder.scenario
 import java.net.URI
 import java.nio.charset.Charset
 
-import scala.collection.JavaConversions.{ mapAsScalaMap, asScalaBuffer }
+import scala.collection.JavaConversions.{ asScalaBuffer, mapAsScalaMap }
 
-import org.jboss.netty.handler.codec.http.{ QueryStringDecoder, HttpRequest }
-import org.jboss.netty.handler.codec.http.HttpHeaders.Names.{ CONTENT_TYPE, AUTHORIZATION }
+import org.jboss.netty.buffer.CompositeChannelBuffer
+import org.jboss.netty.handler.codec.http.{ HttpRequest, QueryStringDecoder }
+import org.jboss.netty.handler.codec.http.HttpHeaders.Names.{ AUTHORIZATION, CONTENT_TYPE }
 
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
 import com.ning.http.util.Base64
@@ -54,12 +55,18 @@ class RequestElement(val request: HttpRequest, val statusCode: Int, val simulati
 	val queryParams = convertParamsFromJavaToScala(new QueryStringDecoder(request.getUri, Charset.forName(configuration.encoding)).getParameters)
 
 	val (requestBody: Option[String], params: List[(String, String)]) = if (request.getContent.capacity > 0) {
+
+		val channelBuffer = request.getContent match {
+			case composite: CompositeChannelBuffer => composite.getBuffer(0)
+			case nonComposite => nonComposite
+		}
+
 		if (containsFormParams) {
-			val paramDecoder = new QueryStringDecoder("http://localhost/?" + new String(request.getContent.array, configuration.encoding), Charset.forName(configuration.encoding))
+			val paramDecoder = new QueryStringDecoder("http://localhost/?" + new String(channelBuffer.array, configuration.encoding), Charset.forName(configuration.encoding))
 			val params = convertParamsFromJavaToScala(paramDecoder.getParameters)
 			(None, params)
 		} else {
-			val requestBody = new String(request.getContent.array, configuration.encoding)
+			val requestBody = new String(channelBuffer.array, configuration.encoding)
 			(Some(requestBody), Nil)
 		}
 
