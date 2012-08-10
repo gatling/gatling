@@ -116,7 +116,7 @@
 		<commons-io.version>2.4</commons-io.version>
 		<jodd.version>3.3.7</jodd.version>
 		<asm.version>4.0</asm.version>
-		<redis.version>2.5</redis.version>
+		<redis.version>2.6</redis.version>
 		<junit.version>4.10</junit.version>
 		<specs2.version>1.11</specs2.version>
 
@@ -365,7 +365,7 @@
 			</dependency>
 			<dependency>
 				<groupId>net.debasishg</groupId>
-				<artifactId>redisclient_2.9.1</artifactId>
+				<artifactId>redisclient_2.9.2</artifactId>
 				<version>${redis.version}</version>
 			</dependency>
 			<dependency>
