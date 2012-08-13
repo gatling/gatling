@@ -17,18 +17,19 @@ package com.excilys.ebi.gatling.core.runner
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit.SECONDS
+
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.result.message.RunRecord
+import com.excilys.ebi.gatling.core.result.message.{ RunRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
-import com.excilys.ebi.gatling.core.scenario.configuration.{ ScenarioConfigurationBuilder, ScenarioConfiguration }
+import com.excilys.ebi.gatling.core.scenario.configuration.{ ScenarioConfiguration, ScenarioConfigurationBuilder }
 import com.excilys.ebi.gatling.core.session.Session
+
 import akka.actor.ActorRef
 import akka.util.Duration
 import akka.util.duration.longToDurationLong
 import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.core.result.message.ShortScenarioDescription
 
 class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioConfigurationBuilder]) extends Logging {
 
@@ -40,7 +41,7 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 
 	// A short description of the scenarios
 	val shortScenarioDescriptions = scenarioConfigurations.map(scenarioConfiguration => ShortScenarioDescription(scenarioConfiguration.scenarioBuilder.name, scenarioConfiguration.users))
-	
+
 	// latch for determining when to send a flush order to the DataWriter
 	val userLatch = new CountDownLatch(totalNumberOfUsers)
 
@@ -62,7 +63,7 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 	 * This method schedules the beginning of all scenarios
 	 */
 	def run {
-		
+
 		DataWriter.init(runRecord, shortScenarioDescriptions, dataWriterLatch, configuration.encoding)
 
 		debug("Launching All Scenarios")
@@ -99,11 +100,11 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 		} else {
 			// otherwise, schedule
 			val (rampValue, rampUnit) = configuration.ramp
-			// compute ramp period in millis so we can ramp less that one user per second
-			val period = rampUnit.toMillis(rampValue) / (configuration.users - 1)
+
+			val period = rampUnit.toMillis(rampValue).toDouble / (configuration.users - 1)
 
 			for (i <- 1 to configuration.users)
-				system.scheduler.scheduleOnce(period * (i - 1) milliseconds, scenario, buildSession(configuration, i))
+				system.scheduler.scheduleOnce((period * (i - 1)).toInt milliseconds, scenario, buildSession(configuration, i))
 		}
 	}
 
