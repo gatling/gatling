@@ -95,7 +95,8 @@
 		<encoding>UTF-8</encoding>
 		<scala.version>2.9.2</scala.version>
 		<ahc.version>1.7.5</ahc.version>
-		<akka.version>2.0.2</akka.version>
+		<akka.version>2.0.3</akka.version>
+		<config.version>0.3.1</config.version>
 		<jaxen.version>1.1.4</jaxen.version>
 		<xerces.version>2.11.0</xerces.version>
 		<xml-apis.version>1.4.01</xml-apis.version>
@@ -126,7 +127,7 @@
 		<maven-source-plugin.version>2.2</maven-source-plugin.version>
 		<maven-assembly-plugin.version>2.2.2</maven-assembly-plugin.version>
 		<maven-jar-plugin.version>2.4</maven-jar-plugin.version>
-		<scala-maven-plugin.version>3.1.0</scala-maven-plugin.version>
+		<scala-maven-plugin.version>3.0.2</scala-maven-plugin.version>
 		<maven-surefire-plugin.version>2.12</maven-surefire-plugin.version>
 		<maven-release-plugin.version>2.3.2</maven-release-plugin.version>
 		<maven-license-plugin.version>1.10.b1</maven-license-plugin.version>
@@ -214,9 +215,9 @@
 				<version>${akka.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.typesafe.akka</groupId>
-				<artifactId>akka-testkit</artifactId>
-				<version>${akka.version}</version>
+				<groupId>com.typesafe</groupId>
+				<artifactId>config</artifactId>
+				<version>${config.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>jaxen</groupId>
