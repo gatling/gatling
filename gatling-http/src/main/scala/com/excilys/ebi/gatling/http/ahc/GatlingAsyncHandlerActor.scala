@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.http.ahc
 
 import java.lang.System.currentTimeMillis
-import java.net.URLDecoder
+
 import scala.annotation.tailrec
 import scala.collection.JavaConversions.asScalaBuffer
 
@@ -24,22 +24,22 @@ import com.excilys.ebi.gatling.core.check.Check.applyChecks
 import com.excilys.ebi.gatling.core.check.Failure
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ RequestStatus, OK, KO }
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK, RequestStatus }
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames }
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
-import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.{ REDIRECT_STATUS_CODES, REDIRECTED_REQUEST_NAME_PATTERN }
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.config.{ HttpProtocolConfiguration, HttpConfig }
+import com.excilys.ebi.gatling.http.config.{ HttpConfig, HttpProtocolConfiguration }
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
-import com.excilys.ebi.gatling.http.response.{ ExtendedResponseBuilderFactory, ExtendedResponseBuilder, ExtendedResponse }
+import com.excilys.ebi.gatling.http.response.{ ExtendedResponse, ExtendedResponseBuilder, ExtendedResponseBuilderFactory }
 import com.excilys.ebi.gatling.http.util.HttpHelper.computeRedirectUrl
-import com.ning.http.client.{ RequestBuilder, Request, FluentStringsMap }
+import com.ning.http.client.{ FluentStringsMap, Request, RequestBuilder }
 
-import akka.actor.{ ReceiveTimeout, ActorRef, Actor }
+import akka.actor.{ Actor, ActorRef, ReceiveTimeout }
 import akka.util.duration.intToDurationInt
 import grizzled.slf4j.Logging
 
@@ -78,7 +78,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 	protocolConfiguration: Option[HttpProtocolConfiguration],
 	gatlingConfiguration: GatlingConfiguration,
 	handlerFactory: HandlerFactory, responseBuilderFactory: ExtendedResponseBuilderFactory)
-	extends Actor with Logging {
+		extends Actor with Logging {
 
 	var responseBuilder = responseBuilderFactory(request, session)
 
@@ -162,7 +162,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 			logRequest(OK, response)
 
 			val redirectUrl = computeRedirectUrl(response.getHeader(HeaderNames.LOCATION), request.getUrl)
-	
+
 			val requestBuilder = new RequestBuilder(request)
 				.setMethod("GET")
 				.setBodyEncoding(configuration.encoding)
@@ -177,7 +177,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 			newRequest.getHeaders.remove(HeaderNames.CONTENT_LENGTH)
 
 			val newRequestName = requestName match {
-				case REDIRECTED_REQUEST_NAME_PATTERN(requestBaseName, redirectCount) =>
+				case GatlingAsyncHandlerActor.REDIRECTED_REQUEST_NAME_PATTERN(requestBaseName, redirectCount) =>
 					new StringBuilder().append(requestBaseName).append(" Redirect ").append(redirectCount.toInt + 1).toString
 
 				case _ =>
@@ -204,7 +204,12 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 					checkResult match {
 						case Failure(errorMessage) =>
 							if (isDebugEnabled)
-								debug(new StringBuilder().append("Check on request '").append(requestName).append("' failed : ").append(errorMessage).append(", response was:").append(response.dump))
+								debug {
+									new StringBuilder().append("Check on request '").append(requestName).append("' failed : ")
+										.append(errorMessage).append(END_OF_LINE)
+										.append("request was:").append(request).append(END_OF_LINE)
+										.append("response was:").append(response.dump)
+								}
 							else
 								warn(new StringBuilder().append("Check on request '").append(requestName).append("' failed : ").append(errorMessage))
 
@@ -218,7 +223,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 
 		val sessionWithUpdatedCookies = CookieHandling.storeCookies(session, response.getUri, response.getCookies.toList)
 
-		if (REDIRECT_STATUS_CODES.contains(response.getStatusCode) && followRedirect)
+		if (GatlingAsyncHandlerActor.REDIRECT_STATUS_CODES.contains(response.getStatusCode) && followRedirect)
 			handleFollowRedirect(sessionWithUpdatedCookies)
 		else
 			checkPhasesRec(sessionWithUpdatedCookies, HttpPhase.phases)
