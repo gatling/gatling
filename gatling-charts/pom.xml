@@ -23,6 +23,10 @@
 			<groupId>org.fusesource.scalate</groupId>
 			<artifactId>scalate-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.twitter</groupId>
+			<artifactId>scalding_2.9.2</artifactId>
+		</dependency>
 
 		<!-- test -->
 		<dependency>
