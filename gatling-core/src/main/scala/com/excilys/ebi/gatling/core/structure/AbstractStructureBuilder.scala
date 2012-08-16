@@ -23,10 +23,11 @@ import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.ExpPauseActionBuilder.expPauseActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.IfActionBuilder.ifActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder.pauseActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.RandomSwitchBuilder.randomSwitchBuilder
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.feeder.Feeder
-import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
+import com.excilys.ebi.gatling.core.session.{ EvaluatableString, Session }
 import com.excilys.ebi.gatling.core.structure.loop.LoopBuilder
 
 import akka.actor.ActorRef
@@ -145,6 +146,16 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @return a new builder with a conditional execution added to its actions
 	 */
 	private def doIf(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]): B = newInstance(ifActionBuilder.withCondition(condition).withThenNext(thenNext).withElseNext(elseNext) :: actionBuilders)
+
+	/**
+	 * Add a switch in the chain. Every possible subchain is defined with a percentage.
+	 * Switch is selected randomly. If no switch is selected (ie random number exceeds percentages sum), switch is bypassed.
+	 * Percentages sum can't exceed 100%.
+	 *
+	 * @param possibilities the possible subchains
+	 * @return a new builder with a random switch added to its actions
+	 */
+	def randomSwitch(possibility: (ChainBuilder, Int), possibilities: (ChainBuilder, Int)*): B = newInstance(randomSwitchBuilder.withPossibilities(possibility :: possibilities.toList) :: actionBuilders)
 
 	/**
 	 * Method used to insert an existing chain inside the current scenario
