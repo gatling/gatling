@@ -17,6 +17,7 @@
 		<module>gatling-charts</module>
 		<module>gatling-bundle</module>
 		<module>gatling-maven-plugin</module>
+		<module>gatling-log</module>
 	</modules>
 
 	<licenses>
@@ -84,6 +85,17 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
+		<repository>
+			<id>conjars.org</id>
+			<name>Conjars</name>
+			<url>http://conjars.org/repo</url>
+			<releases>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
 		<!-- http://repo.typesafe.com/typesafe/releases -->
 		<!-- http://repo.jenkins-ci.org/content/repositories/releases -->
 	</repositories>
@@ -120,6 +132,10 @@
 		<redis.version>2.6</redis.version>
 		<junit.version>4.10</junit.version>
 		<specs2.version>1.12.1</specs2.version>
+		<scalding.version>0.7.3</scalding.version>
+		<cascading.version>2.0.4</cascading.version>
+		<guava.version>13.0</guava.version>
+		<jgrapht.version>0.8.2</jgrapht.version>
 
 		<maven2.version>2.2.1</maven2.version>
 		<maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
@@ -166,6 +182,11 @@
 			<dependency>
 				<groupId>com.excilys.ebi.gatling</groupId>
 				<artifactId>gatling-charts</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.excilys.ebi.gatling</groupId>
+				<artifactId>gatling-log</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -384,6 +405,142 @@
 				<groupId>org.specs2</groupId>
 				<artifactId>specs2_2.9.2</artifactId>
 				<version>${specs2.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.twitter</groupId>
+				<artifactId>scalding_2.9.2</artifactId>
+				<version>${scalding.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>cascading.kryo</groupId>
+						<artifactId>cascading.kryo</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>com.twitter</groupId>
+						<artifactId>meat-locker</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>cascading</groupId>
+				<artifactId>cascading-core</artifactId>
+				<version>${cascading.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.codehaus.janino</groupId>
+						<artifactId>janino</artifactId>
+					</exclusion>
+					<exclusion>
+						<artifactId>riffle</artifactId>
+						<groupId>riffle</groupId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.slf4j</groupId>
+						<artifactId>slf4j-log4j12</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>log4j</groupId>
+						<artifactId>log4j</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>cascading</groupId>
+				<artifactId>cascading-local</artifactId>
+				<version>${cascading.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>cascading</groupId>
+				<artifactId>cascading-hadoop</artifactId>
+				<version>${cascading.version}</version>
+				<exclusions>
+					<exclusion>
+						<artifactId>commons-cli</artifactId>
+						<groupId>commons-cli</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>xmlenc</artifactId>
+						<groupId>xmlenc</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>commons-codec</artifactId>
+						<groupId>commons-codec</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>commons-httpclient</artifactId>
+						<groupId>commons-httpclient</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>commons-math</artifactId>
+						<groupId>org.apache.commons</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>commons-configuration</artifactId>
+						<groupId>commons-configuration</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>commons-net</artifactId>
+						<groupId>commons-net</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>jetty</artifactId>
+						<groupId>org.mortbay.jetty</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>jetty-util</artifactId>
+						<groupId>org.mortbay.jetty</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>jasper-runtime</artifactId>
+						<groupId>tomcat</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>jasper-compiler</artifactId>
+						<groupId>tomcat</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>jsp-api-2.1</artifactId>
+						<groupId>org.mortbay.jetty</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>jsp-2.1</artifactId>
+						<groupId>org.mortbay.jetty</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>commons-el</artifactId>
+						<groupId>commons-el</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>jets3t</artifactId>
+						<groupId>net.java.dev.jets3t</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>kfs</artifactId>
+						<groupId>net.sf.kosmosfs</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>hsqldb</artifactId>
+						<groupId>hsqldb</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>oro</artifactId>
+						<groupId>oro</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>jackson-mapper-asl</artifactId>
+						<groupId>org.codehaus.jackson</groupId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>${guava.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>thirdparty</groupId>
+				<artifactId>jgrapht-jdk1.6</artifactId>
+				<version>${jgrapht.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

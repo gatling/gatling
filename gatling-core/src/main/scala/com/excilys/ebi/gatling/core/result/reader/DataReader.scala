@@ -16,29 +16,54 @@
 package com.excilys.ebi.gatling.core.result.reader
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RunRecord }
+import runtime.RichInt
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.RequestStatus
-import com.excilys.ebi.gatling.core.result.message.RunRecord
 
 object DataReader {
-	def newInstance(runOn: String) = configuration.dataReaderClass.getConstructor(classOf[String]).newInstance(runOn)
+	val NO_PLOT_MAGIC_VALUE = -1
+
+	def newInstance(runOn: String, maxPlotPerSerie: Int) =
+		configuration.dataReaderClass.getConstructor(classOf[String], classOf[RichInt]).newInstance(runOn, new RichInt(maxPlotPerSerie))
 }
 
 abstract class DataReader(runUuid: String) {
 
 	def runRecord: RunRecord
+
 	def requestNames: Seq[String]
+
 	def scenarioNames: Seq[String]
+
 	def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): Seq[(Long, Long)]
-	def numberOfEventsPerSecond(event: ChartRequestRecord => Long, status: Option[RequestStatus] = None, requestName: Option[String] = None): Map[Long, Long]
+
+	def numberOfRequestsPerSecond(status: Option[RequestStatus] = None, requestName: Option[String] = None): Seq[(Long, Long)]
+
+	def numberOfTransactionsPerSecond(status: Option[RequestStatus] = None, requestName: Option[String] = None): Seq[(Long, Long)]
+
 	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String] = None): (Seq[(Long, Long)], Seq[(Long, Long)])
+
 	def percentiles(percentage1: Double, percentage2: Double, status: Option[RequestStatus] = None, requestName: Option[String] = None): (Long, Long)
+
 	def minResponseTime(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
+
 	def maxResponseTime(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
+
 	def countRequests(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
+
 	def meanResponseTime(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
+
 	def meanLatency(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
-	def meanNumberOfRequestsPerSecond(status: Option[RequestStatus], requestName: Option[String]) : Long
+
+	def meanNumberOfRequestsPerSecond(status: Option[RequestStatus], requestName: Option[String]): Long
+
 	def responseTimeStandardDeviation(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
-	def numberOfRequestInResponseTimeRange(lowerBound: Long, higherBound: Long, requestName: Option[String] = None): Seq[(String, Long)]
-	def requestRecordsGroupByExecutionStartDate(requestName: String): Seq[(Long, Seq[ChartRequestRecord])]
+
+	def numberOfRequestInResponseTimeRange(lowerBound: Int, higherBound: Int, requestName: Option[String] = None): Seq[(String, Long)]
+
+	def responseTimeGroupByExecutionStartDate(status: RequestStatus, requestName: String): Seq[(Long, Long)]
+
+	def latencyGroupByExecutionStartDate(status: RequestStatus, requestName: String): Seq[(Long, Long)]
+
+	def requestAgainstResponseTime(status: RequestStatus.RequestStatus, requestName: String): Seq[(Long, Long)]
 }

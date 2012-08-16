@@ -15,9 +15,9 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import com.excilys.ebi.gatling.charts.component.{ StatisticsTextComponent, Statistics, RequestStatistics, ComponentLibrary }
+import com.excilys.ebi.gatling.charts.component.{ Statistics, RequestStatistics, ComponentLibrary }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.reader.{ DataReader, ChartRequestRecord }
+import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ jsStatsFile, tsvStatsFile, GLOBAL_PAGE_NAME }
 import com.excilys.ebi.gatling.charts.template.StatsJsTemplate
@@ -73,7 +73,7 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 
 				val groupedCounts = dataReader
 					.numberOfRequestInResponseTimeRange(configuration.chartingIndicatorsLowerBound, configuration.chartingIndicatorsHigherBound, requestName)
-					.map { case (name, count) => (name, count, count * 100 / totalCount) }
+					.map { case (name, count) => (name, count, count * 100L / totalCount) }
 
 				(name -> RequestStatistics(name, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, groupedCounts, meanNumberOfRequestsPerSecondStatistics))
 		}.toMap
