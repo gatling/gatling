@@ -19,13 +19,13 @@ import scala.collection.JavaConversions.asJavaCollection
 
 import com.excilys.ebi.gatling.core.Predef.stringToSessionFunction
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
-import com.excilys.ebi.gatling.core.util.StringHelper.{ EL_START, EL_END }
-import com.excilys.ebi.gatling.http.Headers.{ Values => HeaderValues, Names => HeaderNames }
+import com.excilys.ebi.gatling.core.session.{ EvaluatableString, Session }
+import com.excilys.ebi.gatling.core.util.StringHelper.{ EL_END, EL_START }
+import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
-import com.ning.http.client.{ StringPart, RequestBuilder, Realm, FluentStringsMap, FilePart }
+import com.ning.http.client.{ FluentStringsMap, Realm, RequestBuilder, StringPart }
 
 /**
  * This class serves as model to HTTP request with a body and parameters
@@ -46,7 +46,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	params: List[HttpParam],
 	headers: Map[String, EvaluatableString],
 	body: Option[HttpRequestBody],
-	uploadedFile: Option[FilePart],
+	uploadedFile: Option[UploadedFile],
 	realm: Option[Session => Realm],
 	checks: List[HttpCheck[_]])
 		extends AbstractHttpRequestWithBodyBuilder[B](requestName, method, url, queryParams, headers, body, realm, checks) {
@@ -69,7 +69,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		params: List[HttpParam],
 		headers: Map[String, EvaluatableString],
 		body: Option[HttpRequestBody],
-		uploadedFile: Option[FilePart],
+		uploadedFile: Option[UploadedFile],
 		realm: Option[Session => Realm],
 		checks: List[HttpCheck[_]]): B
 
@@ -87,9 +87,9 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
 		val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
 		uploadedFile match {
-			case Some(filePart) =>
+			case Some(uploadedFile) =>
 				configureStringParts(requestBuilder, session)
-				configureBodyPart(requestBuilder, filePart)
+				configureBodyPart(requestBuilder, uploadedFile, session)
 			case None => configureParams(requestBuilder, session)
 		}
 
@@ -104,9 +104,9 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 
 	def param(paramKey: String): B = param(paramKey, EL_START + paramKey + EL_END)
 
-	def upload(paramKey: String, fileName: String, mimeType: String = HeaderValues.APPLICATION_OCTET_STREAM, charset: String = configuration.encoding): B =
+	def upload(paramKey: EvaluatableString, fileName: EvaluatableString, mimeType: String = HeaderValues.APPLICATION_OCTET_STREAM, charset: String = configuration.encoding): B =
 		header(HeaderNames.CONTENT_TYPE, HeaderValues.MULTIPART_FORM_DATA)
-			.newInstance(requestName, url, queryParams, params, headers, body, Some(UploadedFile(paramKey, fileName, mimeType, charset)), realm, checks)
+			.newInstance(requestName, url, queryParams, params, headers, body, Some(new UploadedFile(paramKey, fileName, mimeType, charset)), realm, checks)
 
 	/**
 	 * This method adds the parameters to the request builder
@@ -129,12 +129,13 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		}
 	}
 
-	private def configureBodyPart(requestBuilder: RequestBuilder, filePart: FilePart) {
+	private def configureBodyPart(requestBuilder: RequestBuilder, uploadedFile: UploadedFile, session: Session) {
+		val filePart = uploadedFile.filePart(session)
 		requestBuilder.addBodyPart(filePart)
 	}
 
 	private def configureStringParts(requestBuilder: RequestBuilder, session: Session) {
-		params.foreach {
+		params.foreach { 
 			case (key, value) => requestBuilder.addBodyPart(new StringPart(key(session), value(session)))
 		}
 	}

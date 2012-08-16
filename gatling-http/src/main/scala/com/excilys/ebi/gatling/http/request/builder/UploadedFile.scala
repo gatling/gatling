@@ -20,21 +20,22 @@ import java.io.File
 import scala.tools.nsc.io.Path.string2path
 
 import com.excilys.ebi.gatling.core.config.GatlingFiles
+import com.excilys.ebi.gatling.core.session.{ EvaluatableString, Session }
 import com.excilys.ebi.gatling.core.util.PathHelper.path2string
 import com.ning.http.client.FilePart
 
-object UploadedFile {
-	def apply(paramKey: String, fileName: String, mimeType: String, charset: String) = {
+class UploadedFile(paramKeyFunction: EvaluatableString, fileNameFunction: EvaluatableString, mimeType: String, charset: String) {
+	def filePart(session: Session) = {
+
+		val paramKey = paramKeyFunction(session)
+		val fileName = fileNameFunction(session)
+
 		val path = GatlingFiles.requestBodiesDirectory / fileName
 		val file = new File(path)
-		if (!file.exists)
-			throw new IllegalArgumentException("Uploaded file %s does not exist".format(path))
 
-		if (!file.isFile)
-			throw new IllegalArgumentException("Uploaded file %s is not a real file".format(path))
-
-		if (!file.canRead)
-			throw new IllegalArgumentException("Uploaded file %s can't be read".format(path))
+		if (!file.exists) throw new IllegalArgumentException("Uploaded file %s does not exist".format(path))
+		if (!file.isFile) throw new IllegalArgumentException("Uploaded file %s is not a real file".format(path))
+		if (!file.canRead) throw new IllegalArgumentException("Uploaded file %s can't be read".format(path))
 
 		new FilePart(paramKey, file, mimeType, charset)
 	}
