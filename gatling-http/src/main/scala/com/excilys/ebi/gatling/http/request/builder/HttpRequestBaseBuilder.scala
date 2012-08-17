@@ -76,14 +76,14 @@ class HttpRequestBaseBuilder(val requestName: String) {
 	 * @param url the url on which this request will be made
 	 * @param interpolations session keys for interpolation
 	 */
-	def post(url: String) = new PostHttpRequestBuilder(requestName, parseEvaluatable(url), Nil, Nil, Map.empty, None, None, None, Nil)
+	def post(url: String) = new PostHttpRequestBuilder(requestName, parseEvaluatable(url), Nil, Nil, Map.empty, None, Nil, None, Nil)
 
 	/**
 	 * Starts the definition of an HTTP request with word POST
 	 *
 	 * @param f the function returning the url of this request
 	 */
-	def post(f: EvaluatableString) = new PostHttpRequestBuilder(requestName, f, Nil, Nil, Map.empty, None, None, None, Nil)
+	def post(f: EvaluatableString) = new PostHttpRequestBuilder(requestName, f, Nil, Nil, Map.empty, None, Nil, None, Nil)
 
 	/**
 	 * Starts the definition of an HTTP request with word PUT
