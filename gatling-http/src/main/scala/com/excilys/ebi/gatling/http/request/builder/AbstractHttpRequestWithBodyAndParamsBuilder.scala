@@ -86,19 +86,16 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
 		val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
-		uploadedFiles match {
-            case Nil => configureParams(requestBuilder, session)
-            case List(_*) =>
-				configureStringParts(requestBuilder, session)
-				configureBodyPart(requestBuilder, uploadedFiles, session)
+		if (uploadedFiles.isEmpty)
+			configureParams(requestBuilder, session)
+		else {
+			configureStringParts(requestBuilder, session)
+			configureBodyParts(requestBuilder, uploadedFiles, session)
 		}
 
 		requestBuilder
 	}
 
-	/**
-	 *
-	 */
 	def param(key: EvaluatableString, value: EvaluatableString): B =
 		newInstance(requestName, url, queryParams, (key, value) :: params, headers, body, uploadedFiles, realm, checks)
 
@@ -129,17 +126,15 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		}
 	}
 
-	private def configureBodyPart(requestBuilder: RequestBuilder, uploadedFile: List[UploadedFile], session: Session) {
-    uploadedFile.foreach {
-      case (file) => {
-        val filePart = file.filePart(session)
-        requestBuilder.addBodyPart(filePart)
-      }
-    }
+	private def configureBodyParts(requestBuilder: RequestBuilder, uploadedFiles: List[UploadedFile], session: Session) {
+		uploadedFiles.foreach { file =>
+			val filePart = file.filePart(session)
+			requestBuilder.addBodyPart(filePart)
+		}
 	}
 
 	private def configureStringParts(requestBuilder: RequestBuilder, session: Session) {
-		params.foreach { 
+		params.foreach {
 			case (key, value) => requestBuilder.addBodyPart(new StringPart(key(session), value(session)))
 		}
 	}
