@@ -20,6 +20,7 @@ import com.excilys.ebi.gatling.core.config.GatlingConfiguration
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.ahc.{ HandlerFactory, GatlingAsyncHandlerActor, GatlingAsyncHandler }
+import com.excilys.ebi.gatling.http.cache.CacheHandling
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpConfig
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
@@ -27,7 +28,6 @@ import com.excilys.ebi.gatling.http.referer.RefererHandling
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 import com.excilys.ebi.gatling.http.response.ExtendedResponseBuilder
 import com.ning.http.client.{ AsyncHttpClientConfig, AsyncHttpClient }
-
 import akka.actor.{ Props, ActorRef }
 import grizzled.slf4j.Logging
 
@@ -93,15 +93,24 @@ class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: Abs
 	val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks)
 	val asyncHandlerActorFactory = GatlingAsyncHandlerActor.newAsyncHandlerActorFactory(checks, next, requestName, protocolConfiguration, gatlingConfiguration)
 	val client = HTTP_CLIENT
+	val caching = protocolConfiguration.map(_.caching).getOrElse(true)
 
 	def execute(session: Session) {
-		info("Sending Request '" + requestName + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
 
 		val request = requestBuilder.build(session, protocolConfiguration)
 		val newSession = RefererHandling.storeReferer(request, session, protocolConfiguration)
-		val actor = context.actorOf(Props(asyncHandlerActorFactory(request, newSession)))
-		val ahcHandler = handlerFactory(requestName, actor)
-		client.executeRequest(request, ahcHandler)
+
+		if (caching && CacheHandling.isCached(session, request)) {
+			info("Bypassing cached Request '" + requestName + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
+			next ! newSession
+
+		} else {
+			info("Sending Request '" + requestName + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
+
+			val actor = context.actorOf(Props(asyncHandlerActorFactory(request, newSession)))
+			val ahcHandler = handlerFactory(requestName, actor)
+			client.executeRequest(request, ahcHandler)
+		}
 	}
 
 	override def preRestart(reason: Throwable, message: Option[Any]) {

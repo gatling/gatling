@@ -86,7 +86,6 @@
 		</repository>
 		<!-- http://repo.typesafe.com/typesafe/releases -->
 		<!-- http://repo.jenkins-ci.org/content/repositories/releases -->
-		<!-- http://maven.twttr.com -->
 	</repositories>
 
 	<properties>

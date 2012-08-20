@@ -30,6 +30,7 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames }
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
+import com.excilys.ebi.gatling.http.cache.CacheHandling
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.{ HttpConfig, HttpProtocolConfiguration }
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
@@ -55,6 +56,7 @@ object GatlingAsyncHandlerActor {
 		gatlingConfiguration: GatlingConfiguration) = {
 
 		val followRedirect = protocolConfiguration.map(_.followRedirectEnabled).getOrElse(true)
+		val caching = protocolConfiguration.map(_.caching).getOrElse(true)
 		val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks)
 		val responseBuilderFactory = ExtendedResponseBuilder.newExtendedResponseBuilder(checks)
 
@@ -66,6 +68,7 @@ object GatlingAsyncHandlerActor {
 				requestName,
 				request,
 				followRedirect,
+				caching,
 				protocolConfiguration,
 				gatlingConfiguration,
 				handlerFactory,
@@ -73,12 +76,18 @@ object GatlingAsyncHandlerActor {
 	}
 }
 
-class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]], next: ActorRef,
-	var requestName: String, var request: Request, followRedirect: Boolean,
-	protocolConfiguration: Option[HttpProtocolConfiguration],
-	gatlingConfiguration: GatlingConfiguration,
-	handlerFactory: HandlerFactory, responseBuilderFactory: ExtendedResponseBuilderFactory)
-		extends Actor with Logging {
+class GatlingAsyncHandlerActor(
+		var session: Session,
+		checks: List[HttpCheck[_]],
+		next: ActorRef,
+		var requestName: String,
+		var request: Request,
+		followRedirect: Boolean,
+		caching: Boolean,
+		protocolConfiguration: Option[HttpProtocolConfiguration],
+		gatlingConfiguration: GatlingConfiguration,
+		handlerFactory: HandlerFactory,
+		responseBuilderFactory: ExtendedResponseBuilderFactory) extends Actor with Logging {
 
 	var responseBuilder = responseBuilderFactory(request, session)
 
@@ -225,8 +234,12 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 
 		if (GatlingAsyncHandlerActor.REDIRECT_STATUS_CODES.contains(response.getStatusCode) && followRedirect)
 			handleFollowRedirect(sessionWithUpdatedCookies)
-		else
-			checkPhasesRec(sessionWithUpdatedCookies, HttpPhase.phases)
+
+		else {
+			val sessionWithUpdatedCache = if (caching) CacheHandling.cache(sessionWithUpdatedCookies, request, response) else sessionWithUpdatedCookies
+
+			checkPhasesRec(sessionWithUpdatedCache, HttpPhase.phases)
+		}
 	}
 
 	/**
