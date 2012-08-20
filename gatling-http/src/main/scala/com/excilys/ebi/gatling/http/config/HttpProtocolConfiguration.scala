@@ -18,13 +18,15 @@ package com.excilys.ebi.gatling.http.config
 import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
 import com.excilys.ebi.gatling.core.util.RoundRobin
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
-import com.ning.http.client.{ Request, ProxyServer }
+import com.ning.http.client.{ ProxyServer, Request }
 
 /**
  * HttpProtocolConfiguration class companion
  */
 object HttpProtocolConfiguration {
 	val HTTP_PROTOCOL_TYPE = "httpProtocol"
+
+	val DEFAULT_HTTP_PROTOCOL_CONFIG = HttpProtocolConfiguration(None, None, None, true, true, true, Map.empty, None, None)
 }
 
 /**
@@ -39,7 +41,7 @@ case class HttpProtocolConfiguration(
 		securedProxy: Option[ProxyServer],
 		followRedirectEnabled: Boolean,
 		automaticRefererEnabled: Boolean,
-		caching: Boolean,
+		cachingEnabled: Boolean,
 		baseHeaders: Map[String, String],
 		extraRequestInfoExtractor: Option[(Request => List[String])],
 		extraResponseInfoExtractor: Option[(ExtendedResponse => List[String])]) extends ProtocolConfiguration {

@@ -22,6 +22,7 @@ import scala.annotation.tailrec
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
 import com.excilys.ebi.gatling.http.Headers
+import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.ning.http.client.{ Request, Response }
 import com.ning.http.util.AsyncHttpProviderUtils
 
@@ -67,19 +68,19 @@ object CacheHandling extends Logging {
 		parse(cleanedString, sdfs)
 	}
 
-	def isCached(session: Session, request: Request) = getCache(session).contains(request.getUrl)
+	def isCached(httpProtocolConfiguration: HttpProtocolConfiguration, session: Session, request: Request) = httpProtocolConfiguration.cachingEnabled && getCache(session).contains(request.getUrl)
 
-	def cache(session: Session, request: Request, response: Response): Session = {
+	def cache(httpProtocolConfiguration: HttpProtocolConfiguration, session: Session, request: Request, response: Response): Session = {
 
-		def isResponseCacheable(response: Response) =
+		def isResponseCacheable(response: Response) = httpProtocolConfiguration.cachingEnabled &&
 			Option(response.getHeader(Headers.Names.CACHE_CONTROL))
-				.map(!_.contains(Headers.Values.NO_CACHE)) // simplification: consider value != no-cache as cache forever
-				.getOrElse {
-					// if no Cache-Control defined, look for Expires header
-					Option(response.getHeader(Headers.Names.EXPIRES))
-						.map(convertExpireField(_) > System.currentTimeMillis) // simplification: consider future expiring date as cache forever
-						.getOrElse(false) // if neither CC nor Expires, don't cache
-				}
+			.map(!_.contains(Headers.Values.NO_CACHE)) // simplification: consider value != no-cache as cache forever
+			.getOrElse {
+				// if no Cache-Control defined, look for Expires header
+				Option(response.getHeader(Headers.Names.EXPIRES))
+					.map(convertExpireField(_) > System.currentTimeMillis) // simplification: consider future expiring date as cache forever
+					.getOrElse(false) // if neither CC nor Expires, don't cache
+			}
 
 		if (isResponseCacheable(response)) {
 

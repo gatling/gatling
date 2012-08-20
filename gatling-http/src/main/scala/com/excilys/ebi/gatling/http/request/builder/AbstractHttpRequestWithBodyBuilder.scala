@@ -59,7 +59,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	checks: List[HttpCheck[_]])
 		extends AbstractHttpRequestBuilder[B](requestName, method, url, queryParams, headers, realm, checks) {
 
-	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
+	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): RequestBuilder = {
 		val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
 		configureBody(requestBuilder, body, session)
 		requestBuilder

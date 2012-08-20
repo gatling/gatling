@@ -52,11 +52,9 @@ object GatlingAsyncHandlerActor {
 		checks: List[HttpCheck[_]],
 		next: ActorRef,
 		requestName: String,
-		protocolConfiguration: Option[HttpProtocolConfiguration],
+		protocolConfiguration: HttpProtocolConfiguration,
 		gatlingConfiguration: GatlingConfiguration) = {
 
-		val followRedirect = protocolConfiguration.map(_.followRedirectEnabled).getOrElse(true)
-		val caching = protocolConfiguration.map(_.caching).getOrElse(true)
 		val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks)
 		val responseBuilderFactory = ExtendedResponseBuilder.newExtendedResponseBuilder(checks)
 
@@ -67,8 +65,6 @@ object GatlingAsyncHandlerActor {
 				next,
 				requestName,
 				request,
-				followRedirect,
-				caching,
 				protocolConfiguration,
 				gatlingConfiguration,
 				handlerFactory,
@@ -82,9 +78,7 @@ class GatlingAsyncHandlerActor(
 		next: ActorRef,
 		var requestName: String,
 		var request: Request,
-		followRedirect: Boolean,
-		caching: Boolean,
-		protocolConfiguration: Option[HttpProtocolConfiguration],
+		protocolConfiguration: HttpProtocolConfiguration,
 		gatlingConfiguration: GatlingConfiguration,
 		handlerFactory: HandlerFactory,
 		responseBuilderFactory: ExtendedResponseBuilderFactory) extends Actor with Logging {
@@ -232,11 +226,11 @@ class GatlingAsyncHandlerActor(
 
 		val sessionWithUpdatedCookies = CookieHandling.storeCookies(session, response.getUri, response.getCookies.toList)
 
-		if (GatlingAsyncHandlerActor.REDIRECT_STATUS_CODES.contains(response.getStatusCode) && followRedirect)
+		if (GatlingAsyncHandlerActor.REDIRECT_STATUS_CODES.contains(response.getStatusCode) && protocolConfiguration.followRedirectEnabled)
 			handleFollowRedirect(sessionWithUpdatedCookies)
 
 		else {
-			val sessionWithUpdatedCache = if (caching) CacheHandling.cache(sessionWithUpdatedCookies, request, response) else sessionWithUpdatedCookies
+			val sessionWithUpdatedCache = CacheHandling.cache(protocolConfiguration, sessionWithUpdatedCookies, request, response)
 
 			checkPhasesRec(sessionWithUpdatedCache, HttpPhase.phases)
 		}
@@ -250,12 +244,9 @@ class GatlingAsyncHandlerActor(
 	 */
 	private def extractExtraInfo(response: ExtendedResponse): List[String] = {
 
-		def extractExtraRequestInfo(protocolConfiguration: Option[HttpProtocolConfiguration], request: Request): List[String] = {
+		def extractExtraRequestInfo(protocolConfiguration: HttpProtocolConfiguration, request: Request): List[String] = {
 			val extracted = try {
-				for (
-					httpProtocolConfig <- protocolConfiguration;
-					extractor <- httpProtocolConfig.extraRequestInfoExtractor
-				) yield extractor(request)
+				protocolConfiguration.extraRequestInfoExtractor.map(_(request))
 
 			} catch {
 				case e: Exception =>
@@ -266,14 +257,11 @@ class GatlingAsyncHandlerActor(
 			extracted.getOrElse(Nil)
 		}
 
-		def extractExtraResponseInfo(protocolConfiguration: Option[HttpProtocolConfiguration], response: ExtendedResponse): List[String] = {
+		def extractExtraResponseInfo(protocolConfiguration: HttpProtocolConfiguration, response: ExtendedResponse): List[String] = {
 
 			if (response.isBuilt) {
 				val extracted = try {
-					for (
-						httpProtocolConfig <- protocolConfiguration;
-						extractor <- httpProtocolConfig.extraResponseInfoExtractor
-					) yield extractor(response)
+						protocolConfiguration.extraResponseInfoExtractor.map(_(response))
 
 				} catch {
 					case e: Exception =>
