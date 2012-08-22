@@ -41,13 +41,13 @@ class ExtendedResponse(
 		val buff = new StringBuilder().append(END_OF_LINE)
 		response.map { response =>
 			if (response.hasResponseStatus)
-				buff.append("status=").append(END_OF_LINE).append(response.getStatusCode()).append(" ").append(response.getStatusText()).append(END_OF_LINE)
+				buff.append("status=").append(END_OF_LINE).append(response.getStatusCode).append(" ").append(response.getStatusText).append(END_OF_LINE)
 
 			if (response.hasResponseHeaders)
-				buff.append("headers= ").append(END_OF_LINE).append(response.getHeaders()).append(END_OF_LINE)
+				buff.append("headers= ").append(END_OF_LINE).append(response.getHeaders).append(END_OF_LINE)
 
 			if (response.hasResponseBody)
-				buff.append("body=").append(END_OF_LINE).append(response.getResponseBody())
+				buff.append("body=").append(END_OF_LINE).append(response.getResponseBody)
 		}
 		buff
 	}

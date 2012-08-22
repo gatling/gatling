@@ -50,13 +50,29 @@ object DataWriter {
 
 	def askFlush = dispatch(FlushDataWriter)
 
-	def logRequest(scenarioName: String, userId: Int, requestName: String,
-		executionStartDate: Long, executionEndDate: Long, requestSendingEndDate: Long, responseReceivingStartDate: Long,
-		requestResult: RequestStatus.RequestStatus, requestMessage: Option[String] = None, extraInfo: List[String] = Nil) = {
+	def logRequest(
+		scenarioName: String,
+		userId: Int,
+		requestName: String,
+		executionStartDate: Long,
+		executionEndDate: Long,
+		requestSendingEndDate: Long,
+		responseReceivingStartDate: Long,
+		requestResult: RequestStatus.RequestStatus,
+		requestMessage: Option[String] = None,
+		extraInfo: List[String] = Nil) = {
 
-		dispatch(RequestRecord(scenarioName, userId, requestName,
-			executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate,
-			requestResult, requestMessage, extraInfo))
+		dispatch(RequestRecord(
+			scenarioName,
+			userId,
+			requestName,
+			executionStartDate,
+			executionEndDate,
+			requestSendingEndDate,
+			responseReceivingStartDate,
+			requestResult,
+			requestMessage,
+			extraInfo))
 	}
 }
 

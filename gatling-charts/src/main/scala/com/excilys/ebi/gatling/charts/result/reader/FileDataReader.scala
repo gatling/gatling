@@ -72,7 +72,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 							if (executionStartDateLong < entryTime)
 								scenarioNames += (record.scenarioName -> executionStartDateLong)
 						} else
-							logger.info("Point is irrelevant, probably due to currentTimeMillis unprecision, skipping it" + record.requestName + " at " + record.executionStartDateNoMillis)
+							logger.info("Point is irrelevant, probably due to nanoTime sync problem, skipping it" + record.requestName + " at " + record.executionStartDateNoMillis)
 
 					case record => logger.warn("Malformed line, skipping it : " + record)
 				}

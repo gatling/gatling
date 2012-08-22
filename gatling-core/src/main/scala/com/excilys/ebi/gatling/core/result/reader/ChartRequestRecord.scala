@@ -48,28 +48,4 @@ class ChartRequestRecord(
 	val executionEndDateNoMillis: Long,
 	val responseTime: Long,
 	val latency: Long,
-	val requestStatus: RequestStatus) {
-
-	override def equals(other: Any) =
-		other match {
-			case that: ChartRequestRecord =>
-				(that canEqual this) &&
-					scenarioName == that.scenarioName &&
-					userId == that.userId &&
-					requestName == that.requestName &&
-					executionStartDateNoMillis == that.executionStartDateNoMillis &&
-					executionEndDateNoMillis == that.executionEndDateNoMillis &&
-					responseTime == that.responseTime &&
-					latency == that.latency &&
-					requestStatus == that.requestStatus
-			case _ => false
-		}
-
-	def canEqual(other: Any): Boolean =
-		other.isInstanceOf[ChartRequestRecord]
-
-	override def hashCode = {
-		41 * (41 * (41 * (41 * (41 * (41 * (41 * (41 + scenarioName.hashCode) + userId.hashCode) + requestName.hashCode) + executionStartDateNoMillis.hashCode) + executionEndDateNoMillis.hashCode) + responseTime.hashCode) + latency.hashCode) + requestStatus.hashCode
-	}
-
-}
+	val requestStatus: RequestStatus)
