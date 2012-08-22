@@ -35,6 +35,15 @@ object CssExtractorSpec {
 @RunWith(classOf[JUnitRunner])
 class CssExtractorSpec extends Specification {
 
+	"CssExtractor" should {
+		"support browser conditional tests and behave as a non-IE browser" in {
+			val ieHtml = Source.fromInputStream(getClass.getResourceAsStream("/IeConditionalTests.html")).mkString
+			val ieExtractor = new CssExtractor(ieHtml)
+
+			ieExtractor.count(None)("#helloworld") must beEqualTo(Some(1))
+		}
+	}
+
 	"count" should {
 
 		"return expected result with a class selector" in {
@@ -102,15 +111,6 @@ class CssExtractorSpec extends Specification {
 
 		"be able to extract a precise node attribute" in {
 			extractor.extractOne(1, Some("id"))(".nav") must beEqualTo(Some("social"))
-		}
-	}
-
-	"CssExtractor" should {
-		"support browser conditional tests and behave as a non-IE browser" in {
-			val ieHtml = Source.fromInputStream(getClass.getResourceAsStream("/IeConditionalTests.html")).mkString
-			val ieExtractor = new CssExtractor(ieHtml)
-
-			ieExtractor.count(None)("#helloworld") must beEqualTo(Some(1))
 		}
 	}
 }

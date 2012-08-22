@@ -21,14 +21,6 @@ import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToO
 
 import jodd.lagarto.dom.{ Node, NodeSelector, LagartoDOMBuilder }
 
-object CssExtractor {
-
-	/**
-	 * The DOM Builder singleton
-	 */
-	val domBuilder = new LagartoDOMBuilder
-}
-
 /**
  * A built-in extractor for extracting values with Css Selectors
  *
@@ -37,7 +29,7 @@ object CssExtractor {
  */
 class CssExtractor(text: String) {
 
-	val selector = new NodeSelector(CssExtractor.domBuilder.parse(text))
+	val selector = new NodeSelector((new LagartoDOMBuilder).parse(text))
 
 	/**
 	 * @param expression a String containing the CSS selector
