@@ -83,6 +83,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 							xpath("//input[@value='${aaaa_value}']/@id").saveAs("sessionParam"),
 							xpath("//input[@id='${aaaa_value}']/@value").notExists,
 							css(""".foo"""),
+							css("""#foo""", Some("href")),
 							css(""".foo""").count.is(1),
 							css(""".foo""").notExists,
 							regex("""<input id="text1" type="text" value="aaaa" />"""),
