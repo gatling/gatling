@@ -15,20 +15,22 @@
  */
 package com.excilys.ebi.gatling.http.response
 
-import java.lang.System.{ nanoTime, currentTimeMillis }
+import java.lang.System.{ currentTimeMillis, nanoTime }
 import java.security.MessageDigest
+
 import scala.math.max
+
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.check.bodypart.ChecksumCheck
+import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
-import com.ning.http.client.{ HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart }
+import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, Request }
 import com.ning.http.client.Response.ResponseBuilder
-import com.ning.http.client.Request
 
 object ExtendedResponseBuilder {
 
-	def newExtendedResponseBuilder(checks: List[HttpCheck[_]]): ExtendedResponseBuilderFactory = {
+	def newExtendedResponseBuilder(checks: List[HttpCheck[_]], protocolConfiguration: HttpProtocolConfiguration): ExtendedResponseBuilderFactory = {
 
 		val checksumChecks = checks.foldLeft(List.empty[ChecksumCheck]) { (checksumChecks, check) =>
 			check match {
@@ -37,7 +39,7 @@ object ExtendedResponseBuilder {
 			}
 		}
 
-		val storeBodyPart = checks.exists(_.phase == CompletePageReceived)
+		val storeBodyPart = !protocolConfiguration.responseChunksDiscardingEnabled || checks.exists(_.phase == CompletePageReceived)
 		(request: Request, session: Session) => new ExtendedResponseBuilder(request, session, checksumChecks, storeBodyPart)
 	}
 }

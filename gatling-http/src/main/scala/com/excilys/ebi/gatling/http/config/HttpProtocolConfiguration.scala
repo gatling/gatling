@@ -26,7 +26,7 @@ import com.ning.http.client.{ ProxyServer, Request }
 object HttpProtocolConfiguration {
 	val HTTP_PROTOCOL_TYPE = "httpProtocol"
 
-	val DEFAULT_HTTP_PROTOCOL_CONFIG = HttpProtocolConfiguration(None, None, None, true, true, true, Map.empty, None, None)
+	val DEFAULT_HTTP_PROTOCOL_CONFIG = HttpProtocolConfigurationBuilder.BASE_HTTP_PROTOCOL_CONFIGURATION_BUILDER.build
 }
 
 /**
@@ -42,6 +42,7 @@ case class HttpProtocolConfiguration(
 		followRedirectEnabled: Boolean,
 		automaticRefererEnabled: Boolean,
 		cachingEnabled: Boolean,
+		responseChunksDiscardingEnabled: Boolean,
 		baseHeaders: Map[String, String],
 		extraRequestInfoExtractor: Option[(Request => List[String])],
 		extraResponseInfoExtractor: Option[(ExtendedResponse => List[String])]) extends ProtocolConfiguration {
