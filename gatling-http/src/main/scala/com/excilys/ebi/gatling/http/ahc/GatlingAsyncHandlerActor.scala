@@ -181,7 +181,7 @@ class GatlingAsyncHandlerActor(
 
 			val newRequestName = requestName match {
 				case GatlingAsyncHandlerActor.REDIRECTED_REQUEST_NAME_PATTERN(requestBaseName, redirectCount) =>
-					new StringBuilder().append(requestBaseName).append(" Redirect ").append(redirectCount.toInt + 1).toString
+					requestBaseName + " Redirect " + (redirectCount.toInt + 1)
 
 				case _ =>
 					requestName + " Redirect 1"
@@ -207,14 +207,9 @@ class GatlingAsyncHandlerActor(
 					checkResult match {
 						case Failure(errorMessage) =>
 							if (isDebugEnabled)
-								debug {
-									new StringBuilder().append("Check on request '").append(requestName).append("' failed : ")
-										.append(errorMessage).append(END_OF_LINE)
-										.append("request was:").append(request).append(END_OF_LINE)
-										.append("response was:").append(response.dump)
-								}
+								debug("Check on request '" + requestName + "' failed : " + errorMessage + END_OF_LINE + "request was:" + request + END_OF_LINE + "response was:" + response.dump)
 							else
-								warn(new StringBuilder().append("Check on request '").append(requestName).append("' failed : ").append(errorMessage))
+								warn("Check on request '" + requestName + "' failed : " + errorMessage)
 
 							logRequest(KO, response, Some(errorMessage))
 							executeNext(newSession, response)
@@ -261,7 +256,7 @@ class GatlingAsyncHandlerActor(
 
 			if (response.isBuilt) {
 				val extracted = try {
-						protocolConfiguration.extraResponseInfoExtractor.map(_(response))
+					protocolConfiguration.extraResponseInfoExtractor.map(_(response))
 
 				} catch {
 					case e: Exception =>

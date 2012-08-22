@@ -48,8 +48,7 @@ class BrowserHttpsRequestHandler(controller: RecorderController, proxyConfig: Pr
 
 		} else {
 			// set full uri so that it's correctly recorded
-			val fullUri = new StringBuilder().append(targetHostURI).append(request.getUri).toString
-			request.setUri(fullUri)
+			request.setUri(targetHostURI + request.getUri)
 
 			val bootstrap = newClientBootstrap(controller, ctx, request, true)
 

@@ -109,5 +109,5 @@ class Session(val scenarioName: String, val userId: Int, data: Map[String, Any] 
 
 	private[gatling] def getTimeShift: Long = getAttributeAsOption[Long](Session.TIME_SHIFT_KEY).getOrElse(0L)
 
-	override def toString = new StringBuilder().append("scenarioName='").append(scenarioName).append("' userId='").append(userId).append("' data='").append(data).append("'").toString
+	override def toString = "scenarioName='" + scenarioName + "' userId='" + userId + "' data='" + data + "'"
 }
