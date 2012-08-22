@@ -38,19 +38,19 @@ class CssExtractorSpec extends Specification {
 	"count" should {
 
 		"return expected result with a class selector" in {
-			extractor.count(".nav-menu") must beEqualTo(Some(3))
+			extractor.count(None)(".nav-menu") must beEqualTo(Some(3))
 		}
 
 		"return expected result with an id selector" in {
-			extractor.count("#twitter_button") must beEqualTo(Some(1))
+			extractor.count(None)("#twitter_button") must beEqualTo(Some(1))
 		}
 
 		"return expected result with an :empty selector" in {
-			extractor.count(".frise:empty") must beEqualTo(Some(1))
+			extractor.count(None)(".frise:empty") must beEqualTo(Some(1))
 		}
 
 		"return None when the selector doesn't match anything" in {
-			extractor.count("bad_selector") must beEqualTo(None)
+			extractor.count(None)("bad_selector") must beEqualTo(None)
 		}
 
 	}
@@ -58,51 +58,59 @@ class CssExtractorSpec extends Specification {
 	"extractMultiple" should {
 
 		"return expected result with a class selector" in {
-			extractor.extractMultiple("#social") must beEqualTo(Some(List("Social")))
+			extractor.extractMultiple(None)("#social") must beEqualTo(Some(List("Social")))
 		}
 
 		"return expected result with an id selector" in {
-			extractor.extractMultiple(".nav") must beEqualTo(Some(List("Sponsors", "Social")))
+			extractor.extractMultiple(None)(".nav") must beEqualTo(Some(List("Sponsors", "Social")))
 		}
 
 		"return expected result with an attribute containg a given substring" in {
-			extractor.extractMultiple(".article a[href*=api]") must beEqualTo(Some(List("API Documentation")))
+			extractor.extractMultiple(None)(".article a[href*=api]") must beEqualTo(Some(List("API Documentation")))
 		}
 
 		"return expected result with an element being the n-th child of its parent" in {
-			extractor.extractMultiple(".article a:nth-child(2)") must beEqualTo(Some(List("JMeter's")))
+			extractor.extractMultiple(None)(".article a:nth-child(2)") must beEqualTo(Some(List("JMeter's")))
 		}
 
 		"return expected result with a predecessor selector" in {
-			extractor.extractMultiple("img ~ p") must beEqualTo(Some(List("Efficient Load Testing")))
+			extractor.extractMultiple(None)("img ~ p") must beEqualTo(Some(List("Efficient Load Testing")))
 		}
 
 		"return None when the selector doesn't match anything" in {
-			extractor.extractMultiple("bad_selector") must beEqualTo(None)
+			extractor.extractMultiple(None)("bad_selector") must beEqualTo(None)
+		}
+
+		"be able to extract a precise node attribute" in {
+			extractor.extractMultiple(Some("href"))("#sample_requests") must beEqualTo(Some(List("http://gatling-tool.org/sample/requests.html")))
 		}
 	}
 
 	"extractOne" should {
 
 		"return expected result with a class selector" in {
-			extractor.extractOne(1)(".nav") must beEqualTo(Some("Social"))
+			extractor.extractOne(1, None)(".nav") must beEqualTo(Some("Social"))
 		}
 
 		"return None when the index is out of the range of returned elements" in {
-			extractor.extractOne(3)(".nav") must beEqualTo(None)
+			extractor.extractOne(3, None)(".nav") must beEqualTo(None)
 		}
 
 		"return None when the selector doesn't match anything" in {
-			extractor.extractOne(1)("bad_selector") must beEqualTo(None)
+			extractor.extractOne(1, None)("bad_selector") must beEqualTo(None)
+		}
+
+		"be able to extract a precise node attribute" in {
+			extractor.extractOne(1, Some("id"))(".nav") must beEqualTo(Some("social"))
 		}
 	}
 
 	"CssExtractor" should {
 		"support browser conditional tests and behave as a non-IE browser" in {
-			val html = Source.fromInputStream(getClass.getResourceAsStream("/IeConditionalTests.html")).mkString
-			val extractor = new CssExtractor(html)
+			val ieHtml = Source.fromInputStream(getClass.getResourceAsStream("/IeConditionalTests.html")).mkString
+			val ieExtractor = new CssExtractor(ieHtml)
 
-			extractor.count("#helloworld") must beEqualTo(Some(1))
+			ieExtractor.count(None)("#helloworld") must beEqualTo(Some(1))
 		}
 	}
 }

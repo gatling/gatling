@@ -30,11 +30,17 @@ object HttpBodyCssCheckBuilder {
 
 	private def getCachedExtractor(response: ExtendedResponse) = getOrUpdateCheckContextAttribute(HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY, new CssExtractor(response.getResponseBody(configuration.encoding)))
 
-	private def findExtractorFactory(occurrence: Int): ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => getCachedExtractor(response).extractOne(occurrence)
+	private def newFindExtractorFactory(nodeAttribute: Option[String])(occurrence: Int): ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => getCachedExtractor(response).extractOne(occurrence, nodeAttribute)
 
-	private val findAllExtractorFactory: ExtractorFactory[ExtendedResponse, String, Seq[String]] = (response: ExtendedResponse) => getCachedExtractor(response).extractMultiple
+	private def newFindAllExtractorFactory(nodeAttribute: Option[String]): ExtractorFactory[ExtendedResponse, String, Seq[String]] = (response: ExtendedResponse) => getCachedExtractor(response).extractMultiple(nodeAttribute)
 
-	private val countExtractorFactory: ExtractorFactory[ExtendedResponse, String, Int] = (response: ExtendedResponse) => getCachedExtractor(response).count
+	private def newCountExtractorFactory(nodeAttribute: Option[String]): ExtractorFactory[ExtendedResponse, String, Int] = (response: ExtendedResponse) => getCachedExtractor(response).count(nodeAttribute)
 
-	def css(selector: EvaluatableString) = new HttpMultipleCheckBuilder(findExtractorFactory, findAllExtractorFactory, countExtractorFactory, selector, CompletePageReceived)
+	def css(selector: EvaluatableString, nodeAttribute: Option[String]) = {
+		val findExtractorFactory = newFindExtractorFactory(nodeAttribute) _
+		val findAllExtractorFactory = newFindAllExtractorFactory(nodeAttribute)
+		val countExtractorFactory = newCountExtractorFactory(nodeAttribute)
+
+		new HttpMultipleCheckBuilder(findExtractorFactory, findAllExtractorFactory, countExtractorFactory, selector, CompletePageReceived)
+	}
 }
