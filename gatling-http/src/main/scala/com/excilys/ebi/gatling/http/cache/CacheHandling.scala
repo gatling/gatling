@@ -34,8 +34,6 @@ object CacheHandling extends Logging {
 
 	val QUOTED_REGEX = "\"(.+)\"".r
 
-	private val sdfs = AsyncHttpProviderUtils.get.toList
-
 	// damn AsyncHttpProviderUtils.convertExpireField is not public
 	def convertExpireField(timestring: String): Long = {
 
@@ -65,7 +63,7 @@ object CacheHandling extends Logging {
 			case trimmed => trimmed
 		}
 
-		parse(cleanedString, sdfs)
+		parse(cleanedString, AsyncHttpProviderUtils.get.toList)
 	}
 
 	def isCached(httpProtocolConfiguration: HttpProtocolConfiguration, session: Session, request: Request) = httpProtocolConfiguration.cachingEnabled && getCache(session).contains(request.getUrl)
