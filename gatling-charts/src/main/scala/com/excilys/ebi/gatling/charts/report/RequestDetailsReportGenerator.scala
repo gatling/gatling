@@ -41,8 +41,8 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 
 			def responseTimeDistributionChartComponent = {
 				val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100, Some(requestName))
-				val okDistributionSeries = new Series[Long, Int]("Success", okDistribution, List(BLUE))
-				val koDistributionSeries = new Series[Long, Int]("Failure", koDistribution, List(RED))
+				val okDistributionSeries = new Series[Long, Long]("Success", okDistribution, List(BLUE))
+				val koDistributionSeries = new Series[Long, Long]("Failure", koDistribution, List(RED))
 
 				componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
 			}
@@ -64,8 +64,8 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 				val dataSeconds = dataReader.requestRecordsGroupByExecutionStartDate(requestName)
 				val scatterPlotSuccessData = respTimeAgainstNbOfReqPerSecond(all, dataSeconds, OK)
 				val scatterPlotFailuresData = respTimeAgainstNbOfReqPerSecond(all, dataSeconds, KO)
-				val scatterPlotSuccessSeries = new Series[Int, Long]("Successes", scatterPlotSuccessData, List(TRANSLUCID_BLUE))
-				val scatterPlotFailuresSeries = new Series[Int, Long]("Failures", scatterPlotFailuresData, List(TRANSLUCID_RED))
+				val scatterPlotSuccessSeries = new Series[Long, Long]("Successes", scatterPlotSuccessData, List(TRANSLUCID_BLUE))
+				val scatterPlotFailuresSeries = new Series[Long, Long]("Failures", scatterPlotFailuresData, List(TRANSLUCID_RED))
 
 				componentLibrary.getRequestDetailsScatterChartComponent(scatterPlotSuccessSeries, scatterPlotFailuresSeries)
 			}

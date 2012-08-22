@@ -28,9 +28,9 @@ abstract class DataReader(runUuid: String) {
 	def runRecord: RunRecord
 	def requestNames: Seq[String]
 	def scenarioNames: Seq[String]
-	def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): Seq[(Long, Int)]
-	def numberOfEventsPerSecond(event: ChartRequestRecord => Long, status: Option[RequestStatus] = None, requestName: Option[String] = None): Map[Long, Int]
-	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String] = None): (Seq[(Long, Int)], Seq[(Long, Int)])
+	def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): Seq[(Long, Long)]
+	def numberOfEventsPerSecond(event: ChartRequestRecord => Long, status: Option[RequestStatus] = None, requestName: Option[String] = None): Map[Long, Long]
+	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String] = None): (Seq[(Long, Long)], Seq[(Long, Long)])
 	def percentiles(percentage1: Double, percentage2: Double, status: Option[RequestStatus] = None, requestName: Option[String] = None): (Long, Long)
 	def minResponseTime(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
 	def maxResponseTime(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
@@ -39,6 +39,6 @@ abstract class DataReader(runUuid: String) {
 	def meanLatency(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
 	def meanNumberOfRequestsPerSecond(status: Option[RequestStatus], requestName: Option[String]) : Long
 	def responseTimeStandardDeviation(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
-	def numberOfRequestInResponseTimeRange(lowerBound: Int, higherBound: Int, requestName: Option[String] = None): Seq[(String, Long)]
+	def numberOfRequestInResponseTimeRange(lowerBound: Long, higherBound: Long, requestName: Option[String] = None): Seq[(String, Long)]
 	def requestRecordsGroupByExecutionStartDate(requestName: String): Seq[(Long, Seq[ChartRequestRecord])]
 }

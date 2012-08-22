@@ -89,9 +89,9 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		allRunRecords.head
 	}
 
-	def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): Seq[(Long, Int)] = StatisticsHelper.numberOfActiveSessionsPerSecond(requestRecords, scenarioName)
+	def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): Seq[(Long, Long)] = StatisticsHelper.numberOfActiveSessionsPerSecond(requestRecords, scenarioName)
 
-	def numberOfEventsPerSecond(event: ChartRequestRecord => Long, status: Option[RequestStatus] = None, requestName: Option[String] = None): Map[Long, Int] = StatisticsHelper.numberOfEventsPerSecond(requestRecords, event, status, requestName)
+	def numberOfEventsPerSecond(event: ChartRequestRecord => Long, status: Option[RequestStatus] = None, requestName: Option[String] = None): Map[Long, Long] = StatisticsHelper.numberOfEventsPerSecond(requestRecords, event, status, requestName)
 
 	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String] = None) = StatisticsHelper.responseTimeDistribution(requestRecords, slotsNumber, requestName)
 
@@ -111,7 +111,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	def responseTimeStandardDeviation(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long = StatisticsHelper.responseTimeStandardDeviation(requestRecords, status, requestName): Long
 
-	def numberOfRequestInResponseTimeRange(lowerBound: Int, higherBound: Int, requestName: Option[String] = None): Seq[(String, Long)] = StatisticsHelper.numberOfRequestInResponseTimeRange(requestRecords, lowerBound, higherBound, requestName)
+	def numberOfRequestInResponseTimeRange(lowerBound: Long, higherBound: Long, requestName: Option[String] = None): Seq[(String, Long)] = StatisticsHelper.numberOfRequestInResponseTimeRange(requestRecords, lowerBound, higherBound, requestName)
 
 	def requestRecordsGroupByExecutionStartDate(requestName: String): Seq[(Long, Seq[ChartRequestRecord])] = StatisticsHelper.requestRecordsGroupByExecutionStartDate(requestRecords, requestName)
 }

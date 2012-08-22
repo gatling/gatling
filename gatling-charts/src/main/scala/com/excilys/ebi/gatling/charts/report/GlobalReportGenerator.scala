@@ -33,7 +33,7 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 				.map { scenarioName => scenarioName -> dataReader.numberOfActiveSessionsPerSecond(Some(scenarioName)) }
 				.reverse
 				.zip(List(BLUE, GREEN, RED, YELLOW, CYAN, LIME, PURPLE, PINK, LIGHT_BLUE, LIGHT_ORANGE, LIGHT_RED, LIGHT_LIME, LIGHT_PURPLE, LIGHT_PINK))
-				.map { case ((scenarioName, data), color) => new Series[Long, Int](scenarioName, data, List(color)) }
+				.map { case ((scenarioName, data), color) => new Series[Long, Long](scenarioName, data, List(color)) }
 
 			componentLibrary.getActiveSessionsChartComponent(activeSessionsSeries)
 		}
@@ -43,10 +43,10 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 			val oks = dataReader.numberOfEventsPerSecond((record: ChartRequestRecord) => record.executionStartDateNoMillis, Some(OK)).toSeq.sortBy(_._1)
 			val kos = dataReader.numberOfEventsPerSecond((record: ChartRequestRecord) => record.executionStartDateNoMillis, Some(KO)).toSeq.sortBy(_._1)
 
-			val allSeries = new Series[Long, Int]("All requests", all, List(BLUE))
-			val kosSeries = new Series[Long, Int]("Failed requests", kos, List(RED))
-			val oksSeries = new Series[Long, Int]("Succeeded requests", oks, List(GREEN))
-			val pieRequestsSeries = new Series[String, Int]("Distribution", ("Success", count(oks)) :: ("Failures", count(kos)) :: Nil, List(GREEN, RED))
+			val allSeries = new Series[Long, Long]("All requests", all, List(BLUE))
+			val kosSeries = new Series[Long, Long]("Failed requests", kos, List(RED))
+			val oksSeries = new Series[Long, Long]("Succeeded requests", oks, List(GREEN))
+			val pieRequestsSeries = new Series[String, Long]("Distribution", ("Success", count(oks)) :: ("Failures", count(kos)) :: Nil, List(GREEN, RED))
 
 			componentLibrary.getRequestsChartComponent(allSeries, kosSeries, oksSeries, pieRequestsSeries)
 		}
@@ -56,18 +56,18 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 			val oks = dataReader.numberOfEventsPerSecond((record: ChartRequestRecord) => record.executionEndDateNoMillis, Some(OK)).toSeq.sortBy(_._1)
 			val kos = dataReader.numberOfEventsPerSecond((record: ChartRequestRecord) => record.executionEndDateNoMillis, Some(KO)).toSeq.sortBy(_._1)
 
-			val allSeries = new Series[Long, Int]("All requests", all, List(BLUE))
-			val kosSeries = new Series[Long, Int]("Failed requests", kos, List(RED))
-			val oksSeries = new Series[Long, Int]("Succeeded requests", oks, List(GREEN))
-			val pieRequestsSeries = new Series[String, Int]("Distribution", ("Success", count(oks)) :: ("Failures", count(kos)) :: Nil, List(GREEN, RED))
+			val allSeries = new Series[Long, Long]("All requests", all, List(BLUE))
+			val kosSeries = new Series[Long, Long]("Failed requests", kos, List(RED))
+			val oksSeries = new Series[Long, Long]("Succeeded requests", oks, List(GREEN))
+			val pieRequestsSeries = new Series[String, Long]("Distribution", ("Success", count(oks)) :: ("Failures", count(kos)) :: Nil, List(GREEN, RED))
 
 			componentLibrary.getTransactionsChartComponent(allSeries, kosSeries, oksSeries, pieRequestsSeries)
 		}
 
 		def responseTimeDistributionChartComponent = {
 			val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100)
-			val okDistributionSeries = new Series[Long, Int]("Success", okDistribution, List(BLUE))
-			val koDistributionSeries = new Series[Long, Int]("Failure", koDistribution, List(RED))
+			val okDistributionSeries = new Series[Long, Long]("Success", okDistribution, List(BLUE))
+			val koDistributionSeries = new Series[Long, Long]("Failure", koDistribution, List(RED))
 
 			componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
 		}
