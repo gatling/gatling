@@ -37,7 +37,8 @@ object Predef {
 
 	def regex(pattern: EvaluatableString) = HttpBodyRegexCheckBuilder.regex(pattern)
 	def xpath(expression: EvaluatableString, namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)
-	def css(selector: EvaluatableString, nodeAttribute: Option[String] = None) = HttpBodyCssCheckBuilder.css(selector, nodeAttribute)
+	def css(selector: EvaluatableString) = HttpBodyCssCheckBuilder.css(selector, None)
+	def css(selector: EvaluatableString, nodeAttribute: String) = HttpBodyCssCheckBuilder.css(selector, Some(nodeAttribute))
 	def jsonPath(expression: EvaluatableString) = HttpBodyJsonPathCheckBuilder.jsonPath(expression)
 	def header(headerName: EvaluatableString) = HttpHeaderCheckBuilder.header(headerName)
 	def headerRegex(headerName: EvaluatableString, pattern: EvaluatableString) = HttpHeaderRegexCheckBuilder.headerRegex(headerName, pattern)
