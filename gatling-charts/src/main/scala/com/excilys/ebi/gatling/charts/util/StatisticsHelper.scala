@@ -130,8 +130,13 @@ object StatisticsHelper {
 		if (temp == Long.MinValue) NO_PLOT_MAGIC_VALUE else temp
 	}
 
-	def countRequests(records: Seq[ChartRequestRecord], status: Option[RequestStatus], requestName: Option[String]): Int =
-		records.count { record => isRealRequest(record) && isRecordWithRequestName(record, requestName) && isRecordWithStatus(record, status) }
+	def countRequests(records: Seq[ChartRequestRecord], status: Option[RequestStatus], requestName: Option[String]): Long =
+		records.foldLeft(0L) { (count, record) =>
+			if (isRealRequest(record) && isRecordWithRequestName(record, requestName) && isRecordWithStatus(record, status))
+				count + 1
+			else
+				count
+		} // why the hell does .count return an Int and not a Long?!
 
 	def responseTimeDistribution(records: Seq[ChartRequestRecord], maxSlotsNumber: Int, requestName: Option[String]): (Seq[(Long, Int)], Seq[(Long, Int)]) = {
 
@@ -234,7 +239,7 @@ object StatisticsHelper {
 			val minStartTime = minTime((record: ChartRequestRecord) => record.executionStartDateNoMillis, records, None, None)
 			val maxEndTime = maxTime((record: ChartRequestRecord) => record.executionEndDateNoMillis, records, None, None)
 
-			count * 1000 / (maxEndTime - minStartTime)
+			count * 1000L / (maxEndTime - minStartTime)
 
 		} else
 			NO_PLOT_MAGIC_VALUE
@@ -262,9 +267,9 @@ object StatisticsHelper {
 			NO_PLOT_MAGIC_VALUE
 	}
 
-	def numberOfRequestInResponseTimeRange(records: Seq[ChartRequestRecord], lowerBound: Int, higherBound: Int, requestName: Option[String]): Seq[(String, Int)] = {
+	def numberOfRequestInResponseTimeRange(records: Seq[ChartRequestRecord], lowerBound: Int, higherBound: Int, requestName: Option[String]): Seq[(String, Long)] = {
 
-		val (firstCount, mediumCount, lastCount, koCount) = records.foldLeft((0, 0, 0, 0)) { (counts, record) =>
+		val (firstCount, mediumCount, lastCount, koCount) = records.foldLeft((0L, 0L, 0L, 0L)) { (counts, record) =>
 			if (isRealRequest(record) && isRecordWithRequestName(record, requestName)) {
 				val (firstCount, mediumCount, lastCount, koCount) = counts
 

@@ -34,11 +34,11 @@ abstract class DataReader(runUuid: String) {
 	def percentiles(percentage1: Double, percentage2: Double, status: Option[RequestStatus] = None, requestName: Option[String] = None): (Long, Long)
 	def minResponseTime(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
 	def maxResponseTime(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
-	def countRequests(status: Option[RequestStatus] = None, requestName: Option[String] = None): Int
+	def countRequests(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
 	def meanResponseTime(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
 	def meanLatency(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
 	def meanNumberOfRequestsPerSecond(status: Option[RequestStatus], requestName: Option[String]) : Long
 	def responseTimeStandardDeviation(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
-	def numberOfRequestInResponseTimeRange(lowerBound: Int, higherBound: Int, requestName: Option[String] = None): Seq[(String, Int)]
+	def numberOfRequestInResponseTimeRange(lowerBound: Int, higherBound: Int, requestName: Option[String] = None): Seq[(String, Long)]
 	def requestRecordsGroupByExecutionStartDate(requestName: String): Seq[(Long, Seq[ChartRequestRecord])]
 }

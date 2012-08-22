@@ -40,7 +40,7 @@ case class RequestStatistics(name: String,
 		stdDeviationStatistics: Statistics,
 		percentiles1: Statistics,
 		percentiles2: Statistics,
-		groupedCounts: Seq[(String, Int, Int)],
+		groupedCounts: Seq[(String, Long, Long)],
 		meanNumberOfRequestsPerSecondStatistics: Statistics) {
 
 	def mkString: String = {
