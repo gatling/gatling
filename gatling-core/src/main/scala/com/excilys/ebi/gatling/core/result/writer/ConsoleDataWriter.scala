@@ -21,7 +21,7 @@ import scala.collection.mutable.{ HashMap, LinkedHashMap }
 
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
-import com.excilys.ebi.gatling.core.result.message.{ FlushDataWriter, InitializeDataWriter, RequestRecord }
+import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RunRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
 
 import grizzled.slf4j.Logging
@@ -51,59 +51,57 @@ class ConsoleDataWriter extends DataWriter with Logging {
 
 	private val displayPeriod = 5 * 1000
 
-	def uninitialized: Receive = {
-		case InitializeDataWriter(_, scenarios, _, _) =>
+	private var complete = false
 
-			startUpTime = currentTimeMillis
-			lastDisplayTime = currentTimeMillis
+	def display(force: Boolean) {
+		val now = currentTimeMillis
+		if (force || (now - lastDisplayTime > displayPeriod)) {
+			lastDisplayTime = now
+			val timeSinceStartUpInSec = (now - startUpTime) / 1000
 
-			context.become(initialized)
-
-			usersCounters.clear
-			scenarios.foreach(scenario => usersCounters.put(scenario.name, new UserCounters(scenario.nbUsers)))
-			requestsCounters.clear
-
-		case unknown: AnyRef => error("Unsupported message type in uninilialized state" + unknown.getClass)
-		case unknown: Any => error("Unsupported message type in uninilialized state " + unknown)
+			val summary = ConsoleSummary(timeSinceStartUpInSec, usersCounters, requestsCounters)
+			complete = summary.complete
+			println(summary)
+		}
 	}
 
-	def initialized: Receive = {
-		case RequestRecord(scenarioName, userId, actionName, executionStartDate, executionEndDate, requestSendingEndDate, responseReceivingStartDate, resultStatus, resultMessage, extraInfo) =>
+	override def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription], encoding: String) {
 
-			actionName match {
-				case START_OF_SCENARIO => usersCounters.get(scenarioName) match {
-					case Some(userStatus) => userStatus.userStart
-					case None => error("Internal error, scenario '%s' has not been correctly initialized" format scenarioName)
-				}
+		startUpTime = currentTimeMillis
+		lastDisplayTime = currentTimeMillis
 
-				case END_OF_SCENARIO => usersCounters.get(scenarioName) match {
-					case Some(userStatus) => userStatus.userDone
-					case None => error("Internal error, scenario '%s' has not been correctly initialized" format scenarioName)
-				}
-
-				case _ => {
-					val requestCounters = requestsCounters.getOrElseUpdate(actionName, RequestCounters(0, 0))
-
-					resultStatus match {
-						case OK => requestCounters.successfulCount += 1
-						case KO => requestCounters.failedCount += 1
-					}
-				}
-			}
-
-			val now = currentTimeMillis
-			if (now - lastDisplayTime > displayPeriod) {
-				lastDisplayTime = now
-				val timeSinceStartUpInSec = (now - startUpTime) / 1000
-
-				println(ConsoleSummary(timeSinceStartUpInSec, usersCounters, requestsCounters))
-			}
-
-		case FlushDataWriter => context.unbecome() // return to uninitialized state
-
-		case unknown: AnyRef => error("Unsupported message type in inilialized state " + unknown.getClass)
-		case unknown: Any => error("Unsupported message type in inilialized state " + unknown)
+		usersCounters.clear
+		scenarios.foreach(scenario => usersCounters.put(scenario.name, new UserCounters(scenario.nbUsers)))
+		requestsCounters.clear
 	}
 
-	def receive = uninitialized
+	override def onRequestRecord(requestRecord: RequestRecord) {
+
+		requestRecord.requestName match {
+			case START_OF_SCENARIO => usersCounters.get(requestRecord.scenarioName) match {
+				case Some(userStatus) => userStatus.userStart
+				case None => error("Internal error, scenario '%s' has not been correctly initialized" format requestRecord.scenarioName)
+			}
+
+			case END_OF_SCENARIO => usersCounters.get(requestRecord.scenarioName) match {
+				case Some(userStatus) => userStatus.userDone
+				case None => error("Internal error, scenario '%s' has not been correctly initialized" format requestRecord.scenarioName)
+			}
+
+			case requestName =>
+				val requestCounters = requestsCounters.getOrElseUpdate(requestName, RequestCounters(0, 0))
+
+				requestRecord.requestStatus match {
+					case OK => requestCounters.successfulCount += 1
+					case KO => requestCounters.failedCount += 1
+				}
+		}
+
+		display(false)
+	}
+
+	override def onFlushDataWriter {
+		if (!complete)
+			display(true)
+	}
 }

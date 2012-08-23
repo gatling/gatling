@@ -20,9 +20,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 import scala.io.Codec
 import scala.tools.nsc.io.Path
 
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.GATLING_DEFAULT_CONFIG_FILE
 import com.excilys.ebi.gatling.core.result.reader.DataReader
-import com.excilys.ebi.gatling.core.result.writer.DataWriter
+import com.excilys.ebi.gatling.core.result.writer.{ ConsoleDataWriter, DataWriter, FileDataWriter }
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 import grizzled.slf4j.Logging
@@ -107,7 +106,15 @@ class GatlingConfiguration(
 
 	val chartingMaxPlotPerSerie = fileConfiguration("gatling.charting.maxPlotPerSerie", 5000)
 
-	lazy val dataWriterClass = Class.forName(fileConfiguration("gatling.data.writer", "com.excilys.ebi.gatling.core.result.writer.FileDataWriter")).asInstanceOf[Class[DataWriter]]
+	lazy val dataWriterClasses = {
+		val classes = fileConfiguration.getList("gatling.data.writers").map { className => Class.forName(className).asInstanceOf[Class[DataWriter]] }
+
+		if (classes.isEmpty)
+			List(classOf[ConsoleDataWriter], classOf[FileDataWriter])
+
+		else
+			classes
+	}
 
 	lazy val dataReaderClass = Class.forName(fileConfiguration("gatling.data.reader", "com.excilys.ebi.gatling.charts.result.reader.FileDataReader")).asInstanceOf[Class[DataReader]]
 }

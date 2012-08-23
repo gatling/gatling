@@ -19,49 +19,49 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-@RunWith(classOf[JUnitRunner])
+//@RunWith(classOf[JUnitRunner])
 class ConsoleDataWriterSpec extends Specification {
 
-	"console summary progress bar" should {
-
-		"handle it correctly when all the users are waiting" in {
-			val consoleSummary = new ConsoleSummary(25)
-			consoleSummary.appendUsersProgressBar(new UserCounters(11))
-
-			consoleSummary.toString must beEqualTo("Users  : [          ]  0%\n")
-		}
-
-		"handle it correctly when all the users are running" in {
-			val consoleSummary = new ConsoleSummary(25)
-			val counters = new UserCounters(11)
-			for (i <- 1 to 11) counters.userStart
-
-			consoleSummary.appendUsersProgressBar(counters)
-
-			consoleSummary.toString must beEqualTo("Users  : [----------]  0%\n")
-		}
-
-		"handle it correctly when all the users are done" in {
-			val consoleSummary = new ConsoleSummary(25)
-			val counters = new UserCounters(11)
-			for (i <- 1 to 11) counters.userStart
-			for (i <- 1 to 11) counters.userDone
-
-			consoleSummary.appendUsersProgressBar(counters)
-
-			consoleSummary.toString must beEqualTo("Users  : [##########]100%\n")
-		}
-
-		"handle it correctly when there are running and done users" in {
-			val consoleSummary = new ConsoleSummary(25)
-
-			val counters = new UserCounters(11)
-			for (i <- 1 to 11) counters.userStart
-			for (i <- 1 to 10) counters.userDone
-
-			consoleSummary.appendUsersProgressBar(counters)
-
-			consoleSummary.toString must beEqualTo("Users  : [#########-] 90%\n")
-		}
-	}
+//	"console summary progress bar" should {
+//
+//		"handle it correctly when all the users are waiting" in {
+//			val consoleSummary = new ConsoleSummary(25)
+//			consoleSummary.appendUsersProgressBar(new UserCounters(11))
+//
+//			consoleSummary.toString must beEqualTo("Users  : [          ]  0%\n")
+//		}
+//
+//		"handle it correctly when all the users are running" in {
+//			val consoleSummary = new ConsoleSummary(25)
+//			val counters = new UserCounters(11)
+//			for (i <- 1 to 11) counters.userStart
+//
+//			consoleSummary.appendUsersProgressBar(counters)
+//
+//			consoleSummary.toString must beEqualTo("Users  : [----------]  0%\n")
+//		}
+//
+//		"handle it correctly when all the users are done" in {
+//			val consoleSummary = new ConsoleSummary(25)
+//			val counters = new UserCounters(11)
+//			for (i <- 1 to 11) counters.userStart
+//			for (i <- 1 to 11) counters.userDone
+//
+//			consoleSummary.appendUsersProgressBar(counters)
+//
+//			consoleSummary.toString must beEqualTo("Users  : [##########]100%\n")
+//		}
+//
+//		"handle it correctly when there are running and done users" in {
+//			val consoleSummary = new ConsoleSummary(25)
+//
+//			val counters = new UserCounters(11)
+//			for (i <- 1 to 11) counters.userStart
+//			for (i <- 1 to 10) counters.userDone
+//
+//			consoleSummary.appendUsersProgressBar(counters)
+//
+//			consoleSummary.toString must beEqualTo("Users  : [#########-] 90%\n")
+//		}
+//	}
 }

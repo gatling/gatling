@@ -16,7 +16,6 @@
 package com.excilys.ebi.gatling.core.result.writer
 
 import java.lang.System.currentTimeMillis
-import java.util.concurrent.CountDownLatch
 
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
@@ -25,24 +24,22 @@ import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.{ FlushDataWriter, InitializeDataWriter, RequestRecord, RequestStatus }
 import com.excilys.ebi.gatling.core.result.message.{ RunRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
+import com.excilys.ebi.gatling.core.result.terminator.Terminator
 
 import akka.actor.{ Actor, ActorRef, Props }
 import akka.routing.BroadcastRouter
 
 object DataWriter {
 
-	private val dataWriter: ActorRef = system.actorOf(Props(configuration.dataWriterClass))
-	private val console: ActorRef = system.actorOf(Props(classOf[ConsoleDataWriter]))
-	private val optionalWriters = List()
+	private val dataWriters: Seq[ActorRef] = configuration.dataWriterClasses.map(clazz => system.actorOf(Props(clazz)))
 
-	private val router = system.actorOf(Props[Actor].withRouter(
-		BroadcastRouter(routees = dataWriter :: console :: optionalWriters)))
+	private val router = system.actorOf(Props[Actor].withRouter(BroadcastRouter(routees = dataWriters)))
 
 	private def dispatch(message: Any) {
 		router ! message
 	}
 
-	def init(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription], latch: CountDownLatch, encoding: String) = dispatch(InitializeDataWriter(runRecord, scenarios, latch, encoding))
+	def init(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription], encoding: String) = dispatch(InitializeDataWriter(runRecord, scenarios, encoding))
 
 	def startUser(scenarioName: String, userId: Int) = {
 		val time = currentTimeMillis
@@ -88,4 +85,33 @@ object DataWriter {
  * These writers are responsible for writing the logs that will be read to
  * generate the statistics
  */
-abstract class DataWriter extends Actor
+abstract class DataWriter extends Actor {
+
+	def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription], encoding: String)
+
+	def onRequestRecord(requestRecord: RequestRecord)
+
+	def onFlushDataWriter
+
+	def uninitialized: Receive = {
+		case InitializeDataWriter(runRecord, scenarios, encoding) =>
+
+			Terminator.registerDataWriter
+			onInitializeDataWriter(runRecord, scenarios, encoding)
+			context.become(initialized)
+	}
+
+	def initialized: Receive = {
+		case requestRecord: RequestRecord => onRequestRecord(requestRecord)
+
+		case FlushDataWriter =>
+			try {
+				onFlushDataWriter
+			} finally {
+				context.unbecome
+				Terminator.terminateDataWriter
+			}
+	}
+
+	def receive = uninitialized
+}

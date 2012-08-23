@@ -22,6 +22,7 @@ import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.result.message.{ RunRecord, ShortScenarioDescription }
+import com.excilys.ebi.gatling.core.result.terminator.Terminator
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.scenario.configuration.{ ScenarioConfiguration, ScenarioConfigurationBuilder }
 import com.excilys.ebi.gatling.core.session.Session
@@ -45,9 +46,6 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 	// latch for determining when to send a flush order to the DataWriter
 	val userLatch = new CountDownLatch(totalNumberOfUsers)
 
-	// latch for determining when to stop the application
-	val dataWriterLatch = new CountDownLatch(1)
-
 	// Builds all scenarios
 	val scenarios = scenarioConfigurations.map { scenarioConfiguration =>
 		val protocolRegistry = ProtocolConfigurationRegistry(scenarioConfiguration.protocolConfigurations)
@@ -63,8 +61,11 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 	 * This method schedules the beginning of all scenarios
 	 */
 	def run {
+		// latch for determining when to stop the application
+		val terminatorLatch = new CountDownLatch(1)
 
-		DataWriter.init(runRecord, shortScenarioDescriptions, dataWriterLatch, configuration.encoding)
+		Terminator.init(terminatorLatch)
+		DataWriter.init(runRecord, shortScenarioDescriptions, configuration.encoding)
 
 		debug("Launching All Scenarios")
 
@@ -80,7 +81,7 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 		userLatch.await(configuration.simulationTimeOut, SECONDS)
 
 		DataWriter.askFlush
-		dataWriterLatch.await(configuration.simulationTimeOut, SECONDS)
+		terminatorLatch.await(configuration.simulationTimeOut, SECONDS)
 
 		debug("All scenarios finished, stoping actors")
 	}

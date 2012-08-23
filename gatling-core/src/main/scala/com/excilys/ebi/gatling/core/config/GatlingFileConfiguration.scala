@@ -58,7 +58,7 @@ class GatlingFileConfiguration(map: Config) {
 	def getString(key: String): Option[String] = if (contains(key)) Some(map.getString(key)) else None
 	def getString(key: String, defaultValue: String): String = getString(key).getOrElse(defaultValue)
 
-	def getList(key: String): Seq[String] = if (contains(key)) map.getStringList(key) else List.empty
+	def getList(key: String): Seq[String] = if (contains(key)) map.getStringList(key) else Nil
 
 	def getInt(key: String): Option[Int] = if (contains(key)) Some(map.getInt(key)) else None
 	def getInt(key: String, defaultValue: Int): Int = getInt(key).getOrElse(defaultValue)
