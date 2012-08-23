@@ -27,15 +27,19 @@ import com.excilys.ebi.gatling.core.result.message.{ RunRecord, ShortScenarioDes
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
 
 import akka.actor.{ Actor, ActorRef, Props }
+import akka.routing.BroadcastRouter
 
 object DataWriter {
 
 	private val dataWriter: ActorRef = system.actorOf(Props(configuration.dataWriterClass))
 	private val console: ActorRef = system.actorOf(Props(classOf[ConsoleDataWriter]))
+	private val optionalWriters = List()
+
+	private val router = system.actorOf(Props[Actor].withRouter(
+		BroadcastRouter(routees = dataWriter :: console :: optionalWriters)))
 
 	private def dispatch(message: Any) {
-		console ! message
-		dataWriter ! message
+		router ! message
 	}
 
 	def init(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription], latch: CountDownLatch, encoding: String) = dispatch(InitializeDataWriter(runRecord, scenarios, latch, encoding))

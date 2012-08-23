@@ -93,8 +93,8 @@ class FileDataWriter extends DataWriter with Logging {
 				.append(END_OF_LINE)
 			context.become(initialized)
 
-		case unknown: AnyRef => error("Unsupported message type in uninilialized state" + unknown.getClass)
-		case unknown: Any => error("Unsupported message type in uninilialized state " + unknown)
+		case unknown: AnyRef => error("Unsupported message type in uninitialized state" + unknown.getClass)
+		case unknown: Any => error("Unsupported message type in uninitialized state " + unknown)
 	}
 
 	def initialized: Receive = {
@@ -113,8 +113,8 @@ class FileDataWriter extends DataWriter with Logging {
 				latch.countDown
 			}
 
-		case unknown: AnyRef => error("Unsupported message type in inilialized state " + unknown.getClass)
-		case unknown: Any => error("Unsupported message type in inilialized state " + unknown)
+		case unknown: AnyRef => error("Unsupported message type in initialized state " + unknown.getClass)
+		case unknown: Any => error("Unsupported message type in initialized state " + unknown)
 	}
 
 	def receive = uninitialized
