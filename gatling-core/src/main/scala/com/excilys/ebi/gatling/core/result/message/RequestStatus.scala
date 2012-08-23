@@ -21,13 +21,4 @@ package com.excilys.ebi.gatling.core.result.message
 object RequestStatus extends Enumeration {
 	type RequestStatus = Value
 	val OK, KO = Value
-
-	class RequestStatusValue(status: Value) {
-		def toBoolean = status match {
-			case OK => true
-			case KO => false
-		}
-	}
-
-	implicit def valueToRequestStatusValue(status : Value) = new RequestStatusValue(status)
 }
