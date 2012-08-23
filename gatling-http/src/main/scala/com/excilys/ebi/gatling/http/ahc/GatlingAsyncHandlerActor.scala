@@ -27,7 +27,7 @@ import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK, RequestStatus }
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+import com.excilys.ebi.gatling.core.util.StringHelper.{ EMPTY, END_OF_LINE }
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames }
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.cache.CacheHandling
@@ -120,7 +120,6 @@ class GatlingAsyncHandlerActor(
 			executeNext(session, response)
 
 		case ReceiveTimeout =>
-			error("GatlingAsyncHandlerActor timed out")
 			val response = responseBuilder.build
 			logRequest(KO, response, Some("GatlingAsyncHandlerActor timed out"))
 			executeNext(session, response)
@@ -130,12 +129,28 @@ class GatlingAsyncHandlerActor(
 
 	def resetTimeout = context.setReceiveTimeout(HttpConfig.GATLING_HTTP_CONFIG_REQUEST_TIMEOUT_IN_MS milliseconds)
 
-	private def logRequest(requestResult: RequestStatus,
+	private def logRequest(
+		requestStatus: RequestStatus,
 		response: ExtendedResponse,
-		requestMessage: Option[String] = None) = {
+		errorMessage: Option[String] = None) {
+
+		if (requestStatus == KO) {
+			if (isDebugEnabled)
+				debug {
+					val buff = new StringBuilder()
+						.append("Request '").append(requestName).append("' failed : ").append(errorMessage.getOrElse(EMPTY)).append(END_OF_LINE)
+						.append("request was:").append(request).append(END_OF_LINE)
+						.append("response was:").append(END_OF_LINE)
+					response.dumpTo(buff)
+					buff.toString
+				}
+			else
+				warn("Request '" + requestName + "' failed : " + errorMessage.getOrElse(EMPTY))
+		}
+
 		DataWriter.logRequest(session.scenarioName, session.userId, requestName,
 			response.executionStartDate, response.executionEndDate, response.requestSendingEndDate, response.responseReceivingStartDate,
-			requestResult, requestMessage, extractExtraInfo(response))
+			requestStatus, errorMessage, extractExtraInfo(response))
 	}
 
 	/**
@@ -206,11 +221,6 @@ class GatlingAsyncHandlerActor(
 
 					checkResult match {
 						case Failure(errorMessage) =>
-							if (isDebugEnabled)
-								debug("Check on request '" + requestName + "' failed : " + errorMessage + END_OF_LINE + "request was:" + request + END_OF_LINE + "response was:" + response.dump)
-							else
-								warn("Check on request '" + requestName + "' failed : " + errorMessage)
-
 							logRequest(KO, response, Some(errorMessage))
 							executeNext(newSession, response)
 

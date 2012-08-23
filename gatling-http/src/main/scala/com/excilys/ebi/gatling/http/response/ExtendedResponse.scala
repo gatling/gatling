@@ -37,8 +37,7 @@ class ExtendedResponse(
 
 	def latencyInMillis: Long = responseReceivingStartDate - requestSendingEndDate
 
-	def dump: StringBuilder = {
-		val buff = new StringBuilder().append(END_OF_LINE)
+	def dumpTo(buff: StringBuilder) {
 		response.map { response =>
 			if (response.hasResponseStatus)
 				buff.append("status=").append(END_OF_LINE).append(response.getStatusCode).append(" ").append(response.getStatusText).append(END_OF_LINE)
@@ -49,6 +48,11 @@ class ExtendedResponse(
 			if (response.hasResponseBody)
 				buff.append("body=").append(END_OF_LINE).append(response.getResponseBody)
 		}
+	}
+
+	def dump: StringBuilder = {
+		val buff = new StringBuilder
+		dumpTo(buff)
 		buff
 	}
 
