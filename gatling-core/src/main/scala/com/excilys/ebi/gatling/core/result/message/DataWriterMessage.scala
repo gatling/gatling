@@ -66,9 +66,8 @@ case class RequestRecord(
 		requestMessage: Option[String] = None,
 		extraInfo: List[String] = Nil) extends DataWriterMessage {
 	val recordType = ACTION
-	def executionTime = executionEndDate - executionStartDate
 	def latency =  responseReceivingStartDate - requestSendingEndDate
-	def responseTime = requestSendingEndDate - executionStartDate
+	def responseTime = executionEndDate - executionStartDate
 }
 
 case class RunRecord(runDate: DateTime, runId: String, runDescription: String) extends DataWriterMessage {
