@@ -22,10 +22,14 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
+import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+
 @RunWith(classOf[JUnitRunner])
 class ConsoleDataWriterSpec extends Specification {
 
 	val time = new DateTime().withDate(2012, 8, 24).withTime(13, 37, 0, 0)
+	
+	def progressBar(summary: ConsoleSummary) = summary.toString.split(END_OF_LINE)(3)
 
 	"console summary progress bar" should {
 
@@ -35,14 +39,7 @@ class ConsoleDataWriterSpec extends Specification {
 
 			val summary = ConsoleSummary(10000, Map("request1" -> counters), Map.empty, time)
 			summary.complete must beFalse
-			summary.toString must beEqualTo("""================================================================================
-2012-08-24 13:37:00                                               10000s elapsed
----- request1 ------------------------------------------------------------------
-Users  : [                                                                 ]  0%
-          waiting:11    / running:0     / done:0    
----- Requests ------------------------------------------------------------------
-================================================================================
-""")
+			progressBar(summary) must beEqualTo("Users  : [                                                                 ]  0%")
 		}
 
 		"handle it correctly when all the users are running" in {
@@ -52,14 +49,7 @@ Users  : [                                                                 ]  0%
 
 			val summary = ConsoleSummary(10000, Map("request1" -> counters), Map.empty, time)
 			summary.complete must beFalse
-			summary.toString must beEqualTo("""================================================================================
-2012-08-24 13:37:00                                               10000s elapsed
----- request1 ------------------------------------------------------------------
-Users  : [-----------------------------------------------------------------]  0%
-          waiting:0     / running:11    / done:0    
----- Requests ------------------------------------------------------------------
-================================================================================
-""")
+			progressBar(summary) must beEqualTo("Users  : [-----------------------------------------------------------------]  0%")
 		}
 
 		"handle it correctly when all the users are done" in {
@@ -70,14 +60,7 @@ Users  : [-----------------------------------------------------------------]  0%
 
 			val summary = ConsoleSummary(10000, Map("request1" -> counters), Map.empty, time)
 			summary.complete must beTrue
-			summary.toString must beEqualTo("""================================================================================
-2012-08-24 13:37:00                                               10000s elapsed
----- request1 ------------------------------------------------------------------
-Users  : [#################################################################]100%
-          waiting:0     / running:0     / done:11   
----- Requests ------------------------------------------------------------------
-================================================================================
-""")
+			progressBar(summary) must beEqualTo("Users  : [#################################################################]100%")
 		}
 
 		"handle it correctly when there are running and done users" in {
@@ -88,14 +71,7 @@ Users  : [#################################################################]100%
 
 			val summary = ConsoleSummary(10000, Map("request1" -> counters), Map.empty, time)
 			summary.complete must beFalse
-			summary.toString must beEqualTo("""================================================================================
-2012-08-24 13:37:00                                               10000s elapsed
----- request1 ------------------------------------------------------------------
-Users  : [###########################################################------] 90%
-          waiting:0     / running:1     / done:10   
----- Requests ------------------------------------------------------------------
-================================================================================
-""")
+			progressBar(summary) must beEqualTo("Users  : [###########################################################------] 90%")
 		}
 	}
 }
