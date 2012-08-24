@@ -15,6 +15,9 @@
  */
 package com.excilys.ebi.gatling.core.result.writer
 
+import scala.collection.mutable.Map
+
+import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
@@ -22,45 +25,77 @@ import org.specs2.runner.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class ConsoleDataWriterSpec extends Specification {
 
+	val time = new DateTime().withDate(2012, 8, 24).withTime(13, 37, 0, 0)
+
 	"console summary progress bar" should {
 
 		"handle it correctly when all the users are waiting" in {
-			val buff = new StringBuilder
-			ConsoleSummary.appendUsersProgressBar(buff, new UserCounters(11))
 
-			buff.toString must beEqualTo("Users  : [                                                                 ]  0%\n")
+			val counters = new UserCounters(11)
+
+			val summary = ConsoleSummary(10000, Map("request1" -> counters), Map.empty, time)
+			summary.complete must beFalse
+			summary.toString must beEqualTo("""================================================================================
+2012-08-24 13:37:00                                               10000s elapsed
+---- request1 ------------------------------------------------------------------
+Users  : [                                                                 ]  0%
+          waiting:11    / running:0     / done:0    
+---- Requests ------------------------------------------------------------------
+================================================================================
+""")
 		}
 
 		"handle it correctly when all the users are running" in {
-			val buff = new StringBuilder
+
 			val counters = new UserCounters(11)
 			for (i <- 1 to 11) counters.userStart
 
-			ConsoleSummary.appendUsersProgressBar(buff, counters)
-
-			buff.toString must beEqualTo("Users  : [-----------------------------------------------------------------]  0%\n")
+			val summary = ConsoleSummary(10000, Map("request1" -> counters), Map.empty, time)
+			summary.complete must beFalse
+			summary.toString must beEqualTo("""================================================================================
+2012-08-24 13:37:00                                               10000s elapsed
+---- request1 ------------------------------------------------------------------
+Users  : [-----------------------------------------------------------------]  0%
+          waiting:0     / running:11    / done:0    
+---- Requests ------------------------------------------------------------------
+================================================================================
+""")
 		}
 
 		"handle it correctly when all the users are done" in {
-			val buff = new StringBuilder
+
 			val counters = new UserCounters(11)
 			for (i <- 1 to 11) counters.userStart
 			for (i <- 1 to 11) counters.userDone
 
-			ConsoleSummary.appendUsersProgressBar(buff, counters)
-
-			buff.toString must beEqualTo("Users  : [#################################################################]100%\n")
+			val summary = ConsoleSummary(10000, Map("request1" -> counters), Map.empty, time)
+			summary.complete must beTrue
+			summary.toString must beEqualTo("""================================================================================
+2012-08-24 13:37:00                                               10000s elapsed
+---- request1 ------------------------------------------------------------------
+Users  : [#################################################################]100%
+          waiting:0     / running:0     / done:11   
+---- Requests ------------------------------------------------------------------
+================================================================================
+""")
 		}
 
 		"handle it correctly when there are running and done users" in {
-			val buff = new StringBuilder
+
 			val counters = new UserCounters(11)
 			for (i <- 1 to 11) counters.userStart
 			for (i <- 1 to 10) counters.userDone
 
-			ConsoleSummary.appendUsersProgressBar(buff, counters)
-
-			buff.toString must beEqualTo("Users  : [###########################################################------] 90%\n")
+			val summary = ConsoleSummary(10000, Map("request1" -> counters), Map.empty, time)
+			summary.complete must beFalse
+			summary.toString must beEqualTo("""================================================================================
+2012-08-24 13:37:00                                               10000s elapsed
+---- request1 ------------------------------------------------------------------
+Users  : [###########################################################------] 90%
+          waiting:0     / running:1     / done:10   
+---- Requests ------------------------------------------------------------------
+================================================================================
+""")
 		}
 	}
 }
