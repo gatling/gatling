@@ -18,50 +18,64 @@ package com.excilys.ebi.gatling.core.result.writer
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
+import scala.collection.mutable.Map
+import scala.math.ceil
 
-//@RunWith(classOf[JUnitRunner])
+@RunWith(classOf[JUnitRunner])
 class ConsoleDataWriterSpec extends Specification {
 
-//	"console summary progress bar" should {
-//
-//		"handle it correctly when all the users are waiting" in {
-//			val consoleSummary = new ConsoleSummary(25)
-//			consoleSummary.appendUsersProgressBar(new UserCounters(11))
-//
-//			consoleSummary.toString must beEqualTo("Users  : [          ]  0%\n")
-//		}
-//
-//		"handle it correctly when all the users are running" in {
-//			val consoleSummary = new ConsoleSummary(25)
-//			val counters = new UserCounters(11)
-//			for (i <- 1 to 11) counters.userStart
-//
-//			consoleSummary.appendUsersProgressBar(counters)
-//
-//			consoleSummary.toString must beEqualTo("Users  : [----------]  0%\n")
-//		}
-//
-//		"handle it correctly when all the users are done" in {
-//			val consoleSummary = new ConsoleSummary(25)
-//			val counters = new UserCounters(11)
-//			for (i <- 1 to 11) counters.userStart
-//			for (i <- 1 to 11) counters.userDone
-//
-//			consoleSummary.appendUsersProgressBar(counters)
-//
-//			consoleSummary.toString must beEqualTo("Users  : [##########]100%\n")
-//		}
-//
-//		"handle it correctly when there are running and done users" in {
-//			val consoleSummary = new ConsoleSummary(25)
-//
-//			val counters = new UserCounters(11)
-//			for (i <- 1 to 11) counters.userStart
-//			for (i <- 1 to 10) counters.userDone
-//
-//			consoleSummary.appendUsersProgressBar(counters)
-//
-//			consoleSummary.toString must beEqualTo("Users  : [#########-] 90%\n")
-//		}
-//	}
+	val totalUsers = 11
+	val dummyRequestCounters = Map(("request",RequestCounters(0,0)))
+	val progressBarIndex = 3
+	val prelude = "Users  : ["
+
+	"console summary progress bar" should {
+
+		"handle it correctly when all the users are waiting" in {
+			val userCounters = new UserCounters(totalUsers)
+			val consoleSummary = ConsoleSummary(0,Map(("Scenario",userCounters)),dummyRequestCounters)
+			val progressBar = consoleSummary.toString.split("\\n")(progressBarIndex)
+			val ending = "]  0%"
+			val progressBarSize = ConsoleSummary.outputLength -prelude.length - ending.length
+			val allUsersWaiting = " " * progressBarSize
+			progressBar must beEqualTo(prelude + allUsersWaiting + ending)
+		}
+
+		"handle it correctly when all the users are running" in {
+			val userCounters = new UserCounters(totalUsers)
+			for (i <- 1 to totalUsers) userCounters.userStart
+			val consoleSummary = ConsoleSummary(0,Map(("Scenario",userCounters)),dummyRequestCounters)
+			val progressBar = consoleSummary.toString.split("\\n")(progressBarIndex)
+			val ending = "]  0%"
+			val progressBarSize = ConsoleSummary.outputLength -prelude.length - ending.length
+			val allUsersRunning = "-" * progressBarSize
+				progressBar must beEqualTo(prelude + allUsersRunning + ending)
+		}
+
+		"handle it correctly when all the users are done" in {
+			val userCounters = new UserCounters(totalUsers)
+			for (i <- 1 to totalUsers) userCounters.userStart
+			for (i <- 1 to totalUsers) userCounters.userDone
+			val consoleSummary = ConsoleSummary(0,Map(("Scenario",userCounters)),dummyRequestCounters)
+			val progressBar = consoleSummary.toString.split("\\n")(progressBarIndex)
+			val ending = "]100%"
+			val progressBarSize = ConsoleSummary.outputLength -prelude.length - ending.length
+			val allUsersDone = "#" * progressBarSize
+			progressBar must beEqualTo(prelude + allUsersDone + ending)
+		}
+
+		"handle it correctly when there are running and done users" in {
+			val userCounters = new UserCounters(totalUsers)
+			val userDone = totalUsers - 1
+			for (i <- 1 to totalUsers) userCounters.userStart
+			for (i <- 1 to userDone) userCounters.userDone
+			val consoleSummary = ConsoleSummary(0,Map(("Scenario",userCounters)),dummyRequestCounters)
+			val progressBar = consoleSummary.toString.split("\\n")(progressBarIndex)
+			val ending = "] 90%"
+			val progressBarSize = ConsoleSummary.outputLength -prelude.length - ending.length
+			val NinetyPercentUsersDone = "#" * ((userDone / totalUsers.toDouble) * progressBarSize).toInt
+			val TenPercentUsersDone = "-" * ceil(((1 - userDone / totalUsers.toDouble) * progressBarSize)).toInt
+			progressBar must beEqualTo(prelude + NinetyPercentUsersDone + TenPercentUsersDone + ending)
+		}
+	}
 }
