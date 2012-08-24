@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.app
+package com.excilys.ebi.gatling.core.config
 
-object Options {
+object GatlingOptions {
 	val DEFAULT_RUN_ID = "run"
 }
 
-case class Options(
+case class GatlingOptions(
 	var reportsOnlyDirectoryName: Option[String] = None,
 	var noReports: Boolean = false,
 	var configFilePath: Option[String] = None,
@@ -29,4 +29,4 @@ case class Options(
 	var simulationSourcesDirectoryPath: Option[String] = None,
 	var simulationBinariesDirectoryPath: Option[String] = None,
 	var simulationClassNames: Option[List[String]] = None,
-	var runName: String = Options.DEFAULT_RUN_ID)
+	var runName: String = GatlingOptions.DEFAULT_RUN_ID)

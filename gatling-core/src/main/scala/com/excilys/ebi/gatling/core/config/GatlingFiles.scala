@@ -34,7 +34,7 @@ object GatlingFiles {
 	def dataDirectory: Path = configuration.dataDirectoryPath.getOrElse(GATLING_USER_FILES_FOLDER / "data")
 	def resultsDirectory: Path = configuration.resultsDirectoryPath.getOrElse(GATLING_HOME / "results")
 	def requestBodiesDirectory: Path = configuration.requestBodiesDirectoryPath.getOrElse(GATLING_USER_FILES_FOLDER / GATLING_REQUEST_BODIES)
-	def simulationsDirectory: Path = configuration.simulationsDirectoryPath.getOrElse(GATLING_USER_FILES_FOLDER / "simulations")
+	def simulationSourcesDirectory: Path = configuration.simulationSourcesDirectoryPath.getOrElse(GATLING_USER_FILES_FOLDER / "simulations")
 
 	def resultDirectory(runUuid: String): Path = resultsDirectory / runUuid
 	def jsDirectory(runUuid: String): Path = resultDirectory(runUuid) / GATLING_JS

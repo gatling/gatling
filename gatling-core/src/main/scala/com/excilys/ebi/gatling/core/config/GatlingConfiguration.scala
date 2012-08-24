@@ -16,14 +16,11 @@
 package com.excilys.ebi.gatling.core.config
 
 import java.util.concurrent.atomic.AtomicBoolean
-
 import scala.io.Codec
 import scala.tools.nsc.io.Path
-
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.result.writer.{ ConsoleDataWriter, DataWriter, FileDataWriter }
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-
 import grizzled.slf4j.Logging
 
 /**
@@ -37,21 +34,21 @@ object GatlingConfiguration extends Logging {
 
 	@volatile private var instance: GatlingConfiguration = _
 
-	def setUp(configFileName: Option[String], dataFolder: Option[String], requestBodiesFolder: Option[String], resultsFolder: Option[String], simulationsFolder: Option[String]) {
+	def setUp(options: GatlingOptions) {
 		if (initialized.compareAndSet(false, true))
-			instance = GatlingConfiguration(configFileName, dataFolder, requestBodiesFolder, resultsFolder, simulationsFolder)
+			instance = GatlingConfiguration(options)
 		else
 			throw new UnsupportedOperationException("GatlingConfig already set up")
 	}
 
 	def configuration = if (initialized.get) instance else throw new UnsupportedOperationException("Can't access configuration instance if it hasn't been set up")
 
-	def apply(configFilePath: Option[String], dataDirectoryPathString: Option[String], requestBodiesDirectoryPathString: Option[String], resultsDirectoryPathString: Option[String], simulationsDirectoryPathString: Option[String]) = {
+	def apply(options: GatlingOptions) = {
 
 		val fileConfiguration: GatlingFileConfiguration =
 			try {
 				// Locate configuration file, depending on users options
-				val configFile = configFilePath.map { path =>
+				val configFile = options.configFilePath.map { path =>
 					info("Loading custom configuration file: " + path)
 					path
 				} getOrElse {
@@ -64,25 +61,18 @@ object GatlingConfiguration extends Logging {
 				case e => throw new RuntimeException("Could not parse configuration file!", e)
 			}
 
-		val resultsDirectoryPath: Option[Path] = resultsDirectoryPathString.map(Path(_))
-		val dataDirectoryPath: Option[Path] = dataDirectoryPathString.map(Path(_))
-		val requestBodiesDirectoryPath: Option[Path] = requestBodiesDirectoryPathString.map(Path(_))
-		val simulationsDirectoryPath: Option[Path] = simulationsDirectoryPathString.map(Path(_))
-
-		new GatlingConfiguration(fileConfiguration, dataDirectoryPath, requestBodiesDirectoryPath, resultsDirectoryPath, simulationsDirectoryPath)
+		new GatlingConfiguration(fileConfiguration, options)
 	}
 }
 
 class GatlingConfiguration(
 		val fileConfiguration: GatlingFileConfiguration,
-		val dataDirectoryPath: Option[Path],
-		val requestBodiesDirectoryPath: Option[Path],
-		val resultsDirectoryPath: Option[Path],
-		val simulationsDirectoryPath: Option[Path]) extends Logging {
+		options: GatlingOptions) extends Logging {
 
-	/**
-	 * Contains the configuration of Gatling
-	 */
+	val resultsDirectoryPath: Option[Path] = options.resultsDirectoryPath.map(Path(_))
+	val dataDirectoryPath: Option[Path] = options.dataDirectoryPath.map(Path(_))
+	val requestBodiesDirectoryPath: Option[Path] = options.requestBodiesDirectoryPath.map(Path(_))
+	val simulationSourcesDirectoryPath: Option[Path] = options.simulationSourcesDirectoryPath.map(Path(_))
 
 	/**
 	 * Gatling global encoding value
