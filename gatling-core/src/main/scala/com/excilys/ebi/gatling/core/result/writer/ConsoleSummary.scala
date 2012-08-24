@@ -31,52 +31,52 @@ object ConsoleSummary {
 	val outputLength = 80
 	val blockSeparator = "=" * outputLength
 
+	private[writer] def newBlock(buff: StringBuilder) { buff.append(blockSeparator).append(END_OF_LINE) }
+
+	private[writer] def appendTimeInfos(buff: StringBuilder, elapsedTimeInSec: Long) {
+		val now = ConsoleSummary.dateTimeFormat.print(new DateTime)
+		buff.append(now)
+			.appendLeftPaddedString(elapsedTimeInSec.toString, outputLength - ConsoleSummary.iso8601Format.length - 9)
+			.append("s elapsed")
+			.append(END_OF_LINE)
+	}
+
+	private[writer] def appendSubTitle(buff: StringBuilder, title: String) {
+		buff.append("---- ").append(title).append(" ").appendTimes("-", max(outputLength - title.length - 6, 0)).append(END_OF_LINE)
+	}
+
+	private[writer] def appendUsersProgressBar(buff: StringBuilder, usersStats: UserCounters) {
+		val width = outputLength - 15
+
+		val totalCount = usersStats.totalCount
+		val runningCount = usersStats.runningCount
+		val doneCount = usersStats.doneCount
+
+		val donePercent = floor(100 * doneCount.toDouble / totalCount).toInt
+		val done = floor(width * doneCount.toDouble / totalCount).toInt
+		val running = ceil(width * runningCount.toDouble / totalCount).toInt
+		val waiting = width - done - running
+
+		buff.append("Users  : [").appendTimes("#", done).appendTimes("-", running).appendTimes(" ", waiting).append("]")
+			.appendLeftPaddedString(donePercent.toString, 3).append("%")
+			.append(END_OF_LINE)
+	}
+
+	private[writer] def appendUserCounters(buff: StringBuilder, userCounters: UserCounters) {
+		buff.append("          waiting:").appendRightPaddedString(userCounters.waitingCount.toString, 5)
+			.append(" / running:").appendRightPaddedString(userCounters.runningCount.toString, 5)
+			.append(" / done:").appendRightPaddedString(userCounters.doneCount.toString, 5)
+			.append(END_OF_LINE)
+	}
+
+	private[writer] def appendRequestCounters(buff: StringBuilder, actionName: String, requestCounters: RequestCounters) {
+		buff.append("> ").appendRightPaddedString(actionName, outputLength - 22)
+			.append(" OK=").appendRightPaddedString(requestCounters.successfulCount.toString, 6)
+			.append(" KO=").appendRightPaddedString(requestCounters.failedCount.toString, 6)
+			.append(END_OF_LINE)
+	}
+
 	def apply(elapsedTime: Long, usersCounters: Map[String, UserCounters], requestsCounters: Map[String, RequestCounters]) = {
-
-		def newBlock(buff: StringBuilder) { buff.append(blockSeparator).append(END_OF_LINE) }
-
-		def appendTimeInfos(buff: StringBuilder, elapsedTimeInSec: Long) {
-			val now = ConsoleSummary.dateTimeFormat.print(new DateTime)
-			buff.append(now)
-				.appendLeftPaddedString(elapsedTimeInSec.toString, outputLength - ConsoleSummary.iso8601Format.length - 9)
-				.append("s elapsed")
-				.append(END_OF_LINE)
-		}
-
-		def appendSubTitle(buff: StringBuilder, title: String) {
-			buff.append("---- ").append(title).append(" ").appendTimes("-", max(outputLength - title.length - 6, 0)).append(END_OF_LINE)
-		}
-
-		def appendUsersProgressBar(buff: StringBuilder, usersStats: UserCounters) {
-			val width = outputLength - 15
-
-			val totalCount = usersStats.totalCount
-			val runningCount = usersStats.runningCount
-			val doneCount = usersStats.doneCount
-
-			val donePercent = floor(100 * doneCount.toDouble / totalCount).toInt
-			val done = floor(width * doneCount.toDouble / totalCount).toInt
-			val running = ceil(width * runningCount.toDouble / totalCount).toInt
-			val waiting = width - done - running
-
-			buff.append("Users  : [").appendTimes("#", done).appendTimes("-", running).appendTimes(" ", waiting).append("]")
-				.appendLeftPaddedString(donePercent.toString, 3).append("%")
-				.append(END_OF_LINE)
-		}
-
-		def appendUserCounters(buff: StringBuilder, userCounters: UserCounters) {
-			buff.append("          waiting:").appendRightPaddedString(userCounters.waitingCount.toString, 5)
-				.append(" / running:").appendRightPaddedString(userCounters.runningCount.toString, 5)
-				.append(" / done:").appendRightPaddedString(userCounters.doneCount.toString, 5)
-				.append(END_OF_LINE)
-		}
-
-		def appendRequestCounters(buff: StringBuilder, actionName: String, requestCounters: RequestCounters) {
-			buff.append("> ").appendRightPaddedString(actionName, outputLength - 22)
-				.append(" OK=").appendRightPaddedString(requestCounters.successfulCount.toString, 6)
-				.append(" KO=").appendRightPaddedString(requestCounters.failedCount.toString, 6)
-				.append(END_OF_LINE)
-		}
 
 		val buff = new StringBuilder
 
