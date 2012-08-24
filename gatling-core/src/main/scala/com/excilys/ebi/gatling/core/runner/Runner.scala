@@ -43,13 +43,10 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 	// A short description of the scenarios
 	val shortScenarioDescriptions = scenarioConfigurations.map(scenarioConfiguration => ShortScenarioDescription(scenarioConfiguration.scenarioBuilder.name, scenarioConfiguration.users))
 
-	// latch for determining when to send a flush order to the DataWriter
-	val userLatch = new CountDownLatch(totalNumberOfUsers)
-
 	// Builds all scenarios
 	val scenarios = scenarioConfigurations.map { scenarioConfiguration =>
 		val protocolRegistry = ProtocolConfigurationRegistry(scenarioConfiguration.protocolConfigurations)
-		scenarioConfiguration.scenarioBuilder.end(userLatch).build(protocolRegistry)
+		scenarioConfiguration.scenarioBuilder.end.build(protocolRegistry)
 	}
 
 	// Creates a List of Tuples with scenario configuration / scenario 
@@ -64,7 +61,7 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 		// latch for determining when to stop the application
 		val terminatorLatch = new CountDownLatch(1)
 
-		Terminator.init(terminatorLatch)
+		Terminator.init(terminatorLatch, totalNumberOfUsers)
 		DataWriter.init(runRecord, shortScenarioDescriptions, configuration.encoding)
 
 		debug("Launching All Scenarios")
@@ -78,9 +75,7 @@ class Runner(runRecord: RunRecord, scenarioConfigurationBuilders: Seq[ScenarioCo
 		}
 
 		debug("Finished Launching scenarios executions")
-		userLatch.await(configuration.simulationTimeOut, SECONDS)
 
-		DataWriter.askFlush
 		terminatorLatch.await(configuration.simulationTimeOut, SECONDS)
 
 		debug("All scenarios finished, stoping actors")

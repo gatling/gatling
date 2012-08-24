@@ -16,53 +16,71 @@
 package com.excilys.ebi.gatling.core.result.terminator
 
 import java.util.concurrent.CountDownLatch
+
 import com.excilys.ebi.gatling.core.action.system
-import akka.actor.{ Actor, Props }
+import com.excilys.ebi.gatling.core.result.message.FlushDataWriter
+
+import akka.actor.{ Actor, ActorRef, Props }
+import akka.dispatch.Future
+import akka.pattern.ask
+import akka.util.Timeout
+import akka.util.duration.intToDurationInt
 import grizzled.slf4j.Logging
 
 object Terminator {
 
 	private val terminator = system.actorOf(Props[Terminator])
 
-	def init(latch: CountDownLatch) {
-		terminator ! Initialize(latch)
+	def init(latch: CountDownLatch, userCount: Int) {
+		terminator ! Initialize(latch, userCount)
 	}
 
-	def registerDataWriter {
-		terminator ! RegisterDataWriter
+	def registerDataWriter(dataWriter: ActorRef) {
+		terminator ! RegisterDataWriter(dataWriter)
 	}
 
-	def terminateDataWriter {
-		terminator ! TerminateDataWriter
+	def endUser {
+		terminator ! EndUser
 	}
 }
 
 class Terminator extends Actor with Logging {
 
+	import context._
+
 	/**
 	 * The countdown latch that will be decreased when all message are written and all scenarios ended
 	 */
 	private var latch: CountDownLatch = _
+	private var userCount: Int = _
 
-	private var registered = 0
+	private var registeredDataWriters: List[ActorRef] = Nil
 
 	def uninitialized: Receive = {
 
-		case Initialize(latch) =>
+		case Initialize(latch, userCount) =>
 			this.latch = latch
+			this.userCount = userCount
+			registeredDataWriters = Nil
 			context.become(initialized)
 	}
 
 	def initialized: Receive = {
 
-		case RegisterDataWriter =>
-			registered = registered + 1
+		case RegisterDataWriter(dataWriter: ActorRef) =>
+			registeredDataWriters = dataWriter :: registeredDataWriters
 
-		case TerminateDataWriter =>
-			registered = registered - 1
-			if (registered == 0) {
-				latch.countDown
-				context.unbecome
+		case EndUser =>
+			userCount = userCount - 1
+			if (userCount == 0) {
+				implicit val timeout = Timeout(5 seconds)
+				Future.sequence(registeredDataWriters.map(_.ask(FlushDataWriter).mapTo[Boolean]))
+					.onComplete {
+						case Left(e) => error(e)
+						case Right(_) =>
+							latch.countDown
+							context.unbecome
+					}
 			}
 	}
 

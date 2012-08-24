@@ -51,8 +51,6 @@ object DataWriter {
 		dispatch(RequestRecord(scenarioName, userId, END_OF_SCENARIO, time, time, time, time, OK))
 	}
 
-	def askFlush = dispatch(FlushDataWriter)
-
 	def logRequest(
 		scenarioName: String,
 		userId: Int,
@@ -96,7 +94,7 @@ abstract class DataWriter extends Actor {
 	def uninitialized: Receive = {
 		case InitializeDataWriter(runRecord, scenarios, encoding) =>
 
-			Terminator.registerDataWriter
+			Terminator.registerDataWriter(self)
 			onInitializeDataWriter(runRecord, scenarios, encoding)
 			context.become(initialized)
 	}
@@ -109,7 +107,7 @@ abstract class DataWriter extends Actor {
 				onFlushDataWriter
 			} finally {
 				context.unbecome
-				Terminator.terminateDataWriter
+				sender ! true
 			}
 	}
 

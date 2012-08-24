@@ -106,9 +106,6 @@ object ConsoleSummary {
 		val complete = {
 			val totalWaiting = usersCounters.values.map(_.waitingCount).sum
 			val totalRunning = usersCounters.values.map(_.runningCount).sum
-			
-			System.err.println("totalWaiting=" + totalWaiting + " totalRunning=" + totalRunning);
-			
 			(totalWaiting == 0) && (totalRunning == 0)
 		}
 

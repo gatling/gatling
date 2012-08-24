@@ -15,34 +15,30 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import java.util.concurrent.CountDownLatch
-
-import com.excilys.ebi.gatling.core.action.system
-import com.excilys.ebi.gatling.core.action.EndAction
+import com.excilys.ebi.gatling.core.action.{ EndAction, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
-import akka.actor.{ Props, ActorRef }
+import akka.actor.{ ActorRef, Props }
 
 object EndActionBuilder {
 
 	/**
 	 * Creates a new EndActionBuilder
 	 *
-	 * @param countDownLatch the countdown latch that will stop the simulation execution
 	 * @return a ready to use EndActionBuilder
 	 */
-	def endActionBuilder(latch: CountDownLatch) = new EndActionBuilder(latch)
+	def endActionBuilder = new EndActionBuilder
 }
 
 /**
  * Builder for EndAction
  *
- * @constructor create an EndActionBuilder with its countdown slatch
+ * @constructor create an EndActionBuilder
  * @param latch The CountDownLatch that will stop the simulation
  */
-class EndActionBuilder(latch: CountDownLatch) extends ActionBuilder {
+class EndActionBuilder extends ActionBuilder {
 
-	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new EndAction(latch)))
+	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props[EndAction])
 
 	def withNext(next: ActorRef): ActionBuilder = this
 }

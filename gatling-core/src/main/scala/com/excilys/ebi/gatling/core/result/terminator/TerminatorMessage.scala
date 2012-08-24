@@ -17,8 +17,10 @@ package com.excilys.ebi.gatling.core.result.terminator
 
 import java.util.concurrent.CountDownLatch
 
+import akka.actor.ActorRef
+
 sealed trait TerminatorMessage
 
-case class Initialize(latch: CountDownLatch) extends TerminatorMessage
-case object RegisterDataWriter extends TerminatorMessage
-case object TerminateDataWriter extends TerminatorMessage
+case class Initialize(latch: CountDownLatch, userCount: Int) extends TerminatorMessage
+case class RegisterDataWriter(dataWriter: ActorRef) extends TerminatorMessage
+case object EndUser extends TerminatorMessage

@@ -56,12 +56,11 @@ class ScenarioBuilder(val name: String, actionBuilders: List[ActionBuilder]) ext
 
 	/**
 	 * Method that should not be used in a script. It adds an EndAction that will
-	 * tell the engine that the scenario is finished
+	 * tell the engine that the user has finished his scenario
 	 *
-	 * @param latch the countdown latch used to stop the engine
 	 * @return a new builder with its last action added
 	 */
-	private[core] def end(latch: CountDownLatch): ScenarioBuilder = newInstance(endActionBuilder(latch) :: actionBuilders)
+	private[core] def end: ScenarioBuilder = newInstance(endActionBuilder :: actionBuilders)
 
 	/**
 	 * Method that actually builds the scenario
