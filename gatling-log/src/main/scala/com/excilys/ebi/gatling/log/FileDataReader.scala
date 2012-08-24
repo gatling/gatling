@@ -33,12 +33,12 @@ object FileDataReader {
 	val SIMULATION_FILES_NAME_PATTERN = """.*\.log"""
 }
 
-class FileDataReader(runUuid: String, maxPlotPerSerie: RichInt) extends DataReader(runUuid) with Logging {
+class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	val (max, min, step, size, buckets) = {
 		val inputFiles = simulationLogDirectory(runUuid, create = false).files.filter(_.jfile.getName.matches(FileDataReader.SIMULATION_FILES_NAME_PATTERN)).map(_.jfile).toSeq
 
-		val (max, min, step, size) = LogFilePreProcessor.getGeneralStats(multipleFileIterator(inputFiles), maxPlotPerSerie.toInt)
+		val (max, min, step, size) = LogFilePreProcessor.getGeneralStats(multipleFileIterator(inputFiles), configuration.chartingMaxPlotPerSerie.toInt)
 
 		new Stats(min, max, step, size, multipleFileIterator(inputFiles)).run
 

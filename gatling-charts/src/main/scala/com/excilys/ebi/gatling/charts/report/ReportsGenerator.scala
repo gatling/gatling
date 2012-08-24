@@ -32,7 +32,7 @@ object ReportsGenerator extends Logging {
 
 	def generateFor(runUuid: String): Path = {
 
-		val dataReader = DataReader.newInstance(runUuid, configuration.chartingMaxPlotPerSerie)
+		val dataReader = DataReader.newInstance(runUuid)
 
 		def generateMenu {
 			val maxLength = 50

@@ -24,7 +24,7 @@ object DataReader {
 	val NO_PLOT_MAGIC_VALUE = -1
 
 	def newInstance(runOn: String, maxPlotPerSerie: Int) =
-		configuration.dataReaderClass.getConstructor(classOf[String], classOf[RichInt]).newInstance(runOn, new RichInt(maxPlotPerSerie))
+		configuration.dataReaderClass.getConstructor(classOf[String]).newInstance(runOn)
 }
 
 abstract class DataReader(runUuid: String) {
