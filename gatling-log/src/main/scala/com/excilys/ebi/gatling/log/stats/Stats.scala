@@ -31,7 +31,7 @@ class Stats(min: Long, max: Long, step: Double, size: Long, inputIterator: Itera
 
 	val header = (ACTION_TYPE, SCENARIO, ID, REQUEST, EXECUTION_START, EXECUTION_END, REQUEST_END, RESPONSE_START, STATUS)
 
-	val demiStep = step / 2
+	val bucketFunction = bucket(_: Long, min, max, step, step/2)
 
 	val range = (max - min) / SEC_MILLISEC_RATIO
 
@@ -44,7 +44,7 @@ class Stats(min: Long, max: Long, step: Double, size: Long, inputIterator: Itera
 		.map((EXECUTION_START, EXECUTION_END, RESPONSE_START, REQUEST_END) ->(EXECUTION_START_BUCKET, EXECUTION_END_BUCKET, RESPONSE_START_BUCKET, REQUEST_END_BUCKET)) {
 		t: (Long, Long, Long, Long) => {
 			val (executionStart, executionEnd, responseStart, requestEnd) = t
-			(bucket(executionStart, min, max, step, demiStep), bucket(executionEnd, min, max, step, demiStep), bucket(responseStart, min, max, step, demiStep), bucket(requestEnd, min, max, step, demiStep))
+			(bucketFunction(executionStart), bucketFunction(executionEnd), bucketFunction(responseStart), bucketFunction(requestEnd))
 		}
 	}
 	/* SESSIONS STATS */
