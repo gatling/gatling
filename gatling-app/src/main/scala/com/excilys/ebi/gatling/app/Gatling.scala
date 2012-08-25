@@ -207,7 +207,7 @@ class Gatling(options: GatlingOptions) extends Logging {
 
 	private def loadSimulationClasses(classNames: List[String]): List[Class[Simulation]] = filterSimulationClasses(classNames.map(Class.forName(_)))
 
-	private def loadSimulationClasses(classNames: List[String], classLoader: AbstractFileClassLoader): List[Class[Simulation]] = filterSimulationClasses(classNames.map(classLoader.findClass(_)))
+	private def loadSimulationClasses(classNames: List[String], classLoader: AbstractFileClassLoader): List[Class[Simulation]] = filterSimulationClasses(classNames.map(classLoader.loadClass(_)))
 
 	private def selectSimulationClass(classes: List[Class[Simulation]]): Class[Simulation] = {
 
