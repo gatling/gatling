@@ -32,7 +32,7 @@ import grizzled.slf4j.Logging
 
 object Configuration extends Logging {
 
-	GatlingConfiguration.setUp(GatlingOptions())
+	GatlingConfiguration.setUp(new GatlingOptions)
 	val DEFAULT_CLASS_NAME = "Simulation"
 
 	private val XSTREAM = {
@@ -46,7 +46,7 @@ object Configuration extends Logging {
 
 	val configuration = new Configuration
 
-	def apply(options: Options) {
+	def apply(options: RecorderOptions) {
 		initFromDisk
 		initFromCli(options)
 	}
@@ -87,7 +87,7 @@ object Configuration extends Logging {
 		}
 	}
 
-	private def initFromCli(o: Options) {
+	private def initFromCli(o: RecorderOptions) {
 		o.localPort.map(configuration.port = _)
 		o.localPortSsl.map(configuration.sslPort = _)
 		for {

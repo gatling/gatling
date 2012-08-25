@@ -69,10 +69,10 @@ class GatlingConfiguration(
 		val fileConfiguration: GatlingFileConfiguration,
 		options: GatlingOptions) extends Logging {
 
-	val resultsDirectoryPath: Option[Path] = options.resultsDirectoryPath.map(Path(_))
-	val dataDirectoryPath: Option[Path] = options.dataDirectoryPath.map(Path(_))
-	val requestBodiesDirectoryPath: Option[Path] = options.requestBodiesDirectoryPath.map(Path(_))
-	val simulationSourcesDirectoryPath: Option[Path] = options.simulationSourcesDirectoryPath.map(Path(_))
+	val resultsDirectoryPath: Option[Path] = options.resultsDirectory
+	val dataDirectoryPath: Option[Path] = options.dataDirectory
+	val requestBodiesDirectoryPath: Option[Path] = options.requestBodiesDirectory
+	val simulationSourcesDirectoryPath: Option[Path] = options.simulationSourcesDirectory
 
 	/**
 	 * Gatling global encoding value

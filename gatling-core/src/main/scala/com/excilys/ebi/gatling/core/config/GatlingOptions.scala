@@ -15,6 +15,9 @@
  */
 package com.excilys.ebi.gatling.core.config
 
+import scala.tools.nsc.io.Path
+import scala.tools.nsc.io.Directory
+
 object GatlingOptions {
 	val DEFAULT_RUN_ID = "run"
 }
@@ -23,10 +26,10 @@ case class GatlingOptions(
 	var reportsOnlyDirectoryName: Option[String] = None,
 	var noReports: Boolean = false,
 	var configFilePath: Option[String] = None,
-	var resultsDirectoryPath: Option[String] = None,
-	var dataDirectoryPath: Option[String] = None,
-	var requestBodiesDirectoryPath: Option[String] = None,
-	var simulationSourcesDirectoryPath: Option[String] = None,
-	var simulationBinariesDirectoryPath: Option[String] = None,
+	var resultsDirectory: Option[Path] = None,
+	var dataDirectory: Option[Path] = None,
+	var requestBodiesDirectory: Option[Path] = None,
+	var simulationSourcesDirectory: Option[Directory] = None,
+	var simulationBinariesDirectory: Option[Directory] = None,
 	var simulationClassNames: Option[List[String]] = None,
 	var runName: String = GatlingOptions.DEFAULT_RUN_ID)

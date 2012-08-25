@@ -13,9 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.app
+package com.excilys.ebi.gatling.recorder.config
 
-import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-
-case class UserSelection(simulationClasses: List[Class[Simulation]], runId: String, runDescription: String)
+class RecorderOptions(
+	var localPort: Option[Int] = None,
+	var localPortSsl: Option[Int] = None,
+	var proxyHost: Option[String] = None,
+	var proxyPort: Option[Int] = None,
+	var proxyPortSsl: Option[Int] = None,
+	var outputFolder: Option[String] = None,
+	var requestBodiesFolder: Option[String] = None,
+	var simulationClassName: Option[String] = None,
+	var simulationPackage: Option[String] = None,
+	var encoding: Option[String] = None,
+	var followRedirect: Option[Boolean] = None,
+	var automaticReferer: Option[Boolean] = None)

@@ -31,8 +31,9 @@ class FileDataReaderSpec extends Specification {
 
 	//The file data reader needs to know the encoding, use default conf.
 
-	val conf = GatlingOptions()
-	conf.simulationSourcesDirectoryPath = Some(Path(List("src", "test", "resources")).toString)
+	val conf = GatlingOptions(
+		simulationSourcesDirectory = Some(Path(List("src", "test", "resources")).toDirectory),
+		resultsDirectory = Some(Path(List("src", "test", "resources"))))
 
 	GatlingConfiguration.setUp(conf)
 

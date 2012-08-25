@@ -15,19 +15,21 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import com.excilys.ebi.gatling.charts.component.ComponentLibrary
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.menuFile
-import com.excilys.ebi.gatling.charts.template.{ PageTemplate, MenuTemplate }
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{ styleDirectory, jsDirectory, GATLING_ASSETS_STYLE_PACKAGE, GATLING_ASSETS_JS_PACKAGE }
+import scala.tools.nsc.io.Path
+
+import com.excilys.ebi.gatling.charts.component.{ ComponentLibrary, RequestStatistics }
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ globalFile, menuFile }
+import com.excilys.ebi.gatling.charts.template.{ MenuTemplate, PageTemplate }
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_ASSETS_JS_PACKAGE, GATLING_ASSETS_STYLE_PACKAGE, jsDirectory, styleDirectory }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
-import com.excilys.ebi.gatling.core.util.FileHelper.{ formatToFilename, HTML_EXTENSION }
+import com.excilys.ebi.gatling.core.util.FileHelper.{ HTML_EXTENSION, formatToFilename }
 import com.excilys.ebi.gatling.core.util.ScanHelper.deepCopyPackageContent
+
 import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.charts.component.RequestStatistics
 
 object ReportsGenerator extends Logging {
 
-	def generateFor(runUuid: String): Map[String, RequestStatistics] = {
+	def generateFor(runUuid: String): Path = {
 
 		val dataReader = DataReader.newInstance(runUuid)
 
@@ -67,6 +69,8 @@ object ReportsGenerator extends Logging {
 			PageTemplate.setRunInfo(dataReader.runRecord)
 			reportGenerators.foreach(_.generate)
 			generateStats
+
+			globalFile(runUuid)
 		}
 	}
 }

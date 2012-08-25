@@ -16,10 +16,9 @@
 package com.excilys.ebi.gatling.core.util
 
 import java.io.File
-
 import org.apache.commons.io.FileUtils
-
 import com.excilys.ebi.gatling.core.util.StringHelper.stripAccents
+import scala.tools.nsc.io.Directory
 
 /**
  * This object groups all utilities for files
@@ -63,7 +62,7 @@ object FileHelper {
 	 *
 	 * @returns File representing the directory
 	 */
-	def createTempDirectory(deleteAtExit: Boolean = true): File = {
+	def createTempDirectory(deleteAtExit: Boolean = true): Directory = {
 		var file = File.createTempFile("temp", "dir")
 		file.delete
 		file.mkdir
@@ -75,6 +74,6 @@ object FileHelper {
 				}
 			})
 
-		file
+		Directory(file)
 	}
 }
