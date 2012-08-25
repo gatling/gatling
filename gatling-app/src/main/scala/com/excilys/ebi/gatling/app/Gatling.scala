@@ -17,7 +17,9 @@ package com.excilys.ebi.gatling.app
 
 import java.io.{ PrintWriter, StringWriter }
 import java.lang.System.currentTimeMillis
+import java.lang.reflect.Modifier
 
+import scala.Array.canBuildFrom
 import scala.tools.nsc.{ Global, Settings }
 import scala.tools.nsc.interpreter.AbstractFileClassLoader
 import scala.tools.nsc.io.{ Directory, File, Path }
@@ -27,7 +29,7 @@ import scala.tools.nsc.reporters.ConsoleReporter
 
 import org.joda.time.DateTime.now
 
-import com.excilys.ebi.gatling.app.OptionsConstants.{ CONFIG_FILE_ALIAS, CONFIG_FILE_OPTION, DATA_FOLDER_ALIAS, DATA_FOLDER_OPTION, NO_REPORTS_ALIAS, NO_REPORTS_OPTION, REPORTS_ONLY_ALIAS, REPORTS_ONLY_OPTION, REQUEST_BODIES_FOLDER_ALIAS, REQUEST_BODIES_FOLDER_OPTION, RESULTS_FOLDER_ALIAS, RESULTS_FOLDER_OPTION, RUN_NAME_ALIAS, RUN_NAME_OPTION, SIMULATIONS_ALIAS, SIMULATIONS_BINARIES_FOLDER_ALIAS, SIMULATIONS_BINARIES_FOLDER_OPTION, SIMULATIONS_FOLDER_ALIAS, SIMULATIONS_FOLDER_OPTION, SIMULATIONS_OPTION }
+import com.excilys.ebi.gatling.app.OptionsConstants._
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.globalFile
 import com.excilys.ebi.gatling.charts.report.ReportsGenerator
 import com.excilys.ebi.gatling.core.action.system
@@ -199,15 +201,13 @@ class Gatling(options: GatlingOptions) extends Logging {
 		.filter(_.hasExtension("class"))
 		.map(pathToClassName(_, dir)).toList
 
-	private def loadSimulationClasses(classNames: List[String]): List[Class[Simulation]] = classNames
-		.map(Class.forName(_))
-		.filter(classOf[Simulation].isAssignableFrom(_))
-		.map(_.asInstanceOf[Class[Simulation]]).toList
+	private def filterSimulationClasses(classes: List[Class[_]]) = classes
+		.filter { clazz => classOf[Simulation].isAssignableFrom(clazz) && !clazz.isInterface && !Modifier.isAbstract(clazz.getModifiers) }
+		.map(_.asInstanceOf[Class[Simulation]])
 
-	private def loadSimulationClasses(classNames: List[String], classLoader: AbstractFileClassLoader): List[Class[Simulation]] = classNames
-		.map(classLoader.findClass(_))
-		.filter(classOf[Simulation].isAssignableFrom(_))
-		.map(_.asInstanceOf[Class[Simulation]]).toList
+	private def loadSimulationClasses(classNames: List[String]): List[Class[Simulation]] = filterSimulationClasses(classNames.map(Class.forName(_)))
+
+	private def loadSimulationClasses(classNames: List[String], classLoader: AbstractFileClassLoader): List[Class[Simulation]] = filterSimulationClasses(classNames.map(classLoader.findClass(_)))
 
 	private def selectSimulationClass(classes: List[Class[Simulation]]): Class[Simulation] = {
 
