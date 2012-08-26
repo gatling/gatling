@@ -29,6 +29,11 @@ import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpRes
 import com.ning.http.client.Response.ResponseBuilder
 
 object ExtendedResponseBuilder {
+	
+	val currentTimeMillisReference = currentTimeMillis
+	val nanoTimeReference = nanoTime 
+	
+	def computeTimeFromNanos(nanos: Long) = (nanos - ExtendedResponseBuilder.nanoTimeReference) / 1000000 + ExtendedResponseBuilder.currentTimeMillisReference
 
 	def newExtendedResponseBuilder(checks: List[HttpCheck[_]], protocolConfiguration: HttpProtocolConfiguration): ExtendedResponseBuilderFactory = {
 
@@ -48,13 +53,10 @@ class ExtendedResponseBuilder(request: Request, session: Session, checksumChecks
 
 	private val responseBuilder = new ResponseBuilder
 	private var checksums = Map.empty[String, MessageDigest]
-	private var executionStartDateNanos = nanoTime
-	var _executionStartDate = currentTimeMillis
+	val _executionStartDate = ExtendedResponseBuilder.computeTimeFromNanos(nanoTime)
 	var _requestSendingEndDate = 0L
 	var _responseReceivingStartDate = 0L
 	var _executionEndDate = 0L
-
-	private def computeTimeFromNanos(nanos: Long) = (nanos - executionStartDateNanos) / 1000000 + _executionStartDate
 
 	def accumulate(responseStatus: HttpResponseStatus) {
 		responseBuilder.accumulate(responseStatus)
@@ -65,15 +67,15 @@ class ExtendedResponseBuilder(request: Request, session: Session, checksumChecks
 	}
 
 	def updateRequestSendingEndDate(nanos: Long) {
-		_requestSendingEndDate = computeTimeFromNanos(nanos)
+		_requestSendingEndDate = ExtendedResponseBuilder.computeTimeFromNanos(nanos)
 	}
 
 	def updateResponseReceivingStartDate(nanos: Long) {
-		_responseReceivingStartDate = computeTimeFromNanos(nanos)
+		_responseReceivingStartDate = ExtendedResponseBuilder.computeTimeFromNanos(nanos)
 	}
 
 	def computeExecutionEndDateFromNanos(nanos: Long) {
-		_executionEndDate = computeTimeFromNanos(nanos)
+		_executionEndDate = ExtendedResponseBuilder.computeTimeFromNanos(nanos)
 	}
 
 	def accumulate(bodyPart: Option[HttpResponseBodyPart]) {

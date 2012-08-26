@@ -26,5 +26,5 @@ case class OnContentWriteCompleted(nanos: Long = nanoTime) extends HttpEvent
 case class OnStatusReceived(responseStatus: HttpResponseStatus, nanos: Long = nanoTime) extends HttpEvent
 case class OnHeadersReceived(headers: HttpResponseHeaders) extends HttpEvent
 case class OnBodyPartReceived(bodyPart: Option[HttpResponseBodyPart] = None) extends HttpEvent
-case class OnCompleted(time: Long = nanoTime) extends HttpEvent
+case class OnCompleted(nanos: Long = nanoTime) extends HttpEvent
 case class OnThrowable(errorMessage: String, nanos: Long = nanoTime) extends HttpEvent
