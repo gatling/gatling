@@ -16,12 +16,11 @@
 package com.excilys.ebi.gatling.core.action.builder
 
 import java.util.concurrent.TimeUnit
-
 import com.excilys.ebi.gatling.core.action.{ system, PauseAction }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.util.NumberHelper.createExpRandomLongGenerator
-
 import akka.actor.{ Props, ActorRef }
+import akka.util.Duration
 
 object ExpPauseActionBuilder {
 
@@ -30,7 +29,7 @@ object ExpPauseActionBuilder {
 	 * time unit in Seconds.  A 1 second delay is used because exponential distributions
 	 * are not defined at zero and 1 is the smallest positive Long.
 	 */
-	def expPauseActionBuilder = new ExpPauseActionBuilder(1, TimeUnit.SECONDS, null)
+	def expPauseActionBuilder = new ExpPauseActionBuilder(Duration(1, TimeUnit.SECONDS), null)
 }
 
 /**
@@ -39,10 +38,9 @@ object ExpPauseActionBuilder {
  *
  * @constructor create a new ExpPauseActionBuilder
  * @param meanDuration mean duration of the generated pause
- * @param timeUnit time unit of the duration of the generated pause
  * @param next action that will be executed after the generated pause
  */
-class ExpPauseActionBuilder(meanDuration: Long, timeUnit: TimeUnit, next: ActorRef) extends ActionBuilder {
+class ExpPauseActionBuilder(meanDuration: Duration, next: ActorRef) extends ActionBuilder {
 
 	/**
 	 * Adds meanDuration to builder
@@ -50,20 +48,12 @@ class ExpPauseActionBuilder(meanDuration: Long, timeUnit: TimeUnit, next: ActorR
 	 * @param meanDuration the minimum duration of the pause
 	 * @return a new builder with minDuration set
 	 */
-	def withMeanDuration(meanDuration: Long) = new ExpPauseActionBuilder(meanDuration, timeUnit, next)
+	def withMeanDuration(meanDuration: Duration) = new ExpPauseActionBuilder(meanDuration, next)
 
-	/**
-	 * Adds timeUnit to builder
-	 *
-	 * @param timeUnit time unit of the duration
-	 * @return a new builder with timeUnit set
-	 */
-	def withTimeUnit(timeUnit: TimeUnit) = new ExpPauseActionBuilder(meanDuration, timeUnit, next)
-
-	def withNext(next: ActorRef) = new ExpPauseActionBuilder(meanDuration, timeUnit, next)
+	def withNext(next: ActorRef) = new ExpPauseActionBuilder(meanDuration, next)
 
 	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
-		val meanDurationInMillis = TimeUnit.MILLISECONDS.convert(meanDuration, timeUnit)
+		val meanDurationInMillis = meanDuration.toMillis
 		val delayGenerator: () => Long = createExpRandomLongGenerator(meanDurationInMillis)
 
 		system.actorOf(Props(new PauseAction(next, delayGenerator)))
