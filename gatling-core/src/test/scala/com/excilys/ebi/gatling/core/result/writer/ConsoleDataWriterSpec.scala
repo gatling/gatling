@@ -21,6 +21,7 @@ import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
+import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 
