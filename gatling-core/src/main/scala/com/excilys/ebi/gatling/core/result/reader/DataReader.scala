@@ -23,7 +23,7 @@ import com.excilys.ebi.gatling.core.result.message.RequestStatus.RequestStatus
 object DataReader {
 	val NO_PLOT_MAGIC_VALUE = -1
 
-	def newInstance(runOn: String, maxPlotPerSerie: Int) =
+	def newInstance(runOn: String) =
 		configuration.dataReaderClass.getConstructor(classOf[String]).newInstance(runOn)
 }
 
