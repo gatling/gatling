@@ -37,5 +37,5 @@ class SessionDeltaRecord(val executionStartBucket: Long, val delta: Long, val sc
 
 class SessionRecord(val executionStart: Long, val size: Long, val scenario: Option[String])
 
-class ScenarioRecord(val scenario: String)
+class ScenarioRecord(val scenario: String, val executionStart: Long)
 

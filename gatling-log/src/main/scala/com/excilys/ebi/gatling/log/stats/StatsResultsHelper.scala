@@ -31,7 +31,7 @@ object StatsResultsHelper extends Logging {
 
 	def getRequestNames = StatsResults.getGeneralStatsBuffer(BY_REQUEST).map(_.request.get)
 
-	def getScenarioNames = StatsResults.getScenarioBuffer().map(_.scenario)
+	def getScenarioNames = StatsResults.getScenarioBuffer().sortBy(_.executionStart).reverse.map(_.scenario)
 
 	def getNumberOfActiveSessionsPerSecond(scenarioName: Option[String]) = {
 		val bufferType = scenarioName match {

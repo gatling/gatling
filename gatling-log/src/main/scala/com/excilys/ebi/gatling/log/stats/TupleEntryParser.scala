@@ -76,7 +76,7 @@ object TupleEntryParser {
 
 	def tupleEntryToScenarioRecord(tupleEntry: TupleEntry) = {
 		val map = tupleEntryToMap(tupleEntry)
-		new ScenarioRecord(get(SCENARIO, map))
+		new ScenarioRecord(get(SCENARIO, map), get(EXECUTION_START, map))
 	}
 
 	private def tupleEntryToMap(tupleEntry: TupleEntry) = {

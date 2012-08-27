@@ -69,10 +69,15 @@ class Stats(min: Long, max: Long, step: Double, size: Long, inputIterator: Itera
 	}
 		.write(output(ResultBufferFinderAndParser.SESSION_DELTA, BY_SCENARIO))
 
-	pipeSessionDeltaPerBucketByScenario.groupBy(SCENARIO) {
-		_.size(SIZE)
+	filteredSessionPipe
+		.filter(REQUEST) {
+		req: String => req == START_OF_SCENARIO
 	}
-		.project(SCENARIO)
+		.groupBy((SCENARIO)){
+		_.reduce(EXECUTION_START -> EXECUTION_START){
+			(scenarioStartSoFar: Long, executionStart: Long) => scala.math.min(scenarioStartSoFar, executionStart)
+		}
+	}
 		.write(output(ResultBufferFinderAndParser.SCENARIO, GLOBAL))
 
 	/* ALL */
