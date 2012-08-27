@@ -110,5 +110,5 @@ class GatlingConfiguration(
 			classes
 	}
 
-	lazy val dataReaderClass = Class.forName(fileConfiguration("gatling.data.reader", "com.excilys.ebi.gatling.result.reader.FileDataReader")).asInstanceOf[Class[DataReader]]
+	lazy val dataReaderClass = Class.forName(fileConfiguration("gatling.data.reader", "com.excilys.ebi.gatling.charts.result.reader.FileDataReader")).asInstanceOf[Class[DataReader]]
 }
