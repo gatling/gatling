@@ -29,7 +29,7 @@ object StatsResultsHelper extends Logging {
 		records.head
 	}
 
-	def getRequestNames = StatsResults.getGeneralStatsBuffer(BY_REQUEST).map(_.request.get)
+	def getRequestNames = StatsResults.getRequestBuffer().sortBy(_.executionStart).map(_.request)
 
 	def getScenarioNames = StatsResults.getScenarioBuffer().sortBy(_.executionStart).reverse.map(_.scenario)
 

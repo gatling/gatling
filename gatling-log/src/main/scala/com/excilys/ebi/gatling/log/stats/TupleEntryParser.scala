@@ -79,6 +79,11 @@ object TupleEntryParser {
 		new ScenarioRecord(get(SCENARIO, map), get(EXECUTION_START, map))
 	}
 
+	def tupleEntryToRequestRecord(tupleEntry: TupleEntry) = {
+		val map = tupleEntryToMap(tupleEntry)
+		new RequestRecord(get(REQUEST, map), get(EXECUTION_START, map))
+	}
+
 	private def tupleEntryToMap(tupleEntry: TupleEntry) = {
 		tupleEntry.getFields.map(_.toString).zip(tupleEntry.getTuple).toMap
 	}

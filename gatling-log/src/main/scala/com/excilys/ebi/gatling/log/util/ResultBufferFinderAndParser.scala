@@ -31,6 +31,7 @@ object ResultBufferFinderAndParser {
 	val SESSION = new ResultBufferFinderAndParser(StatsResults.getSessionBuffer, TupleEntryParser.tupleEntryToSessionRecord)
 	val RUN_RECORDS = new ResultBufferFinderAndParser(StatsResults.getRunRecordBuffer, TupleEntryParser.tupleEntryToRunRecord)
 	val SCENARIO = new ResultBufferFinderAndParser(StatsResults.getScenarioBuffer, TupleEntryParser.tupleEntryToScenarioRecord)
+	val REQUEST = new ResultBufferFinderAndParser(StatsResults.getRequestBuffer, TupleEntryParser.tupleEntryToRequestRecord)
 }
 
 class ResultBufferFinderAndParser[A](val bufferFinder: (ResultBufferType.ResultBufferType) => mutable.Buffer[A], val parseFunction: (TupleEntry) => A)

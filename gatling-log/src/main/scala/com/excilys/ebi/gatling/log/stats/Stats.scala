@@ -97,6 +97,14 @@ class Stats(min: Long, max: Long, step: Double, size: Long, inputIterator: Itera
 		req: String => req != START_OF_SCENARIO && req != END_OF_SCENARIO
 	}
 
+	filteredRequestPipe
+		.groupBy((REQUEST)){
+		_.reduce(EXECUTION_START -> EXECUTION_START){
+			(requestStartSoFar: Long, executionStart: Long) => scala.math.min(requestStartSoFar, executionStart)
+		}
+	}
+		.write(output(ResultBufferFinderAndParser.REQUEST, GLOBAL))
+
 	val pipeResponseTimeAndLatency = filteredRequestPipe
 		.map((EXECUTION_START, EXECUTION_END, REQUEST_END, RESPONSE_START) ->(RESPONSE_TIME, LATENCY, SQUARE_RESPONSE_TIME)) {
 		t: (Long, Long, Long, Long) => {

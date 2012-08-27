@@ -39,3 +39,5 @@ class SessionRecord(val executionStart: Long, val size: Long, val scenario: Opti
 
 class ScenarioRecord(val scenario: String, val executionStart: Long)
 
+class RequestRecord(val request: String, val executionStart: Long)
+

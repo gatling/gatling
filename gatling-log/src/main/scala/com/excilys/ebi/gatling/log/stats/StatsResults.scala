@@ -49,6 +49,10 @@ object StatsResults extends Logging {
 
 	def getScenarioBuffer(bufferType: ResultBufferType = GLOBAL) = getBuffer(scenarioBuffer, bufferType)
 
+	private val requestBuffer = mutable.Map[ResultBufferType, mutable.Buffer[RequestRecord]]()
+
+	def getRequestBuffer(bufferType: ResultBufferType = GLOBAL) = getBuffer(requestBuffer, bufferType)
+
 	private val sessionDeltaBuffer = mutable.Map[ResultBufferType, mutable.Buffer[SessionDeltaRecord]]()
 
 	def getSessionDeltaBuffer(bufferType: ResultBufferType) = getBuffer(sessionDeltaBuffer, bufferType)
