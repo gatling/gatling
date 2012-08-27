@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.log
+package com.excilys.ebi.gatling.charts.result.reader
 
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import grizzled.slf4j.Logging
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
 import stats.{StatsHelper, StatsResultsHelper, Stats}
-import com.excilys.ebi.gatling.log.processors.{PostProcessor, PreProcessor}
+import com.excilys.ebi.gatling.charts.result.reader.processors.{PostProcessor, PreProcessor}
 import com.excilys.ebi.gatling.core.config.GatlingFiles._
 import java.util.regex.Pattern
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR_STRING
-import runtime.RichInt
 import java.io.File
 import io.Source
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
@@ -38,7 +37,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	val (buckets, results) = {
 		val inputFiles = simulationLogDirectory(runUuid, create = false).files.filter(_.jfile.getName.matches(FileDataReader.SIMULATION_FILES_NAME_PATTERN)).map(_.jfile).toSeq
 
-		val (max, min, step, size, runRecords) = PreProcessor.run(multipleFileIterator(inputFiles), configuration.chartingMaxPlotPerSerie.toInt)
+		val (max, min, step, size, runRecords) = PreProcessor.run(multipleFileIterator(inputFiles), configuration.chartingMaxPlotPerSerie)
 
 		val results = Stats.compute(min, max, step, size, multipleFileIterator(inputFiles))
 

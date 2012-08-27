@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.log.scalding
+package com.excilys.ebi.gatling.charts.result.reader.scalding
 
 import cascading.tuple.{TupleEntryChainIterator, Tuple, Fields}
 import scala.collection.JavaConversions._
 import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.log.Predef.LOG_STEP
+import com.excilys.ebi.gatling.charts.result.reader.Predef.LOG_STEP
 
 class GatlingTupleIterator(fields: Fields, iterator: Iterator[Tuple], size: Long) extends TupleEntryChainIterator(fields, iterator) with Logging {
 

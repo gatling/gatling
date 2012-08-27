@@ -13,20 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.log.scalding
+package com.excilys.ebi.gatling.charts.result.reader
 
-import cascading.tuple.{TupleEntry, Fields}
-import com.twitter.scalding._
-import collection.mutable
-import cascading.scheme.NullScheme
+import cascading.pipe.Pipe
+import com.excilys.ebi.gatling.charts.result.reader.stats.StatPipe
 
-class GatlingBufferSource[A](tupleBuffer: mutable.Buffer[A], parseFunction: (TupleEntry) => A, inFields: Fields = Fields.ALL)
-	extends Source {
+object Predef {
+	implicit def pipeToStatPipe(pipe: Pipe): StatPipe = new StatPipe(pipe)
 
-	override def createTap(readOrWrite: AccessMode)(implicit mode: Mode) = {
-		(mode, readOrWrite) match {
-			case (Local(_), Write) => new GatlingMemorySinkTap(new NullScheme(Fields.ALL, inFields), tupleBuffer, parseFunction)
-			case _ => throw new UnsupportedOperationException
-		}
-	}
+	implicit def symbolToString(symbol: Symbol): String = symbol.name
+
+	val LOG_STEP = 100000
+	val SEC_MILLISEC_RATIO = 1000.0
 }

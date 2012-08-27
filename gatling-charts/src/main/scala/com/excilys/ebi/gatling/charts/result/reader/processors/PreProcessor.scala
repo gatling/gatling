@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.log.processors
+package com.excilys.ebi.gatling.charts.result.reader.processors
 
-import com.excilys.ebi.gatling.log.Predef._
-import com.excilys.ebi.gatling.log.util.FieldsNames._
+import com.excilys.ebi.gatling.charts.result.reader.Predef._
+import com.excilys.ebi.gatling.charts.result.reader.util.FieldsNames._
 import grizzled.slf4j.Logging
 import com.excilys.ebi.gatling.core.result.message.RecordType.{ACTION, RUN}
-import com.excilys.ebi.gatling.log.FileDataReader.TABULATION_PATTERN
-import com.excilys.ebi.gatling.log.stats.StatsHelper
+import com.excilys.ebi.gatling.charts.result.reader.FileDataReader.TABULATION_PATTERN
+import com.excilys.ebi.gatling.charts.result.reader.stats.StatsHelper
 import com.excilys.ebi.gatling.core.result.message.RunRecord
 import org.joda.time.DateTime
 import collection.mutable

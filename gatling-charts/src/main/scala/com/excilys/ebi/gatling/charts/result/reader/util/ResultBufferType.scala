@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.log
+package com.excilys.ebi.gatling.charts.result.reader.util
 
-import cascading.pipe.Pipe
-import com.excilys.ebi.gatling.log.stats.StatPipe
+import com.excilys.ebi.gatling.core.result.message.RequestStatus
 
-object Predef {
-	implicit def pipeToStatPipe(pipe: Pipe): StatPipe = new StatPipe(pipe)
+object ResultBufferType extends Enumeration {
+	type ResultBufferType = Value
+	val GLOBAL, BY_STATUS, BY_REQUEST, BY_STATUS_AND_REQUEST, BY_SCENARIO = Value
 
-	implicit def symbolToString(symbol: Symbol): String = symbol.name
-
-	val LOG_STEP = 100000
-	val SEC_MILLISEC_RATIO = 1000.0
+	def getResultBufferType(status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = {
+		(status, requestName) match {
+			case (Some(_), Some(_)) => BY_STATUS_AND_REQUEST
+			case (None, Some(_)) => BY_REQUEST
+			case (Some(_), None) => BY_STATUS
+			case (None, None) => GLOBAL
+		}
+	}
 }

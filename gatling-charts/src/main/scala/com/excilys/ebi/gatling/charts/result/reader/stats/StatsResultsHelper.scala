@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.log.stats
+package com.excilys.ebi.gatling.charts.result.reader.stats
 
 import grizzled.slf4j.Logging
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
-import com.excilys.ebi.gatling.log.util.ResultBufferType._
+import com.excilys.ebi.gatling.charts.result.reader.util.ResultBufferType._
 
 object StatsResultsHelper extends Logging {
 	val NO_PLOT_MAGIC_VALUE = -1L

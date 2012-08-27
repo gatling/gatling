@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.log.scalding
+package com.excilys.ebi.gatling.charts.result.reader.scalding
 
 import cascading.tap.SourceTap
 import java.util.{UUID, Properties}
 import cascading.flow.FlowProcess
 import cascading.scheme.NullScheme
 import cascading.tuple.Tuple
-import com.excilys.ebi.gatling.log.FileDataReader.TABULATION_PATTERN
+import com.excilys.ebi.gatling.charts.result.reader.FileDataReader.TABULATION_PATTERN
 
 class GatlingInputIteratorTap(inputIterator: Iterator[String], scheme: NullScheme[Properties, Iterator[Tuple], Void, Void, Void], size: Long) extends SourceTap[Properties, Iterator[Tuple]](scheme) {
 	override val getIdentifier = classOf[GatlingInputIteratorTap].getCanonicalName + UUID.randomUUID()

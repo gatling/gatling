@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.log.stats
+package com.excilys.ebi.gatling.charts.result.reader.stats
 
-import com.excilys.ebi.gatling.log.Predef._
+import com.excilys.ebi.gatling.charts.result.reader.Predef._
 import com.twitter.scalding._
-import com.excilys.ebi.gatling.log.stats.StatsHelper._
-import com.excilys.ebi.gatling.log.util.FieldsNames._
-import com.excilys.ebi.gatling.log.util.ResultBufferType._
+import com.excilys.ebi.gatling.charts.result.reader.stats.StatsHelper._
+import com.excilys.ebi.gatling.charts.result.reader.util.FieldsNames._
+import com.excilys.ebi.gatling.charts.result.reader.util.ResultBufferType._
 import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.log.scalding.GatlingInputIteratorSource
+import com.excilys.ebi.gatling.charts.result.reader.scalding.GatlingInputIteratorSource
 import com.excilys.ebi.gatling.core.result.message.RecordType.ACTION
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO

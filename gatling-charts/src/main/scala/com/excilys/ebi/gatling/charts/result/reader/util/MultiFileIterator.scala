@@ -13,17 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.log.scalding
+package com.excilys.ebi.gatling.charts.result.reader.util
 
-import cascading.tuple.Fields
-import com.twitter.scalding._
-import cascading.scheme.NullScheme
+import java.io.File
+import io.Source
 
-case class GatlingInputIteratorSource(inputIterator: Iterator[String], fields: Fields, size: Long) extends com.twitter.scalding.Source {
-	override def createTap(readOrWrite: AccessMode)(implicit mode: Mode) = {
-		(mode, readOrWrite) match {
-			case (Local(_), Read) => new GatlingInputIteratorTap(inputIterator, new NullScheme(fields, Fields.ALL), size)
-			case _ => throw new UnsupportedOperationException
+class MultiFileIterator(files: Iterator[File], encoding: String) extends Iterator[String] {
+	var currentIterator: Iterator[String] = Iterator.empty
+
+	def hasNext = {
+		if (currentIterator.hasNext) true
+		else {
+			while (files.hasNext && !currentIterator.hasNext)
+				currentIterator = Source.fromFile(files.next(), encoding).getLines()
+			currentIterator.hasNext
 		}
 	}
+
+	def next() = currentIterator.next()
 }

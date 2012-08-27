@@ -13,20 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.log.util
+package com.excilys.ebi.gatling.charts.result.reader.scalding
 
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
+import cascading.tuple.Fields
+import com.twitter.scalding._
+import cascading.scheme.NullScheme
 
-object ResultBufferType extends Enumeration {
-	type ResultBufferType = Value
-	val GLOBAL, BY_STATUS, BY_REQUEST, BY_STATUS_AND_REQUEST, BY_SCENARIO = Value
-
-	def getResultBufferType(status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = {
-		(status, requestName) match {
-			case (Some(_), Some(_)) => BY_STATUS_AND_REQUEST
-			case (None, Some(_)) => BY_REQUEST
-			case (Some(_), None) => BY_STATUS
-			case (None, None) => GLOBAL
+case class GatlingInputIteratorSource(inputIterator: Iterator[String], fields: Fields, size: Long) extends com.twitter.scalding.Source {
+	override def createTap(readOrWrite: AccessMode)(implicit mode: Mode) = {
+		(mode, readOrWrite) match {
+			case (Local(_), Read) => new GatlingInputIteratorTap(inputIterator, new NullScheme(fields, Fields.ALL), size)
+			case _ => throw new UnsupportedOperationException
 		}
 	}
 }

@@ -13,22 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.log.util
+package com.excilys.ebi.gatling.charts.result.reader.scalding
 
-import java.io.File
-import io.Source
+import cascading.tuple.{TupleEntry, Fields}
+import com.twitter.scalding._
+import collection.mutable
+import cascading.scheme.NullScheme
 
-class MultiFileIterator(files: Iterator[File], encoding: String) extends Iterator[String] {
-	var currentIterator: Iterator[String] = Iterator.empty
+class GatlingBufferSource[A](tupleBuffer: mutable.Buffer[A], parseFunction: (TupleEntry) => A, inFields: Fields = Fields.ALL)
+	extends Source {
 
-	def hasNext = {
-		if (currentIterator.hasNext) true
-		else {
-			while (files.hasNext && !currentIterator.hasNext)
-				currentIterator = Source.fromFile(files.next(), encoding).getLines()
-			currentIterator.hasNext
+	override def createTap(readOrWrite: AccessMode)(implicit mode: Mode) = {
+		(mode, readOrWrite) match {
+			case (Local(_), Write) => new GatlingMemorySinkTap(new NullScheme(Fields.ALL, inFields), tupleBuffer, parseFunction)
+			case _ => throw new UnsupportedOperationException
 		}
 	}
-
-	def next() = currentIterator.next()
 }

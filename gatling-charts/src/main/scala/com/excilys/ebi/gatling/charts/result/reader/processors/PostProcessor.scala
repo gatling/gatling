@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.log.processors
+package com.excilys.ebi.gatling.charts.result.reader.processors
 
 import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.log.stats.{StatsResults, SessionRecord, SessionDeltaRecord}
+import com.excilys.ebi.gatling.charts.result.reader.stats.{StatsResults, SessionRecord, SessionDeltaRecord}
 import collection.mutable
-import com.excilys.ebi.gatling.log.util.ResultBufferType
+import com.excilys.ebi.gatling.charts.result.reader.util.ResultBufferType
 
 object PostProcessor extends Logging {
 

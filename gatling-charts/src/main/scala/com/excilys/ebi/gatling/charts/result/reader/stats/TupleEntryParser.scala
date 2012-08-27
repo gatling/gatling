@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.log.stats
+package com.excilys.ebi.gatling.charts.result.reader.stats
 
-import com.excilys.ebi.gatling.log.Predef._
+import com.excilys.ebi.gatling.charts.result.reader.Predef._
 import cascading.tuple.TupleEntry
 import scala.collection.JavaConversions._
-import com.excilys.ebi.gatling.log.util.FieldsNames._
+import com.excilys.ebi.gatling.charts.result.reader.util.FieldsNames._
 import com.excilys.ebi.gatling.core.util.DateHelper._
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
 import com.excilys.ebi.gatling.core.result.message.RunRecord
