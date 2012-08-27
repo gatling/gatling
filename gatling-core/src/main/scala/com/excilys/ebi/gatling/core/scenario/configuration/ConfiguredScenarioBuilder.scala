@@ -23,6 +23,8 @@ import com.excilys.ebi.gatling.core.structure.ScenarioBuilder
 
 import akka.util.Duration
 
+private case class Attributes(scenarioBuilder: ScenarioBuilder, usersValue: Int, rampValue: Option[Duration], delayValue: Option[Duration], protocolConfigurationsValue: Seq[ProtocolConfiguration])
+
 /**
  * This class is used in the DSL to configure scenarios
  *
@@ -31,60 +33,43 @@ import akka.util.Duration
  * @param ramp the time in which all users must start
  * @param startTime the time at which the first user will start in the simulation
  */
-class ConfiguredScenarioBuilder(scenarioBuilder: ScenarioBuilder, usersValue: Int, rampValue: Option[Duration], delayValue: Option[Duration],
-		protocolConfigurations: Seq[ProtocolConfiguration]) {
+class ConfiguredScenarioBuilder(attributes: Attributes) {
 
-	def this(scenarioBuilder: ScenarioBuilder) = this(scenarioBuilder, 500, None, None, Seq.empty[ProtocolConfiguration])
+	def this(scenarioBuilder: ScenarioBuilder) = this(Attributes(scenarioBuilder, 500, None, None, Seq.empty[ProtocolConfiguration]))
 
 	/**
 	 * Method used to set the number of users that will be executed
 	 *
-	 * @param nbUsers the number of users
+	 * @param nb the number of users
 	 * @return a new builder with the number of users set
 	 */
-	def users(nbUsers: Int) = new ConfiguredScenarioBuilder(scenarioBuilder, nbUsers, rampValue, delayValue, protocolConfigurations)
-
-	/**
-	 * Method used to set the ramp duration in seconds
-	 *
-	 * @param rampTime the duration of the ramp in seconds
-	 * @return a new builder with ramp duration set
-	 */
-	def ramp(rampTime: Long): ConfiguredScenarioBuilder = ramp(rampTime, TimeUnit.SECONDS)
+	def users(nb: Int) = new ConfiguredScenarioBuilder(attributes.copy(usersValue = nb))
 
 	/**
 	 * Method used to set the ramp duration
 	 *
-	 * @param rampTime the duration of the ramp
-	 * @param unit the time unit of the ramp duration
+	 * @param duration the duration of the ramp
+	 * @param unit the time unit of the ramp duration (defaults: seconds)
 	 * @return a new builder with the ramp duration set
 	 */
-	def ramp(rampTime: Long, unit: TimeUnit) = new ConfiguredScenarioBuilder(scenarioBuilder, usersValue, Some(Duration(rampTime, unit)), delayValue, protocolConfigurations)
-
-	/**
-	 * Method used to set the start time of the first user in the simulation in seconds
-	 *
-	 * @param startTime the time at which the first user will start, in seconds
-	 * @return a new builder with the start time set
-	 */
-	def delay(delayValue: Long): ConfiguredScenarioBuilder = delay(delayValue, TimeUnit.SECONDS)
+	def ramp(duration: Long, unit: TimeUnit = TimeUnit.SECONDS) = new ConfiguredScenarioBuilder(attributes.copy(rampValue = Some(Duration(duration, unit))))
 
 	/**
 	 * Method used to set the start time of the first user in the simulation
 	 *
-	 * @param startTime the time at which the first user will start
-	 * @param unit the unit of the start time
+	 * @param duration the delay before the first user will start
+	 * @param unit the unit of the delay (defaults: seconds)
 	 * @return a new builder with the start time set
 	 */
-	def delay(delayValue: Long, unit: TimeUnit) = new ConfiguredScenarioBuilder(scenarioBuilder, usersValue, rampValue, Some(Duration(delayValue, unit)), protocolConfigurations)
+	def delay(duration: Long, unit: TimeUnit = TimeUnit.SECONDS) = new ConfiguredScenarioBuilder(attributes.copy(delayValue = Some(Duration(duration, unit))))
 
 	/**
 	 * Method used to set the different protocol configurations for this scenario
 	 *
-	 * @param configurations the protocol configurations
+	 * @param protocolConfigurations the protocol configurations
 	 * @return a new builder with the protocol configurations set
 	 */
-	def protocolConfig(configurations: ProtocolConfiguration*) = new ConfiguredScenarioBuilder(scenarioBuilder, usersValue, rampValue, delayValue, configurations)
+	def protocolConfig(protocolConfigurations: ProtocolConfiguration*) = new ConfiguredScenarioBuilder(attributes.copy(protocolConfigurationsValue = protocolConfigurations))
 
 	/**
 	 * Builds the scenario
@@ -92,8 +77,8 @@ class ConfiguredScenarioBuilder(scenarioBuilder: ScenarioBuilder, usersValue: In
 	 * @return the scenario
 	 */
 	def build: Scenario = {
-		val protocolRegistry = ProtocolConfigurationRegistry(protocolConfigurations)
-		val scenarioConfiguration = ScenarioConfiguration(usersValue, rampValue, delayValue, protocolRegistry)
-		scenarioBuilder.build(scenarioConfiguration)
+		val protocolRegistry = ProtocolConfigurationRegistry(attributes.protocolConfigurationsValue)
+		val scenarioConfiguration = ScenarioConfiguration(attributes.usersValue, attributes.rampValue, attributes.delayValue, protocolRegistry)
+		attributes.scenarioBuilder.build(scenarioConfiguration)
 	}
 }

@@ -18,6 +18,7 @@ package com.excilys.ebi.gatling.core.result.terminator
 import java.util.concurrent.CountDownLatch
 
 import com.excilys.ebi.gatling.core.action.system
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.FlushDataWriter
 
 import akka.actor.{ Actor, ActorRef, Props }
@@ -73,7 +74,7 @@ class Terminator extends Actor with Logging {
 		case EndUser =>
 			userCount = userCount - 1
 			if (userCount == 0) {
-				implicit val timeout = Timeout(5 seconds)
+				implicit val timeout = Timeout(configuration.timeOut.actor seconds)
 				Future.sequence(registeredDataWriters.map(_.ask(FlushDataWriter).mapTo[Boolean]))
 					.onComplete {
 						case Left(e) => error(e)

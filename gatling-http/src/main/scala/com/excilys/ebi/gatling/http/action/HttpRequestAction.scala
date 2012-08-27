@@ -16,12 +16,12 @@
 package com.excilys.ebi.gatling.http.action
 
 import com.excilys.ebi.gatling.core.action.{ Action, system }
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor }
 import com.excilys.ebi.gatling.http.cache.CacheHandling
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.config.{ HttpConfig, HttpProtocolConfiguration }
+import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.referer.RefererHandling
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig }
@@ -50,24 +50,26 @@ object HttpRequestAction extends Logging {
 		}
 
 		val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
-			.setAllowPoolingConnection(HttpConfig.GATLING_HTTP_CONFIG_ALLOW_POOLING_CONNECTION)
-			.setAllowSslConnectionPool(HttpConfig.GATLING_HTTP_CONFIG_ALLOW_SSL_CONNECTION_POOL)
-			.setCompressionEnabled(HttpConfig.GATLING_HTTP_CONFIG_COMPRESSION_ENABLED)
-			.setConnectionTimeoutInMs(HttpConfig.GATLING_HTTP_CONFIG_CONNECTION_TIMEOUT)
-			.setIdleConnectionInPoolTimeoutInMs(HttpConfig.GATLING_HTTP_CONFIG_IDLE_CONNECTION_IN_POOL_TIMEOUT_IN_MS)
-			.setIdleConnectionTimeoutInMs(HttpConfig.GATLING_HTTP_CONFIG_IDLE_CONNECTION_TIMEOUT_IN_MS)
-			.setIOThreadMultiplier(HttpConfig.GATLING_HTTP_CONFIG_IO_THREAD_MULTIPLIER)
-			.setMaximumConnectionsPerHost(HttpConfig.GATLING_HTTP_MAXIMUM_CONNECTIONS_PER_HOST)
-			.setMaximumConnectionsTotal(HttpConfig.GATLING_HTTP_MAXIMUM_CONNECTIONS_TOTAL)
-			.setMaxRequestRetry(HttpConfig.GATLING_HTTP_CONFIG_MAX_RETRY)
-			.setRequestCompressionLevel(HttpConfig.GATLING_HTTP_CONFIG_REQUEST_COMPRESSION_LEVEL)
-			.setRequestTimeoutInMs(HttpConfig.GATLING_HTTP_CONFIG_REQUEST_TIMEOUT_IN_MS)
-			.setUseProxyProperties(HttpConfig.GATLING_HTTP_CONFIG_USE_PROXY_PROPERTIES)
-			.setUserAgent(HttpConfig.GATLING_HTTP_CONFIG_USER_AGENT)
-			.setUseRawUrl(HttpConfig.GATLING_HTTP_CONFIG_USE_RAW_URL)
+			.setAllowPoolingConnection(configuration.http.allowPoolingConnection)
+			.setAllowSslConnectionPool(configuration.http.allowSslConnectionPool)
+			.setCompressionEnabled(configuration.http.compressionEnabled)
+			.setConnectionTimeoutInMs(configuration.http.connectionTimeOut)
+			.setIdleConnectionInPoolTimeoutInMs(configuration.http.idleConnectionInPoolTimeOutInMs)
+			.setIdleConnectionTimeoutInMs(configuration.http.idleConnectionTimeOutInMs)
+			.setIOThreadMultiplier(configuration.http.ioThreadMultiplier)
+			.setMaximumConnectionsPerHost(configuration.http.maximumConnectionsPerHost)
+			.setMaximumConnectionsTotal(configuration.http.maximumConnectionsTotal)
+			.setMaxRequestRetry(configuration.http.maxRetry)
+			.setRequestCompressionLevel(configuration.http.requestCompressionLevel)
+			.setRequestTimeoutInMs(configuration.http.requestTimeOutInMs)
+			.setUseProxyProperties(configuration.http.useProxyProperties)
+			.setUserAgent(configuration.http.userAgent)
+			.setUseRawUrl(configuration.http.userRawUrl)
 			.build
 
-		val client = new AsyncHttpClient(HttpConfig.GATLING_HTTP_CONFIG_PROVIDER_CLASS, ahcConfigBuilder)
+		val providerClassName = "com.ning.http.client.providers." + configuration.http.provider.toLowerCase + "." + configuration.http.provider + "AsyncHttpProvider"
+
+		val client = new AsyncHttpClient(providerClassName, ahcConfigBuilder)
 
 		system.registerOnTermination(client.close)
 
@@ -85,11 +87,11 @@ object HttpRequestAction extends Logging {
  * @param checks the checks that will be performed on the response
  * @param protocolConfiguration the protocol specific configuration
  */
-class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]], protocolConfiguration: HttpProtocolConfiguration, gatlingConfiguration: GatlingConfiguration)
+class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]], protocolConfiguration: HttpProtocolConfiguration)
 		extends Action with Logging {
 
 	val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks)
-	val asyncHandlerActorFactory = GatlingAsyncHandlerActor.newAsyncHandlerActorFactory(checks, next, requestName, protocolConfiguration, gatlingConfiguration)
+	val asyncHandlerActorFactory = GatlingAsyncHandlerActor.newAsyncHandlerActorFactory(checks, next, requestName, protocolConfiguration)
 	val client = HttpRequestAction.HTTP_CLIENT
 
 	def execute(session: Session) {

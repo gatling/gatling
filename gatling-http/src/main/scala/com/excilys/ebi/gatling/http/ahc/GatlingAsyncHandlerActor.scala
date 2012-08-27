@@ -22,7 +22,6 @@ import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.check.Check.applyChecks
 import com.excilys.ebi.gatling.core.check.Failure
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK, RequestStatus }
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
@@ -32,7 +31,7 @@ import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames }
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.cache.CacheHandling
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.config.{ HttpConfig, HttpProtocolConfiguration }
+import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
@@ -52,8 +51,7 @@ object GatlingAsyncHandlerActor {
 		checks: List[HttpCheck[_]],
 		next: ActorRef,
 		requestName: String,
-		protocolConfiguration: HttpProtocolConfiguration,
-		gatlingConfiguration: GatlingConfiguration) = {
+		protocolConfiguration: HttpProtocolConfiguration) = {
 
 		val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks)
 		val responseBuilderFactory = ExtendedResponseBuilder.newExtendedResponseBuilder(checks, protocolConfiguration)
@@ -66,7 +64,6 @@ object GatlingAsyncHandlerActor {
 				requestName,
 				request,
 				protocolConfiguration,
-				gatlingConfiguration,
 				handlerFactory,
 				responseBuilderFactory)
 	}
@@ -79,7 +76,6 @@ class GatlingAsyncHandlerActor(
 		var requestName: String,
 		var request: Request,
 		protocolConfiguration: HttpProtocolConfiguration,
-		gatlingConfiguration: GatlingConfiguration,
 		handlerFactory: HandlerFactory,
 		responseBuilderFactory: ExtendedResponseBuilderFactory) extends Actor with Logging {
 
@@ -127,7 +123,7 @@ class GatlingAsyncHandlerActor(
 		case m => throw new IllegalArgumentException("Unknown message type " + m)
 	}
 
-	def resetTimeout = context.setReceiveTimeout(HttpConfig.GATLING_HTTP_CONFIG_REQUEST_TIMEOUT_IN_MS milliseconds)
+	def resetTimeout = context.setReceiveTimeout(configuration.http.requestTimeOutInMs milliseconds)
 
 	private def logRequest(
 		requestStatus: RequestStatus,
@@ -183,7 +179,7 @@ class GatlingAsyncHandlerActor(
 
 			val requestBuilder = new RequestBuilder(request)
 				.setMethod("GET")
-				.setBodyEncoding(configuration.encoding)
+				.setBodyEncoding(configuration.simulation.encoding)
 				.setQueryParameters(null.asInstanceOf[FluentStringsMap])
 				.setParameters(null.asInstanceOf[FluentStringsMap])
 				.setUrl(redirectUrl)

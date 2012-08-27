@@ -32,27 +32,26 @@ import akka.routing.BroadcastRouter
 
 object DataWriter {
 
-	private val dataWriters: Seq[ActorRef] = configuration.dataWriterClasses.map(clazz => system.actorOf(Props(clazz)))
+	private val dataWriters: Seq[ActorRef] = configuration.data.dataWriterClasses.map{className => 
+		val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
+		system.actorOf(Props(clazz))
+	}
 
 	private val router = system.actorOf(Props[Actor].withRouter(BroadcastRouter(routees = dataWriters)))
 
-	private def dispatch(message: Any) {
-		router ! message
-	}
-
 	def init(runRecord: RunRecord, scenarios: Seq[Scenario]) = {
 		val shortScenarioDescriptions = scenarios.map(scenario => ShortScenarioDescription(scenario.name, scenario.configuration.users))
-		dispatch(InitializeDataWriter(runRecord, shortScenarioDescriptions))
+		router ! InitializeDataWriter(runRecord, shortScenarioDescriptions)
 	}
 
 	def startUser(scenarioName: String, userId: Int) = {
 		val time = currentTimeMillis
-		dispatch(RequestRecord(scenarioName, userId, START_OF_SCENARIO, time, time, time, time, OK))
+		router ! RequestRecord(scenarioName, userId, START_OF_SCENARIO, time, time, time, time, OK)
 	}
 
 	def endUser(scenarioName: String, userId: Int) = {
 		val time = currentTimeMillis
-		dispatch(RequestRecord(scenarioName, userId, END_OF_SCENARIO, time, time, time, time, OK))
+		router ! RequestRecord(scenarioName, userId, END_OF_SCENARIO, time, time, time, time, OK)
 	}
 
 	def logRequest(
@@ -67,7 +66,7 @@ object DataWriter {
 		requestMessage: Option[String] = None,
 		extraInfo: List[String] = Nil) = {
 
-		dispatch(RequestRecord(
+		router ! RequestRecord(
 			scenarioName,
 			userId,
 			requestName,
@@ -77,7 +76,7 @@ object DataWriter {
 			responseReceivingStartDate,
 			requestResult,
 			requestMessage,
-			extraInfo))
+			extraInfo)
 	}
 }
 

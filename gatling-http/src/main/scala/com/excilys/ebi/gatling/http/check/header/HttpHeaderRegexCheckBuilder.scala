@@ -47,7 +47,7 @@ object HttpHeaderRegexCheckBuilder {
 			val decodedHeaderValues = Option(response.getHeaders(headerName)) match {
 				case Some(headerValues) =>
 					if (headerName == Headers.Names.LOCATION)
-						headerValues.map(URLDecoder.decode(_, configuration.encoding))
+						headerValues.map(URLDecoder.decode(_, configuration.simulation.encoding))
 					else
 						headerValues.toSeq
 				case None => Nil

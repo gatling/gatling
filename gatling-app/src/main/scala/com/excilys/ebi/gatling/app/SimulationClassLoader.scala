@@ -24,7 +24,7 @@ import scala.tools.nsc.io.{ Directory, File, Path }
 import scala.tools.nsc.io.PlainFile
 import scala.tools.nsc.reporters.ConsoleReporter
 
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 import com.excilys.ebi.gatling.core.util.FileHelper
 import com.excilys.ebi.gatling.core.util.IOHelper.use
@@ -45,7 +45,7 @@ object SimulationClassLoader {
 		settings.outputDirs.setSingleOutput(byteCodeDir)
 		settings.deprecation.value = true
 		settings.unchecked.value = true
-		settings.encoding.value = GatlingConfiguration.configuration.encoding
+		settings.encoding.value = configuration.simulation.encoding
 
 		// Prepare an object for collecting error messages from the compiler
 		val messageCollector = new StringWriter
@@ -72,7 +72,7 @@ object SimulationClassLoader {
 
 abstract class SimulationClassLoader {
 
-	def simulationClasses(explicitClassNames: Option[List[String]] = None): List[Class[Simulation]]
+	def simulationClasses(explicitClassNames: List[String] = Nil): List[Class[Simulation]]
 
 	protected val isSimulationClass = (clazz: Class[_]) => classOf[Simulation].isAssignableFrom(clazz) && !clazz.isInterface && !Modifier.isAbstract(clazz.getModifiers)
 }
@@ -84,13 +84,14 @@ class FileSystemBackedSimulationClassLoader(classLoader: ClassLoader, binaryDir:
 		.stripPrefix(root + File.separator)
 		.replace(File.separator, ".")
 
-	def simulationClasses(requestedClassNames: Option[List[String]] = None): List[Class[Simulation]] = {
+	def simulationClasses(requestedClassNames: List[String] = Nil): List[Class[Simulation]] = {
 
-		val classNames = requestedClassNames.getOrElse {
-			binaryDir
+		val classNames = requestedClassNames match {
+			case Nil => binaryDir
 				.deepFiles
 				.filter(_.hasExtension("class"))
 				.map(pathToClassName(_, binaryDir))
+			case names => names
 		}
 
 		val classes = classNames.map(classLoader.loadClass(_))

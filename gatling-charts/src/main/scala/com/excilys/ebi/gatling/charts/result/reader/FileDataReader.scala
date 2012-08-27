@@ -51,7 +51,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		val scenarioNames = mutable.Map[String, Long]()
 
 		def readFile(file: File) {
-			for (line <- Source.fromFile(file.jfile, configuration.encoding).getLines) {
+			for (line <- Source.fromFile(file.jfile, configuration.simulation.encoding).getLines) {
 				TABULATION_PATTERN.split(line, 0).toList match {
 					case RUN :: runDate :: runId :: runDescription :: l =>
 						runRecords += RunRecord(parseTimestampString(runDate), runId, runDescription)

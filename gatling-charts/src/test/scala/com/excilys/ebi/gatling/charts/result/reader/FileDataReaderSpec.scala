@@ -15,13 +15,11 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader
 
-import scala.tools.nsc.io.Path
-
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingOptions }
+import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingPropertiesBuilder }
 import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RunRecord }
 import com.excilys.ebi.gatling.core.result.reader.ChartRequestRecord
 import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
@@ -29,13 +27,13 @@ import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
 @RunWith(classOf[JUnitRunner])
 class FileDataReaderSpec extends Specification {
 
-	//The file data reader needs to know the encoding, use default conf.
+	val init = {
+		val props = new GatlingPropertiesBuilder
+		props.sourcesDirectory("src/test/resources")
+		props.resultsDirectory("src/test/resources")
 
-	val conf = GatlingOptions(
-		simulationSourcesDirectory = Some(Path(List("src", "test", "resources")).toDirectory),
-		resultsDirectory = Some(Path(List("src", "test", "resources"))))
-
-	GatlingConfiguration.setUp(conf)
+		GatlingConfiguration.setUp(props.build)
+	}
 
 	"When reading a single log file, FileDataReader" should {
 

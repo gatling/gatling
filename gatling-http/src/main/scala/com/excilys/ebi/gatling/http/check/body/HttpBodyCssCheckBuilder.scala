@@ -28,7 +28,7 @@ object HttpBodyCssCheckBuilder {
 
 	private val HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY = "HttpBodyCssExtractor"
 
-	private def getCachedExtractor(response: ExtendedResponse) = getOrUpdateCheckContextAttribute(HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY, new CssExtractor(response.getResponseBody(configuration.encoding)))
+	private def getCachedExtractor(response: ExtendedResponse) = getOrUpdateCheckContextAttribute(HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY, new CssExtractor(response.getResponseBody(configuration.simulation.encoding)))
 
 	private def newFindExtractorFactory(nodeAttribute: Option[String])(occurrence: Int): ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => getCachedExtractor(response).extractOne(occurrence, nodeAttribute)
 

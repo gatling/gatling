@@ -61,7 +61,6 @@ class Runner(selection: Selection) extends Logging {
 		info("Total number of users : " + totalNumberOfUsers)
 
 		val terminatorLatch = new CountDownLatch(1)
-		// FIXME block here to ensure proper initialization
 		Terminator.init(terminatorLatch, totalNumberOfUsers)
 		DataWriter.init(runRecord, scenarios)
 
@@ -69,7 +68,7 @@ class Runner(selection: Selection) extends Logging {
 		scenarios.foreach(_.run)
 		debug("Finished Launching scenarios executions")
 
-		terminatorLatch.await(configuration.simulationTimeOut, SECONDS)
+		terminatorLatch.await(configuration.timeOut.simulation, SECONDS)
 		println("Simulation Finished.")
 
 		runRecord.runUuid

@@ -15,12 +15,13 @@
  */
 package com.excilys.ebi.gatling.core.config
 
-import java.util.concurrent.atomic.AtomicBoolean
-import scala.io.Codec
-import scala.tools.nsc.io.Path
-import com.excilys.ebi.gatling.core.result.reader.DataReader
-import com.excilys.ebi.gatling.core.result.writer.{ ConsoleDataWriter, DataWriter, FileDataWriter }
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import java.util.Properties
+
+import scala.collection.JavaConversions.asScalaBuffer
+
+import com.excilys.ebi.gatling.core.ConfigurationConstants._
+import com.typesafe.config.{ Config, ConfigFactory }
+
 import grizzled.slf4j.Logging
 
 /**
@@ -28,83 +29,121 @@ import grizzled.slf4j.Logging
  */
 object GatlingConfiguration extends Logging {
 
-	private val initialized = new AtomicBoolean(false)
+	var configuration: GatlingConfiguration = _
 
-	val GATLING_DEFAULT_CONFIG_FILE = "gatling.conf"
+	def setUp(props: Properties) {
+		val classLoader = getClass.getClassLoader
 
-	@volatile private var instance: GatlingConfiguration = _
+		val defaultsConfig = ConfigFactory.parseResources(classLoader, "gatling-defaults.conf")
+		val customConfig = ConfigFactory.parseResources(classLoader, "gatling.conf")
+		val propertiesConfig = ConfigFactory.parseProperties(props)
 
-	def setUp(options: GatlingOptions) {
-		if (initialized.compareAndSet(false, true))
-			instance = GatlingConfiguration(options)
-		else
-			throw new UnsupportedOperationException("GatlingConfig already set up")
-	}
+		val config = propertiesConfig.withFallback(customConfig).withFallback(defaultsConfig)
 
-	def configuration = if (initialized.get) instance else throw new UnsupportedOperationException("Can't access configuration instance if it hasn't been set up")
-
-	def apply(options: GatlingOptions) = {
-
-		val fileConfiguration: GatlingFileConfiguration =
-			try {
-				// Locate configuration file, depending on users options
-				val configFile = options.configFilePath.map { path =>
-					info("Loading custom configuration file: " + path)
-					path
-				} getOrElse {
-					info("Loading default configuration file")
-					GATLING_DEFAULT_CONFIG_FILE
-				}
-
-				GatlingFileConfiguration.fromFile(configFile)
-			} catch {
-				case e => throw new RuntimeException("Could not parse configuration file!", e)
-			}
-
-		new GatlingConfiguration(fileConfiguration, options)
+		configuration = GatlingConfiguration(
+			simulation = SimulationConfiguration(
+				runName = config.getString(CONF_SIMULATION_RUN_NAME),
+				runDescription = config.getString(CONF_SIMULATION_RUN_DESCRIPTION),
+				encoding = config.getString(CONF_SIMULATION_ENCODING),
+				classes = config.getStringList(CONF_SIMULATION_CLASSES).toList),
+			timeOut = TimeOutConfiguration(
+				simulation = config.getInt(CONF_TIME_OUT_SIMULATION),
+				actor = config.getInt(CONF_TIME_OUT_ACTOR)),
+			directory = DirectoryConfiguration(
+				data = config.getString(CONF_DIRECTORY_DATA),
+				requestBodies = config.getString(CONF_DIRECTORY_REQUEST_BODIES),
+				sources = config.getString(CONF_DIRECTORY_SIMULATIONS),
+				binaries = config.getString(CONF_DIRECTORY_BINARIES),
+				reportsOnly = config.getString(CONF_DIRECTORY_REPORTS_ONLY),
+				results = config.getString(CONF_DIRECTORY_RESULTS)),
+			charting = ChartingConfiguration(
+				noReports = config.getBoolean(CONF_CHARTING_NO_REPORTS),
+				maxPlotsPerSeries = config.getInt(CONF_CHARTING_MAX_PLOTS_PER_SERIES),
+				indicators = IndicatorsConfiguration(
+					lowerBound = config.getInt(CONF_CHARTING_INDICATORS_LOWER_BOUND),
+					higherBound = config.getInt(CONF_CHARTING_INDICATORS_HIGHER_BOUND),
+					percentile1 = config.getInt(CONF_CHARTING_INDICATORS_PERCENTILE1),
+					percentile2 = config.getInt(CONF_CHARTING_INDICATORS_PERCENTILE2))),
+			http = HttpConfiguration(
+				provider = config.getString(CONF_HTTP_PROVIDER),
+				allowPoolingConnection = config.getBoolean(CONF_HTTP_ALLOW_POOLING_CONNECTION),
+				allowSslConnectionPool = config.getBoolean(CONF_HTTP_ALLOW_SSL_CONNECTION_POOL),
+				compressionEnabled = config.getBoolean(CONF_HTTP_COMPRESSION_ENABLED),
+				connectionTimeOut = config.getInt(CONF_HTTP_CONNECTION_TIMEOUT),
+				idleConnectionInPoolTimeOutInMs = config.getInt(CONF_HTTP_IDLE_CONNECTION_IN_POOL_TIMEOUT_IN_MS),
+				idleConnectionTimeOutInMs = config.getInt(CONF_HTTP_IDLE_CONNECTION_TIMEOUT_IN_MS),
+				ioThreadMultiplier = config.getInt(CONF_HTTP_IO_THREAD_MULTIPLIER),
+				maximumConnectionsPerHost = config.getInt(CONF_HTTP_MAXIMUM_CONNECTIONS_PER_HOST),
+				maximumConnectionsTotal = config.getInt(CONF_HTTP_MAXIMUM_CONNECTIONS_TOTAL),
+				maxRetry = config.getInt(CONF_HTTP_MAX_RETRY),
+				requestCompressionLevel = config.getInt(CONF_HTTP_REQUEST_COMPRESSION_LEVEL),
+				requestTimeOutInMs = config.getInt(CONF_HTTP_REQUEST_TIMEOUT_IN_MS),
+				useProxyProperties = config.getBoolean(CONF_HTTP_USE_PROXY_PROPERTIES),
+				userAgent = config.getString(CONF_HTTP_USER_AGENT),
+				userRawUrl = config.getBoolean(CONF_HTTP_USE_RAW_URL)),
+			data = DataConfiguration(
+				dataWriterClasses = config.getStringList(CONF_DATA_WRITER_CLASS_NAMES).toList,
+				dataReaderClass = config.getString(CONF_DATA_READER_CLASS_NAME)),
+			config)
 	}
 }
 
-class GatlingConfiguration(
-		val fileConfiguration: GatlingFileConfiguration,
-		options: GatlingOptions) extends Logging {
+case class SimulationConfiguration(
+	runName: String,
+	runDescription: String,
+	encoding: String,
+	classes: List[String])
 
-	val resultsDirectoryPath: Option[Path] = options.resultsDirectory
-	val dataDirectoryPath: Option[Path] = options.dataDirectory
-	val requestBodiesDirectoryPath: Option[Path] = options.requestBodiesDirectory
-	val simulationSourcesDirectoryPath: Option[Path] = options.simulationSourcesDirectory
+case class TimeOutConfiguration(
+	simulation: Int,
+	actor: Int)
 
-	/**
-	 * Gatling global encoding value
-	 */
-	val encoding = fileConfiguration("gatling.encoding", Codec.UTF8.name)
+case class DirectoryConfiguration(
+	data: String,
+	requestBodies: String,
+	sources: String,
+	binaries: String,
+	reportsOnly: String,
+	results: String)
 
-	/**
-	 * Gatling simulation timeout value
-	 */
-	val simulationTimeOut = fileConfiguration("gatling.simulation.timeout", 86400)
+case class ChartingConfiguration(
+	noReports: Boolean,
+	maxPlotsPerSeries: Int,
+	indicators: IndicatorsConfiguration)
 
-	val simulationScalaPackage = fileConfiguration("gatling.simulation.scalaPackage", EMPTY)
+case class IndicatorsConfiguration(
+	lowerBound: Int,
+	higherBound: Int,
+	percentile1: Int,
+	percentile2: Int)
 
-	val chartingIndicatorsLowerBound = fileConfiguration("gatling.charting.indicators.lowerBound", 800)
+case class HttpConfiguration(
+	provider: String,
+	allowPoolingConnection: Boolean,
+	allowSslConnectionPool: Boolean,
+	compressionEnabled: Boolean,
+	connectionTimeOut: Int,
+	idleConnectionInPoolTimeOutInMs: Int,
+	idleConnectionTimeOutInMs: Int,
+	ioThreadMultiplier: Int,
+	maximumConnectionsPerHost: Int,
+	maximumConnectionsTotal: Int,
+	maxRetry: Int,
+	requestCompressionLevel: Int,
+	requestTimeOutInMs: Int,
+	useProxyProperties: Boolean,
+	userAgent: String,
+	userRawUrl: Boolean)
 
-	val chartingIndicatorsHigherBound = fileConfiguration("gatling.charting.indicators.higherBound", 1200)
+case class DataConfiguration(
+	dataWriterClasses: List[String],
+	dataReaderClass: String)
 
-	val chartingIndicatorsPercentile1 = fileConfiguration("gatling.charting.indicators.percentile1", 95)
-
-	val chartingIndicatorsPercentile2 = fileConfiguration("gatling.charting.indicators.percentile2", 99)
-
-	val chartingMaxPlotPerSerie = fileConfiguration("gatling.charting.maxPlotPerSerie", 5000)
-
-	lazy val dataWriterClasses = {
-		val classes = fileConfiguration.getList("gatling.data.writers").map { className => Class.forName(className).asInstanceOf[Class[DataWriter]] }
-
-		if (classes.isEmpty)
-			List(classOf[ConsoleDataWriter], classOf[FileDataWriter])
-
-		else
-			classes
-	}
-
-	lazy val dataReaderClass = Class.forName(fileConfiguration("gatling.data.reader", "com.excilys.ebi.gatling.charts.result.reader.FileDataReader")).asInstanceOf[Class[DataReader]]
-}
+case class GatlingConfiguration(
+	simulation: SimulationConfiguration,
+	timeOut: TimeOutConfiguration,
+	directory: DirectoryConfiguration,
+	charting: ChartingConfiguration,
+	http: HttpConfiguration,
+	data: DataConfiguration,
+	config: Config)

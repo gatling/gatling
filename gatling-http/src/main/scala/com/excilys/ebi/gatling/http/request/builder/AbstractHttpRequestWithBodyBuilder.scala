@@ -104,7 +104,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	/**
 	 * Adds a body from a file to the request
 	 *
-	 * @param filePath the path of the file relative to GATLING_REQUEST_BODIES_FOLDER
+	 * @param filePath the path of the file relative to directory containing the templates
 	 */
 	def fileBody(filePath: String): B = newInstance(requestName, url, queryParams, headers, Some(FilePathBody(filePath)), realm, checks)
 

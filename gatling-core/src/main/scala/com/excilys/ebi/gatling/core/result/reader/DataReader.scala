@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.result.message.RequestStatus.RequestStatus
 import com.excilys.ebi.gatling.core.result.message.RunRecord
 
 object DataReader {
-	def newInstance(runOn: String) = configuration.dataReaderClass.getConstructor(classOf[String]).newInstance(runOn)
+	def newInstance(runOn: String) = Class.forName(configuration.data.dataReaderClass).asInstanceOf[Class[DataReader]].getConstructor(classOf[String]).newInstance(runOn)
 }
 
 abstract class DataReader(runUuid: String) {
@@ -37,7 +37,7 @@ abstract class DataReader(runUuid: String) {
 	def countRequests(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
 	def meanResponseTime(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
 	def meanLatency(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
-	def meanNumberOfRequestsPerSecond(status: Option[RequestStatus], requestName: Option[String]) : Long
+	def meanNumberOfRequestsPerSecond(status: Option[RequestStatus], requestName: Option[String]): Long
 	def responseTimeStandardDeviation(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
 	def numberOfRequestInResponseTimeRange(lowerBound: Long, higherBound: Long, requestName: Option[String] = None): Seq[(String, Long)]
 	def requestRecordsGroupByExecutionStartDate(requestName: String): Seq[(Long, Seq[ChartRequestRecord])]

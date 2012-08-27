@@ -42,7 +42,7 @@ object HttpHeaderCheckBuilder {
 			case Some(headers) if (headers.size > occurrence) =>
 				val headerValue = headers.get(occurrence)
 				if (headerName == Headers.Names.LOCATION)
-					URLDecoder.decode(headerValue, configuration.encoding)
+					URLDecoder.decode(headerValue, configuration.simulation.encoding)
 				else
 					headerValue
 			case _ => None
@@ -54,7 +54,7 @@ object HttpHeaderCheckBuilder {
 		Option(response.getHeaders(headerName)) match {
 			case Some(headerValues) =>
 				if (headerName == Headers.Names.LOCATION)
-					headerValues.map(URLDecoder.decode(_, configuration.encoding))
+					headerValues.map(URLDecoder.decode(_, configuration.simulation.encoding))
 				else
 					headerValues.toSeq
 			case None => None

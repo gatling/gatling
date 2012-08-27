@@ -16,16 +16,16 @@
 package com.excilys.ebi.gatling.app
 
 import java.lang.System.currentTimeMillis
-import scala.tools.nsc.io.Directory
-import com.excilys.ebi.gatling.app.OptionsConstants._
+import java.util.Properties
+import com.excilys.ebi.gatling.app.CommandLineConstants._
 import com.excilys.ebi.gatling.charts.report.ReportsGenerator
-import com.excilys.ebi.gatling.core.action.system
-import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingFiles, GatlingOptions }
+import com.excilys.ebi.gatling.core.ConfigurationConstants._
+import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
+import com.excilys.ebi.gatling.core.runner.{ Runner, Selection }
 import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 import grizzled.slf4j.Logging
 import scopt.OptionParser
-import com.excilys.ebi.gatling.core.runner.Runner
-import com.excilys.ebi.gatling.core.runner.Selection
+import com.excilys.ebi.gatling.core.config.GatlingPropertiesBuilder
 
 /**
  * Object containing entry point of application
@@ -39,65 +39,69 @@ object Gatling extends Logging {
 	 */
 	def main(args: Array[String]) {
 
-		val gatlingOptions = new GatlingOptions
+		val props = new GatlingPropertiesBuilder
 
 		val cliOptsParser = new OptionParser("gatling") {
-			opt(NO_REPORTS_OPTION, NO_REPORTS_ALIAS, "Runs simulation but does not generate reports", { gatlingOptions.noReports = true })
-			opt(REPORTS_ONLY_OPTION, REPORTS_ONLY_ALIAS, "<directoryName>", "Generates the reports for the simulation in <directoryName>", { v: String => gatlingOptions.reportsOnlyDirectoryName = Some(v) })
-			opt(CONFIG_FILE_OPTION, CONFIG_FILE_ALIAS, "<file>", "Uses <file> as the configuration file", { v: String => gatlingOptions.configFilePath = Some(v) })
-			opt(DATA_FOLDER_OPTION, DATA_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> as the absolute path of the directory where feeders are stored", { v: String => gatlingOptions.dataDirectory = Some(v) })
-			opt(RESULTS_FOLDER_OPTION, RESULTS_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> as the absolute path of the directory where results are stored", { v: String => gatlingOptions.resultsDirectory = Some(v) })
-			opt(REQUEST_BODIES_FOLDER_OPTION, REQUEST_BODIES_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> as the absolute path of the directory where request bodies are stored", { v: String => gatlingOptions.requestBodiesDirectory = Some(v) })
-			opt(SIMULATIONS_FOLDER_OPTION, SIMULATIONS_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> to discover simulations that could be run", { v: String => gatlingOptions.simulationSourcesDirectory = Some(Directory(v)) })
-			opt(SIMULATIONS_BINARIES_FOLDER_OPTION, SIMULATIONS_BINARIES_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> to discover already compiled simulations", { v: String => gatlingOptions.simulationBinariesDirectory = Some(Directory(v)) })
-			opt(SIMULATIONS_OPTION, SIMULATIONS_ALIAS, "<classNamesList>", "Runs the <classNamesList> simulations sequentially", { v: String => gatlingOptions.simulationClassNames = Some(v.split(",").map(_.trim).toList) })
-			opt(RUN_NAME_OPTION, RUN_NAME_ALIAS, "<runName>", "Use <runName> for the output directory", { v: String => gatlingOptions.runName = v })
+			opt(CLI_NO_REPORTS, CLI_NO_REPORTS_ALIAS, "Runs simulation but does not generate reports", { v: String => props.noReports })
+			opt(CLI_REPORTS_ONLY, CLI_REPORTS_ONLY_ALIAS, "<directoryName>", "Generates the reports for the simulation in <directoryName>", { v: String => props.reportsOnly(v) })
+			opt(CLI_DATA_FOLDER, CLI_DATA_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> as the absolute path of the directory where feeders are stored", { v: String => props.dataDirectory(v) })
+			opt(CLI_RESULTS_FOLDER, CLI_RESULTS_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> as the absolute path of the directory where results are stored", { v: String => props.resultsDirectory(v) })
+			opt(CLI_REQUEST_BODIES_FOLDER, CLI_REQUEST_BODIES_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> as the absolute path of the directory where request bodies are stored", { v: String => props.requestBodiesDirectory(v) })
+			opt(CLI_SIMULATIONS_FOLDER, CLI_SIMULATIONS_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> to discover simulations that could be run", { v: String => props.sourcesDirectory(v) })
+			opt(CLI_SIMULATIONS_BINARIES_FOLDER, CLI_SIMULATIONS_BINARIES_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> to discover already compiled simulations", { v: String => props.binariesDirectory(v) })
+			opt(CLI_SIMULATIONS, CLI_SIMULATIONS_ALIAS, "<classNamesList>", "Runs the <classNamesList> simulations sequentially", { v: String => props.classes(v) })
+			opt(CLI_RUN_NAME, CLI_RUN_NAME_ALIAS, "<runName>", "Use <runName> for the output directory", { v: String => props.runName(v) })
 		}
 
 		// if arguments are incorrect, usage message is displayed
-		if (cliOptsParser.parse(args)) new Gatling(gatlingOptions).start
+		if (cliOptsParser.parse(args))
+			fromProperties(props.build)
+	}
+
+	def fromProperties(props: Properties) {
+		GatlingConfiguration.setUp(props)
+		new Gatling().start
 	}
 }
 
-class Gatling(options: GatlingOptions) extends Logging {
+class Gatling extends Logging {
 
-	// Initializes configuration
-	GatlingConfiguration.setUp(options)
+	import GatlingConfiguration.configuration
 
 	def start {
-		val runUuids = options.reportsOnlyDirectoryName
+		val runUuids = GatlingFiles.reportsOnlyDirectory
 			.map(List(_))
 			.getOrElse {
-				val simulations = options.simulationBinariesDirectory
+				val simulations = GatlingFiles.binariesDirectory
 					.map( // expect simulations to have been pre-compiled (ex: IDE)
 						SimulationClassLoader.fromClasspathBinariesDirectory(_))
-					.getOrElse(SimulationClassLoader.fromSourcesDirectory(GatlingFiles.simulationSourcesDirectory))
-					.simulationClasses(options.simulationClassNames)
+					.getOrElse(SimulationClassLoader.fromSourcesDirectory(GatlingFiles.sourcesDirectory))
+					.simulationClasses(configuration.simulation.classes)
 
-				val selection = options.simulationClassNames match {
-					case Some(_) => new Selection(simulations, options.runName, options.runName)
-					case None => interactiveSelect(simulations, options)
+				val selection = configuration.simulation.classes match {
+					case Nil => interactiveSelect(simulations)
+					case simulation => new Selection(simulations, configuration.simulation.runName, configuration.simulation.runDescription)
 				}
 
 				new Runner(selection).run
 			}
 
-		if (!options.noReports)
+		if (!configuration.charting.noReports)
 			runUuids.foreach(generateReports)
 	}
 
-	private def interactiveSelect(simulations: List[Class[Simulation]], options: GatlingOptions): Selection = {
+	private def interactiveSelect(simulations: List[Class[Simulation]]): Selection = {
 
 		val simulation = selectSimulationClass(simulations)
 
-		println("Select run id (default is '" + GatlingOptions.DEFAULT_RUN_ID + "'). Accepted characters are a-z, A-Z, 0-9, - and _")
+		println("Select run id (default is '" + configuration.simulation.runName + "'). Accepted characters are a-z, A-Z, 0-9, - and _")
 		val runId = {
 			val userInput = Console.readLine.trim
 
 			if (!userInput.matches("[\\w-_]*"))
 				throw new IllegalArgumentException(userInput + " contains illegal characters")
 
-			if (!userInput.isEmpty) userInput else options.runName
+			if (!userInput.isEmpty) userInput else configuration.simulation.runName
 		}
 
 		println("Select run description (optional)")

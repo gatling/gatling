@@ -56,13 +56,13 @@
 												<td id="standardDeviationKO" class="ko"></td>
 											</tr>
 											<tr>
-												<td class="title"><%=configuration.chartingIndicatorsPercentile1%><%=ordinalNumberSuffix(configuration.chartingIndicatorsPercentile1)%> percentile</td>
+												<td class="title"><%=configuration.charting.indicators.percentile1%><%=ordinalNumberSuffix(configuration.charting.indicators.percentile1)%> percentile</td>
 												<td id="percentiles1" class="total"></td>
 												<td id="percentiles1OK" class="ok"></td>
 												<td id="percentiles1KO" class="ko"></td>
 											</tr>
 											<tr>
-												<td class="title"><%=configuration.chartingIndicatorsPercentile2%><%=ordinalNumberSuffix(configuration.chartingIndicatorsPercentile2)%> percentile</td>
+												<td class="title"><%=configuration.charting.indicators.percentile2%><%=ordinalNumberSuffix(configuration.charting.indicators.percentile2)%> percentile</td>
 												<td id="percentiles2" class="total"></td>
 												<td id="percentiles2OK" class="ok"></td>
 												<td id="percentiles2KO" class="ko"></td>

@@ -28,8 +28,8 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 	def generate: Map[String, RequestStatistics] = {
 		val criteria: List[(String, Option[String])] = (GLOBAL_PAGE_NAME, None) :: dataReader.requestNames.map(name => (name, Some(name))).toList
 
-		val percent1 = configuration.chartingIndicatorsPercentile1 / 100.0
-		val percent2 = configuration.chartingIndicatorsPercentile2 / 100.0
+		val percent1 = configuration.charting.indicators.percentile1 / 100.0
+		val percent2 = configuration.charting.indicators.percentile2 / 100.0
 
 		val stats = criteria.map {
 			case (name, requestName) =>
@@ -72,7 +72,7 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 				val meanNumberOfRequestsPerSecondStatistics = Statistics("meanNumberOfRequestsPerSecond", globalMeanNumberOfRequestsPerSecond, okMeanNumberOfRequestsPerSecond, koMeanNumberOfRequestsPerSecond)
 
 				val groupedCounts = dataReader
-					.numberOfRequestInResponseTimeRange(configuration.chartingIndicatorsLowerBound, configuration.chartingIndicatorsHigherBound, requestName)
+					.numberOfRequestInResponseTimeRange(configuration.charting.indicators.lowerBound, configuration.charting.indicators.higherBound, requestName)
 					.map { case (name, count) => (name, count, count * 100 / totalCount) }
 
 				(name -> RequestStatistics(name, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, groupedCounts, meanNumberOfRequestsPerSecondStatistics))

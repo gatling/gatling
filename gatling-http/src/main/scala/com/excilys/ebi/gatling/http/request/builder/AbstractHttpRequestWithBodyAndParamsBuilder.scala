@@ -101,7 +101,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 
 	def param(paramKey: String): B = param(paramKey, EL_START + paramKey + EL_END)
 
-	def upload(paramKey: EvaluatableString, fileName: EvaluatableString, mimeType: String = HeaderValues.APPLICATION_OCTET_STREAM, charset: String = configuration.encoding): B =
+	def upload(paramKey: EvaluatableString, fileName: EvaluatableString, mimeType: String = HeaderValues.APPLICATION_OCTET_STREAM, charset: String = configuration.simulation.encoding): B =
 		header(HeaderNames.CONTENT_TYPE, HeaderValues.MULTIPART_FORM_DATA)
 			.newInstance(requestName, url, queryParams, params, headers, body, new UploadedFile(paramKey, fileName, mimeType, charset) :: uploadedFiles, realm, checks)
 

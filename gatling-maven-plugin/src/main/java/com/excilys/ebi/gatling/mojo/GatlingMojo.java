@@ -16,6 +16,7 @@
 package com.excilys.ebi.gatling.mojo;
 
 import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
+import static com.excilys.ebi.gatling.app.CommandLineConstants.*;
 import static java.util.Arrays.asList;
 import static org.codehaus.plexus.util.StringUtils.join;
 import static org.codehaus.plexus.util.StringUtils.trim;
@@ -40,7 +41,6 @@ import org.apache.tools.ant.types.Commandline;
 import org.apache.tools.ant.types.Path;
 
 import com.excilys.ebi.gatling.ant.GatlingTask;
-import com.excilys.ebi.gatling.app.OptionsConstants;
 
 /**
  * Mojo to execute Gatling.
@@ -70,15 +70,6 @@ public class GatlingMojo extends AbstractMojo {
 	 * @description Generates the reports for the simulation in this folder
 	 */
 	protected File reportsOnly;
-
-	/**
-	 * Uses this file as the configuration file.
-	 * 
-	 * @parameter expression="${gatling.configFile}" alias="cf"
-	 *            default-value="${basedir}/src/main/resources/gatling.conf"
-	 * @description Uses this file as the configuration file
-	 */
-	protected File configFile;
 
 	/**
 	 * Uses this folder to discover simulations that could be run
@@ -249,23 +240,22 @@ public class GatlingMojo extends AbstractMojo {
 			}
 
 			// Arguments
-			List<String> args = new ArrayList<String>(asList("-" + OptionsConstants.CONFIG_FILE_OPTION, configFile.getCanonicalPath(),//
-			        "-" + OptionsConstants.DATA_FOLDER_OPTION, dataFolder.getCanonicalPath(),//
-			        "-" + OptionsConstants.RESULTS_FOLDER_OPTION, resultsFolder.getCanonicalPath(),//
-			        "-" + OptionsConstants.REQUEST_BODIES_FOLDER_OPTION, requestBodiesFolder.getCanonicalPath(),//
-			        "-" + OptionsConstants.SIMULATIONS_FOLDER_OPTION, simulationsFolder.getCanonicalPath(),//
-			        "-" + OptionsConstants.SIMULATIONS_OPTION, simulations));
+			List<String> args = new ArrayList<String>(asList("-" + CLI_DATA_FOLDER, dataFolder.getCanonicalPath(),//
+			        "-" + CLI_RESULTS_FOLDER, resultsFolder.getCanonicalPath(),//
+			        "-" + CLI_REQUEST_BODIES_FOLDER, requestBodiesFolder.getCanonicalPath(),//
+			        "-" + CLI_SIMULATIONS_FOLDER, simulationsFolder.getCanonicalPath(),//
+			        "-" + CLI_SIMULATIONS, simulations));
 
 			if (noReports) {
-				args.add("-" + OptionsConstants.NO_REPORTS_OPTION);
+				args.add("-" + CLI_NO_REPORTS);
 			}
 
 			if (reportsOnly != null) {
-				args.addAll(asList("-" + OptionsConstants.REPORTS_ONLY_OPTION, reportsOnly.getCanonicalPath()));
+				args.addAll(asList("-" + CLI_REPORTS_ONLY, reportsOnly.getCanonicalPath()));
 			}
 
 			if (runName != null) {
-				args.addAll(asList("-" + OptionsConstants.RUN_NAME_OPTION, runName));
+				args.addAll(asList("-" + CLI_RUN_NAME, runName));
 			}
 
 			return args;
@@ -329,9 +319,6 @@ public class GatlingMojo extends AbstractMojo {
 		try {
 			Path classpath = new Path(project);
 			append(classpath, pluginArtifacts); // Add jars
-			classpath.setPath(configFile.getParent()); // Set dirname of config
-			                                           // file into the
-			                                           // classpath
 			getLog().debug("Gatling classpath : " + classpath);
 			project.addReference(GATLING_CLASSPATH_REF_NAME, classpath);
 			return project;

@@ -27,6 +27,7 @@ import com.excilys.ebi.gatling.core.scenario.configuration.{ ConfiguredScenarioB
 object ScenarioBuilder {
 	def scenario(scenarioName: String) = new ScenarioBuilder(scenarioName, Nil).start
 }
+
 /**
  * The scenario builder is used in the DSL to define the scenario
  *
@@ -34,7 +35,7 @@ object ScenarioBuilder {
  * @param actionBuilders the list of all the actions that compose the scenario
  * @param next the action that will be executed after this scenario (that can be a chain as well)
  */
-class ScenarioBuilder(val name: String, actionBuilders: List[ActionBuilder]) extends AbstractStructureBuilder[ScenarioBuilder](actionBuilders) {
+class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder]) extends AbstractStructureBuilder[ScenarioBuilder](actionBuilders) {
 
 	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = {
 		new ScenarioBuilder(name, actionBuilders)

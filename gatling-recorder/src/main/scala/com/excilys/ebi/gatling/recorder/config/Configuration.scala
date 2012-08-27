@@ -16,12 +16,13 @@
 package com.excilys.ebi.gatling.recorder.config
 
 import java.io.{ FileWriter, IOException }
+import java.util.Properties
 
 import scala.reflect.BeanProperty
 import scala.tools.nsc.io.File
 import scala.tools.nsc.io.Path.string2path
 
-import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingFiles, GatlingOptions }
+import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.excilys.ebi.gatling.recorder.ui.Commons.GATLING_RECORDER_FILE_NAME
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy.NONE
@@ -32,7 +33,7 @@ import grizzled.slf4j.Logging
 
 object Configuration extends Logging {
 
-	GatlingConfiguration.setUp(new GatlingOptions)
+	GatlingConfiguration.setUp(new Properties)
 	val DEFAULT_CLASS_NAME = "Simulation"
 
 	private val XSTREAM = {
@@ -113,7 +114,7 @@ class Configuration {
 	@BeanProperty var proxy = new ProxyConfig
 	@BeanProperty var filterStrategy = NONE
 	@BeanProperty var patterns: List[Pattern] = Nil
-	@BeanProperty var outputFolder: String = Option(System.getenv("GATLING_HOME")).map(_ => GatlingFiles.simulationSourcesDirectory.toString).getOrElse(System.getProperty("user.home"))
+	@BeanProperty var outputFolder: String = Option(System.getenv("GATLING_HOME")).map(_ => GatlingFiles.sourcesDirectory.toString).getOrElse(System.getProperty("user.home"))
 	@transient var saveConfiguration = false
 	@BeanProperty var encoding = "UTF-8"
 	@transient var requestBodiesFolder: String = GatlingFiles.requestBodiesDirectory.toString
