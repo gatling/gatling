@@ -34,7 +34,7 @@ case class ShortScenarioDescription(name: String, nbUsers: Int)
  * @param totalUsersCount the number of total users
  * @param encoding the file encoding
  */
-case class InitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription], encoding: String) extends DataWriterMessage
+case class InitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
 
 case object FlushDataWriter extends DataWriterMessage
 

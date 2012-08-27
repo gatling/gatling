@@ -32,11 +32,11 @@ object GatlingFiles {
 	val GATLING_IMPORTS_FILE = "imports.txt"
 
 	def dataDirectory: Path = configuration.dataDirectoryPath.getOrElse(GATLING_USER_FILES_FOLDER / "data")
-	def resultsDirectory: Path = configuration.resultsDirectoryPath.getOrElse(GATLING_HOME / "results")
+	def resultsRootDirectory: Path = configuration.resultsDirectoryPath.getOrElse(GATLING_HOME / "results")
 	def requestBodiesDirectory: Path = configuration.requestBodiesDirectoryPath.getOrElse(GATLING_USER_FILES_FOLDER / GATLING_REQUEST_BODIES)
 	def simulationSourcesDirectory: Directory = (configuration.simulationSourcesDirectoryPath.getOrElse(GATLING_USER_FILES_FOLDER / "simulations")).toDirectory
 
-	def resultDirectory(runUuid: String): Path = resultsDirectory / runUuid
+	def resultDirectory(runUuid: String): Path = resultsRootDirectory / runUuid
 	def jsDirectory(runUuid: String): Path = resultDirectory(runUuid) / GATLING_JS
 	def styleDirectory(runUuid: String): Path = resultDirectory(runUuid) / GATLING_STYLE
 	def rawDataDirectory(runUuid: String): Path = resultDirectory(runUuid) / "rawdata"

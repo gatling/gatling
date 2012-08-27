@@ -15,14 +15,11 @@
  */
 package com.excilys.ebi.gatling.core.structure
 
-import java.util.concurrent.CountDownLatch
-
 import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.EndActionBuilder.endActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.StartActionBuilder.startActionBuilder
-import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.scenario.Scenario
-import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfigurationBuilder
+import com.excilys.ebi.gatling.core.scenario.configuration.{ ConfiguredScenarioBuilder, ScenarioConfiguration }
 
 /**
  * ScenarioBuilder class companion
@@ -45,7 +42,7 @@ class ScenarioBuilder(val name: String, actionBuilders: List[ActionBuilder]) ext
 
 	private[core] def getInstance = this
 
-	def configure = new ScenarioConfigurationBuilder(this)
+	def configure = new ConfiguredScenarioBuilder(this)
 
 	/**
 	 * Method that should not be used in a script. It adds a StartAction to the scenario
@@ -55,18 +52,15 @@ class ScenarioBuilder(val name: String, actionBuilders: List[ActionBuilder]) ext
 	private[core] def start: ScenarioBuilder = newInstance(startActionBuilder :: actionBuilders)
 
 	/**
-	 * Method that should not be used in a script. It adds an EndAction that will
-	 * tell the engine that the user has finished his scenario
-	 *
-	 * @return a new builder with its last action added
-	 */
-	private[core] def end: ScenarioBuilder = newInstance(endActionBuilder :: actionBuilders)
-
-	/**
 	 * Method that actually builds the scenario
 	 *
-	 * @param scenarioId the id of the current scenario
-	 * @return the first action of the scenario to be executed
+	 * @param scenarioConfiguration the configuration of the scenario
+	 * @return the scenario
 	 */
-	private[core] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = new Scenario(name, buildChainedActions(null, protocolConfigurationRegistry))
+	private[core] def build(scenarioConfiguration: ScenarioConfiguration): Scenario = {
+
+		val endingScenarioBuilder = newInstance(endActionBuilder :: actionBuilders)
+		val entryPoint = endingScenarioBuilder.buildChainedActions(null, scenarioConfiguration.protocolRegistry)
+		new Scenario(name, entryPoint, scenarioConfiguration)
+	}
 }

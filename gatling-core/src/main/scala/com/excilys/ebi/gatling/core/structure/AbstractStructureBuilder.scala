@@ -179,8 +179,6 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 */
 	def loop(chain: ChainBuilder) = new LoopBuilder[B](getInstance, chain, None)
 
-	private[core] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry): Any
-
 	private[core] def getInstance: B
 
 	private[core] def addActionBuilders(actionBuildersToAdd: List[ActionBuilder]): B = newInstance(actionBuildersToAdd ::: actionBuilders)

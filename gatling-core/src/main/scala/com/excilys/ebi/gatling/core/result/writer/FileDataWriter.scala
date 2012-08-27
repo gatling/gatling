@@ -16,15 +16,14 @@
 package com.excilys.ebi.gatling.core.result.writer
 
 import java.io.{ BufferedOutputStream, FileOutputStream, OutputStreamWriter }
-
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogDirectory
 import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RunRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.message.RecordType.{ ACTION, RUN }
 import com.excilys.ebi.gatling.core.util.DateHelper.toTimestamp
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
-
 import grizzled.slf4j.Logging
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration
 
 object FileDataWriter {
 
@@ -74,9 +73,9 @@ class FileDataWriter extends DataWriter with Logging {
 	 */
 	private var osw: OutputStreamWriter = _
 
-	override def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription], encoding: String) {
+	override def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) {
 		val simulationLog = simulationLogDirectory(runRecord.runUuid) / "simulation.log"
-		osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(simulationLog.toString)), encoding)
+		osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(simulationLog.toString)), GatlingConfiguration.configuration.encoding)
 		osw.append(RUN).append(TABULATION_SEPARATOR)
 			.append(toTimestamp(runRecord.runDate)).append(TABULATION_SEPARATOR)
 			.append(runRecord.runId).append(TABULATION_SEPARATOR)

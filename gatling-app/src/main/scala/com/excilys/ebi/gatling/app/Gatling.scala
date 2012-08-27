@@ -16,17 +16,16 @@
 package com.excilys.ebi.gatling.app
 
 import java.lang.System.currentTimeMillis
-
 import scala.tools.nsc.io.Directory
-
 import com.excilys.ebi.gatling.app.OptionsConstants._
 import com.excilys.ebi.gatling.charts.report.ReportsGenerator
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingFiles, GatlingOptions }
 import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
-
 import grizzled.slf4j.Logging
 import scopt.OptionParser
+import com.excilys.ebi.gatling.core.runner.Runner
+import com.excilys.ebi.gatling.core.runner.Selection
 
 /**
  * Object containing entry point of application
@@ -58,14 +57,6 @@ object Gatling extends Logging {
 		// if arguments are incorrect, usage message is displayed
 		if (cliOptsParser.parse(args)) new Gatling(gatlingOptions).start
 	}
-
-	def useActorSystem[T](block: => T): T = {
-		try
-			block
-		finally
-			// shut all actors down
-			system.shutdown
-	}
 }
 
 class Gatling(options: GatlingOptions) extends Logging {
@@ -88,7 +79,7 @@ class Gatling(options: GatlingOptions) extends Logging {
 					case None => interactiveSelect(simulations, options)
 				}
 
-				selection.run
+				new Runner(selection).run
 			}
 
 		if (!options.noReports)

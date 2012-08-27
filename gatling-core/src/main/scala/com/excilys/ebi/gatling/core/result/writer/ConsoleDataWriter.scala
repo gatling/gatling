@@ -65,7 +65,7 @@ class ConsoleDataWriter extends DataWriter with Logging {
 		}
 	}
 
-	override def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription], encoding: String) {
+	override def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) {
 
 		startUpTime = currentTimeMillis
 		lastDisplayTime = currentTimeMillis

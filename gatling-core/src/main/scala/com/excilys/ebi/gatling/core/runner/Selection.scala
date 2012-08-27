@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.scenario.configuration
+package com.excilys.ebi.gatling.core.runner
 
-abstract class Simulation extends (() => Seq[ConfiguredScenarioBuilder])
+import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
+
+case class Selection(simulationClasses: List[Class[Simulation]], id: String, description: String)

@@ -25,6 +25,7 @@ import com.excilys.ebi.gatling.core.result.message.{ FlushDataWriter, Initialize
 import com.excilys.ebi.gatling.core.result.message.{ RunRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
 import com.excilys.ebi.gatling.core.result.terminator.Terminator
+import com.excilys.ebi.gatling.core.scenario.Scenario
 
 import akka.actor.{ Actor, ActorRef, Props }
 import akka.routing.BroadcastRouter
@@ -39,7 +40,10 @@ object DataWriter {
 		router ! message
 	}
 
-	def init(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription], encoding: String) = dispatch(InitializeDataWriter(runRecord, scenarios, encoding))
+	def init(runRecord: RunRecord, scenarios: Seq[Scenario]) = {
+		val shortScenarioDescriptions = scenarios.map(scenario => ShortScenarioDescription(scenario.name, scenario.configuration.users))
+		dispatch(InitializeDataWriter(runRecord, shortScenarioDescriptions))
+	}
 
 	def startUser(scenarioName: String, userId: Int) = {
 		val time = currentTimeMillis
@@ -85,17 +89,17 @@ object DataWriter {
  */
 abstract class DataWriter extends Actor {
 
-	def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription], encoding: String)
+	def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription])
 
 	def onRequestRecord(requestRecord: RequestRecord)
 
 	def onFlushDataWriter
 
 	def uninitialized: Receive = {
-		case InitializeDataWriter(runRecord, scenarios, encoding) =>
+		case InitializeDataWriter(runRecord, scenarios) =>
 
 			Terminator.registerDataWriter(self)
-			onInitializeDataWriter(runRecord, scenarios, encoding)
+			onInitializeDataWriter(runRecord, scenarios)
 			context.become(initialized)
 	}
 
