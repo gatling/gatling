@@ -21,6 +21,7 @@ import com.excilys.ebi.gatling.charts.component.{ ComponentLibrary, RequestStati
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ globalFile, menuFile }
 import com.excilys.ebi.gatling.charts.template.{ MenuTemplate, PageTemplate }
 import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_ASSETS_JS_PACKAGE, GATLING_ASSETS_STYLE_PACKAGE, jsDirectory, styleDirectory }
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.util.FileHelper.{ HTML_EXTENSION, formatToFilename }
 import com.excilys.ebi.gatling.core.util.ScanHelper.deepCopyPackageContent

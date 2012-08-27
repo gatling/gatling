@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 		http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import scala.io.Codec
 import scala.tools.nsc.io.Path
 import com.excilys.ebi.gatling.core.result.reader.DataReader
-import com.excilys.ebi.gatling.core.result.writer.{ ConsoleDataWriter, DataWriter, FileDataWriter }
+import com.excilys.ebi.gatling.core.result.writer.{ConsoleDataWriter, DataWriter, FileDataWriter}
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import grizzled.slf4j.Logging
 
@@ -96,8 +96,12 @@ class GatlingConfiguration(
 
 	val chartingMaxPlotPerSerie = fileConfiguration("gatling.charting.maxPlotPerSerie", 5000)
 
+	val chartingMaxPlotPerHistogram = fileConfiguration("gatling.charting.maxPlotPerHistogram", 100)
+
 	lazy val dataWriterClasses = {
-		val classes = fileConfiguration.getList("gatling.data.writers").map { className => Class.forName(className).asInstanceOf[Class[DataWriter]] }
+		val classes = fileConfiguration.getList("gatling.data.writers").map {
+			className => Class.forName(className).asInstanceOf[Class[DataWriter]]
+		}
 
 		if (classes.isEmpty)
 			List(classOf[ConsoleDataWriter], classOf[FileDataWriter])
