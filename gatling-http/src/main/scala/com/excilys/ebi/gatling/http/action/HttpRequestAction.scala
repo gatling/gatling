@@ -15,20 +15,18 @@
  */
 package com.excilys.ebi.gatling.http.action
 
-import com.excilys.ebi.gatling.core.action.{ system, Action }
+import com.excilys.ebi.gatling.core.action.{ Action, system }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
-import com.excilys.ebi.gatling.http.ahc.{ HandlerFactory, GatlingAsyncHandlerActor, GatlingAsyncHandler }
+import com.excilys.ebi.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor }
+import com.excilys.ebi.gatling.http.cache.CacheHandling
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.config.HttpConfig
-import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
+import com.excilys.ebi.gatling.http.config.{ HttpConfig, HttpProtocolConfiguration }
 import com.excilys.ebi.gatling.http.referer.RefererHandling
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
-import com.excilys.ebi.gatling.http.response.ExtendedResponseBuilder
-import com.ning.http.client.{ AsyncHttpClientConfig, AsyncHttpClient }
+import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig }
 
-import akka.actor.{ Props, ActorRef }
+import akka.actor.{ ActorRef, Props }
 import grizzled.slf4j.Logging
 
 /**
@@ -87,21 +85,29 @@ object HttpRequestAction extends Logging {
  * @param checks the checks that will be performed on the response
  * @param protocolConfiguration the protocol specific configuration
  */
-class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]], protocolConfiguration: Option[HttpProtocolConfiguration], gatlingConfiguration: GatlingConfiguration)
+class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]], protocolConfiguration: HttpProtocolConfiguration, gatlingConfiguration: GatlingConfiguration)
 		extends Action with Logging {
 
 	val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks)
 	val asyncHandlerActorFactory = GatlingAsyncHandlerActor.newAsyncHandlerActorFactory(checks, next, requestName, protocolConfiguration, gatlingConfiguration)
-	val client = HTTP_CLIENT
+	val client = HttpRequestAction.HTTP_CLIENT
 
 	def execute(session: Session) {
-		info("Sending Request '" + requestName + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
 
 		val request = requestBuilder.build(session, protocolConfiguration)
 		val newSession = RefererHandling.storeReferer(request, session, protocolConfiguration)
-		val actor = context.actorOf(Props(asyncHandlerActorFactory(request, newSession)))
-		val ahcHandler = handlerFactory(requestName, actor)
-		client.executeRequest(request, ahcHandler)
+
+		if (CacheHandling.isCached(protocolConfiguration, session, request)) {
+			info("Bypassing cached Request '" + requestName + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
+			next ! newSession
+
+		} else {
+			info("Sending Request '" + requestName + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
+
+			val actor = context.actorOf(Props(asyncHandlerActorFactory(request, newSession)))
+			val ahcHandler = handlerFactory(requestName, actor)
+			client.executeRequest(request, ahcHandler)
+		}
 	}
 
 	override def preRestart(reason: Throwable, message: Option[Any]) {

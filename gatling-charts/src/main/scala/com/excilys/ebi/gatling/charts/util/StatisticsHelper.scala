@@ -48,25 +48,25 @@ object StatisticsHelper {
 		if (avg != NO_PLOT_MAGIC_VALUE) sqrt(records.map(result => pow(result.responseTime - avg, 2)).sum / records.length).toLong else NO_PLOT_MAGIC_VALUE
 	}
 
-	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: Map[Long, Int], records: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus): Seq[(Int, Long)] = records
+	def respTimeAgainstNbOfReqPerSecond(requestsPerSecond: Map[Long, Long], records: Seq[(Long, Seq[ChartRequestRecord])], requestStatus: RequestStatus): Seq[(Long, Long)] = records
 		.flatMap {
 			case (time, results) => results
 				.filter(_.requestStatus == requestStatus)
 				.map(requestsPerSecond.get(time).get -> _.responseTime)
 		}
 
-	def count(records: Seq[(Long, Int)]) = records.foldLeft(0)((sum, entry) => sum + entry._2)
+	def count(records: Seq[(Long, Long)]) = records.foldLeft(0L)((sum, entry) => sum + entry._2)
 
-	def numberOfActiveSessionsPerSecond(requestRecords: Seq[ChartRequestRecord], scenarioName: Option[String]): Seq[(Long, Int)] = {
+	def numberOfActiveSessionsPerSecond(requestRecords: Seq[ChartRequestRecord], scenarioName: Option[String]): Seq[(Long, Long)] = {
 
-		val deltas = requestRecords.foldLeft(Map.empty[Long, Int]) { (map: Map[Long, Int], record: ChartRequestRecord) =>
+		val deltas = requestRecords.foldLeft(Map.empty[Long, Long]) { (map: Map[Long, Long], record: ChartRequestRecord) =>
 
 			if (isRecordInScenario(record, scenarioName))
 				if (record.requestName == START_OF_SCENARIO) {
-					val count = map.getOrElse(record.executionStartDateNoMillis, 0)
+					val count = map.getOrElse(record.executionStartDateNoMillis, 0L)
 					map + (record.executionStartDateNoMillis -> (count + 1))
 				} else if (record.requestName == END_OF_SCENARIO) {
-					val count = map.getOrElse(record.executionStartDateNoMillis, 0)
+					val count = map.getOrElse(record.executionStartDateNoMillis, 0L)
 					map + (record.executionStartDateNoMillis -> (count - 1))
 				} else
 					map
@@ -82,24 +82,24 @@ object StatisticsHelper {
 		}.toList.sorted
 
 		@tailrec
-		def build(lastCount: Int, times: List[Long], counts: List[(Long, Int)]): List[(Long, Int)] = times match {
+		def build(lastCount: Long, times: List[Long], counts: List[(Long, Long)]): List[(Long, Long)] = times match {
 
 			case Nil => counts
 			case time :: otherTimes =>
-				val newCount = deltas.getOrElse(time, 0) + lastCount
+				val newCount = deltas.getOrElse(time, 0L) + lastCount
 				build(newCount, otherTimes, (time, newCount) :: counts)
 		}
 
 		build(0, executionStartDates, Nil).sortBy(_._1)
 	}
 
-	def numberOfEventsPerSecond(requestRecords: Seq[ChartRequestRecord], event: ChartRequestRecord => Long, status: Option[RequestStatus], requestName: Option[String]): Map[Long, Int] = {
-		requestRecords.foldLeft(Map.empty[Long, Int]) { (map, record) =>
+	def numberOfEventsPerSecond(requestRecords: Seq[ChartRequestRecord], event: ChartRequestRecord => Long, status: Option[RequestStatus], requestName: Option[String]): Map[Long, Long] = {
+		requestRecords.foldLeft(Map.empty[Long, Long]) { (map, record) =>
 
 			if (isRealRequest(record) && isRecordWithRequestName(record, requestName) && isRecordWithStatus(record, status)) {
 				val time = event(record)
-				val allEntry = map.getOrElse(time, 0)
-				map + (time -> (allEntry + 1))
+				val allEntry = map.getOrElse(time, 0L)
+				map + (time -> (allEntry + 1L))
 
 			} else
 				map
@@ -130,10 +130,15 @@ object StatisticsHelper {
 		if (temp == Long.MinValue) NO_PLOT_MAGIC_VALUE else temp
 	}
 
-	def countRequests(records: Seq[ChartRequestRecord], status: Option[RequestStatus], requestName: Option[String]): Int =
-		records.count { record => isRealRequest(record) && isRecordWithRequestName(record, requestName) && isRecordWithStatus(record, status) }
+	def countRequests(records: Seq[ChartRequestRecord], status: Option[RequestStatus], requestName: Option[String]): Long =
+		records.foldLeft(0L) { (count, record) =>
+			if (isRealRequest(record) && isRecordWithRequestName(record, requestName) && isRecordWithStatus(record, status))
+				count + 1
+			else
+				count
+		} // why the hell does .count return an Int and not a Long?!
 
-	def responseTimeDistribution(records: Seq[ChartRequestRecord], maxSlotsNumber: Int, requestName: Option[String]): (Seq[(Long, Int)], Seq[(Long, Int)]) = {
+	def responseTimeDistribution(records: Seq[ChartRequestRecord], maxSlotsNumber: Int, requestName: Option[String]): (Seq[(Long, Long)], Seq[(Long, Long)]) = {
 
 		val total = countRequests(records, None, requestName)
 
@@ -146,7 +151,7 @@ object StatisticsHelper {
 			val actualSlotNumber = min(width.toInt, 100)
 			val step = max(width.toDouble / (maxSlotsNumber - 1), 1.0)
 
-			val (okPercentiles, koPercentiles) = records.foldLeft((Map.empty[Long, Int], Map.empty[Long, Int])) { (maps, record) =>
+			val (okPercentiles, koPercentiles) = records.foldLeft((Map.empty[Long, Long], Map.empty[Long, Long])) { (maps, record) =>
 
 				if (isRealRequest(record) && isRecordWithRequestName(record, requestName)) {
 					val (oks, kos) = maps
@@ -154,13 +159,13 @@ object StatisticsHelper {
 					val time: Long = minTime + (((record.responseTime - minTime) / step).toInt * step).toLong
 
 					if (record.requestStatus == OK) {
-						val okEntry = oks.getOrElse(time, 0)
-						val newOks = oks + (time -> (okEntry + 1))
+						val okEntry = oks.getOrElse(time, 0L)
+						val newOks = oks + (time -> (okEntry + 1L))
 						(newOks, kos)
 
 					} else {
-						val koEntry = kos.getOrElse(time, 0)
-						val newKos = kos + (time -> (koEntry + 1))
+						val koEntry = kos.getOrElse(time, 0L)
+						val newKos = kos + (time -> (koEntry + 1L))
 						(oks, newKos)
 					}
 
@@ -168,10 +173,10 @@ object StatisticsHelper {
 					maps
 			}
 
-			def distribution(percentiles: Map[Long, Int]): Seq[(Long, Int)] = for (i <- 0 to actualSlotNumber + 1) yield {
+			def distribution(percentiles: Map[Long, Long]): Seq[(Long, Long)] = for (i <- 0 to actualSlotNumber + 1) yield {
 				val range = (minTime + i * step).toLong
-				val count = percentiles.get(range).getOrElse(0)
-				val percentage = round(count * 100.0 / total).toInt
+				val count = percentiles.get(range).getOrElse(0L)
+				val percentage = round(count * 100.0 / total).toLong
 				(range, percentage)
 			}
 
@@ -191,13 +196,13 @@ object StatisticsHelper {
 			}
 		}
 
-		val responseTimes = records.foldLeft(Set.empty[Long]) { (times, record) =>
+		val responseTimes = records.foldLeft(List.empty[Long]) { (times, record) =>
 			if (isRealRequest(record) && isRecordWithRequestName(record, requestName) && isRecordWithStatus(record, status)) {
-				times + record.responseTime
+				record.responseTime :: times
 
 			} else
 				times
-		}.toSeq
+		}
 
 		val sortedRequests = Sorting.stableSort(responseTimes)
 
@@ -234,7 +239,7 @@ object StatisticsHelper {
 			val minStartTime = minTime((record: ChartRequestRecord) => record.executionStartDateNoMillis, records, None, None)
 			val maxEndTime = maxTime((record: ChartRequestRecord) => record.executionEndDateNoMillis, records, None, None)
 
-			count * 1000 / (maxEndTime - minStartTime)
+			count * 1000L / (maxEndTime - minStartTime)
 
 		} else
 			NO_PLOT_MAGIC_VALUE
@@ -262,9 +267,9 @@ object StatisticsHelper {
 			NO_PLOT_MAGIC_VALUE
 	}
 
-	def numberOfRequestInResponseTimeRange(records: Seq[ChartRequestRecord], lowerBound: Int, higherBound: Int, requestName: Option[String]): Seq[(String, Int)] = {
+	def numberOfRequestInResponseTimeRange(records: Seq[ChartRequestRecord], lowerBound: Long, higherBound: Long, requestName: Option[String]): Seq[(String, Long)] = {
 
-		val (firstCount, mediumCount, lastCount, koCount) = records.foldLeft((0, 0, 0, 0)) { (counts, record) =>
+		val (firstCount, mediumCount, lastCount, koCount) = records.foldLeft((0L, 0L, 0L, 0L)) { (counts, record) =>
 			if (isRealRequest(record) && isRecordWithRequestName(record, requestName)) {
 				val (firstCount, mediumCount, lastCount, koCount) = counts
 

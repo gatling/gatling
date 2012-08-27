@@ -15,8 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import java.util.concurrent.CountDownLatch
-
+import com.excilys.ebi.gatling.core.result.terminator.Terminator
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 
@@ -37,7 +36,7 @@ object EndAction {
  * @constructor create an EndAction
  * @param latch used to block the main Thread until all users are finished and then shut the engine down
  */
-class EndAction(latch: CountDownLatch) extends Action with Logging {
+class EndAction extends Action with Logging {
 
 	/**
 	 * Sends a message to the DataWriter and decreases the countDownLatch
@@ -47,7 +46,7 @@ class EndAction(latch: CountDownLatch) extends Action with Logging {
 	def execute(session: Session) {
 
 		DataWriter.endUser(session.scenarioName, session.userId)
-		latch.countDown
+		Terminator.endUser
 		info("Done user #" + session.userId)
 	}
 }

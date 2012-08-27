@@ -15,54 +15,64 @@
  */
 package com.excilys.ebi.gatling.core.result.writer
 
+import scala.collection.mutable.Map
+
+import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 
+import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+
 @RunWith(classOf[JUnitRunner])
 class ConsoleDataWriterSpec extends Specification {
+
+	val time = new DateTime().withDate(2012, 8, 24).withTime(13, 37, 0, 0)
+	
+	def progressBar(summary: ConsoleSummary) = summary.toString.split(END_OF_LINE)(3)
 
 	"console summary progress bar" should {
 
 		"handle it correctly when all the users are waiting" in {
-			val consoleSummary = new ConsoleSummary(25)
-			consoleSummary.appendUsersProgressBar(new UserCounters(11))
 
-			consoleSummary.toString must beEqualTo("Users  : [          ]  0%" + END_OF_LINE)
+			val counters = new UserCounters(11)
+
+			val summary = ConsoleSummary(10000, Map("request1" -> counters), Map.empty, time)
+			summary.complete must beFalse
+			progressBar(summary) must beEqualTo("Users  : [                                                                 ]  0%")
 		}
 
 		"handle it correctly when all the users are running" in {
-			val consoleSummary = new ConsoleSummary(25)
+
 			val counters = new UserCounters(11)
 			for (i <- 1 to 11) counters.userStart
 
-			consoleSummary.appendUsersProgressBar(counters)
-
-			consoleSummary.toString must beEqualTo("Users  : [----------]  0%" + END_OF_LINE)
+			val summary = ConsoleSummary(10000, Map("request1" -> counters), Map.empty, time)
+			summary.complete must beFalse
+			progressBar(summary) must beEqualTo("Users  : [-----------------------------------------------------------------]  0%")
 		}
 
 		"handle it correctly when all the users are done" in {
-			val consoleSummary = new ConsoleSummary(25)
+
 			val counters = new UserCounters(11)
 			for (i <- 1 to 11) counters.userStart
 			for (i <- 1 to 11) counters.userDone
 
-			consoleSummary.appendUsersProgressBar(counters)
-
-			consoleSummary.toString must beEqualTo("Users  : [##########]100%" + END_OF_LINE)
+			val summary = ConsoleSummary(10000, Map("request1" -> counters), Map.empty, time)
+			summary.complete must beTrue
+			progressBar(summary) must beEqualTo("Users  : [#################################################################]100%")
 		}
 
 		"handle it correctly when there are running and done users" in {
-			val consoleSummary = new ConsoleSummary(25)
 
 			val counters = new UserCounters(11)
 			for (i <- 1 to 11) counters.userStart
 			for (i <- 1 to 10) counters.userDone
 
-			consoleSummary.appendUsersProgressBar(counters)
-
-			consoleSummary.toString must beEqualTo("Users  : [#########-] 90%" + END_OF_LINE)
+			val summary = ConsoleSummary(10000, Map("request1" -> counters), Map.empty, time)
+			summary.complete must beFalse
+			progressBar(summary) must beEqualTo("Users  : [###########################################################------] 90%")
 		}
 	}
 }

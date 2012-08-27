@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.http.ahc
 
 import java.lang.System.currentTimeMillis
-import java.net.URLDecoder
+
 import scala.annotation.tailrec
 import scala.collection.JavaConversions.asScalaBuffer
 
@@ -24,22 +24,23 @@ import com.excilys.ebi.gatling.core.check.Check.applyChecks
 import com.excilys.ebi.gatling.core.check.Failure
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ RequestStatus, OK, KO }
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK, RequestStatus }
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.util.StringHelper.{ EMPTY, END_OF_LINE }
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames }
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
-import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.{ REDIRECT_STATUS_CODES, REDIRECTED_REQUEST_NAME_PATTERN }
+import com.excilys.ebi.gatling.http.cache.CacheHandling
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.config.{ HttpProtocolConfiguration, HttpConfig }
+import com.excilys.ebi.gatling.http.config.{ HttpConfig, HttpProtocolConfiguration }
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
-import com.excilys.ebi.gatling.http.response.{ ExtendedResponseBuilderFactory, ExtendedResponseBuilder, ExtendedResponse }
+import com.excilys.ebi.gatling.http.response.{ ExtendedResponse, ExtendedResponseBuilder, ExtendedResponseBuilderFactory }
 import com.excilys.ebi.gatling.http.util.HttpHelper.computeRedirectUrl
-import com.ning.http.client.{ RequestBuilder, Request, FluentStringsMap }
+import com.ning.http.client.{ FluentStringsMap, Request, RequestBuilder }
 
-import akka.actor.{ ReceiveTimeout, ActorRef, Actor }
+import akka.actor.{ Actor, ActorRef, ReceiveTimeout }
 import akka.util.duration.intToDurationInt
 import grizzled.slf4j.Logging
 
@@ -51,12 +52,11 @@ object GatlingAsyncHandlerActor {
 		checks: List[HttpCheck[_]],
 		next: ActorRef,
 		requestName: String,
-		protocolConfiguration: Option[HttpProtocolConfiguration],
+		protocolConfiguration: HttpProtocolConfiguration,
 		gatlingConfiguration: GatlingConfiguration) = {
 
-		val followRedirect = protocolConfiguration.map(_.followRedirectEnabled).getOrElse(true)
 		val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks)
-		val responseBuilderFactory = ExtendedResponseBuilder.newExtendedResponseBuilder(checks)
+		val responseBuilderFactory = ExtendedResponseBuilder.newExtendedResponseBuilder(checks, protocolConfiguration)
 
 		(request: Request, session: Session) =>
 			new GatlingAsyncHandlerActor(
@@ -65,7 +65,6 @@ object GatlingAsyncHandlerActor {
 				next,
 				requestName,
 				request,
-				followRedirect,
 				protocolConfiguration,
 				gatlingConfiguration,
 				handlerFactory,
@@ -73,12 +72,16 @@ object GatlingAsyncHandlerActor {
 	}
 }
 
-class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]], next: ActorRef,
-	var requestName: String, var request: Request, followRedirect: Boolean,
-	protocolConfiguration: Option[HttpProtocolConfiguration],
-	gatlingConfiguration: GatlingConfiguration,
-	handlerFactory: HandlerFactory, responseBuilderFactory: ExtendedResponseBuilderFactory)
-	extends Actor with Logging {
+class GatlingAsyncHandlerActor(
+		var session: Session,
+		checks: List[HttpCheck[_]],
+		next: ActorRef,
+		var requestName: String,
+		var request: Request,
+		protocolConfiguration: HttpProtocolConfiguration,
+		gatlingConfiguration: GatlingConfiguration,
+		handlerFactory: HandlerFactory,
+		responseBuilderFactory: ExtendedResponseBuilderFactory) extends Actor with Logging {
 
 	var responseBuilder = responseBuilderFactory(request, session)
 
@@ -117,7 +120,6 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 			executeNext(session, response)
 
 		case ReceiveTimeout =>
-			error("GatlingAsyncHandlerActor timed out")
 			val response = responseBuilder.build
 			logRequest(KO, response, Some("GatlingAsyncHandlerActor timed out"))
 			executeNext(session, response)
@@ -127,12 +129,28 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 
 	def resetTimeout = context.setReceiveTimeout(HttpConfig.GATLING_HTTP_CONFIG_REQUEST_TIMEOUT_IN_MS milliseconds)
 
-	private def logRequest(requestResult: RequestStatus,
+	private def logRequest(
+		requestStatus: RequestStatus,
 		response: ExtendedResponse,
-		requestMessage: Option[String] = None) = {
+		errorMessage: Option[String] = None) {
+
+		if (requestStatus == KO) {
+			if (isDebugEnabled)
+				debug {
+					val buff = new StringBuilder()
+						.append("Request '").append(requestName).append("' failed : ").append(errorMessage.getOrElse(EMPTY)).append(END_OF_LINE)
+						.append("request was:").append(request).append(END_OF_LINE)
+						.append("response was:").append(END_OF_LINE)
+					response.dumpTo(buff)
+					buff.toString
+				}
+			else
+				warn("Request '" + requestName + "' failed : " + errorMessage.getOrElse(EMPTY))
+		}
+
 		DataWriter.logRequest(session.scenarioName, session.userId, requestName,
 			response.executionStartDate, response.executionEndDate, response.requestSendingEndDate, response.responseReceivingStartDate,
-			requestResult, requestMessage, extractExtraInfo(response))
+			requestStatus, errorMessage, extractExtraInfo(response))
 	}
 
 	/**
@@ -162,7 +180,7 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 			logRequest(OK, response)
 
 			val redirectUrl = computeRedirectUrl(response.getHeader(HeaderNames.LOCATION), request.getUrl)
-	
+
 			val requestBuilder = new RequestBuilder(request)
 				.setMethod("GET")
 				.setBodyEncoding(configuration.encoding)
@@ -177,8 +195,8 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 			newRequest.getHeaders.remove(HeaderNames.CONTENT_LENGTH)
 
 			val newRequestName = requestName match {
-				case REDIRECTED_REQUEST_NAME_PATTERN(requestBaseName, redirectCount) =>
-					new StringBuilder().append(requestBaseName).append(" Redirect ").append(redirectCount.toInt + 1).toString
+				case GatlingAsyncHandlerActor.REDIRECTED_REQUEST_NAME_PATTERN(requestBaseName, redirectCount) =>
+					requestBaseName + " Redirect " + (redirectCount.toInt + 1)
 
 				case _ =>
 					requestName + " Redirect 1"
@@ -203,11 +221,6 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 
 					checkResult match {
 						case Failure(errorMessage) =>
-							if (isDebugEnabled)
-								debug(new StringBuilder().append("Check on request '").append(requestName).append("' failed : ").append(errorMessage).append(", response was:").append(response.dump))
-							else
-								warn(new StringBuilder().append("Check on request '").append(requestName).append("' failed : ").append(errorMessage))
-
 							logRequest(KO, response, Some(errorMessage))
 							executeNext(newSession, response)
 
@@ -218,10 +231,14 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 
 		val sessionWithUpdatedCookies = CookieHandling.storeCookies(session, response.getUri, response.getCookies.toList)
 
-		if (REDIRECT_STATUS_CODES.contains(response.getStatusCode) && followRedirect)
+		if (GatlingAsyncHandlerActor.REDIRECT_STATUS_CODES.contains(response.getStatusCode) && protocolConfiguration.followRedirectEnabled)
 			handleFollowRedirect(sessionWithUpdatedCookies)
-		else
-			checkPhasesRec(sessionWithUpdatedCookies, HttpPhase.phases)
+
+		else {
+			val sessionWithUpdatedCache = CacheHandling.cache(protocolConfiguration, sessionWithUpdatedCookies, request, response)
+
+			checkPhasesRec(sessionWithUpdatedCache, HttpPhase.phases)
+		}
 	}
 
 	/**
@@ -232,12 +249,9 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 	 */
 	private def extractExtraInfo(response: ExtendedResponse): List[String] = {
 
-		def extractExtraRequestInfo(protocolConfiguration: Option[HttpProtocolConfiguration], request: Request): List[String] = {
+		def extractExtraRequestInfo(protocolConfiguration: HttpProtocolConfiguration, request: Request): List[String] = {
 			val extracted = try {
-				for (
-					httpProtocolConfig <- protocolConfiguration;
-					extractor <- httpProtocolConfig.extraRequestInfoExtractor
-				) yield extractor(request)
+				protocolConfiguration.extraRequestInfoExtractor.map(_(request))
 
 			} catch {
 				case e: Exception =>
@@ -248,14 +262,11 @@ class GatlingAsyncHandlerActor(var session: Session, checks: List[HttpCheck[_]],
 			extracted.getOrElse(Nil)
 		}
 
-		def extractExtraResponseInfo(protocolConfiguration: Option[HttpProtocolConfiguration], response: ExtendedResponse): List[String] = {
+		def extractExtraResponseInfo(protocolConfiguration: HttpProtocolConfiguration, response: ExtendedResponse): List[String] = {
 
 			if (response.isBuilt) {
 				val extracted = try {
-					for (
-						httpProtocolConfig <- protocolConfiguration;
-						extractor <- httpProtocolConfig.extraResponseInfoExtractor
-					) yield extractor(response)
+					protocolConfiguration.extraResponseInfoExtractor.map(_(response))
 
 				} catch {
 					case e: Exception =>

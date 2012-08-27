@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.check.body
+package com.excilys.ebi.gatling.http.check.after
 
 import com.excilys.ebi.gatling.core.check.{ MatcherCheckBuilder, ExtractorFactory }
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 import com.excilys.ebi.gatling.http.check.{ HttpExtractorCheckBuilder, HttpCheck }
-import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
+import com.excilys.ebi.gatling.http.request.HttpPhase.AfterResponseReceived
 
 /**
  * HttpBodyesponseTimeCheckBuilder class companion
@@ -40,7 +40,7 @@ object HttpBodyResponseTimeCheckBuilder {
 /**
  * This class builds a response time check
  */
-class HttpBodyResponseTimeCheckBuilder(factory: ExtractorFactory[ExtendedResponse, String, Long]) extends HttpExtractorCheckBuilder[Long, String](Session => EMPTY, CompletePageReceived) {
+class HttpBodyResponseTimeCheckBuilder(factory: ExtractorFactory[ExtendedResponse, String, Long]) extends HttpExtractorCheckBuilder[Long, String](Session => EMPTY, AfterResponseReceived) {
 
 	def find = new MatcherCheckBuilder[HttpCheck[String], ExtendedResponse, String, Long](httpCheckBuilderFactory, factory)
 }

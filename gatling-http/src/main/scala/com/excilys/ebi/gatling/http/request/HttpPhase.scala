@@ -20,6 +20,6 @@ package com.excilys.ebi.gatling.http.request
  */
 object HttpPhase extends Enumeration {
 	type HttpPhase = Value
-	val StatusReceived, HeadersReceived, BodyPartReceived, CompletePageReceived = Value
+	val StatusReceived, HeadersReceived, BodyPartReceived, CompletePageReceived, AfterResponseReceived = Value
 	val phases = values.toList
 }

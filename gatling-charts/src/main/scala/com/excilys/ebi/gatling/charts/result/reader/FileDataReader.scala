@@ -59,20 +59,17 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 						val executionStartDateLong = executionStartDate.toLong
 						val record = ChartRequestRecord(scenarioName, userId.toInt, requestName, executionStartDateLong, executionEndDate.toLong, requestSendingEndDate.toLong, responseReceivingStartDate.toLong, RequestStatus.withName(resultStatus))
 
-						if (record.responseTime >= 0) {
-							requestRecords += record
-							if (requestName != START_OF_SCENARIO && requestName != END_OF_SCENARIO) {
+						requestRecords += record
+						if (requestName != START_OF_SCENARIO && requestName != END_OF_SCENARIO) {
 
-								val entryTime = requestNames.getOrElse(requestName, Long.MaxValue)
-								if (executionStartDateLong < entryTime)
-									requestNames += (record.requestName -> executionStartDateLong)
-							}
-
-							val entryTime = scenarioNames.getOrElse(scenarioName, Long.MaxValue)
+							val entryTime = requestNames.getOrElse(requestName, Long.MaxValue)
 							if (executionStartDateLong < entryTime)
-								scenarioNames += (record.scenarioName -> executionStartDateLong)
-						} else
-							logger.info("Point is irrelevant, probably due to currentTimeMillis unprecision, skipping it" + record.requestName + " at " + record.executionStartDateNoMillis)
+								requestNames += (record.requestName -> executionStartDateLong)
+						}
+
+						val entryTime = scenarioNames.getOrElse(scenarioName, Long.MaxValue)
+						if (executionStartDateLong < entryTime)
+							scenarioNames += (record.scenarioName -> executionStartDateLong)
 
 					case record => logger.warn("Malformed line, skipping it : " + record)
 				}
@@ -92,15 +89,15 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		allRunRecords.head
 	}
 
-	def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): Seq[(Long, Int)] = StatisticsHelper.numberOfActiveSessionsPerSecond(requestRecords, scenarioName)
+	def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): Seq[(Long, Long)] = StatisticsHelper.numberOfActiveSessionsPerSecond(requestRecords, scenarioName)
 
-	def numberOfEventsPerSecond(event: ChartRequestRecord => Long, status: Option[RequestStatus] = None, requestName: Option[String] = None): Map[Long, Int] = StatisticsHelper.numberOfEventsPerSecond(requestRecords, event, status, requestName)
+	def numberOfEventsPerSecond(event: ChartRequestRecord => Long, status: Option[RequestStatus] = None, requestName: Option[String] = None): Map[Long, Long] = StatisticsHelper.numberOfEventsPerSecond(requestRecords, event, status, requestName)
 
 	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String] = None) = StatisticsHelper.responseTimeDistribution(requestRecords, slotsNumber, requestName)
 
 	def percentiles(percentage1: Double, percentage2: Double, status: Option[RequestStatus] = None, requestName: Option[String] = None): (Long, Long) = StatisticsHelper.percentiles(requestRecords, percentage1, percentage2, status, requestName)
 
-	def countRequests(status: Option[RequestStatus] = None, requestName: Option[String] = None): Int = StatisticsHelper.countRequests(requestRecords, status, requestName)
+	def countRequests(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long = StatisticsHelper.countRequests(requestRecords, status, requestName)
 
 	def minResponseTime(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long = StatisticsHelper.minResponseTime(requestRecords, status, requestName)
 
@@ -114,7 +111,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	def responseTimeStandardDeviation(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long = StatisticsHelper.responseTimeStandardDeviation(requestRecords, status, requestName): Long
 
-	def numberOfRequestInResponseTimeRange(lowerBound: Int, higherBound: Int, requestName: Option[String] = None): Seq[(String, Int)] = StatisticsHelper.numberOfRequestInResponseTimeRange(requestRecords, lowerBound, higherBound, requestName)
+	def numberOfRequestInResponseTimeRange(lowerBound: Long, higherBound: Long, requestName: Option[String] = None): Seq[(String, Long)] = StatisticsHelper.numberOfRequestInResponseTimeRange(requestRecords, lowerBound, higherBound, requestName)
 
 	def requestRecordsGroupByExecutionStartDate(requestName: String): Seq[(Long, Seq[ChartRequestRecord])] = StatisticsHelper.requestRecordsGroupByExecutionStartDate(requestRecords, requestName)
 }

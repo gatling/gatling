@@ -128,7 +128,7 @@ class MatcherCheckBuilder[C <: Check[R, XC], R, XC, X](checkBuilderFactory: Chec
 				if (extracted == expectedValue)
 					Success(value)
 				else
-					Failure(new StringBuilder().append("Check 'is' failed, found ").append(extracted).append(" but expected ").append(expectedValue).toString)
+					Failure("Check 'is' failed, found " + extracted + " but expected " + expectedValue)
 			}
 			case None => Failure("Check 'is' failed, found nothing")
 		}
@@ -140,7 +140,7 @@ class MatcherCheckBuilder[C <: Check[R, XC], R, XC, X](checkBuilderFactory: Chec
 			if (ok)
 				Success(Some(extracted))
 			else
-				Failure(new StringBuilder().append("Check 'lessThan' failed, found ").append(extracted).append(" but expected ").append(expected).toString)
+				Failure("Check 'lessThan' failed, found " + extracted + " but expected " + expected)
 		}
 
 		def apply(value: Option[X], session: Session) = value match {
@@ -160,7 +160,7 @@ class MatcherCheckBuilder[C <: Check[R, XC], R, XC, X](checkBuilderFactory: Chec
 					compare(expectedValue, extracted, extracted.asInstanceOf[Float] <= expectedValue.asInstanceOf[Float])
 
 				} else
-					Failure(new StringBuilder().append("Check 'lessThan' failed trying to compare thing that are not numbers of the same type, found ").append(extracted).append(" but expected ").append(expectedValue).toString)
+					Failure("Check 'lessThan' failed trying to compare thing that are not numbers of the same type, found " + extracted + " but expected " + expectedValue)
 			}
 			case None => Failure("Check 'lessThan' failed, found nothing")
 		}
@@ -178,7 +178,7 @@ class MatcherCheckBuilder[C <: Check[R, XC], R, XC, X](checkBuilderFactory: Chec
 				if (extracted != expectedValue)
 					Success(value)
 				else
-					Failure(new StringBuilder().append("Check 'not' failed, found ").append(extracted).append(" but expected different from ").append(expectedValue).toString)
+					Failure("Check 'not' failed, found " + extracted + " but expected different from " + expectedValue)
 			}
 		}
 	})
@@ -204,7 +204,7 @@ class MatcherCheckBuilder[C <: Check[R, XC], R, XC, X](checkBuilderFactory: Chec
 				if (expectedValue.contains(extracted))
 					Success(value)
 				else
-					Failure(new StringBuilder().append("Check 'in' failed, found ").append(extracted).append(" but expected ").append(expectedValue).toString)
+					Failure("Check 'in' failed, found " + extracted + " but expected " + expectedValue)
 			}
 			case None => Failure("Check 'in' failed, found nothing")
 		}

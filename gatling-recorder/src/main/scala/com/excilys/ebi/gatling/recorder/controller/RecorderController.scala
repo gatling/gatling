@@ -29,7 +29,7 @@ import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
 
 import com.excilys.ebi.gatling.recorder.config.Configuration
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
-import com.excilys.ebi.gatling.recorder.config.Options
+import com.excilys.ebi.gatling.recorder.config.RecorderOptions
 import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy
 import com.excilys.ebi.gatling.recorder.scenario.{ ScenarioExporter, ScenarioElement, RequestElement, PauseUnit, PauseElement }
 import com.excilys.ebi.gatling.recorder.ui.enumeration.{ PatternType, FilterStrategy }
@@ -42,7 +42,7 @@ import grizzled.slf4j.Logging
 
 object RecorderController {
 
-	def apply(options: Options) = {
+	def apply(options: RecorderOptions) = {
 		Configuration(options)
 		val controller = new RecorderController
 		controller.showConfigurationFrame

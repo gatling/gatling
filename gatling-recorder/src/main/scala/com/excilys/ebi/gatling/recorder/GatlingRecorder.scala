@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.recorder
 
-import com.excilys.ebi.gatling.recorder.config.Options
+import com.excilys.ebi.gatling.recorder.config.RecorderOptions
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 
 import scopt.OptionParser
@@ -45,7 +45,7 @@ object GatlingRecorder {
 	val FOLLOW_REDIRECT_OPTION = "fr"
 	val FOLLOW_REDIRECT_ALIAS = "follow-redirect"
 
-	private val o = new Options()
+	private val o = new RecorderOptions
 
 	private val cliOptsParser = new OptionParser("gatling-recorder") {
 		intOpt(LOCAL_PORT_OPTION, LOCAL_PORT_ALIAS, "<port>", "Local port used by Gatling Proxy for HTTP", { v: Int => o.localPort = Some(v) })

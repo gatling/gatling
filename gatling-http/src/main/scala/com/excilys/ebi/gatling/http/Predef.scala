@@ -16,7 +16,8 @@
 package com.excilys.ebi.gatling.http
 
 import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.excilys.ebi.gatling.http.check.body.{ HttpBodyCssCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyResponseTimeCheckBuilder, HttpBodyXPathCheckBuilder }
+import com.excilys.ebi.gatling.http.check.after.HttpBodyResponseTimeCheckBuilder
+import com.excilys.ebi.gatling.http.check.body.{ HttpBodyCssCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyXPathCheckBuilder }
 import com.excilys.ebi.gatling.http.check.bodypart.HttpChecksumCheckBuilder
 import com.excilys.ebi.gatling.http.check.header.{ HttpHeaderCheckBuilder, HttpHeaderRegexCheckBuilder }
 import com.excilys.ebi.gatling.http.check.status.{ CurrentLocationCheckBuilder, HttpStatusCheckBuilder }
@@ -36,7 +37,8 @@ object Predef {
 
 	def regex(pattern: EvaluatableString) = HttpBodyRegexCheckBuilder.regex(pattern)
 	def xpath(expression: EvaluatableString, namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)
-	def css(selector: EvaluatableString) = HttpBodyCssCheckBuilder.css(selector)
+	def css(selector: EvaluatableString) = HttpBodyCssCheckBuilder.css(selector, None)
+	def css(selector: EvaluatableString, nodeAttribute: String) = HttpBodyCssCheckBuilder.css(selector, Some(nodeAttribute))
 	def jsonPath(expression: EvaluatableString) = HttpBodyJsonPathCheckBuilder.jsonPath(expression)
 	def header(headerName: EvaluatableString) = HttpHeaderCheckBuilder.header(headerName)
 	def headerRegex(headerName: EvaluatableString, pattern: EvaluatableString) = HttpHeaderRegexCheckBuilder.headerRegex(headerName, pattern)

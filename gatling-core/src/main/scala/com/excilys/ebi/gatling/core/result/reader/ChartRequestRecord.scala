@@ -19,11 +19,20 @@ import org.joda.time.DateTime
 
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.RequestStatus
 
-object ChartRequestRecord {
+import grizzled.slf4j.Logging
+
+object ChartRequestRecord extends Logging {
 
 	def apply(scenarioName: String, userId: Int, requestName: String, executionStartDate: Long, executionEndDate: Long, requestSendingEndDate: Long, responseReceivingStartDate: Long, requestStatus: RequestStatus) = {
 
 		val responseTime = executionEndDate - executionStartDate
+		val correctedResponseTime = if (responseTime >= 0L) {
+			responseTime
+		} else {
+			logger.info("Point is irrelevant, probably due to nanoTime sync problem, forcing response time to 0" + requestName + " at " + executionStartDate + " response time was " + responseTime)
+			0L
+		}
+
 		val latency = responseReceivingStartDate - requestSendingEndDate
 		val executionStartDateNoMillis = new DateTime(executionStartDate).withMillisOfSecond(0).getMillis
 		val executionEndDateNoMillis = new DateTime(executionEndDate).withMillisOfSecond(0).getMillis
@@ -34,27 +43,26 @@ object ChartRequestRecord {
 			requestName.intern,
 			executionStartDateNoMillis,
 			executionEndDateNoMillis,
-			responseTime,
+			correctedResponseTime,
 			latency,
 			requestStatus)
 	}
 }
 
 class ChartRequestRecord(
-	val scenarioName: String,
-	val userId: Int,
-	val requestName: String,
-	val executionStartDateNoMillis: Long,
-	val executionEndDateNoMillis: Long,
-	val responseTime: Long,
-	val latency: Long,
-	val requestStatus: RequestStatus) {
+		val scenarioName: String,
+		val userId: Int,
+		val requestName: String,
+		val executionStartDateNoMillis: Long,
+		val executionEndDateNoMillis: Long,
+		val responseTime: Long,
+		val latency: Long,
+		val requestStatus: RequestStatus) {
 
 	override def equals(other: Any) =
 		other match {
 			case that: ChartRequestRecord =>
-				(that canEqual this) &&
-					scenarioName == that.scenarioName &&
+				scenarioName == that.scenarioName &&
 					userId == that.userId &&
 					requestName == that.requestName &&
 					executionStartDateNoMillis == that.executionStartDateNoMillis &&
@@ -65,11 +73,7 @@ class ChartRequestRecord(
 			case _ => false
 		}
 
-	def canEqual(other: Any): Boolean =
-		other.isInstanceOf[ChartRequestRecord]
-
 	override def hashCode = {
 		41 * (41 * (41 * (41 * (41 * (41 * (41 * (41 + scenarioName.hashCode) + userId.hashCode) + requestName.hashCode) + executionStartDateNoMillis.hashCode) + executionEndDateNoMillis.hashCode) + responseTime.hashCode) + latency.hashCode) + requestStatus.hashCode
 	}
-
 }

@@ -19,15 +19,7 @@ import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
 
-import jodd.lagarto.dom.{ NodeSelector, LagartoDOMBuilder }
-
-object CssExtractor {
-
-	/**
-	 * The DOM Builder singleton
-	 */
-	val domBuilder = new LagartoDOMBuilder
-}
+import jodd.lagarto.dom.{ Node, NodeSelector, LagartoDOMBuilder }
 
 /**
  * A built-in extractor for extracting values with Css Selectors
@@ -37,27 +29,32 @@ object CssExtractor {
  */
 class CssExtractor(text: String) {
 
-	val selector = new NodeSelector(CssExtractor.domBuilder.parse(text))
+	val selector = new NodeSelector((new LagartoDOMBuilder).parse(text))
 
 	/**
 	 * @param expression a String containing the CSS selector
 	 * @return an option containing the value if found, None otherwise
 	 */
-	def extractOne(occurrence: Int)(expression: String): Option[String] = extractMultiple(expression) match {
+	def extractOne(occurrence: Int, nodeAttribute: Option[String])(expression: String): Option[String] = extractMultiple(nodeAttribute)(expression) match {
 		case Some(results) if (results.isDefinedAt(occurrence)) => results(occurrence)
 		case _ => None
 	}
 
 	/**
 	 * @param expression a String containing the CSS selector
+	 * @param nodeAttribute specify an attribute if you don't want to extract the text content
 	 * @return an option containing the values if found, None otherwise
 	 */
-	def extractMultiple(expression: String): Option[Seq[String]] = selector.select(expression).map(_.getTextContent.trim())
+	def extractMultiple(nodeAttribute: Option[String])(expression: String): Option[Seq[String]] =
+		selector.select(expression).map(nodeAttribute match {
+			case Some(attribute) => _.getAttribute(attribute)
+			case None => _.getTextContent().trim()
+		})
 
 	/**
 	 * @param expression a String containing the CSS selector
 	 * @return an option containing the number of values if found, None otherwise
 	 */
-	def count(expression: String): Option[Int] = extractMultiple(expression).map(_.size)
+	def count(nodeAttribute: Option[String])(expression: String): Option[Int] = extractMultiple(nodeAttribute)(expression).map(_.size)
 
 }

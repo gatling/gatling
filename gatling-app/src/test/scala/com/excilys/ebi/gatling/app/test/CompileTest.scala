@@ -18,7 +18,7 @@ import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._
 import com.excilys.ebi.gatling.jdbc.Predef._
 import com.excilys.ebi.gatling.http.Headers.Names._
-import com.ning.http.client.{Response, Request}
+import com.ning.http.client.{ Response, Request }
 
 object CompileTest {
 
@@ -42,9 +42,9 @@ object CompileTest {
 		.userAgentHeader("Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.19 (KHTML, like Gecko) Ubuntu/12.04 Chromium/18.0.1025.151 Chrome/18.0.1025.151 Safari/535.19")
 		.hostHeader("172.30.5.143:8080")
 
-  val httpConfToVerifyUserProvidedInfoExtractors = httpConfig
-    .requestInfoExtractor((request: Request) => { List[String]()})
-    .responseInfoExtractor((response: Response) => { List[String]()})
+	val httpConfToVerifyUserProvidedInfoExtractors = httpConfig
+		.requestInfoExtractor((request: Request) => { List[String]() })
+		.responseInfoExtractor((response: Response) => { List[String]() })
 
 	val usersInformation = tsv("user_information.tsv")
 
@@ -83,6 +83,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 							xpath("//input[@value='${aaaa_value}']/@id").saveAs("sessionParam"),
 							xpath("//input[@id='${aaaa_value}']/@value").notExists,
 							css(""".foo"""),
+							css("""#foo""", "href"),
 							css(""".foo""").count.is(1),
 							css(""".foo""").notExists,
 							regex("""<input id="text1" type="text" value="aaaa" />"""),
@@ -142,6 +143,11 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				.exec(http("Test Page").get("/tests").check(header(CONTENT_TYPE).is("text/html; charset=utf-8").saveAs("sessionParam")))
 				// Fourth request to be repeated
 				.pauseExp(100, MILLISECONDS)
+				// switch
+				.randomSwitch(
+					chain.exec(http("Possibility 1").get("/p1")) -> 40,
+					chain.exec(http("Possibility 2").get("/p2")) -> 55 // last 5% bypass
+					)
 				.exec(http("Create Thing omgomg")
 					.post("/things").queryParam("postTest", "${sessionParam}").fileBody("create_thing", Map("name" -> "${sessionParam}")).asJSON
 					.check(status.is(201).saveAs("status")))).counterName("titi").times(iterations)

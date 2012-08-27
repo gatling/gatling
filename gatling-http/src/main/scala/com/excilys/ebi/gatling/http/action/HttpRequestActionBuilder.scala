@@ -52,7 +52,7 @@ class HttpRequestActionBuilder(requestName: String, requestBuilder: AbstractHttp
 	}
 
 	private[gatling] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = {
-		val httpConfig = protocolConfigurationRegistry.getProtocolConfiguration[HttpProtocolConfiguration]
+		val httpConfig = protocolConfigurationRegistry.getProtocolConfiguration(HttpProtocolConfiguration.DEFAULT_HTTP_PROTOCOL_CONFIG)
 		system.actorOf(Props(new HttpRequestAction(requestName, next, requestBuilder, resolvedChecks, httpConfig, GatlingConfiguration.configuration)))
 	}
 }

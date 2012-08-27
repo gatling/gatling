@@ -16,28 +16,32 @@
 package com.excilys.ebi.gatling.charts.result.reader
 
 import scala.tools.nsc.io.Path
+
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration
-import com.excilys.ebi.gatling.core.result.message.{ RunRecord, RequestStatus }
+
+import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingOptions }
+import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RunRecord }
 import com.excilys.ebi.gatling.core.result.reader.ChartRequestRecord
 import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 @RunWith(classOf[JUnitRunner])
 class FileDataReaderSpec extends Specification {
 
 	//The file data reader needs to know the encoding, use default conf.
-	GatlingConfiguration.setUp(None, None, None, Some(Path(List("src", "test", "resources")).toString), None)
 
-	var singleFileDataReader: FileDataReader = null
-	var multipleFilesDataReader: FileDataReader = null
+	val conf = GatlingOptions(
+		simulationSourcesDirectory = Some(Path(List("src", "test", "resources")).toDirectory),
+		resultsDirectory = Some(Path(List("src", "test", "resources"))))
+
+	GatlingConfiguration.setUp(conf)
 
 	"When reading a single log file, FileDataReader" should {
 
+		val singleFileDataReader = new FileDataReader("run_single_node")
+
 		"be able to read a single file simulation" in {
-			singleFileDataReader = new FileDataReader("run_single_node")
 			singleFileDataReader must not be null
 		}
 
@@ -63,8 +67,9 @@ class FileDataReaderSpec extends Specification {
 
 	"When reading two log files coming from a multinode simulation, FileDataReader" should {
 
+		val multipleFilesDataReader = new FileDataReader("run_multiple_nodes")
+
 		"be able to read a multiple files simulation" in {
-			multipleFilesDataReader = new FileDataReader("run_multiple_nodes")
 			multipleFilesDataReader must not be null
 		}
 

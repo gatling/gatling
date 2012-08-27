@@ -144,7 +144,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 *
 	 * @param session the session of the current scenario
 	 */
-	protected def getAHCRequestBuilder(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): RequestBuilder = {
+	protected def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): RequestBuilder = {
 		val requestBuilder = new RequestBuilder(method, HttpConfig.GATLING_HTTP_CONFIG_USE_RAW_URL).setBodyEncoding(configuration.encoding)
 
 		val isHttps = configureURLAndCookies(requestBuilder, session, protocolConfiguration)
@@ -161,7 +161,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 *
 	 * @param session the session of the current scenario
 	 */
-	private[http] def build(session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]): Request = getAHCRequestBuilder(session, protocolConfiguration).build
+	private[http] def build(session: Session, protocolConfiguration: HttpProtocolConfiguration): Request = getAHCRequestBuilder(session, protocolConfiguration).build
 
 	/**
 	 * This method adds proxy information to the request builder if needed
@@ -169,13 +169,11 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * @param requestBuilder the request builder to which the proxy should be added
 	 * @param session the session of the current scenario
 	 */
-	private def configureProxy(requestBuilder: RequestBuilder, session: Session, isHttps: Boolean, protocolConfiguration: Option[HttpProtocolConfiguration]) = {
-		protocolConfiguration.map { httpConfiguration =>
+	private def configureProxy(requestBuilder: RequestBuilder, session: Session, isHttps: Boolean, protocolConfiguration: HttpProtocolConfiguration) = {
 			(if (isHttps)
-				httpConfiguration.securedProxy
+				protocolConfiguration.securedProxy
 			else
-				httpConfiguration.proxy).map(requestBuilder.setProxyServer(_))
-		}
+				protocolConfiguration.proxy).map(requestBuilder.setProxyServer(_))
 	}
 
 	/**
@@ -184,16 +182,14 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * @param requestBuilder the request builder to which the url should be added
 	 * @param session the session of the current scenario
 	 */
-	private def configureURLAndCookies(requestBuilder: RequestBuilder, session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]) = {
+	private def configureURLAndCookies(requestBuilder: RequestBuilder, session: Session, protocolConfiguration: HttpProtocolConfiguration) = {
 		val providedUrl = url(session)
 
 		// baseUrl implementation
 		val resolvedUrl = if (providedUrl.startsWith(Protocol.HTTP.getProtocol))
 			providedUrl
-		else protocolConfiguration match {
-			case Some(config) => config.baseURL.getOrElse(throw new IllegalArgumentException("No protocolConfiguration.baseURL defined but provided url is relative : " + providedUrl)) + providedUrl
-			case None => throw new IllegalArgumentException("No protocolConfiguration defined but provided url is relative : " + providedUrl)
-		}
+		else 
+			protocolConfiguration.baseURL.getOrElse(throw new IllegalArgumentException("No protocolConfiguration.baseURL defined but provided url is relative : " + providedUrl)) + providedUrl
 
 		requestBuilder.setUrl(resolvedUrl)
 
@@ -231,10 +227,10 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](
 	 * @param requestBuilder the request builder to which the headers should be added
 	 * @param session the session of the current scenario
 	 */
-	private def configureHeaders(requestBuilder: RequestBuilder, headers: Map[String, EvaluatableString], session: Session, protocolConfiguration: Option[HttpProtocolConfiguration]) {
+	private def configureHeaders(requestBuilder: RequestBuilder, headers: Map[String, EvaluatableString], session: Session, protocolConfiguration: HttpProtocolConfiguration) {
 		requestBuilder.setHeaders(new FluentCaseInsensitiveStringsMap)
 
-		val baseHeaders = protocolConfiguration.map(_.baseHeaders).getOrElse(Map.empty)
+		val baseHeaders = protocolConfiguration.baseHeaders
 		val resolvedRequestHeaders = headers.map { case (headerName, headerValue) => (headerName -> headerValue(session)) }
 
 		val newHeaders = RefererHandling.addStoredRefererHeader(baseHeaders ++ resolvedRequestHeaders, session, protocolConfiguration)

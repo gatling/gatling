@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.config
+package com.excilys.ebi.gatling.core.result.terminator
 
-case class Options(
-	var localPort: Option[Int] = None,
-	var localPortSsl: Option[Int] = None,
-	var proxyHost: Option[String] = None,
-	var proxyPort: Option[Int] = None,
-	var proxyPortSsl: Option[Int] = None,
-	var outputFolder: Option[String] = None,
-	var requestBodiesFolder: Option[String] = None,
-	var simulationClassName: Option[String] = None,
-	var simulationPackage: Option[String] = None,
-	var encoding: Option[String] = None,
-	var followRedirect: Option[Boolean] = None,
-	var automaticReferer: Option[Boolean] = None)
+import java.util.concurrent.CountDownLatch
+
+import akka.actor.ActorRef
+
+sealed trait TerminatorMessage
+
+case class Initialize(latch: CountDownLatch, userCount: Int) extends TerminatorMessage
+case class RegisterDataWriter(dataWriter: ActorRef) extends TerminatorMessage
+case object EndUser extends TerminatorMessage

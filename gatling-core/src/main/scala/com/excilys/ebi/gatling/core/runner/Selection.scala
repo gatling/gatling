@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.app
+package com.excilys.ebi.gatling.core.runner
 
 import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
-case class UserSelection(simulationClasses: List[Class[Simulation]], runId: String, runDescription: String)
+case class Selection(simulationClasses: List[Class[Simulation]], id: String, description: String)

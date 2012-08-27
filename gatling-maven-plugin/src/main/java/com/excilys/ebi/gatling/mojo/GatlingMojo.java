@@ -15,8 +15,16 @@
  */
 package com.excilys.ebi.gatling.mojo;
 
-import com.excilys.ebi.gatling.ant.GatlingTask;
-import com.excilys.ebi.gatling.app.OptionsConstants;
+import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
+import static java.util.Arrays.asList;
+import static org.codehaus.plexus.util.StringUtils.join;
+import static org.codehaus.plexus.util.StringUtils.trim;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
@@ -31,15 +39,8 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.Commandline;
 import org.apache.tools.ant.types.Path;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
-import static java.util.Arrays.asList;
-import static org.codehaus.plexus.util.StringUtils.join;
-import static org.codehaus.plexus.util.StringUtils.trim;
+import com.excilys.ebi.gatling.ant.GatlingTask;
+import com.excilys.ebi.gatling.app.OptionsConstants;
 
 /**
  * Mojo to execute Gatling.
@@ -203,12 +204,12 @@ public class GatlingMojo extends AbstractMojo {
 		}
 	}
 
-	protected void prepareEnvironment() throws MojoExecutionException {
+	protected void prepareEnvironment() {
 		// Create results directories
 		resultsFolder.mkdirs();
 	}
 
-	public GatlingTask gatling(List<String> args, List<String> jvmArgs) throws MojoExecutionException {
+	protected GatlingTask gatling(List<String> args, List<String> jvmArgs) throws MojoExecutionException {
 		GatlingTask gatling = new GatlingTask();
 		gatling.setProject(getProject());
 
@@ -265,7 +266,7 @@ public class GatlingMojo extends AbstractMojo {
 
 			if (runName != null) {
 				args.addAll(asList("-" + OptionsConstants.RUN_NAME_OPTION, runName));
-            }
+			}
 
 			return args;
 		} catch (Exception e) {

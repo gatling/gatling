@@ -18,13 +18,15 @@ package com.excilys.ebi.gatling.http.config
 import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
 import com.excilys.ebi.gatling.core.util.RoundRobin
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
-import com.ning.http.client.{ Request, ProxyServer }
+import com.ning.http.client.{ ProxyServer, Request }
 
 /**
  * HttpProtocolConfiguration class companion
  */
 object HttpProtocolConfiguration {
 	val HTTP_PROTOCOL_TYPE = "httpProtocol"
+
+	val DEFAULT_HTTP_PROTOCOL_CONFIG = HttpProtocolConfigurationBuilder.BASE_HTTP_PROTOCOL_CONFIGURATION_BUILDER.build
 }
 
 /**
@@ -33,13 +35,17 @@ object HttpProtocolConfiguration {
  * @param baseURL the radix of all the URLs that will be used (eg: http://mywebsite.tld)
  * @param proxy a proxy through which all the requests must pass to succeed
  */
-case class HttpProtocolConfiguration(baseURLs: Option[Seq[String]],
-	proxy: Option[ProxyServer], securedProxy: Option[ProxyServer],
-	followRedirectEnabled: Boolean, automaticRefererEnabled: Boolean,
-	baseHeaders: Map[String, String],
-	extraRequestInfoExtractor: Option[(Request => List[String])],
-	extraResponseInfoExtractor: Option[(ExtendedResponse => List[String])])
-		extends ProtocolConfiguration {
+case class HttpProtocolConfiguration(
+		baseURLs: Option[Seq[String]],
+		proxy: Option[ProxyServer],
+		securedProxy: Option[ProxyServer],
+		followRedirectEnabled: Boolean,
+		automaticRefererEnabled: Boolean,
+		cachingEnabled: Boolean,
+		responseChunksDiscardingEnabled: Boolean,
+		baseHeaders: Map[String, String],
+		extraRequestInfoExtractor: Option[(Request => List[String])],
+		extraResponseInfoExtractor: Option[(ExtendedResponse => List[String])]) extends ProtocolConfiguration {
 
 	val protocolType = HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE
 

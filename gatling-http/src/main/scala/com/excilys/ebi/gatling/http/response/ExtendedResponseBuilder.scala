@@ -15,20 +15,27 @@
  */
 package com.excilys.ebi.gatling.http.response
 
-import java.lang.System.{ nanoTime, currentTimeMillis }
+import java.lang.System.{ currentTimeMillis, nanoTime }
 import java.security.MessageDigest
+
 import scala.math.max
+
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.check.bodypart.ChecksumCheck
+import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
-import com.ning.http.client.{ HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart }
+import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, Request }
 import com.ning.http.client.Response.ResponseBuilder
-import com.ning.http.client.Request
 
 object ExtendedResponseBuilder {
+	
+	val currentTimeMillisReference = currentTimeMillis
+	val nanoTimeReference = nanoTime 
+	
+	def computeTimeFromNanos(nanos: Long) = (nanos - ExtendedResponseBuilder.nanoTimeReference) / 1000000 + ExtendedResponseBuilder.currentTimeMillisReference
 
-	def newExtendedResponseBuilder(checks: List[HttpCheck[_]]): ExtendedResponseBuilderFactory = {
+	def newExtendedResponseBuilder(checks: List[HttpCheck[_]], protocolConfiguration: HttpProtocolConfiguration): ExtendedResponseBuilderFactory = {
 
 		val checksumChecks = checks.foldLeft(List.empty[ChecksumCheck]) { (checksumChecks, check) =>
 			check match {
@@ -37,7 +44,7 @@ object ExtendedResponseBuilder {
 			}
 		}
 
-		val storeBodyPart = checks.exists(_.phase == CompletePageReceived)
+		val storeBodyPart = !protocolConfiguration.responseChunksDiscardingEnabled || checks.exists(_.phase == CompletePageReceived)
 		(request: Request, session: Session) => new ExtendedResponseBuilder(request, session, checksumChecks, storeBodyPart)
 	}
 }
@@ -46,13 +53,10 @@ class ExtendedResponseBuilder(request: Request, session: Session, checksumChecks
 
 	private val responseBuilder = new ResponseBuilder
 	private var checksums = Map.empty[String, MessageDigest]
-	private var executionStartDateNanos = nanoTime
-	var _executionStartDate = currentTimeMillis
+	val _executionStartDate = ExtendedResponseBuilder.computeTimeFromNanos(nanoTime)
 	var _requestSendingEndDate = 0L
 	var _responseReceivingStartDate = 0L
 	var _executionEndDate = 0L
-
-	private def computeTimeFromNanos(nanos: Long) = (nanos - executionStartDateNanos) / 1000000 + _executionStartDate
 
 	def accumulate(responseStatus: HttpResponseStatus) {
 		responseBuilder.accumulate(responseStatus)
@@ -63,15 +67,15 @@ class ExtendedResponseBuilder(request: Request, session: Session, checksumChecks
 	}
 
 	def updateRequestSendingEndDate(nanos: Long) {
-		_requestSendingEndDate = computeTimeFromNanos(nanos)
+		_requestSendingEndDate = ExtendedResponseBuilder.computeTimeFromNanos(nanos)
 	}
 
 	def updateResponseReceivingStartDate(nanos: Long) {
-		_responseReceivingStartDate = computeTimeFromNanos(nanos)
+		_responseReceivingStartDate = ExtendedResponseBuilder.computeTimeFromNanos(nanos)
 	}
 
 	def computeExecutionEndDateFromNanos(nanos: Long) {
-		_executionEndDate = computeTimeFromNanos(nanos)
+		_executionEndDate = ExtendedResponseBuilder.computeTimeFromNanos(nanos)
 	}
 
 	def accumulate(bodyPart: Option[HttpResponseBodyPart]) {

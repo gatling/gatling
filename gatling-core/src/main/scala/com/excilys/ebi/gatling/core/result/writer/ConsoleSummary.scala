@@ -25,85 +25,95 @@ import com.excilys.ebi.gatling.core.util.PaddableStringBuilder.toPaddable
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 
 object ConsoleSummary {
-	val iso8601Format = "yyyy-mm-dd HH:MM:SS"
+	val iso8601Format = "yyyy-MM-dd HH:mm:ss"
 	val dateTimeFormat = DateTimeFormat.forPattern(iso8601Format)
 
-	def apply(elapsedTime: Long, usersCounters: Map[String, UserCounters], requestsCounters: Map[String, RequestCounters]) = {
-		val summary = new ConsoleSummary(80)
-		summary.newBlock
+	val outputLength = 80
+	val blockSeparator = "=" * outputLength
 
-		summary.appendTimeInfos(elapsedTime)
+	def apply(elapsedTime: Long, usersCounters: Map[String, UserCounters], requestsCounters: Map[String, RequestCounters], time: DateTime = DateTime.now) = {
+
+		def newBlock(buff: StringBuilder) { buff.append(blockSeparator).append(END_OF_LINE) }
+
+		def appendTimeInfos(buff: StringBuilder, time: DateTime, elapsedTimeInSec: Long) {
+			val now = ConsoleSummary.dateTimeFormat.print(time)
+			buff.append(now)
+				.appendLeftPaddedString(elapsedTimeInSec.toString, outputLength - iso8601Format.length - 9)
+				.append("s elapsed")
+				.append(END_OF_LINE)
+		}
+
+		def appendSubTitle(buff: StringBuilder, title: String) {
+			buff.append("---- ").append(title).append(" ").appendTimes("-", max(outputLength - title.length - 6, 0)).append(END_OF_LINE)
+		}
+
+		def appendUsersProgressBar(buff: StringBuilder, usersStats: UserCounters) {
+			val width = outputLength - 15
+
+			val totalCount = usersStats.totalCount
+			val runningCount = usersStats.runningCount
+			val doneCount = usersStats.doneCount
+
+			val donePercent = floor(100 * doneCount.toDouble / totalCount).toInt
+			val done = floor(width * doneCount.toDouble / totalCount).toInt
+			val running = ceil(width * runningCount.toDouble / totalCount).toInt
+			val waiting = width - done - running
+
+			buff.append("Users  : [").appendTimes("#", done).appendTimes("-", running).appendTimes(" ", waiting).append("]")
+				.appendLeftPaddedString(donePercent.toString, 3).append("%")
+				.append(END_OF_LINE)
+		}
+
+		def appendUserCounters(buff: StringBuilder, userCounters: UserCounters) {
+			buff.append("          waiting:").appendRightPaddedString(userCounters.waitingCount.toString, 5)
+				.append(" / running:").appendRightPaddedString(userCounters.runningCount.toString, 5)
+				.append(" / done:").appendRightPaddedString(userCounters.doneCount.toString, 5)
+				.append(END_OF_LINE)
+		}
+
+		def appendRequestCounters(buff: StringBuilder, actionName: String, requestCounters: RequestCounters) {
+			buff.append("> ").appendRightPaddedString(actionName, outputLength - 22)
+				.append(" OK=").appendRightPaddedString(requestCounters.successfulCount.toString, 6)
+				.append(" KO=").appendRightPaddedString(requestCounters.failedCount.toString, 6)
+				.append(END_OF_LINE)
+		}
+
+		val buff = new StringBuilder
+
+		newBlock(buff)
+
+		appendTimeInfos(buff, time, elapsedTime)
 
 		//Users
 		usersCounters.foreach {
 			case (scenarioName, usersStats) => {
-				summary.appendSubTitle(scenarioName)
-				summary.appendUsersProgressBar(usersStats)
-				summary.appendUserCounters(usersStats)
+				appendSubTitle(buff, scenarioName)
+				appendUsersProgressBar(buff, usersStats)
+				appendUserCounters(buff, usersStats)
 			}
 		}
 
 		//Requests
-		summary.appendSubTitle("Requests")
+		appendSubTitle(buff, "Requests")
 		requestsCounters.foreach {
 			case (actionName, requestCounters) => {
-				summary.appendRequestCounters(actionName, requestCounters)
+				appendRequestCounters(buff, actionName, requestCounters)
 			}
 		}
-		summary.newBlock
 
-		summary
+		newBlock(buff)
+
+		val complete = {
+			val totalWaiting = usersCounters.values.map(_.waitingCount).sum
+			val totalRunning = usersCounters.values.map(_.runningCount).sum
+			(totalWaiting == 0) && (totalRunning == 0)
+		}
+
+		new ConsoleSummary(buff, complete)
 	}
 }
 
-class ConsoleSummary(val outputLength: Int) {
-	private val buff = new StringBuilder
-	private val blockSeparator = "=" * outputLength
-
-	def newBlock { buff.append(blockSeparator).append(END_OF_LINE) }
-
-	def appendTimeInfos(elapsedTimeInSec: Long) {
-		val now = ConsoleSummary.dateTimeFormat.print(new DateTime)
-		buff.append(now)
-			.appendLeftPaddedString(elapsedTimeInSec.toString, outputLength - ConsoleSummary.iso8601Format.length - 9)
-			.append("s elapsed")
-			.append(END_OF_LINE)
-	}
-
-	def appendSubTitle(title: String) {
-		buff.append("---- ").append(title).append(" ").appendTimes("-", max(outputLength - title.length - 6, 0)).append(END_OF_LINE)
-	}
-
-	def appendUsersProgressBar(usersStats: UserCounters) {
-		val width = outputLength - 15
-
-		val totalCount = usersStats.totalCount
-		val runningCount = usersStats.runningCount
-		val doneCount = usersStats.doneCount
-
-		val donePercent = floor(100 * doneCount.toDouble / totalCount).toInt
-		val done = floor(width * doneCount.toDouble / totalCount).toInt
-		val running = ceil(width * runningCount.toDouble / totalCount).toInt
-		val waiting = width - done - running
-
-		buff.append("Users  : [").appendTimes("#", done).appendTimes("-", running).appendTimes(" ", waiting).append("]")
-			.appendLeftPaddedString(donePercent.toString, 3).append("%")
-			.append(END_OF_LINE)
-	}
-
-	def appendUserCounters(userCounters: UserCounters) {
-		buff.append("          waiting:").appendRightPaddedString(userCounters.waitingCount.toString, 5)
-			.append(" / running:").appendRightPaddedString(userCounters.runningCount.toString, 5)
-			.append(" / done:").appendRightPaddedString(userCounters.doneCount.toString, 5)
-			.append(END_OF_LINE)
-	}
-
-	def appendRequestCounters(actionName: String, requestCounters: RequestCounters) {
-		buff.append("> ").appendRightPaddedString(actionName, outputLength - 22)
-			.append(" OK=").appendRightPaddedString(requestCounters.successfulCount.toString, 6)
-			.append(" KO=").appendRightPaddedString(requestCounters.failedCount.toString, 6)
-			.append(END_OF_LINE)
-	}
+class ConsoleSummary(buff: StringBuilder, val complete: Boolean) {
 
 	override def toString = buff.toString
 }

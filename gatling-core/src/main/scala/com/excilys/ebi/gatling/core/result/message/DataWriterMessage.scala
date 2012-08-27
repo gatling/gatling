@@ -24,7 +24,7 @@ import com.excilys.ebi.gatling.core.util.DateHelper.{ toTimestamp, toHumanDate }
 
 sealed trait DataWriterMessage
 
-case class ShortScenarioDescription(name: String, nbUsers :Int)
+case class ShortScenarioDescription(name: String, nbUsers: Int)
 
 /**
  * This case class is to be sent to the logging actor, it contains all the information
@@ -32,10 +32,9 @@ case class ShortScenarioDescription(name: String, nbUsers :Int)
  *
  * @param runRecord the data on the simulation run
  * @param totalUsersCount the number of total users
- * @param latch the countdown latch that will end the simulation
  * @param encoding the file encoding
  */
-case class InitializeDataWriter(runRecord: RunRecord, scenarios :Seq[ShortScenarioDescription], latch: CountDownLatch, encoding: String) extends DataWriterMessage
+case class InitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
 
 case object FlushDataWriter extends DataWriterMessage
 
@@ -54,12 +53,20 @@ case object FlushDataWriter extends DataWriterMessage
  * @param requestMessage the message of the action on completion
  * @param extraInfo information about the request and response extracted via a user-defined function
  */
-case class RequestRecord(scenarioName: String, userId: Int, requestName: String,
-	executionStartDate: Long, executionEndDate: Long,
-	requestSendingEndDate: Long, responseReceivingStartDate: Long,
-	requestStatus: RequestStatus.RequestStatus, requestMessage: Option[String] = None,
-	extraInfo: List[String] = Nil) extends DataWriterMessage {
+case class RequestRecord(
+		scenarioName: String,
+		userId: Int,
+		requestName: String,
+		executionStartDate: Long,
+		executionEndDate: Long,
+		requestSendingEndDate: Long,
+		responseReceivingStartDate: Long,
+		requestStatus: RequestStatus.RequestStatus,
+		requestMessage: Option[String] = None,
+		extraInfo: List[String] = Nil) extends DataWriterMessage {
 	val recordType = ACTION
+	def latency =  responseReceivingStartDate - requestSendingEndDate
+	def responseTime = executionEndDate - executionStartDate
 }
 
 case class RunRecord(runDate: DateTime, runId: String, runDescription: String) extends DataWriterMessage {

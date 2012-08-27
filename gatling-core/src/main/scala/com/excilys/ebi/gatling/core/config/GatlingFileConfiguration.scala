@@ -20,9 +20,8 @@ import java.io.File
 import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_HOME
-import com.typesafe.config.{ ConfigFactory, Config }
+import com.typesafe.config.{ Config, ConfigFactory }
 
-import akka.config.ConfigurationException
 import grizzled.slf4j.Logging
 
 object GatlingFileConfiguration extends Logging {
@@ -59,7 +58,7 @@ class GatlingFileConfiguration(map: Config) {
 	def getString(key: String): Option[String] = if (contains(key)) Some(map.getString(key)) else None
 	def getString(key: String, defaultValue: String): String = getString(key).getOrElse(defaultValue)
 
-	def getList(key: String): Seq[String] = if (contains(key)) map.getStringList(key) else List.empty
+	def getList(key: String): Seq[String] = if (contains(key)) map.getStringList(key) else Nil
 
 	def getInt(key: String): Option[Int] = if (contains(key)) Some(map.getInt(key)) else None
 	def getInt(key: String, defaultValue: Int): Int = getInt(key).getOrElse(defaultValue)
@@ -73,7 +72,7 @@ class GatlingFileConfiguration(map: Config) {
 	def getBoolean(key: String): Option[Boolean] = if (contains(key)) Some(map.getBoolean(key)) else None
 	def getBoolean(key: String, defaultValue: Boolean): Boolean = getBoolean(key).getOrElse(defaultValue)
 
-	def apply(key: String): String = getString(key).getOrElse(throw new ConfigurationException("undefined config: " + key))
+	def apply(key: String): String = map.getString(key)
 	def apply(key: String, defaultValue: String) = getString(key, defaultValue)
 	def apply(key: String, defaultValue: Int) = getInt(key, defaultValue)
 	def apply(key: String, defaultValue: Long) = getLong(key, defaultValue)

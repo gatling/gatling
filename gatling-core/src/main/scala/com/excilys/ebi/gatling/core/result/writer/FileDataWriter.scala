@@ -15,17 +15,15 @@
  */
 package com.excilys.ebi.gatling.core.result.writer
 
-import java.io.{ OutputStreamWriter, FileOutputStream, BufferedOutputStream }
-import java.util.concurrent.CountDownLatch
-
+import java.io.{ BufferedOutputStream, FileOutputStream, OutputStreamWriter }
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogDirectory
-import com.excilys.ebi.gatling.core.result.message.{ InitializeDataWriter, FlushDataWriter, RequestRecord }
-import com.excilys.ebi.gatling.core.result.message.RecordType.{ RUN, ACTION }
+import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RunRecord, ShortScenarioDescription }
+import com.excilys.ebi.gatling.core.result.message.RecordType.{ ACTION, RUN }
 import com.excilys.ebi.gatling.core.util.DateHelper.toTimestamp
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
-
 import grizzled.slf4j.Logging
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration
 
 object FileDataWriter {
 
@@ -75,47 +73,27 @@ class FileDataWriter extends DataWriter with Logging {
 	 */
 	private var osw: OutputStreamWriter = _
 
-	/**
-	 * The countdown latch that will be decreased when all message are written and all scenarios ended
-	 */
-	private var latch: CountDownLatch = _
-
-	def uninitialized: Receive = {
-		case InitializeDataWriter(runRecord, totalUsersCount, latch, encoding) =>
-			this.latch = latch
-			val simulationLog = simulationLogDirectory(runRecord.runUuid) / "simulation.log"
-			osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(simulationLog.toString)), encoding)
-			osw.append(RUN).append(TABULATION_SEPARATOR)
-				.append(toTimestamp(runRecord.runDate)).append(TABULATION_SEPARATOR)
-				.append(runRecord.runId).append(TABULATION_SEPARATOR)
-				// hack for being able to deserialize in FileDataReader
-				.append(if (runRecord.runDescription.isEmpty) FileDataWriter.emptyField else runRecord.runDescription)
-				.append(END_OF_LINE)
-			context.become(initialized)
-
-		case unknown: AnyRef => error("Unsupported message type in uninilialized state" + unknown.getClass)
-		case unknown: Any => error("Unsupported message type in uninilialized state " + unknown)
+	override def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) {
+		val simulationLog = simulationLogDirectory(runRecord.runUuid) / "simulation.log"
+		osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(simulationLog.toString)), GatlingConfiguration.configuration.encoding)
+		osw.append(RUN).append(TABULATION_SEPARATOR)
+			.append(toTimestamp(runRecord.runDate)).append(TABULATION_SEPARATOR)
+			.append(runRecord.runId).append(TABULATION_SEPARATOR)
+			// hack for being able to deserialize in FileDataReader
+			.append(if (runRecord.runDescription.isEmpty) FileDataWriter.emptyField else runRecord.runDescription)
+			.append(END_OF_LINE)
 	}
 
-	def initialized: Receive = {
-		case requestRecord: RequestRecord =>
-			FileDataWriter.append(osw, requestRecord)
+	override def onRequestRecord(requestRecord: RequestRecord) {
+		FileDataWriter.append(osw, requestRecord)
+	}
 
-		case FlushDataWriter =>
+	override def onFlushDataWriter {
+		try {
 			info("Received flush order")
-
-			try {
-				osw.flush
-			} finally {
-				context.unbecome // return to uninitialized state
-				// Decrease the latch (should be at 0 here)
-				osw.close
-				latch.countDown
-			}
-
-		case unknown: AnyRef => error("Unsupported message type in inilialized state " + unknown.getClass)
-		case unknown: Any => error("Unsupported message type in inilialized state " + unknown)
+			osw.flush
+		} finally {
+			osw.close
+		}
 	}
-
-	def receive = uninitialized
 }

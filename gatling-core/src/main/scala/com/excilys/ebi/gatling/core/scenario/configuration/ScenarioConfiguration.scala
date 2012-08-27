@@ -15,19 +15,20 @@
  */
 package com.excilys.ebi.gatling.core.scenario.configuration
 
-import java.util.concurrent.TimeUnit
-
 import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
-import com.excilys.ebi.gatling.core.structure.ScenarioBuilder
+import akka.util.Duration
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
 /**
  * This class represents the configuration of a scenario
  *
- * @param scenarioId the id of the current scenario
- * @param scenarioBuilder the scenario
- * @param numberOfUsers the number of users that will behave as this scenario says
+ * @param users the number of users that will behave as this scenario says
  * @param ramp the time in which all users must be launched
- * @param startTime the time at which the scenario will start in the simulation
+ * @param delay the time at which the engine will start in the scenario
+ * @param protocolRegistry the registry for the protocols used in the scenario
  */
-class ScenarioConfiguration(scenarioId: Int, val scenarioBuilder: ScenarioBuilder, val users: Int, val ramp: (Int, TimeUnit),
-	val delay: (Int, TimeUnit), val protocolConfigurations: Seq[ProtocolConfiguration])
+case class ScenarioConfiguration(
+	users: Int,
+	ramp: Option[Duration],
+	delay: Option[Duration],
+	protocolRegistry: ProtocolConfigurationRegistry)
