@@ -18,8 +18,8 @@ package com.excilys.ebi.gatling.log
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import grizzled.slf4j.Logging
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
-import stats.{StatsHelper, StatsResultsHelper, Stats, StatsResults}
-import com.excilys.ebi.gatling.log.processors.{SessionProcessor, LogFilePreProcessor}
+import stats.{StatsHelper, StatsResultsHelper, Stats}
+import com.excilys.ebi.gatling.log.processors.{PostProcessor, PreProcessor}
 import com.excilys.ebi.gatling.core.config.GatlingFiles._
 import java.util.regex.Pattern
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR_STRING
@@ -35,57 +35,59 @@ object FileDataReader {
 
 class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
-	val (max, min, step, size, buckets) = {
+	val (buckets, results) = {
 		val inputFiles = simulationLogDirectory(runUuid, create = false).files.filter(_.jfile.getName.matches(FileDataReader.SIMULATION_FILES_NAME_PATTERN)).map(_.jfile).toSeq
 
-		val (max, min, step, size) = LogFilePreProcessor.getGeneralStats(multipleFileIterator(inputFiles), configuration.chartingMaxPlotPerSerie.toInt)
+		val (max, min, step, size, runRecords) = PreProcessor.run(multipleFileIterator(inputFiles), configuration.chartingMaxPlotPerSerie.toInt)
 
-		new Stats(min, max, step, size, multipleFileIterator(inputFiles)).run
+		val results = Stats.compute(min, max, step, size, multipleFileIterator(inputFiles))
+
+		results.getRunRecordBuffer() ++= runRecords
 
 		val buckets = StatsHelper.bucketsList(min, max, step)
 
-		SessionProcessor.compute(StatsResults.getSessionDeltaBuffer, StatsResults.getSessionBuffer, buckets)
+		val completeResults = PostProcessor.run(results, buckets)
 
-		(max, min, step, size, buckets)
+		(buckets, completeResults)
 	}
 
-	def runRecord = StatsResultsHelper.getRunRecord
+	def runRecord = StatsResultsHelper.getRunRecord(results)
 
-	def requestNames = StatsResultsHelper.getRequestNames
+	def requestNames = StatsResultsHelper.getRequestNames(results)
 
-	def scenarioNames = StatsResultsHelper.getScenarioNames
+	def scenarioNames = StatsResultsHelper.getScenarioNames(results)
 
-	def numberOfActiveSessionsPerSecond(scenarioName: Option[String]) = StatsResultsHelper.getNumberOfActiveSessionsPerSecond(scenarioName)
+	def numberOfActiveSessionsPerSecond(scenarioName: Option[String]) = StatsResultsHelper.getNumberOfActiveSessionsPerSecond(results, scenarioName)
 
-	def numberOfRequestsPerSecond(status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = StatsResultsHelper.getRequestsPerSec(status, requestName, buckets)
+	def numberOfRequestsPerSecond(status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = StatsResultsHelper.getRequestsPerSec(results, status, requestName, buckets)
 
-	def numberOfTransactionsPerSecond(status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = StatsResultsHelper.getTransactionsPerSec(status, requestName, buckets)
+	def numberOfTransactionsPerSecond(status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = StatsResultsHelper.getTransactionsPerSec(results, status, requestName, buckets)
 
-	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String]) = StatsResultsHelper.getResponseTimeDistribution(slotsNumber, requestName)
+	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String]) = StatsResultsHelper.getResponseTimeDistribution(results, slotsNumber, requestName)
 
-	def percentiles(percentage1: Double, percentage2: Double, status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = StatsResultsHelper.getPercentiles(percentage1, percentage2, status, requestName)
+	def percentiles(percentage1: Double, percentage2: Double, status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = StatsResultsHelper.getPercentiles(results, percentage1, percentage2, status, requestName)
 
-	def minResponseTime(status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = StatsResultsHelper.getMinResponseTime(status, requestName)
+	def minResponseTime(status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = StatsResultsHelper.getMinResponseTime(results, status, requestName)
 
-	def maxResponseTime(status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = StatsResultsHelper.getMaxResponseTime(status, requestName)
+	def maxResponseTime(status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = StatsResultsHelper.getMaxResponseTime(results, status, requestName)
 
-	def countRequests(status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = StatsResultsHelper.getCountRequests(status, requestName)
+	def countRequests(status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = StatsResultsHelper.getCountRequests(results, status, requestName)
 
-	def meanResponseTime(status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = StatsResultsHelper.getMeanResponseTime(status, requestName)
+	def meanResponseTime(status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = StatsResultsHelper.getMeanResponseTime(results, status, requestName)
 
-	def meanLatency(status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = StatsResultsHelper.getMeanLatency(status, requestName)
+	def meanLatency(status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = StatsResultsHelper.getMeanLatency(results, status, requestName)
 
-	def meanNumberOfRequestsPerSecond(status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = StatsResultsHelper.getMeanNumberOfRequestsPerSecond(status, requestName)
+	def meanNumberOfRequestsPerSecond(status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = StatsResultsHelper.getMeanNumberOfRequestsPerSecond(results, status, requestName)
 
-	def responseTimeStandardDeviation(status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = StatsResultsHelper.getResponseTimeStandardDeviation(status, requestName)
+	def responseTimeStandardDeviation(status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = StatsResultsHelper.getResponseTimeStandardDeviation(results, status, requestName)
 
-	def numberOfRequestInResponseTimeRange(lowerBound: Int, higherBound: Int, requestName: Option[String]) = StatsResultsHelper.getNumberOfRequestInResponseTimeRange(lowerBound, higherBound, requestName)
+	def numberOfRequestInResponseTimeRange(lowerBound: Int, higherBound: Int, requestName: Option[String]) = StatsResultsHelper.getNumberOfRequestInResponseTimeRange(results, lowerBound, higherBound, requestName)
 
-	def responseTimeGroupByExecutionStartDate(status: RequestStatus.RequestStatus, requestName: String) = StatsResultsHelper.getResponseTimeGroupByExecutionStartDate(status, requestName)
+	def responseTimeGroupByExecutionStartDate(status: RequestStatus.RequestStatus, requestName: String) = StatsResultsHelper.getResponseTimeGroupByExecutionStartDate(results, status, requestName)
 
-	def latencyGroupByExecutionStartDate(status: RequestStatus.RequestStatus, requestName: String) = StatsResultsHelper.getLatencyGroupByExecutionStartDate(status, requestName)
+	def latencyGroupByExecutionStartDate(status: RequestStatus.RequestStatus, requestName: String) = StatsResultsHelper.getLatencyGroupByExecutionStartDate(results, status, requestName)
 
-	def requestAgainstResponseTime(status: RequestStatus.RequestStatus, requestName: String) = StatsResultsHelper.getRequestAgainstResponseTime(status, requestName)
+	def requestAgainstResponseTime(status: RequestStatus.RequestStatus, requestName: String) = StatsResultsHelper.getRequestAgainstResponseTime(results, status, requestName)
 
-	private def multipleFileIterator(files : Seq[File]) = files.map(file => Source.fromFile(file, configuration.encoding).getLines()).reduce((first, second) => first ++ second)
+	private def multipleFileIterator(files: Seq[File]) = files.map(file => Source.fromFile(file, configuration.encoding).getLines()).reduce((first, second) => first ++ second)
 }

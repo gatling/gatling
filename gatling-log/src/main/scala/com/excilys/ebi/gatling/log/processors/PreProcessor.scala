@@ -20,15 +20,16 @@ import com.excilys.ebi.gatling.log.util.FieldsNames._
 import grizzled.slf4j.Logging
 import com.excilys.ebi.gatling.core.result.message.RecordType.{ACTION, RUN}
 import com.excilys.ebi.gatling.log.FileDataReader.TABULATION_PATTERN
-import com.excilys.ebi.gatling.log.stats.{StatsHelper, StatsResults}
+import com.excilys.ebi.gatling.log.stats.StatsHelper
 import com.excilys.ebi.gatling.core.result.message.RunRecord
 import org.joda.time.DateTime
+import collection.mutable
 
-object LogFilePreProcessor extends Logging {
+object PreProcessor extends Logging {
 	val ACTION_HEADER: List[String] = List(ACTION_TYPE, SCENARIO, ID, REQUEST, EXECUTION_START, EXECUTION_END, REQUEST_END, RESPONSE_START, STATUS, ERROR)
 	val RUN_HEADER: List[String] = List(ACTION_TYPE, DATE, ID, DESCRIPTION)
 
-	def getGeneralStats(inputIterator: Iterator[String], maxPlotPerSerie: Int) = {
+	def run(inputIterator: Iterator[String], maxPlotPerSerie: Int) = {
 		val (actions, runs) = inputIterator.map(TABULATION_PATTERN.split(_)).filter(array => array.head == ACTION || array.head == RUN).partition(_.head == ACTION)
 
 		val (size, min, max) = actions.filter(_.length >= ACTION_HEADER.length).foldLeft((0L, Long.MaxValue, Long.MinValue)) {
@@ -43,11 +44,11 @@ object LogFilePreProcessor extends Logging {
 			}
 		}
 
-		val buffer = StatsResults.getRunRecordBuffer()
+		val buffer = mutable.ListBuffer[RunRecord]()
 		runs.filter(_.length >= RUN_HEADER.size).map(RUN_HEADER.zip(_).toMap).foreach(values => buffer += RunRecord(new DateTime(values(DATE).toLong), values(ID), values(DESCRIPTION)))
 
 		info("Read " + size + " lines (finished)")
 
-		(max, min, StatsHelper.step(math.floor(min / SEC_MILLISEC_RATIO).toLong, math.ceil(max / SEC_MILLISEC_RATIO).toLong, maxPlotPerSerie) * SEC_MILLISEC_RATIO, size)
+		(max, min, StatsHelper.step(math.floor(min / SEC_MILLISEC_RATIO).toLong, math.ceil(max / SEC_MILLISEC_RATIO).toLong, maxPlotPerSerie) * SEC_MILLISEC_RATIO, size, buffer)
 	}
 }

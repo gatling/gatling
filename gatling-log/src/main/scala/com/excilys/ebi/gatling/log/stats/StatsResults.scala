@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.result.message.RunRecord
 import com.excilys.ebi.gatling.log.util.ResultBufferType._
 import collection.mutable
 
-object StatsResults extends Logging {
+class StatsResults extends Logging {
 	private val generalStatsBuffer = mutable.Map[ResultBufferType, mutable.Buffer[GeneralStatsRecord]]()
 
 	def getGeneralStatsBuffer(bufferType: ResultBufferType) = getBuffer(generalStatsBuffer, bufferType)

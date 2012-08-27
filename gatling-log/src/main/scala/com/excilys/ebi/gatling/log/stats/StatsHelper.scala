@@ -16,7 +16,8 @@
 package com.excilys.ebi.gatling.log.stats
 
 import com.excilys.ebi.gatling.log.scalding.GatlingBufferSource
-import com.excilys.ebi.gatling.log.util.{ResultBufferType, ResultBufferFinderAndParser}
+import collection.mutable
+import cascading.tuple.TupleEntry
 
 object StatsHelper {
 	def bucketsList(min: Long, max: Long, step: Double) = {
@@ -35,8 +36,8 @@ object StatsHelper {
 		else math.round((t - (t - min) % step + demiStep))
 	}
 
-	def output[A](resultBuffer: ResultBufferFinderAndParser[A], bufferType: ResultBufferType.ResultBufferType) = {
-		new GatlingBufferSource(resultBuffer.bufferFinder(bufferType), resultBuffer.parseFunction)
+	def output[A](buffer: mutable.Buffer[A], parseFunction: (TupleEntry) => A) = {
+		new GatlingBufferSource(buffer, parseFunction)
 	}
 
 	def square(x: Double) = x * x

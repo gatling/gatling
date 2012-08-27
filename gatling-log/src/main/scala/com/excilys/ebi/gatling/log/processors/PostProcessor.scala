@@ -16,19 +16,21 @@
 package com.excilys.ebi.gatling.log.processors
 
 import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.log.stats.{SessionRecord, SessionDeltaRecord}
+import com.excilys.ebi.gatling.log.stats.{StatsResults, SessionRecord, SessionDeltaRecord}
 import collection.mutable
 import com.excilys.ebi.gatling.log.util.ResultBufferType
 
-object SessionProcessor extends Logging {
+object PostProcessor extends Logging {
 
-	def compute(sessionDeltaBuffer: (ResultBufferType.ResultBufferType) => Seq[SessionDeltaRecord], sessionBuffer: (ResultBufferType.ResultBufferType) => mutable.Buffer[SessionRecord], buckets: Seq[Long]) {
-		compute(sessionDeltaBuffer(ResultBufferType.GLOBAL), sessionBuffer(ResultBufferType.GLOBAL), buckets)
+	def run(results: StatsResults, buckets: Seq[Long]) = {
+		compute(results.getSessionDeltaBuffer(ResultBufferType.GLOBAL), results.getSessionBuffer(ResultBufferType.GLOBAL), buckets)
 
-		val sessionBufferByScenario = sessionBuffer(ResultBufferType.BY_SCENARIO)
-		sessionDeltaBuffer(ResultBufferType.BY_SCENARIO).groupBy(_.scenario).foreach {
+		val sessionBufferByScenario = results.getSessionBuffer(ResultBufferType.BY_SCENARIO)
+		results.getSessionDeltaBuffer(ResultBufferType.BY_SCENARIO).groupBy(_.scenario).foreach {
 			case (scenario, deltas) => compute(deltas, sessionBufferByScenario, buckets, scenario)
 		}
+
+		results
 	}
 
 	private def compute(sessionDeltaBuffer: Seq[SessionDeltaRecord], sessionBuffer: mutable.Buffer[SessionRecord], buckets: Seq[Long], scenario: Option[String] = None) {

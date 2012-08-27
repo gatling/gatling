@@ -18,13 +18,12 @@ package com.excilys.ebi.gatling.log.scalding
 import cascading.tuple.{TupleEntry, Fields}
 import com.twitter.scalding._
 import collection.mutable
-import cascading.tap.Tap
 import cascading.scheme.NullScheme
 
 class GatlingBufferSource[A](tupleBuffer: mutable.Buffer[A], parseFunction: (TupleEntry) => A, inFields: Fields = Fields.ALL)
 	extends Source {
 
-	override def createTap(readOrWrite: AccessMode)(implicit mode: Mode): Tap[_, _, _] = {
+	override def createTap(readOrWrite: AccessMode)(implicit mode: Mode) = {
 		(mode, readOrWrite) match {
 			case (Local(_), Write) => new GatlingMemorySinkTap(new NullScheme(Fields.ALL, inFields), tupleBuffer, parseFunction)
 			case _ => throw new UnsupportedOperationException

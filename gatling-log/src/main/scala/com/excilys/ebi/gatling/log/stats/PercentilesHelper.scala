@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.log.processors
+package com.excilys.ebi.gatling.log.stats
 
 import annotation.tailrec
-import com.excilys.ebi.gatling.log.stats.{ResponseTimeDistributionRecord, GeneralStatsRecord, StatsResultsHelper}
 
-object PercentilesProcessor {
+object PercentilesHelper {
 
 	def compute(distributionBuffer: Seq[ResponseTimeDistributionRecord], generalStatsBuffer: Seq[GeneralStatsRecord], percentiles: Seq[Double]) = {
 		val totalSize = generalStatsBuffer.map(_.size).headOption.getOrElse(0L)
@@ -51,6 +50,4 @@ object PercentilesProcessor {
 		else findPercentile(buckets.tail, limit, newCount)
 	}
 }
-
-case class Bucket(responseTime: Long, size: Long)
 

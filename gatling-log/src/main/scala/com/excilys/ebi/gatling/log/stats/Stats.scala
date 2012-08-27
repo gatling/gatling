@@ -19,7 +19,6 @@ import com.excilys.ebi.gatling.log.Predef._
 import com.twitter.scalding._
 import com.excilys.ebi.gatling.log.stats.StatsHelper._
 import com.excilys.ebi.gatling.log.util.FieldsNames._
-import com.excilys.ebi.gatling.log.util.ResultBufferFinderAndParser
 import com.excilys.ebi.gatling.log.util.ResultBufferType._
 import grizzled.slf4j.Logging
 import com.excilys.ebi.gatling.log.scalding.GatlingInputIteratorSource
@@ -27,11 +26,19 @@ import com.excilys.ebi.gatling.core.result.message.RecordType.ACTION
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 
-class Stats(min: Long, max: Long, step: Double, size: Long, inputIterator: Iterator[String]) extends Job(Args("")) with Logging {
+object Stats {
+	def compute(min: Long, max: Long, step: Double, size: Long, inputIterator: Iterator[String]) = {
+		val results = new StatsResults()
+		new Stats(min, max, step, size, inputIterator, results).run
+		results
+	}
+}
+
+class Stats(min: Long, max: Long, step: Double, size: Long, inputIterator: Iterator[String], results: StatsResults) extends Job(Args("")) with Logging {
 
 	val header = (ACTION_TYPE, SCENARIO, ID, REQUEST, EXECUTION_START, EXECUTION_END, REQUEST_END, RESPONSE_START, STATUS)
 
-	val bucketFunction = bucket(_: Long, min, max, step, step/2)
+	val bucketFunction = bucket(_: Long, min, max, step, step / 2)
 
 	val range = (max - min) / SEC_MILLISEC_RATIO
 
@@ -67,18 +74,18 @@ class Stats(min: Long, max: Long, step: Double, size: Long, inputIterator: Itera
 	}.map(DELTA -> DELTA) {
 		delta: Double => math.round(delta)
 	}
-		.write(output(ResultBufferFinderAndParser.SESSION_DELTA, BY_SCENARIO))
+		.write(output(results.getSessionDeltaBuffer(BY_SCENARIO), TupleEntryParser.tupleEntryToSessionDeltaRecord))
 
 	filteredSessionPipe
 		.filter(REQUEST) {
 		req: String => req == START_OF_SCENARIO
 	}
-		.groupBy((SCENARIO)){
-		_.reduce(EXECUTION_START -> EXECUTION_START){
+		.groupBy((SCENARIO)) {
+		_.reduce(EXECUTION_START -> EXECUTION_START) {
 			(scenarioStartSoFar: Long, executionStart: Long) => scala.math.min(scenarioStartSoFar, executionStart)
 		}
 	}
-		.write(output(ResultBufferFinderAndParser.SCENARIO, GLOBAL))
+		.write(output(results.getScenarioBuffer(GLOBAL), TupleEntryParser.tupleEntryToScenarioRecord))
 
 	/* ALL */
 	val pipeSessionDeltaPerBucket = pipeSessionDeltaPerBucketByScenario
@@ -88,7 +95,7 @@ class Stats(min: Long, max: Long, step: Double, size: Long, inputIterator: Itera
 		.map(DELTA -> DELTA) {
 		delta: Double => math.round(delta)
 	}
-		.write(output(ResultBufferFinderAndParser.SESSION_DELTA, GLOBAL))
+		.write(output(results.getSessionDeltaBuffer(GLOBAL), TupleEntryParser.tupleEntryToSessionDeltaRecord))
 
 
 	/* REQUESTS STATS */
@@ -98,12 +105,12 @@ class Stats(min: Long, max: Long, step: Double, size: Long, inputIterator: Itera
 	}
 
 	filteredRequestPipe
-		.groupBy((REQUEST)){
-		_.reduce(EXECUTION_START -> EXECUTION_START){
+		.groupBy((REQUEST)) {
+		_.reduce(EXECUTION_START -> EXECUTION_START) {
 			(requestStartSoFar: Long, executionStart: Long) => scala.math.min(requestStartSoFar, executionStart)
 		}
 	}
-		.write(output(ResultBufferFinderAndParser.REQUEST, GLOBAL))
+		.write(output(results.getRequestBuffer(GLOBAL), TupleEntryParser.tupleEntryToRequestRecord))
 
 	val pipeResponseTimeAndLatency = filteredRequestPipe
 		.map((EXECUTION_START, EXECUTION_END, REQUEST_END, RESPONSE_START) ->(RESPONSE_TIME, LATENCY, SQUARE_RESPONSE_TIME)) {
@@ -118,7 +125,7 @@ class Stats(min: Long, max: Long, step: Double, size: Long, inputIterator: Itera
 	val groupFields = (REQUEST, STATUS)
 
 	val pipeResponseTimeDistributionByRequestAndStatus = pipeResponseTimeAndLatency.distributionSize(RESPONSE_TIME, groupFields)
-		.write(output(ResultBufferFinderAndParser.RESPONSE_TIME_DISTRIBUTION, BY_STATUS_AND_REQUEST))
+		.write(output(results.getResponseTimeDistributionBuffer(BY_STATUS_AND_REQUEST), TupleEntryParser.tupleEntryToResponseTimeDistributionRecord))
 
 	val pipeStatsByRequestAndStatus = pipeResponseTimeAndLatency.groupBy(groupFields) {
 		_.sizeAveStdev(RESPONSE_TIME ->(SIZE, MEAN, STD_DEV))
@@ -130,67 +137,67 @@ class Stats(min: Long, max: Long, step: Double, size: Long, inputIterator: Itera
 		.map(SIZE -> MEAN_REQUEST_PER_SEC) {
 		count: Long => count / range
 	}
-		.write(output(ResultBufferFinderAndParser.GENERAL_STATS, BY_STATUS_AND_REQUEST))
+		.write(output(results.getGeneralStatsBuffer(BY_STATUS_AND_REQUEST), TupleEntryParser.tupleEntryToGeneralStatsRecord))
 
 	val pipeRequestPerSecByRequestAndStatus = filteredRequestPipe.distributionSize(EXECUTION_START_BUCKET, groupFields)
-		.write(output(ResultBufferFinderAndParser.REQUESTS_PER_SEC, BY_STATUS_AND_REQUEST))
+		.write(output(results.getRequestsPerSecBuffer(BY_STATUS_AND_REQUEST), TupleEntryParser.tupleEntryToRequestPerSecRecord))
 
 	val pipeTransactionPerSecByRequestAndStatus = filteredRequestPipe.distributionSize(EXECUTION_END_BUCKET, groupFields)
-		.write(output(ResultBufferFinderAndParser.TRANSACTIONS_PER_SEC, BY_STATUS_AND_REQUEST))
+		.write(output(results.getTransactionPerSecBuffer(BY_STATUS_AND_REQUEST), TupleEntryParser.tupleEntryToTransactionPerSecRecord))
 
 	val pipeResponseTimePerSecByRequestAndStatus = pipeResponseTimeAndLatency.distributionMax(EXECUTION_START_BUCKET, groupFields, RESPONSE_TIME)
-		.write(output(ResultBufferFinderAndParser.RESPONSE_TIME_PER_SEC, BY_STATUS_AND_REQUEST))
+		.write(output(results.getResponseTimePerSecBuffer(BY_STATUS_AND_REQUEST), TupleEntryParser.tupleEntryToResponseTimePerSecRecord))
 
 	val pipeLatencyPerSecByRequestAndStatus = pipeResponseTimeAndLatency.distributionMax(EXECUTION_START_BUCKET, groupFields, LATENCY)
-		.write(output(ResultBufferFinderAndParser.LATENCY_PER_SEC, BY_STATUS_AND_REQUEST))
+		.write(output(results.getLatencyPerSecBuffer(BY_STATUS_AND_REQUEST), TupleEntryParser.tupleEntryToLatencyPerSecRecord))
 
 	/* BY REQUEST */
 	val pipeRequestPerSecByRequest = pipeRequestPerSecByRequestAndStatus.groupByAndSum((REQUEST, EXECUTION_START_BUCKET), SIZE)
-		.write(output(ResultBufferFinderAndParser.REQUESTS_PER_SEC, BY_REQUEST))
+		.write(output(results.getRequestsPerSecBuffer(BY_REQUEST), TupleEntryParser.tupleEntryToRequestPerSecRecord))
 
 	val pipeResponseTimePerSecByRequest = pipeResponseTimePerSecByRequestAndStatus.groupByAndSum((REQUEST, EXECUTION_START_BUCKET), RESPONSE_TIME)
-		.write(output(ResultBufferFinderAndParser.RESPONSE_TIME_PER_SEC, BY_REQUEST))
+		.write(output(results.getResponseTimePerSecBuffer(BY_REQUEST), TupleEntryParser.tupleEntryToResponseTimePerSecRecord))
 
 	pipeResponseTimeDistributionByRequestAndStatus.groupByAndSum((REQUEST, RESPONSE_TIME), SIZE)
-		.write(output(ResultBufferFinderAndParser.RESPONSE_TIME_DISTRIBUTION, BY_REQUEST))
+		.write(output(results.getResponseTimeDistributionBuffer(BY_REQUEST), TupleEntryParser.tupleEntryToResponseTimeDistributionRecord))
 
 	pipeStatsByRequestAndStatus.mergeStats(range, REQUEST)
-		.write(output(ResultBufferFinderAndParser.GENERAL_STATS, BY_REQUEST))
+		.write(output(results.getGeneralStatsBuffer(BY_REQUEST), TupleEntryParser.tupleEntryToGeneralStatsRecord))
 
 	/* GLOBAL BY STATUS */
 	val pipeRequestPerSecByStatus = pipeRequestPerSecByRequestAndStatus.groupByAndSum((STATUS, EXECUTION_START_BUCKET), SIZE)
-		.write(output(ResultBufferFinderAndParser.REQUESTS_PER_SEC, BY_STATUS))
+		.write(output(results.getRequestsPerSecBuffer(BY_STATUS), TupleEntryParser.tupleEntryToRequestPerSecRecord))
 
 	val pipeTransactionPerSecByStatus = pipeTransactionPerSecByRequestAndStatus.groupByAndSum((STATUS, EXECUTION_END_BUCKET), SIZE)
-		.write(output(ResultBufferFinderAndParser.TRANSACTIONS_PER_SEC, BY_STATUS))
+		.write(output(results.getTransactionPerSecBuffer(BY_STATUS), TupleEntryParser.tupleEntryToTransactionPerSecRecord))
 
 	val pipeResponseTimePerSecByStatus = pipeResponseTimePerSecByRequestAndStatus.groupByAndSum((STATUS, EXECUTION_START_BUCKET), RESPONSE_TIME)
-		.write(output(ResultBufferFinderAndParser.RESPONSE_TIME_PER_SEC, BY_STATUS))
+		.write(output(results.getResponseTimePerSecBuffer(BY_STATUS), TupleEntryParser.tupleEntryToResponseTimePerSecRecord))
 
 	val pipeResponseTimeDistributionByStatus = pipeResponseTimeDistributionByRequestAndStatus.groupByAndSum((STATUS, RESPONSE_TIME), SIZE)
-		.write(output(ResultBufferFinderAndParser.RESPONSE_TIME_DISTRIBUTION, BY_STATUS))
+		.write(output(results.getResponseTimeDistributionBuffer(BY_STATUS), TupleEntryParser.tupleEntryToResponseTimeDistributionRecord))
 
 	val pipeStatsByStatus = pipeStatsByRequestAndStatus.mergeStats(range, STATUS)
-		.write(output(ResultBufferFinderAndParser.GENERAL_STATS, BY_STATUS))
+		.write(output(results.getGeneralStatsBuffer(BY_STATUS), TupleEntryParser.tupleEntryToGeneralStatsRecord))
 
 	/* GLOBAL */
 	val pipeRequestPerSec = pipeRequestPerSecByStatus.groupByAndSum(EXECUTION_START_BUCKET, SIZE)
-		.write(output(ResultBufferFinderAndParser.REQUESTS_PER_SEC, GLOBAL))
+		.write(output(results.getRequestsPerSecBuffer(GLOBAL), TupleEntryParser.tupleEntryToRequestPerSecRecord))
 
 	pipeTransactionPerSecByStatus.groupByAndSum(EXECUTION_END_BUCKET, SIZE)
-		.write(output(ResultBufferFinderAndParser.TRANSACTIONS_PER_SEC, GLOBAL))
+		.write(output(results.getTransactionPerSecBuffer(GLOBAL), TupleEntryParser.tupleEntryToTransactionPerSecRecord))
 
 	val pipeResponseTimePerSec = pipeResponseTimePerSecByStatus.groupByAndSum(EXECUTION_START_BUCKET, RESPONSE_TIME)
-		.write(output(ResultBufferFinderAndParser.RESPONSE_TIME_PER_SEC, GLOBAL))
+		.write(output(results.getResponseTimePerSecBuffer(GLOBAL), TupleEntryParser.tupleEntryToResponseTimePerSecRecord))
 
 	pipeResponseTimeDistributionByStatus.groupByAndSum(RESPONSE_TIME, SIZE)
-		.write(output(ResultBufferFinderAndParser.RESPONSE_TIME_DISTRIBUTION, GLOBAL))
+		.write(output(results.getResponseTimeDistributionBuffer(GLOBAL), TupleEntryParser.tupleEntryToResponseTimeDistributionRecord))
 
 	pipeStatsByStatus.mergeStats(range)
-		.write(output(ResultBufferFinderAndParser.GENERAL_STATS, GLOBAL))
+		.write(output(results.getGeneralStatsBuffer(GLOBAL), TupleEntryParser.tupleEntryToGeneralStatsRecord))
 
 	/* SCATTER PLOT */
 	pipeResponseTimePerSecByRequestAndStatus.joinAndSort(EXECUTION_START_BUCKET -> EXECUTION_START_BUCKET, pipeRequestPerSec, (SIZE, RESPONSE_TIME), groupFields = groupFields)
-		.write(output(ResultBufferFinderAndParser.REQUEST_AGAINST_RESPONSE_TIME, BY_STATUS_AND_REQUEST))
+		.write(output(results.getRequestAgainstResponseTimeBuffer(BY_STATUS_AND_REQUEST), TupleEntryParser.tupleEntryToRequestAgainstResponseTimeRecord))
 
 }
