@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 		http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,18 +15,15 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader
 
+import org.specs2.runner.JUnitRunner
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
-
-import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingPropertiesBuilder }
-import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RunRecord }
-import com.excilys.ebi.gatling.core.result.reader.ChartRequestRecord
+import com.excilys.ebi.gatling.core.config.{GatlingPropertiesBuilder, GatlingConfiguration}
+import com.excilys.ebi.gatling.core.result.message.RunRecord
 import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
 
 @RunWith(classOf[JUnitRunner])
 class FileDataReaderSpec extends Specification {
-
 	val init = {
 		val props = new GatlingPropertiesBuilder
 		props.sourcesDirectory("src/test/resources")
@@ -34,6 +31,7 @@ class FileDataReaderSpec extends Specification {
 
 		GatlingConfiguration.setUp(props.build)
 	}
+
 
 	"When reading a single log file, FileDataReader" should {
 
@@ -47,7 +45,7 @@ class FileDataReaderSpec extends Specification {
 			singleFileDataReader.scenarioNames must beEqualTo(List("Scenario name", "Other Scenario Name"))
 		}
 
-		"find the two correct scenarios" in {
+		"find the fifteen correct requests" in {
 			val requestNames = List("Request request_1", "Request request_2", "Request request_3", "Request request_4", "Request request_5", "Request request_6", "Request request_7", "Request request_8", "Request request_9", "Request request_10")
 			val otherRequestNames = List("Request other_request_1", "Request other_request_2", "Request other_request_3", "Request other_request_9", "Request other_request_10")
 			singleFileDataReader.requestNames must haveTheSameElementsAs(requestNames ++ otherRequestNames)
@@ -55,10 +53,6 @@ class FileDataReaderSpec extends Specification {
 
 		"have a correct run record" in {
 			singleFileDataReader.runRecord must beEqualTo(RunRecord(parseTimestampString("20120607202804"), "run1", "interesting test run"))
-		}
-
-		"have read all the request records" in {
-			singleFileDataReader.requestRecords must have size 353
 		}
 
 	}
@@ -75,35 +69,56 @@ class FileDataReaderSpec extends Specification {
 			multipleFilesDataReader.scenarioNames must beEqualTo(List("Scenario name", "Other Scenario Name"))
 		}
 
-		"find the two correct scenarios" in {
+		"find the fifteen correct requests" in {
 			val requestNames = List("Request request_1", "Request request_2", "Request request_3", "Request request_4", "Request request_5", "Request request_6", "Request request_7", "Request request_8", "Request request_9", "Request request_10")
 			val otherRequestNames = List("Request other_request_1", "Request other_request_2", "Request other_request_3", "Request other_request_9", "Request other_request_10")
 			multipleFilesDataReader.requestNames must haveTheSameElementsAs(requestNames ++ otherRequestNames)
 		}
 
-		"have read all the request records" in {
-			multipleFilesDataReader.requestRecords must have size 706
-		}
-
-		"have a record from the first node simulation log" in {
-			val record = ChartRequestRecord("Scenario name", 2, "Request request_2", 1339408458535L, 1339408458772L, 1339408458537L, 1339408458772L, RequestStatus.withName("OK"))
-			multipleFilesDataReader.requestRecords must contain(record)
-		}
-
-		"have a record from the second node simulation log" in {
-			val record = ChartRequestRecord("Scenario name", 1, "Request request_1", 1339407593167L, 1339407593907L, 1339407593692L, 1339407593904L, RequestStatus.withName("OK"))
-			multipleFilesDataReader.requestRecords must contain(record)
-		}
-
-		"have correct run records" in {
-			val node1RunRecord = RunRecord(parseTimestampString("20120611115415"), "run", "node1")
-			val node2RunRecord = RunRecord(parseTimestampString("20120611113951"), "run", "node2")
-			multipleFilesDataReader.allRunRecords must haveTheSameElementsAs(List(node1RunRecord, node2RunRecord))
-		}
-
 		//TODO - how to define correctly the runRecord method
 		"have correct run records" in {
 			multipleFilesDataReader.runRecord must not be null
+		}
+	}
+
+	"When reading a single log file with known statistics, FileDataReder" should {
+		val singleFileDataReader = new FileDataReader("run_single_node_with_known_stats")
+
+		"return expected minResponseTime for correct request data" in {
+			singleFileDataReader.minResponseTime(None, None) must beEqualTo(2000L)
+		}
+
+		"return expected maxResponseTime for correct request data" in {
+			singleFileDataReader.maxResponseTime(None, None) must beEqualTo(9000L)
+		}
+
+		"return expected responseTimeStandardDeviation for correct request data" in {
+			singleFileDataReader.responseTimeStandardDeviation(None, None) must beEqualTo(2000L)
+		}
+
+		"return expected responseTimePercentile for the (0, 0.7) percentiles" in {
+			singleFileDataReader.percentiles(0, 0.7, None, None) must beEqualTo((2000L, 5000L))
+		}
+
+		"return expected result for the (99.99, 100) percentiles" in {
+			singleFileDataReader.percentiles(0.9999, 1, None, None) must beEqualTo(9000L, 9000L)
+		}
+
+		"indicate that all the request have their response time in between 0 and 100000" in {
+			singleFileDataReader.numberOfRequestInResponseTimeRange(0, 100000, None).map(_._2) must beEqualTo(List(0L, 8L, 0L, 0L))
+		}
+
+		val nRequestInResponseTimeRange = singleFileDataReader.numberOfRequestInResponseTimeRange(2500, 5000, None).map(_._2)
+
+		"indicate that 1 request had a response time below 2500ms" in {
+			nRequestInResponseTimeRange(0) must beEqualTo(1L)
+		}
+		"indicate that 5 request had a response time in between 2500ms and 5000ms" in {
+			nRequestInResponseTimeRange(1) must beEqualTo(5L)
+		}
+
+		"indicate that 2 request had a response time above 5000ms" in {
+			nRequestInResponseTimeRange(2) must beEqualTo(2L)
 		}
 	}
 }

@@ -20,9 +20,9 @@ import com.excilys.ebi.gatling.charts.config.ChartsFiles.globalFile
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.template.GlobalPageTemplate
 import com.excilys.ebi.gatling.charts.util.Colors.{ toString, YELLOW, RED, PURPLE, PINK, LIME, LIGHT_RED, LIGHT_PURPLE, LIGHT_PINK, LIGHT_ORANGE, LIGHT_LIME, LIGHT_BLUE, GREEN, CYAN, BLUE }
-import com.excilys.ebi.gatling.charts.util.StatisticsHelper.count
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
-import com.excilys.ebi.gatling.core.result.reader.{ DataReader, ChartRequestRecord }
+import com.excilys.ebi.gatling.core.result.reader.DataReader
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 
 class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 
@@ -39,9 +39,9 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 		}
 
 		def requestsChartComponent = {
-			val all = dataReader.numberOfEventsPerSecond((record: ChartRequestRecord) => record.executionStartDateNoMillis).toSeq.sortBy(_._1)
-			val oks = dataReader.numberOfEventsPerSecond((record: ChartRequestRecord) => record.executionStartDateNoMillis, Some(OK)).toSeq.sortBy(_._1)
-			val kos = dataReader.numberOfEventsPerSecond((record: ChartRequestRecord) => record.executionStartDateNoMillis, Some(KO)).toSeq.sortBy(_._1)
+			val all = dataReader.numberOfRequestsPerSecond().sortBy(_._1)
+			val oks = dataReader.numberOfRequestsPerSecond(Some(OK)).sortBy(_._1)
+			val kos = dataReader.numberOfRequestsPerSecond(Some(KO)).sortBy(_._1)
 
 			val allSeries = new Series[Long, Long]("All requests", all, List(BLUE))
 			val kosSeries = new Series[Long, Long]("Failed requests", kos, List(RED))
@@ -52,9 +52,9 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 		}
 
 		def transactionsChartComponent = {
-			val all = dataReader.numberOfEventsPerSecond((record: ChartRequestRecord) => record.executionEndDateNoMillis).toSeq.sortBy(_._1)
-			val oks = dataReader.numberOfEventsPerSecond((record: ChartRequestRecord) => record.executionEndDateNoMillis, Some(OK)).toSeq.sortBy(_._1)
-			val kos = dataReader.numberOfEventsPerSecond((record: ChartRequestRecord) => record.executionEndDateNoMillis, Some(KO)).toSeq.sortBy(_._1)
+			val all = dataReader.numberOfTransactionsPerSecond().sortBy(_._1)
+			val oks = dataReader.numberOfTransactionsPerSecond(Some(OK)).sortBy(_._1)
+			val kos = dataReader.numberOfTransactionsPerSecond(Some(KO)).sortBy(_._1)
 
 			val allSeries = new Series[Long, Long]("All requests", all, List(BLUE))
 			val kosSeries = new Series[Long, Long]("Failed requests", kos, List(RED))
@@ -86,4 +86,7 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 
 		new TemplateWriter(globalFile(runOn)).writeToFile(template.getOutput)
 	}
+
+	private def count(records: Seq[(Long, Long)]) = records.foldLeft(0L)((sum, entry) => sum + entry._2)
+
 }
