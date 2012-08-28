@@ -26,7 +26,7 @@ import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
 import collection.mutable
 
 object PreProcessor extends Logging {
-	val ACTION_HEADER: List[String] = List(ACTION_TYPE, SCENARIO, ID, REQUEST, EXECUTION_START, EXECUTION_END, REQUEST_END, RESPONSE_START, STATUS, ERROR)
+	val ACTION_HEADER: List[String] = List(ACTION_TYPE, SCENARIO, ID, REQUEST, EXECUTION_START, EXECUTION_END, REQUEST_END, RESPONSE_START, STATUS)
 	val RUN_HEADER: List[String] = List(ACTION_TYPE, DATE, ID, DESCRIPTION)
 
 	def run(inputIterator: Iterator[String], maxPlotPerSerie: Int) = {
