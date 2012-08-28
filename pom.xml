@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.excilys.ebi.gatling</groupId>
 	<artifactId>gatling-parent</artifactId>
@@ -83,19 +84,9 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
-		<repository>
-			<id>conjars.org</id>
-			<name>Conjars</name>
-			<url>http://conjars.org/repo</url>
-			<releases>
-				<updatePolicy>never</updatePolicy>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
 		<!-- http://repo.typesafe.com/typesafe/releases -->
 		<!-- http://repo.jenkins-ci.org/content/repositories/releases -->
+		<!-- http://conjars.org/repo -->
 	</repositories>
 
 	<properties>
@@ -134,6 +125,7 @@
 		<cascading.version>2.0.4</cascading.version>
 		<guava.version>13.0</guava.version>
 		<jgrapht.version>0.8.2</jgrapht.version>
+		<maple.version>0.2.3</maple.version>
 
 		<maven2.version>2.2.1</maven2.version>
 		<maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
@@ -540,6 +532,11 @@
 				<artifactId>jgrapht-jdk1.6</artifactId>
 				<version>${jgrapht.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>com.twitter</groupId>
+				<artifactId>maple</artifactId>
+				<version>${maple.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -631,8 +628,8 @@
 						</execution>
 					</executions>
 				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings
-										only. It has no influence on the Maven build itself. -->
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -650,7 +647,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore/>
+										<ignore />
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
