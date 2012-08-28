@@ -27,9 +27,9 @@ class RequestsPerSecRecord(val executionStartBucket: Long, val size: Long, statu
 
 class TransactionsPerSecRecord(val executionEndBucket: Long, val size: Long, status: Option[RequestStatus.RequestStatus], request: Option[String]) extends RecordWithStatusAndRequest(status, request)
 
-class ResponseTimePerSecRecord(val executionStartBucket: Long, val responseTime: Long, status: Option[RequestStatus.RequestStatus], request: Option[String]) extends RecordWithStatusAndRequest(status, request)
+class ResponseTimePerSecRecord(val executionStartBucket: Long, val responseTimeMin: Long, val responseTimeMax: Long, status: Option[RequestStatus.RequestStatus], request: Option[String]) extends RecordWithStatusAndRequest(status, request)
 
-class LatencyPerSecRecord(val executionStartBucket: Long, val latency: Long, status: Option[RequestStatus.RequestStatus], request: Option[String]) extends RecordWithStatusAndRequest(status, request)
+class LatencyPerSecRecord(val executionStartBucket: Long, val latencyMin: Long, val latencyMax: Long, status: Option[RequestStatus.RequestStatus], request: Option[String]) extends RecordWithStatusAndRequest(status, request)
 
 class RequestAgainstResponseTimeRecord(val size: Long, val responseTime: Long, status: Option[RequestStatus.RequestStatus], request: Option[String]) extends RecordWithStatusAndRequest(status, request)
 

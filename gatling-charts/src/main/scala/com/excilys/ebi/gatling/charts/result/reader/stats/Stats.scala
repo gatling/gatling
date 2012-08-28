@@ -146,18 +146,15 @@ class Stats(min: Long, max: Long, step: Double, size: Long, inputIterator: Itera
 	val pipeTransactionPerSecByRequestAndStatus = filteredRequestPipe.distributionSize(EXECUTION_END_BUCKET, groupFields)
 		.write(output(results.getTransactionPerSecBuffer(BY_STATUS_AND_REQUEST)))
 
-	val pipeResponseTimePerSecByRequestAndStatus = pipeResponseTimeAndLatency.distributionMax(EXECUTION_START_BUCKET, groupFields, RESPONSE_TIME)
+	val pipeResponseTimePerSecByRequestAndStatus = pipeResponseTimeAndLatency.distributionMinAndMax(EXECUTION_START_BUCKET, groupFields, RESPONSE_TIME, RESPONSE_TIME_MIN, RESPONSE_TIME_MAX)
 		.write(output(results.getResponseTimePerSecBuffer(BY_STATUS_AND_REQUEST)))
 
-	val pipeLatencyPerSecByRequestAndStatus = pipeResponseTimeAndLatency.distributionMax(EXECUTION_START_BUCKET, groupFields, LATENCY)
+	val pipeLatencyPerSecByRequestAndStatus = pipeResponseTimeAndLatency.distributionMinAndMax(EXECUTION_START_BUCKET, groupFields, LATENCY, LATENCY_MIN, LATENCY_MAX)
 		.write(output(results.getLatencyPerSecBuffer(BY_STATUS_AND_REQUEST)))
 
 	/* BY REQUEST */
 	val pipeRequestPerSecByRequest = pipeRequestPerSecByRequestAndStatus.groupByAndSum((REQUEST, EXECUTION_START_BUCKET), SIZE)
 		.write(output(results.getRequestsPerSecBuffer(BY_REQUEST)))
-
-	val pipeResponseTimePerSecByRequest = pipeResponseTimePerSecByRequestAndStatus.groupByAndSum((REQUEST, EXECUTION_START_BUCKET), RESPONSE_TIME)
-		.write(output(results.getResponseTimePerSecBuffer(BY_REQUEST)))
 
 	pipeResponseTimeDistributionByRequestAndStatus.groupByAndSum((REQUEST, RESPONSE_TIME), SIZE)
 		.write(output(results.getResponseTimeDistributionBuffer(BY_REQUEST)))
@@ -172,9 +169,6 @@ class Stats(min: Long, max: Long, step: Double, size: Long, inputIterator: Itera
 	val pipeTransactionPerSecByStatus = pipeTransactionPerSecByRequestAndStatus.groupByAndSum((STATUS, EXECUTION_END_BUCKET), SIZE)
 		.write(output(results.getTransactionPerSecBuffer(BY_STATUS)))
 
-	val pipeResponseTimePerSecByStatus = pipeResponseTimePerSecByRequestAndStatus.groupByAndSum((STATUS, EXECUTION_START_BUCKET), RESPONSE_TIME)
-		.write(output(results.getResponseTimePerSecBuffer(BY_STATUS)))
-
 	val pipeResponseTimeDistributionByStatus = pipeResponseTimeDistributionByRequestAndStatus.groupByAndSum((STATUS, RESPONSE_TIME), SIZE)
 		.write(output(results.getResponseTimeDistributionBuffer(BY_STATUS)))
 
@@ -188,9 +182,6 @@ class Stats(min: Long, max: Long, step: Double, size: Long, inputIterator: Itera
 	pipeTransactionPerSecByStatus.groupByAndSum(EXECUTION_END_BUCKET, SIZE)
 		.write(output(results.getTransactionPerSecBuffer(GLOBAL)))
 
-	val pipeResponseTimePerSec = pipeResponseTimePerSecByStatus.groupByAndSum(EXECUTION_START_BUCKET, RESPONSE_TIME)
-		.write(output(results.getResponseTimePerSecBuffer(GLOBAL)))
-
 	pipeResponseTimeDistributionByStatus.groupByAndSum(RESPONSE_TIME, SIZE)
 		.write(output(results.getResponseTimeDistributionBuffer(GLOBAL)))
 
@@ -198,7 +189,7 @@ class Stats(min: Long, max: Long, step: Double, size: Long, inputIterator: Itera
 		.write(output(results.getGeneralStatsBuffer(GLOBAL)))
 
 	/* SCATTER PLOT */
-	pipeResponseTimePerSecByRequestAndStatus.joinAndSort(EXECUTION_START_BUCKET -> EXECUTION_START_BUCKET, pipeRequestPerSec, (SIZE, RESPONSE_TIME), groupFields = groupFields)
+	pipeResponseTimePerSecByRequestAndStatus.joinAndSort(EXECUTION_START_BUCKET -> EXECUTION_START_BUCKET, pipeRequestPerSec, (SIZE, RESPONSE_TIME_MAX), groupFields = groupFields)
 		.write(output(results.getRequestAgainstResponseTimeBuffer(BY_STATUS_AND_REQUEST)))
 
 }

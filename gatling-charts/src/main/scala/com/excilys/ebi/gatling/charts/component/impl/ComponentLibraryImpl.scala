@@ -34,11 +34,11 @@ class ComponentLibraryImpl extends ComponentLibrary {
 
 	def getTransactionsChartComponent(allTransactions: Series[Long, Long], failedTransactions: Series[Long, Long], succeededTransactions: Series[Long, Long], pieSeries: Series[String, Long]): Component = throw new UnsupportedOperationException
 
-	def getRequestDetailsResponseTimeChartComponent(responseTimesSuccess: Series[Long, Long], responseTimesFailures: Series[Long, Long]): Component = throw new UnsupportedOperationException
+	def getRequestDetailsResponseTimeChartComponent(responseTimesSuccess: Series[Long, (Long, Long)], responseTimesFailures: Series[Long, (Long, Long)]): Component = throw new UnsupportedOperationException
 
 	def getRequestDetailsResponseTimeDistributionChartComponent(responseTimesSuccess: Series[Long, Long], responseTimesFailures: Series[Long, Long]): Component = throw new UnsupportedOperationException
 
-	def getRequestDetailsLatencyChartComponent(latencySuccess: Series[Long, Long], latencyFailures: Series[Long, Long]): Component = throw new UnsupportedOperationException
+	def getRequestDetailsLatencyChartComponent(latencySuccess: Series[Long, (Long, Long)], latencyFailures: Series[Long, (Long, Long)]): Component = throw new UnsupportedOperationException
 
 	def getRequestDetailsScatterChartComponent(successData: Series[Long, Long], failuresData: Series[Long, Long]): Component = throw new UnsupportedOperationException
 
