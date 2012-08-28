@@ -23,6 +23,7 @@ import com.excilys.ebi.gatling.core.ConfigurationConstants._
 import com.typesafe.config.{ Config, ConfigFactory }
 
 import grizzled.slf4j.Logging
+import java.util.concurrent.TimeUnit
 
 /**
  * Configuration loader of Gatling
@@ -84,6 +85,11 @@ object GatlingConfiguration extends Logging {
 			data = DataConfiguration(
 				dataWriterClasses = config.getStringList(CONF_DATA_WRITER_CLASS_NAMES).toList,
 				dataReaderClass = config.getString(CONF_DATA_READER_CLASS_NAME)),
+			graphite = GraphiteConfiguration(
+				host = config.getString(CONF_GRAPHITE_HOST),
+				port = config.getInt(CONF_GRAPHITE_PORT),
+				period = config.getLong(CONF_GRAPHITE_PERIOD),
+				timeUnit = TimeUnit.valueOf(config.getString(CONF_GRAPHITE_TIMEUNIT).toUpperCase)),
 			config)
 	}
 }
@@ -139,6 +145,12 @@ case class DataConfiguration(
 	dataWriterClasses: List[String],
 	dataReaderClass: String)
 
+case class GraphiteConfiguration(
+	host : String,
+	port : Int,
+	period : Long,
+	timeUnit : TimeUnit)
+
 case class GatlingConfiguration(
 	simulation: SimulationConfiguration,
 	timeOut: TimeOutConfiguration,
@@ -146,4 +158,5 @@ case class GatlingConfiguration(
 	charting: ChartingConfiguration,
 	http: HttpConfiguration,
 	data: DataConfiguration,
+	graphite : GraphiteConfiguration,
 	config: Config)
