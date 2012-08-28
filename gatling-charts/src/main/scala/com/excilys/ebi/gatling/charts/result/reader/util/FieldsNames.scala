@@ -36,8 +36,12 @@ object FieldsNames {
 	val REQUEST_END_BUCKET = 'requestEndBucket
 	val RESPONSE_TIME_BUCKET = 'responseTimeBucket
 	val RESPONSE_TIME = 'responseTime
+	val RESPONSE_TIME_MIN = 'responseTimeMin
+	val RESPONSE_TIME_MAX = 'responseTimeMax
 	val RESPONSE_TIME_LIST = 'responseTimeList
 	val LATENCY = 'latency
+	val LATENCY_MIN = 'latencyMin
+	val LATENCY_MAX = 'latencyMax
 	val SQUARE_RESPONSE_TIME = 'squareResponseTime
 	val MEAN_REQUEST_PER_SEC = 'meanRequestPerSec
 	val MEAN = 'mean
