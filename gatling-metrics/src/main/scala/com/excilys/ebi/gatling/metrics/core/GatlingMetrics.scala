@@ -15,8 +15,7 @@
  */
 package com.excilys.ebi.gatling.metrics.core
 
-import com.excilys.ebi.gatling.metrics.types.{FastHistogram, FastCounter}
-
+import com.excilys.ebi.gatling.metrics.types.{ FastCounter, FastHistogram }
 
 object GatlingMetrics {
 

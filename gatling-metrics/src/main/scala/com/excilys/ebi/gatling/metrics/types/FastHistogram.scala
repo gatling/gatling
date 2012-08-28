@@ -15,9 +15,10 @@
  */
 package com.excilys.ebi.gatling.metrics.types
 
-import com.yammer.metrics.core._
-import com.yammer.metrics.stats.Sample
 import scala.math.sqrt
+
+import com.yammer.metrics.core.{ Metric, Sampling, Summarizable }
+import com.yammer.metrics.stats.Sample
 
 class FastHistogram(private val sample: Sample) extends Metric with Sampling with Summarizable {
 
@@ -46,13 +47,13 @@ class FastHistogram(private val sample: Sample) extends Metric with Sampling wit
 		variance(1) = .0
 	}
 
-	def getMax = if (count > 0) max else 0
+	def getMax = if (count > 0L) max else 0L
 
-	def getMin = if (count > 0) min else 0
+	def getMin = if (count > 0L) min else 0L
 
-	def getMean = if (count > 0) sum / count.toDouble else 0
+	def getMean = if (count > 0L) sum / count.toDouble else .0
 
-	def getStdDev = if (count > 0) sqrt(getVariance) else 0
+	def getStdDev = if (count > 0L) sqrt(getVariance) else .0
 
 	def getSum = sum
 

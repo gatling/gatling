@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.metrics.core
 
-import com.yammer.metrics.stats.{Sample, UniformSample, ExponentiallyDecayingSample}
+import com.yammer.metrics.stats.{ ExponentiallyDecayingSample, Sample, UniformSample }
 
 sealed trait SampleType {
 	def newSample: Sample

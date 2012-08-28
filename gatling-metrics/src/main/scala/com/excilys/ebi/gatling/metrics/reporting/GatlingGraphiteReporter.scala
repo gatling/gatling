@@ -15,25 +15,28 @@
  */
 package com.excilys.ebi.gatling.metrics.reporting
 
-import scala.collection.JavaConversions.mapAsScalaMap
-import com.yammer.metrics.core._
-import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.metrics.core.{GatlingMetrics, GatlingMetricsProcessor}
-import com.excilys.ebi.gatling.metrics.types.{FastHistogram, FastCounter}
-import java.io.{OutputStreamWriter, BufferedWriter, IOException}
-import com.yammer.metrics.reporting.AbstractPollingReporter
-import java.util.Locale
-import com.yammer.metrics.stats.Snapshot
-import java.util.concurrent.TimeUnit
+import java.io.{ BufferedWriter, IOException, OutputStreamWriter }
 import java.net.Socket
+import java.util.Locale
+import java.util.concurrent.TimeUnit
+
+import scala.collection.JavaConversions.mapAsScalaMap
+
 import com.excilys.ebi.gatling.core.util.StringHelper
+import com.excilys.ebi.gatling.metrics.core.{ GatlingMetrics, GatlingMetricsProcessor }
+import com.excilys.ebi.gatling.metrics.types.{ FastCounter, FastHistogram }
+import com.yammer.metrics.core.{ MetricName, MetricPredicate, MetricsRegistry, Sampling, Summarizable }
+import com.yammer.metrics.reporting.AbstractPollingReporter
+import com.yammer.metrics.stats.Snapshot
+
+import grizzled.slf4j.Logging
 
 object GatlingGraphiteReporter extends Logging {
 
-	private var reporter : GatlingGraphiteReporter = null
+	private var reporter: GatlingGraphiteReporter = null
 
 	def enable(period: Long, unit: TimeUnit, host: String, port: Int) {
-		reporter = new GatlingGraphiteReporter(host,port)
+		reporter = new GatlingGraphiteReporter(host, port)
 		reporter.start(period, unit)
 	}
 
@@ -41,11 +44,11 @@ object GatlingGraphiteReporter extends Logging {
 		reporter.shutdown
 	}
 }
-class GatlingGraphiteReporter(host: String,port : Int,registry: MetricsRegistry = GatlingMetrics.registry,name: String = "graphite-reporter")
-	extends AbstractPollingReporter(registry,name) with GatlingMetricsProcessor[Long] with Logging {
+class GatlingGraphiteReporter(host: String, port: Int, registry: MetricsRegistry = GatlingMetrics.registry, name: String = "graphite-reporter")
+		extends AbstractPollingReporter(registry, name) with GatlingMetricsProcessor[Long] with Logging {
 
 	private val metricsDispatcher = new GatlingMetricDispatcher
-	private val socket = new Socket(host,port)
+	private val socket = new Socket(host, port)
 	private val writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream))
 
 	def run {
@@ -53,15 +56,14 @@ class GatlingGraphiteReporter(host: String,port : Int,registry: MetricsRegistry 
 			val epoch: Long = System.currentTimeMillis() / 1000
 			printMetrics(epoch)
 			writer.flush
-		}
-		catch {
+		} catch {
 			case e: Exception => {
 				debug("Error writing to Graphite: {}", e)
 				if (writer != null) {
 					try {
 						writer.flush
 					} catch {
-						case e1 : IOException => error("Error while flushing writer: {}",e1)
+						case e1: IOException => error("Error while flushing writer: {}", e1)
 					}
 				}
 			}
@@ -96,8 +98,7 @@ class GatlingGraphiteReporter(host: String,port : Int,registry: MetricsRegistry 
 			writer.write(timestamp.toString)
 			writer.write(StringHelper.END_OF_LINE)
 			writer.flush
-		}
-		catch {
+		} catch {
 			case e: IOException => error("Error sending to Graphite:", e)
 		}
 	}
@@ -129,11 +130,11 @@ class GatlingGraphiteReporter(host: String,port : Int,registry: MetricsRegistry 
 	}
 
 	private def sendInt(timestamp: Long, name: String, valueName: String, value: Long) {
-		sendToGraphite(timestamp, name, valueName + " " +"%d".formatLocal(Locale.US,value))
+		sendToGraphite(timestamp, name, valueName + " " + "%d".formatLocal(Locale.US, value))
 	}
 
 	private def sendFloat(timestamp: Long, name: String, valueName: String, value: Double) {
-		sendToGraphite(timestamp, name, valueName + " " + "%2.2f".formatLocal(Locale.US,value))
+		sendToGraphite(timestamp, name, valueName + " " + "%2.2f".formatLocal(Locale.US, value))
 	}
 
 	private def sendSummarizable(epoch: Long, sanitizedName: String, metric: Summarizable) {

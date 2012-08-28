@@ -16,11 +16,11 @@
 package com.excilys.ebi.gatling.metrics.actors
 
 import com.excilys.ebi.gatling.core.result.message.RequestRecord
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.{OK,KO}
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
 import com.excilys.ebi.gatling.metrics.core.Instrumented
 
-import grizzled.slf4j.Logging
 import akka.actor.Actor
+import grizzled.slf4j.Logging
 
 class RequestMetrics(requestName: String) extends Actor with Logging with Instrumented {
 

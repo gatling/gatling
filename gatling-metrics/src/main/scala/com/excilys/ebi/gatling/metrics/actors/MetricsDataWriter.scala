@@ -15,30 +15,28 @@
  */
 package com.excilys.ebi.gatling.metrics.actors
 
-import akka.actor.{Props, ActorRef}
+import java.util.{ HashMap, Timer, TimerTask }
 
-import com.excilys.ebi.gatling.core.result.message._
-import com.excilys.ebi.gatling.metrics.reporting.GatlingGraphiteReporter
-import com.excilys.ebi.gatling.core.result.writer.DataWriter
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import scala.collection.JavaConversions.mapAsScalaMap
+import scala.collection.mutable
+
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RunRecord, ShortScenarioDescription }
+import com.excilys.ebi.gatling.core.result.writer.DataWriter
+import com.excilys.ebi.gatling.metrics.reporting.GatlingGraphiteReporter
 
-import scala.collection.mutable
-import scala.collection.JavaConversions.mapAsScalaMap
-
+import akka.actor.{ ActorRef, Props }
 import grizzled.slf4j.Logging
-
-import java.util.{HashMap, Timer, TimerTask}
 
 case object ClearHistograms
 
 class MetricsDataWriter extends DataWriter with Logging {
 
-	private val metricsActors: mutable.Map[String,ActorRef] = new HashMap[String, ActorRef]
+	private val metricsActors: mutable.Map[String, ActorRef] = new HashMap[String, ActorRef]
 	private val globalMetrics = context.actorOf(Props(new RequestMetrics("global")))
 	private val timer = new Timer(true)
-
 
 	def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) {
 		timer.scheduleAtFixedRate(new ClearTask, 0, 1000)

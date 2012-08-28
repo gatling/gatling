@@ -19,7 +19,7 @@ import com.yammer.metrics.core.Metric
 
 class FastCounter extends Metric {
 
-	private var counter: Long = 0
+	private var counter = 0L
 
 	def +=(n: Long) {
 		counter += n

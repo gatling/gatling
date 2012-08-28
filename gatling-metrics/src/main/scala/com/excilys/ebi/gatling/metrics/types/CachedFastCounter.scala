@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.metrics.types
 
 class CachedFastCounter extends FastCounter {
 
-	private var cache: Long = 0
+	private var cache = 0L
 
 	override def count = cache
 

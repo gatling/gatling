@@ -15,10 +15,10 @@
  */
 package com.excilys.ebi.gatling.metrics.reporting
 
-import com.yammer.metrics.reporting.MetricDispatcher
-import com.yammer.metrics.core.{MetricName, Metric}
-import com.excilys.ebi.gatling.metrics.types.{FastHistogram, FastCounter}
 import com.excilys.ebi.gatling.metrics.core.GatlingMetricsProcessor
+import com.excilys.ebi.gatling.metrics.types.{ FastCounter, FastHistogram }
+import com.yammer.metrics.core.{ Metric, MetricName }
+import com.yammer.metrics.reporting.MetricDispatcher
 
 class GatlingMetricDispatcher extends MetricDispatcher {
 
@@ -26,7 +26,7 @@ class GatlingMetricDispatcher extends MetricDispatcher {
 
 		metric match {
 			case fastCounter: FastCounter => processor.processFastCounter(name, fastCounter, context)
-			case fastHistogram :  FastHistogram =>    processor.processFastHistogram(name, fastHistogram, context)
+			case fastHistogram: FastHistogram => processor.processFastHistogram(name, fastHistogram, context)
 			case _ =>
 		}
 	}

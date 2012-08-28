@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.metrics.core
 
+import com.excilys.ebi.gatling.metrics.types.{ FastCounter, FastHistogram }
 import com.yammer.metrics.core.MetricName
-import com.excilys.ebi.gatling.metrics.types.{FastHistogram, FastCounter}
 
 trait GatlingMetricsProcessor[T] {
 

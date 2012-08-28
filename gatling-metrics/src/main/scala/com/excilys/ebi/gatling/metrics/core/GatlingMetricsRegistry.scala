@@ -15,9 +15,9 @@
  */
 package com.excilys.ebi.gatling.metrics.core
 
-import com.yammer.metrics.core.{Clock, MetricsRegistry}
-import com.excilys.ebi.gatling.metrics.types.{CachedFastHistogram, FastHistogram, CachedFastCounter, FastCounter}
-import com.excilys.ebi.gatling.metrics.core.SampleType.{Uniform, Biased}
+import com.excilys.ebi.gatling.metrics.core.SampleType.{ Biased, Uniform }
+import com.excilys.ebi.gatling.metrics.types.{ CachedFastCounter, CachedFastHistogram, FastCounter, FastHistogram }
+import com.yammer.metrics.core.{ Clock, MetricsRegistry }
 
 class GatlingMetricsRegistry(clock: Clock = Clock.defaultClock()) extends MetricsRegistry(clock) {
 
