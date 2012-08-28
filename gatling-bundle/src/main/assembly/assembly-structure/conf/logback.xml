@@ -12,7 +12,7 @@
 		</encoder>
 	</appender>
 
-	<!-- Uncomment for logging HTTP responses on check failure -->
+	<!-- Uncomment for logging HTTP requests and responses on failure -->
 	<!-- <logger name="com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor" level="DEBUG" /> -->
 
 	<root level="WARN">
