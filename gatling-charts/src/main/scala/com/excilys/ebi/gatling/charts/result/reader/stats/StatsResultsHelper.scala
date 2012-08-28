@@ -138,11 +138,11 @@ object StatsResultsHelper extends Logging {
 
 	def getResponseTimeGroupByExecutionStartDate(results: StatsResults, status: RequestStatus.RequestStatus, requestName: String) =
 		filterByStatusAndRequest(results.getResponseTimePerSecBuffer(BY_STATUS_AND_REQUEST), Some(status), Some(requestName))
-			.map(record => (record.executionStartBucket, record.responseTime))
+			.map(record => (record.executionStartBucket, (record.responseTimeMin,record.responseTimeMax)))
 
 	def getLatencyGroupByExecutionStartDate(results: StatsResults, status: RequestStatus.RequestStatus, requestName: String) =
 		filterByStatusAndRequest(results.getLatencyPerSecBuffer(BY_STATUS_AND_REQUEST), Some(status), Some(requestName))
-			.map(record => (record.executionStartBucket, record.latency))
+			.map(record => (record.executionStartBucket, (record.latencyMin, record.latencyMax)))
 
 	def getRequestAgainstResponseTime(results: StatsResults, status: RequestStatus.RequestStatus, requestName: String) =
 		filterByStatusAndRequest(results.getRequestAgainstResponseTimeBuffer(BY_STATUS_AND_REQUEST), Some(status), Some(requestName))

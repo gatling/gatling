@@ -59,9 +59,9 @@ abstract class DataReader(runUuid: String) {
 
 	def numberOfRequestInResponseTimeRange(lowerBound: Int, higherBound: Int, requestName: Option[String] = None): Seq[(String, Long)]
 
-	def responseTimeGroupByExecutionStartDate(status: RequestStatus, requestName: String): Seq[(Long, Long)]
+	def responseTimeGroupByExecutionStartDate(status: RequestStatus, requestName: String): Seq[(Long, (Long, Long))]
 
-	def latencyGroupByExecutionStartDate(status: RequestStatus, requestName: String): Seq[(Long, Long)]
+	def latencyGroupByExecutionStartDate(status: RequestStatus, requestName: String): Seq[(Long, (Long, Long))]
 
 	def requestAgainstResponseTime(status: RequestStatus.RequestStatus, requestName: String): Seq[(Long, Long)]
 }

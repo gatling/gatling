@@ -46,17 +46,17 @@ object TupleEntryParser {
 
 	implicit def tupleEntryToResponseTimePerSecRecord(tupleEntry: TupleEntry) = {
 		val map = tupleEntryToMap(tupleEntry)
-		new ResponseTimePerSecRecord(get(EXECUTION_START_BUCKET, map), get(RESPONSE_TIME, map), stringToRequestStatus(getOption(STATUS, map)), getOption(REQUEST, map))
+		new ResponseTimePerSecRecord(get(EXECUTION_START_BUCKET, map), get(RESPONSE_TIME_MIN, map), get(RESPONSE_TIME_MAX, map), stringToRequestStatus(getOption(STATUS, map)), getOption(REQUEST, map))
 	}
 
 	implicit def tupleEntryToLatencyPerSecRecord(tupleEntry: TupleEntry) = {
 		val map = tupleEntryToMap(tupleEntry)
-		new LatencyPerSecRecord(get(EXECUTION_START_BUCKET, map), get(LATENCY, map), stringToRequestStatus(getOption(STATUS, map)), getOption(REQUEST, map))
+		new LatencyPerSecRecord(get(EXECUTION_START_BUCKET, map), get(LATENCY_MIN, map), get(LATENCY_MAX, map), stringToRequestStatus(getOption(STATUS, map)), getOption(REQUEST, map))
 	}
 
 	implicit def tupleEntryToRequestAgainstResponseTimeRecord(tupleEntry: TupleEntry) = {
 		val map = tupleEntryToMap(tupleEntry)
-		new RequestAgainstResponseTimeRecord(get(SIZE, map), get(RESPONSE_TIME, map), stringToRequestStatus(getOption(STATUS, map)), getOption(REQUEST, map))
+		new RequestAgainstResponseTimeRecord(get(SIZE, map), get(RESPONSE_TIME_MAX, map), stringToRequestStatus(getOption(STATUS, map)), getOption(REQUEST, map))
 	}
 
 	implicit def tupleEntryToSessionDeltaRecord(tupleEntry: TupleEntry) = {

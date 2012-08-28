@@ -30,9 +30,10 @@ class StatPipe(val pipe: Pipe) {
 			_.size
 		}
 
-	def distributionMax[A, B](bucketField: Fields, groupFields: Fields, maxField: Fields) =
+	def distributionMinAndMax[A, B](bucketField: Fields, groupFields: Fields, inputField: Fields, minField: Fields, maxField: Fields) =
 		pipe.distribution(bucketField, groupFields) {
-			_.max((maxField, maxField))
+			_.min((inputField, minField))
+				.max((inputField, maxField))
 		}
 
 	def distribution[A, B](bucketField: Fields, groupFields: Fields)(groupFunction: GroupBuilder => GroupBuilder) = {

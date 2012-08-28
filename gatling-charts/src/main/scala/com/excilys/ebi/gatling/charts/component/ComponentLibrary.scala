@@ -52,11 +52,11 @@ abstract class ComponentLibrary {
 
 	def getTransactionsChartComponent(allTransactions: Series[Long, Long], failedTransactions: Series[Long, Long], succeededTransactions: Series[Long, Long], pieSeries: Series[String, Long]): Component
 
-	def getRequestDetailsResponseTimeChartComponent(responseTimesSuccess: Series[Long, Long], responseTimesFailures: Series[Long, Long]): Component
+	def getRequestDetailsResponseTimeChartComponent(responseTimesSuccess: Series[Long, (Long, Long)], responseTimesFailures: Series[Long, (Long, Long)]): Component
 
 	def getRequestDetailsResponseTimeDistributionChartComponent(responseTimesSuccess: Series[Long, Long], responseTimesFailures: Series[Long, Long]): Component
 
-	def getRequestDetailsLatencyChartComponent(latencySuccess: Series[Long, Long], latencyFailures: Series[Long, Long]): Component
+	def getRequestDetailsLatencyChartComponent(latencySuccess: Series[Long, (Long, Long)], latencyFailures: Series[Long, (Long, Long)]): Component
 
 	def getRequestDetailsScatterChartComponent(successData: Series[Long, Long], failuresData: Series[Long, Long]): Component
 
