@@ -17,6 +17,7 @@
 		<module>gatling-charts</module>
 		<module>gatling-bundle</module>
 		<module>gatling-maven-plugin</module>
+		<module>gatling-metrics</module>
 	</modules>
 
 	<licenses>
@@ -127,6 +128,7 @@
 		<guava.version>13.0</guava.version>
 		<jgrapht.version>0.8.2</jgrapht.version>
 		<maple.version>0.2.3</maple.version>
+		<metrics.version>3.0.0.20120820</metrics.version>
 
 		<maven2.version>2.2.1</maven2.version>
 		<maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
@@ -193,6 +195,11 @@
 			<dependency>
 				<groupId>com.excilys.ebi.gatling</groupId>
 				<artifactId>gatling-maven-plugin</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.excilys.ebi.gatling</groupId>
+				<artifactId>gatling-metrics</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -546,6 +553,12 @@
 				<groupId>com.twitter</groupId>
 				<artifactId>maple</artifactId>
 				<version>${maple.version}</version>
+			</dependency>
+			<!-- Metrics -->
+			<dependency>
+				<groupId>com.yammer.metrics</groupId>
+				<artifactId>metrics-core</artifactId>
+				<version>${metrics.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

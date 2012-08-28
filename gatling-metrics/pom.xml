@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.excilys.ebi.gatling</groupId>
+		<artifactId>gatling-parent</artifactId>
+		<version>1.3.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>gatling-metrics</artifactId>
+
+	<name>${project.artifactId}</name>
+
+	<description>Gatling Metrics Support</description>
+
+	<properties>
+		<header.basedir>${project.parent.basedir}</header.basedir>
+	</properties>
+
+	<dependencies>
+		<!-- compile -->
+		<dependency>
+			<groupId>com.excilys.ebi.gatling</groupId>
+			<artifactId>gatling-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-actor</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.clapper</groupId>
+			<artifactId>grizzled-slf4j_2.9.2</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.yammer.metrics</groupId>
+			<artifactId>metrics-core</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>net.alchim31.maven</groupId>
+				<artifactId>scala-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>com.mycila.maven-license-plugin</groupId>
+				<artifactId>maven-license-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+</project>
