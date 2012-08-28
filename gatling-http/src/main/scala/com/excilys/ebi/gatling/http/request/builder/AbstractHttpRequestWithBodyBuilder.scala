@@ -15,20 +15,19 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import org.fusesource.scalate.{ TemplateEngine, Binding }
+import org.fusesource.scalate.{ Binding, TemplateEngine }
 import org.fusesource.scalate.support.ScalaCompiler
 
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingFiles
-import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
+import com.excilys.ebi.gatling.core.session.{ EvaluatableString, Session }
 import com.excilys.ebi.gatling.core.util.FileHelper.SSP_EXTENSION
 import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
 import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 import com.excilys.ebi.gatling.http.Headers.Names.CONTENT_LENGTH
-import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
-import com.excilys.ebi.gatling.http.request.{ TemplateBody, StringBody, SessionByteArrayBody, HttpRequestBody, FilePathBody, ByteArrayBody }
-import com.ning.http.client.{ RequestBuilder, Realm }
+import com.excilys.ebi.gatling.http.request.{ ByteArrayBody, FilePathBody, HttpRequestBody, SessionByteArrayBody, StringBody, TemplateBody }
+import com.ning.http.client.RequestBuilder
 
 object AbstractHttpRequestWithBodyBuilder {
 	val TEMPLATE_ENGINE = new TemplateEngine(List(GatlingFiles.requestBodiesDirectory))
@@ -41,23 +40,13 @@ object AbstractHttpRequestWithBodyBuilder {
 /**
  * This class serves as model to HTTP request with a body
  *
- * @param requestName name of the request under test
- * @param url the function returning the url
- * @param queryParams the query parameters that should be added to the request
- * @param headers the headers that should be added to the request
+ * @param httpAttributes the base HTTP attributes
  * @param body the body that should be added to the request
- * @param realm sets the realm in case of Basic HTTP Authentication
  */
 abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](
-	requestName: String,
-	method: String,
-	url: EvaluatableString,
-	queryParams: List[HttpParam],
-	headers: Map[String, EvaluatableString],
-	body: Option[HttpRequestBody],
-	realm: Option[Session => Realm],
-	checks: List[HttpCheck[_]])
-		extends AbstractHttpRequestBuilder[B](requestName, method, url, queryParams, headers, realm, checks) {
+	httpAttributes: HttpAttributes,
+	body: Option[HttpRequestBody])
+		extends AbstractHttpRequestBuilder[B](httpAttributes) {
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): RequestBuilder = {
 		val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
@@ -68,45 +57,28 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	/**
 	 * Method overridden in children to create a new instance of the correct type
 	 *
-	 * @param requestName name of the request under test
-	 * @param url the function returning the url
-	 * @param queryParams the query parameters that should be added to the request
-	 * @param headers the headers that should be added to the request
+	 * @param httpAttributes the base HTTP attributes
 	 * @param body the body that should be added to the request
-	 * @param realm sets the realm in case of Basic HTTP Authentication
 	 */
 	private[http] def newInstance(
-		requestName: String,
-		url: EvaluatableString,
-		queryParams: List[HttpParam],
-		headers: Map[String, EvaluatableString],
-		body: Option[HttpRequestBody],
-		realm: Option[Session => Realm],
-		checks: List[HttpCheck[_]]): B
+		httpAttributes: HttpAttributes,
+		body: Option[HttpRequestBody]): B
 
-	private[http] def newInstance(
-		requestName: String,
-		url: EvaluatableString,
-		queryParams: List[HttpParam],
-		headers: Map[String, EvaluatableString],
-		realm: Option[Session => Realm],
-		checks: List[HttpCheck[_]]): B = {
-		newInstance(requestName, url, queryParams, headers, body, realm, checks)
-	}
+	private[http] def newInstance(httpAttributes: HttpAttributes): B = newInstance(httpAttributes, body)
 
 	/**
 	 * Adds a body to the request
 	 *
 	 * @param body a string containing the body of the request
 	 */
-	def body(body: EvaluatableString): B = newInstance(requestName, url, queryParams, headers, Some(StringBody(body)), realm, checks)
+	def body(body: EvaluatableString): B = newInstance(httpAttributes, Some(StringBody(body)))
 
 	/**
 	 * Adds a body from a file to the request
 	 *
 	 * @param filePath the path of the file relative to directory containing the templates
 	 */
-	def fileBody(filePath: String): B = newInstance(requestName, url, queryParams, headers, Some(FilePathBody(filePath)), realm, checks)
+	def fileBody(filePath: String): B = newInstance(httpAttributes, Some(FilePathBody(filePath)))
 
 	/**
 	 * Adds a body from a template that has to be compiled
@@ -116,7 +88,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 */
 	def fileBody(tplPath: String, values: Map[String, String]): B = {
 		val evaluatableValues = values.map { entry => entry._1 -> parseEvaluatable(entry._2) }
-		newInstance(requestName, url, queryParams, headers, Some(TemplateBody(tplPath, evaluatableValues)), realm, checks)
+		newInstance(httpAttributes, Some(TemplateBody(tplPath, evaluatableValues)))
 	}
 
 	/**
@@ -124,14 +96,14 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 *
 	 * @param byteArray - The callback function which returns the ByteArray from which to build the body
 	 */
-	def byteArrayBody(byteArray: () => Array[Byte]): B = newInstance(requestName, url, queryParams, headers, Some(ByteArrayBody(byteArray)), realm, checks)
-	
+	def byteArrayBody(byteArray: () => Array[Byte]): B = newInstance(httpAttributes, Some(ByteArrayBody(byteArray)))
+
 	/**
 	 * Adds a body from a byteArray Session function to the request
 	 *
 	 * @param byteArray - The callback function which returns the ByteArray from which to build the body
 	 */
-	def byteArrayBody(byteArray: (Session) => Array[Byte]): B = newInstance(requestName, url, queryParams, headers, Some(SessionByteArrayBody(byteArray)), realm, checks)
+	def byteArrayBody(byteArray: (Session) => Array[Byte]): B = newInstance(httpAttributes, Some(SessionByteArrayBody(byteArray)))
 
 	/**
 	 * This method adds the body to the request builder

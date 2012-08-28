@@ -15,29 +15,17 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
-import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.ning.http.client.Realm
+import com.excilys.ebi.gatling.core.session.EvaluatableString
+
+object HeadHttpRequestBuilder {
+
+	def apply(requestName: String, url: EvaluatableString) = new HeadHttpRequestBuilder(HttpAttributes(requestName, "HEAD", url, Nil, Map.empty, None, Nil))
+}
 
 /**
  * This class defines an HTTP request with word HEAD in the DSL
  */
-class HeadHttpRequestBuilder(
-	requestName: String,
-	url: EvaluatableString,
-	queryParams: List[HttpParam],
-	headers: Map[String, EvaluatableString],
-	realm: Option[Session => Realm],
-	checks: List[HttpCheck[_]])
-		extends AbstractHttpRequestBuilder[HeadHttpRequestBuilder](requestName, "HEAD", url, queryParams, headers, realm, checks) {
+class HeadHttpRequestBuilder(httpAttributes: HttpAttributes) extends AbstractHttpRequestBuilder[HeadHttpRequestBuilder](httpAttributes) {
 
-	private[http] def newInstance(
-		requestName: String,
-		url: EvaluatableString,
-		queryParams: List[HttpParam],
-		headers: Map[String, EvaluatableString],
-		realm: Option[Session => Realm],
-		checks: List[HttpCheck[_]]) = {
-		new HeadHttpRequestBuilder(requestName, url, queryParams, headers, realm, checks)
-	}
+	private[http] def newInstance(httpAttributes: HttpAttributes) = new HeadHttpRequestBuilder(httpAttributes)
 }

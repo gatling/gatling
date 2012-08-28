@@ -15,29 +15,17 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
-import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.ning.http.client.Realm
+import com.excilys.ebi.gatling.core.session.EvaluatableString
+
+object GetHttpRequestBuilder {
+
+	def apply(requestName: String, url: EvaluatableString) = new GetHttpRequestBuilder(HttpAttributes(requestName, "GET", url, Nil, Map.empty, None, Nil))
+}
 
 /**
  * This class defines an HTTP request with word GET in the DSL
  */
-class GetHttpRequestBuilder(
-	requestName: String,
-	url: EvaluatableString,
-	queryParams: List[HttpParam],
-	headers: Map[String, EvaluatableString],
-	realm: Option[Session => Realm],
-	checks: List[HttpCheck[_]])
-		extends AbstractHttpRequestBuilder[GetHttpRequestBuilder](requestName, "GET", url, queryParams, headers, realm, checks) {
+class GetHttpRequestBuilder(httpAttributes: HttpAttributes) extends AbstractHttpRequestBuilder[GetHttpRequestBuilder](httpAttributes) {
 
-	private[http] def newInstance(
-		requestName: String,
-		url: EvaluatableString,
-		queryParams: List[HttpParam],
-		headers: Map[String, EvaluatableString],
-		realm: Option[Session => Realm],
-		checks: List[HttpCheck[_]]) = {
-		new GetHttpRequestBuilder(requestName, url, queryParams, headers, realm, checks)
-	}
+	private[http] def newInstance(httpAttributes: HttpAttributes) = new GetHttpRequestBuilder(httpAttributes)
 }
