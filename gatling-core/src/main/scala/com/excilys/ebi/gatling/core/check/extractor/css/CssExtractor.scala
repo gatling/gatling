@@ -48,7 +48,7 @@ class CssExtractor(text: String) {
 	def extractMultiple(nodeAttribute: Option[String])(expression: String): Option[Seq[String]] =
 		selector.select(expression).map(nodeAttribute match {
 			case Some(attribute) => _.getAttribute(attribute)
-			case None => _.getTextContent().trim()
+			case None => _.getTextContent.trim
 		})
 
 	/**

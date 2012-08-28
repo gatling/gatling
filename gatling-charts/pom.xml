@@ -40,13 +40,27 @@
 			<groupId>cascading</groupId>
 			<artifactId>cascading-hadoop</artifactId>
 		</dependency>
+
+		<!-- runtime -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 		<dependency>
 			<groupId>thirdparty</groupId>
 			<artifactId>jgrapht-jdk1.6</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.twitter</groupId>
 			<artifactId>maple</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 
 		<!-- test -->
