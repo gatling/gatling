@@ -15,14 +15,11 @@
  */
 package com.excilys.ebi.gatling.metrics.types
 
-class CachedFastCounter extends FastCounter {
+class ClearedFastCounter extends FastCounter {
 
-	private var cache = 0L
-
-	override def count = cache
-
-	override def clear() {
-		cache = super.count
-		super.-=(super.count)
+	override def count = {
+		val count = super.count
+		super.clear
+		count
 	}
 }

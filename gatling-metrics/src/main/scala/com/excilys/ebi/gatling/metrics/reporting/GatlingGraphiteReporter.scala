@@ -25,9 +25,8 @@ import scala.collection.JavaConversions.mapAsScalaMap
 import com.excilys.ebi.gatling.core.util.StringHelper
 import com.excilys.ebi.gatling.metrics.core.{ GatlingMetrics, GatlingMetricsProcessor }
 import com.excilys.ebi.gatling.metrics.types.{ FastCounter, FastHistogram }
-import com.yammer.metrics.core.{ MetricName, MetricPredicate, MetricsRegistry, Sampling, Summarizable }
+import com.yammer.metrics.core.{ MetricName, MetricPredicate, MetricsRegistry}
 import com.yammer.metrics.reporting.AbstractPollingReporter
-import com.yammer.metrics.stats.Snapshot
 
 import grizzled.slf4j.Logging
 
@@ -35,9 +34,9 @@ object GatlingGraphiteReporter extends Logging {
 
 	private var reporter: GatlingGraphiteReporter = null
 
-	def enable(period: Long, unit: TimeUnit, host: String, port: Int) {
+	def enable(host: String, port: Int) {
 		reporter = new GatlingGraphiteReporter(host, port)
-		reporter.start(period, unit)
+		reporter.start(1, TimeUnit.SECONDS)
 	}
 
 	def shutdown {
@@ -47,7 +46,6 @@ object GatlingGraphiteReporter extends Logging {
 class GatlingGraphiteReporter(host: String, port: Int, registry: MetricsRegistry = GatlingMetrics.registry, name: String = "graphite-reporter")
 		extends AbstractPollingReporter(registry, name) with GatlingMetricsProcessor[Long] with Logging {
 
-	private val metricsDispatcher = new GatlingMetricDispatcher
 	private val socket = new Socket(host, port)
 	private val writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream))
 
@@ -76,11 +74,11 @@ class GatlingGraphiteReporter(host: String, port: Int, registry: MetricsRegistry
 	}
 
 	private def printMetrics(epoch: Long) {
-		getMetricsRegistry.getGroupedMetrics(MetricPredicate.ALL).foreach(_._2.foreach(t => metricsDispatcher.dispatch(t._2, t._1, this, epoch)))
+		getMetricsRegistry.groupedMetrics(MetricPredicate.ALL).foreach(_._2.foreach(t => t._2.processWith(this,t._1,epoch)))
 	}
 
 	private def sanitizeName(name: MetricName): String = {
-		val sb: StringBuilder = new StringBuilder().append(name.getDomain).append('.').append(name.getType).append('.')
+		val sb: StringBuilder = new StringBuilder().append(name.getType).append('.').append(name.getType).append('.')
 		if (name.hasScope) {
 			sb.append(name.getScope).append('.')
 		}
@@ -124,9 +122,7 @@ class GatlingGraphiteReporter(host: String, port: Int, registry: MetricsRegistry
 	 * @throws Exception if something goes wrong
 	 */
 	override def processFastHistogram(name: MetricName, histogram: FastHistogram, epoch: Long) {
-		val sanitizedName = sanitizeName(name)
-		sendSummarizable(epoch, sanitizedName, histogram)
-		sendSampling(epoch, sanitizedName, histogram)
+		sendStats(epoch,sanitizeName(name),histogram)
 	}
 
 	private def sendInt(timestamp: Long, name: String, valueName: String, value: Long) {
@@ -137,20 +133,18 @@ class GatlingGraphiteReporter(host: String, port: Int, registry: MetricsRegistry
 		sendToGraphite(timestamp, name, valueName + " " + "%2.2f".formatLocal(Locale.US, value))
 	}
 
-	private def sendSummarizable(epoch: Long, sanitizedName: String, metric: Summarizable) {
-		sendFloat(epoch, sanitizedName, "min", metric.getMin)
-		sendFloat(epoch, sanitizedName, "max", metric.getMax)
-		sendFloat(epoch, sanitizedName, "mean", metric.getMean)
-		sendFloat(epoch, sanitizedName, "stddev", metric.getStdDev)
-	}
 
-	private def sendSampling(epoch: Long, sanitizedName: String, metric: Sampling) {
-		val snapshot: Snapshot = metric.getSnapshot
-		sendFloat(epoch, sanitizedName, "median", snapshot.getMedian)
-		sendFloat(epoch, sanitizedName, "75percentile", snapshot.get75thPercentile)
-		sendFloat(epoch, sanitizedName, "95percentile", snapshot.get95thPercentile)
-		sendFloat(epoch, sanitizedName, "98percentile", snapshot.get98thPercentile)
-		sendFloat(epoch, sanitizedName, "99percentile", snapshot.get99thPercentile)
-		sendFloat(epoch, sanitizedName, "999percentile", snapshot.get999thPercentile)
+	private def sendStats(epoch: Long, sanitizedName: String, histogram: FastHistogram) {
+		val stats = histogram.getStats
+		sendFloat(epoch, sanitizedName, "min", stats.min)
+		sendFloat(epoch, sanitizedName, "max", stats.max)
+		sendFloat(epoch, sanitizedName, "mean", stats.mean)
+		sendFloat(epoch, sanitizedName, "stddev", stats.stdDev)
+		sendFloat(epoch, sanitizedName, "median", stats.snapshot.getMedian)
+		sendFloat(epoch, sanitizedName, "75percentile", stats.snapshot.get75thPercentile)
+		sendFloat(epoch, sanitizedName, "95percentile", stats.snapshot.get95thPercentile)
+		sendFloat(epoch, sanitizedName, "98percentile", stats.snapshot.get98thPercentile)
+		sendFloat(epoch, sanitizedName, "99percentile", stats.snapshot.get99thPercentile)
+		sendFloat(epoch, sanitizedName, "999percentile", stats.snapshot.get999thPercentile)
 	}
 }

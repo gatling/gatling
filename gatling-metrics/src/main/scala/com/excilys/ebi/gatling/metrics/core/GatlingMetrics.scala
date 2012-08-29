@@ -25,11 +25,11 @@ object GatlingMetrics {
 		registry.newFastCounter(klass, name, scope)
 
 	def newCachedFastCounter(klass: Class[_], name: String, scope: String = null): FastCounter =
-		registry.newCachedFastCounter(klass, name, scope)
+		registry.newClearedFastCounter(klass, name, scope)
 
 	def newFastHistogram(klass: Class[_], name: String, scope: String = null, biased: Boolean = false): FastHistogram =
 		registry.newFastHistogram(klass, name, scope, biased)
 
 	def newCachedFastHistogram(klass: Class[_], name: String, scope: String = null, biased: Boolean = false): FastHistogram =
-		registry.newCachedFastHistogram(klass, name, scope, biased)
+		registry.newClearedFastHistogram(klass, name, scope, biased)
 }
