@@ -15,6 +15,8 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
+import scala.collection.immutable.ListMap
+
 import com.excilys.ebi.gatling.charts.component.{ ComponentLibrary, RequestStatistics, Statistics }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ GLOBAL_PAGE_NAME, jsStatsFile, tsvStatsFile }
 import com.excilys.ebi.gatling.charts.template.{ StatsJsTemplate, StatsTsvTemplate }
@@ -30,7 +32,7 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 		val percent1 = configuration.charting.indicators.percentile1 / 100.0
 		val percent2 = configuration.charting.indicators.percentile2 / 100.0
 
-		val stats = criteria.map {
+		val stats: ListMap[String, RequestStatistics] = criteria.map {
 			case (name, requestName) =>
 
 				val totalCount = dataReader.countRequests(None, requestName)
@@ -75,7 +77,7 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 					.map { case (name, count) => (name, count, count * 100 / totalCount) }
 
 				(name -> RequestStatistics(name, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, groupedCounts, meanNumberOfRequestsPerSecondStatistics))
-		}.toMap
+		}(collection.breakOut)
 
 		new TemplateWriter(jsStatsFile(runOn)).writeToFile(new StatsJsTemplate(stats).getOutput)
 		new TemplateWriter(tsvStatsFile(runOn)).writeToFile(new StatsTsvTemplate(stats).getOutput)

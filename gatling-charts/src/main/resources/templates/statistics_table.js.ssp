@@ -1,0 +1,36 @@
+<% import com.excilys.ebi.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME %>
+
+function toHTMLTableRow(array) {
+	var row = '<tr>'
+	$.each(array, function(i, value) {
+		row += '<td'
+		if (value.style)
+			row += ' class="' + value.style + '"'
+		row += '>'+ value.content + '</td>'
+	})
+	return row + '</tr>'
+}
+
+$.each(stats, function(request, values) {
+	var url
+	if (values.name  == '<%= GLOBAL_PAGE_NAME %>')
+		url = 'index.html'
+	else
+		url = request + '.html'
+
+	$('#container_statistics tbody').append(toHTMLTableRow([
+		{ content: '<a href="' + url + '">' + values.name + '</a>', style: "total" },
+		{ content: "", style: ""},
+		{ content: values.numberOfRequests.total, style: "value total" },
+		{ content: values.numberOfRequests.ok, style: "value ok" },
+		{ content: values.numberOfRequests.ko, style: "value ko" },
+		{ content: "", style: ""},
+		{ content: values.minResponseTime.total, style: "value total" },
+		{ content: values.maxResponseTime.total, style: "value total" },
+		{ content: values.meanResponseTime.total, style: "value total" },
+		{ content: values.standardDeviation.total, style: "value total" },
+		{ content: values.percentiles1.total, style: "value total" },
+		{ content: values.percentiles2.total, style: "value total" },
+		{ content: values.meanNumberOfRequestsPerSecond.total, style: "value total" }
+	]))
+})

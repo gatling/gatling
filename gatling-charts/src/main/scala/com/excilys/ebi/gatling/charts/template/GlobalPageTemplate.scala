@@ -18,5 +18,5 @@ package com.excilys.ebi.gatling.charts.template
 import com.excilys.ebi.gatling.charts.component.Component
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME
 
-class GlobalPageTemplate(statisticsComponent: Component, indicatorsComponent: Component, activeSessionsComponent: Component, responseTimeDistributionChartComponent: Component, requestsComponent: Component, transactionsComponent: Component)
-	extends PageTemplate(GLOBAL_PAGE_NAME, false, statisticsComponent, indicatorsComponent, activeSessionsComponent, responseTimeDistributionChartComponent, requestsComponent, transactionsComponent)
+class GlobalPageTemplate(statisticsComponent: Component, indicatorsComponent: Component, statisticsTableComponent: Component, activeSessionsComponent: Component, responseTimeDistributionChartComponent: Component, requestsComponent: Component, transactionsComponent: Component)
+	extends PageTemplate(GLOBAL_PAGE_NAME, false, statisticsComponent, indicatorsComponent, statisticsTableComponent, activeSessionsComponent, responseTimeDistributionChartComponent, requestsComponent, transactionsComponent)

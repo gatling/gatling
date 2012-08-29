@@ -1,0 +1,25 @@
+<%@ val responseTimeFields: List[String] = List("Min", "Max", "Mean", "Std Deviation", "95th percentile", "99th percentile", "Mean req/s") %>
+						<div class="statistics extensible-geant">
+							<div class="titre">STATISTICS</div>
+							<table id="container_statistics" class="statistics-in extensible-geant">
+								<thead>
+									<tr>
+										<th rowspan="2" class="header">Requests</th>
+										<th rowspan="2"></th>
+										<th colspan="3" class="header"><span class="executions">Executions</span></th>
+										<th rowspan="2"></th>
+										<th colspan="<%= responseTimeFields.size %>" class="header"><span class="response-time">Response Time (ms)<span></th>
+									</tr>
+									<tr>
+										<th class="header">Total</th>
+										<th class="header">OK</th>
+										<th class="header">KO</th>
+										<% val it = responseTimeFields.iterator %>
+										<% while (it.hasNext) { %>
+										<th class="header"><%= it.next %></th>
+										<% } %>
+									</tr>
+								</thead>
+								<tbody></tbody>
+							</table>
+						</div>
