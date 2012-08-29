@@ -83,7 +83,7 @@ class GatlingGraphiteReporter(host: String, port: Int, registry: MetricsRegistry
 	}
 
 	private def sanitizeName(name: MetricName): String = {
-		val sb: StringBuilder = new StringBuilder().append(".").append(name.getType).append(".")
+		val sb = new StringBuilder().append(name.getType).append(".")
 		if (name.hasScope) {
 			sb.append(name.getScope).append('.')
 		}
