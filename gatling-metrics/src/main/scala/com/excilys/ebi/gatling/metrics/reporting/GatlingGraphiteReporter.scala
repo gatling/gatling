@@ -15,18 +15,20 @@
  */
 package com.excilys.ebi.gatling.metrics.reporting
 
-import java.io.{ BufferedWriter, IOException, OutputStreamWriter }
+import java.io.{ BufferedWriter, IOException, OutputStreamWriter, Writer }
 import java.net.Socket
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 import scala.collection.JavaConversions.{ collectionAsScalaIterable, mapAsScalaMap }
 
+import org.apache.commons.io.IOUtils.closeQuietly
+
 import com.excilys.ebi.gatling.core.util.StringHelper
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 import com.excilys.ebi.gatling.metrics.core.{ GatlingMetricsProcessor, GatlingMetricsRegistry }
 import com.excilys.ebi.gatling.metrics.types.{ FastCounter, FastHistogram }
-import com.yammer.metrics.core.{ MetricName, MetricPredicate, MetricsRegistry }
+import com.yammer.metrics.core.{ MetricName, MetricPredicate }
 import com.yammer.metrics.reporting.AbstractPollingReporter
 
 import grizzled.slf4j.Logging
@@ -44,37 +46,38 @@ object GatlingGraphiteReporter extends Logging {
 		reporter.shutdown
 	}
 }
-class GatlingGraphiteReporter(host: String, port: Int, registry: MetricsRegistry = GatlingMetricsRegistry.registry, name: String = "graphite-reporter")
-		extends AbstractPollingReporter(registry, name) with GatlingMetricsProcessor[Long] with Logging {
+class GatlingGraphiteReporter(host: String, port: Int) extends AbstractPollingReporter(GatlingMetricsRegistry.registry, "graphite-reporter") with GatlingMetricsProcessor[Long] with Logging {
 
-	private val socket = new Socket(host, port)
-	private val writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream))
+	private var writer: Writer = null
 
 	def run {
 		try {
-			val epoch: Long = nowMillis / 1000
-			printMetrics(epoch)
+			if (writer == null) writer = new BufferedWriter(new OutputStreamWriter(new Socket(host, port).getOutputStream))
+
+			printMetrics
 			writer.flush
+
 		} catch {
-			case e: Exception => {
+			case e: IOException => {
 				error("Error writing to Graphite", e)
-				if (writer != null) {
-					try {
-						writer.flush
-					} catch {
-						case e1: IOException => error("Error while flushing writer", e1)
-					}
-				}
+				closeQuietly(writer)
+				writer = null
 			}
 		}
 	}
 
 	override def shutdown {
-		socket.close
+		try {
+			writer.flush
+		} finally {
+			closeQuietly(writer)
+		}
 		super.shutdown
 	}
 
-	private def printMetrics(epoch: Long) {
+	private def printMetrics {
+
+		val epoch: Long = nowMillis / 1000
 
 		getMetricsRegistry
 			.groupedMetrics(MetricPredicate.ALL)
