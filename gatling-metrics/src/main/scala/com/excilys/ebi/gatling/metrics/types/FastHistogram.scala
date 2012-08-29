@@ -17,10 +17,11 @@ package com.excilys.ebi.gatling.metrics.types
 
 import scala.math.sqrt
 
-import com.yammer.metrics.core.{ Metric, Sampling, Summarizable }
-import com.yammer.metrics.stats.Sample
+import com.yammer.metrics.core._
+import com.yammer.metrics.stats.{Snapshot, Sample}
+import com.excilys.ebi.gatling.metrics.core.GatlingMetricsProcessor
 
-class FastHistogram(private val sample: Sample) extends Metric with Sampling with Summarizable {
+class FastHistogram(private val sample: Sample) extends Metric {
 
 	private var min = 0L
 	private var max = 0L
@@ -47,19 +48,13 @@ class FastHistogram(private val sample: Sample) extends Metric with Sampling wit
 		variance(1) = .0
 	}
 
-	def getMax = if (count > 0L) max else 0L
-
-	def getMin = if (count > 0L) min else 0L
-
-	def getMean = if (count > 0L) sum / count.toDouble else .0
-
-	def getStdDev = if (count > 0L) sqrt(getVariance) else .0
-
-	def getSum = sum
-
-	def getCount = count
-
 	def getSnapshot = sample.getSnapshot
+
+	def getStats = {
+		val mean = if (count > 0L) sum / count.toDouble else .0
+		val stdDev = if (count > 0L) sqrt(getVariance) else .0
+		Stats(0L max max,0L max min,mean,stdDev,sum,sample.getSnapshot)
+	}
 
 	private def getVariance = if (count <= 1) .0 else variance(1) / (count - 1)
 
@@ -68,4 +63,13 @@ class FastHistogram(private val sample: Sample) extends Metric with Sampling wit
 		variance(0) += (value - oldM) / count
 		variance(1) += (value - oldM) * (value - variance(0))
 	}
+
+	def processWith[T](processor: MetricProcessor[T], name: MetricName, context: T) {
+		processor match {
+			case gatlingProcessor : GatlingMetricsProcessor[T] => gatlingProcessor.processFastHistogram(name,this,context)
+			case _ =>
+		}
+	}
+
+	case class Stats(max: Double, min: Double, mean: Double, stdDev: Double, sum: Double, snapshot: Snapshot)
 }

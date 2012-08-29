@@ -16,9 +16,9 @@
 package com.excilys.ebi.gatling.metrics.core
 
 import com.excilys.ebi.gatling.metrics.types.{ FastCounter, FastHistogram }
-import com.yammer.metrics.core.MetricName
+import com.yammer.metrics.core._
 
-trait GatlingMetricsProcessor[T] {
+trait GatlingMetricsProcessor[T] extends MetricProcessor[T]{
 
 	/**
 	 * Process the given fast counter.
@@ -40,4 +40,13 @@ trait GatlingMetricsProcessor[T] {
 	 */
 	def processFastHistogram(name: MetricName, histogram: FastHistogram, context: T)
 
+	def processMeter(name: MetricName, meter: Metered, context: T) {}
+
+	def processCounter(name: MetricName, counter: Counter, context: T) {}
+
+	def processHistogram(name: MetricName, histogram: Histogram, context: T) {}
+
+	def processTimer(name: MetricName, timer: Timer, context: T) {}
+
+	def processGauge(name: MetricName, gauge: Gauge[_], context: T) {}
 }

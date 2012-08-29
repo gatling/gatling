@@ -15,7 +15,8 @@
  */
 package com.excilys.ebi.gatling.metrics.types
 
-import com.yammer.metrics.core.Metric
+import com.yammer.metrics.core.{MetricName, MetricProcessor, Metric}
+import com.excilys.ebi.gatling.metrics.core.GatlingMetricsProcessor
 
 class FastCounter extends Metric {
 
@@ -35,4 +36,10 @@ class FastCounter extends Metric {
 		counter = 0
 	}
 
+	def processWith[T](processor: MetricProcessor[T], name: MetricName, context: T) {
+		processor match {
+			case gatlingProcessor : GatlingMetricsProcessor[T] => gatlingProcessor.processFastCounter(name,this,context)
+			case _ =>
+		}
+	}
 }
