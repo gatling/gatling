@@ -168,9 +168,9 @@ class GatlingAsyncHandlerActor(
 
 			def configureForNextRedirect(newSession: Session, newRequestName: String, newRequest: Request) {
 				this.session = newSession
-				this.responseBuilder = responseBuilderFactory(request, session)
 				this.requestName = newRequestName
 				this.request = newRequest
+				this.responseBuilder = responseBuilderFactory(newRequest, session)
 			}
 
 			logRequest(OK, response)
