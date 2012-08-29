@@ -21,6 +21,7 @@ import java.security.MessageDigest
 import scala.math.max
 
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.util.TimeHelper.{ computeTimeMillisFromNanos, nowMillis }
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.check.bodypart.ChecksumCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
@@ -29,11 +30,6 @@ import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpRes
 import com.ning.http.client.Response.ResponseBuilder
 
 object ExtendedResponseBuilder {
-	
-	val currentTimeMillisReference = currentTimeMillis
-	val nanoTimeReference = nanoTime 
-	
-	def computeTimeFromNanos(nanos: Long) = (nanos - ExtendedResponseBuilder.nanoTimeReference) / 1000000 + ExtendedResponseBuilder.currentTimeMillisReference
 
 	def newExtendedResponseBuilder(checks: List[HttpCheck[_]], protocolConfiguration: HttpProtocolConfiguration): ExtendedResponseBuilderFactory = {
 
@@ -53,7 +49,7 @@ class ExtendedResponseBuilder(request: Request, session: Session, checksumChecks
 
 	private val responseBuilder = new ResponseBuilder
 	private var checksums = Map.empty[String, MessageDigest]
-	val _executionStartDate = ExtendedResponseBuilder.computeTimeFromNanos(nanoTime)
+	val _executionStartDate = nowMillis
 	var _requestSendingEndDate = 0L
 	var _responseReceivingStartDate = 0L
 	var _executionEndDate = 0L
@@ -67,15 +63,15 @@ class ExtendedResponseBuilder(request: Request, session: Session, checksumChecks
 	}
 
 	def updateRequestSendingEndDate(nanos: Long) {
-		_requestSendingEndDate = ExtendedResponseBuilder.computeTimeFromNanos(nanos)
+		_requestSendingEndDate = computeTimeMillisFromNanos(nanos)
 	}
 
 	def updateResponseReceivingStartDate(nanos: Long) {
-		_responseReceivingStartDate = ExtendedResponseBuilder.computeTimeFromNanos(nanos)
+		_responseReceivingStartDate = computeTimeMillisFromNanos(nanos)
 	}
 
 	def computeExecutionEndDateFromNanos(nanos: Long) {
-		_executionEndDate = ExtendedResponseBuilder.computeTimeFromNanos(nanos)
+		_executionEndDate = computeTimeMillisFromNanos(nanos)
 	}
 
 	def accumulate(bodyPart: Option[HttpResponseBodyPart]) {

@@ -17,9 +17,9 @@ package com.excilys.ebi.gatling.metrics.types
 
 import scala.math.sqrt
 
-import com.yammer.metrics.core._
-import com.yammer.metrics.stats.{Snapshot, Sample}
 import com.excilys.ebi.gatling.metrics.core.GatlingMetricsProcessor
+import com.yammer.metrics.core.{ Metric, MetricName, MetricProcessor }
+import com.yammer.metrics.stats.{ Sample, Snapshot }
 
 class FastHistogram(private val sample: Sample) extends Metric {
 
@@ -53,10 +53,10 @@ class FastHistogram(private val sample: Sample) extends Metric {
 	def getStats = {
 		val mean = if (count > 0L) sum / count.toDouble else .0
 		val stdDev = if (count > 0L) sqrt(getVariance) else .0
-		Stats(0L max max,0L max min,mean,stdDev,sum,sample.getSnapshot)
+		Stats(0L max max, 0L max min, mean, stdDev, sum, sample.getSnapshot)
 	}
 
-	private def getVariance = if (count <= 1) .0 else variance(1) / (count - 1)
+	private def getVariance = if (count > 0L) variance(1) / (count - 1) else .0
 
 	private def updateVariance(value: Double) {
 		val oldM = variance(0)
@@ -66,7 +66,7 @@ class FastHistogram(private val sample: Sample) extends Metric {
 
 	def processWith[T](processor: MetricProcessor[T], name: MetricName, context: T) {
 		processor match {
-			case gatlingProcessor : GatlingMetricsProcessor[T] => gatlingProcessor.processFastHistogram(name,this,context)
+			case gatlingProcessor: GatlingMetricsProcessor[T] => gatlingProcessor.processFastHistogram(name, this, context)
 			case _ =>
 		}
 	}

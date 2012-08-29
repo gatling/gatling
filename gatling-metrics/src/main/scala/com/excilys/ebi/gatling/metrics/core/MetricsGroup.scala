@@ -15,17 +15,15 @@
  */
 package com.excilys.ebi.gatling.metrics.core
 
-class MetricsGroup(val klass: Class[_], val registry: GatlingMetricsRegistry = GatlingMetrics.registry) {
+import com.excilys.ebi.gatling.metrics.core.GatlingMetricsRegistry.registry
 
-	def fastCounter(name: String) =
-		registry.newFastCounter(klass, name)
+class MetricsGroup(clazz: Class[_]) {
 
-	def clearedFastCounter(name: String) =
-		registry.newClearedFastCounter(klass, name)
+	def fastCounter(name: String) = registry.fastCounter(clazz, name)
 
-	def fastHistogram(name: String) =
-		registry.newFastHistogram(klass, name)
+	def clearedFastCounter(name: String) = registry.clearedFastCounter(clazz, name)
 
-	def clearedFastHistogram(name: String) =
-		registry.newClearedFastHistogram(klass, name)
+	def fastHistogram(name: String) = registry.fastHistogram(clazz, name)
+
+	def clearedFastHistogram(name: String) = registry.clearedFastHistogram(clazz, name)
 }

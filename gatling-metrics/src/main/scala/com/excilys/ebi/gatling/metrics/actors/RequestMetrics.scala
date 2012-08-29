@@ -70,5 +70,4 @@ class RequestMetrics(requestName: String) extends Actor with Logging with Instru
 	def receive = {
 		case requestRecord: RequestRecord => updateHistograms(requestRecord)
 	}
-
 }

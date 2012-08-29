@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * 		http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,23 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.metrics.core
+package com.excilys.ebi.gatling.core.util
 
-import com.yammer.metrics.stats.{ ExponentiallyDecayingSample, Sample, UniformSample }
+import java.lang.System.{ currentTimeMillis, nanoTime }
 
-sealed trait SampleType {
-	def newSample: Sample
-}
+object TimeHelper {
 
-object SampleType {
-	val DefaultSampleSize: Int = 1028
-	val DefaultAlpha: Double = 0.015
+	val currentTimeMillisReference = currentTimeMillis
+	val nanoTimeReference = nanoTime
 
-	case object Uniform extends SampleType {
-		def newSample = new UniformSample(SampleType.DefaultSampleSize)
-	}
-
-	case object Biased extends SampleType {
-		def newSample = new ExponentiallyDecayingSample(SampleType.DefaultSampleSize, SampleType.DefaultAlpha)
-	}
+	def computeTimeMillisFromNanos(nanos: Long) = (nanos - nanoTimeReference) / 1000000 + currentTimeMillisReference
+	
+	def nowMillis = computeTimeMillisFromNanos(nanoTime)
 }

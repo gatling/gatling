@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.metrics.types
 
-import com.yammer.metrics.stats.{ Sample, Snapshot }
+import com.yammer.metrics.stats.Sample
 
 class ClearedFastHistogram(sample: Sample) extends FastHistogram(sample) {
 

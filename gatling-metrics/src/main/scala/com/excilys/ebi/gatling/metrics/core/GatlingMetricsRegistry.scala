@@ -19,18 +19,23 @@ import com.excilys.ebi.gatling.metrics.core.SampleType.{ Biased, Uniform }
 import com.excilys.ebi.gatling.metrics.types.{ ClearedFastCounter, ClearedFastHistogram, FastCounter, FastHistogram }
 import com.yammer.metrics.core.{ Clock, MetricsRegistry }
 
-class GatlingMetricsRegistry(clock: Clock = Clock.defaultClock()) extends MetricsRegistry(clock) {
+object GatlingMetricsRegistry {
+	
+	val registry = new GatlingMetricsRegistry
+}
 
-	def newFastCounter(klass: Class[_], name: String, scope: String = null): FastCounter =
-		getOrAdd(createName(klass, name, scope), new FastCounter)
+class GatlingMetricsRegistry extends MetricsRegistry(Clock.defaultClock) {
 
-	def newClearedFastCounter(klass: Class[_], name: String, scope: String = null): ClearedFastCounter =
-		getOrAdd(createName(klass, name, scope), new ClearedFastCounter)
+	def fastCounter(clazz: Class[_], name: String, scope: String = null): FastCounter =
+		getOrAdd(createName(clazz, name, scope), new FastCounter)
 
-	def newFastHistogram(klass: Class[_], name: String, scope: String = null, biased: Boolean = false): FastHistogram =
-		getOrAdd(createName(klass, name, scope), new FastHistogram(if (biased) Biased.newSample else Uniform.newSample))
+	def clearedFastCounter(clazz: Class[_], name: String, scope: String = null): ClearedFastCounter =
+		getOrAdd(createName(clazz, name, scope), new ClearedFastCounter)
 
-	def newClearedFastHistogram(klass: Class[_], name: String, scope: String = null, biased: Boolean = false): ClearedFastHistogram =
-		getOrAdd(createName(klass, name, scope), new ClearedFastHistogram(if (biased) Biased.newSample else Uniform.newSample))
+	def fastHistogram(clazz: Class[_], name: String, scope: String = null, biased: Boolean = false): FastHistogram =
+		getOrAdd(createName(clazz, name, scope), new FastHistogram(if (biased) Biased.newSample else Uniform.newSample))
+
+	def clearedFastHistogram(clazz: Class[_], name: String, scope: String = null, biased: Boolean = false): ClearedFastHistogram =
+		getOrAdd(createName(clazz, name, scope), new ClearedFastHistogram(if (biased) Biased.newSample else Uniform.newSample))
 
 }
