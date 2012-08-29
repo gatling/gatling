@@ -31,15 +31,15 @@ class RequestMetrics(requestName: String) extends Actor with Logging with Instru
 	private val responseTimeKO = metrics.fastHistogram(requestName + "_responseTimeKO")
 	private val responseTimeGlobal = metrics.fastHistogram(requestName + "_responseTimeGlobal")
 
-	private val latencyOKPerSecond = metrics.cachedFastHistogram(requestName + "_latencyOKPerSecond")
-	private val latencyKOPerSecond = metrics.cachedFastHistogram(requestName + "_latencyKOPerSecond")
-	private val latencyGlobalPerSecond = metrics.cachedFastHistogram(requestName + "_latencyGlobalPerSecond")
-	private val responseTimeOKPerSecond = metrics.cachedFastHistogram(requestName + "_responseTimeOKPerSecond")
-	private val responseTimeKOPerSecond = metrics.cachedFastHistogram(requestName + "_responseTimeKOPerSecond")
-	private val responseTimeGlobalPerSecond = metrics.cachedFastHistogram(requestName + "_responseTimeGlobalPerSecond")
-	private val transactionsOKPerSecond = metrics.cachedFastCounter(requestName + "_transactionsOKPerSecond")
-	private val transactionsKOPerSecond = metrics.cachedFastCounter(requestName + "_transactionsKOPerSecond")
-	private val transactionsGlobalPerSecond = metrics.cachedFastCounter(requestName + "_transactionsGlobalPerSecond")
+	private val latencyOKPerSecond = metrics.clearedFastHistogram(requestName + "_latencyOKPerSecond")
+	private val latencyKOPerSecond = metrics.clearedFastHistogram(requestName + "_latencyKOPerSecond")
+	private val latencyGlobalPerSecond = metrics.clearedFastHistogram(requestName + "_latencyGlobalPerSecond")
+	private val responseTimeOKPerSecond = metrics.clearedFastHistogram(requestName + "_responseTimeOKPerSecond")
+	private val responseTimeKOPerSecond = metrics.clearedFastHistogram(requestName + "_responseTimeKOPerSecond")
+	private val responseTimeGlobalPerSecond = metrics.clearedFastHistogram(requestName + "_responseTimeGlobalPerSecond")
+	private val transactionsOKPerSecond = metrics.clearedFastCounter(requestName + "_transactionsOKPerSecond")
+	private val transactionsKOPerSecond = metrics.clearedFastCounter(requestName + "_transactionsKOPerSecond")
+	private val transactionsGlobalPerSecond = metrics.clearedFastCounter(requestName + "_transactionsGlobalPerSecond")
 
 	def updateHistograms(requestRecord: RequestRecord) {
 		// Update global histograms
@@ -69,18 +69,6 @@ class RequestMetrics(requestName: String) extends Actor with Logging with Instru
 
 	def receive = {
 		case requestRecord: RequestRecord => updateHistograms(requestRecord)
-		case ClearHistograms => clearPerSecondHistograms
 	}
 
-	def clearPerSecondHistograms {
-		latencyOKPerSecond.clear
-		latencyKOPerSecond.clear
-		latencyGlobalPerSecond.clear
-		responseTimeOKPerSecond.clear
-		responseTimeKOPerSecond.clear
-		responseTimeGlobalPerSecond.clear
-		transactionsGlobalPerSecond.clear
-		transactionsOKPerSecond.clear
-		transactionsKOPerSecond.clear
-	}
 }

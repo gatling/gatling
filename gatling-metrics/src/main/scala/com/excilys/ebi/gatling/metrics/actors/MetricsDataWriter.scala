@@ -30,17 +30,13 @@ import com.excilys.ebi.gatling.metrics.reporting.GatlingGraphiteReporter
 import akka.actor.{ ActorRef, Props }
 import grizzled.slf4j.Logging
 
-case object ClearHistograms
-
 class MetricsDataWriter extends DataWriter with Logging {
 
 	private val metricsActors: mutable.Map[String, ActorRef] = new HashMap[String, ActorRef]
 	private val globalMetrics = context.actorOf(Props(new RequestMetrics("global")))
-	private val timer = new Timer(true)
 
 	def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) {
-		timer.scheduleAtFixedRate(new ClearTask, 0, 1000)
-		GatlingGraphiteReporter.enable(configuration.graphite.period, configuration.graphite.timeUnit, configuration.graphite.host, configuration.graphite.port)
+		GatlingGraphiteReporter.enable(configuration.graphite.host, configuration.graphite.port)
 	}
 
 	def onRequestRecord(requestRecord: RequestRecord) {
@@ -58,11 +54,5 @@ class MetricsDataWriter extends DataWriter with Logging {
 			metric ! requestRecord
 		}
 		globalMetrics ! requestRecord
-	}
-	private class ClearTask extends TimerTask {
-		def run() {
-			globalMetrics ! ClearHistograms
-			metricsActors.values.foreach(_ ! ClearHistograms)
-		}
 	}
 }

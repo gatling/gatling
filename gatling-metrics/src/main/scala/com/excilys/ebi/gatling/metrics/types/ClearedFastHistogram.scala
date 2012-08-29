@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.metrics.core
+package com.excilys.ebi.gatling.metrics.types
 
-class MetricsGroup(val klass: Class[_], val registry: GatlingMetricsRegistry = GatlingMetrics.registry) {
+import com.yammer.metrics.stats.{ Sample, Snapshot }
 
-	def fastCounter(name: String) =
-		registry.newFastCounter(klass, name)
+class ClearedFastHistogram(sample: Sample) extends FastHistogram(sample) {
 
-	def clearedFastCounter(name: String) =
-		registry.newClearedFastCounter(klass, name)
-
-	def fastHistogram(name: String) =
-		registry.newFastHistogram(klass, name)
-
-	def clearedFastHistogram(name: String) =
-		registry.newClearedFastHistogram(klass, name)
+	override def getStats = {
+		val stats = super.getStats
+		super.clear
+		stats
+	}
 }

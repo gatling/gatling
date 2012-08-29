@@ -61,6 +61,4 @@ public class ConfigurationConstants {
 
 	public static final String CONF_GRAPHITE_HOST = "gatling.graphite.host";
 	public static final String CONF_GRAPHITE_PORT = "gatling.graphite.port";
-	public static final String CONF_GRAPHITE_PERIOD = "gatling.graphite.period";
-	public static final String CONF_GRAPHITE_TIMEUNIT = "gatling.graphite.timeUnit";
 }
