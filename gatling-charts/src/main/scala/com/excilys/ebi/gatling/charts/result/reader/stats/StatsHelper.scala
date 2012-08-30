@@ -43,4 +43,6 @@ object StatsHelper {
 	def square(x: Double) = x * x
 
 	def square(x: Long) = x * x
+
+	def stdDev(squareMean: Double, mean: Double) = math.sqrt(squareMean - square(mean))
 }
