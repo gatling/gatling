@@ -51,6 +51,7 @@ object FieldsNames {
 	val MAX = 'max
 	val SIZE = 'size
 	val STEP = 'step
-	val DELTA = 'delta
+	val NB_SESSION_START = 'nbSessionStart
+	val NB_SESSION_END = 'nbSessionEnd
 	val MEAN_LATENCY = 'meanLatency
 }

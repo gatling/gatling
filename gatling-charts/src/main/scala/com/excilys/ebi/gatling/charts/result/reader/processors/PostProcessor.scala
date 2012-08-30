@@ -34,18 +34,20 @@ object PostProcessor extends Logging {
 	}
 
 	private def compute(sessionDeltaBuffer: Seq[SessionDeltaRecord], sessionBuffer: mutable.Buffer[SessionRecord], buckets: Seq[Long], scenario: Option[String] = None) {
-		buckets.foldLeft((0L, sessionDeltaBuffer)) {
+		buckets.foldLeft((0L, 0L, sessionDeltaBuffer)) {
 			(accumulator, currentBucket) => {
-				val (sessions, deltas) = accumulator
+				val (actualActiveSessions, previousBucketNbOfEndSessions, sessionDeltas) = accumulator
 
-				if (deltas.size >= 1 && currentBucket == deltas.head.executionStartBucket) {
-					val current = deltas.head
-					sessionBuffer += new SessionRecord(current.executionStartBucket, sessions + current.delta, current.scenario)
-					(sessions + current.delta, deltas.tail)
+				if (sessionDeltas.size >= 1 && currentBucket == sessionDeltas.head.executionStartBucket) {
+					val current = sessionDeltas.head
+					val newActiveSession = actualActiveSessions + current.nbSessionStart - previousBucketNbOfEndSessions
+					sessionBuffer += new SessionRecord(current.executionStartBucket, newActiveSession, current.scenario)
+					(newActiveSession, current.nbSessionEnd, sessionDeltas.tail)
 				}
 				else {
-					sessionBuffer += new SessionRecord(currentBucket, sessions, scenario)
-					(sessions, deltas)
+					val newActiveSession = actualActiveSessions - previousBucketNbOfEndSessions
+					sessionBuffer += new SessionRecord(currentBucket, newActiveSession, scenario)
+					(newActiveSession, 0L, sessionDeltas)
 				}
 			}
 		}

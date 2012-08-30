@@ -61,7 +61,7 @@ object TupleEntryParser {
 
 	implicit def tupleEntryToSessionDeltaRecord(tupleEntry: TupleEntry) = {
 		val map = tupleEntryToMap(tupleEntry)
-		new SessionDeltaRecord(get(EXECUTION_START_BUCKET, map), get(DELTA, map), getOption(SCENARIO, map))
+		new SessionDeltaRecord(get(EXECUTION_START_BUCKET, map), get(NB_SESSION_START, map), get(NB_SESSION_END, map), getOption(SCENARIO, map))
 	}
 
 	implicit def tupleEntryToSessionRecord(tupleEntry: TupleEntry) = {
