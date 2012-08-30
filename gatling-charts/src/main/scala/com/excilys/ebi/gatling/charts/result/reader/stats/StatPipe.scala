@@ -120,7 +120,10 @@ class StatPipe(val pipe: Pipe) {
 				.max((maxField, maxField))
 		}
 			.map((sizeField.append(meanFields), stdDevField.append(meanRequestPerSec))) {
-			t: (Long, Double, Double, Double) => (math.sqrt(t._3 - square(t._2)), t._1 / range)
+			t: (Long, Double, Double, Double) => {
+				val (size, mean, squareMean, _) = t
+				(math.sqrt(squareMean - square(mean)), size / range)
+			}
 		}
 	}
 

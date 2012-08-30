@@ -135,8 +135,12 @@ class Stats(min: Long, max: Long, step: Double, size: Long, inputIterator: Itera
 			.average(SQUARE_RESPONSE_TIME -> SQUARE_MEAN)
 			.average(LATENCY -> MEAN_LATENCY)
 	}
-		.map(SIZE -> MEAN_REQUEST_PER_SEC) {
-		count: Long => count / range
+		.discard(STD_DEV)
+		.map((SIZE, SQUARE_MEAN, MEAN) ->(MEAN_REQUEST_PER_SEC, STD_DEV)) {
+		t: (Long, Double, Double) => {
+			val (size, squareMean, mean) = t
+			(size / range, stdDev(squareMean, mean))
+		}
 	}
 		.write(output(results.getGeneralStatsBuffer(BY_STATUS_AND_REQUEST)))
 
