@@ -33,7 +33,7 @@ class LatencyPerSecRecord(val executionStartBucket: Long, val latencyMin: Long, 
 
 class RequestAgainstResponseTimeRecord(val size: Long, val responseTime: Long, status: Option[RequestStatus.RequestStatus], request: Option[String]) extends RecordWithStatusAndRequest(status, request)
 
-class SessionDeltaRecord(val executionStartBucket: Long, val delta: Long, val scenario: Option[String])
+class SessionDeltaRecord(val executionStartBucket: Long, val nbSessionStart: Long, val nbSessionEnd: Long, val scenario: Option[String])
 
 class SessionRecord(val executionStart: Long, val size: Long, val scenario: Option[String])
 
