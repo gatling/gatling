@@ -63,17 +63,21 @@ class Stats(min: Long, max: Long, step: Double, size: Long, inputIterator: Itera
 
 	/* BY SCENARIO */
 	val pipeSessionDeltaPerBucketByScenario = filteredSessionPipe
-		.map(REQUEST -> DELTA) {
+		.map(REQUEST ->(NB_SESSION_START, NB_SESSION_END)) {
 		s: String =>
 			s match {
-				case START_OF_SCENARIO => 1
-				case END_OF_SCENARIO => -1
+				case START_OF_SCENARIO => (1, 0)
+				case END_OF_SCENARIO => (0, 1)
 			}
 	}
 		.groupBy((SCENARIO, EXECUTION_START_BUCKET)) {
-		_.sum(DELTA)
-	}.map(DELTA -> DELTA) {
-		delta: Double => math.round(delta)
+		_.sum(NB_SESSION_START)
+			.sum(NB_SESSION_END)
+	}.map((NB_SESSION_START, NB_SESSION_END) ->(NB_SESSION_START, NB_SESSION_END)) {
+		t: (Double, Double) => {
+			val (nbSessionStart, nbSessionEnd) = t
+			(math.round(nbSessionStart), math.round(nbSessionEnd))
+		}
 	}
 		.write(output(results.getSessionDeltaBuffer(BY_SCENARIO)))
 
@@ -91,10 +95,14 @@ class Stats(min: Long, max: Long, step: Double, size: Long, inputIterator: Itera
 	/* ALL */
 	val pipeSessionDeltaPerBucket = pipeSessionDeltaPerBucketByScenario
 		.groupBy(EXECUTION_START_BUCKET) {
-		_.sum(DELTA)
+		_.sum(NB_SESSION_START)
+			.sum(NB_SESSION_END)
 	}
-		.map(DELTA -> DELTA) {
-		delta: Double => math.round(delta)
+		.map((NB_SESSION_START, NB_SESSION_END) ->(NB_SESSION_START, NB_SESSION_END)) {
+		t: (Double, Double) => {
+			val (nbSessionStart, nbSessionEnd) = t
+			(math.round(nbSessionStart), math.round(nbSessionEnd))
+		}
 	}
 		.write(output(results.getSessionDeltaBuffer(GLOBAL)))
 
