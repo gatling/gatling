@@ -15,15 +15,17 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.processors
 
-import com.excilys.ebi.gatling.charts.result.reader.Predef._
-import com.excilys.ebi.gatling.charts.result.reader.util.FieldsNames._
-import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.core.result.message.RecordType.{ACTION, RUN}
+import scala.collection.mutable
+
 import com.excilys.ebi.gatling.charts.result.reader.FileDataReader.TABULATION_PATTERN
+import com.excilys.ebi.gatling.charts.result.reader.Predef.{ LOG_STEP, SEC_MILLISEC_RATIO, symbolToString }
 import com.excilys.ebi.gatling.charts.result.reader.stats.StatsHelper
+import com.excilys.ebi.gatling.charts.result.reader.util.FieldsNames._
+import com.excilys.ebi.gatling.core.result.message.RecordType.{ ACTION, RUN }
 import com.excilys.ebi.gatling.core.result.message.RunRecord
 import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
-import collection.mutable
+
+import grizzled.slf4j.Logging
 
 object PreProcessor extends Logging {
 	val ACTION_HEADER: List[String] = List(ACTION_TYPE, SCENARIO, ID, REQUEST, EXECUTION_START, EXECUTION_END, REQUEST_END, RESPONSE_START, STATUS)
@@ -32,8 +34,9 @@ object PreProcessor extends Logging {
 	def run(inputIterator: Iterator[String], maxPlotPerSerie: Int) = {
 		val (actions, runs) = inputIterator.map(TABULATION_PATTERN.split(_)).filter(array => array.head == ACTION || array.head == RUN).partition(_.head == ACTION)
 
-		val (size, min, max) = actions.filter(_.length >= ACTION_HEADER.length).foldLeft((0L, Long.MaxValue, Long.MinValue)) {
-			(accumulator, currentAction) => {
+		val (size, min, max) = actions
+			.filter(_.length >= ACTION_HEADER.length)
+			.foldLeft((0L, Long.MaxValue, Long.MinValue)) { (accumulator, currentAction) =>
 				val map = ACTION_HEADER.zip(currentAction).toMap
 				val (size, min, max) = accumulator
 
@@ -42,10 +45,12 @@ object PreProcessor extends Logging {
 
 				(size + 1, math.min(min, map(EXECUTION_START).toLong), math.max(max, map(EXECUTION_END).toLong))
 			}
-		}
 
 		val buffer = mutable.ListBuffer[RunRecord]()
-		runs.filter(_.length >= RUN_HEADER.size).map(RUN_HEADER.zip(_).toMap).foreach(values => buffer += RunRecord(parseTimestampString(values(DATE)), values(ID), values(DESCRIPTION)))
+		runs
+			.filter(_.length >= RUN_HEADER.size)
+			.map(RUN_HEADER.zip(_).toMap)
+			.foreach(values => buffer += RunRecord(parseTimestampString(values(DATE)), values(ID), values(DESCRIPTION)))
 
 		info("Read " + size + " lines (finished)")
 

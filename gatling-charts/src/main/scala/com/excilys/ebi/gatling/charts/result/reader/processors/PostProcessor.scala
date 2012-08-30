@@ -15,10 +15,12 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.processors
 
-import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.charts.result.reader.stats.{StatsResults, SessionRecord, SessionDeltaRecord}
-import collection.mutable
+import scala.collection.mutable
+
+import com.excilys.ebi.gatling.charts.result.reader.stats.{ SessionDeltaRecord, SessionRecord, StatsResults }
 import com.excilys.ebi.gatling.charts.result.reader.util.ResultBufferType
+
+import grizzled.slf4j.Logging
 
 object PostProcessor extends Logging {
 
@@ -34,21 +36,19 @@ object PostProcessor extends Logging {
 	}
 
 	private def compute(sessionDeltaBuffer: Seq[SessionDeltaRecord], sessionBuffer: mutable.Buffer[SessionRecord], buckets: Seq[Long], scenario: Option[String] = None) {
-		buckets.foldLeft((0L, 0L, sessionDeltaBuffer)) {
-			(accumulator, currentBucket) => {
-				val (actualActiveSessions, previousBucketNbOfEndSessions, sessionDeltas) = accumulator
+		buckets.foldLeft((0L, 0L, sessionDeltaBuffer)) { (accumulator, currentBucket) =>
+			val (actualActiveSessions, previousBucketNbOfEndSessions, sessionDeltas) = accumulator
 
-				if (sessionDeltas.size >= 1 && currentBucket == sessionDeltas.head.executionStartBucket) {
-					val current = sessionDeltas.head
-					val newActiveSession = actualActiveSessions + current.nbSessionStart - previousBucketNbOfEndSessions
-					sessionBuffer += new SessionRecord(current.executionStartBucket, newActiveSession, current.scenario)
-					(newActiveSession, current.nbSessionEnd, sessionDeltas.tail)
-				}
-				else {
-					val newActiveSession = actualActiveSessions - previousBucketNbOfEndSessions
-					sessionBuffer += new SessionRecord(currentBucket, newActiveSession, scenario)
-					(newActiveSession, 0L, sessionDeltas)
-				}
+			if (sessionDeltas.size >= 1 && currentBucket == sessionDeltas.head.executionStartBucket) {
+				val current = sessionDeltas.head
+				val newActiveSession = actualActiveSessions + current.nbSessionStart - previousBucketNbOfEndSessions
+				sessionBuffer += new SessionRecord(current.executionStartBucket, newActiveSession, current.scenario)
+				(newActiveSession, current.nbSessionEnd, sessionDeltas.tail)
+
+			} else {
+				val newActiveSession = actualActiveSessions - previousBucketNbOfEndSessions
+				sessionBuffer += new SessionRecord(currentBucket, newActiveSession, scenario)
+				(newActiveSession, 0L, sessionDeltas)
 			}
 		}
 	}

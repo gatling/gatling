@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.charts.template
 import org.fusesource.scalate.TemplateEngine
 
 import com.excilys.ebi.gatling.charts.component.Component
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ MENU_FILE, JQUERY_FILE, ALL_SESSIONS_FILE, GATLING_TEMPLATE_LAYOUT_FILE_URL, STATS_JS_FILE }
+import com.excilys.ebi.gatling.charts.config.ChartsFiles._
 import com.excilys.ebi.gatling.core.result.message.RunRecord
 
 object PageTemplate {

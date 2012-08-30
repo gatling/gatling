@@ -15,8 +15,9 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader
 
-import cascading.pipe.Pipe
 import com.excilys.ebi.gatling.charts.result.reader.stats.StatPipe
+
+import cascading.pipe.Pipe
 
 object Predef {
 	implicit def pipeToStatPipe(pipe: Pipe): StatPipe = new StatPipe(pipe)

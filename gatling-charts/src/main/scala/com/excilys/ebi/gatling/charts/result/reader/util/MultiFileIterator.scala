@@ -16,7 +16,8 @@
 package com.excilys.ebi.gatling.charts.result.reader.util
 
 import java.io.File
-import io.Source
+
+import scala.io.Source
 
 class MultiFileIterator(files: Iterator[File], encoding: String) extends Iterator[String] {
 	var currentIterator: Iterator[String] = Iterator.empty

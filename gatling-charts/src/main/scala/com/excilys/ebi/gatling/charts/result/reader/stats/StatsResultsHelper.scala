@@ -15,9 +15,10 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.stats
 
-import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
 import com.excilys.ebi.gatling.charts.result.reader.util.ResultBufferType._
+import com.excilys.ebi.gatling.core.result.message.RequestStatus
+
+import grizzled.slf4j.Logging
 
 object StatsResultsHelper extends Logging {
 	val NO_PLOT_MAGIC_VALUE = -1L
@@ -71,21 +72,23 @@ object StatsResultsHelper extends Logging {
 			val distribution = buffer
 				.map(record => (StatsHelper.bucket(record.responseTime, min, max, step, demiStep), record))
 				.groupBy(_._1).map {
-				tuple => {
-					val (responseTimeBucket, recordList) = tuple
-					val sizeBucket = recordList.foldLeft(0L) {
-						(partialSize, record) => partialSize + record._2.size
-					}
-					(responseTimeBucket, math.round(sizeBucket * 100.0 / size))
-				}
-			}.toSeq.sortBy(_._1)
+					tuple =>
+						{
+							val (responseTimeBucket, recordList) = tuple
+							val sizeBucket = recordList.foldLeft(0L) {
+								(partialSize, record) => partialSize + record._2.size
+							}
+							(responseTimeBucket, math.round(sizeBucket * 100.0 / size))
+						}
+				}.toSeq.sortBy(_._1)
 
 			val (_, output) = buckets.foldLeft((distribution, Seq[(Long, Long)]())) {
-				(accum, current) => {
-					val (distribution, output) = accum
-					if (!distribution.isEmpty && distribution.head._1 == current) (distribution.tail, output :+ distribution.head)
-					else (distribution, output :+(current, 0L))
-				}
+				(accum, current) =>
+					{
+						val (distribution, output) = accum
+						if (!distribution.isEmpty && distribution.head._1 == current) (distribution.tail, output :+ distribution.head)
+						else (distribution, output :+ (current, 0L))
+					}
 			}
 			output
 		}
@@ -138,7 +141,7 @@ object StatsResultsHelper extends Logging {
 
 	def getResponseTimeGroupByExecutionStartDate(results: StatsResults, status: RequestStatus.RequestStatus, requestName: String) =
 		filterByStatusAndRequest(results.getResponseTimePerSecBuffer(BY_STATUS_AND_REQUEST), Some(status), Some(requestName))
-			.map(record => (record.executionStartBucket, (record.responseTimeMin,record.responseTimeMax)))
+			.map(record => (record.executionStartBucket, (record.responseTimeMin, record.responseTimeMax)))
 
 	def getLatencyGroupByExecutionStartDate(results: StatsResults, status: RequestStatus.RequestStatus, requestName: String) =
 		filterByStatusAndRequest(results.getLatencyPerSecBuffer(BY_STATUS_AND_REQUEST), Some(status), Some(requestName))
@@ -150,11 +153,12 @@ object StatsResultsHelper extends Logging {
 
 	private def getEventPerSec(eventsPerSec: Seq[(Long, Long)], buckets: Seq[Long]) = {
 		val (result, _) = buckets.foldLeft((Seq[(Long, Long)](), eventsPerSec)) {
-			(accum, bucket) => {
-				val (result, buffer) = accum
-				if (buffer.size >= 1 && bucket == buffer.head._1) (result :+ buffer.head, buffer.tail)
-				else (result :+(bucket, 0L), buffer)
-			}
+			(accum, bucket) =>
+				{
+					val (result, buffer) = accum
+					if (buffer.size >= 1 && bucket == buffer.head._1) (result :+ buffer.head, buffer.tail)
+					else (result :+ (bucket, 0L), buffer)
+				}
 		}
 		result
 	}
@@ -162,9 +166,9 @@ object StatsResultsHelper extends Logging {
 	private def getGeneralStat[A](results: StatsResults, statValue: (GeneralStatsRecord) => A, defaultValue: A, status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = {
 		filterByStatusAndRequest(results.getGeneralStatsBuffer(getResultBufferType(status, requestName)), status, requestName)
 			.headOption match {
-			case Some(stats) => statValue(stats)
-			case None => defaultValue
-		}
+				case Some(stats) => statValue(stats)
+				case None => defaultValue
+			}
 	}
 
 	private def filterByStatusAndRequest[A <: RecordWithStatusAndRequest](buffer: Seq[A], status: Option[RequestStatus.RequestStatus], request: Option[String]) =

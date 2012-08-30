@@ -15,17 +15,18 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.stats
 
-import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.charts.result.reader.Predef._
+import com.excilys.ebi.gatling.charts.result.reader.Predef.{ SEC_MILLISEC_RATIO, pipeToStatPipe }
 import com.excilys.ebi.gatling.charts.result.reader.scalding.GatlingInputIteratorSource
-import com.excilys.ebi.gatling.charts.result.reader.stats.StatsHelper._
+import com.excilys.ebi.gatling.charts.result.reader.stats.StatsHelper.{ bucket, output, square, stdDev }
 import com.excilys.ebi.gatling.charts.result.reader.stats.TupleEntryParser._
 import com.excilys.ebi.gatling.charts.result.reader.util.FieldsNames._
 import com.excilys.ebi.gatling.charts.result.reader.util.ResultBufferType._
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.result.message.RecordType.ACTION
-import com.twitter.scalding._
+import com.twitter.scalding.{ Args, Job }
+
+import grizzled.slf4j.Logging
 
 object Stats {
 	def compute(min: Long, max: Long, step: Double, size: Long, inputIterator: Iterator[String]) = {
@@ -47,88 +48,83 @@ class Stats(min: Long, max: Long, step: Double, size: Long, inputIterator: Itera
 
 	val bucketPipe = input.read
 		.filter(ACTION_TYPE) {
-		actionType: String => actionType == ACTION
-	}
-		.map((EXECUTION_START, EXECUTION_END, RESPONSE_START, REQUEST_END) ->(EXECUTION_START_BUCKET, EXECUTION_END_BUCKET, RESPONSE_START_BUCKET, REQUEST_END_BUCKET)) {
-		t: (Long, Long, Long, Long) => {
-			val (executionStart, executionEnd, responseStart, requestEnd) = t
-			(bucketFunction(executionStart), bucketFunction(executionEnd), bucketFunction(responseStart), bucketFunction(requestEnd))
+			actionType: String => actionType == ACTION
 		}
-	}
+		.map((EXECUTION_START, EXECUTION_END, RESPONSE_START, REQUEST_END) -> (EXECUTION_START_BUCKET, EXECUTION_END_BUCKET, RESPONSE_START_BUCKET, REQUEST_END_BUCKET)) {
+			t: (Long, Long, Long, Long) =>
+				val (executionStart, executionEnd, responseStart, requestEnd) = t
+				(bucketFunction(executionStart), bucketFunction(executionEnd), bucketFunction(responseStart), bucketFunction(requestEnd))
+		}
 	/* SESSIONS STATS */
 	val filteredSessionPipe = bucketPipe
 		.filter(REQUEST) {
-		req: String => req == START_OF_SCENARIO || req == END_OF_SCENARIO
-	}
+			req: String => req == START_OF_SCENARIO || req == END_OF_SCENARIO
+		}
 
 	/* BY SCENARIO */
 	val pipeSessionDeltaPerBucketByScenario = filteredSessionPipe
-		.map(REQUEST ->(NB_SESSION_START, NB_SESSION_END)) {
-		s: String =>
-			s match {
-				case START_OF_SCENARIO => (1, 0)
-				case END_OF_SCENARIO => (0, 1)
-			}
-	}
-		.groupBy((SCENARIO, EXECUTION_START_BUCKET)) {
-		_.sum(NB_SESSION_START)
-			.sum(NB_SESSION_END)
-	}.map((NB_SESSION_START, NB_SESSION_END) ->(NB_SESSION_START, NB_SESSION_END)) {
-		t: (Double, Double) => {
-			val (nbSessionStart, nbSessionEnd) = t
-			(math.round(nbSessionStart), math.round(nbSessionEnd))
+		.map(REQUEST -> (NB_SESSION_START, NB_SESSION_END)) {
+			s: String =>
+				s match {
+					case START_OF_SCENARIO => (1, 0)
+					case END_OF_SCENARIO => (0, 1)
+				}
 		}
-	}
+		.groupBy((SCENARIO, EXECUTION_START_BUCKET)) {
+			_.sum(NB_SESSION_START)
+				.sum(NB_SESSION_END)
+		}.map((NB_SESSION_START, NB_SESSION_END) -> (NB_SESSION_START, NB_SESSION_END)) {
+			t: (Double, Double) =>
+				val (nbSessionStart, nbSessionEnd) = t
+				(math.round(nbSessionStart), math.round(nbSessionEnd))
+		}
 		.write(output(results.getSessionDeltaBuffer(BY_SCENARIO)))
 
 	filteredSessionPipe
 		.filter(REQUEST) {
-		req: String => req == START_OF_SCENARIO
-	}
-		.groupBy((SCENARIO)) {
-		_.reduce(EXECUTION_START -> EXECUTION_START) {
-			(scenarioStartSoFar: Long, executionStart: Long) => scala.math.min(scenarioStartSoFar, executionStart)
+			req: String => req == START_OF_SCENARIO
 		}
-	}
+		.groupBy((SCENARIO)) {
+			_.reduce(EXECUTION_START -> EXECUTION_START) {
+				(scenarioStartSoFar: Long, executionStart: Long) => scala.math.min(scenarioStartSoFar, executionStart)
+			}
+		}
 		.write(output(results.getScenarioBuffer(GLOBAL)))
 
 	/* ALL */
 	val pipeSessionDeltaPerBucket = pipeSessionDeltaPerBucketByScenario
 		.groupBy(EXECUTION_START_BUCKET) {
-		_.sum(NB_SESSION_START)
-			.sum(NB_SESSION_END)
-	}
-		.map((NB_SESSION_START, NB_SESSION_END) ->(NB_SESSION_START, NB_SESSION_END)) {
-		t: (Double, Double) => {
-			val (nbSessionStart, nbSessionEnd) = t
-			(math.round(nbSessionStart), math.round(nbSessionEnd))
+			_.sum(NB_SESSION_START)
+				.sum(NB_SESSION_END)
 		}
-	}
+		.map((NB_SESSION_START, NB_SESSION_END) -> (NB_SESSION_START, NB_SESSION_END)) {
+			t: (Double, Double) =>
+				val (nbSessionStart, nbSessionEnd) = t
+				(math.round(nbSessionStart), math.round(nbSessionEnd))
+		}
 		.write(output(results.getSessionDeltaBuffer(GLOBAL)))
-
 
 	/* REQUESTS STATS */
 	val filteredRequestPipe = bucketPipe
 		.filter(REQUEST) {
-		req: String => req != START_OF_SCENARIO && req != END_OF_SCENARIO
-	}
+			req: String => req != START_OF_SCENARIO && req != END_OF_SCENARIO
+		}
 
 	filteredRequestPipe
 		.groupBy((REQUEST)) {
-		_.reduce(EXECUTION_START -> EXECUTION_START) {
-			(requestStartSoFar: Long, executionStart: Long) => scala.math.min(requestStartSoFar, executionStart)
+			_.reduce(EXECUTION_START -> EXECUTION_START) {
+				(requestStartSoFar: Long, executionStart: Long) => scala.math.min(requestStartSoFar, executionStart)
+			}
 		}
-	}
 		.write(output(results.getRequestBuffer(GLOBAL)))
 
 	val pipeResponseTimeAndLatency = filteredRequestPipe
-		.map((EXECUTION_START, EXECUTION_END, REQUEST_END, RESPONSE_START) ->(RESPONSE_TIME, LATENCY, SQUARE_RESPONSE_TIME)) {
-		t: (Long, Long, Long, Long) => {
-			val (executionStart, executionEnd, requestEnd, responseStart) = t
-			val (responseTime, latency) = (math.max(0L, executionEnd - executionStart), responseStart - requestEnd)
-			(responseTime, latency, square(responseTime))
+		.map((EXECUTION_START, EXECUTION_END, REQUEST_END, RESPONSE_START) -> (RESPONSE_TIME, LATENCY, SQUARE_RESPONSE_TIME)) {
+			t: (Long, Long, Long, Long) =>
+				val (executionStart, executionEnd, requestEnd, responseStart) = t
+				val (responseTime, latency) = (math.max(0L, executionEnd - executionStart), responseStart - requestEnd)
+				(responseTime, latency, square(responseTime))
 		}
-	}
 
 	/* BY REQUEST AND STATUS */
 	val groupFields = (REQUEST, STATUS)
@@ -137,19 +133,18 @@ class Stats(min: Long, max: Long, step: Double, size: Long, inputIterator: Itera
 		.write(output(results.getResponseTimeDistributionBuffer(BY_STATUS_AND_REQUEST)))
 
 	val pipeStatsByRequestAndStatus = pipeResponseTimeAndLatency.groupBy(groupFields) {
-		_.sizeAveStdev(RESPONSE_TIME ->(SIZE, MEAN, STD_DEV))
+		_.sizeAveStdev(RESPONSE_TIME -> (SIZE, MEAN, STD_DEV))
 			.min(RESPONSE_TIME -> MIN)
 			.max(RESPONSE_TIME -> MAX)
 			.average(SQUARE_RESPONSE_TIME -> SQUARE_MEAN)
 			.average(LATENCY -> MEAN_LATENCY)
 	}
 		.discard(STD_DEV)
-		.map((SIZE, SQUARE_MEAN, MEAN) ->(MEAN_REQUEST_PER_SEC, STD_DEV)) {
-		t: (Long, Double, Double) => {
-			val (size, squareMean, mean) = t
-			(size / range, stdDev(squareMean, mean))
+		.map((SIZE, SQUARE_MEAN, MEAN) -> (MEAN_REQUEST_PER_SEC, STD_DEV)) {
+			t: (Long, Double, Double) =>
+				val (size, squareMean, mean) = t
+				(size / range, stdDev(squareMean, mean))
 		}
-	}
 		.write(output(results.getGeneralStatsBuffer(BY_STATUS_AND_REQUEST)))
 
 	val pipeRequestPerSecByRequestAndStatus = filteredRequestPipe.distributionSize(EXECUTION_START_BUCKET, groupFields)

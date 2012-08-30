@@ -15,13 +15,12 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import com.excilys.ebi.gatling.charts.component.{ Statistics, RequestStatistics, ComponentLibrary }
+import com.excilys.ebi.gatling.charts.component.{ ComponentLibrary, RequestStatistics, Statistics }
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ GLOBAL_PAGE_NAME, jsStatsFile, tsvStatsFile }
+import com.excilys.ebi.gatling.charts.template.{ StatsJsTemplate, StatsTsvTemplate }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ OK, KO }
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ jsStatsFile, tsvStatsFile, GLOBAL_PAGE_NAME }
-import com.excilys.ebi.gatling.charts.template.StatsJsTemplate
-import com.excilys.ebi.gatling.charts.template.StatsTsvTemplate
 
 class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) {
 

@@ -15,17 +15,20 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader
 
-import com.excilys.ebi.gatling.core.result.reader.DataReader
-import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
-import stats.{StatsHelper, StatsResultsHelper, Stats}
-import com.excilys.ebi.gatling.charts.result.reader.processors.{PostProcessor, PreProcessor}
-import com.excilys.ebi.gatling.core.config.GatlingFiles._
-import java.util.regex.Pattern
-import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR_STRING
 import java.io.File
-import io.Source
+import java.util.regex.Pattern
+
+import scala.io.Source
+
+import com.excilys.ebi.gatling.charts.result.reader.processors.{ PostProcessor, PreProcessor }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogDirectory
+import com.excilys.ebi.gatling.core.result.message.RequestStatus
+import com.excilys.ebi.gatling.core.result.reader.DataReader
+import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR_STRING
+
+import grizzled.slf4j.Logging
+import stats.{ Stats, StatsHelper, StatsResultsHelper }
 
 object FileDataReader {
 	val TABULATION_PATTERN = Pattern.compile(TABULATION_SEPARATOR_STRING)

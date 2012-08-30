@@ -15,13 +15,14 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.stats
 
-import com.excilys.ebi.gatling.charts.result.reader.Predef._
-import cascading.tuple.TupleEntry
-import scala.collection.JavaConversions._
+import scala.collection.JavaConversions.iterableAsScalaIterable
+
+import com.excilys.ebi.gatling.charts.result.reader.Predef.symbolToString
 import com.excilys.ebi.gatling.charts.result.reader.util.FieldsNames._
-import com.excilys.ebi.gatling.core.util.DateHelper._
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
-import com.excilys.ebi.gatling.core.result.message.RunRecord
+import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RunRecord }
+import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
+
+import cascading.tuple.TupleEntry
 
 object TupleEntryParser {
 	implicit def tupleEntryToGeneralStatsRecord(tupleEntry: TupleEntry) = {

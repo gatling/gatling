@@ -15,8 +15,10 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.stats
 
+import scala.collection.mutable
+
 import com.excilys.ebi.gatling.charts.result.reader.scalding.GatlingBufferSource
-import collection.mutable
+
 import cascading.tuple.TupleEntry
 
 object StatsHelper {

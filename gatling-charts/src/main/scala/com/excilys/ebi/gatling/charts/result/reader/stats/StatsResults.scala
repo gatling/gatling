@@ -15,10 +15,12 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.stats
 
-import grizzled.slf4j.Logging
+import scala.collection.mutable
+
+import com.excilys.ebi.gatling.charts.result.reader.util.ResultBufferType.{ GLOBAL, ResultBufferType }
 import com.excilys.ebi.gatling.core.result.message.RunRecord
-import com.excilys.ebi.gatling.charts.result.reader.util.ResultBufferType._
-import collection.mutable
+
+import grizzled.slf4j.Logging
 
 class StatsResults extends Logging {
 	private val generalStatsBuffer = mutable.Map[ResultBufferType, mutable.Buffer[GeneralStatsRecord]]()
