@@ -56,18 +56,30 @@ class RequestElement(val request: HttpRequest, val statusCode: Int, val simulati
 
 	val (requestBody: Option[String], params: List[(String, String)]) = if (request.getContent.capacity > 0) {
 
-		val channelBuffer = request.getContent match {
-			case composite: CompositeChannelBuffer => composite.getBuffer(0)
-			case nonComposite => nonComposite
+		val bodyByteArray = request.getContent match {
+			case composite: CompositeChannelBuffer =>
+				val arrays = for (i <- 0 until composite.numComponents) yield composite.getBuffer(i).array
+				val totalSize = arrays.map(_.size).sum
+				val totalArray = new Array[Byte](totalSize)
+
+				var offset = 0
+				arrays.foreach { array =>
+					System.arraycopy(array, 0, totalArray, offset, array.size);
+					offset += offset + array.size
+				}
+				totalArray
+
+			case nonComposite => nonComposite.array
 		}
 
+		val bodyString = new String(bodyByteArray, configuration.encoding)
+
 		if (containsFormParams) {
-			val paramDecoder = new QueryStringDecoder("http://localhost/?" + new String(channelBuffer.array, configuration.encoding), Charset.forName(configuration.encoding))
+			val paramDecoder = new QueryStringDecoder("http://localhost/?" + bodyString, Charset.forName(configuration.encoding))
 			val params = convertParamsFromJavaToScala(paramDecoder.getParameters)
 			(None, params)
 		} else {
-			val requestBody = new String(channelBuffer.array, configuration.encoding)
-			(Some(requestBody), Nil)
+			(Some(bodyString), Nil)
 		}
 
 	} else {
