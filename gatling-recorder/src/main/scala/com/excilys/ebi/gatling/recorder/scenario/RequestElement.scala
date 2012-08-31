@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.recorder.scenario
 
-import java.net.URI
+import java.net.{ URI, URLDecoder }
 import java.nio.charset.Charset
 
 import scala.collection.JavaConversions.{ asScalaBuffer, mapAsScalaMap }
@@ -75,8 +75,9 @@ class RequestElement(val request: HttpRequest, val statusCode: Int, val simulati
 		val bodyString = new String(bodyByteArray, configuration.encoding)
 
 		if (containsFormParams) {
-			val paramDecoder = new QueryStringDecoder("http://localhost/?" + bodyString, Charset.forName(configuration.encoding))
-			val params = convertParamsFromJavaToScala(paramDecoder.getParameters)
+			def utf8Decode(s: String) = URLDecoder.decode(s, "UTF-8")
+
+			val params = bodyString.split("&").map(_.split("=")).map(pair => (utf8Decode(pair(0)), utf8Decode(pair(1)))).toList
 			(None, params)
 		} else {
 			(Some(bodyString), Nil)
@@ -100,9 +101,7 @@ class RequestElement(val request: HttpRequest, val statusCode: Int, val simulati
 		this
 	}
 
-	private def convertParamsFromJavaToScala(params: java.util.Map[String, java.util.List[String]]): List[(String, String)] = {
-		(for ((key, list) <- params) yield (for (e <- list) yield (key, e))).toList.flatten
-	}
+	private def convertParamsFromJavaToScala(params: java.util.Map[String, java.util.List[String]]): List[(String, String)] = (for ((key, list) <- params) yield (for (e <- list) yield (key, e))).toList.flatten
 
 	private val basicAuthCredentials: Option[(String, String)] = {
 		Option(request.getHeader(AUTHORIZATION)) match {
