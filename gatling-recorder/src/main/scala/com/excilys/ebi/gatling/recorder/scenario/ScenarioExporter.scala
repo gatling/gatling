@@ -15,13 +15,13 @@
  */
 package com.excilys.ebi.gatling.recorder.scenario
 
-import java.io.{IOException, FileWriter}
+import java.io.{ FileWriter, IOException }
 import java.util.Date
 
 import scala.annotation.tailrec
 import scala.collection.immutable.SortedMap
 import scala.math.min
-import scala.tools.nsc.io.{File, Directory}
+import scala.tools.nsc.io.{ Directory, File }
 
 import org.fusesource.scalate.TemplateEngine
 
@@ -46,12 +46,10 @@ object ScenarioExporter extends Logging {
 
 		val baseHeaders: Map[String, String] = {
 
-			def addHeader(appendTo: Map[String, String], headerName: String): Map[String, String] = {
-				getMostFrequentHeaderValue(scenarioElements, headerName) match {
-					case Some(headerValue) => appendTo + (headerName -> headerValue)
-					case None => appendTo
-				}
-			}
+			def addHeader(appendTo: Map[String, String], headerName: String): Map[String, String] =
+				getMostFrequentHeaderValue(scenarioElements, headerName)
+					.map(headerValue => appendTo + (headerName -> headerValue))
+					.getOrElse(appendTo)
 
 			@tailrec
 			def resolveBaseHeaders(headers: Map[String, String], headerNames: List[String]): Map[String, String] = headerNames match {
@@ -94,9 +92,7 @@ object ScenarioExporter extends Logging {
 			if (configuration.followRedirect)
 				scenarioElements
 					.foldLeft(List[(ScenarioElement, Int)]())(filterRedirectsAndNonAuthorized)
-					.map {
-					case (element, statusCode) => element
-				}
+					.map { case (element, _) => element }
 					.reverse
 			else
 				scenarioElements
@@ -132,8 +128,8 @@ object ScenarioExporter extends Logging {
 				case element :: others => {
 					val acceptedHeaders = element.headers
 						.filterNot {
-						case (headerName, headerValue) => filteredHeaders.contains(headerName) || baseHeaders.get(headerName).map(baseValue => baseValue == headerValue).getOrElse(false)
-					}
+							case (headerName, headerValue) => filteredHeaders.contains(headerName) || baseHeaders.get(headerName).map(baseValue => baseValue == headerValue).getOrElse(false)
+						}
 						.sortBy(_._1)
 
 					val newHeaders = if (acceptedHeaders.isEmpty) {
@@ -198,13 +194,14 @@ object ScenarioExporter extends Logging {
 			case _ => Nil
 		}
 
-		if (headers.isEmpty)
-			None
-		else {
-			val mostFrequentValue = headers.groupBy(value => value).maxBy {
-				case (_, occurrences) => occurrences.size
-			}._1
-			Some(mostFrequentValue)
+		headers match {
+			case Nil => None
+			case _ =>
+				val mostFrequentValue = headers
+					.groupBy(value => value)
+					.maxBy { case (_, occurrences) => occurrences.size }
+					._1
+				Some(mostFrequentValue)
 		}
 	}
 

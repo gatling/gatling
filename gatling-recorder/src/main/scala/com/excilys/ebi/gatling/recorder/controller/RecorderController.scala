@@ -19,22 +19,22 @@ import java.net.URI
 import java.util.Date
 
 import scala.math.round
-import tools.nsc.io.{File, Directory}
+import scala.tools.nsc.io.{ Directory, File }
 import scala.tools.nsc.io.Path.string2path
 
 import org.codehaus.plexus.util.SelectorUtils
 import org.jboss.netty.channel.Channel
-import org.jboss.netty.handler.codec.http.{HttpResponse, HttpRequest, HttpMethod}
+import org.jboss.netty.handler.codec.http.{ HttpMethod, HttpRequest, HttpResponse }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
 
 import com.excilys.ebi.gatling.recorder.config.Configuration
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
 import com.excilys.ebi.gatling.recorder.config.RecorderOptions
 import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy
-import com.excilys.ebi.gatling.recorder.scenario.{ScenarioExporter, ScenarioElement, RequestElement, PauseUnit, PauseElement}
-import com.excilys.ebi.gatling.recorder.ui.enumeration.{PatternType, FilterStrategy}
-import com.excilys.ebi.gatling.recorder.ui.frame.{RunningFrame, ConfigurationFrame}
-import com.excilys.ebi.gatling.recorder.ui.info.{SSLInfo, RequestInfo, PauseInfo}
+import com.excilys.ebi.gatling.recorder.scenario.{ PauseElement, PauseUnit, RequestElement, ScenarioElement, ScenarioExporter }
+import com.excilys.ebi.gatling.recorder.ui.enumeration.{ FilterStrategy, PatternType }
+import com.excilys.ebi.gatling.recorder.ui.frame.{ ConfigurationFrame, RunningFrame }
+import com.excilys.ebi.gatling.recorder.ui.info.{ PauseInfo, RequestInfo, SSLInfo }
 import com.excilys.ebi.gatling.recorder.ui.util.UIHelper.useUIThread
 import com.ning.http.util.Base64
 
@@ -96,7 +96,7 @@ class RecorderController extends Logging {
 			// If Outgoing Proxy set, we record the credentials to use them when sending the request
 			Option(request.getHeader(PROXY_AUTHORIZATION)).map {
 				header =>
-				// Split on " " and take 2nd group (Basic credentialsInBase64==)
+					// Split on " " and take 2nd group (Basic credentialsInBase64==)
 					val credentials = new String(Base64.decode(header.split(" ")(1))).split(":")
 					configuration.proxy.username = Some(credentials(0))
 					configuration.proxy.password = Some(credentials(1))
