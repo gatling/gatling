@@ -35,6 +35,8 @@ object ChartsFiles {
 	val GATLING_TEMPLATE_MENU_JS_FILE_URL = GATLING_TEMPLATE + "menu.js.ssp"
 	val GATLING_TEMPLATE_STATS_JS_FILE_URL = GATLING_TEMPLATE + "stats.js.ssp"
 	val GATLING_TEMPLATE_STATS_TSV_FILE_URL = GATLING_TEMPLATE + "stats.tsv.ssp"
+	val GATLING_TEMPLATE_STATISTICS_TABLE_HTML_TEMPLATE_URL = GATLING_TEMPLATE + "statistics_table.html.ssp"
+	val GATLING_TEMPLATE_STATISTICS_TABLE_JS_TEMPLATE_URL = GATLING_TEMPLATE + "statistics_table.js.ssp"
 
 	def menuFile(runOn: String) = resultDirectory(runOn) / GATLING_JS / MENU_FILE
 	def allSessionsFile(runOn: String) = resultDirectory(runOn) / GATLING_JS / ALL_SESSIONS_FILE

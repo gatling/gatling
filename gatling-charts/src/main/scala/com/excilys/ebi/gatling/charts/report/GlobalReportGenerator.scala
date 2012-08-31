@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import com.excilys.ebi.gatling.charts.component.{ ComponentLibrary, StatisticsTextComponent }
+import com.excilys.ebi.gatling.charts.component.{ ComponentLibrary, StatisticsTextComponent, StatisticsTableComponent }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.globalFile
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.template.GlobalPageTemplate
@@ -72,12 +72,15 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 		}
 
 		def statisticsComponent = new StatisticsTextComponent
+		
+		def statisticsTableComponent = new StatisticsTableComponent
 
 		def indicatorChartComponent = componentLibrary.getRequestDetailsIndicatorChartComponent
 
 		val template = new GlobalPageTemplate(
 			statisticsComponent,
 			indicatorChartComponent,
+			statisticsTableComponent,
 			activeSessionsChartComponent,
 			responseTimeDistributionChartComponent,
 			requestsChartComponent,
