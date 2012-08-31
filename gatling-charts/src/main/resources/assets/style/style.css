@@ -145,6 +145,13 @@ border-bottom-right-radius:8px;
 .demi{width:630px;height:330px;}
 .geant{width:900px;height:354px;}
 .extensible-geant{width:900px;}
+.polar{
+    width:250px;
+    height:330px;
+    position:absolute;
+    top:0px;
+    right:-17px;
+}
 .chart_title{
 	background:#b0b0a8;
 	padding:2px 10px;
