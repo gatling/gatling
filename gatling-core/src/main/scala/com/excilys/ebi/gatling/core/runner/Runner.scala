@@ -57,6 +57,9 @@ class Runner(selection: Selection) extends Logging {
 
 		val scenarios = simulationClass.newInstance.apply().map(_.build)
 
+		if (scenarios.isEmpty)
+			throw new IllegalArgumentException(simulationClass.getName + " returned an empty scenario list")
+
 		val totalNumberOfUsers = scenarios.map(_.configuration.users).sum
 		info("Total number of users : " + totalNumberOfUsers)
 
