@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 		http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,26 +19,27 @@ import java.net.URI
 import java.util.Date
 
 import scala.math.round
-import scala.tools.nsc.io.Directory
+import tools.nsc.io.{File, Directory}
 import scala.tools.nsc.io.Path.string2path
 
 import org.codehaus.plexus.util.SelectorUtils
 import org.jboss.netty.channel.Channel
-import org.jboss.netty.handler.codec.http.{ HttpResponse, HttpRequest, HttpMethod }
+import org.jboss.netty.handler.codec.http.{HttpResponse, HttpRequest, HttpMethod}
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
 
 import com.excilys.ebi.gatling.recorder.config.Configuration
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
 import com.excilys.ebi.gatling.recorder.config.RecorderOptions
 import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy
-import com.excilys.ebi.gatling.recorder.scenario.{ ScenarioExporter, ScenarioElement, RequestElement, PauseUnit, PauseElement }
-import com.excilys.ebi.gatling.recorder.ui.enumeration.{ PatternType, FilterStrategy }
-import com.excilys.ebi.gatling.recorder.ui.frame.{ RunningFrame, ConfigurationFrame }
-import com.excilys.ebi.gatling.recorder.ui.info.{ SSLInfo, RequestInfo, PauseInfo }
+import com.excilys.ebi.gatling.recorder.scenario.{ScenarioExporter, ScenarioElement, RequestElement, PauseUnit, PauseElement}
+import com.excilys.ebi.gatling.recorder.ui.enumeration.{PatternType, FilterStrategy}
+import com.excilys.ebi.gatling.recorder.ui.frame.{RunningFrame, ConfigurationFrame}
+import com.excilys.ebi.gatling.recorder.ui.info.{SSLInfo, RequestInfo, PauseInfo}
 import com.excilys.ebi.gatling.recorder.ui.util.UIHelper.useUIThread
 import com.ning.http.util.Base64
 
 import grizzled.slf4j.Logging
+import javax.swing.JOptionPane
 
 object RecorderController {
 
@@ -60,9 +61,15 @@ class RecorderController extends Logging {
 	@volatile private var scenarioElements: List[ScenarioElement] = Nil
 
 	def startRecording {
-		proxy = new GatlingHttpProxy(this, configuration.port, configuration.sslPort, configuration.proxy)
-		startDate = new Date
-		showRunningFrame
+		val response = if (File(ScenarioExporter.getOutputFolder / ScenarioExporter.getSimulationFileName(startDate)).exists)
+			JOptionPane.showConfirmDialog(null, "You are about to overwrite an existing scenario.", "Warning", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE)
+		else JOptionPane.OK_OPTION
+
+		if (response == JOptionPane.OK_OPTION) {
+			proxy = new GatlingHttpProxy(this, configuration.port, configuration.sslPort, configuration.proxy)
+			startDate = new Date
+			showRunningFrame
+		}
 	}
 
 	def stopRecording {
@@ -87,11 +94,12 @@ class RecorderController extends Logging {
 	def receiveRequest(request: HttpRequest) {
 		synchronized {
 			// If Outgoing Proxy set, we record the credentials to use them when sending the request
-			Option(request.getHeader(PROXY_AUTHORIZATION)).map { header =>
+			Option(request.getHeader(PROXY_AUTHORIZATION)).map {
+				header =>
 				// Split on " " and take 2nd group (Basic credentialsInBase64==)
-				val credentials = new String(Base64.decode(header.split(" ")(1))).split(":")
-				configuration.proxy.username = Some(credentials(0))
-				configuration.proxy.password = Some(credentials(1))
+					val credentials = new String(Base64.decode(header.split(" ")(1))).split(":")
+					configuration.proxy.username = Some(credentials(0))
+					configuration.proxy.password = Some(credentials(1))
 			}
 		}
 	}

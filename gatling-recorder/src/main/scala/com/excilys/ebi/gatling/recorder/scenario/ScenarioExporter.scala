@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 		http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,13 +15,13 @@
  */
 package com.excilys.ebi.gatling.recorder.scenario
 
-import java.io.{ IOException, FileWriter }
+import java.io.{IOException, FileWriter}
 import java.util.Date
 
 import scala.annotation.tailrec
 import scala.collection.immutable.SortedMap
 import scala.math.min
-import scala.tools.nsc.io.{ File, Directory }
+import scala.tools.nsc.io.{File, Directory}
 
 import org.fusesource.scalate.TemplateEngine
 
@@ -94,7 +94,9 @@ object ScenarioExporter extends Logging {
 			if (configuration.followRedirect)
 				scenarioElements
 					.foldLeft(List[(ScenarioElement, Int)]())(filterRedirectsAndNonAuthorized)
-					.map { case (element, statusCode) => element }
+					.map {
+					case (element, statusCode) => element
+				}
 					.reverse
 			else
 				scenarioElements
@@ -111,8 +113,9 @@ object ScenarioExporter extends Logging {
 			case e: RequestElement => {
 				i = i + 1
 				e.updateUrl(baseUrl).setId(i)
-				e.requestBody.foreach { content =>
-					dumpRequestBody(i, content, configuration.simulationClassName)
+				e.requestBody.foreach {
+					content =>
+						dumpRequestBody(i, content, configuration.simulationClassName)
 				}
 			}
 			case _ =>
@@ -128,7 +131,9 @@ object ScenarioExporter extends Logging {
 				case Nil => headers
 				case element :: others => {
 					val acceptedHeaders = element.headers
-						.filterNot { case (headerName, headerValue) => filteredHeaders.contains(headerName) || baseHeaders.get(headerName).map(baseValue => baseValue == headerValue).getOrElse(false) }
+						.filterNot {
+						case (headerName, headerValue) => filteredHeaders.contains(headerName) || baseHeaders.get(headerName).map(baseValue => baseValue == headerValue).getOrElse(false)
+					}
 						.sortBy(_._1)
 
 					val newHeaders = if (acceptedHeaders.isEmpty) {
@@ -137,7 +142,9 @@ object ScenarioExporter extends Logging {
 
 					} else {
 						val headersSeq = headers.toSeq
-						headersSeq.indexWhere { case (id, existingHeaders) => existingHeaders == acceptedHeaders } match {
+						headersSeq.indexWhere {
+							case (id, existingHeaders) => existingHeaders == acceptedHeaders
+						} match {
 							case -1 =>
 								element.filteredHeadersId = Some(element.id)
 								headers + (element.id -> acceptedHeaders)
@@ -169,7 +176,9 @@ object ScenarioExporter extends Logging {
 				"packageName" -> configuration.simulationPackage,
 				"scenarioElements" -> newScenarioElements))
 
-		use(new FileWriter(File(getOutputFolder / getSimulationFileName(startDate)).jfile)) { _.write(output) }
+		use(new FileWriter(File(getOutputFolder / getSimulationFileName(startDate)).jfile)) {
+			_.write(output)
+		}
 	}
 
 	private def getBaseUrl(scenarioElements: List[ScenarioElement]): String = {
@@ -178,7 +187,9 @@ object ScenarioExporter extends Logging {
 			case _ => None
 		}.groupBy(url => url).toSeq
 
-		baseUrls.maxBy { case (url, occurrences) => occurrences.size }._1
+		baseUrls.maxBy {
+			case (url, occurrences) => occurrences.size
+		}._1
 	}
 
 	private def getMostFrequentHeaderValue(scenarioElements: List[ScenarioElement], headerName: String): Option[String] = {
@@ -190,7 +201,9 @@ object ScenarioExporter extends Logging {
 		if (headers.isEmpty)
 			None
 		else {
-			val mostFrequentValue = headers.groupBy(value => value).maxBy { case (_, occurrences) => occurrences.size }._1
+			val mostFrequentValue = headers.groupBy(value => value).maxBy {
+				case (_, occurrences) => occurrences.size
+			}._1
 			Some(mostFrequentValue)
 		}
 	}
@@ -212,21 +225,23 @@ object ScenarioExporter extends Logging {
 	}
 
 	private def dumpRequestBody(idEvent: Int, content: String, simulationClass: String) {
-		use(new FileWriter(File(getFolder(configuration.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)) { fw =>
-			try {
-				fw.write(content)
-			} catch {
-				case e: IOException =>
-					error("Error, while dumping request body... \n" + e.getStackTrace)
-			}
+		use(new FileWriter(File(getFolder(configuration.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)) {
+			fw =>
+				try {
+					fw.write(content)
+				} catch {
+					case e: IOException =>
+						error("Error, while dumping request body... \n" + e.getStackTrace)
+				}
 		}
 	}
 
-	private def getSimulationFileName(date: Date): String = configuration.simulationClassName + ".scala"
+	def getSimulationFileName(date: Date): String = configuration.simulationClassName + ".scala"
 
 	def getOutputFolder = {
-		val path = configuration.outputFolder + configuration.simulationPackage.map { pkg =>
-			File.separator + pkg.replace(".", File.separator)
+		val path = configuration.outputFolder + configuration.simulationPackage.map {
+			pkg =>
+				File.separator + pkg.replace(".", File.separator)
 		}.getOrElse(EMPTY)
 
 		getFolder(path)
