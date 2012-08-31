@@ -42,7 +42,7 @@ object FileHelper {
 	 * @return a simplified string
 	 */
 	def formatToFilename(s: String) = {
-		stripAccents(s.replace("-", "_")
+		"req_" + stripAccents(s.replace("-", "_")
 			.replace(" ", "_")
 			.replace("__", "_")
 			.replace("'", "")
