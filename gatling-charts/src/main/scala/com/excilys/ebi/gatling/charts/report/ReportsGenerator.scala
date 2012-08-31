@@ -38,9 +38,11 @@ object ReportsGenerator extends Logging {
 
 			val requestLinks: Iterable[(String, Option[String], String)] = dataReader.requestNames.map {
 				requestName =>
+					val fileName = formatToFilename(requestName) + HTML_EXTENSION
 					val title = if (requestName.length > maxLength) Some(requestName) else None
 					val printedName = if (requestName.length > maxLength) requestName.substring(maxLength) + "..." else requestName
-					(formatToFilename(requestName) + HTML_EXTENSION, title, printedName)
+
+					(fileName, title, printedName)
 			}
 
 			val template = new MenuTemplate(requestLinks)
