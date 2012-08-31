@@ -71,7 +71,7 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 			componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
 		}
 
-		def statisticsComponent = new StatisticsTextComponent
+		def statisticsComponent = componentLibrary.getNumberOfRequestsChartComponent
 		
 		def statisticsTableComponent = new StatisticsTableComponent
 
