@@ -6,6 +6,7 @@ var stats = {
 <% while (it.hasNext) { %>
 <% val stat = it.next %>
 	<%=formatToFilename(stat.name)%>: {
+		name: "<%=stat.name%>",
 		numberOfRequests : {
 			total: "<%=stat.numberOfRequestsStatistics.printableTotal%>",
 			ok: "<%=stat.numberOfRequestsStatistics.printableSuccess%>",
