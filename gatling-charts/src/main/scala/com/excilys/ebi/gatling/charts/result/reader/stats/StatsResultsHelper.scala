@@ -24,6 +24,7 @@ object StatsResultsHelper extends Logging {
 	val NO_PLOT_MAGIC_VALUE = -1L
 
 	def getRunRecord(results: StatsResults) = {
+
 		val records = results.getRunRecordBuffer()
 		if (records.size != 1) warn("Expecting one and only one RunRecord")
 		records.head
@@ -34,30 +35,36 @@ object StatsResultsHelper extends Logging {
 	def getScenarioNames(results: StatsResults) = results.getScenarioBuffer().sortBy(_.executionStart).map(_.scenario)
 
 	def getNumberOfActiveSessionsPerSecond(results: StatsResults, scenarioName: Option[String]) = {
-		val bufferType = scenarioName match {
-			case Some(_) => BY_SCENARIO
-			case None => GLOBAL
-		}
-		results.getSessionBuffer(bufferType).filter(_.scenario == scenarioName).map(sessionRecord => (sessionRecord.executionStart, sessionRecord.size))
+
+		val bufferType = scenarioName.map(_ => BY_SCENARIO).getOrElse(GLOBAL)
+
+		results
+			.getSessionBuffer(bufferType)
+			.filter(_.scenario == scenarioName)
+			.map(sessionRecord => (sessionRecord.executionStart, sessionRecord.size))
 	}
 
 	def getRequestsPerSec(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String], buckets: Seq[Long]) = {
-		val requestsPerSecBuffer = filterByStatusAndRequest(results.getRequestsPerSecBuffer(getResultBufferType(status, requestName)), status, requestName)
+
+		val requestsPerSecBuffer = filterByStatusAndRequest(results
+			.getRequestsPerSecBuffer(getResultBufferType(status, requestName)), status, requestName)
 			.map(record => (record.executionStartBucket, record.size))
+
 		getEventPerSec(requestsPerSecBuffer, buckets)
 	}
 
 	def getTransactionsPerSec(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String], buckets: Seq[Long]) = {
-		val transactionPerSecBuffer = filterByStatusAndRequest(results.getTransactionPerSecBuffer(getResultBufferType(status, requestName)), status, requestName)
+
+		val transactionPerSecBuffer = filterByStatusAndRequest(results
+			.getTransactionPerSecBuffer(getResultBufferType(status, requestName)), status, requestName)
 			.map(record => (record.executionEndBucket, record.size))
+
 		getEventPerSec(transactionPerSecBuffer, buckets)
 	}
 
 	def getResponseTimeDistribution(results: StatsResults, maxPlots: Int, requestName: Option[String]) = {
-		val bufferType = requestName match {
-			case Some(_) => BY_STATUS_AND_REQUEST
-			case None => BY_STATUS
-		}
+
+		val bufferType = requestName.map(_ => BY_STATUS_AND_REQUEST).getOrElse(BY_STATUS)
 
 		val buffer = results.getResponseTimeDistributionBuffer(bufferType).filter(_.request == requestName)
 		val min = buffer.minBy(_.responseTime).responseTime
@@ -71,33 +78,38 @@ object StatsResultsHelper extends Logging {
 		def process(buffer: Seq[ResponseTimeDistributionRecord]) = {
 			val distribution = buffer
 				.map(record => (StatsHelper.bucket(record.responseTime, min, max, step, demiStep), record))
-				.groupBy(_._1).map {
-				tuple => {
-					val (responseTimeBucket, recordList) = tuple
-					val sizeBucket = recordList.foldLeft(0L) {
-						(partialSize, record) => partialSize + record._2.size
-					}
-					(responseTimeBucket, math.round(sizeBucket * 100.0 / size))
+				.groupBy(_._1)
+				.map {
+					case (responseTimeBucket, recordList) =>
+
+						val sizeBucket = recordList.foldLeft(0L) {
+							(partialSize, record) => partialSize + record._2.size
+						}
+
+						(responseTimeBucket, math.round(sizeBucket * 100.0 / size))
 				}
-			}.toSeq.sortBy(_._1)
+				.toSeq
+				.sortBy(_._1)
 
 			val (_, output) = buckets.foldLeft((distribution, Seq[(Long, Long)]())) {
-				(accum, current) => {
+				case (accum, current) =>
 					val (distribution, output) = accum
 					if (!distribution.isEmpty && distribution.head._1 == current) (distribution.tail, output :+ distribution.head)
-					else (distribution, output :+(current, 0L))
-				}
+					else (distribution, output :+ (current, 0L))
 			}
 			output
 		}
+
 		(process(ok), process(ko))
 	}
 
 	def getPercentiles(results: StatsResults, percentage1: Double, percentage2: Double, status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = {
+
 		val bufferType = getResultBufferType(status, requestName)
 		val distributionBuffer = filterByStatusAndRequest(results.getResponseTimeDistributionBuffer(bufferType), status, requestName)
 		val statsBuffer = filterByStatusAndRequest(results.getGeneralStatsBuffer(bufferType), status, requestName)
 		val percentiles = PercentilesHelper.compute(distributionBuffer, statsBuffer, Seq(percentage1, percentage2))
+
 		(percentiles(0), percentiles(1))
 	}
 
@@ -116,14 +128,14 @@ object StatsResultsHelper extends Logging {
 	def getResponseTimeStandardDeviation(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = getGeneralStat(results, r => math.round(r.stdDev), NO_PLOT_MAGIC_VALUE, status, requestName)
 
 	def getNumberOfRequestInResponseTimeRange(results: StatsResults, lowerBound: Int, higherBound: Int, requestName: Option[String]) = {
-		val bufferType = requestName match {
-			case Some(_) => BY_STATUS_AND_REQUEST
-			case None => BY_STATUS
-		}
 
-		val (ok, ko) = results.getResponseTimeDistributionBuffer(bufferType)
+		val bufferType = requestName.map(_ => BY_STATUS_AND_REQUEST).getOrElse(BY_STATUS)
+
+		val (ok, ko) = results
+			.getResponseTimeDistributionBuffer(bufferType)
 			.filter(_.request == requestName)
 			.partition(_.status == Some(RequestStatus.OK))
+
 		val (low, middleAndLHigh) = ok.partition(_.responseTime < lowerBound)
 		val (middle, high) = middleAndLHigh.partition(_.responseTime <= higherBound)
 
@@ -138,34 +150,36 @@ object StatsResultsHelper extends Logging {
 	}
 
 	def getResponseTimeGroupByExecutionStartDate(results: StatsResults, status: RequestStatus.RequestStatus, requestName: String) =
-		filterByStatusAndRequest(results.getResponseTimePerSecBuffer(BY_STATUS_AND_REQUEST), Some(status), Some(requestName))
+		filterByStatusAndRequest(results
+			.getResponseTimePerSecBuffer(BY_STATUS_AND_REQUEST), Some(status), Some(requestName))
 			.map(record => (record.executionStartBucket, (record.responseTimeMin, record.responseTimeMax)))
 
 	def getLatencyGroupByExecutionStartDate(results: StatsResults, status: RequestStatus.RequestStatus, requestName: String) =
-		filterByStatusAndRequest(results.getLatencyPerSecBuffer(BY_STATUS_AND_REQUEST), Some(status), Some(requestName))
+		filterByStatusAndRequest(results
+			.getLatencyPerSecBuffer(BY_STATUS_AND_REQUEST), Some(status), Some(requestName))
 			.map(record => (record.executionStartBucket, (record.latencyMin, record.latencyMax)))
 
 	def getRequestAgainstResponseTime(results: StatsResults, status: RequestStatus.RequestStatus, requestName: String) =
-		filterByStatusAndRequest(results.getRequestAgainstResponseTimeBuffer(BY_STATUS_AND_REQUEST), Some(status), Some(requestName))
+		filterByStatusAndRequest(results
+			.getRequestAgainstResponseTimeBuffer(BY_STATUS_AND_REQUEST), Some(status), Some(requestName))
 			.map(record => (record.size, record.responseTime))
 
 	private def getEventPerSec(eventsPerSec: Seq[(Long, Long)], buckets: Seq[Long]) = {
 		val (result, _) = buckets.foldLeft((Seq[(Long, Long)](), eventsPerSec)) {
-			(accum, bucket) => {
+			(accum, bucket) =>
 				val (result, buffer) = accum
 				if (buffer.size >= 1 && bucket == buffer.head._1) (result :+ buffer.head, buffer.tail)
-				else (result :+(bucket, 0L), buffer)
-			}
+				else (result :+ (bucket, 0L), buffer)
 		}
 		result
 	}
 
 	private def getGeneralStat[A](results: StatsResults, statValue: (GeneralStatsRecord) => A, defaultValue: A, status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = {
-		filterByStatusAndRequest(results.getGeneralStatsBuffer(getResultBufferType(status, requestName)), status, requestName)
-			.headOption match {
-			case Some(stats) => statValue(stats)
-			case None => defaultValue
-		}
+		filterByStatusAndRequest(results
+			.getGeneralStatsBuffer(getResultBufferType(status, requestName)), status, requestName)
+			.headOption
+			.map(statValue(_))
+			.getOrElse(defaultValue)
 	}
 
 	private def filterByStatusAndRequest[A <: RecordWithStatusAndRequest](buffer: Seq[A], status: Option[RequestStatus.RequestStatus], request: Option[String]) =
