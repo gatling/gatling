@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.recorder.config
 
 import java.io.{ FileWriter, IOException }
-import java.util.Properties
+import java.util.{ Map => JMap, HashMap => JHashMap }
 
 import scala.reflect.BeanProperty
 import scala.tools.nsc.io.File
@@ -33,7 +33,7 @@ import grizzled.slf4j.Logging
 
 object Configuration extends Logging {
 
-	GatlingConfiguration.setUp(new Properties)
+	GatlingConfiguration.setUp(new JHashMap)
 	val DEFAULT_CLASS_NAME = "Simulation"
 
 	private val XSTREAM = {

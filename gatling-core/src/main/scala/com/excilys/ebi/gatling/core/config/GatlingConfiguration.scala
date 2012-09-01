@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.config
 
-import java.util.Properties
+import java.util.{ Map => JMap }
 
 import scala.collection.JavaConversions.asScalaBuffer
 
@@ -31,12 +31,12 @@ object GatlingConfiguration extends Logging {
 
 	var configuration: GatlingConfiguration = _
 
-	def setUp(props: Properties) {
+	def setUp(props: JMap[String, Any]) {
 		val classLoader = getClass.getClassLoader
 
 		val defaultsConfig = ConfigFactory.parseResources(classLoader, "gatling-defaults.conf")
 		val customConfig = ConfigFactory.parseResources(classLoader, "gatling.conf")
-		val propertiesConfig = ConfigFactory.parseProperties(props)
+		val propertiesConfig = ConfigFactory.parseMap(props)
 
 		val config = propertiesConfig.withFallback(customConfig).withFallback(defaultsConfig)
 
@@ -143,8 +143,8 @@ case class DataConfiguration(
 	dataReaderClass: String)
 
 case class GraphiteConfiguration(
-	host : String,
-	port : Int)
+	host: String,
+	port: Int)
 
 case class GatlingConfiguration(
 	simulation: SimulationConfiguration,
@@ -153,5 +153,5 @@ case class GatlingConfiguration(
 	charting: ChartingConfiguration,
 	http: HttpConfiguration,
 	data: DataConfiguration,
-	graphite : GraphiteConfiguration,
+	graphite: GraphiteConfiguration,
 	config: Config)

@@ -16,7 +16,8 @@
 package com.excilys.ebi.gatling.app
 
 import java.lang.System.currentTimeMillis
-import java.util.Properties
+import java.util.{ Map => JMap }
+
 import com.excilys.ebi.gatling.app.CommandLineConstants._
 import com.excilys.ebi.gatling.charts.report.ReportsGenerator
 import com.excilys.ebi.gatling.core.ConfigurationConstants._
@@ -55,10 +56,10 @@ object Gatling extends Logging {
 
 		// if arguments are incorrect, usage message is displayed
 		if (cliOptsParser.parse(args))
-			fromProperties(props.build)
+			fromMap(props.build)
 	}
 
-	def fromProperties(props: Properties) {
+	def fromMap(props: JMap[String, Any]) {
 		GatlingConfiguration.setUp(props)
 		new Gatling().start
 	}

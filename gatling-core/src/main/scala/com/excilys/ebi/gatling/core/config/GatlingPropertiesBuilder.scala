@@ -15,48 +15,51 @@
  */
 package com.excilys.ebi.gatling.core.config
 
-import java.util.Properties
+import java.util.{ List => JList, HashMap => JHashMap, Map => JMap }
+
+import scala.collection.JavaConversions.seqAsJavaList
+
 import com.excilys.ebi.gatling.core.ConfigurationConstants._
 
 class GatlingPropertiesBuilder {
 
-	private val props = new Properties
+	private val props: JMap[String, Any] = new JHashMap[String, Any]
 
 	def noReports {
-		props.setProperty(CONF_CHARTING_NO_REPORTS, true.toString)
+		props.put(CONF_CHARTING_NO_REPORTS, true)
 	}
 
 	def reportsOnly(v: String) {
-		props.setProperty(CONF_DIRECTORY_REPORTS_ONLY, v)
+		props.put(CONF_DIRECTORY_REPORTS_ONLY, v)
 	}
 
 	def dataDirectory(v: String) {
-		props.setProperty(CONF_DIRECTORY_DATA, v)
+		props.put(CONF_DIRECTORY_DATA, v)
 	}
 
 	def resultsDirectory(v: String) {
-		props.setProperty(CONF_DIRECTORY_RESULTS, v)
+		props.put(CONF_DIRECTORY_RESULTS, v)
 	}
 
 	def requestBodiesDirectory(v: String) {
-		props.setProperty(CONF_DIRECTORY_REQUEST_BODIES, v)
+		props.put(CONF_DIRECTORY_REQUEST_BODIES, v)
 	}
 
 	def sourcesDirectory(v: String) {
-		props.setProperty(CONF_DIRECTORY_SIMULATIONS, v)
+		props.put(CONF_DIRECTORY_SIMULATIONS, v)
 	}
 
 	def binariesDirectory(v: String) {
-		props.setProperty(CONF_DIRECTORY_BINARIES, v)
+		props.put(CONF_DIRECTORY_BINARIES, v)
 	}
 
 	def classes(v: String) {
-		props.setProperty(CONF_SIMULATION_CLASSES, v)
+		props.put(CONF_SIMULATION_CLASSES, v.split(",").toList.map(_.trim): JList[String])
 	}
 
 	def runName(v: String) {
-		props.setProperty(CONF_SIMULATION_RUN_NAME, v)
+		props.put(CONF_SIMULATION_RUN_NAME, v)
 	}
-	
+
 	def build = props
 }
