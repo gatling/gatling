@@ -25,6 +25,7 @@ import com.excilys.ebi.gatling.core.action.builder.ExpPauseActionBuilder.expPaus
 import com.excilys.ebi.gatling.core.action.builder.IfActionBuilder.ifActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder.pauseActionBuilder
 import com.excilys.ebi.gatling.core.action.builder.RandomSwitchBuilder.randomSwitchBuilder
+import com.excilys.ebi.gatling.core.action.builder.RoundRobinSwitchBuilder.roundRobinSwitchBuilder
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.feeder.Feeder
@@ -173,6 +174,14 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @return a new builder with a random switch added to its actions
 	 */
 	def randomSwitch(possibility: (Int, ChainBuilder), possibilities: (Int, ChainBuilder)*): B = newInstance(randomSwitchBuilder.withPossibilities(possibility :: possibilities.toList) :: actionBuilders)
+
+	/**
+	 * Add a switch in the chain. Selection uses a round robin strategy
+	 *
+	 * @param possibilities the possible subchains
+	 * @return a new builder with a random switch added to its actions
+	 */
+	def roundRobinSwitch(possibility1: ChainBuilder, possibility2: ChainBuilder, possibilities: ChainBuilder*): B = newInstance(roundRobinSwitchBuilder.withPossibilities(possibility1 :: possibility2 :: possibilities.toList) :: actionBuilders)
 
 	/**
 	 * Method used to insert an existing chain inside the current scenario
