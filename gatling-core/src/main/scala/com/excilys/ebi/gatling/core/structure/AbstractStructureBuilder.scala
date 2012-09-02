@@ -172,7 +172,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @param possibilities the possible subchains
 	 * @return a new builder with a random switch added to its actions
 	 */
-	def randomSwitch(possibility: (ChainBuilder, Int), possibilities: (ChainBuilder, Int)*): B = newInstance(randomSwitchBuilder.withPossibilities(possibility :: possibilities.toList) :: actionBuilders)
+	def randomSwitch(possibility: (Int, ChainBuilder), possibilities: (Int, ChainBuilder)*): B = newInstance(randomSwitchBuilder.withPossibilities(possibility :: possibilities.toList) :: actionBuilders)
 
 	/**
 	 * Method used to insert an existing chain inside the current scenario

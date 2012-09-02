@@ -15,7 +15,11 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.{ RandomSwitchAction, system }
+import scala.annotation.tailrec
+
+import org.apache.commons.math3.random.{ RandomData, RandomDataImpl }
+
+import com.excilys.ebi.gatling.core.action.{ SwitchAction, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
@@ -23,25 +27,42 @@ import akka.actor.{ ActorRef, Props }
 
 object RandomSwitchBuilder {
 
+	private val randomData: RandomData = new RandomDataImpl
+
 	def randomSwitchBuilder = new RandomSwitchBuilder(null, null)
 }
 
-class RandomSwitchBuilder(possibilities: List[(ChainBuilder, Int)], next: ActorRef) extends ActionBuilder {
+class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], next: ActorRef) extends ActionBuilder {
 
-	def withPossibilities(possibilities: List[(ChainBuilder, Int)]) = new RandomSwitchBuilder(possibilities, next)
+	def withPossibilities(possibilities: List[(Int, ChainBuilder)]) = new RandomSwitchBuilder(possibilities, next)
 
 	def withNext(next: ActorRef) = new RandomSwitchBuilder(possibilities, next)
 
 	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
 
-		if (possibilities.map(_._2).sum > 100) throw new IllegalArgumentException("Can't build a random switch with percentage sum > 100")
+		if (possibilities.map(_._1).sum > 100) throw new IllegalArgumentException("Can't build a random switch with percentage sum > 100")
 
 		val possibleActions = possibilities.map {
-			case (possibility, percentage) =>
+			case (percentage, possibility) =>
 				val possibilityAction = possibility.withNext(next).build(protocolConfigurationRegistry)
-				(possibilityAction, percentage)
+				(percentage, possibilityAction)
 		}
 
-		system.actorOf(Props(new RandomSwitchAction(possibleActions, next)))
+		val strategy = () => {
+
+			@tailrec
+			def determineNextAction(index: Int, possibilities: List[(Int, ActorRef)]): ActorRef = possibilities match {
+				case Nil => next
+				case (percentage, possibleAction) :: others =>
+					if (percentage >= index)
+						possibleAction
+					else
+						determineNextAction(index - percentage, others)
+			}
+
+			determineNextAction(RandomSwitchBuilder.randomData.nextInt(1, 100), possibleActions)
+		}
+
+		system.actorOf(Props(new SwitchAction(strategy)))
 	}
 }

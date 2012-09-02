@@ -15,35 +15,16 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import scala.annotation.tailrec
-
-import org.apache.commons.math3.random.{ RandomData, RandomDataImpl }
-
 import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.ActorRef
-import grizzled.slf4j.Logging
 
-object RandomSwitchAction {
-
-	private val randomData: RandomData = new RandomDataImpl
-}
-
-class RandomSwitchAction(possibilities: List[(ActorRef, Int)], next: ActorRef) extends Action with Logging {
+class SwitchAction(strategy: () => ActorRef) extends Action {
 
 	def execute(session: Session) {
 
-		@tailrec
-		def determineNextAction(index: Int, possibilities: List[(ActorRef, Int)]): ActorRef = possibilities match {
-			case Nil => next
-			case (possibleAction, percentage) :: others =>
-				if (percentage >= index)
-					possibleAction
-				else
-					determineNextAction(index - percentage, others)
-		}
-
-		val nextAction = determineNextAction(RandomSwitchAction.randomData.nextInt(1, 100), possibilities)
+		val nextAction = strategy()
 		nextAction ! session
 	}
 }
+
