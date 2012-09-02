@@ -17,12 +17,12 @@ package com.excilys.ebi.gatling.mojo;
 
 import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
 import static com.excilys.ebi.gatling.app.CommandLineConstants.*;
+import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static org.codehaus.plexus.util.StringUtils.join;
 import static org.codehaus.plexus.util.StringUtils.trim;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -240,11 +240,12 @@ public class GatlingMojo extends AbstractMojo {
 			}
 
 			// Arguments
-			List<String> args = new ArrayList<String>(asList("-" + CLI_DATA_FOLDER, dataFolder.getCanonicalPath(),//
-			        "-" + CLI_RESULTS_FOLDER, resultsFolder.getCanonicalPath(),//
-			        "-" + CLI_REQUEST_BODIES_FOLDER, requestBodiesFolder.getCanonicalPath(),//
-			        "-" + CLI_SIMULATIONS_FOLDER, simulationsFolder.getCanonicalPath(),//
-			        "-" + CLI_SIMULATIONS, simulations));
+			List<String> args = newArrayList(//
+					"-" + CLI_DATA_FOLDER, dataFolder.getCanonicalPath(),//
+					"-" + CLI_RESULTS_FOLDER, resultsFolder.getCanonicalPath(),//
+					"-" + CLI_REQUEST_BODIES_FOLDER, requestBodiesFolder.getCanonicalPath(),//
+					"-" + CLI_SIMULATIONS_FOLDER, simulationsFolder.getCanonicalPath(),//
+					"-" + CLI_SIMULATIONS, simulations);
 
 			if (noReports) {
 				args.add("-" + CLI_NO_REPORTS);
@@ -303,7 +304,7 @@ public class GatlingMojo extends AbstractMojo {
 
 		String[] includedFiles = scanner.getIncludedFiles();
 
-		List<String> includedClassNames = new ArrayList<String>(includedFiles.length);
+		List<String> includedClassNames = newArrayList();
 		for (String includedFile : includedFiles) {
 			includedClassNames.add(fileNameToClassName(includedFile));
 		}
@@ -328,7 +329,7 @@ public class GatlingMojo extends AbstractMojo {
 	}
 
 	protected void append(Path classPath, List<?> artifacts) throws DependencyResolutionRequiredException {
-		List<String> list = new ArrayList<String>(artifacts.size());
+		List<String> list = newArrayList();
 
 		for (Object artifact : artifacts) {
 			String path;
