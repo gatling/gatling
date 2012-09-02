@@ -111,7 +111,6 @@
 		<xstream.version>1.4.3</xstream.version>
 		<scopt.version>2.1.0</scopt.version>
 		<args4j.version>2.0.21</args4j.version>
-		<opencsv.version>2.3</opencsv.version>
 		<ant.version>1.8.3</ant.version>
 		<grizzled-slf4j.version>0.6.9</grizzled-slf4j.version>
 		<jackson.version>2.0.5</jackson.version>
@@ -332,11 +331,6 @@
 				<groupId>args4j</groupId>
 				<artifactId>args4j</artifactId>
 				<version>${args4j.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>net.sf.opencsv</groupId>
-				<artifactId>opencsv</artifactId>
-				<version>${opencsv.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.ant</groupId>

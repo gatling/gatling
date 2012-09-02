@@ -15,34 +15,26 @@
  */
 package com.excilys.ebi.gatling.core.feeder.csv
 
-import java.io.FileReader
+import scala.io.Source
+import scala.tools.nsc.io.Path
 
-import scala.collection.JavaConversions.asScalaBuffer
-import scala.tools.nsc.io.Path.string2path
-
-import com.excilys.ebi.gatling.core.config.GatlingFiles
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration
 import com.excilys.ebi.gatling.core.feeder.FeederSource
-import com.excilys.ebi.gatling.core.util.IOHelper.use
-import com.excilys.ebi.gatling.core.util.PathHelper.path2string
 
-import au.com.bytecode.opencsv.CSVReader
-
-class SeparatedValuesFeederSource(fileName: String, separator: Char, escapeChar: Option[Char]) extends FeederSource(fileName) {
+class SeparatedValuesFeederSource(file: Path, separator: String, escapeChar: Option[String]) extends FeederSource(file.toString) {
 
 	lazy val values: IndexedSeq[Map[String, String]] = {
-		val file = GatlingFiles.dataDirectory / fileName
-		if (!file.exists)
-			throw new IllegalArgumentException("file " + file + " doesn't exists")
 
-		use(new FileReader(file)) { fileReader =>
-			val reader = escapeChar match {
-				case Some(char) => new CSVReader(fileReader, separator, char)
-				case None => new CSVReader(fileReader, separator)
-			}
+		if (!file.exists) throw new IllegalArgumentException("file " + file + " doesn't exists")
 
-			val headers = reader.readNext
+		val rawLines = Source.fromFile(file.jfile, GatlingConfiguration.configuration.simulation.encoding).getLines.map(_.split(separator))
 
-			reader.readAll.filterNot(line => line.length == 1 && line(0).isEmpty).map(line => (headers zip line).toMap[String, String]).toIndexedSeq
-		}
+		val lines = escapeChar.map { escape =>
+			rawLines.map(_.map(_.stripPrefix(escape).stripSuffix(escape)))
+		}.getOrElse(rawLines).toList
+
+		val headers = lines.head
+
+		lines.tail.map(line => (headers zip line).toMap[String, String]).toIndexedSeq
 	}
 }

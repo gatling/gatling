@@ -25,13 +25,13 @@ import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogDirectory
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
 import com.excilys.ebi.gatling.core.result.reader.DataReader
-import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR_STRING
+import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 
 import grizzled.slf4j.Logging
 import stats.{ Stats, StatsHelper, StatsResultsHelper }
 
 object FileDataReader {
-	val TABULATION_PATTERN = Pattern.compile(TABULATION_SEPARATOR_STRING)
+	val TABULATION_PATTERN = Pattern.compile(TABULATION_SEPARATOR)
 	val SIMULATION_FILES_NAME_PATTERN = """.*\.log"""
 }
 

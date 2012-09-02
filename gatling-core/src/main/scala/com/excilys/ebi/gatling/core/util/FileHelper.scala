@@ -25,10 +25,9 @@ import scala.tools.nsc.io.Directory
  */
 object FileHelper {
 
-	val COMMA_SEPARATOR = ','
-	val SEMICOLON_SEPARATOR = ';'
-	val TABULATION_SEPARATOR = '\t'
-	val TABULATION_SEPARATOR_STRING = TABULATION_SEPARATOR.toString
+	val COMMA_SEPARATOR = ","
+	val SEMICOLON_SEPARATOR = ";"
+	val TABULATION_SEPARATOR = "\t"
 	val CSV_EXTENSION = ".csv"
 	val SSV_EXTENSION = ".ssv"
 	val TSV_EXTENSION = ".tsv"

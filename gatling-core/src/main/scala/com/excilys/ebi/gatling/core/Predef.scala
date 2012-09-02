@@ -36,11 +36,11 @@ object Predef {
 	implicit def extractorCheckBuilderToCheck[C <: Check[R, XC], R, XC, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, XC, X]) = extractorCheckBuilder.find.exists.build
 
 	def csv(fileName: String) = SeparatedValuesFeederBuilder.csv(fileName)
-	def csv(fileName: String, escapeChar: Char) = SeparatedValuesFeederBuilder.csv(fileName, Some(escapeChar))
+	def csv(fileName: String, escapeChar: String) = SeparatedValuesFeederBuilder.csv(fileName, Some(escapeChar))
 	def ssv(fileName: String) = SeparatedValuesFeederBuilder.ssv(fileName)
-	def ssv(fileName: String, escapeChar: Char) = SeparatedValuesFeederBuilder.ssv(fileName, Some(escapeChar))
+	def ssv(fileName: String, escapeChar: String) = SeparatedValuesFeederBuilder.ssv(fileName, Some(escapeChar))
 	def tsv(fileName: String) = SeparatedValuesFeederBuilder.tsv(fileName)
-	def tsv(fileName: String, escapeChar: Char) = SeparatedValuesFeederBuilder.tsv(fileName, Some(escapeChar))
+	def tsv(fileName: String, escapeChar: String) = SeparatedValuesFeederBuilder.tsv(fileName, Some(escapeChar))
 
 	def simpleFeeder(name: String, data: Map[String, String]*) = SimpleFeederBuilder.simpleFeeder(name, data.toIndexedSeq)
 

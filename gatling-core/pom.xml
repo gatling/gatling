@@ -50,10 +50,6 @@
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.opencsv</groupId>
-			<artifactId>opencsv</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.clapper</groupId>
 			<artifactId>grizzled-slf4j_2.9.2</artifactId>
 		</dependency>
