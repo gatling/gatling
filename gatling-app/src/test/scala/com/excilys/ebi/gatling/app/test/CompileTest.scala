@@ -145,9 +145,9 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				.pauseExp(100, MILLISECONDS)
 				// switch
 				.randomSwitch(
-					chain.exec(http("Possibility 1").get("/p1")) -> 40,
-					chain.exec(http("Possibility 2").get("/p2")) -> 55 // last 5% bypass
-					)
+					40 -> chain.exec(http("Possibility 1").get("/p1")),
+					55 -> chain.exec(http("Possibility 2").get("/p2")) // last 5% bypass
+				)
 				.exec(http("Create Thing omgomg")
 					.post("/things").queryParam("postTest", "${sessionParam}").fileBody("create_thing", Map("name" -> "${sessionParam}")).asJSON
 					.check(status.is(201).saveAs("status")))).counterName("titi").times(iterations)
