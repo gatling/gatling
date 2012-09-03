@@ -36,7 +36,8 @@ Got a real problem? Raise an [issue](https://github.com/excilys/gatling/issues?s
 
 [![eBusiness Information](https://github.com/excilys/gatling/wiki/img/ebi_logo.png)](https://github.com/excilys/gatling/wiki/Sponsors)&nbsp;&nbsp;&nbsp;&nbsp;
 [![Yourkit](https://github.com/excilys/gatling/wiki/img/yourkit_logo.png)](https://github.com/excilys/gatling/wiki/Sponsors)&nbsp;&nbsp;&nbsp;&nbsp;
-[![Highsoft AS](https://github.com/excilys/gatling/wiki/img/highsoft_logo.png)](https://github.com/excilys/gatling/wiki/Sponsors)
+[![Highsoft AS](https://github.com/excilys/gatling/wiki/img/highsoft_logo.png)](https://github.com/excilys/gatling/wiki/Sponsors)&nbsp;&nbsp;&nbsp;&nbsp;
+[![Cloudbees](https://github.com/excilys/gatling/wiki/img/devcloud-logo.png)](https://github.com/excilys/gatling/wiki/Sponsors)
 
 YourKit is kindly supporting open source projects with its full-featured Java Profiler.
 YourKit, LLC is the creator of innovative and intelligent tools for profiling
