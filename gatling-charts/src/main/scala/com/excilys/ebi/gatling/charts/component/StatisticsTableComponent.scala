@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.charts.component
 
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ GATLING_TEMPLATE_STATISTICS_TABLE_HTML_TEMPLATE_URL, GATLING_TEMPLATE_STATISTICS_TABLE_JS_TEMPLATE_URL }
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ GATLING_TEMPLATE_STATISTICS_TABLE_HTML_TEMPLATE_URL, GATLING_TEMPLATE_STATISTICS_TABLE_JS_TEMPLATE_URL, JQUERY_TABLESORTER_FILE }
 import com.excilys.ebi.gatling.charts.template.PageTemplate.TEMPLATE_ENGINE
 
 class StatisticsTableComponent extends Component {
@@ -24,5 +24,5 @@ class StatisticsTableComponent extends Component {
 
 	val getJavascriptContent = TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATISTICS_TABLE_JS_TEMPLATE_URL)
 
-	val getJavascriptFiles = Nil
+	val getJavascriptFiles = Seq(JQUERY_TABLESORTER_FILE)
 }

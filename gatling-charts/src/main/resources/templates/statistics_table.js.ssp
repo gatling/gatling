@@ -1,4 +1,4 @@
-<% import com.excilys.ebi.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME %>
+//<% import com.excilys.ebi.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME %>
 
 function toHTMLTableRow(array) {
 	var row = '<tr>'
@@ -11,6 +11,7 @@ function toHTMLTableRow(array) {
 	return row + '</tr>'
 }
 
+var i = 0
 $.each(stats, function(request, values) {
 	var url
 	if (values.name  == '<%= GLOBAL_PAGE_NAME %>')
@@ -19,7 +20,7 @@ $.each(stats, function(request, values) {
 		url = request + '.html'
 
 	$('#container_statistics tbody').append(toHTMLTableRow([
-		{ content: '<a href="' + url + '">' + values.name + '</a>', style: "total" },
+		{ content: '<a href="' + url + '">' + values.name + '</a><span style="display:none;">;' + i + '</span>', style: "total" },
 		{ content: "", style: ""},
 		{ content: values.numberOfRequests.total, style: "value total" },
 		{ content: values.numberOfRequests.ok, style: "value ok" },
@@ -33,4 +34,26 @@ $.each(stats, function(request, values) {
 		{ content: values.percentiles2.total, style: "value total" },
 		{ content: values.meanNumberOfRequestsPerSecond.total, style: "value total" }
 	]))
+
+	i += 1
+})
+
+$.tablesorter.addParser({
+	id: 'requests',
+	is: function(text) { return false },
+	format: function(text) { return parseInt(text.replace(/.*;/, '')) },
+	type: 'numeric'
+});
+
+$('#container_statistics').tablesorter({
+	cssAsc: "sorted-down",
+	cssDesc: "sorted-up",
+	headers: {
+		0: {sorter: 'requests'},
+		1: {sorter: false},
+		2: {sorter: false},
+		3: {sorter: false},
+		4: {sorter: false}
+	},
+	sortList: [[0, 0]]
 })
