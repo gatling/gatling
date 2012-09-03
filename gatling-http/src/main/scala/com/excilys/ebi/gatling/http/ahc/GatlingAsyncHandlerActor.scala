@@ -15,11 +15,10 @@
  */
 package com.excilys.ebi.gatling.http.ahc
 
-import java.lang.System.currentTimeMillis
-
 import scala.annotation.tailrec
 import scala.collection.JavaConversions.asScalaBuffer
 
+import com.excilys.ebi.gatling.core.action.LoggingActor
 import com.excilys.ebi.gatling.core.check.Check.applyChecks
 import com.excilys.ebi.gatling.core.check.Failure
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
@@ -27,6 +26,7 @@ import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK, Reque
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.{ EMPTY, END_OF_LINE }
+import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames }
 import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.cache.CacheHandling
@@ -39,9 +39,8 @@ import com.excilys.ebi.gatling.http.response.{ ExtendedResponse, ExtendedRespons
 import com.excilys.ebi.gatling.http.util.HttpHelper.computeRedirectUrl
 import com.ning.http.client.{ FluentStringsMap, Request, RequestBuilder }
 
-import akka.actor.{ Actor, ActorRef, ReceiveTimeout }
+import akka.actor.{ ActorRef, ReceiveTimeout }
 import akka.util.duration.intToDurationInt
-import grizzled.slf4j.Logging
 
 object GatlingAsyncHandlerActor {
 	val REDIRECTED_REQUEST_NAME_PATTERN = """(.+?) Redirect (\d+)""".r
@@ -70,14 +69,14 @@ object GatlingAsyncHandlerActor {
 }
 
 class GatlingAsyncHandlerActor(
-		var session: Session,
-		checks: List[HttpCheck[_]],
-		next: ActorRef,
-		var requestName: String,
-		var request: Request,
-		protocolConfiguration: HttpProtocolConfiguration,
-		handlerFactory: HandlerFactory,
-		responseBuilderFactory: ExtendedResponseBuilderFactory) extends Actor with Logging {
+	var session: Session,
+	checks: List[HttpCheck[_]],
+	next: ActorRef,
+	var requestName: String,
+	var request: Request,
+	protocolConfiguration: HttpProtocolConfiguration,
+	handlerFactory: HandlerFactory,
+	responseBuilderFactory: ExtendedResponseBuilderFactory) extends LoggingActor {
 
 	var responseBuilder = responseBuilderFactory(request, session)
 
@@ -119,8 +118,6 @@ class GatlingAsyncHandlerActor(
 			val response = responseBuilder.build
 			logRequest(KO, response, Some("GatlingAsyncHandlerActor timed out"))
 			executeNext(session, response)
-
-		case m => throw new IllegalArgumentException("Unknown message type " + m)
 	}
 
 	def resetTimeout = context.setReceiveTimeout(configuration.http.requestTimeOutInMs milliseconds)
@@ -155,7 +152,7 @@ class GatlingAsyncHandlerActor(
 	 * @param newSession the new Session
 	 */
 	private def executeNext(newSession: Session, response: ExtendedResponse) {
-		next ! newSession.increaseTimeShift(currentTimeMillis - response.executionEndDate)
+		next ! newSession.increaseTimeShift(nowMillis - response.executionEndDate)
 		context.stop(self)
 	}
 

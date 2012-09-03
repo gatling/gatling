@@ -37,13 +37,9 @@ class WhileAction(condition: Session => Boolean, next: ActorRef, val counterName
 		case actor: ActorRef =>
 			loopNextAction = actor
 			context.become(initialized)
-		case unknown => throw new IllegalArgumentException("Unknown message type in uninitialized state: " + unknown)
 	}
 
-	def initialized: Receive = {
-		case session: Session => execute(session)
-		case unknown => throw new IllegalArgumentException("Unknown message type in uninitialized state: " + unknown)
-	}
+	def initialized: Receive = super.receive
 
 	override def receive = uninitialized
 

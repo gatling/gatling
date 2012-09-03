@@ -15,9 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.result.writer
 
-import java.lang.System.currentTimeMillis
-
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
+import com.excilys.ebi.gatling.core.action.LoggingActor
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
@@ -26,13 +25,14 @@ import com.excilys.ebi.gatling.core.result.message.{ RunRecord, ShortScenarioDes
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
 import com.excilys.ebi.gatling.core.result.terminator.Terminator
 import com.excilys.ebi.gatling.core.scenario.Scenario
+import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 
 import akka.actor.{ Actor, ActorRef, Props }
 import akka.routing.BroadcastRouter
 
 object DataWriter {
 
-	private val dataWriters: Seq[ActorRef] = configuration.data.dataWriterClasses.map{className => 
+	private val dataWriters: Seq[ActorRef] = configuration.data.dataWriterClasses.map { className =>
 		val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
 		system.actorOf(Props(clazz))
 	}
@@ -45,12 +45,12 @@ object DataWriter {
 	}
 
 	def startUser(scenarioName: String, userId: Int) = {
-		val time = currentTimeMillis
+		val time = nowMillis
 		router ! RequestRecord(scenarioName, userId, START_OF_SCENARIO, time, time, time, time, OK)
 	}
 
 	def endUser(scenarioName: String, userId: Int) = {
-		val time = currentTimeMillis
+		val time = nowMillis
 		router ! RequestRecord(scenarioName, userId, END_OF_SCENARIO, time, time, time, time, OK)
 	}
 
@@ -86,7 +86,7 @@ object DataWriter {
  * These writers are responsible for writing the logs that will be read to
  * generate the statistics
  */
-abstract class DataWriter extends Actor {
+abstract class DataWriter extends LoggingActor {
 
 	def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription])
 

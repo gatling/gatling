@@ -17,16 +17,15 @@ package com.excilys.ebi.gatling.core.result.terminator
 
 import java.util.concurrent.CountDownLatch
 
-import com.excilys.ebi.gatling.core.action.system
+import com.excilys.ebi.gatling.core.action.{ LoggingActor, system }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.FlushDataWriter
 
-import akka.actor.{ Actor, ActorRef, Props }
+import akka.actor.{ ActorRef, Props }
 import akka.dispatch.Future
 import akka.pattern.ask
 import akka.util.Timeout
 import akka.util.duration.intToDurationInt
-import grizzled.slf4j.Logging
 
 object Terminator {
 
@@ -45,7 +44,7 @@ object Terminator {
 	}
 }
 
-class Terminator extends Actor with Logging {
+class Terminator extends LoggingActor {
 
 	import context._
 

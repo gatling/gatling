@@ -15,23 +15,16 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.session.Session
+import akka.actor.{ Actor, Terminated }
+import grizzled.slf4j.Logging
+import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
 
-/**
- * Top level abstraction in charge or executing concrete actions along a scenario, for example sending an HTTP request.
- * It is implemented as an Akka Actor that receives Session messages.
- */
-abstract class Action extends LoggingActor {
+abstract class LoggingActor extends Actor with ClassSimpleNameToString with Logging {
 
-	def receive = {
-		case session: Session => execute(session)
+	override def unhandled(message: Any) {
+		message match {
+			case Terminated(dead) => super.unhandled(message)
+			case unknown => throw new IllegalArgumentException("Actor " + this + " doesn't support message " + unknown)
+		}
 	}
-
-	/**
-	 * Core method executed when the Action received a Session message
-	 *
-	 * @param session the session of the virtual user
-	 * @return Nothing
-	 */
-	def execute(session: Session)
 }
