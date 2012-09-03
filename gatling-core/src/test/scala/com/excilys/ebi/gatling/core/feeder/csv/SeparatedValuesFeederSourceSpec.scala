@@ -16,7 +16,6 @@
 package com.excilys.ebi.gatling.core.feeder.csv
 
 import java.io.File
-import java.util.{ HashMap => JHashMap }
 
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
@@ -28,9 +27,9 @@ import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 @RunWith(classOf[JUnitRunner])
 class SeparatedValuesFeederSourceSpec extends Specification {
 
-	"tsv" should {
+	GatlingConfiguration.setUp()
 
-		GatlingConfiguration.setUp(new JHashMap)
+	"tsv" should {
 
 		"handle file without escape char" in {
 			val file = new File("src/test/resources/sample1.tsv")

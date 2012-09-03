@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.config
 
-import java.util.{ Map => JMap }
+import java.util.{ Map => JMap, HashMap => JHashMap }
 
 import scala.collection.JavaConversions.asScalaBuffer
 
@@ -31,7 +31,7 @@ object GatlingConfiguration extends Logging {
 
 	var configuration: GatlingConfiguration = _
 
-	def setUp(props: JMap[String, Any]) {
+	def setUp(props: JMap[String, Any] = new JHashMap) {
 		val classLoader = getClass.getClassLoader
 
 		val defaultsConfig = ConfigFactory.parseResources(classLoader, "gatling-defaults.conf")
