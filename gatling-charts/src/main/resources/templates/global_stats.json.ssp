@@ -1,0 +1,66 @@
+<% import com.excilys.ebi.gatling.charts.component.RequestStatistics %>
+<% import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename %>
+<%@ val stat: RequestStatistics %>
+	{
+		"name": "<%=stat.name%>",
+		"numberOfRequests": {
+			"total": "<%=stat.numberOfRequestsStatistics.total%>",
+			"ok": "<%=stat.numberOfRequestsStatistics.success%>",
+			"ko": "<%=stat.numberOfRequestsStatistics.failure%>"
+		},
+		"minResponseTime": {
+			"total": "<%=stat.minResponseTimeStatistics.total%>",
+			"ok": "<%=stat.minResponseTimeStatistics.success%>",
+			"ko": "<%=stat.minResponseTimeStatistics.failure%>"
+		},
+		"maxResponseTime": {
+			"total": "<%=stat.maxResponseTimeStatistics.total%>",
+			"ok": "<%=stat.maxResponseTimeStatistics.success%>",
+			"ko": "<%=stat.maxResponseTimeStatistics.failure%>"
+		},
+		"meanResponseTime": {
+			"total": "<%=stat.meanStatistics.total%>",
+			"ok": "<%=stat.meanStatistics.success%>",
+			"ko": "<%=stat.meanStatistics.failure%>"
+		},
+		"standardDeviation": {
+			"total": "<%=stat.stdDeviationStatistics.total%>",
+			"ok": "<%=stat.stdDeviationStatistics.success%>",
+			"ko": "<%=stat.stdDeviationStatistics.failure%>"
+		},
+		"percentiles1": {
+			"total": "<%=stat.percentiles1.total%>",
+			"ok": "<%=stat.percentiles1.success%>",
+			"ko": "<%=stat.percentiles1.failure%>"
+		},
+		"percentiles2": {
+			"total": "<%=stat.percentiles2.total%>",
+			"ok": "<%=stat.percentiles2.success%>",
+			"ko": "<%=stat.percentiles2.failure%>"
+		},
+		"group1": {
+			"name": "<%=stat.groupedCounts(0)._1%>",
+			"count": <%=stat.groupedCounts(0)._2.toString%>,
+			"percentage": <%=stat.groupedCounts(0)._3.toString%>
+		},
+		"group2": {
+			"name": "<%=stat.groupedCounts(1)._1%>",
+			"count": <%=stat.groupedCounts(1)._2.toString%>,
+			"percentage": <%=stat.groupedCounts(1)._3.toString%>
+		},
+		"group3": {
+			"name": "<%=stat.groupedCounts(2)._1%>",
+			"count": <%=stat.groupedCounts(2)._2.toString%>,
+			"percentage": <%=stat.groupedCounts(2)._3.toString%>
+		},
+		"group4": {
+			"name": "<%=stat.groupedCounts(3)._1%>",
+			"count": <%=stat.groupedCounts(3)._2.toString%>,
+			"percentage": <%=stat.groupedCounts(3)._3.toString%>
+		},
+		"meanNumberOfRequestsPerSecond": {
+			"total": "<%=stat.meanNumberOfRequestsPerSecondStatistics.total%>",
+			"ok": "<%=stat.meanNumberOfRequestsPerSecondStatistics.success%>",
+			"ko": "<%=stat.meanNumberOfRequestsPerSecondStatistics.failure%>"
+		}
+	}

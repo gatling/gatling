@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * 		http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,9 +17,9 @@ package com.excilys.ebi.gatling.charts.report
 
 import scala.collection.immutable.ListMap
 
-import com.excilys.ebi.gatling.charts.component.{ComponentLibrary, RequestStatistics, Statistics}
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.{GLOBAL_PAGE_NAME, jsStatsFile, tsvStatsFile}
-import com.excilys.ebi.gatling.charts.template.{StatsJsTemplate, StatsTsvTemplate}
+import com.excilys.ebi.gatling.charts.component.{ ComponentLibrary, RequestStatistics, Statistics }
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ GLOBAL_PAGE_NAME, jsStatsFile, tsvStatsFile,jsonStatsFile }
+import com.excilys.ebi.gatling.charts.template.{StatsJsonTemplate, StatsJsTemplate, StatsTsvTemplate}
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{KO, OK}
 import com.excilys.ebi.gatling.core.result.reader.DataReader
@@ -82,6 +82,7 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 		}(collection.breakOut)
 
 		new TemplateWriter(jsStatsFile(runOn)).writeToFile(new StatsJsTemplate(stats).getOutput)
+		new TemplateWriter(jsonStatsFile(runOn)).writeToFile(new StatsJsonTemplate(stats).getOutput)
 		new TemplateWriter(tsvStatsFile(runOn)).writeToFile(new StatsTsvTemplate(stats).getOutput)
 
 		stats
