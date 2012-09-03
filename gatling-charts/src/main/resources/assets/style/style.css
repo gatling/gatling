@@ -190,6 +190,23 @@ border-bottom-right-radius:8px;
     background-color: #d16b00;
 }
 
+.sortable {
+    cursor: pointer;
+}
+
+.sortable span {
+    background: url('sortable.png') no-repeat right 3px;
+    padding-right: 15px;
+}
+
+.sorted-up span {
+    background-image: url('sorted-up.png');
+}
+
+.sorted-down span {
+    background-image: url('sorted-down.png');
+}
+
 .executions {
     background: url('stat-l-roue.png') no-repeat 4px 4px #d16b00;
     padding: 4px 4px 4px 25px;
