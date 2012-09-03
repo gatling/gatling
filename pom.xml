@@ -124,7 +124,7 @@
 		<specs2.version>1.12.1</specs2.version>
 		<scalding.version>0.7.3</scalding.version>
 		<cascading.version>2.0.4</cascading.version>
-		<guava.version>13.0</guava.version>
+		<guava.version>13.0.1</guava.version>
 		<jgrapht.version>0.8.2</jgrapht.version>
 		<maple.version>0.2.3</maple.version>
 		<metrics.version>2.1.3</metrics.version>
