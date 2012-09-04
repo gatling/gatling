@@ -72,6 +72,15 @@ public class GatlingMojo extends AbstractMojo {
 	protected File reportsOnly;
 
 	/**
+	 * Uses this file as the configuration file.
+	 * 
+	 * @parameter expression="${gatling.configDir}" alias="cd"
+	 *            default-value="${basedir}/src/main/resources"
+	 * @description Uses this file as the configuration directory
+	 */
+	protected File configDir;
+
+	/**
 	 * Uses this folder to discover simulations that could be run
 	 * 
 	 * @parameter expression="${gatling.simulationsFolder}" alias="sf"
@@ -320,6 +329,7 @@ public class GatlingMojo extends AbstractMojo {
 		try {
 			Path classpath = new Path(project);
 			append(classpath, pluginArtifacts); // Add jars
+			classpath.setPath(configDir.getPath()); // Set dirname of config file into the classpath
 			getLog().debug("Gatling classpath : " + classpath);
 			project.addReference(GATLING_CLASSPATH_REF_NAME, classpath);
 			return project;
