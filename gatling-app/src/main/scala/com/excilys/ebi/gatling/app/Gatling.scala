@@ -78,6 +78,7 @@ class Gatling extends Logging {
 						SimulationClassLoader.fromClasspathBinariesDirectory(_))
 					.getOrElse(SimulationClassLoader.fromSourcesDirectory(GatlingFiles.sourcesDirectory))
 					.simulationClasses(configuration.simulation.classes)
+					.sortWith(_.getName < _.getName)
 
 				val selection = configuration.simulation.classes match {
 					case Nil => interactiveSelect(simulations)
@@ -112,7 +113,7 @@ class Gatling extends Logging {
 	}
 
 	private def selectSimulationClass(simulations: List[Class[Simulation]]): Class[Simulation] = {
-
+	
 		val selection = simulations.size match {
 			case 0 =>
 				// If there is no simulation file
@@ -124,8 +125,8 @@ class Gatling extends Logging {
 				0
 			case size =>
 				println("Choose a simulation number:")
-				for (i <- 0 until size) {
-					println("     [" + i + "] " + simulations(i).getName)
+				for ((simulation, index) <- simulations.zipWithIndex) {
+					println("     [" + index + "] " + simulation.getName)
 				}
 				Console.readInt
 		}
