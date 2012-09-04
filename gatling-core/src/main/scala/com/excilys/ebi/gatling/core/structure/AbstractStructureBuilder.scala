@@ -34,6 +34,7 @@ import com.excilys.ebi.gatling.core.structure.loop.LoopBuilder
 
 import akka.actor.ActorRef
 import akka.util.Duration
+import akka.util.duration.longToDurationLong
 
 /**
  * This class defines most of the scenario related DSL
@@ -57,7 +58,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @param duration the time for which the user waits/thinks, in seconds
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pause(duration: Long): B = pause(Duration(duration, TimeUnit.SECONDS), None)
+	def pause(duration: Long): B = pause(duration seconds, None)
 
 	/**
 	 * Method used to define a pause
@@ -66,6 +67,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @param durationUnit the time unit of the pause
 	 * @return a new builder with a pause added to its actions
 	 */
+	@deprecated("Pass a akka.util.Duration")
 	def pause(duration: Long, durationUnit: TimeUnit): B = pause(Duration(duration, durationUnit), None)
 
 	/**
@@ -75,7 +77,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @param maxDuration the maximum value of the pause, in seconds
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pause(minDuration: Long, maxDuration: Long): B = pause(Duration(minDuration, TimeUnit.SECONDS), Some(Duration(maxDuration, TimeUnit.SECONDS)))
+	def pause(minDuration: Long, maxDuration: Long): B = pause(minDuration seconds, Some(maxDuration seconds))
 
 	/**
 	 * Method used to define a random pause in seconds
@@ -103,7 +105,16 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @param durationUnit the time unit of the specified values
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pauseExp(meanDuration: Long, durationUnit: TimeUnit = TimeUnit.SECONDS): B = newInstance(expPauseActionBuilder.withMeanDuration(Duration(meanDuration, durationUnit)) :: actionBuilders)
+	@deprecated("Pass a akka.util.Duration")
+	def pauseExp(meanDuration: Long, durationUnit: TimeUnit = TimeUnit.SECONDS): B = pauseExp(Duration(meanDuration, durationUnit))
+
+	/**
+	 * Method used to define drawn from an exponential distribution with the specified mean duration.
+	 *
+	 * @param meanDuration the mean duration of the pause
+	 * @return a new builder with a pause added to its actions
+	 */
+	def pauseExp(meanDuration: Duration): B = newInstance(expPauseActionBuilder.withMeanDuration(meanDuration) :: actionBuilders)
 
 	/**
 	 * Define a pause with a custom strategy
