@@ -15,12 +15,10 @@
  */
 package com.excilys.ebi.gatling.core.result.message
 
-import java.util.concurrent.CountDownLatch
-
 import org.joda.time.DateTime
 
-import com.excilys.ebi.gatling.core.result.message.RecordType.{ RUN, ACTION }
-import com.excilys.ebi.gatling.core.util.DateHelper.{ toTimestamp, toHumanDate }
+import com.excilys.ebi.gatling.core.result.message.RecordType.{ ACTION, RUN }
+import com.excilys.ebi.gatling.core.util.DateHelper.{ toHumanDate, toTimestamp }
 
 sealed trait DataWriterMessage
 
@@ -54,22 +52,22 @@ case object FlushDataWriter extends DataWriterMessage
  * @param extraInfo information about the request and response extracted via a user-defined function
  */
 case class RequestRecord(
-		scenarioName: String,
-		userId: Int,
-		requestName: String,
-		executionStartDate: Long,
-		executionEndDate: Long,
-		requestSendingEndDate: Long,
-		responseReceivingStartDate: Long,
-		requestStatus: RequestStatus.RequestStatus,
-		requestMessage: Option[String] = None,
-		extraInfo: List[String] = Nil) extends DataWriterMessage {
+	scenarioName: String,
+	userId: Int,
+	requestName: String,
+	executionStartDate: Long,
+	executionEndDate: Long,
+	requestSendingEndDate: Long,
+	responseReceivingStartDate: Long,
+	requestStatus: RequestStatus.RequestStatus,
+	requestMessage: Option[String] = None,
+	extraInfo: List[String] = Nil) extends DataWriterMessage {
 	val recordType = ACTION
-	def latency =  responseReceivingStartDate - requestSendingEndDate
+	def latency = responseReceivingStartDate - requestSendingEndDate
 	def responseTime = executionEndDate - executionStartDate
 }
 
-case class RunRecord(runDate: DateTime, runId: String, runDescription: String) extends DataWriterMessage {
+case class RunRecord(runDate: DateTime, runId: String, runDescription: String, simulationClassSimpleName: String) extends DataWriterMessage {
 	val recordType = RUN
 	def runUuid = runId + toTimestamp(runDate)
 	def readableRunDate = toHumanDate(runDate)

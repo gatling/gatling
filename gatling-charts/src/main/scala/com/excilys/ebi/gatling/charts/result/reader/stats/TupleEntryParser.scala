@@ -72,7 +72,7 @@ object TupleEntryParser {
 
 	implicit def tupleEntryToRunRecord(tupleEntry: TupleEntry) = {
 		val map = tupleEntryToMap(tupleEntry)
-		new RunRecord(parseTimestampString(get(DATE, map)), get(ID, map), get(DESCRIPTION, map))
+		new RunRecord(parseTimestampString(get(DATE, map)), get(ID, map), get(DESCRIPTION, map), get(SIMULATION, map))
 	}
 
 	implicit def tupleEntryToScenarioRecord(tupleEntry: TupleEntry) = {

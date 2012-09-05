@@ -29,6 +29,7 @@ object FieldsNames {
 	val REQUEST_END = 'requestEnd
 	val DATE = 'date
 	val DESCRIPTION = 'description
+	val SIMULATION = 'simulation
 	/* Created fields */
 	val EXECUTION_START_BUCKET = 'executionStartBucket
 	val EXECUTION_END_BUCKET = 'executionEndBucket

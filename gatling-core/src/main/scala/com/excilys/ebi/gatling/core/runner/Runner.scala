@@ -53,7 +53,7 @@ class Runner(selection: Selection) extends Logging {
 
 		println("Simulation " + simulationClass.getName + " started...")
 
-		val runRecord = RunRecord(now, selection.id, selection.description)
+		val runRecord = RunRecord(now, selection.id, selection.description, simulationClass.getSimpleName)
 
 		val scenarios = simulationClass.newInstance.apply().map(_.build)
 

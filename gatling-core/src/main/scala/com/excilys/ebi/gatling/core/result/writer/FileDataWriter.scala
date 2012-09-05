@@ -80,7 +80,8 @@ class FileDataWriter extends DataWriter with Logging {
 			.append(toTimestamp(runRecord.runDate)).append(TABULATION_SEPARATOR)
 			.append(runRecord.runId).append(TABULATION_SEPARATOR)
 			// hack for being able to deserialize in FileDataReader
-			.append(if (runRecord.runDescription.isEmpty) FileDataWriter.emptyField else runRecord.runDescription)
+			.append(if (runRecord.runDescription.isEmpty) FileDataWriter.emptyField else runRecord.runDescription).append(TABULATION_SEPARATOR)
+			.append(runRecord.simulationClassSimpleName)
 			.append(END_OF_LINE)
 	}
 
