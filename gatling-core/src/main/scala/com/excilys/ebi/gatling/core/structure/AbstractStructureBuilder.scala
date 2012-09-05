@@ -67,7 +67,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @param durationUnit the time unit of the pause
 	 * @return a new builder with a pause added to its actions
 	 */
-	@deprecated("Pass a akka.util.Duration")
+	@deprecated("""Will be remove in Gatling 1.4.0. Pass a akka.util.Duration such as "5 seconds" """)
 	def pause(duration: Long, durationUnit: TimeUnit): B = pause(Duration(duration, durationUnit), None)
 
 	/**
@@ -82,12 +82,22 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	/**
 	 * Method used to define a random pause in seconds
 	 *
-	 * @param minDuration the minimum value of the pause, in seconds
-	 * @param maxDuration the maximum value of the pause, in seconds
+	 * @param minDuration the minimum value of the pause
+	 * @param maxDuration the maximum value of the pause
 	 * @param durationUnit the time unit of the pause
 	 * @return a new builder with a pause added to its actions
 	 */
+	@deprecated("""Will be remove in Gatling 1.4.0. Pass a akka.util.Duration such as "5 seconds" """)
 	def pause(minDuration: Long, maxDuration: Long, durationUnit: TimeUnit): B = pause(Duration(minDuration, durationUnit), Some(Duration(maxDuration, durationUnit)))
+
+	/**
+	 * Method used to define a random pause in seconds
+	 *
+	 * @param minDuration the minimum duration of the pause
+	 * @param maxDuration the maximum duration of the pause
+	 * @return a new builder with a pause added to its actions
+	 */
+	def pause(minDuration: Duration, maxDuration: Duration): B = pause(minDuration, Some(maxDuration))
 
 	/**
 	 * Method used to define a uniformly-distributed random pause
@@ -105,7 +115,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 * @param durationUnit the time unit of the specified values
 	 * @return a new builder with a pause added to its actions
 	 */
-	@deprecated("Pass a akka.util.Duration")
+	@deprecated("""Will be remove in Gatling 1.4.0. Pass a akka.util.Duration such as "5 seconds" """)
 	def pauseExp(meanDuration: Long, durationUnit: TimeUnit = TimeUnit.SECONDS): B = pauseExp(Duration(meanDuration, durationUnit))
 
 	/**

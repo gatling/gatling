@@ -22,6 +22,7 @@ import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.structure.ScenarioBuilder
 
 import akka.util.Duration
+import akka.util.duration.longToDurationLong
 
 private case class Attributes(scenarioBuilder: ScenarioBuilder, usersValue: Int, rampValue: Option[Duration], delayValue: Option[Duration], protocolConfigurationsValue: Seq[ProtocolConfiguration])
 
@@ -52,7 +53,24 @@ class ConfiguredScenarioBuilder(attributes: Attributes) {
 	 * @param unit the time unit of the ramp duration (defaults: seconds)
 	 * @return a new builder with the ramp duration set
 	 */
-	def ramp(duration: Long, unit: TimeUnit = TimeUnit.SECONDS) = new ConfiguredScenarioBuilder(attributes.copy(rampValue = Some(Duration(duration, unit))))
+	@deprecated("""Will be remove in Gatling 1.4.0. Pass a akka.util.Duration such as "5 seconds" """)
+	def ramp(duration: Long, unit: TimeUnit = TimeUnit.SECONDS): ConfiguredScenarioBuilder = ramp(Duration(duration, unit))
+
+	/**
+	 * Method used to set the ramp duration
+	 *
+	 * @param duration the duration of the ramp in seconds
+	 * @return a new builder with the ramp duration set
+	 */
+	def ramp(duration: Long): ConfiguredScenarioBuilder = ramp(duration seconds)
+
+	/**
+	 * Method used to set the ramp duration
+	 *
+	 * @param duration the duration of the ramp
+	 * @return a new builder with the ramp duration set
+	 */
+	def ramp(duration: Duration): ConfiguredScenarioBuilder = new ConfiguredScenarioBuilder(attributes.copy(rampValue = Some(duration)))
 
 	/**
 	 * Method used to set the start time of the first user in the simulation
@@ -61,7 +79,24 @@ class ConfiguredScenarioBuilder(attributes: Attributes) {
 	 * @param unit the unit of the delay (defaults: seconds)
 	 * @return a new builder with the start time set
 	 */
-	def delay(duration: Long, unit: TimeUnit = TimeUnit.SECONDS) = new ConfiguredScenarioBuilder(attributes.copy(delayValue = Some(Duration(duration, unit))))
+	@deprecated("""Will be remove in Gatling 1.4.0. Pass a akka.util.Duration such as "5 seconds" """)
+	def delay(duration: Long, unit: TimeUnit = TimeUnit.SECONDS): ConfiguredScenarioBuilder = delay(Duration(duration, unit))
+
+	/**
+	 * Method used to set the start time of the first user in the simulation
+	 *
+	 * @param duration the delay before the first user will start, in seconds
+	 * @return a new builder with the start time set
+	 */
+	def delay(duration: Long): ConfiguredScenarioBuilder = delay(duration seconds)
+
+	/**
+	 * Method used to set the start time of the first user in the simulation
+	 *
+	 * @param duration the delay before the first user will start
+	 * @return a new builder with the start time set
+	 */
+	def delay(duration: Duration): ConfiguredScenarioBuilder = new ConfiguredScenarioBuilder(attributes.copy(delayValue = Some(duration)))
 
 	/**
 	 * Method used to set the different protocol configurations for this scenario

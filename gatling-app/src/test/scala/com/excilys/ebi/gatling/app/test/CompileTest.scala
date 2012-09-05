@@ -17,6 +17,7 @@ package com.excilys.ebi.gatling.app.test
 import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._
 import com.excilys.ebi.gatling.jdbc.Predef._
+import akka.util.duration._
 import com.excilys.ebi.gatling.http.Headers.Names._
 import com.ning.http.client.{ Response, Request }
 
@@ -142,7 +143,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				.pauseExp(pause1)
 				.exec(http("Test Page").get("/tests").check(header(CONTENT_TYPE).is("text/html; charset=utf-8").saveAs("sessionParam")))
 				// Fourth request to be repeated
-				.pauseExp(100, MILLISECONDS)
+				.pauseExp(100 milliseconds)
 				// switch
 				.randomSwitch(
 					40 -> chain.exec(http("Possibility 1").get("/p1")),
