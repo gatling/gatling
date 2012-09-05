@@ -63,11 +63,31 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 	val lambdaUser = scenario("Standard User")
 		.insertChain(loginChain)
 		// First request outside iteration
-		.loop(
+		.loop( // deprecated, see below
 			chain
 				.feed(testData)
 				.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform(_ + "foo").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz"))))
 		.times(2)
+		.repeat(2) {
+			chain
+				.feed(testData)
+				.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform(_ + "foo").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
+		}
+		.repeat(2, "counterName") {
+			chain
+				.feed(testData)
+				.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform(_ + "foo").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
+		}
+		.during(10 seconds) {
+			chain
+				.feed(testData)
+				.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform(_ + "foo").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
+		}
+		.asLongAs((session: Session) => true) {
+			chain
+				.feed(testData)
+				.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform(_ + "foo").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
+		}
 		.pause(pause2, pause3)
 		// Loop
 		.loop(
@@ -148,7 +168,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				.randomSwitch(
 					40 -> chain.exec(http("Possibility 1").get("/p1")),
 					55 -> chain.exec(http("Possibility 2").get("/p2")) // last 5% bypass
-				)
+					)
 				.exec(http("Create Thing omgomg")
 					.post("/things").queryParam("postTest", "${sessionParam}").fileBody("create_thing", Map("name" -> "${sessionParam}")).asJSON
 					.check(status.is(201).saveAs("status")))).counterName("titi").times(iterations)

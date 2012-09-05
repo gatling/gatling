@@ -15,6 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.structure
 
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 import scala.annotation.tailrec
@@ -31,6 +32,8 @@ import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.session.{ EvaluatableString, Session }
 import com.excilys.ebi.gatling.core.structure.loop.LoopBuilder
+import com.excilys.ebi.gatling.core.structure.loop.handler.{ ConditionalLoopHandlerBuilder, DurationLoopHandlerBuilder, TimesLoopHandlerBuilder }
+import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 
 import akka.actor.ActorRef
 import akka.util.Duration
@@ -224,7 +227,40 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 *
 	 * @param chain the chain of actions that should be repeated
 	 */
+	@deprecated("Will be remove in Gatling 1.4.0.")
 	def loop(chain: ChainBuilder) = new LoopBuilder[B](getInstance, chain, None)
+
+	def repeat(times: Int)(chain: ChainBuilder): B = repeat(times, None, chain)
+	def repeat(times: Int, counterName: String)(chain: ChainBuilder): B = repeat(times, Some(counterName), chain)
+	private def repeat(times: Int, counterName: Option[String], chain: ChainBuilder): B = new TimesLoopHandlerBuilder(getInstance, chain, times, counterName).build
+
+	def repeat(times: String)(chain: ChainBuilder): B = repeat(times, None, chain)
+	def repeat(times: String, counterName: String)(chain: ChainBuilder): B = repeat(times, Some(counterName), chain)
+	private def repeat(times: String, counterName: Option[String], chain: ChainBuilder): B = {
+		val sessionFunction = parseEvaluatable(times)
+		repeat((s: Session) => sessionFunction(s).toInt, counterName, chain)
+	}
+
+	def repeat(times: Session => Int)(chain: ChainBuilder): B = repeat(times, None, chain)
+	def repeat(times: Session => Int, counterName: String)(chain: ChainBuilder): B = repeat(times, Some(counterName), chain)
+	private def repeat(times: Session => Int, counterName: Option[String] = None, chain: ChainBuilder): B = {
+		counterName match {
+			case Some(counter) => asLongAs((s: Session) => s.getCounterValue(counter) < times(s), counterName, chain)
+			case None =>
+				val counter = counterName.getOrElse(UUID.randomUUID.toString)
+				asLongAs((s: Session) => s.getCounterValue(counter) < times(s), Some(counter), chain)
+		}
+	}
+
+	def during(duration: Long)(chain: ChainBuilder): B = during(duration seconds, None, chain)
+	def during(duration: Long, counterName: String)(chain: ChainBuilder): B = during(duration seconds, Some(counterName), chain)
+	def during(duration: Duration)(chain: ChainBuilder): B = during(duration, None, chain)
+	def during(duration: Duration, counterName: String)(chain: ChainBuilder): B = during(duration, Some(counterName), chain)
+	private def during(duration: Duration, counterName: Option[String], chain: ChainBuilder): B = new DurationLoopHandlerBuilder(getInstance, chain, duration, counterName).build
+
+	def asLongAs(condition: Session => Boolean)(chain: ChainBuilder): B = asLongAs(condition, None, chain)
+	def asLongAs(condition: Session => Boolean, counterName: String)(chain: ChainBuilder): B = asLongAs(condition, Some(counterName), chain)
+	private def asLongAs(condition: Session => Boolean, counterName: Option[String], chain: ChainBuilder): B = new ConditionalLoopHandlerBuilder(getInstance, chain, condition, counterName).build
 
 	private[core] def getInstance: B
 

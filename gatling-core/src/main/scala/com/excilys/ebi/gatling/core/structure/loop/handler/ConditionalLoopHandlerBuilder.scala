@@ -15,11 +15,11 @@
  */
 package com.excilys.ebi.gatling.core.structure.loop.handler
 
+import java.util.UUID
+
 import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder.whileActionBuilder
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.structure.{ ChainBuilder, AbstractStructureBuilder }
-
-import akka.actor.Uuid
+import com.excilys.ebi.gatling.core.structure.{ AbstractStructureBuilder, ChainBuilder }
 
 /**
  * This builder creates a conditional loop, using a WhileAction
@@ -31,13 +31,13 @@ import akka.actor.Uuid
  * @param counterName the name of the counter for this loop
  */
 class ConditionalLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: ChainBuilder, condition: Session => Boolean, counterName: Option[String])
-		extends AbstractLoopHandlerBuilder[B](structureBuilder) {
+	extends AbstractLoopHandlerBuilder[B](structureBuilder) {
 
 	/**
 	 * Actually adds the current conditional loop to the structure builder
 	 */
 	private[core] def build: B = {
-		val loopCounterName = counterName.getOrElse(new Uuid().toString)
+		val loopCounterName = counterName.getOrElse(UUID.randomUUID.toString)
 		doBuild(List(whileActionBuilder.withCondition(condition).withLoopNext(chain).withCounterName(loopCounterName)))
 	}
 }

@@ -19,9 +19,11 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.structure.{ ChainBuilder, AbstractStructureBuilder }
-import com.excilys.ebi.gatling.core.structure.loop.handler.{ TimesLoopHandlerBuilder, DurationLoopHandlerBuilder, ConditionalLoopHandlerBuilder }
+import com.excilys.ebi.gatling.core.structure.{ AbstractStructureBuilder, ChainBuilder }
+import com.excilys.ebi.gatling.core.structure.loop.handler.{ ConditionalLoopHandlerBuilder, DurationLoopHandlerBuilder, TimesLoopHandlerBuilder }
 import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
+
+import akka.util.Duration
 
 /**
  * This class serves as DSL description of a loop
@@ -45,13 +47,16 @@ class LoopBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: 
 	 *
 	 * @param times the number of iterations
 	 */
+	@deprecated("""Will be remove in Gatling 1.4.0. Use "repeat(times) { chain }" instead""")
 	def times(timesValue: Int): B = new TimesLoopHandlerBuilder(structureBuilder, chain, timesValue, counterName).build
 
+	@deprecated("""Will be remove in Gatling 1.4.0. Use "repeat(times) { chain }" instead""")
 	def times(timesValue: String): B = {
 		val sessionFunction = parseEvaluatable(timesValue)
 		times((s: Session) => sessionFunction(s).toInt)
 	}
 
+	@deprecated("""Will be remove in Gatling 1.4.0. Use "repeat(times) { chain }" instead""")
 	def times(timesValue: Session => Int): B = {
 		counterName match {
 			case Some(counter) => asLongAs((s: Session) => s.getCounterValue(counter) < timesValue(s))
@@ -67,13 +72,15 @@ class LoopBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: 
 	 * @param durationValue the value of the duration
 	 * @param durationUnit the unit of the duration
 	 */
-	def during(durationValue: Int, durationUnit: TimeUnit): B = new DurationLoopHandlerBuilder(structureBuilder, chain, durationValue, durationUnit, counterName).build
+	@deprecated("""Will be remove in Gatling 1.4.0. Use "during(duration) { chain }" instead""")
+	def during(durationValue: Int, durationUnit: TimeUnit): B = new DurationLoopHandlerBuilder(structureBuilder, chain, Duration(durationValue, durationUnit), counterName).build
 
 	/**
 	 * This method sets the duration of the loop in seconds
 	 *
 	 * @param durationValue the value of the duration in seconds
 	 */
+	@deprecated("""Will be remove in Gatling 1.4.0. Use "during(duration) { chain }" instead""")
 	def during(durationValue: Int): B = during(durationValue, TimeUnit.SECONDS)
 
 	/**
@@ -81,6 +88,7 @@ class LoopBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: 
 	 *
 	 * @param conditionFunction the condition function
 	 */
+	@deprecated("""Will be remove in Gatling 1.4.0. Use "asLongAs(condition) { chain }" instead""")
 	def asLongAs(conditionFunction: Session => Boolean): B = new ConditionalLoopHandlerBuilder(structureBuilder, chain, conditionFunction, counterName).build
 
 	/**
@@ -89,5 +97,6 @@ class LoopBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: 
 	 * @param sessionKey the key of the value in the session
 	 * @param value the value to which the session value is compared
 	 */
+	@deprecated("""Will be remove in Gatling 1.4.0. Use "asLongAs(condition) { chain }" instead""")
 	def asLongAs(sessionKey: String, value: String): B = asLongAs((session: Session) => parseEvaluatable(sessionKey)(session) == value)
 }
