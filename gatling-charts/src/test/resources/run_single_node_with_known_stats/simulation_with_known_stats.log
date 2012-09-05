@@ -1,4 +1,4 @@
-RUN	20120607202804	run1	interesting test run	some extra noisy informations
+RUN	20120607202804	run1	interesting test run	MySimulation	some extra noisy informations
 ACTION	testScenario	1	Test Request	1000	3000	3500	5000	OK	Request executed successfully
 ACTION	testScenario	1	Test Request	1000	10000	3500	5000	OK	Request executed successfully
 ACTION	testScenario	1	Test Request	2000	6000	3500	5000	OK	Request executed successfully

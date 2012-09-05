@@ -29,7 +29,7 @@ import grizzled.slf4j.Logging
 
 object PreProcessor extends Logging {
 	val ACTION_HEADER: List[String] = List(ACTION_TYPE, SCENARIO, ID, REQUEST, EXECUTION_START, EXECUTION_END, REQUEST_END, RESPONSE_START, STATUS)
-	val RUN_HEADER: List[String] = List(ACTION_TYPE, DATE, ID, DESCRIPTION)
+	val RUN_HEADER: List[String] = List(ACTION_TYPE, DATE, ID, DESCRIPTION, SIMULATION)
 
 	def run(inputIterator: Iterator[String], maxPlotPerSerie: Int) = {
 		val (actions, runs) = inputIterator.map(TABULATION_PATTERN.split(_)).filter(array => array.head == ACTION || array.head == RUN).partition(_.head == ACTION)
