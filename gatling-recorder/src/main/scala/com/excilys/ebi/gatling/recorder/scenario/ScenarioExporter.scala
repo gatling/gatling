@@ -207,18 +207,10 @@ object ScenarioExporter extends Logging {
 
 	private def getChains(scenarioElements: List[ScenarioElement]): Either[List[ScenarioElement], List[List[ScenarioElement]]] = {
 
-		if (scenarioElements.size > ScenarioExporter.EVENTS_GROUPING) {
-			val numberOfSubLists = scenarioElements.size / ScenarioExporter.EVENTS_GROUPING + 1
-			var chains: List[List[ScenarioElement]] = Nil
-			// Creates the content of the chains
-			for (i <- 0 until numberOfSubLists)
-				chains = scenarioElements.slice(0 + ScenarioExporter.EVENTS_GROUPING * i, min(ScenarioExporter.EVENTS_GROUPING * (i + 1), scenarioElements.size - 1)) :: chains
-
-			Right(chains.reverse)
-
-		} else {
+		if (scenarioElements.size > ScenarioExporter.EVENTS_GROUPING)
+			Right(scenarioElements.grouped(ScenarioExporter.EVENTS_GROUPING).toList)
+		else
 			Left(scenarioElements)
-		}
 	}
 
 	private def dumpRequestBody(idEvent: Int, content: String, simulationClass: String) {
