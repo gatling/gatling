@@ -15,17 +15,19 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.scalding
 
-import cascading.tuple.{TupleEntryChainIterator, Tuple, Fields}
-import scala.collection.JavaConversions._
-import grizzled.slf4j.Logging
+import scala.collection.JavaConversions.asJavaIterator
+
 import com.excilys.ebi.gatling.charts.result.reader.Predef.LOG_STEP
+
+import cascading.tuple.{ Fields, Tuple, TupleEntry, TupleEntryChainIterator }
+import grizzled.slf4j.Logging
 
 class GatlingTupleIterator(fields: Fields, iterator: Iterator[Tuple], size: Long) extends TupleEntryChainIterator(fields, iterator) with Logging {
 
 	private var linesRead = 0L
 
-	override def next() = {
-		val tupleEntry = super.next()
+	override def next: TupleEntry = {
+		val tupleEntry = super.next
 
 		linesRead += 1
 		if (linesRead % LOG_STEP == 0)
@@ -34,7 +36,7 @@ class GatlingTupleIterator(fields: Fields, iterator: Iterator[Tuple], size: Long
 		tupleEntry
 	}
 
-	override def close() {
+	override def close {
 		info("Read " + linesRead + " lines (" + (linesRead * 100L / size) + " %)")
 	}
 }

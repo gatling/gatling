@@ -15,17 +15,20 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.scalding
 
-import cascading.tap.SourceTap
-import java.util.{UUID, Properties}
-import cascading.flow.FlowProcess
-import cascading.scheme.NullScheme
-import cascading.tuple.Tuple
+import java.util.{ Properties, UUID }
+
 import com.excilys.ebi.gatling.charts.result.reader.FileDataReader.TABULATION_PATTERN
 
-class GatlingInputIteratorTap(inputIterator: Iterator[String], scheme: NullScheme[Properties, Iterator[Tuple], Void, Void, Void], size: Long) extends SourceTap[Properties, Iterator[Tuple]](scheme) {
-	override val getIdentifier = classOf[GatlingInputIteratorTap].getCanonicalName + UUID.randomUUID()
+import cascading.flow.FlowProcess
+import cascading.scheme.NullScheme
+import cascading.tap.SourceTap
+import cascading.tuple.{ Tuple, TupleEntryIterator }
 
-	override def openForRead(flowProcess: FlowProcess[Properties], input: Iterator[Tuple]) = {
+class GatlingInputIteratorTap(inputIterator: Iterator[String], scheme: NullScheme[Properties, Iterator[Tuple], Void, Void, Void], size: Long) extends SourceTap[Properties, Iterator[Tuple]](scheme) {
+
+	override val getIdentifier: String = classOf[GatlingInputIteratorTap].getCanonicalName + UUID.randomUUID
+
+	override def openForRead(flowProcess: FlowProcess[Properties], input: Iterator[Tuple]): TupleEntryIterator = {
 		val fields = scheme.getSourceFields
 
 		val theInput =
@@ -39,12 +42,12 @@ class GatlingInputIteratorTap(inputIterator: Iterator[String], scheme: NullSchem
 		new GatlingTupleIterator(fields, theInput, size)
 	}
 
-	override def resourceExists(conf: Properties) = true
+	override def resourceExists(conf: Properties): Boolean = true
 
-	override def getModifiedTime(conf: Properties) = 1L
+	override def getModifiedTime(conf: Properties): Long = 1L
 
-	private def asTuple(values: Array[String]) = {
-		val tuple = new Tuple()
+	private def asTuple(values: Array[String]): Tuple = {
+		val tuple = new Tuple
 
 		values.foreach(tuple.add(_))
 

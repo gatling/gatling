@@ -20,9 +20,9 @@ import com.excilys.ebi.gatling.charts.template.PageTemplate.TEMPLATE_ENGINE
 
 class StatisticsTableComponent extends Component {
 
-	val getHTMLContent = TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATISTICS_TABLE_HTML_TEMPLATE_URL)
+	val getHTMLContent: String = TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATISTICS_TABLE_HTML_TEMPLATE_URL)
 
-	val getJavascriptContent = TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATISTICS_TABLE_JS_TEMPLATE_URL)
+	val getJavascriptContent: String = TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATISTICS_TABLE_JS_TEMPLATE_URL)
 
-	val getJavascriptFiles = Seq(JQUERY_TABLESORTER_FILE)
+	val getJavascriptFiles: Seq[String] = Seq(JQUERY_TABLESORTER_FILE)
 }

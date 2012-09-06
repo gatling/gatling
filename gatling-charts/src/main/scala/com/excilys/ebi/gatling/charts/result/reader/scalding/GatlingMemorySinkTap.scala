@@ -16,32 +16,30 @@
 package com.excilys.ebi.gatling.charts.result.reader.scalding
 
 import cascading.scheme.NullScheme
-import java.util.{UUID, Properties}
+import java.util.{ UUID, Properties }
 import collection.mutable
-import cascading.tuple.{TupleEntry, TupleEntryCollector}
+import cascading.tuple.{ TupleEntry, TupleEntryCollector }
 import cascading.tap.SinkTap
 import cascading.flow.FlowProcess
 
 class GatlingMemorySinkTap[A](val scheme: NullScheme[Properties, Void, Void, Void, Void], val tupleBuffer: mutable.Buffer[A], val parseFunction: (TupleEntry) => A)
 	extends SinkTap[Properties, Void](scheme) {
 
-	override def createResource(conf: Properties) = true
+	override def createResource(conf: Properties): Boolean = true
 
-	override def deleteResource(conf: Properties) = true
+	override def deleteResource(conf: Properties): Boolean = true
 
-	override def resourceExists(conf: Properties) = true
+	override def resourceExists(conf: Properties): Boolean = true
 
-	override def getModifiedTime(conf: Properties) = 1L
+	override def getModifiedTime(conf: Properties): Long = 1L
 
-	override val getIdentifier = classOf[GatlingMemorySinkTap[A]].getCanonicalName + UUID.randomUUID()
+	override val getIdentifier: String = classOf[GatlingMemorySinkTap[A]].getCanonicalName + UUID.randomUUID
 
-	override def openForWrite(flowProcess: FlowProcess[Properties], output: Void): TupleEntryCollector = {
-		new GatlingMemoryTupleEntryCollector(tupleBuffer, parseFunction)
-	}
+	override def openForWrite(flowProcess: FlowProcess[Properties], output: Void): TupleEntryCollector = new GatlingMemoryTupleEntryCollector(tupleBuffer, parseFunction)
 
-	override def equals(other: Any) = this.eq(other.asInstanceOf[AnyRef])
+	override def equals(other: Any): Boolean = this.eq(other.asInstanceOf[AnyRef])
 
-	override def hashCode() = System.identityHashCode(this)
+	override def hashCode: Int = System.identityHashCode(this)
 
 }
 
@@ -50,5 +48,4 @@ class GatlingMemoryTupleEntryCollector[A](val tupleBuffer: mutable.Buffer[A], va
 	override def collect(tupleEntry: TupleEntry) {
 		tupleBuffer += parseFunction(tupleEntry)
 	}
-
 }

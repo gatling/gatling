@@ -16,9 +16,9 @@
 package com.excilys.ebi.gatling.charts.config
 
 import scala.tools.nsc.io.Path.string2path
-
 import com.excilys.ebi.gatling.core.config.GatlingFiles.{ resultDirectory, GATLING_JS }
 import com.excilys.ebi.gatling.core.util.FileHelper.{ formatToFilename, HTML_EXTENSION }
+import scala.tools.nsc.io.Path
 
 object ChartsFiles {
 	val JQUERY_FILE = "jquery.min.js"
@@ -39,11 +39,11 @@ object ChartsFiles {
 	val GATLING_TEMPLATE_STATISTICS_TABLE_HTML_TEMPLATE_URL = GATLING_TEMPLATE + "statistics_table.html.ssp"
 	val GATLING_TEMPLATE_STATISTICS_TABLE_JS_TEMPLATE_URL = GATLING_TEMPLATE + "statistics_table.js.ssp"
 
-	def menuFile(runOn: String) = resultDirectory(runOn) / GATLING_JS / MENU_FILE
-	def allSessionsFile(runOn: String) = resultDirectory(runOn) / GATLING_JS / ALL_SESSIONS_FILE
-	def globalFile(runOn: String) = resultDirectory(runOn) / "index.html"
+	def menuFile(runOn: String): Path = resultDirectory(runOn) / GATLING_JS / MENU_FILE
+	def allSessionsFile(runOn: String): Path = resultDirectory(runOn) / GATLING_JS / ALL_SESSIONS_FILE
+	def globalFile(runOn: String): Path = resultDirectory(runOn) / "index.html"
 
-	def requestFile(runOn: String, requestName: String) = resultDirectory(runOn) / (formatToFilename(requestName) + HTML_EXTENSION)
-	def jsStatsFile(runOn: String) = resultDirectory(runOn) / GATLING_JS / STATS_JS_FILE
-	def tsvStatsFile(runOn: String) = resultDirectory(runOn) / STATS_TSV_FILE
+	def requestFile(runOn: String, requestName: String): Path = resultDirectory(runOn) / (formatToFilename(requestName) + HTML_EXTENSION)
+	def jsStatsFile(runOn: String): Path = resultDirectory(runOn) / GATLING_JS / STATS_JS_FILE
+	def tsvStatsFile(runOn: String): Path = resultDirectory(runOn) / STATS_TSV_FILE
 }

@@ -15,15 +15,17 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.scalding
 
-import cascading.tuple.{TupleEntry, Fields}
-import com.twitter.scalding._
-import collection.mutable
+import scala.collection.mutable
+
+import com.twitter.scalding.{ AccessMode, Local, Mode, Source, Write }
+
 import cascading.scheme.NullScheme
+import cascading.tap.Tap
+import cascading.tuple.{ Fields, TupleEntry }
 
-class GatlingBufferSource[A](tupleBuffer: mutable.Buffer[A], parseFunction: (TupleEntry) => A, inFields: Fields = Fields.ALL)
-	extends Source {
+class GatlingBufferSource[A](tupleBuffer: mutable.Buffer[A], parseFunction: (TupleEntry) => A, inFields: Fields = Fields.ALL) extends Source {
 
-	override def createTap(readOrWrite: AccessMode)(implicit mode: Mode) = {
+	override def createTap(readOrWrite: AccessMode)(implicit mode: Mode): Tap[_, _, _] = {
 		(mode, readOrWrite) match {
 			case (Local(_), Write) => new GatlingMemorySinkTap(new NullScheme(Fields.ALL, inFields), tupleBuffer, parseFunction)
 			case _ => throw new UnsupportedOperationException

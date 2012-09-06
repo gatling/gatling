@@ -33,15 +33,15 @@ case class Statistics(name: String, total: Long, success: Long, failure: Long) {
 }
 
 case class RequestStatistics(name: String,
-		numberOfRequestsStatistics: Statistics,
-		minResponseTimeStatistics: Statistics,
-		maxResponseTimeStatistics: Statistics,
-		meanStatistics: Statistics,
-		stdDeviationStatistics: Statistics,
-		percentiles1: Statistics,
-		percentiles2: Statistics,
-		groupedCounts: Seq[(String, Long, Long)],
-		meanNumberOfRequestsPerSecondStatistics: Statistics) {
+	numberOfRequestsStatistics: Statistics,
+	minResponseTimeStatistics: Statistics,
+	maxResponseTimeStatistics: Statistics,
+	meanStatistics: Statistics,
+	stdDeviationStatistics: Statistics,
+	percentiles1: Statistics,
+	percentiles2: Statistics,
+	groupedCounts: Seq[(String, Long, Long)],
+	meanNumberOfRequestsPerSecondStatistics: Statistics) {
 
 	def mkString: String = new StringBuilder().append(name).append(TABULATION_SEPARATOR)
 		.append(numberOfRequestsStatistics.total).append(TABULATION_SEPARATOR)
@@ -83,11 +83,9 @@ case class RequestStatistics(name: String,
 		.toString
 }
 
-class StatisticsTextComponent() extends Component {
+class StatisticsTextComponent extends Component {
 
-	def getHTMLContent: String = {
-		TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATISTICS_COMPONENT_URL)
-	}
+	def getHTMLContent: String = TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATISTICS_COMPONENT_URL)
 
 	val getJavascriptContent: String = EMPTY
 

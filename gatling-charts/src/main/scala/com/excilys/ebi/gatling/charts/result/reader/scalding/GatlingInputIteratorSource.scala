@@ -15,12 +15,14 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.scalding
 
-import cascading.tuple.Fields
-import com.twitter.scalding._
-import cascading.scheme.NullScheme
+import com.twitter.scalding.{ AccessMode, Local, Mode, Read, Source }
 
-case class GatlingInputIteratorSource(inputIterator: Iterator[String], fields: Fields, size: Long) extends com.twitter.scalding.Source {
-	override def createTap(readOrWrite: AccessMode)(implicit mode: Mode) = {
+import cascading.scheme.NullScheme
+import cascading.tap.Tap
+import cascading.tuple.Fields
+
+case class GatlingInputIteratorSource(inputIterator: Iterator[String], fields: Fields, size: Long) extends Source {
+	override def createTap(readOrWrite: AccessMode)(implicit mode: Mode): Tap[_, _, _] = {
 		(mode, readOrWrite) match {
 			case (Local(_), Read) => new GatlingInputIteratorTap(inputIterator, new NullScheme(fields, Fields.ALL), size)
 			case _ => throw new UnsupportedOperationException

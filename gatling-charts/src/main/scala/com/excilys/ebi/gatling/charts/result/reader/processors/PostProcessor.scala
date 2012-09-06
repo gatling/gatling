@@ -24,7 +24,7 @@ import grizzled.slf4j.Logging
 
 object PostProcessor extends Logging {
 
-	def run(results: StatsResults, buckets: Seq[Long]) = {
+	def run(results: StatsResults, buckets: Seq[Long]): StatsResults = {
 		compute(results.getSessionDeltaBuffer(ResultBufferType.GLOBAL), results.getSessionBuffer(ResultBufferType.GLOBAL), buckets)
 
 		val sessionBufferByScenario = results.getSessionBuffer(ResultBufferType.BY_SCENARIO)
