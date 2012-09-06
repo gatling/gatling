@@ -23,5 +23,7 @@ import com.excilys.ebi.gatling.core.util.IOHelper.use
 
 class TemplateWriter(path: Path) {
 
-	def writeToFile(output: String) = use(File(path)(configuration.simulation.encoding).writer) { _.write(output) }
+	def writeToFile(output: String) {
+		use(File(path)(configuration.simulation.encoding).writer) { _.write(output) }
+	}
 }

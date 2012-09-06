@@ -26,7 +26,7 @@ class AllSessionsReportGenerator(runOn: String, dataReader: DataReader, componen
 	def generate {
 		val series = new Series[Long, Long]("All Sessions", dataReader.numberOfActiveSessionsPerSecond(), List(ORANGE))
 
-		val javascript = componentLibrary.getAllSessionsJs(series)
+		val javascript: String = componentLibrary.getAllSessionsJs(series)
 
 		new TemplateWriter(allSessionsFile(runOn)).writeToFile(javascript)
 	}

@@ -57,22 +57,19 @@ object ReportsGenerator extends Logging {
 			deepCopyPackageContent(GATLING_ASSETS_JS_PACKAGE, jsDirectory(runUuid))
 		}
 
-		if (dataReader.requestNames.isEmpty) {
-			throw new UnsupportedOperationException("There were no requests sent during the simulation, reports won't be generated")
+		if (dataReader.requestNames.isEmpty) throw new UnsupportedOperationException("There were no requests sent during the simulation, reports won't be generated")
 
-		} else {
-			val reportGenerators =
-				List(new AllSessionsReportGenerator(runUuid, dataReader, ComponentLibrary.instance),
-					new GlobalReportGenerator(runUuid, dataReader, ComponentLibrary.instance),
-					new RequestDetailsReportGenerator(runUuid, dataReader, ComponentLibrary.instance))
+		val reportGenerators =
+			List(new AllSessionsReportGenerator(runUuid, dataReader, ComponentLibrary.instance),
+				new GlobalReportGenerator(runUuid, dataReader, ComponentLibrary.instance),
+				new RequestDetailsReportGenerator(runUuid, dataReader, ComponentLibrary.instance))
 
-			copyAssets
-			generateMenu
-			PageTemplate.setRunInfo(dataReader.runRecord)
-			reportGenerators.foreach(_.generate)
-			generateStats
+		copyAssets
+		generateMenu
+		PageTemplate.setRunInfo(dataReader.runRecord)
+		reportGenerators.foreach(_.generate)
+		generateStats
 
-			globalFile(runUuid)
-		}
+		globalFile(runUuid)
 	}
 }

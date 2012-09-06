@@ -15,11 +15,11 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import com.excilys.ebi.gatling.charts.component.{ ComponentLibrary, StatisticsTextComponent, StatisticsTableComponent }
+import com.excilys.ebi.gatling.charts.component.{ Component, ComponentLibrary, StatisticsTableComponent }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.globalFile
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.template.GlobalPageTemplate
-import com.excilys.ebi.gatling.charts.util.Colors._
+import com.excilys.ebi.gatling.charts.util.Colors.{ BLUE, CYAN, GREEN, LIGHT_BLUE, LIGHT_LIME, LIGHT_ORANGE, LIGHT_PINK, LIGHT_PURPLE, LIGHT_RED, LIME, PINK, PURPLE, RED, YELLOW, toString }
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 
@@ -27,7 +27,7 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 
 	def generate {
 		def activeSessionsChartComponent = {
-			val activeSessionsSeries = dataReader
+			val activeSessionsSeries: Seq[Series[Long, Long]] = dataReader
 				.scenarioNames
 				.map { scenarioName => scenarioName -> dataReader.numberOfActiveSessionsPerSecond(Some(scenarioName)) }
 				.reverse
@@ -37,7 +37,7 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 			componentLibrary.getActiveSessionsChartComponent(activeSessionsSeries)
 		}
 
-		def requestsChartComponent = {
+		def requestsChartComponent: Component = {
 			val all = dataReader.numberOfRequestsPerSecond().sortBy(_._1)
 			val oks = dataReader.numberOfRequestsPerSecond(Some(OK)).sortBy(_._1)
 			val kos = dataReader.numberOfRequestsPerSecond(Some(KO)).sortBy(_._1)
@@ -50,7 +50,7 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 			componentLibrary.getRequestsChartComponent(allSeries, kosSeries, oksSeries, pieRequestsSeries)
 		}
 
-		def transactionsChartComponent = {
+		def transactionsChartComponent: Component = {
 			val all = dataReader.numberOfTransactionsPerSecond().sortBy(_._1)
 			val oks = dataReader.numberOfTransactionsPerSecond(Some(OK)).sortBy(_._1)
 			val kos = dataReader.numberOfTransactionsPerSecond(Some(KO)).sortBy(_._1)
@@ -63,7 +63,7 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 			componentLibrary.getTransactionsChartComponent(allSeries, kosSeries, oksSeries, pieRequestsSeries)
 		}
 
-		def responseTimeDistributionChartComponent = {
+		def responseTimeDistributionChartComponent: Component = {
 			val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100)
 			val okDistributionSeries = new Series[Long, Long]("Success", okDistribution, List(BLUE))
 			val koDistributionSeries = new Series[Long, Long]("Failure", koDistribution, List(RED))
@@ -71,11 +71,11 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 			componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
 		}
 
-		def statisticsComponent = componentLibrary.getNumberOfRequestsChartComponent
-		
-		def statisticsTableComponent = new StatisticsTableComponent
+		def statisticsComponent: Component = componentLibrary.getNumberOfRequestsChartComponent
 
-		def indicatorChartComponent = componentLibrary.getRequestDetailsIndicatorChartComponent
+		def statisticsTableComponent: Component = new StatisticsTableComponent
+
+		def indicatorChartComponent: Component = componentLibrary.getRequestDetailsIndicatorChartComponent
 
 		val template = new GlobalPageTemplate(
 			statisticsComponent,
@@ -89,6 +89,6 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 		new TemplateWriter(globalFile(runOn)).writeToFile(template.getOutput)
 	}
 
-	private def count(records: Seq[(Long, Long)]) = records.foldLeft(0L)((sum, entry) => sum + entry._2)
+	private def count(records: Seq[(Long, Long)]): Long = records.foldLeft(0L)((sum, entry) => sum + entry._2)
 
 }

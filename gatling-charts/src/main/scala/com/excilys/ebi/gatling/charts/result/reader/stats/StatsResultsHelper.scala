@@ -15,26 +15,27 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.stats
 
-import com.excilys.ebi.gatling.charts.result.reader.util.ResultBufferType._
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
+import com.excilys.ebi.gatling.charts.result.reader.util.ResultBufferType.{ BY_SCENARIO, BY_STATUS, BY_STATUS_AND_REQUEST, GLOBAL, getResultBufferType }
+import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RunRecord }
 
 import grizzled.slf4j.Logging
 
 object StatsResultsHelper extends Logging {
+
 	val NO_PLOT_MAGIC_VALUE = -1L
 
-	def getRunRecord(results: StatsResults) = {
+	def getRunRecord(results: StatsResults): RunRecord = {
 
 		val records = results.getRunRecordBuffer()
 		if (records.size != 1) warn("Expecting one and only one RunRecord")
 		records.head
 	}
 
-	def getRequestNames(results: StatsResults) = results.getRequestBuffer().sortBy(_.executionStart).map(_.request)
+	def getRequestNames(results: StatsResults): Seq[String] = results.getRequestBuffer().sortBy(_.executionStart).map(_.request)
 
-	def getScenarioNames(results: StatsResults) = results.getScenarioBuffer().sortBy(_.executionStart).map(_.scenario)
+	def getScenarioNames(results: StatsResults): Seq[String] = results.getScenarioBuffer().sortBy(_.executionStart).map(_.scenario)
 
-	def getNumberOfActiveSessionsPerSecond(results: StatsResults, scenarioName: Option[String]) = {
+	def getNumberOfActiveSessionsPerSecond(results: StatsResults, scenarioName: Option[String]): Seq[(Long, Long)] = {
 
 		val bufferType = scenarioName.map(_ => BY_SCENARIO).getOrElse(GLOBAL)
 
@@ -44,7 +45,7 @@ object StatsResultsHelper extends Logging {
 			.map(sessionRecord => (sessionRecord.executionStart, sessionRecord.size))
 	}
 
-	def getRequestsPerSec(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String], buckets: Seq[Long]) = {
+	def getRequestsPerSec(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String], buckets: Seq[Long]): Seq[(Long, Long)] = {
 
 		val requestsPerSecBuffer = filterByStatusAndRequest(results
 			.getRequestsPerSecBuffer(getResultBufferType(status, requestName)), status, requestName)
@@ -53,7 +54,7 @@ object StatsResultsHelper extends Logging {
 		getEventPerSec(requestsPerSecBuffer, buckets)
 	}
 
-	def getTransactionsPerSec(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String], buckets: Seq[Long]) = {
+	def getTransactionsPerSec(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String], buckets: Seq[Long]): Seq[(Long, Long)] = {
 
 		val transactionPerSecBuffer = filterByStatusAndRequest(results
 			.getTransactionPerSecBuffer(getResultBufferType(status, requestName)), status, requestName)
@@ -62,7 +63,7 @@ object StatsResultsHelper extends Logging {
 		getEventPerSec(transactionPerSecBuffer, buckets)
 	}
 
-	def getResponseTimeDistribution(results: StatsResults, maxPlots: Int, requestName: Option[String]) = {
+	def getResponseTimeDistribution(results: StatsResults, maxPlots: Int, requestName: Option[String]): (Seq[(Long, Long)], Seq[(Long, Long)]) = {
 
 		val bufferType = requestName.map(_ => BY_STATUS_AND_REQUEST).getOrElse(BY_STATUS)
 
@@ -103,7 +104,7 @@ object StatsResultsHelper extends Logging {
 		(process(ok), process(ko))
 	}
 
-	def getPercentiles(results: StatsResults, percentage1: Double, percentage2: Double, status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = {
+	def getPercentiles(results: StatsResults, percentage1: Double, percentage2: Double, status: Option[RequestStatus.RequestStatus], requestName: Option[String]): (Long, Long) = {
 
 		val bufferType = getResultBufferType(status, requestName)
 		val distributionBuffer = filterByStatusAndRequest(results.getResponseTimeDistributionBuffer(bufferType), status, requestName)
@@ -113,21 +114,21 @@ object StatsResultsHelper extends Logging {
 		(percentiles(0), percentiles(1))
 	}
 
-	def getMinResponseTime(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = getGeneralStat(results, _.min, NO_PLOT_MAGIC_VALUE, status, requestName)
+	def getMinResponseTime(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Long = getGeneralStat(results, _.min, NO_PLOT_MAGIC_VALUE, status, requestName)
 
-	def getMaxResponseTime(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = getGeneralStat(results, _.max, NO_PLOT_MAGIC_VALUE, status, requestName)
+	def getMaxResponseTime(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Long = getGeneralStat(results, _.max, NO_PLOT_MAGIC_VALUE, status, requestName)
 
-	def getCountRequests(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = getGeneralStat(results, _.size, NO_PLOT_MAGIC_VALUE, status, requestName)
+	def getCountRequests(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Long = getGeneralStat(results, _.size, NO_PLOT_MAGIC_VALUE, status, requestName)
 
-	def getMeanResponseTime(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = getGeneralStat(results, r => math.round(r.mean), NO_PLOT_MAGIC_VALUE, status, requestName)
+	def getMeanResponseTime(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Long = getGeneralStat(results, r => math.round(r.mean), NO_PLOT_MAGIC_VALUE, status, requestName)
 
-	def getMeanLatency(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = getGeneralStat(results, r => math.round(r.meanLatency), NO_PLOT_MAGIC_VALUE, status, requestName)
+	def getMeanLatency(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Long = getGeneralStat(results, r => math.round(r.meanLatency), NO_PLOT_MAGIC_VALUE, status, requestName)
 
-	def getMeanNumberOfRequestsPerSecond(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = getGeneralStat(results, r => math.round(r.meanRequestPerSec), NO_PLOT_MAGIC_VALUE, status, requestName)
+	def getMeanNumberOfRequestsPerSecond(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Long = getGeneralStat(results, r => math.round(r.meanRequestPerSec), NO_PLOT_MAGIC_VALUE, status, requestName)
 
-	def getResponseTimeStandardDeviation(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = getGeneralStat(results, r => math.round(r.stdDev), NO_PLOT_MAGIC_VALUE, status, requestName)
+	def getResponseTimeStandardDeviation(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Long = getGeneralStat(results, r => math.round(r.stdDev), NO_PLOT_MAGIC_VALUE, status, requestName)
 
-	def getNumberOfRequestInResponseTimeRange(results: StatsResults, lowerBound: Int, higherBound: Int, requestName: Option[String]) = {
+	def getNumberOfRequestInResponseTimeRange(results: StatsResults, lowerBound: Int, higherBound: Int, requestName: Option[String]): Seq[(String, Long)] = {
 
 		val bufferType = requestName.map(_ => BY_STATUS_AND_REQUEST).getOrElse(BY_STATUS)
 
@@ -149,22 +150,22 @@ object StatsResultsHelper extends Logging {
 			process("failed", ko))
 	}
 
-	def getResponseTimeGroupByExecutionStartDate(results: StatsResults, status: RequestStatus.RequestStatus, requestName: String) =
+	def getResponseTimeGroupByExecutionStartDate(results: StatsResults, status: RequestStatus.RequestStatus, requestName: String): Seq[(Long, (Long, Long))] =
 		filterByStatusAndRequest(results
 			.getResponseTimePerSecBuffer(BY_STATUS_AND_REQUEST), Some(status), Some(requestName))
 			.map(record => (record.executionStartBucket, (record.responseTimeMin, record.responseTimeMax)))
 
-	def getLatencyGroupByExecutionStartDate(results: StatsResults, status: RequestStatus.RequestStatus, requestName: String) =
+	def getLatencyGroupByExecutionStartDate(results: StatsResults, status: RequestStatus.RequestStatus, requestName: String): Seq[(Long, (Long, Long))] =
 		filterByStatusAndRequest(results
 			.getLatencyPerSecBuffer(BY_STATUS_AND_REQUEST), Some(status), Some(requestName))
 			.map(record => (record.executionStartBucket, (record.latencyMin, record.latencyMax)))
 
-	def getRequestAgainstResponseTime(results: StatsResults, status: RequestStatus.RequestStatus, requestName: String) =
+	def getRequestAgainstResponseTime(results: StatsResults, status: RequestStatus.RequestStatus, requestName: String): Seq[(Long, Long)] =
 		filterByStatusAndRequest(results
 			.getRequestAgainstResponseTimeBuffer(BY_STATUS_AND_REQUEST), Some(status), Some(requestName))
 			.map(record => (record.size, record.responseTime))
 
-	private def getEventPerSec(eventsPerSec: Seq[(Long, Long)], buckets: Seq[Long]) = {
+	private def getEventPerSec(eventsPerSec: Seq[(Long, Long)], buckets: Seq[Long]): Seq[(Long, Long)] = {
 		val (result, _) = buckets.foldLeft((Seq[(Long, Long)](), eventsPerSec)) {
 			(accum, bucket) =>
 				val (result, buffer) = accum
@@ -174,7 +175,7 @@ object StatsResultsHelper extends Logging {
 		result
 	}
 
-	private def getGeneralStat[A](results: StatsResults, statValue: (GeneralStatsRecord) => A, defaultValue: A, status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = {
+	private def getGeneralStat[A](results: StatsResults, statValue: (GeneralStatsRecord) => A, defaultValue: A, status: Option[RequestStatus.RequestStatus], requestName: Option[String]): A = {
 		filterByStatusAndRequest(results
 			.getGeneralStatsBuffer(getResultBufferType(status, requestName)), status, requestName)
 			.headOption
@@ -182,6 +183,6 @@ object StatsResultsHelper extends Logging {
 			.getOrElse(defaultValue)
 	}
 
-	private def filterByStatusAndRequest[A <: RecordWithStatusAndRequest](buffer: Seq[A], status: Option[RequestStatus.RequestStatus], request: Option[String]) =
+	private def filterByStatusAndRequest[A <: RecordWithStatusAndRequest](buffer: Seq[A], status: Option[RequestStatus.RequestStatus], request: Option[String]): Seq[A] =
 		buffer.filter(record => record.status == status && record.request == request)
 }

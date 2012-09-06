@@ -22,7 +22,7 @@ import scala.io.Source
 class MultiFileIterator(files: Iterator[File], encoding: String) extends Iterator[String] {
 	var currentIterator: Iterator[String] = Iterator.empty
 
-	def hasNext = {
+	def hasNext: Boolean = {
 		if (currentIterator.hasNext) true
 		else {
 			while (files.hasNext && !currentIterator.hasNext)
@@ -31,5 +31,5 @@ class MultiFileIterator(files: Iterator[File], encoding: String) extends Iterato
 		}
 	}
 
-	def next() = currentIterator.next()
+	def next: String = currentIterator.next
 }
