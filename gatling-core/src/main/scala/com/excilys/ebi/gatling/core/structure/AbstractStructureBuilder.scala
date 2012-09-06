@@ -45,7 +45,7 @@ import akka.util.duration.longToDurationLong
  * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
  */
 abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] {
-	
+
 	private[core] def actionBuilders: List[ActionBuilder]
 
 	private[core] def newInstance(actionBuilders: List[ActionBuilder]): B
@@ -196,15 +196,38 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] {
 	 * Switch is selected randomly. If no switch is selected (ie random number exceeds percentages sum), switch is bypassed.
 	 * Percentages sum can't exceed 100%.
 	 *
-	 * @param possibilities the possible subchains
+	 * @param possibility1 the first possible subchain
+	 * @param possibility2 the second possible subchain
+	 * @param possibilities the rest of the possible subchains
 	 * @return a new builder with a random switch added to its actions
 	 */
-	def randomSwitch(possibility: (Int, ChainBuilder), possibilities: (Int, ChainBuilder)*): B = newInstance(randomSwitchBuilder.withPossibilities(possibility :: possibilities.toList) :: actionBuilders)
+	def randomSwitch(possibility1: (Int, ChainBuilder), possibility2: (Int, ChainBuilder), possibilities: (Int, ChainBuilder)*): B = newInstance(randomSwitchBuilder.withPossibilities(possibility1 :: possibility2 :: possibilities.toList) :: actionBuilders)
+
+	/**
+	 * Add a switch in the chain. Selection uses a random strategy
+	 *
+	 * @param possibility1 the first possible subchain
+	 * @param possibility2 the second possible subchain
+	 * @param possibilities the rest of the possible subchains
+	 * @return a new builder with a random switch added to its actions
+	 */
+	def randomSwitch(possibility1: ChainBuilder, possibility2: ChainBuilder, possibilities: ChainBuilder*): B = {
+
+		val tailPossibilities = possibility2 :: possibilities.toList
+		val basePercentage = 100 / (tailPossibilities.size + 1)
+		val firstPercentage = 100 - basePercentage * tailPossibilities.size
+
+		val possibilitiesWithPercentage = (firstPercentage, possibility1) :: tailPossibilities.map((basePercentage, _))
+
+		newInstance(randomSwitchBuilder.withPossibilities(possibilitiesWithPercentage) :: actionBuilders)
+	}
 
 	/**
 	 * Add a switch in the chain. Selection uses a round robin strategy
 	 *
-	 * @param possibilities the possible subchains
+	 * @param possibility1 the first possible subchain
+	 * @param possibility2 the second possible subchain
+	 * @param possibilities the rest of the possible subchains
 	 * @return a new builder with a random switch added to its actions
 	 */
 	def roundRobinSwitch(possibility1: ChainBuilder, possibility2: ChainBuilder, possibilities: ChainBuilder*): B = newInstance(roundRobinSwitchBuilder.withPossibilities(possibility1 :: possibility2 :: possibilities.toList) :: actionBuilders)
