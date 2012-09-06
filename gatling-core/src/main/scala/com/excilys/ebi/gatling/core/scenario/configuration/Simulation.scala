@@ -15,4 +15,17 @@
  */
 package com.excilys.ebi.gatling.core.scenario.configuration
 
-abstract class Simulation extends (() => Seq[ConfiguredScenarioBuilder])
+import com.excilys.ebi.gatling.core.structure.AbstractStructureBuilder
+import com.excilys.ebi.gatling.core.structure.ChainBuilder
+import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
+
+abstract class Simulation extends AbstractStructureBuilder[ChainBuilder] {
+
+	private[core] val actionBuilders: List[ActionBuilder] = Nil
+
+	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = new ChainBuilder(actionBuilders, null)
+
+	private[core] def getInstance = newInstance(Nil)
+
+	def apply(): Seq[ConfiguredScenarioBuilder]
+}

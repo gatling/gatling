@@ -44,7 +44,9 @@ import akka.util.duration.longToDurationLong
  *
  * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
  */
-abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val actionBuilders: List[ActionBuilder]) {
+abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] {
+	
+	private[core] def actionBuilders: List[ActionBuilder]
 
 	private[core] def newInstance(actionBuilders: List[ActionBuilder]): B
 
@@ -227,7 +229,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]](val ac
 	 *
 	 * @param chain the chain of actions that should be repeated
 	 */
-	@deprecated("Will be remove in Gatling 1.4.0.")
+	@deprecated("Will be removed in Gatling 1.4.0.")
 	def loop(chain: ChainBuilder) = new LoopBuilder[B](getInstance, chain, None)
 
 	def repeat(times: Int)(chain: ChainBuilder): B = repeat(times, None, chain)

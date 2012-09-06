@@ -25,7 +25,7 @@ import com.excilys.ebi.gatling.core.scenario.configuration.{ ConfiguredScenarioB
  * ScenarioBuilder class companion
  */
 object ScenarioBuilder {
-	def scenario(scenarioName: String) = new ScenarioBuilder(scenarioName, Nil).start
+	def scenario(scenarioName: String): ScenarioBuilder = new ScenarioBuilder(scenarioName, List(startActionBuilder))
 }
 
 /**
@@ -35,22 +35,13 @@ object ScenarioBuilder {
  * @param actionBuilders the list of all the actions that compose the scenario
  * @param next the action that will be executed after this scenario (that can be a chain as well)
  */
-class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder]) extends AbstractStructureBuilder[ScenarioBuilder](actionBuilders) {
+class ScenarioBuilder(name: String, val actionBuilders: List[ActionBuilder]) extends AbstractStructureBuilder[ScenarioBuilder] {
 
-	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = {
-		new ScenarioBuilder(name, actionBuilders)
-	}
+	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = new ScenarioBuilder(name, actionBuilders)
 
 	private[core] def getInstance = this
 
 	def configure = new ConfiguredScenarioBuilder(this)
-
-	/**
-	 * Method that should not be used in a script. It adds a StartAction to the scenario
-	 *
-	 * @return a new builder with its first action added
-	 */
-	private[core] def start: ScenarioBuilder = newInstance(startActionBuilder :: actionBuilders)
 
 	/**
 	 * Method that actually builds the scenario

@@ -8,8 +8,7 @@
 <%@ val id: Int %>
 <%@ val credentials: Option[(String,String)] %>
 <%@ val simulationClass: String %>
-			.exec(
-				http("request_<%= id %>")
+exec(http("request_<%= id %>")
 					.<%= method.toLowerCase %>("<%= printedUrl %>")
 <% headersId.map { headersId => %>
 					.headers(headers_<%= headersId %>)

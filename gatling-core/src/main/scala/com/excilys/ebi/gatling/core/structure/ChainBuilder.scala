@@ -24,19 +24,21 @@ import akka.actor.ActorRef
  * ChainBuilder class companion
  */
 object ChainBuilder {
+
 	/**
 	 * DSL helper that creates a new ChainBuilder
 	 */
-	def chain = new ChainBuilder(Nil, null)
+	@deprecated("Will be removed in Gatling 1.4.0. Call the method directly without suffixing with chain.")
+	val chain = new ChainBuilder(Nil, null)
 }
+
 /**
  * This class defines chain related methods
  *
  * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
  * @param next the action that will be executed after this chain
  */
-class ChainBuilder(actionBuilders: List[ActionBuilder], next: ActorRef)
-		extends AbstractStructureBuilder[ChainBuilder](actionBuilders) {
+class ChainBuilder(val actionBuilders: List[ActionBuilder], next: ActorRef) extends AbstractStructureBuilder[ChainBuilder] {
 
 	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = new ChainBuilder(actionBuilders, next)
 
