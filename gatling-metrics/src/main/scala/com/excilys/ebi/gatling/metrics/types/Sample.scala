@@ -15,11 +15,39 @@
  */
 package com.excilys.ebi.gatling.metrics.types
 
-class ClearedFastCounter extends FastCounter {
+import scala.util.Random.nextInt
 
-	override def count = {
-		val count = super.count
-		super.clear
-		count
+object Sample {
+	val SAMPLE_SIZE = 1028
+}
+
+class Sample {
+
+	private var count = 0
+	private val values: Array[Long] = new Array[Long](Sample.SAMPLE_SIZE)
+
+	def update(value: Long) {
+		if (count < values.length) {
+			values(count) = value
+		} else {
+			val random = nextInt(count + 1)
+			if (random < values.length) {
+				values(random) = value
+			}
+		}
+		count += 1
 	}
+
+	def size = count min values.length
+
+
+	def getQuantile(quantile: Int) = {
+		val sortedValues = values.sorted
+		if (size == 0) 0
+		val index = (quantile / 100.) * (size + 1)
+		if (index < 1) sortedValues(0)
+		else if (index >= size) sortedValues(size - 1)
+		else sortedValues(index.toInt)
+	}
+
 }
