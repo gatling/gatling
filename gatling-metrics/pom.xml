@@ -42,10 +42,6 @@
 			<groupId>org.clapper</groupId>
 			<artifactId>grizzled-slf4j_2.9.2</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.yammer.metrics</groupId>
-			<artifactId>metrics-core</artifactId>
-		</dependency>
 	</dependencies>
 
 	<build>
