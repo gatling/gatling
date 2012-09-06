@@ -41,8 +41,12 @@ class <%= simulationClassName %> extends Simulation {
 <%}%>
 
 		val scn = scenario("<%= scenarioName %>")
-<% for (i <- 0 until chains.size ) {%>
-			.insertChain(chain_<%= i %>)
+<% for ((chain, i) <- chains.zipWithIndex) {%>
+	<%if (i == 0) {%>
+		chain_0
+	<%} else {%>
+		.insertChain(chain_<%= i %>)
+	<%}%>
 <%}%>
 <%}%>
 

@@ -215,7 +215,9 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] {
 	 * @param chain the chain to be included in the scenario
 	 * @return a new builder with all actions from the chain added to its actions
 	 */
+	@deprecated("""Will be removed in Gatling 1.4.0. Use "chain" instead.""")
 	def insertChain(chain: ChainBuilder): B = newInstance(chain.actionBuilders ::: actionBuilders)
+	def chain(chain: ChainBuilder): B = newInstance(chain.actionBuilders ::: actionBuilders)
 
 	/**
 	 * Method used to load data from a feeder in the current scenario
