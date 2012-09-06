@@ -15,7 +15,9 @@
  */
 package com.excilys.ebi.gatling.metrics
 
-import types.{RequestMetric, UserMetric}
+import java.io.{ BufferedWriter, IOException, OutputStreamWriter }
+import java.net.Socket
+import java.util.{ HashMap, Timer, TimerTask }
 
 import scala.collection.JavaConversions.mapAsScalaMap
 import scala.collection.mutable
@@ -23,28 +25,14 @@ import scala.collection.mutable
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message._
-import com.excilys.ebi.gatling.core.result.writer.DataWriter
-import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
-import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
-import MetricsDataWriter.{DOT, SPACE}
+import com.excilys.ebi.gatling.core.result.message.{ FlushDataWriter, InitializeDataWriter, RequestRecord, RunRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.terminator.Terminator
+import com.excilys.ebi.gatling.core.result.writer.DataWriter
+import com.excilys.ebi.gatling.core.util.StringHelper.{ DOT, END_OF_LINE, SPACE }
+import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
+import com.excilys.ebi.gatling.metrics.types.{ RequestMetric, UserMetric }
 
-
-import java.net.Socket
-import java.io.{BufferedWriter, IOException, OutputStreamWriter}
-import java.util.{TimerTask, Timer, HashMap}
-
-import org.apache.commons.io.IOUtils.closeQuietly
-import com.excilys.ebi.gatling.core.result.message.RunRecord
-import com.excilys.ebi.gatling.core.result.message.ShortScenarioDescription
-import com.excilys.ebi.gatling.core.result.message.RequestRecord
-
-object MetricsDataWriter {
-
-	val SPACE = " "
-	val DOT = "."
-}
+case object SendToGraphite
 
 class MetricsDataWriter extends DataWriter {
 
@@ -61,10 +49,10 @@ class MetricsDataWriter extends DataWriter {
 		simulationName = runRecord.simulationClassSimpleName
 		allUsers = new UserMetric(scenarios.map(_.nbUsers).sum)
 		scenarios.foreach(scenario => usersPerScenario.+=((scenario.name, new UserMetric(scenario.nbUsers))))
+		socket = new Socket(configuration.graphite.host, configuration.graphite.port)
 		writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream))
 		timer = new Timer(true)
 		timer.scheduleAtFixedRate(new SendToGraphiteTask, 0, 1000)
-		socket = new Socket(configuration.graphite.host, configuration.graphite.port)
 	}
 
 	def onRequestRecord(requestRecord: RequestRecord) {
@@ -84,44 +72,11 @@ class MetricsDataWriter extends DataWriter {
 		socket.close
 	}
 
-	def uninitialized2: Receive = {
-		case InitializeDataWriter(runRecord, scenarios) =>
+	override def receive = uninitialized
 
-			Terminator.registerDataWriter(self)
-			onInitializeDataWriter(runRecord, scenarios)
-			context.become(initialized)
-	}
-
-	def initialized2: Receive = {
-		case requestRecord: RequestRecord => onRequestRecord(requestRecord)
+	override def initialized: Receive = super.initialized.orElse {
 		case SendToGraphite => sendMetricsToGraphite
-		case FlushDataWriter =>
-			try {
-				onFlushDataWriter
-			} finally {
-				context.unbecome
-				sender ! true
-			}
 	}
-
-	override def receive = uninitialized2
-
-//	override def initialized: Receive = super.initialized orElse{
-//		case SendToGraphite => sendMetricsToGraphite
-//	}
-
-//	override def initialized: Receive = {
-//		case requestRecord: RequestRecord => onRequestRecord(requestRecord)
-//		case SendToGraphite => sendMetricsToGraphite
-//		case FlushDataWriter =>
-//			try {
-//				onFlushDataWriter
-//			} finally {
-//				context.unbecome
-//				sender ! true
-//			}
-//		case _ =>
-//	}
 
 	def sendToGraphite(header: String, valueName: String, value: Long, epoch: Long) {
 		writer.write(header)
@@ -177,19 +132,14 @@ class MetricsDataWriter extends DataWriter {
 		} catch {
 			case e: IOException => {
 				error("Error writing to Graphite", e)
-				closeQuietly(writer)
-				writer = null
+				writer.close
 			}
 		}
 	}
 	private class SendToGraphiteTask extends TimerTask {
 		def run() {
 			self ! SendToGraphite
-//			sendMetricsToGraphite
 		}
 	}
-
 }
-
-case object SendToGraphite
 
