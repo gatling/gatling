@@ -15,7 +15,9 @@
  */
 package com.excilys.ebi.gatling.http.util
 
-import java.net.URI
+import java.net.{ URI, URLDecoder }
+
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 object HttpHelper {
 
@@ -36,5 +38,20 @@ object HttpHelper {
 			}
 			new URI(originalRequestURI.getScheme, null, originalRequestURI.getHost, originalRequestURI.getPort, newPath, null, null).toString
 		}
+	}
+
+	def parseFormBody(body: String): List[(String, String)] = {
+		def utf8Decode(s: String) = URLDecoder.decode(s, "UTF-8")
+
+		body
+			.split("&")
+			.map(_.split("="))
+			.map { pair =>
+
+				val paramName = utf8Decode(pair(0))
+				val paramValue = if (pair.isDefinedAt(1)) utf8Decode(pair(1)) else EMPTY
+
+				paramName -> paramValue
+			}.toList
 	}
 }
