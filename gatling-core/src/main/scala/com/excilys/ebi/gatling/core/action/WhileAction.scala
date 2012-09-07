@@ -19,7 +19,6 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.session.handler.{ TimerBasedIterationHandler, CounterBasedIterationHandler }
 
 import akka.actor.ActorRef
-import grizzled.slf4j.Logging
 
 /**
  * Action in charge of controlling a while loop execution.
@@ -29,7 +28,7 @@ import grizzled.slf4j.Logging
  * @param next the chain executed if testFunction evaluates to false
  * @param counterName the name of the counter for this loop
  */
-class WhileAction(condition: Session => Boolean, next: ActorRef, val counterName: String) extends Action with TimerBasedIterationHandler with CounterBasedIterationHandler with Logging {
+class WhileAction(condition: Session => Boolean, next: ActorRef, val counterName: String) extends Action("While", next) with TimerBasedIterationHandler with CounterBasedIterationHandler {
 
 	var loopNextAction: ActorRef = _
 
@@ -57,13 +56,5 @@ class WhileAction(condition: Session => Boolean, next: ActorRef, val counterName
 			loopNextAction ! sessionWithTimerIncremented
 		else
 			next ! expire(session)
-	}
-
-	override def preRestart(reason: Throwable, message: Option[Any]) {
-		error("'loop' condition evaluation crashed, exiting block for this user", reason)
-		message match {
-			case Some(session: Session) => next ! expire(session)
-			case _ =>
-		}
 	}
 }

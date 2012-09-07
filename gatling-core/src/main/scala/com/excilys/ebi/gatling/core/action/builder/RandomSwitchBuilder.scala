@@ -63,6 +63,6 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], next: ActorR
 			determineNextAction(RandomSwitchBuilder.randomData.nextInt(1, 100), possibleActions)
 		}
 
-		system.actorOf(Props(new SwitchAction(strategy)))
+		system.actorOf(Props(new SwitchAction(strategy, next)))
 	}
 }

@@ -41,7 +41,7 @@ object Check {
 				val (newSession, checkResult) = check(response, session)
 
 				checkResult match {
-					case failure @ Failure(_) => (newSession, failure)
+					case failure @ Failure(_) => (newSession.setFailed, failure)
 					case success @ Success(extractedValue) => applyChecksRec(newSession, response, otherChecks, success)
 				}
 		}

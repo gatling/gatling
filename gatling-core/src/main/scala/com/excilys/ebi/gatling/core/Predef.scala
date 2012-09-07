@@ -47,14 +47,23 @@ object Predef {
 	type Session = com.excilys.ebi.gatling.core.session.Session
 	type Simulation = com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 
+	@deprecated("Will be removed in Gatling 1.4.0.")
 	val MILLISECONDS = TimeUnit.MILLISECONDS
+	@deprecated("Will be removed in Gatling 1.4.0.")
 	val SECONDS = TimeUnit.SECONDS
+	@deprecated("Will be removed in Gatling 1.4.0.")
 	val NANOSECONDS = TimeUnit.NANOSECONDS
+	@deprecated("Will be removed in Gatling 1.4.0.")
 	val MICROSECONDS = TimeUnit.MICROSECONDS
+	@deprecated("Will be removed in Gatling 1.4.0.")
 	val MINUTES = TimeUnit.MINUTES
+	@deprecated("Will be removed in Gatling 1.4.0.")
 	val HOURS = TimeUnit.HOURS
+	@deprecated("Will be removed in Gatling 1.4.0.")
 	val DAYS = TimeUnit.DAYS
 
 	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder.scenario(scenarioName)
-	def chain = ChainBuilder.chain
+	@deprecated("""Will be removed in Gatling 1.4.0. Use "emptyChain" instead.""")
+	def chain = emptyChain
+	def emptyChain = ChainBuilder.chain
 }

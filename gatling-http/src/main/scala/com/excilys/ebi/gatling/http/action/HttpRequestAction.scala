@@ -87,8 +87,7 @@ object HttpRequestAction extends Logging {
  * @param checks the checks that will be performed on the response
  * @param protocolConfiguration the protocol specific configuration
  */
-class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]], protocolConfiguration: HttpProtocolConfiguration)
-		extends Action with Logging {
+class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]], protocolConfiguration: HttpProtocolConfiguration) extends Action(requestName, next) {
 
 	val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks)
 	val asyncHandlerActorFactory = GatlingAsyncHandlerActor.newAsyncHandlerActorFactory(checks, next, requestName, protocolConfiguration)
@@ -109,14 +108,6 @@ class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: Abs
 			val actor = context.actorOf(Props(asyncHandlerActorFactory(request, newSession)))
 			val ahcHandler = handlerFactory(requestName, actor)
 			client.executeRequest(request, ahcHandler)
-		}
-	}
-
-	override def preRestart(reason: Throwable, message: Option[Any]) {
-		error("request " + requestName + " building crashed, skipping it", reason)
-		message match {
-			case Some(session: Session) => next ! session
-			case _ =>
 		}
 	}
 }

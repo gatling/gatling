@@ -21,7 +21,6 @@ import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.ActorRef
 import akka.util.duration.longToDurationLong
-import grizzled.slf4j.Logging
 
 /**
  * PauseAction provides a convenient means to implement pause actions based on random distributions.
@@ -29,7 +28,7 @@ import grizzled.slf4j.Logging
  * @param next the next action to execute, which will be notified after the pause is complete
  * @param generateDelayInMillis a function that can be used to generate a delays for the pause action
  */
-class PauseAction(next: ActorRef, generateDelayInMillis: () => Long) extends Action with Logging {
+class PauseAction(next: ActorRef, generateDelayInMillis: () => Long) extends Action("Pause", next) {
 
 	/**
 	 * Generates a duration if required or use the one given and defer

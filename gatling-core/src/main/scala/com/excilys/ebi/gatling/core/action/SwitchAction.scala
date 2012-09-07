@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.ActorRef
 
-class SwitchAction(strategy: () => ActorRef) extends Action {
+class SwitchAction(strategy: () => ActorRef, next: ActorRef) extends Action("Switch", next) {
 
 	def execute(session: Session) {
 

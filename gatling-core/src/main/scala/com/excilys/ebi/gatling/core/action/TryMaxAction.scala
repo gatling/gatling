@@ -15,17 +15,12 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
+import akka.actor.ActorRef
+import com.excilys.ebi.gatling.core.session.Session
 
-import akka.actor.{ Actor, Terminated }
-import grizzled.slf4j.Logging
+class TryMaxAction(times: Int, next: ActorRef, counterName: String) extends WhileAction((s: Session) => s.isFailed && s.getCounterValue(counterName) < times, next, counterName) {
 
-abstract class LoggingActor extends Actor with ClassSimpleNameToString with Logging {
-
-	override def unhandled(message: Any) {
-		message match {
-			case Terminated(dead) => super.unhandled(message)
-			case unknown => throw new IllegalArgumentException("Actor " + this + " doesn't support message " + unknown)
-		}
+	override def handleExitBecauseFailed(session: Session) {
+		execute(session)
 	}
 }

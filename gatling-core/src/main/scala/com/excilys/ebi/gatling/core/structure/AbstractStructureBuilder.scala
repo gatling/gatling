@@ -32,7 +32,7 @@ import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.session.{ EvaluatableString, Session }
 import com.excilys.ebi.gatling.core.structure.loop.LoopBuilder
-import com.excilys.ebi.gatling.core.structure.loop.handler.{ ConditionalLoopHandlerBuilder, DurationLoopHandlerBuilder, TimesLoopHandlerBuilder }
+import com.excilys.ebi.gatling.core.structure.loop.handler.{ ConditionalLoopHandlerBuilder, DurationLoopHandlerBuilder, TimesLoopHandlerBuilder, TryMaxLoopHandlerBuilder }
 import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 
 import akka.actor.ActorRef
@@ -56,6 +56,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] {
 	 * @param actionBuilder the action builder representing the action to be executed
 	 */
 	def exec(actionBuilder: ActionBuilder): B = newInstance(actionBuilder :: actionBuilders)
+	def exec(chain: ChainBuilder): B = newInstance(chain.actionBuilders ::: actionBuilders)
 
 	/**
 	 * Method used to define a pause
@@ -238,9 +239,8 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] {
 	 * @param chain the chain to be included in the scenario
 	 * @return a new builder with all actions from the chain added to its actions
 	 */
-	@deprecated("""Will be removed in Gatling 1.4.0. Use "chain" instead.""")
+	@deprecated("""Will be removed in Gatling 1.4.0. Use "exec" instead.""")
 	def insertChain(chain: ChainBuilder): B = newInstance(chain.actionBuilders ::: actionBuilders)
-	def chain(chain: ChainBuilder): B = newInstance(chain.actionBuilders ::: actionBuilders)
 
 	/**
 	 * Method used to load data from a feeder in the current scenario
@@ -288,6 +288,17 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] {
 	def asLongAs(condition: Session => Boolean)(chain: ChainBuilder): B = asLongAs(condition, None, chain)
 	def asLongAs(condition: Session => Boolean, counterName: String)(chain: ChainBuilder): B = asLongAs(condition, Some(counterName), chain)
 	private def asLongAs(condition: Session => Boolean, counterName: Option[String], chain: ChainBuilder): B = new ConditionalLoopHandlerBuilder(getInstance, chain, condition, counterName).build
+
+	def exitBlockOnFail(chain: ChainBuilder): B = {
+		val startBlock = simpleActionBuilder((session: Session) => session.clearFailed.setMustExitOnFail)
+		val endBlock = simpleActionBuilder((session: Session) => session.clearFailed.clearMustExitOnFail)
+
+		exec(startBlock).exec(chain).exec(endBlock)
+	}
+
+	def tryMax(times: Int, counterName: Option[String] = None)(chain: ChainBuilder): B = new TryMaxLoopHandlerBuilder(getInstance, chain, times, counterName).build
+
+	def exitHereIfFailed: B = exec(simpleActionBuilder((session: Session) => session.setMustExitOnFail))
 
 	private[core] def getInstance: B
 

@@ -17,14 +17,16 @@ package com.excilys.ebi.gatling.core.action
 
 import com.excilys.ebi.gatling.core.session.Session
 
+import akka.actor.ActorRef
+
 /**
  * Top level abstraction in charge or executing concrete actions along a scenario, for example sending an HTTP request.
  * It is implemented as an Akka Actor that receives Session messages.
  */
-abstract class Action extends LoggingActor {
+abstract class Action(name: String, next: ActorRef) extends LoggingActor {
 
 	def receive = {
-		case session: Session => execute(session)
+		case session: Session => if (session.shouldExitBecauseFailed) handleExitBecauseFailed(session) else execute(session)
 	}
 
 	/**
@@ -34,4 +36,16 @@ abstract class Action extends LoggingActor {
 	 * @return Nothing
 	 */
 	def execute(session: Session)
+
+	def handleExitBecauseFailed(session: Session) {
+		next ! session
+	}
+
+	override def preRestart(reason: Throwable, message: Option[Any]) {
+		error("Action " + this + " named " + name + " crashed, forwarding user to next one", reason)
+		message match {
+			case Some(session: Session) if (next != null) => next ! session.setFailed
+			case _ =>
+		}
+	}
 }

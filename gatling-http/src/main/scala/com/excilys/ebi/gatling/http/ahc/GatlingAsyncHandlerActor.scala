@@ -112,12 +112,12 @@ class GatlingAsyncHandlerActor(
 			responseBuilder.computeExecutionEndDateFromNanos(nanos)
 			val response = responseBuilder.build
 			logRequest(KO, response, Some(errorMessage))
-			executeNext(session, response)
+			executeNext(session.setFailed, response)
 
 		case ReceiveTimeout =>
 			val response = responseBuilder.build
 			logRequest(KO, response, Some("GatlingAsyncHandlerActor timed out"))
-			executeNext(session, response)
+			executeNext(session.setFailed, response)
 	}
 
 	def resetTimeout = context.setReceiveTimeout(configuration.http.requestTimeOutInMs milliseconds)

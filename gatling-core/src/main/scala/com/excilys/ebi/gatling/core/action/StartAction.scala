@@ -19,7 +19,6 @@ import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.ActorRef
-import grizzled.slf4j.Logging
 
 object StartAction {
 
@@ -35,7 +34,7 @@ object StartAction {
  * @constructor create an StartAction
  * @param next the action to be executed after this one
  */
-class StartAction(next: ActorRef) extends Action with Logging {
+class StartAction(next: ActorRef) extends Action(StartAction.START_OF_SCENARIO, next) {
 
 	/**
 	 * Sends a message to the DataWriter and gives hand to next actor

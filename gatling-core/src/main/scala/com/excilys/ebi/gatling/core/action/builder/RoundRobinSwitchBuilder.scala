@@ -43,6 +43,6 @@ class RoundRobinSwitchBuilder(possibilities: List[ChainBuilder], next: ActorRef)
 
 		val strategy = () => rr.next
 
-		system.actorOf(Props(new SwitchAction(strategy)))
+		system.actorOf(Props(new SwitchAction(strategy, next)))
 	}
 }

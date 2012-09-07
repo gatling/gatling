@@ -27,7 +27,7 @@ import grizzled.slf4j.Logging
  * @param sessionFunction a function for manipulating the Session
  * @param next the action to be executed after this one
  */
-class SimpleAction(sessionFunction: Session => Session, next: ActorRef) extends Action with Logging {
+class SimpleAction(sessionFunction: Session => Session, next: ActorRef) extends Action("Simple", next) with Logging {
 
 	/**
 	 * Applies the function to the Session
@@ -36,13 +36,5 @@ class SimpleAction(sessionFunction: Session => Session, next: ActorRef) extends 
 	 */
 	def execute(session: Session) {
 		next ! sessionFunction(session)
-	}
-
-	override def preRestart(reason: Throwable, message: Option[Any]) {
-		error("Error while executing simple action", reason)
-		message match {
-			case Some(session: Session) => next ! session
-			case _ =>
-		}
 	}
 }

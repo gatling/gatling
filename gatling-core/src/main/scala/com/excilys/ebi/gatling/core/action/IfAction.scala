@@ -18,7 +18,6 @@ package com.excilys.ebi.gatling.core.action
 import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.ActorRef
-import grizzled.slf4j.Logging
 
 /**
  * A conditional Action
@@ -29,7 +28,7 @@ import grizzled.slf4j.Logging
  * @param elseNext chain of actions executed if condition evaluates to false
  * @param next chain of actions executed if condition evaluates to false and elseNext equals None
  */
-class IfAction(condition: Session => Boolean, thenNext: ActorRef, elseNext: Option[ActorRef], next: ActorRef) extends Action with Logging {
+class IfAction(condition: Session => Boolean, thenNext: ActorRef, elseNext: Option[ActorRef], next: ActorRef) extends Action("If", next) {
 
 	/**
 	 * Evaluates the condition and decides what to do next
@@ -40,13 +39,5 @@ class IfAction(condition: Session => Boolean, thenNext: ActorRef, elseNext: Opti
 
 		val nextAction = if (condition(session)) thenNext else elseNext.getOrElse(next)
 		nextAction ! session
-	}
-
-	override def preRestart(reason: Throwable, message: Option[Any]) {
-		error("'if' condition evaluation crashed, exiting block for this user", reason)
-		message match {
-			case Some(session: Session) => next ! session
-			case _ =>
-		}
 	}
 }

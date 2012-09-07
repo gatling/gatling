@@ -15,7 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.session
 
-import com.excilys.ebi.gatling.core.session.handler.{ TimerBasedIterationHandler, CounterBasedIterationHandler }
+import com.excilys.ebi.gatling.core.session.handler.{ CounterBasedIterationHandler, TimerBasedIterationHandler }
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 /**
  * Session class companion
@@ -24,10 +25,11 @@ object Session {
 
 	val GATLING_PRIVATE_ATTRIBUTE_PREFIX = "gatling."
 
-	/**
-	 * Key for last action duration
-	 */
 	val TIME_SHIFT_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.timeShift"
+
+	val FAILED_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.failed"
+
+	val MUST_EXIT_ON_FAIL_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.mustExitOnFailed"
 }
 /**
  * Session class representing the session passing through a scenario for a given user
@@ -83,7 +85,7 @@ class Session(val scenarioName: String, val userId: Int, data: Map[String, Any] 
 	 *
 	 * @param attributeKey the key of the attribute to be removed
 	 */
-	def removeAttribute(attributeKey: String) = new Session(scenarioName, userId, data - attributeKey)
+	def removeAttribute(attributeKey: String) = if (isAttributeDefined(attributeKey)) new Session(scenarioName, userId, data - attributeKey) else this
 
 	def isAttributeDefined(attributeKey: String) = data.contains(attributeKey)
 
@@ -102,6 +104,18 @@ class Session(val scenarioName: String, val userId: Int, data: Map[String, Any] 
 	 * @return the value of the timer as a long
 	 */
 	def getTimerValue(timerName: String) = getAttributeAsOption[Long](TimerBasedIterationHandler.getTimerAttributeName(timerName)).getOrElse(throw new IllegalAccessError("Timer is not set : " + timerName))
+
+	def setFailed = setAttribute(Session.FAILED_KEY, EMPTY)
+
+	def clearFailed = removeAttribute(Session.FAILED_KEY)
+
+	def isFailed = isAttributeDefined(Session.FAILED_KEY)
+
+	def setMustExitOnFail = setAttribute(Session.MUST_EXIT_ON_FAIL_KEY, EMPTY)
+
+	def clearMustExitOnFail = removeAttribute(Session.MUST_EXIT_ON_FAIL_KEY)
+
+	def shouldExitBecauseFailed = isFailed && isAttributeDefined(Session.MUST_EXIT_ON_FAIL_KEY)
 
 	private[gatling] def setTimeShift(timeShift: Long): Session = setAttribute(Session.TIME_SHIFT_KEY, timeShift)
 
