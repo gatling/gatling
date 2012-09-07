@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.jdbc
 
-import com.excilys.ebi.gatling.jdbc.feeder.database.JdbcFeederBuilder
+import com.excilys.ebi.gatling.jdbc.feeder.database.JdbcFeederSource
 
 object Predef {
-	def jdbcFeeder(url: String, username: String, password: String, sql: String) = JdbcFeederBuilder.jdbcFeeder(url, username, password, sql)
+	def jdbcFeeder(url: String, username: String, password: String, sql: String) = new JdbcFeederSource(url, username, password, sql)
 }

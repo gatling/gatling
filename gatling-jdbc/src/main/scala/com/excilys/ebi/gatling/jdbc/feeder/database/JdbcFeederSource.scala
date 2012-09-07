@@ -23,7 +23,7 @@ import com.excilys.ebi.gatling.jdbc.util.JdbcHelper.use
 
 class JdbcFeederSource(url: String, username: String, password: String, sql: String) extends FeederSource(sql) {
 
-	lazy val values: IndexedSeq[Map[String, String]] = use(DriverManager.getConnection(url, username, password)) { connection =>
+	lazy val data: IndexedSeq[Map[String, String]] = use(DriverManager.getConnection(url, username, password)) { connection =>
 		val preparedStatement = connection.prepareStatement(sql, TYPE_FORWARD_ONLY, CONCUR_READ_ONLY)
 		val resultSet = preparedStatement.executeQuery
 		val rsmd = resultSet.getMetaData

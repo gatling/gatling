@@ -17,4 +17,9 @@ package com.excilys.ebi.gatling.core.feeder
 
 import com.excilys.ebi.gatling.core.util.RoundRobin
 
-class CircularFeeder(feederSource: FeederSource) extends RoundRobin(feederSource.values) with Feeder
+class CircularFeeder(feederSource: FeederSource) extends Feeder {
+
+	private val rr = new RoundRobin(feederSource.data)
+
+	def next = rr.next
+}

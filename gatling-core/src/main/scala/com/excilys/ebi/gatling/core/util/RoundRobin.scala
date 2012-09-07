@@ -22,5 +22,5 @@ class RoundRobin[T](values: Iterable[T]) {
 	else
 		Stream.continually(values).flatten.iterator
 
-	def next(): T = generator.next
+	def next: T = generator.next
 }

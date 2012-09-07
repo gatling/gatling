@@ -15,6 +15,17 @@
  */
 package com.excilys.ebi.gatling.core.feeder
 
+object FeederSource {
+	implicit def feederSourceToFeeder(builder: FeederSource) = builder.queue
+}
+
 abstract class FeederSource(val name: String) {
-	def values: IndexedSeq[Map[String, String]]
+
+	def data: IndexedSeq[Map[String, String]]
+
+	def queue = new QueueFeeder(this)
+
+	def random = new RandomFeeder(this)
+
+	def circular = new CircularFeeder(this)
 }

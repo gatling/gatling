@@ -16,16 +16,24 @@
 package com.excilys.ebi.gatling.core.feeder.csv
 
 import scala.io.Source
-import scala.tools.nsc.io.Path
 
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration
+import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import com.excilys.ebi.gatling.core.feeder.FeederSource
+import com.excilys.ebi.gatling.core.util.FileHelper.{ COMMA_SEPARATOR, SEMICOLON_SEPARATOR, TABULATION_SEPARATOR }
 
-class SeparatedValuesFeederSource(file: Path, separator: String, escapeChar: Option[String]) extends FeederSource(file.toString) {
+object SeparatedValuesFeederSource {
 
-	lazy val values: IndexedSeq[Map[String, String]] = {
+	def csv(fileName: String, escapeChar: Option[String] = None) = new SeparatedValuesFeederSource(fileName, COMMA_SEPARATOR, escapeChar)
+	def tsv(fileName: String, escapeChar: Option[String] = None) = new SeparatedValuesFeederSource(fileName, TABULATION_SEPARATOR, escapeChar)
+	def ssv(fileName: String, escapeChar: Option[String] = None) = new SeparatedValuesFeederSource(fileName, SEMICOLON_SEPARATOR, escapeChar)
+}
 
-		if (!file.exists) throw new IllegalArgumentException("file " + file + " doesn't exists")
+class SeparatedValuesFeederSource(fileName: String, separator: String, escapeChar: Option[String] = None) extends FeederSource(fileName) {
+
+	val file = GatlingFiles.dataDirectory / fileName
+	if (!file.exists) throw new IllegalArgumentException("file " + file + " doesn't exists")
+
+	val data: IndexedSeq[Map[String, String]] = {
 
 		val rawLines = Source.fromFile(file.jfile, GatlingConfiguration.configuration.simulation.encoding).getLines.map(_.split(separator))
 

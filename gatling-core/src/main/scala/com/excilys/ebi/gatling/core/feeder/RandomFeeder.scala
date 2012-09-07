@@ -21,5 +21,5 @@ class RandomFeeder(feederSource: FeederSource) extends Feeder {
 
 	private val random = new Random
 
-	def next: Map[String, String] = feederSource.values(random.nextInt(feederSource.values.size))
+	def next: Map[String, String] = feederSource.data(random.nextInt(feederSource.data.size))
 }

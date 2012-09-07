@@ -16,13 +16,10 @@
 package com.excilys.ebi.gatling.core.feeder.simple
 
 import com.excilys.ebi.gatling.core.feeder.FeederSource
-import com.excilys.ebi.gatling.core.feeder.SourceBasedFeederBuilder
 
 object SimpleFeederBuilder {
 
-	def simpleFeeder(name: String, data: IndexedSeq[Map[String, String]]) = new SourceBasedFeederBuilder[FeederSource] {
-		val source = new FeederSource(name) {
-			val values = data
-		}
+	def simpleFeeder(name: String, dataParam: IndexedSeq[Map[String, String]]) = new FeederSource(name) {
+		val data = dataParam
 	}
 }
