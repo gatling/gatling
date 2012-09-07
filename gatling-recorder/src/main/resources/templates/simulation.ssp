@@ -45,7 +45,7 @@ class <%= simulationClassName %> extends Simulation {
 	<%if (i == 0) {%>
 		chain_0
 	<%} else {%>
-		.insertChain(chain_<%= i %>)
+		.exec(chain_<%= i %>)
 	<%}%>
 <%}%>
 <%}%>
