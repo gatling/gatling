@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 		http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,11 +17,11 @@ package com.excilys.ebi.gatling.charts.report
 
 import scala.collection.immutable.ListMap
 
-import com.excilys.ebi.gatling.charts.component.{ ComponentLibrary, RequestStatistics, Statistics }
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ GLOBAL_PAGE_NAME, jsStatsFile, tsvStatsFile }
-import com.excilys.ebi.gatling.charts.template.{ StatsJsTemplate, StatsTsvTemplate }
+import com.excilys.ebi.gatling.charts.component.{ComponentLibrary, RequestStatistics, Statistics}
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.{GLOBAL_PAGE_NAME, jsStatsFile, tsvStatsFile}
+import com.excilys.ebi.gatling.charts.template.{StatsJsTemplate, StatsTsvTemplate}
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.{KO, OK}
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 
 class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) {
@@ -37,7 +37,7 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 
 				val totalCount = dataReader.countRequests(None, requestName)
 				val okCount = dataReader.countRequests(Some(OK), requestName)
-				val koCount = totalCount - okCount
+				val koCount = dataReader.countRequests(Some(KO), requestName)
 
 				val globalMinResponseTime = dataReader.minResponseTime(None, requestName)
 				val okMinResponseTime = dataReader.minResponseTime(Some(OK), requestName)
@@ -74,7 +74,9 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 
 				val groupedCounts = dataReader
 					.numberOfRequestInResponseTimeRange(configuration.charting.indicators.lowerBound, configuration.charting.indicators.higherBound, requestName)
-					.map { case (name, count) => (name, count, count * 100 / totalCount) }
+					.map {
+					case (name, count) => (name, count, count * 100 / totalCount)
+				}
 
 				(name -> RequestStatistics(name, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, groupedCounts, meanNumberOfRequestsPerSecondStatistics))
 		}(collection.breakOut)
