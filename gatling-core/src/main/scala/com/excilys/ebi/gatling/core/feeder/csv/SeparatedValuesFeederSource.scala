@@ -44,10 +44,10 @@ class SeparatedValuesFeederSource(file: Path, separator: String, escapeChar: Opt
 
 		val lines = escapeChar.map { escape =>
 			rawLines.map(_.map(_.stripPrefix(escape).stripSuffix(escape)))
-		}.getOrElse(rawLines).toList
+		}.getOrElse(rawLines).toIndexedSeq
 
 		val headers = lines.head
 
-		lines.tail.map(line => (headers zip line).toMap[String, String]).toIndexedSeq
+		lines.tail.map(line => (headers zip line).toMap[String, String])
 	}
 }
