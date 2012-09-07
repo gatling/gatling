@@ -15,15 +15,15 @@
  */
 package com.excilys.ebi.gatling.recorder.scenario
 
-import java.net.{ URI, URLDecoder }
+import java.net.URI
 import java.nio.charset.Charset
 
 import scala.collection.JavaConversions.{ asScalaBuffer, mapAsScalaMap }
 
-import org.jboss.netty.buffer.CompositeChannelBuffer
 import org.jboss.netty.handler.codec.http.{ HttpRequest, QueryStringDecoder }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.{ AUTHORIZATION, CONTENT_TYPE }
 
+import com.excilys.ebi.gatling.http.util.HttpHelper.parseFormBody
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
 import com.ning.http.util.Base64
 
@@ -63,10 +63,7 @@ class RequestElement(val request: HttpRequest, val statusCode: Int, val simulati
 		val bodyString = new String(bufferBytes, configuration.encoding)
 
 		if (containsFormParams) {
-			def utf8Decode(s: String) = URLDecoder.decode(s, "UTF-8")
-
-			val params = bodyString.split("&").map(_.split("=")).map(pair => (utf8Decode(pair(0)), utf8Decode(pair(1)))).toList
-			(None, params)
+			(None, parseFormBody(bodyString))
 		} else {
 			(Some(bodyString), Nil)
 		}
