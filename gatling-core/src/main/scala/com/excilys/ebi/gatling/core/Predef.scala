@@ -17,6 +17,8 @@ package com.excilys.ebi.gatling.core
 
 import java.util.concurrent.TimeUnit
 
+import scala.tools.nsc.io.File
+
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
 import com.excilys.ebi.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
 import com.excilys.ebi.gatling.core.feeder.FeederSource
@@ -36,12 +38,18 @@ object Predef {
 	implicit def extractorCheckBuilderToCheckBuilder[C <: Check[R, XC], R, XC, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, XC, X]) = extractorCheckBuilder.find.exists
 	implicit def extractorCheckBuilderToCheck[C <: Check[R, XC], R, XC, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, XC, X]) = extractorCheckBuilder.find.exists.build
 
-	def csv(fileName: String): FeederSource = SeparatedValuesFeederSource.csv(fileName)
+	def csv(fileName: String): FeederSource = SeparatedValuesFeederSource.csv(fileName, None)
 	def csv(fileName: String, escapeChar: String): FeederSource = SeparatedValuesFeederSource.csv(fileName, Some(escapeChar))
-	def ssv(fileName: String): FeederSource = SeparatedValuesFeederSource.ssv(fileName)
+	def csv(file: File): FeederSource = SeparatedValuesFeederSource.csv(file, None)
+	def csv(file: File, escapeChar: String): FeederSource = SeparatedValuesFeederSource.csv(file, Some(escapeChar))
+	def ssv(fileName: String): FeederSource = SeparatedValuesFeederSource.ssv(fileName, None)
 	def ssv(fileName: String, escapeChar: String): FeederSource = SeparatedValuesFeederSource.ssv(fileName, Some(escapeChar))
-	def tsv(fileName: String): FeederSource = SeparatedValuesFeederSource.tsv(fileName)
+	def ssv(file: File): FeederSource = SeparatedValuesFeederSource.ssv(file, None)
+	def ssv(file: File, escapeChar: String): FeederSource = SeparatedValuesFeederSource.ssv(file, Some(escapeChar))
+	def tsv(fileName: String): FeederSource = SeparatedValuesFeederSource.tsv(fileName, None)
 	def tsv(fileName: String, escapeChar: String): FeederSource = SeparatedValuesFeederSource.tsv(fileName, Some(escapeChar))
+	def tsv(file: File): FeederSource = SeparatedValuesFeederSource.tsv(file, None)
+	def tsv(file: File, escapeChar: String): FeederSource = SeparatedValuesFeederSource.tsv(file, Some(escapeChar))
 
 	def simpleFeeder(name: String, data: Map[String, String]*) = SimpleFeederBuilder.simpleFeeder(name, data.toIndexedSeq)
 

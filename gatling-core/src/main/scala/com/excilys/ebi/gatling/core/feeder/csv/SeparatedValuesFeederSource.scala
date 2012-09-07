@@ -16,6 +16,7 @@
 package com.excilys.ebi.gatling.core.feeder.csv
 
 import scala.io.Source
+import scala.tools.nsc.io.Path
 
 import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import com.excilys.ebi.gatling.core.feeder.FeederSource
@@ -23,14 +24,18 @@ import com.excilys.ebi.gatling.core.util.FileHelper.{ COMMA_SEPARATOR, SEMICOLON
 
 object SeparatedValuesFeederSource {
 
-	def csv(fileName: String, escapeChar: Option[String] = None) = new SeparatedValuesFeederSource(fileName, COMMA_SEPARATOR, escapeChar)
-	def tsv(fileName: String, escapeChar: Option[String] = None) = new SeparatedValuesFeederSource(fileName, TABULATION_SEPARATOR, escapeChar)
-	def ssv(fileName: String, escapeChar: Option[String] = None) = new SeparatedValuesFeederSource(fileName, SEMICOLON_SEPARATOR, escapeChar)
+	def csv(fileName: String, escapeChar: Option[String]): FeederSource = csv(GatlingFiles.dataDirectory / fileName, escapeChar)
+	def csv(file: Path, escapeChar: Option[String]): FeederSource = new SeparatedValuesFeederSource(file, COMMA_SEPARATOR, escapeChar)
+
+	def tsv(fileName: String, escapeChar: Option[String]): FeederSource = tsv(GatlingFiles.dataDirectory / fileName, escapeChar)
+	def tsv(file: Path, escapeChar: Option[String]): FeederSource = new SeparatedValuesFeederSource(file, TABULATION_SEPARATOR, escapeChar)
+
+	def ssv(fileName: String, escapeChar: Option[String]): FeederSource = ssv(GatlingFiles.dataDirectory / fileName, escapeChar)
+	def ssv(file: Path, escapeChar: Option[String]): FeederSource = new SeparatedValuesFeederSource(file, SEMICOLON_SEPARATOR, escapeChar)
 }
 
-class SeparatedValuesFeederSource(fileName: String, separator: String, escapeChar: Option[String] = None) extends FeederSource(fileName) {
+class SeparatedValuesFeederSource(file: Path, separator: String, escapeChar: Option[String] = None) extends FeederSource(file.name) {
 
-	val file = GatlingFiles.dataDirectory / fileName
 	if (!file.exists) throw new IllegalArgumentException("file " + file + " doesn't exists")
 
 	val data: IndexedSeq[Map[String, String]] = {

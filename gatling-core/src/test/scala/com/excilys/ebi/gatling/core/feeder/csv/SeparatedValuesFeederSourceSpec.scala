@@ -15,14 +15,14 @@
  */
 package com.excilys.ebi.gatling.core.feeder.csv
 
-import java.io.File
+import scala.tools.nsc.io.File
 
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
+import com.excilys.ebi.gatling.core.Predef.tsv
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration
-import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 
 @RunWith(classOf[JUnitRunner])
 class SeparatedValuesFeederSourceSpec extends Specification {
@@ -32,23 +32,15 @@ class SeparatedValuesFeederSourceSpec extends Specification {
 	"tsv" should {
 
 		"handle file without escape char" in {
-			val file = new File("src/test/resources/sample1.tsv")
+			val data = tsv(File("src/test/resources/sample1.tsv")).data
 
-			val values = new SeparatedValuesFeederSource(file, TABULATION_SEPARATOR, None).values
-
-			values.size must beEqualTo(1)
-			values(0).get("foo") must beEqualTo(Some("hello"))
-			values(0).get("bar") must beEqualTo(Some("world"))
+			data must beEqualTo(List(Map("foo" -> "hello", "bar" -> "world")))
 		}
 
 		"handle file with escape char" in {
-			val file = new File("src/test/resources/sample2.tsv")
+			val data = tsv(File("src/test/resources/sample2.tsv"), "'").data
 
-			val values = new SeparatedValuesFeederSource(file, TABULATION_SEPARATOR, Some("'")).values
-
-			values.size must beEqualTo(1)
-			values(0).get("foo") must beEqualTo(Some("hello"))
-			values(0).get("bar") must beEqualTo(Some("world"))
+			data must beEqualTo(List(Map("foo" -> "hello", "bar" -> "world")))
 		}
 	}
 }

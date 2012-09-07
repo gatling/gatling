@@ -17,4 +17,14 @@ package com.excilys.ebi.gatling.redis.feeder
 
 import com.redis.RedisClientPool
 
-class RedisFeederSource(val clientPool: RedisClientPool, val key: String) extends RedisSource
+class RedisFeederSource(val clientPool: RedisClientPool, val key: String) {
+
+	//With LPOP
+	def queue = new RedisQueueFeeder(this)
+
+	//With SRAND
+	//def random = new RedisRandomFeeder(source)
+
+	//With Redis Lists RPOPLPUSH ??
+	//def circular = new RedisCircularFeeder(source)
+}

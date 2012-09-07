@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.feeder.Feeder
 
 import grizzled.slf4j.Logging
 
-class RedisQueueFeeder(feederSource: RedisSource) extends Feeder with Logging {
+class RedisQueueFeeder(feederSource: RedisFeederSource) extends Feeder with Logging {
 
 	def next: Map[String, String] = {
 		feederSource.clientPool.withClient {
