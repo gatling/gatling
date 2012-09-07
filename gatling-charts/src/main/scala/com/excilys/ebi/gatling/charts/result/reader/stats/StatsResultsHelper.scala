@@ -15,14 +15,15 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.stats
 
-import com.excilys.ebi.gatling.charts.result.reader.util.ResultBufferType.{ BY_SCENARIO, BY_STATUS, BY_STATUS_AND_REQUEST, GLOBAL, getResultBufferType }
-import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RunRecord }
+import com.excilys.ebi.gatling.charts.result.reader.util.ResultBufferType.{BY_SCENARIO, BY_STATUS, BY_STATUS_AND_REQUEST, GLOBAL, getResultBufferType}
+import com.excilys.ebi.gatling.core.result.message.{RequestStatus, RunRecord}
 
 import grizzled.slf4j.Logging
 
 object StatsResultsHelper extends Logging {
 
 	val NO_PLOT_MAGIC_VALUE = -1L
+	val NO_COUNT_VALUE = 0L
 
 	def getRunRecord(results: StatsResults): RunRecord = {
 
@@ -81,14 +82,14 @@ object StatsResultsHelper extends Logging {
 				.map(record => (StatsHelper.bucket(record.responseTime, min, max, step, demiStep), record))
 				.groupBy(_._1)
 				.map {
-					case (responseTimeBucket, recordList) =>
+				case (responseTimeBucket, recordList) =>
 
-						val sizeBucket = recordList.foldLeft(0L) {
-							(partialSize, record) => partialSize + record._2.size
-						}
+					val sizeBucket = recordList.foldLeft(0L) {
+						(partialSize, record) => partialSize + record._2.size
+					}
 
-						(responseTimeBucket, math.round(sizeBucket * 100.0 / size))
-				}
+					(responseTimeBucket, math.round(sizeBucket * 100.0 / size))
+			}
 				.toSeq
 				.sortBy(_._1)
 
@@ -96,7 +97,7 @@ object StatsResultsHelper extends Logging {
 				case (accum, current) =>
 					val (distribution, output) = accum
 					if (!distribution.isEmpty && distribution.head._1 == current) (distribution.tail, output :+ distribution.head)
-					else (distribution, output :+ (current, 0L))
+					else (distribution, output :+(current, 0L))
 			}
 			output
 		}
@@ -118,7 +119,7 @@ object StatsResultsHelper extends Logging {
 
 	def getMaxResponseTime(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Long = getGeneralStat(results, _.max, NO_PLOT_MAGIC_VALUE, status, requestName)
 
-	def getCountRequests(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Long = getGeneralStat(results, _.size, NO_PLOT_MAGIC_VALUE, status, requestName)
+	def getCountRequests(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Long = getGeneralStat(results, _.size, NO_COUNT_VALUE, status, requestName)
 
 	def getMeanResponseTime(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Long = getGeneralStat(results, r => math.round(r.mean), NO_PLOT_MAGIC_VALUE, status, requestName)
 
@@ -170,7 +171,7 @@ object StatsResultsHelper extends Logging {
 			(accum, bucket) =>
 				val (result, buffer) = accum
 				if (buffer.size >= 1 && bucket == buffer.head._1) (result :+ buffer.head, buffer.tail)
-				else (result :+ (bucket, 0L), buffer)
+				else (result :+(bucket, 0L), buffer)
 		}
 		result
 	}
