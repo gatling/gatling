@@ -15,12 +15,13 @@
  */
 package com.excilys.ebi.gatling.core.util
 
-class RoundRobin[T](values: Iterable[T]) {
+object RoundRobin {
 
-	private val generator = if (values.isEmpty)
-		Iterator.empty
-	else
-		Stream.continually(values).flatten.iterator
+	def apply[T](values: Iterable[T]) = {
 
-	def next: T = generator.next
+		if (values.isEmpty)
+			Iterator.empty
+		else
+			Stream.continually(values).flatten.iterator
+	}
 }

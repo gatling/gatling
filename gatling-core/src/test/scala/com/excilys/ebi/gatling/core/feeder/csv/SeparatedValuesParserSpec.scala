@@ -25,22 +25,22 @@ import com.excilys.ebi.gatling.core.Predef.tsv
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration
 
 @RunWith(classOf[JUnitRunner])
-class SeparatedValuesFeederSourceSpec extends Specification {
+class SeparatedValuesParserSpec extends Specification {
 
 	GatlingConfiguration.setUp()
 
 	"tsv" should {
 
 		"handle file without escape char" in {
-			val data = tsv(File("src/test/resources/sample1.tsv")).data
+			val data = tsv(File("src/test/resources/sample1.tsv"))
 
-			data must beEqualTo(List(Map("foo" -> "hello", "bar" -> "world")))
+			data must beEqualTo(Array(Map("foo" -> "hello", "bar" -> "world")))
 		}
 
 		"handle file with escape char" in {
-			val data = tsv(File("src/test/resources/sample2.tsv"), "'").data
+			val data = tsv(File("src/test/resources/sample2.tsv"), "'")
 
-			data must beEqualTo(List(Map("foo" -> "hello", "bar" -> "world")))
+			data must beEqualTo(Array(Map("foo" -> "hello", "bar" -> "world")))
 		}
 	}
 }

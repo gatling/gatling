@@ -15,11 +15,28 @@
  */
 package com.excilys.ebi.gatling.core.feeder
 
+import java.util.Random
+import java.util.concurrent.ConcurrentLinkedQueue
+
+import scala.collection.JavaConversions.seqAsJavaList
+
 import com.excilys.ebi.gatling.core.util.RoundRobin
 
-class CircularFeeder(feederSource: FeederSource) extends Feeder {
+class FeederBuiltIns(data: Array[Map[String, String]]) {
 
-	private val rr = new RoundRobin(feederSource.data)
+	def queue: Feeder = data.iterator
 
-	def next = rr.next
+	def concurrentQueue = new ConcurrentLinkedQueue(data.toList).iterator
+
+	def random: Feeder = {
+
+		val random = new Random
+
+		new Feeder {
+			def hasNext = !data.isEmpty
+			def next = data(random.nextInt(data.size))
+		}
+	}
+
+	def circular: Feeder = RoundRobin(data)
 }

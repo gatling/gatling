@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.feeder
+package com.excilys.ebi.gatling.core
 
-trait Feeder {
-	def next: Map[String, String]
+package object feeder {
+	type Feeder = Iterator[Map[String, String]]
 }

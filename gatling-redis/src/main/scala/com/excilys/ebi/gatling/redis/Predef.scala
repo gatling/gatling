@@ -15,9 +15,9 @@
  */
 package com.excilys.ebi.gatling.redis
 
-import com.excilys.ebi.gatling.redis.feeder.RedisFeederSource
+import com.excilys.ebi.gatling.redis.feeder.RedisFeeder
 import com.redis.RedisClientPool
 
 object Predef {
-	def redisFeeder(clients: RedisClientPool, key: String) = new RedisFeederSource(clients, key)
+	def redisFeeder(clients: RedisClientPool, key: String) = RedisFeeder(clients, key)
 }

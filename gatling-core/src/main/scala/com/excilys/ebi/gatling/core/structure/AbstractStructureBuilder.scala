@@ -28,6 +28,7 @@ import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder.pauseActio
 import com.excilys.ebi.gatling.core.action.builder.RandomSwitchBuilder.randomSwitchBuilder
 import com.excilys.ebi.gatling.core.action.builder.RoundRobinSwitchBuilder.roundRobinSwitchBuilder
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
+import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.session.{ EvaluatableString, Session }
@@ -38,13 +39,14 @@ import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 import akka.actor.ActorRef
 import akka.util.Duration
 import akka.util.duration.longToDurationLong
+import grizzled.slf4j.Logging
 
 /**
  * This class defines most of the scenario related DSL
  *
  * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
  */
-abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] {
+abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extends Logging {
 
 	private[core] def actionBuilders: List[ActionBuilder]
 
@@ -247,7 +249,19 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] {
 	 *
 	 * @param feeder the feeder from which the values will be loaded
 	 */
-	def feed(feeder: Feeder): B = newInstance(simpleActionBuilder((session: Session) => session.setAttributes(feeder.next)) :: actionBuilders)
+	def feed(feeder: Feeder): B = {
+
+		val feedFunction = (session: Session) => {
+			if (!feeder.hasNext) {
+				error("Feeder is now empty, stopping engine")
+				system.shutdown
+				sys.exit
+			}
+
+			session.setAttributes(feeder.next)
+		}
+		newInstance(simpleActionBuilder(feedFunction) :: actionBuilders)
+	}
 
 	/**
 	 * Method used to declare a loop

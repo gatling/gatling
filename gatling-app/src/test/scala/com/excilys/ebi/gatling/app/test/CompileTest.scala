@@ -70,12 +70,12 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 		.times(2)
 		.repeat(2) {
 			chain
-				.feed(testData)
+				.feed(testData.queue)
 				.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform(_ + "foo").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
 		}
 		.repeat(2, "counterName") {
 			chain
-				.feed(testData)
+				.feed(testData.circular)
 				.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform(_ + "foo").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
 		}
 		.during(10 seconds) {

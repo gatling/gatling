@@ -19,32 +19,28 @@ import scala.io.Source
 import scala.tools.nsc.io.Path
 
 import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
-import com.excilys.ebi.gatling.core.feeder.FeederSource
 import com.excilys.ebi.gatling.core.util.FileHelper.{ COMMA_SEPARATOR, SEMICOLON_SEPARATOR, TABULATION_SEPARATOR }
 
-object SeparatedValuesFeederSource {
+object SeparatedValuesParser {
 
-	def csv(fileName: String, escapeChar: Option[String]): FeederSource = csv(GatlingFiles.dataDirectory / fileName, escapeChar)
-	def csv(file: Path, escapeChar: Option[String]): FeederSource = new SeparatedValuesFeederSource(file, COMMA_SEPARATOR, escapeChar)
+	def csv(fileName: String, escapeChar: Option[String]): Array[Map[String, String]] = csv(GatlingFiles.dataDirectory / fileName, escapeChar)
+	def csv(file: Path, escapeChar: Option[String]): Array[Map[String, String]] = apply(file, COMMA_SEPARATOR, escapeChar)
 
-	def tsv(fileName: String, escapeChar: Option[String]): FeederSource = tsv(GatlingFiles.dataDirectory / fileName, escapeChar)
-	def tsv(file: Path, escapeChar: Option[String]): FeederSource = new SeparatedValuesFeederSource(file, TABULATION_SEPARATOR, escapeChar)
+	def tsv(fileName: String, escapeChar: Option[String]): Array[Map[String, String]] = tsv(GatlingFiles.dataDirectory / fileName, escapeChar)
+	def tsv(file: Path, escapeChar: Option[String]): Array[Map[String, String]] = apply(file, TABULATION_SEPARATOR, escapeChar)
 
-	def ssv(fileName: String, escapeChar: Option[String]): FeederSource = ssv(GatlingFiles.dataDirectory / fileName, escapeChar)
-	def ssv(file: Path, escapeChar: Option[String]): FeederSource = new SeparatedValuesFeederSource(file, SEMICOLON_SEPARATOR, escapeChar)
-}
+	def ssv(fileName: String, escapeChar: Option[String]): Array[Map[String, String]] = ssv(GatlingFiles.dataDirectory / fileName, escapeChar)
+	def ssv(file: Path, escapeChar: Option[String]): Array[Map[String, String]] = apply(file, SEMICOLON_SEPARATOR, escapeChar)
 
-class SeparatedValuesFeederSource(file: Path, separator: String, escapeChar: Option[String] = None) extends FeederSource(file.name) {
+	def apply(file: Path, separator: String, escapeChar: Option[String]): Array[Map[String, String]] = {
 
-	if (!file.exists) throw new IllegalArgumentException("file " + file + " doesn't exists")
-
-	val data: IndexedSeq[Map[String, String]] = {
+		if (!file.exists) throw new IllegalArgumentException("file " + file + " doesn't exists")
 
 		val rawLines = Source.fromFile(file.jfile, GatlingConfiguration.configuration.simulation.encoding).getLines.map(_.split(separator))
 
 		val lines = escapeChar.map { escape =>
 			rawLines.map(_.map(_.stripPrefix(escape).stripSuffix(escape)))
-		}.getOrElse(rawLines).toIndexedSeq
+		}.getOrElse(rawLines).toArray
 
 		val headers = lines.head
 

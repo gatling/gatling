@@ -18,27 +18,29 @@ package com.excilys.ebi.gatling.jdbc.feeder.database
 import java.sql.DriverManager
 import java.sql.ResultSet.{ TYPE_FORWARD_ONLY, CONCUR_READ_ONLY }
 
-import com.excilys.ebi.gatling.core.feeder.FeederSource
 import com.excilys.ebi.gatling.jdbc.util.JdbcHelper.use
 
-class JdbcFeederSource(url: String, username: String, password: String, sql: String) extends FeederSource(sql) {
+object JdbcFeederSource {
 
-	lazy val data: IndexedSeq[Map[String, String]] = use(DriverManager.getConnection(url, username, password)) { connection =>
-		val preparedStatement = connection.prepareStatement(sql, TYPE_FORWARD_ONLY, CONCUR_READ_ONLY)
-		val resultSet = preparedStatement.executeQuery
-		val rsmd = resultSet.getMetaData
+	def apply(url: String, username: String, password: String, sql: String): Array[Map[String, String]] = {
 
-		val columnNames = for (i <- 1 to rsmd.getColumnCount) yield rsmd.getColumnName(i)
+		use(DriverManager.getConnection(url, username, password)) { connection =>
+			val preparedStatement = connection.prepareStatement(sql, TYPE_FORWARD_ONLY, CONCUR_READ_ONLY)
+			val resultSet = preparedStatement.executeQuery
+			val rsmd = resultSet.getMetaData
 
-		new Iterator[Map[String, String]] {
+			val columnNames = for (i <- 1 to rsmd.getColumnCount) yield rsmd.getColumnName(i)
 
-			def hasNext = !resultSet.isLast
+			new Iterator[Map[String, String]] {
 
-			def next = {
-				resultSet.next
-				val vals = for (i <- 1 to rsmd.getColumnCount) yield resultSet.getString(i)
-				(columnNames zip vals).toMap[String, String]
-			}
-		}.toIndexedSeq
+				def hasNext = !resultSet.isLast
+
+				def next = {
+					resultSet.next
+					val vals = for (i <- 1 to rsmd.getColumnCount) yield resultSet.getString(i)
+					(columnNames zip vals).toMap[String, String]
+				}
+			}.toArray
+		}
 	}
 }
