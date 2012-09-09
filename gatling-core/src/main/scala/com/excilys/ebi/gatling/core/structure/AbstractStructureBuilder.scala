@@ -58,7 +58,9 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 	 * @param actionBuilder the action builder representing the action to be executed
 	 */
 	def exec(actionBuilder: ActionBuilder): B = newInstance(actionBuilder :: actionBuilders)
-	def exec(chain: ChainBuilder): B = newInstance(chain.actionBuilders ::: actionBuilders)
+	def exec(chains: ChainBuilder*): B = exec(chains.toIterable)
+	def exec(chains: Iterator[ChainBuilder]): B = exec(chains.toList)
+	def exec(chains: Iterable[ChainBuilder]): B = newInstance(chains.map(_.actionBuilders).toList.flatten ::: actionBuilders)
 
 	/**
 	 * Method used to define a pause
