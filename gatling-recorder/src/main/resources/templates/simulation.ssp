@@ -41,13 +41,11 @@ class <%= simulationClassName %> extends Simulation {
 <%}%>
 
 		val scn = scenario("<%= scenarioName %>")
+			.exec(
 <% for ((chain, i) <- chains.zipWithIndex) {%>
-	<%if (i == 0) {%>
-		chain_0
-	<%} else {%>
-		.exec(chain_<%= i %>)
-	<%}%>
+				chain_<%=i%><%if (i > 0) {%>,<%}%>
 <%}%>
+			)
 <%}%>
 
 		List(scn.configure.users(1).protocolConfig(httpConf))
