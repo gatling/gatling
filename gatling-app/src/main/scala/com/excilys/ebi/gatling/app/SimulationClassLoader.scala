@@ -62,6 +62,14 @@ object SimulationClassLoader {
 				reporter.printSummary
 				throw new RuntimeException("Compilation failed:\n" + messageCollector.toString)
 			}
+
+			// Always display compiler warnings to be sure to be informed about deprecation
+			if (reporter.hasWarnings) {
+				def plural(x: Int) = if (x > 1) "s" else ""
+				println("Compilation succeeded with %d warning%s.".format(
+					reporter.WARNING.count, plural(reporter.WARNING.count)))
+				println(messageCollector)
+			}
 		}
 
 		new FileSystemBackedSimulationClassLoader(classLoader, binaryDir)
