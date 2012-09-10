@@ -27,7 +27,7 @@ object IfActionBuilder {
 	/**
 	 * Creates an initialized IfActionBuilder
 	 */
-	def ifActionBuilder = new IfActionBuilder(null, null, null, null)
+	def apply(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]) = new IfActionBuilder(condition, thenNext, elseNext, null)
 }
 
 /**
@@ -40,30 +40,6 @@ object IfActionBuilder {
  * @param next chain that will be executed if condition evaluates to false and there is no elseNext
  */
 class IfActionBuilder(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder], next: ActorRef) extends ActionBuilder {
-
-	/**
-	 * Adds condition to builder
-	 *
-	 * @param condition the condition function
-	 * @return a new builder with condition set
-	 */
-	def withCondition(condition: Session => Boolean) = new IfActionBuilder(condition, thenNext, elseNext, next)
-
-	/**
-	 * Adds thenNext to builder
-	 *
-	 * @param thenNext the chain executed if condition evaluated to true
-	 * @return a new builder with thenNext set
-	 */
-	def withThenNext(thenNext: ChainBuilder) = new IfActionBuilder(condition, thenNext, elseNext, next)
-
-	/**
-	 * Adds elseNext to builder
-	 *
-	 * @param elseNext the chain executed if condition evaluated to false
-	 * @return a new builder with elseNext set
-	 */
-	def withElseNext(elseNext: Option[ChainBuilder]) = new IfActionBuilder(condition, thenNext, elseNext, next)
 
 	def withNext(next: ActorRef) = new IfActionBuilder(condition, thenNext, elseNext, next)
 

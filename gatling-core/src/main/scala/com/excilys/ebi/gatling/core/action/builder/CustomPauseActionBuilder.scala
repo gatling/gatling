@@ -22,7 +22,7 @@ import akka.actor.Props
 
 object CustomPauseActionBuilder {
 
-	def customPauseActionBuilder = new CustomActionPauseBuilder(() => 1L, null)
+	def apply(delayGenerator: () => Long) = new CustomActionPauseBuilder(delayGenerator, null)
 }
 
 /**
@@ -33,8 +33,6 @@ object CustomPauseActionBuilder {
  * @param next action that will be executed after the generated pause
  */
 class CustomActionPauseBuilder(delayGenerator: () => Long, next: ActorRef) extends ActionBuilder {
-
-	def withDelayGenerator(delayGenerator: () => Long) = new CustomActionPauseBuilder(delayGenerator, next)
 
 	def withNext(next: ActorRef) = new CustomActionPauseBuilder(delayGenerator, next)
 

@@ -44,6 +44,6 @@ object SeparatedValuesParser {
 
 		val headers = lines.head
 
-		lines.tail.map(line => (headers zip line).toMap[String, String])
+		lines.tail.map(line => (headers zip line).toMap)
 	}
 }

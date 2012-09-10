@@ -32,6 +32,8 @@ object HttpRequestActionBuilder {
 	 * This is the default HTTP check used to verify that the response status is 2XX
 	 */
 	val DEFAULT_HTTP_STATUS_CHECK = status.find.in(Session => 200 to 210).build
+
+	def apply(requestName: String, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]]) = new HttpRequestActionBuilder(requestName, requestBuilder, checks, null)
 }
 
 /**
@@ -42,9 +44,9 @@ object HttpRequestActionBuilder {
  * @param next the next action to be executed
  * @param checks the checks to be applied on the response
  */
-class HttpRequestActionBuilder(requestName: String, requestBuilder: AbstractHttpRequestBuilder[_], next: ActorRef, checks: List[HttpCheck[_]]) extends ActionBuilder {
+class HttpRequestActionBuilder(requestName: String, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]], next: ActorRef) extends ActionBuilder {
 
-	private[gatling] def withNext(next: ActorRef) = new HttpRequestActionBuilder(requestName, requestBuilder, next, checks)
+	private[gatling] def withNext(next: ActorRef) = new HttpRequestActionBuilder(requestName, requestBuilder, checks, next)
 
 	private[gatling] val resolvedChecks = checks.find(_.phase == StatusReceived) match {
 		case None => HttpRequestActionBuilder.DEFAULT_HTTP_STATUS_CHECK :: checks

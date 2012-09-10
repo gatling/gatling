@@ -29,12 +29,10 @@ object RandomSwitchBuilder {
 
 	private val randomData: RandomData = new RandomDataImpl
 
-	def randomSwitchBuilder = new RandomSwitchBuilder(null, null)
+	def apply(possibilities: List[(Int, ChainBuilder)]) = new RandomSwitchBuilder(possibilities, null)
 }
 
 class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], next: ActorRef) extends ActionBuilder {
-
-	def withPossibilities(possibilities: List[(Int, ChainBuilder)]) = new RandomSwitchBuilder(possibilities, next)
 
 	def withNext(next: ActorRef) = new RandomSwitchBuilder(possibilities, next)
 

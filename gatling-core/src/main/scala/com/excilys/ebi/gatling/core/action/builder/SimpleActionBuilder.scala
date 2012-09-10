@@ -28,7 +28,7 @@ object SimpleActionBuilder {
 	 *
 	 * @param sessionFunction the function that will be executed by the built simple action
 	 */
-	def simpleActionBuilder(sessionFunction: Session => Session) = new SimpleActionBuilder(sessionFunction, null)
+	def apply(sessionFunction: Session => Session) = new SimpleActionBuilder(sessionFunction, null)
 }
 
 /**

@@ -29,7 +29,7 @@ object ExpPauseActionBuilder {
 	 * time unit in Seconds.  A 1 second delay is used because exponential distributions
 	 * are not defined at zero and 1 is the smallest positive Long.
 	 */
-	def expPauseActionBuilder = new ExpPauseActionBuilder(Duration(1, TimeUnit.SECONDS), null)
+	def apply(meanDuration: Duration) = new ExpPauseActionBuilder(meanDuration, null)
 }
 
 /**
@@ -41,14 +41,6 @@ object ExpPauseActionBuilder {
  * @param next action that will be executed after the generated pause
  */
 class ExpPauseActionBuilder(meanDuration: Duration, next: ActorRef) extends ActionBuilder {
-
-	/**
-	 * Adds meanDuration to builder
-	 *
-	 * @param meanDuration the minimum duration of the pause
-	 * @return a new builder with minDuration set
-	 */
-	def withMeanDuration(meanDuration: Duration) = new ExpPauseActionBuilder(meanDuration, next)
 
 	def withNext(next: ActorRef) = new ExpPauseActionBuilder(meanDuration, next)
 

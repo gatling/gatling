@@ -240,5 +240,5 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 		realm.map { realm => requestBuilder.setRealm(realm(session)) }
 	}
 
-	private[gatling] def toActionBuilder = new HttpRequestActionBuilder(httpAttributes.requestName, this, null, httpAttributes.checks)
+	private[gatling] def toActionBuilder = HttpRequestActionBuilder(httpAttributes.requestName, this, httpAttributes.checks)
 }

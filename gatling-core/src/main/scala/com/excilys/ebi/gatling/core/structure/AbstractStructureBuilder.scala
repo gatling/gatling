@@ -21,13 +21,13 @@ import java.util.concurrent.TimeUnit
 import scala.annotation.tailrec
 
 import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.CustomPauseActionBuilder.customPauseActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.ExpPauseActionBuilder.expPauseActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.IfActionBuilder.ifActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder.pauseActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.RandomSwitchBuilder.randomSwitchBuilder
-import com.excilys.ebi.gatling.core.action.builder.RoundRobinSwitchBuilder.roundRobinSwitchBuilder
-import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.CustomPauseActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.ExpPauseActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.IfActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.RandomSwitchBuilder
+import com.excilys.ebi.gatling.core.action.builder.RoundRobinSwitchBuilder
+import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.feeder.Feeder
@@ -59,7 +59,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 	 */
 	def exec(actionBuilder: ActionBuilder): B = newInstance(actionBuilder :: actionBuilders)
 	def exec(chains: ChainBuilder*): B = exec(chains.toIterable)
-	def exec(chains: Iterator[ChainBuilder]): B = exec(chains.toList)
+	def exec(chains: Iterator[ChainBuilder]): B = exec(chains.toIterable)
 	def exec(chains: Iterable[ChainBuilder]): B = newInstance(chains.map(_.actionBuilders).toList.flatten ::: actionBuilders)
 
 	/**
@@ -116,7 +116,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 	 * @param maxDuration the maximum value of the pause
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pause(minDuration: Duration, maxDuration: Option[Duration] = None): B = newInstance(pauseActionBuilder.withMinDuration(minDuration).withMaxDuration(maxDuration) :: actionBuilders)
+	def pause(minDuration: Duration, maxDuration: Option[Duration] = None): B = newInstance(PauseActionBuilder(minDuration, maxDuration) :: actionBuilders)
 
 	/**
 	 * Method used to define drawn from an exponential distribution with the specified mean duration.
@@ -134,7 +134,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 	 * @param meanDuration the mean duration of the pause
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pauseExp(meanDuration: Duration): B = newInstance(expPauseActionBuilder.withMeanDuration(meanDuration) :: actionBuilders)
+	def pauseExp(meanDuration: Duration): B = newInstance(ExpPauseActionBuilder(meanDuration) :: actionBuilders)
 
 	/**
 	 * Define a pause with a custom strategy
@@ -142,7 +142,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 	 * @param delayGenerator the strategy for computing the pauses, in milliseconds
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pauseCustom(delayGenerator: () => Long): B = newInstance(customPauseActionBuilder.withDelayGenerator(delayGenerator) :: actionBuilders)
+	def pauseCustom(delayGenerator: () => Long): B = newInstance(CustomPauseActionBuilder(delayGenerator) :: actionBuilders)
 
 	/**
 	 * Method used to add a conditional execution in the scenario
@@ -194,7 +194,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 	 * @param elseNext the chain to be executed if the condition is not satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	private def doIf(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]): B = newInstance(ifActionBuilder.withCondition(condition).withThenNext(thenNext).withElseNext(elseNext) :: actionBuilders)
+	private def doIf(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]): B = newInstance(IfActionBuilder(condition = condition, thenNext = thenNext, elseNext = elseNext) :: actionBuilders)
 
 	/**
 	 * Add a switch in the chain. Every possible subchain is defined with a percentage.
@@ -206,7 +206,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 	 * @param possibilities the rest of the possible subchains
 	 * @return a new builder with a random switch added to its actions
 	 */
-	def randomSwitch(possibility1: (Int, ChainBuilder), possibility2: (Int, ChainBuilder), possibilities: (Int, ChainBuilder)*): B = newInstance(randomSwitchBuilder.withPossibilities(possibility1 :: possibility2 :: possibilities.toList) :: actionBuilders)
+	def randomSwitch(possibility1: (Int, ChainBuilder), possibility2: (Int, ChainBuilder), possibilities: (Int, ChainBuilder)*): B = newInstance(RandomSwitchBuilder(possibility1 :: possibility2 :: possibilities.toList) :: actionBuilders)
 
 	/**
 	 * Add a switch in the chain. Selection uses a random strategy
@@ -224,7 +224,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 
 		val possibilitiesWithPercentage = (firstPercentage, possibility1) :: tailPossibilities.map((basePercentage, _))
 
-		newInstance(randomSwitchBuilder.withPossibilities(possibilitiesWithPercentage) :: actionBuilders)
+		newInstance(RandomSwitchBuilder(possibilitiesWithPercentage) :: actionBuilders)
 	}
 
 	/**
@@ -235,7 +235,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 	 * @param possibilities the rest of the possible subchains
 	 * @return a new builder with a random switch added to its actions
 	 */
-	def roundRobinSwitch(possibility1: ChainBuilder, possibility2: ChainBuilder, possibilities: ChainBuilder*): B = newInstance(roundRobinSwitchBuilder.withPossibilities(possibility1 :: possibility2 :: possibilities.toList) :: actionBuilders)
+	def roundRobinSwitch(possibility1: ChainBuilder, possibility2: ChainBuilder, possibilities: ChainBuilder*): B = newInstance(RoundRobinSwitchBuilder(possibility1 :: possibility2 :: possibilities.toList) :: actionBuilders)
 
 	/**
 	 * Method used to insert an existing chain inside the current scenario
@@ -262,7 +262,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 
 			session.setAttributes(feeder.next)
 		}
-		newInstance(simpleActionBuilder(feedFunction) :: actionBuilders)
+		newInstance(SimpleActionBuilder(feedFunction) :: actionBuilders)
 	}
 
 	/**
@@ -306,15 +306,15 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 	private def asLongAs(condition: Session => Boolean, counterName: Option[String], chain: ChainBuilder): B = new ConditionalLoopHandlerBuilder(getInstance, chain, condition, counterName).build
 
 	def exitBlockOnFail(chain: ChainBuilder): B = {
-		val startBlock = simpleActionBuilder((session: Session) => session.clearFailed.setMustExitOnFail)
-		val endBlock = simpleActionBuilder((session: Session) => session.clearFailed.clearMustExitOnFail)
+		val startBlock = SimpleActionBuilder((session: Session) => session.clearFailed.setMustExitOnFail)
+		val endBlock = SimpleActionBuilder((session: Session) => session.clearFailed.clearMustExitOnFail)
 
 		exec(startBlock).exec(chain).exec(endBlock)
 	}
 
 	def tryMax(times: Int, counterName: Option[String] = None)(chain: ChainBuilder): B = new TryMaxLoopHandlerBuilder(getInstance, chain, times, counterName).build
 
-	def exitHereIfFailed: B = exec(simpleActionBuilder((session: Session) => session.setMustExitOnFail))
+	def exitHereIfFailed: B = exec(SimpleActionBuilder((session: Session) => session.setMustExitOnFail))
 
 	private[core] def getInstance: B
 

@@ -24,12 +24,10 @@ import akka.actor.{ ActorRef, Props }
 
 object RoundRobinSwitchBuilder {
 
-	def roundRobinSwitchBuilder = new RoundRobinSwitchBuilder(null, null)
+	def apply(possibilities: List[ChainBuilder]) = new RoundRobinSwitchBuilder(possibilities, null)
 }
 
 class RoundRobinSwitchBuilder(possibilities: List[ChainBuilder], next: ActorRef) extends ActionBuilder {
-
-	def withPossibilities(possibilities: List[ChainBuilder]) = new RoundRobinSwitchBuilder(possibilities, next)
 
 	def withNext(next: ActorRef) = new RoundRobinSwitchBuilder(possibilities, next)
 

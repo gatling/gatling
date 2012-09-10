@@ -20,7 +20,7 @@ import java.util.UUID.randomUUID
 import scala.annotation.tailrec
 
 import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder.simpleActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.session.handler.CounterBasedIterationHandler
 import com.excilys.ebi.gatling.core.structure.{ChainBuilder, AbstractStructureBuilder}
@@ -49,9 +49,9 @@ class TimesLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder
 			def counterName = computedCounterName
 		}
 
-		val initAction = simpleActionBuilder((session: Session) => handler.init(session))
-		val incrementAction = simpleActionBuilder((session: Session) => handler.increment(session))
-		val expireAction = simpleActionBuilder((session: Session) => handler.expire(session))
+		val initAction = SimpleActionBuilder((session: Session) => handler.init(session))
+		val incrementAction = SimpleActionBuilder((session: Session) => handler.increment(session))
+		val expireAction = SimpleActionBuilder((session: Session) => handler.expire(session))
 
 		// Adds an increment action after the chain
 		val loopedActions = chain.actionBuilders ::: List(incrementAction)

@@ -29,7 +29,7 @@ object PauseActionBuilder {
 	/**
 	 * Creates an initialized PauseActionBuilder with time unit in Seconds
 	 */
-	def pauseActionBuilder = new PauseActionBuilder(Duration(0, TimeUnit.SECONDS), None, null)
+	def apply(minDuration: Duration, maxDuration: Option[Duration]) = new PauseActionBuilder(minDuration, maxDuration, null)
 }
 
 /**
@@ -41,22 +41,6 @@ object PauseActionBuilder {
  * @param next action that will be executed after the generated pause
  */
 class PauseActionBuilder(minDuration: Duration, maxDuration: Option[Duration] = None, next: ActorRef) extends ActionBuilder {
-
-	/**
-	 * Adds minDuration to builder
-	 *
-	 * @param minDuration the minimum duration of the pause
-	 * @return a new builder with minDuration set
-	 */
-	def withMinDuration(minDuration: Duration) = new PauseActionBuilder(minDuration, maxDuration, next)
-
-	/**
-	 * Adds maxDuration to builder
-	 *
-	 * @param maxDuration the maximum duration of the pause
-	 * @return a new builder with maxDuration set
-	 */
-	def withMaxDuration(maxDuration: Option[Duration]) = new PauseActionBuilder(minDuration, maxDuration, next)
 
 	def withNext(next: ActorRef) = new PauseActionBuilder(minDuration, maxDuration, next)
 
