@@ -24,6 +24,7 @@ import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_ASSETS_JS_PACK
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.util.FileHelper.{ HTML_EXTENSION, formatToFilename }
 import com.excilys.ebi.gatling.core.util.ScanHelper.deepCopyPackageContent
+import com.excilys.ebi.gatling.core.util.StringHelper.escapeJsQuoteString
 
 import grizzled.slf4j.Logging
 
@@ -39,8 +40,8 @@ object ReportsGenerator extends Logging {
 			val requestLinks: Iterable[(String, Option[String], String)] = dataReader.requestNames.map {
 				requestName =>
 					val fileName = formatToFilename(requestName) + HTML_EXTENSION
-					val title = if (requestName.length > maxLength) Some(requestName) else None
-					val printedName = if (requestName.length > maxLength) requestName.substring(maxLength) + "..." else requestName
+					val title = if (requestName.length > maxLength) Some(escapeJsQuoteString(requestName)) else None
+					val printedName = escapeJsQuoteString(if (requestName.length > maxLength) requestName.substring(maxLength) + "..." else requestName)
 
 					(fileName, title, printedName)
 			}
