@@ -57,6 +57,8 @@ object StringHelper extends Logging {
 		jdk6Pattern.matcher(normalized).replaceAll(EMPTY);
 	}
 
+	def escapeJsQuoteString(s: String) = s.replace("'", "\\\'")
+
 	def parseEvaluatable(stringToFormat: String): EvaluatableString = {
 
 		def parseStaticParts: Array[String] = elPattern.pattern.split(stringToFormat, -1)
