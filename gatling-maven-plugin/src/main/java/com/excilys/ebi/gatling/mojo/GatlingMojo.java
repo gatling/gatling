@@ -16,7 +16,6 @@
 package com.excilys.ebi.gatling.mojo;
 
 import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
-import static com.excilys.ebi.gatling.app.CommandLineConstants.*;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static org.codehaus.plexus.util.StringUtils.join;
@@ -41,6 +40,7 @@ import org.apache.tools.ant.types.Commandline;
 import org.apache.tools.ant.types.Path;
 
 import com.excilys.ebi.gatling.ant.GatlingTask;
+import com.excilys.ebi.gatling.app.CommandLineConstants;
 
 /**
  * Mojo to execute Gatling.
@@ -250,22 +250,22 @@ public class GatlingMojo extends AbstractMojo {
 
 			// Arguments
 			List<String> args = newArrayList(//
-					"-" + CLI_DATA_FOLDER, dataFolder.getCanonicalPath(),//
-					"-" + CLI_RESULTS_FOLDER, resultsFolder.getCanonicalPath(),//
-					"-" + CLI_REQUEST_BODIES_FOLDER, requestBodiesFolder.getCanonicalPath(),//
-					"-" + CLI_SIMULATIONS_FOLDER, simulationsFolder.getCanonicalPath(),//
-					"-" + CLI_SIMULATIONS, simulations);
+					"-" + CommandLineConstants.CLI_DATA_FOLDER(), dataFolder.getCanonicalPath(),//
+					"-" + CommandLineConstants.CLI_RESULTS_FOLDER(), resultsFolder.getCanonicalPath(),//
+					"-" + CommandLineConstants.CLI_REQUEST_BODIES_FOLDER(), requestBodiesFolder.getCanonicalPath(),//
+					"-" + CommandLineConstants.CLI_SIMULATIONS_FOLDER(), simulationsFolder.getCanonicalPath(),//
+					"-" + CommandLineConstants.CLI_SIMULATIONS(), simulations);
 
 			if (noReports) {
-				args.add("-" + CLI_NO_REPORTS);
+				args.add("-" + CommandLineConstants.CLI_NO_REPORTS());
 			}
 
 			if (reportsOnly != null) {
-				args.addAll(asList("-" + CLI_REPORTS_ONLY, reportsOnly.getCanonicalPath()));
+				args.addAll(asList("-" + CommandLineConstants.CLI_REPORTS_ONLY(), reportsOnly.getCanonicalPath()));
 			}
 
 			if (runName != null) {
-				args.addAll(asList("-" + CLI_RUN_NAME, runName));
+				args.addAll(asList("-" + CommandLineConstants.CLI_RUN_NAME(), runName));
 			}
 
 			return args;
