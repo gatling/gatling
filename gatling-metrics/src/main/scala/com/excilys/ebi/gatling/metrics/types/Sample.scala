@@ -24,7 +24,7 @@ object Sample {
 class Sample {
 
 	private var count = 0
-	private val values: Array[Long] = new Array[Long](Sample.SAMPLE_SIZE)
+	private val values: Array[Long] = Array.ofDim(Sample.SAMPLE_SIZE)
 
 	def update(value: Long) {
 		if (count < values.length) {
@@ -38,16 +38,16 @@ class Sample {
 		count += 1
 	}
 
-	def size = count min values.length
-
-
 	def getQuantile(quantile: Int) = {
 		val sortedValues = values.sorted
-		if (size == 0) 0
-		val index = (quantile / 100.) * (size + 1)
-		if (index < 1) sortedValues(0)
-		else if (index >= size) sortedValues(size - 1)
-		else sortedValues(index.toInt)
+		val size = count.min(values.length)
+		if (size == 0)
+			0
+		else
+			(quantile / 100.) * (size + 1) match {
+				case index if (index < 1) => sortedValues(0)
+				case index if (index >= size) => sortedValues(size - 1)
+				case index => sortedValues(index.toInt)
+			}
 	}
-
 }

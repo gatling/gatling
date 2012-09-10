@@ -14,7 +14,7 @@
 
 	<name>${project.artifactId}</name>
 
-	<description>Gatling Metrics Support</description>
+	<description>Gatling Metrics</description>
 
 	<properties>
 		<header.basedir>${project.parent.basedir}</header.basedir>
@@ -25,22 +25,6 @@
 		<dependency>
 			<groupId>com.excilys.ebi.gatling</groupId>
 			<artifactId>gatling-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.scala-lang</groupId>
-			<artifactId>scala-library</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.typesafe.akka</groupId>
-			<artifactId>akka-actor</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.clapper</groupId>
-			<artifactId>grizzled-slf4j_2.9.2</artifactId>
 		</dependency>
 	</dependencies>
 

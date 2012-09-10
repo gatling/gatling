@@ -103,18 +103,18 @@ class MetricsDataWriter extends DataWriter {
 		val header = simulationName + DOT + sanitizeString(requestName)
 		val percentiles1 = configuration.charting.indicators.percentile1
 		val percentiles2 = configuration.charting.indicators.percentile2
-		sendToGraphite(header, "all.count", requestMetric.getCount.all, epoch)
-		sendToGraphite(header, "all.max", requestMetric.getMax.all, epoch)
-		sendToGraphite(header, "all.percentiles" + percentiles1, requestMetric.getPercentiles.all.getQuantile(percentiles1), epoch)
-		sendToGraphite(header, "all.percentiles" + percentiles2, requestMetric.getPercentiles.all.getQuantile(percentiles2), epoch)
-		sendToGraphite(header, "ko.count", requestMetric.getCount.ko, epoch)
-		sendToGraphite(header, "ko.max", requestMetric.getMax.ko, epoch)
-		sendToGraphite(header, "ko.percentiles" + percentiles1, requestMetric.getPercentiles.ko.getQuantile(percentiles1), epoch)
-		sendToGraphite(header, "ko.percentiles" + percentiles2, requestMetric.getPercentiles.ko.getQuantile(percentiles2), epoch)
-		sendToGraphite(header, "ok.count", requestMetric.getCount.ok, epoch)
-		sendToGraphite(header, "ok.max", requestMetric.getMax.ok, epoch)
-		sendToGraphite(header, "ok.percentiles" + percentiles1, requestMetric.getPercentiles.ok.getQuantile(percentiles1), epoch)
-		sendToGraphite(header, "ok.percentiles" + percentiles2, requestMetric.getPercentiles.ok.getQuantile(percentiles2), epoch)
+		sendToGraphite(header, "all.count", requestMetric.count.all, epoch)
+		sendToGraphite(header, "all.max", requestMetric.max.all, epoch)
+		sendToGraphite(header, "all.percentiles" + percentiles1, requestMetric.percentiles.all.getQuantile(percentiles1), epoch)
+		sendToGraphite(header, "all.percentiles" + percentiles2, requestMetric.percentiles.all.getQuantile(percentiles2), epoch)
+		sendToGraphite(header, "ko.count", requestMetric.count.ko, epoch)
+		sendToGraphite(header, "ko.max", requestMetric.max.ko, epoch)
+		sendToGraphite(header, "ko.percentiles" + percentiles1, requestMetric.percentiles.ko.getQuantile(percentiles1), epoch)
+		sendToGraphite(header, "ko.percentiles" + percentiles2, requestMetric.percentiles.ko.getQuantile(percentiles2), epoch)
+		sendToGraphite(header, "ok.count", requestMetric.count.ok, epoch)
+		sendToGraphite(header, "ok.max", requestMetric.max.ok, epoch)
+		sendToGraphite(header, "ok.percentiles" + percentiles1, requestMetric.percentiles.ok.getQuantile(percentiles1), epoch)
+		sendToGraphite(header, "ok.percentiles" + percentiles2, requestMetric.percentiles.ok.getQuantile(percentiles2), epoch)
 	}
 
 	def sendMetricsToGraphite {
