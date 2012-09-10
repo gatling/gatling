@@ -126,7 +126,15 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 	 * @return a new builder with a pause added to its actions
 	 */
 	@deprecated("""Will be remove in Gatling 1.4.0. Pass a akka.util.Duration such as "5 seconds" """)
-	def pauseExp(meanDuration: Long, durationUnit: TimeUnit = TimeUnit.SECONDS): B = pauseExp(Duration(meanDuration, durationUnit))
+	def pauseExp(meanDuration: Long, durationUnit: TimeUnit): B = pauseExp(Duration(meanDuration, durationUnit))
+
+	/**
+	 * Method used to define drawn from an exponential distribution with the specified mean duration.
+	 *
+	 * @param meanDuration the mean duration of the pause, in seconds
+	 * @return a new builder with a pause added to its actions
+	 */
+	def pauseExp(meanDuration: Long): B = newInstance(ExpPauseActionBuilder(meanDuration seconds) :: actionBuilders)
 
 	/**
 	 * Method used to define drawn from an exponential distribution with the specified mean duration.
