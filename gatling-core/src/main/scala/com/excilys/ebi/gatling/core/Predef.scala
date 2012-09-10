@@ -23,7 +23,6 @@ import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder
 import com.excilys.ebi.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
 import com.excilys.ebi.gatling.core.feeder.{ Feeder, FeederBuiltIns }
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesParser
-import com.excilys.ebi.gatling.core.feeder.simple.SimpleFeederBuilder
 import com.excilys.ebi.gatling.core.structure.{ ChainBuilder, ScenarioBuilder }
 import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 
@@ -53,8 +52,6 @@ object Predef {
 
 	implicit def dataToFeeder(data: Array[Map[String, String]]): Feeder = dataToFeederBuiltIns(data).queue
 	implicit def dataToFeederBuiltIns(data: Array[Map[String, String]]) = new FeederBuiltIns(data)
-
-	def simpleFeeder(name: String, data1: Map[String, String], data: Map[String, String]*) = SimpleFeederBuilder.simpleFeeder((data1 :: data.toList).toArray)
 
 	type Session = com.excilys.ebi.gatling.core.session.Session
 	type Simulation = com.excilys.ebi.gatling.core.scenario.configuration.Simulation
