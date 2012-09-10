@@ -13,20 +13,13 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package org.jboss.netty.example.securechat;
+package org.jboss.netty.example.securechat
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.KeyStore;
-import java.security.Security;
+import java.security.{ KeyStore, Security }
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.TrustManager;
+import com.excilys.ebi.gatling.core.util.IOHelper
 
-import org.jboss.netty.handler.ssl.SslHandler;
+import javax.net.ssl.{ KeyManagerFactory, SSLContext }
 
 /**
  * Creates a bogus {@link SSLContext}. A client-side context created by this
@@ -35,9 +28,9 @@ import org.jboss.netty.handler.ssl.SslHandler;
  * {@link SecureChatKeyStore}.
  * <p>
  * You will have to create your context differently in a real world application.
- * 
+ *
  * <h3>Client Certificate Authentication</h3>
- * 
+ *
  * To enable client certificate authentication:
  * <ul>
  * <li>Enable client authentication on the server side by calling
@@ -53,71 +46,36 @@ import org.jboss.netty.handler.ssl.SslHandler;
  * {@link SSLContext#init(KeyManager[], javax.net.ssl.TrustManager[], java.security.SecureRandom)}
  * to validate the client certificate.</li>
  * </ul>
- * 
+ *
  * @author <a href="http://www.jboss.org/netty/">The Netty Project</a>
  * @author <a href="http://gleamynode.net/">Trustin Lee</a>
- * 
+ *
  * @version $Rev: 2080 $, $Date: 2010-01-26 18:04:19 +0900 (Tue, 26 Jan 2010) $
  */
-// keytool -selfcert -genkey -alias Gatling -keysize 2048 -keyalg RSA -validity 3650 -dname "CN=Gatling" -keypass gatling -storepass gatling -keystore gatling.jks
-public class SecureChatSslContextFactory {
+object SecureChatSslContextFactory {
 
-	private static final String PROTOCOL = "TLS";
-	private static final SSLContext SERVER_CONTEXT;
-	private static final SSLContext CLIENT_CONTEXT;
+	val (serverContext, clientContext): (SSLContext, SSLContext) = {
 
-	static {
-		String algorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
-		if (algorithm == null) {
-			algorithm = "SunX509";
-		}
+		val PROTOCOL = "TLS"
+		val algorithm = Option(Security.getProperty("ssl.KeyManagerFactory.algorithm")).getOrElse("SunX509")
+		val ks = KeyStore.getInstance("JKS")
 
-		SSLContext serverContext = null;
-		SSLContext clientContext = null;
-
-		InputStream in = null;
-		try {
-			KeyStore ks = KeyStore.getInstance("JKS");
-
-			in = ClassLoader.getSystemResourceAsStream("gatling.jks");
-			char[] gatlingChars = "gatling".toCharArray();
-			ks.load(in, gatlingChars);
+		IOHelper.use(ClassLoader.getSystemResourceAsStream("gatling.jks")) { in =>
+			val gatlingChars = "gatling".toCharArray
+			ks.load(in, gatlingChars)
 
 			// Set up key manager factory to use our key store
-			KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
-			kmf.init(ks, gatlingChars);
+			val kmf = KeyManagerFactory.getInstance(algorithm)
+			kmf.init(ks, gatlingChars)
 
 			// Initialize the SSLContext to work with our key managers.
-			serverContext = SSLContext.getInstance(PROTOCOL);
-			serverContext.init(kmf.getKeyManagers(), null, null);
-		} catch (Exception e) {
-			throw new Error("Failed to initialize the server-side SSLContext", e);
-		} finally {
-			try {
-				if (in != null) {
-					in.close();
-				}
-			} catch (IOException e) {
-				throw new Error("Failed to close ", e);
-			}
+			val serverContext = SSLContext.getInstance(PROTOCOL)
+			serverContext.init(kmf.getKeyManagers, null, null)
+
+			val clientContext = SSLContext.getInstance(PROTOCOL)
+			clientContext.init(null, SecureChatTrustManagerFactory.getTrustManagers, null)
+
+			(serverContext, clientContext)
 		}
-
-		try {
-			clientContext = SSLContext.getInstance(PROTOCOL);
-			clientContext.init(null, SecureChatTrustManagerFactory.getTrustManagers(), null);
-		} catch (Exception e) {
-			throw new Error("Failed to initialize the client-side SSLContext", e);
-		}
-
-		SERVER_CONTEXT = serverContext;
-		CLIENT_CONTEXT = clientContext;
-	}
-
-	public static SSLContext getServerContext() {
-		return SERVER_CONTEXT;
-	}
-
-	public static SSLContext getClientContext() {
-		return CLIENT_CONTEXT;
 	}
 }

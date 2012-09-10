@@ -22,13 +22,13 @@ import javax.net.ssl.SSLEngine
 object SSLEngineFactory {
 
 	def newServerSSLEngine: SSLEngine = {
-		val ctx = SecureChatSslContextFactory.getServerContext.createSSLEngine
+		val ctx = SecureChatSslContextFactory.serverContext.createSSLEngine
 		ctx.setUseClientMode(false)
 		ctx
 	}
 
 	def newClientSSLEngine: SSLEngine = {
-		val ctx = SecureChatSslContextFactory.getClientContext.createSSLEngine
+		val ctx = SecureChatSslContextFactory.clientContext.createSSLEngine
 		ctx.setUseClientMode(true)
 		ctx
 	}
