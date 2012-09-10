@@ -113,7 +113,7 @@
 		<args4j.version>2.0.21</args4j.version>
 		<ant.version>1.8.3</ant.version>
 		<grizzled-slf4j.version>0.6.9</grizzled-slf4j.version>
-		<jackson.version>2.0.5</jackson.version>
+		<jackson.version>2.0.6</jackson.version>
 		<commons-math3.version>3.0</commons-math3.version>
 		<commons-io.version>2.4</commons-io.version>
 		<commons-lang.version>2.6</commons-lang.version>
