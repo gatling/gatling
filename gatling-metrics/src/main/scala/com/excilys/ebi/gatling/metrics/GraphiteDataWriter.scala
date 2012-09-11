@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.metrics
 
-import java.io.{ BufferedWriter, IOException, OutputStreamWriter }
+import java.io.{ BufferedWriter, IOException, OutputStreamWriter, Writer }
 import java.net.Socket
 import java.util.{ HashMap, Timer, TimerTask }
 
@@ -25,9 +25,9 @@ import scala.collection.mutable
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.{RequestRecord, RunRecord, ShortScenarioDescription }
+import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RunRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
-import com.excilys.ebi.gatling.core.util.StringHelper.{ DOT, END_OF_LINE, SPACE }
+import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 import com.excilys.ebi.gatling.metrics.types.{ RequestMetric, UserMetric }
 
@@ -35,7 +35,7 @@ case object SendToGraphite
 
 class GraphiteDataWriter extends DataWriter {
 
-	private var prefix: String = _
+	private var metricRootPath: List[String] = Nil
 	private val allRequests = new RequestMetric
 	private val perRequest: mutable.Map[String, RequestMetric] = new HashMap[String, RequestMetric]
 	private var allUsers: UserMetric = _
@@ -43,9 +43,13 @@ class GraphiteDataWriter extends DataWriter {
 	private var timer: Timer = _
 	private var writer: BufferedWriter = _
 	private var socket: Socket = _
+	private val percentiles1 = configuration.charting.indicators.percentile1
+	private val percentiles1Name = "percentiles" + percentiles1
+	private val percentiles2 = configuration.charting.indicators.percentile2
+	private val percentiles2Name = "percentiles" + percentiles2
 
 	def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) {
-		prefix = "gatling" + DOT + runRecord.simulationClassSimpleName
+		metricRootPath = List("gatling", runRecord.simulationClassSimpleName)
 		allUsers = new UserMetric(scenarios.map(_.nbUsers).sum)
 		scenarios.foreach(scenario => usersPerScenario.+=((scenario.name, new UserMetric(scenario.nbUsers))))
 		socket = new Socket(configuration.graphite.host, configuration.graphite.port)
@@ -77,13 +81,13 @@ class GraphiteDataWriter extends DataWriter {
 		case SendToGraphite => sendMetricsToGraphite
 	}
 
-	def sendToGraphite(header: String, valueName: String, value: Long, epoch: Long) {
-		writer.write(header)
-		writer.write(DOT)
-		writer.write(sanitizeString(valueName))
-		writer.write(SPACE)
+	def sendToGraphite(metricPath: MetricPath, value: Long, epoch: Long) {
+
+		metricPath.write(writer)
+
+		writer.write(" ")
 		writer.write(value.toString)
-		writer.write(SPACE)
+		writer.write(" ")
 		writer.write(epoch.toString)
 		writer.write(END_OF_LINE)
 		writer.flush
@@ -92,28 +96,26 @@ class GraphiteDataWriter extends DataWriter {
 	def sanitizeString(s: String) = s.replace(' ', '-')
 
 	def formatUserMetric(scenarioName: String, userMetric: UserMetric, epoch: Long) = {
-		val header = prefix + ".users." + sanitizeString(scenarioName)
-		sendToGraphite(header, "active", userMetric.getActive, epoch)
-		sendToGraphite(header, "waiting", userMetric.getWaiting, epoch)
-		sendToGraphite(header, "done", userMetric.getDone, epoch)
+		val rootPath = MetricPath("users", sanitizeString(scenarioName))
+		sendToGraphite(rootPath + "active", userMetric.getActive, epoch)
+		sendToGraphite(rootPath + "waiting", userMetric.getWaiting, epoch)
+		sendToGraphite(rootPath + "done", userMetric.getDone, epoch)
 	}
 
 	def formatRequestMetric(requestName: String, requestMetric: RequestMetric, epoch: Long) = {
-		val header = prefix + DOT + sanitizeString(requestName)
-		val percentiles1 = configuration.charting.indicators.percentile1
-		val percentiles2 = configuration.charting.indicators.percentile2
-		sendToGraphite(header, "all.count", requestMetric.count.all, epoch)
-		sendToGraphite(header, "all.max", requestMetric.max.all, epoch)
-		sendToGraphite(header, "all.percentiles" + percentiles1, requestMetric.percentiles.all.getQuantile(percentiles1), epoch)
-		sendToGraphite(header, "all.percentiles" + percentiles2, requestMetric.percentiles.all.getQuantile(percentiles2), epoch)
-		sendToGraphite(header, "ko.count", requestMetric.count.ko, epoch)
-		sendToGraphite(header, "ko.max", requestMetric.max.ko, epoch)
-		sendToGraphite(header, "ko.percentiles" + percentiles1, requestMetric.percentiles.ko.getQuantile(percentiles1), epoch)
-		sendToGraphite(header, "ko.percentiles" + percentiles2, requestMetric.percentiles.ko.getQuantile(percentiles2), epoch)
-		sendToGraphite(header, "ok.count", requestMetric.count.ok, epoch)
-		sendToGraphite(header, "ok.max", requestMetric.max.ok, epoch)
-		sendToGraphite(header, "ok.percentiles" + percentiles1, requestMetric.percentiles.ok.getQuantile(percentiles1), epoch)
-		sendToGraphite(header, "ok.percentiles" + percentiles2, requestMetric.percentiles.ok.getQuantile(percentiles2), epoch)
+		val rootPath = MetricPath(sanitizeString(requestName))
+		sendToGraphite(rootPath + "all" + "count", requestMetric.count.all, epoch)
+		sendToGraphite(rootPath + "all" + "max", requestMetric.max.all, epoch)
+		sendToGraphite(rootPath + "all" + percentiles1Name, requestMetric.percentiles.all.getQuantile(percentiles1), epoch)
+		sendToGraphite(rootPath + "all" + percentiles2Name, requestMetric.percentiles.all.getQuantile(percentiles2), epoch)
+		sendToGraphite(rootPath + "ko" + "count", requestMetric.count.ko, epoch)
+		sendToGraphite(rootPath + "ko" + "max", requestMetric.max.ko, epoch)
+		sendToGraphite(rootPath + "ko" + percentiles1Name, requestMetric.percentiles.ko.getQuantile(percentiles1), epoch)
+		sendToGraphite(rootPath + "ko" + percentiles2Name, requestMetric.percentiles.ko.getQuantile(percentiles2), epoch)
+		sendToGraphite(rootPath + "ok" + "count", requestMetric.count.ok, epoch)
+		sendToGraphite(rootPath + "ok" + "max", requestMetric.max.ok, epoch)
+		sendToGraphite(rootPath + "ok" + percentiles1Name, requestMetric.percentiles.ok.getQuantile(percentiles1), epoch)
+		sendToGraphite(rootPath + "ok" + percentiles2Name, requestMetric.percentiles.ok.getQuantile(percentiles2), epoch)
 	}
 
 	def sendMetricsToGraphite {
@@ -135,9 +137,27 @@ class GraphiteDataWriter extends DataWriter {
 			}
 		}
 	}
+
 	private class SendToGraphiteTask extends TimerTask {
-		def run() {
+		def run {
 			self ! SendToGraphite
+		}
+	}
+
+	object MetricPath {
+
+		def apply(elements: String*) = new MetricPath(elements.toList)
+	}
+
+	class MetricPath(path: List[String]) {
+
+		def +(element: String) = new MetricPath(path ::: List(element))
+
+		def write(writer: Writer) {
+			(metricRootPath ::: path).foreach { elt =>
+				writer.write(elt)
+				writer.write('.')
+			}
 		}
 	}
 }
