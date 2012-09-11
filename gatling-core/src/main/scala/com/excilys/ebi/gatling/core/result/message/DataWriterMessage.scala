@@ -67,8 +67,8 @@ case class RequestRecord(
 	def responseTime = executionEndDate - executionStartDate
 }
 
-case class RunRecord(runDate: DateTime, runId: String, runDescription: String, simulationClassSimpleName: String) extends DataWriterMessage {
+case class RunRecord(runDate: DateTime, outputDirectoryBaseName: String, runDescription: String, simulationClassSimpleName: String) extends DataWriterMessage {
 	val recordType = RUN
-	def runUuid = runId + toTimestamp(runDate)
+	def outputDirectoryName = outputDirectoryBaseName + "-" + toTimestamp(runDate)
 	def readableRunDate = toHumanDate(runDate)
 }

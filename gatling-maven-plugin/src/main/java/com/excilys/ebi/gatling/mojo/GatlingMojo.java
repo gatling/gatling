@@ -111,10 +111,10 @@ public class GatlingMojo extends AbstractMojo {
 	 * A comma-separated list of simulations to run. This takes precedence over
 	 * the includes / excludes parameters.
 	 * 
-	 * @parameter expression="${gatling.simulations}" alias="s"
-	 * @description A comma-separated list of simulations to run
+	 * @parameter expression="${gatling.simulation}" alias="s"
+	 * @description The name of the Simulation class to run
 	 */
-	protected String simulations;
+	protected String simulation;
 
 	/**
 	 * Uses this folder as the folder where feeders are stored
@@ -157,17 +157,17 @@ public class GatlingMojo extends AbstractMojo {
 	 * integration server, if your only option to be able to collect output
 	 * files, is if the project builds successfully.
 	 * 
-	 * @parameter expression="${gatling.failOnError}"
+	 * @parameter expression="${gatling.failOnError}" alias="failOnError"
 	 */
 	protected boolean failOnError = true;
 
 	/**
 	 * Force the name of the directory generated for the results of the run
 	 * 
-	 * @parameter expression="${gatling.runName}" alias="rn" default-value="run"
-	 * @description Uses this folder as the name of the run results folder
+	 * @parameter expression="${gatling.ouputName}" alias="on"
+	 * @description Uses this as the base name of the results folder
 	 */
-	protected String runName;
+	protected String outputDirectoryBaseName;
 
 	/**
 	 * The Maven Project
@@ -239,13 +239,20 @@ public class GatlingMojo extends AbstractMojo {
 	protected List<String> gatlingArgs() throws MojoExecutionException {
 		try {
 			// Solves the simulations, if no simulation file is defined
-			if (simulations == null) {
-				simulations = resolveSimulations(simulationsFolder, includes, excludes);
-			}
+			if (simulation == null) {
+				List<String> simulations = resolveSimulations(simulationsFolder, includes, excludes);
 
-			if (simulations.isEmpty()) {
-				getLog().error("No simulations to run");
-				throw new MojoFailureException("No simulations to run");
+				if (simulations.isEmpty()) {
+					getLog().error("No simulations to run");
+					throw new MojoFailureException("No simulations to run");
+
+				} else if (simulations.size() > 1) {
+					getLog().error("More than 1 simulation to run, need to specify one");
+					throw new MojoFailureException("More than 1 simulation to run, need to specify one");
+
+				} else {
+					simulation = simulations.get(0);
+				}
 			}
 
 			// Arguments
@@ -254,7 +261,7 @@ public class GatlingMojo extends AbstractMojo {
 					"-" + CommandLineConstants.CLI_RESULTS_FOLDER(), resultsFolder.getCanonicalPath(),//
 					"-" + CommandLineConstants.CLI_REQUEST_BODIES_FOLDER(), requestBodiesFolder.getCanonicalPath(),//
 					"-" + CommandLineConstants.CLI_SIMULATIONS_FOLDER(), simulationsFolder.getCanonicalPath(),//
-					"-" + CommandLineConstants.CLI_SIMULATIONS(), simulations);
+					"-" + CommandLineConstants.CLI_SIMULATION(), simulation);
 
 			if (noReports) {
 				args.add("-" + CommandLineConstants.CLI_NO_REPORTS());
@@ -264,8 +271,8 @@ public class GatlingMojo extends AbstractMojo {
 				args.addAll(asList("-" + CommandLineConstants.CLI_REPORTS_ONLY(), reportsOnly.getCanonicalPath()));
 			}
 
-			if (runName != null) {
-				args.addAll(asList("-" + CommandLineConstants.CLI_RUN_NAME(), runName));
+			if (outputDirectoryBaseName != null) {
+				args.addAll(asList("-" + CommandLineConstants.CLI_OUTPUT_DIRECTORY_BASE_NAME(), outputDirectoryBaseName));
 			}
 
 			return args;
@@ -289,7 +296,7 @@ public class GatlingMojo extends AbstractMojo {
 	 * 
 	 * @return a comma separated String of simulation class names.
 	 */
-	protected String resolveSimulations(File simulationsFolder, List<String> includes, List<String> excludes) {
+	protected List<String> resolveSimulations(File simulationsFolder, List<String> includes, List<String> excludes) {
 		DirectoryScanner scanner = new DirectoryScanner();
 
 		// Set Base Directory
@@ -319,7 +326,7 @@ public class GatlingMojo extends AbstractMojo {
 		}
 
 		getLog().debug("resolved simulation classes: " + includedClassNames);
-		return join(includedClassNames.iterator(), ",");
+		return includedClassNames;
 	}
 
 	protected Project getProject() throws MojoExecutionException {
@@ -329,7 +336,8 @@ public class GatlingMojo extends AbstractMojo {
 		try {
 			Path classpath = new Path(project);
 			append(classpath, pluginArtifacts); // Add jars
-			classpath.setPath(configDir.getPath()); // Set dirname of config file into the classpath
+			classpath.setPath(configDir.getPath()); // Set dirname of config
+													// file into the classpath
 			getLog().debug("Gatling classpath : " + classpath);
 			project.addReference(GATLING_CLASSPATH_REF_NAME, classpath);
 			return project;

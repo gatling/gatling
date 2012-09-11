@@ -21,6 +21,7 @@ import java.util.Date
 
 import scala.collection.mutable
 
+import com.excilys.ebi.gatling.core.util.StringHelper.trimToOption
 import com.excilys.ebi.gatling.recorder.ui.util.UIHelper.useUIThread
 
 import grizzled.slf4j.Logging
@@ -62,12 +63,14 @@ object ValidationHelper extends Logging {
 	def nonEmptyValidator(cFrame: ConfigurationFrame, id: String) = new KeyListener {
 		def keyReleased(e: KeyEvent) {
 			val txtField = e.getComponent.asInstanceOf[JTextField]
-			if (!txtField.getText.trim.isEmpty) {
-				txtField.setBorder(standardBorder)
-				updateValidationStatus(id, true, cFrame)
-			} else {
-				txtField.setBorder(errorBorder)
-				updateValidationStatus(id, false, cFrame)
+
+			trimToOption(txtField.getText) match {
+				case Some(string) =>
+					txtField.setBorder(standardBorder)
+					updateValidationStatus(id, true, cFrame)
+				case None =>
+					txtField.setBorder(errorBorder)
+					updateValidationStatus(id, false, cFrame)
 			}
 		}
 
@@ -79,26 +82,28 @@ object ValidationHelper extends Logging {
 	def proxyHostValidator(cFrame: ConfigurationFrame) = new KeyListener {
 		def keyReleased(e: KeyEvent) {
 			val txtField = e.getComponent.asInstanceOf[JTextField]
-			if (!txtField.getText.trim.isEmpty) {
-				cFrame.txtProxyPort.setEnabled(true)
-				cFrame.txtProxySslPort.setEnabled(true)
-				cFrame.txtProxyUsername.setEnabled(true)
-				cFrame.txtProxyPassword.setEnabled(true)
-			} else {
-				cFrame.txtProxyPort.setEnabled(false)
-				cFrame.txtProxyPort.setText("0")
-				cFrame.txtProxyPort.getKeyListeners.foreach {
-					case kl: KeyListener =>
-						useUIThread {
-							kl.keyReleased(new KeyEvent(cFrame.txtProxyPort, 0, new Date().getTime, 0, 0, '0'))
-						}
-				}
-				cFrame.txtProxySslPort.setEnabled(false)
-				cFrame.txtProxySslPort.setText("0")
-				cFrame.txtProxyUsername.setEnabled(false)
-				cFrame.txtProxyUsername.setText(null)
-				cFrame.txtProxyPassword.setEnabled(false)
-				cFrame.txtProxyPassword.setText(null)
+
+			trimToOption(txtField.getText) match {
+				case Some(string) =>
+					cFrame.txtProxyPort.setEnabled(true)
+					cFrame.txtProxySslPort.setEnabled(true)
+					cFrame.txtProxyUsername.setEnabled(true)
+					cFrame.txtProxyPassword.setEnabled(true)
+				case None =>
+					cFrame.txtProxyPort.setEnabled(false)
+					cFrame.txtProxyPort.setText("0")
+					cFrame.txtProxyPort.getKeyListeners.foreach {
+						case kl: KeyListener =>
+							useUIThread {
+								kl.keyReleased(new KeyEvent(cFrame.txtProxyPort, 0, new Date().getTime, 0, 0, '0'))
+							}
+					}
+					cFrame.txtProxySslPort.setEnabled(false)
+					cFrame.txtProxySslPort.setText("0")
+					cFrame.txtProxyUsername.setEnabled(false)
+					cFrame.txtProxyUsername.setText(null)
+					cFrame.txtProxyPassword.setEnabled(false)
+					cFrame.txtProxyPassword.setText(null)
 			}
 		}
 

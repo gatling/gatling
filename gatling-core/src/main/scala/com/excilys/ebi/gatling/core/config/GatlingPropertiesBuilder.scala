@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.config
 
-import java.util.{ List => JList, HashMap => JHashMap, Map => JMap }
+import java.util.{ HashMap => JHashMap, Map => JMap }
 
 import scala.collection.JavaConversions.seqAsJavaList
 
@@ -53,12 +53,12 @@ class GatlingPropertiesBuilder {
 		props.put(CONF_DIRECTORY_BINARIES, v)
 	}
 
-	def classes(v: String) {
-		props.put(CONF_SIMULATION_CLASSES, v.split(",").toList.map(_.trim): JList[String])
+	def clazz(v: String) {
+		props.put(CONF_SIMULATION_CLASS, v)
 	}
 
-	def runName(v: String) {
-		props.put(CONF_SIMULATION_RUN_NAME, v)
+	def outputDirectoryBaseName(v: String) {
+		props.put(CONF_SIMULATION_OUTPUT_DIRECTORY_BASE_NAME, v)
 	}
 
 	def build = props

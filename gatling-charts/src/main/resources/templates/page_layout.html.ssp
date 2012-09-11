@@ -24,7 +24,7 @@
 		<div class="cadre">
 				<div class="onglet">
 						<img src="style/cible.png" />
-						<p>Simulation:&nbsp;&nbsp;&nbsp;<span><%= runRecord.runId %> on <%= runRecord.readableRunDate %></span></p>
+						<p>Simulation:&nbsp;&nbsp;&nbsp;<span><%= runRecord.outputDirectoryName %> on <%= runRecord.readableRunDate %></span></p>
 				</div>
 				<div class="content">
 					<div class="sous-menu">

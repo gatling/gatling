@@ -17,10 +17,10 @@ package com.excilys.ebi.gatling.core
 
 object ConfigurationConstants {
 
-	val CONF_SIMULATION_RUN_NAME = "gatling.simulation.runName"
+	val CONF_SIMULATION_OUTPUT_DIRECTORY_BASE_NAME = "gatling.simulation.outputDirectoryBaseName"
 	val CONF_SIMULATION_RUN_DESCRIPTION = "gatling.simulation.runDescription"
 	val CONF_SIMULATION_ENCODING = "gatling.simulation.encoding"
-	val CONF_SIMULATION_CLASSES = "gatling.simulation.classes"
+	val CONF_SIMULATION_CLASS = "gatling.simulation.class"
 
 	val CONF_TIME_OUT_SIMULATION = "gatling.timeOut.simulation"
 	val CONF_TIME_OUT_ACTOR = "gatling.timeOut.actor"

@@ -80,7 +80,7 @@ object SimulationClassLoader {
 
 abstract class SimulationClassLoader {
 
-	def simulationClasses(explicitClassNames: List[String] = Nil): List[Class[Simulation]]
+	def simulationClasses(explicitClassName: Option[String]): List[Class[Simulation]]
 
 	protected val isSimulationClass = (clazz: Class[_]) => classOf[Simulation].isAssignableFrom(clazz) && !clazz.isInterface && !Modifier.isAbstract(clazz.getModifiers)
 }
@@ -92,14 +92,14 @@ class FileSystemBackedSimulationClassLoader(classLoader: ClassLoader, binaryDir:
 		.stripPrefix(root + File.separator)
 		.replace(File.separator, ".")
 
-	def simulationClasses(requestedClassNames: List[String] = Nil): List[Class[Simulation]] = {
+	def simulationClasses(requestedClassName: Option[String]): List[Class[Simulation]] = {
 
-		val classNames = requestedClassNames match {
-			case Nil => binaryDir
+		val classNames = requestedClassName match {
+			case None => binaryDir
 				.deepFiles
 				.filter(_.hasExtension("class"))
 				.map(pathToClassName(_, binaryDir))
-			case names => names
+			case Some(name) => List(name)
 		}
 
 		val classes = classNames.map(classLoader.loadClass(_))
@@ -107,11 +107,9 @@ class FileSystemBackedSimulationClassLoader(classLoader: ClassLoader, binaryDir:
 			.map(_.asInstanceOf[Class[Simulation]])
 			.toList
 
-		requestedClassNames.map { requestedClassNames =>
-			val loadedClassNames = classes.map(_.getName)
-			val notFounds = requestedClassNames.filterNot(classes.contains(_))
-			if (!notFounds.isEmpty)
-				println("The following simulation names didn't match any Simulation class name and were filtered out: " + notFounds)
+		requestedClassName.map { requestedClassName =>
+			if (classes.map(_.getName).contains(requestedClassName))
+				println(requestedClassName + " Simulation class could not be found")
 		}
 
 		classes

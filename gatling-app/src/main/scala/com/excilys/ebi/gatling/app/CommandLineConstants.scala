@@ -31,8 +31,8 @@ object CommandLineConstants {
 	val CLI_SIMULATIONS_FOLDER_ALIAS = "simulations-folder"
 	val CLI_SIMULATIONS_BINARIES_FOLDER = "sbf"
 	val CLI_SIMULATIONS_BINARIES_FOLDER_ALIAS = "simulations-binaries-folder"
-	val CLI_SIMULATIONS = "s"
-	val CLI_SIMULATIONS_ALIAS = "simulations"
-	val CLI_RUN_NAME = "rn"
-	val CLI_RUN_NAME_ALIAS = "run-name"
+	val CLI_SIMULATION = "s"
+	val CLI_SIMULATION_ALIAS = "simulation"
+	val CLI_OUTPUT_DIRECTORY_BASE_NAME = "on"
+	val CLI_OUTPUT_DIRECTORY_BASE_NAME_ALIAS = "output-name"
 }

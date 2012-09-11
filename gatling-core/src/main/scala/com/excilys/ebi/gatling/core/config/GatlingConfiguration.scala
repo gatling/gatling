@@ -20,6 +20,7 @@ import java.util.{ Map => JMap, HashMap => JHashMap }
 import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.ConfigurationConstants._
+import com.excilys.ebi.gatling.core.util.StringHelper.trimToOption
 import com.typesafe.config.{ Config, ConfigFactory }
 
 import grizzled.slf4j.Logging
@@ -42,10 +43,10 @@ object GatlingConfiguration extends Logging {
 
 		configuration = GatlingConfiguration(
 			simulation = SimulationConfiguration(
-				runName = config.getString(CONF_SIMULATION_RUN_NAME),
+				outputDirectoryBaseName = trimToOption(config.getString(CONF_SIMULATION_OUTPUT_DIRECTORY_BASE_NAME)),
 				runDescription = config.getString(CONF_SIMULATION_RUN_DESCRIPTION),
 				encoding = config.getString(CONF_SIMULATION_ENCODING),
-				classes = config.getStringList(CONF_SIMULATION_CLASSES).toList),
+				clazz = trimToOption(config.getString(CONF_SIMULATION_CLASS))),
 			timeOut = TimeOutConfiguration(
 				simulation = config.getInt(CONF_TIME_OUT_SIMULATION),
 				actor = config.getInt(CONF_TIME_OUT_ACTOR)),
@@ -92,10 +93,10 @@ object GatlingConfiguration extends Logging {
 }
 
 case class SimulationConfiguration(
-	runName: String,
+	outputDirectoryBaseName: Option[String],
 	runDescription: String,
 	encoding: String,
-	classes: List[String])
+	clazz: Option[String])
 
 case class TimeOutConfiguration(
 	simulation: Int,

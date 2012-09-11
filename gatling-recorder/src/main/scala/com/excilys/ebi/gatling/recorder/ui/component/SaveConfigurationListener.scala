@@ -18,6 +18,7 @@ package com.excilys.ebi.gatling.recorder.ui.component
 import java.awt.event.{ ActionListener, ActionEvent }
 import java.nio.charset.Charset
 
+import com.excilys.ebi.gatling.core.util.StringHelper.trimToOption
 import com.excilys.ebi.gatling.recorder.config.Configuration
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
@@ -31,11 +32,6 @@ class SaveConfigurationListener(controller: RecorderController, configurationFra
 
 	def actionPerformed(e: ActionEvent) {
 
-		def trimOptionalField(field: JTextField) = {
-			val value = field.getText.trim
-			if (value.isEmpty) None else Some(value)
-		}
-
 		// validate filters
 		configurationFrame.tblFilters.validateCells
 
@@ -45,7 +41,7 @@ class SaveConfigurationListener(controller: RecorderController, configurationFra
 		// Parse local ssl proxy port
 		configuration.sslPort = configurationFrame.txtSslPort.getText.toInt
 
-		configuration.proxy.host = trimOptionalField(configurationFrame.txtProxyHost)
+		configuration.proxy.host = trimToOption(configurationFrame.txtProxyHost.getText)
 
 		if (!configuration.proxy.host.isEmpty) {
 			// Parse outgoing proxy port
@@ -54,9 +50,9 @@ class SaveConfigurationListener(controller: RecorderController, configurationFra
 			// Parse outgoing ssl proxy port
 			configuration.proxy.sslPort = Some(configurationFrame.txtProxySslPort.getText.toInt)
 
-			configuration.proxy.username = trimOptionalField(configurationFrame.txtProxyUsername)
+			configuration.proxy.username = trimToOption(configurationFrame.txtProxyUsername.getText)
 
-			configuration.proxy.password = trimOptionalField(configurationFrame.txtProxyPassword)
+			configuration.proxy.password = trimToOption(configurationFrame.txtProxyPassword.getText)
 		}
 
 		configuration.filterStrategy = configurationFrame.cbFilterStrategies.getSelectedItem.asInstanceOf[FilterStrategy]
@@ -75,7 +71,7 @@ class SaveConfigurationListener(controller: RecorderController, configurationFra
 		// set selected encoding
 		configuration.encoding = classOf[Charset].cast(configurationFrame.cbOutputEncoding.getSelectedItem).name
 
-		configuration.simulationPackage = trimOptionalField(configurationFrame.txtSimulationPackage)
+		configuration.simulationPackage = trimToOption(configurationFrame.txtSimulationPackage.getText)
 
 		configuration.simulationClassName = configurationFrame.txtSimulationClassName.getText.trim
 

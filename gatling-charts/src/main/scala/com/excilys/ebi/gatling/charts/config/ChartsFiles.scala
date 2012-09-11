@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.charts.config
 
 import scala.tools.nsc.io.Path.string2path
 import com.excilys.ebi.gatling.core.config.GatlingFiles.{ resultDirectory, GATLING_JS }
-import com.excilys.ebi.gatling.core.util.FileHelper.{ formatToFilename, HTML_EXTENSION }
+import com.excilys.ebi.gatling.core.util.FileHelper.requestFileName
 import scala.tools.nsc.io.Path
 
 object ChartsFiles {
@@ -43,7 +43,7 @@ object ChartsFiles {
 	def allSessionsFile(runOn: String): Path = resultDirectory(runOn) / GATLING_JS / ALL_SESSIONS_FILE
 	def globalFile(runOn: String): Path = resultDirectory(runOn) / "index.html"
 
-	def requestFile(runOn: String, requestName: String): Path = resultDirectory(runOn) / (formatToFilename(requestName) + HTML_EXTENSION)
+	def requestFile(runOn: String, requestName: String): Path = resultDirectory(runOn) / requestFileName(requestName)
 	def jsStatsFile(runOn: String): Path = resultDirectory(runOn) / GATLING_JS / STATS_JS_FILE
 	def tsvStatsFile(runOn: String): Path = resultDirectory(runOn) / STATS_TSV_FILE
 }

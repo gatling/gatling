@@ -41,7 +41,7 @@ object FileHelper {
 	 * @return a simplified string
 	 */
 	def formatToFilename(s: String) = {
-		"req_" + stripAccents(s.replace("-", "_")
+		stripAccents(s.replace("-", "_")
 			.replace(" ", "_")
 			.replace("__", "_")
 			.replace("'", "")
@@ -55,6 +55,8 @@ object FileHelper {
 			.replace("__", "_")
 			.toLowerCase)
 	}
+
+	def requestFileName(s: String) = "req_" + formatToFilename(s) + HTML_EXTENSION
 
 	/**
 	 * Create a new temporary directory, which will be deleted upon the exit of the VM.

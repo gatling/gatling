@@ -20,13 +20,15 @@ import java.util.{ Map => JMap }
 
 import com.excilys.ebi.gatling.app.CommandLineConstants._
 import com.excilys.ebi.gatling.charts.report.ReportsGenerator
-import com.excilys.ebi.gatling.core.ConfigurationConstants._
-import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
+import com.excilys.ebi.gatling.core.config.{ GatlingFiles, GatlingPropertiesBuilder }
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.runner.{ Runner, Selection }
 import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
+import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename
+
 import grizzled.slf4j.Logging
 import scopt.OptionParser
-import com.excilys.ebi.gatling.core.config.GatlingPropertiesBuilder
 
 /**
  * Object containing entry point of application
@@ -50,8 +52,8 @@ object Gatling extends Logging {
 			opt(CLI_REQUEST_BODIES_FOLDER, CLI_REQUEST_BODIES_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> as the absolute path of the directory where request bodies are stored", { v: String => props.requestBodiesDirectory(v) })
 			opt(CLI_SIMULATIONS_FOLDER, CLI_SIMULATIONS_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> to discover simulations that could be run", { v: String => props.sourcesDirectory(v) })
 			opt(CLI_SIMULATIONS_BINARIES_FOLDER, CLI_SIMULATIONS_BINARIES_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> to discover already compiled simulations", { v: String => props.binariesDirectory(v) })
-			opt(CLI_SIMULATIONS, CLI_SIMULATIONS_ALIAS, "<classNamesList>", "Runs the <classNamesList> simulations sequentially", { v: String => props.classes(v) })
-			opt(CLI_RUN_NAME, CLI_RUN_NAME_ALIAS, "<runName>", "Use <runName> for the output directory", { v: String => props.runName(v) })
+			opt(CLI_SIMULATION, CLI_SIMULATION_ALIAS, "<className>", "Runs <className> simulation", { v: String => props.clazz(v) })
+			opt(CLI_OUTPUT_DIRECTORY_BASE_NAME, CLI_OUTPUT_DIRECTORY_BASE_NAME_ALIAS, "<name>", "Use <name> for the base name of the output directory", { v: String => props.outputDirectoryBaseName(v) })
 		}
 
 		// if arguments are incorrect, usage message is displayed
@@ -69,51 +71,56 @@ class Gatling extends Logging {
 
 	import GatlingConfiguration.configuration
 
+	private def defaultOutputDirectoryBaseName(clazz: Class[Simulation]) = configuration.simulation.outputDirectoryBaseName.getOrElse(formatToFilename(clazz.getSimpleName))
+
 	def start {
-		val runUuids = GatlingFiles.reportsOnlyDirectory
-			.map(List(_))
+		val outputDirectoryName = GatlingFiles.reportsOnlyDirectory
 			.getOrElse {
 				val simulations = GatlingFiles.binariesDirectory
 					.map( // expect simulations to have been pre-compiled (ex: IDE)
 						SimulationClassLoader.fromClasspathBinariesDirectory(_))
 					.getOrElse(SimulationClassLoader.fromSourcesDirectory(GatlingFiles.sourcesDirectory))
-					.simulationClasses(configuration.simulation.classes)
-					.sortWith(_.getName < _.getName)
+					.simulationClasses(configuration.simulation.clazz)
 
-				val selection = configuration.simulation.classes match {
-					case Nil => interactiveSelect(simulations)
-					case simulation => new Selection(simulations, configuration.simulation.runName, configuration.simulation.runDescription)
+				val selection = configuration.simulation.clazz match {
+					case None => interactiveSelect(simulations)
+					case Some(_) =>
+						val simulation = simulations.head
+						val outputDirectoryBaseName = defaultOutputDirectoryBaseName(simulation)
+						new Selection(simulation, outputDirectoryBaseName, outputDirectoryBaseName)
 				}
 
 				new Runner(selection).run
 			}
 
 		if (!configuration.charting.noReports)
-			runUuids.foreach(generateReports)
+			generateReports(outputDirectoryName)
 	}
 
 	private def interactiveSelect(simulations: List[Class[Simulation]]): Selection = {
 
 		val simulation = selectSimulationClass(simulations)
 
-		println("Select run id (default is '" + configuration.simulation.runName + "'). Accepted characters are a-z, A-Z, 0-9, - and _")
-		val runId = {
+		val myDefaultOutputDirectoryBaseName = defaultOutputDirectoryBaseName(simulation)
+
+		println("Select output directory base name (default is '" + myDefaultOutputDirectoryBaseName + "'). Accepted characters are a-z, A-Z, 0-9, - and _")
+		val outputDirectoryBaseName = {
 			val userInput = Console.readLine.trim
 
 			if (!userInput.matches("[\\w-_]*"))
 				throw new IllegalArgumentException(userInput + " contains illegal characters")
 
-			if (!userInput.isEmpty) userInput else configuration.simulation.runName
+			if (!userInput.isEmpty) userInput else myDefaultOutputDirectoryBaseName
 		}
 
 		println("Select run description (optional)")
 		val runDescription = Console.readLine.trim
 
-		new Selection(List(simulation), runId, runDescription)
+		new Selection(simulation, outputDirectoryBaseName, runDescription)
 	}
 
 	private def selectSimulationClass(simulations: List[Class[Simulation]]): Class[Simulation] = {
-	
+
 		val selection = simulations.size match {
 			case 0 =>
 				// If there is no simulation file
@@ -143,14 +150,13 @@ class Gatling extends Logging {
 	/**
 	 * This method call the statistics module to generate the charts and statistics
 	 *
-	 * @param runUuid The directory from which the simulation.log will be parsed
-	 * @return Nothing
+	 * @param outputDirectoryName The directory from which the simulation.log will be parsed
 	 */
-	private def generateReports(runUuid: String) {
+	private def generateReports(outputDirectoryName: String) {
 		println("Generating reports...")
 		val start = currentTimeMillis
 		try {
-			val indexFile = ReportsGenerator.generateFor(runUuid)
+			val indexFile = ReportsGenerator.generateFor(outputDirectoryName)
 			println("Reports generated in " + (currentTimeMillis - start) / 1000 + "s.")
 			println("Please open the following file : " + indexFile)
 

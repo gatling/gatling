@@ -130,4 +130,9 @@ object StringHelper extends Logging {
 			buff.append("0")
 		buff.append(java.lang.Long.toString(b & 0xff, 16))
 	}.toString
+	
+	def trimToOption(string: String) = string.trim match {
+		case EMPTY => None
+		case string =>  Some(string)
+	}
 }
