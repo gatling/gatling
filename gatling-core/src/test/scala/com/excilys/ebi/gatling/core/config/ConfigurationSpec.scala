@@ -27,12 +27,12 @@ class ConfigurationSpec extends Specification {
 	"building from PropertiesBuilder should support List property" in {
 		
 		val props = new GatlingPropertiesBuilder
-		props.classes("Foo, Bar")
+		props.clazz("Foo")
 		
 		val map = props.build
 		
 		GatlingConfiguration.setUp(props.build)
 		
-		GatlingConfiguration.configuration.simulation.classes should beEqualTo(List("Foo", "Bar"))
+		GatlingConfiguration.configuration.simulation.clazz should beEqualTo("Foo")
 	}
 }
