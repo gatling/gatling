@@ -146,7 +146,7 @@ class GraphiteDataWriter extends DataWriter {
 
 	private object MetricPath {
 
-		def apply(elements: String*) = new MetricPath(elements.toList)
+		def apply(elements: String*) = new MetricPath(metricRootPath ::: elements.toList)
 	}
 
 	private class MetricPath(path: List[String]) {
