@@ -25,8 +25,7 @@ import scala.collection.mutable
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.{ FlushDataWriter, InitializeDataWriter, RequestRecord, RunRecord, ShortScenarioDescription }
-import com.excilys.ebi.gatling.core.result.terminator.Terminator
+import com.excilys.ebi.gatling.core.result.message.{RequestRecord, RunRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.util.StringHelper.{ DOT, END_OF_LINE, SPACE }
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
@@ -34,9 +33,9 @@ import com.excilys.ebi.gatling.metrics.types.{ RequestMetric, UserMetric }
 
 case object SendToGraphite
 
-class MetricsDataWriter extends DataWriter {
+class GraphiteDataWriter extends DataWriter {
 
-	private var simulationName: String = _
+	private var prefix: String = _
 	private val allRequests = new RequestMetric
 	private val perRequest: mutable.Map[String, RequestMetric] = new HashMap[String, RequestMetric]
 	private var allUsers: UserMetric = _
@@ -46,7 +45,7 @@ class MetricsDataWriter extends DataWriter {
 	private var socket: Socket = _
 
 	def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) {
-		simulationName = runRecord.simulationClassSimpleName
+		prefix = "gatling" + DOT + runRecord.simulationClassSimpleName
 		allUsers = new UserMetric(scenarios.map(_.nbUsers).sum)
 		scenarios.foreach(scenario => usersPerScenario.+=((scenario.name, new UserMetric(scenario.nbUsers))))
 		socket = new Socket(configuration.graphite.host, configuration.graphite.port)
@@ -93,14 +92,14 @@ class MetricsDataWriter extends DataWriter {
 	def sanitizeString(s: String) = s.replace(' ', '-')
 
 	def formatUserMetric(scenarioName: String, userMetric: UserMetric, epoch: Long) = {
-		val header = simulationName + ".users." + sanitizeString(scenarioName)
+		val header = prefix + ".users." + sanitizeString(scenarioName)
 		sendToGraphite(header, "active", userMetric.getActive, epoch)
 		sendToGraphite(header, "waiting", userMetric.getWaiting, epoch)
 		sendToGraphite(header, "done", userMetric.getDone, epoch)
 	}
 
 	def formatRequestMetric(requestName: String, requestMetric: RequestMetric, epoch: Long) = {
-		val header = simulationName + DOT + sanitizeString(requestName)
+		val header = prefix + DOT + sanitizeString(requestName)
 		val percentiles1 = configuration.charting.indicators.percentile1
 		val percentiles2 = configuration.charting.indicators.percentile2
 		sendToGraphite(header, "all.count", requestMetric.count.all, epoch)
