@@ -1,4 +1,4 @@
-<%@ val responseTimeFields: List[String] = List("Min", "Max", "Mean", "Std Dev", "95th pct", "99th pct", "Mean req/s") %>
+<%@ val responseTimeFields: List[String] = List("Min", "Max", "Mean", "Std Dev", "95th pct", "99th pct", "Req/s") %>
 						<div class="statistics extensible-geant">
 							<div class="titre">STATISTICS</div>
 							<table id="container_statistics" class="statistics-in extensible-geant">
