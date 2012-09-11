@@ -50,7 +50,13 @@ object PreProcessor extends Logging {
 		runs
 			.filter(_.length >= RUN_HEADER.size)
 			.map(RUN_HEADER.zip(_).toMap)
-			.foreach(values => buffer += RunRecord(parseTimestampString(values(DATE)), values(ID), values(DESCRIPTION), values(SIMULATION)))
+			.foreach { values =>
+				// FIXME ugly
+				val timestamp = values(DATE)
+				val dirName = values(ID)
+				val description = values(DESCRIPTION).trim
+				buffer += RunRecord(parseTimestampString(timestamp), dirName.stripSuffix("-" + timestamp), description, values(SIMULATION))
+			}
 
 		info("Read " + size + " lines (finished)")
 
