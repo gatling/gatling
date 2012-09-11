@@ -52,7 +52,7 @@ class FileDataReaderSpec extends Specification {
 		}
 
 		"have a correct run record" in {
-			singleFileDataReader.runRecord must beEqualTo(RunRecord(parseTimestampString("20120607202804"), "run1", "interesting test run", "MySimulation"))
+			singleFileDataReader.runRecord must beEqualTo(RunRecord(parseTimestampString("20120607202804"), "run1", "interesting test run"))
 		}
 
 	}
