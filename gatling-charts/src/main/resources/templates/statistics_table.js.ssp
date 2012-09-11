@@ -14,12 +14,16 @@ function toHTMLTableRow(array) {
 var i = 0
 $.each(stats, function(request, values) {
 	var url
-	if (values.name  == '<%= GLOBAL_PAGE_NAME %>')
+	var place
+	if (values.name  == '<%= GLOBAL_PAGE_NAME %>') {
 		url = 'index.html'
-	else
+		place = 'thead'
+	} else {
 		url = request + '.html'
+		place = 'tbody'
+	}
 
-	$('#container_statistics tbody').append(toHTMLTableRow([
+	$('#container_statistics ' + place).append(toHTMLTableRow([
 		{ content: '<a href="' + url + '">' + values.name + '</a><span style="display:none;">;' + i + '</span>', style: "total" },
 		{ content: "", style: ""},
 		{ content: values.numberOfRequests.total, style: "value total" },
