@@ -46,7 +46,7 @@ class GraphiteDataWriter extends DataWriter {
 	private val percentiles1Name = "percentiles" + percentiles1
 	private val percentiles2 = configuration.charting.indicators.percentile2
 	private val percentiles2Name = "percentiles" + percentiles2
-	
+
 	private def newWriter(): Writer = {
 		val socket = new Socket(configuration.graphite.host, configuration.graphite.port)
 		new BufferedWriter(new OutputStreamWriter(socket.getOutputStream))
@@ -96,7 +96,6 @@ class GraphiteDataWriter extends DataWriter {
 			writer.write(" ")
 			writer.write(epoch.toString)
 			writer.write(END_OF_LINE)
-			writer.flush
 		}
 
 		def formatUserMetric(scenarioName: String, userMetric: UserMetric, epoch: Long) = {
@@ -133,6 +132,9 @@ class GraphiteDataWriter extends DataWriter {
 			perRequest.foreach {
 				case (requestName, requestMetric) => formatRequestMetric(requestName, requestMetric, epoch)
 			}
+
+			writer.flush
+
 		} catch {
 			case e: IOException => {
 				error("Error writing to Graphite", e)
