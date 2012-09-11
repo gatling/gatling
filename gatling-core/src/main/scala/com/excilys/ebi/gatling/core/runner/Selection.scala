@@ -17,4 +17,4 @@ package com.excilys.ebi.gatling.core.runner
 
 import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 
-case class Selection(simulationClass: Class[Simulation], outputDirectoryBaseName: String, description: String)
+case class Selection(simulationClass: Class[Simulation], simulationId: String, description: String)

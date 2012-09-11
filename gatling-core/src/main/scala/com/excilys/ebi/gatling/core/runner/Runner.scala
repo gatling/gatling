@@ -36,7 +36,8 @@ class Runner(selection: Selection) extends Logging {
 		try {
 			val simulationClass = selection.simulationClass
 			println("Simulation " + simulationClass.getName + " started...")
-			val runRecord = RunRecord(now, selection.outputDirectoryBaseName, selection.description, simulationClass.getSimpleName)
+
+			val runRecord = RunRecord(now, selection.simulationId, selection.description)
 
 			val scenarios = simulationClass.newInstance.apply().map(_.build)
 
@@ -57,7 +58,7 @@ class Runner(selection: Selection) extends Logging {
 			terminatorLatch.await(configuration.timeOut.simulation, SECONDS)
 			println("Simulation finished.")
 
-			runRecord.outputDirectoryName
+			runRecord.runId
 
 		} finally {
 			system.shutdown

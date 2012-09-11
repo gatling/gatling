@@ -20,6 +20,7 @@ object FieldsNames {
 	val ACTION_TYPE = 'actionType
 	val SCENARIO = 'scenario
 	val ID = 'id
+	val SIMULATION_ID = 'simulationId
 	val REQUEST = 'request
 	val STATUS = 'status
 	val ERROR = 'error
@@ -29,7 +30,6 @@ object FieldsNames {
 	val REQUEST_END = 'requestEnd
 	val DATE = 'date
 	val DESCRIPTION = 'description
-	val SIMULATION = 'simulation
 	/* Created fields */
 	val EXECUTION_START_BUCKET = 'executionStartBucket
 	val EXECUTION_END_BUCKET = 'executionEndBucket

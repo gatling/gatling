@@ -103,8 +103,8 @@ class Gatling extends Logging {
 
 		val myDefaultOutputDirectoryBaseName = defaultOutputDirectoryBaseName(simulation)
 
-		println("Select output directory base name (default is '" + myDefaultOutputDirectoryBaseName + "'). Accepted characters are a-z, A-Z, 0-9, - and _")
-		val outputDirectoryBaseName = {
+		println("Select simulation id (default is '" + myDefaultOutputDirectoryBaseName + "'). Accepted characters are a-z, A-Z, 0-9, - and _")
+		val simulationId = {
 			val userInput = Console.readLine.trim
 
 			if (!userInput.matches("[\\w-_]*"))
@@ -116,7 +116,7 @@ class Gatling extends Logging {
 		println("Select run description (optional)")
 		val runDescription = Console.readLine.trim
 
-		new Selection(simulation, outputDirectoryBaseName, runDescription)
+		new Selection(simulation, simulationId, runDescription)
 	}
 
 	private def selectSimulationClass(simulations: List[Class[Simulation]]): Class[Simulation] = {

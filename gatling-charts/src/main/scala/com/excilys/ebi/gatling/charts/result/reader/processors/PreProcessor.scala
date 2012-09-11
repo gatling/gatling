@@ -29,7 +29,7 @@ import grizzled.slf4j.Logging
 
 object PreProcessor extends Logging {
 	val ACTION_HEADER: List[String] = List(ACTION_TYPE, SCENARIO, ID, REQUEST, EXECUTION_START, EXECUTION_END, REQUEST_END, RESPONSE_START, STATUS)
-	val RUN_HEADER: List[String] = List(ACTION_TYPE, DATE, ID, DESCRIPTION, SIMULATION)
+	val RUN_HEADER: List[String] = List(ACTION_TYPE, DATE, SIMULATION_ID, DESCRIPTION)
 
 	def run(inputIterator: Iterator[String], maxPlotPerSerie: Int) = {
 		val (actions, runs) = inputIterator.map(TABULATION_PATTERN.split(_)).filter(array => array.head == ACTION || array.head == RUN).partition(_.head == ACTION)
@@ -50,13 +50,7 @@ object PreProcessor extends Logging {
 		runs
 			.filter(_.length >= RUN_HEADER.size)
 			.map(RUN_HEADER.zip(_).toMap)
-			.foreach { values =>
-				// FIXME ugly
-				val timestamp = values(DATE)
-				val dirName = values(ID)
-				val description = values(DESCRIPTION).trim
-				buffer += RunRecord(parseTimestampString(timestamp), dirName.stripSuffix("-" + timestamp), description, values(SIMULATION))
-			}
+			.foreach(values => buffer += RunRecord(parseTimestampString(values(DATE)), values(SIMULATION_ID), values(DESCRIPTION).trim))
 
 		info("Read " + size + " lines (finished)")
 
