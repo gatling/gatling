@@ -41,19 +41,22 @@ class GraphiteDataWriter extends DataWriter {
 	private var allUsers: UserMetric = _
 	private val usersPerScenario: mutable.Map[String, UserMetric] = new HashMap[String, UserMetric]
 	private var timer: Timer = _
-	private var writer: BufferedWriter = _
-	private var socket: Socket = _
+	private var writer: Writer = _
 	private val percentiles1 = configuration.charting.indicators.percentile1
 	private val percentiles1Name = "percentiles" + percentiles1
 	private val percentiles2 = configuration.charting.indicators.percentile2
 	private val percentiles2Name = "percentiles" + percentiles2
+	
+	private def newWriter(): Writer = {
+		val socket = new Socket(configuration.graphite.host, configuration.graphite.port)
+		new BufferedWriter(new OutputStreamWriter(socket.getOutputStream))
+	}
 
 	def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) {
 		metricRootPath = List("gatling", runRecord.simulationClassSimpleName)
 		allUsers = new UserMetric(scenarios.map(_.nbUsers).sum)
 		scenarios.foreach(scenario => usersPerScenario.+=((scenario.name, new UserMetric(scenario.nbUsers))))
-		socket = new Socket(configuration.graphite.host, configuration.graphite.port)
-		writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream))
+		writer = newWriter
 		timer = new Timer(true)
 		timer.scheduleAtFixedRate(new SendToGraphiteTask, 0, 1000)
 	}
@@ -72,7 +75,7 @@ class GraphiteDataWriter extends DataWriter {
 	}
 
 	def onFlushDataWriter {
-		socket.close
+		writer.close
 	}
 
 	override def receive = uninitialized
@@ -120,7 +123,7 @@ class GraphiteDataWriter extends DataWriter {
 		}
 
 		try {
-			if (writer == null) writer = new BufferedWriter(new OutputStreamWriter(new Socket(configuration.graphite.host, configuration.graphite.port).getOutputStream))
+			if (writer == null) writer = newWriter
 			val epoch = nowMillis / 1000
 			formatUserMetric("allUsers", allUsers, epoch)
 			usersPerScenario.foreach {
@@ -134,6 +137,7 @@ class GraphiteDataWriter extends DataWriter {
 			case e: IOException => {
 				error("Error writing to Graphite", e)
 				writer.close
+				writer = null
 			}
 		}
 	}
