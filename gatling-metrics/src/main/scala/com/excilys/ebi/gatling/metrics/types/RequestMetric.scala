@@ -27,13 +27,16 @@ class RequestMetric {
 	def update(requestRecord: RequestRecord) {
 		allCount = allCount + 1
 		allMax = allMax.max(requestRecord.responseTime)
+		 _percentiles.all.update(requestRecord.responseTime)
 		requestRecord.requestStatus match {
 			case OK =>
 				okCount = okCount + 1
 				okMax = okMax.max(requestRecord.responseTime)
+				_percentiles.ok.update(requestRecord.responseTime)
 			case KO =>
 				koCount = koCount + 1
 				koMax = koMax.max(requestRecord.responseTime)
+				_percentiles.ko.update(requestRecord.responseTime)
 		}
 	}
 
