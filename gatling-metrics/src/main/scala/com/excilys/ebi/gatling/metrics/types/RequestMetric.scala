@@ -16,38 +16,38 @@
 package com.excilys.ebi.gatling.metrics.types
 
 import com.excilys.ebi.gatling.core.result.message.RequestRecord
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.{KO, OK}
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
 
 class RequestMetric {
 
-	private var _count = MetricsByStatus(0L, 0L, 0L)
-	private var _max = MetricsByStatus(-1, -1, -1)
+	private var allCount, okCount, koCount = 0L
+	private var allMax, okMax, koMax = 0L
 	private val _percentiles = SamplesByStatus(new Sample, new Sample, new Sample)
 
 	def update(requestRecord: RequestRecord) {
-		_count = _count.copy(all = _count.all + 1)
-		_max = _max.copy(all = _max.all max requestRecord.responseTime)
-		_percentiles.all.update(requestRecord.responseTime)
+		allCount = allCount + 1
+		allMax = allMax.max(requestRecord.responseTime)
 		requestRecord.requestStatus match {
-			case OK => {
-				_count = _count.copy(ok = _count.ok + 1)
-				_max = _max.copy(ok = _max.ok max requestRecord.responseTime)
-				_percentiles.ok.update(requestRecord.responseTime)
-			}
-			case KO => {
-				_count = _count.copy(ko = _count.ko + 1)
-				_max = _max.copy(ko = _max.ko max requestRecord.responseTime)
-				_percentiles.ko.update(requestRecord.responseTime)
-			}
+			case OK =>
+				okCount = okCount + 1
+				okMax = okMax.max(requestRecord.responseTime)
+			case KO =>
+				koCount = koCount + 1
+				koMax = koMax.max(requestRecord.responseTime)
 		}
 	}
 
-	def count = _count
+	def counts = (allCount, okCount, koCount)
 
-	def max = _max
+	def maxes = {
+		val currentMaxes = (allMax, okMax, koMax)
+		allMax = 0L
+		okMax = 0L
+		koMax = 0L
+		currentMaxes
+	}
 
 	def percentiles = _percentiles
 }
 
-case class MetricsByStatus(all : Long,ok: Long,ko : Long)
-case class SamplesByStatus(all: Sample,ko : Sample, ok : Sample)
+case class SamplesByStatus(all: Sample, ko: Sample, ok: Sample)

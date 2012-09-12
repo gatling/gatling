@@ -107,18 +107,27 @@ class GraphiteDataWriter extends DataWriter {
 
 		def formatRequestMetric(requestName: String, requestMetric: RequestMetric, epoch: Long) = {
 			val rootPath = MetricPath(sanitizeString(requestName))
-			sendToGraphite(rootPath + "all" + "count", requestMetric.count.all, epoch)
-			sendToGraphite(rootPath + "all" + "max", requestMetric.max.all, epoch)
+
+			val (allCount, okCount, koCount) = requestMetric.counts
+			sendToGraphite(rootPath + "all" + "count", allCount, epoch)
+			sendToGraphite(rootPath + "ok" + "count", okCount, epoch)
+			sendToGraphite(rootPath + "ko" + "count", koCount, epoch)
+
+			val (allMax, okMax, koMax) = requestMetric.maxes
+			if (allMax != 0)
+				sendToGraphite(rootPath + "all" + "max", allMax, epoch)
+			if (okMax != 0)
+				sendToGraphite(rootPath + "ok" + "max", allMax, epoch)
+			if (koMax != 0)
+				sendToGraphite(rootPath + "ko" + "max", koMax, epoch)
+
+			// FIXME percentile computation should use buckets
 			sendToGraphite(rootPath + "all" + percentiles1Name, requestMetric.percentiles.all.getQuantile(percentiles1), epoch)
 			sendToGraphite(rootPath + "all" + percentiles2Name, requestMetric.percentiles.all.getQuantile(percentiles2), epoch)
-			sendToGraphite(rootPath + "ko" + "count", requestMetric.count.ko, epoch)
-			sendToGraphite(rootPath + "ko" + "max", requestMetric.max.ko, epoch)
-			sendToGraphite(rootPath + "ko" + percentiles1Name, requestMetric.percentiles.ko.getQuantile(percentiles1), epoch)
-			sendToGraphite(rootPath + "ko" + percentiles2Name, requestMetric.percentiles.ko.getQuantile(percentiles2), epoch)
-			sendToGraphite(rootPath + "ok" + "count", requestMetric.count.ok, epoch)
-			sendToGraphite(rootPath + "ok" + "max", requestMetric.max.ok, epoch)
 			sendToGraphite(rootPath + "ok" + percentiles1Name, requestMetric.percentiles.ok.getQuantile(percentiles1), epoch)
 			sendToGraphite(rootPath + "ok" + percentiles2Name, requestMetric.percentiles.ok.getQuantile(percentiles2), epoch)
+			sendToGraphite(rootPath + "ko" + percentiles1Name, requestMetric.percentiles.ko.getQuantile(percentiles1), epoch)
+			sendToGraphite(rootPath + "ko" + percentiles2Name, requestMetric.percentiles.ko.getQuantile(percentiles2), epoch)
 		}
 
 		try {
