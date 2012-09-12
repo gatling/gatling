@@ -22,10 +22,15 @@ class RequestMetric {
 
 	private var _count = MetricsByStatus(0L, 0L, 0L)
 	private var _max = MetricsByStatus(-1, -1, -1)
+	private var maxFetched = false
 	private val _percentiles = SamplesByStatus(new Sample, new Sample, new Sample)
 
 	def update(requestRecord: RequestRecord) {
 		_count = _count.copy(all = _count.all + 1)
+		if(maxFetched) {
+			_max = MetricsByStatus(-1,-1,-1)
+			maxFetched = false
+		}
 		_max = _max.copy(all = _max.all max requestRecord.responseTime)
 		_percentiles.all.update(requestRecord.responseTime)
 		requestRecord.requestStatus match {
@@ -44,7 +49,11 @@ class RequestMetric {
 
 	def count = _count
 
-	def max = _max
+	def max = {
+		val currentMax = _max
+		maxFetched = true
+		currentMax
+	}
 
 	def percentiles = _percentiles
 }
