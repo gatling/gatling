@@ -81,6 +81,7 @@ class Gatling extends Logging {
 						SimulationClassLoader.fromClasspathBinariesDirectory(_))
 					.getOrElse(SimulationClassLoader.fromSourcesDirectory(GatlingFiles.sourcesDirectory))
 					.simulationClasses(configuration.simulation.clazz)
+					.sortWith(_.getName < _.getName)
 
 				val selection = configuration.simulation.clazz match {
 					case None => interactiveSelect(simulations)
