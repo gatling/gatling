@@ -18,10 +18,8 @@ package com.excilys.ebi.gatling.metrics
 import java.io.{ BufferedWriter, IOException, OutputStreamWriter, Writer }
 import java.net.Socket
 import java.util.{ HashMap, Timer, TimerTask }
-
 import scala.collection.JavaConversions.mapAsScalaMap
 import scala.collection.mutable
-
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
@@ -29,15 +27,15 @@ import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RunRecord, S
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
-import com.excilys.ebi.gatling.metrics.types.{ RequestMetric, UserMetric }
+import com.excilys.ebi.gatling.metrics.types.{ RequestMetrics, UserMetric, Metrics }
 
 case object SendToGraphite
 
 class GraphiteDataWriter extends DataWriter {
 
 	private var metricRootPath: List[String] = Nil
-	private val allRequests = new RequestMetric
-	private val perRequest: mutable.Map[String, RequestMetric] = new HashMap[String, RequestMetric]
+	private val allRequests = new RequestMetrics
+	private val perRequest: mutable.Map[String, RequestMetrics] = new HashMap[String, RequestMetrics]
 	private var allUsers: UserMetric = _
 	private val usersPerScenario: mutable.Map[String, UserMetric] = new HashMap[String, UserMetric]
 	private var timer: Timer = _
@@ -65,10 +63,11 @@ class GraphiteDataWriter extends DataWriter {
 		//Update request metrics
 		val requestName = requestRecord.requestName
 		if (requestName != START_OF_SCENARIO && requestName != END_OF_SCENARIO) {
-			val metric = perRequest.getOrElseUpdate(requestName, new RequestMetric)
+			val metric = perRequest.getOrElseUpdate(requestName, new RequestMetrics)
 			metric.update(requestRecord)
 		}
 		allRequests.update(requestRecord)
+
 		// Update sessions metrics
 		usersPerScenario(requestRecord.scenarioName).update(requestRecord)
 		allUsers.update(requestRecord)
@@ -81,15 +80,14 @@ class GraphiteDataWriter extends DataWriter {
 	override def receive = uninitialized
 
 	override def initialized: Receive = super.initialized.orElse {
-		case SendToGraphite => sendMetricsToGraphite
+		case SendToGraphite => sendMetricsToGraphite(nowMillis / 1000)
 	}
 
-	private def sendMetricsToGraphite {
+	private def sendMetricsToGraphite(epoch: Long) {
 
-		def sanitizeString(s: String) = s.replace(' ', '-')
+		def sanitizeString(s: String) = s.replace(' ', '_').replace('.', '-').replace('\\', '-')
 
-		def sendToGraphite(metricPath: MetricPath, value: Long, epoch: Long) {
-
+		def sendToGraphite(metricPath: MetricPath, value: Long) {
 			writer.write(metricPath.toString)
 			writer.write(" ")
 			writer.write(value.toString)
@@ -98,48 +96,45 @@ class GraphiteDataWriter extends DataWriter {
 			writer.write(END_OF_LINE)
 		}
 
-		def formatUserMetric(scenarioName: String, userMetric: UserMetric, epoch: Long) = {
+		def sendUserMetrics(scenarioName: String, userMetric: UserMetric) = {
 			val rootPath = MetricPath("users", sanitizeString(scenarioName))
-			sendToGraphite(rootPath + "active", userMetric.getActive, epoch)
-			sendToGraphite(rootPath + "waiting", userMetric.getWaiting, epoch)
-			sendToGraphite(rootPath + "done", userMetric.getDone, epoch)
+			sendToGraphite(rootPath + "active", userMetric.getActive)
+			sendToGraphite(rootPath + "waiting", userMetric.getWaiting)
+			sendToGraphite(rootPath + "done", userMetric.getDone)
 		}
 
-		def formatRequestMetric(requestName: String, requestMetric: RequestMetric, epoch: Long) = {
+		def sendMetrics(metricPath: MetricPath, metrics: Metrics) = {
+
+			sendToGraphite(metricPath + "count", metrics.count)
+			if (metrics.count > 0) {
+				sendToGraphite(metricPath + "max", metrics.max)
+				sendToGraphite(metricPath + percentiles1Name, metrics.sample.getQuantile(percentiles1))
+				sendToGraphite(metricPath + percentiles2Name, metrics.sample.getQuantile(percentiles2))
+			}
+		}
+
+		def sendRequestMetrics(requestName: String, requestMetrics: RequestMetrics) = {
 			val rootPath = MetricPath(sanitizeString(requestName))
 
-			val (allCount, okCount, koCount) = requestMetric.counts
-			sendToGraphite(rootPath + "all" + "count", allCount, epoch)
-			sendToGraphite(rootPath + "ok" + "count", okCount, epoch)
-			sendToGraphite(rootPath + "ko" + "count", koCount, epoch)
+			val (okMetrics, koMetrics, allMetrics) = requestMetrics.metrics
 
-			val (allMax, okMax, koMax) = requestMetric.maxes
-			if (allMax != 0)
-				sendToGraphite(rootPath + "all" + "max", allMax, epoch)
-			if (okMax != 0)
-				sendToGraphite(rootPath + "ok" + "max", allMax, epoch)
-			if (koMax != 0)
-				sendToGraphite(rootPath + "ko" + "max", koMax, epoch)
+			sendMetrics(rootPath + "ok", okMetrics)
+			sendMetrics(rootPath + "ko", koMetrics)
+			sendMetrics(rootPath + "all", allMetrics)
 
-			// FIXME percentile computation should use buckets
-			sendToGraphite(rootPath + "all" + percentiles1Name, requestMetric.percentiles.all.getQuantile(percentiles1), epoch)
-			sendToGraphite(rootPath + "all" + percentiles2Name, requestMetric.percentiles.all.getQuantile(percentiles2), epoch)
-			sendToGraphite(rootPath + "ok" + percentiles1Name, requestMetric.percentiles.ok.getQuantile(percentiles1), epoch)
-			sendToGraphite(rootPath + "ok" + percentiles2Name, requestMetric.percentiles.ok.getQuantile(percentiles2), epoch)
-			sendToGraphite(rootPath + "ko" + percentiles1Name, requestMetric.percentiles.ko.getQuantile(percentiles1), epoch)
-			sendToGraphite(rootPath + "ko" + percentiles2Name, requestMetric.percentiles.ko.getQuantile(percentiles2), epoch)
+			requestMetrics.reset
 		}
 
 		try {
 			if (writer == null) writer = newWriter
-			val epoch = nowMillis / 1000
-			formatUserMetric("allUsers", allUsers, epoch)
+
+			sendUserMetrics("allUsers", allUsers)
 			usersPerScenario.foreach {
-				case (scenarioName, userMetric) => formatUserMetric(scenarioName, userMetric, epoch)
+				case (scenarioName, userMetric) => sendUserMetrics(scenarioName, userMetric)
 			}
-			formatRequestMetric("allRequests", allRequests, epoch)
+			sendRequestMetrics("allRequests", allRequests)
 			perRequest.foreach {
-				case (requestName, requestMetric) => formatRequestMetric(requestName, requestMetric, epoch)
+				case (requestName, requestMetric) => sendRequestMetrics(requestName, requestMetric)
 			}
 
 			writer.flush
