@@ -18,39 +18,49 @@ package com.excilys.ebi.gatling.metrics.types
 import com.excilys.ebi.gatling.core.result.message.RequestRecord
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
 
-class RequestMetric {
+class RequestMetrics {
 
-	private var allCount, okCount, koCount = 0L
-	private var allMax, okMax, koMax = 0L
-	private val _percentiles = SamplesByStatus(new Sample, new Sample, new Sample)
+	val okMetrics = new Metrics
+	val koMetrics = new Metrics
+	val allMetrics = new Metrics
 
 	def update(requestRecord: RequestRecord) {
-		allCount = allCount + 1
-		allMax = allMax.max(requestRecord.responseTime)
-		 _percentiles.all.update(requestRecord.responseTime)
+		val responseTime = requestRecord.responseTime
+
+		allMetrics.update(responseTime)
+
 		requestRecord.requestStatus match {
 			case OK =>
-				okCount = okCount + 1
-				okMax = okMax.max(requestRecord.responseTime)
-				_percentiles.ok.update(requestRecord.responseTime)
+				okMetrics.update(responseTime)
 			case KO =>
-				koCount = koCount + 1
-				koMax = koMax.max(requestRecord.responseTime)
-				_percentiles.ko.update(requestRecord.responseTime)
+				koMetrics.update(responseTime)
 		}
 	}
 
-	def counts = (allCount, okCount, koCount)
+	def metrics = (okMetrics, koMetrics, allMetrics)
 
-	def maxes = {
-		val currentMaxes = (allMax, okMax, koMax)
-		allMax = 0L
-		okMax = 0L
-		koMax = 0L
-		currentMaxes
+	def reset = {
+		okMetrics.reset
+		koMetrics.reset
+		allMetrics.reset
 	}
-
-	def percentiles = _percentiles
 }
 
-case class SamplesByStatus(all: Sample, ko: Sample, ok: Sample)
+class Metrics {
+
+	var count = 0L
+	var max = 0L
+	val sample = new Sample
+
+	def update(value: Long) {
+		count += 1
+		max = max.max(value)
+		sample.update(value)
+	}
+
+	def reset = {
+		count = 0L
+		max = 0L
+		sample.reset
+	}
+}

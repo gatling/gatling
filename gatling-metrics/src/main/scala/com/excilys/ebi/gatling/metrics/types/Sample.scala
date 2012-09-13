@@ -50,4 +50,9 @@ class Sample {
 				case index => sortedValues(index.toInt)
 			}
 	}
+
+	def reset = {
+		for (i <- 0 until values.length) values(i) = 0
+		count = 0
+	}
 }
