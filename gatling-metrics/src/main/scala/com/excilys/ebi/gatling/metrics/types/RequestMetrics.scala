@@ -25,7 +25,7 @@ class RequestMetrics {
 	val allMetrics = new Metrics
 
 	def update(requestRecord: RequestRecord) {
-		val responseTime = requestRecord.responseTime
+		val responseTime = requestRecord.responseTime.max(0L)
 
 		allMetrics.update(responseTime)
 
@@ -57,6 +57,7 @@ class Metrics {
 	}
 
 	def reset = {
+		count = 0L
 		max = 0L
 		sample.reset
 	}
