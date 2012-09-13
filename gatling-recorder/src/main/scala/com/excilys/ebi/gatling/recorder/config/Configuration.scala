@@ -16,8 +16,9 @@
 package com.excilys.ebi.gatling.recorder.config
 
 import java.io.{ FileWriter, IOException }
-import java.util.{ Map => JMap, HashMap => JHashMap }
+import java.util.{ HashMap => JHashMap }
 
+import scala.io.Codec.UTF8
 import scala.reflect.BeanProperty
 import scala.tools.nsc.io.File
 import scala.tools.nsc.io.Path.string2path
@@ -116,7 +117,7 @@ class Configuration {
 	@BeanProperty var patterns: List[Pattern] = Nil
 	@BeanProperty var outputFolder: String = Option(System.getenv("GATLING_HOME")).map(_ => GatlingFiles.sourcesDirectory.toString).getOrElse(System.getProperty("user.home"))
 	@transient var saveConfiguration = false
-	@BeanProperty var encoding = "UTF-8"
+	@BeanProperty var encoding = UTF8.name
 	@transient var requestBodiesFolder: String = GatlingFiles.requestBodiesDirectory.toString
 	@BeanProperty var simulationPackage: Option[String] = None
 	@BeanProperty var simulationClassName: String = Configuration.DEFAULT_CLASS_NAME
