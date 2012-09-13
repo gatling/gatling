@@ -42,7 +42,7 @@ top:70px;
 
 .onglet{
 	background:#FFF;
-	padding:7px 80px;
+	padding:7px 50px;
 	margin:5px 5px 0 5px;
 	color:#BCBCB5;
 	font-size:18px;
@@ -60,7 +60,7 @@ top:70px;
 	border-color: #D1D1CE}
 .onglet img{position:absolute;top:7px;left:7px;}
 .onglet span{color:#E37400;margin-right:10px;}
-.onglet p{margin:7px 0 10px 0; font-size:22px}
+.onglet p{margin:7px -40px 10px 0; font-size:22px}
 
 .content{
 	margin-right: 5px;

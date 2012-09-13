@@ -23,8 +23,8 @@
 	<div class="main">
 		<div class="cadre">
 				<div class="onglet">
-						<img src="style/cible.png" />
-						<p>Simulation:&nbsp;&nbsp;&nbsp;<span><%= runRecord.simulationId %> on <%= runRecord.readableRunDate %></span></p>
+					<img src="style/cible.png" />
+					<p>Simulation:&nbsp;<span><%= runRecord.simulationId %> on <%= runRecord.readableRunDate %></span></p>
 				</div>
 				<div class="content">
 					<div class="sous-menu">
