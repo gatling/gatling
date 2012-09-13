@@ -30,10 +30,8 @@ class RequestMetrics {
 		allMetrics.update(responseTime)
 
 		requestRecord.requestStatus match {
-			case OK =>
-				okMetrics.update(responseTime)
-			case KO =>
-				koMetrics.update(responseTime)
+			case OK => okMetrics.update(responseTime)
+			case KO => koMetrics.update(responseTime)
 		}
 	}
 
@@ -59,7 +57,6 @@ class Metrics {
 	}
 
 	def reset = {
-		count = 0L
 		max = 0L
 		sample.reset
 	}
