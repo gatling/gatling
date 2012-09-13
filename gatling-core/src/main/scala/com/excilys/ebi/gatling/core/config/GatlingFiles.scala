@@ -37,14 +37,8 @@ object GatlingFiles {
 	def resultsRootDirectory: Path = resolvePath(configuration.directory.results)
 	def requestBodiesDirectory: Path = resolvePath(configuration.directory.requestBodies)
 	def sourcesDirectory: Directory = resolvePath(configuration.directory.sources).toDirectory
-	def reportsOnlyDirectory: Option[String] = {
-		val rawValue = configuration.directory.reportsOnly
-		if (rawValue.isEmpty) None else Some(rawValue)
-	}
-	def binariesDirectory: Option[Directory] = {
-		val rawValue = configuration.directory.binaries
-		if (rawValue.isEmpty) None else Some(resolvePath(rawValue).toDirectory)
-	}
+	def reportsOnlyDirectory: Option[String] = configuration.directory.reportsOnly
+	def binariesDirectory: Option[Directory] = configuration.directory.binaries.map(_.toDirectory)
 	def resultDirectory(runUuid: String): Path = resultsRootDirectory / runUuid
 	def jsDirectory(runUuid: String): Path = resultDirectory(runUuid) / GATLING_JS
 	def styleDirectory(runUuid: String): Path = resultDirectory(runUuid) / GATLING_STYLE

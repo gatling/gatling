@@ -54,8 +54,8 @@ object GatlingConfiguration extends Logging {
 				data = config.getString(CONF_DIRECTORY_DATA),
 				requestBodies = config.getString(CONF_DIRECTORY_REQUEST_BODIES),
 				sources = config.getString(CONF_DIRECTORY_SIMULATIONS),
-				binaries = config.getString(CONF_DIRECTORY_BINARIES),
-				reportsOnly = config.getString(CONF_DIRECTORY_REPORTS_ONLY),
+				binaries = trimToOption(config.getString(CONF_DIRECTORY_BINARIES)),
+				reportsOnly = trimToOption(config.getString(CONF_DIRECTORY_REPORTS_ONLY)),
 				results = config.getString(CONF_DIRECTORY_RESULTS)),
 			charting = ChartingConfiguration(
 				noReports = config.getBoolean(CONF_CHARTING_NO_REPORTS),
@@ -106,8 +106,8 @@ case class DirectoryConfiguration(
 	data: String,
 	requestBodies: String,
 	sources: String,
-	binaries: String,
-	reportsOnly: String,
+	binaries: Option[String],
+	reportsOnly: Option[String],
 	results: String)
 
 case class ChartingConfiguration(
