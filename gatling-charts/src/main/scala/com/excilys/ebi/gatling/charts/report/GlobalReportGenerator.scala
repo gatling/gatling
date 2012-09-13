@@ -55,9 +55,9 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 			val oks = dataReader.numberOfTransactionsPerSecond(Some(OK)).sortBy(_._1)
 			val kos = dataReader.numberOfTransactionsPerSecond(Some(KO)).sortBy(_._1)
 
-			val allSeries = new Series[Long, Long]("All requests", all, List(BLUE))
-			val kosSeries = new Series[Long, Long]("Failed requests", kos, List(RED))
-			val oksSeries = new Series[Long, Long]("Succeeded requests", oks, List(GREEN))
+			val allSeries = new Series[Long, Long]("All transactions", all, List(BLUE))
+			val kosSeries = new Series[Long, Long]("Failed transactions", kos, List(RED))
+			val oksSeries = new Series[Long, Long]("Succeeded transactions", oks, List(GREEN))
 			val pieRequestsSeries = new Series[String, Long]("Distribution", ("Success", count(oks)) :: ("Failures", count(kos)) :: Nil, List(GREEN, RED))
 
 			componentLibrary.getTransactionsChartComponent(allSeries, kosSeries, oksSeries, pieRequestsSeries)
