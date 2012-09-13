@@ -48,8 +48,8 @@ class RequestMetrics {
 
 class Metrics {
 
-	var count = 0l
-	var max = 0l
+	var count = 0L
+	var max = 0L
 	val sample = new Sample
 
 	def update(value: Long) {
@@ -59,8 +59,8 @@ class Metrics {
 	}
 
 	def reset = {
-		count = 0l
-		max = 0l
+		count = 0L
+		max = 0L
 		sample.reset
 	}
 }

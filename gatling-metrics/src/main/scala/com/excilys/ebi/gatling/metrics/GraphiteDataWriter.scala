@@ -27,8 +27,7 @@ import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RunRecord, S
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
-import com.excilys.ebi.gatling.metrics.types.{ RequestMetrics, UserMetric }
-import types.Metrics
+import com.excilys.ebi.gatling.metrics.types.{ RequestMetrics, UserMetric, Metrics }
 
 case object SendToGraphite
 
@@ -114,16 +113,16 @@ class GraphiteDataWriter extends DataWriter {
 			}
 		}
 
-		def sendRequestMetrics(requestName: String, requestMetric: RequestMetrics) = {
+		def sendRequestMetrics(requestName: String, requestMetrics: RequestMetrics) = {
 			val rootPath = MetricPath(sanitizeString(requestName))
 
-			val (okMetrics, koMetrics, allMetrics) = requestMetric.metrics
+			val (okMetrics, koMetrics, allMetrics) = requestMetrics.metrics
 
 			sendMetrics(rootPath + "ok", okMetrics)
 			sendMetrics(rootPath + "ko", koMetrics)
 			sendMetrics(rootPath + "all", allMetrics)
 
-			requestMetric.reset
+			requestMetrics.reset
 		}
 
 		try {
