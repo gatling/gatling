@@ -109,7 +109,7 @@ object ScenarioExporter extends Logging {
 			case e: RequestElement =>
 				i = i + 1
 				e.updateUrl(baseUrl).setId(i)
-				e.requestBody.map(dumpRequestBody(i, _, configuration.simulationClassName))
+				e.requestBodyOrParams.map(_.left.map(dumpRequestBody(i, _, configuration.simulationClassName)))
 
 			case _ =>
 		}
