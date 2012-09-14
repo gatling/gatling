@@ -15,6 +15,7 @@
  */
 package com.excilys.ebi.gatling.metrics.types
 
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestRecord
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
 
@@ -48,17 +49,17 @@ class Metrics {
 
 	var count = 0L
 	var max = 0L
-	val sample = new Sample
+	val buckets = new Buckets(configuration.graphite.bucketWidth)
 
 	def update(value: Long) {
 		count += 1
 		max = max.max(value)
-		sample.update(value)
+		buckets.update(value)
 	}
 
 	def reset = {
 		count = 0L
 		max = 0L
-		sample.reset
+		buckets.reset
 	}
 }

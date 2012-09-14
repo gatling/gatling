@@ -87,7 +87,8 @@ object GatlingConfiguration extends Logging {
 				dataReaderClass = config.getString(CONF_DATA_READER_CLASS_NAME)),
 			graphite = GraphiteConfiguration(
 				host = config.getString(CONF_GRAPHITE_HOST),
-				port = config.getInt(CONF_GRAPHITE_PORT)),
+				port = config.getInt(CONF_GRAPHITE_PORT),
+				bucketWidth = config.getInt(CONF_GRAPHITE_BUCKET_WIDTH)),
 			config)
 	}
 }
@@ -145,7 +146,8 @@ case class DataConfiguration(
 
 case class GraphiteConfiguration(
 	host: String,
-	port: Int)
+	port: Int,
+	bucketWidth: Int)
 
 case class GatlingConfiguration(
 	simulation: SimulationConfiguration,
