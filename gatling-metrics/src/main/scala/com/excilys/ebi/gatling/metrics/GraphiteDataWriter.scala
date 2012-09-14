@@ -105,8 +105,9 @@ class GraphiteDataWriter extends DataWriter {
 
 		def sendMetrics(metricPath: MetricPath, metrics: Metrics) = {
 
+			sendToGraphite(metricPath + "count", metrics.count)
+
 			if (metrics.count > 0L) {
-				sendToGraphite(metricPath + "count", metrics.count)
 				sendToGraphite(metricPath + "max", metrics.max)
 				sendToGraphite(metricPath + percentiles1Name, metrics.sample.getQuantile(percentiles1))
 				sendToGraphite(metricPath + percentiles2Name, metrics.sample.getQuantile(percentiles2))
