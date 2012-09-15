@@ -18,11 +18,11 @@ package com.excilys.ebi.gatling.metrics.types
 import java.util.{ NavigableMap, TreeMap }
 import annotation.tailrec
 
-class Buckets(val bucketWidth: Int) {
+class Buckets(bucketWidth: Int) {
 
 	private var count = 0L
 	private var max = 0L
-	private var buckets: NavigableMap[Long, Long] = new TreeMap[Long, Long]
+	private val buckets: NavigableMap[Long, Long] = new TreeMap[Long, Long]
 
 	def update(responseTime: Long) {
 		count += 1
