@@ -51,7 +51,7 @@ object CompileTest extends Simulation {
 
 		val usersInformation = tsv("user_information.tsv")
 
-		val loginChain = chain.exec(http("First Request Chain").get("/")).pause(1, 2)
+		val loginChain = exec(http("First Request Chain").get("/")).pause(1, 2)
 
 		val testData = tsv("test-data.tsv")
 
@@ -61,6 +61,8 @@ from usr
 where id in (select usr_id from usr_role where role_id='ROLE_USER')
 and id not in (select usr_id from usr_role where role_id='ROLE_ADMIN')
 and (select count(*) from usr_account where usr_id=id) >=2""")
+
+		val testData3 = Array(Map("foo" -> "bar")).circular
 
 		val lambdaUser = scenario("Standard User")
 			.exec(loginChain)
