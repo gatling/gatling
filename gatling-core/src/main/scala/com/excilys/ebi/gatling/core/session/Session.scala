@@ -105,17 +105,19 @@ class Session(val scenarioName: String, val userId: Int, data: Map[String, Any] 
 	 */
 	def getTimerValue(timerName: String) = getAttributeAsOption[Long](TimerBasedIterationHandler.getTimerAttributeName(timerName)).getOrElse(throw new IllegalAccessError("Timer is not set : " + timerName))
 
-	def setFailed = setAttribute(Session.FAILED_KEY, EMPTY)
+	def setFailed: Session = setAttribute(Session.FAILED_KEY, EMPTY)
 
-	def clearFailed = removeAttribute(Session.FAILED_KEY)
+	def clearFailed: Session = removeAttribute(Session.FAILED_KEY)
 
-	def isFailed = isAttributeDefined(Session.FAILED_KEY)
+	def isFailed: Boolean = isAttributeDefined(Session.FAILED_KEY)
 
-	def setMustExitOnFail = setAttribute(Session.MUST_EXIT_ON_FAIL_KEY, EMPTY)
+	def setMustExitOnFail: Session = setAttribute(Session.MUST_EXIT_ON_FAIL_KEY, EMPTY)
+	
+	def isMustExitOnFail: Boolean = isAttributeDefined(Session.MUST_EXIT_ON_FAIL_KEY)
 
-	def clearMustExitOnFail = removeAttribute(Session.MUST_EXIT_ON_FAIL_KEY)
+	def clearMustExitOnFail: Session = removeAttribute(Session.MUST_EXIT_ON_FAIL_KEY)
 
-	def shouldExitBecauseFailed = isFailed && isAttributeDefined(Session.MUST_EXIT_ON_FAIL_KEY)
+	def shouldExitBecauseFailed: Boolean = isFailed && isMustExitOnFail
 
 	private[gatling] def setTimeShift(timeShift: Long): Session = setAttribute(Session.TIME_SHIFT_KEY, timeShift)
 

@@ -315,7 +315,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 
 	def exitBlockOnFail(chain: ChainBuilder): B = {
 		val startBlock = SimpleActionBuilder((session: Session) => session.clearFailed.setMustExitOnFail)
-		val endBlock = SimpleActionBuilder((session: Session) => session.clearFailed.clearMustExitOnFail)
+		val endBlock = SimpleActionBuilder((session: Session) => session.clearMustExitOnFail)
 
 		exec(startBlock).exec(chain).exec(endBlock)
 	}
