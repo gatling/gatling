@@ -106,14 +106,11 @@ object ScenarioExporter extends Logging {
 		// Updates URLs that contain baseUrl, set ids on requests and dump request body if needed
 		var i = 0
 		elementsList.foreach {
-			case e: RequestElement => {
+			case e: RequestElement =>
 				i = i + 1
 				e.updateUrl(baseUrl).setId(i)
-				e.requestBody.foreach {
-					content =>
-						dumpRequestBody(i, content, configuration.simulationClassName)
-				}
-			}
+				e.requestBodyOrParams.map(_.left.map(dumpRequestBody(i, _, configuration.simulationClassName)))
+
 			case _ =>
 		}
 

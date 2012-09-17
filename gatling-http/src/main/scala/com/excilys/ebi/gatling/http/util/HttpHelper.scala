@@ -17,6 +17,8 @@ package com.excilys.ebi.gatling.http.util
 
 import java.net.{ URI, URLDecoder }
 
+import scala.io.Codec.UTF8
+
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 object HttpHelper {
@@ -41,7 +43,7 @@ object HttpHelper {
 	}
 
 	def parseFormBody(body: String): List[(String, String)] = {
-		def utf8Decode(s: String) = URLDecoder.decode(s, "UTF-8")
+		def utf8Decode(s: String) = URLDecoder.decode(s, UTF8.name)
 
 		body
 			.split("&")

@@ -61,4 +61,5 @@ object ConfigurationConstants {
 
 	val CONF_GRAPHITE_HOST = "gatling.graphite.host"
 	val CONF_GRAPHITE_PORT = "gatling.graphite.port"
+	val CONF_GRAPHITE_BUCKET_WIDTH = "gatling.graphite.bucketWidth"
 }

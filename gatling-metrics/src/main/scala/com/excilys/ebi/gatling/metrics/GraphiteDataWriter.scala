@@ -26,7 +26,7 @@ import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RunRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
-import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
+import com.excilys.ebi.gatling.core.util.TimeHelper.nowSeconds
 import com.excilys.ebi.gatling.metrics.types.{ RequestMetrics, UserMetric, Metrics }
 
 case object SendToGraphite
@@ -80,7 +80,7 @@ class GraphiteDataWriter extends DataWriter {
 	override def receive = uninitialized
 
 	override def initialized: Receive = super.initialized.orElse {
-		case SendToGraphite => sendMetricsToGraphite(nowMillis / 1000)
+		case SendToGraphite => sendMetricsToGraphite(nowSeconds)
 	}
 
 	private def sendMetricsToGraphite(epoch: Long) {
@@ -104,13 +104,13 @@ class GraphiteDataWriter extends DataWriter {
 		}
 
 		def sendMetrics(metricPath: MetricPath, metrics: Metrics) = {
-
 			sendToGraphite(metricPath + "count", metrics.count)
-			if (metrics.count > 0) {
-				sendToGraphite(metricPath + "min", metrics.min)
+
+			if (metrics.count > 0L) {
 				sendToGraphite(metricPath + "max", metrics.max)
-				sendToGraphite(metricPath + percentiles1Name, metrics.sample.getQuantile(percentiles1))
-				sendToGraphite(metricPath + percentiles2Name, metrics.sample.getQuantile(percentiles2))
+				sendToGraphite(metricPath + "min", metrics.min)
+				sendToGraphite(metricPath + percentiles1Name, metrics.buckets.getQuantile(percentiles1))
+				sendToGraphite(metricPath + percentiles2Name, metrics.buckets.getQuantile(percentiles2))
 			}
 		}
 

@@ -54,22 +54,22 @@ class RequestElement(val request: HttpRequest, val statusCode: Int, val simulati
 
 	val queryParams = convertParamsFromJavaToScala(new QueryStringDecoder(request.getUri, Charset.forName(configuration.encoding)).getParameters)
 
-	val (requestBody: Option[String], params: List[(String, String)]) = if (request.getContent.readableBytes > 0) {
+	val requestBodyOrParams: Option[Either[String, List[(String, String)]]] = if (request.getContent.readableBytes > 0) {
 
 		val bufferBytes = new Array[Byte](request.getContent.readableBytes)
 
-		request.getContent.getBytes(request.getContent.readerIndex(), bufferBytes);
+		request.getContent.getBytes(request.getContent.readerIndex, bufferBytes);
 
 		val bodyString = new String(bufferBytes, configuration.encoding)
 
 		if (containsFormParams) {
-			(None, parseFormBody(bodyString))
+			Some(Right(parseFormBody(bodyString)))
 		} else {
-			(Some(bodyString), Nil)
+			(Some(Left(bodyString)))
 		}
 
 	} else {
-		(None, Nil)
+		None
 	}
 
 	var id: Int = 0
@@ -106,8 +106,7 @@ class RequestElement(val request: HttpRequest, val statusCode: Int, val simulati
 				"method" -> method,
 				"printedUrl" -> printedUrl,
 				"queryParams" -> queryParams,
-				"params" -> params,
-				"hasBody" -> requestBody.isDefined,
+				"requestBodyOrParams" -> requestBodyOrParams,
 				"statusCode" -> statusCode,
 				"id" -> id,
 				"credentials" -> basicAuthCredentials,

@@ -54,8 +54,8 @@ object GatlingConfiguration extends Logging {
 				data = config.getString(CONF_DIRECTORY_DATA),
 				requestBodies = config.getString(CONF_DIRECTORY_REQUEST_BODIES),
 				sources = config.getString(CONF_DIRECTORY_SIMULATIONS),
-				binaries = config.getString(CONF_DIRECTORY_BINARIES),
-				reportsOnly = config.getString(CONF_DIRECTORY_REPORTS_ONLY),
+				binaries = trimToOption(config.getString(CONF_DIRECTORY_BINARIES)),
+				reportsOnly = trimToOption(config.getString(CONF_DIRECTORY_REPORTS_ONLY)),
 				results = config.getString(CONF_DIRECTORY_RESULTS)),
 			charting = ChartingConfiguration(
 				noReports = config.getBoolean(CONF_CHARTING_NO_REPORTS),
@@ -87,7 +87,8 @@ object GatlingConfiguration extends Logging {
 				dataReaderClass = config.getString(CONF_DATA_READER_CLASS_NAME)),
 			graphite = GraphiteConfiguration(
 				host = config.getString(CONF_GRAPHITE_HOST),
-				port = config.getInt(CONF_GRAPHITE_PORT)),
+				port = config.getInt(CONF_GRAPHITE_PORT),
+				bucketWidth = config.getInt(CONF_GRAPHITE_BUCKET_WIDTH)),
 			config)
 	}
 }
@@ -106,8 +107,8 @@ case class DirectoryConfiguration(
 	data: String,
 	requestBodies: String,
 	sources: String,
-	binaries: String,
-	reportsOnly: String,
+	binaries: Option[String],
+	reportsOnly: Option[String],
 	results: String)
 
 case class ChartingConfiguration(
@@ -145,7 +146,8 @@ case class DataConfiguration(
 
 case class GraphiteConfiguration(
 	host: String,
-	port: Int)
+	port: Int,
+	bucketWidth: Int)
 
 case class GatlingConfiguration(
 	simulation: SimulationConfiguration,

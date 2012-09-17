@@ -15,6 +15,7 @@
  */
 package com.excilys.ebi.gatling.metrics.types
 
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestRecord
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
 
@@ -25,15 +26,13 @@ class RequestMetrics {
 	val allMetrics = new Metrics
 
 	def update(requestRecord: RequestRecord) {
-		val responseTime = requestRecord.responseTime
+		val responseTime = requestRecord.responseTime.max(0L)
 
 		allMetrics.update(responseTime)
 
 		requestRecord.requestStatus match {
-			case OK =>
-				okMetrics.update(responseTime)
-			case KO =>
-				koMetrics.update(responseTime)
+			case OK => okMetrics.update(responseTime)
+			case KO => koMetrics.update(responseTime)
 		}
 	}
 
@@ -51,19 +50,19 @@ class Metrics {
 	var count = 0L
 	var max = 0L
 	var min = Long.MaxValue
-	val sample = new Sample
+	val buckets = new Buckets(configuration.graphite.bucketWidth)
 
 	def update(value: Long) {
 		count += 1
 		max = max.max(value)
 		min = min.min(value)
-		sample.update(value)
+		buckets.update(value)
 	}
 
 	def reset = {
 		count = 0L
 		max = 0L
 		min = Long.MaxValue
-		sample.reset
+		buckets.reset
 	}
 }
