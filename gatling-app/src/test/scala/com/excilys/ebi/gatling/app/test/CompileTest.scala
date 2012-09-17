@@ -118,10 +118,12 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 					.during(12000 milliseconds, "foo") {
 						exec(http("In During 1").get("http://localhost:3000/aaaa"))
 							.pause(2)
-							.loop(chain.exec((session: Session) => {
-								println("--nested loop: " + session.getCounterValue("tutu"))
-								session
-							})).counterName("tutu").times(2)
+							.repeat(2, "tutu") {
+								exec((session: Session) => {
+									println("--nested loop: " + session.getCounterValue("tutu"))
+									session
+								})
+							}
 							.exec((session: Session) => {
 								println("-loopDuring: " + session.getCounterValue("foo"))
 								session
