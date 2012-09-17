@@ -23,10 +23,10 @@ import akka.actor.ActorRef
  * Top level abstraction in charge or executing concrete actions along a scenario, for example sending an HTTP request.
  * It is implemented as an Akka Actor that receives Session messages.
  */
-abstract class Action(name: String, next: ActorRef) extends LoggingActor {
+abstract class Action(name: String, val next: ActorRef) extends BaseActor {
 
 	def receive = {
-		case session: Session => if (!exitBecauseFailed(session)) execute(session)
+		case session: Session => execute(session)
 	}
 
 	/**
@@ -36,14 +36,6 @@ abstract class Action(name: String, next: ActorRef) extends LoggingActor {
 	 * @return Nothing
 	 */
 	def execute(session: Session)
-
-	def exitBecauseFailed(session: Session): Boolean = {
-		if (session.shouldExitBecauseFailed && next != null) {
-			next ! session
-			true
-		} else
-			false
-	}
 
 	override def preRestart(reason: Throwable, message: Option[Any]) {
 		error("Action " + this + " named " + name + " crashed, forwarding user to next one", reason)

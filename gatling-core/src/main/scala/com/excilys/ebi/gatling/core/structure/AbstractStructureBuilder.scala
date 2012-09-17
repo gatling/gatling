@@ -20,14 +20,7 @@ import java.util.concurrent.TimeUnit
 
 import scala.annotation.tailrec
 
-import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.CustomPauseActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.ExpPauseActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.IfActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.PauseActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.RandomSwitchBuilder
-import com.excilys.ebi.gatling.core.action.builder.RoundRobinSwitchBuilder
-import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.{ ActionBuilder, BypassSimpleActionBuilder, CustomPauseActionBuilder, ExpPauseActionBuilder, IfActionBuilder, PauseActionBuilder, RandomSwitchBuilder, RoundRobinSwitchBuilder, SimpleActionBuilder }
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.feeder.Feeder
@@ -57,6 +50,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 	 *
 	 * @param actionBuilder the action builder representing the action to be executed
 	 */
+	def exec(sessionFunction: Session => Session): B = exec(BypassSimpleActionBuilder(sessionFunction))
 	def exec(actionBuilder: ActionBuilder): B = newInstance(actionBuilder :: actionBuilders)
 	def exec(chains: ChainBuilder*): B = exec(chains.toIterable)
 	def exec(chains: Iterator[ChainBuilder]): B = exec(chains.toIterable)
@@ -270,7 +264,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 
 			session.setAttributes(feeder.next)
 		}
-		newInstance(SimpleActionBuilder(feedFunction) :: actionBuilders)
+		newInstance(BypassSimpleActionBuilder(feedFunction) :: actionBuilders)
 	}
 
 	/**
@@ -295,12 +289,8 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 	def repeat(times: Session => Int)(chain: ChainBuilder): B = repeat(times, None, chain)
 	def repeat(times: Session => Int, counterName: String)(chain: ChainBuilder): B = repeat(times, Some(counterName), chain)
 	private def repeat(times: Session => Int, counterName: Option[String] = None, chain: ChainBuilder): B = {
-		counterName match {
-			case Some(counter) => asLongAs((s: Session) => s.getCounterValue(counter) < times(s), counterName, chain)
-			case None =>
-				val counter = counterName.getOrElse(UUID.randomUUID.toString)
-				asLongAs((s: Session) => s.getCounterValue(counter) < times(s), Some(counter), chain)
-		}
+		val counter = counterName.getOrElse(UUID.randomUUID.toString)
+		asLongAs((s: Session) => s.getCounterValue(counter) < times(s), Some(counter), chain)
 	}
 
 	def during(duration: Long)(chain: ChainBuilder): B = during(duration seconds, None, chain)
@@ -313,14 +303,22 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 	def asLongAs(condition: Session => Boolean, counterName: String)(chain: ChainBuilder): B = asLongAs(condition, Some(counterName), chain)
 	private def asLongAs(condition: Session => Boolean, counterName: Option[String], chain: ChainBuilder): B = new ConditionalLoopHandlerBuilder(getInstance, chain, condition, counterName).build
 
-	def exitBlockOnFail(chain: ChainBuilder): B = {
-		val startBlock = SimpleActionBuilder((session: Session) => session.clearFailed.setMustExitOnFail)
-		val endBlock = SimpleActionBuilder((session: Session) => session.clearMustExitOnFail)
+	def exitBlockOnFail(chain: ChainBuilder): B = tryMax(1)(chain)
+	def tryMax(times: Int)(chain: ChainBuilder): B = tryMax(times, None)(chain)
+	def tryMax(times: Int, counterName: String)(chain: ChainBuilder): B = tryMax(times, Some(counterName))(chain)
+	private def tryMax(times: Int, counterName: Option[String])(chain: ChainBuilder): B = {
 
-		exec(startBlock).exec(chain).exec(endBlock)
+		def buildTransactionalChain(chain: ChainBuilder): ChainBuilder = {
+			val startBlock = SimpleActionBuilder((session: Session) => session.clearFailed.setMustExitOnFail)
+			val endBlock = SimpleActionBuilder((session: Session) => session.clearMustExitOnFail)
+			ChainBuilder.emptyChain.exec(startBlock).exec(chain).exec(endBlock)
+		}
+
+		times match {
+			case times if times >= 1 => new TryMaxLoopHandlerBuilder(getInstance, buildTransactionalChain(chain), times, counterName).build
+			case times => throw new IllegalArgumentException("Can't set up a max try <= 1")
+		}
 	}
-
-	def tryMax(times: Int, counterName: Option[String] = None)(chain: ChainBuilder): B = new TryMaxLoopHandlerBuilder(getInstance, chain, times, counterName).build
 
 	def exitHereIfFailed: B = exec(SimpleActionBuilder((session: Session) => session.setMustExitOnFail))
 

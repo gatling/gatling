@@ -17,12 +17,12 @@ package com.excilys.ebi.gatling.core.action.builder
 
 import java.util.UUID.randomUUID
 
-import com.excilys.ebi.gatling.core.action.{ system, WhileAction }
+import com.excilys.ebi.gatling.core.action.{ WhileAction, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
-import akka.actor.{ Props, ActorRef }
+import akka.actor.{ ActorRef, Props }
 
 object WhileActionBuilder {
 	/**

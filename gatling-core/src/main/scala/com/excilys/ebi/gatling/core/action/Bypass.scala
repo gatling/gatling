@@ -15,17 +15,14 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
+import com.excilys.ebi.gatling.core.session.Session
 
-import akka.actor.{ Actor, Terminated }
-import grizzled.slf4j.Logging
+trait Bypass extends Action {
 
-abstract class LoggingActor extends Actor with ClassSimpleNameToString with Logging {
-
-	override def unhandled(message: Any) {
-		message match {
-			case Terminated(dead) => super.unhandled(message)
-			case unknown => throw new IllegalArgumentException("Actor " + this + " doesn't support message " + unknown)
+	abstract override def receive = {
+		val bypass: PartialFunction[Any, Unit] = {
+			case session: Session if session.shouldExitBecauseFailed => next ! session
 		}
+		bypass orElse super.receive
 	}
 }

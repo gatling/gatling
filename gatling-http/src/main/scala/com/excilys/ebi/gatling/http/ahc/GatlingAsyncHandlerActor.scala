@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.http.ahc
 import scala.annotation.tailrec
 import scala.collection.JavaConversions.asScalaBuffer
 
-import com.excilys.ebi.gatling.core.action.LoggingActor
+import com.excilys.ebi.gatling.core.action.BaseActor
 import com.excilys.ebi.gatling.core.check.Check.applyChecks
 import com.excilys.ebi.gatling.core.check.Failure
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
@@ -76,7 +76,7 @@ class GatlingAsyncHandlerActor(
 	var request: Request,
 	protocolConfiguration: HttpProtocolConfiguration,
 	handlerFactory: HandlerFactory,
-	responseBuilderFactory: ExtendedResponseBuilderFactory) extends LoggingActor {
+	responseBuilderFactory: ExtendedResponseBuilderFactory) extends BaseActor {
 
 	var responseBuilder = responseBuilderFactory(request, session)
 

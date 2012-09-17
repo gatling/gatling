@@ -18,7 +18,4 @@ package com.excilys.ebi.gatling.core.action
 import akka.actor.ActorRef
 import com.excilys.ebi.gatling.core.session.Session
 
-class TryMaxAction(times: Int, next: ActorRef, counterName: String) extends WhileAction((s: Session) => s.isFailed && s.getCounterValue(counterName) < times, next, counterName) {
-
-	override def exitBecauseFailed(session: Session) = false // don't bypass here
-}
+class TryMaxAction(times: Int, next: ActorRef, counterName: String) extends WhileAction((s: Session) => s.getCounterValue(counterName) == 0 || (s.isFailed && s.getCounterValue(counterName) < times), next, counterName)

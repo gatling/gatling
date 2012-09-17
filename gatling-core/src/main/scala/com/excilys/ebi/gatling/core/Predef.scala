@@ -27,7 +27,6 @@ import com.excilys.ebi.gatling.core.structure.{ ChainBuilder, ScenarioBuilder }
 import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 
 object Predef {
-	implicit def sessionFunctionToSimpleActionBuilder(sessionFunction: Session => Session) = SimpleActionBuilder(sessionFunction)
 	implicit def stringToSessionFunction(string: String) = parseEvaluatable(string)
 	implicit def toSessionFunction[X](x: X) = (session: Session) => x
 	implicit def checkBuilderToCheck[C <: Check[R, XC], R, XC](checkBuilder: CheckBuilder[C, R, XC]) = checkBuilder.build

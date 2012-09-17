@@ -28,7 +28,7 @@ import akka.actor.ActorRef
  * @param elseNext chain of actions executed if condition evaluates to false
  * @param next chain of actions executed if condition evaluates to false and elseNext equals None
  */
-class IfAction(condition: Session => Boolean, thenNext: ActorRef, elseNext: Option[ActorRef], next: ActorRef) extends Action("If", next) {
+class IfAction(condition: Session => Boolean, thenNext: ActorRef, elseNext: Option[ActorRef], next: ActorRef) extends Action("If", next) with Bypass {
 
 	/**
 	 * Evaluates the condition and decides what to do next

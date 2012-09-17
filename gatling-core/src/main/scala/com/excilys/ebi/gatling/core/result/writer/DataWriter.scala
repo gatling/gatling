@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.core.result.writer
 
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
-import com.excilys.ebi.gatling.core.action.LoggingActor
+import com.excilys.ebi.gatling.core.action.BaseActor
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
@@ -86,7 +86,7 @@ object DataWriter {
  * These writers are responsible for writing the logs that will be read to
  * generate the statistics
  */
-abstract class DataWriter extends LoggingActor {
+abstract class DataWriter extends BaseActor {
 
 	def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription])
 

@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.result.terminator
 
 import java.util.concurrent.CountDownLatch
 
-import com.excilys.ebi.gatling.core.action.{ LoggingActor, system }
+import com.excilys.ebi.gatling.core.action.{ BaseActor, system }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.FlushDataWriter
 
@@ -44,7 +44,7 @@ object Terminator {
 	}
 }
 
-class Terminator extends LoggingActor {
+class Terminator extends BaseActor {
 
 	import context._
 

@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.core.action
 
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.session.handler.{ TimerBasedIterationHandler, CounterBasedIterationHandler }
+import com.excilys.ebi.gatling.core.session.handler.{ CounterBasedIterationHandler, TimerBasedIterationHandler }
 
 import akka.actor.ActorRef
 
@@ -28,7 +28,7 @@ import akka.actor.ActorRef
  * @param next the chain executed if testFunction evaluates to false
  * @param counterName the name of the counter for this loop
  */
-class WhileAction(condition: Session => Boolean, next: ActorRef, val counterName: String) extends Action("While", next) with TimerBasedIterationHandler with CounterBasedIterationHandler {
+class WhileAction(condition: Session => Boolean, next: ActorRef, val counterName: String) extends Action("While", next) with TimerBasedIterationHandler with CounterBasedIterationHandler with Bypass {
 
 	var loopNextAction: ActorRef = _
 

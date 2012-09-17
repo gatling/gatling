@@ -15,25 +15,17 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
 
-import akka.actor.ActorRef
+import akka.actor.{ Actor, Terminated }
+import grizzled.slf4j.Logging
 
-/**
- * Hook for interacting with the Session
- *
- * @constructor Constructs a SimpleAction
- * @param sessionFunction a function for manipulating the Session
- * @param next the action to be executed after this one
- */
-class SimpleAction(sessionFunction: Session => Session, next: ActorRef) extends Action("Simple", next) {
+abstract class BaseActor extends Actor with ClassSimpleNameToString with Logging {
 
-	/**
-	 * Applies the function to the Session
-	 *
-	 * @param session the session of the virtual user
-	 */
-	def execute(session: Session) {
-		next ! sessionFunction(session)
+	override def unhandled(message: Any) {
+		message match {
+			case Terminated(dead) => super.unhandled(message)
+			case unknown => throw new IllegalArgumentException("Actor " + this + " doesn't support message " + unknown)
+		}
 	}
 }

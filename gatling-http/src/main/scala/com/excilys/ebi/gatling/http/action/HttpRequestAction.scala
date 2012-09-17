@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.http.action
 
-import com.excilys.ebi.gatling.core.action.{ Action, system }
+import com.excilys.ebi.gatling.core.action.{ Action, Bypass, system }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor }
@@ -87,7 +87,7 @@ object HttpRequestAction extends Logging {
  * @param checks the checks that will be performed on the response
  * @param protocolConfiguration the protocol specific configuration
  */
-class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]], protocolConfiguration: HttpProtocolConfiguration) extends Action(requestName, next) {
+class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]], protocolConfiguration: HttpProtocolConfiguration) extends Action(requestName, next) with Bypass {
 
 	val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks)
 	val asyncHandlerActorFactory = GatlingAsyncHandlerActor.newAsyncHandlerActorFactory(checks, next, requestName, protocolConfiguration)

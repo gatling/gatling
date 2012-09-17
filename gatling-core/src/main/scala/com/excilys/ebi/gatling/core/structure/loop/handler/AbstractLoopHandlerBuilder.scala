@@ -33,5 +33,5 @@ abstract class AbstractLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](stru
 	 *
 	 * @param actionBuilders the list of actions that form the loop
 	 */
-	private[core] def doBuild(actionBuilders: List[ActionBuilder]) = structureBuilder.addActionBuilders(actionBuilders)
+	private[core] def doBuild(actionBuilders: List[ActionBuilder]): B = structureBuilder.addActionBuilders(actionBuilders)
 }

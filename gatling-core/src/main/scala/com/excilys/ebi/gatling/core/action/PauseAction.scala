@@ -28,7 +28,7 @@ import akka.util.duration.longToDurationLong
  * @param next the next action to execute, which will be notified after the pause is complete
  * @param generateDelayInMillis a function that can be used to generate a delays for the pause action
  */
-class PauseAction(next: ActorRef, generateDelayInMillis: () => Long) extends Action("Pause", next) {
+class PauseAction(next: ActorRef, generateDelayInMillis: () => Long) extends Action("Pause", next) with Bypass {
 
 	/**
 	 * Generates a duration if required or use the one given and defer
