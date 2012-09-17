@@ -50,14 +50,15 @@ class ProtocolConfigElement(baseUrl: String, proxy: ProxyConfig, followRedirect:
 		if (!automaticReferer)
 			sb.append(".disableAutomaticReferer").append(END_OF_LINE)
 
+		val indent = "\t\t\t"
 		baseHeaders.foreach {
 			case (headerName, headerValue) => headerName match {
-				case Headers.Names.ACCEPT => sb.append(""".acceptHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
-				case Headers.Names.ACCEPT_CHARSET => sb.append(""".acceptCharsetHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
-				case Headers.Names.ACCEPT_ENCODING => sb.append(""".acceptEncodingHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
-				case Headers.Names.ACCEPT_LANGUAGE => sb.append(""".acceptLanguageHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
-				case Headers.Names.HOST => sb.append(""".hostHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
-				case Headers.Names.USER_AGENT => sb.append(""".userAgentHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
+				case Headers.Names.ACCEPT => sb.append(indent).append(""".acceptHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
+				case Headers.Names.ACCEPT_CHARSET => sb.append(indent).append(""".acceptCharsetHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
+				case Headers.Names.ACCEPT_ENCODING => sb.append(indent).append(""".acceptEncodingHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
+				case Headers.Names.ACCEPT_LANGUAGE => sb.append(indent).append(""".acceptLanguageHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
+				case Headers.Names.HOST => sb.append(indent).append(""".hostHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
+				case Headers.Names.USER_AGENT => sb.append(indent).append(""".userAgentHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
 				case name => warn("Base header not supported " + name)
 			}
 		}
