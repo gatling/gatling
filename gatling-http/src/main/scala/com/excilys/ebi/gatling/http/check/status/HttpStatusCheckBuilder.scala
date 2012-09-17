@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.http.check.status
 
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.core.session.NOOP_EVALUATABLE_STRING
 import com.excilys.ebi.gatling.http.check.HttpSingleCheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
@@ -26,7 +26,7 @@ import com.excilys.ebi.gatling.http.response.ExtendedResponse
  */
 object HttpStatusCheckBuilder {
 
-	private def findExtractorFactory: ExtractorFactory[ExtendedResponse, String, Int] = (response: ExtendedResponse) => (unused: String) => Some(response.getStatusCode)
+	private val findExtractorFactory: ExtractorFactory[ExtendedResponse, String, Int] = (response: ExtendedResponse) => (unused: String) => Some(response.getStatusCode)
 
-	def status = new HttpSingleCheckBuilder(findExtractorFactory, Session => EMPTY, StatusReceived)
+	def status = new HttpSingleCheckBuilder(findExtractorFactory, NOOP_EVALUATABLE_STRING, StatusReceived)
 }

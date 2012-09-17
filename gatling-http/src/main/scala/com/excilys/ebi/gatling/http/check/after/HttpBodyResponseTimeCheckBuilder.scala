@@ -15,11 +15,11 @@
  */
 package com.excilys.ebi.gatling.http.check.after
 
-import com.excilys.ebi.gatling.core.check.{ MatcherCheckBuilder, ExtractorFactory }
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-import com.excilys.ebi.gatling.http.response.ExtendedResponse
-import com.excilys.ebi.gatling.http.check.{ HttpExtractorCheckBuilder, HttpCheck }
+import com.excilys.ebi.gatling.core.check.{ ExtractorFactory, MatcherCheckBuilder }
+import com.excilys.ebi.gatling.core.session.NOOP_EVALUATABLE_STRING
+import com.excilys.ebi.gatling.http.check.{ HttpCheck, HttpExtractorCheckBuilder }
 import com.excilys.ebi.gatling.http.request.HttpPhase.AfterResponseReceived
+import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
 /**
  * HttpBodyesponseTimeCheckBuilder class companion
@@ -40,7 +40,7 @@ object HttpBodyResponseTimeCheckBuilder {
 /**
  * This class builds a response time check
  */
-class HttpBodyResponseTimeCheckBuilder(factory: ExtractorFactory[ExtendedResponse, String, Long]) extends HttpExtractorCheckBuilder[Long, String](Session => EMPTY, AfterResponseReceived) {
+class HttpBodyResponseTimeCheckBuilder(factory: ExtractorFactory[ExtendedResponse, String, Long]) extends HttpExtractorCheckBuilder[Long, String](NOOP_EVALUATABLE_STRING, AfterResponseReceived) {
 
 	def find = new MatcherCheckBuilder[HttpCheck[String], ExtendedResponse, String, Long](httpCheckBuilderFactory, factory)
 }

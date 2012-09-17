@@ -15,7 +15,11 @@
  */
 package com.excilys.ebi.gatling.core
 
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+
 package object session {
 
 	type EvaluatableString = Session => String
+
+	val NOOP_EVALUATABLE_STRING: EvaluatableString = (s: Session) => EMPTY
 }
