@@ -38,7 +38,7 @@ abstract class Action(name: String, next: ActorRef) extends LoggingActor {
 	def execute(session: Session)
 
 	def handleExitBecauseFailed(session: Session) {
-		next ! session
+		if (next != null) next ! session
 	}
 
 	override def preRestart(reason: Throwable, message: Option[Any]) {
