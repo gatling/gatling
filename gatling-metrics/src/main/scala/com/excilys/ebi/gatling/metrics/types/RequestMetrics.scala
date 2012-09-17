@@ -49,17 +49,20 @@ class Metrics {
 
 	var count = 0L
 	var max = 0L
+	var min = Long.MaxValue
 	val buckets = new Buckets(configuration.graphite.bucketWidth)
 
 	def update(value: Long) {
 		count += 1
 		max = max.max(value)
+		min = min.min(value)
 		buckets.update(value)
 	}
 
 	def reset = {
 		count = 0L
 		max = 0L
+		min = Long.MaxValue
 		buckets.reset
 	}
 }
