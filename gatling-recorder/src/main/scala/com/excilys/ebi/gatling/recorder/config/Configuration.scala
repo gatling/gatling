@@ -35,7 +35,7 @@ import grizzled.slf4j.Logging
 object Configuration extends Logging {
 
 	GatlingConfiguration.setUp(new JHashMap)
-	val DEFAULT_CLASS_NAME = "Simulation"
+	val DEFAULT_CLASS_NAME = "RecordedSimulation"
 
 	private val XSTREAM = {
 		val xstream = new XStream(new DomDriver)
