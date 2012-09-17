@@ -55,6 +55,7 @@ object Predef {
 
 	type Session = com.excilys.ebi.gatling.core.session.Session
 	type Simulation = com.excilys.ebi.gatling.core.scenario.configuration.Simulation
+	type Feeder = com.excilys.ebi.gatling.core.feeder.Feeder
 
 	@deprecated("Will be removed in Gatling 1.4.0.", "1.3.0")
 	val MILLISECONDS = TimeUnit.MILLISECONDS
