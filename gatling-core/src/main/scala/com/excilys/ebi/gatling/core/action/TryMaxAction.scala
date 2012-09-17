@@ -20,7 +20,5 @@ import com.excilys.ebi.gatling.core.session.Session
 
 class TryMaxAction(times: Int, next: ActorRef, counterName: String) extends WhileAction((s: Session) => s.isFailed && s.getCounterValue(counterName) < times, next, counterName) {
 
-	override def handleExitBecauseFailed(session: Session) {
-		execute(session)
-	}
+	override def exitBecauseFailed(session: Session) = false // don't bypass here
 }

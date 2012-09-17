@@ -26,7 +26,7 @@ import akka.actor.ActorRef
 abstract class Action(name: String, next: ActorRef) extends LoggingActor {
 
 	def receive = {
-		case session: Session => if (session.shouldExitBecauseFailed) handleExitBecauseFailed(session) else execute(session)
+		case session: Session => if (!exitBecauseFailed(session)) execute(session)
 	}
 
 	/**
@@ -37,8 +37,12 @@ abstract class Action(name: String, next: ActorRef) extends LoggingActor {
 	 */
 	def execute(session: Session)
 
-	def handleExitBecauseFailed(session: Session) {
-		if (next != null) next ! session
+	def exitBecauseFailed(session: Session): Boolean = {
+		if (session.shouldExitBecauseFailed && next != null) {
+			next ! session
+			true
+		} else
+			false
 	}
 
 	override def preRestart(reason: Throwable, message: Option[Any]) {
