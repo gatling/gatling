@@ -19,7 +19,7 @@ $.each(stats, function(request, values) {
 		url = 'index.html'
 		place = 'thead'
 	} else {
-		url = request + '.html'
+		url = 'req_' + request + '.html'
 		place = 'tbody'
 	}
 
