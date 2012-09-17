@@ -53,7 +53,7 @@ class ConfiguredScenarioBuilder(attributes: Attributes) {
 	 * @param unit the time unit of the ramp duration (defaults: seconds)
 	 * @return a new builder with the ramp duration set
 	 */
-	@deprecated("""Will be remove in Gatling 1.4.0. Pass a akka.util.Duration such as "5 seconds" """)
+	@deprecated("""Will be remove in Gatling 1.4.0. Pass a akka.util.Duration such as "5 seconds"""", "1.3.0")
 	def ramp(duration: Long, unit: TimeUnit = TimeUnit.SECONDS): ConfiguredScenarioBuilder = ramp(Duration(duration, unit))
 
 	/**
@@ -79,7 +79,7 @@ class ConfiguredScenarioBuilder(attributes: Attributes) {
 	 * @param unit the unit of the delay (defaults: seconds)
 	 * @return a new builder with the start time set
 	 */
-	@deprecated("""Will be remove in Gatling 1.4.0. Pass a akka.util.Duration such as "5 seconds" """)
+	@deprecated("""Will be remove in Gatling 1.4.0. Pass a akka.util.Duration such as "5 seconds"""", "1.3.0")
 	def delay(duration: Long, unit: TimeUnit = TimeUnit.SECONDS): ConfiguredScenarioBuilder = delay(Duration(duration, unit))
 
 	/**

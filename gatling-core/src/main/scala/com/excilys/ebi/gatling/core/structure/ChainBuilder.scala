@@ -28,7 +28,7 @@ object ChainBuilder {
 	/**
 	 * DSL helper that creates a new ChainBuilder
 	 */
-	@deprecated("Will be removed in Gatling 1.4.0. Call the method directly without suffixing with chain.")
+	@deprecated("Will be removed in Gatling 1.4.0. Call the method directly without suffixing with chain.", "1.3.0")
 	val chain = new ChainBuilder(Nil, null)
 }
 

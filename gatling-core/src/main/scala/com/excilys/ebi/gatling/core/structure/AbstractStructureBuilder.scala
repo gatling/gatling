@@ -77,7 +77,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 	 * @param durationUnit the time unit of the pause
 	 * @return a new builder with a pause added to its actions
 	 */
-	@deprecated("""Will be remove in Gatling 1.4.0. Pass a akka.util.Duration such as "5 seconds" """)
+	@deprecated("""Will be remove in Gatling 1.4.0. Pass a akka.util.Duration such as "5 seconds"""", "1.3.0")
 	def pause(duration: Long, durationUnit: TimeUnit): B = pause(Duration(duration, durationUnit), None)
 
 	/**
@@ -97,7 +97,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 	 * @param durationUnit the time unit of the pause
 	 * @return a new builder with a pause added to its actions
 	 */
-	@deprecated("""Will be remove in Gatling 1.4.0. Pass a akka.util.Duration such as "5 seconds" """)
+	@deprecated("""Will be remove in Gatling 1.4.0. Pass a akka.util.Duration such as "5 seconds"""", "1.3.0")
 	def pause(minDuration: Long, maxDuration: Long, durationUnit: TimeUnit): B = pause(Duration(minDuration, durationUnit), Some(Duration(maxDuration, durationUnit)))
 
 	/**
@@ -125,7 +125,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 	 * @param durationUnit the time unit of the specified values
 	 * @return a new builder with a pause added to its actions
 	 */
-	@deprecated("""Will be remove in Gatling 1.4.0. Pass a akka.util.Duration such as "5 seconds" """)
+	@deprecated("""Will be remove in Gatling 1.4.0. Pass a akka.util.Duration such as "5 seconds"""", "1.3.0")
 	def pauseExp(meanDuration: Long, durationUnit: TimeUnit): B = pauseExp(Duration(meanDuration, durationUnit))
 
 	/**
@@ -251,7 +251,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 	 * @param chain the chain to be included in the scenario
 	 * @return a new builder with all actions from the chain added to its actions
 	 */
-	@deprecated("""Will be removed in Gatling 1.4.0. Use "exec" instead.""")
+	@deprecated("""Will be removed in Gatling 1.4.0. Use "exec" instead.""", "1.3.0")
 	def insertChain(chain: ChainBuilder): B = newInstance(chain.actionBuilders ::: actionBuilders)
 
 	/**
@@ -278,7 +278,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 	 *
 	 * @param chain the chain of actions that should be repeated
 	 */
-	@deprecated("Will be removed in Gatling 1.4.0.")
+	@deprecated("Will be removed in Gatling 1.4.0.", "1.3.0")
 	def loop(chain: ChainBuilder) = new LoopBuilder[B](getInstance, chain, None)
 
 	def repeat(times: Int)(chain: ChainBuilder): B = repeat(times, None, chain)
