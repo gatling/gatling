@@ -73,6 +73,6 @@ object Predef {
 
 	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder.scenario(scenarioName)
 	@deprecated("""Will be removed in Gatling 1.4.0. Use "emptyChain" instead.""", "1.3.0")
-	def chain = emptyChain
-	def emptyChain = ChainBuilder.chain
+	val chain = emptyChain
+	val emptyChain = ChainBuilder.emptyChain
 }
