@@ -50,17 +50,20 @@ class Metrics {
 
 	var count = 0L
 	var max = 0L
+	var min = Long.MaxValue
 	val sample = new Sample
 
 	def update(value: Long) {
 		count += 1
 		max = max.max(value)
+		min = min.min(value)
 		sample.update(value)
 	}
 
 	def reset = {
 		count = 0L
 		max = 0L
+		min = Long.MaxValue
 		sample.reset
 	}
 }

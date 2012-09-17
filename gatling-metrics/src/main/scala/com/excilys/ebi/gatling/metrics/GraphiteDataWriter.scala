@@ -107,6 +107,7 @@ class GraphiteDataWriter extends DataWriter {
 
 			sendToGraphite(metricPath + "count", metrics.count)
 			if (metrics.count > 0) {
+				sendToGraphite(metricPath + "min", metrics.min)
 				sendToGraphite(metricPath + "max", metrics.max)
 				sendToGraphite(metricPath + percentiles1Name, metrics.sample.getQuantile(percentiles1))
 				sendToGraphite(metricPath + percentiles2Name, metrics.sample.getQuantile(percentiles2))
