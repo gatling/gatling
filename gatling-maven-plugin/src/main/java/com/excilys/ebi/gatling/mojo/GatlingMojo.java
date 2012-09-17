@@ -108,7 +108,7 @@ public class GatlingMojo extends AbstractMojo {
 	protected List<String> excludes;
 
 	/**
-	 * A comma-separated list of simulations to run. This takes precedence over
+	 * A name of a Simulation class to run. This takes precedence over
 	 * the includes / excludes parameters.
 	 * 
 	 * @parameter expression="${gatling.simulation}" alias="s"
