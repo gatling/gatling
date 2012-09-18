@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.structure
 
-import scala.annotation.tailrec
-
 import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.structure.loop.LoopBuilder
@@ -42,17 +40,9 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 	@deprecated("Will be removed in Gatling 1.4.0.", "1.3.0")
 	private[core] def addActionBuilders(actionBuildersToAdd: List[ActionBuilder]): B = newInstance(actionBuildersToAdd ::: actionBuilders)
 
-	protected def buildChainedActions(initialValue: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = {
-
-		@tailrec
-		def buildChainedActions(actorRef: ActorRef, actionBuilders: List[ActionBuilder], protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = {
-			actionBuilders match {
-				case Nil => actorRef
-				case firstBuilder :: restOfBuilders => buildChainedActions(firstBuilder.withNext(actorRef).build(protocolConfigurationRegistry), restOfBuilders, protocolConfigurationRegistry)
-			}
+	protected def buildChainedActions(entryPoint: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = actionBuilders
+		.foldLeft(entryPoint) { (actorRef, actionBuilder) =>
+			actionBuilder.withNext(actorRef).build(protocolConfigurationRegistry)
 		}
-
-		buildChainedActions(initialValue, actionBuilders, protocolConfigurationRegistry)
-	}
 }
 
