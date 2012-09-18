@@ -17,9 +17,9 @@ package com.excilys.ebi.gatling.core.structure
 
 import java.util.UUID
 
-import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.TryMaxActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.{ SimpleActionBuilder, TryMaxActionBuilder }
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.structure.ChainBuilder.emptyChain
 
 trait Errors[B] extends Execs[B] {
 
@@ -31,7 +31,7 @@ trait Errors[B] extends Execs[B] {
 		def buildTransactionalChain(chain: ChainBuilder): ChainBuilder = {
 			val startBlock = SimpleActionBuilder((session: Session) => session.clearFailed.setMustExitOnFail)
 			val endBlock = SimpleActionBuilder((session: Session) => session.clearMustExitOnFail)
-			ChainBuilder.emptyChain.exec(startBlock).exec(chain).exec(endBlock)
+			emptyChain.exec(startBlock).exec(chain).exec(endBlock)
 		}
 
 		times match {
