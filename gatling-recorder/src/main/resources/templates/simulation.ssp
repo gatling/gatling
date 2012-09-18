@@ -35,15 +35,15 @@ class <%= simulationClassName %> extends Simulation {
 <% case Right(chains) =>%>
 <% for((chain, i) <- chains.zipWithIndex) { %>
 		val chain_<%= i %> =
-<% for ((element, j) <- chain.zipWithIndex) {%>
-			<%if (j != 0){%>.<%}%><%=element%>
+<% for element <- chain) {%>
+			<%if (element != chain.first){%>.<%}%><%=element%>
 <%}%>
 <%}%>
 
 		val scn = scenario("<%= scenarioName %>")
 			.exec(
 <% for ((chain, i) <- chains.zipWithIndex) {%>
-				chain_<%=i%><%if (i > 0) {%>,<%}%>
+				chain_<%=i%><%if (chain != chains.last) {%>,<%}%>
 <%}%>
 			)
 <%}%>
