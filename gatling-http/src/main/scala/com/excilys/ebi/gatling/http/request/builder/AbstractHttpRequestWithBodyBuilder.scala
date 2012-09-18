@@ -46,7 +46,7 @@ object AbstractHttpRequestWithBodyBuilder {
 abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](
 	httpAttributes: HttpAttributes,
 	body: Option[HttpRequestBody])
-		extends AbstractHttpRequestBuilder[B](httpAttributes) {
+	extends AbstractHttpRequestBuilder[B](httpAttributes) {
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): RequestBuilder = {
 		val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
@@ -114,28 +114,36 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 */
 	private def configureBody(requestBuilder: RequestBuilder, body: Option[HttpRequestBody], session: Session) {
 
-		body match {
+		val contentLength = body match {
 			case Some(FilePathBody(filePath)) =>
-				requestBuilder.setBody((GatlingFiles.requestBodiesDirectory / filePath).jfile)
+				val file = (GatlingFiles.requestBodiesDirectory / filePath).jfile
+				requestBuilder.setBody(file)
+				Some(file.length)
 
-			case Some(StringBody(body)) =>
-				requestBuilder.setBody(body(session))
+			case Some(StringBody(string)) =>
+				val body = string(session)
+				requestBuilder.setBody(body)
+				Some(body.length)
 
 			case Some(TemplateBody(tplPath, values)) =>
-				requestBuilder.setBody(compileBody(tplPath, values, session))
+				val body = compileBody(tplPath, values, session)
+				requestBuilder.setBody(body)
+				Some(body.length)
 
 			case Some(ByteArrayBody(byteArray)) =>
 				val body = byteArray()
 				requestBuilder.setBody(body)
-				requestBuilder.setHeader(CONTENT_LENGTH, body.length.toString)
+				Some(body.length)
 
 			case Some(SessionByteArrayBody(byteArray)) =>
 				val body = byteArray(session)
 				requestBuilder.setBody(body)
-				requestBuilder.setHeader(CONTENT_LENGTH, body.length.toString)
+				Some(body.length)
 
-			case None =>
+			case None => None
 		}
+
+		contentLength.map(length => requestBuilder.setHeader(CONTENT_LENGTH, length.toString))
 	}
 
 	/**
