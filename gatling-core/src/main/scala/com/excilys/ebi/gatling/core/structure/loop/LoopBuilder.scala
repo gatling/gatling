@@ -33,6 +33,7 @@ import akka.util.Duration
  * @param chain the chain that should be repeated
  * @param counterName the optionnal counter name
  */
+@deprecated("Will be removed in 1.4.0", "1.3.0")
 class LoopBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: ChainBuilder, counterName: Option[String]) {
 
 	/**

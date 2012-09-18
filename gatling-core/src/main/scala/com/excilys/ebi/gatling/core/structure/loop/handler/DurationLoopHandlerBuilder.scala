@@ -34,6 +34,7 @@ import akka.util.Duration
  * @param durationUnit the time unit of the duration
  * @param counterName the name of the counter for this loop
  */
+@deprecated("Will be removed in 1.4.0", "1.3.0")
 class DurationLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: ChainBuilder, duration: Duration, counterName: Option[String])
 	extends AbstractLoopHandlerBuilder[B](structureBuilder) {
 
@@ -42,10 +43,10 @@ class DurationLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuil
 	 */
 	private[core] def build: B = {
 		val loopCounterName = counterName.getOrElse(randomUUID.toString)
-		doBuild(
-			List(whileActionBuilder
+		structureBuilder.exec(
+			whileActionBuilder
 				.withCondition((session: Session) => (nowMillis - session.getTimerValue(loopCounterName)) <= duration.toMillis)
 				.withLoopNext(chain)
-				.withCounterName(loopCounterName)))
+				.withCounterName(loopCounterName))
 	}
 }

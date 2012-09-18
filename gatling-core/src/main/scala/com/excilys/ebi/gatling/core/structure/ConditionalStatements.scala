@@ -1,0 +1,101 @@
+package com.excilys.ebi.gatling.core.structure
+
+import com.excilys.ebi.gatling.core.action.builder.{ IfActionBuilder, RandomSwitchBuilder, RoundRobinSwitchBuilder }
+import com.excilys.ebi.gatling.core.session.{ EvaluatableString, Session }
+
+trait ConditionalStatements[B] extends Execs[B] {
+
+	/**
+	 * Method used to add a conditional execution in the scenario
+	 *
+	 * @param condition the function that will determine if the condition is satisfied or not
+	 * @param thenNext the chain to be executed if the condition is satisfied
+	 * @return a new builder with a conditional execution added to its actions
+	 */
+	def doIf(condition: Session => Boolean, thenNext: ChainBuilder): B = doIf(condition, thenNext, None)
+
+	/**
+	 * Method used to add a conditional execution in the scenario with a fall back
+	 * action if condition is not satisfied
+	 *
+	 * @param condition the function that will determine if the condition is satisfied or not
+	 * @param thenNext the chain to be executed if the condition is satisfied
+	 * @param elseNext the chain to be executed if the condition is not satisfied
+	 * @return a new builder with a conditional execution added to its actions
+	 */
+	def doIf(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: ChainBuilder): B = doIf(condition, thenNext, Some(elseNext))
+
+	/**
+	 * Method used to add a conditional execution in the scenario
+	 *
+	 * @param sessionKey the key of the session value to be tested for equality
+	 * @param value the value to which the session value must be equals
+	 * @param thenNext the chain to be executed if the condition is satisfied
+	 * @return a new builder with a conditional execution added to its actions
+	 */
+	def doIf(sessionKey: EvaluatableString, value: String, thenNext: ChainBuilder): B = doIf((session: Session) => sessionKey(session) == value, thenNext)
+
+	/**
+	 * Method used to add a conditional execution in the scenario with a fall back
+	 * action if condition is not satisfied
+	 *
+	 * @param sessionKey the key of the session value to be tested for equality
+	 * @param value the value to which the session value must be equals
+	 * @param thenNext the chain to be executed if the condition is satisfied
+	 * @param elseNext the chain to be executed if the condition is not satisfied
+	 * @return a new builder with a conditional execution added to its actions
+	 */
+	def doIf(sessionKey: EvaluatableString, value: String, thenNext: ChainBuilder, elseNext: ChainBuilder): B = doIf((session: Session) => sessionKey(session) == value, thenNext, elseNext)
+
+	/**
+	 * Private method that actually adds the If Action to the scenario
+	 *
+	 * @param condition the function that will determine if the condition is satisfied or not
+	 * @param thenNext the chain to be executed if the condition is satisfied
+	 * @param elseNext the chain to be executed if the condition is not satisfied
+	 * @return a new builder with a conditional execution added to its actions
+	 */
+	private def doIf(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]): B = newInstance(IfActionBuilder(condition = condition, thenNext = thenNext, elseNext = elseNext) :: actionBuilders)
+
+	/**
+	 * Add a switch in the chain. Every possible subchain is defined with a percentage.
+	 * Switch is selected randomly. If no switch is selected (ie random number exceeds percentages sum), switch is bypassed.
+	 * Percentages sum can't exceed 100%.
+	 *
+	 * @param possibility1 the first possible subchain
+	 * @param possibility2 the second possible subchain
+	 * @param possibilities the rest of the possible subchains
+	 * @return a new builder with a random switch added to its actions
+	 */
+	def randomSwitch(possibility1: (Int, ChainBuilder), possibility2: (Int, ChainBuilder), possibilities: (Int, ChainBuilder)*): B = newInstance(RandomSwitchBuilder(possibility1 :: possibility2 :: possibilities.toList) :: actionBuilders)
+
+	/**
+	 * Add a switch in the chain. Selection uses a random strategy
+	 *
+	 * @param possibility1 the first possible subchain
+	 * @param possibility2 the second possible subchain
+	 * @param possibilities the rest of the possible subchains
+	 * @return a new builder with a random switch added to its actions
+	 */
+	def randomSwitch(possibility1: ChainBuilder, possibility2: ChainBuilder, possibilities: ChainBuilder*): B = {
+
+		val tailPossibilities = possibility2 :: possibilities.toList
+		val basePercentage = 100 / (tailPossibilities.size + 1)
+		val firstPercentage = 100 - basePercentage * tailPossibilities.size
+
+		val possibilitiesWithPercentage = (firstPercentage, possibility1) :: tailPossibilities.map((basePercentage, _))
+
+		newInstance(RandomSwitchBuilder(possibilitiesWithPercentage) :: actionBuilders)
+	}
+
+	/**
+	 * Add a switch in the chain. Selection uses a round robin strategy
+	 *
+	 * @param possibility1 the first possible subchain
+	 * @param possibility2 the second possible subchain
+	 * @param possibilities the rest of the possible subchains
+	 * @return a new builder with a random switch added to its actions
+	 */
+	def roundRobinSwitch(possibility1: ChainBuilder, possibility2: ChainBuilder, possibilities: ChainBuilder*): B = newInstance(RoundRobinSwitchBuilder(possibility1 :: possibility2 :: possibilities.toList) :: actionBuilders)
+
+}

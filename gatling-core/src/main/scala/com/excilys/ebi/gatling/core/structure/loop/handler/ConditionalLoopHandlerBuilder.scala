@@ -30,6 +30,7 @@ import com.excilys.ebi.gatling.core.structure.{ AbstractStructureBuilder, ChainB
  * @param condition the function that determines whether the loop should continue or not
  * @param counterName the name of the counter for this loop
  */
+@deprecated("Will be removed in 1.4.0", "1.3.0")
 class ConditionalLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: ChainBuilder, condition: Session => Boolean, counterName: Option[String])
 	extends AbstractLoopHandlerBuilder[B](structureBuilder) {
 
@@ -38,6 +39,6 @@ class ConditionalLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureB
 	 */
 	private[core] def build: B = {
 		val loopCounterName = counterName.getOrElse(UUID.randomUUID.toString)
-		doBuild(List(whileActionBuilder.withCondition(condition).withLoopNext(chain).withCounterName(loopCounterName)))
+		structureBuilder.exec(whileActionBuilder.withCondition(condition).withLoopNext(chain).withCounterName(loopCounterName))
 	}
 }
