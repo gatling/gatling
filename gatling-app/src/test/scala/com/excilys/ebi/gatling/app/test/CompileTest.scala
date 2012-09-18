@@ -47,8 +47,8 @@ object CompileTest extends Simulation {
 			.hostHeader("172.30.5.143:8080")
 
 		val httpConfToVerifyUserProvidedInfoExtractors = httpConfig
-			.requestInfoExtractor((request: Request) => { List[String]() })
-			.responseInfoExtractor((response: Response) => { List[String]() })
+			.requestInfoExtractor((request: Request) => { List.empty })
+			.responseInfoExtractor((response: Response) => { List.empty })
 
 		val usersInformation = tsv("user_information.tsv")
 
@@ -152,9 +152,11 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 							.pause(2)
 					}
 					.exec((session: Session) => session.setAttribute("test2", "bbbb"))
-					.doIf("test2", "aaaa",
-						exec(http("IF=TRUE Request").get("/")), exec(http("IF=FALSE Request").get("/")))
-					.pause(pause2)
+					.doIfOrElse("test2", "aaaa") {
+						exec(http("IF=TRUE Request").get("/"))
+					} {
+						exec(http("IF=FALSE Request").get("/"))
+					}.pause(pause2)
 					.exec(http("Url from session").get("/aaaa"))
 					.pause(1000 milliseconds, 3000 milliseconds)
 					// Second request to be repeated

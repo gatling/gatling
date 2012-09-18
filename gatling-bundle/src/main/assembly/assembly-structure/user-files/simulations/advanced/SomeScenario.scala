@@ -2,6 +2,8 @@ package advanced
 import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._
 import Headers._
+import akka.util.duration._
+import bootstrap._
 
 object SomeScenario {
 
@@ -11,7 +13,7 @@ object SomeScenario {
 				.get("/")
 				.headers(headers_1)
 				.check(status.is(302)))
-		.pause(0, 100, MILLISECONDS)
+		.pause(0 milliseconds, 100 milliseconds)
 		.exec(
 			http("request_2")
 				.get("/public/login.html")
@@ -25,20 +27,19 @@ object SomeScenario {
 				.param("password", "${password}")
 				.headers(headers_3)
 				.check(status.is(302)))
-		.pause(0, 100, MILLISECONDS)
-		.loop(
-			chain
-				.exec(
-					http("request_4")
-						.get("/private/bank/accounts.html")
-						.headers(headers_1)
-						.check(regex("""<td class="number">ACC(\d+)</td>""").saveAs("account_id")))
+		.pause(0 milliseconds, 100 milliseconds)
+		.repeat(5) {
+			exec(
+				http("request_4")
+					.get("/private/bank/accounts.html")
+					.headers(headers_1)
+					.check(regex("""<td class="number">ACC(\d+)</td>""").saveAs("account_id")))
 				.pause(7, 8)
 				.exec(
 					http("request_5")
 						.get("/private/bank/account/ACC${account_id}/operations.html")
 						.headers(headers_1))
-				.pause(100, 200, MILLISECONDS)
+				.pause(100 milliseconds, 200 milliseconds)
 				.exec(
 					http("request_6")
 						.get("/private/bank/account/ACC${account_id}/year/2011/month/12/page/0/operations.json")
@@ -48,22 +49,22 @@ object SomeScenario {
 					http("request_7")
 						.get("/private/bank/account/ACC${account_id}/year/2011/month/11/operations.html")
 						.headers(headers_1))
-				.pause(100, 200, MILLISECONDS)
+				.pause(100 milliseconds, 200 milliseconds)
 				.exec(
 					http("request_8")
 						.get("/private/bank/account/ACC${account_id}/year/2011/month/11/page/0/operations.json")
 						.headers(headers_8))
-				.pause(6, 7)).times(5)
-		.doIf((session: Session) => session.getAttribute("username") != "user7",
-			chain
-				.exec(
-					http("request_9")
-						.get("/logout")
-						.headers(headers_1)
-						.check(status.is(302)))
-				.pause(0, 100, MILLISECONDS)
-				.exec(
-					http("request_10")
-						.get("/public/login.html")
-						.headers(headers_1)))
+				.pause(6, 7)
+		}
+		.doIf((session: Session) => session.getAttribute("username") != "user7") {
+			exec(
+				http("request_9")
+					.get("/logout")
+					.headers(headers_1)
+					.check(status.is(302)))
+				.pause(0 milliseconds, 100 milliseconds)
+				.exec(http("request_10")
+					.get("/public/login.html")
+					.headers(headers_1))
+		}
 }
