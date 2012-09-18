@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.core.structure
 import java.util.UUID
 
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.TryMaxActionBuilder.tryMaxActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.TryMaxActionBuilder
 import com.excilys.ebi.gatling.core.session.Session
 
 trait Errors[B] extends Execs[B] {
@@ -37,7 +37,7 @@ trait Errors[B] extends Execs[B] {
 		times match {
 			case times if times >= 1 =>
 				val loopCounterName = counterName.getOrElse(UUID.randomUUID.toString)
-				exec(tryMaxActionBuilder.withTimes(times).withLoopNext(buildTransactionalChain(chain)).withCounterName(loopCounterName))
+				exec(TryMaxActionBuilder(times, buildTransactionalChain(chain), loopCounterName))
 
 			case times => throw new IllegalArgumentException("Can't set up a max try <= 1")
 		}

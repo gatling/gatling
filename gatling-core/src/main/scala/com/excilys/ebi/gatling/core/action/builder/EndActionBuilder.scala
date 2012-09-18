@@ -22,12 +22,14 @@ import akka.actor.{ ActorRef, Props }
 
 object EndActionBuilder {
 
+	private val empty = new EndActionBuilder
+
 	/**
 	 * Creates a new EndActionBuilder
 	 *
 	 * @return a ready to use EndActionBuilder
 	 */
-	def endActionBuilder = new EndActionBuilder
+	def apply() = empty
 }
 
 /**

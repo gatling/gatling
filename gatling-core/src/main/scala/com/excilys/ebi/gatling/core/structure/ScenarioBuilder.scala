@@ -16,8 +16,8 @@
 package com.excilys.ebi.gatling.core.structure
 
 import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.EndActionBuilder.endActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.StartActionBuilder.startActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.EndActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.StartActionBuilder
 import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.scenario.configuration.{ ConfiguredScenarioBuilder, ScenarioConfiguration }
 
@@ -25,7 +25,7 @@ import com.excilys.ebi.gatling.core.scenario.configuration.{ ConfiguredScenarioB
  * ScenarioBuilder class companion
  */
 object ScenarioBuilder {
-	def scenario(scenarioName: String): ScenarioBuilder = new ScenarioBuilder(scenarioName, List(startActionBuilder))
+	def scenario(scenarioName: String): ScenarioBuilder = new ScenarioBuilder(scenarioName, List(StartActionBuilder()))
 }
 
 /**
@@ -51,7 +51,7 @@ class ScenarioBuilder(name: String, val actionBuilders: List[ActionBuilder]) ext
 	 */
 	private[core] def build(scenarioConfiguration: ScenarioConfiguration): Scenario = {
 
-		val endingScenarioBuilder = newInstance(endActionBuilder :: actionBuilders)
+		val endingScenarioBuilder = newInstance(EndActionBuilder() :: actionBuilders)
 		val entryPoint = endingScenarioBuilder.buildChainedActions(null, scenarioConfiguration.protocolRegistry)
 		new Scenario(name, entryPoint, scenarioConfiguration)
 	}

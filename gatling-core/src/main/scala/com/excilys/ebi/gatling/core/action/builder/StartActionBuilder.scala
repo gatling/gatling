@@ -22,12 +22,9 @@ import akka.actor.{ Props, ActorRef }
 
 object StartActionBuilder {
 
-	/**
-	 * Creates a new StartActionBuilder
-	 *
-	 * @return A StartActionBuilder ready to use
-	 */
-	def startActionBuilder = new StartActionBuilder(null)
+	private val empty = new StartActionBuilder(null)
+
+	def apply() = empty
 }
 
 /**

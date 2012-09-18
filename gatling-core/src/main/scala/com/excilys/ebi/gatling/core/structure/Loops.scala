@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.core.structure
 import java.util.UUID
 
 import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder.whileActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.session.handler.CounterBasedIterationHandler
 import com.excilys.ebi.gatling.core.structure.ChainBuilder.emptyChain
@@ -70,17 +70,14 @@ trait Loops[B] extends Execs[B] {
 	def during(duration: Duration, counterName: String)(chain: ChainBuilder): B = during(duration, Some(counterName), chain)
 	private def during(duration: Duration, counterName: Option[String], chain: ChainBuilder): B = {
 		val loopCounterName = counterName.getOrElse(UUID.randomUUID.toString)
-		exec(
-			whileActionBuilder
-				.withCondition((session: Session) => (nowMillis - session.getTimerValue(loopCounterName)) <= duration.toMillis)
-				.withLoopNext(chain)
-				.withCounterName(loopCounterName))
+		val condition = (session: Session) => (nowMillis - session.getTimerValue(loopCounterName)) <= duration.toMillis
+		exec(WhileActionBuilder(condition, chain, loopCounterName))
 	}
 
 	def asLongAs(condition: Session => Boolean)(chain: ChainBuilder): B = asLongAs(condition, None, chain)
 	def asLongAs(condition: Session => Boolean, counterName: String)(chain: ChainBuilder): B = asLongAs(condition, Some(counterName), chain)
 	private def asLongAs(condition: Session => Boolean, counterName: Option[String], chain: ChainBuilder): B = {
 		val loopCounterName = counterName.getOrElse(UUID.randomUUID.toString)
-		exec(whileActionBuilder.withCondition(condition).withLoopNext(chain).withCounterName(loopCounterName))
+		exec(WhileActionBuilder(condition, chain, loopCounterName))
 	}
 }

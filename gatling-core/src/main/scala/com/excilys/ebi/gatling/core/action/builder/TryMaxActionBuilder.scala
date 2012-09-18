@@ -28,36 +28,12 @@ object TryMaxActionBuilder {
 	/**
 	 * Creates an initialized TryMaxActionBuilder
 	 */
-	def tryMaxActionBuilder = new TryMaxActionBuilder(1, null, null, randomUUID.toString)
+	def apply(times: Int, loopNext: ChainBuilder, counterName: String) = new TryMaxActionBuilder(times, loopNext, counterName, null)
 }
 
-class TryMaxActionBuilder(times: Int, loopNext: ChainBuilder, next: ActorRef, counterName: String) extends ActionBuilder {
+class TryMaxActionBuilder(times: Int, loopNext: ChainBuilder, counterName: String, next: ActorRef) extends ActionBuilder {
 
-	/**
-	 * Set tryMaxs number to this builder
-	 *
-	 * @param times the tryMaxs max number
-	 * @return a new builder with times set
-	 */
-	def withTimes(times: Int): TryMaxActionBuilder = new TryMaxActionBuilder(times, loopNext, next, counterName)
-
-	/**
-	 * Adds loopNext to builder
-	 *
-	 * @param loopNext the chain executed if testFunction evaluated to true
-	 * @return a new builder with loopNext set
-	 */
-	def withLoopNext(loopNext: ChainBuilder) = new TryMaxActionBuilder(times, loopNext, next, counterName)
-
-	/**
-	 * Adds counterName to builder
-	 *
-	 * @param counterName the name of the counter that will be used
-	 * @return a new builder with counterName set to None or Some(name)
-	 */
-	def withCounterName(counterName: String) = new TryMaxActionBuilder(times, loopNext, next, counterName)
-
-	def withNext(next: ActorRef) = new TryMaxActionBuilder(times, loopNext, next, counterName)
+	def withNext(next: ActorRef) = new TryMaxActionBuilder(times, loopNext, counterName, next)
 
 	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
 		val tryMaxActor = system.actorOf(Props(new TryMaxAction(times, next, counterName)))

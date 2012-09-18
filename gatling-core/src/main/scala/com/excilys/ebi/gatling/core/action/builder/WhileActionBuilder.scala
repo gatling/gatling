@@ -25,10 +25,8 @@ import com.excilys.ebi.gatling.core.structure.ChainBuilder
 import akka.actor.{ ActorRef, Props }
 
 object WhileActionBuilder {
-	/**
-	 * Creates an initialized WhileActionBuilder
-	 */
-	def whileActionBuilder = new WhileActionBuilder(null, null, null, randomUUID.toString)
+
+	def apply(condition: Session => Boolean, loopNext: ChainBuilder, counterName: String) = new WhileActionBuilder(condition, loopNext, counterName, null)
 }
 
 /**
@@ -39,33 +37,9 @@ object WhileActionBuilder {
  * @param loopNext chain that will be executed if condition evaluates to true
  * @param next action that will be executed if condition evaluates to false
  */
-class WhileActionBuilder(condition: Session => Boolean, loopNext: ChainBuilder, next: ActorRef, counterName: String) extends ActionBuilder {
+class WhileActionBuilder(condition: Session => Boolean, loopNext: ChainBuilder, counterName: String, next: ActorRef) extends ActionBuilder {
 
-	/**
-	 * Adds condition to this builder
-	 *
-	 * @param condition the condition function
-	 * @return a new builder with condition set
-	 */
-	def withCondition(condition: Session => Boolean): WhileActionBuilder = new WhileActionBuilder(condition, loopNext, next, counterName)
-
-	/**
-	 * Adds loopNext to builder
-	 *
-	 * @param loopNext the chain executed if testFunction evaluated to true
-	 * @return a new builder with loopNext set
-	 */
-	def withLoopNext(loopNext: ChainBuilder) = new WhileActionBuilder(condition, loopNext, next, counterName)
-
-	/**
-	 * Adds counterName to builder
-	 *
-	 * @param counterName the name of the counter that will be used
-	 * @return a new builder with counterName set to None or Some(name)
-	 */
-	def withCounterName(counterName: String) = new WhileActionBuilder(condition, loopNext, next, counterName)
-
-	def withNext(next: ActorRef) = new WhileActionBuilder(condition, loopNext, next, counterName)
+	def withNext(next: ActorRef) = new WhileActionBuilder(condition, loopNext, counterName, next)
 
 	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
 		val whileActor = system.actorOf(Props(new WhileAction(condition, next, counterName)))

@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.structure.loop.handler
 
 import java.util.UUID
 
-import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder.whileActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.{ AbstractStructureBuilder, ChainBuilder }
 
@@ -39,6 +39,6 @@ class ConditionalLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureB
 	 */
 	private[core] def build: B = {
 		val loopCounterName = counterName.getOrElse(UUID.randomUUID.toString)
-		structureBuilder.exec(whileActionBuilder.withCondition(condition).withLoopNext(chain).withCounterName(loopCounterName))
+		structureBuilder.exec(WhileActionBuilder(condition, chain, loopCounterName))
 	}
 }
