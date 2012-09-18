@@ -66,7 +66,7 @@ class HttpProtocolConfigurationBuilderSpec extends Specification {
 			val url2 = "http://url2"
 
 			val builder = HttpProtocolConfigurationBuilder
-				.httpConfig.baseURLs(List(url1, url2))
+				.httpConfig.baseURLs(url1, url2)
 				.disableWarmUp
 
 			val config: HttpProtocolConfiguration = builder.build
