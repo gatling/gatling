@@ -96,6 +96,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 *
 	 * @param byteArray - The callback function which returns the ByteArray from which to build the body
 	 */
+	@deprecated("Will be removed in 1.4.0, use byteArrayBody((Session) => Array[Byte]) instead", "1.3.0")
 	def byteArrayBody(byteArray: () => Array[Byte]): B = newInstance(httpAttributes, Some(ByteArrayBody(byteArray)))
 
 	/**
