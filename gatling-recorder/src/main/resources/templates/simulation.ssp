@@ -35,7 +35,7 @@ class <%= simulationClassName %> extends Simulation {
 <% case Right(chains) =>%>
 <% for((chain, i) <- chains.zipWithIndex) { %>
 		val chain_<%= i %> =
-<% for element <- chain) {%>
+<% for (element <- chain) {%>
 			<%if (element != chain.first){%>.<%}%><%=element%>
 <%}%>
 <%}%>
