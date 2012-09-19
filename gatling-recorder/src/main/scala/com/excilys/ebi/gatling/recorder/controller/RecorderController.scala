@@ -114,7 +114,6 @@ class RecorderController extends Logging {
 					val newRequestDate = new Date
 					val diff = newRequestDate.getTime - lastRequestDate.getTime
 					if (diff > 10) {
-
 						val (pauseValue, pauseUnit) =
 							if (diff > 1000)
 								(round(diff / 1000).toLong, PauseUnit.SECONDS)

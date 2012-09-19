@@ -91,9 +91,13 @@ class ExtendedResponseBuilder(request: Request, session: Session, checksumChecks
 	}
 
 	def build: ExtendedResponse = {
+		// time measurement is imprecise due to multi-core nature
+		// ensure request doesn't end before starting
 		_requestSendingEndDate = max(_requestSendingEndDate, _executionStartDate)
+		// ensure response doesn't start before request ends
 		_responseReceivingStartDate = max(_responseReceivingStartDate, _requestSendingEndDate)
-		_executionEndDate = max(_executionEndDate, _executionEndDate)
+		// ensure response doesn't end before starting
+		_executionEndDate = max(_executionEndDate, _responseReceivingStartDate)
 		val response = Option(responseBuilder.build)
 		new ExtendedResponse(request, response, checksums, _executionStartDate, _requestSendingEndDate, _responseReceivingStartDate, _executionEndDate)
 	}
