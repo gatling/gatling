@@ -40,7 +40,7 @@ object ExtendedResponseBuilder {
 			}
 		}
 
-		val storeBodyPart = !protocolConfiguration.responseChunksDiscardingEnabled || checks.exists(_.phase == CompletePageReceived)
+		val storeBodyPart = protocolConfiguration.responseChunksDiscardingEnabled || checks.exists(_.phase == CompletePageReceived)
 		(request: Request, session: Session) => new ExtendedResponseBuilder(request, session, checksumChecks, storeBodyPart)
 	}
 }
