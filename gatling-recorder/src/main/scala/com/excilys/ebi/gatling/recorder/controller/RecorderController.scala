@@ -23,7 +23,6 @@ import scala.tools.nsc.io.{ Directory, File }
 import scala.tools.nsc.io.Path.string2path
 
 import org.codehaus.plexus.util.SelectorUtils
-import org.jboss.netty.channel.Channel
 import org.jboss.netty.handler.codec.http.{ HttpMethod, HttpRequest, HttpResponse }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
 
@@ -85,10 +84,6 @@ class RecorderController extends Logging {
 			clearRecorderState
 			showConfigurationFrame
 		}
-	}
-
-	def registerChannel(channel: Channel) {
-		proxy.registerChannel(channel)
 	}
 
 	def receiveRequest(request: HttpRequest) {

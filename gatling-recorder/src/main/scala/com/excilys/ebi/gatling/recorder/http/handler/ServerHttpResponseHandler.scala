@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.recorder.http.handler
 
-import org.jboss.netty.channel.{ SimpleChannelHandler, MessageEvent, ChannelHandlerContext }
-import org.jboss.netty.handler.codec.http.{ HttpResponse, HttpRequest }
+import org.jboss.netty.channel.{ ChannelFutureListener, ChannelHandlerContext, MessageEvent, SimpleChannelHandler }
+import org.jboss.netty.handler.codec.http.{ HttpRequest, HttpResponse }
 
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 
@@ -24,12 +24,10 @@ class ServerHttpResponseHandler(controller: RecorderController, requestContext: 
 
 	override def messageReceived(context: ChannelHandlerContext, event: MessageEvent) {
 
-		controller.registerChannel(context.getChannel)
-
 		event.getMessage match {
 			case response: HttpResponse =>
 				controller.receiveResponse(request, response)
-				requestContext.getChannel.write(response) // Send back to client
+				requestContext.getChannel.write(response).addListener(ChannelFutureListener.CLOSE) // Send back to client
 			case _ => // whatever
 		}
 	}

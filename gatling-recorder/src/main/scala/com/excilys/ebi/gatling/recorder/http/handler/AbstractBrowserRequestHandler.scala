@@ -19,8 +19,8 @@ import java.net.URI
 
 import scala.collection.JavaConversions.asScalaBuffer
 
-import org.jboss.netty.channel.{ SimpleChannelHandler, MessageEvent, ExceptionEvent, ChannelHandlerContext, ChannelFutureListener, ChannelFuture }
-import org.jboss.netty.handler.codec.http.{ HttpRequest, DefaultHttpRequest }
+import org.jboss.netty.channel.{ ChannelFuture, ChannelFutureListener, ChannelHandlerContext, ExceptionEvent, MessageEvent, SimpleChannelHandler }
+import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, HttpRequest }
 
 import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
@@ -32,8 +32,6 @@ import grizzled.slf4j.Logging
 abstract class AbstractBrowserRequestHandler(controller: RecorderController, proxyConfig: ProxyConfig) extends SimpleChannelHandler with Logging {
 
 	override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent) {
-
-		controller.registerChannel(ctx.getChannel)
 
 		event.getMessage match {
 			case request: HttpRequest =>
