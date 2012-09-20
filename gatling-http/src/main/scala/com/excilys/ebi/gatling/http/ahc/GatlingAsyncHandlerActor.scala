@@ -52,7 +52,7 @@ object GatlingAsyncHandlerActor {
 		requestName: String,
 		protocolConfiguration: HttpProtocolConfiguration) = {
 
-		val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks)
+		val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks, protocolConfiguration)
 		val responseBuilderFactory = ExtendedResponseBuilder.newExtendedResponseBuilder(checks, protocolConfiguration)
 
 		(request: Request, session: Session) =>

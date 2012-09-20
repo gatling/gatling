@@ -89,7 +89,7 @@ object HttpRequestAction extends Logging {
  */
 class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]], protocolConfiguration: HttpProtocolConfiguration) extends Action(requestName, next) with Bypass {
 
-	val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks)
+	val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks, protocolConfiguration)
 	val asyncHandlerActorFactory = GatlingAsyncHandlerActor.newAsyncHandlerActorFactory(checks, next, requestName, protocolConfiguration)
 	val client = HttpRequestAction.HTTP_CLIENT
 
