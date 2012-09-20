@@ -73,6 +73,6 @@ object Predef {
 
 	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder.scenario(scenarioName)
 	@deprecated("""Will be removed in Gatling 1.4.0. Use "import bootstrap._" instead.""", "1.3.0")
-	val chain = bootstrap
 	val bootstrap = ChainBuilder.emptyChain
+	val chain = bootstrap
 }
