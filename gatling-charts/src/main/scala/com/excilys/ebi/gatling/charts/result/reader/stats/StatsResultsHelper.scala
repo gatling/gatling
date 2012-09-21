@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.stats
 
-import com.excilys.ebi.gatling.charts.result.reader.util.ResultBufferType.{BY_SCENARIO, BY_STATUS, BY_STATUS_AND_REQUEST, GLOBAL, getResultBufferType}
-import com.excilys.ebi.gatling.core.result.message.{RequestStatus, RunRecord}
+import com.excilys.ebi.gatling.charts.result.reader.util.ResultBufferType.{ BY_SCENARIO, BY_STATUS, BY_STATUS_AND_REQUEST, GLOBAL, getResultBufferType }
+import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RunRecord }
 
 import grizzled.slf4j.Logging
 
@@ -46,7 +46,7 @@ object StatsResultsHelper extends Logging {
 			.map(sessionRecord => (sessionRecord.executionStart, sessionRecord.size))
 	}
 
-	def getRequestsPerSec(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String], buckets: Seq[Long]): Seq[(Long, Long)] = {
+	def getRequestsPerSec(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String], buckets: List[Long]): Seq[(Long, Long)] = {
 
 		val requestsPerSecBuffer = filterByStatusAndRequest(results
 			.getRequestsPerSecBuffer(getResultBufferType(status, requestName)), status, requestName)
@@ -55,7 +55,7 @@ object StatsResultsHelper extends Logging {
 		getEventPerSec(requestsPerSecBuffer, buckets)
 	}
 
-	def getTransactionsPerSec(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String], buckets: Seq[Long]): Seq[(Long, Long)] = {
+	def getTransactionsPerSec(results: StatsResults, status: Option[RequestStatus.RequestStatus], requestName: Option[String], buckets: List[Long]): Seq[(Long, Long)] = {
 
 		val transactionPerSecBuffer = filterByStatusAndRequest(results
 			.getTransactionPerSecBuffer(getResultBufferType(status, requestName)), status, requestName)
@@ -82,24 +82,18 @@ object StatsResultsHelper extends Logging {
 				.map(record => (StatsHelper.bucket(record.responseTime, min, max, step, demiStep), record))
 				.groupBy(_._1)
 				.map {
-				case (responseTimeBucket, recordList) =>
+					case (responseTimeBucket, recordList) =>
 
-					val sizeBucket = recordList.foldLeft(0L) {
-						(partialSize, record) => partialSize + record._2.size
-					}
+						val sizeBucket = recordList.foldLeft(0L) {
+							(partialSize, record) => partialSize + record._2.size
+						}
 
-					(responseTimeBucket, math.round(sizeBucket * 100.0 / size))
-			}
+						(responseTimeBucket, math.round(sizeBucket * 100.0 / size))
+				}
 				.toSeq
 				.sortBy(_._1)
 
-			val (_, output) = buckets.foldLeft((distribution, Seq[(Long, Long)]())) {
-				case (accum, current) =>
-					val (distribution, output) = accum
-					if (!distribution.isEmpty && distribution.head._1 == current) (distribution.tail, output :+ distribution.head)
-					else (distribution, output :+(current, 0L))
-			}
-			output
+			getEventPerSec(distribution, buckets)
 		}
 
 		(process(ok), process(ko))
@@ -166,12 +160,14 @@ object StatsResultsHelper extends Logging {
 			.getRequestAgainstResponseTimeBuffer(BY_STATUS_AND_REQUEST), Some(status), Some(requestName))
 			.map(record => (record.size, record.responseTime))
 
-	private def getEventPerSec(eventsPerSec: Seq[(Long, Long)], buckets: Seq[Long]): Seq[(Long, Long)] = {
-		val (result, _) = buckets.foldLeft((Seq[(Long, Long)](), eventsPerSec)) {
-			(accum, bucket) =>
-				val (result, buffer) = accum
-				if (buffer.size >= 1 && bucket == buffer.head._1) (result :+ buffer.head, buffer.tail)
-				else (result :+(bucket, 0L), buffer)
+	private def getEventPerSec(eventsPerSec: Seq[(Long, Long)], buckets: List[Long]): Seq[(Long, Long)] = {
+
+		val (result, _) = buckets.foldLeft((Seq[(Long, Long)](), eventsPerSec)) { (accum, bucket) =>
+			val (result, buffer) = accum
+			buffer match {
+				case head :: tail if (bucket == head._1) => (result :+ buffer.head, buffer.tail)
+				case _ => (result :+ (bucket, 0L), buffer)
+			}
 		}
 		result
 	}

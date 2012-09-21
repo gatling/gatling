@@ -37,7 +37,7 @@ object FileDataReader {
 
 class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
-	val (buckets, results): (IndexedSeq[Long], StatsResults) = {
+	val (buckets, results): (List[Long], StatsResults) = {
 		val inputFiles = simulationLogDirectory(runUuid, create = false).files.filter(_.jfile.getName.matches(FileDataReader.SIMULATION_FILES_NAME_PATTERN)).map(_.jfile).toSeq
 
 		if (inputFiles.isEmpty) throw new IllegalArgumentException("simulation directory doesn't contain any log file.")
