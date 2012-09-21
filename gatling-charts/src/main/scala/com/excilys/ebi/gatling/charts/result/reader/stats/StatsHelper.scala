@@ -22,9 +22,9 @@ import com.excilys.ebi.gatling.charts.result.reader.scalding.GatlingBufferSource
 import cascading.tuple.TupleEntry
 
 object StatsHelper {
-	def bucketsList(min: Long, max: Long, step: Double) = {
+	def bucketsList(min: Long, max: Long, step: Double): List[Long] = {
 		val demiStep = step / 2
-		(0 until math.round((max - min) / step).toInt).map(i => math.round(min + step * i + demiStep))
+		(0 until math.round((max - min) / step).toInt).map(i => math.round(min + step * i + demiStep)).toList
 	}
 
 	def step(min: Long, max: Long, maxPlots: Int) = {
