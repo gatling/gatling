@@ -15,6 +15,8 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.stats
 
+import java.util.{ HashMap => JHashMap }
+
 import scala.collection.mutable
 
 import com.excilys.ebi.gatling.charts.result.reader.util.ResultBufferType.{ GLOBAL, ResultBufferType }
@@ -23,54 +25,62 @@ import com.excilys.ebi.gatling.core.result.message.RunRecord
 import grizzled.slf4j.Logging
 
 class StatsResults extends Logging {
-	private val generalStatsBuffer = mutable.Map[ResultBufferType, mutable.Buffer[GeneralStatsRecord]]()
+	private val generalStatsBuffer = new JHashMap[ResultBufferType, mutable.Buffer[GeneralStatsRecord]]
 
 	def getGeneralStatsBuffer(bufferType: ResultBufferType) = getBuffer(generalStatsBuffer, bufferType)
 
-	private val latencyPerSecBuffer = mutable.Map[ResultBufferType, mutable.Buffer[LatencyPerSecRecord]]()
+	private val latencyPerSecBuffer = new JHashMap[ResultBufferType, mutable.Buffer[LatencyPerSecRecord]]
 
 	def getLatencyPerSecBuffer(bufferType: ResultBufferType) = getBuffer(latencyPerSecBuffer, bufferType)
 
-	private val requestAgainstResponseTimeBuffer = mutable.Map[ResultBufferType, mutable.Buffer[RequestAgainstResponseTimeRecord]]()
+	private val requestAgainstResponseTimeBuffer = new JHashMap[ResultBufferType, mutable.Buffer[RequestAgainstResponseTimeRecord]]
 
 	def getRequestAgainstResponseTimeBuffer(bufferType: ResultBufferType) = getBuffer(requestAgainstResponseTimeBuffer, bufferType)
 
-	private val requestsPerSecBuffer = mutable.Map[ResultBufferType, mutable.Buffer[RequestsPerSecRecord]]()
+	private val requestsPerSecBuffer = new JHashMap[ResultBufferType, mutable.Buffer[RequestsPerSecRecord]]
 
 	def getRequestsPerSecBuffer(bufferType: ResultBufferType) = getBuffer(requestsPerSecBuffer, bufferType)
 
-	private val responseTimeDistributionBuffer = mutable.Map[ResultBufferType, mutable.Buffer[ResponseTimeDistributionRecord]]()
+	private val responseTimeDistributionBuffer = new JHashMap[ResultBufferType, mutable.Buffer[ResponseTimeDistributionRecord]]
 
 	def getResponseTimeDistributionBuffer(bufferType: ResultBufferType) = getBuffer(responseTimeDistributionBuffer, bufferType)
 
-	private val responseTimePerSecBuffer = mutable.Map[ResultBufferType, mutable.Buffer[ResponseTimePerSecRecord]]()
+	private val responseTimePerSecBuffer = new JHashMap[ResultBufferType, mutable.Buffer[ResponseTimePerSecRecord]]
 
 	def getResponseTimePerSecBuffer(bufferType: ResultBufferType) = getBuffer(responseTimePerSecBuffer, bufferType)
 
-	private val scenarioBuffer = mutable.Map[ResultBufferType, mutable.Buffer[ScenarioRecord]]()
+	private val scenarioBuffer = new JHashMap[ResultBufferType, mutable.Buffer[ScenarioRecord]]
 
 	def getScenarioBuffer(bufferType: ResultBufferType = GLOBAL) = getBuffer(scenarioBuffer, bufferType)
 
-	private val requestBuffer = mutable.Map[ResultBufferType, mutable.Buffer[RequestRecord]]()
+	private val requestBuffer = new JHashMap[ResultBufferType, mutable.Buffer[RequestRecord]]
 
 	def getRequestBuffer(bufferType: ResultBufferType = GLOBAL) = getBuffer(requestBuffer, bufferType)
 
-	private val sessionDeltaBuffer = mutable.Map[ResultBufferType, mutable.Buffer[SessionDeltaRecord]]()
+	private val sessionDeltaBuffer = new JHashMap[ResultBufferType, mutable.Buffer[SessionDeltaRecord]]
 
 	def getSessionDeltaBuffer(bufferType: ResultBufferType) = getBuffer(sessionDeltaBuffer, bufferType)
 
-	private val sessionBuffer = mutable.Map[ResultBufferType, mutable.Buffer[SessionRecord]]()
+	private val sessionBuffer = new JHashMap[ResultBufferType, mutable.Buffer[SessionRecord]]
 
 	def getSessionBuffer(bufferType: ResultBufferType) = getBuffer(sessionBuffer, bufferType)
 
-	private val transactionPerSecBuffer = mutable.Map[ResultBufferType, mutable.Buffer[TransactionsPerSecRecord]]()
+	private val transactionPerSecBuffer = new JHashMap[ResultBufferType, mutable.Buffer[TransactionsPerSecRecord]]
 
 	def getTransactionPerSecBuffer(bufferType: ResultBufferType) = getBuffer(transactionPerSecBuffer, bufferType)
 
-	private val runRecordBuffer = mutable.Map[ResultBufferType, mutable.Buffer[RunRecord]]()
+	private val runRecordBuffer = new JHashMap[ResultBufferType, mutable.Buffer[RunRecord]]
 
 	def getRunRecordBuffer(bufferType: ResultBufferType = GLOBAL) = getBuffer(runRecordBuffer, bufferType)
 
-	private def getBuffer[A](bufferMap: mutable.Map[ResultBufferType, mutable.Buffer[A]], bufferType: ResultBufferType) =
-		bufferMap.getOrElseUpdate(bufferType, mutable.ListBuffer[A]())
+	private def getBuffer[A](bufferMap: JHashMap[ResultBufferType, mutable.Buffer[A]], bufferType: ResultBufferType) = {
+
+		if (bufferMap.containsKey(bufferType)) {
+			bufferMap.get(bufferType)
+		} else {
+			val buffer = mutable.ListBuffer[A]()
+			bufferMap.put(bufferType, buffer)
+			buffer
+		}
+	}
 }
