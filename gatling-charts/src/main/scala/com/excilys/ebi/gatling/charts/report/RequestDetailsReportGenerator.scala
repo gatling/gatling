@@ -58,8 +58,8 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			def statisticsComponent: Component = new StatisticsTextComponent
 
 			def scatterChartComponent: Component = {
-				val scatterPlotSuccessData = dataReader.requestAgainstResponseTime(OK, requestName)
-				val scatterPlotFailuresData = dataReader.requestAgainstResponseTime(KO, requestName)
+				val scatterPlotSuccessData = dataReader.responseTimeAgainstGlobalNumberOfRequestsPerSec(OK, requestName)
+				val scatterPlotFailuresData = dataReader.responseTimeAgainstGlobalNumberOfRequestsPerSec(KO, requestName)
 				val scatterPlotSuccessSeries = new Series[Long, Long]("Successes", scatterPlotSuccessData, List(TRANSLUCID_BLUE))
 				val scatterPlotFailuresSeries = new Series[Long, Long]("Failures", scatterPlotFailuresData, List(TRANSLUCID_RED))
 

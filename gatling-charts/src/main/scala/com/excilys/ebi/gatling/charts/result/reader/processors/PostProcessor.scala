@@ -24,31 +24,30 @@ import grizzled.slf4j.Logging
 
 object PostProcessor extends Logging {
 
-	def run(results: StatsResults, buckets: Seq[Long]): StatsResults = {
-		compute(results.getSessionDeltaBuffer(ResultBufferType.GLOBAL), results.getSessionBuffer(ResultBufferType.GLOBAL), buckets)
+	def run(results: StatsResults, buckets: List[Long]): StatsResults = {
+		compute(results.getSessionDeltaBuffer(ResultBufferType.GLOBAL).toList, results.getSessionBuffer(ResultBufferType.GLOBAL), buckets)
 
 		val sessionBufferByScenario = results.getSessionBuffer(ResultBufferType.BY_SCENARIO)
 		results.getSessionDeltaBuffer(ResultBufferType.BY_SCENARIO).groupBy(_.scenario).foreach {
-			case (scenario, deltas) => compute(deltas, sessionBufferByScenario, buckets, scenario)
+			case (scenario, deltas) => compute(deltas.toList, sessionBufferByScenario, buckets, scenario)
 		}
 
 		results
 	}
 
-	private def compute(sessionDeltaBuffer: Seq[SessionDeltaRecord], sessionBuffer: mutable.Buffer[SessionRecord], buckets: Seq[Long], scenario: Option[String] = None) {
+	private def compute(sessionDeltaBuffer: List[SessionDeltaRecord], sessionBuffer: mutable.Buffer[SessionRecord], buckets: List[Long], scenario: Option[String] = None) {
 		buckets.foldLeft((0L, 0L, sessionDeltaBuffer)) { (accumulator, currentBucket) =>
 			val (actualActiveSessions, previousBucketNbOfEndSessions, sessionDeltas) = accumulator
 
-			if (sessionDeltas.size >= 1 && currentBucket == sessionDeltas.head.executionStartBucket) {
-				val current = sessionDeltas.head
-				val newActiveSession = actualActiveSessions + current.nbSessionStart - previousBucketNbOfEndSessions
-				sessionBuffer += new SessionRecord(current.executionStartBucket, newActiveSession, current.scenario)
-				(newActiveSession, current.nbSessionEnd, sessionDeltas.tail)
-
-			} else {
-				val newActiveSession = actualActiveSessions - previousBucketNbOfEndSessions
-				sessionBuffer += new SessionRecord(currentBucket, newActiveSession, scenario)
-				(newActiveSession, 0L, sessionDeltas)
+			sessionDeltas match {
+				case head :: tail if currentBucket == head.executionStartBucket =>
+					val newActiveSession = actualActiveSessions + head.nbSessionStart - previousBucketNbOfEndSessions
+					sessionBuffer += new SessionRecord(head.executionStartBucket, newActiveSession, head.scenario)
+					(newActiveSession, head.nbSessionEnd, tail)
+				case _ =>
+					val newActiveSession = actualActiveSessions - previousBucketNbOfEndSessions
+					sessionBuffer += new SessionRecord(currentBucket, newActiveSession, scenario)
+					(newActiveSession, 0L, sessionDeltas)
 			}
 		}
 	}

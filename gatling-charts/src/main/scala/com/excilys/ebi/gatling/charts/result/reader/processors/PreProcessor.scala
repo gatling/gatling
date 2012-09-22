@@ -20,7 +20,7 @@ import scala.collection.mutable
 import com.excilys.ebi.gatling.charts.result.reader.FileDataReader.TABULATION_PATTERN
 import com.excilys.ebi.gatling.charts.result.reader.Predef.{ LOG_STEP, SEC_MILLISEC_RATIO, symbolToString }
 import com.excilys.ebi.gatling.charts.result.reader.stats.StatsHelper
-import com.excilys.ebi.gatling.charts.result.reader.util.FieldsNames._
+import com.excilys.ebi.gatling.charts.result.reader.util.FieldsNames.{ ACTION_TYPE, DATE, DESCRIPTION, EXECUTION_END, EXECUTION_START, ID, REQUEST, REQUEST_END, RESPONSE_START, SCENARIO, SIMULATION_ID, STATUS }
 import com.excilys.ebi.gatling.core.result.message.RecordType.{ ACTION, RUN }
 import com.excilys.ebi.gatling.core.result.message.RunRecord
 import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
@@ -31,7 +31,7 @@ object PreProcessor extends Logging {
 	val ACTION_HEADER: List[String] = List(ACTION_TYPE, SCENARIO, ID, REQUEST, EXECUTION_START, EXECUTION_END, REQUEST_END, RESPONSE_START, STATUS)
 	val RUN_HEADER: List[String] = List(ACTION_TYPE, DATE, SIMULATION_ID, DESCRIPTION)
 
-	def run(inputIterator: Iterator[String], maxPlotPerSerie: Int) = {
+	def run(inputIterator: Iterator[String], maxPlotPerSerie: Int): (Long, Long, Double, Long, mutable.ListBuffer[RunRecord]) = {
 		val (actions, runs) = inputIterator.map(TABULATION_PATTERN.split(_)).filter(array => array.head == ACTION || array.head == RUN).partition(_.head == ACTION)
 
 		val (size, min, max) = actions

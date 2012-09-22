@@ -34,48 +34,24 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 
 		val stats: ListMap[String, RequestStatistics] = criteria.map {
 			case (name, requestName) =>
+				
+				val total = dataReader.generalStats(None, requestName)
+				val ok = dataReader.generalStats(Some(OK), requestName)
+				val ko = dataReader.generalStats(Some(KO), requestName)
 
-				val totalCount = dataReader.countRequests(None, requestName)
-				val okCount = dataReader.countRequests(Some(OK), requestName)
-				val koCount = dataReader.countRequests(Some(KO), requestName)
-
-				val globalMinResponseTime = dataReader.minResponseTime(None, requestName)
-				val okMinResponseTime = dataReader.minResponseTime(Some(OK), requestName)
-				val koMinResponseTime = dataReader.minResponseTime(Some(KO), requestName)
-
-				val globalMaxResponseTime = dataReader.maxResponseTime(None, requestName)
-				val okMaxResponseTime = dataReader.maxResponseTime(Some(OK), requestName)
-				val koMaxResponseTime = dataReader.maxResponseTime(Some(KO), requestName)
-
-				val globalMeanResponseTime = dataReader.meanResponseTime(None, requestName)
-				val okMeanResponseTime = dataReader.meanResponseTime(Some(OK), requestName)
-				val koMeanResponseTime = dataReader.meanResponseTime(Some(KO), requestName)
-
-				val globalStandardDeviation = dataReader.responseTimeStandardDeviation(None, requestName)
-				val okStandardDeviation = dataReader.responseTimeStandardDeviation(Some(OK), requestName)
-				val koStandardDeviation = dataReader.responseTimeStandardDeviation(Some(KO), requestName)
-
-				val (globalPercentile1, globalPercentile2) = dataReader.percentiles(percent1, percent2, None, requestName)
-				val (successPercentile1, successPercentile2) = dataReader.percentiles(percent1, percent2, Some(OK), requestName)
-				val (failedPercentile1, failedPercentile2) = dataReader.percentiles(percent1, percent2, Some(KO), requestName)
-
-				val globalMeanNumberOfRequestsPerSecond = dataReader.meanNumberOfRequestsPerSecond(None, requestName)
-				val okMeanNumberOfRequestsPerSecond = dataReader.meanNumberOfRequestsPerSecond(Some(OK), requestName)
-				val koMeanNumberOfRequestsPerSecond = dataReader.meanNumberOfRequestsPerSecond(Some(KO), requestName)
-
-				val numberOfRequestsStatistics = Statistics("numberOfRequests", totalCount, okCount, koCount)
-				val minResponseTimeStatistics = Statistics("minResponseTime", globalMinResponseTime, okMinResponseTime, koMinResponseTime)
-				val maxResponseTimeStatistics = Statistics("maxResponseTime", globalMaxResponseTime, okMaxResponseTime, koMaxResponseTime)
-				val meanResponseTimeStatistics = Statistics("meanResponseTime", globalMeanResponseTime, okMeanResponseTime, koMeanResponseTime)
-				val stdDeviationStatistics = Statistics("stdDeviation", globalStandardDeviation, okStandardDeviation, koStandardDeviation)
-				val percentiles1 = Statistics("percentiles1", globalPercentile1, successPercentile1, failedPercentile1)
-				val percentiles2 = Statistics("percentiles2", globalPercentile2, successPercentile2, failedPercentile2)
-				val meanNumberOfRequestsPerSecondStatistics = Statistics("meanNumberOfRequestsPerSecond", globalMeanNumberOfRequestsPerSecond, okMeanNumberOfRequestsPerSecond, koMeanNumberOfRequestsPerSecond)
+				val numberOfRequestsStatistics = Statistics("numberOfRequests", total.count, ok.count, ko.count)
+				val minResponseTimeStatistics = Statistics("minResponseTime", total.min, ok.min, ko.min)
+				val maxResponseTimeStatistics = Statistics("maxResponseTime", total.max, ok.max, ko.max)
+				val meanResponseTimeStatistics = Statistics("meanResponseTime", total.mean, ok.mean, ko.mean)
+				val stdDeviationStatistics = Statistics("stdDeviation", total.stdDev, ok.stdDev, ko.stdDev)
+				val percentiles1 = Statistics("percentiles1", total.percentile1, ok.percentile1, ko.percentile1)
+				val percentiles2 = Statistics("percentiles2", total.percentile2, ok.percentile2, ko.percentile2)
+				val meanNumberOfRequestsPerSecondStatistics = Statistics("meanNumberOfRequestsPerSecond", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
 
 				val groupedCounts = dataReader
 					.numberOfRequestInResponseTimeRange(configuration.charting.indicators.lowerBound, configuration.charting.indicators.higherBound, requestName)
 					.map {
-					case (name, count) => (name, count, count * 100 / totalCount)
+					case (name, count) => (name, count, count * 100 / total.count)
 				}
 
 				(name -> RequestStatistics(name, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, groupedCounts, meanNumberOfRequestsPerSecondStatistics))

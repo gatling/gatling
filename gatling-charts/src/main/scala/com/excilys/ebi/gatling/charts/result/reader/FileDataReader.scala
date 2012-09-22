@@ -25,7 +25,7 @@ import com.excilys.ebi.gatling.charts.result.reader.stats.{ Stats, StatsHelper, 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogDirectory
 import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RunRecord }
-import com.excilys.ebi.gatling.core.result.reader.DataReader
+import com.excilys.ebi.gatling.core.result.reader.{ DataReader, GeneralStats }
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 
 import grizzled.slf4j.Logging
@@ -69,21 +69,18 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String]): (Seq[(Long, Long)], Seq[(Long, Long)]) = StatsResultsHelper.getResponseTimeDistribution(results, slotsNumber, requestName)
 
-	def percentiles(percentage1: Double, percentage2: Double, status: Option[RequestStatus.RequestStatus], requestName: Option[String]): (Long, Long) = StatsResultsHelper.getPercentiles(results, percentage1, percentage2, status, requestName)
+	def generalStats(status: Option[RequestStatus.RequestStatus] = None, requestName: Option[String] = None): GeneralStats = {
 
-	def minResponseTime(status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Long = StatsResultsHelper.getMinResponseTime(results, status, requestName)
+		val (percentile1, percentile2) = StatsResultsHelper.getPercentiles(results, configuration.charting.indicators.percentile1 / 100.0, configuration.charting.indicators.percentile2 / 100.0, status, requestName)
+		val min = StatsResultsHelper.getMinResponseTime(results, status, requestName)
+		val max = StatsResultsHelper.getMaxResponseTime(results, status, requestName)
+		val count = StatsResultsHelper.getCountRequests(results, status, requestName)
+		val mean = StatsResultsHelper.getMeanResponseTime(results, status, requestName)
+		val stdDev = StatsResultsHelper.getResponseTimeStandardDeviation(results, status, requestName)
+		val meanRequestsPerSec = StatsResultsHelper.getMeanNumberOfRequestsPerSecond(results, status, requestName)
 
-	def maxResponseTime(status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Long = StatsResultsHelper.getMaxResponseTime(results, status, requestName)
-
-	def countRequests(status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Long = StatsResultsHelper.getCountRequests(results, status, requestName)
-
-	def meanResponseTime(status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Long = StatsResultsHelper.getMeanResponseTime(results, status, requestName)
-
-	def meanLatency(status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Long = StatsResultsHelper.getMeanLatency(results, status, requestName)
-
-	def meanNumberOfRequestsPerSecond(status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Long = StatsResultsHelper.getMeanNumberOfRequestsPerSecond(results, status, requestName)
-
-	def responseTimeStandardDeviation(status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Long = StatsResultsHelper.getResponseTimeStandardDeviation(results, status, requestName)
+		GeneralStats(min, max, count, mean, stdDev, percentile1, percentile2, meanRequestsPerSec)
+	}
 
 	def numberOfRequestInResponseTimeRange(lowerBound: Int, higherBound: Int, requestName: Option[String]): Seq[(String, Long)] = StatsResultsHelper.getNumberOfRequestInResponseTimeRange(results, lowerBound, higherBound, requestName)
 
@@ -91,7 +88,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	def latencyGroupByExecutionStartDate(status: RequestStatus.RequestStatus, requestName: String): Seq[(Long, (Long, Long))] = StatsResultsHelper.getLatencyGroupByExecutionStartDate(results, status, requestName)
 
-	def requestAgainstResponseTime(status: RequestStatus.RequestStatus, requestName: String): Seq[(Long, Long)] = StatsResultsHelper.getRequestAgainstResponseTime(results, status, requestName)
+	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: RequestStatus.RequestStatus, requestName: String): Seq[(Long, Long)] = StatsResultsHelper.getRequestAgainstResponseTime(results, status, requestName)
 
 	private def multipleFileIterator(files: Seq[File]): Iterator[String] = files.map(file => Source.fromFile(file, configuration.simulation.encoding).getLines()).reduce((first, second) => first ++ second)
 }

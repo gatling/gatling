@@ -25,52 +25,32 @@ import com.excilys.ebi.gatling.core.result.message.RunRecord
 import grizzled.slf4j.Logging
 
 class StatsResults extends Logging {
-	private val generalStatsBuffer = new JHashMap[ResultBufferType, mutable.Buffer[GeneralStatsRecord]]
-
-	def getGeneralStatsBuffer(bufferType: ResultBufferType) = getBuffer(generalStatsBuffer, bufferType)
-
-	private val latencyPerSecBuffer = new JHashMap[ResultBufferType, mutable.Buffer[LatencyPerSecRecord]]
-
-	def getLatencyPerSecBuffer(bufferType: ResultBufferType) = getBuffer(latencyPerSecBuffer, bufferType)
 
 	private val requestAgainstResponseTimeBuffer = new JHashMap[ResultBufferType, mutable.Buffer[RequestAgainstResponseTimeRecord]]
-
-	def getRequestAgainstResponseTimeBuffer(bufferType: ResultBufferType) = getBuffer(requestAgainstResponseTimeBuffer, bufferType)
-
-	private val requestsPerSecBuffer = new JHashMap[ResultBufferType, mutable.Buffer[RequestsPerSecRecord]]
-
-	def getRequestsPerSecBuffer(bufferType: ResultBufferType) = getBuffer(requestsPerSecBuffer, bufferType)
-
-	private val responseTimeDistributionBuffer = new JHashMap[ResultBufferType, mutable.Buffer[ResponseTimeDistributionRecord]]
-
-	def getResponseTimeDistributionBuffer(bufferType: ResultBufferType) = getBuffer(responseTimeDistributionBuffer, bufferType)
-
-	private val responseTimePerSecBuffer = new JHashMap[ResultBufferType, mutable.Buffer[ResponseTimePerSecRecord]]
-
-	def getResponseTimePerSecBuffer(bufferType: ResultBufferType) = getBuffer(responseTimePerSecBuffer, bufferType)
-
-	private val scenarioBuffer = new JHashMap[ResultBufferType, mutable.Buffer[ScenarioRecord]]
-
-	def getScenarioBuffer(bufferType: ResultBufferType = GLOBAL) = getBuffer(scenarioBuffer, bufferType)
-
-	private val requestBuffer = new JHashMap[ResultBufferType, mutable.Buffer[RequestRecord]]
-
-	def getRequestBuffer(bufferType: ResultBufferType = GLOBAL) = getBuffer(requestBuffer, bufferType)
-
-	private val sessionDeltaBuffer = new JHashMap[ResultBufferType, mutable.Buffer[SessionDeltaRecord]]
-
-	def getSessionDeltaBuffer(bufferType: ResultBufferType) = getBuffer(sessionDeltaBuffer, bufferType)
-
 	private val sessionBuffer = new JHashMap[ResultBufferType, mutable.Buffer[SessionRecord]]
-
-	def getSessionBuffer(bufferType: ResultBufferType) = getBuffer(sessionBuffer, bufferType)
-
-	private val transactionPerSecBuffer = new JHashMap[ResultBufferType, mutable.Buffer[TransactionsPerSecRecord]]
-
-	def getTransactionPerSecBuffer(bufferType: ResultBufferType) = getBuffer(transactionPerSecBuffer, bufferType)
-
 	private val runRecordBuffer = new JHashMap[ResultBufferType, mutable.Buffer[RunRecord]]
 
+	private val responseTimeDistributionBuffer = new JHashMap[ResultBufferType, mutable.Buffer[ResponseTimeDistributionRecord]]
+	private val generalStatsBuffer = new JHashMap[ResultBufferType, mutable.Buffer[GeneralStatsRecord]]
+	private val scenarioBuffer = new JHashMap[ResultBufferType, mutable.Buffer[ScenarioRecord]]
+	private val requestBuffer = new JHashMap[ResultBufferType, mutable.Buffer[RequestRecord]]
+	private val sessionDeltaBuffer = new JHashMap[ResultBufferType, mutable.Buffer[SessionDeltaRecord]]
+	private val requestsPerSecBuffer = new JHashMap[ResultBufferType, mutable.Buffer[RequestsPerSecRecord]]
+	private val transactionPerSecBuffer = new JHashMap[ResultBufferType, mutable.Buffer[TransactionsPerSecRecord]]
+	private val responseTimePerSecBuffer = new JHashMap[ResultBufferType, mutable.Buffer[ResponseTimePerSecRecord]]
+	private val latencyPerSecBuffer = new JHashMap[ResultBufferType, mutable.Buffer[LatencyPerSecRecord]]
+
+	def getGeneralStatsBuffer(bufferType: ResultBufferType) = getBuffer(generalStatsBuffer, bufferType)
+	def getLatencyPerSecBuffer(bufferType: ResultBufferType) = getBuffer(latencyPerSecBuffer, bufferType)
+	def getRequestAgainstResponseTimeBuffer(bufferType: ResultBufferType) = getBuffer(requestAgainstResponseTimeBuffer, bufferType)
+	def getRequestsPerSecBuffer(bufferType: ResultBufferType) = getBuffer(requestsPerSecBuffer, bufferType)
+	def getResponseTimeDistributionBuffer(bufferType: ResultBufferType) = getBuffer(responseTimeDistributionBuffer, bufferType)
+	def getResponseTimePerSecBuffer(bufferType: ResultBufferType) = getBuffer(responseTimePerSecBuffer, bufferType)
+	def getScenarioBuffer(bufferType: ResultBufferType = GLOBAL) = getBuffer(scenarioBuffer, bufferType)
+	def getRequestBuffer(bufferType: ResultBufferType = GLOBAL) = getBuffer(requestBuffer, bufferType)
+	def getSessionDeltaBuffer(bufferType: ResultBufferType) = getBuffer(sessionDeltaBuffer, bufferType)
+	def getSessionBuffer(bufferType: ResultBufferType) = getBuffer(sessionBuffer, bufferType)
+	def getTransactionPerSecBuffer(bufferType: ResultBufferType) = getBuffer(transactionPerSecBuffer, bufferType)
 	def getRunRecordBuffer(bufferType: ResultBufferType = GLOBAL) = getBuffer(runRecordBuffer, bufferType)
 
 	private def getBuffer[A](bufferMap: JHashMap[ResultBufferType, mutable.Buffer[A]], bufferType: ResultBufferType) = {

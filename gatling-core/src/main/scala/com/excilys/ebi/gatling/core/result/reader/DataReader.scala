@@ -41,21 +41,7 @@ abstract class DataReader(runUuid: String) {
 
 	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String] = None): (Seq[(Long, Long)], Seq[(Long, Long)])
 
-	def percentiles(percentage1: Double, percentage2: Double, status: Option[RequestStatus] = None, requestName: Option[String] = None): (Long, Long)
-
-	def minResponseTime(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
-
-	def maxResponseTime(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
-
-	def countRequests(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
-
-	def meanResponseTime(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
-
-	def meanLatency(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
-
-	def meanNumberOfRequestsPerSecond(status: Option[RequestStatus], requestName: Option[String]): Long
-
-	def responseTimeStandardDeviation(status: Option[RequestStatus] = None, requestName: Option[String] = None): Long
+	def generalStats(status: Option[RequestStatus] = None, requestName: Option[String] = None): GeneralStats
 
 	def numberOfRequestInResponseTimeRange(lowerBound: Int, higherBound: Int, requestName: Option[String] = None): Seq[(String, Long)]
 
@@ -63,5 +49,5 @@ abstract class DataReader(runUuid: String) {
 
 	def latencyGroupByExecutionStartDate(status: RequestStatus, requestName: String): Seq[(Long, (Long, Long))]
 
-	def requestAgainstResponseTime(status: RequestStatus.RequestStatus, requestName: String): Seq[(Long, Long)]
+	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: RequestStatus.RequestStatus, requestName: String): Seq[(Long, Long)]
 }
