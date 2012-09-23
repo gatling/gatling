@@ -15,4 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.result.reader
 
+object GeneralStats {
+	val NO_PLOT = GeneralStats(-1L, -1L, 0L, -1L, -1L, -1L, -1L, -1L)
+}
+
 case class GeneralStats(min: Long, max: Long, count: Long, mean: Long, stdDev: Long, percentile1: Long, percentile2: Long, meanRequestsPerSec: Long)

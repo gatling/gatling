@@ -17,17 +17,13 @@ package com.excilys.ebi.gatling.charts.result.reader.stats
 
 import scala.collection.mutable
 
-import com.excilys.ebi.gatling.charts.result.reader.scalding.GatlingBufferSource
-
-import cascading.tuple.TupleEntry
-
 object StatsHelper {
 	def bucketsList(min: Long, max: Long, step: Double): List[Long] = {
 		val demiStep = step / 2
 		(0 until math.round((max - min) / step).toInt).map(i => math.round(min + step * i + demiStep)).toList
 	}
 
-	def step(min: Long, max: Long, maxPlots: Int) = {
+	def step(min: Long, max: Long, maxPlots: Int): Double = {
 		val range = max - min
 		if (range < maxPlots) 1.0
 		else range / maxPlots.toDouble
@@ -36,10 +32,6 @@ object StatsHelper {
 	def bucket(t: Long, min: Long, max: Long, step: Double, demiStep: Double) = {
 		if (t >= max) math.round((max - demiStep))
 		else math.round((t - (t - min) % step + demiStep))
-	}
-
-	def output[A](buffer: mutable.Buffer[A])(implicit parseFunction: (TupleEntry) => A) = {
-		new GatlingBufferSource(buffer, parseFunction)
 	}
 
 	def square(x: Double) = x * x

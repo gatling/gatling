@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * 		http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,15 +15,22 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader
 
-import com.excilys.ebi.gatling.charts.result.reader.stats.StatPipe
+import java.util.{ HashMap => JHashMap }
 
-import cascading.pipe.Pipe
+import com.excilys.ebi.gatling.core.result.message.RequestStatus
 
-object Predef {
-	implicit def pipeToStatPipe(pipe: Pipe): StatPipe = new StatPipe(pipe)
+package object buffers {
 
-	implicit def symbolToString(symbol: Symbol): String = symbol.name
+	type BufferKey = (Option[String], Option[RequestStatus.RequestStatus])
 
-	val LOG_STEP = 100000
-	val SEC_MILLISEC_RATIO = 1000.0
+	def computeKey(requestName: Option[String], status: Option[RequestStatus.RequestStatus]): BufferKey = (requestName, status)
+
+	def initOrUpdateJHashMapEntry[K, V](key: K, init: => V, update: V => V)(implicit map: JHashMap[K, V]) {
+		if (map.containsKey(key)) {
+			val currentValue = map.get(key)
+			map.put(key, update(currentValue))
+		} else {
+			map.put(key, init)
+		}
+	}
 }

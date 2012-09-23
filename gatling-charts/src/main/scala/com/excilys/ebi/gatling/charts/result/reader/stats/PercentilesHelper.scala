@@ -19,35 +19,30 @@ import annotation.tailrec
 
 object PercentilesHelper {
 
-	def compute(distributionBuffer: Seq[ResponseTimeDistributionRecord], generalStatsBuffer: Seq[GeneralStatsRecord], percentiles: Seq[Double]) = {
-		val totalSize = generalStatsBuffer.map(_.size).headOption.getOrElse(0L)
+	def processPercentiles(buckets: List[(Long, Long)], totalSize: Long, percentiles: Seq[Double]) = {
 
-		if (totalSize == 0L) percentiles.map(_ => StatsResultsHelper.NO_PLOT_MAGIC_VALUE)
-		else processPercentiles(distributionBuffer, totalSize, percentiles)
-	}
-
-	private def processPercentiles(buckets: Seq[ResponseTimeDistributionRecord], totalSize: Long, percentilesList: Seq[Double]) = {
 		var bucketList = buckets
 
 		var count = 0L
 
-		percentilesList.sorted.map {
-			p => {
+		percentiles.sorted.map {
+			p =>
 				val limit = math.round(totalSize * p)
 				val (findCount, findBucketList) = findPercentile(bucketList, limit, count)
 				bucketList = findBucketList
 				count = findCount
-				bucketList.head.responseTime
-			}
+				bucketList.head._1
 		}
 	}
 
 	@tailrec
-	private def findPercentile(buckets: Seq[ResponseTimeDistributionRecord], limit: Long, count: Long = 0): (Long, Seq[ResponseTimeDistributionRecord]) = {
-		val newCount = count + buckets.head.size
+	private def findPercentile(buckets: List[(Long, Long)], limit: Long, count: Long): (Long, List[(Long, Long)]) = {
+		val newCount = count + buckets.head._2
 
-		if (newCount >= limit) (count, buckets)
-		else findPercentile(buckets.tail, limit, newCount)
+		if (newCount >= limit)
+			(count, buckets)
+		else
+			findPercentile(buckets.tail, limit, newCount)
 	}
 }
 
