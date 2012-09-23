@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RunRecord }
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.RequestStatus
 
 object DataReader {
-	val NO_PLOT_MAGIC_VALUE = -1
+	val NO_PLOT_MAGIC_VALUE = -1L
 
 	def newInstance(runOn: String) = Class.forName(configuration.data.dataReaderClass).asInstanceOf[Class[DataReader]].getConstructor(classOf[String]).newInstance(runOn)
 }
