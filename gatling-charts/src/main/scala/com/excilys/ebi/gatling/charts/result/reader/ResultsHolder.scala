@@ -15,12 +15,6 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader
 
-import java.util.{ HashMap => JHashMap }
-import com.excilys.ebi.gatling.charts.result.reader.stats.StatsHelper
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
-import com.excilys.ebi.gatling.core.result.reader.GeneralStats
-import scala.collection.JavaConversions._
-import scala.collection.mutable
 import com.excilys.ebi.gatling.charts.result.reader.buffers.RequestsPerSecBuffers
 import com.excilys.ebi.gatling.charts.result.reader.buffers.TransactionsPerSecBuffers
 import com.excilys.ebi.gatling.charts.result.reader.buffers.ResponseTimePerSecBuffers
@@ -32,8 +26,8 @@ import com.excilys.ebi.gatling.charts.result.reader.buffers.NamesBuffers
 import com.excilys.ebi.gatling.core.action.EndAction
 import com.excilys.ebi.gatling.core.action.StartAction
 
-class ResultsHolder(minTime: Long, maxTime: Long)
-	extends GeneralStatsBuffers(maxTime - minTime)
+class ResultsHolder(minTime: Long, maxTime: Long,percentile1: Int,percentile2: Int,lowerBound: Int,higherBound: Int)
+	extends GeneralStatsBuffers(maxTime - minTime,percentile1,percentile2)
 	with LatencyPerSecBuffers
 	with NamesBuffers
 	with RequestsPerSecBuffers
@@ -55,7 +49,7 @@ class ResultsHolder(minTime: Long, maxTime: Long)
 				updateLatencyPerSecBuffers(record)
 				addNames(record)
 				updateGeneralStatsBuffers(record)
-				updateResponseTimeRangeBuffer(record)
+				updateResponseTimeRangeBuffer(record,lowerBound,higherBound)
 		}
 	}
 }

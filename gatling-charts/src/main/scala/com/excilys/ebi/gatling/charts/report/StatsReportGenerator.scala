@@ -20,7 +20,6 @@ import scala.collection.immutable.ListMap
 import com.excilys.ebi.gatling.charts.component.{ ComponentLibrary, RequestStatistics, Statistics }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ GLOBAL_PAGE_NAME, jsStatsFile, tsvStatsFile,jsonStatsFile }
 import com.excilys.ebi.gatling.charts.template.{StatsJsonTemplate, StatsJsTemplate, StatsTsvTemplate}
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{KO, OK}
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 
@@ -28,9 +27,6 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 
 	def generate: Map[String, RequestStatistics] = {
 		val criteria: List[(String, Option[String])] = (GLOBAL_PAGE_NAME, None) :: dataReader.requestNames.map(name => (name, Some(name))).toList
-
-		val percent1 = configuration.charting.indicators.percentile1 / 100.0
-		val percent2 = configuration.charting.indicators.percentile2 / 100.0
 
 		val stats: ListMap[String, RequestStatistics] = criteria.map {
 			case (name, requestName) =>
@@ -49,7 +45,7 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 				val meanNumberOfRequestsPerSecondStatistics = Statistics("meanNumberOfRequestsPerSecond", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
 
 				val groupedCounts = dataReader
-					.numberOfRequestInResponseTimeRange(configuration.charting.indicators.lowerBound, configuration.charting.indicators.higherBound, requestName)
+					.numberOfRequestInResponseTimeRange(requestName)
 					.map {
 					case (name, count) => (name, count, count * 100 / total.count)
 				}

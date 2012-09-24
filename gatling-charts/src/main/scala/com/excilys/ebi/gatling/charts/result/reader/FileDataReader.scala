@@ -46,7 +46,12 @@ object FileDataReader {
 	val RUN_RECORD_LENGTH = 4
 }
 
-class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
+class FileDataReader(runUuid: String,
+					 lowerBound: Int = configuration.charting.indicators.lowerBound,
+					 higherBound: Int = configuration.charting.indicators.higherBound,
+					 percentile1: Int = configuration.charting.indicators.percentile1,
+					 percentile2: Int = configuration.charting.indicators.percentile2)
+	extends DataReader(runUuid) with Logging {
 
 	private def multipleFileIterator(files: Seq[File]): Iterator[String] = files.map(file => Source.fromFile(file, configuration.simulation.encoding).getLines()).reduce((first, second) => first ++ second)
 
@@ -86,12 +91,12 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	private def process(records: Iterator[String], bucketFunction: Long => Long): ResultsHolder = {
 
-		val resultsHolder = new ResultsHolder(runStart, runEnd)
+		val resultsHolder = new ResultsHolder(runStart, runEnd,percentile1,percentile2,lowerBound,higherBound)
 
 		records
 			.filter(_.startsWith(ACTION))
 			.map(FileDataReader.TABULATION_PATTERN.split(_))
-			.filter(_.size >= 9)
+			.filter(_.size >= FileDataReader.ACTION_RECORD_LENGTH)
 			.map(ActionRecord(_, bucketFunction))
 			.foreach(resultsHolder.add(_))
 
@@ -176,7 +181,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		.getGeneralStatsBuffers(requestName, status)
 		.compute
 
-	def numberOfRequestInResponseTimeRange(lowerBound: Int, higherBound: Int, requestName: Option[String]): Seq[(String, Long)] = {
+	def numberOfRequestInResponseTimeRange(requestName: Option[String]): Seq[(String, Long)] = {
 
 		val counts = resultsHolder.getResponseTimeRangeBuffers(requestName)
 
@@ -208,7 +213,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			.toList
 			.map {
 				case (bucket, responseTimes) =>
-					val (min, max) = responseTimes
+					val (_, max) = responseTimes
 					val count = globalCountsByBucket.get(bucket)
 					(math.round(count / step * 1000), max)
 			}.sorted

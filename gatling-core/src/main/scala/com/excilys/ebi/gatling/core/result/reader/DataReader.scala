@@ -15,6 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.result.reader
 
+import java.lang
+
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RunRecord }
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.RequestStatus
@@ -22,7 +24,9 @@ import com.excilys.ebi.gatling.core.result.message.RequestStatus.RequestStatus
 object DataReader {
 	val NO_PLOT_MAGIC_VALUE = -1L
 
-	def newInstance(runOn: String) = Class.forName(configuration.data.dataReaderClass).asInstanceOf[Class[DataReader]].getConstructor(classOf[String]).newInstance(runOn)
+	def newInstance(runOn: String) = Class.forName(configuration.data.dataReaderClass).asInstanceOf[Class[DataReader]]
+		.getConstructor(classOf[String],classOf[Int],classOf[Int],classOf[Int],classOf[Int])
+		.newInstance(runOn,configuration.charting.indicators.lowerBound: lang.Integer,configuration.charting.indicators.higherBound : lang.Integer,configuration.charting.indicators.percentile1 : lang.Integer,configuration.charting.indicators.percentile2 : lang.Integer)
 }
 
 abstract class DataReader(runUuid: String) {
@@ -43,7 +47,7 @@ abstract class DataReader(runUuid: String) {
 
 	def generalStats(status: Option[RequestStatus] = None, requestName: Option[String] = None): GeneralStats
 
-	def numberOfRequestInResponseTimeRange(lowerBound: Int, higherBound: Int, requestName: Option[String] = None): Seq[(String, Long)]
+	def numberOfRequestInResponseTimeRange(requestName: Option[String] = None): Seq[(String, Long)]
 
 	def responseTimeGroupByExecutionStartDate(status: RequestStatus, requestName: String): Seq[(Long, (Long, Long))]
 

@@ -25,26 +25,25 @@ trait ResponseTimeRangeBuffers extends Buffers {
 
 	def getResponseTimeRangeBuffers(requestName: Option[String]): ResponseTimeRangeBuffer = getBuffer(computeKey(requestName, None), responseTimeRangeBuffers, () => new ResponseTimeRangeBuffer)
 
-	def updateResponseTimeRangeBuffer(record: ActionRecord) {
-		getResponseTimeRangeBuffers(None).update(record)
-		getResponseTimeRangeBuffers(Some(record.request)).update(record)
+	def updateResponseTimeRangeBuffer(record: ActionRecord,lowerBound: Int,higherBound: Int) {
+		getResponseTimeRangeBuffers(None).update(record,lowerBound,higherBound)
+		getResponseTimeRangeBuffers(Some(record.request)).update(record,lowerBound,higherBound)
 	}
 
 	class ResponseTimeRangeBuffer {
 
 		import com.excilys.ebi.gatling.core.result.message.RequestStatus
-		import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 
 		var low = 0
 		var middle = 0
 		var high = 0
 		var ko = 0
 
-		def update(record: ActionRecord) {
+		def update(record: ActionRecord,lowerBound: Int,higherBound: Int) {
 
 			if (record.status == RequestStatus.KO) ko += 1
-			else if (record.responseTime < configuration.charting.indicators.lowerBound) low += 1
-			else if (record.responseTime > configuration.charting.indicators.higherBound) high += 1
+			else if (record.responseTime < lowerBound) low += 1
+			else if (record.responseTime > higherBound) high += 1
 			else middle += 1
 		}
 	}
