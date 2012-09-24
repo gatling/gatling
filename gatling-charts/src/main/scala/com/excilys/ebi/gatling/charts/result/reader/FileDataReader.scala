@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.charts.result.reader
 
 import java.io.File
-import java.util.{ HashMap => JHashMap }
+import java.util.{HashMap => JHashMap}
 import java.util.regex.Pattern
 
 import scala.collection.JavaConversions.mapAsScalaMap
@@ -26,11 +26,11 @@ import scala.io.Source
 import com.excilys.ebi.gatling.charts.result.reader.stats.StatsHelper
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogDirectory
-import com.excilys.ebi.gatling.core.result.message.RecordType.{ ACTION, RUN }
+import com.excilys.ebi.gatling.core.result.message.RecordType.{ACTION, RUN}
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.{KO, OK}
 import com.excilys.ebi.gatling.core.result.message.RunRecord
-import com.excilys.ebi.gatling.core.result.reader.{ DataReader, GeneralStats }
+import com.excilys.ebi.gatling.core.result.reader.{DataReader, GeneralStats}
 import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 
@@ -59,13 +59,14 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 		val (runStart, runEnd, totalRequestsNumber) = actions
 			.filter(_.length >= FileDataReader.ACTION_RECORD_LENGTH)
-			.foldLeft((0L, Long.MaxValue, Long.MinValue)) { (accumulator, strings) =>
-				val (count, min, max) = accumulator
+			.foldLeft((Long.MaxValue, Long.MinValue, 0L)) {
+			(accumulator, strings) =>
+				val (min, max, count) = accumulator
 
 				if (count % FileDataReader.LOG_STEP == 0) info("Read " + count + " lines")
 
 				(math.min(min, strings(4).toLong), math.max(max, strings(5).toLong), count + 1)
-			}
+		}
 
 		val runRecords = mutable.ListBuffer[RunRecord]()
 		runs
@@ -118,13 +119,17 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	def numberOfRequestsPerSecond(status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Seq[(Long, Long)] = resultsHolder
 		.getRequestsPerSecBuffer(requestName, status).map
 		.toList
-		.map { case (bucket, count) => (bucket, math.round(count / step * FileDataReader.SEC_MILLISEC_RATIO)) }
+		.map {
+		case (bucket, count) => (bucket, math.round(count / step * FileDataReader.SEC_MILLISEC_RATIO))
+	}
 		.sorted
 
 	def numberOfTransactionsPerSecond(status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Seq[(Long, Long)] = resultsHolder
 		.getTransactionsPerSecBuffer(requestName, status).map
 		.toList
-		.map { case (bucket, count) => (bucket, math.round(count / step * FileDataReader.SEC_MILLISEC_RATIO)) }
+		.map {
+		case (bucket, count) => (bucket, math.round(count / step * FileDataReader.SEC_MILLISEC_RATIO))
+	}
 		.sorted
 
 	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String]): (Seq[(Long, Long)], Seq[(Long, Long)]) = {
@@ -149,17 +154,19 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 				.map(record => (bucketFunction(record._1), record))
 				.groupBy(_._1)
 				.map {
-					case (responseTimeBucket, recordList) =>
+				case (responseTimeBucket, recordList) =>
 
-						val sizeBucket = recordList.foldLeft(0L) {
-							(partialSize, record) => partialSize + record._2._2
-						}
+					val sizeBucket = recordList.foldLeft(0L) {
+						(partialSize, record) => partialSize + record._2._2
+					}
 
-						(responseTimeBucket, math.round(sizeBucket * 100.0 / size))
-				}
+					(responseTimeBucket, math.round(sizeBucket * 100.0 / size))
+			}
 				.toMap
 
-			buckets.map { bucket => (bucket, bucketsWithValues.getOrElse(bucket, 0L)) }
+			buckets.map {
+				bucket => (bucket, bucketsWithValues.getOrElse(bucket, 0L))
+			}
 		}
 
 		(process(ok), process(ko))
@@ -200,10 +207,10 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			.map
 			.toList
 			.map {
-				case (bucket, responseTimes) =>
-					val (min, max) = responseTimes
-					val count = globalCountsByBucket.get(bucket)
-					(math.round(count / step * 1000), max)
-			}.sorted
+			case (bucket, responseTimes) =>
+				val (min, max) = responseTimes
+				val count = globalCountsByBucket.get(bucket)
+				(math.round(count / step * 1000), max)
+		}.sorted
 	}
 }
