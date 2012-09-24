@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.stats
 
-import scala.collection.mutable
-
 object StatsHelper {
 	def bucketsList(min: Long, max: Long, step: Double): List[Long] = {
 		val demiStep = step / 2

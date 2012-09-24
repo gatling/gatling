@@ -208,7 +208,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			.toList
 			.map {
 				case (bucket, responseTimes) =>
-					val (min, max) = responseTimes
+					val (_, max) = responseTimes
 					val count = globalCountsByBucket.get(bucket)
 					(math.round(count / step * 1000), max)
 			}.sorted
