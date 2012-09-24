@@ -33,7 +33,7 @@ object Check {
 	def applyChecks[R](session: Session, response: R, checks: List[Check[R, _]]): (Session, CheckResult) = {
 
 		@tailrec
-		def applyChecksRec[R](session: Session, response: R, checks: List[Check[R, _]], previousCheckResult: CheckResult): (Session, CheckResult) = checks match {
+		def applyChecksRec(session: Session, checks: List[Check[R, _]], previousCheckResult: CheckResult): (Session, CheckResult) = checks match {
 			case Nil =>
 				(session, previousCheckResult)
 
@@ -42,12 +42,12 @@ object Check {
 
 				checkResult match {
 					case failure @ Failure(_) => (newSession.setFailed, failure)
-					case success @ Success(extractedValue) => applyChecksRec(newSession, response, otherChecks, success)
+					case success @ Success(extractedValue) => applyChecksRec(newSession, otherChecks, success)
 				}
 		}
 
 		useCheckContext {
-			applyChecksRec(session, response, checks, Success(None))
+			applyChecksRec(session, checks, Success(None))
 		}
 	}
 }

@@ -35,16 +35,21 @@ object CacheHandling extends Logging {
 	val QUOTED_REGEX = "\"(.+)\"".r
 
 	// damn AsyncHttpProviderUtils.convertExpireField is not public
-	def convertExpireField(timestring: String): Long = {
+	def convertExpireField(timeString: String): Long = {
+
+		val parseableTimeString = timeString.trim match {
+			case QUOTED_REGEX(content) => content
+			case trimmed => trimmed
+		}
 
 		@tailrec
-		def parse(timestring: String, sdfs: List[SimpleDateFormat]): Long = {
+		def parse(sdfs: List[SimpleDateFormat]): Long = {
 
 			val valueOrOtherSdfs = sdfs match {
-				case Nil => throw new IllegalArgumentException("Cannot parse into a date: " + timestring)
+				case Nil => throw new IllegalArgumentException("Cannot parse into a date: " + parseableTimeString)
 				case sdf :: others =>
 					try {
-						val expire = sdf.parse(timestring).getTime
+						val expire = sdf.parse(parseableTimeString).getTime
 						Left(expire)
 					} catch {
 						case e: ParseException => Right(others)
@@ -54,23 +59,18 @@ object CacheHandling extends Logging {
 
 			valueOrOtherSdfs match {
 				case Left(value) => value
-				case Right(others) => parse(timestring, others)
+				case Right(others) => parse(others)
 			}
 		}
 
-		val cleanedString = timestring.trim match {
-			case QUOTED_REGEX(content) => content
-			case trimmed => trimmed
-		}
-
-		parse(cleanedString, AsyncHttpProviderUtils.get.toList)
+		parse(AsyncHttpProviderUtils.get.toList)
 	}
 
 	def isCached(httpProtocolConfiguration: HttpProtocolConfiguration, session: Session, request: Request) = httpProtocolConfiguration.cachingEnabled && getCache(session).contains(request.getUrl)
 
 	def cache(httpProtocolConfiguration: HttpProtocolConfiguration, session: Session, request: Request, response: Response): Session = {
 
-		def isResponseCacheable(response: Response) = httpProtocolConfiguration.cachingEnabled &&
+		val isResponseCacheable = httpProtocolConfiguration.cachingEnabled &&
 			Option(response.getHeader(Headers.Names.CACHE_CONTROL))
 			.map(!_.contains(Headers.Values.NO_CACHE)) // simplification: consider value != no-cache as cache forever
 			.getOrElse {
@@ -80,7 +80,7 @@ object CacheHandling extends Logging {
 					.getOrElse(false) // if neither CC nor Expires, don't cache
 			}
 
-		if (isResponseCacheable(response)) {
+		if (isResponseCacheable) {
 
 			val cache = getCache(session)
 			val url = request.getUrl

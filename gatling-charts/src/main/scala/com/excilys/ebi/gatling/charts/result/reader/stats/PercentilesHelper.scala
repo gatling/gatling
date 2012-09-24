@@ -21,6 +21,16 @@ object PercentilesHelper {
 
 	def processPercentiles(buckets: List[(Long, Long)], totalSize: Long, percentiles: Seq[Double]) = {
 
+		@tailrec
+		def findPercentile(buckets: List[(Long, Long)], limit: Long, count: Long): (Long, List[(Long, Long)]) = {
+			val newCount = count + buckets.head._2
+
+			if (newCount >= limit)
+				(count, buckets)
+			else
+				findPercentile(buckets.tail, limit, newCount)
+		}
+
 		var bucketList = buckets
 
 		var count = 0L
@@ -33,16 +43,6 @@ object PercentilesHelper {
 				count = findCount
 				bucketList.head._1
 		}
-	}
-
-	@tailrec
-	private def findPercentile(buckets: List[(Long, Long)], limit: Long, count: Long): (Long, List[(Long, Long)]) = {
-		val newCount = count + buckets.head._2
-
-		if (newCount >= limit)
-			(count, buckets)
-		else
-			findPercentile(buckets.tail, limit, newCount)
 	}
 }
 
