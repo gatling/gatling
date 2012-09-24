@@ -81,44 +81,48 @@ class FileDataReaderSpec extends Specification {
 		}
 	}
 
-//	"When reading a single log file with known statistics, FileDataReder" should {
-//		val singleFileDataReader = new FileDataReader("run_single_node_with_known_stats")
-//
-//		"return expected minResponseTime for correct request data" in {
-//			singleFileDataReader.minResponseTime(None, None) must beEqualTo(2000L)
-//		}
-//
-//		"return expected maxResponseTime for correct request data" in {
-//			singleFileDataReader.maxResponseTime(None, None) must beEqualTo(9000L)
-//		}
-//
-//		"return expected responseTimeStandardDeviation for correct request data" in {
-//			singleFileDataReader.responseTimeStandardDeviation(None, None) must beEqualTo(2000L)
-//		}
-//
-//		"return expected responseTimePercentile for the (0, 0.7) percentiles" in {
-//			singleFileDataReader.percentiles(0, 0.7, None, None) must beEqualTo((2000L, 5000L))
-//		}
-//
-//		"return expected result for the (99.99, 100) percentiles" in {
-//			singleFileDataReader.percentiles(0.9999, 1, None, None) must beEqualTo(9000L, 9000L)
-//		}
-//
-//		"indicate that all the request have their response time in between 0 and 100000" in {
-//			singleFileDataReader.numberOfRequestInResponseTimeRange(0, 100000, None).map(_._2) must beEqualTo(List(0L, 8L, 0L, 0L))
-//		}
-//
-//		val nRequestInResponseTimeRange = singleFileDataReader.numberOfRequestInResponseTimeRange(2500, 5000, None).map(_._2)
-//
-//		"indicate that 1 request had a response time below 2500ms" in {
-//			nRequestInResponseTimeRange(0) must beEqualTo(1L)
-//		}
-//		"indicate that 5 request had a response time in between 2500ms and 5000ms" in {
-//			nRequestInResponseTimeRange(1) must beEqualTo(5L)
-//		}
-//
-//		"indicate that 2 request had a response time above 5000ms" in {
-//			nRequestInResponseTimeRange(2) must beEqualTo(2L)
-//		}
-//	}
+	"When reading a single log file with known statistics, FileDataReder" should {
+		val singleFileDataReader = new FileDataReader("run_single_node_with_known_stats")
+
+		"return expected minResponseTime for correct request data" in {
+			singleFileDataReader.generalStats().min must beEqualTo(2000L)
+		}
+
+		"return expected maxResponseTime for correct request data" in {
+			singleFileDataReader.generalStats().max must beEqualTo(9000L)
+		}
+
+		"return expected responseTimeStandardDeviation for correct request data" in {
+			singleFileDataReader.generalStats().stdDev must beEqualTo(2000L)
+		}
+
+		"return expected responseTimePercentile for the (0, 0.7) percentiles" in {
+			val lowPercentilesFileDataReader = new FileDataReader("run_single_node_with_known_stats",percentile1 = 0,percentile2 = 70)
+			lowPercentilesFileDataReader.generalStats().percentile1 must beEqualTo(2000L)
+			lowPercentilesFileDataReader.generalStats().percentile2 must beEqualTo(5000L)
+		}
+
+		"return expected result for the (99.99, 100) percentiles" in {
+			val highPercentilesFileDataReader = new FileDataReader("run_single_node_with_known_stats",percentile1 = 99,percentile2 = 100)
+			highPercentilesFileDataReader.generalStats().percentile1 must beEqualTo(9000L)
+			highPercentilesFileDataReader.generalStats().percentile2 must beEqualTo(9000L)
+		}
+
+		"indicate that all the request have their response time in between 0 and 100000" in {
+			new FileDataReader("run_single_node_with_known_stats",lowerBound = 0,higherBound = 100000).numberOfRequestInResponseTimeRange(None).map(_._2) must beEqualTo(List(0L, 8L, 0L, 0L))
+		}
+
+		val nRequestInResponseTimeRange = new FileDataReader("run_single_node_with_known_stats",lowerBound = 2500,higherBound = 5000).numberOfRequestInResponseTimeRange(None).map(_._2)
+
+		"indicate that 1 request had a response time below 2500ms" in {
+			nRequestInResponseTimeRange(0) must beEqualTo(1L)
+		}
+		"indicate that 5 request had a response time in between 2500ms and 5000ms" in {
+			nRequestInResponseTimeRange(1) must beEqualTo(5L)
+		}
+
+		"indicate that 2 request had a response time above 5000ms" in {
+			nRequestInResponseTimeRange(2) must beEqualTo(2L)
+		}
+	}
 }

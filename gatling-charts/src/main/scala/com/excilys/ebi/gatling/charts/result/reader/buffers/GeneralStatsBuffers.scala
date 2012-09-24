@@ -23,10 +23,9 @@ import scala.collection.JavaConversions.mapAsScalaMap
 
 import com.excilys.ebi.gatling.charts.result.reader.FileDataReader
 import com.excilys.ebi.gatling.charts.result.reader.stats.{ PercentilesHelper, StatsHelper }
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.reader.GeneralStats
 
-abstract class GeneralStatsBuffers(durationInSec: Long) extends Buffers {
+abstract class GeneralStatsBuffers(durationInSec: Long,percentile1: Int,percentile2: Int) extends Buffers {
 
 	val generalStatsBuffers = new JHashMap[BufferKey, GeneralStatsBuffer]
 
@@ -72,7 +71,7 @@ abstract class GeneralStatsBuffers(durationInSec: Long) extends Buffers {
 
 					val sortedTimes = map.toList.sorted
 
-					val percentiles = PercentilesHelper.processPercentiles(sortedTimes, count, Seq(configuration.charting.indicators.percentile1 / 100.0, configuration.charting.indicators.percentile2 / 100.0))
+					val percentiles = PercentilesHelper.processPercentiles(sortedTimes, count, Seq(percentile1 / 100.0, percentile2 / 100.0))
 
 					GeneralStats(min, max, count, meanResponseTime, stdDev, percentiles(0), percentiles(1), meanRequestsPerSec)
 				}
