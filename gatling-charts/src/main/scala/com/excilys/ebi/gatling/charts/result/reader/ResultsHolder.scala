@@ -15,12 +15,6 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader
 
-import java.util.{ HashMap => JHashMap }
-import com.excilys.ebi.gatling.charts.result.reader.stats.StatsHelper
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
-import com.excilys.ebi.gatling.core.result.reader.GeneralStats
-import scala.collection.JavaConversions._
-import scala.collection.mutable
 import com.excilys.ebi.gatling.charts.result.reader.buffers.RequestsPerSecBuffers
 import com.excilys.ebi.gatling.charts.result.reader.buffers.TransactionsPerSecBuffers
 import com.excilys.ebi.gatling.charts.result.reader.buffers.ResponseTimePerSecBuffers
