@@ -27,14 +27,14 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 
 	def generate {
 		def activeSessionsChartComponent = {
-			val activeSessionsSeries: Seq[Series[Long, Long]] = dataReader
+			val activeSessionsSeries: Seq[Series[Int, Int]] = dataReader
 				.scenarioNames
 				.map { scenarioName => scenarioName -> dataReader.numberOfActiveSessionsPerSecond(Some(scenarioName)) }
 				.reverse
 				.zip(List(BLUE, GREEN, RED, YELLOW, CYAN, LIME, PURPLE, PINK, LIGHT_BLUE, LIGHT_ORANGE, LIGHT_RED, LIGHT_LIME, LIGHT_PURPLE, LIGHT_PINK))
-				.map { case ((scenarioName, data), color) => new Series[Long, Long](scenarioName, data, List(color)) }
+				.map { case ((scenarioName, data), color) => new Series[Int, Int](scenarioName, data, List(color)) }
 
-			componentLibrary.getActiveSessionsChartComponent(activeSessionsSeries)
+			componentLibrary.getActiveSessionsChartComponent(dataReader.runStart, activeSessionsSeries)
 		}
 
 		def requestsChartComponent: Component = {
@@ -42,12 +42,12 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 			val oks = dataReader.numberOfRequestsPerSecond(Some(OK)).sortBy(_._1)
 			val kos = dataReader.numberOfRequestsPerSecond(Some(KO)).sortBy(_._1)
 
-			val allSeries = new Series[Long, Long]("All requests", all, List(BLUE))
-			val kosSeries = new Series[Long, Long]("Failed requests", kos, List(RED))
-			val oksSeries = new Series[Long, Long]("Succeeded requests", oks, List(GREEN))
-			val pieRequestsSeries = new Series[String, Long]("Distribution", ("Success", count(oks)) :: ("Failures", count(kos)) :: Nil, List(GREEN, RED))
+			val allSeries = new Series[Int, Int]("All requests", all, List(BLUE))
+			val kosSeries = new Series[Int, Int]("Failed requests", kos, List(RED))
+			val oksSeries = new Series[Int, Int]("Succeeded requests", oks, List(GREEN))
+			val pieRequestsSeries = new Series[String, Int]("Distribution", ("Success", count(oks)) :: ("Failures", count(kos)) :: Nil, List(GREEN, RED))
 
-			componentLibrary.getRequestsChartComponent(allSeries, kosSeries, oksSeries, pieRequestsSeries)
+			componentLibrary.getRequestsChartComponent(dataReader.runStart, allSeries, kosSeries, oksSeries, pieRequestsSeries)
 		}
 
 		def transactionsChartComponent: Component = {
@@ -55,18 +55,18 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 			val oks = dataReader.numberOfTransactionsPerSecond(Some(OK)).sortBy(_._1)
 			val kos = dataReader.numberOfTransactionsPerSecond(Some(KO)).sortBy(_._1)
 
-			val allSeries = new Series[Long, Long]("All transactions", all, List(BLUE))
-			val kosSeries = new Series[Long, Long]("Failed transactions", kos, List(RED))
-			val oksSeries = new Series[Long, Long]("Succeeded transactions", oks, List(GREEN))
-			val pieRequestsSeries = new Series[String, Long]("Distribution", ("Success", count(oks)) :: ("Failures", count(kos)) :: Nil, List(GREEN, RED))
+			val allSeries = new Series[Int, Int]("All transactions", all, List(BLUE))
+			val kosSeries = new Series[Int, Int]("Failed transactions", kos, List(RED))
+			val oksSeries = new Series[Int, Int]("Succeeded transactions", oks, List(GREEN))
+			val pieRequestsSeries = new Series[String, Int]("Distribution", ("Success", count(oks)) :: ("Failures", count(kos)) :: Nil, List(GREEN, RED))
 
-			componentLibrary.getTransactionsChartComponent(allSeries, kosSeries, oksSeries, pieRequestsSeries)
+			componentLibrary.getTransactionsChartComponent(dataReader.runStart, allSeries, kosSeries, oksSeries, pieRequestsSeries)
 		}
 
 		def responseTimeDistributionChartComponent: Component = {
 			val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100)
-			val okDistributionSeries = new Series[Long, Long]("Success", okDistribution, List(BLUE))
-			val koDistributionSeries = new Series[Long, Long]("Failure", koDistribution, List(RED))
+			val okDistributionSeries = new Series[Int, Int]("Success", okDistribution, List(BLUE))
+			val koDistributionSeries = new Series[Int, Int]("Failure", koDistribution, List(RED))
 
 			componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
 		}
@@ -89,6 +89,6 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 		new TemplateWriter(globalFile(runOn)).writeToFile(template.getOutput)
 	}
 
-	private def count(records: Seq[(Long, Long)]): Long = records.foldLeft(0L)((sum, entry) => sum + entry._2)
+	private def count(records: Seq[(Int, Int)]): Int = records.foldLeft(0)((sum, entry) => sum + entry._2)
 
 }

@@ -31,16 +31,16 @@ trait Buffers {
 }
 
 class CountBuffer {
-	implicit val map = new JHashMap[Long, Long]
+	implicit val map = new JHashMap[Int, Int]
 
-	def update(bucket: Long) { initOrUpdateJHashMapEntry(bucket, 1L, (value: Long) => value + 1) }
+	def update(bucket: Int) { initOrUpdateJHashMapEntry(bucket, 1, (value: Int) => value + 1) }
 }
 
 class RangeBuffer {
-	implicit val map = new JHashMap[Long, (Long, Long)]
+	implicit val map = new JHashMap[Int, (Int, Int)]
 
-	def update(bucket: Long, value: Long) {
-		initOrUpdateJHashMapEntry(bucket, (value, value), (minMax: (Long, Long)) => {
+	def update(bucket: Int, value: Int) {
+		initOrUpdateJHashMapEntry(bucket, (value, value), (minMax: (Int, Int)) => {
 			val (minValue, maxValue) = minMax
 			(value min minValue, value max maxValue)
 		})

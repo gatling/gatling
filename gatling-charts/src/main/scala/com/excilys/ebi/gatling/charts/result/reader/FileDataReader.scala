@@ -80,11 +80,11 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	val (runStart, runEnd, runRecord) = preProcess(multipleFileIterator(inputFiles))
 
-	val step = StatsHelper.step(math.floor(runStart / FileDataReader.SEC_MILLISEC_RATIO).toLong, math.ceil(runEnd / FileDataReader.SEC_MILLISEC_RATIO).toLong, configuration.charting.maxPlotsPerSeries) * FileDataReader.SEC_MILLISEC_RATIO
-	val bucketFunction = StatsHelper.bucket(_: Long, runStart, runEnd, step, step / 2)
-	val buckets = StatsHelper.bucketsList(runStart, runEnd, step)
+	val step = StatsHelper.step(math.floor(runStart / FileDataReader.SEC_MILLISEC_RATIO).toInt, math.ceil(runEnd / FileDataReader.SEC_MILLISEC_RATIO).toInt, configuration.charting.maxPlotsPerSeries) * FileDataReader.SEC_MILLISEC_RATIO
+	val bucketFunction = StatsHelper.bucket(_: Int, 0, (runEnd - runStart).toInt, step, step / 2)
+	val buckets = StatsHelper.bucketsList(0, (runEnd - runStart).toInt, step)
 
-	private def process(records: Iterator[String], bucketFunction: Long => Long): ResultsHolder = {
+	private def process(records: Iterator[String], bucketFunction: Int => Int): ResultsHolder = {
 
 		val resultsHolder = new ResultsHolder(runStart, runEnd)
 
@@ -94,7 +94,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			.filter(_.startsWith(ACTION))
 			.map(FileDataReader.TABULATION_PATTERN.split(_))
 			.filter(_.size >= FileDataReader.ACTION_RECORD_LENGTH)
-			.map(ActionRecord(_, bucketFunction))
+			.map(ActionRecord(_, bucketFunction, runStart))
 			.foreach { record =>
 				count += 1
 				if (count % FileDataReader.LOG_STEP == 0) info("Second pass, read " + count + " lines")
@@ -120,27 +120,27 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		.sortBy(_._2)
 		.map(_._1)
 
-	def numberOfActiveSessionsPerSecond(scenarioName: Option[String]): Seq[(Long, Long)] = resultsHolder
+	def numberOfActiveSessionsPerSecond(scenarioName: Option[String]): Seq[(Int, Int)] = resultsHolder
 		.getSessionDeltaPerSecBuffers(scenarioName)
 		.compute(buckets)
 
-	def numberOfRequestsPerSecond(status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Seq[(Long, Long)] = resultsHolder
+	def numberOfRequestsPerSecond(status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Seq[(Int, Int)] = resultsHolder
 		.getRequestsPerSecBuffer(requestName, status).map
 		.toList
 		.map {
-			case (bucket, count) => (bucket, math.round(count / step * FileDataReader.SEC_MILLISEC_RATIO))
+			case (bucket, count) => (bucket, math.round(count / step * FileDataReader.SEC_MILLISEC_RATIO).toInt)
 		}
 		.sorted
 
-	def numberOfTransactionsPerSecond(status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Seq[(Long, Long)] = resultsHolder
+	def numberOfTransactionsPerSecond(status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Seq[(Int, Int)] = resultsHolder
 		.getTransactionsPerSecBuffer(requestName, status).map
 		.toList
 		.map {
-			case (bucket, count) => (bucket, math.round(count / step * FileDataReader.SEC_MILLISEC_RATIO))
+			case (bucket, count) => (bucket, math.round(count / step * FileDataReader.SEC_MILLISEC_RATIO).toInt)
 		}
 		.sorted
 
-	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String]): (Seq[(Long, Long)], Seq[(Long, Long)]) = {
+	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String]): (Seq[(Int, Int)], Seq[(Int, Int)]) = {
 
 		// get main and max for request/all status
 		val requestStats = resultsHolder.getGeneralStatsBuffers(requestName, None).compute
@@ -154,9 +154,9 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		val ok = resultsHolder.getGeneralStatsBuffers(requestName, Some(OK)).map.toList
 		val ko = resultsHolder.getGeneralStatsBuffers(requestName, Some(KO)).map.toList
 
-		val bucketFunction = StatsHelper.bucket(_: Long, min, max, step, demiStep)
+		val bucketFunction = StatsHelper.bucket(_: Int, min, max, step, demiStep)
 
-		def process(buffer: List[(Long, Long)]) = {
+		def process(buffer: List[(Int, Int)]): List[(Int, Int)] = {
 
 			val bucketsWithValues = buffer
 				.map(record => (bucketFunction(record._1), record))
@@ -164,16 +164,16 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 				.map {
 					case (responseTimeBucket, recordList) =>
 
-						val sizeBucket = recordList.foldLeft(0L) {
+						val sizeBucket = recordList.foldLeft(0) {
 							(partialSize, record) => partialSize + record._2._2
 						}
 
-						(responseTimeBucket, math.round(sizeBucket * 100.0 / size))
+						(responseTimeBucket, math.round(sizeBucket * 100.0 / size).toInt)
 				}
 				.toMap
 
 			buckets.map {
-				bucket => (bucket, bucketsWithValues.getOrElse(bucket, 0L))
+				bucket => (bucket, bucketsWithValues.getOrElse(bucket, 0))
 			}
 		}
 
@@ -184,7 +184,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		.getGeneralStatsBuffers(requestName, status)
 		.compute
 
-	def numberOfRequestInResponseTimeRange(requestName: Option[String]): Seq[(String, Long)] = {
+	def numberOfRequestInResponseTimeRange(requestName: Option[String]): Seq[(String, Int)] = {
 
 		val counts = resultsHolder.getResponseTimeRangeBuffers(requestName)
 		val lowerBound = configuration.charting.indicators.lowerBound
@@ -196,21 +196,21 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			("failed", counts.ko))
 	}
 
-	def responseTimeGroupByExecutionStartDate(status: RequestStatus.RequestStatus, requestName: String): Seq[(Long, (Long, Long))] = resultsHolder
+	def responseTimeGroupByExecutionStartDate(status: RequestStatus.RequestStatus, requestName: String): Seq[(Int, (Int, Int))] = resultsHolder
 		.getResponseTimePerSecBuffers(Some(requestName), Some(status))
 		.map
 		.toList
 		.sorted
 
-	def latencyGroupByExecutionStartDate(status: RequestStatus.RequestStatus, requestName: String): Seq[(Long, (Long, Long))] = resultsHolder
+	def latencyGroupByExecutionStartDate(status: RequestStatus.RequestStatus, requestName: String): Seq[(Int, (Int, Int))] = resultsHolder
 		.getLatencyPerSecBuffers(Some(requestName), Some(status))
 		.map
 		.toList
 		.sorted
 
-	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: RequestStatus.RequestStatus, requestName: String): Seq[(Long, Long)] = {
+	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: RequestStatus.RequestStatus, requestName: String): Seq[(Int, Int)] = {
 
-		val globalCountsByBucket: JHashMap[Long, Long] = resultsHolder.getRequestsPerSecBuffer(None, None).map
+		val globalCountsByBucket: JHashMap[Int, Int] = resultsHolder.getRequestsPerSecBuffer(None, None).map
 
 		resultsHolder
 			.getResponseTimePerSecBuffers(Some(requestName), Some(status))
@@ -220,7 +220,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 				case (bucket, responseTimes) =>
 					val (_, max) = responseTimes
 					val count = globalCountsByBucket.get(bucket)
-					(math.round(count / step * 1000), max)
+					(math.round(count / step * 1000).toInt, max)
 			}.sorted
 	}
 }

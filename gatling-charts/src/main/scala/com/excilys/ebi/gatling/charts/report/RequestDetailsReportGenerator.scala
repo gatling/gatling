@@ -31,16 +31,16 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			def responseTimeChartComponent: Component = {
 				val responseTimesSuccessData = dataReader.responseTimeGroupByExecutionStartDate(OK, requestName)
 				val responseTimesFailuresData = dataReader.responseTimeGroupByExecutionStartDate(KO, requestName)
-				val responseTimesSuccessSeries = new Series[Long, (Long, Long)]("Response Time (success)", responseTimesSuccessData, List(BLUE))
-				val responseTimesFailuresSeries = new Series[Long, (Long, Long)]("Response Time (failure)", responseTimesFailuresData, List(RED))
+				val responseTimesSuccessSeries = new Series[Int, (Int, Int)]("Response Time (success)", responseTimesSuccessData, List(BLUE))
+				val responseTimesFailuresSeries = new Series[Int, (Int, Int)]("Response Time (failure)", responseTimesFailuresData, List(RED))
 
-				componentLibrary.getRequestDetailsResponseTimeChartComponent(responseTimesSuccessSeries, responseTimesFailuresSeries)
+				componentLibrary.getRequestDetailsResponseTimeChartComponent(dataReader.runStart, responseTimesSuccessSeries, responseTimesFailuresSeries)
 			}
 
 			def responseTimeDistributionChartComponent: Component = {
 				val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100, Some(requestName))
-				val okDistributionSeries = new Series[Long, Long]("Success", okDistribution, List(BLUE))
-				val koDistributionSeries = new Series[Long, Long]("Failure", koDistribution, List(RED))
+				val okDistributionSeries = new Series[Int, Int]("Success", okDistribution, List(BLUE))
+				val koDistributionSeries = new Series[Int, Int]("Failure", koDistribution, List(RED))
 
 				componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
 			}
@@ -49,10 +49,10 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 				val latencySuccessData = dataReader.latencyGroupByExecutionStartDate(OK, requestName)
 				val latencyFailuresData = dataReader.latencyGroupByExecutionStartDate(KO, requestName)
 
-				val latencySuccessSeries = new Series[Long, (Long, Long)]("Latency (success)", latencySuccessData, List(BLUE))
-				val latencyFailuresSeries = new Series[Long, (Long, Long)]("Latency (failure)", latencyFailuresData, List(RED))
+				val latencySuccessSeries = new Series[Int, (Int, Int)]("Latency (success)", latencySuccessData, List(BLUE))
+				val latencyFailuresSeries = new Series[Int, (Int, Int)]("Latency (failure)", latencyFailuresData, List(RED))
 
-				componentLibrary.getRequestDetailsLatencyChartComponent(latencySuccessSeries, latencyFailuresSeries)
+				componentLibrary.getRequestDetailsLatencyChartComponent(dataReader.runStart, latencySuccessSeries, latencyFailuresSeries)
 			}
 
 			def statisticsComponent: Component = new StatisticsTextComponent
@@ -60,8 +60,8 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			def scatterChartComponent: Component = {
 				val scatterPlotSuccessData = dataReader.responseTimeAgainstGlobalNumberOfRequestsPerSec(OK, requestName)
 				val scatterPlotFailuresData = dataReader.responseTimeAgainstGlobalNumberOfRequestsPerSec(KO, requestName)
-				val scatterPlotSuccessSeries = new Series[Long, Long]("Successes", scatterPlotSuccessData, List(TRANSLUCID_BLUE))
-				val scatterPlotFailuresSeries = new Series[Long, Long]("Failures", scatterPlotFailuresData, List(TRANSLUCID_RED))
+				val scatterPlotSuccessSeries = new Series[Int, Int]("Successes", scatterPlotSuccessData, List(TRANSLUCID_BLUE))
+				val scatterPlotFailuresSeries = new Series[Int, Int]("Failures", scatterPlotFailuresData, List(TRANSLUCID_RED))
 
 				componentLibrary.getRequestDetailsScatterChartComponent(scatterPlotSuccessSeries, scatterPlotFailuresSeries)
 			}

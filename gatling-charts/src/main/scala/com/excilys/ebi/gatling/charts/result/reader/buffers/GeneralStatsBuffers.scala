@@ -40,13 +40,13 @@ abstract class GeneralStatsBuffers(durationInSec: Long) extends Buffers {
 	}
 
 	class GeneralStatsBuffer(duration: Long) extends CountBuffer {
-		private var min = Long.MaxValue
-		private var max = Long.MinValue
+		private var min = Int.MaxValue
+		private var max = Int.MinValue
 		private var count = 0
-		private var sum = 0L
-		private var squareSum = 0L
+		private var sum = 0
+		private var squareSum = 0
 
-		override def update(time: Long) {
+		override def update(time: Int) {
 			super.update(time)
 
 			if (time < min) min = time
@@ -66,9 +66,9 @@ abstract class GeneralStatsBuffers(durationInSec: Long) extends Buffers {
 					GeneralStats.NO_PLOT
 
 				} else {
-					val meanResponseTime = math.round(sum / count.toDouble)
-					val meanRequestsPerSec = math.round(count / (duration / FileDataReader.SEC_MILLISEC_RATIO))
-					val stdDev = math.round(StatsHelper.stdDev(squareSum / count.toDouble, meanResponseTime))
+					val meanResponseTime = math.round(sum / count.toDouble).toInt
+					val meanRequestsPerSec = math.round(count / (duration / FileDataReader.SEC_MILLISEC_RATIO)).toInt
+					val stdDev = math.round(StatsHelper.stdDev(squareSum / count.toDouble, meanResponseTime)).toInt
 
 					val sortedTimes = map.toList.sorted
 

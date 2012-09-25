@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RunRecord }
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.RequestStatus
 
 object DataReader {
-	val NO_PLOT_MAGIC_VALUE = -1L
+	val NO_PLOT_MAGIC_VALUE = -1
 
 	def newInstance(runOn: String) = Class.forName(configuration.data.dataReaderClass).asInstanceOf[Class[DataReader]].getConstructor(classOf[String]).newInstance(runOn)
 }
@@ -28,26 +28,28 @@ object DataReader {
 abstract class DataReader(runUuid: String) {
 
 	def runRecord: RunRecord
+	
+	def runStart: Long
 
 	def requestNames: List[String]
 
 	def scenarioNames: List[String]
 
-	def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): Seq[(Long, Long)]
+	def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): Seq[(Int, Int)]
 
-	def numberOfRequestsPerSecond(status: Option[RequestStatus] = None, requestName: Option[String] = None): Seq[(Long, Long)]
+	def numberOfRequestsPerSecond(status: Option[RequestStatus] = None, requestName: Option[String] = None): Seq[(Int, Int)]
 
-	def numberOfTransactionsPerSecond(status: Option[RequestStatus] = None, requestName: Option[String] = None): Seq[(Long, Long)]
+	def numberOfTransactionsPerSecond(status: Option[RequestStatus] = None, requestName: Option[String] = None): Seq[(Int, Int)]
 
-	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String] = None): (Seq[(Long, Long)], Seq[(Long, Long)])
+	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String] = None): (Seq[(Int, Int)], Seq[(Int, Int)])
 
 	def generalStats(status: Option[RequestStatus] = None, requestName: Option[String] = None): GeneralStats
 
-	def numberOfRequestInResponseTimeRange(requestName: Option[String] = None): Seq[(String, Long)]
+	def numberOfRequestInResponseTimeRange(requestName: Option[String] = None): Seq[(String, Int)]
 
-	def responseTimeGroupByExecutionStartDate(status: RequestStatus, requestName: String): Seq[(Long, (Long, Long))]
+	def responseTimeGroupByExecutionStartDate(status: RequestStatus, requestName: String): Seq[(Int, (Int, Int))]
 
-	def latencyGroupByExecutionStartDate(status: RequestStatus, requestName: String): Seq[(Long, (Long, Long))]
+	def latencyGroupByExecutionStartDate(status: RequestStatus, requestName: String): Seq[(Int, (Int, Int))]
 
-	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: RequestStatus.RequestStatus, requestName: String): Seq[(Long, Long)]
+	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: RequestStatus.RequestStatus, requestName: String): Seq[(Int, Int)]
 }

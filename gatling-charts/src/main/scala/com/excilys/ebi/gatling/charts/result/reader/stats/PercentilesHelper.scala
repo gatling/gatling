@@ -19,10 +19,10 @@ import annotation.tailrec
 
 object PercentilesHelper {
 
-	def processPercentiles(buckets: List[(Long, Long)], totalSize: Long, percentiles: Seq[Double]) = {
+	def processPercentiles(buckets: List[(Int, Int)], totalSize: Int, percentiles: Seq[Double]) = {
 
 		@tailrec
-		def findPercentile(buckets: List[(Long, Long)], limit: Long, count: Long): (Long, List[(Long, Long)]) = {
+		def findPercentile(buckets: List[(Int, Int)], limit: Int, count: Int): (Int, List[(Int, Int)]) = {
 			val newCount = count + buckets.head._2
 
 			if (newCount >= limit)
@@ -32,11 +32,11 @@ object PercentilesHelper {
 		}
 
 		var currentBuckets = buckets
-		var currentCount = 0L
+		var currentCount = 0
 
 		percentiles.sorted.map {
 			p =>
-				val limit = math.round(totalSize * p)
+				val limit = math.round(totalSize * p).toInt
 				val (foundCount, foundBuckets) = findPercentile(currentBuckets, limit, currentCount)
 				currentCount = foundCount
 				currentBuckets = foundBuckets

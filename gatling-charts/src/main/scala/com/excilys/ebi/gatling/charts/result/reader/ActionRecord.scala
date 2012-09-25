@@ -21,16 +21,16 @@ import com.excilys.ebi.gatling.core.result.message.RequestStatus.RequestStatus
 
 object ActionRecord {
 
-	def apply(strings: Array[String], bucketFunction: Long => Long) = {
+	def apply(strings: Array[String], bucketFunction: Int => Int, runStart: Long) = {
 
-		def reducePrecision(time: Long) = time / configuration.charting.accuracy * configuration.charting.accuracy
+		def reducePrecision(time: Int): Int = time / configuration.charting.accuracy * configuration.charting.accuracy
 
 		val scenario = strings(1).intern
 		val request = strings(3).intern
-		val executionStart = reducePrecision(strings(4).toLong)
-		val executionEnd = reducePrecision(strings(5).toLong)
-		val requestEnd = reducePrecision(strings(6).toLong)
-		val responseStart = reducePrecision(strings(7).toLong)
+		val executionStart = reducePrecision((strings(4).toLong - runStart).toInt)
+		val executionEnd = reducePrecision((strings(5).toLong - runStart).toInt)
+		val requestEnd = reducePrecision((strings(6).toLong - runStart).toInt)
+		val responseStart = reducePrecision((strings(7).toLong - runStart).toInt)
 		val status = RequestStatus.withName(strings(8))
 		val executionStartBucket = bucketFunction(executionStart)
 		val executionEndBucket = bucketFunction(executionEnd)
@@ -40,4 +40,4 @@ object ActionRecord {
 	}
 }
 
-class ActionRecord(val scenario: String, val request: String, val executionStart: Long, val executionEnd: Long, val requestEnd: Long, val responseStart: Long, val status: RequestStatus, val executionStartBucket: Long, val executionEndBucket: Long, val responseTime: Long, val latency: Long)
+class ActionRecord(val scenario: String, val request: String, val executionStart: Int, val executionEnd: Int, val requestEnd: Int, val responseStart: Int, val status: RequestStatus, val executionStartBucket: Int, val executionEndBucket: Int, val responseTime: Int, val latency: Int)

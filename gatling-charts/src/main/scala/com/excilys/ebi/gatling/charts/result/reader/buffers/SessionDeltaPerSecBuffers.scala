@@ -39,17 +39,17 @@ trait SessionDeltaPerSecBuffers extends Buffers {
 
 		import scala.collection.JavaConversions.mapAsScalaMap
 
-		implicit val map = new JHashMap[Long, (Long, Long)]
+		implicit val map = new JHashMap[Int, (Int, Int)]
 
-		def addStart(bucket: Long) { initOrUpdateJHashMapEntry(bucket, (1L, 0L), (startEnd: (Long, Long)) => (startEnd._1 + 1, startEnd._2)) }
+		def addStart(bucket: Int) { initOrUpdateJHashMapEntry(bucket, (1, 0), (startEnd: (Int, Int)) => (startEnd._1 + 1, startEnd._2)) }
 
-		def addEnd(bucket: Long) { initOrUpdateJHashMapEntry(bucket, (0L, 1L), (startEnd: (Long, Long)) => (startEnd._1, startEnd._2 + 1)) }
+		def addEnd(bucket: Int) { initOrUpdateJHashMapEntry(bucket, (0, 1), (startEnd: (Int, Int)) => (startEnd._1, startEnd._2 + 1)) }
 
-		def compute(buckets: List[Long]): List[(Long, Long)] = {
+		def compute(buckets: List[Int]): List[(Int, Int)] = {
 
-			val (_, _, sessions) = buckets.foldLeft(0L, 0L, List.empty[(Long, Long)]) { (accumulator, bucket) =>
+			val (_, _, sessions) = buckets.foldLeft(0, 0, List.empty[(Int, Int)]) { (accumulator, bucket) =>
 				val (previousSessions, previousEnds, sessions) = accumulator
-				val (bucketStarts, bucketEnds) = map.getOrElse(bucket, (0L, 0L))
+				val (bucketStarts, bucketEnds) = map.getOrElse(bucket, (0, 0))
 				val bucketSessions = previousSessions - previousEnds + bucketStarts
 				(bucketSessions, bucketEnds, (bucket, bucketSessions) :: sessions)
 			}
