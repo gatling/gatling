@@ -184,9 +184,11 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		.getGeneralStatsBuffers(requestName, status)
 		.compute
 
-	def numberOfRequestInResponseTimeRange(lowerBound: Int, higherBound: Int, requestName: Option[String]): Seq[(String, Long)] = {
+	def numberOfRequestInResponseTimeRange(requestName: Option[String]): Seq[(String, Long)] = {
 
 		val counts = resultsHolder.getResponseTimeRangeBuffers(requestName)
+		val lowerBound = configuration.charting.indicators.lowerBound
+		val higherBound = configuration.charting.indicators.higherBound
 
 		List(("t < " + lowerBound + " ms", counts.low),
 			(lowerBound + " ms < t < " + higherBound + " ms", counts.middle),
