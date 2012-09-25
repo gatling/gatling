@@ -29,9 +29,9 @@ abstract class DataReader(runUuid: String) {
 
 	def runRecord: RunRecord
 
-	def requestNames: Seq[String]
+	def requestNames: List[String]
 
-	def scenarioNames: Seq[String]
+	def scenarioNames: List[String]
 
 	def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): Seq[(Long, Long)]
 

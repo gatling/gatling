@@ -100,13 +100,13 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	val resultsHolder = process(multipleFileIterator(inputFiles), bucketFunction)
 
-	def requestNames: Seq[String] = resultsHolder
+	def requestNames: List[String] = resultsHolder
 		.requestNameBuffer
 		.map.toList
 		.sortBy(_._2)
 		.map(_._1)
 
-	def scenarioNames: Seq[String] = resultsHolder.scenarioNameBuffer
+	def scenarioNames: List[String] = resultsHolder.scenarioNameBuffer
 		.map
 		.toList
 		.sortBy(_._2)

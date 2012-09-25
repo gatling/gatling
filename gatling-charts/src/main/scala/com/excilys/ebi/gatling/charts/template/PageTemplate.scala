@@ -32,13 +32,13 @@ object PageTemplate {
 
 abstract class PageTemplate(title: String, isDetails: Boolean, components: Component*) {
 
-	val jsFiles = (Seq(JQUERY_FILE, MENU_FILE, ALL_SESSIONS_FILE, STATS_JS_FILE) ++ getAdditionnalJSFiles).distinct
+	val jsFiles: Seq[String] = (Seq(JQUERY_FILE, MENU_FILE, ALL_SESSIONS_FILE, STATS_JS_FILE) ++ getAdditionnalJSFiles).distinct
 
 	def getContent: String = components.map(_.getHTMLContent).mkString
 
 	def getJavascript: String = components.map(_.getJavascriptContent).mkString
 
-	def getAdditionnalJSFiles = components.flatMap(_.getJavascriptFiles)
+	def getAdditionnalJSFiles: Seq[String] = components.flatMap(_.getJavascriptFiles)
 
 	def getOutput: String = {
 		PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_LAYOUT_FILE_URL,

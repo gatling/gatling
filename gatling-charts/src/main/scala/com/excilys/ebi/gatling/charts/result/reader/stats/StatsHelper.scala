@@ -17,8 +17,8 @@ package com.excilys.ebi.gatling.charts.result.reader.stats
 
 object StatsHelper {
 	def bucketsList(min: Long, max: Long, step: Double): List[Long] = {
-		val demiStep = step / 2
-		(0 until math.round((max - min) / step).toInt).map(i => math.round(min + step * i + demiStep)).toList
+		val halfStep = step / 2
+		(0 until math.round((max - min) / step).toInt).map(i => math.round(min + step * i + halfStep)).toList
 	}
 
 	def step(min: Long, max: Long, maxPlots: Int): Double = {
@@ -27,9 +27,9 @@ object StatsHelper {
 		else range / maxPlots.toDouble
 	}
 
-	def bucket(t: Long, min: Long, max: Long, step: Double, demiStep: Double) = {
-		if (t >= max) math.round((max - demiStep))
-		else math.round((t - (t - min) % step + demiStep))
+	def bucket(t: Long, min: Long, max: Long, step: Double, halfStep: Double) = {
+		if (t >= max) math.round((max - halfStep))
+		else math.round((t - (t - min) % step + halfStep))
 	}
 
 	def square(x: Double) = x * x

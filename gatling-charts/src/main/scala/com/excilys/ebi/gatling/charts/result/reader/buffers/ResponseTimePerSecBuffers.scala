@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
-import java.util.{HashMap => JHashMap}
+import java.util.{ HashMap => JHashMap }
 
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
 import com.excilys.ebi.gatling.core.result.message.RequestStatus

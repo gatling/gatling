@@ -31,17 +31,16 @@ object PercentilesHelper {
 				findPercentile(buckets.tail, limit, newCount)
 		}
 
-		var bucketList = buckets
-
-		var count = 0L
+		var currentBuckets = buckets
+		var currentCount = 0L
 
 		percentiles.sorted.map {
 			p =>
 				val limit = math.round(totalSize * p)
-				val (findCount, findBucketList) = findPercentile(bucketList, limit, count)
-				bucketList = findBucketList
-				count = findCount
-				bucketList.head._1
+				val (foundCount, foundBuckets) = findPercentile(currentBuckets, limit, currentCount)
+				currentCount = foundCount
+				currentBuckets = foundBuckets
+				currentBuckets.head._1
 		}
 	}
 }
