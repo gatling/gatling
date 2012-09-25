@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.http
 
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.check.after.HttpBodyResponseTimeCheckBuilder
-import com.excilys.ebi.gatling.http.check.body.{ HttpBodyCssCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyXPathCheckBuilder }
+import com.excilys.ebi.gatling.http.check.body.{ HttpBodyCssCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyStringCheckBuilder, HttpBodyXPathCheckBuilder }
 import com.excilys.ebi.gatling.http.check.bodypart.HttpChecksumCheckBuilder
 import com.excilys.ebi.gatling.http.check.header.{ HttpHeaderCheckBuilder, HttpHeaderRegexCheckBuilder }
 import com.excilys.ebi.gatling.http.check.status.{ CurrentLocationCheckBuilder, HttpStatusCheckBuilder }
@@ -40,12 +40,13 @@ object Predef {
 	def css(selector: EvaluatableString) = HttpBodyCssCheckBuilder.css(selector, None)
 	def css(selector: EvaluatableString, nodeAttribute: String) = HttpBodyCssCheckBuilder.css(selector, Some(nodeAttribute))
 	def jsonPath(expression: EvaluatableString) = HttpBodyJsonPathCheckBuilder.jsonPath(expression)
+	def bodyString = HttpBodyStringCheckBuilder.bodyString
 	def header(headerName: EvaluatableString) = HttpHeaderCheckBuilder.header(headerName)
 	def headerRegex(headerName: EvaluatableString, pattern: EvaluatableString) = HttpHeaderRegexCheckBuilder.headerRegex(headerName, pattern)
 	def status = HttpStatusCheckBuilder.status
 	def currentLocation = CurrentLocationCheckBuilder.currentLocation
-	def md5 = HttpChecksumCheckBuilder.checksum("MD5")
-	def sha1 = HttpChecksumCheckBuilder.checksum("SHA-1")
+	def md5 = HttpChecksumCheckBuilder.md5
+	def sha1 = HttpChecksumCheckBuilder.sha1
 	def responseTimeInMillis = HttpBodyResponseTimeCheckBuilder.responseTimeInMillis
 	def latencyInMillis = HttpBodyResponseTimeCheckBuilder.latencyInMillis
 

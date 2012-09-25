@@ -29,6 +29,9 @@ import com.excilys.ebi.gatling.http.response.ExtendedResponse
  */
 object HttpChecksumCheckBuilder {
 
+	val md5 = checksum("MD5")
+	val sha1 = checksum("SHA1")
+
 	def checksum(algorythm: String) = {
 
 		val checksumCheckBuilderFactory = (matcher: Matcher[ExtendedResponse, String], saveAs: Option[String]) => new ChecksumCheck(algorythm, matcher, saveAs)

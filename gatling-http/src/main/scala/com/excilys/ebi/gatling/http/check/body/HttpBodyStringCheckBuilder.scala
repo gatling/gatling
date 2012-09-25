@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.check.status
+package com.excilys.ebi.gatling.http.check.body
 
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.NOOP_EVALUATABLE_STRING
 import com.excilys.ebi.gatling.http.check.HttpSingleCheckBuilder
-import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
+import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
-/**
- * Builder for current location (ie current request URL) check
- */
-object CurrentLocationCheckBuilder {
+object HttpBodyStringCheckBuilder {
 
-	private val findExtractorFactory: ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => (unused: String) => Some(response.request.getUrl)
+	private val findExtractorFactory: ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => (unused: String) => Option(response.getResponseBody(configuration.simulation.encoding))
 
-	val currentLocation = new HttpSingleCheckBuilder(findExtractorFactory, NOOP_EVALUATABLE_STRING, StatusReceived)
+	val bodyString = new HttpSingleCheckBuilder(findExtractorFactory, NOOP_EVALUATABLE_STRING, CompletePageReceived)
 }

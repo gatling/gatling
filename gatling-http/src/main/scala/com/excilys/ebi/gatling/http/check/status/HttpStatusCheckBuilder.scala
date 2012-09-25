@@ -28,5 +28,5 @@ object HttpStatusCheckBuilder {
 
 	private val findExtractorFactory: ExtractorFactory[ExtendedResponse, String, Int] = (response: ExtendedResponse) => (unused: String) => Some(response.getStatusCode)
 
-	def status = new HttpSingleCheckBuilder(findExtractorFactory, NOOP_EVALUATABLE_STRING, StatusReceived)
+	val status = new HttpSingleCheckBuilder(findExtractorFactory, NOOP_EVALUATABLE_STRING, StatusReceived)
 }
