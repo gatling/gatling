@@ -58,12 +58,12 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		val (actions, runs) = records.map(FileDataReader.TABULATION_PATTERN.split(_)).filter(array => array.head == ACTION || array.head == RUN).partition(_.head == ACTION)
 
 		val (runStart, runEnd, totalRequestsNumber) = actions
-			.filter(_.length >= FileDataReader.ACTION_RECORD_LENGTH)
+			.filter(_.length >= FileDataReader.RUN_RECORD_LENGTH)
 			.foldLeft((Long.MaxValue, Long.MinValue, 0L)) {
 				(accumulator, strings) =>
 					val (min, max, count) = accumulator
 
-					if (count % FileDataReader.LOG_STEP == 0) info("Read " + count + " lines")
+					if (count % FileDataReader.LOG_STEP == 0) info("First pass, read " + count + " lines")
 
 					(math.min(min, strings(4).toLong), math.max(max, strings(5).toLong), count + 1)
 			}
@@ -88,12 +88,20 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 		val resultsHolder = new ResultsHolder(runStart, runEnd)
 
+		var count = 0
+
 		records
 			.filter(_.startsWith(ACTION))
 			.map(FileDataReader.TABULATION_PATTERN.split(_))
-			.filter(_.size >= 9)
+			.filter(_.size >= FileDataReader.ACTION_RECORD_LENGTH)
 			.map(ActionRecord(_, bucketFunction))
-			.foreach(resultsHolder.add(_))
+			.foreach { record =>
+				count += 1
+				if (count % FileDataReader.LOG_STEP == 0) info("Second pass, read " + count + " lines")
+				resultsHolder.add(record)
+			}
+
+		info("Read " + count + " lines (finished)")
 
 		resultsHolder
 	}

@@ -60,6 +60,7 @@ object GatlingConfiguration extends Logging {
 			charting = ChartingConfiguration(
 				noReports = config.getBoolean(CONF_CHARTING_NO_REPORTS),
 				maxPlotsPerSeries = config.getInt(CONF_CHARTING_MAX_PLOTS_PER_SERIES),
+				accuracy = config.getInt(CONF_CHARTING_ACCURACY),
 				indicators = IndicatorsConfiguration(
 					lowerBound = config.getInt(CONF_CHARTING_INDICATORS_LOWER_BOUND),
 					higherBound = config.getInt(CONF_CHARTING_INDICATORS_HIGHER_BOUND),
@@ -114,6 +115,7 @@ case class DirectoryConfiguration(
 case class ChartingConfiguration(
 	noReports: Boolean,
 	maxPlotsPerSeries: Int,
+	accuracy: Int,
 	indicators: IndicatorsConfiguration)
 
 case class IndicatorsConfiguration(
