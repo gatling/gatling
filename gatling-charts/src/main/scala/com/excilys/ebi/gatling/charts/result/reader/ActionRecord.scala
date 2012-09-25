@@ -21,8 +21,8 @@ import com.excilys.ebi.gatling.core.result.message.RequestStatus.RequestStatus
 object ActionRecord {
 
 	def apply(strings: Array[String], bucketFunction: Long => Long) = {
-		val scenario = strings(1)
-		val request = strings(3)
+		val scenario = strings(1).intern
+		val request = strings(3).intern
 		val executionStart = strings(4).toLong
 		val executionEnd = strings(5).toLong
 		val requestEnd = strings(6).toLong
