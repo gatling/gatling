@@ -45,9 +45,8 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 			val percentiles2 = Statistics("percentiles2", total.percentile2, ok.percentile2, ko.percentile2)
 			val meanNumberOfRequestsPerSecondStatistics = Statistics("meanNumberOfRequestsPerSecond", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
 
-			val groupedCounts = dataReader
-				.numberOfRequestInResponseTimeRange(configuration.charting.indicators.lowerBound, configuration.charting.indicators.higherBound, requestName)
-				.map {
+				val groupedCounts = dataReader
+					.numberOfRequestInResponseTimeRange(requestName).map {
 					case (name, count) => (name, count, count * 100 / total.count)
 				}
 
