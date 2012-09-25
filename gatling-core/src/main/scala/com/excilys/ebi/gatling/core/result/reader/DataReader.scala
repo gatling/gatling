@@ -43,7 +43,7 @@ abstract class DataReader(runUuid: String) {
 
 	def generalStats(status: Option[RequestStatus] = None, requestName: Option[String] = None): GeneralStats
 
-	def numberOfRequestInResponseTimeRange(lowerBound: Int, higherBound: Int, requestName: Option[String] = None): Seq[(String, Long)]
+	def numberOfRequestInResponseTimeRange(requestName: Option[String] = None): Seq[(String, Long)]
 
 	def responseTimeGroupByExecutionStartDate(status: RequestStatus, requestName: String): Seq[(Long, (Long, Long))]
 
