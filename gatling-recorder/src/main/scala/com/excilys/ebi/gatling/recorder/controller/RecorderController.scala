@@ -30,7 +30,7 @@ import com.excilys.ebi.gatling.recorder.config.Configuration
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
 import com.excilys.ebi.gatling.recorder.config.RecorderOptions
 import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy
-import com.excilys.ebi.gatling.recorder.scenario.{ PauseElement, PauseUnit, RequestElement, ScenarioElement, ScenarioExporter }
+import com.excilys.ebi.gatling.recorder.scenario.{ PauseElement, PauseUnit, RequestElement, ScenarioElement, ScenarioExporter, TagElement }
 import com.excilys.ebi.gatling.recorder.ui.enumeration.{ FilterStrategy, PatternType }
 import com.excilys.ebi.gatling.recorder.ui.frame.{ ConfigurationFrame, RunningFrame }
 import com.excilys.ebi.gatling.recorder.ui.info.{ PauseInfo, RequestInfo, SSLInfo }
@@ -126,6 +126,10 @@ class RecorderController extends Logging {
 					lastRequestDate = new Date
 			}
 		}
+	}
+
+	def addTag(text: String) {
+		scenarioElements = new TagElement(text) :: scenarioElements
 	}
 
 	def secureConnection(securedHostURI: URI) {
