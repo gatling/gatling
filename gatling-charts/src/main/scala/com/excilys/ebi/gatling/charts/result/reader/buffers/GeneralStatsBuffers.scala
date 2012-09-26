@@ -43,8 +43,8 @@ abstract class GeneralStatsBuffers(durationInSec: Long) extends Buffers {
 		private var min = Int.MaxValue
 		private var max = Int.MinValue
 		private var count = 0
-		private var sum = 0
-		private var squareSum = 0
+		private var sum = 0L
+		private var squareSum = 0L
 
 		override def update(time: Int) {
 			super.update(time)
