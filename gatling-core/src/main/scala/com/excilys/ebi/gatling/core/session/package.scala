@@ -21,5 +21,7 @@ package object session {
 
 	type EvaluatableString = Session => String
 
+	type EvaluatableStringSeq = Session => Seq[String]
+
 	val NOOP_EVALUATABLE_STRING: EvaluatableString = (s: Session) => EMPTY
 }

@@ -15,18 +15,19 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import com.excilys.ebi.gatling.core.Predef.stringToSessionFunction
+import com.excilys.ebi.gatling.core.Predef.{ evaluatableStringToEvaluatableStringSeq, stringToEvaluatableString, stringToEvaluatableStringSeq }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.{ EvaluatableString, Session }
-import com.excilys.ebi.gatling.core.util.StringHelper.{ EL_END, EL_START, parseEvaluatable }
+import com.excilys.ebi.gatling.core.util.StringHelper.{ attributeAsEvaluatableString, attributeAsEvaluatableStringSeq, parseEvaluatable }
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.referer.RefererHandling
-import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, FluentStringsMap }
+import com.excilys.ebi.gatling.http.util.HttpHelper.httpParamsToFluentMap
 import com.ning.http.client.{ Request, RequestBuilder }
+import com.ning.http.client.FluentCaseInsensitiveStringsMap
 import com.ning.http.client.ProxyServer.Protocol
 import com.ning.http.client.Realm
 import com.ning.http.client.Realm.AuthScheme
@@ -83,18 +84,30 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	/**
 	 * Adds a query parameter to the request
 	 *
-	 * @param param is a query parameter
+	 * The value is a session attribute with the same key
+	 *
+	 * @param key the key of the parameter
 	 */
-	def queryParam(param: HttpParam): B = newInstance(httpAttributes.copy(queryParams = param :: httpAttributes.queryParams))
+	def queryParam(key: String): B = queryParam(key, attributeAsEvaluatableString(key))
 
 	/**
 	 * Adds a query parameter to the request
 	 *
-	 * The value is a session attribute with the same key
-	 *
-	 * @param paramKey the key of the parameter
+	 * @param param is a query parameter
 	 */
-	def queryParam(paramKey: String): B = queryParam(paramKey, EL_START + paramKey + EL_END)
+	def queryParam(key: EvaluatableString, value: EvaluatableString): B = {
+		val httpParam: HttpParam = (key, value)
+		queryParam(httpParam)
+	}
+
+	def multiValuedQueryParam(key: String): B = multiValuedQueryParam(key, key)
+
+	def multiValuedQueryParam(key: EvaluatableString, value: String): B = {
+		val httpParam: HttpParam = (key, value)
+		queryParam((key, attributeAsEvaluatableStringSeq(value)))
+	}
+
+	private def queryParam(param: HttpParam): B = newInstance(httpAttributes.copy(queryParams = param :: httpAttributes.queryParams))
 
 	/**
 	 * Adds a header to the request
@@ -200,15 +213,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	private def configureQueryParams(requestBuilder: RequestBuilder, session: Session) {
 
 		if (!httpAttributes.queryParams.isEmpty) {
-
-			val queryParamsMap = new FluentStringsMap
-
-			httpAttributes.queryParams.map { case (keyFunction, valueFunction) => (keyFunction(session), valueFunction(session)) }
-				.groupBy(_._1)
-				.foreach {
-					case (key, values) => queryParamsMap.add(key, values.map(_._2): _*)
-				}
-
+			val queryParamsMap = httpParamsToFluentMap(httpAttributes.queryParams, session)
 			requestBuilder.setQueryParameters(queryParamsMap)
 		}
 	}

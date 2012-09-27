@@ -20,7 +20,7 @@ import java.util.regex.Pattern
 
 import scala.collection.mutable
 
-import com.excilys.ebi.gatling.core.session.{ EvaluatableString, Session }
+import com.excilys.ebi.gatling.core.session.{ EvaluatableString, EvaluatableStringSeq, Session }
 import com.excilys.ebi.gatling.core.util.NumberHelper.isNumeric
 
 import grizzled.slf4j.Logging
@@ -55,6 +55,23 @@ object StringHelper extends Logging {
 
 	def escapeJsQuoteString(s: String) = s.replace("'", "\\\'")
 
+	def attributeAsEvaluatableString(key: String): EvaluatableString = (session: Session) =>
+		session.getAttributeAsOption[Any](key).map(_.toString).getOrElse {
+			warn("Couldn't resolve session attribute " + key)
+			EMPTY
+		}
+
+	def attributeAsEvaluatableStringSeq(key: String): EvaluatableStringSeq = (session: Session) =>
+		session
+			.getAttributeAsOption[Any](key)
+			.map(value => value match {
+				case seq: Seq[_] => seq.map(_.toString)
+				case mono => List(mono.toString)
+			}).getOrElse {
+				warn("Couldn't resolve session attribute " + key)
+				List(EMPTY)
+			}
+
 	def parseEvaluatable(stringToFormat: String): EvaluatableString = {
 
 		def parseStaticParts: Array[String] = elPattern.pattern.split(stringToFormat, -1)
@@ -77,7 +94,7 @@ object StringHelper extends Logging {
 								case Some(resolvedOccurrence) => session.getAttributeAsOption[Seq[Any]](key) match {
 									case Some(seq) if (seq.isDefinedAt(resolvedOccurrence)) => seq(resolvedOccurrence)
 									case _ => {
-										warn(StringBuilder.newBuilder.append("Couldn't resolve occurrence ").append(resolvedOccurrence).append(" of session multivalued attribute ").append(key))
+										warn("Couldn't resolve occurrence " + resolvedOccurrence + " of session multivalued attribute " + key)
 										EMPTY
 									}
 								}
@@ -130,9 +147,9 @@ object StringHelper extends Logging {
 			buff.append("0")
 		buff.append(java.lang.Long.toString(b & 0xff, 16))
 	}.toString
-	
+
 	def trimToOption(string: String) = string.trim match {
 		case EMPTY => None
-		case string =>  Some(string)
+		case string => Some(string)
 	}
 }

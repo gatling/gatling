@@ -17,9 +17,14 @@ package com.excilys.ebi.gatling.http.util
 
 import java.net.{ URI, URLDecoder }
 
+import scala.Array.canBuildFrom
+import scala.collection.JavaConversions.seqAsJavaList
 import scala.io.Codec.UTF8
 
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.http.request.builder.HttpParam
+import com.ning.http.client.FluentStringsMap
 
 object HttpHelper {
 
@@ -55,5 +60,17 @@ object HttpHelper {
 
 				paramName -> paramValue
 			}.toList
+	}
+
+	def httpParamsToFluentMap(params: List[HttpParam], session: Session): FluentStringsMap = {
+
+		val map = new FluentStringsMap
+
+		params.map { case (key, value) => (key(session), value(session)) }
+			.groupBy(_._1)
+			.mapValues(_.map(_._2).flatten)
+			.foreach { case (key, values) => map.add(key, values) }
+
+		map
 	}
 }
