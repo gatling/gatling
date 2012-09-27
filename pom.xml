@@ -110,14 +110,14 @@
 		<scopt.version>2.1.0</scopt.version>
 		<args4j.version>2.0.21</args4j.version>
 		<ant.version>1.8.3</ant.version>
-		<grizzled-slf4j.version>0.6.9</grizzled-slf4j.version>
+		<grizzled-slf4j.version>0.6.10</grizzled-slf4j.version>
 		<jackson.version>2.0.6</jackson.version>
 		<commons-math3.version>3.0</commons-math3.version>
 		<commons-io.version>2.4</commons-io.version>
 		<commons-lang.version>2.6</commons-lang.version>
 		<jodd.version>3.3.8</jodd.version>
 		<asm.version>4.0</asm.version>
-		<redis.version>2.6</redis.version>
+		<redis.version>2.7</redis.version>
 		<junit.version>4.10</junit.version>
 		<specs2.version>1.12.1</specs2.version>
 
