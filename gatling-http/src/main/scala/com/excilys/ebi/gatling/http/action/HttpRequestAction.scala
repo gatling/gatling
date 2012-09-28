@@ -17,6 +17,7 @@ package com.excilys.ebi.gatling.http.action
 
 import com.excilys.ebi.gatling.core.action.{ Action, Bypass, system }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor }
 import com.excilys.ebi.gatling.http.cache.CacheHandling
@@ -74,6 +75,13 @@ object HttpRequestAction extends Logging {
 		system.registerOnTermination(client.close)
 
 		client
+	}
+
+	def apply(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]], protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
+
+		val httpConfig = protocolConfigurationRegistry.getProtocolConfiguration(HttpProtocolConfiguration.DEFAULT_HTTP_PROTOCOL_CONFIG)
+
+		new HttpRequestAction(requestName, next, requestBuilder, checks, httpConfig)
 	}
 }
 

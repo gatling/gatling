@@ -20,11 +20,10 @@ import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder.status
-import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 
-import akka.actor.{ Props, ActorRef }
+import akka.actor.{ ActorRef, Props }
 
 object HttpRequestActionBuilder {
 
@@ -53,8 +52,5 @@ class HttpRequestActionBuilder(requestName: String, requestBuilder: AbstractHttp
 		case _ => checks
 	}
 
-	private[gatling] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = {
-		val httpConfig = protocolConfigurationRegistry.getProtocolConfiguration(HttpProtocolConfiguration.DEFAULT_HTTP_PROTOCOL_CONFIG)
-		system.actorOf(Props(new HttpRequestAction(requestName, next, requestBuilder, resolvedChecks, httpConfig)))
-	}
+	private[gatling] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = system.actorOf(Props(HttpRequestAction(requestName, next, requestBuilder, resolvedChecks, protocolConfigurationRegistry)))
 }
