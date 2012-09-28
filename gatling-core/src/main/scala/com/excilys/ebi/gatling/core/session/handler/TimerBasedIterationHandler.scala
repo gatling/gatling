@@ -43,13 +43,10 @@ trait TimerBasedIterationHandler extends IterationHandler {
 
 	lazy val timerAttributeName = getTimerAttributeName(counterName)
 
-	override def init(session: Session): Session = {
-
-		session.getAttributeAsOption[Int](timerAttributeName) match {
-			case None => super.init(session).setAttribute(timerAttributeName, currentTimeMillis)
-			case Some(_) => super.init(session)
-		}
-	}
+	override def init(session: Session): Session = if (session.isAttributeDefined(timerAttributeName))
+		super.init(session)
+	else
+		super.init(session).setAttribute(timerAttributeName, currentTimeMillis)
 
 	override def expire(session: Session) = super.expire(session).removeAttribute(TimerBasedIterationHandler.getTimerAttributeName(counterName))
 }

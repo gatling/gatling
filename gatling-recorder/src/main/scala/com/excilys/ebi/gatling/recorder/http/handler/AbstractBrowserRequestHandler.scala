@@ -35,17 +35,15 @@ abstract class AbstractBrowserRequestHandler(controller: RecorderController, pro
 
 		event.getMessage match {
 			case request: HttpRequest =>
-				proxyConfig.host match {
-					case Some(_) =>
-						for {
-							username <- proxyConfig.username
-							password <- proxyConfig.password
-						} {
-							val proxyAuth = "Basic " + Base64.encode((username + ":" + password).getBytes)
-							request.setHeader(Headers.Names.PROXY_AUTHORIZATION, proxyAuth)
-						}
-					case None => request.removeHeader("Proxy-Connection") // remove Proxy-Connection header if it's not significant
-				}
+				proxyConfig.host.map { _ =>
+					for {
+						username <- proxyConfig.username
+						password <- proxyConfig.password
+					} {
+						val proxyAuth = "Basic " + Base64.encode((username + ":" + password).getBytes)
+						request.setHeader(Headers.Names.PROXY_AUTHORIZATION, proxyAuth)
+					}
+				}.getOrElse(request.removeHeader("Proxy-Connection")) // remove Proxy-Connection header if it's not significant
 
 				val future = connectToServerOnBrowserRequestReceived(ctx, request)
 

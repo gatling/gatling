@@ -44,31 +44,21 @@ object HttpHeaderRegexCheckBuilder {
 		(headerAndPattern: (String, String)) => {
 			val (headerName, pattern) = headerAndPattern
 
-			val decodedHeaderValues = Option(response.getHeaders(headerName)) match {
-				case Some(headerValues) =>
+			val decodedHeaderValues = Option(response.getHeaders(headerName))
+				.map { headerValues =>
 					if (headerName == Headers.Names.LOCATION)
 						headerValues.map(URLDecoder.decode(_, configuration.simulation.encoding))
 					else
 						headerValues.toSeq
-				case None => Nil
-			}
+				}.getOrElse(Nil)
 
 			decodedHeaderValues.foldLeft(Seq.empty[String]) { (matches, header) =>
-				new RegexExtractor(header).extractMultiple(pattern) match {
-					case Some(newMatches) => newMatches ++ matches
-					case None => matches
-				}
+				new RegexExtractor(header).extractMultiple(pattern).map(_ ++ matches).getOrElse(matches)
 			}
 		}
 
 	private val countExtractorFactory: ExtractorFactory[ExtendedResponse, (String, String), Int] =
-		(response: ExtendedResponse) =>
-			(headerAndPattern: (String, String)) => {
-				findAllExtractorFactory(response)(headerAndPattern) match {
-					case Some(results) => results.length
-					case _ => 0
-				}
-			}
+		(response: ExtendedResponse) => (headerAndPattern: (String, String)) => findAllExtractorFactory(response)(headerAndPattern).map(_.length).orElse(0)
 
 	def headerRegex(headerName: EvaluatableString, pattern: EvaluatableString) = {
 		val expression = (s: Session) => (headerName(s), pattern(s))

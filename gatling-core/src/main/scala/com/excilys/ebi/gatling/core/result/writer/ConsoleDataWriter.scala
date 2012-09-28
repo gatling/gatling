@@ -78,15 +78,15 @@ class ConsoleDataWriter extends DataWriter with Logging {
 	override def onRequestRecord(requestRecord: RequestRecord) {
 
 		requestRecord.requestName match {
-			case START_OF_SCENARIO => usersCounters.get(requestRecord.scenarioName) match {
-				case Some(userStatus) => userStatus.userStart
-				case None => error("Internal error, scenario '%s' has not been correctly initialized" format requestRecord.scenarioName)
-			}
+			case START_OF_SCENARIO => usersCounters
+				.get(requestRecord.scenarioName)
+				.map(_.userStart)
+				.getOrElse(error("Internal error, scenario '%s' has not been correctly initialized" format requestRecord.scenarioName))
 
-			case END_OF_SCENARIO => usersCounters.get(requestRecord.scenarioName) match {
-				case Some(userStatus) => userStatus.userDone
-				case None => error("Internal error, scenario '%s' has not been correctly initialized" format requestRecord.scenarioName)
-			}
+			case END_OF_SCENARIO => usersCounters
+				.get(requestRecord.scenarioName)
+				.map(_.userDone)
+				.getOrElse(error("Internal error, scenario '%s' has not been correctly initialized" format requestRecord.scenarioName))
 
 			case requestName =>
 				val requestCounters = requestsCounters.getOrElseUpdate(requestName, RequestCounters(0, 0))

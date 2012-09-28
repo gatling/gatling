@@ -28,10 +28,10 @@ object ComponentLibrary extends Logging {
 
 		val STATIC_LIBRARY_BINDER_PATH = "com/excilys/ebi/gatling/charts/component/impl/ComponentLibraryImpl.class"
 
-		val paths = (Option(this.getClass.getClassLoader) match {
-			case Some(classloader) => classloader.getResources(STATIC_LIBRARY_BINDER_PATH)
-			case None => ClassLoader.getSystemResources(STATIC_LIBRARY_BINDER_PATH)
-		}).toList
+		val paths = Option(getClass.getClassLoader)
+			.map(_.getResources(STATIC_LIBRARY_BINDER_PATH))
+			.getOrElse(ClassLoader.getSystemResources(STATIC_LIBRARY_BINDER_PATH))
+			.toList
 
 		if (paths.size > 1) {
 			warn("Class path contains multiple ComponentLibrary bindings")

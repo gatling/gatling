@@ -58,14 +58,13 @@ class LoopBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: 
 	}
 
 	@deprecated("""Will be removed in Gatling 1.4.0. Use "repeat(times) { chain }" instead""", "1.3.0")
-	def times(timesValue: Session => Int): B = {
-		counterName match {
-			case Some(counter) => asLongAs((s: Session) => s.getCounterValue(counter) < timesValue(s))
-			case None =>
-				val counter = counterName.getOrElse(UUID.randomUUID.toString)
-				counterName(counter).asLongAs((s: Session) => s.getCounterValue(counter) < timesValue(s))
+	def times(timesValue: Session => Int): B = counterName
+		.map { counter =>
+			asLongAs((s: Session) => s.getCounterValue(counter) < timesValue(s))
+		}.getOrElse {
+			val counter = UUID.randomUUID.toString
+			counterName(counter).asLongAs((s: Session) => s.getCounterValue(counter) < timesValue(s))
 		}
-	}
 
 	/**
 	 * This method sets the duration of the loop

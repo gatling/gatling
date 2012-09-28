@@ -47,10 +47,10 @@ class HttpRequestActionBuilder(requestName: String, requestBuilder: AbstractHttp
 
 	private[gatling] def withNext(next: ActorRef) = new HttpRequestActionBuilder(requestName, requestBuilder, checks, next)
 
-	private[gatling] val resolvedChecks = checks.find(_.phase == StatusReceived) match {
-		case None => HttpRequestActionBuilder.DEFAULT_HTTP_STATUS_CHECK :: checks
-		case _ => checks
-	}
+	private[gatling] val resolvedChecks = checks
+		.find(_.phase == StatusReceived)
+		.map(_ => checks)
+		.getOrElse(HttpRequestActionBuilder.DEFAULT_HTTP_STATUS_CHECK :: checks)
 
 	private[gatling] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = system.actorOf(Props(HttpRequestAction(requestName, next, requestBuilder, resolvedChecks, protocolConfigurationRegistry)))
 }

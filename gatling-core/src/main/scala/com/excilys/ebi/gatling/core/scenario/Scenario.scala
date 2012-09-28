@@ -32,20 +32,18 @@ class Scenario(val name: String, entryPoint: ActorRef, val configuration: Scenar
 				entryPoint ! new Session(name, 1)
 
 			} else {
-				configuration.ramp match {
-					case None =>
-						for (i <- 1 to configuration.users) entryPoint ! new Session(name, i)
+				configuration.ramp.map { duration =>
+					val period = duration.toMillis.toDouble / (configuration.users - 1)
+					for (i <- 1 to configuration.users) system.scheduler.scheduleOnce((period * (i - 1)).toInt milliseconds, entryPoint, new Session(name, i))
 
-					case Some(duration) =>
-						val period = duration.toMillis.toDouble / (configuration.users - 1)
-						for (i <- 1 to configuration.users) system.scheduler.scheduleOnce((period * (i - 1)).toInt milliseconds, entryPoint, new Session(name, i))
+				}.getOrElse {
+					for (i <- 1 to configuration.users) entryPoint ! new Session(name, i)
 				}
 			}
 		}
 
-		configuration.delay match {
-			case None => doRun
-			case Some(duration) => system.scheduler.scheduleOnce(duration)(doRun)
-		}
+		configuration.delay
+			.map(system.scheduler.scheduleOnce(_)(doRun))
+			.getOrElse(doRun)
 	}
 }

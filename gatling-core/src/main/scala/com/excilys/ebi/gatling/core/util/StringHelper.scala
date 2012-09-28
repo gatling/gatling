@@ -55,32 +55,33 @@ object StringHelper extends Logging {
 
 	def escapeJsQuoteString(s: String) = s.replace("'", "\\\'")
 
-	def attributeAsEvaluatableString(key: String): EvaluatableString = (session: Session) =>
-		session.getAttributeAsOption[Any](key).map(_.toString).getOrElse {
+	def attributeAsEvaluatableString(key: String): EvaluatableString = (session: Session) => session.getAttributeAsOption[Any](key)
+		.map(_.toString)
+		.getOrElse {
 			warn("Couldn't resolve session attribute " + key)
 			EMPTY
 		}
 
-	def attributeAsEvaluatableStringSeq(key: String): EvaluatableStringSeq = (session: Session) =>
-		session
-			.getAttributeAsOption[Any](key)
-			.map(value => value match {
-				case seq: Seq[_] => seq.map(_.toString)
-				case mono => List(mono.toString)
-			}).getOrElse {
-				warn("Couldn't resolve session attribute " + key)
-				List(EMPTY)
-			}
+	def attributeAsEvaluatableStringSeq(key: String): EvaluatableStringSeq = (session: Session) => session.getAttributeAsOption[Any](key)
+		.map(value => value match {
+			case seq: Seq[_] => seq.map(_.toString)
+			case mono => List(mono.toString)
+		}).getOrElse {
+			warn("Couldn't resolve session attribute " + key)
+			List(EMPTY)
+		}
 
 	def parseEvaluatable(stringToFormat: String): EvaluatableString = {
 
 		def parseStaticParts: Array[String] = elPattern.pattern.split(stringToFormat, -1)
 
-		def parseDynamicParts: Seq[Session => Any] = {
-			elPattern.findAllIn(stringToFormat).matchData.map { data =>
+		def parseDynamicParts: Seq[Session => Any] = elPattern
+			.findAllIn(stringToFormat)
+			.matchData
+			.map { data =>
 				val elContent = data.group(1)
-				elOccurrencePattern.findFirstMatchIn(elContent) match {
-					case Some(occurrencePartMatch) =>
+				elOccurrencePattern.findFirstMatchIn(elContent)
+					.map { occurrencePartMatch =>
 						val key = occurrencePartMatch.group(1)
 						val occurrence = occurrencePartMatch.group(2)
 						val occurrenceFunction =
@@ -89,33 +90,29 @@ object StringHelper extends Logging {
 							else
 								(session: Session) => session.getAttributeAsOption(occurrence)
 
-						(session: Session) => {
-							occurrenceFunction(session) match {
-								case Some(resolvedOccurrence) => session.getAttributeAsOption[Seq[Any]](key) match {
-									case Some(seq) if (seq.isDefinedAt(resolvedOccurrence)) => seq(resolvedOccurrence)
-									case _ => {
+						(session: Session) => occurrenceFunction(session)
+							.map { resolvedOccurrence =>
+								session.getAttributeAsOption[Seq[Any]](key) match {
+									case Some(seq) if (seq.isDefinedAt(resolvedOccurrence)) =>
+										seq(resolvedOccurrence)
+									case _ =>
 										warn("Couldn't resolve occurrence " + resolvedOccurrence + " of session multivalued attribute " + key)
 										EMPTY
-									}
 								}
-								case None => {
-									warn("Couldn't resolve index session attribute " + occurrence)
-									EMPTY
-								}
-							}
-						}
-					case None =>
-						val key = data.group(1)
-						(session: Session) => session.getAttributeAsOption[Any](key) match {
-							case Some(x) => x
-							case None => {
-								warn("Couldn't resolve session attribute " + key)
+
+							}.getOrElse {
+								warn("Couldn't resolve index session attribute " + occurrence)
 								EMPTY
 							}
+
+					}.getOrElse {
+						val key = data.group(1)
+						(session: Session) => session.getAttributeAsOption[Any](key).getOrElse {
+							warn("Couldn't resolve session attribute " + key)
+							EMPTY
 						}
-				}
+					}
 			}.toSeq
-		}
 
 		def doParseEvaluatable: EvaluatableString = {
 			val dynamicParts = parseDynamicParts
