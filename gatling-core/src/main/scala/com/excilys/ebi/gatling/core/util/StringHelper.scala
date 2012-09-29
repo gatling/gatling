@@ -126,13 +126,12 @@ object StringHelper extends Logging {
 
 				val functions = dynamicParts.zip(staticParts)
 
-				(session: Session) => {
-					val buffer = new StringBuilder
-
-					functions.foreach { case (dynamicPart, staticPart) => buffer.append(staticPart).append(dynamicPart(session)) }
-
-					buffer.append(staticParts.last).toString
-				}
+				(session: Session) => functions
+					.foldLeft(new StringBuilder) { (buffer, function) =>
+						val (dynamicPart, staticPart) = function
+						buffer.append(staticPart).append(dynamicPart(session))
+					}.append(staticParts.last)
+					.toString
 			}
 		}
 

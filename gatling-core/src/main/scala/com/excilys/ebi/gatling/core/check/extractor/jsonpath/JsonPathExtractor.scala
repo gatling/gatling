@@ -36,7 +36,7 @@ object JsonPathExtractor {
  */
 class JsonPathExtractor(textContent: Array[Byte]) {
 
-	val json = JsonPathExtractor.mapper.readValue(textContent, classOf[JsonNode])
+	val json: JsonNode = JsonPathExtractor.mapper.readValue(textContent, classOf[JsonNode])
 
 	/**
 	 * @param occurrence
@@ -52,10 +52,7 @@ class JsonPathExtractor(textContent: Array[Byte]) {
 	 * @param expression
 	 * @return extract all the occurrences matching the expression
 	 */
-	def extractMultiple(expression: String): Option[Seq[String]] = {
-		val results = new JaxenJackson(expression).selectNodes(json).map(_.asInstanceOf[JsonNode].asText)
-		results
-	}
+	def extractMultiple(expression: String): Option[Seq[String]] = new JaxenJackson(expression).selectNodes(json).map(_.asInstanceOf[JsonNode].asText): Seq[String]
 
 	/**
 	 * @param expression
