@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader
 
-import java.io.File
+import java.io.{ FileInputStream, InputStream }
 import java.util.{ HashMap => JHashMap }
 import java.util.regex.Pattern
 
@@ -48,7 +48,7 @@ object FileDataReader {
 
 class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
-	private def multipleFileIterator(files: Seq[File]): Iterator[String] = files.map(file => Source.fromFile(file, configuration.simulation.encoding).getLines()).reduce((first, second) => first ++ second)
+	private def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] = streams.map(Source.fromInputStream(_, configuration.simulation.encoding).getLines()).reduce((first, second) => first ++ second)
 
 	val inputFiles = simulationLogDirectory(runUuid, create = false).files.filter(_.jfile.getName.matches(FileDataReader.SIMULATION_FILES_NAME_PATTERN)).map(_.jfile).toSeq
 
@@ -77,8 +77,15 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 		(runStart, runEnd, runRecords.head)
 	}
-
-	val (runStart, runEnd, runRecord) = preProcess(multipleFileIterator(inputFiles))
+	
+	val (runStart, runEnd, runRecord) = {
+		val streams = inputFiles.map(new FileInputStream(_))
+		try {
+			preProcess(multipleFileIterator(streams))
+		} finally {
+			streams.foreach(_.close)
+		}
+	}
 
 	val step = StatsHelper.step(math.floor(runStart / FileDataReader.SEC_MILLISEC_RATIO).toInt, math.ceil(runEnd / FileDataReader.SEC_MILLISEC_RATIO).toInt, configuration.charting.maxPlotsPerSeries) * FileDataReader.SEC_MILLISEC_RATIO
 	val bucketFunction = StatsHelper.bucket(_: Int, 0, (runEnd - runStart).toInt, step, step / 2)
@@ -106,7 +113,14 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		resultsHolder
 	}
 
-	val resultsHolder = process(multipleFileIterator(inputFiles), bucketFunction)
+	val resultsHolder = {
+		val streams = inputFiles.map(new FileInputStream(_))
+		try {
+			process(multipleFileIterator(streams), bucketFunction)
+		} finally {
+			streams.foreach(_.close)
+		}
+	}
 
 	def requestNames: List[String] = resultsHolder
 		.requestNameBuffer
