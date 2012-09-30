@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.excilys.ebi.gatling</groupId>
 	<artifactId>gatling-parent</artifactId>
@@ -125,7 +126,7 @@
 		<maven-source-plugin.version>2.2</maven-source-plugin.version>
 		<maven-assembly-plugin.version>2.2.2</maven-assembly-plugin.version>
 		<maven-jar-plugin.version>2.4</maven-jar-plugin.version>
-		<scala-maven-plugin.version>3.0.2</scala-maven-plugin.version>
+		<scala-maven-plugin.version>3.1.0</scala-maven-plugin.version>
 		<maven-surefire-plugin.version>2.12.2</maven-surefire-plugin.version>
 		<maven-release-plugin.version>2.3.2</maven-release-plugin.version>
 		<maven-license-plugin.version>1.10.b1</maven-license-plugin.version>
@@ -431,14 +432,10 @@
 					<executions>
 						<execution>
 							<goals>
+								<goal>add-source</goal>
 								<goal>compile</goal>
 								<goal>testCompile</goal>
 							</goals>
-							<!-- <configuration> -->
-							<!-- <args> -->
-							<!-- <arg>-deprecation</arg> -->
-							<!-- </args> -->
-							<!-- </configuration> -->
 						</execution>
 					</executions>
 				</plugin>
@@ -510,20 +507,6 @@
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>build-helper-maven-plugin</artifactId>
 					<version>${build-helper-maven-plugin.version}</version>
-					<executions>
-						<execution>
-							<id>add-scala-sources</id>
-							<phase>package</phase>
-							<goals>
-								<goal>add-source</goal>
-							</goals>
-							<configuration>
-								<sources>
-									<source>src/main/scala</source>
-								</sources>
-							</configuration>
-						</execution>
-					</executions>
 				</plugin>
 				<plugin>
 					<artifactId>maven-plugin-plugin</artifactId>
@@ -532,10 +515,6 @@
 			</plugins>
 		</pluginManagement>
 		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-			</plugin>
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>
 			</plugin>

@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>gatling-parent</artifactId>
@@ -12,7 +13,7 @@
 	<properties>
 		<header.basedir>${project.parent.basedir}</header.basedir>
 	</properties>
-	
+
 	<dependencies>
 		<!-- compile -->
 		<dependency>
@@ -24,7 +25,10 @@
 			<artifactId>redisclient_2.9.2</artifactId>
 		</dependency>
 	</dependencies>
+
 	<build>
+		<sourceDirectory>src/main/scala</sourceDirectory>
+		<testSourceDirectory>src/test/scala</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>net.alchim31.maven</groupId>
