@@ -114,7 +114,6 @@
 		<jackson.version>2.0.6</jackson.version>
 		<commons-math3.version>3.0</commons-math3.version>
 		<commons-io.version>2.4</commons-io.version>
-		<commons-lang.version>2.6</commons-lang.version>
 		<jodd.version>3.3.8</jodd.version>
 		<asm.version>4.0</asm.version>
 		<redis.version>2.7</redis.version>
@@ -369,11 +368,6 @@
 				<groupId>commons-io</groupId>
 				<artifactId>commons-io</artifactId>
 				<version>${commons-io.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>commons-lang</groupId>
-				<artifactId>commons-lang</artifactId>
-				<version>${commons-lang.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>net.debasishg</groupId>

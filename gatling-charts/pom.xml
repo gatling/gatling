@@ -24,13 +24,6 @@
 			<artifactId>scalate-core</artifactId>
 		</dependency>
 
-		<!-- runtime -->
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-
 		<!-- test -->
 		<dependency>
 			<groupId>junit</groupId>
