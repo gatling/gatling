@@ -60,13 +60,14 @@ class FileSystemBackedSimulationClassLoader(classLoader: ClassLoader, binaryDir:
 
 	def simulationClasses(requestedClassName: Option[String]): List[Class[Simulation]] = {
 
-		val classNames = requestedClassName match {
-			case None => binaryDir
-				.deepFiles
-				.filter(_.hasExtension("class"))
-				.map(pathToClassName(_, binaryDir))
-			case Some(name) => List(name)
-		}
+		val classNames = requestedClassName
+			.map(List(_))
+			.getOrElse {
+				binaryDir
+					.deepFiles
+					.filter(_.hasExtension("class"))
+					.map(pathToClassName(_, binaryDir))
+			}
 
 		val classes = classNames.map(classLoader.loadClass(_))
 			.filter(isSimulationClass)

@@ -40,8 +40,8 @@ object ExtendedResponseBuilder {
 			}
 		}
 
-		val storeBodyPart = !protocolConfiguration.responseChunksDiscardingEnabled || checks.exists(_.phase == CompletePageReceived)
-		(request: Request, session: Session) => new ExtendedResponseBuilder(request, session, checksumChecks, storeBodyPart)
+		val storeBodyParts = !protocolConfiguration.responseChunksDiscardingEnabled || checks.exists(_.phase == CompletePageReceived)
+		(request: Request, session: Session) => new ExtendedResponseBuilder(request, session, checksumChecks, storeBodyParts)
 	}
 }
 
@@ -85,8 +85,9 @@ class ExtendedResponseBuilder(request: Request, session: Session, checksumChecks
 				}).update(part.getBodyPartBytes)
 			}
 
-			if (storeBodyParts)
+			if (storeBodyParts) {
 				responseBuilder.accumulate(part)
+			}
 		}
 	}
 

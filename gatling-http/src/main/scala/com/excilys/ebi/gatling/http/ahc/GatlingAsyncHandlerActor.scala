@@ -52,7 +52,7 @@ object GatlingAsyncHandlerActor {
 		requestName: String,
 		protocolConfiguration: HttpProtocolConfiguration) = {
 
-		val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks)
+		val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks, protocolConfiguration)
 		val responseBuilderFactory = ExtendedResponseBuilder.newExtendedResponseBuilder(checks, protocolConfiguration)
 
 		(request: Request, session: Session) =>
@@ -163,13 +163,6 @@ class GatlingAsyncHandlerActor(
 
 		def handleFollowRedirect(sessionWithUpdatedCookies: Session) {
 
-			def configureForNextRedirect(newSession: Session, newRequestName: String, newRequest: Request) {
-				this.session = newSession
-				this.requestName = newRequestName
-				this.request = newRequest
-				this.responseBuilder = responseBuilderFactory(newRequest, session)
-			}
-
 			logRequest(OK, response)
 
 			val redirectUrl = computeRedirectUrl(response.getHeader(HeaderNames.LOCATION), request.getUrl)
@@ -195,31 +188,12 @@ class GatlingAsyncHandlerActor(
 					requestName + " Redirect 1"
 			}
 
-			configureForNextRedirect(sessionWithUpdatedCookies, newRequestName, newRequest)
+			this.session = sessionWithUpdatedCookies
+			this.requestName = newRequestName
+			this.request = newRequest
+			this.responseBuilder = responseBuilderFactory(newRequest, session)
 
 			HTTP_CLIENT.executeRequest(newRequest, handlerFactory(newRequestName, self))
-		}
-
-		@tailrec
-		def checkPhasesRec(session: Session, phases: List[HttpPhase]) {
-
-			phases match {
-				case Nil =>
-					logRequest(OK, response)
-					executeNext(session, response)
-
-				case phase :: otherPhases =>
-					val phaseChecks = checks.filter(_.phase == phase)
-					var (newSession, checkResult) = applyChecks(session, response, phaseChecks)
-
-					checkResult match {
-						case Failure(errorMessage) =>
-							logRequest(KO, response, Some(errorMessage))
-							executeNext(newSession, response)
-
-						case _ => checkPhasesRec(newSession, otherPhases)
-					}
-			}
 		}
 
 		val sessionWithUpdatedCookies = CookieHandling.storeCookies(session, response.getUri, response.getCookies.toList)
@@ -229,6 +203,28 @@ class GatlingAsyncHandlerActor(
 
 		else {
 			val sessionWithUpdatedCache = CacheHandling.cache(protocolConfiguration, sessionWithUpdatedCookies, request, response)
+
+			@tailrec
+			def checkPhasesRec(session: Session, phases: List[HttpPhase]) {
+
+				phases match {
+					case Nil =>
+						logRequest(OK, response)
+						executeNext(session, response)
+
+					case phase :: otherPhases =>
+						val phaseChecks = checks.filter(_.phase == phase)
+						var (newSession, checkResult) = applyChecks(session, response, phaseChecks)
+
+						checkResult match {
+							case Failure(errorMessage) =>
+								logRequest(KO, response, Some(errorMessage))
+								executeNext(newSession, response)
+
+							case _ => checkPhasesRec(newSession, otherPhases)
+						}
+				}
+			}
 
 			checkPhasesRec(sessionWithUpdatedCache, HttpPhase.phases)
 		}

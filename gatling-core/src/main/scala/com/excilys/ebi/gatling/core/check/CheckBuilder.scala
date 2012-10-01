@@ -92,10 +92,7 @@ class MatcherCheckBuilder[C <: Check[R, XC], R, XC, X](checkBuilderFactory: Chec
 	 */
 	def transform[T](transformation: X => T): MatcherCheckBuilder[C, R, XC, T] = new MatcherCheckBuilder(checkBuilderFactory, new ExtractorFactory[R, XC, T] {
 		def apply(response: R) = new Extractor[XC, T] {
-			def apply(expression: XC) = extractorFactory(response)(expression) match {
-				case Some(x) => Some(transformation(x))
-				case None => None
-			}
+			def apply(expression: XC) = extractorFactory(response)(expression).map(transformation(_))
 		}
 	})
 
@@ -122,48 +119,39 @@ class MatcherCheckBuilder[C <: Check[R, XC], R, XC, X](checkBuilderFactory: Chec
 	 * @return a partial CheckBuilder with a "is equal to" MatchStrategy
 	 */
 	def is(expected: Session => X) = matchWith(new MatchStrategy[X] {
-		def apply(value: Option[X], session: Session) = value match {
-			case Some(extracted) => {
-				val expectedValue = expected(session)
-				if (extracted == expectedValue)
-					Success(value)
-				else
-					Failure("Check 'is' failed, found " + extracted + " but expected " + expectedValue)
-			}
-			case None => Failure("Check 'is' failed, found nothing")
-		}
+		def apply(value: Option[X], session: Session) = value.map { extracted =>
+			val expectedValue = expected(session)
+			if (extracted == expectedValue) Success(value)
+			else Failure("Check 'is' failed, found " + extracted + " but expected " + expectedValue)
+
+		}.getOrElse(Failure("Check 'is' failed, found nothing"))
 	})
 
 	def lessThan(expected: Session => X) = matchWith(new MatchStrategy[X] {
 
-		def compare(expected: X, extracted: X, ok: Boolean) = {
-			if (ok)
-				Success(Some(extracted))
-			else
-				Failure("Check 'lessThan' failed, found " + extracted + " but expected " + expected)
-		}
+		def compare(expected: X, extracted: X, ok: Boolean) =
+			if (ok) Success(Some(extracted))
+			else Failure("Check 'lessThan' failed, found " + extracted + " but expected " + expected)
 
-		def apply(value: Option[X], session: Session) = value match {
-			case Some(extracted) => {
-				val expectedValue = expected(session)
+		def apply(value: Option[X], session: Session) = value.map { extracted =>
+			val expectedValue = expected(session)
 
-				if (extracted.isInstanceOf[Long] & expectedValue.isInstanceOf[Long]) {
-					compare(expectedValue, extracted, extracted.asInstanceOf[Long] <= expectedValue.asInstanceOf[Long])
+			if (extracted.isInstanceOf[Long] & expectedValue.isInstanceOf[Long]) {
+				compare(expectedValue, extracted, extracted.asInstanceOf[Long] <= expectedValue.asInstanceOf[Long])
 
-				} else if (extracted.isInstanceOf[Int] & expectedValue.isInstanceOf[Int]) {
-					compare(expectedValue, extracted, extracted.asInstanceOf[Int] <= expectedValue.asInstanceOf[Int])
+			} else if (extracted.isInstanceOf[Int] & expectedValue.isInstanceOf[Int]) {
+				compare(expectedValue, extracted, extracted.asInstanceOf[Int] <= expectedValue.asInstanceOf[Int])
 
-				} else if (extracted.isInstanceOf[Double] & expectedValue.isInstanceOf[Double]) {
-					compare(expectedValue, extracted, extracted.asInstanceOf[Double] <= expectedValue.asInstanceOf[Double])
+			} else if (extracted.isInstanceOf[Double] & expectedValue.isInstanceOf[Double]) {
+				compare(expectedValue, extracted, extracted.asInstanceOf[Double] <= expectedValue.asInstanceOf[Double])
 
-				} else if (extracted.isInstanceOf[Float] & expectedValue.isInstanceOf[Float]) {
-					compare(expectedValue, extracted, extracted.asInstanceOf[Float] <= expectedValue.asInstanceOf[Float])
+			} else if (extracted.isInstanceOf[Float] & expectedValue.isInstanceOf[Float]) {
+				compare(expectedValue, extracted, extracted.asInstanceOf[Float] <= expectedValue.asInstanceOf[Float])
 
-				} else
-					Failure("Check 'lessThan' failed trying to compare thing that are not numbers of the same type, found " + extracted + " but expected " + expectedValue)
-			}
-			case None => Failure("Check 'lessThan' failed, found nothing")
-		}
+			} else
+				Failure("Check 'lessThan' failed trying to compare thing that are not numbers of the same type, found " + extracted + " but expected " + expectedValue)
+
+		}.getOrElse(Failure("Check 'lessThan' failed, found nothing"))
 	})
 
 	/**
@@ -171,16 +159,12 @@ class MatcherCheckBuilder[C <: Check[R, XC], R, XC, X](checkBuilderFactory: Chec
 	 * @return a partial CheckBuilder with a "is different from" MatchStrategy
 	 */
 	def not(expected: Session => X) = matchWith(new MatchStrategy[X] {
-		def apply(value: Option[X], session: Session) = value match {
-			case None => Success(value)
-			case Some(extracted) => {
-				val expectedValue = expected(session)
-				if (extracted != expectedValue)
-					Success(value)
-				else
-					Failure("Check 'not' failed, found " + extracted + " but expected different from " + expectedValue)
-			}
-		}
+		def apply(value: Option[X], session: Session) = value.map { extracted =>
+			val expectedValue = expected(session)
+			if (extracted != expectedValue) Success(value)
+			else Failure("Check 'not' failed, found " + extracted + " but expected different from " + expectedValue)
+
+		}.getOrElse(Success(value))
 	})
 
 	/**
@@ -198,16 +182,12 @@ class MatcherCheckBuilder[C <: Check[R, XC], R, XC, X](checkBuilderFactory: Chec
 	 * @return a partial CheckBuilder with a "belongs to the sequence" MatchStrategy
 	 */
 	def in(expected: Session => Seq[X]) = matchWith(new MatchStrategy[X] {
-		def apply(value: Option[X], session: Session) = value match {
-			case Some(extracted) => {
-				val expectedValue = expected(session)
-				if (expectedValue.contains(extracted))
-					Success(value)
-				else
-					Failure("Check 'in' failed, found " + extracted + " but expected " + expectedValue)
-			}
-			case None => Failure("Check 'in' failed, found nothing")
-		}
+		def apply(value: Option[X], session: Session) = value.map { extracted =>
+			val expectedValue = expected(session)
+			if (expectedValue.contains(extracted)) Success(value)
+			else Failure("Check 'in' failed, found " + extracted + " but expected " + expectedValue)
+
+		}.getOrElse(Failure("Check 'in' failed, found nothing"))
 	})
 
 	/**

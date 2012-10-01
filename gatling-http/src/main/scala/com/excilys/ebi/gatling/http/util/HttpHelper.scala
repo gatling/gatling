@@ -17,16 +17,21 @@ package com.excilys.ebi.gatling.http.util
 
 import java.net.{ URI, URLDecoder }
 
+import scala.Array.canBuildFrom
+import scala.collection.JavaConversions.seqAsJavaList
 import scala.io.Codec.UTF8
 
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.http.request.builder.HttpParam
+import com.ning.http.client.FluentStringsMap
 
 object HttpHelper {
 
 	def computeRedirectUrl(locationHeader: String, originalRequestUrl: String) = {
-		if (locationHeader.startsWith("http"))
+		if (locationHeader.startsWith("http")) // as of the RFC, Location should be an absolute uri
 			locationHeader
-		else {
+		else { // sadly, internet is a mess
 			val originalRequestURI = new URI(originalRequestUrl)
 			val originalRequestPath = originalRequestURI.getPath
 			val newPath = if (locationHeader.charAt(0) == '/')
@@ -47,13 +52,20 @@ object HttpHelper {
 
 		body
 			.split("&")
-			.map(_.split("="))
+			.map(_.split("=", 2))
 			.map { pair =>
-
 				val paramName = utf8Decode(pair(0))
 				val paramValue = if (pair.isDefinedAt(1)) utf8Decode(pair(1)) else EMPTY
-
 				paramName -> paramValue
 			}.toList
 	}
+
+	def httpParamsToFluentMap(params: List[HttpParam], session: Session): FluentStringsMap = params
+		.map { case (key, value) => (key(session), value(session)) }
+		.groupBy(_._1)
+		.mapValues(_.map(_._2).flatten)
+		.foldLeft(new FluentStringsMap) { (map, keyValues) =>
+			val (key, values) = keyValues
+			map.add(key, values)
+		}
 }

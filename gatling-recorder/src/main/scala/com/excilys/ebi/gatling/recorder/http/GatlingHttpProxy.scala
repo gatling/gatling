@@ -17,7 +17,6 @@ package com.excilys.ebi.gatling.recorder.http
 
 import java.net.InetSocketAddress
 
-import org.jboss.netty.channel.Channel
 import org.jboss.netty.channel.group.DefaultChannelGroup
 
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
@@ -32,10 +31,6 @@ class GatlingHttpProxy(controller: RecorderController, port: Int, sslPort: Int, 
 
 	group.add(bootstrap.bind(new InetSocketAddress(port)))
 	group.add(secureBootstrap.bind(new InetSocketAddress(sslPort)))
-
-	def registerChannel(channel: Channel) {
-		group.add(channel)
-	}
 
 	def shutdown {
 		group.close.awaitUninterruptibly

@@ -15,15 +15,10 @@
  */
 package com.excilys.ebi.gatling.core.util
 
-import java.io.File
-import java.security.MessageDigest
-
-import org.apache.commons.io.FileUtils
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.PaddableStringBuilder.toPaddable
 
 @RunWith(classOf[JUnitRunner])

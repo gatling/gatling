@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.excilys.ebi.gatling</groupId>
 	<artifactId>gatling-parent</artifactId>
@@ -86,7 +87,6 @@
 		</repository>
 		<!-- http://repo.typesafe.com/typesafe/releases -->
 		<!-- http://repo.jenkins-ci.org/content/repositories/releases -->
-		<!-- http://conjars.org/repo -->
 	</repositories>
 
 	<properties>
@@ -103,7 +103,7 @@
 		<logback.version>1.0.7</logback.version>
 		<slf4j.version>1.7.1</slf4j.version>
 		<scalate.version>1.5.3</scalate.version>
-		<netty.version>3.5.7.Final</netty.version>
+		<netty.version>3.5.8.Final</netty.version>
 		<grizzly.version>2.2.16</grizzly.version>
 		<joda-time.version>2.1</joda-time.version>
 		<joda-convert.version>1.2</joda-convert.version>
@@ -111,29 +111,22 @@
 		<scopt.version>2.1.0</scopt.version>
 		<args4j.version>2.0.21</args4j.version>
 		<ant.version>1.8.3</ant.version>
-		<grizzled-slf4j.version>0.6.9</grizzled-slf4j.version>
+		<grizzled-slf4j.version>0.6.10</grizzled-slf4j.version>
 		<jackson.version>2.0.6</jackson.version>
 		<commons-math3.version>3.0</commons-math3.version>
 		<commons-io.version>2.4</commons-io.version>
-		<commons-lang.version>2.6</commons-lang.version>
 		<jodd.version>3.3.8</jodd.version>
 		<asm.version>4.0</asm.version>
-		<redis.version>2.6</redis.version>
+		<redis.version>2.7</redis.version>
 		<junit.version>4.10</junit.version>
 		<specs2.version>1.12.1</specs2.version>
-		<scalding.version>0.8.0</scalding.version>
-		<cascading.version>2.0.5</cascading.version>
-		<guava.version>13.0.1</guava.version>
-		<jgrapht.version>0.8.2</jgrapht.version>
-		<maple.version>0.2.3</maple.version>
 		<zinc.version>0.1.1</zinc.version>
-
 		<maven2.version>2.2.1</maven2.version>
 		<maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
 		<maven-source-plugin.version>2.2</maven-source-plugin.version>
 		<maven-assembly-plugin.version>2.2.2</maven-assembly-plugin.version>
 		<maven-jar-plugin.version>2.4</maven-jar-plugin.version>
-		<scala-maven-plugin.version>3.0.2</scala-maven-plugin.version>
+		<scala-maven-plugin.version>3.1.0</scala-maven-plugin.version>
 		<maven-surefire-plugin.version>2.12.2</maven-surefire-plugin.version>
 		<maven-release-plugin.version>2.3.2</maven-release-plugin.version>
 		<maven-license-plugin.version>1.10.b1</maven-license-plugin.version>
@@ -378,11 +371,6 @@
 				<version>${commons-io.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>commons-lang</groupId>
-				<artifactId>commons-lang</artifactId>
-				<version>${commons-lang.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>net.debasishg</groupId>
 				<artifactId>redisclient_2.9.2</artifactId>
 				<version>${redis.version}</version>
@@ -401,151 +389,6 @@
 				<groupId>org.specs2</groupId>
 				<artifactId>specs2_2.9.2</artifactId>
 				<version>${specs2.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.twitter</groupId>
-				<artifactId>scalding_2.9.2</artifactId>
-				<version>${scalding.version}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>cascading.kryo</groupId>
-						<artifactId>cascading.kryo</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>com.twitter</groupId>
-						<artifactId>meat-locker</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>cascading</groupId>
-				<artifactId>cascading-core</artifactId>
-				<version>${cascading.version}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>org.codehaus.janino</groupId>
-						<artifactId>janino</artifactId>
-					</exclusion>
-					<exclusion>
-						<artifactId>riffle</artifactId>
-						<groupId>riffle</groupId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.slf4j</groupId>
-						<artifactId>slf4j-log4j12</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>log4j</groupId>
-						<artifactId>log4j</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>cascading</groupId>
-				<artifactId>cascading-local</artifactId>
-				<version>${cascading.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>cascading</groupId>
-				<artifactId>cascading-hadoop</artifactId>
-				<version>${cascading.version}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>commons-cli</groupId>
-						<artifactId>commons-cli</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>xmlenc</groupId>
-						<artifactId>xmlenc</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>commons-codec</groupId>
-						<artifactId>commons-codec</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>commons-httpclient</groupId>
-						<artifactId>commons-httpclient</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.commons</groupId>
-						<artifactId>commons-math</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>commons-configuration</groupId>
-						<artifactId>commons-configuration</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>commons-net</groupId>
-						<artifactId>commons-net</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.mortbay.jetty</groupId>
-						<artifactId>jetty</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.mortbay.jetty</groupId>
-						<artifactId>jetty-util</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>tomcat</groupId>
-						<artifactId>jasper-runtime</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>tomcat</groupId>
-						<artifactId>jasper-compiler</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.mortbay.jetty</groupId>
-						<artifactId>jsp-api-2.1</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.mortbay.jetty</groupId>
-						<artifactId>jsp-2.1</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>commons-el</groupId>
-						<artifactId>commons-el</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>net.java.dev.jets3t</groupId>
-						<artifactId>jets3t</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>net.sf.kosmosfs</groupId>
-						<artifactId>kfs</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>hsqldb</groupId>
-						<artifactId>hsqldb</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>oro</groupId>
-						<artifactId>oro</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.codehaus.jackson</groupId>
-						<artifactId>jackson-mapper-asl</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.eclipse.jdt</groupId>
-						<artifactId>core</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>com.google.guava</groupId>
-				<artifactId>guava</artifactId>
-				<version>${guava.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>thirdparty</groupId>
-				<artifactId>jgrapht-jdk1.6</artifactId>
-				<version>${jgrapht.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.twitter</groupId>
-				<artifactId>maple</artifactId>
-				<version>${maple.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.typesafe.zinc</groupId>
@@ -600,14 +443,10 @@
 					<executions>
 						<execution>
 							<goals>
+								<goal>add-source</goal>
 								<goal>compile</goal>
 								<goal>testCompile</goal>
 							</goals>
-							<!-- <configuration> -->
-							<!-- <args> -->
-							<!-- <arg>-deprecation</arg> -->
-							<!-- </args> -->
-							<!-- </configuration> -->
 						</execution>
 					</executions>
 				</plugin>
@@ -679,20 +518,6 @@
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>build-helper-maven-plugin</artifactId>
 					<version>${build-helper-maven-plugin.version}</version>
-					<executions>
-						<execution>
-							<id>add-scala-sources</id>
-							<phase>package</phase>
-							<goals>
-								<goal>add-source</goal>
-							</goals>
-							<configuration>
-								<sources>
-									<source>src/main/scala</source>
-								</sources>
-							</configuration>
-						</execution>
-					</executions>
 				</plugin>
 				<plugin>
 					<artifactId>maven-plugin-plugin</artifactId>
@@ -701,10 +526,6 @@
 			</plugins>
 		</pluginManagement>
 		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-			</plugin>
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>
 			</plugin>

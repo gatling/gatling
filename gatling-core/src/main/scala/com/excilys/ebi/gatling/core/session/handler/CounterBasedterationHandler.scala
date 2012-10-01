@@ -40,21 +40,18 @@ trait CounterBasedIterationHandler extends IterationHandler {
 
 	lazy val counterAttributeName = CounterBasedIterationHandler.getCounterAttributeName(counterName)
 
-	override def init(session: Session) = {
+	override def init(session: Session) = 
+		if (session.isAttributeDefined(counterAttributeName))
+			super.init(session)
+		else
+			super.init(session).setAttribute(counterAttributeName, -1)
 
-		session.getAttributeAsOption[Int](counterAttributeName) match {
-			case None => super.init(session).setAttribute(counterAttributeName, -1)
-			case Some(_) => super.init(session)
+	override def increment(session: Session) = session.getAttributeAsOption[Int](counterAttributeName)
+		.map {
+			currentValue => super.increment(session).setAttribute(counterAttributeName, currentValue + 1)
+		}.getOrElse {
+			throw new IllegalAccessError("You must call startCounter before this method is called")
 		}
-	}
-
-	override def increment(session: Session) = {
-
-		session.getAttributeAsOption[Int](counterAttributeName) match {
-			case Some(currentValue) => super.increment(session).setAttribute(counterAttributeName, currentValue + 1)
-			case None => throw new IllegalAccessError("You must call startCounter before this method is called")
-		}
-	}
 
 	override def expire(session: Session) = super.expire(session).removeAttribute(CounterBasedIterationHandler.getCounterAttributeName(counterName))
 }

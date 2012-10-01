@@ -15,36 +15,26 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.stats
 
-import scala.collection.mutable
-
-import com.excilys.ebi.gatling.charts.result.reader.scalding.GatlingBufferSource
-
-import cascading.tuple.TupleEntry
-
 object StatsHelper {
-	def bucketsList(min: Long, max: Long, step: Double) = {
-		val demiStep = step / 2
-		(0 until math.round((max - min) / step).toInt).map(i => math.round(min + step * i + demiStep))
+	def bucketsList(min: Int, max: Int, step: Double): List[Int] = {
+		val halfStep = step / 2
+		(0 until math.round((max - min) / step).toInt).map(i => math.round(min + step * i + halfStep).toInt).toList
 	}
 
-	def step(min: Long, max: Long, maxPlots: Int) = {
+	def step(min: Int, max: Int, maxPlots: Int): Double = {
 		val range = max - min
 		if (range < maxPlots) 1.0
 		else range / maxPlots.toDouble
 	}
 
-	def bucket(t: Long, min: Long, max: Long, step: Double, demiStep: Double) = {
-		if (t >= max) math.round((max - demiStep))
-		else math.round((t - (t - min) % step + demiStep))
-	}
-
-	def output[A](buffer: mutable.Buffer[A])(implicit parseFunction: (TupleEntry) => A) = {
-		new GatlingBufferSource(buffer, parseFunction)
+	def bucket(t: Int, min: Int, max: Int, step: Double, halfStep: Double): Int = {
+		if (t >= max) math.round((max - halfStep)).toInt
+		else math.round((t - (t - min) % step + halfStep)).toInt
 	}
 
 	def square(x: Double) = x * x
 
-	def square(x: Long) = x * x
+	def square(x: Int) = x * x
 
 	def stdDev(squareMean: Double, mean: Double) = math.sqrt(squareMean - square(mean))
 }

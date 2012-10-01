@@ -20,6 +20,7 @@ import scala.tools.nsc.io.Path
 
 import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import com.excilys.ebi.gatling.core.util.FileHelper.{ COMMA_SEPARATOR, SEMICOLON_SEPARATOR, TABULATION_SEPARATOR }
+import com.excilys.ebi.gatling.core.util.IOHelper.use
 
 object SeparatedValuesParser {
 
@@ -36,14 +37,18 @@ object SeparatedValuesParser {
 
 		if (!file.exists) throw new IllegalArgumentException("file " + file + " doesn't exists")
 
-		val rawLines = Source.fromFile(file.jfile, GatlingConfiguration.configuration.simulation.encoding).getLines.map(_.split(separator))
+		use(Source.fromFile(file.jfile, GatlingConfiguration.configuration.simulation.encoding)) { source =>
 
-		val lines = escapeChar.map { escape =>
-			rawLines.map(_.map(_.stripPrefix(escape).stripSuffix(escape)))
-		}.getOrElse(rawLines).toArray
+			val rawLines = source.getLines.map(_.split(separator))
 
-		val headers = lines.head
+			val lines = escapeChar.map { escape =>
+				rawLines.map(_.map(_.stripPrefix(escape).stripSuffix(escape)))
+			}.getOrElse(rawLines).toArray
 
-		lines.tail.map(line => (headers zip line).toMap)
+			val headers = lines.head
+
+			lines.tail.map(line => (headers zip line).toMap)
+		}
+
 	}
 }

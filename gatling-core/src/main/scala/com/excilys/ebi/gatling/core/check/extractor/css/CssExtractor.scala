@@ -45,11 +45,13 @@ class CssExtractor(text: String) {
 	 * @param nodeAttribute specify an attribute if you don't want to extract the text content
 	 * @return an option containing the values if found, None otherwise
 	 */
-	def extractMultiple(nodeAttribute: Option[String])(expression: String): Option[Seq[String]] =
-		selector.select(expression).map(nodeAttribute match {
-			case Some(attribute) => _.getAttribute(attribute)
-			case None => _.getTextContent.trim
-		})
+	def extractMultiple(nodeAttribute: Option[String])(expression: String): Option[Seq[String]] = selector
+		.select(expression)
+		.map { node =>
+			nodeAttribute
+				.map { node.getAttribute(_) }
+				.getOrElse(node.getTextContent.trim)
+		}
 
 	/**
 	 * @param expression a String containing the CSS selector

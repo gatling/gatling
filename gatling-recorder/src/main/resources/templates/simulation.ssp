@@ -31,13 +31,13 @@ class <%= simulationClassName %> extends Simulation {
 <% case Left(elements) =>%>
 		val scn = scenario("<%= scenarioName %>")
 <% for (element <- elements) {%>
-			.<%=element%>
+			<%if (!element.isInstanceOf[com.excilys.ebi.gatling.recorder.scenario.TagElement]){%>.<%}%><%=element%>
 <%}%>
 <% case Right(chains) =>%>
 <% for((chain, i) <- chains.zipWithIndex) { %>
 		val chain_<%= i %> =
 <% for (element <- chain) {%>
-			<%if (element != chain.first){%>.<%}%><%=element%>
+			<%if (element != chain.head && !element.isInstanceOf[com.excilys.ebi.gatling.recorder.scenario.TagElement]){%>.<%}%><%=element%>
 <%}%>
 <%}%>
 

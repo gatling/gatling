@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * 		http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,17 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.result.reader
+package com.excilys.ebi.gatling.core.result.reader
 
-import com.excilys.ebi.gatling.charts.result.reader.stats.StatPipe
+import com.excilys.ebi.gatling.core.result.reader.DataReader.NO_PLOT_MAGIC_VALUE
 
-import cascading.pipe.Pipe
-
-object Predef {
-	implicit def pipeToStatPipe(pipe: Pipe): StatPipe = new StatPipe(pipe)
-
-	implicit def symbolToString(symbol: Symbol): String = symbol.name
-
-	val LOG_STEP = 100000
-	val SEC_MILLISEC_RATIO = 1000.0
+object GeneralStats {
+	val NO_PLOT = GeneralStats(NO_PLOT_MAGIC_VALUE, NO_PLOT_MAGIC_VALUE, 0, NO_PLOT_MAGIC_VALUE, NO_PLOT_MAGIC_VALUE, NO_PLOT_MAGIC_VALUE, NO_PLOT_MAGIC_VALUE, NO_PLOT_MAGIC_VALUE)
 }
+
+case class GeneralStats(min: Int, max: Int, count: Int, mean: Int, stdDev: Int, percentile1: Int, percentile2: Int, meanRequestsPerSec: Int)

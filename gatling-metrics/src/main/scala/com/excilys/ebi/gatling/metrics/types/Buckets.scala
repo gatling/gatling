@@ -39,17 +39,18 @@ class Buckets(bucketWidth: Int) {
 		if (buckets.isEmpty)
 			0L
 		else {
-			val limit = count * (quantile.toDouble / bucketWidth)
-			findQuantile(limit.toLong, buckets)
-		}
-	}
+			val limit = (count * (quantile.toDouble / bucketWidth)).toLong
 
-	@tailrec
-	private def findQuantile(limit: Long, buckets: NavigableMap[Long, Long], count: Long = 0L): Long = {
-		val firstEntry = buckets.firstEntry
-		val newCount = count + firstEntry.getValue
-		if (newCount >= limit) max.min((firstEntry.getKey * bucketWidth) + bucketWidth)
-		else findQuantile(limit, buckets.tailMap(firstEntry.getKey, false), newCount)
+			@tailrec
+			def findQuantile(buckets: NavigableMap[Long, Long], count: Long = 0L): Long = {
+				val firstEntry = buckets.firstEntry
+				val newCount = count + firstEntry.getValue
+				if (newCount >= limit) max.min((firstEntry.getKey * bucketWidth) + bucketWidth)
+				else findQuantile(buckets.tailMap(firstEntry.getKey, false), newCount)
+			}
+
+			findQuantile(buckets)
+		}
 	}
 
 	def reset {

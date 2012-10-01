@@ -15,9 +15,9 @@
  */
 package com.excilys.ebi.gatling.http.request
 
-import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.core.session.{ EvaluatableString, EvaluatableStringSeq }
 
 package object builder {
 
-	type HttpParam = (EvaluatableString, EvaluatableString)
+	type HttpParam = (EvaluatableString, EvaluatableStringSeq)
 }

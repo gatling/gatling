@@ -83,13 +83,11 @@ class Gatling extends Logging {
 					.simulationClasses(configuration.simulation.clazz)
 					.sortWith(_.getName < _.getName)
 
-				val selection = configuration.simulation.clazz match {
-					case None => interactiveSelect(simulations)
-					case Some(_) =>
-						val simulation = simulations.head
-						val outputDirectoryBaseName = defaultOutputDirectoryBaseName(simulation)
-						new Selection(simulation, outputDirectoryBaseName, outputDirectoryBaseName)
-				}
+				val selection = configuration.simulation.clazz.map { _ =>
+					val simulation = simulations.head
+					val outputDirectoryBaseName = defaultOutputDirectoryBaseName(simulation)
+					new Selection(simulation, outputDirectoryBaseName, outputDirectoryBaseName)
+				}.getOrElse(interactiveSelect(simulations))
 
 				new Runner(selection).run
 			}

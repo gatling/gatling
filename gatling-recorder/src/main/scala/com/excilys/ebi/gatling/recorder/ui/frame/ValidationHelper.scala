@@ -64,13 +64,12 @@ object ValidationHelper extends Logging {
 		def keyReleased(e: KeyEvent) {
 			val txtField = e.getComponent.asInstanceOf[JTextField]
 
-			trimToOption(txtField.getText) match {
-				case Some(string) =>
-					txtField.setBorder(standardBorder)
-					updateValidationStatus(id, true, cFrame)
-				case None =>
-					txtField.setBorder(errorBorder)
-					updateValidationStatus(id, false, cFrame)
+			trimToOption(txtField.getText).map { _ =>
+				txtField.setBorder(standardBorder)
+				updateValidationStatus(id, true, cFrame)
+			}.getOrElse {
+				txtField.setBorder(errorBorder)
+				updateValidationStatus(id, false, cFrame)
 			}
 		}
 
@@ -83,27 +82,25 @@ object ValidationHelper extends Logging {
 		def keyReleased(e: KeyEvent) {
 			val txtField = e.getComponent.asInstanceOf[JTextField]
 
-			trimToOption(txtField.getText) match {
-				case Some(string) =>
-					cFrame.txtProxyPort.setEnabled(true)
-					cFrame.txtProxySslPort.setEnabled(true)
-					cFrame.txtProxyUsername.setEnabled(true)
-					cFrame.txtProxyPassword.setEnabled(true)
-				case None =>
-					cFrame.txtProxyPort.setEnabled(false)
-					cFrame.txtProxyPort.setText("0")
-					cFrame.txtProxyPort.getKeyListeners.foreach {
-						case kl: KeyListener =>
-							useUIThread {
-								kl.keyReleased(new KeyEvent(cFrame.txtProxyPort, 0, new Date().getTime, 0, 0, '0'))
-							}
+			trimToOption(txtField.getText).map { _ =>
+				cFrame.txtProxyPort.setEnabled(true)
+				cFrame.txtProxySslPort.setEnabled(true)
+				cFrame.txtProxyUsername.setEnabled(true)
+				cFrame.txtProxyPassword.setEnabled(true)
+			}.getOrElse {
+				cFrame.txtProxyPort.setEnabled(false)
+				cFrame.txtProxyPort.setText("0")
+				cFrame.txtProxyPort.getKeyListeners.foreach {
+					case kl: KeyListener => useUIThread {
+						kl.keyReleased(new KeyEvent(cFrame.txtProxyPort, 0, new Date().getTime, 0, 0, '0'))
 					}
-					cFrame.txtProxySslPort.setEnabled(false)
-					cFrame.txtProxySslPort.setText("0")
-					cFrame.txtProxyUsername.setEnabled(false)
-					cFrame.txtProxyUsername.setText(null)
-					cFrame.txtProxyPassword.setEnabled(false)
-					cFrame.txtProxyPassword.setText(null)
+				}
+				cFrame.txtProxySslPort.setEnabled(false)
+				cFrame.txtProxySslPort.setText("0")
+				cFrame.txtProxyUsername.setEnabled(false)
+				cFrame.txtProxyUsername.setText(null)
+				cFrame.txtProxyPassword.setEnabled(false)
+				cFrame.txtProxyPassword.setText(null)
 			}
 		}
 

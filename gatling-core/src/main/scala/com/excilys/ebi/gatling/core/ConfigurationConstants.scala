@@ -34,6 +34,7 @@ object ConfigurationConstants {
 
 	val CONF_CHARTING_NO_REPORTS = "gatling.charting.noReports"
 	val CONF_CHARTING_MAX_PLOTS_PER_SERIES = "gatling.charting.maxPlotPerSeries"
+	val CONF_CHARTING_ACCURACY = "gatling.charting.accuracy"
 	val CONF_CHARTING_INDICATORS_LOWER_BOUND = "gatling.charting.indicators.lowerBound"
 	val CONF_CHARTING_INDICATORS_HIGHER_BOUND = "gatling.charting.indicators.higherBound"
 	val CONF_CHARTING_INDICATORS_PERCENTILE1 = "gatling.charting.indicators.percentile1"

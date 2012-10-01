@@ -23,7 +23,6 @@ import scala.tools.nsc.io.{ Directory, File }
 import scala.tools.nsc.io.Path.string2path
 
 import org.codehaus.plexus.util.SelectorUtils
-import org.jboss.netty.channel.Channel
 import org.jboss.netty.handler.codec.http.{ HttpMethod, HttpRequest, HttpResponse }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
 
@@ -31,7 +30,7 @@ import com.excilys.ebi.gatling.recorder.config.Configuration
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
 import com.excilys.ebi.gatling.recorder.config.RecorderOptions
 import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy
-import com.excilys.ebi.gatling.recorder.scenario.{ PauseElement, PauseUnit, RequestElement, ScenarioElement, ScenarioExporter }
+import com.excilys.ebi.gatling.recorder.scenario.{ PauseElement, PauseUnit, RequestElement, ScenarioElement, ScenarioExporter, TagElement }
 import com.excilys.ebi.gatling.recorder.ui.enumeration.{ FilterStrategy, PatternType }
 import com.excilys.ebi.gatling.recorder.ui.frame.{ ConfigurationFrame, RunningFrame }
 import com.excilys.ebi.gatling.recorder.ui.info.{ PauseInfo, RequestInfo, SSLInfo }
@@ -87,10 +86,6 @@ class RecorderController extends Logging {
 		}
 	}
 
-	def registerChannel(channel: Channel) {
-		proxy.registerChannel(channel)
-	}
-
 	def receiveRequest(request: HttpRequest) {
 		synchronized {
 			// If Outgoing Proxy set, we record the credentials to use them when sending the request
@@ -131,6 +126,10 @@ class RecorderController extends Logging {
 					lastRequestDate = new Date
 			}
 		}
+	}
+
+	def addTag(text: String) {
+		scenarioElements = new TagElement(text) :: scenarioElements
 	}
 
 	def secureConnection(securedHostURI: URI) {

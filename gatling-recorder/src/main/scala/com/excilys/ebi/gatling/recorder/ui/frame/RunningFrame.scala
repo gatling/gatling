@@ -128,6 +128,7 @@ class RunningFrame(controller: RecorderController) extends JFrame with Logging {
 				if (!(txtTag.getText == EMPTY)) {
 					val tag = new TagInfo(txtTag.getText)
 					eventsInfo.addElement(tag)
+					controller.addTag(txtTag.getText)
 					eventsInfoJList.ensureIndexIsVisible(eventsInfo.getSize() - 1)
 					txtTag.setText(EMPTY)
 				}

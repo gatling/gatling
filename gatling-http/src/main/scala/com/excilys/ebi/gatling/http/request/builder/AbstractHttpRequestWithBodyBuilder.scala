@@ -115,33 +115,33 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 */
 	private def configureBody(requestBuilder: RequestBuilder, body: Option[HttpRequestBody], session: Session) {
 
-		val contentLength = body match {
-			case Some(FilePathBody(filePath)) =>
-				val file = (GatlingFiles.requestBodiesDirectory / filePath).jfile
-				requestBuilder.setBody(file)
-				Some(file.length)
+		val contentLength = body.map {
+			_ match {
+				case FilePathBody(filePath) =>
+					val file = (GatlingFiles.requestBodiesDirectory / filePath).jfile
+					requestBuilder.setBody(file)
+					file.length
 
-			case Some(StringBody(string)) =>
-				val body = string(session)
-				requestBuilder.setBody(body)
-				Some(body.length)
+				case StringBody(string) =>
+					val body = string(session)
+					requestBuilder.setBody(body)
+					body.length
 
-			case Some(TemplateBody(tplPath, values)) =>
-				val body = compileBody(tplPath, values, session)
-				requestBuilder.setBody(body)
-				Some(body.length)
+				case TemplateBody(tplPath, values) =>
+					val body = compileBody(tplPath, values, session)
+					requestBuilder.setBody(body)
+					body.length
 
-			case Some(ByteArrayBody(byteArray)) =>
-				val body = byteArray()
-				requestBuilder.setBody(body)
-				Some(body.length)
+				case ByteArrayBody(byteArray) =>
+					val body = byteArray()
+					requestBuilder.setBody(body)
+					body.length
 
-			case Some(SessionByteArrayBody(byteArray)) =>
-				val body = byteArray(session)
-				requestBuilder.setBody(body)
-				Some(body.length)
-
-			case None => None
+				case SessionByteArrayBody(byteArray) =>
+					val body = byteArray(session)
+					requestBuilder.setBody(body)
+					body.length
+			}
 		}
 
 		contentLength.map(length => requestBuilder.setHeader(CONTENT_LENGTH, length.toString))

@@ -29,16 +29,6 @@ import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToO
  */
 class RegexExtractor(textContent: String) {
 
-	@tailrec
-	private def findRec(matcher: Matcher, countDown: Int): Boolean = {
-		if (!matcher.find)
-			false
-		else if (countDown == 0)
-			true
-		else
-			findRec(matcher, countDown - 1)
-	}
-
 	/**
 	 * The actual extraction happens here. The regular expression is compiled and the occurrence-th
 	 * result is returned if existing.
@@ -50,7 +40,17 @@ class RegexExtractor(textContent: String) {
 
 		val matcher = Pattern.compile(expression).matcher(textContent)
 
-		if (findRec(matcher, occurrence))
+		@tailrec
+		def findRec(countDown: Int): Boolean = {
+			if (!matcher.find)
+				false
+			else if (countDown == 0)
+				true
+			else
+				findRec(countDown - 1)
+		}
+
+		if (findRec(occurrence))
 			// if a group is specified, return the group 1, else return group 0 (ie the match)
 			new String(matcher.group(matcher.groupCount.min(1)))
 		else

@@ -28,5 +28,5 @@ object CurrentLocationCheckBuilder {
 
 	private val findExtractorFactory: ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => (unused: String) => Some(response.request.getUrl)
 
-	def currentLocation = new HttpSingleCheckBuilder(findExtractorFactory, NOOP_EVALUATABLE_STRING, StatusReceived)
+	val currentLocation = new HttpSingleCheckBuilder(findExtractorFactory, NOOP_EVALUATABLE_STRING, StatusReceived)
 }

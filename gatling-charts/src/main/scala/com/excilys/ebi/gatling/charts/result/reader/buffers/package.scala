@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * 		http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,20 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.result.reader.util
+package com.excilys.ebi.gatling.charts.result.reader
+
+import java.util.{ HashMap => JHashMap }
 
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
 
-object ResultBufferType extends Enumeration {
-	type ResultBufferType = Value
-	val GLOBAL, BY_STATUS, BY_REQUEST, BY_STATUS_AND_REQUEST, BY_SCENARIO = Value
+package object buffers {
 
-	def getResultBufferType(status: Option[RequestStatus.RequestStatus], requestName: Option[String]) = {
-		(status, requestName) match {
-			case (Some(_), Some(_)) => BY_STATUS_AND_REQUEST
-			case (None, Some(_)) => BY_REQUEST
-			case (Some(_), None) => BY_STATUS
-			case (None, None) => GLOBAL
+	type BufferKey = (Option[String], Option[RequestStatus.RequestStatus])
+
+	def computeKey(requestName: Option[String], status: Option[RequestStatus.RequestStatus]): BufferKey = (requestName, status)
+
+	def initOrUpdateJHashMapEntry[K, V](key: K, init: => V, update: V => V)(implicit map: JHashMap[K, V]) {
+		if (map.containsKey(key)) {
+			val currentValue = map.get(key)
+			map.put(key, update(currentValue))
+		} else {
+			map.put(key, init)
 		}
 	}
 }

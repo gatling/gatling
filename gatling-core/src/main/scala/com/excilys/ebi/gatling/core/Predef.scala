@@ -19,15 +19,17 @@ import java.util.concurrent.TimeUnit
 
 import scala.tools.nsc.io.File
 
-import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder
 import com.excilys.ebi.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
-import com.excilys.ebi.gatling.core.feeder.{ Feeder, FeederBuiltIns }
+import com.excilys.ebi.gatling.core.feeder.FeederBuiltIns
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesParser
+import com.excilys.ebi.gatling.core.session.{ EvaluatableString, EvaluatableStringSeq }
 import com.excilys.ebi.gatling.core.structure.{ ChainBuilder, ScenarioBuilder }
-import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
+import com.excilys.ebi.gatling.core.util.StringHelper.{ attributeAsEvaluatableStringSeq, parseEvaluatable }
 
 object Predef {
-	implicit def stringToSessionFunction(string: String) = parseEvaluatable(string)
+	implicit def stringToEvaluatableString(string: String) = parseEvaluatable(string)
+	implicit def stringToEvaluatableStringSeq(string: String) = attributeAsEvaluatableStringSeq(string)
+	implicit def evaluatableStringToEvaluatableStringSeq(evaluatableString: EvaluatableString): EvaluatableStringSeq = (session: Session) => List(evaluatableString(session))
 	implicit def toSessionFunction[X](x: X) = (session: Session) => x
 	implicit def checkBuilderToCheck[C <: Check[R, XC], R, XC](checkBuilder: CheckBuilder[C, R, XC]) = checkBuilder.build
 	implicit def matcherCheckBuilderToCheckBuilder[C <: Check[R, XC], R, XC, X](matcherCheckBuilder: MatcherCheckBuilder[C, R, XC, X]) = matcherCheckBuilder.exists
@@ -72,7 +74,7 @@ object Predef {
 	val DAYS = TimeUnit.DAYS
 
 	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder.scenario(scenarioName)
+	val bootstrap = ChainBuilder.emptyChain
 	@deprecated("""Will be removed in Gatling 1.4.0. Use "import bootstrap._" instead.""", "1.3.0")
 	val chain = bootstrap
-	val bootstrap = ChainBuilder.emptyChain
 }

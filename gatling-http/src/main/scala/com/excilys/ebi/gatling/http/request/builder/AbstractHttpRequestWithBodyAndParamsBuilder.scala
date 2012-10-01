@@ -16,15 +16,16 @@
 package com.excilys.ebi.gatling.http.request.builder
 
 import scala.collection.JavaConversions.asJavaCollection
-import com.excilys.ebi.gatling.core.Predef.stringToSessionFunction
+import com.excilys.ebi.gatling.core.Predef.{ stringToEvaluatableString, stringToEvaluatableStringSeq, evaluatableStringToEvaluatableStringSeq }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.{ EvaluatableString, Session }
-import com.excilys.ebi.gatling.core.util.StringHelper.{ EL_END, EL_START }
+import com.excilys.ebi.gatling.core.util.StringHelper.{ attributeAsEvaluatableString, parseEvaluatable, attributeAsEvaluatableStringSeq }
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
-import com.ning.http.client.{ FluentStringsMap, Realm, RequestBuilder, StringPart }
+import com.excilys.ebi.gatling.http.util.HttpHelper.httpParamsToFluentMap
+import com.ning.http.client.{ Realm, RequestBuilder, StringPart }
 
 case class HttpParamsAttributes(
 	params: List[HttpParam],
@@ -41,7 +42,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	httpAttributes: HttpAttributes,
 	body: Option[HttpRequestBody],
 	paramsAttributes: HttpParamsAttributes)
-		extends AbstractHttpRequestWithBodyBuilder[B](httpAttributes, body) {
+	extends AbstractHttpRequestWithBodyBuilder[B](httpAttributes, body) {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type
@@ -73,13 +74,30 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		requestBuilder
 	}
 
-	def param(key: EvaluatableString, value: EvaluatableString): B = newInstance(httpAttributes, body, paramsAttributes.copy(params = (key, value) :: paramsAttributes.params))
+	def param(key: String): B = param(key, attributeAsEvaluatableString(key))
 
-	def param(paramKey: String): B = param(paramKey, EL_START + paramKey + EL_END)
+	def param(key: EvaluatableString, value: EvaluatableString): B = {
+		val httpParam: HttpParam = (key, value)
+		param(httpParam)
+	}
+
+	def multiValuedParam(key: String): B = multiValuedParam(key, key)
+
+	def multiValuedParam(key: String, values: Seq[String]): B = {
+		val httpParam: HttpParam = (key, (session: Session) => values)
+		param(httpParam)
+	}
+
+	def multiValuedParam(key: EvaluatableString, value: String): B = {
+		val httpParam: HttpParam = (key, value)
+		param(httpParam)
+	}
+
+	private def param(param: HttpParam): B = newInstance(httpAttributes.copy(queryParams = param :: httpAttributes.queryParams))
 
 	def upload(paramKey: EvaluatableString, fileName: EvaluatableString, mimeType: String = HeaderValues.APPLICATION_OCTET_STREAM, charset: String = configuration.simulation.encoding): B =
-		
-			newInstance(httpAttributes, body, paramsAttributes.copy(uploadedFiles = new UploadedFile(paramKey, fileName, mimeType, charset) :: paramsAttributes.uploadedFiles))
+
+		newInstance(httpAttributes, body, paramsAttributes.copy(uploadedFiles = new UploadedFile(paramKey, fileName, mimeType, charset) :: paramsAttributes.uploadedFiles))
 			.header(HeaderNames.CONTENT_TYPE, HeaderValues.MULTIPART_FORM_DATA)
 
 	/**
@@ -92,13 +110,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	private def configureParams(requestBuilder: RequestBuilder, session: Session) {
 
 		if (!paramsAttributes.params.isEmpty) {
-			val paramsMap = new FluentStringsMap
-
-			paramsAttributes.params
-				.map { case (key, value) => (key(session), value(session)) }
-				.groupBy(_._1)
-				.foreach { case (key, params) => paramsMap.add(key, params.map(_._2)) }
-
+			val paramsMap = httpParamsToFluentMap(paramsAttributes.params, session)
 			requestBuilder.setParameters(paramsMap)
 		}
 	}
@@ -111,8 +123,9 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	}
 
 	private def configureStringParts(requestBuilder: RequestBuilder, session: Session) {
-		paramsAttributes.params.foreach {
-			case (key, value) => requestBuilder.addBodyPart(new StringPart(key(session), value(session)))
-		}
+		paramsAttributes.params
+			.foreach {
+				case (key, values) => values(session).foreach(value => requestBuilder.addBodyPart(new StringPart(key(session), value)))
+			}
 	}
 }

@@ -15,11 +15,9 @@
  */
 package com.excilys.ebi.gatling.core.util
 
-import java.io.Closeable
-
 object IOHelper {
 
-	def use[T, C <: Closeable](closeable: C)(block: C => T) = {
+	def use[T, C <: { def close() }](closeable: C)(block: C => T) = {
 		try
 			block(closeable)
 		finally

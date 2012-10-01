@@ -40,7 +40,7 @@ case class RequestStatistics(name: String,
 	stdDeviationStatistics: Statistics,
 	percentiles1: Statistics,
 	percentiles2: Statistics,
-	groupedCounts: Seq[(String, Long, Long)],
+	groupedCounts: Seq[(String, Int, Int)],
 	meanNumberOfRequestsPerSecondStatistics: Statistics) {
 
 	def mkString: String = new StringBuilder().append(name).append(TABULATION_SEPARATOR)

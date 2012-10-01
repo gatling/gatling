@@ -62,18 +62,19 @@ private[cookie] class CookieStore(store: Map[URI, List[Cookie]]) {
 
 		def hasExpired(c: Cookie): Boolean = c.getMaxAge != MAX_AGE_UNSPECIFIED && c.getMaxAge <= 0
 
-		@tailrec
-		def addOrReplaceCookies(newCookies: List[Cookie], oldCookies: List[Cookie]): List[Cookie] = newCookies match {
-			case Nil => oldCookies
-			case newCookie :: moreNewCookies =>
-				val updatedCookies = newCookie :: oldCookies.filterNot(cookiesEquals(_, newCookie))
-				addOrReplaceCookies(moreNewCookies, updatedCookies)
-		}
-
 		val uri = getEffectiveUri(rawURI)
 
 		val cookiesWithExactURI = store.get(uri) match {
-			case Some(cookies) => addOrReplaceCookies(newCookies, cookies)
+			case Some(cookies) =>
+				@tailrec
+				def addOrReplaceCookies(newCookies: List[Cookie], oldCookies: List[Cookie]): List[Cookie] = newCookies match {
+					case Nil => oldCookies
+					case newCookie :: moreNewCookies =>
+						val updatedCookies = newCookie :: oldCookies.filterNot(cookiesEquals(_, newCookie))
+						addOrReplaceCookies(moreNewCookies, updatedCookies)
+				}
+
+				addOrReplaceCookies(newCookies, cookies)
 			case _ => newCookies
 		}
 		val nonExpiredCookies = cookiesWithExactURI.filterNot(hasExpired(_))
@@ -84,7 +85,7 @@ private[cookie] class CookieStore(store: Map[URI, List[Cookie]]) {
 
 		val fixedPath = if (rawURI.getPath == EMPTY) "/" else rawURI.getPath
 		val uri = getEffectiveUri(rawURI)
-		
+
 		def domainMatches(cookie: Cookie) = java.net.HttpCookie.domainMatches(cookie.getDomain, rawURI.getHost)
 		def pathMatches(cookie: Cookie) = fixedPath.startsWith(cookie.getPath)
 

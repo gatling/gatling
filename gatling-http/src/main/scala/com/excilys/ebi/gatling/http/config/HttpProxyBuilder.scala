@@ -20,18 +20,18 @@ import com.ning.http.client.ProxyServer
 object HttpProxyBuilder {
 	implicit def toHttpProtocolConfigurationBuilder(hpb: HttpProxyBuilder) = {
 
-		def getProxyServer(builder: HttpProxyBuilder, protocol: ProxyServer.Protocol, port: Int) = {
+		def getProxyServer(protocol: ProxyServer.Protocol, port: Int) = {
 			val securedProxyServer = for {
-				username <- builder.username
-				password <- builder.password
-			} yield new ProxyServer(protocol, builder.host, port, username, password)
+				username <- hpb.username
+				password <- hpb.password
+			} yield new ProxyServer(protocol, hpb.host, port, username, password)
 
-			securedProxyServer.getOrElse(new ProxyServer(protocol, builder.host, port)).setNtlmDomain(null)
+			securedProxyServer.getOrElse(new ProxyServer(protocol, hpb.host, port)).setNtlmDomain(null)
 		}
 
-		val httpProxy = getProxyServer(hpb, ProxyServer.Protocol.HTTP, hpb.port)
+		val httpProxy = getProxyServer(ProxyServer.Protocol.HTTP, hpb.port)
 
-		val httpsProxy = hpb.sslPort.map(getProxyServer(hpb, ProxyServer.Protocol.HTTPS, _))
+		val httpsProxy = hpb.sslPort.map(getProxyServer(ProxyServer.Protocol.HTTPS, _))
 
 		hpb.configBuilder.addProxies(httpProxy, httpsProxy)
 	}

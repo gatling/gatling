@@ -32,9 +32,9 @@ object HttpBodyResponseTimeCheckBuilder {
 
 	private val findLatencyExtractorFactory: ExtractorFactory[ExtendedResponse, String, Long] = (response: ExtendedResponse) => (expression: String) => Some(response.latencyInMillis)
 
-	def responseTimeInMillis = new HttpBodyResponseTimeCheckBuilder(findExtendedResponseTimeExtractorFactory)
+	val responseTimeInMillis = new HttpBodyResponseTimeCheckBuilder(findExtendedResponseTimeExtractorFactory)
 
-	def latencyInMillis = new HttpBodyResponseTimeCheckBuilder(findLatencyExtractorFactory)
+	val latencyInMillis = new HttpBodyResponseTimeCheckBuilder(findLatencyExtractorFactory)
 }
 
 /**

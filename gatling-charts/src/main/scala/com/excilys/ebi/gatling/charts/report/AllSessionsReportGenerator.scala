@@ -24,9 +24,9 @@ import com.excilys.ebi.gatling.core.result.reader.DataReader
 class AllSessionsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 
 	def generate {
-		val series = new Series[Long, Long]("All Sessions", dataReader.numberOfActiveSessionsPerSecond(), List(ORANGE))
+		val series = new Series[Int, Int]("All Sessions", dataReader.numberOfActiveSessionsPerSecond(), List(ORANGE))
 
-		val javascript: String = componentLibrary.getAllSessionsJs(series)
+		val javascript: String = componentLibrary.getAllSessionsJs(dataReader.runStart, series)
 
 		new TemplateWriter(allSessionsFile(runOn)).writeToFile(javascript)
 	}

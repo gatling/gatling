@@ -28,10 +28,10 @@ object ComponentLibrary extends Logging {
 
 		val STATIC_LIBRARY_BINDER_PATH = "com/excilys/ebi/gatling/charts/component/impl/ComponentLibraryImpl.class"
 
-		val paths = (Option(this.getClass.getClassLoader) match {
-			case Some(classloader) => classloader.getResources(STATIC_LIBRARY_BINDER_PATH)
-			case None => ClassLoader.getSystemResources(STATIC_LIBRARY_BINDER_PATH)
-		}).toList
+		val paths = Option(getClass.getClassLoader)
+			.map(_.getResources(STATIC_LIBRARY_BINDER_PATH))
+			.getOrElse(ClassLoader.getSystemResources(STATIC_LIBRARY_BINDER_PATH))
+			.toList
 
 		if (paths.size > 1) {
 			warn("Class path contains multiple ComponentLibrary bindings")
@@ -43,24 +43,14 @@ object ComponentLibrary extends Logging {
 }
 
 abstract class ComponentLibrary {
-
-	def getAllSessionsJs(series: Series[Long, Long]): String
-
-	def getActiveSessionsChartComponent(series: Seq[Series[Long, Long]]): Component
-
-	def getRequestsChartComponent(allRequests: Series[Long, Long], failedRequests: Series[Long, Long], succeededRequests: Series[Long, Long], pieSeries: Series[String, Long]): Component
-
-	def getTransactionsChartComponent(allTransactions: Series[Long, Long], failedTransactions: Series[Long, Long], succeededTransactions: Series[Long, Long], pieSeries: Series[String, Long]): Component
-
-	def getRequestDetailsResponseTimeChartComponent(responseTimesSuccess: Series[Long, (Long, Long)], responseTimesFailures: Series[Long, (Long, Long)]): Component
-
-	def getRequestDetailsResponseTimeDistributionChartComponent(responseTimesSuccess: Series[Long, Long], responseTimesFailures: Series[Long, Long]): Component
-
-	def getRequestDetailsLatencyChartComponent(latencySuccess: Series[Long, (Long, Long)], latencyFailures: Series[Long, (Long, Long)]): Component
-
-	def getRequestDetailsScatterChartComponent(successData: Series[Long, Long], failuresData: Series[Long, Long]): Component
-
+	def getAllSessionsJs(runStart: Long, series: Series[Int, Int]): String
+	def getActiveSessionsChartComponent(runStart: Long, series: Seq[Series[Int, Int]]): Component
+	def getRequestsChartComponent(runStart: Long, allRequests: Series[Int, Int], failedRequests: Series[Int, Int], succeededRequests: Series[Int, Int], pieSeries: Series[String, Int]): Component
+	def getTransactionsChartComponent(runStart: Long, allTransactions: Series[Int, Int], failedTransactions: Series[Int, Int], succeededTransactions: Series[Int, Int], pieSeries: Series[String, Int]): Component
+	def getRequestDetailsResponseTimeChartComponent(runStart: Long, responseTimesSuccess: Series[Int, (Int, Int)], responseTimesFailures: Series[Int, (Int, Int)]): Component
+	def getRequestDetailsResponseTimeDistributionChartComponent(responseTimesSuccess: Series[Int, Int], responseTimesFailures: Series[Int, Int]): Component
+	def getRequestDetailsLatencyChartComponent(runStart: Long, latencySuccess: Series[Int, (Int, Int)], latencyFailures: Series[Int, (Int, Int)]): Component
+	def getRequestDetailsScatterChartComponent(successData: Series[Int, Int], failuresData: Series[Int, Int]): Component
 	def getRequestDetailsIndicatorChartComponent: Component
-
 	def getNumberOfRequestsChartComponent: Component
 }

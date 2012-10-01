@@ -16,12 +16,11 @@
 package com.excilys.ebi.gatling.mojo;
 
 import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
-import static org.codehaus.plexus.util.StringUtils.join;
-import static org.codehaus.plexus.util.StringUtils.trim;
+import static org.codehaus.plexus.util.StringUtils.*;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -108,8 +107,8 @@ public class GatlingMojo extends AbstractMojo {
 	protected List<String> excludes;
 
 	/**
-	 * A name of a Simulation class to run. This takes precedence over
-	 * the includes / excludes parameters.
+	 * A name of a Simulation class to run. This takes precedence over the
+	 * includes / excludes parameters.
 	 * 
 	 * @parameter expression="${gatling.simulation}" alias="s"
 	 * @description The name of the Simulation class to run
@@ -256,12 +255,12 @@ public class GatlingMojo extends AbstractMojo {
 			}
 
 			// Arguments
-			List<String> args = newArrayList(//
-					"-" + CommandLineConstants.CLI_DATA_FOLDER(), dataFolder.getCanonicalPath(),//
-					"-" + CommandLineConstants.CLI_RESULTS_FOLDER(), resultsFolder.getCanonicalPath(),//
+			List<String> args = new ArrayList<String>();
+			args.addAll(asList("-" + CommandLineConstants.CLI_DATA_FOLDER(), dataFolder.getCanonicalPath(),//
+					"-" + CommandLineConstants.CLI_RESULTS_FOLDER(), resultsFolder.getCanonicalPath(),// ;
 					"-" + CommandLineConstants.CLI_REQUEST_BODIES_FOLDER(), requestBodiesFolder.getCanonicalPath(),//
 					"-" + CommandLineConstants.CLI_SIMULATIONS_FOLDER(), simulationsFolder.getCanonicalPath(),//
-					"-" + CommandLineConstants.CLI_SIMULATION(), simulation);
+					"-" + CommandLineConstants.CLI_SIMULATION(), simulation));
 
 			if (noReports) {
 				args.add("-" + CommandLineConstants.CLI_NO_REPORTS());
@@ -320,7 +319,7 @@ public class GatlingMojo extends AbstractMojo {
 
 		String[] includedFiles = scanner.getIncludedFiles();
 
-		List<String> includedClassNames = newArrayList();
+		List<String> includedClassNames = new ArrayList<String>();
 		for (String includedFile : includedFiles) {
 			includedClassNames.add(fileNameToClassName(includedFile));
 		}
@@ -347,7 +346,7 @@ public class GatlingMojo extends AbstractMojo {
 	}
 
 	protected void append(Path classPath, List<?> artifacts) throws DependencyResolutionRequiredException {
-		List<String> list = newArrayList();
+		List<String> list = new ArrayList<String>();
 
 		for (Object artifact : artifacts) {
 			String path;

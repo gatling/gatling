@@ -51,13 +51,11 @@ object HttpHeaderCheckBuilder {
 
 	private val findAllExtractorFactory: ExtractorFactory[ExtendedResponse, String, Seq[String]] = (response: ExtendedResponse) => (headerName: String) => {
 
-		Option(response.getHeaders(headerName)) match {
-			case Some(headerValues) =>
-				if (headerName == Headers.Names.LOCATION)
-					headerValues.map(URLDecoder.decode(_, configuration.simulation.encoding))
-				else
-					headerValues.toSeq
-			case None => None
+		Option(response.getHeaders(headerName)).map { headerValues =>
+			if (headerName == Headers.Names.LOCATION)
+				headerValues.map(URLDecoder.decode(_, configuration.simulation.encoding))
+			else
+				headerValues.toSeq
 		}
 	}
 
