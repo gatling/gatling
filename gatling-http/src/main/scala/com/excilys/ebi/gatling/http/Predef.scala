@@ -56,4 +56,7 @@ object Predef {
 	val responseStatusText = (response: ExtendedResponse) => List(response.getStatusText)
 	val responseContentType = (response: ExtendedResponse) => List(response.getContentType)
 	val responseUri = (response: ExtendedResponse) => List(response.getUri.toString)
+
+	type Request = com.ning.http.client.Request
+	type Response = com.ning.http.client.Response
 }
