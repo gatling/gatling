@@ -64,7 +64,7 @@
 		</developer>
 		<developer>
 			<id>nicolas.remond@gmail.com</id>
-			<name>Nicolas Remond</name>
+			<name>Nicolas Rémond</name>
 		</developer>
 		<developer>
 			<id>skuenzli@gmail.com</id>
@@ -126,6 +126,7 @@
 		<guava.version>13.0.1</guava.version>
 		<jgrapht.version>0.8.2</jgrapht.version>
 		<maple.version>0.2.3</maple.version>
+		<zinc.version>0.1.1</zinc.version>
 
 		<maven2.version>2.2.1</maven2.version>
 		<maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
@@ -545,6 +546,17 @@
 				<groupId>com.twitter</groupId>
 				<artifactId>maple</artifactId>
 				<version>${maple.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.typesafe.zinc</groupId>
+				<artifactId>zinc</artifactId>
+				<version>${zinc.version}</version>
+				<exclusions>	
+					<exclusion>
+						<groupId>org.ensime</groupId>
+						<artifactId>ensime-sbt-cmd</artifactId>
+					</exclusion>
+				</exclusions> 
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
