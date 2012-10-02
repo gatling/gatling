@@ -15,14 +15,14 @@
  */
 package com.excilys.ebi.gatling.app
 
-import java.io.{File => JFile}
+import java.io.{ File => JFile }
 
 import scala.tools.nsc.io.Path.string2path
-import scala.tools.nsc.io.{Path, Directory}
+import scala.tools.nsc.io.{ Path, Directory }
 import scala.tools.nsc.util.ClassPath
 
 import com.excilys.ebi.gatling.core.config.GatlingFiles
-import com.typesafe.zinc.{Setup, Inputs, Compiler}
+import com.typesafe.zinc.{ Setup, Inputs, Compiler }
 
 import grizzled.slf4j.Logging
 import xsbti.api.Compilation
@@ -56,7 +56,7 @@ object ZincCompiler extends Logging {
 		// TODO
 		val compilerInterfaceSrc: JFile = compilerInterfaceJarLocation()
 		val javaHomeDir: Option[JFile] = None
-		
+
 		Setup.setup(scalaCompiler.jfile, scalaLibrary.jfile, scalaExtra, sbtInterface, compilerInterfaceSrc, javaHomeDir)
 	}
 
@@ -106,25 +106,19 @@ object ZincCompiler extends Logging {
 	}
 
 	class ZincLogger extends Logger {
-		// TODO : define a proper strategy in logback.xml
 		def error(arg: xsbti.F0[String]) = {
-			println("->ERROR: " + arg.apply())
 			logger.error(arg.apply)
 		}
 		def warn(arg: xsbti.F0[String]) = {
-			println("->WARN: " + arg.apply())
 			logger.warn(arg.apply)
 		}
 		def info(arg: xsbti.F0[String]) = {
-			println("->INFO: " + arg.apply())
 			logger.info(arg.apply)
 		}
 		def debug(arg: xsbti.F0[String]) = {
-			println("->DEBUG: " + arg.apply())
 			logger.debug(arg.apply)
 		}
 		def trace(arg: xsbti.F0[Throwable]) = {
-			println("->TRACE: " + arg.apply())
 			logger.trace(arg.apply)
 		}
 	}
