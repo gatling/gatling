@@ -34,11 +34,11 @@ object RandomSwitchBuilder {
 
 class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], next: ActorRef) extends ActionBuilder {
 
+	require(possibilities.map(_._1).sum <= 100, "Can't build a random switch with percentage sum > 100")
+
 	def withNext(next: ActorRef) = new RandomSwitchBuilder(possibilities, next)
 
 	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
-
-		if (possibilities.map(_._1).sum > 100) throw new IllegalArgumentException("Can't build a random switch with percentage sum > 100")
 
 		val possibleActions = possibilities.map {
 			case (percentage, possibility) =>

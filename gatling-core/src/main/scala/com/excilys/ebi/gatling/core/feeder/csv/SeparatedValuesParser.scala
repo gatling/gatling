@@ -35,7 +35,7 @@ object SeparatedValuesParser {
 
 	def apply(file: Path, separator: String, escapeChar: Option[String]): Array[Map[String, String]] = {
 
-		if (!file.exists) throw new IllegalArgumentException("file " + file + " doesn't exists")
+		require(file.exists, "file " + file + " doesn't exists")
 
 		use(Source.fromFile(file.jfile, GatlingConfiguration.configuration.simulation.encoding)) { source =>
 

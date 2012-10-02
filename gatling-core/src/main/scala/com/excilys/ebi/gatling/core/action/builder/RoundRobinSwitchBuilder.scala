@@ -29,11 +29,11 @@ object RoundRobinSwitchBuilder {
 
 class RoundRobinSwitchBuilder(possibilities: List[ChainBuilder], next: ActorRef) extends ActionBuilder {
 
+	require(possibilities.size >= 2, "Can't build a round robin switch with less than 2 possibilities")
+
 	def withNext(next: ActorRef) = new RoundRobinSwitchBuilder(possibilities, next)
 
 	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
-
-		if (possibilities.size < 2) throw new IllegalArgumentException("Can't build a round robin switch with less than 2 possibilities")
 
 		val possibleActions = possibilities.map(_.withNext(next).build(protocolConfigurationRegistry))
 

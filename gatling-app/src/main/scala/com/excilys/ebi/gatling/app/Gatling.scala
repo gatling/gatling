@@ -106,9 +106,8 @@ class Gatling extends Logging {
 		val simulationId = {
 			val userInput = Console.readLine.trim
 
-			if (!userInput.matches("[\\w-_]*"))
-				throw new IllegalArgumentException(userInput + " contains illegal characters")
-
+			require(userInput.matches("[\\w-_]*"), userInput + " contains illegal characters")
+			
 			if (!userInput.isEmpty) userInput else myDefaultOutputDirectoryBaseName
 		}
 

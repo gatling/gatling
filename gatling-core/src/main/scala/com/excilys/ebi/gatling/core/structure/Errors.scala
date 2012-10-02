@@ -28,19 +28,16 @@ trait Errors[B] extends Execs[B] {
 	def tryMax(times: Int, counterName: String)(chain: ChainBuilder): B = tryMax(times, Some(counterName))(chain)
 	private def tryMax(times: Int, counterName: Option[String])(chain: ChainBuilder): B = {
 
+		require(times >= 1, "Can't set up a max try <= 1")
+
 		def buildTransactionalChain(chain: ChainBuilder): ChainBuilder = {
 			val startBlock = SimpleActionBuilder((session: Session) => session.clearFailed.setMustExitOnFail)
 			val endBlock = SimpleActionBuilder((session: Session) => session.clearMustExitOnFail)
 			emptyChain.exec(startBlock).exec(chain).exec(endBlock)
 		}
 
-		times match {
-			case times if times >= 1 =>
-				val loopCounterName = counterName.getOrElse(UUID.randomUUID.toString)
-				exec(TryMaxActionBuilder(times, buildTransactionalChain(chain), loopCounterName))
-
-			case times => throw new IllegalArgumentException("Can't set up a max try <= 1")
-		}
+		val loopCounterName = counterName.getOrElse(UUID.randomUUID.toString)
+		exec(TryMaxActionBuilder(times, buildTransactionalChain(chain), loopCounterName))
 	}
 
 	def exitHereIfFailed: B = exec(SimpleActionBuilder((session: Session) => session.setMustExitOnFail))

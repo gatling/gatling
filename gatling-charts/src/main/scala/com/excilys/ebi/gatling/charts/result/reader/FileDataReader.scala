@@ -52,7 +52,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	val inputFiles = simulationLogDirectory(runUuid, create = false).files.filter(_.jfile.getName.matches(FileDataReader.SIMULATION_FILES_NAME_PATTERN)).map(_.jfile).toSeq
 
-	if (inputFiles.isEmpty) throw new IllegalArgumentException("simulation directory doesn't contain any log file.")
+	require(!inputFiles.isEmpty, "simulation directory doesn't contain any log file.")
 
 	private def preProcess(records: Iterator[String]) = {
 		val (actions, runs) = records.map(FileDataReader.TABULATION_PATTERN.split(_)).filter(array => array.head == ACTION || array.head == RUN).partition(_.head == ACTION)
