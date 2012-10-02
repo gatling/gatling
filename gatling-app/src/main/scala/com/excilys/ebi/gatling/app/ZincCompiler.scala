@@ -22,6 +22,7 @@ import scala.tools.nsc.io.{ Path, Directory }
 import scala.tools.nsc.util.ClassPath
 
 import com.excilys.ebi.gatling.core.config.GatlingFiles
+import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_HOME
 import com.typesafe.zinc.{ Setup, Inputs, Compiler }
 
 import grizzled.slf4j.Logging
@@ -51,16 +52,16 @@ object ZincCompiler extends Logging {
 		val scalaCompiler = ClassPath.scalaCompiler.getOrElse(throw new RuntimeException("No Scala compiler available"))
 		val scalaLibrary = ClassPath.scalaLibrary.getOrElse(throw new RuntimeException("No Scala library available"))
 		val scalaExtra: Seq[JFile] = Nil
-		// TODO 
+		// Find the location of the sbt-interface jar by finding the location of the jar that contains the Compilation class 
 		val sbtInterface: JFile = new JFile(classOf[Compilation].getProtectionDomain.getCodeSource.getLocation.getPath)
-		// TODO
+		// Find the location of the compiler-interface-source jar by the jar name in the classpath
 		val compilerInterfaceSrc: JFile = compilerInterfaceJarLocation()
 		val javaHomeDir: Option[JFile] = None
 
 		Setup.setup(scalaCompiler.jfile, scalaLibrary.jfile, scalaExtra, sbtInterface, compilerInterfaceSrc, javaHomeDir)
 	}
 
-	def simulationInputs(sourceDirectory: Directory, classesDir: Path, zincCacheFile: Path) = {
+	def simulationInputs(sourceDirectory: Directory, binDir: Path) = {
 		val classPathUrls = java.lang.Thread.currentThread.getContextClassLoader match {
 			case cl: java.net.URLClassLoader => cl.getURLs.toSeq
 			case _ => throw new RuntimeException("classloader is not a URLClassLoader")
@@ -70,11 +71,17 @@ object ZincCompiler extends Logging {
 		val scalaSourceFiles = sourceDirectory.deepFiles.filter(_.hasExtension("scala")).toList
 		val sources: Seq[JFile] = scalaSourceFiles.map(f => f.jfile)
 
-		val classesDirectory: JFile = classesDir jfile
+		val classesDir = binDir / "classes"
+		val zincCacheFile = binDir / "zincCache"
+
+		val classesDirectory: JFile = classesDir.jfile
 		val scalacOptions: Seq[String] = Nil
 		val javacOptions: Seq[String] = Nil
-		val analysisCache: Option[JFile] = Some(zincCacheFile jfile)
-		val analysisCacheMap: Map[JFile, JFile] = Map[JFile, JFile]()
+		val analysisCache: Option[JFile] = Some(zincCacheFile.jfile)
+		// avoids having GATLING_HOME polluted with a "cache" folder
+		val analysisCacheMap: Map[JFile, JFile] =
+			Map[JFile, JFile]((GATLING_HOME / "conf").jfile -> (binDir / "cache" / "conf").jfile,
+				(GATLING_HOME / "user-files").jfile -> (binDir / "cache" / "user-files").jfile)
 		val javaOnly: Boolean = false
 		val compileOrder: CompileOrder = CompileOrder.JavaThenScala
 		val outputRelations: Option[JFile] = None
@@ -84,7 +91,7 @@ object ZincCompiler extends Logging {
 			analysisCache, analysisCacheMap, javaOnly, compileOrder, outputRelations, outputProducts)
 	}
 
-	def apply(sourceDirectory: Directory) = {
+	def apply(sourceDirectory: Directory): Path = {
 
 		// Setup the compiler
 		val setup = setupZincCompiler
@@ -92,17 +99,15 @@ object ZincCompiler extends Logging {
 		val zincCompiler = Compiler.create(setup, zincLogger)
 
 		val binDir = GatlingFiles.binariesDirectory.getOrElse(
-			GatlingFiles.GATLING_HOME / "bin")
-		val classesDir = binDir / "classes"
-		val zincCacheFile = binDir / "zincCache"
+			GATLING_HOME / "target")
 
 		// Define the inputs
-		val inputs = simulationInputs(sourceDirectory, classesDir, zincCacheFile)
+		val inputs = simulationInputs(sourceDirectory, binDir)
 		Inputs.debug(inputs, zincLogger)
 
 		zincCompiler.compile(inputs)(zincLogger)
 
-		classesDir
+		inputs.classesDirectory
 	}
 
 	class ZincLogger extends Logger {
