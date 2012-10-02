@@ -91,7 +91,7 @@ object GatlingConfiguration extends Logging {
 							case "graphite" => "com.excilys.ebi.gatling.metrics.GraphiteDataWriter" :: writers
 							case clazz => clazz :: writers
 						}
-					}.reverse,
+					},
 				dataReaderClass = (config.getString(CONF_DATA_READER_CLASS_NAME)).trim match {
 					case "file" => "com.excilys.ebi.gatling.charts.result.reader.FileDataReader"
 					case clazz => clazz

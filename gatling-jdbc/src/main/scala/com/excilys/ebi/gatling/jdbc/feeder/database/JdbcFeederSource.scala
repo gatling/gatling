@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.jdbc.feeder.database
 import java.sql.DriverManager
 import java.sql.ResultSet.{ TYPE_FORWARD_ONLY, CONCUR_READ_ONLY }
 
-import com.excilys.ebi.gatling.jdbc.util.JdbcHelper.use
+import com.excilys.ebi.gatling.core.util.IOHelper.use
 
 object JdbcFeederSource {
 

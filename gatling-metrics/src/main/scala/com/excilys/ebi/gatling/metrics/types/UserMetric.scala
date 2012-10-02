@@ -21,17 +21,17 @@ import com.excilys.ebi.gatling.core.result.message.RequestRecord
 
 class UserMetric(val nbUsers: Int) {
 
-	private var active = 0
+	private var _active = 0
 	private var activeBuffer = 0
-	private var waiting = nbUsers
-	private var done = 0
+	private var _waiting = nbUsers
+	private var _done = 0
 	private var doneBuffer = 0
 
 	def update(requestRecord: RequestRecord) {
 		requestRecord.requestName match {
 			case START_OF_SCENARIO => {
-				active += 1
-				waiting -= 1
+				_active += 1
+				_waiting -= 1
 			}
 			case END_OF_SCENARIO => {
 				activeBuffer += 1
@@ -41,17 +41,17 @@ class UserMetric(val nbUsers: Int) {
 		}
 	}
 
-	def getActive = {
-		active -= activeBuffer
+	def active = {
+		_active -= activeBuffer
 		activeBuffer = 0
-		active
+		_active
 	}
 
-	def getWaiting = waiting
+	def waiting = _waiting
 
-	def getDone = {
-		done += doneBuffer
+	def done = {
+		_done += doneBuffer
 		doneBuffer = 0
-		done
+		_done
 	}
 }
