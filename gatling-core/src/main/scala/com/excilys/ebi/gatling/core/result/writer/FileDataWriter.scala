@@ -16,17 +16,18 @@
 package com.excilys.ebi.gatling.core.result.writer
 
 import java.io.{ BufferedOutputStream, FileOutputStream, OutputStreamWriter }
+
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogDirectory
 import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RunRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.message.RecordType.{ ACTION, RUN }
-import com.excilys.ebi.gatling.core.util.DateHelper.toTimestamp
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+
 import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 
 object FileDataWriter {
-
+	
 	val emptyField = " "
 
 	val sanitizerPattern = """[\n\r\t]""".r

@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.result.writer
 
-import com.excilys.ebi.gatling.core.result.message.{RequestStatus, RequestRecord}
+import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RequestRecord }
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 
 import org.junit.runner.RunWith
@@ -28,38 +28,32 @@ import java.io.StringWriter
 @RunWith(classOf[JUnitRunner])
 class FileDataWriterSpec extends Specification {
 
-  "file data writer" should {
+	"file data writer" should {
 
-    "log a standard request record" in {
-      val record = new RequestRecord("scenario", 1, "requestName", 2L, 3L, 4L, 5L, RequestStatus.OK, Some("message"))
+		def logRecord(record: RequestRecord): String = {
+			val stringWriter = new StringWriter()
+			FileDataWriter.append(stringWriter, record)
+			stringWriter.getBuffer.toString
+		}
 
-      val stringWriter = new StringWriter()
+		"log a standard request record" in {
+			val record = new RequestRecord("scenario", 1, "requestName", 2L, 3L, 4L, 5L, RequestStatus.OK, Some("message"))
 
-      FileDataWriter.append(stringWriter, record)
+			logRecord(record) must beEqualTo("ACTION\tscenario\t1\trequestName\t2\t3\t4\t5\tOK\tmessage" + END_OF_LINE)
+		}
 
-      val loggedRequestRecord:String = stringWriter.getBuffer.toString
+		"append extra info to request records" in {
+			val extraInfo: List[String] = List("some", "extra info", "for the log")
+			val record = new RequestRecord("scenario", 1, "requestName", 2L, 3L, 4L, 5L, RequestStatus.OK, Some("message"), extraInfo)
 
-      loggedRequestRecord must beEqualTo("ACTION\tscenario\t1\trequestName\t2\t3\t4\t5\tOK\tmessage" + END_OF_LINE)
-    }
+			logRecord(record) must beEqualTo("ACTION\tscenario\t1\trequestName\t2\t3\t4\t5\tOK\tmessage\tsome\textra info\tfor the log" + END_OF_LINE)
+		}
 
-    "append extra info to request records" in {
-      val extraInfo:List[String] = List("some", "extra info", "for the log")
-      val record = new RequestRecord("scenario", 1, "requestName", 2L, 3L, 4L, 5L, RequestStatus.OK, Some("message"), extraInfo)
+		"sanitize extra info so that simulation log format is preserved" in {
+			FileDataWriter.sanitize("\nnewlines \n are\nnot \n\n allowed\n") must beEqualTo(" newlines   are not    allowed ")
+			FileDataWriter.sanitize("\rcarriage returns \r are\rnot \r\r allowed\r") must beEqualTo(" carriage returns   are not    allowed ")
+			FileDataWriter.sanitize("\ttabs \t are\tnot \t\t allowed\t") must beEqualTo(" tabs   are not    allowed ")
+		}
 
-      val stringWriter = new StringWriter()
-
-      FileDataWriter.append(stringWriter, record)
-
-      val loggedRequestRecord:String = stringWriter.getBuffer.toString
-
-      loggedRequestRecord must beEqualTo("ACTION\tscenario\t1\trequestName\t2\t3\t4\t5\tOK\tmessage\tsome\textra info\tfor the log" + END_OF_LINE)
-    }
-
-    "sanitize extra info so that simulation log format is preserved" in {
-      FileDataWriter.sanitize("\nnewlines \n are\nnot \n\n allowed\n") must beEqualTo(" newlines   are not    allowed ")
-      FileDataWriter.sanitize("\rcarriage returns \r are\rnot \r\r allowed\r") must beEqualTo(" carriage returns   are not    allowed ")
-      FileDataWriter.sanitize("\ttabs \t are\tnot \t\t allowed\t") must beEqualTo(" tabs   are not    allowed ")
-    }
-
-  }
+	}
 }
