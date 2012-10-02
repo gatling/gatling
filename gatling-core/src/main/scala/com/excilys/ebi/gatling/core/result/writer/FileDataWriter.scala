@@ -22,12 +22,13 @@ import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogDirectory
 import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RunRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.message.RecordType.{ ACTION, RUN }
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
+import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 
 import grizzled.slf4j.Logging
 
 object FileDataWriter {
-	
+
 	val emptyField = " "
 
 	val sanitizerPattern = """[\n\r\t]""".r
@@ -90,11 +91,9 @@ class FileDataWriter extends DataWriter with Logging {
 	}
 
 	override def onFlushDataWriter {
-		try {
-			info("Received flush order")
-			osw.flush
-		} finally {
-			osw.close
-		}
+
+		info("Received flush order")
+
+		use(osw) { _.flush }
 	}
 }

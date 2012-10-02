@@ -54,6 +54,16 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	require(!inputFiles.isEmpty, "simulation directory doesn't contain any log file.")
 
+	private def doWithInputFiles[T](f: Iterator[String] => T): T = {
+
+		val streams = inputFiles.map(new FileInputStream(_))
+		try {
+			f(multipleFileIterator(streams))
+		} finally {
+			streams.foreach(_.close)
+		}
+	}
+
 	private def preProcess(records: Iterator[String]) = {
 		val (actions, runs) = records.map(FileDataReader.TABULATION_PATTERN.split(_)).filter(array => array.head == ACTION || array.head == RUN).partition(_.head == ACTION)
 
@@ -77,21 +87,14 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 		(runStart, runEnd, runRecords.head)
 	}
-	
-	val (runStart, runEnd, runRecord) = {
-		val streams = inputFiles.map(new FileInputStream(_))
-		try {
-			preProcess(multipleFileIterator(streams))
-		} finally {
-			streams.foreach(_.close)
-		}
-	}
+
+	val (runStart, runEnd, runRecord) = doWithInputFiles(preProcess)
 
 	val step = StatsHelper.step(math.floor(runStart / FileDataReader.SEC_MILLISEC_RATIO).toInt, math.ceil(runEnd / FileDataReader.SEC_MILLISEC_RATIO).toInt, configuration.charting.maxPlotsPerSeries) * FileDataReader.SEC_MILLISEC_RATIO
 	val bucketFunction = StatsHelper.bucket(_: Int, 0, (runEnd - runStart).toInt, step, step / 2)
 	val buckets = StatsHelper.bucketsList(0, (runEnd - runStart).toInt, step)
 
-	private def process(records: Iterator[String], bucketFunction: Int => Int): ResultsHolder = {
+	private def process(bucketFunction: Int => Int)(records: Iterator[String]): ResultsHolder = {
 
 		val resultsHolder = new ResultsHolder(runStart, runEnd)
 
@@ -113,14 +116,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		resultsHolder
 	}
 
-	val resultsHolder = {
-		val streams = inputFiles.map(new FileInputStream(_))
-		try {
-			process(multipleFileIterator(streams), bucketFunction)
-		} finally {
-			streams.foreach(_.close)
-		}
-	}
+	val resultsHolder = doWithInputFiles(process(bucketFunction))
 
 	def requestNames: List[String] = resultsHolder
 		.requestNameBuffer
