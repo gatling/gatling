@@ -79,9 +79,10 @@ object ZincCompiler extends Logging {
 		val javacOptions: Seq[String] = Nil
 		val analysisCache: Option[JFile] = Some(zincCacheFile.jfile)
 		// avoids having GATLING_HOME polluted with a "cache" folder
-		val analysisCacheMap: Map[JFile, JFile] =
-			Map[JFile, JFile]((GATLING_HOME / "conf").jfile -> (binDir / "cache" / "conf").jfile,
-				(GATLING_HOME / "user-files").jfile -> (binDir / "cache" / "user-files").jfile)
+		val analysisCacheMap: Map[JFile, JFile] = Map[JFile, JFile](
+			(GATLING_HOME / "bin").jfile -> (binDir / "cache" / "bin").jfile,
+			(GATLING_HOME / "conf").jfile -> (binDir / "cache" / "conf").jfile,
+			(GATLING_HOME / "user-files").jfile -> (binDir / "cache" / "user-files").jfile)
 		val javaOnly: Boolean = false
 		val compileOrder: CompileOrder = CompileOrder.JavaThenScala
 		val outputRelations: Option[JFile] = None
