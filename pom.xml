@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.excilys.ebi.gatling</groupId>
 	<artifactId>gatling-parent</artifactId>
@@ -393,12 +394,16 @@
 				<groupId>com.typesafe.zinc</groupId>
 				<artifactId>zinc</artifactId>
 				<version>${zinc.version}</version>
-				<exclusions>	
+				<exclusions>
 					<exclusion>
 						<groupId>org.ensime</groupId>
 						<artifactId>ensime-sbt-cmd</artifactId>
 					</exclusion>
-				</exclusions> 
+					<exclusion>
+						<artifactId>sbt-interface</artifactId>
+						<groupId>com.typesafe.sbt</groupId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
