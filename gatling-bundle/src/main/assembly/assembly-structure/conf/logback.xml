@@ -15,8 +15,6 @@
 	<!-- Uncomment for logging HTTP responses on check failure -->
 	<!-- <logger name="com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandler" level="DEBUG" /> -->
 
-	<logger name="com.excilys.ebi.gatling.app.ZincCompiler" level="INFO" /> 
-
 	<root level="WARN">
 		<appender-ref ref="CONSOLE" />
 	</root>

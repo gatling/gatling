@@ -75,7 +75,7 @@ object ZincCompiler extends Logging {
 		val zincCacheFile = binDir / "zincCache"
 
 		val classesDirectory: JFile = classesDir.jfile
-		val scalacOptions: Seq[String] = Nil
+		val scalacOptions: Seq[String] = Seq("-deprecation")
 		val javacOptions: Seq[String] = Nil
 		val analysisCache: Option[JFile] = Some(zincCacheFile.jfile)
 		// avoids having GATLING_HOME polluted with a "cache" folder
