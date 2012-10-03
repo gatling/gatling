@@ -3,7 +3,7 @@
 	<parent>
 		<artifactId>gatling-parent</artifactId>
 		<groupId>com.excilys.ebi.gatling</groupId>
-		<version>1.3.2</version>
+		<version>1.3.3-SNAPSHOT</version>
 	</parent>
 	<artifactId>gatling-recorder</artifactId>
 	<name>${project.artifactId}</name>
