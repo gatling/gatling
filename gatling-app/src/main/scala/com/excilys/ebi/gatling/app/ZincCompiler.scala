@@ -91,7 +91,7 @@ object ZincCompiler extends Logging {
 			analysisCache, analysisCacheMap, javaOnly, compileOrder, outputRelations, outputProducts)
 	}
 
-	def apply(sourceDirectory: Directory): Path = {
+	def apply(sourceDirectory: Directory): Directory = {
 
 		// Setup the compiler
 		val setup = setupZincCompiler
@@ -107,7 +107,7 @@ object ZincCompiler extends Logging {
 
 		zincCompiler.compile(inputs)(zincLogger)
 
-		inputs.classesDirectory
+		Directory(inputs.classesDirectory)
 	}
 
 	class ZincLogger extends Logger {

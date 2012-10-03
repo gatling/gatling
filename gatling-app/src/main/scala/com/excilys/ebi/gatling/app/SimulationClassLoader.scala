@@ -38,7 +38,7 @@ object SimulationClassLoader extends Logging {
 		val byteCodeDir = PlainFile.fromPath(classesDir)
 		val classLoader = new AbstractFileClassLoader(byteCodeDir, getClass.getClassLoader)
 
-		new FileSystemBackedSimulationClassLoader(classLoader, scala.tools.nsc.io.Directory(classesDir))
+		new FileSystemBackedSimulationClassLoader(classLoader, classesDir)
 	}
 
 	def fromClasspathBinariesDirectory(binariesDirectory: Directory) = new FileSystemBackedSimulationClassLoader(getClass.getClassLoader, binariesDirectory)
