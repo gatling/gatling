@@ -64,7 +64,7 @@
 		</developer>
 		<developer>
 			<id>nicolas.remond@gmail.com</id>
-			<name>Nicolas Remond</name>
+			<name>Nicolas Rémond</name>
 		</developer>
 		<developer>
 			<id>skuenzli@gmail.com</id>
@@ -119,7 +119,7 @@
 		<redis.version>2.7</redis.version>
 		<junit.version>4.10</junit.version>
 		<specs2.version>1.12.1</specs2.version>
-
+		<zinc.version>0.1.1</zinc.version>
 		<maven2.version>2.2.1</maven2.version>
 		<maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
 		<maven-source-plugin.version>2.2</maven-source-plugin.version>
@@ -388,6 +388,17 @@
 				<groupId>org.specs2</groupId>
 				<artifactId>specs2_2.9.2</artifactId>
 				<version>${specs2.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.typesafe.zinc</groupId>
+				<artifactId>zinc</artifactId>
+				<version>${zinc.version}</version>
+				<exclusions>	
+					<exclusion>
+						<groupId>org.ensime</groupId>
+						<artifactId>ensime-sbt-cmd</artifactId>
+					</exclusion>
+				</exclusions> 
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

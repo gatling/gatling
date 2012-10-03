@@ -15,64 +15,30 @@
  */
 package com.excilys.ebi.gatling.app
 
-import java.io.{ PrintWriter, StringWriter }
 import java.lang.reflect.Modifier
 
-import scala.tools.nsc.{ Global, Settings }
+import scala.annotation.implicitNotFound
+import scala.collection.TraversableOnce.wrapTraversableOnce
 import scala.tools.nsc.interpreter.AbstractFileClassLoader
-import scala.tools.nsc.io.{ Directory, File, Path }
-import scala.tools.nsc.io.PlainFile
-import scala.tools.nsc.reporters.ConsoleReporter
+import scala.tools.nsc.io.Path.string2path
+import scala.tools.nsc.io.{PlainFile, Path, File, Directory}
 
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
-import com.excilys.ebi.gatling.core.util.FileHelper
-import com.excilys.ebi.gatling.core.util.IOHelper.use
 
-object SimulationClassLoader {
+import grizzled.slf4j.Logging
+
+object SimulationClassLoader extends Logging {
 
 	def fromSourcesDirectory(sourceDirectory: Directory): SimulationClassLoader = {
 
-		val scalaSourceFiles = sourceDirectory.deepFiles.filter(_.hasExtension("scala")).toList
+		// Compile the classes
+		val classesDir = ZincCompiler(sourceDirectory)
 
-		val binaryDir = FileHelper.createTempDirectory()
-
-		val byteCodeDir = PlainFile.fromPath(binaryDir)
+		// Load the compiled classes
+		val byteCodeDir = PlainFile.fromPath(classesDir)
 		val classLoader = new AbstractFileClassLoader(byteCodeDir, getClass.getClassLoader)
 
-		val settings = new Settings
-		settings.usejavacp.value = true
-		settings.outputDirs.setSingleOutput(byteCodeDir)
-		settings.deprecation.value = true
-		settings.unchecked.value = true
-		settings.encoding.value = configuration.simulation.encoding
-
-		// Prepare an object for collecting error messages from the compiler
-		val messageCollector = new StringWriter
-
-		use(new PrintWriter(messageCollector)) { pw =>
-			// Initialize the compiler
-			val reporter = new ConsoleReporter(settings, Console.in, pw)
-			val compiler = new Global(settings, reporter)
-
-			(new compiler.Run).compileFiles(scalaSourceFiles.map(PlainFile.fromPath(_)))
-
-			// Bail out if compilation failed
-			if (reporter.hasErrors) {
-				reporter.printSummary
-				throw new RuntimeException("Compilation failed:\n" + messageCollector.toString)
-			}
-
-			// Always display compiler warnings to be sure to be informed about deprecation
-			if (reporter.hasWarnings) {
-				def plural(x: Int) = if (x > 1) "s" else ""
-				println("Compilation succeeded with %d warning%s.".format(
-					reporter.WARNING.count, plural(reporter.WARNING.count)))
-				println(messageCollector)
-			}
-		}
-
-		new FileSystemBackedSimulationClassLoader(classLoader, binaryDir)
+		new FileSystemBackedSimulationClassLoader(classLoader, scala.tools.nsc.io.Directory(classesDir))
 	}
 
 	def fromClasspathBinariesDirectory(binariesDirectory: Directory) = new FileSystemBackedSimulationClassLoader(getClass.getClassLoader, binariesDirectory)
