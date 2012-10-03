@@ -98,9 +98,9 @@ class GraphiteDataWriter extends DataWriter {
 
 		def sendUserMetrics(scenarioName: String, userMetric: UserMetric) = {
 			val rootPath = MetricPath("users", sanitizeString(scenarioName))
-			sendToGraphite(rootPath + "active", userMetric.getActive)
-			sendToGraphite(rootPath + "waiting", userMetric.getWaiting)
-			sendToGraphite(rootPath + "done", userMetric.getDone)
+			sendToGraphite(rootPath + "active", userMetric.active)
+			sendToGraphite(rootPath + "waiting", userMetric.waiting)
+			sendToGraphite(rootPath + "done", userMetric.done)
 		}
 
 		def sendMetrics(metricPath: MetricPath, metrics: Metrics) = {

@@ -216,8 +216,7 @@ object ScenarioExporter extends Logging {
 				try {
 					fw.write(content)
 				} catch {
-					case e: IOException =>
-						error("Error, while dumping request body... \n" + e.getStackTrace)
+					case e: IOException => error("Error, while dumping request body... \n" + e.getStackTrace)
 				}
 		}
 	}

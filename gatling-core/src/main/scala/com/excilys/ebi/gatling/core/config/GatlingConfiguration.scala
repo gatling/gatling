@@ -16,14 +16,13 @@
 package com.excilys.ebi.gatling.core.config
 
 import java.util.{ Map => JMap, HashMap => JHashMap }
-
 import scala.collection.JavaConversions.asScalaBuffer
-
 import com.excilys.ebi.gatling.core.ConfigurationConstants._
 import com.excilys.ebi.gatling.core.util.StringHelper.trimToOption
 import com.typesafe.config.{ Config, ConfigFactory }
-
 import grizzled.slf4j.Logging
+import com.excilys.ebi.gatling.core.result.writer.ConsoleDataWriter
+import com.excilys.ebi.gatling.core.result.writer.FileDataWriter
 
 /**
  * Configuration loader of Gatling
@@ -84,8 +83,19 @@ object GatlingConfiguration extends Logging {
 				userAgent = config.getString(CONF_HTTP_USER_AGENT),
 				userRawUrl = config.getBoolean(CONF_HTTP_USE_RAW_URL)),
 			data = DataConfiguration(
-				dataWriterClasses = config.getStringList(CONF_DATA_WRITER_CLASS_NAMES).toList,
-				dataReaderClass = config.getString(CONF_DATA_READER_CLASS_NAME)),
+				dataWriterClasses = config.getStringList(CONF_DATA_WRITER_CLASS_NAMES).toList
+					.foldLeft(List.empty[String]) { (writers, writer) =>
+						writer.trim match {
+							case "console" => "com.excilys.ebi.gatling.core.result.writer.ConsoleDataWriter" :: writers
+							case "file" => "com.excilys.ebi.gatling.core.result.writer.FileDataWriter" :: writers
+							case "graphite" => "com.excilys.ebi.gatling.metrics.GraphiteDataWriter" :: writers
+							case clazz => clazz :: writers
+						}
+					},
+				dataReaderClass = (config.getString(CONF_DATA_READER_CLASS_NAME)).trim match {
+					case "file" => "com.excilys.ebi.gatling.charts.result.reader.FileDataReader"
+					case clazz => clazz
+				}),
 			graphite = GraphiteConfiguration(
 				host = config.getString(CONF_GRAPHITE_HOST),
 				port = config.getInt(CONF_GRAPHITE_PORT),

@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
+import com.excilys.ebi.gatling.core.session.ELParser.parseEL
 import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 
 /**
  * HttpRequestActionBuilder class companion
@@ -42,7 +42,7 @@ class HttpRequestBaseBuilder(requestName: String) {
 	 *
 	 * @param url the url on which this request will be made
 	 */
-	def delete(url: String): DeleteHttpRequestBuilder = delete(parseEvaluatable(url))
+	def delete(url: String): DeleteHttpRequestBuilder = delete(parseEL(url))
 
 	/**
 	 * Starts the definition of an HTTP request with word DELETE
@@ -56,7 +56,7 @@ class HttpRequestBaseBuilder(requestName: String) {
 	 *
 	 * @param url the url on which this request will be made
 	 */
-	def get(url: String): GetHttpRequestBuilder = get(parseEvaluatable(url))
+	def get(url: String): GetHttpRequestBuilder = get(parseEL(url))
 
 	/**
 	 * Starts the definition of an HTTP request with word GET
@@ -70,7 +70,7 @@ class HttpRequestBaseBuilder(requestName: String) {
 	 *
 	 * @param url the url on which this request will be made
 	 */
-	def post(url: String): PostHttpRequestBuilder = post(parseEvaluatable(url))
+	def post(url: String): PostHttpRequestBuilder = post(parseEL(url))
 
 	/**
 	 * Starts the definition of an HTTP request with word POST
@@ -84,7 +84,7 @@ class HttpRequestBaseBuilder(requestName: String) {
 	 *
 	 * @param url the url on which this request will be made
 	 */
-	def put(url: String): PutHttpRequestBuilder = put(parseEvaluatable(url))
+	def put(url: String): PutHttpRequestBuilder = put(parseEL(url))
 
 	/**
 	 * Starts the definition of an HTTP request with word PUT
@@ -98,7 +98,7 @@ class HttpRequestBaseBuilder(requestName: String) {
 	 *
 	 * @param url the url on which this request will be made
 	 */
-	def head(url: String): HeadHttpRequestBuilder = head(parseEvaluatable(url))
+	def head(url: String): HeadHttpRequestBuilder = head(parseEL(url))
 
 	/**
 	 * Starts the definition of an HTTP request with word HEAD

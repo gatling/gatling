@@ -18,10 +18,12 @@ package com.excilys.ebi.gatling.core.session
 import com.excilys.ebi.gatling.core.session.handler.{ CounterBasedIterationHandler, TimerBasedIterationHandler }
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
+import grizzled.slf4j.Logging
+
 /**
  * Session class companion
  */
-object Session {
+object Session extends Logging {
 
 	val GATLING_PRIVATE_ATTRIBUTE_PREFIX = "gatling."
 
@@ -30,7 +32,26 @@ object Session {
 	val FAILED_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.failed"
 
 	val MUST_EXIT_ON_FAIL_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.mustExitOnFailed"
+
+	def attributeAsEvaluatableString(key: String): EvaluatableString = (session: Session) => session.getAttributeAsOption[Any](key)
+		.map(_.toString)
+		.getOrElse {
+			warn("Couldn't resolve session attribute " + key)
+			EMPTY
+		}
+
+	def attributeAsEvaluatableStringSeq(key: String): EvaluatableStringSeq = (session: Session) => session.getAttributeAsOption[Any](key)
+		.map(value => value match {
+			case seq: Seq[_] => seq.map(_.toString)
+			case mono => List(mono.toString)
+		}).getOrElse {
+			warn("Couldn't resolve session attribute " + key)
+			List(EMPTY)
+		}
+
+	def evaluatableStringToEvaluatableStringSeq(evaluatableString: EvaluatableString): EvaluatableStringSeq = (session: Session) => List(evaluatableString(session))
 }
+
 /**
  * Session class representing the session passing through a scenario for a given user
  *
@@ -112,7 +133,7 @@ class Session(val scenarioName: String, val userId: Int, data: Map[String, Any] 
 	def isFailed: Boolean = isAttributeDefined(Session.FAILED_KEY)
 
 	def setMustExitOnFail: Session = setAttribute(Session.MUST_EXIT_ON_FAIL_KEY, EMPTY)
-	
+
 	def isMustExitOnFail: Boolean = isAttributeDefined(Session.MUST_EXIT_ON_FAIL_KEY)
 
 	def clearMustExitOnFail: Session = removeAttribute(Session.MUST_EXIT_ON_FAIL_KEY)

@@ -92,8 +92,7 @@ class Gatling extends Logging {
 				new Runner(selection).run
 			}
 
-		if (!configuration.charting.noReports)
-			generateReports(outputDirectoryName)
+		if (!configuration.charting.noReports) generateReports(outputDirectoryName)
 	}
 
 	private def interactiveSelect(simulations: List[Class[Simulation]]): Selection = {
@@ -106,8 +105,7 @@ class Gatling extends Logging {
 		val simulationId = {
 			val userInput = Console.readLine.trim
 
-			if (!userInput.matches("[\\w-_]*"))
-				throw new IllegalArgumentException(userInput + " contains illegal characters")
+			require(userInput.matches("[\\w-_]*"), userInput + " contains illegal characters")
 
 			if (!userInput.isEmpty) userInput else myDefaultOutputDirectoryBaseName
 		}
@@ -154,13 +152,8 @@ class Gatling extends Logging {
 	private def generateReports(outputDirectoryName: String) {
 		println("Generating reports...")
 		val start = currentTimeMillis
-		try {
-			val indexFile = ReportsGenerator.generateFor(outputDirectoryName)
-			println("Reports generated in " + (currentTimeMillis - start) / 1000 + "s.")
-			println("Please open the following file : " + indexFile)
-
-		} catch {
-			case e => error("Reports weren't generated", e)
-		}
+		val indexFile = ReportsGenerator.generateFor(outputDirectoryName)
+		println("Reports generated in " + (currentTimeMillis - start) / 1000 + "s.")
+		println("Please open the following file : " + indexFile)
 	}
 }

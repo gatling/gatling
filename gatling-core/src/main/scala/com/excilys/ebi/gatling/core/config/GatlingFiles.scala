@@ -45,8 +45,11 @@ object GatlingFiles {
 	def simulationLogDirectory(runUuid: String, create: Boolean = true): Directory = {
 		val dir = resultDirectory(runUuid)
 		if (create) dir.createDirectory()
-		else if (!dir.exists) throw new IllegalArgumentException("simulation directory '" + dir.toAbsolute + "' doesn't exist")
-		else if (!dir.isDirectory) throw new IllegalArgumentException("simulation directory '" + dir.toAbsolute + "' is not a directory")
-		else dir.toDirectory
+		else {
+			require(dir.exists, "simulation directory '" + dir.toAbsolute + "' doesn't exist")
+			require(dir.isDirectory, "simulation directory '" + dir.toAbsolute + "' is not a directory")
+
+			dir.toDirectory
+		}
 	}
 }

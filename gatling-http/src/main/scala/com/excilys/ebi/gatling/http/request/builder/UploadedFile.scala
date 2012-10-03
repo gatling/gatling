@@ -33,9 +33,9 @@ class UploadedFile(paramKeyFunction: EvaluatableString, fileNameFunction: Evalua
 		val path = GatlingFiles.requestBodiesDirectory / fileName
 		val file = new File(path)
 
-		if (!file.exists) throw new IllegalArgumentException("Uploaded file %s does not exist".format(path))
-		if (!file.isFile) throw new IllegalArgumentException("Uploaded file %s is not a real file".format(path))
-		if (!file.canRead) throw new IllegalArgumentException("Uploaded file %s can't be read".format(path))
+		assert(file.exists, "Uploaded file %s does not exist".format(path))
+		assert(file.isFile, "Uploaded file %s is not a real file".format(path))
+		assert(file.canRead, "Uploaded file %s can't be read".format(path))
 
 		new FilePart(paramKey, file, mimeType, charset)
 	}
