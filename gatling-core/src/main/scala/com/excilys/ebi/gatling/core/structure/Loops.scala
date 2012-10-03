@@ -17,12 +17,11 @@ package com.excilys.ebi.gatling.core.structure
 
 import java.util.UUID
 
-import com.excilys.ebi.gatling.core.action.builder.SimpleActionBuilder
-import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.{ SimpleActionBuilder, WhileActionBuilder }
+import com.excilys.ebi.gatling.core.session.ELParser.parseEL
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.session.handler.CounterBasedIterationHandler
 import com.excilys.ebi.gatling.core.structure.ChainBuilder.emptyChain
-import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 
 import akka.util.Duration
@@ -53,7 +52,7 @@ trait Loops[B] extends Execs[B] {
 	def repeat(times: String)(chain: ChainBuilder): B = repeat(times, None, chain)
 	def repeat(times: String, counterName: String)(chain: ChainBuilder): B = repeat(times, Some(counterName), chain)
 	private def repeat(times: String, counterName: Option[String], chain: ChainBuilder): B = {
-		val sessionFunction = parseEvaluatable(times)
+		val sessionFunction = parseEL(times)
 		repeat((s: Session) => sessionFunction(s).toInt, counterName, chain)
 	}
 

@@ -21,9 +21,9 @@ import org.fusesource.scalate.support.ScalaCompiler
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingFiles
 import com.excilys.ebi.gatling.core.session.{ EvaluatableString, Session }
+import com.excilys.ebi.gatling.core.session.ELParser.parseEL
 import com.excilys.ebi.gatling.core.util.FileHelper.SSP_EXTENSION
 import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
-import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 import com.excilys.ebi.gatling.http.Headers.Names.CONTENT_LENGTH
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.{ ByteArrayBody, FilePathBody, HttpRequestBody, SessionByteArrayBody, StringBody, TemplateBody }
@@ -87,7 +87,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 * @param values the values that should be merged into the template
 	 */
 	def fileBody(tplPath: String, values: Map[String, String]): B = {
-		val evaluatableValues = values.map { entry => entry._1 -> parseEvaluatable(entry._2) }
+		val evaluatableValues = values.map { entry => entry._1 -> parseEL(entry._2) }
 		newInstance(httpAttributes, Some(TemplateBody(tplPath, evaluatableValues)))
 	}
 

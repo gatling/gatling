@@ -15,10 +15,10 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import com.excilys.ebi.gatling.core.Predef.{ evaluatableStringToEvaluatableStringSeq, stringToEvaluatableString, stringToEvaluatableStringSeq }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.session.{ EvaluatableString, Session }
-import com.excilys.ebi.gatling.core.util.StringHelper.{ attributeAsEvaluatableString, attributeAsEvaluatableStringSeq, parseEvaluatable }
+import com.excilys.ebi.gatling.core.session.{ EvaluatableString, EvaluatableStringSeq, Session }
+import com.excilys.ebi.gatling.core.session.ELParser.parseEL
+import com.excilys.ebi.gatling.core.session.Session.{ attributeAsEvaluatableString, attributeAsEvaluatableStringSeq, evaluatableStringToEvaluatableStringSeq }
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheck
@@ -88,7 +88,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 *
 	 * @param key the key of the parameter
 	 */
-	def queryParam(key: String): B = queryParam(key, attributeAsEvaluatableString(key))
+	def queryParam(key: String): B = queryParam(parseEL(key), attributeAsEvaluatableString(key))
 
 	/**
 	 * Adds a query parameter to the request
@@ -96,15 +96,25 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 * @param param is a query parameter
 	 */
 	def queryParam(key: EvaluatableString, value: EvaluatableString): B = {
-		val httpParam: HttpParam = (key, value)
+		val httpParam: HttpParam = (key, evaluatableStringToEvaluatableStringSeq(value))
 		queryParam(httpParam)
 	}
 
-	def multiValuedQueryParam(key: String): B = multiValuedQueryParam(key, key)
+	def multiValuedQueryParam(key: String): B = multiValuedQueryParam(parseEL(key), key)
 
 	def multiValuedQueryParam(key: EvaluatableString, value: String): B = {
-		val httpParam: HttpParam = (key, value)
-		queryParam((key, attributeAsEvaluatableStringSeq(value)))
+		val httpParam: HttpParam = (key, attributeAsEvaluatableStringSeq(value))
+		queryParam(httpParam)
+	}
+
+	def multiValuedQueryParam(key: EvaluatableString, values: Seq[String]): B = {
+		val httpParam: HttpParam = (key, (s: Session) => values)
+		queryParam(httpParam)
+	}
+
+	def multiValuedQueryParam(key: EvaluatableString, values: EvaluatableStringSeq): B = {
+		val httpParam: HttpParam = (key, values)
+		queryParam(httpParam)
 	}
 
 	private def queryParam(param: HttpParam): B = newInstance(httpAttributes.copy(queryParams = param :: httpAttributes.queryParams))
@@ -114,14 +124,14 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 *
 	 * @param header the header to add, eg: ("Content-Type", "application/json")
 	 */
-	def header(header: (String, String)): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers + (header._1 -> parseEvaluatable(header._2))))
+	def header(header: (String, String)): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers + (header._1 -> parseEL(header._2))))
 
 	/**
 	 * Adds several headers to the request at the same time
 	 *
 	 * @param givenHeaders a scala map containing the headers to add
 	 */
-	def headers(givenHeaders: Map[String, String]): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers ++ givenHeaders.mapValues(parseEvaluatable(_))))
+	def headers(givenHeaders: Map[String, String]): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers ++ givenHeaders.mapValues(parseEL(_))))
 
 	/**
 	 * Adds Accept and Content-Type headers to the request set with "application/json" values

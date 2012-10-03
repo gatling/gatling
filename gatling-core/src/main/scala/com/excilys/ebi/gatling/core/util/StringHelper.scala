@@ -21,7 +21,6 @@ import java.util.regex.Pattern
 import scala.collection.mutable
 
 import com.excilys.ebi.gatling.core.session.{ EvaluatableString, EvaluatableStringSeq, Session }
-import com.excilys.ebi.gatling.core.util.NumberHelper.isNumeric
 
 import grizzled.slf4j.Logging
 
@@ -30,20 +29,11 @@ import grizzled.slf4j.Logging
  */
 object StringHelper extends Logging {
 
-	val CACHE = mutable.Map.empty[String, EvaluatableString]
-
 	val END_OF_LINE = System.getProperty("line.separator")
-
-	val EL_START = "${"
-
-	val EL_END = "}"
 
 	val EMPTY = ""
 
 	val jdk6Pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
-
-	val elPattern = """\$\{(.+?)\}""".r
-	val elOccurrencePattern = """(.+?)\((.+)\)""".r
 
 	/**
 	 * Method that strips all accents from a string
@@ -54,89 +44,6 @@ object StringHelper extends Logging {
 	}
 
 	def escapeJsQuoteString(s: String) = s.replace("'", "\\\'")
-
-	def attributeAsEvaluatableString(key: String): EvaluatableString = (session: Session) => session.getAttributeAsOption[Any](key)
-		.map(_.toString)
-		.getOrElse {
-			warn("Couldn't resolve session attribute " + key)
-			EMPTY
-		}
-
-	def attributeAsEvaluatableStringSeq(key: String): EvaluatableStringSeq = (session: Session) => session.getAttributeAsOption[Any](key)
-		.map(value => value match {
-			case seq: Seq[_] => seq.map(_.toString)
-			case mono => List(mono.toString)
-		}).getOrElse {
-			warn("Couldn't resolve session attribute " + key)
-			List(EMPTY)
-		}
-
-	def parseEvaluatable(stringToFormat: String): EvaluatableString = {
-
-		def parseStaticParts: Array[String] = elPattern.pattern.split(stringToFormat, -1)
-
-		def parseDynamicParts: Seq[Session => Any] = elPattern
-			.findAllIn(stringToFormat)
-			.matchData
-			.map { data =>
-				val elContent = data.group(1)
-				elOccurrencePattern.findFirstMatchIn(elContent)
-					.map { occurrencePartMatch =>
-						val key = occurrencePartMatch.group(1)
-						val occurrence = occurrencePartMatch.group(2)
-						val occurrenceFunction =
-							if (isNumeric(occurrence))
-								(session: Session) => Some(occurrence.toInt)
-							else
-								(session: Session) => session.getAttributeAsOption(occurrence)
-
-						(session: Session) => occurrenceFunction(session)
-							.map { resolvedOccurrence =>
-								session.getAttributeAsOption[Seq[Any]](key) match {
-									case Some(seq) if (seq.isDefinedAt(resolvedOccurrence)) =>
-										seq(resolvedOccurrence)
-									case _ =>
-										warn("Couldn't resolve occurrence " + resolvedOccurrence + " of session multivalued attribute " + key)
-										EMPTY
-								}
-
-							}.getOrElse {
-								warn("Couldn't resolve index session attribute " + occurrence)
-								EMPTY
-							}
-
-					}.getOrElse {
-						val key = data.group(1)
-						(session: Session) => session.getAttributeAsOption[Any](key).getOrElse {
-							warn("Couldn't resolve session attribute " + key)
-							EMPTY
-						}
-					}
-			}.toSeq
-
-		def doParseEvaluatable: EvaluatableString = {
-			val dynamicParts = parseDynamicParts
-
-			if (dynamicParts.isEmpty) {
-				// no interpolation
-				(session: Session) => stringToFormat
-
-			} else {
-				val staticParts = parseStaticParts
-
-				val functions = dynamicParts.zip(staticParts)
-
-				(session: Session) => functions
-					.foldLeft(new StringBuilder) { (buffer, function) =>
-						val (dynamicPart, staticPart) = function
-						buffer.append(staticPart).append(dynamicPart(session))
-					}.append(staticParts.last)
-					.toString
-			}
-		}
-
-		CACHE.getOrElseUpdate(stringToFormat, doParseEvaluatable)
-	}
 
 	def bytes2Hex(bytes: Array[Byte]): String = bytes.foldLeft(new StringBuilder) { (buff, b) =>
 		if ((b & 0xff) < 0x10)

@@ -18,10 +18,10 @@ package com.excilys.ebi.gatling.core.structure.loop
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
+import com.excilys.ebi.gatling.core.session.ELParser.parseEL
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.{ AbstractStructureBuilder, ChainBuilder }
 import com.excilys.ebi.gatling.core.structure.loop.handler.{ ConditionalLoopHandlerBuilder, DurationLoopHandlerBuilder, TimesLoopHandlerBuilder }
-import com.excilys.ebi.gatling.core.util.StringHelper.parseEvaluatable
 
 import akka.util.Duration
 
@@ -53,7 +53,7 @@ class LoopBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: 
 
 	@deprecated("""Will be removed in Gatling 1.4.0. Use "repeat(times) { chain }" instead""", "1.3.0")
 	def times(timesValue: String): B = {
-		val sessionFunction = parseEvaluatable(timesValue)
+		val sessionFunction = parseEL(timesValue)
 		times((s: Session) => sessionFunction(s).toInt)
 	}
 
@@ -98,5 +98,5 @@ class LoopBuilder[B <: AbstractStructureBuilder[B]](structureBuilder: B, chain: 
 	 * @param value the value to which the session value is compared
 	 */
 	@deprecated("""Will be removed in Gatling 1.4.0. Use "asLongAs(condition) { chain }" instead""", "1.3.0")
-	def asLongAs(sessionKey: String, value: String): B = asLongAs((session: Session) => parseEvaluatable(sessionKey)(session) == value)
+	def asLongAs(sessionKey: String, value: String): B = asLongAs((session: Session) => parseEL(sessionKey)(session) == value)
 }

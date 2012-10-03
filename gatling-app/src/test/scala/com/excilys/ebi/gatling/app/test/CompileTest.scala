@@ -71,10 +71,6 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				feed(testData)
 					.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform(_ + "foo").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
 			}
-			.repeat(2) {
-				feed(testData.queue)
-					.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform(_ + "foo").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
-			}
 			.repeat(2, "counterName") {
 				feed(testData.circular)
 					.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform(_ + "foo").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
@@ -87,6 +83,13 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				feed(testData)
 					.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform(_ + "foo").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
 			}
+			.exec(http("Catégorie Poney").get("/").queryParam("omg"))
+			.exec(http("Catégorie Poney").get("/").queryParam("omg", "foo"))
+			.exec(http("Catégorie Poney").get("/").queryParam("omg", "${foo}"))
+			.exec(http("Catégorie Poney").get("/").queryParam("omg", (session: Session) => "foo"))
+			.exec(http("Catégorie Poney").get("/").multiValuedQueryParam("omg", List("foo")))
+			.exec(http("Catégorie Poney").get("/").multiValuedQueryParam("omg", "${foo}"))
+			.exec(http("Catégorie Poney").get("/").multiValuedQueryParam("omg", (session: Session) => List("foo")))
 			.randomSwitch(
 				40 -> exec(http("Catégorie Poney").get("/")),
 				50 -> exec(http("Catégorie Poney").get("/")))

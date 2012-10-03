@@ -16,10 +16,10 @@
 package com.excilys.ebi.gatling.http.request.builder
 
 import scala.collection.JavaConversions.asJavaCollection
-import com.excilys.ebi.gatling.core.Predef.{ stringToEvaluatableString, stringToEvaluatableStringSeq, evaluatableStringToEvaluatableStringSeq }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.session.{ EvaluatableString, Session }
-import com.excilys.ebi.gatling.core.util.StringHelper.{ attributeAsEvaluatableString, parseEvaluatable, attributeAsEvaluatableStringSeq }
+import com.excilys.ebi.gatling.core.session.{ EvaluatableString, EvaluatableStringSeq, Session }
+import com.excilys.ebi.gatling.core.session.ELParser.parseEL
+import com.excilys.ebi.gatling.core.session.Session.{ attributeAsEvaluatableString, attributeAsEvaluatableStringSeq, evaluatableStringToEvaluatableStringSeq }
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
@@ -74,26 +74,31 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		requestBuilder
 	}
 
-	def param(key: String): B = param(key, attributeAsEvaluatableString(key))
+	def param(key: String): B = param(parseEL(key), attributeAsEvaluatableString(key))
 
 	def param(key: EvaluatableString, value: EvaluatableString): B = {
-		val httpParam: HttpParam = (key, value)
+		val httpParam: HttpParam = (key, evaluatableStringToEvaluatableStringSeq(value))
 		param(httpParam)
 	}
 
-	def multiValuedParam(key: String): B = multiValuedParam(key, key)
-
-	def multiValuedParam(key: String, values: Seq[String]): B = {
-		val httpParam: HttpParam = (key, (session: Session) => values)
-		param(httpParam)
-	}
+	def multiValuedParam(key: String): B = multiValuedParam(parseEL(key), key)
 
 	def multiValuedParam(key: EvaluatableString, value: String): B = {
-		val httpParam: HttpParam = (key, value)
+		val httpParam: HttpParam = (key, attributeAsEvaluatableStringSeq(value))
 		param(httpParam)
 	}
 
-	private def param(param: HttpParam): B = newInstance(httpAttributes.copy(queryParams = param :: httpAttributes.queryParams))
+	def multiValuedParam(key: EvaluatableString, values: Seq[String]): B = {
+		val httpParam: HttpParam = (key, (s: Session) => values)
+		param(httpParam)
+	}
+
+	def multiValuedParam(key: EvaluatableString, values: EvaluatableStringSeq): B = {
+		val httpParam: HttpParam = (key, values)
+		param(httpParam)
+	}
+
+	private def param(param: HttpParam): B = newInstance(httpAttributes, body, paramsAttributes.copy(params = param :: paramsAttributes.params))
 
 	def upload(paramKey: EvaluatableString, fileName: EvaluatableString, mimeType: String = HeaderValues.APPLICATION_OCTET_STREAM, charset: String = configuration.simulation.encoding): B =
 
