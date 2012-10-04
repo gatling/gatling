@@ -16,6 +16,7 @@
 package com.excilys.ebi.gatling.app
 
 import java.io.{ File => JFile }
+import java.net.URLClassLoader
 
 import scala.tools.nsc.io.{ Directory, Path }
 import scala.tools.nsc.io.Path.{ jfile2path, string2path }
@@ -27,24 +28,9 @@ import com.typesafe.zinc.{ Compiler, Inputs, Setup }
 
 import grizzled.slf4j.Logging
 import xsbti.Logger
-import xsbti.api.Compilation
 import xsbti.compile.CompileOrder
 
 object ZincCompiler extends Logging {
-
-	val classPathUrls = Thread.currentThread.getContextClassLoader match {
-		case cl: java.net.URLClassLoader => cl.getURLs.toSeq
-		case _ => throw new RuntimeException("classloader is not a URLClassLoader")
-	}
-
-	def compilerInterfaceJarLocation(): JFile = {
-
-		val compilerInterfaceRegex = """(.*compiler-interface-\d+.\d+.\d+-sources.jar)$""".r
-		val filteredClasspathUrls = classPathUrls.filter(url => compilerInterfaceRegex.findFirstMatchIn(url.toString).isDefined)
-		val compilerInterfaceURL = filteredClasspathUrls.headOption.getOrElse(throw new RuntimeException("Can't find the compiler-interface jar"))
-
-		new JFile(compilerInterfaceURL.getPath)
-	}
 
 	def setupZincCompiler(): Setup = {
 		val scalaCompiler = ClassPath.scalaCompiler.getOrElse(throw new RuntimeException("No Scala compiler available")).jfile
@@ -54,11 +40,12 @@ object ZincCompiler extends Logging {
 			scalaLibrary = scalaLibrary,
 			scalaExtra = Nil,
 			sbtInterface = null, // yes man, don't need sbt here
-			compilerInterfaceSrc = compilerInterfaceJarLocation(),
+			compilerInterfaceSrc = null, // neither this one which is actually an empty jar
 			javaHomeDir = None)
 	}
 
 	def simulationInputs(sourceDirectory: Directory, binDir: Path) = {
+		val classpath = Thread.currentThread.getContextClassLoader.asInstanceOf[URLClassLoader].getURLs.map(url => new JFile(url.getPath))
 
 		val sources = sourceDirectory.deepFiles.filter(_.hasExtension("scala")).toList.map(f => f.jfile)
 
@@ -68,7 +55,7 @@ object ZincCompiler extends Logging {
 			(GATLING_HOME / "conf").jfile -> (binDir / "cache" / "conf").jfile,
 			(GATLING_HOME / "user-files").jfile -> (binDir / "cache" / "user-files").jfile)
 
-		Inputs.inputs(classpath = classPathUrls.map(url => new JFile(url.getPath)),
+		Inputs.inputs(classpath = classpath,
 			sources = sources,
 			classesDirectory = (binDir / "classes").jfile,
 			scalacOptions = Seq("-deprecation"),
