@@ -68,7 +68,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		val (actions, runs) = records.map(FileDataReader.TABULATION_PATTERN.split(_)).filter(array => array.head == ACTION || array.head == RUN).partition(_.head == ACTION)
 
 		val (runStart, runEnd, totalRequestsNumber) = actions
-			.filter(_.length >= FileDataReader.RUN_RECORD_LENGTH)
+			.filter(_.length >= FileDataReader.ACTION_RECORD_LENGTH)
 			.foldLeft((Long.MaxValue, Long.MinValue, 0L)) {
 				(accumulator, strings) =>
 					val (min, max, count) = accumulator
