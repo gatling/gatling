@@ -21,7 +21,7 @@ import scala.annotation.implicitNotFound
 import scala.collection.TraversableOnce.wrapTraversableOnce
 import scala.tools.nsc.interpreter.AbstractFileClassLoader
 import scala.tools.nsc.io.Path.string2path
-import scala.tools.nsc.io.{PlainFile, Path, File, Directory}
+import scala.tools.nsc.io.{ PlainFile, Path, File, Directory }
 
 import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 
@@ -75,8 +75,7 @@ class FileSystemBackedSimulationClassLoader(classLoader: ClassLoader, binaryDir:
 			.toList
 
 		requestedClassName.map { requestedClassName =>
-			if (classes.map(_.getName).contains(requestedClassName))
-				println(requestedClassName + " Simulation class could not be found")
+			if (!classes.map(_.getName).contains(requestedClassName)) println(requestedClassName + " Simulation class could not be found")
 		}
 
 		classes
