@@ -15,14 +15,15 @@
  */
 package com.excilys.ebi.gatling.core.config
 
-import java.util.{ Map => JMap, HashMap => JHashMap }
+import java.util.{ HashMap => JHashMap, Map => JMap }
+
 import scala.collection.JavaConversions.asScalaBuffer
+
 import com.excilys.ebi.gatling.core.ConfigurationConstants._
 import com.excilys.ebi.gatling.core.util.StringHelper.trimToOption
 import com.typesafe.config.{ Config, ConfigFactory }
+
 import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.core.result.writer.ConsoleDataWriter
-import com.excilys.ebi.gatling.core.result.writer.FileDataWriter
 
 /**
  * Configuration loader of Gatling

@@ -15,11 +15,11 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import java.util.concurrent.TimeUnit
-import com.excilys.ebi.gatling.core.action.{ system, PauseAction }
+import com.excilys.ebi.gatling.core.action.{ PauseAction, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.util.NumberHelper.createExpRandomLongGenerator
-import akka.actor.{ Props, ActorRef }
+
+import akka.actor.{ ActorRef, Props }
 import akka.util.Duration
 
 object ExpPauseActionBuilder {

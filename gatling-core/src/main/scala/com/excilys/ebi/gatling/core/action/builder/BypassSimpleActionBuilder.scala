@@ -15,11 +15,11 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.{ system, SimpleAction }
+import com.excilys.ebi.gatling.core.action.{ Bypass, SimpleAction, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.session.Session
-import akka.actor.{ Props, ActorRef }
-import com.excilys.ebi.gatling.core.action.Bypass
+
+import akka.actor.{ ActorRef, Props }
 
 object BypassSimpleActionBuilder {
 

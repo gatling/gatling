@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.result.writer
 
-import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.BaseActor
+import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
