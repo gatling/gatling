@@ -75,7 +75,7 @@ class FileSystemBackedSimulationClassLoader(classLoader: ClassLoader, binaryDir:
 			.toList
 
 		requestedClassName.map { requestedClassName =>
-			if (!classes.map(_.getName).contains(requestedClassName)) println(requestedClassName + " Simulation class could not be found")
+			if (!classes.map(_.getName).contains(requestedClassName)) println("Simulation class '" + requestedClassName + "' could not be found.")
 		}
 
 		classes
