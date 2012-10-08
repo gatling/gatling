@@ -28,6 +28,7 @@ import com.typesafe.zinc.{ Compiler, Inputs, Setup }
 
 import grizzled.slf4j.Logging
 import xsbti.Logger
+import xsbti.api.Compilation
 import xsbti.compile.CompileOrder
 
 object ZincCompiler extends Logging {
@@ -45,11 +46,13 @@ object ZincCompiler extends Logging {
 
 			new JFile(compilerInterfaceURL.getPath)
 		}
+		
+		val sbtInterfaceSrc: JFile = new JFile(classOf[Compilation].getProtectionDomain.getCodeSource.getLocation.getPath)
 
 		Setup.setup(scalaCompiler = scalaCompiler,
 			scalaLibrary = scalaLibrary,
 			scalaExtra = Nil,
-			sbtInterface = null, // yes man, don't need sbt here
+			sbtInterface = sbtInterfaceSrc,
 			compilerInterfaceSrc = compilerInterfaceSrc,
 			javaHomeDir = None)
 	}
