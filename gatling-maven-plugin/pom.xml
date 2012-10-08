@@ -75,8 +75,15 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>com.mycila.maven-license-plugin</groupId>
+				<artifactId>maven-license-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>src/main/resources/*</include>
+					</includes>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
-
-
 </project>
