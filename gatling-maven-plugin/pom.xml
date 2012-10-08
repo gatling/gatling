@@ -79,9 +79,9 @@
 				<groupId>com.mycila.maven-license-plugin</groupId>
 				<artifactId>maven-license-plugin</artifactId>
 				<configuration>
-					<includes>
-						<include>src/main/resources/*</include>
-					</includes>
+					<excludes>
+						<exclude>src/main/resources/*</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
 		</plugins>
