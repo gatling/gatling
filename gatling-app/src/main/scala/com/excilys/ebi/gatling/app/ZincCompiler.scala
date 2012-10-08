@@ -32,20 +32,30 @@ import xsbti.compile.CompileOrder
 
 object ZincCompiler extends Logging {
 
+	val classpathURLs = Thread.currentThread.getContextClassLoader.asInstanceOf[URLClassLoader].getURLs
+
 	def setupZincCompiler(): Setup = {
 		val scalaCompiler = ClassPath.scalaCompiler.getOrElse(throw new RuntimeException("No Scala compiler available")).jfile
 		val scalaLibrary = ClassPath.scalaLibrary.getOrElse(throw new RuntimeException("No Scala library available")).jfile
+
+		val compilerInterfaceSrc: JFile = {
+			val compilerInterfaceRegex = """(.*compiler-interface-\d+.\d+.\d+-sources.jar)$""".r
+			val filteredClasspathURLs = classpathURLs.filter(url => compilerInterfaceRegex.findFirstMatchIn(url.toString).isDefined)
+			val compilerInterfaceURL = filteredClasspathURLs.headOption.getOrElse(throw new RuntimeException("Can't find the compiler-interface jar"))
+
+			new JFile(compilerInterfaceURL.getPath)
+		}
 
 		Setup.setup(scalaCompiler = scalaCompiler,
 			scalaLibrary = scalaLibrary,
 			scalaExtra = Nil,
 			sbtInterface = null, // yes man, don't need sbt here
-			compilerInterfaceSrc = null, // neither this one which is actually an empty jar
+			compilerInterfaceSrc = compilerInterfaceSrc,
 			javaHomeDir = None)
 	}
 
 	def simulationInputs(sourceDirectory: Directory, binDir: Path) = {
-		val classpath = Thread.currentThread.getContextClassLoader.asInstanceOf[URLClassLoader].getURLs.map(url => new JFile(url.getPath))
+		val classpath = classpathURLs.map(url => new JFile(url.getPath))
 
 		val sources = sourceDirectory.deepFiles.filter(_.hasExtension("scala")).toList.map(f => f.jfile)
 

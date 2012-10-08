@@ -403,10 +403,6 @@
 						<groupId>com.typesafe.sbt</groupId>
 						<artifactId>sbt-interface</artifactId>
 					</exclusion>
-					<exclusion>
-						<groupId>com.typesafe.sbt</groupId>
-						<artifactId>compiler-interface</artifactId>
-					</exclusion>
 				</exclusions>
 			</dependency>
 		</dependencies>
