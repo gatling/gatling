@@ -120,7 +120,7 @@
 		<redis.version>2.7</redis.version>
 		<junit.version>4.10</junit.version>
 		<specs2.version>1.12.1</specs2.version>
-		<zinc.version>0.1.1</zinc.version>
+		<zinc.version>0.1.3</zinc.version>
 		<maven2.version>2.2.1</maven2.version>
 		<maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
 		<maven-source-plugin.version>2.2</maven-source-plugin.version>
