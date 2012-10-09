@@ -119,7 +119,7 @@
 		<asm.version>4.0</asm.version>
 		<redis.version>2.7</redis.version>
 		<junit.version>4.10</junit.version>
-		<specs2.version>1.12.1</specs2.version>
+		<specs2.version>1.12.2</specs2.version>
 		<zinc.version>0.1.3</zinc.version>
 		<maven2.version>2.2.1</maven2.version>
 		<maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
