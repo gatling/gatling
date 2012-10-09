@@ -4,63 +4,63 @@
 	{
 		"name": "<%=stat.name%>",
 		"numberOfRequests": {
-			"total": "<%=stat.numberOfRequestsStatistics.total%>",
-			"ok": "<%=stat.numberOfRequestsStatistics.success%>",
-			"ko": "<%=stat.numberOfRequestsStatistics.failure%>"
+			"total": <%=stat.numberOfRequestsStatistics.total.toString%>,
+			"ok": <%=stat.numberOfRequestsStatistics.success.toString%>,
+			"ko": <%=stat.numberOfRequestsStatistics.failure.toString%>
 		},
 		"minResponseTime": {
-			"total": "<%=stat.minResponseTimeStatistics.total%>",
-			"ok": "<%=stat.minResponseTimeStatistics.success%>",
-			"ko": "<%=stat.minResponseTimeStatistics.failure%>"
+			"total": <%=stat.minResponseTimeStatistics.total.toString%>,
+			"ok": <%=stat.minResponseTimeStatistics.success.toString%>,
+			"ko": <%=stat.minResponseTimeStatistics.failure.toString%>
 		},
 		"maxResponseTime": {
-			"total": "<%=stat.maxResponseTimeStatistics.total%>",
-			"ok": "<%=stat.maxResponseTimeStatistics.success%>",
-			"ko": "<%=stat.maxResponseTimeStatistics.failure%>"
+			"total": <%=stat.maxResponseTimeStatistics.total.toString%>,
+			"ok": <%=stat.maxResponseTimeStatistics.success.toString%>,
+			"ko": <%=stat.maxResponseTimeStatistics.failure.toString%>
 		},
 		"meanResponseTime": {
-			"total": "<%=stat.meanStatistics.total%>",
-			"ok": "<%=stat.meanStatistics.success%>",
-			"ko": "<%=stat.meanStatistics.failure%>"
+			"total": <%=stat.meanStatistics.total.toString%>,
+			"ok": <%=stat.meanStatistics.success.toString%>,
+			"ko": <%=stat.meanStatistics.failure.toString%>
 		},
 		"standardDeviation": {
-			"total": "<%=stat.stdDeviationStatistics.total%>",
-			"ok": "<%=stat.stdDeviationStatistics.success%>",
-			"ko": "<%=stat.stdDeviationStatistics.failure%>"
+			"total": <%=stat.stdDeviationStatistics.total.toString%>,
+			"ok": <%=stat.stdDeviationStatistics.success.toString%>,
+			"ko": <%=stat.stdDeviationStatistics.failure.toString%>
 		},
 		"percentiles1": {
-			"total": "<%=stat.percentiles1.total%>",
-			"ok": "<%=stat.percentiles1.success%>",
-			"ko": "<%=stat.percentiles1.failure%>"
+			"total": <%=stat.percentiles1.total.toString%>,
+			"ok": <%=stat.percentiles1.success.toString%>,
+			"ko": <%=stat.percentiles1.failure.toString%>
 		},
 		"percentiles2": {
-			"total": "<%=stat.percentiles2.total%>",
-			"ok": "<%=stat.percentiles2.success%>",
-			"ko": "<%=stat.percentiles2.failure%>"
+			"total": <%=stat.percentiles2.total.toString%>,
+			"ok": <%=stat.percentiles2.success.toString%>,
+			"ko": <%=stat.percentiles2.failure.toString%>
 		},
 		"group1": {
-			"name": "<%=stat.groupedCounts(0)._1%>",
+			"name": "<%=stat.groupedCounts(0)._1.toString%>",
 			"count": <%=stat.groupedCounts(0)._2.toString%>,
 			"percentage": <%=stat.groupedCounts(0)._3.toString%>
 		},
 		"group2": {
-			"name": "<%=stat.groupedCounts(1)._1%>",
+			"name": "<%=stat.groupedCounts(1)._1.toString%>",
 			"count": <%=stat.groupedCounts(1)._2.toString%>,
 			"percentage": <%=stat.groupedCounts(1)._3.toString%>
 		},
 		"group3": {
-			"name": "<%=stat.groupedCounts(2)._1%>",
+			"name": "<%=stat.groupedCounts(2)._1.toString%>",
 			"count": <%=stat.groupedCounts(2)._2.toString%>,
 			"percentage": <%=stat.groupedCounts(2)._3.toString%>
 		},
 		"group4": {
-			"name": "<%=stat.groupedCounts(3)._1%>",
+			"name": "<%=stat.groupedCounts(3)._1.toString%>",
 			"count": <%=stat.groupedCounts(3)._2.toString%>,
 			"percentage": <%=stat.groupedCounts(3)._3.toString%>
 		},
 		"meanNumberOfRequestsPerSecond": {
-			"total": "<%=stat.meanNumberOfRequestsPerSecondStatistics.total%>",
-			"ok": "<%=stat.meanNumberOfRequestsPerSecondStatistics.success%>",
-			"ko": "<%=stat.meanNumberOfRequestsPerSecondStatistics.failure%>"
+			"total": <%=stat.meanNumberOfRequestsPerSecondStatistics.total.toString%>,
+			"ok": <%=stat.meanNumberOfRequestsPerSecondStatistics.success.toString%>,
+			"ko": <%=stat.meanNumberOfRequestsPerSecondStatistics.failure.toString%>
 		}
 	}
