@@ -159,7 +159,7 @@ border-bottom-right-radius:8px;
 	border-radius:8px;
 }
 
-.statistics{margin-bottom:20px; color: white;max-height:330px;display:block;overflow-y:auto;}
+.statistics{margin-bottom:20px; color: white;max-height:1012px;display:block;overflow-y:auto;}
 .statistics-titre{background:#eaeaea;text-align:center;width:120px;height:15px;font-weight:bold;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
