@@ -66,6 +66,18 @@ object CacheHandling extends Logging {
 		parse(AsyncHttpProviderUtils.get.toList)
 	}
 
+	def isFutureExpire(timeString: String): Boolean = {
+		try {
+			convertExpireField(timeString) > System.currentTimeMillis // simplification: consider future expiring date as cache forever
+		} catch {
+			case _ => try {
+				timeString.toInt > 0
+			} catch {
+				case _ => false
+			}
+		}
+	}
+
 	def isCached(httpProtocolConfiguration: HttpProtocolConfiguration, session: Session, request: Request) = httpProtocolConfiguration.cachingEnabled && getCache(session).contains(request.getUrl)
 
 	def cache(httpProtocolConfiguration: HttpProtocolConfiguration, session: Session, request: Request, response: Response): Session = {
@@ -73,7 +85,7 @@ object CacheHandling extends Logging {
 		def pragmaNoCache = Option(response.getHeader(Headers.Names.PRAGMA)).map(_.contains(Headers.Values.NO_CACHE)).getOrElse(false)
 		def cacheControlNoCache = Option(response.getHeader(Headers.Names.CACHE_CONTROL)).map(_.contains(Headers.Values.NO_CACHE)).getOrElse(false)
 		def expiresInFuture = Option(response.getHeader(Headers.Names.EXPIRES))
-			.map(convertExpireField(_) > System.currentTimeMillis) // simplification: consider future expiring date as cache forever
+			.map(isFutureExpire(_))
 			.getOrElse(false)
 
 		val isResponseCacheable = httpProtocolConfiguration.cachingEnabled && !pragmaNoCache && !pragmaNoCache && expiresInFuture

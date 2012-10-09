@@ -32,5 +32,9 @@ class CacheHandlingSpec extends Specification {
 		"support format EEE, dd MMM yyyy HH:mm:ss zzz" in {
 			CacheHandling.convertExpireField("Thu, 09 Aug 2007 05:22:55 GMT") must beEqualTo(1186636975000L)
 		}
+
+		"support crapy Int format" in {
+			CacheHandling.isFutureExpire("0") must beEqualTo(false)
+		}
 	}
 }
