@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * 		http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -109,8 +109,8 @@ class GraphiteDataWriter extends DataWriter {
 			if (metrics.count > 0L) {
 				sendToGraphite(metricPath + "max", metrics.max)
 				sendToGraphite(metricPath + "min", metrics.min)
-				sendToGraphite(metricPath + percentiles1Name, metrics.buckets.getQuantile(percentiles1))
-				sendToGraphite(metricPath + percentiles2Name, metrics.buckets.getQuantile(percentiles2))
+				sendToGraphite(metricPath + percentiles1Name, metrics.getQuantile(percentiles1))
+				sendToGraphite(metricPath + percentiles2Name, metrics.getQuantile(percentiles2))
 			}
 		}
 

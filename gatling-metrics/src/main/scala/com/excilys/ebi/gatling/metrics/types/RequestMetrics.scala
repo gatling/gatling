@@ -15,15 +15,18 @@
  */
 package com.excilys.ebi.gatling.metrics.types
 
+import java.util.{ NavigableMap, TreeMap }
+import annotation.tailrec
+
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestRecord
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
 
 class RequestMetrics {
 
-	val okMetrics = new Metrics
-	val koMetrics = new Metrics
-	val allMetrics = new Metrics
+	val okMetrics = new Metrics(configuration.graphite.bucketWidth)
+	val koMetrics = new Metrics(configuration.graphite.bucketWidth)
+	val allMetrics = new Metrics(configuration.graphite.bucketWidth)
 
 	def update(requestRecord: RequestRecord) {
 		val responseTime = requestRecord.responseTime.max(0L)
@@ -45,24 +48,48 @@ class RequestMetrics {
 	}
 }
 
-class Metrics {
+class Metrics(bucketWidth: Int) {
 
 	var count = 0L
 	var max = 0L
 	var min = Long.MaxValue
-	val buckets = new Buckets(configuration.graphite.bucketWidth)
+	private val buckets: NavigableMap[Long, Long] = new TreeMap[Long, Long]
 
 	def update(value: Long) {
 		count += 1
 		max = max.max(value)
 		min = min.min(value)
-		buckets.update(value)
+
+		val bucket = value / bucketWidth
+		val newCount = if (buckets.containsKey(bucket)) {
+			buckets.get(bucket) + 1L
+		} else
+			1L
+		buckets.put(bucket, newCount)
 	}
 
-	def reset = {
+	def reset {
 		count = 0L
 		max = 0L
 		min = Long.MaxValue
-		buckets.reset
+		buckets.clear()
+	}
+
+	def getQuantile(quantile: Int): Long = {
+		if (buckets.isEmpty)
+			0L
+		else {
+			val limit = (count * (quantile.toDouble / bucketWidth)).toLong
+
+			@tailrec
+			def findQuantile(buckets: NavigableMap[Long, Long], count: Long = 0L): Long = {
+				val firstEntry = buckets.firstEntry
+				val newCount = count + firstEntry.getValue
+				if (newCount >= limit) max.min((firstEntry.getKey * bucketWidth) + bucketWidth)
+				else findQuantile(buckets.tailMap(firstEntry.getKey, false), newCount)
+			}
+
+			findQuantile(buckets)
+		}
 	}
 }
