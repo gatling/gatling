@@ -108,7 +108,9 @@ border-top-left-radius:8px}
 .repli{position:absolute;bottom:0;right:0;background:url('stat-fleche-bas.png') no-repeat top left;height:25px;width:22px;}
 
 .titre{
-	text-align:center;width:120px;height:15px;font-weight:bold;
+	height:15px;
+	text-align:left;
+	font-weight:bold;
 	border-top-left-radius: 8px;
 	border-top-right-radius: 8px;
 	-moz-border-top-left-radius: 8px;
@@ -116,6 +118,7 @@ border-top-left-radius:8px}
 	-webkit-border-top-left-radius: 8px;
 	-webkit-border-top-right-radius: 8px;
 	padding-top:5px;
+	padding-left:28px;
 }
 .not_collapsed{ 
 	background:#ff9916 url('arrow_down.png') 11px 6px no-repeat; 
@@ -170,17 +173,11 @@ border-bottom-right-radius:8px;
 .statistics{
 	margin-bottom:20px; 
 	color: white;
-/*	max-height:330px;*/
 	display:block;
 	overflow-y:auto;
 }
-.statistics-titre{background:#eaeaea;text-align:center;width:120px;height:15px;font-weight:bold;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-    padding-top:5px;
-}
+
 .statistics-in{background:#eaeaea;
-    border-top-right-radius: 8px;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
     margin:0;
