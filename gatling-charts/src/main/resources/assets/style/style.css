@@ -170,6 +170,7 @@ border-bottom-right-radius:8px;
 .statistics{
 	margin-bottom:20px; 
 	color: white;
+/*	max-height:330px;*/
 	display:block;
 	overflow-y:auto;
 }
@@ -187,10 +188,6 @@ border-bottom-right-radius:8px;
     background:#CF6900 url('stat-fond.png') repeat-x;
     padding:5px;
     border-spacing: 4px;
-}
-
-#container_statistics {
-   width:885px;
 }
 
 .statistics-in a {
