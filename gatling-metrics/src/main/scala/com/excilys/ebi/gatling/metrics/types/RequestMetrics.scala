@@ -16,7 +16,8 @@
 package com.excilys.ebi.gatling.metrics.types
 
 import java.util.{ NavigableMap, TreeMap }
-import annotation.tailrec
+
+import scala.annotation.tailrec
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestRecord
@@ -72,7 +73,7 @@ class Metrics(bucketWidth: Int) {
 		count = 0L
 		max = 0L
 		min = Long.MaxValue
-		buckets.clear()
+		buckets.clear
 	}
 
 	def getQuantile(quantile: Int): Long = {
