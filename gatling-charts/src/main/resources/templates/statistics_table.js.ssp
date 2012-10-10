@@ -11,19 +11,8 @@ function toHTMLTableRow(array) {
 	return row + '</tr>'
 }
 
-var i = 0
-$.each(stats, function(request, values) {
-	var url
-	var place
-	if (values.name  == '<%= GLOBAL_PAGE_NAME %>') {
-		url = 'index.html'
-		place = 'thead'
-	} else {
-		url = 'req_' + request + '.html'
-		place = 'tbody'
-	}
-
-	$('#container_statistics ' + place).append(toHTMLTableRow([
+function generateHtmlRow(url, values) {
+	return toHTMLTableRow([
 		{ content: '<a href="' + url + '">' + values.name + '</a><span style="display:none;">;' + i + '</span>', style: "total" },
 		{ content: "", style: ""},
 		{ content: values.numberOfRequests.total, style: "value total" },
@@ -37,10 +26,24 @@ $.each(stats, function(request, values) {
 		{ content: values.percentiles1.total, style: "value total" },
 		{ content: values.percentiles2.total, style: "value total" },
 		{ content: values.meanNumberOfRequestsPerSecond.total, style: "value total" }
-	]))
+	]);
+}	
+
+var i = 0
+var theadBuff = ''
+var tbodyBuff = '' 
+$.each(stats, function(request, values) {
+	if (values.name  == 'Global Information') {
+		theadBuff += generateHtmlRow('index.html', values)
+	} else {
+		tbodyBuff += generateHtmlRow('req_' + request + '.html', values)
+	}
 
 	i += 1
 })
+
+$('#container_statistics thead').append(theadBuff)
+$('#container_statistics tbody').append(tbodyBuff)
 
 $.tablesorter.addParser({
 	id: 'requests',
