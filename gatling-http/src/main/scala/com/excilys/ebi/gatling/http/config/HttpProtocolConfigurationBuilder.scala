@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.http.config
 
 import com.excilys.ebi.gatling.http.Headers
-import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
+import com.excilys.ebi.gatling.http.ahc.GatlingHttpClient
 import com.ning.http.client.{ ProxyServer, Request, RequestBuilder, Response }
 
 import grizzled.slf4j.Logging
@@ -101,6 +101,10 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 	private[http] def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = new HttpProtocolConfigurationBuilder(attributes.copy(proxy = Some(httpProxy), securedProxy = httpsProxy))
 
 	private[http] def build = {
+
+		// always initialize client
+		GatlingHttpClient.client
+
 		attributes.warmUpUrl.map { url =>
 			val requestBuilder = new RequestBuilder().setUrl(url)
 
@@ -108,7 +112,7 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 			attributes.securedProxy.map { proxy => if (url.startsWith("https://")) requestBuilder.setProxyServer(proxy) }
 
 			try {
-				HTTP_CLIENT.executeRequest(requestBuilder.build).get
+				GatlingHttpClient.client.executeRequest(requestBuilder.build).get
 			} catch {
 				case e => info("Couldn't execute warm up request " + url, e)
 			}

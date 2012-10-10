@@ -15,17 +15,15 @@
  */
 package com.excilys.ebi.gatling.http.action
 
-import com.excilys.ebi.gatling.core.action.{ Action, Bypass, system }
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.excilys.ebi.gatling.core.action.{ Action, Bypass }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor }
+import com.excilys.ebi.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor, GatlingHttpClient }
 import com.excilys.ebi.gatling.http.cache.CacheHandling
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.referer.RefererHandling
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
-import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig }
 
 import akka.actor.{ ActorRef, Props }
 import grizzled.slf4j.Logging
@@ -34,48 +32,6 @@ import grizzled.slf4j.Logging
  * HttpRequestAction class companion
  */
 object HttpRequestAction extends Logging {
-
-	/**
-	 * The HTTP client used to send the requests
-	 */
-	val HTTP_CLIENT = {
-		// set up Netty LoggerFactory for slf4j instead of default JDK
-		try {
-			val nettyInternalLoggerFactoryClass = Class.forName("org.jboss.netty.logging.InternalLoggerFactory")
-			val nettySlf4JLoggerFactoryInstance = Class.forName("org.jboss.netty.logging.Slf4JLoggerFactory").newInstance
-			val setDefaultFactoryMethod = nettyInternalLoggerFactoryClass.getMethod("setDefaultFactory", nettyInternalLoggerFactoryClass)
-			setDefaultFactoryMethod.invoke(null, nettySlf4JLoggerFactoryInstance.asInstanceOf[AnyRef])
-
-		} catch {
-			case e => logger.info("Netty logger wasn't set up")
-		}
-
-		val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
-			.setAllowPoolingConnection(configuration.http.allowPoolingConnection)
-			.setAllowSslConnectionPool(configuration.http.allowSslConnectionPool)
-			.setCompressionEnabled(configuration.http.compressionEnabled)
-			.setConnectionTimeoutInMs(configuration.http.connectionTimeOut)
-			.setIdleConnectionInPoolTimeoutInMs(configuration.http.idleConnectionInPoolTimeOutInMs)
-			.setIdleConnectionTimeoutInMs(configuration.http.idleConnectionTimeOutInMs)
-			.setIOThreadMultiplier(configuration.http.ioThreadMultiplier)
-			.setMaximumConnectionsPerHost(configuration.http.maximumConnectionsPerHost)
-			.setMaximumConnectionsTotal(configuration.http.maximumConnectionsTotal)
-			.setMaxRequestRetry(configuration.http.maxRetry)
-			.setRequestCompressionLevel(configuration.http.requestCompressionLevel)
-			.setRequestTimeoutInMs(configuration.http.requestTimeOutInMs)
-			.setUseProxyProperties(configuration.http.useProxyProperties)
-			.setUserAgent(configuration.http.userAgent)
-			.setUseRawUrl(configuration.http.userRawUrl)
-			.build
-
-		val providerClassName = "com.ning.http.client.providers." + configuration.http.provider.toLowerCase + "." + configuration.http.provider + "AsyncHttpProvider"
-
-		val client = new AsyncHttpClient(providerClassName, ahcConfigBuilder)
-
-		system.registerOnTermination(client.close)
-
-		client
-	}
 
 	def apply(requestName: String, next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]], protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
 
@@ -99,7 +55,6 @@ class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: Abs
 
 	val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks, protocolConfiguration)
 	val asyncHandlerActorFactory = GatlingAsyncHandlerActor.newAsyncHandlerActorFactory(checks, next, requestName, protocolConfiguration)
-	val client = HttpRequestAction.HTTP_CLIENT
 
 	def execute(session: Session) {
 
@@ -115,7 +70,7 @@ class HttpRequestAction(requestName: String, next: ActorRef, requestBuilder: Abs
 
 			val actor = context.actorOf(Props(asyncHandlerActorFactory(request, newSession)))
 			val ahcHandler = handlerFactory(requestName, actor)
-			client.executeRequest(request, ahcHandler)
+			GatlingHttpClient.client.executeRequest(request, ahcHandler)
 		}
 	}
 }

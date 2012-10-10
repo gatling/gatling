@@ -28,7 +28,6 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.{ EMPTY, END_OF_LINE }
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames }
-import com.excilys.ebi.gatling.http.action.HttpRequestAction.HTTP_CLIENT
 import com.excilys.ebi.gatling.http.cache.CacheHandling
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
@@ -193,7 +192,7 @@ class GatlingAsyncHandlerActor(
 			this.request = newRequest
 			this.responseBuilder = responseBuilderFactory(newRequest, session)
 
-			HTTP_CLIENT.executeRequest(newRequest, handlerFactory(newRequestName, self))
+			GatlingHttpClient.client.executeRequest(newRequest, handlerFactory(newRequestName, self))
 		}
 
 		val sessionWithUpdatedCookies = CookieHandling.storeCookies(session, response.getUri, response.getCookies.toList)
