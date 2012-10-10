@@ -87,10 +87,10 @@ top:70px;
 
 .sous-menu{border-bottom:2px #E37400 solid;padding:10px 0 5px 0;margin:0 5px;z-index:-1;}
 .sous-menu a{color:#FFF;font-size:14px;font-weight:bold;}
-.sous-menu .item{background:#D1D1CE url('sous-menu-fleche.png') 12px 6px no-repeat;display:inline;margin:0 10px 0 0;padding:5px 15px 5px 25px;
+.sous-menu .item{background:#D1D1CE url('arrow_down.png') 9px 6px no-repeat;display:inline;margin:0 10px 0 0;padding:5px 15px 5px 25px;
 border-top-right-radius:8px;
 border-top-left-radius:8px}
-.sous-menu .ouvert{background:#E37400 url('sou-menu-fleche-ouvert.png') 10px 7px no-repeat;}
+.sous-menu .ouvert{background:#E37400 url('arrow_right.png') 11px 3px no-repeat;}
 
 .nav{top:180px;width:200px;background:#C5C3BC;position:absolute;z-index: 9;border-radius:8px;border:1px solid #C5C3BC}
 .nav ul{padding:0;margin:3px}
@@ -107,7 +107,8 @@ border-top-left-radius:8px}
 .info{margin:0;height:100%;background:#CF6900 url('stat-fond.png') repeat-x;padding:15px 0px 15px 0}
 .repli{position:absolute;bottom:0;right:0;background:url('stat-fleche-bas.png') no-repeat top left;height:25px;width:22px;}
 
-.titre{background:#ff9916;text-align:center;width:120px;height:15px;font-weight:bold;
+.titre{
+	text-align:center;width:120px;height:15px;font-weight:bold;
 	border-top-left-radius: 8px;
 	border-top-right-radius: 8px;
 	-moz-border-top-left-radius: 8px;
@@ -116,6 +117,13 @@ border-top-left-radius:8px}
 	-webkit-border-top-right-radius: 8px;
 	padding-top:5px;
 }
+.not_collapsed{ 
+	background:#ff9916 url('arrow_down.png') 11px 6px no-repeat; 
+}
+.collapsed{ 
+	background:#ff9916 url('arrow_right.png') 11px 3px no-repeat; 
+}
+
 
 .infos h2{font-size:13px;font-weight:bold;margin:0;padding:3px 0 0 25px;color:#FFF;height:19px;width:165px;
 -moz-border-top-right-radius:8px;
@@ -159,7 +167,12 @@ border-bottom-right-radius:8px;
 	border-radius:8px;
 }
 
-.statistics{margin-bottom:20px; color: white;max-height:1012px;display:block;overflow-y:auto;}
+.statistics{
+	margin-bottom:20px; 
+	color: white;
+	display:block;
+	overflow-y:auto;
+}
 .statistics-titre{background:#eaeaea;text-align:center;width:120px;height:15px;font-weight:bold;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;

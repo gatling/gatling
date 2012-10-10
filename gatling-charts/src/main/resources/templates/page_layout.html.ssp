@@ -52,18 +52,20 @@
 <script type="text/javascript" src="js/<%= jsFile %>"></script>
 <% } %>
 <script type="text/javascript">
+
 	var pageStats = stats.<%=formatToFilename(pageTitle)%>;
-		$(document).ready(function() {
-			setDetailsLinkUrl();
-			<% if(isDetails){%>
-			setDetailsMenu();
-			<%}else{%>
-			setGlobalMenu();
-			<%}%>
-			setActiveMenu();
-			fillStats(pageStats);
-			<%= javascript %>
-		});
-	</script>
+	$(document).ready(function() {
+		setDetailsLinkUrl();
+		<% if(isDetails){%>
+		setDetailsMenu();
+		<%}else{%>
+		setGlobalMenu();
+		<%}%>
+		setActiveMenu();
+		fillStats(pageStats);
+		<%= javascript %>
+	});
+
+</script>
 </body>
 </html>

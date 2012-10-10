@@ -61,3 +61,8 @@ $('#container_statistics').tablesorter({
 	},
 	sortList: [[0, 0]]
 })
+
+$("#statistics_title").click(function(){
+	$("#container_statistics").slideToggle();
+	$(this).toggleClass("collapsed").toggleClass("not_collapsed");
+}); 
