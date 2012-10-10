@@ -102,9 +102,6 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 
 	private[http] def build = {
 
-		// always initialize client
-		GatlingHttpClient.client
-
 		attributes.warmUpUrl.map { url =>
 			val requestBuilder = new RequestBuilder().setUrl(url)
 
