@@ -1,14 +1,14 @@
 //<% import com.excilys.ebi.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME %>
 
 function toHTMLTableRow(array) {
-	var row = '<tr>'
+	var row = '<tr>';
 	$.each(array, function(i, value) {
-		row += '<td'
+		row += '<td';
 		if (value.style)
-			row += ' class="' + value.style + '"'
-		row += '>'+ value.content + '</td>'
+			row += ' class="' + value.style + '"';
+		row += '>'+ value.content + '</td>';
 	})
-	return row + '</tr>'
+	return row + '</tr>';
 }
 
 function generateHtmlRow(url, values) {
@@ -29,21 +29,22 @@ function generateHtmlRow(url, values) {
 	]);
 }	
 
-var i = 0
-var theadBuff = ''
-var tbodyBuff = '' 
+var i = 0;
+var theadBuff = '';
+var tbodyBuff = '';
 $.each(stats, function(request, values) {
 	if (values.name  == 'Global Information') {
-		theadBuff += generateHtmlRow('index.html', values)
+		theadBuff += generateHtmlRow('index.html', values);
 	} else {
-		tbodyBuff += generateHtmlRow('req_' + request + '.html', values)
+		tbodyBuff += generateHtmlRow('req_' + request + '.html', values);
 	}
+	
+	i += 1;
+});
 
-	i += 1
-})
+$('#container_statistics thead').append(theadBuff);
+$('#container_statistics tbody').append(tbodyBuff);
 
-$('#container_statistics thead').append(theadBuff)
-$('#container_statistics tbody').append(tbodyBuff)
 
 $.tablesorter.addParser({
 	id: 'requests',
@@ -63,7 +64,7 @@ $('#container_statistics').tablesorter({
 		4: {sorter: false}
 	},
 	sortList: [[0, 0]]
-})
+});
 
 $("#statistics_title").click(function(){
 	$("#container_statistics").slideToggle();
