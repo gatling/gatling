@@ -3,7 +3,7 @@
 <%@ val percentile2:Int = configuration.charting.indicators.percentile2 %>
 <%@ val responseTimeFields: List[String] = List("Min", "Max", "Mean", "Std Dev", percentile1+"th pct", percentile2+"th pct", "Req/s") %>
 						<div class="statistics extensible-geant">
-							<div id="statistics_title" class="titre title_not_collapsed">STATISTICS</div>
+							<div id="statistics_title" class="title title_not_collapsed">STATISTICS</div>
 							<table id="container_statistics" class="statistics-in extensible-geant">
 								<thead>
 									<tr>
