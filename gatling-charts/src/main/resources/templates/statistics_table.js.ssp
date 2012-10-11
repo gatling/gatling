@@ -67,6 +67,6 @@ $('#container_statistics').tablesorter({
 });
 
 $("#statistics_title").click(function(){
-	$("#container_statistics").slideToggle();
-	$(this).toggleClass("collapsed").toggleClass("not_collapsed");
-}); 
+	$(this).toggleClass("title_collapsed").toggleClass("title_not_collapsed");
+	$("#container_statistics").toggleClass("collapsed").toggleClass("");
+});

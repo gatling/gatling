@@ -120,13 +120,21 @@ border-top-left-radius:8px}
 	padding-top:5px;
 	padding-left:28px;
 }
-.not_collapsed{ 
+.title_not_collapsed{
 	background:#ff9916 url('arrow_down.png') 11px 6px no-repeat; 
 }
-.collapsed{ 
+.title_collapsed{
 	background:#ff9916 url('arrow_right.png') 11px 3px no-repeat; 
 }
 
+.collapsed{
+    display: block;
+    overflow: auto;
+    max-height: 1012px;
+}
+.extensible-geant .collapsed {
+    width: 890px;
+}
 
 .infos h2{font-size:13px;font-weight:bold;margin:0;padding:3px 0 0 25px;color:#FFF;height:19px;width:165px;
 -moz-border-top-right-radius:8px;
