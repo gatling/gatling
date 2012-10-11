@@ -304,19 +304,23 @@ h1 span {
 	cursor: pointer;
 }
 
+.title_not_collapsed span {
+	display: none;
+}
+
 .title_collapsed {
 	background: #ff9916 url('arrow_right.png') 11px 3px no-repeat;
 	cursor: pointer;
+	width: 872px;
 }
 
 .collapsed {
-	display: block;
 	overflow: auto;
-	max-height: 852px;
+	max-height: 883px;
 }
 
-.extensible-geant .collapsed {
-	width: 890px;
+.extensible-geant.collapsed {
+	padding-right: 15px;
 }
 
 .infos h2 {
