@@ -40,6 +40,7 @@ object Headers {
 		val CONTENT_TYPE = "Content-Type"
 		val COOKIE = "Cookie"
 		val DATE = "Date"
+		val DO_NOT_TRACK = "DNT"
 		val ETAG = "ETag"
 		val EXPECT = "Expect"
 		val EXPIRES = "Expires"

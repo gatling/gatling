@@ -26,13 +26,13 @@ class ProtocolConfigElement(baseUrl: String, proxy: ProxyConfig, followRedirect:
 	override def toString = {
 		val sb = new StringBuilder
 
-		sb.append(""".baseURL("""").append(baseUrl).append("""")""").append(END_OF_LINE)
+		sb.append(".baseURL(\"").append(baseUrl).append("\")").append(END_OF_LINE)
 
 		for {
 			proxyHost <- proxy.host
 			proxyPort <- proxy.port
 		} {
-			sb.append(""".proxy("""").append(proxyHost).append("""", """).append(proxyPort).append(")")
+			sb.append(".proxy(\"").append(proxyHost).append("\", ").append(proxyPort).append(")")
 			proxy.sslPort.map(proxySslPort => sb.append(".httpsPort(").append(proxySslPort).append(")"))
 			sb.append(END_OF_LINE)
 		}
@@ -41,7 +41,7 @@ class ProtocolConfigElement(baseUrl: String, proxy: ProxyConfig, followRedirect:
 			proxyUsername <- proxy.username
 			proxyPassword <- proxy.password
 		} {
-			sb.append(""".credentials("""").append(proxyUsername).append("""", """").append(proxyPassword).append("""")""").append(END_OF_LINE)
+			sb.append(".credentials(\"").append(proxyUsername).append("\", ").append(proxyPassword).append("\")").append(END_OF_LINE)
 		}
 
 		if (!followRedirect)
@@ -51,14 +51,20 @@ class ProtocolConfigElement(baseUrl: String, proxy: ProxyConfig, followRedirect:
 			sb.append(".disableAutomaticReferer").append(END_OF_LINE)
 
 		val indent = "\t\t\t"
+
+		def appendHeader(methodName: String, headerValue: String) {
+			sb.append(indent).append(".").append(methodName).append("(\"").append(headerValue).append("\")").append(END_OF_LINE)
+		}
+
 		baseHeaders.foreach {
 			case (headerName, headerValue) => headerName match {
-				case Headers.Names.ACCEPT => sb.append(indent).append(""".acceptHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
-				case Headers.Names.ACCEPT_CHARSET => sb.append(indent).append(""".acceptCharsetHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
-				case Headers.Names.ACCEPT_ENCODING => sb.append(indent).append(""".acceptEncodingHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
-				case Headers.Names.ACCEPT_LANGUAGE => sb.append(indent).append(""".acceptLanguageHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
-				case Headers.Names.HOST => sb.append(indent).append(""".hostHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
-				case Headers.Names.USER_AGENT => sb.append(indent).append(""".userAgentHeader("""").append(headerValue).append("""")""").append(END_OF_LINE)
+				case Headers.Names.ACCEPT => appendHeader("acceptHeader", headerValue)
+				case Headers.Names.ACCEPT_CHARSET => appendHeader("acceptCharsetHeader", headerValue)
+				case Headers.Names.ACCEPT_ENCODING => appendHeader("acceptEncodingHeader", headerValue)
+				case Headers.Names.ACCEPT_LANGUAGE => appendHeader("acceptLanguageHeader", headerValue)
+				case Headers.Names.DO_NOT_TRACK => appendHeader("doNotTrackHeader", headerValue)
+				case Headers.Names.HOST => appendHeader("hostHeader", headerValue)
+				case Headers.Names.USER_AGENT => appendHeader("userAgentHeader", headerValue)
 				case name => warn("Base header not supported " + name)
 			}
 		}

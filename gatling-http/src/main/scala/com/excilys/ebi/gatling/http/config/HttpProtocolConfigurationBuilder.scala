@@ -78,6 +78,8 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 
 	def acceptLanguageHeader(value: String) = new HttpProtocolConfigurationBuilder(attributes.copy(baseHeaders = attributes.baseHeaders + (Headers.Names.ACCEPT_LANGUAGE -> value)))
 
+	def doNotTrackHeader(value: String) = new HttpProtocolConfigurationBuilder(attributes.copy(baseHeaders = attributes.baseHeaders + (Headers.Names.DO_NOT_TRACK -> value)))
+	
 	def hostHeader(value: String) = new HttpProtocolConfigurationBuilder(attributes.copy(baseHeaders = attributes.baseHeaders + (Headers.Names.HOST -> value)))
 
 	def userAgentHeader(value: String) = new HttpProtocolConfigurationBuilder(attributes.copy(baseHeaders = attributes.baseHeaders + (Headers.Names.USER_AGENT -> value)))
