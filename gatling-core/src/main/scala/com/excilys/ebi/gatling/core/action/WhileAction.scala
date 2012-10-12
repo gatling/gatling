@@ -52,7 +52,15 @@ class WhileAction(condition: Session => Boolean, next: ActorRef, val counterName
 
 		val sessionWithTimerIncremented = increment(init(session))
 
-		if (condition(sessionWithTimerIncremented))
+		val evaluatedCondition = try {
+			condition(sessionWithTimerIncremented)
+		} catch {
+			case e =>
+				warn("Condition evaluation crashed, exiting loop", e)
+				false
+		}
+
+		if (evaluatedCondition)
 			loopNextAction ! sessionWithTimerIncremented
 		else
 			next ! expire(session)
