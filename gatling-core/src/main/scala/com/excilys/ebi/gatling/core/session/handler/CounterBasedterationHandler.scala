@@ -19,39 +19,24 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
 
 /**
- * CounterBasedIterationHandler trait 'companion'
- */
-object CounterBasedIterationHandler {
-
-	/**
-	 * Key prefix for Counters
-	 */
-	val COUNTER_KEY_PREFIX = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.counter."
-
-	def getCounterAttributeName(counterName: String) = COUNTER_KEY_PREFIX + counterName
-}
-
-/**
  * This trait is used for mixin-composition
  *
  * It adds counter based iteration behavior to a class
  */
 trait CounterBasedIterationHandler extends IterationHandler {
 
-	lazy val counterAttributeName = CounterBasedIterationHandler.getCounterAttributeName(counterName)
-
 	override def init(session: Session) = 
-		if (session.isAttributeDefined(counterAttributeName))
+		if (session.isAttributeDefined(counterName))
 			super.init(session)
 		else
-			super.init(session).setAttribute(counterAttributeName, -1)
+			super.init(session).setAttribute(counterName, -1)
 
-	override def increment(session: Session) = session.getAttributeAsOption[Int](counterAttributeName)
+	override def increment(session: Session) = session.getAttributeAsOption[Int](counterName)
 		.map {
-			currentValue => super.increment(session).setAttribute(counterAttributeName, currentValue + 1)
+			currentValue => super.increment(session).setAttribute(counterName, currentValue + 1)
 		}.getOrElse {
 			throw new IllegalAccessError("You must call startCounter before this method is called")
 		}
 
-	override def expire(session: Session) = super.expire(session).removeAttribute(CounterBasedIterationHandler.getCounterAttributeName(counterName))
+	override def expire(session: Session) = super.expire(session).removeAttribute(counterName)
 }

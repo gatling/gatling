@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.session
 
-import com.excilys.ebi.gatling.core.session.handler.{ CounterBasedIterationHandler, TimerBasedIterationHandler }
+import com.excilys.ebi.gatling.core.session.handler.TimerBasedIterationHandler
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 import grizzled.slf4j.Logging
@@ -116,7 +116,7 @@ class Session(val scenarioName: String, val userId: Int, data: Map[String, Any] 
 	 * @param counterName the name of the counter
 	 * @return the value of the counter as an integer
 	 */
-	def getCounterValue(counterName: String) = getAttributeAsOption[Int](CounterBasedIterationHandler.getCounterAttributeName(counterName)).getOrElse(throw new IllegalAccessError("Counter does not exist, check the name of the key " + counterName))
+	def getCounterValue(counterName: String) = getAttributeAsOption[Int](counterName).getOrElse(throw new IllegalAccessError("Counter does not exist, check the name of the key " + counterName))
 
 	/**
 	 * This method gets the specified timer from the session
