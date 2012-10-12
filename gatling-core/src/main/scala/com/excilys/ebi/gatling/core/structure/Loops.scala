@@ -43,7 +43,7 @@ trait Loops[B] extends Execs[B] {
 		val incrementAction = emptyChain.exec(SimpleActionBuilder((session: Session) => handler.increment(session)))
 		val expireAction = emptyChain.exec(SimpleActionBuilder((session: Session) => handler.expire(session)))
 
-		val innerActions = (for (i <- 1 to times) yield List(chain, incrementAction)).flatten.toList
+		val innerActions = (for (i <- 1 to times) yield List(incrementAction, chain)).flatten.toList
 		val allActions = initAction :: innerActions ::: List(expireAction)
 
 		exec(allActions)
