@@ -48,7 +48,7 @@ abstract class SimulationClassLoader {
 
 	def simulationClasses(explicitClassName: Option[String]): List[Class[Simulation]]
 
-	protected val isSimulationClass = (clazz: Class[_]) => classOf[Simulation].isAssignableFrom(clazz) && !clazz.isInterface && !Modifier.isAbstract(clazz.getModifiers)
+	protected def isSimulationClass(clazz: Class[_]): Boolean = classOf[Simulation].isAssignableFrom(clazz) && !clazz.isInterface && !Modifier.isAbstract(clazz.getModifiers)
 }
 
 class FileSystemBackedSimulationClassLoader(classLoader: ClassLoader, binaryDir: Directory) extends SimulationClassLoader {
@@ -65,14 +65,13 @@ class FileSystemBackedSimulationClassLoader(classLoader: ClassLoader, binaryDir:
 			.getOrElse {
 				binaryDir
 					.deepFiles
-					.filter(_.hasExtension("class"))
-					.map(pathToClassName(_, binaryDir))
+					.collect { case file if (file.hasExtension("class")) => pathToClassName(file, binaryDir) }
+					.toList
 			}
 
-		val classes = classNames.map(classLoader.loadClass(_))
-			.filter(isSimulationClass)
-			.map(_.asInstanceOf[Class[Simulation]])
-			.toList
+		val classes = classNames
+			.map(classLoader.loadClass(_))
+			.collect { case clazz if (isSimulationClass(clazz)) => clazz.asInstanceOf[Class[Simulation]] }
 
 		requestedClassName.map { requestedClassName =>
 			if (!classes.map(_.getName).contains(requestedClassName)) println("Simulation class '" + requestedClassName + "' could not be found.")

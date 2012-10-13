@@ -25,13 +25,22 @@ import scala.tools.nsc.io.Path.{ string2path, jfile2path }
 import org.apache.commons.io.IOUtils
 
 import com.excilys.ebi.gatling.core.util.IOHelper.use
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 object ScanHelper {
 
 	val SEPARATOR = Character.valueOf(28).toString
 
 	def getPackageResources(pkg: Path, deep: Boolean): Iterator[Resource] = {
+
+		def isResourceInRootDir(fileish: Fileish, rootDir: Path): Boolean = {
+			if (fileish.path.extension.isEmpty)
+				false
+			else if (deep)
+				fileish.path.startsWith(rootDir)
+			else
+				fileish.parent == rootDir
+		}
+
 		getClass.getClassLoader.getResources(pkg.toString.replace("\\", "/")).flatMap { packageURL =>
 			packageURL.getProtocol match {
 				case "file" =>
@@ -43,12 +52,7 @@ object ScanHelper {
 					val connection = packageURL.openConnection.asInstanceOf[JarURLConnection]
 					val rootDir: Path = connection.getJarEntry.getName
 					val jar = new Jar(File(new JFile(connection.getJarFileURL.toURI)))
-					jar.fileishIterator.filter(_.path.extension != EMPTY).filter(fileish => {
-						if (deep)
-							fileish.path.startsWith(rootDir)
-						else
-							fileish.parent == rootDir
-					}).map(new FileishResource(_))
+					jar.fileishIterator.collect { case fileish if isResourceInRootDir(fileish, rootDir) => new FileishResource(fileish) }
 
 				case _ => throw new UnsupportedOperationException
 			}

@@ -41,12 +41,14 @@ object ZincCompiler extends Logging {
 
 		val compilerInterfaceSrc: JFile = {
 			val compilerInterfaceRegex = """(.*compiler-interface-\d+.\d+.\d+-sources.jar)$""".r
-			val filteredClasspathURLs = classpathURLs.filter(url => compilerInterfaceRegex.findFirstMatchIn(url.toString).isDefined)
-			val compilerInterfaceURL = filteredClasspathURLs.headOption.getOrElse(throw new RuntimeException("Can't find the compiler-interface jar"))
+			val compilerInterfaceURL = classpathURLs
+				.filter(url => compilerInterfaceRegex.findFirstMatchIn(url.toString).isDefined)
+				.headOption
+				.getOrElse(throw new RuntimeException("Can't find the compiler-interface jar"))
 
 			new JFile(compilerInterfaceURL.getPath)
 		}
-		
+
 		val sbtInterfaceSrc: JFile = new JFile(classOf[Compilation].getProtectionDomain.getCodeSource.getLocation.getPath)
 
 		Setup.setup(scalaCompiler = scalaCompiler,
@@ -60,7 +62,10 @@ object ZincCompiler extends Logging {
 	def simulationInputs(sourceDirectory: Directory, binDir: Path) = {
 		val classpath = classpathURLs.map(url => new JFile(url.getPath))
 
-		val sources = sourceDirectory.deepFiles.filter(_.hasExtension("scala")).toList.map(f => f.jfile)
+		val sources = sourceDirectory
+			.deepFiles
+			.toList
+			.collect { case file if (file.hasExtension("scala")) => file.jfile }
 
 		// avoids having GATLING_HOME polluted with a "cache" folder
 		val analysisCacheMap: Map[JFile, JFile] = Map[JFile, JFile](

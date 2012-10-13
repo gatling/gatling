@@ -150,7 +150,7 @@ object ScenarioExporter extends Logging {
 
 	private def getMostFrequentHeaderValue(scenarioElements: List[ScenarioElement], headerName: String): Option[String] = {
 		val headers = scenarioElements.flatMap {
-			case reqElm: RequestElement => reqElm.headers.filter(_._1 == headerName).map(_._2)
+			case reqElm: RequestElement => reqElm.headers.collect { case (name, value) if (name == headerName) => value }
 			case _ => Nil
 		}
 
@@ -179,7 +179,7 @@ object ScenarioExporter extends Logging {
 				try {
 					fw.write(content)
 				} catch {
-					case e: IOException => error("Error, while dumping request body... \n" + e.getStackTrace)
+					case e: IOException => error("Error, while dumping request body...", e)
 				}
 		}
 	}
@@ -187,10 +187,9 @@ object ScenarioExporter extends Logging {
 	def getSimulationFileName(date: Date): String = configuration.simulationClassName + ".scala"
 
 	def getOutputFolder = {
-		val path = configuration.outputFolder + configuration.simulationPackage.map {
-			pkg =>
-				File.separator + pkg.replace(".", File.separator)
-		}.getOrElse(EMPTY)
+		val path = configuration.outputFolder + configuration.simulationPackage
+			.map { pkg => File.separator + pkg.replace(".", File.separator) }
+			.getOrElse(EMPTY)
 
 		getFolder(path)
 	}

@@ -50,7 +50,9 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	private def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] = streams.map(Source.fromInputStream(_, configuration.simulation.encoding).getLines()).reduce((first, second) => first ++ second)
 
-	val inputFiles = simulationLogDirectory(runUuid, create = false).files.filter(_.jfile.getName.matches(FileDataReader.SIMULATION_FILES_NAME_PATTERN)).map(_.jfile).toSeq
+	val inputFiles = simulationLogDirectory(runUuid, create = false).files
+		.collect { case file if (file.name.matches(FileDataReader.SIMULATION_FILES_NAME_PATTERN)) => file.jfile }
+		.toSeq
 
 	require(!inputFiles.isEmpty, "simulation directory doesn't contain any log file.")
 
@@ -101,10 +103,8 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		var count = 0
 
 		records
-			.filter(_.startsWith(ACTION))
-			.map(FileDataReader.TABULATION_PATTERN.split(_))
-			.filter(_.size >= FileDataReader.ACTION_RECORD_LENGTH)
-			.map(ActionRecord(_, bucketFunction, runStart))
+			.collect { case line if (line.startsWith(ACTION)) => FileDataReader.TABULATION_PATTERN.split(line) }
+			.collect { case array if (array.size >= FileDataReader.ACTION_RECORD_LENGTH) => ActionRecord(array, bucketFunction, runStart) }
 			.foreach { record =>
 				count += 1
 				if (count % FileDataReader.LOG_STEP == 0) info("Second pass, read " + count + " lines")
@@ -137,17 +137,13 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	def numberOfRequestsPerSecond(status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Seq[(Int, Int)] = resultsHolder
 		.getRequestsPerSecBuffer(requestName, status).map
 		.toList
-		.map {
-			case (bucket, count) => (bucket, math.round(count / step * FileDataReader.SEC_MILLISEC_RATIO).toInt)
-		}
+		.map { case (bucket, count) => (bucket, math.round(count / step * FileDataReader.SEC_MILLISEC_RATIO).toInt) }
 		.sorted
 
 	def numberOfTransactionsPerSecond(status: Option[RequestStatus.RequestStatus], requestName: Option[String]): Seq[(Int, Int)] = resultsHolder
 		.getTransactionsPerSecBuffer(requestName, status).map
 		.toList
-		.map {
-			case (bucket, count) => (bucket, math.round(count / step * FileDataReader.SEC_MILLISEC_RATIO).toInt)
-		}
+		.map { case (bucket, count) => (bucket, math.round(count / step * FileDataReader.SEC_MILLISEC_RATIO).toInt) }
 		.sorted
 
 	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String]): (Seq[(Int, Int)], Seq[(Int, Int)]) = {
