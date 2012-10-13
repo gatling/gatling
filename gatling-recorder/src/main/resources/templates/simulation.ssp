@@ -18,7 +18,7 @@ class <%= simulationClassName %> extends Simulation {
 	def apply = {
 
 		val httpConf = httpConfig
-			<%= protocolConfig %>
+<%= protocolConfig %>
 
 <% for( header <- headers ) { %>			 
 		val headers_<%= header._1 %> = Map(

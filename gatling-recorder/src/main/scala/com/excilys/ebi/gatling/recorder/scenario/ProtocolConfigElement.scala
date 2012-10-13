@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.recorder.scenario
 
-import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+import com.excilys.ebi.gatling.core.util.StringHelper.{ EMPTY, END_OF_LINE }
 import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
 
@@ -24,36 +24,39 @@ import grizzled.slf4j.Logging
 class ProtocolConfigElement(baseUrl: String, proxy: ProxyConfig, followRedirect: Boolean, automaticReferer: Boolean, baseHeaders: Map[String, String]) extends ScenarioElement with Logging {
 
 	override def toString = {
+		val indent = "\t\t\t"
+
 		val sb = new StringBuilder
 
-		sb.append(".baseURL(\"").append(baseUrl).append("\")").append(END_OF_LINE)
+		def appendLine(line: String) {
+			sb.append(indent).append(line).append(END_OF_LINE)
+		}
+
+		appendLine(".baseURL(\"" + baseUrl + "\")")
 
 		for {
 			proxyHost <- proxy.host
 			proxyPort <- proxy.port
 		} {
-			sb.append(".proxy(\"").append(proxyHost).append("\", ").append(proxyPort).append(")")
-			proxy.sslPort.map(proxySslPort => sb.append(".httpsPort(").append(proxySslPort).append(")"))
-			sb.append(END_OF_LINE)
+			val sslPort = proxy.sslPort.map(proxySslPort => ".httpsPort(" + proxySslPort + ")").getOrElse(EMPTY)
+			appendLine(".proxy(\"" + proxyHost + "\", " + proxyPort + ")" + sslPort)
 		}
 
 		for {
 			proxyUsername <- proxy.username
 			proxyPassword <- proxy.password
 		} {
-			sb.append(".credentials(\"").append(proxyUsername).append("\", ").append(proxyPassword).append("\")").append(END_OF_LINE)
+			appendLine(".credentials(\"" + proxyUsername + "\", " + proxyPassword + "\")")
 		}
 
 		if (!followRedirect)
-			sb.append(".disableFollowRedirect").append(END_OF_LINE)
+			appendLine(".disableFollowRedirect")
 
 		if (!automaticReferer)
-			sb.append(".disableAutomaticReferer").append(END_OF_LINE)
-
-		val indent = "\t\t\t"
+			appendLine(".disableAutomaticReferer")
 
 		def appendHeader(methodName: String, headerValue: String) {
-			sb.append(indent).append(".").append(methodName).append("(\"").append(headerValue).append("\")").append(END_OF_LINE)
+			appendLine("." + methodName + "(\"" + headerValue + "\")")
 		}
 
 		baseHeaders.foreach {

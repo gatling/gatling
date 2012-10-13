@@ -20,7 +20,6 @@ import java.util.Date
 
 import scala.annotation.tailrec
 import scala.collection.immutable.SortedMap
-import scala.math.min
 import scala.tools.nsc.io.{ Directory, File }
 
 import org.fusesource.scalate.TemplateEngine
@@ -28,7 +27,6 @@ import org.fusesource.scalate.TemplateEngine
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.Headers
-import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.REDIRECT_STATUS_CODES
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
 
 import grizzled.slf4j.Logging
@@ -62,43 +60,8 @@ object ScenarioExporter extends Logging {
 
 		val protocolConfigElement = new ProtocolConfigElement(baseUrl, configuration.proxy, configuration.followRedirect, configuration.automaticReferer, baseHeaders)
 
-		// If follow redirect, discard some recorded elements
-		def getStatusCode(se: ScenarioElement) = se match {
-			case r: RequestElement => r.statusCode
-			case _ => 0
-		}
-
-		def filterRedirectsAndNonAuthorized(l: List[(ScenarioElement, Int)], e: ScenarioElement) = {
-			if (l.isEmpty)
-				e match {
-					case r: RequestElement => List((r, r.statusCode))
-					case x => List((x, 0))
-				}
-			else
-				l.head match {
-					case (lastRequestElement: RequestElement, lastStatusCode: Int) =>
-						if (REDIRECT_STATUS_CODES.contains(lastStatusCode))
-							e match {
-								case r: RequestElement => (RequestElement(lastRequestElement, r.statusCode), r.statusCode) :: l.tail
-								case _ => l
-							}
-						else
-							(e, getStatusCode(e)) :: l
-					case _ => (e, getStatusCode(e)) :: l
-				}
-		}
-
-		val filteredElements =
-			if (configuration.followRedirect)
-				scenarioElements
-					.foldLeft(List[(ScenarioElement, Int)]())(filterRedirectsAndNonAuthorized)
-					.map { case (element, _) => element }
-					.reverse
-			else
-				scenarioElements
-
 		// Add simulationClass to request elements
-		val elementsList: List[ScenarioElement] = filteredElements.map {
+		val elementsList: List[ScenarioElement] = scenarioElements.map {
 			case e: RequestElement => RequestElement(e, configuration.simulationClassName)
 			case e => e
 		}

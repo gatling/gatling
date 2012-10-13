@@ -20,12 +20,12 @@ import java.util.Date
 
 import scala.math.round
 import scala.tools.nsc.io.{ Directory, File }
-import scala.tools.nsc.io.Path.string2path
 
 import org.codehaus.plexus.util.SelectorUtils
 import org.jboss.netty.handler.codec.http.{ HttpMethod, HttpRequest, HttpResponse }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
 
+import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.REDIRECT_STATUS_CODES
 import com.excilys.ebi.gatling.recorder.config.Configuration
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
 import com.excilys.ebi.gatling.recorder.config.RecorderOptions
@@ -100,30 +100,46 @@ class RecorderController extends Logging {
 	}
 
 	def receiveResponse(request: HttpRequest, response: HttpResponse) {
-		synchronized {
-			if (isRequestToBeAdded(request)) {
-				processRequest(request, response)
 
-				// Pause calculation
-				if (lastRequestDate != null) {
-					val newRequestDate = new Date
-					val diff = newRequestDate.getTime - lastRequestDate.getTime
-					if (diff > 10) {
-						val (pauseValue, pauseUnit) =
-							if (diff > 1000)
-								(round(diff / 1000).toLong, PauseUnit.SECONDS)
-							else
-								(diff, PauseUnit.MILLISECONDS)
+		def processPause {
+			// Pause calculation
+			if (lastRequestDate != null) {
+				val newRequestDate = new Date
+				val diff = newRequestDate.getTime - lastRequestDate.getTime
+				if (diff > 10) {
+					val (pauseValue, pauseUnit) =
+						if (diff > 1000)
+							(round(diff / 1000).toLong, PauseUnit.SECONDS)
+						else
+							(diff, PauseUnit.MILLISECONDS)
 
-						lastRequestDate = newRequestDate
-						useUIThread {
-							runningFrame.receiveEventInfo(new PauseInfo(pauseValue, pauseUnit))
-						}
-
-						scenarioElements = new PauseElement(pauseValue, pauseUnit) :: scenarioElements
+					lastRequestDate = newRequestDate
+					useUIThread {
+						runningFrame.receiveEventInfo(new PauseInfo(pauseValue, pauseUnit))
 					}
-				} else
-					lastRequestDate = new Date
+
+					scenarioElements = new PauseElement(pauseValue, pauseUnit) :: scenarioElements
+				}
+			} else
+				lastRequestDate = new Date
+		}
+
+		def processRequest {
+
+			// Store request in scenario elements
+			scenarioElements = new RequestElement(request, response.getStatus.getCode, None) :: scenarioElements
+
+			// Send request information to view
+			useUIThread {
+				runningFrame.receiveEventInfo(new RequestInfo(request, response))
+			}
+		}
+
+		synchronized {
+			if (isRequestToBeAdded(request, response)) {
+				processPause
+				processRequest
+
 			}
 		}
 	}
@@ -156,9 +172,12 @@ class RecorderController extends Logging {
 		lastRequestDate = null
 	}
 
-	private def isRequestToBeAdded(request: HttpRequest): Boolean = {
+	private def isRequestToBeAdded(request: HttpRequest, response: HttpResponse): Boolean = {
 		val uri = new URI(request.getUri)
-		if (supportedHttpMethods.contains(request.getMethod)) {
+		val responseCode = response.getStatus.getCode
+		val skipBecauseOfRedirect = configuration.followRedirect && REDIRECT_STATUS_CODES.contains(responseCode)
+
+		if (!skipBecauseOfRedirect && supportedHttpMethods.contains(request.getMethod)) {
 			if (configuration.filterStrategy != FilterStrategy.NONE) {
 
 				val uriMatched = (for (configPattern <- configuration.patterns) yield {
@@ -183,15 +202,4 @@ class RecorderController extends Logging {
 	private def getFolder(folderName: String, folderPath: String): Directory = Directory(folderPath).createDirectory()
 
 	private def getOutputFolder = getFolder("output", configuration.outputFolder)
-
-	private def processRequest(request: HttpRequest, response: HttpResponse) {
-
-		// Store request in scenario elements
-		scenarioElements = new RequestElement(request, response.getStatus.getCode, None) :: scenarioElements
-
-		// Send request information to view
-		useUIThread {
-			runningFrame.receiveEventInfo(new RequestInfo(request, response))
-		}
-	}
 }
