@@ -84,15 +84,14 @@ object GatlingConfiguration extends Logging {
 				userAgent = config.getString(CONF_HTTP_USER_AGENT),
 				userRawUrl = config.getBoolean(CONF_HTTP_USE_RAW_URL)),
 			data = DataConfiguration(
-				dataWriterClasses = config.getStringList(CONF_DATA_WRITER_CLASS_NAMES).toList
-					.foldLeft(List.empty[String]) { (writers, writer) =>
-						writer.trim match {
-							case "console" => "com.excilys.ebi.gatling.core.result.writer.ConsoleDataWriter" :: writers
-							case "file" => "com.excilys.ebi.gatling.core.result.writer.FileDataWriter" :: writers
-							case "graphite" => "com.excilys.ebi.gatling.metrics.GraphiteDataWriter" :: writers
-							case clazz => clazz :: writers
-						}
-					},
+				dataWriterClasses = config.getStringList(CONF_DATA_WRITER_CLASS_NAMES).toList.map {
+					_ match {
+						case "console" => "com.excilys.ebi.gatling.core.result.writer.ConsoleDataWriter"
+						case "file" => "com.excilys.ebi.gatling.core.result.writer.FileDataWriter"
+						case "graphite" => "com.excilys.ebi.gatling.metrics.GraphiteDataWriter"
+						case clazz => clazz
+					}
+				},
 				dataReaderClass = (config.getString(CONF_DATA_READER_CLASS_NAME)).trim match {
 					case "file" => "com.excilys.ebi.gatling.charts.result.reader.FileDataReader"
 					case clazz => clazz

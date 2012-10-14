@@ -89,6 +89,5 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 		new TemplateWriter(globalFile(runOn)).writeToFile(template.getOutput)
 	}
 
-	private def count(records: Seq[(Int, Int)]): Int = records.foldLeft(0)((sum, entry) => sum + entry._2)
-
+	private def count(records: Seq[(Int, Int)]): Int = records.iterator.map(_._2).sum
 }
