@@ -19,6 +19,7 @@ import java.util.UUID.randomUUID
 
 import com.excilys.ebi.gatling.core.action.builder.WhileActionBuilder
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.handler.TimerBasedIterationHandler
 import com.excilys.ebi.gatling.core.structure.{ AbstractStructureBuilder, ChainBuilder }
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 
@@ -43,7 +44,7 @@ class DurationLoopHandlerBuilder[B <: AbstractStructureBuilder[B]](structureBuil
 	 */
 	private[core] def build: B = {
 		val loopCounterName = counterName.getOrElse(randomUUID.toString)
-		val condition = (session: Session) => (nowMillis - session.getTimerValue(loopCounterName)) <= duration.toMillis
+		val condition = (session: Session) => (nowMillis - TimerBasedIterationHandler.getTimer(session, loopCounterName)) <= duration.toMillis
 		structureBuilder.exec(WhileActionBuilder(condition, chain, loopCounterName))
 	}
 }

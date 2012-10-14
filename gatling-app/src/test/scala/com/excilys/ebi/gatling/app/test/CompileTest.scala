@@ -99,7 +99,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				// What will be repeated ?
 				// First request to be repeated
 				exec((session: Session) => {
-					println("iterate: " + session.getCounterValue("titi"))
+					println("iterate: " + session.getAttribute("titi"))
 					session
 				})
 					.exec(
@@ -125,12 +125,12 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 							.pause(2)
 							.repeat(2, "tutu") {
 								exec((session: Session) => {
-									println("--nested loop: " + session.getCounterValue("tutu"))
+									println("--nested loop: " + session.getAttribute("tutu"))
 									session
 								})
 							}
 							.exec((session: Session) => {
-								println("-loopDuring: " + session.getCounterValue("foo"))
+								println("-loopDuring: " + session.getAttribute("foo"))
 								session
 							})
 							.exec(http("In During 2").get("/"))
@@ -141,12 +141,12 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 						exec(http("In During 1").get("/"))
 							.pause(2)
 							.exec((session: Session) => {
-								println("-iterate1: " + session.getCounterValue("titi") + ", doFor: " + session.getCounterValue("hehe"))
+								println("-iterate1: " + session.getAttribute("titi") + ", doFor: " + session.getAttribute("hehe"))
 								session
 							})
 							.repeat(2, "hoho") {
 								exec((session: Session) => {
-									println("--iterate1: " + session.getCounterValue("titi") + ", doFor: " + session.getCounterValue("hehe") + ", iterate2: " + session.getCounterValue("hoho"))
+									println("--iterate1: " + session.getAttribute("titi") + ", doFor: " + session.getAttribute("hehe") + ", iterate2: " + session.getAttribute("hoho"))
 									session
 								})
 							}

@@ -20,7 +20,7 @@ import java.util.UUID
 import com.excilys.ebi.gatling.core.action.builder.{ SimpleActionBuilder, WhileActionBuilder }
 import com.excilys.ebi.gatling.core.session.ELParser.parseEL
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.session.handler.CounterBasedIterationHandler
+import com.excilys.ebi.gatling.core.session.handler.{ CounterBasedIterationHandler, TimerBasedIterationHandler }
 import com.excilys.ebi.gatling.core.structure.ChainBuilder.emptyChain
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 
@@ -60,7 +60,7 @@ trait Loops[B] extends Execs[B] {
 	def repeat(times: Session => Int, counterName: String)(chain: ChainBuilder): B = repeat(times, Some(counterName), chain)
 	private def repeat(times: Session => Int, counterName: Option[String] = None, chain: ChainBuilder): B = {
 		val counter = counterName.getOrElse(UUID.randomUUID.toString)
-		asLongAs((s: Session) => s.getCounterValue(counter) < times(s), Some(counter), chain)
+		asLongAs((s: Session) => s.getTypedAttribute[Int](counter) < times(s), Some(counter), chain)
 	}
 
 	def during(duration: Long)(chain: ChainBuilder): B = during(duration seconds, None, chain)
@@ -69,7 +69,7 @@ trait Loops[B] extends Execs[B] {
 	def during(duration: Duration, counterName: String)(chain: ChainBuilder): B = during(duration, Some(counterName), chain)
 	private def during(duration: Duration, counterName: Option[String], chain: ChainBuilder): B = {
 		val loopCounterName = counterName.getOrElse(UUID.randomUUID.toString)
-		val condition = (session: Session) => (nowMillis - session.getTimerValue(loopCounterName)) <= duration.toMillis
+		val condition = (session: Session) => (nowMillis - TimerBasedIterationHandler.getTimer(session, loopCounterName)) <= duration.toMillis
 		exec(WhileActionBuilder(condition, chain, loopCounterName))
 	}
 

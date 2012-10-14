@@ -29,9 +29,11 @@ object TimerBasedIterationHandler {
 	/**
 	 * Key prefix for Counters
 	 */
-	val TIMER_KEY_PREFIX = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.timer."
+	private val TIMER_KEY_PREFIX = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.timer."
 
-	def getTimerAttributeName(timerName: String) = TIMER_KEY_PREFIX + timerName
+	def getTimerAttributeName(counterName: String) = TIMER_KEY_PREFIX + counterName
+
+	def getTimer(session: Session, counterName: String): Int = session.getTypedAttribute[Int](getTimerAttributeName(counterName))
 }
 
 /**

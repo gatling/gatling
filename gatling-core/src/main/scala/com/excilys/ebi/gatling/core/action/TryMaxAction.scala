@@ -19,4 +19,13 @@ import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.ActorRef
 
-class TryMaxAction(times: Int, next: ActorRef, counterName: String) extends WhileAction((s: Session) => s.getCounterValue(counterName) == 0 || (s.isFailed && s.getCounterValue(counterName) < times), next, counterName)
+object TryMaxAction {
+
+	def apply(times: Int, next: ActorRef, counterName: String): WhileAction = {
+		def f(s: Session) = {
+			val counterValue = s.getTypedAttribute[Int](counterName)
+			counterValue == 0 || (s.isFailed && counterValue < times)
+		}
+		new WhileAction(f, next, counterName)
+	}
+}
