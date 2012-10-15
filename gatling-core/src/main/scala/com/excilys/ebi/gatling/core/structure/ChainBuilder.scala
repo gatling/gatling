@@ -26,12 +26,6 @@ import akka.actor.ActorRef
 object ChainBuilder {
 	
 	val emptyChain = new ChainBuilder(Nil, null)
-
-	/**
-	 * DSL helper that creates a new ChainBuilder
-	 */
-	@deprecated("Will be removed in Gatling 1.4.0. Call the method directly without suffixing with chain.", "1.3.0")
-	val chain = emptyChain
 }
 
 /**

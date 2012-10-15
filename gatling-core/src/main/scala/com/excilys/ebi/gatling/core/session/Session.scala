@@ -15,7 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.session
 
-import com.excilys.ebi.gatling.core.session.handler.TimerBasedIterationHandler
 import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 import grizzled.slf4j.Logging
@@ -109,24 +108,6 @@ class Session(val scenarioName: String, val userId: Int, data: Map[String, Any] 
 	def removeAttribute(attributeKey: String) = if (isAttributeDefined(attributeKey)) new Session(scenarioName, userId, data - attributeKey) else this
 
 	def isAttributeDefined(attributeKey: String) = data.contains(attributeKey)
-
-	/**
-	 * This method gets the specified counter from the session
-	 *
-	 * @param counterName the name of the counter
-	 * @return the value of the counter as an integer
-	 */
-	@deprecated("Will be removed in 1.4.0. Counter value is now directly exposed as a Session attribute with the given counterName", "1.3.3")
-	def getCounterValue(counterName: String) = getAttributeAsOption[Int](counterName).getOrElse(throw new IllegalAccessError("Counter does not exist, check the name of the key " + counterName))
-
-	/**
-	 * This method gets the specified timer from the session
-	 *
-	 * @param timerName the name of the timer
-	 * @return the value of the timer as a long
-	 */
-	@deprecated("Will be removed in 1.4.0. Timer value is now private", "1.3.3")
-	def getTimerValue(timerName: String) = getAttributeAsOption[Long](TimerBasedIterationHandler.getTimerAttributeName(timerName)).getOrElse(throw new IllegalAccessError("Timer is not set : " + timerName))
 
 	def setFailed: Session = setAttribute(Session.FAILED_KEY, EMPTY)
 

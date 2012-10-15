@@ -17,7 +17,6 @@ package com.excilys.ebi.gatling.core.structure
 
 import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.structure.loop.LoopBuilder
 
 import akka.actor.ActorRef
 import grizzled.slf4j.Logging
@@ -28,17 +27,6 @@ import grizzled.slf4j.Logging
  * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
  */
 abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extends Execs[B] with Pauses[B] with Feeds[B] with Loops[B] with ConditionalStatements[B] with Errors[B] with Logging {
-
-	/**
-	 * Method used to declare a loop
-	 *
-	 * @param chain the chain of actions that should be repeated
-	 */
-	@deprecated("Will be removed in Gatling 1.4.0.", "1.3.0")
-	def loop(chain: ChainBuilder) = new LoopBuilder[B](getInstance, chain, None)
-
-	@deprecated("Will be removed in Gatling 1.4.0.", "1.3.0")
-	private[core] def addActionBuilders(actionBuildersToAdd: List[ActionBuilder]): B = newInstance(actionBuildersToAdd ::: actionBuilders)
 
 	protected def buildChainedActions(entryPoint: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = actionBuilders
 		.foldLeft(entryPoint) { (actorRef, actionBuilder) =>

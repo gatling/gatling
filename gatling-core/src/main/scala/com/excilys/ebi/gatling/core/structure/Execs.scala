@@ -34,13 +34,4 @@ trait Execs[B] {
 	def exec(chains: ChainBuilder*): B = exec(chains.toIterable)
 	def exec(chains: Iterator[ChainBuilder]): B = exec(chains.toIterable)
 	def exec(chains: Iterable[ChainBuilder]): B = newInstance(chains.toList.reverse.map(_.actionBuilders).flatten ::: actionBuilders)
-
-	/**
-	 * Method used to insert an existing chain inside the current scenario
-	 *
-	 * @param chain the chain to be included in the scenario
-	 * @return a new builder with all actions from the chain added to its actions
-	 */
-	@deprecated("""Will be removed in Gatling 1.4.0. Use "exec" instead.""", "1.3.0")
-	def insertChain(chain: ChainBuilder): B = newInstance(chain.actionBuilders ::: actionBuilders)
 }

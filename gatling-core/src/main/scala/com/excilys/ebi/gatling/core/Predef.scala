@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.core
 
-import java.util.concurrent.TimeUnit
-
 import scala.tools.nsc.io.File
 
 import com.excilys.ebi.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
@@ -55,23 +53,6 @@ object Predef {
 	type Simulation = com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 	type Feeder = com.excilys.ebi.gatling.core.feeder.Feeder
 
-	@deprecated("Will be removed in Gatling 1.4.0.", "1.3.0")
-	val MILLISECONDS = TimeUnit.MILLISECONDS
-	@deprecated("Will be removed in Gatling 1.4.0.", "1.3.0")
-	val SECONDS = TimeUnit.SECONDS
-	@deprecated("Will be removed in Gatling 1.4.0.", "1.3.0")
-	val NANOSECONDS = TimeUnit.NANOSECONDS
-	@deprecated("Will be removed in Gatling 1.4.0.", "1.3.0")
-	val MICROSECONDS = TimeUnit.MICROSECONDS
-	@deprecated("Will be removed in Gatling 1.4.0.", "1.3.0")
-	val MINUTES = TimeUnit.MINUTES
-	@deprecated("Will be removed in Gatling 1.4.0.", "1.3.0")
-	val HOURS = TimeUnit.HOURS
-	@deprecated("Will be removed in Gatling 1.4.0.", "1.3.0")
-	val DAYS = TimeUnit.DAYS
-
 	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder.scenario(scenarioName)
 	val bootstrap = ChainBuilder.emptyChain
-	@deprecated("""Will be removed in Gatling 1.4.0. Use "import bootstrap._" instead.""", "1.3.0")
-	val chain = bootstrap
 }

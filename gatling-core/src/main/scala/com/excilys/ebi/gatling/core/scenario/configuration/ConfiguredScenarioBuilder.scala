@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.scenario.configuration
 
-import java.util.concurrent.TimeUnit
-
 import com.excilys.ebi.gatling.core.config.{ ProtocolConfiguration, ProtocolConfigurationRegistry }
 import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.structure.ScenarioBuilder
@@ -49,16 +47,6 @@ class ConfiguredScenarioBuilder(attributes: Attributes) {
 	/**
 	 * Method used to set the ramp duration
 	 *
-	 * @param duration the duration of the ramp
-	 * @param unit the time unit of the ramp duration (defaults: seconds)
-	 * @return a new builder with the ramp duration set
-	 */
-	@deprecated("""Will be remove in Gatling 1.4.0. Pass a akka.util.Duration such as "5 seconds"""", "1.3.0")
-	def ramp(duration: Long, unit: TimeUnit = TimeUnit.SECONDS): ConfiguredScenarioBuilder = ramp(Duration(duration, unit))
-
-	/**
-	 * Method used to set the ramp duration
-	 *
 	 * @param duration the duration of the ramp in seconds
 	 * @return a new builder with the ramp duration set
 	 */
@@ -71,16 +59,6 @@ class ConfiguredScenarioBuilder(attributes: Attributes) {
 	 * @return a new builder with the ramp duration set
 	 */
 	def ramp(duration: Duration): ConfiguredScenarioBuilder = new ConfiguredScenarioBuilder(attributes.copy(rampValue = Some(duration)))
-
-	/**
-	 * Method used to set the start time of the first user in the simulation
-	 *
-	 * @param duration the delay before the first user will start
-	 * @param unit the unit of the delay (defaults: seconds)
-	 * @return a new builder with the start time set
-	 */
-	@deprecated("""Will be remove in Gatling 1.4.0. Pass a akka.util.Duration such as "5 seconds"""", "1.3.0")
-	def delay(duration: Long, unit: TimeUnit = TimeUnit.SECONDS): ConfiguredScenarioBuilder = delay(Duration(duration, unit))
 
 	/**
 	 * Method used to set the start time of the first user in the simulation
