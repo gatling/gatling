@@ -143,8 +143,15 @@ class GraphiteDataWriter extends DataWriter {
 		} catch {
 			case e: IOException => {
 				error("Error writing to Graphite", e)
-				writer.close
-				writer = null
+				if (writer != null) {
+					try {
+						writer.close
+					} catch {
+						case _ => // shut up
+					} finally {
+						writer = null
+					}
+				}
 			}
 		}
 	}
