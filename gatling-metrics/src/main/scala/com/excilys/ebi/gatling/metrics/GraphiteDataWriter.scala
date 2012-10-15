@@ -18,8 +18,10 @@ package com.excilys.ebi.gatling.metrics
 import java.io.{ BufferedWriter, IOException, OutputStreamWriter, Writer }
 import java.net.Socket
 import java.util.{ HashMap, Timer, TimerTask }
+
 import scala.collection.JavaConversions.mapAsScalaMap
 import scala.collection.mutable
+
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
@@ -27,7 +29,7 @@ import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RunRecord, S
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowSeconds
-import com.excilys.ebi.gatling.metrics.types.{ RequestMetrics, UserMetric, Metrics }
+import com.excilys.ebi.gatling.metrics.types.{ Metrics, RequestMetrics, UserMetric }
 
 case object SendToGraphite
 
