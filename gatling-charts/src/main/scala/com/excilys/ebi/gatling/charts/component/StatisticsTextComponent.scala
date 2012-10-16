@@ -33,6 +33,7 @@ case class Statistics(name: String, total: Long, success: Long, failure: Long) {
 }
 
 case class RequestStatistics(name: String,
+	path: String,
 	numberOfRequestsStatistics: Statistics,
 	minResponseTimeStatistics: Statistics,
 	maxResponseTimeStatistics: Statistics,
@@ -43,7 +44,7 @@ case class RequestStatistics(name: String,
 	groupedCounts: Seq[(String, Int, Int)],
 	meanNumberOfRequestsPerSecondStatistics: Statistics) {
 
-	def mkString: String = new StringBuilder().append(name).append(TABULATION_SEPARATOR)
+	def mkString: String = new StringBuilder().append(path).append(TABULATION_SEPARATOR)
 		.append(numberOfRequestsStatistics.total).append(TABULATION_SEPARATOR)
 		.append(numberOfRequestsStatistics.success).append(TABULATION_SEPARATOR)
 		.append(numberOfRequestsStatistics.failure).append(TABULATION_SEPARATOR)
@@ -82,6 +83,8 @@ case class RequestStatistics(name: String,
 		.append(meanNumberOfRequestsPerSecondStatistics.failure)
 		.toString
 }
+
+case class GroupStatistics(duration: Long)
 
 class StatisticsTextComponent extends Component {
 

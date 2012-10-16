@@ -231,25 +231,31 @@ h1 span {
 	border-bottom: none;
 }
 
-.nav a {
-	color: #000;
+.nav .item {
 	padding: 5px 10px;
 	display: block;
-	width: 170px;
-	font-size: 14px;
-	font-weight: bold;
 	margin: 0 auto
 }
 
-.nav a:hover {
-	background-color: #92918C;
-	border-radius: 8px
+.nav .item a {
+	color: #000;
+	font-size: 14px;
+	font-weight: bold;
+	margin: 0px;
 }
 
-.nav .on a {
-	color: #FFF;
+.nav .item:hover {
+	background-color: #92918C;
+	border-radius: 8px;
+}
+
+.nav .on .item {
+	border-radius: 8px;
 	background-color: #E37400;
-	border-radius: 8px
+}
+
+.nav .on .item a {
+	color: #FFF;
 }
 
 .article {
@@ -316,7 +322,7 @@ h1 span {
 
 .collapsed {
 	overflow: auto;
-	max-height: 883px;
+	max-height: 895px;
 }
 
 .extensible-geant.collapsed {
@@ -498,5 +504,42 @@ h1 span {
 
 .statistics-in .ko {
 	background-color: rgba(255, 0, 0, 0.5);
+}
+
+.statistics-in .expand-button {
+	padding-left: 10px;
+}
+
+.expand-button.hidden {
+	background: none;
+	cursor: default;
+}
+
+.statistics-in .expand-button.expand {
+	background: url('little_arrow_right.png') no-repeat 3px 3px;
+}
+
+.statistics-in .expand-button.collapse {
+	background: url('sorted-down.png') no-repeat 0px 0px;
+}
+
+.nav .expand-button {
+	padding: 10px;
+}
+
+.nav .expand-button.expand {
+	background: url('arrow_right_black.png') no-repeat 5px 10px;
+}
+
+.nav .expand-button.collapse {
+	background: url('arrow_down_black.png') no-repeat 3px 12px;
+}
+
+.nav .on .expand-button.expand {
+	background-image: url('arrow_right.png');
+}
+
+.nav .on .expand-button.collapse {
+	background-image: url('arrow_down.png');
 }
 

@@ -16,8 +16,11 @@
 package com.excilys.ebi.gatling.core.result.reader
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RunRecord }
+import com.excilys.ebi.gatling.core.result.Group
+import com.excilys.ebi.gatling.core.result.RequestPath
+import com.excilys.ebi.gatling.core.result.message.RequestStatus
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.RequestStatus
+import com.excilys.ebi.gatling.core.result.message.RunRecord
 
 object DataReader {
 	val NO_PLOT_MAGIC_VALUE = -1
@@ -28,28 +31,32 @@ object DataReader {
 abstract class DataReader(runUuid: String) {
 
 	def runRecord: RunRecord
-	
+
 	def runStart: Long
 
-	def requestNames: List[String]
+	def requestPaths: List[RequestPath]
+
+	def groups: List[Group]
 
 	def scenarioNames: List[String]
 
 	def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): Seq[(Int, Int)]
 
-	def numberOfRequestsPerSecond(status: Option[RequestStatus] = None, requestName: Option[String] = None): Seq[(Int, Int)]
+	def numberOfRequestsPerSecond(status: Option[RequestStatus] = None, requestName: Option[String] = None, group: Option[Group] = None): Seq[(Int, Int)]
 
-	def numberOfTransactionsPerSecond(status: Option[RequestStatus] = None, requestName: Option[String] = None): Seq[(Int, Int)]
+	def numberOfTransactionsPerSecond(status: Option[RequestStatus] = None, requestName: Option[String] = None, group: Option[Group] = None): Seq[(Int, Int)]
 
-	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String] = None): (Seq[(Int, Int)], Seq[(Int, Int)])
+	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String] = None, group: Option[Group] = None): (Seq[(Int, Int)], Seq[(Int, Int)])
 
-	def generalStats(status: Option[RequestStatus] = None, requestName: Option[String] = None): GeneralStats
+	def generalStats(status: Option[RequestStatus] = None, requestName: Option[String] = None, group: Option[Group] = None): GeneralStats
 
-	def numberOfRequestInResponseTimeRange(requestName: Option[String] = None): Seq[(String, Int)]
+	def groupStats(group: Option[Group]): Long
 
-	def responseTimeGroupByExecutionStartDate(status: RequestStatus, requestName: String): Seq[(Int, (Int, Int))]
+	def numberOfRequestInResponseTimeRange(requestName: Option[String] = None, group: Option[Group] = None): Seq[(String, Int)]
 
-	def latencyGroupByExecutionStartDate(status: RequestStatus, requestName: String): Seq[(Int, (Int, Int))]
+	def responseTimeGroupByExecutionStartDate(status: RequestStatus, requestName: Option[String] = None, group: Option[Group] = None): Seq[(Int, (Int, Int))]
 
-	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: RequestStatus.RequestStatus, requestName: String): Seq[(Int, Int)]
+	def latencyGroupByExecutionStartDate(status: RequestStatus, requestName: Option[String] = None, group: Option[Group] = None): Seq[(Int, (Int, Int))]
+
+	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: RequestStatus.RequestStatus, requestName: Option[String] = None, group: Option[Group] = None): Seq[(Int, Int)]
 }

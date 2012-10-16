@@ -17,15 +17,30 @@ package com.excilys.ebi.gatling.charts.result.reader.buffers
 
 import java.util.{ HashMap => JHashMap }
 
+import scala.annotation.tailrec
+
+import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
+import com.excilys.ebi.gatling.core.result.Group
+
 trait Buffers {
 
-	def getBuffer[B](key: BufferKey, buffers: JHashMap[BufferKey, B], builder: () => B): B = {
+	def getBuffer[A, B](key: A, buffers: JHashMap[A, B], builder: () => B): B = {
 		if (buffers.containsKey(key))
 			buffers.get(key)
 		else {
 			val buffer = builder()
 			buffers.put(key, buffer)
 			buffer
+		}
+	}
+
+	@tailrec
+	final def recursivelyUpdate(record: ActionRecord, group: Option[Group])(update: (ActionRecord, Option[Group]) => Unit) {
+		update(record, group)
+
+		group match {
+			case Some(group) => recursivelyUpdate(record, group.parent)(update)
+			case None => {}
 		}
 	}
 }

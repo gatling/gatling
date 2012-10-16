@@ -1,5 +1,6 @@
 <% import com.excilys.ebi.gatling.core.util.HtmlHelper.htmlEscape %>
 <% import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename %>
+<% import com.excilys.ebi.gatling.core.result.Group %>
 <%@ val jsFiles: Seq[String] %>
 <%@ val pageTitle: String %>
 <%@ val pageContent: String %>
@@ -53,7 +54,13 @@
 <% } %>
 <script type="text/javascript">
 
-	var pageStats = stats.<%=formatToFilename(pageTitle)%>;
+	<% if(isDetails) { %>
+		<% val requestName = attributes("requestName").asInstanceOf[Option[String]] %>
+		<% val group = attributes("group").asInstanceOf[Option[Group]] %>
+	var pageStats = stats<%= group.map(_.groups.reverse.map(formatToFilename).mkString(".groups.", ".groups.", "")).getOrElse("") %><%= requestName.map(name => ".requests." + formatToFilename(name)) %>.stats;
+	<% } else { %>
+	var pageStats = stats.stats;
+	<% } %>
 	$(document).ready(function() {
 		setDetailsLinkUrl();
 		<% if(isDetails){%>

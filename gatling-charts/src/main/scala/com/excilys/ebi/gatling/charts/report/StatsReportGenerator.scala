@@ -15,26 +15,34 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import scala.collection.immutable.ListMap
-
-import com.excilys.ebi.gatling.charts.component.{ ComponentLibrary, RequestStatistics, Statistics }
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ GLOBAL_PAGE_NAME, jsStatsFile, tsvStatsFile, jsonStatsFile }
-import com.excilys.ebi.gatling.charts.template.{ StatsJsonTemplate, StatsJsTemplate, StatsTsvTemplate }
+import com.excilys.ebi.gatling.charts.component.ComponentLibrary
+import com.excilys.ebi.gatling.charts.component.GroupStatistics
+import com.excilys.ebi.gatling.charts.component.RequestStatistics
+import com.excilys.ebi.gatling.charts.component.Statistics
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.jsStatsFile
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.jsonStatsFile
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.tsvStatsFile
+import com.excilys.ebi.gatling.charts.template.StatsJsTemplate
+import com.excilys.ebi.gatling.charts.template.StatsJsonTemplate
+import com.excilys.ebi.gatling.charts.template.StatsTsvTemplate
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
+import com.excilys.ebi.gatling.core.result.Group
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.KO
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 
 class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) {
 
-	def generate: Map[String, RequestStatistics] = {
+	def generate {
 
 		val percent1 = configuration.charting.indicators.percentile1 / 100.0
 		val percent2 = configuration.charting.indicators.percentile2 / 100.0
 
-		def computeStats(name: String, requestName: Option[String]): RequestStatistics = {
-			val total = dataReader.generalStats(None, requestName)
-			val ok = dataReader.generalStats(Some(OK), requestName)
-			val ko = dataReader.generalStats(Some(KO), requestName)
+		def computeStats(name: String, path: String, requestName: Option[String], group: Option[Group]): RequestStatistics = {
+			val total = dataReader.generalStats(None, requestName, group)
+			val ok = dataReader.generalStats(Some(OK), requestName, group)
+			val ko = dataReader.generalStats(Some(KO), requestName, group)
 
 			val numberOfRequestsStatistics = Statistics("numberOfRequests", total.count, ok.count, ko.count)
 			val minResponseTimeStatistics = Statistics("minResponseTime", total.min, ok.min, ko.min)
@@ -46,21 +54,25 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 			val meanNumberOfRequestsPerSecondStatistics = Statistics("meanNumberOfRequestsPerSecond", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
 
 				val groupedCounts = dataReader
-					.numberOfRequestInResponseTimeRange(requestName).map {
+					.numberOfRequestInResponseTimeRange(requestName, group).map {
 					case (name, count) => (name, count, count * 100 / total.count)
 				}
 
-			RequestStatistics(name, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, groupedCounts, meanNumberOfRequestsPerSecondStatistics)
+			RequestStatistics(name, path, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, groupedCounts, meanNumberOfRequestsPerSecondStatistics)
 		}
 
-		val stats: List[RequestStatistics] = computeStats(GLOBAL_PAGE_NAME, None) :: dataReader.requestNames.map(name => computeStats(name, Some(name)))
+		def computeGroupStats(group: Group) =
+			(GroupStatistics(dataReader.groupStats(Some(group))), computeStats(group.name, group.path, None, Some(group)))
 
-		val statsMap: ListMap[String, RequestStatistics] = stats.map { stat => (stat.name -> stat) }(collection.breakOut)
+		val stats: GroupContainer.ExtendedTupleGroupContainer[GroupStatistics, RequestStatistics] =
+			GroupContainer((GroupStatistics(dataReader.groupStats(None)), computeStats(GLOBAL_PAGE_NAME, "", None, None)))
 
-		new TemplateWriter(jsStatsFile(runOn)).writeToFile(new StatsJsTemplate(statsMap).getOutput)
-		new TemplateWriter(jsonStatsFile(runOn)).writeToFile(new StatsJsonTemplate(statsMap).getOutput)
-		new TemplateWriter(tsvStatsFile(runOn)).writeToFile(new StatsTsvTemplate(statsMap).getOutput)
+		dataReader.groups.foreach(group => stats.addGroup(group, computeGroupStats(group)))
+		dataReader.requestPaths.foreach(requestPath => stats.addContent(requestPath.group, computeStats(requestPath.name, requestPath.path, Some(requestPath.name), requestPath.group)))
 
-		statsMap
+		new TemplateWriter(jsStatsFile(runOn)).writeToFile(new StatsJsTemplate(stats).getOutput)
+		new TemplateWriter(jsonStatsFile(runOn)).writeToFile(new StatsJsonTemplate(stats.value.get._2).getOutput)
+		new TemplateWriter(tsvStatsFile(runOn)).writeToFile(new StatsTsvTemplate(stats).getOutput)
 	}
 }
+

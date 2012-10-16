@@ -28,6 +28,7 @@ object ActionRecord {
 		def reduceAccuracy(time: Int): Int = math.round(time / accuracyAsDouble).toInt * configuration.charting.accuracy
 
 		val scenario = strings(1).intern
+		val user = strings(2).toInt
 		val request = strings(3).intern
 		val executionStart = reduceAccuracy((strings(4).toLong - runStart).toInt)
 		val executionEnd = reduceAccuracy((strings(5).toLong - runStart).toInt)
@@ -38,8 +39,8 @@ object ActionRecord {
 		val executionEndBucket = bucketFunction(executionEnd)
 		val responseTime = reduceAccuracy(executionEnd - executionStart)
 		val latency = reduceAccuracy(responseStart - requestEnd)
-		new ActionRecord(scenario, request, executionStart, executionEnd, requestEnd, responseStart, status, executionStartBucket, executionEndBucket, responseTime, latency)
+		new ActionRecord(scenario, user, request, executionStart, executionEnd, requestEnd, responseStart, status, executionStartBucket, executionEndBucket, responseTime, latency)
 	}
 }
 
-class ActionRecord(val scenario: String, val request: String, val executionStart: Int, val executionEnd: Int, val requestEnd: Int, val responseStart: Int, val status: RequestStatus, val executionStartBucket: Int, val executionEndBucket: Int, val responseTime: Int, val latency: Int)
+class ActionRecord(val scenario: String, val user: Int, var request: String, val executionStart: Int, val executionEnd: Int, val requestEnd: Int, val responseStart: Int, val status: RequestStatus, val executionStartBucket: Int, val executionEndBucket: Int, val responseTime: Int, val latency: Int)

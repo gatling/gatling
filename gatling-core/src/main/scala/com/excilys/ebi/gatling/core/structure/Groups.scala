@@ -13,14 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.template
+package com.excilys.ebi.gatling.core.structure
 
-import com.excilys.ebi.gatling.charts.component.GroupStatistics
-import com.excilys.ebi.gatling.charts.component.RequestStatistics
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_STATS_TSV_FILE_URL
-import com.excilys.ebi.gatling.charts.report.GroupContainer.ExtendedTupleGroupContainer
+import com.excilys.ebi.gatling.core.action.builder.EndGroupActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.StartGroupActionBuilder
+import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.core.structure.ChainBuilder.emptyChain
 
-class StatsTsvTemplate(stats: ExtendedTupleGroupContainer[GroupStatistics, RequestStatistics]) {
+trait Groups[B] extends Execs[B] {
 
-	def getOutput: String = PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATS_TSV_FILE_URL, Map("stats" -> stats))
+	def group(name: EvaluatableString)(chain: ChainBuilder): B = {
+		val startAction = emptyChain.exec(StartGroupActionBuilder(name))
+		val endAction = emptyChain.exec(EndGroupActionBuilder())
+
+		exec(List(startAction, chain, endAction))
+	}
 }

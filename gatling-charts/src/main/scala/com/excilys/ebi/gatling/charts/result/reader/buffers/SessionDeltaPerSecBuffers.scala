@@ -17,13 +17,15 @@ package com.excilys.ebi.gatling.charts.result.reader.buffers
 
 import java.util.{ HashMap => JHashMap }
 
+import scala.collection.JavaConversions.mapAsScalaMap
+
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
 
 trait SessionDeltaPerSecBuffers extends Buffers {
 
-	val sessionDeltaPerSecBuffers = new JHashMap[BufferKey, SessionDeltaBuffer]
+	val sessionDeltaPerSecBuffers = new JHashMap[Option[String], SessionDeltaBuffer]
 
-	def getSessionDeltaPerSecBuffers(scenarioName: Option[String]): SessionDeltaBuffer = getBuffer(computeKey(scenarioName, None), sessionDeltaPerSecBuffers, () => new SessionDeltaBuffer)
+	def getSessionDeltaPerSecBuffers(scenarioName: Option[String]): SessionDeltaBuffer = getBuffer(scenarioName, sessionDeltaPerSecBuffers, () => new SessionDeltaBuffer)
 
 	def addStartSessionBuffers(record: ActionRecord) {
 		getSessionDeltaPerSecBuffers(None).addStart(record.executionStartBucket)
