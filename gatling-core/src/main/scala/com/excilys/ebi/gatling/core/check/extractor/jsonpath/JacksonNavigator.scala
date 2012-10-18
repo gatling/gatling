@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 
-import scala.collection.JavaConversions.asJavaIterator
-
 import org.jaxen.{ DefaultNavigator, JaxenConstants, NamedAccessNavigator }
 
 import com.fasterxml.jackson.databind.JsonNode
@@ -34,7 +32,7 @@ class JacksonNavigator extends DefaultNavigator with NamedAccessNavigator {
 		Option(contextNode.asInstanceOf[JsonNode].get(localName)).map {
 			_ match {
 				case array: ArrayNode => array.elements
-				case node => List(node).toIterator: java.util.Iterator[_]
+				case node => java.util.Collections.singleton[JsonNode](node).iterator: java.util.Iterator[_]
 			}
 		}.getOrElse(JaxenConstants.EMPTY_ITERATOR)
 	}
