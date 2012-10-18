@@ -56,6 +56,8 @@ class RecorderController extends Logging {
 
 	@volatile private var startDate: Date = _
 	@volatile private var lastRequestDate: Date = _
+	@volatile private var lastRequest: HttpRequest = _
+	@volatile private var lastStatus: Int = _
 	@volatile private var proxy: GatlingHttpProxy = _
 	@volatile private var scenarioElements: List[ScenarioElement] = Nil
 
@@ -124,10 +126,10 @@ class RecorderController extends Logging {
 				lastRequestDate = new Date
 		}
 
-		def processRequest {
+		def processRequest(request: HttpRequest, statusCode: Int) {
 
 			// Store request in scenario elements
-			scenarioElements = new RequestElement(request, response.getStatus.getCode, None) :: scenarioElements
+			scenarioElements = new RequestElement(request, statusCode, None) :: scenarioElements
 
 			// Send request information to view
 			useUIThread {
@@ -136,11 +138,24 @@ class RecorderController extends Logging {
 		}
 
 		synchronized {
-			if (isRequestToBeAdded(request, response)) {
-				processPause
-				processRequest
+			if (isRequestAccepted(request, response)) {
+				if (isRequestRedirectChainStart(request, response)) {
+					processPause
+					lastRequest = request
 
+				} else if (isRequestRedirectChainEnd(request, response)) {
+					// process request with new status
+					processRequest(lastRequest, response.getStatus.getCode)
+					lastRequest = null
+
+				} else if (!isRequestInsideRedirectChain(request, response)) {
+					// standard use case
+					processPause
+					processRequest(request, response.getStatus.getCode)
+				}
 			}
+
+			lastStatus = response.getStatus.getCode
 		}
 	}
 
@@ -172,31 +187,35 @@ class RecorderController extends Logging {
 		lastRequestDate = null
 	}
 
-	private def isRequestToBeAdded(request: HttpRequest, response: HttpResponse): Boolean = {
-		val uri = new URI(request.getUri)
-		val responseCode = response.getStatus.getCode
-		val skipBecauseOfRedirect = configuration.followRedirect && REDIRECT_STATUS_CODES.contains(responseCode)
+	private def isRedirectCode(code: Int) = REDIRECT_STATUS_CODES.contains(code)
 
-		if (!skipBecauseOfRedirect && supportedHttpMethods.contains(request.getMethod)) {
-			if (configuration.filterStrategy != FilterStrategy.NONE) {
+	private def isRequestRedirectChainStart(request: HttpRequest, response: HttpResponse): Boolean = configuration.followRedirect && !isRedirectCode(lastStatus) && isRedirectCode(response.getStatus.getCode)
 
-				val uriMatched = (for (configPattern <- configuration.patterns) yield {
-					val pattern = configPattern.patternType match {
-						case PatternType.ANT => SelectorUtils.ANT_HANDLER_PREFIX
-						case PatternType.JAVA => SelectorUtils.REGEX_HANDLER_PREFIX
-					}
+	private def isRequestInsideRedirectChain(request: HttpRequest, response: HttpResponse): Boolean = configuration.followRedirect && isRedirectCode(lastStatus) && isRedirectCode(response.getStatus.getCode)
 
-					SelectorUtils.matchPath(pattern + configPattern.pattern + SelectorUtils.PATTERN_HANDLER_SUFFIX, uri.getPath)
-				}).foldLeft(false)(_ || _)
+	private def isRequestRedirectChainEnd(request: HttpRequest, response: HttpResponse): Boolean = configuration.followRedirect && isRedirectCode(lastStatus) && !isRedirectCode(response.getStatus.getCode)
 
-				if (configuration.filterStrategy == FilterStrategy.ONLY)
-					uriMatched
-				else
-					!uriMatched
-			} else
-				true
-		} else
-			false
+	private def isRequestAccepted(request: HttpRequest, response: HttpResponse): Boolean = {
+
+		def uriMatched = {
+			val uri = new URI(request.getUri)
+
+			(for (configPattern <- configuration.patterns) yield {
+				val pattern = configPattern.patternType match {
+					case PatternType.ANT => SelectorUtils.ANT_HANDLER_PREFIX
+					case PatternType.JAVA => SelectorUtils.REGEX_HANDLER_PREFIX
+				}
+				SelectorUtils.matchPath(pattern + configPattern.pattern + SelectorUtils.PATTERN_HANDLER_SUFFIX, uri.getPath)
+			}).foldLeft(false)(_ || _)
+		}
+
+		def requestPassFilters = configuration.filterStrategy match {
+			case FilterStrategy.EXCEPT => !uriMatched
+			case FilterStrategy.ONLY => uriMatched
+			case FilterStrategy.NONE => true
+		}
+
+		supportedHttpMethods.contains(request.getMethod) && requestPassFilters
 	}
 
 	private def getFolder(folderName: String, folderPath: String): Directory = Directory(folderPath).createDirectory()
