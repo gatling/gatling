@@ -25,6 +25,7 @@
 			}
 		],
 		"bicycle": {
+			"foo": "baz",
 			"color": "red",
 			"display-price": 19.95,
 			"foo:bar": "fooBar",

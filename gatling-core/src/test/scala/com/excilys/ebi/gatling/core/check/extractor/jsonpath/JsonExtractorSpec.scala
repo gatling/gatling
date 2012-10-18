@@ -24,9 +24,7 @@ import org.specs2.runner.JUnitRunner
 import com.excilys.ebi.gatling.core.check.extractor.jsonpath.JsonExtractorSpec.extractor
 
 object JsonExtractorSpec {
-	val document = Source.fromInputStream(getClass.getResourceAsStream("/test.json")).mkString.getBytes
-
-	val extractor = new JsonPathExtractor(document)
+	val extractor = new JsonPathExtractor(Source.fromInputStream(getClass.getResourceAsStream("/test.json")).mkString.getBytes)
 }
 
 @RunWith(classOf[JUnitRunner])
@@ -67,6 +65,10 @@ class JsonExtractorSpec extends Specification {
 
 		"return expected result with last function expression" in {
 			extractor.extractOne(0)("//book[last()]/title") must beEqualTo(Some("The Lord of the Rings"))
+		}
+
+		"not mess up if two nodes with the same name are placed in different locations" in {
+			extractor.extractOne(0)("/foo") must beEqualTo(Some("bar"))
 		}
 	}
 
