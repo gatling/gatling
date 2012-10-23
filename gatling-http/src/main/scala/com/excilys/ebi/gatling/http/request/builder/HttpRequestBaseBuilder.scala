@@ -26,7 +26,7 @@ object HttpRequestBaseBuilder {
 	/**
 	 * This method is used in DSL to declare a new HTTP request
 	 */
-	def http(requestName: String) = new HttpRequestBaseBuilder(requestName)
+	def http(requestName: EvaluatableString) = new HttpRequestBaseBuilder(requestName)
 }
 
 /**
@@ -35,7 +35,7 @@ object HttpRequestBaseBuilder {
  * @constructor creates an HttpRequestActionBuilder
  * @param requestName the name of the request
  */
-class HttpRequestBaseBuilder(requestName: String) {
+class HttpRequestBaseBuilder(requestName: EvaluatableString) {
 
 	/**
 	 * Starts the definition of an HTTP request with word DELETE

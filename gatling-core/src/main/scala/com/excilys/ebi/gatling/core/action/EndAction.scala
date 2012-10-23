@@ -34,7 +34,9 @@ object EndAction {
  * @constructor create an EndAction
  * @param latch used to block the main Thread until all users are finished and then shut the engine down
  */
-class EndAction extends Action(EndAction.END_OF_SCENARIO, null) {
+class EndAction extends Action {
+
+	val next = null
 
 	/**
 	 * Sends a message to the DataWriter and decreases the countDownLatch

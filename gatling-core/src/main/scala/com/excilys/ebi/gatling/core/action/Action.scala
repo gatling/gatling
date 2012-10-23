@@ -23,7 +23,9 @@ import akka.actor.ActorRef
  * Top level abstraction in charge or executing concrete actions along a scenario, for example sending an HTTP request.
  * It is implemented as an Akka Actor that receives Session messages.
  */
-abstract class Action(name: String, val next: ActorRef) extends BaseActor {
+abstract class Action extends BaseActor {
+
+	def next: ActorRef
 
 	def receive = {
 		case session: Session => execute(session)
@@ -38,7 +40,7 @@ abstract class Action(name: String, val next: ActorRef) extends BaseActor {
 	def execute(session: Session)
 
 	override def preRestart(reason: Throwable, message: Option[Any]) {
-		error("Action " + this + " named " + name + " crashed, forwarding user to next one", reason)
+		error("Action " + this + " crashed, forwarding user to next one", reason)
 		message match {
 			case Some(session: Session) if (next != null) => next ! session.setFailed
 			case _ =>

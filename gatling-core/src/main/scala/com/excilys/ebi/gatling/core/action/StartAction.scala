@@ -34,7 +34,7 @@ object StartAction {
  * @constructor create an StartAction
  * @param next the action to be executed after this one
  */
-class StartAction(next: ActorRef) extends Action(StartAction.START_OF_SCENARIO, next) {
+class StartAction(val next: ActorRef) extends Action {
 
 	/**
 	 * Sends a message to the DataWriter and gives hand to next actor

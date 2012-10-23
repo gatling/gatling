@@ -18,6 +18,7 @@ package com.excilys.ebi.gatling.http.action
 import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder.status
 import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
@@ -32,7 +33,7 @@ object HttpRequestActionBuilder {
 	 */
 	val DEFAULT_HTTP_STATUS_CHECK = status.find.in(Session => 200 to 210).build
 
-	def apply(requestName: String, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]]) = new HttpRequestActionBuilder(requestName, requestBuilder, checks, null)
+	def apply(requestName: EvaluatableString, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]]) = new HttpRequestActionBuilder(requestName, requestBuilder, checks, null)
 }
 
 /**
@@ -43,7 +44,7 @@ object HttpRequestActionBuilder {
  * @param next the next action to be executed
  * @param checks the checks to be applied on the response
  */
-class HttpRequestActionBuilder(requestName: String, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]], next: ActorRef) extends ActionBuilder {
+class HttpRequestActionBuilder(requestName: EvaluatableString, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]], next: ActorRef) extends ActionBuilder {
 
 	private[gatling] def withNext(next: ActorRef) = new HttpRequestActionBuilder(requestName, requestBuilder, checks, next)
 

@@ -48,8 +48,7 @@ object GatlingAsyncHandlerActor {
 	def newAsyncHandlerActorFactory(
 		checks: List[HttpCheck[_]],
 		next: ActorRef,
-		requestName: String,
-		protocolConfiguration: HttpProtocolConfiguration) = {
+		protocolConfiguration: HttpProtocolConfiguration)(requestName: String) = {
 
 		val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks, protocolConfiguration)
 		val responseBuilderFactory = ExtendedResponseBuilder.newExtendedResponseBuilder(checks, protocolConfiguration)

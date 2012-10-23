@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.core.session.EvaluatableString
 
 object HeadHttpRequestBuilder {
 
-	def apply(requestName: String, url: EvaluatableString) = new HeadHttpRequestBuilder(HttpAttributes(requestName, "HEAD", url, Nil, Map.empty, None, Nil))
+	def apply(requestName: EvaluatableString, url: EvaluatableString) = new HeadHttpRequestBuilder(HttpAttributes(requestName, "HEAD", url, Nil, Map.empty, None, Nil))
 }
 
 /**

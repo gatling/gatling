@@ -28,7 +28,7 @@ import com.ning.http.client.Request
 
 object Predef {
 
-	def http(requestName: String) = HttpRequestBaseBuilder.http(requestName)
+	def http(requestName: EvaluatableString) = HttpRequestBaseBuilder.http(requestName)
 
 	def httpConfig = HttpProtocolConfigurationBuilder.httpConfig
 	implicit def toHttpProtocolConfigurationBuilder(hpb: HttpProxyBuilder): HttpProtocolConfigurationBuilder = HttpProxyBuilder.toHttpProtocolConfigurationBuilder(hpb)

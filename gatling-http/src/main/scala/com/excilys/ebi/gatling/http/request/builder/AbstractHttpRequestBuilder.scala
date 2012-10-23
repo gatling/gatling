@@ -46,7 +46,7 @@ object AbstractHttpRequestBuilder {
 }
 
 case class HttpAttributes(
-	requestName: String,
+	requestName: EvaluatableString,
 	method: String,
 	url: EvaluatableString,
 	queryParams: List[HttpParam],
@@ -71,8 +71,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 * @param credentials sets the credentials in case of Basic HTTP Authentication
 	 */
 	private[http] def newInstance(httpAttributes: HttpAttributes): B
-
-	private[http] def withRequestName(requestName: String): B = newInstance(httpAttributes.copy(requestName = requestName))
 
 	/**
 	 * Stops defining the request and adds checks on the response
