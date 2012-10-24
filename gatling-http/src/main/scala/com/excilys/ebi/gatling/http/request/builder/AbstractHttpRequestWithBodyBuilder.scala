@@ -30,11 +30,13 @@ import com.excilys.ebi.gatling.http.request.{ ByteArrayBody, FilePathBody, HttpR
 import com.ning.http.client.RequestBuilder
 
 object AbstractHttpRequestWithBodyBuilder {
-	val TEMPLATE_ENGINE = new TemplateEngine(List(GatlingFiles.requestBodiesDirectory))
-	TEMPLATE_ENGINE.allowReload = false
-	TEMPLATE_ENGINE.escapeMarkup = false
-	// Register engine shutdown
-	system.registerOnTermination(TEMPLATE_ENGINE.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown)
+	val TEMPLATE_ENGINE = {
+		val engine = new TemplateEngine(List(GatlingFiles.requestBodiesDirectory))
+		engine.allowReload = false
+		engine.escapeMarkup = false
+		system.registerOnTermination(engine.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown)
+		engine
+	}
 }
 
 /**

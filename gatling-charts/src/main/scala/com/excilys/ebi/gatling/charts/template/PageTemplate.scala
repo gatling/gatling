@@ -22,9 +22,12 @@ import com.excilys.ebi.gatling.charts.config.ChartsFiles._
 import com.excilys.ebi.gatling.core.result.message.RunRecord
 
 object PageTemplate {
-	val TEMPLATE_ENGINE = new TemplateEngine
-	TEMPLATE_ENGINE.allowReload = false
-	TEMPLATE_ENGINE.escapeMarkup = false
+	val TEMPLATE_ENGINE = {
+		val engine = new TemplateEngine
+		engine.allowReload = false
+		engine.escapeMarkup = false
+		engine
+	}
 
 	private var runRecord: RunRecord = _
 	def setRunInfo(runRecord: RunRecord) { PageTemplate.runRecord = runRecord }

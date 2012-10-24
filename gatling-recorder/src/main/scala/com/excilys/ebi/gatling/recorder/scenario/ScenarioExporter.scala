@@ -34,9 +34,12 @@ import grizzled.slf4j.Logging
 object ScenarioExporter extends Logging {
 	private val EVENTS_GROUPING = 100
 
-	val TPL_ENGINE = new TemplateEngine
-	TPL_ENGINE.allowReload = false
-	TPL_ENGINE.escapeMarkup = false
+	val TPL_ENGINE = {
+		val engine = new TemplateEngine
+		engine.allowReload = false
+		engine.escapeMarkup = false
+		engine
+	}
 
 	def saveScenario(startDate: Date, scenarioElements: List[ScenarioElement]) = {
 
