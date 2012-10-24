@@ -18,6 +18,7 @@ package com.excilys.ebi.gatling.recorder.controller
 import java.net.URI
 import java.util.Date
 
+import scala.annotation.tailrec
 import scala.math.round
 import scala.tools.nsc.io.{ Directory, File }
 
@@ -26,9 +27,9 @@ import org.jboss.netty.handler.codec.http.{ HttpMethod, HttpRequest, HttpRespons
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
 
 import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.REDIRECT_STATUS_CODES
+import com.excilys.ebi.gatling.recorder.config.{ Pattern, RecorderOptions }
 import com.excilys.ebi.gatling.recorder.config.Configuration
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
-import com.excilys.ebi.gatling.recorder.config.RecorderOptions
 import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy
 import com.excilys.ebi.gatling.recorder.scenario.{ PauseElement, PauseUnit, RequestElement, ScenarioElement, ScenarioExporter, TagElement }
 import com.excilys.ebi.gatling.recorder.ui.enumeration.{ FilterStrategy, PatternType }
@@ -138,7 +139,7 @@ class RecorderController extends Logging {
 		}
 
 		synchronized {
-			if (isRequestAccepted(request, response)) {
+			if (isRequestAccepted(request)) {
 				if (isRequestRedirectChainStart(request, response)) {
 					processPause
 					lastRequest = request
@@ -195,23 +196,35 @@ class RecorderController extends Logging {
 
 	private def isRequestRedirectChainEnd(request: HttpRequest, response: HttpResponse): Boolean = configuration.followRedirect && isRedirectCode(lastStatus) && !isRedirectCode(response.getStatus.getCode)
 
-	private def isRequestAccepted(request: HttpRequest, response: HttpResponse): Boolean = {
+	private def isRequestAccepted(request: HttpRequest): Boolean = {
 
-		def uriMatched = {
-			val uri = new URI(request.getUri)
+		def requestMatched = {
+			val path = new URI(request.getUri).getPath
 
-			(for (configPattern <- configuration.patterns) yield {
-				val pattern = configPattern.patternType match {
+			def gatlingPatternToPlexusPattern(pattern: Pattern) = {
+
+				val prefix = pattern.patternType match {
 					case PatternType.ANT => SelectorUtils.ANT_HANDLER_PREFIX
 					case PatternType.JAVA => SelectorUtils.REGEX_HANDLER_PREFIX
 				}
-				SelectorUtils.matchPath(pattern + configPattern.pattern + SelectorUtils.PATTERN_HANDLER_SUFFIX, uri.getPath)
-			}).foldLeft(false)(_ || _)
+
+				prefix + pattern + SelectorUtils.PATTERN_HANDLER_SUFFIX
+			}
+
+			@tailrec
+			def matchPath(patterns: List[Pattern]): Boolean = patterns match {
+				case Nil => false
+				case head :: tail =>
+					if (SelectorUtils.matchPath(gatlingPatternToPlexusPattern(head), path)) true
+					else matchPath(tail)
+			}
+
+			matchPath(configuration.patterns)
 		}
 
 		def requestPassFilters = configuration.filterStrategy match {
-			case FilterStrategy.EXCEPT => !uriMatched
-			case FilterStrategy.ONLY => uriMatched
+			case FilterStrategy.EXCEPT => !requestMatched
+			case FilterStrategy.ONLY => requestMatched
 			case FilterStrategy.NONE => true
 		}
 
