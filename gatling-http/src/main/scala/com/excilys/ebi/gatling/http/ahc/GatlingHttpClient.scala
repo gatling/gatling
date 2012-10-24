@@ -35,7 +35,7 @@ object GatlingHttpClient extends Logging {
 			setDefaultFactoryMethod.invoke(null, nettySlf4JLoggerFactoryInstance.asInstanceOf[AnyRef])
 
 		} catch {
-			case e => logger.info("Netty logger wasn't set up", e)
+			case e: Exception => logger.info("Netty logger wasn't set up", e)
 		}
 
 		val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()

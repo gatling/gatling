@@ -48,7 +48,7 @@ object ValidationHelper extends Logging {
 					txtField.setBorder(disabledBorder)
 				updateValidationStatus(id, true, cFrame)
 			} catch {
-				case (e: NumberFormatException) =>
+				case e: NumberFormatException =>
 					txtField.setBorder(errorBorder)
 					updateValidationStatus(id, false, cFrame)
 			}

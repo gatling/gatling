@@ -62,7 +62,7 @@ class HttpRequestAction(requestName: EvaluatableString, val next: ActorRef, requ
 		val resolvedRequestName = try {
 			requestName(session)
 		} catch {
-			case e => error("Request name resolution crashed", e); "no-name"
+			case e: Exception => error("Request name resolution crashed", e); "no-name"
 		}
 		val newSession = RefererHandling.storeReferer(request, session, protocolConfiguration)
 

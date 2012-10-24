@@ -55,7 +55,7 @@ class WhileAction(condition: Session => Boolean, val next: ActorRef, val counter
 		val evaluatedCondition = try {
 			condition(sessionWithTimerIncremented)
 		} catch {
-			case e =>
+			case e: Exception =>
 				warn("Condition evaluation crashed, exiting loop", e)
 				false
 		}

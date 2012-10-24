@@ -70,10 +70,10 @@ object CacheHandling extends Logging {
 		try {
 			convertExpireField(timeString) > System.currentTimeMillis // simplification: consider future expiring date as cache forever
 		} catch {
-			case _ => try {
+			case _: Exception => try {
 				timeString.toInt > 0
 			} catch {
-				case _ => false
+				case _: Exception => false
 			}
 		}
 	}
