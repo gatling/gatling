@@ -102,7 +102,7 @@
 		<logback.version>1.0.7</logback.version>
 		<slf4j.version>1.7.2</slf4j.version>
 		<scalate.version>1.5.3</scalate.version>
-		<netty.version>3.5.8.Final</netty.version>
+		<netty.version>3.5.9.Final</netty.version>
 		<grizzly.version>2.2.16</grizzly.version>
 		<joda-time.version>2.1</joda-time.version>
 		<joda-convert.version>1.2</joda-convert.version>
