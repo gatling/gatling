@@ -37,7 +37,7 @@ trait ConditionalStatements[B] extends Execs[B] {
 	 * @param thenNext the chain to be executed if the condition is satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIf(sessionKey: EvaluatableString, value: String)(thenNext: ChainBuilder): B = doIf((session: Session) => sessionKey(session) == value, thenNext, None)
+	def doIf(sessionKey: EvaluatableString, value: String)(thenNext: ChainBuilder): B = doIf(session => sessionKey(session) == value, thenNext, None)
 
 	/**
 	 * Method used to add a conditional execution in the scenario with a fall back
@@ -60,7 +60,7 @@ trait ConditionalStatements[B] extends Execs[B] {
 	 * @param elseNext the chain to be executed if the condition is not satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIfOrElse(sessionKey: EvaluatableString, value: String)(thenNext: ChainBuilder)(elseNext: ChainBuilder): B = doIf((session: Session) => sessionKey(session) == value, thenNext, Some(elseNext))
+	def doIfOrElse(sessionKey: EvaluatableString, value: String)(thenNext: ChainBuilder)(elseNext: ChainBuilder): B = doIf(session => sessionKey(session) == value, thenNext, Some(elseNext))
 
 	/**
 	 * Private method that actually adds the If Action to the scenario

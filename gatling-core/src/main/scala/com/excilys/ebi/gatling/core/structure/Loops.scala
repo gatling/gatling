@@ -39,9 +39,9 @@ trait Loops[B] extends Execs[B] {
 			def counterName = computedCounterName
 		}
 
-		val initAction = emptyChain.exec(SimpleActionBuilder((session: Session) => handler.init(session)))
-		val incrementAction = emptyChain.exec(SimpleActionBuilder((session: Session) => handler.increment(session)))
-		val expireAction = emptyChain.exec(SimpleActionBuilder((session: Session) => handler.expire(session)))
+		val initAction = emptyChain.exec(SimpleActionBuilder(handler.init(_)))
+		val incrementAction = emptyChain.exec(SimpleActionBuilder(handler.increment(_)))
+		val expireAction = emptyChain.exec(SimpleActionBuilder(handler.expire(_)))
 
 		val innerActions = (for (i <- 1 to times) yield List(incrementAction, chain)).flatten.toList
 		val allActions = initAction :: innerActions ::: List(expireAction)
@@ -52,15 +52,16 @@ trait Loops[B] extends Execs[B] {
 	def repeat(times: String)(chain: ChainBuilder): B = repeat(times, None, chain)
 	def repeat(times: String, counterName: String)(chain: ChainBuilder): B = repeat(times, Some(counterName), chain)
 	private def repeat(times: String, counterName: Option[String], chain: ChainBuilder): B = {
-		val sessionFunction = parseEL(times)
-		repeat((s: Session) => sessionFunction(s).toInt, counterName, chain)
+		val timesFunction = parseEL(times) andThen (_.toInt)
+		repeat(timesFunction, counterName, chain)
 	}
 
 	def repeat(times: Session => Int)(chain: ChainBuilder): B = repeat(times, None, chain)
 	def repeat(times: Session => Int, counterName: String)(chain: ChainBuilder): B = repeat(times, Some(counterName), chain)
 	private def repeat(times: Session => Int, counterName: Option[String] = None, chain: ChainBuilder): B = {
 		val counter = counterName.getOrElse(UUID.randomUUID.toString)
-		asLongAs((s: Session) => s.getTypedAttribute[Int](counter) < times(s), Some(counter), chain)
+		def condition(session: Session) = session.getTypedAttribute[Int](counter) < times(session)
+		asLongAs(condition, Some(counter), chain)
 	}
 
 	def during(duration: Long)(chain: ChainBuilder): B = during(duration seconds, None, chain)
@@ -69,7 +70,7 @@ trait Loops[B] extends Execs[B] {
 	def during(duration: Duration, counterName: String)(chain: ChainBuilder): B = during(duration, Some(counterName), chain)
 	private def during(duration: Duration, counterName: Option[String], chain: ChainBuilder): B = {
 		val loopCounterName = counterName.getOrElse(UUID.randomUUID.toString)
-		val condition = (session: Session) => (nowMillis - TimerBasedIterationHandler.getTimer(session, loopCounterName)) <= duration.toMillis
+		def condition(session: Session) = (nowMillis - TimerBasedIterationHandler.getTimer(session, loopCounterName)) <= duration.toMillis
 		exec(WhileActionBuilder(condition, chain, loopCounterName))
 	}
 

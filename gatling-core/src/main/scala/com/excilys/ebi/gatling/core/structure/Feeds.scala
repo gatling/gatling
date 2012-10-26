@@ -20,7 +20,9 @@ import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.session.Session
 
-trait Feeds[B] extends Execs[B] {
+import grizzled.slf4j.Logging
+
+trait Feeds[B] extends Execs[B] with Logging {
 
 	/**
 	 * Method used to load data from a feeder in the current scenario
@@ -29,7 +31,7 @@ trait Feeds[B] extends Execs[B] {
 	 */
 	def feed(feeder: Feeder): B = {
 
-		val feedFunction = (session: Session) => {
+		val byPass = BypassSimpleActionBuilder(session => {
 			if (!feeder.hasNext) {
 				error("Feeder is now empty, stopping engine")
 				system.shutdown
@@ -37,7 +39,8 @@ trait Feeds[B] extends Execs[B] {
 			}
 
 			session.setAttributes(feeder.next)
-		}
-		newInstance(BypassSimpleActionBuilder(feedFunction) :: actionBuilders)
+		})
+
+		newInstance(byPass :: actionBuilders)
 	}
 }

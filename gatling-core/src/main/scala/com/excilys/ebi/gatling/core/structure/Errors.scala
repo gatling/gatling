@@ -31,8 +31,8 @@ trait Errors[B] extends Execs[B] {
 		require(times >= 1, "Can't set up a max try <= 1")
 
 		def buildTransactionalChain(chain: ChainBuilder): ChainBuilder = {
-			val startBlock = SimpleActionBuilder((session: Session) => session.clearFailed.setMustExitOnFail)
-			val endBlock = SimpleActionBuilder((session: Session) => session.clearMustExitOnFail)
+			val startBlock = SimpleActionBuilder(session => session.clearFailed.setMustExitOnFail)
+			val endBlock = SimpleActionBuilder(session => session.clearMustExitOnFail)
 			emptyChain.exec(startBlock).exec(chain).exec(endBlock)
 		}
 
@@ -40,5 +40,5 @@ trait Errors[B] extends Execs[B] {
 		exec(TryMaxActionBuilder(times, buildTransactionalChain(chain), loopCounterName))
 	}
 
-	def exitHereIfFailed: B = exec(SimpleActionBuilder((session: Session) => session.setMustExitOnFail))
+	def exitHereIfFailed: B = exec(SimpleActionBuilder(session => session.setMustExitOnFail))
 }

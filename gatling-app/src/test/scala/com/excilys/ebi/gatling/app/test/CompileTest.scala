@@ -79,17 +79,17 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				feed(testData)
 					.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform(_ + "foo").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
 			}
-			.asLongAs((session: Session) => true) {
+			.asLongAs(true) {
 				feed(testData)
 					.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform(_ + "foo").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
 			}
 			.exec(http("Catégorie Poney").get("/").queryParam("omg"))
 			.exec(http("Catégorie Poney").get("/").queryParam("omg", "foo"))
 			.exec(http("Catégorie Poney").get("/").queryParam("omg", "${foo}"))
-			.exec(http("Catégorie Poney").get("/").queryParam("omg", (session: Session) => "foo"))
+			.exec(http("Catégorie Poney").get("/").queryParam("omg", session => "foo"))
 			.exec(http("Catégorie Poney").get("/").multiValuedQueryParam("omg", List("foo")))
 			.exec(http("Catégorie Poney").get("/").multiValuedQueryParam("omg", "${foo}"))
-			.exec(http("Catégorie Poney").get("/").multiValuedQueryParam("omg", (session: Session) => List("foo")))
+			.exec(http("Catégorie Poney").get("/").multiValuedQueryParam("omg", session => List("foo")))
 			.randomSwitch(
 				40 -> exec(http("Catégorie Poney").get("/")),
 				50 -> exec(http("Catégorie Poney").get("/")))
@@ -98,7 +98,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 			.repeat(iterations, "titi") {
 				// What will be repeated ?
 				// First request to be repeated
-				exec((session: Session) => {
+				exec(session => {
 					println("iterate: " + session.getAttribute("titi"))
 					session
 				})
@@ -124,12 +124,12 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 						exec(http("In During 1").get("http://localhost:3000/aaaa"))
 							.pause(2)
 							.repeat(2, "tutu") {
-								exec((session: Session) => {
+								exec(session => {
 									println("--nested loop: " + session.getAttribute("tutu"))
 									session
 								})
 							}
-							.exec((session: Session) => {
+							.exec(session => {
 								println("-loopDuring: " + session.getAttribute("foo"))
 								session
 							})
@@ -140,12 +140,12 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 					.during(12000 milliseconds, "hehe") {
 						exec(http("In During 1").get("/"))
 							.pause(2)
-							.exec((session: Session) => {
+							.exec(session => {
 								println("-iterate1: " + session.getAttribute("titi") + ", doFor: " + session.getAttribute("hehe"))
 								session
 							})
 							.repeat(2, "hoho") {
-								exec((session: Session) => {
+								exec(session => {
 									println("--iterate1: " + session.getAttribute("titi") + ", doFor: " + session.getAttribute("hehe") + ", iterate2: " + session.getAttribute("hoho"))
 									session
 								})
@@ -153,7 +153,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 							.exec(http("In During 2").get("/"))
 							.pause(2)
 					}
-					.exec((session: Session) => session.setAttribute("test2", "bbbb"))
+					.exec(session => session.setAttribute("test2", "bbbb"))
 					.doIfOrElse("test2", "aaaa") {
 						exec(http("IF=TRUE Request").get("/"))
 					} {
