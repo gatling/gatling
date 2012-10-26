@@ -59,6 +59,7 @@ object FileHelper {
 			.replace("}", "_")
 			.replace("[", "_")
 			.replace("]", "_")
+			.replace(".", "_")
 			.toLowerCase)
 	}
 

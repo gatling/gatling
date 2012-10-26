@@ -1,0 +1,40 @@
+<% import com.excilys.ebi.gatling.charts.component.GroupStatistics %>
+<% import com.excilys.ebi.gatling.charts.component.RequestStatistics %>
+<%  import com.excilys.ebi.gatling.charts.report.GroupContainer.ExtendedTupleGroupContainer %>
+<% import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename %>
+<%@ val group: ExtendedTupleGroupContainer[GroupStatistics, RequestStatistics] %>
+groups:
+#if (!group.groups.isEmpty)
+{
+	<% val groupsIterator = group.groups.values.iterator %>
+	<% while (groupsIterator.hasNext) { %>
+		<% val childGroup = groupsIterator.next %>
+		<% attributes("group") = childGroup %>
+	<%= formatToFilename(childGroup.value.get._2.name) %>: {
+		${include("stats_group.js.ssp")}
+	}
+		<% if (groupsIterator.hasNext) { %>,<% } %>
+	<% } %>
+},
+#else
+null,
+#end
+requests:
+#if (!group.contents.isEmpty)
+{
+	<% val requestsIterator = group.contents.iterator %>
+	<% while (requestsIterator.hasNext) { %>
+		<% val request = requestsIterator.next %>
+		<% attributes("request") = request %>
+	<%= formatToFilename(request.name) %>: {
+		${include("stats_request.js.ssp")}
+	}
+		<% if (requestsIterator.hasNext) { %>,<% } %>
+	<% } %>
+},
+#else
+null,
+#end
+duration: <%= group.value.get._1.duration.toString %>,
+<% attributes("request") = group.value.get._2 %>
+${include("stats_request.js.ssp")}

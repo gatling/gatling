@@ -16,6 +16,10 @@
 package com.excilys.ebi.gatling.charts.template
 
 import com.excilys.ebi.gatling.charts.component.Component
+import com.excilys.ebi.gatling.core.result.Group
 
-class RequestDetailsPageTemplate(requestName: String, rtChartComponent: Component, percentilesChartComponent: Component, latencyChartComponent: Component, statsTextComponent: Component, scatterChartComponent: Component, indicChartComponent: Component)
-	extends PageTemplate(requestName, true, statsTextComponent, indicChartComponent, rtChartComponent, percentilesChartComponent, latencyChartComponent, scatterChartComponent)
+class RequestDetailsPageTemplate(title: String, requestName: Option[String], group: Option[Group], rtChartComponent: Component, percentilesChartComponent: Component, latencyChartComponent: Component, statsTextComponent: Component, scatterChartComponent: Component, indicChartComponent: Component)
+	extends PageTemplate(title, true, statsTextComponent, indicChartComponent, rtChartComponent, percentilesChartComponent, latencyChartComponent, scatterChartComponent) {
+
+	override def getAttributes = super.getAttributes + ("requestName" -> requestName, "group" -> group)
+}

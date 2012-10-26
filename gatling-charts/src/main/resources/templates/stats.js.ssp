@@ -1,74 +1,12 @@
+<% import com.excilys.ebi.gatling.charts.component.GroupStatistics %>
 <% import com.excilys.ebi.gatling.charts.component.RequestStatistics %>
+<% import com.excilys.ebi.gatling.charts.report.GroupContainer.ExtendedTupleGroupContainer %>
+<% import com.excilys.ebi.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME %>
 <% import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename %>
-<%@ val stats: Map[String, RequestStatistics] %>
+<%@ val stats: ExtendedTupleGroupContainer[GroupStatistics, RequestStatistics] %>
 var stats = {
-<% val it = stats.values.iterator %>
-<% while (it.hasNext) { %>
-<% val stat = it.next %>
-	<%=formatToFilename(stat.name)%>: {
-		name: "<%=stat.name%>",
-		numberOfRequests : {
-			total: "<%=stat.numberOfRequestsStatistics.printableTotal%>",
-			ok: "<%=stat.numberOfRequestsStatistics.printableSuccess%>",
-			ko: "<%=stat.numberOfRequestsStatistics.printableFailure%>"
-		},
-		minResponseTime : {
-			total: "<%=stat.minResponseTimeStatistics.printableTotal%>",
-			ok: "<%=stat.minResponseTimeStatistics.printableSuccess%>",
-			ko: "<%=stat.minResponseTimeStatistics.printableFailure%>"
-		},
-		maxResponseTime : {
-			total: "<%=stat.maxResponseTimeStatistics.printableTotal%>",
-			ok: "<%=stat.maxResponseTimeStatistics.printableSuccess%>",
-			ko: "<%=stat.maxResponseTimeStatistics.printableFailure%>"
-		},
-		meanResponseTime : {
-			total: "<%=stat.meanStatistics.printableTotal%>",
-			ok: "<%=stat.meanStatistics.printableSuccess%>",
-			ko: "<%=stat.meanStatistics.printableFailure%>"
-		},
-		standardDeviation : {
-			total: "<%=stat.stdDeviationStatistics.printableTotal%>",
-			ok: "<%=stat.stdDeviationStatistics.printableSuccess%>",
-			ko: "<%=stat.stdDeviationStatistics.printableFailure%>"
-		},
-		percentiles1 : {
-			total: "<%=stat.percentiles1.printableTotal%>",
-			ok: "<%=stat.percentiles1.printableSuccess%>",
-			ko: "<%=stat.percentiles1.printableFailure%>"
-		},
-		percentiles2 : {
-			total: "<%=stat.percentiles2.printableTotal%>",
-			ok: "<%=stat.percentiles2.printableSuccess%>",
-			ko: "<%=stat.percentiles2.printableFailure%>"
-		},
-		group1 : {
-			name: "<%=stat.groupedCounts(0)._1%>",
-			count: <%=stat.groupedCounts(0)._2.toString%>,
-			percentage: <%=stat.groupedCounts(0)._3.toString%>
-		},
-		group2 : {
-			name: "<%=stat.groupedCounts(1)._1%>",
-			count: <%=stat.groupedCounts(1)._2.toString%>,
-			percentage: <%=stat.groupedCounts(1)._3.toString%>
-		},
-		group3 : {
-			name: "<%=stat.groupedCounts(2)._1%>",
-			count: <%=stat.groupedCounts(2)._2.toString%>,
-			percentage: <%=stat.groupedCounts(2)._3.toString%>
-		},
-		group4 : {
-			name: "<%=stat.groupedCounts(3)._1%>",
-			count: <%=stat.groupedCounts(3)._2.toString%>,
-			percentage: <%=stat.groupedCounts(3)._3.toString%>
-		},
-		meanNumberOfRequestsPerSecond: {
-			total: "<%=stat.meanNumberOfRequestsPerSecondStatistics.printableTotal%>",
-			ok: "<%=stat.meanNumberOfRequestsPerSecondStatistics.printableSuccess%>",
-			ko: "<%=stat.meanNumberOfRequestsPerSecondStatistics.printableFailure%>"
-		}
-	}<% if (it.hasNext) {%>,<%}%>
-<%}%>
+<% attributes("group") = stats %>
+	${include("stats_group.js.ssp")}
 }
 
 function fillStats(stat){

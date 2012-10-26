@@ -17,26 +17,33 @@ package com.excilys.ebi.gatling.charts.result.reader.buffers
 
 import java.util.{ HashMap => JHashMap }
 
-import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
+import scala.annotation.tailrec
 import scala.collection.JavaConversions.mapAsScalaMap
 
+import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
 import com.excilys.ebi.gatling.charts.result.reader.FileDataReader
-import com.excilys.ebi.gatling.charts.result.reader.stats.{ PercentilesHelper, StatsHelper }
+import com.excilys.ebi.gatling.charts.result.reader.stats.PercentilesHelper
+import com.excilys.ebi.gatling.charts.result.reader.stats.StatsHelper
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.excilys.ebi.gatling.core.result.Group
+import com.excilys.ebi.gatling.core.result.message.RequestStatus
 import com.excilys.ebi.gatling.core.result.reader.GeneralStats
 
 abstract class GeneralStatsBuffers(durationInSec: Long) extends Buffers {
 
 	val generalStatsBuffers = new JHashMap[BufferKey, GeneralStatsBuffer]
 
-	def getGeneralStatsBuffers(requestName: Option[String], status: Option[RequestStatus.RequestStatus]): GeneralStatsBuffer = getBuffer(computeKey(requestName, status), generalStatsBuffers, () => new GeneralStatsBuffer(durationInSec))
+	def getGeneralStatsBuffers(request: Option[String], group: Option[Group], status: Option[RequestStatus.RequestStatus]): GeneralStatsBuffer =
+		getBuffer(computeKey(request, group, status), generalStatsBuffers, () => new GeneralStatsBuffer(durationInSec))
 
-	def updateGeneralStatsBuffers(record: ActionRecord) {
-		getGeneralStatsBuffers(None, None).update(record.responseTime)
-		getGeneralStatsBuffers(None, Some(record.status)).update(record.responseTime)
-		getGeneralStatsBuffers(Some(record.request), None).update(record.responseTime)
-		getGeneralStatsBuffers(Some(record.request), Some(record.status)).update(record.responseTime)
+	def updateGeneralStatsBuffers(record: ActionRecord, group: Option[Group]) {
+		recursivelyUpdate(record, group) { (record, group) =>
+			getGeneralStatsBuffers(None, group, None).update(record.responseTime)
+			getGeneralStatsBuffers(None, group, Some(record.status)).update(record.responseTime)
+		}
+
+		getGeneralStatsBuffers(Some(record.request), group, None).update(record.responseTime)
+		getGeneralStatsBuffers(Some(record.request), group, Some(record.status)).update(record.responseTime)
 	}
 
 	class GeneralStatsBuffer(duration: Long) extends CountBuffer {

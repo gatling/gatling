@@ -13,23 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.structure
+package com.excilys.ebi.gatling.core.action.builder
 
+import com.excilys.ebi.gatling.core.action.EndGroupAction
+import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
 import akka.actor.ActorRef
-import grizzled.slf4j.Logging
+import akka.actor.Props
 
-/**
- * This class defines most of the scenario related DSL
- *
- * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
- */
-abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extends Execs[B] with Pauses[B] with Feeds[B] with Loops[B] with ConditionalStatements[B] with Errors[B] with Groups[B] with Logging {
+object EndGroupActionBuilder {
 
-	protected def buildChainedActions(entryPoint: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = actionBuilders
-		.foldLeft(entryPoint) { (actorRef, actionBuilder) =>
-			actionBuilder.withNext(actorRef).build(protocolConfigurationRegistry)
-		}
+	def apply() = new EndGroupActionBuilder(null)
 }
 
+/**
+ * Builder for StartAction
+ *
+ * @constructor create a StartActionBuilder with its next action
+ * @param next the action to be executed after this one
+ */
+class EndGroupActionBuilder(next: ActorRef) extends ActionBuilder {
+	def withNext(next: ActorRef) = new EndGroupActionBuilder(next)
+
+	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new EndGroupAction(next)))
+}

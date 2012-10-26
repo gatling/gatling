@@ -1,5 +1,6 @@
+<%  import com.excilys.ebi.gatling.charts.report.GroupContainer.ExtendedTupleGroupContainer %>
+<%  import com.excilys.ebi.gatling.charts.component.GroupStatistics %>
 <%  import com.excilys.ebi.gatling.charts.component.RequestStatistics %>
-<%@ val stats: Map[String, RequestStatistics] %>
+<%@ val stats: ExtendedTupleGroupContainer[GroupStatistics, RequestStatistics] %>
 name	nbRequest	nbRequestOK	nbRequestKO	minResponseTime	minResponseTimeOK	minResponseTimeKO	maxResponseTime	maxResponseTimeOK	maxResponseTimeKO	meanResponseTime	meanResponseTimeOK	meanResponseTimeKO	deviation	deviationOK	deviationKO	percentile1	percentile1OK	percentile1KO percentile2	percentile2OK	percentile2KO	group1Name	group1Count	group1Percentage	group2Name	group2Count	group2Percentage	group3Name	group3Count	group3Percentage	group4Name	group4Count	group4Percentage	meanNumberOfRequestsPerSecond	meanNumberOfRequestsPerSecondOK	meanNumberOfRequestsPerSecondKO
-<% stats.values.foreach { stat: RequestStatistics => %><%=stat.mkString %>
-<%}%>
+<% attributes("group") = stats %>${include("stats_group.tsv.ssp")}

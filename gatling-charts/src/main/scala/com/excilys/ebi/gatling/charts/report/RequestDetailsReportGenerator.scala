@@ -15,22 +15,29 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import com.excilys.ebi.gatling.charts.component.{ Component, ComponentLibrary, StatisticsTextComponent }
+import com.excilys.ebi.gatling.charts.component.Component
+import com.excilys.ebi.gatling.charts.component.ComponentLibrary
+import com.excilys.ebi.gatling.charts.component.StatisticsTextComponent
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.requestFile
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.template.RequestDetailsPageTemplate
-import com.excilys.ebi.gatling.charts.util.Colors.{ BLUE, RED, TRANSLUCID_BLUE, TRANSLUCID_RED, toString }
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
+import com.excilys.ebi.gatling.charts.util.Colors.BLUE
+import com.excilys.ebi.gatling.charts.util.Colors.RED
+import com.excilys.ebi.gatling.charts.util.Colors.TRANSLUCID_BLUE
+import com.excilys.ebi.gatling.charts.util.Colors.TRANSLUCID_RED
+import com.excilys.ebi.gatling.charts.util.Colors.toString
+import com.excilys.ebi.gatling.core.result.Group
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.KO
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 
 class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 
 	def generate {
-		dataReader.requestNames.foreach { requestName =>
-
+		def generateDetailPage(path: String, requestName: Option[String], group: Option[Group]) {
 			def responseTimeChartComponent: Component = {
-				val responseTimesSuccessData = dataReader.responseTimeGroupByExecutionStartDate(OK, requestName)
-				val responseTimesFailuresData = dataReader.responseTimeGroupByExecutionStartDate(KO, requestName)
+				val responseTimesSuccessData = dataReader.responseTimeGroupByExecutionStartDate(OK, requestName, group)
+				val responseTimesFailuresData = dataReader.responseTimeGroupByExecutionStartDate(KO, requestName, group)
 				val responseTimesSuccessSeries = new Series[Int, (Int, Int)]("Response Time (success)", responseTimesSuccessData, List(BLUE))
 				val responseTimesFailuresSeries = new Series[Int, (Int, Int)]("Response Time (failure)", responseTimesFailuresData, List(RED))
 
@@ -38,7 +45,7 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			}
 
 			def responseTimeDistributionChartComponent: Component = {
-				val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100, Some(requestName))
+				val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100, requestName, group)
 				val okDistributionSeries = new Series[Int, Int]("Success", okDistribution, List(BLUE))
 				val koDistributionSeries = new Series[Int, Int]("Failure", koDistribution, List(RED))
 
@@ -46,8 +53,8 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			}
 
 			def latencyChartComponent: Component = {
-				val latencySuccessData = dataReader.latencyGroupByExecutionStartDate(OK, requestName)
-				val latencyFailuresData = dataReader.latencyGroupByExecutionStartDate(KO, requestName)
+				val latencySuccessData = dataReader.latencyGroupByExecutionStartDate(OK, requestName, group)
+				val latencyFailuresData = dataReader.latencyGroupByExecutionStartDate(KO, requestName, group)
 
 				val latencySuccessSeries = new Series[Int, (Int, Int)]("Latency (success)", latencySuccessData, List(BLUE))
 				val latencyFailuresSeries = new Series[Int, (Int, Int)]("Latency (failure)", latencyFailuresData, List(RED))
@@ -58,8 +65,8 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			def statisticsComponent: Component = new StatisticsTextComponent
 
 			def scatterChartComponent: Component = {
-				val scatterPlotSuccessData = dataReader.responseTimeAgainstGlobalNumberOfRequestsPerSec(OK, requestName)
-				val scatterPlotFailuresData = dataReader.responseTimeAgainstGlobalNumberOfRequestsPerSec(KO, requestName)
+				val scatterPlotSuccessData = dataReader.responseTimeAgainstGlobalNumberOfRequestsPerSec(OK, requestName, group)
+				val scatterPlotFailuresData = dataReader.responseTimeAgainstGlobalNumberOfRequestsPerSec(KO, requestName, group)
 				val scatterPlotSuccessSeries = new Series[Int, Int]("Successes", scatterPlotSuccessData, List(TRANSLUCID_BLUE))
 				val scatterPlotFailuresSeries = new Series[Int, Int]("Failures", scatterPlotFailuresData, List(TRANSLUCID_RED))
 
@@ -68,9 +75,16 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 
 			def indicatorChartComponent: Component = componentLibrary.getRequestDetailsIndicatorChartComponent
 
+			def pageTitle: String = requestName match {
+				case None => path + " (Duration = " + dataReader.groupStats(group) + " ms)"
+				case Some(_) => path
+			}
+
 			// Create template
 			val template =
-				new RequestDetailsPageTemplate(requestName,
+				new RequestDetailsPageTemplate(pageTitle,
+					requestName,
+					group,
 					responseTimeChartComponent,
 					responseTimeDistributionChartComponent,
 					latencyChartComponent,
@@ -79,7 +93,10 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 					indicatorChartComponent)
 
 			// Write template result to file
-			new TemplateWriter(requestFile(runOn, requestName)).writeToFile(template.getOutput)
+			new TemplateWriter(requestFile(runOn, path)).writeToFile(template.getOutput)
 		}
+
+		dataReader.groups.foreach(group => generateDetailPage(group.path, None, Some(group)))
+		dataReader.requestPaths.foreach(requestPath => generateDetailPage(requestPath.path, Some(requestPath.name), requestPath.group))
 	}
 }

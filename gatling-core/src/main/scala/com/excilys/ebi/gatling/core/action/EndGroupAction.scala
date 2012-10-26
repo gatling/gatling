@@ -13,11 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.template
+package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_MENU_JS_FILE_URL
+import com.excilys.ebi.gatling.core.result.writer.DataWriter
+import com.excilys.ebi.gatling.core.session.Session
 
-class MenuTemplate(requestLinks: Iterable[(String, Option[String], String)]) {
+import akka.actor.ActorRef
+import akka.actor.actorRef2Scala
 
-	def getOutput: String = PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_MENU_JS_FILE_URL, Map("requestLinks" -> requestLinks))
+object EndGroupAction {
+	val END_OF_GROUP = "End of group"
+}
+
+class EndGroupAction(val next: ActorRef) extends Action {
+
+	def execute(session: Session) {
+		DataWriter.endGroup(session.scenarioName, session.userId)
+		next ! session
+	}
 }
