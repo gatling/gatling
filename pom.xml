@@ -114,8 +114,7 @@
 		<jackson.version>2.1.0</jackson.version>
 		<commons-math3.version>3.0</commons-math3.version>
 		<commons-io.version>2.4</commons-io.version>
-		<jodd.version>3.3.8</jodd.version>
-		<asm.version>4.0</asm.version>
+		<jodd.version>3.4.0</jodd.version>
 		<redis.version>2.7</redis.version>
 		<junit.version>4.10</junit.version>
 		<specs2.version>1.12.2</specs2.version>
@@ -355,14 +354,8 @@
 			</dependency>
 			<dependency>
 				<groupId>org.jodd</groupId>
-				<artifactId>jodd-wot</artifactId>
+				<artifactId>jodd-lagarto</artifactId>
 				<version>${jodd.version}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>asm</groupId>
-						<artifactId>asm</artifactId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>commons-io</groupId>
@@ -373,11 +366,6 @@
 				<groupId>net.debasishg</groupId>
 				<artifactId>redisclient_2.9.2</artifactId>
 				<version>${redis.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.ow2.asm</groupId>
-				<artifactId>asm</artifactId>
-				<version>${asm.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>

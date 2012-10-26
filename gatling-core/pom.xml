@@ -58,7 +58,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.jodd</groupId>
-			<artifactId>jodd-wot</artifactId>
+			<artifactId>jodd-lagarto</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -83,11 +83,6 @@
 		<dependency>
 			<groupId>xml-apis</groupId>
 			<artifactId>xml-apis</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.ow2.asm</groupId>
-			<artifactId>asm</artifactId>
 			<scope>runtime</scope>
 		</dependency>
 
