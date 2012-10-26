@@ -17,13 +17,14 @@ package com.excilys.ebi.gatling.charts.result.reader
 
 import java.util.{ HashMap => JHashMap }
 
+import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
 
 package object buffers {
 
-	type BufferKey = (Option[String], Option[RequestStatus.RequestStatus])
+	type BufferKey = (Option[Group], Option[String], Option[RequestStatus.RequestStatus])
 
-	def computeKey(requestName: Option[String], status: Option[RequestStatus.RequestStatus]): BufferKey = (requestName, status)
+	def computeKey(request: Option[String], group: Option[Group], status: Option[RequestStatus.RequestStatus]): BufferKey = (group, request, status)
 
 	def initOrUpdateJHashMapEntry[K, V](key: K, init: => V, update: V => V)(implicit map: JHashMap[K, V]) {
 		if (map.containsKey(key)) {

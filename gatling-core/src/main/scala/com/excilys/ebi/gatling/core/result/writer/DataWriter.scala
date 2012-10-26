@@ -17,17 +17,26 @@ package com.excilys.ebi.gatling.core.result.writer
 
 import com.excilys.ebi.gatling.core.action.BaseActor
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
+import com.excilys.ebi.gatling.core.action.EndGroupAction.END_OF_GROUP
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
+import com.excilys.ebi.gatling.core.action.StartGroupAction.startOfGroup
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.{ FlushDataWriter, InitializeDataWriter, RequestRecord, RequestStatus }
-import com.excilys.ebi.gatling.core.result.message.{ RunRecord, ShortScenarioDescription }
+import com.excilys.ebi.gatling.core.result.message.FlushDataWriter
+import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
+import com.excilys.ebi.gatling.core.result.message.RequestRecord
+import com.excilys.ebi.gatling.core.result.message.RequestStatus
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
+import com.excilys.ebi.gatling.core.result.message.RunRecord
+import com.excilys.ebi.gatling.core.result.message.ShortScenarioDescription
 import com.excilys.ebi.gatling.core.result.terminator.Terminator
 import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 
-import akka.actor.{ Actor, ActorRef, Props }
+import akka.actor.Actor
+import akka.actor.ActorRef
+import akka.actor.Props
+import akka.actor.actorRef2Scala
 import akka.routing.BroadcastRouter
 
 object DataWriter {
@@ -52,6 +61,16 @@ object DataWriter {
 	def endUser(scenarioName: String, userId: Int) = {
 		val time = nowMillis
 		router ! RequestRecord(scenarioName, userId, END_OF_SCENARIO, time, time, time, time, OK)
+	}
+
+	def startGroup(scenarioName: String, groupName: String, userId: Int) {
+		val time = nowMillis
+		router ! RequestRecord(scenarioName, userId, startOfGroup(groupName), time, time, time, time, OK)
+	}
+
+	def endGroup(scenarioName: String, userId: Int) {
+		val time = nowMillis
+		router ! RequestRecord(scenarioName, userId, END_OF_GROUP, time, time, time, time, OK)
 	}
 
 	def logRequest(

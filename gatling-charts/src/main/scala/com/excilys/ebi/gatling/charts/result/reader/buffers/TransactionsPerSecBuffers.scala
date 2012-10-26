@@ -17,19 +17,25 @@ package com.excilys.ebi.gatling.charts.result.reader.buffers
 
 import java.util.{ HashMap => JHashMap }
 
+import scala.annotation.tailrec
+
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
+import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
 
 trait TransactionsPerSecBuffers extends Buffers {
 
 	val transactionsPerSecBuffers = new JHashMap[BufferKey, CountBuffer]
 
-	def getTransactionsPerSecBuffer(requestName: Option[String], status: Option[RequestStatus.RequestStatus]): CountBuffer = getBuffer(computeKey(requestName, status), transactionsPerSecBuffers, () => new CountBuffer)
+	def getTransactionsPerSecBuffer(requestName: Option[String], group: Option[Group], status: Option[RequestStatus.RequestStatus]): CountBuffer = getBuffer(computeKey(requestName, group, status), transactionsPerSecBuffers, () => new CountBuffer)
 
-	def updateTransactionsPerSecBuffers(record: ActionRecord) {
-		getTransactionsPerSecBuffer(None, None).update(record.executionEndBucket)
-		getTransactionsPerSecBuffer(None, Some(record.status)).update(record.executionEndBucket)
-		getTransactionsPerSecBuffer(Some(record.request), None).update(record.executionEndBucket)
-		getTransactionsPerSecBuffer(Some(record.request), Some(record.status)).update(record.executionEndBucket)
+	def updateTransactionsPerSecBuffers(record: ActionRecord, group: Option[Group]) {
+		recursivelyUpdate(record, group) { (record, group) =>
+			getTransactionsPerSecBuffer(None, group, None).update(record.executionEndBucket)
+			getTransactionsPerSecBuffer(None, group, Some(record.status)).update(record.executionEndBucket)
+		}
+
+		getTransactionsPerSecBuffer(Some(record.request), group, None).update(record.executionEndBucket)
+		getTransactionsPerSecBuffer(Some(record.request), group, Some(record.status)).update(record.executionEndBucket)
 	}
 }

@@ -18,7 +18,11 @@ package com.excilys.ebi.gatling.charts.template
 import org.fusesource.scalate.TemplateEngine
 
 import com.excilys.ebi.gatling.charts.component.Component
-import com.excilys.ebi.gatling.charts.config.ChartsFiles._
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.ALL_SESSIONS_FILE
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_JS_FILE
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_LAYOUT_FILE_URL
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.JQUERY_FILE
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.STATS_JS_FILE
 import com.excilys.ebi.gatling.core.result.message.RunRecord
 
 object PageTemplate {
@@ -35,7 +39,7 @@ object PageTemplate {
 
 abstract class PageTemplate(title: String, isDetails: Boolean, components: Component*) {
 
-	val jsFiles: Seq[String] = (Seq(JQUERY_FILE, MENU_FILE, ALL_SESSIONS_FILE, STATS_JS_FILE) ++ getAdditionnalJSFiles).distinct
+	val jsFiles: Seq[String] = (Seq(JQUERY_FILE, GATLING_JS_FILE, ALL_SESSIONS_FILE, STATS_JS_FILE) ++ getAdditionnalJSFiles).distinct
 
 	def getContent: String = components.map(_.getHTMLContent).mkString
 
@@ -43,13 +47,15 @@ abstract class PageTemplate(title: String, isDetails: Boolean, components: Compo
 
 	def getAdditionnalJSFiles: Seq[String] = components.flatMap(_.getJavascriptFiles)
 
+	def getAttributes: Map[String, Any] =
+		Map("jsFiles" -> jsFiles,
+			"pageTitle" -> title,
+			"pageContent" -> getContent,
+			"javascript" -> getJavascript,
+			"isDetails" -> isDetails,
+			"runRecord" -> PageTemplate.runRecord)
+
 	def getOutput: String = {
-		PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_LAYOUT_FILE_URL,
-			Map("jsFiles" -> jsFiles,
-				"pageTitle" -> title,
-				"pageContent" -> getContent,
-				"javascript" -> getJavascript,
-				"isDetails" -> isDetails,
-				"runRecord" -> PageTemplate.runRecord))
+		PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_LAYOUT_FILE_URL, getAttributes)
 	}
 }

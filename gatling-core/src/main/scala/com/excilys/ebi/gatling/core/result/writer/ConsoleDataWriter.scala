@@ -16,13 +16,22 @@
 package com.excilys.ebi.gatling.core.result.writer
 
 import java.lang.System.currentTimeMillis
+import java.util.{ HashMap => JHashMap }
 
-import scala.collection.mutable.{ HashMap, LinkedHashMap }
+import scala.collection.mutable.HashMap
+import scala.collection.mutable.LinkedHashMap
 
 import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
+import com.excilys.ebi.gatling.core.action.EndGroupAction.END_OF_GROUP
 import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
-import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RunRecord, ShortScenarioDescription }
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
+import com.excilys.ebi.gatling.core.action.StartGroupAction.START_OF_GROUP
+import com.excilys.ebi.gatling.core.result.Group
+import com.excilys.ebi.gatling.core.result.RequestPath
+import com.excilys.ebi.gatling.core.result.message.RequestRecord
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.KO
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
+import com.excilys.ebi.gatling.core.result.message.RunRecord
+import com.excilys.ebi.gatling.core.result.message.ShortScenarioDescription
 
 import grizzled.slf4j.Logging
 
@@ -47,6 +56,7 @@ class ConsoleDataWriter extends DataWriter with Logging {
 	private var lastDisplayTime = 0L
 
 	private val usersCounters = new HashMap[String, UserCounters]
+	private val groupStack = new JHashMap[(String, Int), Option[Group]]
 	private val requestsCounters = new LinkedHashMap[String, RequestCounters]
 
 	private val displayPeriod = 5 * 1000
@@ -77,19 +87,32 @@ class ConsoleDataWriter extends DataWriter with Logging {
 
 	override def onRequestRecord(requestRecord: RequestRecord) {
 
-		requestRecord.requestName match {
-			case START_OF_SCENARIO => usersCounters
-				.get(requestRecord.scenarioName)
-				.map(_.userStart)
-				.getOrElse(error("Internal error, scenario '%s' has not been correctly initialized" format requestRecord.scenarioName))
+		def updateCurrentGroup(scenarioName: String, userId: Int)(value: (Option[Group]) => Option[Group]) =
+			groupStack.put((scenarioName, userId), value(groupStack.get((scenarioName, userId))))
 
-			case END_OF_SCENARIO => usersCounters
-				.get(requestRecord.scenarioName)
-				.map(_.userDone)
-				.getOrElse(error("Internal error, scenario '%s' has not been correctly initialized" format requestRecord.scenarioName))
+		requestRecord.requestName match {
+			case START_OF_SCENARIO =>
+				usersCounters
+					.get(requestRecord.scenarioName)
+					.map(_.userStart)
+					.getOrElse(error("Internal error, scenario '%s' has not been correctly initialized" format requestRecord.scenarioName))
+				updateCurrentGroup(requestRecord.scenarioName, requestRecord.userId)(current => None)
+
+			case END_OF_SCENARIO =>
+				usersCounters
+					.get(requestRecord.scenarioName)
+					.map(_.userDone)
+					.getOrElse(error("Internal error, scenario '%s' has not been correctly initialized" format requestRecord.scenarioName))
+				groupStack.remove((requestRecord.scenarioName, requestRecord.userId))
+
+			case name if name.startsWith(START_OF_GROUP) =>
+				updateCurrentGroup(requestRecord.scenarioName, requestRecord.userId)(current => Some(Group(name, current)))
+
+			case END_OF_GROUP =>
+				updateCurrentGroup(requestRecord.scenarioName, requestRecord.userId)(current => current.flatMap(_.parent))
 
 			case requestName =>
-				val requestCounters = requestsCounters.getOrElseUpdate(requestName, RequestCounters(0, 0))
+				val requestCounters = requestsCounters.getOrElseUpdate(RequestPath.path(requestName, groupStack.get((requestRecord.scenarioName, requestRecord.userId))), RequestCounters(0, 0))
 
 				requestRecord.requestStatus match {
 					case OK => requestCounters.successfulCount += 1
