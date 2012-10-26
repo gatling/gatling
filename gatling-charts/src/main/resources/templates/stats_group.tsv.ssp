@@ -1,7 +1,7 @@
-<%  import com.excilys.ebi.gatling.charts.report.GroupContainer.ExtendedTupleGroupContainer %>
+<%  import com.excilys.ebi.gatling.charts.report.GroupContainer %>
 <%  import com.excilys.ebi.gatling.charts.component.GroupStatistics %>
 <%  import com.excilys.ebi.gatling.charts.component.RequestStatistics %>
-<%@ val group: ExtendedTupleGroupContainer[GroupStatistics, RequestStatistics] %>
+<%@ val group: GroupContainer %>
 <% attributes("request") = group.value.get._2 %>${include("stats_request.tsv.ssp")}
-<% group.groups.values.foreach { group: ExtendedTupleGroupContainer[GroupStatistics, RequestStatistics] => attributes("group") = group %>${include("stats_group.tsv.ssp")}<% } %>
+<% group.groups.values.foreach { group => attributes("group") = group %>${include("stats_group.tsv.ssp")}<% } %>
 <% group.contents.foreach { request: RequestStatistics => attributes("request") = request %>${include("stats_request.tsv.ssp")}<% } %>

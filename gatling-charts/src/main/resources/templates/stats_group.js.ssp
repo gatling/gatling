@@ -1,8 +1,8 @@
 <% import com.excilys.ebi.gatling.charts.component.GroupStatistics %>
 <% import com.excilys.ebi.gatling.charts.component.RequestStatistics %>
-<%  import com.excilys.ebi.gatling.charts.report.GroupContainer.ExtendedTupleGroupContainer %>
+<% import com.excilys.ebi.gatling.charts.report.GroupContainer %>
 <% import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename %>
-<%@ val group: ExtendedTupleGroupContainer[GroupStatistics, RequestStatistics] %>
+<%@ val group: GroupContainer %>
 groups:
 #if (!group.groups.isEmpty)
 {

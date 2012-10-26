@@ -53,19 +53,17 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 			val percentiles2 = Statistics("percentiles2", total.percentile2, ok.percentile2, ko.percentile2)
 			val meanNumberOfRequestsPerSecondStatistics = Statistics("meanNumberOfRequestsPerSecond", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
 
-				val groupedCounts = dataReader
-					.numberOfRequestInResponseTimeRange(requestName, group).map {
+			val groupedCounts = dataReader
+				.numberOfRequestInResponseTimeRange(requestName, group).map {
 					case (name, count) => (name, count, count * 100 / total.count)
 				}
 
 			RequestStatistics(name, path, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, groupedCounts, meanNumberOfRequestsPerSecondStatistics)
 		}
 
-		def computeGroupStats(group: Group) =
-			(GroupStatistics(dataReader.groupStats(Some(group))), computeStats(group.name, group.path, None, Some(group)))
+		def computeGroupStats(group: Group) = (GroupStatistics(dataReader.groupStats(Some(group))), computeStats(group.name, group.path, None, Some(group)))
 
-		val stats: GroupContainer.ExtendedTupleGroupContainer[GroupStatistics, RequestStatistics] =
-			GroupContainer((GroupStatistics(dataReader.groupStats(None)), computeStats(GLOBAL_PAGE_NAME, "", None, None)))
+		val stats: GroupContainer = GroupContainer(Some((GroupStatistics(dataReader.groupStats(None)), computeStats(GLOBAL_PAGE_NAME, "", None, None))))
 
 		dataReader.groups.foreach(group => stats.addGroup(group, computeGroupStats(group)))
 		dataReader.requestPaths.foreach(requestPath => stats.addContent(requestPath.group, computeStats(requestPath.name, requestPath.path, Some(requestPath.name), requestPath.group)))
