@@ -1,5 +1,5 @@
 RUN	20120607202804	run1	interesting test run	MySimulation	some extra noisy informations
-ACTION	testScenario	1	Start of scenario	1000	3000	3500	5000	OK	Request executed successfully
+SCENARIO	testScenario	1	START	1000
 ACTION	testScenario	1	Test Request	1000	3000	3500	5000	OK	Request executed successfully
 ACTION	testScenario	1	Test Request	1000	10000	3500	5000	OK	Request executed successfully
 ACTION	testScenario	1	Test Request	2000	6000	3500	5000	OK	Request executed successfully
@@ -8,4 +8,4 @@ ACTION	testScenario	1	Test Request	4000	8000	3500	5000	OK	Request executed succe
 ACTION	testScenario	1	Test Request	5000	10000	3500	5000	OK	Request executed successfully
 ACTION	testScenario	1	Test Request	5000	10000	3500	5000	OK	Request executed successfully
 ACTION	testScenario	1	Test Request	7000	14000	3500	5000	OK	Request executed successfully
-ACTION	testScenario	1	End of scenario	7000	14000	3500	5000	OK	Request executed successfully
+SCENARIO	testScenario	1	END	7000
