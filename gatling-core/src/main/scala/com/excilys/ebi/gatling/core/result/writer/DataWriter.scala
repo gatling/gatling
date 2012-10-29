@@ -15,25 +15,14 @@
  */
 package com.excilys.ebi.gatling.core.result.writer
 
-import com.excilys.ebi.gatling.core.action.BaseActor
-import com.excilys.ebi.gatling.core.action.system
+import com.excilys.ebi.gatling.core.action.{ BaseActor, system }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.ActionType
-import com.excilys.ebi.gatling.core.result.message.GroupRecord
-import com.excilys.ebi.gatling.core.result.message.InitializeDataWriter
-import com.excilys.ebi.gatling.core.result.message.RequestRecord
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
-import com.excilys.ebi.gatling.core.result.message.RunRecord
-import com.excilys.ebi.gatling.core.result.message.ScenarioRecord
-import com.excilys.ebi.gatling.core.result.message.ShortScenarioDescription
+import com.excilys.ebi.gatling.core.result.message.{ ActionType, FlushDataWriter, GroupRecord, InitializeDataWriter, RequestRecord, RequestStatus, RunRecord, ScenarioRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.terminator.Terminator
 import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 
-import akka.actor.Actor
-import akka.actor.ActorRef
-import akka.actor.Props
-import akka.actor.actorRef2Scala
+import akka.actor.{ Actor, ActorRef, Props }
 import akka.routing.BroadcastRouter
 
 object DataWriter {
