@@ -30,9 +30,7 @@ class Group(val name: String, val parent: Option[Group]) {
 	override val toString = path
 }
 object Group {
-	def apply(requestName: String, parent: Option[Group] = None) = new Group(name(requestName), parent)
-
-	def name(requestName: String) = requestName.substring(requestName.indexOf("(") + 1, requestName.lastIndexOf(")"))
+	def apply(groupName: String, parent: Option[Group] = None) = new Group(groupName, parent)
 }
 
 class RequestPath(val name: String, val group: Option[Group]) {

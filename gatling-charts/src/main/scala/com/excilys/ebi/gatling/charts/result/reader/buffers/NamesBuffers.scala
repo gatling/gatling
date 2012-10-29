@@ -16,9 +16,10 @@
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
+import com.excilys.ebi.gatling.charts.result.reader.GroupRecord
+import com.excilys.ebi.gatling.charts.util.JMap
 import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.core.result.RequestPath
-import com.excilys.ebi.gatling.charts.util.JMap
 
 trait NamesBuffers {
 
@@ -43,7 +44,7 @@ trait NamesBuffers {
 		scenarioNameBuffer.update(record.scenario, record.executionStart)
 	}
 
-	def addGroupName(record: ActionRecord, group: Group) {
-		groupNameBuffer.update(group, record.executionStart)
+	def addGroupName(record: GroupRecord, group: Group) {
+		groupNameBuffer.update(group, record.executionDate)
 	}
 }
