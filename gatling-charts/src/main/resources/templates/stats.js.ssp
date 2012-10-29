@@ -1,5 +1,3 @@
-<% import com.excilys.ebi.gatling.charts.component.GroupStatistics %>
-<% import com.excilys.ebi.gatling.charts.component.RequestStatistics %>
 <% import com.excilys.ebi.gatling.charts.report.GroupContainer %>
 <% import com.excilys.ebi.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME %>
 <% import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename %>

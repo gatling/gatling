@@ -15,11 +15,6 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
-import java.util.{ HashMap => JHashMap }
-
-import scala.annotation.tailrec
-import scala.collection.JavaConversions.mapAsScalaMap
-
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
 import com.excilys.ebi.gatling.charts.result.reader.FileDataReader
 import com.excilys.ebi.gatling.charts.result.reader.stats.PercentilesHelper
@@ -28,13 +23,14 @@ import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
 import com.excilys.ebi.gatling.core.result.reader.GeneralStats
+import com.excilys.ebi.gatling.charts.util.JMap
 
 abstract class GeneralStatsBuffers(durationInSec: Long) extends Buffers {
 
-	val generalStatsBuffers = new JHashMap[BufferKey, GeneralStatsBuffer]
+	val generalStatsBuffers = new JMap[BufferKey, GeneralStatsBuffer]
 
 	def getGeneralStatsBuffers(request: Option[String], group: Option[Group], status: Option[RequestStatus.RequestStatus]): GeneralStatsBuffer =
-		getBuffer(computeKey(request, group, status), generalStatsBuffers, () => new GeneralStatsBuffer(durationInSec))
+		generalStatsBuffers.getOrElseUpdate(computeKey(request, group, status), new GeneralStatsBuffer(durationInSec))
 
 	def updateGeneralStatsBuffers(record: ActionRecord, group: Option[Group]) {
 		recursivelyUpdate(record, group) { (record, group) =>

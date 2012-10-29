@@ -15,42 +15,42 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import java.util.{ List => JList, Map => JMap, LinkedHashMap => JLinkedHashMap, LinkedList => JLinkedList }
+import java.util.{ LinkedHashMap => JLinkedHashMap }
 
 import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
 import com.excilys.ebi.gatling.charts.component.{ GroupStatistics, RequestStatistics }
 import com.excilys.ebi.gatling.core.result.Group
+import com.excilys.ebi.gatling.charts.util.JMap
 
-case class GroupContainer(value: Option[(GroupStatistics, RequestStatistics)] = None, groups: JMap[String, GroupContainer] = new JLinkedHashMap[String, GroupContainer], contents: JList[RequestStatistics] = new JLinkedList[RequestStatistics]) {
+object GroupContainer {
+	def root(value: (GroupStatistics, RequestStatistics)) = GroupContainer("ROOT", Some(value))
+
+	def getGroup(root: GroupContainer, group: Option[Group]) = {
+		@tailrec
+		def recursivelyGetGroup(parent: GroupContainer, groups: List[String]): GroupContainer = groups match {
+			case head :: tail => recursivelyGetGroup(parent.groups.getOrElseUpdate(head, GroupContainer(head)), tail)
+			case _ => parent
+		}
+
+		group match {
+			case Some(group) => recursivelyGetGroup(root, (group.name :: group.groups).reverse)
+			case None => root
+		}
+	}
+}
+
+case class GroupContainer(name: String,
+													value: Option[(GroupStatistics, RequestStatistics)] = None,
+													groups: JMap[String, GroupContainer] = new JMap[String, GroupContainer](new JLinkedHashMap[String, GroupContainer]),
+													requests: ArrayBuffer[RequestStatistics] = new ArrayBuffer[RequestStatistics]) {
 
 	def addGroup(group: Group, value: (GroupStatistics, RequestStatistics)) {
-		addGroupRec(group.groups.reverse, value)
+		GroupContainer.getGroup(this, group.parent).groups.putOrUpdate(group.name, GroupContainer(group.name, Some(value)), group => group.copy(value = Some(value)))
 	}
 
-	@tailrec
-	private def addGroupRec(groupList: List[String], value: (GroupStatistics, RequestStatistics)) {
-		if (groupList.tail.isEmpty) {
-			if (groups.containsKey(groupList.head)) {
-				val oldGroup = groups.get(groupList.head)
-				groups.put(groupList.head, new GroupContainer(Some(value), oldGroup.groups, oldGroup.contents))
-			} else groups.put(groupList.head, new GroupContainer(Some(value)))
-		} else {
-			if (!groups.containsKey(groupList.head)) groups.put(groupList.head, new GroupContainer)
-			groups.get(groupList.head).addGroupRec(groupList.tail, value)
-		}
-	}
-
-	def addContent(group: Option[Group], content: RequestStatistics) {
-		group match {
-			case Some(group) => addContent(group.groups.reverse, content)
-			case None => contents.add(content)
-		}
-	}
-
-	@tailrec
-	private def addContent(groups: List[String], content: RequestStatistics) {
-		if (groups.isEmpty) contents.add(content)
-		else this.groups.get(groups.head).addContent(groups.tail, content)
+	def addRequest(parent: Option[Group], request: RequestStatistics) {
+		GroupContainer.getGroup(this, parent).requests += request
 	}
 }

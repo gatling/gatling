@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.charts.template
 
-import com.excilys.ebi.gatling.charts.component.GroupStatistics
-import com.excilys.ebi.gatling.charts.component.RequestStatistics
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_STATS_JS_FILE_URL
 import com.excilys.ebi.gatling.charts.report.GroupContainer
 

@@ -15,19 +15,16 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
-import java.util.{ HashMap => JHashMap }
-
-import scala.annotation.tailrec
-
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
 import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
+import com.excilys.ebi.gatling.charts.util.JMap
 
 trait ResponseTimePerSecBuffers extends Buffers {
 
-	val responseTimePerSecBuffers = new JHashMap[BufferKey, RangeBuffer]
+	val responseTimePerSecBuffers = new JMap[BufferKey, RangeBuffer]
 
-	def getResponseTimePerSecBuffers(requestName: Option[String], group: Option[Group], status: Option[RequestStatus.RequestStatus]): RangeBuffer = getBuffer(computeKey(requestName, group, status), responseTimePerSecBuffers, () => new RangeBuffer)
+	def getResponseTimePerSecBuffers(requestName: Option[String], group: Option[Group], status: Option[RequestStatus.RequestStatus]): RangeBuffer = responseTimePerSecBuffers.getOrElseUpdate(computeKey(requestName, group, status), new RangeBuffer)
 
 	def updateResponseTimePerSecBuffers(record: ActionRecord, group: Option[Group]) {
 		recursivelyUpdate(record, group) { (record, group) =>

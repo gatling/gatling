@@ -63,10 +63,10 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 
 		def computeGroupStats(group: Group) = (GroupStatistics(dataReader.groupStats(Some(group))), computeStats(group.name, group.path, None, Some(group)))
 
-		val stats: GroupContainer = GroupContainer(Some((GroupStatistics(dataReader.groupStats(None)), computeStats(GLOBAL_PAGE_NAME, "", None, None))))
+		val stats = GroupContainer.root(((GroupStatistics(dataReader.groupStats(None)), computeStats(GLOBAL_PAGE_NAME, "", None, None))))
 
 		dataReader.groups.foreach(group => stats.addGroup(group, computeGroupStats(group)))
-		dataReader.requestPaths.foreach(requestPath => stats.addContent(requestPath.group, computeStats(requestPath.name, requestPath.path, Some(requestPath.name), requestPath.group)))
+		dataReader.requestPaths.foreach(requestPath => stats.addRequest(requestPath.group, computeStats(requestPath.name, requestPath.path, Some(requestPath.name), requestPath.group)))
 
 		new TemplateWriter(jsStatsFile(runOn)).writeToFile(new StatsJsTemplate(stats).getOutput)
 		new TemplateWriter(jsonStatsFile(runOn)).writeToFile(new StatsJsonTemplate(stats.value.get._2).getOutput)
