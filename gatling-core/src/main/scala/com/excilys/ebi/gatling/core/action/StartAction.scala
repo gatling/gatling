@@ -20,14 +20,6 @@ import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.ActorRef
 
-object StartAction {
-
-	/**
-	 * Name of the StartAction used in simulation.log
-	 */
-	val START_OF_SCENARIO = "Start of scenario"
-}
-
 /**
  * An Action that is automatically prepended at the beginning of a scenario.
  *

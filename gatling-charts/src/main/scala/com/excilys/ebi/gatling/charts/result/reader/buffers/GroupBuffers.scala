@@ -17,8 +17,6 @@ package com.excilys.ebi.gatling.charts.result.reader.buffers
 
 import java.util.{ LinkedList => JLinkedList }
 
-import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
-import com.excilys.ebi.gatling.core.action.StartAction
 import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.charts.util.JMap
 
@@ -27,15 +25,15 @@ trait GroupBuffers extends Buffers {
 	class GroupStack {
 		val stack = new JLinkedList[(Option[Group], Long)]
 
-		def start(request: String, executionStart: Long) {
-			val group = request match {
-				case StartAction.START_OF_SCENARIO => None
-				case _ => Some(Group(request, getCurrentGroup()))
+		def start(groupName: Option[String], time: Long) {
+			val group = groupName match {
+				case Some(groupName) => Some(Group(groupName, getCurrentGroup()))
+				case None => None
 			}
-			stack.push((group, executionStart))
+			stack.push((group, time))
 		}
 
-		def end(request: String, executionEnd: Long) {
+		def end(executionEnd: Long) {
 			val (group, executionStart) = stack.pop()
 
 			val duration = executionEnd - executionStart
@@ -48,12 +46,12 @@ trait GroupBuffers extends Buffers {
 	val groupStacksByUserAndScenario = new JMap[(Int, String), GroupStack]
 	val statsGroupBuffers = new JMap[Option[Group], Long]
 
-	def startGroup(record: ActionRecord) {
-		groupStacksByUserAndScenario.getOrElseUpdate((record.user, record.scenario), new GroupStack).start(record.request, record.executionStart)
+	def startGroup(user: Int, scenario: String, time: Long, group: Option[String]) {
+		groupStacksByUserAndScenario.getOrElseUpdate((user, scenario), new GroupStack).start(group, time)
 	}
 
-	def endGroup(record: ActionRecord) {
-		groupStacksByUserAndScenario.getOrElseUpdate((record.user, record.scenario), throw new IllegalAccessException).end(record.request, record.executionStart)
+	def endGroup(user: Int, scenario: String, time: Long) {
+		groupStacksByUserAndScenario.getOrElseUpdate((user, scenario), throw new IllegalAccessException).end(time)
 	}
 
 	def getCurrentGroup(user: Int, scenario: String) = groupStacksByUserAndScenario.getOrElseUpdate((user, scenario), new GroupStack).getCurrentGroup()

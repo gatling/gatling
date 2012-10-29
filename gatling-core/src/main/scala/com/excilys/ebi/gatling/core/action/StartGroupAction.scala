@@ -22,12 +22,6 @@ import com.excilys.ebi.gatling.core.session.Session
 import akka.actor.ActorRef
 import akka.actor.actorRef2Scala
 
-object StartGroupAction {
-	val START_OF_GROUP = "Start of group"
-
-	def startOfGroup(name: String) = START_OF_GROUP + "(" + name + ")"
-}
-
 class StartGroupAction(groupName: EvaluatableString, val next: ActorRef) extends Action {
 
 	def execute(session: Session) {

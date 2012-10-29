@@ -28,7 +28,9 @@ import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogDirectory
 import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.core.result.RequestPath
 import com.excilys.ebi.gatling.core.result.message.RecordType.ACTION
+import com.excilys.ebi.gatling.core.result.message.RecordType.GROUP
 import com.excilys.ebi.gatling.core.result.message.RecordType.RUN
+import com.excilys.ebi.gatling.core.result.message.RecordType.SCENARIO
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.KO
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
@@ -48,6 +50,8 @@ object FileDataReader {
 	val SIMULATION_FILES_NAME_PATTERN = """.*\.log"""
 	val ACTION_RECORD_LENGTH = 9
 	val RUN_RECORD_LENGTH = 4
+	val GROUP_RECORD_LENGTH = 6
+	val SCENARIO_RECORD_LENGTH = 5
 }
 
 class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
@@ -107,13 +111,13 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		var count = 0
 
 		records
-			.collect { case line if (line.startsWith(ACTION)) => FileDataReader.TABULATION_PATTERN.split(line) }
-			.collect { case array if (array.size >= FileDataReader.ACTION_RECORD_LENGTH) => ActionRecord(array, bucketFunction, runStart) }
-			.foreach { record =>
-				count += 1
-				if (count % FileDataReader.LOG_STEP == 0) info("Second pass, read " + count + " lines")
-				resultsHolder.add(record)
-			}
+			.collect { case line if (line.startsWith(ACTION) || line.startsWith(GROUP) || line.startsWith(SCENARIO)) => FileDataReader.TABULATION_PATTERN.split(line) }
+			.filter(array => array.size >= 1)
+			.foreach { array => array(0) match {
+				case ACTION if (array.size >= FileDataReader.ACTION_RECORD_LENGTH) => resultsHolder.addActionRecord(ActionRecord(array, bucketFunction, runStart))
+				case GROUP if (array.size >= FileDataReader.GROUP_RECORD_LENGTH) => resultsHolder.addGroupRecord(GroupRecord(array, bucketFunction, runStart))
+				case SCENARIO if (array.size >= FileDataReader.SCENARIO_RECORD_LENGTH) => resultsHolder.addScenarioRecord(ScenarioRecord(array, bucketFunction, runStart))
+			}}
 
 		info("Read " + count + " lines (finished)")
 

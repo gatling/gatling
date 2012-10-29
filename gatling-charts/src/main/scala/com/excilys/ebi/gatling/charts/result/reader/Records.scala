@@ -15,17 +15,12 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader
 
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.RequestStatus
 
 object ActionRecord {
 
-	val accuracyAsDouble = configuration.charting.accuracy.toDouble
-
 	def apply(strings: Array[String], bucketFunction: Int => Int, runStart: Long) = {
-
-		def reduceAccuracy(time: Int): Int = math.round(time / accuracyAsDouble).toInt * configuration.charting.accuracy
 
 		val scenario = strings(1).intern
 		val user = strings(2).toInt
@@ -44,3 +39,33 @@ object ActionRecord {
 }
 
 class ActionRecord(val scenario: String, val user: Int, var request: String, val executionStart: Int, val executionEnd: Int, val requestEnd: Int, val responseStart: Int, val status: RequestStatus, val executionStartBucket: Int, val executionEndBucket: Int, val responseTime: Int, val latency: Int)
+
+object ScenarioRecord {
+	def apply(strings: Array[String], bucketFunction: Int => Int, runStart: Long) = {
+
+		val scenario = strings(1).intern
+		val user = strings(2).toInt
+		val actionType = strings(3).intern
+		val executionDate = reduceAccuracy((strings(4).toLong - runStart).toInt)
+		val executionDateBucket = bucketFunction(executionDate)
+		new ScenarioRecord(scenario, user, actionType, executionDate, executionDateBucket)
+	}
+}
+
+class ScenarioRecord(val scenario: String, val user: Int, val actionType: String, val executionDate: Int, val executionDateBucket: Int)
+
+object GroupRecord {
+	def apply(strings: Array[String], bucketFunction: Int => Int, runStart: Long) = {
+
+		val scenario = strings(1).intern
+		val user = strings(2).toInt
+		val actionType = strings(3).intern
+		val group = strings(4).intern
+		val executionDate = reduceAccuracy((strings(5).toLong - runStart).toInt)
+		val executionDateBucket = bucketFunction(executionDate)
+		new GroupRecord(scenario, user, actionType, executionDate, executionDateBucket, group)
+	}
+}
+
+class GroupRecord(val scenario: String, val user: Int, val actionType: String, val executionDate: Int, val executionDateBucket: Int, val group: String)
+

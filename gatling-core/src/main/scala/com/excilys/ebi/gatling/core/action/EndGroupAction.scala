@@ -21,10 +21,6 @@ import com.excilys.ebi.gatling.core.session.Session
 import akka.actor.ActorRef
 import akka.actor.actorRef2Scala
 
-object EndGroupAction {
-	val END_OF_GROUP = "End of group"
-}
-
 class EndGroupAction(val next: ActorRef) extends Action {
 
 	def execute(session: Session) {

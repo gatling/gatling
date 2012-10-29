@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
-import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
+import com.excilys.ebi.gatling.charts.result.reader.ScenarioRecord
 import com.excilys.ebi.gatling.charts.util.JMap
 
 trait SessionDeltaPerSecBuffers extends Buffers {
@@ -24,14 +24,14 @@ trait SessionDeltaPerSecBuffers extends Buffers {
 
 	def getSessionDeltaPerSecBuffers(scenarioName: Option[String]): SessionDeltaBuffer = sessionDeltaPerSecBuffers.getOrElseUpdate(scenarioName, new SessionDeltaBuffer)
 
-	def addStartSessionBuffers(record: ActionRecord) {
-		getSessionDeltaPerSecBuffers(None).addStart(record.executionStartBucket)
-		getSessionDeltaPerSecBuffers(Some(record.scenario)).addStart(record.executionStartBucket)
+	def addStartSessionBuffers(record: ScenarioRecord) {
+		getSessionDeltaPerSecBuffers(None).addStart(record.executionDateBucket)
+		getSessionDeltaPerSecBuffers(Some(record.scenario)).addStart(record.executionDateBucket)
 	}
 
-	def addEndSessionBuffers(record: ActionRecord) {
-		getSessionDeltaPerSecBuffers(None).addEnd(record.executionStartBucket)
-		getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd(record.executionStartBucket)
+	def addEndSessionBuffers(record: ScenarioRecord) {
+		getSessionDeltaPerSecBuffers(None).addEnd(record.executionDateBucket)
+		getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd(record.executionDateBucket)
 	}
 
 	class SessionDeltaBuffer {
