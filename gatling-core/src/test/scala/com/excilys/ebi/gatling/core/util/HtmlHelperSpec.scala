@@ -15,19 +15,17 @@
  */
 package com.excilys.ebi.gatling.core.util
 
-import java.util.ResourceBundle
+import org.junit.runner.RunWith
+import org.specs2.mutable.Specification
+import org.specs2.runner.JUnitRunner
 
-import scala.collection.JavaConversions.enumerationAsScalaIterator
+@RunWith(classOf[JUnitRunner])
+class HtmlHelperSpec extends Specification {
 
-object HtmlHelper {
+	"htmlEscape" should {
 
-	val ENTITIES = ResourceBundle.getBundle("html-entities")
-
-	val CHAR_TO_HTML_ENTITIES: Map[Char, String] = ENTITIES.getKeys.map { entityName => (ENTITIES.getString(entityName).toInt.toChar, "&" + entityName + ";") }.toMap
-
-	def htmlEscape(string: String): String = {
-		def charToHtmlEntity(char: Char): String = CHAR_TO_HTML_ENTITIES.get(char).getOrElse(char.toString)
-
-		string.toList.map(charToHtmlEntity(_)).mkString
+		"escape with entity chars" in {
+			HtmlHelper.htmlEscape("fooYéfoo") must beEqualTo("fooY&eacute;foo")
+		}
 	}
 }
