@@ -18,4 +18,11 @@ package com.excilys.ebi.gatling.core.result.message
 object RecordType {
 	val RUN = "RUN"
 	val ACTION = "ACTION"
+	val SCENARIO = "SCENARIO"
+	val GROUP = "GROUP"
+}
+
+object ActionType {
+	val START = "START"
+	val END = "END"
 }

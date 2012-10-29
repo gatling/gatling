@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.result.message
 
 import org.joda.time.DateTime
 
-import com.excilys.ebi.gatling.core.result.message.RecordType.{ ACTION, RUN }
+import com.excilys.ebi.gatling.core.result.message.RecordType.{ ACTION, GROUP, RUN, SCENARIO }
 import com.excilys.ebi.gatling.core.util.DateHelper.{ toHumanDate, toTimestamp }
 
 sealed trait DataWriterMessage
@@ -72,3 +72,12 @@ case class RunRecord(runDate: DateTime, simulationId: String, runDescription: St
 	def runId = simulationId + "-" + timestamp
 	def readableRunDate = toHumanDate(runDate)
 }
+
+case class ScenarioRecord(scenarioName: String, userId: Int, executionDate: Long, actionType: String) extends DataWriterMessage {
+	val recordType = SCENARIO
+}
+
+case class GroupRecord(scenarioName: String, userId: Int, executionDate: Long, actionType: String, groupName: Option[String] = None) extends DataWriterMessage {
+	val recordType = GROUP
+}
+

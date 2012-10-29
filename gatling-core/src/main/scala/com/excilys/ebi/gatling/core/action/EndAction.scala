@@ -19,14 +19,6 @@ import com.excilys.ebi.gatling.core.result.terminator.Terminator
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 
-object EndAction {
-
-	/**
-	 * Name of the EndAction used in simulation.log
-	 */
-	val END_OF_SCENARIO = "End of scenario"
-}
-
 /**
  * An Action that is automatically appended at the end of a scenario.
  * Used for detecting that a user has finished running, so that the engine can be shutdown once all of them are done.
