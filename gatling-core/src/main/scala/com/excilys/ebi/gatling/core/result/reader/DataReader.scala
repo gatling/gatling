@@ -17,10 +17,8 @@ package com.excilys.ebi.gatling.core.result.reader
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.Group
-import com.excilys.ebi.gatling.core.result.RequestPath
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
+import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RunRecord }
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.RequestStatus
-import com.excilys.ebi.gatling.core.result.message.RunRecord
 
 object DataReader {
 	val NO_PLOT_MAGIC_VALUE = -1
@@ -34,9 +32,7 @@ abstract class DataReader(runUuid: String) {
 
 	def runStart: Long
 
-	def requestPaths: List[RequestPath]
-
-	def groups: List[Group]
+	def groupsAndRequests: List[(Option[Group], Option[String])]
 
 	def scenarioNames: List[String]
 

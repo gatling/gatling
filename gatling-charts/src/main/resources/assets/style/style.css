@@ -322,7 +322,7 @@ h1 span {
 
 .collapsed {
 	overflow: auto;
-	max-height: 895px;
+	max-height: 908px;
 }
 
 .extensible-geant.collapsed {
@@ -490,8 +490,13 @@ h1 span {
 	border-radius: 4px;
 }
 
+.statistics-in .col-1 {
+	width: 175px;
+}
+
 .statistics-in .value {
 	text-align: right;
+	width: 55px;
 }
 
 .statistics-in .total {

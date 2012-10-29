@@ -15,20 +15,13 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import com.excilys.ebi.gatling.charts.component.Component
-import com.excilys.ebi.gatling.charts.component.ComponentLibrary
-import com.excilys.ebi.gatling.charts.component.StatisticsTextComponent
+import com.excilys.ebi.gatling.charts.component.{ Component, ComponentLibrary, StatisticsTextComponent }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.requestFile
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.template.RequestDetailsPageTemplate
-import com.excilys.ebi.gatling.charts.util.Colors.BLUE
-import com.excilys.ebi.gatling.charts.util.Colors.RED
-import com.excilys.ebi.gatling.charts.util.Colors.TRANSLUCID_BLUE
-import com.excilys.ebi.gatling.charts.util.Colors.TRANSLUCID_RED
-import com.excilys.ebi.gatling.charts.util.Colors.toString
-import com.excilys.ebi.gatling.core.result.Group
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.KO
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
+import com.excilys.ebi.gatling.charts.util.Colors.{ BLUE, RED, TRANSLUCID_BLUE, TRANSLUCID_RED, toString }
+import com.excilys.ebi.gatling.core.result.{ RequestPath, Group }
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 
 class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
@@ -96,7 +89,10 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			new TemplateWriter(requestFile(runOn, path)).writeToFile(template.getOutput)
 		}
 
-		dataReader.groups.foreach(group => generateDetailPage(group.path, None, Some(group)))
-		dataReader.requestPaths.foreach(requestPath => generateDetailPage(requestPath.path, Some(requestPath.name), requestPath.group))
+		dataReader.groupsAndRequests.foreach {
+			case (group, Some(request)) => generateDetailPage(RequestPath.path(request, group), Some(request), group)
+			case (Some(group), None) => generateDetailPage(group.path, None, Some(group))
+			case _ => throw new UnsupportedOperationException
+		}
 	}
 }

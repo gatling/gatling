@@ -18,19 +18,14 @@ package com.excilys.ebi.gatling.core.result.writer
 import java.lang.System.currentTimeMillis
 import java.util.{ HashMap => JHashMap }
 
-import scala.collection.mutable.HashMap
-import scala.collection.mutable.LinkedHashMap
+import scala.collection.mutable.{ HashMap, LinkedHashMap }
 
-import com.excilys.ebi.gatling.core.result.Group
-import com.excilys.ebi.gatling.core.result.RequestPath
-import com.excilys.ebi.gatling.core.result.message.ActionType
+import com.excilys.ebi.gatling.core.result.{ Group, RequestPath }
+import com.excilys.ebi.gatling.core.result.message.{ RunRecord, ScenarioRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.message.GroupRecord
+import com.excilys.ebi.gatling.core.result.message.RecordSubType.{ END, START }
 import com.excilys.ebi.gatling.core.result.message.RequestRecord
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.KO
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
-import com.excilys.ebi.gatling.core.result.message.RunRecord
-import com.excilys.ebi.gatling.core.result.message.ScenarioRecord
-import com.excilys.ebi.gatling.core.result.message.ShortScenarioDescription
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
 
 import grizzled.slf4j.Logging
 
@@ -85,15 +80,15 @@ class ConsoleDataWriter extends DataWriter with Logging {
 	}
 
 	override def onScenarioRecord(scenarioRecord: ScenarioRecord) {
-		scenarioRecord.actionType match {
-			case ActionType.START =>
+		scenarioRecord.recordSubType match {
+			case START =>
 				usersCounters
 					.get(scenarioRecord.scenarioName)
 					.map(_.userStart)
 					.getOrElse(error("Internal error, scenario '%s' has not been correctly initialized" format scenarioRecord.scenarioName))
 				updateCurrentGroup(scenarioRecord.scenarioName, scenarioRecord.userId, _ => None)
 
-			case ActionType.END =>
+			case END =>
 				usersCounters
 					.get(scenarioRecord.scenarioName)
 					.map(_.userDone)
@@ -102,13 +97,12 @@ class ConsoleDataWriter extends DataWriter with Logging {
 		}
 	}
 
-
 	override def onGroupRecord(groupRecord: GroupRecord) {
-		groupRecord.actionType match {
-			case ActionType.START =>
+		groupRecord.recordSubType match {
+			case START =>
 				updateCurrentGroup(groupRecord.scenarioName, groupRecord.userId, current => Some(Group(groupRecord.groupName.get, current)))
 
-			case ActionType.END =>
+			case END =>
 				updateCurrentGroup(groupRecord.scenarioName, groupRecord.userId, current => current.flatMap(_.parent))
 		}
 	}

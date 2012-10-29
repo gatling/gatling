@@ -18,19 +18,27 @@ package com.excilys.ebi.gatling.charts.report
 import java.util.{ LinkedHashMap => JLinkedHashMap }
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
 
 import com.excilys.ebi.gatling.charts.component.{ GroupStatistics, RequestStatistics }
-import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.charts.util.JMap
+import com.excilys.ebi.gatling.core.result.Group
+
+object Container {
+	val GROUP = "GROUP"
+	val REQUEST = "REQUEST"
+}
+
+abstract class Container
+
+case class RequestContainer(name: String, stats: RequestStatistics) extends Container
 
 object GroupContainer {
-	def root(value: (GroupStatistics, RequestStatistics)) = GroupContainer("ROOT", Some(value))
+	def root(groupStats: GroupStatistics, requestStats: RequestStatistics) = GroupContainer("ROOT", groupStats, requestStats)
 
 	def getGroup(root: GroupContainer, group: Option[Group]) = {
 		@tailrec
 		def recursivelyGetGroup(parent: GroupContainer, groups: List[String]): GroupContainer = groups match {
-			case head :: tail => recursivelyGetGroup(parent.groups.getOrElseUpdate(head, GroupContainer(head)), tail)
+			case head :: tail => recursivelyGetGroup(parent.contents.get(head).asInstanceOf[GroupContainer], tail)
 			case _ => parent
 		}
 
@@ -42,15 +50,15 @@ object GroupContainer {
 }
 
 case class GroupContainer(name: String,
-													value: Option[(GroupStatistics, RequestStatistics)] = None,
-													groups: JMap[String, GroupContainer] = new JMap[String, GroupContainer](new JLinkedHashMap[String, GroupContainer]),
-													requests: ArrayBuffer[RequestStatistics] = new ArrayBuffer[RequestStatistics]) {
+													groupStats: GroupStatistics,
+													requestStats: RequestStatistics,
+													contents: JMap[String, Container] = new JMap[String, Container](new JLinkedHashMap[String, Container])) extends Container {
 
-	def addGroup(group: Group, value: (GroupStatistics, RequestStatistics)) {
-		GroupContainer.getGroup(this, group.parent).groups.putOrUpdate(group.name, GroupContainer(group.name, Some(value)), group => group.copy(value = Some(value)))
+	def addGroup(group: Group, groupStats: GroupStatistics, requestStats: RequestStatistics) {
+		GroupContainer.getGroup(this, group.parent).contents.put(group.name, GroupContainer(group.name, groupStats, requestStats))
 	}
 
 	def addRequest(parent: Option[Group], request: RequestStatistics) {
-		GroupContainer.getGroup(this, parent).requests += request
+		GroupContainer.getGroup(this, parent).contents.put(request.name, RequestContainer(request.name, request))
 	}
 }
