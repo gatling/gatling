@@ -15,24 +15,13 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
-import java.util.{ HashMap => JHashMap }
-
 import scala.annotation.tailrec
 
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
 import com.excilys.ebi.gatling.core.result.Group
+import com.excilys.ebi.gatling.charts.util.JMap
 
 trait Buffers {
-
-	def getBuffer[A, B](key: A, buffers: JHashMap[A, B], builder: () => B): B = {
-		if (buffers.containsKey(key))
-			buffers.get(key)
-		else {
-			val buffer = builder()
-			buffers.put(key, buffer)
-			buffer
-		}
-	}
 
 	@tailrec
 	final def recursivelyUpdate(record: ActionRecord, group: Option[Group])(update: (ActionRecord, Option[Group]) => Unit) {
@@ -46,16 +35,16 @@ trait Buffers {
 }
 
 class CountBuffer {
-	implicit val map = new JHashMap[Int, Int]
+	val map = new JMap[Int, Int]
 
-	def update(bucket: Int) { initOrUpdateJHashMapEntry(bucket, 1, (value: Int) => value + 1) }
+	def update(bucket: Int) { map.putOrUpdate(bucket, 1, (value: Int) => value + 1) }
 }
 
 class RangeBuffer {
-	implicit val map = new JHashMap[Int, (Int, Int)]
+	val map = new JMap[Int, (Int, Int)]
 
 	def update(bucket: Int, value: Int) {
-		initOrUpdateJHashMapEntry(bucket, (value, value), (minMax: (Int, Int)) => {
+		map.putOrUpdate(bucket, (value, value), (minMax: (Int, Int)) => {
 			val (minValue, maxValue) = minMax
 			(value min minValue, value max maxValue)
 		})

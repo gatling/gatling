@@ -15,17 +15,14 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
-import java.util.{ HashMap => JHashMap }
-
-import scala.collection.JavaConversions.mapAsScalaMap
-
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
+import com.excilys.ebi.gatling.charts.util.JMap
 
 trait SessionDeltaPerSecBuffers extends Buffers {
 
-	val sessionDeltaPerSecBuffers = new JHashMap[Option[String], SessionDeltaBuffer]
+	val sessionDeltaPerSecBuffers = new JMap[Option[String], SessionDeltaBuffer]
 
-	def getSessionDeltaPerSecBuffers(scenarioName: Option[String]): SessionDeltaBuffer = getBuffer(scenarioName, sessionDeltaPerSecBuffers, () => new SessionDeltaBuffer)
+	def getSessionDeltaPerSecBuffers(scenarioName: Option[String]): SessionDeltaBuffer = sessionDeltaPerSecBuffers.getOrElseUpdate(scenarioName, new SessionDeltaBuffer)
 
 	def addStartSessionBuffers(record: ActionRecord) {
 		getSessionDeltaPerSecBuffers(None).addStart(record.executionStartBucket)
@@ -39,13 +36,11 @@ trait SessionDeltaPerSecBuffers extends Buffers {
 
 	class SessionDeltaBuffer {
 
-		import scala.collection.JavaConversions.mapAsScalaMap
+		val map = new JMap[Int, (Int, Int)]
 
-		implicit val map = new JHashMap[Int, (Int, Int)]
+		def addStart(bucket: Int) { map.putOrUpdate(bucket, (1, 0), (startEnd: (Int, Int)) => (startEnd._1 + 1, startEnd._2)) }
 
-		def addStart(bucket: Int) { initOrUpdateJHashMapEntry(bucket, (1, 0), (startEnd: (Int, Int)) => (startEnd._1 + 1, startEnd._2)) }
-
-		def addEnd(bucket: Int) { initOrUpdateJHashMapEntry(bucket, (0, 1), (startEnd: (Int, Int)) => (startEnd._1, startEnd._2 + 1)) }
+		def addEnd(bucket: Int) { map.putOrUpdate(bucket, (0, 1), (startEnd: (Int, Int)) => (startEnd._1, startEnd._2 + 1)) }
 
 		def compute(buckets: List[Int]): List[(Int, Int)] = {
 

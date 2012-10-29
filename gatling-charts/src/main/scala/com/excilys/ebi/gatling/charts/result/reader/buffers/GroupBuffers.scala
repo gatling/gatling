@@ -15,12 +15,12 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
-import java.util.{ HashMap => JHashMap }
 import java.util.{ LinkedList => JLinkedList }
 
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
 import com.excilys.ebi.gatling.core.action.StartAction
 import com.excilys.ebi.gatling.core.result.Group
+import com.excilys.ebi.gatling.charts.util.JMap
 
 trait GroupBuffers extends Buffers {
 
@@ -39,25 +39,24 @@ trait GroupBuffers extends Buffers {
 			val (group, executionStart) = stack.pop()
 
 			val duration = executionEnd - executionStart
-			if (!statsGroupBuffers.containsKey(group)) statsGroupBuffers.put(group, duration)
-			else statsGroupBuffers.put(group, duration max statsGroupBuffers.get(group))
+			statsGroupBuffers.putOrUpdate(group, duration, oldDuration => duration max oldDuration)
 		}
 
 		def getCurrentGroup(): Option[Group] = stack.peek()._1
 	}
 
-	val groupStacksByUserAndScenario = new JHashMap[(Int, String), GroupStack]
-	val statsGroupBuffers = new JHashMap[Option[Group], Long]
+	val groupStacksByUserAndScenario = new JMap[(Int, String), GroupStack]
+	val statsGroupBuffers = new JMap[Option[Group], Long]
 
 	def startGroup(record: ActionRecord) {
-		getBuffer((record.user, record.scenario), groupStacksByUserAndScenario, () => new GroupStack).start(record.request, record.executionStart)
+		groupStacksByUserAndScenario.getOrElseUpdate((record.user, record.scenario), new GroupStack).start(record.request, record.executionStart)
 	}
 
 	def endGroup(record: ActionRecord) {
-		getBuffer((record.user, record.scenario), groupStacksByUserAndScenario, () => throw new IllegalAccessException).end(record.request, record.executionStart)
+		groupStacksByUserAndScenario.getOrElseUpdate((record.user, record.scenario), throw new IllegalAccessException).end(record.request, record.executionStart)
 	}
 
-	def getCurrentGroup(user: Int, scenario: String) = getBuffer((user, scenario), groupStacksByUserAndScenario, () => new GroupStack).getCurrentGroup()
+	def getCurrentGroup(user: Int, scenario: String) = groupStacksByUserAndScenario.getOrElseUpdate((user, scenario), new GroupStack).getCurrentGroup()
 
 	def getStatsGroupBuffer(group: Option[Group]) = statsGroupBuffers.get(group)
 }

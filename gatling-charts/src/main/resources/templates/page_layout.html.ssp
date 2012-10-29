@@ -57,7 +57,7 @@
 	<% if(isDetails) { %>
 		<% val requestName = attributes("requestName").asInstanceOf[Option[String]] %>
 		<% val group = attributes("group").asInstanceOf[Option[Group]] %>
-	var pageStats = stats<%= group.map(_.groups.reverse.map(formatToFilename).mkString(".groups.", ".groups.", "")).getOrElse("") %><%= requestName.map(name => ".requests." + formatToFilename(name)) %>.stats;
+	var pageStats = stats<%= group.map(group => (group.name :: group.groups).reverse.map(formatToFilename).mkString(".groups.", ".groups.", "")).getOrElse("") %><%= requestName.map(name => ".requests." + formatToFilename(name)) %>.stats;
 	<% } else { %>
 	var pageStats = stats.stats;
 	<% } %>

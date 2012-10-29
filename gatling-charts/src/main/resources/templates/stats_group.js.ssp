@@ -1,5 +1,3 @@
-<% import com.excilys.ebi.gatling.charts.component.GroupStatistics %>
-<% import com.excilys.ebi.gatling.charts.component.RequestStatistics %>
 <% import com.excilys.ebi.gatling.charts.report.GroupContainer %>
 <% import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename %>
 <%@ val group: GroupContainer %>
@@ -20,9 +18,9 @@ groups:
 null,
 #end
 requests:
-#if (!group.contents.isEmpty)
+#if (!group.requests.isEmpty)
 {
-	<% val requestsIterator = group.contents.iterator %>
+	<% val requestsIterator = group.requests.iterator %>
 	<% while (requestsIterator.hasNext) { %>
 		<% val request = requestsIterator.next %>
 		<% attributes("request") = request %>

@@ -15,19 +15,16 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
-import scala.collection.mutable
-
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
 import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.core.result.RequestPath
+import com.excilys.ebi.gatling.charts.util.JMap
 
 trait NamesBuffers {
 
 	class NameBuffer[A] {
 
-		import scala.collection.mutable
-
-		val map = new mutable.HashMap[A, Long]
+		val map = new JMap[A, Long]
 
 		def update(name: A, time: Long) {
 
