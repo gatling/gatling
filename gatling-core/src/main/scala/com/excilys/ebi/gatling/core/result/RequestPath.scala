@@ -16,8 +16,8 @@
 package com.excilys.ebi.gatling.core.result
 
 class Group(val name: String, val parent: Option[Group]) {
-	val groups: List[String] = name :: parent.map(_.groups).getOrElse(Nil)
-	val path = RequestPath.path(groups)
+	val groups: List[String] = parent.map(parent => parent.name :: parent.groups).getOrElse(Nil)
+	val path = RequestPath.path(name :: groups)
 
 	override def equals(obj: Any) =
 		obj match {
@@ -55,6 +55,6 @@ object RequestPath {
 
 	def path(list: List[String]): String = list.reverse.mkString(SEPARATOR)
 
-	def path(requestName: String, group: Option[Group]): String = path(requestName :: group.map(_.groups).getOrElse(Nil))
+	def path(requestName: String, group: Option[Group]): String = path(requestName :: group.map(group => group.name :: group.groups).getOrElse(Nil))
 }
 

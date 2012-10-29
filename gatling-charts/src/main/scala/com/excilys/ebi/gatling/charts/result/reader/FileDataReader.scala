@@ -17,10 +17,8 @@ package com.excilys.ebi.gatling.charts.result.reader
 
 import java.io.FileInputStream
 import java.io.InputStream
-import java.util.{ HashMap => JHashMap }
 import java.util.regex.Pattern
 
-import scala.collection.JavaConversions.mapAsScalaMap
 import scala.collection.mutable
 import scala.io.Source
 
@@ -234,7 +232,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: RequestStatus.RequestStatus, requestName: Option[String], group: Option[Group]): Seq[(Int, Int)] = {
 
-		val globalCountsByBucket: JHashMap[Int, Int] = resultsHolder.getRequestsPerSecBuffer(None, None, None).map
+		val globalCountsByBucket = resultsHolder.getRequestsPerSecBuffer(None, None, None).map
 
 		resultsHolder
 			.getResponseTimePerSecBuffers(requestName, group, Some(status))
