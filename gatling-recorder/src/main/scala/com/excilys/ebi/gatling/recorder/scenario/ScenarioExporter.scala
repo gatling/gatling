@@ -81,7 +81,7 @@ object ScenarioExporter extends Logging {
 		}
 
 		// Aggregate headers
-		val filteredHeaders = Set("Authorization", "Cookie", "Content-Length") ++ (if (configuration.automaticReferer) Set("Referer") else Set.empty)
+		val filteredHeaders = Set("Authorization", "Cookie", "Content-Length", "Host") ++ (if (configuration.automaticReferer) Set("Referer") else Set.empty)
 
 		val headers: Map[Int, List[(String, String)]] = {
 
