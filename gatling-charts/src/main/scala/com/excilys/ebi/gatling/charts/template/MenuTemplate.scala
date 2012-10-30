@@ -13,16 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.result.message
+package com.excilys.ebi.gatling.charts.template
 
-object RecordType {
-	val RUN = "RUN"
-	val ACTION = "ACTION"
-	val SCENARIO = "SCENARIO"
-	val GROUP = "GROUP"
-}
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_MENU_JS_FILE_URL
 
-object RecordSubType {
-	val START = "START"
-	val END = "END"
+class MenuTemplate {
+	def getOutput: String = PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_MENU_JS_FILE_URL)
 }

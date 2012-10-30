@@ -45,27 +45,27 @@ object ScenarioRecord {
 
 		val scenario = strings(1).intern
 		val user = strings(2).toInt
-		val actionType = strings(3).intern
+		val subType = strings(3).intern
 		val executionDate = reduceAccuracy((strings(4).toLong - runStart).toInt)
 		val executionDateBucket = bucketFunction(executionDate)
-		new ScenarioRecord(scenario, user, actionType, executionDate, executionDateBucket)
+		new ScenarioRecord(scenario, user, subType, executionDate, executionDateBucket)
 	}
 }
 
-class ScenarioRecord(val scenario: String, val user: Int, val actionType: String, val executionDate: Int, val executionDateBucket: Int)
+class ScenarioRecord(val scenario: String, val user: Int, val subType: String, val executionDate: Int, val executionDateBucket: Int)
 
 object GroupRecord {
 	def apply(strings: Array[String], bucketFunction: Int => Int, runStart: Long) = {
 
 		val scenario = strings(1).intern
 		val user = strings(2).toInt
-		val actionType = strings(3).intern
+		val subType = strings(3).intern
 		val group = strings(4).intern
 		val executionDate = reduceAccuracy((strings(5).toLong - runStart).toInt)
 		val executionDateBucket = bucketFunction(executionDate)
-		new GroupRecord(scenario, user, actionType, executionDate, executionDateBucket, group)
+		new GroupRecord(scenario, user, subType, executionDate, executionDateBucket, group)
 	}
 }
 
-class GroupRecord(val scenario: String, val user: Int, val actionType: String, val executionDate: Int, val executionDateBucket: Int, val group: String)
+class GroupRecord(val scenario: String, val user: Int, val subType: String, val executionDate: Int, val executionDateBucket: Int, val group: String)
 

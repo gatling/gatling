@@ -33,23 +33,8 @@ object Group {
 	def apply(groupName: String, parent: Option[Group] = None) = new Group(groupName, parent)
 }
 
-class RequestPath(val name: String, val group: Option[Group]) {
-	val path = RequestPath.path(name, group)
-
-	override def equals(obj: Any) =
-		obj match {
-			case requestPath: RequestPath => requestPath.path == path
-			case _ => false
-		}
-
-	override val hashCode = path.hashCode()
-
-	override val toString = path
-}
 object RequestPath {
 	val SEPARATOR = " / "
-
-	def apply(requestName: String, group: Option[Group] = None): RequestPath = new RequestPath(requestName, group)
 
 	def path(list: List[String]): String = list.reverse.mkString(SEPARATOR)
 
