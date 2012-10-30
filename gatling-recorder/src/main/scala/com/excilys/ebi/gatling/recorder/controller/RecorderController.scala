@@ -208,7 +208,7 @@ class RecorderController extends Logging {
 					case PatternType.JAVA => SelectorUtils.REGEX_HANDLER_PREFIX
 				}
 
-				prefix + pattern + SelectorUtils.PATTERN_HANDLER_SUFFIX
+				prefix + pattern.getPattern + SelectorUtils.PATTERN_HANDLER_SUFFIX
 			}
 
 			@tailrec
