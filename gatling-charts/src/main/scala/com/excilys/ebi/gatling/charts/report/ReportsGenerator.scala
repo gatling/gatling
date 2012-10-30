@@ -18,12 +18,10 @@ package com.excilys.ebi.gatling.charts.report
 import scala.tools.nsc.io.Path
 
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.globalFile
-import com.excilys.ebi.gatling.charts.template.PageTemplate
-import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_ASSETS_JS_PACKAGE
-import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_ASSETS_STYLE_PACKAGE
-import com.excilys.ebi.gatling.core.config.GatlingFiles.jsDirectory
-import com.excilys.ebi.gatling.core.config.GatlingFiles.styleDirectory
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ globalFile, menuFile }
+import com.excilys.ebi.gatling.charts.template.{ MenuTemplate, PageTemplate }
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_ASSETS_JS_PACKAGE, GATLING_ASSETS_STYLE_PACKAGE }
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{ jsDirectory, styleDirectory }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.util.ScanHelper.deepCopyPackageContent
 
@@ -35,6 +33,8 @@ object ReportsGenerator extends Logging {
 
 		val dataReader = DataReader.newInstance(outputDirectoryName)
 
+		def generateMenu = new TemplateWriter(menuFile(outputDirectoryName)).writeToFile(new MenuTemplate().getOutput)
+
 		def generateStats = new StatsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance).generate
 
 		def copyAssets {
@@ -42,7 +42,7 @@ object ReportsGenerator extends Logging {
 			deepCopyPackageContent(GATLING_ASSETS_JS_PACKAGE, jsDirectory(outputDirectoryName))
 		}
 
-		if (dataReader.requestPaths.isEmpty) throw new UnsupportedOperationException("There were no requests sent during the simulation, reports won't be generated")
+		if (dataReader.groupsAndRequests.filter(_._2.isDefined).isEmpty) throw new UnsupportedOperationException("There were no requests sent during the simulation, reports won't be generated")
 
 		val reportGenerators =
 			List(new AllSessionsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance),
@@ -50,6 +50,7 @@ object ReportsGenerator extends Logging {
 				new RequestDetailsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance))
 
 		copyAssets
+		generateMenu
 		PageTemplate.setRunInfo(dataReader.runRecord)
 		reportGenerators.foreach(_.generate)
 		generateStats

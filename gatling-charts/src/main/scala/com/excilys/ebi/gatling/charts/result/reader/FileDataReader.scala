@@ -26,17 +26,11 @@ import com.excilys.ebi.gatling.charts.result.reader.stats.StatsHelper
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogDirectory
 import com.excilys.ebi.gatling.core.result.Group
-import com.excilys.ebi.gatling.core.result.RequestPath
-import com.excilys.ebi.gatling.core.result.message.RecordType.ACTION
-import com.excilys.ebi.gatling.core.result.message.RecordType.GROUP
-import com.excilys.ebi.gatling.core.result.message.RecordType.RUN
-import com.excilys.ebi.gatling.core.result.message.RecordType.SCENARIO
+import com.excilys.ebi.gatling.core.result.message.RecordType.{ ACTION, GROUP, RUN, SCENARIO }
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.KO
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
 import com.excilys.ebi.gatling.core.result.message.RunRecord
-import com.excilys.ebi.gatling.core.result.reader.DataReader
-import com.excilys.ebi.gatling.core.result.reader.GeneralStats
+import com.excilys.ebi.gatling.core.result.reader.{ DataReader, GeneralStats }
 import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 
@@ -126,17 +120,12 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	val resultsHolder = doWithInputFiles(process(bucketFunction))
 
-	def requestPaths: List[RequestPath] = resultsHolder
-		.requestPathBuffer
-		.map.toList
-		.sortBy(_._2)
-		.map(_._1)
-
-	def groups: List[Group] = resultsHolder
-		.groupNameBuffer
-		.map.toList
-		.sortBy(_._2)
-		.map(_._1)
+	def groupsAndRequests: List[(Option[Group], Option[String])] =
+		resultsHolder.groupAndRequestsNameBuffer.map.toList.map {
+			case ((group, Some(request)), time) => ((group, Some(request)), (time, group.map(_.groups.length + 1).getOrElse(0)))
+			case ((Some(group), None), time) => ((Some(group), None), (time, group.groups.length))
+			case _ => throw new UnsupportedOperationException
+		}.sortBy(_._2).map(_._1)
 
 	def scenarioNames: List[String] = resultsHolder.scenarioNameBuffer
 		.map

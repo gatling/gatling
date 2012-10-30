@@ -1,4 +1,6 @@
 //<% import com.excilys.ebi.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME %>
+//<% import com.excilys.ebi.gatling.charts.report.Container.GROUP %>
+//<% import com.excilys.ebi.gatling.charts.report.Container.REQUEST %>
 
 function generateHtmlRow(request, level, index, parent, group) {
 	if (request.name == '<%= GLOBAL_PAGE_NAME %>')
@@ -7,9 +9,9 @@ function generateHtmlRow(request, level, index, parent, group) {
 		var url ='req_' + request.pathFormatted + '.html';
 
 	if (group)
-		var expandButton = '<a id="' + request.pathFormatted + '" href="#" style="margin-left: ' + (level * 10) + 'px;" class="expand-button"></a>';
+		var expandButtonStyle = '';
 	else
-		var expandButton = '<a id="' + request.pathFormatted + '" href="#" style="margin-left: ' + (level * 10) + 'px;" class="expand-button hidden"></a>';
+		var expandButtonStyle = ' hidden';
 
 	if (parent)
 		var style = ' class="child-of-' + parent + '"';
@@ -17,7 +19,10 @@ function generateHtmlRow(request, level, index, parent, group) {
 		var style = '';
 
 	return '<tr' + style + '> \
-		<td class="total col-1">' + expandButton + '<a href="' + url +'">' + request.name + '</a><span style="display:none;">;' + index + '</span></td> \
+		<td class="total col-1"> \
+			<a id="' + request.pathFormatted + '" href="#" style="margin-left: ' + (level * 10) + 'px;" class="expand-button' + expandButtonStyle + '"></a> \
+			<a href="' + url +'">' + request.name + '</a><span style="display:none;">;' + index + '</span> \
+		</td> \
 		<td></td> \
 		<td class="value total col-2">' + request.stats.numberOfRequests.total + '</td> \
 		<td class="value ok col-3">' + request.stats.numberOfRequests.ok + '</td> \
@@ -36,31 +41,25 @@ function generateHtmlRow(request, level, index, parent, group) {
 function generateHtmlRowsForGroup(group, level, index, parent) {
 	var buffer = '';
 
-	if (level > 0) {
-		buffer += generateHtmlRow(group, level - 1, index, parent, true);
-		index++;
-	}
-
 	if (!parent)
 		parent = 'ROOT';
-	else
+	else {
+		buffer += generateHtmlRow(group, level - 1, index, parent, true);
+		index++;
 		parent = group.pathFormatted;
+	}
 
-
-	if (group.groups != null) {
-		$.each(group.groups, function(childGroupName, childGroup) {
-			var result = generateHtmlRowsForGroup(childGroup, level + 1, index, parent);
+	$.each(group.contents, function(contentName, content) {
+		if (content.type == '<%= GROUP %>') {
+			var result = generateHtmlRowsForGroup(content, level + 1, index, parent);
 			buffer += result.html;
 			index = result.index;
-		});
-	}
-
-	if (group.requests != null) {
-		$.each(group.requests, function(requestName, request) {
-			buffer += generateHtmlRow(request, level, index, parent);
+		}
+		else if (content.type == '<%= REQUEST %>') {
+			buffer += generateHtmlRow(content, level, index, parent);
 			index++;
-		});
-	}
+		}
+	});
 
 	return { html: buffer, index: index };
 }

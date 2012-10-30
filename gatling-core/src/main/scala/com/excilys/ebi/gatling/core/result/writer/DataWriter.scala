@@ -17,7 +17,9 @@ package com.excilys.ebi.gatling.core.result.writer
 
 import com.excilys.ebi.gatling.core.action.{ BaseActor, system }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.{ ActionType, FlushDataWriter, GroupRecord, InitializeDataWriter, RequestRecord, RequestStatus, RunRecord, ScenarioRecord, ShortScenarioDescription }
+import com.excilys.ebi.gatling.core.result.message.{ FlushDataWriter, GroupRecord, InitializeDataWriter }
+import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RequestStatus, RunRecord, ScenarioRecord, ShortScenarioDescription }
+import com.excilys.ebi.gatling.core.result.message.RecordSubType.{ END, START }
 import com.excilys.ebi.gatling.core.result.terminator.Terminator
 import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
@@ -41,22 +43,22 @@ object DataWriter {
 
 	def startUser(scenarioName: String, userId: Int) = {
 		val time = nowMillis
-		router ! ScenarioRecord(scenarioName, userId, time, ActionType.START)
+		router ! ScenarioRecord(scenarioName, userId, time, START)
 	}
 
 	def endUser(scenarioName: String, userId: Int) = {
 		val time = nowMillis
-		router ! ScenarioRecord(scenarioName, userId, time, ActionType.END)
+		router ! ScenarioRecord(scenarioName, userId, time, END)
 	}
 
 	def startGroup(scenarioName: String, groupName: String, userId: Int) {
 		val time = nowMillis
-		router ! GroupRecord(scenarioName, userId, time, ActionType.START, Some(groupName))
+		router ! GroupRecord(scenarioName, userId, time, START, Some(groupName))
 	}
 
 	def endGroup(scenarioName: String, userId: Int) {
 		val time = nowMillis
-		router ! GroupRecord(scenarioName, userId, time, ActionType.END, None)
+		router ! GroupRecord(scenarioName, userId, time, END, None)
 	}
 
 	def logRequest(

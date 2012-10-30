@@ -15,16 +15,8 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader
 
-import com.excilys.ebi.gatling.charts.result.reader.buffers.GeneralStatsBuffers
-import com.excilys.ebi.gatling.charts.result.reader.buffers.GroupBuffers
-import com.excilys.ebi.gatling.charts.result.reader.buffers.LatencyPerSecBuffers
-import com.excilys.ebi.gatling.charts.result.reader.buffers.NamesBuffers
-import com.excilys.ebi.gatling.charts.result.reader.buffers.RequestsPerSecBuffers
-import com.excilys.ebi.gatling.charts.result.reader.buffers.ResponseTimePerSecBuffers
-import com.excilys.ebi.gatling.charts.result.reader.buffers.ResponseTimeRangeBuffers
-import com.excilys.ebi.gatling.charts.result.reader.buffers.SessionDeltaPerSecBuffers
-import com.excilys.ebi.gatling.charts.result.reader.buffers.TransactionsPerSecBuffers
-import com.excilys.ebi.gatling.core.result.message.ActionType
+import com.excilys.ebi.gatling.charts.result.reader.buffers.{ GeneralStatsBuffers, GroupBuffers, LatencyPerSecBuffers, NamesBuffers, RequestsPerSecBuffers, ResponseTimePerSecBuffers, ResponseTimeRangeBuffers, SessionDeltaPerSecBuffers, TransactionsPerSecBuffers }
+import com.excilys.ebi.gatling.core.result.message.RecordSubType.{ END, START }
 
 class ResultsHolder(minTime: Long, maxTime: Long)
 	extends GeneralStatsBuffers(maxTime - minTime)
@@ -38,22 +30,23 @@ class ResultsHolder(minTime: Long, maxTime: Long)
 	with GroupBuffers {
 
 	def addScenarioRecord(record: ScenarioRecord) {
-		record.actionType match {
-			case ActionType.START =>
+		record.subType match {
+			case START =>
 				addStartSessionBuffers(record)
 				startGroup(record.user, record.scenario, record.executionDate, None)
-			case ActionType.END =>
+				addScenarioName(record)
+			case END =>
 				addEndSessionBuffers(record)
 				endGroup(record.user, record.scenario, record.executionDate)
 		}
 	}
 
 	def addGroupRecord(record: GroupRecord) {
-		record.actionType match {
-			case ActionType.START =>
+		record.subType match {
+			case START =>
 				startGroup(record.user, record.scenario, record.executionDate, Some(record.group))
-				addGroupName(record, getCurrentGroup(record.user, record.scenario).get)
-			case ActionType.END =>
+				addGroupName(getCurrentGroup(record.user, record.scenario).get, record.executionDate)
+			case END =>
 				endGroup(record.user, record.scenario, record.executionDate)
 		}
 	}
@@ -64,7 +57,7 @@ class ResultsHolder(minTime: Long, maxTime: Long)
 		updateTransactionsPerSecBuffers(record, group)
 		updateResponseTimePerSecBuffers(record, group)
 		updateLatencyPerSecBuffers(record, group)
-		addNames(record, group)
+		addRequestName(record, group)
 		updateGeneralStatsBuffers(record, group)
 		updateResponseTimeRangeBuffer(record, group)
 	}

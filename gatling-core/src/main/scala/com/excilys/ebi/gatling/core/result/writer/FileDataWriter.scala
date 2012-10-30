@@ -95,7 +95,7 @@ class FileDataWriter extends DataWriter with Logging {
 		osw.append(SCENARIO).append(TABULATION_SEPARATOR)
 			.append(scenarioRecord.scenarioName).append(TABULATION_SEPARATOR)
 			.append(scenarioRecord.userId.toString).append(TABULATION_SEPARATOR)
-			.append(scenarioRecord.actionType).append(TABULATION_SEPARATOR)
+			.append(scenarioRecord.recordSubType).append(TABULATION_SEPARATOR)
 			.append(scenarioRecord.executionDate.toString).append(END_OF_LINE)
 	}
 
@@ -103,7 +103,7 @@ class FileDataWriter extends DataWriter with Logging {
 		osw.append(GROUP).append(TABULATION_SEPARATOR)
 			.append(groupRecord.scenarioName).append(TABULATION_SEPARATOR)
 			.append(groupRecord.userId.toString).append(TABULATION_SEPARATOR)
-			.append(groupRecord.actionType).append(TABULATION_SEPARATOR)
+			.append(groupRecord.recordSubType).append(TABULATION_SEPARATOR)
 			.append(groupRecord.groupName.getOrElse(FileDataWriter.emptyField)).append(TABULATION_SEPARATOR)
 			.append(groupRecord.executionDate.toString).append(END_OF_LINE)
 	}
