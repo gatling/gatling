@@ -18,8 +18,7 @@ package com.excilys.ebi.gatling.charts.config
 import scala.tools.nsc.io.Path
 import scala.tools.nsc.io.Path.string2path
 
-import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_JS
-import com.excilys.ebi.gatling.core.config.GatlingFiles.resultDirectory
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_JS, resultDirectory }
 import com.excilys.ebi.gatling.core.util.FileHelper.requestFileName
 
 object ChartsFiles {

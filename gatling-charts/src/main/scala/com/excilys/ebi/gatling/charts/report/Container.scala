@@ -50,9 +50,9 @@ object GroupContainer {
 }
 
 case class GroupContainer(name: String,
-													groupStats: GroupStatistics,
-													requestStats: RequestStatistics,
-													contents: JMap[String, Container] = new JMap[String, Container](new JLinkedHashMap[String, Container])) extends Container {
+	groupStats: GroupStatistics,
+	requestStats: RequestStatistics,
+	contents: JMap[String, Container] = new JMap[String, Container](new JLinkedHashMap[String, Container])) extends Container {
 
 	def addGroup(group: Group, groupStats: GroupStatistics, requestStats: RequestStatistics) {
 		GroupContainer.getGroup(this, group.parent).contents.put(group.name, GroupContainer(group.name, groupStats, requestStats))

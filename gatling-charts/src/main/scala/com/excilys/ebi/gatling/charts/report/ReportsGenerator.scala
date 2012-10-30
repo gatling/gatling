@@ -20,8 +20,7 @@ import scala.tools.nsc.io.Path
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ globalFile, menuFile }
 import com.excilys.ebi.gatling.charts.template.{ MenuTemplate, PageTemplate }
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_ASSETS_JS_PACKAGE, GATLING_ASSETS_STYLE_PACKAGE }
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{ jsDirectory, styleDirectory }
+import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_ASSETS_JS_PACKAGE, GATLING_ASSETS_STYLE_PACKAGE, jsDirectory, styleDirectory }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.util.ScanHelper.deepCopyPackageContent
 
