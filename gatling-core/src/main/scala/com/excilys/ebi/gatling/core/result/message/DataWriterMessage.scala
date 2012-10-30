@@ -77,7 +77,7 @@ case class ScenarioRecord(scenarioName: String, userId: Int, executionDate: Long
 	val recordType = SCENARIO
 }
 
-case class GroupRecord(scenarioName: String, userId: Int, executionDate: Long, recordSubType: String, groupName: Option[String] = None) extends DataWriterMessage {
+case class GroupRecord(scenarioName: String, userId: Int, executionDate: Long, recordSubType: String, groupName: String) extends DataWriterMessage {
 	val recordType = GROUP
 }
 

@@ -15,27 +15,24 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.StartGroupAction
-import com.excilys.ebi.gatling.core.action.system
+import com.excilys.ebi.gatling.core.action.{ GroupAction, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+import com.excilys.ebi.gatling.core.result.message.RecordSubType.{ END, START }
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 
-import akka.actor.ActorRef
-import akka.actor.Props
+import akka.actor.{ ActorRef, Props }
 
-object StartGroupActionBuilder {
+object GroupActionBuilder {
 
-	def apply(groupName: EvaluatableString) = new StartGroupActionBuilder(groupName, null)
+	def start(groupName: EvaluatableString) = new GroupActionBuilder(groupName, START, null)
+
+	def end(groupName: EvaluatableString) = new GroupActionBuilder(groupName, END, null)
 }
 
-/**
- * Builder for StartAction
- *
- * @constructor create a StartActionBuilder with its next action
- * @param next the action to be executed after this one
- */
-class StartGroupActionBuilder(groupName: EvaluatableString, next: ActorRef) extends ActionBuilder {
-	def withNext(next: ActorRef) = new StartGroupActionBuilder(groupName, next)
+class GroupActionBuilder(groupName: EvaluatableString, event: String, next: ActorRef) extends ActionBuilder {
 
-	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new StartGroupAction(groupName, next)))
+	def withNext(next: ActorRef) = new GroupActionBuilder(groupName, event, next)
+
+	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new GroupAction(groupName, event, next)))
+
 }

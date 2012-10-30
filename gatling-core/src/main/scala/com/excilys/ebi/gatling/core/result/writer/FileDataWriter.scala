@@ -104,7 +104,7 @@ class FileDataWriter extends DataWriter with Logging {
 			.append(groupRecord.scenarioName).append(TABULATION_SEPARATOR)
 			.append(groupRecord.userId.toString).append(TABULATION_SEPARATOR)
 			.append(groupRecord.recordSubType).append(TABULATION_SEPARATOR)
-			.append(groupRecord.groupName.getOrElse(FileDataWriter.emptyField)).append(TABULATION_SEPARATOR)
+			.append(groupRecord.groupName).append(TABULATION_SEPARATOR)
 			.append(groupRecord.executionDate.toString).append(END_OF_LINE)
 	}
 

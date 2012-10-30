@@ -100,7 +100,7 @@ class ConsoleDataWriter extends DataWriter with Logging {
 	override def onGroupRecord(groupRecord: GroupRecord) {
 		groupRecord.recordSubType match {
 			case START =>
-				updateCurrentGroup(groupRecord.scenarioName, groupRecord.userId, current => Some(Group(groupRecord.groupName.get, current)))
+				updateCurrentGroup(groupRecord.scenarioName, groupRecord.userId, current => Some(Group(groupRecord.groupName, current)))
 
 			case END =>
 				updateCurrentGroup(groupRecord.scenarioName, groupRecord.userId, current => current.flatMap(_.parent))

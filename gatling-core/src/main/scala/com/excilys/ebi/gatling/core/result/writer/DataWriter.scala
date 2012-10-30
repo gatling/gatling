@@ -41,24 +41,14 @@ object DataWriter {
 		router ! InitializeDataWriter(runRecord, shortScenarioDescriptions)
 	}
 
-	def startUser(scenarioName: String, userId: Int) = {
+	def user(scenarioName: String, userId: Int, event: String) = {
 		val time = nowMillis
-		router ! ScenarioRecord(scenarioName, userId, time, START)
+		router ! ScenarioRecord(scenarioName, userId, time, event)
 	}
 
-	def endUser(scenarioName: String, userId: Int) = {
+	def group(scenarioName: String, groupName: String, userId: Int, event: String) {
 		val time = nowMillis
-		router ! ScenarioRecord(scenarioName, userId, time, END)
-	}
-
-	def startGroup(scenarioName: String, groupName: String, userId: Int) {
-		val time = nowMillis
-		router ! GroupRecord(scenarioName, userId, time, START, Some(groupName))
-	}
-
-	def endGroup(scenarioName: String, userId: Int) {
-		val time = nowMillis
-		router ! GroupRecord(scenarioName, userId, time, END, None)
+		router ! GroupRecord(scenarioName, userId, time, event, groupName)
 	}
 
 	def logRequest(

@@ -19,12 +19,13 @@ import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.ActorRef
-import akka.actor.actorRef2Scala
 
-class EndGroupAction(val next: ActorRef) extends Action {
+class UserAction(event: String, val next: ActorRef) extends Action {
 
 	def execute(session: Session) {
-		DataWriter.endGroup(session.scenarioName, session.userId)
+
+		DataWriter.user(session.scenarioName, session.userId, event)
+		info(event + " user #" + session.userId)
 		next ! session
 	}
 }
