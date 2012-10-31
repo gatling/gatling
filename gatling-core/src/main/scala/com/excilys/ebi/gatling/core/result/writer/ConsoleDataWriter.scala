@@ -23,7 +23,7 @@ import scala.collection.mutable.{ HashMap, LinkedHashMap }
 import com.excilys.ebi.gatling.core.result.{ Group, RequestPath }
 import com.excilys.ebi.gatling.core.result.message.{ RunRecord, ScenarioRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.message.GroupRecord
-import com.excilys.ebi.gatling.core.result.message.RecordSubType.{ END, START }
+import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
 import com.excilys.ebi.gatling.core.result.message.RequestRecord
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
 
@@ -80,7 +80,7 @@ class ConsoleDataWriter extends DataWriter with Logging {
 	}
 
 	override def onScenarioRecord(scenarioRecord: ScenarioRecord) {
-		scenarioRecord.recordSubType match {
+		scenarioRecord.event match {
 			case START =>
 				usersCounters
 					.get(scenarioRecord.scenarioName)
@@ -98,7 +98,7 @@ class ConsoleDataWriter extends DataWriter with Logging {
 	}
 
 	override def onGroupRecord(groupRecord: GroupRecord) {
-		groupRecord.recordSubType match {
+		groupRecord.event match {
 			case START =>
 				updateCurrentGroup(groupRecord.scenarioName, groupRecord.userId, current => Some(Group(groupRecord.groupName, current)))
 

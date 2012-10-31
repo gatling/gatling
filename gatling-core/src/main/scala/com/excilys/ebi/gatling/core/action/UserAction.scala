@@ -15,6 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.action
 
+import com.excilys.ebi.gatling.core.result.message.RecordEvent.END
+import com.excilys.ebi.gatling.core.result.terminator.Terminator
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 
@@ -26,6 +28,10 @@ class UserAction(event: String, val next: ActorRef) extends Action {
 
 		DataWriter.user(session.scenarioName, session.userId, event)
 		info(event + " user #" + session.userId)
-		next ! session
+
+		event match {
+			case END => Terminator.endUser
+			case _ => next ! session
+		}
 	}
 }

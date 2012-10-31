@@ -56,9 +56,9 @@ case class RequestRecord(
 	userId: Int,
 	requestName: String,
 	executionStartDate: Long,
-	executionEndDate: Long,
 	requestSendingEndDate: Long,
 	responseReceivingStartDate: Long,
+	executionEndDate: Long,
 	requestStatus: RequestStatus.RequestStatus,
 	requestMessage: Option[String] = None,
 	extraInfo: List[String] = Nil) extends DataWriterMessage {
@@ -73,11 +73,11 @@ case class RunRecord(runDate: DateTime, simulationId: String, runDescription: St
 	def readableRunDate = toHumanDate(runDate)
 }
 
-case class ScenarioRecord(scenarioName: String, userId: Int, executionDate: Long, recordSubType: String) extends DataWriterMessage {
+case class ScenarioRecord(scenarioName: String, userId: Int, event: String, executionDate: Long) extends DataWriterMessage {
 	val recordType = SCENARIO
 }
 
-case class GroupRecord(scenarioName: String, userId: Int, executionDate: Long, recordSubType: String, groupName: String) extends DataWriterMessage {
+case class GroupRecord(scenarioName: String, groupName: String, userId: Int, event: String, executionDate: Long) extends DataWriterMessage {
 	val recordType = GROUP
 }
 
