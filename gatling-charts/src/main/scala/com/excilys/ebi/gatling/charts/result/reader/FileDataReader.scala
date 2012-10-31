@@ -79,7 +79,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 					if (count % FileDataReader.LOG_STEP == 0) info("First pass, read " + count + " lines")
 
-					(math.min(min, strings(4).toLong), math.max(max, strings(5).toLong), count + 1)
+					(math.min(min, strings(4).toLong), math.max(max, strings(7).toLong), count + 1)
 			}
 
 		val runRecords = mutable.ListBuffer[RunRecord]()

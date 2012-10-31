@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.metrics.types
 
-import com.excilys.ebi.gatling.core.result.message.RecordSubType.{ END, START }
+import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
 import com.excilys.ebi.gatling.core.result.message.ScenarioRecord
 
 class UserMetric(val nbUsers: Int) {
@@ -27,7 +27,7 @@ class UserMetric(val nbUsers: Int) {
 	private var doneBuffer = 0
 
 	def update(scenarioRecord: ScenarioRecord) {
-		scenarioRecord.recordSubType match {
+		scenarioRecord.event match {
 			case START => {
 				_active += 1
 				_waiting -= 1
