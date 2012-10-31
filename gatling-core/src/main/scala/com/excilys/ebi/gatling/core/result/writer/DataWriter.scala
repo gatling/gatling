@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.core.action.{ BaseActor, system }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.{ FlushDataWriter, GroupRecord, InitializeDataWriter }
 import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RequestStatus, RunRecord, ScenarioRecord, ShortScenarioDescription }
-import com.excilys.ebi.gatling.core.result.message.RecordSubType.{ END, START }
+import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
 import com.excilys.ebi.gatling.core.result.terminator.Terminator
 import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
@@ -43,12 +43,12 @@ object DataWriter {
 
 	def user(scenarioName: String, userId: Int, event: String) = {
 		val time = nowMillis
-		router ! ScenarioRecord(scenarioName, userId, time, event)
+		router ! ScenarioRecord(scenarioName, userId, event, time)
 	}
 
 	def group(scenarioName: String, groupName: String, userId: Int, event: String) {
 		val time = nowMillis
-		router ! GroupRecord(scenarioName, userId, time, event, groupName)
+		router ! GroupRecord(scenarioName, groupName, userId, event, time)
 	}
 
 	def logRequest(
@@ -68,9 +68,9 @@ object DataWriter {
 			userId,
 			requestName,
 			executionStartDate,
-			executionEndDate,
 			requestSendingEndDate,
 			responseReceivingStartDate,
+			executionEndDate,
 			requestResult,
 			requestMessage,
 			extraInfo)

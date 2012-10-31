@@ -22,7 +22,7 @@ object RecordType {
 	val GROUP = "GROUP"
 }
 
-object RecordSubType {
+object RecordEvent {
 	val START = "START"
 	val END = "END"
 }

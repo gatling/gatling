@@ -18,8 +18,8 @@ package com.excilys.ebi.gatling.core.action
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.core.session.Session
+
 import akka.actor.ActorRef
-import com.excilys.ebi.gatling.core.result.message.RecordSubType
 
 class GroupAction(groupName: EvaluatableString, event: String, val next: ActorRef) extends Action {
 

@@ -44,9 +44,9 @@ object FileDataWriter {
 			.append(requestRecord.userId.toString).append(TABULATION_SEPARATOR)
 			.append(requestRecord.requestName).append(TABULATION_SEPARATOR)
 			.append(requestRecord.executionStartDate.toString).append(TABULATION_SEPARATOR)
-			.append(requestRecord.executionEndDate.toString).append(TABULATION_SEPARATOR)
 			.append(requestRecord.requestSendingEndDate.toString).append(TABULATION_SEPARATOR)
 			.append(requestRecord.responseReceivingStartDate.toString).append(TABULATION_SEPARATOR)
+			.append(requestRecord.executionEndDate.toString).append(TABULATION_SEPARATOR)
 			.append(requestRecord.requestStatus.toString).append(TABULATION_SEPARATOR)
 			.append(requestRecord.requestMessage.getOrElse(emptyField))
 
@@ -95,16 +95,16 @@ class FileDataWriter extends DataWriter with Logging {
 		osw.append(SCENARIO).append(TABULATION_SEPARATOR)
 			.append(scenarioRecord.scenarioName).append(TABULATION_SEPARATOR)
 			.append(scenarioRecord.userId.toString).append(TABULATION_SEPARATOR)
-			.append(scenarioRecord.recordSubType).append(TABULATION_SEPARATOR)
+			.append(scenarioRecord.event).append(TABULATION_SEPARATOR)
 			.append(scenarioRecord.executionDate.toString).append(END_OF_LINE)
 	}
 
 	override def onGroupRecord(groupRecord: GroupRecord) {
 		osw.append(GROUP).append(TABULATION_SEPARATOR)
 			.append(groupRecord.scenarioName).append(TABULATION_SEPARATOR)
-			.append(groupRecord.userId.toString).append(TABULATION_SEPARATOR)
-			.append(groupRecord.recordSubType).append(TABULATION_SEPARATOR)
 			.append(groupRecord.groupName).append(TABULATION_SEPARATOR)
+			.append(groupRecord.userId.toString).append(TABULATION_SEPARATOR)
+			.append(groupRecord.event).append(TABULATION_SEPARATOR)
 			.append(groupRecord.executionDate.toString).append(END_OF_LINE)
 	}
 
