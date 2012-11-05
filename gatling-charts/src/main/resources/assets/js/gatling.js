@@ -50,8 +50,23 @@
 
 	$.fn.sortable = function () {
 		var table = this;
+
 		this.find('thead .sortable').click( function () {
-			table.sortTable($(this).attr('id'));
+			var $this = $(this);
+
+			if ($this.hasClass('sorted-down')) {
+				var desc = false;
+				var style = 'sorted-up';
+			}
+			else {
+				var desc = true;
+				var style = 'sorted-down';
+			}
+
+			table.sortTable($this.attr('id'), desc);
+
+			table.find('thead .sortable').removeClass('sorted-up sorted-down');
+			$this.addClass(style);
 
 			return false;
 		});
@@ -59,13 +74,34 @@
 		return this;
 	};
 
-	$.fn.sortTable = function (col) {
-		return this.find('tbody').append(this.find('tbody tr').remove().sortLines('ROOT'));
+	$.fn.sortTable = function (col, desc) {
+		function getValue(line) {
+			var cell = $(line).find('.' + col);
 
-		return this;
-	}
+			if (cell.hasClass('value'))
+				var value = cell.text();
+			else
+				var value = cell.find('.value').text();
 
-	$.fn.sortLines = function (group) {};
+			return parseInt(value);
+		}
+
+		function sortLines (lines, group) {
+			var sortedLines = lines.filter('.child-of-' + group).sort(function (a, b) {
+				return desc ? getValue(b) - getValue(a): getValue(a) - getValue(b);
+			}).toArray();
+
+			var result = [];
+			$.each(sortedLines, function (i, line) {
+				result.push(line);
+				result = result.concat(sortLines(lines, $(line).attr('id')));
+			});
+
+			return result;
+		}
+
+		return this.find('tbody').append(sortLines(this.find('tbody tr').detach(), 'ROOT'));
+	};
 })(jQuery);
 
 

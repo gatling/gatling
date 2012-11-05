@@ -18,10 +18,10 @@ function generateHtmlRow(request, level, index, parent, group) {
 	else
 		var style = '';
 
-	return '<tr' + style + '> \
+	return '<tr id="' + request.pathFormatted + '"' + style + '> \
 		<td class="total col-1"> \
 			<a id="' + request.pathFormatted + '" href="#" style="margin-left: ' + (level * 10) + 'px;" class="expand-button' + expandButtonStyle + '"></a> \
-			<a href="' + url +'">' + request.name + '</a><span style="display:none;">;' + index + '</span> \
+			<a href="' + url +'">' + request.name + '</a><span class="value" style="display:none;">' + index + '</span> \
 		</td> \
 		<td></td> \
 		<td class="value total col-2">' + request.stats.numberOfRequests.total + '</td> \
@@ -69,28 +69,7 @@ $('#container_statistics thead').append(generateHtmlRow(stats, 0, 0));
 var lines = generateHtmlRowsForGroup(stats, 0, 0)
 $('#container_statistics tbody').append(lines.html);
 
-$('#container_statistics').expandable();
-//$('#container_statistics').sortable();
-
-/*$.tablesorter.addParser({
-	id: 'requests',
-	is: function(text) { return false },
-	format: function(text) { return parseInt(text.replace(/.*;/, '')) },
-	type: 'numeric'
-});
-
-$('#container_statistics').tablesorter({
-	cssAsc: "sorted-down",
-	cssDesc: "sorted-up",
-	headers: {
-		0: {sorter: 'requests'},
-		1: {sorter: false},
-		2: {sorter: false},
-		3: {sorter: false},
-		4: {sorter: false}
-	},
-	sortList: [[0, 0]]
-});*/
+$('#container_statistics').expandable().sortable();
 
 if (lines.index < 30) {
 	$('#statistics_title span').attr('style', 'display: none;');
