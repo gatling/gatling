@@ -15,40 +15,72 @@
  */
 (function ($) {
 	$.fn.expandable = function () {
+		var scope = this;
+
 		this.find('.expand-button:not([class*=hidden])').addClass('collapse').click(function () {
 			var $this = $(this);
-			var id = $this.attr('id');
 
 			if ($this.hasClass('expand'))
-				$this.expand();
+				$this.expand(scope);
 			else
-				$this.collapse();
+				$this.collapse(scope);
 
 			return false;
 		});
 
 		this.find('.expand-button.hidden').click(function () { return false });
 
+		this.find('.expand-all-button').click(function () {
+			$(this).expandAll(scope);
+			return false;
+		});
+
+		this.find('.collapse-all-button').click(function () {
+			$(this).collapseAll(scope);
+			return false;
+		});
+
+		this.collapseAll(this);
+
 		return this;
 	};
 
-	$.fn.expand = function () {
-		$('.child-of-' + this.attr('id')).toggle(true);
+	$.fn.expand = function (scope, recursive) {
+		return this.each(function () {
+			var $this = $(this);
 
-		return this.toggleClass('expand').toggleClass('collapse');
-	};
+			if (recursive) {
+				scope.find('.child-of-' + $this.attr('id') + ' a.expand-button.expand').expand(scope, true);
+				scope.find('.child-of-' + $this.attr('id') + ' a.expand-button.collapse').expand(scope, true);
+			}
 
-	$.fn.collapse = function () {
-        $.each($('.child-of-' + this.attr('id') + ' a.expand-button.collapse'), function (i, element) {
-			$(element).collapse();
+			if ($this.hasClass('expand')) {
+				scope.find('.child-of-' + $this.attr('id')).toggle(true);
+				$this.toggleClass('expand').toggleClass('collapse');
+			}
 		});
-
-		$('.child-of-' + this.attr('id')).toggle(false);
-
-		return this.toggleClass('expand').toggleClass('collapse');
 	};
 
-	$.fn.sortable = function () {
+	$.fn.expandAll = function (scope) {
+		$('.child-of-ROOT a.expand-button.expand').expand(scope, true);
+		$('.child-of-ROOT a.expand-button.collapse').expand(scope, true);
+	};
+
+	$.fn.collapse = function (scope) {
+		return this.each(function () {
+			var $this = $(this);
+
+ 		    scope.find('.child-of-' + $this.attr('id') + ' a.expand-button.collapse').collapse(scope);
+			scope.find('.child-of-' + $this.attr('id')).toggle(false);
+			$this.toggleClass('expand').toggleClass('collapse');
+		});
+	};
+
+	$.fn.collapseAll = function (scope) {
+		$('.child-of-ROOT a.expand-button.collapse').collapse(scope);
+	};
+
+	$.fn.sortable = function (target) {
 		var table = this;
 
 		this.find('thead .sortable').click( function () {
@@ -63,7 +95,7 @@
 				var style = 'sorted-down';
 			}
 
-			table.sortTable($this.attr('id'), desc);
+			$(target).sortTable($this.attr('id'), desc);
 
 			table.find('thead .sortable').removeClass('sorted-up sorted-down');
 			$this.addClass(style);
@@ -100,7 +132,9 @@
 			return result;
 		}
 
-		return this.find('tbody').append(sortLines(this.find('tbody tr').detach(), 'ROOT'));
+		this.find('tbody').append(sortLines(this.find('tbody tr').detach(), 'ROOT'));
+
+		return this;
 	};
 })(jQuery);
 

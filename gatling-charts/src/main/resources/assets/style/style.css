@@ -303,6 +303,7 @@ h1 span {
 	-webkit-border-top-right-radius: 8px;
 	padding-top: 5px;
 	padding-left: 28px;
+	margin-right: 10px;
 }
 
 .title_not_collapsed {
@@ -318,15 +319,6 @@ h1 span {
 	background: #ff9916 url('arrow_right.png') 11px 3px no-repeat;
 	cursor: pointer;
 	width: 872px;
-}
-
-.collapsed {
-	overflow: auto;
-	max-height: 908px;
-}
-
-.extensible-geant.collapsed {
-	padding-right: 15px;
 }
 
 .infos h2 {
@@ -431,18 +423,30 @@ h1 span {
 	margin-bottom: 20px;
 	color: white;
 	display: block;
-	overflow-y: auto;
+}
+
+#container_statistics_head {
+	background: #FF9916;
+	padding: 5px 5px 0px 5px;
+}
+
+#container_statistics_body {
+	border-bottom-left-radius: 8px;
+	border-bottom-right-radius: 8px;
+	background: #CF6900 url('stat-fond.png') repeat-x;
+	padding: 0px 5px 5px 5px;
 }
 
 .statistics-in {
-	background: #eaeaea;
-	border-bottom-left-radius: 8px;
-	border-bottom-right-radius: 8px;
 	margin: 0;
 	height: 100%;
-	background: #CF6900 url('stat-fond.png') repeat-x;
-	padding: 5px;
 	border-spacing: 4px;
+}
+
+.statistics .scrollable {
+	max-height: 785px;
+	overflow-y: auto;
+	width: 915px;
 }
 
 .statistics-in a {
@@ -518,6 +522,10 @@ h1 span {
 .expand-button.hidden {
 	background: none;
 	cursor: default;
+}
+
+.statistics .expand-all-button, .statistics .collapse-all-button {
+	color: white;
 }
 
 .statistics-in .expand-button.expand {
