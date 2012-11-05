@@ -48,7 +48,7 @@
 		return this.toggleClass('expand').toggleClass('collapse');
 	};
 
-	$.fn.sortable = function () {
+	$.fn.sortable = function (target) {
 		var table = this;
 
 		this.find('thead .sortable').click( function () {
@@ -63,7 +63,7 @@
 				var style = 'sorted-down';
 			}
 
-			table.sortTable($this.attr('id'), desc);
+			$(target).sortTable($this.attr('id'), desc);
 
 			table.find('thead .sortable').removeClass('sorted-up sorted-down');
 			$this.addClass(style);
@@ -100,7 +100,9 @@
 			return result;
 		}
 
-		return this.find('tbody').append(sortLines(this.find('tbody tr').detach(), 'ROOT'));
+		this.find('tbody').append(sortLines(this.find('tbody tr').detach(), 'ROOT'));
+
+		return this;
 	};
 })(jQuery);
 
