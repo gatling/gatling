@@ -303,6 +303,7 @@ h1 span {
 	-webkit-border-top-right-radius: 8px;
 	padding-top: 5px;
 	padding-left: 28px;
+	margin-right: 10px;
 }
 
 .title_not_collapsed {
@@ -521,6 +522,10 @@ h1 span {
 .expand-button.hidden {
 	background: none;
 	cursor: default;
+}
+
+.statistics .expand-all-button, .statistics .collapse-all-button {
+	color: white;
 }
 
 .statistics-in .expand-button.expand {
