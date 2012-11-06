@@ -24,6 +24,7 @@ import scala.tools.nsc.io.Path
 object ChartsFiles {
 	val JQUERY_FILE = "jquery.min.js"
 	val JQUERY_TABLESORTER_FILE = "jquery.tablesorter.min.js"
+	val BOOTSTRAP_FILE = "bootstrap.min.js"
 	val MENU_FILE = "menu.js"
 	val ALL_SESSIONS_FILE = "all_sessions.js"
 	val STATS_JS_FILE = "stats.js"

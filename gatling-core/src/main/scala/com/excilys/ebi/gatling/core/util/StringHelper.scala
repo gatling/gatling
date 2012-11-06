@@ -55,4 +55,6 @@ object StringHelper extends Logging {
 		case EMPTY => None
 		case string => Some(string)
 	}
+
+	def truncate(s: String,maxLength: Int) = if(s.length < maxLength) s else s.substring(0,maxLength) + "..."
 }

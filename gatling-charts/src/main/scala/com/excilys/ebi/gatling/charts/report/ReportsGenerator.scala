@@ -67,7 +67,7 @@ object ReportsGenerator extends Logging {
 
 		copyAssets
 		generateMenu
-		PageTemplate.setRunInfo(dataReader.runRecord)
+		PageTemplate.setRunInfo(dataReader.runRecord,dataReader.runStart,dataReader.runEnd)
 		reportGenerators.foreach(_.generate)
 		generateStats
 
