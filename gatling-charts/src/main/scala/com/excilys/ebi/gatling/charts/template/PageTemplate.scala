@@ -30,12 +30,19 @@ object PageTemplate {
 	}
 
 	private var runRecord: RunRecord = _
-	def setRunInfo(runRecord: RunRecord) { PageTemplate.runRecord = runRecord }
+	private var runStart: Long = _
+	private var runEnd: Long = _
+
+	def setRunInfo(runRecord: RunRecord,runStart: Long,runEnd: Long) {
+		PageTemplate.runRecord = runRecord
+		PageTemplate.runStart = runStart
+		PageTemplate.runEnd = runEnd
+	}
 }
 
 abstract class PageTemplate(title: String, isDetails: Boolean, components: Component*) {
 
-	val jsFiles: Seq[String] = (Seq(JQUERY_FILE, MENU_FILE, ALL_SESSIONS_FILE, STATS_JS_FILE) ++ getAdditionnalJSFiles).distinct
+	val jsFiles: Seq[String] = (Seq(JQUERY_FILE, BOOTSTRAP_FILE, MENU_FILE, ALL_SESSIONS_FILE, STATS_JS_FILE) ++ getAdditionnalJSFiles).distinct
 
 	def getContent: String = components.map(_.getHTMLContent).mkString
 
@@ -50,6 +57,8 @@ abstract class PageTemplate(title: String, isDetails: Boolean, components: Compo
 				"pageContent" -> getContent,
 				"javascript" -> getJavascript,
 				"isDetails" -> isDetails,
-				"runRecord" -> PageTemplate.runRecord))
+				"runRecord" -> PageTemplate.runRecord,
+				"runStart" -> PageTemplate.runStart,
+				"runEnd" -> PageTemplate.runEnd))
 	}
 }
