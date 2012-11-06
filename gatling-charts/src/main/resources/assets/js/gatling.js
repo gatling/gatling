@@ -24,20 +24,14 @@
 				$this.expand(scope);
 			else
 				$this.collapse(scope);
-
-			return false;
 		});
-
-		this.find('.expand-button.hidden').click(function () { return false });
 
 		this.find('.expand-all-button').click(function () {
 			$(this).expandAll(scope);
-			return false;
 		});
 
 		this.find('.collapse-all-button').click(function () {
 			$(this).collapseAll(scope);
-			return false;
 		});
 
 		this.collapseAll(this);
@@ -50,8 +44,8 @@
 			var $this = $(this);
 
 			if (recursive) {
-				scope.find('.child-of-' + $this.attr('id') + ' a.expand-button.expand').expand(scope, true);
-				scope.find('.child-of-' + $this.attr('id') + ' a.expand-button.collapse').expand(scope, true);
+				scope.find('.child-of-' + $this.attr('id') + ' .expand-button.expand').expand(scope, true);
+				scope.find('.child-of-' + $this.attr('id') + ' .expand-button.collapse').expand(scope, true);
 			}
 
 			if ($this.hasClass('expand')) {
@@ -62,22 +56,22 @@
 	};
 
 	$.fn.expandAll = function (scope) {
-		$('.child-of-ROOT a.expand-button.expand').expand(scope, true);
-		$('.child-of-ROOT a.expand-button.collapse').expand(scope, true);
+		$('.child-of-ROOT .expand-button.expand').expand(scope, true);
+		$('.child-of-ROOT .expand-button.collapse').expand(scope, true);
 	};
 
 	$.fn.collapse = function (scope) {
 		return this.each(function () {
 			var $this = $(this);
 
- 		    scope.find('.child-of-' + $this.attr('id') + ' a.expand-button.collapse').collapse(scope);
+ 		    scope.find('.child-of-' + $this.attr('id') + ' .expand-button.collapse').collapse(scope);
 			scope.find('.child-of-' + $this.attr('id')).toggle(false);
 			$this.toggleClass('expand').toggleClass('collapse');
 		});
 	};
 
 	$.fn.collapseAll = function (scope) {
-		$('.child-of-ROOT a.expand-button.collapse').collapse(scope);
+		$('.child-of-ROOT .expand-button.collapse').collapse(scope);
 	};
 
 	$.fn.sortable = function (target) {
