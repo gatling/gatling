@@ -28,8 +28,10 @@ object DataReader {
 abstract class DataReader(runUuid: String) {
 
 	def runRecord: RunRecord
-	
+
 	def runStart: Long
+
+	def runEnd: Long
 
 	def requestNames: List[String]
 
