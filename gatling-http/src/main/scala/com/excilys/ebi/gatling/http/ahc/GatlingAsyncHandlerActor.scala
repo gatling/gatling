@@ -177,6 +177,7 @@ class GatlingAsyncHandlerActor(
 
 			val newRequest = requestBuilder.build
 			newRequest.getHeaders.remove(HeaderNames.CONTENT_LENGTH)
+			newRequest.getHeaders.remove(HeaderNames.CONTENT_TYPE)
 
 			val newRequestName = requestName match {
 				case GatlingAsyncHandlerActor.REDIRECTED_REQUEST_NAME_PATTERN(requestBaseName, redirectCount) =>
