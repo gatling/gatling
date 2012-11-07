@@ -82,15 +82,14 @@ object GatlingConfiguration extends Logging {
 				requestTimeOutInMs = config.getInt(CONF_HTTP_REQUEST_TIMEOUT_IN_MS),
 				useProxyProperties = config.getBoolean(CONF_HTTP_USE_PROXY_PROPERTIES),
 				userAgent = config.getString(CONF_HTTP_USER_AGENT),
-				userRawUrl = config.getBoolean(CONF_HTTP_USE_RAW_URL)),
+				userRawUrl = config.getBoolean(CONF_HTTP_USE_RAW_URL),
+				nonStandardJsonSupport = config.getStringList(CONF_HTTP_JSON_FEATURES).toList),
 			data = DataConfiguration(
 				dataWriterClasses = config.getStringList(CONF_DATA_WRITER_CLASS_NAMES).toList.map {
-					_ match {
 						case "console" => "com.excilys.ebi.gatling.core.result.writer.ConsoleDataWriter"
 						case "file" => "com.excilys.ebi.gatling.core.result.writer.FileDataWriter"
 						case "graphite" => "com.excilys.ebi.gatling.metrics.GraphiteDataWriter"
 						case clazz => clazz
-					}
 				},
 				dataReaderClass = (config.getString(CONF_DATA_READER_CLASS_NAME)).trim match {
 					case "file" => "com.excilys.ebi.gatling.charts.result.reader.FileDataReader"
@@ -150,7 +149,8 @@ case class HttpConfiguration(
 	requestTimeOutInMs: Int,
 	useProxyProperties: Boolean,
 	userAgent: String,
-	userRawUrl: Boolean)
+	userRawUrl: Boolean,
+	nonStandardJsonSupport: List[String])
 
 case class DataConfiguration(
 	dataWriterClasses: List[String],
