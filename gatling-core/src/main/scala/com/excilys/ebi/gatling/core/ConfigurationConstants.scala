@@ -56,6 +56,7 @@ object ConfigurationConstants {
 	val CONF_HTTP_USE_PROXY_PROPERTIES = "gatling.http.useProxyProperties"
 	val CONF_HTTP_USER_AGENT = "gatling.http.userAgent"
 	val CONF_HTTP_USE_RAW_URL = "gatling.http.useRawUrl"
+	val CONF_HTTP_JSON_FEATURES = "gatling.http.nonStandardJsonSupport"
 
 	val CONF_DATA_WRITER_CLASS_NAMES = "gatling.data.writers"
 	val CONF_DATA_READER_CLASS_NAME = "gatling.data.reader"
