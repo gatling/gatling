@@ -232,7 +232,7 @@ h1 span {
 }
 
 .nav .item {
-	padding: 5px 10px;
+	padding: 5px 0px 5px 10px;
 	display: block;
 	margin: 0 auto
 }
@@ -289,36 +289,6 @@ h1 span {
 	background: url('stat-fleche-bas.png') no-repeat top left;
 	height: 25px;
 	width: 22px;
-}
-
-.title {
-	height: 15px;
-	text-align: left;
-	font-weight: bold;
-	border-top-left-radius: 8px;
-	border-top-right-radius: 8px;
-	-moz-border-top-left-radius: 8px;
-	-moz-border-top-right-radius: 8px;
-	-webkit-border-top-left-radius: 8px;
-	-webkit-border-top-right-radius: 8px;
-	padding-top: 5px;
-	padding-left: 28px;
-	margin-right: 10px;
-}
-
-.title_not_collapsed {
-	background: #ff9916 url('arrow_down.png') 11px 6px no-repeat;
-	cursor: pointer;
-}
-
-.title_not_collapsed span {
-	display: none;
-}
-
-.title_collapsed {
-	background: #ff9916 url('arrow_right.png') 11px 3px no-repeat;
-	cursor: pointer;
-	width: 872px;
 }
 
 .infos h2 {
@@ -425,6 +395,33 @@ h1 span {
 	display: block;
 }
 
+.statistics .title {
+	height: 15px;
+	text-align: left;
+	font-weight: bold;
+	background: #ff9916;
+	border-top-left-radius: 8px;
+	border-top-right-radius: 8px;
+	padding: 5px 15px 0px 15px;
+	width: 870px;
+}
+
+.title_not_collapsed {
+	background: #ff9916 url('arrow_down.png') 0px 3px no-repeat;
+	cursor: pointer;
+	padding-left: 20px;
+}
+
+.title_not_collapsed span {
+	display: none;
+}
+
+.title_collapsed {
+	background: #ff9916 url('arrow_right.png') 0px 0px no-repeat;
+	cursor: pointer;
+	padding-left: 20px;
+}
+
 #container_statistics_head {
 	background: #FF9916;
 	padding: 5px 5px 0px 5px;
@@ -439,7 +436,6 @@ h1 span {
 
 .statistics-in {
 	margin: 0;
-	height: 100%;
 	border-spacing: 4px;
 }
 
@@ -517,6 +513,7 @@ h1 span {
 
 .statistics-in .expand-button {
 	padding-left: 10px;
+	cursor: pointer;
 }
 
 .expand-button.hidden {
@@ -526,6 +523,7 @@ h1 span {
 
 .statistics .expand-all-button, .statistics .collapse-all-button {
 	color: white;
+	cursor: pointer;
 }
 
 .statistics-in .expand-button.expand {
@@ -542,10 +540,12 @@ h1 span {
 
 .nav .expand-button.expand {
 	background: url('arrow_right_black.png') no-repeat 5px 10px;
+	cursor: pointer;
 }
 
 .nav .expand-button.collapse {
 	background: url('arrow_down_black.png') no-repeat 3px 12px;
+	cursor: pointer;
 }
 
 .nav .on .expand-button.expand {
@@ -556,3 +556,6 @@ h1 span {
 	background-image: url('arrow_down.png');
 }
 
+.right {
+	float: right;
+}
