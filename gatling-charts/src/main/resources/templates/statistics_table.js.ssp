@@ -15,7 +15,7 @@ function generateHtmlRow(request, level, index, parent, group) {
 
 	return '<tr id="' + request.pathFormatted + '" class="child-of-' + parent + '"> \
 		<td class="total col-1"> \
-			<span id="' + request.pathFormatted + '" href="#" style="margin-left: ' + (level * 10) + 'px;" class="expand-button' + expandButtonStyle + '">&nbsp;</span> \
+			<span id="' + request.pathFormatted + '" style="margin-left: ' + (level * 10) + 'px;" class="expand-button' + expandButtonStyle + '">&nbsp;</span> \
 			<a href="' + url +'">' + request.name + '</a><span class="value" style="display:none;">' + index + '</span> \
 		</td> \
 		<td></td> \
