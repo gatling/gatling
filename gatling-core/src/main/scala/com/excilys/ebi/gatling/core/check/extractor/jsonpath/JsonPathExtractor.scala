@@ -17,10 +17,10 @@ package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 
 import scala.collection.JavaConversions.asScalaBuffer
 
-import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
+import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ seqToOption, toOption }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.fasterxml.jackson.databind.{MappingJsonFactory, ObjectMapper, JsonNode}
 import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.databind.{ JsonNode, MappingJsonFactory, ObjectMapper }
 
 object JsonPathExtractor {
 
@@ -28,9 +28,9 @@ object JsonPathExtractor {
 	 * The singleton ObjectMapper. Used in a threadsafe mannner as configuration never changes on the fly.
 	 */
 	val mapper = {
-		val jacksonFeatures = configuration.http.nonStandardJsonSupport map (JsonParser.Feature.valueOf(_))
-		val jsonFactory = new MappingJsonFactory()
-		jacksonFeatures foreach(jsonFactory.enable(_))
+		val jacksonFeatures = configuration.http.nonStandardJsonSupport.map(JsonParser.Feature.valueOf(_))
+		val jsonFactory = new MappingJsonFactory
+		jacksonFeatures.foreach(jsonFactory.enable(_))
 		new ObjectMapper(jsonFactory)
 	}
 }
