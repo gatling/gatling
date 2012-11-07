@@ -13,14 +13,9 @@ function generateHtmlRow(request, level, index, parent, group) {
 	else
 		var expandButtonStyle = ' hidden';
 
-	if (parent)
-		var style = ' class="child-of-' + parent + '"';
-	else
-		var style = '';
-
-	return '<tr id="' + request.pathFormatted + '"' + style + '> \
+	return '<tr id="' + request.pathFormatted + '" class="child-of-' + parent + '"> \
 		<td class="total col-1"> \
-			<a id="' + request.pathFormatted + '" href="#" style="margin-left: ' + (level * 10) + 'px;" class="expand-button' + expandButtonStyle + '"></a> \
+			<span id="' + request.pathFormatted + '" href="#" style="margin-left: ' + (level * 10) + 'px;" class="expand-button' + expandButtonStyle + '">&nbsp;</span> \
 			<a href="' + url +'">' + request.name + '</a><span class="value" style="display:none;">' + index + '</span> \
 		</td> \
 		<td></td> \
