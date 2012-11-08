@@ -80,6 +80,7 @@ object ZincCompiler extends Logging {
 			javacOptions = Nil,
 			analysisCache = Some((binDir / "zincCache").jfile),
 			analysisCacheMap = analysisCacheMap,
+			forceClean = false,
 			javaOnly = false,
 			compileOrder = CompileOrder.JavaThenScala,
 			outputRelations = None,
