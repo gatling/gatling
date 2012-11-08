@@ -36,20 +36,20 @@ object ZincCompiler extends Logging {
 	val classpathURLs = Thread.currentThread.getContextClassLoader.asInstanceOf[URLClassLoader].getURLs
 
 	def setupZincCompiler(): Setup = {
-		val scalaCompiler = ClassPath.scalaCompiler.getOrElse(throw new RuntimeException("No Scala compiler available")).jfile
-		val scalaLibrary = ClassPath.scalaLibrary.getOrElse(throw new RuntimeException("No Scala library available")).jfile
-
-		val compilerInterfaceSrc: JFile = {
-			val compilerInterfaceRegex = """(.*compiler-interface-\d+.\d+.\d+-sources.jar)$""".r
-			val compilerInterfaceURL = classpathURLs
-				.filter(url => compilerInterfaceRegex.findFirstMatchIn(url.toString).isDefined)
+		def jarMatching(regex: String): JFile = {
+			val compiledRegex = regex.r
+			val jarUrl = classpathURLs
+				.filter(url => compiledRegex.findFirstMatchIn(url.toString).isDefined)
 				.headOption
-				.getOrElse(throw new RuntimeException("Can't find the compiler-interface jar"))
+				.getOrElse(throw new RuntimeException("Can't find the jar matching " + regex))
 
-			new JFile(compilerInterfaceURL.getPath)
+			new JFile(jarUrl.getPath)
 		}
 
+		val scalaCompiler = ClassPath.scalaCompiler.getOrElse(throw new RuntimeException("No Scala compiler available")).jfile
+		val scalaLibrary = ClassPath.scalaLibrary.getOrElse(throw new RuntimeException("No Scala library available")).jfile
 		val sbtInterfaceSrc: JFile = new JFile(classOf[Compilation].getProtectionDomain.getCodeSource.getLocation.getPath)
+		val compilerInterfaceSrc: JFile = jarMatching("""(.*compiler-interface-\d+.\d+.\d+-sources.jar)$""")
 
 		Setup.setup(scalaCompiler = scalaCompiler,
 			scalaLibrary = scalaLibrary,

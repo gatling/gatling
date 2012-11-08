@@ -240,9 +240,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 
 		val newHeaders = RefererHandling.addStoredRefererHeader(baseHeaders ++ resolvedRequestHeaders, session, protocolConfiguration)
 
-		// if Host header configured, force it
-		newHeaders.get(HeaderNames.HOST).map(requestBuilder.setVirtualHost(_))
-
 		newHeaders.foreach { case (headerName, headerValue) => requestBuilder.addHeader(headerName, headerValue) }
 	}
 

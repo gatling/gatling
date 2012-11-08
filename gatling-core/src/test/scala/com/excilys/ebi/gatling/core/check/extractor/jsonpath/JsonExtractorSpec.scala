@@ -21,10 +21,13 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import com.excilys.ebi.gatling.core.check.extractor.jsonpath.JsonExtractorSpec.extractor
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration
 
 object JsonExtractorSpec {
-	val extractor = new JsonPathExtractor(Source.fromInputStream(getClass.getResourceAsStream("/test.json")).mkString.getBytes)
+	val extractor = {
+		GatlingConfiguration.setUp()
+		new JsonPathExtractor(Source.fromInputStream(getClass.getResourceAsStream("/test.json")).mkString.getBytes)
+	}
 }
 
 @RunWith(classOf[JUnitRunner])
@@ -33,53 +36,53 @@ class JsonExtractorSpec extends Specification {
 	"count" should {
 
 		"return expected result with anywhere expression" in {
-			extractor.count("//author") must beEqualTo(Some(4))
+			JsonExtractorSpec.extractor.count("//author") must beEqualTo(Some(4))
 		}
 
 		"return expected result with array expression" in {
-			extractor.count("/store/book[3]/author") must beEqualTo(Some(1))
+			JsonExtractorSpec.extractor.count("/store/book[3]/author") must beEqualTo(Some(1))
 		}
 	}
 
 	"extractOne" should {
 
 		"return expected result with anywhere expression and rank 0" in {
-			extractor.extractOne(0)("//author") must beEqualTo(Some("Nigel Rees"))
+			JsonExtractorSpec.extractor.extractOne(0)("//author") must beEqualTo(Some("Nigel Rees"))
 		}
 
 		"return expected result with anywhere expression and rank 1" in {
-			extractor.extractOne(1)("//author") must beEqualTo(Some("Evelyn Waugh"))
+			JsonExtractorSpec.extractor.extractOne(1)("//author") must beEqualTo(Some("Evelyn Waugh"))
 		}
 
 		"return expected result with array expression" in {
-			extractor.extractOne(0)("/store/book[3]/author") must beEqualTo(Some("Herman Melville"))
+			JsonExtractorSpec.extractor.extractOne(0)("/store/book[3]/author") must beEqualTo(Some("Herman Melville"))
 		}
 
 		"return expected None with array expression" in {
-			extractor.extractOne(1)("/store/book[3]/author") must beEqualTo(None)
+			JsonExtractorSpec.extractor.extractOne(1)("/store/book[3]/author") must beEqualTo(None)
 		}
 
 		"return expected result with attribute expression" in {
-			extractor.extractOne(0)("/store/book[@author = 'Nigel Rees']/title") must beEqualTo(Some("Sayings of the Century"))
+			JsonExtractorSpec.extractor.extractOne(0)("/store/book[@author = 'Nigel Rees']/title") must beEqualTo(Some("Sayings of the Century"))
 		}
 
 		"return expected result with last function expression" in {
-			extractor.extractOne(0)("//book[last()]/title") must beEqualTo(Some("The Lord of the Rings"))
+			JsonExtractorSpec.extractor.extractOne(0)("//book[last()]/title") must beEqualTo(Some("The Lord of the Rings"))
 		}
 
 		"not mess up if two nodes with the same name are placed in different locations" in {
-			extractor.extractOne(0)("/foo") must beEqualTo(Some("bar"))
+			JsonExtractorSpec.extractor.extractOne(0)("/foo") must beEqualTo(Some("bar"))
 		}
 	}
 
 	"extractMultiple" should {
 
 		"return expected result with anywhere expression" in {
-			extractor.extractMultiple("//author") must beEqualTo(Some(List("Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien")))
+			JsonExtractorSpec.extractor.extractMultiple("//author") must beEqualTo(Some(List("Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien")))
 		}
 
 		"return expected result with array expression" in {
-			extractor.extractMultiple("/store/book[3]/author") must beEqualTo(Some(List("Herman Melville")))
+			JsonExtractorSpec.extractor.extractMultiple("/store/book[3]/author") must beEqualTo(Some(List("Herman Melville")))
 		}
 	}
 }

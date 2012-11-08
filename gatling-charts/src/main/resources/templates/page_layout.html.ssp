@@ -1,5 +1,6 @@
 <% import com.excilys.ebi.gatling.core.util.HtmlHelper.htmlEscape %>
 <% import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename %>
+<% import com.excilys.ebi.gatling.core.util.StringHelper.truncate %>
 <% import com.excilys.ebi.gatling.core.result.Group %>
 <%@ val jsFiles: Seq[String] %>
 <%@ val pageTitle: String %>
@@ -7,12 +8,16 @@
 <%@ val javascript: String %>
 <%@ val isDetails: Boolean %>
 <%@ val runRecord: com.excilys.ebi.gatling.core.result.message.RunRecord %>
+<%@ val runStart: Long %>
+<%@ val runEnd: Long %>
+<% val duration = (runEnd - runStart) / 1000 %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <link rel="shortcut icon" type="image/x-icon" href="style/favicon.ico"/>
 <link href="style/style.css" rel="stylesheet" type="text/css" />
+<link href="style/bootstrap.min.css" rel="stylesheet" type="text/css" />
 <title>Gatling Stats - <%= pageTitle %></title>
 </head>
 <body>
@@ -25,13 +30,15 @@
 		<div class="cadre">
 				<div class="onglet">
 					<img src="style/cible.png" />
-					<p>Simulation:&nbsp;<span><%= runRecord.simulationId %> on <%= runRecord.readableRunDate %></span></p>
+					<p><span><%= runRecord.simulationId %></span></p>
 				</div>
 				<div class="content">
 					<div class="sous-menu">
 						<div class="item<%if(!isDetails){%> ouvert<%}%>"><a href="index.html">GLOBAL</a></div>
 						<div class="item<%if(isDetails){%> ouvert<%}%>"><a id="details_link" href="#">DETAILS</a></div>
-						<p class="sim_desc"><%= htmlEscape(runRecord.runDescription) %></p>
+						<p class="sim_desc" title="<%= runRecord.readableRunDate %>, duration : <%= duration %> seconds" data-content="<%= htmlEscape(runRecord.runDescription) %>">
+							<b><%= runRecord.readableRunDate %>, duration : <%= duration %> seconds</b> <%= htmlEscape(truncate(runRecord.runDescription,70)) %>
+						</p>
 					</div>
 					<div class="content-in">
 						<h1><span>> </span><%= pageTitle %></h1>
@@ -62,6 +69,7 @@
 	var pageStats = stats.stats;
 	<% } %>
 	$(document).ready(function() {
+		$('.sim_desc').popover({trigger:'hover', placement:'bottom'});
 		setDetailsLinkUrl();
 		<% if(isDetails){%>
 		setDetailsMenu();

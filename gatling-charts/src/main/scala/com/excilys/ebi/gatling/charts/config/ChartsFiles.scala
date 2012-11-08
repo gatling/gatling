@@ -23,6 +23,7 @@ import com.excilys.ebi.gatling.core.util.FileHelper.requestFileName
 
 object ChartsFiles {
 	val JQUERY_FILE = "jquery.min.js"
+	val BOOTSTRAP_FILE = "bootstrap.min.js"
 	val GATLING_JS_FILE = "gatling.js"
 	val MENU_FILE = "menu.js"
 	val ALL_SESSIONS_FILE = "all_sessions.js"

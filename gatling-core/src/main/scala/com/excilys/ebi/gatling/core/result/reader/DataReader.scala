@@ -32,6 +32,8 @@ abstract class DataReader(runUuid: String) {
 
 	def runStart: Long
 
+	def runEnd: Long
+
 	def groupsAndRequests: List[(Option[Group], Option[String])]
 
 	def scenarioNames: List[String]

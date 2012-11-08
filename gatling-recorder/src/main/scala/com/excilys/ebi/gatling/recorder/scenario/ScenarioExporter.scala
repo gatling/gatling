@@ -58,7 +58,7 @@ object ScenarioExporter extends Logging {
 				case headerName :: others => resolveBaseHeaders(addHeader(headers, headerName), others)
 			}
 
-			resolveBaseHeaders(Map.empty, List(Headers.Names.ACCEPT, Headers.Names.ACCEPT_CHARSET, Headers.Names.ACCEPT_ENCODING, Headers.Names.ACCEPT_LANGUAGE, Headers.Names.DO_NOT_TRACK, Headers.Names.HOST, Headers.Names.USER_AGENT))
+			resolveBaseHeaders(Map.empty, List(Headers.Names.ACCEPT, Headers.Names.ACCEPT_CHARSET, Headers.Names.ACCEPT_ENCODING, Headers.Names.ACCEPT_LANGUAGE, Headers.Names.DO_NOT_TRACK, Headers.Names.USER_AGENT))
 		}
 
 		val protocolConfigElement = new ProtocolConfigElement(baseUrl, configuration.proxy, configuration.followRedirect, configuration.automaticReferer, baseHeaders)
@@ -81,7 +81,7 @@ object ScenarioExporter extends Logging {
 		}
 
 		// Aggregate headers
-		val filteredHeaders = Set("Authorization", "Cookie", "Content-Length") ++ (if (configuration.automaticReferer) Set("Referer") else Set.empty)
+		val filteredHeaders = Set(Headers.Names.AUTHORIZATION, Headers.Names.COOKIE, Headers.Names.CONTENT_LENGTH, Headers.Names.HOST) ++ (if (configuration.automaticReferer) Set(Headers.Names.REFERER) else Set.empty)
 
 		val headers: Map[Int, List[(String, String)]] = {
 

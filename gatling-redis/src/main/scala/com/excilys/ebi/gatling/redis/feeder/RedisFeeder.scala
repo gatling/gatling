@@ -27,20 +27,10 @@ object RedisFeeder extends Logging {
 
 		system.registerOnTermination(clientPool.close)
 
-		new Iterator[Map[String, String]] {
-
-			def hasNext = true
-
-			def next = clientPool.withClient {
-				client =>
-					val value = client.lpop(key).getOrElse {
-						error("There are not enough records in the feeder '" + key + "'.\nPlease add records or use another feeder strategy.\nStopping simulation here...")
-						clientPool.pool.close
-						system.shutdown
-						sys.exit
-					}
-					Map(key -> value)
-			}
+		def next = clientPool.withClient {
+			client => client.lpop(key).map(value => Map(key -> value))
 		}
+
+		Iterator.continually(next).takeWhile(_.isDefined).map(_.get)
 	}
 }
