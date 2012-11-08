@@ -15,14 +15,11 @@
  */
 package com.excilys.ebi.gatling.core.result.writer
 
-import com.excilys.ebi.gatling.core.action.BaseActor
-import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
-import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
-import com.excilys.ebi.gatling.core.action.system
+import com.excilys.ebi.gatling.core.action.{ BaseActor, system }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.{ FlushDataWriter, InitializeDataWriter, RequestRecord, RequestStatus }
-import com.excilys.ebi.gatling.core.result.message.{ RunRecord, ShortScenarioDescription }
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.OK
+import com.excilys.ebi.gatling.core.result.message.{ FlushDataWriter, GroupRecord, InitializeDataWriter }
+import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RequestStatus, RunRecord, ScenarioRecord, ShortScenarioDescription }
+import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
 import com.excilys.ebi.gatling.core.result.terminator.Terminator
 import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
@@ -44,14 +41,14 @@ object DataWriter {
 		router ! InitializeDataWriter(runRecord, shortScenarioDescriptions)
 	}
 
-	def startUser(scenarioName: String, userId: Int) = {
+	def user(scenarioName: String, userId: Int, event: String) = {
 		val time = nowMillis
-		router ! RequestRecord(scenarioName, userId, START_OF_SCENARIO, time, time, time, time, OK)
+		router ! ScenarioRecord(scenarioName, userId, event, time)
 	}
 
-	def endUser(scenarioName: String, userId: Int) = {
+	def group(scenarioName: String, groupName: String, userId: Int, event: String) {
 		val time = nowMillis
-		router ! RequestRecord(scenarioName, userId, END_OF_SCENARIO, time, time, time, time, OK)
+		router ! GroupRecord(scenarioName, groupName, userId, event, time)
 	}
 
 	def logRequest(
@@ -71,9 +68,9 @@ object DataWriter {
 			userId,
 			requestName,
 			executionStartDate,
-			executionEndDate,
 			requestSendingEndDate,
 			responseReceivingStartDate,
+			executionEndDate,
 			requestResult,
 			requestMessage,
 			extraInfo)
@@ -90,6 +87,10 @@ abstract class DataWriter extends BaseActor {
 
 	def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription])
 
+	def onScenarioRecord(scenarioRecord: ScenarioRecord)
+
+	def onGroupRecord(groupRecord: GroupRecord)
+
 	def onRequestRecord(requestRecord: RequestRecord)
 
 	def onFlushDataWriter
@@ -103,6 +104,10 @@ abstract class DataWriter extends BaseActor {
 	}
 
 	def initialized: Receive = {
+		case scenarioRecord: ScenarioRecord => onScenarioRecord(scenarioRecord)
+
+		case groupRecord: GroupRecord => onGroupRecord(groupRecord)
+
 		case requestRecord: RequestRecord => onRequestRecord(requestRecord)
 
 		case FlushDataWriter =>

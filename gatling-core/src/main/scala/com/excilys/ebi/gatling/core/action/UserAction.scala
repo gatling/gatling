@@ -15,36 +15,23 @@
  */
 package com.excilys.ebi.gatling.core.action
 
+import com.excilys.ebi.gatling.core.result.message.RecordEvent.END
+import com.excilys.ebi.gatling.core.result.terminator.Terminator
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.ActorRef
 
-object StartAction {
+class UserAction(event: String, val next: ActorRef) extends Action {
 
-	/**
-	 * Name of the StartAction used in simulation.log
-	 */
-	val START_OF_SCENARIO = "Start of scenario"
-}
-
-/**
- * An Action that is automatically prepended at the beginning of a scenario.
- *
- * @constructor create an StartAction
- * @param next the action to be executed after this one
- */
-class StartAction(val next: ActorRef) extends Action {
-
-	/**
-	 * Sends a message to the DataWriter and gives hand to next actor
-	 *
-	 * @param session the session of the virtual user
-	 */
 	def execute(session: Session) {
 
-		DataWriter.startUser(session.scenarioName, session.userId)
-		info("Starting user #" + session.userId)
-		next ! session
+		DataWriter.user(session.scenarioName, session.userId, event)
+		info(event + " user #" + session.userId)
+
+		event match {
+			case END => Terminator.endUser
+			case _ => next ! session
+		}
 	}
 }

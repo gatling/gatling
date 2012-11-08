@@ -23,24 +23,11 @@ object HtmlHelper {
 
 	val ENTITIES = ResourceBundle.getBundle("html-entities")
 
-	val CHAR_TO_HTML_ENTITIES: Map[Int, String] = ENTITIES.getKeys.map { entityName => (ENTITIES.getString(entityName).toInt, entityName) }.toMap
-
-	val HTML_ENTITIES_TO_CHAR = ENTITIES.getKeys.map { entityName => (entityName, ENTITIES.getString(entityName).toInt) }.toMap
-
-	def htmlEntityToChar(entity: String): Option[Int] = HTML_ENTITIES_TO_CHAR.get(entity)
-
-	def htmlEntityToChar(entity: String, default: Int): Int = HTML_ENTITIES_TO_CHAR.get(entity).getOrElse(default)
-
-	def charToHtmlEntity(entity: Int): Option[String] = CHAR_TO_HTML_ENTITIES.get(entity)
+	val CHAR_TO_HTML_ENTITIES: Map[Char, String] = ENTITIES.getKeys.map { entityName => (ENTITIES.getString(entityName).toInt.toChar, "&" + entityName + ";") }.toMap
 
 	def htmlEscape(string: String): String = {
+		def charToHtmlEntity(char: Char): String = CHAR_TO_HTML_ENTITIES.get(char).getOrElse(char.toString)
 
-		(for (i <- 0 until string.length) yield string.charAt(i))
-			.foldLeft(new StringBuilder) { (builder, char) =>
-				charToHtmlEntity(char) match {
-					case Some(escaped) => builder.append(escaped)
-					case _ => builder.append(char)
-				}
-			}.toString
+		string.toList.map(charToHtmlEntity(_)).mkString
 	}
 }

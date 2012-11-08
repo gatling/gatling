@@ -16,12 +16,15 @@
 package com.excilys.ebi.gatling.core.result.writer
 
 import java.lang.System.currentTimeMillis
+import java.util.{ HashMap => JHashMap }
 
 import scala.collection.mutable.{ HashMap, LinkedHashMap }
 
-import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
-import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
-import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RunRecord, ShortScenarioDescription }
+import com.excilys.ebi.gatling.core.result.{ Group, RequestPath }
+import com.excilys.ebi.gatling.core.result.message.{ RunRecord, ScenarioRecord, ShortScenarioDescription }
+import com.excilys.ebi.gatling.core.result.message.GroupRecord
+import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
+import com.excilys.ebi.gatling.core.result.message.RequestRecord
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
 
 import grizzled.slf4j.Logging
@@ -47,6 +50,7 @@ class ConsoleDataWriter extends DataWriter with Logging {
 	private var lastDisplayTime = 0L
 
 	private val usersCounters = new HashMap[String, UserCounters]
+	private val groupStack = new JHashMap[(String, Int), Option[Group]]
 	private val requestsCounters = new LinkedHashMap[String, RequestCounters]
 
 	private val displayPeriod = 5 * 1000
@@ -75,26 +79,41 @@ class ConsoleDataWriter extends DataWriter with Logging {
 		requestsCounters.clear
 	}
 
+	override def onScenarioRecord(scenarioRecord: ScenarioRecord) {
+		scenarioRecord.event match {
+			case START =>
+				usersCounters
+					.get(scenarioRecord.scenarioName)
+					.map(_.userStart)
+					.getOrElse(error("Internal error, scenario '%s' has not been correctly initialized" format scenarioRecord.scenarioName))
+				updateCurrentGroup(scenarioRecord.scenarioName, scenarioRecord.userId, _ => None)
+
+			case END =>
+				usersCounters
+					.get(scenarioRecord.scenarioName)
+					.map(_.userDone)
+					.getOrElse(error("Internal error, scenario '%s' has not been correctly initialized" format scenarioRecord.scenarioName))
+				groupStack.remove((scenarioRecord.scenarioName, scenarioRecord.userId))
+		}
+	}
+
+	override def onGroupRecord(groupRecord: GroupRecord) {
+		groupRecord.event match {
+			case START =>
+				updateCurrentGroup(groupRecord.scenarioName, groupRecord.userId, current => Some(Group(groupRecord.groupName, current)))
+
+			case END =>
+				updateCurrentGroup(groupRecord.scenarioName, groupRecord.userId, current => current.flatMap(_.parent))
+		}
+	}
+
 	override def onRequestRecord(requestRecord: RequestRecord) {
 
-		requestRecord.requestName match {
-			case START_OF_SCENARIO => usersCounters
-				.get(requestRecord.scenarioName)
-				.map(_.userStart)
-				.getOrElse(error("Internal error, scenario '%s' has not been correctly initialized" format requestRecord.scenarioName))
+		val requestCounters = requestsCounters.getOrElseUpdate(RequestPath.path(requestRecord.requestName, groupStack.get((requestRecord.scenarioName, requestRecord.userId))), RequestCounters(0, 0))
 
-			case END_OF_SCENARIO => usersCounters
-				.get(requestRecord.scenarioName)
-				.map(_.userDone)
-				.getOrElse(error("Internal error, scenario '%s' has not been correctly initialized" format requestRecord.scenarioName))
-
-			case requestName =>
-				val requestCounters = requestsCounters.getOrElseUpdate(requestName, RequestCounters(0, 0))
-
-				requestRecord.requestStatus match {
-					case OK => requestCounters.successfulCount += 1
-					case KO => requestCounters.failedCount += 1
-				}
+		requestRecord.requestStatus match {
+			case OK => requestCounters.successfulCount += 1
+			case KO => requestCounters.failedCount += 1
 		}
 
 		display(false)
@@ -104,4 +123,7 @@ class ConsoleDataWriter extends DataWriter with Logging {
 		if (!complete)
 			display(true)
 	}
+
+	private def updateCurrentGroup(scenarioName: String, userId: Int, value: Option[Group] => Option[Group]) =
+		groupStack.put((scenarioName, userId), value(groupStack.get((scenarioName, userId))))
 }

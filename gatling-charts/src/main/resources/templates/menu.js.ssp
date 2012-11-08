@@ -1,19 +1,69 @@
-<%@ val requestLinks: scala.collection.Iterable[(String,Option[String],String)] %>
-<%@ val firstLink: (String,Option[String],String) = requestLinks.head %>
+//<% import com.excilys.ebi.gatling.charts.report.Container.GROUP %>
+//<% import com.excilys.ebi.gatling.charts.report.Container.REQUEST %>
 
 function setDetailsLinkUrl(){
-    $("#details_link").attr('href', encodeURIComponent('<%= firstLink._1 %>'));
+	$.each(stats.contents, function (name, data) {
+		$('#details_link').attr('href', encodeURIComponent('req_' + data.pathFormatted + '.html'));
+		return false;
+	});
+}
+
+var MENU_ITEM_MAX_LENGTH = 50;
+
+function menuItem(item, level, parent, group) {
+	if (group)
+		var style = 'group';
+	else
+		var style = '';
+
+	if (item.name.length > MENU_ITEM_MAX_LENGTH) {
+		var title = ' title="' + item.name + '"';
+		var displayName = item.name.substr(0, MENU_ITEM_MAX_LENGTH) + '...';
+	}
+	else {
+		var title = '';
+		var displayName = item.name;
+	}
+
+	if (parent)
+		var style = ' class="child-of-menu-' + parent + '"';
+	else
+		var style = '';
+
+	if (group)
+		var expandButton = '<span id="menu-' + item.pathFormatted + '" style="margin-left: ' + (level * 10) + 'px;" class="expand-button">&nbsp;</span>';
+	else
+		var expandButton = '<span id="menu-' + item.pathFormatted + '" style="margin-left: ' + (level * 10) + 'px;" class="expand-button hidden">&nbsp;</span>';
+
+	return '<li' + style + '><div class="item">' + expandButton + '<a href="req_' + item.pathFormatted + '.html"' + title + '>' + displayName + '</a></div></li>';
+}
+
+function menuItemsForGroup(group, level, parent) {
+	var items = '';
+
+	if (level > 0)
+		items += menuItem(group, level - 1, parent, true);
+
+	$.each(group.contents, function (contentName, content) {
+		if (content.type == '<%= GROUP %>')
+			items += menuItemsForGroup(content, level + 1, group.pathFormatted);
+		else if (content.type == '<%= REQUEST %>')
+			items += menuItem(content, level, group.pathFormatted);
+	});
+
+	return items;
 }
 
 function setDetailsMenu(){
-    var menu = $(".nav ul");
-#for (entry <- requestLinks)
-    $("<a>").attr({href: encodeURIComponent('<%= entry._1 %>')#if (entry._2.isDefined) , title: '<%= entry._2.get %>' #end}).text('<%= entry._3 %>').wrap("<li>").parent().appendTo(menu);
-#end
+    $('.nav ul').append(menuItemsForGroup(stats, 0));
+
+	$('.nav').expandable();
 }
 
 function setGlobalMenu(){
-    $(".nav ul").append("<li><a href='#active_sessions'>Active Sessions</a></li><li><a href='#requests'>Requests / sec</a></li><li><a href='#transactions'>Transactions / sec</a></li>");
+    $('.nav ul').append('<li><div class="item"><a href="#active_sessions">Active Sessions</a></div></li> \
+		<li><div class="item"><a href="#requests">Requests / sec</a></div></li> \
+		<li><div class="item"><a href="#transactions">Transactions / sec</a></div></li>');
 }
 
 function getLink(link){
@@ -22,9 +72,9 @@ function getLink(link){
 }
  
 function setActiveMenu(){
-	$(".nav a").each(function(){
-		if($(this).attr('href') == getLink(window.location.pathname)){
-			$(this).parent().attr('class', 'on');
+	$('.nav a').each(function(){
+		if(!$(this).hasClass('expand-button') && $(this).attr('href') == getLink(window.location.pathname)){
+			$(this).parents('li').addClass('on');
 			return false;
 		}
 	});

@@ -3,26 +3,35 @@
 <%@ val percentile2:Int = configuration.charting.indicators.percentile2 %>
 <%@ val responseTimeFields: List[String] = List("Min", "Max", "Mean", "Std Dev", percentile1+"th pct", percentile2+"th pct", "Req/s") %>
 						<div class="statistics extensible-geant collapsed">
-							<div id="statistics_title" class="title title_collapsed">STATISTICS <span>(Click here to show more)</span></div>
-							<table id="container_statistics" class="statistics-in extensible-geant">
+							<div class="title">
+								<div class="right">
+									<span class="expand-all-button">Expand all groups</span> | <span class="collapse-all-button">Collapse all groups</span>
+								</div>
+								<div id="statistics_title" class="title_collapsed">STATISTICS <span>(Click here to show more)</span></div>
+							</div>
+							<table id="container_statistics_head" class="statistics-in extensible-geant">
 								<thead>
 									<tr>
-										<th rowspan="2" class="header sortable"><span>Requests</span></th>
+										<th rowspan="2" id="col-1" class="header sortable sorted-up"><span>Requests</span></th>
 										<th rowspan="2"></th>
 										<th colspan="3" class="header"><span class="executions">Executions</span></th>
 										<th rowspan="2"></th>
-										<th colspan="<%= responseTimeFields.size %>" class="header"><span class="response-time">Response Time (ms)<span></th>
+										<th colspan="<%= responseTimeFields.size %>" class="header"><span class="response-time">Response Time (ms)</span></th>
 									</tr>
 									<tr>
-										<th class="header sortable"><span>Total</span></th>
-										<th class="header sortable"><span>OK</span></th>
-										<th class="header sortable"><span>KO</span></th>
-										<% val it = responseTimeFields.iterator %>
-										<% while (it.hasNext) { %>
-										<th class="header sortable"><span><%= it.next %></span></th>
+										<th id="col-2" class="header sortable"><span>Total</span></th>
+										<th id="col-3" class="header sortable"><span>OK</span></th>
+										<th id="col-4" class="header sortable"><span>KO</span></th>
+										<% for ((header, i) <- responseTimeFields.zip(5 to (responseTimeFields.size + 5))) { %>
+										<th id="col-<%= i %>" class="header sortable"><span><%= header %></span></th>
 										<% } %>
 									</tr>
 								</thead>
 								<tbody></tbody>
 							</table>
+							<div class="scrollable">
+								<table id="container_statistics_body" class="statistics-in extensible-geant">
+									<tbody></tbody>
+								</table>
+							</div>
 						</div>

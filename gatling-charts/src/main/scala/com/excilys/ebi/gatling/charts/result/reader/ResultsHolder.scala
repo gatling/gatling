@@ -15,16 +15,8 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader
 
-import com.excilys.ebi.gatling.charts.result.reader.buffers.RequestsPerSecBuffers
-import com.excilys.ebi.gatling.charts.result.reader.buffers.TransactionsPerSecBuffers
-import com.excilys.ebi.gatling.charts.result.reader.buffers.ResponseTimePerSecBuffers
-import com.excilys.ebi.gatling.charts.result.reader.buffers.LatencyPerSecBuffers
-import com.excilys.ebi.gatling.charts.result.reader.buffers.ResponseTimeRangeBuffers
-import com.excilys.ebi.gatling.charts.result.reader.buffers.GeneralStatsBuffers
-import com.excilys.ebi.gatling.charts.result.reader.buffers.SessionDeltaPerSecBuffers
-import com.excilys.ebi.gatling.charts.result.reader.buffers.NamesBuffers
-import com.excilys.ebi.gatling.core.action.EndAction
-import com.excilys.ebi.gatling.core.action.StartAction
+import com.excilys.ebi.gatling.charts.result.reader.buffers.{ GeneralStatsBuffers, GroupBuffers, LatencyPerSecBuffers, NamesBuffers, RequestsPerSecBuffers, ResponseTimePerSecBuffers, ResponseTimeRangeBuffers, SessionDeltaPerSecBuffers, TransactionsPerSecBuffers }
+import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
 
 class ResultsHolder(minTime: Long, maxTime: Long)
 	extends GeneralStatsBuffers(maxTime - minTime)
@@ -34,22 +26,39 @@ class ResultsHolder(minTime: Long, maxTime: Long)
 	with ResponseTimePerSecBuffers
 	with ResponseTimeRangeBuffers
 	with SessionDeltaPerSecBuffers
-	with TransactionsPerSecBuffers {
+	with TransactionsPerSecBuffers
+	with GroupBuffers {
 
-	def add(record: ActionRecord) {
-		record.request match {
-			case StartAction.START_OF_SCENARIO =>
+	def addScenarioRecord(record: ScenarioRecord) {
+		record.event match {
+			case START =>
 				addStartSessionBuffers(record)
-			case EndAction.END_OF_SCENARIO =>
+				startGroup(record.user, record.scenario, record.executionDate, None)
+				addScenarioName(record)
+			case END =>
 				addEndSessionBuffers(record)
-			case _ =>
-				updateRequestsPerSecBuffers(record)
-				updateTransactionsPerSecBuffers(record)
-				updateResponseTimePerSecBuffers(record)
-				updateLatencyPerSecBuffers(record)
-				addNames(record)
-				updateGeneralStatsBuffers(record)
-				updateResponseTimeRangeBuffer(record)
+				endGroup(record.user, record.scenario, record.executionDate)
 		}
+	}
+
+	def addGroupRecord(record: GroupRecord) {
+		record.event match {
+			case START =>
+				startGroup(record.user, record.scenario, record.executionDate, Some(record.group))
+				addGroupName(getCurrentGroup(record.user, record.scenario).get, record.executionDate)
+			case END =>
+				endGroup(record.user, record.scenario, record.executionDate)
+		}
+	}
+
+	def addActionRecord(record: ActionRecord) {
+		val group = getCurrentGroup(record.user, record.scenario)
+		updateRequestsPerSecBuffers(record, group)
+		updateTransactionsPerSecBuffers(record, group)
+		updateResponseTimePerSecBuffers(record, group)
+		updateLatencyPerSecBuffers(record, group)
+		addRequestName(record, group)
+		updateGeneralStatsBuffers(record, group)
+		updateResponseTimeRangeBuffer(record, group)
 	}
 }

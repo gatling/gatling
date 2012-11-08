@@ -16,9 +16,9 @@
 package com.excilys.ebi.gatling.charts.template
 
 import com.excilys.ebi.gatling.charts.component.RequestStatistics
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.{GATLING_TEMPLATE_STATS_JSON_FILE_URL, GLOBAL_PAGE_NAME}
+import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_STATS_JSON_FILE_URL
 
-class StatsJsonTemplate(stats: Map[String, RequestStatistics]) {
+class StatsJsonTemplate(globalStats: RequestStatistics) {
 
-	def getOutput: String = PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATS_JSON_FILE_URL, Map("stat" -> stats(GLOBAL_PAGE_NAME)))
+	def getOutput: String = PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATS_JSON_FILE_URL, Map("stat" -> globalStats))
 }

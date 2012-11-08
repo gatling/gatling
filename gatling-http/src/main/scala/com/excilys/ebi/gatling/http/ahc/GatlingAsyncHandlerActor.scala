@@ -140,7 +140,7 @@ class GatlingAsyncHandlerActor(
 		}
 
 		DataWriter.logRequest(session.scenarioName, session.userId, requestName,
-			response.executionStartDate, response.executionEndDate, response.requestSendingEndDate, response.responseReceivingStartDate,
+			response.executionStartDate, response.requestSendingEndDate, response.responseReceivingStartDate, response.executionEndDate,
 			requestStatus, errorMessage, extractExtraInfo(response))
 	}
 
