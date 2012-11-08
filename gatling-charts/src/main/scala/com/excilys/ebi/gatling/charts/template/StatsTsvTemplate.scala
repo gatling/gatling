@@ -15,10 +15,10 @@
  */
 package com.excilys.ebi.gatling.charts.template
 
-import com.excilys.ebi.gatling.charts.component.RequestStatistics
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_STATS_TSV_FILE_URL
+import com.excilys.ebi.gatling.charts.report.GroupContainer
 
-class StatsTsvTemplate(stats: Map[String, RequestStatistics]) {
+class StatsTsvTemplate(stats: GroupContainer) {
 
 	def getOutput: String = PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATS_TSV_FILE_URL, Map("stats" -> stats))
 }

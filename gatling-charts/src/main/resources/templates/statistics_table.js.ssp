@@ -1,78 +1,79 @@
 //<% import com.excilys.ebi.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME %>
+//<% import com.excilys.ebi.gatling.charts.report.Container.GROUP %>
+//<% import com.excilys.ebi.gatling.charts.report.Container.REQUEST %>
 
-function toHTMLTableRow(array) {
-	var row = '<tr>';
-	$.each(array, function(i, value) {
-		row += '<td';
-		if (value.style)
-			row += ' class="' + value.style + '"';
-		row += '>'+ value.content + '</td>';
-	})
-	return row + '</tr>';
+function generateHtmlRow(request, level, index, parent, group) {
+	if (request.name == '<%= GLOBAL_PAGE_NAME %>')
+		var url = 'index.html';
+	else
+		var url ='req_' + request.pathFormatted + '.html';
+
+	if (group)
+		var expandButtonStyle = '';
+	else
+		var expandButtonStyle = ' hidden';
+
+	return '<tr id="' + request.pathFormatted + '" class="child-of-' + parent + '"> \
+		<td class="total col-1"> \
+			<span id="' + request.pathFormatted + '" style="margin-left: ' + (level * 10) + 'px;" class="expand-button' + expandButtonStyle + '">&nbsp;</span> \
+			<a href="' + url +'">' + request.name + '</a><span class="value" style="display:none;">' + index + '</span> \
+		</td> \
+		<td></td> \
+		<td class="value total col-2">' + request.stats.numberOfRequests.total + '</td> \
+		<td class="value ok col-3">' + request.stats.numberOfRequests.ok + '</td> \
+		<td class="value ko col-4">' + request.stats.numberOfRequests.ko + '</td> \
+		<td></td> \
+		<td class="value total col-5">' + request.stats.minResponseTime.total + '</td> \
+		<td class="value total col-6">' + request.stats.maxResponseTime.total + '</td> \
+		<td class="value total col-7">' + request.stats.meanResponseTime.total + '</td> \
+		<td class="value total col-8">' + request.stats.standardDeviation.total + '</td> \
+		<td class="value total col-9">' + request.stats.percentiles1.total + '</td> \
+		<td class="value total col-10">' + request.stats.percentiles2.total + '</td> \
+		<td class="value total col-11">' + request.stats.meanNumberOfRequestsPerSecond.total + '</td> \
+		</tr>';
 }
 
-function generateHtmlRow(url, values) {
-	return toHTMLTableRow([
-		{ content: '<a href="' + url + '">' + values.name + '</a><span style="display:none;">;' + i + '</span>', style: "total" },
-		{ content: "", style: ""},
-		{ content: values.numberOfRequests.total, style: "value total" },
-		{ content: values.numberOfRequests.ok, style: "value ok" },
-		{ content: values.numberOfRequests.ko, style: "value ko" },
-		{ content: "", style: ""},
-		{ content: values.minResponseTime.total, style: "value total" },
-		{ content: values.maxResponseTime.total, style: "value total" },
-		{ content: values.meanResponseTime.total, style: "value total" },
-		{ content: values.standardDeviation.total, style: "value total" },
-		{ content: values.percentiles1.total, style: "value total" },
-		{ content: values.percentiles2.total, style: "value total" },
-		{ content: values.meanNumberOfRequestsPerSecond.total, style: "value total" }
-	]);
-}	
+function generateHtmlRowsForGroup(group, level, index, parent) {
+	var buffer = '';
 
-var i = 0;
-var theadBuff = '';
-var tbodyBuff = '';
-$.each(stats, function(request, values) {
-	if (values.name  == 'Global Information') {
-		theadBuff += generateHtmlRow('index.html', values);
-	} else {
-		tbodyBuff += generateHtmlRow('req_' + request + '.html', values);
+	if (!parent)
+		parent = 'ROOT';
+	else {
+		buffer += generateHtmlRow(group, level - 1, index, parent, true);
+		index++;
+		parent = group.pathFormatted;
 	}
-	
-	i += 1;
-});
 
-$('#container_statistics thead').append(theadBuff);
-$('#container_statistics tbody').append(tbodyBuff);
+	$.each(group.contents, function(contentName, content) {
+		if (content.type == '<%= GROUP %>') {
+			var result = generateHtmlRowsForGroup(content, level + 1, index, parent);
+			buffer += result.html;
+			index = result.index;
+		}
+		else if (content.type == '<%= REQUEST %>') {
+			buffer += generateHtmlRow(content, level, index, parent);
+			index++;
+		}
+	});
 
+	return { html: buffer, index: index };
+}
 
-$.tablesorter.addParser({
-	id: 'requests',
-	is: function(text) { return false },
-	format: function(text) { return parseInt(text.replace(/.*;/, '')) },
-	type: 'numeric'
-});
+$('#container_statistics_head tbody').append(generateHtmlRow(stats, 0, 0));
 
-$('#container_statistics').tablesorter({
-	cssAsc: "sorted-down",
-	cssDesc: "sorted-up",
-	headers: {
-		0: {sorter: 'requests'},
-		1: {sorter: false},
-		2: {sorter: false},
-		3: {sorter: false},
-		4: {sorter: false}
-	},
-	sortList: [[0, 0]]
-});
+var lines = generateHtmlRowsForGroup(stats, 0, 0)
+$('#container_statistics_body tbody').append(lines.html);
 
-if (i <= 30) {
+$('#container_statistics_head').sortable('#container_statistics_body');
+$('.statistics').expandable();
+
+if (lines.index < 30) {
 	$('#statistics_title span').attr('style', 'display: none;');
 	$('#statistics_title').attr('style', 'cursor: auto;')
 }
 else {
-	$("#statistics_title").click(function(){
-		$(this).toggleClass("title_collapsed").toggleClass("title_not_collapsed");
-		$(".statistics").toggleClass("collapsed").toggleClass("not_collapsed");
+	$('#statistics_title').click(function(){
+		$(this).toggleClass('title_collapsed').toggleClass('title_not_collapsed');
+		$('#container_statistics_body').parent().toggleClass('scrollable').toggleClass('');
 	});
 }

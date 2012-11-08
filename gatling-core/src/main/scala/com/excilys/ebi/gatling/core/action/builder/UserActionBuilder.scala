@@ -15,26 +15,23 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.{ system, StartAction }
+import com.excilys.ebi.gatling.core.action.{ UserAction, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
 
-import akka.actor.{ Props, ActorRef }
+import akka.actor.{ ActorRef, Props }
 
-object StartActionBuilder {
+object UserActionBuilder {
 
-	private val empty = new StartActionBuilder(null)
+	val start = new UserActionBuilder(START, null)
 
-	def apply() = empty
+	val end = new UserActionBuilder(END, null)
 }
 
-/**
- * Builder for StartAction
- *
- * @constructor create a StartActionBuilder with its next action
- * @param next the action to be executed after this one
- */
-class StartActionBuilder(next: ActorRef) extends ActionBuilder {
-	def withNext(next: ActorRef) = new StartActionBuilder(next)
+class UserActionBuilder(event: String, next: ActorRef) extends ActionBuilder {
 
-	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new StartAction(next)))
+	def withNext(next: ActorRef) = new UserActionBuilder(event, next)
+
+	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new UserAction(event, next)))
+
 }

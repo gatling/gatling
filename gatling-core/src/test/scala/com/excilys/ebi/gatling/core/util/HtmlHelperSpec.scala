@@ -13,12 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.template
+package com.excilys.ebi.gatling.core.util
 
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_STATS_JS_FILE_URL
-import com.excilys.ebi.gatling.charts.report.GroupContainer
+import org.junit.runner.RunWith
+import org.specs2.mutable.Specification
+import org.specs2.runner.JUnitRunner
 
-class StatsJsTemplate(stats: GroupContainer) {
+@RunWith(classOf[JUnitRunner])
+class HtmlHelperSpec extends Specification {
 
-	def getOutput: String = PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATS_JS_FILE_URL, Map("stats" -> stats))
+	"htmlEscape" should {
+
+		"escape with entity chars" in {
+			HtmlHelper.htmlEscape("fooYéfoo") must beEqualTo("fooY&eacute;foo")
+		}
+	}
 }

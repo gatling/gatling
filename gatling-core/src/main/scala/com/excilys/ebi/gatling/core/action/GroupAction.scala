@@ -13,12 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.template
+package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_STATS_JS_FILE_URL
-import com.excilys.ebi.gatling.charts.report.GroupContainer
+import com.excilys.ebi.gatling.core.result.writer.DataWriter
+import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.core.session.Session
 
-class StatsJsTemplate(stats: GroupContainer) {
+import akka.actor.ActorRef
 
-	def getOutput: String = PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATS_JS_FILE_URL, Map("stats" -> stats))
+class GroupAction(groupName: EvaluatableString, event: String, val next: ActorRef) extends Action {
+
+	def execute(session: Session) {
+		val resoldedGroupName = try {
+			groupName(session)
+		} catch {
+			case e: Exception => error("Group name resolution crashed", e); "no-group-name"
+		}
+
+		DataWriter.group(session.scenarioName, resoldedGroupName, session.userId, event)
+		next ! session
+	}
 }

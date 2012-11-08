@@ -15,29 +15,33 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
-import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
+import com.excilys.ebi.gatling.charts.result.reader.{ ScenarioRecord, ActionRecord }
+import com.excilys.ebi.gatling.charts.util.JMap
+import com.excilys.ebi.gatling.core.result.Group
 
 trait NamesBuffers {
 
-	class NameBuffer {
+	class NameBuffer[A] {
 
-		import scala.collection.mutable
+		val map = new JMap[A, Long]
 
-		val map = new mutable.HashMap[String, Long]
-
-		def update(name: String, time: Long) {
-
-			val minTime = map.getOrElseUpdate(name, time)
-			if (time < minTime)
-				map.put(name, time)
+		def update(name: A, time: Long) {
+			map.putOrUpdate(name, time, oldTime => oldTime min time)
 		}
 	}
 
-	val requestNameBuffer = new NameBuffer
-	val scenarioNameBuffer = new NameBuffer
+	val groupAndRequestsNameBuffer = new NameBuffer[(Option[Group], Option[String])]
+	val scenarioNameBuffer = new NameBuffer[String]
 
-	def addNames(record: ActionRecord) {
-		requestNameBuffer.update(record.request, record.executionStart)
-		scenarioNameBuffer.update(record.scenario, record.executionStart)
+	def addScenarioName(record: ScenarioRecord) {
+		scenarioNameBuffer.update(record.scenario, record.executionDate)
+	}
+
+	def addRequestName(record: ActionRecord, group: Option[Group]) {
+		groupAndRequestsNameBuffer.update((group, Some(record.request)), record.executionStart)
+	}
+
+	def addGroupName(group: Group, time: Long) {
+		groupAndRequestsNameBuffer.update((Some(group), None), time)
 	}
 }

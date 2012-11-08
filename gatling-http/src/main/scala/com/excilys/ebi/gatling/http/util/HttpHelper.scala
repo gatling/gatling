@@ -17,7 +17,6 @@ package com.excilys.ebi.gatling.http.util
 
 import java.net.{ URI, URLDecoder }
 
-import scala.Array.canBuildFrom
 import scala.collection.JavaConversions.seqAsJavaList
 import scala.io.Codec.UTF8
 

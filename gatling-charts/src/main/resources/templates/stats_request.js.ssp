@@ -1,0 +1,69 @@
+<% import com.excilys.ebi.gatling.charts.component.RequestStatistics %>
+<% import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename %>
+<%@ val request: RequestStatistics %>
+name: "<%= request.name %>",
+path: "<%= request.path %>",
+pathFormatted: "<%= formatToFilename(request.path) %>",
+stats: {
+	numberOfRequests : {
+		total: "<%=request.numberOfRequestsStatistics.printableTotal%>",
+		ok: "<%=request.numberOfRequestsStatistics.printableSuccess%>",
+		ko: "<%=request.numberOfRequestsStatistics.printableFailure%>"
+	},
+	minResponseTime : {
+		total: "<%=request.minResponseTimeStatistics.printableTotal%>",
+		ok: "<%=request.minResponseTimeStatistics.printableSuccess%>",
+		ko: "<%=request.minResponseTimeStatistics.printableFailure%>"
+	},
+	maxResponseTime : {
+		total: "<%=request.maxResponseTimeStatistics.printableTotal%>",
+		ok: "<%=request.maxResponseTimeStatistics.printableSuccess%>",
+		ko: "<%=request.maxResponseTimeStatistics.printableFailure%>"
+	},
+	meanResponseTime : {
+		total: "<%=request.meanStatistics.printableTotal%>",
+		ok: "<%=request.meanStatistics.printableSuccess%>",
+		ko: "<%=request.meanStatistics.printableFailure%>"
+	},
+	standardDeviation : {
+		total: "<%=request.stdDeviationStatistics.printableTotal%>",
+		ok: "<%=request.stdDeviationStatistics.printableSuccess%>",
+		ko: "<%=request.stdDeviationStatistics.printableFailure%>"
+	},
+	percentiles1 : {
+		total: "<%=request.percentiles1.printableTotal%>",
+		ok: "<%=request.percentiles1.printableSuccess%>",
+		ko: "<%=request.percentiles1.printableFailure%>"
+	},
+	percentiles2 : {
+		total: "<%=request.percentiles2.printableTotal%>",
+		ok: "<%=request.percentiles2.printableSuccess%>",
+		ko: "<%=request.percentiles2.printableFailure%>"
+	},
+	group1 : {
+		name: "<%=request.groupedCounts(0)._1%>",
+		count: <%=request.groupedCounts(0)._2.toString%>,
+		percentage: <%=request.groupedCounts(0)._3.toString%>
+	},
+	group2 : {
+		name: "<%=request.groupedCounts(1)._1%>",
+		count: <%=request.groupedCounts(1)._2.toString%>,
+		percentage: <%=request.groupedCounts(1)._3.toString%>
+	},
+	group3 : {
+		name: "<%=request.groupedCounts(2)._1%>",
+		count: <%=request.groupedCounts(2)._2.toString%>,
+		percentage: <%=request.groupedCounts(2)._3.toString%>
+	},
+	group4 : {
+		name: "<%=request.groupedCounts(3)._1%>",
+		count: <%=request.groupedCounts(3)._2.toString%>,
+		percentage: <%=request.groupedCounts(3)._3.toString%>
+	},
+	meanNumberOfRequestsPerSecond: {
+		total: "<%=request.meanNumberOfRequestsPerSecondStatistics.printableTotal%>",
+		ok: "<%=request.meanNumberOfRequestsPerSecondStatistics.printableSuccess%>",
+		ko: "<%=request.meanNumberOfRequestsPerSecondStatistics.printableFailure%>"
+	}
+}
+

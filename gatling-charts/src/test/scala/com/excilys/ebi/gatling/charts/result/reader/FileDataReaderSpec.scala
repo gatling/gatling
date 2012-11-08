@@ -15,14 +15,17 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader
 
-import java.util
-import org.specs2.runner.JUnitRunner
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
-import com.excilys.ebi.gatling.core.config.{ GatlingPropertiesBuilder, GatlingConfiguration }
+import org.specs2.runner.JUnitRunner
+
+import com.excilys.ebi.gatling.core.ConfigurationConstants
+import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingPropertiesBuilder }
+import com.excilys.ebi.gatling.core.result.RequestPath
 import com.excilys.ebi.gatling.core.result.message.RunRecord
 import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
-import com.excilys.ebi.gatling.core.ConfigurationConstants
+
+import java.util
 
 @RunWith(classOf[JUnitRunner])
 class FileDataReaderSpec extends Specification {
@@ -58,7 +61,7 @@ class FileDataReaderSpec extends Specification {
 		"find the fifteen correct requests" in {
 			val requestNames = List("Request request_1", "Request request_2", "Request request_3", "Request request_4", "Request request_5", "Request request_6", "Request request_7", "Request request_8", "Request request_9", "Request request_10")
 			val otherRequestNames = List("Request other_request_1", "Request other_request_2", "Request other_request_3", "Request other_request_9", "Request other_request_10")
-			singleFileDataReader.requestNames must haveTheSameElementsAs(requestNames ++ otherRequestNames)
+			singleFileDataReader.groupsAndRequests.collect { case (group, Some(request)) => RequestPath.path(request, group) } must haveTheSameElementsAs(requestNames ++ otherRequestNames)
 		}
 
 		"have a correct run record" in {
@@ -82,7 +85,7 @@ class FileDataReaderSpec extends Specification {
 		"find the fifteen correct requests" in {
 			val requestNames = List("Request request_1", "Request request_2", "Request request_3", "Request request_4", "Request request_5", "Request request_6", "Request request_7", "Request request_8", "Request request_9", "Request request_10")
 			val otherRequestNames = List("Request other_request_1", "Request other_request_2", "Request other_request_3", "Request other_request_9", "Request other_request_10")
-			multipleFilesDataReader.requestNames must haveTheSameElementsAs(requestNames ++ otherRequestNames)
+			multipleFilesDataReader.groupsAndRequests.collect { case (group, Some(request)) => RequestPath.path(request, group) } must haveTheSameElementsAs(requestNames ++ otherRequestNames)
 		}
 
 		//TODO - how to define correctly the runRecord method

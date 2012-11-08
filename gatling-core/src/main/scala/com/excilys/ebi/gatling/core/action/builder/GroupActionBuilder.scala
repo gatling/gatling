@@ -15,32 +15,24 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.{ EndAction, system }
+import com.excilys.ebi.gatling.core.action.{ GroupAction, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
+import com.excilys.ebi.gatling.core.session.EvaluatableString
 
 import akka.actor.{ ActorRef, Props }
 
-object EndActionBuilder {
+object GroupActionBuilder {
 
-	private val empty = new EndActionBuilder
+	def start(groupName: EvaluatableString) = new GroupActionBuilder(groupName, START, null)
 
-	/**
-	 * Creates a new EndActionBuilder
-	 *
-	 * @return a ready to use EndActionBuilder
-	 */
-	def apply() = empty
+	def end(groupName: EvaluatableString) = new GroupActionBuilder(groupName, END, null)
 }
 
-/**
- * Builder for EndAction
- *
- * @constructor create an EndActionBuilder
- * @param latch The CountDownLatch that will stop the simulation
- */
-class EndActionBuilder extends ActionBuilder {
+class GroupActionBuilder(groupName: EvaluatableString, event: String, next: ActorRef) extends ActionBuilder {
 
-	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props[EndAction])
+	def withNext(next: ActorRef) = new GroupActionBuilder(groupName, event, next)
 
-	def withNext(next: ActorRef): ActionBuilder = this
+	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new GroupAction(groupName, event, next)))
+
 }

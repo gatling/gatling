@@ -1,0 +1,30 @@
+<% import com.excilys.ebi.gatling.charts.report.GroupContainer %>
+<% import com.excilys.ebi.gatling.charts.report.RequestContainer %>
+<% import com.excilys.ebi.gatling.charts.report.Container.GROUP %>
+<% import com.excilys.ebi.gatling.charts.report.Container.REQUEST %>
+<% import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename %>
+<%@ val group: GroupContainer %>
+type: "<%= GROUP %>",
+contents: {
+<% val it = group.contents.values.iterator %>
+<% while (it.hasNext) { %>
+	<% val child = it.next %>
+	#match (child)
+		#case (group: GroupContainer)
+			<% attributes("group") = group %>
+	<%= formatToFilename(group.name) %>: {
+		${include("stats_group.js.ssp")}
+	}
+		#case (request: RequestContainer)
+			<% attributes("request") = request.stats %>
+	<%= formatToFilename(request.name) %>: {
+		type: "<%= REQUEST %>",
+		${include("stats_request.js.ssp")}
+	}
+	#end
+	<% if (it.hasNext) { %>,<% } %>
+<% } %>
+},
+duration: <%= group.groupStats.duration.toString %>,
+<% attributes("request") = group.requestStats %>
+${include("stats_request.js.ssp")}

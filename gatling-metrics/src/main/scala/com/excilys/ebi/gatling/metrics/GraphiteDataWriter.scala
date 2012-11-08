@@ -22,10 +22,12 @@ import java.util.{ HashMap, Timer, TimerTask }
 import scala.collection.JavaConversions.mapAsScalaMap
 import scala.collection.mutable
 
-import com.excilys.ebi.gatling.core.action.EndAction.END_OF_SCENARIO
-import com.excilys.ebi.gatling.core.action.StartAction.START_OF_SCENARIO
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RunRecord, ShortScenarioDescription }
+import com.excilys.ebi.gatling.core.result.message.GroupRecord
+import com.excilys.ebi.gatling.core.result.message.RequestRecord
+import com.excilys.ebi.gatling.core.result.message.RunRecord
+import com.excilys.ebi.gatling.core.result.message.ScenarioRecord
+import com.excilys.ebi.gatling.core.result.message.ShortScenarioDescription
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowSeconds
@@ -61,18 +63,19 @@ class GraphiteDataWriter extends DataWriter {
 		timer.scheduleAtFixedRate(new SendToGraphiteTask, 0, 1000)
 	}
 
-	def onRequestRecord(requestRecord: RequestRecord) {
-		//Update request metrics
-		val requestName = requestRecord.requestName
-		if (requestName != START_OF_SCENARIO && requestName != END_OF_SCENARIO) {
-			val metric = perRequest.getOrElseUpdate(requestName, new RequestMetrics)
-			metric.update(requestRecord)
-		}
-		allRequests.update(requestRecord)
+	def onScenarioRecord(scenarioRecord: ScenarioRecord) {
+		usersPerScenario(scenarioRecord.scenarioName).update(scenarioRecord)
+		allUsers.update(scenarioRecord)
+	}
 
-		// Update sessions metrics
-		usersPerScenario(requestRecord.scenarioName).update(requestRecord)
-		allUsers.update(requestRecord)
+	def onGroupRecord(groupRecord: GroupRecord) {
+		// TODO
+	}
+
+	def onRequestRecord(requestRecord: RequestRecord) {
+		val metric = perRequest.getOrElseUpdate(requestRecord.requestName, new RequestMetrics)
+		metric.update(requestRecord)
+		allRequests.update(requestRecord)
 	}
 
 	def onFlushDataWriter {

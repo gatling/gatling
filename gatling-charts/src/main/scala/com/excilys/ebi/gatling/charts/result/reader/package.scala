@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.template
+package com.excilys.ebi.gatling.charts.result
 
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_STATS_JS_FILE_URL
-import com.excilys.ebi.gatling.charts.report.GroupContainer
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 
-class StatsJsTemplate(stats: GroupContainer) {
+package object reader {
 
-	def getOutput: String = PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATS_JS_FILE_URL, Map("stats" -> stats))
+	val accuracyAsDouble = configuration.charting.accuracy.toDouble
+
+	def reduceAccuracy(time: Int): Int = math.round(time / accuracyAsDouble).toInt * configuration.charting.accuracy
 }

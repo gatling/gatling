@@ -15,7 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.structure
 
-import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
 import akka.actor.ActorRef
@@ -26,7 +25,7 @@ import grizzled.slf4j.Logging
  *
  * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
  */
-abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extends Execs[B] with Pauses[B] with Feeds[B] with Loops[B] with ConditionalStatements[B] with Errors[B] with Logging {
+abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extends Execs[B] with Pauses[B] with Feeds[B] with Loops[B] with ConditionalStatements[B] with Errors[B] with Groups[B] with Logging {
 
 	protected def buildChainedActions(entryPoint: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = actionBuilders
 		.foldLeft(entryPoint) { (actorRef, actionBuilder) =>

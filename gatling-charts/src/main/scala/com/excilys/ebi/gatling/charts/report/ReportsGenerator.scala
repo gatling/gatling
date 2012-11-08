@@ -17,14 +17,12 @@ package com.excilys.ebi.gatling.charts.report
 
 import scala.tools.nsc.io.Path
 
-import com.excilys.ebi.gatling.charts.component.{ ComponentLibrary, RequestStatistics }
+import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ globalFile, menuFile }
 import com.excilys.ebi.gatling.charts.template.{ MenuTemplate, PageTemplate }
 import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_ASSETS_JS_PACKAGE, GATLING_ASSETS_STYLE_PACKAGE, jsDirectory, styleDirectory }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
-import com.excilys.ebi.gatling.core.util.FileHelper.requestFileName
 import com.excilys.ebi.gatling.core.util.ScanHelper.deepCopyPackageContent
-import com.excilys.ebi.gatling.core.util.StringHelper.escapeJsQuoteString
 
 import grizzled.slf4j.Logging
 
@@ -34,31 +32,16 @@ object ReportsGenerator extends Logging {
 
 		val dataReader = DataReader.newInstance(outputDirectoryName)
 
-		def generateMenu {
-			val maxLength = 50
+		def generateMenu = new TemplateWriter(menuFile(outputDirectoryName)).writeToFile(new MenuTemplate().getOutput)
 
-			val requestLinks: Iterable[(String, Option[String], String)] = dataReader.requestNames.map {
-				requestName =>
-					val fileName = requestFileName(requestName)
-					val title = if (requestName.length > maxLength) Some(escapeJsQuoteString(requestName)) else None
-					val printedName = escapeJsQuoteString(if (requestName.length > maxLength) requestName.substring(maxLength) + "..." else requestName)
-
-					(fileName, title, printedName)
-			}
-
-			val template = new MenuTemplate(requestLinks)
-
-			new TemplateWriter(menuFile(outputDirectoryName)).writeToFile(template.getOutput)
-		}
-
-		def generateStats: Map[String, RequestStatistics] = new StatsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance).generate
+		def generateStats = new StatsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance).generate
 
 		def copyAssets {
 			deepCopyPackageContent(GATLING_ASSETS_STYLE_PACKAGE, styleDirectory(outputDirectoryName))
 			deepCopyPackageContent(GATLING_ASSETS_JS_PACKAGE, jsDirectory(outputDirectoryName))
 		}
 
-		if (dataReader.requestNames.isEmpty) throw new UnsupportedOperationException("There were no requests sent during the simulation, reports won't be generated")
+		if (dataReader.groupsAndRequests.filter(_._2.isDefined).isEmpty) throw new UnsupportedOperationException("There were no requests sent during the simulation, reports won't be generated")
 
 		val reportGenerators =
 			List(new AllSessionsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance),

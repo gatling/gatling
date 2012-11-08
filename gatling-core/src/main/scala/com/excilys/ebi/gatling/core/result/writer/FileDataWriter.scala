@@ -19,8 +19,12 @@ import java.io.{ BufferedOutputStream, FileOutputStream, OutputStreamWriter }
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogDirectory
-import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RunRecord, ShortScenarioDescription }
-import com.excilys.ebi.gatling.core.result.message.RecordType.{ ACTION, RUN }
+import com.excilys.ebi.gatling.core.result.message.GroupRecord
+import com.excilys.ebi.gatling.core.result.message.RecordType.{ ACTION, GROUP, RUN, SCENARIO }
+import com.excilys.ebi.gatling.core.result.message.RequestRecord
+import com.excilys.ebi.gatling.core.result.message.RunRecord
+import com.excilys.ebi.gatling.core.result.message.ScenarioRecord
+import com.excilys.ebi.gatling.core.result.message.ShortScenarioDescription
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
@@ -40,9 +44,9 @@ object FileDataWriter {
 			.append(requestRecord.userId.toString).append(TABULATION_SEPARATOR)
 			.append(requestRecord.requestName).append(TABULATION_SEPARATOR)
 			.append(requestRecord.executionStartDate.toString).append(TABULATION_SEPARATOR)
-			.append(requestRecord.executionEndDate.toString).append(TABULATION_SEPARATOR)
 			.append(requestRecord.requestSendingEndDate.toString).append(TABULATION_SEPARATOR)
 			.append(requestRecord.responseReceivingStartDate.toString).append(TABULATION_SEPARATOR)
+			.append(requestRecord.executionEndDate.toString).append(TABULATION_SEPARATOR)
 			.append(requestRecord.requestStatus.toString).append(TABULATION_SEPARATOR)
 			.append(requestRecord.requestMessage.getOrElse(emptyField))
 
@@ -84,6 +88,24 @@ class FileDataWriter extends DataWriter with Logging {
 			// hack for being able to deserialize in FileDataReader
 			.append(if (runRecord.runDescription.isEmpty) FileDataWriter.emptyField else runRecord.runDescription)
 			.append(END_OF_LINE)
+	}
+
+
+	override def onScenarioRecord(scenarioRecord: ScenarioRecord) {
+		osw.append(SCENARIO).append(TABULATION_SEPARATOR)
+			.append(scenarioRecord.scenarioName).append(TABULATION_SEPARATOR)
+			.append(scenarioRecord.userId.toString).append(TABULATION_SEPARATOR)
+			.append(scenarioRecord.event).append(TABULATION_SEPARATOR)
+			.append(scenarioRecord.executionDate.toString).append(END_OF_LINE)
+	}
+
+	override def onGroupRecord(groupRecord: GroupRecord) {
+		osw.append(GROUP).append(TABULATION_SEPARATOR)
+			.append(groupRecord.scenarioName).append(TABULATION_SEPARATOR)
+			.append(groupRecord.groupName).append(TABULATION_SEPARATOR)
+			.append(groupRecord.userId.toString).append(TABULATION_SEPARATOR)
+			.append(groupRecord.event).append(TABULATION_SEPARATOR)
+			.append(groupRecord.executionDate.toString).append(END_OF_LINE)
 	}
 
 	override def onRequestRecord(requestRecord: RequestRecord) {

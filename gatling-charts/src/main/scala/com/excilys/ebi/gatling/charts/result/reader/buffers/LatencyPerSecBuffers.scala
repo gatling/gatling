@@ -15,18 +15,22 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
-import java.util.{ HashMap => JHashMap }
-
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
+import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
+import com.excilys.ebi.gatling.charts.util.JMap
 
 trait LatencyPerSecBuffers extends Buffers {
 
-	val latencyPerSecBuffers = new JHashMap[BufferKey, RangeBuffer]
+	val latencyPerSecBuffers = new JMap[BufferKey, RangeBuffer]
 
-	def getLatencyPerSecBuffers(requestName: Option[String], status: Option[RequestStatus.RequestStatus]): RangeBuffer = getBuffer(computeKey(requestName, status), latencyPerSecBuffers, () => new RangeBuffer)
+	def getLatencyPerSecBuffers(requestName: Option[String], group: Option[Group], status: Option[RequestStatus.RequestStatus]): RangeBuffer = latencyPerSecBuffers.getOrElseUpdate(computeKey(requestName, group, status), new RangeBuffer)
 
-	def updateLatencyPerSecBuffers(record: ActionRecord) {
-		getLatencyPerSecBuffers(Some(record.request), Some(record.status)).update(record.executionStartBucket, record.latency)
+	def updateLatencyPerSecBuffers(record: ActionRecord, group: Option[Group]) {
+		recursivelyUpdate(record, group) {
+			(record, group) => getLatencyPerSecBuffers(None, group, Some(record.status)).update(record.executionStartBucket, record.latency)
+		}
+
+		getLatencyPerSecBuffers(Some(record.request), group, Some(record.status)).update(record.executionStartBucket, record.latency)
 	}
 }
