@@ -30,19 +30,26 @@ object HttpHelper {
 	def computeRedirectUrl(locationHeader: String, originalRequestUrl: String) = {
 		if (locationHeader.startsWith("http")) // as of the RFC, Location should be an absolute uri
 			locationHeader
-		else { // sadly, internet is a mess
+		else {
+			// sadly, internet is a mess
+			val (locationPathPart, locationQueryPart) = locationHeader.indexOf('?') match {
+				case -1 => (locationHeader, null)
+				case queryMarkIndex => (locationHeader.substring(0, queryMarkIndex), locationHeader.substring(queryMarkIndex + 1))
+			}
+
 			val originalRequestURI = new URI(originalRequestUrl)
 			val originalRequestPath = originalRequestURI.getPath
-			val newPath = if (locationHeader.charAt(0) == '/')
-				locationHeader
+
+			val absolutePath = if (locationPathPart.startsWith("/"))
+				locationPathPart
 			else {
-				val index = originalRequestPath.lastIndexOf('/')
-				if (index == -1)
-					"/" + locationHeader
-				else
-					originalRequestPath.substring(0, index + 1) + locationHeader
+				originalRequestPath.lastIndexOf('/') match {
+					case -1 => "/" + locationPathPart
+					case lastSlashIndex => originalRequestPath.substring(0, lastSlashIndex + 1) + locationPathPart
+				}
 			}
-			new URI(originalRequestURI.getScheme, null, originalRequestURI.getHost, originalRequestURI.getPort, newPath, null, null).toString
+
+			new URI(originalRequestURI.getScheme, null, originalRequestURI.getHost, originalRequestURI.getPort, absolutePath, locationQueryPart, null).toString
 		}
 	}
 
