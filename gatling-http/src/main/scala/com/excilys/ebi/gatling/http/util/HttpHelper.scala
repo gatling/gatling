@@ -17,6 +17,7 @@ package com.excilys.ebi.gatling.http.util
 
 import java.net.{ URI, URLDecoder }
 
+import scala.Array.canBuildFrom
 import scala.collection.JavaConversions.seqAsJavaList
 import scala.io.Codec.UTF8
 
@@ -42,7 +43,16 @@ object HttpHelper {
 				else
 					originalRequestPath.substring(0, index + 1) + locationHeader
 			}
-			new URI(originalRequestURI.getScheme, null, originalRequestURI.getHost, originalRequestURI.getPort, newPath, null, null).toString
+			val uriParts = newPath.split("\\?")
+			var path = ""
+			var query = ""
+			if (uriParts.length > 1) {
+				path = uriParts( 0 )
+				query = uriParts( 1 )
+			} else {
+				path = uriParts( 0 )
+			}
+			new URI(originalRequestURI.getScheme, null, originalRequestURI.getHost, originalRequestURI.getPort, path, query, null).toString
 		}
 	}
 
