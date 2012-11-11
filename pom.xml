@@ -108,7 +108,6 @@
 		<joda-convert.version>1.2</joda-convert.version>
 		<xstream.version>1.4.3</xstream.version>
 		<scopt.version>2.1.0</scopt.version>
-		<args4j.version>2.0.21</args4j.version>
 		<ant.version>1.8.3</ant.version>
 		<grizzled-slf4j.version>0.6.10</grizzled-slf4j.version>
 		<jackson.version>2.1.0</jackson.version>
@@ -225,37 +224,6 @@
 				<groupId>jaxen</groupId>
 				<artifactId>jaxen</artifactId>
 				<version>${jaxen.version}</version>
-				<exclusions>
-					<!-- seriously, what a mess!!! -->
-					<exclusion>
-						<artifactId>xmlParserAPIs</artifactId>
-						<groupId>xerces</groupId>
-					</exclusion>
-					<exclusion>
-						<artifactId>xalan</artifactId>
-						<groupId>xalan</groupId>
-					</exclusion>
-					<exclusion>
-						<artifactId>xom</artifactId>
-						<groupId>xom</groupId>
-					</exclusion>
-					<exclusion>
-						<artifactId>jdom</artifactId>
-						<groupId>jdom</groupId>
-					</exclusion>
-					<exclusion>
-						<artifactId>dom4j</artifactId>
-						<groupId>dom4j</groupId>
-					</exclusion>
-					<exclusion>
-						<groupId>maven-plugins</groupId>
-						<artifactId>maven-cobertura-plugin</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>maven-plugins</groupId>
-						<artifactId>maven-findbugs-plugin</artifactId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>xerces</groupId>
@@ -311,11 +279,6 @@
 				<groupId>com.github.scopt</groupId>
 				<artifactId>scopt_2.9.2</artifactId>
 				<version>${scopt.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>args4j</groupId>
-				<artifactId>args4j</artifactId>
-				<version>${args4j.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.ant</groupId>
