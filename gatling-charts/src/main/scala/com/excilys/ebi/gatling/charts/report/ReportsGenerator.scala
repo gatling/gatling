@@ -28,9 +28,7 @@ import grizzled.slf4j.Logging
 
 object ReportsGenerator extends Logging {
 
-	def generateFor(outputDirectoryName: String): Path = {
-
-		val dataReader = DataReader.newInstance(outputDirectoryName)
+	def generateFor(outputDirectoryName: String, dataReader: DataReader): Path = {
 
 		def generateMenu = new TemplateWriter(menuFile(outputDirectoryName)).writeToFile(new MenuTemplate().getOutput)
 
