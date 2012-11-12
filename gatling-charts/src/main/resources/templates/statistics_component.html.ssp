@@ -1,5 +1,5 @@
 <% import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration %>
-<% import com.excilys.ebi.gatling.charts.view.util.ViewHelper.ordinalNumberSuffix %>
+<% import com.excilys.ebi.gatling.core.util.NumberHelper.formatNumberWithSuffix %>
 
 						<div class="infos">
 							<div class="titre">STATISTICS</div>
@@ -56,13 +56,13 @@
 												<td id="standardDeviationKO" class="ko"></td>
 											</tr>
 											<tr>
-												<td class="title"><%=configuration.charting.indicators.percentile1%><%=ordinalNumberSuffix(configuration.charting.indicators.percentile1)%> percentile</td>
+												<td class="title"><%=formatNumberWithSuffix(configuration.charting.indicators.percentile1)%> percentile</td>
 												<td id="percentiles1" class="total"></td>
 												<td id="percentiles1OK" class="ok"></td>
 												<td id="percentiles1KO" class="ko"></td>
 											</tr>
 											<tr>
-												<td class="title"><%=configuration.charting.indicators.percentile2%><%=ordinalNumberSuffix(configuration.charting.indicators.percentile2)%> percentile</td>
+												<td class="title"><%=formatNumberWithSuffix(configuration.charting.indicators.percentile2)%> percentile</td>
 												<td id="percentiles2" class="total"></td>
 												<td id="percentiles2OK" class="ok"></td>
 												<td id="percentiles2KO" class="ko"></td>

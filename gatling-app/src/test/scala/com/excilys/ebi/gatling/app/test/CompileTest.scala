@@ -20,6 +20,7 @@ import com.excilys.ebi.gatling.jdbc.Predef._
 import akka.util.duration._
 import com.excilys.ebi.gatling.http.Headers.Names._
 import bootstrap._
+import assertion._
 
 object CompileTest extends Simulation {
 
@@ -189,5 +190,14 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 		.exec(http("Ajout au panier").get("/").check(regex("""<input id="text1" type="text" value="(.*)" />""").saveAs("input")))
 		.pause(pause1)
 
-	run(lambdaUser.configure.users(5).ramp(10).protocolConfig(httpConf))
+	run(lambdaUser.users(5).ramp(10).protocolConfig(httpConf))
+
+	assertThat(
+		global.responseTime.mean.lessThan(50),
+		global.responseTime.max.between(50, 500),
+		global.successfulRequests.count.greaterThan(1500),
+		global.allRequests.percent.is(100),
+		global.responseTime.min.assert((name, result) => "My custom assert on " + name + " (" + result + ")", _ % 2 == 0),
+		details("Users" / "Search" / "Index page").responseTime.mean.greaterThan(0).lessThan(50),
+		details("Admins" / "Create").failedRequests.percent.lessThan(90))
 }

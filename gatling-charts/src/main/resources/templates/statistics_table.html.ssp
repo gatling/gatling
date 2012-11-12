@@ -1,7 +1,8 @@
 <% import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration %>
+<% import com.excilys.ebi.gatling.core.util.NumberHelper.formatNumberWithSuffix %>
 <%@ val percentile1:Int = configuration.charting.indicators.percentile1 %>
 <%@ val percentile2:Int = configuration.charting.indicators.percentile2 %>
-<%@ val responseTimeFields: List[String] = List("Min", "Max", "Mean", "Std Dev", percentile1+"th pct", percentile2+"th pct", "Req/s") %>
+<%@ val responseTimeFields: List[String] = List("Min", "Max", "Mean", "Std Dev", formatNumberWithSuffix(percentile1)+" pct", formatNumberWithSuffix(percentile2)+" pct", "Req/s") %>
 						<div class="statistics extensible-geant collapsed">
 							<div class="title">
 								<div class="right">

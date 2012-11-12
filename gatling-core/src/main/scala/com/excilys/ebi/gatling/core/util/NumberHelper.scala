@@ -63,4 +63,16 @@ object NumberHelper {
 	}
 
 	def isNumeric(string: String) = string.forall(_.isDigit)
+
+	def formatNumberWithSuffix(n: Long) = {
+		val suffix = n % 10 match {
+			case _ if (11 to 13) contains n % 100 => "th"
+			case 1 => "st"
+			case 2 => "nd"
+			case 3 => "rd"
+			case _ => "th"
+		}
+
+		n + suffix
+	}
 }
