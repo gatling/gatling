@@ -22,6 +22,7 @@ import com.excilys.ebi.gatling.core.feeder.FeederBuiltIns
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesParser
 import com.excilys.ebi.gatling.core.session.ELParser.parseEL
 import com.excilys.ebi.gatling.core.structure.{ ChainBuilder, ScenarioBuilder }
+import com.excilys.ebi.gatling.core.structure.{ AssertionBuilder, Path }
 
 object Predef {
 	implicit def stringToEvaluatableString(string: String) = parseEL(string)
@@ -52,7 +53,11 @@ object Predef {
 	type Session = com.excilys.ebi.gatling.core.session.Session
 	type Simulation = com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 	type Feeder = com.excilys.ebi.gatling.core.feeder.Feeder
+	type Assertion = com.excilys.ebi.gatling.core.structure.Assertion
 
 	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder.scenario(scenarioName)
 	val bootstrap = ChainBuilder.emptyChain
+
+	val assertion = new AssertionBuilder()
+	implicit def string2Path(string: String) = Path(List(string))
 }

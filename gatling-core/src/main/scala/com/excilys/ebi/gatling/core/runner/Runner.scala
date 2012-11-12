@@ -29,7 +29,7 @@ import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 
 import grizzled.slf4j.Logging
 
-class Runner(selection: Selection) extends Logging {
+class Runner(selection: Selection, simulation: Simulation) extends Logging {
 
 	def run: String = {
 
@@ -39,7 +39,7 @@ class Runner(selection: Selection) extends Logging {
 
 			val runRecord = RunRecord(now, selection.simulationId, selection.description)
 
-			val scenarios = simulationClass.newInstance.apply().map(_.build)
+			val scenarios = simulation.apply().map(_.build)
 
 			require(!scenarios.isEmpty, simulationClass.getName + " returned an empty scenario list")
 
