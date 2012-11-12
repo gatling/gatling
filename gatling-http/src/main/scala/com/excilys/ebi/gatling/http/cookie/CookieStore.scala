@@ -47,7 +47,13 @@ private[cookie] class CookieStore(store: Map[URI, List[Cookie]]) {
 	def add(rawURI: URI, rawCookies: List[Cookie]): CookieStore = {
 		val newCookies = rawCookies.map { cookie =>
 
-			val fixedDomain = Option(cookie.getDomain).getOrElse(rawURI.getHost)
+			val fixedDomain = Option(cookie.getDomain).getOrElse {
+				rawURI.getScheme match {
+					case "http" if (rawURI.getPort == 80) => rawURI.getHost
+					case "https" if (rawURI.getPort == 443) => rawURI.getHost
+					case _ => rawURI.getHost + ":" + rawURI.getPort
+				}
+			}
 			val fixedPath = Option(cookie.getPath).getOrElse(rawURI.getPath)
 
 			if (fixedDomain != cookie.getDomain || fixedPath != cookie.getPath) {
