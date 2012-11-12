@@ -65,6 +65,7 @@ class ProtocolConfigElement(baseUrl: String, proxy: ProxyConfig, followRedirect:
 				case Headers.Names.ACCEPT_CHARSET => appendHeader("acceptCharsetHeader", headerValue)
 				case Headers.Names.ACCEPT_ENCODING => appendHeader("acceptEncodingHeader", headerValue)
 				case Headers.Names.ACCEPT_LANGUAGE => appendHeader("acceptLanguageHeader", headerValue)
+				case Headers.Names.AUTHORIZATION => appendHeader("authorizationHeader", headerValue)
 				case Headers.Names.DO_NOT_TRACK => appendHeader("doNotTrackHeader", headerValue)
 				case Headers.Names.USER_AGENT => appendHeader("userAgentHeader", headerValue)
 				case name => warn("Base header not supported " + name)
