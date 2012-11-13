@@ -17,29 +17,29 @@ package com.excilys.ebi.gatling.http.config
 
 import com.ning.http.client.ProxyServer
 
-object HttpProxyBuilder {
-	implicit def toHttpProtocolConfigurationBuilder(hpb: HttpProxyBuilder) = {
+class HttpProxyBuilder(configBuilder: HttpProtocolConfigurationBuilder, host: String, port: Int, sslPort: Option[Int], username: Option[String], password: Option[String]) {
 
-		def getProxyServer(protocol: ProxyServer.Protocol, port: Int) = {
-			val securedProxyServer = for {
-				username <- hpb.username
-				password <- hpb.password
-			} yield new ProxyServer(protocol, hpb.host, port, username, password)
-
-			securedProxyServer.getOrElse(new ProxyServer(protocol, hpb.host, port)).setNtlmDomain(null)
-		}
-
-		val httpProxy = getProxyServer(ProxyServer.Protocol.HTTP, hpb.port)
-
-		val httpsProxy = hpb.sslPort.map(getProxyServer(ProxyServer.Protocol.HTTPS, _))
-
-		hpb.configBuilder.addProxies(httpProxy, httpsProxy)
-	}
-}
-class HttpProxyBuilder(val configBuilder: HttpProtocolConfigurationBuilder, val host: String, val port: Int, val sslPort: Option[Int], val username: Option[String], val password: Option[String]) {
 	def this(configBuilder: HttpProtocolConfigurationBuilder, host: String, port: Int) = this(configBuilder, host, port, None, None, None)
 
 	def httpsPort(sslPort: Int) = new HttpProxyBuilder(configBuilder, host, port, Some(sslPort), username, password)
 
 	def credentials(username: String, password: String) = new HttpProxyBuilder(configBuilder, host, port, sslPort, Some(username), Some(password))
+
+	def toHttpProtocolConfigurationBuilder = {
+
+		def getProxyServer(protocol: ProxyServer.Protocol)(port: Int) = {
+			
+			val proxy = for {
+				username <- this.username
+				password <- this.password
+			} yield new ProxyServer(protocol, host, port, username, password)
+			
+			proxy.getOrElse(new ProxyServer(protocol, host, port)).setNtlmDomain(null)
+		}
+
+		def plainProxyServer = getProxyServer(ProxyServer.Protocol.HTTP) _
+		def secureHttpProxyServer = getProxyServer(ProxyServer.Protocol.HTTPS) _
+
+		configBuilder.addProxies(plainProxyServer(port), sslPort.map(secureHttpProxyServer))
+	}
 }

@@ -22,19 +22,21 @@ import com.excilys.ebi.gatling.http.check.bodypart.HttpChecksumCheckBuilder
 import com.excilys.ebi.gatling.http.check.header.{ HttpHeaderCheckBuilder, HttpHeaderRegexCheckBuilder }
 import com.excilys.ebi.gatling.http.check.status.{ CurrentLocationCheckBuilder, HttpStatusCheckBuilder }
 import com.excilys.ebi.gatling.http.config.{ HttpProtocolConfiguration, HttpProtocolConfigurationBuilder, HttpProxyBuilder }
-import com.excilys.ebi.gatling.http.request.builder.HttpRequestBaseBuilder
+import com.excilys.ebi.gatling.http.request.builder.{ AbstractHttpRequestBuilder, HttpRequestBaseBuilder }
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
-import com.ning.http.client.Request
+import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 
 object Predef {
+	type Request = com.ning.http.client.Request
+	type Response = com.ning.http.client.Response
+
+	implicit def proxyBuilder2HttpProtocolConfigurationBuilder(hpb: HttpProxyBuilder): HttpProtocolConfigurationBuilder = hpb.toHttpProtocolConfigurationBuilder
+	implicit def proxyBuilder2HttpProtocolConfiguration(hpb: HttpProxyBuilder): HttpProtocolConfiguration = hpb.toHttpProtocolConfigurationBuilder.build
+	implicit def httpProtocolConfigurationBuilder2HttpProtocolConfiguration(builder: HttpProtocolConfigurationBuilder): HttpProtocolConfiguration = builder.build
+	implicit def requestBuilder2ActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]): HttpRequestActionBuilder = requestBuilder.toActionBuilder
 
 	def http(requestName: EvaluatableString) = HttpRequestBaseBuilder.http(requestName)
-
 	def httpConfig = HttpProtocolConfigurationBuilder.httpConfig
-	implicit def toHttpProtocolConfigurationBuilder(hpb: HttpProxyBuilder): HttpProtocolConfigurationBuilder = HttpProxyBuilder.toHttpProtocolConfigurationBuilder(hpb)
-	implicit def toHttpProtocolConfiguration(hpb: HttpProxyBuilder): HttpProtocolConfiguration = HttpProxyBuilder.toHttpProtocolConfigurationBuilder(hpb)
-	implicit def toHttpProtocolConfiguration(builder: HttpProtocolConfigurationBuilder): HttpProtocolConfiguration = HttpProtocolConfigurationBuilder.toHttpProtocolConfiguration(builder)
-
 	def regex(pattern: EvaluatableString) = HttpBodyRegexCheckBuilder.regex(pattern)
 	def xpath(expression: EvaluatableString, namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)
 	def css(selector: EvaluatableString) = HttpBodyCssCheckBuilder.css(selector, None)
@@ -56,7 +58,4 @@ object Predef {
 	val responseStatusText = (response: ExtendedResponse) => List(response.getStatusText)
 	val responseContentType = (response: ExtendedResponse) => List(response.getContentType)
 	val responseUri = (response: ExtendedResponse) => List(response.getUri.toString)
-
-	type Request = com.ning.http.client.Request
-	type Response = com.ning.http.client.Response
 }

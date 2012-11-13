@@ -29,8 +29,6 @@ object HttpProtocolConfigurationBuilder {
 	private[gatling] val BASE_HTTP_PROTOCOL_CONFIGURATION_BUILDER = new HttpProtocolConfigurationBuilder(Attributes(None, None, None, true, true, true, true, Map.empty, None, None, None))
 
 	def httpConfig = BASE_HTTP_PROTOCOL_CONFIGURATION_BUILDER.warmUp("http://gatling-tool.org")
-
-	implicit def toHttpProtocolConfiguration(builder: HttpProtocolConfigurationBuilder) = builder.build
 }
 
 private case class Attributes(baseUrls: Option[List[String]],

@@ -15,7 +15,6 @@
  */
 package com.excilys.ebi.gatling.http.response
 
-import java.lang.System.{ currentTimeMillis, nanoTime }
 import java.security.MessageDigest
 
 import scala.math.max

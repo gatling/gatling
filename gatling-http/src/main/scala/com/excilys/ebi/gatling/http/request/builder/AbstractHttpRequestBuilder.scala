@@ -32,19 +32,6 @@ import com.ning.http.client.ProxyServer.Protocol
 import com.ning.http.client.Realm
 import com.ning.http.client.Realm.AuthScheme
 
-/**
- * AbstractHttpRequestBuilder class companion
- */
-object AbstractHttpRequestBuilder {
-
-	/**
-	 * Implicit converter from requestBuilder to HttpRequestActionBuilder
-	 *
-	 * @param requestBuilder the request builder to convert
-	 */
-	implicit def toActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) = requestBuilder.toActionBuilder
-}
-
 case class HttpAttributes(
 	requestName: EvaluatableString,
 	method: String,

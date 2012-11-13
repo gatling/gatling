@@ -17,11 +17,10 @@ package com.excilys.ebi.gatling.app
 
 import java.lang.reflect.Modifier
 
-import scala.annotation.implicitNotFound
-import scala.collection.TraversableOnce.wrapTraversableOnce
 import scala.tools.nsc.interpreter.AbstractFileClassLoader
+import scala.tools.nsc.io.{ Directory, File, Path }
 import scala.tools.nsc.io.Path.string2path
-import scala.tools.nsc.io.{ PlainFile, Path, File, Directory }
+import scala.tools.nsc.io.PlainFile
 
 import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 
@@ -46,7 +45,7 @@ object SimulationClassLoader extends Logging {
 
 abstract class SimulationClassLoader {
 
-	def simulationClasses(explicitClassName: Option[String]): List[Class[Simulation]]
+	def simulationClasses(requestedClassName: Option[String]): List[Class[Simulation]]
 
 	protected def isSimulationClass(clazz: Class[_]): Boolean = classOf[Simulation].isAssignableFrom(clazz) && !clazz.isInterface && !Modifier.isAbstract(clazz.getModifiers)
 }

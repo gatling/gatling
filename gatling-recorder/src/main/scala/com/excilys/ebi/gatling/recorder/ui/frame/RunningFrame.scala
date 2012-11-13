@@ -15,22 +15,22 @@
  */
 package com.excilys.ebi.gatling.recorder.ui.frame
 
-import java.awt.{ FlowLayout, Dimension, BorderLayout }
-import java.awt.event.{ ActionListener, ActionEvent }
+import java.awt.{ BorderLayout, Dimension, FlowLayout }
+import java.awt.event.ActionEvent
 
 import scala.collection.JavaConversions.seqAsJavaList
 
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.ui.Commons.iconList
 import com.excilys.ebi.gatling.recorder.ui.component.TextAreaPanel
-import com.excilys.ebi.gatling.recorder.ui.info.{ TagInfo, SSLInfo, RequestInfo, PauseInfo, EventInfo }
+import com.excilys.ebi.gatling.recorder.ui.info.{ EventInfo, PauseInfo, RequestInfo, SSLInfo, TagInfo }
+import com.excilys.ebi.gatling.recorder.ui.util.ScalaSwing
 
 import grizzled.slf4j.Logging
-import javax.swing.{ JTextField, JSplitPane, JScrollPane, JPanel, JList, JLabel, JFrame, JButton, DefaultListModel, BorderFactory }
-import javax.swing.event.{ ListSelectionListener, ListSelectionEvent }
+import javax.swing.{ BorderFactory, DefaultListModel, JButton, JFrame, JLabel, JList, JPanel, JScrollPane, JSplitPane, JTextField }
+import javax.swing.event.ListSelectionEvent
 
-class RunningFrame(controller: RecorderController) extends JFrame with Logging {
+class RunningFrame(controller: RecorderController) extends JFrame with ScalaSwing with Logging {
 
 	private val btnTag = new JButton("Add")
 	private val btnClear = new JButton("Clear")
@@ -123,73 +123,59 @@ class RunningFrame(controller: RecorderController) extends JFrame with Logging {
 
 	private def setListeners {
 		/* Listeners */
-		btnTag.addActionListener(new ActionListener {
-			def actionPerformed(e: ActionEvent) {
-				if (!(txtTag.getText == EMPTY)) {
-					val tag = new TagInfo(txtTag.getText)
-					eventsInfo.addElement(tag)
-					controller.addTag(txtTag.getText)
-					eventsInfoJList.ensureIndexIsVisible(eventsInfo.getSize() - 1)
-					txtTag.setText(EMPTY)
-				}
+		btnTag.addActionListener((e: ActionEvent) => {
+			if (!txtTag.getText.isEmpty) {
+				val tag = new TagInfo(txtTag.getText)
+				eventsInfo.addElement(tag)
+				controller.addTag(txtTag.getText)
+				eventsInfoJList.ensureIndexIsVisible(eventsInfo.getSize() - 1)
+				txtTag.clear
 			}
-		});
+		})
 
-		eventsInfoJList.addListSelectionListener(new ListSelectionListener {
-			override def valueChanged(e: ListSelectionEvent) {
-				if (eventsInfoJList.getSelectedIndex() >= 0) {
-					val obj = eventsInfo.get(eventsInfoJList.getSelectedIndex());
-					if (obj.isInstanceOf[RequestInfo]) {
-						val requestInfo = obj.asInstanceOf[RequestInfo]
-						requestHeadersInfo.txt.setText(requestInfo.request.toString)
-						responseHeadersInfo.txt.setText(requestInfo.response.toString)
-						requestBodyInfo.txt.setText(requestInfo.requestBody)
-						responseBodyInfo.txt.setText(requestInfo.responseBody)
-						val newDimension = new Dimension(472, 900)
-						requestHeadersInfo.setPreferredSize(newDimension)
-						responseHeadersInfo.setPreferredSize(newDimension)
-						requestBodyInfo.setPreferredSize(newDimension)
-						responseBodyInfo.setPreferredSize(newDimension)
-						requestHeadersInfo.revalidate
-						requestBodyInfo.revalidate
-						responseHeadersInfo.revalidate
-						responseBodyInfo.revalidate
-					} else {
-						requestHeadersInfo.txt.setText(EMPTY)
-						responseHeadersInfo.txt.setText(EMPTY)
-						requestBodyInfo.txt.setText(EMPTY)
-						responseBodyInfo.txt.setText(EMPTY)
-					}
+		eventsInfoJList.addListSelectionListener((e: ListSelectionEvent) => {
+			if (eventsInfoJList.getSelectedIndex() >= 0) {
+				val obj = eventsInfo.get(eventsInfoJList.getSelectedIndex());
+				if (obj.isInstanceOf[RequestInfo]) {
+					val requestInfo = obj.asInstanceOf[RequestInfo]
+					requestHeadersInfo.txt.setText(requestInfo.request.toString)
+					responseHeadersInfo.txt.setText(requestInfo.response.toString)
+					requestBodyInfo.txt.setText(requestInfo.requestBody)
+					responseBodyInfo.txt.setText(requestInfo.responseBody)
+					val newDimension = new Dimension(472, 900)
+					requestHeadersInfo.setPreferredSize(newDimension)
+					responseHeadersInfo.setPreferredSize(newDimension)
+					requestBodyInfo.setPreferredSize(newDimension)
+					responseBodyInfo.setPreferredSize(newDimension)
+					requestHeadersInfo.revalidate
+					requestBodyInfo.revalidate
+					responseHeadersInfo.revalidate
+					responseBodyInfo.revalidate
+				} else {
+					requestHeadersInfo.clear
+					responseHeadersInfo.clear
+					requestBodyInfo.clear
+					responseBodyInfo.clear
 				}
 			}
 		})
 
-		btnClear.addActionListener(new ActionListener {
-			def actionPerformed(e: ActionEvent) {
-				controller.clearRecorderState
-			}
+		btnClear.addActionListener((e: ActionEvent) => controller.clearRecorderState)
+
+		btnCancel.addActionListener((e: ActionEvent) => {
+			controller.clearRecorderState
+			controller.stopRecording
 		})
 
-		btnCancel.addActionListener(new ActionListener {
-			def actionPerformed(e: ActionEvent) {
-				controller.clearRecorderState
-				controller.stopRecording
-			}
-		})
-
-		btnStop.addActionListener(new ActionListener {
-			def actionPerformed(e: ActionEvent) {
-				controller.stopRecording
-			}
-		})
+		btnStop.addActionListener((e: ActionEvent) => controller.stopRecording)
 	}
 
 	def clearState {
 		eventsInfo.removeAllElements
-		requestHeadersInfo.txt.setText(EMPTY)
-		requestBodyInfo.txt.setText(EMPTY)
-		responseHeadersInfo.txt.setText(EMPTY)
-		responseBodyInfo.txt.setText(EMPTY)
+		requestHeadersInfo.clear
+		requestBodyInfo.clear
+		responseHeadersInfo.clear
+		responseBodyInfo.clear
 		eventsInfo.clear
 	}
 

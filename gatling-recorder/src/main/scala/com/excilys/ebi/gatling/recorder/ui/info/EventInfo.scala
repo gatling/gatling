@@ -15,4 +15,36 @@
  */
 package com.excilys.ebi.gatling.recorder.ui.info
 
-abstract class EventInfo
+import org.jboss.netty.handler.codec.http.{ HttpMessage, HttpRequest, HttpResponse }
+
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
+import com.excilys.ebi.gatling.recorder.scenario.PauseUnit
+
+sealed trait EventInfo
+
+case class PauseInfo(duration: Long, unit: PauseUnit) extends EventInfo {
+	override def toString = "PAUSE " + duration + unit.toPrint
+}
+
+case class RequestInfo(request: HttpRequest, response: HttpResponse) extends EventInfo {
+
+	private def getHttpBody(message: HttpMessage) = {
+		if (message.getContent.hasArray)
+			new String(message.getContent.array, configuration.encoding)
+		else
+			EMPTY
+	}
+
+	val requestBody = getHttpBody(request)
+
+	val responseBody = getHttpBody(response)
+
+	override def toString = request.getMethod + " | " + request.getUri
+}
+
+case class SSLInfo(uri: String) extends EventInfo
+
+case class TagInfo(tag: String) extends EventInfo {
+	override def toString = "TAG | " + tag
+}

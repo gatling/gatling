@@ -19,7 +19,6 @@ import java.net.URI
 
 import scala.annotation.tailrec
 
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.ning.http.client.Cookie
 
 object CookieStore {
@@ -89,7 +88,7 @@ private[cookie] class CookieStore(store: Map[URI, List[Cookie]]) {
 
 	def get(rawURI: URI): List[Cookie] = {
 
-		val fixedPath = if (rawURI.getPath == EMPTY) "/" else rawURI.getPath
+		val fixedPath = if (rawURI.getPath.isEmpty) "/" else rawURI.getPath
 		val uri = getEffectiveUri(rawURI)
 
 		def domainMatches(cookie: Cookie) = java.net.HttpCookie.domainMatches(cookie.getDomain, rawURI.getHost)
