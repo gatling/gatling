@@ -24,13 +24,13 @@ import akka.actor.ActorRef
 class GroupAction(groupName: EvaluatableString, event: String, val next: ActorRef) extends Action {
 
 	def execute(session: Session) {
-		val resoldedGroupName = try {
+		val resolvedGroupName = try {
 			groupName(session)
 		} catch {
 			case e: Exception => error("Group name resolution crashed", e); "no-group-name"
 		}
 
-		DataWriter.group(session.scenarioName, resoldedGroupName, session.userId, event)
+		DataWriter.group(session.scenarioName, resolvedGroupName, session.userId, event)
 		next ! session
 	}
 }
