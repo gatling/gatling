@@ -18,21 +18,11 @@ package com.excilys.ebi.gatling.http.cache
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
-import java.text.SimpleDateFormat
-import java.util.Date
 
 @RunWith(classOf[JUnitRunner])
 class CacheHandlingSpec extends Specification {
 
 	"convertExpireField" should {
-		"support format EEEE, dd-MMM-yy HH:mm:ss zzz" in {
-			CacheHandling.convertExpireField("Thursday, 09 Aug 2007 05:22:55 GMT") must beEqualTo(1186636975000L)
-		}
-
-		"support format EEE, dd MMM yyyy HH:mm:ss zzz" in {
-			CacheHandling.convertExpireField("Thu, 09 Aug 2007 05:22:55 GMT") must beEqualTo(1186636975000L)
-		}
-
 		"support crapy Int format" in {
 			CacheHandling.isFutureExpire("0") must beEqualTo(false)
 		}

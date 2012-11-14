@@ -15,10 +15,11 @@
  */
 package com.excilys.ebi.gatling.http.config
 
-import org.specs2.mutable.Specification
-import com.ning.http.client.{ Response, Request }
 import org.junit.runner.RunWith
+import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
+
+import com.ning.http.client.{ Request, Response }
 
 @RunWith(classOf[JUnitRunner])
 class HttpProtocolConfigurationBuilderSpec extends Specification {
@@ -48,7 +49,6 @@ class HttpProtocolConfigurationBuilderSpec extends Specification {
 			config.extraResponseInfoExtractor.get should beEqualTo(expectedExtractor)
 		}
 
-		
 		"be able to support a base URL" in {
 			val url = "http://url"
 
@@ -60,7 +60,7 @@ class HttpProtocolConfigurationBuilderSpec extends Specification {
 
 			Seq(config.baseURL.get, config.baseURL.get, config.baseURL.get) must be equalTo (Seq(url, url, url))
 		}
-		
+
 		"provide a Round-Robin strategy when multiple urls are provided" in {
 			val url1 = "http://url1"
 			val url2 = "http://url2"
