@@ -56,9 +56,9 @@ object DataWriter {
 		userId: Int,
 		requestName: String,
 		executionStartDate: Long,
-		executionEndDate: Long,
 		requestSendingEndDate: Long,
 		responseReceivingStartDate: Long,
+		executionEndDate: Long,
 		requestResult: RequestStatus.RequestStatus,
 		requestMessage: Option[String] = None,
 		extraInfo: List[String] = Nil) = {
