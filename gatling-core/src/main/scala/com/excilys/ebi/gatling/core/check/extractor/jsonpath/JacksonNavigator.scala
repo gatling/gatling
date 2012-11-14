@@ -15,8 +15,11 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 
+import scala.collection.JavaConversions.{ asJavaIterator, asScalaIterator }
+
 import org.jaxen.{ DefaultNavigator, JaxenConstants, NamedAccessNavigator }
 
+import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.{ ArrayNode, TextNode }
 
@@ -29,12 +32,18 @@ class JacksonNavigator extends DefaultNavigator with NamedAccessNavigator {
 
 	def getChildAxisIterator(contextNode: Object, localName: String, namespacePrefix: String, namespaceURI: String): java.util.Iterator[_] = {
 
-		Option(contextNode.asInstanceOf[JsonNode].get(localName)).map {
-			_ match {
-				case array: ArrayNode => array.elements
-				case node => java.util.Collections.singleton[JsonNode](node).iterator: java.util.Iterator[_]
-			}
-		}.getOrElse(JaxenConstants.EMPTY_ITERATOR)
+		def getChildrenByName(node: JsonNode) =
+			Option(node.get(localName)).map {
+				_ match {
+					case array: ArrayNode => array.elements
+					case node => java.util.Collections.singleton[JsonNode](node).iterator: java.util.Iterator[_]
+				}
+			}.getOrElse(JaxenConstants.EMPTY_ITERATOR)
+
+		contextNode match {
+			case array: ArrayNode => array.elements.flatMap(getChildrenByName)
+			case node: JsonNode => getChildrenByName(node)
+		}
 	}
 
 	override def getAttributeAxisIterator(contextNode: Object) = getChildAxisIterator(contextNode)
@@ -51,9 +60,16 @@ class JacksonNavigator extends DefaultNavigator with NamedAccessNavigator {
 
 	def isText(contextNode: Object) = contextNode.isInstanceOf[TextNode]
 
-	def getElementStringValue(element: Object) = if (element.isInstanceOf[JsonNode]) element.asInstanceOf[JsonNode].asText else element.toString
+	def getElementStringValue(element: Object) = element match {
+		case e: JsonNode => e.asText
+		case _ => element.toString
+	}
 
-	// not supported operations
+	def getElementName(contextNode: Object) = EMPTY
+
+	def getElementNamespaceUri(contextNode: Object) = EMPTY
+
+	// unupported operations
 	def getAttributeName(attr: Object) = throw new UnsupportedOperationException
 
 	def getAttributeNamespaceUri(attr: Object) = throw new UnsupportedOperationException
@@ -63,10 +79,6 @@ class JacksonNavigator extends DefaultNavigator with NamedAccessNavigator {
 	def getAttributeStringValue(attr: Object) = throw new UnsupportedOperationException
 
 	def getCommentStringValue(attr: Object) = throw new UnsupportedOperationException
-
-	def getElementName(contextNode: Object) = throw new UnsupportedOperationException
-
-	def getElementNamespaceUri(contextNode: Object) = throw new UnsupportedOperationException
 
 	def getElementQName(contextNode: Object) = throw new UnsupportedOperationException
 
