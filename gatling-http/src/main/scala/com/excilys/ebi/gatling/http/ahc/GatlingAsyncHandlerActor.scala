@@ -67,14 +67,14 @@ object GatlingAsyncHandlerActor {
 }
 
 class GatlingAsyncHandlerActor(
-	var session: Session,
-	checks: List[HttpCheck[_]],
-	next: ActorRef,
-	var requestName: String,
-	var request: Request,
-	protocolConfiguration: HttpProtocolConfiguration,
-	handlerFactory: HandlerFactory,
-	responseBuilderFactory: ExtendedResponseBuilderFactory) extends BaseActor {
+		var session: Session,
+		checks: List[HttpCheck[_]],
+		next: ActorRef,
+		var requestName: String,
+		var request: Request,
+		protocolConfiguration: HttpProtocolConfiguration,
+		handlerFactory: HandlerFactory,
+		responseBuilderFactory: ExtendedResponseBuilderFactory) extends BaseActor {
 
 	var responseBuilder = responseBuilderFactory(request, session)
 
@@ -237,9 +237,10 @@ class GatlingAsyncHandlerActor(
 	 */
 	private def extractExtraInfo(response: ExtendedResponse): List[String] = {
 
-		def extractExtraRequestInfo(protocolConfiguration: HttpProtocolConfiguration, request: Request): List[String] = {
+		def extractExtraSourceInfo[T](extractor: Option[T => List[String]], source: T): List[String] = {
+
 			val extracted = try {
-				protocolConfiguration.extraRequestInfoExtractor.map(_(request))
+				extractor.map(_(source))
 
 			} catch {
 				case e: Exception =>
@@ -250,25 +251,8 @@ class GatlingAsyncHandlerActor(
 			extracted.getOrElse(Nil)
 		}
 
-		def extractExtraResponseInfo(protocolConfiguration: HttpProtocolConfiguration, response: ExtendedResponse): List[String] = {
-
-			if (response.isBuilt) {
-				val extracted = try {
-					protocolConfiguration.extraResponseInfoExtractor.map(_(response))
-
-				} catch {
-					case e: Exception =>
-						warn("Encountered error while extracting extra response info", e)
-						None
-				}
-
-				extracted.getOrElse(Nil)
-			} else
-				Nil
-		}
-
-		val extraRequestInfo = extractExtraRequestInfo(protocolConfiguration, request)
-		val extraResponseInfo = extractExtraResponseInfo(protocolConfiguration, response)
+		val extraRequestInfo = extractExtraSourceInfo(protocolConfiguration.extraRequestInfoExtractor, request)
+		val extraResponseInfo = extractExtraSourceInfo(protocolConfiguration.extraResponseInfoExtractor, response)
 		extraRequestInfo ::: extraResponseInfo
 	}
 }

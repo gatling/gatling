@@ -33,7 +33,15 @@ object HttpRequestActionBuilder {
 	 */
 	val DEFAULT_HTTP_STATUS_CHECK = status.find.in(Session => 200 to 210).build
 
-	def apply(requestName: EvaluatableString, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]]) = new HttpRequestActionBuilder(requestName, requestBuilder, checks, null)
+	def apply(requestName: EvaluatableString, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]]) = {
+
+		val resolvedChecks = checks
+			.find(_.phase == StatusReceived)
+			.map(_ => checks)
+			.getOrElse(HttpRequestActionBuilder.DEFAULT_HTTP_STATUS_CHECK :: checks)
+
+		new HttpRequestActionBuilder(requestName, requestBuilder, resolvedChecks, null)
+	}
 }
 
 /**
@@ -48,10 +56,5 @@ class HttpRequestActionBuilder(requestName: EvaluatableString, requestBuilder: A
 
 	private[gatling] def withNext(next: ActorRef) = new HttpRequestActionBuilder(requestName, requestBuilder, checks, next)
 
-	private[gatling] val resolvedChecks = checks
-		.find(_.phase == StatusReceived)
-		.map(_ => checks)
-		.getOrElse(HttpRequestActionBuilder.DEFAULT_HTTP_STATUS_CHECK :: checks)
-
-	private[gatling] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = system.actorOf(Props(HttpRequestAction(requestName, next, requestBuilder, resolvedChecks, protocolConfigurationRegistry)))
+	private[gatling] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = system.actorOf(Props(HttpRequestAction(requestName, next, requestBuilder, checks, protocolConfigurationRegistry)))
 }

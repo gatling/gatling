@@ -19,7 +19,7 @@ import java.lang.System.nanoTime
 
 import com.ning.http.client.{ HttpResponseStatus, HttpResponseHeaders, HttpResponseBodyPart }
 
-sealed abstract class HttpEvent
+sealed trait HttpEvent
 
 case class OnHeaderWriteCompleted(nanos: Long = nanoTime) extends HttpEvent
 case class OnContentWriteCompleted(nanos: Long = nanoTime) extends HttpEvent
