@@ -15,10 +15,6 @@
  */
 package com.excilys.ebi.gatling.http.cache
 
-import java.text.{ ParseException, SimpleDateFormat }
-
-import scala.annotation.tailrec
-
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
 import com.excilys.ebi.gatling.http.Headers
@@ -32,51 +28,18 @@ object CacheHandling extends Logging {
 
 	val COOKIES_CONTEXT_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "http.cache"
 
-	val QUOTED_REGEX = "\"(.+)\"".r
-
-	// damn AsyncHttpProviderUtils.convertExpireField is not public
-	def convertExpireField(timeString: String): Long = {
-
-		val parseableTimeString = timeString.trim match {
-			case QUOTED_REGEX(content) => content
-			case trimmed => trimmed
-		}
-
-		@tailrec
-		def parse(sdfs: List[SimpleDateFormat]): Long = {
-
-			val valueOrOtherSdfs = sdfs match {
-				case Nil => throw new IllegalArgumentException("Cannot parse into a date: " + parseableTimeString)
-				case sdf :: others =>
-					try {
-						val expire = sdf.parse(parseableTimeString).getTime
-						Left(expire)
-					} catch {
-						case e: ParseException => Right(others)
-						case e: NumberFormatException => Right(others)
-					}
-			}
-
-			valueOrOtherSdfs match {
-				case Left(value) => value
-				case Right(others) => parse(others)
-			}
-		}
-
-		parse(AsyncHttpProviderUtils.get.toList)
-	}
-
-	def isFutureExpire(timeString: String): Boolean = {
+	def isFutureExpire(timeString: String): Boolean =
 		try {
-			convertExpireField(timeString) > System.currentTimeMillis // simplification: consider future expiring date as cache forever
-		} catch {
-			case _: Exception => try {
-				timeString.toInt > 0
+			val maxAge = try {
+				AsyncHttpProviderUtils.convertExpireField(timeString)
 			} catch {
-				case _: Exception => false
+				case _: Exception => timeString.toInt
 			}
+
+			maxAge > 0
+		} catch {
+			case _: Exception => false
 		}
-	}
 
 	def isCached(httpProtocolConfiguration: HttpProtocolConfiguration, session: Session, request: Request) = httpProtocolConfiguration.cachingEnabled && getCache(session).contains(request.getUrl)
 
@@ -88,10 +51,9 @@ object CacheHandling extends Logging {
 			.map(isFutureExpire(_))
 			.getOrElse(false)
 
-		val isResponseCacheable = httpProtocolConfiguration.cachingEnabled && !pragmaNoCache && !pragmaNoCache && expiresInFuture
+		val isResponseCacheable = httpProtocolConfiguration.cachingEnabled && !pragmaNoCache && !cacheControlNoCache && expiresInFuture
 
 		if (isResponseCacheable) {
-
 			val cache = getCache(session)
 			val url = request.getUrl
 
