@@ -57,5 +57,6 @@ object Predef {
 	val responseStatusCode = (response: ExtendedResponse) => List(response.getStatusCode.toString)
 	val responseStatusText = (response: ExtendedResponse) => List(response.getStatusText)
 	val responseContentType = (response: ExtendedResponse) => List(response.getContentType)
+	val responseContentLength = (response: ExtendedResponse) => List(response.getHeader(Headers.Names.CONTENT_LENGTH))
 	val responseUri = (response: ExtendedResponse) => List(response.getUri.toString)
 }
