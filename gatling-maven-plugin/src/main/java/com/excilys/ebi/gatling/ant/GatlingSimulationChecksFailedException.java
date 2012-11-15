@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.scenario.configuration
+package com.excilys.ebi.gatling.ant;
 
-import com.excilys.ebi.gatling.core.structure.Assertion
-
-abstract class Simulation {
-
-	def isSuccessful: Seq[Assertion] = Nil
-	def apply(): Seq[ConfiguredScenarioBuilder]
+public class GatlingSimulationChecksFailedException extends RuntimeException {
+	public GatlingSimulationChecksFailedException(Throwable t) {
+		super("Gatling simulation checks failed !", t);
+	}
 }

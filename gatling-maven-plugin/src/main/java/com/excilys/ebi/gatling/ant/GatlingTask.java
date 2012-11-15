@@ -15,7 +15,10 @@
  */
 package com.excilys.ebi.gatling.ant;
 
+import com.excilys.ebi.gatling.app.Gatling;
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.ExitStatusException;
+import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Java;
 import org.apache.tools.ant.types.Path;
 
@@ -51,6 +54,16 @@ public class GatlingTask extends Java {
 	public void execute() {
 		setClasspath(getGatlingClasspath());
 		setClassname("com.excilys.ebi.gatling.app.Gatling");
-		super.execute();
+		try {
+			super.execute();
+		} catch (ExitStatusException e) {
+			RuntimeException exception = e;
+
+			if (e.getStatus() == Gatling.SIMULATION_CHECK_FAILED())
+				exception = new GatlingSimulationChecksFailedException(e);
+
+			log(exception.getMessage(), Project.MSG_ERR);
+			throw exception;
+		}
 	}
 }
