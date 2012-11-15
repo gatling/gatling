@@ -115,8 +115,8 @@
 		<commons-io.version>2.4</commons-io.version>
 		<jodd.version>3.4.0</jodd.version>
 		<redis.version>2.7</redis.version>
-		<junit.version>4.10</junit.version>
-		<specs2.version>1.12.2</specs2.version>
+		<junit.version>4.11</junit.version>
+		<specs2.version>1.12.3</specs2.version>
 		<zinc.version>0.2.0</zinc.version>
 		<maven2.version>2.2.1</maven2.version>
 		<maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
