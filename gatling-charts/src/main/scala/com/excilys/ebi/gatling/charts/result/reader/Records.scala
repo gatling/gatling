@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.result.message.RequestStatus.RequestStatus
 
 object ActionRecord {
 
-	def apply(strings: Array[String], bucketFunction: Int => Int, runStart: Long) = {
+	def apply(strings: Array[String], bucketFunction: Int => Int, runStart: Long): ActionRecord = {
 
 		val scenario = strings(1).intern
 		val user = strings(2).toInt
@@ -34,28 +34,28 @@ object ActionRecord {
 		val executionEndBucket = bucketFunction(executionEnd)
 		val responseTime = reduceAccuracy(executionEnd - executionStart)
 		val latency = reduceAccuracy(responseStart - requestEnd)
-		new ActionRecord(scenario, user, request, executionStart, requestEnd, responseStart, executionEnd, status, executionStartBucket, executionEndBucket, responseTime, latency)
+		ActionRecord(scenario, user, request, executionStart, requestEnd, responseStart, executionEnd, status, executionStartBucket, executionEndBucket, responseTime, latency)
 	}
 }
 
-class ActionRecord(val scenario: String, val user: Int, var request: String, val executionStart: Int, val requestEnd: Int, val responseStart: Int, val executionEnd: Int, val status: RequestStatus, val executionStartBucket: Int, val executionEndBucket: Int, val responseTime: Int, val latency: Int)
+case class ActionRecord(scenario: String, user: Int, request: String, executionStart: Int, requestEnd: Int, responseStart: Int, executionEnd: Int, status: RequestStatus, executionStartBucket: Int, executionEndBucket: Int, responseTime: Int, latency: Int)
 
 object ScenarioRecord {
-	def apply(strings: Array[String], bucketFunction: Int => Int, runStart: Long) = {
+	def apply(strings: Array[String], bucketFunction: Int => Int, runStart: Long): ScenarioRecord = {
 
 		val scenario = strings(1).intern
 		val user = strings(2).toInt
 		val event = strings(3).intern
 		val executionDate = reduceAccuracy((strings(4).toLong - runStart).toInt)
 		val executionDateBucket = bucketFunction(executionDate)
-		new ScenarioRecord(scenario, user, event, executionDate, executionDateBucket)
+		ScenarioRecord(scenario, user, event, executionDate, executionDateBucket)
 	}
 }
 
-class ScenarioRecord(val scenario: String, val user: Int, val event: String, val executionDate: Int, val executionDateBucket: Int)
+case class ScenarioRecord(scenario: String, user: Int, event: String, executionDate: Int, executionDateBucket: Int)
 
 object GroupRecord {
-	def apply(strings: Array[String], bucketFunction: Int => Int, runStart: Long) = {
+	def apply(strings: Array[String], bucketFunction: Int => Int, runStart: Long): GroupRecord = {
 
 		val scenario = strings(1).intern
 		val group = strings(2).intern
@@ -63,9 +63,9 @@ object GroupRecord {
 		val event = strings(4).intern
 		val executionDate = reduceAccuracy((strings(5).toLong - runStart).toInt)
 		val executionDateBucket = bucketFunction(executionDate)
-		new GroupRecord(scenario, group, user, event, executionDate, executionDateBucket)
+		GroupRecord(scenario, group, user, event, executionDate, executionDateBucket)
 	}
 }
 
-class GroupRecord(val scenario: String, val group: String, val user: Int, val event: String, val executionDate: Int, val executionDateBucket: Int)
+case class GroupRecord(scenario: String, group: String, user: Int, event: String, executionDate: Int, executionDateBucket: Int)
 

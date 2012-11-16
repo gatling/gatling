@@ -29,7 +29,7 @@ object Container {
 	val REQUEST = "REQUEST"
 }
 
-abstract class Container
+trait Container
 
 case class RequestContainer(name: String, stats: RequestStatistics) extends Container
 

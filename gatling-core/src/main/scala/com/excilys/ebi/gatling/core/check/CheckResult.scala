@@ -18,14 +18,7 @@ package com.excilys.ebi.gatling.core.check
 /**
  * The outcome of a check
  */
-sealed abstract class CheckResult
+sealed trait CheckResult
 
-/**
- * The outcome in case of success
- */
 case class Success(extractedValue: Option[_]) extends CheckResult
-
-/**
- * The outcome in case of failure
- */
 case class Failure(errorMessage: String) extends CheckResult

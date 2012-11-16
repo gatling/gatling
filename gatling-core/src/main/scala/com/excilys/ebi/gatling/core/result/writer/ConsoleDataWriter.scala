@@ -42,7 +42,7 @@ class UserCounters(val totalCount: Int) {
 	def waitingCount = totalCount - _runningCount - _doneCount
 }
 
-case class RequestCounters(var successfulCount: Int, var failedCount: Int)
+class RequestCounters(var successfulCount: Int, var failedCount: Int)
 
 class ConsoleDataWriter extends DataWriter with Logging {
 
@@ -109,7 +109,7 @@ class ConsoleDataWriter extends DataWriter with Logging {
 
 	override def onRequestRecord(requestRecord: RequestRecord) {
 
-		val requestCounters = requestsCounters.getOrElseUpdate(RequestPath.path(requestRecord.requestName, groupStack.get((requestRecord.scenarioName, requestRecord.userId))), RequestCounters(0, 0))
+		val requestCounters = requestsCounters.getOrElseUpdate(RequestPath.path(requestRecord.requestName, groupStack.get((requestRecord.scenarioName, requestRecord.userId))), new RequestCounters(0, 0))
 
 		requestRecord.requestStatus match {
 			case OK => requestCounters.successfulCount += 1
