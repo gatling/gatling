@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.charts.component.{ Component, ComponentLibrary, S
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.globalFile
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.template.GlobalPageTemplate
-import com.excilys.ebi.gatling.charts.util.Colors.{ BLUE, CYAN, GREEN, LIGHT_BLUE, LIGHT_LIME, LIGHT_ORANGE, LIGHT_PINK, LIGHT_PURPLE, LIGHT_RED, LIME, PINK, PURPLE, RED, YELLOW, toString }
+import com.excilys.ebi.gatling.charts.util.Colors.{ BLUE, CYAN, GREEN, LIGHT_BLUE, LIGHT_LIME, LIGHT_ORANGE, LIGHT_PINK, LIGHT_PURPLE, LIGHT_RED, LIME, PINK, PURPLE, RED, YELLOW }
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 

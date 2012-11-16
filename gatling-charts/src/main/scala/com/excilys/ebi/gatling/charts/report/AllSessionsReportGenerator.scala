@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.charts.report
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.allSessionsFile
 import com.excilys.ebi.gatling.charts.series.Series
-import com.excilys.ebi.gatling.charts.util.Colors.{ ORANGE, toString }
+import com.excilys.ebi.gatling.charts.util.Colors.ORANGE
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 
 class AllSessionsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {

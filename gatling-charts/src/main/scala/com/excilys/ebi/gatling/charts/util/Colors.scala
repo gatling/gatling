@@ -35,5 +35,5 @@ object Colors extends Enumeration {
 	val TRANSLUCID_RED = Value("rgba(255, 0, 0, .2)")
 	val TRANSLUCID_BLUE = Value("rgba(69, 114, 167, .2)")
 
-	implicit def toString(color: Colors) = color.toString
+	implicit def color2String(color: Colors) = color.toString
 }
