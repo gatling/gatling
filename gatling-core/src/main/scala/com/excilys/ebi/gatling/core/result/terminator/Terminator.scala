@@ -18,14 +18,11 @@ package com.excilys.ebi.gatling.core.result.terminator
 import java.util.concurrent.CountDownLatch
 
 import com.excilys.ebi.gatling.core.action.{ BaseActor, system }
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.FlushDataWriter
+import com.excilys.ebi.gatling.core.result.message.Flush
 
 import akka.actor.{ ActorRef, Props }
 import akka.dispatch.Future
 import akka.pattern.ask
-import akka.util.Timeout
-import akka.util.duration.intToDurationInt
 
 object Terminator {
 
@@ -73,13 +70,13 @@ class Terminator extends BaseActor {
 		case EndUser =>
 			userCount = userCount - 1
 			if (userCount == 0) {
-				implicit val timeout = Timeout(configuration.timeOut.actor seconds)
-				Future.sequence(registeredDataWriters.map(_.ask(FlushDataWriter).mapTo[Boolean]))
-					.onComplete {
-						case Left(e) => error(e)
-						case Right(_) =>
+				Future.sequence(registeredDataWriters.map(_.ask(Flush)))
+					.onSuccess {
+						case _ =>
 							latch.countDown
 							context.unbecome
+					}.onFailure {
+						case e: Exception => error(e)
 					}
 			}
 	}

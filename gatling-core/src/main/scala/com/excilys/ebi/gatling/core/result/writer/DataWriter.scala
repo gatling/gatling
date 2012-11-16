@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.result.writer
 
 import com.excilys.ebi.gatling.core.action.{ BaseActor, system }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.{ FlushDataWriter, GroupRecord, InitializeDataWriter }
+import com.excilys.ebi.gatling.core.result.message.{ Flush, GroupRecord, Init }
 import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RequestStatus, RunRecord, ScenarioRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
 import com.excilys.ebi.gatling.core.result.terminator.Terminator
@@ -38,7 +38,7 @@ object DataWriter {
 
 	def init(runRecord: RunRecord, scenarios: Seq[Scenario]) = {
 		val shortScenarioDescriptions = scenarios.map(scenario => ShortScenarioDescription(scenario.name, scenario.configuration.users))
-		router ! InitializeDataWriter(runRecord, shortScenarioDescriptions)
+		router ! Init(runRecord, shortScenarioDescriptions)
 	}
 
 	def user(scenarioName: String, userId: Int, event: String) = {
@@ -96,7 +96,7 @@ abstract class DataWriter extends BaseActor {
 	def onFlushDataWriter
 
 	def uninitialized: Receive = {
-		case InitializeDataWriter(runRecord, scenarios) =>
+		case Init(runRecord, scenarios) =>
 
 			Terminator.registerDataWriter(self)
 			onInitializeDataWriter(runRecord, scenarios)
@@ -110,7 +110,7 @@ abstract class DataWriter extends BaseActor {
 
 		case requestRecord: RequestRecord => onRequestRecord(requestRecord)
 
-		case FlushDataWriter =>
+		case Flush =>
 			try {
 				onFlushDataWriter
 			} finally {

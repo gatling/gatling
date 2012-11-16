@@ -32,9 +32,9 @@ case class ShortScenarioDescription(name: String, nbUsers: Int)
  * @param totalUsersCount the number of total users
  * @param encoding the file encoding
  */
-case class InitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
+case class Init(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
 
-case object FlushDataWriter extends DataWriterMessage
+case object Flush extends DataWriterMessage
 
 /**
  * This case class is to be sent to the logging actor, it contains all the information
