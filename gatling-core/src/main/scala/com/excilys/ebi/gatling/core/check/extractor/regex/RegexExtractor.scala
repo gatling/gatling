@@ -19,7 +19,7 @@ import java.util.regex.{ Pattern, Matcher }
 
 import scala.annotation.tailrec
 
-import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
+import com.excilys.ebi.gatling.core.check.extractor.Extractor
 
 /**
  * A built-in extractor for extracting values with Regular Expressions
@@ -27,7 +27,7 @@ import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToO
  * @constructor creates a new RegExpExtractor
  * @param textContent the text where the search will be made
  */
-class RegexExtractor(textContent: String) {
+class RegexExtractor(textContent: String) extends Extractor {
 
 	/**
 	 * The actual extraction happens here. The regular expression is compiled and the occurrence-th

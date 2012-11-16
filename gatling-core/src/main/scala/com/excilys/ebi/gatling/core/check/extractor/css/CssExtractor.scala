@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.check.extractor.css
 
 import scala.collection.JavaConversions.asScalaBuffer
 
-import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
+import com.excilys.ebi.gatling.core.check.extractor.Extractor
 
 import jodd.lagarto.dom.{ Node, NodeSelector, LagartoDOMBuilder }
 
@@ -27,7 +27,7 @@ import jodd.lagarto.dom.{ Node, NodeSelector, LagartoDOMBuilder }
  * @constructor creates a new CssExtractor
  * @param text the text where the search will be made
  */
-class CssExtractor(text: String) {
+class CssExtractor(text: String) extends Extractor {
 
 	val selector = new NodeSelector((new LagartoDOMBuilder).parse(text))
 

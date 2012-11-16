@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor
 
-object Extractor {
+trait Extractor {
 
 	/**
 	 * @param value

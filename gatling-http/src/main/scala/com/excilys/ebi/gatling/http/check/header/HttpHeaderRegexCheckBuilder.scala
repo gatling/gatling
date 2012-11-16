@@ -20,7 +20,7 @@ import java.net.URLDecoder
 import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
-import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
+import com.excilys.ebi.gatling.core.check.extractor.Extractor
 import com.excilys.ebi.gatling.core.check.extractor.regex.RegexExtractor
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
@@ -29,7 +29,7 @@ import com.excilys.ebi.gatling.http.check.HttpMultipleCheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
-object HttpHeaderRegexCheckBuilder {
+object HttpHeaderRegexCheckBuilder extends Extractor {
 
 	private def findExtractorFactory(occurrence: Int): ExtractorFactory[ExtendedResponse, (String, String), String] =
 		(response: ExtendedResponse) =>

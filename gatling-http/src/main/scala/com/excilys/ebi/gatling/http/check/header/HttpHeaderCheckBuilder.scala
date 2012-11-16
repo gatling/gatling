@@ -21,7 +21,7 @@ import java.util.Collections.emptyList
 import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
-import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ toOption, seqToOption }
+import com.excilys.ebi.gatling.core.check.extractor.Extractor
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.Headers
@@ -34,7 +34,7 @@ import com.excilys.ebi.gatling.http.response.ExtendedResponse
  *
  * It contains DSL definitions
  */
-object HttpHeaderCheckBuilder {
+object HttpHeaderCheckBuilder extends Extractor {
 
 	private def findExtractorFactory(occurrence: Int): ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => (headerName: String) => {
 
@@ -59,7 +59,7 @@ object HttpHeaderCheckBuilder {
 		}
 	}
 
-	private val countExtractorFactory: ExtractorFactory[ExtendedResponse, String, Int] = (response: ExtendedResponse) => (headerName: String) => toOption(response.getHeaders(headerName).size)
+	private val countExtractorFactory: ExtractorFactory[ExtendedResponse, String, Int] = (response: ExtendedResponse) => (headerName: String) => response.getHeaders(headerName).size
 
 	/**
 	 * Will check the value of the header in the session

@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 
 import scala.collection.JavaConversions.asScalaBuffer
 
-import com.excilys.ebi.gatling.core.check.extractor.Extractor.{ seqToOption, toOption }
+import com.excilys.ebi.gatling.core.check.extractor.Extractor
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.{ JsonNode, MappingJsonFactory, ObjectMapper }
@@ -41,7 +41,7 @@ object JsonPathExtractor {
  * @constructor creates a new JsonPathExtractor
  * @param textContent the text where the search will be made
  */
-class JsonPathExtractor(textContent: Array[Byte]) {
+class JsonPathExtractor(textContent: Array[Byte]) extends Extractor {
 
 	val json: JsonNode = JsonPathExtractor.mapper.readValue(textContent, classOf[JsonNode])
 
