@@ -18,9 +18,10 @@ package com.excilys.ebi.gatling.charts.report
 import java.util.{ LinkedHashMap => JLinkedHashMap }
 
 import scala.annotation.tailrec
+import scala.collection.JavaConversions._
+import scala.collection.mutable
 
 import com.excilys.ebi.gatling.charts.component.{ GroupStatistics, RequestStatistics }
-import com.excilys.ebi.gatling.charts.util.JMap
 import com.excilys.ebi.gatling.core.result.Group
 
 object Container {
@@ -38,7 +39,7 @@ object GroupContainer {
 	def getGroup(root: GroupContainer, group: Option[Group]) = {
 		@tailrec
 		def recursivelyGetGroup(parent: GroupContainer, groups: List[String]): GroupContainer = groups match {
-			case head :: tail => recursivelyGetGroup(parent.contents.get(head).asInstanceOf[GroupContainer], tail)
+			case head :: tail => recursivelyGetGroup(parent.contents(head).asInstanceOf[GroupContainer], tail)
 			case _ => parent
 		}
 
@@ -52,13 +53,13 @@ object GroupContainer {
 case class GroupContainer(name: String,
 	groupStats: GroupStatistics,
 	requestStats: RequestStatistics,
-	contents: JMap[String, Container] = new JMap[String, Container](new JLinkedHashMap[String, Container])) extends Container {
+	contents: mutable.Map[String, Container] = new JLinkedHashMap[String, Container]) extends Container {
 
 	def addGroup(group: Group, groupStats: GroupStatistics, requestStats: RequestStatistics) {
-		GroupContainer.getGroup(this, group.parent).contents.put(group.name, GroupContainer(group.name, groupStats, requestStats))
+		GroupContainer.getGroup(this, group.parent).contents += (group.name -> GroupContainer(group.name, groupStats, requestStats))
 	}
 
 	def addRequest(parent: Option[Group], request: RequestStatistics) {
-		GroupContainer.getGroup(this, parent).contents.put(request.name, RequestContainer(request.name, request))
+		GroupContainer.getGroup(this, parent).contents += (request.name -> RequestContainer(request.name, request))
 	}
 }

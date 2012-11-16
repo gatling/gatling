@@ -15,6 +15,11 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
+import java.util.{ HashMap => JHashMap }
+
+import scala.collection.JavaConversions._
+import scala.collection.mutable
+
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
 import com.excilys.ebi.gatling.charts.result.reader.FileDataReader
 import com.excilys.ebi.gatling.charts.result.reader.stats.PercentilesHelper
@@ -23,11 +28,10 @@ import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
 import com.excilys.ebi.gatling.core.result.reader.GeneralStats
-import com.excilys.ebi.gatling.charts.util.JMap
 
 abstract class GeneralStatsBuffers(durationInSec: Long) extends Buffers {
 
-	val generalStatsBuffers = new JMap[BufferKey, GeneralStatsBuffer]
+	val generalStatsBuffers: mutable.Map[BufferKey, GeneralStatsBuffer] = new JHashMap[BufferKey, GeneralStatsBuffer]
 
 	def getGeneralStatsBuffers(request: Option[String], group: Option[Group], status: Option[RequestStatus.RequestStatus]): GeneralStatsBuffer =
 		generalStatsBuffers.getOrElseUpdate(computeKey(request, group, status), new GeneralStatsBuffer(durationInSec))
