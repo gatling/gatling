@@ -15,11 +15,14 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
+import java.util.{ HashMap => JHashMap }
+
 import scala.annotation.tailrec
+import scala.collection.mutable
+import scala.collection.JavaConversions._
 
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
 import com.excilys.ebi.gatling.core.result.Group
-import com.excilys.ebi.gatling.charts.util.JMap
 
 trait Buffers {
 
@@ -35,19 +38,17 @@ trait Buffers {
 }
 
 class CountBuffer {
-	val map = new JMap[Int, Int]
+	val map: mutable.Map[Int, Int] = new JHashMap[Int, Int]
 
-	def update(bucket: Int) { map.putOrUpdate(bucket, 1, (value: Int) => value + 1) }
+	def update(bucket: Int) { map += (bucket -> (map.getOrElse(bucket, 0) + 1)) }
 }
 
 class RangeBuffer {
-	val map = new JMap[Int, (Int, Int)]
+	val map: mutable.Map[Int, (Int, Int)] = new JHashMap[Int, (Int, Int)]
 
 	def update(bucket: Int, value: Int) {
-		map.putOrUpdate(bucket, (value, value), (minMax: (Int, Int)) => {
-			val (minValue, maxValue) = minMax
-			(value min minValue, value max maxValue)
-		})
+		val (minValue, maxValue) = map.getOrElse(bucket, (Int.MaxValue, Int.MinValue))
+		map += (bucket -> (value min minValue, value max maxValue))
 	}
 }
 

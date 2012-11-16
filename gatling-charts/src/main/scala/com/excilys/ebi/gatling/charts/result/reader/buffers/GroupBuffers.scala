@@ -15,10 +15,12 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
-import java.util.{ LinkedList => JLinkedList }
+import java.util.{ HashMap => JHashMap, LinkedList => JLinkedList }
+
+import scala.collection.JavaConversions._
+import scala.collection.mutable
 
 import com.excilys.ebi.gatling.core.result.Group
-import com.excilys.ebi.gatling.charts.util.JMap
 
 trait GroupBuffers extends Buffers {
 
@@ -37,14 +39,14 @@ trait GroupBuffers extends Buffers {
 			val (group, executionStart) = stack.pop()
 
 			val duration = executionEnd - executionStart
-			statsGroupBuffers.putOrUpdate(group, duration, oldDuration => duration max oldDuration)
+			statsGroupBuffers += (group -> (duration max statsGroupBuffers.getOrElse(group, Long.MinValue)))
 		}
 
 		def getCurrentGroup(): Option[Group] = stack.peek()._1
 	}
 
-	val groupStacksByUserAndScenario = new JMap[(Int, String), GroupStack]
-	val statsGroupBuffers = new JMap[Option[Group], Long]
+	val groupStacksByUserAndScenario: mutable.Map[(Int, String), GroupStack] = new JHashMap[(Int, String), GroupStack]
+	val statsGroupBuffers: mutable.Map[Option[Group], Long] = new JHashMap[Option[Group], Long]
 
 	def startGroup(user: Int, scenario: String, time: Long, group: Option[String]) {
 		groupStacksByUserAndScenario.getOrElseUpdate((user, scenario), new GroupStack).start(group, time)
@@ -56,5 +58,5 @@ trait GroupBuffers extends Buffers {
 
 	def getCurrentGroup(user: Int, scenario: String) = groupStacksByUserAndScenario.getOrElseUpdate((user, scenario), new GroupStack).getCurrentGroup()
 
-	def getStatsGroupBuffer(group: Option[Group]) = statsGroupBuffers.get(group)
+	def getStatsGroupBuffer(group: Option[Group]) = statsGroupBuffers(group)
 }
