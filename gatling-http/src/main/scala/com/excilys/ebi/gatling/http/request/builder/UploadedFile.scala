@@ -21,7 +21,6 @@ import scala.tools.nsc.io.Path.string2path
 
 import com.excilys.ebi.gatling.core.config.GatlingFiles
 import com.excilys.ebi.gatling.core.session.{ EvaluatableString, Session }
-import com.excilys.ebi.gatling.core.util.PathHelper.path2string
 import com.ning.http.client.FilePart
 
 class UploadedFile(paramKeyFunction: EvaluatableString, fileNameFunction: EvaluatableString, mimeType: String, charset: String) {
@@ -31,7 +30,7 @@ class UploadedFile(paramKeyFunction: EvaluatableString, fileNameFunction: Evalua
 		val fileName = fileNameFunction(session)
 
 		val path = GatlingFiles.requestBodiesDirectory / fileName
-		val file = new File(path)
+		val file = path.jfile
 
 		assert(file.exists, "Uploaded file %s does not exist".format(path))
 		assert(file.isFile, "Uploaded file %s is not a real file".format(path))

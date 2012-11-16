@@ -23,7 +23,6 @@ import com.excilys.ebi.gatling.core.config.GatlingFiles
 import com.excilys.ebi.gatling.core.session.{ EvaluatableString, Session }
 import com.excilys.ebi.gatling.core.session.ELParser.parseEL
 import com.excilys.ebi.gatling.core.util.FileHelper.SSP_EXTENSION
-import com.excilys.ebi.gatling.core.util.PathHelper.path2jfile
 import com.excilys.ebi.gatling.http.Headers.Names.CONTENT_LENGTH
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.{ ByteArrayBody, FilePathBody, HttpRequestBody, SessionByteArrayBody, StringBody, TemplateBody }
@@ -31,7 +30,7 @@ import com.ning.http.client.RequestBuilder
 
 object AbstractHttpRequestWithBodyBuilder {
 	val TEMPLATE_ENGINE = {
-		val engine = new TemplateEngine(List(GatlingFiles.requestBodiesDirectory))
+		val engine = new TemplateEngine(List(GatlingFiles.requestBodiesDirectory.jfile))
 		engine.allowReload = false
 		engine.escapeMarkup = false
 		system.registerOnTermination(engine.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown)
