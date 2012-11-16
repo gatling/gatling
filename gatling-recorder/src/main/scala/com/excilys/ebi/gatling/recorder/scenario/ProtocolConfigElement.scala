@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.recorder.scenario
 
-import com.excilys.ebi.gatling.core.util.StringHelper.{ EMPTY, END_OF_LINE }
+import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
 
@@ -38,7 +38,7 @@ class ProtocolConfigElement(baseUrl: String, proxy: ProxyConfig, followRedirect:
 			proxyHost <- proxy.host
 			proxyPort <- proxy.port
 		} {
-			val sslPort = proxy.sslPort.map(proxySslPort => ".httpsPort(" + proxySslPort + ")").getOrElse(EMPTY)
+			val sslPort = proxy.sslPort.map(proxySslPort => ".httpsPort(" + proxySslPort + ")").getOrElse("")
 			appendLine(".proxy(\"" + proxyHost + "\", " + proxyPort + ")" + sslPort)
 		}
 

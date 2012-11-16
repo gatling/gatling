@@ -25,7 +25,7 @@ import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK, RequestStatus }
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.util.StringHelper.{ EMPTY, END_OF_LINE }
+import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames }
 import com.excilys.ebi.gatling.http.cache.CacheHandling
@@ -129,14 +129,14 @@ class GatlingAsyncHandlerActor(
 			if (isDebugEnabled)
 				debug {
 					val buff = new StringBuilder()
-						.append("Request '").append(requestName).append("' failed : ").append(errorMessage.getOrElse(EMPTY)).append(END_OF_LINE)
+						.append("Request '").append(requestName).append("' failed : ").append(errorMessage.getOrElse("")).append(END_OF_LINE)
 						.append("request was:").append(request).append(END_OF_LINE)
 						.append("response was:").append(END_OF_LINE)
 					response.dumpTo(buff)
 					buff.toString
 				}
 			else
-				warn("Request '" + requestName + "' failed : " + errorMessage.getOrElse(EMPTY))
+				warn("Request '" + requestName + "' failed : " + errorMessage.getOrElse(""))
 		}
 
 		DataWriter.logRequest(session.scenarioName, session.userId, requestName,

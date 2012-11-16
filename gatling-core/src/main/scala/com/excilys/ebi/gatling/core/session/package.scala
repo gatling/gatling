@@ -15,13 +15,11 @@
  */
 package com.excilys.ebi.gatling.core
 
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-
 package object session {
 
 	type EvaluatableString = Session => String
 
 	type EvaluatableStringSeq = Session => Seq[String]
 
-	val NOOP_EVALUATABLE_STRING: EvaluatableString = (s: Session) => EMPTY
+	val NOOP_EVALUATABLE_STRING: EvaluatableString = (s: Session) => ""
 }

@@ -18,18 +18,17 @@ package com.excilys.ebi.gatling.recorder.ui.util
 import java.awt.event.{ ActionEvent, ActionListener, ItemEvent, ItemListener }
 import javax.swing.event.{ ListSelectionEvent, ListSelectionListener }
 import com.excilys.ebi.gatling.recorder.ui.component.TextAreaPanel
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import javax.swing.JTextField
 
 class RichTextAreaPanel(area: TextAreaPanel) {
 	def clear {
-		area.txt.setText(EMPTY)
+		area.txt.setText("")
 	}
 }
 
 class RichJTextField(field: JTextField) {
 	def clear {
-		field.setText(EMPTY)
+		field.setText("")
 	}
 }
 

@@ -24,7 +24,6 @@ import org.w3c.dom.{ Node, Document }
 import org.xml.sax.{ InputSource, EntityResolver }
 
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 import javax.xml.parsers.{ DocumentBuilderFactory, DocumentBuilder }
 
@@ -37,7 +36,7 @@ object XPathExtractor {
 	factory.setNamespaceAware(true)
 
 	val noopEntityResolver = new EntityResolver {
-		def resolveEntity(publicId: String, systemId: String) = new InputSource(new StringReader(EMPTY))
+		def resolveEntity(publicId: String, systemId: String) = new InputSource(new StringReader(""))
 	}
 
 	val parserHolder = new ThreadLocal[DocumentBuilder] {

@@ -17,7 +17,6 @@ package com.excilys.ebi.gatling.recorder.ui.info
 
 import org.jboss.netty.handler.codec.http.{ HttpMessage, HttpRequest, HttpResponse }
 
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
 import com.excilys.ebi.gatling.recorder.scenario.PauseUnit
 
@@ -29,12 +28,11 @@ case class PauseInfo(duration: Long, unit: PauseUnit) extends EventInfo {
 
 case class RequestInfo(request: HttpRequest, response: HttpResponse) extends EventInfo {
 
-	private def getHttpBody(message: HttpMessage) = {
+	private def getHttpBody(message: HttpMessage) =
 		if (message.getContent.hasArray)
 			new String(message.getContent.array, configuration.encoding)
 		else
-			EMPTY
-	}
+			""
 
 	val requestBody = getHttpBody(request)
 

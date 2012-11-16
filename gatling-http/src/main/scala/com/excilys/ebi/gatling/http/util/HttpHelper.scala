@@ -21,7 +21,6 @@ import scala.collection.JavaConversions.seqAsJavaList
 import scala.io.Codec.UTF8
 
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.request.builder.HttpParam
 import com.ning.http.client.FluentStringsMap
 
@@ -61,7 +60,7 @@ object HttpHelper {
 			.map(_.split("=", 2))
 			.map { pair =>
 				val paramName = utf8Decode(pair(0))
-				val paramValue = if (pair.isDefinedAt(1)) utf8Decode(pair(1)) else EMPTY
+				val paramValue = if (pair.isDefinedAt(1)) utf8Decode(pair(1)) else ""
 				paramName -> paramValue
 			}.toList
 	}

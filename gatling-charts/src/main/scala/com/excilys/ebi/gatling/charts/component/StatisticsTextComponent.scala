@@ -19,7 +19,6 @@ import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_STATIS
 import com.excilys.ebi.gatling.charts.template.PageTemplate.TEMPLATE_ENGINE
 import com.excilys.ebi.gatling.core.result.reader.DataReader.NO_PLOT_MAGIC_VALUE
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 case class Statistics(name: String, total: Long, success: Long, failure: Long) {
 
@@ -90,7 +89,7 @@ class StatisticsTextComponent extends Component {
 
 	def getHTMLContent: String = TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATISTICS_COMPONENT_URL)
 
-	val getJavascriptContent: String = EMPTY
+	val getJavascriptContent: String = ""
 
 	val getJavascriptFiles: Seq[String] = Seq.empty
 }

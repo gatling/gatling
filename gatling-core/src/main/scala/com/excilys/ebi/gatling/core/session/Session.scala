@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.session
 
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
-
 import grizzled.slf4j.Logging
 
 /**
@@ -36,7 +34,7 @@ object Session extends Logging {
 		.map(_.toString)
 		.getOrElse {
 			warn("Couldn't resolve session attribute " + key)
-			EMPTY
+			""
 		}
 
 	def attributeAsEvaluatableStringSeq(key: String): EvaluatableStringSeq = (session: Session) => session.getAttributeAsOption[Any](key)
@@ -45,7 +43,7 @@ object Session extends Logging {
 			case mono => List(mono.toString)
 		}).getOrElse {
 			warn("Couldn't resolve session attribute " + key)
-			List(EMPTY)
+			List("")
 		}
 
 	def evaluatableStringToEvaluatableStringSeq(evaluatableString: EvaluatableString): EvaluatableStringSeq = (session: Session) => List(evaluatableString(session))
@@ -109,13 +107,13 @@ class Session(val scenarioName: String, val userId: Int, data: Map[String, Any] 
 
 	def isAttributeDefined(attributeKey: String) = data.contains(attributeKey)
 
-	def setFailed: Session = setAttribute(Session.FAILED_KEY, EMPTY)
+	def setFailed: Session = setAttribute(Session.FAILED_KEY, "")
 
 	def clearFailed: Session = removeAttribute(Session.FAILED_KEY)
 
 	def isFailed: Boolean = isAttributeDefined(Session.FAILED_KEY)
 
-	def setMustExitOnFail: Session = setAttribute(Session.MUST_EXIT_ON_FAIL_KEY, EMPTY)
+	def setMustExitOnFail: Session = setAttribute(Session.MUST_EXIT_ON_FAIL_KEY, "")
 
 	def isMustExitOnFail: Boolean = isAttributeDefined(Session.MUST_EXIT_ON_FAIL_KEY)
 

@@ -16,10 +16,9 @@
 package com.excilys.ebi.gatling.http.check.bodypart
 
 import com.excilys.ebi.gatling.core.check.Matcher
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
+import com.excilys.ebi.gatling.core.session.{ NOOP_EVALUATABLE_STRING, Session }
 import com.excilys.ebi.gatling.http.request.HttpPhase.BodyPartReceived
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 import com.excilys.ebi.gatling.http.check.HttpCheck
 
-class ChecksumCheck(val algorithm: String, matcher: Matcher[ExtendedResponse, String], saveAs: Option[String]) extends HttpCheck((s: Session) => EMPTY, matcher, saveAs, BodyPartReceived)
+class ChecksumCheck(val algorithm: String, matcher: Matcher[ExtendedResponse, String], saveAs: Option[String]) extends HttpCheck(NOOP_EVALUATABLE_STRING, matcher, saveAs, BodyPartReceived)

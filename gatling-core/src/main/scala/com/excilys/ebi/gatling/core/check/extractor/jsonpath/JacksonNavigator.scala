@@ -19,7 +19,6 @@ import scala.collection.JavaConversions.{ asJavaIterator, asScalaIterator }
 
 import org.jaxen.{ DefaultNavigator, JaxenConstants, NamedAccessNavigator }
 
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.{ ArrayNode, TextNode }
 
@@ -65,9 +64,9 @@ class JacksonNavigator extends DefaultNavigator with NamedAccessNavigator {
 		case _ => element.toString
 	}
 
-	def getElementName(contextNode: Object) = EMPTY
+	def getElementName(contextNode: Object) = ""
 
-	def getElementNamespaceUri(contextNode: Object) = EMPTY
+	def getElementNamespaceUri(contextNode: Object) = ""
 
 	// unupported operations
 	def getAttributeName(attr: Object) = throw new UnsupportedOperationException

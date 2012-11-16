@@ -19,7 +19,6 @@ import com.excilys.ebi.gatling.core.util.StringHelper
 import com.excilys.ebi.gatling.core.util.NumberHelper.isNumeric
 import scala.collection.mutable
 import grizzled.slf4j.Logging
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 
 object ELParser extends Logging {
 
@@ -49,14 +48,14 @@ object ELParser extends Logging {
 							.map { resolvedOccurrence =>
 								session.getAttributeAsOption[Seq[Any]](key) match {
 									case Some(seq) if (seq.isDefinedAt(resolvedOccurrence)) => seq(resolvedOccurrence)
-									case _ => warn("Couldn't resolve occurrence " + resolvedOccurrence + " of session multivalued attribute " + key); EMPTY
+									case _ => warn("Couldn't resolve occurrence " + resolvedOccurrence + " of session multivalued attribute " + key); ""
 								}
 
-							}.getOrElse { warn("Couldn't resolve index session attribute " + occurrence); EMPTY }
+							}.getOrElse { warn("Couldn't resolve index session attribute " + occurrence); "" }
 
 					}.getOrElse {
 						val key = data.group(1)
-						(session: Session) => session.getAttributeAsOption[Any](key).getOrElse { warn("Couldn't resolve session attribute " + key); EMPTY }
+						(session: Session) => session.getAttributeAsOption[Any](key).getOrElse { warn("Couldn't resolve session attribute " + key); "" }
 					}
 			}.toSeq
 

@@ -31,8 +31,6 @@ object StringHelper extends Logging {
 
 	val END_OF_LINE = System.getProperty("line.separator")
 
-	val EMPTY = ""
-
 	val jdk6Pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
 
 	/**
@@ -40,7 +38,7 @@ object StringHelper extends Logging {
 	 */
 	def stripAccents(string: String) = {
 		val normalized = Normalizer.normalize(string, Normalizer.Form.NFD)
-		jdk6Pattern.matcher(normalized).replaceAll(EMPTY);
+		jdk6Pattern.matcher(normalized).replaceAll("");
 	}
 
 	def escapeJsQuoteString(s: String) = s.replace("'", "\\\'")
@@ -52,7 +50,7 @@ object StringHelper extends Logging {
 	}.toString
 
 	def trimToOption(string: String) = string.trim match {
-		case EMPTY => None
+		case "" => None
 		case string => Some(string)
 	}
 

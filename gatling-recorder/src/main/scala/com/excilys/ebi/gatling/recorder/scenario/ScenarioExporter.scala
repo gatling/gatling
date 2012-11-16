@@ -25,7 +25,6 @@ import scala.tools.nsc.io.{ Directory, File }
 import org.fusesource.scalate.TemplateEngine
 
 import com.excilys.ebi.gatling.core.util.IOHelper.use
-import com.excilys.ebi.gatling.core.util.StringHelper.EMPTY
 import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
 
@@ -192,7 +191,7 @@ object ScenarioExporter extends Logging {
 	def getOutputFolder = {
 		val path = configuration.outputFolder + configuration.simulationPackage
 			.map { pkg => File.separator + pkg.replace(".", File.separator) }
-			.getOrElse(EMPTY)
+			.getOrElse("")
 
 		getFolder(path)
 	}
