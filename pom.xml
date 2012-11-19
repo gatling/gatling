@@ -119,7 +119,7 @@
 		<specs2.version>1.12.3</specs2.version>
 		<zinc.version>0.2.0</zinc.version>
 		<maven2.version>2.2.1</maven2.version>
-		<maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
+		<maven-compiler-plugin.version>3.0</maven-compiler-plugin.version>
 		<maven-source-plugin.version>2.2</maven-source-plugin.version>
 		<maven-assembly-plugin.version>2.2.2</maven-assembly-plugin.version>
 		<maven-jar-plugin.version>2.4</maven-jar-plugin.version>
