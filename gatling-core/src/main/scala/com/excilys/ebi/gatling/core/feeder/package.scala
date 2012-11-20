@@ -16,5 +16,5 @@
 package com.excilys.ebi.gatling.core
 
 package object feeder {
-	type Feeder = Iterator[Map[String, String]]
+	type Feeder[T] = Iterator[Map[String, T]]
 }

@@ -23,7 +23,7 @@ import grizzled.slf4j.Logging
 
 object RedisFeeder extends Logging {
 
-	def apply(clientPool: RedisClientPool, key: String): Feeder = {
+	def apply(clientPool: RedisClientPool, key: String): Feeder[String] = {
 
 		system.registerOnTermination(clientPool.close)
 

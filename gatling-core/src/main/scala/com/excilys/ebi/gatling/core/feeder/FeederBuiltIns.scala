@@ -18,25 +18,25 @@ package com.excilys.ebi.gatling.core.feeder
 import java.util.Random
 import java.util.concurrent.ConcurrentLinkedQueue
 
-import scala.collection.JavaConversions.seqAsJavaList
+import scala.collection.JavaConversions.{ asScalaIterator, seqAsJavaList }
 
 import com.excilys.ebi.gatling.core.util.RoundRobin
 
-class FeederBuiltIns(data: Array[Map[String, String]]) {
+class FeederBuiltIns[T](data: Array[Map[String, T]]) {
 
-	def queue: Feeder = data.iterator
+	def queue: Feeder[T] = data.iterator
 
-	def concurrentQueue = new ConcurrentLinkedQueue(data.toList).iterator
+	def concurrentQueue: Feeder[T] = new ConcurrentLinkedQueue(data.toList).iterator
 
-	def random: Feeder = {
+	def random: Feeder[T] = {
 
 		val random = new Random
 
-		new Feeder {
+		new Feeder[T] {
 			def hasNext = !data.isEmpty
 			def next = data(random.nextInt(data.size))
 		}
 	}
 
-	def circular: Feeder = RoundRobin(data)
+	def circular: Feeder[T] = RoundRobin(data)
 }

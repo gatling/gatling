@@ -46,12 +46,12 @@ object Predef {
 	def tsv(file: File) = SeparatedValuesParser.tsv(file, None)
 	def tsv(file: File, escapeChar: String) = SeparatedValuesParser.tsv(file, Some(escapeChar))
 
-	implicit def data2Feeder(data: Array[Map[String, String]]): Feeder = data2FeederBuiltIns(data).queue
-	implicit def data2FeederBuiltIns(data: Array[Map[String, String]]): FeederBuiltIns = new FeederBuiltIns(data)
+	implicit def data2Feeder[T](data: Array[Map[String, T]]): Feeder[T] = data2FeederBuiltIns(data).queue
+	implicit def data2FeederBuiltIns[T](data: Array[Map[String, T]]) = new FeederBuiltIns(data)
 
 	type Session = com.excilys.ebi.gatling.core.session.Session
 	type Simulation = com.excilys.ebi.gatling.core.scenario.configuration.Simulation
-	type Feeder = com.excilys.ebi.gatling.core.feeder.Feeder
+	type Feeder[T] = com.excilys.ebi.gatling.core.feeder.Feeder[T]
 
 	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder.scenario(scenarioName)
 	val bootstrap = ChainBuilder.emptyChain

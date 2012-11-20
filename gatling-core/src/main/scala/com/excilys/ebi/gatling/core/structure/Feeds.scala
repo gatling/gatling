@@ -29,7 +29,7 @@ trait Feeds[B] extends Execs[B] with Logging {
 	 *
 	 * @param feeder the feeder from which the values will be loaded
 	 */
-	def feed(feeder: Feeder): B = {
+	def feed(feeder: Feeder[_]): B = {
 
 		val byPass = BypassSimpleActionBuilder(session => {
 			if (!feeder.hasNext) {

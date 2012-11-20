@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.util
 
 object RoundRobin {
 
-	def apply[T](values: Iterable[T]) = {
+	def apply[T](values: Iterable[T]): Iterator[T] = {
 
 		if (values.isEmpty)
 			Iterator.empty

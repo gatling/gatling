@@ -54,6 +54,13 @@ object CompileTest extends Simulation {
 
 		val testData = tsv("test-data.tsv")
 
+		val richTestData = testData.queue.map {
+			_.map {
+				case (key @ "keyOfAMultivaluedColumn", value) => (key, value.split(","))
+				case keyVal => keyVal
+			}
+		}
+
 		val testData2 = jdbcFeeder("jdbc:postgresql:gatling", "gatling", "gatling", """
 select login as "username", password
 from usr
@@ -67,7 +74,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 			.exec(loginChain)
 			// First request outside iteration
 			.repeat(2) {
-				feed(testData)
+				feed(richTestData)
 					.exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform(_ + "foo").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
 			}
 			.repeat(2, "counterName") {
