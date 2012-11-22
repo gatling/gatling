@@ -42,7 +42,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	httpAttributes: HttpAttributes,
 	body: Option[HttpRequestBody],
 	paramsAttributes: HttpParamsAttributes)
-	extends AbstractHttpRequestWithBodyBuilder[B](httpAttributes, body) {
+		extends AbstractHttpRequestWithBodyBuilder[B](httpAttributes, body) {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type
@@ -68,7 +68,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 			configureParams(requestBuilder, session)
 		else {
 			configureStringParts(requestBuilder, session)
-			configureBodyParts(requestBuilder, paramsAttributes.uploadedFiles, session)
+			configureFileParts(requestBuilder, session)
 		}
 
 		requestBuilder
@@ -113,15 +113,14 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 * @param session the session of the current scenario
 	 */
 	private def configureParams(requestBuilder: RequestBuilder, session: Session) {
-
 		if (!paramsAttributes.params.isEmpty) {
 			val paramsMap = httpParamsToFluentMap(paramsAttributes.params, session)
 			requestBuilder.setParameters(paramsMap)
 		}
 	}
 
-	private def configureBodyParts(requestBuilder: RequestBuilder, uploadedFiles: List[UploadedFile], session: Session) {
-		uploadedFiles.foreach { file =>
+	private def configureFileParts(requestBuilder: RequestBuilder, session: Session) {
+		paramsAttributes.uploadedFiles.foreach { file =>
 			val filePart = file.filePart(session)
 			requestBuilder.addBodyPart(filePart)
 		}
@@ -129,8 +128,9 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 
 	private def configureStringParts(requestBuilder: RequestBuilder, session: Session) {
 		paramsAttributes.params
+			.map { case (key, values) => key(session) -> values(session) }
 			.foreach {
-				case (key, values) => values(session).foreach(value => requestBuilder.addBodyPart(new StringPart(key(session), value)))
+				case (key, values) => values.foreach(value => requestBuilder.addBodyPart(new StringPart(key, value)))
 			}
 	}
 }
