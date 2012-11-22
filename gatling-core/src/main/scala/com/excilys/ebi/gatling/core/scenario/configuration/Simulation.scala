@@ -15,7 +15,16 @@
  */
 package com.excilys.ebi.gatling.core.scenario.configuration
 
+import scala.collection.mutable
+import com.excilys.ebi.gatling.core.scenario.Scenario
+
 abstract class Simulation {
 
-	def apply(): Seq[ConfiguredScenarioBuilder]
+	private val _scenarios = new mutable.ArrayBuffer[ConfiguredScenarioBuilder]
+
+	def scenarios: Seq[Scenario] = _scenarios.map(_.build)
+
+	def run(scn1: ConfiguredScenarioBuilder, scns: ConfiguredScenarioBuilder*) {
+		_scenarios += scn1 ++= scns
+	}
 }

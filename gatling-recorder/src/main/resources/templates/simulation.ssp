@@ -15,40 +15,37 @@ import bootstrap._
 
 class <%= simulationClassName %> extends Simulation {
 
-	def apply = {
-
-		val httpConf = httpConfig
+	val httpConf = httpConfig
 <%= protocolConfig %>
 
 <% for( header <- headers ) { %>			 
-		val headers_<%= header._1 %> = Map(
+	val headers_<%= header._1 %> = Map(
 <%= (for { headerElem <- header._2 } yield "\t\t\t\"" + headerElem._1 + "\" -> \"\"\"" + headerElem._2 + "\"\"\"").mkString(",\n") %>
-		)
+	)
 
 <% } %>
 
 <% scenarioElements match {%>
 <% case Left(elements) =>%>
-		val scn = scenario("<%= scenarioName %>")
+	val scn = scenario("<%= scenarioName %>")
 <% for (element <- elements) {%>
-			<%if (!element.isInstanceOf[com.excilys.ebi.gatling.recorder.scenario.TagElement]){%>.<%}%><%=element%>
+		<%if (!element.isInstanceOf[com.excilys.ebi.gatling.recorder.scenario.TagElement]){%>.<%}%><%=element%>
 <%}%>
 <% case Right(chains) =>%>
 <% for((chain, i) <- chains.zipWithIndex) { %>
-		val chain_<%= i %> =
+	val chain_<%= i %> =
 <% for (element <- chain) {%>
-			<%if (element != chain.head && !element.isInstanceOf[com.excilys.ebi.gatling.recorder.scenario.TagElement]){%>.<%}%><%=element%>
+		<%if (element != chain.head && !element.isInstanceOf[com.excilys.ebi.gatling.recorder.scenario.TagElement]){%>.<%}%><%=element%>
 <%}%>
 <%}%>
 
-		val scn = scenario("<%= scenarioName %>")
-			.exec(
+	val scn = scenario("<%= scenarioName %>")
+		.exec(
 <% for ((chain, i) <- chains.zipWithIndex) {%>
-				chain_<%=i%><%if (chain != chains.last) {%>,<%}%>
+			chain_<%=i%><%if (chain != chains.last) {%>,<%}%>
 <%}%>
-			)
+		)
 <%}%>
 
-		List(scn.configure.users(1).protocolConfig(httpConf))
-	}
+	run(scn.configure.users(1).protocolConfig(httpConf))
 }
