@@ -83,7 +83,7 @@ public class GatlingMojo extends AbstractMojo {
 	 * Uses this folder to discover simulations that could be run
 	 * 
 	 * @parameter expression="${gatling.simulationsFolder}" alias="sf"
-	 *            default-value="${basedir}/src/main/resources/simulations"
+	 *            default-value="${basedir}/src/test/scala"
 	 * @description Uses this folder to discover simulations that could be run
 	 */
 	protected File simulationsFolder;
@@ -119,7 +119,7 @@ public class GatlingMojo extends AbstractMojo {
 	 * Uses this folder as the folder where feeders are stored
 	 * 
 	 * @parameter expression="${gatling.dataFolder}" alias="df"
-	 *            default-value="${basedir}/src/main/resources/data"
+	 *            default-value="${basedir}/src/test/resources/data"
 	 * @description Uses this folder as the folder where feeders are stored
 	 */
 	protected File dataFolder;
@@ -128,7 +128,7 @@ public class GatlingMojo extends AbstractMojo {
 	 * Uses this folder as the folder where request bodies are stored
 	 * 
 	 * @parameter expression="${gatling.requestBodiesFolder}" alias="bf"
-	 *            default-value="${basedir}/src/main/resources/request-bodies"
+	 *            default-value="${basedir}/src/test/resources/request-bodies"
 	 * @description Uses this folder as the folder where request bodies are
 	 *              stored
 	 */
