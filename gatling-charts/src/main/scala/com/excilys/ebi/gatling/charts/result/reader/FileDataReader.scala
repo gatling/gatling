@@ -106,12 +106,14 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 		records
 			.collect { case line if (line.startsWith(ACTION) || line.startsWith(GROUP) || line.startsWith(SCENARIO)) => FileDataReader.TABULATION_PATTERN.split(line) }
-			.filter(array => array.size >= 1)
-			.foreach { array => array(0) match {
-				case ACTION if (array.size >= FileDataReader.ACTION_RECORD_LENGTH) => resultsHolder.addActionRecord(ActionRecord(array, bucketFunction, runStart))
-				case GROUP if (array.size >= FileDataReader.GROUP_RECORD_LENGTH) => resultsHolder.addGroupRecord(GroupRecord(array, bucketFunction, runStart))
-				case SCENARIO if (array.size >= FileDataReader.SCENARIO_RECORD_LENGTH) => resultsHolder.addScenarioRecord(ScenarioRecord(array, bucketFunction, runStart))
-			}}
+			.filter(_.length >= 1)
+			.foreach { array =>
+				array(0) match {
+					case ACTION if (array.length >= FileDataReader.ACTION_RECORD_LENGTH) => resultsHolder.addActionRecord(ActionRecord(array, bucketFunction, runStart))
+					case GROUP if (array.length >= FileDataReader.GROUP_RECORD_LENGTH) => resultsHolder.addGroupRecord(GroupRecord(array, bucketFunction, runStart))
+					case SCENARIO if (array.length >= FileDataReader.SCENARIO_RECORD_LENGTH) => resultsHolder.addScenarioRecord(ScenarioRecord(array, bucketFunction, runStart))
+				}
+			}
 
 		info("Read " + count + " lines (finished)")
 
