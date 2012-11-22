@@ -39,7 +39,7 @@ class Runner(selection: Selection) extends Logging {
 
 			val runRecord = RunRecord(now, selection.simulationId, selection.description)
 
-			val scenarios = simulationClass.newInstance.apply().map(_.build)
+			val scenarios = simulationClass.newInstance.scenarios
 
 			require(!scenarios.isEmpty, simulationClass.getName + " returned an empty scenario list")
 
