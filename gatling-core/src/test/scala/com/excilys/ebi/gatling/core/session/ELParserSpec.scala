@@ -85,5 +85,20 @@ class ELParserSpec extends Specification {
 			val session = new Session("scenario", 1, Map("bar" -> List("BAR1", "BAR2")))
 			parseEL("{foo${bar(baz)}}")(session) must beEqualTo("{foo}")
 		}
+
+		"return correct size for non empty seq" in {
+			val session = new Session("scenario", 1, Map("bar" -> List("BAR1", "BAR2")))
+			parseEL("${bar.size()}")(session) must beEqualTo("2")
+		}
+
+		"return correct size for empty seq" in {
+			val session = new Session("scenario", 1, Map("bar" -> List()))
+			parseEL("${bar.size()}")(session) must beEqualTo("0")
+		}
+
+		"return 0 size for missing attribute" in {
+			val session = new Session("scenario", 1, Map())
+			parseEL("${bar.size()}")(session) must beEqualTo("0")
+		}
 	}
 }

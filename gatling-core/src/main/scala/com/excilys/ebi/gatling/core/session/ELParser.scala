@@ -23,6 +23,7 @@ import grizzled.slf4j.Logging
 object ELParser extends Logging {
 
 	val elPattern = """\$\{(.+?)\}""".r
+	val elSizePattern = """(.+?)\.size\(\)""".r
 	val elOccurrencePattern = """(.+?)\((.+)\)""".r
 
 	val CACHE = mutable.Map.empty[String, EvaluatableString]
@@ -34,29 +35,33 @@ object ELParser extends Logging {
 		def parseDynamicParts: Seq[Session => Any] = elPattern
 			.findAllIn(elString)
 			.matchData
-			.map { data =>
-				val elContent = data.group(1)
-				elOccurrencePattern.findFirstMatchIn(elContent)
-					.map { occurrencePartMatch =>
-						val key = occurrencePartMatch.group(1)
-						val occurrence = occurrencePartMatch.group(2)
+			.map {
+				_.group(1) match {
+					case elOccurrencePattern(key, occurrence) => {
 						val occurrenceFunction =
 							if (isNumeric(occurrence)) (session: Session) => Some(occurrence.toInt)
 							else (session: Session) => session.getAttributeAsOption(occurrence)
 
-						(session: Session) => occurrenceFunction(session)
-							.map { resolvedOccurrence =>
-								session.getAttributeAsOption[Seq[Any]](key) match {
-									case Some(seq) if (seq.isDefinedAt(resolvedOccurrence)) => seq(resolvedOccurrence)
-									case _ => warn("Couldn't resolve occurrence " + resolvedOccurrence + " of session multivalued attribute " + key); ""
-								}
-
-							}.getOrElse { warn("Couldn't resolve index session attribute " + occurrence); "" }
-
-					}.getOrElse {
-						val key = data.group(1)
-						(session: Session) => session.getAttributeAsOption[Any](key).getOrElse { warn("Couldn't resolve session attribute " + key); "" }
+						(session: Session) =>
+							(for {
+								resolvedOccurrence <- occurrenceFunction(session)
+								attr <- session.getAttributeAsOption[Any](key)
+								if (attr.isInstanceOf[Seq[_]])
+								seq = attr.asInstanceOf[Seq[_]]
+								if seq.isDefinedAt(resolvedOccurrence)
+							} yield seq(resolvedOccurrence)).getOrElse { warn("Couldn't resolve EL " + elString); "" }
 					}
+					case elSizePattern(key) => {
+						(session: Session) =>
+							(for {
+								attr <- session.getAttributeAsOption[Any](key)
+								if (attr.isInstanceOf[Seq[_]])
+								seq = attr.asInstanceOf[Seq[_]]
+							} yield seq.size).getOrElse { warn("Couldn't resolve EL " + elString); 0 }
+
+					}
+					case key => (session: Session) => session.getAttributeAsOption[Any](key).getOrElse { warn("Couldn't resolve EL " + elString); "" }
+				}
 			}.toSeq
 
 		def doParseEvaluatable: EvaluatableString = {
