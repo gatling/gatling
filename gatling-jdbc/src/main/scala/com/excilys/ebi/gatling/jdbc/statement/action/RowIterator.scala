@@ -24,8 +24,8 @@ class RowIterator(resultSet: ResultSet) extends Iterator[Map[Int,AnyRef]] {
 
 	def hasNext = !resultSet.isLast
 
-	def next() = {
+	def next = {
 		resultSet.next
-		(for (i <- 0 to columnCount) yield (i,resultSet.getObject(i))).toMap
+		(for (i <- 1 to columnCount) yield (i,resultSet.getObject(i))).toMap
 	}
 }
