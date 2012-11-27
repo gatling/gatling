@@ -15,8 +15,18 @@
  */
 package com.excilys.ebi.gatling.jdbc
 
+import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.jdbc.feeder.database.JdbcFeederSource
+import com.excilys.ebi.gatling.jdbc.config.JdbcProtocolConfigurationBuilder
+import statement.builder.{AbstractJdbcStatementBuilder, JdbcStatementBaseBuilder}
 
 object Predef {
+
+	implicit def jdbcProtocolConfigurationBuilder2JdbcProtocolConfiguration(builder: JdbcProtocolConfigurationBuilder) = builder.build
+	implicit def statementBuilder2ActionBuilder(statementBuilder: AbstractJdbcStatementBuilder[_]) = statementBuilder.toActionBuilder
+
+	def sql(statementName: EvaluatableString) = JdbcStatementBaseBuilder.sql(statementName)
+	def jdbcConfig = JdbcProtocolConfigurationBuilder.jdbcConfig
+
 	def jdbcFeeder(url: String, username: String, password: String, sql: String) = JdbcFeederSource(url, username, password, sql)
 }

@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core
+package com.excilys.ebi.gatling.jdbc.config
 
-package object session {
+import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
 
-	type EvaluatableString = Session => String
+case object JdbcProtocolConfiguration extends ProtocolConfiguration {
 
-	type EvaluatableStringSeq = Session => Seq[String]
+	val JDBC_PROTOCOL_TYPE = "jdbcProtocol"
+	val DEFAULT_JDBC_PROTOCOL_CONFIG = JdbcProtocolConfigurationBuilder.BASE_JDBC_PROTOCOL_CONFIGURATION_BUILDER.build
+	val protocolType = JdbcProtocolConfiguration.JDBC_PROTOCOL_TYPE
 
-	val NOOP_EVALUATABLE_STRING: EvaluatableString = (s: Session) => ""
-
-	type EvaluatableStringToAny = Session => Any
 }

@@ -13,15 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core
+package com.excilys.ebi.gatling.jdbc.statement
 
-package object session {
+object StatementType extends Enumeration {
+	type StatementType = Value
+	val QUERY,CALL = Value
 
-	type EvaluatableString = Session => String
-
-	type EvaluatableStringSeq = Session => Seq[String]
-
-	val NOOP_EVALUATABLE_STRING: EvaluatableString = (s: Session) => ""
-
-	type EvaluatableStringToAny = Session => Any
 }
