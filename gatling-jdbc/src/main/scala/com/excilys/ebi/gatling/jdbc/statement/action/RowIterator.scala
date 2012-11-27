@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core
+package com.excilys.ebi.gatling.jdbc.statement.action
 
-package object session {
+import java.sql.ResultSet
 
-	type EvaluatableString = Session => String
+// TODO : use an implicit class after upgrade to Scala 2.10
+class RowIterator(resultSet: ResultSet) extends Iterator[Map[Int,AnyRef]] {
 
-	type EvaluatableStringSeq = Session => Seq[String]
+	val columnCount = resultSet.getMetaData.getColumnCount
 
-	val NOOP_EVALUATABLE_STRING: EvaluatableString = (s: Session) => ""
+	def hasNext = !resultSet.isLast
 
-	type EvaluatableStringToAny = Session => Any
+	def next() = {
+		resultSet.next
+		(for (i <- 0 to columnCount) yield (i,resultSet.getObject(i))).toMap
+	}
 }

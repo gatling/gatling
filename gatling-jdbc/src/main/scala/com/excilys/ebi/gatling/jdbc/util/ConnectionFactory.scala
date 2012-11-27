@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core
+package com.excilys.ebi.gatling.jdbc.util
 
-package object session {
+import org.apache.tomcat.jdbc.pool.DataSource
+import java.sql.Connection
 
-	type EvaluatableString = Session => String
+object ConnectionFactory {
 
-	type EvaluatableStringSeq = Session => Seq[String]
+	private[gatling] var dataSource : DataSource = _
 
-	val NOOP_EVALUATABLE_STRING: EvaluatableString = (s: Session) => ""
+	def setDataSource(ds: DataSource) { dataSource = ds }
 
-	type EvaluatableStringToAny = Session => Any
+	def getConnection: Connection = dataSource.getConnection
+
+	def close = if (dataSource != null ) dataSource.close
 }
