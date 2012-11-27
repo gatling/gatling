@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core
+package com.excilys.ebi.gatling.jdbc.statement.builder
 
-package object session {
+import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.jdbc.statement.StatementType
 
-	type EvaluatableString = Session => String
+object CallJdbcStatementBuilder {
 
-	type EvaluatableStringSeq = Session => Seq[String]
+	def apply(statementName: EvaluatableString,statement: String) = new CallJdbcStatementBuilder(JdbcAttributes(statementName,statement,StatementType.CALL,Nil,None))
+}
 
-	val NOOP_EVALUATABLE_STRING: EvaluatableString = (s: Session) => ""
+class CallJdbcStatementBuilder(jdbcAttributes: JdbcAttributes) extends AbstractJdbcStatementBuilder[CallJdbcStatementBuilder](jdbcAttributes) {
 
-	type EvaluatableStringToAny = Session => Any
+	private[jdbc] def newInstance(jdbcAttributes: JdbcAttributes) = new CallJdbcStatementBuilder(jdbcAttributes)
 }

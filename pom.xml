@@ -115,6 +115,7 @@
 		<commons-io.version>2.4</commons-io.version>
 		<jodd.version>3.4.0</jodd.version>
 		<redis.version>2.8</redis.version>
+		<tomcat-jdbc.version>7.0.33</tomcat-jdbc.version>
 		<junit.version>4.11</junit.version>
 		<specs2.version>1.12.3</specs2.version>
 		<zinc.version>0.2.0</zinc.version>
@@ -326,6 +327,11 @@
 				<version>${redis.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.apache.tomcat</groupId>
+				<artifactId>tomcat-jdbc</artifactId>
+				<version>${tomcat-jdbc.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>${junit.version}</version>
@@ -438,7 +444,7 @@
 						</execution>
 					</executions>
 				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings 
+				<!--This plugin's configuration is used to store Eclipse m2e settings
 					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
