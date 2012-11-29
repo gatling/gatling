@@ -46,7 +46,7 @@ class JdbcStatementAction(statementName: EvaluatableString, statementBuilder: Ab
 		use(ConnectionFactory.getConnection) {	connection =>
 			connection.setTransactionIsolation(isolationLevel.getOrElse(connection.getTransactionIsolation))
 			val statement = statementBuilder.build(connection)
-			JdbcHandler(resolvedStatementName,statement,session).execute
+			JdbcHandler(resolvedStatementName,statement,session,next).execute
 		}
 
 	}

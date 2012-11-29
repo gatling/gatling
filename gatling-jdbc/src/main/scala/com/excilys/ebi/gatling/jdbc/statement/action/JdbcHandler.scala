@@ -28,6 +28,7 @@ import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 import java.util.concurrent.TimeoutException
 import akka.util.duration.intToDurationInt
+import akka.actor.ActorRef
 
 
 object JdbcHandler {
@@ -37,10 +38,10 @@ object JdbcHandler {
 
 	implicit def ResultSet2RowIterator(resultSet: ResultSet): RowIterator = new RowIterator(resultSet)
 
-	def apply(statementName: String,statement: PreparedStatement,session: Session) = new JdbcHandler(statementName,statement,session)
+	def apply(statementName: String,statement: PreparedStatement,session: Session,next: ActorRef) = new JdbcHandler(statementName,statement,session,next)
 }
 
-class JdbcHandler(statementName: String,statement: PreparedStatement,session: Session) extends Logging {
+class JdbcHandler(statementName: String,statement: PreparedStatement,session: Session,next: ActorRef) extends Logging {
 
 	var executionStartDate: Int = _
 	var statementExecutionStartDate: Long = _
@@ -68,10 +69,15 @@ class JdbcHandler(statementName: String,statement: PreparedStatement,session: Se
 				case te: TimeoutException =>
 					executionEndDate = nowMillis
 					logStatement(KO,Some(te.getMessage))
-				case e: Exception => logStatement(KO,Some("JdbcHandler timed out"))
+					executeNext(session.setFailed)
+				case e: Exception =>
+					logStatement(KO,Some("JdbcHandler timed out"))
+					executeNext(session.setFailed)
 			}
 		})
 	}
+
+	def executeNext(newSession: Session) = next ! newSession.increaseTimeShift(nowMillis - executionEndDate)
 
 	private def processResultSet = use(statement.getResultSet) { _.foreach(logRow(_))}
 
@@ -81,7 +87,6 @@ class JdbcHandler(statementName: String,statement: PreparedStatement,session: Se
 	}
 
 	private def logStatement(status: RequestStatus,errorMessage: Option[String] = None) {
-		// FIXME : replace the dummy timestamps when they're properly implemented
 		DataWriter.logRequest(session.scenarioName,session.userId,statementName,executionStartDate,
 			statementExecutionStartDate,statementExecutionEndDate,executionEndDate,status,errorMessage)
 	}
