@@ -22,18 +22,20 @@ import com.excilys.ebi.gatling.jdbc.statement.action.JdbcHandler._
 import java.sql.{ResultSet, PreparedStatement}
 import akka.dispatch.Future
 import grizzled.slf4j.Logging
+import com.excilys.ebi.gatling.core.result.writer.DataWriter
+import com.excilys.ebi.gatling.core.session.Session
 
 object JdbcHandler {
 
-	// TODO : tune jdbc-dispatcher in application.conf
+	// FIXME : tune jdbc-dispatcher in application.conf
 	implicit val executionContext = system.dispatchers.lookup("jdbc-dispatcher")
 
 	implicit def ResultSet2RowIterator(resultSet: ResultSet): RowIterator = new RowIterator(resultSet)
 
-	def apply(statement: PreparedStatement) = new JdbcHandler(statement)
+	def apply(statementName: String,statement: PreparedStatement,session: Session) = new JdbcHandler(statementName,statement,session)
 }
 
-class JdbcHandler(statement: PreparedStatement) extends Logging {
+class JdbcHandler(statementName: String,statement: PreparedStatement,session: Session) extends Logging {
 
 	def execute = {
 		use(statement) { statement =>
@@ -53,6 +55,7 @@ class JdbcHandler(statement: PreparedStatement) extends Logging {
 	}
 
 	private def logStatement(status: RequestStatus,errorMessage: Option[String] = None) {
-	   // TODO : log statement to simulation.log
+		// FIXME : replace the dummy timestamps when they're properly implemented
+		DataWriter.logRequest(session.scenarioName,session.userId,statementName,0,0,0,0,status,errorMessage)
 	}
 }
