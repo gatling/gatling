@@ -17,13 +17,18 @@ package com.excilys.ebi.gatling.jdbc.statement.action
 
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK, RequestStatus }
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.excilys.ebi.gatling.jdbc.statement.action.JdbcHandler._
 import java.sql.{ResultSet, PreparedStatement}
-import akka.dispatch.Future
+import akka.dispatch.{Await,Future}
 import grizzled.slf4j.Logging
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
+import java.util.concurrent.TimeoutException
+import akka.util.duration.intToDurationInt
+
 
 object JdbcHandler {
 
@@ -37,14 +42,35 @@ object JdbcHandler {
 
 class JdbcHandler(statementName: String,statement: PreparedStatement,session: Session) extends Logging {
 
-	def execute = {
-		use(statement) { statement =>
-			// TODO : timestamp and everything else needed for the log
-			Future(statement.execute).map(if(_) processResultSet).onComplete {
-				case Left(t) => logStatement(KO,Some(t.getMessage))
-				case Right(_) => logStatement(OK)
-			}
+	var executionStartDate: Int = _
+	var statementExecutionStartDate: Long = _
+	var statementExecutionEndDate: Long = _
+	var executionEndDate: Long = _
+
+	val executionFuture = Future {
+		statement.execute()
+		nowMillis
+	}
+
+	val processingFuture = Future {
+		if(statement.getUpdateCount != 1) processResultSet
+		nowMillis
 		}
+
+	def execute = {
+		// TODO : need to handle executionStartDate : do it here, or do it in jdbcStatementAction ?
+		use(statement) ( statement => {
+			try {
+				statementExecutionEndDate = Await.result(executionFuture,configuration.jdbc.statementTimeoutInMs milliseconds)
+				executionEndDate = Await.result(processingFuture,configuration.jdbc.statementTimeoutInMs milliseconds)
+				logStatement(OK)
+			} catch {
+				case te: TimeoutException =>
+					executionEndDate = nowMillis
+					logStatement(KO,Some(te.getMessage))
+				case e: Exception => logStatement(KO,Some("JdbcHandler timed out"))
+			}
+		})
 	}
 
 	private def processResultSet = use(statement.getResultSet) { _.foreach(logRow(_))}
@@ -56,6 +82,7 @@ class JdbcHandler(statementName: String,statement: PreparedStatement,session: Se
 
 	private def logStatement(status: RequestStatus,errorMessage: Option[String] = None) {
 		// FIXME : replace the dummy timestamps when they're properly implemented
-		DataWriter.logRequest(session.scenarioName,session.userId,statementName,0,0,0,0,status,errorMessage)
+		DataWriter.logRequest(session.scenarioName,session.userId,statementName,executionStartDate,
+			statementExecutionStartDate,statementExecutionEndDate,executionEndDate,status,errorMessage)
 	}
 }
