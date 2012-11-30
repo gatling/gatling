@@ -29,6 +29,7 @@ import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 object Predef {
 	type Request = com.ning.http.client.Request
 	type Response = com.ning.http.client.Response
+	type ExtendedResponse = com.excilys.ebi.gatling.http.response.ExtendedResponse
 
 	implicit def proxyBuilder2HttpProtocolConfigurationBuilder(hpb: HttpProxyBuilder): HttpProtocolConfigurationBuilder = hpb.toHttpProtocolConfigurationBuilder
 	implicit def proxyBuilder2HttpProtocolConfiguration(hpb: HttpProxyBuilder): HttpProtocolConfiguration = hpb.toHttpProtocolConfigurationBuilder.build

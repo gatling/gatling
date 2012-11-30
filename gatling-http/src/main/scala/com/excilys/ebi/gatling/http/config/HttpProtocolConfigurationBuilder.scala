@@ -17,7 +17,8 @@ package com.excilys.ebi.gatling.http.config
 
 import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.http.ahc.GatlingHttpClient
-import com.ning.http.client.{ ProxyServer, Request, RequestBuilder, Response }
+import com.excilys.ebi.gatling.http.response.ExtendedResponse
+import com.ning.http.client.{ ProxyServer, Request, RequestBuilder }
 
 import grizzled.slf4j.Logging
 
@@ -40,8 +41,8 @@ private case class Attributes(baseUrls: Option[List[String]],
 	responseChunksDiscardingEnabled: Boolean,
 	baseHeaders: Map[String, String],
 	warmUpUrl: Option[String],
-	extraRequestInfoExtractor: Option[(Request => List[String])],
-	extraResponseInfoExtractor: Option[(Response => List[String])])
+	extraRequestInfoExtractor: Option[Request => List[String]],
+	extraResponseInfoExtractor: Option[ExtendedResponse => List[String]])
 
 /**
  * Builder for HttpProtocolConfiguration used in DSL
@@ -86,9 +87,9 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 
 	def disableWarmUp = new HttpProtocolConfigurationBuilder(attributes.copy(warmUpUrl = None))
 
-	def requestInfoExtractor(value: (Request => List[String])) = new HttpProtocolConfigurationBuilder(attributes.copy(extraRequestInfoExtractor = Some(value)))
+	def requestInfoExtractor(f: Request => List[String]) = new HttpProtocolConfigurationBuilder(attributes.copy(extraRequestInfoExtractor = Some(f)))
 
-	def responseInfoExtractor(value: (Response) => List[String]) = new HttpProtocolConfigurationBuilder(attributes.copy(extraResponseInfoExtractor = Some(value)))
+	def responseInfoExtractor(f: ExtendedResponse => List[String]) = new HttpProtocolConfigurationBuilder(attributes.copy(extraResponseInfoExtractor = Some(f)))
 
 	/**
 	 * Sets the proxy of the future HttpProtocolConfiguration
