@@ -32,6 +32,7 @@ import com.excilys.ebi.gatling.http.cache.CacheHandling
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
+import com.excilys.ebi.gatling.http.request.ExtendedRequest.extendRequest
 import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.http.response.{ ExtendedResponse, ExtendedResponseBuilder, ExtendedResponseBuilderFactory }
@@ -126,17 +127,15 @@ class GatlingAsyncHandlerActor(
 		errorMessage: Option[String] = None) {
 
 		if (requestStatus == KO) {
-			if (isDebugEnabled)
-				debug {
-					val buff = new StringBuilder()
-						.append("Request '").append(requestName).append("' failed : ").append(errorMessage.getOrElse("")).append(END_OF_LINE)
-						.append("request was:").append(request).append(END_OF_LINE)
-						.append("response was:").append(END_OF_LINE)
-					response.dumpTo(buff)
-					buff.toString
-				}
-			else
-				warn("Request '" + requestName + "' failed : " + errorMessage.getOrElse(""))
+			warn("Request '" + requestName + "' failed : " + errorMessage.getOrElse(""))
+			debug {
+				val buff = new StringBuilder
+				buff.append("request was:").append(END_OF_LINE)
+				request.dumpTo(buff)
+				buff.append("response was:").append(END_OF_LINE)
+				response.dumpTo(buff)
+				buff.toString
+			}
 		}
 
 		DataWriter.logRequest(session.scenarioName, session.userId, requestName,
