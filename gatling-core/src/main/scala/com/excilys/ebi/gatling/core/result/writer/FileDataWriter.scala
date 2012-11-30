@@ -62,9 +62,7 @@ object FileDataWriter {
 	 * @param input
 	 * @return
 	 */
-	private[writer] def sanitize(input: String): String = {
-		sanitizerPattern.replaceAllIn(input, " ")
-	}
+	private[writer] def sanitize(input: String): String = Option(sanitizerPattern.replaceAllIn(input, " ")).getOrElse("")
 }
 
 /**
