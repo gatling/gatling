@@ -59,6 +59,7 @@ object ConfigurationConstants {
 	val CONF_HTTP_JSON_FEATURES = "gatling.http.nonStandardJsonSupport"
 
 	val CONF_JDBC_STATEMENT_TIMEOUT_IN_MS = "gatling.jdbc.statementTimeoutInMs"
+	val CONF_JDBC_JMX_ENABLED = "gatling.jdbc.jmxEnabled"
 
 	val CONF_DATA_WRITER_CLASS_NAMES = "gatling.data.writers"
 	val CONF_DATA_READER_CLASS_NAME = "gatling.data.reader"
