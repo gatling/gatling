@@ -61,10 +61,9 @@ class JdbcHandler(statementName: String,statement: PreparedStatement,session: Se
 	def execute = {
 		// TODO : need to handle executionStartDate : do it here, or do it in jdbcStatementAction ?
 		use(statement) ( statement => {
-			val timeout = configuration.jdbc.statementTimeoutInMs milliseconds
 			try {
-				statementExecutionEndDate = Await.result(executionFuture,timeout)
-				executionEndDate = Await.result(processingFuture,timeout)
+				statementExecutionEndDate = Await.result(executionFuture,configuration.jdbc.statementTimeoutInMs milliseconds)
+				executionEndDate = Await.result(processingFuture,configuration.jdbc.statementTimeoutInMs milliseconds)
 				logStatement(OK)
 			} catch {
 				case te: TimeoutException =>
