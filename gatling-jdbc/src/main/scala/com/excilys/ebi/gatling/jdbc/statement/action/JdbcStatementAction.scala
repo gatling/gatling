@@ -37,11 +37,16 @@ class JdbcStatementAction(statementName: EvaluatableString, statementBuilder: Ab
 	 * @return Nothing
 	 */
 	def execute(session: Session) {
+		val resolvedStatementName = try {
+			statementName(session)
+		} catch {
+			case e: Exception => error("Statement name resolution crashed", e); "no-name"
+		}
 		// TODO : fail statement if error (maybe move it to JdbcHandler, or move JdbcHandler here ?
 		use(ConnectionFactory.getConnection) {	connection =>
 			connection.setTransactionIsolation(isolationLevel.getOrElse(connection.getTransactionIsolation))
 			val statement = statementBuilder.build(connection)
-			JdbcHandler(statement).execute
+			JdbcHandler(resolvedStatementName,statement,session,next).execute
 		}
 
 	}

@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.jdbc.config
 
-import JdbcProtocolConfigurationBuilder.{PASSWORD_KEY,USER_KEY}
+import com.excilys.ebi.gatling.jdbc.config.JdbcProtocolConfigurationBuilder.{PASSWORD_KEY,USER_KEY}
 import com.excilys.ebi.gatling.jdbc.util.ConnectionFactory
 import grizzled.slf4j.Logging
 import org.apache.tomcat.jdbc.pool.DataSource
@@ -26,13 +26,19 @@ object JdbcProtocolConfigurationBuilder {
 	val PASSWORD_KEY = "password"
 
 	private[gatling] val BASE_JDBC_PROTOCOL_CONFIGURATION_BUILDER =
-		new JdbcProtocolConfigurationBuilder(Attributes(properties = Map[String, Any]()))
+		new JdbcProtocolConfigurationBuilder(Attributes("",None,None,None,None,None,None,Map[String, Any]()))
 
 	def jdbcConfig = BASE_JDBC_PROTOCOL_CONFIGURATION_BUILDER
 }
 
 private case class Attributes(
-	url: String = "",
+	url: String,
+	initial: Option[Int],
+	minIdle: Option[Int],
+	maxActive: Option[Int],
+	maxIdle: Option[Int],
+	maxWait: Option[Int],
+	initSQL: Option[String],
 	properties: Map[String, Any])
 
 class JdbcProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
@@ -47,30 +53,17 @@ class JdbcProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 
 	def properties(properties: Map[String, Any]) = new JdbcProtocolConfigurationBuilder(attributes.copy(properties = properties))
 
-	def initial(initial: Int) = {
-		ds.setInitialSize(initial)
-		this
-	}
+	def initial(initial: Int) = new JdbcProtocolConfigurationBuilder(attributes.copy(initial = Some(initial)))
 
-	def minIdle(minIdle: Int) = {
-		ds.setMinIdle(minIdle)
-		this
-	}
+	def minIdle(minIdle: Int) = new JdbcProtocolConfigurationBuilder(attributes.copy(minIdle = Some(minIdle)))
 
-	def maxActive(maxActive: Int) = {
-		ds.setMaxActive(maxActive)
-		this
-	}
+	def maxActive(maxActive: Int) = new JdbcProtocolConfigurationBuilder(attributes.copy(maxActive = Some(maxActive)))
 
-	def maxIdle(maxIdle: Int) = {
-		ds.setMaxIdle(maxIdle)
-		this
-	}
+	def maxIdle(maxIdle: Int) = new JdbcProtocolConfigurationBuilder(attributes.copy(maxIdle = Some(maxIdle)))
 
-	def maxWait(maxWait: Int) = {
-		ds.setMaxWait(maxWait)
-		this
-	}
+	def maxWait(maxWait: Int) = new JdbcProtocolConfigurationBuilder(attributes.copy(maxWait = Some(maxWait)))
+
+	def initSQL(sql: String) = new JdbcProtocolConfigurationBuilder(attributes.copy(initSQL = Some(sql)))
 
 	def defaultTransactionIsolation(isolationLevel: Int) = {
 		ds.setDefaultTransactionIsolation(isolationLevel)
@@ -82,7 +75,6 @@ class JdbcProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 		this
 	}
 
-
 	def abandonWhenPercentageFull(percentage: Int) = {
 		ds.setAbandonWhenPercentageFull(percentage)
 		this
@@ -90,11 +82,6 @@ class JdbcProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 
 	def minEvictableIdleTimeMillis(minTime: Int) = {
 		ds.setMinEvictableIdleTimeMillis(minTime)
-		this
-	}
-
-	def removeAbandonedTimeout(timeout: Int) = {
-		ds.setRemoveAbandonedTimeout(timeout)
 		this
 	}
 
@@ -110,11 +97,6 @@ class JdbcProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 
 	def validationQuery(query: String) = {
 		ds.setValidationQuery(query)
-		this
-	}
-
-	def defaultAutoCommit(state: Boolean) = {
-		ds.setDefaultAutoCommit(state)
 		this
 	}
 
@@ -158,21 +140,6 @@ class JdbcProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 		this
 	}
 
-	def removeAbandoned(state: Boolean) = {
-		ds.setRemoveAbandoned(state)
-		this
-	}
-
-	def useLock(state: Boolean) = {
-		ds.setUseLock(state)
-		this
-	}
-
-	def jmxEnabled(state: Boolean) = {
-		ds.setJmxEnabled(state)
-		this
-	}
-
 	private[jdbc] def build = {
 		if(attributes.url == "")
 			throw new IllegalArgumentException("JDBC connection URL is not defined.")
@@ -187,8 +154,17 @@ class JdbcProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 	def setupDataSource: DataSource = {
 		ds.setUrl(attributes.url)
 		ds.setConnectionProperties(buildPropertiesString(attributes.properties))
+		ds.setDefaultAutoCommit(true)
+		callIfSome(attributes.initial,ds.setInitialSize)
+		callIfSome(attributes.minIdle,ds.setMinIdle)
+		callIfSome(attributes.maxActive,ds.setMaxActive)
+		callIfSome(attributes.maxIdle,ds.setMaxIdle)
+		callIfSome(attributes.maxWait,ds.setMaxWait)
+		callIfSome(attributes.initSQL,ds.setInitSQL)
 		ds
 	}
 
 	private def buildPropertiesString(map: Map[String, Any]) = map.map {case (key, value) => key + "=" + value}.mkString(";")
+
+	private def callIfSome[T <: Any](value: Option[T],f: T => Unit) = if(value.isDefined) f(value.get)
 }

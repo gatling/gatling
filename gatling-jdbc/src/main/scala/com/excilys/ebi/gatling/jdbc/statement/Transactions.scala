@@ -13,19 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.jdbc.statement.action
+package com.excilys.ebi.gatling.jdbc.statement
 
-import java.sql.ResultSet
+import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
-// TODO : use an implicit class after upgrade to Scala 2.10
-class RowIterator(resultSet: ResultSet) extends Iterator[Map[Int,AnyRef]] {
+object Transactions {
 
-	val columnCount = resultSet.getMetaData.getColumnCount
-
-	def hasNext = !resultSet.isLast
-
-	def next = {
-		resultSet.next
-		(for (i <- 1 to columnCount) yield (i,resultSet.getObject(i))).toMap
-	}
+	def transaction(chain : ChainBuilder) = throw new UnsupportedOperationException("Not implemented yet")
 }
