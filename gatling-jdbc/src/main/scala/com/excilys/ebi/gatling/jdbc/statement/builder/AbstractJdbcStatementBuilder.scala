@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.jdbc.statement.builder
 import com.excilys.ebi.gatling.core.session.{EvaluatableString,EvaluatableStringToAny}
 import com.excilys.ebi.gatling.jdbc.statement.StatementType.{StatementType,CALL,QUERY}
 import com.excilys.ebi.gatling.jdbc.statement.action.JdbcStatementActionBuilder
-import java.sql.Connection
+import java.sql.{PreparedStatement, Connection}
 
 case class JdbcAttributes(
 	statementName: EvaluatableString,
@@ -41,9 +41,19 @@ abstract class AbstractJdbcStatementBuilder[B <: AbstractJdbcStatementBuilder[B]
 
 	private[jdbc] def build(connection: Connection) = createStatement(connection)
 
-	private def createStatement(connection: Connection) = jdbcAttributes.statementType match {
-		case CALL => connection.prepareCall(jdbcAttributes.statement)
-		case QUERY => connection.prepareStatement(jdbcAttributes.statement)
+	private def createStatement(connection: Connection) = {
+		 val statement = jdbcAttributes.statementType match {
+			case CALL => connection.prepareCall(jdbcAttributes.statement)
+			case QUERY => connection.prepareStatement(jdbcAttributes.statement)
+		}
+		bindParams(statement)
+	}
+
+	private def bindParams(statement: PreparedStatement) = {
+		val indexes = 1 to jdbcAttributes.params.length
+		val indexedParams = indexes zip jdbcAttributes.params.reverse
+		indexedParams.foreach{ case (index,param) => statement.setObject(index,param) }
+		statement
 	}
 }
 
