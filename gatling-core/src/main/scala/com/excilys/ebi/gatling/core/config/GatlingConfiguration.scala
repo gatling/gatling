@@ -84,6 +84,9 @@ object GatlingConfiguration extends Logging {
 				userAgent = config.getString(CONF_HTTP_USER_AGENT),
 				userRawUrl = config.getBoolean(CONF_HTTP_USE_RAW_URL),
 				nonStandardJsonSupport = config.getStringList(CONF_HTTP_JSON_FEATURES).toList),
+			jdbc = JdbcConfiguration(
+				statementTimeoutInMs = config.getInt(CONF_JDBC_STATEMENT_TIMEOUT_IN_MS),
+				jmxEnabled = config.getBoolean(CONF_JDBC_JMX_ENABLED)),
 			data = DataConfiguration(
 				dataWriterClasses = config.getStringList(CONF_DATA_WRITER_CLASS_NAMES).toList.map {
 						case "console" => "com.excilys.ebi.gatling.core.result.writer.ConsoleDataWriter"
@@ -152,6 +155,10 @@ case class HttpConfiguration(
 	userRawUrl: Boolean,
 	nonStandardJsonSupport: List[String])
 
+case class JdbcConfiguration(
+	statementTimeoutInMs: Int,
+	jmxEnabled: Boolean)
+
 case class DataConfiguration(
 	dataWriterClasses: List[String],
 	dataReaderClass: String)
@@ -167,6 +174,7 @@ case class GatlingConfiguration(
 	directory: DirectoryConfiguration,
 	charting: ChartingConfiguration,
 	http: HttpConfiguration,
+	jdbc: JdbcConfiguration,
 	data: DataConfiguration,
 	graphite: GraphiteConfiguration,
 	config: Config)

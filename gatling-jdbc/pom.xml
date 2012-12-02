@@ -23,12 +23,9 @@
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-jdbc</artifactId>
 		</dependency>
-
-		<!-- runtime -->
 		<dependency>
 			<groupId>com.googlecode</groupId>
 			<artifactId>tomcat-slf4j</artifactId>
-			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 
