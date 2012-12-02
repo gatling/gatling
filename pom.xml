@@ -116,6 +116,7 @@
 		<jodd.version>3.4.0</jodd.version>
 		<redis.version>2.8</redis.version>
 		<tomcat-jdbc.version>7.0.33</tomcat-jdbc.version>
+		<tomcat-slf4j.version>1.0.0</tomcat-slf4j.version>
 		<junit.version>4.11</junit.version>
 		<specs2.version>1.12.3</specs2.version>
 		<zinc.version>0.2.0</zinc.version>
@@ -330,6 +331,17 @@
 				<groupId>org.apache.tomcat</groupId>
 				<artifactId>tomcat-jdbc</artifactId>
 				<version>${tomcat-jdbc.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.apache.tomcat</groupId>
+						<artifactId>tomcat-juli</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>com.googlecode</groupId>
+				<artifactId>tomcat-slf4j</artifactId>
+				<version>${tomcat-slf4j.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
@@ -444,8 +456,7 @@
 						</execution>
 					</executions>
 				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings
-					only. It has no influence on the Maven build itself. -->
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
