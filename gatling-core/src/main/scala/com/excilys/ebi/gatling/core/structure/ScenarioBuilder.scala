@@ -24,6 +24,8 @@ import com.excilys.ebi.gatling.core.scenario.configuration.{ ConfiguredScenarioB
  */
 object ScenarioBuilder {
 	def scenario(scenarioName: String): ScenarioBuilder = new ScenarioBuilder(scenarioName, List(UserActionBuilder.start))
+	
+	implicit def configureScenario(scenarioBuilder: ScenarioBuilder) = new ConfiguredScenarioBuilder(scenarioBuilder)
 }
 
 /**
@@ -38,8 +40,6 @@ class ScenarioBuilder(name: String, val actionBuilders: List[ActionBuilder]) ext
 	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = new ScenarioBuilder(name, actionBuilders)
 
 	private[core] def getInstance = this
-
-	def configure = new ConfiguredScenarioBuilder(this)
 
 	/**
 	 * Method that actually builds the scenario

@@ -22,9 +22,10 @@ import com.excilys.ebi.gatling.app.CommandLineConstants._
 import com.excilys.ebi.gatling.charts.report.ReportsGenerator
 import com.excilys.ebi.gatling.core.config.{ GatlingFiles, GatlingPropertiesBuilder }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.runner.{ Runner, Selection }
 import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
+import com.excilys.ebi.gatling.core.structure.Assertion
 import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename
 
 import grizzled.slf4j.Logging
@@ -34,6 +35,10 @@ import scopt.OptionParser
  * Object containing entry point of application
  */
 object Gatling extends Logging {
+
+	val SUCCESS = 0
+	val INCORRECT_ARGUMENTS = 1
+	val SIMULATION_CHECK_FAILED = 2
 
 	/**
 	 * Entry point of Application
@@ -57,11 +62,14 @@ object Gatling extends Logging {
 		}
 
 		// if arguments are incorrect, usage message is displayed
-		if (cliOptsParser.parse(args))
-			fromMap(props.build)
+		val returnCode =
+			if (cliOptsParser.parse(args)) fromMap(props.build)
+			else INCORRECT_ARGUMENTS
+
+		System.exit(returnCode)
 	}
 
-	def fromMap(props: JMap[String, Any]) {
+	def fromMap(props: JMap[String, Any]) = {
 		GatlingConfiguration.setUp(props)
 		new Gatling().start
 	}
@@ -73,8 +81,8 @@ class Gatling extends Logging {
 
 	private def defaultOutputDirectoryBaseName(clazz: Class[Simulation]) = configuration.simulation.outputDirectoryBaseName.getOrElse(formatToFilename(clazz.getSimpleName))
 
-	def start {
-		val outputDirectoryName = GatlingFiles.reportsOnlyDirectory
+	def start = {
+		val (outputDirectoryName, simulation) = GatlingFiles.reportsOnlyDirectory.map((_, None))
 			.getOrElse {
 				val simulations = GatlingFiles.binariesDirectory
 					.map( // expect simulations to have been pre-compiled (ex: IDE)
@@ -89,10 +97,20 @@ class Gatling extends Logging {
 					new Selection(simulation, outputDirectoryBaseName, outputDirectoryBaseName)
 				}.getOrElse(interactiveSelect(simulations))
 
-				new Runner(selection).run
+				val (runId, simulation) = new Runner(selection).run
+				(runId, Some(simulation))
 			}
 
-		if (!configuration.charting.noReports) generateReports(outputDirectoryName)
+		val dataReader = DataReader.newInstance(outputDirectoryName)
+
+		val result = simulation match {
+			case Some(simulation) => if (checkSimulation(simulation, dataReader)) Gatling.SUCCESS else Gatling.SIMULATION_CHECK_FAILED
+			case None => Gatling.SUCCESS
+		}
+
+		if (!configuration.charting.noReports) generateReports(outputDirectoryName, dataReader)
+
+		result
 	}
 
 	private def interactiveSelect(simulations: List[Class[Simulation]]): Selection = {
@@ -149,11 +167,20 @@ class Gatling extends Logging {
 	 *
 	 * @param outputDirectoryName The directory from which the simulation.log will be parsed
 	 */
-	private def generateReports(outputDirectoryName: String) {
+	private def generateReports(outputDirectoryName: String, dataReader: DataReader) {
 		println("Generating reports...")
 		val start = currentTimeMillis
-		val indexFile = ReportsGenerator.generateFor(outputDirectoryName)
+		val indexFile = ReportsGenerator.generateFor(outputDirectoryName, dataReader)
 		println("Reports generated in " + (currentTimeMillis - start) / 1000 + "s.")
 		println("Please open the following file : " + indexFile)
+	}
+
+	private def checkSimulation(simulation: Simulation, dataReader: DataReader) = {
+		val successful = Assertion.assertThat(simulation.assertions, dataReader)
+
+		if (successful) println("Simulation successful.")
+		else println("Simulation failed.")
+
+		successful
 	}
 }

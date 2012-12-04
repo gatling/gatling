@@ -13,18 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.view.util
+package com.excilys.ebi.gatling.ant;
 
-object ViewHelper {
-
-	/**
-	 * @param n ordinal number to add a suffix to
-	 */
-	def ordinalNumberSuffix(n: Long) = n % 10 match {
-		case _ if (11 to 13) contains n % 100 => "th"
-		case 1 => "st"
-		case 2 => "nd"
-		case 3 => "rd"
-		case _ => "th"
+public class GatlingSimulationChecksFailedException extends RuntimeException {
+	public GatlingSimulationChecksFailedException(Throwable t) {
+		super("Gatling simulation checks failed !", t);
 	}
 }
