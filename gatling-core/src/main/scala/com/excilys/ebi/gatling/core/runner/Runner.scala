@@ -31,7 +31,7 @@ import grizzled.slf4j.Logging
 
 class Runner(selection: Selection) extends Logging {
 
-	def run: String = {
+	def run: (String, Simulation) = {
 
 		try {
 			val simulationClass = selection.simulationClass
@@ -39,7 +39,8 @@ class Runner(selection: Selection) extends Logging {
 
 			val runRecord = RunRecord(now, selection.simulationId, selection.description)
 
-			val scenarios = simulationClass.newInstance.scenarios
+			val simulation = simulationClass.newInstance
+			val scenarios = simulation.scenarios
 
 			require(!scenarios.isEmpty, simulationClass.getName + " returned an empty scenario list")
 
@@ -57,7 +58,7 @@ class Runner(selection: Selection) extends Logging {
 			terminatorLatch.await(configuration.timeOut.simulation, SECONDS)
 			println("Simulation finished.")
 
-			runRecord.runId
+			(runRecord.runId, simulation)
 
 		} finally {
 			system.shutdown
