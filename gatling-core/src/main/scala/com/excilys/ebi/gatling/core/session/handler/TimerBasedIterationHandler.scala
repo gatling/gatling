@@ -15,11 +15,11 @@
  */
 package com.excilys.ebi.gatling.core.session.handler
 
-import java.lang.System.currentTimeMillis
-
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
-import com.excilys.ebi.gatling.core.session.handler.TimerBasedIterationHandler.getTimerAttributeName
+import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
+
+import scalaz._
 
 /**
  * TimerBasedIterationHandler trait 'companion'
@@ -33,7 +33,7 @@ object TimerBasedIterationHandler {
 
 	def getTimerAttributeName(counterName: String) = TIMER_KEY_PREFIX + counterName
 
-	def getTimer(session: Session, counterName: String): Long = session.getTypedAttribute[Long](getTimerAttributeName(counterName))
+	def getTimer(session: Session, counterName: String): Validation[String, Long] = session.getAs[Long](getTimerAttributeName(counterName))
 }
 
 /**
@@ -45,13 +45,13 @@ trait TimerBasedIterationHandler extends CounterBasedIterationHandler {
 
 	override def init(session: Session): Session = {
 
-		val timerAttributeName = getTimerAttributeName(counterName)
+		val timerAttributeName = TimerBasedIterationHandler.getTimerAttributeName(counterName)
 
 		if (session.isAttributeDefined(timerAttributeName))
 			super.init(session)
 		else
-			super.init(session).setAttribute(timerAttributeName, currentTimeMillis)
+			super.init(session).setAttribute(timerAttributeName, nowMillis)
 	}
 
-	override def expire(session: Session) = super.expire(session).removeAttribute(getTimerAttributeName(counterName))
+	override def expire(session: Session) = super.expire(session).removeAttribute(TimerBasedIterationHandler.getTimerAttributeName(counterName))
 }

@@ -18,7 +18,10 @@ package com.excilys.ebi.gatling.core.check
 import scala.annotation.tailrec
 
 import com.excilys.ebi.gatling.core.check.CheckContext.useCheckContext
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.{ Expression, Session }
+
+import scalaz._
+import Scalaz._
 
 object Check {
 
@@ -30,24 +33,18 @@ object Check {
 	 * @param checks the checks to be applied
 	 * @return the result of the checks: Success or the first encountered Failure
 	 */
-	def applyChecks[R](session: Session, response: R, checks: List[Check[R, _]]): (Session, CheckResult) = {
+	def applyChecks[R](session: Session, response: R, checks: List[Check[R, _]]): Validation[String, Session] = {
 
 		@tailrec
-		def applyChecksRec(session: Session, checks: List[Check[R, _]], previousCheckResult: CheckResult): (Session, CheckResult) = checks match {
-			case Nil =>
-				(session, previousCheckResult)
-
+		def applyChecksRec(checks: List[Check[R, _]], validation: Validation[String, Session]): Validation[String, Session] = checks match {
+			case Nil => validation
 			case check :: otherChecks =>
-				val (newSession, checkResult) = check(response, session)
-
-				checkResult match {
-					case failure @ Failure(_) => (newSession.setFailed, failure)
-					case success @ Success(extractedValue) => applyChecksRec(newSession, otherChecks, success)
-				}
+				val newValidation = validation.flatMap(check.apply(response))
+				applyChecksRec(otherChecks, newValidation)
 		}
 
 		useCheckContext {
-			applyChecksRec(session, checks, Success(None))
+			applyChecksRec(checks, session.success)
 		}
 	}
 }
@@ -58,19 +55,11 @@ object Check {
  * @param expression the function that returns the expression representing what the check should look for
  * @param matcher the matcher that will try to match the result of the extraction
  * @param saveAs the session attribute that will be used to store the extracted value if the checks are successful
- * @param strategy the strategy used to perform the Check
  */
-class Check[R, XC](val expression: Session => XC, matcher: Matcher[R, XC], saveAs: Option[String]) {
+class Check[R, XC](val expression: Expression[XC], matcher: Matcher[R, XC], saveAs: Option[String]) {
 
-	def apply(response: R, session: Session): (Session, CheckResult) = matcher(expression, session, response) match {
-		case success @ Success(extractedValue) =>
-			val newSessionWithSaved = for {
-				extractedValue <- extractedValue
-				saveAs <- saveAs
-			} yield session.setAttribute(saveAs, extractedValue)
-
-			(newSessionWithSaved.getOrElse(session), success)
-
-		case failure => (session, failure)
+	def apply(response: R)(session: Session): Validation[String, Session] = {
+		val validation = expression(session).flatMap(matcher(response, session, _))
+		validation.map { value => saveAs.map(session.setAttribute(_, value)).getOrElse(session) }
 	}
 }

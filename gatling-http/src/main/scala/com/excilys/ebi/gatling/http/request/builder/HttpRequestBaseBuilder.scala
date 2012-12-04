@@ -15,8 +15,7 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import com.excilys.ebi.gatling.core.session.ELParser.parseEL
-import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.core.session.Expression
 
 /**
  * HttpRequestActionBuilder class companion
@@ -26,7 +25,7 @@ object HttpRequestBaseBuilder {
 	/**
 	 * This method is used in DSL to declare a new HTTP request
 	 */
-	def http(requestName: EvaluatableString) = new HttpRequestBaseBuilder(requestName)
+	def http(requestName: Expression[String]) = new HttpRequestBaseBuilder(requestName)
 }
 
 /**
@@ -35,76 +34,76 @@ object HttpRequestBaseBuilder {
  * @constructor creates an HttpRequestActionBuilder
  * @param requestName the name of the request
  */
-class HttpRequestBaseBuilder(requestName: EvaluatableString) {
+class HttpRequestBaseBuilder(requestName: Expression[String]) {
 
 	/**
 	 * Starts the definition of an HTTP request with word DELETE
 	 *
 	 * @param url the url on which this request will be made
 	 */
-	def delete(url: String): DeleteHttpRequestBuilder = delete(parseEL(url))
+	def delete(url: String): DeleteHttpRequestBuilder = delete(Expression[String](url))
 
 	/**
 	 * Starts the definition of an HTTP request with word DELETE
 	 *
 	 * @param f the function returning the url of this request
 	 */
-	def delete(f: EvaluatableString) = DeleteHttpRequestBuilder(requestName, f)
+	def delete(f: Expression[String]) = DeleteHttpRequestBuilder(requestName, f)
 
 	/**
 	 * Starts the definition of an HTTP request with word GET
 	 *
 	 * @param url the url on which this request will be made
 	 */
-	def get(url: String): GetHttpRequestBuilder = get(parseEL(url))
+	def get(url: String): GetHttpRequestBuilder = get(Expression[String](url))
 
 	/**
 	 * Starts the definition of an HTTP request with word GET
 	 *
 	 * @param f the function returning the url of this request
 	 */
-	def get(f: EvaluatableString) = GetHttpRequestBuilder(requestName, f)
+	def get(f: Expression[String]) = GetHttpRequestBuilder(requestName, f)
 
 	/**
 	 * Starts the definition of an HTTP request with word POST
 	 *
 	 * @param url the url on which this request will be made
 	 */
-	def post(url: String): PostHttpRequestBuilder = post(parseEL(url))
+	def post(url: String): PostHttpRequestBuilder = post(Expression[String](url))
 
 	/**
 	 * Starts the definition of an HTTP request with word POST
 	 *
 	 * @param f the function returning the url of this request
 	 */
-	def post(f: EvaluatableString) = PostHttpRequestBuilder(requestName, f)
+	def post(f: Expression[String]) = PostHttpRequestBuilder(requestName, f)
 
 	/**
 	 * Starts the definition of an HTTP request with word PUT
 	 *
 	 * @param url the url on which this request will be made
 	 */
-	def put(url: String): PutHttpRequestBuilder = put(parseEL(url))
+	def put(url: String): PutHttpRequestBuilder = put(Expression[String](url))
 
 	/**
 	 * Starts the definition of an HTTP request with word PUT
 	 *
 	 * @param f the function returning the url of this request
 	 */
-	def put(f: EvaluatableString) = PutHttpRequestBuilder(requestName, f)
+	def put(f: Expression[String]) = PutHttpRequestBuilder(requestName, f)
 
 	/**
 	 * Starts the definition of an HTTP request with word HEAD
 	 *
 	 * @param url the url on which this request will be made
 	 */
-	def head(url: String): HeadHttpRequestBuilder = head(parseEL(url))
+	def head(url: String): HeadHttpRequestBuilder = head(Expression[String](url))
 
 	/**
 	 * Starts the definition of an HTTP request with word HEAD
 	 *
 	 * @param f the function returning the url of this request
 	 */
-	def head(f: EvaluatableString) = HeadHttpRequestBuilder(requestName, f)
+	def head(f: Expression[String]) = HeadHttpRequestBuilder(requestName, f)
 }
 

@@ -20,7 +20,6 @@ import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.action.BaseActor
 import com.excilys.ebi.gatling.core.check.Check.applyChecks
-import com.excilys.ebi.gatling.core.check.Failure
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK, RequestStatus }
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
@@ -41,6 +40,8 @@ import com.ning.http.client.{ FluentStringsMap, Request, RequestBuilder }
 
 import akka.actor.{ ActorRef, ReceiveTimeout }
 import akka.util.duration.intToDurationInt
+
+import scalaz._
 
 object GatlingAsyncHandlerActor {
 	val REDIRECTED_REQUEST_NAME_PATTERN = """(.+?) Redirect (\d+)""".r
@@ -212,14 +213,13 @@ class GatlingAsyncHandlerActor(
 
 					case phase :: otherPhases =>
 						val phaseChecks = checks.filter(_.phase == phase)
-						var (newSession, checkResult) = applyChecks(session, response, phaseChecks)
-
+						var checkResult = applyChecks(session, response, phaseChecks)
+						
 						checkResult match {
+							case Success(newSession) => checkPhasesRec(newSession, otherPhases)
 							case Failure(errorMessage) =>
 								logRequest(KO, response, Some(errorMessage))
-								executeNext(newSession, response)
-
-							case _ => checkPhasesRec(newSession, otherPhases)
+								executeNext(session, response)
 						}
 				}
 			}

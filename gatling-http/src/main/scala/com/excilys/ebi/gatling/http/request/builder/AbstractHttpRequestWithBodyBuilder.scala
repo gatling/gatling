@@ -15,18 +15,22 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
+import scala.tools.nsc.io.Path.string2path
+
 import org.fusesource.scalate.{ Binding, TemplateEngine }
 import org.fusesource.scalate.support.ScalaCompiler
 
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingFiles
-import com.excilys.ebi.gatling.core.session.{ EvaluatableString, Session }
-import com.excilys.ebi.gatling.core.session.ELParser.parseEL
+import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.core.util.FileHelper.SSP_EXTENSION
 import com.excilys.ebi.gatling.http.Headers.Names.CONTENT_LENGTH
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.{ ByteArrayBody, FilePathBody, HttpRequestBody, SessionByteArrayBody, StringBody, TemplateBody }
 import com.ning.http.client.RequestBuilder
+
+import scalaz._
+import scalaz.Scalaz._
 
 object AbstractHttpRequestWithBodyBuilder {
 	val TEMPLATE_ENGINE = {
@@ -47,13 +51,7 @@ object AbstractHttpRequestWithBodyBuilder {
 abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](
 	httpAttributes: HttpAttributes,
 	body: Option[HttpRequestBody])
-	extends AbstractHttpRequestBuilder[B](httpAttributes) {
-
-	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): RequestBuilder = {
-		val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
-		configureBody(requestBuilder, body, session)
-		requestBuilder
-	}
+		extends AbstractHttpRequestBuilder[B](httpAttributes) {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type
@@ -72,7 +70,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 *
 	 * @param body a string containing the body of the request
 	 */
-	def body(body: EvaluatableString): B = newInstance(httpAttributes, Some(StringBody(body)))
+	def body(body: Expression[String]): B = newInstance(httpAttributes, Some(StringBody(body)))
 
 	/**
 	 * Adds a body from a file to the request
@@ -88,7 +86,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 * @param values the values that should be merged into the template
 	 */
 	def fileBody(tplPath: String, values: Map[String, String]): B = {
-		val evaluatableValues = values.map { entry => entry._1 -> parseEL(entry._2) }
+		val evaluatableValues = values.map { entry => entry._1 -> Expression[String](entry._2) }
 		newInstance(httpAttributes, Some(TemplateBody(tplPath, evaluatableValues)))
 	}
 
@@ -99,59 +97,61 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 */
 	def byteArrayBody(byteArray: (Session) => Array[Byte]): B = newInstance(httpAttributes, Some(SessionByteArrayBody(byteArray)))
 
-	/**
-	 * This method adds the body to the request builder
-	 *
-	 * @param requestBuilder the request builder to which the body should be added
-	 * @param body the body that should be added
-	 * @param session the session of the current scenario
-	 */
-	private def configureBody(requestBuilder: RequestBuilder, body: Option[HttpRequestBody], session: Session) {
+	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[String, RequestBuilder] = {
 
-		val contentLength = body.map {
-			_ match {
+		def configureBody(body: HttpRequestBody, session: Session)(requestBuilder: RequestBuilder): Validation[String, RequestBuilder] = {
+
+			def compileBody(tplPath: String, params: Map[String, String], session: Session): String = {
+
+				val bindings = for ((key, value) <- params) yield Binding(key, "String")
+
+				AbstractHttpRequestWithBodyBuilder.TEMPLATE_ENGINE.layout(tplPath + SSP_EXTENSION, params, bindings)
+			}
+
+			val contentLength = body match {
 				case FilePathBody(filePath) =>
 					val file = (GatlingFiles.requestBodiesDirectory / filePath).jfile
 					requestBuilder.setBody(file)
-					file.length
+					file.length.success
 
 				case StringBody(string) =>
-					val body = string(session)
-					requestBuilder.setBody(body)
-					body.length
+					val resolvedBody = string(session)
+					resolvedBody.map { body =>
+						requestBuilder.setBody(body)
+						body.length
+					}
 
 				case TemplateBody(tplPath, values) =>
-					val body = compileBody(tplPath, values, session)
-					requestBuilder.setBody(body)
-					body.length
+					val resolvedTemplateParams = values
+						.map { case (key, value) => value(session).map(key -> _) }
+						.toList
+						.sequence[({ type l[a] = Validation[String, a] })#l, (String, String)]
+						.map(_.toMap)
+
+					resolvedTemplateParams.map { templateParams =>
+						val body = compileBody(tplPath, templateParams, session)
+						requestBuilder.setBody(body)
+						body.length
+					}
 
 				case ByteArrayBody(byteArray) =>
 					val body = byteArray()
 					requestBuilder.setBody(body)
-					body.length
+					body.length.success
 
 				case SessionByteArrayBody(byteArray) =>
 					val body = byteArray(session)
 					requestBuilder.setBody(body)
-					body.length
+					body.length.success
 			}
+
+			contentLength.map(length => requestBuilder.setHeader(CONTENT_LENGTH, length.toString))
 		}
 
-		contentLength.map(length => requestBuilder.setHeader(CONTENT_LENGTH, length.toString))
-	}
-
-	/**
-	 * This method compiles the template for a TemplateBody
-	 *
-	 * @param tplPath the path to the template relative to GATLING_TEMPLATES_FOLDER
-	 * @param params the params that should be merged into the template
-	 * @param session the session of the current scenario
-	 */
-	private def compileBody(tplPath: String, params: Map[String, EvaluatableString], session: Session): String = {
-
-		val bindings = for ((key, _) <- params) yield Binding(key, "String")
-		val templateValues = for ((key, value) <- params) yield (key -> (value(session)))
-
-		AbstractHttpRequestWithBodyBuilder.TEMPLATE_ENGINE.layout(tplPath + SSP_EXTENSION, templateValues, bindings)
+		val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
+		body match {
+			case Some(body) => requestBuilder.flatMap(configureBody(body, session))
+			case _ => requestBuilder
+		}
 	}
 }

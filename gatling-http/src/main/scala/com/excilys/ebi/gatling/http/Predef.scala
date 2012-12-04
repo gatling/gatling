@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.http
 
-import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.core.session.Expression
 import com.excilys.ebi.gatling.http.check.after.HttpBodyResponseTimeCheckBuilder
 import com.excilys.ebi.gatling.http.check.body.{ HttpBodyCssCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyStringCheckBuilder, HttpBodyXPathCheckBuilder }
 import com.excilys.ebi.gatling.http.check.bodypart.HttpChecksumCheckBuilder
@@ -36,16 +36,16 @@ object Predef {
 	implicit def httpProtocolConfigurationBuilder2HttpProtocolConfiguration(builder: HttpProtocolConfigurationBuilder): HttpProtocolConfiguration = builder.build
 	implicit def requestBuilder2ActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]): HttpRequestActionBuilder = requestBuilder.toActionBuilder
 
-	def http(requestName: EvaluatableString) = HttpRequestBaseBuilder.http(requestName)
+	def http(requestName: Expression[String]) = HttpRequestBaseBuilder.http(requestName)
 	def httpConfig = HttpProtocolConfigurationBuilder.httpConfig
-	def regex(pattern: EvaluatableString) = HttpBodyRegexCheckBuilder.regex(pattern)
-	def xpath(expression: EvaluatableString, namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)
-	def css(selector: EvaluatableString) = HttpBodyCssCheckBuilder.css(selector, None)
-	def css(selector: EvaluatableString, nodeAttribute: String) = HttpBodyCssCheckBuilder.css(selector, Some(nodeAttribute))
-	def jsonPath(expression: EvaluatableString) = HttpBodyJsonPathCheckBuilder.jsonPath(expression)
+	def regex(pattern: Expression[String]) = HttpBodyRegexCheckBuilder.regex(pattern)
+	def xpath(expression: Expression[String], namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)
+	def css(selector: Expression[String]) = HttpBodyCssCheckBuilder.css(selector, None)
+	def css(selector: Expression[String], nodeAttribute: String) = HttpBodyCssCheckBuilder.css(selector, Some(nodeAttribute))
+	def jsonPath(expression: Expression[String]) = HttpBodyJsonPathCheckBuilder.jsonPath(expression)
 	def bodyString = HttpBodyStringCheckBuilder.bodyString
-	def header(headerName: EvaluatableString) = HttpHeaderCheckBuilder.header(headerName)
-	def headerRegex(headerName: EvaluatableString, pattern: EvaluatableString) = HttpHeaderRegexCheckBuilder.headerRegex(headerName, pattern)
+	def header(headerName: Expression[String]) = HttpHeaderCheckBuilder.header(headerName)
+	def headerRegex(headerName: Expression[String], pattern: Expression[String]) = HttpHeaderRegexCheckBuilder.headerRegex(headerName, pattern)
 	def status = HttpStatusCheckBuilder.status
 	def currentLocation = CurrentLocationCheckBuilder.currentLocation
 	def md5 = HttpChecksumCheckBuilder.md5

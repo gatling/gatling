@@ -15,7 +15,11 @@
  */
 package com.excilys.ebi.gatling.core.session
 
+import com.excilys.ebi.gatling.core.util.TypeHelper
+
 import grizzled.slf4j.Logging
+import scalaz._
+import scalaz.Scalaz._
 
 /**
  * Session class companion
@@ -30,23 +34,6 @@ object Session extends Logging {
 
 	val MUST_EXIT_ON_FAIL_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.mustExitOnFailed"
 
-	def attributeAsEvaluatableString(key: String): EvaluatableString = (session: Session) => session.getAttributeAsOption[Any](key)
-		.map(_.toString)
-		.getOrElse {
-			warn("Couldn't resolve session attribute " + key)
-			""
-		}
-
-	def attributeAsEvaluatableStringSeq(key: String): EvaluatableStringSeq = (session: Session) => session.getAttributeAsOption[Any](key)
-		.map(value => value match {
-			case seq: Seq[_] => seq.map(_.toString)
-			case mono => List(mono.toString)
-		}).getOrElse {
-			warn("Couldn't resolve session attribute " + key)
-			List("")
-		}
-
-	def evaluatableStringToEvaluatableStringSeq(evaluatableString: EvaluatableString): EvaluatableStringSeq = (session: Session) => List(evaluatableString(session))
 }
 
 /**
@@ -59,27 +46,13 @@ object Session extends Logging {
  * @param userId the id of the current user
  * @param data the map that stores all values needed
  */
-class Session(val scenarioName: String, val userId: Int, data: Map[String, Any] = Map.empty) {
+class Session(val scenarioName: String, val userId: Int, attributes: Map[String, Any] = Map.empty) {
 
-	def getAttribute(key: String): Any = getTypedAttribute[Any](key)
+	def apply(name: String) = attributes(name)
 
-	/**
-	 * Gets a value from the session
-	 *
-	 * @param key the key of the requested value
-	 * @return the value stored at key
-	 */
-	def getTypedAttribute[X](key: String): X = data.get(key).getOrElse(throw new IllegalArgumentException("No Matching Session attribute for key " + key)).asInstanceOf[X]
+	def get(name: String): Validation[String, Any] = attributes.get(name).toSuccess(undefinedSessionAttributeMessage(name))
 
-	/**
-	 * Gets a value from the session
-	 *
-	 * This method is to be used only internally, use getAttribute in scenarios
-	 *
-	 * @param key the key of the requested value
-	 * @return the value stored at key as an Option
-	 */
-	def getAttributeAsOption[T](key: String): Option[T] = data.get(key).asInstanceOf[Option[T]]
+	def getAs[T: ClassManifest](name: String): Validation[String, T] = attributes.get(name).map(TypeHelper.as[T](_)).getOrElse(undefinedSessionAttributeMessage(name).failure[T])
 
 	/**
 	 * Sets values in the session
@@ -87,7 +60,7 @@ class Session(val scenarioName: String, val userId: Int, data: Map[String, Any] 
 	 * @param attributes map containing several values to be stored in session
 	 * @return Nothing
 	 */
-	def setAttributes(attributes: Map[String, Any]) = new Session(scenarioName, userId, data ++ attributes)
+	def setAttributes(attributes: Map[String, Any]) = new Session(scenarioName, userId, attributes ++ attributes)
 
 	/**
 	 * Sets a single value in the session
@@ -96,16 +69,16 @@ class Session(val scenarioName: String, val userId: Int, data: Map[String, Any] 
 	 * @param attributeValue the value of the attribute
 	 * @return Unit
 	 */
-	def setAttribute(attributeKey: String, attributeValue: Any) = new Session(scenarioName, userId, data + (attributeKey -> attributeValue))
+	def setAttribute(attributeKey: String, attributeValue: Any) = new Session(scenarioName, userId, attributes + (attributeKey -> attributeValue))
 
 	/**
 	 * Removes an attribute and its value from the session
 	 *
 	 * @param attributeKey the key of the attribute to be removed
 	 */
-	def removeAttribute(attributeKey: String) = if (isAttributeDefined(attributeKey)) new Session(scenarioName, userId, data - attributeKey) else this
+	def removeAttribute(attributeKey: String) = if (isAttributeDefined(attributeKey)) new Session(scenarioName, userId, attributes - attributeKey) else this
 
-	def isAttributeDefined(attributeKey: String) = data.contains(attributeKey)
+	def isAttributeDefined(attributeKey: String) = attributes.contains(attributeKey)
 
 	def setFailed: Session = setAttribute(Session.FAILED_KEY, "")
 
@@ -125,7 +98,7 @@ class Session(val scenarioName: String, val userId: Int, data: Map[String, Any] 
 
 	private[gatling] def increaseTimeShift(time: Long): Session = setTimeShift(time + getTimeShift)
 
-	private[gatling] def getTimeShift: Long = getAttributeAsOption[Long](Session.TIME_SHIFT_KEY).getOrElse(0L)
+	private[gatling] def getTimeShift: Long = getAs[Long](Session.TIME_SHIFT_KEY).getOrElse(0L)
 
-	override def toString = "scenarioName='" + scenarioName + "' userId='" + userId + "' data='" + data + "'"
+	override def toString = "scenarioName='" + scenarioName + "' userId='" + userId + "' data='" + attributes + "'"
 }

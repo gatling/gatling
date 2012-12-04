@@ -15,10 +15,12 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.core.session.handler.{ CounterBasedIterationHandler, TimerBasedIterationHandler }
 
 import akka.actor.ActorRef
+import scalaz._
+import scalaz.Scalaz._
 
 /**
  * Action in charge of controlling a while loop execution.
@@ -28,7 +30,7 @@ import akka.actor.ActorRef
  * @param next the chain executed if testFunction evaluates to false
  * @param counterName the name of the counter for this loop
  */
-class WhileAction(condition: Session => Boolean, val next: ActorRef, val counterName: String) extends Action with TimerBasedIterationHandler with CounterBasedIterationHandler with Bypass {
+class WhileAction(condition: Expression[Boolean], val next: ActorRef, val counterName: String) extends Action with TimerBasedIterationHandler with CounterBasedIterationHandler with Bypass {
 
 	var loopNextAction: ActorRef = _
 
@@ -56,13 +58,20 @@ class WhileAction(condition: Session => Boolean, val next: ActorRef, val counter
 			condition(sessionWithTimerIncremented)
 		} catch {
 			case e: Exception =>
-				warn("Condition evaluation crashed, exiting loop", e)
-				false
+				error("Condition evaluation crashed", e)
+				"Condition evaluation crashed, exiting loop".failure
 		}
 
-		if (evaluatedCondition)
-			loopNextAction ! sessionWithTimerIncremented
-		else
-			next ! expire(session)
+		evaluatedCondition match {
+			case Success(evaluatedCondition) =>
+				if (evaluatedCondition)
+					loopNextAction ! sessionWithTimerIncremented
+				else
+					next ! expire(session)
+			case Failure(message) =>
+				error("Error, exiting loop " + message)
+				next ! expire(session)
+		}
+
 	}
 }

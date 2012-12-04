@@ -16,27 +16,27 @@
 package com.excilys.ebi.gatling.core.session.handler
 
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
+
+import grizzled.slf4j.Logging
+import scalaz._
 
 /**
  * This trait is used for mixin-composition
  *
  * It adds counter based iteration behavior to a class
  */
-trait CounterBasedIterationHandler extends IterationHandler {
+trait CounterBasedIterationHandler extends IterationHandler with Logging {
 
-	override def init(session: Session) = 
+	override def init(session: Session) =
 		if (session.isAttributeDefined(counterName))
 			super.init(session)
 		else
 			super.init(session).setAttribute(counterName, -1)
 
-	override def increment(session: Session) = session.getAttributeAsOption[Int](counterName)
-		.map {
-			currentValue => super.increment(session).setAttribute(counterName, currentValue + 1)
-		}.getOrElse {
-			throw new IllegalAccessError("You must call startCounter before this method is called")
-		}
+	override def increment(session: Session) = session.getAs[Int](counterName) match {
+		case Success(currentValue) => super.increment(session).setAttribute(counterName, currentValue + 1)
+		case Failure(message) => error("Could not retrieve loop counter: " + message); throw new IllegalAccessError("You must call startCounter before this method is called")
+	}
 
 	override def expire(session: Session) = super.expire(session).removeAttribute(counterName)
 }

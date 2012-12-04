@@ -93,6 +93,7 @@
 		<maven.compiler.target>1.6</maven.compiler.target>
 		<encoding>UTF-8</encoding>
 		<scala.version>2.9.2</scala.version>
+		<scalaz.version>7.0.0-M5</scalaz.version>
 		<ahc.version>1.7.8</ahc.version>
 		<akka.version>2.0.4</akka.version>
 		<config.version>1.0.0</config.version>
@@ -194,6 +195,11 @@
 				<groupId>org.scala-lang</groupId>
 				<artifactId>scala-compiler</artifactId>
 				<version>${scala.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.scalaz</groupId>
+				<artifactId>scalaz-core_2.9.2</artifactId>
+				<version>${scalaz.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.ning</groupId>
@@ -438,8 +444,7 @@
 						</execution>
 					</executions>
 				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings 
-					only. It has no influence on the Maven build itself. -->
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>

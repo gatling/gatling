@@ -16,6 +16,10 @@
 package com.excilys.ebi.gatling.core.check
 
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.Expression
+
+import scalaz._
+import Scalaz._
 
 /**
  * A partial CheckBuilder
@@ -60,20 +64,21 @@ trait MultipleExtractorCheckBuilder[C <: Check[R, XC], R, XC, X] extends Extract
 object MatcherCheckBuilder {
 	val existsStrategy = new MatchStrategy[Any] {
 		def apply(value: Option[Any], session: Session) = value match {
-			case Some(extracted) if (!extracted.isInstanceOf[Seq[_]] || !extracted.asInstanceOf[Seq[_]].isEmpty) => Success(value)
-			case _ => Failure("Check 'exists' failed, found " + value)
+			// FIXME empty seq should be None
+			case Some(extracted) if (!extracted.isInstanceOf[Seq[_]] || !extracted.asInstanceOf[Seq[_]].isEmpty) => value.success
+			case _ => ("Check 'exists' failed, found " + value).failure
 		}
 	}
 
 	val notExistsStrategy = new MatchStrategy[Any] {
 		def apply(value: Option[Any], session: Session) = value match {
-			case Some(extracted) if (!extracted.isInstanceOf[Seq[_]] || extracted.asInstanceOf[Seq[_]].isEmpty) => Failure("Check 'notExists' failed, found " + extracted)
-			case _ => Success(value)
+			case Some(extracted) if (!extracted.isInstanceOf[Seq[_]] || extracted.asInstanceOf[Seq[_]].isEmpty) => ("Check 'notExists' failed, found " + extracted).failure
+			case _ => value.success
 		}
 	}
 
 	val whateverStrategy = new MatchStrategy[Any] {
-		def apply(value: Option[Any], session: Session) = Success(value)
+		def apply(value: Option[Any], session: Session) = value.success
 	}
 }
 
@@ -103,10 +108,11 @@ class MatcherCheckBuilder[C <: Check[R, XC], R, XC, X](checkBuilderFactory: Chec
 	def matchWith(strategy: MatchStrategy[X]) = {
 
 		val matcher = new Matcher[R, XC] {
-			def apply(expression: Session => XC, session: Session, response: R) = {
-				val evaluatedExpression = expression(session)
+
+			def apply(response: R, session: Session, expression: XC): Validation[String, Any] = {
+
 				val extractor = extractorFactory(response)
-				val extractedValue = extractor(evaluatedExpression)
+				val extractedValue = extractor(expression)
 				strategy(extractedValue, session)
 			}
 		}
@@ -118,24 +124,37 @@ class MatcherCheckBuilder[C <: Check[R, XC], R, XC, X](checkBuilderFactory: Chec
 	 * @param expected the expected value
 	 * @return a partial CheckBuilder with a "is equal to" MatchStrategy
 	 */
-	def is(expected: Session => X) = matchWith(new MatchStrategy[X] {
-		def apply(value: Option[X], session: Session) = value.map { extracted =>
-			val expectedValue = expected(session)
-			if (extracted == expectedValue) Success(value)
-			else Failure("Check 'is' failed, found " + extracted + " but expected " + expectedValue)
-
-		}.getOrElse(Failure("Check 'is' failed, found nothing"))
+	def is(expected: Expression[X]) = matchWith(new MatchStrategy[X] {
+		def apply(value: Option[X], session: Session) = value match {
+			case Some(extracted) => expected(session).flatMap { expectedValue =>
+				if (expectedValue == extracted) value.success
+				else ("Check 'is' failed, found " + extracted + " but expected " + expectedValue).failure
+			}
+			case None => "Check 'is' failed, found nothing".failure
+		}
 	})
 
-	def lessThan(expected: Session => X) = matchWith(new MatchStrategy[X] {
+	/**
+	 * @param expected the expected value
+	 * @return a partial CheckBuilder with a "is different from" MatchStrategy
+	 */
+	def not(expected: Expression[X]) = matchWith(new MatchStrategy[X] {
+		def apply(value: Option[X], session: Session) = value match {
+			case Some(extracted) => expected(session).flatMap { expectedValue =>
+				if (expectedValue != extracted) value.success
+				else ("Check 'not' failed, found " + extracted + " but expected different from " + expectedValue).failure
+			}
+			case None => value.success
+		}
+	})
 
-		def compare(expected: X, extracted: X, ok: Boolean) =
-			if (ok) Success(Some(extracted))
-			else Failure("Check 'lessThan' failed, found " + extracted + " but expected " + expected)
+	def lessThan(expected: Expression[X]) = matchWith(new MatchStrategy[X] {
 
-		def apply(value: Option[X], session: Session) = value.map { extracted =>
-			val expectedValue = expected(session)
+		def compare(expected: Any, extracted: X, ok: Boolean) =
+			if (ok) Some(extracted).success
+			else ("Check 'lessThan' failed, found " + extracted + " but expected " + expected).failure
 
+		def compareByType(extracted: X)(expectedValue: Any) = {
 			if (extracted.isInstanceOf[Long] & expectedValue.isInstanceOf[Long]) {
 				compare(expectedValue, extracted, extracted.asInstanceOf[Long] <= expectedValue.asInstanceOf[Long])
 
@@ -149,22 +168,14 @@ class MatcherCheckBuilder[C <: Check[R, XC], R, XC, X](checkBuilderFactory: Chec
 				compare(expectedValue, extracted, extracted.asInstanceOf[Float] <= expectedValue.asInstanceOf[Float])
 
 			} else
-				Failure("Check 'lessThan' failed trying to compare thing that are not numbers of the same type, found " + extracted + " but expected " + expectedValue)
+				("Check 'lessThan' failed trying to compare thing that are not numbers of the same type, found " + extracted + " but expected " + expectedValue).failure
+		}
 
-		}.getOrElse(Failure("Check 'lessThan' failed, found nothing"))
-	})
-
-	/**
-	 * @param expected the expected value
-	 * @return a partial CheckBuilder with a "is different from" MatchStrategy
-	 */
-	def not(expected: Session => X) = matchWith(new MatchStrategy[X] {
 		def apply(value: Option[X], session: Session) = value.map { extracted =>
 			val expectedValue = expected(session)
-			if (extracted != expectedValue) Success(value)
-			else Failure("Check 'not' failed, found " + extracted + " but expected different from " + expectedValue)
+			expectedValue.flatMap(compareByType(extracted))
 
-		}.getOrElse(Success(value))
+		}.getOrElse("Check 'lessThan' failed, found nothing".failure)
 	})
 
 	/**
@@ -181,11 +192,12 @@ class MatcherCheckBuilder[C <: Check[R, XC], R, XC, X](checkBuilderFactory: Chec
 	 * @param expected the expected sequence
 	 * @return a partial CheckBuilder with a "belongs to the sequence" MatchStrategy
 	 */
-	def in(expected: Session => Seq[X]) = matchWith(new MatchStrategy[X] {
+	def in(expected: Expression[Seq[X]]) = matchWith(new MatchStrategy[X] {
 		def apply(value: Option[X], session: Session) = value.map { extracted =>
-			val expectedValue = expected(session)
-			if (expectedValue.contains(extracted)) Success(value)
-			else Failure("Check 'in' failed, found " + extracted + " but expected " + expectedValue)
+			expected(session).flatMap { expectedValue=>
+				if (expectedValue.contains(extracted)) value.success
+				else ("Check 'in' failed, found " + extracted + " but expected " + expectedValue).failure
+			}
 
 		}.getOrElse(Failure("Check 'in' failed, found nothing"))
 	})

@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.core.check.CheckContext.getOrUpdateCheckContextAt
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.extractor.css.CssExtractor
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.core.session.Expression
 import com.excilys.ebi.gatling.http.check.HttpMultipleCheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
@@ -36,7 +36,7 @@ object HttpBodyCssCheckBuilder {
 
 	private def newCountExtractorFactory(nodeAttribute: Option[String]): ExtractorFactory[ExtendedResponse, String, Int] = (response: ExtendedResponse) => getCachedExtractor(response).count(nodeAttribute)
 
-	def css(selector: EvaluatableString, nodeAttribute: Option[String]) = {
+	def css(selector: Expression[String], nodeAttribute: Option[String]) = {
 		val findExtractorFactory = newFindExtractorFactory(nodeAttribute) _
 		val findAllExtractorFactory = newFindAllExtractorFactory(nodeAttribute)
 		val countExtractorFactory = newCountExtractorFactory(nodeAttribute)

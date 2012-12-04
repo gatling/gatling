@@ -20,8 +20,6 @@ import java.util.regex.Pattern
 
 import scala.collection.mutable
 
-import com.excilys.ebi.gatling.core.session.{ EvaluatableString, EvaluatableStringSeq, Session }
-
 import grizzled.slf4j.Logging
 
 /**

@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.http.check.bodypart
 
 import com.excilys.ebi.gatling.core.check.{ CheckBuilderFactory, ExtractorFactory, Matcher }
-import com.excilys.ebi.gatling.core.session.NOOP_EVALUATABLE_STRING
+import com.excilys.ebi.gatling.core.session.NOOP_EXPRESSION
 import com.excilys.ebi.gatling.http.check.{ HttpCheck, HttpSingleCheckBuilder }
 import com.excilys.ebi.gatling.http.request.HttpPhase.BodyPartReceived
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
@@ -45,4 +45,4 @@ object HttpChecksumCheckBuilder {
  */
 class HttpChecksumCheckBuilder(
 	override val httpCheckBuilderFactory: CheckBuilderFactory[HttpCheck[String], ExtendedResponse, String],
-	findExtractorFactory: ExtractorFactory[ExtendedResponse, String, String]) extends HttpSingleCheckBuilder[String, String](findExtractorFactory, NOOP_EVALUATABLE_STRING, BodyPartReceived)
+	findExtractorFactory: ExtractorFactory[ExtendedResponse, String, String]) extends HttpSingleCheckBuilder[String, String](findExtractorFactory, NOOP_EXPRESSION, BodyPartReceived)

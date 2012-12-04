@@ -15,27 +15,30 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import java.io.File
-
 import scala.tools.nsc.io.Path.string2path
 
 import com.excilys.ebi.gatling.core.config.GatlingFiles
-import com.excilys.ebi.gatling.core.session.{ EvaluatableString, Session }
+import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.ning.http.client.FilePart
 
-class UploadedFile(paramKeyFunction: EvaluatableString, fileNameFunction: EvaluatableString, mimeType: String, charset: String) {
-	def filePart(session: Session) = {
+import scalaz._
 
-		val paramKey = paramKeyFunction(session)
-		val fileName = fileNameFunction(session)
+class UploadedFile(paramKeyFunction: Expression[String], fileNameFunction: Expression[String], mimeType: String, charset: String) {
 
-		val path = GatlingFiles.requestBodiesDirectory / fileName
-		val file = path.jfile
+	def filePart(session: Session): Validation[String, FilePart] = {
 
-		assert(file.exists, "Uploaded file %s does not exist".format(path))
-		assert(file.isFile, "Uploaded file %s is not a real file".format(path))
-		assert(file.canRead, "Uploaded file %s can't be read".format(path))
+		for {
+			paramKey <- paramKeyFunction(session)
+			fileName <- fileNameFunction(session)
+		} yield {
+			val path = GatlingFiles.requestBodiesDirectory / fileName
+			val file = path.jfile
 
-		new FilePart(paramKey, file, mimeType, charset)
+			assert(file.exists, "Uploaded file %s does not exist".format(path))
+			assert(file.isFile, "Uploaded file %s is not a real file".format(path))
+			assert(file.canRead, "Uploaded file %s can't be read".format(path))
+
+			new FilePart(paramKey, file, mimeType, charset)
+		}
 	}
 }

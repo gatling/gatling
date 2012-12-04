@@ -15,7 +15,10 @@
  */
 package com.excilys.ebi.gatling.core
 
+import com.excilys.ebi.gatling.core.check.Check
 import com.excilys.ebi.gatling.core.session.Session
+
+import scalaz._
 
 package object check {
 
@@ -32,13 +35,13 @@ package object check {
 	/**
 	 * A strategy for matching an extracted value
 	 */
-	type MatchStrategy[X] = (Option[X], Session) => CheckResult
+	type MatchStrategy[X] = (Option[X], Session) => Validation[String, Option[Any]]
 
 	/**
 	 * A function to be applied on an extracted value to produce a CheckResult
 	 */
-	type Matcher[R, XC] = (Session => XC, Session, R) => CheckResult
-	
+	type Matcher[R, XC] = (R, Session, XC) => Validation[String, Any]
+
 	/**
 	 * A function for production a complete CheckBuilder
 	 */

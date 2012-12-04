@@ -27,7 +27,7 @@ object RefererHandling {
 
 	val REFERER_CONTEXT_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "http.referer"
 
-	def getStoredReferer(session: Session): Option[String] = session.getAttributeAsOption(REFERER_CONTEXT_KEY)
+	def getStoredReferer(session: Session): Option[String] = session.getAs[String](REFERER_CONTEXT_KEY).toOption
 
 
 	def addStoredRefererHeader(headers: Map[String, String], session: Session, protocolConfiguration: HttpProtocolConfiguration): Map[String, String] = getStoredReferer(session) match {

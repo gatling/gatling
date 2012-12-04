@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.http.check.body
 
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.session.NOOP_EVALUATABLE_STRING
+import com.excilys.ebi.gatling.core.session.NOOP_EXPRESSION
 import com.excilys.ebi.gatling.http.check.HttpSingleCheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
@@ -26,5 +26,5 @@ object HttpBodyStringCheckBuilder {
 
 	private val findExtractorFactory: ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => (unused: String) => Option(response.getResponseBody(configuration.simulation.encoding))
 
-	val bodyString = new HttpSingleCheckBuilder(findExtractorFactory, NOOP_EVALUATABLE_STRING, CompletePageReceived)
+	val bodyString = new HttpSingleCheckBuilder(findExtractorFactory, NOOP_EXPRESSION, CompletePageReceived)
 }

@@ -18,18 +18,18 @@ package com.excilys.ebi.gatling.core.action.builder
 import com.excilys.ebi.gatling.core.action.{ GroupAction, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
-import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.core.session.Expression
 
 import akka.actor.{ ActorRef, Props }
 
 object GroupActionBuilder {
 
-	def start(groupName: EvaluatableString) = new GroupActionBuilder(groupName, START, null)
+	def start(groupName: Expression[String]) = new GroupActionBuilder(groupName, START, null)
 
-	def end(groupName: EvaluatableString) = new GroupActionBuilder(groupName, END, null)
+	def end(groupName: Expression[String]) = new GroupActionBuilder(groupName, END, null)
 }
 
-class GroupActionBuilder(groupName: EvaluatableString, event: String, next: ActorRef) extends ActionBuilder {
+class GroupActionBuilder(groupName: Expression[String], event: String, next: ActorRef) extends ActionBuilder {
 
 	def withNext(next: ActorRef) = new GroupActionBuilder(groupName, event, next)
 

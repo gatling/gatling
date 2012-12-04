@@ -70,5 +70,5 @@ object CacheHandling extends Logging {
 			session
 	}
 
-	private def getCache(session: Session): Set[String] = session.getAttributeAsOption[Set[String]](COOKIES_CONTEXT_KEY).getOrElse(Set.empty)
+	private def getCache(session: Session): Set[String] = session.getAs[Set[String]](COOKIES_CONTEXT_KEY).getOrElse(Set.empty)
 }

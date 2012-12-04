@@ -15,21 +15,25 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import scala.collection.JavaConversions.asJavaCollection
+import scala.collection.JavaConversions._
+
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.session.{ EvaluatableString, EvaluatableStringSeq, Session }
-import com.excilys.ebi.gatling.core.session.ELParser.parseEL
-import com.excilys.ebi.gatling.core.session.Session.{ attributeAsEvaluatableString, attributeAsEvaluatableStringSeq, evaluatableStringToEvaluatableStringSeq }
+import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
-import com.excilys.ebi.gatling.http.util.HttpHelper.httpParamsToFluentMap
+import com.excilys.ebi.gatling.http.util.HttpHelper
 import com.ning.http.client.{ Realm, RequestBuilder, StringPart }
+import com.ning.http.client.FilePart
+import com.ning.http.client.FluentStringsMap
+
+import scalaz._
+import Scalaz._
 
 case class HttpParamsAttributes(
-	params: List[HttpParam],
-	uploadedFiles: List[UploadedFile])
+	params: List[HttpParam] = Nil,
+	uploadedFiles: List[UploadedFile] = Nil)
 
 /**
  * This class serves as model to HTTP request with a body and parameters
@@ -62,75 +66,68 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		newInstance(httpAttributes, body, paramsAttributes)
 	}
 
-	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): RequestBuilder = {
-		val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
-		if (paramsAttributes.uploadedFiles.isEmpty)
-			configureParams(requestBuilder, session)
-		else {
-			configureStringParts(requestBuilder, session)
-			configureFileParts(requestBuilder, session)
-		}
+	def param(key: String): B = param(Expression[String](key), Expression[String](key))
 
-		requestBuilder
-	}
-
-	def param(key: String): B = param(parseEL(key), attributeAsEvaluatableString(key))
-
-	def param(key: EvaluatableString, value: EvaluatableString): B = {
-		val httpParam: HttpParam = (key, evaluatableStringToEvaluatableStringSeq(value))
+	def param(key: Expression[String], value: Expression[String]): B = {
+		val httpParam: HttpParam = (key, (s: Session) => value(s).map(Seq(_)))
 		param(httpParam)
 	}
 
-	def multiValuedParam(key: String): B = multiValuedParam(parseEL(key), key)
+	def multiValuedParam(key: String): B = multiValuedParam(Expression[String](key), key)
 
-	def multiValuedParam(key: EvaluatableString, value: String): B = {
-		val httpParam: HttpParam = (key, attributeAsEvaluatableStringSeq(value))
+	def multiValuedParam(key: Expression[String], value: String): B = {
+		val httpParam: HttpParam = (key, Expression[Seq[String]](value))
 		param(httpParam)
 	}
 
-	def multiValuedParam(key: EvaluatableString, values: Seq[String]): B = {
-		val httpParam: HttpParam = (key, (s: Session) => values)
+	def multiValuedParam(key: Expression[String], values: Seq[String]): B = {
+		val httpParam: HttpParam = (key, (s: Session) => values.success)
 		param(httpParam)
 	}
 
-	def multiValuedParam(key: EvaluatableString, values: EvaluatableStringSeq): B = {
+	def multiValuedParam(key: Expression[String], values: Expression[Seq[String]]): B = {
 		val httpParam: HttpParam = (key, values)
 		param(httpParam)
 	}
 
 	private def param(param: HttpParam): B = newInstance(httpAttributes, body, paramsAttributes.copy(params = param :: paramsAttributes.params))
 
-	def upload(paramKey: EvaluatableString, fileName: EvaluatableString, mimeType: String = HeaderValues.APPLICATION_OCTET_STREAM, charset: String = configuration.simulation.encoding): B =
-
+	def upload(paramKey: Expression[String], fileName: Expression[String], mimeType: String = HeaderValues.APPLICATION_OCTET_STREAM, charset: String = configuration.simulation.encoding): B =
 		newInstance(httpAttributes, body, paramsAttributes.copy(uploadedFiles = new UploadedFile(paramKey, fileName, mimeType, charset) :: paramsAttributes.uploadedFiles))
 			.header(HeaderNames.CONTENT_TYPE, HeaderValues.MULTIPART_FORM_DATA)
 
-	/**
-	 * This method adds the parameters to the request builder
-	 *
-	 * @param requestBuilder the request builder to which the parameters should be added
-	 * @param params the parameters that should be added
-	 * @param session the session of the current scenario
-	 */
-	private def configureParams(requestBuilder: RequestBuilder, session: Session) {
-		if (!paramsAttributes.params.isEmpty) {
-			val paramsMap = httpParamsToFluentMap(paramsAttributes.params, session)
-			requestBuilder.setParameters(paramsMap)
-		}
-	}
+	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[String, RequestBuilder] = {
 
-	private def configureFileParts(requestBuilder: RequestBuilder, session: Session) {
-		paramsAttributes.uploadedFiles.foreach { file =>
-			val filePart = file.filePart(session)
-			requestBuilder.addBodyPart(filePart)
-		}
-	}
+		def configureParams(requestBuilder: RequestBuilder): Validation[String, RequestBuilder] =
+			HttpHelper.httpParamsToFluentMap(paramsAttributes.params, session).map(requestBuilder.setParameters)
 
-	private def configureStringParts(requestBuilder: RequestBuilder, session: Session) {
-		paramsAttributes.params
-			.map { case (key, values) => key(session) -> values(session) }
-			.foreach {
-				case (key, values) => values.foreach(value => requestBuilder.addBodyPart(new StringPart(key, value)))
+		def configureFileParts(requestBuilder: RequestBuilder): Validation[String, RequestBuilder] = {
+
+			val resolvedFileParts = paramsAttributes.uploadedFiles
+				.map(_.filePart(session))
+				.toList
+				.sequence[({ type l[a] = Validation[String, a] })#l, FilePart]
+
+			resolvedFileParts.map { uploadedFiles =>
+				uploadedFiles.foreach(requestBuilder.addBodyPart)
+				requestBuilder
 			}
+		}
+
+		def configureStringParts(requestBuilder: RequestBuilder): Validation[String, RequestBuilder] = {
+			HttpHelper.httpParamsToFluentMap(paramsAttributes.params, session).map { map: FluentStringsMap =>
+				map.iterator.foreach { entry => entry.getValue.foreach(value => requestBuilder.addBodyPart(new StringPart(entry.getKey, value))) }
+				requestBuilder
+			}
+		}
+
+		val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
+
+		if (paramsAttributes.uploadedFiles.isEmpty)
+			requestBuilder.flatMap(configureParams)
+		else {
+			requestBuilder.flatMap(configureStringParts).flatMap(configureFileParts)
+		}
 	}
+
 }

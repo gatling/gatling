@@ -21,6 +21,8 @@ import akka.util.duration._
 import com.excilys.ebi.gatling.http.Headers.Names._
 import bootstrap._
 import assertion._
+import scalaz._
+import Scalaz._
 
 object CompileTest extends Simulation {
 
@@ -91,10 +93,10 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 		.exec(http("Catégorie Poney").get("/").queryParam("omg"))
 		.exec(http("Catégorie Poney").get("/").queryParam("omg", "foo"))
 		.exec(http("Catégorie Poney").get("/").queryParam("omg", "${foo}"))
-		.exec(http("Catégorie Poney").get("/").queryParam("omg", session => "foo"))
+		.exec(http("Catégorie Poney").get("/").queryParam("omg", session => "foo".success))
 		.exec(http("Catégorie Poney").get("/").multiValuedQueryParam("omg", List("foo")))
 		.exec(http("Catégorie Poney").get("/").multiValuedQueryParam("omg", "${foo}"))
-		.exec(http("Catégorie Poney").get("/").multiValuedQueryParam("omg", session => List("foo")))
+		.exec(http("Catégorie Poney").get("/").multiValuedQueryParam("omg", List("foo")))
 		.randomSwitch(
 			40 -> exec(http("Catégorie Poney").get("/")),
 			50 -> exec(http("Catégorie Poney").get("/")))
@@ -104,7 +106,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 			// What will be repeated ?
 			// First request to be repeated
 			exec(session => {
-				println("iterate: " + session.getAttribute("titi"))
+				println("iterate: " + session("titi"))
 				session
 			})
 				.exec(
@@ -130,12 +132,12 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 						.pause(2)
 						.repeat(2, "tutu") {
 							exec(session => {
-								println("--nested loop: " + session.getAttribute("tutu"))
+								println("--nested loop: " + session("tutu"))
 								session
 							})
 						}
 						.exec(session => {
-							println("-loopDuring: " + session.getAttribute("foo"))
+							println("-loopDuring: " + session("foo"))
 							session
 						})
 						.exec(http("In During 2").get("/"))
@@ -146,12 +148,12 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 					exec(http("In During 1").get("/"))
 						.pause(2)
 						.exec(session => {
-							println("-iterate1: " + session.getAttribute("titi") + ", doFor: " + session.getAttribute("hehe"))
+							println("-iterate1: " + session("titi") + ", doFor: " + session("hehe"))
 							session
 						})
 						.repeat(2, "hoho") {
 							exec(session => {
-								println("--iterate1: " + session.getAttribute("titi") + ", doFor: " + session.getAttribute("hehe") + ", iterate2: " + session.getAttribute("hoho"))
+								println("--iterate1: " + session("titi") + ", doFor: " + session("hehe") + ", iterate2: " + session("hoho"))
 								session
 							})
 						}
