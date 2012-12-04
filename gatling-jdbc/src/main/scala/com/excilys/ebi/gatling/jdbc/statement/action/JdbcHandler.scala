@@ -21,7 +21,7 @@ import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.excilys.ebi.gatling.jdbc.statement.action.JdbcHandler._
-import java.sql.{ResultSet, PreparedStatement}
+import java.sql.PreparedStatement
 import akka.dispatch.{Await,Future}
 import grizzled.slf4j.Logging
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
@@ -29,14 +29,13 @@ import com.excilys.ebi.gatling.core.session.Session
 import java.util.concurrent.TimeoutException
 import akka.util.duration.intToDurationInt
 import akka.actor.ActorRef
+import com.excilys.ebi.gatling.jdbc.util.RowIterator.ResultSet2RowIterator
 
 
 object JdbcHandler {
 
 	// FIXME : tune jdbc-dispatcher in application.conf
 	implicit val executionContext = system.dispatchers.lookup("jdbc-dispatcher")
-
-	implicit def ResultSet2RowIterator(resultSet: ResultSet): RowIterator = new RowIterator(resultSet)
 
 	def apply(statementName: String,statement: PreparedStatement,session: Session,next: ActorRef) = new JdbcHandler(statementName,statement,session,next)
 }
@@ -79,12 +78,7 @@ class JdbcHandler(statementName: String,statement: PreparedStatement,session: Se
 
 	def executeNext(newSession: Session) = next ! newSession.increaseTimeShift(nowMillis - executionEndDate)
 
-	private def processResultSet = use(statement.getResultSet) { _.foreach(logRow(_))}
-
-	private def logRow(rowContents: Map[Int,AnyRef]) {
-		val formatted = rowContents.map{case (columnIndex,content) => columnIndex + "=" + content}.mkString(",")
-		debug("Row contents : " + formatted)
-	}
+	private def processResultSet = use(statement.getResultSet) { _.size}
 
 	private def logStatement(status: RequestStatus,errorMessage: Option[String] = None) {
 		DataWriter.logRequest(session.scenarioName,session.userId,statementName,executionStartDate,

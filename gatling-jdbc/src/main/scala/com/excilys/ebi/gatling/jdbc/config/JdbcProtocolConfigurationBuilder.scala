@@ -26,7 +26,7 @@ object JdbcProtocolConfigurationBuilder {
 	val PASSWORD_KEY = "password"
 
 	private[gatling] val BASE_JDBC_PROTOCOL_CONFIGURATION_BUILDER =
-		new JdbcProtocolConfigurationBuilder(Attributes("",None,None,None,None,None,None,Map[String, Any]()))
+		new JdbcProtocolConfigurationBuilder(Attributes("",None,None,None,None,None,None,None,None,None,Map[String, Any]()))
 
 	def jdbcConfig = BASE_JDBC_PROTOCOL_CONFIGURATION_BUILDER
 }
@@ -38,12 +38,13 @@ private case class Attributes(
 	maxActive: Option[Int],
 	maxIdle: Option[Int],
 	maxWait: Option[Int],
+	defaultTransactionIsolation: Option[Int],
+	defaultCatalog: Option[String],
+	defaultReadOnly: Option[java.lang.Boolean],
 	initSQL: Option[String],
 	properties: Map[String, Any])
 
 class JdbcProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
-
-	val ds: DataSource = new DataSource
 
 	def url(url: String) = new JdbcProtocolConfigurationBuilder(attributes.copy(url = url))
 
@@ -65,80 +66,11 @@ class JdbcProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 
 	def initSQL(sql: String) = new JdbcProtocolConfigurationBuilder(attributes.copy(initSQL = Some(sql)))
 
-	def defaultTransactionIsolation(isolationLevel: Int) = {
-		ds.setDefaultTransactionIsolation(isolationLevel)
-		this
-	}
+	def defaultTransactionIsolation(isolationLevel: Int) = new JdbcProtocolConfigurationBuilder(attributes.copy(defaultTransactionIsolation = Some(isolationLevel)))
 
-	def defaultCatalog(catalog: String) = {
-		ds.setDefaultCatalog(catalog)
-		this
-	}
+	def defaultReadOnly(readOnly: Boolean) = new JdbcProtocolConfigurationBuilder(attributes.copy(defaultReadOnly = Some(readOnly)))
 
-	def abandonWhenPercentageFull(percentage: Int) = {
-		ds.setAbandonWhenPercentageFull(percentage)
-		this
-	}
-
-	def minEvictableIdleTimeMillis(minTime: Int) = {
-		ds.setMinEvictableIdleTimeMillis(minTime)
-		this
-	}
-
-	def timeBetweenEvictionRunsMillis(sleepTime: Int) = {
-		ds.setTimeBetweenEvictionRunsMillis(sleepTime)
-		this
-	}
-
-	def validationInterval(interval: Long) = {
-		ds.setValidationInterval(interval)
-		this
-	}
-
-	def validationQuery(query: String) = {
-		ds.setValidationQuery(query)
-		this
-	}
-
-	def defaultReadOnly(state: Boolean) = {
-		ds.setDefaultReadOnly(state)
-		this
-	}
-
-	def commitOnReturn(state: Boolean) = {
-		ds.setCommitOnReturn(state)
-		this
-	}
-
-	def rollbackOnReturn(state: Boolean) = {
-		ds.setRollbackOnReturn(state)
-		this
-	}
-
-	def fairQueue(state: Boolean) = {
-		ds.setFairQueue(state)
-		this
-	}
-
-	def testOnBorrow(state: Boolean) = {
-		ds.setTestOnBorrow(state)
-		this
-	}
-
-	def testOnConnect(state: Boolean) = {
-		ds.setTestOnConnect(state)
-		this
-	}
-
-	def testOnReturn(state: Boolean) = {
-		ds.setTestOnReturn(state)
-		this
-	}
-
-	def testWhileIdle(state: Boolean) = {
-		ds.setTestWhileIdle(state)
-		this
-	}
+	def defaultCatalog(catalog: String) = new JdbcProtocolConfigurationBuilder(attributes.copy(defaultCatalog = Some(catalog)))
 
 	private[jdbc] def build = {
 		if(attributes.url == "")
@@ -152,6 +84,7 @@ class JdbcProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 	}
 
 	def setupDataSource: DataSource = {
+		val ds = new DataSource
 		ds.setUrl(attributes.url)
 		ds.setConnectionProperties(buildPropertiesString(attributes.properties))
 		ds.setDefaultAutoCommit(true)
@@ -161,10 +94,13 @@ class JdbcProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 		callIfSome(attributes.maxIdle,ds.setMaxIdle)
 		callIfSome(attributes.maxWait,ds.setMaxWait)
 		callIfSome(attributes.initSQL,ds.setInitSQL)
+		callIfSome(attributes.defaultTransactionIsolation,ds.setDefaultTransactionIsolation)
+		callIfSome(attributes.defaultReadOnly,ds.setDefaultReadOnly)
+		callIfSome(attributes.defaultCatalog,ds.setDefaultCatalog)
 		ds
 	}
 
-	private def buildPropertiesString(map: Map[String, Any]) = map.map {case (key, value) => key + "=" + value}.mkString(";")
+	private def buildPropertiesString(map: Map[String, Any]) = map.map { case (key, value) => key + "=" + value }.mkString(";")
 
 	private def callIfSome[T <: Any](value: Option[T],f: T => Unit) = if(value.isDefined) f(value.get)
 }
