@@ -25,23 +25,22 @@ object JdbcProtocolConfigurationBuilder {
 	val USER_KEY = "user"
 	val PASSWORD_KEY = "password"
 
-	private[gatling] val BASE_JDBC_PROTOCOL_CONFIGURATION_BUILDER =
-		new JdbcProtocolConfigurationBuilder(Attributes("",None,None,None,None,None,None,None,None,None,Map[String, Any]()))
+	private[gatling] val BASE_JDBC_PROTOCOL_CONFIGURATION_BUILDER = new JdbcProtocolConfigurationBuilder(Attributes(url = "",properties = Map[String, Any]()))
 
 	def jdbcConfig = BASE_JDBC_PROTOCOL_CONFIGURATION_BUILDER
 }
 
 private case class Attributes(
 	url: String,
-	initial: Option[Int],
-	minIdle: Option[Int],
-	maxActive: Option[Int],
-	maxIdle: Option[Int],
-	maxWait: Option[Int],
-	defaultTransactionIsolation: Option[Int],
-	defaultCatalog: Option[String],
-	defaultReadOnly: Option[java.lang.Boolean],
-	initSQL: Option[String],
+	initial: Option[Int] = None,
+	minIdle: Option[Int] = None,
+	maxActive: Option[Int] = None,
+	maxIdle: Option[Int] = None,
+	maxWait: Option[Int] = None,
+	defaultTransactionIsolation: Option[Int] = None,
+	defaultCatalog: Option[String] = None,
+	defaultReadOnly: Option[java.lang.Boolean] = None,
+	initSQL: Option[String] = None,
 	properties: Map[String, Any])
 
 class JdbcProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
