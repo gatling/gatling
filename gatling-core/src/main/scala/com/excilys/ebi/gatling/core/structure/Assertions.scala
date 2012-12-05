@@ -97,17 +97,17 @@ class Requests(requests: GeneralStatsByStatus, status: Option[RequestStatus], na
 }
 
 case class Metric(value: DataReader => Int, name: String, assertions: List[Assertion] = List()) {
-	def assert(message: (String, Boolean) => String, assertion: (Int) => Boolean) = copy(assertions = assertions :+ new Assertion(reader => assertion(value(reader)), result => message(name, result)))
+	def assert(assertion: (Int) => Boolean, message: (String, Boolean) => String) = copy(assertions = assertions :+ new Assertion(reader => assertion(value(reader)), result => message(name, result)))
 
-	def lessThan(threshold: Int) = assert((name, result) => name + " is less than " + threshold + " : " + result, _ <= threshold)
+	def lessThan(threshold: Int) = assert(_ <= threshold, (name, result) => name + " is less than " + threshold + " : " + result)
 
-	def greaterThan(threshold: Int) = assert((name, result) => name + " is greater than " + threshold + " : " + result, _ >= threshold)
+	def greaterThan(threshold: Int) = assert(_ >= threshold, (name, result) => name + " is greater than " + threshold + " : " + result)
 
-	def between(min: Int, max: Int) = assert((name, result) => name + " between " + min + " and " + max + " : " + result, value => value >= min && value <= max)
+	def between(min: Int, max: Int) = assert(value => value >= min && value <= max, (name, result) => name + " between " + min + " and " + max + " : " + result)
 
-	def is(v: Int) = assert((name, result) => name + " is equal to " + v + " : " + result, _ == v)
+	def is(v: Int) = assert( _ == v, (name, result) => name + " is equal to " + v + " : " + result)
 
-	def in(set: Set[Int]) = assert((name, result) => name + " is in " + set, set.contains)
+	def in(set: Set[Int]) = assert(set.contains, (name, result) => name + " is in " + set)
 }
 
 object Assertion {
