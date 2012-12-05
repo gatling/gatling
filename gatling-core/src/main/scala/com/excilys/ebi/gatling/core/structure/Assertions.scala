@@ -112,7 +112,7 @@ case class Metric(value: DataReader => Int, name: String, assertions: List[Asser
 
 object Assertion {
 	def assertThat(assertions: Seq[Assertion], dataReader: DataReader) =
-		assertions.foldLeft(true)((result, assertion) => result && assertion(dataReader))
+		assertions.foldLeft(true)((result, assertion) => assertion(dataReader) && result)
 }
 
 class Assertion(assertion: (DataReader) => Boolean, message: (Boolean) => String) {
