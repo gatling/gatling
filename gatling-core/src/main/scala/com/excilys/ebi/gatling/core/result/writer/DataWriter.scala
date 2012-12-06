@@ -59,7 +59,7 @@ object DataWriter {
 		requestSendingEndDate: Long,
 		responseReceivingStartDate: Long,
 		executionEndDate: Long,
-		requestResult: RequestStatus.RequestStatus,
+		requestResult: RequestStatus,
 		requestMessage: Option[String] = None,
 		extraInfo: List[String] = Nil) = {
 

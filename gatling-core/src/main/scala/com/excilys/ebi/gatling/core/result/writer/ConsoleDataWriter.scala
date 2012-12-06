@@ -21,11 +21,9 @@ import java.util.{ HashMap => JHashMap }
 import scala.collection.mutable.{ HashMap, LinkedHashMap }
 
 import com.excilys.ebi.gatling.core.result.{ Group, RequestPath }
-import com.excilys.ebi.gatling.core.result.message.{ RunRecord, ScenarioRecord, ShortScenarioDescription }
-import com.excilys.ebi.gatling.core.result.message.GroupRecord
+import com.excilys.ebi.gatling.core.result.message.{ GroupRecord, KO, OK }
+import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RunRecord, ScenarioRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
-import com.excilys.ebi.gatling.core.result.message.RequestRecord
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
 
 import grizzled.slf4j.Logging
 

@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.core.result.reader
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RunRecord }
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.RequestStatus
+import com.excilys.ebi.gatling.core.result.message.RequestStatus
 
 object DataReader {
 	val NO_PLOT_MAGIC_VALUE = -1
@@ -56,5 +56,5 @@ abstract class DataReader(runUuid: String) {
 
 	def latencyGroupByExecutionStartDate(status: RequestStatus, requestName: Option[String] = None, group: Option[Group] = None): Seq[(Int, (Int, Int))]
 
-	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: RequestStatus.RequestStatus, requestName: Option[String] = None, group: Option[Group] = None): Seq[(Int, Int)]
+	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: RequestStatus, requestName: Option[String] = None, group: Option[Group] = None): Seq[(Int, Int)]
 }

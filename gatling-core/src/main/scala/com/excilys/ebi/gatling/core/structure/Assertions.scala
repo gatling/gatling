@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.core.structure
 import scala.tools.nsc.io.Path
 
 import com.excilys.ebi.gatling.core.result.Group
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK, RequestStatus }
+import com.excilys.ebi.gatling.core.result.message.{ KO, OK, RequestStatus }
 import com.excilys.ebi.gatling.core.result.reader.{ DataReader, GeneralStats }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.util.NumberHelper

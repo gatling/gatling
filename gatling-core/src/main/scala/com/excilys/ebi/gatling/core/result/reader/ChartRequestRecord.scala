@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.result.reader
 
 import org.joda.time.DateTime
 
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.RequestStatus
+import com.excilys.ebi.gatling.core.result.message.RequestStatus
 
 import grizzled.slf4j.Logging
 

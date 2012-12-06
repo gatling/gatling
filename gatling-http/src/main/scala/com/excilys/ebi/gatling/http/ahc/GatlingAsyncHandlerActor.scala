@@ -21,7 +21,7 @@ import scala.collection.JavaConversions.asScalaBuffer
 import com.excilys.ebi.gatling.core.action.BaseActor
 import com.excilys.ebi.gatling.core.check.Check.applyChecks
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK, RequestStatus }
+import com.excilys.ebi.gatling.core.result.message.{ KO, OK, RequestStatus }
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
@@ -40,7 +40,6 @@ import com.ning.http.client.{ FluentStringsMap, Request, RequestBuilder }
 
 import akka.actor.{ ActorRef, ReceiveTimeout }
 import akka.util.duration.intToDurationInt
-
 import scalaz._
 
 object GatlingAsyncHandlerActor {
@@ -214,7 +213,7 @@ class GatlingAsyncHandlerActor(
 					case phase :: otherPhases =>
 						val phaseChecks = checks.filter(_.phase == phase)
 						var checkResult = applyChecks(session, response, phaseChecks)
-						
+
 						checkResult match {
 							case Success(newSession) => checkPhasesRec(newSession, otherPhases)
 							case Failure(errorMessage) =>

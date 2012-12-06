@@ -27,8 +27,7 @@ import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogDirectory
 import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.core.result.message.RecordType.{ ACTION, GROUP, RUN, SCENARIO }
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
+import com.excilys.ebi.gatling.core.result.message.{ KO, OK, RequestStatus }
 import com.excilys.ebi.gatling.core.result.message.RunRecord
 import com.excilys.ebi.gatling.core.result.reader.{ DataReader, GeneralStats }
 import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
@@ -139,7 +138,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		.getSessionDeltaPerSecBuffers(scenarioName)
 		.compute(buckets)
 
-	def numberOfRequestsPerSecond(status: Option[RequestStatus.RequestStatus], requestName: Option[String], group: Option[Group]): Seq[(Int, Int)] = resultsHolder
+	def numberOfRequestsPerSecond(status: Option[RequestStatus], requestName: Option[String], group: Option[Group]): Seq[(Int, Int)] = resultsHolder
 		.getRequestsPerSecBuffer(requestName, group, status).map
 		.toList
 		.map {
@@ -147,7 +146,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		}
 		.sorted
 
-	def numberOfTransactionsPerSecond(status: Option[RequestStatus.RequestStatus], requestName: Option[String], group: Option[Group]): Seq[(Int, Int)] = resultsHolder
+	def numberOfTransactionsPerSecond(status: Option[RequestStatus], requestName: Option[String], group: Option[Group]): Seq[(Int, Int)] = resultsHolder
 		.getTransactionsPerSecBuffer(requestName, group, status).map
 		.toList
 		.map {
@@ -195,7 +194,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		(process(ok), process(ko))
 	}
 
-	def generalStats(status: Option[RequestStatus.RequestStatus], requestName: Option[String], group: Option[Group]): GeneralStats = resultsHolder
+	def generalStats(status: Option[RequestStatus], requestName: Option[String], group: Option[Group]): GeneralStats = resultsHolder
 		.getGeneralStatsBuffers(requestName, group, status)
 		.compute
 
@@ -213,19 +212,19 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			("failed", counts.ko))
 	}
 
-	def responseTimeGroupByExecutionStartDate(status: RequestStatus.RequestStatus, requestName: Option[String], group: Option[Group]): Seq[(Int, (Int, Int))] = resultsHolder
+	def responseTimeGroupByExecutionStartDate(status: RequestStatus, requestName: Option[String], group: Option[Group]): Seq[(Int, (Int, Int))] = resultsHolder
 		.getResponseTimePerSecBuffers(requestName, group, Some(status))
 		.map
 		.toList
 		.sorted
 
-	def latencyGroupByExecutionStartDate(status: RequestStatus.RequestStatus, requestName: Option[String], group: Option[Group]): Seq[(Int, (Int, Int))] = resultsHolder
+	def latencyGroupByExecutionStartDate(status: RequestStatus, requestName: Option[String], group: Option[Group]): Seq[(Int, (Int, Int))] = resultsHolder
 		.getLatencyPerSecBuffers(requestName, group, Some(status))
 		.map
 		.toList
 		.sorted
 
-	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: RequestStatus.RequestStatus, requestName: Option[String], group: Option[Group]): Seq[(Int, Int)] = {
+	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: RequestStatus, requestName: Option[String], group: Option[Group]): Seq[(Int, Int)] = {
 
 		val globalCountsByBucket = resultsHolder.getRequestsPerSecBuffer(None, None, None).map
 

@@ -33,7 +33,7 @@ abstract class GeneralStatsBuffers(durationInSec: Long) extends Buffers {
 
 	val generalStatsBuffers: mutable.Map[BufferKey, GeneralStatsBuffer] = new JHashMap[BufferKey, GeneralStatsBuffer]
 
-	def getGeneralStatsBuffers(request: Option[String], group: Option[Group], status: Option[RequestStatus.RequestStatus]): GeneralStatsBuffer =
+	def getGeneralStatsBuffers(request: Option[String], group: Option[Group], status: Option[RequestStatus]): GeneralStatsBuffer =
 		generalStatsBuffers.getOrElseUpdate(computeKey(request, group, status), new GeneralStatsBuffer(durationInSec))
 
 	def updateGeneralStatsBuffers(record: ActionRecord, group: Option[Group]) {

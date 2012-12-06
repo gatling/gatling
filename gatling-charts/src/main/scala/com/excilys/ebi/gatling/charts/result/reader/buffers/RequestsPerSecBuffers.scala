@@ -28,7 +28,7 @@ trait RequestsPerSecBuffers extends Buffers {
 
 	val requestsPerSecBuffers: mutable.Map[BufferKey, CountBuffer] = new JHashMap[BufferKey, CountBuffer]
 
-	def getRequestsPerSecBuffer(requestName: Option[String], group: Option[Group], status: Option[RequestStatus.RequestStatus]): CountBuffer = requestsPerSecBuffers.getOrElseUpdate(computeKey(requestName, group, status), new CountBuffer)
+	def getRequestsPerSecBuffer(requestName: Option[String], group: Option[Group], status: Option[RequestStatus]): CountBuffer = requestsPerSecBuffers.getOrElseUpdate(computeKey(requestName, group, status), new CountBuffer)
 
 	def updateRequestsPerSecBuffers(record: ActionRecord, group: Option[Group]) {
 		recursivelyUpdate(record, group) { (record, group) =>

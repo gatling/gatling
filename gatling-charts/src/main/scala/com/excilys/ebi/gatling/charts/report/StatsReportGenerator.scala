@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ GLOBAL_PAGE_NAME, jsS
 import com.excilys.ebi.gatling.charts.template.{ StatsJsTemplate, StatsJsonTemplate, StatsTsvTemplate }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.{ RequestPath, Group }
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
+import com.excilys.ebi.gatling.core.result.message.{ KO, OK }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 
 class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) {
