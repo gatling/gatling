@@ -64,8 +64,7 @@ trait MultipleExtractorCheckBuilder[C <: Check[R, XC], R, XC, X] extends Extract
 object MatcherCheckBuilder {
 	val existsStrategy = new MatchStrategy[Any] {
 		def apply(value: Option[Any], session: Session) = value match {
-			// FIXME empty seq should be None
-			case Some(extracted) if (!extracted.isInstanceOf[Seq[_]] || !extracted.asInstanceOf[Seq[_]].isEmpty) => value.success
+			case Some(extracted) => value.success
 			case _ => ("Check 'exists' failed, found " + value).failure
 		}
 	}
