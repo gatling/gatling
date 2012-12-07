@@ -39,6 +39,10 @@ object Terminator {
 	def endUser {
 		terminator ! EndUser
 	}
+	
+	def forceTermination {
+		terminator ! ForceTermination
+	}
 }
 
 class Terminator extends BaseActor {
@@ -62,6 +66,17 @@ class Terminator extends BaseActor {
 			context.become(initialized)
 	}
 
+	def flush {
+		Future.sequence(registeredDataWriters.map(_.ask(Flush)))
+			.onSuccess {
+				case _ =>
+					latch.countDown
+					context.unbecome
+			}.onFailure {
+				case e: Exception => error(e)
+			}
+	}
+
 	def initialized: Receive = {
 
 		case RegisterDataWriter(dataWriter: ActorRef) =>
@@ -69,16 +84,9 @@ class Terminator extends BaseActor {
 
 		case EndUser =>
 			userCount = userCount - 1
-			if (userCount == 0) {
-				Future.sequence(registeredDataWriters.map(_.ask(Flush)))
-					.onSuccess {
-						case _ =>
-							latch.countDown
-							context.unbecome
-					}.onFailure {
-						case e: Exception => error(e)
-					}
-			}
+			if (userCount == 0) flush
+
+		case ForceTermination => flush
 	}
 
 	def receive = uninitialized

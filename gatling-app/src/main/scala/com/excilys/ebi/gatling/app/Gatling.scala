@@ -66,7 +66,7 @@ object Gatling extends Logging {
 			if (cliOptsParser.parse(args)) fromMap(props.build)
 			else INCORRECT_ARGUMENTS
 
-		System.exit(returnCode)
+		sys.exit(returnCode)
 	}
 
 	def fromMap(props: JMap[String, Any]) = {
@@ -142,8 +142,7 @@ class Gatling extends Logging {
 				println("There is no simulation script. Please check that your scripts are in user-files/simulations")
 				sys.exit
 			case 1 =>
-				// If there is only one simulation file
-				info("There is only one simulation, executing it.")
+				info(simulations.head.getName + " is the only simulation, executing it.")
 				0
 			case size =>
 				println("Choose a simulation number:")

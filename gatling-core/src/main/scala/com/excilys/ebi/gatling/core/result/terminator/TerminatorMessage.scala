@@ -24,3 +24,4 @@ sealed trait TerminatorMessage
 case class Initialize(latch: CountDownLatch, userCount: Int) extends TerminatorMessage
 case class RegisterDataWriter(dataWriter: ActorRef) extends TerminatorMessage
 case object EndUser extends TerminatorMessage
+case object ForceTermination extends TerminatorMessage
