@@ -72,7 +72,7 @@ object ELParser extends Logging {
 					case elSeqElementPattern(key, occurrence) => SeqElementPart(key, occurrence)
 					case elSeqSizePattern(key) => SeqSizePart(key)
 					case key if key contains "${" => throw ELNestedAttributeDefinition(string)
-					case key if key == "" => throw ELMissingAttributeName(string)
+					case key if key.isEmpty => throw ELMissingAttributeName(string)
 					case key => AttributePart(key)
 				}
 			}
