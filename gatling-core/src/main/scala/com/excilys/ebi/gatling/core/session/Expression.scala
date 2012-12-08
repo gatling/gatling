@@ -15,13 +15,10 @@
  */
 package com.excilys.ebi.gatling.core.session
 
-import com.excilys.ebi.gatling.core.util.StringHelper
-import com.excilys.ebi.gatling.core.util.NumberHelper.isNumeric
-import scala.collection.mutable
+import com.excilys.ebi.gatling.core.util.TypeHelper
 import grizzled.slf4j.Logging
 import scalaz._
 import Scalaz._
-import com.excilys.ebi.gatling.core.util.TypeHelper
 
 trait Part[+T] {
 	def resolve(session: Session): Validation[String, T]
@@ -47,16 +44,19 @@ case class SeqElementPart(name: String, index: String) extends Part[Any] {
 		try {
 			val intIndex = index.toInt
 			seqElementPart(intIndex)
-
 		} catch {
 			case e: NumberFormatException => session.getAs[Int](index).flatMap(seqElementPart(_))
 		}
 	}
 }
 
+case class ELMissingAttributeName(el: String) extends Exception
+case class ELNestedAttributeDefinition(el: String) extends Exception
+
+
 object ELParser extends Logging {
 
-	val elPattern = """\$\{(.+?)\}""".r
+	val elPattern = """\$\{(.*?)\}""".r
 	val elJPattern = elPattern.pattern
 	val elSeqSizePattern = """(.+?)\.size""".r
 	val elSeqElementPattern = """(.+?)\((.+)\)""".r
@@ -72,6 +72,8 @@ object ELParser extends Logging {
 				_.group(1) match {
 					case elSeqElementPattern(key, occurrence) => SeqElementPart(key, occurrence)
 					case elSeqSizePattern(key) => SeqSizePart(key)
+					case key if key contains "${" => throw ELNestedAttributeDefinition(string)
+					case key if key == "" => throw ELMissingAttributeName(string)
 					case key => AttributePart(key)
 				}
 			}

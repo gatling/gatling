@@ -19,8 +19,7 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import scalaz._
-import Scalaz._
+import scalaz.{ Failure, Success }
 
 @RunWith(classOf[JUnitRunner])
 class ELParserSpec extends Specification {
@@ -123,6 +122,19 @@ class ELParserSpec extends Specification {
 			val session = new Session("scenario", 1, Map())
 			val expression = Expression[Int]("${bar.size}")
 			expression(session) must beEqualTo(Failure(undefinedSessionAttributeMessage("bar")))
+		}
+	}
+
+	"Malformed Expression" should {
+
+		"be handled correctly when an attribute name is missing" in {
+			val el = "foo${}bar"
+			Expression[String](el) must throwA[ELMissingAttributeName]
+		}
+
+		"be handled correctly when there is a nested attribute definition" in {
+			val el = "${foo${bar}}"
+			Expression[String](el) must throwA[ELNestedAttributeDefinition]
 		}
 	}
 }
