@@ -57,13 +57,12 @@ case class ELNestedAttributeDefinition(el: String) extends Exception
 object ELParser extends Logging {
 
 	val elPattern = """\$\{(.*?)\}""".r
-	val elJPattern = elPattern.pattern
 	val elSeqSizePattern = """(.+?)\.size""".r
 	val elSeqElementPattern = """(.+?)\((.+)\)""".r
 
 	def apply[T: ClassManifest](string: String): List[Part[Any]] = {
 
-		val staticParts = elJPattern.split(string).map(StaticPart(_)).toList
+		val staticParts = elPattern.split(string).map(StaticPart(_)).toList
 
 		val dynamicParts = elPattern
 			.findAllIn(string)
