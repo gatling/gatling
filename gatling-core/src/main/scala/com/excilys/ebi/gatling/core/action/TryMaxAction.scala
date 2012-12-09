@@ -24,7 +24,7 @@ import scalaz._
 object TryMaxAction extends Logging {
 
 	def apply(times: Int, next: ActorRef, counterName: String): WhileAction = {
-		val continueCondition = (s: Session) => s.getAs[Int](counterName).map(counterValue => counterValue == 0 || (s.isFailed && counterValue < times))
+		val continueCondition = (s: Session) => s.safeGetAs[Int](counterName).map(counterValue => counterValue == 0 || (s.isFailed && counterValue < times))
 		new WhileAction(continueCondition, next, counterName)
 	}
 }

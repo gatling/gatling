@@ -72,7 +72,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 *
 	 * @param key the key of the parameter
 	 */
-	def queryParam(key: String): B = queryParam(Expression[String](key), (s: Session) => s.getAs[String](key))
+	def queryParam(key: String): B = queryParam(Expression[String](key), (s: Session) => s.safeGetAs[String](key))
 
 	/**
 	 * Adds a query parameter to the request

@@ -26,7 +26,6 @@ import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 import akka.util.Duration
 import akka.util.duration.longToDurationLong
 import grizzled.slf4j.Logging
-import scalaz._
 
 trait Loops[B] extends Execs[B] with Logging {
 
@@ -41,9 +40,9 @@ trait Loops[B] extends Execs[B] with Logging {
 			def counterName = computedCounterName
 		}
 
-		val initAction = emptyChain.exec(SimpleActionBuilder(handler.init(_)))
-		val incrementAction = emptyChain.exec(SimpleActionBuilder(handler.increment(_)))
-		val expireAction = emptyChain.exec(SimpleActionBuilder(handler.expire(_)))
+		val initAction = emptyChain.exec(SimpleActionBuilder(handler.init))
+		val incrementAction = emptyChain.exec(SimpleActionBuilder(handler.increment))
+		val expireAction = emptyChain.exec(SimpleActionBuilder(handler.expire))
 
 		val innerActions = (1 to times).flatMap(_ => List(incrementAction, chain)).toList
 		val allActions = initAction :: innerActions ::: List(expireAction)
@@ -68,7 +67,7 @@ trait Loops[B] extends Execs[B] with Logging {
 
 		def continueCondition(session: Session) = {
 			for {
-				counterValue <- session.getAs[Int](counter)
+				counterValue <- session.safeGetAs[Int](counter)
 				timesValue <- times(session)
 			} yield counterValue < timesValue
 		}

@@ -33,7 +33,7 @@ object TimerBasedIterationHandler {
 
 	def getTimerAttributeName(counterName: String) = TIMER_KEY_PREFIX + counterName
 
-	def getTimer(session: Session, counterName: String): Validation[String, Long] = session.getAs[Long](getTimerAttributeName(counterName))
+	def getTimer(session: Session, counterName: String): Validation[String, Long] = session.safeGetAs[Long](getTimerAttributeName(counterName))
 }
 
 /**
@@ -47,11 +47,11 @@ trait TimerBasedIterationHandler extends CounterBasedIterationHandler {
 
 		val timerAttributeName = TimerBasedIterationHandler.getTimerAttributeName(counterName)
 
-		if (session.isAttributeDefined(timerAttributeName))
+		if (session.contains(timerAttributeName))
 			super.init(session)
 		else
-			super.init(session).setAttribute(timerAttributeName, nowMillis)
+			super.init(session).set(timerAttributeName, nowMillis)
 	}
 
-	override def expire(session: Session) = super.expire(session).removeAttribute(TimerBasedIterationHandler.getTimerAttributeName(counterName))
+	override def expire(session: Session) = super.expire(session).remove(TimerBasedIterationHandler.getTimerAttributeName(counterName))
 }

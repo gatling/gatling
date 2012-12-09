@@ -160,7 +160,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 						.exec(http("In During 2").get("/"))
 						.pause(2)
 				}
-				.exec(session => session.setAttribute("test2", "bbbb"))
+				.exec(session => session.set("test2", "bbbb"))
 				.doIfOrElse("test2", "aaaa") {
 					exec(http("IF=TRUE Request").get("/"))
 				} {

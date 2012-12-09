@@ -49,52 +49,51 @@ object Session extends Logging {
 class Session(val scenarioName: String, val userId: Int, attributes: Map[String, Any] = Map.empty) {
 
 	def apply(name: String) = attributes(name)
+	@deprecated("Use apply instead, will be removed in 1.5.0", "1.4.0")
+	def getAttribute(key: String): Any = apply(key)
+	
+	@deprecated("Use apply(key).asInstanceOf[T] instead, will be removed in 1.5.0", "1.4.0")
+	def getTypedAttribute[T](key: String): T = attributes(key).asInstanceOf[T]
 
-	def get(name: String): Validation[String, Any] = attributes.get(name).toSuccess(undefinedSessionAttributeMessage(name))
+	def get(key: String): Option[Any] = attributes.get(key)
 
-	def getAs[T: ClassManifest](name: String): Validation[String, T] = attributes.get(name).map(TypeHelper.as[T](_)).getOrElse(undefinedSessionAttributeMessage(name).failure[T])
+	def getAs[T](key: String): Option[T] = attributes.get(key).map(_.asInstanceOf[T])
+	@deprecated("Use getAs instead, will be removed in 1.5.0", "1.4.0")
+	def getAttributeAsOption[T](key: String): Option[T] = getAs(key)
 
-	/**
-	 * Sets values in the session
-	 *
-	 * @param attributes map containing several values to be stored in session
-	 * @return Nothing
-	 */
-	def setAttributes(attributes: Map[String, Any]) = new Session(scenarioName, userId, attributes ++ attributes)
+	def safeGetAs[T: ClassManifest](key: String): Validation[String, T] = attributes.get(key).map(TypeHelper.as[T](_)).getOrElse(undefinedSessionAttributeMessage(key).failure[T])
 
-	/**
-	 * Sets a single value in the session
-	 *
-	 * @param attributeKey the key of the attribute
-	 * @param attributeValue the value of the attribute
-	 * @return Unit
-	 */
-	def setAttribute(attributeKey: String, attributeValue: Any) = new Session(scenarioName, userId, attributes + (attributeKey -> attributeValue))
+	def set(attributes: Map[String, Any]) = new Session(scenarioName, userId, attributes ++ attributes)
+	@deprecated("Use set instead, will be removed in 1.5.0", "1.4.0")
+	def setAttributes(attributes: Map[String, Any]) = set(attributes)
 
-	/**
-	 * Removes an attribute and its value from the session
-	 *
-	 * @param attributeKey the key of the attribute to be removed
-	 */
-	def removeAttribute(attributeKey: String) = if (isAttributeDefined(attributeKey)) new Session(scenarioName, userId, attributes - attributeKey) else this
+	def set(key: String, value: Any) = new Session(scenarioName, userId, attributes + (key -> value))
+	@deprecated("Use set instead, will be removed in 1.5.0", "1.4.0")
+	def setAttribute(key: String, value: Any) = set(key, value)
 
-	def isAttributeDefined(attributeKey: String) = attributes.contains(attributeKey)
+	def remove(key: String) = if (contains(key)) new Session(scenarioName, userId, attributes - key) else this
+	@deprecated("Use remove instead, will be removed in 1.5.0", "1.4.0")
+	def removeAttribute(key: String) = remove(key)
 
-	def setFailed: Session = setAttribute(Session.FAILED_KEY, "")
+	def contains(attributeKey: String) = attributes.contains(attributeKey)
+	@deprecated("Use contains instead, will be removed in 1.5.0", "1.4.0")
+	def isAttributeDefined(attributeKey: String) = contains(attributeKey)
 
-	def clearFailed: Session = removeAttribute(Session.FAILED_KEY)
+	def setFailed: Session = set(Session.FAILED_KEY, "")
 
-	def isFailed: Boolean = isAttributeDefined(Session.FAILED_KEY)
+	def clearFailed: Session = remove(Session.FAILED_KEY)
 
-	def setMustExitOnFail: Session = setAttribute(Session.MUST_EXIT_ON_FAIL_KEY, "")
+	def isFailed: Boolean = contains(Session.FAILED_KEY)
 
-	def isMustExitOnFail: Boolean = isAttributeDefined(Session.MUST_EXIT_ON_FAIL_KEY)
+	def setMustExitOnFail: Session = set(Session.MUST_EXIT_ON_FAIL_KEY, "")
 
-	def clearMustExitOnFail: Session = removeAttribute(Session.MUST_EXIT_ON_FAIL_KEY)
+	def isMustExitOnFail: Boolean = contains(Session.MUST_EXIT_ON_FAIL_KEY)
+
+	def clearMustExitOnFail: Session = remove(Session.MUST_EXIT_ON_FAIL_KEY)
 
 	def shouldExitBecauseFailed: Boolean = isFailed && isMustExitOnFail
 
-	private[gatling] def setTimeShift(timeShift: Long): Session = setAttribute(Session.TIME_SHIFT_KEY, timeShift)
+	private[gatling] def setTimeShift(timeShift: Long): Session = set(Session.TIME_SHIFT_KEY, timeShift)
 
 	private[gatling] def increaseTimeShift(time: Long): Session = setTimeShift(time + getTimeShift)
 

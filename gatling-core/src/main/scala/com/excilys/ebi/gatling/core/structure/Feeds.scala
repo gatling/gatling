@@ -38,7 +38,7 @@ trait Feeds[B] extends Execs[B] with Logging {
 				sys.exit
 			}
 
-			session.setAttributes(feeder.next)
+			session.set(feeder.next)
 		})
 
 		newInstance(byPass :: actionBuilders)
