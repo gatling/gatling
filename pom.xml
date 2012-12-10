@@ -110,7 +110,7 @@
 		<scopt.version>2.1.0</scopt.version>
 		<ant.version>1.8.3</ant.version>
 		<grizzled-slf4j.version>0.6.10</grizzled-slf4j.version>
-		<jackson.version>2.1.1</jackson.version>
+		<jackson.version>2.1.2</jackson.version>
 		<commons-math3.version>3.0</commons-math3.version>
 		<commons-io.version>2.4</commons-io.version>
 		<jodd.version>3.4.0</jodd.version>
