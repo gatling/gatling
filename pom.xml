@@ -93,7 +93,7 @@
 		<maven.compiler.target>1.6</maven.compiler.target>
 		<encoding>UTF-8</encoding>
 		<scala.version>2.9.2</scala.version>
-		<scalaz.version>7.0.0-M5</scalaz.version>
+		<scalaz.version>7.0.0-M6</scalaz.version>
 		<ahc.version>1.7.8</ahc.version>
 		<akka.version>2.0.4</akka.version>
 		<config.version>1.0.0</config.version>
