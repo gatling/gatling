@@ -15,9 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.session
 
-import com.excilys.ebi.gatling.core.util.StringHelper
 import com.excilys.ebi.gatling.core.util.NumberHelper.isNumeric
-import scala.collection.mutable
+
 import grizzled.slf4j.Logging
 
 object ELParser extends Logging {
@@ -25,8 +24,6 @@ object ELParser extends Logging {
 	val elPattern = """\$\{(.+?)\}""".r
 	val elSizePattern = """(.+?)\.size\(\)""".r
 	val elOccurrencePattern = """(.+?)\((.+)\)""".r
-
-	val CACHE = mutable.Map.empty[String, EvaluatableString]
 
 	def parseEL(elString: String): EvaluatableString = {
 
@@ -64,30 +61,23 @@ object ELParser extends Logging {
 				}
 			}.toSeq
 
-		def doParseEvaluatable: EvaluatableString = {
+		val dynamicParts = parseDynamicParts
 
-			System.err.println("EL cache miss");
+		if (dynamicParts.isEmpty) {
+			// no interpolation
+			(session: Session) => elString
 
-			val dynamicParts = parseDynamicParts
+		} else {
+			val staticParts = parseStaticParts
 
-			if (dynamicParts.isEmpty) {
-				// no interpolation
-				(session: Session) => elString
+			val functions = dynamicParts.zip(staticParts)
 
-			} else {
-				val staticParts = parseStaticParts
-
-				val functions = dynamicParts.zip(staticParts)
-
-				(session: Session) => functions
-					.foldLeft(new StringBuilder) { (buffer, function) =>
-						val (dynamicPart, staticPart) = function
-						buffer.append(staticPart).append(dynamicPart(session))
-					}.append(staticParts.last)
-					.toString
-			}
+			(session: Session) => functions
+				.foldLeft(new StringBuilder) { (buffer, function) =>
+					val (dynamicPart, staticPart) = function
+					buffer.append(staticPart).append(dynamicPart(session))
+				}.append(staticParts.last)
+				.toString
 		}
-
-		CACHE.getOrElseUpdate(elString, doParseEvaluatable)
 	}
 }
