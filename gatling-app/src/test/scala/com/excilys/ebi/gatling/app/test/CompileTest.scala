@@ -190,7 +190,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 		.exec(http("Ajout au panier").get("/").check(regex("""<input id="text1" type="text" value="(.*)" />""").saveAs("input")))
 		.pause(pause1)
 
-	run(lambdaUser.users(5).ramp(10).protocolConfig(httpConf))
+	setUp(lambdaUser.users(5).ramp(10).protocolConfig(httpConf))
 
 	assertThat(
 		global.responseTime.mean.lessThan(50),

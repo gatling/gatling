@@ -19,13 +19,13 @@ import scala.collection.mutable
 import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.structure.{ Assertion, Metric }
 
-abstract class Simulation {
+trait Simulation {
 
 	private val _scenarios = new mutable.ArrayBuffer[ConfiguredScenarioBuilder]
 
 	def scenarios: Seq[Scenario] = _scenarios.map(_.build)
 
-	def run(scn1: ConfiguredScenarioBuilder, scns: ConfiguredScenarioBuilder*) {
+	def setUp(scn1: ConfiguredScenarioBuilder, scns: ConfiguredScenarioBuilder*) {
 		_scenarios += scn1 ++= scns
 	}
 

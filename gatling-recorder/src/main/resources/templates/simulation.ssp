@@ -48,5 +48,5 @@ class <%= simulationClassName %> extends Simulation {
 		)
 <%}%>
 
-	run(scn.configure.users(1).protocolConfig(httpConf))
+	setUp(scn.users(1).protocolConfig(httpConf))
 }
