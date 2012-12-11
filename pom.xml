@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.gatling</groupId>
 	<artifactId>gatling-parent</artifactId>
@@ -136,6 +137,7 @@
 		<zinc.version>0.3.0-M1</zinc.version>
 		<plexus-selector.version>1.0.0</plexus-selector.version>
 		<opencsv.version>2.3</opencsv.version>
+		<mockito.version>1.9.5</mockito.version>
 		<maven2.version>2.2.1</maven2.version>
 		<maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
 		<maven-source-plugin.version>2.2.1</maven-source-plugin.version>
@@ -238,6 +240,11 @@
 			<dependency>
 				<groupId>com.typesafe.akka</groupId>
 				<artifactId>akka-actor_2.10</artifactId>
+				<version>${akka.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.typesafe.akka</groupId>
+				<artifactId>akka-testkit_2.10</artifactId>
 				<version>${akka.version}</version>
 			</dependency>
 			<dependency>
@@ -372,6 +379,11 @@
 				<version>${specs2.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>${mockito.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>com.typesafe.zinc</groupId>
 				<artifactId>zinc</artifactId>
 				<version>${zinc.version}</version>
@@ -483,7 +495,10 @@
 					<version>${maven-license-plugin.version}</version>
 					<configuration>
 						<header>${header.basedir}/src/etc/header.txt</header>
-						<strictCheck>true</strictCheck>
+						<validHeaders>
+							<validHeader>${header.basedir}/src/etc/header_gilt.txt</validHeader>
+						</validHeaders>
+						<strictCheck>false</strictCheck>
 						<excludes>
 							<exclude>src/test/resources/**</exclude>
 							<exclude>**/jquery.min.js</exclude>

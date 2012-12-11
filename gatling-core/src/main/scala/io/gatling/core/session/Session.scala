@@ -95,6 +95,7 @@ case class Session(
 		case _ => this
 	}
 
+	def isFailed = status == KO
 	def status: Status = if (statusStack.contains(KO)) KO else OK
 	def resetStatus = statusStack match {
 		case KO :: tail => copy(statusStack = OK :: tail)
