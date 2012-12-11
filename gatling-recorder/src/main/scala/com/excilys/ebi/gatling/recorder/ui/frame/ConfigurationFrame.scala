@@ -336,7 +336,7 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 			txtProxyUsername.setEnabled(true)
 			txtProxyPassword.setEnabled(true)
 		}
-		configuration.simulationPackage.map(txtSimulationPackage.setText(_))
+		configuration.simulationPackage.map(txtSimulationPackage.setText)
 		txtSimulationClassName.setText(configuration.simulationClassName)
 		cbFilterStrategies.setSelectedItem(configuration.filterStrategy)
 		chkFollowRedirect.setSelected(configuration.followRedirect)

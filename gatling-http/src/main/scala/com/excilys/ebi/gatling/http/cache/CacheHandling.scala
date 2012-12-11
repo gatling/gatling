@@ -48,7 +48,7 @@ object CacheHandling extends Logging {
 		def pragmaNoCache = Option(response.getHeader(Headers.Names.PRAGMA)).map(_.contains(Headers.Values.NO_CACHE)).getOrElse(false)
 		def cacheControlNoCache = Option(response.getHeader(Headers.Names.CACHE_CONTROL)).map(_.contains(Headers.Values.NO_CACHE)).getOrElse(false)
 		def expiresInFuture = Option(response.getHeader(Headers.Names.EXPIRES))
-			.map(isFutureExpire(_))
+			.map(isFutureExpire)
 			.getOrElse(false)
 
 		val isResponseCacheable = httpProtocolConfiguration.cachingEnabled && !pragmaNoCache && !cacheControlNoCache && expiresInFuture

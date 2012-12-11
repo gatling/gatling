@@ -32,6 +32,6 @@ object HtmlHelper {
 	def htmlEscape(string: String): String = {
 		def charToHtmlEntity(char: Char): String = CHAR_TO_HTML_ENTITIES.get(char).getOrElse(char.toString)
 
-		string.toList.map(charToHtmlEntity(_)).mkString
+		string.toList.map(charToHtmlEntity).mkString
 	}
 }

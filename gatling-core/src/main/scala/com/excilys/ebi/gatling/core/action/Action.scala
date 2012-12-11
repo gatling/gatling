@@ -23,7 +23,7 @@ import akka.actor.ActorRef
  * Top level abstraction in charge or executing concrete actions along a scenario, for example sending an HTTP request.
  * It is implemented as an Akka Actor that receives Session messages.
  */
-abstract class Action extends BaseActor {
+trait Action extends BaseActor {
 
 	def next: ActorRef
 

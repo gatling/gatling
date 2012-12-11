@@ -39,9 +39,9 @@ trait Loops[B] extends Execs[B] {
 			def counterName = computedCounterName
 		}
 
-		val initAction = emptyChain.exec(SimpleActionBuilder(handler.init(_)))
-		val incrementAction = emptyChain.exec(SimpleActionBuilder(handler.increment(_)))
-		val expireAction = emptyChain.exec(SimpleActionBuilder(handler.expire(_)))
+		val initAction = emptyChain.exec(SimpleActionBuilder(handler.init))
+		val incrementAction = emptyChain.exec(SimpleActionBuilder(handler.increment))
+		val expireAction = emptyChain.exec(SimpleActionBuilder(handler.expire))
 		
 		val innerActions = (1 to times).flatMap(_ => List(incrementAction, chain)).toList
 		val allActions = initAction :: innerActions ::: List(expireAction)

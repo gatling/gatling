@@ -49,7 +49,7 @@ class CssExtractor(text: String) extends Extractor {
 		.select(expression)
 		.map { node =>
 			nodeAttribute
-				.map { node.getAttribute(_) }
+				.map(node.getAttribute)
 				.getOrElse(node.getTextContent.trim)
 		}
 

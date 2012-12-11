@@ -85,8 +85,7 @@ class Gatling extends Logging {
 		val (outputDirectoryName, simulation) = GatlingFiles.reportsOnlyDirectory.map((_, None))
 			.getOrElse {
 				val simulations = GatlingFiles.binariesDirectory
-					.map( // expect simulations to have been pre-compiled (ex: IDE)
-						SimulationClassLoader.fromClasspathBinariesDirectory(_))
+					.map(SimulationClassLoader.fromClasspathBinariesDirectory) // expect simulations to have been pre-compiled (ex: IDE)
 					.getOrElse(SimulationClassLoader.fromSourcesDirectory(GatlingFiles.sourcesDirectory))
 					.simulationClasses(configuration.simulation.clazz)
 					.sortWith(_.getName < _.getName)

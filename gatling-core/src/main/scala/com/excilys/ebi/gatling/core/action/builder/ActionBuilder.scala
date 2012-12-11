@@ -22,7 +22,7 @@ import akka.actor.ActorRef
 /**
  * Top level abstraction for components in charge of building Actions
  */
-abstract class ActionBuilder {
+trait ActionBuilder {
 
 	/**
 	 * @param next the Action that will be chained with the Action build by this builder

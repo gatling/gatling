@@ -82,7 +82,7 @@ private[cookie] class CookieStore(store: Map[URI, List[Cookie]]) {
 				addOrReplaceCookies(newCookies, cookies)
 			case _ => newCookies
 		}
-		val nonExpiredCookies = cookiesWithExactURI.filterNot(hasExpired(_))
+		val nonExpiredCookies = cookiesWithExactURI.filterNot(hasExpired)
 		new CookieStore(store + (uri -> nonExpiredCookies))
 	}
 

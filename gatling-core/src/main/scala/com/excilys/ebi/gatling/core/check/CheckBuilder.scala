@@ -92,7 +92,7 @@ class MatcherCheckBuilder[C <: Check[R, XC], R, XC, X](checkBuilderFactory: Chec
 	 */
 	def transform[T](transformation: X => T): MatcherCheckBuilder[C, R, XC, T] = new MatcherCheckBuilder(checkBuilderFactory, new ExtractorFactory[R, XC, T] {
 		def apply(response: R) = new Extractor[XC, T] {
-			def apply(expression: XC) = extractorFactory(response)(expression).map(transformation(_))
+			def apply(expression: XC) = extractorFactory(response)(expression).map(transformation)
 		}
 	})
 

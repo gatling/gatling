@@ -63,9 +63,7 @@ class FilterTable extends JPanel with MouseListener {
 	}
 
 	def removeRows(toRemove: List[Int]) {
-		toRemove.sorted.reverse.foreach {
-			model.removeRow(_)
-		}
+		toRemove.sorted.reverse.foreach(model.removeRow)
 	}
 
 	def stopCellEditing {

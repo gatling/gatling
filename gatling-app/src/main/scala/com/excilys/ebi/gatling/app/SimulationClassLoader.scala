@@ -69,7 +69,7 @@ class FileSystemBackedSimulationClassLoader(classLoader: ClassLoader, binaryDir:
 			}
 
 		val classes = classNames
-			.map(classLoader.loadClass(_))
+			.map(classLoader.loadClass)
 			.collect { case clazz if (isSimulationClass(clazz)) => clazz.asInstanceOf[Class[Simulation]] }
 
 		requestedClassName.map { requestedClassName =>

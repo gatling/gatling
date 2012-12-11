@@ -28,9 +28,9 @@ object JsonPathExtractor {
 	 * The singleton ObjectMapper. Used in a threadsafe mannner as configuration never changes on the fly.
 	 */
 	val mapper = {
-		val jacksonFeatures = configuration.http.nonStandardJsonSupport.map(JsonParser.Feature.valueOf(_))
+		val jacksonFeatures = configuration.http.nonStandardJsonSupport.map(JsonParser.Feature.valueOf)
 		val jsonFactory = new MappingJsonFactory
-		jacksonFeatures.foreach(jsonFactory.enable(_))
+		jacksonFeatures.foreach(jsonFactory.enable)
 		new ObjectMapper(jsonFactory)
 	}
 }

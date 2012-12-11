@@ -65,6 +65,9 @@ object ELParser extends Logging {
 			}.toSeq
 
 		def doParseEvaluatable: EvaluatableString = {
+
+			System.err.println("EL cache miss");
+
 			val dynamicParts = parseDynamicParts
 
 			if (dynamicParts.isEmpty) {

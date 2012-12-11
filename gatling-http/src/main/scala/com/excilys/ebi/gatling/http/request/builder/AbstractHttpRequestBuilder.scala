@@ -116,7 +116,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 *
 	 * @param givenHeaders a scala map containing the headers to add
 	 */
-	def headers(givenHeaders: Map[String, String]): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers ++ givenHeaders.mapValues(parseEL(_))))
+	def headers(givenHeaders: Map[String, String]): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers ++ givenHeaders.mapValues(parseEL)))
 
 	/**
 	 * Adds Accept and Content-Type headers to the request set with "application/json" values
@@ -173,7 +173,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 		(if (isHttps)
 			protocolConfiguration.securedProxy
 		else
-			protocolConfiguration.proxy).map(requestBuilder.setProxyServer(_))
+			protocolConfiguration.proxy).map(requestBuilder.setProxyServer)
 	}
 
 	/**

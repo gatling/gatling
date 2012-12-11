@@ -23,7 +23,7 @@ import akka.util.Timeout
 import akka.util.duration.intToDurationInt
 import grizzled.slf4j.Logging
 
-abstract class BaseActor extends Actor with ClassSimpleNameToString with Logging {
+trait BaseActor extends Actor with ClassSimpleNameToString with Logging {
 
 	implicit val timeout = Timeout(configuration.timeOut.actor seconds)
 

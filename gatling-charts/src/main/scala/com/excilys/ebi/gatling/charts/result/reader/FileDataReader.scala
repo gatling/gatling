@@ -61,15 +61,12 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	private def doWithInputFiles[T](f: Iterator[String] => T): T = {
 
 		val streams = inputFiles.map(new FileInputStream(_))
-		try {
-			f(multipleFileIterator(streams))
-		} finally {
-			streams.foreach(_.close)
-		}
+		try f(multipleFileIterator(streams))
+		finally streams.foreach(_.close)
 	}
 
 	private def preProcess(records: Iterator[String]) = {
-		val (actions, runs) = records.map(FileDataReader.TABULATION_PATTERN.split(_)).filter(array => array.head == ACTION || array.head == RUN).partition(_.head == ACTION)
+		val (actions, runs) = records.map(FileDataReader.TABULATION_PATTERN.split).filter(array => array.head == ACTION || array.head == RUN).partition(_.head == ACTION)
 
 		val (runStart, runEnd, totalRequestsNumber) = actions
 			.filter(_.length >= FileDataReader.ACTION_RECORD_LENGTH)
