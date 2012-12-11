@@ -42,7 +42,7 @@ class Runner(selection: Selection) extends Logging {
 			val simulation = simulationClass.newInstance
 			val scenarios = simulation.scenarios
 
-			require(!scenarios.isEmpty, simulationClass.getName + " returned an empty scenario list")
+			require(!scenarios.isEmpty, simulationClass.getName + " returned an empty scenario list. Did you forget to migrate your Simulations?")
 
 			val totalNumberOfUsers = scenarios.map(_.configuration.users).sum
 			info("Total number of users : " + totalNumberOfUsers)
