@@ -54,24 +54,21 @@ class WhileAction(condition: Expression[Boolean], val next: ActorRef, val counte
 
 		val sessionWithTimerIncremented = increment(init(session))
 
-		val evaluatedCondition = try {
-			condition(sessionWithTimerIncremented)
-		} catch {
-			case e: Exception =>
-				error("Condition evaluation crashed", e)
-				"Condition evaluation crashed, exiting loop".failure
-		}
+		// as WhileAction is not supervised, there's no one to restore its state (loopNextAction) on crash, so we try to avoid it
+		val evaluatedCondition =
+			try condition(sessionWithTimerIncremented)
+			catch {
+				case e: Exception =>
+					error("Loop condition evaluation crashed", e)
+					("Loop condition evaluation crashed: " + e.getMessage).failure
+			}
 
 		evaluatedCondition match {
-			case Success(evaluatedCondition) =>
-				if (evaluatedCondition)
-					loopNextAction ! sessionWithTimerIncremented
-				else
-					next ! expire(session)
+			case Success(true) => loopNextAction ! sessionWithTimerIncremented
+			case Success(false) => next ! expire(session)
 			case Failure(message) =>
 				error("Error, exiting loop " + message)
 				next ! expire(session)
 		}
-
 	}
 }
