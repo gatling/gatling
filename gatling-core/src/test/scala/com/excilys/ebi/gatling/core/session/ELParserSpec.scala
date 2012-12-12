@@ -19,37 +19,45 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import scalaz._
-import Scalaz._
+import scalaz.{ Failure, Success }
 
 @RunWith(classOf[JUnitRunner])
 class ELParserSpec extends Specification {
 
-	"Expression" should {
+	"One monovalued Expression" should {
 
-		"return expected result with 1 monovalued expression that is the whole string" in {
+		"return expected result when the variable is the whole string" in {
 			val session = new Session("scenario", 1, Map("bar" -> "BAR"))
 			val expression = Expression[String]("${bar}")
 			expression(session) must beEqualTo(Success("BAR"))
 		}
 
-		"return expected result with 1 monovalued expression at the end of the string" in {
+		"return expected result when the variable is at the end of the string" in {
 			val session = new Session("scenario", 1, Map("bar" -> "BAR"))
 			val expression = Expression[String]("foo${bar}")
 			expression(session) must beEqualTo(Success("fooBAR"))
 		}
 
-		"return expected result with 1 monovalued expression at the beginning of the string" in {
+		"return expected result when the variable is at the beginning of the string" in {
 			val session = new Session("scenario", 1, Map("bar" -> "BAR"))
 			val expression = Expression[String]("${bar}baz")
 			expression(session) must beEqualTo(Success("BARbaz"))
 		}
 
-		"return expected result with 1 monovalued expression in the middle of the string" in {
+		"return expected result when the variable is in the middle of the string" in {
 			val session = new Session("scenario", 1, Map("bar" -> "BAR"))
 			val expression = Expression[String]("foo${bar}baz")
 			expression(session) must beEqualTo(Success("fooBARbaz"))
 		}
+
+		"handle gracefully when an attribute is missing" in {
+			val session = new Session("scenario", 1, Map("foo" -> "FOO"))
+			val expression = Expression[String]("foo${bar}")
+			expression(session) must beEqualTo(Failure(undefinedSessionAttributeMessage("bar")))
+		}
+	}
+
+	"Multivalued Expression" should {
 
 		"return expected result with 2 monovalued expressions" in {
 			val session = new Session("scenario", 1, Map("foo" -> "FOO", "bar" -> "BAR"))
@@ -57,47 +65,46 @@ class ELParserSpec extends Specification {
 			expression(session) must beEqualTo(Success("FOO BAR"))
 		}
 
-		"handle gracefully monovalued expression with missing attribute" in {
-			val session = new Session("scenario", 1, Map.empty)
-			val expression = Expression[String]("foo${bar}")
-			expression(session) must beEqualTo(Failure(undefinedSessionAttributeMessage("bar")))
-		}
-
-		"return expected result with multivalued expression with static index" in {
+		"return expected result when used with a static index" in {
 			val session = new Session("scenario", 1, Map("bar" -> List("BAR1", "BAR2")))
 			val expression = Expression[String]("foo${bar(1)}")
 			expression(session) must beEqualTo(Success("fooBAR2"))
 		}
+	}
 
-		"return expected result with multivalued expression with resolved index" in {
+	"'index' function in Expression" should {
+		"return expected result when used with resolved index" in {
 			val session = new Session("scenario", 1, Map("bar" -> List("BAR1", "BAR2"), "baz" -> 1))
 			val expression = Expression[String]("{foo${bar(baz)}}")
 			expression(session) must beEqualTo(Success("{fooBAR2}"))
 		}
 
-		"handle gracefully multivalued expression with static index and missing attribute" in {
+		"handle gracefully when used with static index and missing attribute" in {
 			val session = new Session("scenario", 1, Map.empty)
 			val expression = Expression[String]("foo${bar(1)}")
 			expression(session) must beEqualTo(Failure(undefinedSessionAttributeMessage("bar")))
 		}
 
-		"handle gracefully multivalued expression with static index and empty attribute" in {
+		"handle gracefully when used with static index and empty attribute" in {
 			val session = new Session("scenario", 1, Map("bar" -> Nil))
 			val expression = Expression[String]("foo${bar(1)}")
 			expression(session) must beEqualTo(Failure(undefinedSeqIndexMessage("bar", 1)))
 		}
 
-		"handle gracefully multivalued expression with static index and missing index" in {
+		"handle gracefully when used with static index and missing index" in {
 			val session = new Session("scenario", 1, Map("bar" -> List("BAR1")))
 			val expression = Expression[String]("foo${bar(1)}")
 			expression(session) must beEqualTo(Failure(undefinedSeqIndexMessage("bar", 1)))
 		}
 
-		"handle gracefully multivalued expression with missing resolved index attribute" in {
+		"handle gracefully when used with missing resolved index attribute" in {
 			val session = new Session("scenario", 1, Map("bar" -> List("BAR1", "BAR2")))
 			val expression = Expression[String]("{foo${bar(baz)}}")
 			expression(session) must beEqualTo(Failure(undefinedSessionAttributeMessage("baz")))
 		}
+	}
+
+	"'size' function in Expression" should {
 
 		"return correct size for non empty seq" in {
 			val session = new Session("scenario", 1, Map("bar" -> List("BAR1", "BAR2")))
@@ -115,6 +122,19 @@ class ELParserSpec extends Specification {
 			val session = new Session("scenario", 1, Map())
 			val expression = Expression[Int]("${bar.size}")
 			expression(session) must beEqualTo(Failure(undefinedSessionAttributeMessage("bar")))
+		}
+	}
+
+	"Malformed Expression" should {
+
+		"be handled correctly when an attribute name is missing" in {
+			val el = "foo${}bar"
+			Expression[String](el) must throwA[ELMissingAttributeName]
+		}
+
+		"be handled correctly when there is a nested attribute definition" in {
+			val el = "${foo${bar}}"
+			Expression[String](el) must throwA[ELNestedAttributeDefinition]
 		}
 	}
 }
