@@ -25,6 +25,6 @@ package object session {
 	val NOOP_EXPRESSION = (s: Session) => "".success
 
 	type Expression[T] = Session => Validation[String, T]
-	def undefinedSeqIndexMessage(name: String, index: Int) = "Seq named " + name + " is undefined for index " + index
-	def undefinedSessionAttributeMessage(name: String) = "No attribute named " + name + " is defined"
+	def undefinedSeqIndexMessage(name: String, index: Int) = "Seq named '" + name + "' is undefined for index " + index
+	def undefinedSessionAttributeMessage(name: String) = "No attribute named '" + name + "' is defined"
 }
