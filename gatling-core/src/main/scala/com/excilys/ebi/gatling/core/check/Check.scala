@@ -60,6 +60,6 @@ class Check[R, XC](val expression: Expression[XC], matcher: Matcher[R, XC], save
 
 	def apply(response: R)(session: Session): Validation[String, Session] = {
 		val validation = expression(session).flatMap(matcher(response, session, _))
-		validation.map { value => saveAs.map(session.setAttribute(_, value)).getOrElse(session) }
+		validation.map { value => saveAs.map(session.set(_, value)).getOrElse(session) }
 	}
 }

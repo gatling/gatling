@@ -27,8 +27,7 @@ object RefererHandling {
 
 	val REFERER_CONTEXT_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "http.referer"
 
-	def getStoredReferer(session: Session): Option[String] = session.getAs[String](REFERER_CONTEXT_KEY).toOption
-
+	def getStoredReferer(session: Session): Option[String] = session.getAs[String](REFERER_CONTEXT_KEY)
 
 	def addStoredRefererHeader(headers: Map[String, String], session: Session, protocolConfiguration: HttpProtocolConfiguration): Map[String, String] = getStoredReferer(session) match {
 		case Some(referer) if (protocolConfiguration.automaticRefererEnabled && !headers.contains(Headers.Names.REFERER)) => headers + (Headers.Names.REFERER -> referer)
@@ -39,6 +38,6 @@ object RefererHandling {
 
 		def isRealPage(request: Request): Boolean = !request.getHeaders.containsKey(Headers.Names.X_REQUESTED_WITH) && Option(request.getHeaders.get(Headers.Names.ACCEPT)).map(_.head.contains("html")).isDefined
 
-		if (protocolConfiguration.automaticRefererEnabled && isRealPage(request)) session.setAttribute(REFERER_CONTEXT_KEY, request.getUrl) else session
+		if (protocolConfiguration.automaticRefererEnabled && isRealPage(request)) session.set(REFERER_CONTEXT_KEY, request.getUrl) else session
 	}
 }

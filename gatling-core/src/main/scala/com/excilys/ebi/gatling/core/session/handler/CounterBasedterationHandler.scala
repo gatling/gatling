@@ -28,15 +28,15 @@ import scalaz._
 trait CounterBasedIterationHandler extends IterationHandler with Logging {
 
 	override def init(session: Session) =
-		if (session.isAttributeDefined(counterName))
+		if (session.contains(counterName))
 			super.init(session)
 		else
-			super.init(session).setAttribute(counterName, -1)
+			super.init(session).set(counterName, -1)
 
-	override def increment(session: Session) = session.getAs[Int](counterName) match {
-		case Success(currentValue) => super.increment(session).setAttribute(counterName, currentValue + 1)
+	override def increment(session: Session) = session.safeGetAs[Int](counterName) match {
+		case Success(currentValue) => super.increment(session).set(counterName, currentValue + 1)
 		case Failure(message) => error("Could not retrieve loop counter: " + message); throw new IllegalAccessError("You must call startCounter before this method is called")
 	}
 
-	override def expire(session: Session) = super.expire(session).removeAttribute(counterName)
+	override def expire(session: Session) = super.expire(session).remove(counterName)
 }

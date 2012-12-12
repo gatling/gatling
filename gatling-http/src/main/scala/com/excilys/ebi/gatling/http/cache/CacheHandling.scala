@@ -63,7 +63,7 @@ object CacheHandling extends Logging {
 
 			} else {
 				info("Caching url " + url)
-				session.setAttribute(COOKIES_CONTEXT_KEY, cache + url)
+				session.set(COOKIES_CONTEXT_KEY, cache + url)
 			}
 
 		} else

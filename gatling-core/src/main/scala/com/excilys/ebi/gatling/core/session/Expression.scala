@@ -29,23 +29,23 @@ case class StaticPart(string: String) extends Part[String] {
 }
 
 case class AttributePart(name: String) extends Part[Any] {
-	def resolve(session: Session): Validation[String, Any] = session.get(name)
+	def resolve(session: Session): Validation[String, Any] = session.safeGetAs[Any](name)
 }
 
 case class SeqSizePart(name: String) extends Part[Int] {
-	def resolve(session: Session): Validation[String, Int] = session.getAs[Seq[_]](name).map(_.size)
+	def resolve(session: Session): Validation[String, Int] = session.safeGetAs[Seq[_]](name).map(_.size)
 }
 
 case class SeqElementPart(name: String, index: String) extends Part[Any] {
 	def resolve(session: Session): Validation[String, Any] = {
 
-		def seqElementPart(index: Int): Validation[String, Any] = session.getAs[Seq[_]](name).flatMap(_.lift(index).toSuccess(undefinedSeqIndexMessage(name, index)))
+		def seqElementPart(index: Int): Validation[String, Any] = session.safeGetAs[Seq[_]](name).flatMap(_.lift(index).toSuccess(undefinedSeqIndexMessage(name, index)))
 
 		try {
 			val intIndex = index.toInt
 			seqElementPart(intIndex)
 		} catch {
-			case e: NumberFormatException => session.getAs[Int](index).flatMap(seqElementPart(_))
+			case e: NumberFormatException => session.safeGetAs[Int](index).flatMap(seqElementPart(_))
 		}
 	}
 }
