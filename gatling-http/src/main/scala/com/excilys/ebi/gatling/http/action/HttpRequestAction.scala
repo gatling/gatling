@@ -60,14 +60,8 @@ class HttpRequestAction(requestName: Expression[String], val next: ActorRef, req
 
 	def execute(session: Session) {
 
-		def resolveRequestName = try {
-			requestName(session)
-		} catch {
-			case e: Exception => "Request name resolution crashed".failure
-		}
-
 		val execution = for {
-			resolvedRequestName <- resolveRequestName
+			resolvedRequestName <- requestName(session)
 			request <- requestBuilder.build(session, protocolConfiguration)
 		} yield (resolvedRequestName, request)
 
