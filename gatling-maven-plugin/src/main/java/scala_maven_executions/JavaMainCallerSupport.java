@@ -27,7 +27,10 @@ public abstract class JavaMainCallerSupport implements JavaMainCaller {
 			env.add(key + "=" + System.getenv(key));
 		}
 		this.mainClassName = mainClassName1;
-		addJvmArgs("-classpath", classpath);
+		if(!classpath.equals(""))
+		{
+			addJvmArgs("-classpath", classpath);
+		}
 		addJvmArgs(jvmArgs1);
 		addArgs(args1);
 	}

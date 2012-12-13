@@ -232,7 +232,7 @@ public class GatlingMojo extends AbstractMojo {
 		// Setup classpath
 		List<String> testClasspathElements = (List<String>) mavenProject.getTestClasspathElements();
 		testClasspathElements.add(configDir.getPath());
-		String testClasspath = MainHelper.toMultiPath((List<String>) mavenProject.getTestClasspathElements());
+		String testClasspath = MainHelper.toMultiPath(testClasspathElements);
 		// Setup toolchain
 		Toolchain toolchain = toolchainManager.getToolchainFromBuildContext("jdk",session);
 		JavaMainCaller caller;
@@ -241,7 +241,7 @@ public class GatlingMojo extends AbstractMojo {
 		} else {
 			caller = new JavaMainCallerInProcess(this,GALTING_MAIN_CLASS,testClasspath,null,gatlingArgs);
 		}
-		caller.run(true,true);
+		caller.run(false);
 	}
 
 	protected List<String> jvmArgs() {
