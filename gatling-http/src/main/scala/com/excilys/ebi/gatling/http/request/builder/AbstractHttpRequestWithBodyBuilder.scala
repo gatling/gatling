@@ -87,9 +87,8 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 * @param tplPath the path to the template relative to GATLING_TEMPLATES_FOLDER
 	 * @param values the values that should be merged into the template
 	 */
-	def fileBody(tplPath: String, values: Map[String, String]): B = {
-		val evaluatableValues = values.map { entry => entry._1 -> parseEL(entry._2) }
-		newInstance(httpAttributes, Some(TemplateBody(tplPath, evaluatableValues)))
+	def fileBody(tplPath: String, values: Map[String, EvaluatableString]): B = {
+		newInstance(httpAttributes, Some(TemplateBody(tplPath, values)))
 	}
 
 	/**
