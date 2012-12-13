@@ -33,7 +33,7 @@ public class JavaMainCallerInProcess extends JavaMainCallerSupport {
 				requester.getLog().error(e);
 			}
 		}
-		_cl = new URLClassLoader(urls.toArray(new URL[urls.size()]), (ClassLoader) null);
+		_cl = new URLClassLoader(urls.toArray(new URL[urls.size()]),Thread.currentThread().getContextClassLoader());
 	}
 
 
