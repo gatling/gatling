@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.ant;
+package com.excilys.ebi.gatling.mojo;
 
 public class GatlingSimulationChecksFailedException extends RuntimeException {
 	public GatlingSimulationChecksFailedException(Throwable t) {

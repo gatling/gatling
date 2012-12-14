@@ -46,7 +46,15 @@ object Gatling extends Logging {
 	 * @param args Arguments of the main method
 	 */
 	def main(args: Array[String]) {
+		sys.exit(runGatling(args))
+	}
 
+	def fromMap(props: JMap[String, Any]) = {
+		GatlingConfiguration.setUp(props)
+		new Gatling().start
+	}
+
+	def runGatling(args: Array[String]) = {
 		val props = new GatlingPropertiesBuilder
 
 		val cliOptsParser = new OptionParser("gatling") {
@@ -62,17 +70,10 @@ object Gatling extends Logging {
 		}
 
 		// if arguments are incorrect, usage message is displayed
-		val returnCode =
-			if (cliOptsParser.parse(args)) fromMap(props.build)
-			else INCORRECT_ARGUMENTS
-
-		sys.exit(returnCode)
+		if (cliOptsParser.parse(args)) fromMap(props.build)
+		else INCORRECT_ARGUMENTS
 	}
 
-	def fromMap(props: JMap[String, Any]) = {
-		GatlingConfiguration.setUp(props)
-		new Gatling().start
-	}
 }
 
 class Gatling extends Logging {
