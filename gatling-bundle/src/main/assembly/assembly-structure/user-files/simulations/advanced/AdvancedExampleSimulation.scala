@@ -10,7 +10,7 @@ class AdvancedExampleSimulation extends Simulation {
 
 	val httpConf = httpConfig.baseURL("http://excilys-bank-web.cloudfoundry.com").disableFollowRedirect
 
-	run(
-		SomeScenario.scn.configure.users(10).ramp(10).protocolConfig(httpConf),
-		SomeOtherScenario.otherScn.configure.users(5).ramp(20).delay(30).protocolConfig(httpConf))
+	setUp(
+		SomeScenario.scn.users(10).ramp(10).protocolConfig(httpConf),
+		SomeOtherScenario.otherScn.users(5).ramp(20).delay(30).protocolConfig(httpConf))
 }
