@@ -43,12 +43,12 @@ object ZincCompiler extends Logging {
 				.headOption
 				.getOrElse(throw new RuntimeException("Can't find the jar matching " + regex))
 
-			new JFile(jarUrl.getPath)
+			new JFile(jarUrl.toURI)
 		}
 
 		val scalaCompiler = ClassPath.scalaCompiler.getOrElse(throw new RuntimeException("No Scala compiler available")).jfile
 		val scalaLibrary = ClassPath.scalaLibrary.getOrElse(throw new RuntimeException("No Scala library available")).jfile
-		val sbtInterfaceSrc: JFile = new JFile(classOf[Compilation].getProtectionDomain.getCodeSource.getLocation.getPath)
+		val sbtInterfaceSrc: JFile = new JFile(classOf[Compilation].getProtectionDomain.getCodeSource.getLocation.toURI)
 		val compilerInterfaceSrc: JFile = jarMatching("""(.*compiler-interface-\d+.\d+.\d+-sources.jar)$""")
 
 		Setup.setup(scalaCompiler = scalaCompiler,
@@ -60,7 +60,7 @@ object ZincCompiler extends Logging {
 	}
 
 	def simulationInputs(sourceDirectory: Directory, binDir: Path) = {
-		val classpath = classpathURLs.map(url => new JFile(url.getPath))
+		val classpath = classpathURLs.map(url => new JFile(url.toURI))
 
 		val sources = sourceDirectory
 			.deepFiles
