@@ -15,47 +15,50 @@
  */
 package com.excilys.ebi.gatling.mojo;
 
-import static com.excilys.ebi.gatling.ant.GatlingTask.GATLING_CLASSPATH_REF_NAME;
-import static java.util.Arrays.asList;
-import static org.codehaus.plexus.util.StringUtils.*;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.DependencyResolutionRequiredException;
+import com.excilys.ebi.gatling.app.CommandLineConstants;
+import com.excilys.ebi.gatling.app.Gatling;
+import org.apache.commons.exec.ExecuteException;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
-import org.apache.tools.ant.BuildEvent;
-import org.apache.tools.ant.BuildListener;
+import org.apache.maven.toolchain.Toolchain;
+import org.apache.maven.toolchain.ToolchainManager;
 import org.apache.tools.ant.DirectoryScanner;
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.types.Commandline;
-import org.apache.tools.ant.types.Path;
+import scala_maven_executions.JavaMainCaller;
+import scala_maven_executions.JavaMainCallerByFork;
+import scala_maven_executions.MainHelper;
 
-import com.excilys.ebi.gatling.ant.GatlingTask;
-import com.excilys.ebi.gatling.app.CommandLineConstants;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static java.util.Arrays.asList;
+import static org.codehaus.plexus.util.StringUtils.trim;
 
 /**
  * Mojo to execute Gatling.
- * 
- * @author <a href="mailto:nicolas.huray@gmail.com">Nicolas Huray</a>
+ *
  * @goal execute
  * @phase integration-test
  * @description Gatling Maven Plugin
+ * @requiresDependencyResolution test
  */
 public class GatlingMojo extends AbstractMojo {
 
 	public static final String[] DEFAULT_INCLUDES = { "**/*.scala" };
+	public static final String GALTING_MAIN_CLASS = "com.excilys.ebi.gatling.app.Gatling";
+
+	public static final String[] JVM_ARGS = new String[] {"-server","-XX:+UseThreadPriorities","-XX:ThreadPriorityPolicy=42",
+			"-Xms512M","-Xmx512M","-Xmn100M","-Xss1024k","-XX:+HeapDumpOnOutOfMemoryError","-XX:+AggressiveOpts","-XX:+OptimizeStringConcat",
+			"-XX:+UseFastAccessorMethods","-XX:+UseParNewGC","-XX:+UseConcMarkSweepGC","-XX:+CMSParallelRemarkEnabled","-XX:+CMSClassUnloadingEnabled",
+			"-XX:CMSInitiatingOccupancyFraction=75","-XX:+UseCMSInitiatingOccupancyOnly","-XX:SurvivorRatio=8","-XX:MaxTenuringThreshold=1"};
 
 	/**
 	 * Runs simulation but does not generate reports. By default false.
-	 * 
+	 *
 	 * @parameter expression="${gatling.noReports}" alias="nr"
 	 *            default-value="false"
 	 * @description Runs simulation but does not generate reports
@@ -64,7 +67,7 @@ public class GatlingMojo extends AbstractMojo {
 
 	/**
 	 * Generates the reports for the simulation in this folder.
-	 * 
+	 *
 	 * @parameter expression="${gatling.reportsOnly}" alias="ro"
 	 * @description Generates the reports for the simulation in this folder
 	 */
@@ -72,16 +75,16 @@ public class GatlingMojo extends AbstractMojo {
 
 	/**
 	 * Uses this file as the configuration file.
-	 * 
+	 *
 	 * @parameter expression="${gatling.configDir}" alias="cd"
-	 *            default-value="${basedir}/src/main/resources"
+	 *            default-value="${basedir}/src/test/resources"
 	 * @description Uses this file as the configuration directory
 	 */
 	protected File configDir;
 
 	/**
 	 * Uses this folder to discover simulations that could be run
-	 * 
+	 *
 	 * @parameter expression="${gatling.simulationsFolder}" alias="sf"
 	 *            default-value="${basedir}/src/test/scala"
 	 * @description Uses this folder to discover simulations that could be run
@@ -91,7 +94,7 @@ public class GatlingMojo extends AbstractMojo {
 	/**
 	 * Sets the list of include patterns to use in directory scan for
 	 * simulations. Relative to simulationsFolder.
-	 * 
+	 *
 	 * @parameter
 	 * @description Include patterns to use in directory scan for simulations
 	 */
@@ -100,7 +103,7 @@ public class GatlingMojo extends AbstractMojo {
 	/**
 	 * Sets the list of exclude patterns to use in directory scan for
 	 * simulations. Relative to simulationsFolder.
-	 * 
+	 *
 	 * @parameter
 	 * @description Exclude patterns to use in directory scan for simulations
 	 */
@@ -109,7 +112,7 @@ public class GatlingMojo extends AbstractMojo {
 	/**
 	 * A name of a Simulation class to run. This takes precedence over the
 	 * includes / excludes parameters.
-	 * 
+	 *
 	 * @parameter expression="${gatling.simulation}" alias="s"
 	 * @description The name of the Simulation class to run
 	 */
@@ -117,7 +120,7 @@ public class GatlingMojo extends AbstractMojo {
 
 	/**
 	 * Uses this folder as the folder where feeders are stored
-	 * 
+	 *
 	 * @parameter expression="${gatling.dataFolder}" alias="df"
 	 *            default-value="${basedir}/src/test/resources/data"
 	 * @description Uses this folder as the folder where feeders are stored
@@ -126,7 +129,7 @@ public class GatlingMojo extends AbstractMojo {
 
 	/**
 	 * Uses this folder as the folder where request bodies are stored
-	 * 
+	 *
 	 * @parameter expression="${gatling.requestBodiesFolder}" alias="bf"
 	 *            default-value="${basedir}/src/test/resources/request-bodies"
 	 * @description Uses this folder as the folder where request bodies are
@@ -136,7 +139,7 @@ public class GatlingMojo extends AbstractMojo {
 
 	/**
 	 * Uses this folder as the folder where results are stored
-	 * 
+	 *
 	 * @parameter expression="${gatling.resultsFolder}" alias="rf"
 	 *            default-value="${basedir}/target/gatling/results"
 	 * @description Uses this folder as the folder where results are stored
@@ -145,32 +148,40 @@ public class GatlingMojo extends AbstractMojo {
 
 	/**
 	 * Extra JVM arguments to pass when running Gatling.
-	 * 
+	 *
 	 * @parameter
 	 */
 	protected List<String> jvmArgs;
+
+	/**
+	 * Forks the execution of Gatling plugin into a separate JVM.
+	 *
+	 * @parameter expression="${gatling.fork}" default-value="true"
+	 * @description Forks the execution of Gatling plugin into a separate JVM
+	 */
+	protected boolean fork;
 
 	/**
 	 * Will cause the project build to look successful, rather than fail, even
 	 * if there are Gatling test failures. This can be useful on a continuous
 	 * integration server, if your only option to be able to collect output
 	 * files, is if the project builds successfully.
-	 * 
-	 * @parameter expression="${gatling.failOnError}" alias="failOnError"
+	 *
+	 * @parameter expression="${gatling.failOnError}" default-value="true"
 	 */
-	protected boolean failOnError = true;
+	protected boolean failOnError;
 
 	/**
 	 * Force the name of the directory generated for the results of the run
-	 * 
-	 * @parameter expression="${gatling.ouputName}" alias="on"
+	 *
+	 * @parameter expression="${gatling.outputName}" alias="on"
 	 * @description Uses this as the base name of the results folder
 	 */
 	protected String outputDirectoryBaseName;
 
 	/**
 	 * The Maven Project
-	 * 
+	 *
 	 * @parameter expression="${project}"
 	 * @required
 	 * @readonly
@@ -178,24 +189,32 @@ public class GatlingMojo extends AbstractMojo {
 	protected MavenProject mavenProject;
 
 	/**
-	 * The plugin dependencies.
-	 * 
-	 * @parameter expression="${plugin.artifacts}"
+	 * The Maven Session Object
+	 *
+	 * @parameter expression="${session}"
 	 * @required
 	 * @readonly
 	 */
-	protected List<Artifact> pluginArtifacts;
+	protected MavenSession session;
+
+	/**
+	 * The toolchain manager to use.
+	 *
+	 * @component
+	 * @required
+	 * @readonly
+	 */
+	protected ToolchainManager toolchainManager;
 
 	/**
 	 * Executes Gatling simulations.
 	 */
+	@Override
 	public void execute() throws MojoExecutionException {
 		// Prepare environment
 		prepareEnvironment();
-
-		GatlingTask gatling = gatling(gatlingArgs(), jvmArgs());
 		try {
-			gatling.execute();
+			executeGatling(jvmArgs().toArray(new String[0]),gatlingArgs().toArray(new String[0]));
 		} catch (Exception e) {
 			if (failOnError) {
 				throw new MojoExecutionException("Gatling failed.", e);
@@ -208,31 +227,40 @@ public class GatlingMojo extends AbstractMojo {
 		resultsFolder.mkdirs();
 	}
 
-	protected GatlingTask gatling(List<String> args, List<String> jvmArgs) throws MojoExecutionException {
-		GatlingTask gatling = new GatlingTask();
-		gatling.setProject(getProject());
+	protected void executeGatling(String[] jvmArgs,String[] gatlingArgs) throws Exception {
+		// Setup classpath
+		List<String> testClasspathElements = (List<String>) mavenProject.getTestClasspathElements();
+		testClasspathElements.add(configDir.getPath());
+		// Find plugin jar and add it to classpath
+		testClasspathElements.add(GatlingMojo.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+		String testClasspath = MainHelper.toMultiPath(testClasspathElements);
+		// Setup toolchain
+		Toolchain toolchain = toolchainManager.getToolchainFromBuildContext("jdk",session);
+		if(fork) {
+			JavaMainCallerByFork caller = new JavaMainCallerByFork(this,GALTING_MAIN_CLASS,testClasspath,jvmArgs,gatlingArgs,false,toolchain);
+			try {
+				caller.run(false);
+			} catch (ExecuteException e) {
+				Exception exception = null;
+				if (e.getExitValue() == Gatling.SIMULATION_CHECK_FAILED())
+					exception = new GatlingSimulationChecksFailedException(e);
 
-		// Set Gatling Arguments
-		for (String arg : args) {
-			if (arg != null) {
-				Commandline.Argument argument = gatling.createArg();
-				argument.setValue(arg);
+				getLog().info(exception.getMessage(), exception);
+				throw exception;
+			}
+		} else {
+			JavaMainCallerInProcess caller = new JavaMainCallerInProcess(this,GALTING_MAIN_CLASS,testClasspath,null,gatlingArgs);
+			int returnCode = caller.run();
+			if(returnCode == Gatling.SIMULATION_CHECK_FAILED()) {
+				throw new GatlingSimulationChecksFailedException(null);
 			}
 		}
-
-		// Set JVM Arguments
-		for (String jvmArg : jvmArgs) {
-			if (jvmArg != null) {
-				Commandline.Argument argument = gatling.createJvmarg();
-				argument.setValue(jvmArg);
-			}
-		}
-
-		return gatling;
 	}
 
 	protected List<String> jvmArgs() {
-		return (jvmArgs != null) ? jvmArgs : Collections.<String> emptyList();
+		List<String> jvmArguments = (jvmArgs != null) ? jvmArgs : new ArrayList<String>();
+		jvmArguments.addAll(Arrays.asList(JVM_ARGS));
+		return jvmArguments;
 	}
 
 	protected List<String> gatlingArgs() throws MojoExecutionException {
@@ -292,7 +320,7 @@ public class GatlingMojo extends AbstractMojo {
 	/**
 	 * Resolve simulation files to execute from the simulation folder and
 	 * includes/excludes.
-	 * 
+	 *
 	 * @return a comma separated String of simulation class names.
 	 */
 	protected List<String> resolveSimulations(File simulationsFolder, List<String> includes, List<String> excludes) {
@@ -326,106 +354,5 @@ public class GatlingMojo extends AbstractMojo {
 
 		getLog().debug("resolved simulation classes: " + includedClassNames);
 		return includedClassNames;
-	}
-
-	protected Project getProject() throws MojoExecutionException {
-		Project project = new Project();
-		project.setBaseDir(mavenProject.getBasedir());
-		project.addBuildListener(new LogAdapter());
-		try {
-			Path classpath = new Path(project);
-			append(classpath, pluginArtifacts); // Add jars
-			classpath.setPath(configDir.getPath()); // Set dirname of config
-													// file into the classpath
-			getLog().debug("Gatling classpath : " + classpath);
-			project.addReference(GATLING_CLASSPATH_REF_NAME, classpath);
-			return project;
-		} catch (DependencyResolutionRequiredException e) {
-			throw new MojoExecutionException("Error resolving dependencies", e);
-		}
-	}
-
-	protected void append(Path classPath, List<?> artifacts) throws DependencyResolutionRequiredException {
-		List<String> list = new ArrayList<String>();
-
-		for (Object artifact : artifacts) {
-			String path;
-			if (artifact instanceof Artifact) {
-				Artifact a = (Artifact) artifact;
-				File file = a.getFile();
-				if (file == null) {
-					throw new DependencyResolutionRequiredException(a);
-				}
-				path = file.getPath();
-			} else {
-				path = artifact.toString();
-			}
-			list.add(path);
-		}
-
-		Path p = new Path(classPath.getProject());
-		p.setPath(join(list.iterator(), File.pathSeparator));
-		classPath.append(p);
-	}
-
-	public class LogAdapter implements BuildListener {
-		public void buildStarted(BuildEvent event) {
-			log(event);
-		}
-
-		public void buildFinished(BuildEvent event) {
-			log(event);
-		}
-
-		public void targetStarted(BuildEvent event) {
-			log(event);
-		}
-
-		public void targetFinished(BuildEvent event) {
-			log(event);
-		}
-
-		public void taskStarted(BuildEvent event) {
-			log(event);
-		}
-
-		public void taskFinished(BuildEvent event) {
-			log(event);
-		}
-
-		public void messageLogged(BuildEvent event) {
-			log(event);
-		}
-
-		private void log(BuildEvent event) {
-			int priority = event.getPriority();
-			Log log = getLog();
-			String message = event.getMessage();
-			switch (priority) {
-			case Project.MSG_ERR:
-				log.error(message);
-				break;
-
-			case Project.MSG_WARN:
-				log.warn(message);
-				break;
-
-			case Project.MSG_INFO:
-				log.info(message);
-				break;
-
-			case Project.MSG_VERBOSE:
-				log.debug(message);
-				break;
-
-			case Project.MSG_DEBUG:
-				log.debug(message);
-				break;
-
-			default:
-				log.info(message);
-				break;
-			}
-		}
 	}
 }
