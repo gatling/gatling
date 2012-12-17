@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.jdbc.Predef._
 import akka.util.duration._
 import com.excilys.ebi.gatling.http.Headers.Names._
 import bootstrap._
-import assertion._
+import assertions._
 
 object CompileTest extends Simulation {
 
