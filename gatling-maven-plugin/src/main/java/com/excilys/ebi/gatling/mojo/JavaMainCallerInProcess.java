@@ -15,11 +15,6 @@
  */
 package com.excilys.ebi.gatling.mojo;
 
-import org.apache.maven.plugin.AbstractMojo;
-import org.codehaus.plexus.util.StringUtils;
-import scala_maven_executions.JavaMainCallerSupport;
-import scala_maven_executions.SpawnMonitor;
-
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -27,6 +22,11 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.maven.plugin.AbstractMojo;
+import org.codehaus.plexus.util.StringUtils;
+import scala_maven_executions.JavaMainCallerSupport;
+import scala_maven_executions.SpawnMonitor;
 
 /**
  * This class will call a java main method via reflection.
@@ -61,25 +61,14 @@ public class JavaMainCallerInProcess extends JavaMainCallerSupport {
 
 
 	@Override
-	public void addJvmArgs(String... args) {
-		//TODO - Ignore classpath
-		if (args != null) {
-			for (String arg : args) {
-				requester.getLog().warn("jvmArgs are ignored when run in process :" + arg);
-			}
-		}
-	}
+	// In process, ignore jvm args
+	public void addJvmArgs(String... args) {}
 
+
+	@Override
+	// Not used, @see #run()
 	public boolean run(boolean displayCmd, boolean throwFailure) throws Exception {
-		try {
-			runInternal(displayCmd);
-			return true;
-		} catch (Exception e) {
-			if (throwFailure) {
-				throw e;
-			}
-			return false;
-		}
+		return false;
 	}
 
 	public int run() throws Exception {
@@ -132,8 +121,6 @@ public class JavaMainCallerInProcess extends JavaMainCallerSupport {
 		Class<?> mainClass = cl.loadClass(mainClassName);
 		Method runGatlingMethod = mainClass.getMethod("runGatling", String[].class);
 		String[] argArray = args.toArray(new String[args.size()]);
-
-		//TODO - Redirect System.in System.err and System.out
 
 		return (Integer) runGatlingMethod.invoke(null, new Object[] {argArray});
 	}

@@ -16,6 +16,11 @@
 package com.excilys.ebi.gatling.mojo;
 
 public class GatlingSimulationChecksFailedException extends RuntimeException {
+
+	public GatlingSimulationChecksFailedException() {
+		super("Gatling simulation checks failed !");
+	}
+
 	public GatlingSimulationChecksFailedException(Throwable t) {
 		super("Gatling simulation checks failed !", t);
 	}

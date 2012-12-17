@@ -15,6 +15,11 @@
  */
 package com.excilys.ebi.gatling.mojo;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import com.excilys.ebi.gatling.app.CommandLineConstants;
 import com.excilys.ebi.gatling.app.Gatling;
 import org.apache.commons.exec.ExecuteException;
@@ -26,15 +31,9 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.apache.tools.ant.DirectoryScanner;
-import scala_maven_executions.JavaMainCaller;
 import scala_maven_executions.JavaMainCallerByFork;
 import scala_maven_executions.MainHelper;
 import scala_maven_executions.MainWithArgsInFile;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.codehaus.plexus.util.StringUtils.trim;
@@ -50,7 +49,7 @@ import static org.codehaus.plexus.util.StringUtils.trim;
 public class GatlingMojo extends AbstractMojo {
 
 	public static final String[] DEFAULT_INCLUDES = { "**/*.scala" };
-	public static final String GALTING_MAIN_CLASS = "com.excilys.ebi.gatling.app.Gatling";
+	public static final String GATLING_MAIN_CLASS = "com.excilys.ebi.gatling.app.Gatling";
 
 	public static final String[] JVM_ARGS = new String[] {"-server","-XX:+UseThreadPriorities","-XX:ThreadPriorityPolicy=42",
 			"-Xms512M","-Xmx512M","-Xmn100M","-Xss1024k","-XX:+HeapDumpOnOutOfMemoryError","-XX:+AggressiveOpts","-XX:+OptimizeStringConcat",
@@ -230,34 +229,38 @@ public class GatlingMojo extends AbstractMojo {
 
 	protected void executeGatling(String[] jvmArgs,String[] gatlingArgs) throws Exception {
 		// Setup classpath
-		List<String> testClasspathElements = (List<String>) mavenProject.getTestClasspathElements();
-		testClasspathElements.add(configDir.getPath());
-		// Find plugin jar and add it to classpath
-		testClasspathElements.add(GatlingMojo.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-		// Jenkins seems to need scala-maven-plugin in the test classpath in order to work
-		testClasspathElements.add(MainWithArgsInFile.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-		String testClasspath = MainHelper.toMultiPath(testClasspathElements);
+		String testClasspath = buildTestClasspath();
 		// Setup toolchain
 		Toolchain toolchain = toolchainManager.getToolchainFromBuildContext("jdk",session);
 		if(fork) {
-			JavaMainCallerByFork caller = new JavaMainCallerByFork(this,GALTING_MAIN_CLASS,testClasspath,jvmArgs,gatlingArgs,false,toolchain);
+			JavaMainCallerByFork caller = new JavaMainCallerByFork(this, GATLING_MAIN_CLASS,testClasspath,jvmArgs,gatlingArgs,false,toolchain);
 			try {
 				caller.run(false);
 			} catch (ExecuteException e) {
 				Exception exception = null;
-				if (e.getExitValue() == Gatling.SIMULATION_CHECK_FAILED())
+				if (e.getExitValue() == Gatling.SIMULATION_CHECK_FAILED()) {
 					exception = new GatlingSimulationChecksFailedException(e);
-
+				}
 				getLog().info(exception.getMessage(), exception);
 				throw exception;
 			}
 		} else {
-			JavaMainCallerInProcess caller = new JavaMainCallerInProcess(this,GALTING_MAIN_CLASS,testClasspath,null,gatlingArgs);
+			JavaMainCallerInProcess caller = new JavaMainCallerInProcess(this, GATLING_MAIN_CLASS,testClasspath,null,gatlingArgs);
 			int returnCode = caller.run();
 			if(returnCode == Gatling.SIMULATION_CHECK_FAILED()) {
-				throw new GatlingSimulationChecksFailedException(null);
+				throw new GatlingSimulationChecksFailedException();
 			}
 		}
+	}
+
+	private String buildTestClasspath() throws Exception {
+		List<String> testClasspathElements = (List<String>) mavenProject.getTestClasspathElements();
+		testClasspathElements.add(configDir.getPath());
+		// Find plugin jar and add it to classpath
+		testClasspathElements.add(MainHelper.locateJar(GatlingMojo.class));
+		// Jenkins seems to need scala-maven-plugin in the test classpath in order to work
+		testClasspathElements.add(MainHelper.locateJar(MainWithArgsInFile.class));
+		return MainHelper.toMultiPath(testClasspathElements);
 	}
 
 	protected List<String> jvmArgs() {
