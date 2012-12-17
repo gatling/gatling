@@ -57,7 +57,7 @@ object Predef {
 	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder.scenario(scenarioName)
 	val bootstrap = ChainBuilder.emptyChain
 
-	val assertion = new AssertionBuilder()
+	val assertions = new AssertionBuilder
 
 	implicit def string2path: String => Path = Path.string2path
 }
