@@ -29,6 +29,7 @@ import org.apache.tools.ant.DirectoryScanner;
 import scala_maven_executions.JavaMainCaller;
 import scala_maven_executions.JavaMainCallerByFork;
 import scala_maven_executions.MainHelper;
+import scala_maven_executions.MainWithArgsInFile;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -233,6 +234,8 @@ public class GatlingMojo extends AbstractMojo {
 		testClasspathElements.add(configDir.getPath());
 		// Find plugin jar and add it to classpath
 		testClasspathElements.add(GatlingMojo.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+		// Jenkins seems to need scala-maven-plugin in the test classpath in order to work
+		testClasspathElements.add(MainWithArgsInFile.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 		String testClasspath = MainHelper.toMultiPath(testClasspathElements);
 		// Setup toolchain
 		Toolchain toolchain = toolchainManager.getToolchainFromBuildContext("jdk",session);
