@@ -15,11 +15,6 @@
  */
 package com.excilys.ebi.gatling.mojo;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.excilys.ebi.gatling.app.CommandLineConstants;
 import com.excilys.ebi.gatling.app.Gatling;
 import org.apache.commons.exec.ExecuteException;
@@ -35,6 +30,11 @@ import scala_maven_executions.JavaMainCallerByFork;
 import scala_maven_executions.MainHelper;
 import scala_maven_executions.MainWithArgsInFile;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import static java.util.Arrays.asList;
 import static org.codehaus.plexus.util.StringUtils.trim;
 
@@ -48,22 +48,22 @@ import static org.codehaus.plexus.util.StringUtils.trim;
  */
 public class GatlingMojo extends AbstractMojo {
 
-	public static final String[] DEFAULT_INCLUDES = { "**/*.scala" };
+	public static final String[] DEFAULT_INCLUDES = {"**/*.scala"};
 	public static final String GATLING_MAIN_CLASS = "com.excilys.ebi.gatling.app.Gatling";
 
-	public static final String[] JVM_ARGS = new String[] {"-server","-XX:+UseThreadPriorities","-XX:ThreadPriorityPolicy=42",
-			"-Xms512M","-Xmx512M","-Xmn100M","-Xss1024k","-XX:+HeapDumpOnOutOfMemoryError","-XX:+AggressiveOpts","-XX:+OptimizeStringConcat",
-			"-XX:+UseFastAccessorMethods","-XX:+UseParNewGC","-XX:+UseConcMarkSweepGC","-XX:+CMSParallelRemarkEnabled","-XX:+CMSClassUnloadingEnabled",
-			"-XX:CMSInitiatingOccupancyFraction=75","-XX:+UseCMSInitiatingOccupancyOnly","-XX:SurvivorRatio=8","-XX:MaxTenuringThreshold=1"};
+	public static final String[] JVM_ARGS = new String[]{"-server", "-XX:+UseThreadPriorities", "-XX:ThreadPriorityPolicy=42",
+			"-Xms512M", "-Xmx512M", "-Xmn100M", "-Xss1024k", "-XX:+HeapDumpOnOutOfMemoryError", "-XX:+AggressiveOpts", "-XX:+OptimizeStringConcat",
+			"-XX:+UseFastAccessorMethods", "-XX:+UseParNewGC", "-XX:+UseConcMarkSweepGC", "-XX:+CMSParallelRemarkEnabled", "-XX:+CMSClassUnloadingEnabled",
+			"-XX:CMSInitiatingOccupancyFraction=75", "-XX:+UseCMSInitiatingOccupancyOnly", "-XX:SurvivorRatio=8", "-XX:MaxTenuringThreshold=1"};
 
 	/**
 	 * Runs simulation but does not generate reports. By default false.
 	 *
 	 * @parameter expression="${gatling.noReports}" alias="nr"
-	 *            default-value="false"
+	 * default-value="false"
 	 * @description Runs simulation but does not generate reports
 	 */
-	protected boolean noReports;
+	private boolean noReports;
 
 	/**
 	 * Generates the reports for the simulation in this folder.
@@ -71,25 +71,25 @@ public class GatlingMojo extends AbstractMojo {
 	 * @parameter expression="${gatling.reportsOnly}" alias="ro"
 	 * @description Generates the reports for the simulation in this folder
 	 */
-	protected File reportsOnly;
+	private File reportsOnly;
 
 	/**
 	 * Uses this file as the configuration file.
 	 *
 	 * @parameter expression="${gatling.configDir}" alias="cd"
-	 *            default-value="${basedir}/src/test/resources"
+	 * default-value="${basedir}/src/test/resources"
 	 * @description Uses this file as the configuration directory
 	 */
-	protected File configDir;
+	private File configDir;
 
 	/**
 	 * Uses this folder to discover simulations that could be run
 	 *
 	 * @parameter expression="${gatling.simulationsFolder}" alias="sf"
-	 *            default-value="${basedir}/src/test/scala"
+	 * default-value="${basedir}/src/test/scala"
 	 * @description Uses this folder to discover simulations that could be run
 	 */
-	protected File simulationsFolder;
+	private File simulationsFolder;
 
 	/**
 	 * Sets the list of include patterns to use in directory scan for
@@ -98,7 +98,7 @@ public class GatlingMojo extends AbstractMojo {
 	 * @parameter
 	 * @description Include patterns to use in directory scan for simulations
 	 */
-	protected List<String> includes;
+	private List<String> includes;
 
 	/**
 	 * Sets the list of exclude patterns to use in directory scan for
@@ -107,7 +107,7 @@ public class GatlingMojo extends AbstractMojo {
 	 * @parameter
 	 * @description Exclude patterns to use in directory scan for simulations
 	 */
-	protected List<String> excludes;
+	private List<String> excludes;
 
 	/**
 	 * A name of a Simulation class to run. This takes precedence over the
@@ -116,42 +116,42 @@ public class GatlingMojo extends AbstractMojo {
 	 * @parameter expression="${gatling.simulation}" alias="s"
 	 * @description The name of the Simulation class to run
 	 */
-	protected String simulation;
+	private String simulation;
 
 	/**
 	 * Uses this folder as the folder where feeders are stored
 	 *
 	 * @parameter expression="${gatling.dataFolder}" alias="df"
-	 *            default-value="${basedir}/src/test/resources/data"
+	 * default-value="${basedir}/src/test/resources/data"
 	 * @description Uses this folder as the folder where feeders are stored
 	 */
-	protected File dataFolder;
+	private File dataFolder;
 
 	/**
 	 * Uses this folder as the folder where request bodies are stored
 	 *
 	 * @parameter expression="${gatling.requestBodiesFolder}" alias="bf"
-	 *            default-value="${basedir}/src/test/resources/request-bodies"
+	 * default-value="${basedir}/src/test/resources/request-bodies"
 	 * @description Uses this folder as the folder where request bodies are
-	 *              stored
+	 * stored
 	 */
-	protected File requestBodiesFolder;
+	private File requestBodiesFolder;
 
 	/**
 	 * Uses this folder as the folder where results are stored
 	 *
 	 * @parameter expression="${gatling.resultsFolder}" alias="rf"
-	 *            default-value="${basedir}/target/gatling/results"
+	 * default-value="${basedir}/target/gatling/results"
 	 * @description Uses this folder as the folder where results are stored
 	 */
-	protected File resultsFolder;
+	private File resultsFolder;
 
 	/**
 	 * Extra JVM arguments to pass when running Gatling.
 	 *
 	 * @parameter
 	 */
-	protected List<String> jvmArgs;
+	private List<String> jvmArgs;
 
 	/**
 	 * Forks the execution of Gatling plugin into a separate JVM.
@@ -159,7 +159,7 @@ public class GatlingMojo extends AbstractMojo {
 	 * @parameter expression="${gatling.fork}" default-value="true"
 	 * @description Forks the execution of Gatling plugin into a separate JVM
 	 */
-	protected boolean fork;
+	private boolean fork;
 
 	/**
 	 * Will cause the project build to look successful, rather than fail, even
@@ -169,7 +169,7 @@ public class GatlingMojo extends AbstractMojo {
 	 *
 	 * @parameter expression="${gatling.failOnError}" default-value="true"
 	 */
-	protected boolean failOnError;
+	private boolean failOnError;
 
 	/**
 	 * Force the name of the directory generated for the results of the run
@@ -177,7 +177,7 @@ public class GatlingMojo extends AbstractMojo {
 	 * @parameter expression="${gatling.outputName}" alias="on"
 	 * @description Uses this as the base name of the results folder
 	 */
-	protected String outputDirectoryBaseName;
+	private String outputDirectoryBaseName;
 
 	/**
 	 * The Maven Project
@@ -186,7 +186,7 @@ public class GatlingMojo extends AbstractMojo {
 	 * @required
 	 * @readonly
 	 */
-	protected MavenProject mavenProject;
+	private MavenProject mavenProject;
 
 	/**
 	 * The Maven Session Object
@@ -195,7 +195,7 @@ public class GatlingMojo extends AbstractMojo {
 	 * @required
 	 * @readonly
 	 */
-	protected MavenSession session;
+	private MavenSession session;
 
 	/**
 	 * The toolchain manager to use.
@@ -204,50 +204,44 @@ public class GatlingMojo extends AbstractMojo {
 	 * @required
 	 * @readonly
 	 */
-	protected ToolchainManager toolchainManager;
+	private ToolchainManager toolchainManager;
 
 	/**
 	 * Executes Gatling simulations.
 	 */
 	@Override
 	public void execute() throws MojoExecutionException {
-		// Prepare environment
-		prepareEnvironment();
+		// Create results directories
+		resultsFolder.mkdirs();
 		try {
-			executeGatling(jvmArgs().toArray(new String[0]),gatlingArgs().toArray(new String[0]));
+			executeGatling(jvmArgs().toArray(new String[0]), gatlingArgs().toArray(new String[0]));
 		} catch (Exception e) {
 			if (failOnError) {
 				throw new MojoExecutionException("Gatling failed.", e);
+			} else {
+				getLog().warn("There was some errors while running your simulation, but failOnError set to false won't fail your build.");
 			}
 		}
 	}
 
-	protected void prepareEnvironment() {
-		// Create results directories
-		resultsFolder.mkdirs();
-	}
-
-	protected void executeGatling(String[] jvmArgs,String[] gatlingArgs) throws Exception {
+	private void executeGatling(String[] jvmArgs, String[] gatlingArgs) throws Exception {
 		// Setup classpath
 		String testClasspath = buildTestClasspath();
 		// Setup toolchain
-		Toolchain toolchain = toolchainManager.getToolchainFromBuildContext("jdk",session);
-		if(fork) {
-			JavaMainCallerByFork caller = new JavaMainCallerByFork(this, GATLING_MAIN_CLASS,testClasspath,jvmArgs,gatlingArgs,false,toolchain);
+		Toolchain toolchain = toolchainManager.getToolchainFromBuildContext("jdk", session);
+		if (fork) {
+			JavaMainCallerByFork caller = new JavaMainCallerByFork(this, GATLING_MAIN_CLASS, testClasspath, jvmArgs, gatlingArgs, false, toolchain);
 			try {
 				caller.run(false);
 			} catch (ExecuteException e) {
-				Exception exception = null;
 				if (e.getExitValue() == Gatling.SIMULATION_CHECK_FAILED()) {
-					exception = new GatlingSimulationChecksFailedException(e);
+					throw new GatlingSimulationChecksFailedException(e);
 				}
-				getLog().info(exception.getMessage(), exception);
-				throw exception;
 			}
 		} else {
-			JavaMainCallerInProcess caller = new JavaMainCallerInProcess(this, GATLING_MAIN_CLASS,testClasspath,null,gatlingArgs);
+			GatlingJavaMainCallerInProcess caller = new GatlingJavaMainCallerInProcess(this, GATLING_MAIN_CLASS, testClasspath, gatlingArgs);
 			int returnCode = caller.run();
-			if(returnCode == Gatling.SIMULATION_CHECK_FAILED()) {
+			if (returnCode == Gatling.SIMULATION_CHECK_FAILED()) {
 				throw new GatlingSimulationChecksFailedException();
 			}
 		}
@@ -263,58 +257,54 @@ public class GatlingMojo extends AbstractMojo {
 		return MainHelper.toMultiPath(testClasspathElements);
 	}
 
-	protected List<String> jvmArgs() {
+	private List<String> jvmArgs() {
 		List<String> jvmArguments = (jvmArgs != null) ? jvmArgs : new ArrayList<String>();
 		jvmArguments.addAll(Arrays.asList(JVM_ARGS));
 		return jvmArguments;
 	}
 
-	protected List<String> gatlingArgs() throws MojoExecutionException {
-		try {
-			// Solves the simulations, if no simulation file is defined
-			if (simulation == null) {
-				List<String> simulations = resolveSimulations(simulationsFolder, includes, excludes);
+	private List<String> gatlingArgs() throws Exception {
+		// Solves the simulations, if no simulation file is defined
+		if (simulation == null) {
+			List<String> simulations = resolveSimulations(simulationsFolder, includes, excludes);
 
-				if (simulations.isEmpty()) {
-					getLog().error("No simulations to run");
-					throw new MojoFailureException("No simulations to run");
+			if (simulations.isEmpty()) {
+				getLog().error("No simulations to run");
+				throw new MojoFailureException("No simulations to run");
 
-				} else if (simulations.size() > 1) {
-					getLog().error("More than 1 simulation to run, need to specify one");
-					throw new MojoFailureException("More than 1 simulation to run, need to specify one");
+			} else if (simulations.size() > 1) {
+				getLog().error("More than 1 simulation to run, need to specify one");
+				throw new MojoFailureException("More than 1 simulation to run, need to specify one");
 
-				} else {
-					simulation = simulations.get(0);
-				}
+			} else {
+				simulation = simulations.get(0);
 			}
-
-			// Arguments
-			List<String> args = new ArrayList<String>();
-			args.addAll(asList("-" + CommandLineConstants.CLI_DATA_FOLDER(), dataFolder.getCanonicalPath(),//
-					"-" + CommandLineConstants.CLI_RESULTS_FOLDER(), resultsFolder.getCanonicalPath(),// ;
-					"-" + CommandLineConstants.CLI_REQUEST_BODIES_FOLDER(), requestBodiesFolder.getCanonicalPath(),//
-					"-" + CommandLineConstants.CLI_SIMULATIONS_FOLDER(), simulationsFolder.getCanonicalPath(),//
-					"-" + CommandLineConstants.CLI_SIMULATION(), simulation));
-
-			if (noReports) {
-				args.add("-" + CommandLineConstants.CLI_NO_REPORTS());
-			}
-
-			if (reportsOnly != null) {
-				args.addAll(asList("-" + CommandLineConstants.CLI_REPORTS_ONLY(), reportsOnly.getCanonicalPath()));
-			}
-
-			if (outputDirectoryBaseName != null) {
-				args.addAll(asList("-" + CommandLineConstants.CLI_OUTPUT_DIRECTORY_BASE_NAME(), outputDirectoryBaseName));
-			}
-
-			return args;
-		} catch (Exception e) {
-			throw new MojoExecutionException("Gatling failed.", e);
 		}
+
+		// Arguments
+		List<String> args = new ArrayList<String>();
+		args.addAll(asList("-" + CommandLineConstants.CLI_DATA_FOLDER(), dataFolder.getCanonicalPath(),//
+				"-" + CommandLineConstants.CLI_RESULTS_FOLDER(), resultsFolder.getCanonicalPath(),// ;
+				"-" + CommandLineConstants.CLI_REQUEST_BODIES_FOLDER(), requestBodiesFolder.getCanonicalPath(),//
+				"-" + CommandLineConstants.CLI_SIMULATIONS_FOLDER(), simulationsFolder.getCanonicalPath(),//
+				"-" + CommandLineConstants.CLI_SIMULATION(), simulation));
+
+		if (noReports) {
+			args.add("-" + CommandLineConstants.CLI_NO_REPORTS());
+		}
+
+		if (reportsOnly != null) {
+			args.addAll(asList("-" + CommandLineConstants.CLI_REPORTS_ONLY(), reportsOnly.getCanonicalPath()));
+		}
+
+		if (outputDirectoryBaseName != null) {
+			args.addAll(asList("-" + CommandLineConstants.CLI_OUTPUT_DIRECTORY_BASE_NAME(), outputDirectoryBaseName));
+		}
+
+		return args;
 	}
 
-	protected String fileNameToClassName(String fileName) {
+	public static String fileNameToClassName(String fileName) {
 		String trimmedFileName = trim(fileName);
 
 		int lastIndexOfExtensionDelim = trimmedFileName.lastIndexOf(".");
@@ -329,7 +319,7 @@ public class GatlingMojo extends AbstractMojo {
 	 *
 	 * @return a comma separated String of simulation class names.
 	 */
-	protected List<String> resolveSimulations(File simulationsFolder, List<String> includes, List<String> excludes) {
+	private List<String> resolveSimulations(File simulationsFolder, List<String> includes, List<String> excludes) {
 		DirectoryScanner scanner = new DirectoryScanner();
 
 		// Set Base Directory

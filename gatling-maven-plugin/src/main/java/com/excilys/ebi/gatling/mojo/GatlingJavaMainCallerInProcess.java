@@ -25,8 +25,7 @@ import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.codehaus.plexus.util.StringUtils;
-import scala_maven_executions.JavaMainCallerSupport;
-import scala_maven_executions.SpawnMonitor;
+import scala_maven_executions.JavaMainCallerInProcess;
 
 /**
  * This class will call a java main method via reflection.
@@ -36,26 +35,23 @@ import scala_maven_executions.SpawnMonitor;
  *         <p/>
  *         Note: a -classpath argument *must* be passed into the jvmargs.
  */
-public class JavaMainCallerInProcess extends JavaMainCallerSupport {
+public class GatlingJavaMainCallerInProcess extends JavaMainCallerInProcess {
 
 	private ClassLoader oldClassLoader = null;
 
-	public JavaMainCallerInProcess(AbstractMojo requester, String mainClassName, String classpath, String[] jvmArgs, String[] args) throws Exception {
-		super(requester, mainClassName, "", jvmArgs, args);
+	public GatlingJavaMainCallerInProcess(AbstractMojo requester,String mainClassName,String classpath, String[] args) throws Exception {
+		super(requester,mainClassName,classpath,null,args);
 
 		//Pull out classpath and create class loader
 		ArrayList<URL> urls = new ArrayList<URL>();
-
-		for (String path : classpath.split(File.pathSeparator)) {
+		for(String path : classpath.split(File.pathSeparator)) {
 			try {
 				urls.add(new File(path).toURI().toURL());
 			} catch (MalformedURLException e) {
-				//TODO - Do something useful here...
 				requester.getLog().error(e);
 			}
 		}
 
-		oldClassLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(new URLClassLoader(urls.toArray(new URL[urls.size()])));
 	}
 
@@ -80,28 +76,6 @@ public class JavaMainCallerInProcess extends JavaMainCallerSupport {
 	}
 
 	/**
-	 * spawns a thread to run the method
-	 */
-	public SpawnMonitor spawn(final boolean displayCmd) throws Exception {
-		final Thread t = new Thread() {
-			@Override
-			public void run() {
-				try {
-					runInternal(displayCmd);
-				} catch (Exception e) {
-					// Ignore
-				}
-			}
-		};
-		t.start();
-		return new SpawnMonitor() {
-			public boolean isRunning() throws Exception {
-				return t.isAlive();
-			}
-		};
-	}
-
-	/**
 	 * Runs the main method of a java class
 	 */
 	private int runInternal(boolean displayCmd) throws Exception {
@@ -109,25 +83,15 @@ public class JavaMainCallerInProcess extends JavaMainCallerSupport {
 		if (displayCmd) {
 			requester.getLog().info("cmd : " + mainClassName + "(" + StringUtils.join(argArray, ",") + ")");
 		}
-		int returnCode = runGatling(mainClassName, args, null);
-		Thread.currentThread().setContextClassLoader(oldClassLoader);
-		return returnCode;
+		return runGatling(mainClassName, args);
 	}
 
-	private int runGatling(String mainClassName, List<String> args, ClassLoader cl) throws Exception {
-		if(cl == null) {
-			cl = Thread.currentThread().getContextClassLoader();
-		}
+	private int runGatling(String mainClassName, List<String> args) throws Exception {
+		ClassLoader cl = Thread.currentThread().getContextClassLoader();
 		Class<?> mainClass = cl.loadClass(mainClassName);
 		Method runGatlingMethod = mainClass.getMethod("runGatling", String[].class);
 		String[] argArray = args.toArray(new String[args.size()]);
-
 		return (Integer) runGatlingMethod.invoke(null, new Object[] {argArray});
 	}
-
-	public void redirectToLog() {
-		requester.getLog().warn("redirection to log is not supported for 'inProcess' mode");
-	}
-
 
 }

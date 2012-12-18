@@ -23,13 +23,13 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 
+import static com.excilys.ebi.gatling.mojo.GatlingMojo.fileNameToClassName;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(value = Parameterized.class)
 public class GatlingMojoFileNameConversionTest {
 
     private static final String SEP = File.separator;
-    private final GatlingMojo gatlingMojo = new GatlingMojo();
     private String className;
     private String fileName;
 
@@ -61,7 +61,7 @@ public class GatlingMojoFileNameConversionTest {
 
     @Test
     public void test_fileNametoClassName() {
-        assertEquals(className, gatlingMojo.fileNameToClassName(fileName));
+        assertEquals(className, fileNameToClassName(fileName));
     }
 
 }
