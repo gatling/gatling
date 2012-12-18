@@ -157,7 +157,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 				if (relativeUrl.startsWith(Protocol.HTTP.getProtocol))
 					relativeUrl.success
 				else
-					protocolConfiguration.baseURL.map(_.success).getOrElse(("No protocolConfiguration.baseURL defined but provided url is relative : " + relativeUrl).failure)
+					protocolConfiguration.baseURL.map(baseUrl => (baseUrl + relativeUrl).success).getOrElse(
+						("No protocolConfiguration.baseURL defined but provided url is relative : " + relativeUrl).failure)
 			}
 
 			httpAttributes.url(session).flatMap(makeAbsolute)
