@@ -68,14 +68,14 @@ object GatlingAsyncHandlerActor {
 }
 
 class GatlingAsyncHandlerActor(
-		var session: Session,
-		checks: List[HttpCheck[_]],
-		next: ActorRef,
-		var requestName: String,
-		var request: Request,
-		protocolConfiguration: HttpProtocolConfiguration,
-		handlerFactory: HandlerFactory,
-		responseBuilderFactory: ExtendedResponseBuilderFactory) extends BaseActor {
+	var session: Session,
+	checks: List[HttpCheck[_]],
+	next: ActorRef,
+	var requestName: String,
+	var request: Request,
+	protocolConfiguration: HttpProtocolConfiguration,
+	handlerFactory: HandlerFactory,
+	responseBuilderFactory: ExtendedResponseBuilderFactory) extends BaseActor {
 
 	var responseBuilder = responseBuilderFactory(request, session)
 
@@ -126,17 +126,24 @@ class GatlingAsyncHandlerActor(
 		response: ExtendedResponse,
 		errorMessage: Option[String] = None) {
 
+		def dump = {
+			val buff = new StringBuilder
+			buff.append("request was:").append(END_OF_LINE)
+			request.dumpTo(buff)
+			buff.append("response was:").append(END_OF_LINE)
+			response.dumpTo(buff)
+			buff
+		}
+
+		debug {
+			dump
+		}
+
 		if (requestStatus == KO) {
 			warn("Request '" + requestName + "' failed : " + errorMessage.getOrElse(""))
-			debug {
-				val buff = new StringBuilder
-				buff.append("request was:").append(END_OF_LINE)
-				request.dumpTo(buff)
-				buff.append("response was:").append(END_OF_LINE)
-				response.dumpTo(buff)
-				buff.toString
-			}
+			if (!isTraceEnabled) debug(dump)
 		}
+		trace(dump)
 
 		DataWriter.logRequest(session.scenarioName, session.userId, requestName,
 			response.executionStartDate, response.requestSendingEndDate, response.responseReceivingStartDate, response.executionEndDate,
