@@ -29,7 +29,7 @@ class ExtendedRequest(request: Request) {
 
 	def dumpTo(buff: StringBuilder) {
 
-		buff.append("url=").append(request.getUrl).append(END_OF_LINE)
+		buff.append("url=").append(if (request.isUseRawUrl) request.getRawUrl else request.getUrl).append(END_OF_LINE)
 
 		if (request.getHeaders != null && !request.getHeaders.isEmpty) buff.append("headers=").append(END_OF_LINE).append(request.getHeaders).append(END_OF_LINE)
 
