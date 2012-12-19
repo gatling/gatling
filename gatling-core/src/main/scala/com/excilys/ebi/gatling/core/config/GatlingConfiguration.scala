@@ -82,7 +82,7 @@ object GatlingConfiguration extends Logging {
 				requestTimeOutInMs = config.getInt(CONF_HTTP_REQUEST_TIMEOUT_IN_MS),
 				useProxyProperties = config.getBoolean(CONF_HTTP_USE_PROXY_PROPERTIES),
 				userAgent = config.getString(CONF_HTTP_USER_AGENT),
-				userRawUrl = config.getBoolean(CONF_HTTP_USE_RAW_URL),
+				useRawUrl = config.getBoolean(CONF_HTTP_USE_RAW_URL),
 				nonStandardJsonSupport = config.getStringList(CONF_HTTP_JSON_FEATURES).toList),
 			data = DataConfiguration(
 				dataWriterClasses = config.getStringList(CONF_DATA_WRITER_CLASS_NAMES).toList.map {
@@ -149,7 +149,7 @@ case class HttpConfiguration(
 	requestTimeOutInMs: Int,
 	useProxyProperties: Boolean,
 	userAgent: String,
-	userRawUrl: Boolean,
+	useRawUrl: Boolean,
 	nonStandardJsonSupport: List[String])
 
 case class DataConfiguration(

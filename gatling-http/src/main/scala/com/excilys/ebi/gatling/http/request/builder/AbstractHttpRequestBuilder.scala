@@ -145,7 +145,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 * @param session the session of the current scenario
 	 */
 	protected def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): RequestBuilder = {
-		val requestBuilder = new RequestBuilder(httpAttributes.method, configuration.http.userRawUrl).setBodyEncoding(configuration.simulation.encoding)
+		val requestBuilder = new RequestBuilder(httpAttributes.method, configuration.http.useRawUrl).setBodyEncoding(configuration.simulation.encoding)
 
 		val isHttps = configureURLAndCookies(requestBuilder, session, protocolConfiguration)
 		configureProxy(requestBuilder, session, isHttps, protocolConfiguration)

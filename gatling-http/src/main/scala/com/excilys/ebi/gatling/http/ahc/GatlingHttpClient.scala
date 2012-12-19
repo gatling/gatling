@@ -53,7 +53,7 @@ object GatlingHttpClient extends Logging {
 			.setRequestTimeoutInMs(configuration.http.requestTimeOutInMs)
 			.setUseProxyProperties(configuration.http.useProxyProperties)
 			.setUserAgent(configuration.http.userAgent)
-			.setUseRawUrl(configuration.http.userRawUrl)
+			.setUseRawUrl(configuration.http.useRawUrl)
 			.build
 
 		val providerClassName = "com.ning.http.client.providers." + configuration.http.provider.toLowerCase + "." + configuration.http.provider + "AsyncHttpProvider"
