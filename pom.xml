@@ -71,6 +71,25 @@
 			<id>skuenzli@gmail.com</id>
 			<name>Stephen Kuenzli</name>
 		</developer>
+		<developer>
+			<id>pdalpra@excilys.com</id>
+			<name>Pierre Dal-Pra</name>
+			<organization>eBusiness Information, Excilys Group</organization>
+		</developer>
+		<developer>
+			<id>gcoutant@excilys.com</id>
+			<name>Grégory Coutant</name>
+			<organization>eBusiness Information, Excilys Group</organization>
+		</developer>
+		<developer>
+			<id>blemale@excilys.com</id>
+			<name>Bastien Lemale</name>
+			<organization>eBusiness Information, Excilys Group</organization>
+		</developer>
+		<developer>
+			<id>aduffy@gilt.com</id>
+			<name>Andrew Duffy</name>
+		</developer>
 	</developers>
 
 	<repositories>
