@@ -91,7 +91,7 @@ class Requests(requests: GeneralStatsByStatus, status: Option[RequestStatus], na
 		case None => name + " " + message
 	}
 
-	def percent = Metric(reader => requests(reader, status).count / requests(reader, None).count, message("percentage of requests"))
+	def percent = Metric(reader => math.round((requests(reader, status).count.toFloat / requests(reader, None).count) * 100), message("percentage of requests"))
 
 	def count = Metric(reader => requests(reader, status).count, message("number of requests"))
 }
