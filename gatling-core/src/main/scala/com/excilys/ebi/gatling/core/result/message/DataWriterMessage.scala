@@ -59,7 +59,7 @@ case class RequestRecord(
 	requestSendingEndDate: Long,
 	responseReceivingStartDate: Long,
 	executionEndDate: Long,
-	requestStatus: RequestStatus.RequestStatus,
+	requestStatus: RequestStatus,
 	requestMessage: Option[String] = None,
 	extraInfo: List[String] = Nil) extends DataWriterMessage {
 	val recordType = ACTION

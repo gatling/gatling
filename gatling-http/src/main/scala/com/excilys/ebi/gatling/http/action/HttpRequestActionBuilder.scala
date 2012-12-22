@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.http.action
 import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.core.session.Expression
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder.status
 import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
@@ -26,14 +26,17 @@ import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 
 import akka.actor.{ ActorRef, Props }
 
+import scalaz._
+import Scalaz._
+
 object HttpRequestActionBuilder {
 
 	/**
 	 * This is the default HTTP check used to verify that the response status is 2XX
 	 */
-	val DEFAULT_HTTP_STATUS_CHECK = status.find.in(Session => 200 to 210).build
+	val DEFAULT_HTTP_STATUS_CHECK = status.find.in(Session => (200 to 210).success).build
 
-	def apply(requestName: EvaluatableString, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]]) = {
+	def apply(requestName: Expression[String], requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]]) = {
 
 		val resolvedChecks = checks
 			.find(_.phase == StatusReceived)
@@ -52,7 +55,7 @@ object HttpRequestActionBuilder {
  * @param next the next action to be executed
  * @param checks the checks to be applied on the response
  */
-class HttpRequestActionBuilder(requestName: EvaluatableString, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]], next: ActorRef) extends ActionBuilder {
+class HttpRequestActionBuilder(requestName: Expression[String], requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]], next: ActorRef) extends ActionBuilder {
 
 	private[gatling] def withNext(next: ActorRef) = new HttpRequestActionBuilder(requestName, requestBuilder, checks, next)
 

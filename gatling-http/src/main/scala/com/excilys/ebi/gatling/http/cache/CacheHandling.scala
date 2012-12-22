@@ -63,12 +63,12 @@ object CacheHandling extends Logging {
 
 			} else {
 				info("Caching url " + url)
-				session.setAttribute(COOKIES_CONTEXT_KEY, cache + url)
+				session.set(COOKIES_CONTEXT_KEY, cache + url)
 			}
 
 		} else
 			session
 	}
 
-	private def getCache(session: Session): Set[String] = session.getAttributeAsOption[Set[String]](COOKIES_CONTEXT_KEY).getOrElse(Set.empty)
+	private def getCache(session: Session): Set[String] = session.getAs[Set[String]](COOKIES_CONTEXT_KEY).getOrElse(Set.empty)
 }

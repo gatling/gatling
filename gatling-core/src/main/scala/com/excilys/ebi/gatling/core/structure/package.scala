@@ -19,5 +19,5 @@ import com.excilys.ebi.gatling.core.result.message.RequestStatus
 import com.excilys.ebi.gatling.core.result.reader.{ DataReader, GeneralStats }
 
 package object structure {
-	type GeneralStatsByStatus = (DataReader, Option[RequestStatus.RequestStatus]) => GeneralStats
+	type GeneralStatsByStatus = (DataReader, Option[RequestStatus]) => GeneralStats
 }

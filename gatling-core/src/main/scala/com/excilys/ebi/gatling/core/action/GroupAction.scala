@@ -16,18 +16,17 @@
 package com.excilys.ebi.gatling.core.action
 
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
-import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 
 import akka.actor.ActorRef
+import scalaz._
 
-class GroupAction(groupName: EvaluatableString, event: String, val next: ActorRef) extends Action {
+class GroupAction(groupName: Expression[String], event: String, val next: ActorRef) extends Action {
 
 	def execute(session: Session) {
-		val resolvedGroupName = try {
-			groupName(session)
-		} catch {
-			case e: Exception => error("Group name resolution crashed", e); "no-group-name"
+		val resolvedGroupName = groupName(session) match {
+			case Success(name) => name
+			case Failure(message) => error("Could not resolve group name: " + message); "no-group-name"
 		}
 
 		DataWriter.group(session.scenarioName, resolvedGroupName, session.userId, event)

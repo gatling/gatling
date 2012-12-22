@@ -15,7 +15,11 @@
  */
 package com.excilys.ebi.gatling.core.session
 
+import com.excilys.ebi.gatling.core.util.TypeHelper
+
 import grizzled.slf4j.Logging
+import scalaz._
+import scalaz.Scalaz._
 
 /**
  * Session class companion
@@ -30,23 +34,6 @@ object Session extends Logging {
 
 	val MUST_EXIT_ON_FAIL_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.mustExitOnFailed"
 
-	def attributeAsEvaluatableString(key: String): EvaluatableString = (session: Session) => session.getAttributeAsOption[Any](key)
-		.map(_.toString)
-		.getOrElse {
-			warn("Couldn't resolve session attribute " + key)
-			""
-		}
-
-	def attributeAsEvaluatableStringSeq(key: String): EvaluatableStringSeq = (session: Session) => session.getAttributeAsOption[Any](key)
-		.map(value => value match {
-			case seq: Seq[_] => seq.map(_.toString)
-			case mono => List(mono.toString)
-		}).getOrElse {
-			warn("Couldn't resolve session attribute " + key)
-			List("")
-		}
-
-	def evaluatableStringToEvaluatableStringSeq(evaluatableString: EvaluatableString): EvaluatableStringSeq = (session: Session) => List(evaluatableString(session))
 }
 
 /**
@@ -59,73 +46,58 @@ object Session extends Logging {
  * @param userId the id of the current user
  * @param data the map that stores all values needed
  */
-class Session(val scenarioName: String, val userId: Int, data: Map[String, Any] = Map.empty) {
+class Session(val scenarioName: String, val userId: Int, attributes: Map[String, Any] = Map.empty) {
 
-	def getAttribute(key: String): Any = getTypedAttribute[Any](key)
+	def apply(name: String) = attributes(name)
+	@deprecated("Use apply instead, will be removed in 1.5.0", "1.4.0")
+	def getAttribute(key: String): Any = apply(key)
+	
+	@deprecated("Use apply(key).asInstanceOf[T] instead, will be removed in 1.5.0", "1.4.0")
+	def getTypedAttribute[T](key: String): T = attributes(key).asInstanceOf[T]
 
-	/**
-	 * Gets a value from the session
-	 *
-	 * @param key the key of the requested value
-	 * @return the value stored at key
-	 */
-	def getTypedAttribute[X](key: String): X = data.get(key).getOrElse(throw new IllegalArgumentException("No Matching Session attribute for key " + key)).asInstanceOf[X]
+	def get(key: String): Option[Any] = attributes.get(key)
 
-	/**
-	 * Gets a value from the session
-	 *
-	 * This method is to be used only internally, use getAttribute in scenarios
-	 *
-	 * @param key the key of the requested value
-	 * @return the value stored at key as an Option
-	 */
-	def getAttributeAsOption[T](key: String): Option[T] = data.get(key).asInstanceOf[Option[T]]
+	def getAs[T](key: String): Option[T] = attributes.get(key).map(_.asInstanceOf[T])
+	@deprecated("Use getAs instead, will be removed in 1.5.0", "1.4.0")
+	def getAttributeAsOption[T](key: String): Option[T] = getAs(key)
 
-	/**
-	 * Sets values in the session
-	 *
-	 * @param attributes map containing several values to be stored in session
-	 * @return Nothing
-	 */
-	def setAttributes(attributes: Map[String, Any]) = new Session(scenarioName, userId, data ++ attributes)
+	def safeGetAs[T: ClassManifest](key: String): Validation[String, T] = attributes.get(key).map(TypeHelper.as[T](_)).getOrElse(undefinedSessionAttributeMessage(key).failure[T])
 
-	/**
-	 * Sets a single value in the session
-	 *
-	 * @param attributeKey the key of the attribute
-	 * @param attributeValue the value of the attribute
-	 * @return Unit
-	 */
-	def setAttribute(attributeKey: String, attributeValue: Any) = new Session(scenarioName, userId, data + (attributeKey -> attributeValue))
+	def set(attributes: Map[String, Any]) = new Session(scenarioName, userId, attributes ++ attributes)
+	@deprecated("Use set instead, will be removed in 1.5.0", "1.4.0")
+	def setAttributes(attributes: Map[String, Any]) = set(attributes)
 
-	/**
-	 * Removes an attribute and its value from the session
-	 *
-	 * @param attributeKey the key of the attribute to be removed
-	 */
-	def removeAttribute(attributeKey: String) = if (isAttributeDefined(attributeKey)) new Session(scenarioName, userId, data - attributeKey) else this
+	def set(key: String, value: Any) = new Session(scenarioName, userId, attributes + (key -> value))
+	@deprecated("Use set instead, will be removed in 1.5.0", "1.4.0")
+	def setAttribute(key: String, value: Any) = set(key, value)
 
-	def isAttributeDefined(attributeKey: String) = data.contains(attributeKey)
+	def remove(key: String) = if (contains(key)) new Session(scenarioName, userId, attributes - key) else this
+	@deprecated("Use remove instead, will be removed in 1.5.0", "1.4.0")
+	def removeAttribute(key: String) = remove(key)
 
-	def setFailed: Session = setAttribute(Session.FAILED_KEY, "")
+	def contains(attributeKey: String) = attributes.contains(attributeKey)
+	@deprecated("Use contains instead, will be removed in 1.5.0", "1.4.0")
+	def isAttributeDefined(attributeKey: String) = contains(attributeKey)
 
-	def clearFailed: Session = removeAttribute(Session.FAILED_KEY)
+	def setFailed: Session = set(Session.FAILED_KEY, "")
 
-	def isFailed: Boolean = isAttributeDefined(Session.FAILED_KEY)
+	def clearFailed: Session = remove(Session.FAILED_KEY)
 
-	def setMustExitOnFail: Session = setAttribute(Session.MUST_EXIT_ON_FAIL_KEY, "")
+	def isFailed: Boolean = contains(Session.FAILED_KEY)
 
-	def isMustExitOnFail: Boolean = isAttributeDefined(Session.MUST_EXIT_ON_FAIL_KEY)
+	def setMustExitOnFail: Session = set(Session.MUST_EXIT_ON_FAIL_KEY, "")
 
-	def clearMustExitOnFail: Session = removeAttribute(Session.MUST_EXIT_ON_FAIL_KEY)
+	def isMustExitOnFail: Boolean = contains(Session.MUST_EXIT_ON_FAIL_KEY)
+
+	def clearMustExitOnFail: Session = remove(Session.MUST_EXIT_ON_FAIL_KEY)
 
 	def shouldExitBecauseFailed: Boolean = isFailed && isMustExitOnFail
 
-	private[gatling] def setTimeShift(timeShift: Long): Session = setAttribute(Session.TIME_SHIFT_KEY, timeShift)
+	private[gatling] def setTimeShift(timeShift: Long): Session = set(Session.TIME_SHIFT_KEY, timeShift)
 
 	private[gatling] def increaseTimeShift(time: Long): Session = setTimeShift(time + getTimeShift)
 
-	private[gatling] def getTimeShift: Long = getAttributeAsOption[Long](Session.TIME_SHIFT_KEY).getOrElse(0L)
+	private[gatling] def getTimeShift: Long = getAs[Long](Session.TIME_SHIFT_KEY).getOrElse(0L)
 
-	override def toString = "scenarioName='" + scenarioName + "' userId='" + userId + "' data='" + data + "'"
+	override def toString = "scenarioName='" + scenarioName + "' userId='" + userId + "' data='" + attributes + "'"
 }

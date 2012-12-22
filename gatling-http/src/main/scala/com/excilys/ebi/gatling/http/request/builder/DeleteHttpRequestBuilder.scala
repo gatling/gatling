@@ -15,11 +15,11 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.core.session.Expression
 
 object DeleteHttpRequestBuilder {
 
-	def apply(requestName: EvaluatableString, url: EvaluatableString) = new DeleteHttpRequestBuilder(HttpAttributes(requestName, "DELETE", url, Nil, Map.empty, None, Nil))
+	def apply(requestName: Expression[String], url: Expression[String]) = new DeleteHttpRequestBuilder(HttpAttributes(requestName, "DELETE", url))
 }
 
 /**

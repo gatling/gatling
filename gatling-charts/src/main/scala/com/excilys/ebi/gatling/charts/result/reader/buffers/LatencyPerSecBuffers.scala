@@ -28,7 +28,7 @@ trait LatencyPerSecBuffers extends Buffers {
 
 	val latencyPerSecBuffers: mutable.Map[BufferKey, RangeBuffer] = new JHashMap[BufferKey, RangeBuffer]
 
-	def getLatencyPerSecBuffers(requestName: Option[String], group: Option[Group], status: Option[RequestStatus.RequestStatus]): RangeBuffer = latencyPerSecBuffers.getOrElseUpdate(computeKey(requestName, group, status), new RangeBuffer)
+	def getLatencyPerSecBuffers(requestName: Option[String], group: Option[Group], status: Option[RequestStatus]): RangeBuffer = latencyPerSecBuffers.getOrElseUpdate(computeKey(requestName, group, status), new RangeBuffer)
 
 	def updateLatencyPerSecBuffers(record: ActionRecord, group: Option[Group]) {
 		recursivelyUpdate(record, group) {

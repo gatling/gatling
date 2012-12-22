@@ -15,12 +15,12 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.core.session.Expression
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 
 object PostHttpRequestBuilder {
 
-	def apply(requestName: EvaluatableString, url: EvaluatableString) = new PostHttpRequestBuilder(HttpAttributes(requestName, "POST", url, Nil, Map.empty, None, Nil), None, HttpParamsAttributes(Nil, Nil))
+	def apply(requestName: Expression[String], url: Expression[String]) = new PostHttpRequestBuilder(HttpAttributes(requestName, "POST", url), None, HttpParamsAttributes())
 }
 
 /**

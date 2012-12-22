@@ -15,11 +15,16 @@
  */
 package com.excilys.ebi.gatling.core
 
+import com.excilys.ebi.gatling.core.session.Session
+
+import scalaz._
+import Scalaz._
+
 package object session {
 
-	type EvaluatableString = Session => String
+	val NOOP_EXPRESSION = (s: Session) => "".success
 
-	type EvaluatableStringSeq = Session => Seq[String]
-
-	val NOOP_EVALUATABLE_STRING: EvaluatableString = (s: Session) => ""
+	type Expression[T] = Session => Validation[String, T]
+	def undefinedSeqIndexMessage(name: String, index: Int) = "Seq named '" + name + "' is undefined for index " + index
+	def undefinedSessionAttributeMessage(name: String) = "No attribute named '" + name + "' is defined"
 }

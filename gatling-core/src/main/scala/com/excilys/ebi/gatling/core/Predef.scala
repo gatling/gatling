@@ -20,18 +20,28 @@ import scala.tools.nsc.io.{ File, Path }
 import com.excilys.ebi.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
 import com.excilys.ebi.gatling.core.feeder.FeederBuiltIns
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesParser
-import com.excilys.ebi.gatling.core.session.ELParser.parseEL
+import com.excilys.ebi.gatling.core.session.Expression
 import com.excilys.ebi.gatling.core.structure.{ AssertionBuilder, ChainBuilder, ScenarioBuilder }
 
+import scalaz._
+import Scalaz._
+
 object Predef {
-	implicit def stringToEvaluatableString(string: String) = parseEL(string)
-	implicit def toSessionFunction[X](x: X) = (session: Session) => x
-	implicit def checkBuilderToCheck[C <: Check[R, XC], R, XC](checkBuilder: CheckBuilder[C, R, XC]) = checkBuilder.build
-	implicit def matcherCheckBuilderToCheckBuilder[C <: Check[R, XC], R, XC, X](matcherCheckBuilder: MatcherCheckBuilder[C, R, XC, X]) = matcherCheckBuilder.exists
-	implicit def matcherCheckBuilderToCheck[C <: Check[R, XC], R, XC, X](matcherCheckBuilder: MatcherCheckBuilder[C, R, XC, X]) = matcherCheckBuilder.exists.build
-	implicit def extractorCheckBuilderToMatcherCheckBuilder[C <: Check[R, XC], R, XC, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, XC, X]) = extractorCheckBuilder.find
-	implicit def extractorCheckBuilderToCheckBuilder[C <: Check[R, XC], R, XC, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, XC, X]) = extractorCheckBuilder.find.exists
-	implicit def extractorCheckBuilderToCheck[C <: Check[R, XC], R, XC, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, XC, X]) = extractorCheckBuilder.find.exists.build
+	implicit def stringToStringExpression(string: String) = Expression[String](string)
+	implicit def value2Success[T](value: T): Validation[String, T] = value.success
+	implicit def value2Expression[T](value: T): Expression[T] = (session: Session) => value.success
+	implicit def checkBuilder2Check[C <: Check[R, XC], R, XC](checkBuilder: CheckBuilder[C, R, XC]) = checkBuilder.build
+	implicit def matcherCheckBuilder2CheckBuilder[C <: Check[R, XC], R, XC, X](matcherCheckBuilder: MatcherCheckBuilder[C, R, XC, X]) = matcherCheckBuilder.exists
+	implicit def matcherCheckBuilder2Check[C <: Check[R, XC], R, XC, X](matcherCheckBuilder: MatcherCheckBuilder[C, R, XC, X]) = matcherCheckBuilder.exists.build
+	implicit def extractorCheckBuilder2MatcherCheckBuilder[C <: Check[R, XC], R, XC, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, XC, X]) = extractorCheckBuilder.find
+	implicit def extractorCheckBuilder2CheckBuilder[C <: Check[R, XC], R, XC, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, XC, X]) = extractorCheckBuilder.find.exists
+	implicit def extractorCheckBuilder2Check[C <: Check[R, XC], R, XC, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, XC, X]) = extractorCheckBuilder.find.exists.build
+	implicit def stringMap2ExpressionMap(map: Map[String, Any]): Map[String, Expression[Any]] = map.map { entry =>
+		entry._2 match {
+			case string: String => entry._1 -> Expression[String](string)
+			case any => entry._1 -> any.success
+		}
+	}
 
 	def csv(fileName: String) = SeparatedValuesParser.csv(fileName, None)
 	def csv(fileName: String, escapeChar: String) = SeparatedValuesParser.csv(fileName, Some(escapeChar))
@@ -53,6 +63,7 @@ object Predef {
 	type Simulation = com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 	type Feeder[T] = com.excilys.ebi.gatling.core.feeder.Feeder[T]
 	type Assertion = com.excilys.ebi.gatling.core.structure.Assertion
+	type Expression[T] = com.excilys.ebi.gatling.core.session.Expression[T]
 
 	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder.scenario(scenarioName)
 	val bootstrap = ChainBuilder.emptyChain

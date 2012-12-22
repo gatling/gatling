@@ -23,7 +23,7 @@ import scala.collection.JavaConversions.asScalaBuffer
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.core.session.Expression
 import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.http.check.HttpMultipleCheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
@@ -66,5 +66,5 @@ object HttpHeaderCheckBuilder extends Extractor {
 	 *
 	 * @param headerName the function returning the name of the header
 	 */
-	def header(headerName: EvaluatableString) = new HttpMultipleCheckBuilder(findExtractorFactory, findAllExtractorFactory, countExtractorFactory, headerName, HeadersReceived)
+	def header(headerName: Expression[String]) = new HttpMultipleCheckBuilder(findExtractorFactory, findAllExtractorFactory, countExtractorFactory, headerName, HeadersReceived)
 }

@@ -15,10 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.result.message
 
-/**
- * This Enumeration lists the possible states of actions' results
- */
-object RequestStatus extends Enumeration {
-	type RequestStatus = Value
-	val OK, KO = Value
-}
+sealed trait RequestStatus
+case object OK extends RequestStatus
+case object KO extends RequestStatus

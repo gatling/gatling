@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.result.message.RequestStatus
 
 package object buffers {
 
-	type BufferKey = (Option[Group], Option[String], Option[RequestStatus.RequestStatus])
+	type BufferKey = (Option[Group], Option[String], Option[RequestStatus])
 
-	def computeKey(request: Option[String], group: Option[Group], status: Option[RequestStatus.RequestStatus]): BufferKey = (group, request, status)
+	def computeKey(request: Option[String], group: Option[Group], status: Option[RequestStatus]): BufferKey = (group, request, status)
 }

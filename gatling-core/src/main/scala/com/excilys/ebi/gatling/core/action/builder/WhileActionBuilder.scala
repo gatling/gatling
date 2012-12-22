@@ -15,18 +15,16 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import java.util.UUID.randomUUID
-
 import com.excilys.ebi.gatling.core.action.{ WhileAction, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.Expression
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
 import akka.actor.{ ActorRef, Props }
 
 object WhileActionBuilder {
 
-	def apply(condition: Session => Boolean, loopNext: ChainBuilder, counterName: String) = new WhileActionBuilder(condition, loopNext, counterName, null)
+	def apply(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String) = new WhileActionBuilder(condition, loopNext, counterName, null)
 }
 
 /**
@@ -37,7 +35,7 @@ object WhileActionBuilder {
  * @param loopNext chain that will be executed if condition evaluates to true
  * @param next action that will be executed if condition evaluates to false
  */
-class WhileActionBuilder(condition: Session => Boolean, loopNext: ChainBuilder, counterName: String, next: ActorRef) extends ActionBuilder {
+class WhileActionBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String, next: ActorRef) extends ActionBuilder {
 
 	def withNext(next: ActorRef) = new WhileActionBuilder(condition, loopNext, counterName, next)
 

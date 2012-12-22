@@ -28,7 +28,7 @@ trait ResponseTimePerSecBuffers extends Buffers {
 
 	val responseTimePerSecBuffers: mutable.Map[BufferKey, RangeBuffer] = new JHashMap[BufferKey, RangeBuffer]
 
-	def getResponseTimePerSecBuffers(requestName: Option[String], group: Option[Group], status: Option[RequestStatus.RequestStatus]): RangeBuffer = responseTimePerSecBuffers.getOrElseUpdate(computeKey(requestName, group, status), new RangeBuffer)
+	def getResponseTimePerSecBuffers(requestName: Option[String], group: Option[Group], status: Option[RequestStatus]): RangeBuffer = responseTimePerSecBuffers.getOrElseUpdate(computeKey(requestName, group, status), new RangeBuffer)
 
 	def updateResponseTimePerSecBuffers(record: ActionRecord, group: Option[Group]) {
 		recursivelyUpdate(record, group) { (record, group) =>

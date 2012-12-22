@@ -24,6 +24,9 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.request.builder.HttpParam
 import com.ning.http.client.FluentStringsMap
 
+import scalaz._
+import Scalaz._
+
 object HttpHelper {
 
 	def computeRedirectUrl(locationHeader: String, originalRequestUrl: String) = {
@@ -65,12 +68,27 @@ object HttpHelper {
 			}.toList
 	}
 
-	def httpParamsToFluentMap(params: List[HttpParam], session: Session): FluentStringsMap = params
-		.map { case (key, value) => (key(session), value(session)) }
-		.groupBy(_._1)
-		.mapValues(_.map(_._2).flatten)
-		.foldLeft(new FluentStringsMap) { (map, keyValues) =>
-			val (key, values) = keyValues
-			map.add(key, values)
-		}
+	def httpParamsToFluentMap(params: List[HttpParam], session: Session): Validation[String, FluentStringsMap] = {
+
+		def httpParamsToFluentMap(params: List[(String, Seq[String])]): FluentStringsMap =
+			params.groupBy(_._1)
+				.mapValues(_.map(_._2).flatten)
+				.foldLeft(new FluentStringsMap) { (map, keyValues) =>
+					val (key, values) = keyValues
+					map.add(key, values)
+				}
+
+		val validations = params
+			.map {
+				case (key, values) =>
+					for {
+						resolvedKey <- key(session)
+						resolvedValues <- values(session)
+					} yield (resolvedKey, resolvedValues)
+			}
+
+		val validation = validations.sequence[({ type l[a] = Validation[String, a] })#l, (String, Seq[String])]
+
+		validation.map(httpParamsToFluentMap)
+	}
 }

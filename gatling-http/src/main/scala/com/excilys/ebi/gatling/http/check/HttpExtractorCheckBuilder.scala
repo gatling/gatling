@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.http.check
 
 import com.excilys.ebi.gatling.core.check.{ Matcher, ExtractorCheckBuilder, CheckBuilderFactory }
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.Expression
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
@@ -26,7 +26,7 @@ import com.excilys.ebi.gatling.http.response.ExtendedResponse
  * @param expression the function returning the expression representing what is to be checked
  * @param phase the HttpPhase during which the check will be made
  */
-abstract class HttpExtractorCheckBuilder[X, XC](expression: Session => XC, phase: HttpPhase) extends ExtractorCheckBuilder[HttpCheck[XC], ExtendedResponse, XC, X] {
+abstract class HttpExtractorCheckBuilder[X, XC](expression: Expression[XC], phase: HttpPhase) extends ExtractorCheckBuilder[HttpCheck[XC], ExtendedResponse, XC, X] {
 
 	val httpCheckBuilderFactory: CheckBuilderFactory[HttpCheck[XC], ExtendedResponse, XC] = (matcher: Matcher[ExtendedResponse, XC], saveAs: Option[String]) => new HttpCheck(expression, matcher, saveAs, phase)
 }

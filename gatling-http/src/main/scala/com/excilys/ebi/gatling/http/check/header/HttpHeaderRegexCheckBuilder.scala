@@ -23,7 +23,7 @@ import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
 import com.excilys.ebi.gatling.core.check.extractor.regex.RegexExtractor
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
+import com.excilys.ebi.gatling.core.session.{ Session, Expression }
 import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.http.check.HttpMultipleCheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
@@ -60,8 +60,13 @@ object HttpHeaderRegexCheckBuilder extends Extractor {
 	private val countExtractorFactory: ExtractorFactory[ExtendedResponse, (String, String), Int] =
 		(response: ExtendedResponse) => (headerAndPattern: (String, String)) => findAllExtractorFactory(response)(headerAndPattern).map(_.length).orElse(0)
 
-	def headerRegex(headerName: EvaluatableString, pattern: EvaluatableString) = {
-		val expression = (s: Session) => (headerName(s), pattern(s))
+	def headerRegex(headerName: Expression[String], pattern: Expression[String]) = {
+
+		val expression = (s: Session) => for {
+			h <- headerName(s)
+			p <- pattern(s)
+		} yield (h, p)
+
 		new HttpMultipleCheckBuilder(findExtractorFactory, findAllExtractorFactory, countExtractorFactory, expression, HeadersReceived)
 	}
 }

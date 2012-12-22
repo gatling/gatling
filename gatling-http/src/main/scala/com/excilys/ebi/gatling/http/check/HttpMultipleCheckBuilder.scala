@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.http.check
 
-import com.excilys.ebi.gatling.core.check.{ MultipleExtractorCheckBuilder, MatcherCheckBuilder, ExtractorFactory }
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.check.{ ExtractorFactory, MatcherCheckBuilder, MultipleExtractorCheckBuilder }
+import com.excilys.ebi.gatling.core.session.Expression
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
@@ -32,7 +32,7 @@ class HttpMultipleCheckBuilder[XC](
 	findExtractorFactory: Int => ExtractorFactory[ExtendedResponse, XC, String],
 	findAllExtractorFactory: ExtractorFactory[ExtendedResponse, XC, Seq[String]],
 	countExtractorFactory: ExtractorFactory[ExtendedResponse, XC, Int],
-	expression: Session => XC,
+	expression: Expression[XC],
 	phase: HttpPhase)
 		extends HttpExtractorCheckBuilder[String, XC](expression, phase)
 		with MultipleExtractorCheckBuilder[HttpCheck[XC], ExtendedResponse, XC, String] {

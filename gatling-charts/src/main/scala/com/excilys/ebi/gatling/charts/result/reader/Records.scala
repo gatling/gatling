@@ -15,8 +15,7 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader
 
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
-import com.excilys.ebi.gatling.core.result.message.RequestStatus.RequestStatus
+import com.excilys.ebi.gatling.core.result.message.{ KO, OK, RequestStatus }
 
 object ActionRecord {
 
@@ -29,7 +28,10 @@ object ActionRecord {
 		val requestEnd = reduceAccuracy((strings(5).toLong - runStart).toInt)
 		val responseStart = reduceAccuracy((strings(6).toLong - runStart).toInt)
 		val executionEnd = reduceAccuracy((strings(7).toLong - runStart).toInt)
-		val status = RequestStatus.withName(strings(8))
+		val status = strings(8) match {
+			case "OK" => OK
+			case _ => KO
+		}
 		val executionStartBucket = bucketFunction(executionStart)
 		val executionEndBucket = bucketFunction(executionEnd)
 		val responseTime = reduceAccuracy(executionEnd - executionStart)

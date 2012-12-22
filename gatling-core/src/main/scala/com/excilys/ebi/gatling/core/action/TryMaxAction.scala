@@ -18,14 +18,12 @@ package com.excilys.ebi.gatling.core.action
 import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.ActorRef
+import grizzled.slf4j.Logging
 
-object TryMaxAction {
+object TryMaxAction extends Logging {
 
 	def apply(times: Int, next: ActorRef, counterName: String): WhileAction = {
-		def f(s: Session) = {
-			val counterValue = s.getTypedAttribute[Int](counterName)
-			counterValue == 0 || (s.isFailed && counterValue < times)
-		}
-		new WhileAction(f, next, counterName)
+		val continueCondition = (s: Session) => s.safeGetAs[Int](counterName).map(counterValue => counterValue == 0 || (s.isFailed && counterValue < times))
+		new WhileAction(continueCondition, next, counterName)
 	}
 }

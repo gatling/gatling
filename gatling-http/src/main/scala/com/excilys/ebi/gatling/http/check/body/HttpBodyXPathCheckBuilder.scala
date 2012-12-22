@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.http.check.body
 import com.excilys.ebi.gatling.core.check.CheckContext.getOrUpdateCheckContextAttribute
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.extractor.xpath.XPathExtractor
-import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.core.session.Expression
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 import com.excilys.ebi.gatling.http.check.HttpMultipleCheckBuilder
@@ -35,7 +35,7 @@ object HttpBodyXPathCheckBuilder {
 
 	private def newCountExtractorFactory(namespaces: List[(String, String)]): ExtractorFactory[ExtendedResponse, String, Int] = (response: ExtendedResponse) => getCachedExtractor(response).count(namespaces)
 
-	def xpath(expression: EvaluatableString, namespaces: List[(String, String)]) = {
+	def xpath(expression: Expression[String], namespaces: List[(String, String)]) = {
 
 		val findExtractorFactory = newFindExtractorFactory(namespaces) _
 		val findAllExtractorFactory = newFindAllExtractorFactory(namespaces)

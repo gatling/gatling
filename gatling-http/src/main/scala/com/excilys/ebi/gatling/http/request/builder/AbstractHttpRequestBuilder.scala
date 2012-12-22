@@ -16,30 +16,29 @@
 package com.excilys.ebi.gatling.http.request.builder
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.session.{ EvaluatableString, EvaluatableStringSeq, Session }
-import com.excilys.ebi.gatling.core.session.ELParser.parseEL
-import com.excilys.ebi.gatling.core.session.Session.{ attributeAsEvaluatableString, attributeAsEvaluatableStringSeq, evaluatableStringToEvaluatableStringSeq }
+import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
-import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.referer.RefererHandling
-import com.excilys.ebi.gatling.http.util.HttpHelper.httpParamsToFluentMap
+import com.excilys.ebi.gatling.http.util.HttpHelper
 import com.ning.http.client.{ Request, RequestBuilder }
-import com.ning.http.client.FluentCaseInsensitiveStringsMap
 import com.ning.http.client.ProxyServer.Protocol
 import com.ning.http.client.Realm
 import com.ning.http.client.Realm.AuthScheme
 
+import scalaz._
+import scalaz.Scalaz._
+
 case class HttpAttributes(
-	requestName: EvaluatableString,
+	requestName: Expression[String],
 	method: String,
-	url: EvaluatableString,
-	queryParams: List[HttpParam],
-	headers: Map[String, EvaluatableString],
-	realm: Option[Session => Realm],
-	checks: List[HttpCheck[_]])
+	url: Expression[String],
+	queryParams: List[HttpParam] = Nil,
+	headers: Map[String, Expression[String]] = Map.empty,
+	realm: Option[Expression[Realm]] = None,
+	checks: List[HttpCheck[_]] = Nil)
 
 /**
  * This class serves as model for all HttpRequestBuilders
@@ -73,31 +72,31 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 *
 	 * @param key the key of the parameter
 	 */
-	def queryParam(key: String): B = queryParam(parseEL(key), attributeAsEvaluatableString(key))
+	def queryParam(key: String): B = queryParam(Expression[String](key), (s: Session) => s.safeGetAs[String](key))
 
 	/**
 	 * Adds a query parameter to the request
 	 *
 	 * @param param is a query parameter
 	 */
-	def queryParam(key: EvaluatableString, value: EvaluatableString): B = {
-		val httpParam: HttpParam = (key, evaluatableStringToEvaluatableStringSeq(value))
+	def queryParam(key: Expression[String], value: Expression[String]): B = {
+		val httpParam: HttpParam = (key, (session: Session) => value(session).map(Seq(_)))
 		queryParam(httpParam)
 	}
 
-	def multiValuedQueryParam(key: String): B = multiValuedQueryParam(parseEL(key), key)
+	def multiValuedQueryParam(key: String): B = multiValuedQueryParam(Expression[String](key), key)
 
-	def multiValuedQueryParam(key: EvaluatableString, value: String): B = {
-		val httpParam: HttpParam = (key, attributeAsEvaluatableStringSeq(value))
+	def multiValuedQueryParam(key: Expression[String], value: String): B = {
+		val httpParam: HttpParam = (key, Expression[Seq[String]](value))
 		queryParam(httpParam)
 	}
 
-	def multiValuedQueryParam(key: EvaluatableString, values: Seq[String]): B = {
-		val httpParam: HttpParam = (key, (s: Session) => values)
+	def multiValuedQueryParam(key: Expression[String], values: Seq[String]): B = {
+		val httpParam: HttpParam = (key, (s: Session) => values.success)
 		queryParam(httpParam)
 	}
 
-	def multiValuedQueryParam(key: EvaluatableString, values: EvaluatableStringSeq): B = {
+	def multiValuedQueryParam(key: Expression[String], values: Expression[Seq[String]]): B = {
 		val httpParam: HttpParam = (key, values)
 		queryParam(httpParam)
 	}
@@ -109,14 +108,14 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 *
 	 * @param header the header to add, eg: ("Content-Type", "application/json")
 	 */
-	def header(header: (String, String)): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers + (header._1 -> parseEL(header._2))))
+	def header(header: (String, String)): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers + (header._1 -> Expression[String](header._2))))
 
 	/**
 	 * Adds several headers to the request at the same time
 	 *
 	 * @param givenHeaders a scala map containing the headers to add
 	 */
-	def headers(givenHeaders: Map[String, String]): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers ++ givenHeaders.mapValues(parseEL)))
+	def headers(givenHeaders: Map[String, String]): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers ++ givenHeaders.mapValues(Expression[String](_))))
 
 	/**
 	 * Adds Accept and Content-Type headers to the request set with "application/json" values
@@ -134,9 +133,15 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 * @param username the username needed
 	 * @param password the password needed
 	 */
-	def basicAuth(username: EvaluatableString, password: EvaluatableString): B = {
-		val buildRealm = (session: Session) => new Realm.RealmBuilder().setPrincipal(username(session)).setPassword(password(session)).setUsePreemptiveAuth(true).setScheme(AuthScheme.BASIC).build
-		newInstance(httpAttributes.copy(realm = Some(buildRealm)))
+	def basicAuth(username: Expression[String], password: Expression[String]): B = {
+
+		def buildRealm(session: Session) =
+			for {
+				usernameValue <- username(session)
+				passwordValue <- password(session)
+			} yield new Realm.RealmBuilder().setPrincipal(usernameValue).setPassword(passwordValue).setUsePreemptiveAuth(true).setScheme(AuthScheme.BASIC).build
+
+		newInstance(httpAttributes.copy(realm = Some(buildRealm _)))
 	}
 
 	/**
@@ -144,16 +149,66 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 *
 	 * @param session the session of the current scenario
 	 */
-	protected def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): RequestBuilder = {
+	protected def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[String, RequestBuilder] = {
+
+		val url = {
+			def makeAbsolute(relativeUrl: String): Validation[String, String] = {
+
+				if (relativeUrl.startsWith(Protocol.HTTP.getProtocol))
+					relativeUrl.success
+				else
+					protocolConfiguration.baseURL.map(_.success).getOrElse(("No protocolConfiguration.baseURL defined but provided url is relative : " + relativeUrl).failure)
+			}
+
+			httpAttributes.url(session).flatMap(makeAbsolute)
+		}
+
+		def configureUrlAndProxy(requestBuilder: RequestBuilder)(url: String): Validation[String, RequestBuilder] = {
+
+			val proxy = if (url.startsWith(Protocol.HTTPS.getProtocol))
+				protocolConfiguration.securedProxy
+			else protocolConfiguration.proxy
+
+			proxy.map(requestBuilder.setProxyServer)
+
+			requestBuilder.setUrl(url).success
+		}
+
+		def configureQueryParams(requestBuilder: RequestBuilder): Validation[String, RequestBuilder] =
+			HttpHelper.httpParamsToFluentMap(httpAttributes.queryParams, session).map(requestBuilder.setQueryParameters)
+
+		def configureHeaders(requestBuilder: RequestBuilder): Validation[String, RequestBuilder] = {
+
+			val resolvedHeaders = httpAttributes.headers.map {
+				case (key, value) =>
+					for {
+						resolvedValue <- value(session)
+					} yield key -> resolvedValue
+			}
+				.toList
+				.sequence[({ type l[a] = Validation[String, a] })#l, (String, String)]
+				.map(_.toMap)
+
+			resolvedHeaders.map { headers =>
+				val newHeaders = RefererHandling.addStoredRefererHeader(protocolConfiguration.baseHeaders ++ headers, session, protocolConfiguration)
+				newHeaders.foreach { case (headerName, headerValue) => requestBuilder.addHeader(headerName, headerValue) }
+				requestBuilder
+			}
+		}
+
+		def configureRealm(requestBuilder: RequestBuilder): Validation[String, RequestBuilder] =
+			httpAttributes.realm match {
+				case Some(realm) => realm(session).map(requestBuilder.setRealm)
+				case None => requestBuilder.success
+			}
+
 		val requestBuilder = new RequestBuilder(httpAttributes.method, configuration.http.useRawUrl).setBodyEncoding(configuration.simulation.encoding)
 
-		val isHttps = configureURLAndCookies(requestBuilder, session, protocolConfiguration)
-		configureProxy(requestBuilder, session, isHttps, protocolConfiguration)
-		configureQueryParams(requestBuilder, session)
-		configureHeaders(requestBuilder, httpAttributes.headers, session, protocolConfiguration)
-		configureRealm(requestBuilder, httpAttributes.realm, session)
-
-		requestBuilder
+		url
+			.flatMap(configureUrlAndProxy(requestBuilder: RequestBuilder))
+			.flatMap(configureQueryParams)
+			.flatMap(configureHeaders)
+			.flatMap(configureRealm)
 	}
 
 	/**
@@ -161,85 +216,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 *
 	 * @param session the session of the current scenario
 	 */
-	private[http] def build(session: Session, protocolConfiguration: HttpProtocolConfiguration): Request = getAHCRequestBuilder(session, protocolConfiguration).build
-
-	/**
-	 * This method adds proxy information to the request builder if needed
-	 *
-	 * @param requestBuilder the request builder to which the proxy should be added
-	 * @param session the session of the current scenario
-	 */
-	private def configureProxy(requestBuilder: RequestBuilder, session: Session, isHttps: Boolean, protocolConfiguration: HttpProtocolConfiguration) = {
-		(if (isHttps)
-			protocolConfiguration.securedProxy
-		else
-			protocolConfiguration.proxy).map(requestBuilder.setProxyServer)
-	}
-
-	/**
-	 * This method adds the url and cookies to the request builder. It does so by applying the url to the current session
-	 *
-	 * @param requestBuilder the request builder to which the url should be added
-	 * @param session the session of the current scenario
-	 */
-	private def configureURLAndCookies(requestBuilder: RequestBuilder, session: Session, protocolConfiguration: HttpProtocolConfiguration) = {
-		val providedUrl = httpAttributes.url(session)
-
-		// baseUrl implementation
-		val resolvedUrl = if (providedUrl.startsWith(Protocol.HTTP.getProtocol))
-			providedUrl
-		else
-			protocolConfiguration.baseURL.getOrElse(throw new IllegalArgumentException("No protocolConfiguration.baseURL defined but provided url is relative : " + providedUrl)) + providedUrl
-
-		requestBuilder.setUrl(resolvedUrl)
-
-		for (cookie <- CookieHandling.getStoredCookies(session, resolvedUrl))
-			requestBuilder.addCookie(cookie)
-
-		resolvedUrl.startsWith(Protocol.HTTPS.getProtocol)
-	}
-
-	/**
-	 * This method adds the query parameters to the request builder
-	 *
-	 * @param requestBuilder the request builder to which the query parameters should be added
-	 * @param session the session of the current scenario
-	 */
-	private def configureQueryParams(requestBuilder: RequestBuilder, session: Session) {
-
-		if (!httpAttributes.queryParams.isEmpty) {
-			val queryParamsMap = httpParamsToFluentMap(httpAttributes.queryParams, session)
-			requestBuilder.setQueryParameters(queryParamsMap)
-		}
-	}
-
-	/**
-	 * This method adds the headers to the request builder
-	 *
-	 * @param requestBuilder the request builder to which the headers should be added
-	 * @param session the session of the current scenario
-	 */
-	private def configureHeaders(requestBuilder: RequestBuilder, headers: Map[String, EvaluatableString], session: Session, protocolConfiguration: HttpProtocolConfiguration) {
-		requestBuilder.setHeaders(new FluentCaseInsensitiveStringsMap)
-
-		val baseHeaders = protocolConfiguration.baseHeaders
-		val resolvedRequestHeaders = headers.map { case (headerName, headerValue) => (headerName -> headerValue(session)) }
-
-		val newHeaders = RefererHandling.addStoredRefererHeader(baseHeaders ++ resolvedRequestHeaders, session, protocolConfiguration)
-
-		newHeaders.foreach { case (headerName, headerValue) => requestBuilder.addHeader(headerName, headerValue) }
-	}
-
-	/**
-	 * This method adds authentication to the request builder if needed
-	 *
-	 * @param requestBuilder the request builder to which the credentials should be added
-	 * @param realm the credentials to put in the request builder
-	 * @param session the session of the current scenario
-	 */
-	private def configureRealm(requestBuilder: RequestBuilder, realm: Option[Session => Realm], session: Session) {
-		realm.map { realm => requestBuilder.setRealm(realm(session)) }
-	}
+	private[http] def build(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[String, Request] = getAHCRequestBuilder(session, protocolConfiguration).map(_.build)
 
 	private[gatling] def toActionBuilder = HttpRequestActionBuilder(httpAttributes.requestName, this, httpAttributes.checks)
 }

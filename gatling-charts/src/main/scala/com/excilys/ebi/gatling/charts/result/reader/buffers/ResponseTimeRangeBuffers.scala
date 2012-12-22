@@ -22,6 +22,7 @@ import scala.collection.mutable
 
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
 import com.excilys.ebi.gatling.core.result.Group
+import com.excilys.ebi.gatling.core.result.message.KO
 
 trait ResponseTimeRangeBuffers extends Buffers {
 
@@ -49,7 +50,7 @@ trait ResponseTimeRangeBuffers extends Buffers {
 
 		def update(record: ActionRecord) {
 
-			if (record.status == RequestStatus.KO) ko += 1
+			if (record.status == KO) ko += 1
 			else if (record.responseTime < configuration.charting.indicators.lowerBound) low += 1
 			else if (record.responseTime > configuration.charting.indicators.higherBound) high += 1
 			else middle += 1

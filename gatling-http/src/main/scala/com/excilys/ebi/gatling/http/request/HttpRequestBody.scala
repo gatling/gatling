@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.http.request
 
-import com.excilys.ebi.gatling.core.session.{ Session, EvaluatableString }
+import com.excilys.ebi.gatling.core.session.{ Session, Expression }
 
 /**
  * Class used for polymorphism only
@@ -27,7 +27,7 @@ sealed abstract class HttpRequestBody
  *
  * @param string the string representing the body
  */
-case class StringBody(string: EvaluatableString) extends HttpRequestBody
+case class StringBody(string: Expression[String]) extends HttpRequestBody
 
 /**
  * Wraps a body that is in a file
@@ -42,7 +42,7 @@ case class FilePathBody(filePath: String) extends HttpRequestBody
  * @param tplPath the path to the template
  * @param values the values that will be merged in the template
  */
-case class TemplateBody(tplPath: String, values: Map[String, EvaluatableString]) extends HttpRequestBody
+case class TemplateBody(tplPath: String, values: Map[String, Expression[String]]) extends HttpRequestBody
 
 /**
  * Wraps a body that is a Byte Array

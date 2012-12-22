@@ -15,8 +15,14 @@
  */
 package com.excilys.ebi.gatling.mojo;
 
-import com.excilys.ebi.gatling.app.CommandLineConstants;
-import com.excilys.ebi.gatling.app.Gatling;
+import static java.util.Arrays.asList;
+import static org.codehaus.plexus.util.StringUtils.trim;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.exec.ExecuteException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
@@ -26,17 +32,13 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.apache.tools.ant.DirectoryScanner;
+
 import scala_maven_executions.JavaMainCallerByFork;
 import scala_maven_executions.MainHelper;
 import scala_maven_executions.MainWithArgsInFile;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static java.util.Arrays.asList;
-import static org.codehaus.plexus.util.StringUtils.trim;
+import com.excilys.ebi.gatling.app.CommandLineConstants;
+import com.excilys.ebi.gatling.app.Gatling;
 
 /**
  * Mojo to execute Gatling.
