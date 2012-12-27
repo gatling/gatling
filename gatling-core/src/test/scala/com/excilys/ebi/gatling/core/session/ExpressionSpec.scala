@@ -22,7 +22,7 @@ import org.specs2.runner.JUnitRunner
 import scalaz.{ Failure, Success }
 
 @RunWith(classOf[JUnitRunner])
-class ELParserSpec extends Specification {
+class ExpressionSpec extends Specification {
 
 	"One monovalued Expression" should {
 

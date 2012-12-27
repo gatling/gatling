@@ -27,7 +27,7 @@ import scalaz._
 import Scalaz._
 
 object Predef {
-	implicit def stringToStringExpression(string: String) = Expression[String](string)
+	implicit def stringToExpression[T: ClassManifest](string: String) = Expression[T](string)
 	implicit def value2Success[T](value: T): Validation[String, T] = value.success
 	implicit def value2Expression[T](value: T): Expression[T] = (session: Session) => value.success
 	implicit def checkBuilder2Check[C <: Check[R, XC], R, XC](checkBuilder: CheckBuilder[C, R, XC]) = checkBuilder.build
