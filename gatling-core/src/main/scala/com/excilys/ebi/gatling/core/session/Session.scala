@@ -49,35 +49,20 @@ object Session extends Logging {
 class Session(val scenarioName: String, val userId: Int, attributes: Map[String, Any] = Map.empty) {
 
 	def apply(name: String) = attributes(name)
-	@deprecated("Use apply instead, will be removed in 1.5.0", "1.4.0")
-	def getAttribute(key: String): Any = apply(key)
-	
-	@deprecated("Use apply(key).asInstanceOf[T] instead, will be removed in 1.5.0", "1.4.0")
-	def getTypedAttribute[T](key: String): T = attributes(key).asInstanceOf[T]
 
 	def get(key: String): Option[Any] = attributes.get(key)
 
 	def getAs[T](key: String): Option[T] = attributes.get(key).map(_.asInstanceOf[T])
-	@deprecated("Use getAs instead, will be removed in 1.5.0", "1.4.0")
-	def getAttributeAsOption[T](key: String): Option[T] = getAs(key)
 
 	def safeGetAs[T: ClassManifest](key: String): Validation[String, T] = attributes.get(key).map(TypeHelper.as[T](_)).getOrElse(undefinedSessionAttributeMessage(key).failure[T])
 
 	def set(attributes: Map[String, Any]) = new Session(scenarioName, userId, attributes ++ attributes)
-	@deprecated("Use set instead, will be removed in 1.5.0", "1.4.0")
-	def setAttributes(attributes: Map[String, Any]) = set(attributes)
 
 	def set(key: String, value: Any) = new Session(scenarioName, userId, attributes + (key -> value))
-	@deprecated("Use set instead, will be removed in 1.5.0", "1.4.0")
-	def setAttribute(key: String, value: Any) = set(key, value)
 
 	def remove(key: String) = if (contains(key)) new Session(scenarioName, userId, attributes - key) else this
-	@deprecated("Use remove instead, will be removed in 1.5.0", "1.4.0")
-	def removeAttribute(key: String) = remove(key)
 
 	def contains(attributeKey: String) = attributes.contains(attributeKey)
-	@deprecated("Use contains instead, will be removed in 1.5.0", "1.4.0")
-	def isAttributeDefined(attributeKey: String) = contains(attributeKey)
 
 	def setFailed: Session = set(Session.FAILED_KEY, "")
 

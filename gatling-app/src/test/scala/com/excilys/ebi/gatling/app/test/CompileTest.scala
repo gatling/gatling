@@ -46,8 +46,8 @@ object CompileTest extends Simulation {
     .userAgentHeader("Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.19 (KHTML, like Gecko) Ubuntu/12.04 Chromium/18.0.1025.151 Chrome/18.0.1025.151 Safari/535.19")
 
   val httpConfToVerifyUserProvidedInfoExtractors = httpConfig
-    .requestInfoExtractor((request: Request) => { List.empty })
-    .responseInfoExtractor((response: Response) => { List.empty })
+    .requestInfoExtractor(request => List.empty)
+    .responseInfoExtractor(response => List.empty)
 
   val usersInformation = tsv("user_information.tsv")
 

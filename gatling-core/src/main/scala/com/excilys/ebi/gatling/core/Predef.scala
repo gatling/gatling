@@ -36,7 +36,7 @@ object Predef {
 	implicit def extractorCheckBuilder2MatcherCheckBuilder[C <: Check[R, XC], R, XC, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, XC, X]) = extractorCheckBuilder.find
 	implicit def extractorCheckBuilder2CheckBuilder[C <: Check[R, XC], R, XC, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, XC, X]) = extractorCheckBuilder.find.exists
 	implicit def extractorCheckBuilder2Check[C <: Check[R, XC], R, XC, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, XC, X]) = extractorCheckBuilder.find.exists.build
-	implicit def stringMap2ExpressionMap(map: Map[String, Any]): Map[String, Expression[Any]] = map.map { entry =>
+	implicit def map2ExpressionMap(map: Map[String, Any]): Map[String, Expression[Any]] = map.map { entry =>
 		entry._2 match {
 			case string: String => entry._1 -> Expression[String](string)
 			case any => entry._1 -> any.success
@@ -70,5 +70,5 @@ object Predef {
 
 	val assertions = new AssertionBuilder
 
-	implicit def string2path: String => Path = Path.string2path
+	implicit def string2path(string: String) = Path.string2path(string)
 }

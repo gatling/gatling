@@ -92,13 +92,12 @@ object Expression {
 		ELParser(elString) match {
 			case List(StaticPart(string)) => (session: Session) => TypeHelper.as[T](string)
 			case List(dynamicPart) => dynamicPart.resolve _ andThen (_.flatMap(TypeHelper.as[T](_)))
-			case parts => (session: Session) => {
+			case parts => (session: Session) =>
 				val resolvedString = parts.map(_.resolve(session))
 					.sequence[({ type l[a] = Validation[String, a] })#l, Any]
 					.map(_.mkString)
 
 				resolvedString.flatMap(TypeHelper.as[T](_))
-			}
 		}
 	}
 }
