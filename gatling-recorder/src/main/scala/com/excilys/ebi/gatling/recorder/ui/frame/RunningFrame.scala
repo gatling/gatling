@@ -123,7 +123,7 @@ class RunningFrame(controller: RecorderController) extends JFrame with ScalaSwin
 
 	private def setListeners {
 		/* Listeners */
-		btnTag.addActionListener((e: ActionEvent) => {
+		btnTag.addActionListener { e: ActionEvent =>
 			if (!txtTag.getText.isEmpty) {
 				val tag = new TagInfo(txtTag.getText)
 				eventsInfo.addElement(tag)
@@ -131,9 +131,9 @@ class RunningFrame(controller: RecorderController) extends JFrame with ScalaSwin
 				eventsInfoJList.ensureIndexIsVisible(eventsInfo.getSize() - 1)
 				txtTag.clear
 			}
-		})
+		}
 
-		eventsInfoJList.addListSelectionListener((e: ListSelectionEvent) => {
+		eventsInfoJList.addListSelectionListener { e: ListSelectionEvent =>
 			if (eventsInfoJList.getSelectedIndex() >= 0) {
 				val obj = eventsInfo.get(eventsInfoJList.getSelectedIndex());
 				if (obj.isInstanceOf[RequestInfo]) {
@@ -158,16 +158,16 @@ class RunningFrame(controller: RecorderController) extends JFrame with ScalaSwin
 					responseBodyInfo.clear
 				}
 			}
-		})
+		}
 
-		btnClear.addActionListener((e: ActionEvent) => controller.clearRecorderState)
+		btnClear.addActionListener { e: ActionEvent => controller.clearRecorderState }
 
-		btnCancel.addActionListener((e: ActionEvent) => {
+		btnCancel.addActionListener { e: ActionEvent =>
 			controller.clearRecorderState
 			controller.stopRecording
-		})
+		}
 
-		btnStop.addActionListener((e: ActionEvent) => controller.stopRecording)
+		btnStop.addActionListener { e: ActionEvent => controller.stopRecording }
 	}
 
 	def clearState {

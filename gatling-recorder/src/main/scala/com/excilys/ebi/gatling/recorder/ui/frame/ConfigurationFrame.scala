@@ -265,7 +265,7 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 
 	private def setListeners {
 		// Enables or disables filter edition depending on the selected strategy
-		cbFilterStrategies.addItemListener((e: ItemEvent) => {
+		cbFilterStrategies.addItemListener { e: ItemEvent =>
 			if (e.getStateChange == ItemEvent.SELECTED && e.getItem == FilterStrategy.NONE) {
 				tblFilters.setEnabled(false)
 				tblFilters.setFocusable(false)
@@ -273,20 +273,19 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 				tblFilters.setEnabled(true)
 				tblFilters.setFocusable(true)
 			}
-		})
+		}
 
 		// Adds a filter row when + button clicked
-		btnFiltersAdd.addActionListener((e: ActionEvent) => tblFilters.addRow)
+		btnFiltersAdd.addActionListener { e: ActionEvent => tblFilters.addRow }
 
 		// Removes selected filter when - button clicked
-		btnFiltersDel.addActionListener((e: ActionEvent) => tblFilters.removeSelectedRow)
+		btnFiltersDel.addActionListener { e: ActionEvent => tblFilters.removeSelectedRow }
 
 		// Removes all filters when clear button clicked
-		btnClear.addActionListener((e: ActionEvent) => tblFilters.removeAllElements)
+		btnClear.addActionListener { e: ActionEvent => tblFilters.removeAllElements }
 
 		// Opens a save dialog when Browse button clicked
-		btnOutputFolder.addActionListener((e: ActionEvent) => {
-
+		btnOutputFolder.addActionListener { e: ActionEvent =>
 			var chosenDirPath: String = null
 
 			if (IS_MAC_OSX) {
@@ -305,7 +304,7 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 			}
 
 			txtOutputFolder.setText(chosenDirPath)
-		})
+		}
 
 		// Validates form when Start button clicked
 		btnStart.addActionListener(new SaveConfigurationListener(controller, this))

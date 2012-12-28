@@ -26,9 +26,9 @@ import com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory.newClientB
 
 class BrowserHttpRequestHandler(controller: RecorderController, proxyConfig: ProxyConfig) extends AbstractBrowserRequestHandler(controller, proxyConfig) {
 
-	def connectToServerOnBrowserRequestReceived(ctx: ChannelHandlerContext, request: HttpRequest): ChannelFuture = {
+	def propagateRequest(requestContext: ChannelHandlerContext, request: HttpRequest) {
 
-		val bootstrap = newClientBootstrap(controller, ctx, request, false)
+		val bootstrap = newClientBootstrap(controller, requestContext, request, false)
 
 		val (proxyHost, proxyPort) = (for {
 			host <- proxyConfig.host
@@ -40,6 +40,8 @@ class BrowserHttpRequestHandler(controller: RecorderController, proxyConfig: Pro
 				(uri.getHost, port)
 			}
 
-		bootstrap.connect(new InetSocketAddress(proxyHost, proxyPort))
+		bootstrap
+			.connect(new InetSocketAddress(proxyHost, proxyPort))
+			.addListener { future: ChannelFuture => future.getChannel.write(buildRequestWithRelativeURI(request)) }
 	}
 }

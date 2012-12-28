@@ -17,11 +17,13 @@ package com.excilys.ebi.gatling.recorder.http.handler
 
 import java.net.{ URI, InetSocketAddress }
 
-import org.jboss.netty.channel.{ ChannelHandlerContext, ChannelFuture }
-import org.jboss.netty.handler.codec.http.{ HttpVersion, HttpResponseStatus, HttpRequest, HttpMethod, DefaultHttpResponse }
+import org.jboss.netty.channel.{ ChannelFuture, ChannelHandlerContext }
+import org.jboss.netty.handler.codec.http.{ DefaultHttpResponse, HttpMethod, HttpRequest, HttpResponseStatus, HttpVersion }
+import org.jboss.netty.handler.ssl.SslHandler
 
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
+import com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory
 import com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory.newClientBootstrap
 
 import grizzled.slf4j.Logging
@@ -30,34 +32,37 @@ class BrowserHttpsRequestHandler(controller: RecorderController, proxyConfig: Pr
 
 	@volatile var targetHostURI: URI = _
 
-	def connectToServerOnBrowserRequestReceived(ctx: ChannelHandlerContext, request: HttpRequest): ChannelFuture = {
+	def propagateRequest(requestContext: ChannelHandlerContext, request: HttpRequest) {
 
-		info("Received " + request.getMethod + " on " + request.getUri)
-
-		if (request.getMethod == HttpMethod.CONNECT) {
-
-			targetHostURI = new URI("https://" + request.getUri());
-
+		def handleConnect {
+			targetHostURI = new URI("https://" + request.getUri)
 			warn("Trying to connect to " + targetHostURI + ", make sure you've accepted the recorder certificate for this site")
-
 			controller.secureConnection(targetHostURI)
+			requestContext.getChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
+		}
 
-			ctx.getChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
-
-			null
-
-		} else {
-			// set full uri so that it's correctly recorded
+		def handlePropagatableRequest {
+			// set full uri so that it's correctly recorded FIXME ugly
 			request.setUri(targetHostURI + request.getUri)
 
-			val bootstrap = newClientBootstrap(controller, ctx, request, true)
+			val bootstrap = newClientBootstrap(controller, requestContext, request, true)
 
 			val (host, port) = (for {
 				host <- proxyConfig.host
 				port <- proxyConfig.port
 			} yield (host, port)).getOrElse(targetHostURI.getHost, targetHostURI.getPort)
 
-			bootstrap.connect(new InetSocketAddress(host, port))
+			bootstrap
+				.connect(new InetSocketAddress(host, port))
+				.addListener { connectFuture: ChannelFuture =>
+					connectFuture.getChannel.getPipeline.get(BootstrapFactory.SSL_HANDLER_NAME).asInstanceOf[SslHandler].handshake.addListener { handshakeFuture: ChannelFuture =>
+						handshakeFuture.getChannel.write(buildRequestWithRelativeURI(request))
+					}
+				}
 		}
+
+		info("Received " + request.getMethod + " on " + request.getUri)
+		if (request.getMethod == HttpMethod.CONNECT) handleConnect
+		else handlePropagatableRequest
 	}
 }
