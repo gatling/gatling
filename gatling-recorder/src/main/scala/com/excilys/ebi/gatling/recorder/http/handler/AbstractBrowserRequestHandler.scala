@@ -31,6 +31,10 @@ import grizzled.slf4j.Logging
 
 abstract class AbstractBrowserRequestHandler(controller: RecorderController, proxyConfig: ProxyConfig) extends SimpleChannelHandler with Logging {
 
+	implicit def function2ChannelFutureListener(thunk: ChannelFuture => Any) = new ChannelFutureListener {
+		def operationComplete(future: ChannelFuture) { thunk(future) }
+	}
+
 	override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent) {
 
 		event.getMessage match {
@@ -45,39 +49,26 @@ abstract class AbstractBrowserRequestHandler(controller: RecorderController, pro
 					}
 				}.getOrElse(request.removeHeader("Proxy-Connection")) // remove Proxy-Connection header if it's not significant
 
-				val future = connectToServerOnBrowserRequestReceived(ctx, request)
+				propagateRequest(ctx, request)
 
 				controller.receiveRequest(request)
-
-				sendRequestToServerAfterConnection(future, request);
 
 			case unknown => warn("Received unknown message: " + unknown)
 		}
 	}
 
-	def connectToServerOnBrowserRequestReceived(ctx: ChannelHandlerContext, request: HttpRequest): ChannelFuture
+	def propagateRequest(requestContext: ChannelHandlerContext, request: HttpRequest)
 
 	override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent) {
 		error("Exception caught", e.getCause)
 
 		// Properly closing
 		val future = ctx.getChannel.getCloseFuture
-		future.addListener(new ChannelFutureListener {
-			def operationComplete(future: ChannelFuture) = future.getChannel.close
-		})
+		future.addListener(ChannelFutureListener.CLOSE)
 		ctx.sendUpstream(e)
 	}
 
-	private def sendRequestToServerAfterConnection(future: ChannelFuture, request: HttpRequest) {
-
-		Option(future).map { future =>
-			future.addListener(new ChannelFutureListener {
-				def operationComplete(future: ChannelFuture) = future.getChannel.write(buildRequestWithRelativeURI(request))
-			})
-		}
-	}
-
-	private def buildRequestWithRelativeURI(request: HttpRequest) = {
+	def buildRequestWithRelativeURI(request: HttpRequest) = {
 		val uri = new URI(request.getUri)
 		val newUri = new URI(null, null, null, -1, uri.getPath, uri.getQuery, uri.getFragment).toString
 		val newRequest = new DefaultHttpRequest(request.getProtocolVersion, request.getMethod, newUri)
