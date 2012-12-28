@@ -51,7 +51,7 @@ abstract class AbstractBrowserRequestHandler(controller: RecorderController, pro
 
 				sendRequestToServerAfterConnection(future, request);
 
-			case _ => // whatever
+			case unknown => warn("Received unknown message: " + unknown)
 		}
 	}
 
@@ -83,8 +83,7 @@ abstract class AbstractBrowserRequestHandler(controller: RecorderController, pro
 		val newRequest = new DefaultHttpRequest(request.getProtocolVersion, request.getMethod, newUri)
 		newRequest.setChunked(request.isChunked)
 		newRequest.setContent(request.getContent)
-		for (header <- request.getHeaders)
-			newRequest.addHeader(header.getKey, header.getValue)
+		for (header <- request.getHeaders) newRequest.addHeader(header.getKey, header.getValue)
 		newRequest
 	}
 }

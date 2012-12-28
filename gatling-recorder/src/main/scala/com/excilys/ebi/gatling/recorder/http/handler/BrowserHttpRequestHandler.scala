@@ -15,9 +15,9 @@
  */
 package com.excilys.ebi.gatling.recorder.http.handler
 
-import java.net.{ URI, InetSocketAddress }
+import java.net.{ InetSocketAddress, URI }
 
-import org.jboss.netty.channel.{ ChannelHandlerContext, ChannelFuture }
+import org.jboss.netty.channel.{ ChannelFuture, ChannelHandlerContext }
 import org.jboss.netty.handler.codec.http.HttpRequest
 
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig

@@ -15,10 +15,10 @@
  */
 package com.excilys.ebi.gatling.recorder.http.handler
 
-import java.net.{ URI, InetSocketAddress }
+import java.net.{ InetSocketAddress, URI }
 
-import org.jboss.netty.channel.{ ChannelHandlerContext, ChannelFuture }
-import org.jboss.netty.handler.codec.http.{ HttpVersion, HttpResponseStatus, HttpRequest, HttpMethod, DefaultHttpResponse }
+import org.jboss.netty.channel.{ ChannelFuture, ChannelHandlerContext }
+import org.jboss.netty.handler.codec.http.{ DefaultHttpResponse, HttpMethod, HttpRequest, HttpResponseStatus, HttpVersion }
 
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
 import com.excilys.ebi.gatling.recorder.controller.RecorderController

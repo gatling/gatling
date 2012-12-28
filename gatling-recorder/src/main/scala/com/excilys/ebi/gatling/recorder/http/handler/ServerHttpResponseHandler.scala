@@ -20,7 +20,9 @@ import org.jboss.netty.handler.codec.http.{ HttpRequest, HttpResponse }
 
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 
-class ServerHttpResponseHandler(controller: RecorderController, requestContext: ChannelHandlerContext, request: HttpRequest) extends SimpleChannelHandler {
+import grizzled.slf4j.Logging
+
+class ServerHttpResponseHandler(controller: RecorderController, requestContext: ChannelHandlerContext, request: HttpRequest) extends SimpleChannelHandler with Logging {
 
 	override def messageReceived(context: ChannelHandlerContext, event: MessageEvent) {
 
@@ -28,7 +30,7 @@ class ServerHttpResponseHandler(controller: RecorderController, requestContext: 
 			case response: HttpResponse =>
 				controller.receiveResponse(request, response)
 				requestContext.getChannel.write(response).addListener(ChannelFutureListener.CLOSE) // Send back to client
-			case _ => // whatever
+			case unknown => warn("Received unknown message: " + unknown)
 		}
 	}
 }
