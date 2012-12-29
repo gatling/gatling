@@ -250,6 +250,16 @@
 				<groupId>jaxen</groupId>
 				<artifactId>jaxen</artifactId>
 				<version>${jaxen.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>maven-plugins</groupId>
+						<artifactId>maven-cobertura-plugin</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>maven-plugins</groupId>
+						<artifactId>maven-findbugs-plugin</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>xerces</groupId>
