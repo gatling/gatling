@@ -22,7 +22,7 @@ import javax.net.ssl.{ ManagerFactoryParameters, TrustManager, TrustManagerFacto
 
 object SecureChatTrustManagerFactory {
 
-	val DUMMY_TRUST_MANAGER: X509TrustManager = new X509TrustManager {
+	val trustManagers = Array[TrustManager](new X509TrustManager {
 		def getAcceptedIssuers = Array.empty[X509Certificate]
 
 		def checkClientTrusted(chain: Array[X509Certificate], authType: String) {
@@ -32,24 +32,22 @@ object SecureChatTrustManagerFactory {
 		def checkServerTrusted(chain: Array[X509Certificate], authType: String) {
 			// Always trust
 		}
-	}
-
-	def getTrustManagers = Array[TrustManager](DUMMY_TRUST_MANAGER)
+	})
 
 }
 
 /**
  * Bogus {@link TrustManagerFactorySpi} which accepts any certificate even if it
  * is invalid.
- * 
+ *
  * @author <a href="http://www.jboss.org/netty/">The Netty Project</a>
  * @author <a href="http://gleamynode.net/">Trustin Lee</a>
- * 
+ *
  * @version $Rev: 2080 $, $Date: 2010-01-26 18:04:19 +0900 (Tue, 26 Jan 2010) $
  */
 class SecureChatTrustManagerFactory extends TrustManagerFactorySpi {
 
-	def engineGetTrustManagers = SecureChatTrustManagerFactory.getTrustManagers
+	def engineGetTrustManagers = SecureChatTrustManagerFactory.trustManagers
 
 	def engineInit(keystore: KeyStore) {
 		// Unused

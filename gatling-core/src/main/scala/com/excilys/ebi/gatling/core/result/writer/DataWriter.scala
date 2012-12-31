@@ -36,19 +36,17 @@ object DataWriter {
 
 	private val router = system.actorOf(Props[Actor].withRouter(BroadcastRouter(routees = dataWriters)))
 
-	def init(runRecord: RunRecord, scenarios: Seq[Scenario]) = {
+	def init(runRecord: RunRecord, scenarios: Seq[Scenario]) {
 		val shortScenarioDescriptions = scenarios.map(scenario => ShortScenarioDescription(scenario.name, scenario.configuration.users))
 		router ! Init(runRecord, shortScenarioDescriptions)
 	}
 
-	def user(scenarioName: String, userId: Int, event: String) = {
-		val time = nowMillis
-		router ! ScenarioRecord(scenarioName, userId, event, time)
+	def user(scenarioName: String, userId: Int, event: String) {
+		router ! ScenarioRecord(scenarioName, userId, event, nowMillis)
 	}
 
 	def group(scenarioName: String, groupName: String, userId: Int, event: String) {
-		val time = nowMillis
-		router ! GroupRecord(scenarioName, groupName, userId, event, time)
+		router ! GroupRecord(scenarioName, groupName, userId, event, nowMillis)
 	}
 
 	def logRequest(
@@ -61,7 +59,7 @@ object DataWriter {
 		executionEndDate: Long,
 		requestResult: RequestStatus,
 		requestMessage: Option[String] = None,
-		extraInfo: List[String] = Nil) = {
+		extraInfo: List[String] = Nil) {
 
 		router ! RequestRecord(
 			scenarioName,

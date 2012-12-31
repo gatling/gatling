@@ -54,9 +54,9 @@ import javax.net.ssl.{ KeyManagerFactory, SSLContext }
  */
 object SecureChatSslContextFactory {
 
-	val (serverContext, clientContext): (SSLContext, SSLContext) = {
+	val PROTOCOL = "TLS"
 
-		val PROTOCOL = "TLS"
+	val serverContext: SSLContext = {
 		val algorithm = Option(Security.getProperty("ssl.KeyManagerFactory.algorithm")).getOrElse("SunX509")
 		val ks = KeyStore.getInstance("JKS")
 
@@ -72,10 +72,13 @@ object SecureChatSslContextFactory {
 			val serverContext = SSLContext.getInstance(PROTOCOL)
 			serverContext.init(kmf.getKeyManagers, null, null)
 
-			val clientContext = SSLContext.getInstance(PROTOCOL)
-			clientContext.init(null, SecureChatTrustManagerFactory.getTrustManagers, null)
-
-			(serverContext, clientContext)
+			serverContext
 		}
+	}
+
+	val clientContext: SSLContext = {
+		val clientContext = SSLContext.getInstance(PROTOCOL)
+		clientContext.init(null, SecureChatTrustManagerFactory.trustManagers, null)
+		clientContext
 	}
 }
