@@ -66,17 +66,20 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	}
 
 	private def preProcess(records: Iterator[String]) = {
-		val (actions, runs) = records.map(FileDataReader.TABULATION_PATTERN.split).filter(array => array.head == ACTION || array.head == RUN).partition(_.head == ACTION)
+		val (runs, actionsOrScenarii) = records.map(FileDataReader.TABULATION_PATTERN.split).filter(array => array.head == ACTION || array.head == RUN || array.head == SCENARIO).partition(_.head == RUN)
 
-		val (runStart, runEnd, totalRequestsNumber) = actions
-			.filter(_.length >= FileDataReader.ACTION_RECORD_LENGTH)
+		val (runStart, runEnd, totalRequestsNumber) = actionsOrScenarii
+			.filter(array => array.head == ACTION && array.length >= FileDataReader.ACTION_RECORD_LENGTH || array.head == SCENARIO && array.length >= FileDataReader.SCENARIO_RECORD_LENGTH)
 			.foldLeft((Long.MaxValue, Long.MinValue, 0L)) {
 				(accumulator, strings) =>
 					val (min, max, count) = accumulator
 
 					if (count % FileDataReader.LOG_STEP == 0) info("First pass, read " + count + " lines")
 
-					(math.min(min, strings(4).toLong), math.max(max, strings(7).toLong), count + 1)
+					strings(0) match {
+						case ACTION => (math.min(min, strings(4).toLong), math.max(max, strings(7).toLong), count + 1)
+						case SCENARIO => (math.min(min, strings(4).toLong), math.max(max, strings(4).toLong), count + 1)
+					}
 			}
 
 		val runRecords = mutable.ListBuffer[RunRecord]()
