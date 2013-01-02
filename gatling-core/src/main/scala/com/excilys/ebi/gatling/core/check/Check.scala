@@ -56,7 +56,7 @@ object Check {
  * @param matcher the matcher that will try to match the result of the extraction
  * @param saveAs the session attribute that will be used to store the extracted value if the checks are successful
  */
-class Check[R, XC](val expression: Expression[XC], matcher: Matcher[R, XC], saveAs: Option[String]) {
+class Check[R, XC](expression: Expression[XC], matcher: Matcher[R, XC], saveAs: Option[String]) {
 
 	def apply(response: R)(session: Session): Validation[String, Session] = {
 		val validation = expression(session).flatMap(matcher(response, session, _))
