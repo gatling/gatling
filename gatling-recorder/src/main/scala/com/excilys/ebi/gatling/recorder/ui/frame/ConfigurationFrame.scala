@@ -51,13 +51,13 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 	val txtProxyPassword = new JTextField(null, 12)
 	txtProxyPassword.setEnabled(false)
 
-	val cbFilterStrategies = new JComboBox
+	val cbFilterStrategies = new JComboBox[FilterStrategy.Value]
 	val chkSavePref = new JCheckBox("Save preferences")
 	val chkFollowRedirect = new JCheckBox("Follow Redirects?")
 	val chkAutomaticReferer = new JCheckBox("Automatic Referers?")
 	val txtOutputFolder = new JTextField(66)
 	val tblFilters = new FilterTable
-	val cbOutputEncoding = new JComboBox
+	val cbOutputEncoding = new JComboBox[Charset]
 	val txtSimulationPackage = new JTextField(30)
 	val txtSimulationClassName = new JTextField(30)
 

@@ -22,13 +22,16 @@ import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration
+import com.excilys.ebi.gatling.core.util.IOHelper
 
 @RunWith(classOf[JUnitRunner])
 class JsonExtractorSpec extends Specification {
 
 	def extractor(file: String) = {
 		GatlingConfiguration.setUp()
-		new JsonPathExtractor(Source.fromInputStream(getClass.getResourceAsStream(file)).mkString.getBytes)
+		IOHelper.use(Source.fromInputStream(getClass.getResourceAsStream(file))) { source =>
+			new JsonPathExtractor(source.mkString.getBytes)
+		}
 	}
 
 	"count" should {

@@ -27,7 +27,7 @@ import com.excilys.ebi.gatling.recorder.ui.info.{ EventInfo, PauseInfo, RequestI
 import com.excilys.ebi.gatling.recorder.ui.util.ScalaSwing
 
 import grizzled.slf4j.Logging
-import javax.swing.{ BorderFactory, DefaultListModel, JButton, JFrame, JLabel, JList, JPanel, JScrollPane, JSplitPane, JTextField }
+import javax.swing._
 import javax.swing.event.ListSelectionEvent
 
 class RunningFrame(controller: RecorderController) extends JFrame with ScalaSwing with Logging {
@@ -39,8 +39,8 @@ class RunningFrame(controller: RecorderController) extends JFrame with ScalaSwin
 
 	private val txtTag = new JTextField(15)
 
-	private val eventsInfo = new DefaultListModel
-	private val hostsCertificate = new DefaultListModel
+	private val eventsInfo = new DefaultListModel[EventInfo]
+	private val hostsCertificate = new DefaultListModel[String]
 
 	private val eventsInfoJList = new JList(eventsInfo)
 	private val requiredHostsCertificate = new JList(hostsCertificate)
@@ -134,8 +134,8 @@ class RunningFrame(controller: RecorderController) extends JFrame with ScalaSwin
 		}
 
 		eventsInfoJList.addListSelectionListener { e: ListSelectionEvent =>
-			if (eventsInfoJList.getSelectedIndex() >= 0) {
-				val obj = eventsInfo.get(eventsInfoJList.getSelectedIndex());
+			if (eventsInfoJList.getSelectedIndex >= 0) {
+				val obj = eventsInfo.get(eventsInfoJList.getSelectedIndex);
 				if (obj.isInstanceOf[RequestInfo]) {
 					val requestInfo = obj.asInstanceOf[RequestInfo]
 					requestHeadersInfo.txt.setText(requestInfo.request.toString)

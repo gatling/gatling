@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.excilys.ebi.gatling</groupId>
 	<artifactId>gatling-parent</artifactId>
@@ -139,6 +140,7 @@
 		<junit.version>4.11</junit.version>
 		<specs2.version>1.12.3</specs2.version>
 		<zinc.version>0.2.0</zinc.version>
+		<plexus-selector.version>1.0.0</plexus-selector.version>
 		<maven2.version>2.2.1</maven2.version>
 		<maven-compiler-plugin.version>3.0</maven-compiler-plugin.version>
 		<maven-source-plugin.version>2.2</maven-source-plugin.version>
@@ -406,6 +408,11 @@
 					</exclusion>
 				</exclusions>
 			</dependency>
+			<dependency>
+				<groupId>com.excilys.ebi</groupId>
+				<artifactId>plexus-selector</artifactId>
+				<version>${plexus-selector.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -494,7 +501,7 @@
 						</execution>
 					</executions>
 				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
 					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
