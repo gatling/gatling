@@ -71,7 +71,7 @@ public class GatlingMojo extends AbstractMojo {
 	 * @parameter expression="${gatling.reportsOnly}" alias="ro"
 	 * @description Generates the reports for the simulation in this folder
 	 */
-	private File reportsOnly;
+	private String reportsOnly;
 
 	/**
 	 * Uses this file as the configuration file.
@@ -294,7 +294,7 @@ public class GatlingMojo extends AbstractMojo {
 		}
 
 		if (reportsOnly != null) {
-			args.addAll(asList("-" + CommandLineConstants.CLI_REPORTS_ONLY(), reportsOnly.getCanonicalPath()));
+			args.addAll(asList("-" + CommandLineConstants.CLI_REPORTS_ONLY(), reportsOnly));
 		}
 
 		if (outputDirectoryBaseName != null) {
