@@ -22,7 +22,7 @@ import scala.collection.mutable
 
 import com.excilys.ebi.gatling.charts.result.reader.ScenarioRecord
 
-trait SessionDeltaPerSecBuffers extends Buffers {
+trait SessionDeltaPerSecBuffers {
 
 	val sessionDeltaPerSecBuffers: mutable.Map[Option[String], SessionDeltaBuffer] = new JHashMap[Option[String], SessionDeltaBuffer]
 

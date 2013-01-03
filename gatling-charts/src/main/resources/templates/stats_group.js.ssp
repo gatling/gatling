@@ -25,6 +25,5 @@ contents: {
 	<% if (it.hasNext) { %>,<% } %>
 <% } %>
 },
-duration: <%= group.groupStats.duration.toString %>,
 <% attributes("request") = group.requestStats %>
 ${include("stats_request.js.ssp")}

@@ -44,7 +44,8 @@ object ReportsGenerator extends Logging {
 		val reportGenerators =
 			List(new AllSessionsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance),
 				new GlobalReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance),
-				new RequestDetailsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance))
+				new RequestDetailsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance),
+				new GroupDetailsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance))
 
 		copyAssets
 		generateMenu

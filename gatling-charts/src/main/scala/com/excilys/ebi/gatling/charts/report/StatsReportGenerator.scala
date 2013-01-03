@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import com.excilys.ebi.gatling.charts.component.{ ComponentLibrary, GroupStatistics, RequestStatistics, Statistics }
+import com.excilys.ebi.gatling.charts.component.{ ComponentLibrary, RequestStatistics, Statistics }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ GLOBAL_PAGE_NAME, jsStatsFile, jsonStatsFile, tsvStatsFile }
 import com.excilys.ebi.gatling.charts.template.{ StatsJsTemplate, StatsJsonTemplate, StatsTsvTemplate }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
@@ -57,13 +57,11 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 			RequestStatistics(name, path, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, groupedCounts, meanNumberOfRequestsPerSecondStatistics)
 		}
 
-		def computeGroupStats(group: Option[Group]) = GroupStatistics(dataReader.groupStats(group))
-
-		val stats = GroupContainer.root(computeGroupStats(None), computeRequestStats(GLOBAL_PAGE_NAME, None, None))
+		val stats = GroupContainer.root(computeRequestStats(GLOBAL_PAGE_NAME, None, None))
 
 		dataReader.groupsAndRequests.foreach {
 			case (group, Some(request)) => stats.addRequest(group, computeRequestStats(request, Some(request), group))
-			case (Some(group), None) => stats.addGroup(group, computeGroupStats(Some(group)), computeRequestStats(group.name, None, Some(group)))
+			case (Some(group), None) => stats.addGroup(group, computeRequestStats(group.name, None, Some(group)))
 			case _ => throw new UnsupportedOperationException
 		}
 

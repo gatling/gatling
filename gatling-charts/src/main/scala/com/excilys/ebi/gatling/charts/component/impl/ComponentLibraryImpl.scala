@@ -36,4 +36,6 @@ class ComponentLibraryImpl extends ComponentLibrary {
 	def getRequestDetailsScatterChartComponent(successData: Series[Int, Int], failuresData: Series[Int, Int]): Component = throw new UnsupportedOperationException
 	def getRequestDetailsIndicatorChartComponent: Component = throw new UnsupportedOperationException
 	def getNumberOfRequestsChartComponent: Component = throw new UnsupportedOperationException
+	def getGroupDurationChartComponent(runStart: Long, durations: Series[Int, (Int, Int)]): Component = throw new UnsupportedOperationException
+	def getGroupDetailsDurationDistributionChartComponent(durations: Series[Int, Int]): Component = throw new UnsupportedOperationException
 }

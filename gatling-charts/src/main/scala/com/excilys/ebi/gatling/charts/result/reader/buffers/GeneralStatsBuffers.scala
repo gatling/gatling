@@ -20,16 +20,15 @@ import java.util.{ HashMap => JHashMap }
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 
-import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
-import com.excilys.ebi.gatling.charts.result.reader.FileDataReader
+import com.excilys.ebi.gatling.charts.result.reader.{ ActionRecord, FileDataReader }
 import com.excilys.ebi.gatling.charts.result.reader.stats.PercentilesHelper
 import com.excilys.ebi.gatling.charts.result.reader.stats.StatsHelper
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.Group
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
+import com.excilys.ebi.gatling.core.result.message.{ OK, RequestStatus }
 import com.excilys.ebi.gatling.core.result.reader.GeneralStats
 
-abstract class GeneralStatsBuffers(durationInSec: Long) extends Buffers {
+abstract class GeneralStatsBuffers(durationInSec: Long) {
 
 	val generalStatsBuffers: mutable.Map[BufferKey, GeneralStatsBuffer] = new JHashMap[BufferKey, GeneralStatsBuffer]
 
@@ -37,13 +36,16 @@ abstract class GeneralStatsBuffers(durationInSec: Long) extends Buffers {
 		generalStatsBuffers.getOrElseUpdate(computeKey(request, group, status), new GeneralStatsBuffer(durationInSec))
 
 	def updateGeneralStatsBuffers(record: ActionRecord, group: Option[Group]) {
-		recursivelyUpdate(record, group) { (record, group) =>
-			getGeneralStatsBuffers(None, group, None).update(record.responseTime)
-			getGeneralStatsBuffers(None, group, Some(record.status)).update(record.responseTime)
-		}
-
 		getGeneralStatsBuffers(Some(record.request), group, None).update(record.responseTime)
 		getGeneralStatsBuffers(Some(record.request), group, Some(record.status)).update(record.responseTime)
+
+		getGeneralStatsBuffers(None, None, None).update(record.responseTime)
+		getGeneralStatsBuffers(None, None, Some(record.status)).update(record.responseTime)
+	}
+
+	def updateGroupGeneralStatsBuffers(duration: Int, group: Group) {
+		getGeneralStatsBuffers(None, Some(group), None).update(duration)
+		getGeneralStatsBuffers(None, Some(group), Some(OK)).update(duration)
 	}
 
 	class GeneralStatsBuffer(duration: Long) extends CountBuffer {

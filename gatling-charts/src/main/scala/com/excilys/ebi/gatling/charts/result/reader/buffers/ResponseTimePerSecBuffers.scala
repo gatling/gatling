@@ -22,20 +22,19 @@ import scala.collection.mutable
 
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
 import com.excilys.ebi.gatling.core.result.Group
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
+import com.excilys.ebi.gatling.core.result.message.{ OK, RequestStatus }
 
-trait ResponseTimePerSecBuffers extends Buffers {
+trait ResponseTimePerSecBuffers {
 
 	val responseTimePerSecBuffers: mutable.Map[BufferKey, RangeBuffer] = new JHashMap[BufferKey, RangeBuffer]
 
 	def getResponseTimePerSecBuffers(requestName: Option[String], group: Option[Group], status: Option[RequestStatus]): RangeBuffer = responseTimePerSecBuffers.getOrElseUpdate(computeKey(requestName, group, status), new RangeBuffer)
 
 	def updateResponseTimePerSecBuffers(record: ActionRecord, group: Option[Group]) {
-		recursivelyUpdate(record, group) { (record, group) =>
-			getResponseTimePerSecBuffers(None, group, Some(record.status)).update(record.executionStartBucket, record.responseTime)
-		}
-
-		getResponseTimePerSecBuffers(None, group, Some(record.status)).update(record.executionStartBucket, record.responseTime)
 		getResponseTimePerSecBuffers(Some(record.request), group, Some(record.status)).update(record.executionStartBucket, record.responseTime)
+	}
+
+	def updateGroupResponseTimePerSecBuffers(start: Int, duration: Int, group: Group) {
+		getResponseTimePerSecBuffers(None, Some(group), Some(OK)).update(start, duration)
 	}
 }

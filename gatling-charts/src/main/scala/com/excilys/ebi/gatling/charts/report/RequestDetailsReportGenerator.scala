@@ -68,14 +68,14 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 
 			def indicatorChartComponent: Component = componentLibrary.getRequestDetailsIndicatorChartComponent
 
-			def pageTitle: String = requestName match {
+			/*def pageTitle: String = requestName match {
 				case None => path + " (Duration = " + dataReader.groupStats(group) + " ms)"
 				case Some(_) => path
-			}
+			}*/
 
 			// Create template
 			val template =
-				new RequestDetailsPageTemplate(pageTitle,
+				new RequestDetailsPageTemplate(path,
 					requestName,
 					group,
 					responseTimeChartComponent,
@@ -91,8 +91,7 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 
 		dataReader.groupsAndRequests.foreach {
 			case (group, Some(request)) => generateDetailPage(RequestPath.path(request, group), Some(request), group)
-			case (Some(group), None) => generateDetailPage(group.path, None, Some(group))
-			case _ => throw new UnsupportedOperationException
+			case _ => {}
 		}
 	}
 }
