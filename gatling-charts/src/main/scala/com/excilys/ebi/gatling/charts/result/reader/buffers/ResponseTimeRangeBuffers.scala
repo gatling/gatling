@@ -22,19 +22,21 @@ import scala.collection.mutable
 
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
 import com.excilys.ebi.gatling.core.result.Group
+import com.excilys.ebi.gatling.core.result.message.RequestStatus
 
-trait ResponseTimeRangeBuffers extends Buffers {
+trait ResponseTimeRangeBuffers {
 
 	val responseTimeRangeBuffers: mutable.Map[BufferKey, ResponseTimeRangeBuffer] = new JHashMap[BufferKey, ResponseTimeRangeBuffer]
 
 	def getResponseTimeRangeBuffers(requestName: Option[String], group: Option[Group]): ResponseTimeRangeBuffer = responseTimeRangeBuffers.getOrElseUpdate(computeKey(requestName, group, None), new ResponseTimeRangeBuffer)
 
 	def updateResponseTimeRangeBuffer(record: ActionRecord, group: Option[Group]) {
-		recursivelyUpdate(record, group) {
-			(record, group) => getResponseTimeRangeBuffers(None, group).update(record)
-		}
+		getResponseTimeRangeBuffers(Some(record.request), group).update(record.responseTime, record.status)
+		getResponseTimeRangeBuffers(None, None).update(record.responseTime, record.status)
+	}
 
-		getResponseTimeRangeBuffers(Some(record.request), group).update(record)
+	def updateGroupResponseTimeRangeBuffer(duration: Int, group: Group) {
+		getResponseTimeRangeBuffers(None, Some(group)).update(duration, RequestStatus.OK)
 	}
 
 	class ResponseTimeRangeBuffer {
@@ -47,11 +49,11 @@ trait ResponseTimeRangeBuffers extends Buffers {
 		var high = 0
 		var ko = 0
 
-		def update(record: ActionRecord) {
+		def update(time: Int, status: RequestStatus.RequestStatus) {
 
-			if (record.status == RequestStatus.KO) ko += 1
-			else if (record.responseTime < configuration.charting.indicators.lowerBound) low += 1
-			else if (record.responseTime > configuration.charting.indicators.higherBound) high += 1
+			if (status == RequestStatus.KO) ko += 1
+			else if (time < configuration.charting.indicators.lowerBound) low += 1
+			else if (time > configuration.charting.indicators.higherBound) high += 1
 			else middle += 1
 		}
 	}

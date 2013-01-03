@@ -24,7 +24,7 @@ import scala.collection.JavaConversions._
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
 import com.excilys.ebi.gatling.core.result.Group
 
-trait Buffers {
+/*trait Buffers {
 
 	@tailrec
 	final def recursivelyUpdate(record: ActionRecord, group: Option[Group])(update: (ActionRecord, Option[Group]) => Unit) {
@@ -35,7 +35,7 @@ trait Buffers {
 			case None => {}
 		}
 	}
-}
+}*/
 
 class CountBuffer {
 	val map: mutable.Map[Int, Int] = new JHashMap[Int, Int]

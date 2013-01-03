@@ -83,8 +83,6 @@ case class RequestStatistics(name: String,
 		.toString
 }
 
-case class GroupStatistics(duration: Long)
-
 class StatisticsTextComponent extends Component {
 
 	def getHTMLContent: String = TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATISTICS_COMPONENT_URL)

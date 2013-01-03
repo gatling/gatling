@@ -21,7 +21,7 @@ import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 
-import com.excilys.ebi.gatling.charts.component.{ GroupStatistics, RequestStatistics }
+import com.excilys.ebi.gatling.charts.component.RequestStatistics
 import com.excilys.ebi.gatling.core.result.Group
 
 object Container {
@@ -34,7 +34,7 @@ trait Container
 case class RequestContainer(name: String, stats: RequestStatistics) extends Container
 
 object GroupContainer {
-	def root(groupStats: GroupStatistics, requestStats: RequestStatistics) = GroupContainer("ROOT", groupStats, requestStats)
+	def root(requestStats: RequestStatistics) = GroupContainer("ROOT", requestStats)
 
 	def getGroup(root: GroupContainer, group: Option[Group]) = {
 		@tailrec
@@ -51,12 +51,11 @@ object GroupContainer {
 }
 
 case class GroupContainer(name: String,
-	groupStats: GroupStatistics,
 	requestStats: RequestStatistics,
 	contents: mutable.Map[String, Container] = new JLinkedHashMap[String, Container]) extends Container {
 
-	def addGroup(group: Group, groupStats: GroupStatistics, requestStats: RequestStatistics) {
-		GroupContainer.getGroup(this, group.parent).contents += (group.name -> GroupContainer(group.name, groupStats, requestStats))
+	def addGroup(group: Group, requestStats: RequestStatistics) {
+		GroupContainer.getGroup(this, group.parent).contents += (group.name -> GroupContainer(group.name, requestStats))
 	}
 
 	def addRequest(parent: Option[Group], request: RequestStatistics) {

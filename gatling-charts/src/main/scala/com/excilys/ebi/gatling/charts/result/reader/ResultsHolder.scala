@@ -33,21 +33,25 @@ class ResultsHolder(minTime: Long, maxTime: Long)
 		record.event match {
 			case START =>
 				addStartSessionBuffers(record)
-				startGroup(record.user, record.scenario, record.executionDate, None)
+				//startGroup(record.user, record.scenario, record.executionDate, None)
 				addScenarioName(record)
 			case END =>
 				addEndSessionBuffers(record)
-				endGroup(record.user, record.scenario, record.executionDate)
+				//endGroup(record.user, record.scenario, record.executionDate)
 		}
 	}
 
 	def addGroupRecord(record: GroupRecord) {
 		record.event match {
 			case START =>
-				startGroup(record.user, record.scenario, record.executionDate, Some(record.group))
+				startGroup(record)
 				addGroupName(getCurrentGroup(record.user, record.scenario).get, record.executionDate)
 			case END =>
-				endGroup(record.user, record.scenario, record.executionDate)
+				val (startGroupRecord, group) = endGroup(record)
+				val duration = record.executionDate - startGroupRecord.executionDate
+				updateGroupGeneralStatsBuffers(duration, group)
+				updateGroupResponseTimePerSecBuffers(startGroupRecord.executionDateBucket, duration, group)
+				updateGroupResponseTimeRangeBuffer(duration, group)
 		}
 	}
 

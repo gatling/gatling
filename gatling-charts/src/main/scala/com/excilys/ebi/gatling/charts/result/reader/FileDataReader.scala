@@ -206,8 +206,6 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		.getGeneralStatsBuffers(requestName, group, status)
 		.compute
 
-	def groupStats(group: Option[Group]) = resultsHolder.getStatsGroupBuffer(group)
-
 	def numberOfRequestInResponseTimeRange(requestName: Option[String], group: Option[Group]): Seq[(String, Int)] = {
 
 		val counts = resultsHolder.getResponseTimeRangeBuffers(requestName, group)

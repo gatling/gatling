@@ -24,19 +24,17 @@ import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
 import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
 
-trait TransactionsPerSecBuffers extends Buffers {
+trait TransactionsPerSecBuffers {
 
 	val transactionsPerSecBuffers: mutable.Map[BufferKey, CountBuffer] = new JHashMap[BufferKey, CountBuffer]
 
 	def getTransactionsPerSecBuffer(requestName: Option[String], group: Option[Group], status: Option[RequestStatus.RequestStatus]): CountBuffer = transactionsPerSecBuffers.getOrElseUpdate(computeKey(requestName, group, status), new CountBuffer)
 
 	def updateTransactionsPerSecBuffers(record: ActionRecord, group: Option[Group]) {
-		recursivelyUpdate(record, group) { (record, group) =>
-			getTransactionsPerSecBuffer(None, group, None).update(record.executionEndBucket)
-			getTransactionsPerSecBuffer(None, group, Some(record.status)).update(record.executionEndBucket)
-		}
-
 		getTransactionsPerSecBuffer(Some(record.request), group, None).update(record.executionEndBucket)
 		getTransactionsPerSecBuffer(Some(record.request), group, Some(record.status)).update(record.executionEndBucket)
+
+		getTransactionsPerSecBuffer(None, None, None).update(record.executionEndBucket)
+		getTransactionsPerSecBuffer(None, None, Some(record.status)).update(record.executionEndBucket)
 	}
 }
