@@ -49,7 +49,7 @@ object FileDataReader {
 
 class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
-	private def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] = streams.map(Source.fromInputStream(_, configuration.simulation.encoding).getLines()).reduce((first, second) => first ++ second)
+	private def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] = streams.map(Source.fromInputStream(_, configuration.simulation.encoding).getLines).reduce((first, second) => first ++ second)
 
 	val inputFiles = simulationLogDirectory(runUuid, create = false).files
 		.collect { case file if (file.name.matches(FileDataReader.SIMULATION_FILES_NAME_PATTERN)) => file.jfile }
@@ -65,10 +65,14 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	}
 
 	private def preProcess(records: Iterator[String]) = {
-		val (runs, actionsOrScenarii) = records.map(FileDataReader.TABULATION_PATTERN.split).filter(array => array.head == ACTION || array.head == RUN || array.head == SCENARIO).partition(_.head == RUN)
+		val nonGroupRecordTypes = Set(ACTION, RUN, SCENARIO)
+		val (runs, actionsOrScenarios) = records.map(FileDataReader.TABULATION_PATTERN.split).filter(array => nonGroupRecordTypes.contains(array.head)).partition(_.head == RUN)
 
-		val (runStart, runEnd, totalRequestsNumber) = actionsOrScenarii
-			.filter(array => array.head == ACTION && array.length >= FileDataReader.ACTION_RECORD_LENGTH || array.head == SCENARIO && array.length >= FileDataReader.SCENARIO_RECORD_LENGTH)
+		def isValidActionRecord(array: Array[String]) = array.head == ACTION && array.length >= FileDataReader.ACTION_RECORD_LENGTH
+		def isValidScenarioRecord(array: Array[String]) = array.head == SCENARIO && array.length >= FileDataReader.SCENARIO_RECORD_LENGTH
+
+		val (runStart, runEnd, totalRequestsNumber) = actionsOrScenarios
+			.filter { array => isValidActionRecord(array) || isValidScenarioRecord(array) }
 			.foldLeft((Long.MaxValue, Long.MinValue, 0L)) {
 				(accumulator, strings) =>
 					val (min, max, count) = accumulator
@@ -82,10 +86,13 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			}
 
 		val runRecords = mutable.ListBuffer[RunRecord]()
+		
 		runs
 			.filter(_.length >= FileDataReader.RUN_RECORD_LENGTH)
 			.foreach(strings => runRecords += RunRecord(parseTimestampString(strings(1)), strings(2), strings(3).trim))
-
+			
+		System.err.println(runRecords.size);
+			
 		info("Read " + totalRequestsNumber + " lines (finished)")
 
 		(runStart, runEnd, runRecords.head)
