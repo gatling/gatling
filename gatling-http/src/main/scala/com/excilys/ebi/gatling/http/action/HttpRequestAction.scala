@@ -27,8 +27,7 @@ import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 
 import akka.actor.{ ActorRef, Props }
 import grizzled.slf4j.Logging
-import scalaz._
-import scalaz.Scalaz._
+import scalaz.{ Failure, Success }
 
 /**
  * HttpRequestAction class companion

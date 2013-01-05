@@ -20,8 +20,8 @@ import scala.annotation.tailrec
 import com.excilys.ebi.gatling.core.check.CheckContext.useCheckContext
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 
-import scalaz._
-import Scalaz._
+import scalaz.Scalaz.ToValidationV
+import scalaz.Validation
 
 object Check {
 
@@ -60,6 +60,11 @@ class Check[R, XC](expression: Expression[XC], matcher: Matcher[R, XC], saveAs: 
 
 	def apply(response: R)(session: Session): Validation[String, Session] = {
 		val validation = expression(session).flatMap(matcher(response, session, _))
-		validation.map { value => saveAs.map(session.set(_, value)).getOrElse(session) }
+
+		(for {
+			valueOption <- validation.toOption
+			value <- valueOption
+			saveAs <- saveAs
+		} yield session.set(saveAs, value).success).getOrElse(validation.map(_ => session))
 	}
 }

@@ -15,16 +15,19 @@
  */
 package com.excilys.ebi.gatling.core.scenario
 
+import scala.concurrent.duration.DurationInt
+
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfiguration
 import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.ActorRef
-import akka.util.duration.longToDurationLong
 
 class Scenario(val name: String, entryPoint: ActorRef, val configuration: ScenarioConfiguration) {
 
 	def run {
+
+		import system.dispatcher
 
 		def doRun {
 			if (configuration.users == 1) {

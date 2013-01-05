@@ -17,6 +17,7 @@ package com.excilys.ebi.gatling.http.ahc
 
 import scala.annotation.tailrec
 import scala.collection.JavaConversions.asScalaBuffer
+import scala.concurrent.duration.DurationInt
 
 import com.excilys.ebi.gatling.core.action.BaseActor
 import com.excilys.ebi.gatling.core.check.Check.applyChecks
@@ -39,8 +40,7 @@ import com.excilys.ebi.gatling.http.util.HttpHelper.computeRedirectUrl
 import com.ning.http.client.{ FluentStringsMap, Request, RequestBuilder }
 
 import akka.actor.{ ActorRef, ReceiveTimeout }
-import akka.util.duration.intToDurationInt
-import scalaz._
+import scalaz.{ Failure, Success }
 
 object GatlingAsyncHandlerActor {
 	val REDIRECTED_REQUEST_NAME_PATTERN = """(.+?) Redirect (\d+)""".r
