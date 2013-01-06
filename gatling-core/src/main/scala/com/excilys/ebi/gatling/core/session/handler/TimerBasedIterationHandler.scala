@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 
-import scalaz._
+import scalaz.Validation
 
 /**
  * TimerBasedIterationHandler trait 'companion'

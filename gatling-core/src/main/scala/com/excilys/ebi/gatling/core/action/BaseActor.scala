@@ -15,12 +15,13 @@
  */
 package com.excilys.ebi.gatling.core.action
 
+import scala.concurrent.duration.DurationInt
+
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
 
 import akka.actor.{ Actor, Terminated }
 import akka.util.Timeout
-import akka.util.duration.intToDurationInt
 import grizzled.slf4j.Logging
 
 trait BaseActor extends Actor with ClassSimpleNameToString with Logging {

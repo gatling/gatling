@@ -17,10 +17,11 @@ package com.excilys.ebi.gatling.core.action
 
 import java.lang.System.currentTimeMillis
 
+import scala.concurrent.duration.DurationLong
+
 import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.ActorRef
-import akka.util.duration.longToDurationLong
 
 /**
  * PauseAction provides a convenient means to implement pause actions based on random distributions.
@@ -29,7 +30,7 @@ import akka.util.duration.longToDurationLong
  * @param generateDelayInMillis a function that can be used to generate a delays for the pause action
  */
 class PauseAction(val next: ActorRef, generateDelayInMillis: () => Long) extends Action with Bypass {
-	
+
 	/**
 	 * Generates a duration if required or use the one given and defer
 	 * next actor execution of this duration
@@ -37,6 +38,8 @@ class PauseAction(val next: ActorRef, generateDelayInMillis: () => Long) extends
 	 * @param session the session of the virtual user
 	 */
 	def execute(session: Session) {
+
+		import system.dispatcher
 
 		val durationInMillis: Long = generateDelayInMillis()
 		val timeShift = session.getTimeShift

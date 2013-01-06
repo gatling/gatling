@@ -20,8 +20,8 @@ import java.net.URLClassLoader
 
 import scala.tools.nsc.io.{ Directory, Path }
 import scala.tools.nsc.io.Path.{ jfile2path, string2path }
-import scala.tools.nsc.util.ClassPath
 
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.config.GatlingFiles
 import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_HOME
 import com.typesafe.zinc.{ Compiler, Inputs, Setup }
@@ -50,7 +50,7 @@ object ZincCompiler extends Logging {
 			Inputs.inputs(classpath = classpath,
 				sources = sources,
 				classesDirectory = (binDir / "classes").jfile,
-				scalacOptions = Seq("-deprecation"),
+				scalacOptions = Seq("-encoding", configuration.simulation.encoding, "-target:jvm-1.6", "-deprecation", "-feature", "-unchecked", "-language:implicitConversions", "-language:reflectiveCalls", "-language:postfixOps"),
 				javacOptions = Nil,
 				analysisCache = Some((binDir / "zincCache").jfile),
 				analysisCacheMap = Map(analysisCacheMapEntry("bin"), analysisCacheMapEntry("conf"), analysisCacheMapEntry("user-files")), // avoids having GATLING_HOME polluted with a "cache" folder
@@ -72,14 +72,15 @@ object ZincCompiler extends Logging {
 				new JFile(jarUrl.toURI)
 			}
 
-			val scalaCompiler = ClassPath.scalaCompiler.getOrElse(throw new RuntimeException("No Scala compiler available")).jfile
-			val scalaLibrary = ClassPath.scalaLibrary.getOrElse(throw new RuntimeException("No Scala library available")).jfile
+			val scalaCompiler = jarMatching("""(.*scala-compiler-.*\.jar)$""")
+			val scalaLibrary = jarMatching("""(.*scala-library-.*\.jar)$""")
+			val scalaReflect = jarMatching("""(.*scala-reflect-.*\.jar)$""")
 			val sbtInterfaceSrc: JFile = new JFile(classOf[Compilation].getProtectionDomain.getCodeSource.getLocation.toURI)
-			val compilerInterfaceSrc: JFile = jarMatching("""(.*compiler-interface-\d+.\d+.\d+-sources.jar)$""")
+			val compilerInterfaceSrc: JFile = jarMatching("""(.*compiler-interface-.*-sources.jar)$""")
 
 			Setup.setup(scalaCompiler = scalaCompiler,
 				scalaLibrary = scalaLibrary,
-				scalaExtra = Nil,
+				scalaExtra = List(scalaReflect),
 				sbtInterface = sbtInterfaceSrc,
 				compilerInterfaceSrc = compilerInterfaceSrc,
 				javaHomeDir = None)

@@ -37,7 +37,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.github.scopt</groupId>
-			<artifactId>scopt_2.9.2</artifactId>
+			<artifactId>scopt_2.10</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.typesafe.zinc</groupId>

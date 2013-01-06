@@ -39,15 +39,15 @@
 		</dependency>
 		<dependency>
 			<groupId>com.github.scopt</groupId>
-			<artifactId>scopt_2.9.2</artifactId>
+			<artifactId>scopt_2.10</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.clapper</groupId>
-			<artifactId>grizzled-slf4j_2.9.2</artifactId>
+			<artifactId>grizzled-slf4j_2.10</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.fusesource.scalate</groupId>
-			<artifactId>scalate-core</artifactId>
+			<artifactId>scalate-core_2.10</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.excilys.ebi</groupId>
@@ -75,7 +75,7 @@
 			</plugin>
 			<plugin>
 				<groupId>org.fusesource.scalate</groupId>
-				<artifactId>maven-scalate-plugin</artifactId>
+				<artifactId>maven-scalate-plugin_2.10</artifactId>
 				<executions>
 					<execution>
 						<goals>

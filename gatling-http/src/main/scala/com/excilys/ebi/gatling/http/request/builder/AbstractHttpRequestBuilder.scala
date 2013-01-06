@@ -28,8 +28,8 @@ import com.ning.http.client.ProxyServer.Protocol
 import com.ning.http.client.Realm
 import com.ning.http.client.Realm.AuthScheme
 
-import scalaz._
-import scalaz.Scalaz._
+import scalaz.Scalaz.{ ToTraverseOps, ToValidationV, listInstance, stringInstance }
+import scalaz.Validation
 
 case class HttpAttributes(
 	requestName: Expression[String],
@@ -152,12 +152,12 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	protected def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[String, RequestBuilder] = {
 
 		val url = {
-			def makeAbsolute(relativeUrl: String): Validation[String, String] = {
+			def makeAbsolute(url: String): Validation[String, String] = {
 
-				if (relativeUrl.startsWith(Protocol.HTTP.getProtocol))
-					relativeUrl.success
+				if (url.startsWith(Protocol.HTTP.getProtocol))
+					url.success
 				else
-					protocolConfiguration.baseURL.map(_.success).getOrElse(("No protocolConfiguration.baseURL defined but provided url is relative : " + relativeUrl).failure)
+					protocolConfiguration.baseURL.map(baseURL => (baseURL + url).success).getOrElse(("No protocolConfiguration.baseURL defined but provided url is relative : " + url).failure)
 			}
 
 			httpAttributes.url(session).flatMap(makeAbsolute)

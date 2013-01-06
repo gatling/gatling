@@ -17,14 +17,14 @@ package com.excilys.ebi.gatling.core.structure
 
 import java.util.UUID
 
+import scala.concurrent.duration.{ Duration, DurationLong }
+
 import com.excilys.ebi.gatling.core.action.builder.{ SimpleActionBuilder, WhileActionBuilder }
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.core.session.handler.{ CounterBasedIterationHandler, TimerBasedIterationHandler }
 import com.excilys.ebi.gatling.core.structure.ChainBuilder.emptyChain
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 
-import akka.util.Duration
-import akka.util.duration.longToDurationLong
 import grizzled.slf4j.Logging
 
 trait Loops[B] extends Execs[B] with Logging {

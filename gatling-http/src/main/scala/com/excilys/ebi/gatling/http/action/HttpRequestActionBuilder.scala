@@ -25,9 +25,7 @@ import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 
 import akka.actor.{ ActorRef, Props }
-
-import scalaz._
-import Scalaz._
+import scalaz.Scalaz.ToValidationV
 
 object HttpRequestActionBuilder {
 

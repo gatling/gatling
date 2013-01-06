@@ -15,6 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.config
 
+import scala.reflect.ClassTag
+
 object ProtocolConfigurationRegistry {
 
 	def apply(configurations: Seq[ProtocolConfiguration]): ProtocolConfigurationRegistry = {
@@ -39,7 +41,7 @@ class ProtocolConfigurationRegistry(configurations: Map[Class[_ <: ProtocolConfi
 	 * @param protocolType
 	 * @return a registered ProtocolConfiguration according to its type
 	 */
-	def getProtocolConfiguration[T <: ProtocolConfiguration: ClassManifest]: Option[T] = configurations.get(implicitly[ClassManifest[T]].erasure.asInstanceOf[Class[T]]).map(_.asInstanceOf[T])
+	def getProtocolConfiguration[T <: ProtocolConfiguration: ClassTag]: Option[T] = configurations.get(implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]).map(_.asInstanceOf[T])
 
-	def getProtocolConfiguration[T <: ProtocolConfiguration: ClassManifest](default: T): T = getProtocolConfiguration[T].getOrElse(default)
+	def getProtocolConfiguration[T <: ProtocolConfiguration: ClassTag](default: T): T = getProtocolConfiguration[T].getOrElse(default)
 }

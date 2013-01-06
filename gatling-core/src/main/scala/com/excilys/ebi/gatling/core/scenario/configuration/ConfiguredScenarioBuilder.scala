@@ -15,14 +15,13 @@
  */
 package com.excilys.ebi.gatling.core.scenario.configuration
 
+import scala.concurrent.duration.{ Duration, DurationLong, FiniteDuration }
+
 import com.excilys.ebi.gatling.core.config.{ ProtocolConfiguration, ProtocolConfigurationRegistry }
 import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.structure.ScenarioBuilder
 
-import akka.util.Duration
-import akka.util.duration.longToDurationLong
-
-private case class Attributes(scenarioBuilder: ScenarioBuilder, usersValue: Int, rampValue: Option[Duration], delayValue: Option[Duration], protocolConfigurationsValue: Seq[ProtocolConfiguration])
+private case class Attributes(scenarioBuilder: ScenarioBuilder, usersValue: Int, rampValue: Option[Duration], delayValue: Option[FiniteDuration], protocolConfigurationsValue: Seq[ProtocolConfiguration])
 
 /**
  * This class is used in the DSL to configure scenarios
@@ -74,7 +73,7 @@ class ConfiguredScenarioBuilder(attributes: Attributes) {
 	 * @param duration the delay before the first user will start
 	 * @return a new builder with the start time set
 	 */
-	def delay(duration: Duration): ConfiguredScenarioBuilder = new ConfiguredScenarioBuilder(attributes.copy(delayValue = Some(duration)))
+	def delay(duration: FiniteDuration): ConfiguredScenarioBuilder = new ConfiguredScenarioBuilder(attributes.copy(delayValue = Some(duration)))
 
 	/**
 	 * Method used to set the different protocol configurations for this scenario

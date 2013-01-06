@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.core
 import com.excilys.ebi.gatling.core.check.Check
 import com.excilys.ebi.gatling.core.session.Session
 
-import scalaz._
+import scalaz.Validation
 
 package object check {
 
@@ -40,7 +40,7 @@ package object check {
 	/**
 	 * A function to be applied on an extracted value to produce a CheckResult
 	 */
-	type Matcher[R, XC] = (R, Session, XC) => Validation[String, Any]
+	type Matcher[R, XC] = (R, Session, XC) => Validation[String, Option[Any]]
 
 	/**
 	 * A function for production a complete CheckBuilder

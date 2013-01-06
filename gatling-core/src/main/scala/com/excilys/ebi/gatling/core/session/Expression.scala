@@ -15,10 +15,13 @@
  */
 package com.excilys.ebi.gatling.core.session
 
+import scala.reflect.ClassTag
+
 import com.excilys.ebi.gatling.core.util.TypeHelper
+
 import grizzled.slf4j.Logging
-import scalaz._
-import Scalaz._
+import scalaz.Scalaz.{ ToOptionOpsFromOption, ToTraverseOps, ToValidationV, listInstance, stringInstance }
+import scalaz.Validation
 
 trait Part[+T] {
 	def resolve(session: Session): Validation[String, T]
@@ -60,7 +63,7 @@ object ELParser extends Logging {
 	val elSeqSizePattern = """(.+?)\.size""".r
 	val elSeqElementPattern = """(.+?)\((.+)\)""".r
 
-	def apply[T: ClassManifest](string: String): List[Part[Any]] = {
+	def apply[T: ClassTag](string: String): List[Part[Any]] = {
 
 		val staticParts = elPattern.split(string).map(StaticPart(_)).toList
 
@@ -87,7 +90,7 @@ object ELParser extends Logging {
 
 object Expression {
 
-	def apply[T: ClassManifest](elString: String): Expression[T] = {
+	def apply[T: ClassTag](elString: String): Expression[T] = {
 
 		ELParser(elString) match {
 			case List(StaticPart(string)) => (session: Session) => TypeHelper.as[T](string)

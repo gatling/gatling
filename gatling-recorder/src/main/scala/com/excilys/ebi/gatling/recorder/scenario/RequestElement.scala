@@ -76,7 +76,6 @@ class RequestElement(val request: HttpRequest, val statusCode: Int, val simulati
 
 	def setId(id: Int) {
 		this.id = id
-		this
 	}
 
 	def updateUrl(baseUrl: String): RequestElement = {

@@ -17,8 +17,8 @@ package com.excilys.ebi.gatling.core
 
 import com.excilys.ebi.gatling.core.session.Session
 
-import scalaz._
-import Scalaz._
+import scalaz.Scalaz.ToValidationV
+import scalaz.Validation
 
 package object session {
 
