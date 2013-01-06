@@ -18,7 +18,6 @@ package com.excilys.ebi.gatling.http.request.builder
 import scala.tools.nsc.io.Path.string2path
 
 import org.fusesource.scalate.{ Binding, TemplateEngine }
-import org.fusesource.scalate.support.ScalaCompiler
 
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingFiles
@@ -29,15 +28,15 @@ import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.{ ByteArrayBody, FilePathBody, HttpRequestBody, SessionByteArrayBody, StringBody, TemplateBody }
 import com.ning.http.client.RequestBuilder
 
-import scalaz._
-import scalaz.Scalaz._
+import scalaz.Scalaz.{ ToTraverseOps, ToValidationV, listInstance, stringInstance }
+import scalaz.Validation
 
 object AbstractHttpRequestWithBodyBuilder {
 	val TEMPLATE_ENGINE = {
 		val engine = new TemplateEngine(List(GatlingFiles.requestBodiesDirectory.jfile))
 		engine.allowReload = false
 		engine.escapeMarkup = false
-		system.registerOnTermination(engine.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown)
+		system.registerOnTermination(engine.shutdown)
 		engine
 	}
 }
@@ -51,7 +50,7 @@ object AbstractHttpRequestWithBodyBuilder {
 abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](
 	httpAttributes: HttpAttributes,
 	body: Option[HttpRequestBody])
-		extends AbstractHttpRequestBuilder[B](httpAttributes) {
+	extends AbstractHttpRequestBuilder[B](httpAttributes) {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type

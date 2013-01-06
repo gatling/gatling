@@ -28,8 +28,8 @@ import com.ning.http.client.{ Realm, RequestBuilder, StringPart }
 import com.ning.http.client.FilePart
 import com.ning.http.client.FluentStringsMap
 
-import scalaz._
-import Scalaz._
+import scalaz.Scalaz.{ ToTraverseOps, ToValidationV, listInstance, stringInstance }
+import scalaz.Validation
 
 case class HttpParamsAttributes(
 	params: List[HttpParam] = Nil,

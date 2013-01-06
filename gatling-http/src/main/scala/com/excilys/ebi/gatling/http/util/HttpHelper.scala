@@ -24,8 +24,8 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.request.builder.HttpParam
 import com.ning.http.client.FluentStringsMap
 
-import scalaz._
-import Scalaz._
+import scalaz.Scalaz.{ ToTraverseOps, listInstance, stringInstance }
+import scalaz.Validation
 
 object HttpHelper {
 

@@ -21,7 +21,7 @@
 		</dependency>
 		<dependency>
 			<groupId>net.debasishg</groupId>
-			<artifactId>redisclient_2.9.2</artifactId>
+			<artifactId>redisclient_2.10</artifactId>
 		</dependency>
 	</dependencies>
 

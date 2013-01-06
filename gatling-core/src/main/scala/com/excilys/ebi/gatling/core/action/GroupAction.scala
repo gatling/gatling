@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 
 import akka.actor.ActorRef
-import scalaz._
+import scalaz.{ Failure, Success }
 
 class GroupAction(groupName: Expression[String], event: String, val next: ActorRef) extends Action {
 

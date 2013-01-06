@@ -15,10 +15,9 @@
  */
 package com.excilys.ebi.gatling.core.structure
 
-import com.excilys.ebi.gatling.core.action.builder.{ CustomPauseActionBuilder, ExpPauseActionBuilder, PauseActionBuilder }
+import scala.concurrent.duration.{ Duration, DurationLong }
 
-import akka.util.Duration
-import akka.util.duration.longToDurationLong
+import com.excilys.ebi.gatling.core.action.builder.{ CustomPauseActionBuilder, ExpPauseActionBuilder, PauseActionBuilder }
 
 trait Pauses[B] extends Execs[B] {
 

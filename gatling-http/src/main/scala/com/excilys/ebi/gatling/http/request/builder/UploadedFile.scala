@@ -21,7 +21,7 @@ import com.excilys.ebi.gatling.core.config.GatlingFiles
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.ning.http.client.FilePart
 
-import scalaz._
+import scalaz.Validation
 
 class UploadedFile(paramKeyFunction: Expression[String], fileNameFunction: Expression[String], mimeType: String, charset: String) {
 

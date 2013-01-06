@@ -15,11 +15,10 @@
  */
 package com.excilys.ebi.gatling.core.check
 
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.session.Expression
+import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 
-import scalaz._
-import Scalaz._
+import scalaz.{ Failure, Validation }
+import scalaz.Scalaz.ToValidationV
 
 /**
  * A partial CheckBuilder
@@ -108,7 +107,7 @@ class MatcherCheckBuilder[C <: Check[R, XC], R, XC, X](checkBuilderFactory: Chec
 
 		val matcher = new Matcher[R, XC] {
 
-			def apply(response: R, session: Session, expression: XC): Validation[String, Any] = {
+			def apply(response: R, session: Session, expression: XC): Validation[String, Option[Any]] = {
 
 				val extractor = extractorFactory(response)
 				val extractedValue = extractor(expression)
@@ -193,7 +192,7 @@ class MatcherCheckBuilder[C <: Check[R, XC], R, XC, X](checkBuilderFactory: Chec
 	 */
 	def in(expected: Expression[Seq[X]]) = matchWith(new MatchStrategy[X] {
 		def apply(value: Option[X], session: Session) = value.map { extracted =>
-			expected(session).flatMap { expectedValue=>
+			expected(session).flatMap { expectedValue =>
 				if (expectedValue.contains(extracted)) value.success
 				else ("Check 'in' failed, found " + extracted + " but expected " + expectedValue).failure
 			}

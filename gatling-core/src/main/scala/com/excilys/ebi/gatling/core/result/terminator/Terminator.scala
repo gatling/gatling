@@ -17,11 +17,13 @@ package com.excilys.ebi.gatling.core.result.terminator
 
 import java.util.concurrent.CountDownLatch
 
+import scala.concurrent.Future
+import scala.util.{ Failure, Success }
+
 import com.excilys.ebi.gatling.core.action.{ BaseActor, system }
 import com.excilys.ebi.gatling.core.result.message.Flush
 
 import akka.actor.{ ActorRef, Props }
-import akka.dispatch.Future
 import akka.pattern.ask
 
 object Terminator {
@@ -39,7 +41,7 @@ object Terminator {
 	def endUser {
 		terminator ! EndUser
 	}
-	
+
 	def forceTermination {
 		terminator ! ForceTermination
 	}
@@ -68,12 +70,11 @@ class Terminator extends BaseActor {
 
 	def flush {
 		Future.sequence(registeredDataWriters.map(_.ask(Flush)))
-			.onSuccess {
-				case _ =>
+			.onComplete {
+				case Success(_) =>
 					latch.countDown
 					context.unbecome
-			}.onFailure {
-				case e: Exception => error(e)
+				case Failure(e) => error(e)
 			}
 	}
 

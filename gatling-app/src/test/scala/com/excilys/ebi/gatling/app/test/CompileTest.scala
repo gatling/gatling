@@ -22,7 +22,7 @@ import com.excilys.ebi.gatling.jdbc.Predef._
 import assertions._
 import bootstrap._
 
-import akka.util.duration._
+import scala.concurrent.duration._
 
 object CompileTest extends Simulation {
 

@@ -152,7 +152,7 @@ class GraphiteDataWriter extends DataWriter {
 					try {
 						writer.close
 					} catch {
-						case _ => // shut up
+						case _: Exception => // shut up
 					} finally {
 						writer = null
 					}

@@ -32,7 +32,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.specs2</groupId>
-			<artifactId>specs2_2.9.2</artifactId>
+			<artifactId>specs2_2.10</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

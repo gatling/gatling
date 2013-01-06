@@ -15,19 +15,20 @@
  */
 package com.excilys.ebi.gatling.core
 
+import scala.reflect.ClassTag
 import scala.tools.nsc.io.{ File, Path }
 
 import com.excilys.ebi.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
-import com.excilys.ebi.gatling.core.feeder.FeederBuiltIns
+import com.excilys.ebi.gatling.core.feeder.{ Feeder, FeederBuiltIns }
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesParser
 import com.excilys.ebi.gatling.core.session.Expression
 import com.excilys.ebi.gatling.core.structure.{ AssertionBuilder, ChainBuilder, ScenarioBuilder }
 
-import scalaz._
-import Scalaz._
+import scalaz.Scalaz.ToValidationV
+import scalaz.Validation
 
 object Predef {
-	implicit def stringToExpression[T: ClassManifest](string: String) = Expression[T](string)
+	implicit def stringToExpression[T: ClassTag](string: String) = Expression[T](string)
 	implicit def value2Success[T](value: T): Validation[String, T] = value.success
 	implicit def value2Expression[T](value: T): Expression[T] = (session: Session) => value.success
 	implicit def checkBuilder2Check[C <: Check[R, XC], R, XC](checkBuilder: CheckBuilder[C, R, XC]) = checkBuilder.build

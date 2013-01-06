@@ -15,15 +15,17 @@
  */
 package com.excilys.ebi.gatling.core.util
 
-import scalaz._
-import scalaz.Scalaz._
+import scala.reflect.ClassTag
+
+import scalaz.Scalaz.ToValidationV
+import scalaz.Validation
 
 object TypeHelper {
 
 	def classCastExceptionMessage(value: Any, clazz: Class[_]) = "Can't cast value " + value + " of type " + value.getClass + " into " + clazz
 
-	def as[T: ClassManifest](value: Any): Validation[String, T] = {
-		val clazz = implicitly[ClassManifest[T]].erasure
+	def as[T: ClassTag](value: Any): Validation[String, T] = {
+		val clazz = implicitly[ClassTag[T]].runtimeClass
 		val valueClazz = value.getClass.getName match {
 			case "java.lang.Boolean" => classOf[Boolean]
 			case "java.lang.Integer" => classOf[Int]
