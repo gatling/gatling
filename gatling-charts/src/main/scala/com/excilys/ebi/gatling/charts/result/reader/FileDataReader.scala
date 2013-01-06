@@ -92,8 +92,6 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			.filter(_.length >= FileDataReader.RUN_RECORD_LENGTH)
 			.foreach(strings => runRecords += RunRecord(parseTimestampString(strings(1)), strings(2), strings(3).trim))
 			
-		System.err.println(runRecords.size);
-			
 		info("Read " + totalRequestsNumber + " lines (finished)")
 
 		(runStart, runEnd, runRecords.head)
