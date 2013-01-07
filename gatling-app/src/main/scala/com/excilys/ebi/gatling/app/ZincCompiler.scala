@@ -42,8 +42,8 @@ object ZincCompiler extends Logging {
 
 			val sources = sourceDirectory
 				.deepFiles
-				.toList
 				.collect { case file if (file.hasExtension("scala")) => file.jfile }
+				.toList
 
 			def analysisCacheMapEntry(directoryName: String) = (GATLING_HOME / directoryName).jfile -> (binDir / "cache" / directoryName).jfile
 
@@ -88,7 +88,14 @@ object ZincCompiler extends Logging {
 
 		// Setup the compiler
 		val setup = setupZincCompiler
-		val zincLogger = new ZincLogger
+		val zincLogger = new Logger {
+			def error(arg: xsbti.F0[String]) { logger.error(arg.apply) }
+			def warn(arg: xsbti.F0[String]) { logger.warn(arg.apply) }
+			def info(arg: xsbti.F0[String]) { logger.info(arg.apply) }
+			def debug(arg: xsbti.F0[String]) { logger.debug(arg.apply) }
+			def trace(arg: xsbti.F0[Throwable]) { logger.trace(arg.apply) }
+		}
+
 		val zincCompiler = Compiler.create(setup, zincLogger)
 
 		val binDir = GatlingFiles.binariesDirectory.getOrElse(GATLING_HOME / "target")
@@ -100,13 +107,5 @@ object ZincCompiler extends Logging {
 		zincCompiler.compile(inputs)(zincLogger)
 
 		Directory(inputs.classesDirectory)
-	}
-
-	class ZincLogger extends Logger {
-		def error(arg: xsbti.F0[String]) { logger.error(arg.apply) }
-		def warn(arg: xsbti.F0[String]) { logger.warn(arg.apply) }
-		def info(arg: xsbti.F0[String]) { logger.info(arg.apply) }
-		def debug(arg: xsbti.F0[String]) { logger.debug(arg.apply) }
-		def trace(arg: xsbti.F0[Throwable]) { logger.trace(arg.apply) }
 	}
 }
