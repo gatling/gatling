@@ -31,7 +31,7 @@ private[cookie] class CookieStore(store: Map[URI, List[Cookie]]) {
 	private val MAX_AGE_UNSPECIFIED = -1L
 
 	private def getEffectiveUri(uri: URI) =
-		new URI(uri.getScheme,
+		new URI(null, // scheme
 			uri.getAuthority,
 			null, // path component
 			null, // query component
