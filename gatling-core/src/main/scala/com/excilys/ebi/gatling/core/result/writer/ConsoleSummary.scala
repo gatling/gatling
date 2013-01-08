@@ -21,7 +21,7 @@ import scala.math.{ ceil, floor, max }
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
-import com.excilys.ebi.gatling.core.util.PaddableStringBuilder.toPaddable
+import com.excilys.ebi.gatling.core.util.PaddableStringBuilder
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 
 object ConsoleSummary {
