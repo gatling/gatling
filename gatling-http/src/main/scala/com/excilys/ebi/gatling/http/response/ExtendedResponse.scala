@@ -18,16 +18,17 @@ package com.excilys.ebi.gatling.http.response
 import java.security.MessageDigest
 
 import com.excilys.ebi.gatling.core.util.StringHelper.{ END_OF_LINE, bytes2Hex }
+import com.excilys.ebi.gatling.http.util.HttpHelper.dumpFluentCaseInsensitiveStringsMap
 import com.ning.http.client.{ Request, Response }
 
 class ExtendedResponse(
-		val request: Request,
-		response: Option[Response],
-		checksums: Map[String, MessageDigest],
-		val executionStartDate: Long,
-		val requestSendingEndDate: Long,
-		val responseReceivingStartDate: Long,
-		val executionEndDate: Long) extends Response {
+	val request: Request,
+	response: Option[Response],
+	checksums: Map[String, MessageDigest],
+	val executionStartDate: Long,
+	val requestSendingEndDate: Long,
+	val responseReceivingStartDate: Long,
+	val executionEndDate: Long) extends Response {
 
 	def isBuilt = response.isDefined
 
@@ -42,8 +43,11 @@ class ExtendedResponse(
 			if (response.hasResponseStatus)
 				buff.append("status=").append(END_OF_LINE).append(response.getStatusCode).append(" ").append(response.getStatusText).append(END_OF_LINE)
 
-			if (response.hasResponseHeaders)
-				buff.append("headers= ").append(END_OF_LINE).append(response.getHeaders).append(END_OF_LINE)
+			if (response.hasResponseHeaders) {
+				buff.append("headers= ").append(END_OF_LINE)
+				dumpFluentCaseInsensitiveStringsMap(response.getHeaders, buff)
+				buff.append(END_OF_LINE)
+			}
 
 			if (response.hasResponseBody)
 				buff.append("body=").append(END_OF_LINE).append(response.getResponseBody)

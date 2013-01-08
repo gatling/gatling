@@ -17,10 +17,11 @@ package com.excilys.ebi.gatling.http.util
 
 import java.net.{ URI, URLDecoder }
 
-import scala.collection.JavaConversions.seqAsJavaList
+import scala.collection.JavaConversions.{ asScalaBuffer, asScalaSet, seqAsJavaList }
 import scala.io.Codec.UTF8
 
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 import com.excilys.ebi.gatling.http.request.builder.HttpParam
 import com.ning.http.client.FluentStringsMap
 
@@ -90,5 +91,14 @@ object HttpHelper {
 		val validation = validations.sequence[({ type l[a] = Validation[String, a] })#l, (String, Seq[String])]
 
 		validation.map(httpParamsToFluentMap)
+	}
+
+	def dumpFluentCaseInsensitiveStringsMap(map: java.util.Map[String, java.util.List[String]], buff: StringBuilder) {
+
+		for {
+			entry <- map.entrySet
+			key = entry.getKey
+			value <- entry.getValue
+		} buff.append(key).append(": ").append(value).append(END_OF_LINE)
 	}
 }
