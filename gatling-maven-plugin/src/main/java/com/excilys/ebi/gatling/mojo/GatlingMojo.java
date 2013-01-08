@@ -31,7 +31,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
-import org.apache.tools.ant.DirectoryScanner;
+import org.codehaus.plexus.util.DirectoryScanner;
 
 import scala_maven_executions.JavaMainCallerByFork;
 import scala_maven_executions.MainHelper;
