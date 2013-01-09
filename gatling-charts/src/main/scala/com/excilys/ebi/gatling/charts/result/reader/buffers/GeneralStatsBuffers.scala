@@ -20,19 +20,19 @@ import java.util.{ HashMap => JHashMap }
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 
-import com.excilys.ebi.gatling.charts.result.reader.{GroupRecord, ActionRecord, FileDataReader}
+import com.excilys.ebi.gatling.charts.result.reader.{ ActionRecord, FileDataReader }
 import com.excilys.ebi.gatling.charts.result.reader.stats.PercentilesHelper
 import com.excilys.ebi.gatling.charts.result.reader.stats.StatsHelper
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.Group
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.RequestStatus
 import com.excilys.ebi.gatling.core.result.reader.GeneralStats
 
 abstract class GeneralStatsBuffers(durationInSec: Long) {
 
 	val generalStatsBuffers: mutable.Map[BufferKey, GeneralStatsBuffer] = new JHashMap[BufferKey, GeneralStatsBuffer]
 
-	def getGeneralStatsBuffers(request: Option[String], group: Option[Group], status: Option[RequestStatus.RequestStatus]): GeneralStatsBuffer =
+	def getGeneralStatsBuffers(request: Option[String], group: Option[Group], status: Option[RequestStatus]): GeneralStatsBuffer =
 		generalStatsBuffers.getOrElseUpdate(computeKey(request, group, status), new GeneralStatsBuffer(durationInSec))
 
 	def updateGeneralStatsBuffers(record: ActionRecord, group: Option[Group]) {
@@ -43,9 +43,9 @@ abstract class GeneralStatsBuffers(durationInSec: Long) {
 		getGeneralStatsBuffers(None, None, Some(record.status)).update(record.responseTime)
 	}
 
-	def updateGroupGeneralStatsBuffers(duration: Int, group: Group) {
+	def updateGroupGeneralStatsBuffers(duration: Int, group: Group, status: RequestStatus) {
 		getGeneralStatsBuffers(None, Some(group), None).update(duration)
-		getGeneralStatsBuffers(None, Some(group), Some(RequestStatus.OK)).update(duration)
+		getGeneralStatsBuffers(None, Some(group), Some(status)).update(duration)
 	}
 
 	class GeneralStatsBuffer(duration: Long) extends CountBuffer {

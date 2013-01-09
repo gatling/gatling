@@ -22,19 +22,27 @@ import scala.collection.mutable
 
 import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.charts.result.reader.GroupRecord
+import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK, RequestStatus }
 
 trait GroupBuffers {
 
 	class GroupStack {
-		val stack = new JLinkedList[(GroupRecord, Group)]
+		case class GroupStackEntry(record: GroupRecord, group: Group, status: RequestStatus)
+
+		val stack = new JLinkedList[GroupStackEntry]
 
 		def start(record: GroupRecord) {
-			stack.push((record, Group(record.group, getCurrentGroup)))
+			stack.push(GroupStackEntry(record, Group(record.group, getCurrentGroup), OK))
 		}
 
 		def end = stack.pop()
 
-		def getCurrentGroup(): Option[Group] = if (stack.isEmpty) None else Some(stack.peek()._2)
+		def getCurrentGroup(): Option[Group] = if (stack.isEmpty) None else Some(stack.peek.group)
+
+		def failed() {
+			if (!stack.isEmpty && stack.peek.status == OK)
+				stack.push(stack.pop.copy(status = KO))
+		}
 	}
 
 	val groupStacksByUserAndScenario: mutable.Map[(Int, String), GroupStack] = new JHashMap[(Int, String), GroupStack]
@@ -47,7 +55,11 @@ trait GroupBuffers {
 	def endGroup(record: GroupRecord) =
 		groupStacksByUserAndScenario.getOrElseUpdate((record.user, record.scenario), throw new IllegalAccessException).end
 
-	def getCurrentGroup(user: Int, scenario: String) = groupStacksByUserAndScenario.getOrElseUpdate((user, scenario), new GroupStack).getCurrentGroup()
+	private def groupStack(user: Int, scenario: String) = groupStacksByUserAndScenario.getOrElseUpdate((user, scenario), new GroupStack)
 
-	//def getStatsGroupBuffer(group: Option[Group]) = statsGroupBuffers(group)
+	def getCurrentGroup(user: Int, scenario: String) = groupStack(user, scenario).getCurrentGroup()
+
+	def currentGroupFailed(user: Int, scenario: String) {
+		groupStack(user, scenario).failed
+	}
 }

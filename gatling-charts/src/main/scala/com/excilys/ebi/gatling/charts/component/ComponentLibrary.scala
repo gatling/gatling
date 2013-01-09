@@ -53,6 +53,6 @@ abstract class ComponentLibrary {
 	def getRequestDetailsScatterChartComponent(successData: Series[Int, Int], failuresData: Series[Int, Int]): Component
 	def getRequestDetailsIndicatorChartComponent: Component
 	def getNumberOfRequestsChartComponent: Component
-	def getGroupDurationChartComponent(runStart: Long, durations: Series[Int, (Int, Int)]): Component
-	def getGroupDetailsDurationDistributionChartComponent(durations: Series[Int, Int]): Component
+	def getGroupDurationChartComponent(runStart: Long, durationsSuccess: Series[Int, (Int, Int)], durationsFailure: Series[Int, (Int, Int)]): Component
+	def getGroupDetailsDurationDistributionChartComponent(durationsSuccess: Series[Int, Int], durationsFailure: Series[Int, Int]): Component
 }

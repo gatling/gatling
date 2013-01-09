@@ -17,25 +17,8 @@ package com.excilys.ebi.gatling.charts.result.reader.buffers
 
 import java.util.{ HashMap => JHashMap }
 
-import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.JavaConversions._
-
-import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
-import com.excilys.ebi.gatling.core.result.Group
-
-/*trait Buffers {
-
-	@tailrec
-	final def recursivelyUpdate(record: ActionRecord, group: Option[Group])(update: (ActionRecord, Option[Group]) => Unit) {
-		update(record, group)
-
-		group match {
-			case Some(group) => recursivelyUpdate(record, group.parent)(update)
-			case None => {}
-		}
-	}
-}*/
 
 class CountBuffer {
 	val map: mutable.Map[Int, Int] = new JHashMap[Int, Int]
