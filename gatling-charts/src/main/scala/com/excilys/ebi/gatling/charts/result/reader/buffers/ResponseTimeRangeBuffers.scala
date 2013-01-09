@@ -22,7 +22,7 @@ import scala.collection.mutable
 
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
 import com.excilys.ebi.gatling.core.result.Group
-import com.excilys.ebi.gatling.core.result.message.{ KO, OK, RequestStatus }
+import com.excilys.ebi.gatling.core.result.message.{ KO, RequestStatus }
 
 trait ResponseTimeRangeBuffers {
 
@@ -35,8 +35,8 @@ trait ResponseTimeRangeBuffers {
 		getResponseTimeRangeBuffers(None, None).update(record.responseTime, record.status)
 	}
 
-	def updateGroupResponseTimeRangeBuffer(duration: Int, group: Group) {
-		getResponseTimeRangeBuffers(None, Some(group)).update(duration, OK)
+	def updateGroupResponseTimeRangeBuffer(duration: Int, group: Group, status: RequestStatus) {
+		getResponseTimeRangeBuffers(None, Some(group)).update(duration, status)
 	}
 
 	class ResponseTimeRangeBuffer {

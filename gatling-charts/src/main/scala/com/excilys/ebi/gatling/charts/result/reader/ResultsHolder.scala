@@ -17,6 +17,7 @@ package com.excilys.ebi.gatling.charts.result.reader
 
 import com.excilys.ebi.gatling.charts.result.reader.buffers.{ GeneralStatsBuffers, GroupBuffers, LatencyPerSecBuffers, NamesBuffers, RequestsPerSecBuffers, ResponseTimePerSecBuffers, ResponseTimeRangeBuffers, SessionDeltaPerSecBuffers, TransactionsPerSecBuffers }
 import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
+import com.excilys.ebi.gatling.core.result.message.KO
 
 class ResultsHolder(minTime: Long, maxTime: Long)
 	extends GeneralStatsBuffers(maxTime - minTime)
@@ -47,16 +48,19 @@ class ResultsHolder(minTime: Long, maxTime: Long)
 				startGroup(record)
 				addGroupName(getCurrentGroup(record.user, record.scenario).get, record.executionDate)
 			case END =>
-				val (startGroupRecord, group) = endGroup(record)
-				val duration = record.executionDate - startGroupRecord.executionDate
-				updateGroupGeneralStatsBuffers(duration, group)
-				updateGroupResponseTimePerSecBuffers(startGroupRecord.executionDateBucket, duration, group)
-				updateGroupResponseTimeRangeBuffer(duration, group)
+				val startEntry = endGroup(record)
+				val duration = record.executionDate - startEntry.record.executionDate
+				updateGroupGeneralStatsBuffers(duration, startEntry.group, startEntry.status)
+				updateGroupResponseTimePerSecBuffers(startEntry.record.executionDateBucket, duration, startEntry.group, startEntry.status)
+				updateGroupResponseTimeRangeBuffer(duration, startEntry.group, startEntry.status)
 		}
 	}
 
 	def addActionRecord(record: ActionRecord) {
 		val group = getCurrentGroup(record.user, record.scenario)
+
+		if (group.isDefined && record.status == KO) currentGroupFailed(record.user, record.scenario)
+
 		updateRequestsPerSecBuffers(record, group)
 		updateTransactionsPerSecBuffers(record, group)
 		updateResponseTimePerSecBuffers(record, group)

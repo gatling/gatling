@@ -22,7 +22,7 @@ import scala.collection.mutable
 
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
 import com.excilys.ebi.gatling.core.result.Group
-import com.excilys.ebi.gatling.core.result.message.{ OK, RequestStatus }
+import com.excilys.ebi.gatling.core.result.message.RequestStatus
 
 trait ResponseTimePerSecBuffers {
 
@@ -34,7 +34,7 @@ trait ResponseTimePerSecBuffers {
 		getResponseTimePerSecBuffers(Some(record.request), group, Some(record.status)).update(record.executionStartBucket, record.responseTime)
 	}
 
-	def updateGroupResponseTimePerSecBuffers(start: Int, duration: Int, group: Group) {
-		getResponseTimePerSecBuffers(None, Some(group), Some(OK)).update(start, duration)
+	def updateGroupResponseTimePerSecBuffers(start: Int, duration: Int, group: Group, status: RequestStatus) {
+		getResponseTimePerSecBuffers(None, Some(group), Some(status)).update(start, duration)
 	}
 }

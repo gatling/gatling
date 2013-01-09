@@ -19,8 +19,8 @@ import com.excilys.ebi.gatling.charts.component.{ Component, ComponentLibrary, S
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.requestFile
 import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.template.GroupDetailsPageTemplate
-import com.excilys.ebi.gatling.charts.util.Colors.BLUE
-import com.excilys.ebi.gatling.core.result.message.OK
+import com.excilys.ebi.gatling.charts.util.Colors.{ BLUE, RED }
+import com.excilys.ebi.gatling.core.result.message.{ KO, OK }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.result.Group
 
@@ -29,17 +29,20 @@ class GroupDetailsReportGenerator(runOn: String, dataReader: DataReader, compone
 	def generate {
 		def generateDetailPage(group: Group) {
 			def responseTimeChartComponent: Component = {
-				val durationsData = dataReader.responseTimeGroupByExecutionStartDate(OK, None, Some(group))
-				val durationsSeries = new Series[Int, (Int, Int)]("Group duration", durationsData, List(BLUE))
+				val durationsDataSuccess = dataReader.responseTimeGroupByExecutionStartDate(OK, None, Some(group))
+				val durationsDataFailure = dataReader.responseTimeGroupByExecutionStartDate(KO, None, Some(group))
+				val durationsSeriesSuccess = new Series[Int, (Int, Int)]("Group duration (success)", durationsDataSuccess, List(BLUE))
+				val durationsSeriesFailure = new Series[Int, (Int, Int)]("Group duration (failure)", durationsDataFailure, List(RED))
 
-				componentLibrary.getGroupDurationChartComponent(dataReader.runStart, durationsSeries)
+				componentLibrary.getGroupDurationChartComponent(dataReader.runStart, durationsSeriesSuccess, durationsSeriesFailure)
 			}
 
 			def responseTimeDistributionChartComponent: Component = {
-				val (distribution, _) = dataReader.responseTimeDistribution(100, None, Some(group))
-				val distributionSeries = new Series[Int, Int]("Group duration", distribution, List(BLUE))
+				val (distributionSuccess, distributionFailure) = dataReader.responseTimeDistribution(100, None, Some(group))
+				val distributionSeriesSuccess = new Series[Int, Int]("Group duration (failure)", distributionSuccess, List(BLUE))
+				val distributionSeriesFailure = new Series[Int, Int]("Group duration (failure)", distributionFailure, List(RED))
 
-				componentLibrary.getGroupDetailsDurationDistributionChartComponent(distributionSeries)
+				componentLibrary.getGroupDetailsDurationDistributionChartComponent(distributionSeriesSuccess, distributionSeriesFailure)
 			}
 
 			def statisticsComponent: Component = new StatisticsTextComponent

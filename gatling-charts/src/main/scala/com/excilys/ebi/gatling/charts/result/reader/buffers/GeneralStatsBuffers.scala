@@ -25,7 +25,7 @@ import com.excilys.ebi.gatling.charts.result.reader.stats.PercentilesHelper
 import com.excilys.ebi.gatling.charts.result.reader.stats.StatsHelper
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.Group
-import com.excilys.ebi.gatling.core.result.message.{ OK, RequestStatus }
+import com.excilys.ebi.gatling.core.result.message.RequestStatus
 import com.excilys.ebi.gatling.core.result.reader.GeneralStats
 
 abstract class GeneralStatsBuffers(durationInSec: Long) {
@@ -43,9 +43,9 @@ abstract class GeneralStatsBuffers(durationInSec: Long) {
 		getGeneralStatsBuffers(None, None, Some(record.status)).update(record.responseTime)
 	}
 
-	def updateGroupGeneralStatsBuffers(duration: Int, group: Group) {
+	def updateGroupGeneralStatsBuffers(duration: Int, group: Group, status: RequestStatus) {
 		getGeneralStatsBuffers(None, Some(group), None).update(duration)
-		getGeneralStatsBuffers(None, Some(group), Some(OK)).update(duration)
+		getGeneralStatsBuffers(None, Some(group), Some(status)).update(duration)
 	}
 
 	class GeneralStatsBuffer(duration: Long) extends CountBuffer {
