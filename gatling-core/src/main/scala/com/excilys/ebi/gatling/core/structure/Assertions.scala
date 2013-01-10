@@ -99,9 +99,9 @@ class Requests(requests: GeneralStatsByStatus, status: Option[RequestStatus], na
 case class Metric(value: DataReader => Int, name: String, assertions: List[Assertion] = List()) {
 	def assert(assertion: (Int) => Boolean, message: (String, Boolean) => String) = copy(assertions = assertions :+ new Assertion(reader => assertion(value(reader)), result => message(name, result)))
 
-	def lessThan(threshold: Int) = assert(_ <= threshold, (name, result) => name + " is less than " + threshold + " : " + result)
+	def lessThan(threshold: Int) = assert(_ < threshold, (name, result) => name + " is less than " + threshold + " : " + result)
 
-	def greaterThan(threshold: Int) = assert(_ >= threshold, (name, result) => name + " is greater than " + threshold + " : " + result)
+	def greaterThan(threshold: Int) = assert(_ > threshold, (name, result) => name + " is greater than " + threshold + " : " + result)
 
 	def between(min: Int, max: Int) = assert(value => value >= min && value <= max, (name, result) => name + " between " + min + " and " + max + " : " + result)
 
