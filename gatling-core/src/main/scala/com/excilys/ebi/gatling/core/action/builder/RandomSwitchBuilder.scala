@@ -28,17 +28,13 @@ import akka.actor.{ ActorRef, Props }
 object RandomSwitchBuilder {
 
 	private val randomData: RandomData = new RandomDataImpl
-
-	def apply(possibilities: List[(Int, ChainBuilder)]) = new RandomSwitchBuilder(possibilities, null)
 }
 
-class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], next: ActorRef) extends ActionBuilder {
+class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)]) extends ActionBuilder {
 
 	require(possibilities.map(_._1).sum <= 100, "Can't build a random switch with percentage sum > 100")
 
-	def withNext(next: ActorRef) = new RandomSwitchBuilder(possibilities, next)
-
-	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
+	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
 
 		val possibleActions = possibilities.map {
 			case (percentage, possibility) =>

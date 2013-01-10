@@ -29,7 +29,7 @@ abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extend
 
 	protected def buildChainedActions(entryPoint: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = actionBuilders
 		.foldLeft(entryPoint) { (actorRef, actionBuilder) =>
-			actionBuilder.withNext(actorRef).build(protocolConfigurationRegistry)
+			actionBuilder.build(actorRef, protocolConfigurationRegistry)
 		}
 }
 

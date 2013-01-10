@@ -24,15 +24,12 @@ import akka.actor.{ ActorRef, Props }
 
 object GroupActionBuilder {
 
-	def start(groupName: Expression[String]) = new GroupActionBuilder(groupName, START, null)
+	def start(groupName: Expression[String]) = new GroupActionBuilder(groupName, START)
 
-	def end(groupName: Expression[String]) = new GroupActionBuilder(groupName, END, null)
+	def end(groupName: Expression[String]) = new GroupActionBuilder(groupName, END)
 }
 
-class GroupActionBuilder(groupName: Expression[String], event: String, next: ActorRef) extends ActionBuilder {
+class GroupActionBuilder(groupName: Expression[String], event: String) extends ActionBuilder {
 
-	def withNext(next: ActorRef) = new GroupActionBuilder(groupName, event, next)
-
-	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new GroupAction(groupName, event, next)))
-
+	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new GroupAction(groupName, event, next)))
 }

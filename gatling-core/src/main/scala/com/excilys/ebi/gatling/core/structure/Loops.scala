@@ -40,9 +40,9 @@ trait Loops[B] extends Execs[B] with Logging {
 			def counterName = computedCounterName
 		}
 
-		val initAction = emptyChain.exec(SimpleActionBuilder(handler.init))
-		val incrementAction = emptyChain.exec(SimpleActionBuilder(handler.increment))
-		val expireAction = emptyChain.exec(SimpleActionBuilder(handler.expire))
+		val initAction = emptyChain.exec(new SimpleActionBuilder(handler.init))
+		val incrementAction = emptyChain.exec(new SimpleActionBuilder(handler.increment))
+		val expireAction = emptyChain.exec(new SimpleActionBuilder(handler.expire))
 		val innerActions = (1 to times).flatMap(_ => List(incrementAction, chain)).toList
 		val allActions = initAction :: innerActions ::: List(expireAction)
 
@@ -84,7 +84,7 @@ trait Loops[B] extends Execs[B] with Logging {
 		def continueCondition(session: Session) = TimerBasedIterationHandler.getTimer(session, loopCounterName)
 			.map(timerStartMillis => (nowMillis - timerStartMillis) <= duration.toMillis)
 
-		exec(WhileActionBuilder(continueCondition, chain, loopCounterName))
+		exec(new WhileActionBuilder(continueCondition, chain, loopCounterName))
 	}
 
 	def asLongAs(condition: Expression[Boolean])(chain: ChainBuilder): B = asLongAs(condition, None, chain)
@@ -92,6 +92,6 @@ trait Loops[B] extends Execs[B] with Logging {
 
 	private def asLongAs(condition: Expression[Boolean], counterName: Option[String], chain: ChainBuilder): B = {
 		val loopCounterName = counterName.getOrElse(UUID.randomUUID.toString)
-		exec(WhileActionBuilder(condition, chain, loopCounterName))
+		exec(new WhileActionBuilder(condition, chain, loopCounterName))
 	}
 }

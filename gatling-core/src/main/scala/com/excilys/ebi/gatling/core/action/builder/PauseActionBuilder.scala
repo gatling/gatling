@@ -23,27 +23,16 @@ import com.excilys.ebi.gatling.core.util.NumberHelper.createUniformRandomLongGen
 
 import akka.actor.{ ActorRef, Props }
 
-object PauseActionBuilder {
-
-	/**
-	 * Creates an initialized PauseActionBuilder with time unit in Seconds
-	 */
-	def apply(minDuration: Duration, maxDuration: Option[Duration]) = new PauseActionBuilder(minDuration, maxDuration, null)
-}
-
 /**
  * Builder for the 'pause' action.
  *
  * @constructor create a new PauseActionBuilder
  * @param minDuration minimum duration of the generated pause
  * @param maxDuration maximum duration of the generated pause
- * @param next action that will be executed after the generated pause
  */
-class PauseActionBuilder(minDuration: Duration, maxDuration: Option[Duration] = None, next: ActorRef) extends ActionBuilder {
+class PauseActionBuilder(minDuration: Duration, maxDuration: Option[Duration] = None) extends ActionBuilder {
 
-	def withNext(next: ActorRef) = new PauseActionBuilder(minDuration, maxDuration, next)
-
-	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
+	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
 		val minDurationInMillis = minDuration.toMillis
 		val maxDurationInMillis = maxDuration.map(_.toMillis)
 

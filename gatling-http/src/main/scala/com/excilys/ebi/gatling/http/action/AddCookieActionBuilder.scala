@@ -35,13 +35,11 @@ object AddCookieActionBuilder {
 				path <- path(session)
 			} yield new Cookie(domain, name, value, path, 100000, false)
 
-		new AddCookieActionBuilder(url, cookie, null)
+		new AddCookieActionBuilder(url, cookie)
 	}
 }
 
-class AddCookieActionBuilder(url: Expression[String], cookie: Expression[Cookie], next: ActorRef) extends ActionBuilder {
+class AddCookieActionBuilder(url: Expression[String], cookie: Expression[Cookie]) extends ActionBuilder {
 
-	def withNext(next: ActorRef) = new AddCookieActionBuilder(url, cookie, next)
-
-	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new AddCookieAction(url, cookie, next)))
+	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new AddCookieAction(url, cookie, next)))
 }

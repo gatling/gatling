@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.structure
 
 import scala.concurrent.duration.{ Duration, DurationLong }
 
-import com.excilys.ebi.gatling.core.action.builder.{ CustomPauseActionBuilder, ExpPauseActionBuilder, PauseActionBuilder }
+import com.excilys.ebi.gatling.core.action.builder.{ CustomActionPauseBuilder, ExpPauseActionBuilder, PauseActionBuilder }
 
 trait Pauses[B] extends Execs[B] {
 
@@ -54,7 +54,7 @@ trait Pauses[B] extends Execs[B] {
 	 * @param maxDuration the maximum value of the pause
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pause(minDuration: Duration, maxDuration: Option[Duration] = None): B = newInstance(PauseActionBuilder(minDuration, maxDuration) :: actionBuilders)
+	def pause(minDuration: Duration, maxDuration: Option[Duration] = None): B = newInstance(new PauseActionBuilder(minDuration, maxDuration) :: actionBuilders)
 
 	/**
 	 * Method used to define drawn from an exponential distribution with the specified mean duration.
@@ -62,7 +62,7 @@ trait Pauses[B] extends Execs[B] {
 	 * @param meanDuration the mean duration of the pause, in seconds
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pauseExp(meanDuration: Long): B = newInstance(ExpPauseActionBuilder(meanDuration seconds) :: actionBuilders)
+	def pauseExp(meanDuration: Long): B = newInstance(new ExpPauseActionBuilder(meanDuration seconds) :: actionBuilders)
 
 	/**
 	 * Method used to define drawn from an exponential distribution with the specified mean duration.
@@ -70,7 +70,7 @@ trait Pauses[B] extends Execs[B] {
 	 * @param meanDuration the mean duration of the pause
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pauseExp(meanDuration: Duration): B = newInstance(ExpPauseActionBuilder(meanDuration) :: actionBuilders)
+	def pauseExp(meanDuration: Duration): B = newInstance(new ExpPauseActionBuilder(meanDuration) :: actionBuilders)
 
 	/**
 	 * Define a pause with a custom strategy
@@ -78,5 +78,5 @@ trait Pauses[B] extends Execs[B] {
 	 * @param delayGenerator the strategy for computing the pauses, in milliseconds
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pauseCustom(delayGenerator: () => Long): B = newInstance(CustomPauseActionBuilder(delayGenerator) :: actionBuilders)
+	def pauseCustom(delayGenerator: () => Long): B = newInstance(new CustomActionPauseBuilder(delayGenerator) :: actionBuilders)
 }

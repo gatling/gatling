@@ -23,15 +23,13 @@ import akka.actor.{ ActorRef, Props }
 
 object UserActionBuilder {
 
-	val start = new UserActionBuilder(START, null)
+	val start = new UserActionBuilder(START)
 
-	val end = new UserActionBuilder(END, null)
+	val end = new UserActionBuilder(END)
 }
 
-class UserActionBuilder(event: String, next: ActorRef) extends ActionBuilder {
+class UserActionBuilder(event: String) extends ActionBuilder {
 
-	def withNext(next: ActorRef) = new UserActionBuilder(event, next)
-
-	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new UserAction(event, next)))
+	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new UserAction(event, next)))
 
 }

@@ -70,7 +70,7 @@ trait ConditionalStatements[B] extends Execs[B] {
 	 * @param elseNext the chain to be executed if the condition is not satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	private def doIf(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]): B = newInstance(IfActionBuilder(condition = condition, thenNext = thenNext, elseNext = elseNext) :: actionBuilders)
+	private def doIf(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]): B = newInstance(new IfActionBuilder(condition = condition, thenNext = thenNext, elseNext = elseNext) :: actionBuilders)
 
 	/**
 	 * Add a switch in the chain. Every possible subchain is defined with a percentage.
@@ -82,7 +82,7 @@ trait ConditionalStatements[B] extends Execs[B] {
 	 * @param possibilities the rest of the possible subchains
 	 * @return a new builder with a random switch added to its actions
 	 */
-	def randomSwitch(possibility1: (Int, ChainBuilder), possibility2: (Int, ChainBuilder), possibilities: (Int, ChainBuilder)*): B = newInstance(RandomSwitchBuilder(possibility1 :: possibility2 :: possibilities.toList) :: actionBuilders)
+	def randomSwitch(possibility1: (Int, ChainBuilder), possibility2: (Int, ChainBuilder), possibilities: (Int, ChainBuilder)*): B = newInstance(new RandomSwitchBuilder(possibility1 :: possibility2 :: possibilities.toList) :: actionBuilders)
 
 	/**
 	 * Add a switch in the chain. Selection uses a random strategy
@@ -100,7 +100,7 @@ trait ConditionalStatements[B] extends Execs[B] {
 
 		val possibilitiesWithPercentage = (firstPercentage, possibility1) :: tailPossibilities.map((basePercentage, _))
 
-		newInstance(RandomSwitchBuilder(possibilitiesWithPercentage) :: actionBuilders)
+		newInstance(new RandomSwitchBuilder(possibilitiesWithPercentage) :: actionBuilders)
 	}
 
 	/**
@@ -111,6 +111,6 @@ trait ConditionalStatements[B] extends Execs[B] {
 	 * @param possibilities the rest of the possible subchains
 	 * @return a new builder with a random switch added to its actions
 	 */
-	def roundRobinSwitch(possibility1: ChainBuilder, possibility2: ChainBuilder, possibilities: ChainBuilder*): B = newInstance(RoundRobinSwitchBuilder(possibility1 :: possibility2 :: possibilities.toList) :: actionBuilders)
+	def roundRobinSwitch(possibility1: ChainBuilder, possibility2: ChainBuilder, possibilities: ChainBuilder*): B = newInstance(new RoundRobinSwitchBuilder(possibility1 :: possibility2 :: possibilities.toList) :: actionBuilders)
 
 }

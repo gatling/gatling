@@ -22,14 +22,6 @@ import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
 import akka.actor.{ Props, ActorRef }
 
-object IfActionBuilder {
-
-	/**
-	 * Creates an initialized IfActionBuilder
-	 */
-	def apply(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]) = new IfActionBuilder(condition, thenNext, elseNext, null)
-}
-
 /**
  * Builder for IfAction
  *
@@ -37,13 +29,10 @@ object IfActionBuilder {
  * @param condition condition of the if
  * @param thenNext chain that will be executed if condition evaluates to true
  * @param elseNext chain that will be executed if condition evaluates to false
- * @param next chain that will be executed if condition evaluates to false and there is no elseNext
  */
-class IfActionBuilder(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder], next: ActorRef) extends ActionBuilder {
+class IfActionBuilder(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]) extends ActionBuilder {
 
-	def withNext(next: ActorRef) = new IfActionBuilder(condition, thenNext, elseNext, next)
-
-	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
+	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
 		val actionTrue = thenNext.withNext(next).build(protocolConfigurationRegistry)
 		val actionFalse = elseNext.map(_.withNext(next).build(protocolConfigurationRegistry))
 

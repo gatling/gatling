@@ -31,14 +31,14 @@ trait Errors[B] extends Execs[B] {
 		require(times >= 1, "Can't set up a max try <= 1")
 
 		def buildTransactionalChain(chain: ChainBuilder): ChainBuilder = {
-			val startBlock = SimpleActionBuilder(session => session.clearFailed.setMustExitOnFail)
-			val endBlock = SimpleActionBuilder(session => session.clearMustExitOnFail)
+			val startBlock = new SimpleActionBuilder(session => session.clearFailed.setMustExitOnFail)
+			val endBlock = new SimpleActionBuilder(session => session.clearMustExitOnFail)
 			emptyChain.exec(startBlock).exec(chain).exec(endBlock)
 		}
 
 		val loopCounterName = counterName.getOrElse(UUID.randomUUID.toString)
-		exec(TryMaxActionBuilder(times, buildTransactionalChain(chain), loopCounterName))
+		exec(new TryMaxActionBuilder(times, buildTransactionalChain(chain), loopCounterName))
 	}
 
-	def exitHereIfFailed: B = exec(SimpleActionBuilder(session => session.setMustExitOnFail))
+	def exitHereIfFailed: B = exec(new SimpleActionBuilder(session => session.setMustExitOnFail))
 }

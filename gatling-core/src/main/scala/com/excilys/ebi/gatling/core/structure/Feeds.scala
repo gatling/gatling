@@ -30,7 +30,7 @@ trait Feeds[B] extends Execs[B] with Logging {
 	 */
 	def feed(feeder: Feeder[_]): B = {
 
-		val byPass = BypassSimpleActionBuilder(session => {
+		val byPass = new BypassSimpleActionBuilder(session => {
 			if (!feeder.hasNext) {
 				error("Feeder is now empty, stopping engine")
 				Terminator.forceTermination
