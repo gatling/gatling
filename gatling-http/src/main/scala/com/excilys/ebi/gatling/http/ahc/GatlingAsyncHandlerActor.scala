@@ -128,15 +128,14 @@ class GatlingAsyncHandlerActor(
 
 		def dump = {
 			val buff = new StringBuilder
+			buff.append(END_OF_LINE).append(">>>>>>>>>>>>>>>>>>>>>>>>>>").append(END_OF_LINE)
 			buff.append("request was:").append(END_OF_LINE)
 			request.dumpTo(buff)
+			buff.append("=========================").append(END_OF_LINE)
 			buff.append("response was:").append(END_OF_LINE)
 			response.dumpTo(buff)
+			buff.append("<<<<<<<<<<<<<<<<<<<<<<<<<")
 			buff
-		}
-
-		debug {
-			dump
 		}
 
 		if (requestStatus == KO) {
@@ -186,11 +185,8 @@ class GatlingAsyncHandlerActor(
 			newRequest.getHeaders.remove(HeaderNames.CONTENT_TYPE)
 
 			val newRequestName = requestName match {
-				case GatlingAsyncHandlerActor.REDIRECTED_REQUEST_NAME_PATTERN(requestBaseName, redirectCount) =>
-					requestBaseName + " Redirect " + (redirectCount.toInt + 1)
-
-				case _ =>
-					requestName + " Redirect 1"
+				case GatlingAsyncHandlerActor.REDIRECTED_REQUEST_NAME_PATTERN(requestBaseName, redirectCount) => requestBaseName + " Redirect " + (redirectCount.toInt + 1)
+				case _ => requestName + " Redirect 1"
 			}
 
 			this.session = sessionWithUpdatedCookies

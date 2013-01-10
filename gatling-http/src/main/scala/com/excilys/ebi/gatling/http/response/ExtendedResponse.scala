@@ -18,6 +18,7 @@ package com.excilys.ebi.gatling.http.response
 import java.security.MessageDigest
 
 import com.excilys.ebi.gatling.core.util.StringHelper.{ END_OF_LINE, bytes2Hex }
+import com.excilys.ebi.gatling.http.util.HttpHelper.dumpFluentCaseInsensitiveStringsMap
 import com.ning.http.client.{ Request, Response }
 
 class ExtendedResponse(
@@ -42,8 +43,11 @@ class ExtendedResponse(
 			if (response.hasResponseStatus)
 				buff.append("status=").append(END_OF_LINE).append(response.getStatusCode).append(" ").append(response.getStatusText).append(END_OF_LINE)
 
-			if (response.hasResponseHeaders)
-				buff.append("headers= ").append(END_OF_LINE).append(response.getHeaders).append(END_OF_LINE)
+			if (response.hasResponseHeaders) {
+				buff.append("headers= ").append(END_OF_LINE)
+				dumpFluentCaseInsensitiveStringsMap(response.getHeaders, buff)
+				buff.append(END_OF_LINE)
+			}
 
 			if (response.hasResponseBody)
 				buff.append("body=").append(END_OF_LINE).append(response.getResponseBody)
