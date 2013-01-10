@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.http.action
 
 import java.net.URI
 
-import com.excilys.ebi.gatling.core.action.{ Action, Bypass }
+import com.excilys.ebi.gatling.core.action.Bypassable
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.ning.http.client.Cookie
@@ -25,7 +25,7 @@ import com.ning.http.client.Cookie
 import akka.actor.ActorRef
 import scalaz.{ Failure, Success }
 
-class AddCookie(url: Expression[String], cookie: Expression[Cookie], val next: ActorRef) extends Action with Bypass {
+class AddCookie(url: Expression[String], cookie: Expression[Cookie], val next: ActorRef) extends Bypassable {
 
 	def execute(session: Session) {
 

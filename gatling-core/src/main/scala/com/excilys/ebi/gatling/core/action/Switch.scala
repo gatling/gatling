@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.ActorRef
 
-class Switch(strategy: () => ActorRef, val next: ActorRef) extends Action with Bypass {
+class Switch(strategy: () => ActorRef, val next: ActorRef) extends Bypassable {
 
 	def execute(session: Session) {
 

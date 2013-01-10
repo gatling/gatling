@@ -26,7 +26,7 @@ import akka.actor.ActorRef
  * @param sessionFunction a function for manipulating the Session
  * @param next the action to be executed after this one
  */
-class SessionHook(sessionFunction: Session => Session, val next: ActorRef) extends Action {
+class SessionHook(sessionFunction: Session => Session, val next: ActorRef) extends Chainable {
 
 	/**
 	 * Applies the function to the Session

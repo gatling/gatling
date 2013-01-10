@@ -30,7 +30,7 @@ import scalaz.Scalaz.ToValidationV
  * @param counterName the name of the counter for this loop
  * @param next the chain executed if testFunction evaluates to false
  */
-class While(condition: Expression[Boolean], val counterName: String, val next: ActorRef) extends Action with TimerBasedIterationHandler with CounterBasedIterationHandler with Bypass {
+class While(condition: Expression[Boolean], val counterName: String, val next: ActorRef) extends Bypassable with TimerBasedIterationHandler with CounterBasedIterationHandler {
 
 	var loopNextAction: ActorRef = _
 

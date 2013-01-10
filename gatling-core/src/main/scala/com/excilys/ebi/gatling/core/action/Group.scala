@@ -21,7 +21,7 @@ import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import akka.actor.ActorRef
 import scalaz.{ Failure, Success }
 
-class Group(groupName: Expression[String], event: String, val next: ActorRef) extends Action {
+class Group(groupName: Expression[String], event: String, val next: ActorRef) extends Chainable {
 
 	def execute(session: Session) {
 		val resolvedGroupName = groupName(session) match {

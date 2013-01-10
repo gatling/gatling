@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.action
 
 import com.excilys.ebi.gatling.core.session.Session
 
-trait Bypass extends Action {
+trait Bypassable extends Chainable {
 
 	abstract override def receive = {
 		val bypass: PartialFunction[Any, Unit] = {

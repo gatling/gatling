@@ -29,7 +29,7 @@ import akka.actor.ActorRef
  * @param generateDelayInMillis a function that can be used to generate a delays for the pause action
  * @param next the next action to execute, which will be notified after the pause is complete
  */
-class Pause(generateDelayInMillis: () => Long, val next: ActorRef) extends Action with Bypass {
+class Pause(generateDelayInMillis: () => Long, val next: ActorRef) extends Bypassable {
 
 	/**
 	 * Generates a duration if required or use the one given and defer
