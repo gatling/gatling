@@ -23,7 +23,7 @@ import com.ning.http.client.Cookie
 
 import akka.actor.{ ActorRef, Props }
 
-object AddCookieActionBuilder {
+object AddCookieBuilder {
 
 	def apply(url: Expression[String], domain: Expression[String], name: Expression[String], value: Expression[String], path: Expression[String]) = {
 
@@ -35,11 +35,11 @@ object AddCookieActionBuilder {
 				path <- path(session)
 			} yield new Cookie(domain, name, value, path, 100000, false)
 
-		new AddCookieActionBuilder(url, cookie)
+		new AddCookieBuilder(url, cookie)
 	}
 }
 
-class AddCookieActionBuilder(url: Expression[String], cookie: Expression[Cookie]) extends ActionBuilder {
+class AddCookieBuilder(url: Expression[String], cookie: Expression[Cookie]) extends ActionBuilder {
 
-	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new AddCookieAction(url, cookie, next)))
+	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new AddCookie(url, cookie, next)))
 }

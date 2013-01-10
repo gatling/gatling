@@ -19,7 +19,7 @@ import scala.annotation.tailrec
 
 import org.apache.commons.math3.random.{ RandomData, RandomDataImpl }
 
-import com.excilys.ebi.gatling.core.action.{ SwitchAction, system }
+import com.excilys.ebi.gatling.core.action.{ Switch, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
@@ -57,6 +57,6 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)]) extends Acti
 			determineNextAction(RandomSwitchBuilder.randomData.nextInt(1, 100), possibleActions)
 		}
 
-		system.actorOf(Props(new SwitchAction(strategy, next)))
+		system.actorOf(Props(new Switch(strategy, next)))
 	}
 }

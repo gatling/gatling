@@ -15,19 +15,19 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.{ Bypass, SimpleAction, system }
+import com.excilys.ebi.gatling.core.action.{ Bypass, SessionHook, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.{ ActorRef, Props }
 
 /**
- * Builder for SimpleAction with bypass
+ * Builder for SessionHook with bypass
  *
  * @constructor creates a SimpleActionBuilder
  * @param sessionFunction the function that will be executed by the simple action
  */
-class BypassSimpleActionBuilder(sessionFunction: Session => Session) extends ActionBuilder {
+class BypassSessionHookBuilder(sessionFunction: Session => Session) extends ActionBuilder {
 
-	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new SimpleAction(sessionFunction, next) with Bypass))
+	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new SessionHook(sessionFunction, next) with Bypass))
 }

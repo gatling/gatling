@@ -15,21 +15,25 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.result.writer.DataWriter
-import com.excilys.ebi.gatling.core.session.{ Expression, Session }
+import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.ActorRef
-import scalaz.{ Failure, Success }
 
-class GroupAction(groupName: Expression[String], event: String, val next: ActorRef) extends Action {
+/**
+ * Hook for interacting with the Session
+ *
+ * @constructor Constructs a SimpleAction
+ * @param sessionFunction a function for manipulating the Session
+ * @param next the action to be executed after this one
+ */
+class SessionHook(sessionFunction: Session => Session, val next: ActorRef) extends Action {
 
+	/**
+	 * Applies the function to the Session
+	 *
+	 * @param session the session of the virtual user
+	 */
 	def execute(session: Session) {
-		val resolvedGroupName = groupName(session) match {
-			case Success(name) => name
-			case Failure(message) => error("Could not resolve group name: " + message); "no-group-name"
-		}
-
-		DataWriter.group(session.scenarioName, resolvedGroupName, session.userId, event)
-		next ! session
+		next ! sessionFunction(session)
 	}
 }

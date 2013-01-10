@@ -25,7 +25,7 @@ import com.ning.http.client.Cookie
 import akka.actor.ActorRef
 import scalaz.{ Failure, Success }
 
-class AddCookieAction(url: Expression[String], cookie: Expression[Cookie], val next: ActorRef) extends Action with Bypass {
+class AddCookie(url: Expression[String], cookie: Expression[Cookie], val next: ActorRef) extends Action with Bypass {
 
 	def execute(session: Session) {
 

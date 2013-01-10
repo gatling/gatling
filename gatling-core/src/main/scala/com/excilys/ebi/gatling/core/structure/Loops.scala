@@ -19,7 +19,7 @@ import java.util.UUID
 
 import scala.concurrent.duration.{ Duration, DurationLong }
 
-import com.excilys.ebi.gatling.core.action.builder.{ SimpleActionBuilder, WhileActionBuilder }
+import com.excilys.ebi.gatling.core.action.builder.{ SessionHookBuilder, WhileBuilder }
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.core.session.handler.{ CounterBasedIterationHandler, TimerBasedIterationHandler }
 import com.excilys.ebi.gatling.core.structure.ChainBuilder.emptyChain
@@ -40,9 +40,9 @@ trait Loops[B] extends Execs[B] with Logging {
 			def counterName = computedCounterName
 		}
 
-		val initAction = emptyChain.exec(new SimpleActionBuilder(handler.init))
-		val incrementAction = emptyChain.exec(new SimpleActionBuilder(handler.increment))
-		val expireAction = emptyChain.exec(new SimpleActionBuilder(handler.expire))
+		val initAction = emptyChain.exec(new SessionHookBuilder(handler.init))
+		val incrementAction = emptyChain.exec(new SessionHookBuilder(handler.increment))
+		val expireAction = emptyChain.exec(new SessionHookBuilder(handler.expire))
 		val innerActions = (1 to times).flatMap(_ => List(incrementAction, chain)).toList
 		val allActions = initAction :: innerActions ::: List(expireAction)
 
@@ -84,7 +84,7 @@ trait Loops[B] extends Execs[B] with Logging {
 		def continueCondition(session: Session) = TimerBasedIterationHandler.getTimer(session, loopCounterName)
 			.map(timerStartMillis => (nowMillis - timerStartMillis) <= duration.toMillis)
 
-		exec(new WhileActionBuilder(continueCondition, chain, loopCounterName))
+		exec(new WhileBuilder(continueCondition, chain, loopCounterName))
 	}
 
 	def asLongAs(condition: Expression[Boolean])(chain: ChainBuilder): B = asLongAs(condition, None, chain)
@@ -92,6 +92,6 @@ trait Loops[B] extends Execs[B] with Logging {
 
 	private def asLongAs(condition: Expression[Boolean], counterName: Option[String], chain: ChainBuilder): B = {
 		val loopCounterName = counterName.getOrElse(UUID.randomUUID.toString)
-		exec(new WhileActionBuilder(condition, chain, loopCounterName))
+		exec(new WhileBuilder(condition, chain, loopCounterName))
 	}
 }

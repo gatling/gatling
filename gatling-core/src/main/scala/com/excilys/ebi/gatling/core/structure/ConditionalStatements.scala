@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.structure
 
-import com.excilys.ebi.gatling.core.action.builder.{ IfActionBuilder, RandomSwitchBuilder, RoundRobinSwitchBuilder }
+import com.excilys.ebi.gatling.core.action.builder.{ IfBuilder, RandomSwitchBuilder, RoundRobinSwitchBuilder }
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 
 trait ConditionalStatements[B] extends Execs[B] {
@@ -70,7 +70,7 @@ trait ConditionalStatements[B] extends Execs[B] {
 	 * @param elseNext the chain to be executed if the condition is not satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	private def doIf(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]): B = newInstance(new IfActionBuilder(condition = condition, thenNext = thenNext, elseNext = elseNext) :: actionBuilders)
+	private def doIf(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]): B = newInstance(new IfBuilder(condition = condition, thenNext = thenNext, elseNext = elseNext) :: actionBuilders)
 
 	/**
 	 * Add a switch in the chain. Every possible subchain is defined with a percentage.

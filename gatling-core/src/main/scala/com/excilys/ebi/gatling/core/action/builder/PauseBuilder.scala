@@ -15,20 +15,30 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import java.util.UUID.randomUUID
+import scala.concurrent.duration.Duration
 
-import com.excilys.ebi.gatling.core.action.{ TryMaxAction, system }
+import com.excilys.ebi.gatling.core.action.{ Pause, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.structure.ChainBuilder
+import com.excilys.ebi.gatling.core.util.NumberHelper.createUniformRandomLongGenerator
 
 import akka.actor.{ ActorRef, Props }
 
-class TryMaxActionBuilder(times: Int, loopNext: ChainBuilder, counterName: String) extends ActionBuilder {
+/**
+ * Builder for the 'pause' action.
+ *
+ * @constructor create a new PauseBuilder
+ * @param minDuration minimum duration of the generated pause
+ * @param maxDuration maximum duration of the generated pause
+ */
+class PauseBuilder(minDuration: Duration, maxDuration: Option[Duration] = None) extends ActionBuilder {
 
 	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
-		val tryMaxActor = system.actorOf(Props(TryMaxAction(times, next, counterName)))
-		val loopContent = loopNext.withNext(tryMaxActor).build(protocolConfigurationRegistry)
-		tryMaxActor ! loopContent
-		tryMaxActor
+		val minDurationInMillis = minDuration.toMillis
+		val maxDurationInMillis = maxDuration.map(_.toMillis)
+
+		val delayGenerator: () => Long = maxDurationInMillis.map(
+			createUniformRandomLongGenerator(minDurationInMillis, _))
+			.getOrElse(() => minDurationInMillis)
+		system.actorOf(Props(new Pause(delayGenerator, next)))
 	}
 }

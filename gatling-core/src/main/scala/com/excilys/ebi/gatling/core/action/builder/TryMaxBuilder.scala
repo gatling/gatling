@@ -15,26 +15,20 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.{ WhileAction, system }
+import java.util.UUID.randomUUID
+
+import com.excilys.ebi.gatling.core.action.{ TryMax, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.session.Expression
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
 import akka.actor.{ ActorRef, Props }
 
-/**
- * Builder for WhileActionBuilder
- *
- * @constructor create a new WhileAction
- * @param condition the function that determine the condition
- * @param loopNext chain that will be executed if condition evaluates to true
- */
-class WhileActionBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String) extends ActionBuilder {
+class TryMaxBuilder(times: Int, loopNext: ChainBuilder, counterName: String) extends ActionBuilder {
 
 	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
-		val whileActor = system.actorOf(Props(new WhileAction(condition, next, counterName)))
-		val loopContent = loopNext.withNext(whileActor).build(protocolConfigurationRegistry)
-		whileActor ! loopContent
-		whileActor
+		val tryMaxActor = system.actorOf(Props(TryMax(times, next, counterName)))
+		val loopContent = loopNext.withNext(tryMaxActor).build(protocolConfigurationRegistry)
+		tryMaxActor ! loopContent
+		tryMaxActor
 	}
 }

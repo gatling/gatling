@@ -15,15 +15,15 @@
  */
 package com.excilys.ebi.gatling.core.structure
 
-import com.excilys.ebi.gatling.core.action.builder.GroupActionBuilder
+import com.excilys.ebi.gatling.core.action.builder.GroupBuilder
 import com.excilys.ebi.gatling.core.session.Expression
 import com.excilys.ebi.gatling.core.structure.ChainBuilder.emptyChain
 
 trait Groups[B] extends Execs[B] {
 
 	def group(name: Expression[String])(chain: ChainBuilder): B = {
-		val startAction = emptyChain.exec(GroupActionBuilder.start(name))
-		val endAction = emptyChain.exec(GroupActionBuilder.end(name))
+		val startAction = emptyChain.exec(GroupBuilder.start(name))
+		val endAction = emptyChain.exec(GroupBuilder.end(name))
 		exec(startAction, chain, endAction)
 	}
 }

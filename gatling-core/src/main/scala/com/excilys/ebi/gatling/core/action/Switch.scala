@@ -19,21 +19,12 @@ import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.ActorRef
 
-/**
- * Hook for interacting with the Session
- *
- * @constructor Constructs a SimpleAction
- * @param sessionFunction a function for manipulating the Session
- * @param next the action to be executed after this one
- */
-class SimpleAction(sessionFunction: Session => Session, val next: ActorRef) extends Action {
+class Switch(strategy: () => ActorRef, val next: ActorRef) extends Action with Bypass {
 
-	/**
-	 * Applies the function to the Session
-	 *
-	 * @param session the session of the virtual user
-	 */
 	def execute(session: Session) {
-		next ! sessionFunction(session)
+
+		val nextAction = strategy()
+		nextAction ! session
 	}
 }
+

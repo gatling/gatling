@@ -15,19 +15,25 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.{ system, SimpleAction }
+import com.excilys.ebi.gatling.core.action.{ system, If }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
 import akka.actor.{ Props, ActorRef }
 
 /**
- * Builder for SimpleAction
- *
- * @constructor creates a SimpleActionBuilder
- * @param sessionFunction the function that will be executed by the simple action
+ * @constructor create a new IfBuilder
+ * @param condition condition of the if
+ * @param thenNext chain that will be executed if condition evaluates to true
+ * @param elseNext chain that will be executed if condition evaluates to false
  */
-class SimpleActionBuilder(sessionFunction: Session => Session) extends ActionBuilder {
+class IfBuilder(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]) extends ActionBuilder {
 
-	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new SimpleAction(sessionFunction, next)))
+	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
+		val actionTrue = thenNext.withNext(next).build(protocolConfigurationRegistry)
+		val actionFalse = elseNext.map(_.withNext(next).build(protocolConfigurationRegistry))
+
+		system.actorOf(Props(new If(condition, actionTrue, actionFalse, next)))
+	}
 }

@@ -20,10 +20,10 @@ import com.excilys.ebi.gatling.core.session.Session
 import akka.actor.ActorRef
 import grizzled.slf4j.Logging
 
-object TryMaxAction extends Logging {
+object TryMax extends Logging {
 
-	def apply(times: Int, next: ActorRef, counterName: String): WhileAction = {
+	def apply(times: Int, next: ActorRef, counterName: String): While = {
 		val continueCondition = (s: Session) => s.safeGetAs[Int](counterName).map(counterValue => counterValue == 0 || (s.isFailed && counterValue < times))
-		new WhileAction(continueCondition, next, counterName)
+		new While(continueCondition, counterName, next)
 	}
 }

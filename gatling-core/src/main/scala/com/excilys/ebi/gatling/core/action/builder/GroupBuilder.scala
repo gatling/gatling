@@ -15,25 +15,21 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.{ Switch, system }
+import com.excilys.ebi.gatling.core.action.{ Group, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.structure.ChainBuilder
-import com.excilys.ebi.gatling.core.util.RoundRobin
+import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
+import com.excilys.ebi.gatling.core.session.Expression
 
 import akka.actor.{ ActorRef, Props }
 
-class RoundRobinSwitchBuilder(possibilities: List[ChainBuilder]) extends ActionBuilder {
+object GroupBuilder {
 
-	require(possibilities.size >= 2, "Can't build a round robin switch with less than 2 possibilities")
+	def start(groupName: Expression[String]) = new GroupBuilder(groupName, START)
 
-	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
+	def end(groupName: Expression[String]) = new GroupBuilder(groupName, END)
+}
 
-		val possibleActions = possibilities.map(_.withNext(next).build(protocolConfigurationRegistry))
+class GroupBuilder(groupName: Expression[String], event: String) extends ActionBuilder {
 
-		val rr = RoundRobin(possibleActions)
-
-		val strategy = () => rr.next
-
-		system.actorOf(Props(new Switch(strategy, next)))
-	}
+	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new Group(groupName, event, next)))
 }

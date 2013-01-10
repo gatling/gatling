@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.http
 
 import com.excilys.ebi.gatling.core.session.Expression
-import com.excilys.ebi.gatling.http.action.{ AddCookieActionBuilder, HttpRequestActionBuilder }
+import com.excilys.ebi.gatling.http.action.{ AddCookieBuilder, HttpRequestActionBuilder }
 import com.excilys.ebi.gatling.http.check.after.HttpBodyResponseTimeCheckBuilder
 import com.excilys.ebi.gatling.http.check.body.{ HttpBodyCssCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyStringCheckBuilder, HttpBodyXPathCheckBuilder }
 import com.excilys.ebi.gatling.http.check.bodypart.HttpChecksumCheckBuilder
@@ -37,7 +37,7 @@ object Predef {
 	implicit def requestBuilder2ActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]): HttpRequestActionBuilder = requestBuilder.toActionBuilder
 
 	def http(requestName: Expression[String]) = HttpRequestBaseBuilder.http(requestName)
-	def addCookie(url: Expression[String], domain: Expression[String], name: Expression[String], value: Expression[String], path: Expression[String]) = AddCookieActionBuilder(url, domain, name, value, path)
+	def addCookie(url: Expression[String], domain: Expression[String], name: Expression[String], value: Expression[String], path: Expression[String]) = AddCookieBuilder(url, domain, name, value, path)
 	def httpConfig = HttpProtocolConfigurationBuilder.httpConfig
 	def regex(pattern: Expression[String]) = HttpBodyRegexCheckBuilder.regex(pattern)
 	def xpath(expression: Expression[String], namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)

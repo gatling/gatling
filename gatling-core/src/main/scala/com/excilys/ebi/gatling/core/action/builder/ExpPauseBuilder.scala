@@ -17,28 +17,25 @@ package com.excilys.ebi.gatling.core.action.builder
 
 import scala.concurrent.duration.Duration
 
-import com.excilys.ebi.gatling.core.action.{ PauseAction, system }
+import com.excilys.ebi.gatling.core.action.{ Pause, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.util.NumberHelper.createUniformRandomLongGenerator
+import com.excilys.ebi.gatling.core.util.NumberHelper.createExpRandomLongGenerator
 
 import akka.actor.{ ActorRef, Props }
 
 /**
- * Builder for the 'pause' action.
+ * Builder for the 'pauseExp' action.  Creates PauseActions for a user with a delay coming from
+ * an exponential distribution with the specified mean duration.
  *
- * @constructor create a new PauseActionBuilder
- * @param minDuration minimum duration of the generated pause
- * @param maxDuration maximum duration of the generated pause
+ * @constructor create a new ExpPauseActionBuilder
+ * @param meanDuration mean duration of the generated pause
  */
-class PauseActionBuilder(minDuration: Duration, maxDuration: Option[Duration] = None) extends ActionBuilder {
+class ExpPauseBuilder(meanDuration: Duration) extends ActionBuilder {
 
 	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
-		val minDurationInMillis = minDuration.toMillis
-		val maxDurationInMillis = maxDuration.map(_.toMillis)
+		val meanDurationInMillis = meanDuration.toMillis
+		val delayGenerator: () => Long = createExpRandomLongGenerator(meanDurationInMillis)
 
-		val delayGenerator: () => Long = maxDurationInMillis.map(
-			createUniformRandomLongGenerator(minDurationInMillis, _))
-			.getOrElse(() => minDurationInMillis)
-		system.actorOf(Props(new PauseAction(next, delayGenerator)))
+		system.actorOf(Props(new Pause(delayGenerator, next)))
 	}
 }
