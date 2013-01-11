@@ -90,6 +90,8 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
       feed(testData)
         .exec(http("Catégorie Poney").get("/").queryParam("omg").queryParam("socool").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform(_ + "foo").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
     }
+    .exec(http("Catégorie Poney").post("/").multiValuedParam("foo"))
+    .exec(http("Catégorie Poney").post("/").multiValuedParam("foo", "bar"))
     .exec(http("Catégorie Poney").get("/").queryParam("omg"))
     .exec(http("Catégorie Poney").get("/").queryParam("omg", "foo"))
     .exec(http("Catégorie Poney").get("/").queryParam("omg", "${foo}"))
