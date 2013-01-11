@@ -113,9 +113,9 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	/**
 	 * Adds several headers to the request at the same time
 	 *
-	 * @param givenHeaders a scala map containing the headers to add
+	 * @param newHeaders a scala map containing the headers to add
 	 */
-	def headers(givenHeaders: Map[String, String]): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers ++ givenHeaders.mapValues(Expression[String](_))))
+	def headers(newHeaders: Map[String, String]): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers ++ newHeaders.mapValues(Expression[String](_))))
 
 	/**
 	 * Adds Accept and Content-Type headers to the request set with "application/json" values
