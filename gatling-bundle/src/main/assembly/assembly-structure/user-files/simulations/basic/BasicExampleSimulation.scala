@@ -4,8 +4,9 @@ import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._
 import com.excilys.ebi.gatling.jdbc.Predef._
 import com.excilys.ebi.gatling.http.Headers.Names._
-import akka.util.duration._
+import scala.concurrent.duration._
 import bootstrap._
+import assertions._
 
 class BasicExampleSimulation extends Simulation {
 
@@ -30,25 +31,27 @@ class BasicExampleSimulation extends Simulation {
 		"X-Requested-With" -> "XMLHttpRequest")
 
 	val scn = scenario("Scenario name")
-		.exec(
-			http("request_1")
-				.get("/")
-				.headers(headers_1)
-				.check(status.is(302)))
-		.pause(0 milliseconds, 100 milliseconds)
-		.exec(
-			http("request_2")
-				.get("/public/login.html")
-				.headers(headers_1))
-		.pause(12, 13)
-		.feed(csv("user_information.csv"))
-		.exec(
-			http("request_3")
-				.post("/login")
-				.param("username", "${username}")
-				.param("password", "${password}")
-				.headers(headers_3)
-				.check(status.is(302)))
+		.group("Login") {
+			exec(
+				http("request_1")
+					.get("/")
+					.headers(headers_1)
+					.check(status.is(302)))
+				.pause(0 milliseconds, 100 milliseconds)
+				.exec(
+				http("request_2")
+					.get("/public/login.html")
+					.headers(headers_1))
+				.pause(12, 13)
+				.feed(csv("user_information.csv"))
+				.exec(
+				http("request_3")
+					.post("/login")
+					.param("username", "${username}")
+					.param("password", "${password}")
+					.headers(headers_3)
+					.check(status.is(302)))
+		}
 		.pause(0 milliseconds, 100 milliseconds)
 		.repeat(5) {
 			exec(
@@ -87,5 +90,9 @@ class BasicExampleSimulation extends Simulation {
 				.get("/public/login.html")
 				.headers(headers_1))
 
-	setUp(scn.users(10).ramp(10).protocolConfig(httpConf))
+	setUp(scn.users(1).ramp(10).protocolConfig(httpConf))
+
+	assertThat(global.successfulRequests.percent.is(100),details("Login" / "request_2").responseTime.max.lessThan(2000))
+	assertThat(details("request_9").requestsPerSec.greaterThan(10))
+
 }

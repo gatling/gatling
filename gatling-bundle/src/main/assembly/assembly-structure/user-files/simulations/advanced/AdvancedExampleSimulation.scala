@@ -4,7 +4,7 @@ import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._
 import com.excilys.ebi.gatling.jdbc.Predef._
 import com.excilys.ebi.gatling.http.Headers.Names._
-import akka.util.duration._
+import scala.concurrent.duration._
 
 class AdvancedExampleSimulation extends Simulation {
 

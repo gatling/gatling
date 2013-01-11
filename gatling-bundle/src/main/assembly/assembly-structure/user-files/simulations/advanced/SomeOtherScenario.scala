@@ -1,7 +1,7 @@
 package advanced
 import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._
-import akka.util.duration._
+import scala.concurrent.duration._
 import Headers._
 
 object SomeOtherScenario {
