@@ -76,4 +76,21 @@ trait Loops[B] extends Execs[B] {
 		val loopCounterName = counterName.getOrElse(UUID.randomUUID.toString)
 		exec(WhileActionBuilder(condition, chain, loopCounterName))
 	}
+
+	def foreach(seqName: String, attributeName: String, counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
+		def seq(session: Session) = session.getTypedAttribute[Seq[Any]](parseEL(seqName)(session))
+
+		def setNextValueInSession(session: Session) = {
+			val counterValue = session.getTypedAttribute[Int](counterName)
+
+			session.setAttribute(attributeName, seq(session)(counterValue))
+		}
+
+		def continueCondition(session: Session) = {
+			val counterValue = session.getTypedAttribute[Int](counterName)
+			seq(session).size > counterValue
+		}
+
+		asLongAs(continueCondition, Some(counterName), emptyChain.exec(SimpleActionBuilder(setNextValueInSession)).exec(chain))
+	}
 }
