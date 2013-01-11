@@ -15,38 +15,25 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.{ system, IfAction }
+import com.excilys.ebi.gatling.core.action.{ system, If }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
 import akka.actor.{ Props, ActorRef }
 
-object IfActionBuilder {
-
-	/**
-	 * Creates an initialized IfActionBuilder
-	 */
-	def apply(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]) = new IfActionBuilder(condition, thenNext, elseNext, null)
-}
-
 /**
- * Builder for IfAction
- *
- * @constructor create a new IfActionBuilder
+ * @constructor create a new IfBuilder
  * @param condition condition of the if
  * @param thenNext chain that will be executed if condition evaluates to true
  * @param elseNext chain that will be executed if condition evaluates to false
- * @param next chain that will be executed if condition evaluates to false and there is no elseNext
  */
-class IfActionBuilder(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder], next: ActorRef) extends ActionBuilder {
+class IfBuilder(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]) extends ActionBuilder {
 
-	def withNext(next: ActorRef) = new IfActionBuilder(condition, thenNext, elseNext, next)
+	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
+		val actionTrue = thenNext.build(next, protocolConfigurationRegistry)
+		val actionFalse = elseNext.map(_.build(next, protocolConfigurationRegistry))
 
-	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
-		val actionTrue = thenNext.withNext(next).build(protocolConfigurationRegistry)
-		val actionFalse = elseNext.map(_.withNext(next).build(protocolConfigurationRegistry))
-
-		system.actorOf(Props(new IfAction(condition, actionTrue, actionFalse, next)))
+		system.actorOf(Props(new If(condition, actionTrue, actionFalse, next)))
 	}
 }

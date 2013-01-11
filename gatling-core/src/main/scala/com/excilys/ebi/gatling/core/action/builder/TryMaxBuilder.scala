@@ -17,27 +17,17 @@ package com.excilys.ebi.gatling.core.action.builder
 
 import java.util.UUID.randomUUID
 
-import com.excilys.ebi.gatling.core.action.{ TryMaxAction, system }
+import com.excilys.ebi.gatling.core.action.{ TryMax, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
 import akka.actor.{ ActorRef, Props }
 
-object TryMaxActionBuilder {
+class TryMaxBuilder(times: Int, loopNext: ChainBuilder, counterName: String) extends ActionBuilder {
 
-	/**
-	 * Creates an initialized TryMaxActionBuilder
-	 */
-	def apply(times: Int, loopNext: ChainBuilder, counterName: String) = new TryMaxActionBuilder(times, loopNext, counterName, null)
-}
-
-class TryMaxActionBuilder(times: Int, loopNext: ChainBuilder, counterName: String, next: ActorRef) extends ActionBuilder {
-
-	def withNext(next: ActorRef) = new TryMaxActionBuilder(times, loopNext, counterName, next)
-
-	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
-		val tryMaxActor = system.actorOf(Props(TryMaxAction(times, next, counterName)))
-		val loopContent = loopNext.withNext(tryMaxActor).build(protocolConfigurationRegistry)
+	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
+		val tryMaxActor = system.actorOf(Props(TryMax(times, next, counterName)))
+		val loopContent = loopNext.build(tryMaxActor, protocolConfigurationRegistry)
 		tryMaxActor ! loopContent
 		tryMaxActor
 	}

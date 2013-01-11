@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.structure
 
-import com.excilys.ebi.gatling.core.action.builder.{ ActionBuilder, BypassSimpleActionBuilder }
+import com.excilys.ebi.gatling.core.action.builder.{ ActionBuilder, SessionHookBuilder }
 import com.excilys.ebi.gatling.core.session.Session
 
 trait Execs[B] {
@@ -29,7 +29,7 @@ trait Execs[B] {
 	 *
 	 * @param actionBuilder the action builder representing the action to be executed
 	 */
-	def exec(sessionFunction: Session => Session): B = exec(BypassSimpleActionBuilder(sessionFunction))
+	def exec(sessionFunction: Session => Session): B = exec(new SessionHookBuilder(sessionFunction, true))
 	def exec(actionBuilder: ActionBuilder): B = newInstance(actionBuilder :: actionBuilders)
 	def exec(chains: ChainBuilder*): B = exec(chains.toIterable)
 	def exec(chains: Iterator[ChainBuilder]): B = exec(chains.toIterable)

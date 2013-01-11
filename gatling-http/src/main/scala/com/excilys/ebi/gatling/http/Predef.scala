@@ -16,6 +16,7 @@
 package com.excilys.ebi.gatling.http
 
 import com.excilys.ebi.gatling.core.session.Expression
+import com.excilys.ebi.gatling.http.action.{ AddCookieBuilder, HttpRequestActionBuilder }
 import com.excilys.ebi.gatling.http.check.after.HttpBodyResponseTimeCheckBuilder
 import com.excilys.ebi.gatling.http.check.body.{ HttpBodyCssCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyStringCheckBuilder, HttpBodyXPathCheckBuilder }
 import com.excilys.ebi.gatling.http.check.bodypart.HttpChecksumCheckBuilder
@@ -24,7 +25,6 @@ import com.excilys.ebi.gatling.http.check.status.{ CurrentLocationCheckBuilder, 
 import com.excilys.ebi.gatling.http.config.{ HttpProtocolConfiguration, HttpProtocolConfigurationBuilder, HttpProxyBuilder }
 import com.excilys.ebi.gatling.http.request.builder.{ AbstractHttpRequestBuilder, HttpRequestBaseBuilder }
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
-import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 
 object Predef {
 	type Request = com.ning.http.client.Request
@@ -37,6 +37,7 @@ object Predef {
 	implicit def requestBuilder2ActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]): HttpRequestActionBuilder = requestBuilder.toActionBuilder
 
 	def http(requestName: Expression[String]) = HttpRequestBaseBuilder.http(requestName)
+	def addCookie(url: Expression[String], domain: Expression[String], name: Expression[String], value: Expression[String], path: Expression[String]) = AddCookieBuilder(url, domain, name, value, path)
 	def httpConfig = HttpProtocolConfigurationBuilder.httpConfig
 	def regex(pattern: Expression[String]) = HttpBodyRegexCheckBuilder.regex(pattern)
 	def xpath(expression: Expression[String], namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)

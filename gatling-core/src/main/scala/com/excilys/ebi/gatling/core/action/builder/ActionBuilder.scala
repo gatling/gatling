@@ -25,14 +25,9 @@ import akka.actor.ActorRef
 trait ActionBuilder {
 
 	/**
-	 * @param next the Action that will be chained with the Action build by this builder
-	 * @return a new builder instance, with next set
-	 */
-	private[gatling] def withNext(next: ActorRef): ActionBuilder
-
-	/**
 	 * @param protocolConfigurationRegistry
+	 * @param next the Action that will be chained with the Action build by this builder
 	 * @return the built Action
 	 */
-	private[gatling] def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef
+	private[gatling] def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef
 }

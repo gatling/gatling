@@ -27,9 +27,9 @@ import grizzled.slf4j.Logging
  */
 abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extends Execs[B] with Pauses[B] with Feeds[B] with Loops[B] with ConditionalStatements[B] with Errors[B] with Groups[B] with Logging {
 
-	protected def buildChainedActions(entryPoint: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = actionBuilders
-		.foldLeft(entryPoint) { (actorRef, actionBuilder) =>
-			actionBuilder.withNext(actorRef).build(protocolConfigurationRegistry)
+	protected def buildChainedActions(exitPoint: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef =
+		actionBuilders.foldLeft(exitPoint) { (actorRef, actionBuilder) =>
+			actionBuilder.build(actorRef, protocolConfigurationRegistry)
 		}
 }
 

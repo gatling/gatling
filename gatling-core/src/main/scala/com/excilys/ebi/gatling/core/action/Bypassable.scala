@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.structure
+package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.action.builder.GroupBuilder
-import com.excilys.ebi.gatling.core.session.Expression
-import com.excilys.ebi.gatling.core.structure.ChainBuilder.chainOf
+import com.excilys.ebi.gatling.core.session.Session
 
-trait Groups[B] extends Execs[B] {
+trait Bypassable extends Chainable {
 
-	def group(name: Expression[String])(chain: ChainBuilder): B = {
-		val start = GroupBuilder.start(name)
-		val end = GroupBuilder.end(name)
-		exec(chainOf(start).exec(chain).exec(end))
+	abstract override def receive = {
+		val bypass: PartialFunction[Any, Unit] = {
+			case session: Session if session.shouldExitBecauseFailed => next ! session
+		}
+		bypass orElse super.receive
 	}
 }

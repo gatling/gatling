@@ -26,10 +26,10 @@ import akka.actor.ActorRef
 /**
  * PauseAction provides a convenient means to implement pause actions based on random distributions.
  *
- * @param next the next action to execute, which will be notified after the pause is complete
  * @param generateDelayInMillis a function that can be used to generate a delays for the pause action
+ * @param next the next action to execute, which will be notified after the pause is complete
  */
-class PauseAction(val next: ActorRef, generateDelayInMillis: () => Long) extends Action with Bypass {
+class Pause(generateDelayInMillis: () => Long, val next: ActorRef) extends Bypassable {
 
 	/**
 	 * Generates a duration if required or use the one given and defer

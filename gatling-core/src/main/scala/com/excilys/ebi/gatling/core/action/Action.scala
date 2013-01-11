@@ -25,8 +25,6 @@ import akka.actor.ActorRef
  */
 trait Action extends BaseActor {
 
-	def next: ActorRef
-
 	def receive = {
 		case session: Session => execute(session)
 	}
@@ -38,12 +36,4 @@ trait Action extends BaseActor {
 	 * @return Nothing
 	 */
 	def execute(session: Session)
-
-	override def preRestart(reason: Throwable, message: Option[Any]) {
-		error("Action " + this + " crashed, forwarding user to next one", reason)
-		message match {
-			case Some(session: Session) if (next != null) => next ! session.setFailed
-			case _ =>
-		}
-	}
 }

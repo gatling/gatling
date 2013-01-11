@@ -15,16 +15,25 @@
  */
 package com.excilys.ebi.gatling.core.action
 
+import com.excilys.ebi.gatling.core.result.message.RecordEvent.END
+import com.excilys.ebi.gatling.core.result.terminator.Terminator
+import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 
-import akka.actor.ActorRef
+import akka.actor.{ ActorRef, Props }
 
-class SwitchAction(strategy: () => ActorRef, val next: ActorRef) extends Action with Bypass {
+object UserEnd {
+
+	val END = system.actorOf(Props(new UserEnd))
+}
+
+class UserEnd extends Action {
 
 	def execute(session: Session) {
 
-		val nextAction = strategy()
-		nextAction ! session
+		DataWriter.user(session.scenarioName, session.userId, END)
+		info("End user #" + session.userId)
+
+		Terminator.endUser
 	}
 }
-
