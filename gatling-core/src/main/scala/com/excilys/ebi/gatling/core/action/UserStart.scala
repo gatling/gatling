@@ -21,7 +21,7 @@ import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.ActorRef
 
-class UserStart(val next: ActorRef) extends Action {
+class UserStart(val next: ActorRef) extends Chainable {
 
 	def execute(session: Session) {
 
