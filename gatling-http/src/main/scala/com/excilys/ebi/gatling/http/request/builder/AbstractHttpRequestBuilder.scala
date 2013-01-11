@@ -21,6 +21,7 @@ import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames, Values => He
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
+import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.referer.RefererHandling
 import com.excilys.ebi.gatling.http.util.HttpHelper
 import com.ning.http.client.{ Request, RequestBuilder }
@@ -163,13 +164,15 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 			httpAttributes.url(session).flatMap(makeAbsolute)
 		}
 
-		def configureUrlAndProxy(requestBuilder: RequestBuilder)(url: String): Validation[String, RequestBuilder] = {
+		def configureUrlCookiesAndProxy(requestBuilder: RequestBuilder)(url: String): Validation[String, RequestBuilder] = {
 
 			val proxy = if (url.startsWith(Protocol.HTTPS.getProtocol))
 				protocolConfiguration.securedProxy
 			else protocolConfiguration.proxy
 
 			proxy.map(requestBuilder.setProxyServer)
+
+			for (cookie <- CookieHandling.getStoredCookies(session, url)) requestBuilder.addCookie(cookie)
 
 			requestBuilder.setUrl(url).success
 		}
@@ -205,7 +208,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 		val requestBuilder = new RequestBuilder(httpAttributes.method, configuration.http.useRawUrl).setBodyEncoding(configuration.simulation.encoding)
 
 		url
-			.flatMap(configureUrlAndProxy(requestBuilder: RequestBuilder))
+			.flatMap(configureUrlCookiesAndProxy(requestBuilder: RequestBuilder))
 			.flatMap(configureQueryParams)
 			.flatMap(configureHeaders)
 			.flatMap(configureRealm)
