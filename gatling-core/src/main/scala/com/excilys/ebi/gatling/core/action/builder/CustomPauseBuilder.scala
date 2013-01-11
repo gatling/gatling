@@ -15,24 +15,18 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.{ GroupAction, system }
+import com.excilys.ebi.gatling.core.action.{ Pause, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
-import com.excilys.ebi.gatling.core.session.Expression
 
 import akka.actor.{ ActorRef, Props }
 
-object GroupActionBuilder {
+/**
+ * Builder for the custom 'pause' action.
+ *
+ * @constructor create a new PauseActionBuilder
+ * @param delayGenerator the strategy for computing the duration of the generated pause, in milliseconds
+ */
+class CustomPauseBuilder(delayGenerator: () => Long) extends ActionBuilder {
 
-	def start(groupName: Expression[String]) = new GroupActionBuilder(groupName, START, null)
-
-	def end(groupName: Expression[String]) = new GroupActionBuilder(groupName, END, null)
-}
-
-class GroupActionBuilder(groupName: Expression[String], event: String, next: ActorRef) extends ActionBuilder {
-
-	def withNext(next: ActorRef) = new GroupActionBuilder(groupName, event, next)
-
-	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new GroupAction(groupName, event, next)))
-
+	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new Pause(delayGenerator, next)))
 }

@@ -15,33 +15,23 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.{ WhileAction, system }
+import com.excilys.ebi.gatling.core.action.{ While, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.session.Expression
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
 import akka.actor.{ ActorRef, Props }
 
-object WhileActionBuilder {
-
-	def apply(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String) = new WhileActionBuilder(condition, loopNext, counterName, null)
-}
-
 /**
- * Builder for WhileActionBuilder
- *
  * @constructor create a new WhileAction
  * @param condition the function that determine the condition
  * @param loopNext chain that will be executed if condition evaluates to true
- * @param next action that will be executed if condition evaluates to false
  */
-class WhileActionBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String, next: ActorRef) extends ActionBuilder {
+class WhileBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String) extends ActionBuilder {
 
-	def withNext(next: ActorRef) = new WhileActionBuilder(condition, loopNext, counterName, next)
-
-	def build(protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
-		val whileActor = system.actorOf(Props(new WhileAction(condition, next, counterName)))
-		val loopContent = loopNext.withNext(whileActor).build(protocolConfigurationRegistry)
+	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
+		val whileActor = system.actorOf(Props(new While(condition, counterName, next)))
+		val loopContent = loopNext.build(whileActor, protocolConfigurationRegistry)
 		whileActor ! loopContent
 		whileActor
 	}

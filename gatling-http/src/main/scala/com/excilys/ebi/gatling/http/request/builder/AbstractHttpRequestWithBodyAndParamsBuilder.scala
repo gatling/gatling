@@ -66,19 +66,14 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		newInstance(httpAttributes, body, paramsAttributes)
 	}
 
-	def param(key: String): B = param(Expression[String](key), Expression[String](key))
+	def param(key: String): B = param(Expression[String](key), (s: Session) => s.safeGetAs[String](key))
 
 	def param(key: Expression[String], value: Expression[String]): B = {
 		val httpParam: HttpParam = (key, (s: Session) => value(s).map(Seq(_)))
 		param(httpParam)
 	}
 
-	def multiValuedParam(key: String): B = multiValuedParam(Expression[String](key), key)
-
-	def multiValuedParam(key: Expression[String], value: String): B = {
-		val httpParam: HttpParam = (key, Expression[Seq[String]](value))
-		param(httpParam)
-	}
+	def multiValuedParam(key: String): B = multiValuedParam(Expression[String](key), (s: Session) => s.safeGetAs[Seq[String]](key))
 
 	def multiValuedParam(key: Expression[String], values: Seq[String]): B = {
 		val httpParam: HttpParam = (key, (s: Session) => values.success)

@@ -17,12 +17,23 @@ package com.excilys.ebi.gatling.core.action
 
 import com.excilys.ebi.gatling.core.session.Session
 
-trait Bypass extends Action {
+import akka.actor.ActorRef
 
-	abstract override def receive = {
-		val bypass: PartialFunction[Any, Unit] = {
-			case session: Session if session.shouldExitBecauseFailed => next ! session
-		}
-		bypass orElse super.receive
+/**
+ * Hook for interacting with the Session
+ *
+ * @constructor Constructs a SimpleAction
+ * @param sessionFunction a function for manipulating the Session
+ * @param next the action to be executed after this one
+ */
+class SessionHook(sessionFunction: Session => Session, val next: ActorRef) extends Chainable {
+
+	/**
+	 * Applies the function to the Session
+	 *
+	 * @param session the session of the virtual user
+	 */
+	def execute(session: Session) {
+		next ! sessionFunction(session)
 	}
 }

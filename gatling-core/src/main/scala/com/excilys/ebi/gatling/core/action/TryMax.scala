@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.structure
+package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.action.builder.GroupBuilder
-import com.excilys.ebi.gatling.core.session.Expression
-import com.excilys.ebi.gatling.core.structure.ChainBuilder.chainOf
+import com.excilys.ebi.gatling.core.session.Session
 
-trait Groups[B] extends Execs[B] {
+import akka.actor.ActorRef
+import grizzled.slf4j.Logging
 
-	def group(name: Expression[String])(chain: ChainBuilder): B = {
-		val start = GroupBuilder.start(name)
-		val end = GroupBuilder.end(name)
-		exec(chainOf(start).exec(chain).exec(end))
+object TryMax extends Logging {
+
+	def apply(times: Int, next: ActorRef, counterName: String): While = {
+		val continueCondition = (s: Session) => s.safeGetAs[Int](counterName).map(counterValue => counterValue == 0 || (s.isFailed && counterValue < times))
+		new While(continueCondition, counterName, next)
 	}
 }

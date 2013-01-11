@@ -15,23 +15,21 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.result.message.RecordEvent.END
-import com.excilys.ebi.gatling.core.result.terminator.Terminator
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 
 import akka.actor.ActorRef
+import scalaz.{ Failure, Success }
 
-class UserAction(event: String, val next: ActorRef) extends Action {
+class Group(groupName: Expression[String], event: String, val next: ActorRef) extends Chainable {
 
 	def execute(session: Session) {
-
-		DataWriter.user(session.scenarioName, session.userId, event)
-		info(event + " user #" + session.userId)
-
-		event match {
-			case END => Terminator.endUser
-			case _ => next ! session
+		val resolvedGroupName = groupName(session) match {
+			case Success(name) => name
+			case Failure(message) => error("Could not resolve group name: " + message); "no-group-name"
 		}
+
+		DataWriter.group(session.scenarioName, resolvedGroupName, session.userId, event)
+		next ! session
 	}
 }

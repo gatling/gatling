@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.action
+package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.action.{ UserStart, system }
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 
-import akka.actor.ActorRef
-import grizzled.slf4j.Logging
+import akka.actor.{ ActorRef, Props }
 
-object TryMaxAction extends Logging {
+object UserStartBuilder {
 
-	def apply(times: Int, next: ActorRef, counterName: String): WhileAction = {
-		val continueCondition = (s: Session) => s.safeGetAs[Int](counterName).map(counterValue => counterValue == 0 || (s.isFailed && counterValue < times))
-		new WhileAction(continueCondition, next, counterName)
+	val start = new ActionBuilder {
+
+		def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new UserStart(next)))
 	}
 }
