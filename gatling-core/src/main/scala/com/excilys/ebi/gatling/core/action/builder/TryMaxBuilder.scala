@@ -27,7 +27,7 @@ class TryMaxBuilder(times: Int, loopNext: ChainBuilder, counterName: String) ext
 
 	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
 		val tryMaxActor = system.actorOf(Props(TryMax(times, next, counterName)))
-		val loopContent = loopNext.withNext(tryMaxActor).build(protocolConfigurationRegistry)
+		val loopContent = loopNext.build(tryMaxActor, protocolConfigurationRegistry)
 		tryMaxActor ! loopContent
 		tryMaxActor
 	}

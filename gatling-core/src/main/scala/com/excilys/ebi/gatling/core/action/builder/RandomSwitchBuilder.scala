@@ -38,7 +38,7 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)]) extends Acti
 
 		val possibleActions = possibilities.map {
 			case (percentage, possibility) =>
-				val possibilityAction = possibility.withNext(next).build(protocolConfigurationRegistry)
+				val possibilityAction = possibility.build(next, protocolConfigurationRegistry)
 				(percentage, possibilityAction)
 		}
 

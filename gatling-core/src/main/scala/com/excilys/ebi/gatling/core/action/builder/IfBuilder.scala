@@ -31,8 +31,8 @@ import akka.actor.{ Props, ActorRef }
 class IfBuilder(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]) extends ActionBuilder {
 
 	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
-		val actionTrue = thenNext.withNext(next).build(protocolConfigurationRegistry)
-		val actionFalse = elseNext.map(_.withNext(next).build(protocolConfigurationRegistry))
+		val actionTrue = thenNext.build(next, protocolConfigurationRegistry)
+		val actionFalse = elseNext.map(_.build(next, protocolConfigurationRegistry))
 
 		system.actorOf(Props(new If(condition, actionTrue, actionFalse, next)))
 	}

@@ -18,8 +18,7 @@ package com.excilys.ebi.gatling.core.structure
 import java.util.UUID
 
 import com.excilys.ebi.gatling.core.action.builder.{ SessionHookBuilder, TryMaxBuilder }
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.structure.ChainBuilder.emptyChain
+import com.excilys.ebi.gatling.core.structure.ChainBuilder.chainOf
 
 trait Errors[B] extends Execs[B] {
 
@@ -30,14 +29,12 @@ trait Errors[B] extends Execs[B] {
 
 		require(times >= 1, "Can't set up a max try <= 1")
 
-		def buildTransactionalChain(chain: ChainBuilder): ChainBuilder = {
-			val startBlock = new SessionHookBuilder(session => session.clearFailed.setMustExitOnFail)
-			val endBlock = new SessionHookBuilder(session => session.clearMustExitOnFail)
-			emptyChain.exec(startBlock).exec(chain).exec(endBlock)
-		}
+		val start = new SessionHookBuilder(_.clearFailed.setMustExitOnFail)
+		val end = new SessionHookBuilder(_.clearMustExitOnFail)
+		val transactionalChain = chainOf(start).exec(chain).exec(end)
 
 		val loopCounterName = counterName.getOrElse(UUID.randomUUID.toString)
-		exec(new TryMaxBuilder(times, buildTransactionalChain(chain), loopCounterName))
+		exec(new TryMaxBuilder(times, transactionalChain, loopCounterName))
 	}
 
 	def exitHereIfFailed: B = exec(new SessionHookBuilder(session => session.setMustExitOnFail))

@@ -31,7 +31,7 @@ class WhileBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, count
 
 	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
 		val whileActor = system.actorOf(Props(new While(condition, counterName, next)))
-		val loopContent = loopNext.withNext(whileActor).build(protocolConfigurationRegistry)
+		val loopContent = loopNext.build(whileActor, protocolConfigurationRegistry)
 		whileActor ! loopContent
 		whileActor
 	}

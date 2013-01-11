@@ -17,12 +17,13 @@ package com.excilys.ebi.gatling.core.structure
 
 import java.util.UUID
 
+import scala.collection.immutable.Stream
 import scala.concurrent.duration.{ Duration, DurationLong }
 
 import com.excilys.ebi.gatling.core.action.builder.{ SessionHookBuilder, WhileBuilder }
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.core.session.handler.{ CounterBasedIterationHandler, TimerBasedIterationHandler }
-import com.excilys.ebi.gatling.core.structure.ChainBuilder.emptyChain
+import com.excilys.ebi.gatling.core.structure.ChainBuilder.chainOf
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 
 import grizzled.slf4j.Logging
@@ -40,13 +41,12 @@ trait Loops[B] extends Execs[B] with Logging {
 			def counterName = computedCounterName
 		}
 
-		val initAction = emptyChain.exec(new SessionHookBuilder(handler.init))
-		val incrementAction = emptyChain.exec(new SessionHookBuilder(handler.increment))
-		val expireAction = emptyChain.exec(new SessionHookBuilder(handler.expire))
-		val innerActions = (1 to times).flatMap(_ => List(incrementAction, chain)).toList
-		val allActions = initAction :: innerActions ::: List(expireAction)
+		val init = new SessionHookBuilder(handler.init)
+		val expire = new SessionHookBuilder(handler.expire)
+		val increment = chainOf(new SessionHookBuilder(handler.increment))
+		val flattenLoopContent = Stream.continually(List(increment, chain)).take(times).flatten
 
-		exec(allActions)
+		exec(chainOf(init).exec(flattenLoopContent).exec(expire))
 	}
 
 	def repeat(times: String)(chain: ChainBuilder): B = repeat(times, None, chain)

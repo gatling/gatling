@@ -67,7 +67,7 @@ object Predef {
 	type Expression[T] = com.excilys.ebi.gatling.core.session.Expression[T]
 
 	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder.scenario(scenarioName)
-	val bootstrap = ChainBuilder.emptyChain
+	val bootstrap = new ChainBuilder(Nil)
 
 	val assertions = new AssertionBuilder
 
