@@ -19,20 +19,27 @@ import java.sql.DriverManager
 import java.sql.ResultSet.{ TYPE_FORWARD_ONLY, CONCUR_READ_ONLY }
 
 import com.excilys.ebi.gatling.core.util.IOHelper.use
-import com.excilys.ebi.gatling.jdbc.util.RowIterator
 
 object JdbcFeederSource {
 
-	def apply(url: String, username: String, password: String, sql: String): Array[Map[String, String]] = {
+	def apply(url: String, username: String, password: String, sql: String): Array[Map[String, Any]] = {
 
 		use(DriverManager.getConnection(url, username, password)) { connection =>
 			val preparedStatement = connection.prepareStatement(sql, TYPE_FORWARD_ONLY, CONCUR_READ_ONLY)
 			val resultSet = preparedStatement.executeQuery
 			val rsmd = resultSet.getMetaData
+			val columnCount = rsmd.getColumnCount
 
-			val columnNames = for (i <- 1 to rsmd.getColumnCount) yield rsmd.getColumnName(i)
+			val columnNames = for (i <- 1 to columnCount) yield rsmd.getColumnName(i)
 
-			resultSet.map(contents => (columnNames.zip(contents.map(_.toString))).toMap).toArray
+			var records = Vector.empty[Map[String, Any]]
+
+			while (resultSet.next) {
+				val record: Map[String, Any] = (for (i <- 1 to columnCount) yield (columnNames(i - 1) -> resultSet.getObject(i))).toMap
+				records = records :+ record
+			}
+
+			records.toArray
 		}
 	}
 }
