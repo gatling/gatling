@@ -28,7 +28,7 @@ import scalaz.Scalaz.ToValidationV
 import scalaz.Validation
 
 object Predef {
-	implicit def stringToExpression[T: ClassTag](string: String) = Expression[T](string)
+	implicit def stringToExpression[T: ClassTag](string: String) = Expression.compile[T](string)
 	implicit def value2Success[T](value: T): Validation[String, T] = value.success
 	implicit def value2Expression[T](value: T): Expression[T] = (session: Session) => value.success
 	implicit def checkBuilder2Check[C <: Check[R, XC], R, XC](checkBuilder: CheckBuilder[C, R, XC]) = checkBuilder.build
@@ -39,7 +39,7 @@ object Predef {
 	implicit def extractorCheckBuilder2Check[C <: Check[R, XC], R, XC, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, XC, X]) = extractorCheckBuilder.find.exists.build
 	implicit def map2ExpressionMap(map: Map[String, Any]): Map[String, Expression[Any]] = map.map { entry =>
 		entry._2 match {
-			case string: String => entry._1 -> Expression[String](string)
+			case string: String => entry._1 -> Expression.compile[String](string)
 			case any => entry._1 -> any.success
 		}
 	}

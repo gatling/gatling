@@ -85,7 +85,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 * @param values the values that should be merged into the template
 	 */
 	def fileBody(tplPath: String, values: Map[String, String]): B = {
-		val evaluatableValues = values.map { entry => entry._1 -> Expression[String](entry._2) }
+		val evaluatableValues = values.map { entry => entry._1 -> Expression.compile[String](entry._2) }
 		newInstance(httpAttributes, Some(TemplateBody(tplPath, evaluatableValues)))
 	}
 

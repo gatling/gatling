@@ -19,7 +19,6 @@ import scala.reflect.ClassTag
 
 import com.excilys.ebi.gatling.core.util.TypeHelper
 
-import grizzled.slf4j.Logging
 import scalaz.Scalaz.{ ToOptionOpsFromOption, ToTraverseOps, ToValidationV, listInstance, stringInstance }
 import scalaz.Validation
 
@@ -57,42 +56,39 @@ sealed abstract class ELParserException(message: String) extends Exception(messa
 class ELMissingAttributeName(el: String) extends ELParserException("An attribute name is missing in this expression : " + el)
 class ELNestedAttributeDefinition(el: String) extends ELParserException("There is a nested attribute definition in this expression : " + el)
 
-object ELParser extends Logging {
+object Expression {
 
 	val elPattern = """\$\{(.*?)\}""".r
 	val elSeqSizePattern = """(.+?)\.size""".r
 	val elSeqElementPattern = """(.+?)\((.+)\)""".r
 
-	def apply[T: ClassTag](string: String): List[Part[Any]] = {
+	def compile[T: ClassTag](elString: String): Expression[T] = {
 
-		val staticParts = elPattern.split(string).map(StaticPart(_)).toList
+		def parse[T: ClassTag](string: String): List[Part[Any]] = {
 
-		val dynamicParts = elPattern
-			.findAllIn(string)
-			.matchData
-			.map {
-				_.group(1) match {
-					case elSeqElementPattern(key, occurrence) => SeqElementPart(key, occurrence)
-					case elSeqSizePattern(key) => SeqSizePart(key)
-					case key if key contains "${" => throw new ELNestedAttributeDefinition(string)
-					case key if key.isEmpty => throw new ELMissingAttributeName(string)
-					case key => AttributePart(key)
+			val staticParts = elPattern.split(string).map(StaticPart(_)).toList
+
+			val dynamicParts = elPattern
+				.findAllIn(string)
+				.matchData
+				.map {
+					_.group(1) match {
+						case elSeqElementPattern(key, occurrence) => SeqElementPart(key, occurrence)
+						case elSeqSizePattern(key) => SeqSizePart(key)
+						case key if key contains "${" => throw new ELNestedAttributeDefinition(string)
+						case key if key.isEmpty => throw new ELMissingAttributeName(string)
+						case key => AttributePart(key)
+					}
 				}
-			}
-			.toList
+				.toList
 
-		val indexedStaticParts = staticParts.zipWithIndex.map { case (part, index) => (part, index * 2) }.filter { case (part, index) => !part.string.isEmpty }
-		val indexedDynamicParts = dynamicParts.zipWithIndex.map { case (part, index) => (part, index * 2 + 1) }
+			val indexedStaticParts = staticParts.zipWithIndex.map { case (part, index) => (part, index * 2) }.filter { case (part, index) => !part.string.isEmpty }
+			val indexedDynamicParts = dynamicParts.zipWithIndex.map { case (part, index) => (part, index * 2 + 1) }
 
-		(indexedStaticParts ::: indexedDynamicParts).sortBy(_._2).map(_._1)
-	}
-}
+			(indexedStaticParts ::: indexedDynamicParts).sortBy(_._2).map(_._1)
+		}
 
-object Expression {
-
-	def apply[T: ClassTag](elString: String): Expression[T] = {
-
-		ELParser(elString) match {
+		parse(elString) match {
 			case List(StaticPart(string)) => (session: Session) => TypeHelper.as[T](string)
 			case List(dynamicPart) => dynamicPart.resolve _ andThen (_.flatMap(TypeHelper.as[T](_)))
 			case parts => (session: Session) =>

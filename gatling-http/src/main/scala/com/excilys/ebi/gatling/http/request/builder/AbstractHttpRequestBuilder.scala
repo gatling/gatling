@@ -73,7 +73,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 *
 	 * @param key the key of the parameter
 	 */
-	def queryParam(key: String): B = queryParam(Expression[String](key), (s: Session) => s.safeGetAs[String](key))
+	def queryParam(key: String): B = queryParam(Expression.compile[String](key), (s: Session) => s.safeGetAs[String](key))
 
 	/**
 	 * Adds a query parameter to the request
@@ -85,10 +85,10 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 		queryParam(httpParam)
 	}
 
-	def multiValuedQueryParam(key: String): B = multiValuedQueryParam(Expression[String](key), key)
+	def multiValuedQueryParam(key: String): B = multiValuedQueryParam(Expression.compile[String](key), key)
 
 	def multiValuedQueryParam(key: Expression[String], value: String): B = {
-		val httpParam: HttpParam = (key, Expression[Seq[String]](value))
+		val httpParam: HttpParam = (key, Expression.compile[Seq[String]](value))
 		queryParam(httpParam)
 	}
 
@@ -109,14 +109,14 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 *
 	 * @param header the header to add, eg: ("Content-Type", "application/json")
 	 */
-	def header(header: (String, String)): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers + (header._1 -> Expression[String](header._2))))
+	def header(header: (String, String)): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers + (header._1 -> Expression.compile[String](header._2))))
 
 	/**
 	 * Adds several headers to the request at the same time
 	 *
 	 * @param newHeaders a scala map containing the headers to add
 	 */
-	def headers(newHeaders: Map[String, String]): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers ++ newHeaders.mapValues(Expression[String](_))))
+	def headers(newHeaders: Map[String, String]): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers ++ newHeaders.mapValues(Expression.compile[String](_))))
 
 	/**
 	 * Adds Accept and Content-Type headers to the request set with "application/json" values

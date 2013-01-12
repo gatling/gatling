@@ -53,7 +53,7 @@ trait Loops[B] extends Execs[B] with Logging {
 	def repeat(times: String, counterName: String)(chain: ChainBuilder): B = repeat(times, Some(counterName), chain)
 
 	private def repeat(times: String, counterName: Option[String], chain: ChainBuilder): B = {
-		val timesFunction = Expression[Int](times)
+		val timesFunction = Expression.compile[Int](times)
 		repeat(timesFunction, counterName, chain)
 	}
 
