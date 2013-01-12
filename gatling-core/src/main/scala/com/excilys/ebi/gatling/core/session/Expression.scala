@@ -62,6 +62,8 @@ object Expression {
 	val elSeqSizePattern = """(.+?)\.size""".r
 	val elSeqElementPattern = """(.+?)\((.+)\)""".r
 
+	def wrap[T](value: T) = (session: Session) => value.success
+
 	def compile[T: ClassTag](elString: String): Expression[T] = {
 
 		def parse[T: ClassTag](string: String): List[Part[Any]] = {

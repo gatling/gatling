@@ -30,7 +30,7 @@ import scalaz.Validation
 object Predef {
 	implicit def stringToExpression[T: ClassTag](string: String) = Expression.compile[T](string)
 	implicit def value2Success[T](value: T): Validation[String, T] = value.success
-	implicit def value2Expression[T](value: T): Expression[T] = (session: Session) => value.success
+	implicit def value2Expression[T](value: T): Expression[T] = Expression.wrap(value)
 	implicit def checkBuilder2Check[C <: Check[R, XC], R, XC](checkBuilder: CheckBuilder[C, R, XC]) = checkBuilder.build
 	implicit def matcherCheckBuilder2CheckBuilder[C <: Check[R, XC], R, XC, X](matcherCheckBuilder: MatcherCheckBuilder[C, R, XC, X]) = matcherCheckBuilder.exists
 	implicit def matcherCheckBuilder2Check[C <: Check[R, XC], R, XC, X](matcherCheckBuilder: MatcherCheckBuilder[C, R, XC, X]) = matcherCheckBuilder.exists.build
