@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.http
 
 import com.excilys.ebi.gatling.core.session.Expression
-import com.excilys.ebi.gatling.http.action.{ AddCookieBuilder, HttpRequestActionBuilder }
+import com.excilys.ebi.gatling.http.action.{ AddCookiesBuilder, HttpRequestActionBuilder }
 import com.excilys.ebi.gatling.http.check.after.HttpBodyResponseTimeCheckBuilder
 import com.excilys.ebi.gatling.http.check.body.{ HttpBodyCssCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyStringCheckBuilder, HttpBodyXPathCheckBuilder }
 import com.excilys.ebi.gatling.http.check.bodypart.HttpChecksumCheckBuilder
@@ -30,6 +30,7 @@ object Predef {
 	type Request = com.ning.http.client.Request
 	type Response = com.ning.http.client.Response
 	type ExtendedResponse = com.excilys.ebi.gatling.http.response.ExtendedResponse
+	type Cookie = com.excilys.ebi.gatling.http.action.Cookie
 
 	implicit def proxyBuilder2HttpProtocolConfigurationBuilder(hpb: HttpProxyBuilder): HttpProtocolConfigurationBuilder = hpb.toHttpProtocolConfigurationBuilder
 	implicit def proxyBuilder2HttpProtocolConfiguration(hpb: HttpProxyBuilder): HttpProtocolConfiguration = hpb.toHttpProtocolConfigurationBuilder.build
@@ -37,7 +38,7 @@ object Predef {
 	implicit def requestBuilder2ActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]): HttpRequestActionBuilder = requestBuilder.toActionBuilder
 
 	def http(requestName: Expression[String]) = HttpRequestBaseBuilder.http(requestName)
-	def addCookie(url: Expression[String], domain: Expression[String], name: Expression[String], value: Expression[String], path: Expression[String]) = AddCookieBuilder(url, domain, name, value, path)
+	def addCookies(url: Expression[String], cookie: Cookie, cookies: Cookie*) = AddCookiesBuilder(url, cookie :: cookies.toList)
 	def httpConfig = HttpProtocolConfigurationBuilder.httpConfig
 	def regex(pattern: Expression[String]) = HttpBodyRegexCheckBuilder.regex(pattern)
 	def xpath(expression: Expression[String], namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)

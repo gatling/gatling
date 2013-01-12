@@ -20,22 +20,22 @@ import java.net.URI
 import com.excilys.ebi.gatling.core.action.Bypassable
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
-import com.ning.http.client.Cookie
+import com.ning.http.client.{ Cookie => AHCCookie }
 
 import akka.actor.ActorRef
 import scalaz.{ Failure, Success }
 
-class AddCookie(url: Expression[String], cookie: Expression[Cookie], val next: ActorRef) extends Bypassable {
+class AddCookies(url: Expression[String], cookies: Expression[List[AHCCookie]], val next: ActorRef) extends Bypassable {
 
 	def execute(session: Session) {
 
 		val resolvedUrl = url(session)
-		val resolvedCookie = cookie(session)
+		val resolvedCookies = cookies(session)
 
 		val newSession = for {
 			url <- url(session)
-			cookie <- cookie(session)
-		} yield CookieHandling.storeCookies(session, URI.create(url), List(cookie))
+			cookies <- cookies(session)
+		} yield CookieHandling.storeCookies(session, URI.create(url), cookies)
 
 		newSession match {
 			case Success(newSession) => next ! newSession
