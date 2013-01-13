@@ -22,7 +22,6 @@ import com.excilys.ebi.gatling.app.CommandLineConstants._
 import com.excilys.ebi.gatling.charts.report.ReportsGenerator
 import com.excilys.ebi.gatling.core.config.{ GatlingFiles, GatlingPropertiesBuilder }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.runner.{ Runner, Selection }
 import com.excilys.ebi.gatling.core.scenario.configuration.Simulation

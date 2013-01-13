@@ -18,8 +18,8 @@ package com.excilys.ebi.gatling.recorder.config
 import java.io.{ FileWriter, IOException }
 import java.util.{ HashMap => JHashMap }
 
+import scala.beans.BeanProperty
 import scala.io.Codec.UTF8
-import scala.reflect.BeanProperty
 import scala.tools.nsc.io.File
 import scala.tools.nsc.io.Path.string2path
 

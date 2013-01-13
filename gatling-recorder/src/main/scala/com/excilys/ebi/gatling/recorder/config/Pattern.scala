@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.recorder.config
 
-import scala.reflect.BeanProperty
+import scala.beans.BeanProperty
 
 import com.excilys.ebi.gatling.recorder.ui.enumeration.PatternType.PatternType
 
