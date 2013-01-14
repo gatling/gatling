@@ -15,10 +15,7 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import java.util.{ LinkedHashMap => JLinkedHashMap }
-
 import scala.annotation.tailrec
-import scala.collection.JavaConversions._
 import scala.collection.mutable
 
 import com.excilys.ebi.gatling.charts.component.RequestStatistics
@@ -52,7 +49,7 @@ object GroupContainer {
 
 case class GroupContainer(name: String,
 	requestStats: RequestStatistics,
-	contents: mutable.Map[String, Container] = new JLinkedHashMap[String, Container]) extends Container {
+	contents: mutable.Map[String, Container] = mutable.LinkedHashMap.empty) extends Container {
 
 	def addGroup(group: Group, requestStats: RequestStatistics) {
 		GroupContainer.getGroup(this, group.parent).contents += (group.name -> GroupContainer(group.name, requestStats))

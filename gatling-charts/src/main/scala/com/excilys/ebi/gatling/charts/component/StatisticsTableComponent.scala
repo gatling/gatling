@@ -24,5 +24,5 @@ class StatisticsTableComponent extends Component {
 
 	val getJavascriptContent: String = TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATISTICS_TABLE_JS_TEMPLATE_URL)
 
-	val getJavascriptFiles: Seq[String] = Seq()
+	val getJavascriptFiles: Seq[String] = Seq.empty
 }

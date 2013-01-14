@@ -18,8 +18,6 @@ package com.excilys.ebi.gatling.core.util
 import java.text.Normalizer
 import java.util.regex.Pattern
 
-import scala.collection.mutable
-
 import grizzled.slf4j.Logging
 
 /**

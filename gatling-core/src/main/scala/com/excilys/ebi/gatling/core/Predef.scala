@@ -19,7 +19,7 @@ import scala.reflect.ClassTag
 import scala.tools.nsc.io.{ File, Path }
 
 import com.excilys.ebi.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
-import com.excilys.ebi.gatling.core.feeder.{ Feeder, FeederBuiltIns }
+import com.excilys.ebi.gatling.core.feeder.FeederBuiltIns
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesParser
 import com.excilys.ebi.gatling.core.session.Expression
 import com.excilys.ebi.gatling.core.structure.{ AssertionBuilder, ChainBuilder, ScenarioBuilder }
