@@ -16,30 +16,34 @@
 package com.excilys.ebi.gatling.jdbc.feeder.database
 
 import java.sql.DriverManager
-import java.sql.ResultSet.{ TYPE_FORWARD_ONLY, CONCUR_READ_ONLY }
+import java.sql.ResultSet.{ CONCUR_READ_ONLY, TYPE_FORWARD_ONLY }
+
+import scala.annotation.tailrec
 
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 
 object JdbcFeederSource {
 
-	def apply(url: String, username: String, password: String, sql: String): Array[Map[String, Any]] = {
+	type Record = Map[String, Any]
+
+	def apply(url: String, username: String, password: String, sql: String): Array[Record] = {
 
 		use(DriverManager.getConnection(url, username, password)) { connection =>
 			val preparedStatement = connection.prepareStatement(sql, TYPE_FORWARD_ONLY, CONCUR_READ_ONLY)
 			val resultSet = preparedStatement.executeQuery
-			val rsmd = resultSet.getMetaData
-			val columnCount = rsmd.getColumnCount
+			val metadata = resultSet.getMetaData
+			val columnCount = metadata.getColumnCount
 
-			val columnNames = for (i <- 1 to columnCount) yield rsmd.getColumnName(i)
+			val columnNames = for (i <- 1 to columnCount) yield metadata.getColumnName(i)
 
-			var records = Vector.empty[Map[String, Any]]
+			def computeRecord: Record = (for (i <- 1 to columnCount) yield (columnNames(i - 1) -> resultSet.getObject(i))).toMap
 
-			while (resultSet.next) {
-				val record: Map[String, Any] = (for (i <- 1 to columnCount) yield (columnNames(i - 1) -> resultSet.getObject(i))).toMap
-				records = records :+ record
-			}
+			@tailrec
+			def loadRec(records: Vector[Record]): Vector[Record] =
+				if (!resultSet.next) records
+				else loadRec(records :+ computeRecord)
 
-			records.toArray
+			loadRec(Vector.empty).toArray
 		}
 	}
 }
