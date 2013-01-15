@@ -68,11 +68,6 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 
 			def indicatorChartComponent: Component = componentLibrary.getRequestDetailsIndicatorChartComponent
 
-			/*def pageTitle: String = requestName match {
-				case None => path + " (Duration = " + dataReader.groupStats(group) + " ms)"
-				case Some(_) => path
-			}*/
-
 			// Create template
 			val template =
 				new RequestDetailsPageTemplate(path,

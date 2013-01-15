@@ -17,9 +17,8 @@ package com.excilys.ebi.gatling.metrics
 
 import java.io.{ BufferedWriter, IOException, OutputStreamWriter, Writer }
 import java.net.Socket
-import java.util.{ HashMap, Timer, TimerTask }
+import java.util.{ Timer, TimerTask }
 
-import scala.collection.JavaConversions.mapAsScalaMap
 import scala.collection.mutable
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
@@ -39,9 +38,9 @@ class GraphiteDataWriter extends DataWriter {
 
 	private var metricRootPath: List[String] = Nil
 	private val allRequests = new RequestMetrics
-	private val perRequest: mutable.Map[String, RequestMetrics] = new HashMap[String, RequestMetrics]
+	private val perRequest: mutable.Map[String, RequestMetrics] = mutable.HashMap.empty
 	private var allUsers: UserMetric = _
-	private val usersPerScenario: mutable.Map[String, UserMetric] = new HashMap[String, UserMetric]
+	private val usersPerScenario: mutable.Map[String, UserMetric] = mutable.HashMap.empty
 	private var timer: Timer = _
 	private var writer: Writer = _
 	private val percentiles1 = configuration.charting.indicators.percentile1

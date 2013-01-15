@@ -15,9 +15,6 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
-import java.util.{ HashMap => JHashMap }
-
-import scala.collection.JavaConversions._
 import scala.collection.mutable
 
 import com.excilys.ebi.gatling.charts.result.reader.{ ScenarioRecord, ActionRecord }
@@ -27,7 +24,7 @@ trait NamesBuffers {
 
 	class NameBuffer[A] {
 
-		val map: mutable.Map[A, Long] = new JHashMap[A, Long]
+		val map: mutable.Map[A, Long] = mutable.HashMap.empty
 
 		def update(name: A, time: Long) {
 			map += (name -> (time min map.getOrElse(name, Long.MaxValue)))

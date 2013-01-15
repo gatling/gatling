@@ -15,9 +15,6 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
-import java.util.{ HashMap => JHashMap }
-
-import scala.collection.JavaConversions._
 import scala.collection.mutable
 
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
@@ -26,7 +23,7 @@ import com.excilys.ebi.gatling.core.result.message.{ KO, RequestStatus }
 
 trait ResponseTimeRangeBuffers {
 
-	val responseTimeRangeBuffers: mutable.Map[BufferKey, ResponseTimeRangeBuffer] = new JHashMap[BufferKey, ResponseTimeRangeBuffer]
+	val responseTimeRangeBuffers: mutable.Map[BufferKey, ResponseTimeRangeBuffer] = mutable.HashMap.empty
 
 	def getResponseTimeRangeBuffers(requestName: Option[String], group: Option[Group]): ResponseTimeRangeBuffer = responseTimeRangeBuffers.getOrElseUpdate(computeKey(requestName, group, None), new ResponseTimeRangeBuffer)
 

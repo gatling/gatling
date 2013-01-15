@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor.regex
 
-import java.util.regex.{ Pattern, Matcher }
+import java.util.regex.Pattern
 
 import scala.annotation.tailrec
 

@@ -15,16 +15,13 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
-import java.util.{ HashMap => JHashMap }
-
-import scala.collection.JavaConversions._
 import scala.collection.mutable
 
 import com.excilys.ebi.gatling.charts.result.reader.ScenarioRecord
 
 trait SessionDeltaPerSecBuffers {
 
-	val sessionDeltaPerSecBuffers: mutable.Map[Option[String], SessionDeltaBuffer] = new JHashMap[Option[String], SessionDeltaBuffer]
+	val sessionDeltaPerSecBuffers: mutable.Map[Option[String], SessionDeltaBuffer] = mutable.HashMap.empty
 
 	def getSessionDeltaPerSecBuffers(scenarioName: Option[String]): SessionDeltaBuffer = sessionDeltaPerSecBuffers.getOrElseUpdate(scenarioName, new SessionDeltaBuffer)
 
@@ -40,7 +37,7 @@ trait SessionDeltaPerSecBuffers {
 
 	class SessionDeltaBuffer {
 
-		val map: mutable.Map[Int, (Int, Int)] = new JHashMap[Int, (Int, Int)]
+		val map: mutable.Map[Int, (Int, Int)] = mutable.HashMap.empty
 
 		def addStart(bucket: Int) {
 			val (start, end) = map.getOrElse(bucket, (0, 0))

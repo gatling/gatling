@@ -16,9 +16,8 @@
 package com.excilys.ebi.gatling.core.result.writer
 
 import java.lang.System.currentTimeMillis
-import java.util.{ HashMap => JHashMap }
 
-import scala.collection.mutable.{ HashMap, LinkedHashMap }
+import scala.collection.mutable
 
 import com.excilys.ebi.gatling.core.result.{ Group, RequestPath }
 import com.excilys.ebi.gatling.core.result.message.{ GroupRecord, KO, OK }
@@ -47,9 +46,9 @@ class ConsoleDataWriter extends DataWriter with Logging {
 	private var startUpTime = 0L
 	private var lastDisplayTime = 0L
 
-	private val usersCounters = new HashMap[String, UserCounters]
-	private val groupStack = new JHashMap[(String, Int), Option[Group]]
-	private val requestsCounters = new LinkedHashMap[String, RequestCounters]
+	private val usersCounters: mutable.Map[String,UserCounters] = mutable.HashMap.empty
+	private val groupStack: mutable.Map[(String, Int), Option[Group]] =  mutable.HashMap.empty
+	private val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty
 
 	private val displayPeriod = 5 * 1000
 
@@ -107,7 +106,7 @@ class ConsoleDataWriter extends DataWriter with Logging {
 
 	override def onRequestRecord(requestRecord: RequestRecord) {
 
-		val requestCounters = requestsCounters.getOrElseUpdate(RequestPath.path(requestRecord.requestName, groupStack.get((requestRecord.scenarioName, requestRecord.userId))), new RequestCounters(0, 0))
+		val requestCounters = requestsCounters.getOrElseUpdate(RequestPath.path(requestRecord.requestName, groupStack(requestRecord.scenarioName -> requestRecord.userId)), new RequestCounters(0, 0))
 
 		requestRecord.requestStatus match {
 			case OK => requestCounters.successfulCount += 1
@@ -123,5 +122,5 @@ class ConsoleDataWriter extends DataWriter with Logging {
 	}
 
 	private def updateCurrentGroup(scenarioName: String, userId: Int, value: Option[Group] => Option[Group]) =
-		groupStack.put((scenarioName, userId), value(groupStack.get((scenarioName, userId))))
+		groupStack += (scenarioName, userId) -> value(groupStack(scenarioName -> userId))
 }

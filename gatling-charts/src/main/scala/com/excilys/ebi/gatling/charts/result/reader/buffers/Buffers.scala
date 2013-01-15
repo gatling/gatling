@@ -15,19 +15,16 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
-import java.util.{ HashMap => JHashMap }
-
 import scala.collection.mutable
-import scala.collection.JavaConversions._
 
 class CountBuffer {
-	val map: mutable.Map[Int, Int] = new JHashMap[Int, Int]
+	val map: mutable.Map[Int, Int] = mutable.HashMap.empty
 
 	def update(bucket: Int) { map += (bucket -> (map.getOrElse(bucket, 0) + 1)) }
 }
 
 class RangeBuffer {
-	val map: mutable.Map[Int, (Int, Int)] = new JHashMap[Int, (Int, Int)]
+	val map: mutable.Map[Int, (Int, Int)] = mutable.HashMap.empty
 
 	def update(bucket: Int, value: Int) {
 		val (minValue, maxValue) = map.getOrElse(bucket, (Int.MaxValue, Int.MinValue))

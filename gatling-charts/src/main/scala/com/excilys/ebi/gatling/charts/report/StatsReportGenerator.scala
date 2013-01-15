@@ -27,9 +27,6 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 
 	def generate {
 
-		val percent1 = configuration.charting.indicators.percentile1 / 100.0
-		val percent2 = configuration.charting.indicators.percentile2 / 100.0
-
 		def computeRequestStats(name: String, requestName: Option[String], group: Option[Group]): RequestStatistics = {
 			val total = dataReader.generalStats(None, requestName, group)
 			val ok = dataReader.generalStats(Some(OK), requestName, group)

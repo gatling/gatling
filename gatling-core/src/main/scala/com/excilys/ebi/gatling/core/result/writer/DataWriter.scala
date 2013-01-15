@@ -19,7 +19,6 @@ import com.excilys.ebi.gatling.core.action.{ BaseActor, system }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.{ Flush, GroupRecord, Init }
 import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RequestStatus, RunRecord, ScenarioRecord, ShortScenarioDescription }
-import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
 import com.excilys.ebi.gatling.core.result.terminator.Terminator
 import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
