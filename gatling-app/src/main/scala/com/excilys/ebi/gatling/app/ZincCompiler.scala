@@ -84,7 +84,8 @@ object ZincCompiler extends Logging {
 			javaOnly = false,
 			compileOrder = CompileOrder.JavaThenScala,
 			outputRelations = None,
-			outputProducts = None)
+			outputProducts = None,
+			mirrorAnalysis = false)
 	}
 
 	def apply(sourceDirectory: Directory): Directory = {
