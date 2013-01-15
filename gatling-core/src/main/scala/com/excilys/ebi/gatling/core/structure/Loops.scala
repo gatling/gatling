@@ -27,6 +27,7 @@ import com.excilys.ebi.gatling.core.structure.ChainBuilder.chainOf
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 
 import grizzled.slf4j.Logging
+import scalaz.{ Failure, Success }
 
 trait Loops[B] extends Execs[B] with Logging {
 
@@ -93,5 +94,27 @@ trait Loops[B] extends Execs[B] with Logging {
 	private def asLongAs(condition: Expression[Boolean], counterName: Option[String], chain: ChainBuilder): B = {
 		val loopCounterName = counterName.getOrElse(UUID.randomUUID.toString)
 		exec(new WhileBuilder(condition, chain, loopCounterName))
+	}
+
+	def foreach(seq: Expression[Seq[Any]], attributeName: String, counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
+		val setNextValueInSession = new SessionHookBuilder(session => {
+			val nextValue = for {
+				counterValue <- session.safeGetAs[Int](counterName)
+				seq <- seq(session)
+			} yield seq(counterValue)
+
+			nextValue match {
+				case Success(value) => session.set(attributeName, value)
+				case Failure(message) => error(s"Could not set attribute in foreach: $message"); throw new IllegalAccessError(message)
+			}
+		})
+
+		def continueCondition(session: Session) =
+			for {
+				counterValue <- session.safeGetAs[Int](counterName)
+				seq <- seq(session)
+			} yield seq.size > counterValue
+
+		asLongAs(continueCondition, Some(counterName), chainOf(setNextValueInSession).exec(chain))
 	}
 }
