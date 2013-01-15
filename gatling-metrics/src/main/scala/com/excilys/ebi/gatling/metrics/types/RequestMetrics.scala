@@ -15,9 +15,9 @@
  */
 package com.excilys.ebi.gatling.metrics.types
 
-import java.util.{ NavigableMap, TreeMap }
-
 import scala.annotation.tailrec
+
+import scala.collection.mutable
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestRecord
@@ -54,7 +54,7 @@ class Metrics(bucketWidth: Int) {
 	var count = 0L
 	var max = 0L
 	var min = Long.MaxValue
-	private val buckets: NavigableMap[Long, Long] = new TreeMap[Long, Long]
+	private val buckets: mutable.Map[Long,Long] = mutable.HashMap.empty
 
 	def update(value: Long) {
 		count += 1
@@ -62,11 +62,8 @@ class Metrics(bucketWidth: Int) {
 		min = min.min(value)
 
 		val bucket = value / bucketWidth
-		val newCount = if (buckets.containsKey(bucket)) {
-			buckets.get(bucket) + 1L
-		} else
-			1L
-		buckets.put(bucket, newCount)
+		val newCount = buckets.get(bucket).map(_ + 1L).getOrElse(1L)
+		buckets += (bucket -> newCount)
 	}
 
 	def reset {
@@ -83,14 +80,14 @@ class Metrics(bucketWidth: Int) {
 			val limit = (count * (quantile.toDouble / bucketWidth)).toLong
 
 			@tailrec
-			def findQuantile(buckets: NavigableMap[Long, Long], count: Long = 0L): Long = {
-				val firstEntry = buckets.firstEntry
-				val newCount = count + firstEntry.getValue
-				if (newCount >= limit) max.min((firstEntry.getKey * bucketWidth) + bucketWidth)
-				else findQuantile(buckets.tailMap(firstEntry.getKey, false), newCount)
+			def findQuantile(buckets: Seq[(Long, Long)], count: Long = 0L): Long = {
+				val firstEntry = buckets.head
+				val newCount = count + firstEntry._2
+				if (newCount >= limit) max.min((firstEntry._1 * bucketWidth) + bucketWidth)
+				else findQuantile(buckets.tail, newCount)
 			}
 
-			findQuantile(buckets)
+			findQuantile(buckets.toList.sorted)
 		}
 	}
 }

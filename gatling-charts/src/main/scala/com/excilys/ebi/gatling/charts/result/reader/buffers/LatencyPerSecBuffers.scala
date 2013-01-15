@@ -15,9 +15,6 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
-import java.util.{ HashMap => JHashMap }
-
-import scala.collection.JavaConversions._
 import scala.collection.mutable
 
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
@@ -26,7 +23,7 @@ import com.excilys.ebi.gatling.core.result.message.RequestStatus
 
 trait LatencyPerSecBuffers {
 
-	val latencyPerSecBuffers: mutable.Map[BufferKey, RangeBuffer] = new JHashMap[BufferKey, RangeBuffer]
+	val latencyPerSecBuffers: mutable.Map[BufferKey, RangeBuffer] = mutable.HashMap.empty
 
 	def getLatencyPerSecBuffers(requestName: Option[String], group: Option[Group], status: Option[RequestStatus]): RangeBuffer = latencyPerSecBuffers.getOrElseUpdate(computeKey(requestName, group, status), new RangeBuffer)
 
