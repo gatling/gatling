@@ -112,7 +112,7 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 			try {
 				GatlingHttpClient.client.executeRequest(requestBuilder.build).get
 			} catch {
-				case e: Exception => info("Couldn't execute warm up request " + url, e)
+				case e: Exception => info(s"Couldn't execute warm up request $url", e)
 			}
 		}
 

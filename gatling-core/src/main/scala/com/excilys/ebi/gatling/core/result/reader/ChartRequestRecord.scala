@@ -29,7 +29,7 @@ object ChartRequestRecord extends Logging {
 		val correctedResponseTime = if (responseTime >= 0L) {
 			responseTime
 		} else {
-			logger.info("Point is irrelevant, probably due to nanoTime sync problem, forcing response time to 0" + requestName + " at " + executionStartDate + " response time was " + responseTime)
+			info(s"Point is irrelevant, probably due to nanoTime sync problem, forcing response time to 0 $requestName at $executionStartDate response time was $responseTime")
 			0L
 		}
 

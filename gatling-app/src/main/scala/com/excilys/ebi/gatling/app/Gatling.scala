@@ -142,7 +142,7 @@ class Gatling extends Logging {
         println("There is no simulation script. Please check that your scripts are in user-files/simulations")
         sys.exit
       case 1 =>
-        info(simulations.head.getName + " is the only simulation, executing it.")
+        info(s"${simulations.head.getName} is the only simulation, executing it.")
         0
       case size =>
         println("Choose a simulation number:")

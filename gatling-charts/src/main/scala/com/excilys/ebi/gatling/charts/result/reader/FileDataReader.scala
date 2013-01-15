@@ -77,7 +77,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 				(accumulator, strings) =>
 					val (min, max, count) = accumulator
 
-					if (count % FileDataReader.LOG_STEP == 0) info("First pass, read " + count + " lines")
+					if (count % FileDataReader.LOG_STEP == 0) info(s"First pass, read $count lines")
 
 					strings(0) match {
 						case ACTION => (math.min(min, strings(4).toLong), math.max(max, strings(7).toLong), count + 1)
@@ -91,7 +91,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			.filter(_.length >= FileDataReader.RUN_RECORD_LENGTH)
 			.foreach(strings => runRecords += RunRecord(parseTimestampString(strings(1)), strings(2), strings(3).trim))
 			
-		info("Read " + totalRequestsNumber + " lines (finished)")
+		info(s"Read $totalRequestsNumber lines (finished)")
 
 		(runStart, runEnd, runRecords.head)
 	}
@@ -112,6 +112,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			.collect { case line if (line.startsWith(ACTION) || line.startsWith(GROUP) || line.startsWith(SCENARIO)) => FileDataReader.TABULATION_PATTERN.split(line) }
 			.filter(_.length >= 1)
 			.foreach { array =>
+				count += 1
 				array(0) match {
 					case ACTION if (array.length >= FileDataReader.ACTION_RECORD_LENGTH) => resultsHolder.addActionRecord(ActionRecord(array, bucketFunction, runStart))
 					case GROUP if (array.length >= FileDataReader.GROUP_RECORD_LENGTH) => resultsHolder.addGroupRecord(GroupRecord(array, bucketFunction, runStart))
@@ -119,7 +120,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 				}
 			}
 
-		info("Read " + count + " lines (finished)")
+		info(s"Read $count lines (finished)")
 
 		resultsHolder
 	}

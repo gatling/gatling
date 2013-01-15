@@ -70,11 +70,11 @@ class HttpRequestAction(requestName: Expression[String], val next: ActorRef, req
 				val newSession = RefererHandling.storeReferer(request, session, protocolConfiguration)
 
 				if (CacheHandling.isCached(protocolConfiguration, session, request)) {
-					info("Bypassing cached Request '" + resolvedRequestName + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
+					info(s"Bypassing cached Request '$resolvedRequestName': Scenario '${session.scenarioName}', UserId #${session.userId}")
 					next ! newSession
 
 				} else {
-					info("Sending Request '" + resolvedRequestName + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
+					info(s"Sending Request '$resolvedRequestName': Scenario '${session.scenarioName}', UserId #${session.userId}")
 					val actor = context.actorOf(Props(asyncHandlerActorFactory(resolvedRequestName)(request, newSession)))
 					val ahcHandler = handlerFactory(resolvedRequestName, actor)
 					GatlingHttpClient.client.executeRequest(request, ahcHandler)

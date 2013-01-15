@@ -36,7 +36,7 @@ class BrowserHttpsRequestHandler(controller: RecorderController, proxyConfig: Pr
 
 		def handleConnect {
 			targetHostURI = new URI("https://" + request.getUri)
-			warn("Trying to connect to " + targetHostURI + ", make sure you've accepted the recorder certificate for this site")
+			warn(s"Trying to connect to $targetHostURI, make sure you've accepted the recorder certificate for this site")
 			controller.secureConnection(targetHostURI)
 			requestContext.getChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
 		}
@@ -61,7 +61,7 @@ class BrowserHttpsRequestHandler(controller: RecorderController, proxyConfig: Pr
 				}
 		}
 
-		info("Received " + request.getMethod + " on " + request.getUri)
+		info(s"Received ${request.getMethod} on ${request.getUri}")
 		if (request.getMethod == HttpMethod.CONNECT) handleConnect
 		else handlePropagatableRequest
 	}

@@ -82,14 +82,14 @@ class ConsoleDataWriter extends DataWriter with Logging {
 				usersCounters
 					.get(scenarioRecord.scenarioName)
 					.map(_.userStart)
-					.getOrElse(error("Internal error, scenario '%s' has not been correctly initialized" format scenarioRecord.scenarioName))
+					.getOrElse(error(s"Internal error, scenario '${scenarioRecord.scenarioName}' has not been correctly initialized"))
 				updateCurrentGroup(scenarioRecord.scenarioName, scenarioRecord.userId, _ => None)
 
 			case END =>
 				usersCounters
 					.get(scenarioRecord.scenarioName)
 					.map(_.userDone)
-					.getOrElse(error("Internal error, scenario '%s' has not been correctly initialized" format scenarioRecord.scenarioName))
+					.getOrElse(error(s"Internal error, scenario '${scenarioRecord.scenarioName}' has not been correctly initialized"))
 				groupStack.remove((scenarioRecord.scenarioName, scenarioRecord.userId))
 		}
 	}

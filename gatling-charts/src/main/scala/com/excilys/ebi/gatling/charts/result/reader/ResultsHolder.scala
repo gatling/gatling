@@ -34,11 +34,9 @@ class ResultsHolder(minTime: Long, maxTime: Long)
 		record.event match {
 			case START =>
 				addStartSessionBuffers(record)
-				//startGroup(record.user, record.scenario, record.executionDate, None)
 				addScenarioName(record)
 			case END =>
 				addEndSessionBuffers(record)
-				//endGroup(record.user, record.scenario, record.executionDate)
 		}
 	}
 

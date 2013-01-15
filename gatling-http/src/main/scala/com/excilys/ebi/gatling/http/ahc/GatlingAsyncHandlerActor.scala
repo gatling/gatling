@@ -139,7 +139,7 @@ class GatlingAsyncHandlerActor(
 		}
 
 		if (requestStatus == KO) {
-			warn("Request '" + requestName + "' failed : " + errorMessage.getOrElse(""))
+			warn(s"Request '$requestName' failed : ${errorMessage.getOrElse("")}")
 			if (!isTraceEnabled) debug(dump)
 		}
 		trace(dump)

@@ -35,7 +35,7 @@ trait CounterBasedIterationHandler extends IterationHandler with Logging {
 
 	override def increment(session: Session) = session.safeGetAs[Int](counterName) match {
 		case Success(currentValue) => super.increment(session).set(counterName, currentValue + 1)
-		case Failure(message) => error("Could not retrieve loop counter: " + message); throw new IllegalAccessError("You must call startCounter before this method is called")
+		case Failure(message) => error(s"Could not retrieve loop counter: $message"); throw new IllegalAccessError("You must call startCounter before this method is called")
 	}
 
 	override def expire(session: Session) = super.expire(session).remove(counterName)

@@ -77,7 +77,7 @@ class GatlingAsyncHandler(requestName: String, actor: ActorRef, useBodyParts: Bo
 	}
 
 	def onThrowable(throwable: Throwable) {
-		warn("Request '" + requestName + "' failed", throwable)
+		warn(s"Request '$requestName' failed", throwable)
 		val errorMessage = Option(throwable.getMessage).getOrElse(throwable.getClass.getName)
 		actor ! new OnThrowable(errorMessage)
 	}

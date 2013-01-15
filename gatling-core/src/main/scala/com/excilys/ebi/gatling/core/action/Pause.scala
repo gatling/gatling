@@ -47,7 +47,7 @@ class Pause(generateDelayInMillis: () => Long, val next: ActorRef) extends Bypas
 		if (durationInMillis > timeShift) {
 			// can make pause
 			val durationMinusTimeShift = durationInMillis - timeShift
-			info("Pausing for " + durationInMillis + "ms (real=" + durationMinusTimeShift + "ms)")
+			info(s"Pausing for ${durationInMillis}ms (real=${durationMinusTimeShift}ms)")
 
 			val pauseStart = currentTimeMillis
 			system.scheduler.scheduleOnce(durationMinusTimeShift milliseconds) {
@@ -58,7 +58,7 @@ class Pause(generateDelayInMillis: () => Long, val next: ActorRef) extends Bypas
 		} else {
 			// time shift is too big
 			val remainingTimeShift = timeShift - durationInMillis
-			info("can't pause (remaining time shift=" + remainingTimeShift + "ms)")
+			info(s"can't pause (remaining time shift=${remainingTimeShift}ms)")
 			next ! session.setTimeShift(remainingTimeShift)
 		}
 	}

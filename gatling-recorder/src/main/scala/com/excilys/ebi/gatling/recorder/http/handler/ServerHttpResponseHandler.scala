@@ -30,7 +30,7 @@ class ServerHttpResponseHandler(controller: RecorderController, requestContext: 
 			case response: HttpResponse =>
 				controller.receiveResponse(request, response)
 				requestContext.getChannel.write(response).addListener(ChannelFutureListener.CLOSE) // Send back to client
-			case unknown => warn("Received unknown message: " + unknown)
+			case unknown => warn(s"Received unknown message: $unknown")
 		}
 	}
 }

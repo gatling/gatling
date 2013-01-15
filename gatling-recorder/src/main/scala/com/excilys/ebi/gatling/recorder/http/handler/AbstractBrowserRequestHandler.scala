@@ -53,7 +53,7 @@ abstract class AbstractBrowserRequestHandler(controller: RecorderController, pro
 
 				controller.receiveRequest(request)
 
-			case unknown => warn("Received unknown message: " + unknown)
+			case unknown => warn(s"Received unknown message: $unknown")
 		}
 	}
 

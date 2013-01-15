@@ -29,9 +29,6 @@ class AddCookies(url: Expression[String], cookies: Expression[List[AHCCookie]], 
 
 	def execute(session: Session) {
 
-		val resolvedUrl = url(session)
-		val resolvedCookies = cookies(session)
-
 		val newSession = for {
 			url <- url(session)
 			cookies <- cookies(session)
@@ -39,7 +36,7 @@ class AddCookies(url: Expression[String], cookies: Expression[List[AHCCookie]], 
 
 		newSession match {
 			case Success(newSession) => next ! newSession
-			case Failure(message) => error("Could not build cookie: " + message)
+			case Failure(message) => error(s"Could not build cookie: $message")
 		}
 	}
 }

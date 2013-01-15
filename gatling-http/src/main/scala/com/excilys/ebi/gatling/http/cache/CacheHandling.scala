@@ -58,7 +58,7 @@ object CacheHandling extends Logging {
 			val url = request.getUrl
 
 			if (cache.contains(url)) {
-				info(url + " was already cached")
+				info(s"$url was already cached")
 				session
 
 			} else {

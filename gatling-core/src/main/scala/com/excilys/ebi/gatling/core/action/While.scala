@@ -67,7 +67,7 @@ class While(condition: Expression[Boolean], val counterName: String, val next: A
 			case Success(true) => loopNextAction ! sessionWithTimerIncremented
 			case Success(false) => next ! expire(session)
 			case Failure(message) =>
-				error("Error, exiting loop " + message)
+				error(s"Error, exiting loop $message")
 				next ! expire(session)
 		}
 	}

@@ -45,7 +45,7 @@ class Runner(selection: Selection) extends Logging {
 			require(!scenarios.isEmpty, simulationClass.getName + " returned an empty scenario list. Did you forget to migrate your Simulations?")
 
 			val totalNumberOfUsers = scenarios.map(_.configuration.users).sum
-			info("Total number of users : " + totalNumberOfUsers)
+			info(s"Total number of users : $totalNumberOfUsers")
 
 			val terminatorLatch = new CountDownLatch(1)
 			Terminator.init(terminatorLatch, totalNumberOfUsers)
