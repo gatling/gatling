@@ -3,7 +3,7 @@
 	<parent>
 		<artifactId>gatling-parent</artifactId>
 		<groupId>com.excilys.ebi.gatling</groupId>
-		<version>1.4.2-SNAPSHOT</version>
+		<version>1.4.2</version>
 	</parent>
 	<artifactId>gatling-jdbc</artifactId>
 	<name>${project.artifactId}</name>

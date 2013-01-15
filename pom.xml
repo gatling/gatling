@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.excilys.ebi.gatling</groupId>
 	<artifactId>gatling-parent</artifactId>
-	<version>1.4.2-SNAPSHOT</version>
+	<version>1.4.2</version>
 	<packaging>pom</packaging>
 	<inceptionYear>2011</inceptionYear>
 	<modules>
@@ -31,7 +31,7 @@
 		<connection>scm:git:git@github.com:excilys/gatling.git</connection>
 		<developerConnection>scm:git:git@github.com:excilys/gatling.git</developerConnection>
 		<url>https://github.com/excilys/gatling</url>
-		<tag>HEAD</tag>
+		<tag>1.4.2</tag>
 	</scm>
 
 	<distributionManagement>
