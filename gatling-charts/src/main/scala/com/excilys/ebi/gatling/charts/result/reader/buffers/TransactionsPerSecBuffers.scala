@@ -15,9 +15,6 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
-import java.util.{ HashMap => JHashMap }
-
-import scala.collection.JavaConversions._
 import scala.collection.mutable
 
 import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
@@ -26,7 +23,7 @@ import com.excilys.ebi.gatling.core.result.message.RequestStatus
 
 trait TransactionsPerSecBuffers {
 
-	val transactionsPerSecBuffers: mutable.Map[BufferKey, CountBuffer] = new JHashMap[BufferKey, CountBuffer]
+	val transactionsPerSecBuffers: mutable.Map[BufferKey, CountBuffer] = mutable.HashMap.empty
 
 	def getTransactionsPerSecBuffer(requestName: Option[String], group: Option[Group], status: Option[RequestStatus]): CountBuffer = transactionsPerSecBuffers.getOrElseUpdate(computeKey(requestName, group, status), new CountBuffer)
 

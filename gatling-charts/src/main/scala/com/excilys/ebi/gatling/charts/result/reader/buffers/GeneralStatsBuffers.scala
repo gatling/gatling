@@ -15,9 +15,6 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
-import java.util.{ HashMap => JHashMap }
-
-import scala.collection.JavaConversions._
 import scala.collection.mutable
 
 import com.excilys.ebi.gatling.charts.result.reader.{ ActionRecord, FileDataReader }
@@ -30,7 +27,7 @@ import com.excilys.ebi.gatling.core.result.reader.GeneralStats
 
 abstract class GeneralStatsBuffers(durationInSec: Long) {
 
-	val generalStatsBuffers: mutable.Map[BufferKey, GeneralStatsBuffer] = new JHashMap[BufferKey, GeneralStatsBuffer]
+	val generalStatsBuffers: mutable.Map[BufferKey, GeneralStatsBuffer] = mutable.HashMap.empty
 
 	def getGeneralStatsBuffers(request: Option[String], group: Option[Group], status: Option[RequestStatus]): GeneralStatsBuffer =
 		generalStatsBuffers.getOrElseUpdate(computeKey(request, group, status), new GeneralStatsBuffer(durationInSec))

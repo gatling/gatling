@@ -18,7 +18,6 @@ package com.excilys.ebi.gatling.core.result.reader
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RunRecord }
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
 
 object DataReader {
 	val NO_PLOT_MAGIC_VALUE = -1

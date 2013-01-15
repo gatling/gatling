@@ -19,7 +19,7 @@ import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
 
-import jodd.lagarto.dom.{ Node, NodeSelector, LagartoDOMBuilder }
+import jodd.lagarto.dom.{ NodeSelector, LagartoDOMBuilder }
 
 /**
  * A built-in extractor for extracting values with Css Selectors

@@ -64,7 +64,7 @@ class GroupDetailsReportGenerator(runOn: String, dataReader: DataReader, compone
 
 		dataReader.groupsAndRequests.foreach {
 			case (Some(group), None) => generateDetailPage(group)
-			case _ => {}
+			case _ => ()
 		}
 	}
 }

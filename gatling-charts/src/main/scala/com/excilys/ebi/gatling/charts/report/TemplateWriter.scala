@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.charts.report
 
 import scala.io.Codec.string2codec
-import scala.tools.nsc.io.{ Path, File }
+import scala.tools.nsc.io.{ File, Path }
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.util.IOHelper.use

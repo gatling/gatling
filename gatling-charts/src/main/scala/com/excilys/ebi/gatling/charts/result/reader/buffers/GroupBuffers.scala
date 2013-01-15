@@ -15,9 +15,6 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
-import java.util.{ HashMap => JHashMap, LinkedList => JLinkedList }
-
-import scala.collection.JavaConversions._
 import scala.collection.mutable
 
 import com.excilys.ebi.gatling.core.result.Group
@@ -29,24 +26,25 @@ trait GroupBuffers {
 	class GroupStack {
 		case class GroupStackEntry(record: GroupRecord, group: Group, status: RequestStatus)
 
-		val stack = new JLinkedList[GroupStackEntry]
+		val stack =  mutable.ArrayStack.empty[GroupStackEntry]
 
 		def start(record: GroupRecord) {
 			stack.push(GroupStackEntry(record, Group(record.group, getCurrentGroup), OK))
 		}
 
-		def end = stack.pop()
+		def end = stack.pop
 
-		def getCurrentGroup(): Option[Group] = if (stack.isEmpty) None else Some(stack.peek.group)
+		def getCurrentGroup: Option[Group] = if (stack.isEmpty) None else Some(stack.head.group)
 
-		def failed() {
-			if (!stack.isEmpty && stack.peek.status == OK)
+		def failed {
+			if (!stack.isEmpty && stack.head.status == OK)
 				stack.push(stack.pop.copy(status = KO))
 		}
+
 	}
 
-	val groupStacksByUserAndScenario: mutable.Map[(Int, String), GroupStack] = new JHashMap[(Int, String), GroupStack]
-	val statsGroupBuffers: mutable.Map[Option[Group], Long] = new JHashMap[Option[Group], Long]
+	val groupStacksByUserAndScenario: mutable.Map[(Int, String), GroupStack] = mutable.HashMap.empty
+	val statsGroupBuffers: mutable.Map[Option[Group], Long] = mutable.HashMap.empty
 
 	def startGroup(record: GroupRecord) {
 		groupStacksByUserAndScenario.getOrElseUpdate((record.user, record.scenario), new GroupStack).start(record)
@@ -57,7 +55,7 @@ trait GroupBuffers {
 
 	private def groupStack(user: Int, scenario: String) = groupStacksByUserAndScenario.getOrElseUpdate((user, scenario), new GroupStack)
 
-	def getCurrentGroup(user: Int, scenario: String) = groupStack(user, scenario).getCurrentGroup()
+	def getCurrentGroup(user: Int, scenario: String) = groupStack(user, scenario).getCurrentGroup
 
 	def currentGroupFailed(user: Int, scenario: String) {
 		groupStack(user, scenario).failed
