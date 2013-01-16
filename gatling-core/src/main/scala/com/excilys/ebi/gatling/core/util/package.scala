@@ -15,6 +15,9 @@
  */
 package com.excilys.ebi.gatling.core
 
+import scalaz.{ Failure, Success, Validation }
+import scalaz.Scalaz.ToValidationV
+
 package object util {
 
 	implicit class PaddableStringBuilder(sb: StringBuilder) {
@@ -48,5 +51,19 @@ package object util {
 		}
 
 		override def toString: String = sb.toString
+	}
+
+	implicit class FlattenableValidations[T](validations: List[Validation[String, T]]) {
+
+		def flattenIt: Validation[String, List[T]] = {
+			def sequenceRec(validations: List[Validation[String, T]]): Validation[String, List[T]] = validations match {
+				case Nil => List.empty[T].success[String]
+				case head :: tail => head match {
+					case Success(entry) => sequenceRec(tail).map(entry :: _)
+					case Failure(message) => message.failure[List[T]]
+				}
+			}
+			sequenceRec(validations)
+		}
 	}
 }

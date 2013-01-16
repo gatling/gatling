@@ -17,6 +17,7 @@ package com.excilys.ebi.gatling.http.request.builder
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
+import com.excilys.ebi.gatling.core.util.FlattenableValidations
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.check.HttpCheck
@@ -29,7 +30,7 @@ import com.ning.http.client.ProxyServer.Protocol
 import com.ning.http.client.Realm
 import com.ning.http.client.Realm.AuthScheme
 
-import scalaz.Scalaz.{ ToTraverseOps, ToValidationV, listInstance, stringInstance }
+import scalaz.Scalaz.ToValidationV
 import scalaz.Validation
 
 case class HttpAttributes(
@@ -189,7 +190,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 					} yield key -> resolvedValue
 			}
 				.toList
-				.sequence[({ type l[a] = Validation[String, a] })#l, (String, String)]
+				.flattenIt
 				.map(_.toMap)
 
 			resolvedHeaders.map { headers =>

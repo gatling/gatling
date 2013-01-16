@@ -23,12 +23,13 @@ import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingFiles
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.core.util.FileHelper.SSP_EXTENSION
+import com.excilys.ebi.gatling.core.util.FlattenableValidations
 import com.excilys.ebi.gatling.http.Headers.Names.CONTENT_LENGTH
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.{ ByteArrayBody, FilePathBody, HttpRequestBody, SessionByteArrayBody, StringBody, TemplateBody }
 import com.ning.http.client.RequestBuilder
 
-import scalaz.Scalaz.{ ToTraverseOps, ToValidationV, listInstance, stringInstance }
+import scalaz.Scalaz.ToValidationV
 import scalaz.Validation
 
 object AbstractHttpRequestWithBodyBuilder {
@@ -124,7 +125,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 					val resolvedTemplateParams = values
 						.map { case (key, value) => value(session).map(key -> _) }
 						.toList
-						.sequence[({ type l[a] = Validation[String, a] })#l, (String, String)]
+						.flattenIt
 						.map(_.toMap)
 
 					resolvedTemplateParams.map { templateParams =>

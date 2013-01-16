@@ -17,9 +17,9 @@ package com.excilys.ebi.gatling.core.session
 
 import scala.reflect.ClassTag
 
-import com.excilys.ebi.gatling.core.util.TypeHelper
+import com.excilys.ebi.gatling.core.util.{ FlattenableValidations, TypeHelper }
 
-import scalaz.Scalaz.{ ToOptionOpsFromOption, ToTraverseOps, ToValidationV, listInstance, stringInstance }
+import scalaz.Scalaz.{ ToOptionOpsFromOption, ToValidationV }
 import scalaz.Validation
 
 trait Part[+T] {
@@ -95,7 +95,7 @@ object Expression {
 			case List(dynamicPart) => dynamicPart.resolve _ andThen (_.flatMap(TypeHelper.as[T](_)))
 			case parts => (session: Session) =>
 				val resolvedString = parts.map(_.resolve(session))
-					.sequence[({ type l[a] = Validation[String, a] })#l, Any]
+					.flattenIt
 					.map(_.mkString)
 
 				resolvedString.flatMap(TypeHelper.as[T](_))

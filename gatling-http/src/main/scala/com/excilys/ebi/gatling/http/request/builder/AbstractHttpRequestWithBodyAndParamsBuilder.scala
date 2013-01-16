@@ -19,6 +19,7 @@ import scala.collection.JavaConversions._
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
+import com.excilys.ebi.gatling.core.util.FlattenableValidations
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
@@ -28,7 +29,7 @@ import com.ning.http.client.{ Realm, RequestBuilder, StringPart }
 import com.ning.http.client.FilePart
 import com.ning.http.client.FluentStringsMap
 
-import scalaz.Scalaz.{ ToTraverseOps, ToValidationV, listInstance, stringInstance }
+import scalaz.Scalaz.ToValidationV
 import scalaz.Validation
 
 case class HttpParamsAttributes(
@@ -46,7 +47,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	httpAttributes: HttpAttributes,
 	body: Option[HttpRequestBody],
 	paramsAttributes: HttpParamsAttributes)
-		extends AbstractHttpRequestWithBodyBuilder[B](httpAttributes, body) {
+	extends AbstractHttpRequestWithBodyBuilder[B](httpAttributes, body) {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type
@@ -101,7 +102,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 			val resolvedFileParts = paramsAttributes.uploadedFiles
 				.map(_.filePart(session))
 				.toList
-				.sequence[({ type l[a] = Validation[String, a] })#l, FilePart]
+				.flattenIt
 
 			resolvedFileParts.map { uploadedFiles =>
 				uploadedFiles.foreach(requestBuilder.addBodyPart)

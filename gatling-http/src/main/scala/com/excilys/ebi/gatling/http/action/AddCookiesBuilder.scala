@@ -19,11 +19,10 @@ import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
+import com.excilys.ebi.gatling.core.util.FlattenableValidations
 import com.ning.http.client.{ Cookie => AHCCookie }
 
 import akka.actor.{ ActorRef, Props }
-import scalaz.Validation
-import scalaz.Scalaz.{ ToTraverseOps, listInstance, stringInstance }
 
 case class Cookie(domain: Expression[String], name: Expression[String], value: Expression[String], path: Expression[String])
 
@@ -40,7 +39,7 @@ object AddCookiesBuilder {
 					path <- cookie.path(session)
 
 				} yield new AHCCookie(domain, name, value, path, 100000, false)
-			}.sequence[({ type l[a] = Validation[String, a] })#l, AHCCookie]
+			}.flattenIt
 
 		new AddCookiesBuilder(url, cookiesExpression)
 	}
