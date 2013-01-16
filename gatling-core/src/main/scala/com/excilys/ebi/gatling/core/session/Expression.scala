@@ -16,6 +16,7 @@
 package com.excilys.ebi.gatling.core.session
 
 import scala.reflect.ClassTag
+import scala.util.Random
 
 import com.excilys.ebi.gatling.core.util.{ FlattenableValidations, TypeHelper }
 
@@ -36,6 +37,14 @@ case class AttributePart(name: String) extends Part[Any] {
 
 case class SeqSizePart(name: String) extends Part[Int] {
 	def resolve(session: Session): Validation[String, Int] = session.safeGetAs[Seq[_]](name).map(_.size)
+}
+
+case class SeqRandomPart(name: String) extends Part[Any] {
+	def resolve(session: Session): Validation[String,Any] = {
+		def randomItem(seq: Seq[_]) = seq(Random.nextInt(seq.size))
+
+		session.safeGetAs[Seq[_]](name).map(randomItem)
+	}
 }
 
 case class SeqElementPart(name: String, index: String) extends Part[Any] {
@@ -60,6 +69,7 @@ object Expression {
 
 	val elPattern = """\$\{(.*?)\}""".r
 	val elSeqSizePattern = """(.+?)\.size""".r
+	val elSeqRandomPattern = """(.+?)\.random""".r
 	val elSeqElementPattern = """(.+?)\((.+)\)""".r
 
 	def wrap[T](value: T) = (session: Session) => value.success
@@ -77,6 +87,7 @@ object Expression {
 					_.group(1) match {
 						case elSeqElementPattern(key, occurrence) => SeqElementPart(key, occurrence)
 						case elSeqSizePattern(key) => SeqSizePart(key)
+						case elSeqRandomPattern(key) => SeqRandomPart(key)
 						case key if key contains "${" => throw new ELNestedAttributeDefinition(string)
 						case key if key.isEmpty => throw new ELMissingAttributeName(string)
 						case key => AttributePart(key)
