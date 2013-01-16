@@ -28,11 +28,9 @@ object NumberHelper {
 	 * @param max is the maximum value of the uniform distribution
 	 * @return
 	 */
-	def createUniformRandomLongGenerator(min: Long, max: Long): () => Long = {
-		val minAsDouble = min.toDouble
-		val rangeAsDouble = (max - min).toDouble
-		() => round(minAsDouble + ThreadLocalRandom.current.nextDouble(rangeAsDouble))
-	}
+	def createUniformRandomLongGenerator(min: Long, max: Long): () => Long = () => 
+		if (min == 0L && max == 0L) 0L
+		else ThreadLocalRandom.current.nextLong(min, max)
 
 	/**
 	 * Create a function that generates exponentially-distributed random doubles with the provided mean.
