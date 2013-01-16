@@ -15,18 +15,12 @@
  */
 package com.excilys.ebi.gatling.core.util
 
-import java.util.Random
-
 import scala.math.round
+import scala.concurrent.forkjoin.ThreadLocalRandom
 
 import org.apache.commons.math3.distribution.ExponentialDistribution
 
 object NumberHelper {
-
-	/**
-	 * Used to generate random pause durations
-	 */
-	val RANDOM = new Random
 
 	/**
 	 * Create a function that generates uniformly-distributed random longs between the values min and max.
@@ -37,7 +31,7 @@ object NumberHelper {
 	def createUniformRandomLongGenerator(min: Long, max: Long): () => Long = {
 		val minAsDouble = min.toDouble
 		val rangeAsDouble = (max - min).toDouble
-		() => round(minAsDouble + RANDOM.nextDouble * rangeAsDouble)
+		() => round(minAsDouble + ThreadLocalRandom.current.nextDouble(rangeAsDouble))
 	}
 
 	/**

@@ -15,10 +15,10 @@
  */
 package com.excilys.ebi.gatling.core.feeder
 
-import java.util.Random
 import java.util.concurrent.ConcurrentLinkedQueue
 
 import scala.collection.JavaConversions.{ asScalaIterator, seqAsJavaList }
+import scala.concurrent.forkjoin.ThreadLocalRandom
 
 import com.excilys.ebi.gatling.core.util.RoundRobin
 
@@ -30,11 +30,9 @@ class FeederBuiltIns[T](data: Array[Map[String, T]]) {
 
 	def random: Feeder[T] = {
 
-		val random = new Random
-
 		new Feeder[T] {
 			def hasNext = !data.isEmpty
-			def next = data(random.nextInt(data.size))
+			def next = data(ThreadLocalRandom.current.nextInt(data.size))
 		}
 	}
 
