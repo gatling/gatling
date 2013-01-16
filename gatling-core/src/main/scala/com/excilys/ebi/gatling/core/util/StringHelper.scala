@@ -37,7 +37,8 @@ object StringHelper extends Logging {
 		jdk6Pattern.matcher(normalized).replaceAll("");
 	}
 
-	def escapeJsQuoteString(s: String) = s.replace("'", "\\\'")
+	def escapeJsQuoteString(s: String) = s.replace("'", "\\'")
+	def escapeJsDoubleQuoteString(s: String) = s.replace("\"", "\\\"")
 
 	def bytes2Hex(bytes: Array[Byte]): String = bytes.foldLeft(new StringBuilder) { (buff, b) =>
 		if ((b & 0xff) < 0x10)

@@ -1,8 +1,9 @@
 <% import com.excilys.ebi.gatling.charts.component.RequestStatistics %>
 <% import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename %>
+<% import com.excilys.ebi.gatling.core.util.StringHelper.escapeJsDoubleQuoteString %>
 <%@ val request: RequestStatistics %>
-name: "<%= request.name %>",
-path: "<%= request.path %>",
+name: "<%= escapeJsDoubleQuoteString(request.name) %>",
+path: "<%= escapeJsDoubleQuoteString(request.path) %>",
 pathFormatted: "<%= formatToFilename(request.path) %>",
 stats: {
 	numberOfRequests : {
