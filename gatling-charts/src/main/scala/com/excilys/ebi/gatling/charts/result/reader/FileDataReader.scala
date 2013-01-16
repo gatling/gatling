@@ -86,11 +86,11 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			}
 
 		val runRecords = mutable.ListBuffer[RunRecord]()
-		
+
 		runs
 			.filter(_.length >= FileDataReader.RUN_RECORD_LENGTH)
 			.foreach(strings => runRecords += RunRecord(parseTimestampString(strings(1)), strings(2), strings(3).trim))
-			
+
 		info(s"Read $totalRequestsNumber lines (finished)")
 
 		(runStart, runEnd, runRecords.head)
@@ -113,6 +113,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			.filter(_.length >= 1)
 			.foreach { array =>
 				count += 1
+				if (count % FileDataReader.LOG_STEP == 0) info(s"First pass, read $count lines")
 				array(0) match {
 					case ACTION if (array.length >= FileDataReader.ACTION_RECORD_LENGTH) => resultsHolder.addActionRecord(ActionRecord(array, bucketFunction, runStart))
 					case GROUP if (array.length >= FileDataReader.GROUP_RECORD_LENGTH) => resultsHolder.addGroupRecord(GroupRecord(array, bucketFunction, runStart))

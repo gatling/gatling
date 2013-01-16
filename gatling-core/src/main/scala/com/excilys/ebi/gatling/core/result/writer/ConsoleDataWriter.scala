@@ -122,5 +122,5 @@ class ConsoleDataWriter extends DataWriter with Logging {
 	}
 
 	private def updateCurrentGroup(scenarioName: String, userId: Int, value: Option[Group] => Option[Group]) =
-		groupStack += (scenarioName, userId) -> value(groupStack(scenarioName -> userId))
+		groupStack += (scenarioName, userId) -> value(groupStack.get(scenarioName -> userId).flatten)
 }
