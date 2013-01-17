@@ -15,11 +15,10 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import java.lang.System.currentTimeMillis
-
 import scala.concurrent.duration.DurationLong
 
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 
 import akka.actor.ActorRef
 
@@ -49,9 +48,9 @@ class Pause(generateDelayInMillis: () => Long, val next: ActorRef) extends Bypas
 			val durationMinusTimeShift = durationInMillis - timeShift
 			info(s"Pausing for ${durationInMillis}ms (real=${durationMinusTimeShift}ms)")
 
-			val pauseStart = currentTimeMillis
+			val pauseStart = nowMillis
 			system.scheduler.scheduleOnce(durationMinusTimeShift milliseconds) {
-				val newTimeShift = currentTimeMillis - pauseStart - durationInMillis
+				val newTimeShift = nowMillis - pauseStart - durationMinusTimeShift
 				next ! session.setTimeShift(newTimeShift)
 			}
 
