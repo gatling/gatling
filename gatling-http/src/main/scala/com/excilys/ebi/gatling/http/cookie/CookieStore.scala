@@ -26,6 +26,9 @@ object CookieStore {
 	def apply(uri: URI, cookies: List[Cookie]) = new CookieStore(Map.empty).add(uri, cookies)
 }
 
+/*
+ * http://www.ietf.org/rfc/rfc2965.txt
+ */
 private[cookie] class CookieStore(store: Map[URI, List[Cookie]]) {
 
 	private val MAX_AGE_UNSPECIFIED = -1L
@@ -37,6 +40,15 @@ private[cookie] class CookieStore(store: Map[URI, List[Cookie]]) {
 			null, // query component
 			null) // fragment component
 
+	private def extractDomain(rawURI: URI, cookie: Cookie) = Option(cookie.getDomain).getOrElse {
+		rawURI.getScheme match {
+			case "http" if (rawURI.getPort == 80) => rawURI.getHost
+			case "https" if (rawURI.getPort == 443) => rawURI.getHost
+			case _ if (rawURI.getPort < 0) => rawURI.getHost
+			case _ => rawURI.getHost + ":" + rawURI.getPort
+		}
+	}
+
 	/**
 	 * @param uri       the uri this cookie associated with.
 	 *                  if <tt>null</tt>, this cookie will not be associated
@@ -45,14 +57,7 @@ private[cookie] class CookieStore(store: Map[URI, List[Cookie]]) {
 	 */
 	def add(rawURI: URI, rawCookies: List[Cookie]): CookieStore = {
 		val newCookies = rawCookies.map { cookie =>
-
-			val fixedDomain = Option(cookie.getDomain).getOrElse {
-				rawURI.getScheme match {
-					case "http" if (rawURI.getPort == 80) => rawURI.getHost
-					case "https" if (rawURI.getPort == 443) => rawURI.getHost
-					case _ => rawURI.getHost + ":" + rawURI.getPort
-				}
-			}
+			val fixedDomain = extractDomain(rawURI, cookie)
 			val fixedPath = Option(cookie.getPath).getOrElse(rawURI.getPath)
 
 			if (fixedDomain != cookie.getDomain || fixedPath != cookie.getPath) {
