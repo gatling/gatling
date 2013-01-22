@@ -180,5 +180,22 @@ class CookieStoreSpec extends Specification {
 
 			cookieStore.get(new URI("http://www.foo.com/bar?query2")).length must beEqualTo(1)
 		}
+
+		"should reject cookies when H contains a dot, where H comes from the request-host which has the form HD" in {
+			val cookie = parseCookie("cookie1=VALUE1; Path=/; Domain=.foo.org;")
+			val cookieStore = CookieStore(new URI("https://x.y.foo.org/"), List(cookie))
+
+			// RFC 2109, 4.3.2 :  
+			// A Set-Cookie from request-host y.x.foo.com for Domain=.foo.com would be rejected, because H is y.x and contains a dot.
+			cookieStore.get(new URI("https://y.foo.org")).length must beEqualTo(0)
+		}
+
+		"should serve the cookies on a subdomain when the domains match" in {
+			val cookie = parseCookie("cookie1=VALUE1; Path=/; Domain=.foo.org;")
+			val cookieStore = CookieStore(new URI("https://x.foo.org/"), List(cookie))
+
+			// RFC 6265, 5.1.3.  Domain Matching
+			cookieStore.get(new URI("https://y.x.foo.org/")).length must beEqualTo(1)
+		}
 	}
 }
