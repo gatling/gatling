@@ -27,6 +27,7 @@ object CookieStore {
 }
 
 /*
+ * http://www.ietf.org/rfc/rfc2109.txt
  * http://www.ietf.org/rfc/rfc2965.txt
  */
 private[cookie] class CookieStore(store: Map[URI, List[Cookie]]) {
@@ -66,6 +67,9 @@ private[cookie] class CookieStore(store: Map[URI, List[Cookie]]) {
 				newCookie
 			} else
 				cookie
+		} filter {
+			// Reject the cookies when the domains don't match, cf: RFC 2965 sec. 3.3.2
+			cookie => java.net.HttpCookie.domainMatches(cookie.getDomain, rawURI.getHost)
 		}
 
 		def cookiesEquals(c1: Cookie, c2: Cookie) = c1.getName.equalsIgnoreCase(c2.getName) && c1.getDomain.equalsIgnoreCase(c2.getDomain) && c1.getPath == c2.getPath
@@ -96,7 +100,10 @@ private[cookie] class CookieStore(store: Map[URI, List[Cookie]]) {
 		val fixedPath = if (rawURI.getPath.isEmpty) "/" else rawURI.getPath
 		val uri = getEffectiveUri(rawURI)
 
-		def domainMatches(cookie: Cookie) = java.net.HttpCookie.domainMatches(cookie.getDomain, rawURI.getHost)
+		// RFC 6265, 5.1.3.  Domain Matching
+		def domainMatches(host: String, domain: String) =
+			rawURI.getHost.equals(domain) || (domain.startsWith(".") && rawURI.getHost.endsWith(domain))
+
 		def pathMatches(cookie: Cookie) = fixedPath.startsWith(cookie.getPath)
 
 		val cookiesWithExactDomain = store.get(uri).getOrElse(Nil).filter(pathMatches)
@@ -107,7 +114,7 @@ private[cookie] class CookieStore(store: Map[URI, List[Cookie]]) {
 			.filterKeys(_ != uri)
 			.values
 			.flatten
-			.filter(cookie => !cookiesWithExactDomainNames.contains(cookie.getName.toLowerCase) && domainMatches(cookie) && pathMatches(cookie))
+			.filter(cookie => !cookiesWithExactDomainNames.contains(cookie.getName.toLowerCase) && domainMatches(rawURI.getHost, cookie.getDomain) && pathMatches(cookie))
 
 		// known limitation: don't handle runtime expiration, intended for stress test
 		cookiesWithExactDomain ++ cookiesWithMatchingDomain
