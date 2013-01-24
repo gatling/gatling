@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2011-2012 eBusiness Information, Groupe Excilys (www.excilys.com)
+# Copyright 2011-2013 eBusiness Information, Groupe Excilys (www.excilys.com)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
