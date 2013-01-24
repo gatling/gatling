@@ -25,7 +25,7 @@ class Group(val name: String, val parent: Option[Group]) {
 			case _ => false
 		}
 
-	override val hashCode = path.hashCode()
+	override val hashCode = path.hashCode
 
 	override val toString = path
 }

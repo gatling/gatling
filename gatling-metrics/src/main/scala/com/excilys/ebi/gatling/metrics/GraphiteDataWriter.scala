@@ -22,11 +22,9 @@ import java.util.{ Timer, TimerTask }
 import scala.collection.mutable
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.GroupRecord
-import com.excilys.ebi.gatling.core.result.message.RequestRecord
-import com.excilys.ebi.gatling.core.result.message.RunRecord
-import com.excilys.ebi.gatling.core.result.message.ScenarioRecord
-import com.excilys.ebi.gatling.core.result.message.ShortScenarioDescription
+import com.excilys.ebi.gatling.core.result.Group
+import com.excilys.ebi.gatling.core.result.message.{ GroupRecord, RequestRecord, RunRecord, ScenarioRecord, ShortScenarioDescription }
+import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowSeconds
@@ -37,8 +35,9 @@ case object SendToGraphite
 class GraphiteDataWriter extends DataWriter {
 
 	private var metricRootPath: List[String] = Nil
+	private val groupStack: mutable.Map[(String, Int), Option[Group]] =  mutable.HashMap.empty
 	private val allRequests = new RequestMetrics
-	private val perRequest: mutable.Map[String, RequestMetrics] = mutable.HashMap.empty
+	private val perRequest: mutable.Map[List[String], RequestMetrics] = mutable.HashMap.empty
 	private var allUsers: UserMetric = _
 	private val usersPerScenario: mutable.Map[String, UserMetric] = mutable.HashMap.empty
 	private var timer: Timer = _
@@ -65,14 +64,29 @@ class GraphiteDataWriter extends DataWriter {
 	def onScenarioRecord(scenarioRecord: ScenarioRecord) {
 		usersPerScenario(scenarioRecord.scenarioName).update(scenarioRecord)
 		allUsers.update(scenarioRecord)
+		scenarioRecord.event match {
+			case START => updateCurrentGroup(scenarioRecord.scenarioName,scenarioRecord.userId, _ => None)
+			case END => groupStack.remove((scenarioRecord.scenarioName,scenarioRecord.userId))
+		}
 	}
 
+	private def updateCurrentGroup(scenarioName: String, userId: Int, value: Option[Group] => Option[Group]) =
+		groupStack += (scenarioName, userId) -> value(groupStack.get(scenarioName -> userId).flatten)
+
 	def onGroupRecord(groupRecord: GroupRecord) {
-		// TODO
+		groupRecord.event match {
+			case START =>
+				updateCurrentGroup(groupRecord.scenarioName, groupRecord.userId, current => Some(Group(groupRecord.groupName, current)))
+
+			case END =>
+				updateCurrentGroup(groupRecord.scenarioName, groupRecord.userId, current => current.flatMap(_.parent))
+		}
 	}
 
 	def onRequestRecord(requestRecord: RequestRecord) {
-		val metric = perRequest.getOrElseUpdate(requestRecord.requestName, new RequestMetrics)
+		val group = groupStack(requestRecord.scenarioName -> requestRecord.userId)
+		val path = requestRecord.requestName :: group.map(group => group.name :: group.groups).getOrElse(Nil)
+		val metric = perRequest.getOrElseUpdate(path.reverse, new RequestMetrics)
 		metric.update(requestRecord)
 		allRequests.update(requestRecord)
 	}
@@ -91,6 +105,8 @@ class GraphiteDataWriter extends DataWriter {
 
 		def sanitizeString(s: String) = s.replace(' ', '_').replace('.', '-').replace('\\', '-')
 
+		def sanitizeStringList(list: List[String]) = list.map(sanitizeString)
+
 		def sendToGraphite(metricPath: MetricPath, value: Long) {
 			writer.write(metricPath.toString)
 			writer.write(" ")
@@ -101,7 +117,7 @@ class GraphiteDataWriter extends DataWriter {
 		}
 
 		def sendUserMetrics(scenarioName: String, userMetric: UserMetric) = {
-			val rootPath = MetricPath("users", sanitizeString(scenarioName))
+			val rootPath = MetricPath(List("users", sanitizeString(scenarioName)))
 			sendToGraphite(rootPath + "active", userMetric.active)
 			sendToGraphite(rootPath + "waiting", userMetric.waiting)
 			sendToGraphite(rootPath + "done", userMetric.done)
@@ -118,8 +134,8 @@ class GraphiteDataWriter extends DataWriter {
 			}
 		}
 
-		def sendRequestMetrics(requestName: String, requestMetrics: RequestMetrics) = {
-			val rootPath = MetricPath(sanitizeString(requestName))
+		def sendRequestMetrics(path: List[String], requestMetrics: RequestMetrics) = {
+			val rootPath = MetricPath(sanitizeStringList(path))
 
 			val (okMetrics, koMetrics, allMetrics) = requestMetrics.metrics
 
@@ -137,9 +153,9 @@ class GraphiteDataWriter extends DataWriter {
 			usersPerScenario.foreach {
 				case (scenarioName, userMetric) => sendUserMetrics(scenarioName, userMetric)
 			}
-			sendRequestMetrics("allRequests", allRequests)
+			sendRequestMetrics(List("allRequests"), allRequests)
 			perRequest.foreach {
-				case (requestName, requestMetric) => sendRequestMetrics(requestName, requestMetric)
+				case (path, requestMetric) => sendRequestMetrics(path, requestMetric)
 			}
 
 			writer.flush
@@ -168,12 +184,14 @@ class GraphiteDataWriter extends DataWriter {
 
 	private object MetricPath {
 
-		def apply(elements: String*) = new MetricPath(metricRootPath ::: elements.toList)
+		def apply(elements: List[String]) = new MetricPath(metricRootPath ::: elements)
 	}
 
 	private class MetricPath(path: List[String]) {
 
 		def +(element: String) = new MetricPath(path ::: List(element))
+
+		def +(elements: List[String]) = new MetricPath(path ::: elements)
 
 		override def toString = path.mkString(".")
 	}

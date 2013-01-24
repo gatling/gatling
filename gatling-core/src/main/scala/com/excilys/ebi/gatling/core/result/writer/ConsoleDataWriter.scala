@@ -20,8 +20,7 @@ import java.lang.System.currentTimeMillis
 import scala.collection.mutable
 
 import com.excilys.ebi.gatling.core.result.{ Group, RequestPath }
-import com.excilys.ebi.gatling.core.result.message.{ GroupRecord, KO, OK }
-import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RunRecord, ScenarioRecord, ShortScenarioDescription }
+import com.excilys.ebi.gatling.core.result.message.{ GroupRecord, KO, OK, RequestRecord, RunRecord, ScenarioRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
 
 import grizzled.slf4j.Logging
