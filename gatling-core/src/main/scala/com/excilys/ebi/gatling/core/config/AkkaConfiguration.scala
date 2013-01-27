@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core
+package com.excilys.ebi.gatling.core.config
 
-import com.excilys.ebi.gatling.core.config.AkkaConfiguration
+import com.typesafe.config.ConfigFactory
 
-import akka.actor.ActorSystem
+object AkkaConfiguration {
 
-package object action {
-	val system = ActorSystem("GatlingSystem", AkkaConfiguration.setUp)
+	def setUp = {
+		val classLoader = getClass.getClassLoader
+		val defaultsConfig = ConfigFactory.parseResources(classLoader,"akka-defaults.conf")
+		val customConfig = ConfigFactory.parseResources(classLoader,"akka.conf")
+		customConfig.withFallback(defaultsConfig)
+	}
 }
