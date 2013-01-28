@@ -15,9 +15,10 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor.xpath
 
-import java.io.{ StringReader, InputStream }
+import java.io.{ InputStream, StringReader }
 
 import scala.collection.JavaConversions.asScalaBuffer
+import scala.util.Try
 
 import org.jaxen.dom.DOMXPath
 import org.w3c.dom.{ Node, Document }
@@ -49,10 +50,8 @@ object XPathExtractor {
 
 	def apply(inputStream: InputStream) = {
 		val parser = XPathExtractor.parserHolder.get
-		val document = try
-			parser.parse(inputStream)
-		finally
-			parser.reset
+		val document = Try(parser.parse(inputStream)).toOption
+		parser.reset
 		new XPathExtractor(document)
 	}
 }
@@ -65,7 +64,7 @@ object XPathExtractor {
  * @constructor creates a new XPathExtractor
  * @param inputStream the XML document in which the XPath search will be applied
  */
-class XPathExtractor(document: Document) extends Extractor {
+class XPathExtractor(document: Option[Document]) extends Extractor {
 
 	def xpath(expression: String, namespaces: List[(String, String)]) = {
 		val xpathExpression = new DOMXPath(expression)
@@ -84,12 +83,9 @@ class XPathExtractor(document: Document) extends Extractor {
 	 */
 	def extractOne(occurrence: Int, namespaces: List[(String, String)])(expression: String): Option[String] = {
 
-		val results = xpath(expression, namespaces).selectNodes(document).asInstanceOf[java.util.List[Node]]
+		val results = document.map(xpath(expression, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]])
 
-		if (results.isDefinedAt(occurrence))
-			results.get(occurrence).getTextContent
-		else
-			None
+		results.flatMap(_.lift(occurrence).map(_.getTextContent))
 	}
 
 	/**
@@ -99,7 +95,7 @@ class XPathExtractor(document: Document) extends Extractor {
 	 * @param expression a String containing the XPath expression to be searched
 	 * @return an option containing the value if found, None otherwise
 	 */
-	def extractMultiple(namespaces: List[(String, String)])(expression: String): Option[Seq[String]] = xpath(expression, namespaces).selectNodes(document).asInstanceOf[java.util.List[Node]].map(_.getTextContent)
+	def extractMultiple(namespaces: List[(String, String)])(expression: String): Option[Seq[String]] = document.map(xpath(expression, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]].map(_.getTextContent))
 
-	def count(namespaces: List[(String, String)])(expression: String): Option[Int] = xpath(expression, namespaces).selectNodes(document).size
+	def count(namespaces: List[(String, String)])(expression: String): Option[Int] = document.map(xpath(expression, namespaces).selectNodes(_).size)
 }
