@@ -16,9 +16,11 @@
 package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 
 import scala.collection.JavaConversions.asScalaBuffer
+import scala.util.Try
 
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.{ JsonNode, MappingJsonFactory, ObjectMapper }
 
@@ -43,7 +45,7 @@ object JsonPathExtractor {
  */
 class JsonPathExtractor(textContent: Array[Byte]) extends Extractor {
 
-	val json: JsonNode = JsonPathExtractor.mapper.readValue(textContent, classOf[JsonNode])
+	val json: Option[JsonNode] = Try(JsonPathExtractor.mapper.readValue(textContent, classOf[JsonNode])).toOption
 
 	/**
 	 * @param occurrence
@@ -59,7 +61,7 @@ class JsonPathExtractor(textContent: Array[Byte]) extends Extractor {
 	 * @param expression
 	 * @return extract all the occurrences matching the expression
 	 */
-	def extractMultiple(expression: String): Option[Seq[String]] = new JaxenJackson(expression).selectNodes(json).map(_.asInstanceOf[JsonNode].asText): Seq[String]
+	def extractMultiple(expression: String): Option[Seq[String]] = json.map(new JaxenJackson(expression).selectNodes(_).map(_.asInstanceOf[JsonNode].asText))
 
 	/**
 	 * @param expression
