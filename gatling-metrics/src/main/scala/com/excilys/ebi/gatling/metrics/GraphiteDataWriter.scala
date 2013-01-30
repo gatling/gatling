@@ -15,8 +15,9 @@
  */
 package com.excilys.ebi.gatling.metrics
 
-import java.io.{ BufferedWriter, IOException, OutputStreamWriter, Writer }
-import java.net.Socket
+import java.io.IOException
+import java.net.{ DatagramPacket, DatagramSocket, InetSocketAddress }
+import java.nio.channels.DatagramChannel
 import java.util.{ Timer, TimerTask }
 
 import scala.collection.mutable
@@ -26,7 +27,6 @@ import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.core.result.message.{ GroupRecord, RequestRecord, RunRecord, ScenarioRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
-import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowSeconds
 import com.excilys.ebi.gatling.metrics.types.{ Metrics, RequestMetrics, UserMetric }
 
@@ -35,28 +35,26 @@ case object SendToGraphite
 class GraphiteDataWriter extends DataWriter {
 
 	private var metricRootPath: List[String] = Nil
-	private val groupStack: mutable.Map[(String, Int), Option[Group]] =  mutable.HashMap.empty
+	private val groupStack: mutable.Map[(String, Int), Option[Group]] = mutable.HashMap.empty
 	private val allRequests = new RequestMetrics
 	private val perRequest: mutable.Map[List[String], RequestMetrics] = mutable.HashMap.empty
 	private var allUsers: UserMetric = _
 	private val usersPerScenario: mutable.Map[String, UserMetric] = mutable.HashMap.empty
 	private var timer: Timer = _
-	private var writer: Writer = _
+	private var socket: DatagramSocket = _
+	private val address = new InetSocketAddress(configuration.graphite.host, configuration.graphite.port)
 	private val percentiles1 = configuration.charting.indicators.percentile1
 	private val percentiles1Name = "percentiles" + percentiles1
 	private val percentiles2 = configuration.charting.indicators.percentile2
 	private val percentiles2Name = "percentiles" + percentiles2
 
-	private def newWriter(): Writer = {
-		val socket = new Socket(configuration.graphite.host, configuration.graphite.port)
-		new BufferedWriter(new OutputStreamWriter(socket.getOutputStream))
-	}
+	private def newSocket = DatagramChannel.open.socket
 
 	def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) {
 		metricRootPath = List("gatling", runRecord.simulationId)
 		allUsers = new UserMetric(scenarios.map(_.nbUsers).sum)
 		scenarios.foreach(scenario => usersPerScenario.+=((scenario.name, new UserMetric(scenario.nbUsers))))
-		writer = newWriter
+		socket = newSocket
 		timer = new Timer(true)
 		timer.scheduleAtFixedRate(new SendToGraphiteTask, 0, 1000)
 	}
@@ -65,8 +63,8 @@ class GraphiteDataWriter extends DataWriter {
 		usersPerScenario(scenarioRecord.scenarioName).update(scenarioRecord)
 		allUsers.update(scenarioRecord)
 		scenarioRecord.event match {
-			case START => updateCurrentGroup(scenarioRecord.scenarioName,scenarioRecord.userId, _ => None)
-			case END => groupStack.remove((scenarioRecord.scenarioName,scenarioRecord.userId))
+			case START => updateCurrentGroup(scenarioRecord.scenarioName, scenarioRecord.userId, _ => None)
+			case END => groupStack.remove((scenarioRecord.scenarioName, scenarioRecord.userId))
 		}
 	}
 
@@ -92,7 +90,7 @@ class GraphiteDataWriter extends DataWriter {
 	}
 
 	def onFlushDataWriter {
-		writer.close
+		socket.close
 	}
 
 	override def receive = uninitialized
@@ -108,12 +106,10 @@ class GraphiteDataWriter extends DataWriter {
 		def sanitizeStringList(list: List[String]) = list.map(sanitizeString)
 
 		def sendToGraphite(metricPath: MetricPath, value: Long) {
-			writer.write(metricPath.toString)
-			writer.write(" ")
-			writer.write(value.toString)
-			writer.write(" ")
-			writer.write(epoch.toString)
-			writer.write(END_OF_LINE)
+			val message = "%s %s %s\n".format(metricPath.toString, value.toString, epoch.toString)
+			val buffer = message.getBytes
+			val packet = new DatagramPacket(buffer, buffer.length, address)
+			socket.send(packet)
 		}
 
 		def sendUserMetrics(scenarioName: String, userMetric: UserMetric) = {
@@ -147,7 +143,7 @@ class GraphiteDataWriter extends DataWriter {
 		}
 
 		try {
-			if (writer == null) writer = newWriter
+			if (socket == null) socket = newSocket
 
 			sendUserMetrics("allUsers", allUsers)
 			usersPerScenario.foreach {
@@ -158,18 +154,16 @@ class GraphiteDataWriter extends DataWriter {
 				case (path, requestMetric) => sendRequestMetrics(path, requestMetric)
 			}
 
-			writer.flush
-
 		} catch {
 			case e: IOException => {
 				error("Error writing to Graphite", e)
-				if (writer != null) {
+				if (socket != null) {
 					try {
-						writer.close
+						socket.close
 					} catch {
 						case _: Exception => // shut up
 					} finally {
-						writer = null
+						socket = null
 					}
 				}
 			}
