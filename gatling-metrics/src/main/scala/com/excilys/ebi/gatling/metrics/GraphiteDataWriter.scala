@@ -18,10 +18,11 @@ package com.excilys.ebi.gatling.metrics
 import java.io.IOException
 import java.net.{ DatagramPacket, DatagramSocket, InetSocketAddress }
 import java.nio.channels.DatagramChannel
-import java.util.{ Timer, TimerTask }
 
 import scala.collection.mutable
+import scala.concurrent.duration.DurationInt
 
+import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.core.result.message.{ GroupRecord, RequestRecord, RunRecord, ScenarioRecord, ShortScenarioDescription }
@@ -40,7 +41,6 @@ class GraphiteDataWriter extends DataWriter {
 	private val perRequest: mutable.Map[List[String], RequestMetrics] = mutable.HashMap.empty
 	private var allUsers: UserMetric = _
 	private val usersPerScenario: mutable.Map[String, UserMetric] = mutable.HashMap.empty
-	private var timer: Timer = _
 	private var socket: DatagramSocket = _
 	private val address = new InetSocketAddress(configuration.graphite.host, configuration.graphite.port)
 	private val percentiles1 = configuration.charting.indicators.percentile1
@@ -55,8 +55,7 @@ class GraphiteDataWriter extends DataWriter {
 		allUsers = new UserMetric(scenarios.map(_.nbUsers).sum)
 		scenarios.foreach(scenario => usersPerScenario.+=((scenario.name, new UserMetric(scenario.nbUsers))))
 		socket = newSocket
-		timer = new Timer(true)
-		timer.scheduleAtFixedRate(new SendToGraphiteTask, 0, 1000)
+		system.scheduler.schedule(0 millisecond, 1000 milliseconds, self, SendToGraphite)(system.dispatcher)
 	}
 
 	def onScenarioRecord(scenarioRecord: ScenarioRecord) {
@@ -170,12 +169,6 @@ class GraphiteDataWriter extends DataWriter {
 		}
 	}
 
-	private class SendToGraphiteTask extends TimerTask {
-		def run {
-			self ! SendToGraphite
-		}
-	}
-
 	private object MetricPath {
 
 		def apply(elements: List[String]) = new MetricPath(metricRootPath ::: elements)
@@ -190,4 +183,3 @@ class GraphiteDataWriter extends DataWriter {
 		override def toString = path.mkString(".")
 	}
 }
-
