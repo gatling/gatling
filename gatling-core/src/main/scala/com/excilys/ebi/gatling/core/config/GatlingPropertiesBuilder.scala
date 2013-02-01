@@ -15,15 +15,13 @@
  */
 package com.excilys.ebi.gatling.core.config
 
-import java.util.{ HashMap => JHashMap, Map => JMap }
-
-import scala.collection.JavaConversions.seqAsJavaList
+import scala.collection.mutable
 
 import com.excilys.ebi.gatling.core.ConfigurationConstants._
 
 class GatlingPropertiesBuilder {
 
-	private val props: JMap[String, Any] = new JHashMap[String, Any]
+	private val props = mutable.Map.empty[String, Any]
 
 	def noReports {
 		props.put(CONF_CHARTING_NO_REPORTS, true)
