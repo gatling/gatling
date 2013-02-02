@@ -29,8 +29,8 @@ class CookieHandlingSpec extends Specification {
 
 	val originalCookie = AsyncHttpProviderUtils.parseCookie("ALPHA=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
 	val originalURI = new URI("https://docs.foo.com/accounts")
-	val originalCookieStore = new CookieStore(Map(originalURI -> List(originalCookie)))
-	val originalSession = new Session("scenarioName", 1, Map(CookieHandling.COOKIES_CONTEXT_KEY -> originalCookieStore))
+	val originalCookieJar = new CookieJar(Map(originalURI -> List(originalCookie)))
+	val originalSession = new Session("scenarioName", 1, Map(CookieHandling.COOKIES_CONTEXT_KEY -> originalCookieJar))
 
 	val emptySession = new Session("scenarioName", 2, Map())
 
