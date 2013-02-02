@@ -25,8 +25,6 @@ object CookieJar {
 
 	// rfc6265#section-5.1.3.
 	def domainMatches(domain: String, host: String): Boolean = {
-		println(s"NICO domain=$domain and host=$host")
-
 		if (host == domain) {
 			true
 		} else if (host.length > domain.length) {

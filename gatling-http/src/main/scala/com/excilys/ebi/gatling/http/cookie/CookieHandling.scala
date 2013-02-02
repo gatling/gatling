@@ -29,17 +29,17 @@ object CookieHandling {
 
 	def getStoredCookies(session: Session, url: String): List[Cookie] = {
 
-		session.safeGetAs[CookieStore](COOKIES_CONTEXT_KEY) match {
-			case Success(cookieStore) => cookieStore.get(URI.create(url))
+		session.safeGetAs[CookieJar](COOKIES_CONTEXT_KEY) match {
+			case Success(cookieJar) => cookieJar.get(URI.create(url))
 			case _ => Nil
 		}
 	}
 
 	def storeCookies(session: Session, uri: URI, cookies: List[Cookie]): Session = {
 		if (!cookies.isEmpty) {
-			session.safeGetAs[CookieStore](COOKIES_CONTEXT_KEY) match {
-				case Success(cookieStore) => session.set(COOKIES_CONTEXT_KEY, cookieStore.add(uri, cookies))
-				case _ => session.set(COOKIES_CONTEXT_KEY, CookieStore(uri, cookies))
+			session.safeGetAs[CookieJar](COOKIES_CONTEXT_KEY) match {
+				case Success(cookieJar) => session.set(COOKIES_CONTEXT_KEY, cookieJar.add(uri, cookies))
+				case _ => session.set(COOKIES_CONTEXT_KEY, CookieJar(uri, cookies))
 			}
 		} else
 			session
