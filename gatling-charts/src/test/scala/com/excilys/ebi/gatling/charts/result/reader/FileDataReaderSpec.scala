@@ -15,6 +15,8 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader
 
+import scala.collection.mutable
+
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
@@ -24,8 +26,6 @@ import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingProper
 import com.excilys.ebi.gatling.core.result.RequestPath
 import com.excilys.ebi.gatling.core.result.message.RunRecord
 import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
-
-import java.util
 
 @RunWith(classOf[JUnitRunner])
 class FileDataReaderSpec extends Specification {
@@ -110,7 +110,7 @@ class FileDataReaderSpec extends Specification {
 		}
 
 		"return expected responseTimePercentile for the (0, 0.7) percentiles" in {
-			val props = new util.HashMap[String, Any]()
+			val props = mutable.Map.empty[String, Any]
 			props.put(PERCENTILE_1, 0)
 			props.put(PERCENTILE_2, 70)
 			props.put(ConfigurationConstants.CONF_DIRECTORY_SIMULATIONS, "src/test/resources")
@@ -122,7 +122,7 @@ class FileDataReaderSpec extends Specification {
 		}
 
 		"return expected result for the (99.99, 100) percentiles" in {
-			val props = new util.HashMap[String, Any]()
+			val props = mutable.Map.empty[String, Any]
 			props.put(PERCENTILE_1, 99)
 			props.put(PERCENTILE_2, 100)
 			props.put(ConfigurationConstants.CONF_DIRECTORY_SIMULATIONS, "src/test/resources")
@@ -134,7 +134,7 @@ class FileDataReaderSpec extends Specification {
 		}
 
 		"indicate that all the request have their response time in between 0 and 100000" in {
-			val props = new util.HashMap[String, Any]()
+			val props = mutable.Map.empty[String, Any]
 			props.put(LOWER_BOUNDS, 0)
 			props.put(HIGHER_BOUNDS, 100000)
 			props.put(ConfigurationConstants.CONF_DIRECTORY_SIMULATIONS, "src/test/resources")
@@ -145,7 +145,7 @@ class FileDataReaderSpec extends Specification {
 		}
 
 		"indicate that 1 request had a response time below 2500ms" in {
-			val props = new util.HashMap[String, Any]()
+			val props = mutable.Map.empty[String, Any]
 			props.put(LOWER_BOUNDS, 2500)
 			props.put(HIGHER_BOUNDS, 5000)
 			props.put(ConfigurationConstants.CONF_DIRECTORY_SIMULATIONS, "src/test/resources")
@@ -156,7 +156,7 @@ class FileDataReaderSpec extends Specification {
 		}
 
 		"indicate that 5 request had a response time in between 2500ms and 5000ms" in {
-			val props = new util.HashMap[String, Any]()
+			val props = mutable.Map.empty[String, Any]
 			props.put(LOWER_BOUNDS, 2500)
 			props.put(HIGHER_BOUNDS, 5000)
 			props.put(ConfigurationConstants.CONF_DIRECTORY_SIMULATIONS, "src/test/resources")
@@ -167,7 +167,7 @@ class FileDataReaderSpec extends Specification {
 		}
 
 		"indicate that 2 request had a response time above 5000ms" in {
-			val props = new util.HashMap[String, Any]()
+			val props = mutable.Map.empty[String, Any]
 			props.put(LOWER_BOUNDS, 2500)
 			props.put(HIGHER_BOUNDS, 5000)
 			props.put(ConfigurationConstants.CONF_DIRECTORY_SIMULATIONS, "src/test/resources")
