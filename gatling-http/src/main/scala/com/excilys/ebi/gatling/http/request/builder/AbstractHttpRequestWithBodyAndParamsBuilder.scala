@@ -94,8 +94,14 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[String, RequestBuilder] = {
 
-		def configureParams(requestBuilder: RequestBuilder): Validation[String, RequestBuilder] =
-			HttpHelper.httpParamsToFluentMap(paramsAttributes.params, session).map(requestBuilder.setParameters)
+		def configureParams(requestBuilder: RequestBuilder): Validation[String, RequestBuilder] = {
+			if (!paramsAttributes.params.isEmpty) {
+				// As a side effect, requestBuilder.setParameters() is reseting the body data, so, it should not be called with empty parameters 
+				HttpHelper.httpParamsToFluentMap(paramsAttributes.params, session).map(requestBuilder.setParameters)
+			} else {
+				requestBuilder.success
+			}
+		}
 
 		def configureFileParts(requestBuilder: RequestBuilder): Validation[String, RequestBuilder] = {
 
