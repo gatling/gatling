@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.core.session.handler.{ CounterBasedIterationHandler, TimerBasedIterationHandler }
 
 import akka.actor.ActorRef
-import scalaz.{ Failure, Success }
+import scalaz.Success
 import scalaz.Scalaz.ToValidationV
 
 /**
