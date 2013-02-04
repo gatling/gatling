@@ -25,18 +25,21 @@ import scalaz.{ Failure, Success }
  *
  * It adds counter based iteration behavior to a class
  */
-trait CounterBasedIterationHandler extends IterationHandler with Logging {
+trait CounterBasedIterationHandler extends Logging {
 
-	override def init(session: Session) =
-		if (session.contains(counterName))
-			super.init(session)
-		else
-			super.init(session).set(counterName, -1)
+	def counterName: String
 
-	override def increment(session: Session) = session.safeGetAs[Int](counterName) match {
-		case Success(currentValue) => super.increment(session).set(counterName, currentValue + 1)
-		case Failure(message) => error(s"Could not retrieve loop counter named $counterName: $message"); throw new IllegalAccessError("You must call 'init' before calling 'increment'")
+	def init(session: Session) =
+		if (session.contains(counterName)) session
+		else session.set(counterName, -1)
+
+	def increment(session: Session) = session.safeGetAs[Int](counterName) match {
+		case Success(currentValue) =>
+			session.set(counterName, currentValue + 1)
+		case Failure(message) =>
+			error(s"Could not retrieve loop counter named $counterName: $message")
+			throw new IllegalAccessError("You must call 'init' before calling 'increment'")
 	}
 
-	override def expire(session: Session) = super.expire(session).remove(counterName)
+	def expire(session: Session) = session.remove(counterName)
 }

@@ -34,12 +34,10 @@ trait Loops[B] extends Execs[B] with Logging {
 	def repeat(times: Int)(chain: ChainBuilder): B = repeat(times, None, chain)
 	def repeat(times: Int, counterName: String)(chain: ChainBuilder): B = repeat(times, Some(counterName), chain)
 
-	private def repeat(times: Int, counterName: Option[String], chain: ChainBuilder): B = {
-
-		val computedCounterName = counterName.getOrElse(UUID.randomUUID.toString)
+	private def repeat(times: Int, loopCounterName: Option[String], chain: ChainBuilder): B = {
 
 		val handler = new CounterBasedIterationHandler {
-			def counterName = computedCounterName
+			val counterName = loopCounterName.getOrElse(UUID.randomUUID.toString)
 		}
 
 		val init = new SessionHookBuilder(handler.init)

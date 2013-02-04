@@ -37,8 +37,6 @@ object TimerBasedIterationHandler {
 }
 
 /**
- * This trait is used for mixin-composition
- *
  * It adds timer based iteration behavior to a class
  */
 trait TimerBasedIterationHandler extends CounterBasedIterationHandler {
