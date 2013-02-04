@@ -106,7 +106,7 @@ class GraphiteDataWriter extends DataWriter {
 
 		def sendToGraphite(metricPath: MetricPath, value: Long) {
 			val message = "%s %s %s\n".format(metricPath.toString, value.toString, epoch.toString)
-			val buffer = message.getBytes
+			val buffer = message.getBytes(configuration.simulation.encoding)
 			val packet = new DatagramPacket(buffer, buffer.length, address)
 			socket.send(packet)
 		}
