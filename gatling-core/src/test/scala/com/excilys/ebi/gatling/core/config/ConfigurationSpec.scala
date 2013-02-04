@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.config
 
-import java.util.{ HashMap => JHashMap, Map => JMap }
-
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
@@ -28,8 +26,6 @@ class ConfigurationSpec extends Specification {
 		
 		val props = new GatlingPropertiesBuilder
 		props.clazz("Foo")
-		
-		val map = props.build
 		
 		GatlingConfiguration.setUp(props.build)
 		
