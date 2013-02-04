@@ -130,7 +130,8 @@
 		<xstream.version>1.4.3</xstream.version>
 		<scopt.version>2.1.0</scopt.version>
 		<grizzled-slf4j.version>1.0.1</grizzled-slf4j.version>
-		<jackson.version>2.1.2</jackson.version>
+		<jackson.version>2.1.3</jackson.version>
+		<jackson-annotations.version>2.1.2</jackson-annotations.version>
 		<commons-math3.version>3.0</commons-math3.version>
 		<commons-io.version>2.4</commons-io.version>
 		<commons-exec.version>1.1</commons-exec.version>
@@ -351,7 +352,7 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-annotations</artifactId>
-				<version>${jackson.version}</version>
+				<version>${jackson-annotations.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
