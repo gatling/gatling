@@ -42,7 +42,7 @@ object CookieJar {
 /*
  * rfc2109 and rfc2965 are now deprecated by rfc6265 (http://tools.ietf.org/html/rfc6265) 
  */
-private[cookie] class CookieJar(store: Map[URI, List[Cookie]]) {
+class CookieJar(store: Map[URI, List[Cookie]]) {
 
 	import CookieJar.domainMatches
 
