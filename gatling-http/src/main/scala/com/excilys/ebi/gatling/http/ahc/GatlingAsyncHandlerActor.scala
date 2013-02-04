@@ -133,8 +133,8 @@ class GatlingAsyncHandlerActor(
 			request.dumpTo(buff)
 			buff.append("=========================").append(END_OF_LINE)
 			buff.append("response was:").append(END_OF_LINE)
-			response.dumpTo(buff).append(END_OF_LINE)
-			buff.append("<<<<<<<<<<<<<<<<<<<<<<<<<")
+			response.dumpTo(buff)
+			buff.append(END_OF_LINE).append("<<<<<<<<<<<<<<<<<<<<<<<<<")
 			buff
 		}
 
