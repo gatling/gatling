@@ -19,10 +19,13 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration
 import com.ning.http.client.{ Request, Response }
 
 @RunWith(classOf[JUnitRunner])
 class HttpProtocolConfigurationBuilderSpec extends Specification {
+	
+	GatlingConfiguration.setUp()
 
 	"http protocol configuration builder" should {
 		"support an optional extra request info extractor" in {
