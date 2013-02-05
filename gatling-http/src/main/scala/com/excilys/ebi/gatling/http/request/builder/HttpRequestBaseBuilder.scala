@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import com.excilys.ebi.gatling.core.session.Expression
+import com.excilys.ebi.gatling.core.session.{ EL, Expression }
 
 /**
  * HttpRequestActionBuilder class companion
@@ -41,7 +41,7 @@ class HttpRequestBaseBuilder(requestName: Expression[String]) {
 	 *
 	 * @param url the url on which this request will be made
 	 */
-	def delete(url: String): DeleteHttpRequestBuilder = delete(Expression.compile[String](url))
+	def delete(url: String): DeleteHttpRequestBuilder = delete(EL.compile[String](url))
 
 	/**
 	 * Starts the definition of an HTTP request with word DELETE
@@ -55,7 +55,7 @@ class HttpRequestBaseBuilder(requestName: Expression[String]) {
 	 *
 	 * @param url the url on which this request will be made
 	 */
-	def get(url: String): GetHttpRequestBuilder = get(Expression.compile[String](url))
+	def get(url: String): GetHttpRequestBuilder = get(EL.compile[String](url))
 
 	/**
 	 * Starts the definition of an HTTP request with word GET
@@ -69,7 +69,7 @@ class HttpRequestBaseBuilder(requestName: Expression[String]) {
 	 *
 	 * @param url the url on which this request will be made
 	 */
-	def post(url: String): PostHttpRequestBuilder = post(Expression.compile[String](url))
+	def post(url: String): PostHttpRequestBuilder = post(EL.compile[String](url))
 
 	/**
 	 * Starts the definition of an HTTP request with word POST
@@ -83,7 +83,7 @@ class HttpRequestBaseBuilder(requestName: Expression[String]) {
 	 *
 	 * @param url the url on which this request will be made
 	 */
-	def put(url: String): PutHttpRequestBuilder = put(Expression.compile[String](url))
+	def put(url: String): PutHttpRequestBuilder = put(EL.compile[String](url))
 
 	/**
 	 * Starts the definition of an HTTP request with word PUT
@@ -97,7 +97,7 @@ class HttpRequestBaseBuilder(requestName: Expression[String]) {
 	 *
 	 * @param url the url on which this request will be made
 	 */
-	def head(url: String): HeadHttpRequestBuilder = head(Expression.compile[String](url))
+	def head(url: String): HeadHttpRequestBuilder = head(EL.compile[String](url))
 
 	/**
 	 * Starts the definition of an HTTP request with word HEAD

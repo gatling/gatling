@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.core.structure
 import com.excilys.ebi.gatling.core.action.builder.SessionHookBuilder
 import com.excilys.ebi.gatling.core.feeder.Feeder
 import com.excilys.ebi.gatling.core.result.terminator.Terminator
-import com.excilys.ebi.gatling.core.session.{ Expression, Session }
+import com.excilys.ebi.gatling.core.session.{ EL, Expression, Session }
 
 import grizzled.slf4j.Logging
 import scalaz.{ Success, Validation }
@@ -33,7 +33,7 @@ trait Feeds[B] extends Execs[B] with Logging {
 	 * @param feeder the feeder from which the values will be loaded
 	 * @param number the number of records to be polled (default 1)
 	 */
-	def feed(feeder: Feeder[_], number: Expression[Int] = Expression.wrap(1)): B = {
+	def feed(feeder: Feeder[_], number: Expression[Int] = EL.wrap(1)): B = {
 
 		type Record = Map[String, Any]
 

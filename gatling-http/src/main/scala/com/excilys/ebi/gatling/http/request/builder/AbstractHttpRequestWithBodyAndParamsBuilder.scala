@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.http.request.builder
 import scala.collection.JavaConversions._
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.session.{ Expression, Session }
+import com.excilys.ebi.gatling.core.session.{ EL, Expression, Session }
 import com.excilys.ebi.gatling.core.util.FlattenableValidations
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import com.excilys.ebi.gatling.http.check.HttpCheck
@@ -67,14 +67,14 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		newInstance(httpAttributes, body, paramsAttributes)
 	}
 
-	def param(key: String): B = param(Expression.compile[String](key), (s: Session) => s.safeGetAs[String](key))
+	def param(key: String): B = param(EL.compile[String](key), (s: Session) => s.safeGetAs[String](key))
 
 	def param(key: Expression[String], value: Expression[String]): B = {
 		val httpParam: HttpParam = (key, (s: Session) => value(s).map(Seq(_)))
 		param(httpParam)
 	}
 
-	def multiValuedParam(key: String): B = multiValuedParam(Expression.compile[String](key), (s: Session) => s.safeGetAs[Seq[String]](key))
+	def multiValuedParam(key: String): B = multiValuedParam(EL.compile[String](key), (s: Session) => s.safeGetAs[Seq[String]](key))
 
 	def multiValuedParam(key: Expression[String], values: Seq[String]): B = {
 		val httpParam: HttpParam = (key, (s: Session) => values.success)

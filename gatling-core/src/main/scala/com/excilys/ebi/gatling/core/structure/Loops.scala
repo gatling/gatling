@@ -21,7 +21,7 @@ import scala.collection.immutable.Stream
 import scala.concurrent.duration.{ Duration, DurationLong }
 
 import com.excilys.ebi.gatling.core.action.builder.{ SessionHookBuilder, WhileBuilder }
-import com.excilys.ebi.gatling.core.session.{ Expression, Session }
+import com.excilys.ebi.gatling.core.session.{ EL, Expression, Session }
 import com.excilys.ebi.gatling.core.session.handler.{ CounterBasedIterationHandler, TimerBasedIterationHandler }
 import com.excilys.ebi.gatling.core.structure.ChainBuilder.chainOf
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
@@ -52,7 +52,7 @@ trait Loops[B] extends Execs[B] with Logging {
 	def repeat(times: String, counterName: String)(chain: ChainBuilder): B = repeat(times, Some(counterName), chain)
 
 	private def repeat(times: String, counterName: Option[String], chain: ChainBuilder): B = {
-		val timesFunction = Expression.compile[Int](times)
+		val timesFunction = EL.compile[Int](times)
 		repeat(timesFunction, counterName, chain)
 	}
 

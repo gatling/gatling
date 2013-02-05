@@ -21,7 +21,7 @@ import org.fusesource.scalate.{ Binding, TemplateEngine }
 
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingFiles
-import com.excilys.ebi.gatling.core.session.{ Expression, Session }
+import com.excilys.ebi.gatling.core.session.{ EL, Expression, Session }
 import com.excilys.ebi.gatling.core.util.FileHelper.SSP_EXTENSION
 import com.excilys.ebi.gatling.core.util.FlattenableValidations
 import com.excilys.ebi.gatling.http.Headers.Names.CONTENT_LENGTH
@@ -86,7 +86,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 * @param values the values that should be merged into the template
 	 */
 	def fileBody(tplPath: String, values: Map[String, String]): B = {
-		val evaluatableValues = values.map { entry => entry._1 -> Expression.compile[String](entry._2) }
+		val evaluatableValues = values.map { entry => entry._1 -> EL.compile[String](entry._2) }
 		newInstance(httpAttributes, Some(TemplateBody(tplPath, evaluatableValues)))
 	}
 

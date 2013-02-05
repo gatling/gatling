@@ -65,7 +65,7 @@ sealed abstract class ELParserException(message: String) extends Exception(messa
 class ELMissingAttributeName(el: String) extends ELParserException("An attribute name is missing in this expression : " + el)
 class ELNestedAttributeDefinition(el: String) extends ELParserException("There is a nested attribute definition in this expression : " + el)
 
-object Expression {
+object EL {
 
 	val elPattern = """\$\{(.*?)\}""".r
 	val elSeqSizePattern = """(.+?)\.size""".r

@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.http.request.builder
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.session.{ Expression, Session }
+import com.excilys.ebi.gatling.core.session.{ EL, Expression, Session }
 import com.excilys.ebi.gatling.core.util.FlattenableValidations
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
@@ -74,7 +74,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 *
 	 * @param key the key of the parameter
 	 */
-	def queryParam(key: String): B = queryParam(Expression.compile[String](key), (s: Session) => s.safeGetAs[String](key))
+	def queryParam(key: String): B = queryParam(EL.compile[String](key), (s: Session) => s.safeGetAs[String](key))
 
 	/**
 	 * Adds a query parameter to the request
@@ -86,10 +86,10 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 		queryParam(httpParam)
 	}
 
-	def multiValuedQueryParam(key: String): B = multiValuedQueryParam(Expression.compile[String](key), key)
+	def multiValuedQueryParam(key: String): B = multiValuedQueryParam(EL.compile[String](key), key)
 
 	def multiValuedQueryParam(key: Expression[String], value: String): B = {
-		val httpParam: HttpParam = (key, Expression.compile[Seq[String]](value))
+		val httpParam: HttpParam = (key, EL.compile[Seq[String]](value))
 		queryParam(httpParam)
 	}
 
@@ -110,14 +110,14 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 *
 	 * @param header the header to add, eg: ("Content-Type", "application/json")
 	 */
-	def header(header: (String, String)): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers + (header._1 -> Expression.compile[String](header._2))))
+	def header(header: (String, String)): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers + (header._1 -> EL.compile[String](header._2))))
 
 	/**
 	 * Adds several headers to the request at the same time
 	 *
 	 * @param newHeaders a scala map containing the headers to add
 	 */
-	def headers(newHeaders: Map[String, String]): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers ++ newHeaders.mapValues(Expression.compile[String](_))))
+	def headers(newHeaders: Map[String, String]): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers ++ newHeaders.mapValues(EL.compile[String](_))))
 
 	/**
 	 * Adds Accept and Content-Type headers to the request set with "application/json" values
