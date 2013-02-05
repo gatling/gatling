@@ -15,8 +15,10 @@
  */
 package com.excilys.ebi.gatling.http.config
 
+import com.excilys.ebi.gatling.core.session.{ EL, Session }
 import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.http.ahc.GatlingHttpClient
+import com.excilys.ebi.gatling.http.request.builder.{ GetHttpRequestBuilder, PostHttpRequestBuilder }
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 import com.ning.http.client.{ ProxyServer, Request, RequestBuilder }
 
@@ -103,19 +105,35 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 
 	private[http] def build = {
 
-		attributes.warmUpUrl.map { url =>
-			val requestBuilder = new RequestBuilder().setUrl(url)
+		val config = HttpProtocolConfiguration(attributes.baseUrls, attributes.proxy, attributes.securedProxy, attributes.followRedirectEnabled, attributes.automaticRefererEnabled, attributes.cachingEnabled, attributes.responseChunksDiscardingEnabled, attributes.baseHeaders, attributes.extraRequestInfoExtractor, attributes.extraResponseInfoExtractor)
 
-			attributes.proxy.map { proxy => if (url.startsWith("http://")) requestBuilder.setProxyServer(proxy) }
-			attributes.securedProxy.map { proxy => if (url.startsWith("https://")) requestBuilder.setProxyServer(proxy) }
+		def doWarmUp() {
+			attributes.warmUpUrl.map { url =>
+				val requestBuilder = new RequestBuilder().setUrl(url)
 
-			try {
-				GatlingHttpClient.client.executeRequest(requestBuilder.build).get
-			} catch {
-				case e: Exception => info(s"Couldn't execute warm up request $url", e)
+				attributes.proxy.map { proxy => if (url.startsWith("http://")) requestBuilder.setProxyServer(proxy) }
+				attributes.securedProxy.map { proxy => if (url.startsWith("https://")) requestBuilder.setProxyServer(proxy) }
+
+				try {
+					GatlingHttpClient.client.executeRequest(requestBuilder.build).get
+				} catch {
+					case e: Exception => info(s"Couldn't execute warm up request $url", e)
+				}
 			}
+
+			val expression = EL.compile[String]("foo")
+			GetHttpRequestBuilder(expression, expression)
+				.header("bar", "baz")
+				.queryParam(expression, expression)
+				.build(new Session("scenarioName", 0), config)
+
+			PostHttpRequestBuilder(expression, expression)
+				.header("bar", "baz")
+				.param(expression, expression)
+				.build(new Session("scenarioName", 0), config)
 		}
 
-		HttpProtocolConfiguration(attributes.baseUrls, attributes.proxy, attributes.securedProxy, attributes.followRedirectEnabled, attributes.automaticRefererEnabled, attributes.cachingEnabled, attributes.responseChunksDiscardingEnabled, attributes.baseHeaders, attributes.extraRequestInfoExtractor, attributes.extraResponseInfoExtractor)
+		doWarmUp()
+		config
 	}
 }
