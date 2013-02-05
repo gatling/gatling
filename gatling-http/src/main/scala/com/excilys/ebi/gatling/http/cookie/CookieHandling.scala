@@ -26,17 +26,17 @@ object CookieHandling {
 	val COOKIES_CONTEXT_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "http.cookies"
 
 	def getStoredCookies(session: Session, url: String): List[Cookie] = {
-		session.getAttributeAsOption[CookieStore](COOKIES_CONTEXT_KEY) match {
-			case Some(cookieStore) => cookieStore.get(URI.create(url))
+		session.getAttributeAsOption[CookieJar](COOKIES_CONTEXT_KEY) match {
+			case Some(cookieJar) => cookieJar.get(URI.create(url))
 			case _ => Nil
 		}
 	}
 
 	def storeCookies(session: Session, uri: URI, cookies: List[Cookie]): Session = {
 		if (!cookies.isEmpty) {
-			session.getAttributeAsOption[CookieStore](COOKIES_CONTEXT_KEY) match {
-				case Some(cookieStore) => session.setAttribute(COOKIES_CONTEXT_KEY, cookieStore.add(uri, cookies))
-				case _ => session.setAttribute(COOKIES_CONTEXT_KEY, CookieStore(uri, cookies))
+			session.getAttributeAsOption[CookieJar](COOKIES_CONTEXT_KEY) match {
+				case Some(cookieJar) => session.setAttribute(COOKIES_CONTEXT_KEY, cookieJar.add(uri, cookies))
+				case _ => session.setAttribute(COOKIES_CONTEXT_KEY, CookieJar(uri, cookies))
 			}
 		} else
 			session
