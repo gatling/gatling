@@ -28,7 +28,7 @@ import akka.actor.ActorRef
  * @param next the chain executed if testFunction evaluates to false
  * @param counterName the name of the counter for this loop
  */
-class WhileAction(condition: Session => Boolean, val next: ActorRef, val counterName: String) extends Action with TimerBasedIterationHandler with CounterBasedIterationHandler with Bypass {
+class WhileAction(condition: Session => Boolean, val next: ActorRef, val counterName: String) extends Action with TimerBasedIterationHandler with Bypass {
 
 	var loopNextAction: ActorRef = _
 

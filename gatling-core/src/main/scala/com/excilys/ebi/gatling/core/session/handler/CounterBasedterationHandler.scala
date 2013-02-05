@@ -19,24 +19,19 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
 
 /**
- * This trait is used for mixin-composition
- *
- * It adds counter based iteration behavior to a class
+ * This trait adds counter based iteration behavior to a class
  */
-trait CounterBasedIterationHandler extends IterationHandler {
+trait CounterBasedIterationHandler {
 
-	override def init(session: Session) = 
-		if (session.isAttributeDefined(counterName))
-			super.init(session)
-		else
-			super.init(session).setAttribute(counterName, -1)
+	def counterName: String
 
-	override def increment(session: Session) = session.getAttributeAsOption[Int](counterName)
-		.map {
-			currentValue => super.increment(session).setAttribute(counterName, currentValue + 1)
-		}.getOrElse {
-			throw new IllegalAccessError("You must call startCounter before this method is called")
-		}
+	def init(session: Session) =
+		if (session.isAttributeDefined(counterName)) session
+		else session.setAttribute(counterName, -1)
 
-	override def expire(session: Session) = super.expire(session).removeAttribute(counterName)
+	def increment(session: Session) = session.getAttributeAsOption[Int](counterName)
+		.map(currentValue => session.setAttribute(counterName, currentValue + 1))
+		.getOrElse(throw new IllegalAccessError("You must call startCounter before this method is called"))
+
+	def expire(session: Session) = session.removeAttribute(counterName)
 }

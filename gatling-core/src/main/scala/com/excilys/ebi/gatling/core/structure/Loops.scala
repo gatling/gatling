@@ -31,22 +31,18 @@ trait Loops[B] extends Execs[B] {
 
 	def repeat(times: Int)(chain: ChainBuilder): B = repeat(times, None, chain)
 	def repeat(times: Int, counterName: String)(chain: ChainBuilder): B = repeat(times, Some(counterName), chain)
-	private def repeat(times: Int, counterName: Option[String], chain: ChainBuilder): B = {
-
-		val computedCounterName = counterName.getOrElse(UUID.randomUUID.toString)
+	private def repeat(times: Int, loopCounterName: Option[String], chain: ChainBuilder): B = {
 
 		val handler = new CounterBasedIterationHandler {
-			def counterName = computedCounterName
+			val counterName = loopCounterName.getOrElse(UUID.randomUUID.toString)
 		}
 
-		val initAction = emptyChain.exec(SimpleActionBuilder(handler.init))
-		val incrementAction = emptyChain.exec(SimpleActionBuilder(handler.increment))
-		val expireAction = emptyChain.exec(SimpleActionBuilder(handler.expire))
-		
-		val innerActions = (1 to times).flatMap(_ => List(incrementAction, chain)).toList
-		val allActions = initAction :: innerActions ::: List(expireAction)
+		val init = SimpleActionBuilder(handler.init)
+		val increment = emptyChain.exec(SimpleActionBuilder(handler.increment))
+		val expire = SimpleActionBuilder(handler.expire)
 
-		exec(allActions)
+		val innerActions = Stream.continually(List(increment, chain)).take(times).flatten
+		exec(emptyChain.exec(init).exec(innerActions).exec(expire))
 	}
 
 	def repeat(times: String)(chain: ChainBuilder): B = repeat(times, None, chain)
