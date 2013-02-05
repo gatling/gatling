@@ -16,17 +16,13 @@
 package com.excilys.ebi.gatling.recorder.http.handler
 
 import java.net.URI
-
 import scala.collection.JavaConversions.asScalaBuffer
-
 import org.jboss.netty.channel.{ ChannelFuture, ChannelFutureListener, ChannelHandlerContext, ExceptionEvent, MessageEvent, SimpleChannelHandler }
 import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, HttpRequest }
-
 import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.recorder.config.ProxyConfig
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.ning.http.util.Base64
-
 import grizzled.slf4j.Logging
 
 abstract class AbstractBrowserRequestHandler(controller: RecorderController, proxyConfig: ProxyConfig) extends SimpleChannelHandler with Logging {
@@ -68,8 +64,8 @@ abstract class AbstractBrowserRequestHandler(controller: RecorderController, pro
 	}
 
 	def buildRequestWithRelativeURI(request: HttpRequest) = {
-		val uri = new URI(request.getUri)
-		val newUri = new URI(null, null, null, -1, uri.getPath, uri.getQuery, uri.getFragment).toString
+		// http://foo/bar
+		val newUri = "/" + request.getUri.split("/", 4).lift(3).getOrElse("")
 		val newRequest = new DefaultHttpRequest(request.getProtocolVersion, request.getMethod, newUri)
 		newRequest.setChunked(request.isChunked)
 		newRequest.setContent(request.getContent)

@@ -15,7 +15,6 @@
  */
 package com.excilys.ebi.gatling.recorder.scenario
 
-import java.net.URI
 import java.nio.charset.Charset
 
 import scala.collection.JavaConversions.{ asScalaBuffer, mapAsScalaMap }
@@ -44,9 +43,10 @@ class RequestElement(val request: HttpRequest, val statusCode: Int, val simulati
 
 	private val containsFormParams: Boolean = Option(request.getHeader(CONTENT_TYPE)).map(_.contains("application/x-www-form-urlencoded")).getOrElse(false)
 
-	private val uri = URI.create(request.getUri)
-	val baseUrl = uri.getScheme() + "://" + uri.getAuthority
-	private var printedUrl = baseUrl + uri.getPath
+	private val uriParts = request.getUri.split("/", 4)
+	val baseUrl = uriParts.take(3).mkString("/")
+	val path = "/" + uriParts.lift(3).getOrElse("").split("\\?")(0)
+	private var printedUrl = baseUrl + path
 	val completeUrl = request.getUri
 	var filteredHeadersId: Option[Int] = None
 
@@ -81,7 +81,7 @@ class RequestElement(val request: HttpRequest, val statusCode: Int, val simulati
 
 	def updateUrl(baseUrl: String): RequestElement = {
 		if (baseUrl == this.baseUrl)
-			this.printedUrl = uri.getPath
+			this.printedUrl = path
 
 		this
 	}
