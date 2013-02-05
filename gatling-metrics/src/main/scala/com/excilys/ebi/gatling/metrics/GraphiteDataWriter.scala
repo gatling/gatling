@@ -15,14 +15,13 @@
  */
 package com.excilys.ebi.gatling.metrics
 
-import java.io.IOException
 import java.net.{ DatagramPacket, DatagramSocket, InetSocketAddress }
 import java.nio.channels.DatagramChannel
 
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
-import com.excilys.ebi.gatling.core.action.system
+import com.excilys.ebi.gatling.core.action.{ BaseActor, system }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.core.result.message.{ GroupRecord, RequestRecord, RunRecord, ScenarioRecord, ShortScenarioDescription }
@@ -31,30 +30,31 @@ import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowSeconds
 import com.excilys.ebi.gatling.metrics.types.{ Metrics, RequestMetrics, UserMetric }
 
-case object SendToGraphite
+import akka.actor.{ ActorRef, Props }
+
+sealed trait GraphiteMessage
+case object SendToGraphite extends GraphiteMessage
+case object CloseSocket extends GraphiteMessage
 
 class GraphiteDataWriter extends DataWriter {
 
+	private val graphiteSender: ActorRef = context.actorOf(Props(new GraphiteSender))
 	private var metricRootPath: List[String] = Nil
-	private val groupStack: mutable.Map[(String, Int), Option[Group]] = mutable.HashMap.empty
+	private val groupStack: mutable.Map[(String, Int), Option[Group]] = mutable.Map.empty
 	private val allRequests = new RequestMetrics
-	private val perRequest: mutable.Map[List[String], RequestMetrics] = mutable.HashMap.empty
+	private val perRequest: mutable.Map[List[String], RequestMetrics] = mutable.Map.empty
 	private var allUsers: UserMetric = _
-	private val usersPerScenario: mutable.Map[String, UserMetric] = mutable.HashMap.empty
-	private var socket: DatagramSocket = _
+	private val usersPerScenario: mutable.Map[String, UserMetric] = mutable.Map.empty
 	private val address = new InetSocketAddress(configuration.graphite.host, configuration.graphite.port)
 	private val percentiles1 = configuration.charting.indicators.percentile1
 	private val percentiles1Name = "percentiles" + percentiles1
 	private val percentiles2 = configuration.charting.indicators.percentile2
 	private val percentiles2Name = "percentiles" + percentiles2
 
-	private def newSocket = DatagramChannel.open.socket
-
 	def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) {
 		metricRootPath = List("gatling", runRecord.simulationId)
 		allUsers = new UserMetric(scenarios.map(_.nbUsers).sum)
 		scenarios.foreach(scenario => usersPerScenario.+=((scenario.name, new UserMetric(scenario.nbUsers))))
-		socket = newSocket
 		system.scheduler.schedule(0 millisecond, 1000 milliseconds, self, SendToGraphite)(system.dispatcher)
 	}
 
@@ -89,60 +89,75 @@ class GraphiteDataWriter extends DataWriter {
 	}
 
 	def onFlushDataWriter {
-		socket.close
+		graphiteSender ! CloseSocket
 	}
 
 	override def receive = uninitialized
 
 	override def initialized: Receive = super.initialized.orElse {
-		case SendToGraphite => sendMetricsToGraphite(nowSeconds)
+		case m => graphiteSender forward m
 	}
 
-	private def sendMetricsToGraphite(epoch: Long) {
+class GraphiteSender extends BaseActor {
 
-		def sanitizeString(s: String) = s.replace(' ', '_').replace('.', '-').replace('\\', '-')
+		private var socket: DatagramSocket = _
 
-		def sanitizeStringList(list: List[String]) = list.map(sanitizeString)
+		private def newSocket = DatagramChannel.open.socket
 
-		def sendToGraphite(metricPath: MetricPath, value: Long) {
-			val message = "%s %s %s\n".format(metricPath.toString, value.toString, epoch.toString)
-			val buffer = message.getBytes(configuration.simulation.encoding)
-			val packet = new DatagramPacket(buffer, buffer.length, address)
-			socket.send(packet)
+		override def preStart {
+			socket = newSocket
 		}
 
-		def sendUserMetrics(scenarioName: String, userMetric: UserMetric) = {
-			val rootPath = MetricPath(List("users", sanitizeString(scenarioName)))
-			sendToGraphite(rootPath + "active", userMetric.active)
-			sendToGraphite(rootPath + "waiting", userMetric.waiting)
-			sendToGraphite(rootPath + "done", userMetric.done)
+		override def preRestart(reason: Throwable, message: Option[Any]) {
+			socket.close
 		}
 
-		def sendMetrics(metricPath: MetricPath, metrics: Metrics) = {
-			sendToGraphite(metricPath + "count", metrics.count)
+		def receive = {
+			case SendToGraphite => sendMetricsToGraphite(nowSeconds)
+			case closeSocket => socket.close
+		}
 
-			if (metrics.count > 0L) {
-				sendToGraphite(metricPath + "max", metrics.max)
-				sendToGraphite(metricPath + "min", metrics.min)
-				sendToGraphite(metricPath + percentiles1Name, metrics.getQuantile(percentiles1))
-				sendToGraphite(metricPath + percentiles2Name, metrics.getQuantile(percentiles2))
+		private def sendMetricsToGraphite(epoch: Long) {
+			def sanitizeString(s: String) = s.replace(' ', '_').replace('.', '-').replace('\\', '-')
+
+			def sanitizeStringList(list: List[String]) = list.map(sanitizeString)
+
+			def sendToGraphite(metricPath: MetricPath, value: Long) {
+				val message = "%s %s %s\n".format(metricPath.toString, value.toString, epoch.toString)
+				val buffer = message.getBytes(configuration.simulation.encoding)
+				val packet = new DatagramPacket(buffer, buffer.length, address)
+				socket.send(packet)
 			}
-		}
 
-		def sendRequestMetrics(path: List[String], requestMetrics: RequestMetrics) = {
-			val rootPath = MetricPath(sanitizeStringList(path))
+			def sendUserMetrics(scenarioName: String, userMetric: UserMetric) = {
+				val rootPath = MetricPath(List("users", sanitizeString(scenarioName)))
+				sendToGraphite(rootPath + "active", userMetric.active)
+				sendToGraphite(rootPath + "waiting", userMetric.waiting)
+				sendToGraphite(rootPath + "done", userMetric.done)
+			}
 
-			val (okMetrics, koMetrics, allMetrics) = requestMetrics.metrics
+			def sendMetrics(metricPath: MetricPath, metrics: Metrics) = {
+				sendToGraphite(metricPath + "count", metrics.count)
 
-			sendMetrics(rootPath + "ok", okMetrics)
-			sendMetrics(rootPath + "ko", koMetrics)
-			sendMetrics(rootPath + "all", allMetrics)
+				if (metrics.count > 0L) {
+					sendToGraphite(metricPath + "max", metrics.max)
+					sendToGraphite(metricPath + "min", metrics.min)
+					sendToGraphite(metricPath + percentiles1Name, metrics.getQuantile(percentiles1))
+					sendToGraphite(metricPath + percentiles2Name, metrics.getQuantile(percentiles2))
+				}
+			}
 
-			requestMetrics.reset
-		}
+			def sendRequestMetrics(path: List[String], requestMetrics: RequestMetrics) = {
+				val rootPath = MetricPath(sanitizeStringList(path))
 
-		try {
-			if (socket == null) socket = newSocket
+				val (okMetrics, koMetrics, allMetrics) = requestMetrics.metrics
+
+				sendMetrics(rootPath + "ok", okMetrics)
+				sendMetrics(rootPath + "ko", koMetrics)
+				sendMetrics(rootPath + "all", allMetrics)
+
+				requestMetrics.reset
+			}
 
 			sendUserMetrics("allUsers", allUsers)
 			usersPerScenario.foreach {
@@ -153,19 +168,6 @@ class GraphiteDataWriter extends DataWriter {
 				case (path, requestMetric) => sendRequestMetrics(path, requestMetric)
 			}
 
-		} catch {
-			case e: IOException => {
-				error("Error writing to Graphite", e)
-				if (socket != null) {
-					try {
-						socket.close
-					} catch {
-						case _: Exception => // shut up
-					} finally {
-						socket = null
-					}
-				}
-			}
 		}
 	}
 
