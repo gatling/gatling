@@ -138,6 +138,33 @@ class GatlingAsyncHandlerActor(
 			buff
 		}
 
+		/**
+		 * Extract extra info from both request and response.
+		 *
+		 * @param response is the response to extract data from; request is retrieved from the property
+		 * @return the extracted Strings
+		 */
+		def extraInfo: List[String] = {
+
+			def extractExtraSourceInfo[T](extractor: Option[T => List[String]], source: T): List[String] = {
+
+				val extracted = try {
+					extractor.map(_(source))
+
+				} catch {
+					case e: Exception =>
+						warn("Encountered error while extracting extra request info", e)
+						None
+				}
+
+				extracted.getOrElse(Nil)
+			}
+
+			val extraRequestInfo = extractExtraSourceInfo(protocolConfiguration.extraRequestInfoExtractor, request)
+			val extraResponseInfo = extractExtraSourceInfo(protocolConfiguration.extraResponseInfoExtractor, response)
+			extraRequestInfo ::: extraResponseInfo
+		}
+
 		if (requestStatus == KO) {
 			warn(s"Request '$requestName' failed : ${errorMessage.getOrElse("")}")
 			if (!isTraceEnabled) debug(dump)
@@ -146,7 +173,7 @@ class GatlingAsyncHandlerActor(
 
 		DataWriter.logRequest(session.scenarioName, session.userId, requestName,
 			response.executionStartDate, response.requestSendingEndDate, response.responseReceivingStartDate, response.executionEndDate,
-			requestStatus, errorMessage, extractExtraInfo(response))
+			requestStatus, errorMessage, extraInfo)
 	}
 
 	/**
@@ -228,32 +255,5 @@ class GatlingAsyncHandlerActor(
 
 			checkPhasesRec(sessionWithUpdatedCache, HttpPhase.phases)
 		}
-	}
-
-	/**
-	 * Extract extra info from both request and response.
-	 *
-	 * @param response is the response to extract data from; request is retrieved from the property
-	 * @return the extracted Strings
-	 */
-	private def extractExtraInfo(response: ExtendedResponse): List[String] = {
-
-		def extractExtraSourceInfo[T](extractor: Option[T => List[String]], source: T): List[String] = {
-
-			val extracted = try {
-				extractor.map(_(source))
-
-			} catch {
-				case e: Exception =>
-					warn("Encountered error while extracting extra request info", e)
-					None
-			}
-
-			extracted.getOrElse(Nil)
-		}
-
-		val extraRequestInfo = extractExtraSourceInfo(protocolConfiguration.extraRequestInfoExtractor, request)
-		val extraResponseInfo = extractExtraSourceInfo(protocolConfiguration.extraResponseInfoExtractor, response)
-		extraRequestInfo ::: extraResponseInfo
 	}
 }
