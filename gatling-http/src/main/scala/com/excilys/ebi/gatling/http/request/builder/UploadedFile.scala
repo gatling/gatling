@@ -34,9 +34,9 @@ class UploadedFile(paramKeyFunction: Expression[String], fileNameFunction: Expre
 			val path = GatlingFiles.requestBodiesDirectory / fileName
 			val file = path.jfile
 
-			assert(file.exists, "Uploaded file %s does not exist".format(path))
-			assert(file.isFile, "Uploaded file %s is not a real file".format(path))
-			assert(file.canRead, "Uploaded file %s can't be read".format(path))
+			require(file.exists, s"Uploaded file $path does not exist")
+			require(file.isFile, s"Uploaded file $path is not a real file")
+			require(file.canRead, s"Uploaded file $path can't be read")
 
 			new FilePart(paramKey, file, mimeType, charset)
 		}
