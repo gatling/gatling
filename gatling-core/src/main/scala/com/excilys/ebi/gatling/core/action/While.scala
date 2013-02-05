@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.core.action
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.core.session.handler.{ CounterBasedIterationHandler, TimerBasedIterationHandler }
 
-import akka.actor.ActorRef
+import akka.actor.{ Actor, ActorRef, Props }
 import scalaz.Success
 import scalaz.Scalaz.ToValidationV
 
@@ -30,20 +30,23 @@ import scalaz.Scalaz.ToValidationV
  * @param counterName the name of the counter for this loop
  * @param next the chain executed if testFunction evaluates to false
  */
-class While(condition: Expression[Boolean], val counterName: String, val next: ActorRef) extends Bypassable with TimerBasedIterationHandler {
+class While(condition: Expression[Boolean], counterName: String, next: ActorRef) extends Actor {
 
-	var loopNextAction: ActorRef = _
+	var innerWhile: ActorRef = _
 
 	def uninitialized: Receive = {
-		case actor: ActorRef =>
-			loopNextAction = actor
+		case loopNextAction: ActorRef =>
+			innerWhile = context.actorOf(Props(new InnerWhile(condition, loopNextAction, counterName, next)))
 			context.become(initialized)
 	}
 
-	def initialized: Receive = super.receive
+	def initialized: Receive = { case m => innerWhile forward m }
 
 	override def receive = uninitialized
+}
 
+class InnerWhile(condition: Expression[Boolean], loopNextAction: ActorRef, val counterName: String, val next: ActorRef) extends Bypassable with TimerBasedIterationHandler {
+	
 	/**
 	 * Evaluates the condition and if true executes the first action of loopNext
 	 * else it executes next
@@ -54,16 +57,7 @@ class While(condition: Expression[Boolean], val counterName: String, val next: A
 
 		val sessionWithTimerIncremented = increment(init(session))
 
-		// as WhileAction is not supervised, there's no one to restore its state (loopNextAction) on crash, so we try to avoid it
-		val evaluatedCondition =
-			try condition(sessionWithTimerIncremented)
-			catch {
-				case e: Exception =>
-					error("Loop condition evaluation crashed", e)
-					("Loop condition evaluation crashed: " + e.getMessage).failure
-			}
-
-		evaluatedCondition match {
+		condition(sessionWithTimerIncremented) match {
 			case Success(true) => loopNextAction ! sessionWithTimerIncremented
 			case _ => next ! expire(session)
 		}
