@@ -17,6 +17,7 @@ package com.excilys.ebi.gatling.http.request
 
 import java.io.{ File => JFile }
 
+import scala.reflect.io.Path
 import scala.reflect.io.Path.string2path
 
 import org.apache.commons.io.FileUtils
@@ -35,10 +36,17 @@ object HttpRequestBody {
 
 	val EL_FILE_CACHE = new collection.mutable.HashMap[String, Expression[String]]
 
+	private def template(filePath: String): Path = {
+		val file = GatlingFiles.requestBodiesDirectory / filePath
+		require(file.exists, s"Raw body file $file doesn't exist")
+		file
+	}
+
 	def compileELTemplateBody(filePath: String): StringBody = {
 
 		def compile() = {
-			val file = GatlingFiles.requestBodiesDirectory / filePath
+
+			val file = template(filePath)
 			val fileContent = FileUtils.readFileToString(file.jfile, GatlingConfiguration.configuration.simulation.encoding)
 			EL.compile[String](fileContent)
 		}
@@ -48,6 +56,8 @@ object HttpRequestBody {
 	}
 
 	def compileSspTemplateBody(filePath: String, params: Map[String, String]): SspTemplateBody = {
+
+		template(filePath)
 
 		val attributesExpression = (session: Session) => params
 			.map {
@@ -64,9 +74,8 @@ object HttpRequestBody {
 	}
 
 	def compileRawFileBody(filePath: String) = {
-		val file = (GatlingFiles.requestBodiesDirectory / filePath).jfile
-		require(file.exists, s"Raw body file $file doesn't exist")
-		new RawFileBody(file)
+		val file = template(filePath)
+		new RawFileBody(file.jfile)
 	}
 
 	val SSP_TEMPLATE_ENGINE = {
