@@ -15,46 +15,95 @@
  */
 package com.excilys.ebi.gatling.http.request
 
-import com.excilys.ebi.gatling.core.session.{ Session, Expression }
+import java.io.{ File => JFile }
 
-/**
- * Class used for polymorphism only
- */
-sealed abstract class HttpRequestBody
+import scala.reflect.io.Path.string2path
 
-/**
- * Wraps a body represented by a string
- *
- * @param string the string representing the body
- */
-case class StringBody(string: Expression[String]) extends HttpRequestBody
+import org.apache.commons.io.FileUtils
+import org.fusesource.scalate.{ Binding, TemplateEngine }
 
-/**
- * Wraps a body that is in a file
- *
- * @param filePath the path to the file containing the body
- */
-case class FilePathBody(filePath: String) extends HttpRequestBody
+import com.excilys.ebi.gatling.core.action.system
+import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
+import com.excilys.ebi.gatling.core.session.{ EL, Expression, Session }
+import com.excilys.ebi.gatling.core.util.FlattenableValidations
+import com.ning.http.client.RequestBuilder
 
-/**
- * Wraps a body that requires template compilation
- *
- * @param tplPath the path to the template
- * @param values the values that will be merged in the template
- */
-case class TemplateBody(tplPath: String, values: Map[String, Expression[String]]) extends HttpRequestBody
+import scalaz.Scalaz.ToValidationV
+import scalaz.Validation
 
-/**
- * Wraps a body that is a Byte Array
- *
- * @param byteArray the callback function that returns the Array[Byte] for the body
- */
-case class ByteArrayBody(byteArray: () => Array[Byte]) extends HttpRequestBody
+object HttpRequestBody {
 
-/**
- * Wraps a body that is a Byte Array generated from the Session
- *
- * @param byteArray the callback function that generates the Array[Byte] for the body from the Session
- */
-case class SessionByteArrayBody(byteArray: Session => Array[Byte]) extends HttpRequestBody
+	val EL_FILE_CACHE = new collection.mutable.HashMap[String, Expression[String]]
+
+	def compileELTemplateBody(filePath: String): StringBody = {
+
+		def compile() = {
+			val file = GatlingFiles.requestBodiesDirectory / filePath
+			val fileContent = FileUtils.readFileToString(file.jfile, GatlingConfiguration.configuration.simulation.encoding)
+			EL.compile[String](fileContent)
+		}
+
+		val expression = EL_FILE_CACHE.getOrElseUpdate(filePath, compile())
+		new StringBody(expression)
+	}
+
+	def compileSspTemplateBody(filePath: String, params: Map[String, String]): SspTemplateBody = {
+
+		val attributesExpression = (session: Session) => params
+			.map {
+				case (key, value) =>
+					val expression = EL.compile[String](value)
+					expression(session).map(key -> _)
+			}.toList
+			.flattenIt
+			.map(_.toMap)
+
+		val bindings = params.keySet.map(Binding(_, "String"))
+
+		new SspTemplateBody(filePath, attributesExpression, bindings)
+	}
+
+	def compileRawFileBody(filePath: String) = {
+		val file = (GatlingFiles.requestBodiesDirectory / filePath).jfile
+		require(file.exists, s"Raw body file $file doesn't exist")
+		new RawFileBody(file)
+	}
+
+	val SSP_TEMPLATE_ENGINE = {
+		val engine = new TemplateEngine(List(GatlingFiles.requestBodiesDirectory.jfile))
+		engine.allowReload = false
+		engine.escapeMarkup = false
+		system.registerOnTermination(engine.shutdown)
+		engine
+	}
+}
+
+sealed trait HttpRequestBody {
+
+	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[String, RequestBuilder]
+}
+class StringBody(expression: Expression[String]) extends HttpRequestBody {
+
+	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[String, RequestBuilder] =
+		expression(session).map(string => requestBuilder.setBody(string).setContentLength(string.length))
+}
+class RawFileBody(file: JFile) extends HttpRequestBody {
+
+	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[String, RequestBuilder] =
+		requestBuilder.setBody(file).setContentLength(file.length.toInt).success
+}
+class SspTemplateBody(tplPath: String, attributesExpression: Expression[Map[String, String]], bindings: Traversable[Binding]) extends HttpRequestBody {
+
+	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[String, RequestBuilder] =
+		attributesExpression(session)
+			.map(HttpRequestBody.SSP_TEMPLATE_ENGINE.layout(tplPath, _, bindings))
+			.map(string => requestBuilder.setBody(string).setContentLength(string.length))
+}
+class SessionByteArrayBody(byteArray: Session => Array[Byte]) extends HttpRequestBody {
+
+	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[String, RequestBuilder] = {
+		val bytes = byteArray(session)
+		requestBuilder.setBody(bytes).setContentLength(bytes.length).success
+	}
+}
 

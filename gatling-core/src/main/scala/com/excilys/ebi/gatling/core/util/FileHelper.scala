@@ -33,7 +33,6 @@ object FileHelper {
 	val CSV_EXTENSION = ".csv"
 	val SSV_EXTENSION = ".ssv"
 	val TSV_EXTENSION = ".tsv"
-	val SSP_EXTENSION = ".ssp"
 	val HTML_EXTENSION = ".html"
 
 	/**
