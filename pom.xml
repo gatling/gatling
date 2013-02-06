@@ -150,6 +150,7 @@
 		<maven-license-plugin.version>1.10.b1</maven-license-plugin.version>
 		<maven-plugin-plugin.version>2.9</maven-plugin-plugin.version>
 		<build-helper-maven-plugin.version>1.7</build-helper-maven-plugin.version>
+		<maven-enforcer-plugin.version>1.2</maven-enforcer-plugin.version>
 
 		<header.basedir>${project.basedir}</header.basedir>
 	</properties>
@@ -524,9 +525,31 @@
 					<artifactId>maven-plugin-plugin</artifactId>
 					<version>${maven-plugin-plugin.version}</version>
 				</plugin>
+				<plugin>
+					<artifactId>maven-enforcer-plugin</artifactId>
+					<version>${maven-enforcer-plugin.version}</version>
+					<executions>
+						<execution>
+							<id>enforce-versions</id>
+							<goals>
+								<goal>enforce</goal>
+							</goals>
+							<configuration>
+								<rules>
+									<requireJavaVersion>
+										<version>1.6</version>
+									</requireJavaVersion>
+								</rules>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 		<plugins>
+			<plugin>
+				<artifactId>maven-enforcer-plugin</artifactId>
+			</plugin>
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>
 			</plugin>
