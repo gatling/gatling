@@ -58,7 +58,7 @@ object Gatling extends Logging {
     val props = new GatlingPropertiesBuilder
 
     val cliOptsParser = new OptionParser("gatling") {
-      help(HELP,HELP_ALIAS,"Show help (this message) and exit")
+      help(HELP, HELP_ALIAS, "Show help (this message) and exit")
       opt(CLI_NO_REPORTS, CLI_NO_REPORTS_ALIAS, "Runs simulation but does not generate reports", { props.noReports })
       opt(CLI_REPORTS_ONLY, CLI_REPORTS_ONLY_ALIAS, "<directoryName>", "Generates the reports for the simulation in <directoryName>", { v: String => props.reportsOnly(v) })
       opt(CLI_DATA_FOLDER, CLI_DATA_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> as the absolute path of the directory where feeders are stored", { v: String => props.dataDirectory(v) })

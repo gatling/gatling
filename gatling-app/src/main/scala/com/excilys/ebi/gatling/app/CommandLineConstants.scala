@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.app
 object CommandLineConstants {
 
 	val HELP = "h"
-	val HELP_ALIAS="help"
+	val HELP_ALIAS = "help"
 	val CLI_NO_REPORTS = "nr"
 	val CLI_NO_REPORTS_ALIAS = "no-reports"
 	val CLI_REPORTS_ONLY = "ro"
