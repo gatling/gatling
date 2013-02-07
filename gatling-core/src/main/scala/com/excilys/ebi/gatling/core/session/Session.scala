@@ -58,7 +58,7 @@ class Session(val scenarioName: String, val userId: Int, attributes: Map[String,
 
 	def safeGetAs[T: ClassTag](key: String): Validation[String, T] = attributes.get(key).map(TypeHelper.as[T](_)).getOrElse(undefinedSessionAttributeMessage(key).failure[T])
 
-	def set(attributes: Map[String, Any]) = new Session(scenarioName, userId, attributes ++ attributes)
+	def set(attributes: Map[String, Any]) = new Session(scenarioName, userId, this.attributes ++ attributes)
 
 	def set(key: String, value: Any) = new Session(scenarioName, userId, attributes + (key -> value))
 
