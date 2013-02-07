@@ -55,7 +55,7 @@ object CompileTest extends Simulation {
 
   val testData = tsv("test-data.tsv")
 
-  val richTestData = testData.queue.map {
+  val richTestData = testData.queue.build.map {
     _.map {
       case (key @ "keyOfAMultivaluedColumn", value) => (key, value.split(","))
       case keyVal => keyVal

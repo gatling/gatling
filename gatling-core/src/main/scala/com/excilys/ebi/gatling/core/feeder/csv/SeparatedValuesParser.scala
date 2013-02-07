@@ -19,22 +19,25 @@ import scala.io.Source
 import scala.tools.nsc.io.Path
 
 import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
+import com.excilys.ebi.gatling.core.feeder.AdvancedFeederBuilder
 import com.excilys.ebi.gatling.core.util.FileHelper.{ COMMA_SEPARATOR, SEMICOLON_SEPARATOR, TABULATION_SEPARATOR }
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 
 object SeparatedValuesParser {
 
-	def csv(fileName: String, escapeChar: Option[String]): Array[Map[String, String]] = csv(GatlingFiles.dataDirectory / fileName, escapeChar)
-	def csv(file: Path, escapeChar: Option[String]): Array[Map[String, String]] = apply(file, COMMA_SEPARATOR, escapeChar)
+	def csv(fileName: String, escapeChar: Option[String]): AdvancedFeederBuilder[String] = csv(GatlingFiles.dataDirectory / fileName, escapeChar)
+	def csv(file: Path, escapeChar: Option[String]): AdvancedFeederBuilder[String] = new SeparatedValuesParser(file, COMMA_SEPARATOR, escapeChar)
 
-	def tsv(fileName: String, escapeChar: Option[String]): Array[Map[String, String]] = tsv(GatlingFiles.dataDirectory / fileName, escapeChar)
-	def tsv(file: Path, escapeChar: Option[String]): Array[Map[String, String]] = apply(file, TABULATION_SEPARATOR, escapeChar)
+	def tsv(fileName: String, escapeChar: Option[String]): AdvancedFeederBuilder[String] = tsv(GatlingFiles.dataDirectory / fileName, escapeChar)
+	def tsv(file: Path, escapeChar: Option[String]): AdvancedFeederBuilder[String] = new SeparatedValuesParser(file, TABULATION_SEPARATOR, escapeChar)
 
-	def ssv(fileName: String, escapeChar: Option[String]): Array[Map[String, String]] = ssv(GatlingFiles.dataDirectory / fileName, escapeChar)
-	def ssv(file: Path, escapeChar: Option[String]): Array[Map[String, String]] = apply(file, SEMICOLON_SEPARATOR, escapeChar)
+	def ssv(fileName: String, escapeChar: Option[String]): AdvancedFeederBuilder[String] = ssv(GatlingFiles.dataDirectory / fileName, escapeChar)
+	def ssv(file: Path, escapeChar: Option[String]): AdvancedFeederBuilder[String] = new SeparatedValuesParser(file, SEMICOLON_SEPARATOR, escapeChar)
+}
 
-	def apply(file: Path, separator: String, escapeChar: Option[String]): Array[Map[String, String]] = {
+class SeparatedValuesParser(file: Path, separator: String, escapeChar: Option[String]) extends AdvancedFeederBuilder[String] {
 
+	lazy val data = {
 		require(file.exists, s"file $file doesn't exists")
 
 		use(Source.fromFile(file.jfile, GatlingConfiguration.configuration.simulation.encoding)) { source =>
