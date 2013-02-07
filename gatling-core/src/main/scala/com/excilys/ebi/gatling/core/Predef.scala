@@ -57,6 +57,8 @@ object Predef {
 	def tsv(file: File) = SeparatedValuesParser.tsv(file, None)
 	def tsv(file: File, escapeChar: String) = SeparatedValuesParser.tsv(file, Some(escapeChar))
 
+	implicit def separatedValueParser2Feeder(spv: SeparatedValuesParser): Feeder[Any] = data2FeederBuiltIns(spv.build).queue
+	implicit def separatedValueParser2FeederBuiltIns(spv: SeparatedValuesParser) = data2FeederBuiltIns(spv.build)
 	implicit def data2Feeder[T](data: Array[Map[String, T]]): Feeder[T] = data2FeederBuiltIns(data).queue
 	implicit def data2FeederBuiltIns[T](data: Array[Map[String, T]]) = new FeederBuiltIns(data)
 
@@ -72,4 +74,10 @@ object Predef {
 	val assertions = new AssertionBuilder
 
 	implicit def string2path(string: String) = Path.string2path(string)
+
+	val toInt = (x: String) => x.toInt
+	val toLong = (x: String) => x.toInt
+	val toFloat = (x: String) => x.toFloat
+	val toDouble = (x: String) => x.toDouble
+	val toBoolean = (x: String) => x.toBoolean
 }
