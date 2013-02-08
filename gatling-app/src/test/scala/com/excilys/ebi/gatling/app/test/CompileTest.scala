@@ -55,12 +55,7 @@ object CompileTest extends Simulation {
 
   val testData = tsv("test-data.tsv")
 
-  val richTestData = testData.queue.build.map {
-    _.map {
-      case (key @ "keyOfAMultivaluedColumn", value) => (key, value.split(","))
-      case keyVal => keyVal
-    }
-  }
+  val richTestData = testData.convert("keyOfAMultivaluedColumn" -> (_.split(",")))
 
   val testData2 = jdbcFeeder("jdbc:postgresql:gatling", "gatling", "gatling", """
 select login as "username", password
