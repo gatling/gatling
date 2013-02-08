@@ -24,22 +24,16 @@ import com.excilys.ebi.gatling.core.util.IOHelper.use
 
 object SeparatedValuesParser {
 
-	def apply(file: Path, separator: String, escapeChar: Option[String]) = new SeparatedValuesParser(file,separator,escapeChar,None)
+	def csv(fileName: String, escapeChar: Option[String]): Array[Map[String, String]] = csv(GatlingFiles.dataDirectory / fileName, escapeChar)
+	def csv(file: Path, escapeChar: Option[String]): Array[Map[String, String]] = apply(file, COMMA_SEPARATOR, escapeChar)
 
-	def csv(fileName: String, escapeChar: Option[String]):SeparatedValuesParser = csv(GatlingFiles.dataDirectory / fileName, escapeChar)
-	def csv(file: Path, escapeChar: Option[String]):SeparatedValuesParser = SeparatedValuesParser(file, COMMA_SEPARATOR, escapeChar)
+	def tsv(fileName: String, escapeChar: Option[String]): Array[Map[String, String]] = tsv(GatlingFiles.dataDirectory / fileName, escapeChar)
+	def tsv(file: Path, escapeChar: Option[String]): Array[Map[String, String]] = apply(file, TABULATION_SEPARATOR, escapeChar)
 
-	def tsv(fileName: String, escapeChar: Option[String]):SeparatedValuesParser = tsv(GatlingFiles.dataDirectory / fileName, escapeChar)
-	def tsv(file: Path, escapeChar: Option[String]):SeparatedValuesParser  = SeparatedValuesParser(file, TABULATION_SEPARATOR, escapeChar)
+	def ssv(fileName: String, escapeChar: Option[String]): Array[Map[String, String]] = ssv(GatlingFiles.dataDirectory / fileName, escapeChar)
+	def ssv(file: Path, escapeChar: Option[String]): Array[Map[String, String]] = apply(file, SEMICOLON_SEPARATOR, escapeChar)
 
-	def ssv(fileName: String, escapeChar: Option[String]):SeparatedValuesParser = ssv(GatlingFiles.dataDirectory / fileName, escapeChar)
-	def ssv(file: Path, escapeChar: Option[String]):SeparatedValuesParser = SeparatedValuesParser(file, SEMICOLON_SEPARATOR, escapeChar)
-
-}
-
-class SeparatedValuesParser(file: Path, separator: String, escapeChar: Option[String],conversions : Option[Seq[(String,String => Any)]]) {
-
-	def build: Array[Map[String,Any]] = {
+	def apply(file: Path, separator: String, escapeChar: Option[String]): Array[Map[String, String]] = {
 
 		require(file.exists, s"file $file doesn't exists")
 
@@ -51,15 +45,9 @@ class SeparatedValuesParser(file: Path, separator: String, escapeChar: Option[St
 				rawLines.map(_.map(_.stripPrefix(escape).stripSuffix(escape)))
 			}.getOrElse(rawLines).toArray
 
-			def convert(column: String,content: String) = {
-				val conversion = conversions.flatMap(_.find(column == _._1).map(_._2)).getOrElse(identity[String] _)
-				conversion(content)
-			}
-
 			val headers = lines.head
-			lines.tail.map(line => (headers zip line).map{ case (key,value) => (key,convert(key,value))}.toMap)
+
+			lines.tail.map(line => (headers zip line).toMap)
 		}
 	}
-
-	def convert(conversions: (String,String => Any)*) = new SeparatedValuesParser(file,separator,escapeChar,Some(conversions))
 }

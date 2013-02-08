@@ -20,6 +20,7 @@ import scala.tools.nsc.io.{ File, Path }
 
 import com.excilys.ebi.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
 import com.excilys.ebi.gatling.core.feeder.FeederBuiltIns
+import com.excilys.ebi.gatling.core.feeder.FeederConverter
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesParser
 import com.excilys.ebi.gatling.core.session.EL
 import com.excilys.ebi.gatling.core.structure.{ AssertionBuilder, ChainBuilder, ScenarioBuilder }
@@ -57,10 +58,9 @@ object Predef {
 	def tsv(file: File) = SeparatedValuesParser.tsv(file, None)
 	def tsv(file: File, escapeChar: String) = SeparatedValuesParser.tsv(file, Some(escapeChar))
 
-	implicit def separatedValueParser2Feeder(spv: SeparatedValuesParser): Feeder[Any] = data2FeederBuiltIns(spv.build).queue
-	implicit def separatedValueParser2FeederBuiltIns(spv: SeparatedValuesParser) = data2FeederBuiltIns(spv.build)
 	implicit def data2Feeder[T](data: Array[Map[String, T]]): Feeder[T] = data2FeederBuiltIns(data).queue
 	implicit def data2FeederBuiltIns[T](data: Array[Map[String, T]]) = new FeederBuiltIns(data)
+	implicit def feeder2FeederConverter(data: Array[Map[String,String]]) = new FeederConverter(data)
 
 	type Session = com.excilys.ebi.gatling.core.session.Session
 	type Simulation = com.excilys.ebi.gatling.core.scenario.configuration.Simulation

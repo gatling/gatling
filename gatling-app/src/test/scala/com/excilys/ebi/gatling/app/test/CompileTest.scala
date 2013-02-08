@@ -57,7 +57,7 @@ object CompileTest extends Simulation {
 
   val richTestData = testData.queue.map {
     _.map {
-      case (key @ "keyOfAMultivaluedColumn", value) => (key, value.toString.split(","))
+      case (key @ "keyOfAMultivaluedColumn", value) => (key, value.split(","))
       case keyVal => keyVal
     }
   }
