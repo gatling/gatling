@@ -13,28 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.feeder
+package com.excilys.ebi.gatling.core.action
 
-import java.util.concurrent.ConcurrentLinkedQueue
+import akka.actor.ActorRef
+import com.excilys.ebi.gatling.core.session.Session
 
-import scala.collection.JavaConversions.{ asScalaIterator, seqAsJavaList }
-import scala.concurrent.forkjoin.ThreadLocalRandom
-
-import com.excilys.ebi.gatling.core.util.RoundRobin
-
-class FeederBuiltIns[T](data: Array[Map[String, T]]) {
-
-	def queue: Feeder[T] = data.iterator
-
-	def concurrentQueue: Feeder[T] = new ConcurrentLinkedQueue(data.toList).iterator
-
-	def random: Feeder[T] = {
-
-		new Feeder[T] {
-			def hasNext = !data.isEmpty
-			def next = data(ThreadLocalRandom.current.nextInt(data.size))
-		}
+class Feed(singleton: ActorRef, next: ActorRef) extends Action {
+	/**
+	 * Core method executed when the Action received a Session message
+	 *
+	 * @param session the session of the virtual user
+	 * @return Nothing
+	 */
+	def execute(session: Session) {
+		singleton ! FeedMessage(session, next)
 	}
-
-	def circular: Feeder[T] = RoundRobin(data)
 }

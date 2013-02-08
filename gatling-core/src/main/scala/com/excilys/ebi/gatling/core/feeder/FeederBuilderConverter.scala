@@ -13,24 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.structure
+package com.excilys.ebi.gatling.core.feeder
 
-import com.excilys.ebi.gatling.core.action.builder.FeedBuilder
-import com.excilys.ebi.gatling.core.feeder.FeederBuilder
-import com.excilys.ebi.gatling.core.session.{ EL, Expression }
+class FeederBuilderConverter[T](feederBuilder: AdvancedFeederBuilder[T], conversions: Seq[(String, T => Any)]) extends AdvancedFeederBuilder[Any] {
 
-trait Feeds[B] extends Execs[B] {
+	override val strategy = feederBuilder.strategy
 
-	/**
-	 * Method used to load data from a feeder in the current scenario
-	 *
-	 * @param feeder the feeder from which the values will be loaded
-	 * @param number the number of records to be polled (default 1)
-	 */
-	def feed(feeder: FeederBuilder[_], number: Expression[Int] = EL.wrap(1)): B = {
+	lazy val data = {
+		def convertColumn(column: String, content: T) = {
+			val conversion = conversions.find(column == _._1).map(_._2).getOrElse(identity[T] _)
+			conversion(content)
+		}
 
-		val builder = FeedBuilder(feeder, number)
-
-		newInstance(builder :: actionBuilders)
+		feederBuilder.data.map(_.map{ case (key,value) => (key,convertColumn(key,value))})
 	}
 }

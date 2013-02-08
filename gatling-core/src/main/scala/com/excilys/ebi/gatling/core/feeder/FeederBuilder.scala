@@ -15,14 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.feeder
 
-class FeederConverter(feeder: Array[Map[String, String]]) {
-
-	def convert(conversions: (String, String => Any)*) : Array[Map[String,Any]] = {
-		def convertColumn(column: String, content: String) = {
-			val conversion = conversions.find(column == _._1).map(_._2).getOrElse(identity[String] _)
-			conversion(content)
-		}
-
-		feeder.map(_.map{ case (key,value) => (key,convertColumn(key,value))})
-	}
+trait FeederBuilder[T] {
+	private[gatling] def build: Feeder[T]
 }
+
+case class FeederBuilderFromFeeder[T](build: Feeder[T]) extends FeederBuilder[T]
