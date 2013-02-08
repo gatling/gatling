@@ -138,7 +138,7 @@
 		<redis.version>2.9</redis.version>
 		<junit.version>4.11</junit.version>
 		<specs2.version>1.13</specs2.version>
-		<zinc.version>0.3.0.20130104</zinc.version>
+		<zinc.version>0.3.0.20130208</zinc.version>
 		<plexus-selector.version>1.0.0</plexus-selector.version>
 		<maven2.version>2.2.1</maven2.version>
 		<maven-compiler-plugin.version>3.0</maven-compiler-plugin.version>
