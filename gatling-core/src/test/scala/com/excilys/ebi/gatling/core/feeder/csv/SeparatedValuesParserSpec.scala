@@ -32,13 +32,13 @@ class SeparatedValuesParserSpec extends Specification {
 	"tsv" should {
 
 		"handle file without escape char" in {
-			val data = tsv(File("src/test/resources/sample1.tsv"))
+			val data = tsv(File("src/test/resources/sample1.tsv")).build.toArray
 
 			data must beEqualTo(Array(Map("foo" -> "hello", "bar" -> "world")))
 		}
 
 		"handle file with escape char" in {
-			val data = tsv(File("src/test/resources/sample2.tsv"), "'")
+			val data = tsv(File("src/test/resources/sample2.tsv"), "'").build.toArray
 
 			data must beEqualTo(Array(Map("foo" -> "hello", "bar" -> "world")))
 		}
