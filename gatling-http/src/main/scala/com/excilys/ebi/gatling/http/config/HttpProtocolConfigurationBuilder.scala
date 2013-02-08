@@ -125,12 +125,12 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 			GetHttpRequestBuilder(expression, expression)
 				.header("bar", "baz")
 				.queryParam(expression, expression)
-				.build(new Session("scenarioName", 0), config)
+				.build(Session("scenarioName", 0), config)
 
 			PostHttpRequestBuilder(expression, expression)
 				.header("bar", "baz")
 				.param(expression, expression)
-				.build(new Session("scenarioName", 0), config)
+				.build(Session("scenarioName", 0), config)
 		}
 
 		doWarmUp()

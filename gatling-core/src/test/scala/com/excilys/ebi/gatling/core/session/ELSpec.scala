@@ -27,31 +27,31 @@ class ELSpec extends Specification {
 	"One monovalued Expression" should {
 
 		"return expected result when the variable is the whole string" in {
-			val session = new Session("scenario", 1, Map("bar" -> "BAR"))
+			val session = Session("scenario", 1, Map("bar" -> "BAR"))
 			val expression = EL.compile[String]("${bar}")
 			expression(session) must beEqualTo(Success("BAR"))
 		}
 
 		"return expected result when the variable is at the end of the string" in {
-			val session = new Session("scenario", 1, Map("bar" -> "BAR"))
+			val session = Session("scenario", 1, Map("bar" -> "BAR"))
 			val expression = EL.compile[String]("foo${bar}")
 			expression(session) must beEqualTo(Success("fooBAR"))
 		}
 
 		"return expected result when the variable is at the beginning of the string" in {
-			val session = new Session("scenario", 1, Map("bar" -> "BAR"))
+			val session = Session("scenario", 1, Map("bar" -> "BAR"))
 			val expression = EL.compile[String]("${bar}baz")
 			expression(session) must beEqualTo(Success("BARbaz"))
 		}
 
 		"return expected result when the variable is in the middle of the string" in {
-			val session = new Session("scenario", 1, Map("bar" -> "BAR"))
+			val session = Session("scenario", 1, Map("bar" -> "BAR"))
 			val expression = EL.compile[String]("foo${bar}baz")
 			expression(session) must beEqualTo(Success("fooBARbaz"))
 		}
 
 		"handle gracefully when an attribute is missing" in {
-			val session = new Session("scenario", 1, Map("foo" -> "FOO"))
+			val session = Session("scenario", 1, Map("foo" -> "FOO"))
 			val expression = EL.compile[String]("foo${bar}")
 			expression(session) must beEqualTo(Failure(undefinedSessionAttributeMessage("bar")))
 		}
@@ -60,13 +60,13 @@ class ELSpec extends Specification {
 	"Multivalued Expression" should {
 
 		"return expected result with 2 monovalued expressions" in {
-			val session = new Session("scenario", 1, Map("foo" -> "FOO", "bar" -> "BAR"))
+			val session = Session("scenario", 1, Map("foo" -> "FOO", "bar" -> "BAR"))
 			val expression = EL.compile[String]("${foo} ${bar}")
 			expression(session) must beEqualTo(Success("FOO BAR"))
 		}
 
 		"return expected result when used with a static index" in {
-			val session = new Session("scenario", 1, Map("bar" -> List("BAR1", "BAR2")))
+			val session = Session("scenario", 1, Map("bar" -> List("BAR1", "BAR2")))
 			val expression = EL.compile[String]("foo${bar(1)}")
 			expression(session) must beEqualTo(Success("fooBAR2"))
 		}
@@ -74,31 +74,31 @@ class ELSpec extends Specification {
 
 	"'index' function in Expression" should {
 		"return expected result when used with resolved index" in {
-			val session = new Session("scenario", 1, Map("bar" -> List("BAR1", "BAR2"), "baz" -> 1))
+			val session = Session("scenario", 1, Map("bar" -> List("BAR1", "BAR2"), "baz" -> 1))
 			val expression = EL.compile[String]("{foo${bar(baz)}}")
 			expression(session) must beEqualTo(Success("{fooBAR2}"))
 		}
 
 		"handle gracefully when used with static index and missing attribute" in {
-			val session = new Session("scenario", 1, Map.empty)
+			val session = Session("scenario", 1, Map.empty)
 			val expression = EL.compile[String]("foo${bar(1)}")
 			expression(session) must beEqualTo(Failure(undefinedSessionAttributeMessage("bar")))
 		}
 
 		"handle gracefully when used with static index and empty attribute" in {
-			val session = new Session("scenario", 1, Map("bar" -> Nil))
+			val session = Session("scenario", 1, Map("bar" -> Nil))
 			val expression = EL.compile[String]("foo${bar(1)}")
 			expression(session) must beEqualTo(Failure(undefinedSeqIndexMessage("bar", 1)))
 		}
 
 		"handle gracefully when used with static index and missing index" in {
-			val session = new Session("scenario", 1, Map("bar" -> List("BAR1")))
+			val session = Session("scenario", 1, Map("bar" -> List("BAR1")))
 			val expression = EL.compile[String]("foo${bar(1)}")
 			expression(session) must beEqualTo(Failure(undefinedSeqIndexMessage("bar", 1)))
 		}
 
 		"handle gracefully when used with missing resolved index attribute" in {
-			val session = new Session("scenario", 1, Map("bar" -> List("BAR1", "BAR2")))
+			val session = Session("scenario", 1, Map("bar" -> List("BAR1", "BAR2")))
 			val expression = EL.compile[String]("{foo${bar(baz)}}")
 			expression(session) must beEqualTo(Failure(undefinedSessionAttributeMessage("baz")))
 		}
@@ -107,19 +107,19 @@ class ELSpec extends Specification {
 	"'size' function in Expression" should {
 
 		"return correct size for non empty seq" in {
-			val session = new Session("scenario", 1, Map("bar" -> List("BAR1", "BAR2")))
+			val session = Session("scenario", 1, Map("bar" -> List("BAR1", "BAR2")))
 			val expression = EL.compile[Int]("${bar.size}")
 			expression(session) must beEqualTo(Success(2))
 		}
 
 		"return correct size for empty seq" in {
-			val session = new Session("scenario", 1, Map("bar" -> List()))
+			val session = Session("scenario", 1, Map("bar" -> List()))
 			val expression = EL.compile[Int]("${bar.size}")
 			expression(session) must beEqualTo(Success(0))
 		}
 
 		"return 0 size for missing attribute" in {
-			val session = new Session("scenario", 1, Map())
+			val session = Session("scenario", 1)
 			val expression = EL.compile[Int]("${bar.size}")
 			expression(session) must beEqualTo(Failure(undefinedSessionAttributeMessage("bar")))
 		}

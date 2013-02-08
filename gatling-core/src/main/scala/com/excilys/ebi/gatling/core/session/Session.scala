@@ -48,7 +48,7 @@ object Session extends Logging {
  * @param userId the id of the current user
  * @param data the map that stores all values needed
  */
-class Session(val scenarioName: String, val userId: Int, attributes: Map[String, Any] = Map.empty) {
+case class Session(scenarioName: String, userId: Int, attributes: Map[String, Any] = Map.empty) {
 
 	def apply(name: String) = attributes(name)
 
@@ -58,11 +58,11 @@ class Session(val scenarioName: String, val userId: Int, attributes: Map[String,
 
 	def safeGetAs[T: ClassTag](key: String): Validation[String, T] = attributes.get(key).map(TypeHelper.as[T](_)).getOrElse(undefinedSessionAttributeMessage(key).failure[T])
 
-	def set(attributes: Map[String, Any]) = new Session(scenarioName, userId, this.attributes ++ attributes)
+	def set(newAttributes: Map[String, Any]) = copy(attributes = attributes ++ newAttributes)
 
-	def set(key: String, value: Any) = new Session(scenarioName, userId, attributes + (key -> value))
+	def set(key: String, value: Any) = copy(attributes = attributes + (key -> value))
 
-	def remove(key: String) = if (contains(key)) new Session(scenarioName, userId, attributes - key) else this
+	def remove(key: String) = if (contains(key)) copy(attributes = attributes - key) else this
 
 	def contains(attributeKey: String) = attributes.contains(attributeKey)
 
@@ -85,6 +85,4 @@ class Session(val scenarioName: String, val userId: Int, attributes: Map[String,
 	private[gatling] def increaseTimeShift(time: Long): Session = setTimeShift(time + getTimeShift)
 
 	private[gatling] def getTimeShift: Long = getAs[Long](Session.TIME_SHIFT_KEY).getOrElse(0L)
-
-	override def toString = "scenarioName='" + scenarioName + "' userId='" + userId + "' data='" + attributes + "'"
 }
