@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.charts.result.reader.buffers
 
 import scala.collection.mutable
 
-import com.excilys.ebi.gatling.charts.result.reader.{ ScenarioRecord, ActionRecord }
+import com.excilys.ebi.gatling.charts.result.reader.{ ActionRecord, ScenarioRecord }
 import com.excilys.ebi.gatling.core.result.Group
 
 trait NamesBuffers {

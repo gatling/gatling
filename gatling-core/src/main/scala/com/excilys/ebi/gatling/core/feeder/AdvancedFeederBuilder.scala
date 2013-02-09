@@ -21,7 +21,7 @@ import com.excilys.ebi.gatling.core.util.RoundRobin
 
 trait AdvancedFeederBuilder[T] extends FeederBuilder[T] {
 
-	private[core] def data: Array[Map[String, T]]
+	private[core] def data: Array[Record[T]]
 	private[core] def strategy: Strategy = Queue
 
 	def convert(conversions: (String, T => Any)*): AdvancedFeederBuilder[Any] = new FeederBuilderConverter(this, conversions)
@@ -40,7 +40,7 @@ trait AdvancedFeederBuilder[T] extends FeederBuilder[T] {
 	def circular: AdvancedFeederBuilder[T] = FeederBuilderWithStrategy(this, Circular)
 }
 
-case class FeederBuilderFromArray[T](data: Array[Map[String, T]]) extends AdvancedFeederBuilder[T]
+case class FeederBuilderFromArray[T](data: Array[Record[T]]) extends AdvancedFeederBuilder[T]
 
 case class FeederBuilderWithStrategy[T](feederBuilder: AdvancedFeederBuilder[T], override val strategy: Strategy) extends AdvancedFeederBuilder[T] {
 	def data = feederBuilder.data

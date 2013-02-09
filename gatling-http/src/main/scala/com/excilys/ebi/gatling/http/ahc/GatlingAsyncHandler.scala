@@ -19,7 +19,6 @@ import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpPhase.{ BodyPartReceived, CompletePageReceived }
 import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, ProgressAsyncHandler }
-import com.ning.http.client.AsyncHandler
 import com.ning.http.client.AsyncHandler.STATE.CONTINUE
 
 import akka.actor.ActorRef
@@ -43,7 +42,7 @@ object GatlingAsyncHandler {
  * @param actor the actor that will perform the logic outside of the IO thread
  * @param useBodyParts id body parts should be sent to the actor
  */
-class GatlingAsyncHandler(requestName: String, actor: ActorRef, useBodyParts: Boolean) extends AsyncHandler[Unit] with ProgressAsyncHandler[Unit] with Logging {
+class GatlingAsyncHandler(requestName: String, actor: ActorRef, useBodyParts: Boolean) extends ProgressAsyncHandler[Unit] with Logging {
 
 	def onHeaderWriteCompleted = {
 		actor ! new OnHeaderWriteCompleted

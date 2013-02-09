@@ -24,7 +24,7 @@ object ProtocolConfigurationRegistry {
 			.groupBy(_.getClass)
 			.map {
 				case (protocolType, configs) =>
-					if (configs.length > 1) throw new ExceptionInInitializerError("Multiple configurations defined for propocol " + protocolType.getName)
+					if (configs.length > 1) throw new ExceptionInInitializerError(s"Multiple configurations defined for propocol ${protocolType.getName}")
 					(protocolType -> configs.head)
 			}.toMap
 

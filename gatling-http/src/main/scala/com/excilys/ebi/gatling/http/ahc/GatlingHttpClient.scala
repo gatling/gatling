@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.http.ahc
 
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.ning.http.client.{ AsyncHandler, AsyncHttpClient, AsyncHttpClientConfig, ListenableFuture, Request, Response }
+import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig }
 
 import grizzled.slf4j.Logging
 

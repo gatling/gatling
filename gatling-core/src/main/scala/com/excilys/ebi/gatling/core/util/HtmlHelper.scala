@@ -23,7 +23,7 @@ object HtmlHelper {
 
 	val ENTITIES = ResourceBundle.getBundle("html-entities")
 
-	val CHAR_TO_HTML_ENTITIES: Map[Char, String] = ENTITIES.getKeys.map { entityName => (ENTITIES.getString(entityName).toInt.toChar, "&" + entityName + ";") }.toMap
+	val CHAR_TO_HTML_ENTITIES: Map[Char, String] = ENTITIES.getKeys.map { entityName => (ENTITIES.getString(entityName).toInt.toChar, s"&$entityName;") }.toMap
 
 	val HTML_ENTITIES_TO_CHAR: Map[String, Char] = CHAR_TO_HTML_ENTITIES.map(_.swap)
 

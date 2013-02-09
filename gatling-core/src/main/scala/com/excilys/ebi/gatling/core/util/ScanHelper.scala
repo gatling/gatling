@@ -16,10 +16,10 @@
 package com.excilys.ebi.gatling.core.util
 
 import java.io.{ File => JFile }
-import java.net.{ URI, JarURLConnection }
+import java.net.{ JarURLConnection, URI }
 
 import scala.collection.JavaConversions.enumerationAsScalaIterator
-import scala.tools.nsc.io.{ Path, Jar, Fileish, File }
+import scala.tools.nsc.io.{ File, Fileish, Jar, Path }
 import scala.tools.nsc.io.Path.{ string2path, jfile2path }
 
 import org.apache.commons.io.IOUtils

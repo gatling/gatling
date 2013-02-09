@@ -46,8 +46,8 @@ object GatlingFiles {
 		val dir = resultDirectory(runUuid)
 		if (create) dir.createDirectory()
 		else {
-			require(dir.exists, "simulation directory '" + dir.toAbsolute + "' doesn't exist")
-			require(dir.isDirectory, "simulation directory '" + dir.toAbsolute + "' is not a directory")
+			require(dir.exists, s"simulation directory '${dir.toAbsolute}' doesn't exist")
+			require(dir.isDirectory, s"simulation directory '${dir.toAbsolute}' is not a directory")
 
 			dir.toDirectory
 		}

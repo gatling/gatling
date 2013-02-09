@@ -15,21 +15,11 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import scala.tools.nsc.io.Path.string2path
-
-import org.apache.commons.io.FileUtils
-import org.fusesource.scalate.{ Binding, TemplateEngine }
-
-import com.excilys.ebi.gatling.core.action.system
-import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
-import com.excilys.ebi.gatling.core.session.{ EL, Expression, Session }
-import com.excilys.ebi.gatling.core.util.FlattenableValidations
-import com.excilys.ebi.gatling.http.Headers.Names.CONTENT_LENGTH
+import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.ning.http.client.RequestBuilder
 
-import scalaz.Scalaz.ToValidationV
 import scalaz.Validation
 
 /**

@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.http.check.bodypart
 
 import com.excilys.ebi.gatling.core.check.Matcher
-import com.excilys.ebi.gatling.core.session.{ NOOP_EXPRESSION, Session }
+import com.excilys.ebi.gatling.core.session.NOOP_EXPRESSION
 import com.excilys.ebi.gatling.http.request.HttpPhase.BodyPartReceived
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 import com.excilys.ebi.gatling.http.check.HttpCheck

@@ -17,8 +17,6 @@ package com.excilys.ebi.gatling.core.action
 
 import com.excilys.ebi.gatling.core.session.Session
 
-import akka.actor.ActorRef
-
 /**
  * Top level abstraction in charge or executing concrete actions along a scenario, for example sending an HTTP request.
  * It is implemented as an Akka Actor that receives Session messages.

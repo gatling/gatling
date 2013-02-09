@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.result.terminator.Terminator
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 
-import akka.actor.{ ActorRef, Props }
+import akka.actor.Props
 
 object UserEnd {
 

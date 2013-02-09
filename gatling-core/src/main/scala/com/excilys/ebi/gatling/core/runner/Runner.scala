@@ -35,14 +35,14 @@ class Runner(selection: Selection) extends Logging {
 
 		try {
 			val simulationClass = selection.simulationClass
-			println("Simulation " + simulationClass.getName + " started...")
+			println(s"Simulation ${simulationClass.getName} started...")
 
 			val runRecord = RunRecord(now, selection.simulationId, selection.description)
 
 			val simulation = simulationClass.newInstance
 			val scenarios = simulation.scenarios
 
-			require(!scenarios.isEmpty, simulationClass.getName + " returned an empty scenario list. Did you forget to migrate your Simulations?")
+			require(!scenarios.isEmpty, s"${simulationClass.getName} returned an empty scenario list. Did you forget to migrate your Simulations?")
 			val scenarioNames = scenarios.map(_.name)
 			require(scenarioNames.toSet.size == scenarioNames.size, s"Scenario names must be unique but found $scenarioNames")
 

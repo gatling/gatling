@@ -16,7 +16,6 @@
 package com.excilys.ebi.gatling.http.check.header
 
 import java.net.URLDecoder
-import java.util.Collections.emptyList
 
 import scala.collection.JavaConversions.asScalaBuffer
 
