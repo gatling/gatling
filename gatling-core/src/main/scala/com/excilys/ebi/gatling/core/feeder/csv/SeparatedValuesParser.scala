@@ -25,19 +25,19 @@ import com.excilys.ebi.gatling.core.util.IOHelper.use
 
 object SeparatedValuesParser {
 
-	def csv(fileName: String, escapeChar: Option[String]): AdvancedFeederBuilder[String] = csv(GatlingFiles.dataDirectory / fileName, escapeChar)
-	def csv(file: Path, escapeChar: Option[String]): AdvancedFeederBuilder[String] = new SeparatedValuesParser(file, COMMA_SEPARATOR, escapeChar)
+	def csv(fileName: String, escapeChar: Option[String]): SeparatedValuesParser = csv(GatlingFiles.dataDirectory / fileName, escapeChar)
+	def csv(file: Path, escapeChar: Option[String]) = new SeparatedValuesParser(file, COMMA_SEPARATOR, escapeChar)
 
-	def tsv(fileName: String, escapeChar: Option[String]): AdvancedFeederBuilder[String] = tsv(GatlingFiles.dataDirectory / fileName, escapeChar)
-	def tsv(file: Path, escapeChar: Option[String]): AdvancedFeederBuilder[String] = new SeparatedValuesParser(file, TABULATION_SEPARATOR, escapeChar)
+	def tsv(fileName: String, escapeChar: Option[String]): SeparatedValuesParser = tsv(GatlingFiles.dataDirectory / fileName, escapeChar)
+	def tsv(file: Path, escapeChar: Option[String]) = new SeparatedValuesParser(file, TABULATION_SEPARATOR, escapeChar)
 
-	def ssv(fileName: String, escapeChar: Option[String]): AdvancedFeederBuilder[String] = ssv(GatlingFiles.dataDirectory / fileName, escapeChar)
-	def ssv(file: Path, escapeChar: Option[String]): AdvancedFeederBuilder[String] = new SeparatedValuesParser(file, SEMICOLON_SEPARATOR, escapeChar)
+	def ssv(fileName: String, escapeChar: Option[String]): SeparatedValuesParser = ssv(GatlingFiles.dataDirectory / fileName, escapeChar)
+	def ssv(file: Path, escapeChar: Option[String]) = new SeparatedValuesParser(file, SEMICOLON_SEPARATOR, escapeChar)
 }
 
 class SeparatedValuesParser(file: Path, separator: String, escapeChar: Option[String]) extends AdvancedFeederBuilder[String] {
 
-	lazy val data = {
+	val data = {
 		require(file.exists, s"file $file doesn't exists")
 
 		use(Source.fromFile(file.jfile, GatlingConfiguration.configuration.simulation.encoding)) { source =>

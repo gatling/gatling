@@ -67,14 +67,14 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 *
 	 * @param filePath the path of the file relative to directory containing the templates
 	 */
-	def rawFileBody(filePath: String): B = newInstance(httpAttributes, Some(HttpRequestBody.compileRawFileBody(filePath)))
+	def rawFileBody(filePath: Expression[String]): B = newInstance(httpAttributes, Some(HttpRequestBody.compileRawFileBody(filePath)))
 
 	/**
 	 * Adds a body from a file to the request
 	 *
 	 * @param filePath the path of the file relative to directory containing the templates
 	 */
-	def fileBody(filePath: String): B = newInstance(httpAttributes, Some(HttpRequestBody.compileELTemplateBody(filePath)))
+	def fileBody(filePath: Expression[String]): B = newInstance(httpAttributes, Some(HttpRequestBody.compileELTemplateBody(filePath)))
 
 	/**
 	 * Adds a body from a template that has to be compiled
@@ -82,7 +82,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 * @param tplPath the path to the template relative to GATLING_TEMPLATES_FOLDER
 	 * @param values the values that should be merged into the template
 	 */
-	def sspBody(filePath: String, values: Map[String, String]): B = newInstance(httpAttributes, Some(HttpRequestBody.compileSspTemplateBody(filePath, values)))
+	def sspBody(filePath: Expression[String], values: Map[String, String]): B = newInstance(httpAttributes, Some(HttpRequestBody.compileSspTemplateBody(filePath, values)))
 
 	/**
 	 * Adds a body from a byteArray Session function to the request
