@@ -26,7 +26,7 @@ import com.excilys.ebi.gatling.core.session.{ EL, Expression, Session }
 import com.excilys.ebi.gatling.core.util.FlattenableValidations
 import com.excilys.ebi.gatling.http.Headers.Names.CONTENT_LENGTH
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
-import com.excilys.ebi.gatling.http.request.{ HttpRequestBody, SessionByteArrayBody, StringBody }
+import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.ning.http.client.RequestBuilder
 
 import scalaz.Scalaz.ToValidationV
@@ -60,21 +60,21 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 *
 	 * @param body a string containing the body of the request
 	 */
-	def body(body: Expression[String]): B = newInstance(httpAttributes, Some(new StringBody(body)))
+	def body(body: Expression[String]): B = newInstance(httpAttributes, Some(HttpRequestBody.stringBody(body)))
 
 	/**
 	 * Adds a body from a file to the request
 	 *
 	 * @param filePath the path of the file relative to directory containing the templates
 	 */
-	def rawFileBody(filePath: Expression[String]): B = newInstance(httpAttributes, Some(HttpRequestBody.compileRawFileBody(filePath)))
+	def rawFileBody(filePath: Expression[String]): B = newInstance(httpAttributes, Some(HttpRequestBody.rawFileBody(filePath)))
 
 	/**
 	 * Adds a body from a file to the request
 	 *
 	 * @param filePath the path of the file relative to directory containing the templates
 	 */
-	def fileBody(filePath: Expression[String]): B = newInstance(httpAttributes, Some(HttpRequestBody.compileELTemplateBody(filePath)))
+	def fileBody(filePath: Expression[String]): B = newInstance(httpAttributes, Some(HttpRequestBody.elTemplateBody(filePath)))
 
 	/**
 	 * Adds a body from a template that has to be compiled
@@ -82,14 +82,14 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 * @param tplPath the path to the template relative to GATLING_TEMPLATES_FOLDER
 	 * @param values the values that should be merged into the template
 	 */
-	def sspBody(filePath: Expression[String], values: Map[String, String]): B = newInstance(httpAttributes, Some(HttpRequestBody.compileSspTemplateBody(filePath, values)))
+	def sspBody(filePath: Expression[String], values: Map[String, String]): B = newInstance(httpAttributes, Some(HttpRequestBody.sspTemplateBody(filePath, values)))
 
 	/**
 	 * Adds a body from a byteArray Session function to the request
 	 *
 	 * @param byteArray - The callback function which returns the ByteArray from which to build the body
 	 */
-	def byteArrayBody(byteArray: (Session) => Array[Byte]): B = newInstance(httpAttributes, Some(new SessionByteArrayBody(byteArray)))
+	def byteArrayBody(byteArray: (Session) => Array[Byte]): B = newInstance(httpAttributes, Some(HttpRequestBody.sessionByteArrayBody(byteArray)))
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[String, RequestBuilder] = {
 
