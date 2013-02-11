@@ -30,10 +30,6 @@ object FileHelper {
 	val COMMA_SEPARATOR = ","
 	val SEMICOLON_SEPARATOR = ";"
 	val TABULATION_SEPARATOR = "\t"
-	val CSV_EXTENSION = ".csv"
-	val SSV_EXTENSION = ".ssv"
-	val TSV_EXTENSION = ".tsv"
-	val HTML_EXTENSION = ".html"
 
 	/**
 	 * Transform a string to a simpler one that can be used safely as file name
@@ -64,7 +60,10 @@ object FileHelper {
 			.toLowerCase)
 	}
 
-	def requestFileName(s: String) = "req_" + formatToFilename(s) + HTML_EXTENSION
+	def requestFileName(s: String) = {
+		val formatted = formatToFilename(s)
+		s"req_$formatted.html"
+	}
 
 	/**
 	 * Create a new temporary directory, which will be deleted upon the exit of the VM.
