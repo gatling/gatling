@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import java.util.UUID.randomUUID
-
 import com.excilys.ebi.gatling.core.action.{ TryMax, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.structure.ChainBuilder

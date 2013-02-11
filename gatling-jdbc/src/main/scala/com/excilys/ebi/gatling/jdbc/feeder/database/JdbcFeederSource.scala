@@ -20,13 +20,12 @@ import java.sql.ResultSet.{ CONCUR_READ_ONLY, TYPE_FORWARD_ONLY }
 
 import scala.annotation.tailrec
 
+import com.excilys.ebi.gatling.core.feeder.Record
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 
 object JdbcFeederSource {
 
-	type Record = Map[String, Any]
-
-	def apply(url: String, username: String, password: String, sql: String): Array[Record] = {
+	def apply(url: String, username: String, password: String, sql: String): Array[Record[Any]] = {
 
 		use(DriverManager.getConnection(url, username, password)) { connection =>
 			val preparedStatement = connection.prepareStatement(sql, TYPE_FORWARD_ONLY, CONCUR_READ_ONLY)
@@ -36,10 +35,10 @@ object JdbcFeederSource {
 
 			val columnNames = for (i <- 1 to columnCount) yield metadata.getColumnName(i)
 
-			def computeRecord: Record = (for (i <- 1 to columnCount) yield (columnNames(i - 1) -> resultSet.getObject(i))).toMap
+			def computeRecord: Record[Any] = (for (i <- 1 to columnCount) yield (columnNames(i - 1) -> resultSet.getObject(i))).toMap
 
 			@tailrec
-			def loadRec(records: Vector[Record]): Vector[Record] =
+			def loadRec(records: Vector[Record[Any]]): Vector[Record[Any]] =
 				if (!resultSet.next) records
 				else loadRec(records :+ computeRecord)
 

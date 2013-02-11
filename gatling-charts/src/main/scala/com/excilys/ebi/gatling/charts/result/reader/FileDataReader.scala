@@ -27,8 +27,7 @@ import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogDirectory
 import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.core.result.message.RecordType.{ ACTION, GROUP, RUN, SCENARIO }
-import com.excilys.ebi.gatling.core.result.message.{ KO, OK, RequestStatus }
-import com.excilys.ebi.gatling.core.result.message.RunRecord
+import com.excilys.ebi.gatling.core.result.message.{ KO, OK, RequestStatus, RunRecord }
 import com.excilys.ebi.gatling.core.result.reader.{ DataReader, GeneralStats }
 import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
@@ -170,12 +169,12 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 		val size = requestStats.count
 		val step = StatsHelper.step(min, max, 100)
-		val demiStep = step / 2
+		val halfStep = step / 2
 		val buckets = StatsHelper.bucketsList(min, max, step)
 		val ok = resultsHolder.getGeneralStatsBuffers(requestName, group, Some(OK)).map.toList
 		val ko = resultsHolder.getGeneralStatsBuffers(requestName, group, Some(KO)).map.toList
 
-		val bucketFunction = StatsHelper.bucket(_: Int, min, max, step, demiStep)
+		val bucketFunction = StatsHelper.bucket(_: Int, min, max, step, halfStep)
 
 		def process(buffer: List[(Int, Int)]): List[(Int, Int)] = {
 
@@ -211,9 +210,9 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		val lowerBound = configuration.charting.indicators.lowerBound
 		val higherBound = configuration.charting.indicators.higherBound
 
-		List(("t < " + lowerBound + " ms", counts.low),
-			(lowerBound + " ms < t < " + higherBound + " ms", counts.middle),
-			("t > " + higherBound + " ms", counts.high),
+		List((s"t < $lowerBound ms", counts.low),
+			(s"$lowerBound ms < t < $higherBound ms", counts.middle),
+			(s"t > $higherBound ms", counts.high),
 			("failed", counts.ko))
 	}
 

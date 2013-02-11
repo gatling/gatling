@@ -16,11 +16,12 @@
 package com.excilys.ebi.gatling.core.action
 
 import akka.actor.ActorRef
-import com.excilys.ebi.gatling.core.feeder.Feeder
+import com.excilys.ebi.gatling.core.feeder.{ Feeder, Record }
 import com.excilys.ebi.gatling.core.result.terminator.Terminator
-import com.excilys.ebi.gatling.core.session.{Expression, Session}
+import com.excilys.ebi.gatling.core.session.{ Expression, Session }
+
+import scalaz.{ Failure, Success, Validation }
 import scalaz.Scalaz.ToValidationV
-import scalaz.{ Success, Validation, Failure}
 
 class SingletonFeed[T](val feeder: Feeder[T], val number: Expression[Int]) extends BaseActor {
 	def receive = {
@@ -28,11 +29,10 @@ class SingletonFeed[T](val feeder: Feeder[T], val number: Expression[Int]) exten
 	}
 
 	def execute(session: Session, next: ActorRef) {
-		type Record = Map[String, Any]
 
-		def translateRecord(record: Record, suffix: Int): Record = record.map { case (key, value) => (key + suffix) -> value }
+		def translateRecord(record: Record[T], suffix: Int): Record[T] = record.map { case (key, value) => (key + suffix) -> value }
 
-		def pollRecord(): Record = {
+		def pollRecord(): Record[T] = {
 			if (!feeder.hasNext) {
 				error("Feeder is now empty, stopping engine")
 				Terminator.forceTermination
@@ -48,7 +48,7 @@ class SingletonFeed[T](val feeder: Feeder[T], val number: Expression[Int]) exten
 					val translatedRecords = for (i <- 1 to n) yield translateRecord(pollRecord, i)
 					val mergedRecord = translatedRecords.reduce(_ ++ _)
 					session.set(mergedRecord).success
-				case n => (n + " is not a valid number of records").failure
+				case n => (s"$n is not a valid number of records").failure
 			}
 
 		val newSession = number(session).flatMap(injectRecords(session, _)) match {

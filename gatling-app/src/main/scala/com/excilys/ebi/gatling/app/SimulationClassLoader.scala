@@ -18,9 +18,8 @@ package com.excilys.ebi.gatling.app
 import java.lang.reflect.Modifier
 
 import scala.tools.nsc.interpreter.AbstractFileClassLoader
-import scala.tools.nsc.io.{ Directory, File, Path }
+import scala.tools.nsc.io.{ Directory, File, Path, PlainFile }
 import scala.tools.nsc.io.Path.string2path
-import scala.tools.nsc.io.PlainFile
 
 import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 
@@ -73,7 +72,7 @@ class FileSystemBackedSimulationClassLoader(classLoader: ClassLoader, binaryDir:
 			.collect { case clazz if (isSimulationClass(clazz)) => clazz.asInstanceOf[Class[Simulation]] }
 
 		requestedClassName.map { requestedClassName =>
-			if (!classes.map(_.getName).contains(requestedClassName)) println("Simulation class '" + requestedClassName + "' could not be found.")
+			if (!classes.map(_.getName).contains(requestedClassName)) println(s"Simulation class '$requestedClassName' could not be found.")
 		}
 
 		classes
