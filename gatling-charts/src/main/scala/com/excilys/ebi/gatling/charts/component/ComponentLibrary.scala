@@ -35,7 +35,7 @@ object ComponentLibrary extends Logging {
 
 		if (paths.size > 1) {
 			warn("Class path contains multiple ComponentLibrary bindings")
-			paths.foreach(url => warn("Found ComponentLibrary binding in " + url))
+			paths.foreach(url => warn(s"Found ComponentLibrary binding in $url"))
 		}
 
 		new ComponentLibraryImpl

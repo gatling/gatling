@@ -16,7 +16,6 @@
 package com.excilys.ebi.gatling.http
 
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.http.response.ExtendedResponseBuilder
 import com.ning.http.client.Request
 
 package object response {

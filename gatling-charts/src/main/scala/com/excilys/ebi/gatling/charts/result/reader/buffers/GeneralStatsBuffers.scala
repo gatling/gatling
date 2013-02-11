@@ -18,8 +18,7 @@ package com.excilys.ebi.gatling.charts.result.reader.buffers
 import scala.collection.mutable
 
 import com.excilys.ebi.gatling.charts.result.reader.{ ActionRecord, FileDataReader }
-import com.excilys.ebi.gatling.charts.result.reader.stats.PercentilesHelper
-import com.excilys.ebi.gatling.charts.result.reader.stats.StatsHelper
+import com.excilys.ebi.gatling.charts.result.reader.stats.{ PercentilesHelper, StatsHelper }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.core.result.message.RequestStatus

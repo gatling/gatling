@@ -62,7 +62,7 @@ object CacheHandling extends Logging {
 				session
 
 			} else {
-				info("Caching url " + url)
+				info(s"Caching url $url")
 				session.set(COOKIES_CONTEXT_KEY, cache + url)
 			}
 

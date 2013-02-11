@@ -21,12 +21,10 @@ import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.{ EL, Expression, Session }
 import com.excilys.ebi.gatling.core.util.FlattenableValidations
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
-import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.excilys.ebi.gatling.http.util.HttpHelper
-import com.ning.http.client.{ Realm, RequestBuilder, StringPart }
-import com.ning.http.client.FilePart
+import com.ning.http.client.{ RequestBuilder, StringPart }
 import com.ning.http.client.FluentStringsMap
 
 import scalaz.Scalaz.ToValidationV

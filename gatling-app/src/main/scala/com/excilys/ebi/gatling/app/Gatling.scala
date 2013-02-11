@@ -59,15 +59,15 @@ object Gatling extends Logging {
 
     val cliOptsParser = new OptionParser("gatling") {
       help(HELP, HELP_ALIAS, "Show help (this message) and exit")
-      opt(CLI_NO_REPORTS, CLI_NO_REPORTS_ALIAS, "Runs simulation but does not generate reports", { props.noReports })
-      opt(CLI_REPORTS_ONLY, CLI_REPORTS_ONLY_ALIAS, "<directoryName>", "Generates the reports for the simulation in <directoryName>", { v: String => props.reportsOnly(v) })
-      opt(CLI_DATA_FOLDER, CLI_DATA_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> as the absolute path of the directory where feeders are stored", { v: String => props.dataDirectory(v) })
-      opt(CLI_RESULTS_FOLDER, CLI_RESULTS_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> as the absolute path of the directory where results are stored", { v: String => props.resultsDirectory(v) })
-      opt(CLI_REQUEST_BODIES_FOLDER, CLI_REQUEST_BODIES_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> as the absolute path of the directory where request bodies are stored", { v: String => props.requestBodiesDirectory(v) })
-      opt(CLI_SIMULATIONS_FOLDER, CLI_SIMULATIONS_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> to discover simulations that could be run", { v: String => props.sourcesDirectory(v) })
-      opt(CLI_SIMULATIONS_BINARIES_FOLDER, CLI_SIMULATIONS_BINARIES_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> to discover already compiled simulations", { v: String => props.binariesDirectory(v) })
-      opt(CLI_SIMULATION, CLI_SIMULATION_ALIAS, "<className>", "Runs <className> simulation", { v: String => props.clazz(v) })
-      opt(CLI_OUTPUT_DIRECTORY_BASE_NAME, CLI_OUTPUT_DIRECTORY_BASE_NAME_ALIAS, "<name>", "Use <name> for the base name of the output directory", { v: String => props.outputDirectoryBaseName(v) })
+      opt(CLI_NO_REPORTS, CLI_NO_REPORTS_ALIAS, "Runs simulation but does not generate reports", props.noReports)
+      opt(CLI_REPORTS_ONLY, CLI_REPORTS_ONLY_ALIAS, "<directoryName>", "Generates the reports for the simulation in <directoryName>", props.reportsOnly _)
+      opt(CLI_DATA_FOLDER, CLI_DATA_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> as the absolute path of the directory where feeders are stored", props.dataDirectory _)
+      opt(CLI_RESULTS_FOLDER, CLI_RESULTS_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> as the absolute path of the directory where results are stored", props.resultsDirectory _)
+      opt(CLI_REQUEST_BODIES_FOLDER, CLI_REQUEST_BODIES_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> as the absolute path of the directory where request bodies are stored", props.requestBodiesDirectory _)
+      opt(CLI_SIMULATIONS_FOLDER, CLI_SIMULATIONS_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> to discover simulations that could be run", props.sourcesDirectory _)
+      opt(CLI_SIMULATIONS_BINARIES_FOLDER, CLI_SIMULATIONS_BINARIES_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> to discover already compiled simulations", props.binariesDirectory _)
+      opt(CLI_SIMULATION, CLI_SIMULATION_ALIAS, "<className>", "Runs <className> simulation", props.clazz _)
+      opt(CLI_OUTPUT_DIRECTORY_BASE_NAME, CLI_OUTPUT_DIRECTORY_BASE_NAME_ALIAS, "<name>", "Use <name> for the base name of the output directory", props.outputDirectoryBaseName _)
     }
 
     // if arguments are incorrect, usage message is displayed
@@ -120,11 +120,11 @@ class Gatling extends Logging {
 
     val myDefaultOutputDirectoryBaseName = defaultOutputDirectoryBaseName(simulation)
 
-    println("Select simulation id (default is '" + myDefaultOutputDirectoryBaseName + "'). Accepted characters are a-z, A-Z, 0-9, - and _")
+    println(s"Select simulation id (default is '$myDefaultOutputDirectoryBaseName'). Accepted characters are a-z, A-Z, 0-9, - and _")
     val simulationId = {
       val userInput = Console.readLine.trim
 
-      require(userInput.matches("[\\w-_]*"), userInput + " contains illegal characters")
+      require(userInput.matches("[\\w-_]*"), s"$userInput contains illegal characters")
 
       if (!userInput.isEmpty) userInput else myDefaultOutputDirectoryBaseName
     }
@@ -148,7 +148,7 @@ class Gatling extends Logging {
       case size =>
         println("Choose a simulation number:")
         for ((simulation, index) <- simulations.zipWithIndex) {
-          println("     [" + index + "] " + simulation.getName)
+          println(s"     [$index] ${simulation.getName}")
         }
         Console.readInt
     }
@@ -157,7 +157,7 @@ class Gatling extends Logging {
     if (validRange contains selection)
       simulations(selection)
     else {
-      println("Invalid selection, must be in " + validRange)
+      println(s"Invalid selection, must be in $validRange")
       selectSimulationClass(simulations)
     }
   }
@@ -171,8 +171,8 @@ class Gatling extends Logging {
     println("Generating reports...")
     val start = currentTimeMillis
     val indexFile = ReportsGenerator.generateFor(outputDirectoryName, dataReader)
-    println("Reports generated in " + (currentTimeMillis - start) / 1000 + "s.")
-    println("Please open the following file : " + indexFile)
+    println(s"Reports generated in ${(currentTimeMillis - start) / 1000}s.")
+    println(s"Please open the following file : $indexFile")
   }
 
   private def checkSimulation(simulation: Simulation, dataReader: DataReader) = {

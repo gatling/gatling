@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.http
 
-import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandler
-
 import akka.actor.ActorRef
 
 package object ahc {

@@ -40,7 +40,7 @@ class AssertionBuilder {
 
 				reader.groupsAndRequests.find(matchesGroup)
 					.getOrElse(reader.groupsAndRequests.find(matchesRequest)
-						.getOrElse(throw new IllegalArgumentException("Path " + selector + " does not exist")))
+						.getOrElse(throw new IllegalArgumentException(s"Path $selector does not exist")))
 			}
 
 		def generalStats(selector: Path): (DataReader, Option[RequestStatus]) => GeneralStats = {
@@ -62,7 +62,7 @@ class Selector(stats: GeneralStatsByStatus, name: String) {
 
 	def successfulRequests = new Requests(stats, Some(OK), name)
 
-	def requestsPerSec = Metric(reader => stats(reader, None).meanRequestsPerSec, name + " requests per second")
+	def requestsPerSec = Metric(reader => stats(reader, None).meanRequestsPerSec, s"$name : requests per second")
 }
 
 object ResponseTime {
@@ -71,24 +71,24 @@ object ResponseTime {
 }
 
 class ResponseTime(responseTime: DataReader => GeneralStats, name: String) {
-	def min = Metric(reader => responseTime(reader).min, name + " min response time")
+	def min = Metric(reader => responseTime(reader).min, s"$name : min response time")
 
-	def max = Metric(reader => responseTime(reader).max, name + " max response time")
+	def max = Metric(reader => responseTime(reader).max, s"$name : max response time")
 
-	def mean = Metric(reader => responseTime(reader).mean, name + " mean response time")
+	def mean = Metric(reader => responseTime(reader).mean, s"$name : mean response time")
 
-	def stdDev = Metric(reader => responseTime(reader).stdDev, name + " standard deviation response time")
+	def stdDev = Metric(reader => responseTime(reader).stdDev, s"$name : standard deviation response time")
 
-	def percentile1 = Metric(reader => responseTime(reader).percentile1, name + " " + ResponseTime.PERCENTILE1 + " percentile response time")
+	def percentile1 = Metric(reader => responseTime(reader).percentile1, s"$name : ${ResponseTime.PERCENTILE1} percentile response time")
 
-	def percentile2 = Metric(reader => responseTime(reader).percentile2, name + " " + ResponseTime.PERCENTILE2 + " percentile response time")
+	def percentile2 = Metric(reader => responseTime(reader).percentile2, s"$name : ${ResponseTime.PERCENTILE2} percentile response time")
 }
 
 class Requests(requests: GeneralStatsByStatus, status: Option[RequestStatus], name: String) {
 
 	private def message(message: String) = status match {
-		case Some(status) => name + " " + message + " " + status
-		case None => name + " " + message
+		case Some(status) => s"$name $message $status"
+		case None => s"$name $message"
 	}
 
 	def percent = Metric(reader => math.round((requests(reader, status).count.toFloat / requests(reader, None).count) * 100), message("percentage of requests"))
@@ -99,15 +99,15 @@ class Requests(requests: GeneralStatsByStatus, status: Option[RequestStatus], na
 case class Metric(value: DataReader => Int, name: String, assertions: List[Assertion] = List()) {
 	def assert(assertion: (Int) => Boolean, message: (String, Boolean) => String) = copy(assertions = assertions :+ new Assertion(reader => assertion(value(reader)), result => message(name, result)))
 
-	def lessThan(threshold: Int) = assert(_ < threshold, (name, result) => name + " is less than " + threshold + " : " + result)
+	def lessThan(threshold: Int) = assert(_ < threshold, (name, result) => s"$name is less than $threshold : $result")
 
-	def greaterThan(threshold: Int) = assert(_ > threshold, (name, result) => name + " is greater than " + threshold + " : " + result)
+	def greaterThan(threshold: Int) = assert(_ > threshold, (name, result) => s"$name is greater than $threshold : $result")
 
-	def between(min: Int, max: Int) = assert(value => value >= min && value <= max, (name, result) => name + " between " + min + " and " + max + " : " + result)
+	def between(min: Int, max: Int) = assert(value => value >= min && value <= max, (name, result) => s"$name between $min and $max : $result")
 
-	def is(v: Int) = assert( _ == v, (name, result) => name + " is equal to " + v + " : " + result)
+	def is(v: Int) = assert( _ == v, (name, result) => s"$name is equal to $v : $result")
 
-	def in(set: Set[Int]) = assert(set.contains, (name, result) => name + " is in " + set)
+	def in(set: Set[Int]) = assert(set.contains, (name, result) => s"$name is in $set")
 }
 
 object Assertion {

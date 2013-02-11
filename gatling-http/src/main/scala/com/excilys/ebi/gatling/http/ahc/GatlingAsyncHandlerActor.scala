@@ -242,7 +242,7 @@ class GatlingAsyncHandlerActor(
 
 					case phase :: otherPhases =>
 						val phaseChecks = checks.filter(_.phase == phase)
-						var checkResult = applyChecks(session, response, phaseChecks)
+						val checkResult = applyChecks(session, response, phaseChecks)
 
 						checkResult match {
 							case Success(newSession) => checkPhasesRec(newSession, otherPhases)

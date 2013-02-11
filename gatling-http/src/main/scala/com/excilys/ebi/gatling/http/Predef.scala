@@ -24,7 +24,6 @@ import com.excilys.ebi.gatling.http.check.header.{ HttpHeaderCheckBuilder, HttpH
 import com.excilys.ebi.gatling.http.check.status.{ CurrentLocationCheckBuilder, HttpStatusCheckBuilder }
 import com.excilys.ebi.gatling.http.config.{ HttpProtocolConfiguration, HttpProtocolConfigurationBuilder, HttpProxyBuilder }
 import com.excilys.ebi.gatling.http.request.builder.{ AbstractHttpRequestBuilder, HttpRequestBaseBuilder }
-import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
 object Predef {
 	type Request = com.ning.http.client.Request

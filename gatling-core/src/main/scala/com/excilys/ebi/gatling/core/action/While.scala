@@ -16,11 +16,10 @@
 package com.excilys.ebi.gatling.core.action
 
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
-import com.excilys.ebi.gatling.core.session.handler.{ CounterBasedIterationHandler, TimerBasedIterationHandler }
+import com.excilys.ebi.gatling.core.session.handler.TimerBasedIterationHandler
 
 import akka.actor.{ Actor, ActorRef, Props }
 import scalaz.Success
-import scalaz.Scalaz.ToValidationV
 
 /**
  * Action in charge of controlling a while loop execution.
