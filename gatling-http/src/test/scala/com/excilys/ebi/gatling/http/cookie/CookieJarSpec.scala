@@ -188,5 +188,16 @@ class CookieJarSpec extends Specification {
 			// RFC 6265, 5.1.3.  Domain Matching
 			cookieStore.get(new URI("https://y.x.foo.org/")).length must beEqualTo(1)
 		}
+
+		"should serve the last cookie when they are definied twice" in {
+			val cookie1 = parseCookie("cookie1=VALUE1; Path=/")
+			val cookie2 = parseCookie("cookie1=VALUE2; Path=/")
+			val cookie3 = parseCookie("cookie1=VALUE3; Path=/")
+			val cookieStore = CookieJar(new URI("https://foo.org/"), List(cookie1, cookie2, cookie3))
+
+			val cookies = cookieStore.get(new URI("https://foo.org/"))
+			cookies.length must beEqualTo(1)
+			cookies.head.getValue must beEqualTo("VALUE3")
+		}
 	}
 }
