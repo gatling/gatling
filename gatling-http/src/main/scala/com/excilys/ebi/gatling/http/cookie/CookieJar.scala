@@ -85,23 +85,18 @@ private[cookie] class CookieJar(store: Map[URI, List[Cookie]]) {
 
 		def cookiesEquals(c1: Cookie, c2: Cookie) = c1.getName.equalsIgnoreCase(c2.getName) && c1.getDomain.equalsIgnoreCase(c2.getDomain) && c1.getPath == c2.getPath
 
+		@tailrec
+		def addOrReplaceCookies(newCookies: List[Cookie], oldCookies: List[Cookie]): List[Cookie] = newCookies match {
+			case Nil => oldCookies
+			case newCookie :: moreNewCookies =>
+				val updatedCookies = newCookie :: oldCookies.filterNot(cookiesEquals(_, newCookie))
+				addOrReplaceCookies(moreNewCookies, updatedCookies)
+		}
+
 		def hasExpired(c: Cookie): Boolean = c.getMaxAge != MAX_AGE_UNSPECIFIED && c.getMaxAge <= 0
 
 		val uri = getEffectiveUri(rawURI)
-
-		val cookiesWithExactURI = store.get(uri) match {
-			case Some(cookies) =>
-				@tailrec
-				def addOrReplaceCookies(newCookies: List[Cookie], oldCookies: List[Cookie]): List[Cookie] = newCookies match {
-					case Nil => oldCookies
-					case newCookie :: moreNewCookies =>
-						val updatedCookies = newCookie :: oldCookies.filterNot(cookiesEquals(_, newCookie))
-						addOrReplaceCookies(moreNewCookies, updatedCookies)
-				}
-
-				addOrReplaceCookies(newCookies, cookies)
-			case _ => newCookies
-		}
+		val cookiesWithExactURI = addOrReplaceCookies(newCookies, store.get(uri).getOrElse(List.empty))
 		val nonExpiredCookies = cookiesWithExactURI.filterNot(hasExpired)
 		new CookieJar(store + (uri -> nonExpiredCookies))
 	}
