@@ -43,6 +43,7 @@ case class HttpProtocolConfiguration(
 		automaticRefererEnabled: Boolean,
 		cachingEnabled: Boolean,
 		responseChunksDiscardingEnabled: Boolean,
+		connectionPoolingEnabled: Boolean,
 		baseHeaders: Map[String, String],
 		extraRequestInfoExtractor: Option[(Request => List[String])],
 		extraResponseInfoExtractor: Option[(ExtendedResponse => List[String])]) extends ProtocolConfiguration {

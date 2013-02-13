@@ -203,6 +203,7 @@ class GatlingAsyncHandlerActor(
 				.setQueryParameters(null.asInstanceOf[FluentStringsMap])
 				.setParameters(null.asInstanceOf[FluentStringsMap])
 				.setUrl(redirectUrl)
+				.setConnectionPoolKeyStrategy(request.getConnectionPoolKeyStrategy)
 
 			for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatedCookies, redirectUrl))
 				requestBuilder.addOrReplaceCookie(cookie)

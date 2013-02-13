@@ -29,7 +29,19 @@ import grizzled.slf4j.Logging
  */
 object HttpProtocolConfigurationBuilder {
 
-	private[gatling] val BASE_HTTP_PROTOCOL_CONFIGURATION_BUILDER = new HttpProtocolConfigurationBuilder(Attributes(None, None, None, true, true, true, true, Map.empty, None, None, None))
+	private[gatling] val BASE_HTTP_PROTOCOL_CONFIGURATION_BUILDER = new HttpProtocolConfigurationBuilder(Attributes(
+		baseUrls = None,
+		proxy = None,
+		securedProxy = None,
+		followRedirectEnabled = true,
+		automaticRefererEnabled = true,
+		cachingEnabled = true,
+		responseChunksDiscardingEnabled = true,
+		connectionPoolingEnabled = false,
+		baseHeaders = Map.empty,
+		warmUpUrl = None,
+		extraRequestInfoExtractor = None,
+		extraResponseInfoExtractor = None))
 
 	def httpConfig = BASE_HTTP_PROTOCOL_CONFIGURATION_BUILDER.warmUp("http://gatling-tool.org")
 }
@@ -41,6 +53,7 @@ private case class Attributes(baseUrls: Option[List[String]],
 	automaticRefererEnabled: Boolean,
 	cachingEnabled: Boolean,
 	responseChunksDiscardingEnabled: Boolean,
+	connectionPoolingEnabled: Boolean,
 	baseHeaders: Map[String, String],
 	warmUpUrl: Option[String],
 	extraRequestInfoExtractor: Option[Request => List[String]],
@@ -70,6 +83,8 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 	def disableCaching = new HttpProtocolConfigurationBuilder(attributes.copy(cachingEnabled = false))
 
 	def disableResponseChunksDiscarding = new HttpProtocolConfigurationBuilder(attributes.copy(responseChunksDiscardingEnabled = false))
+
+	def enableConnectionPooling = new HttpProtocolConfigurationBuilder(attributes.copy(connectionPoolingEnabled = true))
 
 	def acceptHeader(value: String) = new HttpProtocolConfigurationBuilder(attributes.copy(baseHeaders = attributes.baseHeaders + (Headers.Names.ACCEPT -> value)))
 
@@ -107,7 +122,18 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 
 	private[http] def build = {
 
-		val config = HttpProtocolConfiguration(attributes.baseUrls, attributes.proxy, attributes.securedProxy, attributes.followRedirectEnabled, attributes.automaticRefererEnabled, attributes.cachingEnabled, attributes.responseChunksDiscardingEnabled, attributes.baseHeaders, attributes.extraRequestInfoExtractor, attributes.extraResponseInfoExtractor)
+		val config = HttpProtocolConfiguration(
+			attributes.baseUrls,
+			attributes.proxy,
+			attributes.securedProxy,
+			attributes.followRedirectEnabled,
+			attributes.automaticRefererEnabled,
+			attributes.cachingEnabled,
+			attributes.responseChunksDiscardingEnabled,
+			attributes.connectionPoolingEnabled,
+			attributes.baseHeaders,
+			attributes.extraRequestInfoExtractor,
+			attributes.extraResponseInfoExtractor)
 
 		def doWarmUp() {
 			attributes.warmUpUrl.map { url =>
