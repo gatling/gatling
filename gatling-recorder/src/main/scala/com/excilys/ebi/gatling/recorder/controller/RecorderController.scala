@@ -64,7 +64,7 @@ class RecorderController extends Logging {
 
 	def startRecording {
 		val response = if (File(ScenarioExporter.getOutputFolder / ScenarioExporter.getSimulationFileName(startDate)).exists)
-			JOptionPane.showConfirmDialog(null, "You are about to overwrite an existing scenario.", "Warning", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE)
+			JOptionPane.showConfirmDialog(null, "You are about to overwrite an existing simulation.", "Warning", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE)
 		else JOptionPane.OK_OPTION
 
 		if (response == JOptionPane.OK_OPTION) {
