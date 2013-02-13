@@ -250,7 +250,8 @@ public class GatlingMojo extends AbstractMojo {
 	}
 
 	private String buildTestClasspath() throws Exception {
-		List<String> testClasspathElements = (List<String>) mavenProject.getTestClasspathElements();
+		@SuppressWarnings("unchecked")
+        List<String> testClasspathElements = (List<String>) mavenProject.getTestClasspathElements();
 		testClasspathElements.add(configDir.getPath());
 		// Find plugin jar and add it to classpath
 		testClasspathElements.add(MainHelper.locateJar(GatlingMojo.class));

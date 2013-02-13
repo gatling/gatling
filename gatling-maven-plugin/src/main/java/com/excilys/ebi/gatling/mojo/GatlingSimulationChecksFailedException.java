@@ -15,6 +15,7 @@
  */
 package com.excilys.ebi.gatling.mojo;
 
+@SuppressWarnings("serial")
 public class GatlingSimulationChecksFailedException extends RuntimeException {
 
 	public GatlingSimulationChecksFailedException() {

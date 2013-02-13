@@ -24,27 +24,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
-import org.codehaus.plexus.util.StringUtils;
 import scala_maven_executions.JavaMainCallerInProcess;
 
 /**
- * This class will call a java main method via reflection.
- * Modified to suit Gatling's needs.
- *
+ * This class will call a java main method via reflection. Modified to suit
+ * Gatling's needs.
+ * 
  * @author J. Suereth
  *         <p/>
  *         Note: a -classpath argument *must* be passed into the jvmargs.
  */
 public class GatlingJavaMainCallerInProcess extends JavaMainCallerInProcess {
 
-	private ClassLoader oldClassLoader = null;
+	public GatlingJavaMainCallerInProcess(AbstractMojo requester, String mainClassName, String classpath, String[] args) throws Exception {
+		super(requester, mainClassName, classpath, null, args);
 
-	public GatlingJavaMainCallerInProcess(AbstractMojo requester,String mainClassName,String classpath, String[] args) throws Exception {
-		super(requester,mainClassName,classpath,null,args);
-
-		//Pull out classpath and create class loader
+		// Pull out classpath and create class loader
 		ArrayList<URL> urls = new ArrayList<URL>();
-		for(String path : classpath.split(File.pathSeparator)) {
+		for (String path : classpath.split(File.pathSeparator)) {
 			try {
 				urls.add(new File(path).toURI().toURL());
 			} catch (MalformedURLException e) {
@@ -52,37 +49,23 @@ public class GatlingJavaMainCallerInProcess extends JavaMainCallerInProcess {
 			}
 		}
 
+		// FIXME why not child of current classloader?
+		// FIXME what about old classloader?
 		Thread.currentThread().setContextClassLoader(new URLClassLoader(urls.toArray(new URL[urls.size()])));
 	}
 
-
 	@Override
 	// In process, ignore jvm args
-	public void addJvmArgs(String... args) {}
-
+	public void addJvmArgs(String... args) {
+	}
 
 	@Override
 	// Not used, @see #run()
 	public boolean run(boolean displayCmd, boolean throwFailure) throws Exception {
-		return false;
+		throw new UnsupportedOperationException("boolean run(boolean displayCmd, boolean throwFailure) is not supported, call int run() instead");
 	}
 
 	public int run() throws Exception {
-		try {
-			return runInternal(false);
-		} catch (Exception e) {
-				throw e;
-		}
-	}
-
-	/**
-	 * Runs the main method of a java class
-	 */
-	private int runInternal(boolean displayCmd) throws Exception {
-		String[] argArray = args.toArray(new String[args.size()]);
-		if (displayCmd) {
-			requester.getLog().info("cmd : " + mainClassName + "(" + StringUtils.join(argArray, ",") + ")");
-		}
 		return runGatling(mainClassName, args);
 	}
 
@@ -91,7 +74,7 @@ public class GatlingJavaMainCallerInProcess extends JavaMainCallerInProcess {
 		Class<?> mainClass = cl.loadClass(mainClassName);
 		Method runGatlingMethod = mainClass.getMethod("runGatling", String[].class);
 		String[] argArray = args.toArray(new String[args.size()]);
-		return (Integer) runGatlingMethod.invoke(null, new Object[] {argArray});
+		return (Integer) runGatlingMethod.invoke(null, new Object[] { argArray });
 	}
 
 }
