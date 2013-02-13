@@ -57,7 +57,7 @@ object ScenarioExporter extends Logging {
 				case headerName :: others => resolveBaseHeaders(addHeader(headers, headerName), others)
 			}
 
-			resolveBaseHeaders(Map.empty, List(Headers.Names.ACCEPT, Headers.Names.ACCEPT_CHARSET, Headers.Names.ACCEPT_ENCODING, Headers.Names.ACCEPT_LANGUAGE, Headers.Names.AUTHORIZATION, Headers.Names.DO_NOT_TRACK, Headers.Names.USER_AGENT))
+			resolveBaseHeaders(Map.empty, ProtocolConfigElement.baseHeaders.keySet.toList)
 		}
 
 		val protocolConfigElement = new ProtocolConfigElement(baseUrl, configuration.proxy, configuration.followRedirect, configuration.automaticReferer, baseHeaders)

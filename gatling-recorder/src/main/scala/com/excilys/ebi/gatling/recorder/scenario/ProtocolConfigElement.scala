@@ -21,6 +21,17 @@ import com.excilys.ebi.gatling.recorder.config.ProxyConfig
 
 import grizzled.slf4j.Logging
 
+object ProtocolConfigElement {
+	val baseHeaders = Map(Headers.Names.ACCEPT -> "acceptHeader",
+		Headers.Names.ACCEPT_CHARSET -> "acceptCharsetHeader",
+		Headers.Names.ACCEPT_ENCODING -> "acceptEncodingHeader",
+		Headers.Names.ACCEPT_LANGUAGE -> "acceptLanguageHeader",
+		Headers.Names.AUTHORIZATION -> "authorizationHeader",
+		Headers.Names.CONNECTION -> "connection",
+		Headers.Names.DO_NOT_TRACK -> "doNotTrackHeader",
+		Headers.Names.USER_AGENT -> "userAgentHeader")
+}
+
 class ProtocolConfigElement(baseUrl: String, proxy: ProxyConfig, followRedirect: Boolean, automaticReferer: Boolean, baseHeaders: Map[String, String]) extends ScenarioElement with Logging {
 
 	override def toString = {
@@ -59,18 +70,7 @@ class ProtocolConfigElement(baseUrl: String, proxy: ProxyConfig, followRedirect:
 			appendLine("." + methodName + "(\"" + headerValue + "\")")
 		}
 
-		baseHeaders.foreach {
-			case (headerName, headerValue) => headerName match {
-				case Headers.Names.ACCEPT => appendHeader("acceptHeader", headerValue)
-				case Headers.Names.ACCEPT_CHARSET => appendHeader("acceptCharsetHeader", headerValue)
-				case Headers.Names.ACCEPT_ENCODING => appendHeader("acceptEncodingHeader", headerValue)
-				case Headers.Names.ACCEPT_LANGUAGE => appendHeader("acceptLanguageHeader", headerValue)
-				case Headers.Names.AUTHORIZATION => appendHeader("authorizationHeader", headerValue)
-				case Headers.Names.DO_NOT_TRACK => appendHeader("doNotTrackHeader", headerValue)
-				case Headers.Names.USER_AGENT => appendHeader("userAgentHeader", headerValue)
-				case name => warn("Base header not supported " + name)
-			}
-		}
+		baseHeaders.toList.sorted.foreach { case (headerName, headerValue) => ProtocolConfigElement.baseHeaders.get(headerName).foreach(appendHeader(_, headerValue)) }
 		sb.toString
 	}
 }
