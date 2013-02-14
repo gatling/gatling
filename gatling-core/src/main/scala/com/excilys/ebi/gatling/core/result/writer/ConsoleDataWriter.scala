@@ -19,7 +19,7 @@ import java.lang.System.currentTimeMillis
 
 import scala.collection.mutable
 
-import com.excilys.ebi.gatling.core.result.{ Group, RequestPath }
+import com.excilys.ebi.gatling.core.result.RequestPath
 import com.excilys.ebi.gatling.core.result.message.{ GroupRecord, KO, OK, RequestRecord, RunRecord, ScenarioRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
 
@@ -45,8 +45,8 @@ class ConsoleDataWriter extends DataWriter with Logging {
 	private var startUpTime = 0L
 	private var lastDisplayTime = 0L
 
-	private val usersCounters: mutable.Map[String,UserCounters] = mutable.HashMap.empty
-	private val groupStack: mutable.Map[(String, Int), Option[Group]] =  mutable.HashMap.empty
+	private val usersCounters: mutable.Map[String, UserCounters] = mutable.HashMap.empty
+	private val groupStack: mutable.Map[Int, List[String]] = mutable.HashMap.empty
 	private val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty
 
 	private val displayPeriod = 5 * 1000
@@ -82,30 +82,37 @@ class ConsoleDataWriter extends DataWriter with Logging {
 					.get(scenarioRecord.scenarioName)
 					.map(_.userStart)
 					.getOrElse(error(s"Internal error, scenario '${scenarioRecord.scenarioName}' has not been correctly initialized"))
-				updateCurrentGroup(scenarioRecord.scenarioName, scenarioRecord.userId, _ => None)
 
 			case END =>
 				usersCounters
 					.get(scenarioRecord.scenarioName)
 					.map(_.userDone)
 					.getOrElse(error(s"Internal error, scenario '${scenarioRecord.scenarioName}' has not been correctly initialized"))
-				groupStack.remove((scenarioRecord.scenarioName, scenarioRecord.userId))
+				groupStack.remove(scenarioRecord.userId)
 		}
 	}
 
 	override def onGroupRecord(groupRecord: GroupRecord) {
-		groupRecord.event match {
-			case START =>
-				updateCurrentGroup(groupRecord.scenarioName, groupRecord.userId, current => Some(Group(groupRecord.groupName, current)))
 
-			case END =>
-				updateCurrentGroup(groupRecord.scenarioName, groupRecord.userId, current => current.flatMap(_.parent))
+		val userId = groupRecord.userId
+		val userStack = groupStack.getOrElse(userId, Nil)
+
+		val newUserStack = groupRecord.event match {
+			case START => groupRecord.groupName :: userStack
+			case END if (!userStack.isEmpty) => userStack.tail
+			case _ =>
+				error("Trying to stop a user that hasn't started?!")
+				Nil
 		}
+
+		groupStack += userId -> newUserStack
 	}
 
 	override def onRequestRecord(requestRecord: RequestRecord) {
 
-		val requestCounters = requestsCounters.getOrElseUpdate(RequestPath.path(requestRecord.requestName, groupStack(requestRecord.scenarioName -> requestRecord.userId)), new RequestCounters(0, 0))
+		val currentGroup = groupStack.getOrElse(requestRecord.userId, Nil)
+		val requestPath = RequestPath.path(requestRecord.requestName :: currentGroup)
+		val requestCounters = requestsCounters.getOrElseUpdate(requestPath, new RequestCounters(0, 0))
 
 		requestRecord.requestStatus match {
 			case OK => requestCounters.successfulCount += 1
@@ -116,10 +123,6 @@ class ConsoleDataWriter extends DataWriter with Logging {
 	}
 
 	override def onFlushDataWriter {
-		if (!complete)
-			display(true)
+		if (!complete) display(true)
 	}
-
-	private def updateCurrentGroup(scenarioName: String, userId: Int, value: Option[Group] => Option[Group]) =
-		groupStack += (scenarioName, userId) -> value(groupStack.get(scenarioName -> userId).flatten)
 }
