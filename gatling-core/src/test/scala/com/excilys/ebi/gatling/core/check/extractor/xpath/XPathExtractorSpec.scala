@@ -26,7 +26,7 @@ class XPathExtractorSpec extends Specification {
 
 	val namespaces = List("foo" -> "http://foo/foo")
 
-	def extractor(file: String) = IOHelper.use(getClass.getResourceAsStream("/test.xml")) { stream =>
+	def extractor(file: String) = IOHelper.use(getClass.getResourceAsStream(file)) { stream =>
 		XPathExtractor(stream)
 	}
 
@@ -65,6 +65,10 @@ class XPathExtractorSpec extends Specification {
 
 		"return expected result with last function expression" in {
 			extractor("/test.xml").extractOne(0, namespaces)("//book[last()]/title") must beEqualTo(Some("The Lord of the Rings"))
+		}
+
+		"support default namespace" in {
+			extractor("/test2.xml").extractOne(0, List("pre" -> "http://schemas.test.com/entityserver/runtime/1.0"))("//pre:name") must beEqualTo(Some("HR"))
 		}
 	}
 

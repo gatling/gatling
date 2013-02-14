@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<InsertEntityInstancesResponse
+	xmlns="http://schemas.test.com/entityserver/runtime/1.0">
+	<Customer id="1314" package="com/test/domain" version="0">
+		<id>1314</id>
+		<name>HR</name>
+		<age>32</age>
+		<dateOfBirth>1978-09-21T00:00:00+02:00</dateOfBirth>
+		<isGoldCustomer>true</isGoldCustomer>
+		<expenditure>1234.567</expenditure>
+	</Customer>
+</InsertEntityInstancesResponse>
