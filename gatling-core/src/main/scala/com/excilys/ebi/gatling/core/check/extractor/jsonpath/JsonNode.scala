@@ -15,9 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 
-import org.jaxen.BaseXPath
-
-/**
- * A Jackson based BaseXPath
- */
-class JaxenJackson(expression: String) extends BaseXPath(expression, JacksonNavigator)
+sealed trait JsonNode {
+	def name: String
+}
+case class JsonElement(name: String, children: List[JsonNode]) extends JsonNode
+case class JsonText(name: String, value: String) extends JsonNode

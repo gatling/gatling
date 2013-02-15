@@ -47,6 +47,10 @@ class XPathExtractorSpec extends Specification {
 			extractor("/test.xml").extractOne(0, namespaces)("//author") must beEqualTo(Some("Nigel Rees"))
 		}
 
+		"support name()" in {
+			extractor("/test.xml").extractOne(0, namespaces)("//*[name()='author']") must beEqualTo(Some("Nigel Rees"))
+		}
+
 		"return expected result with anywhere expression and rank 1" in {
 			extractor("/test.xml").extractOne(1, namespaces)("//author") must beEqualTo(Some("Evelyn Waugh"))
 		}

@@ -33,5 +33,6 @@
 			"dash-notation": "dashes"
 		}
 	},
-	"foo": "bar"
+	"foo": "bar",
+	"@id": "ID"
 }

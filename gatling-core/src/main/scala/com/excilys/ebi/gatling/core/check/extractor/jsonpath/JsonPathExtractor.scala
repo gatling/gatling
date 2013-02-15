@@ -19,23 +19,6 @@ import scala.collection.JavaConversions.asScalaBuffer
 import scala.util.Try
 
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.{ JsonNode, MappingJsonFactory, ObjectMapper }
-
-object JsonPathExtractor {
-
-	/**
-	 * The singleton ObjectMapper. Used in a threadsafe mannner as configuration never changes on the fly.
-	 */
-	val mapper = {
-		val jacksonFeatures = configuration.http.nonStandardJsonSupport.map(JsonParser.Feature.valueOf)
-		val jsonFactory = new MappingJsonFactory
-		jacksonFeatures.foreach(jsonFactory.enable)
-		new ObjectMapper(jsonFactory)
-	}
-}
 
 /**
  * A built-in extractor for extracting values with  Xpath like expressions for Json
@@ -45,7 +28,7 @@ object JsonPathExtractor {
  */
 class JsonPathExtractor(textContent: Array[Byte]) extends Extractor {
 
-	val json: Option[JsonNode] = Try(JsonPathExtractor.mapper.readValue(textContent, classOf[JsonNode])).toOption
+	val json: Option[JsonNode] = Try(Json.parse(textContent)).toOption
 
 	/**
 	 * @param occurrence
@@ -61,7 +44,7 @@ class JsonPathExtractor(textContent: Array[Byte]) extends Extractor {
 	 * @param expression
 	 * @return extract all the occurrences matching the expression
 	 */
-	def extractMultiple(expression: String): Option[Seq[String]] = json.map(new JaxenJackson(expression).selectNodes(_).map(_.asInstanceOf[JsonNode].asText))
+	def extractMultiple(expression: String): Option[Seq[String]] = json.map(new JaxenJackson(expression).selectNodes(_).map(_.asInstanceOf[JsonText].value))
 
 	/**
 	 * @param expression

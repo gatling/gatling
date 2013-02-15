@@ -63,16 +63,16 @@ class JsonExtractorSpec extends Specification {
 			extractor("/test.json").extractOne(1)("/store/book[3]/author") must beEqualTo(None)
 		}
 
-		"return expected result with attribute expression" in {
-			extractor("/test.json").extractOne(0)("/store/book[@author = 'Nigel Rees']/title") must beEqualTo(Some("Sayings of the Century"))
-		}
-
 		"return expected result with last function expression" in {
 			extractor("/test.json").extractOne(0)("//book[last()]/title") must beEqualTo(Some("The Lord of the Rings"))
 		}
 
 		"not mess up if two nodes with the same name are placed in different locations" in {
 			extractor("/test.json").extractOne(0)("/foo") must beEqualTo(Some("bar"))
+		}
+
+		"support name() function" in {
+			extractor("/test.json").extractOne(0)("//*[name()='@id']") must beEqualTo(Some("ID"))
 		}
 	}
 
