@@ -111,7 +111,7 @@
 		<maven.compiler.source>1.6</maven.compiler.source>
 		<maven.compiler.target>1.6</maven.compiler.target>
 		<encoding>UTF-8</encoding>
-		<scala.version>2.9.3-RC1</scala.version>
+		<scala.version>2.9.3-RC2</scala.version>
 		<ahc.version>1.7.10</ahc.version>
 		<akka.version>2.0.4</akka.version>
 		<config.version>1.0.0</config.version>
