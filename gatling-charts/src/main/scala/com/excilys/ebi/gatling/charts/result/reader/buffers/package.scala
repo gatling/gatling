@@ -15,7 +15,9 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader
 
-import com.excilys.ebi.gatling.core.result.Group
+import scala.collection.mutable
+
+import com.excilys.ebi.gatling.core.result.{ Group, IntRangeVsTimePlot, IntVsTimePlot }
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
 
 package object buffers {
@@ -23,4 +25,22 @@ package object buffers {
 	type BufferKey = (Option[Group], Option[String], Option[RequestStatus])
 
 	def computeKey(request: Option[String], group: Option[Group], status: Option[RequestStatus]): BufferKey = (group, request, status)
+
+	class CountBuffer {
+		val map: mutable.Map[Int, IntVsTimePlot] = mutable.HashMap.empty
+
+		def update(bucket: Int) {
+			val current = map.getOrElse(bucket, IntVsTimePlot(bucket, 0))
+			map.put(bucket, current.copy(value = current.value + 1))
+		}
+	}
+
+	class RangeBuffer {
+		val map: mutable.Map[Int, IntRangeVsTimePlot] = mutable.HashMap.empty
+
+		def update(bucket: Int, value: Int) {
+			val current = map.getOrElse(bucket, IntRangeVsTimePlot(bucket, Int.MaxValue, Int.MinValue))
+			map.put(bucket, current.copy(lower = math.min(value, current.lower), higher = math.max(value, current.higher)))
+		}
+	}
 }

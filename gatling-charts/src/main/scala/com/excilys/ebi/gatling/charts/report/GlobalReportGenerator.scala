@@ -17,9 +17,9 @@ package com.excilys.ebi.gatling.charts.report
 
 import com.excilys.ebi.gatling.charts.component.{ Component, ComponentLibrary, StatisticsTableComponent }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.globalFile
-import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.template.GlobalPageTemplate
-import com.excilys.ebi.gatling.charts.util.Colors.{ BLUE, CYAN, GREEN, LIGHT_BLUE, LIGHT_LIME, LIGHT_ORANGE, LIGHT_PINK, LIGHT_PURPLE, LIGHT_RED, LIME, PINK, PURPLE, RED, YELLOW }
+import com.excilys.ebi.gatling.charts.util.Colors._
+import com.excilys.ebi.gatling.core.result.{ IntVsTimePlot, PieSlice, Series }
 import com.excilys.ebi.gatling.core.result.message.{ KO, OK }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 
@@ -27,46 +27,46 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 
 	def generate {
 		def activeSessionsChartComponent = {
-			val activeSessionsSeries: Seq[Series[Int, Int]] = dataReader
+			val activeSessionsSeries: Seq[Series[IntVsTimePlot]] = dataReader
 				.scenarioNames
 				.map { scenarioName => scenarioName -> dataReader.numberOfActiveSessionsPerSecond(Some(scenarioName)) }
 				.reverse
 				.zip(List(BLUE, GREEN, RED, YELLOW, CYAN, LIME, PURPLE, PINK, LIGHT_BLUE, LIGHT_ORANGE, LIGHT_RED, LIGHT_LIME, LIGHT_PURPLE, LIGHT_PINK))
-				.map { case ((scenarioName, data), color) => new Series[Int, Int](scenarioName, data, List(color)) }
+				.map { case ((scenarioName, data), color) => new Series[IntVsTimePlot](scenarioName, data, List(color)) }
 
 			componentLibrary.getActiveSessionsChartComponent(dataReader.runStart, activeSessionsSeries)
 		}
 
 		def requestsChartComponent: Component = {
-			val all = dataReader.numberOfRequestsPerSecond().sortBy(_._1)
-			val oks = dataReader.numberOfRequestsPerSecond(Some(OK)).sortBy(_._1)
-			val kos = dataReader.numberOfRequestsPerSecond(Some(KO)).sortBy(_._1)
+			val all = dataReader.numberOfRequestsPerSecond().sortBy(_.time)
+			val oks = dataReader.numberOfRequestsPerSecond(Some(OK)).sortBy(_.time)
+			val kos = dataReader.numberOfRequestsPerSecond(Some(KO)).sortBy(_.time)
 
-			val allSeries = new Series[Int, Int]("All requests", all, List(BLUE))
-			val kosSeries = new Series[Int, Int]("Failed requests", kos, List(RED))
-			val oksSeries = new Series[Int, Int]("Succeeded requests", oks, List(GREEN))
-			val pieRequestsSeries = new Series[String, Int]("Distribution", ("Success", count(oks)) :: ("Failures", count(kos)) :: Nil, List(GREEN, RED))
+			val allSeries = new Series[IntVsTimePlot]("All requests", all, List(BLUE))
+			val kosSeries = new Series[IntVsTimePlot]("Failed requests", kos, List(RED))
+			val oksSeries = new Series[IntVsTimePlot]("Succeeded requests", oks, List(GREEN))
+			val pieRequestsSeries = new Series[PieSlice]("Distribution", PieSlice("Success", count(oks)) :: PieSlice("Failures", count(kos)) :: Nil, List(GREEN, RED))
 
 			componentLibrary.getRequestsChartComponent(dataReader.runStart, allSeries, kosSeries, oksSeries, pieRequestsSeries)
 		}
 
 		def transactionsChartComponent: Component = {
-			val all = dataReader.numberOfTransactionsPerSecond().sortBy(_._1)
-			val oks = dataReader.numberOfTransactionsPerSecond(Some(OK)).sortBy(_._1)
-			val kos = dataReader.numberOfTransactionsPerSecond(Some(KO)).sortBy(_._1)
+			val all = dataReader.numberOfTransactionsPerSecond().sortBy(_.time)
+			val oks = dataReader.numberOfTransactionsPerSecond(Some(OK)).sortBy(_.time)
+			val kos = dataReader.numberOfTransactionsPerSecond(Some(KO)).sortBy(_.time)
 
-			val allSeries = new Series[Int, Int]("All transactions", all, List(BLUE))
-			val kosSeries = new Series[Int, Int]("Failed transactions", kos, List(RED))
-			val oksSeries = new Series[Int, Int]("Succeeded transactions", oks, List(GREEN))
-			val pieRequestsSeries = new Series[String, Int]("Distribution", ("Success", count(oks)) :: ("Failures", count(kos)) :: Nil, List(GREEN, RED))
+			val allSeries = new Series[IntVsTimePlot]("All transactions", all, List(BLUE))
+			val kosSeries = new Series[IntVsTimePlot]("Failed transactions", kos, List(RED))
+			val oksSeries = new Series[IntVsTimePlot]("Succeeded transactions", oks, List(GREEN))
+			val pieRequestsSeries = new Series[PieSlice]("Distribution", PieSlice("Success", count(oks)) :: PieSlice("Failures", count(kos)) :: Nil, List(GREEN, RED))
 
 			componentLibrary.getTransactionsChartComponent(dataReader.runStart, allSeries, kosSeries, oksSeries, pieRequestsSeries)
 		}
 
 		def responseTimeDistributionChartComponent: Component = {
 			val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100)
-			val okDistributionSeries = new Series[Int, Int]("Success", okDistribution, List(BLUE))
-			val koDistributionSeries = new Series[Int, Int]("Failure", koDistribution, List(RED))
+			val okDistributionSeries = new Series[IntVsTimePlot]("Success", okDistribution, List(BLUE))
+			val koDistributionSeries = new Series[IntVsTimePlot]("Failure", koDistribution, List(RED))
 
 			componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
 		}
@@ -89,5 +89,5 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 		new TemplateWriter(globalFile(runOn)).writeToFile(template.getOutput)
 	}
 
-	private def count(records: Seq[(Int, Int)]): Int = records.iterator.map(_._2).sum
+	private def count(records: Seq[IntVsTimePlot]): Int = records.iterator.map(_.value).sum
 }

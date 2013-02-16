@@ -75,7 +75,7 @@ abstract class GeneralStatsBuffers(durationInSec: Long) {
 					val meanRequestsPerSec = math.round(count / (duration / FileDataReader.SEC_MILLISEC_RATIO)).toInt
 					val stdDev = math.round(StatsHelper.stdDev(squareSum / count.toDouble, meanResponseTime)).toInt
 
-					val sortedTimes = map.toList.sorted
+					val sortedTimes = map.values.toSeq.sortBy(_.time)
 
 					val percentiles = PercentilesHelper.processPercentiles(sortedTimes, count, Seq(configuration.charting.indicators.percentile1 / 100.0, configuration.charting.indicators.percentile2 / 100.0))
 

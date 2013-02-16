@@ -15,15 +15,17 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader.stats
 
-import annotation.tailrec
+import scala.annotation.tailrec
+
+import com.excilys.ebi.gatling.core.result.IntVsTimePlot
 
 object PercentilesHelper {
 
-	def processPercentiles(buckets: List[(Int, Int)], totalSize: Int, percentiles: Seq[Double]) = {
+	def processPercentiles(buckets: Seq[IntVsTimePlot], totalSize: Int, percentiles: Seq[Double]): Seq[Int] = {
 
 		@tailrec
-		def findPercentile(buckets: List[(Int, Int)], limit: Int, count: Int): (Int, List[(Int, Int)]) = {
-			val newCount = count + buckets.head._2
+		def findPercentile(buckets: Seq[IntVsTimePlot], limit: Int, count: Int): (Int, Seq[IntVsTimePlot]) = {
+			val newCount = count + buckets.head.value
 
 			if (newCount >= limit)
 				(count, buckets)
@@ -40,7 +42,7 @@ object PercentilesHelper {
 				val (foundCount, foundBuckets) = findPercentile(currentBuckets, limit, currentCount)
 				currentCount = foundCount
 				currentBuckets = foundBuckets
-				currentBuckets.head._1
+				currentBuckets.head.time
 		}
 	}
 }

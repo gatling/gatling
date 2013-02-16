@@ -13,22 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.result.reader.buffers
+package com.excilys.ebi.gatling.core
 
-import scala.collection.mutable
+package object result {
 
-class CountBuffer {
-	val map: mutable.Map[Int, Int] = mutable.HashMap.empty
-
-	def update(bucket: Int) { map += (bucket -> (map.getOrElse(bucket, 0) + 1)) }
+	case class Series[X](name: String, data: Seq[X], colors: List[String])
+	case class IntVsTimePlot(time: Int, value: Int)
+	case class IntRangeVsTimePlot(time: Int, lower: Int, higher: Int)
+	case class PieSlice(name: String, value: Int)
 }
-
-class RangeBuffer {
-	val map: mutable.Map[Int, (Int, Int)] = mutable.HashMap.empty
-
-	def update(bucket: Int, value: Int) {
-		val (minValue, maxValue) = map.getOrElse(bucket, (Int.MaxValue, Int.MinValue))
-		map += (bucket -> (value min minValue, value max maxValue))
-	}
-}
-

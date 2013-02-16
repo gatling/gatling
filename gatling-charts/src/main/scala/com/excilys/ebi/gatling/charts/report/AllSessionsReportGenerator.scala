@@ -17,14 +17,14 @@ package com.excilys.ebi.gatling.charts.report
 
 import com.excilys.ebi.gatling.charts.component.ComponentLibrary
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.allSessionsFile
-import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.util.Colors.ORANGE
+import com.excilys.ebi.gatling.core.result.{ IntVsTimePlot, Series }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 
 class AllSessionsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 
 	def generate {
-		val series = new Series[Int, Int]("All Sessions", dataReader.numberOfActiveSessionsPerSecond(), List(ORANGE))
+		val series = new Series[IntVsTimePlot]("All Sessions", dataReader.numberOfActiveSessionsPerSecond(), List(ORANGE))
 
 		val javascript: String = componentLibrary.getAllSessionsJs(dataReader.runStart, series)
 

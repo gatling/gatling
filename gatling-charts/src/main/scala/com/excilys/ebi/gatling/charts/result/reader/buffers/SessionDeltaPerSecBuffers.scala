@@ -18,6 +18,7 @@ package com.excilys.ebi.gatling.charts.result.reader.buffers
 import scala.collection.mutable
 
 import com.excilys.ebi.gatling.charts.result.reader.ScenarioRecord
+import com.excilys.ebi.gatling.core.result.IntVsTimePlot
 
 trait SessionDeltaPerSecBuffers {
 
@@ -49,13 +50,13 @@ trait SessionDeltaPerSecBuffers {
 			map += (bucket -> (start, end + 1))
 		}
 
-		def compute(buckets: List[Int]): List[(Int, Int)] = {
+		def compute(buckets: List[Int]): List[IntVsTimePlot] = {
 
-			val (_, _, sessions) = buckets.foldLeft(0, 0, List.empty[(Int, Int)]) { (accumulator, bucket) =>
+			val (_, _, sessions) = buckets.foldLeft(0, 0, List.empty[IntVsTimePlot]) { (accumulator, bucket) =>
 				val (previousSessions, previousEnds, sessions) = accumulator
 				val (bucketStarts, bucketEnds) = map.getOrElse(bucket, (0, 0))
 				val bucketSessions = previousSessions - previousEnds + bucketStarts
-				(bucketSessions, bucketEnds, (bucket, bucketSessions) :: sessions)
+				(bucketSessions, bucketEnds, IntVsTimePlot(bucket, bucketSessions) :: sessions)
 			}
 
 			sessions.reverse

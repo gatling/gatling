@@ -15,19 +15,20 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader
 
-import java.io.FileInputStream
-import java.io.InputStream
+import java.io.{ FileInputStream, InputStream }
 import java.util.regex.Pattern
 
 import scala.collection.mutable
 import scala.io.Source
 
+import com.excilys.ebi.gatling.charts.result.reader.buffers.{ CountBuffer, RangeBuffer }
 import com.excilys.ebi.gatling.charts.result.reader.stats.StatsHelper
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogDirectory
-import com.excilys.ebi.gatling.core.result.Group
+import com.excilys.ebi.gatling.core.result.{ Group, IntRangeVsTimePlot, IntVsTimePlot }
+import com.excilys.ebi.gatling.core.result.message.{ KO, OK }
+import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RunRecord }
 import com.excilys.ebi.gatling.core.result.message.RecordType.{ ACTION, GROUP, RUN, SCENARIO }
-import com.excilys.ebi.gatling.core.result.message.{ KO, OK, RequestStatus, RunRecord }
 import com.excilys.ebi.gatling.core.result.reader.{ DataReader, GeneralStats }
 import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
@@ -140,27 +141,23 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		.sortBy(_._2)
 		.map(_._1)
 
-	def numberOfActiveSessionsPerSecond(scenarioName: Option[String]): Seq[(Int, Int)] = resultsHolder
+	def numberOfActiveSessionsPerSecond(scenarioName: Option[String]): Seq[IntVsTimePlot] = resultsHolder
 		.getSessionDeltaPerSecBuffers(scenarioName)
 		.compute(buckets)
 
-	def numberOfRequestsPerSecond(status: Option[RequestStatus], requestName: Option[String], group: Option[Group]): Seq[(Int, Int)] = resultsHolder
-		.getRequestsPerSecBuffer(requestName, group, status).map
-		.toList
-		.map {
-			case (bucket, count) => (bucket, math.round(count / step * FileDataReader.SEC_MILLISEC_RATIO).toInt)
-		}
-		.sorted
+	private def countBuffer2IntVsTimePlots(buffer: CountBuffer): Seq[IntVsTimePlot] = buffer
+		.map
+		.values.toSeq
+		.map(plot => plot.copy(value = (plot.value / step * FileDataReader.SEC_MILLISEC_RATIO).toInt))
+		.sortBy(_.time)
 
-	def numberOfTransactionsPerSecond(status: Option[RequestStatus], requestName: Option[String], group: Option[Group]): Seq[(Int, Int)] = resultsHolder
-		.getTransactionsPerSecBuffer(requestName, group, status).map
-		.toList
-		.map {
-			case (bucket, count) => (bucket, math.round(count / step * FileDataReader.SEC_MILLISEC_RATIO).toInt)
-		}
-		.sorted
+	def numberOfRequestsPerSecond(status: Option[RequestStatus], requestName: Option[String], group: Option[Group]): Seq[IntVsTimePlot] =
+		countBuffer2IntVsTimePlots(resultsHolder.getRequestsPerSecBuffer(requestName, group, status))
 
-	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String], group: Option[Group]): (Seq[(Int, Int)], Seq[(Int, Int)]) = {
+	def numberOfTransactionsPerSecond(status: Option[RequestStatus], requestName: Option[String], group: Option[Group]): Seq[IntVsTimePlot] =
+		countBuffer2IntVsTimePlots(resultsHolder.getTransactionsPerSecBuffer(requestName, group, status))
+
+	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String], group: Option[Group]): (Seq[IntVsTimePlot], Seq[IntVsTimePlot]) = {
 
 		// get main and max for request/all status
 		val requestStats = resultsHolder.getGeneralStatsBuffers(requestName, group, None).compute
@@ -171,21 +168,21 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		val step = StatsHelper.step(min, max, 100)
 		val halfStep = step / 2
 		val buckets = StatsHelper.bucketsList(min, max, step)
-		val ok = resultsHolder.getGeneralStatsBuffers(requestName, group, Some(OK)).map.toList
-		val ko = resultsHolder.getGeneralStatsBuffers(requestName, group, Some(KO)).map.toList
+		val ok = resultsHolder.getGeneralStatsBuffers(requestName, group, Some(OK)).map.values.toSeq
+		val ko = resultsHolder.getGeneralStatsBuffers(requestName, group, Some(KO)).map.values.toSeq
 
 		val bucketFunction = StatsHelper.bucket(_: Int, min, max, step, halfStep)
 
-		def process(buffer: List[(Int, Int)]): List[(Int, Int)] = {
+		def process(buffer: Seq[IntVsTimePlot]): List[IntVsTimePlot] = {
 
 			val bucketsWithValues = buffer
-				.map(record => (bucketFunction(record._1), record))
+				.map(record => (bucketFunction(record.time), record))
 				.groupBy(_._1)
 				.map {
 					case (responseTimeBucket, recordList) =>
 
 						val sizeBucket = recordList.foldLeft(0) {
-							(partialSize, record) => partialSize + record._2._2
+							(partialSize, record) => partialSize + record._2.value
 						}
 
 						(responseTimeBucket, math.round(sizeBucket * 100.0 / size).toInt)
@@ -193,7 +190,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 				.toMap
 
 			buckets.map {
-				bucket => (bucket, bucketsWithValues.getOrElse(bucket, 0))
+				bucket => IntVsTimePlot(bucket, bucketsWithValues.getOrElse(bucket, 0))
 			}
 		}
 
@@ -216,31 +213,30 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			("failed", counts.ko))
 	}
 
-	def responseTimeGroupByExecutionStartDate(status: RequestStatus, requestName: Option[String], group: Option[Group]): Seq[(Int, (Int, Int))] = resultsHolder
-		.getResponseTimePerSecBuffers(requestName, group, Some(status))
+	private def rangeBuffer2IntRangeVsTimePlots(buffer: RangeBuffer): Seq[IntRangeVsTimePlot] = buffer
 		.map
-		.toList
-		.sorted
+		.values
+		.toSeq
+		.sortBy(_.time)
 
-	def latencyGroupByExecutionStartDate(status: RequestStatus, requestName: Option[String], group: Option[Group]): Seq[(Int, (Int, Int))] = resultsHolder
-		.getLatencyPerSecBuffers(requestName, group, Some(status))
-		.map
-		.toList
-		.sorted
+	def responseTimeGroupByExecutionStartDate(status: RequestStatus, requestName: Option[String], group: Option[Group]): Seq[IntRangeVsTimePlot] =
+		rangeBuffer2IntRangeVsTimePlots(resultsHolder.getResponseTimePerSecBuffers(requestName, group, Some(status)))
 
-	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: RequestStatus, requestName: Option[String], group: Option[Group]): Seq[(Int, Int)] = {
+	def latencyGroupByExecutionStartDate(status: RequestStatus, requestName: Option[String], group: Option[Group]): Seq[IntRangeVsTimePlot] =
+		rangeBuffer2IntRangeVsTimePlots(resultsHolder.getLatencyPerSecBuffers(requestName, group, Some(status)))
+
+	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: RequestStatus, requestName: Option[String], group: Option[Group]): Seq[IntVsTimePlot] = {
 
 		val globalCountsByBucket = resultsHolder.getRequestsPerSecBuffer(None, None, None).map
 
 		resultsHolder
 			.getResponseTimePerSecBuffers(requestName, group, Some(status))
 			.map
-			.toList
+			.toSeq
 			.map {
 				case (bucket, responseTimes) =>
-					val (_, max) = responseTimes
-					val count = globalCountsByBucket(bucket)
-					(math.round(count / step * 1000).toInt, max)
-			}.sorted
+					val count = globalCountsByBucket(bucket).value
+					IntVsTimePlot(math.round(count / step * 1000).toInt, responseTimes.higher)
+			}.sortBy(_.time)
 	}
 }

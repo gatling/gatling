@@ -17,10 +17,9 @@ package com.excilys.ebi.gatling.charts.report
 
 import com.excilys.ebi.gatling.charts.component.{ Component, ComponentLibrary, StatisticsTextComponent }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.requestFile
-import com.excilys.ebi.gatling.charts.series.Series
 import com.excilys.ebi.gatling.charts.template.RequestDetailsPageTemplate
 import com.excilys.ebi.gatling.charts.util.Colors.{ BLUE, RED, TRANSLUCID_BLUE, TRANSLUCID_RED }
-import com.excilys.ebi.gatling.core.result.{ Group, RequestPath }
+import com.excilys.ebi.gatling.core.result.{ Group, IntRangeVsTimePlot, IntVsTimePlot, RequestPath, Series }
 import com.excilys.ebi.gatling.core.result.message.{ KO, OK }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 
@@ -31,16 +30,16 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			def responseTimeChartComponent: Component = {
 				val responseTimesSuccessData = dataReader.responseTimeGroupByExecutionStartDate(OK, requestName, group)
 				val responseTimesFailuresData = dataReader.responseTimeGroupByExecutionStartDate(KO, requestName, group)
-				val responseTimesSuccessSeries = new Series[Int, (Int, Int)]("Response Time (success)", responseTimesSuccessData, List(BLUE))
-				val responseTimesFailuresSeries = new Series[Int, (Int, Int)]("Response Time (failure)", responseTimesFailuresData, List(RED))
+				val responseTimesSuccessSeries = new Series[IntRangeVsTimePlot]("Response Time (success)", responseTimesSuccessData, List(BLUE))
+				val responseTimesFailuresSeries = new Series[IntRangeVsTimePlot]("Response Time (failure)", responseTimesFailuresData, List(RED))
 
 				componentLibrary.getRequestDetailsResponseTimeChartComponent(dataReader.runStart, responseTimesSuccessSeries, responseTimesFailuresSeries)
 			}
 
 			def responseTimeDistributionChartComponent: Component = {
 				val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100, requestName, group)
-				val okDistributionSeries = new Series[Int, Int]("Success", okDistribution, List(BLUE))
-				val koDistributionSeries = new Series[Int, Int]("Failure", koDistribution, List(RED))
+				val okDistributionSeries = new Series[IntVsTimePlot]("Success", okDistribution, List(BLUE))
+				val koDistributionSeries = new Series[IntVsTimePlot]("Failure", koDistribution, List(RED))
 
 				componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
 			}
@@ -49,8 +48,8 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 				val latencySuccessData = dataReader.latencyGroupByExecutionStartDate(OK, requestName, group)
 				val latencyFailuresData = dataReader.latencyGroupByExecutionStartDate(KO, requestName, group)
 
-				val latencySuccessSeries = new Series[Int, (Int, Int)]("Latency (success)", latencySuccessData, List(BLUE))
-				val latencyFailuresSeries = new Series[Int, (Int, Int)]("Latency (failure)", latencyFailuresData, List(RED))
+				val latencySuccessSeries = new Series[IntRangeVsTimePlot]("Latency (success)", latencySuccessData, List(BLUE))
+				val latencyFailuresSeries = new Series[IntRangeVsTimePlot]("Latency (failure)", latencyFailuresData, List(RED))
 
 				componentLibrary.getRequestDetailsLatencyChartComponent(dataReader.runStart, latencySuccessSeries, latencyFailuresSeries)
 			}
@@ -60,8 +59,8 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			def scatterChartComponent: Component = {
 				val scatterPlotSuccessData = dataReader.responseTimeAgainstGlobalNumberOfRequestsPerSec(OK, requestName, group)
 				val scatterPlotFailuresData = dataReader.responseTimeAgainstGlobalNumberOfRequestsPerSec(KO, requestName, group)
-				val scatterPlotSuccessSeries = new Series[Int, Int]("Successes", scatterPlotSuccessData, List(TRANSLUCID_BLUE))
-				val scatterPlotFailuresSeries = new Series[Int, Int]("Failures", scatterPlotFailuresData, List(TRANSLUCID_RED))
+				val scatterPlotSuccessSeries = new Series[IntVsTimePlot]("Successes", scatterPlotSuccessData, List(TRANSLUCID_BLUE))
+				val scatterPlotFailuresSeries = new Series[IntVsTimePlot]("Failures", scatterPlotFailuresData, List(TRANSLUCID_RED))
 
 				componentLibrary.getRequestDetailsScatterChartComponent(scatterPlotSuccessSeries, scatterPlotFailuresSeries)
 			}
