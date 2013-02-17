@@ -72,11 +72,11 @@ class FilterTable extends JPanel with MouseListener {
 	}
 
 	def removeDuplicates {
-		for (
-			i <- (0 until model.getRowCount);
-			j <- (0 until model.getRowCount);
+		for {
+			i <- (0 until model.getRowCount)
+			j <- (0 until model.getRowCount)
 			if (i != j && getPattern(i) == getPattern(j))
-		) model.removeRow(j)
+		} model.removeRow(j)
 	}
 
 	override def setEnabled(enabled: Boolean) {
@@ -86,7 +86,7 @@ class FilterTable extends JPanel with MouseListener {
 
 	def addRow {
 		stopCellEditing
-		model.addRow(Array[Object](""));
+		model.addRow(Array[Object](""))
 	}
 
 	def addRow(pattern: Pattern) = model.addRow(Array[Object](pattern.pattern, new SelectPatternPanel(pattern.patternType)))
@@ -99,7 +99,7 @@ class FilterTable extends JPanel with MouseListener {
 
 	def getRowCount = model.getRowCount
 
-	def getPattern(row: Int) = new Pattern(getPatternTypeAt(row), model.getValueAt(row, 0).toString)
+	def getPattern(row: Int) = Pattern(getPatternTypeAt(row), model.getValueAt(row, 0).toString)
 
 	private def getPatternTypeAt(row: Int): PatternType = {
 		table.getValueAt(row, 1).asInstanceOf[SelectPatternPanel].getPatternType
@@ -175,8 +175,8 @@ object SelectPatternPanel {
 
 class SelectPatternPanel(patternType: PatternType) extends JPanel {
 
-	val radio1 = new JRadioButton("Ant", true);
-	val radio2 = new JRadioButton("Java", false);
+	val radio1 = new JRadioButton("Ant", true)
+	val radio2 = new JRadioButton("Java", false)
 
 	val group = new ButtonGroup
 	group.add(radio1)

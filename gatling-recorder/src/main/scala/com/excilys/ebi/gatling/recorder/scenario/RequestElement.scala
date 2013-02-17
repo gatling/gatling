@@ -23,7 +23,7 @@ import org.jboss.netty.handler.codec.http.{ HttpRequest, QueryStringDecoder }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.{ AUTHORIZATION, CONTENT_TYPE }
 
 import com.excilys.ebi.gatling.http.util.HttpHelper.parseFormBody
-import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
+import com.excilys.ebi.gatling.recorder.config.RecorderConfiguration.configuration
 import com.ning.http.util.Base64
 
 import grizzled.slf4j.Logging
@@ -52,15 +52,15 @@ class RequestElement(val request: HttpRequest, val statusCode: Int, val simulati
 
 	val headers: List[(String, String)] = request.getHeaders.map { entry => (entry.getKey, entry.getValue) }.toList
 
-	val queryParams = convertParamsFromJavaToScala(new QueryStringDecoder(request.getUri, Charset.forName(configuration.encoding)).getParameters)
+	val queryParams = convertParamsFromJavaToScala(new QueryStringDecoder(request.getUri, Charset.forName(configuration.simulation.encoding)).getParameters)
 
 	val requestBodyOrParams: Option[Either[String, List[(String, String)]]] = if (request.getContent.readableBytes > 0) {
 
 		val bufferBytes = new Array[Byte](request.getContent.readableBytes)
 
-		request.getContent.getBytes(request.getContent.readerIndex, bufferBytes);
+		request.getContent.getBytes(request.getContent.readerIndex, bufferBytes)
 
-		val bodyString = new String(bufferBytes, configuration.encoding)
+		val bodyString = new String(bufferBytes, configuration.simulation.encoding)
 
 		if (containsFormParams) {
 			Some(Right(parseFormBody(bodyString)))
