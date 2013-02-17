@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.ui;
+package com.excilys.ebi.gatling.recorder.ui
 
 import javax.swing.ImageIcon
 
@@ -25,8 +25,6 @@ object Commons {
 	private val pictoSmall = new ImageIcon(getClass.getResource("img/picto_small.png"))
 	private val pictoBig = new ImageIcon(getClass.getResource("img/picto_big.png"))
 	val logoSmall = new ImageIcon(getClass.getResource("img/logo_small.png"))
-
-	val GATLING_RECORDER_FILE_NAME = "gatling-recorder.ini"
 
 	val iconList = List(favSmall.getImage, favBig.getImage, pictoSmall.getImage, pictoBig.getImage)
 }

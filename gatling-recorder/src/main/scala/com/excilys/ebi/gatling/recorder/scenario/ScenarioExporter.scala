@@ -26,7 +26,7 @@ import org.fusesource.scalate.TemplateEngine
 
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import com.excilys.ebi.gatling.http.Headers
-import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
+import com.excilys.ebi.gatling.recorder.config.RecorderConfiguration.configuration
 
 import grizzled.slf4j.Logging
 
@@ -40,7 +40,7 @@ object ScenarioExporter extends Logging {
 		engine
 	}
 
-	def saveScenario(startDate: Date, scenarioElements: List[ScenarioElement]) = {
+	def saveScenario(startDate: Date, scenarioElements: List[ScenarioElement]) {
 
 		val baseUrl = getBaseUrl(scenarioElements)
 
@@ -60,11 +60,11 @@ object ScenarioExporter extends Logging {
 			resolveBaseHeaders(Map.empty, ProtocolConfigElement.baseHeaders.keySet.toList)
 		}
 
-		val protocolConfigElement = new ProtocolConfigElement(baseUrl, configuration.proxy, configuration.followRedirect, configuration.automaticReferer, baseHeaders)
+		val protocolConfigElement = new ProtocolConfigElement(baseUrl, configuration.http.followRedirect, configuration.http.automaticReferer, baseHeaders)
 
 		// Add simulationClass to request elements
 		val elementsList: List[ScenarioElement] = scenarioElements.map {
-			case e: RequestElement => RequestElement(e, configuration.simulationClassName)
+			case e: RequestElement => RequestElement(e, configuration.simulation.className)
 			case e => e
 		}
 
@@ -74,13 +74,13 @@ object ScenarioExporter extends Logging {
 			case e: RequestElement =>
 				i = i + 1
 				e.updateUrl(baseUrl).setId(i)
-				e.requestBodyOrParams.map(_.left.map(dumpRequestBody(i, _, configuration.simulationClassName)))
+				e.requestBodyOrParams.map(_.left.map(dumpRequestBody(i, _, configuration.simulation.className)))
 
 			case _ =>
 		}
 
 		// Aggregate headers
-		val filteredHeaders = Set(Headers.Names.COOKIE, Headers.Names.CONTENT_LENGTH, Headers.Names.HOST) ++ (if (configuration.automaticReferer) Set(Headers.Names.REFERER) else Set.empty)
+		val filteredHeaders = Set(Headers.Names.COOKIE, Headers.Names.CONTENT_LENGTH, Headers.Names.HOST) ++ (if (configuration.http.automaticReferer) Set(Headers.Names.REFERER) else Set.empty)
 
 		val headers: Map[Int, List[(String, String)]] = {
 
@@ -129,9 +129,9 @@ object ScenarioExporter extends Logging {
 		val output = ScenarioExporter.TPL_ENGINE.layout("templates/simulation.ssp",
 			Map("protocolConfig" -> protocolConfigElement,
 				"headers" -> headers,
-				"simulationClassName" -> configuration.simulationClassName,
+				"simulationClassName" -> configuration.simulation.className,
 				"scenarioName" -> "Scenario Name",
-				"packageName" -> configuration.simulationPackage,
+				"packageName" -> configuration.simulation.pkg,
 				"scenarioElements" -> newScenarioElements))
 
 		use(new FileWriter(File(getOutputFolder / getSimulationFileName(startDate)).jfile)) {
@@ -176,7 +176,7 @@ object ScenarioExporter extends Logging {
 	}
 
 	private def dumpRequestBody(idEvent: Int, content: String, simulationClass: String) {
-		use(new FileWriter(File(getFolder(configuration.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)) {
+		use(new FileWriter(File(getFolder(configuration.simulation.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)) {
 			fw =>
 				try {
 					fw.write(content)
@@ -186,13 +186,10 @@ object ScenarioExporter extends Logging {
 		}
 	}
 
-	def getSimulationFileName(date: Date): String = configuration.simulationClassName + ".scala"
+	def getSimulationFileName(date: Date): String = configuration.simulation.className + ".scala"
 
 	def getOutputFolder = {
-		val path = configuration.outputFolder + configuration.simulationPackage
-			.map { pkg => File.separator + pkg.replace(".", File.separator) }
-			.getOrElse("")
-
+		val path = configuration.simulation.outputFolder + File.separator + configuration.simulation.pkg.replace(".", File.separator)
 		getFolder(path)
 	}
 

@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.recorder.scenario
 
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 import com.excilys.ebi.gatling.http.Headers
-import com.excilys.ebi.gatling.recorder.config.ProxyConfig
+import com.excilys.ebi.gatling.recorder.config.RecorderConfiguration.configuration
 
 import grizzled.slf4j.Logging
 
@@ -32,7 +32,7 @@ object ProtocolConfigElement {
 		Headers.Names.USER_AGENT -> "userAgentHeader")
 }
 
-class ProtocolConfigElement(baseUrl: String, proxy: ProxyConfig, followRedirect: Boolean, automaticReferer: Boolean, baseHeaders: Map[String, String]) extends ScenarioElement with Logging {
+class ProtocolConfigElement(baseUrl: String, followRedirect: Boolean, automaticReferer: Boolean, baseHeaders: Map[String, String]) extends ScenarioElement with Logging {
 
 	override def toString = {
 		val indent = "\t\t\t"
@@ -46,16 +46,16 @@ class ProtocolConfigElement(baseUrl: String, proxy: ProxyConfig, followRedirect:
 		appendLine(".baseURL(\"" + baseUrl + "\")")
 
 		for {
-			proxyHost <- proxy.host
-			proxyPort <- proxy.port
+			proxyHost <- configuration.proxy.outgoing.host
+			proxyPort <- configuration.proxy.outgoing.port
 		} {
-			val sslPort = proxy.sslPort.map(proxySslPort => ".httpsPort(" + proxySslPort + ")").getOrElse("")
+			val sslPort = configuration.proxy.outgoing.sslPort.map(proxySslPort => ".httpsPort(" + proxySslPort + ")").getOrElse("")
 			appendLine(".proxy(\"" + proxyHost + "\", " + proxyPort + ")" + sslPort)
 		}
 
 		for {
-			proxyUsername <- proxy.username
-			proxyPassword <- proxy.password
+			proxyUsername <- configuration.proxy.outgoing.username
+			proxyPassword <- configuration.proxy.outgoing.password
 		} {
 			appendLine(".credentials(\"" + proxyUsername + "\", " + proxyPassword + "\")")
 		}

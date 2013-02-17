@@ -126,7 +126,6 @@
 		<netty.version>3.6.2.Final</netty.version>
 		<joda-time.version>2.1</joda-time.version>
 		<joda-convert.version>1.2</joda-convert.version>
-		<xstream.version>1.4.3</xstream.version>
 		<scopt.version>2.1.0</scopt.version>
 		<grizzled-slf4j.version>1.0.1</grizzled-slf4j.version>
 		<jackson.version>2.1.3</jackson.version>
@@ -292,21 +291,6 @@
 				<groupId>org.joda</groupId>
 				<artifactId>joda-convert</artifactId>
 				<version>${joda-convert.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.thoughtworks.xstream</groupId>
-				<artifactId>xstream</artifactId>
-				<version>${xstream.version}</version>
-				<exclusions>
-					<exclusion>
-						<artifactId>xpp3_min</artifactId>
-						<groupId>xpp3</groupId>
-					</exclusion>
-					<exclusion>
-						<artifactId>xmlpull</artifactId>
-						<groupId>xmlpull</groupId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>com.github.scopt</groupId>

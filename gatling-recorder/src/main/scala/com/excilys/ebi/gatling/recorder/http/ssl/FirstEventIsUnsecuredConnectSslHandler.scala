@@ -35,7 +35,7 @@ class FirstEventIsUnsecuredConnectSslHandler(sslEngine: SSLEngine) extends SslHa
 
 	override def handleDownstream(context: ChannelHandlerContext, evt: ChannelEvent) {
 		if (sslEnabled.get)
-			super.handleDownstream(context, evt);
+			super.handleDownstream(context, evt)
 		else {
 			// enable SSL once the CONNECT request has been replied to
 			sslEnabled.set(true)

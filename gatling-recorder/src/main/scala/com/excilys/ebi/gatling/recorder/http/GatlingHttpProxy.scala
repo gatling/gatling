@@ -19,15 +19,14 @@ import java.net.InetSocketAddress
 
 import org.jboss.netty.channel.group.DefaultChannelGroup
 
-import com.excilys.ebi.gatling.recorder.config.ProxyConfig
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory.newServerBootstrap
 
-class GatlingHttpProxy(controller: RecorderController, port: Int, sslPort: Int, proxyConfig: ProxyConfig) {
+class GatlingHttpProxy(controller: RecorderController, port: Int, sslPort: Int) {
 
 	private val group = new DefaultChannelGroup("Gatling_Recorder")
-	private val bootstrap = newServerBootstrap(controller, proxyConfig, false)
-	private val secureBootstrap = newServerBootstrap(controller, proxyConfig, true)
+	private val bootstrap = newServerBootstrap(controller, false)
+	private val secureBootstrap = newServerBootstrap(controller, true)
 
 	group.add(bootstrap.bind(new InetSocketAddress(port)))
 	group.add(secureBootstrap.bind(new InetSocketAddress(sslPort)))

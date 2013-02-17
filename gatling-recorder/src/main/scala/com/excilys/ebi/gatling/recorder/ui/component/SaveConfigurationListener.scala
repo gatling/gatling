@@ -15,18 +15,18 @@
  */
 package com.excilys.ebi.gatling.recorder.ui.component
 
+import scala.collection.JavaConversions.seqAsJavaList
+
 import java.awt.event.{ ActionListener, ActionEvent }
 import java.nio.charset.Charset
 
 import com.excilys.ebi.gatling.core.util.StringHelper.trimToOption
-import com.excilys.ebi.gatling.recorder.config.Configuration
-import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
+import com.excilys.ebi.gatling.recorder.config.{ RecorderPropertiesBuilder, RecorderConfiguration }
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy.FilterStrategy
 import com.excilys.ebi.gatling.recorder.ui.frame.ConfigurationFrame
 
 import grizzled.slf4j.Logging
-import javax.swing.JTextField
 
 class SaveConfigurationListener(controller: RecorderController, configurationFrame: ConfigurationFrame) extends ActionListener with Logging {
 
@@ -35,50 +35,59 @@ class SaveConfigurationListener(controller: RecorderController, configurationFra
 		// validate filters
 		configurationFrame.tblFilters.validateCells
 
+		val props = new RecorderPropertiesBuilder
+
 		// Parse local proxy port
-		configuration.port = configurationFrame.txtPort.getText.toInt
+		props.localPort(configurationFrame.txtPort.getText.toInt)
 
 		// Parse local ssl proxy port
-		configuration.sslPort = configurationFrame.txtSslPort.getText.toInt
+		props.localSslPort(configurationFrame.txtSslPort.getText.toInt)
 
-		configuration.proxy.host = trimToOption(configurationFrame.txtProxyHost.getText)
+		val host = trimToOption(configurationFrame.txtProxyHost.getText)
 
-		if (!configuration.proxy.host.isEmpty) {
+		if (!host.isEmpty) {
+			props.proxyHost(host.get)
 			// Parse outgoing proxy port
-			configuration.proxy.port = Some(configurationFrame.txtProxyPort.getText.toInt)
+			props.proxyPort(configurationFrame.txtProxyPort.getText.toInt)
 
 			// Parse outgoing ssl proxy port
-			configuration.proxy.sslPort = Some(configurationFrame.txtProxySslPort.getText.toInt)
+			props.proxySslPort(configurationFrame.txtProxySslPort.getText.toInt)
 
-			configuration.proxy.username = trimToOption(configurationFrame.txtProxyUsername.getText)
+			trimToOption(configurationFrame.txtProxyUsername.getText).map(props.proxyUsername)
 
-			configuration.proxy.password = trimToOption(configurationFrame.txtProxyPassword.getText)
+			trimToOption(configurationFrame.txtProxyPassword.getText).map(props.proxyPassword)
+		} else {
+			props.proxyHost("")
+			props.proxyPort(0)
+			props.proxySslPort(0)
+			props.proxyUsername("")
+			props.proxyPassword("")
 		}
 
-		configuration.filterStrategy = configurationFrame.cbFilterStrategies.getSelectedItem.asInstanceOf[FilterStrategy]
+		props.filterStrategy(configurationFrame.cbFilterStrategies.getSelectedItem.asInstanceOf[FilterStrategy].toString)
 
 		// Set urls filters
-		configuration.patterns = (for (i <- 0 until configurationFrame.tblFilters.getRowCount) yield configurationFrame.tblFilters.getPattern(i)).toList
-
+		val patternsList = (for (i <- 0 until configurationFrame.tblFilters.getRowCount) yield configurationFrame.tblFilters.getPattern(i)).toList
+		val (patterns,patternsType) = patternsList.map( p => (p.pattern,p.patternType)).unzip
+		props.patterns(patterns)
+		props.patternsType(patternsType.map(_.toString))
 		// Check if a directory was entered
-		configuration.outputFolder = configurationFrame.txtOutputFolder.getText.trim
+		props.simulationOutputFolder(configurationFrame.txtOutputFolder.getText.trim)
 
-		configuration.saveConfiguration = configurationFrame.chkSavePref.isSelected
-
-		configuration.followRedirect = configurationFrame.chkFollowRedirect.isSelected
-		configuration.automaticReferer = configurationFrame.chkAutomaticReferer.isSelected
+		props.followRedirect(configurationFrame.chkFollowRedirect.isSelected)
+		props.automaticReferer(configurationFrame.chkAutomaticReferer.isSelected)
 
 		// set selected encoding
-		configuration.encoding = classOf[Charset].cast(configurationFrame.cbOutputEncoding.getSelectedItem).name
+		props.encoding(classOf[Charset].cast(configurationFrame.cbOutputEncoding.getSelectedItem).name)
 
-		configuration.simulationPackage = trimToOption(configurationFrame.txtSimulationPackage.getText)
+		props.simulationPackage(configurationFrame.txtSimulationPackage.getText)
 
-		configuration.simulationClassName = configurationFrame.txtSimulationClassName.getText.trim
+		props.simulationClassName(configurationFrame.txtSimulationClassName.getText.trim)
 
-		if (configuration.saveConfiguration)
-			Configuration.saveToDisk
-
-		debug(configuration)
+		RecorderConfiguration.reload(props.build)
+		
+		if (configurationFrame.chkSavePref.isSelected)
+			RecorderConfiguration.saveConfig
 
 		controller.startRecording
 	}

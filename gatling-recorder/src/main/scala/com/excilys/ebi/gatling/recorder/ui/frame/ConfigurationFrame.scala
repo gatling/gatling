@@ -21,8 +21,8 @@ import java.nio.charset.Charset
 
 import scala.collection.JavaConversions.{ collectionAsScalaIterable, seqAsJavaList }
 
-import com.excilys.ebi.gatling.recorder.config.Configuration
-import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
+import com.excilys.ebi.gatling.core.util.StringHelper.trimToOption
+import com.excilys.ebi.gatling.recorder.config.RecorderConfiguration.{ configuration, saveConfiguration }
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.ui.Commons
 import com.excilys.ebi.gatling.recorder.ui.Commons.iconList
@@ -36,7 +36,7 @@ import javax.swing._
 
 class ConfigurationFrame(controller: RecorderController) extends JFrame with ScalaSwing with Logging {
 
-	private val IS_MAC_OSX = System.getProperty("os.name").startsWith("Mac");
+	private val IS_MAC_OSX = System.getProperty("os.name").startsWith("Mac")
 
 	val txtPort = new JTextField(null, 4)
 	val txtSslPort = new JTextField(null, 4)
@@ -94,7 +94,7 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 
 	setValidationListeners
 
-	populateItemsFromConfiguration(configuration)
+	populateItemsFromConfiguration
 
 	private def initOutputDirectoryChooser {
 
@@ -220,7 +220,7 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 		simulationConfigPanel.add(chkAutomaticReferer, BorderLayout.EAST)
 
 		/* Filters Panel */
-		val filtersPanel = new JPanel(new BorderLayout);
+		val filtersPanel = new JPanel(new BorderLayout)
 		filtersPanel.setBorder(BorderFactory.createTitledBorder("Filters"))
 
 		// Fill Combo Box for Strategies
@@ -258,9 +258,9 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 		startActionPanel.add(chkSavePref)
 		startActionPanel.add(btnStart)
 
-		chkSavePref.setHorizontalTextPosition(SwingConstants.LEFT);
+		chkSavePref.setHorizontalTextPosition(SwingConstants.LEFT)
 
-		pnlBottom.add(startActionPanel, BorderLayout.SOUTH);
+		pnlBottom.add(startActionPanel, BorderLayout.SOUTH)
 
 		/* Adding panel to Frame */
 		add(pnlBottom, BorderLayout.SOUTH)
@@ -324,30 +324,30 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 		txtSimulationClassName.addKeyListener(nonEmptyValidator(this, "simulationClassName"))
 	}
 
-	def populateItemsFromConfiguration(configuration: Configuration) {
-		txtPort.setText(configuration.port.toString)
-		txtSslPort.setText(configuration.sslPort.toString)
+	def populateItemsFromConfiguration {
+		txtPort.setText(configuration.proxy.port.toString)
+		txtSslPort.setText(configuration.proxy.sslPort.toString)
 
-		configuration.proxy.host.map { proxyHost =>
+		configuration.proxy.outgoing.host.map { proxyHost =>
 			txtProxyHost.setText(proxyHost)
-			txtProxyPort.setText(configuration.proxy.port.getOrElse(0).toString)
-			txtProxySslPort.setText(configuration.proxy.sslPort.getOrElse(0).toString)
-			txtProxyUsername.setText(configuration.proxy.getUsername.getOrElse(null))
-			txtProxyPassword.setText(configuration.proxy.getPassword.getOrElse(null))
+			txtProxyPort.setText(configuration.proxy.outgoing.port.getOrElse(0).toString)
+			txtProxySslPort.setText(configuration.proxy.outgoing.sslPort.getOrElse(0).toString)
+			txtProxyUsername.setText(configuration.proxy.outgoing.username.getOrElse(null))
+			txtProxyPassword.setText(configuration.proxy.outgoing.password.getOrElse(null))
 			txtProxyPort.setEnabled(true)
 			txtProxySslPort.setEnabled(true)
 			txtProxyUsername.setEnabled(true)
 			txtProxyPassword.setEnabled(true)
 		}
-		configuration.simulationPackage.map(txtSimulationPackage.setText)
-		txtSimulationClassName.setText(configuration.simulationClassName)
-		cbFilterStrategies.setSelectedItem(configuration.filterStrategy)
-		chkFollowRedirect.setSelected(configuration.followRedirect)
-		chkAutomaticReferer.setSelected(configuration.automaticReferer)
-		for (pattern <- configuration.patterns)
+		trimToOption(configuration.simulation.pkg)map(txtSimulationPackage.setText)
+		txtSimulationClassName.setText(configuration.simulation.className)
+		cbFilterStrategies.setSelectedItem(configuration.filters.filterStrategy)
+		chkFollowRedirect.setSelected(configuration.http.followRedirect)
+		chkAutomaticReferer.setSelected(configuration.http.automaticReferer)
+		for (pattern <- configuration.filters.patterns)
 			tblFilters.addRow(pattern)
-		txtOutputFolder.setText(configuration.outputFolder)
-		chkSavePref.setSelected(configuration.saveConfiguration)
-		cbOutputEncoding.setSelectedItem(Charset.forName(configuration.encoding))
+		txtOutputFolder.setText(configuration.simulation.outputFolder)
+		chkSavePref.setSelected(saveConfiguration)
+		cbOutputEncoding.setSelectedItem(Charset.forName(configuration.simulation.encoding))
 	}
 }
