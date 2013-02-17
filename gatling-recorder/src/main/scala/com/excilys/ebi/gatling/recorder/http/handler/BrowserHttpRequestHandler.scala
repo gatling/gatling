@@ -20,19 +20,19 @@ import java.net.{ InetSocketAddress, URI }
 import org.jboss.netty.channel.{ ChannelFuture, ChannelHandlerContext }
 import org.jboss.netty.handler.codec.http.HttpRequest
 
-import com.excilys.ebi.gatling.recorder.config.ProxyConfig
+import com.excilys.ebi.gatling.recorder.config.RecorderConfiguration.configuration
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory.newClientBootstrap
 
-class BrowserHttpRequestHandler(controller: RecorderController, proxyConfig: ProxyConfig) extends AbstractBrowserRequestHandler(controller, proxyConfig) {
+class BrowserHttpRequestHandler(controller: RecorderController) extends AbstractBrowserRequestHandler(controller) {
 
 	def propagateRequest(requestContext: ChannelHandlerContext, request: HttpRequest) {
 
 		val bootstrap = newClientBootstrap(controller, requestContext, request, false)
 
 		val (proxyHost, proxyPort) = (for {
-			host <- proxyConfig.host
-			port <- proxyConfig.port
+			host <- configuration.proxy.outgoing.host
+			port <- configuration.proxy.outgoing.port
 		} yield (host, port))
 			.getOrElse {
 				val uri = new URI(request.getUri)

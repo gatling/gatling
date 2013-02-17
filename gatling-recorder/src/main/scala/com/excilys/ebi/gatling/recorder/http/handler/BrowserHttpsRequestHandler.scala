@@ -21,14 +21,14 @@ import org.jboss.netty.channel.{ ChannelFuture, ChannelHandlerContext }
 import org.jboss.netty.handler.codec.http.{ DefaultHttpResponse, HttpMethod, HttpRequest, HttpResponseStatus, HttpVersion }
 import org.jboss.netty.handler.ssl.SslHandler
 
-import com.excilys.ebi.gatling.recorder.config.ProxyConfig
+import com.excilys.ebi.gatling.recorder.config.RecorderConfiguration.configuration
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory
 import com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory.newClientBootstrap
 
 import grizzled.slf4j.Logging
 
-class BrowserHttpsRequestHandler(controller: RecorderController, proxyConfig: ProxyConfig) extends AbstractBrowserRequestHandler(controller, proxyConfig) with Logging {
+class BrowserHttpsRequestHandler(controller: RecorderController) extends AbstractBrowserRequestHandler(controller) with Logging {
 
 	@volatile var targetHostURI: URI = _
 
@@ -48,8 +48,8 @@ class BrowserHttpsRequestHandler(controller: RecorderController, proxyConfig: Pr
 			val bootstrap = newClientBootstrap(controller, requestContext, request, true)
 
 			val (host, port) = (for {
-				host <- proxyConfig.host
-				port <- proxyConfig.port
+				host <- configuration.proxy.outgoing.host
+				port <- configuration.proxy.outgoing.port
 			} yield (host, port)).getOrElse(targetHostURI.getHost, targetHostURI.getPort)
 
 			bootstrap

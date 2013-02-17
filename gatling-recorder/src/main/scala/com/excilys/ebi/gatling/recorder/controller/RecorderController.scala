@@ -19,17 +19,17 @@ import java.net.URI
 import java.util.Date
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.math.round
-import scala.tools.nsc.io.{ Directory, File }
+import scala.tools.nsc.io.File
 
 import org.codehaus.plexus.util.SelectorUtils
 import org.jboss.netty.handler.codec.http.{ HttpMethod, HttpRequest, HttpResponse }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
 
 import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.REDIRECT_STATUS_CODES
-import com.excilys.ebi.gatling.recorder.config.{ Pattern, RecorderOptions }
-import com.excilys.ebi.gatling.recorder.config.Configuration
-import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
+import com.excilys.ebi.gatling.recorder.config.RecorderConfiguration.configuration
+import com.excilys.ebi.gatling.recorder.config.{ RecorderPropertiesBuilder, RecorderConfiguration, Pattern }
 import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy
 import com.excilys.ebi.gatling.recorder.scenario.{ PauseElement, PauseUnit, RequestElement, ScenarioElement, ScenarioExporter, TagElement }
 import com.excilys.ebi.gatling.recorder.ui.enumeration.{ FilterStrategy, PatternType }
@@ -43,8 +43,8 @@ import javax.swing.JOptionPane
 
 object RecorderController {
 
-	def apply(options: RecorderOptions) = {
-		Configuration(options)
+	def apply(props: mutable.Map[String, Any]) {
+		RecorderConfiguration.initialSetup(props)
 		val controller = new RecorderController
 		controller.showConfigurationFrame
 	}
@@ -68,7 +68,7 @@ class RecorderController extends Logging {
 		else JOptionPane.OK_OPTION
 
 		if (response == JOptionPane.OK_OPTION) {
-			proxy = new GatlingHttpProxy(this, configuration.port, configuration.sslPort, configuration.proxy)
+			proxy = new GatlingHttpProxy(this, configuration.proxy.port, configuration.proxy.sslPort)
 			startDate = new Date
 			showRunningFrame
 		}
@@ -96,8 +96,10 @@ class RecorderController extends Logging {
 				header =>
 					// Split on " " and take 2nd group (Basic credentialsInBase64==)
 					val credentials = new String(Base64.decode(header.split(" ")(1))).split(":")
-					configuration.proxy.username = Some(credentials(0))
-					configuration.proxy.password = Some(credentials(1))
+					val props = new RecorderPropertiesBuilder
+					props.proxyUsername(credentials(0))
+					props.proxyPassword(credentials(1))
+					RecorderConfiguration.reload(props.build)
 			}
 		}
 	}
@@ -190,11 +192,11 @@ class RecorderController extends Logging {
 
 	private def isRedirectCode(code: Int) = REDIRECT_STATUS_CODES.contains(code)
 
-	private def isRequestRedirectChainStart(request: HttpRequest, response: HttpResponse): Boolean = configuration.followRedirect && !isRedirectCode(lastStatus) && isRedirectCode(response.getStatus.getCode)
+	private def isRequestRedirectChainStart(request: HttpRequest, response: HttpResponse): Boolean = configuration.http.followRedirect && !isRedirectCode(lastStatus) && isRedirectCode(response.getStatus.getCode)
 
-	private def isRequestInsideRedirectChain(request: HttpRequest, response: HttpResponse): Boolean = configuration.followRedirect && isRedirectCode(lastStatus) && isRedirectCode(response.getStatus.getCode)
+	private def isRequestInsideRedirectChain(request: HttpRequest, response: HttpResponse): Boolean = configuration.http.followRedirect && isRedirectCode(lastStatus) && isRedirectCode(response.getStatus.getCode)
 
-	private def isRequestRedirectChainEnd(request: HttpRequest, response: HttpResponse): Boolean = configuration.followRedirect && isRedirectCode(lastStatus) && !isRedirectCode(response.getStatus.getCode)
+	private def isRequestRedirectChainEnd(request: HttpRequest, response: HttpResponse): Boolean = configuration.http.followRedirect && isRedirectCode(lastStatus) && !isRedirectCode(response.getStatus.getCode)
 
 	private def isRequestAccepted(request: HttpRequest): Boolean = {
 
@@ -208,7 +210,7 @@ class RecorderController extends Logging {
 					case PatternType.JAVA => SelectorUtils.REGEX_HANDLER_PREFIX
 				}
 
-				prefix + pattern.getPattern + SelectorUtils.PATTERN_HANDLER_SUFFIX
+				prefix + pattern.pattern + SelectorUtils.PATTERN_HANDLER_SUFFIX
 			}
 
 			@tailrec
@@ -219,10 +221,10 @@ class RecorderController extends Logging {
 					else matchPath(tail)
 			}
 
-			matchPath(configuration.patterns)
+			matchPath(configuration.filters.patterns)
 		}
 
-		def requestPassFilters = configuration.filterStrategy match {
+		def requestPassFilters = configuration.filters.filterStrategy match {
 			case FilterStrategy.EXCEPT => !requestMatched
 			case FilterStrategy.ONLY => requestMatched
 			case FilterStrategy.NONE => true
@@ -230,8 +232,4 @@ class RecorderController extends Logging {
 
 		supportedHttpMethods.contains(request.getMethod) && requestPassFilters
 	}
-
-	private def getFolder(folderName: String, folderPath: String): Directory = Directory(folderPath).createDirectory()
-
-	private def getOutputFolder = getFolder("output", configuration.outputFolder)
 }

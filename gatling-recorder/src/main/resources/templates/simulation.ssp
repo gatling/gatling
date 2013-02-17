@@ -2,9 +2,9 @@
 <%@ val headers: Map[Int, List[(String, String)]] %>
 <%@ val scenarioName: String %>
 <%@ val simulationClassName: String %>
-<%@ val packageName: Option[String] %>
+<%@ val packageName: String %>
 <%@ val scenarioElements: Either[List[com.excilys.ebi.gatling.recorder.scenario.ScenarioElement], List[List[com.excilys.ebi.gatling.recorder.scenario.ScenarioElement]]] %>
-<% if(packageName.isDefined) { %>package <%= packageName.get %> <% } %>
+<% if(!packageName.isEmpty) { %>package <%= packageName %> <% } %>
 
 import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._

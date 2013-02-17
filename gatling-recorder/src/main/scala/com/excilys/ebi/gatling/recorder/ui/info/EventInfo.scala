@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.recorder.ui.info
 
 import org.jboss.netty.handler.codec.http.{ HttpMessage, HttpRequest, HttpResponse }
 
-import com.excilys.ebi.gatling.recorder.config.Configuration.configuration
+import com.excilys.ebi.gatling.recorder.config.RecorderConfiguration.configuration
 import com.excilys.ebi.gatling.recorder.scenario.PauseUnit
 
 sealed trait EventInfo
@@ -30,7 +30,7 @@ case class RequestInfo(request: HttpRequest, response: HttpResponse) extends Eve
 
 	private def getHttpBody(message: HttpMessage) =
 		if (message.getContent.hasArray)
-			new String(message.getContent.array, configuration.encoding)
+			new String(message.getContent.array, configuration.simulation.encoding)
 		else
 			""
 

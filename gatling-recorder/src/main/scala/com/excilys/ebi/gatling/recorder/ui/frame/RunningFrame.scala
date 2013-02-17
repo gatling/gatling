@@ -188,7 +188,7 @@ class RunningFrame(controller: RecorderController) extends JFrame with ScalaSwin
 				eventsInfo.addElement(requestInfo)
 				eventsInfoJList.ensureIndexIsVisible(eventsInfo.getSize - 1)
 			case SSLInfo(uri) if (!hostsCertificate.contains(uri)) => hostsCertificate.addElement(uri)
-			case e => debug("dropping event " + e)
+			case e => debug(s"dropping event $e")
 		}
 	}
 }

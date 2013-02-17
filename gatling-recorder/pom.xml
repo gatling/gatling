@@ -8,7 +8,7 @@
 	</parent>
 	<artifactId>gatling-recorder</artifactId>
 	<name>${project.artifactId}</name>
-	<description>Gatling HTTP functionnalities</description>
+	<description>Gatling Recorder</description>
 
 	<properties>
 		<maven.compiler.source>1.7</maven.compiler.source>
@@ -17,10 +17,6 @@
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>com.thoughtworks.xstream</groupId>
-			<artifactId>xstream</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>com.excilys.ebi.gatling</groupId>
 			<artifactId>gatling-core</artifactId>

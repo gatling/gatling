@@ -22,7 +22,6 @@ import org.jboss.netty.channel.socket.nio.{ NioServerSocketChannelFactory, NioCl
 import org.jboss.netty.handler.codec.http.{ HttpResponseEncoder, HttpRequestDecoder, HttpRequest, HttpContentDecompressor, HttpContentCompressor, HttpClientCodec, HttpChunkAggregator }
 import org.jboss.netty.handler.ssl.SslHandler
 
-import com.excilys.ebi.gatling.recorder.config.ProxyConfig
 import com.excilys.ebi.gatling.recorder.controller.RecorderController
 import com.excilys.ebi.gatling.recorder.http.handler.{ ServerHttpResponseHandler, BrowserHttpsRequestHandler, BrowserHttpRequestHandler }
 import com.excilys.ebi.gatling.recorder.http.ssl.{ SSLEngineFactory, FirstEventIsUnsecuredConnectSslHandler }
@@ -60,7 +59,7 @@ object BootstrapFactory {
 		bootstrap
 	}
 
-	def newServerBootstrap(controller: RecorderController, proxyConfig: ProxyConfig, ssl: Boolean): ServerBootstrap = {
+	def newServerBootstrap(controller: RecorderController, ssl: Boolean): ServerBootstrap = {
 
 		val bootstrap = new ServerBootstrap(serverChannelFactory)
 
@@ -74,9 +73,9 @@ object BootstrapFactory {
 				pipeline.addLast("encoder", new HttpResponseEncoder)
 				pipeline.addLast("deflater", new HttpContentCompressor)
 				if (ssl)
-					pipeline.addLast("gatling", new BrowserHttpsRequestHandler(controller, proxyConfig))
+					pipeline.addLast("gatling", new BrowserHttpsRequestHandler(controller))
 				else
-					pipeline.addLast("gatling", new BrowserHttpRequestHandler(controller, proxyConfig))
+					pipeline.addLast("gatling", new BrowserHttpRequestHandler(controller))
 
 				pipeline
 			}
