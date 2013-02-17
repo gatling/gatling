@@ -115,7 +115,7 @@
 		<scala.version>2.10.1-RC1</scala.version>
 		<ahc.version>1.7.11.20130213</ahc.version>
 		<scalaz.version>7.0.0-M7</scalaz.version>
-		<akka.version>2.1.0</akka.version>
+		<akka.version>2.2-M1</akka.version>
 		<config.version>1.0.0</config.version>
 		<jaxen.version>1.1.6</jaxen.version>
 		<xerces.version>2.11.0</xerces.version>

@@ -15,6 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.result.writer
 
+import scala.collection.immutable
+
 import com.excilys.ebi.gatling.core.action.{ BaseActor, system }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.{ Flush, GroupRecord, Init, RequestRecord, RequestStatus, RunRecord, ScenarioRecord, ShortScenarioDescription }
@@ -27,7 +29,7 @@ import akka.routing.BroadcastRouter
 
 object DataWriter {
 
-	private val dataWriters: Seq[ActorRef] = configuration.data.dataWriterClasses.map { className =>
+	private val dataWriters: immutable.Iterable[ActorRef] = configuration.data.dataWriterClasses.map { className =>
 		val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
 		system.actorOf(Props(clazz))
 	}
