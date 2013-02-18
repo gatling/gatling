@@ -15,8 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.session
 
+import scala.concurrent.forkjoin.ThreadLocalRandom
 import scala.reflect.ClassTag
-import scala.util.Random
 
 import com.excilys.ebi.gatling.core.util.{ FlattenableValidations, TypeHelper }
 
@@ -40,8 +40,8 @@ case class SeqSizePart(name: String) extends Part[Int] {
 }
 
 case class SeqRandomPart(name: String) extends Part[Any] {
-	def resolve(session: Session): Validation[String,Any] = {
-		def randomItem(seq: Seq[_]) = seq(Random.nextInt(seq.size))
+	def resolve(session: Session): Validation[String, Any] = {
+		def randomItem(seq: Seq[_]) = seq(ThreadLocalRandom.current.nextInt(seq.size))
 
 		session.safeGetAs[Seq[_]](name).map(randomItem)
 	}
