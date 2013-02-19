@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core
 
-package object result {
+package result {
 
 	case class Series[X](name: String, data: Seq[X], colors: List[String])
 	case class IntVsTimePlot(time: Int, value: Int)
