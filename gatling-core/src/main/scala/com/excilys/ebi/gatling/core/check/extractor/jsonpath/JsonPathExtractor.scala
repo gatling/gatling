@@ -16,7 +16,6 @@
 package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 
 import scala.collection.JavaConversions.asScalaBuffer
-import scala.util.Try
 
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
 
@@ -28,7 +27,7 @@ import com.excilys.ebi.gatling.core.check.extractor.Extractor
  */
 class JsonPathExtractor(textContent: Array[Byte]) extends Extractor {
 
-	val json: Option[JsonNode] = Try(Json.parse(textContent)).toOption
+	val json: Option[JsonNode] = if (textContent.isEmpty) None else Some(Json.parse(textContent))
 
 	/**
 	 * @param occurrence
