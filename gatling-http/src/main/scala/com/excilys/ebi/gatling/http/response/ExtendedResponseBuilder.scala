@@ -26,7 +26,6 @@ import com.excilys.ebi.gatling.http.check.bodypart.ChecksumCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, Request }
-import com.ning.http.client.Response.ResponseBuilder
 
 object ExtendedResponseBuilder {
 
@@ -46,19 +45,21 @@ object ExtendedResponseBuilder {
 
 class ExtendedResponseBuilder(request: Request, session: Session, checksumChecks: List[ChecksumCheck], storeBodyParts: Boolean) {
 
-	private val responseBuilder = new ResponseBuilder
+	private var status: HttpResponseStatus = _
+	private var headers: HttpResponseHeaders = _
+	private val bodies = new java.util.ArrayList[HttpResponseBodyPart]
 	private var checksums = Map.empty[String, MessageDigest]
 	val _executionStartDate = nowMillis
 	var _requestSendingEndDate = 0L
 	var _responseReceivingStartDate = 0L
 	var _executionEndDate = 0L
 
-	def accumulate(responseStatus: HttpResponseStatus) {
-		responseBuilder.accumulate(responseStatus)
+	def accumulate(status: HttpResponseStatus) {
+		this.status = status
 	}
 
 	def accumulate(headers: HttpResponseHeaders) {
-		responseBuilder.accumulate(headers)
+		this.headers = headers
 	}
 
 	def updateRequestSendingEndDate(nanos: Long) {
@@ -85,7 +86,7 @@ class ExtendedResponseBuilder(request: Request, session: Session, checksumChecks
 			}
 
 			if (storeBodyParts) {
-				responseBuilder.accumulate(part)
+				bodies.add(part)
 			}
 		}
 	}
@@ -98,7 +99,7 @@ class ExtendedResponseBuilder(request: Request, session: Session, checksumChecks
 		_responseReceivingStartDate = max(_responseReceivingStartDate, _requestSendingEndDate)
 		// ensure response doesn't end before starting
 		_executionEndDate = max(_executionEndDate, _responseReceivingStartDate)
-		val response = Option(responseBuilder.build)
+		val response = Option(status).map(status => status.provider.prepareResponse(status, headers, bodies))
 		new ExtendedResponse(request, response, checksums, _executionStartDate, _requestSendingEndDate, _responseReceivingStartDate, _executionEndDate)
 	}
 }
