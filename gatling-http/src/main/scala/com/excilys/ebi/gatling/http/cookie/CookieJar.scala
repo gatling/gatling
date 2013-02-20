@@ -112,12 +112,12 @@ class CookieJar(store: Map[URI, List[Cookie]]) {
 		val cookiesWithExactDomainNames = cookiesWithExactDomain.map(_.getName.toLowerCase)
 
 		// known limitation: might return duplicates if more than 1 cookie with a given name with non exact domain
+
+		def matchSubDomain(cookie: Cookie) = !cookiesWithExactDomainNames.contains(cookie.getName.toLowerCase) && domainMatches(cookie.getDomain, rawURI.getHost) && pathMatches(cookie)
+
 		val cookiesWithMatchingDomain = store
-			.filterKeys(_ != uri)
-			.values
+			.collect { case (key, cookies) if key != uri => cookies.filter(matchSubDomain) }
 			.flatten
-			.filter(cookie => !cookiesWithExactDomainNames.contains(cookie.getName.toLowerCase)
-				&& domainMatches(cookie.getDomain, rawURI.getHost) && pathMatches(cookie))
 
 		// known limitation: don't handle runtime expiration, intended for stress test
 		cookiesWithExactDomain ++ cookiesWithMatchingDomain

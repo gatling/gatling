@@ -95,7 +95,7 @@ object EL {
 				}
 				.toList
 
-			val indexedStaticParts = staticParts.zipWithIndex.map { case (part, index) => (part, index * 2) }.filter { case (part, index) => !part.string.isEmpty }
+			val indexedStaticParts = staticParts.zipWithIndex.collect { case (part, index) if !part.string.isEmpty => (part, index * 2) }
 			val indexedDynamicParts = dynamicParts.zipWithIndex.map { case (part, index) => (part, index * 2 + 1) }
 
 			(indexedStaticParts ::: indexedDynamicParts).sortBy(_._2).map(_._1)
