@@ -15,6 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 
+import java.io.InputStream
+
 import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
@@ -25,9 +27,9 @@ import com.excilys.ebi.gatling.core.check.extractor.Extractor
  * @constructor creates a new JsonPathExtractor
  * @param textContent the text where the search will be made
  */
-class JsonPathExtractor(textContent: Array[Byte]) extends Extractor {
+class JsonPathExtractor(inputStream: Option[InputStream]) extends Extractor {
 
-	val json: Option[JsonNode] = if (textContent.isEmpty) None else Some(Json.parse(textContent))
+	val json: Option[JsonNode] = inputStream.map(Json.parse)
 
 	/**
 	 * @param occurrence

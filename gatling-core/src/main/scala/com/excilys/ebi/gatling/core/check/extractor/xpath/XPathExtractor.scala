@@ -18,15 +18,15 @@ package com.excilys.ebi.gatling.core.check.extractor.xpath
 import java.io.{ InputStream, StringReader }
 
 import scala.collection.JavaConversions.asScalaBuffer
-import scala.util.Try
 
 import org.jaxen.dom.DOMXPath
-import org.w3c.dom.{ Node, Document }
-import org.xml.sax.{ InputSource, EntityResolver }
+import org.w3c.dom.{ Document, Node }
+import org.xml.sax.{ EntityResolver, InputSource }
 
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
+import com.excilys.ebi.gatling.core.util.IOHelper
 
-import javax.xml.parsers.{ DocumentBuilderFactory, DocumentBuilder }
+import javax.xml.parsers.{ DocumentBuilder, DocumentBuilderFactory }
 
 object XPathExtractor {
 
@@ -48,10 +48,16 @@ object XPathExtractor {
 		}
 	}
 
-	def apply(inputStream: InputStream) = {
-		val parser = XPathExtractor.parserHolder.get
-		val document = Try(parser.parse(inputStream)).toOption
-		parser.reset
+	def apply(inputStream: Option[InputStream]): XPathExtractor = {
+		val document = inputStream.map {
+			IOHelper.use(_) { is =>
+				val parser = XPathExtractor.parserHolder.get
+				val document = parser.parse(is)
+				parser.reset
+				document
+			}
+		}
+
 		new XPathExtractor(document)
 	}
 }

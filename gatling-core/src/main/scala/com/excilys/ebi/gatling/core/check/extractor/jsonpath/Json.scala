@@ -15,6 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 
+import java.io.InputStream
+
 import scala.collection.JavaConversions.asScalaIterator
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
@@ -31,7 +33,7 @@ object Json {
 		new ObjectMapper(jsonFactory)
 	}
 
-	def parse(bytes: Array[Byte]): JsonNode = {
+	def parse(is: InputStream): JsonNode = {
 
 		implicit class FlattenableArrayNode(array: ArrayNode) {
 			def flatten(name: String) = array.elements.map(convert(name, _)).toList
@@ -50,7 +52,7 @@ object Json {
 			case value: ValueNode => JsonText(name, value.asText)
 		}
 
-		val root = mapper.readValue(bytes, classOf[JacksonNode])
+		val root = mapper.readValue(is, classOf[JacksonNode])
 		root match {
 			case array: ArrayNode => JsonElement("", array.flatten(""))
 			case node => convert("", node)

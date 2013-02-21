@@ -19,16 +19,12 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import com.excilys.ebi.gatling.core.util.IOHelper
-
 @RunWith(classOf[JUnitRunner])
 class XPathExtractorSpec extends Specification {
 
 	val namespaces = List("foo" -> "http://foo/foo")
 
-	def extractor(file: String) = IOHelper.use(getClass.getResourceAsStream(file)) { stream =>
-		XPathExtractor(stream)
-	}
+	def extractor(file: String) = XPathExtractor(Some(getClass.getResourceAsStream(file)))
 
 	"count" should {
 

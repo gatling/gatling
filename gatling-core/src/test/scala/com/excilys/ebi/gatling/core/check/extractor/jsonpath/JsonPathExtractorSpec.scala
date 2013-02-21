@@ -15,23 +15,18 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 
-import scala.io.Source
-
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration
-import com.excilys.ebi.gatling.core.util.IOHelper
 
 @RunWith(classOf[JUnitRunner])
-class JsonExtractorSpec extends Specification {
+class JsonPathExtractorSpec extends Specification {
 
 	def extractor(file: String) = {
 		GatlingConfiguration.setUp()
-		IOHelper.use(Source.fromInputStream(getClass.getResourceAsStream(file))) { source =>
-			new JsonPathExtractor(source.mkString.getBytes)
-		}
+		new JsonPathExtractor(Some(getClass.getResourceAsStream(file)))
 	}
 
 	"count" should {
