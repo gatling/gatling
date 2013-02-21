@@ -127,7 +127,6 @@
 		<joda-convert.version>1.2</joda-convert.version>
 		<xstream.version>1.4.3</xstream.version>
 		<scopt.version>2.1.0</scopt.version>
-		<ant.version>1.8.3</ant.version>
 		<grizzled-slf4j.version>0.6.10</grizzled-slf4j.version>
 		<jackson.version>2.1.3</jackson.version>
 		<jackson-annotations.version>2.1.2</jackson-annotations.version>
@@ -311,11 +310,6 @@
 				<groupId>com.github.scopt</groupId>
 				<artifactId>scopt_2.9.2</artifactId>
 				<version>${scopt.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.ant</groupId>
-				<artifactId>ant</artifactId>
-				<version>${ant.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.clapper</groupId>
