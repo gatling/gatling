@@ -27,7 +27,15 @@ object HttpBodyXPathCheckBuilder {
 
 	private val HTTP_BODY_XPATH_EXTRACTOR_CONTEXT_KEY = "HttpBodyXPathExtractor"
 
-	private def getCachedExtractor(response: ExtendedResponse) = getOrUpdateCheckContextAttribute(HTTP_BODY_XPATH_EXTRACTOR_CONTEXT_KEY, XPathExtractor(response.getResponseBodyAsStream))
+	private def getCachedExtractor(response: ExtendedResponse) = {
+
+		def newExtractor = {
+			val stream = if (response.hasResponseBody) Some(response.getResponseBodyAsStream) else None
+			XPathExtractor(stream)
+		}
+
+		getOrUpdateCheckContextAttribute(HTTP_BODY_XPATH_EXTRACTOR_CONTEXT_KEY, newExtractor)
+	}
 
 	private def newFindExtractorFactory(namespaces: List[(String, String)])(occurrence: Int): ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => getCachedExtractor(response).extractOne(occurrence, namespaces)
 

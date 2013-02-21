@@ -15,8 +15,9 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 
+import java.io.InputStream
+
 import scala.collection.JavaConversions.asScalaBuffer
-import scala.util.Try
 
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
@@ -43,9 +44,9 @@ object JsonPathExtractor {
  * @constructor creates a new JsonPathExtractor
  * @param textContent the text where the search will be made
  */
-class JsonPathExtractor(textContent: Array[Byte]) extends Extractor {
+class JsonPathExtractor(inputStream: Option[InputStream]) extends Extractor {
 
-	val json: Option[JsonNode] = Try(JsonPathExtractor.mapper.readValue(textContent, classOf[JsonNode])).toOption
+	val json: Option[JsonNode] = inputStream.map(JsonPathExtractor.mapper.readValue(_, classOf[JsonNode]))
 
 	/**
 	 * @param occurrence
