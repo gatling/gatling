@@ -23,7 +23,6 @@ import scala.concurrent.duration.DurationInt
 
 import com.excilys.ebi.gatling.core.action.{ BaseActor, system }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.core.result.message.{ GroupRecord, RequestRecord, RunRecord, ScenarioRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
@@ -40,7 +39,7 @@ class GraphiteDataWriter extends DataWriter {
 
 	private val graphiteSender: ActorRef = context.actorOf(Props(new GraphiteSender))
 	private var metricRootPath: List[String] = Nil
-	private val groupStack: mutable.Map[(String, Int), Option[Group]] = mutable.Map.empty
+	private val groupStack: mutable.Map[Int, List[String]] = mutable.Map.empty
 	private val allRequests = new RequestMetrics
 	private val perRequest: mutable.Map[List[String], RequestMetrics] = mutable.Map.empty
 	private var allUsers: UserMetric = _
@@ -62,27 +61,27 @@ class GraphiteDataWriter extends DataWriter {
 		usersPerScenario(scenarioRecord.scenarioName).update(scenarioRecord)
 		allUsers.update(scenarioRecord)
 		scenarioRecord.event match {
-			case START => updateCurrentGroup(scenarioRecord.scenarioName, scenarioRecord.userId, _ => None)
-			case END => groupStack.remove((scenarioRecord.scenarioName, scenarioRecord.userId))
+			case START => groupStack += scenarioRecord.userId -> Nil
+			case END => groupStack.remove(scenarioRecord.userId)
 		}
 	}
 
-	private def updateCurrentGroup(scenarioName: String, userId: Int, value: Option[Group] => Option[Group]) =
-		groupStack += (scenarioName, userId) -> value(groupStack.get(scenarioName -> userId).flatten)
-
 	def onGroupRecord(groupRecord: GroupRecord) {
-		groupRecord.event match {
-			case START =>
-				updateCurrentGroup(groupRecord.scenarioName, groupRecord.userId, current => Some(Group(groupRecord.groupName, current)))
-
-			case END =>
-				updateCurrentGroup(groupRecord.scenarioName, groupRecord.userId, current => current.flatMap(_.parent))
+		val userId = groupRecord.userId
+		val userStack = groupStack(userId)
+		val newUserStack = groupRecord.event match {
+			case START => groupRecord.groupName :: userStack
+			case END if (!userStack.isEmpty) => userStack.tail
+			case _ =>
+				error("Trying to stop a user that hasn't started?!")
+				Nil
 		}
+		groupStack += userId -> newUserStack
 	}
 
 	def onRequestRecord(requestRecord: RequestRecord) {
-		val group = groupStack(requestRecord.scenarioName -> requestRecord.userId)
-		val path = requestRecord.requestName :: group.map(group => group.name :: group.groups).getOrElse(Nil)
+		val currentGroup = groupStack(requestRecord.userId)
+		val path = requestRecord.requestName :: currentGroup
 		val metric = perRequest.getOrElseUpdate(path.reverse, new RequestMetrics)
 		metric.update(requestRecord)
 		allRequests.update(requestRecord)
@@ -123,7 +122,7 @@ class GraphiteSender extends BaseActor {
 			def sanitizeStringList(list: List[String]) = list.map(sanitizeString)
 
 			def sendToGraphite(metricPath: MetricPath, value: Long) {
-				val message = "%s %s %s\n".format(metricPath.toString, value.toString, epoch.toString)
+				val message = raw"$metricPath $value $epoch" + '\n'
 				val buffer = message.getBytes(configuration.simulation.encoding)
 				val packet = new DatagramPacket(buffer, buffer.length, address)
 				socket.send(packet)
