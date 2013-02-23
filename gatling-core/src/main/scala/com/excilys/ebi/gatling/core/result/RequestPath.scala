@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.result
 
-class Group(val name: String, val parent: Option[Group]) {
+case class Group(name: String, parent: Option[Group] = None) {
 	val groups: List[String] = parent.map(parent => parent.name :: parent.groups).getOrElse(Nil)
 	val path = RequestPath.path(name :: groups)
 
@@ -29,15 +29,11 @@ class Group(val name: String, val parent: Option[Group]) {
 
 	override val toString = path
 }
-object Group {
-	def apply(groupName: String, parent: Option[Group] = None) = new Group(groupName, parent)
-}
 
 object RequestPath {
 	val SEPARATOR = " / "
 
 	def path(list: List[String]): String = list.reverse.mkString(SEPARATOR)
-
 	def path(requestName: String, group: Option[Group]): String = path(requestName :: group.map(group => group.name :: group.groups).getOrElse(Nil))
 }
 

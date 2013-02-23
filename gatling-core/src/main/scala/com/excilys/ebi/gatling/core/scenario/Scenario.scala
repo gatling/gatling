@@ -24,20 +24,23 @@ import akka.util.duration.longToDurationLong
 
 class Scenario(val name: String, entryPoint: ActorRef, val configuration: ScenarioConfiguration) {
 
-	def run {
+	def run(userIdStart: Int) {
 
 		def doRun {
+
+			def newSession(i: Int) = new Session(name, i + userIdStart)
+
 			if (configuration.users == 1) {
 				// if single user, execute right now
-				entryPoint ! new Session(name, 1)
+				entryPoint ! newSession(1)
 
 			} else {
 				configuration.ramp.map { duration =>
 					val period = duration.toMillis.toDouble / (configuration.users - 1)
-					for (i <- 1 to configuration.users) system.scheduler.scheduleOnce((period * (i - 1)).toInt milliseconds, entryPoint, new Session(name, i))
+					for (i <- 1 to configuration.users) system.scheduler.scheduleOnce((period * (i - 1)).toInt milliseconds, entryPoint, newSession(i))
 
 				}.getOrElse {
-					for (i <- 1 to configuration.users) entryPoint ! new Session(name, i)
+					for (i <- 1 to configuration.users) entryPoint ! newSession(i)
 				}
 			}
 		}

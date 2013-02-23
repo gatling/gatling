@@ -54,7 +54,11 @@ class Runner(selection: Selection) extends Logging {
 			DataWriter.init(runRecord, scenarios)
 
 			debug("Launching All Scenarios")
-			scenarios.foreach(_.run)
+
+			scenarios.foldLeft(0) { (i, scenario) =>
+				scenario.run(i)
+				i + scenario.configuration.users
+			}
 			debug("Finished Launching scenarios executions")
 
 			terminatorLatch.await(configuration.timeOut.simulation, SECONDS)
