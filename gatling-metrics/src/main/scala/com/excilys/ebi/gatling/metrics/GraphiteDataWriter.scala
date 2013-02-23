@@ -122,7 +122,7 @@ class GraphiteSender extends BaseActor {
 			def sanitizeStringList(list: List[String]) = list.map(sanitizeString)
 
 			def sendToGraphite(metricPath: MetricPath, value: Long) {
-				val message = raw"$metricPath $value $epoch" + '\n'
+				val message = raw"$metricPath $value $epoch"
 				val buffer = message.getBytes(configuration.simulation.encoding)
 				val packet = new DatagramPacket(buffer, buffer.length, address)
 				socket.send(packet)
