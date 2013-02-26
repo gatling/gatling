@@ -77,28 +77,25 @@ trait ConditionalStatements[B] extends Execs[B] {
 	 * Switch is selected randomly. If no switch is selected (ie random number exceeds percentages sum), switch is bypassed.
 	 * Percentages sum can't exceed 100%.
 	 *
-	 * @param possibility1 the first possible subchain
-	 * @param possibility2 the second possible subchain
+	 * @param possibility1 a possible subchain
 	 * @param possibilities the rest of the possible subchains
 	 * @return a new builder with a random switch added to its actions
 	 */
-	def randomSwitch(possibility1: (Int, ChainBuilder), possibility2: (Int, ChainBuilder), possibilities: (Int, ChainBuilder)*): B = newInstance(new RandomSwitchBuilder(possibility1 :: possibility2 :: possibilities.toList) :: actionBuilders)
+	def randomSwitch(possibility1: (Int, ChainBuilder), possibilities: (Int, ChainBuilder)*): B = newInstance(new RandomSwitchBuilder(possibility1 :: possibilities.toList) :: actionBuilders)
 
 	/**
 	 * Add a switch in the chain. Selection uses a random strategy
 	 *
-	 * @param possibility1 the first possible subchain
-	 * @param possibility2 the second possible subchain
+	 * @param possibility1 a possible subchain
 	 * @param possibilities the rest of the possible subchains
 	 * @return a new builder with a random switch added to its actions
 	 */
-	def randomSwitch(possibility1: ChainBuilder, possibility2: ChainBuilder, possibilities: ChainBuilder*): B = {
+	def randomSwitch(possibility1: ChainBuilder, possibilities: ChainBuilder*): B = {
 
-		val tailPossibilities = possibility2 :: possibilities.toList
-		val basePercentage = 100 / (tailPossibilities.size + 1)
-		val firstPercentage = 100 - basePercentage * tailPossibilities.size
+		val basePercentage = 100 / (possibilities.size + 1)
+		val firstPercentage = 100 - basePercentage * possibilities.size
 
-		val possibilitiesWithPercentage = (firstPercentage, possibility1) :: tailPossibilities.map((basePercentage, _))
+		val possibilitiesWithPercentage = (firstPercentage, possibility1) :: possibilities.toList.map((basePercentage, _))
 
 		newInstance(new RandomSwitchBuilder(possibilitiesWithPercentage) :: actionBuilders)
 	}
@@ -106,11 +103,10 @@ trait ConditionalStatements[B] extends Execs[B] {
 	/**
 	 * Add a switch in the chain. Selection uses a round robin strategy
 	 *
-	 * @param possibility1 the first possible subchain
-	 * @param possibility2 the second possible subchain
+	 * @param possibility1 a possible subchain
 	 * @param possibilities the rest of the possible subchains
 	 * @return a new builder with a random switch added to its actions
 	 */
-	def roundRobinSwitch(possibility1: ChainBuilder, possibility2: ChainBuilder, possibilities: ChainBuilder*): B = newInstance(new RoundRobinSwitchBuilder(possibility1 :: possibility2 :: possibilities.toList) :: actionBuilders)
+	def roundRobinSwitch(possibility1: ChainBuilder, possibilities: ChainBuilder*): B = newInstance(new RoundRobinSwitchBuilder(possibility1 :: possibilities.toList) :: actionBuilders)
 
 }
