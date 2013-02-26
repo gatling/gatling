@@ -34,24 +34,24 @@ trait Pauses[B] extends Execs[B] {
 	/**
 	 * Method used to define a pause based on a duration defined in the session
 	 *
-	 * @param sessionKey session key which holds the pause duration
+	 * @param durationEl EL expression that when resolved, provides the pause duration
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pause(sessionKey: String): B = {
-		val minDuration = (session: Session) => session.safeGetAs[Duration](sessionKey)
+	def pause(durationEl: String): B = {
+		val minDuration = EL.compile[Duration](durationEl)
 		newInstance(new PauseBuilder(minDuration) :: actionBuilders)
 	}
 
 	/**
 	 * Method used to define a pause based on a duration defined in the session
 	 *
-	 * @param minDurationKey session key which holds the minimum pause duration
-	 * @param maxDurationKey session key which holds the maximum pause duration
+	 * @param minDurationEl EL expression that when resolved, provides the minimum pause duration
+	 * @param maxDurationEl EL expression that when resolved, provides the maximum pause duration
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pause(minDurationKey: String, maxDurationKey: String): B = {
-		val minDuration = (session: Session) => session.safeGetAs[Duration](minDurationKey)
-		val maxDuration = (session: Session) => session.safeGetAs[Duration](maxDurationKey)
+	def pause(minDurationEl: String, maxDurationEl: String): B = {
+		val minDuration = EL.compile[Duration](minDurationEl)
+		val maxDuration = EL.compile[Duration](maxDurationEl)
 		newInstance(new PauseBuilder(minDuration, Some(maxDuration)) :: actionBuilders)
 	}
 
