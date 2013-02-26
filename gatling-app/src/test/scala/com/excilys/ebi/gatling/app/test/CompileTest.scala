@@ -98,6 +98,8 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 		.randomSwitch(
 			40 -> exec(http("Catégorie Poney").get("/")),
 			50 -> exec(http("Catégorie Poney").get("/")))
+		.randomSwitch(
+			50 -> exec(http("Catégorie Poney").get("/")))
 		.pause(pause2, pause3)
 		// Loop
 		.repeat(iterations, "titi") {
