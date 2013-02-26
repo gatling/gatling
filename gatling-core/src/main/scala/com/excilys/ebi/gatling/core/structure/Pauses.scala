@@ -16,8 +16,10 @@
 package com.excilys.ebi.gatling.core.structure
 
 import scala.concurrent.duration.{ Duration, DurationLong }
-
 import com.excilys.ebi.gatling.core.action.builder.{ CustomPauseBuilder, ExpPauseBuilder, PauseBuilder }
+import com.excilys.ebi.gatling.core.session.{ Session, EL, Expression }
+import scalaz.Scalaz.ToValidationV
+import scalaz.Validation
 
 trait Pauses[B] extends Execs[B] {
 
@@ -28,6 +30,17 @@ trait Pauses[B] extends Execs[B] {
 	 * @return a new builder with a pause added to its actions
 	 */
 	def pause(duration: Long): B = pause(duration seconds, None)
+
+	/**
+	 * Method used to define a pause based on a duration defined in the session
+	 *
+	 * @param session key which holds the pause duration
+	 * @return a new builder with a pause added to its actions
+	 */
+	def pause(sessionKey: String): B = {
+		val minDuration = (session:Session) => session.safeGetAs[Duration](sessionKey)
+		newInstance(new PauseBuilder(minDuration) :: actionBuilders)
+	}
 
 	/**
 	 * Method used to define a random pause in seconds
@@ -54,7 +67,7 @@ trait Pauses[B] extends Execs[B] {
 	 * @param maxDuration the maximum value of the pause
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pause(minDuration: Duration, maxDuration: Option[Duration] = None): B = newInstance(new PauseBuilder(minDuration, maxDuration) :: actionBuilders)
+	def pause(minDuration: Duration, maxDuration: Option[Duration] = None): B = newInstance(new PauseBuilder((Session) => minDuration.success, maxDuration) :: actionBuilders)
 
 	/**
 	 * Method used to define drawn from an exponential distribution with the specified mean duration.
@@ -78,5 +91,6 @@ trait Pauses[B] extends Execs[B] {
 	 * @param delayGenerator the strategy for computing the pauses, in milliseconds
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pauseCustom(delayGenerator: () => Long): B = newInstance(new CustomPauseBuilder(delayGenerator) :: actionBuilders)
+	def pauseCustom(delayGenerator: (Session) => Validation[String, Long]): B = newInstance(new CustomPauseBuilder(delayGenerator) :: actionBuilders)
+
 }

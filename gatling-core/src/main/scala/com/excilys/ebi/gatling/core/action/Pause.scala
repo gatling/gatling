@@ -21,6 +21,7 @@ import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 
 import akka.actor.ActorRef
+import scalaz.{ Failure, Success, Validation }
 
 /**
  * PauseAction provides a convenient means to implement pause actions based on random distributions.
@@ -28,7 +29,7 @@ import akka.actor.ActorRef
  * @param generateDelayInMillis a function that can be used to generate a delays for the pause action
  * @param next the next action to execute, which will be notified after the pause is complete
  */
-class Pause(generateDelayInMillis: () => Long, val next: ActorRef) extends Bypassable {
+class Pause(generateDelayInMillis: (Session) => Validation[String, Long], val next: ActorRef) extends Bypassable {
 
 	/**
 	 * Generates a duration if required or use the one given and defer
@@ -37,28 +38,33 @@ class Pause(generateDelayInMillis: () => Long, val next: ActorRef) extends Bypas
 	 * @param session the session of the virtual user
 	 */
 	def execute(session: Session) {
-
 		import system.dispatcher
 
-		val durationInMillis: Long = generateDelayInMillis()
-		val timeShift = session.getTimeShift
+		val resolvedDurationInMillis = generateDelayInMillis(session)
+		resolvedDurationInMillis match {
+			case Success(durationInMillis) => {
+				val timeShift = session.getTimeShift
 
-		if (durationInMillis > timeShift) {
-			// can make pause
-			val durationMinusTimeShift = durationInMillis - timeShift
-			info(s"Pausing for ${durationInMillis}ms (real=${durationMinusTimeShift}ms)")
+				if (durationInMillis > timeShift) {
+					// can make pause
+					val durationMinusTimeShift = durationInMillis - timeShift
+					info(s"Pausing for ${durationInMillis}ms (real=${durationMinusTimeShift}ms)")
 
-			val pauseStart = nowMillis
-			system.scheduler.scheduleOnce(durationMinusTimeShift milliseconds) {
-				val newTimeShift = nowMillis - pauseStart - durationMinusTimeShift
-				next ! session.setTimeShift(newTimeShift)
+					val pauseStart = nowMillis
+					system.scheduler.scheduleOnce(durationMinusTimeShift milliseconds) {
+						val newTimeShift = nowMillis - pauseStart - durationMinusTimeShift
+						next ! session.setTimeShift(newTimeShift)
+					}
+
+				} else {
+					// time shift is too big
+					val remainingTimeShift = timeShift - durationInMillis
+					info(s"can't pause (remaining time shift=${remainingTimeShift}ms)")
+					next ! session.setTimeShift(remainingTimeShift)
+				}
 			}
-
-		} else {
-			// time shift is too big
-			val remainingTimeShift = timeShift - durationInMillis
-			info(s"can't pause (remaining time shift=${remainingTimeShift}ms)")
-			next ! session.setTimeShift(remainingTimeShift)
+			
+			case Failure(msg) => error(msg); next ! session
 		}
 	}
 }

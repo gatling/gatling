@@ -15,13 +15,14 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import scala.concurrent.duration.Duration
-
+import akka.actor.{ ActorRef, Props }
 import com.excilys.ebi.gatling.core.action.{ Pause, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.util.NumberHelper.createUniformRandomLongGenerator
+import com.excilys.ebi.gatling.core.session.{ Session, Expression }
+import scala.concurrent.duration.Duration
 
-import akka.actor.{ ActorRef, Props }
+import scalaz.Validation
 
 /**
  * Builder for the 'pause' action.
@@ -30,15 +31,18 @@ import akka.actor.{ ActorRef, Props }
  * @param minDuration minimum duration of the generated pause
  * @param maxDuration maximum duration of the generated pause
  */
-class PauseBuilder(minDuration: Duration, maxDuration: Option[Duration] = None) extends ActionBuilder {
+class PauseBuilder(minDuration: Expression[Duration], maxDuration: Option[Duration] = None) extends ActionBuilder {
 
 	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
-		val minDurationInMillis = minDuration.toMillis
 		val maxDurationInMillis = maxDuration.map(_.toMillis)
 
-		val delayGenerator: () => Long = maxDurationInMillis.map(
-			createUniformRandomLongGenerator(minDurationInMillis, _))
-			.getOrElse(() => minDurationInMillis)
+		def delayGenerator(session: Session): Validation[String, Long] = {
+			val resolvedMinDurationInMillis = minDuration(session).map(_.toMillis)
+			maxDurationInMillis.map { m =>
+				resolvedMinDurationInMillis.map(createUniformRandomLongGenerator(_, m)())
+			}.getOrElse(resolvedMinDurationInMillis)
+		}
+
 		system.actorOf(Props(new Pause(delayGenerator, next)))
 	}
 }
