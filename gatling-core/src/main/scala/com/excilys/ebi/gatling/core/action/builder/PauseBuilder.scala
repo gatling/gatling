@@ -31,16 +31,17 @@ import scalaz.Validation
  * @param minDuration minimum duration of the generated pause
  * @param maxDuration maximum duration of the generated pause
  */
-class PauseBuilder(minDuration: Expression[Duration], maxDuration: Option[Duration] = None) extends ActionBuilder {
+class PauseBuilder(minDuration: Expression[Duration], maxDurationOption: Option[Expression[Duration]] = None) extends ActionBuilder {
 
 	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
-		val maxDurationInMillis = maxDuration.map(_.toMillis)
 
 		def delayGenerator(session: Session): Validation[String, Long] = {
 			val resolvedMinDurationInMillis = minDuration(session).map(_.toMillis)
-			maxDurationInMillis.map { m =>
-				resolvedMinDurationInMillis.map(createUniformRandomLongGenerator(_, m)())
-			}.getOrElse(resolvedMinDurationInMillis)
+			maxDurationOption.map(maxDuration => {
+				val resolvedMaxDurationInMillis = maxDuration(session).map(_.toMillis)
+				for (min <- resolvedMinDurationInMillis; max <- resolvedMaxDurationInMillis)
+					yield createUniformRandomLongGenerator(min, max)()
+			}).getOrElse(resolvedMinDurationInMillis)
 		}
 
 		system.actorOf(Props(new Pause(delayGenerator, next)))

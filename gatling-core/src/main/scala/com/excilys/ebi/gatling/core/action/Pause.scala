@@ -16,10 +16,8 @@
 package com.excilys.ebi.gatling.core.action
 
 import scala.concurrent.duration.DurationLong
-
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
-
 import akka.actor.ActorRef
 import scalaz.{ Failure, Success, Validation }
 
@@ -29,7 +27,7 @@ import scalaz.{ Failure, Success, Validation }
  * @param generateDelayInMillis a function that can be used to generate a delays for the pause action
  * @param next the next action to execute, which will be notified after the pause is complete
  */
-class Pause(generateDelayInMillis: (Session) => Validation[String, Long], val next: ActorRef) extends Bypassable {
+class Pause(generateDelayInMillis: Expression[Long], val next: ActorRef) extends Bypassable {
 
 	/**
 	 * Generates a duration if required or use the one given and defer

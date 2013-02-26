@@ -17,9 +17,8 @@ package com.excilys.ebi.gatling.core.action.builder
 
 import com.excilys.ebi.gatling.core.action.{ Pause, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import akka.actor.{ ActorRef, Props }
-import scalaz.Validation
 
 /**
  * Builder for the custom 'pause' action.
@@ -27,7 +26,7 @@ import scalaz.Validation
  * @constructor create a new PauseActionBuilder
  * @param delayGenerator the strategy for computing the duration of the generated pause, in milliseconds
  */
-class CustomPauseBuilder(delayGenerator: (Session) => Validation[String, Long]) extends ActionBuilder {
+class CustomPauseBuilder(delayGenerator: Expression[Long]) extends ActionBuilder {
 
 	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new Pause(delayGenerator, next)))
 }
