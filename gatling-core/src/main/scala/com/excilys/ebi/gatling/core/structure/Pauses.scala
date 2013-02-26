@@ -41,15 +41,15 @@ trait Pauses[B] extends Execs[B] {
 		val minDuration = (session: Session) => session.safeGetAs[Duration](sessionKey)
 		newInstance(new PauseBuilder(minDuration) :: actionBuilders)
 	}
-	
-		/**
+
+	/**
 	 * Method used to define a pause based on a duration defined in the session
 	 *
 	 * @param minDurationKey session key which holds the minimum pause duration
 	 * @param maxDurationKey session key which holds the maximum pause duration
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pause(minDurationKey: String, maxDurationKey:String): B = {
+	def pause(minDurationKey: String, maxDurationKey: String): B = {
 		val minDuration = (session: Session) => session.safeGetAs[Duration](minDurationKey)
 		val maxDuration = (session: Session) => session.safeGetAs[Duration](maxDurationKey)
 		newInstance(new PauseBuilder(minDuration, Some(maxDuration)) :: actionBuilders)
@@ -104,6 +104,6 @@ trait Pauses[B] extends Execs[B] {
 	 * @param delayGenerator the strategy for computing the pauses, in milliseconds
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pauseCustom(delayGenerator: (Session) => Validation[String, Long]): B = newInstance(new CustomPauseBuilder(delayGenerator) :: actionBuilders)
+	def pauseCustom(delayGenerator: Expression[Long]): B = newInstance(new CustomPauseBuilder(delayGenerator) :: actionBuilders)
 
 }
