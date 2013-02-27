@@ -52,13 +52,15 @@ class GraphiteDataWriter extends DataWriter {
 	}
 
 	def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) {
-		metricRootPath = List("gatling", runRecord.simulationId)
+		metricRootPath = List(getRootPathPrefix(), runRecord.simulationId)
 		allUsers = new UserMetric(scenarios.map(_.nbUsers).sum)
 		scenarios.foreach(scenario => usersPerScenario.+=((scenario.name, new UserMetric(scenario.nbUsers))))
 		writer = newWriter
 		timer = new Timer(true)
 		timer.scheduleAtFixedRate(new SendToGraphiteTask, 0, 1000)
 	}
+	
+	def getRootPathPrefix() : String = { "gatling" }
 
 	def onScenarioRecord(scenarioRecord: ScenarioRecord) {
 		usersPerScenario(scenarioRecord.scenarioName).update(scenarioRecord)
