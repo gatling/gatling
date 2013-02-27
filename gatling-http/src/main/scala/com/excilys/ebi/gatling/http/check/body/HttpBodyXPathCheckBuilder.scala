@@ -15,40 +15,36 @@
  */
 package com.excilys.ebi.gatling.http.check.body
 
-import com.excilys.ebi.gatling.core.check.CheckContext.getOrUpdateCheckContextAttribute
-import com.excilys.ebi.gatling.core.check.ExtractorFactory
-import com.excilys.ebi.gatling.core.check.extractor.xpath.XPathExtractor
+import org.w3c.dom.Document
+
+import com.excilys.ebi.gatling.core.check.Preparer
+import com.excilys.ebi.gatling.core.check.extractor.xpath.XPathExtractors
 import com.excilys.ebi.gatling.core.session.Expression
-import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
+import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
-import com.excilys.ebi.gatling.http.check.HttpMultipleCheckBuilder
 
-object HttpBodyXPathCheckBuilder {
+import grizzled.slf4j.Logging
+import scalaz.Scalaz.ToValidationV
 
-	private val HTTP_BODY_XPATH_EXTRACTOR_CONTEXT_KEY = "HttpBodyXPathExtractor"
+object HttpBodyXPathCheckBuilder extends Logging {
 
-	private def getCachedExtractor(response: ExtendedResponse) = {
+	private val preparer: Preparer[ExtendedResponse, Option[Document]] = (response: ExtendedResponse) =>
+		try {
+			val is = if (response.hasResponseBody) Some(response.getResponseBodyAsStream) else None
+			is.map(XPathExtractors.parse).success
 
-		def newExtractor = {
-			val stream = if (response.hasResponseBody) Some(response.getResponseBodyAsStream) else None
-			XPathExtractor(stream)
+		} catch {
+			case e: Exception =>
+				val message = s"Could not parse response into a DOM Document: ${e.getMessage}"
+				info(message, e)
+				message.failure
 		}
 
-		getOrUpdateCheckContextAttribute(HTTP_BODY_XPATH_EXTRACTOR_CONTEXT_KEY, newExtractor)
-	}
-
-	private def newFindExtractorFactory(namespaces: List[(String, String)])(occurrence: Int): ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => getCachedExtractor(response).extractOne(occurrence, namespaces)
-
-	private def newFindAllExtractorFactory(namespaces: List[(String, String)]): ExtractorFactory[ExtendedResponse, String, Seq[String]] = (response: ExtendedResponse) => getCachedExtractor(response).extractMultiple(namespaces)
-
-	private def newCountExtractorFactory(namespaces: List[(String, String)]): ExtractorFactory[ExtendedResponse, String, Int] = (response: ExtendedResponse) => getCachedExtractor(response).count(namespaces)
-
-	def xpath(expression: Expression[String], namespaces: List[(String, String)]) = {
-
-		val findExtractorFactory = newFindExtractorFactory(namespaces) _
-		val findAllExtractorFactory = newFindAllExtractorFactory(namespaces)
-		val countExtractorFactory = newCountExtractorFactory(namespaces)
-
-		new HttpMultipleCheckBuilder(findExtractorFactory, findAllExtractorFactory, countExtractorFactory, expression, CompletePageReceived)
-	}
+	def xpath(expression: Expression[String], namespaces: List[(String, String)]) = new HttpMultipleCheckBuilder[Option[Document], String, String](
+		HttpCheckBuilders.completePageReceivedCheckFactory,
+		preparer,
+		XPathExtractors.extractOne(namespaces),
+		XPathExtractors.extractMultiple(namespaces),
+		XPathExtractors.count(namespaces),
+		expression)
 }

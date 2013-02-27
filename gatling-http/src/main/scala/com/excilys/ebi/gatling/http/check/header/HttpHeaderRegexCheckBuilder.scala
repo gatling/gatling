@@ -15,58 +15,25 @@
  */
 package com.excilys.ebi.gatling.http.check.header
 
-import java.net.URLDecoder
-
-import scala.collection.JavaConversions.asScalaBuffer
-
-import com.excilys.ebi.gatling.core.check.ExtractorFactory
-import com.excilys.ebi.gatling.core.check.extractor.Extractor
-import com.excilys.ebi.gatling.core.check.extractor.regex.RegexExtractor
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.session.{ Session, Expression }
-import com.excilys.ebi.gatling.http.Headers
-import com.excilys.ebi.gatling.http.check.HttpMultipleCheckBuilder
-import com.excilys.ebi.gatling.http.request.HttpPhase.HeadersReceived
+import com.excilys.ebi.gatling.core.session.{ Expression, Session }
+import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
-object HttpHeaderRegexCheckBuilder extends Extractor {
-
-	private def findExtractorFactory(occurrence: Int): ExtractorFactory[ExtendedResponse, (String, String), String] =
-		(response: ExtendedResponse) =>
-			(headerAndPattern: (String, String)) => {
-				findAllExtractorFactory(response)(headerAndPattern) match {
-					case Some(results) if results.isDefinedAt(occurrence) => results(occurrence)
-					case _ => None
-				}
-			}
-
-	private val findAllExtractorFactory: ExtractorFactory[ExtendedResponse, (String, String), Seq[String]] = (response: ExtendedResponse) =>
-		(headerAndPattern: (String, String)) => {
-			val (headerName, pattern) = headerAndPattern
-
-			val decodedHeaderValues = Option(response.getHeaders(headerName))
-				.map { headerValues =>
-					if (headerName == Headers.Names.LOCATION)
-						headerValues.map(URLDecoder.decode(_, configuration.simulation.encoding))
-					else
-						headerValues.toSeq
-				}.getOrElse(Nil)
-
-			decodedHeaderValues.foldLeft(Seq.empty[String]) { (matches, header) =>
-				new RegexExtractor(header).extractMultiple(pattern).map(_ ++ matches).getOrElse(matches)
-			}
-		}
-
-	private val countExtractorFactory: ExtractorFactory[ExtendedResponse, (String, String), Int] =
-		(response: ExtendedResponse) => (headerAndPattern: (String, String)) => findAllExtractorFactory(response)(headerAndPattern).map(_.length).orElse(0)
+object HttpHeaderRegexCheckBuilder {
 
 	def headerRegex(headerName: Expression[String], pattern: Expression[String]) = {
 
-		val expression = (s: Session) => for {
-			h <- headerName(s)
-			p <- pattern(s)
+		val headerAndPattern = (session: Session) => for {
+			h <- headerName(session)
+			p <- pattern(session)
 		} yield (h, p)
 
-		new HttpMultipleCheckBuilder(findExtractorFactory, findAllExtractorFactory, countExtractorFactory, expression, HeadersReceived)
+		new HttpMultipleCheckBuilder[ExtendedResponse, (String, String), String](
+			HttpCheckBuilders.headersReceivedCheckFactory,
+			HttpCheckBuilders.noopResponsePreparer,
+			HttpHeaderRegexExtractors.extractOne,
+			HttpHeaderRegexExtractors.extractMultiple,
+			HttpHeaderRegexExtractors.count,
+			headerAndPattern)
 	}
 }
