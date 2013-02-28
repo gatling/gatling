@@ -15,33 +15,20 @@
  */
 package com.excilys.ebi.gatling.http.check
 
-import com.excilys.ebi.gatling.core.check.{ ExtractorFactory, MatcherCheckBuilder, MultipleExtractorCheckBuilder }
+import com.excilys.ebi.gatling.core.check.{ CheckFactory, Extractor, ExtractorCheckBuilder, MatcherCheckBuilder, Preparer }
 import com.excilys.ebi.gatling.core.session.Expression
-import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
-/**
- * This class builds a response body check based on regular expressions
- *
- * @param findExtractorFactory the extractor factory for find
- * @param findAllExtractorFactory the extractor factory for findAll
- * @param countExtractorFactory the extractor factory for count
- * @param expression the function returning the expression representing expression is to be checked
- */
-class HttpMultipleCheckBuilder[XC](
-	findExtractorFactory: Int => ExtractorFactory[ExtendedResponse, XC, String],
-	findAllExtractorFactory: ExtractorFactory[ExtendedResponse, XC, Seq[String]],
-	countExtractorFactory: ExtractorFactory[ExtendedResponse, XC, Int],
-	expression: Expression[XC],
-	phase: HttpPhase)
-		extends HttpExtractorCheckBuilder[String, XC](expression, phase)
-		with MultipleExtractorCheckBuilder[HttpCheck[XC], ExtendedResponse, XC, String] {
+class HttpMultipleCheckBuilder[P, T, X](
+	checkFactory: CheckFactory[HttpCheck, ExtendedResponse],
+	preparer: Preparer[ExtendedResponse, P],
+	findExtractor: Int => Extractor[P, T, X],
+	findAllExtractor: Extractor[P, T, Seq[X]],
+	countExtractor: Extractor[P, T, Int],
+	expression: Expression[T]) extends ExtractorCheckBuilder[HttpCheck, ExtendedResponse, P, T, X] {
 
-	def find: MatcherCheckBuilder[HttpCheck[XC], ExtendedResponse, XC, String] = find(0)
-
-	def find(occurrence: Int) = new MatcherCheckBuilder(httpCheckBuilderFactory, findExtractorFactory(occurrence))
-
-	def findAll = new MatcherCheckBuilder(httpCheckBuilderFactory, findAllExtractorFactory)
-
-	def count = new MatcherCheckBuilder(httpCheckBuilderFactory, countExtractorFactory)
+	def find = find(0)
+	def find(occurrence: Int): MatcherCheckBuilder[HttpCheck, ExtendedResponse, P, T, X] = MatcherCheckBuilder(checkFactory, preparer, findExtractor(occurrence), expression)
+	def findAll: MatcherCheckBuilder[HttpCheck, ExtendedResponse, P, T, Seq[X]] = MatcherCheckBuilder(checkFactory, preparer, findAllExtractor, expression)
+	def count: MatcherCheckBuilder[HttpCheck, ExtendedResponse, P, T, Int] = MatcherCheckBuilder(checkFactory, preparer, countExtractor, expression)
 }

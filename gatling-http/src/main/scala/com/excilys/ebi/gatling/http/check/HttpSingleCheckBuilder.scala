@@ -15,23 +15,15 @@
  */
 package com.excilys.ebi.gatling.http.check
 
-import com.excilys.ebi.gatling.core.check.{ ExtractorFactory, MatcherCheckBuilder }
+import com.excilys.ebi.gatling.core.check.{ CheckFactory, Extractor, ExtractorCheckBuilder, MatcherCheckBuilder, Preparer }
 import com.excilys.ebi.gatling.core.session.Expression
-import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
-/**
- * This class builds a response body check based on regular expressions
- *
- * @param findExtractorFactory the extractor factory for find
- * @param findAllExtractorFactory the extractor factory for findAll
- * @param countExtractorFactory the extractor factory for count
- * @param expression the function returning the expression representing expression is to be checked
- */
-class HttpSingleCheckBuilder[X, XC](
-		findExtractorFactory: ExtractorFactory[ExtendedResponse, XC, X],
-		expression: Expression[XC],
-		phase: HttpPhase) extends HttpExtractorCheckBuilder[X, XC](expression, phase) {
+class HttpSingleCheckBuilder[P, T, X](
+	checkFactory: CheckFactory[HttpCheck, ExtendedResponse],
+	preparer: Preparer[ExtendedResponse, P],
+	extractor: Extractor[P, T, X],
+	expression: Expression[T]) extends ExtractorCheckBuilder[HttpCheck, ExtendedResponse, P, T, X] {
 
-	def find: MatcherCheckBuilder[HttpCheck[XC], ExtendedResponse, XC, X] = new MatcherCheckBuilder(httpCheckBuilderFactory, findExtractorFactory)
+	def find: MatcherCheckBuilder[HttpCheck, ExtendedResponse, P, T, X] = MatcherCheckBuilder(checkFactory, preparer, extractor, expression)
 }

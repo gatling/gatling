@@ -26,7 +26,7 @@ import grizzled.slf4j.Logging
 
 object GatlingAsyncHandler {
 
-	def newHandlerFactory(checks: List[HttpCheck[_]], protocolConfiguration: HttpProtocolConfiguration): HandlerFactory = {
+	def newHandlerFactory(checks: List[HttpCheck], protocolConfiguration: HttpProtocolConfiguration): HandlerFactory = {
 		val useBodyParts = !protocolConfiguration.responseChunksDiscardingEnabled || checks.exists(check => check.phase == BodyPartReceived || check.phase == CompletePageReceived)
 		(requestName: String, actor: ActorRef) => new GatlingAsyncHandler(requestName, actor, useBodyParts)
 	}

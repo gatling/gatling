@@ -15,34 +15,32 @@
  */
 package com.excilys.ebi.gatling.http.check.bodypart
 
-import com.excilys.ebi.gatling.core.check.{ CheckBuilderFactory, ExtractorFactory, Matcher }
-import com.excilys.ebi.gatling.core.session.NOOP_EXPRESSION
-import com.excilys.ebi.gatling.http.check.{ HttpCheck, HttpSingleCheckBuilder }
-import com.excilys.ebi.gatling.http.request.HttpPhase.BodyPartReceived
+import com.excilys.ebi.gatling.core.check.{ Check, CheckFactory, Extractor }
+import com.excilys.ebi.gatling.core.session.noopStringExpression
+import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
-/**
- * HttpChecksumCheckBuilder class companion
- *
- * It contains DSL definitions
- */
-object HttpChecksumCheckBuilder {
+import scalaz.Scalaz.ToValidationV
 
-	val md5 = checksum("MD5")
-	val sha1 = checksum("SHA1")
+object HttpChecksumCheckBuilder {
 
 	def checksum(algorythm: String) = {
 
-		val checksumCheckBuilderFactory = (matcher: Matcher[ExtendedResponse, String], saveAs: Option[String]) => new ChecksumCheck(algorythm, matcher, saveAs)
-		val findExtractorFactory = (response: ExtendedResponse) => (unused: String) => response.checksum(algorythm)
+		val checksumCheckFactory = (wrapped: Check[ExtendedResponse]) => new ChecksumCheck(algorythm, wrapped)
+		val extractor = new Extractor[ExtendedResponse, String, String] {
+			val name = "algorythm"
+			def apply(prepared: ExtendedResponse, criterion: String) = prepared.checksum(algorythm).success
+		}
 
-		new HttpChecksumCheckBuilder(checksumCheckBuilderFactory, findExtractorFactory)
+		new HttpChecksumCheckBuilder(checksumCheckFactory, extractor)
 	}
+
+	val md5 = checksum("MD5")
+	val sha1 = checksum("SHA1")
 }
 
-/**
- * This class builds a checksum check
- */
-class HttpChecksumCheckBuilder(
-	override val httpCheckBuilderFactory: CheckBuilderFactory[HttpCheck[String], ExtendedResponse, String],
-	findExtractorFactory: ExtractorFactory[ExtendedResponse, String, String]) extends HttpSingleCheckBuilder[String, String](findExtractorFactory, NOOP_EXPRESSION, BodyPartReceived)
+class HttpChecksumCheckBuilder(checksumCheckFactory: CheckFactory[ChecksumCheck, ExtendedResponse], extractor: Extractor[ExtendedResponse, String, String]) extends HttpSingleCheckBuilder[ExtendedResponse, String, String](
+	checksumCheckFactory,
+	HttpCheckBuilders.noopResponsePreparer,
+	extractor,
+	noopStringExpression)

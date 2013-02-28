@@ -15,32 +15,28 @@
  */
 package com.excilys.ebi.gatling.http.check.after
 
-import com.excilys.ebi.gatling.core.check.{ ExtractorFactory, MatcherCheckBuilder }
-import com.excilys.ebi.gatling.core.session.NOOP_EXPRESSION
-import com.excilys.ebi.gatling.http.check.{ HttpCheck, HttpExtractorCheckBuilder }
-import com.excilys.ebi.gatling.http.request.HttpPhase.AfterResponseReceived
+import com.excilys.ebi.gatling.core.check.Extractor
+import com.excilys.ebi.gatling.core.session.noopStringExpression
+import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
-/**
- * HttpBodyesponseTimeCheckBuilder class companion
- *
- * It contains DSL definitions
- */
+import scalaz.Scalaz.ToValidationV
+
 object HttpBodyResponseTimeCheckBuilder {
 
-	private val findExtendedResponseTimeExtractorFactory: ExtractorFactory[ExtendedResponse, String, Long] = (response: ExtendedResponse) => (expression: String) => Some(response.reponseTimeInMillis)
+	val responseTimeInMillis = new HttpBodyResponseTimeCheckBuilder(new Extractor[ExtendedResponse, String, Long] {
+		val name = "responseTime"
+		def apply(prepared: ExtendedResponse, criterion: String) = Some(prepared.reponseTimeInMillis).success
+	})
 
-	private val findLatencyExtractorFactory: ExtractorFactory[ExtendedResponse, String, Long] = (response: ExtendedResponse) => (expression: String) => Some(response.latencyInMillis)
-
-	val responseTimeInMillis = new HttpBodyResponseTimeCheckBuilder(findExtendedResponseTimeExtractorFactory)
-
-	val latencyInMillis = new HttpBodyResponseTimeCheckBuilder(findLatencyExtractorFactory)
+	val latencyInMillis = new HttpBodyResponseTimeCheckBuilder(new Extractor[ExtendedResponse, String, Long] {
+		val name = "latency"
+		def apply(prepared: ExtendedResponse, criterion: String) = Some(prepared.latencyInMillis).success
+	})
 }
 
-/**
- * This class builds a response time check
- */
-class HttpBodyResponseTimeCheckBuilder(factory: ExtractorFactory[ExtendedResponse, String, Long]) extends HttpExtractorCheckBuilder[Long, String](NOOP_EXPRESSION, AfterResponseReceived) {
-
-	def find = new MatcherCheckBuilder[HttpCheck[String], ExtendedResponse, String, Long](httpCheckBuilderFactory, factory)
-}
+class HttpBodyResponseTimeCheckBuilder(extractor: Extractor[ExtendedResponse, String, Long]) extends HttpSingleCheckBuilder[ExtendedResponse, String, Long](
+	HttpCheckBuilders.afterResponseReceivedCheckFactory,
+	HttpCheckBuilders.noopResponsePreparer,
+	extractor,
+	noopStringExpression)

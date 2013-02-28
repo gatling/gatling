@@ -15,18 +15,26 @@
  */
 package com.excilys.ebi.gatling.http.check.status
 
-import com.excilys.ebi.gatling.core.check.ExtractorFactory
-import com.excilys.ebi.gatling.core.session.NOOP_EXPRESSION
-import com.excilys.ebi.gatling.http.check.HttpSingleCheckBuilder
-import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
+import com.excilys.ebi.gatling.core.check.Extractor
+import com.excilys.ebi.gatling.core.session.noopStringExpression
+import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
+
+import scalaz.Scalaz.ToValidationV
 
 /**
  * Builder for current location (ie current request URL) check
  */
 object CurrentLocationCheckBuilder {
 
-	private val findExtractorFactory: ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => (unused: String) => Some(response.request.getUrl)
+	val currentLocationExtractor = new Extractor[ExtendedResponse, String, String] {
+		val name = "currentLocation"
+		def apply(prepared: ExtendedResponse, criterion: String) = Some(prepared.request.getUrl).success
+	}
 
-	val currentLocation = new HttpSingleCheckBuilder(findExtractorFactory, NOOP_EXPRESSION, StatusReceived)
+	val currentLocation = new HttpSingleCheckBuilder[ExtendedResponse, String, String](
+		HttpCheckBuilders.statusReceivedCheckFactory,
+		HttpCheckBuilders.noopResponsePreparer,
+		currentLocationExtractor,
+		noopStringExpression)
 }

@@ -23,12 +23,15 @@ import org.jaxen.dom.DOMXPath
 import org.w3c.dom.{ Document, Node }
 import org.xml.sax.{ EntityResolver, InputSource }
 
-import com.excilys.ebi.gatling.core.check.extractor.Extractor
+import com.excilys.ebi.gatling.core.check.Extractor
+import com.excilys.ebi.gatling.core.check.extractor.Extractors
 import com.excilys.ebi.gatling.core.util.IOHelper
 
 import javax.xml.parsers.{ DocumentBuilder, DocumentBuilderFactory }
+import scalaz.Scalaz.ToValidationV
+import scalaz.Validation
 
-object XPathExtractor {
+object XPathExtractors extends Extractors {
 
 	System.setProperty("javax.xml.parsers.SAXParserFactory", "org.apache.xerces.jaxp.SAXParserFactoryImpl")
 	System.setProperty("javax.xml.parsers.DOMParserFactory", "org.apache.xerces.jaxp.DOMParserFactoryImpl")
@@ -48,29 +51,12 @@ object XPathExtractor {
 		}
 	}
 
-	def apply(inputStream: Option[InputStream]): XPathExtractor = {
-		val document = inputStream.map {
-			IOHelper.use(_) { is =>
-				val parser = XPathExtractor.parserHolder.get
-				val document = parser.parse(is)
-				parser.reset
-				document
-			}
-		}
-
-		new XPathExtractor(document)
+	def parse(inputStream: InputStream): Document = IOHelper.use(inputStream) { is =>
+		val parser = parserHolder.get
+		val document = parser.parse(is)
+		parser.reset
+		document
 	}
-}
-
-/**
- * A built-in extractor for extracting values with XPath Expressions
- *
- * It requires a well formatted XML document, otherwise, it will throw an exception
- *
- * @constructor creates a new XPathExtractor
- * @param inputStream the XML document in which the XPath search will be applied
- */
-class XPathExtractor(document: Option[Document]) extends Extractor {
 
 	def xpath(expression: String, namespaces: List[(String, String)]) = {
 		val xpathExpression = new DOMXPath(expression)
@@ -80,28 +66,31 @@ class XPathExtractor(document: Option[Document]) extends Extractor {
 		xpathExpression
 	}
 
-	/**
-	 * The actual extraction happens here. The XPath expression is searched for and the occurrence-th
-	 * result is returned if existing.
-	 *
-	 * @param expression a String containing the XPath expression to be searched
-	 * @return an option containing the value if found, None otherwise
-	 */
-	def extractOne(occurrence: Int, namespaces: List[(String, String)])(expression: String): Option[String] = {
-
-		val results = document.map(xpath(expression, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]])
-
-		results.flatMap(_.lift(occurrence).map(_.getTextContent))
+	abstract class XPathExtractor[X] extends Extractor[Option[Document], String, X] {
+		val name = "xpath"
 	}
 
-	/**
-	 * The actual extraction happens here. The XPath expression is searched for and the occurrence-th
-	 * result is returned if existing.
-	 *
-	 * @param expression a String containing the XPath expression to be searched
-	 * @return an option containing the value if found, None otherwise
-	 */
-	def extractMultiple(namespaces: List[(String, String)])(expression: String): Option[Seq[String]] = document.map(xpath(expression, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]].map(_.getTextContent))
+	val extractOne = (namespaces: List[(String, String)]) => (occurrence: Int) => new XPathExtractor[String] {
 
-	def count(namespaces: List[(String, String)])(expression: String): Option[Int] = document.map(xpath(expression, namespaces).selectNodes(_).size)
+		def apply(prepared: Option[Document], criterion: String): Validation[String, Option[String]] = {
+
+			val result = for {
+				results <- prepared.map(xpath(criterion, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]])
+				result <- results.lift(occurrence).map(_.getTextContent)
+			} yield result
+
+			result.success
+		}
+	}
+
+	val extractMultiple = (namespaces: List[(String, String)]) => new XPathExtractor[Seq[String]] {
+
+		def apply(prepared: Option[Document], criterion: String): Validation[String, Option[Seq[String]]] =
+			prepared.flatMap(xpath(criterion, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]].map(_.getTextContent).liftSeqOption).success
+	}
+
+	val count = (namespaces: List[(String, String)]) => new XPathExtractor[Int] {
+
+		def apply(prepared: Option[Document], criterion: String): Validation[String, Option[Int]] = prepared.map(xpath(criterion, namespaces).selectNodes(_).size).success
+	}
 }

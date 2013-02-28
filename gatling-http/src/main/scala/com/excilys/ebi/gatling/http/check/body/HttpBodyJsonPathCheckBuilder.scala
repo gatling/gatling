@@ -15,33 +15,34 @@
  */
 package com.excilys.ebi.gatling.http.check.body
 
-import com.excilys.ebi.gatling.core.check.CheckContext.getOrUpdateCheckContextAttribute
-import com.excilys.ebi.gatling.core.check.ExtractorFactory
-import com.excilys.ebi.gatling.core.check.extractor.jsonpath.JsonPathExtractor
+import com.excilys.ebi.gatling.core.check.Preparer
+import com.excilys.ebi.gatling.core.check.extractor.jsonpath.{ Json, JsonNode, JsonPathExtractors }
 import com.excilys.ebi.gatling.core.session.Expression
-import com.excilys.ebi.gatling.http.check.HttpMultipleCheckBuilder
-import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
+import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
-object HttpBodyJsonPathCheckBuilder {
+import grizzled.slf4j.Logging
+import scalaz.Scalaz.ToValidationV
 
-	private val HTTP_BODY_JSON_EXTRACTOR_CONTEXT_KEY = "HttpBodyJsonExtractor"
+object HttpBodyJsonPathCheckBuilder extends Logging {
 
-	private def getCachedExtractor(response: ExtendedResponse) = {
+	private val preparer: Preparer[ExtendedResponse, Option[JsonNode]] = (response: ExtendedResponse) =>
+		try {
+			val json = if (response.hasResponseBody) Some(response.getResponseBodyAsStream) else None
+			json.map(Json.parse).success
 
-		def newExtractor = {
-			val stream = if (response.hasResponseBody) Some(response.getResponseBodyAsStream) else None
-			new JsonPathExtractor(stream)
+		} catch {
+			case e: Exception =>
+				val message = s"Could not parse response into a JSON tree: ${e.getMessage}"
+				info(message, e)
+				message.failure
 		}
 
-		getOrUpdateCheckContextAttribute(HTTP_BODY_JSON_EXTRACTOR_CONTEXT_KEY, newExtractor)
-	}
-
-	private def findExtractorFactory(occurrence: Int): ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => getCachedExtractor(response).extractOne(occurrence)
-
-	private val findAllExtractorFactory: ExtractorFactory[ExtendedResponse, String, Seq[String]] = (response: ExtendedResponse) => getCachedExtractor(response).extractMultiple
-
-	private val countExtractorFactory: ExtractorFactory[ExtendedResponse, String, Int] = (response: ExtendedResponse) => getCachedExtractor(response).count
-
-	def jsonPath(expression: Expression[String]) = new HttpMultipleCheckBuilder(findExtractorFactory, findAllExtractorFactory, countExtractorFactory, expression, CompletePageReceived)
+	def jsonPath(expression: Expression[String]) = new HttpMultipleCheckBuilder[Option[JsonNode], String, String](
+		HttpCheckBuilders.completePageReceivedCheckFactory,
+		preparer,
+		JsonPathExtractors.extractOne,
+		JsonPathExtractors.extractMultiple,
+		JsonPathExtractors.count,
+		expression)
 }
