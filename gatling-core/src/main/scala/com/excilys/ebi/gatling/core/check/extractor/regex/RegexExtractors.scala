@@ -39,7 +39,7 @@ object RegexExtractors extends Extractors {
 
 		def apply(prepared: String, criterion: String): Validation[String, Option[String]] = {
 
-			val matcher = Pattern.compile(prepared).matcher(prepared)
+			val matcher = Pattern.compile(criterion).matcher(prepared)
 
 			@tailrec
 			def findRec(countDown: Int): Boolean = {

@@ -61,12 +61,12 @@ case class CheckBase[R, P, T, X, E](
 			if (matcher(actual, expected))
 				actual.success
 			else
-				s"${extractor.name}(${criterion}.${matcher.name}(${expected}) didn't match: $actual".failure
+				s"${extractor.name}(${criterion}).${matcher.name}(${expected}) didn't match: $actual".failure
 
-		def newSession(actual: Option[Any]) =
+		def newSession(extractedValue: Option[Any]) =
 			(for {
 				key <- saveAs
-				value <- actual
+				value <- extractedValue
 			} yield session.set(key, value)).getOrElse(session)
 
 		for {
