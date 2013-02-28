@@ -16,12 +16,14 @@
 package com.excilys.ebi.gatling.core.action.builder
 
 import scala.concurrent.duration.Duration
+
 import com.excilys.ebi.gatling.core.action.{ Pause, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.util.NumberHelper.createExpRandomLongGenerator
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
+import com.excilys.ebi.gatling.core.util.NumberHelper.createExpRandomLongGenerator
+
 import akka.actor.{ ActorRef, Props }
-import scalaz.{ Success }
+import scalaz.Scalaz.ToValidationV
 
 /**
  * Builder for the 'pauseExp' action.  Creates PauseActions for a user with a delay coming from
@@ -34,7 +36,7 @@ class ExpPauseBuilder(meanDuration: Duration) extends ActionBuilder {
 
 	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
 		val meanDurationInMillis = meanDuration.toMillis
-		val delayGenerator: Expression[Long] = (session: Session) => Success(createExpRandomLongGenerator(meanDurationInMillis)())
+		val delayGenerator: Expression[Long] = (session: Session) => createExpRandomLongGenerator(meanDurationInMillis)().success
 
 		system.actorOf(Props(new Pause(delayGenerator, next)))
 	}

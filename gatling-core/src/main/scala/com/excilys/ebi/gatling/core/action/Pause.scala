@@ -16,10 +16,12 @@
 package com.excilys.ebi.gatling.core.action
 
 import scala.concurrent.duration.DurationLong
+
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
+
 import akka.actor.ActorRef
-import scalaz.{ Failure, Success, Validation }
+import scalaz.{ Failure, Success }
 
 /**
  * PauseAction provides a convenient means to implement pause actions based on random distributions.
@@ -61,7 +63,7 @@ class Pause(generateDelayInMillis: Expression[Long], val next: ActorRef) extends
 					next ! session.setTimeShift(remainingTimeShift)
 				}
 			}
-			
+
 			case Failure(msg) => error(msg); next ! session
 		}
 	}

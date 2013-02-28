@@ -15,13 +15,14 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import akka.actor.{ ActorRef, Props }
-import com.excilys.ebi.gatling.core.action.{ Pause, system }
-import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.util.NumberHelper.createUniformRandomLongGenerator
-import com.excilys.ebi.gatling.core.session.{ Session, Expression }
 import scala.concurrent.duration.Duration
 
+import com.excilys.ebi.gatling.core.action.{ Pause, system }
+import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+import com.excilys.ebi.gatling.core.session.{ Expression, Session }
+import com.excilys.ebi.gatling.core.util.NumberHelper.createUniformRandomLongGenerator
+
+import akka.actor.{ ActorRef, Props }
 import scalaz.Validation
 
 /**
