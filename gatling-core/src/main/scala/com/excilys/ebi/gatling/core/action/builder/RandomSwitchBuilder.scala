@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.action.builder
 
 import scala.annotation.tailrec
 
-import org.apache.commons.math3.random.{ RandomData, RandomDataImpl }
+import org.apache.commons.math3.random.RandomDataGenerator
 
 import com.excilys.ebi.gatling.core.action.{ Switch, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
@@ -27,7 +27,7 @@ import akka.actor.{ ActorRef, Props }
 
 object RandomSwitchBuilder {
 
-	private val randomData: RandomData = new RandomDataImpl
+	private val randomData = new RandomDataGenerator
 }
 
 class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)]) extends ActionBuilder {
