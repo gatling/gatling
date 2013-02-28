@@ -133,7 +133,7 @@
 		<commons-math3.version>3.0</commons-math3.version>
 		<commons-io.version>2.4</commons-io.version>
 		<commons-exec.version>1.1</commons-exec.version>
-		<jodd.version>3.4.1</jodd.version>
+		<jodd.version>3.4.2</jodd.version>
 		<redis.version>2.10</redis.version>
 		<junit.version>4.11</junit.version>
 		<specs2.version>1.13</specs2.version>
