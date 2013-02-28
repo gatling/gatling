@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.extractor
+package com.excilys.ebi.gatling.core.check.extractor.regex
 
-trait Extractor {
+import org.junit.runner.RunWith
 
-	/**
-	 * @param value
-	 * @return the value as an option
-	 */
-	implicit def toOption[X](value: X): Option[X] = Some(value)
+import com.excilys.ebi.gatling.core.test.ScalazSpecification
 
-	/**
-	 * @param values
-	 * @return the values as an option if they are not empty, elseNone
-	 */
-	implicit def seqToOption[X](values: Seq[X]): Option[Seq[X]] = if (values.isEmpty) None else Some(values)
+import org.specs2.runner.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
+class RegexExtractorsSpec extends ScalazSpecification {
+
+	"extractMultiple" should {
+
+		"return expected result with anywhere expression" in {
+			RegexExtractors.extractMultiple("""{"id":"1072920417","result":"[{\"SearchDefinitionID\":116},{\"SearchDefinitionID\":108}]","error":null}""", """"SearchDefinitionID\\":(\d*)""") must succeedWith(Some(List("116", "108")))
+		}
+	}
 }

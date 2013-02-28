@@ -15,16 +15,22 @@
  */
 package com.excilys.ebi.gatling.http.check.body
 
-import com.excilys.ebi.gatling.core.check.ExtractorFactory
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.session.NOOP_EXPRESSION
-import com.excilys.ebi.gatling.http.check.HttpSingleCheckBuilder
-import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
-import com.excilys.ebi.gatling.http.response.ExtendedResponse
+import com.excilys.ebi.gatling.core.check.Extractor
+import com.excilys.ebi.gatling.core.session.noopStringExpression
+import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
+
+import scalaz.Scalaz.ToValidationV
 
 object HttpBodyStringCheckBuilder {
 
-	private val findExtractorFactory: ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => (unused: String) => Option(response.getResponseBody(configuration.simulation.encoding))
+	private val extractor = new Extractor[String, String, String] {
+		val name = "bodyString"
+		def apply(prepared: String, criterion: String) = Some(prepared).success
+	}
 
-	val bodyString = new HttpSingleCheckBuilder(findExtractorFactory, NOOP_EXPRESSION, CompletePageReceived)
+	val bodyString = new HttpSingleCheckBuilder[String, String, String](
+		HttpCheckBuilders.completePageReceivedCheckFactory,
+		HttpCheckBuilders.stringResponsePreparer,
+		extractor,
+		noopStringExpression)
 }

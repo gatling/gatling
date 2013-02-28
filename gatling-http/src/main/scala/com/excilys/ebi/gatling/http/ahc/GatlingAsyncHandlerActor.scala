@@ -20,7 +20,7 @@ import scala.collection.JavaConversions.asScalaBuffer
 import scala.concurrent.duration.DurationInt
 
 import com.excilys.ebi.gatling.core.action.BaseActor
-import com.excilys.ebi.gatling.core.check.Check.applyChecks
+import com.excilys.ebi.gatling.core.check.Checks
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.{ KO, OK, RequestStatus }
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
@@ -32,8 +32,7 @@ import com.excilys.ebi.gatling.http.cache.CacheHandling
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
-import com.excilys.ebi.gatling.http.request.ExtendedRequest
-import com.excilys.ebi.gatling.http.request.HttpPhase
+import com.excilys.ebi.gatling.http.request.{ ExtendedRequest, HttpPhase }
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.http.response.{ ExtendedResponse, ExtendedResponseBuilder, ExtendedResponseBuilderFactory }
 import com.excilys.ebi.gatling.http.util.HttpHelper.computeRedirectUrl
@@ -47,7 +46,7 @@ object GatlingAsyncHandlerActor {
 	val REDIRECT_STATUS_CODES = 301 to 303
 
 	def newAsyncHandlerActorFactory(
-		checks: List[HttpCheck[_]],
+		checks: List[HttpCheck],
 		next: ActorRef,
 		protocolConfiguration: HttpProtocolConfiguration)(requestName: String) = {
 
@@ -69,7 +68,7 @@ object GatlingAsyncHandlerActor {
 
 class GatlingAsyncHandlerActor(
 	var session: Session,
-	checks: List[HttpCheck[_]],
+	checks: List[HttpCheck],
 	next: ActorRef,
 	var requestName: String,
 	var request: Request,
@@ -243,7 +242,7 @@ class GatlingAsyncHandlerActor(
 
 					case phase :: otherPhases =>
 						val phaseChecks = checks.filter(_.phase == phase)
-						val checkResult = applyChecks(session, response, phaseChecks)
+						val checkResult = Checks.check(response, session, phaseChecks)
 
 						checkResult match {
 							case Success(newSession) => checkPhasesRec(newSession, otherPhases)

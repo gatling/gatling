@@ -17,6 +17,8 @@ package com.excilys.ebi.gatling.http.response
 
 import java.security.MessageDigest
 
+import scala.collection.JavaConversions.asScalaBuffer
+
 import com.excilys.ebi.gatling.core.util.StringHelper.{ END_OF_LINE, bytes2Hex }
 import com.excilys.ebi.gatling.http.util.HttpHelper.dumpFluentCaseInsensitiveStringsMap
 import com.ning.http.client.{ Request, Response }
@@ -70,6 +72,8 @@ class ExtendedResponse(
 
 	def getResponseBodyAsStream = response.getOrElse(throw new IllegalStateException("Response was not built")).getResponseBodyAsStream
 
+	def getResponseBodyAsByteBuffer = response.getOrElse(throw new IllegalStateException("Response was not built")).getResponseBodyAsByteBuffer
+
 	def getResponseBodyExcerpt(maxLength: Int, charset: String) = response.getOrElse(throw new IllegalStateException("Response was not built")).getResponseBodyExcerpt(maxLength, charset)
 
 	def getResponseBody(charset: String) = response.getOrElse(throw new IllegalStateException("Response was not built")).getResponseBody(charset)
@@ -85,6 +89,8 @@ class ExtendedResponse(
 	def getHeader(name: String) = response.getOrElse(throw new IllegalStateException("Response was not built")).getHeader(name)
 
 	def getHeaders(name: String) = response.getOrElse(throw new IllegalStateException("Response was not built")).getHeaders(name)
+
+	def getHeadersSafe(name: String) = Option(response.getOrElse(throw new IllegalStateException("Response was not built")).getHeaders(name).toSeq).getOrElse(Nil)
 
 	def getHeaders = response.getOrElse(throw new IllegalStateException("Response was not built")).getHeaders
 

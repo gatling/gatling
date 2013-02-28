@@ -15,56 +15,67 @@
  */
 package com.excilys.ebi.gatling.core.check
 
-import scala.annotation.tailrec
+import scala.collection.mutable
 
-import com.excilys.ebi.gatling.core.check.CheckContext.useCheckContext
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 
-import scalaz.Scalaz.ToValidationV
+import scalaz.Scalaz.{ ToBifunctorOps, ToValidationV }
 import scalaz.Validation
 
-object Check {
+object Checks {
 
-	/**
-	 * Applies a list of checks on a given response
-	 *
-	 * @param session the session of the virtual user
-	 * @param response the response
-	 * @param checks the checks to be applied
-	 * @return the result of the checks: Success or the first encountered Failure
-	 */
-	def applyChecks[R](session: Session, response: R, checks: List[Check[R, _]]): Validation[String, Session] = {
+	def check[R](response: R, session: Session, checks: Seq[Check[R]]): Validation[String, Session] = {
 
-		@tailrec
-		def applyChecksRec(checks: List[Check[R, _]], validation: Validation[String, Session]): Validation[String, Session] = checks match {
-			case Nil => validation
-			case check :: otherChecks =>
-				val newValidation = validation.flatMap(check.apply(response))
-				applyChecksRec(otherChecks, newValidation)
-		}
+		implicit val preparedCache = mutable.Map.empty[Any, Any]
 
-		useCheckContext {
-			applyChecksRec(checks, session.success)
+		checks.foldLeft(session.success[String]) { (newSession, check) =>
+			newSession.flatMap(s => check.check(response, s))
 		}
 	}
 }
 
-/**
- * Model for Checks
- *
- * @param expression the function that returns the expression representing what the check should look for
- * @param matcher the matcher that will try to match the result of the extraction
- * @param saveAs the session attribute that will be used to store the extracted value if the checks are successful
- */
-class Check[R, XC](expression: Expression[XC], matcher: Matcher[R, XC], saveAs: Option[String]) {
+trait Check[R] {
 
-	def apply(response: R)(session: Session): Validation[String, Session] = {
-		val validation = expression(session).flatMap(matcher(response, session, _))
+	type Cache = mutable.Map[Any, Any]
 
-		(for {
-			valueOption <- validation.toOption
-			value <- valueOption
-			saveAs <- saveAs
-		} yield session.set(saveAs, value).success).getOrElse(validation.map(_ => session))
+	def check(response: R, session: Session)(implicit cache: Cache): Validation[String, Session]
+}
+
+case class CheckBase[R, P, T, X, E](
+	preparer: Preparer[R, P],
+	extractor: Extractor[P, T, X],
+	extractorCriterion: Expression[T],
+	matcher: Matcher[X, E],
+	expectedExpression: Expression[E],
+	saveAs: Option[String]) extends Check[R] {
+
+	def check(response: R, session: Session)(implicit cache: Cache): Validation[String, Session] = {
+
+		// TODO find a way to avoid cast?
+		// TODO use state monad?
+		def memoizedPrepared: Validation[String, P] = cache
+			.getOrElseUpdate(preparer, preparer(response))
+			.asInstanceOf[Validation[String, P]]
+
+		def doMatch(actual: Option[X], expected: E, criterion: T) =
+			if (matcher(actual, expected))
+				actual.success
+			else
+				s"${extractor.name}(${criterion}.${matcher.name}(${expected}) didn't match: $actual".failure
+
+		def newSession(actual: Option[Any]) =
+			(for {
+				key <- saveAs
+				value <- actual
+			} yield session.set(key, value)).getOrElse(session)
+
+		for {
+			prepared <- memoizedPrepared.<-:(message => s"${extractor.name}.${matcher.name} failed, could not prepare: $message")
+			criterion <- extractorCriterion(session).<-:(message => s"${extractor.name}.${matcher.name} failed: could not resolve extractor criterion: $message")
+			actual <- extractor(prepared, criterion).<-:(message => s"${extractor.name}(${criterion}) failed: could not extract value: $message")
+			expected <- expectedExpression(session).<-:(message => s"${extractor.name}(${criterion}).${matcher.name} failed: could not resolve expected value: $message")
+			matched <- doMatch(actual, expected, criterion)
+
+		} yield newSession(matched)
 	}
 }

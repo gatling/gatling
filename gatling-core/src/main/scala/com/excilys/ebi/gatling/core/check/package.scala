@@ -15,34 +15,69 @@
  */
 package com.excilys.ebi.gatling.core
 
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.check.Check
+import com.excilys.ebi.gatling.core.session.Expression
 
 import scalaz.Validation
 
 package object check {
 
-	/**
-	 * A function for extracting from a string
-	 */
-	type Extractor[XC, X] = XC => Option[X]
+	type Preparer[R, P] = R => Validation[String, P]
 
-	/**
-	 * A function for producing an Extractor from a Response
-	 */
-	type ExtractorFactory[R, XC, X] = R => Extractor[XC, X]
+	trait Extractor[P, T, X] {
+		def name: String
+		def apply(prepared: P, criterion: T): Validation[String, Option[X]]
+	}
 
-	/**
-	 * A strategy for matching an extracted value
-	 */
-	type MatchStrategy[X] = (Option[X], Session) => Validation[String, Option[Any]]
+	object Matchers {
 
-	/**
-	 * A function to be applied on an extracted value to produce a CheckResult
-	 */
-	type Matcher[R, XC] = (R, Session, XC) => Validation[String, Option[Any]]
+		def is[X] = new Matcher[X, X] {
+			def apply(actual: Option[X], expected: X): Boolean = actual.map(_ == expected).getOrElse(false)
+			def name: String = "is"
+		}
 
-	/**
-	 * A function for production a complete CheckBuilder
-	 */
-	type CheckBuilderFactory[C <: Check[R, XC], R, XC] = (Matcher[R, XC], Option[String]) => C
+		def not[X] = new Matcher[X, X] {
+			def apply(actual: Option[X], expected: X): Boolean = actual.map(_ != expected).getOrElse(true)
+			def name: String = "not"
+		}
+
+		def in[X] = new Matcher[X, Seq[X]] {
+			def apply(actual: Option[X], expected: Seq[X]): Boolean = actual.map(expected.contains).getOrElse(false)
+			def name: String = "in"
+		}
+
+		// TODO extend so that any kind of numbers can be compared in any way
+		def lessThan[X] = new Matcher[X, X] {
+			def apply(actual: Option[X], expected: X): Boolean = (actual, expected) match {
+				case (Some(a: Long), e: Long) => a <= e
+				case (Some(a: Int), e: Int) => a <= e
+				case (Some(a: Double), e: Double) => a <= e
+				case (Some(a: Float), e: Float) => a <= e
+				case _ => false
+			}
+			def name: String = "lessThan"
+		}
+
+		val exists = new Matcher[Any, String] {
+			def apply(actual: Option[Any], expected: String): Boolean = actual.isDefined
+			def name: String = "exists"
+		}
+
+		val notExists = new Matcher[Any, Any] {
+			def apply(actual: Option[Any], expected: Any): Boolean = !actual.isDefined
+			def name: String = "notExists"
+		}
+
+		val whatever = new Matcher[Any, Any] {
+			def apply(actual: Option[Any], expected: Any): Boolean = true
+			def name: String = "whatever"
+		}
+	}
+
+	trait Matcher[-A, E] {
+		def apply(actual: Option[A], expected: E): Boolean
+		def name: String
+	}
+
+	type CheckFactory[C <: Check[R], R] = Check[R] => C
 }

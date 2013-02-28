@@ -13,21 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.extractor.regex
+package com.excilys.ebi.gatling.core.check.extractor
 
-import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+trait Extractors {
 
-@RunWith(classOf[JUnitRunner])
-class RegexExtractorSpec extends Specification {
+	implicit class LiftedOption[X](value: X) {
+		def liftOption = Some(value)
+	}
 
-	def extractor(string: String) = new RegexExtractor(string)
-
-	"extractMultiple" should {
-
-		"return expected result with anywhere expression" in {
-			extractor("""{"id":"1072920417","result":"[{\"SearchDefinitionID\":116},{\"SearchDefinitionID\":108}]","error":null}""").extractMultiple(""""SearchDefinitionID\\":(\d*)""") must beEqualTo(Some(List("116", "108")))
-		}
+	implicit class LiftedSeqOption[X](values: Seq[X]) {
+		def liftSeqOption = if (values.isEmpty) None else Some(values)
 	}
 }

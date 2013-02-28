@@ -15,26 +15,21 @@
  */
 package com.excilys.ebi.gatling.http.check.body
 
-import com.excilys.ebi.gatling.core.check.CheckContext.getOrUpdateCheckContextAttribute
-import com.excilys.ebi.gatling.core.check.ExtractorFactory
-import com.excilys.ebi.gatling.core.check.extractor.regex.RegexExtractor
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.excilys.ebi.gatling.core.check.Preparer
+import com.excilys.ebi.gatling.core.check.extractor.regex.RegexExtractors
 import com.excilys.ebi.gatling.core.session.Expression
-import com.excilys.ebi.gatling.http.check.HttpMultipleCheckBuilder
-import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
+import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
+
+import scalaz.Scalaz.ToValidationV
 
 object HttpBodyRegexCheckBuilder {
 
-	private val HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY = "HttpBodyRegexExtractor"
-
-	private def getCachedExtractor(response: ExtendedResponse) = getOrUpdateCheckContextAttribute(HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY, new RegexExtractor(response.getResponseBody(configuration.simulation.encoding)))
-
-	private def findExtractorFactory(occurrence: Int): ExtractorFactory[ExtendedResponse, String, String] = (response: ExtendedResponse) => getCachedExtractor(response).extractOne(occurrence)
-
-	private val findAllExtractorFactory: ExtractorFactory[ExtendedResponse, String, Seq[String]] = (response: ExtendedResponse) => getCachedExtractor(response).extractMultiple
-
-	private val countExtractorFactory: ExtractorFactory[ExtendedResponse, String, Int] = (response: ExtendedResponse) => getCachedExtractor(response).count
-
-	def regex(pattern: Expression[String]) = new HttpMultipleCheckBuilder(findExtractorFactory, findAllExtractorFactory, countExtractorFactory, pattern, CompletePageReceived)
+	def regex(expression: Expression[String]) = new HttpMultipleCheckBuilder[String, String, String](
+		HttpCheckBuilders.completePageReceivedCheckFactory,
+		HttpCheckBuilders.stringResponsePreparer,
+		RegexExtractors.extractOne,
+		RegexExtractors.extractMultiple,
+		RegexExtractors.count,
+		expression)
 }

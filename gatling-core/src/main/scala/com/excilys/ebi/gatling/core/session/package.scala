@@ -20,7 +20,7 @@ import scalaz.Validation
 
 package object session {
 
-	val NOOP_EXPRESSION = (s: Session) => "".success
+	val noopStringExpression = (s: Session) => "".success
 
 	type Expression[T] = Session => Validation[String, T]
 	def undefinedSeqIndexMessage(name: String, index: Int) = "Seq named '" + name + "' is undefined for index " + index

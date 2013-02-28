@@ -29,7 +29,7 @@ import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpRes
 
 object ExtendedResponseBuilder {
 
-	def newExtendedResponseBuilder(checks: List[HttpCheck[_]], protocolConfiguration: HttpProtocolConfiguration): ExtendedResponseBuilderFactory = {
+	def newExtendedResponseBuilder(checks: List[HttpCheck], protocolConfiguration: HttpProtocolConfiguration): ExtendedResponseBuilderFactory = {
 
 		val checksumChecks = checks.foldLeft(List.empty[ChecksumCheck]) { (checksumChecks, check) =>
 			check match {

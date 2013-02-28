@@ -41,7 +41,7 @@ case class HttpAttributes(
 	queryParams: List[HttpParam] = Nil,
 	headers: Map[String, Expression[String]] = Map.empty,
 	realm: Option[Expression[Realm]] = None,
-	checks: List[HttpCheck[_]] = Nil)
+	checks: List[HttpCheck] = Nil)
 
 /**
  * This class serves as model for all HttpRequestBuilders
@@ -66,7 +66,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 *
 	 * @param checks the checks that will be performed on the response
 	 */
-	def check(checks: HttpCheck[_]*): B = newInstance(httpAttributes.copy(checks = httpAttributes.checks ::: checks.toList))
+	def check(checks: HttpCheck*): B = newInstance(httpAttributes.copy(checks = httpAttributes.checks ::: checks.toList))
 
 	/**
 	 * Adds a query parameter to the request

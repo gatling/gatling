@@ -34,7 +34,7 @@ object HttpRequestActionBuilder {
 	 */
 	val DEFAULT_HTTP_STATUS_CHECK = status.find.in(Session => (200 to 210).success).build
 
-	def apply(requestName: Expression[String], requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]]) = {
+	def apply(requestName: Expression[String], requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck]) = {
 
 		val resolvedChecks = checks
 			.find(_.phase == StatusReceived)
@@ -52,7 +52,7 @@ object HttpRequestActionBuilder {
  * @param requestBuilder the builder for the request that will be sent
  * @param next the next action to be executed
  */
-class HttpRequestActionBuilder(requestName: Expression[String], requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]]) extends ActionBuilder {
+class HttpRequestActionBuilder(requestName: Expression[String], requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck]) extends ActionBuilder {
 
 	private[gatling] def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = system.actorOf(Props(HttpRequestAction(requestName, next, requestBuilder, checks, protocolConfigurationRegistry)))
 }

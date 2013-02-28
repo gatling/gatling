@@ -15,10 +15,9 @@
  */
 package com.excilys.ebi.gatling.http.check.bodypart
 
-import com.excilys.ebi.gatling.core.check.Matcher
-import com.excilys.ebi.gatling.core.session.NOOP_EXPRESSION
+import com.excilys.ebi.gatling.core.check.Check
+import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.request.HttpPhase.BodyPartReceived
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
-import com.excilys.ebi.gatling.http.check.HttpCheck
 
-class ChecksumCheck(val algorithm: String, matcher: Matcher[ExtendedResponse, String], saveAs: Option[String]) extends HttpCheck(NOOP_EXPRESSION, matcher, saveAs, BodyPartReceived)
+class ChecksumCheck(val algorithm: String, wrapped: Check[ExtendedResponse]) extends HttpCheck(wrapped, BodyPartReceived)

@@ -15,18 +15,26 @@
  */
 package com.excilys.ebi.gatling.http.check.status
 
-import com.excilys.ebi.gatling.core.check.ExtractorFactory
-import com.excilys.ebi.gatling.core.session.NOOP_EXPRESSION
-import com.excilys.ebi.gatling.http.check.HttpSingleCheckBuilder
-import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
+import com.excilys.ebi.gatling.core.check.Extractor
+import com.excilys.ebi.gatling.core.session.noopStringExpression
+import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
+
+import scalaz.Scalaz.ToValidationV
 
 /**
  * Builder for HTTP status check
  */
 object HttpStatusCheckBuilder {
 
-	private val findExtractorFactory: ExtractorFactory[ExtendedResponse, String, Int] = (response: ExtendedResponse) => (unused: String) => Some(response.getStatusCode)
+	val statusExtractor = new Extractor[ExtendedResponse, String, Int] {
+		val name = "status"
+		def apply(prepared: ExtendedResponse, criterion: String) = Some(prepared.getStatusCode).success
+	}
 
-	val status = new HttpSingleCheckBuilder(findExtractorFactory, NOOP_EXPRESSION, StatusReceived)
+	val status = new HttpSingleCheckBuilder[ExtendedResponse, String, Int](
+		HttpCheckBuilders.statusReceivedCheckFactory,
+		HttpCheckBuilders.noopResponsePreparer,
+		statusExtractor,
+		noopStringExpression)
 }

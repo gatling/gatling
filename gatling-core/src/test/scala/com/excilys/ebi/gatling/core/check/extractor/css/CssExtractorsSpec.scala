@@ -15,99 +15,100 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor.css
 
-import scala.io.Codec
-import scala.io.Source
+import java.nio.CharBuffer
+
+import scala.io.{ Codec, Source }
 
 import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
+import com.excilys.ebi.gatling.core.test.ScalazSpecification
 import com.excilys.ebi.gatling.core.util.IOHelper
 
 /**
  * @see <a href="http://www.w3.org/TR/selectors/#selectors"/> for more details about the CSS selectors syntax
  */
 @RunWith(classOf[JUnitRunner])
-class CssExtractorSpec extends Specification {
+class CssExtractorsSpec extends ScalazSpecification {
 
-	def extractor(file: String) = {
+	def prepared(file: String) = {
 		IOHelper.use(Source.fromInputStream(getClass.getResourceAsStream(file))(Codec.UTF8)) { source =>
-			new CssExtractor(source.mkString)
+			CssExtractors.parse(CharBuffer.wrap(source.mkString))
 		}
 	}
 
 	"CssExtractor" should {
 		"support browser conditional tests and behave as a non-IE browser" in {
-			extractor("/IeConditionalTests.html").count(None)("#helloworld") must beEqualTo(Some(1))
+			CssExtractors.count(None)(prepared("/IeConditionalTests.html"), "#helloworld") must succeedWith(Some(1))
 		}
 	}
 
 	"count" should {
 
 		"return expected result with a class selector" in {
-			extractor("/GatlingHomePage.html").count(None)(".nav-menu") must beEqualTo(Some(3))
+			CssExtractors.count(None)(prepared("/GatlingHomePage.html"), ".nav-menu") must succeedWith(Some(3))
 		}
 
 		"return expected result with an id selector" in {
-			extractor("/GatlingHomePage.html").count(None)("#twitter_button") must beEqualTo(Some(1))
+			CssExtractors.count(None)(prepared("/GatlingHomePage.html"), "#twitter_button") must succeedWith(Some(1))
 		}
 
 		"return expected result with an :empty selector" in {
-			extractor("/GatlingHomePage.html").count(None)(".frise:empty") must beEqualTo(Some(1))
+			CssExtractors.count(None)(prepared("/GatlingHomePage.html"), ".frise:empty") must succeedWith(Some(1))
 		}
 
 		"return None when the selector doesn't match anything" in {
-			extractor("/GatlingHomePage.html").count(None)("bad_selector") must beEqualTo(None)
+			CssExtractors.count(None)(prepared("/GatlingHomePage.html"), "bad_selector") must succeedWith(None)
 		}
 	}
 
 	"extractMultiple" should {
 
 		"return expected result with a class selector" in {
-			extractor("/GatlingHomePage.html").extractMultiple(None)("#social") must beEqualTo(Some(List("Social")))
+			CssExtractors.extractMultiple(None)(prepared("/GatlingHomePage.html"), "#social") must succeedWith(Some(List("Social")))
 		}
 
 		"return expected result with an id selector" in {
-			extractor("/GatlingHomePage.html").extractMultiple(None)(".nav") must beEqualTo(Some(List("Sponsors", "Social")))
+			CssExtractors.extractMultiple(None)(prepared("/GatlingHomePage.html"), ".nav") must succeedWith(Some(List("Sponsors", "Social")))
 		}
 
 		"return expected result with an attribute containg a given substring" in {
-			extractor("/GatlingHomePage.html").extractMultiple(None)(".article a[href*=api]") must beEqualTo(Some(List("API Documentation")))
+			CssExtractors.extractMultiple(None)(prepared("/GatlingHomePage.html"), ".article a[href*=api]") must succeedWith(Some(List("API Documentation")))
 		}
 
 		"return expected result with an element being the n-th child of its parent" in {
-			extractor("/GatlingHomePage.html").extractMultiple(None)(".article a:nth-child(2)") must beEqualTo(Some(List("JMeter's")))
+			CssExtractors.extractMultiple(None)(prepared("/GatlingHomePage.html"), ".article a:nth-child(2)") must succeedWith(Some(List("JMeter's")))
 		}
 
 		"return expected result with a predecessor selector" in {
-			extractor("/GatlingHomePage.html").extractMultiple(None)("img ~ p") must beEqualTo(Some(List("Efficient Load Testing")))
+			CssExtractors.extractMultiple(None)(prepared("/GatlingHomePage.html"), "img ~ p") must succeedWith(Some(List("Efficient Load Testing")))
 		}
 
 		"return None when the selector doesn't match anything" in {
-			extractor("/GatlingHomePage.html").extractMultiple(None)("bad_selector") must beEqualTo(None)
+			CssExtractors.extractMultiple(None)(prepared("/GatlingHomePage.html"), "bad_selector") must succeedWith(None)
 		}
 
 		"be able to extract a precise node attribute" in {
-			extractor("/GatlingHomePage.html").extractMultiple(Some("href"))("#sample_requests") must beEqualTo(Some(List("http://gatling-tool.org/sample/requests.html")))
+			CssExtractors.extractMultiple(Some("href"))(prepared("/GatlingHomePage.html"), "#sample_requests") must succeedWith(Some(List("http://gatling-tool.org/sample/requests.html")))
 		}
 	}
 
 	"extractOne" should {
 
 		"return expected result with a class selector" in {
-			extractor("/GatlingHomePage.html").extractOne(1, None)(".nav") must beEqualTo(Some("Social"))
+			CssExtractors.extractOne(None)(1)(prepared("/GatlingHomePage.html"), ".nav") must succeedWith(Some("Social"))
 		}
 
 		"return None when the index is out of the range of returned elements" in {
-			extractor("/GatlingHomePage.html").extractOne(3, None)(".nav") must beEqualTo(None)
+			CssExtractors.extractOne(None)(3)(prepared("/GatlingHomePage.html"), ".nav") must succeedWith(None)
 		}
 
 		"return None when the selector doesn't match anything" in {
-			extractor("/GatlingHomePage.html").extractOne(1, None)("bad_selector") must beEqualTo(None)
+			CssExtractors.extractOne(None)(1)(prepared("/GatlingHomePage.html"), "bad_selector") must succeedWith(None)
 		}
 
 		"be able to extract a precise node attribute" in {
-			extractor("/GatlingHomePage.html").extractOne(1, Some("id"))(".nav") must beEqualTo(Some("social"))
+			CssExtractors.extractOne(Some("id"))(1)(prepared("/GatlingHomePage.html"), ".nav") must succeedWith(Some("social"))
 		}
 	}
 }
