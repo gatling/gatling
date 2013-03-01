@@ -31,6 +31,8 @@ import com.excilys.ebi.gatling.metrics.types.{ Metrics, RequestMetrics, UserMetr
 
 import akka.actor.{ ActorRef, Props }
 
+import scalaz.Memo.{ mutableHashMapMemo => memo }
+
 sealed trait GraphiteMessage
 case object SendToGraphite extends GraphiteMessage
 case object CloseSocket extends GraphiteMessage
@@ -38,6 +40,7 @@ case object CloseSocket extends GraphiteMessage
 class GraphiteDataWriter extends DataWriter {
 
 	private val graphiteSender: ActorRef = context.actorOf(Props(new GraphiteSender))
+	private val rootPathPrefix = configuration.graphite.rootPathPrefix.split('.').toList
 	private var metricRootPath: List[String] = Nil
 	private val groupStack: mutable.Map[Int, List[String]] = mutable.Map.empty
 	private val allRequests = new RequestMetrics
@@ -51,9 +54,9 @@ class GraphiteDataWriter extends DataWriter {
 	private val percentiles2Name = "percentiles" + percentiles2
 
 	def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) {
-		metricRootPath = List("gatling", runRecord.simulationId)
+		metricRootPath = rootPathPrefix ::: List(runRecord.simulationId)
 		allUsers = new UserMetric(scenarios.map(_.nbUsers).sum)
-		scenarios.foreach(scenario => usersPerScenario.+=((scenario.name, new UserMetric(scenario.nbUsers))))
+		scenarios.foreach(scenario => usersPerScenario += scenario.name -> new UserMetric(scenario.nbUsers))
 		system.scheduler.schedule(0 millisecond, 1000 milliseconds, self, SendToGraphite)(system.dispatcher)
 	}
 
@@ -97,7 +100,7 @@ class GraphiteDataWriter extends DataWriter {
 		case m => graphiteSender forward m
 	}
 
-class GraphiteSender extends BaseActor {
+	private class GraphiteSender extends BaseActor {
 
 		private var socket: DatagramSocket = _
 
@@ -117,9 +120,10 @@ class GraphiteSender extends BaseActor {
 		}
 
 		private def sendMetricsToGraphite(epoch: Long) {
-			def sanitizeString(s: String) = s.replace(' ', '_').replace('.', '-').replace('\\', '-')
 
-			def sanitizeStringList(list: List[String]) = list.map(sanitizeString)
+			val sanitizeString: String => String = memo(_.replace(' ', '_').replace('.', '-').replace('\\', '-'))
+
+			val sanitizeStringList: List[String] => List[String] = memo(_.map(sanitizeString))
 
 			def sendToGraphite(metricPath: MetricPath, value: Long) {
 				val message = raw"$metricPath $value $epoch"
@@ -128,14 +132,14 @@ class GraphiteSender extends BaseActor {
 				socket.send(packet)
 			}
 
-			def sendUserMetrics(scenarioName: String, userMetric: UserMetric) = {
+			def sendUserMetrics(scenarioName: String, userMetric: UserMetric) {
 				val rootPath = MetricPath(List("users", sanitizeString(scenarioName)))
 				sendToGraphite(rootPath + "active", userMetric.active)
 				sendToGraphite(rootPath + "waiting", userMetric.waiting)
 				sendToGraphite(rootPath + "done", userMetric.done)
 			}
 
-			def sendMetrics(metricPath: MetricPath, metrics: Metrics) = {
+			def sendMetrics(metricPath: MetricPath, metrics: Metrics) {
 				sendToGraphite(metricPath + "count", metrics.count)
 
 				if (metrics.count > 0L) {
@@ -146,7 +150,7 @@ class GraphiteSender extends BaseActor {
 				}
 			}
 
-			def sendRequestMetrics(path: List[String], requestMetrics: RequestMetrics) = {
+			def sendRequestMetrics(path: List[String], requestMetrics: RequestMetrics) {
 				val rootPath = MetricPath(sanitizeStringList(path))
 
 				val (okMetrics, koMetrics, allMetrics) = requestMetrics.metrics
@@ -178,8 +182,6 @@ class GraphiteSender extends BaseActor {
 	private class MetricPath(path: List[String]) {
 
 		def +(element: String) = new MetricPath(path ::: List(element))
-
-		def +(elements: List[String]) = new MetricPath(path ::: elements)
 
 		override def toString = path.mkString(".")
 	}
