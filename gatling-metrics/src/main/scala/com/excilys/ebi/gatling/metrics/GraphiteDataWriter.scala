@@ -33,6 +33,7 @@ case object SendToGraphite
 
 class GraphiteDataWriter extends DataWriter {
 
+	private val rootPathPrefix = configuration.graphite.rootPathPrefix.split('.').toList
 	private var metricRootPath: List[String] = Nil
 	private val groupStack: mutable.Map[Int, List[String]] = mutable.Map.empty
 	private val allRequests = new RequestMetrics
@@ -41,6 +42,8 @@ class GraphiteDataWriter extends DataWriter {
 	private val usersPerScenario: mutable.Map[String, UserMetric] = mutable.Map.empty
 	private var timer: Timer = _
 	private var writer: Writer = _
+	private val sanitizeStringMemo = mutable.Map.empty[String,String]
+	private val sanitizeStringListMemo = mutable.Map.empty[List[String],List[String]]
 	private val percentiles1 = configuration.charting.indicators.percentile1
 	private val percentiles1Name = "percentiles" + percentiles1
 	private val percentiles2 = configuration.charting.indicators.percentile2
@@ -52,9 +55,9 @@ class GraphiteDataWriter extends DataWriter {
 	}
 
 	def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) {
-		metricRootPath = List("gatling", runRecord.simulationId)
+		metricRootPath = rootPathPrefix ::: List(runRecord.simulationId)
 		allUsers = new UserMetric(scenarios.map(_.nbUsers).sum)
-		scenarios.foreach(scenario => usersPerScenario.+=((scenario.name, new UserMetric(scenario.nbUsers))))
+		scenarios.foreach(scenario => usersPerScenario += scenario.name -> new UserMetric(scenario.nbUsers))
 		writer = newWriter
 		timer = new Timer(true)
 		timer.scheduleAtFixedRate(new SendToGraphiteTask, 0, 1000)
@@ -102,9 +105,9 @@ class GraphiteDataWriter extends DataWriter {
 
 	private def sendMetricsToGraphite(epoch: Long) {
 
-		def sanitizeString(s: String) = s.replace(' ', '_').replace('.', '-').replace('\\', '-')
+		def sanitizeString(s: String) = sanitizeStringMemo.getOrElseUpdate(s,s.replace(' ', '_').replace('.', '-').replace('\\', '-'))
 
-		def sanitizeStringList(list: List[String]) = list.map(sanitizeString)
+		def sanitizeStringList(list: List[String]) = sanitizeStringListMemo.getOrElseUpdate(list,list.map(sanitizeString))
 
 		def sendToGraphite(metricPath: MetricPath, value: Long) {
 			writer.write(metricPath.toString)
@@ -189,8 +192,6 @@ class GraphiteDataWriter extends DataWriter {
 	private class MetricPath(path: List[String]) {
 
 		def +(element: String) = new MetricPath(path ::: List(element))
-
-		def +(elements: List[String]) = new MetricPath(path ::: elements)
 
 		override def toString = path.mkString(".")
 	}
