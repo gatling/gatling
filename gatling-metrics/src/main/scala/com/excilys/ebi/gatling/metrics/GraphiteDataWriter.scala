@@ -31,8 +31,6 @@ import com.excilys.ebi.gatling.metrics.types.{ Metrics, RequestMetrics, UserMetr
 
 import akka.actor.{ ActorRef, Props }
 
-import scalaz.Memo.{ mutableHashMapMemo => memo }
-
 sealed trait GraphiteMessage
 case object SendToGraphite extends GraphiteMessage
 case object CloseSocket extends GraphiteMessage
@@ -102,6 +100,8 @@ class GraphiteDataWriter extends DataWriter {
 
 	private class GraphiteSender extends BaseActor {
 
+		private val sanitizeStringMemo: mutable.Map[String,String] = mutable.Map.empty
+		private val sanitizeStringListMemo: mutable.Map[List[String],List[String]] = mutable.Map.empty
 		private var socket: DatagramSocket = _
 
 		private def newSocket = DatagramChannel.open.socket
@@ -121,9 +121,9 @@ class GraphiteDataWriter extends DataWriter {
 
 		private def sendMetricsToGraphite(epoch: Long) {
 
-			val sanitizeString: String => String = memo(_.replace(' ', '_').replace('.', '-').replace('\\', '-'))
+			def sanitizeString(s: String) = sanitizeStringMemo.getOrElseUpdate(s,s.replace(' ', '_').replace('.', '-').replace('\\', '-'))
 
-			val sanitizeStringList: List[String] => List[String] = memo(_.map(sanitizeString))
+			def sanitizeStringList(list: List[String]) = sanitizeStringListMemo.getOrElseUpdate(list,list.map(sanitizeString))
 
 			def sendToGraphite(metricPath: MetricPath, value: Long) {
 				val message = raw"$metricPath $value $epoch"
