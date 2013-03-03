@@ -19,13 +19,12 @@ import scala.tools.nsc.io.Path.string2path
 
 import com.excilys.ebi.gatling.core.config.GatlingFiles
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
+import com.excilys.ebi.gatling.core.validation.Validation
 import com.ning.http.client.FilePart
-
-import scalaz.Validation
 
 class UploadedFile(paramKeyFunction: Expression[String], fileNameFunction: Expression[String], mimeType: String, charset: String) {
 
-	def filePart(session: Session): Validation[String, FilePart] = {
+	def filePart(session: Session): Validation[FilePart] = {
 
 		for {
 			paramKey <- paramKeyFunction(session)

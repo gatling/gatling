@@ -114,7 +114,6 @@
 		<encoding>UTF-8</encoding>
 		<scala.version>2.10.1-RC2</scala.version>
 		<ahc.version>1.7.11.20130222</ahc.version>
-		<scalaz.version>7.0.0-M8</scalaz.version>
 		<akka.version>2.2-M1</akka.version>
 		<config.version>1.0.0</config.version>
 		<jaxen.version>1.1.6</jaxen.version>
@@ -215,11 +214,6 @@
 				<groupId>org.scala-lang</groupId>
 				<artifactId>scala-compiler</artifactId>
 				<version>${scala.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.scalaz</groupId>
-				<artifactId>scalaz-core_2.10</artifactId>
-				<version>${scalaz.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.ning</groupId>

@@ -15,12 +15,12 @@
  */
 package com.excilys.ebi.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.{ system, If }
+import com.excilys.ebi.gatling.core.action.{ If, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.Expression
 import com.excilys.ebi.gatling.core.structure.ChainBuilder
 
-import akka.actor.{ Props, ActorRef }
+import akka.actor.{ ActorRef, Props }
 
 /**
  * @constructor create a new IfBuilder
@@ -28,7 +28,7 @@ import akka.actor.{ Props, ActorRef }
  * @param thenNext chain that will be executed if condition evaluates to true
  * @param elseNext chain that will be executed if condition evaluates to false
  */
-class IfBuilder(condition: Session => Boolean, thenNext: ChainBuilder, elseNext: Option[ChainBuilder]) extends ActionBuilder {
+class IfBuilder(condition: Expression[Boolean], thenNext: ChainBuilder, elseNext: Option[ChainBuilder]) extends ActionBuilder {
 
 	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
 		val actionTrue = thenNext.build(next, protocolConfigurationRegistry)

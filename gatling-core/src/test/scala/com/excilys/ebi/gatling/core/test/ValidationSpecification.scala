@@ -18,23 +18,17 @@ package com.excilys.ebi.gatling.core.test
 import org.specs2.matcher.Matcher
 import org.specs2.mutable.Specification
 
-import scalaz.{ Failure, Success, Validation }
+import com.excilys.ebi.gatling.core.validation._
 
-trait ScalazSpecification extends Specification {
-
-	/** success matcher for a Validation */
-	def beSuccessful[E, A]: Matcher[Validation[E, A]] = (v: Validation[E, A]) => (v.fold(_ => false, _ => true), v + " successful", v + " is not successfull")
-
-	/** failure matcher for a Validation */
-	def beAFailure[E, A]: Matcher[Validation[E, A]] = (v: Validation[E, A]) => (v.fold(_ => true, _ => false), v + " is a failure", v + " is not a failure")
+trait ValidationSpecification extends Specification {
 
 	/** success matcher for a Validation with a specific value */
-	def succeedWith[E, A](a: => A) = validationWith[E, A](Success(a))
+	def succeedWith[A](a: => A) = validationWith[A](Success(a))
 
 	/** failure matcher for a Validation with a specific value */
-	def failWith[E, A](e: => E) = validationWith[E, A](Failure(e))
+	def failWith[A](e: String) = validationWith[A](Failure(e))
 
-	private def validationWith[E, A](f: => Validation[E, A]): Matcher[Validation[E, A]] = (v: Validation[E, A]) => {
+	private def validationWith[A](f: => Validation[A]): Matcher[Validation[A]] = (v: Validation[A]) => {
 		val expected = f
 		(expected == v, v + " is a " + expected, v + " is not a " + expected)
 	}

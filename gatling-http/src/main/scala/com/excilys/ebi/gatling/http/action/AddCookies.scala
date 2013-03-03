@@ -19,11 +19,11 @@ import java.net.URI
 
 import com.excilys.ebi.gatling.core.action.Bypassable
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
+import com.excilys.ebi.gatling.core.validation.{ Failure, Success }
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.ning.http.client.{ Cookie => AHCCookie }
 
 import akka.actor.ActorRef
-import scalaz.{ Failure, Success }
 
 class AddCookies(url: Expression[String], cookies: Expression[List[AHCCookie]], val next: ActorRef) extends Bypassable {
 

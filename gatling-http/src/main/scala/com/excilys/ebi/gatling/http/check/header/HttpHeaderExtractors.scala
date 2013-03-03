@@ -17,16 +17,12 @@ package com.excilys.ebi.gatling.http.check.header
 
 import java.net.URLDecoder
 
-import scala.collection.JavaConversions.asScalaBuffer
-
 import com.excilys.ebi.gatling.core.check.Extractor
 import com.excilys.ebi.gatling.core.check.extractor.Extractors
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
 import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
-
-import scalaz.Scalaz.ToValidationV
-import scalaz.Validation
 
 object HttpHeaderExtractors extends Extractors {
 
@@ -44,19 +40,19 @@ object HttpHeaderExtractors extends Extractors {
 
 	val extractOne = (occurrence: Int) => new HeaderExtractor[String] {
 
-		def apply(prepared: ExtendedResponse, criterion: String): Validation[String, Option[String]] =
+		def apply(prepared: ExtendedResponse, criterion: String): Validation[Option[String]] =
 			prepared.getHeadersSafe(criterion).lift(occurrence).map(decode(criterion, _)).success
 	}
 
 	val extractMultiple = new HeaderExtractor[Seq[String]] {
 
-		def apply(prepared: ExtendedResponse, criterion: String): Validation[String, Option[Seq[String]]] =
+		def apply(prepared: ExtendedResponse, criterion: String): Validation[Option[Seq[String]]] =
 			decodedHeaders(prepared, criterion).liftSeqOption.success
 	}
 
 	val count = new HeaderExtractor[Int] {
 
-		def apply(prepared: ExtendedResponse, criterion: String): Validation[String, Option[Int]] =
+		def apply(prepared: ExtendedResponse, criterion: String): Validation[Option[Int]] =
 			prepared.getHeadersSafe(criterion).liftSeqOption.map(_.size).success
 	}
 }

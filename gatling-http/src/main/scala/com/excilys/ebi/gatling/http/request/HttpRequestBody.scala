@@ -26,21 +26,18 @@ import org.fusesource.scalate.{ Binding, TemplateEngine }
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import com.excilys.ebi.gatling.core.session.{ EL, Expression, Session }
-import com.excilys.ebi.gatling.core.util.FlattenableValidations
+import com.excilys.ebi.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation, ValidationList }
 import com.ning.http.client.RequestBuilder
 
-import scalaz.Scalaz.ToValidationV
-import scalaz.Validation
-
 object HttpRequestBody {
-	
+
 	def stringBody(body: Expression[String]) = StringBody(body)
-	
+
 	def sessionByteArrayBody(byteArray: (Session) => Array[Byte]) = SessionByteArrayBody(byteArray)
 
-	val EL_FILE_CACHE = new collection.mutable.HashMap[String, Validation[String, Expression[String]]]
+	val EL_FILE_CACHE = new collection.mutable.HashMap[String, Validation[Expression[String]]]
 
-	private def template(filePath: String): Validation[String, Path] = {
+	private def template(filePath: String): Validation[Path] = {
 		val file = GatlingFiles.requestBodiesDirectory / filePath
 		if (file.exists) file.success
 		else s"Body file $file doesn't exist".failure
@@ -48,12 +45,12 @@ object HttpRequestBody {
 
 	def elTemplateBody(filePath: Expression[String]): StringBody = {
 
-		def compileTemplate(path: String): Validation[String, Expression[String]] =
+		def compileTemplate(path: String): Validation[Expression[String]] =
 			template(path)
 				.map(f => FileUtils.readFileToString(f.jfile, GatlingConfiguration.configuration.simulation.encoding))
 				.map(EL.compile[String])
 
-		def fetchTemplate(path: String): Validation[String, Expression[String]] = EL_FILE_CACHE.getOrElseUpdate(path, compileTemplate(path))
+		def fetchTemplate(path: String): Validation[Expression[String]] = EL_FILE_CACHE.getOrElseUpdate(path, compileTemplate(path))
 
 		val expression = (session: Session) => {
 			for {
@@ -68,7 +65,7 @@ object HttpRequestBody {
 
 	def sspTemplateBody(filePath: Expression[String], params: Map[String, String]): SspTemplateBody = {
 
-		def sspTemplate(filePath: String): Validation[String, String] = {
+		def sspTemplate(filePath: String): Validation[String] = {
 			val file = GatlingFiles.requestBodiesDirectory / filePath
 			if (file.exists) filePath.success
 			else s"Ssp body file $file doesn't exist".failure
@@ -86,7 +83,7 @@ object HttpRequestBody {
 					val expression = EL.compile[String](value)
 					expression(session).map(key -> _)
 			}.toList
-			.flattenIt
+			.sequence
 			.map(_.toMap)
 
 		val bindings = params.keySet.map(Binding(_, "String"))
@@ -95,13 +92,13 @@ object HttpRequestBody {
 	}
 
 	def rawFileBody(filePath: Expression[String]) = {
-		
+
 		val expression = (session: Session) =>
 			for {
 				path <- filePath(session)
 				file <- template(path)
 			} yield file.jfile
-		
+
 		RawFileBody(expression)
 	}
 
@@ -116,21 +113,21 @@ object HttpRequestBody {
 
 sealed trait HttpRequestBody {
 
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[String, RequestBuilder]
+	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder]
 }
 case class StringBody(expression: Expression[String]) extends HttpRequestBody {
 
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[String, RequestBuilder] =
+	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] =
 		expression(session).map(string => requestBuilder.setBody(string).setContentLength(string.length))
 }
 case class RawFileBody(file: Expression[JFile]) extends HttpRequestBody {
 
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[String, RequestBuilder] =
+	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] =
 		file(session).map(body => requestBuilder.setBody(body).setContentLength(body.length.toInt))
 }
 case class SspTemplateBody(templatePathExpression: Expression[String], attributesExpression: Expression[Map[String, String]], bindings: Traversable[Binding]) extends HttpRequestBody {
 
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[String, RequestBuilder] =
+	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] =
 		for {
 			templatePath <- templatePathExpression(session)
 			attributes <- attributesExpression(session)
@@ -139,7 +136,7 @@ case class SspTemplateBody(templatePathExpression: Expression[String], attribute
 }
 case class SessionByteArrayBody(byteArray: Session => Array[Byte]) extends HttpRequestBody {
 
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[String, RequestBuilder] = {
+	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = {
 		val bytes = byteArray(session)
 		requestBuilder.setBody(bytes).setContentLength(bytes.length).success
 	}

@@ -19,9 +19,9 @@ import scala.concurrent.duration.DurationLong
 
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
+import com.excilys.ebi.gatling.core.validation.{ Failure, Success }
 
 import akka.actor.ActorRef
-import scalaz.{ Failure, Success }
 
 /**
  * PauseAction provides a convenient means to implement pause actions based on random distributions.

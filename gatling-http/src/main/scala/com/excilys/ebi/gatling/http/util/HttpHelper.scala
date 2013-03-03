@@ -21,12 +21,10 @@ import scala.collection.JavaConversions.{ asScalaBuffer, asScalaSet, seqAsJavaLi
 import scala.io.Codec.UTF8
 
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.util.FlattenableValidations
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
 import com.excilys.ebi.gatling.http.request.builder.HttpParam
 import com.ning.http.client.FluentStringsMap
-
-import scalaz.Validation
 
 object HttpHelper {
 
@@ -69,7 +67,7 @@ object HttpHelper {
 			}.toList
 	}
 
-	def httpParamsToFluentMap(params: List[HttpParam], session: Session): Validation[String, FluentStringsMap] = {
+	def httpParamsToFluentMap(params: List[HttpParam], session: Session): Validation[FluentStringsMap] = {
 
 		def httpParamsToFluentMap(params: List[(String, Seq[String])]): FluentStringsMap =
 			params.groupBy(_._1)
@@ -88,7 +86,7 @@ object HttpHelper {
 					} yield (resolvedKey, resolvedValues)
 			}
 
-		validations.flattenIt.map(httpParamsToFluentMap)
+		validations.sequence.map(httpParamsToFluentMap)
 	}
 
 	def dumpFluentCaseInsensitiveStringsMap(map: java.util.Map[String, java.util.List[String]], buff: StringBuilder) {

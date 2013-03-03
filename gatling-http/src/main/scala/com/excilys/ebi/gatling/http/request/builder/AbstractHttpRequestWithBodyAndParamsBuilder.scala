@@ -15,20 +15,17 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConversions.{ asScalaBuffer, asScalaIterator }
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.{ EL, Expression, Session }
-import com.excilys.ebi.gatling.core.util.FlattenableValidations
+import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 import com.excilys.ebi.gatling.http.util.HttpHelper
 import com.ning.http.client.{ RequestBuilder, StringPart }
 import com.ning.http.client.FluentStringsMap
-
-import scalaz.Scalaz.ToValidationV
-import scalaz.Validation
 
 case class HttpParamsAttributes(
 	params: List[HttpParam] = Nil,
@@ -90,9 +87,9 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		newInstance(httpAttributes, body, paramsAttributes.copy(uploadedFiles = new UploadedFile(paramKey, fileName, mimeType, charset) :: paramsAttributes.uploadedFiles))
 			.header(HeaderNames.CONTENT_TYPE, HeaderValues.MULTIPART_FORM_DATA)
 
-	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[String, RequestBuilder] = {
+	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[RequestBuilder] = {
 
-		def configureParams(requestBuilder: RequestBuilder): Validation[String, RequestBuilder] = {
+		def configureParams(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 			if (!paramsAttributes.params.isEmpty) {
 				// As a side effect, requestBuilder.setParameters() is reseting the body data, so, it should not be called with empty parameters 
 				HttpHelper.httpParamsToFluentMap(paramsAttributes.params, session).map(requestBuilder.setParameters)
@@ -101,12 +98,12 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 			}
 		}
 
-		def configureFileParts(requestBuilder: RequestBuilder): Validation[String, RequestBuilder] = {
+		def configureFileParts(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
 			val resolvedFileParts = paramsAttributes.uploadedFiles
 				.map(_.filePart(session))
 				.toList
-				.flattenIt
+				.sequence
 
 			resolvedFileParts.map { uploadedFiles =>
 				uploadedFiles.foreach(requestBuilder.addBodyPart)
@@ -114,7 +111,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 			}
 		}
 
-		def configureStringParts(requestBuilder: RequestBuilder): Validation[String, RequestBuilder] = {
+		def configureStringParts(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 			HttpHelper.httpParamsToFluentMap(paramsAttributes.params, session).map { map: FluentStringsMap =>
 				map.iterator.foreach { entry => entry.getValue.foreach(value => requestBuilder.addBodyPart(new StringPart(entry.getKey, value))) }
 				requestBuilder

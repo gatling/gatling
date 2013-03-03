@@ -21,9 +21,9 @@ import com.excilys.ebi.gatling.core.action.{ Pause, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.core.util.NumberHelper.createExpRandomLongGenerator
+import com.excilys.ebi.gatling.core.validation.SuccessWrapper
 
 import akka.actor.{ ActorRef, Props }
-import scalaz.Scalaz.ToValidationV
 
 /**
  * Builder for the 'pauseExp' action.  Creates PauseActions for a user with a delay coming from

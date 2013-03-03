@@ -18,29 +18,27 @@ package com.excilys.ebi.gatling.core.session
 import scala.concurrent.forkjoin.ThreadLocalRandom
 import scala.reflect.ClassTag
 
-import com.excilys.ebi.gatling.core.util.{ FlattenableValidations, TypeHelper }
-
-import scalaz.Scalaz.{ ToOptionOpsFromOption, ToValidationV }
-import scalaz.Validation
+import com.excilys.ebi.gatling.core.util.TypeHelper
+import com.excilys.ebi.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation, ValidationList }
 
 trait Part[+T] {
-	def resolve(session: Session): Validation[String, T]
+	def resolve(session: Session): Validation[T]
 }
 
 case class StaticPart(string: String) extends Part[String] {
-	def resolve(session: Session): Validation[String, String] = string.success
+	def resolve(session: Session): Validation[String] = string.success
 }
 
 case class AttributePart(name: String) extends Part[Any] {
-	def resolve(session: Session): Validation[String, Any] = session.safeGetAs[Any](name)
+	def resolve(session: Session): Validation[Any] = session.safeGetAs[Any](name)
 }
 
 case class SeqSizePart(name: String) extends Part[Int] {
-	def resolve(session: Session): Validation[String, Int] = session.safeGetAs[Seq[_]](name).map(_.size)
+	def resolve(session: Session): Validation[Int] = session.safeGetAs[Seq[_]](name).map(_.size)
 }
 
 case class SeqRandomPart(name: String) extends Part[Any] {
-	def resolve(session: Session): Validation[String, Any] = {
+	def resolve(session: Session): Validation[Any] = {
 		def randomItem(seq: Seq[_]) = seq(ThreadLocalRandom.current.nextInt(seq.size))
 
 		session.safeGetAs[Seq[_]](name).map(randomItem)
@@ -48,9 +46,14 @@ case class SeqRandomPart(name: String) extends Part[Any] {
 }
 
 case class SeqElementPart(name: String, index: String) extends Part[Any] {
-	def resolve(session: Session): Validation[String, Any] = {
+	def resolve(session: Session): Validation[Any] = {
 
-		def seqElementPart(index: Int): Validation[String, Any] = session.safeGetAs[Seq[_]](name).flatMap(_.lift(index).toSuccess(undefinedSeqIndexMessage(name, index)))
+		def seqElementPart(index: Int): Validation[Any] = session.safeGetAs[Seq[_]](name).flatMap {
+			_.lift(index) match {
+				case Some(e) => e.success
+				case None => undefinedSeqIndexMessage(name, index).failure
+			}
+		}
 
 		try {
 			val intIndex = index.toInt
@@ -106,7 +109,7 @@ object EL {
 			case List(dynamicPart) => dynamicPart.resolve _ andThen (_.flatMap(TypeHelper.as[T](_)))
 			case parts => (session: Session) =>
 				val resolvedString = parts.map(_.resolve(session))
-					.flattenIt
+					.sequence
 					.map(_.mkString)
 
 				resolvedString.flatMap(TypeHelper.as[T](_))

@@ -18,8 +18,7 @@ package com.excilys.ebi.gatling.core.session.handler
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
-
-import scalaz.Validation
+import com.excilys.ebi.gatling.core.validation.Validation
 
 /**
  * TimerBasedIterationHandler trait 'companion'
@@ -33,7 +32,7 @@ object TimerBasedIterationHandler {
 
 	def getTimerAttributeName(counterName: String) = TIMER_KEY_PREFIX + counterName
 
-	def getTimer(session: Session, counterName: String): Validation[String, Long] = session.safeGetAs[Long](getTimerAttributeName(counterName))
+	def getTimer(session: Session, counterName: String): Validation[Long] = session.safeGetAs[Long](getTimerAttributeName(counterName))
 }
 
 /**

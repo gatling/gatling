@@ -18,17 +18,15 @@ package com.excilys.ebi.gatling.core.check
 import scala.collection.mutable
 
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
-
-import scalaz.Scalaz.{ ToBifunctorOps, ToValidationV }
-import scalaz.Validation
+import com.excilys.ebi.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 object Checks {
 
-	def check[R](response: R, session: Session, checks: Seq[Check[R]]): Validation[String, Session] = {
+	def check[R](response: R, session: Session, checks: Seq[Check[R]]): Validation[Session] = {
 
 		implicit val preparedCache = mutable.Map.empty[Any, Any]
 
-		checks.foldLeft(session.success[String]) { (newSession, check) =>
+		checks.foldLeft(session.success) { (newSession, check) =>
 			newSession.flatMap(s => check.check(response, s))
 		}
 	}
@@ -38,7 +36,7 @@ trait Check[R] {
 
 	type Cache = mutable.Map[Any, Any]
 
-	def check(response: R, session: Session)(implicit cache: Cache): Validation[String, Session]
+	def check(response: R, session: Session)(implicit cache: Cache): Validation[Session]
 }
 
 case class CheckBase[R, P, T, X, E](
@@ -49,13 +47,13 @@ case class CheckBase[R, P, T, X, E](
 	expectedExpression: Expression[E],
 	saveAs: Option[String]) extends Check[R] {
 
-	def check(response: R, session: Session)(implicit cache: Cache): Validation[String, Session] = {
+	def check(response: R, session: Session)(implicit cache: Cache): Validation[Session] = {
 
 		// TODO find a way to avoid cast?
 		// TODO use state monad?
-		def memoizedPrepared: Validation[String, P] = cache
+		def memoizedPrepared: Validation[P] = cache
 			.getOrElseUpdate(preparer, preparer(response))
-			.asInstanceOf[Validation[String, P]]
+			.asInstanceOf[Validation[P]]
 
 		def doMatch(actual: Option[X], expected: E, criterion: T) =
 			if (matcher(actual, expected))
@@ -70,10 +68,10 @@ case class CheckBase[R, P, T, X, E](
 			} yield session.set(key, value)).getOrElse(session)
 
 		for {
-			prepared <- memoizedPrepared.<-:(message => s"${extractor.name}.${matcher.name} failed, could not prepare: $message")
-			criterion <- extractorCriterion(session).<-:(message => s"${extractor.name}.${matcher.name} failed: could not resolve extractor criterion: $message")
-			actual <- extractor(prepared, criterion).<-:(message => s"${extractor.name}(${criterion}) failed: could not extract value: $message")
-			expected <- expectedExpression(session).<-:(message => s"${extractor.name}(${criterion}).${matcher.name} failed: could not resolve expected value: $message")
+			prepared <- memoizedPrepared.mapError(message => s"${extractor.name}.${matcher.name} failed, could not prepare: $message")
+			criterion <- extractorCriterion(session).mapError(message => s"${extractor.name}.${matcher.name} failed: could not resolve extractor criterion: $message")
+			actual <- extractor(prepared, criterion).mapError(message => s"${extractor.name}(${criterion}) failed: could not extract value: $message")
+			expected <- expectedExpression(session).mapError(message => s"${extractor.name}(${criterion}).${matcher.name} failed: could not resolve expected value: $message")
 			matched <- doMatch(actual, expected, criterion)
 
 		} yield newSession(matched)

@@ -18,11 +18,11 @@ package com.excilys.ebi.gatling.http.check.body
 import com.excilys.ebi.gatling.core.check.Preparer
 import com.excilys.ebi.gatling.core.check.extractor.jsonpath.{ Json, JsonNode, JsonPathExtractors }
 import com.excilys.ebi.gatling.core.session.Expression
+import com.excilys.ebi.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
 import grizzled.slf4j.Logging
-import scalaz.Scalaz.ToValidationV
 
 object HttpBodyJsonPathCheckBuilder extends Logging {
 

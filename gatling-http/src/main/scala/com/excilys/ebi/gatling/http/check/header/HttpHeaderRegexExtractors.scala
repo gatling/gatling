@@ -18,10 +18,8 @@ package com.excilys.ebi.gatling.http.check.header
 import com.excilys.ebi.gatling.core.check.Extractor
 import com.excilys.ebi.gatling.core.check.extractor.Extractors
 import com.excilys.ebi.gatling.core.check.extractor.regex.RegexExtractors
+import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
-
-import scalaz.Scalaz.ToValidationV
-import scalaz.Validation
 
 object HttpHeaderRegexExtractors extends Extractors {
 
@@ -37,19 +35,19 @@ object HttpHeaderRegexExtractors extends Extractors {
 
 	val extractOne = (occurrence: Int) => new HeaderRegexExtractor[String] {
 
-		def apply(prepared: ExtendedResponse, criterion: (String, String)): Validation[String, Option[String]] =
+		def apply(prepared: ExtendedResponse, criterion: (String, String)): Validation[Option[String]] =
 			extractHeadersValues(prepared, criterion).lift(occurrence).success
 	}
 
 	val extractMultiple = new HeaderRegexExtractor[Seq[String]] {
 
-		def apply(prepared: ExtendedResponse, criterion: (String, String)): Validation[String, Option[Seq[String]]] =
+		def apply(prepared: ExtendedResponse, criterion: (String, String)): Validation[Option[Seq[String]]] =
 			extractHeadersValues(prepared, criterion).liftSeqOption.success
 	}
 
 	val count = new HeaderRegexExtractor[Int] {
 
-		def apply(prepared: ExtendedResponse, criterion: (String, String)): Validation[String, Option[Int]] =
+		def apply(prepared: ExtendedResponse, criterion: (String, String)): Validation[Option[Int]] =
 			extractHeadersValues(prepared, criterion).liftSeqOption.map(_.size).success
 	}
 }

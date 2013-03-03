@@ -22,14 +22,14 @@ import scala.io.{ Codec, Source }
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
-import com.excilys.ebi.gatling.core.test.ScalazSpecification
+import com.excilys.ebi.gatling.core.test.ValidationSpecification
 import com.excilys.ebi.gatling.core.util.IOHelper
 
 /**
  * @see <a href="http://www.w3.org/TR/selectors/#selectors"/> for more details about the CSS selectors syntax
  */
 @RunWith(classOf[JUnitRunner])
-class CssExtractorsSpec extends ScalazSpecification {
+class CssExtractorsSpec extends ValidationSpecification {
 
 	def prepared(file: String) = {
 		IOHelper.use(Source.fromInputStream(getClass.getResourceAsStream(file))(Codec.UTF8)) { source =>

@@ -19,9 +19,8 @@ import java.net.URI
 
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
+import com.excilys.ebi.gatling.core.validation.Success
 import com.ning.http.client.Cookie
-
-import scalaz.Success
 
 object CookieHandling {
 

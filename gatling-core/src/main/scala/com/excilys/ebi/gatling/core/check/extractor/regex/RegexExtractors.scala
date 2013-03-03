@@ -21,9 +21,7 @@ import scala.annotation.tailrec
 
 import com.excilys.ebi.gatling.core.check.Extractor
 import com.excilys.ebi.gatling.core.check.extractor.Extractors
-
-import scalaz.Scalaz.ToValidationV
-import scalaz.Validation
+import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object RegexExtractors extends Extractors {
 
@@ -37,7 +35,7 @@ object RegexExtractors extends Extractors {
 
 	def extractOne(occurrence: Int) = new RegexExtractor[String] {
 
-		def apply(prepared: String, criterion: String): Validation[String, Option[String]] = {
+		def apply(prepared: String, criterion: String): Validation[Option[String]] = {
 
 			val matcher = Pattern.compile(criterion).matcher(prepared)
 
@@ -63,7 +61,7 @@ object RegexExtractors extends Extractors {
 
 	val extractMultiple = new RegexExtractor[Seq[String]] {
 
-		def apply(prepared: String, criterion: String): Validation[String, Option[Seq[String]]] =
+		def apply(prepared: String, criterion: String): Validation[Option[Seq[String]]] =
 
 			criterion.r.findAllIn(prepared).matchData.map { matcher =>
 				new String(matcher.group(1 min matcher.groupCount))
@@ -72,7 +70,7 @@ object RegexExtractors extends Extractors {
 
 	val count = new RegexExtractor[Int] {
 
-		def apply(prepared: String, criterion: String): Validation[String, Option[Int]] =
+		def apply(prepared: String, criterion: String): Validation[Option[Int]] =
 			criterion.r.findAllIn(prepared).size.liftOption.success
 	}
 }

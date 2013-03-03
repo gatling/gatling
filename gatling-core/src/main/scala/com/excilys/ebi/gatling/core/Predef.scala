@@ -19,17 +19,15 @@ import scala.reflect.ClassTag
 import scala.tools.nsc.io.{ File, Path }
 
 import com.excilys.ebi.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
-import com.excilys.ebi.gatling.core.feeder.{ AdvancedFeederBuilder, FeederBuilder, FeederBuilderFromArray, FeederBuilderFromFeeder }
+import com.excilys.ebi.gatling.core.feeder.{ AdvancedFeederBuilder, Feeder, FeederBuilder, FeederBuilderFromArray, FeederBuilderFromFeeder }
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesParser
 import com.excilys.ebi.gatling.core.session.EL
 import com.excilys.ebi.gatling.core.structure.{ AssertionBuilder, ChainBuilder, ScenarioBuilder }
-
-import scalaz.Scalaz.ToValidationV
-import scalaz.Validation
+import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object Predef {
 	implicit def stringToExpression[T: ClassTag](string: String) = EL.compile[T](string)
-	implicit def value2Success[T](value: T): Validation[String, T] = value.success
+	implicit def value2Success[T](value: T): Validation[T] = value.success
 	implicit def value2Expression[T](value: T): Expression[T] = EL.wrap(value)
 	implicit def checkBuilder2Check[C <: Check[R], R, P, T, X, E](checkBuilder: CheckBuilder[C, R, P, T, X, E]) = checkBuilder.build
 	implicit def matcherCheckBuilder2CheckBuilder[C <: Check[R], R, P, T, X](matcherCheckBuilder: MatcherCheckBuilder[C, R, P, T, X]) = matcherCheckBuilder.exists

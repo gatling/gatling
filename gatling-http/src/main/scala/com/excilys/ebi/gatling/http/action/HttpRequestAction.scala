@@ -18,6 +18,7 @@ package com.excilys.ebi.gatling.http.action
 import com.excilys.ebi.gatling.core.action.Bypassable
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
+import com.excilys.ebi.gatling.core.validation.{ Failure, Success }
 import com.excilys.ebi.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor, GatlingHttpClient }
 import com.excilys.ebi.gatling.http.cache.CacheHandling
 import com.excilys.ebi.gatling.http.check.HttpCheck
@@ -27,7 +28,6 @@ import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 
 import akka.actor.{ ActorRef, Props }
 import grizzled.slf4j.Logging
-import scalaz.{ Failure, Success }
 
 /**
  * HttpRequestAction class companion

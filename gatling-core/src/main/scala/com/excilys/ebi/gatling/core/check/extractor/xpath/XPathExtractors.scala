@@ -26,10 +26,9 @@ import org.xml.sax.{ EntityResolver, InputSource }
 import com.excilys.ebi.gatling.core.check.Extractor
 import com.excilys.ebi.gatling.core.check.extractor.Extractors
 import com.excilys.ebi.gatling.core.util.IOHelper
+import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
 
 import javax.xml.parsers.{ DocumentBuilder, DocumentBuilderFactory }
-import scalaz.Scalaz.ToValidationV
-import scalaz.Validation
 
 object XPathExtractors extends Extractors {
 
@@ -72,7 +71,7 @@ object XPathExtractors extends Extractors {
 
 	val extractOne = (namespaces: List[(String, String)]) => (occurrence: Int) => new XPathExtractor[String] {
 
-		def apply(prepared: Option[Document], criterion: String): Validation[String, Option[String]] = {
+		def apply(prepared: Option[Document], criterion: String): Validation[Option[String]] = {
 
 			val result = for {
 				results <- prepared.map(xpath(criterion, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]])
@@ -85,12 +84,12 @@ object XPathExtractors extends Extractors {
 
 	val extractMultiple = (namespaces: List[(String, String)]) => new XPathExtractor[Seq[String]] {
 
-		def apply(prepared: Option[Document], criterion: String): Validation[String, Option[Seq[String]]] =
+		def apply(prepared: Option[Document], criterion: String): Validation[Option[Seq[String]]] =
 			prepared.flatMap(xpath(criterion, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]].map(_.getTextContent).liftSeqOption).success
 	}
 
 	val count = (namespaces: List[(String, String)]) => new XPathExtractor[Int] {
 
-		def apply(prepared: Option[Document], criterion: String): Validation[String, Option[Int]] = prepared.map(xpath(criterion, namespaces).selectNodes(_).size).success
+		def apply(prepared: Option[Document], criterion: String): Validation[Option[Int]] = prepared.map(xpath(criterion, namespaces).selectNodes(_).size).success
 	}
 }

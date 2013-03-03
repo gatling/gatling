@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
-import com.excilys.ebi.gatling.core.util.FlattenableValidations
+import com.excilys.ebi.gatling.core.validation.ValidationList
 import com.ning.http.client.{ Cookie => AHCCookie }
 
 import akka.actor.{ ActorRef, Props }
@@ -39,7 +39,7 @@ object AddCookiesBuilder {
 					path <- cookie.path(session)
 
 				} yield new AHCCookie(domain, name, value, path, 100000, false)
-			}.flattenIt
+			}.sequence
 
 		new AddCookiesBuilder(url, cookiesExpression)
 	}

@@ -17,9 +17,9 @@ package com.excilys.ebi.gatling.core.action
 
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.core.session.handler.TimerBasedIterationHandler
+import com.excilys.ebi.gatling.core.validation.Success
 
 import akka.actor.{ Actor, ActorRef, Props }
-import scalaz.Success
 
 /**
  * Action in charge of controlling a while loop execution.
@@ -45,7 +45,7 @@ class While(condition: Expression[Boolean], counterName: String, next: ActorRef)
 }
 
 class InnerWhile(condition: Expression[Boolean], loopNextAction: ActorRef, val counterName: String, val next: ActorRef) extends Bypassable with TimerBasedIterationHandler {
-	
+
 	/**
 	 * Evaluates the condition and if true executes the first action of loopNext
 	 * else it executes next

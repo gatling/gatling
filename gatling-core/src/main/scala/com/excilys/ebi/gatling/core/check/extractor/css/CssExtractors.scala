@@ -21,10 +21,9 @@ import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.check.Extractor
 import com.excilys.ebi.gatling.core.check.extractor.Extractors
+import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
 
 import jodd.lagarto.dom.{ LagartoDOMBuilder, NodeSelector }
-import scalaz.Scalaz.ToValidationV
-import scalaz.Validation
 
 object CssExtractors extends Extractors {
 
@@ -44,19 +43,19 @@ object CssExtractors extends Extractors {
 
 	val extractOne = (nodeAttribute: Option[String]) => (occurrence: Int) => new CssExtractor[String] {
 
-		def apply(prepared: NodeSelector, criterion: String): Validation[String, Option[String]] =
+		def apply(prepared: NodeSelector, criterion: String): Validation[Option[String]] =
 			extractAll(prepared, criterion, nodeAttribute).lift(occurrence).success
 	}
 
 	val extractMultiple = (nodeAttribute: Option[String]) => new CssExtractor[Seq[String]] {
 
-		def apply(prepared: NodeSelector, criterion: String): Validation[String, Option[Seq[String]]] =
+		def apply(prepared: NodeSelector, criterion: String): Validation[Option[Seq[String]]] =
 			extractAll(prepared, criterion, nodeAttribute).liftSeqOption.success
 	}
 
 	val count = (nodeAttribute: Option[String]) => new CssExtractor[Int] {
 
-		def apply(prepared: NodeSelector, criterion: String): Validation[String, Option[Int]] =
+		def apply(prepared: NodeSelector, criterion: String): Validation[Option[Int]] =
 			extractAll(prepared, criterion, nodeAttribute).liftSeqOption.map(_.size).success
 	}
 }

@@ -17,10 +17,9 @@ package com.excilys.ebi.gatling.http.check
 
 import com.excilys.ebi.gatling.core.check.{ Check, CheckFactory, Preparer }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.excilys.ebi.gatling.core.validation.SuccessWrapper
 import com.excilys.ebi.gatling.http.request.HttpPhase._
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
-
-import scalaz.Scalaz.ToValidationV
 
 object HttpCheckBuilders {
 

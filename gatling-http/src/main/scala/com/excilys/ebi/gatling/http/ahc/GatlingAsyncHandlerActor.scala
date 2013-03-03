@@ -27,6 +27,7 @@ import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
+import com.excilys.ebi.gatling.core.validation.{ Failure, Success }
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames }
 import com.excilys.ebi.gatling.http.cache.CacheHandling
 import com.excilys.ebi.gatling.http.check.HttpCheck
@@ -39,7 +40,6 @@ import com.excilys.ebi.gatling.http.util.HttpHelper.computeRedirectUrl
 import com.ning.http.client.{ FluentStringsMap, Request, RequestBuilder }
 
 import akka.actor.{ ActorRef, ReceiveTimeout }
-import scalaz.{ Failure, Success }
 
 object GatlingAsyncHandlerActor {
 	val REDIRECTED_REQUEST_NAME_PATTERN = """(.+?) Redirect (\d+)""".r

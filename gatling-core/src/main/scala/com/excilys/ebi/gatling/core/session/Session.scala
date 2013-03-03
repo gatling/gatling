@@ -18,10 +18,9 @@ package com.excilys.ebi.gatling.core.session
 import scala.reflect.ClassTag
 
 import com.excilys.ebi.gatling.core.util.TypeHelper
+import com.excilys.ebi.gatling.core.validation.{ FailureWrapper, Validation }
 
 import grizzled.slf4j.Logging
-import scalaz.Scalaz.ToValidationV
-import scalaz.Validation
 
 /**
  * Session class companion
@@ -56,7 +55,7 @@ case class Session(scenarioName: String, userId: Int, attributes: Map[String, An
 
 	def getAs[T](key: String): Option[T] = attributes.get(key).map(_.asInstanceOf[T])
 
-	def safeGetAs[T: ClassTag](key: String): Validation[String, T] = attributes.get(key).map(TypeHelper.as[T](_)).getOrElse(undefinedSessionAttributeMessage(key).failure[T])
+	def safeGetAs[T: ClassTag](key: String): Validation[T] = attributes.get(key).map(TypeHelper.as[T](_)).getOrElse(undefinedSessionAttributeMessage(key).failure[T])
 
 	def set(newAttributes: Map[String, Any]) = copy(attributes = attributes ++ newAttributes)
 

@@ -16,17 +16,15 @@
 package com.excilys.ebi.gatling.core
 
 import com.excilys.ebi.gatling.core.check.Check
-import com.excilys.ebi.gatling.core.session.Expression
-
-import scalaz.Validation
+import com.excilys.ebi.gatling.core.validation.Validation
 
 package object check {
 
-	type Preparer[R, P] = R => Validation[String, P]
+	type Preparer[R, P] = R => Validation[P]
 
 	trait Extractor[P, T, X] {
 		def name: String
-		def apply(prepared: P, criterion: T): Validation[String, Option[X]]
+		def apply(prepared: P, criterion: T): Validation[Option[X]]
 	}
 
 	object Matchers {

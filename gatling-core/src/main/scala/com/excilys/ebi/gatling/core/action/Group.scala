@@ -17,9 +17,9 @@ package com.excilys.ebi.gatling.core.action
 
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
+import com.excilys.ebi.gatling.core.validation.{ Failure, Success }
 
 import akka.actor.ActorRef
-import scalaz.{ Failure, Success }
 
 class Group(groupName: Expression[String], event: String, val next: ActorRef) extends Chainable {
 

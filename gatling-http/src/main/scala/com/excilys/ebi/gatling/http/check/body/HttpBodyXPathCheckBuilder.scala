@@ -20,11 +20,11 @@ import org.w3c.dom.Document
 import com.excilys.ebi.gatling.core.check.Preparer
 import com.excilys.ebi.gatling.core.check.extractor.xpath.XPathExtractors
 import com.excilys.ebi.gatling.core.session.Expression
+import com.excilys.ebi.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
 import grizzled.slf4j.Logging
-import scalaz.Scalaz.ToValidationV
 
 object HttpBodyXPathCheckBuilder extends Logging {
 

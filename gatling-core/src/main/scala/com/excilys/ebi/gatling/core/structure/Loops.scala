@@ -25,9 +25,9 @@ import com.excilys.ebi.gatling.core.session.{ EL, Expression, Session }
 import com.excilys.ebi.gatling.core.session.handler.{ CounterBasedIterationHandler, TimerBasedIterationHandler }
 import com.excilys.ebi.gatling.core.structure.ChainBuilder.chainOf
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
+import com.excilys.ebi.gatling.core.validation.{ Failure, Success }
 
 import grizzled.slf4j.Logging
-import scalaz.{ Failure, Success }
 
 trait Loops[B] extends Execs[B] with Logging {
 

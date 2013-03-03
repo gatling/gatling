@@ -17,14 +17,13 @@ package com.excilys.ebi.gatling.core.util
 
 import scala.reflect.ClassTag
 
-import scalaz.Scalaz.ToValidationV
-import scalaz.Validation
+import com.excilys.ebi.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 object TypeHelper {
 
 	def classCastExceptionMessage(value: Any, clazz: Class[_]) = "Can't cast value " + value + " of type " + value.getClass + " into " + clazz
 
-	def as[T: ClassTag](value: Any): Validation[String, T] = {
+	def as[T: ClassTag](value: Any): Validation[T] = {
 		val clazz = implicitly[ClassTag[T]].runtimeClass
 		val valueClazz = value.getClass.getName match {
 			case "java.lang.Boolean" => classOf[Boolean]

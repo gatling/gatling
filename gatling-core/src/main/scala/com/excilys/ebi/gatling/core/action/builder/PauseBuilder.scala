@@ -21,9 +21,9 @@ import com.excilys.ebi.gatling.core.action.{ Pause, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.core.util.NumberHelper.createUniformRandomLongGenerator
+import com.excilys.ebi.gatling.core.validation.Validation
 
 import akka.actor.{ ActorRef, Props }
-import scalaz.Validation
 
 /**
  * Builder for the 'pause' action.
@@ -36,7 +36,7 @@ class PauseBuilder(minDuration: Expression[Duration], maxDurationOption: Option[
 
 	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
 
-		def delayGenerator(session: Session): Validation[String, Long] = {
+		def delayGenerator(session: Session): Validation[Long] = {
 			val resolvedMinDurationInMillis = minDuration(session).map(_.toMillis)
 			maxDurationOption.map(maxDuration => {
 				val resolvedMaxDurationInMillis = maxDuration(session).map(_.toMillis)

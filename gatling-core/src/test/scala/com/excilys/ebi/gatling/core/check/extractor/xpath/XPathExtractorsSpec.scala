@@ -19,10 +19,10 @@ import org.junit.runner.RunWith
 
 import org.specs2.runner.JUnitRunner
 
-import com.excilys.ebi.gatling.core.test.ScalazSpecification
+import com.excilys.ebi.gatling.core.test.ValidationSpecification
 
 @RunWith(classOf[JUnitRunner])
-class XPathExtractorsSpec extends ScalazSpecification {
+class XPathExtractorsSpec extends ValidationSpecification {
 
 	val namespaces = List("foo" -> "http://foo/foo")
 

@@ -19,10 +19,10 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration
-import com.excilys.ebi.gatling.core.test.ScalazSpecification
+import com.excilys.ebi.gatling.core.test.ValidationSpecification
 
 @RunWith(classOf[JUnitRunner])
-class JsonPathExtractorsSpec extends ScalazSpecification {
+class JsonPathExtractorsSpec extends ValidationSpecification {
 
 	def prepared(file: String) = {
 		GatlingConfiguration.setUp()

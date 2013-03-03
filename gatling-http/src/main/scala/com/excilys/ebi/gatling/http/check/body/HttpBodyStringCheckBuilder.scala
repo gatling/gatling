@@ -17,9 +17,8 @@ package com.excilys.ebi.gatling.http.check.body
 
 import com.excilys.ebi.gatling.core.check.Extractor
 import com.excilys.ebi.gatling.core.session.noopStringExpression
+import com.excilys.ebi.gatling.core.validation.SuccessWrapper
 import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
-
-import scalaz.Scalaz.ToValidationV
 
 object HttpBodyStringCheckBuilder {
 

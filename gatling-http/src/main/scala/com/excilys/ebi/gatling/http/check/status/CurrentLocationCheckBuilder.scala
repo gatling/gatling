@@ -17,10 +17,9 @@ package com.excilys.ebi.gatling.http.check.status
 
 import com.excilys.ebi.gatling.core.check.Extractor
 import com.excilys.ebi.gatling.core.session.noopStringExpression
+import com.excilys.ebi.gatling.core.validation.SuccessWrapper
 import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
-
-import scalaz.Scalaz.ToValidationV
 
 /**
  * Builder for current location (ie current request URL) check

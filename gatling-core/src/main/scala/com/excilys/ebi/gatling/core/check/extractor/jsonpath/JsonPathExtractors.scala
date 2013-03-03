@@ -15,15 +15,11 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 
-import java.io.InputStream
-
 import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.check.Extractor
 import com.excilys.ebi.gatling.core.check.extractor.Extractors
-
-import scalaz.Scalaz.ToValidationV
-import scalaz.Validation
+import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object JsonPathExtractors extends Extractors {
 
@@ -35,19 +31,19 @@ object JsonPathExtractors extends Extractors {
 
 	val extractOne = (occurrence: Int) => new CssExtractor[String] {
 
-		def apply(prepared: Option[JsonNode], criterion: String): Validation[String, Option[String]] =
+		def apply(prepared: Option[JsonNode], criterion: String): Validation[Option[String]] =
 			extractAll(prepared, criterion).flatMap(_.lift(occurrence)).success
 	}
 
 	val extractMultiple = new CssExtractor[Seq[String]] {
 
-		def apply(prepared: Option[JsonNode], criterion: String): Validation[String, Option[Seq[String]]] =
+		def apply(prepared: Option[JsonNode], criterion: String): Validation[Option[Seq[String]]] =
 			extractAll(prepared, criterion).flatMap(_.liftSeqOption).success
 	}
 
 	val count = new CssExtractor[Int] {
 
-		def apply(prepared: Option[JsonNode], criterion: String): Validation[String, Option[Int]] =
+		def apply(prepared: Option[JsonNode], criterion: String): Validation[Option[Int]] =
 			extractAll(prepared, criterion).map(_.size).success
 	}
 }

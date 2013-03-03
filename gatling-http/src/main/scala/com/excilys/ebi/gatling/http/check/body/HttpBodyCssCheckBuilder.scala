@@ -21,12 +21,12 @@ import com.excilys.ebi.gatling.core.check.Preparer
 import com.excilys.ebi.gatling.core.check.extractor.css.CssExtractors
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.Expression
+import com.excilys.ebi.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
 import grizzled.slf4j.Logging
 import jodd.lagarto.dom.NodeSelector
-import scalaz.Scalaz.ToValidationV
 
 object HttpBodyCssCheckBuilder extends Logging {
 

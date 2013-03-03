@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.http.request.builder
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.{ EL, Expression, Session }
-import com.excilys.ebi.gatling.core.util.FlattenableValidations
+import com.excilys.ebi.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation, ValidationList }
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.ahc.GatlingConnectionPoolKeyStrategy
@@ -30,9 +30,6 @@ import com.ning.http.client.{ Request, RequestBuilder }
 import com.ning.http.client.ProxyServer.Protocol
 import com.ning.http.client.Realm
 import com.ning.http.client.Realm.AuthScheme
-
-import scalaz.Scalaz.ToValidationV
-import scalaz.Validation
 
 case class HttpAttributes(
 	requestName: Expression[String],
@@ -152,10 +149,10 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 *
 	 * @param session the session of the current scenario
 	 */
-	protected def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[String, RequestBuilder] = {
+	protected def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[RequestBuilder] = {
 
 		val url = {
-			def makeAbsolute(url: String): Validation[String, String] = {
+			def makeAbsolute(url: String): Validation[String] = {
 
 				if (url.startsWith(Protocol.HTTP.getProtocol))
 					url.success
@@ -166,7 +163,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 			httpAttributes.url(session).flatMap(makeAbsolute)
 		}
 
-		def configureUrlCookiesAndProxy(requestBuilder: RequestBuilder)(url: String): Validation[String, RequestBuilder] = {
+		def configureUrlCookiesAndProxy(requestBuilder: RequestBuilder)(url: String): Validation[RequestBuilder] = {
 
 			val proxy = if (url.startsWith(Protocol.HTTPS.getProtocol))
 				protocolConfiguration.securedProxy
@@ -179,10 +176,10 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 			requestBuilder.setUrl(url).success
 		}
 
-		def configureQueryParams(requestBuilder: RequestBuilder): Validation[String, RequestBuilder] =
+		def configureQueryParams(requestBuilder: RequestBuilder): Validation[RequestBuilder] =
 			HttpHelper.httpParamsToFluentMap(httpAttributes.queryParams, session).map(requestBuilder.setQueryParameters)
 
-		def configureHeaders(requestBuilder: RequestBuilder): Validation[String, RequestBuilder] = {
+		def configureHeaders(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
 			val resolvedHeaders = httpAttributes.headers.map {
 				case (key, value) =>
@@ -191,7 +188,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 					} yield key -> resolvedValue
 			}
 				.toList
-				.flattenIt
+				.sequence
 				.map(_.toMap)
 
 			resolvedHeaders.map { headers =>
@@ -201,7 +198,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 			}
 		}
 
-		def configureRealm(requestBuilder: RequestBuilder): Validation[String, RequestBuilder] =
+		def configureRealm(requestBuilder: RequestBuilder): Validation[RequestBuilder] =
 			httpAttributes.realm match {
 				case Some(realm) => realm(session).map(requestBuilder.setRealm)
 				case None => requestBuilder.success
@@ -223,7 +220,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 *
 	 * @param session the session of the current scenario
 	 */
-	private[http] def build(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[String, Request] = getAHCRequestBuilder(session, protocolConfiguration).map(_.build)
+	private[http] def build(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[Request] = getAHCRequestBuilder(session, protocolConfiguration).map(_.build)
 
 	private[gatling] def toActionBuilder = HttpRequestActionBuilder(httpAttributes.requestName, this, httpAttributes.checks)
 }

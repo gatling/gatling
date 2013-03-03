@@ -17,8 +17,7 @@ package com.excilys.ebi.gatling.core.check
 
 import com.excilys.ebi.gatling.core.session.{ Expression, Session, noopStringExpression }
 
-import scalaz.{ Failure, Validation }
-import scalaz.Scalaz.ToValidationV
+import com.excilys.ebi.gatling.core.validation._
 
 trait ExtractorCheckBuilder[C <: Check[R], R, P, T, X] {
 
@@ -42,7 +41,7 @@ case class MatcherCheckBuilder[C <: Check[R], R, P, T, X](
 
 	def transform[X2](transformation: X => X2): MatcherCheckBuilder[C, R, P, T, X2] = copy(extractor = new Extractor[P, T, X2] {
 
-		def apply(prepared: P, criterion: T): Validation[String, Option[X2]] = extractor(prepared, criterion).map(_.map(transformation))
+		def apply(prepared: P, criterion: T): Validation[Option[X2]] = extractor(prepared, criterion).map(_.map(transformation))
 		def name = extractor.name
 	})
 

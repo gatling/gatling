@@ -16,9 +16,9 @@
 package com.excilys.ebi.gatling.core.session.handler
 
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.validation.{ Failure, Success }
 
 import grizzled.slf4j.Logging
-import scalaz.{ Failure, Success }
 
 /**
  * This trait is used for mixin-composition

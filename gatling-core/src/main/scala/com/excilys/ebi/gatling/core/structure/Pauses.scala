@@ -19,8 +19,7 @@ import scala.concurrent.duration.{ Duration, DurationLong }
 
 import com.excilys.ebi.gatling.core.action.builder.{ CustomPauseBuilder, ExpPauseBuilder, PauseBuilder }
 import com.excilys.ebi.gatling.core.session.Expression
-
-import scalaz.Scalaz.ToValidationV
+import com.excilys.ebi.gatling.core.validation.SuccessWrapper
 
 trait Pauses[B] extends Execs[B] {
 

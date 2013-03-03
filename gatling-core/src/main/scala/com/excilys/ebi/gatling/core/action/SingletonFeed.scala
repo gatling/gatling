@@ -15,13 +15,12 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import akka.actor.ActorRef
 import com.excilys.ebi.gatling.core.feeder.{ Feeder, Record }
 import com.excilys.ebi.gatling.core.result.terminator.Terminator
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
+import com.excilys.ebi.gatling.core.validation.{ Failure, FailureWrapper, Success, SuccessWrapper, Validation }
 
-import scalaz.{ Failure, Success, Validation }
-import scalaz.Scalaz.ToValidationV
+import akka.actor.ActorRef
 
 class SingletonFeed[T](val feeder: Feeder[T], val number: Expression[Int]) extends BaseActor {
 	def receive = {
@@ -41,7 +40,7 @@ class SingletonFeed[T](val feeder: Feeder[T], val number: Expression[Int]) exten
 			feeder.next
 		}
 
-		def injectRecords(session: Session, numberOfRecords: Int): Validation[String, Session] =
+		def injectRecords(session: Session, numberOfRecords: Int): Validation[Session] =
 			numberOfRecords match {
 				case 1 => session.set(pollRecord).success
 				case n if n > 0 =>

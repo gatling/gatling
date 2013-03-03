@@ -17,12 +17,12 @@ package com.excilys.ebi.gatling.core.check.extractor.regex
 
 import org.junit.runner.RunWith
 
-import com.excilys.ebi.gatling.core.test.ScalazSpecification
+import com.excilys.ebi.gatling.core.test.ValidationSpecification
 
 import org.specs2.runner.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class RegexExtractorsSpec extends ScalazSpecification {
+class RegexExtractorsSpec extends ValidationSpecification {
 
 	"extractMultiple" should {
 

@@ -15,7 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.{ Expression, Session }
+import com.excilys.ebi.gatling.core.validation.{ Failure, Success }
 
 import akka.actor.ActorRef
 
@@ -28,7 +29,7 @@ import akka.actor.ActorRef
  * @param elseNext chain of actions executed if condition evaluates to false
  * @param next chain of actions executed if condition evaluates to false and elseNext equals None
  */
-class If(condition: Session => Boolean, thenNext: ActorRef, elseNext: Option[ActorRef], val next: ActorRef) extends Bypassable {
+class If(condition: Expression[Boolean], thenNext: ActorRef, elseNext: Option[ActorRef], val next: ActorRef) extends Bypassable {
 
 	/**
 	 * Evaluates the condition and decides what to do next
@@ -37,7 +38,11 @@ class If(condition: Session => Boolean, thenNext: ActorRef, elseNext: Option[Act
 	 */
 	def execute(session: Session) {
 
-		val nextAction = if (condition(session)) thenNext else elseNext.getOrElse(next)
+		val nextAction = condition(session) match {
+			case Success(true) => thenNext
+			case Success(false) => next
+			case Failure(message) => error(s"Could not resolve loop condition: $message"); next
+		}
 		nextAction ! session
 	}
 }
