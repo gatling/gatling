@@ -21,7 +21,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.fusesource.scalate</groupId>
-			<artifactId>scalate-core</artifactId>
+			<artifactId>scalate-core_2.9</artifactId>
 		</dependency>
 
 		<!-- test -->
@@ -56,7 +56,7 @@
 			</plugin>
 			<plugin>
 				<groupId>org.fusesource.scalate</groupId>
-				<artifactId>maven-scalate-plugin</artifactId>
+				<artifactId>maven-scalate-plugin_2.9</artifactId>
 				<executions>
 					<execution>
 						<goals>
