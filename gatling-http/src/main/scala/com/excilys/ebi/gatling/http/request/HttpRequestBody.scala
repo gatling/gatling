@@ -131,7 +131,7 @@ case class SspTemplateBody(templatePathExpression: Expression[String], attribute
 		for {
 			templatePath <- templatePathExpression(session)
 			attributes <- attributesExpression(session)
-			val body = HttpRequestBody.SSP_TEMPLATE_ENGINE.layout(templatePath, attributes, bindings)
+			body = HttpRequestBody.SSP_TEMPLATE_ENGINE.layout(templatePath, attributes, bindings)
 		} yield requestBuilder.setBody(body).setContentLength(body.length)
 }
 case class SessionByteArrayBody(byteArray: Session => Array[Byte]) extends HttpRequestBody {

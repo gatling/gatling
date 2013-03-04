@@ -21,8 +21,6 @@ import com.excilys.ebi.gatling.core.session.Expression
 import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
-import scalaz.Scalaz.ToValidationV
-
 object HttpBodyRegexCheckBuilder {
 
 	def regex(expression: Expression[String]) = new HttpMultipleCheckBuilder[String, String, String](
