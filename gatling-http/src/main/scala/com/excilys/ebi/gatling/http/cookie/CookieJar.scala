@@ -50,7 +50,7 @@ class CookieJar(store: Map[URI, List[Cookie]]) {
 
 	private def getEffectiveUri(uri: URI) =
 		new URI(null, // scheme
-			uri.getAuthority,
+			uri.getHost, // rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
 			null, // path component
 			null, // query component
 			null) // fragment component
