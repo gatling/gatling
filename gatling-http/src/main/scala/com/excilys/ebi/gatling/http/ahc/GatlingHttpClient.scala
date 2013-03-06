@@ -15,11 +15,16 @@
  */
 package com.excilys.ebi.gatling.http.ahc
 
+import java.io.{ File, FileInputStream }
+import java.security.{ KeyStore, SecureRandom }
+
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.excilys.ebi.gatling.core.util.IOHelper
 import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig }
 
 import grizzled.slf4j.Logging
+import javax.net.ssl.{ KeyManagerFactory, SSLContext, TrustManagerFactory }
 
 object GatlingHttpClient extends Logging {
 
@@ -54,11 +59,41 @@ object GatlingHttpClient extends Logging {
 			.setUseProxyProperties(configuration.http.useProxyProperties)
 			.setUserAgent(configuration.http.userAgent)
 			.setUseRawUrl(configuration.http.useRawUrl)
-			.build
+
+		if (configuration.http.ssl.trustStore.isDefined || configuration.http.ssl.keyStore.isDefined) {
+
+			val trustManagers = configuration.http.ssl.trustStore.map { trustStoreConfig =>
+				IOHelper.use(new FileInputStream(new File(trustStoreConfig.file))) { is =>
+					val trustStore = KeyStore.getInstance(trustStoreConfig.storeType)
+					trustStore.load(is, trustStoreConfig.password.toCharArray)
+					val algo = trustStoreConfig.algorithm.getOrElse(KeyManagerFactory.getDefaultAlgorithm)
+					val tmf = TrustManagerFactory.getInstance(algo)
+					tmf.init(trustStore)
+					tmf.getTrustManagers
+				}
+			}.getOrElse(null)
+
+			val keyManagers = configuration.http.ssl.keyStore.map { keyStoreConfig =>
+				IOHelper.use(new FileInputStream(new File(keyStoreConfig.file))) { is =>
+					val keyStore = KeyStore.getInstance(keyStoreConfig.storeType)
+					keyStore.load(is, keyStoreConfig.password.toCharArray)
+					val algo = keyStoreConfig.algorithm.getOrElse(KeyManagerFactory.getDefaultAlgorithm)
+					val kmf = KeyManagerFactory.getInstance(algo)
+					kmf.init(keyStore, keyStoreConfig.password.toCharArray)
+					kmf.getKeyManagers
+				}
+			}.getOrElse(null)
+
+			val sslContext = SSLContext.getInstance("TLS")
+			sslContext.init(keyManagers, trustManagers, new SecureRandom)
+			ahcConfigBuilder.setSSLContext(sslContext)
+		}
+
+		val ahcConfig = ahcConfigBuilder.build
 
 		val providerClassName = "com.ning.http.client.providers." + configuration.http.provider.toLowerCase + "." + configuration.http.provider + "AsyncHttpProvider"
 
-		val client = new AsyncHttpClient(providerClassName, ahcConfigBuilder)
+		val client = new AsyncHttpClient(providerClassName, ahcConfig)
 
 		system.registerOnTermination(client.close)
 

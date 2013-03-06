@@ -82,13 +82,36 @@ object GatlingConfiguration extends Logging {
 				useProxyProperties = config.getBoolean(CONF_HTTP_USE_PROXY_PROPERTIES),
 				userAgent = config.getString(CONF_HTTP_USER_AGENT),
 				useRawUrl = config.getBoolean(CONF_HTTP_USE_RAW_URL),
-				nonStandardJsonSupport = config.getStringList(CONF_HTTP_JSON_FEATURES).toList),
+				nonStandardJsonSupport = config.getStringList(CONF_HTTP_JSON_FEATURES).toList,
+				ssl = {
+					def storeConfig(typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String) = {
+
+						def toOption(string: String) = {
+							val trimmed = string.trim
+							if (trimmed.isEmpty) None else Some(trimmed)
+						}
+
+						val storeType = toOption(config.getString(typeKey))
+						val storeFile = toOption(config.getString(fileKey))
+						val storePassword = config.getString(passwordKey)
+						val storeAlgorithm = toOption(config.getString(algorithmKey))
+
+						storeType.map { t =>
+							StoreConfiguration(t, storeFile.getOrElse(throw new IllegalArgumentException(s"$typeKey defined as $t but store file isn't defined")), storePassword, storeAlgorithm)
+						}
+					}
+
+					val trustStore = storeConfig(CONF_HTTP_SSS_TRUST_STORE_TYPE, CONF_HTTP_SSS_TRUST_STORE_FILE, CONF_HTTP_SSS_TRUST_STORE_PASSWORD, CONF_HTTP_SSS_TRUST_STORE_ALGORITHM)
+					val keyStore = storeConfig(CONF_HTTP_SSS_KEY_STORE_TYPE, CONF_HTTP_SSS_KEY_STORE_FILE, CONF_HTTP_SSS_KEY_STORE_PASSWORD, CONF_HTTP_SSS_KEY_STORE_ALGORITHM)
+
+					SslConfiguration(trustStore, keyStore)
+				}),
 			data = DataConfiguration(
 				dataWriterClasses = config.getStringList(CONF_DATA_WRITER_CLASS_NAMES).toList.map {
-						case "console" => "com.excilys.ebi.gatling.core.result.writer.ConsoleDataWriter"
-						case "file" => "com.excilys.ebi.gatling.core.result.writer.FileDataWriter"
-						case "graphite" => "com.excilys.ebi.gatling.metrics.GraphiteDataWriter"
-						case clazz => clazz
+					case "console" => "com.excilys.ebi.gatling.core.result.writer.ConsoleDataWriter"
+					case "file" => "com.excilys.ebi.gatling.core.result.writer.FileDataWriter"
+					case "graphite" => "com.excilys.ebi.gatling.metrics.GraphiteDataWriter"
+					case clazz => clazz
 				},
 				dataReaderClass = (config.getString(CONF_DATA_READER_CLASS_NAME)).trim match {
 					case "file" => "com.excilys.ebi.gatling.charts.result.reader.FileDataReader"
@@ -150,7 +173,18 @@ case class HttpConfiguration(
 	useProxyProperties: Boolean,
 	userAgent: String,
 	useRawUrl: Boolean,
-	nonStandardJsonSupport: List[String])
+	nonStandardJsonSupport: List[String],
+	ssl: SslConfiguration)
+
+case class SslConfiguration(
+	trustStore: Option[StoreConfiguration],
+	keyStore: Option[StoreConfiguration])
+
+case class StoreConfiguration(
+	storeType: String,
+	file: String,
+	password: String,
+	algorithm: Option[String])
 
 case class DataConfiguration(
 	dataWriterClasses: List[String],
