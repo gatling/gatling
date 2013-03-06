@@ -69,6 +69,8 @@ class ExtendedResponse(
 	def getResponseBodyAsBytes = response.getOrElse(throw new IllegalStateException("Response was not built")).getResponseBodyAsBytes
 
 	def getResponseBodyAsStream = response.getOrElse(throw new IllegalStateException("Response was not built")).getResponseBodyAsStream
+	
+	def getResponseBodyAsByteBuffer = response.getOrElse(throw new IllegalStateException("Response was not built")).getResponseBodyAsByteBuffer
 
 	def getResponseBodyExcerpt(maxLength: Int, charset: String) = response.getOrElse(throw new IllegalStateException("Response was not built")).getResponseBodyExcerpt(maxLength, charset)
 

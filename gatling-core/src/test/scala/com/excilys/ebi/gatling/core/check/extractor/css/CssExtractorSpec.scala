@@ -15,18 +15,24 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor.css
 
+import java.nio.CharBuffer
+
 import scala.io.Source
 
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import CssExtractorSpec.extractor
+import com.excilys.ebi.gatling.core.util.IOHelper
 
 object CssExtractorSpec {
 
-	val html = Source.fromInputStream(getClass.getResourceAsStream("/GatlingHomePage.html")).mkString
-	val extractor = new CssExtractor(html)
+	def extractor(file: String) = {
+		IOHelper.use(getClass.getResourceAsStream(file)) { is =>
+			val html = Source.fromInputStream(is).mkString
+			new CssExtractor(CharBuffer.wrap(html))
+		}
+	}
 }
 
 /**
@@ -35,31 +41,30 @@ object CssExtractorSpec {
 @RunWith(classOf[JUnitRunner])
 class CssExtractorSpec extends Specification {
 
+	import CssExtractorSpec.extractor
+
 	"CssExtractor" should {
 		"support browser conditional tests and behave as a non-IE browser" in {
-			val ieHtml = Source.fromInputStream(getClass.getResourceAsStream("/IeConditionalTests.html")).mkString
-			val ieExtractor = new CssExtractor(ieHtml)
-
-			ieExtractor.count(None)("#helloworld") must beEqualTo(Some(1))
+			extractor("/IeConditionalTests.html").count(None)("#helloworld") must beEqualTo(Some(1))
 		}
 	}
 
 	"count" should {
 
 		"return expected result with a class selector" in {
-			extractor.count(None)(".nav-menu") must beEqualTo(Some(3))
+			extractor("/GatlingHomePage.html").count(None)(".nav-menu") must beEqualTo(Some(3))
 		}
 
 		"return expected result with an id selector" in {
-			extractor.count(None)("#twitter_button") must beEqualTo(Some(1))
+			extractor("/GatlingHomePage.html").count(None)("#twitter_button") must beEqualTo(Some(1))
 		}
 
 		"return expected result with an :empty selector" in {
-			extractor.count(None)(".frise:empty") must beEqualTo(Some(1))
+			extractor("/GatlingHomePage.html").count(None)(".frise:empty") must beEqualTo(Some(1))
 		}
 
 		"return None when the selector doesn't match anything" in {
-			extractor.count(None)("bad_selector") must beEqualTo(None)
+			extractor("/GatlingHomePage.html").count(None)("bad_selector") must beEqualTo(None)
 		}
 
 	}
@@ -67,50 +72,50 @@ class CssExtractorSpec extends Specification {
 	"extractMultiple" should {
 
 		"return expected result with a class selector" in {
-			extractor.extractMultiple(None)("#social") must beEqualTo(Some(List("Social")))
+			extractor("/GatlingHomePage.html").extractMultiple(None)("#social") must beEqualTo(Some(List("Social")))
 		}
 
 		"return expected result with an id selector" in {
-			extractor.extractMultiple(None)(".nav") must beEqualTo(Some(List("Sponsors", "Social")))
+			extractor("/GatlingHomePage.html").extractMultiple(None)(".nav") must beEqualTo(Some(List("Sponsors", "Social")))
 		}
 
 		"return expected result with an attribute containg a given substring" in {
-			extractor.extractMultiple(None)(".article a[href*=api]") must beEqualTo(Some(List("API Documentation")))
+			extractor("/GatlingHomePage.html").extractMultiple(None)(".article a[href*=api]") must beEqualTo(Some(List("API Documentation")))
 		}
 
 		"return expected result with an element being the n-th child of its parent" in {
-			extractor.extractMultiple(None)(".article a:nth-child(2)") must beEqualTo(Some(List("JMeter's")))
+			extractor("/GatlingHomePage.html").extractMultiple(None)(".article a:nth-child(2)") must beEqualTo(Some(List("JMeter's")))
 		}
 
 		"return expected result with a predecessor selector" in {
-			extractor.extractMultiple(None)("img ~ p") must beEqualTo(Some(List("Efficient Load Testing")))
+			extractor("/GatlingHomePage.html").extractMultiple(None)("img ~ p") must beEqualTo(Some(List("Efficient Load Testing")))
 		}
 
 		"return None when the selector doesn't match anything" in {
-			extractor.extractMultiple(None)("bad_selector") must beEqualTo(None)
+			extractor("/GatlingHomePage.html").extractMultiple(None)("bad_selector") must beEqualTo(None)
 		}
 
 		"be able to extract a precise node attribute" in {
-			extractor.extractMultiple(Some("href"))("#sample_requests") must beEqualTo(Some(List("http://gatling-tool.org/sample/requests.html")))
+			extractor("/GatlingHomePage.html").extractMultiple(Some("href"))("#sample_requests") must beEqualTo(Some(List("http://gatling-tool.org/sample/requests.html")))
 		}
 	}
 
 	"extractOne" should {
 
 		"return expected result with a class selector" in {
-			extractor.extractOne(1, None)(".nav") must beEqualTo(Some("Social"))
+			extractor("/GatlingHomePage.html").extractOne(1, None)(".nav") must beEqualTo(Some("Social"))
 		}
 
 		"return None when the index is out of the range of returned elements" in {
-			extractor.extractOne(3, None)(".nav") must beEqualTo(None)
+			extractor("/GatlingHomePage.html").extractOne(3, None)(".nav") must beEqualTo(None)
 		}
 
 		"return None when the selector doesn't match anything" in {
-			extractor.extractOne(1, None)("bad_selector") must beEqualTo(None)
+			extractor("/GatlingHomePage.html").extractOne(1, None)("bad_selector") must beEqualTo(None)
 		}
 
 		"be able to extract a precise node attribute" in {
-			extractor.extractOne(1, Some("id"))(".nav") must beEqualTo(Some("social"))
+			extractor("/GatlingHomePage.html").extractOne(1, Some("id"))(".nav") must beEqualTo(Some("social"))
 		}
 	}
 }

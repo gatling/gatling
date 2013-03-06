@@ -15,11 +15,13 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor.css
 
+import java.nio.CharBuffer
+
 import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
 
-import jodd.lagarto.dom.{ Node, NodeSelector, LagartoDOMBuilder }
+import jodd.lagarto.dom.{ LagartoDOMBuilder, NodeSelector }
 
 /**
  * A built-in extractor for extracting values with Css Selectors
@@ -27,9 +29,9 @@ import jodd.lagarto.dom.{ Node, NodeSelector, LagartoDOMBuilder }
  * @constructor creates a new CssExtractor
  * @param text the text where the search will be made
  */
-class CssExtractor(text: String) extends Extractor {
+class CssExtractor(charBuffer: CharBuffer) extends Extractor {
 
-	val selector = new NodeSelector((new LagartoDOMBuilder).parse(text))
+	val selector = new NodeSelector((new LagartoDOMBuilder).parse(charBuffer))
 
 	/**
 	 * @param expression a String containing the CSS selector
