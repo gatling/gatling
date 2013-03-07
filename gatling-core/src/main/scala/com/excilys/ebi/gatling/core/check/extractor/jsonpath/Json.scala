@@ -26,6 +26,23 @@ import com.fasterxml.jackson.databind.node.{ ArrayNode, ObjectNode, ValueNode }
 
 object Json {
 
+	private def convert(name: String, node: JacksonNode): JsonNode = node match {
+		case objectNode: ObjectNode =>
+			val children = objectNode.fields.toList.flatMap { entry =>
+				entry.getValue match {
+					case array: ArrayNode => array.flatten(entry.getKey)
+					case value => List(convert(entry.getKey, value))
+				}
+			}
+			JsonElement(name, children)
+
+		case value: ValueNode => JsonText(name, value.asText)
+	}
+
+	private implicit class FlattenableArrayNode(val array: ArrayNode) extends AnyVal {
+		def flatten(name: String) = array.elements.map(convert(name, _)).toList
+	}
+
 	val mapper = {
 		val jacksonFeatures = configuration.http.nonStandardJsonSupport.map(JsonParser.Feature.valueOf)
 		val jsonFactory = new MappingJsonFactory
@@ -34,23 +51,6 @@ object Json {
 	}
 
 	def parse(is: InputStream): JsonNode = {
-
-		implicit class FlattenableArrayNode(array: ArrayNode) {
-			def flatten(name: String) = array.elements.map(convert(name, _)).toList
-		}
-
-		def convert(name: String, node: JacksonNode): JsonNode = node match {
-			case objectNode: ObjectNode =>
-				val children = objectNode.fields.toList.flatMap { entry =>
-					entry.getValue match {
-						case array: ArrayNode => array.flatten(entry.getKey)
-						case value => List(convert(entry.getKey, value))
-					}
-				}
-				JsonElement(name, children)
-
-			case value: ValueNode => JsonText(name, value.asText)
-		}
 
 		val root = mapper.readValue(is, classOf[JacksonNode])
 		root match {

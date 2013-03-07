@@ -15,13 +15,13 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor
 
-trait Extractors {
+object Extractors {
 
-	implicit class LiftedOption[X](value: X) {
+	implicit class LiftedOption[X](val value: X) extends AnyVal {
 		def liftOption = Some(value)
 	}
 
-	implicit class LiftedSeqOption[X](values: Seq[X]) {
+	implicit class LiftedSeqOption[X](val values: Seq[X]) extends AnyVal {
 		def liftSeqOption = if (values.isEmpty) None else Some(values)
 	}
 }

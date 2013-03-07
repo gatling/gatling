@@ -24,7 +24,7 @@ import com.ning.http.multipart.{ FilePart => MultipartFilePart, StringPart => Mu
 
 package object request {
 
-	implicit class ExtendedRequest(request: Request) {
+	implicit class ExtendedRequest(val request: Request) extends AnyVal {
 
 		def dumpTo(buff: StringBuilder) {
 

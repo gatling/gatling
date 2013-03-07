@@ -20,12 +20,12 @@ import java.nio.CharBuffer
 import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.check.Extractor
-import com.excilys.ebi.gatling.core.check.extractor.Extractors
+import com.excilys.ebi.gatling.core.check.extractor.Extractors.LiftedSeqOption
 import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
 
 import jodd.lagarto.dom.{ LagartoDOMBuilder, NodeSelector }
 
-object CssExtractors extends Extractors {
+object CssExtractors {
 
 	abstract class CssExtractor[X] extends Extractor[NodeSelector, String, X] {
 		val name = "css"

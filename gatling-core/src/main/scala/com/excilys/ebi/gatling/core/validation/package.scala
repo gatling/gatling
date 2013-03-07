@@ -17,15 +17,15 @@ package com.excilys.ebi.gatling.core
 
 package object validation {
 
-	implicit class SuccessWrapper[T](value: T) {
+	implicit class SuccessWrapper[T](val value: T) extends AnyVal {
 		def success: Validation[T] = Success(value)
 	}
 
-	implicit class FailureWrapper(message: String) {
+	implicit class FailureWrapper(val message: String) extends AnyVal {
 		def failure[T]: Validation[T] = Failure(message)
 	}
 
-	implicit class ValidationList[T](validations: List[Validation[T]]) {
+	implicit class ValidationList[T](val validations: List[Validation[T]]) extends AnyVal {
 		def sequence: Validation[List[T]] = {
 
 			def sequenceRec(validations: List[Validation[T]]): Validation[List[T]] = validations match {

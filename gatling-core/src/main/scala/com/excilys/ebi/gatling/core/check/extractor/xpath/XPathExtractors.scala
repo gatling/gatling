@@ -24,13 +24,13 @@ import org.w3c.dom.{ Document, Node }
 import org.xml.sax.{ EntityResolver, InputSource }
 
 import com.excilys.ebi.gatling.core.check.Extractor
-import com.excilys.ebi.gatling.core.check.extractor.Extractors
+import com.excilys.ebi.gatling.core.check.extractor.Extractors.LiftedSeqOption
 import com.excilys.ebi.gatling.core.util.IOHelper
 import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
 
 import javax.xml.parsers.{ DocumentBuilder, DocumentBuilderFactory }
 
-object XPathExtractors extends Extractors {
+object XPathExtractors {
 
 	System.setProperty("javax.xml.parsers.SAXParserFactory", "org.apache.xerces.jaxp.SAXParserFactoryImpl")
 	System.setProperty("javax.xml.parsers.DOMParserFactory", "org.apache.xerces.jaxp.DOMParserFactoryImpl")

@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core
 
 package object util {
 
-	implicit class PaddableStringBuilder(sb: StringBuilder) {
+	implicit class PaddableStringBuilder(val sb: StringBuilder) extends AnyVal {
 
 		def appendTimes(s: Any, times: Int): PaddableStringBuilder = {
 			for (i <- 1 to times) sb.append(s)

@@ -20,10 +20,10 @@ import java.util.regex.Pattern
 import scala.annotation.tailrec
 
 import com.excilys.ebi.gatling.core.check.Extractor
-import com.excilys.ebi.gatling.core.check.extractor.Extractors
+import com.excilys.ebi.gatling.core.check.extractor.Extractors.{ LiftedOption, LiftedSeqOption }
 import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
 
-object RegexExtractors extends Extractors {
+object RegexExtractors {
 
 	abstract class RegexExtractor[X] extends Extractor[String, String, X] {
 		val name = "regex"

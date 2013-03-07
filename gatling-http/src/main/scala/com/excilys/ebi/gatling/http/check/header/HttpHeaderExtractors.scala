@@ -18,13 +18,13 @@ package com.excilys.ebi.gatling.http.check.header
 import java.net.URLDecoder
 
 import com.excilys.ebi.gatling.core.check.Extractor
-import com.excilys.ebi.gatling.core.check.extractor.Extractors
+import com.excilys.ebi.gatling.core.check.extractor.Extractors.LiftedSeqOption
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
 import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
-object HttpHeaderExtractors extends Extractors {
+object HttpHeaderExtractors {
 
 	abstract class HeaderExtractor[X] extends Extractor[ExtendedResponse, String, X] {
 		val name = "header"

@@ -18,10 +18,10 @@ package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.check.Extractor
-import com.excilys.ebi.gatling.core.check.extractor.Extractors
+import com.excilys.ebi.gatling.core.check.extractor.Extractors.LiftedSeqOption
 import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
 
-object JsonPathExtractors extends Extractors {
+object JsonPathExtractors {
 
 	abstract class CssExtractor[X] extends Extractor[Option[JsonNode], String, X] {
 		val name = "jsonPath"

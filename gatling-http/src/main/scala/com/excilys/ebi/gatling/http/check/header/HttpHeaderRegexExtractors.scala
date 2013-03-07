@@ -16,12 +16,12 @@
 package com.excilys.ebi.gatling.http.check.header
 
 import com.excilys.ebi.gatling.core.check.Extractor
-import com.excilys.ebi.gatling.core.check.extractor.Extractors
+import com.excilys.ebi.gatling.core.check.extractor.Extractors.LiftedSeqOption
 import com.excilys.ebi.gatling.core.check.extractor.regex.RegexExtractors
 import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
-object HttpHeaderRegexExtractors extends Extractors {
+object HttpHeaderRegexExtractors {
 
 	abstract class HeaderRegexExtractor[X] extends Extractor[ExtendedResponse, (String, String), X] {
 		val name = "headerRegex"
