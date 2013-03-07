@@ -82,7 +82,7 @@ class ExtendedResponseBuilder(request: Request, session: Session, checksumChecks
 					val md = MessageDigest.getInstance(algorithm)
 					checksums += (algorithm -> md)
 					md
-				}).update(part.getBodyPartBytes)
+				}).update(part.getBodyByteBuffer)
 			}
 
 			if (storeBodyParts) {
