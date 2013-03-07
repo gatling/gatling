@@ -28,10 +28,10 @@ object Json {
 
 	private def convert(name: String, node: JacksonNode): JsonNode = node match {
 		case objectNode: ObjectNode =>
-			val children = objectNode.fields.toList.flatMap { entry =>
+			val children = objectNode.fields.toIterable.flatMap { entry =>
 				entry.getValue match {
 					case array: ArrayNode => array.flatten(entry.getKey)
-					case value => List(convert(entry.getKey, value))
+					case value => Iterable(convert(entry.getKey, value))
 				}
 			}
 			JsonElement(name, children)
@@ -40,7 +40,7 @@ object Json {
 	}
 
 	private implicit class FlattenableArrayNode(val array: ArrayNode) extends AnyVal {
-		def flatten(name: String) = array.elements.map(convert(name, _)).toList
+		def flatten(name: String): Iterable[JsonNode] = array.elements.map(convert(name, _)).toIterable
 	}
 
 	val mapper = {

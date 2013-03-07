@@ -18,5 +18,5 @@ package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 sealed trait JsonNode {
 	def name: String
 }
-case class JsonElement(name: String, children: List[JsonNode]) extends JsonNode
+case class JsonElement(name: String, children: Iterable[JsonNode]) extends JsonNode
 case class JsonText(name: String, value: String) extends JsonNode
