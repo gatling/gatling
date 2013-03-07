@@ -15,9 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.check
 
-import com.excilys.ebi.gatling.core.session.{ Expression, Session, noopStringExpression }
-
-import com.excilys.ebi.gatling.core.validation._
+import com.excilys.ebi.gatling.core.session.{ Expression, noopStringExpression }
+import com.excilys.ebi.gatling.core.validation.Validation
 
 trait ExtractorCheckBuilder[C <: Check[R], R, P, T, X] {
 

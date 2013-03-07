@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.core
 
 import com.excilys.ebi.gatling.core.check.Check
-import com.excilys.ebi.gatling.core.validation.Validation
+import com.excilys.ebi.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 package object check {
 
@@ -30,50 +30,77 @@ package object check {
 	object Matchers {
 
 		def is[X] = new Matcher[X, X] {
-			def apply(actual: Option[X], expected: X): Boolean = actual.map(_ == expected).getOrElse(false)
+			def apply(actual: Option[X], expected: X): Validation[Option[X]] = actual match {
+				case Some(actualValue) =>
+					if (actualValue == expected)
+						actual.success
+					else
+						s"expected $expected but found $actualValue".failure
+				case None => s"expected $expected but found nothing".failure
+			}
 			def name: String = "is"
 		}
 
 		def not[X] = new Matcher[X, X] {
-			def apply(actual: Option[X], expected: X): Boolean = actual.map(_ != expected).getOrElse(true)
+			def apply(actual: Option[X], expected: X): Validation[Option[X]] = actual match {
+				case Some(actualValue) =>
+					if (actualValue != expected)
+						actual.success
+					else
+						s"unexpectedly found $actualValue".failure
+				case None => None.success
+			}
 			def name: String = "not"
 		}
 
 		def in[X] = new Matcher[X, Seq[X]] {
-			def apply(actual: Option[X], expected: Seq[X]): Boolean = actual.map(expected.contains).getOrElse(false)
+			def apply(actual: Option[X], expected: Seq[X]): Validation[Option[X]] = actual match {
+				case Some(actualValue) =>
+					if (expected.contains(actualValue))
+						actual.success
+					else
+						s"expected $expected but found $actualValue".failure
+				case None => s"expected $expected but found nothing".failure
+			}
 			def name: String = "in"
 		}
 
 		// TODO extend so that any kind of numbers can be compared in any way
 		def lessThan[X] = new Matcher[X, X] {
-			def apply(actual: Option[X], expected: X): Boolean = (actual, expected) match {
-				case (Some(a: Long), e: Long) => a <= e
-				case (Some(a: Int), e: Int) => a <= e
-				case (Some(a: Double), e: Double) => a <= e
-				case (Some(a: Float), e: Float) => a <= e
-				case _ => false
+			def apply(actual: Option[X], expected: X): Validation[Option[X]] = (actual, expected) match {
+				case (Some(a: Long), e: Long) => if (a <= e) actual.success else s"$a > $e".failure
+				case (Some(a: Int), e: Int) => if (a <= e) actual.success else s"$a > $e".failure
+				case (Some(a: Double), e: Double) => if (a <= e) actual.success else s"$a > $e".failure
+				case (Some(a: Float), e: Float) => if (a <= e) actual.success else s"$a > $e".failure
+				case _ => s"can't compare ${actual.getOrElse("nothing")} and $expected".failure
 			}
 			def name: String = "lessThan"
 		}
 
-		val exists = new Matcher[Any, String] {
-			def apply(actual: Option[Any], expected: String): Boolean = actual.isDefined
+		def exists[X] = new Matcher[X, String] {
+			def apply(actual: Option[X], expected: String): Validation[Option[X]] = actual match {
+				case Some(actualValue) => actual.success
+				case None => "found nothing".failure
+			}
 			def name: String = "exists"
 		}
 
-		val notExists = new Matcher[Any, Any] {
-			def apply(actual: Option[Any], expected: Any): Boolean = !actual.isDefined
+		def notExists[X] = new Matcher[X, String] {
+			def apply(actual: Option[X], expected: String): Validation[Option[X]] = actual match {
+				case Some(actualValue) => s"unexpectedly found $actualValue".failure
+				case None => None.success
+			}
 			def name: String = "notExists"
 		}
 
-		val whatever = new Matcher[Any, Any] {
-			def apply(actual: Option[Any], expected: Any): Boolean = true
+		def whatever[X] = new Matcher[X, String] {
+			def apply(actual: Option[X], expected: String): Validation[Option[X]] = actual.success
 			def name: String = "whatever"
 		}
 	}
 
-	trait Matcher[-A, E] {
-		def apply(actual: Option[A], expected: E): Boolean
+	trait Matcher[A, E] {
+		def apply(actual: Option[A], expected: E): Validation[Option[A]]
 		def name: String
 	}
 

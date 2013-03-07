@@ -55,12 +55,6 @@ case class CheckBase[R, P, T, X, E](
 			.getOrElseUpdate(preparer, preparer(response))
 			.asInstanceOf[Validation[P]]
 
-		def doMatch(actual: Option[X], expected: E, criterion: T) =
-			if (matcher(actual, expected))
-				actual.success
-			else
-				s"${extractor.name}(${criterion}).${matcher.name}(${expected}) didn't match: $actual".failure
-
 		def newSession(extractedValue: Option[Any]) =
 			(for {
 				key <- saveAs
@@ -72,7 +66,7 @@ case class CheckBase[R, P, T, X, E](
 			criterion <- extractorCriterion(session).mapError(message => s"${extractor.name}.${matcher.name} failed: could not resolve extractor criterion: $message")
 			actual <- extractor(prepared, criterion).mapError(message => s"${extractor.name}(${criterion}) failed: could not extract value: $message")
 			expected <- expectedExpression(session).mapError(message => s"${extractor.name}(${criterion}).${matcher.name} failed: could not resolve expected value: $message")
-			matched <- doMatch(actual, expected, criterion)
+			matched <- matcher(actual, expected).mapError(message => s"${extractor.name}(${criterion}).${matcher.name}(${expected}) didn't match: $message")
 
 		} yield newSession(matched)
 	}
