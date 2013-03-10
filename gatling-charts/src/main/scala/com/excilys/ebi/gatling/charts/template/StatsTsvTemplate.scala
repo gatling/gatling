@@ -15,10 +15,29 @@
  */
 package com.excilys.ebi.gatling.charts.template
 
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_STATS_TSV_FILE_URL
 import com.excilys.ebi.gatling.charts.report.GroupContainer
 
+object StatsTsvTemplate {
+	val headers = Vector("name", "nbRequest", "nbRequestOK", "nbRequestKO",
+		"minResponseTime", "minResponseTimeOK", "minResponseTimeKO",
+		"maxResponseTime", "maxResponseTimeOK", "maxResponseTimeKO",
+		"meanResponseTime", "meanResponseTimeOK", "meanResponseTimeKO",
+		"deviation", "deviationOK", "deviationKO",
+		"percentile1", "percentile1OK", "percentile1KO",
+		"percentile2", "percentile2OK", "percentile2KO",
+		"group1Name", "group1Count", "group1Percentage",
+		"group2Name", "group2Count", "group2Percentage",
+		"group3Name", "group3Count", "group3Percentage",
+		"group4Name", "group4Count", "group4Percentage",
+		"meanNumberOfRequestsPerSecond", "meanNumberOfRequestsPerSecondOK", "meanNumberOfRequestsPerSecondKO")
+}
+
 class StatsTsvTemplate(stats: GroupContainer) {
 
-	def getOutput: String = PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATS_TSV_FILE_URL, Map("stats" -> stats))
+	def getOutput: String = {
+		val headers = StatsTsvTemplate.headers.mkString(configuration.charting.statsTsvSeparator)
+		PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATS_TSV_FILE_URL, Map("headers" -> headers ,"stats" -> stats))
+	}
 }
