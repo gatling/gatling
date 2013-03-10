@@ -58,6 +58,7 @@ object GatlingConfiguration extends Logging {
 				results = config.getString(CONF_DIRECTORY_RESULTS)),
 			charting = ChartingConfiguration(
 				noReports = config.getBoolean(CONF_CHARTING_NO_REPORTS),
+				statsTsvSeparator = config.getString(CONF_CHARTING_STATS_TSV_SEPARATOR),
 				maxPlotsPerSeries = config.getInt(CONF_CHARTING_MAX_PLOTS_PER_SERIES),
 				accuracy = config.getInt(CONF_CHARTING_ACCURACY),
 				indicators = IndicatorsConfiguration(
@@ -146,6 +147,7 @@ case class DirectoryConfiguration(
 
 case class ChartingConfiguration(
 	noReports: Boolean,
+	statsTsvSeparator: String,
 	maxPlotsPerSeries: Int,
 	accuracy: Int,
 	indicators: IndicatorsConfiguration)
