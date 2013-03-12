@@ -37,7 +37,8 @@ public class GatlingJavaMainCallerByFork extends JavaMainCallerByFork {
 						&& !key.startsWith("file.") //
 						&& !key.startsWith("awt.") //
 						&& !key.startsWith("os.") //
-						&& !key.startsWith("user.")) {
+						&& !key.startsWith("user.") //
+						&& !key.equals("line.separator")) {
 					addJvmArgs("-D" + key + "=" + systemProp.getValue());
 				}
 			}
