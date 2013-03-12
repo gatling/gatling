@@ -17,18 +17,16 @@ package com.excilys.ebi.gatling.http.check
 
 import com.excilys.ebi.gatling.core.check.Check
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
+import com.excilys.ebi.gatling.http.check.HttpCheckOrder.HttpCheckOrder
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
 /**
  * This class serves as model for the HTTP-specific checks
  *
- * @param expression the function returning the expression representing what is to be checked
- * @param extractorFactory the extractor factory that will give the method used to extract the value specified by expression
- * @param saveAs the optional session key in which the extracted value will be stored
- * @param strategy the strategy used to check
- * @param phase the HttpPhase during which the check will be made
+ * @param wrapped the underlying check
+ * @param order the check priority
  */
-case class HttpCheck(wrapped: Check[ExtendedResponse], phase: HttpPhase) extends Check[ExtendedResponse] {
+case class HttpCheck(wrapped: Check[ExtendedResponse], order: HttpCheckOrder) extends Check[ExtendedResponse] with Ordered[HttpCheck] {
 	def check(response: ExtendedResponse, session: Session)(implicit cache: Cache) = wrapped.check(response, session)
+	def compare(that: HttpCheck) = order.compare(that.order)
 }

@@ -32,7 +32,7 @@ object HttpStatusCheckBuilder {
 	}
 
 	val status = new HttpSingleCheckBuilder[ExtendedResponse, String, Int](
-		HttpCheckBuilders.statusReceivedCheckFactory,
+		HttpCheckBuilders.statusCheckFactory,
 		HttpCheckBuilders.noopResponsePreparer,
 		statusExtractor,
 		noopStringExpression)

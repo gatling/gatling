@@ -43,7 +43,7 @@ object HttpBodyCssCheckBuilder extends Logging {
 		}
 
 	def css(expression: Expression[String], nodeAttribute: Option[String]) = new HttpMultipleCheckBuilder[NodeSelector, String, String](
-		HttpCheckBuilders.completePageReceivedCheckFactory,
+		HttpCheckBuilders.bodyCheckFactory,
 		preparer,
 		CssExtractors.extractOne(nodeAttribute),
 		CssExtractors.extractMultiple(nodeAttribute),

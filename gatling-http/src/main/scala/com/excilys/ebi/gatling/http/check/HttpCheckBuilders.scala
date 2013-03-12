@@ -18,18 +18,17 @@ package com.excilys.ebi.gatling.http.check
 import com.excilys.ebi.gatling.core.check.{ Check, CheckFactory, Preparer }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.validation.SuccessWrapper
-import com.excilys.ebi.gatling.http.request.HttpPhase._
+import com.excilys.ebi.gatling.http.check.HttpCheckOrder._
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
 object HttpCheckBuilders {
 
-	private def httpCheckFactory(phase: HttpPhase): CheckFactory[HttpCheck, ExtendedResponse] = (wrapped: Check[ExtendedResponse]) => HttpCheck(wrapped, phase)
+	private def httpCheckFactory(order: HttpCheckOrder): CheckFactory[HttpCheck, ExtendedResponse] = (wrapped: Check[ExtendedResponse]) => HttpCheck(wrapped, order)
 
-	val statusReceivedCheckFactory = httpCheckFactory(StatusReceived)
-	val headersReceivedCheckFactory = httpCheckFactory(HeadersReceived)
-	val bodyPartReceivedCheckFactory = httpCheckFactory(BodyPartReceived)
-	val completePageReceivedCheckFactory = httpCheckFactory(CompletePageReceived)
-	val afterResponseReceivedCheckFactory = httpCheckFactory(AfterResponseReceived)
+	val statusCheckFactory = httpCheckFactory(Status)
+	val headerCheckFactory = httpCheckFactory(Header)
+	val checksumCheckFactory = httpCheckFactory(Checksum)
+	val bodyCheckFactory = httpCheckFactory(Body)
 
 	val noopResponsePreparer: Preparer[ExtendedResponse, ExtendedResponse] = (r: ExtendedResponse) => r.success
 	val stringResponsePreparer: Preparer[ExtendedResponse, String] = (response: ExtendedResponse) => response.getResponseBody(configuration.simulation.encoding).success

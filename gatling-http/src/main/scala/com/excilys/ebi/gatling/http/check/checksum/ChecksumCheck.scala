@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.request
+package com.excilys.ebi.gatling.http.check.checksum
 
-/**
- * Enumeration of the various phases that are available in Http Response treatment
- */
-object HttpPhase extends Enumeration {
-	type HttpPhase = Value
-	val StatusReceived, HeadersReceived, BodyPartReceived, CompletePageReceived, AfterResponseReceived = Value
-	val phases = values.toList
-}
+import com.excilys.ebi.gatling.core.check.Check
+import com.excilys.ebi.gatling.http.check.HttpCheck
+import com.excilys.ebi.gatling.http.check.HttpCheckOrder.Checksum
+import com.excilys.ebi.gatling.http.response.ExtendedResponse
+
+class ChecksumCheck(val algorithm: String, wrapped: Check[ExtendedResponse]) extends HttpCheck(wrapped, Checksum)

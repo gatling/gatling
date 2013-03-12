@@ -17,9 +17,9 @@ package com.excilys.ebi.gatling.http
 
 import com.excilys.ebi.gatling.core.session.Expression
 import com.excilys.ebi.gatling.http.action.{ AddCookiesBuilder, HttpRequestActionBuilder }
-import com.excilys.ebi.gatling.http.check.after.HttpBodyResponseTimeCheckBuilder
+import com.excilys.ebi.gatling.http.check.status.HttpResponseTimeCheckBuilder
 import com.excilys.ebi.gatling.http.check.body.{ HttpBodyCssCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyStringCheckBuilder, HttpBodyXPathCheckBuilder }
-import com.excilys.ebi.gatling.http.check.bodypart.HttpChecksumCheckBuilder
+import com.excilys.ebi.gatling.http.check.checksum.HttpChecksumCheckBuilder
 import com.excilys.ebi.gatling.http.check.header.{ HttpHeaderCheckBuilder, HttpHeaderRegexCheckBuilder }
 import com.excilys.ebi.gatling.http.check.status.{ CurrentLocationCheckBuilder, HttpStatusCheckBuilder }
 import com.excilys.ebi.gatling.http.config.{ HttpProtocolConfiguration, HttpProtocolConfigurationBuilder, HttpProxyBuilder }
@@ -51,8 +51,8 @@ object Predef {
 	def currentLocation = CurrentLocationCheckBuilder.currentLocation
 	def md5 = HttpChecksumCheckBuilder.md5
 	def sha1 = HttpChecksumCheckBuilder.sha1
-	def responseTimeInMillis = HttpBodyResponseTimeCheckBuilder.responseTimeInMillis
-	def latencyInMillis = HttpBodyResponseTimeCheckBuilder.latencyInMillis
+	def responseTimeInMillis = HttpResponseTimeCheckBuilder.responseTimeInMillis
+	def latencyInMillis = HttpResponseTimeCheckBuilder.latencyInMillis
 
 	val requestUrl = (request: Request) => List(request.getUrl)
 	val requestRawUrl = (request: Request) => List(request.getRawUrl)

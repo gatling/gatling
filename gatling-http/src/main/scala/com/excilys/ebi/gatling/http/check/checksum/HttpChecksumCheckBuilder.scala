@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.check.bodypart
+package com.excilys.ebi.gatling.http.check.checksum
 
 import com.excilys.ebi.gatling.core.check.{ Check, CheckFactory, Extractor }
 import com.excilys.ebi.gatling.core.session.noopStringExpression

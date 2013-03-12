@@ -22,7 +22,7 @@ import com.excilys.ebi.gatling.core.session.Expression
 import com.excilys.ebi.gatling.core.validation.SuccessWrapper
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder.status
-import com.excilys.ebi.gatling.http.request.HttpPhase.StatusReceived
+import com.excilys.ebi.gatling.http.check.HttpCheckOrder.Status
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
 
 import akka.actor.{ ActorRef, Props }
@@ -37,9 +37,10 @@ object HttpRequestActionBuilder {
 	def apply(requestName: Expression[String], requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck]) = {
 
 		val resolvedChecks = checks
-			.find(_.phase == StatusReceived)
+			.find(_.order == Status)
 			.map(_ => checks)
 			.getOrElse(HttpRequestActionBuilder.DEFAULT_HTTP_STATUS_CHECK :: checks)
+			.sorted
 
 		new HttpRequestActionBuilder(requestName, requestBuilder, resolvedChecks)
 	}

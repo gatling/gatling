@@ -22,7 +22,7 @@ import com.excilys.ebi.gatling.http.response.ExtendedResponse
 object HttpHeaderCheckBuilder {
 
 	def header(headerName: Expression[String]) = new HttpMultipleCheckBuilder[ExtendedResponse, String, String](
-		HttpCheckBuilders.headersReceivedCheckFactory,
+		HttpCheckBuilders.headerCheckFactory,
 		HttpCheckBuilders.noopResponsePreparer,
 		HttpHeaderExtractors.extractOne,
 		HttpHeaderExtractors.extractMultiple,

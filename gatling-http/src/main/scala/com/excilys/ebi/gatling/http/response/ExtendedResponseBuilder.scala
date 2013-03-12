@@ -22,9 +22,9 @@ import scala.math.max
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.TimeHelper.{ computeTimeMillisFromNanos, nowMillis }
 import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.check.bodypart.ChecksumCheck
+import com.excilys.ebi.gatling.http.check.checksum.ChecksumCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
-import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
+import com.excilys.ebi.gatling.http.check.HttpCheckOrder.Body
 import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, Request }
 
 object ExtendedResponseBuilder {
@@ -38,7 +38,7 @@ object ExtendedResponseBuilder {
 			}
 		}
 
-		val storeBodyParts = !protocolConfiguration.responseChunksDiscardingEnabled || checks.exists(_.phase == CompletePageReceived)
+		val storeBodyParts = !protocolConfiguration.responseChunksDiscardingEnabled || checks.exists(_.order == Body)
 		(request: Request, session: Session) => new ExtendedResponseBuilder(request, session, checksumChecks, storeBodyParts)
 	}
 }

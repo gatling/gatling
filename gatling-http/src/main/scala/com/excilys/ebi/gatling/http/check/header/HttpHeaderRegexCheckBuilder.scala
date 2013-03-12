@@ -29,7 +29,7 @@ object HttpHeaderRegexCheckBuilder {
 		} yield (h, p)
 
 		new HttpMultipleCheckBuilder[ExtendedResponse, (String, String), String](
-			HttpCheckBuilders.headersReceivedCheckFactory,
+			HttpCheckBuilders.headerCheckFactory,
 			HttpCheckBuilders.noopResponsePreparer,
 			HttpHeaderRegexExtractors.extractOne,
 			HttpHeaderRegexExtractors.extractMultiple,

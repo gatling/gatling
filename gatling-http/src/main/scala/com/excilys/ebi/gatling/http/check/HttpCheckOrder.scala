@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 		http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.check.bodypart
+package com.excilys.ebi.gatling.http.check
 
-import com.excilys.ebi.gatling.core.check.Check
-import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.request.HttpPhase.BodyPartReceived
-import com.excilys.ebi.gatling.http.response.ExtendedResponse
-
-class ChecksumCheck(val algorithm: String, wrapped: Check[ExtendedResponse]) extends HttpCheck(wrapped, BodyPartReceived)
+/**
+ * Enumeration used to prioritize HttpChecks
+ */
+object HttpCheckOrder extends Enumeration {
+    type HttpCheckOrder = Value
+    val Status, Checksum, Header, Body = Value
+    val orders = List(Status, Checksum, Header, Body)
+}

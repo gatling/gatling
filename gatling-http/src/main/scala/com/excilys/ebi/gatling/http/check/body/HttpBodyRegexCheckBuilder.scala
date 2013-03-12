@@ -24,7 +24,7 @@ import com.excilys.ebi.gatling.http.response.ExtendedResponse
 object HttpBodyRegexCheckBuilder {
 
 	def regex(expression: Expression[String]) = new HttpMultipleCheckBuilder[String, String, String](
-		HttpCheckBuilders.completePageReceivedCheckFactory,
+		HttpCheckBuilders.bodyCheckFactory,
 		HttpCheckBuilders.stringResponsePreparer,
 		RegexExtractors.extractOne,
 		RegexExtractors.extractMultiple,

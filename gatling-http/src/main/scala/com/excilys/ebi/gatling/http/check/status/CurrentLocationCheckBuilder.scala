@@ -32,7 +32,7 @@ object CurrentLocationCheckBuilder {
 	}
 
 	val currentLocation = new HttpSingleCheckBuilder[ExtendedResponse, String, String](
-		HttpCheckBuilders.statusReceivedCheckFactory,
+		HttpCheckBuilders.statusCheckFactory,
 		HttpCheckBuilders.noopResponsePreparer,
 		currentLocationExtractor,
 		noopStringExpression)

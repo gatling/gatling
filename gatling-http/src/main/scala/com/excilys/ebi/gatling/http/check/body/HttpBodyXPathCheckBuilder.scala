@@ -41,7 +41,7 @@ object HttpBodyXPathCheckBuilder extends Logging {
 		}
 
 	def xpath(expression: Expression[String], namespaces: List[(String, String)]) = new HttpMultipleCheckBuilder[Option[Document], String, String](
-		HttpCheckBuilders.completePageReceivedCheckFactory,
+		HttpCheckBuilders.bodyCheckFactory,
 		preparer,
 		XPathExtractors.extractOne(namespaces),
 		XPathExtractors.extractMultiple(namespaces),

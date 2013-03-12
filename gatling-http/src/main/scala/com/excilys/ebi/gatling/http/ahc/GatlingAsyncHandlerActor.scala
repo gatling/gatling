@@ -15,7 +15,6 @@
  */
 package com.excilys.ebi.gatling.http.ahc
 
-import scala.annotation.tailrec
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.concurrent.duration.DurationInt
 
@@ -33,8 +32,7 @@ import com.excilys.ebi.gatling.http.cache.CacheHandling
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
-import com.excilys.ebi.gatling.http.request.{ ExtendedRequest, HttpPhase }
-import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
+import com.excilys.ebi.gatling.http.request.ExtendedRequest
 import com.excilys.ebi.gatling.http.response.{ ExtendedResponse, ExtendedResponseBuilder, ExtendedResponseBuilderFactory }
 import com.excilys.ebi.gatling.http.util.HttpHelper.computeRedirectUrl
 import com.ning.http.client.{ FluentStringsMap, Request, RequestBuilder }
@@ -220,29 +218,17 @@ class GatlingAsyncHandlerActor(
 
 		else {
 			val sessionWithUpdatedCache = CacheHandling.cache(protocolConfiguration, sessionWithUpdatedCookies, request, response)
+			val checkResult = Checks.check(response, sessionWithUpdatedCache, checks)
 
-			@tailrec
-			def checkPhasesRec(session: Session, phases: List[HttpPhase]) {
+			checkResult match {
+				case Success(newSession) =>
+					logRequest(newSession, OK, response)
+					executeNext(newSession, response)
 
-				phases match {
-					case Nil =>
-						logRequest(session, OK, response)
-						executeNext(session, response)
-
-					case phase :: otherPhases =>
-						val phaseChecks = checks.filter(_.phase == phase)
-						val checkResult = Checks.check(response, session, phaseChecks)
-
-						checkResult match {
-							case Success(newSession) => checkPhasesRec(newSession, otherPhases)
-							case Failure(errorMessage) =>
-								logRequest(session, KO, response, Some(errorMessage))
-								executeNext(session, response)
-						}
-				}
+				case Failure(errorMessage) =>
+					logRequest(sessionWithUpdatedCache, KO, response, Some(errorMessage))
+					executeNext(sessionWithUpdatedCache, response)
 			}
-
-			checkPhasesRec(sessionWithUpdatedCache, HttpPhase.phases)
 		}
 	}
 }

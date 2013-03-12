@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.check.after
+package com.excilys.ebi.gatling.http.check.status
 
 import com.excilys.ebi.gatling.core.check.Extractor
 import com.excilys.ebi.gatling.core.session.noopStringExpression
@@ -21,21 +21,21 @@ import com.excilys.ebi.gatling.core.validation.SuccessWrapper
 import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
-object HttpBodyResponseTimeCheckBuilder {
+object HttpResponseTimeCheckBuilder {
 
-	val responseTimeInMillis = new HttpBodyResponseTimeCheckBuilder(new Extractor[ExtendedResponse, String, Long] {
+	val responseTimeInMillis = new HttpResponseTimeCheckBuilder(new Extractor[ExtendedResponse, String, Long] {
 		val name = "responseTime"
 		def apply(prepared: ExtendedResponse, criterion: String) = Some(prepared.reponseTimeInMillis).success
 	})
 
-	val latencyInMillis = new HttpBodyResponseTimeCheckBuilder(new Extractor[ExtendedResponse, String, Long] {
+	val latencyInMillis = new HttpResponseTimeCheckBuilder(new Extractor[ExtendedResponse, String, Long] {
 		val name = "latency"
 		def apply(prepared: ExtendedResponse, criterion: String) = Some(prepared.latencyInMillis).success
 	})
 }
 
-class HttpBodyResponseTimeCheckBuilder(extractor: Extractor[ExtendedResponse, String, Long]) extends HttpSingleCheckBuilder[ExtendedResponse, String, Long](
-	HttpCheckBuilders.afterResponseReceivedCheckFactory,
+class HttpResponseTimeCheckBuilder(extractor: Extractor[ExtendedResponse, String, Long]) extends HttpSingleCheckBuilder[ExtendedResponse, String, Long](
+	HttpCheckBuilders.statusCheckFactory,
 	HttpCheckBuilders.noopResponsePreparer,
 	extractor,
 	noopStringExpression)

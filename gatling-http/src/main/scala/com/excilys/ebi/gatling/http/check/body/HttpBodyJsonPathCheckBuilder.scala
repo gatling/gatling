@@ -39,7 +39,7 @@ object HttpBodyJsonPathCheckBuilder extends Logging {
 		}
 
 	def jsonPath(expression: Expression[String]) = new HttpMultipleCheckBuilder[Option[JsonNode], String, String](
-		HttpCheckBuilders.completePageReceivedCheckFactory,
+		HttpCheckBuilders.bodyCheckFactory,
 		preparer,
 		JsonPathExtractors.extractOne,
 		JsonPathExtractors.extractMultiple,
