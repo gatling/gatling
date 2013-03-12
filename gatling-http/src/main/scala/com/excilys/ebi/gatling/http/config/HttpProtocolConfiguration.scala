@@ -16,6 +16,7 @@
 package com.excilys.ebi.gatling.http.config
 
 import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.RoundRobin
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 import com.ning.http.client.{ ProxyServer, Request }
@@ -36,17 +37,16 @@ object HttpProtocolConfiguration {
  * @param proxy a proxy through which all the requests must pass to succeed
  */
 case class HttpProtocolConfiguration(
-		baseURLs: Option[Seq[String]],
-		proxy: Option[ProxyServer],
-		securedProxy: Option[ProxyServer],
-		followRedirectEnabled: Boolean,
-		automaticRefererEnabled: Boolean,
-		cachingEnabled: Boolean,
-		responseChunksDiscardingEnabled: Boolean,
-		connectionPoolingEnabled: Boolean,
-		baseHeaders: Map[String, String],
-		extraRequestInfoExtractor: Option[(Request => List[String])],
-		extraResponseInfoExtractor: Option[(ExtendedResponse => List[String])]) extends ProtocolConfiguration {
+	baseURLs: Option[Seq[String]],
+	proxy: Option[ProxyServer],
+	securedProxy: Option[ProxyServer],
+	followRedirectEnabled: Boolean,
+	automaticRefererEnabled: Boolean,
+	cachingEnabled: Boolean,
+	responseChunksDiscardingEnabled: Boolean,
+	connectionPoolingEnabled: Boolean,
+	baseHeaders: Map[String, String],
+	extraInfoExtractor: Option[(Session, Request, ExtendedResponse) => List[String]]) extends ProtocolConfiguration {
 
 	val protocolType = HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE
 

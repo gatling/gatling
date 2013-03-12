@@ -40,8 +40,7 @@ object HttpProtocolConfigurationBuilder {
 		connectionPoolingEnabled = false,
 		baseHeaders = Map.empty,
 		warmUpUrl = None,
-		extraRequestInfoExtractor = None,
-		extraResponseInfoExtractor = None))
+		extraInfoExtractor = None))
 
 	def httpConfig = BASE_HTTP_PROTOCOL_CONFIGURATION_BUILDER.warmUp("http://gatling-tool.org")
 }
@@ -56,8 +55,7 @@ private case class Attributes(baseUrls: Option[List[String]],
 	connectionPoolingEnabled: Boolean,
 	baseHeaders: Map[String, String],
 	warmUpUrl: Option[String],
-	extraRequestInfoExtractor: Option[Request => List[String]],
-	extraResponseInfoExtractor: Option[ExtendedResponse => List[String]])
+	extraInfoExtractor: Option[(Session, Request, ExtendedResponse) => List[String]])
 
 /**
  * Builder for HttpProtocolConfiguration used in DSL
@@ -106,9 +104,7 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 
 	def disableWarmUp = new HttpProtocolConfigurationBuilder(attributes.copy(warmUpUrl = None))
 
-	def requestInfoExtractor(f: Request => List[String]) = new HttpProtocolConfigurationBuilder(attributes.copy(extraRequestInfoExtractor = Some(f)))
-
-	def responseInfoExtractor(f: ExtendedResponse => List[String]) = new HttpProtocolConfigurationBuilder(attributes.copy(extraResponseInfoExtractor = Some(f)))
+	def extraInfoExtractor(f: (Session, Request, ExtendedResponse) => List[String]) = new HttpProtocolConfigurationBuilder(attributes.copy(extraInfoExtractor = Some(f)))
 
 	/**
 	 * Sets the proxy of the future HttpProtocolConfiguration
@@ -132,8 +128,7 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 			attributes.responseChunksDiscardingEnabled,
 			attributes.connectionPoolingEnabled,
 			attributes.baseHeaders,
-			attributes.extraRequestInfoExtractor,
-			attributes.extraResponseInfoExtractor)
+			attributes.extraInfoExtractor)
 
 		def doWarmUp() {
 			attributes.warmUpUrl.map { url =>

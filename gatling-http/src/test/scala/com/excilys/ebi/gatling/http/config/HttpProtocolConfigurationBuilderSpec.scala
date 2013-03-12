@@ -20,7 +20,9 @@ import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration
-import com.ning.http.client.{ Request, Response }
+import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.http.response.ExtendedResponse
+import com.ning.http.client.Request
 
 @RunWith(classOf[JUnitRunner])
 class HttpProtocolConfigurationBuilderSpec extends Specification {
@@ -28,28 +30,16 @@ class HttpProtocolConfigurationBuilderSpec extends Specification {
 	GatlingConfiguration.setUp()
 
 	"http protocol configuration builder" should {
-		"support an optional extra request info extractor" in {
+		"support an optional extra info extractor" in {
 
-			val expectedExtractor: (Request => List[String]) = (Request) => Nil
-
-			val builder = HttpProtocolConfigurationBuilder.httpConfig
-				.disableWarmUp
-				.requestInfoExtractor(expectedExtractor)
-			val config: HttpProtocolConfiguration = builder.build
-
-			config.extraRequestInfoExtractor.get should beEqualTo(expectedExtractor)
-		}
-
-		"support an optional extra response info extractor" in {
-
-			val expectedExtractor: (Response => List[String]) = (Response) => Nil
+			val expectedExtractor = (session: Session, request: Request, response: ExtendedResponse) => Nil
 
 			val builder = HttpProtocolConfigurationBuilder.httpConfig
 				.disableWarmUp
-				.responseInfoExtractor(expectedExtractor)
+				.extraInfoExtractor(expectedExtractor)
 			val config: HttpProtocolConfiguration = builder.build
 
-			config.extraResponseInfoExtractor.get should beEqualTo(expectedExtractor)
+			config.extraInfoExtractor.get should beEqualTo(expectedExtractor)
 		}
 
 		"be able to support a base URL" in {

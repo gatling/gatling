@@ -67,7 +67,7 @@ object GatlingAsyncHandlerActor {
 }
 
 class GatlingAsyncHandlerActor(
-	var session: Session,
+	var originalSession: Session,
 	checks: List[HttpCheck],
 	next: ActorRef,
 	var requestName: String,
@@ -76,7 +76,7 @@ class GatlingAsyncHandlerActor(
 	handlerFactory: HandlerFactory,
 	responseBuilderFactory: ExtendedResponseBuilderFactory) extends BaseActor {
 
-	var responseBuilder = responseBuilderFactory(request, session)
+	var responseBuilder = responseBuilderFactory(request, originalSession)
 
 	resetTimeout
 
@@ -109,18 +109,19 @@ class GatlingAsyncHandlerActor(
 		case OnThrowable(errorMessage, nanos) =>
 			responseBuilder.computeExecutionEndDateFromNanos(nanos)
 			val response = responseBuilder.build
-			logRequest(KO, response, Some(errorMessage))
-			executeNext(session.setFailed, response)
+			logRequest(originalSession, KO, response, Some(errorMessage))
+			executeNext(originalSession.setFailed, response)
 
 		case ReceiveTimeout =>
 			val response = responseBuilder.build
-			logRequest(KO, response, Some("GatlingAsyncHandlerActor timed out"))
-			executeNext(session.setFailed, response)
+			logRequest(originalSession, KO, response, Some("GatlingAsyncHandlerActor timed out"))
+			executeNext(originalSession.setFailed, response)
 	}
 
 	def resetTimeout = context.setReceiveTimeout(configuration.http.requestTimeOutInMs milliseconds)
 
 	private def logRequest(
+		session: Session,
 		requestStatus: RequestStatus,
 		response: ExtendedResponse,
 		errorMessage: Option[String] = None) {
@@ -143,26 +144,14 @@ class GatlingAsyncHandlerActor(
 		 * @param response is the response to extract data from; request is retrieved from the property
 		 * @return the extracted Strings
 		 */
-		def extraInfo: List[String] = {
-
-			def extractExtraSourceInfo[T](extractor: Option[T => List[String]], source: T): List[String] = {
-
-				val extracted = try {
-					extractor.map(_(source))
-
-				} catch {
-					case e: Exception =>
-						warn("Encountered error while extracting extra request info", e)
-						None
-				}
-
-				extracted.getOrElse(Nil)
+		def extraInfo: List[String] =
+			try {
+				protocolConfiguration.extraInfoExtractor.map(_(session, request, response)).getOrElse(Nil)
+			} catch {
+				case e: Exception =>
+					warn("Encountered error while extracting extra request info", e)
+					Nil
 			}
-
-			val extraRequestInfo = extractExtraSourceInfo(protocolConfiguration.extraRequestInfoExtractor, request)
-			val extraResponseInfo = extractExtraSourceInfo(protocolConfiguration.extraResponseInfoExtractor, response)
-			extraRequestInfo ::: extraResponseInfo
-		}
 
 		if (requestStatus == KO) {
 			warn(s"Request '$requestName' failed : ${errorMessage.getOrElse("")}")
@@ -192,7 +181,7 @@ class GatlingAsyncHandlerActor(
 
 		def handleFollowRedirect(sessionWithUpdatedCookies: Session) {
 
-			logRequest(OK, response)
+			logRequest(originalSession, OK, response)
 
 			val redirectUrl = computeRedirectUrl(response.getHeader(HeaderNames.LOCATION), request.getUrl)
 
@@ -216,15 +205,15 @@ class GatlingAsyncHandlerActor(
 				case _ => requestName + " Redirect 1"
 			}
 
-			this.session = sessionWithUpdatedCookies
+			this.originalSession = sessionWithUpdatedCookies
 			this.requestName = newRequestName
 			this.request = newRequest
-			this.responseBuilder = responseBuilderFactory(newRequest, session)
+			this.responseBuilder = responseBuilderFactory(newRequest, originalSession)
 
 			GatlingHttpClient.client.executeRequest(newRequest, handlerFactory(newRequestName, self))
 		}
 
-		val sessionWithUpdatedCookies = CookieHandling.storeCookies(session, response.getUri, response.getCookies.toList)
+		val sessionWithUpdatedCookies = CookieHandling.storeCookies(originalSession, response.getUri, response.getCookies.toList)
 
 		if (GatlingAsyncHandlerActor.REDIRECT_STATUS_CODES.contains(response.getStatusCode) && protocolConfiguration.followRedirectEnabled)
 			handleFollowRedirect(sessionWithUpdatedCookies)
@@ -237,7 +226,7 @@ class GatlingAsyncHandlerActor(
 
 				phases match {
 					case Nil =>
-						logRequest(OK, response)
+						logRequest(session, OK, response)
 						executeNext(session, response)
 
 					case phase :: otherPhases =>
@@ -247,7 +236,7 @@ class GatlingAsyncHandlerActor(
 						checkResult match {
 							case Success(newSession) => checkPhasesRec(newSession, otherPhases)
 							case Failure(errorMessage) =>
-								logRequest(KO, response, Some(errorMessage))
+								logRequest(session, KO, response, Some(errorMessage))
 								executeNext(session, response)
 						}
 				}
