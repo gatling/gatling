@@ -20,19 +20,20 @@ import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration
+import com.excilys.ebi.gatling.core.result.message.RequestStatus
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 import com.ning.http.client.Request
 
 @RunWith(classOf[JUnitRunner])
 class HttpProtocolConfigurationBuilderSpec extends Specification {
-	
+
 	GatlingConfiguration.setUp()
 
 	"http protocol configuration builder" should {
 		"support an optional extra info extractor" in {
 
-			val expectedExtractor = (session: Session, request: Request, response: ExtendedResponse) => Nil
+			val expectedExtractor = (requestStatus: RequestStatus, session: Session, request: Request, response: ExtendedResponse) => Nil
 
 			val builder = HttpProtocolConfigurationBuilder.httpConfig
 				.disableWarmUp

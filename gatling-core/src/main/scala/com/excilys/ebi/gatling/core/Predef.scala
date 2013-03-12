@@ -59,6 +59,7 @@ object Predef {
 	implicit def feeder2FeederBuilder[T](feeder: Feeder[T]): FeederBuilder[T] = FeederBuilderFromFeeder(feeder)
 
 	type Session = com.excilys.ebi.gatling.core.session.Session
+	type RequestStatus = com.excilys.ebi.gatling.core.result.message.RequestStatus
 	type Simulation = com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 	type Feeder[T] = com.excilys.ebi.gatling.core.feeder.Feeder[T]
 	type Assertion = com.excilys.ebi.gatling.core.structure.Assertion

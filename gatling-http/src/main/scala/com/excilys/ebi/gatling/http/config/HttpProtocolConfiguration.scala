@@ -16,6 +16,7 @@
 package com.excilys.ebi.gatling.http.config
 
 import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
+import com.excilys.ebi.gatling.core.result.message.RequestStatus
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.RoundRobin
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
@@ -46,7 +47,7 @@ case class HttpProtocolConfiguration(
 	responseChunksDiscardingEnabled: Boolean,
 	connectionPoolingEnabled: Boolean,
 	baseHeaders: Map[String, String],
-	extraInfoExtractor: Option[(Session, Request, ExtendedResponse) => List[String]]) extends ProtocolConfiguration {
+	extraInfoExtractor: Option[(RequestStatus, Session, Request, ExtendedResponse) => List[String]]) extends ProtocolConfiguration {
 
 	val protocolType = HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE
 

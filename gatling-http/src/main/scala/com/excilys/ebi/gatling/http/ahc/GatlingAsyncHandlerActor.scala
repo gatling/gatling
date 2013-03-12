@@ -144,7 +144,7 @@ class GatlingAsyncHandlerActor(
 		 */
 		def extraInfo: List[String] =
 			try {
-				protocolConfiguration.extraInfoExtractor.map(_(session, request, response)).getOrElse(Nil)
+				protocolConfiguration.extraInfoExtractor.map(_(requestStatus, session, request, response)).getOrElse(Nil)
 			} catch {
 				case e: Exception =>
 					warn("Encountered error while extracting extra request info", e)
