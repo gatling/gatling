@@ -107,11 +107,11 @@ trait Loops[B] extends Execs[B] with Logging {
 			}
 		})
 
-		def continueCondition(session: Session) =
+		val continueCondition = (session: Session) =>
 			for {
 				counterValue <- session.safeGetAs[Int](counterName)
 				seq <- seq(session)
-			} yield seq.size > counterValue
+			} yield seq.isDefinedAt(counterValue)
 
 		asLongAs(continueCondition, Some(counterName), chainOf(setNextValueInSession).exec(chain))
 	}
