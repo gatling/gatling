@@ -38,7 +38,7 @@ object GatlingConfiguration extends Logging {
 		val customConfig = ConfigFactory.parseResources(classLoader, "gatling.conf")
 		val propertiesConfig = ConfigFactory.parseMap(props)
 
-		val config = propertiesConfig.withFallback(customConfig).withFallback(defaultsConfig)
+		val config = ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(customConfig).withFallback(defaultsConfig)
 
 		configuration = GatlingConfiguration(
 			simulation = SimulationConfiguration(

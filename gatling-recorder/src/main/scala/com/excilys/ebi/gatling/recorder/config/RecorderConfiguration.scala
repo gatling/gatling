@@ -49,7 +49,7 @@ object RecorderConfiguration  extends Logging {
 		val defaultsConfig = ConfigFactory.parseResources(classLoader,"recorder-defaults.conf")
 		val customConfig = getCustomConfig
 		val propertiesConfig = ConfigFactory.parseMap(props)
-		buildConfig(propertiesConfig.withFallback(customConfig).withFallback(defaultsConfig))
+		buildConfig(ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(customConfig).withFallback(defaultsConfig))
 		debug(configuration)
 	}
 
