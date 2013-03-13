@@ -47,7 +47,7 @@ case class HttpProtocolConfiguration(
 	responseChunksDiscardingEnabled: Boolean,
 	connectionPoolingEnabled: Boolean,
 	baseHeaders: Map[String, String],
-	extraInfoExtractor: Option[(RequestStatus, Session, Request, ExtendedResponse) => List[String]]) extends ProtocolConfiguration {
+	extraInfoExtractor: Option[(RequestStatus, Session, Request, ExtendedResponse) => List[Any]]) extends ProtocolConfiguration {
 
 	val protocolType = HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE
 

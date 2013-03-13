@@ -56,7 +56,7 @@ private case class Attributes(baseUrls: Option[List[String]],
 	connectionPoolingEnabled: Boolean,
 	baseHeaders: Map[String, String],
 	warmUpUrl: Option[String],
-	extraInfoExtractor: Option[(RequestStatus, Session, Request, ExtendedResponse) => List[String]])
+	extraInfoExtractor: Option[(RequestStatus, Session, Request, ExtendedResponse) => List[Any]])
 
 /**
  * Builder for HttpProtocolConfiguration used in DSL
@@ -105,7 +105,7 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 
 	def disableWarmUp = new HttpProtocolConfigurationBuilder(attributes.copy(warmUpUrl = None))
 
-	def extraInfoExtractor(f: (RequestStatus, Session, Request, ExtendedResponse) => List[String]) = new HttpProtocolConfigurationBuilder(attributes.copy(extraInfoExtractor = Some(f)))
+	def extraInfoExtractor(f: (RequestStatus, Session, Request, ExtendedResponse) => List[Any]) = new HttpProtocolConfigurationBuilder(attributes.copy(extraInfoExtractor = Some(f)))
 
 	/**
 	 * Sets the proxy of the future HttpProtocolConfiguration

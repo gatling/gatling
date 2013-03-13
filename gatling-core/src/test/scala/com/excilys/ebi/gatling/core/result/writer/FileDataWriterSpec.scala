@@ -27,13 +27,11 @@ import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 @RunWith(classOf[JUnitRunner])
 class FileDataWriterSpec extends Specification {
 
+	import FileDataWriter._
+
 	"file data writer" should {
 
-		def logRecord(record: RequestRecord): String = {
-			val stringWriter = new StringWriter()
-			FileDataWriter.append(stringWriter, record)
-			stringWriter.getBuffer.toString
-		}
+		def logRecord(record: RequestRecord): String = new StringWriter().append(record).getBuffer.toString
 
 		"log a standard request record" in {
 			val record = new RequestRecord("scenario", 1, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"))
@@ -53,6 +51,5 @@ class FileDataWriterSpec extends Specification {
 			FileDataWriter.sanitize("\rcarriage returns \r are\rnot \r\r allowed\r") must beEqualTo(" carriage returns   are not    allowed ")
 			FileDataWriter.sanitize("\ttabs \t are\tnot \t\t allowed\t") must beEqualTo(" tabs   are not    allowed ")
 		}
-
 	}
 }

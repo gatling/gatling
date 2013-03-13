@@ -59,7 +59,7 @@ object DataWriter {
 		executionEndDate: Long,
 		requestResult: RequestStatus,
 		requestMessage: Option[String] = None,
-		extraInfo: List[String] = Nil) {
+		extraInfo: List[Any] = Nil) {
 
 		router ! RequestRecord(
 			scenarioName,

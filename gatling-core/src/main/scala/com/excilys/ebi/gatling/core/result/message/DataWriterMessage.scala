@@ -61,7 +61,7 @@ case class RequestRecord(
 	executionEndDate: Long,
 	requestStatus: RequestStatus,
 	requestMessage: Option[String] = None,
-	extraInfo: List[String] = Nil) extends DataWriterMessage {
+	extraInfo: List[Any] = Nil) extends DataWriterMessage {
 	val recordType = ACTION
 	def responseTime = executionEndDate - executionStartDate
 }

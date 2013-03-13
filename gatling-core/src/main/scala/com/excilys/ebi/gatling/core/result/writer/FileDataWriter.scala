@@ -33,32 +33,51 @@ object FileDataWriter {
 
 	val sanitizerPattern = """[\n\r\t]""".r
 
-	private[writer] def append(appendable: Appendable, requestRecord: RequestRecord) {
-
-		appendable.append(ACTION).append(TABULATION_SEPARATOR)
-			.append(requestRecord.scenarioName).append(TABULATION_SEPARATOR)
-			.append(requestRecord.userId.toString).append(TABULATION_SEPARATOR)
-			.append(requestRecord.requestName).append(TABULATION_SEPARATOR)
-			.append(requestRecord.executionStartDate.toString).append(TABULATION_SEPARATOR)
-			.append(requestRecord.requestSendingEndDate.toString).append(TABULATION_SEPARATOR)
-			.append(requestRecord.responseReceivingStartDate.toString).append(TABULATION_SEPARATOR)
-			.append(requestRecord.executionEndDate.toString).append(TABULATION_SEPARATOR)
-			.append(requestRecord.requestStatus.toString).append(TABULATION_SEPARATOR)
-			.append(requestRecord.requestMessage.getOrElse(emptyField))
-
-		requestRecord.extraInfo.foreach((info: String) => {
-			appendable.append(TABULATION_SEPARATOR).append(sanitize(info))
-		})
-
-		appendable.append(END_OF_LINE)
-	}
-
 	/**
 	 * Converts whitespace characters that would break the simulation log format into spaces.
-	 * @param input
-	 * @return
 	 */
-	private[writer] def sanitize(input: String): String = Option(sanitizerPattern.replaceAllIn(input, " ")).getOrElse("")
+	def sanitize(s: String): String = Option(s).map(s => sanitizerPattern.replaceAllIn(s, " ")).getOrElse("")
+
+	implicit class DataWriterMessageAppendable[T <: Appendable](val appendable: T) extends AnyVal {
+
+		def append(scenarioRecord: ScenarioRecord): T = {
+			appendable.append(SCENARIO).append(TABULATION_SEPARATOR)
+				.append(scenarioRecord.scenarioName).append(TABULATION_SEPARATOR)
+				.append(scenarioRecord.userId.toString).append(TABULATION_SEPARATOR)
+				.append(scenarioRecord.event).append(TABULATION_SEPARATOR)
+				.append(scenarioRecord.executionDate.toString).append(END_OF_LINE)
+			appendable
+		}
+
+		def append(groupRecord: GroupRecord): T = {
+			appendable.append(GROUP).append(TABULATION_SEPARATOR)
+				.append(groupRecord.scenarioName).append(TABULATION_SEPARATOR)
+				.append(groupRecord.groupName).append(TABULATION_SEPARATOR)
+				.append(groupRecord.userId.toString).append(TABULATION_SEPARATOR)
+				.append(groupRecord.event).append(TABULATION_SEPARATOR)
+				.append(groupRecord.executionDate.toString).append(END_OF_LINE)
+			appendable
+		}
+
+		def append(requestRecord: RequestRecord): T = {
+			appendable.append(ACTION).append(TABULATION_SEPARATOR)
+				.append(requestRecord.scenarioName).append(TABULATION_SEPARATOR)
+				.append(requestRecord.userId.toString).append(TABULATION_SEPARATOR)
+				.append(requestRecord.requestName).append(TABULATION_SEPARATOR)
+				.append(requestRecord.executionStartDate.toString).append(TABULATION_SEPARATOR)
+				.append(requestRecord.requestSendingEndDate.toString).append(TABULATION_SEPARATOR)
+				.append(requestRecord.responseReceivingStartDate.toString).append(TABULATION_SEPARATOR)
+				.append(requestRecord.executionEndDate.toString).append(TABULATION_SEPARATOR)
+				.append(requestRecord.requestStatus.toString).append(TABULATION_SEPARATOR)
+				.append(requestRecord.requestMessage.getOrElse(emptyField))
+
+			requestRecord.extraInfo.foreach(info => appendable.append(TABULATION_SEPARATOR).append(sanitize(info.toString)))
+
+			appendable.append(END_OF_LINE)
+
+			appendable
+		}
+	}
 }
 
 /**
@@ -67,6 +86,8 @@ object FileDataWriter {
  * It writes the data of the simulation if a tabulation separated values file
  */
 class FileDataWriter extends DataWriter with Logging {
+
+	import FileDataWriter._
 
 	/**
 	 * The OutputStreamWriter used to write to files
@@ -84,26 +105,16 @@ class FileDataWriter extends DataWriter with Logging {
 			.append(END_OF_LINE)
 	}
 
-
 	override def onScenarioRecord(scenarioRecord: ScenarioRecord) {
-		osw.append(SCENARIO).append(TABULATION_SEPARATOR)
-			.append(scenarioRecord.scenarioName).append(TABULATION_SEPARATOR)
-			.append(scenarioRecord.userId.toString).append(TABULATION_SEPARATOR)
-			.append(scenarioRecord.event).append(TABULATION_SEPARATOR)
-			.append(scenarioRecord.executionDate.toString).append(END_OF_LINE)
+		osw.append(scenarioRecord)
 	}
 
 	override def onGroupRecord(groupRecord: GroupRecord) {
-		osw.append(GROUP).append(TABULATION_SEPARATOR)
-			.append(groupRecord.scenarioName).append(TABULATION_SEPARATOR)
-			.append(groupRecord.groupName).append(TABULATION_SEPARATOR)
-			.append(groupRecord.userId.toString).append(TABULATION_SEPARATOR)
-			.append(groupRecord.event).append(TABULATION_SEPARATOR)
-			.append(groupRecord.executionDate.toString).append(END_OF_LINE)
+		osw.append(groupRecord)
 	}
 
 	override def onRequestRecord(requestRecord: RequestRecord) {
-		FileDataWriter.append(osw, requestRecord)
+		osw.append(requestRecord)
 	}
 
 	override def onFlushDataWriter {

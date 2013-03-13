@@ -142,7 +142,7 @@ class GatlingAsyncHandlerActor(
 		 * @param response is the response to extract data from; request is retrieved from the property
 		 * @return the extracted Strings
 		 */
-		def extraInfo: List[String] =
+		def extraInfo: List[Any] =
 			try {
 				protocolConfiguration.extraInfoExtractor.map(_(requestStatus, session, request, response)).getOrElse(Nil)
 			} catch {
