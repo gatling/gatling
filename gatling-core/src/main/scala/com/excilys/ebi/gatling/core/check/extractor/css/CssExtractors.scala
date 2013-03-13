@@ -38,7 +38,7 @@ object CssExtractors {
 		.map { node =>
 			nodeAttribute
 				.map(node.getAttribute)
-				.getOrElse(node.getTextContent)
+				.getOrElse(node.getTextContent.trim)
 		}
 
 	val extractOne = (nodeAttribute: Option[String]) => (occurrence: Int) => new CssExtractor[String] {
