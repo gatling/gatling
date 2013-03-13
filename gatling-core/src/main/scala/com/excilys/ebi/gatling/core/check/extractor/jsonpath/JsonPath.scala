@@ -20,4 +20,4 @@ import org.jaxen.BaseXPath
 /**
  * A Jackson based BaseXPath
  */
-class JaxenJackson(expression: String) extends BaseXPath(expression, JacksonNavigator)
+class JsonPath(expression: String) extends BaseXPath(expression, JacksonNavigator)

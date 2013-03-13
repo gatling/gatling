@@ -27,7 +27,7 @@ object JsonPathExtractors {
 		val name = "jsonPath"
 	}
 
-	private def extractAll(json: Option[JsonNode], expression: String): Option[Seq[String]] = json.map(new JaxenJackson(expression).selectNodes(_).map(_.asInstanceOf[JsonText].value))
+	private def extractAll(json: Option[JsonNode], expression: String): Option[Seq[String]] = json.map(new JsonPath(expression).selectNodes(_).map(_.asInstanceOf[JsonText].value))
 
 	val extractOne = (occurrence: Int) => new CssExtractor[String] {
 
