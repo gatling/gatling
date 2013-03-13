@@ -17,7 +17,7 @@ package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 
 import java.io.InputStream
 
-import scala.collection.JavaConversions.asScalaIterator
+import scala.collection.mutable
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.fasterxml.jackson.core.JsonParser
@@ -28,19 +28,29 @@ object Json {
 
 	private def convert(name: String, node: JacksonNode): JsonNode = node match {
 		case objectNode: ObjectNode =>
-			val children = objectNode.fields.toIterable.flatMap { entry =>
-				entry.getValue match {
-					case array: ArrayNode => array.flatten(entry.getKey)
-					case value => Iterable(convert(entry.getKey, value))
+			val children = new mutable.ArrayBuffer[JsonNode]
+			val it = objectNode.fields
+			while (it.hasNext) {
+				val field = it.next
+				field.getValue match {
+					case array: ArrayNode => children.addChildren(field.getKey, array)
+					case value => children += convert(field.getKey, value)
 				}
 			}
+
 			JsonElement(name, children)
 
 		case value: ValueNode => JsonText(name, value.asText)
 	}
 
-	private implicit class FlattenableArrayNode(val array: ArrayNode) extends AnyVal {
-		def flatten(name: String): Iterable[JsonNode] = array.elements.map(convert(name, _)).toIterable
+	private implicit class ChildrenNodesBuffer(val children: mutable.ArrayBuffer[JsonNode]) extends AnyVal {
+
+		def addChildren(name: String, array: ArrayNode) = {
+			val it = array.elements
+			while (it.hasNext) {
+				children += convert(name, it.next)
+			}
+		}
 	}
 
 	val mapper = {
@@ -54,7 +64,10 @@ object Json {
 
 		val root = mapper.readValue(is, classOf[JacksonNode])
 		root match {
-			case array: ArrayNode => JsonElement("", array.flatten(""))
+			case array: ArrayNode =>
+				val children = new mutable.ArrayBuffer[JsonNode]
+				children.addChildren("", array)
+				JsonElement("", children)
 			case node => convert("", node)
 		}
 	}
