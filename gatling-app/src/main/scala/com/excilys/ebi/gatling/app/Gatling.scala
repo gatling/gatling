@@ -83,14 +83,14 @@ class Gatling extends Logging {
 	private def defaultOutputDirectoryBaseName(clazz: Class[Simulation]) = configuration.simulation.outputDirectoryBaseName.getOrElse(formatToFilename(clazz.getSimpleName))
 
 	def start = {
-		val (outputDirectoryName, simulation) = GatlingFiles.reportsOnlyDirectory.map((_, None))
-			.getOrElse {
-				val simulations = GatlingFiles.binariesDirectory
-					.map(SimulationClassLoader.fromClasspathBinariesDirectory) // expect simulations to have been pre-compiled (ex: IDE)
-					.getOrElse(SimulationClassLoader.fromSourcesDirectory(GatlingFiles.sourcesDirectory))
-					.simulationClasses(configuration.simulation.clazz)
-					.sortWith(_.getName < _.getName)
+		val simulations = GatlingFiles.binariesDirectory
+			.map(SimulationClassLoader.fromClasspathBinariesDirectory) // expect simulations to have been pre-compiled (ex: IDE)
+			.getOrElse(SimulationClassLoader.fromSourcesDirectory(GatlingFiles.sourcesDirectory))
+			.simulationClasses(configuration.simulation.clazz)
+			.sortWith(_.getName < _.getName)
 
+		val (outputDirectoryName, simulation) = GatlingFiles.reportsOnlyDirectory.map((_, getSingleSimulation(simulations)))
+			.getOrElse {
 				val selection = configuration.simulation.clazz.map { _ =>
 					val simulation = simulations.head
 					val outputDirectoryBaseName = defaultOutputDirectoryBaseName(simulation)
@@ -112,6 +112,9 @@ class Gatling extends Logging {
 
 		result
 	}
+
+	private def getSingleSimulation(simulations: List[Class[Simulation]]) =
+		configuration.simulation.clazz.map(_ => simulations.head.newInstance)
 
 	private def interactiveSelect(simulations: List[Class[Simulation]]): Selection = {
 
