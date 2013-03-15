@@ -23,25 +23,25 @@ import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object JsonPathExtractors {
 
-	abstract class CssExtractor[X] extends Extractor[Option[JsonNode], String, X] {
+	abstract class JsonPathExtractor[X] extends Extractor[Option[JsonNode], String, X] {
 		val name = "jsonPath"
 	}
 
 	private def extractAll(json: Option[JsonNode], expression: String): Option[Seq[String]] = json.map(new JsonPath(expression).selectNodes(_).map(_.asInstanceOf[JsonText].value))
 
-	val extractOne = (occurrence: Int) => new CssExtractor[String] {
+	val extractOne = (occurrence: Int) => new JsonPathExtractor[String] {
 
 		def apply(prepared: Option[JsonNode], criterion: String): Validation[Option[String]] =
 			extractAll(prepared, criterion).flatMap(_.lift(occurrence)).success
 	}
 
-	val extractMultiple = new CssExtractor[Seq[String]] {
+	val extractMultiple = new JsonPathExtractor[Seq[String]] {
 
 		def apply(prepared: Option[JsonNode], criterion: String): Validation[Option[Seq[String]]] =
 			extractAll(prepared, criterion).flatMap(_.liftSeqOption).success
 	}
 
-	val count = new CssExtractor[Int] {
+	val count = new JsonPathExtractor[Int] {
 
 		def apply(prepared: Option[JsonNode], criterion: String): Validation[Option[Int]] =
 			extractAll(prepared, criterion).map(_.size).success
