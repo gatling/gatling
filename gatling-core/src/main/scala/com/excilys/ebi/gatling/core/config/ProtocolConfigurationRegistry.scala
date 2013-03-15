@@ -41,5 +41,5 @@ class ProtocolConfigurationRegistry(configurations: Map[Class[_ <: ProtocolConfi
 	 */
 	def getProtocolConfiguration[T <: ProtocolConfiguration: ClassManifest]: Option[T] = configurations.get(implicitly[ClassManifest[T]].erasure.asInstanceOf[Class[T]]).map(_.asInstanceOf[T])
 
-	def getProtocolConfiguration[T <: ProtocolConfiguration: ClassManifest](default: T): T = getProtocolConfiguration[T].getOrElse(default)
+	def getProtocolConfiguration[T <: ProtocolConfiguration: ClassManifest](default: => T): T = getProtocolConfiguration[T].getOrElse(default)
 }
