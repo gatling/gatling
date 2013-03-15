@@ -43,5 +43,5 @@ class ProtocolConfigurationRegistry(configurations: Map[Class[_ <: ProtocolConfi
 	 */
 	def getProtocolConfiguration[T <: ProtocolConfiguration: ClassTag]: Option[T] = configurations.get(implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]).map(_.asInstanceOf[T])
 
-	def getProtocolConfiguration[T <: ProtocolConfiguration: ClassTag](default: T): T = getProtocolConfiguration[T].getOrElse(default)
+	def getProtocolConfiguration[T <: ProtocolConfiguration: ClassTag](default: => T): T = getProtocolConfiguration[T].getOrElse(default)
 }
