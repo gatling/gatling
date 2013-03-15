@@ -15,9 +15,10 @@
  */
 package com.excilys.ebi.gatling.core.result.writer
 
-import scala.collection.immutable
+import scala.concurrent.Future
 
-import com.excilys.ebi.gatling.core.action.{ BaseActor, system }
+import com.excilys.ebi.gatling.core.action.{ AkkaDefaults, BaseActor, system }
+import com.excilys.ebi.gatling.core.action.system.dispatcher
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.{ Flush, GroupRecord, Init, RequestRecord, RequestStatus, RunRecord, ScenarioRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.terminator.Terminator
@@ -25,28 +26,34 @@ import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 
 import akka.actor.{ Actor, ActorRef, Props }
-import akka.routing.BroadcastRouter
+import akka.pattern.ask
+import grizzled.slf4j.Logging
 
-object DataWriter {
+object DataWriter extends AkkaDefaults with Logging {
 
-	private val dataWriters: immutable.Iterable[ActorRef] = configuration.data.dataWriterClasses.map { className =>
+	private val dataWriters: List[ActorRef] = configuration.data.dataWriterClasses.map { className =>
 		val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
 		system.actorOf(Props(clazz))
 	}
 
-	private val router = system.actorOf(Props[Actor].withRouter(BroadcastRouter(routees = dataWriters)))
+	private def tellAll(message: Any) {
+		dataWriters.foreach(_ ! message)
+	}
 
-	def init(runRecord: RunRecord, scenarios: Seq[Scenario]) {
+	def askInit(runRecord: RunRecord, scenarios: Seq[Scenario]) = {
 		val shortScenarioDescriptions = scenarios.map(scenario => ShortScenarioDescription(scenario.name, scenario.configuration.users))
-		router ! Init(runRecord, shortScenarioDescriptions)
+
+		val responses = dataWriters.map(_ ? Init(runRecord, shortScenarioDescriptions))
+
+		Future.sequence(responses)
 	}
 
 	def user(scenarioName: String, userId: Int, event: String) {
-		router ! ScenarioRecord(scenarioName, userId, event, nowMillis)
+		tellAll(ScenarioRecord(scenarioName, userId, event, nowMillis))
 	}
 
 	def group(scenarioName: String, groupName: String, userId: Int, event: String) {
-		router ! GroupRecord(scenarioName, groupName, userId, event, nowMillis)
+		tellAll(GroupRecord(scenarioName, groupName, userId, event, nowMillis))
 	}
 
 	def logRequest(
@@ -61,7 +68,7 @@ object DataWriter {
 		requestMessage: Option[String] = None,
 		extraInfo: List[Any] = Nil) {
 
-		router ! RequestRecord(
+		tellAll(RequestRecord(
 			scenarioName,
 			userId,
 			requestName,
@@ -71,7 +78,7 @@ object DataWriter {
 			executionEndDate,
 			requestResult,
 			requestMessage,
-			extraInfo)
+			extraInfo))
 	}
 }
 
@@ -96,9 +103,18 @@ trait DataWriter extends BaseActor {
 	def uninitialized: Receive = {
 		case Init(runRecord, scenarios) =>
 
-			Terminator.registerDataWriter(self)
-			onInitializeDataWriter(runRecord, scenarios)
-			context.become(initialized)
+			info("Initializing")
+
+			val originalSender = sender
+
+			Terminator.askDataWriterRegistration(self).onComplete {
+				case _ =>
+					info(s"Going on with initialization after Terminator registration")
+					onInitializeDataWriter(runRecord, scenarios)
+					context.become(initialized)
+					originalSender ! true
+					info("Initialized")
+			}
 	}
 
 	def initialized: Receive = {

@@ -18,9 +18,12 @@ package com.excilys.ebi.gatling.core.runner
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit.SECONDS
 
+import scala.concurrent.Await
+
 import org.joda.time.DateTime.now
 
-import com.excilys.ebi.gatling.core.action.system
+import com.excilys.ebi.gatling.core.action.{ AkkaDefaults, system }
+import com.excilys.ebi.gatling.core.action.system.dispatcher
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RunRecord
 import com.excilys.ebi.gatling.core.result.terminator.Terminator
@@ -29,7 +32,7 @@ import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 
 import grizzled.slf4j.Logging
 
-class Runner(selection: Selection) extends Logging {
+class Runner(selection: Selection) extends AkkaDefaults with Logging {
 
 	def run: (String, Simulation) = {
 
@@ -50,8 +53,12 @@ class Runner(selection: Selection) extends Logging {
 			info(s"Total number of users : $totalNumberOfUsers")
 
 			val terminatorLatch = new CountDownLatch(1)
-			Terminator.init(terminatorLatch, totalNumberOfUsers)
-			DataWriter.init(runRecord, scenarios)
+
+			val init = Terminator
+				.askInit(terminatorLatch, totalNumberOfUsers)
+				.flatMap(_ => DataWriter.askInit(runRecord, scenarios))
+
+			Await.result(init, defaultTimeOut.duration)
 
 			debug("Launching All Scenarios")
 

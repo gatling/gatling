@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 		http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,17 +15,13 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
+import scala.concurrent.duration.DurationInt
 
-import akka.actor.{ Actor, Terminated }
-import grizzled.slf4j.Logging
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 
-trait BaseActor extends Actor with AkkaDefaults with ClassSimpleNameToString with Logging {
+import akka.util.Timeout
 
-	override def unhandled(message: Any) {
-		message match {
-			case Terminated(dead) => super.unhandled(message)
-			case unknown => throw new IllegalArgumentException("Actor " + this + " doesn't support message " + unknown)
-		}
-	}
+trait AkkaDefaults {
+
+	implicit val defaultTimeOut = Timeout(configuration.timeOut.actor seconds)
 }
