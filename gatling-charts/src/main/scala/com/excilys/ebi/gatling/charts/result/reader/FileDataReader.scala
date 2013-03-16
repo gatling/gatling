@@ -53,8 +53,9 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	val inputFiles = simulationLogDirectory(runUuid, create = false).files
 		.collect { case file if (file.name.matches(FileDataReader.SIMULATION_FILES_NAME_PATTERN)) => file.jfile }
-		.toSeq
+		.toList
 
+	info(s"Collected $inputFiles from $runUuid")
 	require(!inputFiles.isEmpty, "simulation directory doesn't contain any log file.")
 
 	private def doWithInputFiles[T](f: Iterator[String] => T): T = {
@@ -65,6 +66,9 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	}
 
 	private def preProcess(records: Iterator[String]) = {
+
+		info("Pre-process")
+
 		val nonGroupRecordTypes = Set(ACTION, RUN, SCENARIO)
 		val (runs, actionsOrScenarios) = records.map(FileDataReader.TABULATION_PATTERN.split).filter(array => nonGroupRecordTypes.contains(array.head)).partition(_.head == RUN)
 
@@ -91,7 +95,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			.filter(_.length >= FileDataReader.RUN_RECORD_LENGTH)
 			.foreach(strings => runRecords += RunRecord(parseTimestampString(strings(1)), strings(2), strings(3).trim))
 
-		info(s"Read $totalRequestsNumber lines (finished)")
+		info(s"Pre-process done: read $totalRequestsNumber lines")
 
 		(runStart, runEnd, runRecords.head)
 	}
@@ -103,6 +107,8 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	val buckets = StatsHelper.bucketsList(0, (runEnd - runStart).toInt, step)
 
 	private def process(bucketFunction: Int => Int)(records: Iterator[String]): ResultsHolder = {
+
+		info("Process")
 
 		val resultsHolder = new ResultsHolder(runStart, runEnd)
 
@@ -121,7 +127,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 				}
 			}
 
-		info(s"Read $count lines (finished)")
+		info(s"Process done: read $count lines")
 
 		resultsHolder
 	}
