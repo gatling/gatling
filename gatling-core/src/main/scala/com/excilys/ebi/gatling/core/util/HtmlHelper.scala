@@ -27,8 +27,6 @@ object HtmlHelper {
 
 	val HTML_ENTITIES_TO_CHAR: Map[String, Char] = CHAR_TO_HTML_ENTITIES.map(_.swap)
 
-	def htmlEntityToInt(entity: String, default: Int): Int = HTML_ENTITIES_TO_CHAR.get(entity).map(_.toInt).getOrElse(default)
-
 	def htmlEscape(string: String): String = {
 		def charToHtmlEntity(char: Char): String = CHAR_TO_HTML_ENTITIES.get(char).getOrElse(char.toString)
 

@@ -15,7 +15,6 @@
  */
 package com.excilys.ebi.gatling.core
 
-import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
 
 package object session {
@@ -23,6 +22,6 @@ package object session {
 	val noopStringExpression = (s: Session) => "".success
 
 	type Expression[T] = Session => Validation[T]
-	def undefinedSeqIndexMessage(name: String, index: Int) = "Seq named '" + name + "' is undefined for index " + index
-	def undefinedSessionAttributeMessage(name: String) = "No attribute named '" + name + "' is defined"
+	def undefinedSeqIndexMessage(name: String, index: Int) = s"Seq named '$name' is undefined for index $index"
+	def undefinedSessionAttributeMessage(name: String) = s"No attribute named '$name' is defined"
 }

@@ -42,7 +42,7 @@ object ComponentLibrary extends Logging {
 	}
 }
 
-abstract class ComponentLibrary {
+trait ComponentLibrary {
 	def getAllSessionsJs(runStart: Long, series: Series[IntVsTimePlot]): String
 	def getActiveSessionsChartComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component
 	def getRequestsChartComponent(runStart: Long, allRequests: Series[IntVsTimePlot], failedRequests: Series[IntVsTimePlot], succeededRequests: Series[IntVsTimePlot], pieSeries: Series[PieSlice]): Component

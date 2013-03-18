@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.core.check
 import scala.collection.mutable
 
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
-import com.excilys.ebi.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
+import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object Checks {
 

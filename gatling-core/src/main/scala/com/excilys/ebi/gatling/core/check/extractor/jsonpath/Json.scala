@@ -45,7 +45,7 @@ object Json {
 
 	private implicit class ChildrenNodesBuffer(val children: mutable.ArrayBuffer[JsonNode]) extends AnyVal {
 
-		def addChildren(name: String, array: ArrayNode) = {
+		def addChildren(name: String, array: ArrayNode) {
 			val it = array.elements
 			while (it.hasNext) {
 				children += convert(name, it.next)

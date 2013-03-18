@@ -24,7 +24,7 @@ trait NamesBuffers {
 
 	class NameBuffer[A] {
 
-		val map: mutable.Map[A, Long] = mutable.HashMap.empty
+		val map = mutable.Map.empty[A, Long]
 
 		def update(name: A, time: Long) {
 			map += (name -> (time min map.getOrElse(name, Long.MaxValue)))

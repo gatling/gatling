@@ -21,7 +21,7 @@ import com.excilys.ebi.gatling.core.validation.{ FailureWrapper, SuccessWrapper,
 
 object TypeHelper {
 
-	def classCastExceptionMessage(value: Any, clazz: Class[_]) = "Can't cast value " + value + " of type " + value.getClass + " into " + clazz
+	def classCastExceptionMessage(value: Any, clazz: Class[_]) = s"Can't cast value $value of type ${value.getClass} into $clazz"
 
 	def as[T: ClassTag](value: Any): Validation[T] = {
 		val clazz = implicitly[ClassTag[T]].runtimeClass

@@ -23,7 +23,7 @@ import com.excilys.ebi.gatling.core.result.message.RequestStatus
 
 trait LatencyPerSecBuffers {
 
-	val latencyPerSecBuffers: mutable.Map[BufferKey, RangeBuffer] = mutable.HashMap.empty
+	val latencyPerSecBuffers = mutable.Map.empty[BufferKey, RangeBuffer]
 
 	def getLatencyPerSecBuffers(requestName: Option[String], group: Option[Group], status: Option[RequestStatus]): RangeBuffer = latencyPerSecBuffers.getOrElseUpdate(computeKey(requestName, group, status), new RangeBuffer)
 

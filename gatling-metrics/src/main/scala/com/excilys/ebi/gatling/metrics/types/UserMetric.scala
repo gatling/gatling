@@ -36,7 +36,6 @@ class UserMetric(val nbUsers: Int) {
 				activeBuffer += 1
 				doneBuffer += 1
 			}
-			case _ =>
 		}
 	}
 
