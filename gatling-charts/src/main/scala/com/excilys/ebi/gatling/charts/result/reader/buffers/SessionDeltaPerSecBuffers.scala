@@ -38,15 +38,16 @@ trait SessionDeltaPerSecBuffers {
 
 	class SessionDeltaBuffer {
 
+		val startingPoint = (0, 0)
 		val map: mutable.Map[Int, (Int, Int)] = mutable.HashMap.empty
 
 		def addStart(bucket: Int) {
-			val (start, end) = map.getOrElse(bucket, (0, 0))
+			val (start, end) = map.getOrElse(bucket, startingPoint)
 			map += (bucket -> (start + 1, end))
 		}
 
 		def addEnd(bucket: Int) {
-			val (start, end) = map.getOrElse(bucket, (0, 0))
+			val (start, end) = map.getOrElse(bucket, startingPoint)
 			map += (bucket -> (start, end + 1))
 		}
 
@@ -54,7 +55,7 @@ trait SessionDeltaPerSecBuffers {
 
 			val (_, _, sessions) = buckets.foldLeft(0, 0, List.empty[IntVsTimePlot]) { (accumulator, bucket) =>
 				val (previousSessions, previousEnds, sessions) = accumulator
-				val (bucketStarts, bucketEnds) = map.getOrElse(bucket, (0, 0))
+				val (bucketStarts, bucketEnds) = map.getOrElse(bucket, startingPoint)
 				val bucketSessions = previousSessions - previousEnds + bucketStarts
 				(bucketSessions, bucketEnds, IntVsTimePlot(bucket, bucketSessions) :: sessions)
 			}
