@@ -24,7 +24,6 @@ import com.excilys.ebi.gatling.core.action.{ AkkaDefaults, BaseActor, system }
 import com.excilys.ebi.gatling.core.result.message.Flush
 
 import akka.actor.{ ActorRef, Props }
-import akka.pattern.ask
 
 object Terminator extends AkkaDefaults {
 

@@ -26,7 +26,6 @@ import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 
 import akka.actor.{ Actor, ActorRef, Props }
-import akka.pattern.ask
 import grizzled.slf4j.Logging
 
 object DataWriter extends AkkaDefaults with Logging {
