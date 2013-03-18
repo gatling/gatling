@@ -166,7 +166,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
         .exec(http("Url from session").get("/aaaa"))
         .pause(1000 milliseconds, 3000 milliseconds)
         // Second request to be repeated
-        .exec(http("Create Thing blabla").post("/things").queryParam("login").queryParam("password").sspBody("create_thing.ssp", Map("name" -> "blabla")).asJSON)
+        .exec(http("Create Thing blabla").post("/things").queryParam("login").queryParam("password").sspTemplateBody("create_thing.ssp").asJSON)
         .pause(pause1)
         // Third request to be repeated
         .exec(http("Liste Articles").get("/things").queryParam("firstname").queryParam("lastname"))
@@ -180,7 +180,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
           55 -> exec(http("Possibility 2").get("/p2")) // last 5% bypass
           )
         .exec(http("Create Thing omgomg")
-          .post("/things").queryParam("postTest", "${sessionParam}").fileBody("create_thing.txt").asJSON
+          .post("/things").queryParam("postTest", "${sessionParam}").elTemplateBody("create_thing.txt").asJSON
           .check(status.is(201).saveAs("status")))
     }
     // Head request
