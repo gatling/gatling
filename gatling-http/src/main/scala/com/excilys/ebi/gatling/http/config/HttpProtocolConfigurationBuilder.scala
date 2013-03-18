@@ -16,12 +16,13 @@
 package com.excilys.ebi.gatling.http.config
 
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
-import com.excilys.ebi.gatling.core.session.{ EL, Session }
+import com.excilys.ebi.gatling.core.session.{ EL, Expression, Session }
 import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.http.ahc.GatlingHttpClient
 import com.excilys.ebi.gatling.http.request.builder.{ GetHttpRequestBuilder, PostHttpRequestBuilder }
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
-import com.ning.http.client.{ ProxyServer, Request, RequestBuilder }
+import com.excilys.ebi.gatling.http.util.HttpHelper
+import com.ning.http.client.{ ProxyServer, Realm, Request, RequestBuilder }
 
 import grizzled.slf4j.Logging
 
@@ -41,6 +42,7 @@ object HttpProtocolConfigurationBuilder {
 		connectionPoolingEnabled = false,
 		baseHeaders = Map.empty,
 		warmUpUrl = None,
+		basicAuth = None,
 		extraInfoExtractor = None))
 
 	def httpConfig = BASE_HTTP_PROTOCOL_CONFIGURATION_BUILDER.warmUp("http://gatling-tool.org")
@@ -56,6 +58,7 @@ private case class Attributes(baseUrls: Option[List[String]],
 	connectionPoolingEnabled: Boolean,
 	baseHeaders: Map[String, String],
 	warmUpUrl: Option[String],
+	basicAuth: Option[Expression[Realm]],
 	extraInfoExtractor: Option[(RequestStatus, Session, Request, ExtendedResponse) => List[Any]])
 
 /**
@@ -105,6 +108,8 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 
 	def disableWarmUp = new HttpProtocolConfigurationBuilder(attributes.copy(warmUpUrl = None))
 
+	def basicAuth(username: Expression[String], password: Expression[String]) = new HttpProtocolConfigurationBuilder(attributes.copy(basicAuth = Some(HttpHelper.buildRealm(username, password))))
+
 	def extraInfoExtractor(f: (RequestStatus, Session, Request, ExtendedResponse) => List[Any]) = new HttpProtocolConfigurationBuilder(attributes.copy(extraInfoExtractor = Some(f)))
 
 	/**
@@ -129,6 +134,7 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 			attributes.responseChunksDiscardingEnabled,
 			attributes.connectionPoolingEnabled,
 			attributes.baseHeaders,
+			attributes.basicAuth,
 			attributes.extraInfoExtractor)
 
 		def doWarmUp() {

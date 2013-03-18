@@ -21,11 +21,12 @@ import java.util.{ ArrayList => JArrayList }
 import scala.collection.JavaConversions.{ asScalaSet, mapAsJavaMap }
 import scala.io.Codec.UTF8
 
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 import com.excilys.ebi.gatling.core.validation.{ Validation, ValidationList }
 import com.excilys.ebi.gatling.http.request.builder.HttpParam
-import com.ning.http.client.FluentStringsMap
+import com.ning.http.client.{ FluentStringsMap, Realm }
+import com.ning.http.client.Realm.AuthScheme
 
 object HttpHelper {
 
@@ -104,4 +105,10 @@ object HttpHelper {
 			entry <- map.entrySet
 		} buff.append(entry.getKey).append(": ").append(entry.getValue).append(END_OF_LINE)
 	}
+
+	def buildRealm(username: Expression[String], password: Expression[String]): Expression[Realm] = (session: Session) =>
+		for {
+			usernameValue <- username(session)
+			passwordValue <- password(session)
+		} yield new Realm.RealmBuilder().setPrincipal(usernameValue).setPassword(passwordValue).setUsePreemptiveAuth(true).setScheme(AuthScheme.BASIC).build
 }

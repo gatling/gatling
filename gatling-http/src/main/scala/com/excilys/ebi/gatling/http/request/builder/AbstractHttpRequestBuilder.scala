@@ -133,16 +133,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 * @param username the username needed
 	 * @param password the password needed
 	 */
-	def basicAuth(username: Expression[String], password: Expression[String]): B = {
-
-		def buildRealm(session: Session) =
-			for {
-				usernameValue <- username(session)
-				passwordValue <- password(session)
-			} yield new Realm.RealmBuilder().setPrincipal(usernameValue).setPassword(passwordValue).setUsePreemptiveAuth(true).setScheme(AuthScheme.BASIC).build
-
-		newInstance(httpAttributes.copy(realm = Some(buildRealm _)))
-	}
+	def basicAuth(username: Expression[String], password: Expression[String]): B =
+		newInstance(httpAttributes.copy(realm = Some(HttpHelper.buildRealm(username, password))))
 
 	/**
 	 * This method actually fills the request builder to avoid race conditions
@@ -198,11 +190,15 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 			}
 		}
 
-		def configureRealm(requestBuilder: RequestBuilder): Validation[RequestBuilder] =
-			httpAttributes.realm match {
+		def configureRealm(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
+
+			val realm = httpAttributes.realm.orElse(protocolConfiguration.basicAuth)
+
+			realm match {
 				case Some(realm) => realm(session).map(requestBuilder.setRealm)
 				case None => requestBuilder.success
 			}
+		}
 
 		val requestBuilder = new RequestBuilder(httpAttributes.method, configuration.http.useRawUrl).setBodyEncoding(configuration.simulation.encoding)
 
