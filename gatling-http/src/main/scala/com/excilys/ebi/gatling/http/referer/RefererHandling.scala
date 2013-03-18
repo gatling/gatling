@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.http.referer
 
-import scala.collection.JavaConversions.asScalaBuffer
-
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
 import com.excilys.ebi.gatling.http.Headers
@@ -36,7 +34,7 @@ object RefererHandling {
 
 	def storeReferer(request: Request, session: Session, protocolConfiguration: HttpProtocolConfiguration): Session = {
 
-		def isRealPage(request: Request): Boolean = !request.getHeaders.containsKey(Headers.Names.X_REQUESTED_WITH) && Option(request.getHeaders.get(Headers.Names.ACCEPT)).map(_.head.contains("html")).isDefined
+		def isRealPage(request: Request): Boolean = !request.getHeaders.containsKey(Headers.Names.X_REQUESTED_WITH) && Option(request.getHeaders.get(Headers.Names.ACCEPT)).map(_.get(0).contains("html")).getOrElse(false)
 
 		if (protocolConfiguration.automaticRefererEnabled && isRealPage(request)) session.set(REFERER_CONTEXT_KEY, request.getUrl) else session
 	}

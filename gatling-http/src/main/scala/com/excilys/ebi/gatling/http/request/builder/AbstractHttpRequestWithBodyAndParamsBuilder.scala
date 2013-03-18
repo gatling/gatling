@@ -15,8 +15,6 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import scala.collection.JavaConversions.{ asScalaBuffer, asScalaIterator }
-
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.{ EL, Expression, Session }
 import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
@@ -111,12 +109,15 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 			}
 		}
 
-		def configureStringParts(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
-			HttpHelper.httpParamsToFluentMap(paramsAttributes.params, session).map { map: FluentStringsMap =>
-				map.iterator.foreach { entry => entry.getValue.foreach(value => requestBuilder.addBodyPart(new StringPart(entry.getKey, value))) }
+		def configureStringParts(requestBuilder: RequestBuilder): Validation[RequestBuilder] =
+			HttpHelper.resolveParams(paramsAttributes.params, session).map { params =>
+				for {
+					param <- params
+					key = param._1
+					value <- param._2
+				} requestBuilder.addBodyPart(new StringPart(key, value))
 				requestBuilder
 			}
-		}
 
 		val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
 
@@ -126,5 +127,4 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 			requestBuilder.flatMap(configureStringParts).flatMap(configureFileParts)
 		}
 	}
-
 }
