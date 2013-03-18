@@ -33,7 +33,7 @@ object HttpRequestBody {
 
 	def stringBody(body: Expression[String]) = StringBody(body)
 
-	def sessionByteArrayBody(byteArray: (Session) => Array[Byte]) = SessionByteArrayBody(byteArray)
+	def sessionByteArrayBody(byteArray: Expression[Array[Byte]]) = SessionByteArrayBody(byteArray)
 
 	val EL_FILE_CACHE = new collection.mutable.HashMap[String, Validation[Expression[String]]]
 
@@ -118,12 +118,12 @@ sealed trait HttpRequestBody {
 case class StringBody(expression: Expression[String]) extends HttpRequestBody {
 
 	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] =
-		expression(session).map(string => requestBuilder.setBody(string).setContentLength(string.length))
+		expression(session).map(requestBuilder.setBody)
 }
 case class RawFileBody(file: Expression[JFile]) extends HttpRequestBody {
 
 	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] =
-		file(session).map(body => requestBuilder.setBody(body).setContentLength(body.length.toInt))
+		file(session).map(requestBuilder.setBody)
 }
 case class SspTemplateBody(templatePathExpression: Expression[String], attributesExpression: Expression[Map[String, String]], bindings: Traversable[Binding]) extends HttpRequestBody {
 
@@ -132,13 +132,11 @@ case class SspTemplateBody(templatePathExpression: Expression[String], attribute
 			templatePath <- templatePathExpression(session)
 			attributes <- attributesExpression(session)
 			body = HttpRequestBody.SSP_TEMPLATE_ENGINE.layout(templatePath, attributes, bindings)
-		} yield requestBuilder.setBody(body).setContentLength(body.length)
+		} yield requestBuilder.setBody(body)
 }
-case class SessionByteArrayBody(byteArray: Session => Array[Byte]) extends HttpRequestBody {
+case class SessionByteArrayBody(byteArray: Expression[Array[Byte]]) extends HttpRequestBody {
 
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = {
-		val bytes = byteArray(session)
-		requestBuilder.setBody(bytes).setContentLength(bytes.length).success
-	}
+	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] =
+		byteArray(session).map(requestBuilder.setBody)
 }
 

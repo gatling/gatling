@@ -78,7 +78,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 *
 	 * @param byteArray - The callback function which returns the ByteArray from which to build the body
 	 */
-	def byteArrayBody(byteArray: (Session) => Array[Byte]): B = newInstance(httpAttributes, Some(HttpRequestBody.sessionByteArrayBody(byteArray)))
+	def byteArrayBody(byteArray: Expression[Array[Byte]]): B = newInstance(httpAttributes, Some(HttpRequestBody.sessionByteArrayBody(byteArray)))
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[RequestBuilder] = {
 
