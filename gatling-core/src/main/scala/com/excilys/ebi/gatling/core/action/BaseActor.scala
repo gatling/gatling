@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
 import akka.actor.{ Actor, Terminated }
 import grizzled.slf4j.Logging
 
-trait BaseActor extends Actor with AkkaDefaults with ClassSimpleNameToString with Logging {
+abstract class BaseActor extends Actor with AkkaDefaults with ClassSimpleNameToString with Logging {
 
 	override def unhandled(message: Any) {
 		message match {

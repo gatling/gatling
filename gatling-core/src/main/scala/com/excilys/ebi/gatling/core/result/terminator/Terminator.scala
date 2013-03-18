@@ -46,7 +46,7 @@ object Terminator extends AkkaDefaults {
 	}
 }
 
-class Terminator extends BaseActor with AkkaDefaults {
+class Terminator extends BaseActor {
 
 	import context._
 
