@@ -15,9 +15,8 @@
  */
 package com.excilys.ebi.gatling.core.scenario.configuration
 
-import scala.concurrent.duration.{ Duration, FiniteDuration }
-
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+import com.excilys.ebi.gatling.core.scenario.injection.InjectionStrategy
 
 /**
  * This class represents the configuration of a scenario
@@ -28,7 +27,8 @@ import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
  * @param protocolRegistry the registry for the protocols used in the scenario
  */
 case class ScenarioConfiguration(
-	users: Int,
-	ramp: Option[Duration],
-	delay: Option[FiniteDuration],
-	protocolRegistry: ProtocolConfigurationRegistry)
+	injections: Seq[InjectionStrategy],
+	protocolRegistry: ProtocolConfigurationRegistry) {
+
+	val users = injections.map(_.users).sum
+}

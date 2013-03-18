@@ -15,6 +15,7 @@
  */
 package com.excilys.ebi.gatling.core
 
+import scala.concurrent.duration.FiniteDuration
 import scala.reflect.ClassTag
 import scala.tools.nsc.io.{ File, Path }
 
@@ -77,4 +78,25 @@ object Predef {
 	val toFloat = (x: String) => x.toFloat
 	val toDouble = (x: String) => x.toDouble
 	val toBoolean = (x: String) => x.toBoolean
+
+	/// Injection definitions
+	type UserNumber = com.excilys.ebi.gatling.core.scenario.configuration.UserNumber
+	type UsersPerSec = com.excilys.ebi.gatling.core.scenario.configuration.UsersPerSec
+
+	type RampDefinition = com.excilys.ebi.gatling.core.scenario.configuration.RampDefinition
+	type ConstantRateDefinition = com.excilys.ebi.gatling.core.scenario.configuration.ConstantRateDefinition
+
+	implicit class UserNumberImplicit(val number: Int) extends AnyVal {
+		def users = new UserNumber(number)
+	}
+	implicit class UsersPerSecImplicit(val rate: Double) extends AnyVal {
+		def usersPerSec = new UsersPerSec(rate)
+	}
+
+	implicit class RampBuilder(val users: UserNumber) extends AnyVal {
+		def during(d: FiniteDuration) = new RampDefinition(users.number, d)
+	}
+	implicit class ConstantRateBuilder(val usersPerSec: UsersPerSec) extends AnyVal {
+		def during(d: FiniteDuration) = new ConstantRateDefinition(usersPerSec.rate, d)
+	}
 }
