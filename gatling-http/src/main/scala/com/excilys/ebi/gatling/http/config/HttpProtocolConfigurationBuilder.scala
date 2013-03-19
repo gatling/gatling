@@ -153,12 +153,12 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 
 			val expression = EL.compile[String]("foo")
 			GetHttpRequestBuilder(expression, expression)
-				.header("bar", "baz")
+				.header("bar", expression)
 				.queryParam(expression, expression)
 				.build(Session("scenarioName", 0), config)
 
 			PostHttpRequestBuilder(expression, expression)
-				.header("bar", "baz")
+				.header("bar", expression)
 				.param(expression, expression)
 				.build(Session("scenarioName", 0), config)
 		}
