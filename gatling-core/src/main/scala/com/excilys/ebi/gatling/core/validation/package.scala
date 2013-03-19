@@ -38,7 +38,7 @@ package object validation {
 					case Success(entry) => sequenceRec(tail, entry :: successes)
 				}
 			}
-			sequenceRec(validations, Nil)
+			sequenceRec(validations, Nil).map(_.reverse)
 		}
 	}
 }
