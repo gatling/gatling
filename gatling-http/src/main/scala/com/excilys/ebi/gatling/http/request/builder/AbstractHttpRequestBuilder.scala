@@ -68,31 +68,10 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	/**
 	 * Adds a query parameter to the request
 	 *
-	 * The value is a session attribute with the same key
-	 *
-	 * @param key the key of the parameter
-	 */
-	def queryParam(key: String): B = queryParam(EL.compile[String](key), (s: Session) => s.safeGetAs[String](key))
-
-	/**
-	 * Adds a query parameter to the request
-	 *
 	 * @param param is a query parameter
 	 */
 	def queryParam(key: Expression[String], value: Expression[String]): B = {
 		val httpParam: HttpParam = (key, (session: Session) => value(session).map(Seq(_)))
-		queryParam(httpParam)
-	}
-
-	def multiValuedQueryParam(key: String): B = multiValuedQueryParam(EL.compile[String](key), key)
-
-	def multiValuedQueryParam(key: Expression[String], value: String): B = {
-		val httpParam: HttpParam = (key, EL.compile[Seq[String]](value))
-		queryParam(httpParam)
-	}
-
-	def multiValuedQueryParam(key: Expression[String], values: Seq[String]): B = {
-		val httpParam: HttpParam = (key, (s: Session) => values.success)
 		queryParam(httpParam)
 	}
 
