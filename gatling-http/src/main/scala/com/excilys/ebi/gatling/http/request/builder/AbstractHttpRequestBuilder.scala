@@ -165,7 +165,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 			}
 				.toList
 				.sequence
-				.map(_.toMap)
 
 			resolvedHeaders.map { headers =>
 				val newHeaders = RefererHandling.addStoredRefererHeader(protocolConfiguration.baseHeaders ++ headers, session, protocolConfiguration)

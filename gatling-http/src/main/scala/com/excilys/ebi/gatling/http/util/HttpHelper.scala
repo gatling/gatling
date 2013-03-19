@@ -90,8 +90,8 @@ object HttpHelper {
 					val arrayList = new JArrayList[String]
 					for {
 						param <- params
-						values <- param._2
-					} arrayList.add(values)
+						value <- param._2
+					} arrayList.add(value)
 					arrayList
 				}
 
