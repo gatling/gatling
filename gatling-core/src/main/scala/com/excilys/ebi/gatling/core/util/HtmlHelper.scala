@@ -32,4 +32,7 @@ object HtmlHelper {
 
 		string.toList.map(charToHtmlEntity).mkString
 	}
+
+	// used in VTD-XML extension
+	def htmlEntityToInt(entity: String, default: Int): Int = HTML_ENTITIES_TO_CHAR.get(entity).map(_.toInt).getOrElse(default)
 }
