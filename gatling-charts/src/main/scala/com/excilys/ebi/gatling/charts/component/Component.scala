@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.charts.component
 
-abstract class Component {
+trait Component {
 
 	def getHTMLContent: String
 

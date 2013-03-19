@@ -16,7 +16,6 @@
 package com.excilys.ebi.gatling.charts.result.reader
 
 import java.io.{ FileInputStream, InputStream }
-import java.util.regex.Pattern
 
 import scala.collection.mutable
 import scala.io.Source
@@ -39,7 +38,7 @@ object FileDataReader {
 	val LOG_STEP = 100000
 	val SEC_MILLISEC_RATIO = 1000.0
 	val NO_PLOT_MAGIC_VALUE = -1L
-	val TABULATION_PATTERN = Pattern.compile(TABULATION_SEPARATOR)
+	val TABULATION_PATTERN = TABULATION_SEPARATOR.r
 	val SIMULATION_FILES_NAME_PATTERN = """.*\.log"""
 	val ACTION_RECORD_LENGTH = 9
 	val RUN_RECORD_LENGTH = 4
@@ -89,7 +88,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 					}
 			}
 
-		val runRecords = mutable.ListBuffer[RunRecord]()
+		val runRecords = mutable.ListBuffer.empty[RunRecord]
 
 		runs
 			.filter(_.length >= FileDataReader.RUN_RECORD_LENGTH)

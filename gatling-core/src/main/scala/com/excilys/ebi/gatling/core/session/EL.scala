@@ -65,8 +65,8 @@ case class SeqElementPart(name: String, index: String) extends Part[Any] {
 }
 
 sealed abstract class ELParserException(message: String) extends Exception(message)
-class ELMissingAttributeName(el: String) extends ELParserException("An attribute name is missing in this expression : " + el)
-class ELNestedAttributeDefinition(el: String) extends ELParserException("There is a nested attribute definition in this expression : " + el)
+class ELMissingAttributeName(el: String) extends ELParserException(s"An attribute name is missing in this expression : $el")
+class ELNestedAttributeDefinition(el: String) extends ELParserException(s"There is a nested attribute definition in this expression : $el")
 
 object EL {
 

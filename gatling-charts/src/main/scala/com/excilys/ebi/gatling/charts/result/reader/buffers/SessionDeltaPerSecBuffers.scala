@@ -39,7 +39,7 @@ trait SessionDeltaPerSecBuffers {
 	class SessionDeltaBuffer {
 
 		val startingPoint = (0, 0)
-		val map: mutable.Map[Int, (Int, Int)] = mutable.HashMap.empty
+		val map = mutable.HashMap.empty[Int, (Int, Int)]
 
 		def addStart(bucket: Int) {
 			val (start, end) = map.getOrElse(bucket, startingPoint)

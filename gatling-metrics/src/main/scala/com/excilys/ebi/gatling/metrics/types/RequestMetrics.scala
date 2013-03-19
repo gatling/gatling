@@ -25,9 +25,9 @@ import com.excilys.ebi.gatling.core.result.message.{ KO, OK }
 
 class RequestMetrics {
 
-	val okMetrics = new Metrics(configuration.graphite.bucketWidth)
-	val koMetrics = new Metrics(configuration.graphite.bucketWidth)
-	val allMetrics = new Metrics(configuration.graphite.bucketWidth)
+	val okMetrics = new Metrics
+	val koMetrics = new Metrics
+	val allMetrics = new Metrics
 
 	def update(requestRecord: RequestRecord) {
 		val responseTime = requestRecord.responseTime.max(0L)
@@ -42,19 +42,19 @@ class RequestMetrics {
 
 	def metrics = (okMetrics, koMetrics, allMetrics)
 
-	def reset = {
+	def reset {
 		okMetrics.reset
 		koMetrics.reset
 		allMetrics.reset
 	}
 }
 
-class Metrics(bucketWidth: Int) {
+class Metrics(bucketWidth: Int = configuration.graphite.bucketWidth) {
 
 	var count = 0L
 	var max = 0L
 	var min = Long.MaxValue
-	private val buckets: mutable.Map[Long,Long] = mutable.HashMap.empty
+	private val buckets = mutable.HashMap.empty[Long,Long]
 
 	def update(value: Long) {
 		count += 1

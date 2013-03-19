@@ -23,7 +23,7 @@ import com.excilys.ebi.gatling.core.result.message.{ KO, RequestStatus }
 
 trait ResponseTimeRangeBuffers {
 
-	val responseTimeRangeBuffers: mutable.Map[BufferKey, ResponseTimeRangeBuffer] = mutable.HashMap.empty
+	val responseTimeRangeBuffers = mutable.Map.empty[BufferKey, ResponseTimeRangeBuffer]
 
 	def getResponseTimeRangeBuffers(requestName: Option[String], group: Option[Group]): ResponseTimeRangeBuffer = responseTimeRangeBuffers.getOrElseUpdate(computeKey(requestName, group, None), new ResponseTimeRangeBuffer)
 

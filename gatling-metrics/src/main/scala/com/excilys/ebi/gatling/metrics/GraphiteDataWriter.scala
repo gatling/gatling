@@ -22,6 +22,7 @@ import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
 import com.excilys.ebi.gatling.core.action.{ BaseActor, system }
+import com.excilys.ebi.gatling.core.action.system.dispatcher
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.{ GroupRecord, RequestRecord, RunRecord, ScenarioRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
@@ -29,22 +30,18 @@ import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowSeconds
 import com.excilys.ebi.gatling.metrics.types.{ Metrics, RequestMetrics, UserMetric }
 
-import akka.actor.{ ActorRef, Props }
-
-sealed trait GraphiteMessage
-case object SendToGraphite extends GraphiteMessage
-case object CloseSocket extends GraphiteMessage
+import akka.actor.Props
 
 class GraphiteDataWriter extends DataWriter {
 
-	private val graphiteSender: ActorRef = context.actorOf(Props(new GraphiteSender))
+	private val graphiteSender = context.actorOf(Props(new GraphiteSender))
 	private val rootPathPrefix = configuration.graphite.rootPathPrefix.split('.').toList
 	private var metricRootPath: List[String] = Nil
-	private val groupStack: mutable.Map[Int, List[String]] = mutable.Map.empty
+	private val groupStack = mutable.Map.empty[Int, List[String]]
 	private val allRequests = new RequestMetrics
-	private val perRequest: mutable.Map[List[String], RequestMetrics] = mutable.Map.empty
+	private val perRequest = mutable.Map.empty[List[String], RequestMetrics]
 	private var allUsers: UserMetric = _
-	private val usersPerScenario: mutable.Map[String, UserMetric] = mutable.Map.empty
+	private val usersPerScenario = mutable.Map.empty[String, UserMetric]
 	private val address = new InetSocketAddress(configuration.graphite.host, configuration.graphite.port)
 	private val percentiles1 = configuration.charting.indicators.percentile1
 	private val percentiles1Name = "percentiles" + percentiles1
@@ -52,10 +49,10 @@ class GraphiteDataWriter extends DataWriter {
 	private val percentiles2Name = "percentiles" + percentiles2
 
 	def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) {
-		metricRootPath = rootPathPrefix ::: List(runRecord.simulationId)
+		metricRootPath = rootPathPrefix :+ runRecord.simulationId
 		allUsers = new UserMetric(scenarios.map(_.nbUsers).sum)
 		scenarios.foreach(scenario => usersPerScenario += scenario.name -> new UserMetric(scenario.nbUsers))
-		system.scheduler.schedule(0 millisecond, 1000 milliseconds, self, SendToGraphite)(system.dispatcher)
+		system.scheduler.schedule(0 millisecond, 1000 milliseconds, self, SendToGraphite)
 	}
 
 	def onScenarioRecord(scenarioRecord: ScenarioRecord) {
@@ -63,7 +60,7 @@ class GraphiteDataWriter extends DataWriter {
 		allUsers.update(scenarioRecord)
 		scenarioRecord.event match {
 			case START => groupStack += scenarioRecord.userId -> Nil
-			case END => groupStack.remove(scenarioRecord.userId)
+			case END => groupStack -= scenarioRecord.userId
 		}
 	}
 
@@ -100,8 +97,8 @@ class GraphiteDataWriter extends DataWriter {
 
 	private class GraphiteSender extends BaseActor {
 
-		private val sanitizeStringMemo: mutable.Map[String,String] = mutable.Map.empty
-		private val sanitizeStringListMemo: mutable.Map[List[String],List[String]] = mutable.Map.empty
+		private val sanitizeStringMemo = mutable.Map.empty[String,String]
+		private val sanitizeStringListMemo = mutable.Map.empty[List[String],List[String]]
 		private var socket: DatagramSocket = _
 
 		private def newSocket = DatagramChannel.open.socket
@@ -163,14 +160,10 @@ class GraphiteDataWriter extends DataWriter {
 			}
 
 			sendUserMetrics("allUsers", allUsers)
-			usersPerScenario.foreach {
-				case (scenarioName, userMetric) => sendUserMetrics(scenarioName, userMetric)
-			}
-			sendRequestMetrics(List("allRequests"), allRequests)
-			perRequest.foreach {
-				case (path, requestMetric) => sendRequestMetrics(path, requestMetric)
-			}
+			for ((scenarioName, userMetric) <- usersPerScenario) sendUserMetrics(scenarioName,userMetric)
 
+			sendRequestMetrics(List("allRequests"), allRequests)
+			for ((path, requestMetric) <- perRequest) sendRequestMetrics(path, requestMetric)
 		}
 	}
 
@@ -181,7 +174,7 @@ class GraphiteDataWriter extends DataWriter {
 
 	private class MetricPath(path: List[String]) {
 
-		def +(element: String) = new MetricPath(path ::: List(element))
+		def +(element: String) = new MetricPath(path :+ element)
 
 		override def toString = path.mkString(".")
 	}
