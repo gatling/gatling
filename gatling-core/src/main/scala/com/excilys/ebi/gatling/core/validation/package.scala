@@ -15,6 +15,8 @@
  */
 package com.excilys.ebi.gatling.core
 
+import scala.annotation.tailrec
+
 package object validation {
 
 	implicit class SuccessWrapper[T](val value: T) extends AnyVal {
@@ -28,16 +30,15 @@ package object validation {
 	implicit class ValidationList[T](val validations: List[Validation[T]]) extends AnyVal {
 		def sequence: Validation[List[T]] = {
 
-			def sequenceRec(validations: List[Validation[T]]): Validation[List[T]] = validations match {
-				case Nil => List.empty[T].success
+			@tailrec
+			def sequenceRec(validations: List[Validation[T]], successes: List[T]): Validation[List[T]] = validations match {
+				case Nil => successes.success
 				case head :: tail => head match {
-					case Success(entry) => sequenceRec(tail).map(entry :: _)
 					case Failure(message) => message.failure
+					case Success(entry) => sequenceRec(tail, entry :: successes)
 				}
 			}
-			sequenceRec(validations)
-
+			sequenceRec(validations, Nil)
 		}
 	}
-
 }
