@@ -16,7 +16,6 @@
 package com.excilys.ebi.gatling.charts.result.reader.buffers
 
 import scala.collection.mutable
-
 import com.excilys.ebi.gatling.core.result.Group
 import com.excilys.ebi.gatling.charts.result.reader.GroupRecord
 import com.excilys.ebi.gatling.core.result.message.{ KO, OK, RequestStatus }
@@ -33,6 +32,8 @@ trait GroupBuffers {
 		}
 
 		def end = stack match {
+			case Nil =>
+				throw new UnsupportedOperationException("Calling end on empty GroupStack")
 			case head :: tail =>
 				stack = tail
 				head
