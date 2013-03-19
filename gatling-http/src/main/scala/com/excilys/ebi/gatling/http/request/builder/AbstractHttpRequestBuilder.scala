@@ -127,27 +127,22 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 */
 	protected def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[RequestBuilder] = {
 
-		val url = {
-			def makeAbsolute(url: String): Validation[String] = {
+		def makeAbsolute(url: String): Validation[String] =
+			if (url.startsWith(Protocol.HTTP.getProtocol))
+				url.success
+			else
+				protocolConfiguration.baseURL.map(baseURL => (baseURL + url).success).getOrElse((s"No protocolConfiguration.baseURL defined but provided url is relative : $url").failure)
 
-				if (url.startsWith(Protocol.HTTP.getProtocol))
-					url.success
-				else
-					protocolConfiguration.baseURL.map(baseURL => (baseURL + url).success).getOrElse((s"No protocolConfiguration.baseURL defined but provided url is relative : $url").failure)
-			}
-
-			httpAttributes.url(session).flatMap(makeAbsolute)
-		}
-
-		def configureUrlCookiesAndProxy(requestBuilder: RequestBuilder)(url: String): Validation[RequestBuilder] = {
+		def configureUrlCookiesAndProxy(url: String)(implicit requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
 			val proxy = if (url.startsWith(Protocol.HTTPS.getProtocol))
 				protocolConfiguration.securedProxy
-			else protocolConfiguration.proxy
+			else
+				protocolConfiguration.proxy
 
 			proxy.map(requestBuilder.setProxyServer)
 
-			for (cookie <- CookieHandling.getStoredCookies(session, url)) requestBuilder.addCookie(cookie)
+			CookieHandling.getStoredCookies(session, url).foreach(requestBuilder.addCookie)
 
 			requestBuilder.setUrl(url).success
 		}
@@ -183,12 +178,13 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 			}
 		}
 
-		val requestBuilder = new RequestBuilder(httpAttributes.method, configuration.http.useRawUrl).setBodyEncoding(configuration.simulation.encoding)
+		implicit val requestBuilder = new RequestBuilder(httpAttributes.method, configuration.http.useRawUrl).setBodyEncoding(configuration.simulation.encoding)
 
 		if (protocolConfiguration.connectionPoolingEnabled) requestBuilder.setConnectionPoolKeyStrategy(new GatlingConnectionPoolKeyStrategy(session))
 
-		url
-			.flatMap(configureUrlCookiesAndProxy(requestBuilder: RequestBuilder))
+		httpAttributes.url(session)
+			.flatMap(makeAbsolute)
+			.flatMap(configureUrlCookiesAndProxy)
 			.flatMap(configureQueryParams)
 			.flatMap(configureHeaders)
 			.flatMap(configureRealm)

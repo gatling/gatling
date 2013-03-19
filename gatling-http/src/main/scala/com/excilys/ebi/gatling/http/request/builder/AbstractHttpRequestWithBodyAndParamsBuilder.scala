@@ -32,7 +32,7 @@ case class HttpParamsAttributes(
 object AbstractHttpRequestWithBodyAndParamsBuilder {
 	val multipartHeaderValueExpression = EL.compile[String](HeaderValues.MULTIPART_FORM_DATA)
 }
-	
+
 /**
  * This class serves as model to HTTP request with a body and parameters
  *
@@ -82,20 +82,17 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[RequestBuilder] = {
 
-		def configureParams(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
-			if (!paramsAttributes.params.isEmpty) {
+		def configureParams(requestBuilder: RequestBuilder): Validation[RequestBuilder] =
+			if (!paramsAttributes.params.isEmpty)
 				// As a side effect, requestBuilder.setParameters() resets the body data, so, it should not be called with empty parameters 
 				HttpHelper.httpParamsToFluentMap(paramsAttributes.params, session).map(requestBuilder.setParameters)
-			} else {
+			else
 				requestBuilder.success
-			}
-		}
 
 		def configureFileParts(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
 			val resolvedFileParts = paramsAttributes.uploadedFiles
 				.map(_.filePart(session))
-				.toList
 				.sequence
 
 			resolvedFileParts.map { uploadedFiles =>
