@@ -17,9 +17,12 @@ package com.excilys.ebi.gatling.http
 
 import scala.collection.JavaConversions.{ asScalaBuffer, collectionAsScalaIterable }
 
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+import com.excilys.ebi.gatling.core.validation.Validation
+import com.excilys.ebi.gatling.http.request.{ ByteArrayBody, HttpRequestBody, RawFileBody, SspTemplateBody, StringBody }
 import com.excilys.ebi.gatling.http.util.HttpHelper.dumpFluentCaseInsensitiveStringsMap
-import com.ning.http.client.{ ByteArrayPart, FilePart, Request, StringPart }
+import com.ning.http.client.{ ByteArrayPart, FilePart, Request, RequestBuilder, StringPart }
 import com.ning.http.multipart.{ FilePart => MultipartFilePart, StringPart => MultipartStringPart }
 
 package object request {
@@ -71,6 +74,20 @@ package object request {
 			val buff = new StringBuilder
 			dumpTo(buff)
 			buff
+		}
+	}
+
+	implicit class HttpRequestBodySetter(val requestBuilder: RequestBuilder) extends AnyVal {
+
+		def setBody(body: HttpRequestBody, session: Session): Validation[RequestBuilder] = body match {
+			case StringBody(expression) => expression(session).map(requestBuilder.setBody)
+			case RawFileBody(file) => file(session).map(requestBuilder.setBody)
+			case ByteArrayBody(byteArray) => byteArray(session).map(requestBuilder.setBody)
+			case SspTemplateBody(templatePath, additionalAttributes) =>
+				for {
+					path <- templatePath(session)
+					body = HttpRequestBody.sspTemplateEngine.layout(path, additionalAttributes + ("session" -> session), HttpRequestBody.sessionExtraBinding)
+				} yield requestBuilder.setBody(body)
 		}
 	}
 }

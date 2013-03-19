@@ -98,31 +98,9 @@ object HttpRequestBody {
 	}
 }
 
-sealed trait HttpRequestBody {
-
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder]
-}
-case class StringBody(expression: Expression[String]) extends HttpRequestBody {
-
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] =
-		expression(session).map(requestBuilder.setBody)
-}
-case class RawFileBody(file: Expression[JFile]) extends HttpRequestBody {
-
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] =
-		file(session).map(requestBuilder.setBody)
-}
-case class SspTemplateBody(templatePathExpression: Expression[String], additionalAttributes: Map[String, Any]) extends HttpRequestBody {
-
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] =
-		for {
-			templatePath <- templatePathExpression(session)
-			body = HttpRequestBody.sspTemplateEngine.layout(templatePath, additionalAttributes + ("session" -> session), HttpRequestBody.sessionExtraBinding)
-		} yield requestBuilder.setBody(body)
-}
-case class ByteArrayBody(byteArray: Expression[Array[Byte]]) extends HttpRequestBody {
-
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] =
-		byteArray(session).map(requestBuilder.setBody)
-}
+sealed trait HttpRequestBody
+case class StringBody(expression: Expression[String]) extends HttpRequestBody
+case class RawFileBody(file: Expression[JFile]) extends HttpRequestBody
+case class SspTemplateBody(templatePathExpression: Expression[String], additionalAttributes: Map[String, Any]) extends HttpRequestBody
+case class ByteArrayBody(byteArray: Expression[Array[Byte]]) extends HttpRequestBody
 

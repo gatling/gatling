@@ -40,6 +40,12 @@ case class HttpAttributes(
 	realm: Option[Expression[Realm]] = None,
 	checks: List[HttpCheck] = Nil)
 
+object AbstractHttpRequestBuilder {
+
+	val jsonHeaderValueExpression = EL.compile[String](HeaderValues.APPLICATION_JSON)
+	val xmlHeaderValueExpression = EL.compile[String](HeaderValues.APPLICATION_XML)
+}
+
 /**
  * This class serves as model for all HttpRequestBuilders
  *
@@ -87,24 +93,24 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 *
 	 * @param header the header to add, eg: ("Content-Type", "application/json")
 	 */
-	def header(header: (String, String)): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers + (header._1 -> EL.compile[String](header._2))))
+	def header(name: String, value: Expression[String]): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers + (name -> value)))
 
 	/**
 	 * Adds several headers to the request at the same time
 	 *
 	 * @param newHeaders a scala map containing the headers to add
 	 */
-	def headers(newHeaders: Map[String, String]): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers ++ newHeaders.mapValues(EL.compile[String](_))))
+	def headers(newHeaders: Map[String, String]): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers ++ newHeaders.mapValues(EL.compile[String])))
 
 	/**
 	 * Adds Accept and Content-Type headers to the request set with "application/json" values
 	 */
-	def asJSON: B = header(HeaderNames.ACCEPT, HeaderValues.APPLICATION_JSON).header(HeaderNames.CONTENT_TYPE, HeaderValues.APPLICATION_JSON)
+	def asJSON: B = header(HeaderNames.ACCEPT, AbstractHttpRequestBuilder.jsonHeaderValueExpression).header(HeaderNames.CONTENT_TYPE, AbstractHttpRequestBuilder.jsonHeaderValueExpression)
 
 	/**
 	 * Adds Accept and Content-Type headers to the request set with "application/xml" values
 	 */
-	def asXML: B = header(HeaderNames.ACCEPT, HeaderValues.APPLICATION_XML).header(HeaderNames.CONTENT_TYPE, HeaderValues.APPLICATION_XML)
+	def asXML: B = header(HeaderNames.ACCEPT, AbstractHttpRequestBuilder.xmlHeaderValueExpression).header(HeaderNames.CONTENT_TYPE, AbstractHttpRequestBuilder.xmlHeaderValueExpression)
 
 	/**
 	 * Adds BASIC authentication to the request
@@ -112,8 +118,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 * @param username the username needed
 	 * @param password the password needed
 	 */
-	def basicAuth(username: Expression[String], password: Expression[String]): B =
-		newInstance(httpAttributes.copy(realm = Some(HttpHelper.buildRealm(username, password))))
+	def basicAuth(username: Expression[String], password: Expression[String]): B = newInstance(httpAttributes.copy(realm = Some(HttpHelper.buildRealm(username, password))))
 
 	/**
 	 * This method actually fills the request builder to avoid race conditions

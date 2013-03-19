@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.http.request.builder
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.core.validation.Validation
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
-import com.excilys.ebi.gatling.http.request.{ ByteArrayBody, HttpRequestBody, StringBody }
+import com.excilys.ebi.gatling.http.request.{ ByteArrayBody, HttpRequestBody, HttpRequestBodySetter, StringBody }
 import com.ning.http.client.RequestBuilder
 
 /**
@@ -83,10 +83,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[RequestBuilder] = {
 
 		val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
-
-		body match {
-			case Some(body) => requestBuilder.flatMap(body.setBody(_, session))
-			case _ => requestBuilder
-		}
+		body.foreach(b => requestBuilder.flatMap(_.setBody(b, session)))
+		requestBuilder
 	}
 }

@@ -29,6 +29,10 @@ case class HttpParamsAttributes(
 	params: List[HttpParam] = Nil,
 	uploadedFiles: List[UploadedFile] = Nil)
 
+object AbstractHttpRequestWithBodyAndParamsBuilder {
+	val multipartHeaderValueExpression = EL.compile[String](HeaderValues.MULTIPART_FORM_DATA)
+}
+	
 /**
  * This class serves as model to HTTP request with a body and parameters
  *
@@ -74,13 +78,13 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 
 	def upload(paramKey: Expression[String], fileName: Expression[String], mimeType: String = HeaderValues.APPLICATION_OCTET_STREAM, charset: String = configuration.simulation.encoding): B =
 		newInstance(httpAttributes, body, paramsAttributes.copy(uploadedFiles = new UploadedFile(paramKey, fileName, mimeType, charset) :: paramsAttributes.uploadedFiles))
-			.header(HeaderNames.CONTENT_TYPE, HeaderValues.MULTIPART_FORM_DATA)
+			.header(HeaderNames.CONTENT_TYPE, AbstractHttpRequestWithBodyAndParamsBuilder.multipartHeaderValueExpression)
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[RequestBuilder] = {
 
 		def configureParams(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 			if (!paramsAttributes.params.isEmpty) {
-				// As a side effect, requestBuilder.setParameters() is reseting the body data, so, it should not be called with empty parameters 
+				// As a side effect, requestBuilder.setParameters() resets the body data, so, it should not be called with empty parameters 
 				HttpHelper.httpParamsToFluentMap(paramsAttributes.params, session).map(requestBuilder.setParameters)
 			} else {
 				requestBuilder.success
@@ -103,9 +107,8 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		def configureStringParts(requestBuilder: RequestBuilder): Validation[RequestBuilder] =
 			HttpHelper.resolveParams(paramsAttributes.params, session).map { params =>
 				for {
-					param <- params
-					key = param._1
-					value <- param._2
+					(key, values) <- params
+					value <- values
 				} requestBuilder.addBodyPart(new StringPart(key, value))
 				requestBuilder
 			}
