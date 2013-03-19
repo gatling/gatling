@@ -178,7 +178,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 		val bucketFunction = StatsHelper.bucket(_: Int, min, max, step, halfStep)
 
-		def process(buffer: Seq[IntVsTimePlot]): List[IntVsTimePlot] = {
+		def process(buffer: Seq[IntVsTimePlot]): Seq[IntVsTimePlot] = {
 
 			val bucketsWithValues = buffer
 				.map(record => (bucketFunction(record.time), record))

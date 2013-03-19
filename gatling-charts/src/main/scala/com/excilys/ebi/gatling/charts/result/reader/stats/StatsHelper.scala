@@ -16,9 +16,9 @@
 package com.excilys.ebi.gatling.charts.result.reader.stats
 
 object StatsHelper {
-	def bucketsList(min: Int, max: Int, step: Double): List[Int] = {
+	def bucketsList(min: Int, max: Int, step: Double): Seq[Int] = {
 		val halfStep = step / 2
-		(0 until math.ceil((max - min) / step).toInt).map(i => math.round(min + step * i + halfStep).toInt).toList
+		(0 until math.ceil((max - min) / step).toInt).map(i => math.round(min + step * i + halfStep).toInt)
 	}
 
 	def step(min: Int, max: Int, maxPlots: Int): Double = {

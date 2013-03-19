@@ -83,7 +83,7 @@ object GatlingConfiguration extends Logging {
 				useProxyProperties = config.getBoolean(CONF_HTTP_USE_PROXY_PROPERTIES),
 				userAgent = config.getString(CONF_HTTP_USER_AGENT),
 				useRawUrl = config.getBoolean(CONF_HTTP_USE_RAW_URL),
-				nonStandardJsonSupport = config.getStringList(CONF_HTTP_JSON_FEATURES).toList,
+				nonStandardJsonSupport = config.getStringList(CONF_HTTP_JSON_FEATURES),
 				ssl = {
 					def storeConfig(typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String) = {
 
@@ -108,7 +108,7 @@ object GatlingConfiguration extends Logging {
 					SslConfiguration(trustStore, keyStore)
 				}),
 			data = DataConfiguration(
-				dataWriterClasses = config.getStringList(CONF_DATA_WRITER_CLASS_NAMES).toList.map {
+				dataWriterClasses = config.getStringList(CONF_DATA_WRITER_CLASS_NAMES).map {
 					case "console" => "com.excilys.ebi.gatling.core.result.writer.ConsoleDataWriter"
 					case "file" => "com.excilys.ebi.gatling.core.result.writer.FileDataWriter"
 					case "graphite" => "com.excilys.ebi.gatling.metrics.GraphiteDataWriter"
@@ -175,7 +175,7 @@ case class HttpConfiguration(
 	useProxyProperties: Boolean,
 	userAgent: String,
 	useRawUrl: Boolean,
-	nonStandardJsonSupport: List[String],
+	nonStandardJsonSupport: Seq[String],
 	ssl: SslConfiguration)
 
 case class SslConfiguration(
@@ -189,7 +189,7 @@ case class StoreConfiguration(
 	algorithm: Option[String])
 
 case class DataConfiguration(
-	dataWriterClasses: List[String],
+	dataWriterClasses: Seq[String],
 	dataReaderClass: String)
 
 case class GraphiteConfiguration(
