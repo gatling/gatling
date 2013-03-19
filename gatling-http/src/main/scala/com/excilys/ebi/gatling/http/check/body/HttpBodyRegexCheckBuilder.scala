@@ -15,11 +15,9 @@
  */
 package com.excilys.ebi.gatling.http.check.body
 
-import com.excilys.ebi.gatling.core.check.Preparer
 import com.excilys.ebi.gatling.core.check.extractor.regex.RegexExtractors
 import com.excilys.ebi.gatling.core.session.Expression
 import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
-import com.excilys.ebi.gatling.http.response.ExtendedResponse
 
 object HttpBodyRegexCheckBuilder {
 

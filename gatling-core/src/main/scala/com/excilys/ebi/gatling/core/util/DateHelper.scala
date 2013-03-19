@@ -29,8 +29,6 @@ object DateHelper {
 
 	def parseTimestampString(string: String) = DateTime.parse(string, timestampFormat)
 
-	def parseHumanDateString(string: String) = DateTime.parse(string, humanDateFormat)
-
 	def toTimestamp(dateTime: DateTime) = timestampFormat.print(dateTime)
 
 	def toHumanDate(dateTime: DateTime) = humanDateFormat.print(dateTime)

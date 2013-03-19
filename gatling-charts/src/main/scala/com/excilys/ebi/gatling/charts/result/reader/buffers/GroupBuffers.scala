@@ -26,38 +26,41 @@ trait GroupBuffers {
 	class GroupStack {
 		case class GroupStackEntry(record: GroupRecord, group: Group, status: RequestStatus)
 
-		val stack =  mutable.ArrayStack.empty[GroupStackEntry]
+		var stack: List[GroupStackEntry] = Nil
 
 		def start(record: GroupRecord) {
-			stack.push(GroupStackEntry(record, Group(record.group, getCurrentGroup), OK))
+			stack = GroupStackEntry(record, Group(record.group, getCurrentGroup), OK) :: stack
 		}
 
-		def end = stack.pop
+		def end = stack match {
+			case head :: tail =>
+				stack = tail
+				head
+		}
 
-		def getCurrentGroup: Option[Group] = if (stack.isEmpty) None else Some(stack.head.group)
+		def getCurrentGroup: Option[Group] = stack.headOption.map(_.group)
 
 		def failed {
-			if (!stack.isEmpty && stack.head.status == OK)
-				stack.push(stack.pop.copy(status = KO))
+			stack = stack.headOption.filter(_.status == OK).map(_.copy(status = KO) :: stack.tail).getOrElse(Nil)
 		}
 
 	}
 
-	val groupStacksByUserAndScenario: mutable.Map[(Int, String), GroupStack] = mutable.HashMap.empty
-	val statsGroupBuffers: mutable.Map[Option[Group], Long] = mutable.HashMap.empty
+	val groupStacks = mutable.Map.empty[Int, GroupStack]
+	val statsGroupBuffers = mutable.Map.empty[Option[Group], Long]
 
 	def startGroup(record: GroupRecord) {
-		groupStacksByUserAndScenario.getOrElseUpdate((record.user, record.scenario), new GroupStack).start(record)
+		groupStacks.getOrElseUpdate(record.user, new GroupStack).start(record)
 	}
 
 	def endGroup(record: GroupRecord) =
-		groupStacksByUserAndScenario.getOrElseUpdate((record.user, record.scenario), throw new IllegalAccessException).end
+		groupStacks.getOrElseUpdate(record.user, throw new IllegalAccessException).end
 
-	private def groupStack(user: Int, scenario: String) = groupStacksByUserAndScenario.getOrElseUpdate((user, scenario), new GroupStack)
+	private def groupStack(user: Int) = groupStacks.getOrElseUpdate(user, new GroupStack)
 
-	def getCurrentGroup(user: Int, scenario: String) = groupStack(user, scenario).getCurrentGroup
+	def getCurrentGroup(user: Int, scenario: String) = groupStack(user).getCurrentGroup
 
 	def currentGroupFailed(user: Int, scenario: String) {
-		groupStack(user, scenario).failed
+		groupStack(user).failed
 	}
 }

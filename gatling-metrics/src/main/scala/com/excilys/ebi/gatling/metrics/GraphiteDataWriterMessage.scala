@@ -13,19 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.action
+package com.excilys.ebi.gatling.metrics
 
-import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
-
-import akka.actor.{ Actor, Terminated }
-import grizzled.slf4j.Logging
-
-abstract class BaseActor extends Actor with AkkaDefaults with ClassSimpleNameToString with Logging {
-
-	override def unhandled(message: Any) {
-		message match {
-			case Terminated(dead) => super.unhandled(message)
-			case unknown => throw new IllegalArgumentException(s"Actor $this doesn't support message $unknown")
-		}
-	}
-}
+sealed trait GraphiteDataWriterMessage
+case object SendToGraphite extends GraphiteDataWriterMessage
+case object CloseSocket extends GraphiteDataWriterMessage

@@ -27,7 +27,7 @@ package object buffers {
 	def computeKey(request: Option[String], group: Option[Group], status: Option[RequestStatus]): BufferKey = (group, request, status)
 
 	class CountBuffer {
-		val map: mutable.Map[Int, IntVsTimePlot] = mutable.HashMap.empty
+		val map = mutable.Map.empty[Int, IntVsTimePlot]
 
 		def update(bucket: Int) {
 			val current = map.getOrElse(bucket, IntVsTimePlot(bucket, 0))
@@ -36,7 +36,7 @@ package object buffers {
 	}
 
 	class RangeBuffer {
-		val map: mutable.Map[Int, IntRangeVsTimePlot] = mutable.HashMap.empty
+		val map = mutable.Map.empty[Int, IntRangeVsTimePlot]
 
 		def update(bucket: Int, value: Int) {
 			val current = map.getOrElse(bucket, IntRangeVsTimePlot(bucket, Int.MaxValue, Int.MinValue))

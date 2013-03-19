@@ -18,12 +18,10 @@ package com.excilys.ebi.gatling.core.util
 import java.text.Normalizer
 import java.util.regex.Pattern
 
-import grizzled.slf4j.Logging
-
 /**
  * This object groups all utilities for strings
  */
-object StringHelper extends Logging {
+object StringHelper {
 
 	val END_OF_LINE = System.getProperty("line.separator")
 
@@ -34,10 +32,11 @@ object StringHelper extends Logging {
 	 */
 	def stripAccents(string: String) = {
 		val normalized = Normalizer.normalize(string, Normalizer.Form.NFD)
-		jdk6Pattern.matcher(normalized).replaceAll("");
+		jdk6Pattern.matcher(normalized).replaceAll("")
 	}
 
 	def escapeJsQuoteString(s: String) = s.replace("'", "\\'")
+
 	def escapeJsDoubleQuoteString(s: String) = s.replace("\"", "\\\"")
 
 	def bytes2Hex(bytes: Array[Byte]): String = bytes.foldLeft(new StringBuilder) { (buff, b) =>
