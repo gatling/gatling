@@ -45,7 +45,7 @@ case class HttpProtocolConfiguration(
 	automaticRefererEnabled: Boolean,
 	cachingEnabled: Boolean,
 	responseChunksDiscardingEnabled: Boolean,
-	connectionPoolingEnabled: Boolean,
+	shareConnections: Boolean,
 	baseHeaders: Map[String, String],
 	basicAuth: Option[Expression[Realm]],
 	extraInfoExtractor: Option[(RequestStatus, Session, Request, ExtendedResponse) => List[Any]]) extends ProtocolConfiguration {

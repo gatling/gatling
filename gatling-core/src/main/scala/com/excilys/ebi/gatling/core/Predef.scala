@@ -15,13 +15,13 @@
  */
 package com.excilys.ebi.gatling.core
 
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration.{ DurationInt, FiniteDuration }
 import scala.reflect.ClassTag
 import scala.tools.nsc.io.{ File, Path }
 import com.excilys.ebi.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
-import com.excilys.ebi.gatling.core.feeder.{ AdvancedFeederBuilder, FeederBuilder, FeederBuilderFromArray, FeederBuilderFromFeeder }
+import com.excilys.ebi.gatling.core.feeder.{ AdvancedFeederBuilder, Feeder, FeederBuilder, FeederBuilderFromArray, FeederBuilderFromFeeder }
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesParser
-import com.excilys.ebi.gatling.core.scenario.injection.{ PeakInjection, RampInjection, DelayInjection }
+import com.excilys.ebi.gatling.core.scenario.injection.{ DelayInjection, PeakInjection, RampInjection }
 import com.excilys.ebi.gatling.core.session.{ ELCompiler, ELWrapper }
 import com.excilys.ebi.gatling.core.structure.{ AssertionBuilder, ChainBuilder, ScenarioBuilder }
 import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
@@ -41,6 +41,7 @@ object Predef {
 		case string: String => string.el
 		case any => any.expression
 	})
+	implicit def intToFiniteDuration(i: Int) = i seconds
 
 	def csv(fileName: String) = SeparatedValuesParser.csv(fileName, None)
 	def csv(fileName: String, escapeChar: String) = SeparatedValuesParser.csv(fileName, Some(escapeChar))
@@ -80,15 +81,20 @@ object Predef {
 
 	/// Injection definitions
 
-	private[Predef] class UserNumber(val number: Int)
-	private[Predef] class UsersPerSec(val rate: Double)
+	private[Predef] class UserNumber(val number: Int) extends AnyVal
+	private[Predef] class UsersPerSec(val rate: Double) extends AnyVal
 
 	implicit class UserNumberImplicit(val number: Int) extends AnyVal {
+		def user = users
 		def users = new UserNumber(number)
 	}
 	implicit class UsersPerSecImplicit(val rate: Double) extends AnyVal {
+		def userPerSec = usersPerSec
 		def usersPerSec = new UsersPerSec(rate)
 	}
+
+	implicit def userNumber(number: Int) = new UserNumber(number)
+	implicit def userPerSec(rate: Double) = new UsersPerSec(rate)
 
 	case class RampBuilder(users: UserNumber) {
 		def over(d: FiniteDuration) = new RampInjection(users.number, d)

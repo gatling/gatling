@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.http.request
 
-import java.io.{ File => JFile }
+import java.io.{ File => JFile, InputStream }
 
 import scala.reflect.io.Path
 import scala.reflect.io.Path.string2path
@@ -103,4 +103,4 @@ case class StringBody(expression: Expression[String]) extends HttpRequestBody
 case class RawFileBody(file: Expression[JFile]) extends HttpRequestBody
 case class SspTemplateBody(templatePathExpression: Expression[String], additionalAttributes: Map[String, Any]) extends HttpRequestBody
 case class ByteArrayBody(byteArray: Expression[Array[Byte]]) extends HttpRequestBody
-
+case class InputStreamBody(is: Expression[InputStream]) extends HttpRequestBody

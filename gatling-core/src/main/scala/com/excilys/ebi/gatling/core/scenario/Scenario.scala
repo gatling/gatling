@@ -22,7 +22,7 @@ import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfiguration
 import com.excilys.ebi.gatling.core.scenario.injection.InjectionStrategy
 import com.excilys.ebi.gatling.core.session.Session
 
-import akka.actor.{ ActorRef, actorRef2Scala }
+import akka.actor.ActorRef
 
 class Scenario(val name: String, entryPoint: ActorRef, val configuration: ScenarioConfiguration) {
 

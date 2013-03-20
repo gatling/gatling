@@ -21,7 +21,7 @@ import com.redis.RedisClientPool
 
 import grizzled.slf4j.Logging
 
-object RedisFeeder extends Logging {
+object RedisFeeder {
 
 	def apply(clientPool: RedisClientPool, key: String): Feeder[String] = {
 

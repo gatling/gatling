@@ -177,7 +177,7 @@ class GatlingAsyncHandlerActor(
 	 */
 	private def processResponse(response: ExtendedResponse) {
 
-		def handleFollowRedirect(sessionWithUpdatedCookies: Session) {
+		def redirect(sessionWithUpdatedCookies: Session) {
 
 			logRequest(originalSession, OK, response)
 
@@ -214,7 +214,7 @@ class GatlingAsyncHandlerActor(
 		val sessionWithUpdatedCookies = CookieHandling.storeCookies(originalSession, response.getUri, response.getCookies.toList)
 
 		if (GatlingAsyncHandlerActor.REDIRECT_STATUS_CODES.contains(response.getStatusCode) && protocolConfiguration.followRedirectEnabled)
-			handleFollowRedirect(sessionWithUpdatedCookies)
+			redirect(sessionWithUpdatedCookies)
 
 		else {
 			val sessionWithUpdatedCache = CacheHandling.cache(protocolConfiguration, sessionWithUpdatedCookies, request, response)

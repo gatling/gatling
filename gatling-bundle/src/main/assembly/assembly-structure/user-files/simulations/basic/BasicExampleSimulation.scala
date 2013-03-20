@@ -90,9 +90,8 @@ class BasicExampleSimulation extends Simulation {
 				.get("/public/login.html")
 				.headers(headers_1))
 
-	setUp(scn.users(1).ramp(10).protocolConfig(httpConf))
+	setUp(scn.inject(ramp(3 users) over(10 seconds)).protocolConfig(httpConf))
 
 	assertThat(global.successfulRequests.percent.is(100),details("Login" / "request_2").responseTime.max.lessThan(2000))
 	assertThat(details("request_9").requestsPerSec.greaterThan(10))
-
 }

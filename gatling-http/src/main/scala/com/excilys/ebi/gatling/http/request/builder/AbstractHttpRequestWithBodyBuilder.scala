@@ -15,10 +15,12 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
+import java.io.InputStream
+
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.core.validation.Validation
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
-import com.excilys.ebi.gatling.http.request.{ ByteArrayBody, HttpRequestBody, HttpRequestBodySetter, StringBody }
+import com.excilys.ebi.gatling.http.request.{ ByteArrayBody, HttpRequestBody, HttpRequestBodySetter, InputStreamBody, StringBody }
 import com.ning.http.client.RequestBuilder
 
 /**
@@ -79,6 +81,8 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 * @param byteArray - The callback function which returns the ByteArray from which to build the body
 	 */
 	def byteArrayBody(byteArray: Expression[Array[Byte]]): B = newInstance(httpAttributes, Some(ByteArrayBody(byteArray)))
+
+	def inputStreamBody(is: Expression[InputStream]): B = newInstance(httpAttributes, Some(InputStreamBody(is)))
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[RequestBuilder] = {
 
