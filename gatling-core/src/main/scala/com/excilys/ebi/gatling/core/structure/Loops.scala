@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.core.structure
 import java.util.UUID
 
 import scala.collection.immutable.Stream
-import scala.concurrent.duration.{ Duration, DurationLong }
+import scala.concurrent.duration.Duration
 
 import com.excilys.ebi.gatling.core.action.builder.{ SessionHookBuilder, WhileBuilder }
 import com.excilys.ebi.gatling.core.session.{ EL, Expression, Session }
@@ -73,8 +73,6 @@ trait Loops[B] extends Execs[B] with Logging {
 		asLongAs(continueCondition, Some(counter), chain)
 	}
 
-	def during(duration: Long)(chain: ChainBuilder): B = during(duration seconds, None, chain)
-	def during(duration: Long, counterName: String)(chain: ChainBuilder): B = during(duration seconds, Some(counterName), chain)
 	def during(duration: Duration)(chain: ChainBuilder): B = during(duration, None, chain)
 	def during(duration: Duration, counterName: String)(chain: ChainBuilder): B = during(duration, Some(counterName), chain)
 
