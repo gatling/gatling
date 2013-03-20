@@ -52,7 +52,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	val inputFiles = simulationLogDirectory(runUuid, create = false).files
 		.collect { case file if (file.name.matches(FileDataReader.SIMULATION_FILES_NAME_PATTERN)) => file.jfile }
-		.toList
+		.toVector
 
 	info(s"Collected $inputFiles from $runUuid")
 	require(!inputFiles.isEmpty, "simulation directory doesn't contain any log file.")
@@ -133,16 +133,16 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	val resultsHolder = doWithInputFiles(process(bucketFunction))
 
-	def groupsAndRequests: List[(Option[Group], Option[String])] =
-		resultsHolder.groupAndRequestsNameBuffer.map.toList.map {
+	def groupsAndRequests: Vector[(Option[Group], Option[String])] =
+		resultsHolder.groupAndRequestsNameBuffer.map.toVector.map {
 			case ((group, Some(request)), time) => ((group, Some(request)), (time, group.map(_.groups.length + 1).getOrElse(0)))
 			case ((Some(group), None), time) => ((Some(group), None), (time, group.groups.length))
 			case _ => throw new UnsupportedOperationException
 		}.sortBy(_._2).map(_._1)
 
-	def scenarioNames: List[String] = resultsHolder.scenarioNameBuffer
+	def scenarioNames: Vector[String] = resultsHolder.scenarioNameBuffer
 		.map
-		.toList
+		.toVector
 		.sortBy(_._2)
 		.map(_._1)
 
@@ -212,7 +212,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		val lowerBound = configuration.charting.indicators.lowerBound
 		val higherBound = configuration.charting.indicators.higherBound
 
-		List((s"t < $lowerBound ms", counts.low),
+		Vector((s"t < $lowerBound ms", counts.low),
 			(s"$lowerBound ms < t < $higherBound ms", counts.middle),
 			(s"t > $higherBound ms", counts.high),
 			("failed", counts.ko))

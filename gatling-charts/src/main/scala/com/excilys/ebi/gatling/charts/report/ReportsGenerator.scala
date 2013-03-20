@@ -42,7 +42,7 @@ object ReportsGenerator extends Logging {
 		if (dataReader.groupsAndRequests.filter(_._2.isDefined).isEmpty) throw new UnsupportedOperationException("There were no requests sent during the simulation, reports won't be generated")
 
 		val reportGenerators =
-			List(new AllSessionsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance),
+			Vector(new AllSessionsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance),
 				new GlobalReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance),
 				new RequestDetailsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance),
 				new GroupDetailsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance))

@@ -44,16 +44,16 @@ class SessionDeltaBuffer {
 		map += (bucket -> delta.addEnd)
 	}
 
-	def compute(buckets: Seq[Int]): List[IntVsTimePlot] = {
+	def compute(buckets: Seq[Int]): Vector[IntVsTimePlot] = {
 
-		val (_, _, sessions) = buckets.foldLeft(0, 0, List.empty[IntVsTimePlot]) { (accumulator, bucket) =>
+		val (_, _, sessions) = buckets.foldLeft(0, 0, Vector.empty[IntVsTimePlot]) { (accumulator, bucket) =>
 			val (previousSessions, previousEnds, sessions) = accumulator
 			val delta = map(bucket)
 			val bucketSessions = previousSessions - previousEnds + delta.starts
-			(bucketSessions, delta.ends, IntVsTimePlot(bucket, bucketSessions) :: sessions)
+			(bucketSessions, delta.ends, sessions :+ IntVsTimePlot(bucket, bucketSessions))
 		}
 
-		sessions.reverse
+		sessions
 	}
 }
 
