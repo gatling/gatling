@@ -19,37 +19,36 @@ import scala.concurrent.duration.DurationInt
 
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfiguration
+import com.excilys.ebi.gatling.core.scenario.injection.InjectionStrategy
 import com.excilys.ebi.gatling.core.session.Session
 
-import akka.actor.ActorRef
+import akka.actor.{ ActorRef, actorRef2Scala }
 
 class Scenario(val name: String, entryPoint: ActorRef, val configuration: ScenarioConfiguration) {
 
 	def run(userIdStart: Int) {
-
 		import system.dispatcher
 
-		def doRun {
+		val scheduler = system.scheduler
+		val zeroMs = 0 millisecond
 
-			def newSession(i: Int) = Session(name, i + userIdStart)
+		def newSession(i: Int) = Session(name, i + userIdStart)
 
-			if (configuration.users == 1) {
-				// if single user, execute right now
-				entryPoint ! newSession(1)
-
-			} else {
-				configuration.ramp.map { duration =>
-					val period = duration.toMillis.toDouble / (configuration.users - 1)
-					for (i <- 1 to configuration.users) system.scheduler.scheduleOnce((period * (i - 1)).toInt milliseconds, entryPoint, newSession(i))
-
-				}.getOrElse {
-					for (i <- 1 to configuration.users) entryPoint ! newSession(i)
-				}
-			}
+		def doRun(injec: InjectionStrategy, partialUserSum: Int) = injec.scheduling.zipWithIndex.foreach {
+			case (startingTime, index) =>
+				if (startingTime == zeroMs) entryPoint ! newSession(partialUserSum + index)
+				else scheduler.scheduleOnce(startingTime, entryPoint, newSession(partialUserSum + index))
 		}
 
-		configuration.delay
-			.map(system.scheduler.scheduleOnce(_)(doRun))
-			.getOrElse(doRun)
+		val injections = configuration.injections
+		val injectionTimeFrames = injections.foldLeft(List(zeroMs))((acc, injec) => acc.head + injec.duration :: acc).reverse
+		val partialUserSums = injections.foldLeft(List(0))((acc, injec) => acc.head + injec.users :: acc).reverse
+
+		(injections, injectionTimeFrames, partialUserSums).zipped.foreach {
+			case (injec, startingTime, partialUserSum) =>
+				if (startingTime == zeroMs) doRun(injec, partialUserSum)
+				else scheduler.scheduleOnce(startingTime)(doRun(injec, partialUserSum))
+		}
+
 	}
 }
