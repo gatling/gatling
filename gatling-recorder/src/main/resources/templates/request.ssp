@@ -17,7 +17,7 @@ exec(http("request_<%= id %>")
 <% } %>
 <% requestBodyOrParams.map { _ match {
 		case Left(_) => %>
-						.fileBody("<%= simulationClass %>_request_<%= id %>.txt")
+						.rawFileBody("<%= simulationClass %>_request_<%= id %>.txt")
 <%		case Right(params) => params.foreach { case(key, value) => %>
 						.param("""<%= key %>""", """<%= value %>""")
 <% 				} %>

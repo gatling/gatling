@@ -31,11 +31,8 @@ object ExtendedResponseBuilder {
 
 	def newExtendedResponseBuilder(checks: List[HttpCheck], protocolConfiguration: HttpProtocolConfiguration): ExtendedResponseBuilderFactory = {
 
-		val checksumChecks = checks.foldLeft(List.empty[ChecksumCheck]) { (checksumChecks, check) =>
-			check match {
-				case checksumCheck: ChecksumCheck => checksumCheck :: checksumChecks
-				case _ => checksumChecks
-			}
+		val checksumChecks = checks.collect {
+			case checksumCheck: ChecksumCheck => checksumCheck
 		}
 
 		val storeBodyParts = !protocolConfiguration.responseChunksDiscardingEnabled || checks.exists(_.order == Body)

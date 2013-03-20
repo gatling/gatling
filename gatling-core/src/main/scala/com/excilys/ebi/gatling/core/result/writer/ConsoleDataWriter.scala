@@ -45,8 +45,8 @@ class ConsoleDataWriter extends DataWriter with Logging {
 	private var startUpTime = 0L
 	private var lastDisplayTime = 0L
 
-	private val usersCounters: mutable.Map[String, UserCounters] = mutable.HashMap.empty
-	private val groupStack: mutable.Map[Int, List[String]] = mutable.HashMap.empty
+	private val usersCounters = mutable.Map.empty[String, UserCounters]
+	private val groupStack = mutable.Map.empty[Int, List[String]]
 	private val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty
 
 	private val displayPeriod = 5 * 1000

@@ -26,12 +26,11 @@ import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
 
 import akka.actor.{ Actor, ActorRef, Props }
-import akka.pattern.ask
 import grizzled.slf4j.Logging
 
 object DataWriter extends AkkaDefaults with Logging {
 
-	private val dataWriters: List[ActorRef] = configuration.data.dataWriterClasses.map { className =>
+	private val dataWriters: Seq[ActorRef] = configuration.data.dataWriterClasses.map { className =>
 		val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
 		system.actorOf(Props(clazz))
 	}
@@ -109,7 +108,7 @@ trait DataWriter extends BaseActor {
 
 			Terminator.askDataWriterRegistration(self).onComplete {
 				case _ =>
-					info(s"Going on with initialization after Terminator registration")
+					info("Going on with initialization after Terminator registration")
 					onInitializeDataWriter(runRecord, scenarios)
 					context.become(initialized)
 					originalSender ! true

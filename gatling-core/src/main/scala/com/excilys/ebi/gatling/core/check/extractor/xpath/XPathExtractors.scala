@@ -74,8 +74,8 @@ object XPathExtractors {
 		def apply(prepared: Option[Document], criterion: String): Validation[Option[String]] = {
 
 			val result = for {
-				results <- prepared.map(xpath(criterion, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]])
-				result <- results.lift(occurrence).map(_.getTextContent)
+				results <- prepared.map(xpath(criterion, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]]) if (results.size > occurrence)
+				result = results.get(occurrence).getTextContent
 			} yield result
 
 			result.success

@@ -17,7 +17,11 @@ package com.excilys.ebi.gatling.core.structure
 
 import com.excilys.ebi.gatling.core.action.builder.FeedBuilder
 import com.excilys.ebi.gatling.core.feeder.FeederBuilder
-import com.excilys.ebi.gatling.core.session.{ EL, Expression }
+import com.excilys.ebi.gatling.core.session.{ ELWrapper, Expression }
+
+object Feeds {
+	val oneExpression = 1.expression
+}
 
 trait Feeds[B] extends Execs[B] {
 
@@ -27,7 +31,7 @@ trait Feeds[B] extends Execs[B] {
 	 * @param feeder the feeder from which the values will be loaded
 	 * @param number the number of records to be polled (default 1)
 	 */
-	def feed(feeder: FeederBuilder[_], number: Expression[Int] = EL.wrap(1)): B = {
+	def feed(feeder: FeederBuilder[_], number: Expression[Int] = Feeds.oneExpression): B = {
 
 		val builder = FeedBuilder(feeder, number)
 

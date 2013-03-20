@@ -16,7 +16,6 @@
 package com.excilys.ebi.gatling.charts.result.reader
 
 import java.io.{ FileInputStream, InputStream }
-import java.util.regex.Pattern
 
 import scala.collection.mutable
 import scala.io.Source
@@ -39,7 +38,7 @@ object FileDataReader {
 	val LOG_STEP = 100000
 	val SEC_MILLISEC_RATIO = 1000.0
 	val NO_PLOT_MAGIC_VALUE = -1L
-	val TABULATION_PATTERN = Pattern.compile(TABULATION_SEPARATOR)
+	val TABULATION_PATTERN = TABULATION_SEPARATOR.r
 	val SIMULATION_FILES_NAME_PATTERN = """.*\.log"""
 	val ACTION_RECORD_LENGTH = 9
 	val RUN_RECORD_LENGTH = 4
@@ -53,8 +52,9 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	val inputFiles = simulationLogDirectory(runUuid, create = false).files
 		.collect { case file if (file.name.matches(FileDataReader.SIMULATION_FILES_NAME_PATTERN)) => file.jfile }
-		.toSeq
+		.toList
 
+	info(s"Collected $inputFiles from $runUuid")
 	require(!inputFiles.isEmpty, "simulation directory doesn't contain any log file.")
 
 	private def doWithInputFiles[T](f: Iterator[String] => T): T = {
@@ -65,6 +65,9 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	}
 
 	private def preProcess(records: Iterator[String]) = {
+
+		info("Pre-process")
+
 		val nonGroupRecordTypes = Set(ACTION, RUN, SCENARIO)
 		val (runs, actionsOrScenarios) = records.map(FileDataReader.TABULATION_PATTERN.split).filter(array => nonGroupRecordTypes.contains(array.head)).partition(_.head == RUN)
 
@@ -85,13 +88,13 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 					}
 			}
 
-		val runRecords = mutable.ListBuffer[RunRecord]()
+		val runRecords = mutable.ListBuffer.empty[RunRecord]
 
 		runs
 			.filter(_.length >= FileDataReader.RUN_RECORD_LENGTH)
 			.foreach(strings => runRecords += RunRecord(parseTimestampString(strings(1)), strings(2), strings(3).trim))
 
-		info(s"Read $totalRequestsNumber lines (finished)")
+		info(s"Pre-process done: read $totalRequestsNumber lines")
 
 		(runStart, runEnd, runRecords.head)
 	}
@@ -103,6 +106,8 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	val buckets = StatsHelper.bucketsList(0, (runEnd - runStart).toInt, step)
 
 	private def process(bucketFunction: Int => Int)(records: Iterator[String]): ResultsHolder = {
+
+		info("Process")
 
 		val resultsHolder = new ResultsHolder(runStart, runEnd)
 
@@ -121,7 +126,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 				}
 			}
 
-		info(s"Read $count lines (finished)")
+		info(s"Process done: read $count lines")
 
 		resultsHolder
 	}
@@ -173,7 +178,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 		val bucketFunction = StatsHelper.bucket(_: Int, min, max, step, halfStep)
 
-		def process(buffer: Seq[IntVsTimePlot]): List[IntVsTimePlot] = {
+		def process(buffer: Seq[IntVsTimePlot]): Seq[IntVsTimePlot] = {
 
 			val bucketsWithValues = buffer
 				.map(record => (bucketFunction(record.time), record))

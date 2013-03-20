@@ -40,6 +40,12 @@ case class HttpAttributes(
 	realm: Option[Expression[Realm]] = None,
 	checks: List[HttpCheck] = Nil)
 
+object AbstractHttpRequestBuilder {
+
+	val jsonHeaderValueExpression = EL.compile[String](HeaderValues.APPLICATION_JSON)
+	val xmlHeaderValueExpression = EL.compile[String](HeaderValues.APPLICATION_XML)
+}
+
 /**
  * This class serves as model for all HttpRequestBuilders
  *
@@ -68,31 +74,10 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	/**
 	 * Adds a query parameter to the request
 	 *
-	 * The value is a session attribute with the same key
-	 *
-	 * @param key the key of the parameter
-	 */
-	def queryParam(key: String): B = queryParam(EL.compile[String](key), (s: Session) => s.safeGetAs[String](key))
-
-	/**
-	 * Adds a query parameter to the request
-	 *
 	 * @param param is a query parameter
 	 */
 	def queryParam(key: Expression[String], value: Expression[String]): B = {
 		val httpParam: HttpParam = (key, (session: Session) => value(session).map(Seq(_)))
-		queryParam(httpParam)
-	}
-
-	def multiValuedQueryParam(key: String): B = multiValuedQueryParam(EL.compile[String](key), key)
-
-	def multiValuedQueryParam(key: Expression[String], value: String): B = {
-		val httpParam: HttpParam = (key, EL.compile[Seq[String]](value))
-		queryParam(httpParam)
-	}
-
-	def multiValuedQueryParam(key: Expression[String], values: Seq[String]): B = {
-		val httpParam: HttpParam = (key, (s: Session) => values.success)
 		queryParam(httpParam)
 	}
 
@@ -108,24 +93,24 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 *
 	 * @param header the header to add, eg: ("Content-Type", "application/json")
 	 */
-	def header(header: (String, String)): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers + (header._1 -> EL.compile[String](header._2))))
+	def header(name: String, value: Expression[String]): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers + (name -> value)))
 
 	/**
 	 * Adds several headers to the request at the same time
 	 *
 	 * @param newHeaders a scala map containing the headers to add
 	 */
-	def headers(newHeaders: Map[String, String]): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers ++ newHeaders.mapValues(EL.compile[String](_))))
+	def headers(newHeaders: Map[String, String]): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers ++ newHeaders.mapValues(EL.compile[String])))
 
 	/**
 	 * Adds Accept and Content-Type headers to the request set with "application/json" values
 	 */
-	def asJSON: B = header(HeaderNames.ACCEPT, HeaderValues.APPLICATION_JSON).header(HeaderNames.CONTENT_TYPE, HeaderValues.APPLICATION_JSON)
+	def asJSON: B = header(HeaderNames.ACCEPT, AbstractHttpRequestBuilder.jsonHeaderValueExpression).header(HeaderNames.CONTENT_TYPE, AbstractHttpRequestBuilder.jsonHeaderValueExpression)
 
 	/**
 	 * Adds Accept and Content-Type headers to the request set with "application/xml" values
 	 */
-	def asXML: B = header(HeaderNames.ACCEPT, HeaderValues.APPLICATION_XML).header(HeaderNames.CONTENT_TYPE, HeaderValues.APPLICATION_XML)
+	def asXML: B = header(HeaderNames.ACCEPT, AbstractHttpRequestBuilder.xmlHeaderValueExpression).header(HeaderNames.CONTENT_TYPE, AbstractHttpRequestBuilder.xmlHeaderValueExpression)
 
 	/**
 	 * Adds BASIC authentication to the request
@@ -133,16 +118,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 * @param username the username needed
 	 * @param password the password needed
 	 */
-	def basicAuth(username: Expression[String], password: Expression[String]): B = {
-
-		def buildRealm(session: Session) =
-			for {
-				usernameValue <- username(session)
-				passwordValue <- password(session)
-			} yield new Realm.RealmBuilder().setPrincipal(usernameValue).setPassword(passwordValue).setUsePreemptiveAuth(true).setScheme(AuthScheme.BASIC).build
-
-		newInstance(httpAttributes.copy(realm = Some(buildRealm _)))
-	}
+	def basicAuth(username: Expression[String], password: Expression[String]): B = newInstance(httpAttributes.copy(realm = Some(HttpHelper.buildRealm(username, password))))
 
 	/**
 	 * This method actually fills the request builder to avoid race conditions
@@ -151,27 +127,22 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 */
 	protected def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[RequestBuilder] = {
 
-		val url = {
-			def makeAbsolute(url: String): Validation[String] = {
+		def makeAbsolute(url: String): Validation[String] =
+			if (url.startsWith(Protocol.HTTP.getProtocol))
+				url.success
+			else
+				protocolConfiguration.baseURL.map(baseURL => (baseURL + url).success).getOrElse((s"No protocolConfiguration.baseURL defined but provided url is relative : $url").failure)
 
-				if (url.startsWith(Protocol.HTTP.getProtocol))
-					url.success
-				else
-					protocolConfiguration.baseURL.map(baseURL => (baseURL + url).success).getOrElse((s"No protocolConfiguration.baseURL defined but provided url is relative : $url").failure)
-			}
-
-			httpAttributes.url(session).flatMap(makeAbsolute)
-		}
-
-		def configureUrlCookiesAndProxy(requestBuilder: RequestBuilder)(url: String): Validation[RequestBuilder] = {
+		def configureUrlCookiesAndProxy(url: String)(implicit requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
 			val proxy = if (url.startsWith(Protocol.HTTPS.getProtocol))
 				protocolConfiguration.securedProxy
-			else protocolConfiguration.proxy
+			else
+				protocolConfiguration.proxy
 
 			proxy.map(requestBuilder.setProxyServer)
 
-			for (cookie <- CookieHandling.getStoredCookies(session, url)) requestBuilder.addCookie(cookie)
+			CookieHandling.getStoredCookies(session, url).foreach(requestBuilder.addCookie)
 
 			requestBuilder.setUrl(url).success
 		}
@@ -189,7 +160,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 			}
 				.toList
 				.sequence
-				.map(_.toMap)
 
 			resolvedHeaders.map { headers =>
 				val newHeaders = RefererHandling.addStoredRefererHeader(protocolConfiguration.baseHeaders ++ headers, session, protocolConfiguration)
@@ -198,18 +168,23 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 			}
 		}
 
-		def configureRealm(requestBuilder: RequestBuilder): Validation[RequestBuilder] =
-			httpAttributes.realm match {
+		def configureRealm(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
+
+			val realm = httpAttributes.realm.orElse(protocolConfiguration.basicAuth)
+
+			realm match {
 				case Some(realm) => realm(session).map(requestBuilder.setRealm)
 				case None => requestBuilder.success
 			}
+		}
 
-		val requestBuilder = new RequestBuilder(httpAttributes.method, configuration.http.useRawUrl).setBodyEncoding(configuration.simulation.encoding)
+		implicit val requestBuilder = new RequestBuilder(httpAttributes.method, configuration.http.useRawUrl).setBodyEncoding(configuration.simulation.encoding)
 
-		if (protocolConfiguration.connectionPoolingEnabled) requestBuilder.setConnectionPoolKeyStrategy(new GatlingConnectionPoolKeyStrategy(session))
+		if (!protocolConfiguration.connectionPoolingEnabled) requestBuilder.setConnectionPoolKeyStrategy(new GatlingConnectionPoolKeyStrategy(session))
 
-		url
-			.flatMap(configureUrlCookiesAndProxy(requestBuilder: RequestBuilder))
+		httpAttributes.url(session)
+			.flatMap(makeAbsolute)
+			.flatMap(configureUrlCookiesAndProxy)
 			.flatMap(configureQueryParams)
 			.flatMap(configureHeaders)
 			.flatMap(configureRealm)

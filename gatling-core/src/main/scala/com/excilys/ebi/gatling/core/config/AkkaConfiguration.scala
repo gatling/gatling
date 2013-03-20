@@ -23,6 +23,6 @@ object AkkaConfiguration {
 		val classLoader = getClass.getClassLoader
 		val defaultsConfig = ConfigFactory.parseResources(classLoader,"akka-defaults.conf")
 		val customConfig = ConfigFactory.parseResources(classLoader,"akka.conf")
-		customConfig.withFallback(defaultsConfig)
+		ConfigFactory.systemProperties.withFallback(customConfig).withFallback(defaultsConfig)
 	}
 }

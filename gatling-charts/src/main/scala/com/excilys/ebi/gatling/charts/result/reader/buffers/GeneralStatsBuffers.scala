@@ -26,7 +26,7 @@ import com.excilys.ebi.gatling.core.result.reader.GeneralStats
 
 abstract class GeneralStatsBuffers(durationInSec: Long) {
 
-	val generalStatsBuffers: mutable.Map[BufferKey, GeneralStatsBuffer] = mutable.HashMap.empty
+	val generalStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
 
 	def getGeneralStatsBuffers(request: Option[String], group: Option[Group], status: Option[RequestStatus]): GeneralStatsBuffer =
 		generalStatsBuffers.getOrElseUpdate(computeKey(request, group, status), new GeneralStatsBuffer(durationInSec))
@@ -62,7 +62,7 @@ abstract class GeneralStatsBuffers(durationInSec: Long) {
 			squareSum += StatsHelper.square(time)
 		}
 
-		var stats: GeneralStats = null
+		var stats: GeneralStats = _
 
 		def compute: GeneralStats = {
 

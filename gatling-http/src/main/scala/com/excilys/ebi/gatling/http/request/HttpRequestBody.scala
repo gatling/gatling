@@ -31,11 +31,7 @@ import com.ning.http.client.RequestBuilder
 
 object HttpRequestBody {
 
-	def stringBody(body: Expression[String]) = StringBody(body)
-
-	def sessionByteArrayBody(byteArray: (Session) => Array[Byte]) = SessionByteArrayBody(byteArray)
-
-	val EL_FILE_CACHE = new collection.mutable.HashMap[String, Validation[Expression[String]]]
+	val elFileCache = new collection.mutable.HashMap[String, Validation[Expression[String]]]
 
 	private def template(filePath: String): Validation[Path] = {
 		val file = GatlingFiles.requestBodiesDirectory / filePath
@@ -50,7 +46,7 @@ object HttpRequestBody {
 				.map(f => FileUtils.readFileToString(f.jfile, GatlingConfiguration.configuration.simulation.encoding))
 				.map(EL.compile[String])
 
-		def fetchTemplate(path: String): Validation[Expression[String]] = EL_FILE_CACHE.getOrElseUpdate(path, compileTemplate(path))
+		def fetchTemplate(path: String): Validation[Expression[String]] = elFileCache.getOrElseUpdate(path, compileTemplate(path))
 
 		val expression = (session: Session) => {
 			for {
@@ -63,7 +59,7 @@ object HttpRequestBody {
 		StringBody(expression)
 	}
 
-	def sspTemplateBody(filePath: Expression[String], params: Map[String, String]): SspTemplateBody = {
+	def sspTemplateBody(filePath: Expression[String], additionalAttributes: Map[String, Any]): SspTemplateBody = {
 
 		def sspTemplate(filePath: String): Validation[String] = {
 			val file = GatlingFiles.requestBodiesDirectory / filePath
@@ -77,18 +73,7 @@ object HttpRequestBody {
 				ssp <- sspTemplate(path)
 			} yield ssp
 
-		val attributesExpression = (session: Session) => params
-			.map {
-				case (key, value) =>
-					val expression = EL.compile[String](value)
-					expression(session).map(key -> _)
-			}.toList
-			.sequence
-			.map(_.toMap)
-
-		val bindings = params.keySet.map(Binding(_, "String"))
-
-		SspTemplateBody(templatePathExpression, attributesExpression, bindings)
+		SspTemplateBody(templatePathExpression, additionalAttributes)
 	}
 
 	def rawFileBody(filePath: Expression[String]) = {
@@ -101,8 +86,10 @@ object HttpRequestBody {
 
 		RawFileBody(expression)
 	}
+	
+	val sessionExtraBinding = Seq(Binding("session", classOf[Session].getName))
 
-	val SSP_TEMPLATE_ENGINE = {
+	val sspTemplateEngine = {
 		val engine = new TemplateEngine(List(GatlingFiles.requestBodiesDirectory.jfile))
 		engine.allowReload = false
 		engine.escapeMarkup = false
@@ -111,34 +98,9 @@ object HttpRequestBody {
 	}
 }
 
-sealed trait HttpRequestBody {
-
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder]
-}
-case class StringBody(expression: Expression[String]) extends HttpRequestBody {
-
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] =
-		expression(session).map(string => requestBuilder.setBody(string).setContentLength(string.length))
-}
-case class RawFileBody(file: Expression[JFile]) extends HttpRequestBody {
-
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] =
-		file(session).map(body => requestBuilder.setBody(body).setContentLength(body.length.toInt))
-}
-case class SspTemplateBody(templatePathExpression: Expression[String], attributesExpression: Expression[Map[String, String]], bindings: Traversable[Binding]) extends HttpRequestBody {
-
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] =
-		for {
-			templatePath <- templatePathExpression(session)
-			attributes <- attributesExpression(session)
-			body = HttpRequestBody.SSP_TEMPLATE_ENGINE.layout(templatePath, attributes, bindings)
-		} yield requestBuilder.setBody(body).setContentLength(body.length)
-}
-case class SessionByteArrayBody(byteArray: Session => Array[Byte]) extends HttpRequestBody {
-
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = {
-		val bytes = byteArray(session)
-		requestBuilder.setBody(bytes).setContentLength(bytes.length).success
-	}
-}
+sealed trait HttpRequestBody
+case class StringBody(expression: Expression[String]) extends HttpRequestBody
+case class RawFileBody(file: Expression[JFile]) extends HttpRequestBody
+case class SspTemplateBody(templatePathExpression: Expression[String], additionalAttributes: Map[String, Any]) extends HttpRequestBody
+case class ByteArrayBody(byteArray: Expression[Array[Byte]]) extends HttpRequestBody
 

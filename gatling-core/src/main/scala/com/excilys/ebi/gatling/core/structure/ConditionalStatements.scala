@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.core.structure
 
 import com.excilys.ebi.gatling.core.action.builder.{ IfBuilder, RandomSwitchBuilder, RoundRobinSwitchBuilder }
-import com.excilys.ebi.gatling.core.session.{ Expression, Session }
+import com.excilys.ebi.gatling.core.session.Expression
 
 trait ConditionalStatements[B] extends Execs[B] {
 

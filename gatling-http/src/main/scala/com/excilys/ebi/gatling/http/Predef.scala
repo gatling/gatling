@@ -15,7 +15,8 @@
  */
 package com.excilys.ebi.gatling.http
 
-import com.excilys.ebi.gatling.core.session.Expression
+import com.excilys.ebi.gatling.core.result.message.{ KO, RequestStatus }
+import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.http.action.{ AddCookiesBuilder, HttpRequestActionBuilder }
 import com.excilys.ebi.gatling.http.check.status.HttpResponseTimeCheckBuilder
 import com.excilys.ebi.gatling.http.check.body.{ HttpBodyCssCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyStringCheckBuilder, HttpBodyXPathCheckBuilder }
@@ -61,4 +62,9 @@ object Predef {
 	val responseContentType = (response: ExtendedResponse) => List(response.getContentType)
 	val responseContentLength = (response: ExtendedResponse) => List(response.getHeader(Headers.Names.CONTENT_LENGTH))
 	val responseUri = (response: ExtendedResponse) => List(response.getUri.toString)
+
+	def dumpSessionOnFailure(status: RequestStatus, session: Session, request: Request, response: ExtendedResponse): List[String] = status match {
+		case KO => List(session.toString)
+		case _ => Nil
+	}
 }

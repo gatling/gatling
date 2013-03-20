@@ -15,11 +15,6 @@
  */
 package com.excilys.ebi.gatling.core.util
 
-import java.io.File
-
-import scala.tools.nsc.io.Directory
-import scala.tools.nsc.io.Path.jfile2path
-
 import com.excilys.ebi.gatling.core.util.StringHelper.stripAccents
 
 /**
@@ -60,29 +55,5 @@ object FileHelper {
 			.toLowerCase)
 	}
 
-	def requestFileName(s: String) = {
-		val formatted = formatToFilename(s)
-		s"req_$formatted.html"
-	}
-
-	/**
-	 * Create a new temporary directory, which will be deleted upon the exit of the VM.
-	 *
-	 * @returns File representing the directory
-	 */
-	def createTempDirectory(deleteAtExit: Boolean = true): Directory = {
-		val file = File.createTempFile("temp", "dir")
-		file.delete
-
-		val directory: Directory = file.createDirectory(false, false)
-
-		if (deleteAtExit)
-			Runtime.getRuntime.addShutdownHook(new Thread {
-				override def run {
-					directory.deleteRecursively
-				}
-			})
-
-		directory
-	}
+	def requestFileName(s: String) = s"req_${formatToFilename(s)}.html"
 }

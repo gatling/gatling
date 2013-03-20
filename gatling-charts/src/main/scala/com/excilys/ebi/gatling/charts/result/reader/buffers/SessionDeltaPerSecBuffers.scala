@@ -20,6 +20,43 @@ import scala.collection.mutable
 import com.excilys.ebi.gatling.charts.result.reader.ScenarioRecord
 import com.excilys.ebi.gatling.core.result.IntVsTimePlot
 
+object SessionDeltas {
+    val empty = SessionDeltas(0, 0)
+}
+
+case class SessionDeltas(starts: Int, ends: Int) {
+	
+	def addStart = copy(starts = starts + 1)
+	def addEnd = copy(ends = ends + 1)
+}
+
+class SessionDeltaBuffer {
+	
+	val map = mutable.HashMap.empty[Int, SessionDeltas].withDefaultValue(SessionDeltas.empty)
+
+	def addStart(bucket: Int) {
+		val deltas = map(bucket)
+		map += (bucket -> deltas.addStart)
+	}
+
+	def addEnd(bucket: Int) {
+		val delta = map(bucket)
+		map += (bucket -> delta.addEnd)
+	}
+
+	def compute(buckets: Seq[Int]): List[IntVsTimePlot] = {
+
+		val (_, _, sessions) = buckets.foldLeft(0, 0, List.empty[IntVsTimePlot]) { (accumulator, bucket) =>
+			val (previousSessions, previousEnds, sessions) = accumulator
+			val delta = map(bucket)
+			val bucketSessions = previousSessions - previousEnds + delta.starts
+			(bucketSessions, delta.ends, IntVsTimePlot(bucket, bucketSessions) :: sessions)
+		}
+
+		sessions.reverse
+	}
+}
+
 trait SessionDeltaPerSecBuffers {
 
 	val sessionDeltaPerSecBuffers: mutable.Map[Option[String], SessionDeltaBuffer] = mutable.HashMap.empty
@@ -36,30 +73,4 @@ trait SessionDeltaPerSecBuffers {
 		getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd(record.executionDateBucket)
 	}
 
-	class SessionDeltaBuffer {
-
-		val map: mutable.Map[Int, (Int, Int)] = mutable.HashMap.empty
-
-		def addStart(bucket: Int) {
-			val (start, end) = map.getOrElse(bucket, (0, 0))
-			map += (bucket -> (start + 1, end))
-		}
-
-		def addEnd(bucket: Int) {
-			val (start, end) = map.getOrElse(bucket, (0, 0))
-			map += (bucket -> (start, end + 1))
-		}
-
-		def compute(buckets: List[Int]): List[IntVsTimePlot] = {
-
-			val (_, _, sessions) = buckets.foldLeft(0, 0, List.empty[IntVsTimePlot]) { (accumulator, bucket) =>
-				val (previousSessions, previousEnds, sessions) = accumulator
-				val (bucketStarts, bucketEnds) = map.getOrElse(bucket, (0, 0))
-				val bucketSessions = previousSessions - previousEnds + bucketStarts
-				(bucketSessions, bucketEnds, IntVsTimePlot(bucket, bucketSessions) :: sessions)
-			}
-
-			sessions.reverse
-		}
-	}
 }

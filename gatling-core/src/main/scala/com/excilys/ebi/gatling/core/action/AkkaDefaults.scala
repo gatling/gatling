@@ -19,9 +19,10 @@ import scala.concurrent.duration.DurationInt
 
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 
+import akka.pattern.AskSupport
 import akka.util.Timeout
 
-trait AkkaDefaults {
+trait AkkaDefaults extends AskSupport {
 
 	implicit val defaultTimeOut = Timeout(configuration.timeOut.actor seconds)
 }

@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.http.request.builder
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.core.validation.Validation
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
-import com.excilys.ebi.gatling.http.request.HttpRequestBody
+import com.excilys.ebi.gatling.http.request.{ ByteArrayBody, HttpRequestBody, HttpRequestBodySetter, StringBody }
 import com.ning.http.client.RequestBuilder
 
 /**
@@ -49,7 +49,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 *
 	 * @param body a string containing the body of the request
 	 */
-	def body(body: Expression[String]): B = newInstance(httpAttributes, Some(HttpRequestBody.stringBody(body)))
+	def body(body: Expression[String]): B = newInstance(httpAttributes, Some(StringBody(body)))
 
 	/**
 	 * Adds a body from a file to the request
@@ -63,7 +63,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 *
 	 * @param filePath the path of the file relative to directory containing the templates
 	 */
-	def fileBody(filePath: Expression[String]): B = newInstance(httpAttributes, Some(HttpRequestBody.elTemplateBody(filePath)))
+	def elTemplateBody(filePath: Expression[String]): B = newInstance(httpAttributes, Some(HttpRequestBody.elTemplateBody(filePath)))
 
 	/**
 	 * Adds a body from a template that has to be compiled
@@ -71,22 +71,19 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 * @param tplPath the path to the template relative to GATLING_TEMPLATES_FOLDER
 	 * @param values the values that should be merged into the template
 	 */
-	def sspBody(filePath: Expression[String], values: Map[String, String]): B = newInstance(httpAttributes, Some(HttpRequestBody.sspTemplateBody(filePath, values)))
+	def sspTemplateBody(filePath: Expression[String], additionalAttributes: Map[String, Any] = Map.empty): B = newInstance(httpAttributes, Some(HttpRequestBody.sspTemplateBody(filePath, additionalAttributes)))
 
 	/**
 	 * Adds a body from a byteArray Session function to the request
 	 *
 	 * @param byteArray - The callback function which returns the ByteArray from which to build the body
 	 */
-	def byteArrayBody(byteArray: (Session) => Array[Byte]): B = newInstance(httpAttributes, Some(HttpRequestBody.sessionByteArrayBody(byteArray)))
+	def byteArrayBody(byteArray: Expression[Array[Byte]]): B = newInstance(httpAttributes, Some(ByteArrayBody(byteArray)))
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[RequestBuilder] = {
 
 		val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
-
-		body match {
-			case Some(body) => requestBuilder.flatMap(body.setBody(_, session))
-			case _ => requestBuilder
-		}
+		body.foreach(b => requestBuilder.flatMap(_.setBody(b, session)))
+		requestBuilder
 	}
 }

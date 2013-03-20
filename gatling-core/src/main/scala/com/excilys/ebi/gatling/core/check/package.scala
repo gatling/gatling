@@ -15,7 +15,6 @@
  */
 package com.excilys.ebi.gatling.core
 
-import com.excilys.ebi.gatling.core.check.Check
 import com.excilys.ebi.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 package object check {

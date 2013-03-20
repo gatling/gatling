@@ -16,15 +16,17 @@
 package com.excilys.ebi.gatling.http.util
 
 import java.net.{ URI, URLDecoder }
+import java.util.{ ArrayList => JArrayList }
 
-import scala.collection.JavaConversions.{ asScalaBuffer, asScalaSet, seqAsJavaList }
+import scala.collection.JavaConversions.{ asScalaSet, mapAsJavaMap }
 import scala.io.Codec.UTF8
 
-import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
-import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
+import com.excilys.ebi.gatling.core.validation.{ Validation, ValidationList }
 import com.excilys.ebi.gatling.http.request.builder.HttpParam
-import com.ning.http.client.FluentStringsMap
+import com.ning.http.client.{ FluentStringsMap, Realm }
+import com.ning.http.client.Realm.AuthScheme
 
 object HttpHelper {
 
@@ -67,16 +69,7 @@ object HttpHelper {
 			}.toList
 	}
 
-	def httpParamsToFluentMap(params: List[HttpParam], session: Session): Validation[FluentStringsMap] = {
-
-		def httpParamsToFluentMap(params: List[(String, Seq[String])]): FluentStringsMap =
-			params.groupBy(_._1)
-				.mapValues(_.map(_._2).flatten)
-				.foldLeft(new FluentStringsMap) { (map, keyValues) =>
-					val (key, values) = keyValues
-					map.add(key, values)
-				}
-
+	def resolveParams(params: List[HttpParam], session: Session): Validation[List[(String, Seq[String])]] = {
 		val validations = params
 			.map {
 				case (key, values) =>
@@ -86,15 +79,36 @@ object HttpHelper {
 					} yield (resolvedKey, resolvedValues)
 			}
 
-		validations.sequence.map(httpParamsToFluentMap)
+		validations.sequence
+	}
+
+	def httpParamsToFluentMap(params: List[HttpParam], session: Session): Validation[FluentStringsMap] = {
+
+		resolveParams(params, session).map { params =>
+			val javaParams = params.groupBy(_._1)
+				.mapValues { params =>
+					val arrayList = new JArrayList[String]
+					for {
+						param <- params
+						value <- param._2
+					} arrayList.add(value)
+					arrayList
+				}
+
+			new FluentStringsMap(javaParams)
+		}
 	}
 
 	def dumpFluentCaseInsensitiveStringsMap(map: java.util.Map[String, java.util.List[String]], buff: StringBuilder) {
 
 		for {
 			entry <- map.entrySet
-			key = entry.getKey
-			value <- entry.getValue
-		} buff.append(key).append(": ").append(value).append(END_OF_LINE)
+		} buff.append(entry.getKey).append(": ").append(entry.getValue).append(END_OF_LINE)
 	}
+
+	def buildRealm(username: Expression[String], password: Expression[String]): Expression[Realm] = (session: Session) =>
+		for {
+			usernameValue <- username(session)
+			passwordValue <- password(session)
+		} yield new Realm.RealmBuilder().setPrincipal(usernameValue).setPassword(passwordValue).setUsePreemptiveAuth(true).setScheme(AuthScheme.BASIC).build
 }

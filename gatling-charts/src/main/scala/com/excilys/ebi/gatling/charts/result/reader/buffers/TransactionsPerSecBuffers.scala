@@ -23,7 +23,7 @@ import com.excilys.ebi.gatling.core.result.message.RequestStatus
 
 trait TransactionsPerSecBuffers {
 
-	val transactionsPerSecBuffers: mutable.Map[BufferKey, CountBuffer] = mutable.HashMap.empty
+	val transactionsPerSecBuffers = mutable.Map.empty[BufferKey, CountBuffer]
 
 	def getTransactionsPerSecBuffer(requestName: Option[String], group: Option[Group], status: Option[RequestStatus]): CountBuffer = transactionsPerSecBuffers.getOrElseUpdate(computeKey(requestName, group, status), new CountBuffer)
 
