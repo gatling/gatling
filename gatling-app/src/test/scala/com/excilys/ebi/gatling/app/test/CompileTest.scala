@@ -47,6 +47,7 @@ object CompileTest extends Simulation {
 
   val httpConfToVerifyUserProvidedInfoExtractors = httpConfig
     .extraInfoExtractor((requestStatus, session, request, response) => List.empty)
+    
 
   val usersInformation = tsv("user_information.tsv")
 

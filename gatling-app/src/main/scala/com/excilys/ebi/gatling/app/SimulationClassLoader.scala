@@ -44,7 +44,7 @@ object SimulationClassLoader extends Logging {
 
 abstract class SimulationClassLoader {
 
-	def simulationClasses(requestedClassName: Option[String]): List[Class[Simulation]]
+	def simulationClasses(requestedClassName: Option[String]): Vector[Class[Simulation]]
 
 	protected def isSimulationClass(clazz: Class[_]): Boolean = classOf[Simulation].isAssignableFrom(clazz) && !clazz.isInterface && !Modifier.isAbstract(clazz.getModifiers)
 }
@@ -56,15 +56,15 @@ class FileSystemBackedSimulationClassLoader(classLoader: ClassLoader, binaryDir:
 		.stripPrefix(root + File.separator)
 		.replace(File.separator, ".")
 
-	def simulationClasses(requestedClassName: Option[String]): List[Class[Simulation]] = {
+	def simulationClasses(requestedClassName: Option[String]): Vector[Class[Simulation]] = {
 
 		val classNames = requestedClassName
-			.map(List(_))
+			.map(Vector(_))
 			.getOrElse {
 				binaryDir
 					.deepFiles
 					.collect { case file if (file.hasExtension("class")) => pathToClassName(file, binaryDir) }
-					.toList
+					.toVector
 			}
 
 		val classes = classNames
