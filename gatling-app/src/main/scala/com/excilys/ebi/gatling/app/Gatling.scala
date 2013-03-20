@@ -114,10 +114,10 @@ class Gatling extends Logging {
 		result
 	}
 
-	private def getSingleSimulation(simulations: List[Class[Simulation]]) =
+	private def getSingleSimulation(simulations: Vector[Class[Simulation]]) =
 		configuration.simulation.clazz.map(_ => simulations.head.newInstance)
 
-	private def interactiveSelect(simulations: List[Class[Simulation]]): Selection = {
+	private def interactiveSelect(simulations: Vector[Class[Simulation]]): Selection = {
 
 		val simulation = selectSimulationClass(simulations)
 
@@ -138,7 +138,7 @@ class Gatling extends Logging {
 		new Selection(simulation, simulationId, runDescription)
 	}
 
-	private def selectSimulationClass(simulations: List[Class[Simulation]]): Class[Simulation] = {
+	private def selectSimulationClass(simulations: Vector[Class[Simulation]]): Class[Simulation] = {
 
 		val selection = simulations.size match {
 			case 0 =>
