@@ -24,21 +24,28 @@ import org.specs2.runner.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class InjectionStrategySpec extends Specification {
 	"RampInjection" should {
-		val ramp = new RampInjection(4, new FiniteDuration(1l, TimeUnit.SECONDS))
+		val ramp = new RampInjection(5, new FiniteDuration(1l, TimeUnit.SECONDS))
 
 		"return the correct number of users" in {
-			ramp.users must beEqualTo(4)
+			ramp.users must beEqualTo(5)
 		}
 
 		"return the correct injection duration" in {
 			ramp.duration must beEqualTo(new FiniteDuration(1l, TimeUnit.SECONDS))
 		}
 
-		"return the correct injection scheduling" in {
-			val scheduling = ramp.scheduling.toList
+		val scheduling = ramp.scheduling.toList
+
+		"schedule with a correct interval" in {
 			val interval0 = scheduling(1) - scheduling(0)
 			val interval1 = scheduling(2) - scheduling(1)
 			scheduling.length must beEqualTo(ramp.users) and (interval0 must beEqualTo(interval1)) and (interval0 must beEqualTo(new FiniteDuration(250l, TimeUnit.MILLISECONDS)))
+		}
+
+		"the first and the last users should be correctly scheduled" in {
+			val first = scheduling.head
+			val last = scheduling.last
+			first must beEqualTo(new FiniteDuration(0l, TimeUnit.SECONDS)) and (last must beEqualTo(new FiniteDuration(1l, TimeUnit.SECONDS)))
 		}
 	}
 
@@ -73,6 +80,28 @@ class InjectionStrategySpec extends Specification {
 			val scheduling = peak.scheduling.toList
 			val uniqueScheduling = scheduling.toSet
 			uniqueScheduling must contain(new FiniteDuration(0l, TimeUnit.SECONDS)) and (scheduling must have length (peak.users))
+		}
+	}
+
+	"RampRateInjection" should {
+		val rampRate = new RampRateInjection(2, 4, new FiniteDuration(10l, TimeUnit.SECONDS))
+
+		"return the correct injection duration" in {
+			rampRate.duration must beEqualTo(new FiniteDuration(10l, TimeUnit.SECONDS))
+		}
+
+		"return the correct number of users" in {
+			rampRate.users must beEqualTo(30)
+		}
+
+		val scheduling = rampRate.scheduling.toList
+
+		"provides an injection scheduling with the correct number of elements" in {
+			scheduling.length must beEqualTo(rampRate.users)
+		}
+
+		"provides an injection scheduling with the correct values" in {
+			scheduling(0) must beEqualTo(new FiniteDuration(0l, TimeUnit.SECONDS)) and (scheduling(1) must beEqualTo(new FiniteDuration(488l, TimeUnit.MILLISECONDS)))
 		}
 	}
 
