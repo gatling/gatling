@@ -31,7 +31,7 @@ object ComponentLibrary extends Logging {
 		val paths = Option(getClass.getClassLoader)
 			.map(_.getResources(STATIC_LIBRARY_BINDER_PATH))
 			.getOrElse(ClassLoader.getSystemResources(STATIC_LIBRARY_BINDER_PATH))
-			.toList
+			.toVector
 
 		if (paths.size > 1) {
 			warn("Class path contains multiple ComponentLibrary bindings")

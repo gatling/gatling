@@ -30,7 +30,7 @@ case class Statistics(name: String, total: Long, success: Long, failure: Long) {
 
 	def printableFailure: String = makePrintable(failure)
 
-	def all = List(total, success, failure)
+	def all = Vector(total, success, failure)
 }
 
 case class RequestStatistics(name: String,
@@ -46,8 +46,8 @@ case class RequestStatistics(name: String,
 	meanNumberOfRequestsPerSecondStatistics: Statistics) {
 
 	def mkString = {
-		val outputName = List(if(name == GLOBAL_PAGE_NAME) name else path)
-		List(
+		val outputName = Vector(if(name == GLOBAL_PAGE_NAME) name else path)
+		Vector(
 			outputName,
 			numberOfRequestsStatistics.all,
 			minResponseTimeStatistics.all,
@@ -56,7 +56,7 @@ case class RequestStatistics(name: String,
 			stdDeviationStatistics.all,
 			percentiles1.all,
 			percentiles2.all,
-			groupedCounts.flatMap(_.productIterator.toList),
+			groupedCounts.flatMap(_.productIterator),
 			meanNumberOfRequestsPerSecondStatistics.all).flatten.mkString(configuration.charting.statsTsvSeparator)
 	}
 }

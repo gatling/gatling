@@ -33,9 +33,9 @@ abstract class DataReader(runUuid: String) {
 
 	def runEnd: Long
 
-	def groupsAndRequests: List[(Option[Group], Option[String])]
+	def groupsAndRequests: Seq[(Option[Group], Option[String])]
 
-	def scenarioNames: List[String]
+	def scenarioNames: Seq[String]
 
 	def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): Seq[IntVsTimePlot]
 
