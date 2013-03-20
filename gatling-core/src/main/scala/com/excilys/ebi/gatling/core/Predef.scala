@@ -21,26 +21,24 @@ import scala.tools.nsc.io.{ File, Path }
 import com.excilys.ebi.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
 import com.excilys.ebi.gatling.core.feeder.{ AdvancedFeederBuilder, FeederBuilder, FeederBuilderFromArray, FeederBuilderFromFeeder }
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesParser
-import com.excilys.ebi.gatling.core.session.EL
+import com.excilys.ebi.gatling.core.session.{ ELCompiler, ELWrapper }
 import com.excilys.ebi.gatling.core.structure.{ AssertionBuilder, ChainBuilder, ScenarioBuilder }
 import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object Predef {
-	implicit def stringToExpression[T: ClassTag](string: String) = EL.compile[T](string)
+	implicit def stringToExpression[T: ClassTag](string: String) = string.el
 	implicit def value2Success[T](value: T): Validation[T] = value.success
-	implicit def value2Expression[T](value: T): Expression[T] = EL.wrap(value)
+	implicit def value2Expression[T](value: T): Expression[T] = value.expression
 	implicit def checkBuilder2Check[C <: Check[R], R, P, T, X, E](checkBuilder: CheckBuilder[C, R, P, T, X, E]) = checkBuilder.build
 	implicit def matcherCheckBuilder2CheckBuilder[C <: Check[R], R, P, T, X](matcherCheckBuilder: MatcherCheckBuilder[C, R, P, T, X]) = matcherCheckBuilder.exists
 	implicit def matcherCheckBuilder2Check[C <: Check[R], R, P, T, X](matcherCheckBuilder: MatcherCheckBuilder[C, R, P, T, X]) = matcherCheckBuilder.exists.build
 	implicit def extractorCheckBuilder2MatcherCheckBuilder[C <: Check[R], R, P, T, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, P, T, X]) = extractorCheckBuilder.find
 	implicit def extractorCheckBuilder2CheckBuilder[C <: Check[R], R, P, T, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, P, T, X]) = extractorCheckBuilder.find.exists
 	implicit def extractorCheckBuilder2Check[C <: Check[R], R, P, T, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, P, T, X]) = extractorCheckBuilder.find.exists.build
-	implicit def map2ExpressionMap(map: Map[String, Any]): Map[String, Expression[Any]] = map.map { entry =>
-		entry._2 match {
-			case string: String => entry._1 -> EL.compile[String](string)
-			case any => entry._1 -> any.success
-		}
-	}
+	implicit def map2ExpressionMap(map: Map[String, Any]): Map[String, Expression[Any]] = map.mapValues(_ match {
+		case string: String => string.el
+		case any => any.expression
+	})
 
 	def csv(fileName: String) = SeparatedValuesParser.csv(fileName, None)
 	def csv(fileName: String, escapeChar: String) = SeparatedValuesParser.csv(fileName, Some(escapeChar))

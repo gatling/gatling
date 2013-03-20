@@ -75,11 +75,9 @@ object EL {
 	val elSeqRandomPattern = """(.+?)\.random""".r
 	val elSeqElementPattern = """(.+?)\((.+)\)""".r
 
-	def wrap[T](value: T) = (session: Session) => value.success
+	def compile[T: ClassTag](string: String): Expression[T] = {
 
-	def compile[T: ClassTag](elString: String): Expression[T] = {
-
-		def parse[T: ClassTag](string: String): List[Part[Any]] = {
+		val parsed: List[Part[Any]] = {
 
 			val staticParts = elPattern.split(string).map(StaticPart(_)).toList
 
@@ -104,7 +102,7 @@ object EL {
 			(indexedStaticParts ::: indexedDynamicParts).sortBy(_._2).map(_._1)
 		}
 
-		parse(elString) match {
+		parsed match {
 			case List(StaticPart(string)) => (session: Session) => TypeHelper.as[T](string)
 			case List(dynamicPart) => dynamicPart.resolve _ andThen (_.flatMap(TypeHelper.as[T](_)))
 			case parts => (session: Session) =>

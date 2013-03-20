@@ -15,11 +15,21 @@
  */
 package com.excilys.ebi.gatling.core
 
+import scala.reflect.ClassTag
+
 import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
 
 package object session {
 
-	val noopStringExpression = (s: Session) => "".success
+    implicit class ELCompiler(val string: String) extends AnyVal {
+        def el[T: ClassTag] = EL.compile(string)
+    }
+    
+    implicit class ELWrapper[T](val value: T) extends AnyVal {
+        def expression = (session: Session) => value.success
+    }
+
+    val noopStringExpression = "".expression
 
 	type Expression[T] = Session => Validation[T]
 	def undefinedSeqIndexMessage(name: String, index: Int) = s"Seq named '$name' is undefined for index $index"
