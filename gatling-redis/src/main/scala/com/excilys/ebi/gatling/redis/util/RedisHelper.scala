@@ -17,14 +17,13 @@ package com.excilys.ebi.gatling.core.feeder.redis.util
 
 object RedisHelper {
 
-	/* 
-    Generate Redis protocol required for mass insert
-    i.e  generateRedisProtocol("LPUSH", "SIM", "SOMETHING COOL!")
-  */
+	/**
+	 * Generate Redis protocol required for mass insert
+	 * i.e  generateRedisProtocol("LPUSH", "SIM", "SOMETHING COOL!")
+	 */
 	def generateRedisProtocol(d: String*): String = {
-		val length = d.toList.length
-		val protocol = new StringBuilder().append("*").append(length).append("\r\n")
-		d.toList map { x => protocol.append("$").append(x.length).append("\r\n").append(x).append("\r\n") }
+		val protocol = new StringBuilder().append("*").append(d.length).append("\r\n")
+		d map { x => protocol.append("$").append(x.length).append("\r\n").append(x).append("\r\n") }
 		protocol.toString
 	}
 }
