@@ -93,6 +93,9 @@ object Predef {
 		def usersPerSec = new UsersPerSec(rate)
 	}
 
+	implicit def userNumber(number: Int) = new UserNumber(number)
+	implicit def userPerSec(rate: Double) = new UsersPerSec(rate)
+
 	case class RampBuilder(users: UserNumber) {
 		def over(d: FiniteDuration) = new RampInjection(users.number, d)
 	}
