@@ -50,5 +50,9 @@ class HttpHelperSpec extends Specification {
 		"properly handle a relative non root location with query params" in {
 			HttpHelper.computeRedirectUrl("bar?baz=qux", "http://foo.com/aaa/bbb") must beEqualTo("http://foo.com/aaa/bar?baz=qux")
 		}
+
+		"not encode query" in {
+			HttpHelper.computeRedirectUrl("/baz?qix:a=b", "https://foo.bar/") must beEqualTo("https://foo.bar/baz?qix:a=b")
+		}
 	}
 }
