@@ -22,6 +22,7 @@ import scala.tools.nsc.io.{ File, Path }
 import com.excilys.ebi.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
 import com.excilys.ebi.gatling.core.feeder.{ AdvancedFeederBuilder, Feeder, FeederBuilder, FeederBuilderFromArray, FeederBuilderFromFeeder }
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesParser
+import com.excilys.ebi.gatling.core.scenario.injection.{ PeakInjection, RampInjection, DelayInjection }
 import com.excilys.ebi.gatling.core.session.EL
 import com.excilys.ebi.gatling.core.structure.{ AssertionBuilder, ChainBuilder, ScenarioBuilder }
 import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
@@ -80,11 +81,9 @@ object Predef {
 	val toBoolean = (x: String) => x.toBoolean
 
 	/// Injection definitions
-	type UserNumber = com.excilys.ebi.gatling.core.scenario.configuration.UserNumber
-	type UsersPerSec = com.excilys.ebi.gatling.core.scenario.configuration.UsersPerSec
 
-	type RampDefinition = com.excilys.ebi.gatling.core.scenario.configuration.RampDefinition
-	type ConstantRateDefinition = com.excilys.ebi.gatling.core.scenario.configuration.ConstantRateDefinition
+	private[Predef] class UserNumber(val number: Int)
+	private[Predef] class UsersPerSec(val rate: Double)
 
 	implicit class UserNumberImplicit(val number: Int) extends AnyVal {
 		def users = new UserNumber(number)
@@ -93,10 +92,18 @@ object Predef {
 		def usersPerSec = new UsersPerSec(rate)
 	}
 
-	implicit class RampBuilder(val users: UserNumber) extends AnyVal {
-		def during(d: FiniteDuration) = new RampDefinition(users.number, d)
+	class RampBuilder(val users: UserNumber) {
+		def over(d: FiniteDuration) = new RampInjection(users.number, d)
 	}
-	implicit class ConstantRateBuilder(val usersPerSec: UsersPerSec) extends AnyVal {
-		def during(d: FiniteDuration) = new ConstantRateDefinition(usersPerSec.rate, d)
+	class ConstantRateBuilder(val rate: UsersPerSec) {
+		def during(d: FiniteDuration) = {
+			val users = (d.toSeconds * rate.rate).toInt
+			new RampInjection(users, d)
+		}
 	}
+
+	def ramp(users: UserNumber) = new RampBuilder(users)
+	def delay(d: FiniteDuration) = new DelayInjection(d)
+	def peak(users: UserNumber) = new PeakInjection(users.number)
+	def constantRate(rate: UsersPerSec) = new ConstantRateBuilder(rate)
 }

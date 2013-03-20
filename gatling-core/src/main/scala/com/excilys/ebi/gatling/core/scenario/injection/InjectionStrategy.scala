@@ -42,8 +42,8 @@ class RampInjection(val users: Int, val duration: FiniteDuration) extends Inject
 	}
 }
 
-class WaitInjection(val duration: FiniteDuration) extends InjectionStrategy {
-	override def toString = s"Wait for $duration"
+class DelayInjection(val duration: FiniteDuration) extends InjectionStrategy {
+	override def toString = s"Delay for $duration"
 	override def scheduling: Stream[FiniteDuration] = Stream.empty
 	override val users = 0
 }

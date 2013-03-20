@@ -43,7 +43,7 @@ class InjectionStrategySpec extends Specification {
 	}
 
 	"WaitInjection" should {
-		val wait = new WaitInjection(new FiniteDuration(1l, TimeUnit.SECONDS))
+		val wait = new DelayInjection(new FiniteDuration(1l, TimeUnit.SECONDS))
 
 		"return the correct number of users" in {
 			wait.users must beEqualTo(0)

@@ -19,16 +19,10 @@ import scala.concurrent.duration.FiniteDuration
 
 import com.excilys.ebi.gatling.core.config.{ ProtocolConfiguration, ProtocolConfigurationRegistry }
 import com.excilys.ebi.gatling.core.scenario.Scenario
-import com.excilys.ebi.gatling.core.scenario.injection.{ InjectionStrategy, PeakInjection, RampInjection, WaitInjection }
+import com.excilys.ebi.gatling.core.scenario.injection.{ InjectionStrategy, PeakInjection, RampInjection, DelayInjection }
 import com.excilys.ebi.gatling.core.structure.ScenarioBuilder
 
 private case class Attributes(scenarioBuilder: ScenarioBuilder, injections: List[InjectionStrategy] = Nil, protocolConfigurationsValue: Seq[ProtocolConfiguration] = Nil)
-
-class UserNumber(val number: Int)
-class UsersPerSec(val rate: Double)
-
-class RampDefinition(val users: Int, val duration: FiniteDuration)
-class ConstantRateDefinition(val rate: Double, val duration: FiniteDuration)
 
 /**
  * This class is used in the DSL to configure scenarios
@@ -42,15 +36,7 @@ class ConfiguredScenarioBuilder(attributes: Attributes) {
 
 	def this(scenarioBuilder: ScenarioBuilder) = this(Attributes(scenarioBuilder))
 
-	def ramp(rd: RampDefinition) = inject(new RampInjection(rd.users, rd.duration))
-	def wait(d: FiniteDuration) = inject(new WaitInjection(d))
-	def peak(users: UserNumber) = inject(new PeakInjection(users.number))
-	def constantRate(crd: ConstantRateDefinition) = {
-		val users = (crd.duration.toSeconds * crd.rate).toInt
-		inject(new RampInjection(users, crd.duration))
-	}
-	// For custom injection strategies
-	def inject(is: InjectionStrategy) = new ConfiguredScenarioBuilder(attributes.copy(injections = (is :: attributes.injections)))
+	def inject(is: InjectionStrategy, iss: InjectionStrategy*) = new ConfiguredScenarioBuilder(attributes.copy(injections = (attributes.injections ++ (is +: iss))))
 
 	def protocolConfig(protocolConfigurations: ProtocolConfiguration*) = new ConfiguredScenarioBuilder(attributes.copy(protocolConfigurationsValue = protocolConfigurations))
 
@@ -61,7 +47,7 @@ class ConfiguredScenarioBuilder(attributes: Attributes) {
 	 */
 	def build: Scenario = {
 		val protocolRegistry = ProtocolConfigurationRegistry(attributes.protocolConfigurationsValue)
-		val scenarioConfiguration = ScenarioConfiguration(attributes.injections.reverse, protocolRegistry)
+		val scenarioConfiguration = ScenarioConfiguration(attributes.injections, protocolRegistry)
 		attributes.scenarioBuilder.build(scenarioConfiguration)
 	}
 }
