@@ -17,8 +17,8 @@ package com.excilys.ebi.gatling.core.scenario.injection
 
 import java.util.concurrent.TimeUnit
 
-import math.{ pow, sqrt }
 import scala.concurrent.duration._
+import scala.math.{ pow, sqrt }
 
 trait InjectionStrategy {
 	/**

@@ -21,11 +21,10 @@ import scala.tools.nsc.io.{ File, Path }
 import com.excilys.ebi.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
 import com.excilys.ebi.gatling.core.feeder.{ AdvancedFeederBuilder, Feeder, FeederBuilder, FeederBuilderFromArray, FeederBuilderFromFeeder }
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesParser
-import com.excilys.ebi.gatling.core.scenario.injection.{ DelayInjection, PeakInjection, RampInjection }
+import com.excilys.ebi.gatling.core.scenario.injection.{ DelayInjection, PeakInjection, RampInjection, RampRateInjection }
 import com.excilys.ebi.gatling.core.session.{ ELCompiler, ELWrapper }
 import com.excilys.ebi.gatling.core.structure.{ AssertionBuilder, ChainBuilder, ScenarioBuilder }
 import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
-import com.excilys.ebi.gatling.core.scenario.injection.RampRateInjection
 
 object Predef {
 	implicit def stringToExpression[T: ClassTag](string: String) = string.el
