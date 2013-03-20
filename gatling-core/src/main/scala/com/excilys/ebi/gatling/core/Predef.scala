@@ -15,12 +15,14 @@
  */
 package com.excilys.ebi.gatling.core
 
+import scala.concurrent.duration.FiniteDuration
 import scala.reflect.ClassTag
 import scala.tools.nsc.io.{ File, Path }
 
 import com.excilys.ebi.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
 import com.excilys.ebi.gatling.core.feeder.{ AdvancedFeederBuilder, FeederBuilder, FeederBuilderFromArray, FeederBuilderFromFeeder }
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesParser
+import com.excilys.ebi.gatling.core.scenario.injection.{ PeakInjection, RampInjection, DelayInjection }
 import com.excilys.ebi.gatling.core.session.{ ELCompiler, ELWrapper }
 import com.excilys.ebi.gatling.core.structure.{ AssertionBuilder, ChainBuilder, ScenarioBuilder }
 import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
@@ -75,4 +77,31 @@ object Predef {
 	val toFloat = (x: String) => x.toFloat
 	val toDouble = (x: String) => x.toDouble
 	val toBoolean = (x: String) => x.toBoolean
+
+	/// Injection definitions
+
+	private[Predef] class UserNumber(val number: Int)
+	private[Predef] class UsersPerSec(val rate: Double)
+
+	implicit class UserNumberImplicit(val number: Int) extends AnyVal {
+		def users = new UserNumber(number)
+	}
+	implicit class UsersPerSecImplicit(val rate: Double) extends AnyVal {
+		def usersPerSec = new UsersPerSec(rate)
+	}
+
+	class RampBuilder(val users: UserNumber) {
+		def over(d: FiniteDuration) = new RampInjection(users.number, d)
+	}
+	class ConstantRateBuilder(val rate: UsersPerSec) {
+		def during(d: FiniteDuration) = {
+			val users = (d.toSeconds * rate.rate).toInt
+			new RampInjection(users, d)
+		}
+	}
+
+	def ramp(users: UserNumber) = new RampBuilder(users)
+	def delay(d: FiniteDuration) = new DelayInjection(d)
+	def peak(users: UserNumber) = new PeakInjection(users.number)
+	def constantRate(rate: UsersPerSec) = new ConstantRateBuilder(rate)
 }
