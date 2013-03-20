@@ -39,7 +39,7 @@ object HttpProtocolConfigurationBuilder {
 		automaticRefererEnabled = true,
 		cachingEnabled = true,
 		responseChunksDiscardingEnabled = true,
-		connectionPoolingEnabled = false,
+		shareConnections = false,
 		baseHeaders = Map.empty,
 		warmUpUrl = None,
 		basicAuth = None,
@@ -55,7 +55,7 @@ private case class Attributes(baseUrls: Option[List[String]],
 	automaticRefererEnabled: Boolean,
 	cachingEnabled: Boolean,
 	responseChunksDiscardingEnabled: Boolean,
-	connectionPoolingEnabled: Boolean,
+	shareConnections: Boolean,
 	baseHeaders: Map[String, String],
 	warmUpUrl: Option[String],
 	basicAuth: Option[Expression[Realm]],
@@ -86,7 +86,7 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 
 	def disableResponseChunksDiscarding = new HttpProtocolConfigurationBuilder(attributes.copy(responseChunksDiscardingEnabled = false))
 
-	def enableConnectionPooling = new HttpProtocolConfigurationBuilder(attributes.copy(connectionPoolingEnabled = true))
+	def shareConnections = new HttpProtocolConfigurationBuilder(attributes.copy(shareConnections = true))
 
 	def acceptHeader(value: String) = new HttpProtocolConfigurationBuilder(attributes.copy(baseHeaders = attributes.baseHeaders + (Headers.Names.ACCEPT -> value)))
 
@@ -132,7 +132,7 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 			attributes.automaticRefererEnabled,
 			attributes.cachingEnabled,
 			attributes.responseChunksDiscardingEnabled,
-			attributes.connectionPoolingEnabled,
+			attributes.shareConnections,
 			attributes.baseHeaders,
 			attributes.basicAuth,
 			attributes.extraInfoExtractor)
