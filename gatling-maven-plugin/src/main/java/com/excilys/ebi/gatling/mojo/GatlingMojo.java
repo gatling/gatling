@@ -241,7 +241,7 @@ public class GatlingMojo extends AbstractMojo {
 		if (fork) {
 			JavaMainCaller caller = new GatlingJavaMainCallerByFork(this, GATLING_MAIN_CLASS, testClasspath, jvmArgs, gatlingArgs, false, toolchain, propagateSystemProperties);
 			try {
-				caller.run(false);
+				caller.run(true);
 			} catch (ExecuteException e) {
 				if (e.getExitValue() == Gatling.SIMULATION_CHECK_FAILED()) {
 					throw new GatlingSimulationChecksFailedException(e);
