@@ -31,7 +31,7 @@ object RegexExtractors {
 
 	def extract(string: String, pattern: String): Seq[String] = pattern.r.findAllIn(string).matchData.map { matcher =>
 		new String(matcher.group(1 min matcher.groupCount))
-	}.toSeq
+	}.toList
 
 	def extractOne(occurrence: Int) = new RegexExtractor[String] {
 
@@ -61,11 +61,7 @@ object RegexExtractors {
 
 	val extractMultiple = new RegexExtractor[Seq[String]] {
 
-		def apply(prepared: String, criterion: String): Validation[Option[Seq[String]]] =
-
-			criterion.r.findAllIn(prepared).matchData.map { matcher =>
-				new String(matcher.group(1 min matcher.groupCount))
-			}.toSeq.liftSeqOption.success
+		def apply(prepared: String, criterion: String): Validation[Option[Seq[String]]] = extract(prepared, criterion).liftSeqOption.success
 	}
 
 	val count = new RegexExtractor[Int] {
