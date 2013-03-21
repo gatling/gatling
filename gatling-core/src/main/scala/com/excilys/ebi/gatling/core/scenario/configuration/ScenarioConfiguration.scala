@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.core.scenario.configuration
 
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.scenario.injection.InjectionStrategy
+import com.excilys.ebi.gatling.core.scenario.injection.InjectionStep
 
 /**
  * This class represents the configuration of a scenario
@@ -27,7 +27,7 @@ import com.excilys.ebi.gatling.core.scenario.injection.InjectionStrategy
  * @param protocolRegistry the registry for the protocols used in the scenario
  */
 case class ScenarioConfiguration(
-	injections: Seq[InjectionStrategy],
+	injections: Seq[InjectionStep],
 	protocolRegistry: ProtocolConfigurationRegistry) {
 
 	val users = injections.map(_.users).sum

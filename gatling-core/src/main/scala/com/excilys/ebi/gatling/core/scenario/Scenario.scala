@@ -15,11 +15,11 @@
  */
 package com.excilys.ebi.gatling.core.scenario
 
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration._
 
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfiguration
-import com.excilys.ebi.gatling.core.scenario.injection.InjectionStrategy
+import com.excilys.ebi.gatling.core.scenario.injection.InjectionStep
 import com.excilys.ebi.gatling.core.session.Session
 
 import akka.actor.ActorRef
@@ -31,24 +31,14 @@ class Scenario(val name: String, entryPoint: ActorRef, val configuration: Scenar
 
 		val scheduler = system.scheduler
 		val zeroMs = 0 millisecond
-
 		def newSession(i: Int) = Session(name, i + userIdStart)
 
-		def doRun(injec: InjectionStrategy, partialUserSum: Int) = injec.scheduling.zipWithIndex.foreach {
+		val allUsers = configuration.injections.foldRight(Iterator.empty: Iterator[FiniteDuration]) { (step, iterator) => step.chain(iterator) }
+
+		allUsers.zipWithIndex.foreach {
 			case (startingTime, index) =>
-				if (startingTime == zeroMs) entryPoint ! newSession(partialUserSum + index)
-				else scheduler.scheduleOnce(startingTime, entryPoint, newSession(partialUserSum + index))
+				if (startingTime == zeroMs) entryPoint ! newSession(index)
+				else scheduler.scheduleOnce(startingTime, entryPoint, newSession(index))
 		}
-
-		val injections = configuration.injections
-		val injectionTimeFrames = injections.foldLeft(List(zeroMs))((acc, injec) => acc.head + injec.duration :: acc).reverse
-		val partialUserSums = injections.foldLeft(List(0))((acc, injec) => acc.head + injec.users :: acc).reverse
-
-		(injections, injectionTimeFrames, partialUserSums).zipped.foreach {
-			case (injec, startingTime, partialUserSum) =>
-				if (startingTime == zeroMs) doRun(injec, partialUserSum)
-				else scheduler.scheduleOnce(startingTime)(doRun(injec, partialUserSum))
-		}
-
 	}
 }

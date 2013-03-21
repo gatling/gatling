@@ -189,7 +189,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
     .exec(http("Ajout au panier").get("/").check(regex(session => """<input id="text1" type="text" value="smth" />""").saveAs("input")))
     .pause(pause1)
 
-	setUp(lambdaUser.inject(delay(10 milliseconds), ramp(10 users).over(10 minutes), peak(100 users),
+	setUp(lambdaUser.inject(nothingFor(10 milliseconds), ramp(10 users).over(10 minutes), atOnce(100 users),
 		constantRate(10 usersPerSec).during(1 minute)).protocolConfig(httpConf))
 
   assertThat(
