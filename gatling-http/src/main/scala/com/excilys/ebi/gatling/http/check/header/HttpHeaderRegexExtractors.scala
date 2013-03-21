@@ -27,7 +27,7 @@ object HttpHeaderRegexExtractors {
 		val name = "headerRegex"
 	}
 
-	def extractHeadersValues(response: ExtendedResponse, headerNameAndPattern: (String, String)) = {
+	private def extractHeadersValues(response: ExtendedResponse, headerNameAndPattern: (String, String)) = {
 		val (headerName, pattern) = headerNameAndPattern
 		val headerValues = HttpHeaderExtractors.decodedHeaders(response, headerName)
 		headerValues.map(RegexExtractors.extract(_, pattern)).flatten
