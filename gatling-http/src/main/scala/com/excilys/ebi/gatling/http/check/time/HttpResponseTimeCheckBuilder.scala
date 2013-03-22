@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.check.status
+package com.excilys.ebi.gatling.http.check.time
 
 import com.excilys.ebi.gatling.core.check.Extractor
 import com.excilys.ebi.gatling.core.session.noopStringExpression
@@ -35,7 +35,7 @@ object HttpResponseTimeCheckBuilder {
 }
 
 class HttpResponseTimeCheckBuilder(extractor: Extractor[ExtendedResponse, String, Long]) extends HttpSingleCheckBuilder[ExtendedResponse, String, Long](
-	HttpCheckBuilders.statusCheckFactory,
+	HttpCheckBuilders.timeCheckFactory,
 	HttpCheckBuilders.noopResponsePreparer,
 	extractor,
 	noopStringExpression)

@@ -18,11 +18,12 @@ package com.excilys.ebi.gatling.http
 import com.excilys.ebi.gatling.core.result.message.{ KO, RequestStatus }
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.http.action.{ AddCookiesBuilder, HttpRequestActionBuilder }
-import com.excilys.ebi.gatling.http.check.status.HttpResponseTimeCheckBuilder
 import com.excilys.ebi.gatling.http.check.body.{ HttpBodyCssCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyStringCheckBuilder, HttpBodyXPathCheckBuilder }
 import com.excilys.ebi.gatling.http.check.checksum.HttpChecksumCheckBuilder
 import com.excilys.ebi.gatling.http.check.header.{ HttpHeaderCheckBuilder, HttpHeaderRegexCheckBuilder }
-import com.excilys.ebi.gatling.http.check.status.{ CurrentLocationCheckBuilder, HttpStatusCheckBuilder }
+import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder
+import com.excilys.ebi.gatling.http.check.time.HttpResponseTimeCheckBuilder
+import com.excilys.ebi.gatling.http.check.url.CurrentLocationCheckBuilder
 import com.excilys.ebi.gatling.http.config.{ HttpProtocolConfiguration, HttpProtocolConfigurationBuilder, HttpProxyBuilder }
 import com.excilys.ebi.gatling.http.request.builder.{ AbstractHttpRequestBuilder, HttpRequestBaseBuilder }
 

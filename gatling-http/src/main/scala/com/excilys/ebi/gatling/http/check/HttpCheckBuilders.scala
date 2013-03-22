@@ -26,9 +26,11 @@ object HttpCheckBuilders {
 	private def httpCheckFactory(order: HttpCheckOrder): CheckFactory[HttpCheck, ExtendedResponse] = (wrapped: Check[ExtendedResponse]) => HttpCheck(wrapped, order)
 
 	val statusCheckFactory = httpCheckFactory(Status)
-	val headerCheckFactory = httpCheckFactory(Header)
+	val urlCheckFactory = httpCheckFactory(Url)
 	val checksumCheckFactory = httpCheckFactory(Checksum)
+	val headerCheckFactory = httpCheckFactory(Header)
 	val bodyCheckFactory = httpCheckFactory(Body)
+	val timeCheckFactory = httpCheckFactory(Body)
 
 	val noopResponsePreparer: Preparer[ExtendedResponse, ExtendedResponse] = (r: ExtendedResponse) => r.success
 	val stringResponsePreparer: Preparer[ExtendedResponse, String] = (response: ExtendedResponse) => response.getResponseBody(configuration.simulation.encoding).success
