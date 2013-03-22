@@ -28,19 +28,14 @@ object FeedBuilder {
 
 	val instances = mutable.Map.empty[FeederBuilder[_], ActorRef]
 
-	def apply[T](feeder: FeederBuilder[T], number: Expression[Int]) = {
-		def newInstance = system.actorOf(Props(new SingletonFeed(feeder.build, number)))
+	def apply[T](feederBuilder: FeederBuilder[T], number: Expression[Int]) = {
+		def newInstance = system.actorOf(Props(new SingletonFeed(feederBuilder.build)))
 
-		new FeedBuilder(instances.getOrElseUpdate(feeder, newInstance))
+		new FeedBuilder(instances.getOrElseUpdate(feederBuilder, newInstance), number)
 	}
 }
-class FeedBuilder(instance: ActorRef) extends ActionBuilder {
+class FeedBuilder(instance: ActorRef, number: Expression[Int]) extends ActionBuilder {
 
-	/**
-	 * @param protocolConfigurationRegistry
-	 * @param next the Action that will be chained with the Action build by this builder
-	 * @return the built Action
-	 */
 	private[gatling] def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) =
-		system.actorOf(Props(new Feed(instance, next)))
+		system.actorOf(Props(new Feed(instance, number, next)))
 }

@@ -17,15 +17,11 @@ package com.excilys.ebi.gatling.core.action
 
 import akka.actor.ActorRef
 import com.excilys.ebi.gatling.core.session.Session
+import com.excilys.ebi.gatling.core.session.Expression
 
-class Feed(singleton: ActorRef, next: ActorRef) extends Action {
-	/**
-	 * Core method executed when the Action received a Session message
-	 *
-	 * @param session the session of the virtual user
-	 * @return Nothing
-	 */
+class Feed(singleton: ActorRef, number: Expression[Int], next: ActorRef) extends Action {
+
 	def execute(session: Session) {
-		singleton ! FeedMessage(session, next)
+		singleton ! FeedMessage(session, number, next)
 	}
 }

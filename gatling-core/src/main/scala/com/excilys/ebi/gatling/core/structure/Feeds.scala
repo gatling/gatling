@@ -28,13 +28,8 @@ trait Feeds[B] extends Execs[B] {
 	/**
 	 * Method used to load data from a feeder in the current scenario
 	 *
-	 * @param feeder the feeder from which the values will be loaded
+	 * @param feederBuilder the feeder from which the values will be loaded
 	 * @param number the number of records to be polled (default 1)
 	 */
-	def feed(feeder: FeederBuilder[_], number: Expression[Int] = Feeds.oneExpression): B = {
-
-		val builder = FeedBuilder(feeder, number)
-
-		newInstance(builder :: actionBuilders)
-	}
+	def feed(feederBuilder: FeederBuilder[_], number: Expression[Int] = Feeds.oneExpression): B = newInstance(FeedBuilder(feederBuilder, number) :: actionBuilders)
 }

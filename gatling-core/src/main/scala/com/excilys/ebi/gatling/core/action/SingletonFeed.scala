@@ -22,12 +22,12 @@ import com.excilys.ebi.gatling.core.validation.{ Failure, FailureWrapper, Succes
 
 import akka.actor.ActorRef
 
-class SingletonFeed[T](val feeder: Feeder[T], val number: Expression[Int]) extends BaseActor {
+class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
 	def receive = {
-		case message: FeedMessage => execute(message.session, message.next)
+		case message: FeedMessage => feed(message.session, message.number, message.next)
 	}
 
-	def execute(session: Session, next: ActorRef) {
+	def feed(session: Session, number: Expression[Int], next: ActorRef) {
 
 		def translateRecord(record: Record[T], suffix: Int): Record[T] = record.map { case (key, value) => (key + suffix) -> value }
 
@@ -40,7 +40,7 @@ class SingletonFeed[T](val feeder: Feeder[T], val number: Expression[Int]) exten
 			feeder.next
 		}
 
-		def injectRecords(session: Session, numberOfRecords: Int): Validation[Session] =
+		def injectRecords(numberOfRecords: Int): Validation[Session] =
 			numberOfRecords match {
 				case 1 => session.set(pollRecord).success
 				case n if n > 0 =>
@@ -50,7 +50,7 @@ class SingletonFeed[T](val feeder: Feeder[T], val number: Expression[Int]) exten
 				case n => (s"$n is not a valid number of records").failure
 			}
 
-		val newSession = number(session).flatMap(injectRecords(session, _)) match {
+		val newSession = number(session).flatMap(injectRecords) match {
 			case Success(newSession) => newSession
 			case Failure(message) => error(message); session
 		}
@@ -59,4 +59,4 @@ class SingletonFeed[T](val feeder: Feeder[T], val number: Expression[Int]) exten
 	}
 }
 
-case class FeedMessage(session: Session, next: ActorRef)
+case class FeedMessage(session: Session, number: Expression[Int], next: ActorRef)

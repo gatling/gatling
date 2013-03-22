@@ -17,7 +17,12 @@ package com.excilys.ebi.gatling.core
 
 package object feeder {
 
-	type Record[T] = Map[String,T]
+	type Record[T] = Map[String, T]
 
 	type Feeder[T] = Iterator[Map[String, T]]
+
+	sealed trait Strategy
+	case object Queue extends Strategy
+	case object Random extends Strategy
+	case object Circular extends Strategy
 }

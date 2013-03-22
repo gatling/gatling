@@ -19,7 +19,7 @@ import scala.concurrent.duration.{ DurationInt, FiniteDuration }
 import scala.reflect.ClassTag
 import scala.tools.nsc.io.{ File, Path }
 import com.excilys.ebi.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
-import com.excilys.ebi.gatling.core.feeder.{ AdvancedFeederBuilder, Feeder, FeederBuilder, FeederBuilderFromArray, FeederBuilderFromFeeder }
+import com.excilys.ebi.gatling.core.feeder.{ AdvancedFeederBuilder, Feeder, FeederBuilder, FeederWrapper }
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesParser
 import com.excilys.ebi.gatling.core.scenario.injection.{ DelayInjection, PeakInjection, RampInjection, RampRateInjection }
 import com.excilys.ebi.gatling.core.session.{ ELCompiler, ELWrapper }
@@ -55,8 +55,8 @@ object Predef {
 	def tsv(file: File) = SeparatedValuesParser.tsv(file, None)
 	def tsv(file: File, escapeChar: String) = SeparatedValuesParser.tsv(file, Some(escapeChar))
 
-	implicit def data2FeederBuilder[T](data: Array[Map[String, T]]): AdvancedFeederBuilder[T] = FeederBuilderFromArray(data)
-	implicit def feeder2FeederBuilder[T](feeder: Feeder[T]): FeederBuilder[T] = FeederBuilderFromFeeder(feeder)
+	implicit def array2FeederBuilder[T](data: Array[Map[String, T]]): AdvancedFeederBuilder[T] = AdvancedFeederBuilder(data)
+	implicit def feeder2FeederBuilder[T](feeder: Feeder[T]): FeederBuilder[T] = FeederWrapper(feeder)
 
 	type Session = com.excilys.ebi.gatling.core.session.Session
 	type RequestStatus = com.excilys.ebi.gatling.core.result.message.RequestStatus
