@@ -16,13 +16,13 @@
 package com.excilys.ebi.gatling.mojo;
 
 @SuppressWarnings("serial")
-public class GatlingSimulationChecksFailedException extends RuntimeException {
+public class GatlingSimulationAssertionsFailedException extends RuntimeException {
 
-	public GatlingSimulationChecksFailedException() {
+	public GatlingSimulationAssertionsFailedException() {
 		this(null);
 	}
 
-	public GatlingSimulationChecksFailedException(Throwable t) {
-		super("Gatling simulation checks failed !", t);
+	public GatlingSimulationAssertionsFailedException(Throwable t) {
+		super("Gatling simulation assertions failed !", t);
 	}
 }

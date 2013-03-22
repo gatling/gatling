@@ -38,7 +38,7 @@ object Gatling extends Logging {
 
 	val SUCCESS = 0
 	val INCORRECT_ARGUMENTS = 1
-	val SIMULATION_CHECK_FAILED = 2
+	val SIMULATION_ASSERTIONS_FAILED = 2
 
 	/**
 	 * Entry point of Application
@@ -105,7 +105,7 @@ class Gatling extends Logging {
 		val dataReader = DataReader.newInstance(outputDirectoryName)
 
 		val result = simulation match {
-			case Some(simulation) => if (checkSimulation(simulation, dataReader)) Gatling.SUCCESS else Gatling.SIMULATION_CHECK_FAILED
+			case Some(simulation) => if (applyAssertions(simulation, dataReader)) Gatling.SUCCESS else Gatling.SIMULATION_ASSERTIONS_FAILED
 			case None => Gatling.SUCCESS
 		}
 
@@ -178,7 +178,7 @@ class Gatling extends Logging {
 		println(s"Please open the following file : $indexFile")
 	}
 
-	private def checkSimulation(simulation: Simulation, dataReader: DataReader) = {
+	private def applyAssertions(simulation: Simulation, dataReader: DataReader) = {
 		val successful = Assertion.assertThat(simulation.assertions, dataReader)
 
 		if (successful) println("Simulation successful.")
