@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.check.status
+package com.excilys.ebi.gatling.http.check.url
 
 import com.excilys.ebi.gatling.core.check.Extractor
 import com.excilys.ebi.gatling.core.session.noopStringExpression
@@ -32,7 +32,7 @@ object CurrentLocationCheckBuilder {
 	}
 
 	val currentLocation = new HttpSingleCheckBuilder[ExtendedResponse, String, String](
-		HttpCheckBuilders.statusCheckFactory,
+		HttpCheckBuilders.urlCheckFactory,
 		HttpCheckBuilders.noopResponsePreparer,
 		currentLocationExtractor,
 		noopStringExpression)

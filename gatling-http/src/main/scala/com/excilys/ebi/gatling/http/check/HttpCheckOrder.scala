@@ -20,6 +20,6 @@ package com.excilys.ebi.gatling.http.check
  */
 object HttpCheckOrder extends Enumeration {
     type HttpCheckOrder = Value
-    val Status, Checksum, Header, Body = Value
-    val orders = List(Status, Checksum, Header, Body)
+    val Status, Url, Checksum, Header, Body, Time = Value
+    val orders = List(Status, Url, Checksum, Header, Body, Time)
 }

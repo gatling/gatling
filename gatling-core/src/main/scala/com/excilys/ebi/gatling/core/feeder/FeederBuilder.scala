@@ -15,8 +15,33 @@
  */
 package com.excilys.ebi.gatling.core.feeder
 
+import scala.concurrent.forkjoin.ThreadLocalRandom
+
+import com.excilys.ebi.gatling.core.util.RoundRobin
+
 trait FeederBuilder[T] {
 	private[gatling] def build: Feeder[T]
 }
 
-case class FeederBuilderFromFeeder[T](build: Feeder[T]) extends FeederBuilder[T]
+case class FeederWrapper[T](build: Feeder[T]) extends FeederBuilder[T]
+
+case class AdvancedFeederBuilder[T](data: Array[Record[T]], strategy: Strategy = Queue) extends FeederBuilder[T] {
+
+	def convert(conversions: (String, T => Any)*): AdvancedFeederBuilder[Any] = {
+		val indexedConversions = conversions.toMap.withDefaultValue(identity[T] _)
+		copy(data = data.map(_.map { case (key, value) => (key, indexedConversions(key)(value)) }))
+	}
+
+	private[gatling] def build: Feeder[T] = strategy match {
+		case Queue => data.iterator
+		case Random => new Feeder[T] {
+			def hasNext = data.length != 0
+			def next = data(ThreadLocalRandom.current.nextInt(data.length))
+		}
+		case Circular => RoundRobin(data)
+	}
+
+	def queue: AdvancedFeederBuilder[T] = copy(strategy = Queue)
+	def random: AdvancedFeederBuilder[T] = copy(strategy = Random)
+	def circular: AdvancedFeederBuilder[T] = copy(strategy = Circular)
+}

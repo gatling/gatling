@@ -39,24 +39,24 @@
 			"ko": <%=stat.percentiles2.failure.toString%>
 		},
 		"group1": {
-			"name": "<%=stat.groupedCounts(0)._1.toString%>",
-			"count": <%=stat.groupedCounts(0)._2.toString%>,
-			"percentage": <%=stat.groupedCounts(0)._3.toString%>
+			"name": "<%=stat.groupedCounts(0).name%>",
+			"count": <%=stat.groupedCounts(0).count.toString%>,
+			"percentage": <%=stat.groupedCounts(0).percentage.toString%>
 		},
 		"group2": {
-			"name": "<%=stat.groupedCounts(1)._1.toString%>",
-			"count": <%=stat.groupedCounts(1)._2.toString%>,
-			"percentage": <%=stat.groupedCounts(1)._3.toString%>
+			"name": "<%=stat.groupedCounts(1).name%>",
+			"count": <%=stat.groupedCounts(1).count.toString%>,
+			"percentage": <%=stat.groupedCounts(1).percentage.toString%>
 		},
 		"group3": {
-			"name": "<%=stat.groupedCounts(2)._1.toString%>",
-			"count": <%=stat.groupedCounts(2)._2.toString%>,
-			"percentage": <%=stat.groupedCounts(2)._3.toString%>
+			"name": "<%=stat.groupedCounts(2).name%>",
+			"count": <%=stat.groupedCounts(2).count.toString%>,
+			"percentage": <%=stat.groupedCounts(2).percentage.toString%>
 		},
 		"group4": {
-			"name": "<%=stat.groupedCounts(3)._1.toString%>",
-			"count": <%=stat.groupedCounts(3)._2.toString%>,
-			"percentage": <%=stat.groupedCounts(3)._3.toString%>
+			"name": "<%=stat.groupedCounts(3).name%>",
+			"count": <%=stat.groupedCounts(3).count.toString%>,
+			"percentage": <%=stat.groupedCounts(3).percentage.toString%>
 		},
 		"meanNumberOfRequestsPerSecond": {
 			"total": <%=stat.meanNumberOfRequestsPerSecondStatistics.total.toString%>,

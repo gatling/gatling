@@ -15,11 +15,20 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import com.excilys.ebi.gatling.core.session.Expression
+import com.excilys.ebi.gatling.core.session.{ ELCompiler, Expression, Session }
+import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 
 object GetHttpRequestBuilder {
 
 	def apply(requestName: Expression[String], url: Expression[String]) = new GetHttpRequestBuilder(HttpAttributes(requestName, "GET", url))
+
+	def warmUp {
+		val expression = "foo".el[String]
+		GetHttpRequestBuilder(expression, expression)
+			.header("bar", expression)
+			.queryParam(expression, expression)
+			.build(Session("scenarioName", 0), HttpProtocolConfiguration.default)
+	}
 }
 
 /**

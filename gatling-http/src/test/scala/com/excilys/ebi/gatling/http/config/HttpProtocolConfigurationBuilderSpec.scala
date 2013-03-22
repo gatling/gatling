@@ -35,7 +35,7 @@ class HttpProtocolConfigurationBuilderSpec extends Specification {
 
 			val expectedExtractor = (requestStatus: RequestStatus, session: Session, request: Request, response: ExtendedResponse) => Nil
 
-			val builder = HttpProtocolConfigurationBuilder.httpConfig
+			val builder = HttpProtocolConfigurationBuilder.default
 				.disableWarmUp
 				.extraInfoExtractor(expectedExtractor)
 			val config: HttpProtocolConfiguration = builder.build
@@ -46,8 +46,8 @@ class HttpProtocolConfigurationBuilderSpec extends Specification {
 		"be able to support a base URL" in {
 			val url = "http://url"
 
-			val builder = HttpProtocolConfigurationBuilder
-				.httpConfig.baseURL(url)
+			val builder = HttpProtocolConfigurationBuilder.default
+				.baseURL(url)
 				.disableWarmUp
 
 			val config: HttpProtocolConfiguration = builder.build
@@ -59,14 +59,13 @@ class HttpProtocolConfigurationBuilderSpec extends Specification {
 			val url1 = "http://url1"
 			val url2 = "http://url2"
 
-			val builder = HttpProtocolConfigurationBuilder
-				.httpConfig.baseURLs(url1, url2)
+			val builder = HttpProtocolConfigurationBuilder.default
+				.baseURLs(url1, url2)
 				.disableWarmUp
 
 			val config: HttpProtocolConfiguration = builder.build
 
 			Seq(config.baseURL.get, config.baseURL.get, config.baseURL.get) must be equalTo (Seq(url1, url2, url1))
 		}
-
 	}
 }

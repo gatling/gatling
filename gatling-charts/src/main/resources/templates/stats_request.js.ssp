@@ -42,24 +42,24 @@ stats: {
 		ko: "<%=request.percentiles2.printableFailure%>"
 	},
 	group1 : {
-		name: "<%=request.groupedCounts(0)._1%>",
-		count: <%=request.groupedCounts(0)._2.toString%>,
-		percentage: <%=request.groupedCounts(0)._3.toString%>
+		name: "<%=request.groupedCounts(0).name%>",
+		count: <%=request.groupedCounts(0).count.toString%>,
+		percentage: <%=request.groupedCounts(0).percentage.toString%>
 	},
 	group2 : {
-		name: "<%=request.groupedCounts(1)._1%>",
-		count: <%=request.groupedCounts(1)._2.toString%>,
-		percentage: <%=request.groupedCounts(1)._3.toString%>
+		name: "<%=request.groupedCounts(1).name%>",
+		count: <%=request.groupedCounts(1).count.toString%>,
+		percentage: <%=request.groupedCounts(1).percentage.toString%>
 	},
 	group3 : {
-		name: "<%=request.groupedCounts(2)._1%>",
-		count: <%=request.groupedCounts(2)._2.toString%>,
-		percentage: <%=request.groupedCounts(2)._3.toString%>
+		name: "<%=request.groupedCounts(2).name%>",
+		count: <%=request.groupedCounts(2).count.toString%>,
+		percentage: <%=request.groupedCounts(2).percentage.toString%>
 	},
 	group4 : {
-		name: "<%=request.groupedCounts(3)._1%>",
-		count: <%=request.groupedCounts(3)._2.toString%>,
-		percentage: <%=request.groupedCounts(3)._3.toString%>
+		name: "<%=request.groupedCounts(3).name%>",
+		count: <%=request.groupedCounts(3).count.toString%>,
+		percentage: <%=request.groupedCounts(3).percentage.toString%>
 	},
 	meanNumberOfRequestsPerSecond: {
 		total: "<%=request.meanNumberOfRequestsPerSecondStatistics.printableTotal%>",

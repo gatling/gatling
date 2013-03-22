@@ -242,17 +242,17 @@ public class GatlingMojo extends AbstractMojo {
 		if (fork) {
 			JavaMainCaller caller = new GatlingJavaMainCallerByFork(this, GATLING_MAIN_CLASS, testClasspath, jvmArgs, gatlingArgs, false, toolchain, propagateSystemProperties);
 			try {
-				caller.run(false);
+				caller.run(true);
 			} catch (ExecuteException e) {
-				if (e.getExitValue() == Gatling.SIMULATION_CHECK_FAILED()) {
-					throw new GatlingSimulationChecksFailedException(e);
+				if (e.getExitValue() == Gatling.SIMULATION_ASSERTIONS_FAILED()) {
+					throw new GatlingSimulationAssertionsFailedException(e);
 				}
 			}
 		} else {
 			GatlingJavaMainCallerInProcess caller = new GatlingJavaMainCallerInProcess(this, GATLING_MAIN_CLASS, testClasspath, gatlingArgs);
 			int returnCode = caller.run();
-			if (returnCode == Gatling.SIMULATION_CHECK_FAILED()) {
-				throw new GatlingSimulationChecksFailedException();
+			if (returnCode == Gatling.SIMULATION_ASSERTIONS_FAILED()) {
+				throw new GatlingSimulationAssertionsFailedException();
 			}
 		}
 	}
