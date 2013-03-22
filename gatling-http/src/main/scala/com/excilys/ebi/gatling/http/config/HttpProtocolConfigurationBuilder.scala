@@ -15,14 +15,15 @@
  */
 package com.excilys.ebi.gatling.http.config
 
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
-import com.excilys.ebi.gatling.core.session.{ ELCompiler, Expression, Session }
+import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.http.ahc.GatlingHttpClient
 import com.excilys.ebi.gatling.http.request.builder.{ GetHttpRequestBuilder, PostHttpRequestBuilder }
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 import com.excilys.ebi.gatling.http.util.HttpHelper
-import com.ning.http.client.{ ProxyServer, Realm, Request, RequestBuilder }
+import com.ning.http.client.{ ProxyServer, Request, RequestBuilder }
 
 import grizzled.slf4j.Logging
 
@@ -31,96 +32,77 @@ import grizzled.slf4j.Logging
  */
 object HttpProtocolConfigurationBuilder {
 
-	val default = new HttpProtocolConfigurationBuilder(HttpProtocolConfiguration.default, Some("http://gatling-tool.org"))
+	val default = new HttpProtocolConfigurationBuilder(HttpProtocolConfiguration.default, configuration.http.warmUpUrl)
 }
 
 /**
  * Builder for HttpProtocolConfiguration used in DSL
  *
- * @param baseUrl the radix of all the URLs that will be used (eg: http://mywebsite.tld)
- * @param proxy a proxy through which all the requests must pass to succeed
+ * @param config the config being built
+ * @param warmUpUrl a URL to be pinged in order to warm up the HTTP engine
  */
-class HttpProtocolConfigurationBuilder(config: HttpProtocolConfiguration, warmUpUrl: Option[String]) extends Logging {
+case class HttpProtocolConfigurationBuilder(config: HttpProtocolConfiguration, warmUpUrl: Option[String]) extends Logging {
 
-	private def withNewConfig(config: HttpProtocolConfiguration) = new HttpProtocolConfigurationBuilder(config, warmUpUrl)
+	def baseURL(baseUrl: String) = copy(config = config.copy(baseURLs = Some(List(baseUrl))))
 
-	def baseURL(baseUrl: String) = withNewConfig(config.copy(baseURLs = Some(List(baseUrl))))
+	def baseURLs(baseUrl1: String, baseUrl2: String, baseUrls: String*) = copy(config = config.copy(baseURLs = Some(baseUrl1 :: baseUrl2 :: baseUrls.toList)))
 
-	def baseURLs(baseUrl1: String, baseUrl2: String, baseUrls: String*) = withNewConfig(config.copy(baseURLs = Some(baseUrl1 :: baseUrl2 :: baseUrls.toList)))
+	def disableFollowRedirect = copy(config = config.copy(followRedirectEnabled = false))
 
-	def disableFollowRedirect = withNewConfig(config.copy(followRedirectEnabled = false))
+	def disableAutomaticReferer = copy(config = config.copy(automaticRefererEnabled = false))
 
-	def disableAutomaticReferer = withNewConfig(config.copy(automaticRefererEnabled = false))
+	def disableCaching = copy(config = config.copy(cachingEnabled = false))
 
-	def disableCaching = withNewConfig(config.copy(cachingEnabled = false))
+	def disableResponseChunksDiscarding = copy(config = config.copy(responseChunksDiscardingEnabled = false))
 
-	def disableResponseChunksDiscarding = withNewConfig(config.copy(responseChunksDiscardingEnabled = false))
+	def shareConnections = copy(config = config.copy(shareConnections = true))
 
-	def shareConnections = withNewConfig(config.copy(shareConnections = true))
+	def acceptHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (Headers.Names.ACCEPT -> value)))
 
-	def acceptHeader(value: String) = withNewConfig(config.copy(baseHeaders = config.baseHeaders + (Headers.Names.ACCEPT -> value)))
+	def acceptCharsetHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (Headers.Names.ACCEPT_CHARSET -> value)))
 
-	def acceptCharsetHeader(value: String) = withNewConfig(config.copy(baseHeaders = config.baseHeaders + (Headers.Names.ACCEPT_CHARSET -> value)))
+	def acceptEncodingHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (Headers.Names.ACCEPT_ENCODING -> value)))
 
-	def acceptEncodingHeader(value: String) = withNewConfig(config.copy(baseHeaders = config.baseHeaders + (Headers.Names.ACCEPT_ENCODING -> value)))
+	def acceptLanguageHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (Headers.Names.ACCEPT_LANGUAGE -> value)))
 
-	def acceptLanguageHeader(value: String) = withNewConfig(config.copy(baseHeaders = config.baseHeaders + (Headers.Names.ACCEPT_LANGUAGE -> value)))
+	def authorizationHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (Headers.Names.AUTHORIZATION -> value)))
 
-	def authorizationHeader(value: String) = withNewConfig(config.copy(baseHeaders = config.baseHeaders + (Headers.Names.AUTHORIZATION -> value)))
+	def connection(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (Headers.Names.CONNECTION -> value)))
 
-	def connection(value: String) = withNewConfig(config.copy(baseHeaders = config.baseHeaders + (Headers.Names.CONNECTION -> value)))
+	def doNotTrackHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (Headers.Names.DO_NOT_TRACK -> value)))
 
-	def doNotTrackHeader(value: String) = withNewConfig(config.copy(baseHeaders = config.baseHeaders + (Headers.Names.DO_NOT_TRACK -> value)))
+	def userAgentHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (Headers.Names.USER_AGENT -> value)))
 
-	def userAgentHeader(value: String) = withNewConfig(config.copy(baseHeaders = config.baseHeaders + (Headers.Names.USER_AGENT -> value)))
+	def warmUp(url: String) = copy(warmUpUrl = Some(url))
 
-	def warmUp(warmUpUrl: String) = new HttpProtocolConfigurationBuilder(config, Some(warmUpUrl))
+	def disableWarmUp = copy(warmUpUrl = None)
 
-	def disableWarmUp = new HttpProtocolConfigurationBuilder(config, None)
+	def basicAuth(username: Expression[String], password: Expression[String]) = copy(config = config.copy(basicAuth = Some(HttpHelper.buildRealm(username, password))))
 
-	def basicAuth(username: Expression[String], password: Expression[String]) = withNewConfig(config.copy(basicAuth = Some(HttpHelper.buildRealm(username, password))))
+	def extraInfoExtractor(f: (RequestStatus, Session, Request, ExtendedResponse) => List[Any]) = copy(config = config.copy(extraInfoExtractor = Some(f)))
 
-	def extraInfoExtractor(f: (RequestStatus, Session, Request, ExtendedResponse) => List[Any]) = withNewConfig(config.copy(extraInfoExtractor = Some(f)))
-
-	/**
-	 * Sets the proxy of the future HttpProtocolConfiguration
-	 *
-	 * @param host the host of the proxy
-	 * @param port the port of the proxy
-	 */
 	def proxy(host: String, port: Int) = new HttpProxyBuilder(this, host, port)
 
-	private[http] def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = withNewConfig(config.copy(proxy = Some(httpProxy), securedProxy = httpsProxy))
+	private[http] def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = copy(config = config.copy(proxy = Some(httpProxy), securedProxy = httpsProxy))
 
 	private[http] def build = {
 
-		def warmUp() {
-			warmUpUrl.map { url =>
-				val requestBuilder = new RequestBuilder().setUrl(url)
+		warmUpUrl.map { url =>
+			val requestBuilder = new RequestBuilder().setUrl(url)
 
-				config.proxy.map { proxy => if (url.startsWith("http://")) requestBuilder.setProxyServer(proxy) }
-				config.securedProxy.map { proxy => if (url.startsWith("https://")) requestBuilder.setProxyServer(proxy) }
+			config.proxy.map { proxy => if (url.startsWith("http://")) requestBuilder.setProxyServer(proxy) }
+			config.securedProxy.map { proxy => if (url.startsWith("https://")) requestBuilder.setProxyServer(proxy) }
 
-				try {
-					GatlingHttpClient.client.executeRequest(requestBuilder.build).get
-				} catch {
-					case e: Exception => info(s"Couldn't execute warm up request $url", e)
-				}
+			try {
+				GatlingHttpClient.client.executeRequest(requestBuilder.build).get
+			} catch {
+				case e: Exception => info(s"Couldn't execute warm up request $url", e)
 			}
-
-			val expression = "foo".el[String]
-			GetHttpRequestBuilder(expression, expression)
-				.header("bar", expression)
-				.queryParam(expression, expression)
-				.build(Session("scenarioName", 0), config)
-
-			PostHttpRequestBuilder(expression, expression)
-				.header("bar", expression)
-				.param(expression, expression)
-				.build(Session("scenarioName", 0), config)
 		}
 
-		warmUp()
+		GetHttpRequestBuilder.warmUp
+		PostHttpRequestBuilder.warmUp
+
 		config
 	}
 }

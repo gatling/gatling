@@ -15,12 +15,21 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
-import com.excilys.ebi.gatling.core.session.Expression
+import com.excilys.ebi.gatling.core.session.{ ELCompiler, Expression, Session }
+import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.request.HttpRequestBody
 
 object PostHttpRequestBuilder {
 
 	def apply(requestName: Expression[String], url: Expression[String]) = new PostHttpRequestBuilder(HttpAttributes(requestName, "POST", url), None, HttpParamsAttributes())
+
+	def warmUp {
+		val expression = "foo".el[String]
+		PostHttpRequestBuilder(expression, expression)
+			.header("bar", expression)
+			.param(expression, expression)
+			.build(Session("scenarioName", 0), HttpProtocolConfiguration.default)
+	}
 }
 
 /**
@@ -30,7 +39,7 @@ class PostHttpRequestBuilder(
 	httpAttributes: HttpAttributes,
 	body: Option[HttpRequestBody],
 	paramsAttributes: HttpParamsAttributes)
-		extends AbstractHttpRequestWithBodyAndParamsBuilder[PostHttpRequestBuilder](httpAttributes, body, paramsAttributes) {
+	extends AbstractHttpRequestWithBodyAndParamsBuilder[PostHttpRequestBuilder](httpAttributes, body, paramsAttributes) {
 
 	private[http] def newInstance(
 		httpAttributes: HttpAttributes,
