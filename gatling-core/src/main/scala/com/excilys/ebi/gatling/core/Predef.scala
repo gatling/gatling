@@ -18,7 +18,6 @@ package com.excilys.ebi.gatling.core
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.reflect.ClassTag
 import scala.tools.nsc.io.{File, Path}
-
 import com.excilys.ebi.gatling.core.session.Expression
 import com.excilys.ebi.gatling.core.check.{Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder}
 import com.excilys.ebi.gatling.core.feeder.{AdvancedFeederBuilder, Feeder, FeederBuilder, FeederBuilderFromArray, FeederBuilderFromFeeder}
@@ -27,6 +26,8 @@ import com.excilys.ebi.gatling.core.scenario.injection.{AtOnceInjection, Constan
 import com.excilys.ebi.gatling.core.session.{ELCompiler, ELWrapper}
 import com.excilys.ebi.gatling.core.structure.{AssertionBuilder, ChainBuilder, ScenarioBuilder}
 import com.excilys.ebi.gatling.core.validation.{SuccessWrapper, Validation}
+import com.excilys.ebi.gatling.core.scenario.injection.InjectionStep
+import com.excilys.ebi.gatling.core.scenario.injection.SplitInjection
 
 object Predef {
 	implicit def stringToExpression[T: ClassTag](string: String) = string.el
@@ -109,10 +110,17 @@ object Predef {
 	case class RampRateBuilder(rate1: UsersPerSec, rate2: UsersPerSec) {
 		def during(d: FiniteDuration) = RampRateInjection(rate1.rate, rate2.rate, d)
 	}
-
+	case class PartialSplitBuilder(users: UserNumber) {
+		def into(step:InjectionStep) = SplitBuilder(users, step)
+	}
+	case class SplitBuilder(users: UserNumber, step:InjectionStep) {
+		def during(separator: InjectionStep) = SplitInjection(users.number, step, separator)
+	}
+	
 	def ramp(users: UserNumber) = RampBuilder(users)
 	def nothingFor(d: FiniteDuration) = NothingForInjection(d)
 	def atOnce(users: UserNumber) = AtOnceInjection(users.number)
 	def constantRate(rate: UsersPerSec) = ConstantRateBuilder(rate)
 	def rampRate(rate1: UsersPerSec) = PartialRampRateBuilder(rate1)
+	def split(users: UserNumber) = PartialSplitBuilder(users)
 }

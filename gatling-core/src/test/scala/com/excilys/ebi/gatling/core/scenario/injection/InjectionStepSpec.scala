@@ -23,6 +23,7 @@ import org.specs2.runner.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class InjectionStepSpec extends Specification {
+
 	"RampInjection" should {
 		val ramp = RampInjection(5, 1 second)
 
@@ -106,17 +107,16 @@ class InjectionStepSpec extends Specification {
 		}
 	}
 
-	"SteppedRampsInjection" should {
+	"SplitInjection" should {
 
-		"provide an appropriate injection scheduling even when we can't form a full ramp" in {
-			val sr = SteppedRampsInjection(2, 3, 2 seconds, 5 seconds)
-			val scheduling = NothingForInjection(2 seconds).chain(sr.chain(Iterator.empty)).toList
-			scheduling must beEqualTo(List(2 second, 3 seconds))
+		"provide an appropriate injection scheduling and ignore extra users" in {
+			val scheduling = SplitInjection(10, RampInjection(3, 2 seconds), NothingForInjection(5 seconds)).chain(Iterator.empty).toList
+			scheduling must beEqualTo(List(0 second, 1 second, 2 seconds, 7 seconds, 8 seconds, 9 seconds, 14 seconds, 15 seconds, 16 seconds))
 		}
 
-		"provide an appropriate injection with full ramps and remaining users" in {
-			val scheduling = SteppedRampsInjection(5, 2, 1 seconds, 5 seconds).chain(Iterator.empty).toList
-			scheduling must beEqualTo(List(0 second, 1 second, 6 seconds, 7 seconds, 12 seconds))
+		"should schedule the first and last user thru the 'into' injection step" in {
+			val scheduling = SplitInjection(5, RampInjection(3, 2 seconds), AtOnceInjection(1)).chain(AtOnceInjection(1).chain(Iterator.empty)).toList
+			scheduling must beEqualTo(List(0 second, 1 second, 2 seconds, 2 seconds))
 		}
 	}
 

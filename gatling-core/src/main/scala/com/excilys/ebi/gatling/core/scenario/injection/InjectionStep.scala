@@ -101,32 +101,25 @@ case class RampRateInjection(r1: Double, r2: Double, duration: FiniteDuration) e
 }
 
 /**
- * Inject users thru multiple separated ramps until reaching the total amount of users
+ *  Inject users thru separated steps until reaching the total amount of users
  */
-case class SteppedRampsInjection(val users: Int, usersPerRamp: Int, rampDuration: FiniteDuration, waitDuration: FiniteDuration) extends InjectionStep {
-	require(users > 0, "the number of users must be strictly positive")
-	require(usersPerRamp > 0, "the number of users per ramp must be strictly positive")
+case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: InjectionStep) extends InjectionStep {
+	private val stepUsers = step.users
 
-	val nothingFor = NothingForInjection(waitDuration)
-
-	def chainFullRamps(nbRamps: Int, iterator: Iterator[FiniteDuration]) = {
-		val ramp = RampInjection(usersPerRamp, rampDuration)
-		val tail = (1 until nbRamps).foldRight(iterator)((_, iterator) => nothingFor.chain(ramp.chain(iterator)))
-		ramp.chain(tail)
-	}
-
-	def chainLastRamp(lastUsers: Int, iterator: Iterator[FiniteDuration]) = {
-		if (lastUsers != 0) {
-			val lastRampDuration = (rampDuration / (usersPerRamp - 1).max(1)) * (lastUsers - 1).max(1)
-			RampInjection(lastUsers, lastRampDuration).chain(iterator)
-		} else
-			iterator
+	val users = {
+		if (possibleUsers > stepUsers) {
+			val separatorUsers = separator.users
+			possibleUsers - (possibleUsers - stepUsers) % (stepUsers + separatorUsers)
+		} else 0
 	}
 
 	override def chain(iterator: Iterator[FiniteDuration]) = {
-		val lastUsers = users % usersPerRamp
-		val lastIterator = chainLastRamp(lastUsers, iterator)
-		val nbFullRamps = users / usersPerRamp
-		if (nbFullRamps > 0) chainFullRamps(nbFullRamps, nothingFor.chain(lastIterator)) else lastIterator
+		if (possibleUsers > stepUsers) {
+			val separatorUsers = separator.users
+			val n = (possibleUsers - stepUsers) / (stepUsers + separatorUsers)
+			val lastScheduling = step.chain(iterator)
+			(1 to n).foldRight(lastScheduling)((_, iterator) => step.chain(separator.chain(iterator)))
+		} else
+			iterator
 	}
 }
