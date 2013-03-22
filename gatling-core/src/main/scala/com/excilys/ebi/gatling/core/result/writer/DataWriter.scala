@@ -106,7 +106,7 @@ trait DataWriter extends BaseActor {
 
 			val originalSender = sender
 
-			Terminator.askDataWriterRegistration(self).onComplete {
+			Terminator.askDataWriterRegistration(self).onSuccess {
 				case _ =>
 					info("Going on with initialization after Terminator registration")
 					onInitializeDataWriter(runRecord, scenarios)
