@@ -15,17 +15,12 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.util.ClassSimpleNameToString
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 
-import akka.actor.{ Actor, Terminated }
-import grizzled.slf4j.Logging
+import akka.util.Timeout
+import akka.util.duration.intToDurationInt
 
-trait BaseActor extends Actor with AkkaDefaults with ClassSimpleNameToString with Logging {
+trait AkkaDefaults {
 
-	override def unhandled(message: Any) {
-		message match {
-			case Terminated(dead) => super.unhandled(message)
-			case unknown => throw new IllegalArgumentException("Actor " + this + " doesn't support message " + unknown)
-		}
-	}
+	implicit val defaultTimeOut = Timeout(configuration.timeOut.actor seconds)
 }

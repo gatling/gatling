@@ -17,29 +17,29 @@ package com.excilys.ebi.gatling.core.result.terminator
 
 import java.util.concurrent.CountDownLatch
 
-import com.excilys.ebi.gatling.core.action.{ BaseActor, system }
+import com.excilys.ebi.gatling.core.action.{ AkkaDefaults, BaseActor, system }
 import com.excilys.ebi.gatling.core.result.message.Flush
 
 import akka.actor.{ ActorRef, Props }
 import akka.dispatch.Future
 import akka.pattern.ask
 
-object Terminator {
+object Terminator extends AkkaDefaults {
 
 	private val terminator = system.actorOf(Props[Terminator])
 
-	def init(latch: CountDownLatch, userCount: Int) {
-		terminator ! Initialize(latch, userCount)
+	def askInit(latch: CountDownLatch, userCount: Int): Future[Any] = {
+		terminator ? Initialize(latch, userCount)
 	}
 
-	def registerDataWriter(dataWriter: ActorRef) {
-		terminator ! RegisterDataWriter(dataWriter)
+	def askDataWriterRegistration(dataWriter: ActorRef): Future[Any] = {
+		terminator ? RegisterDataWriter(dataWriter)
 	}
 
 	def endUser {
 		terminator ! EndUser
 	}
-	
+
 	def forceTermination {
 		terminator ! ForceTermination
 	}
@@ -60,14 +60,17 @@ class Terminator extends BaseActor {
 	def uninitialized: Receive = {
 
 		case Initialize(latch, userCount) =>
+			info("Initializing")
 			this.latch = latch
 			this.userCount = userCount
 			registeredDataWriters = Nil
 			context.become(initialized)
+			sender ! true
+			info("Initialized")
 	}
 
 	def flush {
-		Future.sequence(registeredDataWriters.map(_.ask(Flush)))
+		Future.sequence(registeredDataWriters.map(_ ? Flush))
 			.onSuccess {
 				case _ =>
 					latch.countDown
@@ -81,6 +84,8 @@ class Terminator extends BaseActor {
 
 		case RegisterDataWriter(dataWriter: ActorRef) =>
 			registeredDataWriters = dataWriter :: registeredDataWriters
+			sender ! true
+			info("DataWriter registered")
 
 		case EndUser =>
 			userCount = userCount - 1
