@@ -33,6 +33,8 @@ case class Statistics(name: String, total: Long, success: Long, failure: Long) {
 	def all = List(total, success, failure)
 }
 
+case class GroupedCount(name: String, count: Int, percentage: Int)
+
 case class RequestStatistics(name: String,
 	path: String,
 	numberOfRequestsStatistics: Statistics,
@@ -42,7 +44,7 @@ case class RequestStatistics(name: String,
 	stdDeviationStatistics: Statistics,
 	percentiles1: Statistics,
 	percentiles2: Statistics,
-	groupedCounts: Seq[(String, Int, Int)],
+	groupedCounts: Seq[GroupedCount],
 	meanNumberOfRequestsPerSecondStatistics: Statistics) {
 
 	def mkString = {
@@ -56,7 +58,7 @@ case class RequestStatistics(name: String,
 			stdDeviationStatistics.all,
 			percentiles1.all,
 			percentiles2.all,
-			groupedCounts.flatMap(_.productIterator.toList),
+			groupedCounts.flatMap(groupedCount => List(groupedCount.name, groupedCount.count, groupedCount.percentage)),
 			meanNumberOfRequestsPerSecondStatistics.all).flatten.mkString(configuration.charting.statsTsvSeparator)
 	}
 }

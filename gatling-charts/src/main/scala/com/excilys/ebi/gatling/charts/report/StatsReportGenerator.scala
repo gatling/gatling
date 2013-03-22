@@ -15,10 +15,10 @@
  */
 package com.excilys.ebi.gatling.charts.report
 
-import com.excilys.ebi.gatling.charts.component.{ ComponentLibrary, RequestStatistics, Statistics }
+import com.excilys.ebi.gatling.charts.component.{ ComponentLibrary, GroupedCount, RequestStatistics, Statistics }
 import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ GLOBAL_PAGE_NAME, jsStatsFile, jsonStatsFile, tsvStatsFile }
 import com.excilys.ebi.gatling.charts.template.{ StatsJsTemplate, StatsJsonTemplate, StatsTsvTemplate }
-import com.excilys.ebi.gatling.core.result.{ RequestPath, Group }
+import com.excilys.ebi.gatling.core.result.{ Group, RequestPath }
 import com.excilys.ebi.gatling.core.result.message.{ KO, OK }
 import com.excilys.ebi.gatling.core.result.reader.DataReader
 
@@ -42,7 +42,7 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 
 			val groupedCounts = dataReader
 				.numberOfRequestInResponseTimeRange(requestName, group).map {
-					case (name, count) => (name, count, count * 100 / total.count)
+					case (name, count) => GroupedCount(name, count, count * 100 / total.count)
 				}
 
 			val path = requestName match {
