@@ -16,7 +16,7 @@
 package com.excilys.ebi.gatling.http.config
 
 import com.excilys.ebi.gatling.core.result.message.RequestStatus
-import com.excilys.ebi.gatling.core.session.{ EL, Expression, Session }
+import com.excilys.ebi.gatling.core.session.{ ELCompiler, Expression, Session }
 import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.http.ahc.GatlingHttpClient
 import com.excilys.ebi.gatling.http.request.builder.{ GetHttpRequestBuilder, PostHttpRequestBuilder }
@@ -31,35 +31,8 @@ import grizzled.slf4j.Logging
  */
 object HttpProtocolConfigurationBuilder {
 
-	private[gatling] val BASE_HTTP_PROTOCOL_CONFIGURATION_BUILDER = new HttpProtocolConfigurationBuilder(Attributes(
-		baseUrls = None,
-		proxy = None,
-		securedProxy = None,
-		followRedirectEnabled = true,
-		automaticRefererEnabled = true,
-		cachingEnabled = true,
-		responseChunksDiscardingEnabled = true,
-		shareConnections = false,
-		baseHeaders = Map.empty,
-		warmUpUrl = None,
-		basicAuth = None,
-		extraInfoExtractor = None))
-
-	def httpConfig = BASE_HTTP_PROTOCOL_CONFIGURATION_BUILDER.warmUp("http://gatling-tool.org")
+	val default = new HttpProtocolConfigurationBuilder(HttpProtocolConfiguration.default, Some("http://gatling-tool.org"))
 }
-
-private case class Attributes(baseUrls: Option[List[String]],
-	proxy: Option[ProxyServer],
-	securedProxy: Option[ProxyServer],
-	followRedirectEnabled: Boolean,
-	automaticRefererEnabled: Boolean,
-	cachingEnabled: Boolean,
-	responseChunksDiscardingEnabled: Boolean,
-	shareConnections: Boolean,
-	baseHeaders: Map[String, String],
-	warmUpUrl: Option[String],
-	basicAuth: Option[Expression[Realm]],
-	extraInfoExtractor: Option[(RequestStatus, Session, Request, ExtendedResponse) => List[Any]])
 
 /**
  * Builder for HttpProtocolConfiguration used in DSL
@@ -67,50 +40,47 @@ private case class Attributes(baseUrls: Option[List[String]],
  * @param baseUrl the radix of all the URLs that will be used (eg: http://mywebsite.tld)
  * @param proxy a proxy through which all the requests must pass to succeed
  */
-class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
+class HttpProtocolConfigurationBuilder(config: HttpProtocolConfiguration, warmUpUrl: Option[String]) extends Logging {
 
-	/**
-	 * Sets the baseURL of the future HttpProtocolConfiguration
-	 *
-	 * @param baseUrl the base url that will be set
-	 */
-	def baseURL(baseUrl: String) = new HttpProtocolConfigurationBuilder(attributes.copy(baseUrls = Some(List(baseUrl))))
+	private def withNewConfig(config: HttpProtocolConfiguration) = new HttpProtocolConfigurationBuilder(config, warmUpUrl)
 
-	def baseURLs(baseUrl1: String, baseUrl2: String, baseUrls: String*) = new HttpProtocolConfigurationBuilder(attributes.copy(baseUrls = Some(baseUrl1 :: baseUrl2 :: baseUrls.toList)))
+	def baseURL(baseUrl: String) = withNewConfig(config.copy(baseURLs = Some(List(baseUrl))))
 
-	def disableFollowRedirect = new HttpProtocolConfigurationBuilder(attributes.copy(followRedirectEnabled = false))
+	def baseURLs(baseUrl1: String, baseUrl2: String, baseUrls: String*) = withNewConfig(config.copy(baseURLs = Some(baseUrl1 :: baseUrl2 :: baseUrls.toList)))
 
-	def disableAutomaticReferer = new HttpProtocolConfigurationBuilder(attributes.copy(automaticRefererEnabled = false))
+	def disableFollowRedirect = withNewConfig(config.copy(followRedirectEnabled = false))
 
-	def disableCaching = new HttpProtocolConfigurationBuilder(attributes.copy(cachingEnabled = false))
+	def disableAutomaticReferer = withNewConfig(config.copy(automaticRefererEnabled = false))
 
-	def disableResponseChunksDiscarding = new HttpProtocolConfigurationBuilder(attributes.copy(responseChunksDiscardingEnabled = false))
+	def disableCaching = withNewConfig(config.copy(cachingEnabled = false))
 
-	def shareConnections = new HttpProtocolConfigurationBuilder(attributes.copy(shareConnections = true))
+	def disableResponseChunksDiscarding = withNewConfig(config.copy(responseChunksDiscardingEnabled = false))
 
-	def acceptHeader(value: String) = new HttpProtocolConfigurationBuilder(attributes.copy(baseHeaders = attributes.baseHeaders + (Headers.Names.ACCEPT -> value)))
+	def shareConnections = withNewConfig(config.copy(shareConnections = true))
 
-	def acceptCharsetHeader(value: String) = new HttpProtocolConfigurationBuilder(attributes.copy(baseHeaders = attributes.baseHeaders + (Headers.Names.ACCEPT_CHARSET -> value)))
+	def acceptHeader(value: String) = withNewConfig(config.copy(baseHeaders = config.baseHeaders + (Headers.Names.ACCEPT -> value)))
 
-	def acceptEncodingHeader(value: String) = new HttpProtocolConfigurationBuilder(attributes.copy(baseHeaders = attributes.baseHeaders + (Headers.Names.ACCEPT_ENCODING -> value)))
+	def acceptCharsetHeader(value: String) = withNewConfig(config.copy(baseHeaders = config.baseHeaders + (Headers.Names.ACCEPT_CHARSET -> value)))
 
-	def acceptLanguageHeader(value: String) = new HttpProtocolConfigurationBuilder(attributes.copy(baseHeaders = attributes.baseHeaders + (Headers.Names.ACCEPT_LANGUAGE -> value)))
+	def acceptEncodingHeader(value: String) = withNewConfig(config.copy(baseHeaders = config.baseHeaders + (Headers.Names.ACCEPT_ENCODING -> value)))
 
-	def authorizationHeader(value: String) = new HttpProtocolConfigurationBuilder(attributes.copy(baseHeaders = attributes.baseHeaders + (Headers.Names.AUTHORIZATION -> value)))
+	def acceptLanguageHeader(value: String) = withNewConfig(config.copy(baseHeaders = config.baseHeaders + (Headers.Names.ACCEPT_LANGUAGE -> value)))
 
-	def connection(value: String) = new HttpProtocolConfigurationBuilder(attributes.copy(baseHeaders = attributes.baseHeaders + (Headers.Names.CONNECTION -> value)))
+	def authorizationHeader(value: String) = withNewConfig(config.copy(baseHeaders = config.baseHeaders + (Headers.Names.AUTHORIZATION -> value)))
 
-	def doNotTrackHeader(value: String) = new HttpProtocolConfigurationBuilder(attributes.copy(baseHeaders = attributes.baseHeaders + (Headers.Names.DO_NOT_TRACK -> value)))
+	def connection(value: String) = withNewConfig(config.copy(baseHeaders = config.baseHeaders + (Headers.Names.CONNECTION -> value)))
 
-	def userAgentHeader(value: String) = new HttpProtocolConfigurationBuilder(attributes.copy(baseHeaders = attributes.baseHeaders + (Headers.Names.USER_AGENT -> value)))
+	def doNotTrackHeader(value: String) = withNewConfig(config.copy(baseHeaders = config.baseHeaders + (Headers.Names.DO_NOT_TRACK -> value)))
 
-	def warmUp(warmUpUrl: String) = new HttpProtocolConfigurationBuilder(attributes.copy(warmUpUrl = Some(warmUpUrl)))
+	def userAgentHeader(value: String) = withNewConfig(config.copy(baseHeaders = config.baseHeaders + (Headers.Names.USER_AGENT -> value)))
 
-	def disableWarmUp = new HttpProtocolConfigurationBuilder(attributes.copy(warmUpUrl = None))
+	def warmUp(warmUpUrl: String) = new HttpProtocolConfigurationBuilder(config, Some(warmUpUrl))
 
-	def basicAuth(username: Expression[String], password: Expression[String]) = new HttpProtocolConfigurationBuilder(attributes.copy(basicAuth = Some(HttpHelper.buildRealm(username, password))))
+	def disableWarmUp = new HttpProtocolConfigurationBuilder(config, None)
 
-	def extraInfoExtractor(f: (RequestStatus, Session, Request, ExtendedResponse) => List[Any]) = new HttpProtocolConfigurationBuilder(attributes.copy(extraInfoExtractor = Some(f)))
+	def basicAuth(username: Expression[String], password: Expression[String]) = withNewConfig(config.copy(basicAuth = Some(HttpHelper.buildRealm(username, password))))
+
+	def extraInfoExtractor(f: (RequestStatus, Session, Request, ExtendedResponse) => List[Any]) = withNewConfig(config.copy(extraInfoExtractor = Some(f)))
 
 	/**
 	 * Sets the proxy of the future HttpProtocolConfiguration
@@ -120,29 +90,16 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 	 */
 	def proxy(host: String, port: Int) = new HttpProxyBuilder(this, host, port)
 
-	private[http] def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = new HttpProtocolConfigurationBuilder(attributes.copy(proxy = Some(httpProxy), securedProxy = httpsProxy))
+	private[http] def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = withNewConfig(config.copy(proxy = Some(httpProxy), securedProxy = httpsProxy))
 
 	private[http] def build = {
 
-		val config = HttpProtocolConfiguration(
-			attributes.baseUrls,
-			attributes.proxy,
-			attributes.securedProxy,
-			attributes.followRedirectEnabled,
-			attributes.automaticRefererEnabled,
-			attributes.cachingEnabled,
-			attributes.responseChunksDiscardingEnabled,
-			attributes.shareConnections,
-			attributes.baseHeaders,
-			attributes.basicAuth,
-			attributes.extraInfoExtractor)
-
-		def doWarmUp() {
-			attributes.warmUpUrl.map { url =>
+		def warmUp() {
+			warmUpUrl.map { url =>
 				val requestBuilder = new RequestBuilder().setUrl(url)
 
-				attributes.proxy.map { proxy => if (url.startsWith("http://")) requestBuilder.setProxyServer(proxy) }
-				attributes.securedProxy.map { proxy => if (url.startsWith("https://")) requestBuilder.setProxyServer(proxy) }
+				config.proxy.map { proxy => if (url.startsWith("http://")) requestBuilder.setProxyServer(proxy) }
+				config.securedProxy.map { proxy => if (url.startsWith("https://")) requestBuilder.setProxyServer(proxy) }
 
 				try {
 					GatlingHttpClient.client.executeRequest(requestBuilder.build).get
@@ -151,7 +108,7 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 				}
 			}
 
-			val expression = EL.compile[String]("foo")
+			val expression = "foo".el[String]
 			GetHttpRequestBuilder(expression, expression)
 				.header("bar", expression)
 				.queryParam(expression, expression)
@@ -163,7 +120,7 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 				.build(Session("scenarioName", 0), config)
 		}
 
-		doWarmUp()
+		warmUp()
 		config
 	}
 }

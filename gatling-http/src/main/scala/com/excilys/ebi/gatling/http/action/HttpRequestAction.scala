@@ -36,7 +36,7 @@ object HttpRequestAction extends Logging {
 
 	def apply(requestName: Expression[String], next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck], protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
 
-		val httpConfig = protocolConfigurationRegistry.getProtocolConfiguration(HttpProtocolConfiguration.DEFAULT_HTTP_PROTOCOL_CONFIG)
+		val httpConfig = protocolConfigurationRegistry.getProtocolConfiguration(HttpProtocolConfiguration.default)
 
 		new HttpRequestAction(requestName, next, requestBuilder, checks, httpConfig)
 	}

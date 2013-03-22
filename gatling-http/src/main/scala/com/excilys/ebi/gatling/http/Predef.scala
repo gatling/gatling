@@ -40,7 +40,7 @@ object Predef {
 
 	def http(requestName: Expression[String]) = HttpRequestBaseBuilder.http(requestName)
 	def addCookies(url: Expression[String], cookie: Cookie, cookies: Cookie*) = AddCookiesBuilder(url, cookie :: cookies.toList)
-	def httpConfig = HttpProtocolConfigurationBuilder.httpConfig
+	def httpConfig = HttpProtocolConfigurationBuilder.default
 	def regex(pattern: Expression[String]) = HttpBodyRegexCheckBuilder.regex(pattern)
 	def xpath(expression: Expression[String], namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)
 	def css(selector: Expression[String]) = HttpBodyCssCheckBuilder.css(selector, None)

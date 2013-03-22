@@ -26,9 +26,18 @@ import com.ning.http.client.{ ProxyServer, Realm, Request }
  * HttpProtocolConfiguration class companion
  */
 object HttpProtocolConfiguration {
-	val HTTP_PROTOCOL_TYPE = "httpProtocol"
-
-	lazy val DEFAULT_HTTP_PROTOCOL_CONFIG = HttpProtocolConfigurationBuilder.BASE_HTTP_PROTOCOL_CONFIGURATION_BUILDER.build
+	val default = HttpProtocolConfiguration(
+		baseURLs = None,
+		proxy = None,
+		securedProxy = None,
+		followRedirectEnabled = true,
+		automaticRefererEnabled = true,
+		cachingEnabled = true,
+		responseChunksDiscardingEnabled = true,
+		shareConnections = false,
+		baseHeaders = Map.empty,
+		basicAuth = None,
+		extraInfoExtractor = None)
 }
 
 /**
@@ -49,8 +58,6 @@ case class HttpProtocolConfiguration(
 	baseHeaders: Map[String, String],
 	basicAuth: Option[Expression[Realm]],
 	extraInfoExtractor: Option[(RequestStatus, Session, Request, ExtendedResponse) => List[Any]]) extends ProtocolConfiguration {
-
-	val protocolType = HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE
 
 	val roundRobinUrls = baseURLs.map(RoundRobin(_))
 
