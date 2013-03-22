@@ -46,7 +46,17 @@ object JacksonNavigator extends DefaultNavigator {
 
 	def getElementName(contextNode: Object) = contextNode.asInstanceOf[JsonNode].name
 
+	def getElementQName(contextNode: Object) = getElementName(contextNode)
+
 	def getElementNamespaceUri(contextNode: Object) = null
+
+	def isComment(obj: Object) = false
+
+	def isNamespace(obj: Object) = false
+
+	def isProcessingInstruction(obj: Object) = false
+
+	def isDocument(obj: Object) = false
 
 	// unsupported operations
 	def getAttributeName(attr: Object) = throw new UnsupportedOperationException
@@ -59,19 +69,9 @@ object JacksonNavigator extends DefaultNavigator {
 
 	def getCommentStringValue(attr: Object) = throw new UnsupportedOperationException
 
-	def getElementQName(contextNode: Object) = getElementName(contextNode)
-
 	def getNamespacePrefix(namespace: Object) = throw new UnsupportedOperationException
 
 	def getNamespaceStringValue(namespace: Object) = throw new UnsupportedOperationException
 
 	def parseXPath(xpath: String) = throw new UnsupportedOperationException
-
-	def isComment(obj: Object) = false
-
-	def isNamespace(obj: Object) = false
-
-	def isProcessingInstruction(obj: Object) = false
-
-	def isDocument(obj: Object) = false
 }
