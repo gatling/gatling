@@ -125,6 +125,7 @@ object GatlingConfiguration extends Logging {
 			graphite = GraphiteConfiguration(
 				host = config.getString(CONF_GRAPHITE_HOST),
 				port = config.getInt(CONF_GRAPHITE_PORT),
+				protocol = config.getString(CONF_GRAPHITE_PROTOCOL),
 				rootPathPrefix = config.getString(CONF_ROOT_PATH_PREFIX),
 				bucketWidth = config.getInt(CONF_GRAPHITE_BUCKET_WIDTH)),
 			config)
@@ -200,6 +201,7 @@ case class DataConfiguration(
 case class GraphiteConfiguration(
 	host: String,
 	port: Int,
+	protocol: String,
 	rootPathPrefix: String,
 	bucketWidth: Int)
 
