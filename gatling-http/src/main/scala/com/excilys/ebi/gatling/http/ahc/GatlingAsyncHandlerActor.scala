@@ -42,6 +42,7 @@ import akka.actor.{ ActorRef, ReceiveTimeout }
 object GatlingAsyncHandlerActor {
 	val redirectedRequestNamePattern = """(.+?) Redirect (\d+)""".r
 	val redirectStatusCodes = 301 to 303
+	val timeout = configuration.http.requestTimeOutInMs milliseconds
 
 	def newAsyncHandlerActorFactory(
 		checks: List[HttpCheck],
@@ -116,7 +117,7 @@ class GatlingAsyncHandlerActor(
 			executeNext(originalSession.setFailed, response)
 	}
 
-	def resetTimeout = context.setReceiveTimeout(configuration.http.requestTimeOutInMs milliseconds)
+	def resetTimeout = context.setReceiveTimeout(GatlingAsyncHandlerActor.timeout)
 
 	private def logRequest(
 		session: Session,
