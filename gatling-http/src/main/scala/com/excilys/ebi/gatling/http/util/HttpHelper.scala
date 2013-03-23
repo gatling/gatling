@@ -22,7 +22,7 @@ import scala.collection.JavaConversions.{ asScalaSet, mapAsJavaMap }
 import scala.io.Codec.UTF8
 
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
-import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+import com.excilys.ebi.gatling.core.util.StringHelper.eol
 import com.excilys.ebi.gatling.core.validation.{ Validation, ValidationList }
 import com.excilys.ebi.gatling.http.request.builder.HttpParam
 import com.ning.http.client.{ FluentStringsMap, Realm }
@@ -103,7 +103,7 @@ object HttpHelper {
 
 		for {
 			entry <- map.entrySet
-		} buff.append(entry.getKey).append(": ").append(entry.getValue).append(END_OF_LINE)
+		} buff.append(entry.getKey).append(": ").append(entry.getValue).append(eol)
 	}
 
 	def buildRealm(username: Expression[String], password: Expression[String]): Expression[Realm] = (session: Session) =>

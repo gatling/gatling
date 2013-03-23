@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.recorder.scenario
 
-import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+import com.excilys.ebi.gatling.core.util.StringHelper.eol
 import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.recorder.config.RecorderConfiguration.configuration
 
@@ -40,7 +40,7 @@ class ProtocolConfigElement(baseUrl: String, followRedirect: Boolean, automaticR
 		val sb = new StringBuilder
 
 		def appendLine(line: String) {
-			sb.append(indent).append(line).append(END_OF_LINE)
+			sb.append(indent).append(line).append(eol)
 		}
 
 		appendLine(".baseURL(\"" + baseUrl + "\")")

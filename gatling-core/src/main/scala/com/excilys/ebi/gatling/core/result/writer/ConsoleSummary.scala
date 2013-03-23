@@ -22,7 +22,7 @@ import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
 import com.excilys.ebi.gatling.core.util.PaddableStringBuilder
-import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+import com.excilys.ebi.gatling.core.util.StringHelper.eol
 
 object ConsoleSummary {
 	val iso8601Format = "yyyy-MM-dd HH:mm:ss"
@@ -33,18 +33,18 @@ object ConsoleSummary {
 
 	def apply(elapsedTime: Long, usersCounters: Map[String, UserCounters], requestsCounters: Map[String, RequestCounters], time: DateTime = DateTime.now) = {
 
-		def newBlock(buff: StringBuilder) { buff.append(blockSeparator).append(END_OF_LINE) }
+		def newBlock(buff: StringBuilder) { buff.append(blockSeparator).append(eol) }
 
 		def appendTimeInfos(buff: StringBuilder, time: DateTime, elapsedTimeInSec: Long) {
 			val now = ConsoleSummary.dateTimeFormat.print(time)
 			buff.append(now)
 				.appendLeftPaddedString(elapsedTimeInSec.toString, outputLength - iso8601Format.length - 9)
 				.append("s elapsed")
-				.append(END_OF_LINE)
+				.append(eol)
 		}
 
 		def appendSubTitle(buff: StringBuilder, title: String) {
-			buff.append("---- ").append(title).append(" ").appendTimes("-", max(outputLength - title.length - 6, 0)).append(END_OF_LINE)
+			buff.append("---- ").append(title).append(" ").appendTimes("-", max(outputLength - title.length - 6, 0)).append(eol)
 		}
 
 		def appendUsersProgressBar(buff: StringBuilder, usersStats: UserCounters) {
@@ -61,21 +61,21 @@ object ConsoleSummary {
 
 			buff.append("Users  : [").appendTimes("#", done).appendTimes("-", running).appendTimes(" ", waiting).append("]")
 				.appendLeftPaddedString(donePercent.toString, 3).append("%")
-				.append(END_OF_LINE)
+				.append(eol)
 		}
 
 		def appendUserCounters(buff: StringBuilder, userCounters: UserCounters) {
 			buff.append("          waiting:").appendRightPaddedString(userCounters.waitingCount.toString, 5)
 				.append(" / running:").appendRightPaddedString(userCounters.runningCount.toString, 5)
 				.append(" / done:").appendRightPaddedString(userCounters.doneCount.toString, 5)
-				.append(END_OF_LINE)
+				.append(eol)
 		}
 
 		def appendRequestCounters(buff: StringBuilder, actionName: String, requestCounters: RequestCounters) {
 			buff.append("> ").appendRightPaddedString(actionName, outputLength - 22)
 				.append(" OK=").appendRightPaddedString(requestCounters.successfulCount.toString, 6)
 				.append(" KO=").appendRightPaddedString(requestCounters.failedCount.toString, 6)
-				.append(END_OF_LINE)
+				.append(eol)
 		}
 
 		val buff = new StringBuilder

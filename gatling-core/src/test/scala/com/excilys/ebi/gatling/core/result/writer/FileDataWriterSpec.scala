@@ -22,7 +22,7 @@ import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
 import com.excilys.ebi.gatling.core.result.message.{ OK, RequestRecord }
-import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+import com.excilys.ebi.gatling.core.util.StringHelper.eol
 
 @RunWith(classOf[JUnitRunner])
 class FileDataWriterSpec extends Specification {
@@ -36,14 +36,14 @@ class FileDataWriterSpec extends Specification {
 		"log a standard request record" in {
 			val record = new RequestRecord("scenario", 1, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"))
 
-			logRecord(record) must beEqualTo("ACTION\tscenario\t1\trequestName\t2\t3\t4\t5\tOK\tmessage" + END_OF_LINE)
+			logRecord(record) must beEqualTo("ACTION\tscenario\t1\trequestName\t2\t3\t4\t5\tOK\tmessage" + eol)
 		}
 
 		"append extra info to request records" in {
 			val extraInfo: List[String] = List("some", "extra info", "for the log")
 			val record = new RequestRecord("scenario", 1, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"), extraInfo)
 
-			logRecord(record) must beEqualTo("ACTION\tscenario\t1\trequestName\t2\t3\t4\t5\tOK\tmessage\tsome\textra info\tfor the log" + END_OF_LINE)
+			logRecord(record) must beEqualTo("ACTION\tscenario\t1\trequestName\t2\t3\t4\t5\tOK\tmessage\tsome\textra info\tfor the log" + eol)
 		}
 
 		"sanitize extra info so that simulation log format is preserved" in {

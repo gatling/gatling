@@ -23,7 +23,7 @@ import java.util.regex.Pattern
  */
 object StringHelper {
 
-	val END_OF_LINE = System.getProperty("line.separator")
+	val eol = System.getProperty("line.separator")
 
 	val jdk6Pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
 

@@ -22,14 +22,14 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+import com.excilys.ebi.gatling.core.util.StringHelper.eol
 
 @RunWith(classOf[JUnitRunner])
 class ConsoleDataWriterSpec extends Specification {
 
 	val time = new DateTime().withDate(2012, 8, 24).withTime(13, 37, 0, 0)
 	
-	def progressBar(summary: ConsoleSummary) = summary.toString.split(END_OF_LINE)(3)
+	def progressBar(summary: ConsoleSummary) = summary.toString.split(eol)(3)
 
 	"console summary progress bar" should {
 

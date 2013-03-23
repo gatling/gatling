@@ -23,7 +23,7 @@ import com.excilys.ebi.gatling.core.result.message.{ GroupRecord, RequestRecord,
 import com.excilys.ebi.gatling.core.result.message.RecordType.{ ACTION, GROUP, RUN, SCENARIO }
 import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
 import com.excilys.ebi.gatling.core.util.IOHelper.use
-import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+import com.excilys.ebi.gatling.core.util.StringHelper.eol
 
 import grizzled.slf4j.Logging
 
@@ -45,7 +45,7 @@ object FileDataWriter {
 				.append(scenarioRecord.scenarioName).append(TABULATION_SEPARATOR)
 				.append(scenarioRecord.userId.toString).append(TABULATION_SEPARATOR)
 				.append(scenarioRecord.event).append(TABULATION_SEPARATOR)
-				.append(scenarioRecord.executionDate.toString).append(END_OF_LINE)
+				.append(scenarioRecord.executionDate.toString).append(eol)
 			appendable
 		}
 
@@ -55,7 +55,7 @@ object FileDataWriter {
 				.append(groupRecord.groupName).append(TABULATION_SEPARATOR)
 				.append(groupRecord.userId.toString).append(TABULATION_SEPARATOR)
 				.append(groupRecord.event).append(TABULATION_SEPARATOR)
-				.append(groupRecord.executionDate.toString).append(END_OF_LINE)
+				.append(groupRecord.executionDate.toString).append(eol)
 			appendable
 		}
 
@@ -73,7 +73,7 @@ object FileDataWriter {
 
 			requestRecord.extraInfo.foreach(info => appendable.append(TABULATION_SEPARATOR).append(sanitize(info.toString)))
 
-			appendable.append(END_OF_LINE)
+			appendable.append(eol)
 
 			appendable
 		}
@@ -102,7 +102,7 @@ class FileDataWriter extends DataWriter with Logging {
 			.append(runRecord.simulationId).append(TABULATION_SEPARATOR)
 			// hack for being able to deserialize in FileDataReader
 			.append(if (runRecord.runDescription.isEmpty) FileDataWriter.emptyField else runRecord.runDescription)
-			.append(END_OF_LINE)
+			.append(eol)
 	}
 
 	override def onScenarioRecord(scenarioRecord: ScenarioRecord) {

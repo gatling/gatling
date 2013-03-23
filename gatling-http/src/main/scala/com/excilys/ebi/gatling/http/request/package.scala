@@ -18,7 +18,7 @@ package com.excilys.ebi.gatling.http
 import scala.collection.JavaConversions.{ asScalaBuffer, collectionAsScalaIterable }
 
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+import com.excilys.ebi.gatling.core.util.StringHelper.eol
 import com.excilys.ebi.gatling.core.validation.Validation
 import com.excilys.ebi.gatling.http.request.{ ByteArrayBody, HttpRequestBody, RawFileBody, StringBody }
 import com.excilys.ebi.gatling.http.util.HttpHelper.dumpFluentCaseInsensitiveStringsMap
@@ -32,40 +32,40 @@ package object request {
 
 		def dumpTo(buff: StringBuilder) {
 
-			buff.append(request.getMethod).append(" ").append(if (request.isUseRawUrl) request.getRawUrl else request.getUrl).append(END_OF_LINE)
+			buff.append(request.getMethod).append(" ").append(if (request.isUseRawUrl) request.getRawUrl else request.getUrl).append(eol)
 
 			if (request.getHeaders != null && !request.getHeaders.isEmpty) {
-				buff.append("headers=").append(END_OF_LINE)
+				buff.append("headers=").append(eol)
 				dumpFluentCaseInsensitiveStringsMap(request.getHeaders, buff)
 			}
 
 			if (request.getCookies != null && !request.getCookies.isEmpty) {
-				buff.append("cookies=").append(END_OF_LINE)
+				buff.append("cookies=").append(eol)
 				for (cookie <- request.getCookies) {
-					buff.append(cookie).append(END_OF_LINE)
+					buff.append(cookie).append(eol)
 				}
 			}
 
 			if (request.getParams != null && !request.getParams.isEmpty) {
-				buff.append("params=").append(END_OF_LINE)
+				buff.append("params=").append(eol)
 				dumpFluentCaseInsensitiveStringsMap(request.getParams, buff)
 			}
 
-			if (request.getStringData != null) buff.append("stringData=").append(request.getStringData).append(END_OF_LINE)
+			if (request.getStringData != null) buff.append("stringData=").append(request.getStringData).append(eol)
 
-			if (request.getByteData != null) buff.append("byteData.length=").append(request.getByteData.length).append(END_OF_LINE)
+			if (request.getByteData != null) buff.append("byteData.length=").append(request.getByteData.length).append(eol)
 
-			if (request.getFile != null) buff.append("file=").append(request.getFile.getAbsolutePath).append(END_OF_LINE)
+			if (request.getFile != null) buff.append("file=").append(request.getFile.getAbsolutePath).append(eol)
 
 			if (request.getParts != null && !request.getParts.isEmpty) {
-				buff.append("parts=").append(END_OF_LINE)
+				buff.append("parts=").append(eol)
 				request.getParts.foreach {
 					_ match {
-						case byteArrayPart: ByteArrayPart => buff.append("byteArrayPart: name=").append(byteArrayPart.getName).append(END_OF_LINE)
-						case filePart: FilePart => buff.append("filePart: name=").append(filePart.getName).append(" file=").append(filePart.getFile.getAbsolutePath).append(END_OF_LINE)
-						case stringPart: StringPart => buff.append("stringPart: name=").append(stringPart.getName).append(" string=").append(stringPart.getValue).append(END_OF_LINE)
-						case multipartFilePart: MultipartFilePart => buff.append("multipartFilePart: name=").append(multipartFilePart.getName).append(END_OF_LINE)
-						case multipartStringPart: MultipartStringPart => buff.append("multipartStringPart: name=").append(multipartStringPart.getName).append(END_OF_LINE)
+						case byteArrayPart: ByteArrayPart => buff.append("byteArrayPart: name=").append(byteArrayPart.getName).append(eol)
+						case filePart: FilePart => buff.append("filePart: name=").append(filePart.getName).append(" file=").append(filePart.getFile.getAbsolutePath).append(eol)
+						case stringPart: StringPart => buff.append("stringPart: name=").append(stringPart.getName).append(" string=").append(stringPart.getValue).append(eol)
+						case multipartFilePart: MultipartFilePart => buff.append("multipartFilePart: name=").append(multipartFilePart.getName).append(eol)
+						case multipartStringPart: MultipartStringPart => buff.append("multipartStringPart: name=").append(multipartStringPart.getName).append(eol)
 					}
 				}
 			}

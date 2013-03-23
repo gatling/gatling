@@ -19,7 +19,7 @@ import java.security.MessageDigest
 
 import scala.collection.JavaConversions.asScalaBuffer
 
-import com.excilys.ebi.gatling.core.util.StringHelper.{ END_OF_LINE, bytes2Hex }
+import com.excilys.ebi.gatling.core.util.StringHelper.{ eol, bytes2Hex }
 import com.excilys.ebi.gatling.http.util.HttpHelper.dumpFluentCaseInsensitiveStringsMap
 import com.ning.http.client.{ Request, Response }
 
@@ -43,16 +43,16 @@ class ExtendedResponse(
 	def dumpTo(buff: StringBuilder) {
 		response.map { response =>
 			if (response.hasResponseStatus)
-				buff.append("status=").append(END_OF_LINE).append(response.getStatusCode).append(" ").append(response.getStatusText).append(END_OF_LINE)
+				buff.append("status=").append(eol).append(response.getStatusCode).append(" ").append(response.getStatusText).append(eol)
 
 			if (response.hasResponseHeaders) {
-				buff.append("headers= ").append(END_OF_LINE)
+				buff.append("headers= ").append(eol)
 				dumpFluentCaseInsensitiveStringsMap(response.getHeaders, buff)
-				buff.append(END_OF_LINE)
+				buff.append(eol)
 			}
 
 			if (response.hasResponseBody)
-				buff.append("body=").append(END_OF_LINE).append(response.getResponseBody)
+				buff.append("body=").append(eol).append(response.getResponseBody)
 		}
 	}
 

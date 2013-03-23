@@ -27,7 +27,7 @@ import org.codehaus.plexus.util.SelectorUtils
 import org.jboss.netty.handler.codec.http.{ HttpMethod, HttpRequest, HttpResponse }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
 
-import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.REDIRECT_STATUS_CODES
+import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.redirectStatusCodes
 import com.excilys.ebi.gatling.recorder.config.RecorderConfiguration.configuration
 import com.excilys.ebi.gatling.recorder.config.{ RecorderPropertiesBuilder, RecorderConfiguration, Pattern }
 import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy
@@ -190,7 +190,7 @@ class RecorderController extends Logging {
 		lastRequestDate = null
 	}
 
-	private def isRedirectCode(code: Int) = REDIRECT_STATUS_CODES.contains(code)
+	private def isRedirectCode(code: Int) = redirectStatusCodes.contains(code)
 
 	private def isRequestRedirectChainStart(request: HttpRequest, response: HttpResponse): Boolean = configuration.http.followRedirect && !isRedirectCode(lastStatus) && isRedirectCode(response.getStatus.getCode)
 
