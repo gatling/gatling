@@ -12,5 +12,5 @@ class AdvancedExampleSimulation extends Simulation {
 
 	setUp(
 		SomeScenario.scn.inject(ramp(10 users) over(10 seconds)).protocolConfig(httpConf),
-		SomeOtherScenario.otherScn.inject(delay(30 seconds), ramp(5 users) over(20 seconds)).protocolConfig(httpConf))
+		SomeOtherScenario.otherScn.inject(nothingFor(30 seconds), ramp(5 users) over(20 seconds)).protocolConfig(httpConf))
 }
