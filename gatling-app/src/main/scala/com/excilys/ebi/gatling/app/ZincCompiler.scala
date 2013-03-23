@@ -27,6 +27,7 @@ import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_HOME
 import com.typesafe.zinc.{ Compiler, Inputs, Setup }
 
 import grizzled.slf4j.Logging
+import sbt.inc.IncOptions
 import xsbti.Logger
 import xsbti.api.Compilation
 import xsbti.compile.CompileOrder
@@ -57,6 +58,7 @@ object ZincCompiler extends Logging {
 				forceClean = false,
 				javaOnly = false,
 				compileOrder = CompileOrder.JavaThenScala,
+				incOptions = IncOptions.Default,
 				outputRelations = None,
 				outputProducts = None,
 				mirrorAnalysis = false)
