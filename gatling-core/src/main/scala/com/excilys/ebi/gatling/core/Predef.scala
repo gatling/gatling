@@ -28,6 +28,7 @@ import com.excilys.ebi.gatling.core.structure.{AssertionBuilder, ChainBuilder, S
 import com.excilys.ebi.gatling.core.validation.{SuccessWrapper, Validation}
 import com.excilys.ebi.gatling.core.scenario.injection.InjectionStep
 import com.excilys.ebi.gatling.core.scenario.injection.SplitInjection
+import com.excilys.ebi.gatling.core.scenario.injection.NothingForInjection
 
 object Predef {
 	implicit def stringToExpression[T: ClassTag](string: String) = string.el
@@ -114,7 +115,8 @@ object Predef {
 		def into(step:InjectionStep) = SplitBuilder(users, step)
 	}
 	case class SplitBuilder(users: UserNumber, step:InjectionStep) {
-		def during(separator: InjectionStep) = SplitInjection(users.number, step, separator)
+		def separatedBy(separator: InjectionStep) = SplitInjection(users.number, step, separator)
+		def separatedBy(duration: FiniteDuration) = SplitInjection(users.number, step, NothingForInjection(duration))
 	}
 	
 	def ramp(users: UserNumber) = RampBuilder(users)
