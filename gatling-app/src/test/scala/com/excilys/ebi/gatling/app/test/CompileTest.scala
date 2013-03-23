@@ -189,9 +189,18 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
     .exec(http("Ajout au panier").get("/").check(regex(session => """<input id="text1" type="text" value="smth" />""").saveAs("input")))
     .pause(pause1)
 
-	setUp(lambdaUser.inject(delay(10 milliseconds), ramp(10 users).over(10 minutes), peak(100 users),
-		constantRate(10 usersPerSec).during(1 minute)).protocolConfig(httpConf))
+    val inject1 = nothingFor(10 milliseconds)
+    val inject2 = ramp(10 users).over(10 minutes)
+    val inject3 = constantRate(10 usersPerSec).during(1 minute)
+    val inject4 = atOnce(100 users)
+    val inject5 = rampRate(10 usersPerSec) to(20 usersPerSec) during(10 minutes)
+    val inject6 = split(1000 users).into(ramp(10 users) over (10 seconds)).separatedBy(10 seconds)
+    val inject7 = split(1000 users).into(ramp(10 users) over (10 seconds)).separatedBy(atOnce(30 users))
+	setUp(lambdaUser.inject(inject1).protocolConfig(httpConf))
+    setUp(lambdaUser.inject(inject1, inject2).protocolConfig(httpConf))
 
+		
+		
   assertThat(
     global.responseTime.mean.lessThan(50),
     global.responseTime.max.between(50, 500),

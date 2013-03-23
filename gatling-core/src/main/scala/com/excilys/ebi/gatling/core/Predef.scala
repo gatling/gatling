@@ -15,16 +15,20 @@
  */
 package com.excilys.ebi.gatling.core
 
-import scala.concurrent.duration.{ DurationInt, FiniteDuration }
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.reflect.ClassTag
-import scala.tools.nsc.io.{ File, Path }
-import com.excilys.ebi.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
+import scala.tools.nsc.io.{File, Path}
+import com.excilys.ebi.gatling.core.session.Expression
+import com.excilys.ebi.gatling.core.check.{Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder}
 import com.excilys.ebi.gatling.core.feeder.{ AdvancedFeederBuilder, Feeder, FeederBuilder, FeederWrapper }
 import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesParser
-import com.excilys.ebi.gatling.core.scenario.injection.{ DelayInjection, PeakInjection, RampInjection, RampRateInjection }
-import com.excilys.ebi.gatling.core.session.{ ELCompiler, ELWrapper }
-import com.excilys.ebi.gatling.core.structure.{ AssertionBuilder, ChainBuilder, ScenarioBuilder }
-import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
+import com.excilys.ebi.gatling.core.scenario.injection.{AtOnceInjection, ConstantRateInjection, NothingForInjection, RampInjection, RampRateInjection}
+import com.excilys.ebi.gatling.core.session.{ELCompiler, ELWrapper}
+import com.excilys.ebi.gatling.core.structure.{AssertionBuilder, ChainBuilder, ScenarioBuilder}
+import com.excilys.ebi.gatling.core.validation.{SuccessWrapper, Validation}
+import com.excilys.ebi.gatling.core.scenario.injection.InjectionStep
+import com.excilys.ebi.gatling.core.scenario.injection.SplitInjection
+import com.excilys.ebi.gatling.core.scenario.injection.NothingForInjection
 
 object Predef {
 	implicit def stringToExpression[T: ClassTag](string: String) = string.el
@@ -96,26 +100,29 @@ object Predef {
 	implicit def userPerSec(rate: Double) = new UsersPerSec(rate)
 
 	case class RampBuilder(users: UserNumber) {
-		def over(d: FiniteDuration) = new RampInjection(users.number, d)
+		def over(d: FiniteDuration) = RampInjection(users.number, d)
 	}
-
 	case class ConstantRateBuilder(rate: UsersPerSec) {
-		def during(d: FiniteDuration) = {
-			val users = (d.toSeconds * rate.rate).toInt
-			new RampInjection(users, d)
-		}
+		def during(d: FiniteDuration) = ConstantRateInjection(rate.rate, d)
 	}
-
 	case class PartialRampRateBuilder(rate1: UsersPerSec) {
 		def to(rate2: UsersPerSec) = RampRateBuilder(rate1, rate2)
 	}
 	case class RampRateBuilder(rate1: UsersPerSec, rate2: UsersPerSec) {
-		def during(d: FiniteDuration) = new RampRateInjection(rate1.rate, rate2.rate, d)
+		def during(d: FiniteDuration) = RampRateInjection(rate1.rate, rate2.rate, d)
 	}
-
+	case class PartialSplitBuilder(users: UserNumber) {
+		def into(step:InjectionStep) = SplitBuilder(users, step)
+	}
+	case class SplitBuilder(users: UserNumber, step:InjectionStep) {
+		def separatedBy(separator: InjectionStep) = SplitInjection(users.number, step, separator)
+		def separatedBy(duration: FiniteDuration) = SplitInjection(users.number, step, NothingForInjection(duration))
+	}
+	
 	def ramp(users: UserNumber) = RampBuilder(users)
-	def delay(d: FiniteDuration) = new DelayInjection(d)
-	def peak(users: UserNumber) = new PeakInjection(users.number)
+	def nothingFor(d: FiniteDuration) = NothingForInjection(d)
+	def atOnce(users: UserNumber) = AtOnceInjection(users.number)
 	def constantRate(rate: UsersPerSec) = ConstantRateBuilder(rate)
 	def rampRate(rate1: UsersPerSec) = PartialRampRateBuilder(rate1)
+	def split(users: UserNumber) = PartialSplitBuilder(users)
 }

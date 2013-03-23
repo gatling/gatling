@@ -19,10 +19,10 @@ import scala.concurrent.duration.FiniteDuration
 
 import com.excilys.ebi.gatling.core.config.{ ProtocolConfiguration, ProtocolConfigurationRegistry }
 import com.excilys.ebi.gatling.core.scenario.Scenario
-import com.excilys.ebi.gatling.core.scenario.injection.{ InjectionStrategy, PeakInjection, RampInjection, DelayInjection }
+import com.excilys.ebi.gatling.core.scenario.injection.{ InjectionStep, AtOnceInjection, RampInjection, NothingForInjection }
 import com.excilys.ebi.gatling.core.structure.ScenarioBuilder
 
-private case class Attributes(scenarioBuilder: ScenarioBuilder, injections: List[InjectionStrategy] = Nil, protocolConfigurationsValue: Seq[ProtocolConfiguration] = Nil)
+private case class Attributes(scenarioBuilder: ScenarioBuilder, injections: List[InjectionStep] = Nil, protocolConfigurationsValue: Seq[ProtocolConfiguration] = Nil)
 
 /**
  * This class is used in the DSL to configure scenarios
@@ -36,7 +36,7 @@ class ConfiguredScenarioBuilder(attributes: Attributes) {
 
 	def this(scenarioBuilder: ScenarioBuilder) = this(Attributes(scenarioBuilder))
 
-	def inject(is: InjectionStrategy, iss: InjectionStrategy*) = new ConfiguredScenarioBuilder(attributes.copy(injections = (attributes.injections ++ (is +: iss))))
+	def inject(is: InjectionStep, iss: InjectionStep*) = new ConfiguredScenarioBuilder(attributes.copy(injections = (attributes.injections ++ (is +: iss))))
 
 	def protocolConfig(protocolConfigurations: ProtocolConfiguration*) = new ConfiguredScenarioBuilder(attributes.copy(protocolConfigurationsValue = protocolConfigurations))
 
