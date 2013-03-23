@@ -59,7 +59,7 @@ object HttpRequestBody {
 		StringBody(expression)
 	}
 
-	def sspTemplateBody(filePath: Expression[String], additionalAttributes: Map[String, Any]): SspTemplateBody = {
+	def sspTemplateBody(filePath: Expression[String], additionalAttributes: Map[String, Any]): StringBody = {
 
 		def sspTemplate(filePath: String): Validation[String] = {
 			val file = GatlingFiles.requestBodiesDirectory / filePath
@@ -67,13 +67,14 @@ object HttpRequestBody {
 			else s"Ssp body file $file doesn't exist".failure
 		}
 
-		val templatePathExpression = (session: Session) =>
+		val expression = (session: Session) =>
 			for {
 				path <- filePath(session)
-				ssp <- sspTemplate(path)
-			} yield ssp
+				templatePath <- sspTemplate(path)
+				body = HttpRequestBody.sspTemplateEngine.layout(templatePath, additionalAttributes + ("session" -> session), HttpRequestBody.sessionExtraBinding)
+			} yield body
 
-		SspTemplateBody(templatePathExpression, additionalAttributes)
+		StringBody(expression)
 	}
 
 	def rawFileBody(filePath: Expression[String]) = {
@@ -86,7 +87,7 @@ object HttpRequestBody {
 
 		RawFileBody(expression)
 	}
-	
+
 	val sessionExtraBinding = Seq(Binding("session", classOf[Session].getName))
 
 	val sspTemplateEngine = {
@@ -101,6 +102,5 @@ object HttpRequestBody {
 sealed trait HttpRequestBody
 case class StringBody(expression: Expression[String]) extends HttpRequestBody
 case class RawFileBody(file: Expression[JFile]) extends HttpRequestBody
-case class SspTemplateBody(templatePathExpression: Expression[String], additionalAttributes: Map[String, Any]) extends HttpRequestBody
 case class ByteArrayBody(byteArray: Expression[Array[Byte]]) extends HttpRequestBody
 case class InputStreamBody(is: Expression[InputStream]) extends HttpRequestBody

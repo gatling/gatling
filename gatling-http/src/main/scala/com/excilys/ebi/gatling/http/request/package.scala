@@ -20,7 +20,7 @@ import scala.collection.JavaConversions.{ asScalaBuffer, collectionAsScalaIterab
 import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 import com.excilys.ebi.gatling.core.validation.Validation
-import com.excilys.ebi.gatling.http.request.{ ByteArrayBody, HttpRequestBody, RawFileBody, SspTemplateBody, StringBody }
+import com.excilys.ebi.gatling.http.request.{ ByteArrayBody, HttpRequestBody, RawFileBody, StringBody }
 import com.excilys.ebi.gatling.http.util.HttpHelper.dumpFluentCaseInsensitiveStringsMap
 import com.ning.http.client.{ ByteArrayPart, FilePart, Request, RequestBuilder, StringPart }
 import com.ning.http.client.generators.InputStreamBodyGenerator
@@ -85,11 +85,6 @@ package object request {
 			case RawFileBody(file) => file(session).map(requestBuilder.setBody)
 			case ByteArrayBody(byteArray) => byteArray(session).map(requestBuilder.setBody)
 			case InputStreamBody(is) => is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
-			case SspTemplateBody(templatePath, additionalAttributes) =>
-				for {
-					path <- templatePath(session)
-					body = HttpRequestBody.sspTemplateEngine.layout(path, additionalAttributes + ("session" -> session), HttpRequestBody.sessionExtraBinding)
-				} yield requestBuilder.setBody(body)
 		}
 	}
 }
