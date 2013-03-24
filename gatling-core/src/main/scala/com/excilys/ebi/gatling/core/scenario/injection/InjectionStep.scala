@@ -36,7 +36,7 @@ trait InjectionStep {
  * Ramp a given number of users over a given duration
  */
 case class RampInjection(val users: Int, duration: FiniteDuration) extends InjectionStep {
-	require(users > 0, "The number of users must be a strictly posivite value")
+	require(users > 0, "The number of users must be a strictly positive value")
 
 	override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
 		val interval = duration / (users - 1).max(1)
@@ -65,7 +65,7 @@ case class NothingForInjection(duration: FiniteDuration) extends InjectionStep {
  * Injection all the users at once
  */
 case class AtOnceInjection(val users: Int) extends InjectionStep {
-	require(users > 0, "The number of users must be a strictly posivite value")
+	require(users > 0, "The number of users must be a strictly positive value")
 
 	override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = Iterator.continually(0 milliseconds).take(users) ++ iterator
 }
