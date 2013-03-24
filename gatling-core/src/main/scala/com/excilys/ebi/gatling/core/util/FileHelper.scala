@@ -22,9 +22,9 @@ import com.excilys.ebi.gatling.core.util.StringHelper.stripAccents
  */
 object FileHelper {
 
-	val COMMA_SEPARATOR = ","
-	val SEMICOLON_SEPARATOR = ";"
-	val TABULATION_SEPARATOR = "\t"
+	val commaSeparator = ","
+	val semicolonSeparator = ";"
+	val tabulationSeparator = "\t"
 
 	/**
 	 * Transform a string to a simpler one that can be used safely as file name

@@ -20,7 +20,7 @@ import scala.tools.nsc.io.Path
 
 import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import com.excilys.ebi.gatling.core.feeder.AdvancedFeederBuilder
-import com.excilys.ebi.gatling.core.util.FileHelper.{ COMMA_SEPARATOR, SEMICOLON_SEPARATOR, TABULATION_SEPARATOR }
+import com.excilys.ebi.gatling.core.util.FileHelper.{ commaSeparator, semicolonSeparator, tabulationSeparator }
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 
 object SeparatedValuesParser {
@@ -45,11 +45,11 @@ object SeparatedValuesParser {
 	}
 
 	def csv(fileName: String, escapeChar: Option[String]): AdvancedFeederBuilder[String] = csv(GatlingFiles.dataDirectory / fileName, escapeChar)
-	def csv(file: Path, escapeChar: Option[String]) = parse(file, COMMA_SEPARATOR, escapeChar)
+	def csv(file: Path, escapeChar: Option[String]) = parse(file, commaSeparator, escapeChar)
 
 	def tsv(fileName: String, escapeChar: Option[String]): AdvancedFeederBuilder[String] = tsv(GatlingFiles.dataDirectory / fileName, escapeChar)
-	def tsv(file: Path, escapeChar: Option[String]) = parse(file, TABULATION_SEPARATOR, escapeChar)
+	def tsv(file: Path, escapeChar: Option[String]) = parse(file, tabulationSeparator, escapeChar)
 
 	def ssv(fileName: String, escapeChar: Option[String]): AdvancedFeederBuilder[String] = ssv(GatlingFiles.dataDirectory / fileName, escapeChar)
-	def ssv(file: Path, escapeChar: Option[String]) = parse(file, SEMICOLON_SEPARATOR, escapeChar)
+	def ssv(file: Path, escapeChar: Option[String]) = parse(file, semicolonSeparator, escapeChar)
 }

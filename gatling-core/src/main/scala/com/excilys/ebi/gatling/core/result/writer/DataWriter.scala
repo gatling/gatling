@@ -20,7 +20,7 @@ import scala.concurrent.Future
 import com.excilys.ebi.gatling.core.action.{ AkkaDefaults, BaseActor, system }
 import com.excilys.ebi.gatling.core.action.system.dispatcher
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.{ Flush, GroupRecord, Init, RequestRecord, RequestStatus, RunRecord, ScenarioRecord, ShortScenarioDescription }
+import com.excilys.ebi.gatling.core.result.message.{ Flush, GroupRecord, Init, RecordEvent, RequestRecord, RequestStatus, RunRecord, ScenarioRecord, ShortScenarioDescription }
 import com.excilys.ebi.gatling.core.result.terminator.Terminator
 import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
@@ -47,11 +47,11 @@ object DataWriter extends AkkaDefaults with Logging {
 		Future.sequence(responses)
 	}
 
-	def user(scenarioName: String, userId: Int, event: String) {
+	def user(scenarioName: String, userId: Int, event: RecordEvent) {
 		tellAll(ScenarioRecord(scenarioName, userId, event, nowMillis))
 	}
 
-	def group(scenarioName: String, groupName: String, userId: Int, event: String) {
+	def group(scenarioName: String, groupName: String, userId: Int, event: RecordEvent) {
 		tellAll(GroupRecord(scenarioName, groupName, userId, event, nowMillis))
 	}
 

@@ -50,7 +50,7 @@ class ScenarioBuilder(name: String, val actionBuilders: List[ActionBuilder]) ext
 	 */
 	private[core] def build(scenarioConfiguration: ScenarioConfiguration): Scenario = {
 
-		val entryPoint = buildChainedActions(UserEnd.END, scenarioConfiguration.protocolRegistry)
+		val entryPoint = buildChainedActions(UserEnd.singleton, scenarioConfiguration.protocolRegistry)
 		new Scenario(name, entryPoint, scenarioConfiguration)
 	}
 }

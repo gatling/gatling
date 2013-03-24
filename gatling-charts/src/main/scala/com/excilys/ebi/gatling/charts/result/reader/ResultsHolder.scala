@@ -16,8 +16,7 @@
 package com.excilys.ebi.gatling.charts.result.reader
 
 import com.excilys.ebi.gatling.charts.result.reader.buffers.{ GeneralStatsBuffers, GroupBuffers, LatencyPerSecBuffers, NamesBuffers, RequestsPerSecBuffers, ResponseTimePerSecBuffers, ResponseTimeRangeBuffers, SessionDeltaPerSecBuffers, TransactionsPerSecBuffers }
-import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
-import com.excilys.ebi.gatling.core.result.message.KO
+import com.excilys.ebi.gatling.core.result.message.{ End, KO, Start }
 
 class ResultsHolder(minTime: Long, maxTime: Long)
 	extends GeneralStatsBuffers(maxTime - minTime)
@@ -32,20 +31,20 @@ class ResultsHolder(minTime: Long, maxTime: Long)
 
 	def addScenarioRecord(record: ScenarioRecord) {
 		record.event match {
-			case START =>
+			case Start =>
 				addStartSessionBuffers(record)
 				addScenarioName(record)
-			case END =>
+			case End =>
 				addEndSessionBuffers(record)
 		}
 	}
 
 	def addGroupRecord(record: GroupRecord) {
 		record.event match {
-			case START =>
+			case Start =>
 				startGroup(record)
 				addGroupName(getCurrentGroup(record.user, record.scenario).get, record.executionDate)
-			case END =>
+			case End =>
 				val startEntry = endGroup(record)
 				val duration = record.executionDate - startEntry.record.executionDate
 				updateGroupGeneralStatsBuffers(duration, startEntry.group, startEntry.status)

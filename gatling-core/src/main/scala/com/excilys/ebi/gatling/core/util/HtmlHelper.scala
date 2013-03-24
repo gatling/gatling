@@ -21,18 +21,18 @@ import scala.collection.JavaConversions.enumerationAsScalaIterator
 
 object HtmlHelper {
 
-	val ENTITIES = ResourceBundle.getBundle("html-entities")
+	val entities = ResourceBundle.getBundle("html-entities")
 
-	val CHAR_TO_HTML_ENTITIES: Map[Char, String] = ENTITIES.getKeys.map { entityName => (ENTITIES.getString(entityName).toInt.toChar, s"&$entityName;") }.toMap
+	val charToHtmlEntities: Map[Char, String] = entities.getKeys.map { entityName => (entities.getString(entityName).toInt.toChar, s"&$entityName;") }.toMap
 
-	val HTML_ENTITIES_TO_CHAR: Map[String, Char] = CHAR_TO_HTML_ENTITIES.map(_.swap)
+	val htmlEntitiesToChar: Map[String, Char] = charToHtmlEntities.map(_.swap)
 
 	def htmlEscape(string: String): String = {
-		def charToHtmlEntity(char: Char): String = CHAR_TO_HTML_ENTITIES.get(char).getOrElse(char.toString)
+		def charToHtmlEntity(char: Char): String = charToHtmlEntities.get(char).getOrElse(char.toString)
 
-		string.toList.map(charToHtmlEntity).mkString
+		string.toCharArray.iterator.map(charToHtmlEntity).mkString
 	}
 
 	// used in VTD-XML extension
-	def htmlEntityToInt(entity: String, default: Int): Int = HTML_ENTITIES_TO_CHAR.get(entity).map(_.toInt).getOrElse(default)
+	def htmlEntityToInt(entity: String, default: Int): Int = htmlEntitiesToChar.get(entity).map(_.toInt).getOrElse(default)
 }

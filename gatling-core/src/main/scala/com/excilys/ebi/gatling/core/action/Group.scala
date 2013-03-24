@@ -15,13 +15,14 @@
  */
 package com.excilys.ebi.gatling.core.action
 
+import com.excilys.ebi.gatling.core.result.message.RecordEvent
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.core.validation.{ Failure, Success }
 
 import akka.actor.ActorRef
 
-class Group(groupName: Expression[String], event: String, val next: ActorRef) extends Chainable {
+class Group(groupName: Expression[String], event: RecordEvent, val next: ActorRef) extends Chainable {
 
 	def execute(session: Session) {
 		val resolvedGroupName = groupName(session) match {

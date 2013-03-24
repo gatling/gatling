@@ -23,9 +23,9 @@ import org.joda.time.format.DateTimeFormat
  */
 object DateHelper {
 
-	private val humanDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+	val humanDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
 
-	private val timestampFormat = DateTimeFormat.forPattern("yyyyMMddHHmmss")
+	val timestampFormat = DateTimeFormat.forPattern("yyyyMMddHHmmss")
 
 	def parseTimestampString(string: String) = DateTime.parse(string, timestampFormat)
 

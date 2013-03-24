@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.charts.result.reader
 
-import com.excilys.ebi.gatling.core.result.message.{ KO, OK, RequestStatus }
+import com.excilys.ebi.gatling.core.result.message.{ KO, OK, RecordEvent, RequestStatus }
 
 object ActionRecord {
 
@@ -47,14 +47,14 @@ object ScenarioRecord {
 
 		val scenario = strings(1).intern
 		val user = strings(2).toInt
-		val event = strings(3).intern
+		val event = RecordEvent(strings(3))
 		val executionDate = reduceAccuracy((strings(4).toLong - runStart).toInt)
 		val executionDateBucket = bucketFunction(executionDate)
 		ScenarioRecord(scenario, user, event, executionDate, executionDateBucket)
 	}
 }
 
-case class ScenarioRecord(scenario: String, user: Int, event: String, executionDate: Int, executionDateBucket: Int)
+case class ScenarioRecord(scenario: String, user: Int, event: RecordEvent, executionDate: Int, executionDateBucket: Int)
 
 object GroupRecord {
 	def apply(strings: Array[String], bucketFunction: Int => Int, runStart: Long): GroupRecord = {
@@ -62,12 +62,12 @@ object GroupRecord {
 		val scenario = strings(1).intern
 		val group = strings(2).intern
 		val user = strings(3).toInt
-		val event = strings(4).intern
+		val event = RecordEvent(strings(4))
 		val executionDate = reduceAccuracy((strings(5).toLong - runStart).toInt)
 		val executionDateBucket = bucketFunction(executionDate)
 		GroupRecord(scenario, group, user, event, executionDate, executionDateBucket)
 	}
 }
 
-case class GroupRecord(scenario: String, group: String, user: Int, event: String, executionDate: Int, executionDateBucket: Int)
+case class GroupRecord(scenario: String, group: String, user: Int, event: RecordEvent, executionDate: Int, executionDateBucket: Int)
 

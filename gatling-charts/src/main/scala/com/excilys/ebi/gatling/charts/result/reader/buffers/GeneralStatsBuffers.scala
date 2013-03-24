@@ -72,7 +72,7 @@ abstract class GeneralStatsBuffers(durationInSec: Long) {
 
 				} else {
 					val meanResponseTime = math.round(sum / count.toDouble).toInt
-					val meanRequestsPerSec = math.round(count / (duration / FileDataReader.SEC_MILLISEC_RATIO)).toInt
+					val meanRequestsPerSec = math.round(count / (duration / FileDataReader.secMillisecRatio)).toInt
 					val stdDev = math.round(StatsHelper.stdDev(squareSum / count.toDouble, meanResponseTime)).toInt
 
 					val sortedTimes = map.values.toSeq.sortBy(_.time)

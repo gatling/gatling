@@ -23,9 +23,7 @@ import scala.concurrent.duration.DurationInt
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.action.system.dispatcher
 import com.excilys.ebi.gatling.core.result.RequestPath
-import com.excilys.ebi.gatling.core.result.message.{ GroupRecord, KO, OK }
-import com.excilys.ebi.gatling.core.result.message.{ RequestRecord, RunRecord, ScenarioRecord, ShortScenarioDescription }
-import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
+import com.excilys.ebi.gatling.core.result.message.{ End, GroupRecord, KO, OK, RequestRecord, RunRecord, ScenarioRecord, ShortScenarioDescription, Start }
 
 import grizzled.slf4j.Logging
 
@@ -82,13 +80,13 @@ class ConsoleDataWriter extends DataWriter with Logging {
 
 	override def onScenarioRecord(scenarioRecord: ScenarioRecord) {
 		scenarioRecord.event match {
-			case START =>
+			case Start =>
 				usersCounters
 					.get(scenarioRecord.scenarioName)
 					.map(_.userStart)
 					.getOrElse(error(s"Internal error, scenario '${scenarioRecord.scenarioName}' has not been correctly initialized"))
 
-			case END =>
+			case End =>
 				usersCounters
 					.get(scenarioRecord.scenarioName)
 					.map(_.userDone)
@@ -103,8 +101,8 @@ class ConsoleDataWriter extends DataWriter with Logging {
 		val userStack = groupStack.getOrElse(userId, Nil)
 
 		val newUserStack = groupRecord.event match {
-			case START => groupRecord.groupName :: userStack
-			case END if (!userStack.isEmpty) => userStack.tail
+			case Start => groupRecord.groupName :: userStack
+			case End if (!userStack.isEmpty) => userStack.tail
 			case _ =>
 				error("Trying to stop a user that hasn't started?!")
 				Nil

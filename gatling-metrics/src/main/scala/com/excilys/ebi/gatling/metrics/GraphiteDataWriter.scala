@@ -21,8 +21,7 @@ import scala.concurrent.duration.DurationInt
 import com.excilys.ebi.gatling.core.action.{ BaseActor, system }
 import com.excilys.ebi.gatling.core.action.system.dispatcher
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.{ GroupRecord, RequestRecord, RunRecord, ScenarioRecord, ShortScenarioDescription }
-import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
+import com.excilys.ebi.gatling.core.result.message._
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowSeconds
 import com.excilys.ebi.gatling.metrics.sender.MetricsSender
@@ -56,8 +55,8 @@ class GraphiteDataWriter extends DataWriter {
 		usersPerScenario(scenarioRecord.scenarioName).update(scenarioRecord)
 		allUsers.update(scenarioRecord)
 		scenarioRecord.event match {
-			case START => groupStack += scenarioRecord.userId -> Nil
-			case END => groupStack -= scenarioRecord.userId
+			case Start => groupStack += scenarioRecord.userId -> Nil
+			case End => groupStack -= scenarioRecord.userId
 		}
 	}
 
@@ -65,8 +64,8 @@ class GraphiteDataWriter extends DataWriter {
 		val userId = groupRecord.userId
 		val userStack = groupStack(userId)
 		val newUserStack = groupRecord.event match {
-			case START => groupRecord.groupName :: userStack
-			case END if (!userStack.isEmpty) => userStack.tail
+			case Start => groupRecord.groupName :: userStack
+			case End if (!userStack.isEmpty) => userStack.tail
 			case _ =>
 				error("Trying to stop a user that hasn't started?!")
 				Nil

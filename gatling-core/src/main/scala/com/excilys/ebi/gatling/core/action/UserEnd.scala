@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.result.message.RecordEvent.END
+import com.excilys.ebi.gatling.core.result.message.End
 import com.excilys.ebi.gatling.core.result.terminator.Terminator
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
@@ -24,14 +24,14 @@ import akka.actor.Props
 
 object UserEnd {
 
-	val END = system.actorOf(Props(new UserEnd))
+	val singleton = system.actorOf(Props(new UserEnd))
 }
 
 class UserEnd extends Action {
 
 	def execute(session: Session) {
 
-		DataWriter.user(session.scenarioName, session.userId, END)
+		DataWriter.user(session.scenarioName, session.userId, End)
 		info(s"End user #${session.userId}")
 
 		Terminator.endUser

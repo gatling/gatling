@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.action
 
-import com.excilys.ebi.gatling.core.result.message.RecordEvent.START
+import com.excilys.ebi.gatling.core.result.message.Start
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.session.Session
 
@@ -25,7 +25,7 @@ class UserStart(val next: ActorRef) extends Chainable {
 
 	def execute(session: Session) {
 
-		DataWriter.user(session.scenarioName, session.userId, START)
+		DataWriter.user(session.scenarioName, session.userId, Start)
 		info(s"Start user #${session.userId}")
 		next ! session
 	}

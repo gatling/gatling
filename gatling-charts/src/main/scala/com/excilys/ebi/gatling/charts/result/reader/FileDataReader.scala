@@ -25,25 +25,19 @@ import com.excilys.ebi.gatling.charts.result.reader.stats.StatsHelper
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogDirectory
 import com.excilys.ebi.gatling.core.result.{ Group, IntRangeVsTimePlot, IntVsTimePlot }
-import com.excilys.ebi.gatling.core.result.message.{ KO, OK }
-import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RunRecord }
-import com.excilys.ebi.gatling.core.result.message.RecordType.{ ACTION, GROUP, RUN, SCENARIO }
+import com.excilys.ebi.gatling.core.result.message.{ ActionRecordType, GroupRecordType, KO, OK, RequestStatus, RunRecord, RunRecordType, ScenarioRecordType }
 import com.excilys.ebi.gatling.core.result.reader.{ DataReader, GeneralStats }
 import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
-import com.excilys.ebi.gatling.core.util.FileHelper.TABULATION_SEPARATOR
+import com.excilys.ebi.gatling.core.util.FileHelper.tabulationSeparator
 
 import grizzled.slf4j.Logging
 
 object FileDataReader {
-	val LOG_STEP = 100000
-	val SEC_MILLISEC_RATIO = 1000.0
-	val NO_PLOT_MAGIC_VALUE = -1L
-	val TABULATION_PATTERN = TABULATION_SEPARATOR.r
-	val SIMULATION_FILES_NAME_PATTERN = """.*\.log"""
-	val ACTION_RECORD_LENGTH = 9
-	val RUN_RECORD_LENGTH = 4
-	val GROUP_RECORD_LENGTH = 6
-	val SCENARIO_RECORD_LENGTH = 5
+	val logStep = 100000
+	val secMillisecRatio = 1000.0
+	val noPlotMagicValue = -1L
+	val tabulationPattern = tabulationSeparator.r
+	val simulationFilesNamePattern = """.*\.log"""
 }
 
 class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
@@ -51,7 +45,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	private def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] = streams.map(Source.fromInputStream(_, configuration.simulation.encoding).getLines).reduce((first, second) => first ++ second)
 
 	val inputFiles = simulationLogDirectory(runUuid, create = false).files
-		.collect { case file if (file.name.matches(FileDataReader.SIMULATION_FILES_NAME_PATTERN)) => file.jfile }
+		.collect { case file if (file.name.matches(FileDataReader.simulationFilesNamePattern)) => file.jfile }
 		.toList
 
 	info(s"Collected $inputFiles from $runUuid")
@@ -68,40 +62,32 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 		info("Pre-process")
 
-		val nonGroupRecordTypes = Set(ACTION, RUN, SCENARIO)
-		val (runs, actionsOrScenarios) = records.map(FileDataReader.TABULATION_PATTERN.split).filter(array => nonGroupRecordTypes.contains(array.head)).partition(_.head == RUN)
-
-		def isValidActionRecord(array: Array[String]) = array.head == ACTION && array.length >= FileDataReader.ACTION_RECORD_LENGTH
-		def isValidScenarioRecord(array: Array[String]) = array.head == SCENARIO && array.length >= FileDataReader.SCENARIO_RECORD_LENGTH
-
-		val (runStart, runEnd, totalRequestsNumber) = actionsOrScenarios
-			.filter { array => isValidActionRecord(array) || isValidScenarioRecord(array) }
-			.foldLeft((Long.MaxValue, Long.MinValue, 0L)) {
-				(accumulator, strings) =>
-					val (min, max, count) = accumulator
-
-					if (count % FileDataReader.LOG_STEP == 0) info(s"First pass, read $count lines")
-
-					strings(0) match {
-						case ACTION => (math.min(min, strings(4).toLong), math.max(max, strings(7).toLong), count + 1)
-						case SCENARIO => (math.min(min, strings(4).toLong), math.max(max, strings(4).toLong), count + 1)
-					}
-			}
-
+		var count = 0
+		var runStart = Long.MaxValue
+		var runEnd = Long.MinValue
 		val runRecords = mutable.ListBuffer.empty[RunRecord]
 
-		runs
-			.filter(_.length >= FileDataReader.RUN_RECORD_LENGTH)
-			.foreach(strings => runRecords += RunRecord(parseTimestampString(strings(1)), strings(2), strings(3).trim))
+		records.map(FileDataReader.tabulationPattern.split).foreach { array =>
+			count += 1
+			if (count % FileDataReader.logStep == 0) info(s"Second pass, read $count lines")
 
-		info(s"Pre-process done: read $totalRequestsNumber lines")
+			if (ActionRecordType.isValidRecord(array) || ScenarioRecordType.isValidRecord(array)) {
+				runStart = math.min(runStart, array(4).toLong)
+				runEnd = math.max(runEnd, array(7).toLong)
+
+			} else if (RunRecordType.isValidRecord(array)) {
+				runRecords += RunRecord(parseTimestampString(array(1)), array(2), array(3).trim)
+			}
+		}
+
+		info(s"Pre-process done: read $count lines")
 
 		(runStart, runEnd, runRecords.head)
 	}
 
 	val (runStart, runEnd, runRecord) = doWithInputFiles(preProcess)
 
-	val step = StatsHelper.step(math.floor(runStart / FileDataReader.SEC_MILLISEC_RATIO).toInt, math.ceil(runEnd / FileDataReader.SEC_MILLISEC_RATIO).toInt, configuration.charting.maxPlotsPerSeries) * FileDataReader.SEC_MILLISEC_RATIO
+	val step = StatsHelper.step(math.floor(runStart / FileDataReader.secMillisecRatio).toInt, math.ceil(runEnd / FileDataReader.secMillisecRatio).toInt, configuration.charting.maxPlotsPerSeries) * FileDataReader.secMillisecRatio
 	val bucketFunction = StatsHelper.bucket(_: Int, 0, (runEnd - runStart).toInt, step, step / 2)
 	val buckets = StatsHelper.bucketsList(0, (runEnd - runStart).toInt, step)
 
@@ -114,16 +100,15 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		var count = 0
 
 		records
-			.collect { case line if (line.startsWith(ACTION) || line.startsWith(GROUP) || line.startsWith(SCENARIO)) => FileDataReader.TABULATION_PATTERN.split(line) }
+			.collect { case line if (line.startsWith(ActionRecordType.name) || line.startsWith(GroupRecordType.name) || line.startsWith(ScenarioRecordType.name)) => FileDataReader.tabulationPattern.split(line) }
 			.filter(_.length >= 1)
 			.foreach { array =>
 				count += 1
-				if (count % FileDataReader.LOG_STEP == 0) info(s"First pass, read $count lines")
-				array(0) match {
-					case ACTION if (array.length >= FileDataReader.ACTION_RECORD_LENGTH) => resultsHolder.addActionRecord(ActionRecord(array, bucketFunction, runStart))
-					case GROUP if (array.length >= FileDataReader.GROUP_RECORD_LENGTH) => resultsHolder.addGroupRecord(GroupRecord(array, bucketFunction, runStart))
-					case SCENARIO if (array.length >= FileDataReader.SCENARIO_RECORD_LENGTH) => resultsHolder.addScenarioRecord(ScenarioRecord(array, bucketFunction, runStart))
-				}
+				if (count % FileDataReader.logStep == 0) info(s"First pass, read $count lines")
+
+				if (ActionRecordType.isValidRecord(array)) resultsHolder.addActionRecord(ActionRecord(array, bucketFunction, runStart))
+				else if (GroupRecordType.isValidRecord(array)) resultsHolder.addGroupRecord(GroupRecord(array, bucketFunction, runStart))
+				else if (ScenarioRecordType.isValidRecord(array)) resultsHolder.addScenarioRecord(ScenarioRecord(array, bucketFunction, runStart))
 			}
 
 		info(s"Process done: read $count lines")
@@ -153,7 +138,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	private def countBuffer2IntVsTimePlots(buffer: CountBuffer): Seq[IntVsTimePlot] = buffer
 		.map
 		.values.toSeq
-		.map(plot => plot.copy(value = (plot.value / step * FileDataReader.SEC_MILLISEC_RATIO).toInt))
+		.map(plot => plot.copy(value = (plot.value / step * FileDataReader.secMillisecRatio).toInt))
 		.sortBy(_.time)
 
 	def numberOfRequestsPerSecond(status: Option[RequestStatus], requestName: Option[String], group: Option[Group]): Seq[IntVsTimePlot] =

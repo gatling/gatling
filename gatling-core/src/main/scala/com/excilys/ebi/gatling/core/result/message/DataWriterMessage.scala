@@ -17,7 +17,6 @@ package com.excilys.ebi.gatling.core.result.message
 
 import org.joda.time.DateTime
 
-import com.excilys.ebi.gatling.core.result.message.RecordType.{ ACTION, GROUP, RUN, SCENARIO }
 import com.excilys.ebi.gatling.core.util.DateHelper.{ toHumanDate, toTimestamp }
 
 sealed trait DataWriterMessage
@@ -62,22 +61,22 @@ case class RequestRecord(
 	requestStatus: RequestStatus,
 	requestMessage: Option[String] = None,
 	extraInfo: List[Any] = Nil) extends DataWriterMessage {
-	val recordType = ACTION
+	val recordType = ActionRecordType
 	def responseTime = executionEndDate - executionStartDate
 }
 
 case class RunRecord(runDate: DateTime, simulationId: String, runDescription: String) extends DataWriterMessage {
-	val recordType = RUN
-	val timestamp =  toTimestamp(runDate)
+	val recordType = RunRecordType
+	val timestamp = toTimestamp(runDate)
 	def runId = simulationId + "-" + timestamp
 	def readableRunDate = toHumanDate(runDate)
 }
 
-case class ScenarioRecord(scenarioName: String, userId: Int, event: String, executionDate: Long) extends DataWriterMessage {
-	val recordType = SCENARIO
+case class ScenarioRecord(scenarioName: String, userId: Int, event: RecordEvent, executionDate: Long) extends DataWriterMessage {
+	val recordType = ScenarioRecordType
 }
 
-case class GroupRecord(scenarioName: String, groupName: String, userId: Int, event: String, executionDate: Long) extends DataWriterMessage {
-	val recordType = GROUP
+case class GroupRecord(scenarioName: String, groupName: String, userId: Int, event: RecordEvent, executionDate: Long) extends DataWriterMessage {
+	val recordType = GroupRecordType
 }
 

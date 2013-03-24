@@ -15,8 +15,7 @@
  */
 package com.excilys.ebi.gatling.metrics.types
 
-import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
-import com.excilys.ebi.gatling.core.result.message.ScenarioRecord
+import com.excilys.ebi.gatling.core.result.message.{ End, ScenarioRecord, Start }
 
 class UserMetric(val nbUsers: Int) {
 
@@ -28,11 +27,11 @@ class UserMetric(val nbUsers: Int) {
 
 	def update(scenarioRecord: ScenarioRecord) {
 		scenarioRecord.event match {
-			case START => {
+			case Start => {
 				_active += 1
 				_waiting -= 1
 			}
-			case END => {
+			case End => {
 				activeBuffer += 1
 				doneBuffer += 1
 			}

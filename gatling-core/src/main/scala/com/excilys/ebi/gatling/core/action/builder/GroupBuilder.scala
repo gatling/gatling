@@ -17,19 +17,19 @@ package com.excilys.ebi.gatling.core.action.builder
 
 import com.excilys.ebi.gatling.core.action.{ Group, system }
 import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
+import com.excilys.ebi.gatling.core.result.message.{ End, RecordEvent, Start }
 import com.excilys.ebi.gatling.core.session.Expression
 
 import akka.actor.{ ActorRef, Props }
 
 object GroupBuilder {
 
-	def start(groupName: Expression[String]) = new GroupBuilder(groupName, START)
+	def start(groupName: Expression[String]) = new GroupBuilder(groupName, Start)
 
-	def end(groupName: Expression[String]) = new GroupBuilder(groupName, END)
+	def end(groupName: Expression[String]) = new GroupBuilder(groupName, End)
 }
 
-class GroupBuilder(groupName: Expression[String], event: String) extends ActionBuilder {
+class GroupBuilder(groupName: Expression[String], event: RecordEvent) extends ActionBuilder {
 
 	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new Group(groupName, event, next)))
 }
