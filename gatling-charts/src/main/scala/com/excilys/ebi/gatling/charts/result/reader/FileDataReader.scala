@@ -71,9 +71,14 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			count += 1
 			if (count % FileDataReader.logStep == 0) info(s"Second pass, read $count lines")
 
-			if (ActionRecordType.isValidRecord(array) || ScenarioRecordType.isValidRecord(array)) {
+			if (ActionRecordType.isValidRecord(array)) {
 				runStart = math.min(runStart, array(4).toLong)
 				runEnd = math.max(runEnd, array(7).toLong)
+
+			} else if (ScenarioRecordType.isValidRecord(array)) {
+				val time = array(4).toLong
+				runStart = math.min(runStart, time)
+				runEnd = math.max(runEnd, time)
 
 			} else if (RunRecordType.isValidRecord(array)) {
 				runRecords += RunRecord(parseTimestampString(array(1)), array(2), array(3).trim)
