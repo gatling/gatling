@@ -20,7 +20,7 @@ import java.io.InputStream
 import com.excilys.ebi.gatling.core.session.{ Expression, Session }
 import com.excilys.ebi.gatling.core.validation.Validation
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
-import com.excilys.ebi.gatling.http.request.{ ByteArrayBody, HttpRequestBody, HttpRequestBodySetter, InputStreamBody, StringBody }
+import com.excilys.ebi.gatling.http.request.{ ByteArrayBody, HttpRequestBody, HttpRequestBodySetter, InputStreamBody }
 import com.ning.http.client.RequestBuilder
 
 /**
@@ -51,7 +51,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	 *
 	 * @param body a string containing the body of the request
 	 */
-	def body(body: Expression[String]): B = newInstance(httpAttributes, Some(StringBody(body)))
+	def body(body: Expression[String]): B = newInstance(httpAttributes, Some(HttpRequestBody.stringBody(body)))
 
 	/**
 	 * Adds a body from a file to the request

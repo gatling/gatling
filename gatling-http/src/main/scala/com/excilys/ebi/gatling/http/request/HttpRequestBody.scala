@@ -15,19 +15,19 @@
  */
 package com.excilys.ebi.gatling.http.request
 
-import java.io.{ File => JFile, InputStream }
+import java.io.{ ByteArrayOutputStream, File => JFile, InputStream, PrintWriter }
 
 import scala.reflect.io.Path
-import scala.reflect.io.Path.string2path
 
 import org.apache.commons.io.FileUtils
 import org.fusesource.scalate.{ Binding, TemplateEngine }
 
 import com.excilys.ebi.gatling.core.action.system
-import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.excilys.ebi.gatling.core.config.GatlingFiles
 import com.excilys.ebi.gatling.core.session.{ EL, Expression, Session }
-import com.excilys.ebi.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation, ValidationList }
-import com.ning.http.client.RequestBuilder
+import com.excilys.ebi.gatling.core.util.IOHelper
+import com.excilys.ebi.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 object HttpRequestBody {
 
@@ -39,27 +39,32 @@ object HttpRequestBody {
 		else s"Body file $file doesn't exist".failure
 	}
 
-	def elTemplateBody(filePath: Expression[String]): StringBody = {
+	def stringBody(expression: Expression[String]): ByteArrayBody = {
+		val bytes = (session: Session) => expression(session).map(_.getBytes(configuration.simulation.encoding))
+		ByteArrayBody(bytes)
+	}
+
+	def elTemplateBody(filePath: Expression[String]): ByteArrayBody = {
 
 		def compileTemplate(path: String): Validation[Expression[String]] =
 			template(path)
-				.map(f => FileUtils.readFileToString(f.jfile, GatlingConfiguration.configuration.simulation.encoding))
+				.map(f => FileUtils.readFileToString(f.jfile, configuration.simulation.encoding))
 				.map(EL.compile[String])
 
 		def fetchTemplate(path: String): Validation[Expression[String]] = elFileCache.getOrElseUpdate(path, compileTemplate(path))
 
-		val expression = (session: Session) => {
+		val bytes = (session: Session) => {
 			for {
 				path <- filePath(session)
 				expression <- fetchTemplate(path)
 				body <- expression(session)
-			} yield body
+			} yield body.getBytes(configuration.simulation.encoding)
 		}
 
-		StringBody(expression)
+		ByteArrayBody(bytes)
 	}
 
-	def sspTemplateBody(filePath: Expression[String], additionalAttributes: Map[String, Any]): StringBody = {
+	def sspTemplateBody(filePath: Expression[String], additionalAttributes: Map[String, Any]): ByteArrayBody = {
 
 		def sspTemplate(filePath: String): Validation[String] = {
 			val file = GatlingFiles.requestBodiesDirectory / filePath
@@ -67,14 +72,22 @@ object HttpRequestBody {
 			else s"Ssp body file $file doesn't exist".failure
 		}
 
+		def layout(templatePath: String, session: Session): Array[Byte] = {
+			val out = new ByteArrayOutputStream
+			IOHelper.use(new PrintWriter(out)) { pw =>
+				HttpRequestBody.sspTemplateEngine.layout(templatePath, additionalAttributes + ("session" -> session), HttpRequestBody.sessionExtraBinding)
+			}
+			out.toByteArray
+		}
+
 		val expression = (session: Session) =>
 			for {
 				path <- filePath(session)
 				templatePath <- sspTemplate(path)
-				body = HttpRequestBody.sspTemplateEngine.layout(templatePath, additionalAttributes + ("session" -> session), HttpRequestBody.sessionExtraBinding)
+				body = layout(templatePath, session)
 			} yield body
 
-		StringBody(expression)
+		ByteArrayBody(expression)
 	}
 
 	def rawFileBody(filePath: Expression[String]) = {
@@ -100,7 +113,6 @@ object HttpRequestBody {
 }
 
 sealed trait HttpRequestBody
-case class StringBody(expression: Expression[String]) extends HttpRequestBody
 case class RawFileBody(file: Expression[JFile]) extends HttpRequestBody
 case class ByteArrayBody(byteArray: Expression[Array[Byte]]) extends HttpRequestBody
 case class InputStreamBody(is: Expression[InputStream]) extends HttpRequestBody
