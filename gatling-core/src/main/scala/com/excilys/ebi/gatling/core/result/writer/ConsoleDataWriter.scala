@@ -54,8 +54,6 @@ class ConsoleDataWriter extends DataWriter with Logging {
 	private val groupStack = mutable.Map.empty[Int, List[String]]
 	private val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty
 
-	private val displayPeriod = 5 seconds
-
 	private var complete = false
 
 	def display {
@@ -79,7 +77,7 @@ class ConsoleDataWriter extends DataWriter with Logging {
 
 		scenarios.foreach(scenario => usersCounters.put(scenario.name, new UserCounters(scenario.nbUsers)))
 
-		system.scheduler.schedule(0 seconds, displayPeriod, self, Display)
+		system.scheduler.schedule(0 seconds, 5 seconds, self, Display)
 	}
 
 	override def onScenarioRecord(scenarioRecord: ScenarioRecord) {
