@@ -79,9 +79,7 @@ class ConsoleDataWriter extends DataWriter with Logging {
 
 		scenarios.foreach(scenario => usersCounters.put(scenario.name, new UserCounters(scenario.nbUsers)))
 
-		system.scheduler.schedule(0 seconds, displayPeriod) {
-			self ! Display
-		}
+		system.scheduler.schedule(0 seconds, displayPeriod, self, Display)
 	}
 
 	override def onScenarioRecord(scenarioRecord: ScenarioRecord) {
