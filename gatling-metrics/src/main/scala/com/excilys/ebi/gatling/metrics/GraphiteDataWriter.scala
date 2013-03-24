@@ -15,9 +15,6 @@
  */
 package com.excilys.ebi.gatling.metrics
 
-import java.net.{ DatagramPacket, DatagramSocket, InetSocketAddress }
-import java.nio.channels.DatagramChannel
-
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
@@ -28,6 +25,7 @@ import com.excilys.ebi.gatling.core.result.message.{ GroupRecord, RequestRecord,
 import com.excilys.ebi.gatling.core.result.message.RecordEvent.{ END, START }
 import com.excilys.ebi.gatling.core.result.writer.DataWriter
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowSeconds
+import com.excilys.ebi.gatling.metrics.sender.MetricsSender
 import com.excilys.ebi.gatling.metrics.types.{ Metrics, RequestMetrics, UserMetric }
 
 import akka.actor.Props
@@ -42,7 +40,6 @@ class GraphiteDataWriter extends DataWriter {
 	private val perRequest = mutable.Map.empty[List[String], RequestMetrics]
 	private var allUsers: UserMetric = _
 	private val usersPerScenario = mutable.Map.empty[String, UserMetric]
-	private val address = new InetSocketAddress(configuration.graphite.host, configuration.graphite.port)
 	private val percentiles1 = configuration.charting.indicators.percentile1
 	private val percentiles1Name = "percentiles" + percentiles1
 	private val percentiles2 = configuration.charting.indicators.percentile2
@@ -99,21 +96,19 @@ class GraphiteDataWriter extends DataWriter {
 
 		private val sanitizeStringMemo = mutable.Map.empty[String,String]
 		private val sanitizeStringListMemo = mutable.Map.empty[List[String],List[String]]
-		private var socket: DatagramSocket = _
-
-		private def newSocket = DatagramChannel.open.socket
+		private var metricsSender: MetricsSender = _
 
 		override def preStart {
-			socket = newSocket
+			metricsSender = MetricsSender.newMetricsSender
 		}
 
 		override def preRestart(reason: Throwable, message: Option[Any]) {
-			socket.close
+			metricsSender.close
 		}
 
 		def receive = {
 			case SendToGraphite => sendMetricsToGraphite(nowSeconds)
-			case closeSocket => socket.close
+			case CloseSocket => metricsSender.close
 		}
 
 		private def sendMetricsToGraphite(epoch: Long) {
@@ -122,12 +117,7 @@ class GraphiteDataWriter extends DataWriter {
 
 			def sanitizeStringList(list: List[String]) = sanitizeStringListMemo.getOrElseUpdate(list,list.map(sanitizeString))
 
-			def sendToGraphite(metricPath: MetricPath, value: Long) {
-				val message = raw"$metricPath $value $epoch"
-				val buffer = message.getBytes(configuration.simulation.encoding)
-				val packet = new DatagramPacket(buffer, buffer.length, address)
-				socket.send(packet)
-			}
+			def sendToGraphite(metricPath: MetricPath, value: Long) = metricsSender.sendToGraphite(metricPath.toString, value, epoch)
 
 			def sendUserMetrics(scenarioName: String, userMetric: UserMetric) {
 				val rootPath = MetricPath(List("users", sanitizeString(scenarioName)))
@@ -164,6 +154,8 @@ class GraphiteDataWriter extends DataWriter {
 
 			sendRequestMetrics(List("allRequests"), allRequests)
 			for ((path, requestMetric) <- perRequest) sendRequestMetrics(path, requestMetric)
+
+			metricsSender.flush
 		}
 	}
 
