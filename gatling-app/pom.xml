@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>gatling-parent</artifactId>
-		<groupId>com.excilys.ebi.gatling</groupId>
+		<groupId>io.gatling</groupId>
 		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>gatling-app</artifactId>
@@ -16,23 +16,23 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.excilys.ebi.gatling</groupId>
+			<groupId>io.gatling</groupId>
 			<artifactId>gatling-http</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.excilys.ebi.gatling</groupId>
+			<groupId>io.gatling</groupId>
 			<artifactId>gatling-jdbc</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.excilys.ebi.gatling</groupId>
+			<groupId>io.gatling</groupId>
 			<artifactId>gatling-redis</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.excilys.ebi.gatling</groupId>
+			<groupId>io.gatling</groupId>
 			<artifactId>gatling-charts</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.excilys.ebi.gatling</groupId>
+			<groupId>io.gatling</groupId>
 			<artifactId>gatling-metrics</artifactId>
 		</dependency>
 		<dependency>
@@ -58,7 +58,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>com.excilys.ebi.gatling.app.App</mainClass>
+							<mainClass>io.gatling.app.App</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

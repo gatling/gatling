@@ -26,7 +26,7 @@ import org.specs2.runner.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class StringHelperSpec extends Specification {
 
-	val fileBytes = FileUtils.readFileToByteArray(new File("src/test/resources/gatling-core-1.2.1.pom"))
+	val fileBytes = FileUtils.readFileToByteArray(new File("src/test/resources/test.json"))
 
 	"bytes2Hex" should {
 
@@ -34,14 +34,14 @@ class StringHelperSpec extends Specification {
 			val md = MessageDigest.getInstance("SHA-1")
 			md.update(fileBytes)
 			val digestBytes = md.digest
-			StringHelper.bytes2Hex(digestBytes) must beEqualTo("aefb180cba67752f54c7eacf45356dd55db4dcc4")
+			StringHelper.bytes2Hex(digestBytes) must beEqualTo("9d6540f78f2264d947034a9fc7247e2fe9bcc780")
 		}
 
 		"correctly compute file md5" in {
 			val md = MessageDigest.getInstance("MD5")
 			md.update(fileBytes)
 			val digestBytes = md.digest
-			StringHelper.bytes2Hex(digestBytes) must beEqualTo("694ad6ef693b035d5207506efa2a6d39")
+			StringHelper.bytes2Hex(digestBytes) must beEqualTo("4d824413f8fbfe5cc7d69b8898c50acd")
 		}
 	}
 }
