@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.feeder
+package io.gatling.core.feeder
 
 import scala.concurrent.forkjoin.ThreadLocalRandom
 
-import com.excilys.ebi.gatling.core.util.RoundRobin
+import io.gatling.core.util.RoundRobin
 
 trait FeederBuilder[T] {
 	private[gatling] def build: Feeder[T]

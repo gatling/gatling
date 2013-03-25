@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.structure
+package io.gatling.core.structure
 
-import com.excilys.ebi.gatling.core.action.builder.{ ActionBuilder, UserStartBuilder }
-import com.excilys.ebi.gatling.core.scenario.Scenario
-import com.excilys.ebi.gatling.core.scenario.configuration.{ ConfiguredScenarioBuilder, ScenarioConfiguration }
-import com.excilys.ebi.gatling.core.action.UserEnd
+import io.gatling.core.action.builder.{ ActionBuilder, UserStartBuilder }
+import io.gatling.core.scenario.Scenario
+import io.gatling.core.scenario.configuration.{ ConfiguredScenarioBuilder, ScenarioConfiguration }
+import io.gatling.core.action.UserEnd
 
 /**
  * ScenarioBuilder class companion

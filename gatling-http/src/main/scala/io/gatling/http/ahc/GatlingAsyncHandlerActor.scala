@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.ahc
+package io.gatling.http.ahc
 
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.concurrent.duration.DurationInt
 
-import com.excilys.ebi.gatling.core.action.BaseActor
-import com.excilys.ebi.gatling.core.check.Checks
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.{ KO, OK, RequestStatus }
-import com.excilys.ebi.gatling.core.result.writer.DataWriter
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.util.StringHelper.eol
-import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
-import com.excilys.ebi.gatling.core.validation.{ Failure, Success }
-import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames }
-import com.excilys.ebi.gatling.http.cache.CacheHandling
-import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
-import com.excilys.ebi.gatling.http.cookie.CookieHandling
-import com.excilys.ebi.gatling.http.request.ExtendedRequest
-import com.excilys.ebi.gatling.http.response.{ ExtendedResponse, ExtendedResponseBuilder, ExtendedResponseBuilderFactory }
-import com.excilys.ebi.gatling.http.util.HttpHelper.computeRedirectUrl
+import io.gatling.core.action.BaseActor
+import io.gatling.core.check.Checks
+import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.result.message.{ KO, OK, RequestStatus }
+import io.gatling.core.result.writer.DataWriter
+import io.gatling.core.session.Session
+import io.gatling.core.util.StringHelper.eol
+import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.core.validation.{ Failure, Success }
+import io.gatling.http.Headers.{ Names => HeaderNames }
+import io.gatling.http.cache.CacheHandling
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.config.HttpProtocolConfiguration
+import io.gatling.http.cookie.CookieHandling
+import io.gatling.http.request.ExtendedRequest
+import io.gatling.http.response.{ ExtendedResponse, ExtendedResponseBuilder, ExtendedResponseBuilderFactory }
+import io.gatling.http.util.HttpHelper.computeRedirectUrl
 import com.ning.http.client.{ FluentStringsMap, Request, RequestBuilder }
 
 import akka.actor.{ ActorRef, ReceiveTimeout }

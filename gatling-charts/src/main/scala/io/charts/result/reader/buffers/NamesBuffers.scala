@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.result.reader.buffers
+package io.gatling.charts.result.reader.buffers
 
 import scala.collection.mutable
 
-import com.excilys.ebi.gatling.charts.result.reader.{ ActionRecord, ScenarioRecord }
-import com.excilys.ebi.gatling.core.result.Group
+import io.gatling.charts.result.reader.{ ActionRecord, ScenarioRecord }
+import io.gatling.core.result.Group
 
 trait NamesBuffers {
 

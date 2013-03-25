@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.config
+package io.gatling.recorder.config
 
 import java.util.List
 
 import scala.collection.mutable
 
-import com.excilys.ebi.gatling.recorder.config.ConfigurationConstants._
+import io.gatling.recorder.config.ConfigurationConstants._
 
 class RecorderPropertiesBuilder {
 

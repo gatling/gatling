@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.jdbc.feeder.database
+package io.gatling.jdbc.feeder.database
 
 import java.sql.DriverManager
 import java.sql.ResultSet.{ CONCUR_READ_ONLY, TYPE_FORWARD_ONLY }
 
 import scala.annotation.tailrec
 
-import com.excilys.ebi.gatling.core.feeder.Record
-import com.excilys.ebi.gatling.core.util.IOHelper.use
+import io.gatling.core.feeder.Record
+import io.gatling.core.util.IOHelper.use
 
 object JdbcFeederSource {
 

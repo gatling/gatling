@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.action.builder
+package io.gatling.core.action.builder
 
 import scala.concurrent.duration.Duration
 
-import com.excilys.ebi.gatling.core.action.{ Pause, system }
-import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.session.{ Expression, Session }
-import com.excilys.ebi.gatling.core.util.NumberHelper.createUniformRandomLongGenerator
-import com.excilys.ebi.gatling.core.validation.Validation
+import io.gatling.core.action.{ Pause, system }
+import io.gatling.core.config.ProtocolConfigurationRegistry
+import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.util.NumberHelper.createUniformRandomLongGenerator
+import io.gatling.core.validation.Validation
 
 import akka.actor.{ ActorRef, Props }
 

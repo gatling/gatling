@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.extractor.css
+package io.gatling.core.check.extractor.css
 
 import java.nio.CharBuffer
 
@@ -22,8 +22,8 @@ import scala.io.{ Codec, Source }
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
-import com.excilys.ebi.gatling.core.test.ValidationSpecification
-import com.excilys.ebi.gatling.core.util.IOHelper
+import io.gatling.core.test.ValidationSpecification
+import io.gatling.core.util.IOHelper
 
 /**
  * @see <a href="http://www.w3.org/TR/selectors/#selectors"/> for more details about the CSS selectors syntax

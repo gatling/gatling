@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.cookie
+package io.gatling.http.cookie
 
 import java.net.URI
 
@@ -21,7 +21,7 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import com.excilys.ebi.gatling.core.session.Session
+import io.gatling.core.session.Session
 import com.ning.http.util.AsyncHttpProviderUtils
 
 @RunWith(classOf[JUnitRunner])

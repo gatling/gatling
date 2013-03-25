@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.component
+package io.gatling.charts.component
 
 import scala.collection.JavaConversions.enumerationAsScalaIterator
 
-import com.excilys.ebi.gatling.charts.component.impl.ComponentLibraryImpl
-import com.excilys.ebi.gatling.core.result.{ IntRangeVsTimePlot, IntVsTimePlot, PieSlice, Series }
+import io.gatling.charts.component.impl.ComponentLibraryImpl
+import io.gatling.core.result.{ IntRangeVsTimePlot, IntVsTimePlot, PieSlice, Series }
 
 import grizzled.slf4j.Logging
 

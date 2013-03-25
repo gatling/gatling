@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.session
+package io.gatling.core.session
 
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
-import com.excilys.ebi.gatling.core.test.ValidationSpecification
+import io.gatling.core.test.ValidationSpecification
 
 @RunWith(classOf[JUnitRunner])
 class ELSpec extends ValidationSpecification {

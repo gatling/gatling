@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.session.handler
+package io.gatling.core.session.handler
 
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
-import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
-import com.excilys.ebi.gatling.core.validation.Validation
+import io.gatling.core.session.Session
+import io.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
+import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.core.validation.Validation
 
 /**
  * TimerBasedIterationHandler trait 'companion'

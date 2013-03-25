@@ -1,8 +1,8 @@
-<% import com.excilys.ebi.gatling.charts.report.GroupContainer %>
-<% import com.excilys.ebi.gatling.charts.report.RequestContainer %>
-<% import com.excilys.ebi.gatling.charts.report.Container.GROUP %>
-<% import com.excilys.ebi.gatling.charts.report.Container.REQUEST %>
-<% import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename %>
+<% import io.gatling.charts.report.GroupContainer %>
+<% import io.gatling.charts.report.RequestContainer %>
+<% import io.gatling.charts.report.Container.GROUP %>
+<% import io.gatling.charts.report.Container.REQUEST %>
+<% import io.gatling.core.util.FileHelper.formatToFilename %>
 <%@ val group: GroupContainer %>
 type: "<%= GROUP %>",
 contents: {

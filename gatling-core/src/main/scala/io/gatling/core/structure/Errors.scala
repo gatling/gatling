@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.structure
+package io.gatling.core.structure
 
 import java.util.UUID
 
-import com.excilys.ebi.gatling.core.action.builder.{ SessionHookBuilder, TryMaxBuilder }
-import com.excilys.ebi.gatling.core.structure.ChainBuilder.chainOf
+import io.gatling.core.action.builder.{ SessionHookBuilder, TryMaxBuilder }
+import io.gatling.core.structure.ChainBuilder.chainOf
 
 trait Errors[B] extends Execs[B] {
 

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.request.builder
+package io.gatling.http.request.builder
 
-import com.excilys.ebi.gatling.core.session.{ ELCompiler, Expression, Session }
-import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
-import com.excilys.ebi.gatling.http.request.HttpRequestBody
+import io.gatling.core.session.{ ELCompiler, Expression, Session }
+import io.gatling.http.config.HttpProtocolConfiguration
+import io.gatling.http.request.HttpRequestBody
 
 object PostHttpRequestBuilder {
 

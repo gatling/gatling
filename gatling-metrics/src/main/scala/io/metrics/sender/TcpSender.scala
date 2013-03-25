@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.metrics.sender
+package io.gatling.metrics.sender
 
 import java.io.{ BufferedWriter, OutputStreamWriter, Writer }
 import java.net.Socket
 
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.util.StringHelper.eol
+import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.util.StringHelper.eol
 
 class TcpSender extends MetricsSender {
 

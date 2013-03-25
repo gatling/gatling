@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.report
+package io.gatling.charts.report
 
 import scala.io.Codec.string2codec
 import scala.tools.nsc.io.{ File, Path }
 
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.util.IOHelper.use
+import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.util.IOHelper.use
 
 class TemplateWriter(path: Path) {
 

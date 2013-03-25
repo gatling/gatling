@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.response
+package io.gatling.http.response
 
 import java.security.MessageDigest
 
 import scala.collection.JavaConversions.asScalaBuffer
 
-import com.excilys.ebi.gatling.core.util.StringHelper.{ eol, bytes2Hex }
-import com.excilys.ebi.gatling.http.util.HttpHelper.dumpFluentCaseInsensitiveStringsMap
+import io.gatling.core.util.StringHelper.{ eol, bytes2Hex }
+import io.gatling.http.util.HttpHelper.dumpFluentCaseInsensitiveStringsMap
 import com.ning.http.client.{ Request, Response }
 
 class ExtendedResponse(

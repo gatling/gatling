@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.mojo;
+package io.gatling.mojo;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +23,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 
-import static com.excilys.ebi.gatling.mojo.GatlingMojo.fileNameToClassName;
+import static io.gatling.mojo.GatlingMojo.fileNameToClassName;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(value = Parameterized.class)

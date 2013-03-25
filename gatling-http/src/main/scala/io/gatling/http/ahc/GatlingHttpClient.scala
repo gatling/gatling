@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.ahc
+package io.gatling.http.ahc
 
 import java.io.{ File, FileInputStream }
 import java.security.{ KeyStore, SecureRandom }
 
-import com.excilys.ebi.gatling.core.action.system
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.util.IOHelper
+import io.gatling.core.action.system
+import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.util.IOHelper
 import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig }
 
 import grizzled.slf4j.Logging

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.cache
+package io.gatling.http.cache
 
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification

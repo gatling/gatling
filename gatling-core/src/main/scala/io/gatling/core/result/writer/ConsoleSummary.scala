@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.result.writer
+package io.gatling.core.result.writer
 
 import scala.collection.mutable.Map
 import scala.math.{ ceil, floor, max }
@@ -21,8 +21,8 @@ import scala.math.{ ceil, floor, max }
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
-import com.excilys.ebi.gatling.core.util.PaddableStringBuilder
-import com.excilys.ebi.gatling.core.util.StringHelper.eol
+import io.gatling.core.util.PaddableStringBuilder
+import io.gatling.core.util.StringHelper.eol
 
 object ConsoleSummary {
 	val iso8601Format = "yyyy-MM-dd HH:mm:ss"

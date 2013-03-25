@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.ahc
+package io.gatling.http.ahc
 
 import java.net.URI
 
-import com.excilys.ebi.gatling.core.session.Session
+import io.gatling.core.session.Session
 import com.ning.http.client.{ ConnectionPoolKeyStrategy, DefaultConnectionPoolStrategy }
 
 class GatlingConnectionPoolKeyStrategy(session: Session) extends ConnectionPoolKeyStrategy {

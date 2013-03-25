@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.extractor.jsonpath
+package io.gatling.core.check.extractor.jsonpath
 
 import java.io.InputStream
 
 import scala.collection.mutable
 
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration.configuration
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.{ JsonNode => JacksonNode, MappingJsonFactory, ObjectMapper }
 import com.fasterxml.jackson.databind.node.{ ArrayNode, ObjectNode, ValueNode }

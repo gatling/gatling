@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.check.body
+package io.gatling.http.check.body
 
-import com.excilys.ebi.gatling.core.check.Extractor
-import com.excilys.ebi.gatling.core.session.noopStringExpression
-import com.excilys.ebi.gatling.core.validation.SuccessWrapper
-import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
+import io.gatling.core.check.Extractor
+import io.gatling.core.session.noopStringExpression
+import io.gatling.core.validation.SuccessWrapper
+import io.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
 
 object HttpBodyStringCheckBuilder {
 

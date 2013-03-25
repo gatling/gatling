@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.metrics.types
+package io.gatling.metrics.types
 
 import scala.annotation.tailrec
 
 import scala.collection.mutable
 
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.RequestRecord
-import com.excilys.ebi.gatling.core.result.message.{ KO, OK }
+import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.result.message.RequestRecord
+import io.gatling.core.result.message.{ KO, OK }
 
 class RequestMetrics {
 

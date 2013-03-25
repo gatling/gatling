@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.structure
+package io.gatling.core.structure
 
-import com.excilys.ebi.gatling.core.action.builder.FeedBuilder
-import com.excilys.ebi.gatling.core.feeder.FeederBuilder
-import com.excilys.ebi.gatling.core.session.{ ELWrapper, Expression }
+import io.gatling.core.action.builder.FeedBuilder
+import io.gatling.core.feeder.FeederBuilder
+import io.gatling.core.session.{ ELWrapper, Expression }
 
 object Feeds {
 	val oneExpression = 1.expression

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.result.reader
+package io.gatling.core.result.reader
 
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.{ Group, IntRangeVsTimePlot, IntVsTimePlot }
-import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RunRecord }
+import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.result.{ Group, IntRangeVsTimePlot, IntVsTimePlot }
+import io.gatling.core.result.message.{ RequestStatus, RunRecord }
 
 object DataReader {
 	val NO_PLOT_MAGIC_VALUE = -1

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.template
+package io.gatling.charts.template
 
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_MENU_JS_FILE_URL
+import io.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_MENU_JS_FILE_URL
 
 class MenuTemplate {
 	def getOutput: String = PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_MENU_JS_FILE_URL)

@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.request.builder
+package io.gatling.http.request.builder
 
 import scala.tools.nsc.io.Path.string2path
 
-import com.excilys.ebi.gatling.core.config.GatlingFiles
-import com.excilys.ebi.gatling.core.session.{ Expression, Session }
-import com.excilys.ebi.gatling.core.validation.Validation
+import io.gatling.core.config.GatlingFiles
+import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.validation.Validation
 import com.ning.http.client.FilePart
 
 class UploadedFile(paramKeyFunction: Expression[String], fileNameFunction: Expression[String], mimeType: String, charset: String) {

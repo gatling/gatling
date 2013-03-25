@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.feeder.csv
+package io.gatling.core.feeder.csv
 
 import scala.io.Source
 import scala.tools.nsc.io.Path
 
-import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
-import com.excilys.ebi.gatling.core.feeder.AdvancedFeederBuilder
-import com.excilys.ebi.gatling.core.util.FileHelper.{ commaSeparator, semicolonSeparator, tabulationSeparator }
-import com.excilys.ebi.gatling.core.util.IOHelper.use
+import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
+import io.gatling.core.feeder.AdvancedFeederBuilder
+import io.gatling.core.util.FileHelper.{ commaSeparator, semicolonSeparator, tabulationSeparator }
+import io.gatling.core.util.IOHelper.use
 
 object SeparatedValuesParser {
 

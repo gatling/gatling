@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core
+package io.gatling.core
 
-import com.excilys.ebi.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
+import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 package object check {
 

@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.app
+package io.gatling.app
 
 import java.lang.System.currentTimeMillis
 
 import scala.collection.mutable
 
-import com.excilys.ebi.gatling.app.CommandLineConstants._
-import com.excilys.ebi.gatling.charts.report.ReportsGenerator
-import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingFiles, GatlingPropertiesBuilder }
-import com.excilys.ebi.gatling.core.result.reader.DataReader
-import com.excilys.ebi.gatling.core.runner.{ Runner, Selection }
-import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
-import com.excilys.ebi.gatling.core.structure.Assertion
-import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename
+import io.gatling.app.CommandLineConstants._
+import io.gatling.charts.report.ReportsGenerator
+import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles, GatlingPropertiesBuilder }
+import io.gatling.core.result.reader.DataReader
+import io.gatling.core.runner.{ Runner, Selection }
+import io.gatling.core.scenario.configuration.Simulation
+import io.gatling.core.structure.Assertion
+import io.gatling.core.util.FileHelper.formatToFilename
 
 import grizzled.slf4j.Logging
 import scopt.OptionParser

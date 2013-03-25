@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.template
+package io.gatling.charts.template
 
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_STATS_JS_FILE_URL
-import com.excilys.ebi.gatling.charts.report.GroupContainer
+import io.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_STATS_JS_FILE_URL
+import io.gatling.charts.report.GroupContainer
 
 class StatsJsTemplate(stats: GroupContainer) {
 

@@ -1,9 +1,9 @@
 package advanced
 
-import com.excilys.ebi.gatling.core.Predef._
-import com.excilys.ebi.gatling.http.Predef._
-import com.excilys.ebi.gatling.jdbc.Predef._
-import com.excilys.ebi.gatling.http.Headers.Names._
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
+import io.gatling.jdbc.Predef._
+import io.gatling.http.Headers.Names._
 import scala.concurrent.duration._
 
 class AdvancedExampleSimulation extends Simulation {

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.util
+package io.gatling.core.util
 
 import scala.reflect.ClassTag
 
-import com.excilys.ebi.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
+import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 object TypeHelper {
 

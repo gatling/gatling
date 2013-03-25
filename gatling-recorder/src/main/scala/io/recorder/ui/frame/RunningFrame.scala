@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.ui.frame
+package io.gatling.recorder.ui.frame
 
 import java.awt.{ BorderLayout, Dimension, FlowLayout }
 import java.awt.event.ActionEvent
 
 import scala.collection.JavaConversions.seqAsJavaList
 
-import com.excilys.ebi.gatling.recorder.controller.RecorderController
-import com.excilys.ebi.gatling.recorder.ui.Commons.iconList
-import com.excilys.ebi.gatling.recorder.ui.component.TextAreaPanel
-import com.excilys.ebi.gatling.recorder.ui.info.{ EventInfo, PauseInfo, RequestInfo, SSLInfo, TagInfo }
-import com.excilys.ebi.gatling.recorder.ui.util.ScalaSwing
+import io.gatling.recorder.controller.RecorderController
+import io.gatling.recorder.ui.Commons.iconList
+import io.gatling.recorder.ui.component.TextAreaPanel
+import io.gatling.recorder.ui.info.{ EventInfo, PauseInfo, RequestInfo, SSLInfo, TagInfo }
+import io.gatling.recorder.ui.util.ScalaSwing
 
 import grizzled.slf4j.Logging
 import javax.swing._

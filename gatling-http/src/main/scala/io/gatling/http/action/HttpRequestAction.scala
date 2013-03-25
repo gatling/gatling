@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.action
+package io.gatling.http.action
 
-import com.excilys.ebi.gatling.core.action.Bypassable
-import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.session.{ Expression, Session }
-import com.excilys.ebi.gatling.core.validation.{ Failure, Success }
-import com.excilys.ebi.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor, GatlingHttpClient }
-import com.excilys.ebi.gatling.http.cache.CacheHandling
-import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
-import com.excilys.ebi.gatling.http.referer.RefererHandling
-import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
+import io.gatling.core.action.Bypassable
+import io.gatling.core.config.ProtocolConfigurationRegistry
+import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.validation.{ Failure, Success }
+import io.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor, GatlingHttpClient }
+import io.gatling.http.cache.CacheHandling
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.config.HttpProtocolConfiguration
+import io.gatling.http.referer.RefererHandling
+import io.gatling.http.request.builder.AbstractHttpRequestBuilder
 
 import akka.actor.{ ActorRef, Props }
 import grizzled.slf4j.Logging

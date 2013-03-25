@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.config
+package io.gatling.http.config
 
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
-import com.excilys.ebi.gatling.core.session.{ Expression, Session }
-import com.excilys.ebi.gatling.http.Headers
-import com.excilys.ebi.gatling.http.ahc.GatlingHttpClient
-import com.excilys.ebi.gatling.http.request.builder.{ GetHttpRequestBuilder, PostHttpRequestBuilder }
-import com.excilys.ebi.gatling.http.response.ExtendedResponse
-import com.excilys.ebi.gatling.http.util.HttpHelper
+import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.result.message.RequestStatus
+import io.gatling.core.session.{ Expression, Session }
+import io.gatling.http.Headers
+import io.gatling.http.ahc.GatlingHttpClient
+import io.gatling.http.request.builder.{ GetHttpRequestBuilder, PostHttpRequestBuilder }
+import io.gatling.http.response.ExtendedResponse
+import io.gatling.http.util.HttpHelper
 import com.ning.http.client.{ ProxyServer, Request, RequestBuilder }
 
 import grizzled.slf4j.Logging

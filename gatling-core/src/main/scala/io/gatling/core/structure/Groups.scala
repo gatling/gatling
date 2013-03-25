@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.structure
+package io.gatling.core.structure
 
-import com.excilys.ebi.gatling.core.action.builder.GroupBuilder
-import com.excilys.ebi.gatling.core.session.Expression
-import com.excilys.ebi.gatling.core.structure.ChainBuilder.chainOf
+import io.gatling.core.action.builder.GroupBuilder
+import io.gatling.core.session.Expression
+import io.gatling.core.structure.ChainBuilder.chainOf
 
 trait Groups[B] extends Execs[B] {
 

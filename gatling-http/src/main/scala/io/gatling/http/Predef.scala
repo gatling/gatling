@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http
+package io.gatling.http
 
-import com.excilys.ebi.gatling.core.result.message.{ KO, RequestStatus }
-import com.excilys.ebi.gatling.core.session.{ Expression, Session }
-import com.excilys.ebi.gatling.http.action.{ AddCookiesBuilder, HttpRequestActionBuilder }
-import com.excilys.ebi.gatling.http.check.body.{ HttpBodyCssCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyStringCheckBuilder, HttpBodyXPathCheckBuilder }
-import com.excilys.ebi.gatling.http.check.checksum.HttpChecksumCheckBuilder
-import com.excilys.ebi.gatling.http.check.header.{ HttpHeaderCheckBuilder, HttpHeaderRegexCheckBuilder }
-import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder
-import com.excilys.ebi.gatling.http.check.time.HttpResponseTimeCheckBuilder
-import com.excilys.ebi.gatling.http.check.url.CurrentLocationCheckBuilder
-import com.excilys.ebi.gatling.http.config.{ HttpProtocolConfiguration, HttpProtocolConfigurationBuilder, HttpProxyBuilder }
-import com.excilys.ebi.gatling.http.request.builder.{ AbstractHttpRequestBuilder, HttpRequestBaseBuilder }
+import io.gatling.core.result.message.{ KO, RequestStatus }
+import io.gatling.core.session.{ Expression, Session }
+import io.gatling.http.action.{ AddCookiesBuilder, HttpRequestActionBuilder }
+import io.gatling.http.check.body.{ HttpBodyCssCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyStringCheckBuilder, HttpBodyXPathCheckBuilder }
+import io.gatling.http.check.checksum.HttpChecksumCheckBuilder
+import io.gatling.http.check.header.{ HttpHeaderCheckBuilder, HttpHeaderRegexCheckBuilder }
+import io.gatling.http.check.status.HttpStatusCheckBuilder
+import io.gatling.http.check.time.HttpResponseTimeCheckBuilder
+import io.gatling.http.check.url.CurrentLocationCheckBuilder
+import io.gatling.http.config.{ HttpProtocolConfiguration, HttpProtocolConfigurationBuilder, HttpProxyBuilder }
+import io.gatling.http.request.builder.{ AbstractHttpRequestBuilder, HttpRequestBaseBuilder }
 
 object Predef {
 	type Request = com.ning.http.client.Request
 	type Response = com.ning.http.client.Response
-	type ExtendedResponse = com.excilys.ebi.gatling.http.response.ExtendedResponse
-	type Cookie = com.excilys.ebi.gatling.http.action.Cookie
+	type ExtendedResponse = io.gatling.http.response.ExtendedResponse
+	type Cookie = io.gatling.http.action.Cookie
 
 	implicit def proxyBuilder2HttpProtocolConfigurationBuilder(hpb: HttpProxyBuilder): HttpProtocolConfigurationBuilder = hpb.toHttpProtocolConfigurationBuilder
 	implicit def proxyBuilder2HttpProtocolConfiguration(hpb: HttpProxyBuilder): HttpProtocolConfiguration = hpb.toHttpProtocolConfigurationBuilder.build

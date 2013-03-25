@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.config
+package io.gatling.core.config
 
 import scala.collection.mutable
 
-import com.excilys.ebi.gatling.core.ConfigurationConstants._
+import io.gatling.core.ConfigurationConstants._
 
 class GatlingPropertiesBuilder {
 

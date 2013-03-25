@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.ui.component
+package io.gatling.recorder.ui.component
 
 import java.awt.{ Dimension, Component, Color, BorderLayout }
 import java.awt.event.{ MouseListener, MouseEvent, MouseAdapter, ActionListener, ActionEvent }
 
-import com.excilys.ebi.gatling.recorder.config.Pattern
-import com.excilys.ebi.gatling.recorder.ui.enumeration.PatternType.{ PatternType, JAVA, ANT }
+import io.gatling.recorder.config.Pattern
+import io.gatling.recorder.ui.enumeration.PatternType.{ PatternType, JAVA, ANT }
 
 import grizzled.slf4j.Logging
 import javax.swing.{ JTable, JScrollPane, JRadioButton, JPopupMenu, JPanel, JMenuItem, ButtonGroup, AbstractCellEditor }

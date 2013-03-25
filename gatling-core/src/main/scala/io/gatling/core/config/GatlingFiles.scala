@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.config
+package io.gatling.core.config
 
 import scala.tools.nsc.io.{ Path, Directory }
 import scala.tools.nsc.io.Path.string2path
 
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration.configuration
 
 object GatlingFiles {
 	val GATLING_HOME = Option(System.getenv("GATLING_HOME")).getOrElse(".")

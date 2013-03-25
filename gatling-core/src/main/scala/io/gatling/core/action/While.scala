@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.action
+package io.gatling.core.action
 
-import com.excilys.ebi.gatling.core.session.{ Expression, Session }
-import com.excilys.ebi.gatling.core.session.handler.TimerBasedIterationHandler
-import com.excilys.ebi.gatling.core.validation.Success
+import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.handler.TimerBasedIterationHandler
+import io.gatling.core.validation.Success
 
 import akka.actor.{ Actor, ActorRef, Props }
 

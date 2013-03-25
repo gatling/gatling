@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.config
+package io.gatling.charts.config
 
 import scala.tools.nsc.io.Path
 import scala.tools.nsc.io.Path.string2path
 
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_JS, resultDirectory }
-import com.excilys.ebi.gatling.core.util.FileHelper.requestFileName
+import io.gatling.core.config.GatlingFiles.{ GATLING_JS, resultDirectory }
+import io.gatling.core.util.FileHelper.requestFileName
 
 object ChartsFiles {
 	val JQUERY_FILE = "jquery.min.js"

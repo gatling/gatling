@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder
+package io.gatling.recorder
 
-import com.excilys.ebi.gatling.recorder.CommandLineConstants._
-import com.excilys.ebi.gatling.recorder.config.RecorderPropertiesBuilder
-import com.excilys.ebi.gatling.recorder.controller.RecorderController
+import io.gatling.recorder.CommandLineConstants._
+import io.gatling.recorder.config.RecorderPropertiesBuilder
+import io.gatling.recorder.controller.RecorderController
 import scopt.OptionParser
 
 object GatlingRecorder {

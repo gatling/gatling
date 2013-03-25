@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.config
+package io.gatling.core.config
 
 /**
  * This trait is a model to all protocol specific configuration

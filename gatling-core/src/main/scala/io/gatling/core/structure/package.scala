@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core
+package io.gatling.core
 
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
-import com.excilys.ebi.gatling.core.result.reader.{ DataReader, GeneralStats }
+import io.gatling.core.result.message.RequestStatus
+import io.gatling.core.result.reader.{ DataReader, GeneralStats }
 
 package object structure {
 	type GeneralStatsByStatus = (DataReader, Option[RequestStatus]) => GeneralStats

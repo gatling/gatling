@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core
+package io.gatling.core
 
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.reflect.ClassTag
 import scala.tools.nsc.io.{File, Path}
-import com.excilys.ebi.gatling.core.session.Expression
-import com.excilys.ebi.gatling.core.check.{Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder}
-import com.excilys.ebi.gatling.core.feeder.{ AdvancedFeederBuilder, Feeder, FeederBuilder, FeederWrapper }
-import com.excilys.ebi.gatling.core.feeder.csv.SeparatedValuesParser
-import com.excilys.ebi.gatling.core.scenario.injection.{AtOnceInjection, ConstantRateInjection, NothingForInjection, RampInjection, RampRateInjection}
-import com.excilys.ebi.gatling.core.session.{ELCompiler, ELWrapper}
-import com.excilys.ebi.gatling.core.structure.{AssertionBuilder, ChainBuilder, ScenarioBuilder}
-import com.excilys.ebi.gatling.core.validation.{SuccessWrapper, Validation}
-import com.excilys.ebi.gatling.core.scenario.injection.InjectionStep
-import com.excilys.ebi.gatling.core.scenario.injection.SplitInjection
-import com.excilys.ebi.gatling.core.scenario.injection.NothingForInjection
+import io.gatling.core.session.Expression
+import io.gatling.core.check.{Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder}
+import io.gatling.core.feeder.{ AdvancedFeederBuilder, Feeder, FeederBuilder, FeederWrapper }
+import io.gatling.core.feeder.csv.SeparatedValuesParser
+import io.gatling.core.scenario.injection.{AtOnceInjection, ConstantRateInjection, NothingForInjection, RampInjection, RampRateInjection}
+import io.gatling.core.session.{ELCompiler, ELWrapper}
+import io.gatling.core.structure.{AssertionBuilder, ChainBuilder, ScenarioBuilder}
+import io.gatling.core.validation.{SuccessWrapper, Validation}
+import io.gatling.core.scenario.injection.InjectionStep
+import io.gatling.core.scenario.injection.SplitInjection
+import io.gatling.core.scenario.injection.NothingForInjection
 
 object Predef {
 	implicit def stringToExpression[T: ClassTag](string: String) = string.el
@@ -62,12 +62,12 @@ object Predef {
 	implicit def array2FeederBuilder[T](data: Array[Map[String, T]]): AdvancedFeederBuilder[T] = AdvancedFeederBuilder(data)
 	implicit def feeder2FeederBuilder[T](feeder: Feeder[T]): FeederBuilder[T] = FeederWrapper(feeder)
 
-	type Session = com.excilys.ebi.gatling.core.session.Session
-	type RequestStatus = com.excilys.ebi.gatling.core.result.message.RequestStatus
-	type Simulation = com.excilys.ebi.gatling.core.scenario.configuration.Simulation
-	type Feeder[T] = com.excilys.ebi.gatling.core.feeder.Feeder[T]
-	type Assertion = com.excilys.ebi.gatling.core.structure.Assertion
-	type Expression[T] = com.excilys.ebi.gatling.core.session.Expression[T]
+	type Session = io.gatling.core.session.Session
+	type RequestStatus = io.gatling.core.result.message.RequestStatus
+	type Simulation = io.gatling.core.scenario.configuration.Simulation
+	type Feeder[T] = io.gatling.core.feeder.Feeder[T]
+	type Assertion = io.gatling.core.structure.Assertion
+	type Expression[T] = io.gatling.core.session.Expression[T]
 
 	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder.scenario(scenarioName)
 	val bootstrap = new ChainBuilder(Nil)

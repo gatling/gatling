@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.result.writer
+package io.gatling.core.result.writer
 
 import java.lang.System.currentTimeMillis
 
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
-import com.excilys.ebi.gatling.core.action.system
-import com.excilys.ebi.gatling.core.action.system.dispatcher
-import com.excilys.ebi.gatling.core.result.RequestPath
-import com.excilys.ebi.gatling.core.result.message.{ End, GroupRecord, KO, OK, RequestRecord, RunRecord, ScenarioRecord, ShortScenarioDescription, Start }
+import io.gatling.core.action.system
+import io.gatling.core.action.system.dispatcher
+import io.gatling.core.result.RequestPath
+import io.gatling.core.result.message.{ End, GroupRecord, KO, OK, RequestRecord, RunRecord, ScenarioRecord, ShortScenarioDescription, Start }
 
 import grizzled.slf4j.Logging
 

@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.metrics
+package io.gatling.metrics
 
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
-import com.excilys.ebi.gatling.core.action.{ BaseActor, system }
-import com.excilys.ebi.gatling.core.action.system.dispatcher
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message._
-import com.excilys.ebi.gatling.core.result.writer.DataWriter
-import com.excilys.ebi.gatling.core.util.TimeHelper.nowSeconds
-import com.excilys.ebi.gatling.metrics.sender.MetricsSender
-import com.excilys.ebi.gatling.metrics.types.{ Metrics, RequestMetrics, UserMetric }
+import io.gatling.core.action.{ BaseActor, system }
+import io.gatling.core.action.system.dispatcher
+import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.result.message._
+import io.gatling.core.result.writer.DataWriter
+import io.gatling.core.util.TimeHelper.nowSeconds
+import io.gatling.metrics.sender.MetricsSender
+import io.gatling.metrics.types.{ Metrics, RequestMetrics, UserMetric }
 
 import akka.actor.Props
 

@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.extractor.regex
+package io.gatling.core.check.extractor.regex
 
 import java.util.regex.Pattern
 
 import scala.annotation.tailrec
 
-import com.excilys.ebi.gatling.core.check.Extractor
-import com.excilys.ebi.gatling.core.check.extractor.Extractors.{ LiftedOption, LiftedSeqOption }
-import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
+import io.gatling.core.check.Extractor
+import io.gatling.core.check.extractor.Extractors.{ LiftedOption, LiftedSeqOption }
+import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object RegexExtractors {
 

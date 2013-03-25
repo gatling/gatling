@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.http.channel
+package io.gatling.recorder.http.channel
 
 import org.jboss.netty.bootstrap.{ ServerBootstrap, ClientBootstrap }
 import org.jboss.netty.channel.{ ChannelPipelineFactory, ChannelPipeline, ChannelHandlerContext }
@@ -22,9 +22,9 @@ import org.jboss.netty.channel.socket.nio.{ NioServerSocketChannelFactory, NioCl
 import org.jboss.netty.handler.codec.http.{ HttpResponseEncoder, HttpRequestDecoder, HttpRequest, HttpContentDecompressor, HttpContentCompressor, HttpClientCodec, HttpChunkAggregator }
 import org.jboss.netty.handler.ssl.SslHandler
 
-import com.excilys.ebi.gatling.recorder.controller.RecorderController
-import com.excilys.ebi.gatling.recorder.http.handler.{ ServerHttpResponseHandler, BrowserHttpsRequestHandler, BrowserHttpRequestHandler }
-import com.excilys.ebi.gatling.recorder.http.ssl.{ SSLEngineFactory, FirstEventIsUnsecuredConnectSslHandler }
+import io.gatling.recorder.controller.RecorderController
+import io.gatling.recorder.http.handler.{ ServerHttpResponseHandler, BrowserHttpsRequestHandler, BrowserHttpRequestHandler }
+import io.gatling.recorder.http.ssl.{ SSLEngineFactory, FirstEventIsUnsecuredConnectSslHandler }
 
 object BootstrapFactory {
 

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.jdbc
+package io.gatling.jdbc
 
-import com.excilys.ebi.gatling.jdbc.feeder.database.JdbcFeederSource
+import io.gatling.jdbc.feeder.database.JdbcFeederSource
 
 object Predef {
 	def jdbcFeeder(url: String, username: String, password: String, sql: String) = JdbcFeederSource(url, username, password, sql)

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.scenario.injection
+package io.gatling.core.scenario.injection
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration._

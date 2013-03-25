@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.http.handler
+package io.gatling.recorder.http.handler
 
 import org.jboss.netty.channel.{ ChannelFutureListener, ChannelHandlerContext, MessageEvent, SimpleChannelHandler }
 import org.jboss.netty.handler.codec.http.{ HttpRequest, HttpResponse }
 
-import com.excilys.ebi.gatling.recorder.controller.RecorderController
+import io.gatling.recorder.controller.RecorderController
 
 import grizzled.slf4j.Logging
 

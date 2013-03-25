@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.app
+package io.gatling.app
 
 import java.io.{ File => JFile }
 import java.net.URLClassLoader
@@ -21,9 +21,9 @@ import java.net.URLClassLoader
 import scala.tools.nsc.io.{ Directory, Path }
 import scala.tools.nsc.io.Path.{ jfile2path, string2path }
 
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.config.GatlingFiles
-import com.excilys.ebi.gatling.core.config.GatlingFiles.GATLING_HOME
+import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingFiles
+import io.gatling.core.config.GatlingFiles.GATLING_HOME
 import com.typesafe.zinc.{ Compiler, Inputs, Setup }
 
 import grizzled.slf4j.Logging

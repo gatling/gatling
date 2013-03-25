@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.response
+package io.gatling.http.response
 
 import java.security.MessageDigest
 
 import scala.math.max
 
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.util.TimeHelper.{ computeTimeMillisFromNanos, nowMillis }
-import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.check.checksum.ChecksumCheck
-import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
-import com.excilys.ebi.gatling.http.check.HttpCheckOrder.Body
+import io.gatling.core.session.Session
+import io.gatling.core.util.TimeHelper.{ computeTimeMillisFromNanos, nowMillis }
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.checksum.ChecksumCheck
+import io.gatling.http.config.HttpProtocolConfiguration
+import io.gatling.http.check.HttpCheckOrder.Body
 import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, Request }
 
 object ExtendedResponseBuilder {

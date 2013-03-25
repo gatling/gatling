@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.action
+package io.gatling.core.action
 
-import com.excilys.ebi.gatling.core.result.message.Start
-import com.excilys.ebi.gatling.core.result.writer.DataWriter
-import com.excilys.ebi.gatling.core.session.Session
+import io.gatling.core.result.message.Start
+import io.gatling.core.result.writer.DataWriter
+import io.gatling.core.session.Session
 
 import akka.actor.ActorRef
 

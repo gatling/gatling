@@ -1,6 +1,6 @@
 package advanced
-import com.excilys.ebi.gatling.core.Predef._
-import com.excilys.ebi.gatling.http.Predef._
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
 import Headers._
 import scala.concurrent.duration._
 import bootstrap._

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.check.checksum
+package io.gatling.http.check.checksum
 
-import com.excilys.ebi.gatling.core.check.Check
-import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.check.HttpCheckOrder.Checksum
-import com.excilys.ebi.gatling.http.response.ExtendedResponse
+import io.gatling.core.check.Check
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.HttpCheckOrder.Checksum
+import io.gatling.http.response.ExtendedResponse
 
 class ChecksumCheck(val algorithm: String, wrapped: Check[ExtendedResponse]) extends HttpCheck(wrapped, Checksum)

@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.report
+package io.gatling.charts.report
 
-import com.excilys.ebi.gatling.charts.component.{ Component, ComponentLibrary, StatisticsTableComponent }
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.globalFile
-import com.excilys.ebi.gatling.charts.template.GlobalPageTemplate
-import com.excilys.ebi.gatling.charts.util.Colors._
-import com.excilys.ebi.gatling.core.result.{ IntVsTimePlot, PieSlice, Series }
-import com.excilys.ebi.gatling.core.result.message.{ KO, OK }
-import com.excilys.ebi.gatling.core.result.reader.DataReader
+import io.gatling.charts.component.{ Component, ComponentLibrary, StatisticsTableComponent }
+import io.gatling.charts.config.ChartsFiles.globalFile
+import io.gatling.charts.template.GlobalPageTemplate
+import io.gatling.charts.util.Colors._
+import io.gatling.core.result.{ IntVsTimePlot, PieSlice, Series }
+import io.gatling.core.result.message.{ KO, OK }
+import io.gatling.core.result.reader.DataReader
 
 class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 

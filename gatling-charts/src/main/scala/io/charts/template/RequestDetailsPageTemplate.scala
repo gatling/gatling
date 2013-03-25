@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.template
+package io.gatling.charts.template
 
-import com.excilys.ebi.gatling.charts.component.Component
-import com.excilys.ebi.gatling.core.result.Group
+import io.gatling.charts.component.Component
+import io.gatling.core.result.Group
 
 class RequestDetailsPageTemplate(title: String, requestName: Option[String], group: Option[Group], rtChartComponent: Component, percentilesChartComponent: Component, latencyChartComponent: Component, statsTextComponent: Component, scatterChartComponent: Component, indicChartComponent: Component)
 	extends PageTemplate(title, true, statsTextComponent, indicChartComponent, rtChartComponent, percentilesChartComponent, latencyChartComponent, scatterChartComponent) {

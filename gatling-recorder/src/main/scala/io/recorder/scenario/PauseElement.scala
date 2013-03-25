@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.scenario
+package io.gatling.recorder.scenario
 
 class PauseElement(duration: Long, unit: PauseUnit) extends ScenarioElement {
 	override def toString = ScenarioExporter.TPL_ENGINE.layout("templates/pause.ssp",

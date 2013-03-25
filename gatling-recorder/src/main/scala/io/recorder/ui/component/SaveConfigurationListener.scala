@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.ui.component
+package io.gatling.recorder.ui.component
 
 import scala.collection.JavaConversions.seqAsJavaList
 
 import java.awt.event.{ ActionListener, ActionEvent }
 import java.nio.charset.Charset
 
-import com.excilys.ebi.gatling.core.util.StringHelper.trimToOption
-import com.excilys.ebi.gatling.recorder.config.{ RecorderPropertiesBuilder, RecorderConfiguration }
-import com.excilys.ebi.gatling.recorder.controller.RecorderController
-import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy.FilterStrategy
-import com.excilys.ebi.gatling.recorder.ui.frame.ConfigurationFrame
+import io.gatling.core.util.StringHelper.trimToOption
+import io.gatling.recorder.config.{ RecorderPropertiesBuilder, RecorderConfiguration }
+import io.gatling.recorder.controller.RecorderController
+import io.gatling.recorder.ui.enumeration.FilterStrategy.FilterStrategy
+import io.gatling.recorder.ui.frame.ConfigurationFrame
 
 import grizzled.slf4j.Logging
 

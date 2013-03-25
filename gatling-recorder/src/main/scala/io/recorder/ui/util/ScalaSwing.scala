@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.ui.util
+package io.gatling.recorder.ui.util
 
 import java.awt.event.{ ActionEvent, ActionListener, ItemEvent, ItemListener }
 import javax.swing.event.{ ListSelectionEvent, ListSelectionListener }
-import com.excilys.ebi.gatling.recorder.ui.component.TextAreaPanel
+import io.gatling.recorder.ui.component.TextAreaPanel
 import javax.swing.JTextField
 
 class RichTextAreaPanel(area: TextAreaPanel) {

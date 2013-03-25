@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.action
+package io.gatling.core.action
 
-import com.excilys.ebi.gatling.core.feeder.{ Feeder, Record }
-import com.excilys.ebi.gatling.core.result.terminator.Terminator
-import com.excilys.ebi.gatling.core.session.{ Expression, Session }
-import com.excilys.ebi.gatling.core.validation.{ Failure, FailureWrapper, Success, SuccessWrapper, Validation }
+import io.gatling.core.feeder.{ Feeder, Record }
+import io.gatling.core.result.terminator.Terminator
+import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.validation.{ Failure, FailureWrapper, Success, SuccessWrapper, Validation }
 
 import akka.actor.ActorRef
 

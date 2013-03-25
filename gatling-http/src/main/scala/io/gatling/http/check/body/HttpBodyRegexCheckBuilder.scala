@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.check.body
+package io.gatling.http.check.body
 
-import com.excilys.ebi.gatling.core.check.extractor.regex.RegexExtractors
-import com.excilys.ebi.gatling.core.session.Expression
-import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
+import io.gatling.core.check.extractor.regex.RegexExtractors
+import io.gatling.core.session.Expression
+import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 
 object HttpBodyRegexCheckBuilder {
 

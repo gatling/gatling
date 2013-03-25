@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.ui.frame
+package io.gatling.recorder.ui.frame
 
 import java.awt.Color
 import java.awt.event.{ KeyListener, KeyEvent }
@@ -21,8 +21,8 @@ import java.util.Date
 
 import scala.collection.mutable
 
-import com.excilys.ebi.gatling.core.util.StringHelper.trimToOption
-import com.excilys.ebi.gatling.recorder.ui.util.UIHelper.useUIThread
+import io.gatling.core.util.StringHelper.trimToOption
+import io.gatling.recorder.ui.util.UIHelper.useUIThread
 
 import grizzled.slf4j.Logging
 import javax.swing.{ JTextField, BorderFactory }

@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.structure
+package io.gatling.core.structure
 
 import scala.concurrent.duration.{ Duration, DurationLong }
 
-import com.excilys.ebi.gatling.core.action.builder.{ CustomPauseBuilder, ExpPauseBuilder, PauseBuilder }
-import com.excilys.ebi.gatling.core.session.Expression
-import com.excilys.ebi.gatling.core.validation.SuccessWrapper
+import io.gatling.core.action.builder.{ CustomPauseBuilder, ExpPauseBuilder, PauseBuilder }
+import io.gatling.core.session.Expression
+import io.gatling.core.validation.SuccessWrapper
 
 trait Pauses[B] extends Execs[B] {
 

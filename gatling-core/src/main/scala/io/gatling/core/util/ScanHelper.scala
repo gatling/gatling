@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.util
+package io.gatling.core.util
 
 import java.io.{ File => JFile }
 import java.net.{ JarURLConnection, URI }
@@ -24,7 +24,7 @@ import scala.tools.nsc.io.Path.{ string2path, jfile2path }
 
 import org.apache.commons.io.IOUtils
 
-import com.excilys.ebi.gatling.core.util.IOHelper.use
+import io.gatling.core.util.IOHelper.use
 
 object ScanHelper {
 

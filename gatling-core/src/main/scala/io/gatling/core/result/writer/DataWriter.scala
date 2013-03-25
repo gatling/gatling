@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.result.writer
+package io.gatling.core.result.writer
 
 import scala.concurrent.Future
 
-import com.excilys.ebi.gatling.core.action.{ AkkaDefaults, BaseActor, system }
-import com.excilys.ebi.gatling.core.action.system.dispatcher
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.{ Flush, GroupRecord, Init, RecordEvent, RequestRecord, RequestStatus, RunRecord, ScenarioRecord, ShortScenarioDescription }
-import com.excilys.ebi.gatling.core.result.terminator.Terminator
-import com.excilys.ebi.gatling.core.scenario.Scenario
-import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.core.action.{ AkkaDefaults, BaseActor, system }
+import io.gatling.core.action.system.dispatcher
+import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.result.message.{ Flush, GroupRecord, Init, RecordEvent, RequestRecord, RequestStatus, RunRecord, ScenarioRecord, ShortScenarioDescription }
+import io.gatling.core.result.terminator.Terminator
+import io.gatling.core.scenario.Scenario
+import io.gatling.core.util.TimeHelper.nowMillis
 
 import akka.actor.{ Actor, ActorRef, Props }
 import grizzled.slf4j.Logging

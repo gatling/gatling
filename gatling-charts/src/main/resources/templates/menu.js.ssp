@@ -1,5 +1,5 @@
-//<% import com.excilys.ebi.gatling.charts.report.Container.GROUP %>
-//<% import com.excilys.ebi.gatling.charts.report.Container.REQUEST %>
+//<% import io.gatling.charts.report.Container.GROUP %>
+//<% import io.gatling.charts.report.Container.REQUEST %>
 
 function setDetailsLinkUrl(){
 	$.each(stats.contents, function (name, data) {

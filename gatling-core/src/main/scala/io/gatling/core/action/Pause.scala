@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.action
+package io.gatling.core.action
 
 import scala.concurrent.duration.DurationLong
 
-import com.excilys.ebi.gatling.core.session.{ Expression, Session }
-import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
-import com.excilys.ebi.gatling.core.validation.{ Failure, Success }
+import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.core.validation.{ Failure, Success }
 
 import akka.actor.ActorRef
 

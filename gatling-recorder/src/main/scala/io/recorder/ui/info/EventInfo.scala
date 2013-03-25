@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.ui.info
+package io.gatling.recorder.ui.info
 
 import org.jboss.netty.handler.codec.http.{ HttpMessage, HttpRequest, HttpResponse }
 
-import com.excilys.ebi.gatling.recorder.config.RecorderConfiguration.configuration
-import com.excilys.ebi.gatling.recorder.scenario.PauseUnit
+import io.gatling.recorder.config.RecorderConfiguration.configuration
+import io.gatling.recorder.scenario.PauseUnit
 
 sealed trait EventInfo
 

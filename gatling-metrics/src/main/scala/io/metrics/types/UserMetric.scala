@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.metrics.types
+package io.gatling.metrics.types
 
-import com.excilys.ebi.gatling.core.result.message.{ End, ScenarioRecord, Start }
+import io.gatling.core.result.message.{ End, ScenarioRecord, Start }
 
 class UserMetric(val nbUsers: Int) {
 

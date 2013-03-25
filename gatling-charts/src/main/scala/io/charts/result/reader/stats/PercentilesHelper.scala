@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.result.reader.stats
+package io.gatling.charts.result.reader.stats
 
 import scala.annotation.tailrec
 
-import com.excilys.ebi.gatling.core.result.IntVsTimePlot
+import io.gatling.core.result.IntVsTimePlot
 
 object PercentilesHelper {
 

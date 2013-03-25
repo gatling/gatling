@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.request.builder
+package io.gatling.http.request.builder
 
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.session.{ EL, Expression, Session }
-import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
-import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
-import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
-import com.excilys.ebi.gatling.http.request.HttpRequestBody
-import com.excilys.ebi.gatling.http.util.HttpHelper
+import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.session.{ EL, Expression, Session }
+import io.gatling.core.validation.{ SuccessWrapper, Validation }
+import io.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
+import io.gatling.http.config.HttpProtocolConfiguration
+import io.gatling.http.request.HttpRequestBody
+import io.gatling.http.util.HttpHelper
 import com.ning.http.client.{ RequestBuilder, StringPart }
 import com.ning.http.client.FluentStringsMap
 

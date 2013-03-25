@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.redis.feeder
+package io.gatling.redis.feeder
 
-import com.excilys.ebi.gatling.core.action.system
-import com.excilys.ebi.gatling.core.feeder.Feeder
+import io.gatling.core.action.system
+import io.gatling.core.feeder.Feeder
 import com.redis.RedisClientPool
 
 import grizzled.slf4j.Logging

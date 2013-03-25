@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.app.test
+package io.gatling.app.test
 
-import com.excilys.ebi.gatling.core.Predef._
-import com.excilys.ebi.gatling.http.Headers.Names._
-import com.excilys.ebi.gatling.http.Predef._
-import com.excilys.ebi.gatling.jdbc.Predef._
+import io.gatling.core.Predef._
+import io.gatling.http.Headers.Names._
+import io.gatling.http.Predef._
+import io.gatling.jdbc.Predef._
 import assertions._
 import bootstrap._
 

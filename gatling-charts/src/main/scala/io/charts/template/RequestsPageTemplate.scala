@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.template
+package io.gatling.charts.template
 
-import com.excilys.ebi.gatling.charts.component.Component
+import io.gatling.charts.component.Component
 
 class RequestsPageTemplate(chartComponent: Component) extends PageTemplate("Requests / sec", false, chartComponent)

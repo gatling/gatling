@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.component
+package io.gatling.charts.component
 
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ GATLING_TEMPLATE_STATISTICS_TABLE_HTML_TEMPLATE_URL, GATLING_TEMPLATE_STATISTICS_TABLE_JS_TEMPLATE_URL }
-import com.excilys.ebi.gatling.charts.template.PageTemplate.TEMPLATE_ENGINE
+import io.gatling.charts.config.ChartsFiles.{ GATLING_TEMPLATE_STATISTICS_TABLE_HTML_TEMPLATE_URL, GATLING_TEMPLATE_STATISTICS_TABLE_JS_TEMPLATE_URL }
+import io.gatling.charts.template.PageTemplate.TEMPLATE_ENGINE
 
 class StatisticsTableComponent extends Component {
 

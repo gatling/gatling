@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.scenario.configuration
+package io.gatling.core.scenario.configuration
 
 import scala.concurrent.duration.FiniteDuration
 
-import com.excilys.ebi.gatling.core.config.{ ProtocolConfiguration, ProtocolConfigurationRegistry }
-import com.excilys.ebi.gatling.core.scenario.Scenario
-import com.excilys.ebi.gatling.core.scenario.injection.{ InjectionStep, AtOnceInjection, RampInjection, NothingForInjection }
-import com.excilys.ebi.gatling.core.structure.ScenarioBuilder
+import io.gatling.core.config.{ ProtocolConfiguration, ProtocolConfigurationRegistry }
+import io.gatling.core.scenario.Scenario
+import io.gatling.core.scenario.injection.{ InjectionStep, AtOnceInjection, RampInjection, NothingForInjection }
+import io.gatling.core.structure.ScenarioBuilder
 
 private case class Attributes(scenarioBuilder: ScenarioBuilder, injections: List[InjectionStep] = Nil, protocolConfigurationsValue: Seq[ProtocolConfiguration] = Nil)
 

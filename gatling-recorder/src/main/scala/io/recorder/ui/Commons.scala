@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.ui
+package io.gatling.recorder.ui
 
 import javax.swing.ImageIcon
 

@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.http
+package io.gatling.recorder.http
 
 import java.net.InetSocketAddress
 
 import org.jboss.netty.channel.group.DefaultChannelGroup
 
-import com.excilys.ebi.gatling.recorder.controller.RecorderController
-import com.excilys.ebi.gatling.recorder.http.channel.BootstrapFactory.newServerBootstrap
+import io.gatling.recorder.controller.RecorderController
+import io.gatling.recorder.http.channel.BootstrapFactory.newServerBootstrap
 
 class GatlingHttpProxy(controller: RecorderController, port: Int, sslPort: Int) {
 

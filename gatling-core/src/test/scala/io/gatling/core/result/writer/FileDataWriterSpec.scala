@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.result.writer
+package io.gatling.core.result.writer
 
 import java.io.StringWriter
 
@@ -21,8 +21,8 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import com.excilys.ebi.gatling.core.result.message.{ OK, RequestRecord }
-import com.excilys.ebi.gatling.core.util.StringHelper.eol
+import io.gatling.core.result.message.{ OK, RequestRecord }
+import io.gatling.core.util.StringHelper.eol
 
 @RunWith(classOf[JUnitRunner])
 class FileDataWriterSpec extends Specification {

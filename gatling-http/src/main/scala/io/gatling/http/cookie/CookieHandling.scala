@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.cookie
+package io.gatling.http.cookie
 
 import java.net.URI
 
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
-import com.excilys.ebi.gatling.core.validation.Success
+import io.gatling.core.session.Session
+import io.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
+import io.gatling.core.validation.Success
 import com.ning.http.client.Cookie
 
 object CookieHandling {

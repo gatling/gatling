@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.check.body
+package io.gatling.http.check.body
 
 import org.w3c.dom.Document
 
-import com.excilys.ebi.gatling.core.check.Preparer
-import com.excilys.ebi.gatling.core.check.extractor.xpath.XPathExtractors
-import com.excilys.ebi.gatling.core.session.Expression
-import com.excilys.ebi.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
-import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
-import com.excilys.ebi.gatling.http.response.ExtendedResponse
+import io.gatling.core.check.Preparer
+import io.gatling.core.check.extractor.xpath.XPathExtractors
+import io.gatling.core.session.Expression
+import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
+import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
+import io.gatling.http.response.ExtendedResponse
 
 import grizzled.slf4j.Logging
 

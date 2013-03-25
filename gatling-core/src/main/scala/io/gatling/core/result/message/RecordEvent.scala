@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.result.message
+package io.gatling.core.result.message
 
 object RecordEvent {
 	def apply(name: String) = if (name == Start.name) Start else End

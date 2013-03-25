@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.redis
+package io.gatling.redis
 
-import com.excilys.ebi.gatling.redis.feeder.RedisFeeder
+import io.gatling.redis.feeder.RedisFeeder
 import com.redis.RedisClientPool
 
 object Predef {

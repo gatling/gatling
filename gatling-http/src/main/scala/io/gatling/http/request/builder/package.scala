@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.request
+package io.gatling.http.request
 
-import com.excilys.ebi.gatling.core.session.Expression
+import io.gatling.core.session.Expression
 
 package object builder {
 

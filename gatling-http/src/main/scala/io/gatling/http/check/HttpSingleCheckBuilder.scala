@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.check
+package io.gatling.http.check
 
-import com.excilys.ebi.gatling.core.check.{ CheckFactory, Extractor, ExtractorCheckBuilder, MatcherCheckBuilder, Preparer }
-import com.excilys.ebi.gatling.core.session.Expression
-import com.excilys.ebi.gatling.http.response.ExtendedResponse
+import io.gatling.core.check.{ CheckFactory, Extractor, ExtractorCheckBuilder, MatcherCheckBuilder, Preparer }
+import io.gatling.core.session.Expression
+import io.gatling.http.response.ExtendedResponse
 
 class HttpSingleCheckBuilder[P, T, X](
 	checkFactory: CheckFactory[HttpCheck, ExtendedResponse],

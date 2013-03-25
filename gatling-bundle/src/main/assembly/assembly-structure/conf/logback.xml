@@ -13,9 +13,9 @@
 	</appender>
 
 	<!-- Uncomment for logging ALL HTTP request and responses -->
-	<!-- 	<logger name="com.excilys.ebi.gatling.http" level="TRACE" /> -->
+	<!-- 	<logger name="io.gatling.http" level="TRACE" /> -->
 	<!-- Uncomment for logging ONLY FAILED HTTP request and responses -->
-	<!-- 	<logger name="com.excilys.ebi.gatling.http" level="DEBUG" /> -->
+	<!-- 	<logger name="io.gatling.http" level="DEBUG" /> -->
 
 	<root level="WARN">
 		<appender-ref ref="CONSOLE" />

@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.structure
+package io.gatling.core.structure
 
-import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
-import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
+import io.gatling.core.action.builder.ActionBuilder
+import io.gatling.core.config.ProtocolConfigurationRegistry
 
 import akka.actor.ActorRef
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.result.message
+package io.gatling.core.result.message
 
 sealed trait RequestStatus
 case object OK extends RequestStatus

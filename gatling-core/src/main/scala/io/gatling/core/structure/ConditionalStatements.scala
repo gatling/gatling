@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.structure
+package io.gatling.core.structure
 
-import com.excilys.ebi.gatling.core.action.builder.{ IfBuilder, RandomSwitchBuilder, RoundRobinSwitchBuilder }
-import com.excilys.ebi.gatling.core.session.Expression
+import io.gatling.core.action.builder.{ IfBuilder, RandomSwitchBuilder, RoundRobinSwitchBuilder }
+import io.gatling.core.session.Expression
 
 trait ConditionalStatements[B] extends Execs[B] {
 

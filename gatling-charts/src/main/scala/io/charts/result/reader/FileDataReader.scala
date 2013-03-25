@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.result.reader
+package io.gatling.charts.result.reader
 
 import java.io.{ FileInputStream, InputStream }
 
 import scala.collection.mutable
 import scala.io.Source
 
-import com.excilys.ebi.gatling.charts.result.reader.buffers.{ CountBuffer, RangeBuffer }
-import com.excilys.ebi.gatling.charts.result.reader.stats.StatsHelper
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogDirectory
-import com.excilys.ebi.gatling.core.result.{ Group, IntRangeVsTimePlot, IntVsTimePlot }
-import com.excilys.ebi.gatling.core.result.message.{ ActionRecordType, GroupRecordType, KO, OK, RequestStatus, RunRecord, RunRecordType, ScenarioRecordType }
-import com.excilys.ebi.gatling.core.result.reader.{ DataReader, GeneralStats }
-import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
-import com.excilys.ebi.gatling.core.util.FileHelper.tabulationSeparator
+import io.gatling.charts.result.reader.buffers.{ CountBuffer, RangeBuffer }
+import io.gatling.charts.result.reader.stats.StatsHelper
+import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingFiles.simulationLogDirectory
+import io.gatling.core.result.{ Group, IntRangeVsTimePlot, IntVsTimePlot }
+import io.gatling.core.result.message.{ ActionRecordType, GroupRecordType, KO, OK, RequestStatus, RunRecord, RunRecordType, ScenarioRecordType }
+import io.gatling.core.result.reader.{ DataReader, GeneralStats }
+import io.gatling.core.util.DateHelper.parseTimestampString
+import io.gatling.core.util.FileHelper.tabulationSeparator
 
 import grizzled.slf4j.Logging
 

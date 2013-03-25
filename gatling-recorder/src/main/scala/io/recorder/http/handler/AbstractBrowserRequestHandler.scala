@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.http.handler
+package io.gatling.recorder.http.handler
 
 import scala.collection.JavaConversions.asScalaBuffer
 import org.jboss.netty.channel.{ ChannelFuture, ChannelFutureListener, ChannelHandlerContext, ExceptionEvent, MessageEvent, SimpleChannelHandler }
 import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, HttpRequest }
-import com.excilys.ebi.gatling.http.Headers
-import com.excilys.ebi.gatling.recorder.config.RecorderConfiguration.configuration
-import com.excilys.ebi.gatling.recorder.controller.RecorderController
+import io.gatling.http.Headers
+import io.gatling.recorder.config.RecorderConfiguration.configuration
+import io.gatling.recorder.controller.RecorderController
 import com.ning.http.util.Base64
 import grizzled.slf4j.Logging
 

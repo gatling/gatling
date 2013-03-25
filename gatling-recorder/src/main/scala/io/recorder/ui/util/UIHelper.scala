@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.ui.util
+package io.gatling.recorder.ui.util
 
 import java.awt.EventQueue.invokeLater
 

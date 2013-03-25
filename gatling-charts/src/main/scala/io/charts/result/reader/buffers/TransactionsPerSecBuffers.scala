@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.result.reader.buffers
+package io.gatling.charts.result.reader.buffers
 
 import scala.collection.mutable
 
-import com.excilys.ebi.gatling.charts.result.reader.ActionRecord
-import com.excilys.ebi.gatling.core.result.Group
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
+import io.gatling.charts.result.reader.ActionRecord
+import io.gatling.core.result.Group
+import io.gatling.core.result.message.RequestStatus
 
 trait TransactionsPerSecBuffers {
 

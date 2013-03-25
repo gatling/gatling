@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.result
+package io.gatling.charts.result
 
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration.configuration
 
 package object reader {
 

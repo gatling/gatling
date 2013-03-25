@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.ui.frame
+package io.gatling.recorder.ui.frame
 
 import java.awt.{ BorderLayout, Dimension, FileDialog, FlowLayout }
 import java.awt.event.{ ActionEvent, ItemEvent }
@@ -21,15 +21,15 @@ import java.nio.charset.Charset
 
 import scala.collection.JavaConversions.{ collectionAsScalaIterable, seqAsJavaList }
 
-import com.excilys.ebi.gatling.core.util.StringHelper.trimToOption
-import com.excilys.ebi.gatling.recorder.config.RecorderConfiguration.{ configuration, saveConfiguration }
-import com.excilys.ebi.gatling.recorder.controller.RecorderController
-import com.excilys.ebi.gatling.recorder.ui.Commons
-import com.excilys.ebi.gatling.recorder.ui.Commons.iconList
-import com.excilys.ebi.gatling.recorder.ui.component.{ FilterTable, SaveConfigurationListener }
-import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy
-import com.excilys.ebi.gatling.recorder.ui.frame.ValidationHelper.{ intValidator, nonEmptyValidator, proxyHostValidator }
-import com.excilys.ebi.gatling.recorder.ui.util.ScalaSwing
+import io.gatling.core.util.StringHelper.trimToOption
+import io.gatling.recorder.config.RecorderConfiguration.{ configuration, saveConfiguration }
+import io.gatling.recorder.controller.RecorderController
+import io.gatling.recorder.ui.Commons
+import io.gatling.recorder.ui.Commons.iconList
+import io.gatling.recorder.ui.component.{ FilterTable, SaveConfigurationListener }
+import io.gatling.recorder.ui.enumeration.FilterStrategy
+import io.gatling.recorder.ui.frame.ValidationHelper.{ intValidator, nonEmptyValidator, proxyHostValidator }
+import io.gatling.recorder.ui.util.ScalaSwing
 
 import grizzled.slf4j.Logging
 import javax.swing._

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.result
+package io.gatling.core.result
 
 case class Group(name: String, parent: Option[Group] = None) {
 	val groups: List[String] = parent.map(parent => parent.name :: parent.groups).getOrElse(Nil)

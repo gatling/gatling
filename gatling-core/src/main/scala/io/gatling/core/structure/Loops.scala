@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.structure
+package io.gatling.core.structure
 
 import java.util.UUID
 
 import scala.collection.immutable.Stream
 import scala.concurrent.duration.Duration
 
-import com.excilys.ebi.gatling.core.action.builder.{ SessionHookBuilder, WhileBuilder }
-import com.excilys.ebi.gatling.core.session.{ EL, Expression, Session }
-import com.excilys.ebi.gatling.core.session.handler.{ CounterBasedIterationHandler, TimerBasedIterationHandler }
-import com.excilys.ebi.gatling.core.structure.ChainBuilder.chainOf
-import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
-import com.excilys.ebi.gatling.core.validation.{ Failure, Success }
+import io.gatling.core.action.builder.{ SessionHookBuilder, WhileBuilder }
+import io.gatling.core.session.{ EL, Expression, Session }
+import io.gatling.core.session.handler.{ CounterBasedIterationHandler, TimerBasedIterationHandler }
+import io.gatling.core.structure.ChainBuilder.chainOf
+import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.core.validation.{ Failure, Success }
 
 import grizzled.slf4j.Logging
 

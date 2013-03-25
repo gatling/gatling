@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.metrics
+package io.gatling.metrics
 
 sealed trait GraphiteDataWriterMessage
 case object SendToGraphite extends GraphiteDataWriterMessage

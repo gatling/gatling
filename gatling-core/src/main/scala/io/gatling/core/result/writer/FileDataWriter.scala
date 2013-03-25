@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.result.writer
+package io.gatling.core.result.writer
 
 import java.io.{ BufferedOutputStream, FileOutputStream, OutputStreamWriter }
 
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.config.GatlingFiles.simulationLogDirectory
-import com.excilys.ebi.gatling.core.result.message.{ ActionRecordType, GroupRecord, GroupRecordType, RequestRecord, RunRecord, RunRecordType, ScenarioRecord, ScenarioRecordType, ShortScenarioDescription }
-import com.excilys.ebi.gatling.core.util.FileHelper.tabulationSeparator
-import com.excilys.ebi.gatling.core.util.IOHelper.use
-import com.excilys.ebi.gatling.core.util.StringHelper.eol
+import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingFiles.simulationLogDirectory
+import io.gatling.core.result.message.{ ActionRecordType, GroupRecord, GroupRecordType, RequestRecord, RunRecord, RunRecordType, ScenarioRecord, ScenarioRecordType, ShortScenarioDescription }
+import io.gatling.core.util.FileHelper.tabulationSeparator
+import io.gatling.core.util.IOHelper.use
+import io.gatling.core.util.StringHelper.eol
 
 import grizzled.slf4j.Logging
 

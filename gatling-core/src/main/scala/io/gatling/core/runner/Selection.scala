@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.runner
+package io.gatling.core.runner
 
-import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
+import io.gatling.core.scenario.configuration.Simulation
 
 case class Selection(simulationClass: Class[Simulation], simulationId: String, description: String)

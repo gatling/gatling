@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.report
+package io.gatling.charts.report
 
-import com.excilys.ebi.gatling.charts.component.{ Component, ComponentLibrary, StatisticsTextComponent }
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.requestFile
-import com.excilys.ebi.gatling.charts.template.RequestDetailsPageTemplate
-import com.excilys.ebi.gatling.charts.util.Colors.{ BLUE, RED, TRANSLUCID_BLUE, TRANSLUCID_RED }
-import com.excilys.ebi.gatling.core.result.{ Group, IntRangeVsTimePlot, IntVsTimePlot, RequestPath, Series }
-import com.excilys.ebi.gatling.core.result.message.{ KO, OK }
-import com.excilys.ebi.gatling.core.result.reader.DataReader
+import io.gatling.charts.component.{ Component, ComponentLibrary, StatisticsTextComponent }
+import io.gatling.charts.config.ChartsFiles.requestFile
+import io.gatling.charts.template.RequestDetailsPageTemplate
+import io.gatling.charts.util.Colors.{ BLUE, RED, TRANSLUCID_BLUE, TRANSLUCID_RED }
+import io.gatling.core.result.{ Group, IntRangeVsTimePlot, IntVsTimePlot, RequestPath, Series }
+import io.gatling.core.result.message.{ KO, OK }
+import io.gatling.core.result.reader.DataReader
 
 class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 

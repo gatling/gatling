@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.config
+package io.gatling.http.config
 
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.http.response.ExtendedResponse
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.result.message.RequestStatus
+import io.gatling.core.session.Session
+import io.gatling.http.response.ExtendedResponse
 import com.ning.http.client.Request
 
 @RunWith(classOf[JUnitRunner])

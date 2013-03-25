@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.result.terminator
+package io.gatling.core.result.terminator
 
 import java.util.concurrent.CountDownLatch
 
 import scala.concurrent.Future
 import scala.util.{ Failure, Success }
 
-import com.excilys.ebi.gatling.core.action.{ AkkaDefaults, BaseActor, system }
-import com.excilys.ebi.gatling.core.result.message.Flush
+import io.gatling.core.action.{ AkkaDefaults, BaseActor, system }
+import io.gatling.core.result.message.Flush
 
 import akka.actor.{ ActorRef, Props }
 

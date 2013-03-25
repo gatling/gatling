@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.request
+package io.gatling.http.request
 
 import java.io.{ ByteArrayOutputStream, File => JFile, InputStream, PrintWriter }
 
@@ -22,12 +22,12 @@ import scala.reflect.io.Path
 import org.apache.commons.io.FileUtils
 import org.fusesource.scalate.{ Binding, TemplateEngine }
 
-import com.excilys.ebi.gatling.core.action.system
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.config.GatlingFiles
-import com.excilys.ebi.gatling.core.session.{ EL, Expression, Session }
-import com.excilys.ebi.gatling.core.util.IOHelper
-import com.excilys.ebi.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
+import io.gatling.core.action.system
+import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingFiles
+import io.gatling.core.session.{ EL, Expression, Session }
+import io.gatling.core.util.IOHelper
+import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 object HttpRequestBody {
 

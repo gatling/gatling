@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check
+package io.gatling.core.check
 
-import com.excilys.ebi.gatling.core.session.{ Expression, noopStringExpression }
-import com.excilys.ebi.gatling.core.validation.Validation
+import io.gatling.core.session.{ Expression, noopStringExpression }
+import io.gatling.core.validation.Validation
 
 trait ExtractorCheckBuilder[C <: Check[R], R, P, T, X] {
 

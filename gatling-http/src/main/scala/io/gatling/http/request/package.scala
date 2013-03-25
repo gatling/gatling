@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http
+package io.gatling.http
 
 import scala.collection.JavaConversions.{ asScalaBuffer, collectionAsScalaIterable }
 
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.util.StringHelper.eol
-import com.excilys.ebi.gatling.core.validation.Validation
-import com.excilys.ebi.gatling.http.request.{ ByteArrayBody, HttpRequestBody, RawFileBody }
-import com.excilys.ebi.gatling.http.util.HttpHelper.dumpFluentCaseInsensitiveStringsMap
+import io.gatling.core.session.Session
+import io.gatling.core.util.StringHelper.eol
+import io.gatling.core.validation.Validation
+import io.gatling.http.request.{ ByteArrayBody, HttpRequestBody, RawFileBody }
+import io.gatling.http.util.HttpHelper.dumpFluentCaseInsensitiveStringsMap
 import com.ning.http.client.{ ByteArrayPart, FilePart, Request, RequestBuilder, StringPart }
 import com.ning.http.client.generators.InputStreamBodyGenerator
 import com.ning.http.multipart.{ FilePart => MultipartFilePart, StringPart => MultipartStringPart }

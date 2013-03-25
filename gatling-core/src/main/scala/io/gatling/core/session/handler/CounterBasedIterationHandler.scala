@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.session.handler
+package io.gatling.core.session.handler
 
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.validation.{ Failure, Success }
+import io.gatling.core.session.Session
+import io.gatling.core.validation.{ Failure, Success }
 
 import grizzled.slf4j.Logging
 

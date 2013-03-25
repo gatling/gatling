@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.result.reader
+package io.gatling.charts.result.reader
 
 import scala.collection.mutable
 
@@ -21,11 +21,11 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import com.excilys.ebi.gatling.core.ConfigurationConstants
-import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingPropertiesBuilder }
-import com.excilys.ebi.gatling.core.result.RequestPath
-import com.excilys.ebi.gatling.core.result.message.RunRecord
-import com.excilys.ebi.gatling.core.util.DateHelper.parseTimestampString
+import io.gatling.core.ConfigurationConstants
+import io.gatling.core.config.{ GatlingConfiguration, GatlingPropertiesBuilder }
+import io.gatling.core.result.RequestPath
+import io.gatling.core.result.message.RunRecord
+import io.gatling.core.util.DateHelper.parseTimestampString
 
 @RunWith(classOf[JUnitRunner])
 class FileDataReaderSpec extends Specification {

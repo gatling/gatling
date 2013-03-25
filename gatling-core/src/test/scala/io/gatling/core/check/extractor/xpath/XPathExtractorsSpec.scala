@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.extractor.xpath
+package io.gatling.core.check.extractor.xpath
 
 import org.junit.runner.RunWith
 
 import org.specs2.runner.JUnitRunner
 
-import com.excilys.ebi.gatling.core.test.ValidationSpecification
+import io.gatling.core.test.ValidationSpecification
 
 @RunWith(classOf[JUnitRunner])
 class XPathExtractorsSpec extends ValidationSpecification {

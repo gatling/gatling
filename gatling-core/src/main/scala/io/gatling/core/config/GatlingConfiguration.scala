@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.config
+package io.gatling.core.config
 
 import scala.collection.JavaConversions.{ asScalaBuffer, mapAsJavaMap }
 import scala.collection.mutable
 
-import com.excilys.ebi.gatling.core.ConfigurationConstants._
-import com.excilys.ebi.gatling.core.util.StringHelper.trimToOption
+import io.gatling.core.ConfigurationConstants._
+import io.gatling.core.util.StringHelper.trimToOption
 import com.typesafe.config.{ Config, ConfigFactory }
 
 import grizzled.slf4j.Logging
@@ -113,13 +113,13 @@ object GatlingConfiguration extends Logging {
 				}),
 			data = DataConfiguration(
 				dataWriterClasses = config.getStringList(CONF_DATA_WRITER_CLASS_NAMES).map {
-					case "console" => "com.excilys.ebi.gatling.core.result.writer.ConsoleDataWriter"
-					case "file" => "com.excilys.ebi.gatling.core.result.writer.FileDataWriter"
-					case "graphite" => "com.excilys.ebi.gatling.metrics.GraphiteDataWriter"
+					case "console" => "io.gatling.core.result.writer.ConsoleDataWriter"
+					case "file" => "io.gatling.core.result.writer.FileDataWriter"
+					case "graphite" => "io.gatling.metrics.GraphiteDataWriter"
 					case clazz => clazz
 				},
 				dataReaderClass = (config.getString(CONF_DATA_READER_CLASS_NAME)).trim match {
-					case "file" => "com.excilys.ebi.gatling.charts.result.reader.FileDataReader"
+					case "file" => "io.gatling.charts.result.reader.FileDataReader"
 					case clazz => clazz
 				}),
 			graphite = GraphiteConfiguration(

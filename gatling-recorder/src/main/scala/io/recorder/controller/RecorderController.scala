@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.controller
+package io.gatling.recorder.controller
 
 import java.net.URI
 import java.util.Date
@@ -27,15 +27,15 @@ import org.codehaus.plexus.util.SelectorUtils
 import org.jboss.netty.handler.codec.http.{ HttpMethod, HttpRequest, HttpResponse }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
 
-import com.excilys.ebi.gatling.http.ahc.GatlingAsyncHandlerActor.redirectStatusCodes
-import com.excilys.ebi.gatling.recorder.config.RecorderConfiguration.configuration
-import com.excilys.ebi.gatling.recorder.config.{ RecorderPropertiesBuilder, RecorderConfiguration, Pattern }
-import com.excilys.ebi.gatling.recorder.http.GatlingHttpProxy
-import com.excilys.ebi.gatling.recorder.scenario.{ PauseElement, PauseUnit, RequestElement, ScenarioElement, ScenarioExporter, TagElement }
-import com.excilys.ebi.gatling.recorder.ui.enumeration.{ FilterStrategy, PatternType }
-import com.excilys.ebi.gatling.recorder.ui.frame.{ ConfigurationFrame, RunningFrame }
-import com.excilys.ebi.gatling.recorder.ui.info.{ PauseInfo, RequestInfo, SSLInfo }
-import com.excilys.ebi.gatling.recorder.ui.util.UIHelper.useUIThread
+import io.gatling.http.ahc.GatlingAsyncHandlerActor.redirectStatusCodes
+import io.gatling.recorder.config.RecorderConfiguration.configuration
+import io.gatling.recorder.config.{ RecorderPropertiesBuilder, RecorderConfiguration, Pattern }
+import io.gatling.recorder.http.GatlingHttpProxy
+import io.gatling.recorder.scenario.{ PauseElement, PauseUnit, RequestElement, ScenarioElement, ScenarioExporter, TagElement }
+import io.gatling.recorder.ui.enumeration.{ FilterStrategy, PatternType }
+import io.gatling.recorder.ui.frame.{ ConfigurationFrame, RunningFrame }
+import io.gatling.recorder.ui.info.{ PauseInfo, RequestInfo, SSLInfo }
+import io.gatling.recorder.ui.util.UIHelper.useUIThread
 import com.ning.http.util.Base64
 
 import grizzled.slf4j.Logging

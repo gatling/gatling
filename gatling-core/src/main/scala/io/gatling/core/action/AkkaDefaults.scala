@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.action
+package io.gatling.core.action
 
 import scala.concurrent.duration.DurationInt
 
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration.configuration
 
 import akka.pattern.AskSupport
 import akka.util.Timeout

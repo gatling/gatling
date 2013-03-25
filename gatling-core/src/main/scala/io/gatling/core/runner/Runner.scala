@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.runner
+package io.gatling.core.runner
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit.SECONDS
@@ -22,13 +22,13 @@ import scala.concurrent.Await
 
 import org.joda.time.DateTime.now
 
-import com.excilys.ebi.gatling.core.action.{ AkkaDefaults, system }
-import com.excilys.ebi.gatling.core.action.system.dispatcher
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.message.RunRecord
-import com.excilys.ebi.gatling.core.result.terminator.Terminator
-import com.excilys.ebi.gatling.core.result.writer.DataWriter
-import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
+import io.gatling.core.action.{ AkkaDefaults, system }
+import io.gatling.core.action.system.dispatcher
+import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.result.message.RunRecord
+import io.gatling.core.result.terminator.Terminator
+import io.gatling.core.result.writer.DataWriter
+import io.gatling.core.scenario.configuration.Simulation
 
 import grizzled.slf4j.Logging
 

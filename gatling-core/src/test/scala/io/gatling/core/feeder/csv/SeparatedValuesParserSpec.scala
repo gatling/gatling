@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.feeder.csv
+package io.gatling.core.feeder.csv
 
 import scala.tools.nsc.io.File
 
@@ -21,8 +21,8 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import com.excilys.ebi.gatling.core.Predef.tsv
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration
+import io.gatling.core.Predef.tsv
+import io.gatling.core.config.GatlingConfiguration
 
 @RunWith(classOf[JUnitRunner])
 class SeparatedValuesParserSpec extends Specification {

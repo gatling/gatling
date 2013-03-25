@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.session
+package io.gatling.core.session
 
 import scala.reflect.ClassTag
 
-import com.excilys.ebi.gatling.core.util.TypeHelper
-import com.excilys.ebi.gatling.core.validation.{ FailureWrapper, Validation }
+import io.gatling.core.util.TypeHelper
+import io.gatling.core.validation.{ FailureWrapper, Validation }
 
 import grizzled.slf4j.Logging
 

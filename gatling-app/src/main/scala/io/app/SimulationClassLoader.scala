@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.app
+package io.gatling.app
 
 import java.lang.reflect.Modifier
 
@@ -21,7 +21,7 @@ import scala.tools.nsc.interpreter.AbstractFileClassLoader
 import scala.tools.nsc.io.{ Directory, File, Path, PlainFile }
 import scala.tools.nsc.io.Path.string2path
 
-import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
+import io.gatling.core.scenario.configuration.Simulation
 
 import grizzled.slf4j.Logging
 

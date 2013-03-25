@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.scenario.configuration
+package io.gatling.core.scenario.configuration
 
-import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.scenario.injection.InjectionStep
+import io.gatling.core.config.ProtocolConfigurationRegistry
+import io.gatling.core.scenario.injection.InjectionStep
 
 /**
  * This class represents the configuration of a scenario

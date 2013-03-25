@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.extractor.css
+package io.gatling.core.check.extractor.css
 
 import java.nio.CharBuffer
 
 import scala.collection.JavaConversions.asScalaBuffer
 
-import com.excilys.ebi.gatling.core.check.Extractor
-import com.excilys.ebi.gatling.core.check.extractor.Extractors.LiftedSeqOption
-import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
+import io.gatling.core.check.Extractor
+import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
+import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 import jodd.lagarto.dom.{ LagartoDOMBuilder, NodeSelector }
 

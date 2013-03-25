@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.scenario
+package io.gatling.recorder.scenario
 
 import java.io.{ FileWriter, IOException }
 import java.util.Date
@@ -24,9 +24,9 @@ import scala.tools.nsc.io.{ Directory, File }
 
 import org.fusesource.scalate.TemplateEngine
 
-import com.excilys.ebi.gatling.core.util.IOHelper.use
-import com.excilys.ebi.gatling.http.Headers
-import com.excilys.ebi.gatling.recorder.config.RecorderConfiguration.configuration
+import io.gatling.core.util.IOHelper.use
+import io.gatling.http.Headers
+import io.gatling.recorder.config.RecorderConfiguration.configuration
 
 import grizzled.slf4j.Logging
 

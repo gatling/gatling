@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.result.reader.stats
+package io.gatling.charts.result.reader.stats
 
 object StatsHelper {
 	def bucketsList(min: Int, max: Int, step: Double): Seq[Int] = {

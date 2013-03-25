@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.request.builder
+package io.gatling.http.request.builder
 
 import java.io.InputStream
 
-import com.excilys.ebi.gatling.core.session.{ Expression, Session }
-import com.excilys.ebi.gatling.core.validation.Validation
-import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
-import com.excilys.ebi.gatling.http.request.{ ByteArrayBody, HttpRequestBody, HttpRequestBodySetter, InputStreamBody }
+import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.validation.Validation
+import io.gatling.http.config.HttpProtocolConfiguration
+import io.gatling.http.request.{ ByteArrayBody, HttpRequestBody, HttpRequestBodySetter, InputStreamBody }
 import com.ning.http.client.RequestBuilder
 
 /**

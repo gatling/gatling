@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.config
+package io.gatling.http.config
 
-import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
-import com.excilys.ebi.gatling.core.session.{ Expression, Session }
-import com.excilys.ebi.gatling.core.util.RoundRobin
-import com.excilys.ebi.gatling.http.response.ExtendedResponse
+import io.gatling.core.config.ProtocolConfiguration
+import io.gatling.core.result.message.RequestStatus
+import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.util.RoundRobin
+import io.gatling.http.response.ExtendedResponse
 import com.ning.http.client.{ ProxyServer, Realm, Request }
 
 /**

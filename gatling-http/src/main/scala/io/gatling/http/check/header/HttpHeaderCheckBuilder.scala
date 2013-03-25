@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.check.header
+package io.gatling.http.check.header
 
-import com.excilys.ebi.gatling.core.session.Expression
-import com.excilys.ebi.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
-import com.excilys.ebi.gatling.http.response.ExtendedResponse
+import io.gatling.core.session.Expression
+import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
+import io.gatling.http.response.ExtendedResponse
 
 object HttpHeaderCheckBuilder {
 

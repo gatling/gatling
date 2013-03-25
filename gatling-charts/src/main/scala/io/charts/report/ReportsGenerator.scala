@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.report
+package io.gatling.charts.report
 
 import scala.tools.nsc.io.Path
 
-import com.excilys.ebi.gatling.charts.component.ComponentLibrary
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ globalFile, menuFile }
-import com.excilys.ebi.gatling.charts.template.{ MenuTemplate, PageTemplate }
-import com.excilys.ebi.gatling.core.config.GatlingFiles.{ GATLING_ASSETS_JS_PACKAGE, GATLING_ASSETS_STYLE_PACKAGE, jsDirectory, styleDirectory }
-import com.excilys.ebi.gatling.core.result.reader.DataReader
-import com.excilys.ebi.gatling.core.util.ScanHelper.deepCopyPackageContent
+import io.gatling.charts.component.ComponentLibrary
+import io.gatling.charts.config.ChartsFiles.{ globalFile, menuFile }
+import io.gatling.charts.template.{ MenuTemplate, PageTemplate }
+import io.gatling.core.config.GatlingFiles.{ GATLING_ASSETS_JS_PACKAGE, GATLING_ASSETS_STYLE_PACKAGE, jsDirectory, styleDirectory }
+import io.gatling.core.result.reader.DataReader
+import io.gatling.core.util.ScanHelper.deepCopyPackageContent
 
 import grizzled.slf4j.Logging
 

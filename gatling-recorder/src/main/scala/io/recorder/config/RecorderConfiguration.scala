@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.config
+package io.gatling.recorder.config
 
 import scala.collection.JavaConversions.{asScalaBuffer, mapAsJavaMap }
 import scala.collection.mutable
 import scala.tools.nsc.io.File
 import scala.tools.nsc.io.Path.string2path
 
-import com.excilys.ebi.gatling.core.config.{GatlingConfiguration, GatlingFiles}
-import com.excilys.ebi.gatling.core.util.StringHelper.trimToOption
-import com.excilys.ebi.gatling.recorder.config.ConfigurationConstants._
-import com.excilys.ebi.gatling.recorder.ui.enumeration.{PatternType, FilterStrategy}
-import com.excilys.ebi.gatling.recorder.ui.enumeration.FilterStrategy.FilterStrategy
-import com.excilys.ebi.gatling.recorder.ui.enumeration.PatternType.PatternType
+import io.gatling.core.config.{GatlingConfiguration, GatlingFiles}
+import io.gatling.core.util.StringHelper.trimToOption
+import io.gatling.recorder.config.ConfigurationConstants._
+import io.gatling.recorder.ui.enumeration.{PatternType, FilterStrategy}
+import io.gatling.recorder.ui.enumeration.FilterStrategy.FilterStrategy
+import io.gatling.recorder.ui.enumeration.PatternType.PatternType
 
 import grizzled.slf4j.Logging
 import com.typesafe.config.{ Config, ConfigFactory, ConfigRenderOptions }

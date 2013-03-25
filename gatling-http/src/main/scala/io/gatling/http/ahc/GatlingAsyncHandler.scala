@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.ahc
+package io.gatling.http.ahc
 
-import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
-import com.excilys.ebi.gatling.http.check.HttpCheckOrder.{ Checksum, Body }
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.config.HttpProtocolConfiguration
+import io.gatling.http.check.HttpCheckOrder.{ Checksum, Body }
 import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, ProgressAsyncHandler }
 import com.ning.http.client.AsyncHandler.STATE.CONTINUE
 

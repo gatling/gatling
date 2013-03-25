@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.util
+package io.gatling.http.util
 
 import java.net.{ URI, URLDecoder }
 import java.util.{ ArrayList => JArrayList }
@@ -21,10 +21,10 @@ import java.util.{ ArrayList => JArrayList }
 import scala.collection.JavaConversions.{ asScalaSet, mapAsJavaMap }
 import scala.io.Codec.UTF8
 
-import com.excilys.ebi.gatling.core.session.{ Expression, Session }
-import com.excilys.ebi.gatling.core.util.StringHelper.eol
-import com.excilys.ebi.gatling.core.validation.{ Validation, ValidationList }
-import com.excilys.ebi.gatling.http.request.builder.HttpParam
+import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.util.StringHelper.eol
+import io.gatling.core.validation.{ Validation, ValidationList }
+import io.gatling.http.request.builder.HttpParam
 import com.ning.http.client.{ FluentStringsMap, Realm }
 import com.ning.http.client.Realm.AuthScheme
 

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.action.builder
+package io.gatling.core.action.builder
 
-import com.excilys.ebi.gatling.core.action.{ Switch, system }
-import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.structure.ChainBuilder
-import com.excilys.ebi.gatling.core.util.RoundRobin
+import io.gatling.core.action.{ Switch, system }
+import io.gatling.core.config.ProtocolConfigurationRegistry
+import io.gatling.core.structure.ChainBuilder
+import io.gatling.core.util.RoundRobin
 
 import akka.actor.{ ActorRef, Props }
 

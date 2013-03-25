@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.mojo;
+package io.gatling.mojo;
 
 import static java.util.Arrays.asList;
 import static org.codehaus.plexus.util.StringUtils.trim;
@@ -37,8 +37,8 @@ import scala_maven_executions.JavaMainCaller;
 import scala_maven_executions.MainHelper;
 import scala_maven_executions.MainWithArgsInFile;
 
-import com.excilys.ebi.gatling.app.CommandLineConstants;
-import com.excilys.ebi.gatling.app.Gatling;
+import io.gatling.app.CommandLineConstants;
+import io.gatling.app.Gatling;
 
 /**
  * Mojo to execute Gatling.
@@ -51,7 +51,7 @@ import com.excilys.ebi.gatling.app.Gatling;
 public class GatlingMojo extends AbstractMojo {
 
 	public static final String[] DEFAULT_INCLUDES = {"**/*.scala"};
-	public static final String GATLING_MAIN_CLASS = "com.excilys.ebi.gatling.app.Gatling";
+	public static final String GATLING_MAIN_CLASS = "io.gatling.app.Gatling";
 
 	public static final String[] JVM_ARGS = new String[]{"-server", "-XX:+UseThreadPriorities", "-XX:ThreadPriorityPolicy=42",
 			"-Xms512M", "-Xmx512M", "-Xmn100M", "-Xss2M", "-XX:+HeapDumpOnOutOfMemoryError", "-XX:+AggressiveOpts", "-XX:+OptimizeStringConcat",

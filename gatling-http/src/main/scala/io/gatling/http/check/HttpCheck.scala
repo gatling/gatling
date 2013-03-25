@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.check
+package io.gatling.http.check
 
-import com.excilys.ebi.gatling.core.check.Check
-import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.http.check.HttpCheckOrder.HttpCheckOrder
-import com.excilys.ebi.gatling.http.response.ExtendedResponse
+import io.gatling.core.check.Check
+import io.gatling.core.session.Session
+import io.gatling.http.check.HttpCheckOrder.HttpCheckOrder
+import io.gatling.http.response.ExtendedResponse
 
 /**
  * This class serves as model for the HTTP-specific checks

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.recorder.scenario
+package io.gatling.recorder.scenario
 
 import java.nio.charset.Charset
 
@@ -22,8 +22,8 @@ import scala.collection.JavaConversions.{ asScalaBuffer, mapAsScalaMap }
 import org.jboss.netty.handler.codec.http.{ HttpRequest, QueryStringDecoder }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.{ AUTHORIZATION, CONTENT_TYPE }
 
-import com.excilys.ebi.gatling.http.util.HttpHelper.parseFormBody
-import com.excilys.ebi.gatling.recorder.config.RecorderConfiguration.configuration
+import io.gatling.http.util.HttpHelper.parseFormBody
+import io.gatling.recorder.config.RecorderConfiguration.configuration
 import com.ning.http.util.Base64
 
 import grizzled.slf4j.Logging

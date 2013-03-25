@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.http.action
+package io.gatling.http.action
 
-import com.excilys.ebi.gatling.core.action.builder.ActionBuilder
-import com.excilys.ebi.gatling.core.action.system
-import com.excilys.ebi.gatling.core.config.ProtocolConfigurationRegistry
-import com.excilys.ebi.gatling.core.session.Expression
-import com.excilys.ebi.gatling.core.validation.SuccessWrapper
-import com.excilys.ebi.gatling.http.check.HttpCheck
-import com.excilys.ebi.gatling.http.check.status.HttpStatusCheckBuilder.status
-import com.excilys.ebi.gatling.http.check.HttpCheckOrder.Status
-import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
+import io.gatling.core.action.builder.ActionBuilder
+import io.gatling.core.action.system
+import io.gatling.core.config.ProtocolConfigurationRegistry
+import io.gatling.core.session.Expression
+import io.gatling.core.validation.SuccessWrapper
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.status.HttpStatusCheckBuilder.status
+import io.gatling.http.check.HttpCheckOrder.Status
+import io.gatling.http.request.builder.AbstractHttpRequestBuilder
 
 import akka.actor.{ ActorRef, Props }
 

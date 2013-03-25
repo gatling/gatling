@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.result.message
+package io.gatling.core.result.message
 
 import org.joda.time.DateTime
 
-import com.excilys.ebi.gatling.core.util.DateHelper.{ toHumanDate, toTimestamp }
+import io.gatling.core.util.DateHelper.{ toHumanDate, toTimestamp }
 
 sealed trait DataWriterMessage
 

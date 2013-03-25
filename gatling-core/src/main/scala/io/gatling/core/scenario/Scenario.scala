@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.scenario
+package io.gatling.core.scenario
 
 import scala.concurrent.duration._
 
-import com.excilys.ebi.gatling.core.action.system
-import com.excilys.ebi.gatling.core.scenario.configuration.ScenarioConfiguration
-import com.excilys.ebi.gatling.core.scenario.injection.InjectionStep
-import com.excilys.ebi.gatling.core.session.Session
+import io.gatling.core.action.system
+import io.gatling.core.scenario.configuration.ScenarioConfiguration
+import io.gatling.core.scenario.injection.InjectionStep
+import io.gatling.core.session.Session
 
 import akka.actor.ActorRef
 

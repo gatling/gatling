@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.template
+package io.gatling.charts.template
 
 import org.fusesource.scalate.TemplateEngine
 
-import com.excilys.ebi.gatling.charts.component.Component
-import com.excilys.ebi.gatling.charts.config.ChartsFiles.{ ALL_SESSIONS_FILE, BOOTSTRAP_FILE, GATLING_JS_FILE, GATLING_TEMPLATE_LAYOUT_FILE_URL, JQUERY_FILE, MENU_FILE, STATS_JS_FILE }
-import com.excilys.ebi.gatling.core.result.message.RunRecord
+import io.gatling.charts.component.Component
+import io.gatling.charts.config.ChartsFiles.{ ALL_SESSIONS_FILE, BOOTSTRAP_FILE, GATLING_JS_FILE, GATLING_TEMPLATE_LAYOUT_FILE_URL, JQUERY_FILE, MENU_FILE, STATS_JS_FILE }
+import io.gatling.core.result.message.RunRecord
 
 object PageTemplate {
 	val TEMPLATE_ENGINE = {

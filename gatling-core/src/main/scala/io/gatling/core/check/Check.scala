@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check
+package io.gatling.core.check
 
 import scala.collection.mutable
 
-import com.excilys.ebi.gatling.core.session.{ Expression, Session }
-import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
+import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object Checks {
 

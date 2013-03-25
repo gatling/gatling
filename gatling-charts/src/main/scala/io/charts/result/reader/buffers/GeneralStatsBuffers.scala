@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.result.reader.buffers
+package io.gatling.charts.result.reader.buffers
 
 import scala.collection.mutable
 
-import com.excilys.ebi.gatling.charts.result.reader.{ ActionRecord, FileDataReader }
-import com.excilys.ebi.gatling.charts.result.reader.stats.{ PercentilesHelper, StatsHelper }
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
-import com.excilys.ebi.gatling.core.result.Group
-import com.excilys.ebi.gatling.core.result.message.RequestStatus
-import com.excilys.ebi.gatling.core.result.reader.GeneralStats
+import io.gatling.charts.result.reader.{ ActionRecord, FileDataReader }
+import io.gatling.charts.result.reader.stats.{ PercentilesHelper, StatsHelper }
+import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.result.Group
+import io.gatling.core.result.message.RequestStatus
+import io.gatling.core.result.reader.GeneralStats
 
 abstract class GeneralStatsBuffers(durationInSec: Long) {
 

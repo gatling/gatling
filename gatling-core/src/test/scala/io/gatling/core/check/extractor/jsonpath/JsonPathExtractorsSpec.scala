@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.extractor.jsonpath
+package io.gatling.core.check.extractor.jsonpath
 
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration
-import com.excilys.ebi.gatling.core.test.ValidationSpecification
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.test.ValidationSpecification
 
 @RunWith(classOf[JUnitRunner])
 class JsonPathExtractorsSpec extends ValidationSpecification {

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.test
+package io.gatling.core.test
 
 import org.specs2.matcher.Matcher
 import org.specs2.mutable.Specification
 
-import com.excilys.ebi.gatling.core.validation._
+import io.gatling.core.validation._
 
 trait ValidationSpecification extends Specification {
 

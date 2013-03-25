@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.core.check.extractor.xpath
+package io.gatling.core.check.extractor.xpath
 
 import java.io.{ InputStream, StringReader }
 
@@ -23,10 +23,10 @@ import org.jaxen.dom.DOMXPath
 import org.w3c.dom.{ Document, Node }
 import org.xml.sax.{ EntityResolver, InputSource }
 
-import com.excilys.ebi.gatling.core.check.Extractor
-import com.excilys.ebi.gatling.core.check.extractor.Extractors.LiftedSeqOption
-import com.excilys.ebi.gatling.core.util.IOHelper
-import com.excilys.ebi.gatling.core.validation.{ SuccessWrapper, Validation }
+import io.gatling.core.check.Extractor
+import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
+import io.gatling.core.util.IOHelper
+import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 import javax.xml.parsers.{ DocumentBuilder, DocumentBuilderFactory }
 

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.excilys.ebi.gatling.charts.result.reader
+package io.gatling.charts.result.reader
 
-import com.excilys.ebi.gatling.core.result.message.{ KO, OK, RecordEvent, RequestStatus }
+import io.gatling.core.result.message.{ KO, OK, RecordEvent, RequestStatus }
 
 object ActionRecord {
 
