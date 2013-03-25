@@ -134,7 +134,7 @@
 		<jodd.version>3.4.2</jodd.version>
 		<redis.version>2.10</redis.version>
 		<junit.version>4.11</junit.version>
-		<specs2.version>1.13</specs2.version>
+		<specs2.version>1.14</specs2.version>
 		<zinc.version>0.3.0.20130321</zinc.version>
 		<plexus-selector.version>1.0.0</plexus-selector.version>
 		<maven2.version>2.2.1</maven2.version>
