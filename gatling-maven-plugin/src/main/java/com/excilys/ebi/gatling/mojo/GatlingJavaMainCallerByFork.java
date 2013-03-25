@@ -24,24 +24,35 @@ import scala_maven_executions.JavaMainCallerByFork;
 
 public class GatlingJavaMainCallerByFork extends JavaMainCallerByFork {
 
-	public GatlingJavaMainCallerByFork(AbstractMojo requester1, String mainClassName1, String classpath, String[] jvmArgs1, String[] args1, boolean forceUseArgFile,
-			Toolchain toolchain, boolean propagateSystemProperties) throws Exception {
+	public GatlingJavaMainCallerByFork(AbstractMojo requester1, String mainClassName1, String classpath, String[] jvmArgs1, String[] args1, boolean forceUseArgFile, Toolchain toolchain, boolean propagateSystemProperties) throws Exception {
 		super(requester1, mainClassName1, classpath, jvmArgs1, args1, forceUseArgFile, toolchain);
 
 		if (propagateSystemProperties) {
 			for (Entry<Object, Object> systemProp : System.getProperties().entrySet()) {
-				String key = systemProp.getKey().toString();
-				if (!key.startsWith("java.") //
-						&& !key.startsWith("sun.") //
-						&& !key.startsWith("maven.") //
-						&& !key.startsWith("file.") //
-						&& !key.startsWith("awt.") //
-						&& !key.startsWith("os.") //
-						&& !key.startsWith("user.") //
-						&& !key.equals("line.separator")) {
-					addJvmArgs("-D" + key + "=" + systemProp.getValue());
+				String name = systemProp.getKey().toString();
+				Object value = systemProp.getValue();
+				if (isPropagatableProperty(name)) {
+					addJvmArgs("-D" + name + "=" + escapePropertyValue(value));
 				}
 			}
 		}
+	}
+
+	private boolean isPropagatableProperty(String name) {
+		return !name.startsWith("java.") //
+				&& !name.startsWith("sun.") //
+				&& !name.startsWith("maven.") //
+				&& !name.startsWith("file.") //
+				&& !name.startsWith("awt.") //
+				&& !name.startsWith("os.") //
+				&& !name.startsWith("user.") //
+				&& !name.equals("line.separator");
+	}
+
+	private Object escapePropertyValue(Object value) {
+		if (value instanceof String)
+			return "\"" + value + "\"";
+		else
+			return value;
 	}
 }
