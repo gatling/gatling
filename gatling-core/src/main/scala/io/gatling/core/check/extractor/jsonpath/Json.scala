@@ -66,7 +66,7 @@ object Json {
 		root match {
 			case array: ArrayNode =>
 				val children = new mutable.ArrayBuffer[JsonNode]
-				children.addChildren("", array)
+				children.addChildren("_", array)
 				JsonElement("", children)
 			case node => convert("", node)
 		}

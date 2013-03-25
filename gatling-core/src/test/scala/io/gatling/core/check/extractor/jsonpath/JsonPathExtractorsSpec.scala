@@ -69,6 +69,18 @@ class JsonPathExtractorsSpec extends ValidationSpecification {
 		"support name() function" in {
 			JsonPathExtractors.extractOne(0)(prepared("/test.json"), "//*[name()='@id']") must succeedWith(Some("ID"))
 		}
+
+		"support attribute with object root" in {
+			JsonPathExtractors.extractOne(0)(prepared("/test.json"), "//book[category='reference']/author") must succeedWith(Some("Nigel Rees"))
+		}
+
+		"support attribute with array root" in {
+			JsonPathExtractors.extractOne(0)(prepared("/test2.json"), "//_[id='19434']/foo") must succeedWith(Some("1"))
+		}
+
+		"support attribute with wildcard" in {
+			JsonPathExtractors.extractOne(0)(prepared("/test2.json"), "//*[id='19434']/foo") must succeedWith(Some("1"))
+		}
 	}
 
 	"extractMultiple" should {
