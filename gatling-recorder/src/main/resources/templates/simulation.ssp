@@ -33,10 +33,13 @@ class <%= simulationClassName %> extends Simulation {
 		<%if (!element.isInstanceOf[com.excilys.ebi.gatling.recorder.scenario.TagElement]){%>.<%}%><%=element%>
 <%}%>
 <% case Right(chains) =>%>
+<% var firstNonTagElement = true %>
 <% for((chain, i) <- chains.zipWithIndex) { %>
 	val chain_<%= i %> =
 <% for (element <- chain) {%>
-		<%if (element != chain.head && !element.isInstanceOf[com.excilys.ebi.gatling.recorder.scenario.TagElement]){%>.<%}%><%=element%>
+		<%if (!element.isInstanceOf[io.gatling.recorder.scenario.TagElement]){%>
+<%if (firstNonTagElement) firstNonTagElement=false else {%>.<%}%>
+<%}%><%=element%>
 <%}%>
 <%}%>
 
