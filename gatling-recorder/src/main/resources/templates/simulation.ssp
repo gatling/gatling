@@ -51,5 +51,5 @@ class <%= simulationClassName %> extends Simulation {
 		)
 <%}%>
 
-	setUp(scn.inject(peak(1 user)).protocolConfig(httpConf))
+	setUp(scn.inject(atOnce(1 user)).protocolConfig(httpConf))
 }
