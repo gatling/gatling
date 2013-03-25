@@ -15,60 +15,50 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 
-import scala.collection.JavaConversions.{ asJavaIterator, asScalaIterator }
+import scala.collection.JavaConversions.asJavaIterator
 
-import org.jaxen.{ DefaultNavigator, JaxenConstants, NamedAccessNavigator }
-
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.{ ArrayNode, TextNode }
+import org.jaxen.{ DefaultNavigator, JaxenConstants }
 
 /**
  * A Jaxen navigator for a Jackson tree
  */
-class JacksonNavigator extends DefaultNavigator with NamedAccessNavigator {
+object JacksonNavigator extends DefaultNavigator {
 
-	def getAttributeAxisIterator(contextNode: Object, localName: String, namespacePrefix: String, namespaceURI: String) = getChildAxisIterator(contextNode, localName, namespacePrefix, namespaceURI)
-
-	def getChildAxisIterator(contextNode: Object, localName: String, namespacePrefix: String, namespaceURI: String): java.util.Iterator[_] = {
-
-		def getChildrenByName(node: JsonNode) =
-			Option(node.get(localName)).map {
-				_ match {
-					case array: ArrayNode => array.elements
-					case node => java.util.Collections.singleton[JsonNode](node).iterator: java.util.Iterator[_]
-				}
-			}.getOrElse(JaxenConstants.EMPTY_ITERATOR)
-
-		contextNode match {
-			case array: ArrayNode => array.elements.flatMap(getChildrenByName)
-			case node: JsonNode => getChildrenByName(node)
-		}
+	override def getChildAxisIterator(contextNode: Object): java.util.Iterator[_] = contextNode match {
+		case element: JsonElement => element.children.iterator
+		case text: JsonText => JaxenConstants.EMPTY_ITERATOR
 	}
-
-	override def getAttributeAxisIterator(contextNode: Object) = getChildAxisIterator(contextNode)
-
-	override def getChildAxisIterator(contextNode: Object) = contextNode.asInstanceOf[JsonNode].iterator
 
 	override def getDocumentNode(contextNode: Object) = contextNode
 
 	def getTextStringValue(text: Object) = getElementStringValue(text)
 
-	def isAttribute(contextNode: Object) = if (contextNode.isInstanceOf[JsonNode]) contextNode.asInstanceOf[JsonNode].isValueNode else false
+	def isAttribute(contextNode: Object) = false
 
-	def isElement(contextNode: Object) = !isAttribute(contextNode)
+	def isElement(contextNode: Object) = true
 
-	def isText(contextNode: Object) = contextNode.isInstanceOf[TextNode]
+	def isText(contextNode: Object) = false
 
 	def getElementStringValue(element: Object) = element match {
-		case e: JsonNode => e.asText
+		case text: JsonText => text.value
 		case _ => element.toString
 	}
 
-	def getElementName(contextNode: Object) = ""
+	def getElementName(contextNode: Object) = contextNode.asInstanceOf[JsonNode].name
 
-	def getElementNamespaceUri(contextNode: Object) = ""
+	def getElementQName(contextNode: Object) = getElementName(contextNode)
 
-	// unupported operations
+	def getElementNamespaceUri(contextNode: Object) = null
+
+	def isComment(obj: Object) = false
+
+	def isNamespace(obj: Object) = false
+
+	def isProcessingInstruction(obj: Object) = false
+
+	def isDocument(obj: Object) = false
+
+	// unsupported operations
 	def getAttributeName(attr: Object) = throw new UnsupportedOperationException
 
 	def getAttributeNamespaceUri(attr: Object) = throw new UnsupportedOperationException
@@ -79,19 +69,9 @@ class JacksonNavigator extends DefaultNavigator with NamedAccessNavigator {
 
 	def getCommentStringValue(attr: Object) = throw new UnsupportedOperationException
 
-	def getElementQName(contextNode: Object) = throw new UnsupportedOperationException
-
 	def getNamespacePrefix(namespace: Object) = throw new UnsupportedOperationException
 
 	def getNamespaceStringValue(namespace: Object) = throw new UnsupportedOperationException
 
 	def parseXPath(xpath: String) = throw new UnsupportedOperationException
-
-	def isComment(obj: Object) = false
-
-	def isNamespace(obj: Object) = false
-
-	def isProcessingInstruction(obj: Object) = false
-
-	def isDocument(obj: Object) = false
 }

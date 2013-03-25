@@ -58,8 +58,8 @@ class JsonPathExtractorSpec extends Specification {
 			extractor("/test.json").extractOne(1)("/store/book[3]/author") must beEqualTo(None)
 		}
 
-		"return expected result with attribute expression" in {
-			extractor("/test.json").extractOne(0)("/store/book[@author = 'Nigel Rees']/title") must beEqualTo(Some("Sayings of the Century"))
+		"return expected result with element expression" in {
+			extractor("/test.json").extractOne(0)("/store/book[author = 'Nigel Rees']/title") must beEqualTo(Some("Sayings of the Century"))
 		}
 
 		"return expected result with last function expression" in {
@@ -68,6 +68,18 @@ class JsonPathExtractorSpec extends Specification {
 
 		"not mess up if two nodes with the same name are placed in different locations" in {
 			extractor("/test.json").extractOne(0)("/foo") must beEqualTo(Some("bar"))
+		}
+
+		"support attribute with object root" in {
+			extractor("/test.json").extractOne(0)("//book[category='reference']/author") must beEqualTo(Some("Nigel Rees"))
+		}
+
+		"support attribute with array root" in {
+			extractor("/test2.json").extractOne(0)("//_[id='19434']/foo") must beEqualTo(Some("1"))
+		}
+
+		"support attribute with wildcard" in {
+			extractor("/test2.json").extractOne(0)("//*[id='19434']/foo") must beEqualTo(Some("1"))
 		}
 	}
 
