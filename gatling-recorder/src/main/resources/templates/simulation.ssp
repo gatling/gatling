@@ -1,15 +1,15 @@
-<%@ val protocolConfig: com.excilys.ebi.gatling.recorder.scenario.ProtocolConfigElement %>
+<%@ val protocolConfig: io.gatling.recorder.scenario.ProtocolConfigElement %>
 <%@ val headers: Map[Int, List[(String, String)]] %>
 <%@ val scenarioName: String %>
 <%@ val simulationClassName: String %>
 <%@ val packageName: String %>
-<%@ val scenarioElements: Either[List[com.excilys.ebi.gatling.recorder.scenario.ScenarioElement], List[List[com.excilys.ebi.gatling.recorder.scenario.ScenarioElement]]] %>
+<%@ val scenarioElements: Either[List[io.gatling.recorder.scenario.ScenarioElement], List[List[io.gatling.recorder.scenario.ScenarioElement]]] %>
 <% if(!packageName.isEmpty) { %>package <%= packageName %> <% } %>
 
-import com.excilys.ebi.gatling.core.Predef._
-import com.excilys.ebi.gatling.http.Predef._
-import com.excilys.ebi.gatling.jdbc.Predef._
-import com.excilys.ebi.gatling.http.Headers.Names._
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
+import io.gatling.jdbc.Predef._
+import io.gatling.http.Headers.Names._
 import scala.concurrent.duration._
 import bootstrap._
 import assertions._
@@ -30,13 +30,13 @@ class <%= simulationClassName %> extends Simulation {
 <% case Left(elements) =>%>
 	val scn = scenario("<%= scenarioName %>")
 <% for (element <- elements) {%>
-		<%if (!element.isInstanceOf[com.excilys.ebi.gatling.recorder.scenario.TagElement]){%>.<%}%><%=element%>
+		<%if (!element.isInstanceOf[io.gatling.recorder.scenario.TagElement]){%>.<%}%><%=element%>
 <%}%>
 <% case Right(chains) =>%>
 <% for((chain, i) <- chains.zipWithIndex) { %>
 	val chain_<%= i %> =
 <% for (element <- chain) {%>
-		<%if (element != chain.head && !element.isInstanceOf[com.excilys.ebi.gatling.recorder.scenario.TagElement]){%>.<%}%><%=element%>
+		<%if (element != chain.head && !element.isInstanceOf[io.gatling.recorder.scenario.TagElement]){%>.<%}%><%=element%>
 <%}%>
 <%}%>
 

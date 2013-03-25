@@ -1,5 +1,5 @@
-<% import com.excilys.ebi.gatling.charts.report.GroupContainer %>
-<% import com.excilys.ebi.gatling.charts.report.RequestContainer %>
+<% import io.gatling.charts.report.GroupContainer %>
+<% import io.gatling.charts.report.RequestContainer %>
 <%@ val group: GroupContainer %>
 <% attributes("request") = group.requestStats %>${include("stats_request.tsv.ssp")}
 #for (content <- group.contents.values)
