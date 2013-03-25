@@ -115,10 +115,10 @@ public class GatlingMojo extends AbstractMojo {
 	 * A name of a Simulation class to run. This takes precedence over the
 	 * includes / excludes parameters.
 	 *
-	 * @parameter expression="${gatling.simulation}" alias="s"
+	 * @parameter expression="${gatling.simulationClass}" alias="s"
 	 * @description The name of the Simulation class to run
 	 */
-	private String simulation;
+	private String simulationClass;
 
 	/**
 	 * Uses this folder as the folder where feeders are stored
@@ -276,7 +276,7 @@ public class GatlingMojo extends AbstractMojo {
 
 	private List<String> gatlingArgs() throws Exception {
 		// Solves the simulations, if no simulation file is defined
-		if (simulation == null) {
+		if (simulationClass == null) {
 			List<String> simulations = resolveSimulations(simulationsFolder, includes, excludes);
 
 			if (simulations.isEmpty()) {
@@ -288,7 +288,7 @@ public class GatlingMojo extends AbstractMojo {
 				throw new MojoFailureException("More than 1 simulation to run, need to specify one");
 
 			} else {
-				simulation = simulations.get(0);
+				simulationClass = simulations.get(0);
 			}
 		}
 
@@ -298,7 +298,7 @@ public class GatlingMojo extends AbstractMojo {
 				"-" + CommandLineConstants.CLI_RESULTS_FOLDER(), resultsFolder.getCanonicalPath(),// ;
 				"-" + CommandLineConstants.CLI_REQUEST_BODIES_FOLDER(), requestBodiesFolder.getCanonicalPath(),//
 				"-" + CommandLineConstants.CLI_SIMULATIONS_FOLDER(), simulationsFolder.getCanonicalPath(),//
-				"-" + CommandLineConstants.CLI_SIMULATION(), simulation));
+				"-" + CommandLineConstants.CLI_SIMULATION(), simulationClass));
 
 		if (noReports) {
 			args.add("-" + CommandLineConstants.CLI_NO_REPORTS());
