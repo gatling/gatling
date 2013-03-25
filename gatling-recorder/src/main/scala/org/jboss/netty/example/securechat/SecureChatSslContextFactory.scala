@@ -17,7 +17,7 @@ package org.jboss.netty.example.securechat
 
 import java.security.{ KeyStore, Security }
 
-import com.excilys.ebi.gatling.core.util.IOHelper
+import io.gatling.core.util.IOHelper
 
 import javax.net.ssl.{ KeyManagerFactory, SSLContext }
 

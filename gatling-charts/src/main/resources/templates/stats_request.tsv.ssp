@@ -1,3 +1,3 @@
-<%  import com.excilys.ebi.gatling.charts.component.RequestStatistics %>
+<%  import io.gatling.charts.component.RequestStatistics %>
 <%@ val request: RequestStatistics %>
 <%= request.mkString %>

@@ -1,13 +1,13 @@
-<% import com.excilys.ebi.gatling.core.util.HtmlHelper.htmlEscape %>
-<% import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename %>
-<% import com.excilys.ebi.gatling.core.util.StringHelper.truncate %>
-<% import com.excilys.ebi.gatling.core.result.Group %>
+<% import io.gatling.core.util.HtmlHelper.htmlEscape %>
+<% import io.gatling.core.util.FileHelper.formatToFilename %>
+<% import io.gatling.core.util.StringHelper.truncate %>
+<% import io.gatling.core.result.Group %>
 <%@ val jsFiles: Seq[String] %>
 <%@ val pageTitle: String %>
 <%@ val pageContent: String %>
 <%@ val javascript: String %>
 <%@ val isDetails: Boolean %>
-<%@ val runRecord: com.excilys.ebi.gatling.core.result.message.RunRecord %>
+<%@ val runRecord: io.gatling.core.result.message.RunRecord %>
 <%@ val runStart: Long %>
 <%@ val runEnd: Long %>
 <% val duration = (runEnd - runStart) / 1000 %>

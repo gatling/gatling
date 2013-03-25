@@ -1,6 +1,6 @@
-//<% import com.excilys.ebi.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME %>
-//<% import com.excilys.ebi.gatling.charts.report.Container.GROUP %>
-//<% import com.excilys.ebi.gatling.charts.report.Container.REQUEST %>
+//<% import io.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME %>
+//<% import io.gatling.charts.report.Container.GROUP %>
+//<% import io.gatling.charts.report.Container.REQUEST %>
 
 function generateHtmlRow(request, level, index, parent, group) {
 	if (request.name == '<%= GLOBAL_PAGE_NAME %>')

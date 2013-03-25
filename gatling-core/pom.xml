@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>gatling-parent</artifactId>
-		<groupId>com.excilys.ebi.gatling</groupId>
+		<groupId>io.gatling</groupId>
 		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>gatling-core</artifactId>
