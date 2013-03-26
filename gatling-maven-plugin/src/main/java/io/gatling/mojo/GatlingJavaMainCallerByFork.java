@@ -15,10 +15,18 @@
  */
 package io.gatling.mojo;
 
+import java.util.List;
 import java.util.Map.Entry;
 
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.ExecuteException;
+import org.apache.commons.exec.Executor;
+import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.toolchain.Toolchain;
+import org.codehaus.plexus.util.StringUtils;
 
 import scala_maven_executions.JavaMainCallerByFork;
 
@@ -30,13 +38,51 @@ public class GatlingJavaMainCallerByFork extends JavaMainCallerByFork {
 		if (propagateSystemProperties) {
 			for (Entry<Object, Object> systemProp : System.getProperties().entrySet()) {
 				String name = systemProp.getKey().toString();
-				Object value = systemProp.getValue();
+				String value = systemProp.getValue().toString();
 				if (isPropagatableProperty(name)) {
-					addJvmArgs("-D" + name + "=" + escapePropertyValue(value));
+					addJvmArgs("-D" + name + "=" + StringUtils.quoteAndEscape(value, '\"'));
 				}
 			}
 		}
 	}
+	
+    @Override
+    public boolean run(boolean displayCmd, boolean throwFailure) throws Exception {
+        List<String> cmd = buildCommand();
+        displayCmd(displayCmd, cmd);
+        Executor exec = new DefaultExecutor();
+
+        //err and out are redirected to out
+        exec.setStreamHandler(new PumpStreamHandler(System.out, System.err, System.in));
+
+        CommandLine cl = new CommandLine(cmd.get(0));
+        for (int i = 1; i < cmd.size(); i++) {
+            cl.addArgument(cmd.get(i), false);
+        }
+        try {
+            int exitValue = exec.execute(cl);
+            if (exitValue != 0) {
+                if (throwFailure) {
+                    throw new MojoFailureException("command line returned non-zero value:" + exitValue);
+                }
+                return false;
+            }
+            return true;
+        } catch (ExecuteException exc) {
+            if (throwFailure) {
+                throw exc;
+            }
+            return false;
+        }
+    }
+    
+    public void displayCmd(boolean displayCmd, List<String> cmd) {
+        if (displayCmd) {
+            requester.getLog().info("cmd: " + " " + StringUtils.join(cmd.iterator(), " "));
+        } else if (requester.getLog().isDebugEnabled()) {
+            requester.getLog().debug("cmd: " + " " + StringUtils.join(cmd.iterator(), " "));
+        }
+    }
 
 	private boolean isPropagatableProperty(String name) {
 		return !name.startsWith("java.") //
@@ -46,13 +92,7 @@ public class GatlingJavaMainCallerByFork extends JavaMainCallerByFork {
 				&& !name.startsWith("awt.") //
 				&& !name.startsWith("os.") //
 				&& !name.startsWith("user.") //
-				&& !name.equals("line.separator");
-	}
-
-	private Object escapePropertyValue(Object value) {
-		if (value instanceof String)
-			return "\"" + value + "\"";
-		else
-			return value;
+				&& !name.equals("line.separator") //
+				&& !name.equals("path.separator");
 	}
 }
