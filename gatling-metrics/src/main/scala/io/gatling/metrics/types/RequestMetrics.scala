@@ -54,7 +54,7 @@ class Metrics(bucketWidth: Int = configuration.graphite.bucketWidth) {
 	var count = 0L
 	var max = 0L
 	var min = Long.MaxValue
-	private val buckets = mutable.HashMap.empty[Long,Long]
+	private val buckets = mutable.HashMap.empty[Long, Long]
 
 	def update(value: Long) {
 		count += 1
@@ -80,14 +80,15 @@ class Metrics(bucketWidth: Int = configuration.graphite.bucketWidth) {
 			val limit = (count * (quantile.toDouble / bucketWidth)).toLong
 
 			@tailrec
-			def findQuantile(buckets: Seq[(Long, Long)], count: Long = 0L): Long = {
-				val firstEntry = buckets.head
-				val newCount = count + firstEntry._2
-				if (newCount >= limit) max.min((firstEntry._1 * bucketWidth) + bucketWidth)
-				else findQuantile(buckets.tail, newCount)
+			def getQuantileRec(buckets: List[(Long, Long)], count: Long): Long = buckets match {
+				case (bucketTime, bucketCount) :: tail =>
+					val newCount = count + bucketCount
+					if (newCount >= limit) max.min((bucketTime * bucketWidth) + bucketWidth)
+					else getQuantileRec(tail, newCount)
+				case Nil => throw new IllegalArgumentException("Can't compute 100th quantile")
 			}
 
-			findQuantile(buckets.toList.sorted)
+			getQuantileRec(buckets.toList.sorted, 0L)
 		}
 	}
 }

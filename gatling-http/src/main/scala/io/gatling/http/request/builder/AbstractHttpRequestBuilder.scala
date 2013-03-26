@@ -131,7 +131,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 			if (url.startsWith(Protocol.HTTP.getProtocol))
 				url.success
 			else
-				protocolConfiguration.baseURL.map(baseURL => (baseURL + url).success).getOrElse((s"No protocolConfiguration.baseURL defined but provided url is relative : $url").failure)
+				protocolConfiguration.baseURL.map(baseURL => (baseURL + url).success).getOrElse(s"No protocolConfiguration.baseURL defined but provided url is relative : $url".failure)
 
 		def configureUrlCookiesAndProxy(url: String)(implicit requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
