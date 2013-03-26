@@ -22,7 +22,9 @@ import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.Executor;
+import org.apache.commons.exec.ProcessDestroyer;
 import org.apache.commons.exec.PumpStreamHandler;
+import org.apache.commons.exec.ShutdownHookProcessDestroyer;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.toolchain.Toolchain;
@@ -54,13 +56,16 @@ public class GatlingJavaMainCallerByFork extends JavaMainCallerByFork {
 
         //err and out are redirected to out
         exec.setStreamHandler(new PumpStreamHandler(System.out, System.err, System.in));
-
+        
+        /* fix for issue Issue #1047*/
+    	exec.setProcessDestroyer(new ShutdownHookProcessDestroyer());
+        
         CommandLine cl = new CommandLine(cmd.get(0));
         for (int i = 1; i < cmd.size(); i++) {
             cl.addArgument(cmd.get(i), false);
         }
         try {
-            int exitValue = exec.execute(cl);
+        	int exitValue = exec.execute(cl);
             if (exitValue != 0) {
                 if (throwFailure) {
                     throw new MojoFailureException("command line returned non-zero value:" + exitValue);
