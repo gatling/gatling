@@ -26,7 +26,6 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.util.DirectoryScanner;
-import scala_maven_executions.JavaMainCallerByFork;
 import scala_maven_executions.JavaMainCaller;
 import scala_maven_executions.MainHelper;
 import scala_maven_executions.MainWithArgsInFile;
@@ -241,7 +240,7 @@ public class GatlingMojo extends AbstractMojo {
 		if (fork) {
 			JavaMainCaller caller = new GatlingJavaMainCallerByFork(this, GATLING_MAIN_CLASS, testClasspath, jvmArgs, gatlingArgs, false, toolchain, propagateSystemProperties);
 			try {
-				caller.run(true);
+				caller.run(false);
 			} catch (ExecuteException e) {
 				if (e.getExitValue() == Gatling.SIMULATION_CHECK_FAILED()) {
 					throw new GatlingSimulationChecksFailedException(e);

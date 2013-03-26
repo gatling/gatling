@@ -37,8 +37,6 @@ import scala_maven_executions.JavaMainCallerInProcess;
  */
 public class GatlingJavaMainCallerInProcess extends JavaMainCallerInProcess {
 
-	private ClassLoader oldClassLoader = null;
-
 	public GatlingJavaMainCallerInProcess(AbstractMojo requester,String mainClassName,String classpath, String[] args) throws Exception {
 		super(requester,mainClassName,classpath,null,args);
 
