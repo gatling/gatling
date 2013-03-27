@@ -15,7 +15,7 @@
  */
 package io.gatling.core.scenario.injection
 
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeUnit.MILLISECONDS
 
 import scala.concurrent.duration.{ DurationInt, FiniteDuration }
 import scala.math.{ pow, sqrt }
@@ -93,7 +93,7 @@ case class RampRateInjection(r1: Double, r2: Double, duration: FiniteDuration) e
 			val delta = b2 - 4 * a * c
 
 			val t = (-b + sqrt(delta)) / (2 * a)
-			new FiniteDuration((t * 1000).toLong, TimeUnit.MILLISECONDS)
+			new FiniteDuration((t * 1000).toLong, MILLISECONDS)
 		}
 
 		Iterator.range(0, users).map(userScheduling(_)) ++ iterator.map(_ + duration)
@@ -121,5 +121,32 @@ case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: In
 			(1 to n).foldRight(lastScheduling)((_, iterator) => step.chain(separator.chain(iterator)))
 		} else
 			iterator
+	}
+}
+
+/**
+ * Injection rate following a Dirac delta function
+ *
+ * numberOfInjectedUsers(t) = u(t)
+ *                          = ∫δ(t)
+ *                          = Heaviside(t)
+ *                          = 1/2 + 1/2*erf(k*t)
+ *                          (good numerical approximation)
+ */
+case class DiracInjection(val users: Int, duration: FiniteDuration) extends InjectionStep {
+	import io.gatling.core.math.Erf.erfinv
+	import scala.math.abs
+
+	override def chain(iterator: Iterator[FiniteDuration]) = {
+		def heavisideInv(u: Double) = {
+			val x = u.toDouble / (users + 1)
+			erfinv(2 * x - 1)
+		}
+
+		val t0 = abs(heavisideInv(1))
+		val d = t0 * 2
+		val k = duration.toMillis / d
+
+		Iterator.range(1, users + 1).map(heavisideInv(_)).map((t) => new FiniteDuration(k * (t + t0) toLong, MILLISECONDS))
 	}
 }
