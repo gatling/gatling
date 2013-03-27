@@ -15,21 +15,25 @@
  */
 package io.gatling.core.check.extractor.regex
 
-import java.util.regex.Pattern
-
 import scala.annotation.tailrec
+import scala.collection.mutable
+import scala.util.matching.Regex
 
 import io.gatling.core.check.Extractor
 import io.gatling.core.check.extractor.Extractors.{ LiftedOption, LiftedSeqOption }
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object RegexExtractors {
+
+	val cache = mutable.Map.empty[String, Regex]
+	def cachedRegex(pattern: String) = if (configuration.simulation.cacheRegex) cache.getOrElseUpdate(pattern, pattern.r) else pattern.r
 
 	abstract class RegexExtractor[X] extends Extractor[String, String, X] {
 		val name = "regex"
 	}
 
-	def extract(string: String, pattern: String): Seq[String] = pattern.r.findAllIn(string).matchData.map { matcher =>
+	def extract(string: String, pattern: String): Seq[String] = cachedRegex(pattern).findAllIn(string).matchData.map { matcher =>
 		new String(matcher.group(1 min matcher.groupCount))
 	}.toList
 
@@ -37,7 +41,7 @@ object RegexExtractors {
 
 		def apply(prepared: String, criterion: String): Validation[Option[String]] = {
 
-			val matcher = Pattern.compile(criterion).matcher(prepared)
+			val matcher = cachedRegex(criterion).pattern.matcher(prepared)
 
 			@tailrec
 			def findRec(countDown: Int): Boolean = {

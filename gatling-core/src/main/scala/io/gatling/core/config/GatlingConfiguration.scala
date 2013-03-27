@@ -45,7 +45,8 @@ object GatlingConfiguration extends Logging {
 				outputDirectoryBaseName = trimToOption(config.getString(CONF_SIMULATION_OUTPUT_DIRECTORY_BASE_NAME)),
 				runDescription = config.getString(CONF_SIMULATION_RUN_DESCRIPTION),
 				encoding = config.getString(CONF_SIMULATION_ENCODING),
-				clazz = trimToOption(config.getString(CONF_SIMULATION_CLASS))),
+				clazz = trimToOption(config.getString(CONF_SIMULATION_CLASS)),
+				cacheRegex = config.getBoolean(CONF_SIMULATION_CACHE_REGEX)),
 			timeOut = TimeOutConfiguration(
 				simulation = config.getInt(CONF_TIME_OUT_SIMULATION),
 				actor = config.getInt(CONF_TIME_OUT_ACTOR)),
@@ -136,7 +137,8 @@ case class SimulationConfiguration(
 	outputDirectoryBaseName: Option[String],
 	runDescription: String,
 	encoding: String,
-	clazz: Option[String])
+	clazz: Option[String],
+	cacheRegex: Boolean)
 
 case class TimeOutConfiguration(
 	simulation: Int,
