@@ -120,6 +120,27 @@ class InjectionStepSpec extends Specification {
 		}
 	}
 
+	"DiracInjection" should {
+		val scheduling = DiracInjection(100, 5 seconds).chain(Iterator.empty).toList
+
+		"provide an appropriate number of users" in {
+			scheduling.length must beEqualTo(100)
+		}
+
+		"be of an appropriate duration" in {
+			scheduling.last must beEqualTo(5 seconds)
+		}
+
+		"provide correct values" in {
+			scheduling(1) must beEqualTo(292 milliseconds)
+		}
+
+		"have most of the scheduling values close to half of the duration" in {
+			val l = scheduling.filter((t) => (t > (1.5 seconds)) && (t < (3.5 seconds))).length
+			l must beEqualTo(66)
+		}
+	}
+
 	// Deactivate Specs2 implicit to be able to use the ones provided in scala.concurrent.duration
 	override def intToRichLong(v: Int) = super.intToRichLong(v)
 }

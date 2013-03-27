@@ -15,17 +15,17 @@
  */
 package io.gatling.core
 
-import scala.concurrent.duration.{DurationInt, FiniteDuration}
+import scala.concurrent.duration.{ DurationInt, FiniteDuration }
 import scala.reflect.ClassTag
-import scala.tools.nsc.io.{File, Path}
+import scala.tools.nsc.io.{ File, Path }
 import io.gatling.core.session.Expression
-import io.gatling.core.check.{Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder}
+import io.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
 import io.gatling.core.feeder.{ AdvancedFeederBuilder, Feeder, FeederBuilder, FeederWrapper }
 import io.gatling.core.feeder.csv.SeparatedValuesParser
-import io.gatling.core.scenario.injection.{AtOnceInjection, ConstantRateInjection, NothingForInjection, RampInjection, RampRateInjection}
-import io.gatling.core.session.{ELCompiler, ELWrapper}
-import io.gatling.core.structure.{AssertionBuilder, ChainBuilder, ScenarioBuilder}
-import io.gatling.core.validation.{SuccessWrapper, Validation}
+import io.gatling.core.scenario.injection.{ AtOnceInjection, ConstantRateInjection, DiracInjection, NothingForInjection, RampInjection, RampRateInjection }
+import io.gatling.core.session.{ ELCompiler, ELWrapper }
+import io.gatling.core.structure.{ AssertionBuilder, ChainBuilder, ScenarioBuilder }
+import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.core.scenario.injection.InjectionStep
 import io.gatling.core.scenario.injection.SplitInjection
 import io.gatling.core.scenario.injection.NothingForInjection
@@ -102,6 +102,9 @@ object Predef {
 	case class RampBuilder(users: UserNumber) {
 		def over(d: FiniteDuration) = RampInjection(users.number, d)
 	}
+	case class DiracBuilder(users: UserNumber) {
+		def over(d: FiniteDuration) = DiracInjection(users.number, d)
+	}
 	case class ConstantRateBuilder(rate: UsersPerSec) {
 		def during(d: FiniteDuration) = ConstantRateInjection(rate.rate, d)
 	}
@@ -112,16 +115,17 @@ object Predef {
 		def during(d: FiniteDuration) = RampRateInjection(rate1.rate, rate2.rate, d)
 	}
 	case class PartialSplitBuilder(users: UserNumber) {
-		def into(step:InjectionStep) = SplitBuilder(users, step)
+		def into(step: InjectionStep) = SplitBuilder(users, step)
 	}
-	case class SplitBuilder(users: UserNumber, step:InjectionStep) {
+	case class SplitBuilder(users: UserNumber, step: InjectionStep) {
 		def separatedBy(separator: InjectionStep) = SplitInjection(users.number, step, separator)
 		def separatedBy(duration: FiniteDuration) = SplitInjection(users.number, step, NothingForInjection(duration))
 	}
-	
+
 	def ramp(users: UserNumber) = RampBuilder(users)
-	def nothingFor(d: FiniteDuration) = NothingForInjection(d)
+	def dirac(users: UserNumber) = DiracBuilder(users)
 	def atOnce(users: UserNumber) = AtOnceInjection(users.number)
+	def nothingFor(d: FiniteDuration) = NothingForInjection(d)
 	def constantRate(rate: UsersPerSec) = ConstantRateBuilder(rate)
 	def rampRate(rate1: UsersPerSec) = PartialRampRateBuilder(rate1)
 	def split(users: UserNumber) = PartialSplitBuilder(users)
