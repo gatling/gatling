@@ -15,9 +15,7 @@
  */
 package io.gatling.core.scenario.injection
 
-import java.util.concurrent.TimeUnit.MILLISECONDS
-
-import scala.concurrent.duration.{ DurationInt, FiniteDuration }
+import scala.concurrent.duration.{ DurationLong, FiniteDuration }
 import scala.math.{ pow, sqrt }
 
 trait InjectionStep {
@@ -35,7 +33,7 @@ trait InjectionStep {
 /**
  * Ramp a given number of users over a given duration
  */
-case class RampInjection(val users: Int, duration: FiniteDuration) extends InjectionStep {
+case class RampInjection(users: Int, duration: FiniteDuration) extends InjectionStep {
 	require(users > 0, "The number of users must be a strictly positive value")
 
 	override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
@@ -64,7 +62,7 @@ case class NothingForInjection(duration: FiniteDuration) extends InjectionStep {
 /**
  * Injection all the users at once
  */
-case class AtOnceInjection(val users: Int) extends InjectionStep {
+case class AtOnceInjection(users: Int) extends InjectionStep {
 	require(users > 0, "The number of users must be a strictly positive value")
 
 	override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = Iterator.continually(0 milliseconds).take(users) ++ iterator
@@ -93,7 +91,7 @@ case class RampRateInjection(r1: Double, r2: Double, duration: FiniteDuration) e
 			val delta = b2 - 4 * a * c
 
 			val t = (-b + sqrt(delta)) / (2 * a)
-			new FiniteDuration((t * 1000).toLong, MILLISECONDS)
+			(t * 1000).toLong milliseconds
 		}
 
 		Iterator.range(0, users).map(userScheduling(_)) ++ iterator.map(_ + duration)
@@ -133,13 +131,13 @@ case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: In
  *                          = 1/2 + 1/2*erf(k*t)
  *                          (good numerical approximation)
  */
-case class DiracInjection(val users: Int, duration: FiniteDuration) extends InjectionStep {
+case class DiracInjection(users: Int, duration: FiniteDuration) extends InjectionStep {
 	import io.gatling.core.math.Erf.erfinv
 	import scala.math.abs
 
 	override def chain(iterator: Iterator[FiniteDuration]) = {
 		def heavisideInv(u: Double) = {
-			val x = u.toDouble / (users + 1)
+			val x = u / (users + 1)
 			erfinv(2 * x - 1)
 		}
 
@@ -147,6 +145,6 @@ case class DiracInjection(val users: Int, duration: FiniteDuration) extends Inje
 		val d = t0 * 2
 		val k = duration.toMillis / d
 
-		Iterator.range(1, users + 1).map(heavisideInv(_)).map((t) => new FiniteDuration(k * (t + t0) toLong, MILLISECONDS))
+		Iterator.range(1, users + 1).map(heavisideInv(_)).map(t => (k * (t + t0)).toLong milliseconds)
 	}
 }
