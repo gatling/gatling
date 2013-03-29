@@ -20,7 +20,7 @@ import java.security.{ KeyStore, SecureRandom }
 
 import io.gatling.core.action.system
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.util.IOHelper
+import io.gatling.core.util.IOHelper.withCloseable
 import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig }
 
 import grizzled.slf4j.Logging
@@ -63,7 +63,7 @@ object GatlingHttpClient extends Logging {
 		if (configuration.http.ssl.trustStore.isDefined || configuration.http.ssl.keyStore.isDefined) {
 
 			val trustManagers = configuration.http.ssl.trustStore.map { trustStoreConfig =>
-				IOHelper.use(new FileInputStream(new File(trustStoreConfig.file))) { is =>
+				withCloseable(new FileInputStream(new File(trustStoreConfig.file))) { is =>
 					val trustStore = KeyStore.getInstance(trustStoreConfig.storeType)
 					trustStore.load(is, trustStoreConfig.password.toCharArray)
 					val algo = trustStoreConfig.algorithm.getOrElse(KeyManagerFactory.getDefaultAlgorithm)
@@ -74,7 +74,7 @@ object GatlingHttpClient extends Logging {
 			}.getOrElse(null)
 
 			val keyManagers = configuration.http.ssl.keyStore.map { keyStoreConfig =>
-				IOHelper.use(new FileInputStream(new File(keyStoreConfig.file))) { is =>
+				withCloseable(new FileInputStream(new File(keyStoreConfig.file))) { is =>
 					val keyStore = KeyStore.getInstance(keyStoreConfig.storeType)
 					keyStore.load(is, keyStoreConfig.password.toCharArray)
 					val algo = keyStoreConfig.algorithm.getOrElse(KeyManagerFactory.getDefaultAlgorithm)

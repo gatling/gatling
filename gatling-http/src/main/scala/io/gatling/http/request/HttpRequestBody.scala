@@ -26,7 +26,7 @@ import io.gatling.core.action.system
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles
 import io.gatling.core.session.{ EL, Expression, Session }
-import io.gatling.core.util.IOHelper
+import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 object HttpRequestBody {
@@ -74,7 +74,7 @@ object HttpRequestBody {
 
 		def layout(templatePath: String, session: Session): Array[Byte] = {
 			val out = new ByteArrayOutputStream
-			IOHelper.use(new PrintWriter(out)) { pw =>
+			withCloseable(new PrintWriter(out)) { pw =>
 				HttpRequestBody.sspTemplateEngine.layout(templatePath, additionalAttributes + ("session" -> session), HttpRequestBody.sessionExtraBinding)
 			}
 			out.toByteArray

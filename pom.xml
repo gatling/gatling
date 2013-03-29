@@ -433,7 +433,6 @@
 									<arg>-feature</arg>
 									<arg>-unchecked</arg>
 									<arg>-language:implicitConversions</arg>
-									<arg>-language:reflectiveCalls</arg>
 									<arg>-language:postfixOps</arg>
 								</args>
 							</configuration>

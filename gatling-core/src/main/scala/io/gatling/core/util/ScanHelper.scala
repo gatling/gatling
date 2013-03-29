@@ -24,7 +24,7 @@ import scala.tools.nsc.io.Path.{ string2path, jfile2path }
 
 import org.apache.commons.io.IOUtils
 
-import io.gatling.core.util.IOHelper.use
+import io.gatling.core.util.IOHelper.withCloseable
 
 object ScanHelper {
 
@@ -92,8 +92,8 @@ case class FileishResource(fileish: Fileish) extends Resource {
 	def copyTo(target: Path) {
 		target.parent.createDirectory()
 
-		use(fileish.input()) { input =>
-			use(target.toFile.outputStream(false)) { output =>
+		withCloseable(fileish.input()) { input =>
+			withCloseable(target.toFile.outputStream(false)) { output =>
 				IOUtils.copy(input, output)
 			}
 		}

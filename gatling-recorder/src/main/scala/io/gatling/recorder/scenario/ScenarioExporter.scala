@@ -24,7 +24,7 @@ import scala.tools.nsc.io.{ Directory, File }
 
 import org.fusesource.scalate.TemplateEngine
 
-import io.gatling.core.util.IOHelper.use
+import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.http.Headers
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 
@@ -134,7 +134,7 @@ object ScenarioExporter extends Logging {
 				"packageName" -> configuration.simulation.pkg,
 				"scenarioElements" -> newScenarioElements))
 
-		use(new FileWriter(File(getOutputFolder / getSimulationFileName(startDate)).jfile)) {
+		withCloseable(new FileWriter(File(getOutputFolder / getSimulationFileName(startDate)).jfile)) {
 			_.write(output)
 		}
 	}
@@ -176,7 +176,7 @@ object ScenarioExporter extends Logging {
 	}
 
 	private def dumpRequestBody(idEvent: Int, content: String, simulationClass: String) {
-		use(new FileWriter(File(getFolder(configuration.simulation.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)) {
+		withCloseable(new FileWriter(File(getFolder(configuration.simulation.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)) {
 			fw =>
 				try {
 					fw.write(content)

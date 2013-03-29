@@ -25,7 +25,7 @@ import org.xml.sax.{ EntityResolver, InputSource }
 
 import io.gatling.core.check.Extractor
 import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
-import io.gatling.core.util.IOHelper
+import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 import javax.xml.parsers.{ DocumentBuilder, DocumentBuilderFactory }
@@ -50,7 +50,7 @@ object XPathExtractors {
 		}
 	}
 
-	def parse(inputStream: InputStream): Document = IOHelper.use(inputStream) { is =>
+	def parse(inputStream: InputStream): Document = withCloseable(inputStream) { is =>
 		val parser = parserHolder.get
 		val document = parser.parse(is)
 		parser.reset

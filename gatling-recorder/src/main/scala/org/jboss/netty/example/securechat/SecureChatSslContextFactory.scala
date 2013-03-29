@@ -17,7 +17,7 @@ package org.jboss.netty.example.securechat
 
 import java.security.{ KeyStore, Security }
 
-import io.gatling.core.util.IOHelper
+import io.gatling.core.util.IOHelper.withCloseable
 
 import javax.net.ssl.{ KeyManagerFactory, SSLContext }
 
@@ -60,7 +60,7 @@ object SecureChatSslContextFactory {
 		val algorithm = Option(Security.getProperty("ssl.KeyManagerFactory.algorithm")).getOrElse("SunX509")
 		val ks = KeyStore.getInstance("JKS")
 
-		IOHelper.use(ClassLoader.getSystemResourceAsStream("gatling.jks")) { in =>
+		withCloseable(ClassLoader.getSystemResourceAsStream("gatling.jks")) { in =>
 			val gatlingChars = "gatling".toCharArray
 			ks.load(in, gatlingChars)
 

@@ -19,11 +19,11 @@ import scala.io.Codec.string2codec
 import scala.tools.nsc.io.{ File, Path }
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.util.IOHelper.use
+import io.gatling.core.util.IOHelper.withCloseable
 
 class TemplateWriter(path: Path) {
 
 	def writeToFile(output: String) {
-		use(File(path)(configuration.simulation.encoding).writer) { _.write(output) }
+		withCloseable(File(path)(configuration.simulation.encoding).writer) { _.write(output) }
 	}
 }

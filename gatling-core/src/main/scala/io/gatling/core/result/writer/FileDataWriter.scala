@@ -21,7 +21,7 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.result.message.{ ActionRecordType, GroupRecord, GroupRecordType, RequestRecord, RunRecord, RunRecordType, ScenarioRecord, ScenarioRecordType, ShortScenarioDescription }
 import io.gatling.core.util.FileHelper.tabulationSeparator
-import io.gatling.core.util.IOHelper.use
+import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.core.util.StringHelper.eol
 
 import grizzled.slf4j.Logging
@@ -120,6 +120,6 @@ class FileDataWriter extends DataWriter with Logging {
 
 		info("Received flush order")
 
-		use(osw) { _.flush }
+		withCloseable(osw) { _.flush }
 	}
 }

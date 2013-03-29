@@ -21,14 +21,14 @@ import scala.tools.nsc.io.Path
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.feeder.AdvancedFeederBuilder
 import io.gatling.core.util.FileHelper.{ commaSeparator, semicolonSeparator, tabulationSeparator }
-import io.gatling.core.util.IOHelper.use
+import io.gatling.core.util.IOHelper.withSource
 
 object SeparatedValuesParser {
 
 	private def parse(file: Path, separator: String, escapeChar: Option[String]): AdvancedFeederBuilder[String] = {
 		require(file.exists, s"file $file doesn't exists")
 
-		val data = use(Source.fromFile(file.jfile, GatlingConfiguration.configuration.simulation.encoding)) { source =>
+		val data = withSource(Source.fromFile(file.jfile, GatlingConfiguration.configuration.simulation.encoding)) { source =>
 
 			val rawLines = source.getLines.map(_.split(separator))
 

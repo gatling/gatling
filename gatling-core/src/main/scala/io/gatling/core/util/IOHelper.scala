@@ -15,9 +15,28 @@
  */
 package io.gatling.core.util
 
+import java.io.Closeable
+import java.sql.Connection
+
+import scala.io.Source
+
 object IOHelper {
 
-	def use[T, C <: { def close() }](closeable: C)(block: C => T) = {
+	def withCloseable[T, C <: Closeable](closeable: C)(block: C => T) = {
+		try
+			block(closeable)
+		finally
+			closeable.close
+	}
+
+	def withSource[T, C <: Source](closeable: C)(block: C => T) = {
+		try
+			block(closeable)
+		finally
+			closeable.close
+	}
+
+	def withConnection[T, C <: Connection](closeable: C)(block: C => T) = {
 		try
 			block(closeable)
 		finally

@@ -23,7 +23,7 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
 import io.gatling.core.test.ValidationSpecification
-import io.gatling.core.util.IOHelper
+import io.gatling.core.util.IOHelper.withSource
 
 /**
  * @see <a href="http://www.w3.org/TR/selectors/#selectors"/> for more details about the CSS selectors syntax
@@ -32,7 +32,7 @@ import io.gatling.core.util.IOHelper
 class CssExtractorsSpec extends ValidationSpecification {
 
 	def prepared(file: String) = {
-		IOHelper.use(Source.fromInputStream(getClass.getResourceAsStream(file))(Codec.UTF8)) { source =>
+		withSource(Source.fromInputStream(getClass.getResourceAsStream(file))(Codec.UTF8)) { source =>
 			CssExtractors.parse(CharBuffer.wrap(source.mkString))
 		}
 	}
