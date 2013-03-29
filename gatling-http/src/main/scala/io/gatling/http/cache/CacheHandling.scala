@@ -15,18 +15,17 @@
  */
 package io.gatling.http.cache
 
-import io.gatling.core.session.Session
-import io.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
-import io.gatling.http.Headers
-import io.gatling.http.config.HttpProtocolConfiguration
 import com.ning.http.client.{ Request, Response }
 import com.ning.http.util.AsyncHttpProviderUtils
 
 import grizzled.slf4j.Logging
+import io.gatling.core.session.{ Session, SessionPrivateAttributes }
+import io.gatling.http.Headers
+import io.gatling.http.config.HttpProtocolConfiguration
 
 object CacheHandling extends Logging {
 
-	val COOKIES_CONTEXT_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "http.cache"
+	val httpCacheAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.cache"
 
 	def isFutureExpire(timeString: String): Boolean =
 		try {
@@ -63,12 +62,12 @@ object CacheHandling extends Logging {
 
 			} else {
 				info(s"Caching url $url")
-				session.set(COOKIES_CONTEXT_KEY, cache + url)
+				session.set(httpCacheAttributeName, cache + url)
 			}
 
 		} else
 			session
 	}
 
-	private def getCache(session: Session): Set[String] = session.get(COOKIES_CONTEXT_KEY).getOrElse(Set.empty)
+	private def getCache(session: Session): Set[String] = session.get(httpCacheAttributeName).getOrElse(Set.empty)
 }

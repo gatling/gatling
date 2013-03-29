@@ -15,8 +15,7 @@
  */
 package io.gatling.core.session.handler
 
-import io.gatling.core.session.Session
-import io.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
+import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.Validation
 
@@ -28,9 +27,9 @@ object TimerBasedIterationHandler {
 	/**
 	 * Key prefix for Counters
 	 */
-	private val TIMER_KEY_PREFIX = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.timer."
+	private val timerAttributeNamePrefix = SessionPrivateAttributes.privateAttributePrefix + "core.timer."
 
-	def getTimerAttributeName(counterName: String) = TIMER_KEY_PREFIX + counterName
+	def getTimerAttributeName(counterName: String) = timerAttributeNamePrefix + counterName
 
 	def getTimer(session: Session, counterName: String): Validation[Long] = session.safeGet[Long](getTimerAttributeName(counterName))
 }

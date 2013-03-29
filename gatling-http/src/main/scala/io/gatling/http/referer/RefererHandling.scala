@@ -15,17 +15,17 @@
  */
 package io.gatling.http.referer
 
-import io.gatling.core.session.Session
-import io.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
+import com.ning.http.client.Request
+
+import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.Headers
 import io.gatling.http.config.HttpProtocolConfiguration
-import com.ning.http.client.Request
 
 object RefererHandling {
 
-	val REFERER_CONTEXT_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "http.referer"
+	val refererAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.referer"
 
-	def getStoredReferer(session: Session): Option[String] = session.get(REFERER_CONTEXT_KEY)
+	def getStoredReferer(session: Session): Option[String] = session.get(refererAttributeName)
 
 	def addStoredRefererHeader(headers: Map[String, String], session: Session, protocolConfiguration: HttpProtocolConfiguration): Map[String, String] = getStoredReferer(session) match {
 		case Some(referer) if (protocolConfiguration.automaticRefererEnabled && !headers.contains(Headers.Names.REFERER)) => headers + (Headers.Names.REFERER -> referer)
@@ -36,6 +36,6 @@ object RefererHandling {
 
 		def isRealPage(request: Request): Boolean = !request.getHeaders.containsKey(Headers.Names.X_REQUESTED_WITH) && Option(request.getHeaders.get(Headers.Names.ACCEPT)).map(_.get(0).contains("html")).getOrElse(false)
 
-		if (protocolConfiguration.automaticRefererEnabled && isRealPage(request)) session.set(REFERER_CONTEXT_KEY, request.getUrl) else session
+		if (protocolConfiguration.automaticRefererEnabled && isRealPage(request)) session.set(refererAttributeName, request.getUrl) else session
 	}
 }

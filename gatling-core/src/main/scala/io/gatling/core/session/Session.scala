@@ -22,17 +22,17 @@ import io.gatling.core.util.TypeHelper
 import io.gatling.core.validation.{ Failure, FailureWrapper, Success, Validation }
 
 /**
- * Session class companion
+ * Private Gatling Session attributes
  */
-object Session {
+object SessionPrivateAttributes {
 
-	val GATLING_PRIVATE_ATTRIBUTE_PREFIX = "gatling."
+	val privateAttributePrefix = "gatling."
 
-	val TIME_SHIFT_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.timeShift"
+	val timeShift = privateAttributePrefix + "core.timeShift"
 
-	val FAILED_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.failed"
+	val failed = privateAttributePrefix + "core.failed"
 
-	val MUST_EXIT_ON_FAIL_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.mustExitOnFailed"
+	val mustExitOnFail = privateAttributePrefix + "core.mustExitOnFailed"
 }
 
 /**
@@ -69,23 +69,23 @@ case class Session(scenarioName: String, userId: Int, attributes: Map[String, An
 
 	def contains(attributeKey: String) = attributes.contains(attributeKey)
 
-	def setFailed: Session = set(Session.FAILED_KEY, "true")
+	def setFailed: Session = set(SessionPrivateAttributes.failed, java.lang.Boolean.TRUE.toString)
 
-	def clearFailed: Session = remove(Session.FAILED_KEY)
+	def clearFailed: Session = remove(SessionPrivateAttributes.failed)
 
-	def isFailed: Boolean = contains(Session.FAILED_KEY)
+	def isFailed: Boolean = contains(SessionPrivateAttributes.failed)
 
-	def setMustExitOnFail: Session = set(Session.MUST_EXIT_ON_FAIL_KEY, "true")
+	def setMustExitOnFail: Session = set(SessionPrivateAttributes.timeShift, java.lang.Boolean.TRUE.toString)
 
-	def isMustExitOnFail: Boolean = contains(Session.MUST_EXIT_ON_FAIL_KEY)
+	def isMustExitOnFail: Boolean = contains(SessionPrivateAttributes.timeShift)
 
-	def clearMustExitOnFail: Session = remove(Session.MUST_EXIT_ON_FAIL_KEY)
+	def clearMustExitOnFail: Session = remove(SessionPrivateAttributes.timeShift)
 
 	def shouldExitBecauseFailed: Boolean = isFailed && isMustExitOnFail
 
-	private[gatling] def setTimeShift(timeShift: Long): Session = set(Session.TIME_SHIFT_KEY, timeShift)
+	private[gatling] def setTimeShift(timeShift: Long): Session = set(SessionPrivateAttributes.timeShift, timeShift)
 
 	private[gatling] def increaseTimeShift(time: Long): Session = setTimeShift(time + getTimeShift)
 
-	private[gatling] def getTimeShift: Long = get[Long](Session.TIME_SHIFT_KEY).getOrElse(0L)
+	private[gatling] def getTimeShift: Long = get(SessionPrivateAttributes.timeShift).getOrElse(0L)
 }

@@ -17,18 +17,18 @@ package io.gatling.http.cookie
 
 import java.net.URI
 
-import io.gatling.core.session.Session
-import io.gatling.core.session.Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX
-import io.gatling.core.validation.Success
 import com.ning.http.client.Cookie
+
+import io.gatling.core.session.{ Session, SessionPrivateAttributes }
+import io.gatling.core.validation.Success
 
 object CookieHandling {
 
-	val COOKIES_CONTEXT_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "http.cookies"
+	val cookieJarAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.cookies"
 
 	def getStoredCookies(session: Session, url: String): List[Cookie] = {
 
-		session.safeGet[CookieJar](COOKIES_CONTEXT_KEY) match {
+		session.safeGet[CookieJar](cookieJarAttributeName) match {
 			case Success(cookieJar) => cookieJar.get(URI.create(url))
 			case _ => Nil
 		}
@@ -36,9 +36,9 @@ object CookieHandling {
 
 	def storeCookies(session: Session, uri: URI, cookies: List[Cookie]): Session = {
 		if (!cookies.isEmpty) {
-			session.safeGet[CookieJar](COOKIES_CONTEXT_KEY) match {
-				case Success(cookieJar) => session.set(COOKIES_CONTEXT_KEY, cookieJar.add(uri, cookies))
-				case _ => session.set(COOKIES_CONTEXT_KEY, CookieJar(uri, cookies))
+			session.safeGet[CookieJar](cookieJarAttributeName) match {
+				case Success(cookieJar) => session.set(cookieJarAttributeName, cookieJar.add(uri, cookies))
+				case _ => session.set(cookieJarAttributeName, CookieJar(uri, cookies))
 			}
 		} else
 			session
