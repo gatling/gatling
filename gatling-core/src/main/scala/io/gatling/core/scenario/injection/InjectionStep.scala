@@ -16,7 +16,7 @@
 package io.gatling.core.scenario.injection
 
 import scala.concurrent.duration.{ DurationLong, FiniteDuration }
-import scala.math.{ pow, sqrt }
+import scala.math.{ abs, pow, sqrt }
 
 trait InjectionStep {
 	/**
@@ -27,7 +27,7 @@ trait InjectionStep {
 	/**
 	 * Number of users to inject
 	 */
-	val users: Int
+	def users: Int
 }
 
 /**
@@ -105,10 +105,9 @@ case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: In
 	private val stepUsers = step.users
 
 	val users = {
-		if (possibleUsers > stepUsers) {
-			val separatorUsers = separator.users
-			possibleUsers - (possibleUsers - stepUsers) % (stepUsers + separatorUsers)
-		} else 0
+		if (possibleUsers > stepUsers)
+			possibleUsers - (possibleUsers - stepUsers) % (stepUsers + separator.users)
+		else 0
 	}
 
 	override def chain(iterator: Iterator[FiniteDuration]) = {
@@ -133,7 +132,6 @@ case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: In
  */
 case class DiracInjection(users: Int, duration: FiniteDuration) extends InjectionStep {
 	import io.gatling.core.math.Erf.erfinv
-	import scala.math.abs
 
 	override def chain(iterator: Iterator[FiniteDuration]) = {
 		def heavisideInv(u: Double) = {
