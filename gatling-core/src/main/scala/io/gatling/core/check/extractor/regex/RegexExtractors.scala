@@ -35,7 +35,7 @@ object RegexExtractors {
 
 	def extract(string: String, pattern: String): Seq[String] = cachedRegex(pattern).findAllIn(string).matchData.map { matcher =>
 		new String(matcher.group(1 min matcher.groupCount))
-	}.toList
+	}.toList // very important: Iterator.toSeq produces a Stream, so map function is only evaluated lazily and the original byte array can't be GCed.
 
 	def extractOne(occurrence: Int) = new RegexExtractor[String] {
 
