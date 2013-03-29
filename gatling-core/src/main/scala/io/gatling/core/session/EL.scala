@@ -30,7 +30,7 @@ case class StaticPart(string: String) extends Part[String] {
 }
 
 case class AttributePart(name: String) extends Part[Any] {
-	def resolve(session: Session): Validation[Any] = session.safeGet(name)
+	def resolve(session: Session): Validation[Any] = session.safeGet[Any](name)
 }
 
 case class SeqSizePart(name: String) extends Part[Int] {
