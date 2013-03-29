@@ -22,7 +22,7 @@ import akka.actor.ActorRef
 object TryMax {
 
 	def apply(times: Int, next: ActorRef, counterName: String): While = {
-		val continueCondition = (s: Session) => s.safeGetAs[Int](counterName).map(counterValue => counterValue == 0 || (s.isFailed && counterValue < times))
+		val continueCondition = (s: Session) => s.safeGet[Int](counterName).map(counterValue => counterValue == 0 || (s.isFailed && counterValue < times))
 		new While(continueCondition, counterName, next)
 	}
 }

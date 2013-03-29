@@ -56,7 +56,7 @@ object SomeScenario {
 						.headers(headers_8))
 				.pause(6, 7)
 		}
-		.doIf(session => session.get("username") != "user7") {
+		.doIf(session => session("username") != "user7") {
 			exec(
 				http("request_9")
 					.get("/logout")

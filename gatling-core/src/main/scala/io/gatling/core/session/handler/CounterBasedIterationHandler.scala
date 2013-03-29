@@ -33,7 +33,7 @@ trait CounterBasedIterationHandler extends Logging {
 		if (session.contains(counterName)) session
 		else session.set(counterName, -1)
 
-	def increment(session: Session) = session.safeGetAs[Int](counterName) match {
+	def increment(session: Session) = session.safeGet[Int](counterName) match {
 		case Success(currentValue) =>
 			session.set(counterName, currentValue + 1)
 		case Failure(message) =>

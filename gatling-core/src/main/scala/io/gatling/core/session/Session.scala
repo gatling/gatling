@@ -17,15 +17,14 @@ package io.gatling.core.session
 
 import scala.reflect.ClassTag
 
-import io.gatling.core.util.TypeHelper
-import io.gatling.core.validation.{ FailureWrapper, Validation }
-
 import grizzled.slf4j.Logging
+import io.gatling.core.util.TypeHelper
+import io.gatling.core.validation.{ Failure, FailureWrapper, Success, Validation }
 
 /**
  * Session class companion
  */
-object Session extends Logging {
+object Session {
 
 	val GATLING_PRIVATE_ATTRIBUTE_PREFIX = "gatling."
 
@@ -34,7 +33,6 @@ object Session extends Logging {
 	val FAILED_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.failed"
 
 	val MUST_EXIT_ON_FAIL_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "core.mustExitOnFailed"
-
 }
 
 /**
@@ -47,15 +45,21 @@ object Session extends Logging {
  * @param userId the id of the current user
  * @param data the map that stores all values needed
  */
-case class Session(scenarioName: String, userId: Int, attributes: Map[String, Any] = Map.empty) {
+case class Session(scenarioName: String, userId: Int, attributes: Map[String, Any] = Map.empty) extends Logging {
 
 	def apply(name: String) = attributes(name)
 
-	def get(key: String): Option[Any] = attributes.get(key)
+	def get[T: ClassTag](key: String): Option[T] = attributes.get(key).flatMap {
+		TypeHelper.as[T](_) match {
+			case Success(typedValue) =>
+				Some(typedValue)
+			case Failure(message) =>
+				error(s"Could find value of key $key but wrong type: $message")
+				None
+		}
+	}
 
-	def getAs[T](key: String): Option[T] = attributes.get(key).map(_.asInstanceOf[T])
-
-	def safeGetAs[T: ClassTag](key: String): Validation[T] = attributes.get(key).map(TypeHelper.as[T](_)).getOrElse(undefinedSessionAttributeMessage(key).failure[T])
+	def safeGet[T: ClassTag](key: String): Validation[T] = attributes.get(key).map(TypeHelper.as[T](_)).getOrElse(undefinedSessionAttributeMessage(key).failure[T])
 
 	def set(newAttributes: Map[String, Any]) = copy(attributes = attributes ++ newAttributes)
 
@@ -65,13 +69,13 @@ case class Session(scenarioName: String, userId: Int, attributes: Map[String, An
 
 	def contains(attributeKey: String) = attributes.contains(attributeKey)
 
-	def setFailed: Session = set(Session.FAILED_KEY, "")
+	def setFailed: Session = set(Session.FAILED_KEY, "true")
 
 	def clearFailed: Session = remove(Session.FAILED_KEY)
 
 	def isFailed: Boolean = contains(Session.FAILED_KEY)
 
-	def setMustExitOnFail: Session = set(Session.MUST_EXIT_ON_FAIL_KEY, "")
+	def setMustExitOnFail: Session = set(Session.MUST_EXIT_ON_FAIL_KEY, "true")
 
 	def isMustExitOnFail: Boolean = contains(Session.MUST_EXIT_ON_FAIL_KEY)
 
@@ -83,5 +87,5 @@ case class Session(scenarioName: String, userId: Int, attributes: Map[String, An
 
 	private[gatling] def increaseTimeShift(time: Long): Session = setTimeShift(time + getTimeShift)
 
-	private[gatling] def getTimeShift: Long = getAs[Long](Session.TIME_SHIFT_KEY).getOrElse(0L)
+	private[gatling] def getTimeShift: Long = get[Long](Session.TIME_SHIFT_KEY).getOrElse(0L)
 }

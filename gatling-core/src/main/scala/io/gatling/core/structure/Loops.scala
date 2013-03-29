@@ -65,7 +65,7 @@ trait Loops[B] extends Execs[B] with Logging {
 
 		def continueCondition(session: Session) = {
 			for {
-				counterValue <- session.safeGetAs[Int](counter)
+				counterValue <- session.safeGet[Int](counter)
 				timesValue <- times(session)
 			} yield counterValue < timesValue
 		}
@@ -95,7 +95,7 @@ trait Loops[B] extends Execs[B] with Logging {
 	def foreach(seq: Expression[Seq[Any]], attributeName: String, counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
 		val setNextValueInSession = new SessionHookBuilder(session => {
 			val nextValue = for {
-				counterValue <- session.safeGetAs[Int](counterName)
+				counterValue <- session.safeGet[Int](counterName)
 				seq <- seq(session)
 			} yield seq(counterValue)
 
@@ -107,7 +107,7 @@ trait Loops[B] extends Execs[B] with Logging {
 
 		val continueCondition = (session: Session) =>
 			for {
-				counterValue <- session.safeGetAs[Int](counterName)
+				counterValue <- session.safeGet[Int](counterName)
 				seq <- seq(session)
 			} yield seq.isDefinedAt(counterValue)
 

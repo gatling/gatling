@@ -32,7 +32,7 @@ object TimerBasedIterationHandler {
 
 	def getTimerAttributeName(counterName: String) = TIMER_KEY_PREFIX + counterName
 
-	def getTimer(session: Session, counterName: String): Validation[Long] = session.safeGetAs[Long](getTimerAttributeName(counterName))
+	def getTimer(session: Session, counterName: String): Validation[Long] = session.safeGet[Long](getTimerAttributeName(counterName))
 }
 
 /**
