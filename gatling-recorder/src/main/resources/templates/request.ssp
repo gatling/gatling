@@ -7,26 +7,27 @@
 <%@ val id: Int %>
 <%@ val credentials: Option[(String,String)] %>
 <%@ val simulationClass: String %>
-exec(http("request_<%= id %>")
-					.<%= method.toLowerCase %>("<%= printedUrl %>")
+exec(
+			http("request_${id}")
+				.<%= method.toLowerCase %>("${printedUrl}")
 <% headersId.map { headersId => %>
-					.headers(headers_<%= headersId %>)
+				.headers(headers_${headersId})
 <% } %>
 <% for (queryParam <- queryParams) { %>
-					.queryParam("""<%= queryParam._1 %>""", """<%= queryParam._2 %>""")
+				.queryParam("""${queryParam._1}""", """${queryParam._2}""")
 <% } %>
 <% requestBodyOrParams.map { _ match {
-		case Left(_) => %>
-						.rawFileBody("<%= simulationClass %>_request_<%= id %>.txt")
-<%		case Right(params) => params.foreach { case(key, value) => %>
-						.param("""<%= key %>""", """<%= value %>""")
-<% 				} %>
+	case Left(_) => %>
+				.rawFileBody("${simulationClass}_request_${id}.txt")
+<%	case Right(params) => params.foreach { case(key, value) => %>
+				.param("""${key}""", """${value}""")
 <% 		} %>
+<% 	} %>
 <% } %>
 <% credentials.map { case (username, password) => %>
-					.basicAuth("""<%= username %>""","""<%= password %>""")
+				.basicAuth("""${username}""","""${password}""")
 <% } %>
 <% if(statusCode > 210 || statusCode < 200){ %>
-					.check(status.is(<%= statusCode %>))
+				.check(status.is(${statusCode}))
 <% } %>
-			)
+		)
