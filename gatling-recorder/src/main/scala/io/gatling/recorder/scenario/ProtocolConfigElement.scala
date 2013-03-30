@@ -35,7 +35,7 @@ object ProtocolConfigElement {
 class ProtocolConfigElement(baseUrl: String, followRedirect: Boolean, automaticReferer: Boolean, baseHeaders: Map[String, String]) extends ScenarioElement with Logging {
 
 	override def toString = {
-		val indent = "\t\t\t"
+		val indent = "\t\t"
 
 		val sb = new StringBuilder
 
