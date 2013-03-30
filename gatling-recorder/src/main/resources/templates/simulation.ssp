@@ -4,8 +4,15 @@
 <%@ val simulationClassName: String %>
 <%@ val packageName: String %>
 <%@ val scenarioElements: Either[List[io.gatling.recorder.scenario.ScenarioElement], List[List[io.gatling.recorder.scenario.ScenarioElement]]] %>
-<% if(!packageName.isEmpty) { %>package <%= packageName %> <% } %>
+<% if(!packageName.isEmpty) { %>package ${packageName} <% } %>
 
+
+<% def printHeaders(headers: List[(String,String)], isMultiLine: Boolean) = {
+	val start = if(isMultiLine) "\n" else ""
+	val indent = if(isMultiLine) "\t" * 3 else ""
+	start + (for ( headerElem <- headers ) yield indent + "\"" + headerElem._1 + "\" -> \"\"\"" + headerElem._2 + "\"\"\"").mkString(",\n")
+	}
+%>
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.jdbc.Predef._
@@ -19,16 +26,18 @@ class <%= simulationClassName %> extends Simulation {
 	val httpConf = httpConfig
 <%= protocolConfig %>
 
-<% for( header <- headers ) { %>			 
-	val headers_<%= header._1 %> = Map(
-<%= (for { headerElem <- header._2 } yield "\t\t\t\"" + headerElem._1 + "\" -> \"\"\"" + headerElem._2 + "\"\"\"").mkString(",\n") %>
-	)
+<% for( header <- headers ) { %>
+	<% val isMultiLine = header._2.size != 1 %>
+	val headers_${header._1} = Map(${printHeaders(header._2, isMultiLine)}<% if(!isMultiLine) { %>)<%}%>
 
+<% if(isMultiLine) { %>
+		)
 <% } %>
 
+<% } %>
 <% scenarioElements match {%>
 <% case Left(elements) =>%>
-	val scn = scenario("<%= scenarioName %>")
+	val scn = scenario("${scenarioName}")
 <% for (element <- elements) {%>
 		<%if (!element.isInstanceOf[io.gatling.recorder.scenario.TagElement]){%>.<%}%><%=element%>
 <%}%>
@@ -41,14 +50,10 @@ class <%= simulationClassName %> extends Simulation {
 <%if (firstNonTagElement) firstNonTagElement=false else {%>.<%}%>
 <%}%><%=element%>
 <%}%>
+
 <%}%>
 
-	val scn = scenario("<%= scenarioName %>")
-		.exec(
-<% for ((chain, i) <- chains.zipWithIndex) {%>
-			chain_<%=i%><%if (chain != chains.last) {%>,<%}%>
-<%}%>
-		)
+	val scn = scenario("${scenarioName}").exec(<% for ((chain, i) <- chains.zipWithIndex) {%>chain_${i}<%if (chain != chains.last) {%>,<%}%><%}%>)
 <%}%>
 
 	setUp(scn.inject(atOnce(1 user)).protocolConfig(httpConf))
