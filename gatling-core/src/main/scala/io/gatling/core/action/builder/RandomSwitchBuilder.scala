@@ -16,19 +16,12 @@
 package io.gatling.core.action.builder
 
 import scala.annotation.tailrec
+import scala.concurrent.forkjoin.ThreadLocalRandom
 
-import org.apache.commons.math3.random.RandomDataGenerator
-
+import akka.actor.{ ActorRef, Props }
 import io.gatling.core.action.{ Switch, system }
 import io.gatling.core.config.ProtocolConfigurationRegistry
 import io.gatling.core.structure.ChainBuilder
-
-import akka.actor.{ ActorRef, Props }
-
-object RandomSwitchBuilder {
-
-	private val randomData = new RandomDataGenerator
-}
 
 class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)]) extends ActionBuilder {
 
@@ -54,7 +47,7 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)]) extends Acti
 						determineNextAction(index - percentage, others)
 			}
 
-			determineNextAction(RandomSwitchBuilder.randomData.nextInt(1, 100), possibleActions)
+			determineNextAction(ThreadLocalRandom.current.nextInt(1, 101), possibleActions)
 		}
 
 		system.actorOf(Props(new Switch(strategy, next)))
