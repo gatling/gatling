@@ -42,7 +42,7 @@ class Pause(generateDelayInMillis: Expression[Long], val next: ActorRef) extends
 
 		val resolvedDurationInMillis = generateDelayInMillis(session)
 		resolvedDurationInMillis match {
-			case Success(durationInMillis) => {
+			case Success(durationInMillis) =>
 				val timeShift = session.getTimeShift
 
 				if (durationInMillis > timeShift) {
@@ -62,7 +62,6 @@ class Pause(generateDelayInMillis: Expression[Long], val next: ActorRef) extends
 					info(s"can't pause (remaining time shift=${remainingTimeShift}ms)")
 					next ! session.setTimeShift(remainingTimeShift)
 				}
-			}
 
 			case Failure(msg) => error(msg); next ! session
 		}
