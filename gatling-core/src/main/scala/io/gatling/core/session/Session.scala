@@ -75,11 +75,11 @@ case class Session(scenarioName: String, userId: Int, attributes: Map[String, An
 
 	def isFailed: Boolean = contains(SessionPrivateAttributes.failed)
 
-	def setMustExitOnFail: Session = set(SessionPrivateAttributes.timeShift, java.lang.Boolean.TRUE.toString)
+	def setMustExitOnFail: Session = set(SessionPrivateAttributes.mustExitOnFail, java.lang.Boolean.TRUE.toString)
 
-	def isMustExitOnFail: Boolean = contains(SessionPrivateAttributes.timeShift)
+	def isMustExitOnFail: Boolean = contains(SessionPrivateAttributes.mustExitOnFail)
 
-	def clearMustExitOnFail: Session = remove(SessionPrivateAttributes.timeShift)
+	def clearMustExitOnFail: Session = remove(SessionPrivateAttributes.mustExitOnFail)
 
 	def shouldExitBecauseFailed: Boolean = isFailed && isMustExitOnFail
 
@@ -87,5 +87,5 @@ case class Session(scenarioName: String, userId: Int, attributes: Map[String, An
 
 	private[gatling] def increaseTimeShift(time: Long): Session = setTimeShift(time + getTimeShift)
 
-	private[gatling] def getTimeShift: Long = get(SessionPrivateAttributes.timeShift).getOrElse(0L)
+	private[gatling] def getTimeShift: Long = get[Long](SessionPrivateAttributes.timeShift).getOrElse(0L)
 }

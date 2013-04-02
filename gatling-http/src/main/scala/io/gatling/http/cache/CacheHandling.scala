@@ -69,5 +69,5 @@ object CacheHandling extends Logging {
 			session
 	}
 
-	private def getCache(session: Session): Set[String] = session.get(httpCacheAttributeName).getOrElse(Set.empty)
+	private def getCache(session: Session): Set[String] = session.get[Set[String]](httpCacheAttributeName).getOrElse(Set.empty)
 }
