@@ -28,7 +28,7 @@ case class Success[T](value: T) extends Validation[T] {
 }
 
 case class Failure[T](message: String) extends Validation[T] {
-	def map[A](f: T => A): Validation[A] = Failure(message)
-	def flatMap[A](f: T => Validation[A]): Validation[A] = Failure(message)
+	def map[A](f: T => A): Validation[A] = this.asInstanceOf[Validation[A]]
+	def flatMap[A](f: T => Validation[A]): Validation[A] = this.asInstanceOf[Validation[A]]
 	def mapError(f: String => String): Validation[T] = Failure(f(message))
 }
