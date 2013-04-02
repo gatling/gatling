@@ -62,6 +62,9 @@
 					<excludes>
 						<exclude>src/main/scala/org/jboss/**</exclude>
 						<exclude>src/main/resources/**</exclude>
+						<exclude>**/*.ssp</exclude>
+						<exclude>**/.cache</exclude>
+						<exclude>**/.keep</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
