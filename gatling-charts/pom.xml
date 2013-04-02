@@ -50,7 +50,7 @@
 				<configuration>
 					<excludes>
 						<!-- Removing gatling-charts's dummy ComponentLibrary -->
-						<exclude>**/com/excilys/ebi/gatling/charts/component/impl/*</exclude>
+						<exclude>**/io/gatling/charts/component/impl/*</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
