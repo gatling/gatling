@@ -35,7 +35,7 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)]) extends Acti
 				(percentage, possibilityAction)
 		}
 
-		val strategy = () => {
+		val nextAction = () => {
 
 			@tailrec
 			def determineNextAction(index: Int, possibilities: List[(Int, ActorRef)]): ActorRef = possibilities match {
@@ -50,6 +50,6 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)]) extends Acti
 			determineNextAction(ThreadLocalRandom.current.nextInt(1, 101), possibleActions)
 		}
 
-		system.actorOf(Props(new Switch(strategy, next)))
+		system.actorOf(Props(new Switch(nextAction, next)))
 	}
 }

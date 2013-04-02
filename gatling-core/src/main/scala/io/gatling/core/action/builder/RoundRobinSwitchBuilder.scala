@@ -32,8 +32,8 @@ class RoundRobinSwitchBuilder(possibilities: List[ChainBuilder]) extends ActionB
 
 		val rr = RoundRobin(possibleActions)
 
-		val strategy = () => rr.next
+		val nextAction = () => rr.next
 
-		system.actorOf(Props(new Switch(strategy, next)))
+		system.actorOf(Props(new Switch(nextAction, next)))
 	}
 }

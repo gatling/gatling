@@ -19,12 +19,10 @@ import io.gatling.core.session.Session
 
 import akka.actor.ActorRef
 
-class Switch(strategy: () => ActorRef, val next: ActorRef) extends Bypassable {
+class Switch(nextAction: () => ActorRef, val next: ActorRef) extends Bypassable {
 
 	def execute(session: Session) {
-
-		val nextAction = strategy()
-		nextAction ! session
+		nextAction() ! session
 	}
 }
 
