@@ -77,28 +77,25 @@ class GatlingAsyncHandlerActor(
 
 	var responseBuilder = responseBuilderFactory(request, originalSession)
 
-	resetTimeout
+	override def preStart {
+		context.setReceiveTimeout(GatlingAsyncHandlerActor.timeout)
+	}
 
 	def receive = {
 		case OnHeaderWriteCompleted(nanos) =>
-			resetTimeout
 			responseBuilder.updateRequestSendingEndDate(nanos)
 
 		case OnContentWriteCompleted(nanos) =>
-			resetTimeout
 			responseBuilder.updateRequestSendingEndDate(nanos)
 
 		case OnStatusReceived(status, nanos) =>
-			resetTimeout
 			responseBuilder.updateResponseReceivingStartDate(nanos)
 			responseBuilder.accumulate(status)
 
 		case OnHeadersReceived(headers) =>
-			resetTimeout
 			responseBuilder.accumulate(headers)
 
 		case OnBodyPartReceived(bodyPart) =>
-			resetTimeout
 			responseBuilder.accumulate(bodyPart)
 
 		case OnCompleted(nanos) =>
@@ -116,8 +113,6 @@ class GatlingAsyncHandlerActor(
 			logRequest(originalSession, KO, response, Some("GatlingAsyncHandlerActor timed out"))
 			executeNext(originalSession.setFailed, response)
 	}
-
-	def resetTimeout = context.setReceiveTimeout(GatlingAsyncHandlerActor.timeout)
 
 	private def logRequest(
 		session: Session,
