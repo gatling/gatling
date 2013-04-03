@@ -46,7 +46,9 @@ object GatlingConfiguration extends Logging {
 				runDescription = config.getString(CONF_SIMULATION_RUN_DESCRIPTION),
 				encoding = config.getString(CONF_SIMULATION_ENCODING),
 				clazz = trimToOption(config.getString(CONF_SIMULATION_CLASS)),
-				cacheRegex = config.getBoolean(CONF_SIMULATION_CACHE_REGEX)),
+				cacheRegex = config.getBoolean(CONF_SIMULATION_CACHE_REGEX),
+				cacheXPath = config.getBoolean(CONF_SIMULATION_CACHE_XPATH),
+				cacheJsonPath = config.getBoolean(CONF_SIMULATION_CACHE_JSONPATH)),
 			timeOut = TimeOutConfiguration(
 				simulation = config.getInt(CONF_TIME_OUT_SIMULATION),
 				actor = config.getInt(CONF_TIME_OUT_ACTOR)),
@@ -138,7 +140,9 @@ case class SimulationConfiguration(
 	runDescription: String,
 	encoding: String,
 	clazz: Option[String],
-	cacheRegex: Boolean)
+	cacheRegex: Boolean,
+	cacheXPath: Boolean,
+	cacheJsonPath: Boolean)
 
 case class TimeOutConfiguration(
 	simulation: Int,

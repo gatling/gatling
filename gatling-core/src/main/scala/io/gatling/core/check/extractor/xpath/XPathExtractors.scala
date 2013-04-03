@@ -18,6 +18,7 @@ package io.gatling.core.check.extractor.xpath
 import java.io.{ InputStream, StringReader }
 
 import scala.collection.JavaConversions.asScalaBuffer
+import scala.collection.mutable
 
 import org.jaxen.dom.DOMXPath
 import org.w3c.dom.{ Document, Node }
@@ -25,6 +26,7 @@ import org.xml.sax.{ EntityResolver, InputSource }
 
 import io.gatling.core.check.Extractor
 import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
@@ -65,6 +67,9 @@ object XPathExtractors {
 		xpathExpression
 	}
 
+	val cache = mutable.Map.empty[String, DOMXPath]
+	def cachedXPath(expression: String, namespaces: List[(String, String)]) = if (configuration.simulation.cacheXPath) cache.getOrElseUpdate(expression + namespaces, xpath(expression, namespaces)) else xpath(expression, namespaces)
+
 	abstract class XPathExtractor[X] extends Extractor[Option[Document], String, X] {
 		val name = "xpath"
 	}
@@ -74,7 +79,7 @@ object XPathExtractors {
 		def apply(prepared: Option[Document], criterion: String): Validation[Option[String]] = {
 
 			val result = for {
-				results <- prepared.map(xpath(criterion, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]]) if (results.size > occurrence)
+				results <- prepared.map(cachedXPath(criterion, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]]) if (results.size > occurrence)
 				result = results.get(occurrence).getTextContent
 			} yield result
 
@@ -85,11 +90,11 @@ object XPathExtractors {
 	val extractMultiple = (namespaces: List[(String, String)]) => new XPathExtractor[Seq[String]] {
 
 		def apply(prepared: Option[Document], criterion: String): Validation[Option[Seq[String]]] =
-			prepared.flatMap(xpath(criterion, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]].map(_.getTextContent).liftSeqOption).success
+			prepared.flatMap(cachedXPath(criterion, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]].map(_.getTextContent).liftSeqOption).success
 	}
 
 	val count = (namespaces: List[(String, String)]) => new XPathExtractor[Int] {
 
-		def apply(prepared: Option[Document], criterion: String): Validation[Option[Int]] = prepared.map(xpath(criterion, namespaces).selectNodes(_).size).success
+		def apply(prepared: Option[Document], criterion: String): Validation[Option[Int]] = prepared.map(cachedXPath(criterion, namespaces).selectNodes(_).size).success
 	}
 }

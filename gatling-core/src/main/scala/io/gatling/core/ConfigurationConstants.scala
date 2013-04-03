@@ -22,6 +22,8 @@ object ConfigurationConstants {
 	val CONF_SIMULATION_ENCODING = "gatling.simulation.encoding"
 	val CONF_SIMULATION_CLASS = "gatling.simulation.class"
 	val CONF_SIMULATION_CACHE_REGEX = "gatling.simulation.cacheRegex"
+	val CONF_SIMULATION_CACHE_XPATH = "gatling.simulation.cacheXPath"
+	val CONF_SIMULATION_CACHE_JSONPATH = "gatling.simulation.cacheJsonPath"
 
 	val CONF_TIME_OUT_SIMULATION = "gatling.timeOut.simulation"
 	val CONF_TIME_OUT_ACTOR = "gatling.timeOut.actor"

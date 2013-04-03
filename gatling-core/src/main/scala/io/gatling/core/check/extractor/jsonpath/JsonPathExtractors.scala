@@ -16,9 +16,11 @@
 package io.gatling.core.check.extractor.jsonpath
 
 import scala.collection.JavaConversions.asScalaBuffer
+import scala.collection.mutable
 
 import io.gatling.core.check.Extractor
 import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object JsonPathExtractors {
@@ -26,6 +28,9 @@ object JsonPathExtractors {
 	abstract class JsonPathExtractor[X] extends Extractor[Option[JsonNode], String, X] {
 		val name = "jsonPath"
 	}
+
+	val cache = mutable.Map.empty[String, JsonPath]
+	def cachedXPath(expression: String) = if (configuration.simulation.cacheJsonPath) cache.getOrElseUpdate(expression, new JsonPath(expression)) else new JsonPath(expression)
 
 	private def extractAll(json: Option[JsonNode], expression: String): Option[Seq[String]] = json.map(new JsonPath(expression).selectNodes(_).map(_.asInstanceOf[JsonText].value))
 
