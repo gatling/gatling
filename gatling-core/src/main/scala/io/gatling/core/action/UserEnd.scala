@@ -32,7 +32,7 @@ class UserEnd extends Action {
 	def execute(session: Session) {
 
 		DataWriter.user(session.scenarioName, session.userId, End)
-		info(s"End user #${session.userId}")
+		logger.info(s"End user #${session.userId}")
 
 		Terminator.endUser
 	}

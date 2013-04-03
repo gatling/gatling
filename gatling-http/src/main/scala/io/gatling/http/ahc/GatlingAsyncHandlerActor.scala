@@ -124,7 +124,7 @@ class GatlingAsyncHandlerActor(
 			buff.append("response was:").append(eol)
 			response.dumpTo(buff)
 			buff.append(eol).append("<<<<<<<<<<<<<<<<<<<<<<<<<")
-			buff
+			buff.toString
 		}
 
 		/**
@@ -138,15 +138,15 @@ class GatlingAsyncHandlerActor(
 				protocolConfiguration.extraInfoExtractor.map(_(requestStatus, session, request, response)).getOrElse(Nil)
 			} catch {
 				case e: Exception =>
-					warn("Encountered error while extracting extra request info", e)
+					logger.warn("Encountered error while extracting extra request info", e)
 					Nil
 			}
 
 		if (requestStatus == KO) {
-			warn(s"Request '$requestName' failed : ${errorMessage.getOrElse("")}")
-			if (!isTraceEnabled) debug(dump)
+			logger.warn(s"Request '$requestName' failed : ${errorMessage.getOrElse("")}")
+			if (!logger.underlying.isTraceEnabled) logger.debug(dump)
 		}
-		trace(dump)
+		logger.trace(dump)
 
 		DataWriter.logRequest(session.scenarioName, session.userId, requestName,
 			response.executionStartDate, response.requestSendingEndDate, response.responseReceivingStartDate, response.executionEndDate,

@@ -22,6 +22,8 @@ import scala.concurrent.Await
 
 import org.joda.time.DateTime.now
 
+import com.typesafe.scalalogging.slf4j.Logging
+
 import io.gatling.core.action.{ AkkaDefaults, system }
 import io.gatling.core.action.system.dispatcher
 import io.gatling.core.config.GatlingConfiguration.configuration
@@ -29,8 +31,6 @@ import io.gatling.core.result.message.RunRecord
 import io.gatling.core.result.terminator.Terminator
 import io.gatling.core.result.writer.DataWriter
 import io.gatling.core.scenario.configuration.Simulation
-
-import grizzled.slf4j.Logging
 
 class Runner(selection: Selection) extends AkkaDefaults with Logging {
 
@@ -50,7 +50,7 @@ class Runner(selection: Selection) extends AkkaDefaults with Logging {
 			require(scenarioNames.toSet.size == scenarioNames.size, s"Scenario names must be unique but found $scenarioNames")
 
 			val totalNumberOfUsers = scenarios.map(_.configuration.users).sum
-			info(s"Total number of users : $totalNumberOfUsers")
+			logger.info(s"Total number of users : $totalNumberOfUsers")
 
 			val terminatorLatch = new CountDownLatch(1)
 
@@ -60,13 +60,13 @@ class Runner(selection: Selection) extends AkkaDefaults with Logging {
 
 			Await.result(init, defaultTimeOut.duration)
 
-			debug("Launching All Scenarios")
+			logger.debug("Launching All Scenarios")
 
 			scenarios.foldLeft(0) { (i, scenario) =>
 				scenario.run(i)
 				i + scenario.configuration.users
 			}
-			debug("Finished Launching scenarios executions")
+			logger.debug("Finished Launching scenarios executions")
 
 			terminatorLatch.await(configuration.timeOut.simulation, SECONDS)
 			println("Simulation finished.")

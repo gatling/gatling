@@ -27,7 +27,7 @@ class Group(groupName: Expression[String], event: RecordEvent, val next: ActorRe
 	def execute(session: Session) {
 		val resolvedGroupName = groupName(session) match {
 			case Success(name) => name
-			case Failure(message) => error(s"Could not resolve group name: $message"); "no-group-name"
+			case Failure(message) => logger.error(s"Could not resolve group name: $message"); "no-group-name"
 		}
 
 		DataWriter.group(session.scenarioName, resolvedGroupName, session.userId, event)

@@ -26,7 +26,7 @@ class UserStart(val next: ActorRef) extends Chainable {
 	def execute(session: Session) {
 
 		DataWriter.user(session.scenarioName, session.userId, Start)
-		info(s"Start user #${session.userId}")
+		logger.info(s"Start user #${session.userId}")
 		next ! session
 	}
 }

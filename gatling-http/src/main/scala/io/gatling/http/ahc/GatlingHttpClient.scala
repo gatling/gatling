@@ -18,12 +18,12 @@ package io.gatling.http.ahc
 import java.io.{ File, FileInputStream }
 import java.security.{ KeyStore, SecureRandom }
 
+import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig }
+import com.typesafe.scalalogging.slf4j.Logging
+
 import io.gatling.core.action.system
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.IOHelper.withCloseable
-import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig }
-
-import grizzled.slf4j.Logging
 import javax.net.ssl.{ KeyManagerFactory, SSLContext, TrustManagerFactory }
 
 object GatlingHttpClient extends Logging {
@@ -40,7 +40,7 @@ object GatlingHttpClient extends Logging {
 			setDefaultFactoryMethod.invoke(null, nettySlf4JLoggerFactoryInstance.asInstanceOf[AnyRef])
 
 		} catch {
-			case e: Exception => info("Netty logger wasn't set up", e)
+			case e: Exception => logger.info("Netty logger wasn't set up", e)
 		}
 
 		val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()

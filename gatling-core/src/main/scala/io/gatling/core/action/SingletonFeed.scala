@@ -33,7 +33,7 @@ class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
 
 		def pollRecord(): Record[T] = {
 			if (!feeder.hasNext) {
-				error("Feeder is now empty, stopping engine")
+				logger.error("Feeder is now empty, stopping engine")
 				Terminator.forceTermination
 			}
 
@@ -52,7 +52,7 @@ class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
 
 		val newSession = number(session).flatMap(injectRecords) match {
 			case Success(newSession) => newSession
-			case Failure(message) => error(message); session
+			case Failure(message) => logger.error(message); session
 		}
 
 		next ! newSession

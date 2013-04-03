@@ -23,9 +23,7 @@ import scala.tools.nsc.io.Path.string2path
 
 import io.gatling.core.scenario.configuration.Simulation
 
-import grizzled.slf4j.Logging
-
-object SimulationClassLoader extends Logging {
+object SimulationClassLoader {
 
 	def fromSourcesDirectory(sourceDirectory: Directory): SimulationClassLoader = {
 

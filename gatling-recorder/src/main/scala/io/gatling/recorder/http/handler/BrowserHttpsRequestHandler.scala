@@ -21,12 +21,12 @@ import org.jboss.netty.channel.{ ChannelFuture, ChannelHandlerContext }
 import org.jboss.netty.handler.codec.http.{ DefaultHttpResponse, HttpMethod, HttpRequest, HttpResponseStatus, HttpVersion }
 import org.jboss.netty.handler.ssl.SslHandler
 
+import com.typesafe.scalalogging.slf4j.Logging
+
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.channel.BootstrapFactory
 import io.gatling.recorder.http.channel.BootstrapFactory.newClientBootstrap
-
-import grizzled.slf4j.Logging
 
 class BrowserHttpsRequestHandler(controller: RecorderController) extends AbstractBrowserRequestHandler(controller) with Logging {
 
@@ -36,7 +36,7 @@ class BrowserHttpsRequestHandler(controller: RecorderController) extends Abstrac
 
 		def handleConnect {
 			targetHostURI = new URI("https://" + request.getUri)
-			warn(s"Trying to connect to $targetHostURI, make sure you've accepted the recorder certificate for this site")
+			logger.warn(s"Trying to connect to $targetHostURI, make sure you've accepted the recorder certificate for this site")
 			controller.secureConnection(targetHostURI)
 			requestContext.getChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
 		}
@@ -61,7 +61,7 @@ class BrowserHttpsRequestHandler(controller: RecorderController) extends Abstrac
 				}
 		}
 
-		info(s"Received ${request.getMethod} on ${request.getUri}")
+		logger.info(s"Received ${request.getMethod} on ${request.getUri}")
 		if (request.getMethod == HttpMethod.CONNECT) handleConnect
 		else handlePropagatableRequest
 	}

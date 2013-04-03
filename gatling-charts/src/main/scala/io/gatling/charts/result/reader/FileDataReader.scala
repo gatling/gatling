@@ -20,6 +20,8 @@ import java.io.{ FileInputStream, InputStream }
 import scala.collection.mutable
 import scala.io.Source
 
+import com.typesafe.scalalogging.slf4j.Logging
+
 import io.gatling.charts.result.reader.buffers.{ CountBuffer, RangeBuffer }
 import io.gatling.charts.result.reader.stats.StatsHelper
 import io.gatling.core.config.GatlingConfiguration.configuration
@@ -29,8 +31,6 @@ import io.gatling.core.result.message.{ ActionRecordType, GroupRecordType, KO, O
 import io.gatling.core.result.reader.{ DataReader, GeneralStats }
 import io.gatling.core.util.DateHelper.parseTimestampString
 import io.gatling.core.util.FileHelper.tabulationSeparator
-
-import grizzled.slf4j.Logging
 
 object FileDataReader {
 	val logStep = 100000
@@ -48,7 +48,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		.collect { case file if (file.name.matches(FileDataReader.simulationFilesNamePattern)) => file.jfile }
 		.toList
 
-	info(s"Collected $inputFiles from $runUuid")
+	logger.info(s"Collected $inputFiles from $runUuid")
 	require(!inputFiles.isEmpty, "simulation directory doesn't contain any log file.")
 
 	private def doWithInputFiles[T](f: Iterator[String] => T): T = {
@@ -60,7 +60,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	private def preProcess(records: Iterator[String]) = {
 
-		info("Pre-process")
+		logger.info("Pre-process")
 
 		var count = 0
 		var runStart = Long.MaxValue
@@ -69,7 +69,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 		records.map(FileDataReader.tabulationPattern.split).foreach { array =>
 			count += 1
-			if (count % FileDataReader.logStep == 0) info(s"Second pass, read $count lines")
+			if (count % FileDataReader.logStep == 0) logger.info(s"Second pass, read $count lines")
 
 			if (ActionRecordType.isValidRecord(array)) {
 				runStart = math.min(runStart, array(4).toLong)
@@ -85,7 +85,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			}
 		}
 
-		info(s"Pre-process done: read $count lines")
+		logger.info(s"Pre-process done: read $count lines")
 
 		(runStart, runEnd, runRecords.head)
 	}
@@ -98,7 +98,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	private def process(bucketFunction: Int => Int)(records: Iterator[String]): ResultsHolder = {
 
-		info("Process")
+		logger.info("Process")
 
 		val resultsHolder = new ResultsHolder(runStart, runEnd)
 
@@ -109,14 +109,14 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			.filter(_.length >= 1)
 			.foreach { array =>
 				count += 1
-				if (count % FileDataReader.logStep == 0) info(s"First pass, read $count lines")
+				if (count % FileDataReader.logStep == 0) logger.info(s"First pass, read $count lines")
 
 				if (ActionRecordType.isValidRecord(array)) resultsHolder.addActionRecord(ActionRecord(array, bucketFunction, runStart))
 				else if (GroupRecordType.isValidRecord(array)) resultsHolder.addGroupRecord(GroupRecord(array, bucketFunction, runStart))
 				else if (ScenarioRecordType.isValidRecord(array)) resultsHolder.addScenarioRecord(ScenarioRecord(array, bucketFunction, runStart))
 			}
 
-		info(s"Process done: read $count lines")
+		logger.info(s"Process done: read $count lines")
 
 		resultsHolder
 	}

@@ -31,10 +31,9 @@ import io.gatling.recorder.ui.enumeration.FilterStrategy
 import io.gatling.recorder.ui.frame.ValidationHelper.{ intValidator, nonEmptyValidator, proxyHostValidator }
 import io.gatling.recorder.ui.util.ScalaSwing
 
-import grizzled.slf4j.Logging
 import javax.swing._
 
-class ConfigurationFrame(controller: RecorderController) extends JFrame with ScalaSwing with Logging {
+class ConfigurationFrame(controller: RecorderController) extends JFrame with ScalaSwing {
 
 	private val IS_MAC_OSX = System.getProperty("os.name").startsWith("Mac")
 

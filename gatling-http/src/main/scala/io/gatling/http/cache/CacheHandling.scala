@@ -17,8 +17,8 @@ package io.gatling.http.cache
 
 import com.ning.http.client.{ Request, Response }
 import com.ning.http.util.AsyncHttpProviderUtils
+import com.typesafe.scalalogging.slf4j.Logging
 
-import grizzled.slf4j.Logging
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.Headers
 import io.gatling.http.config.HttpProtocolConfiguration
@@ -57,11 +57,11 @@ object CacheHandling extends Logging {
 			val url = request.getUrl
 
 			if (cache.contains(url)) {
-				info(s"$url was already cached")
+				logger.info(s"$url was already cached")
 				session
 
 			} else {
-				info(s"Caching url $url")
+				logger.info(s"Caching url $url")
 				session.set(httpCacheAttributeName, cache + url)
 			}
 

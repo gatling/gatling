@@ -125,7 +125,7 @@
 		<joda-time.version>2.2</joda-time.version>
 		<joda-convert.version>1.2</joda-convert.version>
 		<scopt.version>2.1.0</scopt.version>
-		<grizzled-slf4j.version>1.0.1</grizzled-slf4j.version>
+		<scalalogging.version>1.0.1</scalalogging.version>
 		<jackson.version>2.1.4</jackson.version>
 		<commons-math3.version>3.1.1</commons-math3.version>
 		<commons-io.version>2.4</commons-io.version>
@@ -285,9 +285,9 @@
 				<version>${scopt.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.clapper</groupId>
-				<artifactId>grizzled-slf4j_2.10</artifactId>
-				<version>${grizzled-slf4j.version}</version>
+				<groupId>com.typesafe</groupId>
+				<artifactId>scalalogging-slf4j_2.10</artifactId>
+				<version>${scalalogging.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.maven</groupId>

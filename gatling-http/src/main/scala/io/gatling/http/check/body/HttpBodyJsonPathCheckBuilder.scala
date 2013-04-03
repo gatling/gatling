@@ -15,14 +15,14 @@
  */
 package io.gatling.http.check.body
 
+import com.typesafe.scalalogging.slf4j.Logging
+
 import io.gatling.core.check.Preparer
 import io.gatling.core.check.extractor.jsonpath.{ Json, JsonNode, JsonPathExtractors }
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.ExtendedResponse
-
-import grizzled.slf4j.Logging
 
 object HttpBodyJsonPathCheckBuilder extends Logging {
 
@@ -34,7 +34,7 @@ object HttpBodyJsonPathCheckBuilder extends Logging {
 		} catch {
 			case e: Exception =>
 				val message = s"Could not parse response into a JSON tree: ${e.getMessage}"
-				info(message, e)
+				logger.info(message, e)
 				message.failure
 		}
 

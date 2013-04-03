@@ -19,8 +19,6 @@ import io.gatling.core.action.system
 import io.gatling.core.feeder.Feeder
 import com.redis.RedisClientPool
 
-import grizzled.slf4j.Logging
-
 object RedisFeeder {
 
 	def apply(clientPool: RedisClientPool, key: String): Feeder[String] = {

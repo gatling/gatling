@@ -28,13 +28,12 @@ import io.gatling.core.scenario.configuration.Simulation
 import io.gatling.core.structure.Assertion
 import io.gatling.core.util.FileHelper.formatToFilename
 
-import grizzled.slf4j.Logging
 import scopt.OptionParser
 
 /**
  * Object containing entry point of application
  */
-object Gatling extends Logging {
+object Gatling {
 
 	val SUCCESS = 0
 	val INCORRECT_ARGUMENTS = 1
@@ -77,7 +76,7 @@ object Gatling extends Logging {
 
 }
 
-class Gatling extends Logging {
+class Gatling {
 
 	import GatlingConfiguration.configuration
 
@@ -146,7 +145,7 @@ class Gatling extends Logging {
 				println("There is no simulation script. Please check that your scripts are in user-files/simulations")
 				sys.exit
 			case 1 =>
-				info(s"${simulations.head.getName} is the only simulation, executing it.")
+				println(s"${simulations.head.getName} is the only simulation, executing it.")
 				0
 			case size =>
 				println("Choose a simulation number:")

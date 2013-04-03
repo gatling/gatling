@@ -24,11 +24,11 @@ import scala.tools.nsc.io.{ Directory, File }
 
 import org.fusesource.scalate.TemplateEngine
 
+import com.typesafe.scalalogging.slf4j.Logging
+
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.http.Headers
 import io.gatling.recorder.config.RecorderConfiguration.configuration
-
-import grizzled.slf4j.Logging
 
 object ScenarioExporter extends Logging {
 	private val EVENTS_GROUPING = 100
@@ -181,7 +181,7 @@ object ScenarioExporter extends Logging {
 				try {
 					fw.write(content)
 				} catch {
-					case e: IOException => error("Error, while dumping request body...", e)
+					case e: IOException => logger.error("Error, while dumping request body...", e)
 				}
 		}
 	}

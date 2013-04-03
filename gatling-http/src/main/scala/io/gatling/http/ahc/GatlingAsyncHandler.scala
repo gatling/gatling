@@ -15,14 +15,14 @@
  */
 package io.gatling.http.ahc
 
-import io.gatling.http.check.HttpCheck
-import io.gatling.http.config.HttpProtocolConfiguration
-import io.gatling.http.check.HttpCheckOrder.{ Checksum, Body }
 import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, ProgressAsyncHandler }
 import com.ning.http.client.AsyncHandler.STATE.CONTINUE
+import com.typesafe.scalalogging.slf4j.Logging
 
 import akka.actor.ActorRef
-import grizzled.slf4j.Logging
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.HttpCheckOrder.{ Body, Checksum }
+import io.gatling.http.config.HttpProtocolConfiguration
 
 object GatlingAsyncHandler {
 
@@ -76,7 +76,7 @@ class GatlingAsyncHandler(requestName: String, actor: ActorRef, useBodyParts: Bo
 	}
 
 	def onThrowable(throwable: Throwable) {
-		warn(s"Request '$requestName' failed", throwable)
+		logger.warn(s"Request '$requestName' failed", throwable)
 		val errorMessage = Option(throwable.getMessage).getOrElse(throwable.getClass.getName)
 		actor ! new OnThrowable(errorMessage)
 	}

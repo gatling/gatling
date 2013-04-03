@@ -16,13 +16,16 @@
 package io.gatling.recorder.http.handler
 
 import scala.collection.JavaConversions.asScalaBuffer
+
 import org.jboss.netty.channel.{ ChannelFuture, ChannelFutureListener, ChannelHandlerContext, ExceptionEvent, MessageEvent, SimpleChannelHandler }
 import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, HttpRequest }
+
+import com.ning.http.util.Base64
+import com.typesafe.scalalogging.slf4j.Logging
+
 import io.gatling.http.Headers
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.controller.RecorderController
-import com.ning.http.util.Base64
-import grizzled.slf4j.Logging
 
 abstract class AbstractBrowserRequestHandler(controller: RecorderController) extends SimpleChannelHandler with Logging {
 
@@ -48,14 +51,14 @@ abstract class AbstractBrowserRequestHandler(controller: RecorderController) ext
 
 				controller.receiveRequest(request)
 
-			case unknown => warn(s"Received unknown message: $unknown")
+			case unknown => logger.warn(s"Received unknown message: $unknown")
 		}
 	}
 
 	def propagateRequest(requestContext: ChannelHandlerContext, request: HttpRequest)
 
 	override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent) {
-		error("Exception caught", e.getCause)
+		logger.error("Exception caught", e.getCause)
 
 		// Properly closing
 		val future = ctx.getChannel.getCloseFuture

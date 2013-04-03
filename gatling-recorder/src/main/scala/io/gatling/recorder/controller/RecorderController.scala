@@ -27,18 +27,19 @@ import org.codehaus.plexus.util.SelectorUtils
 import org.jboss.netty.handler.codec.http.{ HttpMethod, HttpRequest, HttpResponse }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
 
+import com.ning.http.util.Base64
+import com.typesafe.scalalogging.slf4j.Logging
+
 import io.gatling.http.ahc.GatlingAsyncHandlerActor.redirectStatusCodes
+import io.gatling.recorder.config.{ Pattern, RecorderConfiguration }
 import io.gatling.recorder.config.RecorderConfiguration.configuration
-import io.gatling.recorder.config.{ RecorderPropertiesBuilder, RecorderConfiguration, Pattern }
+import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.http.GatlingHttpProxy
 import io.gatling.recorder.scenario.{ PauseElement, PauseUnit, RequestElement, ScenarioElement, ScenarioExporter, TagElement }
 import io.gatling.recorder.ui.enumeration.{ FilterStrategy, PatternType }
 import io.gatling.recorder.ui.frame.{ ConfigurationFrame, RunningFrame }
 import io.gatling.recorder.ui.info.{ PauseInfo, RequestInfo, SSLInfo }
 import io.gatling.recorder.ui.util.UIHelper.useUIThread
-import com.ning.http.util.Base64
-
-import grizzled.slf4j.Logging
 import javax.swing.JOptionPane
 
 object RecorderController {
@@ -77,7 +78,7 @@ class RecorderController extends Logging {
 	def stopRecording {
 		try {
 			if (scenarioElements.isEmpty)
-				info("Nothing was recorded, skipping scenario generation")
+				logger.info("Nothing was recorded, skipping scenario generation")
 			else
 				ScenarioExporter.saveScenario(startDate, scenarioElements.reverse)
 

@@ -21,12 +21,12 @@ import java.net.URLClassLoader
 import scala.tools.nsc.io.{ Directory, Path }
 import scala.tools.nsc.io.Path.{ jfile2path, string2path }
 
+import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.zinc.{ Compiler, Inputs, Setup }
+
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles
 import io.gatling.core.config.GatlingFiles.GATLING_HOME
-import com.typesafe.zinc.{ Compiler, Inputs, Setup }
-
-import grizzled.slf4j.Logging
 import sbt.inc.IncOptions
 import xsbti.Logger
 import xsbti.api.Compilation
@@ -96,7 +96,7 @@ object ZincCompiler extends Logging {
 			def warn(arg: xsbti.F0[String]) { logger.warn(arg.apply) }
 			def info(arg: xsbti.F0[String]) { logger.info(arg.apply) }
 			def debug(arg: xsbti.F0[String]) { logger.debug(arg.apply) }
-			def trace(arg: xsbti.F0[Throwable]) { logger.trace(arg.apply) }
+			def trace(arg: xsbti.F0[Throwable]) { logger.trace("", arg.apply) }
 		}
 
 		val zincCompiler = Compiler.create(setup, zincLogger)

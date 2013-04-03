@@ -27,9 +27,7 @@ import io.gatling.core.structure.ChainBuilder.chainOf
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }
 
-import grizzled.slf4j.Logging
-
-trait Loops[B] extends Execs[B] with Logging {
+trait Loops[B] extends Execs[B] {
 
 	def repeat(times: Int)(chain: ChainBuilder): B = repeat(times, None, chain)
 	def repeat(times: Int, counterName: String)(chain: ChainBuilder): B = repeat(times, Some(counterName), chain)
@@ -101,7 +99,7 @@ trait Loops[B] extends Execs[B] with Logging {
 
 			nextValue match {
 				case Success(value) => session.set(attributeName, value)
-				case Failure(message) => error(s"Could not set attribute in foreach: $message"); throw new IllegalAccessError(message)
+				case Failure(message) => throw new IllegalAccessError(s"Could not set attribute in foreach: $message")
 			}
 		})
 

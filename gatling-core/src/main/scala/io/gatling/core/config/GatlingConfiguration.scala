@@ -18,16 +18,15 @@ package io.gatling.core.config
 import scala.collection.JavaConversions.{ asScalaBuffer, mapAsJavaMap }
 import scala.collection.mutable
 
-import io.gatling.core.ConfigurationConstants._
-import io.gatling.core.util.StringHelper.trimToOption
 import com.typesafe.config.{ Config, ConfigFactory }
 
-import grizzled.slf4j.Logging
+import io.gatling.core.ConfigurationConstants._
+import io.gatling.core.util.StringHelper.trimToOption
 
 /**
  * Configuration loader of Gatling
  */
-object GatlingConfiguration extends Logging {
+object GatlingConfiguration {
 
 	var configuration: GatlingConfiguration = _
 

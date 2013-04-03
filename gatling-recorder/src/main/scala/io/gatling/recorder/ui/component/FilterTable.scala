@@ -21,7 +21,6 @@ import java.awt.event.{ MouseListener, MouseEvent, MouseAdapter, ActionListener,
 import io.gatling.recorder.config.Pattern
 import io.gatling.recorder.ui.enumeration.PatternType.{ PatternType, JAVA, ANT }
 
-import grizzled.slf4j.Logging
 import javax.swing.{ JTable, JScrollPane, JRadioButton, JPopupMenu, JPanel, JMenuItem, ButtonGroup, AbstractCellEditor }
 import javax.swing.table.{ TableCellRenderer, TableCellEditor, DefaultTableModel }
 
@@ -157,7 +156,7 @@ class RadioButtonRenderer extends TableCellRenderer {
 	}
 }
 
-class RadioButtonEditor extends AbstractCellEditor with TableCellEditor with Logging {
+class RadioButtonEditor extends AbstractCellEditor with TableCellEditor {
 
 	var customPanel = SelectPatternPanel()
 

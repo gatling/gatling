@@ -26,9 +26,8 @@ import io.gatling.core.scenario.Scenario
 import io.gatling.core.util.TimeHelper.nowMillis
 
 import akka.actor.{ Actor, ActorRef, Props }
-import grizzled.slf4j.Logging
 
-object DataWriter extends AkkaDefaults with Logging {
+object DataWriter extends AkkaDefaults {
 
 	private val dataWriters: Seq[ActorRef] = configuration.data.dataWriterClasses.map { className =>
 		val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
@@ -102,17 +101,17 @@ trait DataWriter extends BaseActor {
 	def uninitialized: Receive = {
 		case Init(runRecord, scenarios) =>
 
-			info("Initializing")
+			logger.info("Initializing")
 
 			val originalSender = sender
 
 			Terminator.askDataWriterRegistration(self).onSuccess {
 				case _ =>
-					info("Going on with initialization after Terminator registration")
+					logger.info("Going on with initialization after Terminator registration")
 					onInitializeDataWriter(runRecord, scenarios)
 					context.become(initialized)
 					originalSender ! true
-					info("Initialized")
+					logger.info("Initialized")
 			}
 	}
 

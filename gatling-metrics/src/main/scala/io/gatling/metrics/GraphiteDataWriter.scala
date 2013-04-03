@@ -67,7 +67,7 @@ class GraphiteDataWriter extends DataWriter {
 			case Start => groupRecord.groupName :: userStack
 			case End if (!userStack.isEmpty) => userStack.tail
 			case _ =>
-				error("Trying to stop a user that hasn't started?!")
+				logger.error("Trying to stop a user that hasn't started?!")
 				Nil
 		}
 		groupStack += userId -> newUserStack

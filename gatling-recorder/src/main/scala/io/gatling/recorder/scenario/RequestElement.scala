@@ -26,8 +26,6 @@ import io.gatling.http.util.HttpHelper.parseFormBody
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import com.ning.http.util.Base64
 
-import grizzled.slf4j.Logging
-
 object RequestElement {
 	def apply(r: RequestElement, newStatusCode: Int) = {
 		new RequestElement(r.request, newStatusCode, r.simulationClass)
@@ -38,7 +36,7 @@ object RequestElement {
 	}
 }
 
-class RequestElement(val request: HttpRequest, val statusCode: Int, val simulationClass: Option[String]) extends ScenarioElement with Logging {
+class RequestElement(val request: HttpRequest, val statusCode: Int, val simulationClass: Option[String]) extends ScenarioElement {
 	val method = request.getMethod.toString
 
 	private val containsFormParams: Boolean = Option(request.getHeader(CONTENT_TYPE)).map(_.contains("application/x-www-form-urlencoded")).getOrElse(false)

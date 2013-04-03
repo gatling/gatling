@@ -26,9 +26,7 @@ import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.ui.enumeration.FilterStrategy.FilterStrategy
 import io.gatling.recorder.ui.frame.ConfigurationFrame
 
-import grizzled.slf4j.Logging
-
-class SaveConfigurationListener(controller: RecorderController, configurationFrame: ConfigurationFrame) extends ActionListener with Logging {
+class SaveConfigurationListener(controller: RecorderController, configurationFrame: ConfigurationFrame) extends ActionListener {
 
 	def actionPerformed(e: ActionEvent) {
 

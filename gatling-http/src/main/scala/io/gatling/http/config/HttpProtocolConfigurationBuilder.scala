@@ -15,6 +15,9 @@
  */
 package io.gatling.http.config
 
+import com.ning.http.client.{ ProxyServer, Request, RequestBuilder }
+import com.typesafe.scalalogging.slf4j.Logging
+
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.message.RequestStatus
 import io.gatling.core.session.{ Expression, Session }
@@ -23,9 +26,6 @@ import io.gatling.http.ahc.GatlingHttpClient
 import io.gatling.http.request.builder.{ GetHttpRequestBuilder, PostHttpRequestBuilder }
 import io.gatling.http.response.ExtendedResponse
 import io.gatling.http.util.HttpHelper
-import com.ning.http.client.{ ProxyServer, Request, RequestBuilder }
-
-import grizzled.slf4j.Logging
 
 /**
  * HttpProtocolConfigurationBuilder class companion
@@ -96,7 +96,7 @@ case class HttpProtocolConfigurationBuilder(config: HttpProtocolConfiguration, w
 			try {
 				GatlingHttpClient.client.executeRequest(requestBuilder.build).get
 			} catch {
-				case e: Exception => info(s"Couldn't execute warm up request $url", e)
+				case e: Exception => logger.info(s"Couldn't execute warm up request $url", e)
 			}
 		}
 

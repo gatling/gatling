@@ -17,14 +17,14 @@ package io.gatling.core.result.writer
 
 import java.io.{ BufferedOutputStream, FileOutputStream, OutputStreamWriter }
 
+import com.typesafe.scalalogging.slf4j.Logging
+
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.result.message.{ ActionRecordType, GroupRecord, GroupRecordType, RequestRecord, RunRecord, RunRecordType, ScenarioRecord, ScenarioRecordType, ShortScenarioDescription }
 import io.gatling.core.util.FileHelper.tabulationSeparator
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.core.util.StringHelper.eol
-
-import grizzled.slf4j.Logging
 
 object FileDataWriter {
 
@@ -118,7 +118,7 @@ class FileDataWriter extends DataWriter with Logging {
 
 	override def onFlushDataWriter {
 
-		info("Received flush order")
+		logger.info("Received flush order")
 
 		withCloseable(osw) { _.flush }
 	}

@@ -36,7 +36,7 @@ class AddCookies(url: Expression[String], cookies: Expression[List[AHCCookie]], 
 
 		newSession match {
 			case Success(newSession) => next ! newSession
-			case Failure(message) => error(s"Could not build cookie: $message")
+			case Failure(message) => logger.error(s"Could not build cookie: $message")
 		}
 	}
 }

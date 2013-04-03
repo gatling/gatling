@@ -18,9 +18,9 @@ package io.gatling.recorder.http.handler
 import org.jboss.netty.channel.{ ChannelFutureListener, ChannelHandlerContext, MessageEvent, SimpleChannelHandler }
 import org.jboss.netty.handler.codec.http.{ HttpRequest, HttpResponse }
 
-import io.gatling.recorder.controller.RecorderController
+import com.typesafe.scalalogging.slf4j.Logging
 
-import grizzled.slf4j.Logging
+import io.gatling.recorder.controller.RecorderController
 
 class ServerHttpResponseHandler(controller: RecorderController, requestContext: ChannelHandlerContext, request: HttpRequest) extends SimpleChannelHandler with Logging {
 
@@ -30,7 +30,7 @@ class ServerHttpResponseHandler(controller: RecorderController, requestContext: 
 			case response: HttpResponse =>
 				controller.receiveResponse(request, response)
 				requestContext.getChannel.write(response).addListener(ChannelFutureListener.CLOSE) // Send back to client
-			case unknown => warn(s"Received unknown message: $unknown")
+			case unknown => logger.warn(s"Received unknown message: $unknown")
 		}
 	}
 }

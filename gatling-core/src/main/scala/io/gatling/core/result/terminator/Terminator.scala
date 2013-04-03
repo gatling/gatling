@@ -61,13 +61,13 @@ class Terminator extends BaseActor {
 	def uninitialized: Receive = {
 
 		case Initialize(latch, userCount) =>
-			info("Initializing")
+			logger.info("Initializing")
 			this.latch = latch
 			this.userCount = userCount
 			registeredDataWriters = Nil
 			context.become(initialized)
 			sender ! true
-			info("Initialized")
+			logger.info("Initialized")
 	}
 
 	def flush {
@@ -76,7 +76,7 @@ class Terminator extends BaseActor {
 				case Success(_) =>
 					latch.countDown
 					context.unbecome
-				case Failure(e) => error(e)
+				case Failure(e) => logger.error("Registering DataWriters failed", e)
 			}
 	}
 
@@ -85,7 +85,7 @@ class Terminator extends BaseActor {
 		case RegisterDataWriter(dataWriter: ActorRef) =>
 			registeredDataWriters = dataWriter :: registeredDataWriters
 			sender ! true
-			info("DataWriter registered")
+			logger.info("DataWriter registered")
 
 		case EndUser =>
 			userCount = userCount - 1

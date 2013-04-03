@@ -17,6 +17,8 @@ package io.gatling.http.check.body
 
 import java.nio.charset.Charset
 
+import com.typesafe.scalalogging.slf4j.Logging
+
 import io.gatling.core.check.Preparer
 import io.gatling.core.check.extractor.css.CssExtractors
 import io.gatling.core.config.GatlingConfiguration.configuration
@@ -24,8 +26,6 @@ import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.ExtendedResponse
-
-import grizzled.slf4j.Logging
 import jodd.lagarto.dom.NodeSelector
 
 object HttpBodyCssCheckBuilder extends Logging {
@@ -38,7 +38,7 @@ object HttpBodyCssCheckBuilder extends Logging {
 		} catch {
 			case e: Exception =>
 				val message = s"Could not parse response into a Jodd NodeSelector: ${e.getMessage}"
-				info(message, e)
+				logger.info(message, e)
 				message.failure
 		}
 

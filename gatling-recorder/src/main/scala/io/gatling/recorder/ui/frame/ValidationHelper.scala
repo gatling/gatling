@@ -24,10 +24,9 @@ import scala.collection.mutable
 import io.gatling.core.util.StringHelper.trimToOption
 import io.gatling.recorder.ui.util.UIHelper.useUIThread
 
-import grizzled.slf4j.Logging
 import javax.swing.{ JTextField, BorderFactory }
 
-object ValidationHelper extends Logging {
+object ValidationHelper {
 
 	private val standardBorder = BorderFactory.createMatteBorder(1, 1, 1, 1, Color.darkGray)
 	private val errorBorder = BorderFactory.createMatteBorder(2, 2, 2, 2, Color.red)

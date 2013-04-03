@@ -20,13 +20,13 @@ import java.awt.event.ActionEvent
 
 import scala.collection.JavaConversions.seqAsJavaList
 
+import com.typesafe.scalalogging.slf4j.Logging
+
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.ui.Commons.iconList
 import io.gatling.recorder.ui.component.TextAreaPanel
 import io.gatling.recorder.ui.info.{ EventInfo, PauseInfo, RequestInfo, SSLInfo, TagInfo }
 import io.gatling.recorder.ui.util.ScalaSwing
-
-import grizzled.slf4j.Logging
 import javax.swing._
 import javax.swing.event.ListSelectionEvent
 
@@ -188,7 +188,7 @@ class RunningFrame(controller: RecorderController) extends JFrame with ScalaSwin
 				eventsInfo.addElement(requestInfo)
 				eventsInfoJList.ensureIndexIsVisible(eventsInfo.getSize - 1)
 			case SSLInfo(uri) if (!hostsCertificate.contains(uri)) => hostsCertificate.addElement(uri)
-			case e => debug(s"dropping event $e")
+			case e => logger.debug(s"dropping event $e")
 		}
 	}
 }

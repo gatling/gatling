@@ -15,24 +15,25 @@
  */
 package io.gatling.recorder.config
 
-import scala.collection.JavaConversions.{asScalaBuffer, mapAsJavaMap }
+import scala.collection.JavaConversions.{ asScalaBuffer, mapAsJavaMap }
 import scala.collection.mutable
 import scala.tools.nsc.io.File
 import scala.tools.nsc.io.Path.string2path
 
-import io.gatling.core.config.{GatlingConfiguration, GatlingFiles}
+import com.typesafe.config.{ Config, ConfigFactory, ConfigRenderOptions }
+import com.typesafe.scalalogging.slf4j.Logging
+
+import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.util.StringHelper.trimToOption
 import io.gatling.recorder.config.ConfigurationConstants._
-import io.gatling.recorder.ui.enumeration.{PatternType, FilterStrategy}
+import io.gatling.recorder.ui.enumeration.FilterStrategy
 import io.gatling.recorder.ui.enumeration.FilterStrategy.FilterStrategy
+import io.gatling.recorder.ui.enumeration.PatternType
 import io.gatling.recorder.ui.enumeration.PatternType.PatternType
-
-import grizzled.slf4j.Logging
-import com.typesafe.config.{ Config, ConfigFactory, ConfigRenderOptions }
 
 case class Pattern(patternType: PatternType, pattern: String)
 
-object RecorderConfiguration  extends Logging {
+object RecorderConfiguration extends Logging {
 
 	var saveConfiguration = false
 
@@ -46,17 +47,17 @@ object RecorderConfiguration  extends Logging {
 
 	def initialSetup(props: mutable.Map[String, Any]) {
 		val classLoader = getClass.getClassLoader
-		val defaultsConfig = ConfigFactory.parseResources(classLoader,"recorder-defaults.conf")
+		val defaultsConfig = ConfigFactory.parseResources(classLoader, "recorder-defaults.conf")
 		val customConfig = getCustomConfig
 		val propertiesConfig = ConfigFactory.parseMap(props)
 		buildConfig(ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(customConfig).withFallback(defaultsConfig))
-		debug(configuration)
+		logger.debug(s"configured $configuration")
 	}
 
 	def reload(props: mutable.Map[String, Any]) {
 		val frameConfig = ConfigFactory.parseMap(props)
 		buildConfig(frameConfig.withFallback(configuration.config))
-		debug(configuration)
+		logger.debug(s"reconfigured $configuration")
 	}
 
 	def saveConfig {
@@ -71,10 +72,10 @@ object RecorderConfiguration  extends Logging {
 	} else ConfigFactory.empty
 
 	def buildConfig(config: Config) {
-		def zeroToOption(value: Int) = if(value != 0) Some(value) else None
+		def zeroToOption(value: Int) = if (value != 0) Some(value) else None
 
 		def buildPatterns(patterns: List[String], patternsType: List[String]) = {
-			patterns.zip(patternsType).map{ case (pattern, patternType) => Pattern(PatternType.withName(patternType),pattern) }
+			patterns.zip(patternsType).map { case (pattern, patternType) => Pattern(PatternType.withName(patternType), pattern) }
 		}
 		def getOutputFolder(folder: String) = {
 			trimToOption(folder).getOrElse(Option(System.getenv("GATLING_HOME")).map(_ => GatlingFiles.sourcesDirectory.toString).getOrElse(System.getProperty("user.home")))
@@ -88,7 +89,7 @@ object RecorderConfiguration  extends Logging {
 		configuration = RecorderConfiguration(
 			filters = FiltersConfiguration(
 				filterStrategy = FilterStrategy.withName(config.getString(FILTER_STRATEGY)),
-				patterns = buildPatterns(config.getStringList(PATTERNS).toList,config.getStringList(PATTERNS_TYPE).toList)),
+				patterns = buildPatterns(config.getStringList(PATTERNS).toList, config.getStringList(PATTERNS_TYPE).toList)),
 			http = HttpConfiguration(
 				automaticReferer = config.getBoolean(AUTOMATIC_REFERER),
 				followRedirect = config.getBoolean(FOLLOW_REDIRECT)),
@@ -129,7 +130,7 @@ case class OutgoingProxyConfiguration(
 case class ProxyConfiguration(
 	port: Int,
 	sslPort: Int,
-	outgoing : OutgoingProxyConfiguration)
+	outgoing: OutgoingProxyConfiguration)
 
 case class SimulationConfiguration(
 	encoding: String,

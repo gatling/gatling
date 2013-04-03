@@ -15,10 +15,10 @@
  */
 package io.gatling.core.action
 
-import io.gatling.core.util.ClassSimpleNameToString
+import com.typesafe.scalalogging.slf4j.Logging
 
 import akka.actor.{ Actor, Terminated }
-import grizzled.slf4j.Logging
+import io.gatling.core.util.ClassSimpleNameToString
 
 abstract class BaseActor extends Actor with AkkaDefaults with ClassSimpleNameToString with Logging {
 

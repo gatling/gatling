@@ -17,7 +17,8 @@ package io.gatling.core.session
 
 import scala.reflect.ClassTag
 
-import grizzled.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.Logging
+
 import io.gatling.core.util.TypeHelper
 import io.gatling.core.validation.{ Failure, FailureWrapper, Success, Validation }
 
@@ -54,7 +55,7 @@ case class Session(scenarioName: String, userId: Int, attributes: Map[String, An
 			case Success(typedValue) =>
 				Some(typedValue)
 			case Failure(message) =>
-				error(s"Could find value of key $key but wrong type: $message")
+				logger.error(s"Could find value of key $key but wrong type: $message")
 				None
 		}
 	}

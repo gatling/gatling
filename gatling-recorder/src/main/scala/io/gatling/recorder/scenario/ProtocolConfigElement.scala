@@ -19,8 +19,6 @@ import io.gatling.core.util.StringHelper.eol
 import io.gatling.http.Headers
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 
-import grizzled.slf4j.Logging
-
 object ProtocolConfigElement {
 	val baseHeaders = Map(Headers.Names.ACCEPT -> "acceptHeader",
 		Headers.Names.ACCEPT_CHARSET -> "acceptCharsetHeader",
@@ -32,7 +30,7 @@ object ProtocolConfigElement {
 		Headers.Names.USER_AGENT -> "userAgentHeader")
 }
 
-class ProtocolConfigElement(baseUrl: String, followRedirect: Boolean, automaticReferer: Boolean, baseHeaders: Map[String, String]) extends ScenarioElement with Logging {
+class ProtocolConfigElement(baseUrl: String, followRedirect: Boolean, automaticReferer: Boolean, baseHeaders: Map[String, String]) extends ScenarioElement {
 
 	override def toString = {
 		val indent = "\t\t"

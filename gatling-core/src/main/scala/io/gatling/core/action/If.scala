@@ -41,7 +41,7 @@ class If(condition: Expression[Boolean], thenNext: ActorRef, elseNext: Option[Ac
 		val nextAction = condition(session) match {
 			case Success(true) => thenNext
 			case Success(false) => next
-			case Failure(message) => error(s"Could not resolve loop condition: $message"); next
+			case Failure(message) => logger.error(s"Could not resolve loop condition: $message"); next
 		}
 		nextAction ! session
 	}

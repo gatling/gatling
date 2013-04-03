@@ -15,10 +15,10 @@
  */
 package io.gatling.core.session.handler
 
+import com.typesafe.scalalogging.slf4j.Logging
+
 import io.gatling.core.session.Session
 import io.gatling.core.validation.{ Failure, Success }
-
-import grizzled.slf4j.Logging
 
 /**
  * This trait is used for mixin-composition
@@ -37,7 +37,7 @@ trait CounterBasedIterationHandler extends Logging {
 		case Success(currentValue) =>
 			session.set(counterName, currentValue + 1)
 		case Failure(message) =>
-			error(s"Could not retrieve loop counter named $counterName: $message")
+			logger.error(s"Could not retrieve loop counter named $counterName: $message")
 			throw new IllegalAccessError("You must call 'init' before calling 'increment'")
 	}
 

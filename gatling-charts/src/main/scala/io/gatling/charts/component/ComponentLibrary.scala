@@ -17,10 +17,10 @@ package io.gatling.charts.component
 
 import scala.collection.JavaConversions.enumerationAsScalaIterator
 
+import com.typesafe.scalalogging.slf4j.Logging
+
 import io.gatling.charts.component.impl.ComponentLibraryImpl
 import io.gatling.core.result.{ IntRangeVsTimePlot, IntVsTimePlot, PieSlice, Series }
-
-import grizzled.slf4j.Logging
 
 object ComponentLibrary extends Logging {
 
@@ -34,8 +34,8 @@ object ComponentLibrary extends Logging {
 			.toList
 
 		if (paths.size > 1) {
-			warn("Class path contains multiple ComponentLibrary bindings")
-			paths.foreach(url => warn(s"Found ComponentLibrary binding in $url"))
+			logger.warn("Class path contains multiple ComponentLibrary bindings")
+			paths.foreach(url => logger.warn(s"Found ComponentLibrary binding in $url"))
 		}
 
 		new ComponentLibraryImpl

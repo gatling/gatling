@@ -24,9 +24,7 @@ import io.gatling.core.config.GatlingFiles.{ GATLING_ASSETS_JS_PACKAGE, GATLING_
 import io.gatling.core.result.reader.DataReader
 import io.gatling.core.util.ScanHelper.deepCopyPackageContent
 
-import grizzled.slf4j.Logging
-
-object ReportsGenerator extends Logging {
+object ReportsGenerator {
 
 	def generateFor(outputDirectoryName: String, dataReader: DataReader): Path = {
 

@@ -25,8 +25,6 @@ import io.gatling.core.action.system.dispatcher
 import io.gatling.core.result.RequestPath
 import io.gatling.core.result.message.{ End, GroupRecord, KO, OK, RequestRecord, RunRecord, ScenarioRecord, ShortScenarioDescription, Start }
 
-import grizzled.slf4j.Logging
-
 case object Display
 
 class UserCounters(val totalCount: Int) {
@@ -44,7 +42,7 @@ class UserCounters(val totalCount: Int) {
 
 class RequestCounters(var successfulCount: Int, var failedCount: Int)
 
-class ConsoleDataWriter extends DataWriter with Logging {
+class ConsoleDataWriter extends DataWriter {
 
 	private var startUpTime = 0L
 
@@ -84,13 +82,13 @@ class ConsoleDataWriter extends DataWriter with Logging {
 				usersCounters
 					.get(scenarioRecord.scenarioName)
 					.map(_.userStart)
-					.getOrElse(error(s"Internal error, scenario '${scenarioRecord.scenarioName}' has not been correctly initialized"))
+					.getOrElse(logger.error(s"Internal error, scenario '${scenarioRecord.scenarioName}' has not been correctly initialized"))
 
 			case End =>
 				usersCounters
 					.get(scenarioRecord.scenarioName)
 					.map(_.userDone)
-					.getOrElse(error(s"Internal error, scenario '${scenarioRecord.scenarioName}' has not been correctly initialized"))
+					.getOrElse(logger.error(s"Internal error, scenario '${scenarioRecord.scenarioName}' has not been correctly initialized"))
 				groupStack.remove(scenarioRecord.userId)
 		}
 	}
@@ -104,7 +102,7 @@ class ConsoleDataWriter extends DataWriter with Logging {
 			case Start => groupRecord.groupName :: userStack
 			case End if (!userStack.isEmpty) => userStack.tail
 			case _ =>
-				error("Trying to stop a user that hasn't started?!")
+				logger.error("Trying to stop a user that hasn't started?!")
 				Nil
 		}
 
