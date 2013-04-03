@@ -51,27 +51,32 @@ class ExtendedResponseBuilder(request: Request, session: Session, checksumChecks
 	var _responseReceivingStartDate = 0L
 	var _executionEndDate = 0L
 
-	def accumulate(status: HttpResponseStatus) {
+	def accumulate(status: HttpResponseStatus) = {
 		this.status = status
+		this
 	}
 
-	def accumulate(headers: HttpResponseHeaders) {
+	def accumulate(headers: HttpResponseHeaders) = {
 		this.headers = headers
+		this
 	}
 
-	def updateRequestSendingEndDate(nanos: Long) {
+	def updateRequestSendingEndDate(nanos: Long) = {
 		_requestSendingEndDate = computeTimeMillisFromNanos(nanos)
+		this
 	}
 
-	def updateResponseReceivingStartDate(nanos: Long) {
+	def updateResponseReceivingStartDate(nanos: Long) = {
 		_responseReceivingStartDate = computeTimeMillisFromNanos(nanos)
+		this
 	}
 
-	def computeExecutionEndDateFromNanos(nanos: Long) {
+	def computeExecutionEndDateFromNanos(nanos: Long) = {
 		_executionEndDate = computeTimeMillisFromNanos(nanos)
+		this
 	}
 
-	def accumulate(bodyPart: Option[HttpResponseBodyPart]) {
+	def accumulate(bodyPart: Option[HttpResponseBodyPart]) = {
 		bodyPart.map { part =>
 			for (check <- checksumChecks) {
 				val algorithm = check.algorithm
@@ -86,6 +91,7 @@ class ExtendedResponseBuilder(request: Request, session: Session, checksumChecks
 				bodies.add(part)
 			}
 		}
+		this
 	}
 
 	def build: ExtendedResponse = {

@@ -103,15 +103,10 @@ class GatlingAsyncHandlerActor(
 			processResponse(responseBuilder.build)
 
 		case OnThrowable(errorMessage, nanos) =>
-			responseBuilder.computeExecutionEndDateFromNanos(nanos)
-			val response = responseBuilder.build
-			logRequest(originalSession, KO, response, Some(errorMessage))
-			executeNext(originalSession.setFailed, response)
+			ko(originalSession, responseBuilder.computeExecutionEndDateFromNanos(nanos).build, errorMessage)
 
 		case ReceiveTimeout =>
-			val response = responseBuilder.build
-			logRequest(originalSession, KO, response, Some("GatlingAsyncHandlerActor timed out"))
-			executeNext(originalSession.setFailed, response)
+			ko(originalSession, responseBuilder.build, "GatlingAsyncHandlerActor timed out")
 	}
 
 	private def logRequest(
@@ -168,6 +163,17 @@ class GatlingAsyncHandlerActor(
 		context.stop(self)
 	}
 
+	private def ok(session: Session, response: ExtendedResponse) {
+		logRequest(session, OK, response, None)
+		executeNext(session, response)
+	}
+
+	private def ko(session: Session, response: ExtendedResponse, message: String) {
+		val failedSession = session.setFailed
+		logRequest(failedSession, KO, response, Some(message))
+		executeNext(failedSession, response)
+	}
+
 	/**
 	 * This method processes the response if needed for each checks given by the user
 	 */
@@ -212,13 +218,8 @@ class GatlingAsyncHandlerActor(
 			val checkResult = Checks.check(response, sessionWithUpdatedCache, checks)
 
 			checkResult match {
-				case Success(newSession) =>
-					logRequest(newSession, OK, response)
-					executeNext(newSession, response)
-
-				case Failure(errorMessage) =>
-					logRequest(sessionWithUpdatedCache, KO, response, Some(errorMessage))
-					executeNext(sessionWithUpdatedCache, response)
+				case Success(newSession) => ok(newSession, response)
+				case Failure(errorMessage) => ko(sessionWithUpdatedCache, response, errorMessage)
 			}
 		}
 
