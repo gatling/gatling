@@ -27,73 +27,14 @@ class StatsJsTemplate(stats: GroupContainer) {
 
 	def getOutput: String = {
 
-		def renderStatsRequest(request: RequestStatistics) = fast"""
+		def renderStatsRequest(request: RequestStatistics) = {
+			val jsonStats = new StatsJsonTemplate(request).getOutput
+			fast"""
 name: "${escapeJsDoubleQuoteString(request.name)}",
 path: "${escapeJsDoubleQuoteString(request.path)}",
 pathFormatted: "${formatToFilename(request.path)}",
-stats: {
-    numberOfRequests : {
-        total: "${request.numberOfRequestsStatistics.printableTotal}",
-        ok: "${request.numberOfRequestsStatistics.printableSuccess}",
-        ko: "${request.numberOfRequestsStatistics.printableFailure}"
-    },
-    minResponseTime : {
-        total: "${request.minResponseTimeStatistics.printableTotal}",
-        ok: "${request.minResponseTimeStatistics.printableSuccess}",
-        ko: "${request.minResponseTimeStatistics.printableFailure}"
-    },
-    maxResponseTime : {
-        total: "${request.maxResponseTimeStatistics.printableTotal}",
-        ok: "${request.maxResponseTimeStatistics.printableSuccess}",
-        ko: "${request.maxResponseTimeStatistics.printableFailure}"
-    },
-    meanResponseTime : {
-        total: "${request.meanStatistics.printableTotal}",
-        ok: "${request.meanStatistics.printableSuccess}",
-        ko: "${request.meanStatistics.printableFailure}"
-    },
-    standardDeviation : {
-        total: "${request.stdDeviationStatistics.printableTotal}",
-        ok: "${request.stdDeviationStatistics.printableSuccess}",
-        ko: "${request.stdDeviationStatistics.printableFailure}"
-    },
-    percentiles1 : {
-        total: "${request.percentiles1.printableTotal}",
-        ok: "${request.percentiles1.printableSuccess}",
-        ko: "${request.percentiles1.printableFailure}"
-    },
-    percentiles2 : {
-        total: "${request.percentiles2.printableTotal}",
-        ok: "${request.percentiles2.printableSuccess}",
-        ko: "${request.percentiles2.printableFailure}"
-    },
-    group1 : {
-        name: "${request.groupedCounts(0).name}",
-        count: ${request.groupedCounts(0).count},
-        percentage: ${request.groupedCounts(0).percentage}
-    },
-    group2 : {
-        name: "${request.groupedCounts(1).name}",
-        count: ${request.groupedCounts(1).count},
-        percentage: ${request.groupedCounts(1).percentage}
-    },
-    group3 : {
-        name: "${request.groupedCounts(2).name}",
-        count: ${request.groupedCounts(2).count},
-        percentage: ${request.groupedCounts(2).percentage}
-    },
-    group4 : {
-        name: "${request.groupedCounts(3).name}",
-        count: ${request.groupedCounts(3).count},
-        percentage: ${request.groupedCounts(3).percentage}
-    },
-    meanNumberOfRequestsPerSecond: {
-        total: "${request.meanNumberOfRequestsPerSecondStatistics.printableTotal}",
-        ok: "${request.meanNumberOfRequestsPerSecondStatistics.printableSuccess}",
-        ko: "${request.meanNumberOfRequestsPerSecondStatistics.printableFailure}"
-    }
-}
-"""
+stats: ${jsonStats}"""
+		}
 
 		def renderStatsGroup(group: GroupContainer): Fastring = fast"""
 type: "$GROUP",
