@@ -24,39 +24,39 @@ class StatsJsonTemplate(stats: RequestStatistics) {
 	def getOutput: String = fast"""{
     "name": "${stats.name}",
     "numberOfRequests": {
-        "total": ${stats.numberOfRequestsStatistics.printableTotal},
-        "ok": ${stats.numberOfRequestsStatistics.printableSuccess},
-        "ko": ${stats.numberOfRequestsStatistics.printableFailure}
+        "total": "${stats.numberOfRequestsStatistics.printableTotal}",
+        "ok": "${stats.numberOfRequestsStatistics.printableSuccess}",
+        "ko": "${stats.numberOfRequestsStatistics.printableFailure}"
     },
     "minResponseTime": {
-        "total": ${stats.minResponseTimeStatistics.printableTotal},
-        "ok": ${stats.minResponseTimeStatistics.printableSuccess},
-        "ko": ${stats.minResponseTimeStatistics.printableFailure}
+        "total": "${stats.minResponseTimeStatistics.printableTotal}",
+        "ok": "${stats.minResponseTimeStatistics.printableSuccess}",
+        "ko": "${stats.minResponseTimeStatistics.printableFailure}"
     },
     "maxResponseTime": {
-        "total": ${stats.maxResponseTimeStatistics.printableTotal},
-        "ok": ${stats.maxResponseTimeStatistics.printableSuccess},
-        "ko": ${stats.maxResponseTimeStatistics.printableFailure}
+        "total": "${stats.maxResponseTimeStatistics.printableTotal}",
+        "ok": "${stats.maxResponseTimeStatistics.printableSuccess}",
+        "ko": "${stats.maxResponseTimeStatistics.printableFailure}"
     },
     "meanResponseTime": {
-        "total": ${stats.meanStatistics.printableTotal},
-        "ok": ${stats.meanStatistics.printableSuccess},
-        "ko": ${stats.meanStatistics.printableFailure}
+        "total": "${stats.meanStatistics.printableTotal}",
+        "ok": "${stats.meanStatistics.printableSuccess}",
+        "ko": "${stats.meanStatistics.printableFailure}"
     },
     "standardDeviation": {
-        "total": ${stats.stdDeviationStatistics.printableTotal},
-        "ok": ${stats.stdDeviationStatistics.printableSuccess},
-        "ko": ${stats.stdDeviationStatistics.printableFailure}
+        "total": "${stats.stdDeviationStatistics.printableTotal}",
+        "ok": "${stats.stdDeviationStatistics.printableSuccess}",
+        "ko": "${stats.stdDeviationStatistics.printableFailure}"
     },
     "percentiles1": {
-        "total": ${stats.percentiles1.printableTotal},
-        "ok": ${stats.percentiles1.printableSuccess},
-        "ko": ${stats.percentiles1.printableFailure}
+        "total": "${stats.percentiles1.printableTotal}",
+        "ok": "${stats.percentiles1.printableSuccess}",
+        "ko": "${stats.percentiles1.printableFailure}"
     },
     "percentiles2": {
-        "total": ${stats.percentiles2.printableTotal},
-        "ok": ${stats.percentiles2.printableSuccess},
-        "ko": ${stats.percentiles2.printableFailure}
+        "total": "${stats.percentiles2.printableTotal}",
+        "ok": "${stats.percentiles2.printableSuccess}",
+        "ko": "${stats.percentiles2.printableFailure}"
     },
     "group1": {
         "name": "${stats.groupedCounts(0).name}",
@@ -79,9 +79,9 @@ class StatsJsonTemplate(stats: RequestStatistics) {
         "percentage": ${stats.groupedCounts(3).percentage}
     },
     "meanNumberOfRequestsPerSecond": {
-        "total": ${stats.meanNumberOfRequestsPerSecondStatistics.printableTotal},
-        "ok": ${stats.meanNumberOfRequestsPerSecondStatistics.printableSuccess},
-        "ko": ${stats.meanNumberOfRequestsPerSecondStatistics.printableFailure}
+        "total": "${stats.meanNumberOfRequestsPerSecondStatistics.printableTotal}",
+        "ok": "${stats.meanNumberOfRequestsPerSecondStatistics.printableSuccess}",
+        "ko": "${stats.meanNumberOfRequestsPerSecondStatistics.printableFailure}"
     }
 }""".toString
 }
