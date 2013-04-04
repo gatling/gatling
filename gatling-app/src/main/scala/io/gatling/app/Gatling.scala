@@ -105,7 +105,7 @@ class Gatling {
 
 		val result = simulation match {
 			case Some(simulation) if !simulation.assertions.isEmpty => if (applyAssertions(simulation, dataReader)) Gatling.SUCCESS else Gatling.SIMULATION_ASSERTIONS_FAILED
-			case None => Gatling.SUCCESS
+			case _ => Gatling.SUCCESS
 		}
 
 		if (!configuration.charting.noReports) generateReports(outputDirectoryName, dataReader)
