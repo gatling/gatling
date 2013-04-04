@@ -95,7 +95,7 @@ stats: {
 }
 """
 
-		def renderStatsGroup(group: GroupContainer): String = fast"""
+		def renderStatsGroup(group: GroupContainer): Fastring = fast"""
 type: "$GROUP",
 contents: {
 ${
@@ -111,7 +111,7 @@ ${
 		}
 },
 ${renderStatsRequest(group.requestStats)}
-""".toString
+"""
 
 		fast"""
 var stats = {

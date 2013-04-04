@@ -39,22 +39,20 @@ class StatsTsvTemplate(stats: GroupContainer) {
 
 	def getOutput: String = {
 
-		def renderGroup(group: GroupContainer): String = fast"""
-${group.requestStats}
+		def renderGroup(group: GroupContainer): Fastring = fast"""${group.requestStats.mkString}
 ${
 			(stats.contents.values.map {
 				_ match {
 					case subGroup: GroupContainer => renderGroup(subGroup)
-					case request: RequestContainer => request.toString
+					case request: RequestContainer => request.stats.mkString
 				}
 			}).mkFastring("\n")
 		}
-""".toString
+"""
 
 		val headers = StatsTsvTemplate.headers.mkString(configuration.charting.statsTsvSeparator)
 
-		fast"""
-$headers
+		fast"""$headers
 ${renderGroup(stats)}
 """.toString
 
