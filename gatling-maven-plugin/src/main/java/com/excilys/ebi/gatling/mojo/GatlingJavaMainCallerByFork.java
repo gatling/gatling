@@ -42,7 +42,7 @@ public class GatlingJavaMainCallerByFork extends JavaMainCallerByFork {
 				String name = systemProp.getKey().toString();
 				String value = systemProp.getValue().toString();
 				if (isPropagatableProperty(name)) {
-					addJvmArgs("-D" + name + "=" + StringUtils.quoteAndEscape(value, '\"'));
+					addJvmArgs("-D" + name + "=" + StringUtils.escape(value));
 				}
 			}
 		}
