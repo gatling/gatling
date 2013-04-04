@@ -19,7 +19,4 @@ import io.gatling.charts.component.Component
 import io.gatling.core.result.Group
 
 class RequestDetailsPageTemplate(title: String, requestName: Option[String], group: Option[Group], rtChartComponent: Component, percentilesChartComponent: Component, latencyChartComponent: Component, statsTextComponent: Component, scatterChartComponent: Component, indicChartComponent: Component)
-	extends PageTemplate(title, true, statsTextComponent, indicChartComponent, rtChartComponent, percentilesChartComponent, latencyChartComponent, scatterChartComponent) {
-
-	override def getAttributes = super.getAttributes + ("requestName" -> requestName, "group" -> group)
-}
+	extends PageTemplate(title, true, requestName, group, statsTextComponent, indicChartComponent, rtChartComponent, percentilesChartComponent, latencyChartComponent, scatterChartComponent)

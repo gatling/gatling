@@ -1,3 +1,0 @@
-<%  import io.gatling.charts.component.RequestStatistics %>
-<%@ val request: RequestStatistics %>
-<%= request.mkString %>

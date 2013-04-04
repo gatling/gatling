@@ -15,52 +15,112 @@
  */
 package io.gatling.charts.template
 
-import org.fusesource.scalate.TemplateEngine
+import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.charts.component.Component
-import io.gatling.charts.config.ChartsFiles.{ ALL_SESSIONS_FILE, BOOTSTRAP_FILE, GATLING_JS_FILE, GATLING_TEMPLATE_LAYOUT_FILE_URL, JQUERY_FILE, MENU_FILE, STATS_JS_FILE }
+import io.gatling.charts.config.ChartsFiles._
+import io.gatling.core.result.Group
 import io.gatling.core.result.message.RunRecord
+import io.gatling.core.util.FileHelper.formatToFilename
+import io.gatling.core.util.HtmlHelper.htmlEscape
+import io.gatling.core.util.StringHelper.truncate
 
 object PageTemplate {
-	val TEMPLATE_ENGINE = {
-		val engine = new TemplateEngine
-		engine.allowReload = false
-		engine.escapeMarkup = false
-		engine
-	}
 
 	private var runRecord: RunRecord = _
 	private var runStart: Long = _
 	private var runEnd: Long = _
 
-	def setRunInfo(runRecord: RunRecord,runStart: Long,runEnd: Long) {
-		PageTemplate.runRecord = runRecord
-		PageTemplate.runStart = runStart
-		PageTemplate.runEnd = runEnd
+	def setRunInfo(runRecord: RunRecord, runStart: Long, runEnd: Long) {
+		this.runRecord = runRecord
+		this.runStart = runStart
+		this.runEnd = runEnd
 	}
 }
 
-abstract class PageTemplate(title: String, isDetails: Boolean, components: Component*) {
+abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Option[String], group: Option[Group], components: Component*) {
 
-	val jsFiles: Seq[String] = (Seq(JQUERY_FILE, BOOTSTRAP_FILE, GATLING_JS_FILE, MENU_FILE, ALL_SESSIONS_FILE, STATS_JS_FILE) ++ getAdditionnalJSFiles).distinct
+	def jsFiles: Seq[String] = (Seq(JQUERY_FILE, BOOTSTRAP_FILE, GATLING_JS_FILE, MENU_FILE, ALL_SESSIONS_FILE, STATS_JS_FILE) ++ components.flatMap(_.jsFiles)).distinct
 
-	def getContent: String = components.map(_.getHTMLContent).mkString
+	def html: Fastring = components.map(_.html).mkFastring
 
-	def getJavascript: String = components.map(_.getJavascriptContent).mkString
-
-	def getAdditionnalJSFiles: Seq[String] = components.flatMap(_.getJavascriptFiles)
-
-	def getAttributes: Map[String, Any] =
-		Map("jsFiles" -> jsFiles,
-			"pageTitle" -> title,
-			"pageContent" -> getContent,
-			"javascript" -> getJavascript,
-			"isDetails" -> isDetails,
-			"runRecord" -> PageTemplate.runRecord,
-			"runStart" -> PageTemplate.runStart,
-			"runEnd" -> PageTemplate.runEnd)
+	def js: Fastring = components.map(_.js).mkFastring
 
 	def getOutput: String = {
-		PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_LAYOUT_FILE_URL, getAttributes)
+
+		val runRecord = PageTemplate.runRecord
+		val runStart = PageTemplate.runStart
+		val runEnd = PageTemplate.runEnd
+		val duration = (runEnd - runStart) / 1000
+
+		val pageStats =
+			if (isDetails) {
+				val group2 = group.map(group => group.name :: group.groups).getOrElse(Nil).map(group => Some(group))
+				s"""var pageStats = stats.contents.${(requestName :: group2).reverse.flatten.map(formatToFilename).mkString(".contents.")}.stats;"""
+			} else {
+				"var pageStats = stats.stats;"
+			}
+
+		fast"""
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="shortcut icon" type="image/x-icon" href="style/favicon.ico"/>
+<link href="style/style.css" rel="stylesheet" type="text/css" />
+<link href="style/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<title>Gatling Stats - $title</title>
+</head>
+<body>
+<div class="frise"></div>
+<div class="container details">
+    <div class="head">
+        <a href="http://gatling-tool.org" target="blank_" title="Gatling Home Page"><img alt="Gatling" src="style/logo.png"/></a>
+    </div>
+    <div class="main">
+        <div class="cadre">
+                <div class="onglet">
+                    <img src="style/cible.png" />
+                    <p><span>${runRecord.simulationId}</span></p>
+                </div>
+                <div class="content">
+                    <div class="sous-menu">
+                        <div class="item ${if (!isDetails) "ouvert" else ""}"><a href="index.html">GLOBAL</a></div>
+                        <div class="item ${if (isDetails) "ouvert" else ""}"><a id="details_link" href="#">DETAILS</a></div>
+                        <p class="sim_desc" title="${runRecord.readableRunDate}, duration : $duration seconds" data-content="${htmlEscape(runRecord.runDescription)}">
+                            <b>${runRecord.readableRunDate}, duration : $duration seconds</b> ${htmlEscape(truncate(runRecord.runDescription, 70))}</b>
+                        </p>
+                    </div>
+                    <div class="content-in">
+                        <h1><span>> </span>$title</h1>
+                        <div class="article">
+                            ${html}
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+    <div class="nav">
+        <ul></ul>
+    </div>
+</div>
+<div class="foot">
+    <a href="http://gatling-tool.org" title="Gatling Home Page"><img alt="Gatling" src="style/logo-gatling.jpg"/></a>
+</div>
+${jsFiles.map(jsFile => fast"""<script type="text/javascript" src="js/$jsFile"></script>""").mkFastring("\n")}
+<script type="text/javascript">
+    $pageStats
+    $$(document).ready(function() {
+        $$('.sim_desc').popover({trigger:'hover', placement:'bottom'});
+        setDetailsLinkUrl();
+        ${if (isDetails) "setDetailsMenu();" else "setGlobalMenu();"}
+        setActiveMenu();
+        fillStats(pageStats);
+        ${js}
+    });
+</script>
+</body>
+</html>
+""".toString
 	}
 }

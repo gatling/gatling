@@ -19,4 +19,4 @@ import io.gatling.charts.component.Component
 import io.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME
 
 class GlobalPageTemplate(statisticsComponent: Component, indicatorsComponent: Component, statisticsTableComponent: Component, activeSessionsComponent: Component, responseTimeDistributionChartComponent: Component, requestsComponent: Component, transactionsComponent: Component)
-	extends PageTemplate(GLOBAL_PAGE_NAME, false, statisticsComponent, indicatorsComponent, statisticsTableComponent, activeSessionsComponent, responseTimeDistributionChartComponent, requestsComponent, transactionsComponent)
+	extends PageTemplate(GLOBAL_PAGE_NAME, false, None, None, statisticsComponent, indicatorsComponent, statisticsTableComponent, activeSessionsComponent, responseTimeDistributionChartComponent, requestsComponent, transactionsComponent)

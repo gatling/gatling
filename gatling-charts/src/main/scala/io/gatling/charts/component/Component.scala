@@ -15,11 +15,13 @@
  */
 package io.gatling.charts.component
 
+import com.dongxiguo.fastring.Fastring
+
 trait Component {
 
-	def getHTMLContent: String
+	def html: Fastring
 
-	def getJavascriptContent: String
+	def js: Fastring
 
-	def getJavascriptFiles: Seq[String]
+	def jsFiles: Seq[String]
 }

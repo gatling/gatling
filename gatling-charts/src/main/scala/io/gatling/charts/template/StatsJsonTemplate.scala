@@ -15,10 +15,75 @@
  */
 package io.gatling.charts.template
 
+import com.dongxiguo.fastring.Fastring.Implicits._
+
 import io.gatling.charts.component.RequestStatistics
-import io.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_STATS_JSON_FILE_URL
+import io.gatling.core.util.FileHelper.formatToFilename
 
-class StatsJsonTemplate(globalStats: RequestStatistics) {
-
-	def getOutput: String = PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATS_JSON_FILE_URL, Map("stat" -> globalStats))
+class StatsJsonTemplate(stats: RequestStatistics) {
+	def getOutput: String = fast"""
+{
+        "name": "${stats.name}",
+        "numberOfRequests": {
+            "total": ${stats.numberOfRequestsStatistics.total},
+            "ok": ${stats.numberOfRequestsStatistics.success},
+            "ko": ${stats.numberOfRequestsStatistics.failure}
+        },
+        "minResponseTime": {
+            "total": ${stats.minResponseTimeStatistics.total},
+            "ok": ${stats.minResponseTimeStatistics.success},
+            "ko": ${stats.minResponseTimeStatistics.failure}
+        },
+        "maxResponseTime": {
+            "total": ${stats.maxResponseTimeStatistics.total},
+            "ok": ${stats.maxResponseTimeStatistics.success},
+            "ko": ${stats.maxResponseTimeStatistics.failure}
+        },
+        "meanResponseTime": {
+            "total": ${stats.meanStatistics.total},
+            "ok": ${stats.meanStatistics.success},
+            "ko": ${stats.meanStatistics.failure}
+        },
+        "standardDeviation": {
+            "total": ${stats.stdDeviationStatistics.total},
+            "ok": ${stats.stdDeviationStatistics.success},
+            "ko": ${stats.stdDeviationStatistics.failure}
+        },
+        "percentiles1": {
+            "total": ${stats.percentiles1.total},
+            "ok": ${stats.percentiles1.success},
+            "ko": ${stats.percentiles1.failure}
+        },
+        "percentiles2": {
+            "total": ${stats.percentiles2.total},
+            "ok": ${stats.percentiles2.success},
+            "ko": ${stats.percentiles2.failure}
+        },
+        "group1": {
+            "name": "${stats.groupedCounts(0).name}",
+            "count": ${stats.groupedCounts(0).count},
+            "percentage": ${stats.groupedCounts(0).percentage}
+        },
+        "group2": {
+            "name": "${stats.groupedCounts(1).name}",
+            "count": ${stats.groupedCounts(1).count},
+            "percentage": ${stats.groupedCounts(1).percentage}
+        },
+        "group3": {
+            "name": "${stats.groupedCounts(2).name}",
+            "count": ${stats.groupedCounts(2).count},
+            "percentage": ${stats.groupedCounts(2).percentage}
+        },
+        "group4": {
+            "name": "${stats.groupedCounts(3).name}",
+            "count": ${stats.groupedCounts(3).count},
+            "percentage": ${stats.groupedCounts(3).percentage}
+        },
+        "meanNumberOfRequestsPerSecond": {
+            "total": ${stats.meanNumberOfRequestsPerSecondStatistics.total},
+            "ok": ${stats.meanNumberOfRequestsPerSecondStatistics.success},
+            "ko": ${stats.meanNumberOfRequestsPerSecondStatistics.failure}
+        }
+    }
+	""".toString
 }

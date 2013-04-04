@@ -1,5 +1,0 @@
-<%  import io.gatling.charts.report.GroupContainer %>
-<%@ val headers: String %>
-<%@ val stats: GroupContainer %>
-<%= headers %>
-<% attributes("group") = stats %>${include("stats_group.tsv.ssp")}

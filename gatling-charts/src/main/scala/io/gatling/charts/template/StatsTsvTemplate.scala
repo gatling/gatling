@@ -15,9 +15,10 @@
  */
 package io.gatling.charts.template
 
+import com.dongxiguo.fastring.Fastring.Implicits._
+
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.charts.config.ChartsFiles.GATLING_TEMPLATE_STATS_TSV_FILE_URL
-import io.gatling.charts.report.GroupContainer
+import io.gatling.charts.report.{ GroupContainer, RequestContainer }
 
 object StatsTsvTemplate {
 	val headers = Vector("name", "nbRequest", "nbRequestOK", "nbRequestKO",
@@ -37,7 +38,25 @@ object StatsTsvTemplate {
 class StatsTsvTemplate(stats: GroupContainer) {
 
 	def getOutput: String = {
+
+		def renderGroup(group: GroupContainer): String = fast"""
+${group.requestStats}
+${
+			(stats.contents.values.map {
+				_ match {
+					case subGroup: GroupContainer => renderGroup(subGroup)
+					case request: RequestContainer => request.toString
+				}
+			}).mkFastring("\n")
+		}
+""".toString
+
 		val headers = StatsTsvTemplate.headers.mkString(configuration.charting.statsTsvSeparator)
-		PageTemplate.TEMPLATE_ENGINE.layout(GATLING_TEMPLATE_STATS_TSV_FILE_URL, Map("headers" -> headers ,"stats" -> stats))
+
+		fast"""
+$headers
+${renderGroup(stats)}
+""".toString
+
 	}
 }

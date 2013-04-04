@@ -121,6 +121,7 @@
 		<logback.version>1.0.11</logback.version>
 		<slf4j.version>1.7.5</slf4j.version>
 		<scalate.version>1.6.1</scalate.version>
+		<fastring.version>0.2.1</fastring.version>
 		<netty.version>3.6.3.Final</netty.version>
 		<joda-time.version>2.2</joda-time.version>
 		<joda-convert.version>1.2</joda-convert.version>
@@ -146,7 +147,6 @@
 		<maven-release-plugin.version>2.3.2</maven-release-plugin.version>
 		<maven-license-plugin.version>1.10.b1</maven-license-plugin.version>
 		<maven-plugin-plugin.version>2.9</maven-plugin-plugin.version>
-		<build-helper-maven-plugin.version>1.7</build-helper-maven-plugin.version>
 		<maven-enforcer-plugin.version>1.2</maven-enforcer-plugin.version>
 
 		<header.basedir>${project.basedir}</header.basedir>
@@ -268,6 +268,11 @@
 				<groupId>org.fusesource.scalate</groupId>
 				<artifactId>scalate-core_2.10</artifactId>
 				<version>${scalate.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.dongxiguo</groupId>
+				<artifactId>fastring_2.10</artifactId>
+				<version>${fastring.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>joda-time</groupId>
@@ -403,11 +408,6 @@
 					<version>${maven-jar-plugin.version}</version>
 				</plugin>
 				<plugin>
-					<groupId>org.fusesource.scalate</groupId>
-					<artifactId>maven-scalate-plugin_2.10</artifactId>
-					<version>${scalate.version}</version>
-				</plugin>
-				<plugin>
 					<groupId>net.alchim31.maven</groupId>
 					<artifactId>scala-maven-plugin</artifactId>
 					<version>${scala-maven-plugin.version}</version>
@@ -518,11 +518,6 @@
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
 					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>build-helper-maven-plugin</artifactId>
-					<version>${build-helper-maven-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<artifactId>maven-plugin-plugin</artifactId>

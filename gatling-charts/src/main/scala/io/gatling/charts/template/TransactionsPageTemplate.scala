@@ -17,4 +17,4 @@ package io.gatling.charts.template
 
 import io.gatling.charts.component.Component
 
-class TransactionsPageTemplate(chartComponent: Component) extends PageTemplate("Transactions / sec", false, chartComponent)
+class TransactionsPageTemplate(chartComponent: Component) extends PageTemplate("Transactions / sec", false, None, None, chartComponent)

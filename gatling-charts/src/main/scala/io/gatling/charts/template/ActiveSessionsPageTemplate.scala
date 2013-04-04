@@ -17,4 +17,4 @@ package io.gatling.charts.template
 
 import io.gatling.charts.component.Component
 
-class ActiveSessionsPageTemplate(chartComponent: Component) extends PageTemplate("Active Sessions", false, chartComponent)
+class ActiveSessionsPageTemplate(chartComponent: Component) extends PageTemplate("Active Sessions", false, None, None, chartComponent)

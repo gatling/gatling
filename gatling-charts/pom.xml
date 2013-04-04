@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>gatling-parent</artifactId>
@@ -20,8 +21,8 @@
 			<artifactId>gatling-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.fusesource.scalate</groupId>
-			<artifactId>scalate-core_2.10</artifactId>
+			<groupId>com.dongxiguo</groupId>
+			<artifactId>fastring_2.10</artifactId>
 		</dependency>
 
 		<!-- test -->
@@ -53,36 +54,6 @@
 						<exclude>**/io/gatling/charts/component/impl/*</exclude>
 					</excludes>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.fusesource.scalate</groupId>
-				<artifactId>maven-scalate-plugin_2.10</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>precompile</goal>
-						</goals>
-						<configuration>
-							<contextClass>org.fusesource.scalate.DefaultRenderContext</contextClass>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>add-source</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>target/generated-sources/scalate/src</source>
-							</sources>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>
