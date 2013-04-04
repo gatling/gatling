@@ -16,7 +16,7 @@
 package io.gatling.core.scenario.injection
 
 import scala.concurrent.duration.{ DurationLong, FiniteDuration }
-import scala.math.{ abs, pow, sqrt }
+import scala.math.{ abs, sqrt }
 
 trait InjectionStep {
 	/**
@@ -84,7 +84,7 @@ case class RampRateInjection(r1: Double, r2: Double, duration: FiniteDuration) e
 	override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
 		val a = (r2 - r1) / (2 * duration.toSeconds)
 		val b = r1
-		val b2 = pow(r1, 2)
+		val b2 = r1 * r1
 
 		def userScheduling(u: Int) = {
 			val c = -u
