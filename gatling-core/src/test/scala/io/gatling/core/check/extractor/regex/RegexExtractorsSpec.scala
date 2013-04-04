@@ -16,13 +16,15 @@
 package io.gatling.core.check.extractor.regex
 
 import org.junit.runner.RunWith
-
-import io.gatling.core.test.ValidationSpecification
-
 import org.specs2.runner.JUnitRunner
+
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.test.ValidationSpecification
 
 @RunWith(classOf[JUnitRunner])
 class RegexExtractorsSpec extends ValidationSpecification {
+	
+	GatlingConfiguration.setUp()
 
 	"extractMultiple" should {
 

@@ -16,9 +16,9 @@
 package io.gatling.core.check.extractor.xpath
 
 import org.junit.runner.RunWith
-
 import org.specs2.runner.JUnitRunner
 
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.test.ValidationSpecification
 
 @RunWith(classOf[JUnitRunner])
@@ -26,7 +26,10 @@ class XPathExtractorsSpec extends ValidationSpecification {
 
 	val namespaces = List("foo" -> "http://foo/foo")
 
-	def prepared(file: String) = Some(XPathExtractors.parse(getClass.getResourceAsStream(file)))
+	def prepared(file: String) = {
+		GatlingConfiguration.setUp()
+		Some(XPathExtractors.parse(getClass.getResourceAsStream(file)))
+	}
 
 	"count" should {
 
