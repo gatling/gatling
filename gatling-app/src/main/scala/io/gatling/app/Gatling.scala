@@ -101,10 +101,10 @@ class Gatling {
 			(runId, Some(simulation))
 		}
 
-		val dataReader = DataReader.newInstance(outputDirectoryName)
+		lazy val dataReader = DataReader.newInstance(outputDirectoryName)
 
 		val result = simulation match {
-			case Some(simulation) => if (applyAssertions(simulation, dataReader)) Gatling.SUCCESS else Gatling.SIMULATION_ASSERTIONS_FAILED
+			case Some(simulation) if !simulation.assertions.isEmpty => if (applyAssertions(simulation, dataReader)) Gatling.SUCCESS else Gatling.SIMULATION_ASSERTIONS_FAILED
 			case None => Gatling.SUCCESS
 		}
 
@@ -169,7 +169,7 @@ class Gatling {
 	 *
 	 * @param outputDirectoryName The directory from which the simulation.log will be parsed
 	 */
-	private def generateReports(outputDirectoryName: String, dataReader: DataReader) {
+	private def generateReports(outputDirectoryName: String, dataReader: => DataReader) {
 		println("Generating reports...")
 		val start = currentTimeMillis
 		val indexFile = ReportsGenerator.generateFor(outputDirectoryName, dataReader)
