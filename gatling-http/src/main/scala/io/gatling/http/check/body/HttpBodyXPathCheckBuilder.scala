@@ -28,7 +28,7 @@ import io.gatling.http.response.ExtendedResponse
 
 object HttpBodyXPathCheckBuilder extends Logging {
 
-	private val preparer: Preparer[ExtendedResponse, Option[Document]] = (response: ExtendedResponse) =>
+	val preparer: Preparer[ExtendedResponse, Option[Document]] = (response: ExtendedResponse) =>
 		try {
 			val is = if (response.hasResponseBody) Some(response.getResponseBodyAsStream) else None
 			is.map(XPathExtractors.parse).success

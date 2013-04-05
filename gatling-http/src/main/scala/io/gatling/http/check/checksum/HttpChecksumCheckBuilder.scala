@@ -27,19 +27,17 @@ object HttpChecksumCheckBuilder {
 
 		val checksumCheckFactory = (wrapped: Check[ExtendedResponse]) => new ChecksumCheck(algorythm, wrapped)
 		val extractor = new Extractor[ExtendedResponse, String, String] {
-			val name = "algorythm"
+			val name = algorythm
 			def apply(prepared: ExtendedResponse, criterion: String) = prepared.checksum(algorythm).success
 		}
 
-		new HttpChecksumCheckBuilder(checksumCheckFactory, extractor)
+		new HttpSingleCheckBuilder[ExtendedResponse, String, String](
+			checksumCheckFactory,
+			HttpCheckBuilders.noopResponsePreparer,
+			extractor,
+			noopStringExpression)
 	}
 
 	val md5 = checksum("MD5")
 	val sha1 = checksum("SHA1")
 }
-
-class HttpChecksumCheckBuilder(checksumCheckFactory: CheckFactory[ChecksumCheck, ExtendedResponse], extractor: Extractor[ExtendedResponse, String, String]) extends HttpSingleCheckBuilder[ExtendedResponse, String, String](
-	checksumCheckFactory,
-	HttpCheckBuilders.noopResponsePreparer,
-	extractor,
-	noopStringExpression)

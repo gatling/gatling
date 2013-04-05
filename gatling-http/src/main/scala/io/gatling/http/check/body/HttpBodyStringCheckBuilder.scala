@@ -22,7 +22,7 @@ import io.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
 
 object HttpBodyStringCheckBuilder {
 
-	private val extractor = new Extractor[String, String, String] {
+	val extractor = new Extractor[String, String, String] {
 		val name = "bodyString"
 		def apply(prepared: String, criterion: String) = Some(prepared).success
 	}

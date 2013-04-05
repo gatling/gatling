@@ -23,19 +23,19 @@ import io.gatling.http.response.ExtendedResponse
 
 object HttpResponseTimeCheckBuilder {
 
-	val responseTimeInMillis = new HttpResponseTimeCheckBuilder(new Extractor[ExtendedResponse, String, Long] {
+	val responseTimeInMillis = apply(new Extractor[ExtendedResponse, String, Long] {
 		val name = "responseTime"
 		def apply(prepared: ExtendedResponse, criterion: String) = Some(prepared.reponseTimeInMillis).success
 	})
 
-	val latencyInMillis = new HttpResponseTimeCheckBuilder(new Extractor[ExtendedResponse, String, Long] {
+	val latencyInMillis = apply(new Extractor[ExtendedResponse, String, Long] {
 		val name = "latency"
 		def apply(prepared: ExtendedResponse, criterion: String) = Some(prepared.latencyInMillis).success
 	})
-}
 
-class HttpResponseTimeCheckBuilder(extractor: Extractor[ExtendedResponse, String, Long]) extends HttpSingleCheckBuilder[ExtendedResponse, String, Long](
-	HttpCheckBuilders.timeCheckFactory,
-	HttpCheckBuilders.noopResponsePreparer,
-	extractor,
-	noopStringExpression)
+	def apply(extractor: Extractor[ExtendedResponse, String, Long]) = new HttpSingleCheckBuilder[ExtendedResponse, String, Long](
+		HttpCheckBuilders.timeCheckFactory,
+		HttpCheckBuilders.noopResponsePreparer,
+		extractor,
+		noopStringExpression)
+}

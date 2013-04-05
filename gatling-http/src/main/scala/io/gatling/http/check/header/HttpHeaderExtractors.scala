@@ -30,7 +30,7 @@ object HttpHeaderExtractors {
 		val name = "header"
 	}
 
-	private def decode(headerName: String, headerValue: String) =
+	def decode(headerName: String, headerValue: String) =
 		if (headerName == Headers.Names.LOCATION)
 			URLDecoder.decode(headerValue, configuration.simulation.encoding)
 		else

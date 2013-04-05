@@ -21,9 +21,6 @@ import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
 import io.gatling.http.response.ExtendedResponse
 
-/**
- * Builder for HTTP status check
- */
 object HttpStatusCheckBuilder {
 
 	val statusExtractor = new Extractor[ExtendedResponse, String, Int] {

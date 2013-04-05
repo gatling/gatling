@@ -26,7 +26,7 @@ import io.gatling.http.response.ExtendedResponse
 
 object HttpBodyJsonPathCheckBuilder extends Logging {
 
-	private val preparer: Preparer[ExtendedResponse, Option[JsonNode]] = (response: ExtendedResponse) =>
+	val preparer: Preparer[ExtendedResponse, Option[JsonNode]] = (response: ExtendedResponse) =>
 		try {
 			val json = if (response.hasResponseBody) Some(response.getResponseBodyAsStream) else None
 			json.map(Json.parse).success

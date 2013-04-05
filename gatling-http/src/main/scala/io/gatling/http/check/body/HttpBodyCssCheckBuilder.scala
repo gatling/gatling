@@ -30,7 +30,7 @@ import jodd.lagarto.dom.NodeSelector
 
 object HttpBodyCssCheckBuilder extends Logging {
 
-	private val preparer: Preparer[ExtendedResponse, NodeSelector] = (response: ExtendedResponse) =>
+	val preparer: Preparer[ExtendedResponse, NodeSelector] = (response: ExtendedResponse) =>
 		try {
 			val charBuffer = Charset.forName(configuration.simulation.encoding).decode(response.getResponseBodyAsByteBuffer)
 			CssExtractors.parse(charBuffer).success

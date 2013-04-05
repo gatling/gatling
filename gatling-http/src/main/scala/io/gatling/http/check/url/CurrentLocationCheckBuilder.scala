@@ -21,9 +21,6 @@ import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
 import io.gatling.http.response.ExtendedResponse
 
-/**
- * Builder for current location (ie current request URL) check
- */
 object CurrentLocationCheckBuilder {
 
 	val currentLocationExtractor = new Extractor[ExtendedResponse, String, String] {
