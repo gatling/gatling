@@ -15,10 +15,11 @@
  */
 package io.gatling.core.config
 
-import scala.tools.nsc.io.{ Path, Directory }
+import scala.tools.nsc.io.{ Directory, Path }
 import scala.tools.nsc.io.Path.string2path
 
 import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 object GatlingFiles {
 	val GATLING_HOME = Option(System.getenv("GATLING_HOME")).getOrElse(".")
@@ -42,6 +43,7 @@ object GatlingFiles {
 	def resultDirectory(runUuid: String): Path = resultsRootDirectory / runUuid
 	def jsDirectory(runUuid: String): Path = resultDirectory(runUuid) / GATLING_JS
 	def styleDirectory(runUuid: String): Path = resultDirectory(runUuid) / GATLING_STYLE
+
 	def simulationLogDirectory(runUuid: String, create: Boolean = true): Directory = {
 		val dir = resultDirectory(runUuid)
 		if (create) dir.createDirectory()
@@ -51,5 +53,11 @@ object GatlingFiles {
 
 			dir.toDirectory
 		}
+	}
+
+	def requestBodyFile(filePath: String): Validation[Path] = {
+		val file = GatlingFiles.requestBodiesDirectory / filePath
+		if (file.exists) file.success
+		else s"Body file $file doesn't exist".failure
 	}
 }

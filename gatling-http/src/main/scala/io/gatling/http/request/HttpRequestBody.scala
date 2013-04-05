@@ -17,9 +17,14 @@ package io.gatling.http.request
 
 import java.io.{ ByteArrayOutputStream, File => JFile, InputStream, PrintWriter }
 
-import scala.reflect.io.Path
+import scala.collection.mutable
+
+import org.apache.commons.io.FileUtils
+import org.fusesource.scalate.{ Binding, TemplateEngine }
 
 import com.ning.http.client.RequestBuilder
+import com.ning.http.client.generators.InputStreamBodyGenerator
+import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.action.system
 import io.gatling.core.config.GatlingConfiguration.configuration
@@ -38,29 +43,19 @@ object StringBody {
 
 object ELTemplateBody {
 
-	import org.apache.commons.io.FileUtils
-
-	val elFileCache = new collection.mutable.HashMap[String, Validation[Expression[String]]]
-
-	def template(filePath: String): Validation[Path] = {
-		val file = GatlingFiles.requestBodiesDirectory / filePath
-		if (file.exists) file.success
-		else s"Body file $file doesn't exist".failure
-	}
+	val elTemplateBodiesCache = new collection.mutable.HashMap[String, Validation[Expression[String]]]
 
 	def apply(filePath: Expression[String]): ByteArrayBody = {
 
 		def compileTemplate(path: String): Validation[Expression[String]] =
-			template(path)
+			GatlingFiles.requestBodyFile(path)
 				.map(f => FileUtils.readFileToString(f.jfile, configuration.simulation.encoding))
 				.map(EL.compile[String])
-
-		def fetchTemplate(path: String): Validation[Expression[String]] = elFileCache.getOrElseUpdate(path, compileTemplate(path))
 
 		val bytes = (session: Session) =>
 			for {
 				path <- filePath(session)
-				expression <- fetchTemplate(path)
+				expression <- elTemplateBodiesCache.getOrElseUpdate(path, compileTemplate(path))
 				body <- expression(session)
 			} yield body.getBytes(configuration.simulation.encoding)
 
@@ -68,13 +63,11 @@ object ELTemplateBody {
 	}
 }
 
-sealed trait HttpRequestBody {
+trait HttpRequestBody {
 	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder]
 }
 
-object SspTemplateBody {
-
-	import org.fusesource.scalate.{ Binding, TemplateEngine }
+object SspTemplateBody extends Logging {
 
 	val sessionExtraBinding = Seq(Binding("session", classOf[Session].getName))
 
@@ -86,7 +79,7 @@ object SspTemplateBody {
 		engine
 	}
 
-	def apply(filePath: Expression[String], additionalAttributes: Map[String, Any]) = {
+	def apply(filePath: Expression[String], additionalAttributes: Map[String, Any]): ByteArrayBody = {
 
 		def sspTemplate(filePath: String): Validation[String] = {
 			val file = GatlingFiles.requestBodiesDirectory / filePath
@@ -94,19 +87,26 @@ object SspTemplateBody {
 			else s"Ssp body file $file doesn't exist".failure
 		}
 
-		def layout(templatePath: String, session: Session): Array[Byte] = {
+		def layout(templatePath: String, session: Session): Validation[Array[Byte]] = {
 			val out = new ByteArrayOutputStream
-			withCloseable(new PrintWriter(out)) { pw =>
-				sspTemplateEngine.layout(templatePath, additionalAttributes + ("session" -> session), sessionExtraBinding)
+			try {
+				withCloseable(new PrintWriter(out)) { pw =>
+					sspTemplateEngine.layout(templatePath, additionalAttributes + ("session" -> session), sessionExtraBinding)
+				}
+				out.toByteArray.success
+			} catch {
+				case e: Exception =>
+					logger.warn("Ssp template layout failed", e)
+					s"Ssp template layout failed: ${e.getMessage}".failure
 			}
-			out.toByteArray
 		}
 
 		val expression = (session: Session) =>
+
 			for {
 				path <- filePath(session)
 				templatePath <- sspTemplate(path)
-				body = layout(templatePath, session)
+				body <- layout(templatePath, session)
 			} yield body
 
 		new ByteArrayBody(expression)
@@ -115,12 +115,12 @@ object SspTemplateBody {
 
 object RawFileBody {
 
-	def apply(filePath: Expression[String]) = {
+	def apply(filePath: Expression[String]): RawFileBody = {
 
 		val expression = (session: Session) =>
 			for {
 				path <- filePath(session)
-				file <- ELTemplateBody.template(path)
+				file <- GatlingFiles.requestBodyFile(path)
 			} yield file.jfile
 
 		new RawFileBody(expression)
@@ -130,12 +130,11 @@ object RawFileBody {
 class RawFileBody(file: Expression[JFile]) extends HttpRequestBody {
 	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = file(session).map(requestBuilder.setBody)
 }
+
 class ByteArrayBody(byteArray: Expression[Array[Byte]]) extends HttpRequestBody {
 	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = byteArray(session).map(requestBuilder.setBody)
 }
+
 class InputStreamBody(is: Expression[InputStream]) extends HttpRequestBody {
-
-	import com.ning.http.client.generators.InputStreamBodyGenerator
-
 	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
 }
