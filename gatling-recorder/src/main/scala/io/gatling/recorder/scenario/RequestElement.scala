@@ -22,9 +22,11 @@ import scala.collection.JavaConversions.{ asScalaBuffer, mapAsScalaMap }
 import org.jboss.netty.handler.codec.http.{ HttpRequest, QueryStringDecoder }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.{ AUTHORIZATION, CONTENT_TYPE }
 
+import com.ning.http.util.Base64
+
 import io.gatling.http.util.HttpHelper.parseFormBody
 import io.gatling.recorder.config.RecorderConfiguration.configuration
-import com.ning.http.util.Base64
+import io.gatling.recorder.scenario.template.RequestTemplate
 
 object RequestElement {
 	def apply(r: RequestElement, newStatusCode: Int) = {
@@ -98,15 +100,13 @@ class RequestElement(val request: HttpRequest, val statusCode: Int, val simulati
 	}
 
 	override def toString = {
-		ScenarioExporter.TPL_ENGINE.layout("templates/request.ssp",
-			Map("headersId" -> filteredHeadersId,
-				"method" -> method,
-				"printedUrl" -> printedUrl,
-				"queryParams" -> queryParams,
-				"requestBodyOrParams" -> requestBodyOrParams,
-				"statusCode" -> statusCode,
-				"id" -> id,
-				"credentials" -> basicAuthCredentials,
-				"simulationClass" -> simulationClass.getOrElse(throw new UnsupportedOperationException("simulationName should be set before printing a request element!"))))
+		RequestTemplate.render(
+			simulationClass.getOrElse(throw new UnsupportedOperationException("simulationName should be set before printing a request element!")),
+			id,
+			method,
+			printedUrl,
+			filteredHeadersId,
+			basicAuthCredentials,
+			queryParams, requestBodyOrParams, statusCode)
 	}
 }

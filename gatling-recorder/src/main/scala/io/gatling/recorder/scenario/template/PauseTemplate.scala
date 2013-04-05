@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.scenario
+package io.gatling.recorder.scenario.template
 
-import io.gatling.recorder.scenario.template.PauseTemplate
+import io.gatling.recorder.scenario.PauseUnit
 
-class PauseElement(duration: Long, unit: PauseUnit) extends ScenarioElement {
-	override def toString = PauseTemplate.render(duration, unit)
+object PauseTemplate {
+
+	def render(duration: Long, unit: PauseUnit) = {
+		val unitString = if (unit.inMilliseconds) " milliseconds" else ""
+		s"pause($duration$unitString)"
+	}
 }

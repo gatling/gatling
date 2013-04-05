@@ -22,23 +22,15 @@ import scala.annotation.tailrec
 import scala.collection.immutable.SortedMap
 import scala.tools.nsc.io.{ Directory, File }
 
-import org.fusesource.scalate.TemplateEngine
-
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.http.Headers
 import io.gatling.recorder.config.RecorderConfiguration.configuration
+import io.gatling.recorder.scenario.template.SimulationTemplate
 
 object ScenarioExporter extends Logging {
 	private val EVENTS_GROUPING = 100
-
-	val TPL_ENGINE = {
-		val engine = new TemplateEngine
-		engine.allowReload = false
-		engine.escapeMarkup = false
-		engine
-	}
 
 	def saveScenario(startDate: Date, scenarioElements: List[ScenarioElement]) {
 
@@ -126,13 +118,7 @@ object ScenarioExporter extends Logging {
 
 		val newScenarioElements = getChains(elementsList)
 
-		val output = ScenarioExporter.TPL_ENGINE.layout("templates/simulation.ssp",
-			Map("protocolConfig" -> protocolConfigElement,
-				"headers" -> headers,
-				"simulationClassName" -> configuration.simulation.className,
-				"scenarioName" -> "Scenario Name",
-				"packageName" -> configuration.simulation.pkg,
-				"scenarioElements" -> newScenarioElements))
+		val output = SimulationTemplate.render(configuration.simulation.pkg, configuration.simulation.className, protocolConfigElement, headers, "Scenario Name", newScenarioElements)
 
 		withCloseable(new FileWriter(File(getOutputFolder / getSimulationFileName(startDate)).jfile)) {
 			_.write(output)

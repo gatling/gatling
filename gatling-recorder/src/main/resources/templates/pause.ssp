@@ -1,3 +1,0 @@
-<%@ val duration: String %>
-<%@ val inMilliseconds: Boolean %>
-pause(${duration}<% if(inMilliseconds) { %> milliseconds<%}%>)
