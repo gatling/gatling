@@ -132,6 +132,7 @@
 		<commons-io.version>2.4</commons-io.version>
 		<commons-exec.version>1.1</commons-exec.version>
 		<jodd.version>3.4.2</jodd.version>
+		<jzlib.version>1.1.2</jzlib.version>
 		<redis.version>2.10</redis.version>
 		<junit.version>4.11</junit.version>
 		<specs2.version>1.14</specs2.version>
@@ -328,6 +329,11 @@
 				<groupId>org.jodd</groupId>
 				<artifactId>jodd-lagarto</artifactId>
 				<version>${jodd.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.jcraft</groupId>
+				<artifactId>jzlib</artifactId>
+				<version>${jzlib.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-io</groupId>

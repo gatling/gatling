@@ -127,14 +127,14 @@ trait HttpRequestBody {
 	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder]
 }
 
-case class RawFileBody(val file: Expression[JFile]) extends HttpRequestBody {
+case class RawFileBody(file: Expression[JFile]) extends HttpRequestBody {
 	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = file(session).map(requestBuilder.setBody)
 }
 
-case class ByteArrayBody(val byteArray: Expression[Array[Byte]]) extends HttpRequestBody {
+case class ByteArrayBody(byteArray: Expression[Array[Byte]]) extends HttpRequestBody {
 	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = byteArray(session).map(requestBuilder.setBody)
 }
 
-case class InputStreamBody(val is: Expression[InputStream]) extends HttpRequestBody {
+case class InputStreamBody(is: Expression[InputStream]) extends HttpRequestBody {
 	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
 }
