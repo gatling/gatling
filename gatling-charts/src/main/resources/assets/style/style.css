@@ -234,7 +234,8 @@ h1 span {
 .nav .item {
 	padding: 5px 0px 5px 0px;
 	display: block;
-	margin: 0 auto
+	margin: 0 auto;
+	word-wrap: break-word;
 }
 
 .nav .item a {
