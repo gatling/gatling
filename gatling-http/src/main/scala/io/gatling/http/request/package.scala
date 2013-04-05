@@ -77,13 +77,4 @@ package object request {
 			buff
 		}
 	}
-
-	implicit class HttpRequestBodySetter(val requestBuilder: RequestBuilder) extends AnyVal {
-
-		def setBody(body: HttpRequestBody, session: Session): Validation[RequestBuilder] = body match {
-			case RawFileBody(file) => file(session).map(requestBuilder.setBody)
-			case ByteArrayBody(byteArray) => byteArray(session).map(requestBuilder.setBody)
-			case InputStreamBody(is) => is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
-		}
-	}
 }

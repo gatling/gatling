@@ -19,8 +19,7 @@ import java.io.{ ByteArrayOutputStream, File => JFile, InputStream, PrintWriter 
 
 import scala.reflect.io.Path
 
-import org.apache.commons.io.FileUtils
-import org.fusesource.scalate.{ Binding, TemplateEngine }
+import com.ning.http.client.RequestBuilder
 
 import io.gatling.core.action.system
 import io.gatling.core.config.GatlingConfiguration.configuration
@@ -29,22 +28,27 @@ import io.gatling.core.session.{ EL, Expression, Session }
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
-object HttpRequestBody {
+object StringBody {
+
+	def apply(expression: Expression[String]): ByteArrayBody = {
+		val bytes = (session: Session) => expression(session).map(_.getBytes(configuration.simulation.encoding))
+		new ByteArrayBody(bytes)
+	}
+}
+
+object ELTemplateBody {
+
+	import org.apache.commons.io.FileUtils
 
 	val elFileCache = new collection.mutable.HashMap[String, Validation[Expression[String]]]
 
-	private def template(filePath: String): Validation[Path] = {
+	def template(filePath: String): Validation[Path] = {
 		val file = GatlingFiles.requestBodiesDirectory / filePath
 		if (file.exists) file.success
 		else s"Body file $file doesn't exist".failure
 	}
 
-	def stringBody(expression: Expression[String]): ByteArrayBody = {
-		val bytes = (session: Session) => expression(session).map(_.getBytes(configuration.simulation.encoding))
-		ByteArrayBody(bytes)
-	}
-
-	def elTemplateBody(filePath: Expression[String]): ByteArrayBody = {
+	def apply(filePath: Expression[String]): ByteArrayBody = {
 
 		def compileTemplate(path: String): Validation[Expression[String]] =
 			template(path)
@@ -53,18 +57,36 @@ object HttpRequestBody {
 
 		def fetchTemplate(path: String): Validation[Expression[String]] = elFileCache.getOrElseUpdate(path, compileTemplate(path))
 
-		val bytes = (session: Session) => {
+		val bytes = (session: Session) =>
 			for {
 				path <- filePath(session)
 				expression <- fetchTemplate(path)
 				body <- expression(session)
 			} yield body.getBytes(configuration.simulation.encoding)
-		}
 
-		ByteArrayBody(bytes)
+		new ByteArrayBody(bytes)
+	}
+}
+
+sealed trait HttpRequestBody {
+	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder]
+}
+
+object SspTemplateBody {
+
+	import org.fusesource.scalate.{ Binding, TemplateEngine }
+
+	val sessionExtraBinding = Seq(Binding("session", classOf[Session].getName))
+
+	val sspTemplateEngine = {
+		val engine = new TemplateEngine(List(GatlingFiles.requestBodiesDirectory.jfile))
+		engine.allowReload = false
+		engine.escapeMarkup = false
+		system.registerOnTermination(engine.shutdown)
+		engine
 	}
 
-	def sspTemplateBody(filePath: Expression[String], additionalAttributes: Map[String, Any]): ByteArrayBody = {
+	def apply(filePath: Expression[String], additionalAttributes: Map[String, Any]) = {
 
 		def sspTemplate(filePath: String): Validation[String] = {
 			val file = GatlingFiles.requestBodiesDirectory / filePath
@@ -75,7 +97,7 @@ object HttpRequestBody {
 		def layout(templatePath: String, session: Session): Array[Byte] = {
 			val out = new ByteArrayOutputStream
 			withCloseable(new PrintWriter(out)) { pw =>
-				HttpRequestBody.sspTemplateEngine.layout(templatePath, additionalAttributes + ("session" -> session), HttpRequestBody.sessionExtraBinding)
+				sspTemplateEngine.layout(templatePath, additionalAttributes + ("session" -> session), sessionExtraBinding)
 			}
 			out.toByteArray
 		}
@@ -87,32 +109,33 @@ object HttpRequestBody {
 				body = layout(templatePath, session)
 			} yield body
 
-		ByteArrayBody(expression)
+		new ByteArrayBody(expression)
 	}
+}
 
-	def rawFileBody(filePath: Expression[String]) = {
+object RawFileBody {
+
+	def apply(filePath: Expression[String]) = {
 
 		val expression = (session: Session) =>
 			for {
 				path <- filePath(session)
-				file <- template(path)
+				file <- ELTemplateBody.template(path)
 			} yield file.jfile
 
-		RawFileBody(expression)
-	}
-
-	val sessionExtraBinding = Seq(Binding("session", classOf[Session].getName))
-
-	val sspTemplateEngine = {
-		val engine = new TemplateEngine(List(GatlingFiles.requestBodiesDirectory.jfile))
-		engine.allowReload = false
-		engine.escapeMarkup = false
-		system.registerOnTermination(engine.shutdown)
-		engine
+		new RawFileBody(expression)
 	}
 }
 
-sealed trait HttpRequestBody
-case class RawFileBody(file: Expression[JFile]) extends HttpRequestBody
-case class ByteArrayBody(byteArray: Expression[Array[Byte]]) extends HttpRequestBody
-case class InputStreamBody(is: Expression[InputStream]) extends HttpRequestBody
+class RawFileBody(file: Expression[JFile]) extends HttpRequestBody {
+	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = file(session).map(requestBuilder.setBody)
+}
+class ByteArrayBody(byteArray: Expression[Array[Byte]]) extends HttpRequestBody {
+	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = byteArray(session).map(requestBuilder.setBody)
+}
+class InputStreamBody(is: Expression[InputStream]) extends HttpRequestBody {
+
+	import com.ning.http.client.generators.InputStreamBodyGenerator
+
+	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
+}
