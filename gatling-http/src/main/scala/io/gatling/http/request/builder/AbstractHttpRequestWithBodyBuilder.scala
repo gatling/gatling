@@ -22,7 +22,7 @@ import com.ning.http.client.RequestBuilder
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.Validation
 import io.gatling.http.config.HttpProtocolConfiguration
-import io.gatling.http.request.{ ByteArrayBody, ELTemplateBody, HttpRequestBody, InputStreamBody, RawFileBody, SspTemplateBody, StringBody }
+import io.gatling.http.request.{ ByteArrayBody, ELTemplateBodies, HttpRequestBody, InputStreamBody, RawFileBodies, SspTemplateBodies, StringBodies }
 
 /**
  * This class serves as model to HTTP request with a body
@@ -42,12 +42,14 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	private[http] def newInstance(httpAttributes: HttpAttributes): B = newInstance(httpAttributes, body)
 
 	def body(bd: HttpRequestBody): B = newInstance(httpAttributes, Some(bd))
-	def body(bd: Expression[String]): B = body(StringBody(bd))
-	def rawFileBody(filePath: Expression[String]): B = body(RawFileBody(filePath))
-	def elTemplateBody(filePath: Expression[String]): B = body(ELTemplateBody(filePath))
-	def sspTemplateBody(filePath: Expression[String], additionalAttributes: Map[String, Any] = Map.empty): B = body(SspTemplateBody(filePath, additionalAttributes))
+	def body(bd: Expression[String]): B = body(StringBodies.build(bd))
+	def rawFileBody(filePath: Expression[String]): B = body(RawFileBodies.build(filePath))
+	def elTemplateBody(filePath: Expression[String]): B = body(ELTemplateBodies.build(filePath))
+	def sspTemplateBody(filePath: Expression[String], additionalAttributes: Map[String, Any] = Map.empty): B = body(SspTemplateBodies.build(filePath, additionalAttributes))
 	def byteArrayBody(byteArray: Expression[Array[Byte]]): B = body(new ByteArrayBody(byteArray))
 	def inputStreamBody(is: Expression[InputStream]): B = body(new InputStreamBody(is))
+
+	def processRequestBody(processor: HttpRequestBody => HttpRequestBody) = newInstance(httpAttributes, body.map(processor))
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[RequestBuilder] = {
 

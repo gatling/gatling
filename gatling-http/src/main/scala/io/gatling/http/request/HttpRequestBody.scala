@@ -33,19 +33,19 @@ import io.gatling.core.session.{ EL, Expression, Session }
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
-object StringBody {
+object StringBodies {
 
-	def apply(expression: Expression[String]): ByteArrayBody = {
+	def build(expression: Expression[String]): ByteArrayBody = {
 		val bytes = (session: Session) => expression(session).map(_.getBytes(configuration.simulation.encoding))
 		new ByteArrayBody(bytes)
 	}
 }
 
-object ELTemplateBody {
+object ELTemplateBodies {
 
 	val elTemplateBodiesCache = new collection.mutable.HashMap[String, Validation[Expression[String]]]
 
-	def apply(filePath: Expression[String]): ByteArrayBody = {
+	def build(filePath: Expression[String]): ByteArrayBody = {
 
 		def compileTemplate(path: String): Validation[Expression[String]] =
 			GatlingFiles.requestBodyFile(path)
@@ -63,11 +63,7 @@ object ELTemplateBody {
 	}
 }
 
-trait HttpRequestBody {
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder]
-}
-
-object SspTemplateBody extends Logging {
+object SspTemplateBodies extends Logging {
 
 	val sessionExtraBinding = Seq(Binding("session", classOf[Session].getName))
 
@@ -79,7 +75,7 @@ object SspTemplateBody extends Logging {
 		engine
 	}
 
-	def apply(filePath: Expression[String], additionalAttributes: Map[String, Any]): ByteArrayBody = {
+	def build(filePath: Expression[String], additionalAttributes: Map[String, Any]): ByteArrayBody = {
 
 		def sspTemplate(filePath: String): Validation[String] = {
 			val file = GatlingFiles.requestBodiesDirectory / filePath
@@ -113,9 +109,9 @@ object SspTemplateBody extends Logging {
 	}
 }
 
-object RawFileBody {
+object RawFileBodies {
 
-	def apply(filePath: Expression[String]): RawFileBody = {
+	def build(filePath: Expression[String]): RawFileBody = {
 
 		val expression = (session: Session) =>
 			for {
@@ -127,14 +123,18 @@ object RawFileBody {
 	}
 }
 
-class RawFileBody(file: Expression[JFile]) extends HttpRequestBody {
+trait HttpRequestBody {
+	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder]
+}
+
+case class RawFileBody(val file: Expression[JFile]) extends HttpRequestBody {
 	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = file(session).map(requestBuilder.setBody)
 }
 
-class ByteArrayBody(byteArray: Expression[Array[Byte]]) extends HttpRequestBody {
+case class ByteArrayBody(val byteArray: Expression[Array[Byte]]) extends HttpRequestBody {
 	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = byteArray(session).map(requestBuilder.setBody)
 }
 
-class InputStreamBody(is: Expression[InputStream]) extends HttpRequestBody {
+case class InputStreamBody(val is: Expression[InputStream]) extends HttpRequestBody {
 	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
 }
