@@ -16,5 +16,5 @@
 package io.gatling.recorder.scenario
 
 class TagElement(text: String) extends ScenarioElement {
-	override def toString = "//" + text
+	override def toString = s"//$text"
 }

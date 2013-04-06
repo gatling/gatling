@@ -17,8 +17,6 @@ package io.gatling.recorder.scenario.template
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
-import io.gatling.recorder.scenario.{ ProtocolConfigElement, ScenarioElement, TagElement }
-
 object RequestTemplate {
 
 	val tripleQuotes = '"'.toString * 3
