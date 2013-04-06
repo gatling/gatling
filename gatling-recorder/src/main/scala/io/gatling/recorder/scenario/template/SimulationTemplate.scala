@@ -59,7 +59,7 @@ $mapContent)"""
 						fast"$prefix$element"
 					}.mkFastring("\n\t\t")
 
-					fast""" val scn = scenario("$scenarioName")
+					fast"""val scn = scenario("$scenarioName")
 		$scenarioElements"""
 
 				case Right(chains) =>
@@ -98,11 +98,11 @@ import assertions._
 
 class $simulationClassName extends Simulation {
 
-	val httpConf = httpConfig
-$protocolConfig
+	val httpConf = httpConfig$protocolConfig
+
 $renderHeaders
 
-$renderScenario
+	$renderScenario
 
 	setUp(scn.inject(atOnce(1 user)).protocolConfig(httpConf))
 }""".toString

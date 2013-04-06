@@ -15,4 +15,4 @@
  */
 package io.gatling.recorder.scenario
 
-abstract class ScenarioElement
+trait ScenarioElement
