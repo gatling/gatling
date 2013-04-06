@@ -42,11 +42,26 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	private[http] def newInstance(httpAttributes: HttpAttributes): B = newInstance(httpAttributes, body)
 
 	def body(bd: HttpRequestBody): B = newInstance(httpAttributes, Some(bd))
-	def body(bd: Expression[String]): B = body(StringBodies.build(bd))
-	def rawFileBody(filePath: Expression[String]): B = body(RawFileBodies.build(filePath))
-	def elTemplateBody(filePath: Expression[String]): B = body(ELTemplateBodies.build(filePath))
-	def sspTemplateBody(filePath: Expression[String], additionalAttributes: Map[String, Any] = Map.empty): B = body(SspTemplateBodies.build(filePath, additionalAttributes))
+
+	def body(bd: Expression[String]): B = body(StringBodies.asString(bd))
+	def bodyAsBytes(bd: Expression[String]): B = body(StringBodies.asBytes(bd))
+	def bodyAsStream(bd: Expression[String]): B = body(StringBodies.asStream(bd))
+
+	def rawFileBody(filePath: Expression[String]): B = body(RawFileBodies.asFile(filePath))
+	def rawFileBodyAsString(filePath: Expression[String]): B = body(RawFileBodies.asString(filePath))
+	def rawFileBodyAsBytes(filePath: Expression[String]): B = body(RawFileBodies.asBytes(filePath))
+	def rawFileBodyAsStream(filePath: Expression[String]): B = body(RawFileBodies.asStream(filePath))
+
+	def elTemplateBody(filePath: Expression[String]): B = body(ELTemplateBodies.asString(filePath))
+	def elTemplateBodyAsBytes(filePath: Expression[String]): B = body(ELTemplateBodies.asBytes(filePath))
+	def elTemplateBodyAsStream(filePath: Expression[String]): B = body(ELTemplateBodies.asStream(filePath))
+
+	def sspTemplateBody(filePath: Expression[String], additionalAttributes: Map[String, Any] = Map.empty): B = body(SspTemplateBodies.asString(filePath, additionalAttributes))
+	def sspTemplateBodyAsBytes(filePath: Expression[String], additionalAttributes: Map[String, Any] = Map.empty): B = body(SspTemplateBodies.asBytes(filePath, additionalAttributes))
+	def sspTemplateBodyAsStream(filePath: Expression[String], additionalAttributes: Map[String, Any] = Map.empty): B = body(SspTemplateBodies.asStream(filePath, additionalAttributes))
+
 	def byteArrayBody(byteArray: Expression[Array[Byte]]): B = body(new ByteArrayBody(byteArray))
+
 	def inputStreamBody(is: Expression[InputStream]): B = body(new InputStreamBody(is))
 
 	def processRequestBody(processor: HttpRequestBody => HttpRequestBody) = newInstance(httpAttributes, body.map(processor))
