@@ -15,7 +15,7 @@
  */
 package io.gatling.http.request
 
-import java.io.{ BufferedInputStream, ByteArrayInputStream, ByteArrayOutputStream, PrintWriter, StringWriter }
+import java.io.{ ByteArrayOutputStream, PrintWriter, StringWriter }
 
 import org.fusesource.scalate.{ Binding, DefaultRenderContext, TemplateEngine }
 
@@ -83,11 +83,5 @@ object SspTemplateBodies extends Logging {
 		val os = new ByteArrayOutputStream
 		val expression = buildExpression(filePath, additionalAttributes, new PrintWriter(os), os.toByteArray)
 		new ByteArrayBody(expression)
-	}
-
-	def asStream(filePath: Expression[String], additionalAttributes: Map[String, Any]): InputStreamBody = {
-		val os = new ByteArrayOutputStream
-		val expression = buildExpression(filePath, additionalAttributes, new PrintWriter(os), new ByteArrayInputStream(os.toByteArray))
-		new InputStreamBody(expression)
 	}
 }

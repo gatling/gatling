@@ -15,25 +15,18 @@
  */
 package io.gatling.http.request
 
-import java.io.{ BufferedInputStream, ByteArrayInputStream }
-
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.{ Expression, Session }
 
 object StringBodies {
 
-	def buildExpression[T](expression: Expression[String], f: String => T): Expression[T] = (session: Session) => 
+	def buildExpression[T](expression: Expression[String], f: String => T): Expression[T] = (session: Session) =>
 		expression(session).map(f)
-	
+
 	def asString(expression: Expression[String]): StringBody = new StringBody(expression)
 
 	def asBytes(expression: Expression[String]): ByteArrayBody = {
 		val bytes = buildExpression(expression, _.getBytes(configuration.simulation.encoding))
 		new ByteArrayBody(bytes)
-	}
-
-	def asStream(expression: Expression[String]): InputStreamBody = {
-		val is = buildExpression(expression, string => new BufferedInputStream(new ByteArrayInputStream(string.getBytes(configuration.simulation.encoding))))
-		new InputStreamBody(is)
 	}
 }

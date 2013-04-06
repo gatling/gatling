@@ -49,9 +49,4 @@ object ELTemplateBodies {
 		val bytes = buildExpression(filePath, _.getBytes(configuration.simulation.encoding))
 		new ByteArrayBody(bytes)
 	}
-
-	def asStream(filePath: Expression[String]): InputStreamBody = {
-		val stream = buildExpression(filePath, string => new BufferedInputStream(new ByteArrayInputStream(string.getBytes(configuration.simulation.encoding))))
-		new InputStreamBody(stream)
-	}
 }

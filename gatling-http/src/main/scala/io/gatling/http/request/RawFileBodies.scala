@@ -15,7 +15,7 @@
  */
 package io.gatling.http.request
 
-import java.io.{ BufferedInputStream, File => JFile, FileInputStream }
+import java.io.{ File => JFile }
 
 import org.apache.commons.io.FileUtils
 
@@ -44,10 +44,5 @@ object RawFileBodies {
 	def asBytes(filePath: Expression[String]): ByteArrayBody = {
 		val expression = buildExpression(filePath, FileUtils.readFileToByteArray)
 		new ByteArrayBody(expression)
-	}
-
-	def asStream(filePath: Expression[String]): InputStreamBody = {
-		val expression = buildExpression(filePath, file => new BufferedInputStream(new FileInputStream(file)))
-		new InputStreamBody(expression)
 	}
 }
