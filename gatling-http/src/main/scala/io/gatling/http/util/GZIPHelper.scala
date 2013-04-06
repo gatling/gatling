@@ -23,7 +23,9 @@ import io.gatling.core.util.IOHelper.withCloseable
 
 object GZIPHelper {
 
-	def inflate(bytes: Array[Byte]): Array[Byte] = {
+	def gzip(string: String): Array[Byte] = gzip(string.getBytes)
+
+	def gzip(bytes: Array[Byte]): Array[Byte] = {
 		val bytesOut = new ByteArrayOutputStream
 
 		withCloseable(new GZIPOutputStream(bytesOut)) { gzip =>
@@ -33,7 +35,7 @@ object GZIPHelper {
 		bytesOut.toByteArray
 	}
 
-	def inflate(in: InputStream): Array[Byte] = {
+	def gzip(in: InputStream): Array[Byte] = {
 
 		def shovelInToOut(out: OutputStream) {
 			val buffer = new Array[Byte](1000)

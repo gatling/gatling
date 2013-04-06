@@ -15,31 +15,47 @@
  */
 package io.gatling.http.request
 
-import java.io.FileInputStream
+import java.io.{ BufferedInputStream, ByteArrayInputStream, FileInputStream }
 
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Session
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.http.util.GZIPHelper
 
 object RequestBodyProcessors {
 
-	val gzip = (body: HttpRequestBody) => body match {
+	val gzipRequestBody = (body: HttpRequestBody) => {
+		val gzippedBytes = body match {
 
-		case ByteArrayBody(byteArray) =>
-			val gzippedBytes = (session: Session) => byteArray(session).map(GZIPHelper.inflate)
-			ByteArrayBody(gzippedBytes)
+			case StringBody(string) => (session: Session) => string(session).map(GZIPHelper.gzip)
 
-		case RawFileBody(file) =>
-			val gzippedBytes = (session: Session) => file(session).map { file =>
-				withCloseable(new FileInputStream(file))(GZIPHelper.inflate)
+			case ByteArrayBody(byteArray) => (session: Session) => byteArray(session).map(GZIPHelper.gzip)
+
+			case RawFileBody(file) => (session: Session) => file(session).map { file =>
+				withCloseable(new FileInputStream(file))(GZIPHelper.gzip)
 			}
-			ByteArrayBody(gzippedBytes)
-		case InputStreamBody(inputStream) =>
-			val gzippedBytes = (session: Session) => inputStream(session).map { is =>
-				withCloseable(is)(GZIPHelper.inflate)
+			case InputStreamBody(inputStream) => (session: Session) => inputStream(session).map { is =>
+				withCloseable(is)(GZIPHelper.gzip)
 			}
-			ByteArrayBody(gzippedBytes)
+			case body => throw new IllegalArgumentException(s"Body $body is not supported by requestCompressor")
+		}
 
-		case body => throw new IllegalArgumentException(s"Body $body is not supported by requestCompressor")
+		ByteArrayBody(gzippedBytes)
+	}
+
+	val streamRequestBody = (body: HttpRequestBody) => {
+		val stream = body match {
+
+			case StringBody(string) => (session: Session) => string(session).map(s => new BufferedInputStream(new ByteArrayInputStream(s.getBytes(configuration.simulation.encoding))))
+
+			case ByteArrayBody(byteArray) => (session: Session) => byteArray(session).map(b => new BufferedInputStream(new ByteArrayInputStream(b)))
+
+			case RawFileBody(file) => (session: Session) => file(session).map(f => new BufferedInputStream(new FileInputStream(f)))
+
+			case InputStreamBody(inputStream) => inputStream
+
+			case body => throw new IllegalArgumentException(s"Body $body is not supported by streamRequestBody")
+		}
+		InputStreamBody(stream)
 	}
 }
