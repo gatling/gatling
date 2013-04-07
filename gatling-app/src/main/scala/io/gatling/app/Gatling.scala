@@ -33,11 +33,13 @@ import scopt.OptionParser
 /**
  * Object containing entry point of application
  */
-object Gatling {
+object GatlingStatusCodes {
+	val success = 0
+	val invalidArguments = 1
+	val assertionsFailed = 2
+}
 
-	val SUCCESS = 0
-	val INCORRECT_ARGUMENTS = 1
-	val SIMULATION_ASSERTIONS_FAILED = 2
+object Gatling {
 
 	/**
 	 * Entry point of Application
@@ -71,7 +73,7 @@ object Gatling {
 
 		// if arguments are incorrect, usage message is displayed
 		if (cliOptsParser.parse(args)) fromMap(props.build)
-		else INCORRECT_ARGUMENTS
+		else GatlingStatusCodes.invalidArguments
 	}
 
 }
@@ -97,15 +99,15 @@ class Gatling {
 					new Selection(simulation, outputDirectoryBaseName, outputDirectoryBaseName)
 				}.getOrElse(interactiveSelect(simulations))
 
-			val (runId, simulation) = new Runner(selection).run
-			(runId, Some(simulation))
-		}
+				val (runId, simulation) = new Runner(selection).run
+				(runId, Some(simulation))
+			}
 
 		lazy val dataReader = DataReader.newInstance(outputDirectoryName)
 
 		val result = simulation match {
-			case Some(simulation) if !simulation.assertions.isEmpty => if (applyAssertions(simulation, dataReader)) Gatling.SUCCESS else Gatling.SIMULATION_ASSERTIONS_FAILED
-			case _ => Gatling.SUCCESS
+			case Some(simulation) if !simulation.assertions.isEmpty => applyAssertions(simulation, dataReader)
+			case _ => GatlingStatusCodes.success
 		}
 
 		if (!configuration.charting.noReports) generateReports(outputDirectoryName, dataReader)
@@ -180,9 +182,13 @@ class Gatling {
 	private def applyAssertions(simulation: Simulation, dataReader: DataReader) = {
 		val successful = Assertion.assertThat(simulation.assertions, dataReader)
 
-		if (successful) println("Simulation successful.")
-		else println("Simulation failed.")
-
-		successful
+		if (successful) {
+			println("Simulation successful.")
+			GatlingStatusCodes.success
+		}
+		else {
+			println("Simulation failed.")
+			GatlingStatusCodes.assertionsFailed
+		}
 	}
 }

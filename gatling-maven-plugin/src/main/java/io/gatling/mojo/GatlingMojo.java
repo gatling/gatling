@@ -17,6 +17,9 @@ package io.gatling.mojo;
 
 import static java.util.Arrays.asList;
 import static org.codehaus.plexus.util.StringUtils.trim;
+import io.gatling.app.CommandLineConstants;
+import io.gatling.app.Gatling;
+import io.gatling.app.GatlingStatusCodes;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -36,9 +39,6 @@ import org.codehaus.plexus.util.DirectoryScanner;
 import scala_maven_executions.JavaMainCaller;
 import scala_maven_executions.MainHelper;
 import scala_maven_executions.MainWithArgsInFile;
-
-import io.gatling.app.CommandLineConstants;
-import io.gatling.app.Gatling;
 
 /**
  * Mojo to execute Gatling.
@@ -238,14 +238,14 @@ public class GatlingMojo extends AbstractMojo {
 				try {
 					caller.run(false);
 				} catch (ExecuteException e) {
-					if (e.getExitValue() == Gatling.SIMULATION_ASSERTIONS_FAILED()) {
+					if (e.getExitValue() == GatlingStatusCodes.assertionsFailed()) {
 						throw new GatlingSimulationAssertionsFailedException(e);
 					}
 				}
 			} else {
 				GatlingJavaMainCallerInProcess caller = new GatlingJavaMainCallerInProcess(this, GATLING_MAIN_CLASS, testClasspath, gatlingArgs);
 				int returnCode = caller.run();
-				if (returnCode == Gatling.SIMULATION_ASSERTIONS_FAILED()) {
+				if (returnCode == GatlingStatusCodes.assertionsFailed()) {
 					throw new GatlingSimulationAssertionsFailedException();
 				}
 			}
