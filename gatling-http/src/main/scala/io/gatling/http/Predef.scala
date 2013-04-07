@@ -29,8 +29,7 @@ import io.gatling.http.request.builder.{ AbstractHttpRequestBuilder, HttpRequest
 
 object Predef {
 	type Request = com.ning.http.client.Request
-	type Response = com.ning.http.client.Response
-	type ExtendedResponse = io.gatling.http.response.ExtendedResponse
+	type Response = io.gatling.http.response.Response
 	type Cookie = io.gatling.http.action.Cookie
 
 	implicit def proxyBuilder2HttpProtocolConfigurationBuilder(hpb: HttpProxyBuilder): HttpProtocolConfigurationBuilder = hpb.toHttpProtocolConfigurationBuilder
@@ -58,13 +57,13 @@ object Predef {
 
 	val requestUrl = (request: Request) => List(request.getUrl)
 	val requestRawUrl = (request: Request) => List(request.getRawUrl)
-	val responseStatusCode = (response: ExtendedResponse) => List(response.getStatusCode.toString)
-	val responseStatusText = (response: ExtendedResponse) => List(response.getStatusText)
-	val responseContentType = (response: ExtendedResponse) => List(response.getContentType)
-	val responseContentLength = (response: ExtendedResponse) => List(response.getHeader(Headers.Names.CONTENT_LENGTH))
-	val responseUri = (response: ExtendedResponse) => List(response.getUri.toString)
+	val responseStatusCode = (response: Response) => List(response.getStatusCode.toString)
+	val responseStatusText = (response: Response) => List(response.getStatusText)
+	val responseContentType = (response: Response) => List(response.getContentType)
+	val responseContentLength = (response: Response) => List(response.getHeader(Headers.Names.CONTENT_LENGTH))
+	val responseUri = (response: Response) => List(response.getUri.toString)
 
-	def dumpSessionOnFailure(status: RequestStatus, session: Session, request: Request, response: ExtendedResponse): List[String] = status match {
+	def dumpSessionOnFailure(status: RequestStatus, session: Session, request: Request, response: Response): List[String] = status match {
 		case KO => List(session.toString)
 		case _ => Nil
 	}

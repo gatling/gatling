@@ -19,21 +19,21 @@ import io.gatling.core.check.Extractor
 import io.gatling.core.session.noopStringExpression
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
-import io.gatling.http.response.ExtendedResponse
+import io.gatling.http.response.Response
 
 object HttpResponseTimeCheckBuilder {
 
-	val responseTimeInMillis = apply(new Extractor[ExtendedResponse, String, Long] {
+	val responseTimeInMillis = apply(new Extractor[Response, String, Long] {
 		val name = "responseTime"
-		def apply(prepared: ExtendedResponse, criterion: String) = Some(prepared.reponseTimeInMillis).success
+		def apply(prepared: Response, criterion: String) = Some(prepared.reponseTimeInMillis).success
 	})
 
-	val latencyInMillis = apply(new Extractor[ExtendedResponse, String, Long] {
+	val latencyInMillis = apply(new Extractor[Response, String, Long] {
 		val name = "latency"
-		def apply(prepared: ExtendedResponse, criterion: String) = Some(prepared.latencyInMillis).success
+		def apply(prepared: Response, criterion: String) = Some(prepared.latencyInMillis).success
 	})
 
-	def apply(extractor: Extractor[ExtendedResponse, String, Long]) = new HttpSingleCheckBuilder[ExtendedResponse, String, Long](
+	def apply(extractor: Extractor[Response, String, Long]) = new HttpSingleCheckBuilder[Response, String, Long](
 		HttpCheckBuilders.timeCheckFactory,
 		HttpCheckBuilders.noopResponsePreparer,
 		extractor,

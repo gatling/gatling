@@ -17,11 +17,11 @@ package io.gatling.http.check.header
 
 import io.gatling.core.session.Expression
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
-import io.gatling.http.response.ExtendedResponse
+import io.gatling.http.response.Response
 
 object HttpHeaderCheckBuilder {
 
-	def header(headerName: Expression[String]) = new HttpMultipleCheckBuilder[ExtendedResponse, String, String](
+	def header(headerName: Expression[String]) = new HttpMultipleCheckBuilder[Response, String, String](
 		HttpCheckBuilders.headerCheckFactory,
 		HttpCheckBuilders.noopResponsePreparer,
 		HttpHeaderExtractors.extractOne,

@@ -18,6 +18,6 @@ package io.gatling.http.check.checksum
 import io.gatling.core.check.Check
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckOrder.Checksum
-import io.gatling.http.response.ExtendedResponse
+import io.gatling.http.response.Response
 
-class ChecksumCheck(val algorithm: String, wrapped: Check[ExtendedResponse]) extends HttpCheck(wrapped, Checksum)
+class ChecksumCheck(val algorithm: String, wrapped: Check[Response]) extends HttpCheck(wrapped, Checksum)

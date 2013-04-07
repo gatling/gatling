@@ -24,7 +24,7 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.Headers
 import io.gatling.http.ahc.GatlingHttpClient
 import io.gatling.http.request.builder.{ GetHttpRequestBuilder, PostHttpRequestBuilder }
-import io.gatling.http.response.ExtendedResponse
+import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 
 /**
@@ -79,7 +79,7 @@ case class HttpProtocolConfigurationBuilder(config: HttpProtocolConfiguration, w
 
 	def basicAuth(username: Expression[String], password: Expression[String]) = copy(config = config.copy(basicAuth = Some(HttpHelper.buildRealm(username, password))))
 
-	def extraInfoExtractor(f: (RequestStatus, Session, Request, ExtendedResponse) => List[Any]) = copy(config = config.copy(extraInfoExtractor = Some(f)))
+	def extraInfoExtractor(f: (RequestStatus, Session, Request, Response) => List[Any]) = copy(config = config.copy(extraInfoExtractor = Some(f)))
 
 	def proxy(host: String, port: Int) = new HttpProxyBuilder(this, host, port)
 

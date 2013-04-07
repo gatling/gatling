@@ -18,6 +18,9 @@ package io.gatling.http.ahc
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.concurrent.duration.DurationInt
 
+import com.ning.http.client.{ FluentStringsMap, Request, RequestBuilder }
+
+import akka.actor.{ ActorRef, ReceiveTimeout }
 import io.gatling.core.action.BaseActor
 import io.gatling.core.check.Checks
 import io.gatling.core.config.GatlingConfiguration.configuration
@@ -32,16 +35,11 @@ import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocolConfiguration
 import io.gatling.http.cookie.CookieHandling
-import io.gatling.http.request.ExtendedRequest
-import io.gatling.http.response.{ ExtendedResponse, ExtendedResponseBuilder, ExtendedResponseBuilderFactory }
-import io.gatling.http.util.HttpHelper.computeRedirectUrl
-import com.ning.http.client.{ FluentStringsMap, Request, RequestBuilder }
-
-import akka.actor.{ ActorRef, ReceiveTimeout }
+import io.gatling.http.response.{ Response, ResponseBuilder, ResponseBuilderFactory }
+import io.gatling.http.util.{ HttpHelper, HttpStringBuilder }
 
 object GatlingAsyncHandlerActor {
 	val redirectedRequestNamePattern = """(.+?) Redirect (\d+)""".r
-	val redirectStatusCodes = 301 to 303
 	val timeout = configuration.http.requestTimeOutInMs milliseconds
 
 	def newAsyncHandlerActorFactory(
@@ -50,7 +48,7 @@ object GatlingAsyncHandlerActor {
 		protocolConfiguration: HttpProtocolConfiguration)(requestName: String) = {
 
 		val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks, protocolConfiguration)
-		val responseBuilderFactory = ExtendedResponseBuilder.newExtendedResponseBuilder(checks, protocolConfiguration)
+		val responseBuilderFactory = ResponseBuilder.newResponseBuilder(checks, protocolConfiguration)
 
 		(request: Request, session: Session) =>
 			new GatlingAsyncHandlerActor(
@@ -73,9 +71,9 @@ class GatlingAsyncHandlerActor(
 	var request: Request,
 	protocolConfiguration: HttpProtocolConfiguration,
 	handlerFactory: HandlerFactory,
-	responseBuilderFactory: ExtendedResponseBuilderFactory) extends BaseActor {
+	responseBuilderFactory: ResponseBuilderFactory) extends BaseActor {
 
-	var responseBuilder = responseBuilderFactory(request, originalSession)
+	var responseBuilder = responseBuilderFactory(request)
 
 	override def preStart {
 		context.setReceiveTimeout(GatlingAsyncHandlerActor.timeout)
@@ -112,17 +110,17 @@ class GatlingAsyncHandlerActor(
 	private def logRequest(
 		session: Session,
 		requestStatus: RequestStatus,
-		response: ExtendedResponse,
+		response: Response,
 		errorMessage: Option[String] = None) {
 
 		def dump = {
 			val buff = new StringBuilder
 			buff.append(eol).append(">>>>>>>>>>>>>>>>>>>>>>>>>>").append(eol)
 			buff.append("request was:").append(eol)
-			request.dumpTo(buff)
+			buff.appendAHCRequest(request)
 			buff.append("=========================").append(eol)
 			buff.append("response was:").append(eol)
-			response.dumpTo(buff)
+			buff.appendResponse(response)
 			buff.append(eol).append("<<<<<<<<<<<<<<<<<<<<<<<<<")
 			buff.toString
 		}
@@ -158,17 +156,17 @@ class GatlingAsyncHandlerActor(
 	 *
 	 * @param newSession the new Session
 	 */
-	private def executeNext(newSession: Session, response: ExtendedResponse) {
+	private def executeNext(newSession: Session, response: Response) {
 		next ! newSession.increaseTimeShift(nowMillis - response.executionEndDate)
 		context.stop(self)
 	}
 
-	private def ok(session: Session, response: ExtendedResponse) {
+	private def ok(session: Session, response: Response) {
 		logRequest(session, OK, response, None)
 		executeNext(session, response)
 	}
 
-	private def ko(session: Session, response: ExtendedResponse, message: String) {
+	private def ko(session: Session, response: Response, message: String) {
 		val failedSession = session.setFailed
 		logRequest(failedSession, KO, response, Some(message))
 		executeNext(failedSession, response)
@@ -177,13 +175,13 @@ class GatlingAsyncHandlerActor(
 	/**
 	 * This method processes the response if needed for each checks given by the user
 	 */
-	private def processResponse(response: ExtendedResponse) {
+	private def processResponse(response: Response) {
 
 		def redirect(sessionWithUpdatedCookies: Session) {
 
 			logRequest(originalSession, OK, response)
 
-			val redirectUrl = computeRedirectUrl(response.getHeader(HeaderNames.LOCATION), request.getUrl)
+			val redirectUrl = HttpHelper.computeRedirectUrl(response.getHeader(HeaderNames.LOCATION), request.getUrl)
 
 			val requestBuilder = new RequestBuilder(request)
 				.setMethod("GET")
@@ -208,7 +206,7 @@ class GatlingAsyncHandlerActor(
 			this.originalSession = sessionWithUpdatedCookies
 			this.requestName = newRequestName
 			this.request = newRequest
-			this.responseBuilder = responseBuilderFactory(newRequest, originalSession)
+			this.responseBuilder = responseBuilderFactory(newRequest)
 
 			GatlingHttpClient.client.executeRequest(newRequest, handlerFactory(newRequestName, self))
 		}
@@ -225,7 +223,7 @@ class GatlingAsyncHandlerActor(
 
 		val sessionWithUpdatedCookies = CookieHandling.storeCookies(originalSession, response.getUri, response.getCookies.toList)
 
-		if (GatlingAsyncHandlerActor.redirectStatusCodes.contains(response.getStatusCode) && protocolConfiguration.followRedirectEnabled)
+		if (response.isRedirected && protocolConfiguration.followRedirectEnabled)
 			redirect(sessionWithUpdatedCookies)
 		else
 			checkAndProceed(sessionWithUpdatedCookies)

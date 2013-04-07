@@ -24,11 +24,11 @@ import io.gatling.core.check.extractor.xpath.XPathExtractors
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
-import io.gatling.http.response.ExtendedResponse
+import io.gatling.http.response.Response
 
 object HttpBodyXPathCheckBuilder extends Logging {
 
-	val preparer: Preparer[ExtendedResponse, Option[Document]] = (response: ExtendedResponse) =>
+	val preparer: Preparer[Response, Option[Document]] = (response: Response) =>
 		try {
 			val is = if (response.hasResponseBody) Some(response.getResponseBodyAsStream) else None
 			is.map(XPathExtractors.parse).success

@@ -22,7 +22,7 @@ import com.ning.http.client.RequestBuilder
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.Validation
 import io.gatling.http.config.HttpProtocolConfiguration
-import io.gatling.http.request.{ ByteArrayBody, ELTemplateBodies, HttpRequestBody, InputStreamBody, RawFileBodies, SspTemplateBodies, StringBodies }
+import io.gatling.http.request.{ ByteArrayBody, ELTemplateBodies, RequestBody, InputStreamBody, RawFileBodies, SspTemplateBodies, StringBodies }
 
 /**
  * This class serves as model to HTTP request with a body
@@ -32,16 +32,16 @@ import io.gatling.http.request.{ ByteArrayBody, ELTemplateBodies, HttpRequestBod
  */
 abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBodyBuilder[B]](
 	httpAttributes: HttpAttributes,
-	body: Option[HttpRequestBody])
+	body: Option[RequestBody])
 	extends AbstractHttpRequestBuilder[B](httpAttributes) {
 
 	private[http] def newInstance(
 		httpAttributes: HttpAttributes,
-		body: Option[HttpRequestBody]): B
+		body: Option[RequestBody]): B
 
 	private[http] def newInstance(httpAttributes: HttpAttributes): B = newInstance(httpAttributes, body)
 
-	def body(bd: HttpRequestBody): B = newInstance(httpAttributes, Some(bd))
+	def body(bd: RequestBody): B = newInstance(httpAttributes, Some(bd))
 
 	def body(bd: Expression[String]): B = body(StringBodies.asString(bd))
 	def bodyAsBytes(bd: Expression[String]): B = body(StringBodies.asBytes(bd))
@@ -60,7 +60,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 
 	def inputStreamBody(is: Expression[InputStream]): B = body(new InputStreamBody(is))
 
-	def processRequestBody(processor: HttpRequestBody => HttpRequestBody) = newInstance(httpAttributes, body.map(processor))
+	def processRequestBody(processor: RequestBody => RequestBody) = newInstance(httpAttributes, body.map(processor))
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[RequestBuilder] = {
 

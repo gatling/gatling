@@ -19,11 +19,11 @@ import io.gatling.core.check.{ Check, CheckFactory, Preparer }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.HttpCheckOrder._
-import io.gatling.http.response.ExtendedResponse
+import io.gatling.http.response.Response
 
 object HttpCheckBuilders {
 
-	private def httpCheckFactory(order: HttpCheckOrder): CheckFactory[HttpCheck, ExtendedResponse] = (wrapped: Check[ExtendedResponse]) => HttpCheck(wrapped, order)
+	private def httpCheckFactory(order: HttpCheckOrder): CheckFactory[HttpCheck, Response] = (wrapped: Check[Response]) => HttpCheck(wrapped, order)
 
 	val statusCheckFactory = httpCheckFactory(Status)
 	val urlCheckFactory = httpCheckFactory(Url)
@@ -32,6 +32,6 @@ object HttpCheckBuilders {
 	val bodyCheckFactory = httpCheckFactory(Body)
 	val timeCheckFactory = httpCheckFactory(Body)
 
-	val noopResponsePreparer: Preparer[ExtendedResponse, ExtendedResponse] = (r: ExtendedResponse) => r.success
-	val stringResponsePreparer: Preparer[ExtendedResponse, String] = (response: ExtendedResponse) => response.getResponseBody(configuration.simulation.encoding).success
+	val noopResponsePreparer: Preparer[Response, Response] = (r: Response) => r.success
+	val stringResponsePreparer: Preparer[Response, String] = (response: Response) => response.getResponseBody(configuration.simulation.encoding).success
 }

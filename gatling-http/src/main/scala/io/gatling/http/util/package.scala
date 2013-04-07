@@ -15,28 +15,36 @@
  */
 package io.gatling.http
 
-import scala.collection.JavaConversions.{ asScalaBuffer, collectionAsScalaIterable }
+import java.util.{ List => JList, Map => JMap }
 
-import io.gatling.core.session.Session
-import io.gatling.core.util.StringHelper.eol
-import io.gatling.core.validation.Validation
-import io.gatling.http.request.{ ByteArrayBody, HttpRequestBody, RawFileBody }
-import io.gatling.http.util.HttpHelper.dumpFluentCaseInsensitiveStringsMap
-import com.ning.http.client.{ ByteArrayPart, FilePart, Request, RequestBuilder, StringPart }
-import com.ning.http.client.generators.InputStreamBodyGenerator
+import scala.collection.JavaConversions.{ asScalaBuffer, asScalaSet, collectionAsScalaIterable }
+
+import com.ning.http.client.{ ByteArrayPart, FilePart, Request, StringPart }
 import com.ning.http.multipart.{ FilePart => MultipartFilePart, StringPart => MultipartStringPart }
 
-package object request {
+import io.gatling.core.util.StringHelper.eol
+import io.gatling.http.response.Response
 
-	implicit class ExtendedRequest(val request: Request) extends AnyVal {
+package object util {
 
-		def dumpTo(buff: StringBuilder) {
+	implicit class HttpStringBuilder(val buff: StringBuilder) extends AnyVal {
+
+		def appendAHCStringsMap(map: JMap[String, JList[String]]): StringBuilder = {
+
+			for {
+				entry <- map.entrySet
+			} buff.append(entry.getKey).append(": ").append(entry.getValue).append(eol)
+
+			buff
+		}
+
+		def appendAHCRequest(request: Request): StringBuilder = {
 
 			buff.append(request.getMethod).append(" ").append(if (request.isUseRawUrl) request.getRawUrl else request.getUrl).append(eol)
 
 			if (request.getHeaders != null && !request.getHeaders.isEmpty) {
 				buff.append("headers=").append(eol)
-				dumpFluentCaseInsensitiveStringsMap(request.getHeaders, buff)
+				buff.appendAHCStringsMap(request.getHeaders)
 			}
 
 			if (request.getCookies != null && !request.getCookies.isEmpty) {
@@ -48,7 +56,7 @@ package object request {
 
 			if (request.getParams != null && !request.getParams.isEmpty) {
 				buff.append("params=").append(eol)
-				dumpFluentCaseInsensitiveStringsMap(request.getParams, buff)
+				buff.appendAHCStringsMap(request.getParams)
 			}
 
 			if (request.getStringData != null) buff.append("stringData=").append(request.getStringData).append(eol)
@@ -69,11 +77,25 @@ package object request {
 					}
 				}
 			}
+
+			buff
 		}
 
-		def dump: StringBuilder = {
-			val buff = new StringBuilder
-			dumpTo(buff)
+		def appendResponse(response: Response) = {
+
+			response.ahcResponse.map { r =>
+				if (r.hasResponseStatus)
+					buff.append("status=").append(eol).append(r.getStatusCode).append(" ").append(r.getStatusText).append(eol)
+
+				if (r.hasResponseHeaders) {
+					buff.append("headers= ").append(eol)
+					buff.appendAHCStringsMap(r.getHeaders).append(eol)
+				}
+
+				if (response.hasResponseBody)
+					buff.append("body=").append(eol).append(response.getResponseBody)
+			}
+
 			buff
 		}
 	}

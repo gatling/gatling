@@ -19,15 +19,15 @@ import io.gatling.core.check.Extractor
 import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
 import io.gatling.core.check.extractor.regex.RegexExtractors
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
-import io.gatling.http.response.ExtendedResponse
+import io.gatling.http.response.Response
 
 object HttpHeaderRegexExtractors {
 
-	abstract class HeaderRegexExtractor[X] extends Extractor[ExtendedResponse, (String, String), X] {
+	abstract class HeaderRegexExtractor[X] extends Extractor[Response, (String, String), X] {
 		val name = "headerRegex"
 	}
 
-	def extractHeadersValues(response: ExtendedResponse, headerNameAndPattern: (String, String)) = {
+	def extractHeadersValues(response: Response, headerNameAndPattern: (String, String)) = {
 		val (headerName, pattern) = headerNameAndPattern
 		val headerValues = HttpHeaderExtractors.decodedHeaders(response, headerName)
 		headerValues.map(RegexExtractors.extract(_, pattern)).flatten
@@ -35,19 +35,19 @@ object HttpHeaderRegexExtractors {
 
 	val extractOne = (occurrence: Int) => new HeaderRegexExtractor[String] {
 
-		def apply(prepared: ExtendedResponse, criterion: (String, String)): Validation[Option[String]] =
+		def apply(prepared: Response, criterion: (String, String)): Validation[Option[String]] =
 			extractHeadersValues(prepared, criterion).lift(occurrence).success
 	}
 
 	val extractMultiple = new HeaderRegexExtractor[Seq[String]] {
 
-		def apply(prepared: ExtendedResponse, criterion: (String, String)): Validation[Option[Seq[String]]] =
+		def apply(prepared: Response, criterion: (String, String)): Validation[Option[Seq[String]]] =
 			extractHeadersValues(prepared, criterion).liftSeqOption.success
 	}
 
 	val count = new HeaderRegexExtractor[Int] {
 
-		def apply(prepared: ExtendedResponse, criterion: (String, String)): Validation[Option[Int]] =
+		def apply(prepared: Response, criterion: (String, String)): Validation[Option[Int]] =
 			extractHeadersValues(prepared, criterion).liftSeqOption.map(_.size).success
 	}
 }

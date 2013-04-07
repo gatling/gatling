@@ -20,7 +20,7 @@ import io.gatling.core.session.{ EL, Expression, Session }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import io.gatling.http.config.HttpProtocolConfiguration
-import io.gatling.http.request.HttpRequestBody
+import io.gatling.http.request.RequestBody
 import io.gatling.http.util.HttpHelper
 import com.ning.http.client.{ RequestBuilder, StringPart }
 import com.ning.http.client.FluentStringsMap
@@ -42,7 +42,7 @@ object AbstractHttpRequestWithBodyAndParamsBuilder {
  */
 abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequestWithBodyAndParamsBuilder[B]](
 	httpAttributes: HttpAttributes,
-	body: Option[HttpRequestBody],
+	body: Option[RequestBody],
 	paramsAttributes: HttpParamsAttributes)
 	extends AbstractHttpRequestWithBodyBuilder[B](httpAttributes, body) {
 
@@ -55,12 +55,12 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 */
 	private[http] def newInstance(
 		httpAttributes: HttpAttributes,
-		body: Option[HttpRequestBody],
+		body: Option[RequestBody],
 		paramsAttributes: HttpParamsAttributes): B
 
 	private[http] def newInstance(
 		httpAttributes: HttpAttributes,
-		body: Option[HttpRequestBody]): B = {
+		body: Option[RequestBody]): B = {
 		newInstance(httpAttributes, body, paramsAttributes)
 	}
 

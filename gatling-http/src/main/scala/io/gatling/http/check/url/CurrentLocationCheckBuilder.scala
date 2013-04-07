@@ -19,16 +19,16 @@ import io.gatling.core.check.Extractor
 import io.gatling.core.session.noopStringExpression
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
-import io.gatling.http.response.ExtendedResponse
+import io.gatling.http.response.Response
 
 object CurrentLocationCheckBuilder {
 
-	val currentLocationExtractor = new Extractor[ExtendedResponse, String, String] {
+	val currentLocationExtractor = new Extractor[Response, String, String] {
 		val name = "currentLocation"
-		def apply(prepared: ExtendedResponse, criterion: String) = Some(prepared.request.getUrl).success
+		def apply(prepared: Response, criterion: String) = Some(prepared.request.getUrl).success
 	}
 
-	val currentLocation = new HttpSingleCheckBuilder[ExtendedResponse, String, String](
+	val currentLocation = new HttpSingleCheckBuilder[Response, String, String](
 		HttpCheckBuilders.urlCheckFactory,
 		HttpCheckBuilders.noopResponsePreparer,
 		currentLocationExtractor,

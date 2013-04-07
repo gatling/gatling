@@ -19,16 +19,16 @@ import io.gatling.core.check.Extractor
 import io.gatling.core.session.noopStringExpression
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
-import io.gatling.http.response.ExtendedResponse
+import io.gatling.http.response.Response
 
 object HttpStatusCheckBuilder {
 
-	val statusExtractor = new Extractor[ExtendedResponse, String, Int] {
+	val statusExtractor = new Extractor[Response, String, Int] {
 		val name = "status"
-		def apply(prepared: ExtendedResponse, criterion: String) = Some(prepared.getStatusCode).success
+		def apply(prepared: Response, criterion: String) = Some(prepared.getStatusCode).success
 	}
 
-	val status = new HttpSingleCheckBuilder[ExtendedResponse, String, Int](
+	val status = new HttpSingleCheckBuilder[Response, String, Int](
 		HttpCheckBuilders.statusCheckFactory,
 		HttpCheckBuilders.noopResponsePreparer,
 		statusExtractor,

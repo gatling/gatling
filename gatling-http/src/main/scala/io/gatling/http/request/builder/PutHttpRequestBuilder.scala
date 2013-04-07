@@ -16,7 +16,7 @@
 package io.gatling.http.request.builder
 
 import io.gatling.core.session.Expression
-import io.gatling.http.request.HttpRequestBody
+import io.gatling.http.request.RequestBody
 
 object PutHttpRequestBuilder {
 
@@ -28,12 +28,12 @@ object PutHttpRequestBuilder {
  */
 class PutHttpRequestBuilder(
 	httpAttributes: HttpAttributes,
-	body: Option[HttpRequestBody])
+	body: Option[RequestBody])
 		extends AbstractHttpRequestWithBodyBuilder[PutHttpRequestBuilder](httpAttributes, body) {
 
 	private[http] def newInstance(
 		httpAttributes: HttpAttributes,
-		body: Option[HttpRequestBody]) = {
+		body: Option[RequestBody]) = {
 		new PutHttpRequestBuilder(httpAttributes, body)
 	}
 }

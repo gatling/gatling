@@ -23,22 +23,22 @@ import com.ning.http.client.generators.InputStreamBodyGenerator
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.Validation
 
-trait HttpRequestBody {
+trait RequestBody {
 	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder]
 }
 
-case class StringBody(string: Expression[String]) extends HttpRequestBody {
+case class StringBody(string: Expression[String]) extends RequestBody {
 	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = string(session).map(requestBuilder.setBody)
 }
 
-case class RawFileBody(file: Expression[JFile]) extends HttpRequestBody {
+case class RawFileBody(file: Expression[JFile]) extends RequestBody {
 	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = file(session).map(requestBuilder.setBody)
 }
 
-case class ByteArrayBody(byteArray: Expression[Array[Byte]]) extends HttpRequestBody {
+case class ByteArrayBody(byteArray: Expression[Array[Byte]]) extends RequestBody {
 	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = byteArray(session).map(requestBuilder.setBody)
 }
 
-case class InputStreamBody(is: Expression[InputStream]) extends HttpRequestBody {
+case class InputStreamBody(is: Expression[InputStream]) extends RequestBody {
 	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
 }

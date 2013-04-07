@@ -15,6 +15,9 @@
  */
 package io.gatling.http.request.builder
 
+import com.ning.http.client.{ Realm, Request, RequestBuilder }
+import com.ning.http.client.ProxyServer.Protocol
+
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.{ EL, Expression, Session }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation, ValidationList }
@@ -26,10 +29,6 @@ import io.gatling.http.config.HttpProtocolConfiguration
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.util.HttpHelper
-import com.ning.http.client.{ Request, RequestBuilder }
-import com.ning.http.client.ProxyServer.Protocol
-import com.ning.http.client.Realm
-import com.ning.http.client.Realm.AuthScheme
 
 case class HttpAttributes(
 	requestName: Expression[String],

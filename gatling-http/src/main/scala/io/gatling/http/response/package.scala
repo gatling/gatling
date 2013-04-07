@@ -20,5 +20,5 @@ import com.ning.http.client.Request
 
 package object response {
 
-	type ExtendedResponseBuilderFactory = (Request, Session) => ExtendedResponseBuilder
+	type ResponseBuilderFactory = Request => ResponseBuilder
 }

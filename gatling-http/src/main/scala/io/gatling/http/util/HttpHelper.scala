@@ -99,13 +99,6 @@ object HttpHelper {
 		}
 	}
 
-	def dumpFluentCaseInsensitiveStringsMap(map: java.util.Map[String, java.util.List[String]], buff: StringBuilder) {
-
-		for {
-			entry <- map.entrySet
-		} buff.append(entry.getKey).append(": ").append(entry.getValue).append(eol)
-	}
-
 	def buildRealm(username: Expression[String], password: Expression[String]): Expression[Realm] = (session: Session) =>
 		for {
 			usernameValue <- username(session)

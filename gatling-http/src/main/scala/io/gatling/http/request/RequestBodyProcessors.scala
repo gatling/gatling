@@ -24,7 +24,7 @@ import io.gatling.http.util.GZIPHelper
 
 object RequestBodyProcessors {
 
-	val gzipRequestBody = (body: HttpRequestBody) => {
+	val gzipRequestBody = (body: RequestBody) => {
 
 		val gzippedBytes = body match {
 			case StringBody(string) => (session: Session) => string(session).map(GZIPHelper.gzip)
@@ -37,7 +37,7 @@ object RequestBodyProcessors {
 		ByteArrayBody(gzippedBytes)
 	}
 
-	val streamRequestBody = (body: HttpRequestBody) => {
+	val streamRequestBody = (body: RequestBody) => {
 
 		val stream = body match {
 			case StringBody(string) => (session: Session) => string(session).map(s => new BufferedInputStream(new ByteArrayInputStream(s.getBytes(configuration.simulation.encoding))))

@@ -17,7 +17,7 @@ package io.gatling.http.request.builder
 
 import io.gatling.core.session.{ ELCompiler, Expression, Session }
 import io.gatling.http.config.HttpProtocolConfiguration
-import io.gatling.http.request.HttpRequestBody
+import io.gatling.http.request.RequestBody
 
 object PostHttpRequestBuilder {
 
@@ -37,12 +37,12 @@ object PostHttpRequestBuilder {
  */
 class PostHttpRequestBuilder(
 	httpAttributes: HttpAttributes,
-	body: Option[HttpRequestBody],
+	body: Option[RequestBody],
 	paramsAttributes: HttpParamsAttributes)
 	extends AbstractHttpRequestWithBodyAndParamsBuilder[PostHttpRequestBuilder](httpAttributes, body, paramsAttributes) {
 
 	private[http] def newInstance(
 		httpAttributes: HttpAttributes,
-		body: Option[HttpRequestBody],
+		body: Option[RequestBody],
 		paramsAttributes: HttpParamsAttributes) = new PostHttpRequestBuilder(httpAttributes, body, paramsAttributes)
 }

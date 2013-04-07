@@ -17,7 +17,7 @@ package io.gatling.http.check.header
 
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
-import io.gatling.http.response.ExtendedResponse
+import io.gatling.http.response.Response
 
 object HttpHeaderRegexCheckBuilder {
 
@@ -28,7 +28,7 @@ object HttpHeaderRegexCheckBuilder {
 			p <- pattern(session)
 		} yield (h, p)
 
-		new HttpMultipleCheckBuilder[ExtendedResponse, (String, String), String](
+		new HttpMultipleCheckBuilder[Response, (String, String), String](
 			HttpCheckBuilders.headerCheckFactory,
 			HttpCheckBuilders.noopResponsePreparer,
 			HttpHeaderRegexExtractors.extractOne,

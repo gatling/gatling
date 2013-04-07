@@ -18,34 +18,36 @@ package io.gatling.http.response
 import java.security.MessageDigest
 
 import scala.math.max
+import scala.collection.mutable
 
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.{ computeTimeMillisFromNanos, nowMillis }
+import io.gatling.core.util.StringHelper.bytes2Hex
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.checksum.ChecksumCheck
 import io.gatling.http.config.HttpProtocolConfiguration
 import io.gatling.http.check.HttpCheckOrder.Body
 import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, Request }
 
-object ExtendedResponseBuilder {
+object ResponseBuilder {
 
-	def newExtendedResponseBuilder(checks: List[HttpCheck], protocolConfiguration: HttpProtocolConfiguration): ExtendedResponseBuilderFactory = {
+	def newResponseBuilder(checks: List[HttpCheck], protocolConfiguration: HttpProtocolConfiguration): ResponseBuilderFactory = {
 
 		val checksumChecks = checks.collect {
 			case checksumCheck: ChecksumCheck => checksumCheck
 		}
 
 		val storeBodyParts = !protocolConfiguration.responseChunksDiscardingEnabled || checks.exists(_.order == Body)
-		(request: Request, session: Session) => new ExtendedResponseBuilder(request, session, checksumChecks, storeBodyParts)
+		request: Request => new ResponseBuilder(request, checksumChecks, storeBodyParts)
 	}
 }
 
-class ExtendedResponseBuilder(request: Request, session: Session, checksumChecks: List[ChecksumCheck], storeBodyParts: Boolean) {
+class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], storeBodyParts: Boolean) {
 
 	private var status: HttpResponseStatus = _
 	private var headers: HttpResponseHeaders = _
 	private val bodies = new java.util.ArrayList[HttpResponseBodyPart]
-	private var checksums = Map.empty[String, MessageDigest]
+	private var digests = mutable.Map.empty[String, MessageDigest]
 	val _executionStartDate = nowMillis
 	var _requestSendingEndDate = 0L
 	var _responseReceivingStartDate = 0L
@@ -80,11 +82,7 @@ class ExtendedResponseBuilder(request: Request, session: Session, checksumChecks
 		bodyPart.map { part =>
 			for (check <- checksumChecks) {
 				val algorithm = check.algorithm
-				checksums.getOrElse(algorithm, {
-					val md = MessageDigest.getInstance(algorithm)
-					checksums += (algorithm -> md)
-					md
-				}).update(part.getBodyByteBuffer)
+				digests.getOrElseUpdate(algorithm, MessageDigest.getInstance(algorithm)).update(part.getBodyByteBuffer)
 			}
 
 			if (storeBodyParts) {
@@ -94,7 +92,7 @@ class ExtendedResponseBuilder(request: Request, session: Session, checksumChecks
 		this
 	}
 
-	def build: ExtendedResponse = {
+	def build: Response = {
 		// time measurement is imprecise due to multi-core nature
 		// ensure request doesn't end before starting
 		_requestSendingEndDate = max(_requestSendingEndDate, _executionStartDate)
@@ -102,7 +100,8 @@ class ExtendedResponseBuilder(request: Request, session: Session, checksumChecks
 		_responseReceivingStartDate = max(_responseReceivingStartDate, _requestSendingEndDate)
 		// ensure response doesn't end before starting
 		_executionEndDate = max(_executionEndDate, _responseReceivingStartDate)
-		val response = Option(status).map(status => status.provider.prepareResponse(status, headers, bodies))
-		new ExtendedResponse(request, response, checksums, _executionStartDate, _requestSendingEndDate, _responseReceivingStartDate, _executionEndDate)
+		val ahcResponse = Option(status).map(_.provider.prepareResponse(status, headers, bodies))
+		val checksums = digests.mapValues(md => bytes2Hex(md.digest)).toMap
+		new GatlingResponse(request, ahcResponse, checksums, _executionStartDate, _requestSendingEndDate, _responseReceivingStartDate, _executionEndDate)
 	}
 }

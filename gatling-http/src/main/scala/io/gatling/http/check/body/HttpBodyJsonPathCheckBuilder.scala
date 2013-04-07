@@ -22,11 +22,11 @@ import io.gatling.core.check.extractor.jsonpath.{ Json, JsonNode, JsonPathExtrac
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
-import io.gatling.http.response.ExtendedResponse
+import io.gatling.http.response.Response
 
 object HttpBodyJsonPathCheckBuilder extends Logging {
 
-	val preparer: Preparer[ExtendedResponse, Option[JsonNode]] = (response: ExtendedResponse) =>
+	val preparer: Preparer[Response, Option[JsonNode]] = (response: Response) =>
 		try {
 			val json = if (response.hasResponseBody) Some(response.getResponseBodyAsStream) else None
 			json.map(Json.parse).success

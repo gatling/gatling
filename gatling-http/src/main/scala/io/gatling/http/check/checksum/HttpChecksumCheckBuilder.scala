@@ -19,19 +19,19 @@ import io.gatling.core.check.{ Check, CheckFactory, Extractor }
 import io.gatling.core.session.noopStringExpression
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
-import io.gatling.http.response.ExtendedResponse
+import io.gatling.http.response.Response
 
 object HttpChecksumCheckBuilder {
 
 	def checksum(algorythm: String) = {
 
-		val checksumCheckFactory = (wrapped: Check[ExtendedResponse]) => new ChecksumCheck(algorythm, wrapped)
-		val extractor = new Extractor[ExtendedResponse, String, String] {
+		val checksumCheckFactory = (wrapped: Check[Response]) => new ChecksumCheck(algorythm, wrapped)
+		val extractor = new Extractor[Response, String, String] {
 			val name = algorythm
-			def apply(prepared: ExtendedResponse, criterion: String) = prepared.checksum(algorythm).success
+			def apply(prepared: Response, criterion: String) = prepared.checksum(algorythm).success
 		}
 
-		new HttpSingleCheckBuilder[ExtendedResponse, String, String](
+		new HttpSingleCheckBuilder[Response, String, String](
 			checksumCheckFactory,
 			HttpCheckBuilders.noopResponsePreparer,
 			extractor,

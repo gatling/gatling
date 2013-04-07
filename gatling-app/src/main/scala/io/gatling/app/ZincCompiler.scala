@@ -26,7 +26,6 @@ import com.typesafe.zinc.{ Compiler, Inputs, Setup }
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles
-import io.gatling.core.config.GatlingFiles.GATLING_HOME
 import sbt.inc.IncOptions
 import xsbti.Logger
 import xsbti.api.Compilation
@@ -46,7 +45,7 @@ object ZincCompiler extends Logging {
 				.collect { case file if (file.hasExtension("scala")) => file.jfile }
 				.toList
 
-			def analysisCacheMapEntry(directoryName: String) = (GATLING_HOME / directoryName).jfile -> (binDir / "cache" / directoryName).jfile
+			def analysisCacheMapEntry(directoryName: String) = (GatlingFiles.GATLING_HOME / directoryName).jfile -> (binDir / "cache" / directoryName).jfile
 
 			Inputs.inputs(classpath = classpath,
 				sources = sources,
@@ -101,7 +100,7 @@ object ZincCompiler extends Logging {
 
 		val zincCompiler = Compiler.create(setup, zincLogger)
 
-		val binDir = GatlingFiles.binariesDirectory.getOrElse(GATLING_HOME / "target")
+		val binDir = GatlingFiles.binariesDirectory.getOrElse(GatlingFiles.GATLING_HOME / "target")
 
 		// Define the inputs
 		val inputs = simulationInputs(sourceDirectory, binDir)

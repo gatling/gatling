@@ -39,8 +39,8 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocolConfiguration
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.request.builder.AbstractHttpRequestBuilder
-
 import akka.actor.{ ActorRef, Props }
+import com.ning.http.client.Request
 
 /**
  * HttpRequestAction class companion
@@ -72,30 +72,32 @@ class HttpRequestAction(requestName: Expression[String], val next: ActorRef, req
 
 	def execute(session: Session) {
 
+		def sendRequest(resolvedRequestName: String, request: Request, newSession: Session) = {
+
+			if (CacheHandling.isCached(protocolConfiguration, newSession, request)) {
+				logger.info(s"Skipping cached request '$resolvedRequestName': scenario '${newSession.scenarioName}', userId #${newSession.userId}")
+				next ! newSession
+
+			} else {
+				logger.info(s"Sending request '$resolvedRequestName': scenario '${newSession.scenarioName}', userId #${newSession.userId}")
+				val actor = context.actorOf(Props(asyncHandlerActorFactory(resolvedRequestName)(request, newSession)))
+				val ahcHandler = handlerFactory(resolvedRequestName, actor)
+				GatlingHttpClient.client.executeRequest(request, ahcHandler)
+			}
+		}
+
 		val execution = for {
 			resolvedRequestName <- requestName(session)
 			request <- requestBuilder.build(session, protocolConfiguration)
-		} yield (resolvedRequestName, request)
+			newSession = RefererHandling.storeReferer(request, session, protocolConfiguration)
+
+		} yield sendRequest(resolvedRequestName, request, newSession)
 
 		execution match {
-			case Success((resolvedRequestName, request)) =>
-
-				val newSession = RefererHandling.storeReferer(request, session, protocolConfiguration)
-
-				if (CacheHandling.isCached(protocolConfiguration, session, request)) {
-					logger.info(s"Bypassing cached Request '$resolvedRequestName': Scenario '${session.scenarioName}', UserId #${session.userId}")
-					next ! newSession
-
-				} else {
-					logger.info(s"Sending Request '$resolvedRequestName': Scenario '${session.scenarioName}', UserId #${session.userId}")
-					val actor = context.actorOf(Props(asyncHandlerActorFactory(resolvedRequestName)(request, newSession)))
-					val ahcHandler = handlerFactory(resolvedRequestName, actor)
-					GatlingHttpClient.client.executeRequest(request, ahcHandler)
-				}
-
 			case Failure(message) =>
 				logger.error(message)
 				next ! session
+			case _ =>
 		}
 	}
 }

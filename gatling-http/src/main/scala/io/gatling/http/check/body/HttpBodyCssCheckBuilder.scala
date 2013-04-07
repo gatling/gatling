@@ -25,12 +25,12 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
-import io.gatling.http.response.ExtendedResponse
+import io.gatling.http.response.Response
 import jodd.lagarto.dom.NodeSelector
 
 object HttpBodyCssCheckBuilder extends Logging {
 
-	val preparer: Preparer[ExtendedResponse, NodeSelector] = (response: ExtendedResponse) =>
+	val preparer: Preparer[Response, NodeSelector] = (response: Response) =>
 		try {
 			val charBuffer = Charset.forName(configuration.simulation.encoding).decode(response.getResponseBodyAsByteBuffer)
 			CssExtractors.parse(charBuffer).success

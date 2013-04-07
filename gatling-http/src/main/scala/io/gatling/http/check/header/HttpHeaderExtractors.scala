@@ -22,11 +22,11 @@ import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.http.Headers
-import io.gatling.http.response.ExtendedResponse
+import io.gatling.http.response.Response
 
 object HttpHeaderExtractors {
 
-	abstract class HeaderExtractor[X] extends Extractor[ExtendedResponse, String, X] {
+	abstract class HeaderExtractor[X] extends Extractor[Response, String, X] {
 		val name = "header"
 	}
 
@@ -36,23 +36,23 @@ object HttpHeaderExtractors {
 		else
 			headerValue
 
-	def decodedHeaders(response: ExtendedResponse, headerName: String): Seq[String] = response.getHeadersSafe(headerName).map(decode(headerName, _))
+	def decodedHeaders(response: Response, headerName: String): Seq[String] = response.getHeadersSafe(headerName).map(decode(headerName, _))
 
 	val extractOne = (occurrence: Int) => new HeaderExtractor[String] {
 
-		def apply(prepared: ExtendedResponse, criterion: String): Validation[Option[String]] =
+		def apply(prepared: Response, criterion: String): Validation[Option[String]] =
 			prepared.getHeadersSafe(criterion).lift(occurrence).map(decode(criterion, _)).success
 	}
 
 	val extractMultiple = new HeaderExtractor[Seq[String]] {
 
-		def apply(prepared: ExtendedResponse, criterion: String): Validation[Option[Seq[String]]] =
+		def apply(prepared: Response, criterion: String): Validation[Option[Seq[String]]] =
 			decodedHeaders(prepared, criterion).liftSeqOption.success
 	}
 
 	val count = new HeaderExtractor[Int] {
 
-		def apply(prepared: ExtendedResponse, criterion: String): Validation[Option[Int]] =
+		def apply(prepared: Response, criterion: String): Validation[Option[Int]] =
 			prepared.getHeadersSafe(criterion).liftSeqOption.map(_.size).success
 	}
 }
