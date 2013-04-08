@@ -15,12 +15,13 @@
  */
 package io.gatling.http.config
 
+import com.ning.http.client.{ ProxyServer, Realm, Request }
+
 import io.gatling.core.config.ProtocolConfiguration
 import io.gatling.core.result.message.RequestStatus
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.RoundRobin
 import io.gatling.http.response.Response
-import com.ning.http.client.{ ProxyServer, Realm, Request }
 
 /**
  * HttpProtocolConfiguration class companion

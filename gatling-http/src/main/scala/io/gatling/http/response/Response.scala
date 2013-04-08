@@ -31,6 +31,7 @@ trait Response extends AHCResponse {
 	def checksum(algorithm: String): Option[String]
 	def reponseTimeInMillis: Long
 	def latencyInMillis: Long
+	def isReceived: Boolean
 	def getHeadersSafe(name: String): Seq[String]
 }
 
@@ -43,31 +44,33 @@ class GatlingResponse(
 	val responseReceivingStartDate: Long,
 	val executionEndDate: Long) extends Response {
 
-	def checksum(algorithm: String): Option[String] = checksums.get(algorithm)
-	def reponseTimeInMillis: Long = executionEndDate - executionStartDate
-	def latencyInMillis: Long = responseReceivingStartDate - requestSendingEndDate
+	def checksum(algorithm: String) = checksums.get(algorithm)
+	def reponseTimeInMillis = executionEndDate - executionStartDate
+	def latencyInMillis = responseReceivingStartDate - requestSendingEndDate
+	def isReceived = ahcResponse.isDefined
 	def getHeadersSafe(name: String) = Option(ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).getHeaders(name).toSeq).getOrElse(Nil)
 
 	override def toString = ahcResponse.toString
-	def getStatusCode = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).getStatusCode
-	def getStatusText = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).getStatusText
-	def getResponseBodyAsBytes = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).getResponseBodyAsBytes
-	def getResponseBodyAsStream = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).getResponseBodyAsStream
-	def getResponseBodyAsByteBuffer = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).getResponseBodyAsByteBuffer
-	def getResponseBodyExcerpt(maxLength: Int, charset: String) = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).getResponseBodyExcerpt(maxLength, charset)
-	def getResponseBody(charset: String) = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).getResponseBody(charset)
-	def getResponseBodyExcerpt(maxLength: Int) = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).getResponseBodyExcerpt(maxLength)
-	def getResponseBody = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).getResponseBody
-	def getUri = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).getUri
-	def getContentType = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).getContentType
-	def getHeader(name: String) = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).getHeader(name)
-	def getHeaders(name: String) = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).getHeaders(name)
-	def getHeaders = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).getHeaders
-	def isRedirected = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).isRedirected
-	def getCookies = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).getCookies
-	def hasResponseStatus = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).hasResponseStatus
-	def hasResponseHeaders = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).hasResponseHeaders
-	def hasResponseBody = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).hasResponseBody
+	def receivedResponse = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built"))
+	def getStatusCode = receivedResponse.getStatusCode
+	def getStatusText = receivedResponse.getStatusText
+	def getResponseBodyAsBytes = receivedResponse.getResponseBodyAsBytes
+	def getResponseBodyAsStream = receivedResponse.getResponseBodyAsStream
+	def getResponseBodyAsByteBuffer = receivedResponse.getResponseBodyAsByteBuffer
+	def getResponseBodyExcerpt(maxLength: Int, charset: String) = receivedResponse.getResponseBodyExcerpt(maxLength, charset)
+	def getResponseBody(charset: String) = receivedResponse.getResponseBody(charset)
+	def getResponseBodyExcerpt(maxLength: Int) = receivedResponse.getResponseBodyExcerpt(maxLength)
+	def getResponseBody = receivedResponse.getResponseBody
+	def getUri = receivedResponse.getUri
+	def getContentType = receivedResponse.getContentType
+	def getHeader(name: String) = receivedResponse.getHeader(name)
+	def getHeaders(name: String) = receivedResponse.getHeaders(name)
+	def getHeaders = receivedResponse.getHeaders
+	def isRedirected = receivedResponse.isRedirected
+	def getCookies = receivedResponse.getCookies
+	def hasResponseStatus = receivedResponse.hasResponseStatus
+	def hasResponseHeaders = receivedResponse.hasResponseHeaders
+	def hasResponseBody = receivedResponse.hasResponseBody
 }
 
 class DelegatingReponse(delegate: Response) extends Response {
@@ -82,6 +85,7 @@ class DelegatingReponse(delegate: Response) extends Response {
 	def checksum(algorithm: String) = delegate.checksum(algorithm)
 	def reponseTimeInMillis = delegate.reponseTimeInMillis
 	def latencyInMillis = delegate.latencyInMillis
+	def isReceived = delegate.isReceived
 	def getHeadersSafe(name: String) = delegate.getHeadersSafe(name)
 
 	def getStatusCode = delegate.getStatusCode

@@ -15,7 +15,6 @@
  */
 package io.gatling.http
 
-import io.gatling.core.session.Session
 import com.ning.http.client.Request
 
 package object response {

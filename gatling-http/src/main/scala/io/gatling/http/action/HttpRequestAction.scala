@@ -29,18 +29,19 @@
  */
 package io.gatling.http.action
 
+import com.ning.http.client.Request
+
+import akka.actor.{ ActorRef, Props }
 import io.gatling.core.action.Bypassable
 import io.gatling.core.config.ProtocolConfigurationRegistry
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.{ Failure, Success }
+import io.gatling.core.validation.Failure
 import io.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor, GatlingHttpClient }
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocolConfiguration
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.request.builder.AbstractHttpRequestBuilder
-import akka.actor.{ ActorRef, Props }
-import com.ning.http.client.Request
 
 /**
  * HttpRequestAction class companion

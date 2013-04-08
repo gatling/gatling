@@ -30,7 +30,6 @@ import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
 import com.ning.http.util.Base64
 import com.typesafe.scalalogging.slf4j.Logging
 
-import io.gatling.http.ahc.GatlingAsyncHandlerActor.redirectStatusCodes
 import io.gatling.recorder.config.{ Pattern, RecorderConfiguration }
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.config.RecorderPropertiesBuilder
@@ -191,7 +190,7 @@ class RecorderController extends Logging {
 		lastRequestDate = null
 	}
 
-	private def isRedirectCode(code: Int) = redirectStatusCodes.contains(code)
+	private def isRedirectCode(code: Int) = code >= 300 && code <= 399
 
 	private def isRequestRedirectChainStart(request: HttpRequest, response: HttpResponse): Boolean = configuration.http.followRedirect && !isRedirectCode(lastStatus) && isRedirectCode(response.getStatus.getCode)
 

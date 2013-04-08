@@ -15,14 +15,13 @@
  */
 package io.gatling.http.action
 
+import akka.actor.{ ActorRef, Props }
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.action.system
 import io.gatling.core.config.ProtocolConfigurationRegistry
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.ValidationList
 import com.ning.http.client.{ Cookie => AHCCookie }
-
-import akka.actor.{ ActorRef, Props }
 
 case class Cookie(domain: Expression[String], name: Expression[String], value: Expression[String], path: Expression[String])
 

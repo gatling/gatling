@@ -17,17 +17,17 @@ package io.gatling.http.response
 
 import java.security.MessageDigest
 
-import scala.math.max
 import scala.collection.mutable
+import scala.math.max
 
-import io.gatling.core.session.Session
-import io.gatling.core.util.TimeHelper.{ computeTimeMillisFromNanos, nowMillis }
+import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, Request }
+
 import io.gatling.core.util.StringHelper.bytes2Hex
+import io.gatling.core.util.TimeHelper.{ computeTimeMillisFromNanos, nowMillis }
 import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.HttpCheckOrder.Body
 import io.gatling.http.check.checksum.ChecksumCheck
 import io.gatling.http.config.HttpProtocolConfiguration
-import io.gatling.http.check.HttpCheckOrder.Body
-import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, Request }
 
 object ResponseBuilder {
 

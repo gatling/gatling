@@ -15,17 +15,16 @@
  */
 package io.gatling.http.action
 
+import akka.actor.{ ActorRef, Props }
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.action.system
 import io.gatling.core.config.ProtocolConfigurationRegistry
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.status.HttpStatusCheckBuilder.status
 import io.gatling.http.check.HttpCheckOrder.Status
+import io.gatling.http.check.status.HttpStatusCheckBuilder.status
 import io.gatling.http.request.builder.AbstractHttpRequestBuilder
-
-import akka.actor.{ ActorRef, Props }
 
 object HttpRequestActionBuilder {
 
