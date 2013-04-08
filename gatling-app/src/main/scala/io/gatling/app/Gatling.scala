@@ -21,13 +21,14 @@ import scala.collection.mutable
 
 import io.gatling.app.CommandLineConstants._
 import io.gatling.charts.report.ReportsGenerator
-import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles, GatlingPropertiesBuilder }
+import io.gatling.core.config.{ GatlingFiles, GatlingPropertiesBuilder }
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.reader.DataReader
 import io.gatling.core.runner.{ Runner, Selection }
 import io.gatling.core.scenario.configuration.Simulation
 import io.gatling.core.structure.Assertion
 import io.gatling.core.util.FileHelper.formatToFilename
-
 import scopt.OptionParser
 
 /**
@@ -79,8 +80,6 @@ object Gatling {
 }
 
 class Gatling {
-
-	import GatlingConfiguration.configuration
 
 	private def defaultOutputDirectoryBaseName(clazz: Class[Simulation]) = configuration.core.outputDirectoryBaseName.getOrElse(formatToFilename(clazz.getSimpleName))
 
@@ -185,8 +184,7 @@ class Gatling {
 		if (successful) {
 			println("Simulation successful.")
 			GatlingStatusCodes.success
-		}
-		else {
+		} else {
 			println("Simulation failed.")
 			GatlingStatusCodes.assertionsFailed
 		}

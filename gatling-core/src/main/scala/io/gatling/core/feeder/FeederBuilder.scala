@@ -32,7 +32,7 @@ case class AdvancedFeederBuilder[T](data: Array[Record[T]], strategy: Strategy =
 		copy(data = data.map(_.map { case (key, value) => (key, indexedConversions(key)(value)) }))
 	}
 
-	private[gatling] def build: Feeder[T] = strategy match {
+	def build: Feeder[T] = strategy match {
 		case Queue => data.iterator
 		case Random => new Feeder[T] {
 			def hasNext = data.length != 0

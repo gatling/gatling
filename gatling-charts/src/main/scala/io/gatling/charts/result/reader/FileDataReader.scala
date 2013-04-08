@@ -36,7 +36,6 @@ object FileDataReader {
 	val logStep = 100000
 	val secMillisecRatio = 1000.0
 	val noPlotMagicValue = -1L
-	val tabulationPattern = tabulationSeparator.r
 	val simulationFilesNamePattern = """.*\.log"""
 }
 
@@ -69,7 +68,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		var runEnd = Long.MinValue
 		val runRecords = mutable.ListBuffer.empty[RunRecord]
 
-		records.map(FileDataReader.tabulationPattern.split).foreach { array =>
+		records.map(_.split(tabulationSeparator)).foreach { array =>
 			count += 1
 			if (count % FileDataReader.logStep == 0) logger.info(s"First pass, read $count lines")
 
@@ -107,7 +106,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		var count = 0
 
 		records
-			.collect { case line if (line.startsWith(ActionRecordType.name) || line.startsWith(GroupRecordType.name) || line.startsWith(ScenarioRecordType.name)) => FileDataReader.tabulationPattern.split(line) }
+			.collect { case line if (line.startsWith(ActionRecordType.name) || line.startsWith(GroupRecordType.name) || line.startsWith(ScenarioRecordType.name)) => line.split(tabulationSeparator) }
 			.filter(_.length >= 1)
 			.foreach { array =>
 				count += 1

@@ -18,7 +18,8 @@ package io.gatling.core.feeder.csv
 import scala.io.Source
 import scala.tools.nsc.io.Path
 
-import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
+import io.gatling.core.config.GatlingFiles
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.feeder.{ AdvancedFeederBuilder, Record }
 import io.gatling.core.util.FileHelper.{ commaSeparator, semicolonSeparator, tabulationSeparator }
 import io.gatling.core.util.IOHelper.withSource
@@ -29,9 +30,9 @@ object SeparatedValuesParser {
 
 		def readLine(line: Array[String]) = escapeChar.map(escape => line.map(_.stripPrefix(escape).stripSuffix(escape))).getOrElse(line)
 
-		require(file.exists, s"file $file doesn't exists")
+		require(file.exists, s"File $file doesn't exists")
 
-		withSource(Source.fromFile(file.jfile, GatlingConfiguration.configuration.core.encoding)) { source =>
+		withSource(Source.fromFile(file.jfile, configuration.core.encoding)) { source =>
 
 			val rawLines = source.getLines.map(_.split(separator)).map(readLine)
 			val headers = rawLines.next

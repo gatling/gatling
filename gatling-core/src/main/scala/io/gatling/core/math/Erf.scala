@@ -81,33 +81,34 @@ object Erf {
 		0.20372431817412177929e1,
 		0.1e1)
 
-	private def evalPolynom(p: Seq[Double], x: Double) = p.reduceRight((c, v) => v * x + c)
-
-	private def positiveErfinv(u: Double) =
-		u match {
-			case _ if u >= 1.0 => Double.MaxValue
-			case _ if u <= 0.75 => {
-				val t = u * u - 0.5625
-				val v = evalPolynom(invP1, t)
-				val w = evalPolynom(invQ1, t)
-				(v / w) * u
-			}
-			case _ if u <= 0.9375 => {
-				val t = u * u - 0.87890625
-				val v = evalPolynom(invP2, t)
-				val w = evalPolynom(invQ2, t)
-				(v / w) * u
-
-			}
-			case _ => {
-				val t = 1.0 / sqrt(-log(1.0 - u))
-				val v = evalPolynom(invP3, t)
-				val w = evalPolynom(invQ3, t)
-				(v / w) / t
-			}
-		}
-
 	def erfinv(n: Double) = {
+
+		def evalPolynom(p: Seq[Double], x: Double) = p.reduceRight((c, v) => v * x + c)
+
+		def positiveErfinv(u: Double) =
+			u match {
+				case _ if u >= 1.0 => Double.MaxValue
+				case _ if u <= 0.75 => {
+					val t = u * u - 0.5625
+					val v = evalPolynom(invP1, t)
+					val w = evalPolynom(invQ1, t)
+					(v / w) * u
+				}
+				case _ if u <= 0.9375 => {
+					val t = u * u - 0.87890625
+					val v = evalPolynom(invP2, t)
+					val w = evalPolynom(invQ2, t)
+					(v / w) * u
+
+				}
+				case _ => {
+					val t = 1.0 / sqrt(-log(1.0 - u))
+					val v = evalPolynom(invP3, t)
+					val w = evalPolynom(invQ3, t)
+					(v / w) / t
+				}
+			}
+
 		require(abs(n) <= 1.0, s"n=$n is not in [-1, 1]")
 
 		if (n < 0.0) -positiveErfinv(-n) else positiveErfinv(n)
