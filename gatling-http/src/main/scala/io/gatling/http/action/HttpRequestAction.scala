@@ -36,23 +36,20 @@ import io.gatling.core.action.Bypassable
 import io.gatling.core.config.ProtocolConfigurationRegistry
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.Failure
-import io.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor, GatlingHttpClient }
+import io.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor, GatlingHttpClient, RequestFactory }
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocolConfiguration
 import io.gatling.http.referer.RefererHandling
-import io.gatling.http.request.builder.AbstractHttpRequestBuilder
+import io.gatling.http.response.ResponseProcessor
 
-/**
- * HttpRequestAction class companion
- */
 object HttpRequestAction {
 
-	def apply(requestName: Expression[String], next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck], protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
+	def apply(requestName: Expression[String], next: ActorRef, requestFactory: RequestFactory, checks: List[HttpCheck], responseProcessor: Option[ResponseProcessor], protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
 
 		val httpConfig = protocolConfigurationRegistry.getProtocolConfiguration(HttpProtocolConfiguration.default)
 
-		new HttpRequestAction(requestName, next, requestBuilder, checks, httpConfig)
+		new HttpRequestAction(requestName, next, requestFactory, checks, responseProcessor.orElse(httpConfig.responseProcessor), httpConfig)
 	}
 }
 
@@ -66,10 +63,16 @@ object HttpRequestAction {
  * @param checks the checks that will be performed on the response
  * @param protocolConfiguration the protocol specific configuration
  */
-class HttpRequestAction(requestName: Expression[String], val next: ActorRef, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck], protocolConfiguration: HttpProtocolConfiguration) extends Bypassable {
+class HttpRequestAction(
+	requestName: Expression[String],
+	val next: ActorRef,
+	requestFactory: RequestFactory,
+	checks: List[HttpCheck],
+	responseProcessor: Option[ResponseProcessor],
+	protocolConfiguration: HttpProtocolConfiguration) extends Bypassable {
 
 	val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks, protocolConfiguration)
-	val asyncHandlerActorFactory = GatlingAsyncHandlerActor.newAsyncHandlerActorFactory(checks, next, protocolConfiguration) _
+	val asyncHandlerActorFactory = GatlingAsyncHandlerActor.newAsyncHandlerActorFactory(checks, next, responseProcessor, protocolConfiguration) _
 
 	def execute(session: Session) {
 
@@ -89,7 +92,7 @@ class HttpRequestAction(requestName: Expression[String], val next: ActorRef, req
 
 		val execution = for {
 			resolvedRequestName <- requestName(session)
-			request <- requestBuilder.build(session, protocolConfiguration)
+			request <- requestFactory(session, protocolConfiguration)
 			newSession = RefererHandling.storeReferer(request, session, protocolConfiguration)
 
 		} yield sendRequest(resolvedRequestName, request, newSession)

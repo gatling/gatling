@@ -35,7 +35,7 @@ import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocolConfiguration
 import io.gatling.http.cookie.CookieHandling
-import io.gatling.http.response.{ Response, ResponseBuilder, ResponseBuilderFactory }
+import io.gatling.http.response.{ Response, ResponseBuilder, ResponseBuilderFactory, ResponseProcessor }
 import io.gatling.http.util.{ HttpHelper, HttpStringBuilder }
 
 object GatlingAsyncHandlerActor {
@@ -45,10 +45,11 @@ object GatlingAsyncHandlerActor {
 	def newAsyncHandlerActorFactory(
 		checks: List[HttpCheck],
 		next: ActorRef,
+		responseProcessor: Option[ResponseProcessor],
 		protocolConfiguration: HttpProtocolConfiguration)(requestName: String) = {
 
 		val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks, protocolConfiguration)
-		val responseBuilderFactory = ResponseBuilder.newResponseBuilder(checks, protocolConfiguration)
+		val responseBuilderFactory = ResponseBuilder.newResponseBuilder(checks, responseProcessor, protocolConfiguration)
 
 		(request: Request, session: Session) =>
 			new GatlingAsyncHandlerActor(

@@ -23,11 +23,12 @@ import io.gatling.core.session.{ EL, Expression, Session }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation, ValidationList }
 import io.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import io.gatling.http.action.HttpRequestActionBuilder
-import io.gatling.http.ahc.GatlingConnectionPoolKeyStrategy
+import io.gatling.http.ahc.{ GatlingConnectionPoolKeyStrategy, RequestFactory }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocolConfiguration
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.referer.RefererHandling
+import io.gatling.http.response.ResponseProcessor
 import io.gatling.http.util.HttpHelper
 
 case class HttpAttributes(
@@ -37,7 +38,8 @@ case class HttpAttributes(
 	queryParams: List[HttpParam] = Nil,
 	headers: Map[String, Expression[String]] = Map.empty,
 	realm: Option[Expression[Realm]] = None,
-	checks: List[HttpCheck] = Nil)
+	checks: List[HttpCheck] = Nil,
+	responseProcessor: Option[ResponseProcessor] = None)
 
 object AbstractHttpRequestBuilder {
 
@@ -120,6 +122,11 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	def basicAuth(username: Expression[String], password: Expression[String]): B = newInstance(httpAttributes.copy(realm = Some(HttpHelper.buildRealm(username, password))))
 
 	/**
+	 * @param processor processes the response before it's handled to the checks pipeline
+	 */
+	def processResponse(processor: ResponseProcessor): B = newInstance(httpAttributes.copy(responseProcessor = Some(processor)))
+
+	/**
 	 * This method actually fills the request builder to avoid race conditions
 	 *
 	 * @param session the session of the current scenario
@@ -194,7 +201,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 *
 	 * @param session the session of the current scenario
 	 */
-	private[http] def build(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[Request] = getAHCRequestBuilder(session, protocolConfiguration).map(_.build)
+	def build: RequestFactory = (session: Session, protocolConfiguration: HttpProtocolConfiguration) => getAHCRequestBuilder(session, protocolConfiguration).map(_.build)
 
-	private[gatling] def toActionBuilder = HttpRequestActionBuilder(httpAttributes.requestName, this, httpAttributes.checks)
+	def toActionBuilder = HttpRequestActionBuilder(httpAttributes.requestName, this.build, httpAttributes.checks, httpAttributes.responseProcessor)
 }

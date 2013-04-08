@@ -21,10 +21,12 @@ import io.gatling.core.action.system
 import io.gatling.core.config.ProtocolConfigurationRegistry
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.SuccessWrapper
+import io.gatling.http.ahc.RequestFactory
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckOrder.Status
 import io.gatling.http.check.status.HttpStatusCheckBuilder.status
 import io.gatling.http.request.builder.AbstractHttpRequestBuilder
+import io.gatling.http.response.ResponseProcessor
 
 object HttpRequestActionBuilder {
 
@@ -33,7 +35,7 @@ object HttpRequestActionBuilder {
 	 */
 	val DEFAULT_HTTP_STATUS_CHECK = status.find.in(Session => (200 to 210).success).build
 
-	def apply(requestName: Expression[String], requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck]) = {
+	def apply(requestName: Expression[String], requestFactory: RequestFactory, checks: List[HttpCheck], responseProcessor: Option[ResponseProcessor]) = {
 
 		val resolvedChecks = checks
 			.find(_.order == Status)
@@ -41,7 +43,7 @@ object HttpRequestActionBuilder {
 			.getOrElse(HttpRequestActionBuilder.DEFAULT_HTTP_STATUS_CHECK :: checks)
 			.sorted
 
-		new HttpRequestActionBuilder(requestName, requestBuilder, resolvedChecks)
+		new HttpRequestActionBuilder(requestName, requestFactory, resolvedChecks, responseProcessor)
 	}
 }
 
@@ -52,7 +54,7 @@ object HttpRequestActionBuilder {
  * @param requestBuilder the builder for the request that will be sent
  * @param next the next action to be executed
  */
-class HttpRequestActionBuilder(requestName: Expression[String], requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck]) extends ActionBuilder {
+class HttpRequestActionBuilder(requestName: Expression[String], requestFactory: RequestFactory, checks: List[HttpCheck], responseProcessor: Option[ResponseProcessor]) extends ActionBuilder {
 
-	private[gatling] def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = system.actorOf(Props(HttpRequestAction(requestName, next, requestBuilder, checks, protocolConfigurationRegistry)))
+	private[gatling] def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = system.actorOf(Props(HttpRequestAction(requestName, next, requestFactory, checks, responseProcessor, protocolConfigurationRegistry)))
 }

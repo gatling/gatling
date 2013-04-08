@@ -31,18 +31,18 @@ import io.gatling.http.config.HttpProtocolConfiguration
 
 object ResponseBuilder {
 
-	def newResponseBuilder(checks: List[HttpCheck], protocolConfiguration: HttpProtocolConfiguration): ResponseBuilderFactory = {
+	def newResponseBuilder(checks: List[HttpCheck], responseProcessor: Option[ResponseProcessor], protocolConfiguration: HttpProtocolConfiguration): ResponseBuilderFactory = {
 
 		val checksumChecks = checks.collect {
 			case checksumCheck: ChecksumCheck => checksumCheck
 		}
 
 		val storeBodyParts = !protocolConfiguration.responseChunksDiscardingEnabled || checks.exists(_.order == Body)
-		request: Request => new ResponseBuilder(request, checksumChecks, storeBodyParts)
+		request: Request => new ResponseBuilder(request, checksumChecks, responseProcessor, storeBodyParts)
 	}
 }
 
-class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], storeBodyParts: Boolean) {
+class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], responseProcessor: Option[ResponseProcessor], storeBodyParts: Boolean) {
 
 	private var status: HttpResponseStatus = _
 	private var headers: HttpResponseHeaders = _
@@ -102,6 +102,10 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], sto
 		_executionEndDate = max(_executionEndDate, _responseReceivingStartDate)
 		val ahcResponse = Option(status).map(_.provider.prepareResponse(status, headers, bodies))
 		val checksums = digests.mapValues(md => bytes2Hex(md.digest)).toMap
-		new GatlingResponse(request, ahcResponse, checksums, _executionStartDate, _requestSendingEndDate, _responseReceivingStartDate, _executionEndDate)
+		val rawResponse = new GatlingResponse(request, ahcResponse, checksums, _executionStartDate, _requestSendingEndDate, _responseReceivingStartDate, _executionEndDate)
+
+		responseProcessor
+			.map(_.applyOrElse(rawResponse, identity[Response]))
+			.getOrElse(rawResponse)
 	}
 }
