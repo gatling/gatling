@@ -19,37 +19,33 @@ import scala.io.Source
 import scala.tools.nsc.io.Path
 
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
-import io.gatling.core.feeder.AdvancedFeederBuilder
+import io.gatling.core.feeder.{ AdvancedFeederBuilder, Record }
 import io.gatling.core.util.FileHelper.{ commaSeparator, semicolonSeparator, tabulationSeparator }
 import io.gatling.core.util.IOHelper.withSource
 
 object SeparatedValuesParser {
 
-	private def parse(file: Path, separator: String, escapeChar: Option[String]): AdvancedFeederBuilder[String] = {
+	def parse(file: Path, separator: String, escapeChar: Option[String] = None): Array[Record[String]] = {
+
+		def readLine(line: Array[String]) = escapeChar.map(escape => line.map(_.stripPrefix(escape).stripSuffix(escape))).getOrElse(line)
+
 		require(file.exists, s"file $file doesn't exists")
 
-		val data = withSource(Source.fromFile(file.jfile, GatlingConfiguration.configuration.core.encoding)) { source =>
+		withSource(Source.fromFile(file.jfile, GatlingConfiguration.configuration.core.encoding)) { source =>
 
-			val rawLines = source.getLines.map(_.split(separator))
+			val rawLines = source.getLines.map(_.split(separator)).map(readLine)
+			val headers = rawLines.next
 
-			val lines = escapeChar.map { escape =>
-				rawLines.map(_.map(_.stripPrefix(escape).stripSuffix(escape)))
-			}.getOrElse(rawLines).toArray
-
-			val headers = lines.head
-
-			lines.tail.map(line => (headers zip line).toMap)
+			rawLines.map(line => headers.zip(line).toMap).toArray
 		}
-
-		AdvancedFeederBuilder(data)
 	}
 
-	def csv(fileName: String, escapeChar: Option[String]): AdvancedFeederBuilder[String] = csv(GatlingFiles.dataDirectory / fileName, escapeChar)
-	def csv(file: Path, escapeChar: Option[String]) = parse(file, commaSeparator, escapeChar)
+	def csv(fileName: String, escapeChar: Option[String]): AdvancedFeederBuilder[String] = csv(GatlingFiles.feederFile(fileName), escapeChar)
+	def csv(file: Path, escapeChar: Option[String]) = AdvancedFeederBuilder(parse(file, commaSeparator, escapeChar))
 
-	def tsv(fileName: String, escapeChar: Option[String]): AdvancedFeederBuilder[String] = tsv(GatlingFiles.dataDirectory / fileName, escapeChar)
-	def tsv(file: Path, escapeChar: Option[String]) = parse(file, tabulationSeparator, escapeChar)
+	def tsv(fileName: String, escapeChar: Option[String]): AdvancedFeederBuilder[String] = tsv(GatlingFiles.feederFile(fileName), escapeChar)
+	def tsv(file: Path, escapeChar: Option[String]) = AdvancedFeederBuilder(parse(file, tabulationSeparator, escapeChar))
 
-	def ssv(fileName: String, escapeChar: Option[String]): AdvancedFeederBuilder[String] = ssv(GatlingFiles.dataDirectory / fileName, escapeChar)
-	def ssv(file: Path, escapeChar: Option[String]) = parse(file, semicolonSeparator, escapeChar)
+	def ssv(fileName: String, escapeChar: Option[String]): AdvancedFeederBuilder[String] = ssv(GatlingFiles.feederFile(fileName), escapeChar)
+	def ssv(file: Path, escapeChar: Option[String]) = AdvancedFeederBuilder(parse(file, semicolonSeparator, escapeChar))
 }
