@@ -71,7 +71,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 		records.map(FileDataReader.tabulationPattern.split).foreach { array =>
 			count += 1
-			if (count % FileDataReader.logStep == 0) logger.info(s"Second pass, read $count lines")
+			if (count % FileDataReader.logStep == 0) logger.info(s"First pass, read $count lines")
 
 			if (ActionRecordType.isValidRecord(array)) {
 				runStart = math.min(runStart, array(4).toLong)
@@ -111,7 +111,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			.filter(_.length >= 1)
 			.foreach { array =>
 				count += 1
-				if (count % FileDataReader.logStep == 0) logger.info(s"First pass, read $count lines")
+				if (count % FileDataReader.logStep == 0) logger.info(s"Second pass, read $count lines")
 
 				if (ActionRecordType.isValidRecord(array)) resultsHolder.addActionRecord(ActionRecord(array, bucketFunction, runStart))
 				else if (GroupRecordType.isValidRecord(array)) resultsHolder.addGroupRecord(GroupRecord(array, bucketFunction, runStart))
