@@ -95,6 +95,7 @@ object Headers {
 		val APPLICATION_ZIP = "application/zip"
 		val APPLICATION_GZIP = "application/x-gzip"
 		val APPLICATION_XML = "application/xml"
+		val APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded"
 		val AUDIO_MP4 = "audio/mp4"
 		val AUDIO_MPEG = "audio/mpeg"
 		val AUDIO_OGG = "audio/ogg"
