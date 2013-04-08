@@ -40,7 +40,7 @@ object RequestBodyProcessors {
 	val streamRequestBody = (body: RequestBody) => {
 
 		val stream = body match {
-			case StringBody(string) => (session: Session) => string(session).map(s => new BufferedInputStream(new ByteArrayInputStream(s.getBytes(configuration.simulation.encoding))))
+			case StringBody(string) => (session: Session) => string(session).map(s => new BufferedInputStream(new ByteArrayInputStream(s.getBytes(configuration.core.encoding))))
 			case ByteArrayBody(byteArray) => (session: Session) => byteArray(session).map(b => new BufferedInputStream(new ByteArrayInputStream(b)))
 			case RawFileBody(file) => (session: Session) => file(session).map(f => new BufferedInputStream(new FileInputStream(f)))
 			case InputStreamBody(inputStream) => inputStream

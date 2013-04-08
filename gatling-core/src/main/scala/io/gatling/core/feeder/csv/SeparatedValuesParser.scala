@@ -28,7 +28,7 @@ object SeparatedValuesParser {
 	private def parse(file: Path, separator: String, escapeChar: Option[String]): AdvancedFeederBuilder[String] = {
 		require(file.exists, s"file $file doesn't exists")
 
-		val data = withSource(Source.fromFile(file.jfile, GatlingConfiguration.configuration.simulation.encoding)) { source =>
+		val data = withSource(Source.fromFile(file.jfile, GatlingConfiguration.configuration.core.encoding)) { source =>
 
 			val rawLines = source.getLines.map(_.split(separator))
 

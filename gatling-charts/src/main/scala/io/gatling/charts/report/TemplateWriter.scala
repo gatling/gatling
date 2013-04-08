@@ -24,6 +24,6 @@ import io.gatling.core.util.IOHelper.withCloseable
 class TemplateWriter(path: Path) {
 
 	def writeToFile(output: String) {
-		withCloseable(File(path)(configuration.simulation.encoding).writer) { _.write(output) }
+		withCloseable(File(path)(configuration.core.encoding).writer) { _.write(output) }
 	}
 }

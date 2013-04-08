@@ -32,7 +32,7 @@ object HttpHeaderExtractors {
 
 	def decode(headerName: String, headerValue: String) =
 		if (headerName == Headers.Names.LOCATION)
-			URLDecoder.decode(headerValue, configuration.simulation.encoding)
+			URLDecoder.decode(headerValue, configuration.core.encoding)
 		else
 			headerValue
 

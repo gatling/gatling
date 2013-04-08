@@ -26,7 +26,7 @@ object StringBodies {
 	def asString(expression: Expression[String]): StringBody = new StringBody(expression)
 
 	def asBytes(expression: Expression[String]): ByteArrayBody = {
-		val bytes = buildExpression(expression, _.getBytes(configuration.simulation.encoding))
+		val bytes = buildExpression(expression, _.getBytes(configuration.core.encoding))
 		new ByteArrayBody(bytes)
 	}
 }

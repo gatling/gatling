@@ -18,7 +18,6 @@ package io.gatling.mojo;
 import static java.util.Arrays.asList;
 import static org.codehaus.plexus.util.StringUtils.trim;
 import io.gatling.app.CommandLineConstants;
-import io.gatling.app.Gatling;
 import io.gatling.app.GatlingStatusCodes;
 
 import java.io.File;

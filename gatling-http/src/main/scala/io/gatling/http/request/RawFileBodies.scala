@@ -37,7 +37,7 @@ object RawFileBodies {
 	}
 
 	def asString(filePath: Expression[String]): StringBody = {
-		val expression = buildExpression(filePath, FileUtils.readFileToString(_, configuration.simulation.encoding))
+		val expression = buildExpression(filePath, FileUtils.readFileToString(_, configuration.core.encoding))
 		new StringBody(expression)
 	}
 

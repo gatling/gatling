@@ -67,7 +67,7 @@ object Gatling {
 			opt(CLI_REQUEST_BODIES_FOLDER, CLI_REQUEST_BODIES_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> as the absolute path of the directory where request bodies are stored", props.requestBodiesDirectory _)
 			opt(CLI_SIMULATIONS_FOLDER, CLI_SIMULATIONS_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> to discover simulations that could be run", props.sourcesDirectory _)
 			opt(CLI_SIMULATIONS_BINARIES_FOLDER, CLI_SIMULATIONS_BINARIES_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> to discover already compiled simulations", props.binariesDirectory _)
-			opt(CLI_SIMULATION, CLI_SIMULATION_ALIAS, "<className>", "Runs <className> simulation", props.clazz _)
+			opt(CLI_SIMULATION, CLI_SIMULATION_ALIAS, "<className>", "Runs <className> simulation", props.simulationClass _)
 			opt(CLI_OUTPUT_DIRECTORY_BASE_NAME, CLI_OUTPUT_DIRECTORY_BASE_NAME_ALIAS, "<name>", "Use <name> for the base name of the output directory", props.outputDirectoryBaseName _)
 		}
 
@@ -82,18 +82,18 @@ class Gatling {
 
 	import GatlingConfiguration.configuration
 
-	private def defaultOutputDirectoryBaseName(clazz: Class[Simulation]) = configuration.simulation.outputDirectoryBaseName.getOrElse(formatToFilename(clazz.getSimpleName))
+	private def defaultOutputDirectoryBaseName(clazz: Class[Simulation]) = configuration.core.outputDirectoryBaseName.getOrElse(formatToFilename(clazz.getSimpleName))
 
 	def start = {
 		val simulations = GatlingFiles.binariesDirectory
 			.map(SimulationClassLoader.fromClasspathBinariesDirectory) // expect simulations to have been pre-compiled (ex: IDE)
 			.getOrElse(SimulationClassLoader.fromSourcesDirectory(GatlingFiles.sourcesDirectory))
-			.simulationClasses(configuration.simulation.clazz)
+			.simulationClasses(configuration.core.simulationClass)
 			.sortWith(_.getName < _.getName)
 
 		val (outputDirectoryName, simulation) = GatlingFiles.reportsOnlyDirectory.map((_, getSingleSimulation(simulations)))
 			.getOrElse {
-				val selection = configuration.simulation.clazz.map { _ =>
+				val selection = configuration.core.simulationClass.map { _ =>
 					val simulation = simulations.head
 					val outputDirectoryBaseName = defaultOutputDirectoryBaseName(simulation)
 					new Selection(simulation, outputDirectoryBaseName, outputDirectoryBaseName)
@@ -116,7 +116,7 @@ class Gatling {
 	}
 
 	private def getSingleSimulation(simulations: List[Class[Simulation]]) =
-		configuration.simulation.clazz.map(_ => simulations.head.newInstance)
+		configuration.core.simulationClass.map(_ => simulations.head.newInstance)
 
 	private def interactiveSelect(simulations: List[Class[Simulation]]): Selection = {
 

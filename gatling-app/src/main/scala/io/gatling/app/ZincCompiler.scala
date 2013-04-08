@@ -50,7 +50,7 @@ object ZincCompiler extends Logging {
 			Inputs.inputs(classpath = classpath,
 				sources = sources,
 				classesDirectory = (binDir / "classes").jfile,
-				scalacOptions = Seq("-encoding", configuration.simulation.encoding, "-target:jvm-1.6", "-deprecation", "-feature", "-unchecked", "-language:implicitConversions", "-language:reflectiveCalls", "-language:postfixOps"),
+				scalacOptions = Seq("-encoding", configuration.core.encoding, "-target:jvm-1.6", "-deprecation", "-feature", "-unchecked", "-language:implicitConversions", "-language:reflectiveCalls", "-language:postfixOps"),
 				javacOptions = Nil,
 				analysisCache = Some((binDir / "zincCache").jfile),
 				analysisCacheMap = Map(analysisCacheMapEntry("bin"), analysisCacheMapEntry("conf"), analysisCacheMapEntry("user-files")), // avoids having GATLING_HOME polluted with a "cache" folder

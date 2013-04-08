@@ -17,23 +17,24 @@ package io.gatling.core
 
 object ConfigurationConstants {
 
-	val CONF_SIMULATION_OUTPUT_DIRECTORY_BASE_NAME = "gatling.simulation.outputDirectoryBaseName"
-	val CONF_SIMULATION_RUN_DESCRIPTION = "gatling.simulation.runDescription"
-	val CONF_SIMULATION_ENCODING = "gatling.simulation.encoding"
-	val CONF_SIMULATION_CLASS = "gatling.simulation.class"
-	val CONF_SIMULATION_CACHE_REGEX = "gatling.simulation.cacheRegex"
-	val CONF_SIMULATION_CACHE_XPATH = "gatling.simulation.cacheXPath"
-	val CONF_SIMULATION_CACHE_JSONPATH = "gatling.simulation.cacheJsonPath"
+	val CONF_CORE_OUTPUT_DIRECTORY_BASE_NAME = "gatling.core.outputDirectoryBaseName"
+	val CONF_CORE_RUN_DESCRIPTION = "gatling.core.runDescription"
+	val CONF_CORE_ENCODING = "gatling.core.encoding"
+	val CONF_CORE_SIMULATION_CLASS = "gatling.core.simulationClass"
 
-	val CONF_TIME_OUT_SIMULATION = "gatling.timeOut.simulation"
-	val CONF_TIME_OUT_ACTOR = "gatling.timeOut.actor"
+	val CONF_CORE_CACHE_REGEX = "gatling.core.cache.regex"
+	val CONF_CORE_CACHE_XPATH = "gatling.core.cache.xpath"
+	val CONF_CORE_CACHE_JSONPATH = "gatling.core.cache.jsonPath"
 
-	val CONF_DIRECTORY_DATA = "gatling.directory.data"
-	val CONF_DIRECTORY_REQUEST_BODIES = "gatling.directory.requestBodies"
-	val CONF_DIRECTORY_SIMULATIONS = "gatling.directory.simulations"
-	val CONF_DIRECTORY_BINARIES = "gatling.directory.binaries"
-	val CONF_DIRECTORY_REPORTS_ONLY = "gatling.directory.reportsOnly"
-	val CONF_DIRECTORY_RESULTS = "gatling.directory.results"
+	val CONF_CORE_TIMEOUT_SIMULATION = "gatling.core.timeOut.simulation"
+	val CONF_CORE_TIMEOUT_ACTOR = "gatling.core.timeOut.actor"
+
+	val CONF_CORE_DIRECTORY_DATA = "gatling.core.directory.data"
+	val CONF_CORE_DIRECTORY_REQUEST_BODIES = "gatling.core.directory.requestBodies"
+	val CONF_CORE_DIRECTORY_SIMULATIONS = "gatling.core.directory.simulations"
+	val CONF_CORE_DIRECTORY_BINARIES = "gatling.core.directory.binaries"
+	val CONF_CORE_DIRECTORY_REPORTS_ONLY = "gatling.core.directory.reportsOnly"
+	val CONF_CORE_DIRECTORY_RESULTS = "gatling.core.directory.results"
 
 	val CONF_CHARTING_NO_REPORTS = "gatling.charting.noReports"
 	val CONF_CHARTING_STATS_TSV_SEPARATOR = "gatling.charting.statsTsvSeparator"

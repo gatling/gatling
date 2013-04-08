@@ -30,7 +30,7 @@ object JsonPathExtractors {
 	}
 
 	val cache = mutable.Map.empty[String, JsonPath]
-	def cachedXPath(expression: String) = if (configuration.simulation.cacheJsonPath) cache.getOrElseUpdate(expression, new JsonPath(expression)) else new JsonPath(expression)
+	def cachedXPath(expression: String) = if (configuration.core.cache.jsonPath) cache.getOrElseUpdate(expression, new JsonPath(expression)) else new JsonPath(expression)
 
 	private def extractAll(json: Option[JsonNode], expression: String): Option[Seq[String]] = json.map(new JsonPath(expression).selectNodes(_).map(_.asInstanceOf[JsonText].value))
 

@@ -30,7 +30,7 @@ object ELTemplateBodies {
 
 	def compileTemplate(path: String): Validation[Expression[String]] =
 		GatlingFiles.requestBodyFile(path)
-			.map(f => FileUtils.readFileToString(f.jfile, configuration.simulation.encoding))
+			.map(f => FileUtils.readFileToString(f.jfile, configuration.core.encoding))
 			.map(EL.compile[String])
 
 	def buildExpression[T](filePath: Expression[String], f: String => T): Expression[T] = (session: Session) =>
@@ -46,7 +46,7 @@ object ELTemplateBodies {
 	}
 
 	def asBytes(filePath: Expression[String]): ByteArrayBody = {
-		val bytes = buildExpression(filePath, _.getBytes(configuration.simulation.encoding))
+		val bytes = buildExpression(filePath, _.getBytes(configuration.core.encoding))
 		new ByteArrayBody(bytes)
 	}
 }

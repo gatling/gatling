@@ -27,7 +27,7 @@ class UdpSender extends MetricsSender {
 
 	def sendToGraphite(metricPath: String, value: Long, epoch: Long) {
 		val message = raw"$metricPath $value $epoch"
-		val buffer = message.getBytes(configuration.simulation.encoding)
+		val buffer = message.getBytes(configuration.core.encoding)
 		val packet = new DatagramPacket(buffer, buffer.length, address)
 		socket.send(packet)
 	}

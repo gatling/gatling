@@ -40,24 +40,25 @@ object GatlingConfiguration {
 		val config = ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(customConfig).withFallback(defaultsConfig)
 
 		configuration = GatlingConfiguration(
-			simulation = SimulationConfiguration(
-				outputDirectoryBaseName = trimToOption(config.getString(CONF_SIMULATION_OUTPUT_DIRECTORY_BASE_NAME)),
-				runDescription = config.getString(CONF_SIMULATION_RUN_DESCRIPTION),
-				encoding = config.getString(CONF_SIMULATION_ENCODING),
-				clazz = trimToOption(config.getString(CONF_SIMULATION_CLASS)),
-				cacheRegex = config.getBoolean(CONF_SIMULATION_CACHE_REGEX),
-				cacheXPath = config.getBoolean(CONF_SIMULATION_CACHE_XPATH),
-				cacheJsonPath = config.getBoolean(CONF_SIMULATION_CACHE_JSONPATH)),
-			timeOut = TimeOutConfiguration(
-				simulation = config.getInt(CONF_TIME_OUT_SIMULATION),
-				actor = config.getInt(CONF_TIME_OUT_ACTOR)),
-			directory = DirectoryConfiguration(
-				data = config.getString(CONF_DIRECTORY_DATA),
-				requestBodies = config.getString(CONF_DIRECTORY_REQUEST_BODIES),
-				sources = config.getString(CONF_DIRECTORY_SIMULATIONS),
-				binaries = trimToOption(config.getString(CONF_DIRECTORY_BINARIES)),
-				reportsOnly = trimToOption(config.getString(CONF_DIRECTORY_REPORTS_ONLY)),
-				results = config.getString(CONF_DIRECTORY_RESULTS)),
+			core = CoreConfiguration(
+				outputDirectoryBaseName = trimToOption(config.getString(CONF_CORE_OUTPUT_DIRECTORY_BASE_NAME)),
+				runDescription = config.getString(CONF_CORE_RUN_DESCRIPTION),
+				encoding = config.getString(CONF_CORE_ENCODING),
+				simulationClass = trimToOption(config.getString(CONF_CORE_SIMULATION_CLASS)),
+				cache = CacheConfiguration(
+					regex = config.getBoolean(CONF_CORE_CACHE_REGEX),
+					xpath = config.getBoolean(CONF_CORE_CACHE_XPATH),
+					jsonPath = config.getBoolean(CONF_CORE_CACHE_JSONPATH)),
+				timeOut = TimeOutConfiguration(
+					simulation = config.getInt(CONF_CORE_TIMEOUT_SIMULATION),
+					actor = config.getInt(CONF_CORE_TIMEOUT_ACTOR)),
+				directory = DirectoryConfiguration(
+					data = config.getString(CONF_CORE_DIRECTORY_DATA),
+					requestBodies = config.getString(CONF_CORE_DIRECTORY_REQUEST_BODIES),
+					sources = config.getString(CONF_CORE_DIRECTORY_SIMULATIONS),
+					binaries = trimToOption(config.getString(CONF_CORE_DIRECTORY_BINARIES)),
+					reportsOnly = trimToOption(config.getString(CONF_CORE_DIRECTORY_REPORTS_ONLY)),
+					results = config.getString(CONF_CORE_DIRECTORY_RESULTS))),
 			charting = ChartingConfiguration(
 				noReports = config.getBoolean(CONF_CHARTING_NO_REPORTS),
 				statsTsvSeparator = config.getString(CONF_CHARTING_STATS_TSV_SEPARATOR),
@@ -134,18 +135,23 @@ object GatlingConfiguration {
 	}
 }
 
-case class SimulationConfiguration(
+case class CoreConfiguration(
 	outputDirectoryBaseName: Option[String],
 	runDescription: String,
 	encoding: String,
-	clazz: Option[String],
-	cacheRegex: Boolean,
-	cacheXPath: Boolean,
-	cacheJsonPath: Boolean)
+	simulationClass: Option[String],
+	cache: CacheConfiguration,
+	timeOut: TimeOutConfiguration,
+	directory: DirectoryConfiguration)
 
 case class TimeOutConfiguration(
 	simulation: Int,
 	actor: Int)
+
+case class CacheConfiguration(
+	regex: Boolean,
+	xpath: Boolean,
+	jsonPath: Boolean)
 
 case class DirectoryConfiguration(
 	data: String,
@@ -211,9 +217,7 @@ case class GraphiteConfiguration(
 	bucketWidth: Int)
 
 case class GatlingConfiguration(
-	simulation: SimulationConfiguration,
-	timeOut: TimeOutConfiguration,
-	directory: DirectoryConfiguration,
+	core: CoreConfiguration,
 	charting: ChartingConfiguration,
 	http: HttpConfiguration,
 	data: DataConfiguration,

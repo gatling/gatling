@@ -32,7 +32,7 @@ object HttpBodyCssCheckBuilder extends Logging {
 
 	val preparer: Preparer[Response, NodeSelector] = (response: Response) =>
 		try {
-			val charBuffer = Charset.forName(configuration.simulation.encoding).decode(response.getResponseBodyAsByteBuffer)
+			val charBuffer = Charset.forName(configuration.core.encoding).decode(response.getResponseBodyAsByteBuffer)
 			CssExtractors.parse(charBuffer).success
 
 		} catch {

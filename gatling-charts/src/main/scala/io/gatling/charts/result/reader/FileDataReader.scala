@@ -42,7 +42,7 @@ object FileDataReader {
 
 class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
-	private def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] = streams.map(Source.fromInputStream(_, configuration.simulation.encoding).getLines).reduce((first, second) => first ++ second)
+	private def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] = streams.map(Source.fromInputStream(_, configuration.core.encoding).getLines).reduce((first, second) => first ++ second)
 
 	println("Parsing log file(s)...")
 	

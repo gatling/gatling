@@ -68,7 +68,7 @@ object XPathExtractors {
 	}
 
 	val cache = mutable.Map.empty[String, DOMXPath]
-	def cachedXPath(expression: String, namespaces: List[(String, String)]) = if (configuration.simulation.cacheXPath) cache.getOrElseUpdate(expression + namespaces, xpath(expression, namespaces)) else xpath(expression, namespaces)
+	def cachedXPath(expression: String, namespaces: List[(String, String)]) = if (configuration.core.cache.xpath) cache.getOrElseUpdate(expression + namespaces, xpath(expression, namespaces)) else xpath(expression, namespaces)
 
 	abstract class XPathExtractor[X] extends Extractor[Option[Document], String, X] {
 		val name = "xpath"

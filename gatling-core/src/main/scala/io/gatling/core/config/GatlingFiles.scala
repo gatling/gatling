@@ -34,12 +34,12 @@ object GatlingFiles {
 		if (rawPath.isAbsolute) path else GATLING_HOME / path
 	}
 
-	def dataDirectory: Path = resolvePath(configuration.directory.data)
-	def resultsRootDirectory: Path = resolvePath(configuration.directory.results)
-	def requestBodiesDirectory: Path = resolvePath(configuration.directory.requestBodies)
-	def sourcesDirectory: Directory = resolvePath(configuration.directory.sources).toDirectory
-	def reportsOnlyDirectory: Option[String] = configuration.directory.reportsOnly
-	def binariesDirectory: Option[Directory] = configuration.directory.binaries.map(_.toDirectory)
+	def dataDirectory: Path = resolvePath(configuration.core.directory.data)
+	def resultsRootDirectory: Path = resolvePath(configuration.core.directory.results)
+	def requestBodiesDirectory: Path = resolvePath(configuration.core.directory.requestBodies)
+	def sourcesDirectory: Directory = resolvePath(configuration.core.directory.sources).toDirectory
+	def reportsOnlyDirectory: Option[String] = configuration.core.directory.reportsOnly
+	def binariesDirectory: Option[Directory] = configuration.core.directory.binaries.map(_.toDirectory)
 	def resultDirectory(runUuid: String): Path = resultsRootDirectory / runUuid
 	def jsDirectory(runUuid: String): Path = resultDirectory(runUuid) / GATLING_JS
 	def styleDirectory(runUuid: String): Path = resultDirectory(runUuid) / GATLING_STYLE

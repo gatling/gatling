@@ -24,5 +24,5 @@ import akka.util.Timeout
 
 trait AkkaDefaults extends AskSupport {
 
-	implicit val defaultTimeOut = Timeout(configuration.timeOut.actor seconds)
+	implicit val defaultTimeOut = Timeout(configuration.core.timeOut.actor seconds)
 }
