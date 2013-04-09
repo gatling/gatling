@@ -30,25 +30,25 @@ case class StaticPart(string: String) extends Part[String] {
 }
 
 case class AttributePart(name: String) extends Part[Any] {
-	def resolve(session: Session): Validation[Any] = session.safeGet[Any](name)
+	def resolve(session: Session): Validation[Any] = session.getV[Any](name)
 }
 
 case class SeqSizePart(name: String) extends Part[Int] {
-	def resolve(session: Session): Validation[Int] = session.safeGet[Seq[_]](name).map(_.size)
+	def resolve(session: Session): Validation[Int] = session.getV[Seq[_]](name).map(_.size)
 }
 
 case class SeqRandomPart(name: String) extends Part[Any] {
 	def resolve(session: Session): Validation[Any] = {
 		def randomItem(seq: Seq[_]) = seq(ThreadLocalRandom.current.nextInt(seq.size))
 
-		session.safeGet[Seq[_]](name).map(randomItem)
+		session.getV[Seq[_]](name).map(randomItem)
 	}
 }
 
 case class SeqElementPart(name: String, index: String) extends Part[Any] {
 	def resolve(session: Session): Validation[Any] = {
 
-		def seqElementPart(index: Int): Validation[Any] = session.safeGet[Seq[_]](name).flatMap {
+		def seqElementPart(index: Int): Validation[Any] = session.getV[Seq[_]](name).flatMap {
 			_.lift(index) match {
 				case Some(e) => e.success
 				case None => undefinedSeqIndexMessage(name, index).failure
@@ -59,7 +59,7 @@ case class SeqElementPart(name: String, index: String) extends Part[Any] {
 			val intIndex = index.toInt
 			seqElementPart(intIndex)
 		} catch {
-			case e: NumberFormatException => session.safeGet[Int](index).flatMap(seqElementPart(_))
+			case e: NumberFormatException => session.getV[Int](index).flatMap(seqElementPart(_))
 		}
 	}
 }
