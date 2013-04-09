@@ -41,14 +41,13 @@ class StatsTsvTemplate(stats: GroupContainer) {
 
 		def renderGroup(group: GroupContainer): Fastring = fast"""${group.requestStats.mkString}
 ${
-			(stats.contents.values.map {
+			(group.contents.values.map {
 				_ match {
 					case subGroup: GroupContainer => renderGroup(subGroup)
 					case request: RequestContainer => request.stats.mkString
 				}
 			}).mkFastring("\n")
-		}
-"""
+		}"""
 
 		val headers = StatsTsvTemplate.headers.mkString(configuration.charting.statsTsvSeparator)
 
