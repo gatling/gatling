@@ -41,10 +41,8 @@ object FileDataReader {
 
 class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
-	private def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] = streams.map(Source.fromInputStream(_, configuration.core.encoding).getLines).reduce((first, second) => first ++ second)
-
 	println("Parsing log file(s)...")
-	
+
 	val inputFiles = simulationLogDirectory(runUuid, create = false).files
 		.collect { case file if (file.name.matches(FileDataReader.simulationFilesNamePattern)) => file.jfile }
 		.toList
@@ -53,6 +51,8 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	require(!inputFiles.isEmpty, "simulation directory doesn't contain any log file.")
 
 	private def doWithInputFiles[T](f: Iterator[String] => T): T = {
+
+		def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] = streams.map(Source.fromInputStream(_, configuration.core.encoding).getLines).reduce((first, second) => first ++ second)
 
 		val streams = inputFiles.map(new FileInputStream(_))
 		try f(multipleFileIterator(streams))
@@ -123,7 +123,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	}
 
 	val resultsHolder = doWithInputFiles(process(bucketFunction))
-	
+
 	println("Parsing log file(s) done")
 
 	def groupsAndRequests: List[(Option[Group], Option[String])] =

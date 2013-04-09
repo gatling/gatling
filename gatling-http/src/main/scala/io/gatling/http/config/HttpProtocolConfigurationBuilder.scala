@@ -83,9 +83,9 @@ case class HttpProtocolConfigurationBuilder(config: HttpProtocolConfiguration, w
 
 	def proxy(host: String, port: Int) = new HttpProxyBuilder(this, host, port)
 
-	private[http] def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = copy(config = config.copy(proxy = Some(httpProxy), securedProxy = httpsProxy))
+	def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = copy(config = config.copy(proxy = Some(httpProxy), securedProxy = httpsProxy))
 
-	private[http] def build = {
+	def build = {
 
 		warmUpUrl.map { url =>
 			val requestBuilder = new RequestBuilder().setUrl(url)

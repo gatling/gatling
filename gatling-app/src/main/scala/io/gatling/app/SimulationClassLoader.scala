@@ -49,12 +49,12 @@ abstract class SimulationClassLoader {
 
 class FileSystemBackedSimulationClassLoader(classLoader: ClassLoader, binaryDir: Directory) extends SimulationClassLoader {
 
-	private def pathToClassName(path: Path, root: Path): String = (path.parent / path.stripExtension)
-		.toString
-		.stripPrefix(root + File.separator)
-		.replace(File.separator, ".")
-
 	def simulationClasses(requestedClassName: Option[String]): List[Class[Simulation]] = {
+
+		def pathToClassName(path: Path, root: Path): String = (path.parent / path.stripExtension)
+			.toString
+			.stripPrefix(root + File.separator)
+			.replace(File.separator, ".")
 
 		val classNames = requestedClassName
 			.map(List(_))

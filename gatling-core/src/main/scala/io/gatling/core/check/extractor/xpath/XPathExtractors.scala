@@ -36,9 +36,12 @@ object XPathExtractors {
 
 	System.setProperty("javax.xml.parsers.SAXParserFactory", "org.apache.xerces.jaxp.SAXParserFactoryImpl")
 	System.setProperty("javax.xml.parsers.DOMParserFactory", "org.apache.xerces.jaxp.DOMParserFactoryImpl")
-	private val factory = DocumentBuilderFactory.newInstance
-	factory.setExpandEntityReferences(false)
-	factory.setNamespaceAware(true)
+	private val factory = {
+		val f = DocumentBuilderFactory.newInstance
+		f.setExpandEntityReferences(false)
+		f.setNamespaceAware(true)
+		f
+	}
 
 	val noopEntityResolver = new EntityResolver {
 		def resolveEntity(publicId: String, systemId: String) = new InputSource(new StringReader(""))

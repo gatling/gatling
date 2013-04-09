@@ -20,7 +20,7 @@ import scala.concurrent.forkjoin.ThreadLocalRandom
 import io.gatling.core.util.RoundRobin
 
 trait FeederBuilder[T] {
-	private[gatling] def build: Feeder[T]
+	def build: Feeder[T]
 }
 
 case class FeederWrapper[T](build: Feeder[T]) extends FeederBuilder[T]
