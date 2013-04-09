@@ -43,7 +43,7 @@ class ResultsHolder(minTime: Long, maxTime: Long)
 		record.event match {
 			case Start =>
 				startGroup(record)
-				addGroupName(getCurrentGroup(record.user, record.scenario).get, record.executionDate)
+				addGroupName(getCurrentGroup(record.user).get, record.executionDate)
 			case End =>
 				val startEntry = endGroup(record)
 				val duration = record.executionDate - startEntry.record.executionDate
@@ -54,9 +54,9 @@ class ResultsHolder(minTime: Long, maxTime: Long)
 	}
 
 	def addActionRecord(record: ActionRecord) {
-		val group = getCurrentGroup(record.user, record.scenario)
 
-		if (group.isDefined && record.status == KO) currentGroupFailed(record.user, record.scenario)
+		if (record.status == KO) currentGroupFailed(record.user)
+		val group = getCurrentGroup(record.user)
 
 		updateRequestsPerSecBuffers(record, group)
 		updateTransactionsPerSecBuffers(record, group)

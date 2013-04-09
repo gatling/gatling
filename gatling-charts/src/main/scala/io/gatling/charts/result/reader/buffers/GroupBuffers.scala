@@ -42,7 +42,10 @@ trait GroupBuffers {
 		def getCurrentGroup: Option[Group] = stack.headOption.map(_.group)
 
 		def failed {
-			stack = stack.headOption.filter(_.status == OK).map(_.copy(status = KO) :: stack.tail).getOrElse(Nil)
+			stack match {
+				case head :: tail if head.status == OK => stack = head.copy(status = KO):: stack.tail
+				case _ =>
+			}
 		}
 
 	}
@@ -59,9 +62,9 @@ trait GroupBuffers {
 
 	private def groupStack(user: Int) = groupStacks.getOrElseUpdate(user, new GroupStack)
 
-	def getCurrentGroup(user: Int, scenario: String) = groupStack(user).getCurrentGroup
+	def getCurrentGroup(user: Int) = groupStack(user).getCurrentGroup
 
-	def currentGroupFailed(user: Int, scenario: String) {
-		groupStack(user).failed
+	def currentGroupFailed(user: Int) {
+		groupStacks.get(user).map(_.failed)
 	}
 }
