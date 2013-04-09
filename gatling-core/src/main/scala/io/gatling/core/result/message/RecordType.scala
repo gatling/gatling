@@ -18,7 +18,7 @@ package io.gatling.core.result.message
 sealed abstract class RecordType {
 	def name: String
 	def recordLength: Int
-	def isValidRecord(array: Array[String]) = array.length >= recordLength && array(0) == name
+	def unapply(array: Array[String]) = if (array.length >= recordLength && array(0) == name) Some(array) else None
 }
 object RunRecordType extends RecordType {
 	val name = "RUN"

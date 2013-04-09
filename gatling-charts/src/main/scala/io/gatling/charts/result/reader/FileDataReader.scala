@@ -72,17 +72,19 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			count += 1
 			if (count % FileDataReader.logStep == 0) logger.info(s"First pass, read $count lines")
 
-			if (ActionRecordType.isValidRecord(array)) {
-				runStart = math.min(runStart, array(4).toLong)
-				runEnd = math.max(runEnd, array(7).toLong)
+			array match {
+				case ActionRecordType(array) =>
+					runStart = math.min(runStart, array(4).toLong)
+					runEnd = math.max(runEnd, array(7).toLong)
 
-			} else if (ScenarioRecordType.isValidRecord(array)) {
-				val time = array(4).toLong
-				runStart = math.min(runStart, time)
-				runEnd = math.max(runEnd, time)
+				case ScenarioRecordType(array) =>
+					val time = array(4).toLong
+					runStart = math.min(runStart, time)
+					runEnd = math.max(runEnd, time)
 
-			} else if (RunRecordType.isValidRecord(array)) {
-				runRecords += RunRecord(parseTimestampString(array(1)), array(2), array(3).trim)
+				case RunRecordType(array) =>
+					runRecords += RunRecord(parseTimestampString(array(1)), array(2), array(3).trim)
+				case _ =>
 			}
 		}
 
@@ -107,14 +109,16 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 		records
 			.collect { case line if (line.startsWith(ActionRecordType.name) || line.startsWith(GroupRecordType.name) || line.startsWith(ScenarioRecordType.name)) => line.split(tabulationSeparator) }
-			.filter(_.length >= 1)
 			.foreach { array =>
 				count += 1
 				if (count % FileDataReader.logStep == 0) logger.info(s"Second pass, read $count lines")
 
-				if (ActionRecordType.isValidRecord(array)) resultsHolder.addActionRecord(ActionRecord(array, bucketFunction, runStart))
-				else if (GroupRecordType.isValidRecord(array)) resultsHolder.addGroupRecord(GroupRecord(array, bucketFunction, runStart))
-				else if (ScenarioRecordType.isValidRecord(array)) resultsHolder.addScenarioRecord(ScenarioRecord(array, bucketFunction, runStart))
+				array match {
+					case ActionRecordType(array) => resultsHolder.addActionRecord(ActionRecord(array, bucketFunction, runStart))
+					case GroupRecordType(array) => resultsHolder.addGroupRecord(GroupRecord(array, bucketFunction, runStart))
+					case ScenarioRecordType(array) => resultsHolder.addScenarioRecord(ScenarioRecord(array, bucketFunction, runStart))
+					case _ =>
+				}
 			}
 
 		logger.info(s"Process done: read $count lines")
