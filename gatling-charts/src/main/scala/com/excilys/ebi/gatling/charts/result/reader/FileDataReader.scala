@@ -117,6 +117,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 					case ACTION if (array.length >= FileDataReader.ACTION_RECORD_LENGTH) => resultsHolder.addActionRecord(ActionRecord(array, bucketFunction, runStart))
 					case GROUP if (array.length >= FileDataReader.GROUP_RECORD_LENGTH) => resultsHolder.addGroupRecord(GroupRecord(array, bucketFunction, runStart))
 					case SCENARIO if (array.length >= FileDataReader.SCENARIO_RECORD_LENGTH) => resultsHolder.addScenarioRecord(ScenarioRecord(array, bucketFunction, runStart))
+					case _ =>
 				}
 			}
 
