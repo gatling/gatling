@@ -82,7 +82,7 @@ object Gatling {
 class Gatling {
 
 	def start = {
-		
+
 		def defaultOutputDirectoryBaseName(clazz: Class[Simulation]) = configuration.core.outputDirectoryBaseName.getOrElse(formatToFilename(clazz.getSimpleName))
 
 		def getSingleSimulation(simulations: List[Class[Simulation]]) = configuration.core.simulationClass.map(_ => simulations.head.newInstance)
@@ -135,14 +135,6 @@ class Gatling {
 			new Selection(simulation, simulationId, runDescription)
 		}
 
-		def generateReports(outputDirectoryName: String, dataReader: => DataReader) {
-			println("Generating reports...")
-			val start = currentTimeMillis
-			val indexFile = ReportsGenerator.generateFor(outputDirectoryName, dataReader)
-			println(s"Reports generated in ${(currentTimeMillis - start) / 1000}s.")
-			println(s"Please open the following file : $indexFile")
-		}
-
 		def applyAssertions(simulation: Simulation, dataReader: DataReader) = {
 			val successful = Assertion.assertThat(simulation.assertions, dataReader)
 
@@ -153,6 +145,14 @@ class Gatling {
 				println("Simulation failed.")
 				GatlingStatusCodes.assertionsFailed
 			}
+		}
+
+		def generateReports(outputDirectoryName: String, dataReader: => DataReader) {
+			println("Generating reports...")
+			val start = currentTimeMillis
+			val indexFile = ReportsGenerator.generateFor(outputDirectoryName, dataReader)
+			println(s"Reports generated in ${(currentTimeMillis - start) / 1000}s.")
+			println(s"Please open the following file : $indexFile")
 		}
 
 		val simulations = GatlingFiles.binariesDirectory

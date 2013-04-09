@@ -59,9 +59,9 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		finally streams.foreach(_.close)
 	}
 
-	private def preProcess(records: Iterator[String]) = {
+	private def firstPass(records: Iterator[String]) = {
 
-		logger.info("Pre-process")
+		logger.info("First pass")
 
 		var count = 0
 		var runStart = Long.MaxValue
@@ -88,20 +88,20 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			}
 		}
 
-		logger.info(s"Pre-process done: read $count lines")
+		logger.info(s"First pass done: read $count lines")
 
 		(runStart, runEnd, runRecords.head)
 	}
 
-	val (runStart, runEnd, runRecord) = doWithInputFiles(preProcess)
+	val (runStart, runEnd, runRecord) = doWithInputFiles(firstPass)
 
 	val step = StatsHelper.step(math.floor(runStart / FileDataReader.secMillisecRatio).toInt, math.ceil(runEnd / FileDataReader.secMillisecRatio).toInt, configuration.charting.maxPlotsPerSeries) * FileDataReader.secMillisecRatio
 	val bucketFunction = StatsHelper.bucket(_: Int, 0, (runEnd - runStart).toInt, step, step / 2)
 	val buckets = StatsHelper.bucketsList(0, (runEnd - runStart).toInt, step)
 
-	private def process(bucketFunction: Int => Int)(records: Iterator[String]): ResultsHolder = {
+	private def secondPass(bucketFunction: Int => Int)(records: Iterator[String]): ResultsHolder = {
 
-		logger.info("Process")
+		logger.info("Second pass")
 
 		val resultsHolder = new ResultsHolder(runStart, runEnd)
 
@@ -120,12 +120,12 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 				}
 			}
 
-		logger.info(s"Process done: read $count lines")
+		logger.info(s"Second pass: read $count lines")
 
 		resultsHolder
 	}
 
-	val resultsHolder = doWithInputFiles(process(bucketFunction))
+	val resultsHolder = doWithInputFiles(secondPass(bucketFunction))
 
 	println("Parsing log file(s) done")
 

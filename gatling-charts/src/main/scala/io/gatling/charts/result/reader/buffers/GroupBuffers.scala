@@ -47,7 +47,6 @@ trait GroupBuffers {
 				case _ =>
 			}
 		}
-
 	}
 
 	val groupStacks = mutable.Map.empty[Int, GroupStack]
