@@ -55,7 +55,7 @@ trait GroupBuffers {
 	}
 
 	def endGroup(record: GroupRecord) =
-		groupStacks.getOrElseUpdate(record.user, throw new IllegalAccessException).end
+		groupStacks.getOrElseUpdate(record.user, throw new UnsupportedOperationException(s"Can't end group for user ${record.user} as it has not been started")).end
 
 	private def groupStack(user: Int) = groupStacks.getOrElseUpdate(user, new GroupStack)
 

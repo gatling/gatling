@@ -31,7 +31,7 @@ object RequestBodyProcessors {
 			case ByteArrayBody(byteArray) => (session: Session) => byteArray(session).map(GZIPHelper.gzip)
 			case RawFileBody(file) => (session: Session) => file(session).map { f => withCloseable(new FileInputStream(f))(GZIPHelper.gzip) }
 			case InputStreamBody(inputStream) => (session: Session) => inputStream(session).map { withCloseable(_)(GZIPHelper.gzip) }
-			case _ => throw new IllegalArgumentException(s"requestCompressor doesn't support $body")
+			case _ => throw new UnsupportedOperationException(s"requestCompressor doesn't support $body")
 		}
 
 		ByteArrayBody(gzippedBytes)
@@ -44,7 +44,7 @@ object RequestBodyProcessors {
 			case ByteArrayBody(byteArray) => (session: Session) => byteArray(session).map(b => new BufferedInputStream(new ByteArrayInputStream(b)))
 			case RawFileBody(file) => (session: Session) => file(session).map(f => new BufferedInputStream(new FileInputStream(f)))
 			case InputStreamBody(inputStream) => inputStream
-			case _ => throw new IllegalArgumentException(s"streamRequestBody doesn't support $body")
+			case _ => throw new UnsupportedOperationException(s"streamRequestBody doesn't support $body")
 		}
 
 		InputStreamBody(stream)

@@ -105,7 +105,7 @@ object GatlingConfiguration {
 						val storeAlgorithm = toOption(config.getString(algorithmKey))
 
 						storeType.map { t =>
-							StoreConfiguration(t, storeFile.getOrElse(throw new IllegalArgumentException(s"$typeKey defined as $t but store file isn't defined")), storePassword, storeAlgorithm)
+							StoreConfiguration(t, storeFile.getOrElse(throw new UnsupportedOperationException(s"$typeKey defined as $t but store file isn't defined")), storePassword, storeAlgorithm)
 						}
 					}
 
