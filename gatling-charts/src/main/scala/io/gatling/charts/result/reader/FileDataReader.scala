@@ -68,11 +68,11 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		var runEnd = Long.MinValue
 		val runRecords = mutable.ListBuffer.empty[RunRecord]
 
-		records.map(_.split(tabulationSeparator)).foreach { array =>
+		records.foreach { line =>
 			count += 1
 			if (count % FileDataReader.logStep == 0) logger.info(s"First pass, read $count lines")
 
-			array match {
+			line match {
 				case ActionRecordType(array) =>
 					runStart = math.min(runStart, array(4).toLong)
 					runEnd = math.max(runEnd, array(7).toLong)
@@ -108,12 +108,11 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		var count = 0
 
 		records
-			.collect { case line if (line.startsWith(ActionRecordType.name) || line.startsWith(GroupRecordType.name) || line.startsWith(ScenarioRecordType.name)) => line.split(tabulationSeparator) }
-			.foreach { array =>
+			.foreach { line =>
 				count += 1
 				if (count % FileDataReader.logStep == 0) logger.info(s"Second pass, read $count lines")
 
-				array match {
+				line match {
 					case ActionRecordType(array) => resultsHolder.addActionRecord(ActionRecord(array, bucketFunction, runStart))
 					case GroupRecordType(array) => resultsHolder.addGroupRecord(GroupRecord(array, bucketFunction, runStart))
 					case ScenarioRecordType(array) => resultsHolder.addScenarioRecord(ScenarioRecord(array, bucketFunction, runStart))

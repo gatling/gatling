@@ -15,10 +15,15 @@
  */
 package io.gatling.core.result.message
 
+import io.gatling.core.util.FileHelper.tabulationSeparator
+
 sealed abstract class RecordType {
 	def name: String
 	def recordLength: Int
-	def unapply(array: Array[String]) = if (array.length >= recordLength && array(0) == name) Some(array) else None
+	def unapply(string: String) = {
+		val array = string.split(tabulationSeparator)
+		if (array.length >= recordLength && array(0) == name) Some(array) else None
+	}
 }
 object RunRecordType extends RecordType {
 	val name = "RUN"
