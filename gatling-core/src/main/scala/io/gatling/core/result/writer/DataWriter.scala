@@ -17,15 +17,13 @@ package io.gatling.core.result.writer
 
 import scala.concurrent.Future
 
+import akka.actor.{ Actor, ActorRef, Props }
 import io.gatling.core.action.{ AkkaDefaults, BaseActor, system }
 import io.gatling.core.action.system.dispatcher
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.message.{ Flush, GroupRecord, Init, RecordEvent, RequestRecord, RequestStatus, RunRecord, ScenarioRecord, ShortScenarioDescription }
+import io.gatling.core.result.message.{ Flush, GroupRecord, Init, RequestRecord, RunRecord, ScenarioRecord, ShortScenarioDescription }
 import io.gatling.core.result.terminator.Terminator
 import io.gatling.core.scenario.Scenario
-import io.gatling.core.util.TimeHelper.nowMillis
-
-import akka.actor.{ Actor, ActorRef, Props }
 
 object DataWriter extends AkkaDefaults {
 
@@ -34,7 +32,7 @@ object DataWriter extends AkkaDefaults {
 		system.actorOf(Props(clazz))
 	}
 
-	private def tellAll(message: Any) {
+	def tell(message: Any) {
 		dataWriters.foreach(_ ! message)
 	}
 
@@ -44,39 +42,6 @@ object DataWriter extends AkkaDefaults {
 		val responses = dataWriters.map(_ ? Init(runRecord, shortScenarioDescriptions))
 
 		Future.sequence(responses)
-	}
-
-	def user(scenarioName: String, userId: Int, event: RecordEvent) {
-		tellAll(ScenarioRecord(scenarioName, userId, event, nowMillis))
-	}
-
-	def group(scenarioName: String, groupName: String, userId: Int, event: RecordEvent) {
-		tellAll(GroupRecord(scenarioName, groupName, userId, event, nowMillis))
-	}
-
-	def logRequest(
-		scenarioName: String,
-		userId: Int,
-		requestName: String,
-		executionStartDate: Long,
-		requestSendingEndDate: Long,
-		responseReceivingStartDate: Long,
-		executionEndDate: Long,
-		requestResult: RequestStatus,
-		requestMessage: Option[String] = None,
-		extraInfo: List[Any] = Nil) {
-
-		tellAll(RequestRecord(
-			scenarioName,
-			userId,
-			requestName,
-			executionStartDate,
-			requestSendingEndDate,
-			responseReceivingStartDate,
-			executionEndDate,
-			requestResult,
-			requestMessage,
-			extraInfo))
 	}
 }
 

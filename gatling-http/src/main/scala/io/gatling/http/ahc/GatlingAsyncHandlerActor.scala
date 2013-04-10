@@ -24,7 +24,7 @@ import akka.actor.{ ActorRef, ReceiveTimeout }
 import io.gatling.core.action.BaseActor
 import io.gatling.core.check.Checks
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.message.{ KO, OK, RequestStatus }
+import io.gatling.core.result.message.{ KO, OK, RequestRecord, RequestStatus }
 import io.gatling.core.result.writer.DataWriter
 import io.gatling.core.session.Session
 import io.gatling.core.util.StringHelper.eol
@@ -147,9 +147,9 @@ class GatlingAsyncHandlerActor(
 		}
 		logger.trace(dump)
 
-		DataWriter.logRequest(session.scenarioName, session.userId, requestName,
+		DataWriter.tell(RequestRecord(session.scenarioName, session.userId, requestName,
 			response.executionStartDate, response.requestSendingEndDate, response.responseReceivingStartDate, response.executionEndDate,
-			requestStatus, errorMessage, extraInfo)
+			requestStatus, errorMessage, extraInfo))
 	}
 
 	/**

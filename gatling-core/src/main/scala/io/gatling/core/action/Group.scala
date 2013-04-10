@@ -15,12 +15,12 @@
  */
 package io.gatling.core.action
 
-import io.gatling.core.result.message.RecordEvent
+import akka.actor.ActorRef
+import io.gatling.core.result.message.{ GroupRecord, RecordEvent }
 import io.gatling.core.result.writer.DataWriter
 import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }
-
-import akka.actor.ActorRef
 
 class Group(groupName: Expression[String], event: RecordEvent, val next: ActorRef) extends Chainable {
 
@@ -30,7 +30,7 @@ class Group(groupName: Expression[String], event: RecordEvent, val next: ActorRe
 			case Failure(message) => logger.error(s"Could not resolve group name: $message"); "no-group-name"
 		}
 
-		DataWriter.group(session.scenarioName, resolvedGroupName, session.userId, event)
+		DataWriter.tell(GroupRecord(session.scenarioName, resolvedGroupName, session.userId, event, nowMillis))
 		next ! session
 	}
 }
