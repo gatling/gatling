@@ -52,6 +52,8 @@ case class Session(scenarioName: String, userId: Int, attributes: Map[String, An
 
 	def get[T](key: String): Option[T] = attributes.get(key).map(_.asInstanceOf[T])
 
+	def get[T](key: String, default: => T): T = attributes.get(key).map(_.asInstanceOf[T]).getOrElse(default)
+
 	def getV[T: ClassTag](key: String): Validation[T] = attributes.get(key).map(TypeHelper.as[T](_)).getOrElse(undefinedSessionAttributeMessage(key).failure[T])
 
 	def set(newAttributes: Map[String, Any]) = copy(attributes = attributes ++ newAttributes)
