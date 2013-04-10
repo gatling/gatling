@@ -63,9 +63,9 @@ object FileDataWriter {
 			import requestRecord._
 
 			val message = requestMessage.getOrElse(emptyField)
-			val serializedExtraInfo = extraInfo.map(info => sanitize(info.toString)).mkFastring("\t")
+			val serializedExtraInfo = extraInfo.map(info => fast"\t${sanitize(info.toString)}").mkFastring
 
-			fast"${ActionRecordType.name}\t$scenarioName\t$userId\t$requestName\t$executionStartDate\t$requestSendingEndDate\t$responseReceivingStartDate\t$executionEndDate\t$requestStatus\t$message\t$serializedExtraInfo$eol"
+			fast"${ActionRecordType.name}\t$scenarioName\t$userId\t$requestName\t$executionStartDate\t$requestSendingEndDate\t$responseReceivingStartDate\t$executionEndDate\t$requestStatus\t$message$serializedExtraInfo$eol"
 		}
 	}
 
