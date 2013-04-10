@@ -31,7 +31,7 @@ class FileDataWriterSpec extends Specification {
 
 	"file data writer" should {
 
-		def logRecord(record: RequestRecord): String = new StringWriter().append(record).getBuffer.toString
+		def logRecord(record: RequestRecord): String = new String(record.getBytes)
 
 		"log a standard request record" in {
 			val record = new RequestRecord("scenario", 1, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"))
