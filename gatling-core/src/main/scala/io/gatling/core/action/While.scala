@@ -32,13 +32,13 @@ class While(condition: Expression[Boolean], counterName: String, next: ActorRef)
 
 	var innerWhile: ActorRef = _
 
-	def uninitialized: Receive = {
+	val uninitialized: Receive = {
 		case loopNextAction: ActorRef =>
 			innerWhile = context.actorOf(Props(new InnerWhile(condition, loopNextAction, counterName, next)))
 			context.become(initialized)
 	}
 
-	def initialized: Receive = { case m => innerWhile forward m }
+	val initialized: Receive = { case m => innerWhile forward m }
 
 	override def receive = uninitialized
 }

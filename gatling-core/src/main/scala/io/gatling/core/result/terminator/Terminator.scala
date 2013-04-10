@@ -58,7 +58,7 @@ class Terminator extends BaseActor {
 
 	private var registeredDataWriters: List[ActorRef] = Nil
 
-	def uninitialized: Receive = {
+	val uninitialized: Receive = {
 
 		case Initialize(latch, userCount) =>
 			logger.info("Initializing")
@@ -80,7 +80,7 @@ class Terminator extends BaseActor {
 			}
 	}
 
-	def initialized: Receive = {
+	val initialized: Receive = {
 
 		case RegisterDataWriter(dataWriter: ActorRef) =>
 			registeredDataWriters = dataWriter :: registeredDataWriters
