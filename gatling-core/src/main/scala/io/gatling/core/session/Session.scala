@@ -50,15 +50,7 @@ case class Session(scenarioName: String, userId: Int, attributes: Map[String, An
 
 	def apply(name: String) = attributes(name)
 
-	def get[T: ClassTag](key: String): Option[T] = attributes.get(key).flatMap {
-		TypeHelper.as[T](_) match {
-			case Success(typedValue) =>
-				Some(typedValue)
-			case Failure(message) =>
-				logger.error(s"Could find value of key $key but wrong type: $message")
-				None
-		}
-	}
+	def get[T](key: String): Option[T] = attributes.get(key).map(_.asInstanceOf[T])
 
 	def getV[T: ClassTag](key: String): Validation[T] = attributes.get(key).map(TypeHelper.as[T](_)).getOrElse(undefinedSessionAttributeMessage(key).failure[T])
 
