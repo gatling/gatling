@@ -20,10 +20,6 @@
 			<groupId>io.gatling</groupId>
 			<artifactId>gatling-core</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.dongxiguo</groupId>
-			<artifactId>fastring_2.10</artifactId>
-		</dependency>
 
 		<!-- test -->
 		<dependency>

@@ -69,6 +69,10 @@
 			<groupId>com.typesafe</groupId>
 			<artifactId>config</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.dongxiguo</groupId>
+			<artifactId>fastring_2.10</artifactId>
+		</dependency>
 
 		<!-- runtime -->
 		<dependency>
