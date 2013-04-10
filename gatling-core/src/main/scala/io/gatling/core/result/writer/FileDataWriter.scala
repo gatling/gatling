@@ -15,7 +15,7 @@
  */
 package io.gatling.core.result.writer
 
-import java.io.{ BufferedOutputStream, FileOutputStream, OutputStreamWriter }
+import java.io.{ BufferedOutputStream, FileOutputStream, OutputStream }
 
 import com.typesafe.scalalogging.slf4j.Logging
 
@@ -37,29 +37,52 @@ object FileDataWriter {
 	 */
 	def sanitize(s: String): String = Option(s).map(s => sanitizerPattern.replaceAllIn(s, " ")).getOrElse("")
 
-	implicit class DataWriterMessageAppendable[T <: Appendable](val appendable: T) extends AnyVal {
+	implicit class RunRecordSerializer(val runRecord: RunRecord) extends AnyVal {
 
-		def append(scenarioRecord: ScenarioRecord): T = {
-			appendable.append(ScenarioRecordType.name).append(tabulationSeparator)
+		def getBytes = {
+			val sb = new StringBuilder
+			sb.append(RunRecordType.name).append(tabulationSeparator)
+				.append(runRecord.timestamp).append(tabulationSeparator)
+				.append(runRecord.simulationId).append(tabulationSeparator)
+				// hack for being able to deserialize in FileDataReader
+				.append(if (runRecord.runDescription.isEmpty) FileDataWriter.emptyField else runRecord.runDescription)
+				.append(eol)
+			sb.toString.getBytes(configuration.core.encoding)
+		}
+	}
+
+	implicit class ScenarioRecordSerializer(val scenarioRecord: ScenarioRecord) extends AnyVal {
+
+		def getBytes = {
+			val sb = new StringBuilder
+			sb.append(ScenarioRecordType.name).append(tabulationSeparator)
 				.append(scenarioRecord.scenarioName).append(tabulationSeparator)
 				.append(scenarioRecord.userId.toString).append(tabulationSeparator)
 				.append(scenarioRecord.event.name).append(tabulationSeparator)
 				.append(scenarioRecord.executionDate.toString).append(eol)
-			appendable
+			sb.toString.getBytes(configuration.core.encoding)
 		}
+	}
 
-		def append(groupRecord: GroupRecord): T = {
-			appendable.append(GroupRecordType.name).append(tabulationSeparator)
+	implicit class GroupRecordRecordSerializer(val groupRecord: GroupRecord) extends AnyVal {
+
+		def getBytes = {
+			val sb = new StringBuilder
+			sb.append(GroupRecordType.name).append(tabulationSeparator)
 				.append(groupRecord.scenarioName).append(tabulationSeparator)
 				.append(groupRecord.groupName).append(tabulationSeparator)
 				.append(groupRecord.userId.toString).append(tabulationSeparator)
 				.append(groupRecord.event.name).append(tabulationSeparator)
 				.append(groupRecord.executionDate.toString).append(eol)
-			appendable
+			sb.toString.getBytes(configuration.core.encoding)
 		}
+	}
 
-		def append(requestRecord: RequestRecord): T = {
-			appendable.append(ActionRecordType.name).append(tabulationSeparator)
+	implicit class RequestRecordSerializer(val requestRecord: RequestRecord) extends AnyVal {
+
+		def getBytes = {
+			val sb = new StringBuilder
+			sb.append(ActionRecordType.name).append(tabulationSeparator)
 				.append(requestRecord.scenarioName).append(tabulationSeparator)
 				.append(requestRecord.userId.toString).append(tabulationSeparator)
 				.append(requestRecord.requestName).append(tabulationSeparator)
@@ -70,11 +93,11 @@ object FileDataWriter {
 				.append(requestRecord.requestStatus.toString).append(tabulationSeparator)
 				.append(requestRecord.requestMessage.getOrElse(emptyField))
 
-			requestRecord.extraInfo.foreach(info => appendable.append(tabulationSeparator).append(sanitize(info.toString)))
+			requestRecord.extraInfo.foreach(info => sb.append(tabulationSeparator).append(sanitize(info.toString)))
 
-			appendable.append(eol)
+			sb.append(eol)
 
-			appendable
+			sb.toString.getBytes(configuration.core.encoding)
 		}
 	}
 }
@@ -91,35 +114,30 @@ class FileDataWriter extends DataWriter with Logging {
 	/**
 	 * The OutputStreamWriter used to write to files
 	 */
-	private var osw: OutputStreamWriter = _
+	private var os: OutputStream = _
 
 	override def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) {
 		val simulationLog = simulationLogDirectory(runRecord.runId) / "simulation.log"
-		osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(simulationLog.toString)), configuration.core.encoding)
-		osw.append(RunRecordType.name).append(tabulationSeparator)
-			.append(runRecord.timestamp).append(tabulationSeparator)
-			.append(runRecord.simulationId).append(tabulationSeparator)
-			// hack for being able to deserialize in FileDataReader
-			.append(if (runRecord.runDescription.isEmpty) FileDataWriter.emptyField else runRecord.runDescription)
-			.append(eol)
+		os = new BufferedOutputStream(new FileOutputStream(simulationLog.toString))
+		os.write(runRecord.getBytes)
 	}
 
 	override def onScenarioRecord(scenarioRecord: ScenarioRecord) {
-		osw.append(scenarioRecord)
+		os.write(scenarioRecord.getBytes)
 	}
 
 	override def onGroupRecord(groupRecord: GroupRecord) {
-		osw.append(groupRecord)
+		os.write(groupRecord.getBytes)
 	}
 
 	override def onRequestRecord(requestRecord: RequestRecord) {
-		osw.append(requestRecord)
+		os.write(requestRecord.getBytes)
 	}
 
 	override def onFlushDataWriter {
 
 		logger.info("Received flush order")
 
-		withCloseable(osw) { _.flush }
+		withCloseable(os) { _.flush }
 	}
 }
