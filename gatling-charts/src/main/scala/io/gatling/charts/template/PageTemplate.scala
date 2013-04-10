@@ -20,19 +20,19 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.charts.component.Component
 import io.gatling.charts.config.ChartsFiles._
 import io.gatling.core.result.Group
-import io.gatling.core.result.message.RunRecord
+import io.gatling.core.result.message.RunMessage
 import io.gatling.core.util.FileHelper.formatToFilename
 import io.gatling.core.util.HtmlHelper.htmlEscape
 import io.gatling.core.util.StringHelper.truncate
 
 object PageTemplate {
 
-	private var runRecord: RunRecord = _
+	private var runMessage: RunMessage = _
 	private var runStart: Long = _
 	private var runEnd: Long = _
 
-	def setRunInfo(runRecord: RunRecord, runStart: Long, runEnd: Long) {
-		this.runRecord = runRecord
+	def setRunInfo(runMessage: RunMessage, runStart: Long, runEnd: Long) {
+		this.runMessage = runMessage
 		this.runStart = runStart
 		this.runEnd = runEnd
 	}
@@ -48,15 +48,16 @@ abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Opti
 
 	def getOutput: String = {
 
-		val runRecord = PageTemplate.runRecord
+		val runMessage = PageTemplate.runMessage
 		val runStart = PageTemplate.runStart
 		val runEnd = PageTemplate.runEnd
 		val duration = (runEnd - runStart) / 1000
 
 		val pageStats =
 			if (isDetails) {
-				val group2 = group.map(group => group.name :: group.groups).getOrElse(Nil).map(group => Some(group))
-				s"""var pageStats = stats.contents.${(requestName :: group2).reverse.flatten.map(formatToFilename).mkString(".contents.")}.stats;"""
+				val groupHierarchy = group.map(_.hierarchy).getOrElse(Nil)
+				val req = requestName.map(List(_)).getOrElse(Nil)
+				s"""var pageStats = stats.contents.${(groupHierarchy ::: req).map(formatToFilename).mkString(".contents.")}.stats;"""
 			} else {
 				"var pageStats = stats.stats;"
 			}
@@ -81,14 +82,14 @@ abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Opti
         <div class="cadre">
                 <div class="onglet">
                     <img src="style/cible.png" />
-                    <p><span>${runRecord.simulationId}</span></p>
+                    <p><span>${runMessage.simulationId}</span></p>
                 </div>
                 <div class="content">
                     <div class="sous-menu">
                         <div class="item ${if (!isDetails) "ouvert" else ""}"><a href="index.html">GLOBAL</a></div>
                         <div class="item ${if (isDetails) "ouvert" else ""}"><a id="details_link" href="#">DETAILS</a></div>
-                        <p class="sim_desc" title="${runRecord.readableRunDate}, duration : $duration seconds" data-content="${htmlEscape(runRecord.runDescription)}">
-                            <b>${runRecord.readableRunDate}, duration : $duration seconds</b> ${htmlEscape(truncate(runRecord.runDescription, 70))}</b>
+                        <p class="sim_desc" title="${runMessage.readableRunDate}, duration : $duration seconds" data-content="${htmlEscape(runMessage.runDescription)}">
+                            <b>${runMessage.readableRunDate}, duration : $duration seconds</b> ${htmlEscape(truncate(runMessage.runDescription, 70))}</b>
                         </p>
                     </div>
                     <div class="content-in">

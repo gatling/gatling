@@ -18,13 +18,9 @@ package io.gatling.charts.result.reader
 import scala.collection.mutable
 
 import io.gatling.core.result.{ Group, IntRangeVsTimePlot, IntVsTimePlot }
-import io.gatling.core.result.message.RequestStatus
+import io.gatling.core.result.message.Status
 
 package object buffers {
-
-	type BufferKey = (Option[Group], Option[String], Option[RequestStatus])
-
-	def computeKey(request: Option[String], group: Option[Group], status: Option[RequestStatus]): BufferKey = (group, request, status)
 
 	class CountBuffer {
 		val map = mutable.Map.empty[Int, IntVsTimePlot]

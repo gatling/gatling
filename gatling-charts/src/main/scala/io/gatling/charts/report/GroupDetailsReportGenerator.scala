@@ -48,7 +48,6 @@ class GroupDetailsReportGenerator(runOn: String, dataReader: DataReader, compone
 
 			def indicatorChartComponent: Component = componentLibrary.getRequestDetailsIndicatorChartComponent
 
-			// Create template
 			val template =
 				new GroupDetailsPageTemplate(group,
 					responseTimeChartComponent,
@@ -56,8 +55,7 @@ class GroupDetailsReportGenerator(runOn: String, dataReader: DataReader, compone
 					statisticsComponent,
 					indicatorChartComponent)
 
-			// Write template result to file
-			new TemplateWriter(requestFile(runOn, group.path)).writeToFile(template.getOutput)
+			new TemplateWriter(requestFile(runOn, group.name)).writeToFile(template.getOutput)
 		}
 
 		dataReader.groupsAndRequests.foreach {

@@ -17,17 +17,18 @@ package io.gatling.charts.result.reader.buffers
 
 import scala.collection.mutable
 
-import io.gatling.charts.result.reader.ActionRecord
+import io.gatling.charts.result.reader.RequestRecord
 import io.gatling.core.result.Group
-import io.gatling.core.result.message.RequestStatus
+import io.gatling.core.result.message.Status
 
 trait LatencyPerSecBuffers {
 
 	val latencyPerSecBuffers = mutable.Map.empty[BufferKey, RangeBuffer]
 
-	def getLatencyPerSecBuffers(requestName: Option[String], group: Option[Group], status: Option[RequestStatus]): RangeBuffer = latencyPerSecBuffers.getOrElseUpdate(computeKey(requestName, group, status), new RangeBuffer)
+	def getLatencyPerSecBuffers(requestName: Option[String], group: Option[Group], status: Option[Status]): RangeBuffer =
+		latencyPerSecBuffers.getOrElseUpdate(BufferKey(requestName, group, status), new RangeBuffer)
 
-	def updateLatencyPerSecBuffers(record: ActionRecord, group: Option[Group]) {
-		getLatencyPerSecBuffers(Some(record.request), group, Some(record.status)).update(record.executionStartBucket, record.latency)
+	def updateLatencyPerSecBuffers(record: RequestRecord) {
+		getLatencyPerSecBuffers(Some(record.name), record.group, Some(record.status)).update(record.requestStartBucket, record.latency)
 	}
 }

@@ -17,22 +17,23 @@ package io.gatling.charts.result.reader.buffers
 
 import scala.collection.mutable
 
-import io.gatling.charts.result.reader.ActionRecord
+import io.gatling.charts.result.reader.RequestRecord
 import io.gatling.core.result.Group
-import io.gatling.core.result.message.{ KO, RequestStatus }
+import io.gatling.core.result.message.{ KO, Status }
 
 trait ResponseTimeRangeBuffers {
 
 	val responseTimeRangeBuffers = mutable.Map.empty[BufferKey, ResponseTimeRangeBuffer]
 
-	def getResponseTimeRangeBuffers(requestName: Option[String], group: Option[Group]): ResponseTimeRangeBuffer = responseTimeRangeBuffers.getOrElseUpdate(computeKey(requestName, group, None), new ResponseTimeRangeBuffer)
+	def getResponseTimeRangeBuffers(requestName: Option[String], group: Option[Group]): ResponseTimeRangeBuffer =
+		responseTimeRangeBuffers.getOrElseUpdate(BufferKey(requestName, group, None), new ResponseTimeRangeBuffer)
 
-	def updateResponseTimeRangeBuffer(record: ActionRecord, group: Option[Group]) {
-		getResponseTimeRangeBuffers(Some(record.request), group).update(record.responseTime, record.status)
+	def updateResponseTimeRangeBuffer(record: RequestRecord) {
+		getResponseTimeRangeBuffers(Some(record.name), record.group).update(record.responseTime, record.status)
 		getResponseTimeRangeBuffers(None, None).update(record.responseTime, record.status)
 	}
 
-	def updateGroupResponseTimeRangeBuffer(duration: Int, group: Group, status: RequestStatus) {
+	def updateGroupResponseTimeRangeBuffer(duration: Int, group: Group, status: Status) {
 		getResponseTimeRangeBuffers(None, Some(group)).update(duration, status)
 	}
 
@@ -45,7 +46,7 @@ trait ResponseTimeRangeBuffers {
 		var high = 0
 		var ko = 0
 
-		def update(time: Int, status: RequestStatus) {
+		def update(time: Int, status: Status) {
 
 			if (status == KO) ko += 1
 			else if (time < configuration.charting.indicators.lowerBound) low += 1

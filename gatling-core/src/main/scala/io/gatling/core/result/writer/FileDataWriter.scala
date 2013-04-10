@@ -16,15 +16,15 @@
 package io.gatling.core.result.writer
 
 import java.io.{ BufferedOutputStream, FileOutputStream, OutputStream }
-
 import com.dongxiguo.fastring.Fastring.Implicits._
 import com.typesafe.scalalogging.slf4j.Logging
-
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
-import io.gatling.core.result.message.{ ActionRecordType, GroupRecord, GroupRecordType, RequestRecord, RunRecord, RunRecordType, ScenarioRecord, ScenarioRecordType, ShortScenarioDescription }
+import io.gatling.core.result.message.{ RequestMessageType, End, GroupMessage, GroupMessageType, RequestMessage, RunMessage, RunMessageType, ScenarioMessage, ScenarioMessageType, ShortScenarioDescription }
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.core.util.StringHelper.eol
+import io.gatling.core.result.message.GroupStackEntry
+import io.gatling.core.result.Group
 
 object FileDataWriter {
 
@@ -37,51 +37,65 @@ object FileDataWriter {
 	 */
 	def sanitize(s: String): String = Option(s).map(s => sanitizerPattern.replaceAllIn(s, " ")).getOrElse("")
 
-	implicit class RunRecordSerializer(val runRecord: RunRecord) extends AnyVal {
+	implicit class RunMessageSerializer(val runMessage: RunMessage) extends AnyVal {
 
 		def getBytes = {
-			import runRecord._
+			import runMessage._
 			val description = if (runDescription.isEmpty) FileDataWriter.emptyField else runDescription
-			val string = s"${RunRecordType.name}\t$timestamp\t$simulationId\t$description$eol"
+			val string = s"${RunMessageType.name}\t$timestamp\t$simulationId\t$description$eol"
 			string.getBytes(configuration.core.encoding)
 		}
 	}
 
-	implicit class ScenarioRecordSerializer(val scenarioRecord: ScenarioRecord) extends AnyVal {
+	implicit class ScenarioMessageSerializer(val scenarioMessage: ScenarioMessage) extends AnyVal {
 
 		def getBytes = {
-			import scenarioRecord._
-			val string = s"${ScenarioRecordType.name}\t$scenarioName\t$userId\t${event.name}\t$executionDate$eol"
+			import scenarioMessage._
+			val string = s"${ScenarioMessageType.name}\t$scenarioName\t$userId\t$startDate\t$endDate$eol"
 			string.getBytes(configuration.core.encoding)
 		}
 	}
 
 	// fastring macro won't work inside a value class in 2.10
-	object RequestRecordSerializer {
+	object RequestMessageSerializer {
 
-		def serialize(requestRecord: RequestRecord) = {
-			import requestRecord._
+		def serialize(requestMessage: RequestMessage) = {
+			import requestMessage._
 
-			val message = requestMessage.getOrElse(emptyField)
+			val nonEmptyMessage = message.getOrElse(emptyField)
+			val serializedGroups = GroupMessageSerializer.serializeGroups(groupStack)
 			val serializedExtraInfo = extraInfo.map(info => fast"\t${sanitize(info.toString)}").mkFastring
 
-			fast"${ActionRecordType.name}\t$scenarioName\t$userId\t$requestName\t$executionStartDate\t$requestSendingEndDate\t$responseReceivingStartDate\t$executionEndDate\t$requestStatus\t$message$serializedExtraInfo$eol"
+			fast"${RequestMessageType.name}\t$scenario\t$userId\t$serializedGroups\t$name\t$requestStartDate\t$requestEndDate\t$responseStartDate\t$responseEndDate\t$status\t$nonEmptyMessage$serializedExtraInfo$eol"
 		}
 	}
 
-	implicit class RequestRecordSerializer(val requestRecord: RequestRecord) extends AnyVal {
+	implicit class RequestMessageSerializer(val requestMessage: RequestMessage) extends AnyVal {
 
 		def getBytes = {
-			val string = RequestRecordSerializer.serialize(requestRecord).toString
+			val string = RequestMessageSerializer.serialize(requestMessage).toString
 			string.getBytes(configuration.core.encoding)
 		}
 	}
 
-	implicit class GroupRecordRecordSerializer(val groupRecord: GroupRecord) extends AnyVal {
+	// fastring macro won't work inside a value class in 2.10
+	object GroupMessageSerializer {
+		
+		def serializeGroups(groupStack: List[GroupStackEntry]) = groupStack.reverse.map(_.name).mkFastring(",")
+		
+		def deserializeGroups(string: String) = Group(string.split(",").toList)
+
+		def serialize(groupMessage: GroupMessage) = {
+			import groupMessage._
+			val serializedGroups = serializeGroups(groupStack)
+			fast"${GroupMessageType.name}\t$scenarioName\t$serializedGroups\t$userId\t$entryDate\t$exitDate\t$status$eol"
+		}
+	}
+
+	implicit class GroupMessageSerializer(val groupMessage: GroupMessage) extends AnyVal {
 
 		def getBytes = {
-			import groupRecord._
-			val string = s"${GroupRecordType.name}\t$scenarioName\t$groupName\t$userId\t${event.name}\t$executionDate$eol"
+			val string = GroupMessageSerializer.serialize(groupMessage).toString
 			string.getBytes(configuration.core.encoding)
 		}
 	}
@@ -101,22 +115,23 @@ class FileDataWriter extends DataWriter with Logging {
 	 */
 	private var os: OutputStream = _
 
-	override def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) {
-		val simulationLog = simulationLogDirectory(runRecord.runId) / "simulation.log"
+	override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
+		val simulationLog = simulationLogDirectory(run.runId) / "simulation.log"
 		os = new BufferedOutputStream(new FileOutputStream(simulationLog.toString))
-		os.write(runRecord.getBytes)
+		os.write(run.getBytes)
 	}
 
-	override def onScenarioRecord(scenarioRecord: ScenarioRecord) {
-		os.write(scenarioRecord.getBytes)
+	override def onScenarioMessage(scenario: ScenarioMessage) {
+		if (scenario.event == End)
+			os.write(scenario.getBytes)
 	}
 
-	override def onGroupRecord(groupRecord: GroupRecord) {
-		os.write(groupRecord.getBytes)
+	override def onGroupMessage(group: GroupMessage) {
+		os.write(group.getBytes)
 	}
 
-	override def onRequestRecord(requestRecord: RequestRecord) {
-		os.write(requestRecord.getBytes)
+	override def onRequestMessage(request: RequestMessage) {
+		os.write(request.getBytes)
 	}
 
 	override def onFlushDataWriter {

@@ -19,7 +19,7 @@ import com.ning.http.client.{ ProxyServer, Request, RequestBuilder }
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.message.RequestStatus
+import io.gatling.core.result.message.Status
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.Headers
 import io.gatling.http.ahc.GatlingHttpClient
@@ -79,7 +79,7 @@ case class HttpProtocolConfigurationBuilder(config: HttpProtocolConfiguration, w
 
 	def basicAuth(username: Expression[String], password: Expression[String]) = copy(config = config.copy(basicAuth = Some(HttpHelper.buildRealm(username, password))))
 
-	def extraInfoExtractor(f: (RequestStatus, Session, Request, Response) => List[Any]) = copy(config = config.copy(extraInfoExtractor = Some(f)))
+	def extraInfoExtractor(f: (Status, Session, Request, Response) => List[Any]) = copy(config = config.copy(extraInfoExtractor = Some(f)))
 
 	def proxy(host: String, port: Int) = new HttpProxyBuilder(this, host, port)
 

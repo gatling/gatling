@@ -17,21 +17,22 @@ package io.gatling.charts.result.reader.buffers
 
 import scala.collection.mutable
 
-import io.gatling.charts.result.reader.ActionRecord
+import io.gatling.charts.result.reader.RequestRecord
 import io.gatling.core.result.Group
-import io.gatling.core.result.message.RequestStatus
+import io.gatling.core.result.message.Status
 
 trait ResponseTimePerSecBuffers {
 
 	val responseTimePerSecBuffers = mutable.Map.empty[BufferKey, RangeBuffer]
 
-	def getResponseTimePerSecBuffers(requestName: Option[String], group: Option[Group], status: Option[RequestStatus]): RangeBuffer = responseTimePerSecBuffers.getOrElseUpdate(computeKey(requestName, group, status), new RangeBuffer)
+	def getResponseTimePerSecBuffers(requestName: Option[String], group: Option[Group], status: Option[Status]): RangeBuffer =
+		responseTimePerSecBuffers.getOrElseUpdate(BufferKey(requestName, group, status), new RangeBuffer)
 
-	def updateResponseTimePerSecBuffers(record: ActionRecord, group: Option[Group]) {
-		getResponseTimePerSecBuffers(Some(record.request), group, Some(record.status)).update(record.executionStartBucket, record.responseTime)
+	def updateResponseTimePerSecBuffers(record: RequestRecord) {
+		getResponseTimePerSecBuffers(Some(record.name), record.group, Some(record.status)).update(record.requestStartBucket, record.responseTime)
 	}
 
-	def updateGroupResponseTimePerSecBuffers(start: Int, duration: Int, group: Group, status: RequestStatus) {
+	def updateGroupResponseTimePerSecBuffers(start: Int, duration: Int, group: Group, status: Status) {
 		getResponseTimePerSecBuffers(None, Some(group), Some(status)).update(start, duration)
 	}
 }

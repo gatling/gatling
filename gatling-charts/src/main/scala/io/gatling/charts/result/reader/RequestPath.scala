@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.result
+package io.gatling.charts.result.reader
+
+import io.gatling.core.result.Group
 
 object RequestPath {
 	val SEPARATOR = " / "
-
-	def path(list: List[String]): String = list.reverse.mkString(SEPARATOR)
-	def path(requestName: String, group: Option[Group]): String = path(requestName :: group.map(group => group.name :: group.groups).getOrElse(Nil))
+	def path(group: Group) = group.hierarchy.mkString(SEPARATOR)
+	def path(requestName: String, group: Option[Group]): String = (group.map(_.hierarchy).getOrElse(Nil) ::: List(requestName)).mkString(SEPARATOR)
 }
 

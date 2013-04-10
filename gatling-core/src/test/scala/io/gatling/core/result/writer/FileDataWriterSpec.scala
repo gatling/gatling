@@ -21,7 +21,7 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import io.gatling.core.result.message.{ OK, RequestRecord }
+import io.gatling.core.result.message.{ OK, RequestMessage }
 import io.gatling.core.util.StringHelper.eol
 
 @RunWith(classOf[JUnitRunner])
@@ -31,19 +31,19 @@ class FileDataWriterSpec extends Specification {
 
 	"file data writer" should {
 
-		def logRecord(record: RequestRecord): String = new String(record.getBytes)
+		def logMessage(record: RequestMessage): String = new String(record.getBytes)
 
 		"log a standard request record" in {
-			val record = new RequestRecord("scenario", 1, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"))
+			val record = new RequestMessage("scenario", 1, Nil, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"))
 
-			logRecord(record) must beEqualTo("ACTION\tscenario\t1\trequestName\t2\t3\t4\t5\tOK\tmessage" + eol)
+			logMessage(record) must beEqualTo("REQUEST\tscenario\t1\t\trequestName\t2\t3\t4\t5\tOK\tmessage" + eol)
 		}
 
 		"append extra info to request records" in {
 			val extraInfo: List[String] = List("some", "extra info", "for the log")
-			val record = new RequestRecord("scenario", 1, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"), extraInfo)
+			val record = new RequestMessage("scenario", 1, Nil, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"), extraInfo)
 
-			logRecord(record) must beEqualTo("ACTION\tscenario\t1\trequestName\t2\t3\t4\t5\tOK\tmessage\tsome\textra info\tfor the log" + eol)
+			logMessage(record) must beEqualTo("REQUEST\tscenario\t1\t\trequestName\t2\t3\t4\t5\tOK\tmessage\tsome\textra info\tfor the log" + eol)
 		}
 
 		"sanitize extra info so that simulation log format is preserved" in {

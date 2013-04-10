@@ -13,13 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.structure
+package io.gatling.core.result.message
 
-import io.gatling.core.action.builder.GroupBuilder
-import io.gatling.core.session.Expression
-import io.gatling.core.structure.ChainBuilder.chainOf
-
-trait Groups[B] extends Execs[B] {
-
-	def group(name: Expression[String])(chain: ChainBuilder): B = exec(chainOf(GroupBuilder.start(name)).exec(chain).exec(GroupBuilder.end))
-}
+case class GroupStackEntry(name: String, startDate: Long, status: Status)

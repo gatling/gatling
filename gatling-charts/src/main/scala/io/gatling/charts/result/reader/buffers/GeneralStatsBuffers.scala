@@ -17,29 +17,29 @@ package io.gatling.charts.result.reader.buffers
 
 import scala.collection.mutable
 
-import io.gatling.charts.result.reader.{ ActionRecord, FileDataReader }
+import io.gatling.charts.result.reader.{ RequestRecord, FileDataReader }
 import io.gatling.charts.result.reader.stats.{ PercentilesHelper, StatsHelper }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.Group
-import io.gatling.core.result.message.RequestStatus
+import io.gatling.core.result.message.Status
 import io.gatling.core.result.reader.GeneralStats
 
 abstract class GeneralStatsBuffers(durationInSec: Long) {
 
 	val generalStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
 
-	def getGeneralStatsBuffers(request: Option[String], group: Option[Group], status: Option[RequestStatus]): GeneralStatsBuffer =
-		generalStatsBuffers.getOrElseUpdate(computeKey(request, group, status), new GeneralStatsBuffer(durationInSec))
+	def getGeneralStatsBuffers(request: Option[String], group: Option[Group], status: Option[Status]): GeneralStatsBuffer =
+		generalStatsBuffers.getOrElseUpdate(BufferKey(request, group, status), new GeneralStatsBuffer(durationInSec))
 
-	def updateGeneralStatsBuffers(record: ActionRecord, group: Option[Group]) {
-		getGeneralStatsBuffers(Some(record.request), group, None).update(record.responseTime)
-		getGeneralStatsBuffers(Some(record.request), group, Some(record.status)).update(record.responseTime)
+	def updateGeneralStatsBuffers(record: RequestRecord) {
+		getGeneralStatsBuffers(Some(record.name), record.group, None).update(record.responseTime)
+		getGeneralStatsBuffers(Some(record.name), record.group, Some(record.status)).update(record.responseTime)
 
 		getGeneralStatsBuffers(None, None, None).update(record.responseTime)
 		getGeneralStatsBuffers(None, None, Some(record.status)).update(record.responseTime)
 	}
 
-	def updateGroupGeneralStatsBuffers(duration: Int, group: Group, status: RequestStatus) {
+	def updateGroupGeneralStatsBuffers(duration: Int, group: Group, status: Status) {
 		getGeneralStatsBuffers(None, Some(group), None).update(duration)
 		getGeneralStatsBuffers(None, Some(group), Some(status)).update(duration)
 	}

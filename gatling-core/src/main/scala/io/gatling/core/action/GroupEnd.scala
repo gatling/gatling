@@ -13,13 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.structure
+package io.gatling.core.action
 
-import io.gatling.core.action.builder.GroupBuilder
-import io.gatling.core.session.Expression
-import io.gatling.core.structure.ChainBuilder.chainOf
+import akka.actor.ActorRef
+import io.gatling.core.result.message.GroupMessage
+import io.gatling.core.result.writer.DataWriter
+import io.gatling.core.session.Session
+import io.gatling.core.util.TimeHelper.nowMillis
 
-trait Groups[B] extends Execs[B] {
+class GroupEnd(val next: ActorRef) extends Chainable {
 
-	def group(name: Expression[String])(chain: ChainBuilder): B = exec(chainOf(GroupBuilder.start(name)).exec(chain).exec(GroupBuilder.end))
+	def execute(session: Session) {
+
+		val stack = session.groupStack
+		val group = stack.head
+		DataWriter.tell(GroupMessage(session.scenarioName, stack, session.userId, group.startDate, nowMillis, group.status))
+
+		next ! session.exitGroup
+	}
 }

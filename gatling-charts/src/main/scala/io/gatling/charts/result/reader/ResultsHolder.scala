@@ -15,8 +15,7 @@
  */
 package io.gatling.charts.result.reader
 
-import io.gatling.charts.result.reader.buffers.{ GeneralStatsBuffers, GroupBuffers, LatencyPerSecBuffers, NamesBuffers, RequestsPerSecBuffers, ResponseTimePerSecBuffers, ResponseTimeRangeBuffers, SessionDeltaPerSecBuffers, TransactionsPerSecBuffers }
-import io.gatling.core.result.message.{ End, KO, Start }
+import io.gatling.charts.result.reader.buffers.{ GeneralStatsBuffers, LatencyPerSecBuffers, NamesBuffers, RequestsPerSecBuffers, ResponseTimePerSecBuffers, ResponseTimeRangeBuffers, SessionDeltaPerSecBuffers, TransactionsPerSecBuffers }
 
 class ResultsHolder(minTime: Long, maxTime: Long)
 	extends GeneralStatsBuffers(maxTime - minTime)
@@ -26,44 +25,27 @@ class ResultsHolder(minTime: Long, maxTime: Long)
 	with ResponseTimePerSecBuffers
 	with ResponseTimeRangeBuffers
 	with SessionDeltaPerSecBuffers
-	with TransactionsPerSecBuffers
-	with GroupBuffers {
+	with TransactionsPerSecBuffers {
 
 	def addScenarioRecord(record: ScenarioRecord) {
-		record.event match {
-			case Start =>
-				addStartSessionBuffers(record)
-				addScenarioName(record)
-			case End =>
-				addEndSessionBuffers(record)
-		}
+		addSessionBuffers(record)
+		addScenarioName(record)
 	}
 
 	def addGroupRecord(record: GroupRecord) {
-		record.event match {
-			case Start =>
-				startGroup(record)
-				addGroupName(getCurrentGroup(record.user).get, record.executionDate)
-			case End =>
-				val startEntry = endGroup(record)
-				val duration = record.executionDate - startEntry.record.executionDate
-				updateGroupGeneralStatsBuffers(duration, startEntry.group, startEntry.status)
-				updateGroupResponseTimePerSecBuffers(startEntry.record.executionDateBucket, duration, startEntry.group, startEntry.status)
-				updateGroupResponseTimeRangeBuffer(duration, startEntry.group, startEntry.status)
-		}
+		addGroupName(record.group, record.startDate)
+		updateGroupGeneralStatsBuffers(record.duration, record.group, record.status)
+		updateGroupResponseTimePerSecBuffers(record.startDateBucket, record.duration, record.group, record.status)
+		updateGroupResponseTimeRangeBuffer(record.duration, record.group, record.status)
 	}
 
-	def addActionRecord(record: ActionRecord) {
-
-		if (record.status == KO) currentGroupFailed(record.user)
-		val group = getCurrentGroup(record.user)
-
-		updateRequestsPerSecBuffers(record, group)
-		updateTransactionsPerSecBuffers(record, group)
-		updateResponseTimePerSecBuffers(record, group)
-		updateLatencyPerSecBuffers(record, group)
-		addRequestName(record, group)
-		updateGeneralStatsBuffers(record, group)
-		updateResponseTimeRangeBuffer(record, group)
+	def addRequestRecord(record: RequestRecord) {
+		updateRequestsPerSecBuffers(record)
+		updateTransactionsPerSecBuffers(record)
+		updateResponseTimePerSecBuffers(record)
+		updateLatencyPerSecBuffers(record)
+		addRequestName(record)
+		updateGeneralStatsBuffers(record)
+		updateResponseTimeRangeBuffer(record)
 	}
 }

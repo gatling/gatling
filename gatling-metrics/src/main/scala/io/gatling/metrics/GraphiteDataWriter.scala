@@ -34,7 +34,6 @@ class GraphiteDataWriter extends DataWriter {
 	private val graphiteSender = context.actorOf(Props(new GraphiteSender))
 	private val rootPathPrefix = configuration.graphite.rootPathPrefix.split('.').toList
 	private var metricRootPath: List[String] = Nil
-	private val groupStack = mutable.Map.empty[Int, List[String]]
 	private val allRequests = new RequestMetrics
 	private val perRequest = mutable.Map.empty[List[String], RequestMetrics]
 	private var allUsers: UserMetric = _
@@ -44,41 +43,25 @@ class GraphiteDataWriter extends DataWriter {
 	private val percentiles2 = configuration.charting.indicators.percentile2
 	private val percentiles2Name = "percentiles" + percentiles2
 
-	def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) {
-		metricRootPath = rootPathPrefix :+ runRecord.simulationId
+	def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
+		metricRootPath = rootPathPrefix :+ run.simulationId
 		allUsers = new UserMetric(scenarios.map(_.nbUsers).sum)
 		scenarios.foreach(scenario => usersPerScenario += scenario.name -> new UserMetric(scenario.nbUsers))
 		system.scheduler.schedule(0 millisecond, 1000 milliseconds, self, SendToGraphite)
 	}
 
-	def onScenarioRecord(scenarioRecord: ScenarioRecord) {
-		usersPerScenario(scenarioRecord.scenarioName).update(scenarioRecord)
-		allUsers.update(scenarioRecord)
-		scenarioRecord.event match {
-			case Start => groupStack += scenarioRecord.userId -> Nil
-			case End => groupStack -= scenarioRecord.userId
-		}
+	def onScenarioMessage(scenario: ScenarioMessage) {
+		usersPerScenario(scenario.scenarioName).update(scenario)
+		allUsers.update(scenario)
 	}
 
-	def onGroupRecord(groupRecord: GroupRecord) {
-		val userId = groupRecord.userId
-		val userStack = groupStack(userId)
-		val newUserStack = groupRecord.event match {
-			case Start => groupRecord.groupName :: userStack
-			case End if (!userStack.isEmpty) => userStack.tail
-			case _ =>
-				logger.error("Trying to stop a user that hasn't started?!")
-				Nil
-		}
-		groupStack += userId -> newUserStack
-	}
+	def onGroupMessage(group: GroupMessage) {}
 
-	def onRequestRecord(requestRecord: RequestRecord) {
-		val currentGroup = groupStack(requestRecord.userId)
-		val path = requestRecord.requestName :: currentGroup
+	def onRequestMessage(request: RequestMessage) {
+		val path = request.name :: request.groupStack.map(_.name)
 		val metric = perRequest.getOrElseUpdate(path.reverse, new RequestMetrics)
-		metric.update(requestRecord)
-		allRequests.update(requestRecord)
+		metric.update(request)
+		allRequests.update(request)
 	}
 
 	def onFlushDataWriter {
@@ -93,8 +76,8 @@ class GraphiteDataWriter extends DataWriter {
 
 	private class GraphiteSender extends BaseActor {
 
-		private val sanitizeStringMemo = mutable.Map.empty[String,String]
-		private val sanitizeStringListMemo = mutable.Map.empty[List[String],List[String]]
+		private val sanitizeStringMemo = mutable.Map.empty[String, String]
+		private val sanitizeStringListMemo = mutable.Map.empty[List[String], List[String]]
 		private var metricsSender: MetricsSender = _
 
 		override def preStart {
@@ -112,9 +95,9 @@ class GraphiteDataWriter extends DataWriter {
 
 		private def sendMetricsToGraphite(epoch: Long) {
 
-			def sanitizeString(s: String) = sanitizeStringMemo.getOrElseUpdate(s,s.replace(' ', '_').replace('.', '-').replace('\\', '-'))
+			def sanitizeString(s: String) = sanitizeStringMemo.getOrElseUpdate(s, s.replace(' ', '_').replace('.', '-').replace('\\', '-'))
 
-			def sanitizeStringList(list: List[String]) = sanitizeStringListMemo.getOrElseUpdate(list,list.map(sanitizeString))
+			def sanitizeStringList(list: List[String]) = sanitizeStringListMemo.getOrElseUpdate(list, list.map(sanitizeString))
 
 			def sendToGraphite(metricPath: MetricPath, value: Long) = metricsSender.sendToGraphite(metricPath.toString, value, epoch)
 
@@ -149,7 +132,7 @@ class GraphiteDataWriter extends DataWriter {
 			}
 
 			sendUserMetrics("allUsers", allUsers)
-			for ((scenarioName, userMetric) <- usersPerScenario) sendUserMetrics(scenarioName,userMetric)
+			for ((scenarioName, userMetric) <- usersPerScenario) sendUserMetrics(scenarioName, userMetric)
 
 			sendRequestMetrics(List("allRequests"), allRequests)
 			for ((path, requestMetric) <- perRequest) sendRequestMetrics(path, requestMetric)

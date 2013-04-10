@@ -22,8 +22,7 @@ import scala.concurrent.duration.DurationInt
 
 import io.gatling.core.action.system
 import io.gatling.core.action.system.dispatcher
-import io.gatling.core.result.RequestPath
-import io.gatling.core.result.message.{ End, GroupRecord, KO, OK, RequestRecord, RunRecord, ScenarioRecord, ShortScenarioDescription, Start }
+import io.gatling.core.result.message.{ End, GroupMessage, KO, OK, RequestMessage, RunMessage, ScenarioMessage, ShortScenarioDescription, Start }
 
 case object Display
 
@@ -47,7 +46,6 @@ class ConsoleDataWriter extends DataWriter {
 	private var startUpTime = 0L
 
 	private val usersCounters = mutable.Map.empty[String, UserCounters]
-	private val groupStack = mutable.Map.empty[Int, List[String]]
 	private val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty
 
 	private var complete = false
@@ -65,7 +63,7 @@ class ConsoleDataWriter extends DataWriter {
 		case Display => display
 	}
 
-	override def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) {
+	override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
 
 		import system.dispatcher
 
@@ -76,46 +74,35 @@ class ConsoleDataWriter extends DataWriter {
 		system.scheduler.schedule(0 seconds, 5 seconds, self, Display)
 	}
 
-	override def onScenarioRecord(scenarioRecord: ScenarioRecord) {
-		scenarioRecord.event match {
+	override def onScenarioMessage(scenario: ScenarioMessage) {
+
+		import scenario._
+
+		event match {
 			case Start =>
 				usersCounters
-					.get(scenarioRecord.scenarioName)
+					.get(scenarioName)
 					.map(_.userStart)
-					.getOrElse(logger.error(s"Internal error, scenario '${scenarioRecord.scenarioName}' has not been correctly initialized"))
+					.getOrElse(logger.error(s"Internal error, scenario '${scenarioName}' has not been correctly initialized"))
 
 			case End =>
 				usersCounters
-					.get(scenarioRecord.scenarioName)
+					.get(scenarioName)
 					.map(_.userDone)
-					.getOrElse(logger.error(s"Internal error, scenario '${scenarioRecord.scenarioName}' has not been correctly initialized"))
-				groupStack.remove(scenarioRecord.userId)
+					.getOrElse(logger.error(s"Internal error, scenario '${scenarioName}' has not been correctly initialized"))
 		}
 	}
 
-	override def onGroupRecord(groupRecord: GroupRecord) {
+	override def onGroupMessage(group: GroupMessage) {}
 
-		val userId = groupRecord.userId
-		val userStack = groupStack.getOrElse(userId, Nil)
+	override def onRequestMessage(request: RequestMessage) {
 
-		val newUserStack = groupRecord.event match {
-			case Start => groupRecord.groupName :: userStack
-			case End if (!userStack.isEmpty) => userStack.tail
-			case _ =>
-				logger.error("Trying to stop a user that hasn't started?!")
-				Nil
-		}
+		import request._
 
-		groupStack += userId -> newUserStack
-	}
-
-	override def onRequestRecord(requestRecord: RequestRecord) {
-
-		val currentGroup = groupStack.getOrElse(requestRecord.userId, Nil)
-		val requestPath = RequestPath.path(requestRecord.requestName :: currentGroup)
+		val requestPath = (name :: groupStack.map(_.name)).reverse.mkString(" / ")
 		val requestCounters = requestsCounters.getOrElseUpdate(requestPath, new RequestCounters(0, 0))
 
-		requestRecord.requestStatus match {
+		status match {
 			case OK => requestCounters.successfulCount += 1
 			case KO => requestCounters.failedCount += 1
 		}

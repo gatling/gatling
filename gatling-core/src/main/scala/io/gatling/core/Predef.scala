@@ -63,7 +63,7 @@ object Predef {
 	implicit def feeder2FeederBuilder[T](feeder: Feeder[T]): FeederBuilder[T] = FeederWrapper(feeder)
 
 	type Session = io.gatling.core.session.Session
-	type RequestStatus = io.gatling.core.result.message.RequestStatus
+	type Status = io.gatling.core.result.message.Status
 	type Simulation = io.gatling.core.scenario.configuration.Simulation
 	type Feeder[T] = io.gatling.core.feeder.Feeder[T]
 	type Assertion = io.gatling.core.structure.Assertion
