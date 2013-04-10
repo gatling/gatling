@@ -16,7 +16,7 @@
 package io.gatling.core.structure
 
 import io.gatling.core.action.builder.{ ActionBuilder, SessionHookBuilder }
-import io.gatling.core.session.Session
+import io.gatling.core.session.{ Expression, Session }
 
 trait Execs[B] {
 
@@ -24,12 +24,7 @@ trait Execs[B] {
 	private[core] def newInstance(actionBuilders: List[ActionBuilder]): B
 	private[core] def getInstance: B
 
-	/**
-	 * Method used to execute an action
-	 *
-	 * @param actionBuilder the action builder representing the action to be executed
-	 */
-	def exec(sessionFunction: Session => Session): B = exec(new SessionHookBuilder(sessionFunction, true))
+	def exec(sessionFunction: Expression[Session]): B = exec(new SessionHookBuilder(sessionFunction, true))
 	def exec(actionBuilder: ActionBuilder): B = newInstance(actionBuilder :: actionBuilders)
 	def exec(chains: ChainBuilder*): B = exec(chains.toIterable)
 	def exec(chains: Iterator[ChainBuilder]): B = exec(chains.toIterable)

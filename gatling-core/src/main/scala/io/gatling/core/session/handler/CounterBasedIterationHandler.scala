@@ -18,28 +18,20 @@ package io.gatling.core.session.handler
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.session.Session
-import io.gatling.core.validation.{ Failure, Success }
+import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 /**
- * This trait is used for mixin-composition
- *
- * It adds counter based iteration behavior to a class
+ * Adds counter based iteration behavior to a class
  */
 trait CounterBasedIterationHandler extends Logging {
 
 	def counterName: String
 
-	def init(session: Session) =
-		if (session.contains(counterName)) session
-		else session.set(counterName, -1)
+	def init(session: Session): Validation[Session] =
+		if (session.contains(counterName)) session.success
+		else session.set(counterName, -1).success
 
-	def increment(session: Session) = session.getV[Int](counterName) match {
-		case Success(currentValue) =>
-			session.set(counterName, currentValue + 1)
-		case Failure(message) =>
-			logger.error(s"Could not retrieve loop counter named $counterName: $message")
-			throw new IllegalAccessError("You must call 'init' before calling 'increment'")
-	}
+	def increment(session: Session): Validation[Session] = session.getV[Int](counterName).map(currentValue => session.set(counterName, currentValue + 1))
 
-	def expire(session: Session) = session.remove(counterName)
+	def expire(session: Session): Validation[Session] = session.remove(counterName).success
 }

@@ -15,11 +15,10 @@
  */
 package io.gatling.core.action
 
+import akka.actor.{ Actor, ActorRef, Props }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.session.handler.TimerBasedIterationHandler
-import io.gatling.core.validation.Success
-
-import akka.actor.{ Actor, ActorRef, Props }
+import io.gatling.core.validation.{ Failure, Success }
 
 /**
  * Action in charge of controlling a while loop execution.
@@ -54,11 +53,24 @@ class InnerWhile(condition: Expression[Boolean], loopNextAction: ActorRef, val c
 	 */
 	def execute(session: Session) {
 
-		val sessionWithTimerIncremented = increment(init(session))
+		val exit = () => expire(session) match {
+			case Success(s) => next ! s
+			case Failure(message) =>
+				logger.error(s"Could not expire loop: $message")
+				next ! session
+		}
 
-		condition(sessionWithTimerIncremented) match {
-			case Success(true) => loopNextAction ! sessionWithTimerIncremented
-			case _ => next ! expire(session)
+		val doNext = for {
+			initialized <- init(session)
+			incremented <- increment(initialized)
+			cond <- condition(incremented)
+		} yield if (cond) () => loopNextAction ! incremented else exit
+
+		doNext match {
+			case Success(f) => f()
+			case Failure(message) =>
+				logger.error(s"While condition evaluation failed: $message, exiting loop")
+				exit()
 		}
 	}
 }

@@ -19,6 +19,7 @@ import java.util.UUID
 
 import io.gatling.core.action.builder.{ SessionHookBuilder, TryMaxBuilder }
 import io.gatling.core.structure.ChainBuilder.chainOf
+import io.gatling.core.validation.SuccessWrapper
 
 trait Errors[B] extends Execs[B] {
 
@@ -29,13 +30,13 @@ trait Errors[B] extends Execs[B] {
 
 		require(times >= 1, "Can't set up a max try <= 1")
 
-		val start = new SessionHookBuilder(_.clearFailed.setMustExitOnFail)
-		val end = new SessionHookBuilder(_.clearMustExitOnFail)
+		val start = new SessionHookBuilder(_.clearFailed.setMustExitOnFail.success)
+		val end = new SessionHookBuilder(_.clearMustExitOnFail.success)
 		val transactionalChain = chainOf(start).exec(chain).exec(end)
 
 		val loopCounterName = counterName.getOrElse(UUID.randomUUID.toString)
 		exec(new TryMaxBuilder(times, transactionalChain, loopCounterName))
 	}
 
-	def exitHereIfFailed: B = exec(new SessionHookBuilder(session => session.setMustExitOnFail))
+	def exitHereIfFailed: B = exec(new SessionHookBuilder(session => session.setMustExitOnFail.success))
 }
