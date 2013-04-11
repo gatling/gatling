@@ -26,9 +26,8 @@ object MetricsSender {
 abstract class MetricsSender {
 
 	def sendToGraphite(metricPath: String, value: Long, epoch: Long) {
-		val bytes = raw"$metricPath $value $epoch".getBytes(configuration.core.encoding)
+		val bytes = s"$metricPath $value $epoch\n".getBytes(configuration.core.encoding)
 		sendToGraphite(bytes)
-
 	}
 
 	def sendToGraphite(bytes: Array[Byte])
