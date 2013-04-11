@@ -32,17 +32,15 @@ class AssertionBuilder {
 		type RequestPath = (Option[Group], Option[String])
 
 		def path(reader: DataReader, selector: Path): RequestPath =
-			if (selector.segments.isEmpty) (None, None)
-			else {
-//				val criteria = selector.segments.foldLeft[Option[Group]](None)((parent, group) => Some(Group(group, parent)))
-//				def matchesGroup(requestPath: RequestPath) = requestPath == (criteria, None)
-//				def matchesRequest(requestPath: RequestPath) = requestPath == (criteria.flatMap(_.parent), Some(selector.name))
-//
-//				reader.groupsAndRequests.find(matchesGroup)
-//					.getOrElse(reader.groupsAndRequests.find(matchesRequest)
-//						.getOrElse(throw new IllegalArgumentException(s"Path $selector does not exist")))
-				// FIXME
+			if (selector.segments.isEmpty)
 				(None, None)
+			else {
+				val selectedPath = selector.segments
+				reader.groupsAndRequests.find {
+					case (group, requestName) =>
+						val path = group.map(_.hierarchy).getOrElse(Nil) ::: requestName.map(List(_)).getOrElse(Nil)
+						path == selectedPath
+				}.getOrElse(throw new IllegalArgumentException(s"Path $selector does not exist"))
 			}
 
 		def generalStats(selector: Path): (DataReader, Option[Status]) => GeneralStats = {
@@ -107,7 +105,7 @@ case class Metric(value: DataReader => Int, name: String, assertions: List[Asser
 
 	def between(min: Int, max: Int) = assert(value => value >= min && value <= max, (name, result) => s"$name between $min and $max : $result")
 
-	def is(v: Int) = assert( _ == v, (name, result) => s"$name is equal to $v : $result")
+	def is(v: Int) = assert(_ == v, (name, result) => s"$name is equal to $v : $result")
 
 	def in(set: Set[Int]) = assert(set.contains, (name, result) => s"$name is in $set")
 }
