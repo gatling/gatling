@@ -15,13 +15,12 @@
  */
 package io.gatling.core.action
 
-import io.gatling.core.result.message.{ ScenarioRecord, End }
+import akka.actor.Props
+import io.gatling.core.result.message.{ End, ScenarioMessage }
 import io.gatling.core.result.terminator.Terminator
 import io.gatling.core.result.writer.DataWriter
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
-
-import akka.actor.Props
 
 object UserEnd {
 
@@ -32,7 +31,7 @@ class UserEnd extends Action {
 
 	def execute(session: Session) {
 
-		DataWriter.tell(ScenarioRecord(session.scenarioName, session.userId, End, nowMillis))
+		DataWriter.tell(ScenarioMessage(session.scenarioName, session.userId, End, session.startDate, nowMillis))
 		logger.info(s"End user #${session.userId}")
 
 		Terminator.endUser

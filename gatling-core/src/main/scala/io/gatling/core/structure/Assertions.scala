@@ -18,7 +18,7 @@ package io.gatling.core.structure
 import scala.tools.nsc.io.Path
 
 import io.gatling.core.result.Group
-import io.gatling.core.result.message.{ KO, OK, RequestStatus }
+import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.result.reader.{ DataReader, GeneralStats }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.NumberHelper
@@ -32,18 +32,18 @@ class AssertionBuilder {
 		type RequestPath = (Option[Group], Option[String])
 
 		def path(reader: DataReader, selector: Path): RequestPath =
-			if (selector.segments.isEmpty) (None, None)
+			if (selector.segments.isEmpty)
+				(None, None)
 			else {
-				val criteria = selector.segments.foldLeft[Option[Group]](None)((parent, group) => Some(Group(group, parent)))
-				def matchesGroup(requestPath: RequestPath) = requestPath == (criteria, None)
-				def matchesRequest(requestPath: RequestPath) = requestPath == (criteria.flatMap(_.parent), Some(selector.name))
-
-				reader.groupsAndRequests.find(matchesGroup)
-					.getOrElse(reader.groupsAndRequests.find(matchesRequest)
-						.getOrElse(throw new IllegalArgumentException(s"Path $selector does not exist")))
+				val selectedPath = selector.segments
+				reader.groupsAndRequests.find {
+					case (group, requestName) =>
+						val path = group.map(_.hierarchy).getOrElse(Nil) ::: requestName.map(List(_)).getOrElse(Nil)
+						path == selectedPath
+				}.getOrElse(throw new IllegalArgumentException(s"Path $selector does not exist"))
 			}
 
-		def generalStats(selector: Path): (DataReader, Option[RequestStatus]) => GeneralStats = {
+		def generalStats(selector: Path): (DataReader, Option[Status]) => GeneralStats = {
 			(reader, status) =>
 				val (group, requestName) = path(reader, selector)
 				reader.generalStats(status, requestName, group)
@@ -66,8 +66,8 @@ class Selector(stats: GeneralStatsByStatus, name: String) {
 }
 
 object ResponseTime {
-	val PERCENTILE1 = NumberHelper.formatNumberWithSuffix(configuration.charting.indicators.percentile1)
-	val PERCENTILE2 = NumberHelper.formatNumberWithSuffix(configuration.charting.indicators.percentile2)
+	val percentile1 = NumberHelper.formatNumberWithSuffix(configuration.charting.indicators.percentile1)
+	val percentile2 = NumberHelper.formatNumberWithSuffix(configuration.charting.indicators.percentile2)
 }
 
 class ResponseTime(responseTime: DataReader => GeneralStats, name: String) {
@@ -79,12 +79,12 @@ class ResponseTime(responseTime: DataReader => GeneralStats, name: String) {
 
 	def stdDev = Metric(reader => responseTime(reader).stdDev, s"$name : standard deviation response time")
 
-	def percentile1 = Metric(reader => responseTime(reader).percentile1, s"$name : ${ResponseTime.PERCENTILE1} percentile response time")
+	def percentile1 = Metric(reader => responseTime(reader).percentile1, s"$name : ${ResponseTime.percentile1} percentile response time")
 
-	def percentile2 = Metric(reader => responseTime(reader).percentile2, s"$name : ${ResponseTime.PERCENTILE2} percentile response time")
+	def percentile2 = Metric(reader => responseTime(reader).percentile2, s"$name : ${ResponseTime.percentile2} percentile response time")
 }
 
-class Requests(requests: GeneralStatsByStatus, status: Option[RequestStatus], name: String) {
+class Requests(requests: GeneralStatsByStatus, status: Option[Status], name: String) {
 
 	private def message(message: String) = status match {
 		case Some(status) => s"$name $message $status"
@@ -105,7 +105,7 @@ case class Metric(value: DataReader => Int, name: String, assertions: List[Asser
 
 	def between(min: Int, max: Int) = assert(value => value >= min && value <= max, (name, result) => s"$name between $min and $max : $result")
 
-	def is(v: Int) = assert( _ == v, (name, result) => s"$name is equal to $v : $result")
+	def is(v: Int) = assert(_ == v, (name, result) => s"$name is equal to $v : $result")
 
 	def in(set: Set[Int]) = assert(set.contains, (name, result) => s"$name is in $set")
 }

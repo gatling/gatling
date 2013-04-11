@@ -13,26 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.metrics.sender
+package io.gatling.core.action
 
-import io.gatling.core.config.GatlingConfiguration.configuration
+import akka.actor.ActorRef
+import io.gatling.core.result.message.GroupMessage
+import io.gatling.core.result.writer.DataWriter
+import io.gatling.core.session.Session
+import io.gatling.core.util.TimeHelper.nowMillis
 
-object MetricsSender {
-	def newMetricsSender: MetricsSender = configuration.graphite.protocol match {
-		case "tcp" => new TcpSender
-		case "udp" => new UdpSender
+class GroupEnd(val next: ActorRef) extends Chainable {
+
+	def execute(session: Session) {
+
+		val stack = session.groupStack
+		val group = stack.head
+		DataWriter.tell(GroupMessage(session.scenarioName, stack, session.userId, group.startDate, nowMillis, group.status))
+
+		next ! session.exitGroup
 	}
-}
-abstract class MetricsSender {
-
-	def sendToGraphite(metricPath: String, value: Long, epoch: Long) {
-		val bytes = s"$metricPath $value $epoch\n".getBytes(configuration.core.encoding)
-		sendToGraphite(bytes)
-	}
-
-	def sendToGraphite(bytes: Array[Byte])
-
-	def flush
-
-	def close
 }

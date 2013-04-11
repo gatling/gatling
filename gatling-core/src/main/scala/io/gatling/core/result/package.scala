@@ -21,4 +21,8 @@ package result {
 	case class IntVsTimePlot(time: Int, value: Int)
 	case class IntRangeVsTimePlot(time: Int, lower: Int, higher: Int)
 	case class PieSlice(name: String, value: Int)
+
+	case class Group(hierarchy: List[String]) {
+		val name = hierarchy.last
+	}
 }

@@ -13,19 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.result
+package io.gatling.charts.result.reader.buffers
 
-case class Group(name: String, parent: Option[Group] = None) {
-	val groups: List[String] = parent.map(parent => parent.name :: parent.groups).getOrElse(Nil)
-	val path = RequestPath.path(name :: groups)
+import io.gatling.core.result.Group
+import io.gatling.core.result.message.Status
 
-	override def equals(obj: Any) =
-		obj match {
-			case group: Group => group.path == path
-			case _ => false
-		}
-
-	override val hashCode = path.hashCode
-
-	override val toString = path
-}
+case class BufferKey(requestName: Option[String], group: Option[Group], status: Option[Status])

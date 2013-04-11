@@ -32,30 +32,30 @@ case class RequestContainer(name: String, stats: RequestStatistics) extends Cont
 
 object GroupContainer {
 	def root(requestStats: RequestStatistics) = GroupContainer("ROOT", requestStats)
-
-	def getGroup(root: GroupContainer, group: Option[Group]) = {
-		@tailrec
-		def recursivelyGetGroup(parent: GroupContainer, groups: List[String]): GroupContainer = groups match {
-			case head :: tail => recursivelyGetGroup(parent.contents(head).asInstanceOf[GroupContainer], tail)
-			case _ => parent
-		}
-
-		group match {
-			case Some(group) => recursivelyGetGroup(root, (group.name :: group.groups).reverse)
-			case None => root
-		}
-	}
 }
 
 case class GroupContainer(name: String,
-	requestStats: RequestStatistics,
+	stats: RequestStatistics,
 	contents: mutable.Map[String, Container] = mutable.LinkedHashMap.empty) extends Container {
 
-	def addGroup(group: Group, requestStats: RequestStatistics) {
-		GroupContainer.getGroup(this, group.parent).contents += (group.name -> GroupContainer(group.name, requestStats))
+	private def findGroup(path: List[String]) = {
+
+		@tailrec
+		def getGroupRec(g: GroupContainer, path: List[String]): GroupContainer = path match {
+			case head :: tail => getGroupRec(g.contents(head).asInstanceOf[GroupContainer], tail)
+			case _ => g
+		}
+
+		getGroupRec(this, path)
 	}
 
-	def addRequest(parent: Option[Group], request: RequestStatistics) {
-		GroupContainer.getGroup(this, parent).contents += (request.name -> RequestContainer(request.name, request))
+	def addGroup(group: Group, stats: RequestStatistics) {
+		val parentGroup = group.hierarchy.dropRight(1)
+		findGroup(parentGroup).contents += (group.name -> GroupContainer(group.name, stats))
+	}
+
+	def addRequest(group: Option[Group], requestName: String, stats: RequestStatistics) {
+		val parentGroup = group.map(_.hierarchy).getOrElse(Nil)
+		findGroup(parentGroup).contents += (requestName -> RequestContainer(requestName, stats))
 	}
 }

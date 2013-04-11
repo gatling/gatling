@@ -15,9 +15,9 @@
  */
 package io.gatling.core
 
-import io.gatling.core.result.message.RequestStatus
+import io.gatling.core.result.message.Status
 import io.gatling.core.result.reader.{ DataReader, GeneralStats }
 
 package object structure {
-	type GeneralStatsByStatus = (DataReader, Option[RequestStatus]) => GeneralStats
+	type GeneralStatsByStatus = (DataReader, Option[Status]) => GeneralStats
 }

@@ -39,7 +39,7 @@ class StatsTsvTemplate(stats: GroupContainer) {
 
 	def getOutput: String = {
 
-		def renderGroup(group: GroupContainer): Fastring = fast"""${group.requestStats.mkString}
+		def renderGroup(group: GroupContainer): Fastring = fast"""${group.stats.mkString}
 ${
 			(group.contents.values.map {
 				_ match {

@@ -15,21 +15,20 @@
  */
 package io.gatling.core.action.builder
 
-import io.gatling.core.action.{ Group, system }
-import io.gatling.core.config.ProtocolConfigurationRegistry
-import io.gatling.core.result.message.{ End, RecordEvent, Start }
-import io.gatling.core.session.Expression
+import com.typesafe.scalalogging.slf4j.Logging
 
 import akka.actor.{ ActorRef, Props }
+import io.gatling.core.action.{ GroupEnd, GroupStart, system }
+import io.gatling.core.config.ProtocolConfigurationRegistry
+import io.gatling.core.session.Expression
 
-object GroupBuilder {
+object GroupBuilder extends Logging {
 
-	def start(groupName: Expression[String]) = new GroupBuilder(groupName, Start)
+	def start(groupName: Expression[String]) = new ActionBuilder {
+		def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new GroupStart(groupName, next)))
+	}
 
-	def end(groupName: Expression[String]) = new GroupBuilder(groupName, End)
-}
-
-class GroupBuilder(groupName: Expression[String], event: RecordEvent) extends ActionBuilder {
-
-	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new Group(groupName, event, next)))
+	val end = new ActionBuilder {
+		def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new GroupEnd(next)))
+	}
 }
