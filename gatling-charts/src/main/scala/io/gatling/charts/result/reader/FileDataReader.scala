@@ -26,8 +26,8 @@ import io.gatling.charts.result.reader.buffers.{ CountBuffer, RangeBuffer }
 import io.gatling.charts.result.reader.stats.StatsHelper
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
-import io.gatling.core.result.{ Group, IntRangeVsTimePlot, IntVsTimePlot }
-import io.gatling.core.result.message.{ GroupMessageType, KO, OK, RequestMessageType, Status, RunMessage, RunMessageType, ScenarioMessageType }
+import io.gatling.core.result.{ Group, GroupStatsPath, IntRangeVsTimePlot, IntVsTimePlot, RequestStatsPath, StatsPath }
+import io.gatling.core.result.message.{ GroupMessageType, KO, OK, RequestMessageType, RunMessage, RunMessageType, ScenarioMessageType, Status }
 import io.gatling.core.result.reader.{ DataReader, GeneralStats }
 import io.gatling.core.util.DateHelper.parseTimestampString
 
@@ -128,10 +128,10 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	println("Parsing log file(s) done")
 
-	def groupsAndRequests: List[(Option[Group], Option[String])] =
+	def statsPaths: List[StatsPath] =
 		resultsHolder.groupAndRequestsNameBuffer.map.toList.map {
-			case ((group, Some(request)), time) => ((group, Some(request)), (time, group.map(_.hierarchy.size + 1).getOrElse(0)))
-			case ((Some(group), None), time) => ((Some(group), None), (time, group.hierarchy.size))
+			case (path @ RequestStatsPath(request, group), time) => (path, (time, group.map(_.hierarchy.size + 1).getOrElse(0)))
+			case (path @ GroupStatsPath(group), time) => (path, (time, group.hierarchy.size))
 			case _ => throw new UnsupportedOperationException
 		}.sortBy(_._2).map(_._1)
 

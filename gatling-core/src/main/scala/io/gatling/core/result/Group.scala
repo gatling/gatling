@@ -13,12 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core
+package io.gatling.core.result
 
-package result {
-
-	case class Series[X](name: String, data: Seq[X], colors: List[String])
-	case class IntVsTimePlot(time: Int, value: Int)
-	case class IntRangeVsTimePlot(time: Int, lower: Int, higher: Int)
-	case class PieSlice(name: String, value: Int)
+case class Group(hierarchy: List[String]) {
+	val name = hierarchy.last
 }

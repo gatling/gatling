@@ -20,7 +20,7 @@ import io.gatling.charts.config.ChartsFiles.requestFile
 import io.gatling.charts.result.reader.RequestPath
 import io.gatling.charts.template.RequestDetailsPageTemplate
 import io.gatling.charts.util.Colors.{ BLUE, RED, TRANSLUCID_BLUE, TRANSLUCID_RED, color2String }
-import io.gatling.core.result.{ Group, IntRangeVsTimePlot, IntVsTimePlot, Series }
+import io.gatling.core.result.{ Group, IntRangeVsTimePlot, IntVsTimePlot, RequestStatsPath, Series }
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.reader.DataReader
 
@@ -82,9 +82,9 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			new TemplateWriter(requestFile(runOn, path)).writeToFile(template.getOutput)
 		}
 
-		dataReader.groupsAndRequests.foreach {
-			case (group, Some(request)) => generateDetailPage(RequestPath.path(request, group), Some(request), group)
-			case _ => {}
+		dataReader.statsPaths.foreach {
+			case RequestStatsPath(request, group) => generateDetailPage(RequestPath.path(request, group), Some(request), group)
+			case _ =>
 		}
 	}
 }

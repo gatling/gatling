@@ -22,4 +22,3 @@ object RequestPath {
 	def path(group: Group) = group.hierarchy.mkString(SEPARATOR)
 	def path(requestName: String, group: Option[Group]): String = (group.map(_.hierarchy).getOrElse(Nil) ::: List(requestName)).mkString(SEPARATOR)
 }
-

@@ -17,11 +17,11 @@ package io.gatling.charts.report
 
 import io.gatling.charts.component.{ ComponentLibrary, GroupedCount, RequestStatistics, Statistics }
 import io.gatling.charts.config.ChartsFiles.{ GLOBAL_PAGE_NAME, jsStatsFile, jsonStatsFile, tsvStatsFile }
+import io.gatling.charts.result.reader.RequestPath
 import io.gatling.charts.template.{ StatsJsTemplate, StatsJsonTemplate, StatsTsvTemplate }
-import io.gatling.core.result.Group
+import io.gatling.core.result.{ Group, GroupStatsPath, RequestStatsPath }
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.reader.DataReader
-import io.gatling.charts.result.reader.RequestPath
 
 class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) {
 
@@ -47,7 +47,7 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 				}
 
 			val path = requestName match {
-				case Some(name) =>  RequestPath.path(name, group)
+				case Some(name) => RequestPath.path(name, group)
 				case None => group.map(RequestPath.path).getOrElse("")
 			}
 
@@ -56,16 +56,14 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 
 		val rootContainer = GroupContainer.root(computeRequestStats(GLOBAL_PAGE_NAME, None, None))
 
-		dataReader.groupsAndRequests.foreach {
-			case (group, Some(request)) =>
+		dataReader.statsPaths.foreach {
+			case RequestStatsPath(request, group) =>
 				val stats = computeRequestStats(request, Some(request), group)
 				rootContainer.addRequest(group, request, stats)
 
-			case (Some(group), None) =>
+			case GroupStatsPath(group) =>
 				val stats = computeRequestStats(group.name, None, Some(group))
 				rootContainer.addGroup(group, stats)
-
-			case _ => throw new UnsupportedOperationException("No group or request")
 		}
 
 		new TemplateWriter(jsStatsFile(runOn)).writeToFile(new StatsJsTemplate(rootContainer).getOutput)

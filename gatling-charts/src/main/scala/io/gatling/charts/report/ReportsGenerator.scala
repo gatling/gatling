@@ -21,6 +21,7 @@ import io.gatling.charts.component.ComponentLibrary
 import io.gatling.charts.config.ChartsFiles.{ globalFile, menuFile }
 import io.gatling.charts.template.{ MenuTemplate, PageTemplate }
 import io.gatling.core.config.GatlingFiles.{ GATLING_ASSETS_JS_PACKAGE, GATLING_ASSETS_STYLE_PACKAGE, jsDirectory, styleDirectory }
+import io.gatling.core.result.RequestStatsPath
 import io.gatling.core.result.reader.DataReader
 import io.gatling.core.util.ScanHelper.deepCopyPackageContent
 
@@ -37,7 +38,7 @@ object ReportsGenerator {
 			deepCopyPackageContent(GATLING_ASSETS_JS_PACKAGE, jsDirectory(outputDirectoryName))
 		}
 
-		if (dataReader.groupsAndRequests.filter(_._2.isDefined).isEmpty) throw new UnsupportedOperationException("There were no requests sent during the simulation, reports won't be generated")
+		if (!dataReader.statsPaths.collectFirst { case r @ RequestStatsPath(_, _) => r }.isDefined) throw new UnsupportedOperationException("There were no requests sent during the simulation, reports won't be generated")
 
 		val reportGenerators =
 			List(new AllSessionsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance),
@@ -47,7 +48,7 @@ object ReportsGenerator {
 
 		copyAssets
 		generateMenu
-		PageTemplate.setRunInfo(dataReader.runMessage,dataReader.runStart,dataReader.runEnd)
+		PageTemplate.setRunInfo(dataReader.runMessage, dataReader.runStart, dataReader.runEnd)
 		reportGenerators.foreach(_.generate)
 		generateStats
 

@@ -13,12 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core
+package io.gatling.core.result
 
-package result {
-
-	case class Series[X](name: String, data: Seq[X], colors: List[String])
-	case class IntVsTimePlot(time: Int, value: Int)
-	case class IntRangeVsTimePlot(time: Int, lower: Int, higher: Int)
-	case class PieSlice(name: String, value: Int)
-}
+sealed trait StatsPath
+case class RequestStatsPath(request: String, group: Option[Group]) extends StatsPath
+case class GroupStatsPath(group: Group) extends StatsPath

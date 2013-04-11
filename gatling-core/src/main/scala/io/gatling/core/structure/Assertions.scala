@@ -17,7 +17,7 @@ package io.gatling.core.structure
 
 import scala.tools.nsc.io.Path
 
-import io.gatling.core.result.Group
+import io.gatling.core.result.{ Group, StatsPath, GroupStatsPath, RequestStatsPath }
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.result.reader.{ DataReader, GeneralStats }
 import io.gatling.core.config.GatlingConfiguration.configuration
@@ -29,24 +29,27 @@ class AssertionBuilder {
 
 	def details(selector: Path) = {
 
-		type RequestPath = (Option[Group], Option[String])
-
-		def path(reader: DataReader, selector: Path): RequestPath =
+		def path(reader: DataReader, selector: Path): Option[StatsPath] =
 			if (selector.segments.isEmpty)
-				(None, None)
+				None
 			else {
 				val selectedPath = selector.segments
-				reader.groupsAndRequests.find {
-					case (group, requestName) =>
-						val path = group.map(_.hierarchy).getOrElse(Nil) ::: requestName.map(List(_)).getOrElse(Nil)
-						path == selectedPath
-				}.getOrElse(throw new IllegalArgumentException(s"Path $selector does not exist"))
+				reader.statsPaths.find { statsPath =>
+					val path = statsPath match {
+						case RequestStatsPath(request, group) => group.map(_.hierarchy).getOrElse(Nil) :: List(request)
+						case GroupStatsPath(group) => group.hierarchy
+					}
+					path == selectedPath
+				}
 			}
 
 		def generalStats(selector: Path): (DataReader, Option[Status]) => GeneralStats = {
 			(reader, status) =>
-				val (group, requestName) = path(reader, selector)
-				reader.generalStats(status, requestName, group)
+				path(reader, selector) match {
+					case Some(RequestStatsPath(request, group)) => reader.generalStats(status, Some(request), group)
+					case Some(GroupStatsPath(group)) => reader.generalStats(status, None, Some(group))
+					case None => reader.generalStats(status, None, None)
+				}
 		}
 
 		new Selector(generalStats(selector), selector.segments.mkString(" / "))
