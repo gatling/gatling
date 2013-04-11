@@ -18,7 +18,7 @@ package io.gatling.http.config
 import com.ning.http.client.{ ProxyServer, Realm, Request }
 
 import io.gatling.core.config.ProtocolConfiguration
-import io.gatling.core.result.message.RequestStatus
+import io.gatling.core.result.message.Status
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.RoundRobin
 import io.gatling.http.response.{ Response, ResponseProcessor }
@@ -60,7 +60,7 @@ case class HttpProtocolConfiguration(
 	baseHeaders: Map[String, String],
 	basicAuth: Option[Expression[Realm]],
 	responseProcessor: Option[ResponseProcessor],
-	extraInfoExtractor: Option[(RequestStatus, Session, Request, Response) => List[Any]]) extends ProtocolConfiguration {
+	extraInfoExtractor: Option[(Status, Session, Request, Response) => List[Any]]) extends ProtocolConfiguration {
 
 	val roundRobinUrls = baseURLs.map(RoundRobin(_))
 

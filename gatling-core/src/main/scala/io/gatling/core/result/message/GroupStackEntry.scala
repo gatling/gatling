@@ -13,26 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.metrics.sender
+package io.gatling.core.result.message
 
-import io.gatling.core.config.GatlingConfiguration.configuration
-
-object MetricsSender {
-	def newMetricsSender: MetricsSender = configuration.graphite.protocol match {
-		case "tcp" => new TcpSender
-		case "udp" => new UdpSender
-	}
-}
-abstract class MetricsSender {
-
-	def sendToGraphite(metricPath: String, value: Long, epoch: Long) {
-		val bytes = s"$metricPath $value $epoch\n".getBytes(configuration.core.encoding)
-		sendToGraphite(bytes)
-	}
-
-	def sendToGraphite(bytes: Array[Byte])
-
-	def flush
-
-	def close
-}
+case class GroupStackEntry(name: String, startDate: Long, status: Status)

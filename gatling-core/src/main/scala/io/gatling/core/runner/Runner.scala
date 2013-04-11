@@ -27,7 +27,7 @@ import com.typesafe.scalalogging.slf4j.Logging
 import io.gatling.core.action.{ AkkaDefaults, system }
 import io.gatling.core.action.system.dispatcher
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.message.RunRecord
+import io.gatling.core.result.message.RunMessage
 import io.gatling.core.result.terminator.Terminator
 import io.gatling.core.result.writer.DataWriter
 import io.gatling.core.scenario.configuration.Simulation
@@ -40,7 +40,7 @@ class Runner(selection: Selection) extends AkkaDefaults with Logging {
 			val simulationClass = selection.simulationClass
 			println(s"Simulation ${simulationClass.getName} started...")
 
-			val runRecord = RunRecord(now, selection.simulationId, selection.description)
+			val runMessage = RunMessage(now, selection.simulationId, selection.description)
 
 			val simulation = simulationClass.newInstance
 			val scenarios = simulation.scenarios
@@ -56,7 +56,7 @@ class Runner(selection: Selection) extends AkkaDefaults with Logging {
 
 			val init = Terminator
 				.askInit(terminatorLatch, totalNumberOfUsers)
-				.flatMap(_ => DataWriter.askInit(runRecord, scenarios))
+				.flatMap(_ => DataWriter.askInit(runMessage, scenarios))
 
 			Await.result(init, defaultTimeOut.duration)
 
@@ -71,7 +71,7 @@ class Runner(selection: Selection) extends AkkaDefaults with Logging {
 			terminatorLatch.await(configuration.core.timeOut.simulation, SECONDS)
 			println("Simulation finished.")
 
-			(runRecord.runId, simulation)
+			(runMessage.runId, simulation)
 
 		} finally {
 			system.shutdown

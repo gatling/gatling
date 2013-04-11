@@ -29,6 +29,7 @@ class StatsJsTemplate(stats: GroupContainer) {
 
 		def renderStatsRequest(request: RequestStatistics) = {
 			val jsonStats = new StatsJsonTemplate(request).getOutput
+
 			fast"""name: "${escapeJsDoubleQuoteString(request.name)}",
 path: "${escapeJsDoubleQuoteString(request.path)}",
 pathFormatted: "${formatToFilename(request.path)}",
@@ -51,7 +52,7 @@ ${
 			}).mkFastring(",")
 		}
 },
-${renderStatsRequest(group.requestStats)}
+${renderStatsRequest(group.stats)}
 """
 
 		fast"""var stats = {

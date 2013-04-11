@@ -18,9 +18,10 @@ package io.gatling.charts.report
 import io.gatling.charts.component.{ ComponentLibrary, GroupedCount, RequestStatistics, Statistics }
 import io.gatling.charts.config.ChartsFiles.{ GLOBAL_PAGE_NAME, jsStatsFile, jsonStatsFile, tsvStatsFile }
 import io.gatling.charts.template.{ StatsJsTemplate, StatsJsonTemplate, StatsTsvTemplate }
-import io.gatling.core.result.{ Group, RequestPath }
+import io.gatling.core.result.Group
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.reader.DataReader
+import io.gatling.charts.result.reader.RequestPath
 
 class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) {
 
@@ -46,24 +47,30 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 				}
 
 			val path = requestName match {
-				case Some(name) => RequestPath.path(name, group)
-				case None => group.map(_.path).getOrElse("")
+				case Some(name) =>  RequestPath.path(name, group)
+				case None => group.map(RequestPath.path).getOrElse("")
 			}
 
 			RequestStatistics(name, path, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, groupedCounts, meanNumberOfRequestsPerSecondStatistics)
 		}
 
-		val stats = GroupContainer.root(computeRequestStats(GLOBAL_PAGE_NAME, None, None))
+		val rootContainer = GroupContainer.root(computeRequestStats(GLOBAL_PAGE_NAME, None, None))
 
 		dataReader.groupsAndRequests.foreach {
-			case (group, Some(request)) => stats.addRequest(group, computeRequestStats(request, Some(request), group))
-			case (Some(group), None) => stats.addGroup(group, computeRequestStats(group.name, None, Some(group)))
-			case _ => throw new UnsupportedOperationException
+			case (group, Some(request)) =>
+				val stats = computeRequestStats(request, Some(request), group)
+				rootContainer.addRequest(group, request, stats)
+
+			case (Some(group), None) =>
+				val stats = computeRequestStats(group.name, None, Some(group))
+				rootContainer.addGroup(group, stats)
+
+			case _ => throw new UnsupportedOperationException("No group or request")
 		}
 
-		new TemplateWriter(jsStatsFile(runOn)).writeToFile(new StatsJsTemplate(stats).getOutput)
-		new TemplateWriter(jsonStatsFile(runOn)).writeToFile(new StatsJsonTemplate(stats.requestStats).getOutput)
-		new TemplateWriter(tsvStatsFile(runOn)).writeToFile(new StatsTsvTemplate(stats).getOutput)
+		new TemplateWriter(jsStatsFile(runOn)).writeToFile(new StatsJsTemplate(rootContainer).getOutput)
+		new TemplateWriter(jsonStatsFile(runOn)).writeToFile(new StatsJsonTemplate(rootContainer.stats).getOutput)
+		new TemplateWriter(tsvStatsFile(runOn)).writeToFile(new StatsTsvTemplate(rootContainer).getOutput)
 	}
 }
 

@@ -131,7 +131,7 @@ case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: In
  *                          (good numerical approximation)
  */
 case class DiracInjection(users: Int, duration: FiniteDuration) extends InjectionStep {
-	import io.gatling.core.math.Erf.erfinv
+	import io.gatling.core.util.Erf.erfinv
 
 	override def chain(iterator: Iterator[FiniteDuration]) = {
 		def heavisideInv(u: Double) = {

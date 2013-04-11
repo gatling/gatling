@@ -23,7 +23,6 @@ import akka.actor.{ ActorRef, Props }
 object UserStartBuilder {
 
 	val start = new ActionBuilder {
-
 		def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new UserStart(next)))
 	}
 }

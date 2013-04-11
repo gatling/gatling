@@ -19,4 +19,4 @@ import io.gatling.charts.component.Component
 import io.gatling.core.result.Group
 
 class GroupDetailsPageTemplate(group: Group, rtChartComponent: Component, percentilesChartComponent: Component, statsTextComponent: Component, indicChartComponent: Component)
-	extends PageTemplate(group.path, true, None, Some(group), statsTextComponent, indicChartComponent, rtChartComponent, percentilesChartComponent)
+	extends PageTemplate(group.name, true, None, Some(group), statsTextComponent, indicChartComponent, rtChartComponent, percentilesChartComponent)
