@@ -212,5 +212,35 @@ class CookieJarSpec extends Specification {
 			cookies.length must beEqualTo(1)
 			cookies.head.getValue must beEqualTo("VALUE2")
 		}
+
+		"should not store cookies with domain defined as an IP adress if the URL is not the same IP adress" in {
+			// rfc6265#section-5.1.3.
+			val cookie = parseCookie("cookie1=VALUE1; Path=/; Domain=127.0.0.1;")
+			val cookieStore = CookieJar(new URI("https://127.0.0.1/"), List(cookie))
+
+			cookieStore.get(new URI("https://localhost/")) must beEmpty
+		}
+
+		"should store cookies with domain defined as an IP adress if the URL is the same IP adress" in {
+			// rfc6265#section-5.1.3.
+			val cookie = parseCookie("cookie1=VALUE1; Path=/; Domain=127.0.0.1;")
+			val cookieStore = CookieJar(new URI("https://127.0.0.1/"), List(cookie))
+
+			cookieStore.get(new URI("https://127.0.0.1/")).length must beEqualTo(1)
+		}
+	}
+
+	"isValidIPv4" should {
+		"validate good IPv4 adresses" in {
+			CookieJar.isValidIPv4("192.168.0.1") must beTrue
+		}
+
+		"not validate IPv4 adresses with integer bigger than 255" in {
+			CookieJar.isValidIPv4("192.168.0.256") must beFalse
+		}
+
+		"not validate IPv4 adresses that have 4 integers" in {
+			CookieJar.isValidIPv4("192.168.0") must beFalse
+		}
 	}
 }

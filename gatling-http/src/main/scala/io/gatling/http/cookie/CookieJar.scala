@@ -23,14 +23,17 @@ import com.ning.http.client.Cookie
 
 object CookieJar {
 
+	val ipv4Regex = """^([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])$""".r
+	def isValidIPv4(domain: String) = ipv4Regex.unapplySeq(domain).isDefined
+
 	// rfc6265#section-5.1.3.
 	def domainMatches(domain: String, host: String): Boolean = {
 		if (host == domain) {
 			true
 		} else if (host.length > domain.length) {
 			host.endsWith(domain) &&
-				host.charAt(host.length - domain.length - 1) == '.'
-			//TODO check that the host is not an IP address
+				host.charAt(host.length - domain.length - 1) == '.' &&
+				!isValidIPv4(domain)
 		} else {
 			false
 		}
