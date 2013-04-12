@@ -24,7 +24,7 @@ import io.gatling.core.util.TimeHelper.nowMillis
 
 object UserEnd {
 
-	val singleton = system.actorOf(Props(new UserEnd))
+	val userEnd = system.actorOf(Props(new UserEnd))
 }
 
 class UserEnd extends Action {

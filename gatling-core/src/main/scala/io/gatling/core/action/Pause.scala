@@ -40,8 +40,7 @@ class Pause(generateDelayInMillis: Expression[Long], val next: ActorRef) extends
 	def execute(session: Session) {
 		import system.dispatcher
 
-		val resolvedDurationInMillis = generateDelayInMillis(session)
-		resolvedDurationInMillis match {
+		generateDelayInMillis(session) match {
 			case Success(durationInMillis) =>
 				val timeShift = session.getTimeShift
 
@@ -63,7 +62,9 @@ class Pause(generateDelayInMillis: Expression[Long], val next: ActorRef) extends
 					next ! session.setTimeShift(remainingTimeShift)
 				}
 
-			case Failure(msg) => logger.error(msg); next ! session
+			case Failure(msg) =>
+				logger.error(msg)
+				next ! session
 		}
 	}
 }

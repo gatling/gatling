@@ -36,6 +36,5 @@ object FeedBuilder {
 }
 class FeedBuilder(instance: ActorRef, number: Expression[Int]) extends ActionBuilder {
 
-	private[gatling] def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) =
-		system.actorOf(Props(new Feed(instance, number, next)))
+	private[gatling] def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new Feed(instance, number, next)))
 }

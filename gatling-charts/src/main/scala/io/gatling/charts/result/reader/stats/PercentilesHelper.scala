@@ -36,13 +36,12 @@ object PercentilesHelper {
 		var currentBuckets = buckets
 		var currentCount = 0
 
-		percentiles.sorted.map {
-			p =>
-				val limit = math.round(totalSize * p).toInt
-				val (foundCount, foundBuckets) = findPercentile(currentBuckets, limit, currentCount)
-				currentCount = foundCount
-				currentBuckets = foundBuckets
-				currentBuckets.head.time
+		percentiles.sorted.map { p =>
+			val limit = math.round(totalSize * p).toInt
+			val (foundCount, foundBuckets) = findPercentile(currentBuckets, limit, currentCount)
+			currentCount = foundCount
+			currentBuckets = foundBuckets
+			currentBuckets.head.time
 		}
 	}
 }

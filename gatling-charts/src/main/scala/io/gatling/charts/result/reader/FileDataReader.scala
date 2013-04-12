@@ -160,7 +160,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String], group: Option[Group]): (Seq[IntVsTimePlot], Seq[IntVsTimePlot]) = {
 
 		// get main and max for request/all status
-		val requestStats = resultsHolder.getGeneralStatsBuffers(requestName, group, None).compute
+		val requestStats = resultsHolder.getGeneralStatsBuffers(requestName, group, None).stats
 		val min = requestStats.min
 		val max = requestStats.max
 
@@ -199,7 +199,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	def generalStats(status: Option[Status], requestName: Option[String], group: Option[Group]): GeneralStats = resultsHolder
 		.getGeneralStatsBuffers(requestName, group, status)
-		.compute
+		.stats
 
 	def numberOfRequestInResponseTimeRange(requestName: Option[String], group: Option[Group]): Seq[(String, Int)] = {
 

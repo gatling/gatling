@@ -49,8 +49,6 @@ case class CheckBase[R, P, T, X, E](
 
 	def check(response: R, session: Session)(implicit cache: Cache): Validation[Session] = {
 
-		// TODO find a way to avoid cast?
-		// TODO use state monad?
 		def memoizedPrepared: Validation[P] = cache
 			.getOrElseUpdate(preparer, preparer(response))
 			.asInstanceOf[Validation[P]]

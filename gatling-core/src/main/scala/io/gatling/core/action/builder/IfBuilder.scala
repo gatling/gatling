@@ -33,7 +33,6 @@ class IfBuilder(condition: Expression[Boolean], thenNext: ChainBuilder, elseNext
 	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
 		val actionTrue = thenNext.build(next, protocolConfigurationRegistry)
 		val actionFalse = elseNext.map(_.build(next, protocolConfigurationRegistry))
-
 		system.actorOf(Props(new If(condition, actionTrue, actionFalse, next)))
 	}
 }
