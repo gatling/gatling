@@ -18,11 +18,10 @@ package io.gatling.charts.template
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.charts.component.Component
-import io.gatling.charts.config.ChartsFiles._
+import io.gatling.charts.config.ChartsFiles.{ ALL_SESSIONS_FILE, BOOTSTRAP_FILE, GATLING_JS_FILE, JQUERY_FILE, MENU_FILE, STATS_JS_FILE }
 import io.gatling.core.result.Group
 import io.gatling.core.result.message.RunMessage
-import io.gatling.core.util.FileHelper.formatToFilename
-import io.gatling.core.util.HtmlHelper.htmlEscape
+import io.gatling.core.util.HtmlHelper.{ formatToJavascriptVar, htmlEscape }
 import io.gatling.core.util.StringHelper.truncate
 
 object PageTemplate {
@@ -57,7 +56,7 @@ abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Opti
 			if (isDetails) {
 				val groupHierarchy = group.map(_.hierarchy).getOrElse(Nil)
 				val req = requestName.map(List(_)).getOrElse(Nil)
-				s"""var pageStats = stats.contents.${(groupHierarchy ::: req).map(formatToFilename).mkString(".contents.")}.stats;"""
+				s"""var pageStats = stats.contents.${(groupHierarchy ::: req).map(formatToJavascriptVar).mkString(".contents.")}.stats;"""
 			} else {
 				"var pageStats = stats.stats;"
 			}

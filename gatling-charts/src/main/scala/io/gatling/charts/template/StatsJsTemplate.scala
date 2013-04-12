@@ -21,6 +21,7 @@ import io.gatling.charts.component.RequestStatistics
 import io.gatling.charts.report.{ GroupContainer, RequestContainer }
 import io.gatling.charts.report.Container.{ GROUP, REQUEST }
 import io.gatling.core.util.FileHelper.formatToFilename
+import io.gatling.core.util.HtmlHelper.formatToJavascriptVar
 import io.gatling.core.util.StringHelper.escapeJsDoubleQuoteString
 
 class StatsJsTemplate(stats: GroupContainer) {
@@ -41,10 +42,10 @@ contents: {
 ${
 			(group.contents.values.map {
 				_ match {
-					case subGroup: GroupContainer => fast""""${formatToFilename(subGroup.name)}": {
+					case subGroup: GroupContainer => fast""""${formatToJavascriptVar(subGroup.name)}": {
         ${renderStatsGroup(subGroup)}
     }"""
-					case request: RequestContainer => fast""""${formatToFilename(request.name)}": {
+					case request: RequestContainer => fast""""${formatToJavascriptVar(request.name)}": {
         type: "${REQUEST}",
         ${renderStatsRequest(request.stats)}
     }"""

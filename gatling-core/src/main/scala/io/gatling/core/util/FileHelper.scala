@@ -33,10 +33,11 @@ object FileHelper {
 	 * @return a simplified string
 	 */
 	def formatToFilename(s: String) = {
-		stripAccents(s.replace("-", "_")
+		val raw = stripAccents(s
+			.trim
+			.replace("-", "_")
 			.replace(" ", "_")
-			.replace("__", "_")
-			.replace("'", "")
+			.replace("'", "_")
 			.replace('/', '_')
 			.replace(':', '_')
 			.replace('?', '_')
@@ -44,7 +45,6 @@ object FileHelper {
 			.replace('<', '_')
 			.replace('>', '_')
 			.replace('|', '_')
-			.replace("__", "_")
 			.replace("{", "_")
 			.replace("}", "_")
 			.replace("[", "_")
@@ -53,6 +53,7 @@ object FileHelper {
 			.replace(")", "_")
 			.replace(".", "_")
 			.toLowerCase)
+		if (raw.isEmpty) "missing_name" else raw
 	}
 
 	def requestFileName(s: String) = s"req_${formatToFilename(s)}.html"
