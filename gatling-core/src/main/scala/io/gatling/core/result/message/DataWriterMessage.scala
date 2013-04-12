@@ -17,7 +17,7 @@ package io.gatling.core.result.message
 
 import org.joda.time.DateTime
 
-import io.gatling.core.util.DateHelper.{ toHumanDate, toTimestamp }
+import io.gatling.core.util.DateHelper.RichDateTime
 
 sealed trait DataWriterMessage
 
@@ -45,9 +45,8 @@ case class RequestMessage(
 
 case class RunMessage(runDate: DateTime, simulationId: String, runDescription: String) extends DataWriterMessage {
 	val recordType = RunMessageType
-	val timestamp = toTimestamp(runDate)
-	def runId = simulationId + "-" + timestamp
-	def readableRunDate = toHumanDate(runDate)
+	val timestamp = runDate.toTimestamp
+	def runId = simulationId + "-" + runDate.toTimestamp
 }
 
 case class ScenarioMessage(scenarioName: String, userId: Int, event: MessageEvent, startDate: Long, endDate: Long) extends DataWriterMessage {

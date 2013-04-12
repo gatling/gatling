@@ -28,7 +28,7 @@ import io.gatling.core.result.reader.DataReader
 import io.gatling.core.runner.{ Runner, Selection }
 import io.gatling.core.scenario.configuration.Simulation
 import io.gatling.core.structure.Assertion
-import io.gatling.core.util.FileHelper.formatToFilename
+import io.gatling.core.util.FileHelper.FileRichString
 import scopt.OptionParser
 
 /**
@@ -83,7 +83,7 @@ class Gatling {
 
 	def start = {
 
-		def defaultOutputDirectoryBaseName(clazz: Class[Simulation]) = configuration.core.outputDirectoryBaseName.getOrElse(formatToFilename(clazz.getSimpleName))
+		def defaultOutputDirectoryBaseName(clazz: Class[Simulation]) = configuration.core.outputDirectoryBaseName.getOrElse(clazz.getSimpleName.toFilename)
 
 		def getSingleSimulation(simulations: List[Class[Simulation]]) = configuration.core.simulationClass.map(_ => simulations.head.newInstance)
 

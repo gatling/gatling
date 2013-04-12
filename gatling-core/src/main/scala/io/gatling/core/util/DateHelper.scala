@@ -29,7 +29,10 @@ object DateHelper {
 
 	def parseTimestampString(string: String) = DateTime.parse(string, timestampFormat)
 
-	def toTimestamp(dateTime: DateTime) = timestampFormat.print(dateTime)
+	implicit class RichDateTime(val dateTime: DateTime) extends AnyVal {
 
-	def toHumanDate(dateTime: DateTime) = humanDateFormat.print(dateTime)
+		def toTimestamp = timestampFormat.print(dateTime)
+
+		def toHumanDate = humanDateFormat.print(dateTime)
+	}
 }

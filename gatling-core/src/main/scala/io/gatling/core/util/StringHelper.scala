@@ -27,28 +27,28 @@ object StringHelper {
 
 	val jdk6Pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
 
-	/**
-	 * Method that strips all accents from a string
-	 */
-	def stripAccents(string: String) = {
-		val normalized = Normalizer.normalize(string, Normalizer.Form.NFD)
-		jdk6Pattern.matcher(normalized).replaceAll("_")
-	}
-
-	def escapeJsQuoteString(s: String) = s.replace("'", "\\'")
-
-	def escapeJsDoubleQuoteString(s: String) = s.replace("\"", "\\\"")
-
 	def bytes2Hex(bytes: Array[Byte]): String = bytes.foldLeft(new StringBuilder) { (buff, b) =>
 		if ((b & 0xff) < 0x10)
 			buff.append("0")
 		buff.append(java.lang.Long.toString(b & 0xff, 16))
 	}.toString
 
-	def trimToOption(string: String) = string.trim match {
-		case "" => None
-		case string => Some(string)
-	}
+	implicit class RichString(val string: String) extends AnyVal {
 
-	def truncate(s: String,maxLength: Int) = if(s.length < maxLength) s else s.substring(0,maxLength) + "..."
+		def stripAccents = {
+			val normalized = Normalizer.normalize(string, Normalizer.Form.NFD)
+			jdk6Pattern.matcher(normalized).replaceAll("_")
+		}
+
+		def escapeJsQuoteString = string.replace("'", "\\'")
+
+		def escapeJsDoubleQuoteString = string.replace("\"", "\\\"")
+
+		def trimToOption = string.trim match {
+			case "" => None
+			case string => Some(string)
+		}
+
+		def truncate(maxLength: Int) = if (string.length < maxLength) string else string.substring(0, maxLength) + "..."
+	}
 }

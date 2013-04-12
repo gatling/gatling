@@ -21,7 +21,7 @@ import scala.collection.mutable
 import com.typesafe.config.{ Config, ConfigFactory }
 
 import io.gatling.core.ConfigurationConstants._
-import io.gatling.core.util.StringHelper.trimToOption
+import io.gatling.core.util.StringHelper.RichString
 
 /**
  * Configuration loader of Gatling
@@ -41,10 +41,10 @@ object GatlingConfiguration {
 
 		configuration = GatlingConfiguration(
 			core = CoreConfiguration(
-				outputDirectoryBaseName = trimToOption(config.getString(CONF_CORE_OUTPUT_DIRECTORY_BASE_NAME)),
+				outputDirectoryBaseName = config.getString(CONF_CORE_OUTPUT_DIRECTORY_BASE_NAME).trimToOption,
 				runDescription = config.getString(CONF_CORE_RUN_DESCRIPTION),
 				encoding = config.getString(CONF_CORE_ENCODING),
-				simulationClass = trimToOption(config.getString(CONF_CORE_SIMULATION_CLASS)),
+				simulationClass = config.getString(CONF_CORE_SIMULATION_CLASS).trimToOption,
 				cache = CacheConfiguration(
 					regex = config.getBoolean(CONF_CORE_CACHE_REGEX),
 					xpath = config.getBoolean(CONF_CORE_CACHE_XPATH),
@@ -56,8 +56,8 @@ object GatlingConfiguration {
 					data = config.getString(CONF_CORE_DIRECTORY_DATA),
 					requestBodies = config.getString(CONF_CORE_DIRECTORY_REQUEST_BODIES),
 					sources = config.getString(CONF_CORE_DIRECTORY_SIMULATIONS),
-					binaries = trimToOption(config.getString(CONF_CORE_DIRECTORY_BINARIES)),
-					reportsOnly = trimToOption(config.getString(CONF_CORE_DIRECTORY_REPORTS_ONLY)),
+					binaries = config.getString(CONF_CORE_DIRECTORY_BINARIES).trimToOption,
+					reportsOnly = config.getString(CONF_CORE_DIRECTORY_REPORTS_ONLY).trimToOption,
 					results = config.getString(CONF_CORE_DIRECTORY_RESULTS))),
 			charting = ChartingConfiguration(
 				noReports = config.getBoolean(CONF_CHARTING_NO_REPORTS),

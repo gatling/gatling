@@ -21,7 +21,7 @@ import java.util.Date
 
 import scala.collection.mutable
 
-import io.gatling.core.util.StringHelper.trimToOption
+import io.gatling.core.util.StringHelper.RichString
 import io.gatling.recorder.ui.util.UIHelper.useUIThread
 
 import javax.swing.{ JTextField, BorderFactory }
@@ -62,7 +62,7 @@ object ValidationHelper {
 		def keyReleased(e: KeyEvent) {
 			val txtField = e.getComponent.asInstanceOf[JTextField]
 
-			trimToOption(txtField.getText).map { _ =>
+			txtField.getText.trimToOption.map { _ =>
 				txtField.setBorder(standardBorder)
 				updateValidationStatus(id, true, cFrame)
 			}.getOrElse {
@@ -80,7 +80,7 @@ object ValidationHelper {
 		def keyReleased(e: KeyEvent) {
 			val txtField = e.getComponent.asInstanceOf[JTextField]
 
-			trimToOption(txtField.getText).map { _ =>
+			txtField.getText.trimToOption.map { _ =>
 				cFrame.txtProxyPort.setEnabled(true)
 				cFrame.txtProxySslPort.setEnabled(true)
 				cFrame.txtProxyUsername.setEnabled(true)

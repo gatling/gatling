@@ -20,7 +20,7 @@ import scala.collection.JavaConversions.seqAsJavaList
 import java.awt.event.{ ActionListener, ActionEvent }
 import java.nio.charset.Charset
 
-import io.gatling.core.util.StringHelper.trimToOption
+import io.gatling.core.util.StringHelper.RichString
 import io.gatling.recorder.config.{ RecorderPropertiesBuilder, RecorderConfiguration }
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.ui.enumeration.FilterStrategy.FilterStrategy
@@ -41,7 +41,7 @@ class SaveConfigurationListener(controller: RecorderController, configurationFra
 		// Parse local ssl proxy port
 		props.localSslPort(configurationFrame.txtSslPort.getText.toInt)
 
-		val host = trimToOption(configurationFrame.txtProxyHost.getText)
+		val host = configurationFrame.txtProxyHost.getText.trimToOption
 
 		if (!host.isEmpty) {
 			props.proxyHost(host.get)
@@ -51,9 +51,9 @@ class SaveConfigurationListener(controller: RecorderController, configurationFra
 			// Parse outgoing ssl proxy port
 			props.proxySslPort(configurationFrame.txtProxySslPort.getText.toInt)
 
-			trimToOption(configurationFrame.txtProxyUsername.getText).map(props.proxyUsername)
+			configurationFrame.txtProxyUsername.getText.trimToOption.map(props.proxyUsername)
 
-			trimToOption(configurationFrame.txtProxyPassword.getText).map(props.proxyPassword)
+			configurationFrame.txtProxyPassword.getText.trimToOption.map(props.proxyPassword)
 		} else {
 			props.proxyHost("")
 			props.proxyPort(0)

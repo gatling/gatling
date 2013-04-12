@@ -19,7 +19,7 @@ import scala.tools.nsc.io.Path
 import scala.tools.nsc.io.Path.string2path
 
 import io.gatling.core.config.GatlingFiles.{ GATLING_JS, resultDirectory }
-import io.gatling.core.util.FileHelper.requestFileName
+import io.gatling.core.util.FileHelper.FileRichString
 
 object ChartsFiles {
 	val JQUERY_FILE = "jquery.min.js"
@@ -38,7 +38,7 @@ object ChartsFiles {
 
 	def globalFile(runOn: String): Path = resultDirectory(runOn) / "index.html"
 
-	def requestFile(runOn: String, requestName: String): Path = resultDirectory(runOn) / requestFileName(requestName)
+	def requestFile(runOn: String, requestName: String): Path = resultDirectory(runOn) / requestName.toRequestFileName
 
 	def jsStatsFile(runOn: String): Path = resultDirectory(runOn) / GATLING_JS / STATS_JS_FILE
 

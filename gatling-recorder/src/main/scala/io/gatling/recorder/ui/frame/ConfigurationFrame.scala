@@ -21,7 +21,7 @@ import java.nio.charset.Charset
 
 import scala.collection.JavaConversions.{ collectionAsScalaIterable, seqAsJavaList }
 
-import io.gatling.core.util.StringHelper.trimToOption
+import io.gatling.core.util.StringHelper.RichString
 import io.gatling.recorder.config.RecorderConfiguration.{ configuration, saveConfiguration }
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.ui.Commons
@@ -338,7 +338,7 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 			txtProxyUsername.setEnabled(true)
 			txtProxyPassword.setEnabled(true)
 		}
-		trimToOption(configuration.simulation.pkg)map(txtSimulationPackage.setText)
+		configuration.simulation.pkg.trimToOption.map(txtSimulationPackage.setText)
 		txtSimulationClassName.setText(configuration.simulation.className)
 		cbFilterStrategies.setSelectedItem(configuration.filters.filterStrategy)
 		chkFollowRedirect.setSelected(configuration.http.followRedirect)

@@ -19,6 +19,8 @@ import java.util.ResourceBundle
 
 import scala.collection.JavaConversions.enumerationAsScalaIterator
 
+import io.gatling.core.util.FileHelper.FileRichString
+
 object HtmlHelper {
 
 	val entities = ResourceBundle.getBundle("html-entities")
@@ -27,22 +29,25 @@ object HtmlHelper {
 
 	val htmlEntitiesToChar: Map[String, Char] = charToHtmlEntities.map(_.swap)
 
-	def htmlEscape(string: String): String = {
-		def charToHtmlEntity(char: Char): String = charToHtmlEntities.get(char).getOrElse(char.toString)
+	implicit class HtmlRichString(val string: String) extends AnyVal {
 
-		string.toCharArray.iterator.map(charToHtmlEntity).mkString
+		def htmlEscape: String = {
+			def charToHtmlEntity(char: Char): String = charToHtmlEntities.get(char).getOrElse(char.toString)
+
+			string.toCharArray.iterator.map(charToHtmlEntity).mkString
+		}
+
+		def toJavascriptVarName = {
+			val fileName = string.toFilename
+			val firstChar = fileName.charAt(0)
+
+			if (firstChar >= 'a' && firstChar <= 'z')
+				fileName
+			else
+				"_" + fileName
+		}
 	}
 
 	// used in VTD-XML extension
 	def htmlEntityToInt(entity: String, default: Int): Int = htmlEntitiesToChar.get(entity).map(_.toInt).getOrElse(default)
-
-	def formatToJavascriptVar(string: String) = {
-		val fileName = FileHelper.formatToFilename(string)
-		val firstChar = fileName.charAt(0)
-
-		if (firstChar >= 'a' && firstChar <= 'z')
-			fileName
-		else
-			"_" + fileName
-	}
 }

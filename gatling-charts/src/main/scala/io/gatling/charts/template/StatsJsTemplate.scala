@@ -20,9 +20,9 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.charts.component.RequestStatistics
 import io.gatling.charts.report.{ GroupContainer, RequestContainer }
 import io.gatling.charts.report.Container.{ GROUP, REQUEST }
-import io.gatling.core.util.FileHelper.formatToFilename
-import io.gatling.core.util.HtmlHelper.formatToJavascriptVar
-import io.gatling.core.util.StringHelper.escapeJsDoubleQuoteString
+import io.gatling.core.util.FileHelper.FileRichString
+import io.gatling.core.util.HtmlHelper.HtmlRichString
+import io.gatling.core.util.StringHelper.RichString
 
 class StatsJsTemplate(stats: GroupContainer) {
 
@@ -31,9 +31,9 @@ class StatsJsTemplate(stats: GroupContainer) {
 		def renderStatsRequest(request: RequestStatistics) = {
 			val jsonStats = new StatsJsonTemplate(request).getOutput
 
-			fast"""name: "${escapeJsDoubleQuoteString(request.name)}",
-path: "${escapeJsDoubleQuoteString(request.path)}",
-pathFormatted: "${formatToFilename(request.path)}",
+			fast"""name: "${request.name.escapeJsDoubleQuoteString}",
+path: "${request.path.escapeJsDoubleQuoteString}",
+pathFormatted: "${request.path.toFilename}",
 stats: ${jsonStats}"""
 		}
 
@@ -42,10 +42,10 @@ contents: {
 ${
 			(group.contents.values.map {
 				_ match {
-					case subGroup: GroupContainer => fast""""${formatToJavascriptVar(subGroup.name)}": {
+					case subGroup: GroupContainer => fast""""${subGroup.name.toJavascriptVarName}": {
         ${renderStatsGroup(subGroup)}
     }"""
-					case request: RequestContainer => fast""""${formatToJavascriptVar(request.name)}": {
+					case request: RequestContainer => fast""""${request.name.toJavascriptVarName}": {
         type: "${REQUEST}",
         ${renderStatsRequest(request.stats)}
     }"""

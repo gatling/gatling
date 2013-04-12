@@ -24,7 +24,7 @@ import com.typesafe.config.{ Config, ConfigFactory, ConfigRenderOptions }
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
-import io.gatling.core.util.StringHelper.trimToOption
+import io.gatling.core.util.StringHelper.RichString
 import io.gatling.recorder.config.ConfigurationConstants._
 import io.gatling.recorder.ui.enumeration.FilterStrategy
 import io.gatling.recorder.ui.enumeration.FilterStrategy.FilterStrategy
@@ -78,7 +78,7 @@ object RecorderConfiguration extends Logging {
 			patterns.zip(patternsType).map { case (pattern, patternType) => Pattern(PatternType.withName(patternType), pattern) }
 		}
 		def getOutputFolder(folder: String) = {
-			trimToOption(folder).getOrElse(Option(System.getenv("GATLING_HOME")).map(_ => GatlingFiles.sourcesDirectory.toString).getOrElse(System.getProperty("user.home")))
+			folder.trimToOption.getOrElse(Option(System.getenv("GATLING_HOME")).map(_ => GatlingFiles.sourcesDirectory.toString).getOrElse(System.getProperty("user.home")))
 		}
 
 		def getRequestBodiesFolder =
@@ -97,9 +97,9 @@ object RecorderConfiguration extends Logging {
 				port = config.getInt(LOCAL_PORT),
 				sslPort = config.getInt(LOCAL_SSL_PORT),
 				outgoing = OutgoingProxyConfiguration(
-					host = trimToOption(config.getString(PROXY_HOST)),
-					username = trimToOption(config.getString(PROXY_USERNAME)),
-					password = trimToOption(config.getString(PROXY_PASSWORD)),
+					host = config.getString(PROXY_HOST).trimToOption,
+					username = config.getString(PROXY_USERNAME).trimToOption,
+					password = config.getString(PROXY_PASSWORD).trimToOption,
 					port = zeroToOption(config.getInt(PROXY_PORT)),
 					sslPort = zeroToOption(config.getInt(PROXY_SSL_PORT)))),
 			simulation = SimulationConfiguration(

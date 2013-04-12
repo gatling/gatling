@@ -19,13 +19,15 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
+import io.gatling.core.util.HtmlHelper.HtmlRichString
+
 @RunWith(classOf[JUnitRunner])
 class HtmlHelperSpec extends Specification {
 
 	"htmlEscape" should {
 
 		"escape with entity chars" in {
-			HtmlHelper.htmlEscape("fooYéfoo") must beEqualTo("fooY&eacute;foo")
+			"fooYéfoo".htmlEscape must beEqualTo("fooY&eacute;foo")
 		}
 	}
 }

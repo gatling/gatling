@@ -18,7 +18,6 @@ package io.gatling.charts.template
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.charts.component.RequestStatistics
-import io.gatling.core.util.FileHelper.formatToFilename
 
 class StatsJsonTemplate(stats: RequestStatistics) {
 	def getOutput: String = fast"""{

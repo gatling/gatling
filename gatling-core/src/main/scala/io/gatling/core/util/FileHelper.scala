@@ -15,7 +15,7 @@
  */
 package io.gatling.core.util
 
-import io.gatling.core.util.StringHelper.stripAccents
+import io.gatling.core.util.StringHelper.RichString
 
 /**
  * This object groups all utilities for files
@@ -26,14 +26,15 @@ object FileHelper {
 	val semicolonSeparator = ";"
 	val tabulationSeparator = "\t"
 
-	/**
-	 * Transform a string to a simpler one that can be used safely as file name
-	 *
-	 * @param s the string to be simplified
-	 * @return a simplified string
-	 */
-	def formatToFilename(s: String) = {
-		val raw = stripAccents(s
+	implicit class FileRichString(val string: String) extends AnyVal {
+
+		/**
+		 * Transform a string to a simpler one that can be used safely as file name
+		 *
+		 * @param s the string to be simplified
+		 * @return a simplified string
+		 */
+		def toFilename = string
 			.trim
 			.replace("-", "_")
 			.replace(" ", "_")
@@ -52,9 +53,12 @@ object FileHelper {
 			.replace("(", "_")
 			.replace(")", "_")
 			.replace(".", "_")
-			.toLowerCase)
-		if (raw.isEmpty) "missing_name" else raw
+			.toLowerCase
+			.stripAccents match {
+				case "" => "missing_name"
+				case s => s
+			}
+		
+		def toRequestFileName = s"req_${string.toFilename}.html"
 	}
-
-	def requestFileName(s: String) = s"req_${formatToFilename(s)}.html"
 }
