@@ -30,7 +30,6 @@ object CookieJar {
 		} else if (host.length > domain.length) {
 			host.endsWith(domain) &&
 				host.charAt(host.length - domain.length - 1) == '.'
-			//TODO check that the host is not an IP address
 		} else {
 			false
 		}
