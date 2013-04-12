@@ -42,11 +42,12 @@ object FileHelper {
 	 * @param s the string to be simplified
 	 * @return a simplified string
 	 */
-	def formatToFilename(s: String) = {
-		stripAccents(s.replace("-", "_")
+	def formatToFilename(string: String): String = {
+		val raw = stripAccents(string.replace("-", "_")
+			.trim
 			.replace(" ", "_")
 			.replace("__", "_")
-			.replace("'", "")
+			.replace("'", "_")
 			.replace('/', '_')
 			.replace(':', '_')
 			.replace('?', '_')
@@ -63,6 +64,7 @@ object FileHelper {
 			.replace(")", "_")
 			.replace(".", "_")
 			.toLowerCase)
+		if (raw.isEmpty) "missing_name" else raw
 	}
 
 	def requestFileName(s: String) = "req_" + formatToFilename(s) + HTML_EXTENSION

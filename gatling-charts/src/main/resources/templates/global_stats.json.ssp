@@ -1,5 +1,4 @@
 <% import com.excilys.ebi.gatling.charts.component.RequestStatistics %>
-<% import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename %>
 <%@ val stat: RequestStatistics %>
 	{
 		"name": "<%=stat.name%>",

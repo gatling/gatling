@@ -2,7 +2,7 @@
 <% import com.excilys.ebi.gatling.charts.report.RequestContainer %>
 <% import com.excilys.ebi.gatling.charts.report.Container.GROUP %>
 <% import com.excilys.ebi.gatling.charts.report.Container.REQUEST %>
-<% import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename %>
+<% import com.excilys.ebi.gatling.core.util.HtmlHelper.formatToJavascriptVar %>
 <%@ val group: GroupContainer %>
 type: "<%= GROUP %>",
 contents: {
@@ -12,12 +12,12 @@ contents: {
 	#match (child)
 		#case (group: GroupContainer)
 			<% attributes("group") = group %>
-	"<%= formatToFilename(group.name) %>": {
+	<%= formatToJavascriptVar(group.name) %>: {
 		${include("stats_group.js.ssp")}
 	}
 		#case (request: RequestContainer)
 			<% attributes("request") = request.stats %>
-	"<%= formatToFilename(request.name) %>": {
+	<%= formatToJavascriptVar(request.name) %>: {
 		type: "<%= REQUEST %>",
 		${include("stats_request.js.ssp")}
 	}

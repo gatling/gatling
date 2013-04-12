@@ -34,4 +34,14 @@ object HtmlHelper {
 
 		string.toList.map(charToHtmlEntity).mkString
 	}
+
+	def formatToJavascriptVar(string: String) = {
+		val fileName = FileHelper.formatToFilename(string)
+		val firstChar = fileName.charAt(0)
+
+		if (firstChar >= 'a' && firstChar <= 'z')
+			fileName
+		else
+			"_" + fileName
+	}
 }

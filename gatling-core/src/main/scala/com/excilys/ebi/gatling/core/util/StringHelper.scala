@@ -38,7 +38,7 @@ object StringHelper extends Logging {
 	 */
 	def stripAccents(string: String) = {
 		val normalized = Normalizer.normalize(string, Normalizer.Form.NFD)
-		jdk6Pattern.matcher(normalized).replaceAll("");
+		jdk6Pattern.matcher(normalized).replaceAll("_");
 	}
 
 	def escapeJsQuoteString(s: String) = s.replace("'", "\\\'")

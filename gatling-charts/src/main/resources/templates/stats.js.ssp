@@ -1,6 +1,5 @@
 <% import com.excilys.ebi.gatling.charts.report.GroupContainer %>
 <% import com.excilys.ebi.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME %>
-<% import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename %>
 <%@ val stats: GroupContainer %>
 var stats = {
 <% attributes("group") = stats %>
