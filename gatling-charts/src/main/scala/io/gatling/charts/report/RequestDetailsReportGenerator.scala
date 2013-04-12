@@ -17,9 +17,10 @@ package io.gatling.charts.report
 
 import io.gatling.charts.component.{ Component, ComponentLibrary, StatisticsTextComponent }
 import io.gatling.charts.config.ChartsFiles.requestFile
+import io.gatling.charts.result.reader.RequestPath
 import io.gatling.charts.template.RequestDetailsPageTemplate
-import io.gatling.charts.util.Colors.{ BLUE, RED, TRANSLUCID_BLUE, TRANSLUCID_RED }
-import io.gatling.core.result.{ Group, IntRangeVsTimePlot, IntVsTimePlot, RequestPath, Series }
+import io.gatling.charts.util.Colors.{ BLUE, RED, TRANSLUCID_BLUE, TRANSLUCID_RED, color2String }
+import io.gatling.core.result.{ Group, IntRangeVsTimePlot, IntVsTimePlot, RequestStatsPath, Series }
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.reader.DataReader
 
@@ -67,7 +68,6 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 
 			def indicatorChartComponent: Component = componentLibrary.getRequestDetailsIndicatorChartComponent
 
-			// Create template
 			val template =
 				new RequestDetailsPageTemplate(path,
 					requestName,
@@ -79,13 +79,12 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 					scatterChartComponent,
 					indicatorChartComponent)
 
-			// Write template result to file
 			new TemplateWriter(requestFile(runOn, path)).writeToFile(template.getOutput)
 		}
 
-		dataReader.groupsAndRequests.foreach {
-			case (group, Some(request)) => generateDetailPage(RequestPath.path(request, group), Some(request), group)
-			case _ => {}
+		dataReader.statsPaths.foreach {
+			case RequestStatsPath(request, group) => generateDetailPage(RequestPath.path(request, group), Some(request), group)
+			case _ =>
 		}
 	}
 }

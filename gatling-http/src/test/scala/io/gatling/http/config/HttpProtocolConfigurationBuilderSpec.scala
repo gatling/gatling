@@ -20,7 +20,7 @@ import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result.message.RequestStatus
+import io.gatling.core.result.message.Status
 import io.gatling.core.session.Session
 import io.gatling.http.response.Response
 import com.ning.http.client.Request
@@ -33,7 +33,7 @@ class HttpProtocolConfigurationBuilderSpec extends Specification {
 	"http protocol configuration builder" should {
 		"support an optional extra info extractor" in {
 
-			val expectedExtractor = (requestStatus: RequestStatus, session: Session, request: Request, response: Response) => Nil
+			val expectedExtractor = (status: Status, session: Session, request: Request, response: Response) => Nil
 
 			val builder = HttpProtocolConfigurationBuilder.default
 				.disableWarmUp

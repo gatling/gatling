@@ -61,12 +61,11 @@ trait Loops[B] extends Execs[B] {
 
 		val counter = counterName.getOrElse(UUID.randomUUID.toString)
 
-		def continueCondition(session: Session) = {
+		val continueCondition = (session: Session) =>
 			for {
 				counterValue <- session.getV[Int](counter)
 				timesValue <- times(session)
 			} yield counterValue < timesValue
-		}
 
 		asLongAs(continueCondition, Some(counter), chain)
 	}
@@ -91,16 +90,11 @@ trait Loops[B] extends Execs[B] {
 	}
 
 	def foreach(seq: Expression[Seq[Any]], attributeName: String, counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
-		val setNextValueInSession = new SessionHookBuilder(session => {
-			val nextValue = for {
+		val exposeCurrentValue = new SessionHookBuilder(session => {
+			for {
 				counterValue <- session.getV[Int](counterName)
 				seq <- seq(session)
-			} yield seq(counterValue)
-
-			nextValue match {
-				case Success(value) => session.set(attributeName, value)
-				case Failure(message) => throw new IllegalAccessError(s"Could not set attribute in foreach: $message")
-			}
+			} yield session.set(attributeName, seq(counterValue))
 		})
 
 		val continueCondition = (session: Session) =>
@@ -109,6 +103,6 @@ trait Loops[B] extends Execs[B] {
 				seq <- seq(session)
 			} yield seq.isDefinedAt(counterValue)
 
-		asLongAs(continueCondition, Some(counterName), chainOf(setNextValueInSession).exec(chain))
+		asLongAs(continueCondition, Some(counterName), chainOf(exposeCurrentValue).exec(chain))
 	}
 }

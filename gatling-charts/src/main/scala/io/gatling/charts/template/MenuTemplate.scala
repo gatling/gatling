@@ -15,12 +15,10 @@
  */
 package io.gatling.charts.template
 
-import com.dongxiguo.fastring.Fastring.Implicits.FastringContext
-
 import io.gatling.charts.report.Container.{ GROUP, REQUEST }
 
 class MenuTemplate {
-	def getOutput: String = fast"""
+	def getOutput: String = s"""
 function setDetailsLinkUrl(){
     $$.each(stats.contents, function (name, data) {
         $$('#details_link').attr('href', encodeURIComponent('req_' + data.pathFormatted + '.html'));
@@ -99,5 +97,5 @@ function setActiveMenu(){
         }
     });
 }
-""".toString
+"""
 }

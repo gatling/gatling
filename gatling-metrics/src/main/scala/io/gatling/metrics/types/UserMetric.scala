@@ -15,7 +15,7 @@
  */
 package io.gatling.metrics.types
 
-import io.gatling.core.result.message.{ End, ScenarioRecord, Start }
+import io.gatling.core.result.message.{ End, ScenarioMessage, Start }
 
 class UserMetric(val nbUsers: Int) {
 
@@ -25,8 +25,8 @@ class UserMetric(val nbUsers: Int) {
 	private var _done = 0
 	private var doneBuffer = 0
 
-	def update(scenarioRecord: ScenarioRecord) {
-		scenarioRecord.event match {
+	def update(scenarioMessage: ScenarioMessage) {
+		scenarioMessage.event match {
 			case Start => {
 				_active += 1
 				_waiting -= 1

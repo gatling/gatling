@@ -15,29 +15,12 @@
  */
 package io.gatling.core.result.message
 
-import io.gatling.core.util.FileHelper.tabulationSeparator
+object MessageEvent {
+	def apply(name: String) = if (name == Start.name) Start else End
+}
 
-sealed abstract class RecordType {
+sealed trait MessageEvent {
 	def name: String
-	def recordLength: Int
-	def unapply(string: String) = {
-		val array = string.split(tabulationSeparator)
-		if (array.length >= recordLength && array(0) == name) Some(array) else None
-	}
 }
-object RunRecordType extends RecordType {
-	val name = "RUN"
-	val recordLength = 4
-}
-object ActionRecordType extends RecordType {
-	val name = "ACTION"
-	val recordLength = 9
-}
-object ScenarioRecordType extends RecordType {
-	val name = "SCENARIO"
-	val recordLength = 5
-}
-object GroupRecordType extends RecordType {
-	val name = "GROUP"
-	val recordLength = 6
-}
+case object Start extends MessageEvent { val name = "START" }
+case object End extends MessageEvent { val name = "END" }

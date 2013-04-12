@@ -16,11 +16,13 @@
 package io.gatling.core.session
 
 import scala.reflect.ClassTag
-
 import com.typesafe.scalalogging.slf4j.Logging
-
+import io.gatling.core.result.message.GroupStackEntry
+import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.util.TypeHelper
-import io.gatling.core.validation.{ Failure, FailureWrapper, Success, Validation }
+import io.gatling.core.validation.{ FailureWrapper, Validation }
+import io.gatling.core.result.message.OK
+import io.gatling.core.result.message.KO
 
 /**
  * Private Gatling Session attributes
@@ -28,12 +30,11 @@ import io.gatling.core.validation.{ Failure, FailureWrapper, Success, Validation
 object SessionPrivateAttributes {
 
 	val privateAttributePrefix = "gatling."
-
 	val timeShift = privateAttributePrefix + "core.timeShift"
-
 	val failed = privateAttributePrefix + "core.failed"
-
 	val mustExitOnFail = privateAttributePrefix + "core.mustExitOnFailed"
+	val startDate = privateAttributePrefix + "core.startDate"
+	val groupStack = privateAttributePrefix + "core.groupStack"
 }
 
 /**
@@ -49,44 +50,40 @@ object SessionPrivateAttributes {
 case class Session(scenarioName: String, userId: Int, attributes: Map[String, Any] = Map.empty) extends Logging {
 
 	def apply(name: String) = attributes(name)
-
-	def get[T: ClassTag](key: String): Option[T] = attributes.get(key).flatMap {
-		TypeHelper.as[T](_) match {
-			case Success(typedValue) =>
-				Some(typedValue)
-			case Failure(message) =>
-				logger.error(s"Could find value of key $key but wrong type: $message")
-				None
-		}
-	}
-
+	def get[T](key: String): Option[T] = attributes.get(key).map(_.asInstanceOf[T])
+	def get[T](key: String, default: => T): T = attributes.get(key).map(_.asInstanceOf[T]).getOrElse(default)
 	def getV[T: ClassTag](key: String): Validation[T] = attributes.get(key).map(TypeHelper.as[T](_)).getOrElse(undefinedSessionAttributeMessage(key).failure[T])
-
 	def set(newAttributes: Map[String, Any]) = copy(attributes = attributes ++ newAttributes)
-
 	def set(key: String, value: Any) = copy(attributes = attributes + (key -> value))
-
 	def remove(key: String) = if (contains(key)) copy(attributes = attributes - key) else this
-
 	def contains(attributeKey: String) = attributes.contains(attributeKey)
 
-	def setFailed: Session = set(SessionPrivateAttributes.failed, java.lang.Boolean.TRUE.toString)
-
+	def setFailed: Session = {
+		val failedSession = set(SessionPrivateAttributes.failed, java.lang.Boolean.TRUE.toString)
+		groupStack match {
+			case head :: tail if (head.status == OK) => failedSession.set(SessionPrivateAttributes.groupStack, groupStack.map(_.copy(status = KO))) // fail all the groups
+			case _ => failedSession
+		}
+	}
 	def clearFailed: Session = remove(SessionPrivateAttributes.failed)
-
 	def isFailed: Boolean = contains(SessionPrivateAttributes.failed)
-
 	def setMustExitOnFail: Session = set(SessionPrivateAttributes.mustExitOnFail, java.lang.Boolean.TRUE.toString)
-
 	def isMustExitOnFail: Boolean = contains(SessionPrivateAttributes.mustExitOnFail)
-
 	def clearMustExitOnFail: Session = remove(SessionPrivateAttributes.mustExitOnFail)
-
 	def shouldExitBecauseFailed: Boolean = isFailed && isMustExitOnFail
 
 	private[gatling] def setTimeShift(timeShift: Long): Session = set(SessionPrivateAttributes.timeShift, timeShift)
-
 	private[gatling] def increaseTimeShift(time: Long): Session = setTimeShift(time + getTimeShift)
+	private[gatling] def getTimeShift: Long = get[Long](SessionPrivateAttributes.timeShift, 0L)
 
-	private[gatling] def getTimeShift: Long = get[Long](SessionPrivateAttributes.timeShift).getOrElse(0L)
+	private[gatling] def start = set(SessionPrivateAttributes.startDate, nowMillis)
+	private[gatling] def startDate = get[Long](SessionPrivateAttributes.startDate, Long.MinValue)
+
+	private[gatling] def groupStack: List[GroupStackEntry] = get[List[GroupStackEntry]](SessionPrivateAttributes.groupStack, Nil)
+	private[gatling] def enterGroup(groupName: String): Session = set(SessionPrivateAttributes.groupStack, GroupStackEntry(groupName, nowMillis, OK) :: groupStack)
+	private[gatling] def exitGroup: Session = groupStack match {
+		case Nil => this
+		case group :: Nil => remove(SessionPrivateAttributes.groupStack)
+		case head :: tail => set(SessionPrivateAttributes.groupStack, tail)
+	}
 }

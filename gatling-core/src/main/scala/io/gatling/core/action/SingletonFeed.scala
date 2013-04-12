@@ -23,6 +23,7 @@ import io.gatling.core.validation.{ Failure, FailureWrapper, Success, SuccessWra
 import akka.actor.ActorRef
 
 class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
+
 	def receive = {
 		case message: FeedMessage => feed(message.session, message.number, message.next)
 	}

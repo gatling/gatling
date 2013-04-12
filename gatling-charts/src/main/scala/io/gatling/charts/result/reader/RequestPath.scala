@@ -13,26 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.metrics.sender
+package io.gatling.charts.result.reader
 
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.result.Group
 
-object MetricsSender {
-	def newMetricsSender: MetricsSender = configuration.graphite.protocol match {
-		case "tcp" => new TcpSender
-		case "udp" => new UdpSender
-	}
-}
-abstract class MetricsSender {
-
-	def sendToGraphite(metricPath: String, value: Long, epoch: Long) {
-		val bytes = s"$metricPath $value $epoch\n".getBytes(configuration.core.encoding)
-		sendToGraphite(bytes)
-	}
-
-	def sendToGraphite(bytes: Array[Byte])
-
-	def flush
-
-	def close
+object RequestPath {
+	val SEPARATOR = " / "
+	def path(group: Group) = group.hierarchy.mkString(SEPARATOR)
+	def path(requestName: String, group: Option[Group]): String = (group.map(_.hierarchy).getOrElse(Nil) ::: List(requestName)).mkString(SEPARATOR)
 }

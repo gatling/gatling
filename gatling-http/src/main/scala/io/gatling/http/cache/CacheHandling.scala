@@ -40,6 +40,8 @@ object CacheHandling extends Logging {
 			case _: Exception => false
 		}
 
+	private def getCache(session: Session): Set[String] = session.get(httpCacheAttributeName, Set.empty)
+
 	def isCached(httpProtocolConfiguration: HttpProtocolConfiguration, session: Session, request: Request) = httpProtocolConfiguration.cachingEnabled && getCache(session).contains(request.getUrl)
 
 	def cache(httpProtocolConfiguration: HttpProtocolConfiguration, session: Session, request: Request, response: Response): Session = {
@@ -68,6 +70,4 @@ object CacheHandling extends Logging {
 		} else
 			session
 	}
-
-	private def getCache(session: Session): Set[String] = session.get[Set[String]](httpCacheAttributeName).getOrElse(Set.empty)
 }

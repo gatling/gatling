@@ -25,10 +25,8 @@ trait Chainable extends Action {
 	override def preRestart(reason: Throwable, message: Option[Any]) {
 		logger.error(s"Action $this crashed, forwarding user to next one", reason)
 		message.foreach {
-			_ match {
-				case session: Session => next ! session.setFailed
-				case _ =>
-			}
+			case session: Session => next ! session.setFailed
+			case _ =>
 		}
 	}
 }

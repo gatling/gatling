@@ -15,11 +15,10 @@
  */
 package io.gatling.core.action.builder
 
+import akka.actor.{ ActorRef, Props }
 import io.gatling.core.action.{ Bypassable, SessionHook, system }
 import io.gatling.core.config.ProtocolConfigurationRegistry
-import io.gatling.core.session.Session
-
-import akka.actor.{ ActorRef, Props }
+import io.gatling.core.session.{ Expression, Session }
 
 /**
  * Builder for SimpleAction
@@ -27,7 +26,7 @@ import akka.actor.{ ActorRef, Props }
  * @constructor creates a SimpleActionBuilder
  * @param sessionFunction the function that will be executed by the simple action
  */
-class SessionHookBuilder(sessionFunction: Session => Session, bypassable: Boolean = false) extends ActionBuilder {
+class SessionHookBuilder(sessionFunction: Expression[Session], bypassable: Boolean = false) extends ActionBuilder {
 
 	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) =
 		if (bypassable)

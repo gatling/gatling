@@ -19,9 +19,6 @@ import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.Validation
 
-/**
- * TimerBasedIterationHandler trait 'companion'
- */
 object TimerBasedIterationHandler {
 
 	/**
@@ -35,19 +32,19 @@ object TimerBasedIterationHandler {
 }
 
 /**
- * It adds timer based iteration behavior to a class
+ * Adds timer based iteration behavior to a class
  */
 trait TimerBasedIterationHandler extends CounterBasedIterationHandler {
 
-	override def init(session: Session): Session = {
+	override def init(session: Session): Validation[Session] = {
 
 		val timerAttributeName = TimerBasedIterationHandler.getTimerAttributeName(counterName)
 
 		if (session.contains(timerAttributeName))
 			super.init(session)
 		else
-			super.init(session).set(timerAttributeName, nowMillis)
+			super.init(session).map(_.set(timerAttributeName, nowMillis))
 	}
 
-	override def expire(session: Session) = super.expire(session).remove(TimerBasedIterationHandler.getTimerAttributeName(counterName))
+	override def expire(session: Session): Validation[Session] = super.expire(session).map(_.remove(TimerBasedIterationHandler.getTimerAttributeName(counterName)))
 }

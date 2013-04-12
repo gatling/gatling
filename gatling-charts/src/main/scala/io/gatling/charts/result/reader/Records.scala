@@ -15,59 +15,62 @@
  */
 package io.gatling.charts.result.reader
 
-import io.gatling.core.result.message.{ KO, OK, RecordEvent, RequestStatus }
+import scala.collection.mutable
 
-object ActionRecord {
+import io.gatling.core.result.Group
+import io.gatling.core.result.message.Status
+import io.gatling.core.result.writer.FileDataWriter.GroupMessageSerializer
 
-	def apply(strings: Array[String], bucketFunction: Int => Int, runStart: Long): ActionRecord = {
+object RecordParser {
+
+	val groupCache = mutable.Map.empty[String, Group]
+
+	def parseGroup(string: String) = groupCache.getOrElseUpdate(string, GroupMessageSerializer.deserializeGroups(string))
+
+	def parseRequestRecord(strings: Array[String], bucketFunction: Int => Int, runStart: Long): RequestRecord = {
 
 		val scenario = strings(1).intern
 		val user = strings(2).toInt
-		val request = strings(3).intern
-		val executionStart = reduceAccuracy((strings(4).toLong - runStart).toInt)
-		val requestEnd = reduceAccuracy((strings(5).toLong - runStart).toInt)
-		val responseStart = reduceAccuracy((strings(6).toLong - runStart).toInt)
-		val executionEnd = reduceAccuracy((strings(7).toLong - runStart).toInt)
-		val status = strings(8) match {
-			case "OK" => OK
-			case _ => KO
+		val group = {
+			val groupString = strings(3)
+			if (groupString.isEmpty) None else Some(parseGroup(groupString))
 		}
+		val request = strings(4).intern
+		val executionStart = (strings(5).toLong - runStart).toInt
+		val requestEnd = (strings(6).toLong - runStart).toInt
+		val responseStart = (strings(7).toLong - runStart).toInt
+		val executionEnd = (strings(8).toLong - runStart).toInt
+		val status = Status.valueOf(strings(9))
 		val executionStartBucket = bucketFunction(executionStart)
 		val executionEndBucket = bucketFunction(executionEnd)
-		val responseTime = reduceAccuracy(executionEnd - executionStart)
-		val latency = reduceAccuracy(responseStart - requestEnd)
-		ActionRecord(scenario, user, request, executionStart, requestEnd, responseStart, executionEnd, status, executionStartBucket, executionEndBucket, responseTime, latency)
+		val responseTime = executionEnd - executionStart
+		val latency = responseStart - requestEnd
+		RequestRecord(scenario, user, group, request, reduceAccuracy(executionStart), reduceAccuracy(executionEnd), status, executionStartBucket, executionEndBucket, reduceAccuracy(responseTime), reduceAccuracy(latency))
 	}
-}
 
-case class ActionRecord(scenario: String, user: Int, request: String, executionStart: Int, requestEnd: Int, responseStart: Int, executionEnd: Int, status: RequestStatus, executionStartBucket: Int, executionEndBucket: Int, responseTime: Int, latency: Int)
-
-object ScenarioRecord {
-	def apply(strings: Array[String], bucketFunction: Int => Int, runStart: Long): ScenarioRecord = {
+	def parseScenarioRecord(strings: Array[String], bucketFunction: Int => Int, runStart: Long): ScenarioRecord = {
 
 		val scenario = strings(1).intern
 		val user = strings(2).toInt
-		val event = RecordEvent(strings(3))
-		val executionDate = reduceAccuracy((strings(4).toLong - runStart).toInt)
-		val executionDateBucket = bucketFunction(executionDate)
-		ScenarioRecord(scenario, user, event, executionDate, executionDateBucket)
+		val startDate = reduceAccuracy((strings(3).toLong - runStart).toInt)
+		val endDate = reduceAccuracy((strings(4).toLong - runStart).toInt)
+		ScenarioRecord(scenario, user, startDate, bucketFunction(startDate), bucketFunction(endDate))
 	}
-}
 
-case class ScenarioRecord(scenario: String, user: Int, event: RecordEvent, executionDate: Int, executionDateBucket: Int)
-
-object GroupRecord {
-	def apply(strings: Array[String], bucketFunction: Int => Int, runStart: Long): GroupRecord = {
+	def parseGroupRecord(strings: Array[String], bucketFunction: Int => Int, runStart: Long): GroupRecord = {
 
 		val scenario = strings(1).intern
-		val group = strings(2).intern
+		val group = parseGroup(strings(2))
 		val user = strings(3).toInt
-		val event = RecordEvent(strings(4))
-		val executionDate = reduceAccuracy((strings(5).toLong - runStart).toInt)
-		val executionDateBucket = bucketFunction(executionDate)
-		GroupRecord(scenario, group, user, event, executionDate, executionDateBucket)
+		val entryDate = (strings(4).toLong - runStart).toInt
+		val exitDate = (strings(5).toLong - runStart).toInt
+		val status = Status.valueOf(strings(6))
+		val duration = exitDate - entryDate
+		val executionDateBucket = bucketFunction(entryDate)
+		GroupRecord(scenario, group, user, reduceAccuracy(entryDate), reduceAccuracy(duration), status, executionDateBucket)
 	}
 }
 
-case class GroupRecord(scenario: String, group: String, user: Int, event: RecordEvent, executionDate: Int, executionDateBucket: Int)
-
+case class RequestRecord(scenario: String, user: Int, group: Option[Group], name: String, requestStart: Int, responseEnd: Int, status: Status, requestStartBucket: Int, responseEndBucket: Int, responseTime: Int, latency: Int)
+case class ScenarioRecord(scenario: String, user: Int, startDate: Int, startDateBucket: Int, endDateBucket: Int)
+case class GroupRecord(scenario: String, group: Group, user: Int, startDate: Int, duration: Int, status: Status, startDateBucket: Int)

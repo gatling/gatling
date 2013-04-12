@@ -46,7 +46,8 @@ object GatlingFiles {
 
 	def simulationLogDirectory(runUuid: String, create: Boolean = true): Directory = {
 		val dir = resultDirectory(runUuid)
-		if (create) dir.createDirectory()
+		if (create)
+			dir.createDirectory()
 		else {
 			require(dir.exists, s"simulation directory '${dir.toAbsolute}' doesn't exist")
 			require(dir.isDirectory, s"simulation directory '${dir.toAbsolute}' is not a directory")
@@ -54,12 +55,12 @@ object GatlingFiles {
 			dir.toDirectory
 		}
 	}
-	
+
 	def requestBodyFile(filePath: Path): Validation[Path] = {
 		val file = if (filePath.exists) filePath else GatlingFiles.requestBodiesDirectory / filePath
 		if (file.exists) file.success
 		else s"Body file $file doesn't exist".failure
 	}
-	
+
 	def feederFile(filePath: Path) = if (filePath.exists) filePath else GatlingFiles.dataDirectory / filePath
 }

@@ -20,14 +20,13 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class RequestRecordSpec extends Specification {
+class RequestMessageSpec extends Specification {
 
   "constructor" should {
     "have sensible defaults for optional parameters" in {
-      val record: RequestRecord = RequestRecord("scenarioName", 1, "requestName", 0L, 0L, 0L, 0L, OK, Some("requestMessage"))
+      val record: RequestMessage = RequestMessage("scenarioName", 1, Nil, "requestName", 0L, 0L, 0L, 0L, OK, Some("requestMessage"))
 
       record.extraInfo should beEmpty
     }
-
   }
 }

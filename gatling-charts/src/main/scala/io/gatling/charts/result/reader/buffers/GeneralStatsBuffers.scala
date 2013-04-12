@@ -17,29 +17,29 @@ package io.gatling.charts.result.reader.buffers
 
 import scala.collection.mutable
 
-import io.gatling.charts.result.reader.{ ActionRecord, FileDataReader }
+import io.gatling.charts.result.reader.{ RequestRecord, FileDataReader }
 import io.gatling.charts.result.reader.stats.{ PercentilesHelper, StatsHelper }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.Group
-import io.gatling.core.result.message.RequestStatus
+import io.gatling.core.result.message.Status
 import io.gatling.core.result.reader.GeneralStats
 
 abstract class GeneralStatsBuffers(durationInSec: Long) {
 
 	val generalStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
 
-	def getGeneralStatsBuffers(request: Option[String], group: Option[Group], status: Option[RequestStatus]): GeneralStatsBuffer =
-		generalStatsBuffers.getOrElseUpdate(computeKey(request, group, status), new GeneralStatsBuffer(durationInSec))
+	def getGeneralStatsBuffers(request: Option[String], group: Option[Group], status: Option[Status]): GeneralStatsBuffer =
+		generalStatsBuffers.getOrElseUpdate(BufferKey(request, group, status), new GeneralStatsBuffer(durationInSec))
 
-	def updateGeneralStatsBuffers(record: ActionRecord, group: Option[Group]) {
-		getGeneralStatsBuffers(Some(record.request), group, None).update(record.responseTime)
-		getGeneralStatsBuffers(Some(record.request), group, Some(record.status)).update(record.responseTime)
+	def updateGeneralStatsBuffers(record: RequestRecord) {
+		getGeneralStatsBuffers(Some(record.name), record.group, None).update(record.responseTime)
+		getGeneralStatsBuffers(Some(record.name), record.group, Some(record.status)).update(record.responseTime)
 
 		getGeneralStatsBuffers(None, None, None).update(record.responseTime)
 		getGeneralStatsBuffers(None, None, Some(record.status)).update(record.responseTime)
 	}
 
-	def updateGroupGeneralStatsBuffers(duration: Int, group: Group, status: RequestStatus) {
+	def updateGroupGeneralStatsBuffers(duration: Int, group: Group, status: Status) {
 		getGeneralStatsBuffers(None, Some(group), None).update(duration)
 		getGeneralStatsBuffers(None, Some(group), Some(status)).update(duration)
 	}
@@ -62,29 +62,21 @@ abstract class GeneralStatsBuffers(durationInSec: Long) {
 			squareSum += StatsHelper.square(time)
 		}
 
-		var stats: GeneralStats = _
+		lazy val stats: GeneralStats =
+			if (count == 0) {
+				GeneralStats.NO_PLOT
 
-		def compute: GeneralStats = {
+			} else {
+				val meanResponseTime = math.round(sum / count.toDouble).toInt
+				val meanRequestsPerSec = math.round(count / (duration / FileDataReader.secMillisecRatio)).toInt
+				val stdDev = math.round(StatsHelper.stdDev(squareSum / count.toDouble, meanResponseTime)).toInt
 
-			if (stats == null) {
-				stats = if (count == 0) {
-					GeneralStats.NO_PLOT
+				val sortedTimes = map.values.toSeq.sortBy(_.time)
 
-				} else {
-					val meanResponseTime = math.round(sum / count.toDouble).toInt
-					val meanRequestsPerSec = math.round(count / (duration / FileDataReader.secMillisecRatio)).toInt
-					val stdDev = math.round(StatsHelper.stdDev(squareSum / count.toDouble, meanResponseTime)).toInt
+				val percentiles = PercentilesHelper.processPercentiles(sortedTimes, count, Seq(configuration.charting.indicators.percentile1 / 100.0, configuration.charting.indicators.percentile2 / 100.0))
 
-					val sortedTimes = map.values.toSeq.sortBy(_.time)
-
-					val percentiles = PercentilesHelper.processPercentiles(sortedTimes, count, Seq(configuration.charting.indicators.percentile1 / 100.0, configuration.charting.indicators.percentile2 / 100.0))
-
-					GeneralStats(min, max, count, meanResponseTime, stdDev, percentiles(0), percentiles(1), meanRequestsPerSec)
-				}
+				GeneralStats(min, max, count, meanResponseTime, stdDev, percentiles(0), percentiles(1), meanRequestsPerSec)
 			}
-
-			stats
-		}
 	}
 }
 

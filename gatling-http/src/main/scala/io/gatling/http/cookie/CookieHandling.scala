@@ -26,21 +26,16 @@ object CookieHandling {
 
 	val cookieJarAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.cookies"
 
-	def getStoredCookies(session: Session, url: String): List[Cookie] = {
+	def getStoredCookies(session: Session, url: String): List[Cookie] =
+		session.get[CookieJar](cookieJarAttributeName)
+			.map(_.get(URI.create(url)))
+			.getOrElse(Nil)
 
-		session.getV[CookieJar](cookieJarAttributeName) match {
-			case Success(cookieJar) => cookieJar.get(URI.create(url))
-			case _ => Nil
-		}
-	}
-
-	def storeCookies(session: Session, uri: URI, cookies: List[Cookie]): Session = {
-		if (!cookies.isEmpty) {
-			session.getV[CookieJar](cookieJarAttributeName) match {
-				case Success(cookieJar) => session.set(cookieJarAttributeName, cookieJar.add(uri, cookies))
-				case _ => session.set(cookieJarAttributeName, CookieJar(uri, cookies))
-			}
-		} else
+	def storeCookies(session: Session, uri: URI, cookies: List[Cookie]): Session =
+		if (!cookies.isEmpty)
+			session.get[CookieJar](cookieJarAttributeName)
+				.map(cookieJar => session.set(cookieJarAttributeName, cookieJar.add(uri, cookies)))
+				.getOrElse(session.set(cookieJarAttributeName, CookieJar(uri, cookies)))
+		else
 			session
-	}
 }

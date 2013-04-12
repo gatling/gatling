@@ -15,7 +15,7 @@
  */
 package io.gatling.metrics.sender
 
-import java.io.{ BufferedWriter, OutputStreamWriter, Writer }
+import java.io.BufferedOutputStream
 import java.net.Socket
 
 import io.gatling.core.config.GatlingConfiguration.configuration
@@ -24,22 +24,17 @@ import io.gatling.core.util.StringHelper.eol
 class TcpSender extends MetricsSender {
 
 	val socket = new Socket(configuration.graphite.host, configuration.graphite.port)
-	val writer: Writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream))
+	val os = new BufferedOutputStream(socket.getOutputStream)
 
-	def sendToGraphite(metricPath: String, value: Long, epoch: Long) {
-		writer.write(metricPath)
-		writer.write(" ")
-		writer.write(value.toString)
-		writer.write(" ")
-		writer.write(epoch.toString)
-		writer.write(eol)
+	def sendToGraphite(bytes: Array[Byte]) {
+		os.write(bytes)
 	}
 
 	def flush {
-		writer.flush
+		os.flush
 	}
 
 	def close {
-		writer.close
+		os.close
 	}
 }

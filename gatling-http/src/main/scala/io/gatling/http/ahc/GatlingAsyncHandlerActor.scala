@@ -24,7 +24,7 @@ import akka.actor.{ ActorRef, ReceiveTimeout }
 import io.gatling.core.action.BaseActor
 import io.gatling.core.check.Checks
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.message.{ KO, OK, RequestStatus }
+import io.gatling.core.result.message.{ KO, OK, RequestMessage, Status }
 import io.gatling.core.result.writer.DataWriter
 import io.gatling.core.session.Session
 import io.gatling.core.util.StringHelper.eol
@@ -110,7 +110,7 @@ class GatlingAsyncHandlerActor(
 
 	private def logRequest(
 		session: Session,
-		requestStatus: RequestStatus,
+		status: Status,
 		response: Response,
 		errorMessage: Option[String] = None) {
 
@@ -134,22 +134,22 @@ class GatlingAsyncHandlerActor(
 		 */
 		def extraInfo: List[Any] =
 			try {
-				protocolConfiguration.extraInfoExtractor.map(_(requestStatus, session, request, response)).getOrElse(Nil)
+				protocolConfiguration.extraInfoExtractor.map(_(status, session, request, response)).getOrElse(Nil)
 			} catch {
 				case e: Exception =>
 					logger.warn("Encountered error while extracting extra request info", e)
 					Nil
 			}
 
-		if (requestStatus == KO) {
+		if (status == KO) {
 			logger.warn(s"Request '$requestName' failed : ${errorMessage.getOrElse("")}")
 			if (!logger.underlying.isTraceEnabled) logger.debug(dump)
 		}
 		logger.trace(dump)
 
-		DataWriter.logRequest(session.scenarioName, session.userId, requestName,
+		DataWriter.tell(RequestMessage(session.scenarioName, session.userId, session.groupStack, requestName,
 			response.executionStartDate, response.requestSendingEndDate, response.responseReceivingStartDate, response.executionEndDate,
-			requestStatus, errorMessage, extraInfo)
+			status, errorMessage, extraInfo))
 	}
 
 	/**

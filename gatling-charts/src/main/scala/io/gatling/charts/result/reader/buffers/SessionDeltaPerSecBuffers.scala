@@ -63,14 +63,10 @@ trait SessionDeltaPerSecBuffers {
 
 	def getSessionDeltaPerSecBuffers(scenarioName: Option[String]): SessionDeltaBuffer = sessionDeltaPerSecBuffers.getOrElseUpdate(scenarioName, new SessionDeltaBuffer)
 
-	def addStartSessionBuffers(record: ScenarioRecord) {
-		getSessionDeltaPerSecBuffers(None).addStart(record.executionDateBucket)
-		getSessionDeltaPerSecBuffers(Some(record.scenario)).addStart(record.executionDateBucket)
+	def addSessionBuffers(record: ScenarioRecord) {
+		getSessionDeltaPerSecBuffers(None).addStart(record.startDateBucket)
+		getSessionDeltaPerSecBuffers(Some(record.scenario)).addStart(record.startDateBucket)
+		getSessionDeltaPerSecBuffers(None).addEnd(record.endDateBucket)
+		getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd(record.endDateBucket)
 	}
-
-	def addEndSessionBuffers(record: ScenarioRecord) {
-		getSessionDeltaPerSecBuffers(None).addEnd(record.executionDateBucket)
-		getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd(record.executionDateBucket)
-	}
-
 }

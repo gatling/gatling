@@ -17,15 +17,13 @@ package io.gatling.core.result.writer
 
 import scala.concurrent.Future
 
+import akka.actor.{ Actor, ActorRef, Props }
 import io.gatling.core.action.{ AkkaDefaults, BaseActor, system }
 import io.gatling.core.action.system.dispatcher
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.message.{ Flush, GroupRecord, Init, RecordEvent, RequestRecord, RequestStatus, RunRecord, ScenarioRecord, ShortScenarioDescription }
+import io.gatling.core.result.message.{ Flush, GroupMessage, Init, RequestMessage, RunMessage, ScenarioMessage, ShortScenarioDescription }
 import io.gatling.core.result.terminator.Terminator
 import io.gatling.core.scenario.Scenario
-import io.gatling.core.util.TimeHelper.nowMillis
-
-import akka.actor.{ Actor, ActorRef, Props }
 
 object DataWriter extends AkkaDefaults {
 
@@ -34,49 +32,16 @@ object DataWriter extends AkkaDefaults {
 		system.actorOf(Props(clazz))
 	}
 
-	private def tellAll(message: Any) {
+	def tell(message: Any) {
 		dataWriters.foreach(_ ! message)
 	}
 
-	def askInit(runRecord: RunRecord, scenarios: Seq[Scenario]) = {
+	def askInit(runMessage: RunMessage, scenarios: Seq[Scenario]) = {
 		val shortScenarioDescriptions = scenarios.map(scenario => ShortScenarioDescription(scenario.name, scenario.configuration.users))
 
-		val responses = dataWriters.map(_ ? Init(runRecord, shortScenarioDescriptions))
+		val responses = dataWriters.map(_ ? Init(runMessage, shortScenarioDescriptions))
 
 		Future.sequence(responses)
-	}
-
-	def user(scenarioName: String, userId: Int, event: RecordEvent) {
-		tellAll(ScenarioRecord(scenarioName, userId, event, nowMillis))
-	}
-
-	def group(scenarioName: String, groupName: String, userId: Int, event: RecordEvent) {
-		tellAll(GroupRecord(scenarioName, groupName, userId, event, nowMillis))
-	}
-
-	def logRequest(
-		scenarioName: String,
-		userId: Int,
-		requestName: String,
-		executionStartDate: Long,
-		requestSendingEndDate: Long,
-		responseReceivingStartDate: Long,
-		executionEndDate: Long,
-		requestResult: RequestStatus,
-		requestMessage: Option[String] = None,
-		extraInfo: List[Any] = Nil) {
-
-		tellAll(RequestRecord(
-			scenarioName,
-			userId,
-			requestName,
-			executionStartDate,
-			requestSendingEndDate,
-			responseReceivingStartDate,
-			executionEndDate,
-			requestResult,
-			requestMessage,
-			extraInfo))
 	}
 }
 
@@ -88,18 +53,18 @@ object DataWriter extends AkkaDefaults {
  */
 trait DataWriter extends BaseActor {
 
-	def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription])
+	def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription])
 
-	def onScenarioRecord(scenarioRecord: ScenarioRecord)
+	def onScenarioMessage(scenario: ScenarioMessage)
 
-	def onGroupRecord(groupRecord: GroupRecord)
+	def onGroupMessage(group: GroupMessage)
 
-	def onRequestRecord(requestRecord: RequestRecord)
+	def onRequestMessage(request: RequestMessage)
 
 	def onFlushDataWriter
 
 	def uninitialized: Receive = {
-		case Init(runRecord, scenarios) =>
+		case Init(runMessage, scenarios) =>
 
 			logger.info("Initializing")
 
@@ -108,7 +73,7 @@ trait DataWriter extends BaseActor {
 			Terminator.askDataWriterRegistration(self).onSuccess {
 				case _ =>
 					logger.info("Going on with initialization after Terminator registration")
-					onInitializeDataWriter(runRecord, scenarios)
+					onInitializeDataWriter(runMessage, scenarios)
 					context.become(initialized)
 					originalSender ! true
 					logger.info("Initialized")
@@ -116,11 +81,11 @@ trait DataWriter extends BaseActor {
 	}
 
 	def initialized: Receive = {
-		case scenarioRecord: ScenarioRecord => onScenarioRecord(scenarioRecord)
+		case scenarioMessage: ScenarioMessage => onScenarioMessage(scenarioMessage)
 
-		case groupRecord: GroupRecord => onGroupRecord(groupRecord)
+		case groupMessage: GroupMessage => onGroupMessage(groupMessage)
 
-		case requestRecord: RequestRecord => onRequestRecord(requestRecord)
+		case requestMessage: RequestMessage => onRequestMessage(requestMessage)
 
 		case Flush =>
 			try {

@@ -15,16 +15,16 @@
  */
 package io.gatling.core.result.writer
 
-import java.io.{ BufferedOutputStream, FileOutputStream, OutputStreamWriter }
-
+import java.io.{ BufferedOutputStream, FileOutputStream, OutputStream }
+import com.dongxiguo.fastring.Fastring.Implicits._
 import com.typesafe.scalalogging.slf4j.Logging
-
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
-import io.gatling.core.result.message.{ ActionRecordType, GroupRecord, GroupRecordType, RequestRecord, RunRecord, RunRecordType, ScenarioRecord, ScenarioRecordType, ShortScenarioDescription }
-import io.gatling.core.util.FileHelper.tabulationSeparator
+import io.gatling.core.result.message.{ RequestMessageType, End, GroupMessage, GroupMessageType, RequestMessage, RunMessage, RunMessageType, ScenarioMessage, ScenarioMessageType, ShortScenarioDescription }
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.core.util.StringHelper.eol
+import io.gatling.core.result.message.GroupStackEntry
+import io.gatling.core.result.Group
 
 object FileDataWriter {
 
@@ -37,44 +37,66 @@ object FileDataWriter {
 	 */
 	def sanitize(s: String): String = Option(s).map(s => sanitizerPattern.replaceAllIn(s, " ")).getOrElse("")
 
-	implicit class DataWriterMessageAppendable[T <: Appendable](val appendable: T) extends AnyVal {
+	implicit class RunMessageSerializer(val runMessage: RunMessage) extends AnyVal {
 
-		def append(scenarioRecord: ScenarioRecord): T = {
-			appendable.append(ScenarioRecordType.name).append(tabulationSeparator)
-				.append(scenarioRecord.scenarioName).append(tabulationSeparator)
-				.append(scenarioRecord.userId.toString).append(tabulationSeparator)
-				.append(scenarioRecord.event.name).append(tabulationSeparator)
-				.append(scenarioRecord.executionDate.toString).append(eol)
-			appendable
+		def getBytes = {
+			import runMessage._
+			val description = if (runDescription.isEmpty) FileDataWriter.emptyField else runDescription
+			val string = s"${RunMessageType.name}\t$timestamp\t$simulationId\t$description$eol"
+			string.getBytes(configuration.core.encoding)
 		}
+	}
 
-		def append(groupRecord: GroupRecord): T = {
-			appendable.append(GroupRecordType.name).append(tabulationSeparator)
-				.append(groupRecord.scenarioName).append(tabulationSeparator)
-				.append(groupRecord.groupName).append(tabulationSeparator)
-				.append(groupRecord.userId.toString).append(tabulationSeparator)
-				.append(groupRecord.event.name).append(tabulationSeparator)
-				.append(groupRecord.executionDate.toString).append(eol)
-			appendable
+	implicit class ScenarioMessageSerializer(val scenarioMessage: ScenarioMessage) extends AnyVal {
+
+		def getBytes = {
+			import scenarioMessage._
+			val string = s"${ScenarioMessageType.name}\t$scenarioName\t$userId\t$startDate\t$endDate$eol"
+			string.getBytes(configuration.core.encoding)
 		}
+	}
 
-		def append(requestRecord: RequestRecord): T = {
-			appendable.append(ActionRecordType.name).append(tabulationSeparator)
-				.append(requestRecord.scenarioName).append(tabulationSeparator)
-				.append(requestRecord.userId.toString).append(tabulationSeparator)
-				.append(requestRecord.requestName).append(tabulationSeparator)
-				.append(requestRecord.executionStartDate.toString).append(tabulationSeparator)
-				.append(requestRecord.requestSendingEndDate.toString).append(tabulationSeparator)
-				.append(requestRecord.responseReceivingStartDate.toString).append(tabulationSeparator)
-				.append(requestRecord.executionEndDate.toString).append(tabulationSeparator)
-				.append(requestRecord.requestStatus.toString).append(tabulationSeparator)
-				.append(requestRecord.requestMessage.getOrElse(emptyField))
+	// fastring macro won't work inside a value class in 2.10
+	object RequestMessageSerializer {
 
-			requestRecord.extraInfo.foreach(info => appendable.append(tabulationSeparator).append(sanitize(info.toString)))
+		def serialize(requestMessage: RequestMessage) = {
+			import requestMessage._
 
-			appendable.append(eol)
+			val nonEmptyMessage = message.getOrElse(emptyField)
+			val serializedGroups = GroupMessageSerializer.serializeGroups(groupStack)
+			val serializedExtraInfo = extraInfo.map(info => fast"\t${sanitize(info.toString)}").mkFastring
 
-			appendable
+			fast"${RequestMessageType.name}\t$scenario\t$userId\t$serializedGroups\t$name\t$requestStartDate\t$requestEndDate\t$responseStartDate\t$responseEndDate\t$status\t$nonEmptyMessage$serializedExtraInfo$eol"
+		}
+	}
+
+	implicit class RequestMessageSerializer(val requestMessage: RequestMessage) extends AnyVal {
+
+		def getBytes = {
+			val string = RequestMessageSerializer.serialize(requestMessage).toString
+			string.getBytes(configuration.core.encoding)
+		}
+	}
+
+	// fastring macro won't work inside a value class in 2.10
+	object GroupMessageSerializer {
+		
+		def serializeGroups(groupStack: List[GroupStackEntry]) = groupStack.reverse.map(_.name).mkFastring(",")
+		
+		def deserializeGroups(string: String) = Group(string.split(",").toList)
+
+		def serialize(groupMessage: GroupMessage) = {
+			import groupMessage._
+			val serializedGroups = serializeGroups(groupStack)
+			fast"${GroupMessageType.name}\t$scenarioName\t$serializedGroups\t$userId\t$entryDate\t$exitDate\t$status$eol"
+		}
+	}
+
+	implicit class GroupMessageSerializer(val groupMessage: GroupMessage) extends AnyVal {
+
+		def getBytes = {
+			val string = GroupMessageSerializer.serialize(groupMessage).toString
+			string.getBytes(configuration.core.encoding)
 		}
 	}
 }
@@ -91,35 +113,31 @@ class FileDataWriter extends DataWriter with Logging {
 	/**
 	 * The OutputStreamWriter used to write to files
 	 */
-	private var osw: OutputStreamWriter = _
+	private var os: OutputStream = _
 
-	override def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) {
-		val simulationLog = simulationLogDirectory(runRecord.runId) / "simulation.log"
-		osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(simulationLog.toString)), configuration.core.encoding)
-		osw.append(RunRecordType.name).append(tabulationSeparator)
-			.append(runRecord.timestamp).append(tabulationSeparator)
-			.append(runRecord.simulationId).append(tabulationSeparator)
-			// hack for being able to deserialize in FileDataReader
-			.append(if (runRecord.runDescription.isEmpty) FileDataWriter.emptyField else runRecord.runDescription)
-			.append(eol)
+	override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
+		val simulationLog = simulationLogDirectory(run.runId) / "simulation.log"
+		os = new BufferedOutputStream(new FileOutputStream(simulationLog.toString))
+		os.write(run.getBytes)
 	}
 
-	override def onScenarioRecord(scenarioRecord: ScenarioRecord) {
-		osw.append(scenarioRecord)
+	override def onScenarioMessage(scenario: ScenarioMessage) {
+		if (scenario.event == End)
+			os.write(scenario.getBytes)
 	}
 
-	override def onGroupRecord(groupRecord: GroupRecord) {
-		osw.append(groupRecord)
+	override def onGroupMessage(group: GroupMessage) {
+		os.write(group.getBytes)
 	}
 
-	override def onRequestRecord(requestRecord: RequestRecord) {
-		osw.append(requestRecord)
+	override def onRequestMessage(request: RequestMessage) {
+		os.write(request.getBytes)
 	}
 
 	override def onFlushDataWriter {
 
 		logger.info("Received flush order")
 
-		withCloseable(osw) { _.flush }
+		withCloseable(os) { _.flush }
 	}
 }

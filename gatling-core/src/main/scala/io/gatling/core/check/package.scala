@@ -64,17 +64,43 @@ package object check {
 			def name: String = "in"
 		}
 
-		// TODO extend so that any kind of numbers can be compared in any way
-		def lessThan[X] = new Matcher[X, X] {
-			def apply(actual: Option[X], expected: X): Validation[Option[X]] = (actual, expected) match {
-				case (Some(a: Long), e: Long) => if (a <= e) actual.success else s"$a > $e".failure
-				case (Some(a: Int), e: Int) => if (a <= e) actual.success else s"$a > $e".failure
-				case (Some(a: Double), e: Double) => if (a <= e) actual.success else s"$a > $e".failure
-				case (Some(a: Float), e: Float) => if (a <= e) actual.success else s"$a > $e".failure
-				case _ => s"can't compare ${actual.getOrElse("nothing")} and $expected".failure
-			}
-			def name: String = "lessThan"
+		type Comparison[X] = (X, X) => Boolean
+
+		class Comparer[X](
+			val name: String,
+			message: String,
+			byteComparison: Comparison[Byte],
+			shortComparison: Comparison[Short],
+			charComparison: Comparison[Char],
+			intComparison: Comparison[Int],
+			longComparison: Comparison[Long],
+			floatComparison: Comparison[Float],
+			doubleComparison: Comparison[Double],
+			comparableComparison: Int => Boolean) extends Matcher[X, X] {
+
+			def apply(actual: Option[X], expected: X): Validation[Option[X]] =
+				actual.map { actualValue =>
+					val comparison = (actualValue, expected) match {
+						case (a: Byte, e: Byte) => byteComparison(a, e)
+						case (a: Short, e: Short) => shortComparison(a, e)
+						case (a: Char, e: Char) => charComparison(a, e)
+						case (a: Int, e: Int) => intComparison(a, e)
+						case (a: Long, e: Long) => longComparison(a, e)
+						case (a: Float, e: Float) => floatComparison(a, e)
+						case (a: Double, e: Double) => doubleComparison(a, e)
+						case (a: Comparable[X], e) => comparableComparison(a.compareTo(e))
+						case _ => false
+					}
+
+					if (comparison) actual.success else s"$actualValue is not $message than $expected".failure
+
+				}.getOrElse(s"can't compare nothing and $expected".failure)
 		}
+
+		def lessThan[X] = new Comparer[X]("lessThan", "less", _ < _, _ < _, _ < _, _ < _, _ < _, _ < _, _ < _, _ < 0)
+		def lessOrEqualThan[X] = new Comparer[X]("lessOrEqualThan", "less or equal", _ <= _, _ <= _, _ <= _, _ <= _, _ <= _, _ <= _, _ <= _, _ <= 0)
+		def greaterThan[X] = new Comparer[X]("greaterThan", "greater", _ > _, _ > _, _ > _, _ > _, _ > _, _ > _, _ > _, _ > 0)
+		def greaterOrEqualThan[X] = new Comparer[X]("greaterOrEqualThan", "greater or equal", _ >= _, _ >= _, _ >= _, _ >= _, _ >= _, _ >= _, _ >= _, _ >= 0)
 
 		def exists[X] = new Matcher[X, String] {
 			def apply(actual: Option[X], expected: String): Validation[Option[X]] = actual match {

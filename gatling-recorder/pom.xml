@@ -41,10 +41,6 @@
 			<groupId>com.excilys.ebi</groupId>
 			<artifactId>plexus-selector</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.dongxiguo</groupId>
-			<artifactId>fastring_2.10</artifactId>
-		</dependency>
 	</dependencies>
 
 	<build>

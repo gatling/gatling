@@ -20,7 +20,7 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.message.RequestRecord
+import io.gatling.core.result.message.RequestMessage
 import io.gatling.core.result.message.{ KO, OK }
 
 class RequestMetrics {
@@ -29,12 +29,12 @@ class RequestMetrics {
 	val koMetrics = new Metrics
 	val allMetrics = new Metrics
 
-	def update(requestRecord: RequestRecord) {
-		val responseTime = requestRecord.responseTime.max(0L)
+	def update(requestMessage: RequestMessage) {
+		val responseTime = requestMessage.responseTime.max(0L)
 
 		allMetrics.update(responseTime)
 
-		requestRecord.requestStatus match {
+		requestMessage.status match {
 			case OK => okMetrics.update(responseTime)
 			case KO => koMetrics.update(responseTime)
 		}

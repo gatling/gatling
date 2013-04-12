@@ -13,25 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.session.handler
+package io.gatling.core.action
 
-import com.typesafe.scalalogging.slf4j.Logging
-
+import akka.actor.ActorRef
+import io.gatling.core.result.message.GroupMessage
+import io.gatling.core.result.writer.DataWriter
 import io.gatling.core.session.Session
-import io.gatling.core.validation.{ SuccessWrapper, Validation }
+import io.gatling.core.util.TimeHelper.nowMillis
 
-/**
- * Adds counter based iteration behavior to a class
- */
-trait CounterBasedIterationHandler extends Logging {
+class GroupEnd(val next: ActorRef) extends Chainable {
 
-	def counterName: String
+	def execute(session: Session) {
 
-	def init(session: Session): Validation[Session] =
-		if (session.contains(counterName)) session.success
-		else session.set(counterName, -1).success
+		val stack = session.groupStack
+		val group = stack.head
+		DataWriter.tell(GroupMessage(session.scenarioName, stack, session.userId, group.startDate, nowMillis, group.status))
 
-	def increment(session: Session): Validation[Session] = session.getV[Int](counterName).map(currentValue => session.set(counterName, currentValue + 1))
-
-	def expire(session: Session): Validation[Session] = session.remove(counterName).success
+		next ! session.exitGroup
+	}
 }
