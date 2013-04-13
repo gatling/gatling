@@ -111,7 +111,7 @@ case class HttpProtocolConfigurationBuilder(config: HttpProtocolConfiguration, w
 			}
 		}
 
-		if (!HttpProtocolConfigurationBuilder.warmUpUrls.isEmpty) {
+		if (HttpProtocolConfigurationBuilder.warmUpUrls.isEmpty) {
 			GetHttpRequestBuilder.warmUp
 			PostHttpRequestBuilder.warmUp
 		}
