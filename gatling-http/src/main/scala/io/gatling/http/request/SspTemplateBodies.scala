@@ -27,6 +27,7 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
+@deprecated("Scalate support will be dropped in 2.1.0, prefer EL files or plain scala code", "2.0.0")
 object SspTemplateBodies extends Logging {
 
 	val sessionExtraBinding = Seq(Binding("session", classOf[Session].getName))

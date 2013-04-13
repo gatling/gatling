@@ -53,7 +53,9 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	def elTemplateBody(filePath: Expression[String]): B = body(ELTemplateBodies.asString(filePath))
 	def elTemplateBodyAsBytes(filePath: Expression[String]): B = body(ELTemplateBodies.asBytes(filePath))
 
+	@deprecated("Scalate support will be dropped in 2.1.0, prefer EL files or plain scala code", "2.0.0")
 	def sspTemplateBody(filePath: Expression[String], additionalAttributes: Map[String, Any] = Map.empty): B = body(SspTemplateBodies.asString(filePath, additionalAttributes))
+	@deprecated("Scalate support will be dropped in 2.1.0, prefer EL files or plain scala code", "2.0.0")
 	def sspTemplateBodyAsBytes(filePath: Expression[String], additionalAttributes: Map[String, Any] = Map.empty): B = body(SspTemplateBodies.asBytes(filePath, additionalAttributes))
 
 	def byteArrayBody(byteArray: Expression[Array[Byte]]): B = body(new ByteArrayBody(byteArray))
