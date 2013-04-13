@@ -15,7 +15,9 @@
  */
 package io.gatling.http.util
 
-import java.io.{ ByteArrayOutputStream, InputStream, OutputStream }
+import java.io.{ ByteArrayOutputStream, InputStream }
+
+import org.apache.commons.io.IOUtils
 
 import com.jcraft.jzlib.GZIPOutputStream
 
@@ -28,8 +30,8 @@ object GZIPHelper {
 	def gzip(bytes: Array[Byte]): Array[Byte] = {
 		val bytesOut = new ByteArrayOutputStream
 
-		withCloseable(new GZIPOutputStream(bytesOut)) { gzip =>
-			gzip.write(bytes)
+		withCloseable(new GZIPOutputStream(bytesOut)) {
+			_.write(bytes)
 		}
 
 		bytesOut.toByteArray
@@ -37,19 +39,10 @@ object GZIPHelper {
 
 	def gzip(in: InputStream): Array[Byte] = {
 
-		def shovelInToOut(out: OutputStream) {
-			val buffer = new Array[Byte](1000)
-			var len: Int = in.read(buffer)
-			while (len > 0) {
-				out.write(buffer, 0, len)
-				len = in.read(buffer)
-			}
-		}
-
 		val bytesOut = new ByteArrayOutputStream
 
-		withCloseable(new GZIPOutputStream(bytesOut)) { out =>
-			shovelInToOut(out)
+		withCloseable(new GZIPOutputStream(bytesOut)) {
+			IOUtils.copy(in, _)
 		}
 
 		bytesOut.toByteArray
