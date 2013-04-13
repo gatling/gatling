@@ -19,6 +19,8 @@ import java.lang.System.currentTimeMillis
 
 import scala.collection.mutable
 
+import com.typesafe.scalalogging.slf4j.Logging
+
 import io.gatling.app.CommandLineConstants._
 import io.gatling.charts.report.ReportsGenerator
 import io.gatling.core.config.{ GatlingFiles, GatlingPropertiesBuilder }
@@ -79,7 +81,7 @@ object Gatling {
 
 }
 
-class Gatling {
+class Gatling extends Logging {
 
 	def start = {
 
@@ -155,13 +157,35 @@ class Gatling {
 			println(s"Please open the following file : $indexFile")
 		}
 
-		val simulations = GatlingFiles.binariesDirectory
-			.map(SimulationClassLoader.fromClasspathBinariesDirectory) // expect simulations to have been pre-compiled (ex: IDE)
-			.getOrElse(SimulationClassLoader.fromSourcesDirectory(GatlingFiles.sourcesDirectory))
-			.simulationClasses(configuration.core.simulationClass)
-			.sortWith(_.getName < _.getName)
+		def attemptDirectSimulationClassLoading(className: String): Option[List[Class[Simulation]]] = try {
+			val clazz = getClass.getClassLoader.loadClass(className).asInstanceOf[Class[Simulation]]
+			Some(List(clazz))
+		} catch {
+			case e: ClassNotFoundException =>
+				logger.info(s"Could not find simulation class $className from class loader, will try to compile it from sources")
 
-		val (outputDirectoryName, simulation) = GatlingFiles.reportsOnlyDirectory.map((_, getSingleSimulation(simulations)))
+				None
+			case e: Exception =>
+				println(s"Could not properly load simulation class $className")
+				throw e
+		}
+
+		def regularSimulationClassLoading: List[Class[Simulation]] = {
+			val simulationClassLoader = GatlingFiles.binariesDirectory
+				.map(SimulationClassLoader.fromClasspathBinariesDirectory) // expect simulations to have been pre-compiled (ex: IDE)
+				.getOrElse(SimulationClassLoader.fromSourcesDirectory(GatlingFiles.sourcesDirectory))
+
+			simulationClassLoader
+				.simulationClasses(configuration.core.simulationClass)
+				.sortWith(_.getName < _.getName)
+		}
+
+		val simulations = configuration.core.simulationClass
+			.flatMap(attemptDirectSimulationClassLoading)
+			.getOrElse(regularSimulationClassLoading)
+
+		val (outputDirectoryName, simulation) = GatlingFiles.reportsOnlyDirectory
+			.map((_, getSingleSimulation(simulations)))
 			.getOrElse {
 				val selection = configuration.core.simulationClass.map { _ =>
 					val simulation = simulations.head
