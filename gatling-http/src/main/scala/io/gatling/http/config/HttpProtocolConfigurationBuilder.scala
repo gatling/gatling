@@ -15,13 +15,15 @@
  */
 package io.gatling.http.config
 
+import scala.collection.mutable
+
 import com.ning.http.client.{ ProxyServer, Request, RequestBuilder }
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.message.Status
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.http.Headers
+import io.gatling.http.Headers.Names._
 import io.gatling.http.ahc.GatlingHttpClient
 import io.gatling.http.request.builder.{ GetHttpRequestBuilder, PostHttpRequestBuilder }
 import io.gatling.http.response.Response
@@ -33,6 +35,8 @@ import io.gatling.http.util.HttpHelper
 object HttpProtocolConfigurationBuilder {
 
 	val default = new HttpProtocolConfigurationBuilder(HttpProtocolConfiguration.default, configuration.http.warmUpUrl)
+
+	val warmUpUrls = mutable.Set.empty[String]
 }
 
 /**
@@ -57,21 +61,21 @@ case class HttpProtocolConfigurationBuilder(config: HttpProtocolConfiguration, w
 
 	def shareConnections = copy(config = config.copy(shareConnections = true))
 
-	def acceptHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (Headers.Names.ACCEPT -> value)))
+	def acceptHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (ACCEPT -> value)))
 
-	def acceptCharsetHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (Headers.Names.ACCEPT_CHARSET -> value)))
+	def acceptCharsetHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (ACCEPT_CHARSET -> value)))
 
-	def acceptEncodingHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (Headers.Names.ACCEPT_ENCODING -> value)))
+	def acceptEncodingHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (ACCEPT_ENCODING -> value)))
 
-	def acceptLanguageHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (Headers.Names.ACCEPT_LANGUAGE -> value)))
+	def acceptLanguageHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (ACCEPT_LANGUAGE -> value)))
 
-	def authorizationHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (Headers.Names.AUTHORIZATION -> value)))
+	def authorizationHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (AUTHORIZATION -> value)))
 
-	def connection(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (Headers.Names.CONNECTION -> value)))
+	def connection(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (CONNECTION -> value)))
 
-	def doNotTrackHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (Headers.Names.DO_NOT_TRACK -> value)))
+	def doNotTrackHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (DO_NOT_TRACK -> value)))
 
-	def userAgentHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (Headers.Names.USER_AGENT -> value)))
+	def userAgentHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (USER_AGENT -> value)))
 
 	def warmUp(url: String) = copy(warmUpUrl = Some(url))
 
@@ -86,22 +90,31 @@ case class HttpProtocolConfigurationBuilder(config: HttpProtocolConfiguration, w
 	def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = copy(config = config.copy(proxy = Some(httpProxy), securedProxy = httpsProxy))
 
 	def build = {
-
 		warmUpUrl.map { url =>
-			val requestBuilder = new RequestBuilder().setUrl(url)
+			if (!HttpProtocolConfigurationBuilder.warmUpUrls.contains(url)) {
+				HttpProtocolConfigurationBuilder.warmUpUrls += url
+				val requestBuilder = new RequestBuilder().setUrl(url)
+					.setHeader(ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+					.setHeader(ACCEPT_LANGUAGE, "en-US,en;q=0.5")
+					.setHeader(ACCEPT_ENCODING, "gzip")
+					.setHeader(CONNECTION, "keep-alive")
+					.setHeader(USER_AGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
 
-			config.proxy.map { proxy => if (url.startsWith("http://")) requestBuilder.setProxyServer(proxy) }
-			config.securedProxy.map { proxy => if (url.startsWith("https://")) requestBuilder.setProxyServer(proxy) }
+				config.proxy.map { proxy => if (url.startsWith("http://")) requestBuilder.setProxyServer(proxy) }
+				config.securedProxy.map { proxy => if (url.startsWith("https://")) requestBuilder.setProxyServer(proxy) }
 
-			try {
-				GatlingHttpClient.client.executeRequest(requestBuilder.build).get
-			} catch {
-				case e: Exception => logger.info(s"Couldn't execute warm up request $url", e)
+				try {
+					GatlingHttpClient.client.executeRequest(requestBuilder.build).get
+				} catch {
+					case e: Exception => logger.info(s"Couldn't execute warm up request $url", e)
+				}
 			}
 		}
 
-		GetHttpRequestBuilder.warmUp
-		PostHttpRequestBuilder.warmUp
+		if (!HttpProtocolConfigurationBuilder.warmUpUrls.isEmpty) {
+			GetHttpRequestBuilder.warmUp
+			PostHttpRequestBuilder.warmUp
+		}
 
 		config
 	}
