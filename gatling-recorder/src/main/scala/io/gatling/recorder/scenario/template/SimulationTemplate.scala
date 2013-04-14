@@ -34,7 +34,7 @@ object SimulationTemplate {
 
 			def printHeaders(headers: List[(String, String)]) = {
 				if (headers.size > 1) {
-					val mapContent = headers.map { case (name, value) => fast"""		"$name" -> "value"""" }.mkFastring(",\n")
+					val mapContent = headers.map { case (name, value) => fast"""		"$name" -> "$value"""" }.mkFastring(",\n")
 					fast"""Map(
 $mapContent)"""
 				} else {
