@@ -41,6 +41,10 @@
 			<groupId>com.excilys.ebi</groupId>
 			<artifactId>plexus-selector</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.module</groupId>
+			<artifactId>jackson-module-scala_2.10</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

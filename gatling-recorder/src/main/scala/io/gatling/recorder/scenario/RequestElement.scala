@@ -29,48 +29,35 @@ import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.scenario.template.RequestTemplate
 
 object RequestElement {
-	def apply(r: RequestElement, newStatusCode: Int) = {
-		new RequestElement(r.request, newStatusCode, r.simulationClass)
+
+	def apply(request: HttpRequest, statusCode: Int, simulationClass: Option[String]) = {
+		val headers: Map[String, String] = request.getHeaders.map { entry => (entry.getKey, entry.getValue) }.toMap
+		val content = if (request.getContent.readableBytes > 0) {
+			val bufferBytes = new Array[Byte](request.getContent.readableBytes)
+			request.getContent.getBytes(request.getContent.readerIndex, bufferBytes)
+			Some(new String(bufferBytes, configuration.simulation.encoding))
+		} else None
+		new RequestElement(request.getUri,request.getMethod.toString, headers, content, statusCode, simulationClass)
 	}
 
 	def apply(r: RequestElement, simulationClass: String) = {
-		new RequestElement(r.request, r.statusCode, Some(simulationClass))
+		new RequestElement(r.uri, r.method, r.headers, r.content, r.statusCode, Some(simulationClass))
 	}
 }
 
-class RequestElement(val request: HttpRequest, val statusCode: Int, val simulationClass: Option[String]) extends ScenarioElement {
-	val method = request.getMethod.toString
+class RequestElement(val uri: String, val method: String, val headers: Map[String,String], val content: Option[String], val statusCode: Int, val simulationClass: Option[String]) extends ScenarioElement {
 
-	private val containsFormParams: Boolean = Option(request.getHeader(CONTENT_TYPE)).map(_.contains("application/x-www-form-urlencoded")).getOrElse(false)
+	private val containsFormParams: Boolean = headers.get(CONTENT_TYPE).map(_.contains("application/x-www-form-urlencoded")).getOrElse(false)
 
-	private val uriParts = request.getUri.split("/", 4)
+	private val uriParts = uri.split("/", 4)
 	val baseUrl = uriParts.take(3).mkString("/")
 	val path = "/" + uriParts.lift(3).getOrElse("").split("\\?")(0)
 	private var printedUrl = baseUrl + path
-	val completeUrl = request.getUri
 	var filteredHeadersId: Option[Int] = None
 
-	val headers: List[(String, String)] = request.getHeaders.map { entry => (entry.getKey, entry.getValue) }.toList
+	val queryParams = convertParamsFromJavaToScala(new QueryStringDecoder(uri, Charset.forName(configuration.simulation.encoding)).getParameters)
 
-	val queryParams = convertParamsFromJavaToScala(new QueryStringDecoder(request.getUri, Charset.forName(configuration.simulation.encoding)).getParameters)
-
-	val requestBodyOrParams: Option[Either[String, List[(String, String)]]] = if (request.getContent.readableBytes > 0) {
-
-		val bufferBytes = new Array[Byte](request.getContent.readableBytes)
-
-		request.getContent.getBytes(request.getContent.readerIndex, bufferBytes)
-
-		val bodyString = new String(bufferBytes, configuration.simulation.encoding)
-
-		if (containsFormParams) {
-			Some(Right(parseFormBody(bodyString)))
-		} else {
-			(Some(Left(bodyString)))
-		}
-
-	} else {
-		None
-	}
+	val requestBodyOrParams: Option[Either[String, List[(String, String)]]] = content.map(content => if(containsFormParams) Right(parseFormBody(content)) else Left(content))
 
 	var id: Int = 0
 
@@ -85,10 +72,11 @@ class RequestElement(val request: HttpRequest, val statusCode: Int, val simulati
 		this
 	}
 
-	private def convertParamsFromJavaToScala(params: java.util.Map[String, java.util.List[String]]): List[(String, String)] = (for ((key, list) <- params) yield (for (e <- list) yield (key, e))).toList.flatten
+	private def convertParamsFromJavaToScala(params: java.util.Map[String, java.util.List[String]]): List[(String, String)] =
+		(for ((key, list) <- params) yield (for (e <- list) yield (key, e))).toList.flatten
 
 	private val basicAuthCredentials: Option[(String, String)] = {
-		Option(request.getHeader(AUTHORIZATION)) match {
+		headers.get(AUTHORIZATION) match {
 			case Some(value) if (value.startsWith("Basic ")) =>
 				val credentials = new String(Base64.decode(value.split(" ")(1))).split(":")
 				if (credentials.length == 2)
@@ -107,6 +95,8 @@ class RequestElement(val request: HttpRequest, val statusCode: Int, val simulati
 			printedUrl,
 			filteredHeadersId,
 			basicAuthCredentials,
-			queryParams, requestBodyOrParams, statusCode)
+			queryParams,
+			requestBodyOrParams,
+			statusCode)
 	}
 }
