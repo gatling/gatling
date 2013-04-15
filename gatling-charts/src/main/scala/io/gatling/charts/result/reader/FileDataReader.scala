@@ -77,9 +77,8 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 					runEnd = math.max(runEnd, array(8).toLong)
 
 				case ScenarioMessageType(array) =>
-					val time = array(4).toLong
-					runStart = math.min(runStart, time)
-					runEnd = math.max(runEnd, time)
+					runStart = math.min(runStart, array(3).toLong)
+					runEnd = math.max(runEnd, array(4).toLong)
 
 				case RunMessageType(array) =>
 					runMessages += RunMessage(parseTimestampString(array(1)), array(2), array(3).trim)
