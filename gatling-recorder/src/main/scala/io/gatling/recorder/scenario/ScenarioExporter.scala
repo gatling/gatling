@@ -32,7 +32,7 @@ import io.gatling.recorder.scenario.template.SimulationTemplate
 object ScenarioExporter extends Logging {
 	private val EVENTS_GROUPING = 100
 
-	def saveScenario(startDate: Date, scenarioElements: List[ScenarioElement]) {
+	def saveScenario(scenarioElements: List[ScenarioElement]) {
 
 		val baseUrl = getBaseUrl(scenarioElements)
 
@@ -80,7 +80,7 @@ object ScenarioExporter extends Logging {
 			def generateHeaders(elements: List[RequestElement], headers: Map[Int, List[(String, String)]]): Map[Int, List[(String, String)]] = elements match {
 				case Nil => headers
 				case element :: others => {
-					val acceptedHeaders = element.headers
+					val acceptedHeaders = element.headers.toList
 						.filterNot {
 							case (headerName, headerValue) => filteredHeaders.contains(headerName) || baseHeaders.get(headerName).map(baseValue => baseValue == headerValue).getOrElse(false)
 						}
@@ -120,7 +120,7 @@ object ScenarioExporter extends Logging {
 
 		val output = SimulationTemplate.render(configuration.simulation.pkg, configuration.simulation.className, protocolConfigElement, headers, "Scenario Name", newScenarioElements)
 
-		withCloseable(new FileWriter(File(getOutputFolder / getSimulationFileName(startDate)).jfile)) {
+		withCloseable(new FileWriter(File(getOutputFolder / getSimulationFileName).jfile)) {
 			_.write(output)
 		}
 	}
@@ -172,7 +172,7 @@ object ScenarioExporter extends Logging {
 		}
 	}
 
-	def getSimulationFileName(date: Date): String = configuration.simulation.className + ".scala"
+	def getSimulationFileName: String = configuration.simulation.className + ".scala"
 
 	def getOutputFolder = {
 		val path = configuration.simulation.outputFolder + File.separator + configuration.simulation.pkg.replace(".", File.separator)

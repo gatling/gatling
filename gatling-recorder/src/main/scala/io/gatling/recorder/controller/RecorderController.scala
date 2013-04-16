@@ -18,28 +18,29 @@ package io.gatling.recorder.controller
 import java.net.URI
 import java.util.Date
 
-import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.math.round
 import scala.tools.nsc.io.File
 
-import org.codehaus.plexus.util.SelectorUtils
-import org.jboss.netty.handler.codec.http.{ HttpMethod, HttpRequest, HttpResponse }
+import org.jboss.netty.handler.codec.http.{ HttpRequest, HttpResponse }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
 
 import com.ning.http.util.Base64
 import com.typesafe.scalalogging.slf4j.Logging
 
-import io.gatling.recorder.config.{ Pattern, RecorderConfiguration }
+import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.http.GatlingHttpProxy
 import io.gatling.recorder.scenario.{ PauseElement, PauseUnit, RequestElement, ScenarioElement, ScenarioExporter, TagElement }
-import io.gatling.recorder.ui.enumeration.{ FilterStrategy, PatternType }
 import io.gatling.recorder.ui.frame.{ ConfigurationFrame, RunningFrame }
+import io.gatling.recorder.ui.frame.ConfigurationFrame.{ harMode, httpMode}
 import io.gatling.recorder.ui.info.{ PauseInfo, RequestInfo, SSLInfo }
 import io.gatling.recorder.ui.util.UIHelper.useUIThread
+import io.gatling.recorder.util.FiltersHelper.isRequestAccepted
+import io.gatling.recorder.util.RedirectHelper._
 import javax.swing.JOptionPane
+import io.gatling.recorder.har.HarReader
 
 object RecorderController {
 
@@ -53,7 +54,6 @@ object RecorderController {
 class RecorderController extends Logging {
 	private lazy val runningFrame: RunningFrame = new RunningFrame(this)
 	private lazy val configurationFrame: ConfigurationFrame = new ConfigurationFrame(this)
-	private val supportedHttpMethods = Vector(HttpMethod.POST, HttpMethod.GET, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.HEAD)
 
 	@volatile private var startDate: Date = _
 	@volatile private var lastRequestDate: Date = _
@@ -63,14 +63,28 @@ class RecorderController extends Logging {
 	@volatile private var scenarioElements: List[ScenarioElement] = Nil
 
 	def startRecording {
-		val response = if (File(ScenarioExporter.getOutputFolder / ScenarioExporter.getSimulationFileName(startDate)).exists)
-			JOptionPane.showConfirmDialog(null, "You are about to overwrite an existing simulation.", "Warning", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE)
-		else JOptionPane.OK_OPTION
+		val selectedMode = configurationFrame.modeSelector.getSelectedItem.asInstanceOf[String]
+		val harFilePath = configurationFrame.txtHarFile.getText
+		if(selectedMode == harMode && harFilePath.isEmpty) {
+			JOptionPane.showMessageDialog(null,"You haven't selected an HAR file.","Error", JOptionPane.ERROR_MESSAGE)
+		} else {
+			val response = if (File(ScenarioExporter.getOutputFolder / ScenarioExporter.getSimulationFileName).exists)
+				JOptionPane.showConfirmDialog(null, "You are about to overwrite an existing simulation.", "Warning", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE)
+			else JOptionPane.OK_OPTION
 
-		if (response == JOptionPane.OK_OPTION) {
-			proxy = new GatlingHttpProxy(this, configuration.proxy.port, configuration.proxy.sslPort)
-			startDate = new Date
-			showRunningFrame
+			if (response == JOptionPane.OK_OPTION) {
+				val selectedMode = configurationFrame.modeSelector.getSelectedItem.asInstanceOf[String]
+				if(selectedMode == httpMode) {
+					proxy = new GatlingHttpProxy(this, configuration.proxy.port, configuration.proxy.sslPort)
+					startDate = new Date
+					showRunningFrame
+				} else {
+						HarReader.processHarFile(harFilePath)
+						ScenarioExporter.saveScenario(HarReader.scenarioElements.reverse)
+						JOptionPane.showMessageDialog(null,"Successfully converted HAR file to a Gatling simulation","Conversion complete", JOptionPane.INFORMATION_MESSAGE)
+						HarReader.cleanHarReaderState
+				}
+			}
 		}
 	}
 
@@ -79,7 +93,7 @@ class RecorderController extends Logging {
 			if (scenarioElements.isEmpty)
 				logger.info("Nothing was recorded, skipping scenario generation")
 			else
-				ScenarioExporter.saveScenario(startDate, scenarioElements.reverse)
+				ScenarioExporter.saveScenario(scenarioElements.reverse)
 
 			proxy.shutdown
 
@@ -132,7 +146,7 @@ class RecorderController extends Logging {
 		def processRequest(request: HttpRequest, statusCode: Int) {
 
 			// Store request in scenario elements
-			scenarioElements = new RequestElement(request, statusCode, None) :: scenarioElements
+			scenarioElements = RequestElement(request, statusCode, None) :: scenarioElements
 
 			// Send request information to view
 			useUIThread {
@@ -141,17 +155,17 @@ class RecorderController extends Logging {
 		}
 
 		synchronized {
-			if (isRequestAccepted(request)) {
-				if (isRequestRedirectChainStart(request, response)) {
+			if (isRequestAccepted(request.getUri, request.getMethod.toString)) {
+				if (isRequestRedirectChainStart(lastStatus, response.getStatus.getCode)) {
 					processPause
 					lastRequest = request
 
-				} else if (isRequestRedirectChainEnd(request, response)) {
+				} else if (isRequestRedirectChainEnd(lastStatus, response.getStatus.getCode)) {
 					// process request with new status
 					processRequest(lastRequest, response.getStatus.getCode)
 					lastRequest = null
 
-				} else if (!isRequestInsideRedirectChain(request, response)) {
+				} else if (!isRequestInsideRedirectChain(lastStatus, response.getStatus.getCode)) {
 					// standard use case
 					processPause
 					processRequest(request, response.getStatus.getCode)
@@ -190,46 +204,4 @@ class RecorderController extends Logging {
 		lastRequestDate = null
 	}
 
-	private def isRedirectCode(code: Int) = code >= 300 && code <= 399
-
-	private def isRequestRedirectChainStart(request: HttpRequest, response: HttpResponse): Boolean = configuration.http.followRedirect && !isRedirectCode(lastStatus) && isRedirectCode(response.getStatus.getCode)
-
-	private def isRequestInsideRedirectChain(request: HttpRequest, response: HttpResponse): Boolean = configuration.http.followRedirect && isRedirectCode(lastStatus) && isRedirectCode(response.getStatus.getCode)
-
-	private def isRequestRedirectChainEnd(request: HttpRequest, response: HttpResponse): Boolean = configuration.http.followRedirect && isRedirectCode(lastStatus) && !isRedirectCode(response.getStatus.getCode)
-
-	private def isRequestAccepted(request: HttpRequest): Boolean = {
-
-		def requestMatched = {
-			val path = new URI(request.getUri).getPath
-
-			def gatlingPatternToPlexusPattern(pattern: Pattern) = {
-
-				val prefix = pattern.patternType match {
-					case PatternType.ANT => SelectorUtils.ANT_HANDLER_PREFIX
-					case PatternType.JAVA => SelectorUtils.REGEX_HANDLER_PREFIX
-				}
-
-				prefix + pattern.pattern + SelectorUtils.PATTERN_HANDLER_SUFFIX
-			}
-
-			@tailrec
-			def matchPath(patterns: List[Pattern]): Boolean = patterns match {
-				case Nil => false
-				case head :: tail =>
-					if (SelectorUtils.matchPath(gatlingPatternToPlexusPattern(head), path)) true
-					else matchPath(tail)
-			}
-
-			matchPath(configuration.filters.patterns)
-		}
-
-		def requestPassFilters = configuration.filters.filterStrategy match {
-			case FilterStrategy.EXCEPT => !requestMatched
-			case FilterStrategy.ONLY => requestMatched
-			case FilterStrategy.NONE => true
-		}
-
-		supportedHttpMethods.contains(request.getMethod) && requestPassFilters
-	}
 }
