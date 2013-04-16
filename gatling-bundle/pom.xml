@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.excilys.ebi.gatling</groupId>
 		<artifactId>gatling-parent</artifactId>
-		<version>1.4.7</version>
+		<version>1.4.8-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>gatling-bundle</artifactId>
