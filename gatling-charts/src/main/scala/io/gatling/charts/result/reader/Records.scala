@@ -29,8 +29,6 @@ object RecordParser {
 
 	def parseRequestRecord(strings: Array[String], bucketFunction: Int => Int, runStart: Long): RequestRecord = {
 
-		val scenario = strings(1).intern
-		val user = strings(2).toInt
 		val group = {
 			val groupString = strings(3)
 			if (groupString.isEmpty) None else Some(parseGroup(groupString))
@@ -45,32 +43,29 @@ object RecordParser {
 		val executionEndBucket = bucketFunction(executionEnd)
 		val responseTime = executionEnd - executionStart
 		val latency = responseStart - requestEnd
-		RequestRecord(scenario, user, group, request, reduceAccuracy(executionStart), reduceAccuracy(executionEnd), status, executionStartBucket, executionEndBucket, reduceAccuracy(responseTime), reduceAccuracy(latency))
+		RequestRecord(group, request, reduceAccuracy(executionStart), reduceAccuracy(executionEnd), status, executionStartBucket, executionEndBucket, reduceAccuracy(responseTime), reduceAccuracy(latency))
 	}
 
 	def parseScenarioRecord(strings: Array[String], bucketFunction: Int => Int, runStart: Long): ScenarioRecord = {
 
 		val scenario = strings(1).intern
-		val user = strings(2).toInt
 		val startDate = reduceAccuracy((strings(3).toLong - runStart).toInt)
 		val endDate = reduceAccuracy((strings(4).toLong - runStart).toInt)
-		ScenarioRecord(scenario, user, startDate, bucketFunction(startDate), bucketFunction(endDate))
+		ScenarioRecord(scenario, startDate, bucketFunction(startDate), bucketFunction(endDate))
 	}
 
 	def parseGroupRecord(strings: Array[String], bucketFunction: Int => Int, runStart: Long): GroupRecord = {
 
-		val scenario = strings(1).intern
 		val group = parseGroup(strings(2))
-		val user = strings(3).toInt
 		val entryDate = (strings(4).toLong - runStart).toInt
 		val exitDate = (strings(5).toLong - runStart).toInt
 		val status = Status.valueOf(strings(6))
 		val duration = exitDate - entryDate
 		val executionDateBucket = bucketFunction(entryDate)
-		GroupRecord(scenario, group, user, reduceAccuracy(entryDate), reduceAccuracy(duration), status, executionDateBucket)
+		GroupRecord(group, reduceAccuracy(entryDate), reduceAccuracy(duration), status, executionDateBucket)
 	}
 }
 
-case class RequestRecord(scenario: String, user: Int, group: Option[Group], name: String, requestStart: Int, responseEnd: Int, status: Status, requestStartBucket: Int, responseEndBucket: Int, responseTime: Int, latency: Int)
-case class ScenarioRecord(scenario: String, user: Int, startDate: Int, startDateBucket: Int, endDateBucket: Int)
-case class GroupRecord(scenario: String, group: Group, user: Int, startDate: Int, duration: Int, status: Status, startDateBucket: Int)
+case class RequestRecord(group: Option[Group], name: String, requestStart: Int, responseEnd: Int, status: Status, requestStartBucket: Int, responseEndBucket: Int, responseTime: Int, latency: Int)
+case class ScenarioRecord(scenario: String, startDate: Int, startDateBucket: Int, endDateBucket: Int)
+case class GroupRecord(group: Group, startDate: Int, duration: Int, status: Status, startDateBucket: Int)
