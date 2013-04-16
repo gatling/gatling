@@ -127,6 +127,7 @@
 		<scopt.version>2.1.0</scopt.version>
 		<scalalogging.version>1.0.1</scalalogging.version>
 		<jackson.version>2.1.4</jackson.version>
+		<jackson-module-scala.version>2.1.3</jackson-module-scala.version>
 		<commons-math3.version>3.2</commons-math3.version>
 		<commons-io.version>2.4</commons-io.version>
 		<commons-exec.version>1.1</commons-exec.version>
@@ -319,6 +320,11 @@
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
 				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.module</groupId>
+				<artifactId>jackson-module-scala_2.10</artifactId>
+				<version>${jackson-module-scala.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>

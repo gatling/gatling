@@ -28,11 +28,16 @@ import io.gatling.recorder.ui.Commons
 import io.gatling.recorder.ui.Commons.iconList
 import io.gatling.recorder.ui.component.{ FilterTable, SaveConfigurationListener }
 import io.gatling.recorder.ui.enumeration.FilterStrategy
+import io.gatling.recorder.ui.frame.ConfigurationFrame.{ harMode, httpMode }
 import io.gatling.recorder.ui.frame.ValidationHelper.{ intValidator, nonEmptyValidator, proxyHostValidator }
 import io.gatling.recorder.ui.util.ScalaSwing
 
 import javax.swing._
 
+object ConfigurationFrame {
+	val httpMode = "HTTP Proxy"
+	val harMode = "HAR Converter"
+}
 class ConfigurationFrame(controller: RecorderController) extends JFrame with ScalaSwing {
 
 	private val IS_MAC_OSX = System.getProperty("os.name").startsWith("Mac")
@@ -40,20 +45,21 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 	val txtPort = new JTextField(null, 4)
 	val txtSslPort = new JTextField(null, 4)
 
-	val txtProxyHost = new JTextField(null, 15)
+	val txtProxyHost = new JTextField(null, 12)
 	val txtProxyPort = new JTextField(null, 4)
 	txtProxyPort.setEnabled(false)
 	val txtProxySslPort = new JTextField(null, 4)
 	txtProxySslPort.setEnabled(false)
-	val txtProxyUsername = new JTextField(null, 12)
+	val txtProxyUsername = new JTextField(null, 10)
 	txtProxyUsername.setEnabled(false)
-	val txtProxyPassword = new JTextField(null, 12)
+	val txtProxyPassword = new JTextField(null, 10)
 	txtProxyPassword.setEnabled(false)
 
 	val cbFilterStrategies = new JComboBox[FilterStrategy.Value]
 	val chkSavePref = new JCheckBox("Save preferences")
 	val chkFollowRedirect = new JCheckBox("Follow Redirects?")
 	val chkAutomaticReferer = new JCheckBox("Automatic Referers?")
+	val txtHarFile = new JTextField(66)
 	val txtOutputFolder = new JTextField(66)
 	val tblFilters = new FilterTable
 	val cbOutputEncoding = new JComboBox[Charset]
@@ -62,16 +68,22 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 
 	private val btnFiltersAdd = new JButton("+")
 	private val btnFiltersDel = new JButton("-")
+	private val btnHarFile = new JButton("Browse")
 	private val btnOutputFolder = new JButton("Browse")
 	private val btnClear = new JButton("Clear")
 	val btnStart = new JButton("Start !")
 
-	private var pnlTop: JPanel = null
-	private var pnlCenter: JPanel = null
-	private var pnlBottom: JPanel = null
+	private var pnlTop: JPanel = _
+	private var pnlCenter: JPanel = _
+	private var pnlBottom: JPanel = _
+	private var networkPanel: JPanel = _
+	private var harPanel: JPanel = _
 
-	private var fileDialog: FileDialog = null
-	private var fileChooser: JFileChooser = null
+	private var harDialog: FileDialog = _
+	private var harChooser: JFileChooser = _
+	private var fileDialog: FileDialog = _
+	private var fileChooser: JFileChooser = _
+	var modeSelector: JComboBox[String] = _
 
 	/** Initialization of the frame **/
 
@@ -88,6 +100,7 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 	initCenterPanel
 	initBottomPanel
 	initOutputDirectoryChooser
+	initHarChooser
 
 	setListeners
 
@@ -108,6 +121,19 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 		}
 	}
 
+	private def initHarChooser {
+
+		if (IS_MAC_OSX) {
+			// on mac, use native dialog because JFileChooser is buggy
+			System.setProperty("apple.awt.fileDialogForDirectories", "true")
+			harDialog = new FileDialog(ConfigurationFrame.this)
+
+		} else {
+			harChooser = new JFileChooser
+			harChooser.setFileSelectionMode(JFileChooser.FILES_ONLY)
+		}
+	}
+
 	private def initTopPanel {
 		/***** Creating Top Panel (Network) *****/
 		pnlTop = new JPanel(new BorderLayout)
@@ -116,57 +142,20 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 		val pnlImage = new JPanel
 		pnlImage.add(new JLabel(Commons.logoSmall))
 
-		/* Network Panel */
-		val pnlNetwork = new JPanel(new BorderLayout)
-		pnlNetwork.setBorder(BorderFactory.createTitledBorder("Network"))
-		pnlNetwork.setLayout(new BorderLayout)
+		/* Mode selection dropdown */
+		modeSelector = new JComboBox[String]()
+		modeSelector.addItem(httpMode)
+		modeSelector.addItem(harMode)
+		modeSelector.setSelectedIndex(0)
 
-		/* Local proxy host panel */
-		val localProxyHostPanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
-		localProxyHostPanel.add(new JLabel("Listening port* : "))
-		localProxyHostPanel.add(new JLabel("                                    localhost"))
-
-		/* Local proxy ports panel */
-		val localProxyPortsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT))
-		localProxyPortsPanel.add(new JLabel("HTTP"))
-		localProxyPortsPanel.add(txtPort)
-		localProxyPortsPanel.add(new JLabel("HTTPS"))
-		localProxyPortsPanel.add(txtSslPort)
-
-		/* Local proxy panel */
-		val localProxyPanel = new JPanel(new FlowLayout)
-		localProxyPanel.add(localProxyHostPanel)
-		localProxyPanel.add(localProxyPortsPanel)
-
-		/* Outgoing proxy host panel */
-		val outgoingProxyHostPanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
-		outgoingProxyHostPanel.add(new JLabel("Outgoing proxy : "))
-		outgoingProxyHostPanel.add(new JLabel("host:"))
-		outgoingProxyHostPanel.add(txtProxyHost)
-		outgoingProxyHostPanel.add(new JLabel("HTTP"))
-		outgoingProxyHostPanel.add(txtProxyPort)
-		outgoingProxyHostPanel.add(new JLabel("HTTPS"))
-		outgoingProxyHostPanel.add(txtProxySslPort)
-
-		/* Outgoing proxy ports panel */
-		val outgoingProxyCredentialsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT))
-		outgoingProxyCredentialsPanel.add(new JLabel("Username"))
-		outgoingProxyCredentialsPanel.add(txtProxyUsername)
-		outgoingProxyCredentialsPanel.add(new JLabel("Password"))
-		outgoingProxyCredentialsPanel.add(txtProxyPassword)
-
-		/* Outgoing proxy panel */
-		val outgoingProxyPanel = new JPanel(new BorderLayout)
-		outgoingProxyPanel.add(outgoingProxyHostPanel, BorderLayout.NORTH)
-		outgoingProxyPanel.add(outgoingProxyCredentialsPanel, BorderLayout.SOUTH)
-
-		/* Adding panels to newtworkPanel */
-		pnlNetwork.add(localProxyPanel, BorderLayout.NORTH)
-		pnlNetwork.add(outgoingProxyPanel, BorderLayout.SOUTH)
+		/* Mode selection panel */
+		val modeSelectionPanel = new JPanel(new BorderLayout)
+		modeSelectionPanel.setBorder(BorderFactory.createTitledBorder("Recorder mode"))
+		modeSelectionPanel.add(modeSelector)
 
 		/* Adding Image and network panel to top panel */
 		pnlTop.add(pnlImage, BorderLayout.WEST)
-		pnlTop.add(pnlNetwork, BorderLayout.EAST)
+		pnlTop.add(modeSelectionPanel, BorderLayout.EAST)
 
 		/* Adding panel to Frame */
 		add(pnlTop, BorderLayout.NORTH)
@@ -175,7 +164,47 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 	private def initCenterPanel {
 		/***** Creating Center Panel (Output + Start) *****/
 		pnlCenter = new JPanel
-		pnlCenter.setLayout(new BorderLayout)
+		pnlCenter.setLayout(new BoxLayout(pnlCenter, BoxLayout.Y_AXIS))
+
+		/* Network Panel */
+		networkPanel = new JPanel(new BorderLayout)
+		networkPanel.setBorder(BorderFactory.createTitledBorder("Network"))
+
+		/* Local proxy host panel */
+		val localProxyHostPanel = new JPanel
+		localProxyHostPanel.setLayout(new BoxLayout(localProxyHostPanel, BoxLayout.X_AXIS))
+		localProxyHostPanel.add(new JLabel("Listening port* : "))
+		localProxyHostPanel.add(new JLabel("    localhost"))
+
+		/* Local proxy ports panel */
+		val localProxyPortsPanel = new JPanel
+		localProxyPortsPanel.add(new JLabel("HTTP"))
+		localProxyPortsPanel.add(txtPort)
+		localProxyPortsPanel.add(new JLabel("HTTPS"))
+		localProxyPortsPanel.add(txtSslPort)
+
+		/* Local proxy panel */
+		val localProxyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
+		localProxyPanel.add(localProxyHostPanel)
+		localProxyPanel.add(localProxyPortsPanel)
+
+		/* Outgoing proxy host panel */
+		val outgoingProxyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
+		outgoingProxyPanel.add(new JLabel("Outgoing proxy : "))
+		outgoingProxyPanel.add(new JLabel("host:"))
+		outgoingProxyPanel.add(txtProxyHost)
+		outgoingProxyPanel.add(new JLabel("HTTP"))
+		outgoingProxyPanel.add(txtProxyPort)
+		outgoingProxyPanel.add(new JLabel("HTTPS"))
+		outgoingProxyPanel.add(txtProxySslPort)
+		outgoingProxyPanel.add(new JLabel("Username"))
+		outgoingProxyPanel.add(txtProxyUsername)
+		outgoingProxyPanel.add(new JLabel("Password"))
+		outgoingProxyPanel.add(txtProxyPassword)
+
+		/* Adding panels to newtworkPanel */
+		networkPanel.add(localProxyPanel, BorderLayout.NORTH)
+		networkPanel.add(outgoingProxyPanel, BorderLayout.SOUTH)
 
 		/* Output Folder Panel */
 		val outputFolderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
@@ -185,6 +214,18 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 
 		for (c <- Charset.availableCharsets.values)
 			cbOutputEncoding.addItem(c)
+
+		/* HAR File Panel */
+		val harFilePanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
+		harFilePanel.add(new JLabel("HAR File : "))
+		harFilePanel.add(txtHarFile)
+		harFilePanel.add(btnHarFile)
+
+		/* HAR Panel : not visible when starting*/
+		harPanel = new JPanel(new BorderLayout)
+		harPanel.setVisible(false)
+		harPanel.setBorder(BorderFactory.createTitledBorder("Http Archive (HAR) Import"))
+		harPanel.add(harFilePanel)
 
 		/* Output Panel */
 		val outputPanel = new JPanel(new BorderLayout)
@@ -239,9 +280,11 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 		filtersPanel.add(filterActionsPanel, BorderLayout.SOUTH)
 
 		/* Adding panels to bottomPanel */
-		pnlCenter.add(simulationConfigPanel, BorderLayout.NORTH)
-		pnlCenter.add(outputPanel, BorderLayout.CENTER)
-		pnlCenter.add(filtersPanel, BorderLayout.SOUTH)
+		pnlCenter.add(networkPanel)
+		pnlCenter.add(harPanel)
+		pnlCenter.add(simulationConfigPanel)
+		pnlCenter.add(outputPanel)
+		pnlCenter.add(filtersPanel)
 
 		/* Adding panel to Frame */
 		add(pnlCenter, BorderLayout.CENTER)
@@ -266,6 +309,17 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 	}
 
 	private def setListeners {
+		// Change panel depending on what mode is selected
+		modeSelector.addActionListener{e: ActionEvent => {
+			val selectedMode = modeSelector.getSelectedItem.asInstanceOf[String]
+			if(selectedMode == httpMode) {
+				networkPanel.setVisible(true)
+				harPanel.setVisible(false)
+			} else {
+				networkPanel.setVisible(false)
+				harPanel.setVisible(true)
+			}
+		}}
 		// Enables or disables filter edition depending on the selected strategy
 		cbFilterStrategies.addItemListener { e: ItemEvent =>
 			if (e.getStateChange == ItemEvent.SELECTED && e.getItem == FilterStrategy.NONE) {
@@ -307,6 +361,28 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 			}
 
 			txtOutputFolder.setText(chosenDirPath)
+		}
+
+		btnHarFile.addActionListener { e: ActionEvent =>
+
+			var chosenDirPath: String = null
+
+			if (IS_MAC_OSX) {
+				harDialog.setVisible(true)
+
+				if (harDialog.getDirectory == null)
+					return
+
+				chosenDirPath = harDialog.getDirectory + harDialog.getFile
+
+			} else {
+				if (harChooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
+					return
+
+				chosenDirPath = fileChooser.getSelectedFile.getPath
+			}
+
+			txtHarFile.setText(chosenDirPath)
 		}
 
 		// Validates form when Start button clicked
