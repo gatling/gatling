@@ -19,9 +19,10 @@ import com.excilys.ebi.gatling.core.check.CheckContext.getOrUpdateCheckContextAt
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.extractor.xpath.XPathExtractor
 import com.excilys.ebi.gatling.core.session.EvaluatableString
+import com.excilys.ebi.gatling.core.util.ByteBufferInputStream
+import com.excilys.ebi.gatling.http.check.HttpMultipleCheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
-import com.excilys.ebi.gatling.http.check.HttpMultipleCheckBuilder
 
 object HttpBodyXPathCheckBuilder {
 
@@ -30,7 +31,7 @@ object HttpBodyXPathCheckBuilder {
 	private def getCachedExtractor(response: ExtendedResponse) = {
 
 		def newExtractor = {
-			val stream = if (response.hasResponseBody) Some(response.getResponseBodyAsStream) else None
+			val stream = if (response.hasResponseBody) Some(new ByteBufferInputStream(response.getResponseBodyAsByteBuffer)) else None
 			XPathExtractor(stream)
 		}
 
