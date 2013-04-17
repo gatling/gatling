@@ -20,7 +20,7 @@ import io.gatling.charts.report.Container.{ GROUP, REQUEST }
 class MenuTemplate {
 	def getOutput: String = s"""	
 function getItemLink(item){
-	return encodeURIComponent('req_' + item.pathFormatted + '.html');
+	return 'req_' + item.pathFormatted + '.html';
 }
 
 function setDetailsLinkUrl(){

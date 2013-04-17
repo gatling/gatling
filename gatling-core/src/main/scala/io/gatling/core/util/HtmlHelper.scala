@@ -36,16 +36,6 @@ object HtmlHelper {
 
 			string.toCharArray.iterator.map(charToHtmlEntity).mkString
 		}
-
-		def toJavascriptVarName = {
-			val fileName = string.toFilename
-			val firstChar = fileName.charAt(0)
-
-			if (firstChar >= 'a' && firstChar <= 'z')
-				fileName
-			else
-				"_" + fileName
-		}
 	}
 
 	// used in VTD-XML extension

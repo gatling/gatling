@@ -16,7 +16,6 @@
 package io.gatling.core.util
 
 import java.text.Normalizer
-import java.util.regex.Pattern
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
@@ -27,8 +26,6 @@ object StringHelper {
 
 	val eol = System.getProperty("line.separator")
 
-	val jdk6Pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
-
 	def bytes2Hex(bytes: Array[Byte]): String = bytes.foldLeft(new StringBuilder) { (buff, b) =>
 		if ((b & 0xff) < 0x10)
 			buff.append("0")
@@ -37,9 +34,9 @@ object StringHelper {
 
 	implicit class RichString(val string: String) extends AnyVal {
 
-		def stripAccents = {
+		def clean = {
 			val normalized = Normalizer.normalize(string, Normalizer.Form.NFD)
-			jdk6Pattern.matcher(normalized).replaceAll("_")
+			normalized.toLowerCase.replaceAll("\\p{InCombiningDiacriticalMarks}+", "-").replaceAll("[^a-zA-Z0-9\\-\\.]", "-")
 		}
 
 		def escapeJsQuoteString = string.replace("'", "\\'")

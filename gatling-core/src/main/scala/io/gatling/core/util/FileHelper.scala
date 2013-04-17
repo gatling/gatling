@@ -15,7 +15,11 @@
  */
 package io.gatling.core.util
 
-import io.gatling.core.util.StringHelper.RichString
+import java.net.URLEncoder
+import java.security.MessageDigest
+
+import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.util.StringHelper._
 
 /**
  * This object groups all utilities for files
@@ -34,31 +38,18 @@ object FileHelper {
 		 * @param s the string to be simplified
 		 * @return a simplified string
 		 */
-		def toFilename = string
-			.trim
-			.replace("-", "_")
-			.replace(" ", "_")
-			.replace("'", "_")
-			.replace('/', '_')
-			.replace(':', '_')
-			.replace('?', '_')
-			.replace('"', '_')
-			.replace('<', '_')
-			.replace('>', '_')
-			.replace('|', '_')
-			.replace("{", "_")
-			.replace("}", "_")
-			.replace("[", "_")
-			.replace("]", "_")
-			.replace("(", "_")
-			.replace(")", "_")
-			.replace(".", "_")
-			.toLowerCase
-			.stripAccents match {
+		def toFileName = {
+
+			val trimmed = string.trim match {
 				case "" => "missing_name"
 				case s => s
 			}
-		
-		def toRequestFileName = s"req_${string.toFilename}.html"
+
+			val md = MessageDigest.getInstance("md5")
+			md.update(trimmed.getBytes(configuration.core.encoding))
+			trimmed.clean + "-" + bytes2Hex(md.digest)
+		}
+
+		def toRequestFileName = s"req_${string.toFileName}.html"
 	}
 }

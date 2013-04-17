@@ -33,7 +33,7 @@ class StatsJsTemplate(stats: GroupContainer) {
 
 			fast"""name: "${request.name.escapeJsDoubleQuoteString}",
 path: "${request.path.escapeJsDoubleQuoteString}",
-pathFormatted: "${request.path.toFilename}",
+pathFormatted: "${request.path.toFileName}",
 stats: ${jsonStats}"""
 		}
 
@@ -42,10 +42,10 @@ contents: {
 ${
 			(group.contents.values.map {
 				_ match {
-					case subGroup: GroupContainer => fast""""${subGroup.name.toJavascriptVarName}": {
+					case subGroup: GroupContainer => fast""""${subGroup.name.toFileName}": {
         ${renderStatsGroup(subGroup)}
     }"""
-					case request: RequestContainer => fast""""${request.name.toJavascriptVarName}": {
+					case request: RequestContainer => fast""""${request.name.toFileName}": {
         type: "${REQUEST}",
         ${renderStatsRequest(request.stats)}
     }"""
