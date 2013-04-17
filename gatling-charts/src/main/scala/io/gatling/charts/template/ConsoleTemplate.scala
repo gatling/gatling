@@ -19,7 +19,7 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.charts.component.{ GroupedCount, RequestStatistics, Statistics }
 import io.gatling.core.result.writer.ConsoleSummary.{ newBlock, outputLength, writeSubTitle }
-import io.gatling.core.util.StringHelper.RichString
+import io.gatling.core.util.StringHelper.{ eol, RichString }
 
 class ConsoleTemplate(requestStatistics: RequestStatistics) {
 
@@ -27,7 +27,7 @@ class ConsoleTemplate(requestStatistics: RequestStatistics) {
 		import statistics._
 		fast"> ${actionName.rightPad(outputLength - 32)} TO=${printableTotal.rightPad(6)} OK=${printableSuccess.rightPad(6)} KO=${printableFailure.rightPad(6)}"
 	}
-	def writeLatencyCounters(groupedCount: GroupedCount): Fastring = {
+	def writeGroupedCounters(groupedCount: GroupedCount): Fastring = {
 		import groupedCount._
 		fast"> ${name.rightPad(outputLength - 32)} COUNT=${count.toString.rightPad(6)} PERCENTAGE=${percentage.toString.rightPad(6)}"
 	}
@@ -45,10 +45,8 @@ ${writeRequestCounters("Standard Deviation Time", stdDeviationStatistics)}
 ${writeRequestCounters("Percentile 1", percentiles1)}
 ${writeRequestCounters("Percentile 2", percentiles2)}
 ${writeRequestCounters("Mean Number Of Requests Per Second", meanNumberOfRequestsPerSecondStatistics)}
-${writeSubTitle("Request Latency Distribution")}
-${writeLatencyCounters(groupedCounts(0))}
-${writeLatencyCounters(groupedCounts(1))}
-${writeLatencyCounters(groupedCounts(2))}
+${writeSubTitle("Response Time Distribution")}
+${groupedCounts.map(writeGroupedCounters).mkFastring(eol)}
 $newBlock
 """.toString
 	}
