@@ -120,8 +120,8 @@ class InjectionStepSpec extends Specification {
 		}
 	}
 
-	"DiracInjection" should {
-		val scheduling = DiracInjection(100, 5 seconds).chain(Iterator.empty).toList
+	"HeavisideInjection" should {
+		val scheduling = HeavisideInjection(100, 5 seconds).chain(Iterator.empty).toList
 
 		"provide an appropriate number of users" in {
 			scheduling.length must beEqualTo(100)

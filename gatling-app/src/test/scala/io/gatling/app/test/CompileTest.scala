@@ -196,6 +196,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
     val inject5 = rampRate(10 usersPerSec) to(20 usersPerSec) during(10 minutes)
     val inject6 = split(1000 users).into(ramp(10 users) over (10 seconds)).separatedBy(10 seconds)
     val inject7 = split(1000 users).into(ramp(10 users) over (10 seconds)).separatedBy(atOnce(30 users))
+    val inject8 = heaviside(1000 users) over(20 seconds)
 	setUp(lambdaUser.inject(inject1).protocolConfig(httpConf))
     setUp(lambdaUser.inject(inject1, inject2).protocolConfig(httpConf))
 
