@@ -39,8 +39,6 @@ object StringHelper {
 			normalized.toLowerCase.replaceAll("\\p{InCombiningDiacriticalMarks}+", "-").replaceAll("[^a-zA-Z0-9\\-\\.]", "-")
 		}
 
-		def escapeJsQuoteString = string.replace("'", "\\'")
-
 		def escapeJsDoubleQuoteString = string.replace("\"", "\\\"")
 
 		def trimToOption = string.trim match {
