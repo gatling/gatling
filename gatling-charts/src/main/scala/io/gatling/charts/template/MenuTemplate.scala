@@ -18,7 +18,11 @@ package io.gatling.charts.template
 import io.gatling.charts.report.Container.{ GROUP, REQUEST }
 
 class MenuTemplate {
-	def getOutput: String = s"""
+	def getOutput: String = s"""	
+function getItemLink(item){
+	return encodeURIComponent('req_' + item.pathFormatted + '.html');
+}
+
 function setDetailsLinkUrl(){
     $$.each(stats.contents, function (name, data) {
         $$('#details_link').attr('href', encodeURIComponent('req_' + data.pathFormatted + '.html'));
@@ -53,7 +57,7 @@ function menuItem(item, level, parent, group) {
     else
         var expandButton = '<span id="menu-' + item.pathFormatted + '" style="margin-left: ' + (level * 10) + 'px;" class="expand-button hidden">&nbsp;</span>';
 
-    return '<li' + style + '><div class="item">' + expandButton + '<a href="req_' + item.pathFormatted + '.html"' + title + '>' + displayName + '</a></div></li>';
+    return '<li' + style + '><div class="item">' + expandButton + '<a href="' + getItemLink(item) + '"' + title + '>' + displayName + '</a></div></li>';
 }
 
 function menuItemsForGroup(group, level, parent) {
