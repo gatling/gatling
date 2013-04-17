@@ -122,7 +122,7 @@ case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: In
 }
 
 /**
- * Injection rate following a Dirac delta function
+ * Injection rate following a Heaviside distribution function
  *
  * numberOfInjectedUsers(t) = u(t)
  *                          = ∫δ(t)
@@ -130,7 +130,7 @@ case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: In
  *                          = 1/2 + 1/2*erf(k*t)
  *                          (good numerical approximation)
  */
-case class DiracInjection(users: Int, duration: FiniteDuration) extends InjectionStep {
+case class HeavisideInjection(users: Int, duration: FiniteDuration) extends InjectionStep {
 	import io.gatling.core.util.Erf.erfinv
 
 	override def chain(iterator: Iterator[FiniteDuration]) = {
