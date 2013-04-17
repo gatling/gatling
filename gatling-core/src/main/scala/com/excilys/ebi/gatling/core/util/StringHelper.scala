@@ -16,7 +16,6 @@
 package com.excilys.ebi.gatling.core.util
 
 import java.text.Normalizer
-import java.util.regex.Pattern
 
 import scala.collection.mutable
 
@@ -31,14 +30,12 @@ object StringHelper extends Logging {
 
 	val END_OF_LINE = System.getProperty("line.separator")
 
-	val jdk6Pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
-
 	/**
 	 * Method that strips all accents from a string
 	 */
-	def stripAccents(string: String) = {
+	def clean(string: String) = {
 		val normalized = Normalizer.normalize(string, Normalizer.Form.NFD)
-		jdk6Pattern.matcher(normalized).replaceAll("_");
+		normalized.toLowerCase.replaceAll("\\p{InCombiningDiacriticalMarks}+", "-").replaceAll("[^a-zA-Z0-9\\-\\.]", "-")
 	}
 
 	def escapeJsQuoteString(s: String) = s.replace("'", "\\\'")

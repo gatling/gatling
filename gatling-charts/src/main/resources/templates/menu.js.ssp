@@ -2,7 +2,7 @@
 //<% import com.excilys.ebi.gatling.charts.report.Container.REQUEST %>
 
 function getItemLink(item){
-	return encodeURIComponent('req_' + item.pathFormatted + '.html');
+	return 'req_' + item.pathFormatted + '.html';
 }
 
 function setDetailsLinkUrl(){

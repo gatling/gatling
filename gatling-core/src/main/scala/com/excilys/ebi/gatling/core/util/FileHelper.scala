@@ -16,11 +16,13 @@
 package com.excilys.ebi.gatling.core.util
 
 import java.io.File
+import java.security.MessageDigest
 
 import scala.tools.nsc.io.Directory
 import scala.tools.nsc.io.Path.jfile2path
 
-import com.excilys.ebi.gatling.core.util.StringHelper.stripAccents
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.excilys.ebi.gatling.core.util.StringHelper.{ bytes2Hex, clean }
 
 /**
  * This object groups all utilities for files
@@ -43,28 +45,14 @@ object FileHelper {
 	 * @return a simplified string
 	 */
 	def formatToFilename(string: String): String = {
-		val raw = stripAccents(string.replace("-", "_")
-			.trim
-			.replace(" ", "_")
-			.replace("__", "_")
-			.replace("'", "_")
-			.replace('/', '_')
-			.replace(':', '_')
-			.replace('?', '_')
-			.replace('"', '_')
-			.replace('<', '_')
-			.replace('>', '_')
-			.replace('|', '_')
-			.replace("__", "_")
-			.replace("{", "_")
-			.replace("}", "_")
-			.replace("[", "_")
-			.replace("]", "_")
-			.replace("(", "_")
-			.replace(")", "_")
-			.replace(".", "_")
-			.toLowerCase)
-		if (raw.isEmpty) "missing_name" else raw
+		val trimmed = string.trim
+		if (trimmed.isEmpty)
+			"missing-name"
+		else {
+			val md = MessageDigest.getInstance("md5")
+			md.update(trimmed.getBytes(configuration.simulation.encoding))
+			clean(trimmed) + "-" + bytes2Hex(md.digest)
+		}
 	}
 
 	def requestFileName(s: String) = "req_" + formatToFilename(s) + HTML_EXTENSION
