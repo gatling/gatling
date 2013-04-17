@@ -22,6 +22,7 @@ import io.gatling.charts.template.{ StatsJsTemplate, StatsJsonTemplate, StatsTsv
 import io.gatling.core.result.{ Group, GroupStatsPath, RequestStatsPath }
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.reader.DataReader
+import io.gatling.charts.template.ConsoleTemplate
 
 class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) {
 
@@ -44,7 +45,7 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 			val groupedCounts = dataReader
 				.numberOfRequestInResponseTimeRange(requestName, group).map {
 					case (name, count) => GroupedCount(name, count, count * 100 / total.count)
-				}
+				} 
 
 			val path = requestName match {
 				case Some(name) => RequestPath.path(name, group)
@@ -69,6 +70,7 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 		new TemplateWriter(jsStatsFile(runOn)).writeToFile(new StatsJsTemplate(rootContainer).getOutput)
 		new TemplateWriter(jsonStatsFile(runOn)).writeToFile(new StatsJsonTemplate(rootContainer.stats).getOutput)
 		new TemplateWriter(tsvStatsFile(runOn)).writeToFile(new StatsTsvTemplate(rootContainer).getOutput)
+		println(new ConsoleTemplate(rootContainer.stats).getOutput)
 	}
 }
 
