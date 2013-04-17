@@ -16,15 +16,16 @@
 package io.gatling.core.result.writer
 
 import java.io.{ BufferedOutputStream, FileOutputStream, OutputStream }
+
 import com.dongxiguo.fastring.Fastring.Implicits._
 import com.typesafe.scalalogging.slf4j.Logging
+
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
-import io.gatling.core.result.message.{ RequestMessageType, End, GroupMessage, GroupMessageType, RequestMessage, RunMessage, RunMessageType, ScenarioMessage, ScenarioMessageType, ShortScenarioDescription }
+import io.gatling.core.result.Group
+import io.gatling.core.result.message.{ End, GroupMessage, GroupMessageType, GroupStackEntry, RequestMessage, RequestMessageType, RunMessage, RunMessageType, ScenarioMessage, ScenarioMessageType, ShortScenarioDescription }
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.core.util.StringHelper.eol
-import io.gatling.core.result.message.GroupStackEntry
-import io.gatling.core.result.Group
 
 object FileDataWriter {
 
@@ -80,9 +81,9 @@ object FileDataWriter {
 
 	// fastring macro won't work inside a value class in 2.10
 	object GroupMessageSerializer {
-		
+
 		def serializeGroups(groupStack: List[GroupStackEntry]) = groupStack.reverse.map(_.name).mkFastring(",")
-		
+
 		def deserializeGroups(string: String) = Group(string.split(",").toList)
 
 		def serialize(groupMessage: GroupMessage) = {
