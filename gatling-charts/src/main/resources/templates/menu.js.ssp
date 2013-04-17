@@ -1,11 +1,15 @@
 //<% import com.excilys.ebi.gatling.charts.report.Container.GROUP %>
 //<% import com.excilys.ebi.gatling.charts.report.Container.REQUEST %>
 
+function getItemLink(item){
+	return encodeURIComponent('req_' + item.pathFormatted + '.html');
+}
+
 function setDetailsLinkUrl(){
-	$.each(stats.contents, function (name, data) {
-		$('#details_link').attr('href', encodeURIComponent('req_' + data.pathFormatted + '.html'));
-		return false;
-	});
+    $.each(stats.contents, function (name, data) {
+        $('#details_link').attr('href', getItemLink(data));
+        return false;
+    });
 }
 
 var MENU_ITEM_MAX_LENGTH = 50;
@@ -35,7 +39,7 @@ function menuItem(item, level, parent, group) {
 	else
 		var expandButton = '<span id="menu-' + item.pathFormatted + '" style="margin-left: ' + (level * 10) + 'px;" class="expand-button hidden">&nbsp;</span>';
 
-	return '<li' + style + '><div class="item">' + expandButton + '<a href="req_' + item.pathFormatted + '.html"' + title + '>' + displayName + '</a></div></li>';
+	return '<li' + style + '><div class="item">' + expandButton + '<a href="' + getItemLink(item) + '"' + title + '>' + displayName + '</a></div></li>';
 }
 
 function menuItemsForGroup(group, level, parent) {
