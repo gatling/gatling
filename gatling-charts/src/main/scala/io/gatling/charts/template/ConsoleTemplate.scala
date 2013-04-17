@@ -15,45 +15,41 @@
  */
 package io.gatling.charts.template
 
-
 import com.dongxiguo.fastring.Fastring.Implicits._
-import org.joda.time.DateTime
-import scala.math.{ ceil, floor, max }
-import org.joda.time.format.DateTimeFormat
-import io.gatling.core.util.PaddableStringBuilder
-import io.gatling.core.util.StringHelper.eol
-import io.gatling.charts.component.RequestStatistics
-import io.gatling.charts.component.RequestStatistics
 
-class ConsoleTemplate(stats: RequestStatistics) {
-	val outputLength = 80
-	
-	def times(s: String, n: Int) = s"${s * n}"
-	def rightPadded(s: String, size: Int) = s"""$s${" " * (size - s.length)}"""
-	def newBlock :Fastring = { fast"""${times("=",outputLength)}"""}
-	
-	def appendSubTitle(title: String) :Fastring =  fast"""---- $title ${times("-", max(outputLength - title.length - 6, 0))}""" 
-	def appendRequestCounters(actionName: String, total: String, ok: String, ko: String):Fastring =  fast"""> ${rightPadded(actionName, outputLength - 32)} TO=${rightPadded(total, 6)} OK=${rightPadded(ok, 6)} KO=${rightPadded(ko, 6)}"""	
-	def appendLatencyCounters(name: String, count: String, percentage: String):Fastring = fast"""> ${rightPadded(name, outputLength - 32)} COUNT=${rightPadded(count, 6)} PERCENTAGE=${rightPadded(percentage, 6)}"""
-   
+import io.gatling.charts.component.{ GroupedCount, RequestStatistics, Statistics }
+import io.gatling.core.result.writer.ConsoleSummary.{ newBlock, outputLength, writeSubTitle }
+import io.gatling.core.util.StringHelper.RichString
+
+class ConsoleTemplate(requestStatistics: RequestStatistics) {
+
+	def writeRequestCounters(actionName: String, statistics: Statistics): Fastring = {
+		import statistics._
+		fast"> ${actionName.rightPad(outputLength - 32)} TO=${printableTotal.rightPad(6)} OK=${printableSuccess.rightPad(6)} KO=${printableFailure.rightPad(6)}"
+	}
+	def writeLatencyCounters(groupedCount: GroupedCount): Fastring = {
+		import groupedCount._
+		fast"> ${name.rightPad(outputLength - 32)} COUNT=${count.toString.rightPad(6)} PERCENTAGE=${percentage.toString.rightPad(6)}"
+	}
+
 	def getOutput: String = {
-	  import stats._
-fast"""
-${newBlock}
-${appendSubTitle("Global Information")}
-${appendRequestCounters("Number of Requests", numberOfRequestsStatistics.printableTotal, numberOfRequestsStatistics.printableSuccess, numberOfRequestsStatistics.printableFailure)}
-${appendRequestCounters("Min Response Time", minResponseTimeStatistics.printableTotal, minResponseTimeStatistics.printableSuccess, minResponseTimeStatistics.printableFailure)}
-${appendRequestCounters("Max Response Time", maxResponseTimeStatistics.printableTotal, maxResponseTimeStatistics.printableSuccess, maxResponseTimeStatistics.printableFailure)}
-${appendRequestCounters("Mean Response Time", meanStatistics.printableTotal, meanStatistics.printableSuccess, meanStatistics.printableFailure)}
-${appendRequestCounters("Standard Deviation Time", stdDeviationStatistics.printableTotal, stdDeviationStatistics.printableSuccess, stdDeviationStatistics.printableFailure)}
-${appendRequestCounters("Percentile 1", percentiles1.printableTotal, percentiles1.printableSuccess, percentiles1.printableFailure)}
-${appendRequestCounters("Percentile 2", percentiles2.printableTotal, percentiles2.printableSuccess, percentiles2.printableFailure)}
-${appendRequestCounters("Mean Number Of Requests Per Second", meanNumberOfRequestsPerSecondStatistics.printableTotal, meanNumberOfRequestsPerSecondStatistics.printableSuccess, meanNumberOfRequestsPerSecondStatistics.printableFailure)}
-${appendSubTitle("Request Latency Distribution")}
-${appendLatencyCounters(groupedCounts(0).name, groupedCounts(0).count.toString , groupedCounts(0).percentage.toString)}
-${appendLatencyCounters(groupedCounts(1).name, groupedCounts(1).count.toString , groupedCounts(1).percentage.toString)}
-${appendLatencyCounters(groupedCounts(2).name, groupedCounts(2).count.toString , groupedCounts(2).percentage.toString)}
-${newBlock}
+		import requestStatistics._
+		fast"""
+$newBlock
+${writeSubTitle("Global Information")}
+${writeRequestCounters("Number of Requests", numberOfRequestsStatistics)}
+${writeRequestCounters("Min Response Time", minResponseTimeStatistics)}
+${writeRequestCounters("Max Response Time", maxResponseTimeStatistics)}
+${writeRequestCounters("Mean Response Time", meanStatistics)}
+${writeRequestCounters("Standard Deviation Time", stdDeviationStatistics)}
+${writeRequestCounters("Percentile 1", percentiles1)}
+${writeRequestCounters("Percentile 2", percentiles2)}
+${writeRequestCounters("Mean Number Of Requests Per Second", meanNumberOfRequestsPerSecondStatistics)}
+${writeSubTitle("Request Latency Distribution")}
+${writeLatencyCounters(groupedCounts(0))}
+${writeLatencyCounters(groupedCounts(1))}
+${writeLatencyCounters(groupedCounts(2))}
+$newBlock
 """.toString
-	} 
+	}
 }

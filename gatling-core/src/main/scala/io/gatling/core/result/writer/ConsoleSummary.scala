@@ -30,6 +30,9 @@ object ConsoleSummary {
 	val iso8601Format = "yyyy-MM-dd HH:mm:ss"
 	val dateTimeFormat = DateTimeFormat.forPattern(iso8601Format)
 	val outputLength = 80
+	val newBlock = "=" * outputLength
+	
+	def writeSubTitle(title: String) = ("---- " + title + " ").rightPad(outputLength, "-")
 
 	def apply(runDuration: Long, usersCounters: Map[String, UserCounters], requestsCounters: Map[String, RequestCounters], time: DateTime = DateTime.now) = {
 
@@ -44,7 +47,7 @@ object ConsoleSummary {
 			val running = ceil(width * runningCount.toDouble / totalCount).toInt
 			val waiting = width - done - running
 
-			fast"""${("---- " + scenarioName + " ").rightPad(outputLength, "-")}
+			fast"""${writeSubTitle(scenarioName)}
 [${"#" * done}${"-" * running}${" " * waiting}]${donePercent.toString.leftPad(3)}%"""
 		}
 
@@ -56,12 +59,12 @@ object ConsoleSummary {
 		}
 
 		val text = fast"""
-================================================================================
+$newBlock
 ${ConsoleSummary.dateTimeFormat.print(time)} ${(runDuration + "s elapsed").leftPad(outputLength - iso8601Format.length - 9)}
 ${usersCounters.map { case (scenarioName, usersStats) => writeUsersCounters(scenarioName, usersStats) }.mkFastring(eol)}
----- Requests ------------------------------------------------------------------
+${writeSubTitle("Requests")}
 ${requestsCounters.map { case (actionName, requestCounters) => writeRequestsCounter(actionName, requestCounters) }.mkFastring(eol)}
-================================================================================
+$newBlock
 """.toString
 
 		val complete = {

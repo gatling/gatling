@@ -29,7 +29,7 @@ class ConsoleDataWriterSpec extends Specification {
 
 	val time = new DateTime().withDate(2012, 8, 24).withTime(13, 37, 0, 0)
 	
-	def progressBar(summary: ConsoleSummary) = summary.toString.split(eol)(3)
+	def progressBar(summary: ConsoleSummary) = summary.toString.split(eol)(4)
 
 	"console summary progress bar" should {
 
@@ -39,7 +39,7 @@ class ConsoleDataWriterSpec extends Specification {
 
 			val summary = ConsoleSummary(10000, Map("request1" -> counters), Map.empty, time)
 			summary.complete must beFalse
-			progressBar(summary) must beEqualTo("Users  : [                                                                 ]  0%")
+			progressBar(summary) must beEqualTo("[                                                                          ]  0%")
 		}
 
 		"handle it correctly when all the users are running" in {
@@ -49,7 +49,7 @@ class ConsoleDataWriterSpec extends Specification {
 
 			val summary = ConsoleSummary(10000, Map("request1" -> counters), Map.empty, time)
 			summary.complete must beFalse
-			progressBar(summary) must beEqualTo("Users  : [-----------------------------------------------------------------]  0%")
+			progressBar(summary) must beEqualTo("[--------------------------------------------------------------------------]  0%")
 		}
 
 		"handle it correctly when all the users are done" in {
@@ -60,7 +60,7 @@ class ConsoleDataWriterSpec extends Specification {
 
 			val summary = ConsoleSummary(10000, Map("request1" -> counters), Map.empty, time)
 			summary.complete must beTrue
-			progressBar(summary) must beEqualTo("Users  : [#################################################################]100%")
+			progressBar(summary) must beEqualTo("[##########################################################################]100%")
 		}
 
 		"handle it correctly when there are running and done users" in {
@@ -71,7 +71,7 @@ class ConsoleDataWriterSpec extends Specification {
 
 			val summary = ConsoleSummary(10000, Map("request1" -> counters), Map.empty, time)
 			summary.complete must beFalse
-			progressBar(summary) must beEqualTo("Users  : [###########################################################------] 90%")
+			progressBar(summary) must beEqualTo("[###################################################################-------] 90%")
 		}
 	}
 }
