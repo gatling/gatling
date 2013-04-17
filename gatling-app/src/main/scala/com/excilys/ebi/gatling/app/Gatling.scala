@@ -26,7 +26,7 @@ import com.excilys.ebi.gatling.core.result.reader.DataReader
 import com.excilys.ebi.gatling.core.runner.{ Runner, Selection }
 import com.excilys.ebi.gatling.core.scenario.configuration.Simulation
 import com.excilys.ebi.gatling.core.structure.Assertion
-import com.excilys.ebi.gatling.core.util.FileHelper.formatToFilename
+import com.excilys.ebi.gatling.core.util.StringHelper.clean
 
 import grizzled.slf4j.Logging
 import scopt.OptionParser
@@ -80,7 +80,7 @@ class Gatling extends Logging {
 
 	import GatlingConfiguration.configuration
 
-	private def defaultOutputDirectoryBaseName(clazz: Class[Simulation]) = configuration.simulation.outputDirectoryBaseName.getOrElse(formatToFilename(clazz.getSimpleName))
+	private def defaultOutputDirectoryBaseName(clazz: Class[Simulation]) = configuration.simulation.outputDirectoryBaseName.getOrElse(clean(clazz.getSimpleName))
 
 	def start = {
 		val simulations = GatlingFiles.binariesDirectory
