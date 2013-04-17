@@ -23,6 +23,8 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
+import io.gatling.core.util.StringHelper.RichString
+
 @RunWith(classOf[JUnitRunner])
 class StringHelperSpec extends Specification {
 
@@ -42,6 +44,26 @@ class StringHelperSpec extends Specification {
 			md.update(fileBytes)
 			val digestBytes = md.digest
 			StringHelper.bytes2Hex(digestBytes) must beEqualTo("4d824413f8fbfe5cc7d69b8898c50acd")
+		}
+	}
+
+	"leftPad" should {
+		"pad correctly a two digits number" in {
+			"12".leftPad(6) must beEqualTo("    12")
+		}
+
+		"not pad when the number of digits is higher than the expected string size" in {
+			"123456".leftPad(4) must beEqualTo("123456")
+		}
+	}
+
+	"rightPad" should {
+		"pad correctly a two digits number" in {
+			"12".rightPad(6) must beEqualTo("12    ")
+		}
+
+		"not pad when the number of digits is higher than the expected string size" in {
+			"123456".rightPad(4) must beEqualTo("123456")
 		}
 	}
 }

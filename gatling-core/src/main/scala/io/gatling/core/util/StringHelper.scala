@@ -18,6 +18,8 @@ package io.gatling.core.util
 import java.text.Normalizer
 import java.util.regex.Pattern
 
+import com.dongxiguo.fastring.Fastring.Implicits._
+
 /**
  * This object groups all utilities for strings
  */
@@ -50,5 +52,21 @@ object StringHelper {
 		}
 
 		def truncate(maxLength: Int) = if (string.length < maxLength) string else string.substring(0, maxLength) + "..."
+
+		def leftPad(length: Int, padder: String = " ") = {
+			val paddingLength = length - string.length
+			if (paddingLength > 0)
+				padder * paddingLength + string
+			else
+				string
+		}
+
+		def rightPad(length: Int, padder: String = " ") = {
+			val paddingLength = length - string.length
+			if (paddingLength > 0)
+				string + padder * paddingLength
+			else
+				string
+		}
 	}
 }

@@ -44,19 +44,17 @@ class RequestCounters(var successfulCount: Int, var failedCount: Int)
 class ConsoleDataWriter extends DataWriter {
 
 	private var startUpTime = 0L
-
+	private var complete = false
 	private val usersCounters = mutable.Map.empty[String, UserCounters]
 	private val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty
 
-	private var complete = false
-
 	def display {
 		val now = currentTimeMillis
-		val timeSinceStartUpInSec = (now - startUpTime) / 1000
+		val runDuration = (now - startUpTime) / 1000
 
-		val summary = ConsoleSummary(timeSinceStartUpInSec, usersCounters, requestsCounters)
+		val summary = ConsoleSummary(runDuration, usersCounters, requestsCounters)
 		complete = summary.complete
-		println(summary)
+		println(summary.text)
 	}
 
 	override def initialized: Receive = super.initialized.orElse {

@@ -16,92 +16,53 @@
 package io.gatling.core.result.writer
 
 import scala.collection.mutable.Map
-import scala.math.{ ceil, floor, max }
+import scala.math.{ ceil, floor }
 
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
-import io.gatling.core.util.PaddableStringBuilder
-import io.gatling.core.util.StringHelper.eol
+import com.dongxiguo.fastring.Fastring.Implicits._
+
+import io.gatling.core.util.StringHelper.{ RichString, eol }
 
 object ConsoleSummary {
+
 	val iso8601Format = "yyyy-MM-dd HH:mm:ss"
 	val dateTimeFormat = DateTimeFormat.forPattern(iso8601Format)
-
 	val outputLength = 80
-	val blockSeparator = "=" * outputLength
 
-	def apply(elapsedTime: Long, usersCounters: Map[String, UserCounters], requestsCounters: Map[String, RequestCounters], time: DateTime = DateTime.now) = {
+	def apply(runDuration: Long, usersCounters: Map[String, UserCounters], requestsCounters: Map[String, RequestCounters], time: DateTime = DateTime.now) = {
 
-		def newBlock(buff: StringBuilder) { buff.append(blockSeparator).append(eol) }
+		def writeUsersCounters(scenarioName: String, userCounters: UserCounters): Fastring = {
 
-		def appendTimeInfos(buff: StringBuilder, time: DateTime, elapsedTimeInSec: Long) {
-			val now = ConsoleSummary.dateTimeFormat.print(time)
-			buff.append(now)
-				.appendLeftPaddedString(elapsedTimeInSec.toString, outputLength - iso8601Format.length - 9)
-				.append("s elapsed")
-				.append(eol)
-		}
+			import userCounters._
 
-		def appendSubTitle(buff: StringBuilder, title: String) {
-			buff.append("---- ").append(title).append(" ").appendTimes("-", max(outputLength - title.length - 6, 0)).append(eol)
-		}
-
-		def appendUsersProgressBar(buff: StringBuilder, usersStats: UserCounters) {
-			val width = outputLength - 15
-
-			val totalCount = usersStats.totalCount
-			val runningCount = usersStats.runningCount
-			val doneCount = usersStats.doneCount
+			val width = outputLength - 6 // []3d%
 
 			val donePercent = floor(100 * doneCount.toDouble / totalCount).toInt
 			val done = floor(width * doneCount.toDouble / totalCount).toInt
 			val running = ceil(width * runningCount.toDouble / totalCount).toInt
 			val waiting = width - done - running
 
-			buff.append("Users  : [").appendTimes("#", done).appendTimes("-", running).appendTimes(" ", waiting).append("]")
-				.appendLeftPaddedString(donePercent.toString, 3).append("%")
-				.append(eol)
+			fast"""${("---- " + scenarioName + " ").rightPad(outputLength, "-")}
+[${"#" * done}${"-" * running}${" " * waiting}]${donePercent.toString.leftPad(3)}%"""
 		}
 
-		def appendUserCounters(buff: StringBuilder, userCounters: UserCounters) {
-			buff.append("          waiting:").appendRightPaddedString(userCounters.waitingCount.toString, 5)
-				.append(" / running:").appendRightPaddedString(userCounters.runningCount.toString, 5)
-				.append(" / done:").appendRightPaddedString(userCounters.doneCount.toString, 5)
-				.append(eol)
+		def writeRequestsCounter(actionName: String, requestCounters: RequestCounters): Fastring = {
+
+			import requestCounters._
+
+			fast"> ${actionName.rightPad(outputLength - 22)} OK=${successfulCount.toString.rightPad(6)} KO=${failedCount.toString.rightPad(6)}"
 		}
 
-		def appendRequestCounters(buff: StringBuilder, actionName: String, requestCounters: RequestCounters) {
-			buff.append("> ").appendRightPaddedString(actionName, outputLength - 22)
-				.append(" OK=").appendRightPaddedString(requestCounters.successfulCount.toString, 6)
-				.append(" KO=").appendRightPaddedString(requestCounters.failedCount.toString, 6)
-				.append(eol)
-		}
-
-		val buff = new StringBuilder
-
-		newBlock(buff)
-
-		appendTimeInfos(buff, time, elapsedTime)
-
-		//Users
-		usersCounters.foreach {
-			case (scenarioName, usersStats) => {
-				appendSubTitle(buff, scenarioName)
-				appendUsersProgressBar(buff, usersStats)
-				appendUserCounters(buff, usersStats)
-			}
-		}
-
-		//Requests
-		appendSubTitle(buff, "Requests")
-		requestsCounters.foreach {
-			case (actionName, requestCounters) => {
-				appendRequestCounters(buff, actionName, requestCounters)
-			}
-		}
-
-		newBlock(buff)
+		val text = fast"""
+================================================================================
+${ConsoleSummary.dateTimeFormat.print(time)} ${(runDuration + "s elapsed").leftPad(outputLength - iso8601Format.length - 9)}
+${usersCounters.map { case (scenarioName, usersStats) => writeUsersCounters(scenarioName, usersStats) }.mkFastring(eol)}
+---- Requests ------------------------------------------------------------------
+${requestsCounters.map { case (actionName, requestCounters) => writeRequestsCounter(actionName, requestCounters) }.mkFastring(eol)}
+================================================================================
+""".toString
 
 		val complete = {
 			val totalWaiting = usersCounters.values.map(_.waitingCount).sum
@@ -109,11 +70,8 @@ object ConsoleSummary {
 			(totalWaiting == 0) && (totalRunning == 0)
 		}
 
-		new ConsoleSummary(buff, complete)
+		new ConsoleSummary(text, complete)
 	}
 }
 
-class ConsoleSummary(buff: StringBuilder, val complete: Boolean) {
-
-	override def toString = buff.toString
-}
+case class ConsoleSummary(text: String, complete: Boolean)
