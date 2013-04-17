@@ -31,7 +31,7 @@ object ConsoleSummary {
 	val dateTimeFormat = DateTimeFormat.forPattern(iso8601Format)
 	val outputLength = 80
 	val newBlock = "=" * outputLength
-	
+
 	def writeSubTitle(title: String) = ("---- " + title + " ").rightPad(outputLength, "-")
 
 	def apply(runDuration: Long, usersCounters: Map[String, UserCounters], requestsCounters: Map[String, RequestCounters], time: DateTime = DateTime.now) = {
@@ -48,7 +48,8 @@ object ConsoleSummary {
 			val waiting = width - done - running
 
 			fast"""${writeSubTitle(scenarioName)}
-[${"#" * done}${"-" * running}${" " * waiting}]${donePercent.toString.leftPad(3)}%"""
+[${"#" * done}${"-" * running}${" " * waiting}]${donePercent.toString.leftPad(3)}%
+          waiting: ${waitingCount.toString.rightPad(5)} / running: ${runningCount.toString.rightPad(5)} / done:${doneCount.toString.rightPad(5)}"""
 		}
 
 		def writeRequestsCounter(actionName: String, requestCounters: RequestCounters): Fastring = {
