@@ -20,6 +20,7 @@ import com.typesafe.scalalogging.slf4j.Logging
 import io.gatling.core.check.Preparer
 import io.gatling.core.check.extractor.jsonpath.{ Json, JsonNode, JsonPathExtractors }
 import io.gatling.core.session.Expression
+import io.gatling.core.util.ByteBufferInputStream
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.Response
@@ -28,7 +29,7 @@ object HttpBodyJsonPathCheckBuilder extends Logging {
 
 	val preparer: Preparer[Response, Option[JsonNode]] = (response: Response) =>
 		try {
-			val json = if (response.hasResponseBody) Some(response.getResponseBodyAsStream) else None
+			val json = if (response.hasResponseBody) Some(new ByteBufferInputStream(response.getResponseBodyAsByteBuffer)) else None
 			json.map(Json.parse).success
 
 		} catch {
