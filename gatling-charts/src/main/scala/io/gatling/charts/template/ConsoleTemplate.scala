@@ -23,9 +23,9 @@ import io.gatling.core.util.StringHelper.{ eol, RichString }
 
 class ConsoleTemplate(requestStatistics: RequestStatistics) {
 
-	def writeRequestCounters(actionName: String, statistics: Statistics): Fastring = {
+	def writeRequestCounters(statistics: Statistics): Fastring = {
 		import statistics._
-		fast"> ${actionName.rightPad(outputLength - 32)} TO=${printableTotal.rightPad(6)} OK=${printableSuccess.rightPad(6)} KO=${printableFailure.rightPad(6)}"
+		fast"> ${name.rightPad(outputLength - 32)} TO=${printableTotal.rightPad(6)} OK=${printableSuccess.rightPad(6)} KO=${printableFailure.rightPad(6)}"
 	}
 	def writeGroupedCounters(groupedCount: GroupedCount): Fastring = {
 		import groupedCount._
@@ -37,14 +37,14 @@ class ConsoleTemplate(requestStatistics: RequestStatistics) {
 		fast"""
 $newBlock
 ${writeSubTitle("Global Information")}
-${writeRequestCounters("Number of Requests", numberOfRequestsStatistics)}
-${writeRequestCounters("Min Response Time", minResponseTimeStatistics)}
-${writeRequestCounters("Max Response Time", maxResponseTimeStatistics)}
-${writeRequestCounters("Mean Response Time", meanStatistics)}
-${writeRequestCounters("Standard Deviation Time", stdDeviationStatistics)}
-${writeRequestCounters("Percentile 1", percentiles1)}
-${writeRequestCounters("Percentile 2", percentiles2)}
-${writeRequestCounters("Mean Number Of Requests Per Second", meanNumberOfRequestsPerSecondStatistics)}
+${writeRequestCounters(numberOfRequestsStatistics)}
+${writeRequestCounters(minResponseTimeStatistics)}
+${writeRequestCounters(maxResponseTimeStatistics)}
+${writeRequestCounters(meanStatistics)}
+${writeRequestCounters(stdDeviationStatistics)}
+${writeRequestCounters(percentiles1)}
+${writeRequestCounters(percentiles2)}
+${writeRequestCounters(meanNumberOfRequestsPerSecondStatistics)}
 ${writeSubTitle("Response Time Distribution")}
 ${groupedCounts.map(writeGroupedCounters).mkFastring(eol)}
 $newBlock
