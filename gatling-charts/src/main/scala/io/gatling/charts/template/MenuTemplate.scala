@@ -25,7 +25,7 @@ function getItemLink(item){
 
 function setDetailsLinkUrl(){
     $$.each(stats.contents, function (name, data) {
-        $$('#details_link').attr('href', encodeURIComponent('req_' + data.pathFormatted + '.html'));
+        $$('#details_link').attr('href', getItemLink(data));
         return false;
     });
 }
