@@ -39,7 +39,7 @@ case class MatcherCheckBuilder[C <: Check[R], R, P, T, X](
 	extractorCriterion: Expression[T]) {
 
 	def transform[X2](transformation: Option[X] => Option[X2]): MatcherCheckBuilder[C, R, P, T, X2] = copy(extractor = new Extractor[P, T, X2] {
-	    def name = extractor.name + " transformed"
+		def name = extractor.name + " transformed"
 		def apply(prepared: P, criterion: T): Validation[Option[X2]] = extractor(prepared, criterion).map(transformation)
 	})
 
@@ -66,7 +66,6 @@ case class CheckBuilder[C <: Check[R], R, P, T, X, E](
 	}
 }
 
-trait SaveAs[C <: Check[R], R, P, T, X, E] extends CheckBuilder[C, R, P, T, X, E] {
-
+trait SaveAs[C <: Check[R], R, P, T, X, E] { this: CheckBuilder[C, R, P, T, X, E] =>
 	def saveAs(key: String): CheckBuilder[C, R, P, T, X, E] = copy(saveAs = Some(key))
 }
