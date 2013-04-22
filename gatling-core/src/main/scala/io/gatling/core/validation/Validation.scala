@@ -21,14 +21,14 @@ sealed trait Validation[+T] {
 	def mapError(f: String => String): Validation[T]
 }
 
-case class Success[T](value: T) extends Validation[T] {
+case class Success[+T](value: T) extends Validation[T] {
 	def map[A](f: T => A): Validation[A] = Success(f(value))
 	def flatMap[A](f: T => Validation[A]): Validation[A] = f(value)
 	def mapError(f: String => String): Validation[T] = this
 }
 
-case class Failure[T](message: String) extends Validation[T] {
-	def map[A](f: T => A): Validation[A] = this.asInstanceOf[Validation[A]]
-	def flatMap[A](f: T => Validation[A]): Validation[A] = this.asInstanceOf[Validation[A]]
-	def mapError(f: String => String): Validation[T] = Failure(f(message))
+case class Failure(message: String) extends Validation[Nothing] {
+	def map[A](f: Nothing => A): Validation[A] = this
+	def flatMap[A](f: Nothing => Validation[A]): Validation[A] = this
+	def mapError(f: String => String): Validation[Nothing] = Failure(f(message))
 }
