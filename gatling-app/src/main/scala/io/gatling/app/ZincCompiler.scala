@@ -74,9 +74,9 @@ object ZincCompiler extends Logging {
 				new JFile(jarUrl.toURI)
 			}
 
-			val scalaCompiler = jarMatching("""(.*scala-compiler-.*\.jar)$""")
-			val scalaLibrary = jarMatching("""(.*scala-library-.*\.jar)$""")
-			val scalaReflect = jarMatching("""(.*scala-reflect-.*\.jar)$""")
+			val scalaCompiler = jarMatching("""(.*scala-compiler.*\.jar)$""")
+			val scalaLibrary = jarMatching("""(.*scala-library.*\.jar)$""")
+			val scalaReflect = jarMatching("""(.*scala-reflect.*\.jar)$""")
 			val sbtInterfaceSrc: JFile = new JFile(classOf[Compilation].getProtectionDomain.getCodeSource.getLocation.toURI)
 			val compilerInterfaceSrc: JFile = jarMatching("""(.*compiler-interface-.*-sources.jar)$""")
 
