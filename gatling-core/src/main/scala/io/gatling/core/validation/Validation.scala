@@ -19,6 +19,7 @@ sealed trait Validation[+T] {
 	def map[A](f: T => A): Validation[A]
 	def flatMap[A](f: T => Validation[A]): Validation[A]
 	def mapError(f: String => String): Validation[T]
+	def foreach[A](f: T => A) { map(f) }
 }
 
 case class Success[+T](value: T) extends Validation[T] {
