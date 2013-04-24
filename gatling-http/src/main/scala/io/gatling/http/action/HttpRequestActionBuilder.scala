@@ -25,7 +25,7 @@ import io.gatling.http.ahc.RequestFactory
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckOrder.Status
 import io.gatling.http.check.status.HttpStatusCheckBuilder.status
-import io.gatling.http.request.builder.AbstractHttpRequestBuilder
+import io.gatling.http.config.HttpProtocolConfiguration
 import io.gatling.http.response.ResponseProcessor
 
 object HttpRequestActionBuilder {
@@ -56,5 +56,10 @@ object HttpRequestActionBuilder {
  */
 class HttpRequestActionBuilder(requestName: Expression[String], requestFactory: RequestFactory, checks: List[HttpCheck], responseProcessor: Option[ResponseProcessor]) extends ActionBuilder {
 
-	private[gatling] def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = system.actorOf(Props(HttpRequestAction(requestName, next, requestFactory, checks, responseProcessor, protocolConfigurationRegistry)))
+	private[gatling] def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = {
+
+		val httpConfig = protocolConfigurationRegistry.getProtocolConfiguration(HttpProtocolConfiguration.default)
+
+		system.actorOf(Props(new HttpRequestAction(requestName, next, requestFactory, checks, responseProcessor, httpConfig)))
+	}
 }

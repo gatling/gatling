@@ -33,7 +33,6 @@ import com.ning.http.client.Request
 
 import akka.actor.{ ActorRef, Props }
 import io.gatling.core.action.Bypassable
-import io.gatling.core.config.ProtocolConfigurationRegistry
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.Failure
 import io.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor, GatlingHttpClient, RequestFactory }
@@ -42,16 +41,6 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocolConfiguration
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.response.ResponseProcessor
-
-object HttpRequestAction {
-
-	def apply(requestName: Expression[String], next: ActorRef, requestFactory: RequestFactory, checks: List[HttpCheck], responseProcessor: Option[ResponseProcessor], protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
-
-		val httpConfig = protocolConfigurationRegistry.getProtocolConfiguration(HttpProtocolConfiguration.default)
-
-		new HttpRequestAction(requestName, next, requestFactory, checks, responseProcessor.orElse(httpConfig.responseProcessor), httpConfig)
-	}
-}
 
 /**
  * This is an action that sends HTTP requests
