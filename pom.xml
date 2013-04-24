@@ -126,7 +126,7 @@
 		<joda-convert.version>1.2</joda-convert.version>
 		<scopt.version>2.1.0</scopt.version>
 		<scalalogging.version>1.0.1</scalalogging.version>
-		<jackson.version>2.2.0-rc1</jackson.version>
+		<jackson.version>2.2.0</jackson.version>
 		<commons-math3.version>3.2</commons-math3.version>
 		<commons-io.version>2.4</commons-io.version>
 		<commons-exec.version>1.1</commons-exec.version>
