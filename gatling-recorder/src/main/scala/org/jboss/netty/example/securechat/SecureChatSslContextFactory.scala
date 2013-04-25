@@ -15,10 +15,12 @@
  */
 package org.jboss.netty.example.securechat
 
+import java.io.FileInputStream
 import java.security.{ KeyStore, Security }
 
-import io.gatling.core.util.IOHelper.withCloseable
+import com.typesafe.scalalogging.slf4j.Logging
 
+import io.gatling.core.util.IOHelper.withCloseable
 import javax.net.ssl.{ KeyManagerFactory, SSLContext }
 
 /**
@@ -52,21 +54,36 @@ import javax.net.ssl.{ KeyManagerFactory, SSLContext }
  *
  * @version $Rev: 2080 $, $Date: 2010-01-26 18:04:19 +0900 (Tue, 26 Jan 2010) $
  */
-object SecureChatSslContextFactory {
+object SecureChatSslContextFactory extends Logging {
 
 	val PROTOCOL = "TLS"
+	val PROPERTY_KEYSTORE_PATH = "gatling.recorder.keystore.path"
+	val PROPERTY_KEYSTORE_PASSPHRASE = "gatling.recorder.keystore.passphrase"
 
 	val serverContext: SSLContext = {
+
 		val algorithm = Option(Security.getProperty("ssl.KeyManagerFactory.algorithm")).getOrElse("SunX509")
 		val ks = KeyStore.getInstance("JKS")
 
+		val keystoreStream = Option(System.getProperty(PROPERTY_KEYSTORE_PATH))
+			.map { keystorePath =>
+				val keystorePath = System.getProperty(PROPERTY_KEYSTORE_PATH)
+				logger.info("Loading user-specified keystore: '" + keystorePath + "'")
+				new FileInputStream(keystorePath)
+			}.getOrElse {
+				logger.info("Loading default keystore gatling.jks")
+				ClassLoader.getSystemResourceAsStream("gatling.jks")
+			}
+
+		val keystorePassphrase = Option(System.getProperty(PROPERTY_KEYSTORE_PASSPHRASE)).getOrElse("gatling")
+
 		withCloseable(ClassLoader.getSystemResourceAsStream("gatling.jks")) { in =>
-			val gatlingChars = "gatling".toCharArray
-			ks.load(in, gatlingChars)
+			val passphraseChars = keystorePassphrase.toCharArray
+			ks.load(in, passphraseChars)
 
 			// Set up key manager factory to use our key store
 			val kmf = KeyManagerFactory.getInstance(algorithm)
-			kmf.init(ks, gatlingChars)
+			kmf.init(ks, passphraseChars)
 
 			// Initialize the SSLContext to work with our key managers.
 			val serverContext = SSLContext.getInstance(PROTOCOL)
