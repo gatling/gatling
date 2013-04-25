@@ -56,28 +56,26 @@ import grizzled.slf4j.Logging
  */
 object SecureChatSslContextFactory extends Logging {
 
-	val (serverContext, clientContext): (SSLContext, SSLContext) = {
+	val PROTOCOL = "TLS"
+	val PROPERTY_KEYSTORE_PATH = "gatling.recorder.keystore.path"
+	val PROPERTY_KEYSTORE_PASSPHRASE = "gatling.recorder.keystore.passphrase"
 
-		val PROTOCOL = "TLS"
-    val PROPERTY_KEYSTORE_PATH = "gatling.recorder.keystore.path"
-    val PROPERTY_KEYSTORE_PASSPHRASE = "gatling.recorder.keystore.passphrase"
+	val (serverContext, clientContext): (SSLContext, SSLContext) = {
 
 		val algorithm = Option(Security.getProperty("ssl.KeyManagerFactory.algorithm")).getOrElse("SunX509")
 		val ks = KeyStore.getInstance("JKS")
 
-    val keystoreStream =
-      if (System.getProperty(PROPERTY_KEYSTORE_PATH) == null) {
-        info("Loading default keystore gatling.jks")
-        ClassLoader.getSystemResourceAsStream("gatling.jks")
-      } else {
-        val keystorePath = System.getProperty(PROPERTY_KEYSTORE_PATH)
-        info("Loading user-specified keystore: '" + keystorePath + "'")
-        new FileInputStream(keystorePath)
-      }
+		val keystoreStream = Option(System.getProperty(PROPERTY_KEYSTORE_PATH))
+			.map { keystorePath =>
+				val keystorePath = System.getProperty(PROPERTY_KEYSTORE_PATH)
+				info("Loading user-specified keystore: '" + keystorePath + "'")
+				new FileInputStream(keystorePath)
+			}.getOrElse {
+				info("Loading default keystore gatling.jks")
+				ClassLoader.getSystemResourceAsStream("gatling.jks")
+			}
 
-    val keystorePassphrase =
-      if (System.getProperty(PROPERTY_KEYSTORE_PASSPHRASE) == null) "gatling"
-      else System.getProperty(PROPERTY_KEYSTORE_PASSPHRASE)
+		val keystorePassphrase = Option(System.getProperty(PROPERTY_KEYSTORE_PASSPHRASE)).getOrElse("gatling")
 
 		IOHelper.use(keystoreStream) { in =>
 			val passphraseChars = keystorePassphrase.toCharArray
