@@ -86,7 +86,7 @@ object GatlingConfiguration {
 				useProxyProperties = config.getBoolean(CONF_HTTP_USE_PROXY_PROPERTIES),
 				userAgent = config.getString(CONF_HTTP_USER_AGENT),
 				useRawUrl = config.getBoolean(CONF_HTTP_USE_RAW_URL),
-				nonStandardJsonSupport = config.getStringList(CONF_HTTP_JSON_FEATURES),
+				nonStandardJsonSupport = config.getString(CONF_HTTP_JSON_FEATURES).split(",").map(_.trim),
 				warmUpUrl = {
 					val value = config.getString(CONF_HTTP_WARM_UP_URL).trim
 					if (value.isEmpty) None else Some(value)
@@ -115,7 +115,7 @@ object GatlingConfiguration {
 					SslConfiguration(trustStore, keyStore)
 				}),
 			data = DataConfiguration(
-				dataWriterClasses = config.getStringList(CONF_DATA_WRITER_CLASS_NAMES).map {
+				dataWriterClasses = config.getString(CONF_DATA_WRITER_CLASS_NAMES).split(",").map(_.trim).map {
 					case "console" => "io.gatling.core.result.writer.ConsoleDataWriter"
 					case "file" => "io.gatling.core.result.writer.FileDataWriter"
 					case "graphite" => "io.gatling.metrics.GraphiteDataWriter"
