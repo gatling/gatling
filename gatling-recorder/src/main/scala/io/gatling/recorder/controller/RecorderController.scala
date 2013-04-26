@@ -16,7 +16,6 @@
 package io.gatling.recorder.controller
 
 import java.net.URI
-import java.util.Date
 
 import scala.collection.mutable
 import scala.math.round
@@ -55,15 +54,14 @@ class RecorderController extends Logging {
 	private lazy val runningFrame: RunningFrame = new RunningFrame(this)
 	private lazy val configurationFrame: ConfigurationFrame = new ConfigurationFrame(this)
 
-	@volatile private var startDate: Date = _
-	@volatile private var lastRequestDate: Date = _
+	@volatile private var lastRequestTimestamp: Long = 0
 	@volatile private var lastRequest: HttpRequest = _
 	@volatile private var lastStatus: Int = _
 	@volatile private var proxy: GatlingHttpProxy = _
 	@volatile private var scenarioElements: List[ScenarioElement] = Nil
 
 	def startRecording {
-		val selectedMode = configurationFrame.modeSelector.getSelectedItem.asInstanceOf[String]
+		val selectedMode = configurationFrame.modeSelector.getItemAt(configurationFrame.modeSelector.getSelectedIndex)
 		val harFilePath = configurationFrame.txtHarFile.getText
 		if(selectedMode == harMode && harFilePath.isEmpty) {
 			JOptionPane.showMessageDialog(null,"You haven't selected an HAR file.","Error", JOptionPane.ERROR_MESSAGE)
@@ -76,7 +74,6 @@ class RecorderController extends Logging {
 				val selectedMode = configurationFrame.modeSelector.getSelectedItem.asInstanceOf[String]
 				if(selectedMode == httpMode) {
 					proxy = new GatlingHttpProxy(this, configuration.proxy.port, configuration.proxy.sslPort)
-					startDate = new Date
 					showRunningFrame
 				} else {
 						HarReader.processHarFile(harFilePath)
@@ -122,9 +119,9 @@ class RecorderController extends Logging {
 
 		def processPause {
 			// Pause calculation
-			if (lastRequestDate != null) {
-				val newRequestDate = new Date
-				val diff = newRequestDate.getTime - lastRequestDate.getTime
+			if (lastRequestTimestamp != 0) {
+				val newRequestTimestamp = System.currentTimeMillis
+				val diff = newRequestTimestamp - lastRequestTimestamp
 				if (diff > 10) {
 					val (pauseValue, pauseUnit) =
 						if (diff > 1000)
@@ -132,15 +129,15 @@ class RecorderController extends Logging {
 						else
 							(diff, PauseUnit.MILLISECONDS)
 
-					lastRequestDate = newRequestDate
+					lastRequestTimestamp = newRequestTimestamp
 					useUIThread {
-						runningFrame.receiveEventInfo(new PauseInfo(pauseValue, pauseUnit))
+						runningFrame.receiveEventInfo(PauseInfo(pauseValue, pauseUnit))
 					}
 
 					scenarioElements = new PauseElement(pauseValue, pauseUnit) :: scenarioElements
 				}
 			} else
-				lastRequestDate = new Date
+				lastRequestTimestamp = System.currentTimeMillis
 		}
 
 		def processRequest(request: HttpRequest, statusCode: Int) {
@@ -150,7 +147,7 @@ class RecorderController extends Logging {
 
 			// Send request information to view
 			useUIThread {
-				runningFrame.receiveEventInfo(new RequestInfo(request, response))
+				runningFrame.receiveEventInfo(RequestInfo(request, response))
 			}
 		}
 
@@ -200,8 +197,7 @@ class RecorderController extends Logging {
 		runningFrame.clearState
 
 		scenarioElements = Nil
-		startDate = new Date
-		lastRequestDate = null
+		lastRequestTimestamp = 0
 	}
 
 }

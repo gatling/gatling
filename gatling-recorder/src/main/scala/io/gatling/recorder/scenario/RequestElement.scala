@@ -21,6 +21,7 @@ import scala.collection.JavaConversions.{ asScalaBuffer, mapAsScalaMap }
 
 import org.jboss.netty.handler.codec.http.{ HttpRequest, QueryStringDecoder }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.{ AUTHORIZATION, CONTENT_TYPE }
+import org.jboss.netty.handler.codec.http.HttpHeaders.Values.APPLICATION_X_WWW_FORM_URLENCODED
 
 import com.ning.http.util.Base64
 
@@ -47,7 +48,7 @@ object RequestElement {
 
 class RequestElement(val uri: String, val method: String, val headers: Map[String,String], val content: Option[String], val statusCode: Int, val simulationClass: Option[String]) extends ScenarioElement {
 
-	private val containsFormParams: Boolean = headers.get(CONTENT_TYPE).map(_.contains("application/x-www-form-urlencoded")).getOrElse(false)
+	private val containsFormParams: Boolean = headers.get(CONTENT_TYPE).map(_.contains(APPLICATION_X_WWW_FORM_URLENCODED)).getOrElse(false)
 
 	private val uriParts = uri.split("/", 4)
 	val baseUrl = uriParts.take(3).mkString("/")
@@ -76,15 +77,15 @@ class RequestElement(val uri: String, val method: String, val headers: Map[Strin
 		(for ((key, list) <- params) yield (for (e <- list) yield (key, e))).toList.flatten
 
 	private val basicAuthCredentials: Option[(String, String)] = {
-		headers.get(AUTHORIZATION) match {
-			case Some(value) if (value.startsWith("Basic ")) =>
-				val credentials = new String(Base64.decode(value.split(" ")(1))).split(":")
-				if (credentials.length == 2)
-					Some(credentials(0), credentials(1))
-				else
-					None
-			case _ => None
+		def parseCredentials(header: String) = {
+			val credentials = new String(Base64.decode(header.split(" ")(1))).split(":")
+			if (credentials.length == 2)
+				Some(credentials(0), credentials(1))
+			else
+				None
 		}
+
+		headers.get(AUTHORIZATION).filter(_.startsWith("Basic ")).flatMap(parseCredentials)
 	}
 
 	override def toString = {

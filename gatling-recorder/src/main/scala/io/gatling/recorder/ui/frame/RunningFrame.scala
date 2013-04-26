@@ -125,7 +125,7 @@ class RunningFrame(controller: RecorderController) extends JFrame with ScalaSwin
 		/* Listeners */
 		btnTag.addActionListener { e: ActionEvent =>
 			if (!txtTag.getText.isEmpty) {
-				val tag = new TagInfo(txtTag.getText)
+				val tag = TagInfo(txtTag.getText)
 				eventsInfo.addElement(tag)
 				controller.addTag(txtTag.getText)
 				eventsInfoJList.ensureIndexIsVisible(eventsInfo.getSize() - 1)
@@ -135,27 +135,27 @@ class RunningFrame(controller: RecorderController) extends JFrame with ScalaSwin
 
 		eventsInfoJList.addListSelectionListener { e: ListSelectionEvent =>
 			if (eventsInfoJList.getSelectedIndex >= 0) {
-				val obj = eventsInfo.get(eventsInfoJList.getSelectedIndex);
-				if (obj.isInstanceOf[RequestInfo]) {
-					val requestInfo = obj.asInstanceOf[RequestInfo]
-					requestHeadersInfo.txt.setText(requestInfo.request.toString)
-					responseHeadersInfo.txt.setText(requestInfo.response.toString)
-					requestBodyInfo.txt.setText(requestInfo.requestBody)
-					responseBodyInfo.txt.setText(requestInfo.responseBody)
-					val newDimension = new Dimension(472, 900)
-					requestHeadersInfo.setPreferredSize(newDimension)
-					responseHeadersInfo.setPreferredSize(newDimension)
-					requestBodyInfo.setPreferredSize(newDimension)
-					responseBodyInfo.setPreferredSize(newDimension)
-					requestHeadersInfo.revalidate
-					requestBodyInfo.revalidate
-					responseHeadersInfo.revalidate
-					responseBodyInfo.revalidate
-				} else {
-					requestHeadersInfo.clear
-					responseHeadersInfo.clear
-					requestBodyInfo.clear
-					responseBodyInfo.clear
+				val obj = eventsInfo.get(eventsInfoJList.getSelectedIndex)
+				obj match {
+					case requestInfo: RequestInfo =>
+						requestHeadersInfo.txt.setText(requestInfo.request.toString)
+						responseHeadersInfo.txt.setText(requestInfo.response.toString)
+						requestBodyInfo.txt.setText(requestInfo.requestBody)
+						responseBodyInfo.txt.setText(requestInfo.responseBody)
+						val newDimension = new Dimension(472, 900)
+						requestHeadersInfo.setPreferredSize(newDimension)
+						responseHeadersInfo.setPreferredSize(newDimension)
+						requestBodyInfo.setPreferredSize(newDimension)
+						responseBodyInfo.setPreferredSize(newDimension)
+						requestHeadersInfo.revalidate
+						requestBodyInfo.revalidate
+						responseHeadersInfo.revalidate
+						responseBodyInfo.revalidate
+					case _ =>
+						requestHeadersInfo.clear
+						responseHeadersInfo.clear
+						requestBodyInfo.clear
+						responseBodyInfo.clear
 				}
 			}
 		}
