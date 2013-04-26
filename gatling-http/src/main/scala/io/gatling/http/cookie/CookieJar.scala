@@ -71,11 +71,21 @@ class CookieJar(store: Map[URI, List[Cookie]]) {
 			val fixedDomain = extractDomain(rawURI, cookie)
 			val fixedPath = Option(cookie.getPath).getOrElse(rawURI.getPath)
 
-			if (fixedDomain != cookie.getDomain || fixedPath != cookie.getPath) {
-				val newCookie = new Cookie(fixedDomain, cookie.getName, cookie.getValue, fixedPath, cookie.getMaxAge, cookie.isSecure, cookie.getVersion)
-				newCookie.setPorts(cookie.getPorts)
-				newCookie
-			} else
+			if (fixedDomain != cookie.getDomain || fixedPath != cookie.getPath)
+				new Cookie(
+					fixedDomain,
+					cookie.getName,
+					cookie.getValue,
+					fixedPath,
+					cookie.getMaxAge,
+					cookie.isSecure,
+					cookie.getVersion,
+					cookie.isHttpOnly,
+					cookie.isDiscard,
+					cookie.getComment,
+					cookie.getCommentUrl,
+					cookie.getPorts)
+			else
 				cookie
 		} filter {
 			// Reject the cookies when the domains don't match, cf: RFC 2965 sec. 3.3.2
