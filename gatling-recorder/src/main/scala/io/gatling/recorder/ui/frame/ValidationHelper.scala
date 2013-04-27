@@ -16,8 +16,7 @@
 package io.gatling.recorder.ui.frame
 
 import java.awt.Color
-import java.awt.event.{ KeyListener, KeyEvent }
-import java.util.Date
+import java.awt.event.{ KeyAdapter, KeyEvent }
 
 import scala.collection.mutable
 
@@ -36,8 +35,8 @@ object ValidationHelper {
 
 	// TODO: move table validation here
 
-	def intValidator(cFrame: ConfigurationFrame, id: String) = new KeyListener {
-		def keyReleased(e: KeyEvent) {
+	def intValidator(cFrame: ConfigurationFrame, id: String) = new KeyAdapter {
+		override def keyReleased(e: KeyEvent) {
 			val txtField = e.getComponent.asInstanceOf[JTextField]
 			try {
 				txtField.getText.toInt
@@ -52,14 +51,10 @@ object ValidationHelper {
 					updateValidationStatus(id, false, cFrame)
 			}
 		}
-
-		def keyPressed(e: KeyEvent) {}
-
-		def keyTyped(e: KeyEvent) {}
 	}
 
-	def nonEmptyValidator(cFrame: ConfigurationFrame, id: String) = new KeyListener {
-		def keyReleased(e: KeyEvent) {
+	def nonEmptyValidator(cFrame: ConfigurationFrame, id: String) = new KeyAdapter {
+		override def keyReleased(e: KeyEvent) {
 			val txtField = e.getComponent.asInstanceOf[JTextField]
 
 			txtField.getText.trimToOption.map { _ =>
@@ -70,14 +65,10 @@ object ValidationHelper {
 				updateValidationStatus(id, false, cFrame)
 			}
 		}
-
-		def keyPressed(e: KeyEvent) {}
-
-		def keyTyped(e: KeyEvent) {}
 	}
 
-	def proxyHostValidator(cFrame: ConfigurationFrame) = new KeyListener {
-		def keyReleased(e: KeyEvent) {
+	def proxyHostValidator(cFrame: ConfigurationFrame) = new KeyAdapter {
+		override def keyReleased(e: KeyEvent) {
 			val txtField = e.getComponent.asInstanceOf[JTextField]
 
 			txtField.getText.trimToOption.map { _ =>
@@ -89,8 +80,8 @@ object ValidationHelper {
 				cFrame.txtProxyPort.setEnabled(false)
 				cFrame.txtProxyPort.setText("0")
 				cFrame.txtProxyPort.getKeyListeners.foreach {
-					case kl: KeyListener => useUIThread {
-						kl.keyReleased(new KeyEvent(cFrame.txtProxyPort, 0, new Date().getTime, 0, 0, '0'))
+					kl => useUIThread {
+						kl.keyReleased(new KeyEvent(cFrame.txtProxyPort, 0, System.currentTimeMillis, 0, 0, '0'))
 					}
 				}
 				cFrame.txtProxySslPort.setEnabled(false)
@@ -101,10 +92,6 @@ object ValidationHelper {
 				cFrame.txtProxyPassword.setText(null)
 			}
 		}
-
-		def keyPressed(e: KeyEvent) {}
-
-		def keyTyped(e: KeyEvent) {}
 	}
 
 	private def updateValidationStatus(id: String, status: Boolean, cfgFrame: ConfigurationFrame) {

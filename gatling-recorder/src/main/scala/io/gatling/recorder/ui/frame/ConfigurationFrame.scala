@@ -40,19 +40,21 @@ object ConfigurationFrame {
 }
 class ConfigurationFrame(controller: RecorderController) extends JFrame with ScalaSwing {
 
+	type Chooser = Either[FileDialog, JFileChooser]
+
 	private val IS_MAC_OSX = System.getProperty("os.name").startsWith("Mac")
 
-	val txtPort = new JTextField(null, 4)
-	val txtSslPort = new JTextField(null, 4)
+	val txtPort = new JTextField(4)
+	val txtSslPort = new JTextField(4)
 
-	val txtProxyHost = new JTextField(null, 12)
-	val txtProxyPort = new JTextField(null, 4)
+	val txtProxyHost = new JTextField(12)
+	val txtProxyPort = new JTextField(4)
 	txtProxyPort.setEnabled(false)
-	val txtProxySslPort = new JTextField(null, 4)
+	val txtProxySslPort = new JTextField(4)
 	txtProxySslPort.setEnabled(false)
-	val txtProxyUsername = new JTextField(null, 10)
+	val txtProxyUsername = new JTextField(10)
 	txtProxyUsername.setEnabled(false)
-	val txtProxyPassword = new JTextField(null, 10)
+	val txtProxyPassword = new JTextField(10)
 	txtProxyPassword.setEnabled(false)
 
 	val cbFilterStrategies = new JComboBox[FilterStrategy.Value]
@@ -79,10 +81,9 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 	private var networkPanel: JPanel = _
 	private var harPanel: JPanel = _
 
-	private var harDialog: FileDialog = _
-	private var harChooser: JFileChooser = _
-	private var fileDialog: FileDialog = _
-	private var fileChooser: JFileChooser = _
+	private val harFileChooser = initChooser(JFileChooser.FILES_ONLY)
+	private val outputFolderChooser = initChooser(JFileChooser.DIRECTORIES_ONLY)
+
 	var modeSelector: JComboBox[String] = _
 
 	/** Initialization of the frame **/
@@ -99,8 +100,6 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 	initTopPanel
 	initCenterPanel
 	initBottomPanel
-	initOutputDirectoryChooser
-	initHarChooser
 
 	setListeners
 
@@ -108,29 +107,18 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 
 	populateItemsFromConfiguration
 
-	private def initOutputDirectoryChooser {
-
-		if (IS_MAC_OSX) {
-			// on mac, use native dialog because JFileChooser is buggy
-			System.setProperty("apple.awt.fileDialogForDirectories", "true")
-			fileDialog = new FileDialog(ConfigurationFrame.this)
-
-		} else {
-			fileChooser = new JFileChooser
-			fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY)
-		}
+	if (IS_MAC_OSX) {
+		// on mac, use native dialog because JFileChooser is buggy
+		System.setProperty("apple.awt.fileDialogForDirectories", "true")
 	}
 
-	private def initHarChooser {
-
-		if (IS_MAC_OSX) {
-			// on mac, use native dialog because JFileChooser is buggy
-			System.setProperty("apple.awt.fileDialogForDirectories", "true")
-			harDialog = new FileDialog(ConfigurationFrame.this)
-
+	private def initChooser(mode: Int): Chooser = {
+		if(IS_MAC_OSX) {
+			Left(new FileDialog(ConfigurationFrame.this))
 		} else {
-			harChooser = new JFileChooser
-			harChooser.setFileSelectionMode(JFileChooser.FILES_ONLY)
+			val fileChooser = new JFileChooser
+			fileChooser.setFileSelectionMode(mode)
+			Right(fileChooser)
 		}
 	}
 
@@ -311,7 +299,7 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 	private def setListeners {
 		// Change panel depending on what mode is selected
 		modeSelector.addActionListener{e: ActionEvent => {
-			val selectedMode = modeSelector.getSelectedItem.asInstanceOf[String]
+			val selectedMode = modeSelector.getItemAt(modeSelector.getSelectedIndex)
 			if(selectedMode == httpMode) {
 				networkPanel.setVisible(true)
 				harPanel.setVisible(false)
@@ -341,52 +329,24 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 		btnClear.addActionListener { e: ActionEvent => tblFilters.removeAllElements }
 
 		// Opens a save dialog when Browse button clicked
-		btnOutputFolder.addActionListener { e: ActionEvent =>
+		btnOutputFolder.addActionListener { _ : ActionEvent => getPath(outputFolderChooser).foreach(txtOutputFolder.setText) }
 
-			var chosenDirPath: String = null
-
-			if (IS_MAC_OSX) {
-				fileDialog.setVisible(true)
-
-				if (fileDialog.getDirectory == null)
-					return
-
-				chosenDirPath = fileDialog.getDirectory + fileDialog.getFile
-
-			} else {
-				if (fileChooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
-					return
-
-				chosenDirPath = fileChooser.getSelectedFile.getPath
-			}
-
-			txtOutputFolder.setText(chosenDirPath)
-		}
-
-		btnHarFile.addActionListener { e: ActionEvent =>
-
-			var chosenDirPath: String = null
-
-			if (IS_MAC_OSX) {
-				harDialog.setVisible(true)
-
-				if (harDialog.getDirectory == null)
-					return
-
-				chosenDirPath = harDialog.getDirectory + harDialog.getFile
-
-			} else {
-				if (harChooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
-					return
-
-				chosenDirPath = fileChooser.getSelectedFile.getPath
-			}
-
-			txtHarFile.setText(chosenDirPath)
-		}
+		btnHarFile.addActionListener { _ : ActionEvent => getPath(harFileChooser).foreach(txtHarFile.setText) }
 
 		// Validates form when Start button clicked
 		btnStart.addActionListener(new SaveConfigurationListener(controller, this))
+	}
+
+	private def getPath(chooser : Chooser): Option[String] = chooser match {
+		case Left(fileDialog) =>
+			fileDialog.setVisible(true)
+			Option(fileDialog.getDirectory).map(_ + fileDialog.getFile)
+
+		case Right(fileChooser) =>
+			if(fileChooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
+				None
+			else
+				Some(fileChooser.getSelectedFile.getPath)
 	}
 
 	private def setValidationListeners {
