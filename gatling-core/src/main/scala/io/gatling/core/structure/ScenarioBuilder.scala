@@ -24,7 +24,7 @@ import io.gatling.core.action.UserEnd
  * ScenarioBuilder class companion
  */
 object ScenarioBuilder {
-	def scenario(scenarioName: String): ScenarioBuilder = new ScenarioBuilder(scenarioName, List(UserStartBuilder.start))
+	def scenario(scenarioName: String): ScenarioBuilder = new ScenarioBuilder(scenarioName, List(UserStartBuilder))
 	
 	implicit def configureScenario(scenarioBuilder: ScenarioBuilder) = new ConfiguredScenarioBuilder(scenarioBuilder)
 }

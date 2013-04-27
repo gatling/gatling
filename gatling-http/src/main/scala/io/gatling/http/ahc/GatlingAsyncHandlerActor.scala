@@ -168,7 +168,7 @@ class GatlingAsyncHandlerActor(
 	}
 
 	private def ko(session: Session, response: Response, message: String) {
-		val failedSession = session.setFailed
+		val failedSession = session.fail
 		logRequest(failedSession, KO, response, Some(message))
 		executeNext(failedSession, response)
 	}

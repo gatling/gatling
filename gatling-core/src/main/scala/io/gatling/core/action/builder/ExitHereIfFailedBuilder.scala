@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 		http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.action
+package io.gatling.core.action.builder
 
-import akka.actor.ActorRef
-import io.gatling.core.result.message.KO
-import io.gatling.core.session.Session
+import akka.actor.{ ActorRef, Props }
+import io.gatling.core.action.{ ExitHereIfFailed, system }
+import io.gatling.core.config.ProtocolConfigurationRegistry
 
-object TryMax {
+object ExitHereIfFailedBuilder extends ActionBuilder {
 
-	def apply(times: Int, next: ActorRef, counterName: String): While = {
-		val continueCondition = (s: Session) => s.getV[Int](counterName).map(counterValue => counterValue == 0 || (s.failedInTryBlock && counterValue < times))
-		new While(continueCondition, counterName, next)
-	}
+	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new ExitHereIfFailed(next)))
+
 }
