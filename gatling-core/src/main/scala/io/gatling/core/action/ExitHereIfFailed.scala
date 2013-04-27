@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 		http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,10 +19,11 @@ import akka.actor.ActorRef
 import io.gatling.core.result.message.KO
 import io.gatling.core.session.Session
 
-object TryMax {
+class ExitHereIfFailed(val next: ActorRef) extends Chainable {
 
-	def apply(times: Int, next: ActorRef, counterName: String): While = {
-		val continueCondition = (s: Session) => s.getV[Int](counterName).map(counterValue => counterValue == 0 || (s.failedInTryBlock && counterValue < times))
-		new While(continueCondition, counterName, next)
+	def execute(session: Session) {
+
+		if (session.status == KO) UserEnd.userEnd ! session
+		else next ! session
 	}
 }
