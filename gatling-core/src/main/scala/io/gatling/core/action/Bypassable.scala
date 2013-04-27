@@ -21,7 +21,7 @@ trait Bypassable extends Chainable {
 
 	abstract override def receive = {
 		val bypass: PartialFunction[Any, Unit] = {
-			case session: Session if session.shouldExitBecauseFailed => next ! session
+			case session: Session if session.failedInTryBlock => next ! session
 		}
 		bypass orElse super.receive
 	}
