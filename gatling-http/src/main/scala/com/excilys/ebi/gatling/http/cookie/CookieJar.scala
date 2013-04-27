@@ -104,7 +104,7 @@ private[cookie] class CookieJar(store: Map[URI, List[Cookie]]) {
 		val fixedPath = if (rawURI.getPath.isEmpty) "/" else rawURI.getPath
 		val uri = getEffectiveUri(rawURI)
 
-		def pathMatches(cookie: Cookie) = fixedPath.startsWith(cookie.getPath)
+		def pathMatches(cookie: Cookie) = fixedPath.startsWith(Option(cookie.getPath).getOrElse("/"))
 
 		val cookiesWithExactDomain = store.get(uri).getOrElse(Nil).filter(pathMatches)
 		val cookiesWithExactDomainNames = cookiesWithExactDomain.map(_.getName.toLowerCase)
