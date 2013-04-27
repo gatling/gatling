@@ -30,7 +30,7 @@ object BootstrapFactory {
 
 	val SSL_HANDLER_NAME = "ssl"
 
-	private val CHUNK_MAX_SIZE = 100 * 1024 * 1024; // 100Mo
+	private val CHUNK_MAX_SIZE = 100 * 1024 * 1024 // 100Mo
 
 	private val clientChannelFactory = new NioClientSocketChannelFactory
 
@@ -38,7 +38,7 @@ object BootstrapFactory {
 
 	def newClientBootstrap(controller: RecorderController, requestContext: ChannelHandlerContext, browserRequest: HttpRequest, ssl: Boolean): ClientBootstrap = {
 		val bootstrap = new ClientBootstrap(clientChannelFactory)
-		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+		bootstrap.setPipelineFactory(new ChannelPipelineFactory {
 			def getPipeline: ChannelPipeline = {
 				val pipeline = Channels.pipeline
 
@@ -63,7 +63,7 @@ object BootstrapFactory {
 
 		val bootstrap = new ServerBootstrap(serverChannelFactory)
 
-		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+		bootstrap.setPipelineFactory(new ChannelPipelineFactory {
 			def getPipeline: ChannelPipeline = {
 				val pipeline = Channels.pipeline
 				if (ssl)

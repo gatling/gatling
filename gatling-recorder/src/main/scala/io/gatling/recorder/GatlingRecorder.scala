@@ -25,17 +25,18 @@ object GatlingRecorder {
 	private val props = new RecorderPropertiesBuilder
 
 	private val cliOptsParser = new OptionParser("gatling-recorder") {
-		intOpt(LOCAL_PORT_OPTION, LOCAL_PORT_ALIAS, "<port>", "Local port used by Gatling Proxy for HTTP", props.localPort _)
-		intOpt(LOCAL_PORT_SSL_OPTION, LOCAL_PORT_SSL_ALIAS, "<port>", "Local port used by Gatling Proxy for HTTPS", props.localSslPort _)
-		opt(PROXY_HOST_OPTION, PROXY_HOST_ALIAS, "<host>", "Outgoing proxy host", props.proxyHost _)
-		intOpt(PROXY_PORT_OPTION, PROXY_PORT_ALIAS, "<port>", "Outgoing proxy port for HTTP", props.proxyPort _)
-		intOpt(PROXY_PORT_SSL_OPTION, PROXY_PORT_SSL_ALIAS, "<port>", "Outgoing proxy port for HTTPS", props.proxySslPort _)
-		opt(OUTPUT_FOLDER_OPTION, OUTPUT_FOLDER_ALIAS, "<folderName>", "Uses <folderName> as the folder where generated simulations will be stored", props.simulationOutputFolder _)
-		opt(REQUEST_BODIES_FOLDER_OPTION, REQUEST_BODIES_FOLDER_ALIAS, "<folderName>", "Uses <folderName> as the folder where request bodies are stored", props.requestBodiesFolder _)
-		opt(CLASS_NAME_OPTION, CLASS_NAME_ALIAS, "Sets the name of the generated class", props.simulationClassName _)
-		opt(PACKAGE_OPTION, PACKAGE_ALIAS, "Sets the package of the generated class", props.simulationPackage _)
-		opt(ENCODING_OPTION, ENCODING_ALIAS, "Sets the encoding used in the recorder", props.encoding _)
-		booleanOpt(FOLLOW_REDIRECT_OPTION, FOLLOW_REDIRECT_ALIAS, "Sets the follow redirect option to true", props.followRedirect _)
+		help(HELP, HELP_ALIAS, "Show help (this message) and exit")
+		intOpt(LOCAL_PORT, LOCAL_PORT_ALIAS, "<port>", "Local port used by Gatling Proxy for HTTP", props.localPort _)
+		intOpt(LOCAL_PORT_SSL, LOCAL_PORT_SSL_ALIAS, "<port>", "Local port used by Gatling Proxy for HTTPS", props.localSslPort _)
+		opt(PROXY_HOST, PROXY_HOST_ALIAS, "<host>", "Outgoing proxy host", props.proxyHost _)
+		intOpt(PROXY_PORT, PROXY_PORT_ALIAS, "<port>", "Outgoing proxy port for HTTP", props.proxyPort _)
+		intOpt(PROXY_PORT_SSL, PROXY_PORT_SSL_ALIAS, "<port>", "Outgoing proxy port for HTTPS", props.proxySslPort _)
+		opt(OUTPUT_FOLDER, OUTPUT_FOLDER_ALIAS, "<folderName>", "Uses <folderName> as the folder where generated simulations will be stored", props.simulationOutputFolder _)
+		opt(REQUEST_BODIES_FOLDER, REQUEST_BODIES_FOLDER_ALIAS, "<folderName>", "Uses <folderName> as the folder where request bodies are stored", props.requestBodiesFolder _)
+		opt(CLASS_NAME, CLASS_NAME_ALIAS, "Sets the name of the generated class", props.simulationClassName _)
+		opt(PACKAGE, PACKAGE_ALIAS, "Sets the package of the generated class", props.simulationPackage _)
+		opt(ENCODING, ENCODING_ALIAS, "Sets the encoding used in the recorder", props.encoding _)
+		booleanOpt(FOLLOW_REDIRECT, FOLLOW_REDIRECT_ALIAS, "Sets the follow redirect option to true", props.followRedirect _)
 	}
 
 	def main(args: Array[String]) {

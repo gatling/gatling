@@ -23,7 +23,7 @@ import io.gatling.recorder.scenario.PauseUnit
 sealed trait EventInfo
 
 case class PauseInfo(duration: Long, unit: PauseUnit) extends EventInfo {
-	override def toString = "PAUSE " + duration + unit.toPrint
+	override def toString = s"PAUSE $duration${unit.toPrint}"
 }
 
 case class RequestInfo(request: HttpRequest, response: HttpResponse) extends EventInfo {
@@ -38,11 +38,11 @@ case class RequestInfo(request: HttpRequest, response: HttpResponse) extends Eve
 
 	val responseBody = getHttpBody(response)
 
-	override def toString = request.getMethod + " | " + request.getUri
+	override def toString = s"${request.getMethod} | ${request.getUri}"
 }
 
 case class SSLInfo(uri: String) extends EventInfo
 
 case class TagInfo(tag: String) extends EventInfo {
-	override def toString = "TAG | " + tag
+	override def toString = s"TAG | $tag"
 }
