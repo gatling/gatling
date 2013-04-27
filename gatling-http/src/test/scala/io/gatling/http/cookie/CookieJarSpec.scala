@@ -17,11 +17,13 @@ package io.gatling.http.cookie
 
 import java.net.URI
 
+import scala.collection.JavaConversions.asScalaSet
+
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import com.ning.http.util.AsyncHttpProviderUtils.parseCookie
+import com.ning.org.jboss.netty.handler.codec.http.CookieDecoder.decode
 
 @RunWith(classOf[JUnitRunner])
 class CookieJarSpec extends Specification {
@@ -33,167 +35,167 @@ class CookieJarSpec extends Specification {
 		}
 
 		"not return cookie when it was set on another domain" in {
-			val cookie = parseCookie("ALPHA; Domain=www.foo.com")
-			val cookieStore = CookieJar(new URI("http://www.foo.com"), List(cookie))
+			val cookies = decode("ALPHA; Domain=www.foo.com").toList
+			val cookieStore = CookieJar(new URI("http://www.foo.com"), cookies)
 
 			cookieStore.get(new URI("http://www.bar.com")) must beEmpty
 		}
 
 		"return the cookie when domain and path exactly match" in {
-			val cookie = parseCookie("ALPHA; Domain=www.foo.com; path=/bar")
-			val cookieStore = CookieJar(new URI("http://www.foo.com/bar"), List(cookie))
+			val cookies = decode("ALPHA; Domain=www.foo.com; path=/bar").toList
+			val cookieStore = CookieJar(new URI("http://www.foo.com/bar"), cookies)
 
 			cookieStore.get(new URI("http://www.foo.com/bar")).length must beEqualTo(1)
 		}
 
 		"not return the cookie when domain matches but path is different" in {
-			val cookie = parseCookie("ALPHA; Domain=www.foo.com; path=/bar")
-			val cookieStore = CookieJar(new URI("http://www.foo.com/bar"), List(cookie))
+			val cookies = decode("ALPHA; Domain=www.foo.com; path=/bar").toList
+			val cookieStore = CookieJar(new URI("http://www.foo.com/bar"), cookies)
 
 			cookieStore.get(new URI("http://www.foo.com/baz")) must beEmpty
 		}
 
 		"not return the cookie when domain matches but path is a parent" in {
-			val cookie = parseCookie("ALPHA; Domain=www.foo.com; path=/bar")
-			val cookieStore = CookieJar(new URI("http://www.foo.com/bar"), List(cookie))
+			val cookies = decode("ALPHA; Domain=www.foo.com; path=/bar").toList
+			val cookieStore = CookieJar(new URI("http://www.foo.com/bar"), cookies)
 
 			cookieStore.get(new URI("http://www.foo.com")) must beEmpty
 		}
 
 		"return the cookie when domain matches and path is a child" in {
-			val cookie = parseCookie("ALPHA; Domain=www.foo.com; path=/bar")
-			val cookieStore = CookieJar(new URI("http://www.foo.com/bar"), List(cookie))
+			val cookies = decode("ALPHA; Domain=www.foo.com; path=/bar").toList
+			val cookieStore = CookieJar(new URI("http://www.foo.com/bar"), cookies)
 
 			cookieStore.get(new URI("http://www.foo.com/bar/baz")).length must beEqualTo(1)
 		}
 
 		"return cookie when it was set on a sub domain" in {
-			val cookie = parseCookie("ALPHA; Domain=.foo.com")
-			val cookieStore = CookieJar(new URI("http://www.foo.com"), List(cookie))
+			val cookies = decode("ALPHA; Domain=.foo.com").toList
+			val cookieStore = CookieJar(new URI("http://www.foo.com"), cookies)
 
 			cookieStore.get(new URI("http://bar.foo.com")).length must beEqualTo(1)
 		}
 
 		"replace cookie when set on the same domain and path" in {
-			val cookie = parseCookie("ALPHA=VALUE1; Domain=www.foo.com; path=/bar")
+			val cookies = decode("ALPHA=VALUE1; Domain=www.foo.com; path=/bar").toList
 			val uri = new URI("http://www.foo.com/bar")
-			val cookieStore = CookieJar(uri, List(cookie))
+			val cookieStore = CookieJar(uri, cookies)
 
-			val cookies = cookieStore.add(uri, List(parseCookie("ALPHA=VALUE2; Domain=www.foo.com; path=/bar"))).get(uri)
-			cookies.length must beEqualTo(1)
-			cookies.head.getValue must beEqualTo("VALUE2")
+			val storedCookies = cookieStore.add(uri, decode("ALPHA=VALUE2; Domain=www.foo.com; path=/bar").toList).get(uri)
+			storedCookies.length must beEqualTo(1)
+			storedCookies.head.getValue must beEqualTo("VALUE2")
 		}
 
 		"not replace cookies when they don't have the same name" in {
-			val cookie = parseCookie("BETA=VALUE1; Domain=www.foo.com; path=/bar")
+			val cookies = decode("BETA=VALUE1; Domain=www.foo.com; path=/bar").toList
 			val uri = new URI("http://www.foo.com/bar")
-			val cookieStore = CookieJar(uri, List(cookie))
+			val cookieStore = CookieJar(uri, cookies)
 
-			val cookies = cookieStore.add(uri, List(parseCookie("ALPHA=VALUE2; Domain=www.foo.com; path=/bar"))).get(uri)
-			cookies.length must beEqualTo(2)
+			val storedCookies = cookieStore.add(uri, decode("ALPHA=VALUE2; Domain=www.foo.com; path=/bar").toList).get(uri)
+			storedCookies.length must beEqualTo(2)
 		}
 
 		"expire cookie when set with a date in the past" in {
-			val cookie = parseCookie("ALPHA=VALUE1; Domain=www.foo.com; path=/bar")
+			val cookies = decode("ALPHA=VALUE1; Domain=www.foo.com; path=/bar").toList
 			val uri = new URI("http://www.foo.com/bar")
-			val cookieStore = CookieJar(uri, List(cookie))
+			val cookieStore = CookieJar(uri, cookies)
 
-			val cookies = cookieStore.add(uri, List(parseCookie("ALPHA=EXPIRED; Domain=www.foo.com; Path=/bar; Expires=Wed, 24-Jan-1982 22:23:01 GMT"))).get(uri)
-			cookies must beEmpty
+			val storedCookies = cookieStore.add(uri, decode("ALPHA=EXPIRED; Domain=www.foo.com; Path=/bar; Expires=Wed, 24-Jan-1982 22:23:01 GMT").toList).get(uri)
+			storedCookies must beEmpty
 		}
 
 		"have cookie of the same name co-exist if not set on the same domain" in {
-			val cookie1 = parseCookie("ALPHA=VALUE1; Domain=www.foo.com")
+			val cookies1 = decode("ALPHA=VALUE1; Domain=www.foo.com").toList
 			val uri1 = new URI("http://www.foo.com")
-			val cookie2 = parseCookie("ALPHA=VALUE2; Domain=www.bar.com")
+			val cookies2 = decode("ALPHA=VALUE2; Domain=www.bar.com").toList
 			val uri2 = new URI("http://www.bar.com")
-			val cookieStore = CookieJar(uri1, List(cookie1)).add(uri2, List(cookie2))
+			val cookieStore = CookieJar(uri1, cookies1).add(uri2, cookies2)
 
-			val cookies1 = cookieStore.get(uri1)
-			cookies1.length must beEqualTo(1)
-			cookies1.head.getValue must beEqualTo("VALUE1")
-			val cookies2 = cookieStore.get(uri2)
-			cookies2.length must beEqualTo(1)
-			cookies2.head.getValue must beEqualTo("VALUE2")
+			val storedCookies1 = cookieStore.get(uri1)
+			storedCookies1.length must beEqualTo(1)
+			storedCookies1.head.getValue must beEqualTo("VALUE1")
+			val storedCookies2 = cookieStore.get(uri2)
+			storedCookies2.length must beEqualTo(1)
+			storedCookies2.head.getValue must beEqualTo("VALUE2")
 		}
 
 		"handle missing domain as request host" in {
-			val cookie = parseCookie("ALPHA=VALUE1; Path=/")
+			val cookies = decode("ALPHA=VALUE1; Path=/").toList
 			val uri = new URI("http://www.foo.com")
-			val cookieStore = CookieJar(uri, List(cookie))
+			val cookieStore = CookieJar(uri, cookies)
 
 			cookieStore.get(new URI("http://www.foo.com")).length must beEqualTo(1)
 		}
 
 		"return the cookie when it's issued from a request with a subpath" in {
-			val cookie = parseCookie("ALPHA; path=/")
-			val cookieStore = CookieJar(new URI("http://www.foo.com/bar"), List(cookie))
+			val cookies = decode("ALPHA; path=/").toList
+			val cookieStore = CookieJar(new URI("http://www.foo.com/bar"), cookies)
 
 			cookieStore.get(new URI("http://www.foo.com")).length must beEqualTo(1)
 		}
 
 		"handle missing path as request path when from root dir" in {
-			val cookie = parseCookie("ALPHA=VALUE1")
+			val cookies = decode("ALPHA=VALUE1").toList
 			val uri = new URI("http://www.foo.com")
-			val cookieStore = CookieJar(uri, List(cookie))
+			val cookieStore = CookieJar(uri, cookies)
 
 			cookieStore.get(new URI("http://www.foo.com")).length must beEqualTo(1)
 		}
 
 		"handle missing path as request path when path is not empty" in {
-			val cookie = parseCookie("ALPHA=VALUE1")
+			val cookies = decode("ALPHA=VALUE1").toList
 			val uri = new URI("http://www.foo.com/bar")
-			val cookieStore = CookieJar(uri, List(cookie))
+			val cookieStore = CookieJar(uri, cookies)
 
 			cookieStore.get(new URI("http://www.foo.com/bar")).length must beEqualTo(1)
 		}
 
 		"handle the domain in a case-insensitive manner (RFC 2965 sec. 3.3.3)" in {
-			val cookie = parseCookie("ALPHA=VALUE1")
+			val cookies = decode("ALPHA=VALUE1").toList
 			val uri = new URI("http://www.foo.com/bar")
-			val cookieStore = CookieJar(uri, List(cookie))
+			val cookieStore = CookieJar(uri, cookies)
 
 			cookieStore.get(new URI("http://www.FoO.com/bar")).length must beEqualTo(1)
 		}
 
 		"handle the cookie name in a case-insensitive manner (RFC 2965 sec. 3.3.3)" in {
-			val cookie = parseCookie("ALPHA=VALUE1; Domain=www.foo.com; path=/bar")
+			val cookies = decode("ALPHA=VALUE1; Domain=www.foo.com; path=/bar").toList
 			val uri = new URI("http://www.foo.com/bar")
-			val cookieStore = CookieJar(uri, List(cookie))
+			val cookieStore = CookieJar(uri, cookies)
 
-			val cookies = cookieStore.add(uri, List(parseCookie("alpha=VALUE2; Domain=www.foo.com; path=/bar"))).get(uri)
-			cookies.length must beEqualTo(1)
-			cookies.head.getValue must beEqualTo("VALUE2")
+			val storedCookies = cookieStore.add(uri, decode("alpha=VALUE2; Domain=www.foo.com; path=/bar").toList).get(uri)
+			storedCookies.length must beEqualTo(1)
+			storedCookies.head.getValue must beEqualTo("VALUE2")
 		}
 
 		"handle the cookie path in a case-sensitive manner (RFC 2965 sec. 3.3.3)" in {
-			val cookie = parseCookie("ALPHA=VALUE1")
+			val cookies = decode("ALPHA=VALUE1").toList
 			val uri = new URI("http://www.foo.com/bar")
-			val cookieStore = CookieJar(uri, List(cookie))
+			val cookieStore = CookieJar(uri, cookies)
 
 			cookieStore.get(new URI("http://www.FoO.com/bAr")) must beEmpty
 		}
 
 		"not take into account the query parameter in the URI" in {
-			val cookie = parseCookie("ALPHA; Domain=www.foo.com; path=/bar")
-			val cookieStore = CookieJar(new URI("http://www.foo.com/bar?query1"), List(cookie))
+			val cookies = decode("ALPHA; Domain=www.foo.com; path=/bar").toList
+			val cookieStore = CookieJar(new URI("http://www.foo.com/bar?query1"), cookies)
 
 			cookieStore.get(new URI("http://www.foo.com/bar?query2")).length must beEqualTo(1)
 		}
 
 		"should serve the cookies on a subdomain when the domains match" in {
-			val cookie = parseCookie("cookie1=VALUE1; Path=/; Domain=foo.org;")
-			val cookieStore = CookieJar(new URI("https://x.foo.org/"), List(cookie))
+			val cookies = decode("cookie1=VALUE1; Path=/; Domain=foo.org;").toList
+			val cookieStore = CookieJar(new URI("https://x.foo.org/"), cookies)
 
 			// RFC 6265, 5.1.3.  Domain Matching
 			cookieStore.get(new URI("https://y.x.foo.org/")).length must beEqualTo(1)
 		}
 
 		"should serve the last cookie when they are definied twice" in {
-			val cookie1 = parseCookie("cookie1=VALUE1; Path=/")
-			val cookie2 = parseCookie("cookie1=VALUE2; Path=/")
-			val cookie3 = parseCookie("cookie1=VALUE3; Path=/")
-			val cookieStore = CookieJar(new URI("https://foo.org/"), List(cookie1, cookie2, cookie3))
+			val cookies1 = decode("cookie1=VALUE1; Path=/").toList
+			val cookies2 = decode("cookie1=VALUE2; Path=/").toList
+			val cookies3 = decode("cookie1=VALUE3; Path=/").toList
+			val cookieStore = CookieJar(new URI("https://foo.org/"), cookies1 ::: cookies2 ::: cookies3)
 
 			val cookies = cookieStore.get(new URI("https://foo.org/"))
 			cookies.length must beEqualTo(1)
@@ -202,11 +204,11 @@ class CookieJarSpec extends Specification {
 
 		"should serve cookies based on the host and independently of the port" in {
 			// rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
-			val cookie1 = parseCookie("cookie1=VALUE1; Path=/moodle/")
-			val cookieStore = CookieJar(new URI("http://foo.org//moodle/"), List(cookie1))
+			val cookies1 = decode("cookie1=VALUE1; Path=/moodle/").toList
+			val cookieStore = CookieJar(new URI("http://foo.org//moodle/"), cookies1)
 
-			val cookie2 = parseCookie("cookie1=VALUE2; Path=/moodle/")
-			val cookieStore2 = cookieStore.add(new URI("https://foo.org:443/moodle/login"), List(cookie2))
+			val cookies2 = decode("cookie1=VALUE2; Path=/moodle/").toList
+			val cookieStore2 = cookieStore.add(new URI("https://foo.org:443/moodle/login"), cookies2)
 
 			val cookies = cookieStore2.get(new URI("http://foo.org/moodle/login"))
 			cookies.length must beEqualTo(1)
