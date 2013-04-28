@@ -16,80 +16,45 @@
 package io.gatling.core.structure
 
 import java.util.UUID
-
 import scala.collection.immutable.Stream
 import scala.concurrent.duration.Duration
-
 import io.gatling.core.action.builder.{ SessionHookBuilder, WhileBuilder }
 import io.gatling.core.session.{ EL, Expression, Session }
-import io.gatling.core.session.handler.{ CounterBasedIterationHandler, TimerBasedIterationHandler }
+import io.gatling.core.session.handler.Loop
 import io.gatling.core.structure.ChainBuilder.chainOf
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.validation.{ Failure, Success }
+import io.gatling.core.validation.{ Failure, Success, SuccessWrapper }
+import io.gatling.core.session.SessionPrivateAttributes
 
 trait Loops[B] extends Execs[B] {
 
-	def repeat(times: Int)(chain: ChainBuilder): B = repeat(times, None, chain)
-	def repeat(times: Int, counterName: String)(chain: ChainBuilder): B = repeat(times, Some(counterName), chain)
+	def repeat(times: Int)(chain: ChainBuilder): B = repeat(times, UUID.randomUUID.toString)(chain)
+	def repeat(times: Int, counter: String)(chain: ChainBuilder): B = {
 
-	private def repeat(times: Int, loopCounterName: Option[String], chain: ChainBuilder): B = {
-
-		val handler = new CounterBasedIterationHandler {
-			val counterName = loopCounterName.getOrElse(UUID.randomUUID.toString)
+		val loopHandler = new Loop {
+			val counterName = counter
 		}
 
-		val init = new SessionHookBuilder(handler.init)
-		val expire = new SessionHookBuilder(handler.expire)
-		val increment = chainOf(new SessionHookBuilder(handler.increment))
-		val flattenLoopContent = Stream.continually(List(increment, chain)).take(times).flatten
+		val increment = chainOf(new SessionHookBuilder(s => loopHandler.incrementLoop(s).success))
+		val exit = chainOf(new SessionHookBuilder(s => loopHandler.exitLoop(s).success))
+		val reversedLoopContent = exit :: Stream.continually(List(chain, increment)).take(times).flatten.toList
 
-		exec(chainOf(init).exec(flattenLoopContent).exec(expire))
+		exec(reversedLoopContent.reverse)
 	}
 
-	def repeat(times: String)(chain: ChainBuilder): B = repeat(times, None, chain)
-	def repeat(times: String, counterName: String)(chain: ChainBuilder): B = repeat(times, Some(counterName), chain)
-
-	private def repeat(times: String, counterName: Option[String], chain: ChainBuilder): B = {
-		val timesFunction = EL.compile[Int](times)
-		repeat(timesFunction, counterName, chain)
-	}
-
-	def repeat(times: Expression[Int])(chain: ChainBuilder): B = repeat(times, None, chain)
-	def repeat(times: Expression[Int], counterName: String)(chain: ChainBuilder): B = repeat(times, Some(counterName), chain)
-
-	private def repeat(times: Expression[Int], counterName: Option[String] = None, chain: ChainBuilder): B = {
-
-		val counter = counterName.getOrElse(UUID.randomUUID.toString)
+	def repeat(times: Expression[Int], counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
 
 		val continueCondition = (session: Session) =>
 			for {
-				counterValue <- session.getV[Int](counter)
+				counterValue <- session.getV[Int](counterName)
 				timesValue <- times(session)
 			} yield counterValue < timesValue
 
-		asLongAs(continueCondition, Some(counter), chain)
-	}
-
-	def during(duration: Duration)(chain: ChainBuilder): B = during(duration, None, chain)
-	def during(duration: Duration, counterName: String)(chain: ChainBuilder): B = during(duration, Some(counterName), chain)
-
-	private def during(duration: Duration, counterName: Option[String], chain: ChainBuilder): B = {
-		val loopCounterName = counterName.getOrElse(UUID.randomUUID.toString)
-		def continueCondition(session: Session) = TimerBasedIterationHandler.getTimer(session, loopCounterName)
-			.map(timerStartMillis => (nowMillis - timerStartMillis) <= duration.toMillis)
-
-		exec(new WhileBuilder(continueCondition, chain, loopCounterName))
-	}
-
-	def asLongAs(condition: Expression[Boolean])(chain: ChainBuilder): B = asLongAs(condition, None, chain)
-	def asLongAs(condition: Expression[Boolean], counterName: String)(chain: ChainBuilder): B = asLongAs(condition, Some(counterName), chain)
-
-	private def asLongAs(condition: Expression[Boolean], counterName: Option[String], chain: ChainBuilder): B = {
-		val loopCounterName = counterName.getOrElse(UUID.randomUUID.toString)
-		exec(new WhileBuilder(condition, chain, loopCounterName))
+		exec(new WhileBuilder(continueCondition, chain, counterName, false))
 	}
 
 	def foreach(seq: Expression[Seq[Any]], attributeName: String, counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
+
 		val exposeCurrentValue = new SessionHookBuilder(session => {
 			for {
 				counterValue <- session.getV[Int](counterName)
@@ -103,6 +68,25 @@ trait Loops[B] extends Execs[B] {
 				seq <- seq(session)
 			} yield seq.isDefinedAt(counterValue)
 
-		asLongAs(continueCondition, Some(counterName), chainOf(exposeCurrentValue).exec(chain))
+		exec(new WhileBuilder(continueCondition, chainOf(exposeCurrentValue).exec(chain), counterName, false))
 	}
+
+	def during(duration: Duration, counterNameParam: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B = {
+
+		val durationMillis = duration.toMillis
+
+		val loop = new Loop {
+			val counterName = counterNameParam
+		}
+
+		val continueCondition = (session: Session) => {
+			val timestamp = loop.timestampValue(session)
+			(nowMillis - timestamp <= durationMillis).success
+		}
+
+		asLongAs(continueCondition, exitASAP, counterNameParam)(chain)
+	}
+
+	def asLongAs(condition: Expression[Boolean], exitASAP: Boolean = true, counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B =
+		exec(new WhileBuilder(condition, chain, counterName, exitASAP))
 }

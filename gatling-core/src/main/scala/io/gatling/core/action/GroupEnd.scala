@@ -26,8 +26,7 @@ class GroupEnd(val next: ActorRef) extends Chainable {
 	def execute(session: Session) {
 
 		val stack = session.groupStack
-		val group = stack.head
-		DataWriter.tell(GroupMessage(session.scenarioName, stack, session.userId, group.startDate, nowMillis, group.status))
+		DataWriter.tell(GroupMessage(session.scenarioName, stack, session.userId, stack.head.startDate, nowMillis, session.status))
 
 		next ! session.exitGroup
 	}

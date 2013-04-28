@@ -15,15 +15,33 @@
  */
 package io.gatling.core.action
 
+import scala.annotation.tailrec
+
 import akka.actor.ActorRef
-import io.gatling.core.result.message.KO
+import io.gatling.core.result.message.{ GroupMessage, GroupStackEntry, KO }
+import io.gatling.core.result.writer.DataWriter
 import io.gatling.core.session.Session
+import io.gatling.core.util.TimeHelper.nowMillis
 
 class ExitHereIfFailed(val next: ActorRef) extends Chainable {
 
 	def execute(session: Session) {
 
-		if (session.status == KO) UserEnd.userEnd ! session
-		else next ! session
+		val now = nowMillis
+
+		@tailrec
+		def failAllPendingGroups(stack: List[GroupStackEntry]) {
+			stack match {
+				case Nil =>
+				case head :: tail =>
+					DataWriter.tell(GroupMessage(session.scenarioName, stack, session.userId, head.startDate, now, KO))
+					failAllPendingGroups(tail)
+			}
+		}
+
+		if (session.status == KO) {
+			failAllPendingGroups(session.groupStack)
+			UserEnd.userEnd ! session
+		} else next ! session
 	}
 }
