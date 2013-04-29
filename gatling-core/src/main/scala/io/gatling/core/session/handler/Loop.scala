@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 		http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,23 +15,25 @@
  */
 package io.gatling.core.session.handler
 
-import com.typesafe.scalalogging.slf4j.Logging
-
 import io.gatling.core.session.Session
-import io.gatling.core.validation.{ SuccessWrapper, Validation }
+import io.gatling.core.validation.Validation
+import io.gatling.core.util.TimeHelper.nowMillis
 
-/**
- * Adds counter based iteration behavior to a class
- */
-trait CounterBasedIterationHandler extends Logging {
+trait Loop {
 
 	def counterName: String
+	val timestampName = "timestamp." + counterName
 
-	def init(session: Session): Validation[Session] =
-		if (session.contains(counterName)) session.success
-		else session.set(counterName, -1).success
+	def counterValue(session: Session) = session.get[Int](counterName, -1)
+	def timestampValue(session: Session) = session.get[Long](timestampName, 0L)
 
-	def increment(session: Session): Validation[Session] = session.getV[Int](counterName).map(currentValue => session.set(counterName, currentValue + 1))
+	def incrementLoop(session: Session): Session = {
+		val value = counterValue(session)
+		if (value == -1)
+			session.setAll(counterName -> 0, timestampName -> nowMillis)
+		else
+			session.set(counterName, value + 1)
+	}
 
-	def expire(session: Session): Validation[Session] = session.remove(counterName).success
+	def exitLoop(session: Session): Session = session.remove(counterName)
 }

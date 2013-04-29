@@ -17,24 +17,24 @@ package io.gatling.core.action
 
 import akka.actor.{ Actor, ActorRef, Props }
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.session.handler.TimerBasedIterationHandler
+import io.gatling.core.session.handler.Loop
 import io.gatling.core.validation.{ Failure, Success }
 
 /**
  * Action in charge of controlling a while loop execution.
  *
  * @constructor creates a While loop in the scenario
- * @param condition the condition that decides when to exit the loop
+ * @param continueCondition the condition that decides when to exit the loop
  * @param counterName the name of the counter for this loop
  * @param next the chain executed if testFunction evaluates to false
  */
-class While(condition: Expression[Boolean], counterName: String, next: ActorRef) extends Actor {
+class While(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, next: ActorRef) extends Actor {
 
 	var innerWhile: ActorRef = _
 
 	val uninitialized: Receive = {
-		case loopNextAction: ActorRef =>
-			innerWhile = context.actorOf(Props(new InnerWhile(condition, loopNextAction, counterName, next)))
+		case loopNext: ActorRef =>
+			innerWhile = context.actorOf(Props(new InnerWhile(continueCondition, loopNext, counterName, exitASAP, next)))
 			context.become(initialized)
 	}
 
@@ -43,7 +43,17 @@ class While(condition: Expression[Boolean], counterName: String, next: ActorRef)
 	override def receive = uninitialized
 }
 
-class InnerWhile(condition: Expression[Boolean], loopNextAction: ActorRef, val counterName: String, val next: ActorRef) extends Bypassable with TimerBasedIterationHandler {
+class InnerWhile(continueCondition: Expression[Boolean], loopNext: ActorRef, val counterName: String, exitASAP: Boolean, val next: ActorRef) extends Chainable with Loop {
+
+	val interrupt: Receive = {
+
+		def conditionFailed(session: Session) = continueCondition(session) match {
+			case Success(c) => !c
+			case Failure(message) => error(s"Could not evaluate condition: $message, exiting loop"); true
+		}
+
+		{ case session: Session if conditionFailed(session) => next ! exitLoop(session.exitInterruptable) }
+	}
 
 	/**
 	 * Evaluates the condition and if true executes the first action of loopNext
@@ -53,24 +63,9 @@ class InnerWhile(condition: Expression[Boolean], loopNextAction: ActorRef, val c
 	 */
 	def execute(session: Session) {
 
-		val exit = () => expire(session) match {
-			case Success(s) => next ! s
-			case Failure(message) =>
-				logger.error(s"Could not expire loop: $message")
-				next ! session
-		}
+		val initializedSession = if (!session.contains(counterName)) session.enterInterruptable(interrupt) else session
+		val incrementedSession = incrementLoop(initializedSession)
 
-		val doNext = for {
-			initialized <- init(session)
-			incremented <- increment(initialized)
-			cond <- condition(incremented)
-		} yield if (cond) () => loopNextAction ! incremented else exit
-
-		doNext match {
-			case Success(f) => f()
-			case Failure(message) =>
-				logger.error(s"While condition evaluation failed: $message, exiting loop")
-				exit()
-		}
+		interrupt.applyOrElse(incrementedSession, (s: Session) => loopNext ! s)
 	}
 }
