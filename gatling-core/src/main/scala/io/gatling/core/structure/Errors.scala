@@ -17,25 +17,15 @@ package io.gatling.core.structure
 
 import java.util.UUID
 
-import io.gatling.core.action.builder.{ ExitHereIfFailedBuilder, SessionHookBuilder, TryMaxBuilder }
-import io.gatling.core.structure.ChainBuilder.chainOf
-import io.gatling.core.validation.SuccessWrapper
+import io.gatling.core.action.builder.{ ExitHereIfFailedBuilder, TryMaxBuilder }
 
 trait Errors[B] extends Execs[B] {
 
 	def exitBlockOnFail(chain: ChainBuilder): B = tryMax(1)(chain)
-	def tryMax(times: Int)(chain: ChainBuilder): B = tryMax(times, None)(chain)
-	def tryMax(times: Int, counterName: String)(chain: ChainBuilder): B = tryMax(times, Some(counterName))(chain)
-	private def tryMax(times: Int, counterName: Option[String])(chain: ChainBuilder): B = {
+	def tryMax(times: Int, counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
 
 		require(times >= 1, "Can't set up a max try <= 1")
-
-		val start = new SessionHookBuilder(_.enterTryBlock.success)
-		val end = new SessionHookBuilder(_.exitTryBlock.success)
-		val transactionalChain = chainOf(start).exec(chain).exec(end)
-
-		val loopCounterName = counterName.getOrElse(UUID.randomUUID.toString)
-		exec(new TryMaxBuilder(times, transactionalChain, loopCounterName))
+		exec(new TryMaxBuilder(times, chain, counterName))
 	}
 
 	def exitHereIfFailed: B = exec(ExitHereIfFailedBuilder)

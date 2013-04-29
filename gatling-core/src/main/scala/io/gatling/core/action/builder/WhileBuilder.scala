@@ -27,12 +27,12 @@ import akka.actor.{ ActorRef, Props }
  * @param condition the function that determine the condition
  * @param loopNext chain that will be executed if condition evaluates to true
  */
-class WhileBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String) extends ActionBuilder {
+class WhileBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String, exitASAP: Boolean) extends ActionBuilder {
 
 	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
-		val whileActor = system.actorOf(Props(new While(condition, counterName, next)))
-		val loopContent = loopNext.build(whileActor, protocolConfigurationRegistry)
-		whileActor ! loopContent
+		val whileActor = system.actorOf(Props(new While(condition, counterName, exitASAP, next)))
+		val loopNextActor = loopNext.build(whileActor, protocolConfigurationRegistry)
+		whileActor ! loopNextActor
 		whileActor
 	}
 }

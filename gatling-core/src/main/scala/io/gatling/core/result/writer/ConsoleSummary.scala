@@ -56,7 +56,7 @@ object ConsoleSummary {
 
 			import requestCounters._
 
-			fast"> ${actionName.rightPad(outputLength - 22)} OK=${successfulCount.toString.rightPad(6)} KO=${failedCount.toString.rightPad(6)}"
+			fast"> ${actionName.rightPad(outputLength - 22)} OK=${successfulCount.toString.rightPad(6)} KO=$failedCount"
 		}
 
 		val text = fast"""

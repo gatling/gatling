@@ -19,10 +19,9 @@ import io.gatling.core.session.Session
 
 trait Bypassable extends Chainable {
 
-	abstract override def receive = {
-		val bypass: PartialFunction[Any, Unit] = {
-			case session: Session if session.failedInTryBlock => next ! session
-		}
-		bypass orElse super.receive
+	val interrupt: PartialFunction[Any, Unit] = {
+		case session: Session if session.shouldInterrupt => session.interrupt
 	}
+
+	abstract override def receive = interrupt orElse super.receive
 }
