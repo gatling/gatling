@@ -19,7 +19,7 @@ import io.gatling.core.session.Session
 
 import akka.actor.ActorRef
 
-class Switch(nextAction: () => ActorRef, val next: ActorRef) extends Bypassable {
+class Switch(nextAction: () => ActorRef, val next: ActorRef) extends Interruptable {
 
 	def execute(session: Session) {
 		nextAction() ! session

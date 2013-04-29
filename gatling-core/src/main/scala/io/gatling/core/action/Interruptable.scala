@@ -17,7 +17,7 @@ package io.gatling.core.action
 
 import io.gatling.core.session.Session
 
-trait Bypassable extends Chainable {
+trait Interruptable extends Chainable {
 
 	val interrupt: PartialFunction[Any, Unit] = {
 		case session: Session if session.shouldInterrupt => session.interrupt

@@ -32,7 +32,7 @@ package io.gatling.http.action
 import com.ning.http.client.Request
 
 import akka.actor.{ ActorRef, Props }
-import io.gatling.core.action.Bypassable
+import io.gatling.core.action.Interruptable
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.Failure
 import io.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor, GatlingHttpClient, RequestFactory }
@@ -58,7 +58,7 @@ class HttpRequestAction(
 	requestFactory: RequestFactory,
 	checks: List[HttpCheck],
 	responseProcessor: Option[ResponseProcessor],
-	protocolConfiguration: HttpProtocolConfiguration) extends Bypassable {
+	protocolConfiguration: HttpProtocolConfiguration) extends Interruptable {
 
 	val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks, protocolConfiguration)
 	val asyncHandlerActorFactory = GatlingAsyncHandlerActor.newAsyncHandlerActorFactory(checks, next, responseProcessor, protocolConfiguration) _

@@ -20,12 +20,12 @@ import java.net.URI
 import com.ning.http.client.{ Cookie => AHCCookie }
 
 import akka.actor.ActorRef
-import io.gatling.core.action.Bypassable
+import io.gatling.core.action.Interruptable
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.http.cookie.CookieHandling
 
-class AddCookies(url: Expression[String], cookies: Expression[List[AHCCookie]], val next: ActorRef) extends Bypassable {
+class AddCookies(url: Expression[String], cookies: Expression[List[AHCCookie]], val next: ActorRef) extends Interruptable {
 
 	def execute(session: Session) {
 

@@ -29,7 +29,7 @@ import akka.actor.ActorRef
  * @param elseNext chain of actions executed if condition evaluates to false
  * @param next chain of actions executed if condition evaluates to false and elseNext equals None
  */
-class If(condition: Expression[Boolean], thenNext: ActorRef, elseNext: Option[ActorRef], val next: ActorRef) extends Bypassable {
+class If(condition: Expression[Boolean], thenNext: ActorRef, elseNext: Option[ActorRef], val next: ActorRef) extends Interruptable {
 
 	/**
 	 * Evaluates the condition and decides what to do next
