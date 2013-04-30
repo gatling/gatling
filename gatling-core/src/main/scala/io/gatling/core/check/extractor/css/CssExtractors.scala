@@ -15,47 +15,44 @@
  */
 package io.gatling.core.check.extractor.css
 
-import java.nio.CharBuffer
-
 import scala.collection.JavaConversions.asScalaBuffer
+
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 
 import io.gatling.core.check.Extractor
 import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
-import jodd.lagarto.dom.{ LagartoDOMBuilder, NodeSelector }
-
 object CssExtractors {
 
-	abstract class CssExtractor[X] extends Extractor[NodeSelector, String, X] {
+	abstract class CssExtractor[X] extends Extractor[Document, String, X] {
 		val name = "css"
 	}
 
-	def parse(buffer: CharBuffer) = new NodeSelector((new LagartoDOMBuilder).parse(buffer))
+	def parse(string: String) = Jsoup.parse(string, "")
 
-	private def extractAll(selector: NodeSelector, expression: String, nodeAttribute: Option[String]): Seq[String] = selector
+	private def extractAll(selector: Document, expression: String, nodeAttribute: Option[String]): Seq[String] = selector
 		.select(expression)
-		.map { node =>
-			nodeAttribute
-				.map(node.getAttribute)
-				.getOrElse(node.getTextContent.trim)
+		.map { element =>
+			nodeAttribute.map(element.attr(_)).getOrElse(element.text)
 		}
 
 	val extractOne = (nodeAttribute: Option[String]) => (occurrence: Int) => new CssExtractor[String] {
 
-		def apply(prepared: NodeSelector, criterion: String): Validation[Option[String]] =
+		def apply(prepared: Document, criterion: String): Validation[Option[String]] =
 			extractAll(prepared, criterion, nodeAttribute).lift(occurrence).success
 	}
 
 	val extractMultiple = (nodeAttribute: Option[String]) => new CssExtractor[Seq[String]] {
 
-		def apply(prepared: NodeSelector, criterion: String): Validation[Option[Seq[String]]] =
+		def apply(prepared: Document, criterion: String): Validation[Option[Seq[String]]] =
 			extractAll(prepared, criterion, nodeAttribute).liftSeqOption.success
 	}
 
 	val count = (nodeAttribute: Option[String]) => new CssExtractor[Int] {
 
-		def apply(prepared: NodeSelector, criterion: String): Validation[Option[Int]] =
+		def apply(prepared: Document, criterion: String): Validation[Option[Int]] =
 			extractAll(prepared, criterion, nodeAttribute).liftSeqOption.map(_.size).success
 	}
 }

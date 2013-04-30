@@ -15,7 +15,7 @@
  */
 package io.gatling.http.check.body
 
-import java.nio.charset.Charset
+import org.jsoup.nodes.Document
 
 import com.typesafe.scalalogging.slf4j.Logging
 
@@ -26,14 +26,12 @@ import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.Response
-import jodd.lagarto.dom.NodeSelector
 
 object HttpBodyCssCheckBuilder extends Logging {
 
-	val preparer: Preparer[Response, NodeSelector] = (response: Response) =>
+	val preparer: Preparer[Response, Document] = (response: Response) =>
 		try {
-			val charBuffer = Charset.forName(configuration.core.encoding).decode(response.getResponseBodyAsByteBuffer)
-			CssExtractors.parse(charBuffer).success
+			CssExtractors.parse(response.getResponseBody(configuration.core.encoding)).success
 
 		} catch {
 			case e: Exception =>
@@ -42,7 +40,7 @@ object HttpBodyCssCheckBuilder extends Logging {
 				message.failure
 		}
 
-	def css(expression: Expression[String], nodeAttribute: Option[String]) = new HttpMultipleCheckBuilder[NodeSelector, String, String](
+	def css(expression: Expression[String], nodeAttribute: Option[String]) = new HttpMultipleCheckBuilder[Document, String, String](
 		HttpCheckBuilders.bodyCheckFactory,
 		preparer,
 		CssExtractors.extractOne(nodeAttribute),

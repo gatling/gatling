@@ -15,15 +15,12 @@
  */
 package io.gatling.core.check.extractor.css
 
-import java.nio.CharBuffer
-
-import scala.io.{ Codec, Source }
-
+import org.apache.commons.io.IOUtils
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
 import io.gatling.core.test.ValidationSpecification
-import io.gatling.core.util.IOHelper.withSource
+import io.gatling.core.util.IOHelper.withCloseable
 
 /**
  * @see <a href="http://www.w3.org/TR/selectors/#selectors"/> for more details about the CSS selectors syntax
@@ -31,10 +28,8 @@ import io.gatling.core.util.IOHelper.withSource
 @RunWith(classOf[JUnitRunner])
 class CssExtractorsSpec extends ValidationSpecification {
 
-	def prepared(file: String) = {
-		withSource(Source.fromInputStream(getClass.getResourceAsStream(file))(Codec.UTF8)) { source =>
-			CssExtractors.parse(CharBuffer.wrap(source.mkString))
-		}
+	def prepared(file: String) = withCloseable(getClass.getResourceAsStream(file)) { is =>
+		CssExtractors.parse(IOUtils.toString(is))
 	}
 
 	"CssExtractor" should {
