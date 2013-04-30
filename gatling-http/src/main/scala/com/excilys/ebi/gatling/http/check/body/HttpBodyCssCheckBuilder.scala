@@ -31,10 +31,7 @@ object HttpBodyCssCheckBuilder {
 
 	private def getCachedExtractor(response: ExtendedResponse) = {
 
-		def newExtractor = {
-			val charBuffer = Charset.forName(configuration.simulation.encoding).decode(response.getResponseBodyAsByteBuffer)
-			new CssExtractor(charBuffer)
-		}
+		def newExtractor = new CssExtractor(response.getResponseBody(configuration.simulation.encoding))
 
 		getOrUpdateCheckContextAttribute(HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY, newExtractor)
 	}
