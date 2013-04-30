@@ -49,7 +49,7 @@ class InnerWhile(continueCondition: Expression[Boolean], loopNext: ActorRef, val
 
 		def conditionFailed(session: Session) = continueCondition(session) match {
 			case Success(c) => !c
-			case Failure(message) => error(s"Could not evaluate condition: $message, exiting loop"); true
+			case Failure(message) => logger.error(s"Could not evaluate condition: $message, exiting loop"); true
 		}
 
 		{ case session: Session if conditionFailed(session) => next ! exitLoop(session.exitInterruptable) }
