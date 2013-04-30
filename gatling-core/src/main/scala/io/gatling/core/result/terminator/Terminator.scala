@@ -76,7 +76,7 @@ class Terminator extends BaseActor {
 				case Success(_) =>
 					latch.countDown
 					context.unbecome
-				case Failure(e) => logger.error("Registering DataWriters failed", e)
+				case Failure(e) => logger.error("Flushing registered DataWriters failed", e)
 			}
 	}
 
