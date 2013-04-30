@@ -101,10 +101,9 @@ class JsonPathExtractorsSpec extends ValidationSpecification {
 			JsonPathExtractors.extractMultiple(prepared("/test.json"), "$.store.book[2].author") must succeedWith(Some(List("Herman Melville")))
 		}
 
-		// currently unsupported
-		//		"support wildcard at first level" in {
-		//			JsonPathExtractors.extractMultiple(prepared("/test2.json"), "$.id") must succeedWith(Some(List("19434", "19435")))
-		//		}
+		"support wildcard at first level" in {
+			JsonPathExtractors.extractMultiple(prepared("/test2.json"), "$[*].id") must succeedWith(Some(List("19434", "19435")))
+		}
 
 		"support wildcard at first level with multiple sublevels" in {
 			JsonPathExtractors.extractMultiple(prepared("/test2.json"), "$..owner.id") must succeedWith(Some(List("18957", "18957")))
