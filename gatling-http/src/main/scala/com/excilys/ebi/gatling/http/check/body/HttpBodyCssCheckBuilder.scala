@@ -23,7 +23,6 @@ import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.check.HttpMultipleCheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
-import java.nio.charset.Charset
 
 object HttpBodyCssCheckBuilder {
 
