@@ -21,7 +21,7 @@ import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.result.message.{ GroupStackEntry, KO, OK, Status }
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.util.TypeHelper
+import io.gatling.core.util.TypeHelper.TypeCaster
 import io.gatling.core.validation.{ FailureWrapper, Validation }
 
 /**
@@ -63,7 +63,7 @@ case class Session(
 	def apply(name: String) = attributes(name)
 	def get[T](key: String): Option[T] = attributes.get(key).map(_.asInstanceOf[T])
 	def get[T](key: String, default: => T): T = attributes.get(key).map(_.asInstanceOf[T]).getOrElse(default)
-	def getV[T: ClassTag](key: String): Validation[T] = attributes.get(key).map(TypeHelper.as[T](_)).getOrElse(undefinedSessionAttributeMessage(key).failure[T])
+	def getV[T: ClassTag](key: String): Validation[T] = attributes.get(key).map(_.as[T]).getOrElse(undefinedSessionAttributeMessage(key).failure[T])
 	def setAll(newAttributes: (String, Any)*): Session = setAll(newAttributes.toIterable)
 	def setAll(newAttributes: Iterable[(String, Any)]): Session = copy(attributes = attributes ++ newAttributes)
 	def set(key: String, value: Any) = copy(attributes = attributes + (key -> value))

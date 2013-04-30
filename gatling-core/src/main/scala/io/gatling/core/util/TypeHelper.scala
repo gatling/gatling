@@ -21,24 +21,26 @@ import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 object TypeHelper {
 
-	def classCastExceptionMessage(value: Any, clazz: Class[_]) = s"Can't cast value $value of type ${value.getClass} into $clazz"
+	implicit class TypeCaster(val value: Any) extends AnyVal {
 
-	def as[T: ClassTag](value: Any): Validation[T] = {
-		val clazz = implicitly[ClassTag[T]].runtimeClass
-		val valueClazz = value.getClass.getName match {
-			case "java.lang.Boolean" => classOf[Boolean]
-			case "java.lang.Integer" => classOf[Int]
-			case "java.lang.Long" => classOf[Long]
-			case "java.lang.Double" => classOf[Double]
-			case "java.lang.Float" => classOf[Float]
-			case _ => value.getClass
+		def as[T: ClassTag]: Validation[T] = {
+
+			val clazz = implicitly[ClassTag[T]].runtimeClass
+			val valueClazz = value.getClass.getName match {
+				case "java.lang.Boolean" => classOf[Boolean]
+				case "java.lang.Integer" => classOf[Int]
+				case "java.lang.Long" => classOf[Long]
+				case "java.lang.Double" => classOf[Double]
+				case "java.lang.Float" => classOf[Float]
+				case _ => value.getClass
+			}
+
+			if (clazz == classOf[String])
+				value.toString.asInstanceOf[T].success
+			else if (clazz.isAssignableFrom(value.getClass) || clazz.isAssignableFrom(valueClazz))
+				value.asInstanceOf[T].success
+			else
+				s"Can't cast value $value of type ${value.getClass} into $clazz".failure
 		}
-
-		if (clazz == classOf[String])
-			value.toString.asInstanceOf[T].success
-		else if (clazz.isAssignableFrom(value.getClass) || clazz.isAssignableFrom(valueClazz))
-			value.asInstanceOf[T].success
-		else
-			classCastExceptionMessage(value, clazz).failure
 	}
 }

@@ -18,7 +18,7 @@ package io.gatling.core.session
 import scala.concurrent.forkjoin.ThreadLocalRandom
 import scala.reflect.ClassTag
 
-import io.gatling.core.util.TypeHelper
+import io.gatling.core.util.TypeHelper.TypeCaster
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation, ValidationList }
 
 trait Part[+T] {
@@ -103,14 +103,14 @@ object EL {
 		}
 
 		parsed match {
-			case List(StaticPart(string)) => (session: Session) => TypeHelper.as[T](string)
-			case List(dynamicPart) => dynamicPart.resolve _ andThen (_.flatMap(TypeHelper.as[T](_)))
+			case List(StaticPart(string)) => (session: Session) => string.as[T]
+			case List(dynamicPart) => dynamicPart.resolve _ andThen (_.flatMap(_.as[T]))
 			case parts => (session: Session) =>
 				val resolvedString = parts.map(_.resolve(session))
 					.sequence
 					.map(_.mkString)
 
-				resolvedString.flatMap(TypeHelper.as[T](_))
+				resolvedString.flatMap(_.as[T])
 		}
 	}
 }
