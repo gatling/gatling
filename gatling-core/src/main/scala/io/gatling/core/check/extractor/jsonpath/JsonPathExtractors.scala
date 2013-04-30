@@ -18,37 +18,48 @@ package io.gatling.core.check.extractor.jsonpath
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.mutable
 
+import com.jayway.jsonpath.JsonPath
+
 import io.gatling.core.check.Extractor
 import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
+import net.minidev.json.JSONArray
 
 object JsonPathExtractors {
 
-	abstract class JsonPathExtractor[X] extends Extractor[Option[JsonNode], String, X] {
+	abstract class JsonPathExtractor[X] extends Extractor[String, String, X] {
 		val name = "jsonPath"
 	}
 
 	val cache = mutable.Map.empty[String, JsonPath]
-	def cachedXPath(expression: String) = if (configuration.core.cache.jsonPath) cache.getOrElseUpdate(expression, new JsonPath(expression)) else new JsonPath(expression)
+	def cachedXPath(expression: String): JsonPath = if (configuration.core.cache.jsonPath) cache.getOrElseUpdate(expression, JsonPath.compile(expression)) else JsonPath.compile(expression)
 
-	private def extractAll(json: Option[JsonNode], expression: String): Option[Seq[String]] = json.map(new JsonPath(expression).selectNodes(_).map(_.asInstanceOf[JsonText].value))
+	private def extractAll(json: String, expression: String): Option[Seq[String]] = {
+
+		val result: Any = cachedXPath(expression).read(json)
+		result match {
+			case null => None // can't turn result into an Option as we want to turn empty Seq into None (see below)
+			case array: JSONArray => array.map(_.toString).liftSeqOption
+			case other => Some(List(other.toString))
+		}
+	}
 
 	val extractOne = (occurrence: Int) => new JsonPathExtractor[String] {
 
-		def apply(prepared: Option[JsonNode], criterion: String): Validation[Option[String]] =
+		def apply(prepared: String, criterion: String): Validation[Option[String]] =
 			extractAll(prepared, criterion).flatMap(_.lift(occurrence)).success
 	}
 
 	val extractMultiple = new JsonPathExtractor[Seq[String]] {
 
-		def apply(prepared: Option[JsonNode], criterion: String): Validation[Option[Seq[String]]] =
+		def apply(prepared: String, criterion: String): Validation[Option[Seq[String]]] =
 			extractAll(prepared, criterion).flatMap(_.liftSeqOption).success
 	}
 
 	val count = new JsonPathExtractor[Int] {
 
-		def apply(prepared: Option[JsonNode], criterion: String): Validation[Option[Int]] =
+		def apply(prepared: String, criterion: String): Validation[Option[Int]] =
 			extractAll(prepared, criterion).map(_.size).success
 	}
 }
