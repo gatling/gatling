@@ -16,21 +16,18 @@
 package com.excilys.ebi.gatling.core.check.extractor.css
 
 import java.nio.CharBuffer
-
 import scala.io.Source
-
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
-
 import com.excilys.ebi.gatling.core.util.IOHelper
+import org.apache.commons.io.IOUtils
 
 object CssExtractorSpec {
 
 	def extractor(file: String) = {
 		IOHelper.use(getClass.getResourceAsStream(file)) { is =>
-			val html = Source.fromInputStream(is).mkString
-			new CssExtractor(CharBuffer.wrap(html))
+			new CssExtractor(IOUtils.toString(is, "UTF-8"))
 		}
 	}
 }

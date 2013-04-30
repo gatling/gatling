@@ -132,7 +132,7 @@
 		<commons-math3.version>3.1.1</commons-math3.version>
 		<commons-io.version>2.4</commons-io.version>
 		<commons-exec.version>1.1</commons-exec.version>
-		<jodd.version>3.4.3</jodd.version>
+		<jsoup.version>1.7.2</jsoup.version>
 		<redis.version>2.10</redis.version>
 		<junit.version>4.11</junit.version>
 		<specs2.version>1.12.3</specs2.version>
@@ -341,9 +341,9 @@
 				<version>${commons-math3.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.jodd</groupId>
-				<artifactId>jodd-lagarto</artifactId>
-				<version>${jodd.version}</version>
+				<groupId>org.jsoup</groupId>
+				<artifactId>jsoup</artifactId>
+				<version>${jsoup.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-io</groupId>

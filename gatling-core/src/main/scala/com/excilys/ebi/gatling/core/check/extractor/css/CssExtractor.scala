@@ -15,13 +15,11 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor.css
 
-import java.nio.CharBuffer
-
 import scala.collection.JavaConversions.asScalaBuffer
 
-import com.excilys.ebi.gatling.core.check.extractor.Extractor
+import org.jsoup.Jsoup
 
-import jodd.lagarto.dom.{ LagartoDOMBuilder, NodeSelector }
+import com.excilys.ebi.gatling.core.check.extractor.Extractor
 
 /**
  * A built-in extractor for extracting values with Css Selectors
@@ -29,9 +27,9 @@ import jodd.lagarto.dom.{ LagartoDOMBuilder, NodeSelector }
  * @constructor creates a new CssExtractor
  * @param text the text where the search will be made
  */
-class CssExtractor(charBuffer: CharBuffer) extends Extractor {
+class CssExtractor(string: String) extends Extractor {
 
-	val selector = new NodeSelector((new LagartoDOMBuilder).parse(charBuffer))
+	val document = Jsoup.parse(string, "")
 
 	/**
 	 * @param expression a String containing the CSS selector
@@ -47,12 +45,10 @@ class CssExtractor(charBuffer: CharBuffer) extends Extractor {
 	 * @param nodeAttribute specify an attribute if you don't want to extract the text content
 	 * @return an option containing the values if found, None otherwise
 	 */
-	def extractMultiple(nodeAttribute: Option[String])(expression: String): Option[Seq[String]] = selector
+	def extractMultiple(nodeAttribute: Option[String])(expression: String): Option[Seq[String]] = document
 		.select(expression)
-		.map { node =>
-			nodeAttribute
-				.map(node.getAttribute)
-				.getOrElse(node.getTextContent.trim)
+		.map { element =>
+			nodeAttribute.map(element.attr(_)).getOrElse(element.text)
 		}
 
 	/**
@@ -60,5 +56,4 @@ class CssExtractor(charBuffer: CharBuffer) extends Extractor {
 	 * @return an option containing the number of values if found, None otherwise
 	 */
 	def count(nodeAttribute: Option[String])(expression: String): Option[Int] = extractMultiple(nodeAttribute)(expression).map(_.size)
-
 }
