@@ -21,7 +21,7 @@ import akka.actor.{ Actor, ActorRef, Props }
 import io.gatling.core.action.{ AkkaDefaults, BaseActor, system }
 import io.gatling.core.action.system.dispatcher
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.message.{ Flush, GroupMessage, Init, RequestMessage, RunMessage, ScenarioMessage, ShortScenarioDescription }
+import io.gatling.core.result.message.{ DataWriterMessage, End, Flush, GroupMessage, Init, RequestMessage, RunMessage, ScenarioMessage, ShortScenarioDescription }
 import io.gatling.core.result.terminator.Terminator
 import io.gatling.core.scenario.Scenario
 
@@ -78,10 +78,14 @@ trait DataWriter extends BaseActor {
 					originalSender ! true
 					logger.info("Initialized")
 			}
+
+		case m: DataWriterMessage => logger.error(s"Can't handle $m when in uninitialized state, discarding")
 	}
 
 	def initialized: Receive = {
-		case scenarioMessage: ScenarioMessage => onScenarioMessage(scenarioMessage)
+		case scenarioMessage: ScenarioMessage =>
+			onScenarioMessage(scenarioMessage)
+			if (scenarioMessage.event == End) Terminator.endUser
 
 		case groupMessage: GroupMessage => onGroupMessage(groupMessage)
 

@@ -21,6 +21,7 @@ import scala.concurrent.Future
 import scala.util.{ Failure, Success }
 
 import io.gatling.core.action.{ AkkaDefaults, BaseActor, system }
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.message.Flush
 
 import akka.actor.{ ActorRef, Props }
@@ -54,7 +55,7 @@ class Terminator extends BaseActor {
 	 * The countdown latch that will be decreased when all message are written and all scenarios ended
 	 */
 	private var latch: CountDownLatch = _
-	private var userCount: Int = _
+	private var endUserCount: Int = _
 
 	private var registeredDataWriters: List[ActorRef] = Nil
 
@@ -63,7 +64,8 @@ class Terminator extends BaseActor {
 		case Initialize(latch, userCount) =>
 			logger.info("Initializing")
 			this.latch = latch
-			this.userCount = userCount
+			this.endUserCount = userCount * configuration.data.dataWriterClasses.size
+			logger.info(s"Expecting $userCount EndUser messages to terminate")
 			registeredDataWriters = Nil
 			context.become(initialized)
 			sender ! true
@@ -71,6 +73,9 @@ class Terminator extends BaseActor {
 	}
 
 	def flush {
+		// just give DataWriters a chance to write more pending messages
+		// not perfect, they still could receive messages after this flush
+		logger.info("Asking DataWriters to flush")
 		Future.sequence(registeredDataWriters.map(_ ? Flush))
 			.onComplete {
 				case Success(_) =>
@@ -88,8 +93,8 @@ class Terminator extends BaseActor {
 			logger.info("DataWriter registered")
 
 		case EndUser =>
-			userCount = userCount - 1
-			if (userCount == 0) flush
+			endUserCount = endUserCount - 1
+			if (endUserCount == 0) flush
 
 		case ForceTermination => flush
 	}
