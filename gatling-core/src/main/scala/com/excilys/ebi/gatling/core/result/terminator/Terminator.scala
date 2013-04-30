@@ -18,6 +18,7 @@ package com.excilys.ebi.gatling.core.result.terminator
 import java.util.concurrent.CountDownLatch
 
 import com.excilys.ebi.gatling.core.action.{ AkkaDefaults, BaseActor, system }
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.Flush
 
 import akka.actor.{ ActorRef, Props }
@@ -28,8 +29,8 @@ object Terminator extends AkkaDefaults {
 
 	private val terminator = system.actorOf(Props[Terminator])
 
-	def askInit(latch: CountDownLatch, userCount: Int): Future[Any] = {
-		terminator ? Initialize(latch, userCount)
+	def askInit(latch: CountDownLatch, endUserCount: Int): Future[Any] = {
+		terminator ? Initialize(latch, endUserCount)
 	}
 
 	def askDataWriterRegistration(dataWriter: ActorRef): Future[Any] = {
@@ -53,7 +54,7 @@ class Terminator extends BaseActor {
 	 * The countdown latch that will be decreased when all message are written and all scenarios ended
 	 */
 	private var latch: CountDownLatch = _
-	private var userCount: Int = _
+	private var endUserCount: Int = _
 
 	private var registeredDataWriters: List[ActorRef] = Nil
 
@@ -62,7 +63,7 @@ class Terminator extends BaseActor {
 		case Initialize(latch, userCount) =>
 			info("Initializing")
 			this.latch = latch
-			this.userCount = userCount
+			this.endUserCount = endUserCount * configuration.data.dataWriterClasses.size
 			registeredDataWriters = Nil
 			context.become(initialized)
 			sender ! true
@@ -88,8 +89,8 @@ class Terminator extends BaseActor {
 			info("DataWriter registered")
 
 		case EndUser =>
-			userCount = userCount - 1
-			if (userCount == 0) flush
+			endUserCount = endUserCount - 1
+			if (endUserCount == 0) flush
 
 		case ForceTermination => flush
 	}

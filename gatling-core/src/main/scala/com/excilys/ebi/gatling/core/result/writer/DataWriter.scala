@@ -20,6 +20,7 @@ import scala.collection.JavaConversions._
 import com.excilys.ebi.gatling.core.action.{ AkkaDefaults, BaseActor, system }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.result.message.{ Flush, GroupRecord, Init, RequestRecord, RequestStatus, RunRecord, ScenarioRecord, ShortScenarioDescription }
+import com.excilys.ebi.gatling.core.result.message.RecordEvent.END
 import com.excilys.ebi.gatling.core.result.terminator.Terminator
 import com.excilys.ebi.gatling.core.scenario.Scenario
 import com.excilys.ebi.gatling.core.util.TimeHelper.nowMillis
@@ -118,7 +119,9 @@ trait DataWriter extends BaseActor {
 	}
 
 	def initialized: Receive = {
-		case scenarioRecord: ScenarioRecord => onScenarioRecord(scenarioRecord)
+		case scenarioRecord: ScenarioRecord =>
+			onScenarioRecord(scenarioRecord)
+			if (scenarioRecord.event == END) Terminator.endUser
 
 		case groupRecord: GroupRecord => onGroupRecord(groupRecord)
 
