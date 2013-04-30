@@ -142,7 +142,7 @@
 		<maven-source-plugin.version>2.2</maven-source-plugin.version>
 		<maven-assembly-plugin.version>2.2.2</maven-assembly-plugin.version>
 		<maven-jar-plugin.version>2.4</maven-jar-plugin.version>
-		<scala-maven-plugin.version>3.1.3</scala-maven-plugin.version>
+		<scala-maven-plugin.version>3.1.4</scala-maven-plugin.version>
 		<maven-surefire-plugin.version>2.12.4</maven-surefire-plugin.version>
 		<maven-release-plugin.version>2.3.2</maven-release-plugin.version>
 		<maven-license-plugin.version>1.10.b1</maven-license-plugin.version>
