@@ -65,6 +65,7 @@ object GatlingHttpClient extends Logging {
 		val nettyConfig = {
 			val numWorkers = configuration.http.ioThreadMultiplier * Runtime.getRuntime.availableProcessors
 			val socketChannelFactory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool, applicationThreadPool, numWorkers)
+			system.registerOnTermination(socketChannelFactory.releaseExternalResources)
 			new NettyAsyncHttpProviderConfig().addProperty(NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY, socketChannelFactory)
 		}
 	}
