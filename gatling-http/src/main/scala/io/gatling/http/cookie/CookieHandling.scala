@@ -26,9 +26,11 @@ object CookieHandling {
 
 	val cookieJarAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.cookies"
 
-	def getStoredCookies(session: Session, url: String): List[Cookie] =
+	def getStoredCookies(session: Session, url: String): List[Cookie] = getStoredCookies(session, URI.create(url))
+
+	def getStoredCookies(session: Session, uri: URI): List[Cookie] =
 		session.get[CookieJar](cookieJarAttributeName)
-			.map(_.get(URI.create(url)))
+			.map(_.get(uri))
 			.getOrElse(Nil)
 
 	def storeCookies(session: Session, uri: URI, cookies: List[Cookie]): Session =

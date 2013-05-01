@@ -19,6 +19,7 @@ import scala.collection.JavaConversions.asScalaBuffer
 import scala.concurrent.duration.DurationInt
 
 import com.ning.http.client.{ FluentStringsMap, Request, RequestBuilder }
+import com.ning.http.util.AsyncHttpProviderUtils
 
 import akka.actor.{ ActorRef, ReceiveTimeout }
 import io.gatling.core.action.BaseActor
@@ -36,7 +37,7 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocolConfiguration
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.response.{ Response, ResponseBuilder, ResponseBuilderFactory, ResponseProcessor }
-import io.gatling.http.util.{ HttpHelper, HttpStringBuilder }
+import io.gatling.http.util.HttpStringBuilder
 
 object GatlingAsyncHandlerActor {
 	val redirectedRequestNamePattern = """(.+?) Redirect (\d+)""".r
@@ -182,17 +183,17 @@ class GatlingAsyncHandlerActor(
 
 			logRequest(originalSession, OK, response)
 
-			val redirectUrl = HttpHelper.computeRedirectUrl(response.getHeader(HeaderNames.LOCATION), request.getUrl)
+			val redirectURI = AsyncHttpProviderUtils.getRedirectUri(request.getURI, response.getHeader(HeaderNames.LOCATION))
 
 			val requestBuilder = new RequestBuilder(request)
 				.setMethod("GET")
 				.setBodyEncoding(configuration.core.encoding)
 				.setQueryParameters(null.asInstanceOf[FluentStringsMap])
 				.setParameters(null.asInstanceOf[FluentStringsMap])
-				.setUrl(redirectUrl)
+				.setUrl(redirectURI.toString)
 				.setConnectionPoolKeyStrategy(request.getConnectionPoolKeyStrategy)
 
-			for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatedCookies, redirectUrl))
+			for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatedCookies, redirectURI))
 				requestBuilder.addOrReplaceCookie(cookie)
 
 			val newRequest = requestBuilder.build
