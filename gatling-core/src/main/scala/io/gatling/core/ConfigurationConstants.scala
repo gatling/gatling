@@ -45,7 +45,6 @@ object ConfigurationConstants {
 	val CONF_CHARTING_INDICATORS_PERCENTILE1 = "gatling.charting.indicators.percentile1"
 	val CONF_CHARTING_INDICATORS_PERCENTILE2 = "gatling.charting.indicators.percentile2"
 
-	val CONF_HTTP_PROVIDER = "gatling.http.provider"
 	val CONF_HTTP_ALLOW_POOLING_CONNECTION = "gatling.http.allowPoolingConnection"
 	val CONF_HTTP_ALLOW_SSL_CONNECTION_POOL = "gatling.http.allowSslConnectionPool"
 	val CONF_HTTP_COMPRESSION_ENABLED = "gatling.http.compressionEnabled"

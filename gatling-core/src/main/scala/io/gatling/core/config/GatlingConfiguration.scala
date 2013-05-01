@@ -77,7 +77,6 @@ object GatlingConfiguration {
 					percentile1 = config.getInt(CONF_CHARTING_INDICATORS_PERCENTILE1),
 					percentile2 = config.getInt(CONF_CHARTING_INDICATORS_PERCENTILE2))),
 			http = HttpConfiguration(
-				provider = config.getString(CONF_HTTP_PROVIDER),
 				allowPoolingConnection = config.getBoolean(CONF_HTTP_ALLOW_POOLING_CONNECTION),
 				allowSslConnectionPool = config.getBoolean(CONF_HTTP_ALLOW_SSL_CONNECTION_POOL),
 				compressionEnabled = config.getBoolean(CONF_HTTP_COMPRESSION_ENABLED),
@@ -182,7 +181,6 @@ case class IndicatorsConfiguration(
 	percentile2: Int)
 
 case class HttpConfiguration(
-	provider: String,
 	allowPoolingConnection: Boolean,
 	allowSslConnectionPool: Boolean,
 	compressionEnabled: Boolean,
