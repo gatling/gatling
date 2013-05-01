@@ -29,7 +29,7 @@
  */
 package io.gatling.http.action
 
-import com.ning.http.client.Request
+import com.ning.http.client.{ AsyncHttpClient, Request }
 
 import akka.actor.{ ActorRef, Props }
 import io.gatling.core.action.Interruptable
@@ -72,10 +72,21 @@ class HttpRequestAction(
 				next ! newSession
 
 			} else {
-				logger.info(s"Sending request '$resolvedRequestName': scenario '${newSession.scenarioName}', userId #${newSession.userId}")
-				val actor = context.actorOf(Props(asyncHandlerActorFactory(resolvedRequestName)(request, newSession)))
+				val (sessionWithClient, client) =
+					if (protocolConfiguration.shareConnections)
+						(newSession, GatlingHttpClient.defaultClient)
+					else
+						newSession.get[AsyncHttpClient](GatlingHttpClient.httpClientAttributeName)
+							.map((newSession, _))
+							.getOrElse {
+								val client = GatlingHttpClient.newClient
+								(newSession.set(GatlingHttpClient.httpClientAttributeName, client), client)
+							}
+
+				logger.info(s"Sending request '$resolvedRequestName': scenario '${sessionWithClient.scenarioName}', userId #${sessionWithClient.userId}")
+				val actor = context.actorOf(Props(asyncHandlerActorFactory(resolvedRequestName)(request, sessionWithClient)))
 				val ahcHandler = handlerFactory(resolvedRequestName, actor)
-				GatlingHttpClient.client.executeRequest(request, ahcHandler)
+				client.executeRequest(request, ahcHandler)
 			}
 		}
 

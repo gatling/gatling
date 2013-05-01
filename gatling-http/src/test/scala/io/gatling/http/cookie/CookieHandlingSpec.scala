@@ -17,19 +17,22 @@ package io.gatling.http.cookie
 
 import java.net.URI
 
+import scala.collection.JavaConversions.asScalaSet
+
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
+import com.ning.org.jboss.netty.handler.codec.http.CookieDecoder
+
 import io.gatling.core.session.Session
-import com.ning.http.util.AsyncHttpProviderUtils
 
 @RunWith(classOf[JUnitRunner])
 class CookieHandlingSpec extends Specification {
 
-	val originalCookie = AsyncHttpProviderUtils.parseCookie("ALPHA=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
+	val originalCookies = CookieDecoder.decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly").toList
 	val originalURI = new URI("https://docs.foo.com/accounts")
-	val originalCookieJar = new CookieJar(Map(originalURI -> List(originalCookie)))
+	val originalCookieJar = new CookieJar(Map(originalURI -> originalCookies))
 	val originalSession = Session("scenarioName", 1, Map(CookieHandling.cookieJarAttributeName -> originalCookieJar))
 
 	val emptySession = Session("scenarioName", 2)
@@ -47,8 +50,8 @@ class CookieHandlingSpec extends Specification {
 
 	"storeCookies" should {
 		"be able to store a cookie in an empty session" in {
-			val newCookie = AsyncHttpProviderUtils.parseCookie("ALPHA=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-			CookieHandling.storeCookies(emptySession, new URI("https://docs.foo.com/accounts"), List(newCookie))
+			val newCookies = CookieDecoder.decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly").toList
+			CookieHandling.storeCookies(emptySession, new URI("https://docs.foo.com/accounts"), newCookies)
 
 			CookieHandling.getStoredCookies(emptySession, "https://docs.foo.com/accounts") must beEmpty
 		}

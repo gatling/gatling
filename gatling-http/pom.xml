@@ -32,6 +32,10 @@
 			<groupId>com.jcraft</groupId>
 			<artifactId>jzlib</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty</artifactId>
+		</dependency>
 
 		<!-- test -->
 		<dependency>
@@ -43,13 +47,6 @@
 			<groupId>org.specs2</groupId>
 			<artifactId>specs2_2.10</artifactId>
 			<scope>test</scope>
-		</dependency>
-
-		<!-- runtime -->
-		<dependency>
-			<groupId>io.netty</groupId>
-			<artifactId>netty</artifactId>
-			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 

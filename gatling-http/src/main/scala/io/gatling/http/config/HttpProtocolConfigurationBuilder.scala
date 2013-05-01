@@ -104,7 +104,7 @@ case class HttpProtocolConfigurationBuilder(config: HttpProtocolConfiguration, w
 				config.securedProxy.map { proxy => if (url.startsWith("https://")) requestBuilder.setProxyServer(proxy) }
 
 				try {
-					GatlingHttpClient.client.executeRequest(requestBuilder.build).get
+					GatlingHttpClient.defaultClient.executeRequest(requestBuilder.build).get
 				} catch {
 					case e: Exception => logger.info(s"Couldn't execute warm up request $url", e)
 				}

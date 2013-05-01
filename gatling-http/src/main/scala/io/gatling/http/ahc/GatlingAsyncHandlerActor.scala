@@ -210,7 +210,13 @@ class GatlingAsyncHandlerActor(
 			this.request = newRequest
 			this.responseBuilder = responseBuilderFactory(newRequest)
 
-			GatlingHttpClient.client.executeRequest(newRequest, handlerFactory(newRequestName, self))
+			val client =
+				if (protocolConfiguration.shareConnections)
+					GatlingHttpClient.defaultClient
+				else
+					sessionWithUpdatedCookies.get(GatlingHttpClient.httpClientAttributeName, throw new UnsupportedOperationException("Couldn't find an HTTP client stored in the session"))
+
+			client.executeRequest(newRequest, handlerFactory(newRequestName, self))
 		}
 
 		def checkAndProceed(sessionWithUpdatedCookies: Session) {
