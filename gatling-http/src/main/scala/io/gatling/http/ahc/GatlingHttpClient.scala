@@ -23,7 +23,7 @@ import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory
 import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
 
 import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig }
-import com.ning.http.client.providers.netty.NettyConnectionsPool
+import com.ning.http.client.providers.netty.{ NettyAsyncHttpProviderConfig, NettyConnectionsPool }
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.action.system
@@ -62,9 +62,10 @@ object GatlingHttpClient extends Logging {
 			configuration.http.idleConnectionInPoolTimeOutInMs,
 			configuration.http.allowSslConnectionPool)
 
-		val socketChannelFactory = {
+		val nettyConfig = {
 			val numWorkers = configuration.http.ioThreadMultiplier * Runtime.getRuntime.availableProcessors
-			new NioClientSocketChannelFactory(Executors.newCachedThreadPool, applicationThreadPool, numWorkers)
+			val socketChannelFactory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool, applicationThreadPool, numWorkers)
+			new NettyAsyncHttpProviderConfig().addProperty(NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY, socketChannelFactory)
 		}
 	}
 
@@ -85,6 +86,10 @@ object GatlingHttpClient extends Logging {
 			.setUseProxyProperties(configuration.http.useProxyProperties)
 			.setUserAgent(configuration.http.userAgent)
 			.setUseRawUrl(configuration.http.useRawUrl)
+			.setExecutorService(SharedResources.applicationThreadPool)
+			.setScheduledExecutorService(SharedResources.reaper)
+			.setAsyncHttpClientProviderConfig(SharedResources.nettyConfig)
+			.setConnectionsPool(SharedResources.connectionsPool)
 
 		if (configuration.http.ssl.trustStore.isDefined || configuration.http.ssl.keyStore.isDefined) {
 
