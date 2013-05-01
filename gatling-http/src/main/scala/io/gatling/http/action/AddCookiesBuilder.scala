@@ -15,8 +15,6 @@
  */
 package io.gatling.http.action
 
-import java.util.Collections
-
 import com.ning.http.client.{ Cookie => AHCCookie }
 
 import akka.actor.{ ActorRef, Props }
@@ -40,7 +38,7 @@ object AddCookiesBuilder {
 					value <- cookie.value(session)
 					path <- cookie.path(session)
 
-				} yield new AHCCookie(domain, name, value, path, 100000, false, 1, false, false, null, null, Collections.emptySet[Integer])
+				} yield new AHCCookie(domain, name, value, path, 100000, false)
 			}.sequence
 
 		new AddCookiesBuilder(url, cookiesExpression)
