@@ -122,9 +122,7 @@ object GatlingHttpClient extends Logging {
 
 		val ahcConfig = ahcConfigBuilder.build
 
-		val providerClassName = "com.ning.http.client.providers." + configuration.http.provider.toLowerCase + "." + configuration.http.provider + "AsyncHttpProvider"
-
-		val client = new AsyncHttpClient(providerClassName, ahcConfig)
+		val client = new AsyncHttpClient(ahcConfig)
 
 		system.registerOnTermination(client.close)
 		client
