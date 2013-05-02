@@ -18,7 +18,7 @@ package io.gatling.core.check.extractor.jsonpath
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.mutable
 
-import com.jayway.jsonpath.JsonPath
+import com.jayway.jsonpath.{ InvalidPathException, JsonPath }
 
 import io.gatling.core.check.Extractor
 import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
@@ -33,17 +33,20 @@ object JsonPathExtractors {
 	}
 
 	val cache = mutable.Map.empty[String, JsonPath]
-	def cachedJsonPath(expression: String): JsonPath = 
-		if (configuration.core.cache.jsonPath) cache.getOrElseUpdate(expression, JsonPath.compile(expression)) 
+	def cachedJsonPath(expression: String): JsonPath =
+		if (configuration.core.cache.jsonPath) cache.getOrElseUpdate(expression, JsonPath.compile(expression))
 		else JsonPath.compile(expression)
 
 	private def extractAll(json: String, expression: String): Option[Seq[String]] = {
 
-		val result: Any = cachedJsonPath(expression).read(json)
-		result match {
-			case null => None // can't turn result into an Option as we want to turn empty Seq into None (see below)
-			case array: JSONArray => array.map(_.toString).liftSeqOption
-			case other => Some(List(other.toString))
+		try {
+			cachedJsonPath(expression).read[Any](json) match {
+				case null => None // can't turn result into an Option as we want to turn empty Seq into None (see below)
+				case array: JSONArray => array.map(_.toString).liftSeqOption
+				case other => Some(List(other.toString))
+			}
+		} catch {
+			case e: InvalidPathException => None
 		}
 	}
 

@@ -71,7 +71,7 @@ class JsonPathExtractorsSpec extends ValidationSpecification {
 		}
 
 		"support bracket notation" in {
-			JsonPathExtractors.extractOne(0)(prepared("/test.json"), "$.['@id']") must succeedWith(Some("ID"))
+			JsonPathExtractors.extractOne(0)(prepared("/test.json"), "$.@id") must succeedWith(Some("ID"))
 		}
 
 		"support element filter with object root" in {
