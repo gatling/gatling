@@ -15,22 +15,20 @@
  */
 package com.excilys.ebi.gatling.http.ahc
 
-import java.io.{ File, FileInputStream }
-import java.security.{ KeyStore, SecureRandom }
 import java.util.concurrent.{ Executors, ThreadFactory }
 
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory
 import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
 
+import com.excilys.ebi.gatling.core.ConfigurationConstants._
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.Session
-import com.excilys.ebi.gatling.core.util.IOHelper
+import com.excilys.ebi.gatling.http.util.SSLHelper.{ newKeyManagers, newTrustManagers, setSSLContext }
 import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig }
 import com.ning.http.client.providers.netty.{ NettyAsyncHttpProviderConfig, NettyConnectionsPool }
 
 import grizzled.slf4j.Logging
-import javax.net.ssl.{ KeyManagerFactory, SSLContext, TrustManagerFactory }
 
 object GatlingHttpClient extends Logging {
 
@@ -70,7 +68,7 @@ object GatlingHttpClient extends Logging {
 		}
 	}
 
-	def newClient = {
+	val defaultAhcConfig = {
 		val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
 			.setAllowPoolingConnection(configuration.http.allowPoolingConnection)
 			.setAllowSslConnectionPool(configuration.http.allowSslConnectionPool)
@@ -92,45 +90,50 @@ object GatlingHttpClient extends Logging {
 			.setAsyncHttpClientProviderConfig(SharedResources.nettyConfig)
 			.setConnectionsPool(SharedResources.connectionsPool)
 
-		if (configuration.http.ssl.trustStore.isDefined || configuration.http.ssl.keyStore.isDefined) {
+		val trustManagers = configuration.http.ssl.trustStore
+			.map { config => newTrustManagers(config.storeType, config.file, config.password, config.algorithm) }
 
-			val trustManagers = configuration.http.ssl.trustStore.map { trustStoreConfig =>
-				IOHelper.use(new FileInputStream(new File(trustStoreConfig.file))) { is =>
-					val trustStore = KeyStore.getInstance(trustStoreConfig.storeType)
-					trustStore.load(is, trustStoreConfig.password.toCharArray)
-					val algo = trustStoreConfig.algorithm.getOrElse(KeyManagerFactory.getDefaultAlgorithm)
-					val tmf = TrustManagerFactory.getInstance(algo)
-					tmf.init(trustStore)
-					tmf.getTrustManagers
-				}
-			}.getOrElse(null)
+		val keyManagers = configuration.http.ssl.keyStore
+			.map { config => newKeyManagers(config.storeType, config.file, config.password, config.algorithm) }
 
-			val keyManagers = configuration.http.ssl.keyStore.map { keyStoreConfig =>
-				IOHelper.use(new FileInputStream(new File(keyStoreConfig.file))) { is =>
-					val keyStore = KeyStore.getInstance(keyStoreConfig.storeType)
-					keyStore.load(is, keyStoreConfig.password.toCharArray)
-					val algo = keyStoreConfig.algorithm.getOrElse(KeyManagerFactory.getDefaultAlgorithm)
-					val kmf = KeyManagerFactory.getInstance(algo)
-					kmf.init(keyStore, keyStoreConfig.password.toCharArray)
-					kmf.getKeyManagers
-				}
-			}.getOrElse(null)
+		if (trustManagers.isDefined || keyManagers.isDefined)
+			setSSLContext(ahcConfigBuilder, trustManagers, keyManagers)
 
-			val sslContext = SSLContext.getInstance("TLS")
-			sslContext.init(keyManagers, trustManagers, new SecureRandom)
-			ahcConfigBuilder.setSSLContext(sslContext)
-		}
+		ahcConfigBuilder.build
+	}
 
-		val ahcConfig = ahcConfigBuilder.build
+	def newClient(session: Session): AsyncHttpClient = newClient(Some(session))
+	def newClient(session: Option[Session]) = {
+
+		val ahcConfig = session.map { session =>
+
+			val trustManagers = for {
+				storeType <- session.getAttributeAsOption[String](CONF_HTTP_SSS_TRUST_STORE_TYPE)
+				file <- session.getAttributeAsOption[String](CONF_HTTP_SSS_TRUST_STORE_FILE)
+				password <- session.getAttributeAsOption[String](CONF_HTTP_SSS_TRUST_STORE_PASSWORD)
+				algorithm = session.getAttributeAsOption[String](CONF_HTTP_SSS_TRUST_STORE_ALGORITHM)
+			} yield newTrustManagers(storeType, file, password, algorithm)
+
+			val keyManagers = for {
+				storeType <- session.getAttributeAsOption[String](CONF_HTTP_SSS_TRUST_STORE_TYPE)
+				file <- session.getAttributeAsOption[String](CONF_HTTP_SSS_TRUST_STORE_FILE)
+				password <- session.getAttributeAsOption[String](CONF_HTTP_SSS_TRUST_STORE_PASSWORD)
+				algorithm = session.getAttributeAsOption[String](CONF_HTTP_SSS_TRUST_STORE_ALGORITHM)
+			} yield newKeyManagers(storeType, file, password, algorithm)
+
+			if (trustManagers.isDefined || keyManagers.isDefined) {
+				info("Setting a custom SSLContext for user " + session.userId)
+				val ahcConfigBuilder = new AsyncHttpClientConfig.Builder(defaultAhcConfig)
+				setSSLContext(ahcConfigBuilder, trustManagers, keyManagers).build
+			} else
+				defaultAhcConfig
+
+		}.getOrElse(defaultAhcConfig)
 
 		val client = new AsyncHttpClient(ahcConfig)
-
 		system.registerOnTermination(client.close)
 		client
 	}
 
-	/**
-	 * The HTTP client used to send the requests
-	 */
-	lazy val defaultClient = newClient
+	lazy val defaultClient = newClient(None)
 }
