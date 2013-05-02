@@ -24,6 +24,7 @@ import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.referer.RefererHandling
 import com.excilys.ebi.gatling.http.request.builder.AbstractHttpRequestBuilder
+import com.ning.http.client.AsyncHttpClient
 
 import akka.actor.{ ActorRef, Props }
 import grizzled.slf4j.Logging
@@ -71,10 +72,21 @@ class HttpRequestAction(requestName: EvaluatableString, val next: ActorRef, requ
 			next ! newSession
 
 		} else {
-			info("Sending Request '" + resolvedRequestName + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
-			val actor = context.actorOf(Props(asyncHandlerActorFactory(resolvedRequestName)(request, newSession)))
+			val (sessionWithClient, client) =
+				if (protocolConfiguration.shareConnections)
+					(newSession, GatlingHttpClient.defaultClient)
+				else
+					newSession.getAttributeAsOption[AsyncHttpClient](GatlingHttpClient.httpClientAttributeName)
+						.map((newSession, _))
+						.getOrElse {
+							val client = GatlingHttpClient.newClient
+							(newSession.setAttribute(GatlingHttpClient.httpClientAttributeName, client), client)
+						}
+
+			info("Sending Request '" + resolvedRequestName + "': Scenario '" + sessionWithClient.scenarioName + "', UserId #" + sessionWithClient.userId)
+			val actor = context.actorOf(Props(asyncHandlerActorFactory(resolvedRequestName)(request, sessionWithClient)))
 			val ahcHandler = handlerFactory(resolvedRequestName, actor)
-			GatlingHttpClient.client.executeRequest(request, ahcHandler)
+			client.executeRequest(request, ahcHandler)
 		}
 	}
 }

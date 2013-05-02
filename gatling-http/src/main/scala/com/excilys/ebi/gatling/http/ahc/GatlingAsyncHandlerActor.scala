@@ -37,7 +37,7 @@ import com.excilys.ebi.gatling.http.request.HttpPhase
 import com.excilys.ebi.gatling.http.request.HttpPhase.HttpPhase
 import com.excilys.ebi.gatling.http.response.{ ExtendedResponse, ExtendedResponseBuilder, ExtendedResponseBuilderFactory }
 import com.excilys.ebi.gatling.http.util.HttpHelper.computeRedirectUrl
-import com.ning.http.client.{ FluentStringsMap, Request, RequestBuilder }
+import com.ning.http.client.{ AsyncHttpClient, FluentStringsMap, Request, RequestBuilder }
 
 import akka.actor.{ ActorRef, ReceiveTimeout }
 import akka.util.duration.intToDurationInt
@@ -176,6 +176,7 @@ class GatlingAsyncHandlerActor(
 				.setQueryParameters(null.asInstanceOf[FluentStringsMap])
 				.setParameters(null.asInstanceOf[FluentStringsMap])
 				.setUrl(redirectUrl)
+				.setConnectionPoolKeyStrategy(request.getConnectionPoolKeyStrategy)
 
 			for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatedCookies, redirectUrl))
 				requestBuilder.addOrReplaceCookie(cookie)
@@ -194,7 +195,13 @@ class GatlingAsyncHandlerActor(
 			this.request = newRequest
 			this.responseBuilder = responseBuilderFactory(newRequest, session)
 
-			GatlingHttpClient.client.executeRequest(newRequest, handlerFactory(newRequestName, self))
+			val client =
+				if (protocolConfiguration.shareConnections)
+					GatlingHttpClient.defaultClient
+				else
+					sessionWithUpdatedCookies.getAttribute(GatlingHttpClient.httpClientAttributeName).asInstanceOf[AsyncHttpClient]
+
+			client.executeRequest(newRequest, handlerFactory(newRequestName, self))
 		}
 
 		val sessionWithUpdatedCookies = CookieHandling.storeCookies(session, response.getUri, response.getCookies.toList)

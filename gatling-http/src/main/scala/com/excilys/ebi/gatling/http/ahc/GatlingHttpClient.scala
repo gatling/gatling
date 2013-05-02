@@ -17,32 +17,60 @@ package com.excilys.ebi.gatling.http.ahc
 
 import java.io.{ File, FileInputStream }
 import java.security.{ KeyStore, SecureRandom }
+import java.util.concurrent.{ Executors, ThreadFactory }
+
+import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory
+import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
 
 import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.excilys.ebi.gatling.core.session.Session
 import com.excilys.ebi.gatling.core.util.IOHelper
 import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig }
+import com.ning.http.client.providers.netty.{ NettyAsyncHttpProviderConfig, NettyConnectionsPool }
 
 import grizzled.slf4j.Logging
 import javax.net.ssl.{ KeyManagerFactory, SSLContext, TrustManagerFactory }
 
 object GatlingHttpClient extends Logging {
 
-	/**
-	 * The HTTP client used to send the requests
-	 */
-	val client = {
-		// set up Netty LoggerFactory for slf4j instead of default JDK
-		try {
-			val nettyInternalLoggerFactoryClass = Class.forName("org.jboss.netty.logging.InternalLoggerFactory")
-			val nettySlf4JLoggerFactoryInstance = Class.forName("org.jboss.netty.logging.Slf4JLoggerFactory").newInstance
-			val setDefaultFactoryMethod = nettyInternalLoggerFactoryClass.getMethod("setDefaultFactory", nettyInternalLoggerFactoryClass)
-			setDefaultFactoryMethod.invoke(null, nettySlf4JLoggerFactoryInstance.asInstanceOf[AnyRef])
+	val httpClientAttributeName = Session.GATLING_PRIVATE_ATTRIBUTE_PREFIX + "http.client"
 
-		} catch {
-			case e: Exception => info("Netty logger wasn't set up", e)
+	// set up Netty LoggerFactory for slf4j instead of default JDK
+	InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
+
+	object SharedResources {
+
+		val reaper = Executors.newScheduledThreadPool(Runtime.getRuntime.availableProcessors, new ThreadFactory {
+			override def newThread(r: Runnable): Thread = {
+				val t = new Thread(r, "AsyncHttpClient-Reaper")
+				t.setDaemon(true)
+				t
+			}
+		})
+
+		val applicationThreadPool = Executors.newCachedThreadPool(new ThreadFactory {
+			override def newThread(r: Runnable) = {
+				val t = new Thread(r, "AsyncHttpClient-Callback")
+				t.setDaemon(true)
+				t
+			}
+		})
+
+		val connectionsPool = new NettyConnectionsPool(configuration.http.maximumConnectionsTotal,
+			configuration.http.maximumConnectionsPerHost,
+			configuration.http.idleConnectionInPoolTimeOutInMs,
+			configuration.http.allowSslConnectionPool)
+
+		val nettyConfig = {
+			val numWorkers = configuration.http.ioThreadMultiplier * Runtime.getRuntime.availableProcessors
+			val socketChannelFactory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool, applicationThreadPool, numWorkers)
+			system.registerOnTermination(socketChannelFactory.releaseExternalResources)
+			new NettyAsyncHttpProviderConfig().addProperty(NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY, socketChannelFactory)
 		}
+	}
 
+	def newClient = {
 		val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
 			.setAllowPoolingConnection(configuration.http.allowPoolingConnection)
 			.setAllowSslConnectionPool(configuration.http.allowSslConnectionPool)
@@ -59,6 +87,10 @@ object GatlingHttpClient extends Logging {
 			.setUseProxyProperties(configuration.http.useProxyProperties)
 			.setUserAgent(configuration.http.userAgent)
 			.setUseRawUrl(configuration.http.useRawUrl)
+			.setExecutorService(SharedResources.applicationThreadPool)
+			.setScheduledExecutorService(SharedResources.reaper)
+			.setAsyncHttpClientProviderConfig(SharedResources.nettyConfig)
+			.setConnectionsPool(SharedResources.connectionsPool)
 
 		if (configuration.http.ssl.trustStore.isDefined || configuration.http.ssl.keyStore.isDefined) {
 
@@ -91,12 +123,14 @@ object GatlingHttpClient extends Logging {
 
 		val ahcConfig = ahcConfigBuilder.build
 
-		val providerClassName = "com.ning.http.client.providers." + configuration.http.provider.toLowerCase + "." + configuration.http.provider + "AsyncHttpProvider"
-
-		val client = new AsyncHttpClient(providerClassName, ahcConfig)
+		val client = new AsyncHttpClient(ahcConfig)
 
 		system.registerOnTermination(client.close)
-
 		client
 	}
+
+	/**
+	 * The HTTP client used to send the requests
+	 */
+	lazy val defaultClient = newClient
 }

@@ -28,6 +28,10 @@
 			<groupId>org.fusesource.scalate</groupId>
 			<artifactId>scalate-core_2.9</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty</artifactId>
+		</dependency>
 
 		<!-- test -->
 		<dependency>
@@ -39,18 +43,6 @@
 			<groupId>org.specs2</groupId>
 			<artifactId>specs2_2.9.2</artifactId>
 			<scope>test</scope>
-		</dependency>
-
-		<!-- runtime -->
-		<dependency>
-			<groupId>io.netty</groupId>
-			<artifactId>netty</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.glassfish.grizzly</groupId>
-			<artifactId>grizzly-websockets</artifactId>
-			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 

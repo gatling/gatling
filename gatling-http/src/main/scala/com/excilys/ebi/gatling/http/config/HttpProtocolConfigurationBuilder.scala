@@ -27,7 +27,7 @@ import grizzled.slf4j.Logging
  */
 object HttpProtocolConfigurationBuilder {
 
-	private[gatling] val BASE_HTTP_PROTOCOL_CONFIGURATION_BUILDER = new HttpProtocolConfigurationBuilder(Attributes(None, None, None, true, true, true, true, Map.empty, None, None, None))
+	private[gatling] val BASE_HTTP_PROTOCOL_CONFIGURATION_BUILDER = new HttpProtocolConfigurationBuilder(Attributes(None, None, None, true, true, true, true, false, Map.empty, None, None, None))
 
 	def httpConfig = BASE_HTTP_PROTOCOL_CONFIGURATION_BUILDER.warmUp("http://gatling-tool.org")
 }
@@ -39,6 +39,7 @@ private case class Attributes(baseUrls: Option[List[String]],
 	automaticRefererEnabled: Boolean,
 	cachingEnabled: Boolean,
 	responseChunksDiscardingEnabled: Boolean,
+	shareConnections: Boolean,
 	baseHeaders: Map[String, String],
 	warmUpUrl: Option[String],
 	extraRequestInfoExtractor: Option[Request => List[String]],
@@ -68,6 +69,8 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 	def disableCaching = new HttpProtocolConfigurationBuilder(attributes.copy(cachingEnabled = false))
 
 	def disableResponseChunksDiscarding = new HttpProtocolConfigurationBuilder(attributes.copy(responseChunksDiscardingEnabled = false))
+
+	def shareConnections = new HttpProtocolConfigurationBuilder(attributes.copy(shareConnections = true))
 
 	def acceptHeader(value: String) = new HttpProtocolConfigurationBuilder(attributes.copy(baseHeaders = attributes.baseHeaders + (Headers.Names.ACCEPT -> value)))
 
@@ -112,12 +115,12 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 			attributes.securedProxy.map { proxy => if (url.startsWith("https://")) requestBuilder.setProxyServer(proxy) }
 
 			try {
-				GatlingHttpClient.client.executeRequest(requestBuilder.build).get
+				GatlingHttpClient.defaultClient.executeRequest(requestBuilder.build).get
 			} catch {
 				case e: Exception => info("Couldn't execute warm up request " + url, e)
 			}
 		}
 
-		HttpProtocolConfiguration(attributes.baseUrls, attributes.proxy, attributes.securedProxy, attributes.followRedirectEnabled, attributes.automaticRefererEnabled, attributes.cachingEnabled, attributes.responseChunksDiscardingEnabled, attributes.baseHeaders, attributes.extraRequestInfoExtractor, attributes.extraResponseInfoExtractor)
+		HttpProtocolConfiguration(attributes.baseUrls, attributes.proxy, attributes.securedProxy, attributes.followRedirectEnabled, attributes.automaticRefererEnabled, attributes.cachingEnabled, attributes.responseChunksDiscardingEnabled, attributes.shareConnections, attributes.baseHeaders, attributes.extraRequestInfoExtractor, attributes.extraResponseInfoExtractor)
 	}
 }
