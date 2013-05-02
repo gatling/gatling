@@ -134,6 +134,7 @@ object GatlingConfiguration {
 				console = ConsoleConfiguration(
 					light = config.getBoolean(CONF_DATA_CONSOLE_LIGHT)),
 				graphite = GraphiteConfiguration(
+					light = config.getBoolean(CONF_DATA_GRAPHITE_LIGHT),
 					host = config.getString(CONF_DATA_GRAPHITE_HOST),
 					port = config.getInt(CONF_DATA_GRAPHITE_PORT),
 					protocol = config.getString(CONF_DATA_GRAPHITE_PROTOCOL),
@@ -222,6 +223,7 @@ case class ConsoleConfiguration(
 	light: Boolean)
 
 case class GraphiteConfiguration(
+	light: Boolean,
 	host: String,
 	port: Int,
 	protocol: String,

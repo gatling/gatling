@@ -58,9 +58,11 @@ class GraphiteDataWriter extends DataWriter {
 	def onGroupMessage(group: GroupMessage) {}
 
 	def onRequestMessage(request: RequestMessage) {
-		val path = request.name :: request.groupStack.map(_.name)
-		val metric = perRequest.getOrElseUpdate(path.reverse, new RequestMetrics)
-		metric.update(request)
+		if (!configuration.data.graphite.light) {
+			val path = request.name :: request.groupStack.map(_.name)
+			val metric = perRequest.getOrElseUpdate(path.reverse, new RequestMetrics)
+			metric.update(request)
+		}
 		allRequests.update(request)
 	}
 
@@ -135,7 +137,8 @@ class GraphiteDataWriter extends DataWriter {
 			for ((scenarioName, userMetric) <- usersPerScenario) sendUserMetrics(scenarioName, userMetric)
 
 			sendRequestMetrics(List("allRequests"), allRequests)
-			for ((path, requestMetric) <- perRequest) sendRequestMetrics(path, requestMetric)
+			if (!configuration.data.graphite.light)
+				for ((path, requestMetric) <- perRequest) sendRequestMetrics(path, requestMetric)
 
 			metricsSender.flush
 		}
