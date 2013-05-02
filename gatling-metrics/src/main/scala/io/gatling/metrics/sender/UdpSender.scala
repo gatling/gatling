@@ -22,7 +22,7 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 
 class UdpSender extends MetricsSender {
 
-	private val address = new InetSocketAddress(configuration.graphite.host, configuration.graphite.port)
+	private val address = new InetSocketAddress(configuration.data.graphite.host, configuration.data.graphite.port)
 	private val socket: DatagramSocket = DatagramChannel.open.socket
 
 	def sendToGraphite(bytes: Array[Byte]) {

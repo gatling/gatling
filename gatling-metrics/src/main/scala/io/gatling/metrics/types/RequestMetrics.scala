@@ -49,7 +49,7 @@ class RequestMetrics {
 	}
 }
 
-class Metrics(bucketWidth: Int = configuration.graphite.bucketWidth) {
+class Metrics(bucketWidth: Int = configuration.data.graphite.bucketWidth) {
 
 	var count = 0L
 	var max = 0L

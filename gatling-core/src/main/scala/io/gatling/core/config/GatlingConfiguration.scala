@@ -130,13 +130,15 @@ object GatlingConfiguration {
 				dataReaderClass = (config.getString(CONF_DATA_READER_CLASS_NAME)).trim match {
 					case "file" => "io.gatling.charts.result.reader.FileDataReader"
 					case clazz => clazz
-				}),
-			graphite = GraphiteConfiguration(
-				host = config.getString(CONF_GRAPHITE_HOST),
-				port = config.getInt(CONF_GRAPHITE_PORT),
-				protocol = config.getString(CONF_GRAPHITE_PROTOCOL),
-				rootPathPrefix = config.getString(CONF_ROOT_PATH_PREFIX),
-				bucketWidth = config.getInt(CONF_GRAPHITE_BUCKET_WIDTH)),
+				},
+				console = ConsoleConfiguration(
+					light = config.getBoolean(CONF_DATA_CONSOLE_LIGHT)),
+				graphite = GraphiteConfiguration(
+					host = config.getString(CONF_DATA_GRAPHITE_HOST),
+					port = config.getInt(CONF_DATA_GRAPHITE_PORT),
+					protocol = config.getString(CONF_DATA_GRAPHITE_PROTOCOL),
+					rootPathPrefix = config.getString(CONF_DATA_GRAPHITE_ROOT_PATH_PREFIX),
+					bucketWidth = config.getInt(CONF_DATA_GRAPHITE_BUCKET_WIDTH))),
 			config)
 	}
 }
@@ -212,7 +214,12 @@ case class StoreConfiguration(
 
 case class DataConfiguration(
 	dataWriterClasses: Seq[String],
-	dataReaderClass: String)
+	dataReaderClass: String,
+	console: ConsoleConfiguration,
+	graphite: GraphiteConfiguration)
+
+case class ConsoleConfiguration(
+	light: Boolean)
 
 case class GraphiteConfiguration(
 	host: String,
@@ -226,5 +233,4 @@ case class GatlingConfiguration(
 	charting: ChartingConfiguration,
 	http: HttpConfiguration,
 	data: DataConfiguration,
-	graphite: GraphiteConfiguration,
 	config: Config)

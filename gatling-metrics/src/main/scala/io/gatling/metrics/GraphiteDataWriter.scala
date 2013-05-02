@@ -32,7 +32,7 @@ import akka.actor.Props
 class GraphiteDataWriter extends DataWriter {
 
 	private val graphiteSender = context.actorOf(Props(new GraphiteSender))
-	private val rootPathPrefix = configuration.graphite.rootPathPrefix.split('.').toList
+	private val rootPathPrefix = configuration.data.graphite.rootPathPrefix.split('.').toList
 	private var metricRootPath: List[String] = Nil
 	private val allRequests = new RequestMetrics
 	private val perRequest = mutable.Map.empty[List[String], RequestMetrics]

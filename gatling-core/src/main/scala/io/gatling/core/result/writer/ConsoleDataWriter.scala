@@ -39,20 +39,21 @@ class UserCounters(val totalCount: Int) {
 	def waitingCount = totalCount - _runningCount - _doneCount
 }
 
-class RequestCounters(var successfulCount: Int, var failedCount: Int)
+class RequestCounters(var successfulCount: Int = 0, var failedCount: Int = 0)
 
 class ConsoleDataWriter extends DataWriter {
 
 	private var startUpTime = 0L
 	private var complete = false
 	private val usersCounters = mutable.Map.empty[String, UserCounters]
+	private var globalRequestCounters = new RequestCounters
 	private val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty
 
 	def display {
 		val now = currentTimeMillis
 		val runDuration = (now - startUpTime) / 1000
 
-		val summary = ConsoleSummary(runDuration, usersCounters, requestsCounters)
+		val summary = ConsoleSummary(runDuration, usersCounters, globalRequestCounters, requestsCounters)
 		complete = summary.complete
 		println(summary.text)
 	}
@@ -98,11 +99,15 @@ class ConsoleDataWriter extends DataWriter {
 		import request._
 
 		val requestPath = (name :: groupStack.map(_.name)).reverse.mkString(" / ")
-		val requestCounters = requestsCounters.getOrElseUpdate(requestPath, new RequestCounters(0, 0))
+		val requestCounters = requestsCounters.getOrElseUpdate(requestPath, new RequestCounters)
 
 		status match {
-			case OK => requestCounters.successfulCount += 1
-			case KO => requestCounters.failedCount += 1
+			case OK =>
+				globalRequestCounters.successfulCount += 1
+				requestCounters.successfulCount += 1
+			case KO =>
+				globalRequestCounters.failedCount += 1
+				requestCounters.failedCount += 1
 		}
 	}
 

@@ -18,7 +18,7 @@ package io.gatling.metrics.sender
 import io.gatling.core.config.GatlingConfiguration.configuration
 
 object MetricsSender {
-	def newMetricsSender: MetricsSender = configuration.graphite.protocol match {
+	def newMetricsSender: MetricsSender = configuration.data.graphite.protocol match {
 		case "tcp" => new TcpSender
 		case "udp" => new UdpSender
 	}

@@ -24,6 +24,7 @@ import org.joda.time.format.DateTimeFormat
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.core.util.StringHelper.{ RichString, eol }
+import io.gatling.core.config.GatlingConfiguration.configuration
 
 object ConsoleSummary {
 
@@ -34,7 +35,7 @@ object ConsoleSummary {
 
 	def writeSubTitle(title: String) = ("---- " + title + " ").rightPad(outputLength, "-")
 
-	def apply(runDuration: Long, usersCounters: Map[String, UserCounters], requestsCounters: Map[String, RequestCounters], time: DateTime = DateTime.now) = {
+	def apply(runDuration: Long, usersCounters: Map[String, UserCounters], globalRequestCounters: RequestCounters, requestsCounters: Map[String, RequestCounters], time: DateTime = DateTime.now) = {
 
 		def writeUsersCounters(scenarioName: String, userCounters: UserCounters): Fastring = {
 
@@ -64,7 +65,12 @@ $newBlock
 ${ConsoleSummary.dateTimeFormat.print(time)} ${(runDuration + "s elapsed").leftPad(outputLength - iso8601Format.length - 9)}
 ${usersCounters.map { case (scenarioName, usersStats) => writeUsersCounters(scenarioName, usersStats) }.mkFastring(eol)}
 ${writeSubTitle("Requests")}
-${requestsCounters.map { case (actionName, requestCounters) => writeRequestsCounter(actionName, requestCounters) }.mkFastring(eol)}
+${writeRequestsCounter("Global", globalRequestCounters)}
+${
+			if (!configuration.data.console.light)
+				requestsCounters.map { case (actionName, requestCounters) => writeRequestsCounter(actionName, requestCounters) }.mkFastring(eol)
+			else ""
+		}
 $newBlock
 """.toString
 

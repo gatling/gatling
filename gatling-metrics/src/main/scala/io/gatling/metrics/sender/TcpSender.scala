@@ -23,7 +23,7 @@ import io.gatling.core.util.StringHelper.eol
 
 class TcpSender extends MetricsSender {
 
-	val socket = new Socket(configuration.graphite.host, configuration.graphite.port)
+	val socket = new Socket(configuration.data.graphite.host, configuration.data.graphite.port)
 	val os = new BufferedOutputStream(socket.getOutputStream)
 
 	def sendToGraphite(bytes: Array[Byte]) {
