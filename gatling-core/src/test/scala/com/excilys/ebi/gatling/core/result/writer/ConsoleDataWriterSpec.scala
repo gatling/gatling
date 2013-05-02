@@ -37,7 +37,7 @@ class ConsoleDataWriterSpec extends Specification {
 
 			val counters = new UserCounters(11)
 
-			val summary = ConsoleSummary(10000, Map("request1" -> counters), Map.empty, time)
+			val summary = ConsoleSummary(10000, Map("request1" -> counters), new RequestCounters, Map.empty, time)
 			summary.complete must beFalse
 			progressBar(summary) must beEqualTo("Users  : [                                                                 ]  0%")
 		}
@@ -47,7 +47,7 @@ class ConsoleDataWriterSpec extends Specification {
 			val counters = new UserCounters(11)
 			for (i <- 1 to 11) counters.userStart
 
-			val summary = ConsoleSummary(10000, Map("request1" -> counters), Map.empty, time)
+			val summary = ConsoleSummary(10000, Map("request1" -> counters), new RequestCounters, Map.empty, time)
 			summary.complete must beFalse
 			progressBar(summary) must beEqualTo("Users  : [-----------------------------------------------------------------]  0%")
 		}
@@ -58,7 +58,7 @@ class ConsoleDataWriterSpec extends Specification {
 			for (i <- 1 to 11) counters.userStart
 			for (i <- 1 to 11) counters.userDone
 
-			val summary = ConsoleSummary(10000, Map("request1" -> counters), Map.empty, time)
+			val summary = ConsoleSummary(10000, Map("request1" -> counters), new RequestCounters, Map.empty, time)
 			summary.complete must beTrue
 			progressBar(summary) must beEqualTo("Users  : [#################################################################]100%")
 		}
@@ -69,7 +69,7 @@ class ConsoleDataWriterSpec extends Specification {
 			for (i <- 1 to 11) counters.userStart
 			for (i <- 1 to 10) counters.userDone
 
-			val summary = ConsoleSummary(10000, Map("request1" -> counters), Map.empty, time)
+			val summary = ConsoleSummary(10000, Map("request1" -> counters), new RequestCounters, Map.empty, time)
 			summary.complete must beFalse
 			progressBar(summary) must beEqualTo("Users  : [###########################################################------] 90%")
 		}

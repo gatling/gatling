@@ -40,7 +40,7 @@ class UserCounters(val totalCount: Int) {
 	def waitingCount = totalCount - _runningCount - _doneCount
 }
 
-class RequestCounters(var successfulCount: Int, var failedCount: Int)
+class RequestCounters(var successfulCount: Int = 0, var failedCount: Int = 0)
 
 class ConsoleDataWriter extends DataWriter with Logging {
 
@@ -49,6 +49,7 @@ class ConsoleDataWriter extends DataWriter with Logging {
 
 	private val usersCounters: mutable.Map[String, UserCounters] = mutable.HashMap.empty
 	private val groupStack: mutable.Map[Int, List[String]] = mutable.HashMap.empty
+	private var globalRequestCounters = new RequestCounters
 	private val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty
 
 	private val displayPeriod = 5 * 1000
@@ -61,7 +62,7 @@ class ConsoleDataWriter extends DataWriter with Logging {
 			lastDisplayTime = now
 			val timeSinceStartUpInSec = (now - startUpTime) / 1000
 
-			val summary = ConsoleSummary(timeSinceStartUpInSec, usersCounters, requestsCounters)
+			val summary = ConsoleSummary(timeSinceStartUpInSec, usersCounters, globalRequestCounters, requestsCounters)
 			complete = summary.complete
 			println(summary)
 		}
@@ -114,11 +115,15 @@ class ConsoleDataWriter extends DataWriter with Logging {
 
 		val currentGroup = groupStack.getOrElse(requestRecord.userId, Nil)
 		val requestPath = RequestPath.path(requestRecord.requestName :: currentGroup)
-		val requestCounters = requestsCounters.getOrElseUpdate(requestPath, new RequestCounters(0, 0))
+		val requestCounters = requestsCounters.getOrElseUpdate(requestPath, new RequestCounters)
 
 		requestRecord.requestStatus match {
-			case OK => requestCounters.successfulCount += 1
-			case KO => requestCounters.failedCount += 1
+			case OK =>
+				globalRequestCounters.successfulCount += 1
+				requestCounters.successfulCount += 1
+			case KO =>
+				globalRequestCounters.failedCount += 1
+				requestCounters.failedCount += 1
 		}
 
 		display(false)

@@ -23,6 +23,7 @@ import org.joda.time.format.DateTimeFormat
 
 import com.excilys.ebi.gatling.core.util.PaddableStringBuilder.toPaddable
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 
 object ConsoleSummary {
 	val iso8601Format = "yyyy-MM-dd HH:mm:ss"
@@ -31,7 +32,7 @@ object ConsoleSummary {
 	val outputLength = 80
 	val blockSeparator = "=" * outputLength
 
-	def apply(elapsedTime: Long, usersCounters: Map[String, UserCounters], requestsCounters: Map[String, RequestCounters], time: DateTime = DateTime.now) = {
+	def apply(elapsedTime: Long, usersCounters: Map[String, UserCounters], globalRequestCounters: RequestCounters, requestsCounters: Map[String, RequestCounters], time: DateTime = DateTime.now) = {
 
 		def newBlock(buff: StringBuilder) { buff.append(blockSeparator).append(END_OF_LINE) }
 
@@ -95,11 +96,13 @@ object ConsoleSummary {
 
 		//Requests
 		appendSubTitle(buff, "Requests")
-		requestsCounters.foreach {
-			case (actionName, requestCounters) => {
-				appendRequestCounters(buff, actionName, requestCounters)
+		appendRequestCounters(buff, "Global", globalRequestCounters)
+		if (!configuration.data.console.light)
+			requestsCounters.foreach {
+				case (actionName, requestCounters) => {
+					appendRequestCounters(buff, actionName, requestCounters)
+				}
 			}
-		}
 
 		newBlock(buff)
 

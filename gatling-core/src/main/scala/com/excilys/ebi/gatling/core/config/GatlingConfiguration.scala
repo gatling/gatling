@@ -123,6 +123,8 @@ object GatlingConfiguration extends Logging {
 					case "file" => "com.excilys.ebi.gatling.charts.result.reader.FileDataReader"
 					case clazz => clazz
 				},
+				console = ConsoleConfiguration(
+					light = config.getBoolean(CONF_DATA_GRAPHITE_HOST)),
 				graphite = GraphiteConfiguration(
 					host = config.getString(CONF_DATA_GRAPHITE_HOST),
 					port = config.getInt(CONF_DATA_GRAPHITE_PORT),
@@ -196,7 +198,11 @@ case class StoreConfiguration(
 case class DataConfiguration(
 	dataWriterClasses: Seq[String],
 	dataReaderClass: String,
+	console: ConsoleConfiguration,
 	graphite: GraphiteConfiguration)
+
+case class ConsoleConfiguration(
+	light: Boolean)
 
 case class GraphiteConfiguration(
 	host: String,
