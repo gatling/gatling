@@ -32,7 +32,7 @@ import grizzled.slf4j.Logging
 
 object DataWriter extends AkkaDefaults with Logging {
 
-	private val dataWriters: List[ActorRef] = configuration.data.dataWriterClasses.map { className =>
+	private val dataWriters: Seq[ActorRef] = configuration.data.dataWriterClasses.map { className =>
 		val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
 		system.actorOf(Props(clazz))
 	}
