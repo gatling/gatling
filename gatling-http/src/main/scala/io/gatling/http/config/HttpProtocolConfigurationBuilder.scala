@@ -59,6 +59,8 @@ case class HttpProtocolConfigurationBuilder(config: HttpProtocolConfiguration, w
 
 	def disableResponseChunksDiscarding = copy(config = config.copy(responseChunksDiscardingEnabled = false))
 
+	def disableClientSharing = copy(config = config.copy(shareClient = false))
+
 	def shareConnections = copy(config = config.copy(shareConnections = true))
 
 	def acceptHeader(value: String) = copy(config = config.copy(baseHeaders = config.baseHeaders + (ACCEPT -> value)))
@@ -90,6 +92,8 @@ case class HttpProtocolConfigurationBuilder(config: HttpProtocolConfiguration, w
 	def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = copy(config = config.copy(proxy = Some(httpProxy), securedProxy = httpsProxy))
 
 	def build = {
+		require(!(!config.shareClient && config.shareConnections), "Invalid configuration: can't stop sharing the HTTP client while still sharing connections!")
+
 		warmUpUrl.map { url =>
 			if (!HttpProtocolConfigurationBuilder.warmUpUrls.contains(url)) {
 				HttpProtocolConfigurationBuilder.warmUpUrls += url

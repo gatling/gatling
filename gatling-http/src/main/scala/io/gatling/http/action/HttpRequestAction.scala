@@ -73,7 +73,7 @@ class HttpRequestAction(
 
 			} else {
 				val (sessionWithClient, client) =
-					if (protocolConfiguration.shareConnections)
+					if (protocolConfiguration.shareClient)
 						(newSession, GatlingHttpClient.defaultClient)
 					else
 						newSession.get[AsyncHttpClient](GatlingHttpClient.httpClientAttributeName)

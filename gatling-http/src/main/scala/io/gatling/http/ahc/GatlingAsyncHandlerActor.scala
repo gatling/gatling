@@ -211,7 +211,7 @@ class GatlingAsyncHandlerActor(
 			this.responseBuilder = responseBuilderFactory(newRequest)
 
 			val client =
-				if (protocolConfiguration.shareConnections)
+				if (protocolConfiguration.shareClient)
 					GatlingHttpClient.defaultClient
 				else
 					sessionWithUpdatedCookies.get(GatlingHttpClient.httpClientAttributeName, throw new UnsupportedOperationException("Couldn't find an HTTP client stored in the session"))
