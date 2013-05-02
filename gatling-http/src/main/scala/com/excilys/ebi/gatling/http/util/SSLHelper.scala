@@ -17,9 +17,7 @@ package com.excilys.ebi.gatling.http.util
 
 import java.io.{ File, FileInputStream }
 import java.security.{ KeyStore, SecureRandom }
-
 import com.ning.http.client.AsyncHttpClientConfig
-
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 import javax.net.ssl.{ KeyManager, KeyManagerFactory, SSLContext, TrustManager, TrustManagerFactory }
 
