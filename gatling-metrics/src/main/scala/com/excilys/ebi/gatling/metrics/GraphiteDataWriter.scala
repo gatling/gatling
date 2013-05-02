@@ -42,8 +42,8 @@ class GraphiteDataWriter extends DataWriter {
 	private val usersPerScenario: mutable.Map[String, UserMetric] = mutable.Map.empty
 	private var timer: Timer = _
 	private var writer: Writer = _
-	private val sanitizeStringMemo = mutable.Map.empty[String,String]
-	private val sanitizeStringListMemo = mutable.Map.empty[List[String],List[String]]
+	private val sanitizeStringMemo = mutable.Map.empty[String, String]
+	private val sanitizeStringListMemo = mutable.Map.empty[List[String], List[String]]
 	private val percentiles1 = configuration.charting.indicators.percentile1
 	private val percentiles1Name = "percentiles" + percentiles1
 	private val percentiles2 = configuration.charting.indicators.percentile2
@@ -86,10 +86,12 @@ class GraphiteDataWriter extends DataWriter {
 	}
 
 	def onRequestRecord(requestRecord: RequestRecord) {
-		val currentGroup = groupStack(requestRecord.userId)
-		val path = requestRecord.requestName :: currentGroup
-		val metric = perRequest.getOrElseUpdate(path.reverse, new RequestMetrics)
-		metric.update(requestRecord)
+		if (!configuration.data.graphite.light) {
+			val currentGroup = groupStack(requestRecord.userId)
+			val path = requestRecord.requestName :: currentGroup
+			val metric = perRequest.getOrElseUpdate(path.reverse, new RequestMetrics)
+			metric.update(requestRecord)
+		}
 		allRequests.update(requestRecord)
 	}
 
@@ -105,9 +107,9 @@ class GraphiteDataWriter extends DataWriter {
 
 	private def sendMetricsToGraphite(epoch: Long) {
 
-		def sanitizeString(s: String) = sanitizeStringMemo.getOrElseUpdate(s,s.replace(' ', '_').replace('.', '-').replace('\\', '-'))
+		def sanitizeString(s: String) = sanitizeStringMemo.getOrElseUpdate(s, s.replace(' ', '_').replace('.', '-').replace('\\', '-'))
 
-		def sanitizeStringList(list: List[String]) = sanitizeStringListMemo.getOrElseUpdate(list,list.map(sanitizeString))
+		def sanitizeStringList(list: List[String]) = sanitizeStringListMemo.getOrElseUpdate(list, list.map(sanitizeString))
 
 		def sendToGraphite(metricPath: MetricPath, value: Long) {
 			writer.write(metricPath.toString)
@@ -156,9 +158,10 @@ class GraphiteDataWriter extends DataWriter {
 				case (scenarioName, userMetric) => sendUserMetrics(scenarioName, userMetric)
 			}
 			sendRequestMetrics(List("allRequests"), allRequests)
-			perRequest.foreach {
-				case (requestName, requestMetric) => sendRequestMetrics(requestName, requestMetric)
-			}
+			if (!configuration.data.graphite.light)
+				perRequest.foreach {
+					case (requestName, requestMetric) => sendRequestMetrics(requestName, requestMetric)
+				}
 
 			writer.flush
 
@@ -169,7 +172,7 @@ class GraphiteDataWriter extends DataWriter {
 					try {
 						writer.close
 					} catch {
-						case _ : Exception => // shut up
+						case _: Exception => // shut up
 					} finally {
 						writer = null
 					}
