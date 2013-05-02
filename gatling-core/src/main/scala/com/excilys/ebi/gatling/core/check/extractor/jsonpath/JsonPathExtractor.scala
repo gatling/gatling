@@ -15,14 +15,12 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 
-import java.io.InputStream
-
 import scala.collection.JavaConversions.asScalaBuffer
 
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.jayway.jsonpath.{ InvalidPathException, JsonPath }
 
-import com.fasterxml.jackson.core.JsonParser
+import net.minidev.json.JSONArray
 
 /**
  * A built-in extractor for extracting values with  Xpath like expressions for Json
@@ -30,9 +28,7 @@ import com.fasterxml.jackson.core.JsonParser
  * @constructor creates a new JsonPathExtractor
  * @param textContent the text where the search will be made
  */
-class JsonPathExtractor(inputStream: Option[InputStream]) extends Extractor {
-
-	val json: Option[JsonNode] = inputStream.map(Json.parse)
+class JsonPathExtractor(string: String) extends Extractor {
 
 	/**
 	 * @param occurrence
@@ -48,7 +44,20 @@ class JsonPathExtractor(inputStream: Option[InputStream]) extends Extractor {
 	 * @param expression
 	 * @return extract all the occurrences matching the expression
 	 */
-	def extractMultiple(expression: String): Option[Seq[String]] = json.map(new JaxenJackson(expression).selectNodes(_).map(_.asInstanceOf[JsonText].value))
+	def extractMultiple(expression: String): Option[Seq[String]] = {
+
+		val path = JsonPath.compile(expression)
+
+		try {
+			path.read[Any](string) match {
+				case null => None // can't turn result into an Option as we want to turn empty Seq into None (see below)
+				case array: JSONArray => array.map(_.toString)
+				case other => Some(List(other.toString))
+			}
+		} catch {
+			case e: InvalidPathException => None
+		}
+	}
 
 	/**
 	 * @param expression
