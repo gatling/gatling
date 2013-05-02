@@ -27,7 +27,7 @@ import grizzled.slf4j.Logging
  */
 object HttpProtocolConfigurationBuilder {
 
-	private[gatling] val BASE_HTTP_PROTOCOL_CONFIGURATION_BUILDER = new HttpProtocolConfigurationBuilder(Attributes(None, None, None, true, true, true, true, false, Map.empty, None, None, None))
+	private[gatling] val BASE_HTTP_PROTOCOL_CONFIGURATION_BUILDER = new HttpProtocolConfigurationBuilder(Attributes(None, None, None, true, true, true, true, true, false, Map.empty, None, None, None))
 
 	def httpConfig = BASE_HTTP_PROTOCOL_CONFIGURATION_BUILDER.warmUp("http://gatling-tool.org")
 }
@@ -39,6 +39,7 @@ private case class Attributes(baseUrls: Option[List[String]],
 	automaticRefererEnabled: Boolean,
 	cachingEnabled: Boolean,
 	responseChunksDiscardingEnabled: Boolean,
+	shareClient: Boolean,
 	shareConnections: Boolean,
 	baseHeaders: Map[String, String],
 	warmUpUrl: Option[String],
@@ -69,6 +70,8 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 	def disableCaching = new HttpProtocolConfigurationBuilder(attributes.copy(cachingEnabled = false))
 
 	def disableResponseChunksDiscarding = new HttpProtocolConfigurationBuilder(attributes.copy(responseChunksDiscardingEnabled = false))
+
+	def disableClientSharing = new HttpProtocolConfigurationBuilder(attributes.copy(shareClient = false))
 
 	def shareConnections = new HttpProtocolConfigurationBuilder(attributes.copy(shareConnections = true))
 
@@ -108,6 +111,8 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 
 	private[http] def build = {
 
+		require(!(!attributes.shareClient && attributes.shareConnections), "Invalid configuration: can't stop sharing the HTTP client while still sharing connections!")
+
 		attributes.warmUpUrl.map { url =>
 			val requestBuilder = new RequestBuilder().setUrl(url)
 
@@ -121,6 +126,6 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 			}
 		}
 
-		HttpProtocolConfiguration(attributes.baseUrls, attributes.proxy, attributes.securedProxy, attributes.followRedirectEnabled, attributes.automaticRefererEnabled, attributes.cachingEnabled, attributes.responseChunksDiscardingEnabled, attributes.shareConnections, attributes.baseHeaders, attributes.extraRequestInfoExtractor, attributes.extraResponseInfoExtractor)
+		HttpProtocolConfiguration(attributes.baseUrls, attributes.proxy, attributes.securedProxy, attributes.followRedirectEnabled, attributes.automaticRefererEnabled, attributes.cachingEnabled, attributes.responseChunksDiscardingEnabled, attributes.shareClient, attributes.shareConnections, attributes.baseHeaders, attributes.extraRequestInfoExtractor, attributes.extraResponseInfoExtractor)
 	}
 }

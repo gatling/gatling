@@ -196,7 +196,7 @@ class GatlingAsyncHandlerActor(
 			this.responseBuilder = responseBuilderFactory(newRequest, session)
 
 			val client =
-				if (protocolConfiguration.shareConnections)
+				if (protocolConfiguration.shareClient)
 					GatlingHttpClient.defaultClient
 				else
 					sessionWithUpdatedCookies.getAttribute(GatlingHttpClient.httpClientAttributeName).asInstanceOf[AsyncHttpClient]

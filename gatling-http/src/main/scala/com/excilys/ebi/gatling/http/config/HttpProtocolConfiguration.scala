@@ -36,17 +36,18 @@ object HttpProtocolConfiguration {
  * @param proxy a proxy through which all the requests must pass to succeed
  */
 case class HttpProtocolConfiguration(
-		baseURLs: Option[Seq[String]],
-		proxy: Option[ProxyServer],
-		securedProxy: Option[ProxyServer],
-		followRedirectEnabled: Boolean,
-		automaticRefererEnabled: Boolean,
-		cachingEnabled: Boolean,
-		responseChunksDiscardingEnabled: Boolean,
-		shareConnections: Boolean,
-		baseHeaders: Map[String, String],
-		extraRequestInfoExtractor: Option[(Request => List[String])],
-		extraResponseInfoExtractor: Option[(ExtendedResponse => List[String])]) extends ProtocolConfiguration {
+	baseURLs: Option[Seq[String]],
+	proxy: Option[ProxyServer],
+	securedProxy: Option[ProxyServer],
+	followRedirectEnabled: Boolean,
+	automaticRefererEnabled: Boolean,
+	cachingEnabled: Boolean,
+	responseChunksDiscardingEnabled: Boolean,
+	shareClient: Boolean,
+	shareConnections: Boolean,
+	baseHeaders: Map[String, String],
+	extraRequestInfoExtractor: Option[(Request => List[String])],
+	extraResponseInfoExtractor: Option[(ExtendedResponse => List[String])]) extends ProtocolConfiguration {
 
 	val protocolType = HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE
 
