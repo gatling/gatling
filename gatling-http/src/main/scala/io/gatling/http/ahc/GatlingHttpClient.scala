@@ -134,8 +134,5 @@ object GatlingHttpClient extends Logging {
 		client
 	}
 
-	/**
-	 * The HTTP client used to send the requests
-	 */
 	lazy val defaultClient = newClient(None)
 }
