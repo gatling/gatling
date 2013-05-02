@@ -129,7 +129,6 @@
 		<xstream.version>1.4.3</xstream.version>
 		<scopt.version>2.1.0</scopt.version>
 		<grizzled-slf4j.version>0.6.10</grizzled-slf4j.version>
-		<jackson.version>2.2.0</jackson.version>
 		<jayway-jsonpath.version>0.8.1</jayway-jsonpath.version>
 		<commons-math3.version>3.1.1</commons-math3.version>
 		<commons-io.version>2.4</commons-io.version>
@@ -331,11 +330,6 @@
 				<groupId>org.apache.maven</groupId>
 				<artifactId>maven-plugin-api</artifactId>
 				<version>${maven2.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-databind</artifactId>
-				<version>${jackson.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.jayway.jsonpath</groupId>

@@ -18,8 +18,8 @@ package com.excilys.ebi.gatling.http.check.body
 import com.excilys.ebi.gatling.core.check.CheckContext.getOrUpdateCheckContextAttribute
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
 import com.excilys.ebi.gatling.core.check.extractor.jsonpath.JsonPathExtractor
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.excilys.ebi.gatling.core.util.ByteBufferInputStream
 import com.excilys.ebi.gatling.http.check.HttpMultipleCheckBuilder
 import com.excilys.ebi.gatling.http.request.HttpPhase.CompletePageReceived
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
@@ -30,10 +30,7 @@ object HttpBodyJsonPathCheckBuilder {
 
 	private def getCachedExtractor(response: ExtendedResponse) = {
 
-		def newExtractor = {
-			val stream = if (response.hasResponseBody) Some(new ByteBufferInputStream(response.getResponseBodyAsByteBuffer)) else None
-			new JsonPathExtractor(stream)
-		}
+		def newExtractor = new JsonPathExtractor(response.getResponseBody(configuration.simulation.encoding))
 
 		getOrUpdateCheckContextAttribute(HTTP_BODY_JSON_EXTRACTOR_CONTEXT_KEY, newExtractor)
 	}
