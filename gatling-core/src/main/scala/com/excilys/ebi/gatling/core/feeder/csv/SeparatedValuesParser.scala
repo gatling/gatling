@@ -37,7 +37,7 @@ object SeparatedValuesParser {
 
 		require(file.exists, "file " + file + " doesn't exists")
 
-		use(Source.fromFile(file.jfile, GatlingConfiguration.configuration.simulation.encoding)) { source =>
+		use(Source.fromFile(file.jfile, GatlingConfiguration.configuration.core.encoding)) { source =>
 
 			val rawLines = source.getLines.map(_.split(separator))
 

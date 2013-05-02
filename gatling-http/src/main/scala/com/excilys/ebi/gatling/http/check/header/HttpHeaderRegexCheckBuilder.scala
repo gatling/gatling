@@ -47,7 +47,7 @@ object HttpHeaderRegexCheckBuilder extends Extractor {
 			val decodedHeaderValues = Option(response.getHeaders(headerName))
 				.map { headerValues =>
 					if (headerName == Headers.Names.LOCATION)
-						headerValues.map(URLDecoder.decode(_, configuration.simulation.encoding))
+						headerValues.map(URLDecoder.decode(_, configuration.core.encoding))
 					else
 						headerValues.toSeq
 				}.getOrElse(Nil)

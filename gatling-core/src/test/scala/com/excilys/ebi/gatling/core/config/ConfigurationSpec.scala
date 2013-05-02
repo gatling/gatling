@@ -33,6 +33,6 @@ class ConfigurationSpec extends Specification {
 		
 		GatlingConfiguration.setUp(props.build)
 		
-		GatlingConfiguration.configuration.simulation.clazz should beEqualTo(Some("Foo"))
+		GatlingConfiguration.configuration.core.simulationClass should beEqualTo(Some("Foo"))
 	}
 }

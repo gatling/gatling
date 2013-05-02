@@ -50,7 +50,7 @@ object FileHelper {
 			"missing-name"
 		else {
 			val md = MessageDigest.getInstance("md5")
-			md.update(trimmed.getBytes(configuration.simulation.encoding))
+			md.update(trimmed.getBytes(configuration.core.encoding))
 			clean(trimmed) + "-" + bytes2Hex(md.digest)
 		}
 	}

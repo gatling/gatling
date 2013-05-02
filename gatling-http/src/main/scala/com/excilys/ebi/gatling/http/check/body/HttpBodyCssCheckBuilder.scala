@@ -30,7 +30,7 @@ object HttpBodyCssCheckBuilder {
 
 	private def getCachedExtractor(response: ExtendedResponse) = {
 
-		def newExtractor = new CssExtractor(response.getResponseBody(configuration.simulation.encoding))
+		def newExtractor = new CssExtractor(response.getResponseBody(configuration.core.encoding))
 
 		getOrUpdateCheckContextAttribute(HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY, newExtractor)
 	}

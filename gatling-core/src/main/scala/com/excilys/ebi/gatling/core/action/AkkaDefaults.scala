@@ -22,5 +22,5 @@ import akka.util.duration.intToDurationInt
 
 trait AkkaDefaults {
 
-	implicit val defaultTimeOut = Timeout(configuration.timeOut.actor seconds)
+	implicit val defaultTimeOut = Timeout(configuration.core.timeOut.actor seconds)
 }

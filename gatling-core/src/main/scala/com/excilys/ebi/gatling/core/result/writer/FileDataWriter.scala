@@ -79,7 +79,7 @@ class FileDataWriter extends DataWriter with Logging {
 
 	override def onInitializeDataWriter(runRecord: RunRecord, scenarios: Seq[ShortScenarioDescription]) {
 		val simulationLog = simulationLogDirectory(runRecord.runId) / "simulation.log"
-		osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(simulationLog.toString)), configuration.simulation.encoding)
+		osw = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(simulationLog.toString)), configuration.core.encoding)
 		osw.append(RUN).append(TABULATION_SEPARATOR)
 			.append(runRecord.timestamp).append(TABULATION_SEPARATOR)
 			.append(runRecord.simulationId).append(TABULATION_SEPARATOR)

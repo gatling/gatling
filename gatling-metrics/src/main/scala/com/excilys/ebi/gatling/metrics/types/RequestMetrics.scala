@@ -25,9 +25,9 @@ import com.excilys.ebi.gatling.core.result.message.RequestStatus.{ KO, OK }
 
 class RequestMetrics {
 
-	val okMetrics = new Metrics(configuration.graphite.bucketWidth)
-	val koMetrics = new Metrics(configuration.graphite.bucketWidth)
-	val allMetrics = new Metrics(configuration.graphite.bucketWidth)
+	val okMetrics = new Metrics(configuration.data.graphite.bucketWidth)
+	val koMetrics = new Metrics(configuration.data.graphite.bucketWidth)
+	val allMetrics = new Metrics(configuration.data.graphite.bucketWidth)
 
 	def update(requestRecord: RequestRecord) {
 		val responseTime = requestRecord.responseTime.max(0L)

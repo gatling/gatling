@@ -30,35 +30,35 @@ class GatlingPropertiesBuilder {
 	}
 
 	def reportsOnly(v: String) {
-		props.put(CONF_DIRECTORY_REPORTS_ONLY, v)
+		props.put(CONF_CORE_DIRECTORY_REPORTS_ONLY, v)
 	}
 
 	def dataDirectory(v: String) {
-		props.put(CONF_DIRECTORY_DATA, v)
+		props.put(CONF_CORE_DIRECTORY_DATA, v)
 	}
 
 	def resultsDirectory(v: String) {
-		props.put(CONF_DIRECTORY_RESULTS, v)
+		props.put(CONF_CORE_DIRECTORY_RESULTS, v)
 	}
 
 	def requestBodiesDirectory(v: String) {
-		props.put(CONF_DIRECTORY_REQUEST_BODIES, v)
+		props.put(CONF_CORE_DIRECTORY_REQUEST_BODIES, v)
 	}
 
 	def sourcesDirectory(v: String) {
-		props.put(CONF_DIRECTORY_SIMULATIONS, v)
+		props.put(CONF_CORE_DIRECTORY_SIMULATIONS, v)
 	}
 
 	def binariesDirectory(v: String) {
-		props.put(CONF_DIRECTORY_BINARIES, v)
+		props.put(CONF_CORE_DIRECTORY_BINARIES, v)
 	}
 
 	def clazz(v: String) {
-		props.put(CONF_SIMULATION_CLASS, v)
+		props.put(CONF_CORE_SIMULATION_CLASS, v)
 	}
 
 	def outputDirectoryBaseName(v: String) {
-		props.put(CONF_SIMULATION_OUTPUT_DIRECTORY_BASE_NAME, v)
+		props.put(CONF_CORE_OUTPUT_DIRECTORY_BASE_NAME, v)
 	}
 
 	def build = props

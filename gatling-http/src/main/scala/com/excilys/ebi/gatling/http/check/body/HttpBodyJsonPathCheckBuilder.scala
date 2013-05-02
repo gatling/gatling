@@ -30,7 +30,7 @@ object HttpBodyJsonPathCheckBuilder {
 
 	private def getCachedExtractor(response: ExtendedResponse) = {
 
-		def newExtractor = new JsonPathExtractor(response.getResponseBody(configuration.simulation.encoding))
+		def newExtractor = new JsonPathExtractor(response.getResponseBody(configuration.core.encoding))
 
 		getOrUpdateCheckContextAttribute(HTTP_BODY_JSON_EXTRACTOR_CONTEXT_KEY, newExtractor)
 	}

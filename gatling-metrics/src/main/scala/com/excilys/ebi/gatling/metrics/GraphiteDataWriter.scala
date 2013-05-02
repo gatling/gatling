@@ -33,7 +33,7 @@ case object SendToGraphite
 
 class GraphiteDataWriter extends DataWriter {
 
-	private val rootPathPrefix = configuration.graphite.rootPathPrefix.split('.').toList
+	private val rootPathPrefix = configuration.data.graphite.rootPathPrefix.split('.').toList
 	private var metricRootPath: List[String] = Nil
 	private val groupStack: mutable.Map[Int, List[String]] = mutable.Map.empty
 	private val allRequests = new RequestMetrics
@@ -50,7 +50,7 @@ class GraphiteDataWriter extends DataWriter {
 	private val percentiles2Name = "percentiles" + percentiles2
 
 	private def newWriter: Writer = {
-		val socket = new Socket(configuration.graphite.host, configuration.graphite.port)
+		val socket = new Socket(configuration.data.graphite.host, configuration.data.graphite.port)
 		new BufferedWriter(new OutputStreamWriter(socket.getOutputStream))
 	}
 

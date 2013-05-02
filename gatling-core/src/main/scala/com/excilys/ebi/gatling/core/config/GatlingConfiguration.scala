@@ -42,21 +42,21 @@ object GatlingConfiguration extends Logging {
 		val config = ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(customConfig).withFallback(defaultsConfig)
 
 		configuration = GatlingConfiguration(
-			simulation = SimulationConfiguration(
-				outputDirectoryBaseName = trimToOption(config.getString(CONF_SIMULATION_OUTPUT_DIRECTORY_BASE_NAME)),
-				runDescription = config.getString(CONF_SIMULATION_RUN_DESCRIPTION),
-				encoding = config.getString(CONF_SIMULATION_ENCODING),
-				clazz = trimToOption(config.getString(CONF_SIMULATION_CLASS))),
-			timeOut = TimeOutConfiguration(
-				simulation = config.getInt(CONF_TIME_OUT_SIMULATION),
-				actor = config.getInt(CONF_TIME_OUT_ACTOR)),
-			directory = DirectoryConfiguration(
-				data = config.getString(CONF_DIRECTORY_DATA),
-				requestBodies = config.getString(CONF_DIRECTORY_REQUEST_BODIES),
-				sources = config.getString(CONF_DIRECTORY_SIMULATIONS),
-				binaries = trimToOption(config.getString(CONF_DIRECTORY_BINARIES)),
-				reportsOnly = trimToOption(config.getString(CONF_DIRECTORY_REPORTS_ONLY)),
-				results = config.getString(CONF_DIRECTORY_RESULTS)),
+			core = CoreConfiguration(
+				outputDirectoryBaseName = trimToOption(config.getString(CONF_CORE_OUTPUT_DIRECTORY_BASE_NAME)),
+				runDescription = config.getString(CONF_CORE_RUN_DESCRIPTION),
+				encoding = config.getString(CONF_CORE_ENCODING),
+				simulationClass = trimToOption(config.getString(CONF_CORE_SIMULATION_CLASS)),
+				timeOut = TimeOutConfiguration(
+					simulation = config.getInt(CONF_CORE_TIMEOUT_SIMULATION),
+					actor = config.getInt(CONF_CORE_TIMEOUT_ACTOR)),
+				directory = DirectoryConfiguration(
+					data = config.getString(CONF_CORE_DIRECTORY_DATA),
+					requestBodies = config.getString(CONF_CORE_DIRECTORY_REQUEST_BODIES),
+					sources = config.getString(CONF_CORE_DIRECTORY_SIMULATIONS),
+					binaries = trimToOption(config.getString(CONF_CORE_DIRECTORY_BINARIES)),
+					reportsOnly = trimToOption(config.getString(CONF_CORE_DIRECTORY_REPORTS_ONLY)),
+					results = config.getString(CONF_CORE_DIRECTORY_RESULTS))),
 			charting = ChartingConfiguration(
 				noReports = config.getBoolean(CONF_CHARTING_NO_REPORTS),
 				maxPlotsPerSeries = config.getInt(CONF_CHARTING_MAX_PLOTS_PER_SERIES),
@@ -67,7 +67,6 @@ object GatlingConfiguration extends Logging {
 					percentile1 = config.getInt(CONF_CHARTING_INDICATORS_PERCENTILE1),
 					percentile2 = config.getInt(CONF_CHARTING_INDICATORS_PERCENTILE2))),
 			http = HttpConfiguration(
-				provider = config.getString(CONF_HTTP_PROVIDER),
 				allowPoolingConnection = config.getBoolean(CONF_HTTP_ALLOW_POOLING_CONNECTION),
 				allowSslConnectionPool = config.getBoolean(CONF_HTTP_ALLOW_SSL_CONNECTION_POOL),
 				compressionEnabled = config.getBoolean(CONF_HTTP_COMPRESSION_ENABLED),
@@ -117,21 +116,23 @@ object GatlingConfiguration extends Logging {
 				dataReaderClass = (config.getString(CONF_DATA_READER_CLASS_NAME)).trim match {
 					case "file" => "com.excilys.ebi.gatling.charts.result.reader.FileDataReader"
 					case clazz => clazz
-				}),
-			graphite = GraphiteConfiguration(
-				host = config.getString(CONF_GRAPHITE_HOST),
-				port = config.getInt(CONF_GRAPHITE_PORT),
-				rootPathPrefix = config.getString(CONF_ROOT_PATH_PREFIX),
-				bucketWidth = config.getInt(CONF_GRAPHITE_BUCKET_WIDTH)),
+				},
+				graphite = GraphiteConfiguration(
+					host = config.getString(CONF_DATA_GRAPHITE_HOST),
+					port = config.getInt(CONF_DATA_GRAPHITE_PORT),
+					rootPathPrefix = config.getString(CONF_DATA_GRAPHITE_ROOT_PATH_PREFIX),
+					bucketWidth = config.getInt(CONF_DATA_GRAPHITE_BUCKET_WIDTH))),
 			config)
 	}
 }
 
-case class SimulationConfiguration(
+case class CoreConfiguration(
 	outputDirectoryBaseName: Option[String],
 	runDescription: String,
 	encoding: String,
-	clazz: Option[String])
+	simulationClass: Option[String],
+	timeOut: TimeOutConfiguration,
+	directory: DirectoryConfiguration)
 
 case class TimeOutConfiguration(
 	simulation: Int,
@@ -158,7 +159,6 @@ case class IndicatorsConfiguration(
 	percentile2: Int)
 
 case class HttpConfiguration(
-	provider: String,
 	allowPoolingConnection: Boolean,
 	allowSslConnectionPool: Boolean,
 	compressionEnabled: Boolean,
@@ -189,7 +189,8 @@ case class StoreConfiguration(
 
 case class DataConfiguration(
 	dataWriterClasses: List[String],
-	dataReaderClass: String)
+	dataReaderClass: String,
+	graphite: GraphiteConfiguration)
 
 case class GraphiteConfiguration(
 	host: String,
@@ -198,11 +199,8 @@ case class GraphiteConfiguration(
 	bucketWidth: Int)
 
 case class GatlingConfiguration(
-	simulation: SimulationConfiguration,
-	timeOut: TimeOutConfiguration,
-	directory: DirectoryConfiguration,
+	core: CoreConfiguration,
 	charting: ChartingConfiguration,
 	http: HttpConfiguration,
 	data: DataConfiguration,
-	graphite: GraphiteConfiguration,
 	config: Config)

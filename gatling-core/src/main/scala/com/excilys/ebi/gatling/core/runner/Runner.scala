@@ -65,7 +65,7 @@ class Runner(selection: Selection) extends AkkaDefaults with Logging {
 			}
 			debug("Finished Launching scenarios executions")
 
-			terminatorLatch.await(configuration.timeOut.simulation, SECONDS)
+			terminatorLatch.await(configuration.core.timeOut.simulation, SECONDS)
 			println("Simulation finished.")
 
 			(runRecord.runId, simulation)

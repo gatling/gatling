@@ -172,7 +172,7 @@ class GatlingAsyncHandlerActor(
 
 			val requestBuilder = new RequestBuilder(request)
 				.setMethod("GET")
-				.setBodyEncoding(configuration.simulation.encoding)
+				.setBodyEncoding(configuration.core.encoding)
 				.setQueryParameters(null.asInstanceOf[FluentStringsMap])
 				.setParameters(null.asInstanceOf[FluentStringsMap])
 				.setUrl(redirectUrl)
