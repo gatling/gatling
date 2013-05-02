@@ -79,7 +79,7 @@ class HttpRequestAction(
 						newSession.get[AsyncHttpClient](GatlingHttpClient.httpClientAttributeName)
 							.map((newSession, _))
 							.getOrElse {
-								val client = GatlingHttpClient.newClient
+								val client = GatlingHttpClient.newClient(newSession)
 								(newSession.set(GatlingHttpClient.httpClientAttributeName, client), client)
 							}
 

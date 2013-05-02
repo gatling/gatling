@@ -15,8 +15,6 @@
  */
 package io.gatling.http.ahc
 
-import java.io.{ File, FileInputStream }
-import java.security.{ KeyStore, SecureRandom }
 import java.util.concurrent.{ Executors, ThreadFactory }
 
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory
@@ -26,11 +24,11 @@ import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig }
 import com.ning.http.client.providers.netty.{ NettyAsyncHttpProviderConfig, NettyConnectionsPool }
 import com.typesafe.scalalogging.slf4j.Logging
 
+import io.gatling.core.ConfigurationConstants._
 import io.gatling.core.action.system
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.session.SessionPrivateAttributes
-import io.gatling.core.util.IOHelper.withCloseable
-import javax.net.ssl.{ KeyManagerFactory, SSLContext, TrustManagerFactory }
+import io.gatling.core.session.{ Session, SessionPrivateAttributes }
+import io.gatling.http.util.SSLHelper.{ RichAsyncHttpClientConfigBuilder, newKeyManagers, newTrustManagers }
 
 object GatlingHttpClient extends Logging {
 
@@ -70,7 +68,7 @@ object GatlingHttpClient extends Logging {
 		}
 	}
 
-	def newClient = {
+	val defaultAhcConfig = {
 		val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
 			.setAllowPoolingConnection(configuration.http.allowPoolingConnection)
 			.setAllowSslConnectionPool(configuration.http.allowSslConnectionPool)
@@ -92,39 +90,46 @@ object GatlingHttpClient extends Logging {
 			.setAsyncHttpClientProviderConfig(SharedResources.nettyConfig)
 			.setConnectionsPool(SharedResources.connectionsPool)
 
-		if (configuration.http.ssl.trustStore.isDefined || configuration.http.ssl.keyStore.isDefined) {
+		val trustManagers = configuration.http.ssl.trustStore
+			.map { config => newTrustManagers(config.storeType, config.file, config.password, config.algorithm) }
 
-			val trustManagers = configuration.http.ssl.trustStore.map { trustStoreConfig =>
-				withCloseable(new FileInputStream(new File(trustStoreConfig.file))) { is =>
-					val trustStore = KeyStore.getInstance(trustStoreConfig.storeType)
-					trustStore.load(is, trustStoreConfig.password.toCharArray)
-					val algo = trustStoreConfig.algorithm.getOrElse(KeyManagerFactory.getDefaultAlgorithm)
-					val tmf = TrustManagerFactory.getInstance(algo)
-					tmf.init(trustStore)
-					tmf.getTrustManagers
-				}
-			}.getOrElse(null)
+		val keyManagers = configuration.http.ssl.keyStore
+			.map { config => newKeyManagers(config.storeType, config.file, config.password, config.algorithm) }
 
-			val keyManagers = configuration.http.ssl.keyStore.map { keyStoreConfig =>
-				withCloseable(new FileInputStream(new File(keyStoreConfig.file))) { is =>
-					val keyStore = KeyStore.getInstance(keyStoreConfig.storeType)
-					keyStore.load(is, keyStoreConfig.password.toCharArray)
-					val algo = keyStoreConfig.algorithm.getOrElse(KeyManagerFactory.getDefaultAlgorithm)
-					val kmf = KeyManagerFactory.getInstance(algo)
-					kmf.init(keyStore, keyStoreConfig.password.toCharArray)
-					kmf.getKeyManagers
-				}
-			}.getOrElse(null)
+		if (trustManagers.isDefined || keyManagers.isDefined)
+			ahcConfigBuilder.setSSLContext(trustManagers, keyManagers)
 
-			val sslContext = SSLContext.getInstance("TLS")
-			sslContext.init(keyManagers, trustManagers, new SecureRandom)
-			ahcConfigBuilder.setSSLContext(sslContext)
-		}
+		ahcConfigBuilder.build
+	}
 
-		val ahcConfig = ahcConfigBuilder.build
+	def newClient(session: Session): AsyncHttpClient = newClient(Some(session))
+	def newClient(session: Option[Session]) = {
+
+		val ahcConfig = session.map { session =>
+
+			val trustManagers = for {
+				storeType <- session.get[String](CONF_HTTP_SSS_TRUST_STORE_TYPE)
+				file <- session.get[String](CONF_HTTP_SSS_TRUST_STORE_FILE)
+				password <- session.get[String](CONF_HTTP_SSS_TRUST_STORE_PASSWORD)
+				algorithm = session.get[String](CONF_HTTP_SSS_TRUST_STORE_ALGORITHM)
+			} yield newTrustManagers(storeType, file, password, algorithm)
+
+			val keyManagers = for {
+				storeType <- session.get[String](CONF_HTTP_SSS_TRUST_STORE_TYPE)
+				file <- session.get[String](CONF_HTTP_SSS_TRUST_STORE_FILE)
+				password <- session.get[String](CONF_HTTP_SSS_TRUST_STORE_PASSWORD)
+				algorithm = session.get[String](CONF_HTTP_SSS_TRUST_STORE_ALGORITHM)
+			} yield newKeyManagers(storeType, file, password, algorithm)
+
+			if (trustManagers.isDefined || keyManagers.isDefined) {
+				logger.info(s"Setting a custom SSLContext for user ${session.userId}")
+				new AsyncHttpClientConfig.Builder(defaultAhcConfig).setSSLContext(trustManagers, keyManagers).build
+			} else
+				defaultAhcConfig
+
+		}.getOrElse(defaultAhcConfig)
 
 		val client = new AsyncHttpClient(ahcConfig)
-
 		system.registerOnTermination(client.close)
 		client
 	}
@@ -132,5 +137,5 @@ object GatlingHttpClient extends Logging {
 	/**
 	 * The HTTP client used to send the requests
 	 */
-	lazy val defaultClient = newClient
+	lazy val defaultClient = newClient(None)
 }
