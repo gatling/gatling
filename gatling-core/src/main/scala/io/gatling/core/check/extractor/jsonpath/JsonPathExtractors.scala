@@ -25,10 +25,14 @@ import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import net.minidev.json.JSONArray
+import net.minidev.json.parser.JSONParser
 
 object JsonPathExtractors {
 
-	abstract class JsonPathExtractor[X] extends Extractor[String, String, X] {
+	def parse(string: String) = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(string)
+	def parse(bytes: Array[Byte]) = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(bytes)
+
+	abstract class JsonPathExtractor[X] extends Extractor[Any, String, X] {
 		val name = "jsonPath"
 	}
 
@@ -37,7 +41,7 @@ object JsonPathExtractors {
 		if (configuration.core.cache.jsonPath) cache.getOrElseUpdate(expression, JsonPath.compile(expression))
 		else JsonPath.compile(expression)
 
-	private def extractAll(json: String, expression: String): Option[Seq[String]] = {
+	private def extractAll(json: Any, expression: String): Option[Seq[String]] = {
 
 		try {
 			cachedJsonPath(expression).read[Any](json) match {
@@ -52,19 +56,19 @@ object JsonPathExtractors {
 
 	val extractOne = (occurrence: Int) => new JsonPathExtractor[String] {
 
-		def apply(prepared: String, criterion: String): Validation[Option[String]] =
+		def apply(prepared: Any, criterion: String): Validation[Option[String]] =
 			extractAll(prepared, criterion).flatMap(_.lift(occurrence)).success
 	}
 
 	val extractMultiple = new JsonPathExtractor[Seq[String]] {
 
-		def apply(prepared: String, criterion: String): Validation[Option[Seq[String]]] =
+		def apply(prepared: Any, criterion: String): Validation[Option[Seq[String]]] =
 			extractAll(prepared, criterion).flatMap(_.liftSeqOption).success
 	}
 
 	val count = new JsonPathExtractor[Int] {
 
-		def apply(prepared: String, criterion: String): Validation[Option[Int]] =
+		def apply(prepared: Any, criterion: String): Validation[Option[Int]] =
 			extractAll(prepared, criterion).map(_.size).success
 	}
 }
