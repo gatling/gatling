@@ -29,7 +29,7 @@ class StatsJsTemplate(stats: GroupContainer) {
 	def getOutput: String = {
 
 		def renderStatsRequest(request: RequestStatistics) = {
-			val jsonStats = new StatsJsonTemplate(request).getOutput
+			val jsonStats = new StatsJsonTemplate(request, false).getFastring
 
 			fast"""name: "${request.name.escapeJsDoubleQuoteString}",
 path: "${request.path.escapeJsDoubleQuoteString}",

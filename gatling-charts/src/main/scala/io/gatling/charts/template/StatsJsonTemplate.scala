@@ -18,44 +18,55 @@ package io.gatling.charts.template
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.charts.component.RequestStatistics
+import io.gatling.charts.component.Statistics.PrintableStat
+import io.gatling.core.result.reader.DataReader.NO_PLOT_MAGIC_VALUE
 
-class StatsJsonTemplate(stats: RequestStatistics) {
-	def getOutput: String = fast"""{
+class StatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
+
+	def getFastring: Fastring = {
+
+		def style(value: Long) =
+			if (raw) // raw mode is used for JSON extract, non-raw for displaying in the reports
+				value.toString
+			else
+				s""""${value.printable}""""
+
+		fast"""{
     "name": "${stats.name}",
     "numberOfRequests": {
-        "total": "${stats.numberOfRequestsStatistics.printableTotal}",
-        "ok": "${stats.numberOfRequestsStatistics.printableSuccess}",
-        "ko": "${stats.numberOfRequestsStatistics.printableFailure}"
+        "total": ${style(stats.numberOfRequestsStatistics.total)},
+        "ok": ${style(stats.numberOfRequestsStatistics.success)},
+        "ko": ${style(stats.numberOfRequestsStatistics.failure)}
     },
     "minResponseTime": {
-        "total": "${stats.minResponseTimeStatistics.printableTotal}",
-        "ok": "${stats.minResponseTimeStatistics.printableSuccess}",
-        "ko": "${stats.minResponseTimeStatistics.printableFailure}"
+        "total": ${style(stats.minResponseTimeStatistics.total)},
+        "ok": ${style(stats.minResponseTimeStatistics.success)},
+        "ko": ${style(stats.minResponseTimeStatistics.failure)}
     },
     "maxResponseTime": {
-        "total": "${stats.maxResponseTimeStatistics.printableTotal}",
-        "ok": "${stats.maxResponseTimeStatistics.printableSuccess}",
-        "ko": "${stats.maxResponseTimeStatistics.printableFailure}"
+        "total": ${style(stats.maxResponseTimeStatistics.total)},
+        "ok": ${style(stats.maxResponseTimeStatistics.success)},
+        "ko": ${style(stats.maxResponseTimeStatistics.failure)}
     },
     "meanResponseTime": {
-        "total": "${stats.meanStatistics.printableTotal}",
-        "ok": "${stats.meanStatistics.printableSuccess}",
-        "ko": "${stats.meanStatistics.printableFailure}"
+        "total": ${style(stats.meanStatistics.total)},
+        "ok": ${style(stats.meanStatistics.success)},
+        "ko": ${style(stats.meanStatistics.failure)}
     },
     "standardDeviation": {
-        "total": "${stats.stdDeviationStatistics.printableTotal}",
-        "ok": "${stats.stdDeviationStatistics.printableSuccess}",
-        "ko": "${stats.stdDeviationStatistics.printableFailure}"
+        "total": ${style(stats.stdDeviationStatistics.total)},
+        "ok": ${style(stats.stdDeviationStatistics.success)},
+        "ko": ${style(stats.stdDeviationStatistics.failure)}
     },
     "percentiles1": {
-        "total": "${stats.percentiles1.printableTotal}",
-        "ok": "${stats.percentiles1.printableSuccess}",
-        "ko": "${stats.percentiles1.printableFailure}"
+        "total": ${style(stats.percentiles1.total)},
+        "ok": ${style(stats.percentiles1.success)},
+        "ko": ${style(stats.percentiles1.failure)}
     },
     "percentiles2": {
-        "total": "${stats.percentiles2.printableTotal}",
-        "ok": "${stats.percentiles2.printableSuccess}",
-        "ko": "${stats.percentiles2.printableFailure}"
+        "total": ${style(stats.percentiles2.total)},
+        "ok": ${style(stats.percentiles2.success)},
+        "ko": ${style(stats.percentiles2.failure)}
     },
     "group1": {
         "name": "${stats.groupedCounts(0).name}",
@@ -78,9 +89,12 @@ class StatsJsonTemplate(stats: RequestStatistics) {
         "percentage": ${stats.groupedCounts(3).percentage}
     },
     "meanNumberOfRequestsPerSecond": {
-        "total": "${stats.meanNumberOfRequestsPerSecondStatistics.printableTotal}",
-        "ok": "${stats.meanNumberOfRequestsPerSecondStatistics.printableSuccess}",
-        "ko": "${stats.meanNumberOfRequestsPerSecondStatistics.printableFailure}"
+        "total": ${style(stats.meanNumberOfRequestsPerSecondStatistics.total)},
+        "ok": ${style(stats.meanNumberOfRequestsPerSecondStatistics.success)},
+        "ko": ${style(stats.meanNumberOfRequestsPerSecondStatistics.failure)}
     }
-}""".toString
+}"""
+	}
+
+	def getOutput: String = getFastring.toString
 }

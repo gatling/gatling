@@ -22,15 +22,13 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.reader.DataReader.NO_PLOT_MAGIC_VALUE
 import io.gatling.core.util.NumberHelper.formatNumberWithSuffix
 
+object Statistics {
+	implicit class PrintableStat(val value: Long) extends AnyVal {
+		def printable = if (value != NO_PLOT_MAGIC_VALUE) value.toString else "-"
+	}
+}
+
 case class Statistics(name: String, total: Long, success: Long, failure: Long) {
-
-	private def makePrintable(value: Long) = if (value != NO_PLOT_MAGIC_VALUE) value.toString else "-"
-
-	def printableTotal: String = makePrintable(total)
-
-	def printableSuccess: String = makePrintable(success)
-
-	def printableFailure: String = makePrintable(failure)
 
 	def all = List(total, success, failure)
 }
@@ -50,7 +48,7 @@ case class RequestStatistics(name: String,
 	meanNumberOfRequestsPerSecondStatistics: Statistics) {
 
 	def mkString = {
-		val outputName = List(if(name == GLOBAL_PAGE_NAME) name else path)
+		val outputName = List(if (name == GLOBAL_PAGE_NAME) name else path)
 		List(
 			outputName,
 			numberOfRequestsStatistics.all,
