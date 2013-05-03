@@ -29,7 +29,6 @@ import net.minidev.json.parser.JSONParser
 
 object JsonPathExtractors {
 
-	def parse(string: String) = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(string)
 	def parse(bytes: Array[Byte]) = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(bytes)
 
 	abstract class JsonPathExtractor[X] extends Extractor[Any, String, X] {
