@@ -29,7 +29,7 @@ class JsonPathExtractorsSpec extends Specification {
 	def extractor(file: String) = {
 		GatlingConfiguration.setUp()
 		use(getClass.getResourceAsStream(file)) { is =>
-			new JsonPathExtractor(IOUtils.toString(is))
+			new JsonPathExtractor(IOUtils.toByteArray(is))
 		}
 	}
 

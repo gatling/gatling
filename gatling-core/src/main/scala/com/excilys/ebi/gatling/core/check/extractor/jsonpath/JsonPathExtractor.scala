@@ -21,6 +21,7 @@ import com.excilys.ebi.gatling.core.check.extractor.Extractor
 import com.jayway.jsonpath.{ InvalidPathException, JsonPath }
 
 import net.minidev.json.JSONArray
+import net.minidev.json.parser.JSONParser
 
 /**
  * A built-in extractor for extracting values with  Xpath like expressions for Json
@@ -28,7 +29,9 @@ import net.minidev.json.JSONArray
  * @constructor creates a new JsonPathExtractor
  * @param textContent the text where the search will be made
  */
-class JsonPathExtractor(string: String) extends Extractor {
+class JsonPathExtractor(bytes: Array[Byte]) extends Extractor {
+
+	val json = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(bytes)
 
 	/**
 	 * @param occurrence
@@ -49,7 +52,7 @@ class JsonPathExtractor(string: String) extends Extractor {
 		val path = JsonPath.compile(expression)
 
 		try {
-			path.read[Any](string) match {
+			path.read[Any](json) match {
 				case null => None // can't turn result into an Option as we want to turn empty Seq into None (see below)
 				case array: JSONArray => array.map(_.toString)
 				case other => Some(List(other.toString))
