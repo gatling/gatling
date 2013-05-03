@@ -139,7 +139,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 			else
 				protocolConfiguration.baseURL.map(baseURL => (baseURL + url).success).getOrElse(s"No protocolConfiguration.baseURL defined but provided url is relative : $url".failure)
 
-		def configureUrlCookiesAndProxy(url: String)(implicit requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
+		def configureQueryCookiesAndProxy(url: String)(implicit requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
 			val proxy = if (url.startsWith(Protocol.HTTPS.getProtocol))
 				protocolConfiguration.securedProxy
@@ -150,11 +150,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 
 			CookieHandling.getStoredCookies(session, url).foreach(requestBuilder.addCookie)
 
-			requestBuilder.setUrl(url).success
+			HttpHelper.httpParamsToFluentMap(httpAttributes.queryParams, session).map(requestBuilder.setQueryParameters).map(_.setUrl(url))
 		}
-
-		def configureQueryParams(requestBuilder: RequestBuilder): Validation[RequestBuilder] =
-			HttpHelper.httpParamsToFluentMap(httpAttributes.queryParams, session).map(requestBuilder.setQueryParameters)
 
 		def configureHeaders(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
@@ -190,8 +187,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 
 		httpAttributes.url(session)
 			.flatMap(makeAbsolute)
-			.flatMap(configureUrlCookiesAndProxy)
-			.flatMap(configureQueryParams)
+			.flatMap(configureQueryCookiesAndProxy)
 			.flatMap(configureHeaders)
 			.flatMap(configureRealm)
 	}
