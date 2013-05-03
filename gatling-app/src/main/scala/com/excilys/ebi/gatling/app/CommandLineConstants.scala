@@ -35,4 +35,6 @@ object CommandLineConstants {
 	val CLI_SIMULATION_ALIAS = "simulation"
 	val CLI_OUTPUT_DIRECTORY_BASE_NAME = "on"
 	val CLI_OUTPUT_DIRECTORY_BASE_NAME_ALIAS = "output-name"
+  val CLI_SIMULATION_DESCRIPTION = "sd"
+  val CLI_SIMULATION_DESCRIPTION_ALIAS = "simulation-description"
 }
