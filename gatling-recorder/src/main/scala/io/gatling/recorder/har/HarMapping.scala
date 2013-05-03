@@ -15,33 +15,47 @@
  */
 package io.gatling.recorder.har
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import scala.util.Try
 
+import io.gatling.recorder.util.Json
+
+object HarMapping {
+	def jsonToHttpArchive(json: String): HttpArchive = HttpArchive(buildLog(Json.parseJson(json).log))
+
+	private def buildLog(log: Json) = Log(log.entries.map(buildEntry))
+
+	private def buildEntry(entry: Json): Entry = Entry(entry.startedDateTime,buildRequest(entry.request),buildResponse(entry.response))
+
+	private def buildRequest(request: Json) = {
+		// FIXME : try early resolution of postData, to trigger the exception
+		val postData = Try(request.postData.toString).toOption.map(_ => request.postData)
+		Request(request.method, request.url, request.headers.map(buildHeader), postData.map(buildPostData))
+	}
+
+	private def buildResponse(response: Json) = Response(response.status)
+
+	private def buildHeader(header: Json) = Header(header.name, header.value)
+
+	private def buildPostData(postData: Json) = PostData(postData.mimeType, postData.text, postData.params.map(buildPostParam))
+
+	private def buildPostParam(postParam: Json) = PostParam(postParam.name, postParam.value)
+}
+
+/*
+ * HAR mapping is incomplete, as we deserialize only what is strictly necessary for building a simulation
+ */
 case class HttpArchive(log: Log)
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 case class Log(entries: Seq[Entry])
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 case class Entry(startedDateTime: String, request: Request, response: Response)
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-case class Request(method: String, url: String, headers: Seq[Header], queryString: Seq[QueryParam], postData: Option[PostData])
+case class Request(method: String, url: String, headers: Seq[Header], postData: Option[PostData])
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-case class Response(status: Int, headers: Seq[Header], content: Content, redirectURL: String)
+case class Response(status: Int)
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 case class Header(name: String, value: String)
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-case class QueryParam(name: String, value: String)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
 case class PostData(mimeType: String, text: String, params: Seq[PostParam])
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-case class PostParam(name: String, value: Option[String], fileName: Option[String], contentType: Option[String])
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-case class Content(size: Int, text: Option[String])
+case class PostParam(name: String, value: String)

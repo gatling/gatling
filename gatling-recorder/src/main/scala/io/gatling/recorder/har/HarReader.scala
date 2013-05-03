@@ -15,14 +15,11 @@
  */
 package io.gatling.recorder.har
 
+import scala.io.Source
 import scala.math.round
 import scala.util.Try
 
-import java.io.File
 import java.net.{ URL, URLEncoder }
-
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.RichString
@@ -37,11 +34,6 @@ import org.joda.time.DateTime
 
 object HarReader {
 
-	val mapper = {
-		val objectMapper = new ObjectMapper
-		objectMapper.registerModule(DefaultScalaModule)
-	}
-
 	var scenarioElements: List[ScenarioElement] = Nil
 
 	private var lastEntry: Entry = _
@@ -51,8 +43,8 @@ object HarReader {
 	def processHarFile(path: String) {
 		def isValidURL(url: String) = Try(new URL(url)).isSuccess
 
-		val file = new File(path)
-		val httpArchive = mapper.readValue(file, classOf[HttpArchive])
+		val json = Source.fromFile(path).getLines.mkString
+		val httpArchive = HarMapping.jsonToHttpArchive(json)
 		httpArchive.log.entries.filter(entry => isValidURL(entry.request.url)).foreach(processEntry)
 
 	}
@@ -76,7 +68,7 @@ object HarReader {
 			def buildContent(postParams: Seq[PostParam]) = {
 				def encode(s: String) = URLEncoder.encode(s, configuration.core.encoding)
 
-				postParams.map(postParam => encode(postParam.name) + "=" + encode(postParam.value.get)).mkString("&")
+				postParams.map(postParam => encode(postParam.name) + "=" + encode(postParam.value)).mkString("&")
 			}
 
 			val uri = entry.request.url
