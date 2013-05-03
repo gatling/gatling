@@ -37,7 +37,7 @@ object RecorderConfiguration extends Logging {
 
 	var saveConfiguration = false
 
-	val renderOptions = ConfigRenderOptions.concise.setFormatted(true)
+	val renderOptions = ConfigRenderOptions.concise.setFormatted(true).setJson(false)
 
 	val configFile = File(System.getProperty("user.home") / "gatling-recorder.conf")
 
@@ -61,8 +61,7 @@ object RecorderConfiguration extends Logging {
 	}
 
 	def saveConfig {
-		// Request bodies is transient => remove the key before saving the new configuration
-		val configToSave = configuration.config.root.withoutKey(REQUEST_BODIES_FOLDER)
+		val configToSave = configuration.config.root.withOnlyKey(CONFIG_ROOT)
 		configFile.writeAll(configToSave.render(renderOptions))
 	}
 

@@ -17,6 +17,8 @@ package io.gatling.recorder.config
 
 object ConfigurationConstants {
 
+	val CONFIG_ROOT = "recorder"
+
 	val FILTER_STRATEGY = "recorder.filters.filterStrategy"
 	val PATTERNS = "recorder.filters.patterns"
 	val PATTERNS_TYPE = "recorder.filters.patternsType"
