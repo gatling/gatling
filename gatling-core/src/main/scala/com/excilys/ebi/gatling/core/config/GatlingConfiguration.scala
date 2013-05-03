@@ -124,7 +124,7 @@ object GatlingConfiguration extends Logging {
 					case clazz => clazz
 				},
 				console = ConsoleConfiguration(
-					light = config.getBoolean(CONF_DATA_GRAPHITE_HOST)),
+					light = config.getBoolean(CONF_DATA_CONSOLE_LIGHT)),
 				graphite = GraphiteConfiguration(
 					light = config.getBoolean(CONF_DATA_GRAPHITE_LIGHT),
 					host = config.getString(CONF_DATA_GRAPHITE_HOST),
