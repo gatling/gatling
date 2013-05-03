@@ -19,7 +19,6 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.charts.component.RequestStatistics
 import io.gatling.charts.component.Statistics.PrintableStat
-import io.gatling.core.result.reader.DataReader.NO_PLOT_MAGIC_VALUE
 
 class StatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
 
