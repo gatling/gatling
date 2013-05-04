@@ -50,7 +50,7 @@ object GatlingConfiguration extends Logging {
 		configuration = GatlingConfiguration(
 			core = CoreConfiguration(
 				outputDirectoryBaseName = trimToOption(config.getString(CONF_CORE_OUTPUT_DIRECTORY_BASE_NAME)),
-				runDescription = config.getString(CONF_CORE_RUN_DESCRIPTION),
+				runDescription = trimToOption(config.getString(CONF_CORE_RUN_DESCRIPTION)),
 				encoding = config.getString(CONF_CORE_ENCODING),
 				simulationClass = trimToOption(config.getString(CONF_CORE_SIMULATION_CLASS)),
 				timeOut = TimeOutConfiguration(
@@ -137,7 +137,7 @@ object GatlingConfiguration extends Logging {
 
 case class CoreConfiguration(
 	outputDirectoryBaseName: Option[String],
-	runDescription: String,
+	runDescription: Option[String],
 	encoding: String,
 	simulationClass: Option[String],
 	timeOut: TimeOutConfiguration,
