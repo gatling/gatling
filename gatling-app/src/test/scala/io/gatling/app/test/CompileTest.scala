@@ -159,7 +159,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
             .pause(2)
         }
         .exec(session => session.set("test2", "bbbb"))
-        .doIfOrElse("test2", "aaaa") {
+        .doIfEqualsOrElse("test2", "aaaa") {
           exec(http("IF=TRUE Request").get("/"))
         } {
           exec(http("IF=FALSE Request").get("/"))

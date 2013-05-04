@@ -16,7 +16,7 @@
 package io.gatling.core.structure
 
 import io.gatling.core.action.builder.{ IfBuilder, RandomSwitchBuilder, RoundRobinSwitchBuilder }
-import io.gatling.core.session.Expression
+import io.gatling.core.session.{ Expression, Session }
 
 trait ConditionalStatements[B] extends Execs[B] {
 
@@ -54,13 +54,21 @@ trait ConditionalStatements[B] extends Execs[B] {
 	 * Method used to add a conditional execution in the scenario with a fall back
 	 * action if condition is not satisfied
 	 *
-	 * @param sessionKey the key of the session value to be tested for equality
-	 * @param value the value to which the session value must be equals
+	 * @param expected the expected value
+	 * @param actual the real value
 	 * @param thenNext the chain to be executed if the condition is satisfied
 	 * @param elseNext the chain to be executed if the condition is not satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIfOrElse(sessionKey: Expression[String], value: String)(thenNext: ChainBuilder)(elseNext: ChainBuilder): B = doIf(session => sessionKey(session).map(_ == value), thenNext, Some(elseNext))
+	def doIfEqualsOrElse(expected: Expression[Any], actual: Expression[Any])(thenNext: ChainBuilder)(elseNext: ChainBuilder): B = {
+		val condition = (session: Session) =>
+			for {
+				expected <- expected(session)
+				actual <- actual(session)
+			} yield (expected == actual)
+
+		doIf(condition, thenNext, Some(elseNext))
+	}
 
 	/**
 	 * Private method that actually adds the If Action to the scenario
