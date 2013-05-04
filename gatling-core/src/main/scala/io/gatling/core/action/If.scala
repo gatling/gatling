@@ -29,7 +29,7 @@ import akka.actor.ActorRef
  * @param elseNext chain of actions executed if condition evaluates to false
  * @param next chain of actions executed if condition evaluates to false and elseNext equals None
  */
-class If(condition: Expression[Boolean], thenNext: ActorRef, elseNext: Option[ActorRef], val next: ActorRef) extends Interruptable {
+class If(condition: Expression[Boolean], thenNext: ActorRef, elseNext: ActorRef, val next: ActorRef) extends Interruptable {
 
 	/**
 	 * Evaluates the condition and decides what to do next
@@ -40,7 +40,7 @@ class If(condition: Expression[Boolean], thenNext: ActorRef, elseNext: Option[Ac
 
 		val nextAction = condition(session) match {
 			case Success(true) => thenNext
-			case Success(false) => next
+			case Success(false) => elseNext
 			case Failure(message) => logger.error(s"Could not resolve loop condition: $message"); next
 		}
 		nextAction ! session
