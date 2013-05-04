@@ -27,41 +27,23 @@ class GatlingPropertiesBuilder {
 		props += CONF_CHARTING_NO_REPORTS -> true
 	}
 
-	def reportsOnly(v: String) {
-		props += CONF_CORE_DIRECTORY_REPORTS_ONLY -> v
-	}
+	def reportsOnly(v: String) { props += CONF_CORE_DIRECTORY_REPORTS_ONLY -> v }
 
-	def dataDirectory(v: String) {
-		props += CONF_CORE_DIRECTORY_DATA -> v
-	}
+	def dataDirectory(v: String) { props += CONF_CORE_DIRECTORY_DATA -> v }
 
-	def resultsDirectory(v: String) {
-		props += CONF_CORE_DIRECTORY_RESULTS -> v
-	}
+	def resultsDirectory(v: String) { props += CONF_CORE_DIRECTORY_RESULTS -> v }
 
-	def requestBodiesDirectory(v: String) {
-		props += CONF_CORE_DIRECTORY_REQUEST_BODIES -> v
-	}
+	def requestBodiesDirectory(v: String) { props += CONF_CORE_DIRECTORY_REQUEST_BODIES -> v }
 
-	def sourcesDirectory(v: String) {
-		props += CONF_CORE_DIRECTORY_SIMULATIONS -> v
-	}
+	def sourcesDirectory(v: String) { props += CONF_CORE_DIRECTORY_SIMULATIONS -> v }
 
-	def binariesDirectory(v: String) {
-		props += CONF_CORE_DIRECTORY_BINARIES -> v
-	}
+	def binariesDirectory(v: String) { props += CONF_CORE_DIRECTORY_BINARIES -> v }
 
-	def simulationClass(v: String) {
-		props += CONF_CORE_SIMULATION_CLASS -> v
-	}
+	def simulationClass(v: String) { props += CONF_CORE_SIMULATION_CLASS -> v }
 
-	def outputDirectoryBaseName(v: String) {
-		props += CONF_CORE_OUTPUT_DIRECTORY_BASE_NAME -> v
-	}
+	def outputDirectoryBaseName(v: String) { props += CONF_CORE_OUTPUT_DIRECTORY_BASE_NAME -> v }
 
-	def runDescription(v: String) {
-		props.put(CONF_CORE_RUN_DESCRIPTION, v)
-	}
+	def runDescription(v: String) { props.put(CONF_CORE_RUN_DESCRIPTION, v) }
 
 	def build = props
 }
