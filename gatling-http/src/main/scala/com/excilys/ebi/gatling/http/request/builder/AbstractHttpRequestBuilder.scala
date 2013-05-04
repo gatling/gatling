@@ -150,9 +150,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 
 		if (!protocolConfiguration.shareConnections) requestBuilder.setConnectionPoolKeyStrategy(new GatlingConnectionPoolKeyStrategy(session))
 
-		val isHttps = configureURLAndCookies(requestBuilder, session, protocolConfiguration)
+		val isHttps = configureQueryAndCookies(requestBuilder, session, protocolConfiguration)
 		configureProxy(requestBuilder, session, isHttps, protocolConfiguration)
-		configureQueryParams(requestBuilder, session)
 		configureHeaders(requestBuilder, httpAttributes.headers, session, protocolConfiguration)
 		configureRealm(requestBuilder, httpAttributes.realm, session)
 
@@ -185,7 +184,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 * @param requestBuilder the request builder to which the url should be added
 	 * @param session the session of the current scenario
 	 */
-	private def configureURLAndCookies(requestBuilder: RequestBuilder, session: Session, protocolConfiguration: HttpProtocolConfiguration) = {
+	private def configureQueryAndCookies(requestBuilder: RequestBuilder, session: Session, protocolConfiguration: HttpProtocolConfiguration) = {
 		val providedUrl = httpAttributes.url(session)
 
 		// baseUrl implementation
@@ -194,26 +193,17 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 		else
 			protocolConfiguration.baseURL.getOrElse(throw new IllegalArgumentException("No protocolConfiguration.baseURL defined but provided url is relative : " + providedUrl)) + providedUrl
 
+		if (!httpAttributes.queryParams.isEmpty) {
+			val queryParamsMap = httpParamsToFluentMap(httpAttributes.queryParams, session)
+			requestBuilder.setQueryParameters(queryParamsMap)
+		}
+
 		requestBuilder.setUrl(resolvedUrl)
 
 		for (cookie <- CookieHandling.getStoredCookies(session, resolvedUrl))
 			requestBuilder.addCookie(cookie)
 
 		resolvedUrl.startsWith(Protocol.HTTPS.getProtocol)
-	}
-
-	/**
-	 * This method adds the query parameters to the request builder
-	 *
-	 * @param requestBuilder the request builder to which the query parameters should be added
-	 * @param session the session of the current scenario
-	 */
-	private def configureQueryParams(requestBuilder: RequestBuilder, session: Session) {
-
-		if (!httpAttributes.queryParams.isEmpty) {
-			val queryParamsMap = httpParamsToFluentMap(httpAttributes.queryParams, session)
-			requestBuilder.setQueryParameters(queryParamsMap)
-		}
 	}
 
 	/**
