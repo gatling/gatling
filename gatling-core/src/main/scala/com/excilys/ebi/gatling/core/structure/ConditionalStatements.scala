@@ -54,13 +54,16 @@ trait ConditionalStatements[B] extends Execs[B] {
 	 * Method used to add a conditional execution in the scenario with a fall back
 	 * action if condition is not satisfied
 	 *
-	 * @param sessionKey the key of the session value to be tested for equality
-	 * @param value the value to which the session value must be equals
+	 * @param expected the value to which the session value must be equals
+	 * @param actual the key of the session value to be tested for equality
 	 * @param thenNext the chain to be executed if the condition is satisfied
 	 * @param elseNext the chain to be executed if the condition is not satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	def doIfOrElse(sessionKey: EvaluatableString, value: String)(thenNext: ChainBuilder)(elseNext: ChainBuilder): B = doIf(session => sessionKey(session) == value, thenNext, Some(elseNext))
+	def doIfEqualsOrElse(expected: EvaluatableString, actual: EvaluatableString)(thenNext: ChainBuilder)(elseNext: ChainBuilder): B = {
+		val condition = (session: Session) => expected(session) == actual(session)
+		doIf(condition, thenNext, Some(elseNext))
+	}
 
 	/**
 	 * Private method that actually adds the If Action to the scenario
