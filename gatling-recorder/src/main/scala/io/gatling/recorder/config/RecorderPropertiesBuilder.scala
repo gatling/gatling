@@ -25,73 +25,39 @@ class RecorderPropertiesBuilder {
 
 	val props = mutable.Map.empty[String, Any]
 
-	def filterStrategy(strategy: String) {
-		props += FILTER_STRATEGY -> strategy
-	}
+	def filterStrategy(strategy: String) { props += FILTER_STRATEGY -> strategy }
 
-	def patterns(patterns: List[String]) {
-		props += PATTERNS -> patterns
-	}
+	def patterns(patterns: List[String]) { props += PATTERNS -> patterns }
 
-	def patternsType(patternsType: List[String]) {
-		props += PATTERNS_TYPE -> patternsType
-	}
+	def patternsType(patternsType: List[String]) { props += PATTERNS_TYPE -> patternsType }
 
-	def automaticReferer(status: Boolean) {
-		props += AUTOMATIC_REFERER -> status
-	}
+	def automaticReferer(status: Boolean) { props += AUTOMATIC_REFERER -> status }
 
-	def followRedirect(status: Boolean) {
-		props += FOLLOW_REDIRECT -> status
-	}
+	def followRedirect(status: Boolean) { props += FOLLOW_REDIRECT -> status }
 
-	def localPort(port: Int) {
-		props += LOCAL_PORT -> port
-	}
+	def localPort(port: Int) { props += LOCAL_PORT -> port }
 
-	def localSslPort(port: Int) {
-		props += LOCAL_SSL_PORT -> port
-	}
+	def localSslPort(port: Int) { props += LOCAL_SSL_PORT -> port }
 
-	def proxyHost(host: String) {
-		props += PROXY_HOST -> host
-	}
+	def proxyHost(host: String) { props += PROXY_HOST -> host }
 
-	def proxyUsername(username: String) {
-		props += PROXY_USERNAME -> username
-	}
+	def proxyUsername(username: String) { props += PROXY_USERNAME -> username }
 
-	def proxyPassword(password: String) {
-		props += PROXY_PASSWORD -> password
-	}
+	def proxyPassword(password: String) { props += PROXY_PASSWORD -> password }
 
-	def proxyPort(port: Int) {
-		props += PROXY_PORT -> port
-	}
+	def proxyPort(port: Int) { props += PROXY_PORT -> port }
 
-	def proxySslPort(port: Int) {
-		props += PROXY_SSL_PORT -> port
-	}
+	def proxySslPort(port: Int) { props += PROXY_SSL_PORT -> port }
 
-	def encoding(encoding: String) {
-		props += ENCODING -> encoding
-	}
+	def encoding(encoding: String) { props += ENCODING -> encoding }
 
-	def simulationOutputFolder(folder: String) {
-		props += SIMULATION_OUTPUT_FOLDER -> folder
-	}
+	def simulationOutputFolder(folder: String) { props += SIMULATION_OUTPUT_FOLDER -> folder }
 
-	def requestBodiesFolder(folder: String) {
-		props += REQUEST_BODIES_FOLDER -> folder
-	}
+	def requestBodiesFolder(folder: String) { props += REQUEST_BODIES_FOLDER -> folder }
 
-	def simulationPackage(pkg: String) {
-		props += SIMULATION_PACKAGE -> pkg
-	}
+	def simulationPackage(pkg: String) { props += SIMULATION_PACKAGE -> pkg }
 
-	def simulationClassName(className: String) {
-		props += SIMULATION_CLASS_NAME -> className
-	}
+	def simulationClassName(className: String) { props += SIMULATION_CLASS_NAME -> className }
 
 	def build = props
 }
