@@ -49,7 +49,7 @@ object GatlingConfiguration {
 		configuration = GatlingConfiguration(
 			core = CoreConfiguration(
 				outputDirectoryBaseName = config.getString(CONF_CORE_OUTPUT_DIRECTORY_BASE_NAME).trimToOption,
-				runDescription = config.getString(CONF_CORE_RUN_DESCRIPTION),
+				runDescription = config.getString(CONF_CORE_RUN_DESCRIPTION).trimToOption,
 				encoding = config.getString(CONF_CORE_ENCODING),
 				simulationClass = config.getString(CONF_CORE_SIMULATION_CLASS).trimToOption,
 				cache = CacheConfiguration(
@@ -146,7 +146,7 @@ object GatlingConfiguration {
 
 case class CoreConfiguration(
 	outputDirectoryBaseName: Option[String],
-	runDescription: String,
+	runDescription: Option[String],
 	encoding: String,
 	simulationClass: Option[String],
 	cache: CacheConfiguration,

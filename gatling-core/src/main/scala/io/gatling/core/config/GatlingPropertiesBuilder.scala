@@ -59,5 +59,9 @@ class GatlingPropertiesBuilder {
 		props += CONF_CORE_OUTPUT_DIRECTORY_BASE_NAME -> v
 	}
 
+	def runDescription(v: String) {
+		props.put(CONF_CORE_RUN_DESCRIPTION, v)
+	}
+
 	def build = props
 }

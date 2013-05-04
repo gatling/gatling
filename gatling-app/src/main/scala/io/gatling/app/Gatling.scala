@@ -72,6 +72,7 @@ object Gatling {
 			opt(CLI_SIMULATIONS_BINARIES_FOLDER, CLI_SIMULATIONS_BINARIES_FOLDER_ALIAS, "<directoryPath>", "Uses <directoryPath> to discover already compiled simulations", props.binariesDirectory _)
 			opt(CLI_SIMULATION, CLI_SIMULATION_ALIAS, "<className>", "Runs <className> simulation", props.simulationClass _)
 			opt(CLI_OUTPUT_DIRECTORY_BASE_NAME, CLI_OUTPUT_DIRECTORY_BASE_NAME_ALIAS, "<name>", "Use <name> for the base name of the output directory", props.outputDirectoryBaseName _)
+			opt(CLI_SIMULATION_DESCRIPTION, CLI_SIMULATION_DESCRIPTION_ALIAS, "<description>", "A short <description> of the run to include in the report", { v: String => props.runDescription(v) })
 		}
 
 		// if arguments are incorrect, usage message is displayed
@@ -190,7 +191,8 @@ class Gatling extends Logging {
 				val selection = configuration.core.simulationClass.map { _ =>
 					val simulation = simulations.head
 					val outputDirectoryBaseName = defaultOutputDirectoryBaseName(simulation)
-					new Selection(simulation, outputDirectoryBaseName, outputDirectoryBaseName)
+					val runDescription = configuration.core.runDescription.getOrElse(outputDirectoryBaseName)
+					new Selection(simulation, outputDirectoryBaseName, runDescription)
 				}.getOrElse(interactiveSelect(simulations))
 
 				val (runId, simulation) = new Runner(selection).run
