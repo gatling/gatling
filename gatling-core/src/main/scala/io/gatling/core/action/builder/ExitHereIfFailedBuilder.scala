@@ -17,10 +17,9 @@ package io.gatling.core.action.builder
 
 import akka.actor.{ ActorRef, Props }
 import io.gatling.core.action.{ ExitHereIfFailed, system }
-import io.gatling.core.config.ProtocolConfigurationRegistry
 
 object ExitHereIfFailedBuilder extends ActionBuilder {
 
-	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new ExitHereIfFailed(next)))
+	def build(next: ActorRef) = system.actorOf(Props(new ExitHereIfFailed(next)))
 
 }

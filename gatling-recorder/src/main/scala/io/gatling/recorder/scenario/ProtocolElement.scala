@@ -16,9 +16,9 @@
 package io.gatling.recorder.scenario
 
 import io.gatling.http.Headers
-import io.gatling.recorder.scenario.template.ProtocolConfigTemplate
+import io.gatling.recorder.scenario.template.ProtocolTemplate
 
-object ProtocolConfigElement {
+object ProtocolElement {
 
 	val baseHeaders = Map(
 		Headers.Names.ACCEPT -> "acceptHeader",
@@ -30,8 +30,8 @@ object ProtocolConfigElement {
 		Headers.Names.DO_NOT_TRACK -> "doNotTrackHeader",
 		Headers.Names.USER_AGENT -> "userAgentHeader")
 }
-class ProtocolConfigElement(baseUrl: String, followRedirect: Boolean, automaticReferer: Boolean, headers: Map[String, String]) extends ScenarioElement {
+class ProtocolElement(baseUrl: String, followRedirect: Boolean, automaticReferer: Boolean, headers: Map[String, String]) extends ScenarioElement {
 
-	override def toString = ProtocolConfigTemplate.render(baseUrl, followRedirect, automaticReferer, headers)
+	override def toString = ProtocolTemplate.render(baseUrl, followRedirect, automaticReferer, headers)
 
 }

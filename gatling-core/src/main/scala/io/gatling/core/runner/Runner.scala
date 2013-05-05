@@ -30,7 +30,7 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.message.RunMessage
 import io.gatling.core.result.terminator.Terminator
 import io.gatling.core.result.writer.DataWriter
-import io.gatling.core.scenario.configuration.Simulation
+import io.gatling.core.scenario.Simulation
 
 class Runner(selection: Selection) extends AkkaDefaults with Logging {
 
@@ -49,7 +49,7 @@ class Runner(selection: Selection) extends AkkaDefaults with Logging {
 			val scenarioNames = scenarios.map(_.name)
 			require(scenarioNames.toSet.size == scenarioNames.size, s"Scenario names must be unique but found $scenarioNames")
 
-			val totalNumberOfUsers = scenarios.map(_.configuration.users).sum
+			val totalNumberOfUsers = scenarios.map(_.injectionProfile.users).sum
 			logger.info(s"Total number of users : $totalNumberOfUsers")
 
 			val terminatorLatch = new CountDownLatch(1)
@@ -64,7 +64,7 @@ class Runner(selection: Selection) extends AkkaDefaults with Logging {
 
 			scenarios.foldLeft(0) { (i, scenario) =>
 				scenario.run(i)
-				i + scenario.configuration.users
+				i + scenario.injectionProfile.users
 			}
 			logger.debug("Finished Launching scenarios executions")
 

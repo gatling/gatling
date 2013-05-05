@@ -13,22 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.scenario.configuration
+package io.gatling.core.scenario
 
-import io.gatling.core.config.ProtocolConfigurationRegistry
-import io.gatling.core.scenario.injection.InjectionStep
+import scala.concurrent.duration.FiniteDuration
 
 /**
  * This class represents the configuration of a scenario
  *
- * @param users the number of users that will behave as this scenario says
- * @param ramp the time in which all users must be launched
- * @param delay the time at which the engine will start in the scenario
- * @param protocolRegistry the registry for the protocols used in the scenario
+ * @param injectionSteps the number of users that will behave as this scenario says
  */
-case class ScenarioConfiguration(
-	injections: Seq[InjectionStep],
-	protocolRegistry: ProtocolConfigurationRegistry) {
-
-	val users = injections.map(_.users).sum
+case class InjectionProfile(injectionSteps: Seq[InjectionStep]) {
+	val users = injectionSteps.map(_.users).sum
+	val allUsers = injectionSteps.foldRight(Iterator.empty: Iterator[FiniteDuration]) { (step, iterator) => step.chain(iterator) }
 }

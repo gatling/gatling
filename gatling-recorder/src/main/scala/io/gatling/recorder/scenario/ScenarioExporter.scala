@@ -49,10 +49,10 @@ object ScenarioExporter extends Logging {
 				case headerName :: others => resolveBaseHeaders(addHeader(headers, headerName), others)
 			}
 
-			resolveBaseHeaders(Map.empty, ProtocolConfigElement.baseHeaders.keySet.toList)
+			resolveBaseHeaders(Map.empty, ProtocolElement.baseHeaders.keySet.toList)
 		}
 
-		val protocolConfigElement = new ProtocolConfigElement(baseUrl, configuration.http.followRedirect, configuration.http.automaticReferer, baseHeaders)
+		val protocolConfigElement = new ProtocolElement(baseUrl, configuration.http.followRedirect, configuration.http.automaticReferer, baseHeaders)
 
 		// Add simulationClass to request elements
 		val elementsList: List[ScenarioElement] = scenarioElements.map {

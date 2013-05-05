@@ -16,7 +16,6 @@
 package io.gatling.core.action.builder
 
 import io.gatling.core.action.{ If, system }
-import io.gatling.core.config.ProtocolConfigurationRegistry
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ChainBuilder
 
@@ -30,9 +29,9 @@ import akka.actor.{ ActorRef, Props }
  */
 class IfBuilder(condition: Expression[Boolean], thenNext: ChainBuilder, elseNext: Option[ChainBuilder]) extends ActionBuilder {
 
-	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
-		val thenNextActor = thenNext.build(next, protocolConfigurationRegistry)
-		val elseNextActor = elseNext.map(_.build(next, protocolConfigurationRegistry)).getOrElse(next)
+	def build(next: ActorRef) = {
+		val thenNextActor = thenNext.build(next)
+		val elseNextActor = elseNext.map(_.build(next)).getOrElse(next)
 		system.actorOf(Props(new If(condition, thenNextActor, elseNextActor, next)))
 	}
 }

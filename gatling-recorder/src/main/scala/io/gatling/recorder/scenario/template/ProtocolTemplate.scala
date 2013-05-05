@@ -17,11 +17,11 @@ package io.gatling.recorder.scenario.template
 
 import io.gatling.core.util.StringHelper.eol
 import io.gatling.recorder.config.RecorderConfiguration.configuration
-import io.gatling.recorder.scenario.ProtocolConfigElement.baseHeaders
+import io.gatling.recorder.scenario.ProtocolElement.baseHeaders
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
-object ProtocolConfigTemplate {
+object ProtocolTemplate {
 
 	val indent = "\t" * 2
 

@@ -18,7 +18,6 @@ package io.gatling.core.action.builder
 import scala.concurrent.duration.Duration
 
 import io.gatling.core.action.{ Pause, system }
-import io.gatling.core.config.ProtocolConfigurationRegistry
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.NumberHelper.createUniformRandomLongGenerator
 import io.gatling.core.validation.Validation
@@ -34,7 +33,7 @@ import akka.actor.{ ActorRef, Props }
  */
 class PauseBuilder(minDuration: Expression[Duration], maxDurationOption: Option[Expression[Duration]] = None) extends ActionBuilder {
 
-	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
+	def build(next: ActorRef) = {
 
 		def delayGenerator(session: Session): Validation[Long] = {
 

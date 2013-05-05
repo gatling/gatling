@@ -15,6 +15,6 @@
  */
 package io.gatling.core.runner
 
-import io.gatling.core.scenario.configuration.Simulation
+import io.gatling.core.scenario.Simulation
 
 case class Selection(simulationClass: Class[Simulation], simulationId: String, description: String)

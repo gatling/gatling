@@ -18,7 +18,6 @@ package io.gatling.core.action.builder
 import scala.concurrent.duration.Duration
 
 import io.gatling.core.action.{ Pause, system }
-import io.gatling.core.config.ProtocolConfigurationRegistry
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.NumberHelper.createExpRandomLongGenerator
 import io.gatling.core.validation.SuccessWrapper
@@ -34,7 +33,7 @@ import akka.actor.{ ActorRef, Props }
  */
 class ExpPauseBuilder(meanDuration: Duration) extends ActionBuilder {
 
-	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
+	def build(next: ActorRef) = {
 		val meanDurationInMillis = meanDuration.toMillis
 		val delayGenerator: Expression[Long] = (session: Session) => createExpRandomLongGenerator(meanDurationInMillis)().success
 

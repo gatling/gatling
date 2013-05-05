@@ -22,12 +22,12 @@ import com.typesafe.scalalogging.slf4j.Logging
 import akka.actor.ActorRef
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckOrder.{ Body, Checksum }
-import io.gatling.http.config.HttpProtocolConfiguration
+import io.gatling.http.config.HttpProtocol
 
 object GatlingAsyncHandler {
 
-	def newHandlerFactory(checks: List[HttpCheck], protocolConfiguration: HttpProtocolConfiguration): HandlerFactory = {
-		val useBodyParts = !protocolConfiguration.responseChunksDiscardingEnabled || checks.exists(check => check.order == Checksum || check.order == Body)
+	def newHandlerFactory(checks: List[HttpCheck], protocol: HttpProtocol): HandlerFactory = {
+		val useBodyParts = !protocol.responseChunksDiscardingEnabled || checks.exists(check => check.order == Checksum || check.order == Body)
 		(requestName: String, actor: ActorRef) => new GatlingAsyncHandler(requestName, actor, useBodyParts)
 	}
 }

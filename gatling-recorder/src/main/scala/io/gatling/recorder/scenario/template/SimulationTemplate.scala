@@ -17,13 +17,13 @@ package io.gatling.recorder.scenario.template
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
-import io.gatling.recorder.scenario.{ ProtocolConfigElement, ScenarioElement, TagElement }
+import io.gatling.recorder.scenario.{ ProtocolElement, ScenarioElement, TagElement }
 
 object SimulationTemplate {
 
 	def render(packageName: String,
 		simulationClassName: String,
-		protocolConfig: ProtocolConfigElement,
+		protocol: ProtocolElement,
 		headers: Map[Int, List[(String, String)]],
 		scenarioName: String,
 		scenarioElements: Either[List[ScenarioElement], List[List[ScenarioElement]]]): String = {
@@ -99,13 +99,13 @@ import assertions._
 
 class $simulationClassName extends Simulation {
 
-	val httpConf = httpConfig$protocolConfig
+	val httpProtocol = http$protocol
 
 $renderHeaders
 
 	$renderScenario
 
-	setUp(scn.inject(atOnce(1 user)).protocolConfig(httpConf))
+	setUp(scn.inject(atOnce(1 user))).protocols(httpProtocol)
 }""".toString
 	}
 }

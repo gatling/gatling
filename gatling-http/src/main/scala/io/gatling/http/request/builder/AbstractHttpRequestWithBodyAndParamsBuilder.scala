@@ -19,7 +19,7 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.{ EL, Expression, Session }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
-import io.gatling.http.config.HttpProtocolConfiguration
+import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.RequestBody
 import io.gatling.http.util.HttpHelper
 import com.ning.http.client.{ RequestBuilder, StringPart }
@@ -80,7 +80,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		newInstance(httpAttributes, body, paramsAttributes.copy(uploadedFiles = new UploadedFile(paramKey, fileName, mimeType, charset) :: paramsAttributes.uploadedFiles))
 			.header(HeaderNames.CONTENT_TYPE, AbstractHttpRequestWithBodyAndParamsBuilder.multipartHeaderValueExpression)
 
-	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[RequestBuilder] = {
+	protected override def getAHCRequestBuilder(session: Session, protocol: HttpProtocol): Validation[RequestBuilder] = {
 
 		def configureParams(requestBuilder: RequestBuilder): Validation[RequestBuilder] =
 			if (!paramsAttributes.params.isEmpty)
@@ -110,7 +110,7 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 				requestBuilder
 			}
 
-		val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
+		val requestBuilder = super.getAHCRequestBuilder(session, protocol)
 
 		if (paramsAttributes.uploadedFiles.isEmpty)
 			requestBuilder.flatMap(configureParams)

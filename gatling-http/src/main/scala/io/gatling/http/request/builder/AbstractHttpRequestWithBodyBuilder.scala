@@ -21,7 +21,7 @@ import com.ning.http.client.RequestBuilder
 
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.Validation
-import io.gatling.http.config.HttpProtocolConfiguration
+import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.{ ByteArrayBody, ELTemplateBodies, RequestBody, InputStreamBody, RawFileBodies, SspTemplateBodies, StringBodies }
 
 /**
@@ -64,9 +64,9 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 
 	def processRequestBody(processor: RequestBody => RequestBody) = newInstance(httpAttributes, body.map(processor))
 
-	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[RequestBuilder] = {
+	protected override def getAHCRequestBuilder(session: Session, protocol: HttpProtocol): Validation[RequestBuilder] = {
 
-		val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
+		val requestBuilder = super.getAHCRequestBuilder(session, protocol)
 		body.map(b => requestBuilder.flatMap(b.setBody(_, session))).getOrElse(requestBuilder)
 	}
 }
