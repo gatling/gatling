@@ -28,9 +28,10 @@ class RoundRobinSwitchBuilder(possibilities: List[ChainBuilder]) extends ActionB
 
 	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
 
-		val possibleActions = possibilities.map(_.build(next, protocolConfigurationRegistry))
-
-		val rr = RoundRobin(possibleActions)
+		val rr = {
+			val possibleActions = possibilities.map(_.build(next, protocolConfigurationRegistry)).toArray
+			RoundRobin(possibleActions)
+		}
 
 		val nextAction = () => rr.next
 

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 		http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,15 +15,9 @@
  */
 package io.gatling.core.util
 
-object RoundRobin {
+import java.util.concurrent.atomic.AtomicInteger
 
-	def apply[T](values: Array[T]) =
-		if (values.isEmpty)
-			Iterator.empty
-		else
-			new Iterator[T] {
-				val counter = new CyclicCounter(values.length)
-				def hasNext = true
-				def next = values(counter.nextVal)
-			}
+class CyclicCounter(max: Int) {
+	private val counter = new AtomicInteger
+	def nextVal = counter.getAndIncrement % max
 }

@@ -64,7 +64,7 @@ case class HttpProtocolConfiguration(
 	responseProcessor: Option[ResponseProcessor],
 	extraInfoExtractor: Option[(Status, Session, Request, Response) => List[Any]]) extends ProtocolConfiguration {
 
-	val roundRobinUrls = baseURLs.map(RoundRobin(_))
+	val roundRobinUrls = baseURLs.map(urls => RoundRobin(urls.toArray))
 
 	def baseURL(): Option[String] = roundRobinUrls.map(_.next)
 }

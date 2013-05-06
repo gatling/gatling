@@ -26,7 +26,7 @@ class RoundRobinSpec extends Specification {
 
 		"work fine with non empty Iterable" in {
 
-			val rr = RoundRobin(List(1, 2, 3))
+			val rr = RoundRobin(Array(1, 2, 3))
 
 			rr.next should beEqualTo(1)
 			rr.next should beEqualTo(2)
@@ -38,7 +38,7 @@ class RoundRobinSpec extends Specification {
 
 		"throw NoSuchElementException with iterating on an empty Iterable" in {
 
-			val rr = RoundRobin(List.empty[Int])
+			val rr = RoundRobin(Array.empty[Int])
 
 			rr.next should throwA[NoSuchElementException]
 		}
