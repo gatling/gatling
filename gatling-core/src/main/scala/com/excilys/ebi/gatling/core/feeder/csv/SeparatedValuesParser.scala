@@ -49,6 +49,5 @@ object SeparatedValuesParser {
 
 			lines.tail.map(line => (headers zip line).toMap)
 		}
-
 	}
 }

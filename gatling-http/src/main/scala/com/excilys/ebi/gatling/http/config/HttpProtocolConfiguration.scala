@@ -51,7 +51,7 @@ case class HttpProtocolConfiguration(
 
 	val protocolType = HttpProtocolConfiguration.HTTP_PROTOCOL_TYPE
 
-	val roundRobinUrls = baseURLs.map(RoundRobin(_))
+	val roundRobinUrls = baseURLs.map(urls => RoundRobin(urls.toArray))
 
 	def baseURL(): Option[String] = roundRobinUrls.map(_.next)
 }
