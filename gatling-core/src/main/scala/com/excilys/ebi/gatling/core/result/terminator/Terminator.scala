@@ -63,7 +63,7 @@ class Terminator extends BaseActor {
 		case Initialize(latch, userCount) =>
 			info("Initializing")
 			this.latch = latch
-			this.endUserCount = endUserCount * configuration.data.dataWriterClasses.size
+			this.endUserCount = userCount * configuration.data.dataWriterClasses.size
 			registeredDataWriters = Nil
 			context.become(initialized)
 			sender ! true

@@ -26,6 +26,7 @@ class UserAction(event: String, val next: ActorRef) extends Action {
 
 		info(event + " user #" + session.userId)
 		DataWriter.user(session.scenarioName, session.userId, event)
-		next ! session
+		if (next != null)
+			next ! session
 	}
 }
