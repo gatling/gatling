@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.http.util
 
-import java.net.{ URI, URLDecoder }
+import java.net.URLDecoder
 
 import scala.collection.JavaConversions.{ asScalaBuffer, asScalaSet, seqAsJavaList }
 import scala.io.Codec.UTF8
@@ -26,32 +26,6 @@ import com.excilys.ebi.gatling.http.request.builder.HttpParam
 import com.ning.http.client.FluentStringsMap
 
 object HttpHelper {
-
-	def computeRedirectUrl(locationHeader: String, originalRequestUrl: String) = {
-		if (locationHeader.startsWith("http")) // as of the RFC, Location should be an absolute uri
-			locationHeader
-		else {
-			// sadly, internet is a mess
-			val (locationPathPart, locationQueryPart) = locationHeader.indexOf('?') match {
-				case -1 => (locationHeader, null)
-				case queryMarkIndex => (locationHeader.substring(0, queryMarkIndex), locationHeader.substring(queryMarkIndex + 1))
-			}
-
-			val originalRequestURI = new URI(originalRequestUrl)
-			val originalRequestPath = originalRequestURI.getPath
-
-			val absolutePath = if (locationPathPart.startsWith("/"))
-				locationPathPart
-			else {
-				originalRequestPath.lastIndexOf('/') match {
-					case -1 => "/" + locationPathPart
-					case lastSlashIndex => originalRequestPath.substring(0, lastSlashIndex + 1) + locationPathPart
-				}
-			}
-
-			new URI(originalRequestURI.getScheme, null, originalRequestURI.getHost, originalRequestURI.getPort, absolutePath, locationQueryPart, null).toString
-		}
-	}
 
 	def parseFormBody(body: String): List[(String, String)] = {
 		def utf8Decode(s: String) = URLDecoder.decode(s, UTF8.name)
@@ -73,7 +47,7 @@ object HttpHelper {
 		.foldLeft(new FluentStringsMap) { (map, keyValues) =>
 			val (key, values) = keyValues
 			map.add(key, values)
-	}
+		}
 
 	def dumpFluentCaseInsensitiveStringsMap(map: java.util.Map[String, java.util.List[String]], buff: StringBuilder) {
 

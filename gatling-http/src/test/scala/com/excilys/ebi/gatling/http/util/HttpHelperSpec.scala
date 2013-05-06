@@ -36,19 +36,4 @@ class HttpHelperSpec extends Specification {
 			HttpHelper.parseFormBody("foo=&baz=qux") must beEqualTo(List("foo" -> "", "baz" -> "qux"))
 		}
 	}
-
-	"computeRedirectUrl" should {
-
-		"properly handle an absolute location with query params" in {
-			HttpHelper.computeRedirectUrl("http://foo.com/bar?baz=qux", "http://foo.com") must beEqualTo("http://foo.com/bar?baz=qux")
-		}
-
-		"properly handle a relative root location with query params" in {
-			HttpHelper.computeRedirectUrl("/bar?baz=qux", "http://foo.com") must beEqualTo("http://foo.com/bar?baz=qux")
-		}
-
-		"properly handle a relative non root location with query params" in {
-			HttpHelper.computeRedirectUrl("bar?baz=qux", "http://foo.com/aaa/bbb") must beEqualTo("http://foo.com/aaa/bar?baz=qux")
-		}
-	}
 }

@@ -25,9 +25,11 @@ object CookieHandling {
 
 	val COOKIES_CONTEXT_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "http.cookies"
 
-	def getStoredCookies(session: Session, url: String): List[Cookie] = {
+	def getStoredCookies(session: Session, url: String): List[Cookie] = getStoredCookies(session, URI.create(url))
+
+	def getStoredCookies(session: Session, uri: URI): List[Cookie] = {
 		session.getAttributeAsOption[CookieJar](COOKIES_CONTEXT_KEY) match {
-			case Some(cookieJar) => cookieJar.get(URI.create(url))
+			case Some(cookieJar) => cookieJar.get(uri)
 			case _ => Nil
 		}
 	}
