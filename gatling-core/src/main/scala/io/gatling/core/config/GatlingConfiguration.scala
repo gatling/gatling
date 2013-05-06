@@ -200,8 +200,8 @@ case class HttpConfiguration(
 	userAgent: String,
 	useRawUrl: Boolean,
 	nonStandardJsonSupport: Seq[String],
-	ssl: SslConfiguration,
-	warmUpUrl: Option[String])
+    warmUpUrl: Option[String],
+	ssl: SslConfiguration)
 
 case class SslConfiguration(
 	trustStore: Option[StoreConfiguration],
