@@ -12,12 +12,12 @@ contents: {
 	#match (child)
 		#case (group: GroupContainer)
 			<% attributes("group") = group %>
-	<%= formatToJavascriptVar(group.name) %>: {
+	"<%= formatToJavascriptVar(group.name) %>": {
 		${include("stats_group.js.ssp")}
 	}
 		#case (request: RequestContainer)
 			<% attributes("request") = request.stats %>
-	<%= formatToJavascriptVar(request.name) %>: {
+	"<%= formatToJavascriptVar(request.name) %>": {
 		type: "<%= REQUEST %>",
 		${include("stats_request.js.ssp")}
 	}
