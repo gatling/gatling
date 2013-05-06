@@ -26,7 +26,7 @@ import com.ning.http.client.{ ProxyServer, Request }
 object HttpProtocolConfiguration {
 	val HTTP_PROTOCOL_TYPE = "httpProtocol"
 
-	lazy val DEFAULT_HTTP_PROTOCOL_CONFIG = HttpProtocolConfigurationBuilder.BASE_HTTP_PROTOCOL_CONFIGURATION_BUILDER.build
+	lazy val DEFAULT_HTTP_PROTOCOL_CONFIG = HttpProtocolConfigurationBuilder.default.build
 }
 
 /**

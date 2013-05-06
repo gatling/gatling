@@ -15,6 +15,9 @@
  */
 package com.excilys.ebi.gatling.http.config
 
+import scala.collection.mutable
+
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.http.Headers
 import com.excilys.ebi.gatling.http.ahc.GatlingHttpClient
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
@@ -27,9 +30,9 @@ import grizzled.slf4j.Logging
  */
 object HttpProtocolConfigurationBuilder {
 
-	private[gatling] val BASE_HTTP_PROTOCOL_CONFIGURATION_BUILDER = new HttpProtocolConfigurationBuilder(Attributes(None, None, None, true, true, true, true, true, false, Map.empty, None, None, None))
+	private[gatling] val default = new HttpProtocolConfigurationBuilder(Attributes(None, None, None, true, true, true, true, true, false, Map.empty, configuration.http.warmUpUrl, None, None))
 
-	def httpConfig = BASE_HTTP_PROTOCOL_CONFIGURATION_BUILDER.warmUp("http://gatling-tool.org")
+	val warmUpUrls = mutable.Set.empty[String]
 }
 
 private case class Attributes(baseUrls: Option[List[String]],
@@ -99,12 +102,6 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 
 	def responseInfoExtractor(f: ExtendedResponse => List[String]) = new HttpProtocolConfigurationBuilder(attributes.copy(extraResponseInfoExtractor = Some(f)))
 
-	/**
-	 * Sets the proxy of the future HttpProtocolConfiguration
-	 *
-	 * @param host the host of the proxy
-	 * @param port the port of the proxy
-	 */
 	def proxy(host: String, port: Int) = new HttpProxyBuilder(this, host, port)
 
 	private[http] def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = new HttpProtocolConfigurationBuilder(attributes.copy(proxy = Some(httpProxy), securedProxy = httpsProxy))
@@ -114,15 +111,18 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 		require(!(!attributes.shareClient && attributes.shareConnections), "Invalid configuration: can't stop sharing the HTTP client while still sharing connections!")
 
 		attributes.warmUpUrl.map { url =>
-			val requestBuilder = new RequestBuilder().setUrl(url)
+			if (!HttpProtocolConfigurationBuilder.warmUpUrls.contains(url)) {
+				HttpProtocolConfigurationBuilder.warmUpUrls += url
+				val requestBuilder = new RequestBuilder().setUrl(url)
 
-			attributes.proxy.map { proxy => if (url.startsWith("http://")) requestBuilder.setProxyServer(proxy) }
-			attributes.securedProxy.map { proxy => if (url.startsWith("https://")) requestBuilder.setProxyServer(proxy) }
+				attributes.proxy.map { proxy => if (url.startsWith("http://")) requestBuilder.setProxyServer(proxy) }
+				attributes.securedProxy.map { proxy => if (url.startsWith("https://")) requestBuilder.setProxyServer(proxy) }
 
-			try {
-				GatlingHttpClient.defaultClient.executeRequest(requestBuilder.build).get
-			} catch {
-				case e: Exception => info("Couldn't execute warm up request " + url, e)
+				try {
+					GatlingHttpClient.defaultClient.executeRequest(requestBuilder.build).get
+				} catch {
+					case e: Exception => info("Couldn't execute warm up request " + url, e)
+				}
 			}
 		}
 

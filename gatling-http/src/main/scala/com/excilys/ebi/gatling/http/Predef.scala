@@ -37,7 +37,7 @@ object Predef {
 	implicit def requestBuilder2ActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]): HttpRequestActionBuilder = requestBuilder.toActionBuilder
 
 	def http(requestName: EvaluatableString) = HttpRequestBaseBuilder.http(requestName)
-	def httpConfig = HttpProtocolConfigurationBuilder.httpConfig
+	def httpConfig = HttpProtocolConfigurationBuilder.default
 	def regex(pattern: EvaluatableString) = HttpBodyRegexCheckBuilder.regex(pattern)
 	def xpath(expression: EvaluatableString, namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)
 	def css(selector: EvaluatableString) = HttpBodyCssCheckBuilder.css(selector, None)

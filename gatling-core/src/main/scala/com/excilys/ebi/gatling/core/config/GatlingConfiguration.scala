@@ -89,6 +89,10 @@ object GatlingConfiguration extends Logging {
 				userAgent = config.getString(CONF_HTTP_USER_AGENT),
 				useRawUrl = config.getBoolean(CONF_HTTP_USE_RAW_URL),
 				nonStandardJsonSupport = toStringSeq(config.getString(CONF_HTTP_JSON_FEATURES)),
+				warmUpUrl = {
+					val value = config.getString(CONF_HTTP_WARM_UP_URL).trim
+					if (value.isEmpty) None else Some(value)
+				},
 				ssl = {
 					def storeConfig(typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String) = {
 
@@ -184,6 +188,7 @@ case class HttpConfiguration(
 	userAgent: String,
 	useRawUrl: Boolean,
 	nonStandardJsonSupport: Seq[String],
+	warmUpUrl: Option[String],
 	ssl: SslConfiguration)
 
 case class SslConfiguration(
