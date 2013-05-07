@@ -123,6 +123,7 @@ object GatlingConfiguration {
 			data = DataConfiguration(
 				dataWriterClasses = config.getString(CONF_DATA_WRITER_CLASS_NAMES).toStringSeq.map {
 					case "console" => "io.gatling.core.result.writer.ConsoleDataWriter"
+					case "jdbc" => "io.gatling.core.result.writer.JDBCDataWriter"
 					case "file" => "io.gatling.core.result.writer.FileDataWriter"
 					case "graphite" => "io.gatling.metrics.GraphiteDataWriter"
 					case clazz => clazz
@@ -131,6 +132,13 @@ object GatlingConfiguration {
 					case "file" => "io.gatling.charts.result.reader.FileDataReader"
 					case clazz => clazz
 				},
+				jdbc = JDBCConfiguration(
+					db = DBConfiguration(
+					    url = config.getString(CONF_JDBC_URL),
+					    username = config.getString(CONF_JDBC_USERNAME),
+					    password = config.getString(CONF_JDBC_PASSWORD)
+					    )
+				),
 				console = ConsoleConfiguration(
 					light = config.getBoolean(CONF_DATA_CONSOLE_LIGHT)),
 				graphite = GraphiteConfiguration(
@@ -216,9 +224,20 @@ case class StoreConfiguration(
 case class DataConfiguration(
 	dataWriterClasses: Seq[String],
 	dataReaderClass: String,
+	jdbc: JDBCConfiguration,
 	console: ConsoleConfiguration,
 	graphite: GraphiteConfiguration)
 
+case class DBConfiguration(
+    url: String,
+    username: String,
+    password: String
+    )
+
+case class JDBCConfiguration(
+    db: DBConfiguration
+)
+	
 case class ConsoleConfiguration(
 	light: Boolean)
 
