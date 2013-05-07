@@ -31,12 +31,12 @@ trait Loops[B] extends Execs[B] {
 	def repeat(times: Int)(chain: ChainBuilder): B = repeat(times, UUID.randomUUID.toString)(chain)
 	def repeat(times: Int, counter: String)(chain: ChainBuilder): B = {
 
-		val loopHandler = new Loop {
-			val counterName = counter
+		val loop = new Loop {
+			def counterName = counter
 		}
 
-		val increment = chainOf(new SessionHookBuilder(s => loopHandler.incrementLoop(s).success))
-		val exit = chainOf(new SessionHookBuilder(s => loopHandler.exitLoop(s).success))
+		val increment = chainOf(new SessionHookBuilder(s => loop.incrementLoop(s).success))
+		val exit = chainOf(new SessionHookBuilder(s => loop.exitLoop(s).success))
 		val reversedLoopContent = exit :: Stream.continually(List(chain, increment)).take(times).flatten.toList
 
 		exec(reversedLoopContent.reverse)
@@ -76,7 +76,7 @@ trait Loops[B] extends Execs[B] {
 		val durationMillis = duration.toMillis
 
 		val loop = new Loop {
-			val counterName = counterNameParam
+			def counterName = counterNameParam
 		}
 
 		val continueCondition = (session: Session) => {
