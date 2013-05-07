@@ -18,15 +18,15 @@ package io.gatling.core.action
 import akka.actor.{ Actor, ActorRef, Props }
 import io.gatling.core.result.message.KO
 import io.gatling.core.session.Session
-import io.gatling.core.session.handler.Loop
+import io.gatling.core.structure.Loops.{ CounterName, SessionCounters }
 
-class TryMax(times: Int, next: ActorRef, counterName: String) extends Actor {
+class TryMax(times: Int, next: ActorRef)(implicit counterName: CounterName) extends Actor {
 
 	var innerTryMax: ActorRef = _
 
 	val uninitialized: Receive = {
 		case loopNext: ActorRef =>
-			innerTryMax = context.actorOf(Props(new InnerTryMax(times, loopNext, counterName, next)))
+			innerTryMax = context.actorOf(Props(new InnerTryMax(times, loopNext, next)))
 			context.become(initialized)
 	}
 
@@ -35,14 +35,14 @@ class TryMax(times: Int, next: ActorRef, counterName: String) extends Actor {
 	override def receive = uninitialized
 }
 
-class InnerTryMax(times: Int, loopNext: ActorRef, val counterName: String, val next: ActorRef) extends Chainable with Loop {
+class InnerTryMax(times: Int, loopNext: ActorRef, val next: ActorRef)(implicit counterName: CounterName) extends Chainable {
 
 	val interrupt: Receive = {
 		case session: Session if session.status == KO =>
-			if (session.get[Int](counterName, -1) < times)
+			if (session.counterValue < times)
 				self ! session.resetStatus
 			else
-				next ! exitLoop(session.exitTryMax)
+				next ! session.exitTryMax.exitLoop
 	}
 
 	/**
@@ -53,8 +53,8 @@ class InnerTryMax(times: Int, loopNext: ActorRef, val counterName: String, val n
 	 */
 	def execute(session: Session) {
 
-		val initializedSession = if (!session.contains(counterName)) session.enterTryMax(interrupt) else session
-		val incrementedSession = incrementLoop(initializedSession)
+		val initializedSession = if (!session.isSetUp) session.enterTryMax(interrupt) else session
+		val incrementedSession = initializedSession.incrementLoop
 
 		interrupt.applyOrElse(incrementedSession, (s: Session) => loopNext ! s)
 	}

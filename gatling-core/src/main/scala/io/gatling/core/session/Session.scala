@@ -68,6 +68,7 @@ case class Session(
 	def setAll(newAttributes: Iterable[(String, Any)]): Session = copy(attributes = attributes ++ newAttributes)
 	def set(key: String, value: Any) = copy(attributes = attributes + (key -> value))
 	def remove(key: String) = if (contains(key)) copy(attributes = attributes - key) else this
+	def removeAll(keys: String*) = copy(attributes = attributes -- keys)
 	def contains(attributeKey: String) = attributes.contains(attributeKey)
 
 	private[gatling] def setTimeShift(timeShift: Long) = copy(timeShift = timeShift)

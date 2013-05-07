@@ -18,14 +18,16 @@ package io.gatling.core.structure
 import java.util.UUID
 
 import io.gatling.core.action.builder.{ ExitHereIfFailedBuilder, TryMaxBuilder }
+import io.gatling.core.structure.Loops.CounterName
 
 trait Errors[B] extends Execs[B] {
 
 	def exitBlockOnFail(chain: ChainBuilder): B = tryMax(1)(chain)
-	def tryMax(times: Int, counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
+	def tryMax(times: Int, counter: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
 
 		require(times >= 1, "Can't set up a max try <= 1")
-		exec(new TryMaxBuilder(times, chain, counterName))
+		
+		exec(new TryMaxBuilder(times, chain)(CounterName(counter)))
 	}
 
 	def exitHereIfFailed: B = exec(ExitHereIfFailedBuilder)

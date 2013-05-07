@@ -17,7 +17,7 @@ package io.gatling.core.action
 
 import akka.actor.{ Actor, ActorRef, Props }
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.session.handler.Loop
+import io.gatling.core.structure.Loops.{ CounterName, SessionCounters }
 import io.gatling.core.validation.{ Failure, Success }
 
 /**
@@ -28,13 +28,13 @@ import io.gatling.core.validation.{ Failure, Success }
  * @param counterName the name of the counter for this loop
  * @param next the chain executed if testFunction evaluates to false
  */
-class While(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, next: ActorRef) extends Actor {
+class While(continueCondition: Expression[Boolean], exitASAP: Boolean, next: ActorRef)(implicit counterName: CounterName) extends Actor {
 
 	var innerWhile: ActorRef = _
 
 	val uninitialized: Receive = {
 		case loopNext: ActorRef =>
-			innerWhile = context.actorOf(Props(new InnerWhile(continueCondition, loopNext, counterName, exitASAP, next)))
+			innerWhile = context.actorOf(Props(new InnerWhile(continueCondition, loopNext, exitASAP, next)))
 			context.become(initialized)
 	}
 
@@ -43,7 +43,7 @@ class While(continueCondition: Expression[Boolean], counterName: String, exitASA
 	override def receive = uninitialized
 }
 
-class InnerWhile(continueCondition: Expression[Boolean], loopNext: ActorRef, val counterName: String, exitASAP: Boolean, val next: ActorRef) extends Chainable with Loop {
+class InnerWhile(continueCondition: Expression[Boolean], loopNext: ActorRef, exitASAP: Boolean, val next: ActorRef)(implicit counterName: CounterName) extends Chainable {
 
 	val interrupt: Receive = {
 
@@ -52,7 +52,7 @@ class InnerWhile(continueCondition: Expression[Boolean], loopNext: ActorRef, val
 			case Failure(message) => logger.error(s"Could not evaluate condition: $message, exiting loop"); true
 		}
 
-		{ case session: Session if conditionFailed(session) => next ! exitLoop(session.exitInterruptable) }
+		{ case session: Session if conditionFailed(session) => next ! session.exitInterruptable.exitLoop }
 	}
 
 	/**
@@ -63,8 +63,8 @@ class InnerWhile(continueCondition: Expression[Boolean], loopNext: ActorRef, val
 	 */
 	def execute(session: Session) {
 
-		val initializedSession = if (!session.contains(counterName)) session.enterInterruptable(interrupt) else session
-		val incrementedSession = incrementLoop(initializedSession)
+		val initializedSession = if (!session.isSetUp) session.enterInterruptable(interrupt) else session
+		val incrementedSession = initializedSession.incrementLoop
 
 		interrupt.applyOrElse(incrementedSession, (s: Session) => loopNext ! s)
 	}
