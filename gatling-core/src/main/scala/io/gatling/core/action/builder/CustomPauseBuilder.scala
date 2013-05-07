@@ -16,7 +16,6 @@
 package io.gatling.core.action.builder
 
 import io.gatling.core.action.{ Pause, system }
-import io.gatling.core.config.ProtocolConfigurationRegistry
 import io.gatling.core.session.Expression
 
 import akka.actor.{ ActorRef, Props }
@@ -29,5 +28,5 @@ import akka.actor.{ ActorRef, Props }
  */
 class CustomPauseBuilder(delayGenerator: Expression[Long]) extends ActionBuilder {
 
-	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = system.actorOf(Props(new Pause(delayGenerator, next)))
+	def build(next: ActorRef) = system.actorOf(Props(new Pause(delayGenerator, next)))
 }

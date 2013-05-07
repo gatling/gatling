@@ -17,15 +17,15 @@ package io.gatling.http.config
 
 import com.ning.http.client.ProxyServer
 
-class HttpProxyBuilder(configBuilder: HttpProtocolConfigurationBuilder, host: String, port: Int, sslPort: Option[Int], username: Option[String], password: Option[String]) {
+class HttpProxyBuilder(protocolBuilder: HttpProtocolBuilder, host: String, port: Int, sslPort: Option[Int], username: Option[String], password: Option[String]) {
 
-	def this(configBuilder: HttpProtocolConfigurationBuilder, host: String, port: Int) = this(configBuilder, host, port, None, None, None)
+	def this(protocolBuilder: HttpProtocolBuilder, host: String, port: Int) = this(protocolBuilder, host, port, None, None, None)
 
-	def httpsPort(sslPort: Int) = new HttpProxyBuilder(configBuilder, host, port, Some(sslPort), username, password)
+	def httpsPort(sslPort: Int) = new HttpProxyBuilder(protocolBuilder, host, port, Some(sslPort), username, password)
 
-	def credentials(username: String, password: String) = new HttpProxyBuilder(configBuilder, host, port, sslPort, Some(username), Some(password))
+	def credentials(username: String, password: String) = new HttpProxyBuilder(protocolBuilder, host, port, sslPort, Some(username), Some(password))
 
-	def toHttpProtocolConfigurationBuilder = {
+	def toHttpProtocolBuilder = {
 
 		def getProxyServer(protocol: ProxyServer.Protocol)(port: Int) = {
 			
@@ -40,6 +40,6 @@ class HttpProxyBuilder(configBuilder: HttpProtocolConfigurationBuilder, host: St
 		def plainProxyServer = getProxyServer(ProxyServer.Protocol.HTTP) _
 		def secureHttpProxyServer = getProxyServer(ProxyServer.Protocol.HTTPS) _
 
-		configBuilder.addProxies(plainProxyServer(port), sslPort.map(secureHttpProxyServer))
+		protocolBuilder.addProxies(plainProxyServer(port), sslPort.map(secureHttpProxyServer))
 	}
 }

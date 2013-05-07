@@ -21,7 +21,7 @@ import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.Headers
-import io.gatling.http.config.HttpProtocolConfiguration
+import io.gatling.http.config.HttpProtocol
 
 object CacheHandling extends Logging {
 
@@ -42,9 +42,9 @@ object CacheHandling extends Logging {
 
 	private def getCache(session: Session): Set[String] = session.get(httpCacheAttributeName, Set.empty)
 
-	def isCached(httpProtocolConfiguration: HttpProtocolConfiguration, session: Session, request: Request) = httpProtocolConfiguration.cachingEnabled && getCache(session).contains(request.getUrl)
+	def isCached(httpProtocol: HttpProtocol, session: Session, request: Request) = httpProtocol.cachingEnabled && getCache(session).contains(request.getUrl)
 
-	def cache(httpProtocolConfiguration: HttpProtocolConfiguration, session: Session, request: Request, response: Response): Session = {
+	def cache(httpProtocol: HttpProtocol, session: Session, request: Request, response: Response): Session = {
 
 		def pragmaNoCache = Option(response.getHeader(Headers.Names.PRAGMA)).map(_.contains(Headers.Values.NO_CACHE)).getOrElse(false)
 		def cacheControlNoCache = Option(response.getHeader(Headers.Names.CACHE_CONTROL)).map(_.contains(Headers.Values.NO_CACHE)).getOrElse(false)
@@ -52,7 +52,7 @@ object CacheHandling extends Logging {
 			.map(isFutureExpire)
 			.getOrElse(false)
 
-		val isResponseCacheable = httpProtocolConfiguration.cachingEnabled && !pragmaNoCache && !cacheControlNoCache && expiresInFuture
+		val isResponseCacheable = httpProtocol.cachingEnabled && !pragmaNoCache && !cacheControlNoCache && expiresInFuture
 
 		if (isResponseCacheable) {
 			val cache = getCache(session)

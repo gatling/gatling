@@ -17,17 +17,17 @@ package io.gatling.http.config
 
 import com.ning.http.client.{ ProxyServer, Realm, Request }
 
-import io.gatling.core.config.ProtocolConfiguration
+import io.gatling.core.config.Protocol
 import io.gatling.core.result.message.Status
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.RoundRobin
 import io.gatling.http.response.{ Response, ResponseProcessor }
 
 /**
- * HttpProtocolConfiguration class companion
+ * HttpProtocol class companion
  */
-object HttpProtocolConfiguration {
-	val default = HttpProtocolConfiguration(
+object HttpProtocol {
+	val default = HttpProtocol(
 		baseURLs = None,
 		proxy = None,
 		securedProxy = None,
@@ -49,7 +49,7 @@ object HttpProtocolConfiguration {
  * @param baseURL the radix of all the URLs that will be used (eg: http://mywebsite.tld)
  * @param proxy a proxy through which all the requests must pass to succeed
  */
-case class HttpProtocolConfiguration(
+case class HttpProtocol(
 	baseURLs: Option[Seq[String]],
 	proxy: Option[ProxyServer],
 	securedProxy: Option[ProxyServer],
@@ -62,7 +62,7 @@ case class HttpProtocolConfiguration(
 	baseHeaders: Map[String, String],
 	basicAuth: Option[Expression[Realm]],
 	responseProcessor: Option[ResponseProcessor],
-	extraInfoExtractor: Option[(Status, Session, Request, Response) => List[Any]]) extends ProtocolConfiguration {
+	extraInfoExtractor: Option[(Status, Session, Request, Response) => List[Any]]) extends Protocol {
 
 	val roundRobinUrls = baseURLs.map(urls => RoundRobin(urls.toArray))
 

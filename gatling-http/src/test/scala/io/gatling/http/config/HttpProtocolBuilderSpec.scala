@@ -26,7 +26,7 @@ import io.gatling.http.response.Response
 import com.ning.http.client.Request
 
 @RunWith(classOf[JUnitRunner])
-class HttpProtocolConfigurationBuilderSpec extends Specification {
+class HttpProtocolBuilderSpec extends Specification {
 
 	GatlingConfiguration.setUp()
 
@@ -35,10 +35,10 @@ class HttpProtocolConfigurationBuilderSpec extends Specification {
 
 			val expectedExtractor = (status: Status, session: Session, request: Request, response: Response) => Nil
 
-			val builder = HttpProtocolConfigurationBuilder.default
+			val builder = HttpProtocolBuilder.default
 				.disableWarmUp
 				.extraInfoExtractor(expectedExtractor)
-			val config: HttpProtocolConfiguration = builder.build
+			val config: HttpProtocol = builder.build
 
 			config.extraInfoExtractor.get should beEqualTo(expectedExtractor)
 		}
@@ -46,11 +46,11 @@ class HttpProtocolConfigurationBuilderSpec extends Specification {
 		"be able to support a base URL" in {
 			val url = "http://url"
 
-			val builder = HttpProtocolConfigurationBuilder.default
+			val builder = HttpProtocolBuilder.default
 				.baseURL(url)
 				.disableWarmUp
 
-			val config: HttpProtocolConfiguration = builder.build
+			val config: HttpProtocol = builder.build
 
 			Seq(config.baseURL.get, config.baseURL.get, config.baseURL.get) must be equalTo (Seq(url, url, url))
 		}
@@ -59,11 +59,11 @@ class HttpProtocolConfigurationBuilderSpec extends Specification {
 			val url1 = "http://url1"
 			val url2 = "http://url2"
 
-			val builder = HttpProtocolConfigurationBuilder.default
+			val builder = HttpProtocolBuilder.default
 				.baseURLs(url1, url2)
 				.disableWarmUp
 
-			val config: HttpProtocolConfiguration = builder.build
+			val config: HttpProtocol = builder.build
 
 			Seq(config.baseURL.get, config.baseURL.get, config.baseURL.get) must be equalTo (Seq(url1, url2, url1))
 		}

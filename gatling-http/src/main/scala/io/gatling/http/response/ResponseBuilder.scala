@@ -27,17 +27,17 @@ import io.gatling.core.util.TimeHelper.{ computeTimeMillisFromNanos, nowMillis }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckOrder.Body
 import io.gatling.http.check.checksum.ChecksumCheck
-import io.gatling.http.config.HttpProtocolConfiguration
+import io.gatling.http.config.HttpProtocol
 
 object ResponseBuilder {
 
-	def newResponseBuilder(checks: List[HttpCheck], responseProcessor: Option[ResponseProcessor], protocolConfiguration: HttpProtocolConfiguration): ResponseBuilderFactory = {
+	def newResponseBuilder(checks: List[HttpCheck], responseProcessor: Option[ResponseProcessor], protocol: HttpProtocol): ResponseBuilderFactory = {
 
 		val checksumChecks = checks.collect {
 			case checksumCheck: ChecksumCheck => checksumCheck
 		}
 
-		val storeBodyParts = !protocolConfiguration.responseChunksDiscardingEnabled || checks.exists(_.order == Body)
+		val storeBodyParts = !protocol.responseChunksDiscardingEnabled || checks.exists(_.order == Body)
 		request: Request => new ResponseBuilder(request, checksumChecks, responseProcessor, storeBodyParts)
 	}
 }

@@ -21,7 +21,7 @@ import scala.tools.nsc.interpreter.AbstractFileClassLoader
 import scala.tools.nsc.io.{ Directory, File, Path, PlainFile }
 import scala.tools.nsc.io.Path.string2path
 
-import io.gatling.core.scenario.configuration.Simulation
+import io.gatling.core.scenario.Simulation
 
 object SimulationClassLoader {
 

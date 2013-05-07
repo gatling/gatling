@@ -37,7 +37,7 @@ object DataWriter extends AkkaDefaults {
 	}
 
 	def askInit(runMessage: RunMessage, scenarios: Seq[Scenario]) = {
-		val shortScenarioDescriptions = scenarios.map(scenario => ShortScenarioDescription(scenario.name, scenario.configuration.users))
+		val shortScenarioDescriptions = scenarios.map(scenario => ShortScenarioDescription(scenario.name, scenario.injectionProfile.users))
 
 		val responses = dataWriters.map(_ ? Init(runMessage, shortScenarioDescriptions))
 

@@ -34,7 +34,7 @@ import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.http.Headers.{ Names => HeaderNames }
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.config.HttpProtocolConfiguration
+import io.gatling.http.config.HttpProtocol
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.response.{ Response, ResponseBuilder, ResponseBuilderFactory, ResponseProcessor }
 import io.gatling.http.util.HttpStringBuilder
@@ -47,10 +47,10 @@ object GatlingAsyncHandlerActor {
 		checks: List[HttpCheck],
 		next: ActorRef,
 		responseProcessor: Option[ResponseProcessor],
-		protocolConfiguration: HttpProtocolConfiguration)(requestName: String) = {
+		protocol: HttpProtocol)(requestName: String) = {
 
-		val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks, protocolConfiguration)
-		val responseBuilderFactory = ResponseBuilder.newResponseBuilder(checks, responseProcessor, protocolConfiguration)
+		val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks, protocol)
+		val responseBuilderFactory = ResponseBuilder.newResponseBuilder(checks, responseProcessor, protocol)
 
 		(request: Request, session: Session) =>
 			new GatlingAsyncHandlerActor(
@@ -59,7 +59,7 @@ object GatlingAsyncHandlerActor {
 				next,
 				requestName,
 				request,
-				protocolConfiguration,
+				protocol,
 				handlerFactory,
 				responseBuilderFactory)
 	}
@@ -71,7 +71,7 @@ class GatlingAsyncHandlerActor(
 	next: ActorRef,
 	var requestName: String,
 	var request: Request,
-	protocolConfiguration: HttpProtocolConfiguration,
+	protocol: HttpProtocol,
 	handlerFactory: HandlerFactory,
 	responseBuilderFactory: ResponseBuilderFactory) extends BaseActor {
 
@@ -135,7 +135,7 @@ class GatlingAsyncHandlerActor(
 		 */
 		def extraInfo: List[Any] =
 			try {
-				protocolConfiguration.extraInfoExtractor.map(_(status, session, request, response)).getOrElse(Nil)
+				protocol.extraInfoExtractor.map(_(status, session, request, response)).getOrElse(Nil)
 			} catch {
 				case e: Exception =>
 					logger.warn("Encountered error while extracting extra request info", e)
@@ -211,7 +211,7 @@ class GatlingAsyncHandlerActor(
 			this.responseBuilder = responseBuilderFactory(newRequest)
 
 			val client =
-				if (protocolConfiguration.shareClient)
+				if (protocol.shareClient)
 					GatlingHttpClient.defaultClient
 				else
 					sessionWithUpdatedCookies.get(GatlingHttpClient.httpClientAttributeName, throw new UnsupportedOperationException("Couldn't find an HTTP client stored in the session"))
@@ -220,7 +220,7 @@ class GatlingAsyncHandlerActor(
 		}
 
 		def checkAndProceed(sessionWithUpdatedCookies: Session) {
-			val sessionWithUpdatedCache = CacheHandling.cache(protocolConfiguration, sessionWithUpdatedCookies, request, response)
+			val sessionWithUpdatedCache = CacheHandling.cache(protocol, sessionWithUpdatedCookies, request, response)
 			val checkResult = Checks.check(response, sessionWithUpdatedCache, checks)
 
 			checkResult match {
@@ -231,7 +231,7 @@ class GatlingAsyncHandlerActor(
 
 		val sessionWithUpdatedCookies = CookieHandling.storeCookies(originalSession, response.getUri, response.getCookies.toList)
 
-		if (response.isRedirected && protocolConfiguration.followRedirectEnabled)
+		if (response.isRedirected && protocol.followRedirectEnabled)
 			redirect(sessionWithUpdatedCookies)
 		else
 			checkAndProceed(sessionWithUpdatedCookies)

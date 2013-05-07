@@ -15,8 +15,6 @@
  */
 package io.gatling.core.action.builder
 
-import io.gatling.core.config.ProtocolConfigurationRegistry
-
 import akka.actor.ActorRef
 
 /**
@@ -25,9 +23,8 @@ import akka.actor.ActorRef
 trait ActionBuilder {
 
 	/**
-	 * @param protocolConfigurationRegistry
 	 * @param next the Action that will be chained with the Action build by this builder
 	 * @return the built Action
 	 */
-	private[gatling] def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef
+	private[gatling] def build(next: ActorRef): ActorRef
 }

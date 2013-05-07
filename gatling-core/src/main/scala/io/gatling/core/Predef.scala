@@ -18,17 +18,14 @@ package io.gatling.core
 import scala.concurrent.duration.{ DurationInt, FiniteDuration }
 import scala.reflect.ClassTag
 import scala.tools.nsc.io.{ File, Path }
-import io.gatling.core.session.Expression
+
 import io.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
 import io.gatling.core.feeder.{ AdvancedFeederBuilder, Feeder, FeederBuilder, FeederWrapper }
 import io.gatling.core.feeder.csv.SeparatedValuesParser
-import io.gatling.core.scenario.injection.{ AtOnceInjection, ConstantRateInjection, HeavisideInjection, NothingForInjection, RampInjection, RampRateInjection }
+import io.gatling.core.scenario.{ AtOnceInjection, ConstantRateInjection, HeavisideInjection, InjectionStep, NothingForInjection, RampInjection, RampRateInjection, SplitInjection }
 import io.gatling.core.session.{ ELCompiler, ELWrapper }
 import io.gatling.core.structure.{ AssertionBuilder, ChainBuilder, ScenarioBuilder }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
-import io.gatling.core.scenario.injection.InjectionStep
-import io.gatling.core.scenario.injection.SplitInjection
-import io.gatling.core.scenario.injection.NothingForInjection
 
 object Predef {
 	implicit def stringToExpression[T: ClassTag](string: String) = string.el
@@ -64,12 +61,12 @@ object Predef {
 
 	type Session = io.gatling.core.session.Session
 	type Status = io.gatling.core.result.message.Status
-	type Simulation = io.gatling.core.scenario.configuration.Simulation
+	type Simulation = io.gatling.core.scenario.Simulation
 	type Feeder[T] = io.gatling.core.feeder.Feeder[T]
 	type Assertion = io.gatling.core.structure.Assertion
 	type Expression[T] = io.gatling.core.session.Expression[T]
 
-	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder.scenario(scenarioName)
+	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName)
 	val bootstrap = new ChainBuilder(Nil)
 
 	val assertions = new AssertionBuilder

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.scenario.injection
+package io.gatling.core.scenario
 
 import scala.concurrent.duration.{ DurationLong, FiniteDuration }
 import scala.math.{ abs, sqrt }

@@ -25,7 +25,7 @@ import io.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import io.gatling.http.action.HttpRequestActionBuilder
 import io.gatling.http.ahc.{ GatlingConnectionPoolKeyStrategy, RequestFactory }
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.config.HttpProtocolConfiguration
+import io.gatling.http.config.HttpProtocol
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.response.ResponseProcessor
@@ -131,20 +131,20 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 *
 	 * @param session the session of the current scenario
 	 */
-	protected def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): Validation[RequestBuilder] = {
+	protected def getAHCRequestBuilder(session: Session, protocol: HttpProtocol): Validation[RequestBuilder] = {
 
 		def makeAbsolute(url: String): Validation[String] =
 			if (url.startsWith(Protocol.HTTP.getProtocol))
 				url.success
 			else
-				protocolConfiguration.baseURL.map(baseURL => (baseURL + url).success).getOrElse(s"No protocolConfiguration.baseURL defined but provided url is relative : $url".failure)
+				protocol.baseURL.map(baseURL => (baseURL + url).success).getOrElse(s"No protocol.baseURL defined but provided url is relative : $url".failure)
 
 		def configureQueryCookiesAndProxy(url: String)(implicit requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
 			val proxy = if (url.startsWith(Protocol.HTTPS.getProtocol))
-				protocolConfiguration.securedProxy
+				protocol.securedProxy
 			else
-				protocolConfiguration.proxy
+				protocol.proxy
 
 			proxy.map(requestBuilder.setProxyServer)
 
@@ -165,7 +165,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 				.sequence
 
 			resolvedHeaders.map { headers =>
-				val newHeaders = RefererHandling.addStoredRefererHeader(protocolConfiguration.baseHeaders ++ headers, session, protocolConfiguration)
+				val newHeaders = RefererHandling.addStoredRefererHeader(protocol.baseHeaders ++ headers, session, protocol)
 				newHeaders.foreach { case (headerName, headerValue) => requestBuilder.addHeader(headerName, headerValue) }
 				requestBuilder
 			}
@@ -173,7 +173,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 
 		def configureRealm(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
-			val realm = httpAttributes.realm.orElse(protocolConfiguration.basicAuth)
+			val realm = httpAttributes.realm.orElse(protocol.basicAuth)
 
 			realm match {
 				case Some(realm) => realm(session).map(requestBuilder.setRealm)
@@ -183,7 +183,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 
 		implicit val requestBuilder = new RequestBuilder(httpAttributes.method, configuration.http.useRawUrl).setBodyEncoding(configuration.core.encoding)
 
-		if (!protocolConfiguration.shareConnections) requestBuilder.setConnectionPoolKeyStrategy(new GatlingConnectionPoolKeyStrategy(session))
+		if (!protocol.shareConnections) requestBuilder.setConnectionPoolKeyStrategy(new GatlingConnectionPoolKeyStrategy(session))
 
 		httpAttributes.url(session)
 			.flatMap(makeAbsolute)
@@ -197,7 +197,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 *
 	 * @param session the session of the current scenario
 	 */
-	def build: RequestFactory = (session: Session, protocolConfiguration: HttpProtocolConfiguration) => getAHCRequestBuilder(session, protocolConfiguration).map(_.build)
+	def build: RequestFactory = (session: Session, protocol: HttpProtocol) => getAHCRequestBuilder(session, protocol).map(_.build)
 
 	def toActionBuilder = HttpRequestActionBuilder(httpAttributes.requestName, this.build, httpAttributes.checks, httpAttributes.responseProcessor)
 }
