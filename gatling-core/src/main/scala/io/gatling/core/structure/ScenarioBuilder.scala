@@ -15,42 +15,34 @@
  */
 package io.gatling.core.structure
 
-import io.gatling.core.action.builder.{ ActionBuilder, UserStartBuilder }
-import io.gatling.core.scenario.Scenario
-import io.gatling.core.scenario.configuration.{ ConfiguredScenarioBuilder, ScenarioConfiguration }
 import io.gatling.core.action.UserEnd
-
-/**
- * ScenarioBuilder class companion
- */
-object ScenarioBuilder {
-	def scenario(scenarioName: String): ScenarioBuilder = new ScenarioBuilder(scenarioName, List(UserStartBuilder))
-	
-	implicit def configureScenario(scenarioBuilder: ScenarioBuilder) = new ConfiguredScenarioBuilder(scenarioBuilder)
-}
+import io.gatling.core.action.builder.{ ActionBuilder, UserStartBuilder }
+import io.gatling.core.config.ProtocolRegistry
+import io.gatling.core.scenario.{ InjectionProfile, InjectionStep, Scenario }
 
 /**
  * The scenario builder is used in the DSL to define the scenario
  *
  * @param name the name of the scenario
  * @param actionBuilders the list of all the actions that compose the scenario
- * @param next the action that will be executed after this scenario (that can be a chain as well)
  */
-class ScenarioBuilder(name: String, val actionBuilders: List[ActionBuilder]) extends AbstractStructureBuilder[ScenarioBuilder] {
+case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = List(UserStartBuilder)) extends AbstractStructureBuilder[ScenarioBuilder] {
 
-	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = new ScenarioBuilder(name, actionBuilders)
+	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = copy(actionBuilders = actionBuilders)
 
 	private[core] def getInstance = this
 
+	def inject(is: InjectionStep, iss: InjectionStep*) = new ProfiledScenarioBuilder(this, InjectionProfile(is +: iss))
+}
+
+class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionProfile: InjectionProfile) {
+
 	/**
-	 * Method that actually builds the scenario
-	 *
-	 * @param scenarioConfiguration the configuration of the scenario
+	 * @param protocolRegistry
 	 * @return the scenario
 	 */
-	private[core] def build(scenarioConfiguration: ScenarioConfiguration): Scenario = {
-
-		val entryPoint = buildChainedActions(UserEnd.userEnd, scenarioConfiguration.protocolRegistry)
-		new Scenario(name, entryPoint, scenarioConfiguration)
+	private[core] def build: Scenario = {
+		val entryPoint = scenarioBuilder.buildChainedActions(UserEnd.userEnd)
+		new Scenario(scenarioBuilder.name, entryPoint, injectionProfile)
 	}
 }

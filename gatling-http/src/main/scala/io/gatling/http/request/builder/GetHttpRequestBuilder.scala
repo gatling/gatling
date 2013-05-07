@@ -16,7 +16,7 @@
 package io.gatling.http.request.builder
 
 import io.gatling.core.session.{ ELCompiler, Expression, Session }
-import io.gatling.http.config.HttpProtocolConfiguration
+import io.gatling.http.config.HttpProtocol
 
 object GetHttpRequestBuilder {
 
@@ -27,7 +27,7 @@ object GetHttpRequestBuilder {
 		GetHttpRequestBuilder(expression, expression)
 			.header("bar", expression)
 			.queryParam(expression, expression)
-			.build(Session("scenarioName", 0), HttpProtocolConfiguration.default)
+			.build(Session("scenarioName", 0), HttpProtocol.default)
 	}
 }
 

@@ -17,7 +17,6 @@ package io.gatling.core.action.builder
 
 import akka.actor.{ ActorRef, Props }
 import io.gatling.core.action.{ Interruptable, SessionHook, system }
-import io.gatling.core.config.ProtocolConfigurationRegistry
 import io.gatling.core.session.{ Expression, Session }
 
 /**
@@ -28,7 +27,7 @@ import io.gatling.core.session.{ Expression, Session }
  */
 class SessionHookBuilder(sessionFunction: Expression[Session], bypassable: Boolean = false) extends ActionBuilder {
 
-	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) =
+	def build(next: ActorRef) =
 		if (bypassable)
 			system.actorOf(Props(new SessionHook(sessionFunction, next) with Interruptable))
 		else

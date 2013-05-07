@@ -16,16 +16,15 @@
 package io.gatling.core.action.builder
 
 import io.gatling.core.action.{ TryMax, system }
-import io.gatling.core.config.ProtocolConfigurationRegistry
 import io.gatling.core.structure.ChainBuilder
 
 import akka.actor.{ ActorRef, Props }
 
 class TryMaxBuilder(times: Int, loopNext: ChainBuilder, counterName: String) extends ActionBuilder {
 
-	def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = {
+	def build(next: ActorRef) = {
 		val tryMaxActor = system.actorOf(Props(new TryMax(times, next, counterName)))
-		val loopContent = loopNext.build(tryMaxActor, protocolConfigurationRegistry)
+		val loopContent = loopNext.build(tryMaxActor)
 		tryMaxActor ! loopContent
 		tryMaxActor
 	}

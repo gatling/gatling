@@ -38,7 +38,7 @@ import io.gatling.core.validation.Failure
 import io.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor, GatlingHttpClient, RequestFactory }
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.config.HttpProtocolConfiguration
+import io.gatling.http.config.HttpProtocol
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.response.ResponseProcessor
 
@@ -50,7 +50,7 @@ import io.gatling.http.response.ResponseProcessor
  * @param next the next action that will be executed after the request
  * @param requestBuilder the builder for the request that will be executed
  * @param checks the checks that will be performed on the response
- * @param protocolConfiguration the protocol specific configuration
+ * @param protocol the protocol specific configuration
  */
 class HttpRequestAction(
 	requestName: Expression[String],
@@ -58,22 +58,22 @@ class HttpRequestAction(
 	requestFactory: RequestFactory,
 	checks: List[HttpCheck],
 	responseProcessor: Option[ResponseProcessor],
-	protocolConfiguration: HttpProtocolConfiguration) extends Interruptable {
+	protocol: HttpProtocol) extends Interruptable {
 
-	val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks, protocolConfiguration)
-	val asyncHandlerActorFactory = GatlingAsyncHandlerActor.newAsyncHandlerActorFactory(checks, next, responseProcessor, protocolConfiguration) _
+	val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks, protocol)
+	val asyncHandlerActorFactory = GatlingAsyncHandlerActor.newAsyncHandlerActorFactory(checks, next, responseProcessor, protocol) _
 
 	def execute(session: Session) {
 
 		def sendRequest(resolvedRequestName: String, request: Request, newSession: Session) = {
 
-			if (CacheHandling.isCached(protocolConfiguration, newSession, request)) {
+			if (CacheHandling.isCached(protocol, newSession, request)) {
 				logger.info(s"Skipping cached request '$resolvedRequestName': scenario '${newSession.scenarioName}', userId #${newSession.userId}")
 				next ! newSession
 
 			} else {
 				val (sessionWithClient, client) =
-					if (protocolConfiguration.shareClient)
+					if (protocol.shareClient)
 						(newSession, GatlingHttpClient.defaultClient)
 					else
 						newSession.get[AsyncHttpClient](GatlingHttpClient.httpClientAttributeName)
@@ -92,8 +92,8 @@ class HttpRequestAction(
 
 		val execution = for {
 			resolvedRequestName <- requestName(session)
-			request <- requestFactory(session, protocolConfiguration)
-			newSession = RefererHandling.storeReferer(request, session, protocolConfiguration)
+			request <- requestFactory(session, protocol)
+			newSession = RefererHandling.storeReferer(request, session, protocol)
 
 		} yield sendRequest(resolvedRequestName, request, newSession)
 

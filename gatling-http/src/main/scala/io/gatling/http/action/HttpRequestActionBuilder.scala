@@ -18,14 +18,14 @@ package io.gatling.http.action
 import akka.actor.{ ActorRef, Props }
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.action.system
-import io.gatling.core.config.ProtocolConfigurationRegistry
+import io.gatling.core.config.ProtocolRegistry
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.ahc.RequestFactory
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckOrder.Status
 import io.gatling.http.check.status.HttpStatusCheckBuilder.status
-import io.gatling.http.config.HttpProtocolConfiguration
+import io.gatling.http.config.HttpProtocol
 import io.gatling.http.response.ResponseProcessor
 
 object HttpRequestActionBuilder {
@@ -56,10 +56,10 @@ object HttpRequestActionBuilder {
  */
 class HttpRequestActionBuilder(requestName: Expression[String], requestFactory: RequestFactory, checks: List[HttpCheck], responseProcessor: Option[ResponseProcessor]) extends ActionBuilder {
 
-	private[gatling] def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef = {
+	private[gatling] def build(next: ActorRef): ActorRef = {
 
-		val httpConfig = protocolConfigurationRegistry.getProtocolConfiguration(HttpProtocolConfiguration.default)
+		val httpProtocol = ProtocolRegistry.registry.getProtocol(HttpProtocol.default)
 
-		system.actorOf(Props(new HttpRequestAction(requestName, next, requestFactory, checks, responseProcessor, httpConfig)))
+		system.actorOf(Props(new HttpRequestAction(requestName, next, requestFactory, checks, responseProcessor, httpProtocol)))
 	}
 }

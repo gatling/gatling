@@ -15,7 +15,7 @@
  */
 package io.gatling.core.structure
 
-import io.gatling.core.config.ProtocolConfigurationRegistry
+import io.gatling.core.config.ProtocolRegistry
 
 import akka.actor.ActorRef
 
@@ -26,9 +26,9 @@ import akka.actor.ActorRef
  */
 abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extends Execs[B] with Pauses[B] with Feeds[B] with Loops[B] with ConditionalStatements[B] with Errors[B] with Groups[B] {
 
-	protected def buildChainedActions(exitPoint: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry): ActorRef =
+	private[core] def buildChainedActions(exitPoint: ActorRef): ActorRef =
 		actionBuilders.foldLeft(exitPoint) { (actorRef, actionBuilder) =>
-			actionBuilder.build(actorRef, protocolConfigurationRegistry)
+			actionBuilder.build(actorRef)
 		}
 }
 

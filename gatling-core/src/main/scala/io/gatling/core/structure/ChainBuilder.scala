@@ -16,7 +16,6 @@
 package io.gatling.core.structure
 
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.config.ProtocolConfigurationRegistry
 
 import akka.actor.ActorRef
 
@@ -38,9 +37,8 @@ class ChainBuilder(val actionBuilders: List[ActionBuilder]) extends AbstractStru
 	/**
 	 * Method that actually builds the scenario
 	 *
-	 * @param scenarioId the id of the current scenario
 	 * @param next the action to be executed after the chain
 	 * @return the first action of the scenario to be executed
 	 */
-	private[core] def build(next: ActorRef, protocolConfigurationRegistry: ProtocolConfigurationRegistry) = buildChainedActions(next, protocolConfigurationRegistry)
+	private[core] def build(next: ActorRef) = buildChainedActions(next)
 }

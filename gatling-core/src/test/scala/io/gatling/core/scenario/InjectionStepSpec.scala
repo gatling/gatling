@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.scenario.injection
-
-import java.util.concurrent.TimeUnit
+package io.gatling.core.scenario
 import scala.concurrent.duration._
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
