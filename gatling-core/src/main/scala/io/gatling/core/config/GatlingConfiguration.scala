@@ -136,6 +136,8 @@ object GatlingConfiguration {
 				        bufferSize = config.getInt(CONF_DATA_FILE_BUFFER_SIZE)
 				),
 				jdbc = JDBCDataWriterConfiguration(
+				    stats = config.getBoolean(CONF_DATA_JDBC_STATS),
+				    simulation = config.getBoolean(CONF_DATA_JDBC_SIMULATION),
 					db = DBConfiguration(
 					    url = config.getString(CONF_DATA_JDBC_URL),
 					    username = config.getString(CONF_DATA_JDBC_USERNAME),
@@ -243,7 +245,10 @@ case class DBConfiguration(
     )
 
 case class JDBCDataWriterConfiguration(
+    stats: Boolean,
+    simulation: Boolean,
     db: DBConfiguration
+    
 )
 	
 case class ConsoleDataWriterConfiguration(

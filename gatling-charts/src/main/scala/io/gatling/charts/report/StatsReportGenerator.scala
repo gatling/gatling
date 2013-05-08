@@ -23,6 +23,7 @@ import io.gatling.core.result.{ Group, GroupStatsPath, RequestStatsPath }
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.reader.DataReader
 import io.gatling.charts.template.ConsoleTemplate
+import io.gatling.charts.template.StatsJDBCTemplate
 
 class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) {
 
@@ -71,6 +72,7 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 		new TemplateWriter(jsonStatsFile(runOn)).writeToFile(new StatsJsonTemplate(rootContainer.stats, true).getOutput)
 		new TemplateWriter(tsvStatsFile(runOn)).writeToFile(new StatsTsvTemplate(rootContainer).getOutput)
 		println(new ConsoleTemplate(rootContainer.stats).getOutput)
+		new StatsJDBCTemplate(rootContainer.stats, runOn, dataReader).writeToDatabase
 	}
 }
 
