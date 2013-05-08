@@ -109,7 +109,6 @@ object FileDataWriter {
  */
 class FileDataWriter extends DataWriter with Logging {
 
-	import scala.collection.mutable
 	import FileDataWriter._
 
 	private val bufferSize = configuration.data.file.bufferSize
@@ -117,14 +116,14 @@ class FileDataWriter extends DataWriter with Logging {
 	private val buffer = new Array[Byte](bufferSize)
 	private var os: FileOutputStream = _
 
-	private def flushBuffer {
+	private def flush {
 		os.write(buffer, 0, bufferPosition)
 		bufferPosition = 0
 	}
 
 	private def write(bytes: Array[Byte]) {
 		if (bytes.length + bufferPosition > bufferSize) {
-			flushBuffer
+			flush
 		}
 
 		if (bytes.length > bufferSize) {
@@ -137,7 +136,6 @@ class FileDataWriter extends DataWriter with Logging {
 			bufferPosition += bytes.length
 		}
 	}
-
 
 	override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
 		val simulationLog = simulationLogDirectory(run.runId) / "simulation.log"
@@ -160,6 +158,6 @@ class FileDataWriter extends DataWriter with Logging {
 
 	override def onFlushDataWriter {
 		logger.info("Received flush order")
-		withCloseable(os) { _ => flushBuffer }
+		withCloseable(os) { _ => flush }
 	}
 }

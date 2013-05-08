@@ -132,25 +132,22 @@ object GatlingConfiguration {
 					case "file" => "io.gatling.charts.result.reader.FileDataReader"
 					case clazz => clazz
 				},
-				file = FileDataWriterConfiguration(
-				        bufferSize = config.getInt(CONF_DATA_FILE_BUFFER_SIZE)
-				),
-				jdbc = JDBCDataWriterConfiguration(
-					db = DBConfiguration(
-					    url = config.getString(CONF_DATA_JDBC_URL),
-					    username = config.getString(CONF_DATA_JDBC_USERNAME),
-					    password = config.getString(CONF_DATA_JDBC_PASSWORD)
-					    )
-				),
 				console = ConsoleDataWriterConfiguration(
 					light = config.getBoolean(CONF_DATA_CONSOLE_LIGHT)),
+				file = FileDataWriterConfiguration(
+					bufferSize = config.getInt(CONF_DATA_FILE_BUFFER_SIZE)),
 				graphite = GraphiteDataWriterConfiguration(
 					light = config.getBoolean(CONF_DATA_GRAPHITE_LIGHT),
 					host = config.getString(CONF_DATA_GRAPHITE_HOST),
 					port = config.getInt(CONF_DATA_GRAPHITE_PORT),
 					protocol = config.getString(CONF_DATA_GRAPHITE_PROTOCOL),
 					rootPathPrefix = config.getString(CONF_DATA_GRAPHITE_ROOT_PATH_PREFIX),
-					bucketWidth = config.getInt(CONF_DATA_GRAPHITE_BUCKET_WIDTH))),
+					bucketWidth = config.getInt(CONF_DATA_GRAPHITE_BUCKET_WIDTH)),
+				jdbc = JDBCDataWriterConfiguration(
+					db = DBConfiguration(
+						url = config.getString(CONF_DATA_JDBC_URL),
+						username = config.getString(CONF_DATA_JDBC_USERNAME),
+						password = config.getString(CONF_DATA_JDBC_PASSWORD)))),
 			config)
 	}
 }
@@ -211,7 +208,7 @@ case class HttpConfiguration(
 	userAgent: String,
 	useRawUrl: Boolean,
 	nonStandardJsonSupport: Seq[String],
-    warmUpUrl: Option[String],
+	warmUpUrl: Option[String],
 	ssl: SslConfiguration)
 
 case class SslConfiguration(
@@ -233,19 +230,16 @@ case class DataConfiguration(
 	graphite: GraphiteDataWriterConfiguration)
 
 case class FileDataWriterConfiguration(
-    bufferSize: Int
-)
-	
+	bufferSize: Int)
+
 case class DBConfiguration(
-    url: String,
-    username: String,
-    password: String
-    )
+	url: String,
+	username: String,
+	password: String)
 
 case class JDBCDataWriterConfiguration(
-    db: DBConfiguration
-)
-	
+	db: DBConfiguration)
+
 case class ConsoleDataWriterConfiguration(
 	light: Boolean)
 
