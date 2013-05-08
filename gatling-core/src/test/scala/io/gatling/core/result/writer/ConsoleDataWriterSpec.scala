@@ -22,10 +22,13 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.StringHelper.eol
 
 @RunWith(classOf[JUnitRunner])
 class ConsoleDataWriterSpec extends Specification {
+	
+	GatlingConfiguration.setUp()
 
 	val time = new DateTime().withDate(2012, 8, 24).withTime(13, 37, 0, 0)
 	
