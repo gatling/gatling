@@ -112,7 +112,7 @@ class FileDataWriter extends DataWriter with Logging {
 	import scala.collection.mutable
 	import FileDataWriter._
 
-	private val bufferSize = 8192
+	private val bufferSize = configuration.data.file.bufferSize
 	private var bufferPosition = 0
 	private val buffer = new Array[Byte](bufferSize)
 	private var os: FileOutputStream = _

@@ -74,6 +74,8 @@ object ConfigurationConstants {
 	val CONF_DATA_WRITER_CLASS_NAMES = "gatling.data.writers"
 	val CONF_DATA_READER_CLASS_NAME = "gatling.data.reader"
 
+	val CONF_DATA_FILE_BUFFER_SIZE = "gatling.data.file.bufferSize"
+
 	val CONF_DATA_CONSOLE_LIGHT = "gatling.data.console.light"
 
 	val CONF_DATA_GRAPHITE_LIGHT = "gatling.data.graphite.light"
@@ -82,8 +84,8 @@ object ConfigurationConstants {
 	val CONF_DATA_GRAPHITE_PROTOCOL = "gatling.data.graphite.protocol"
 	val CONF_DATA_GRAPHITE_ROOT_PATH_PREFIX = "gatling.data.graphite.rootPathPrefix"
 	val CONF_DATA_GRAPHITE_BUCKET_WIDTH = "gatling.data.graphite.bucketWidth"
-	  
-	val CONF_JDBC_URL 		= 	"gatling.data.jdbc.db.url"
-	val CONF_JDBC_USERNAME 	= 	"gatling.data.jdbc.db.username"
-	val CONF_JDBC_PASSWORD 	= 	"gatling.data.jdbc.db.password"
+
+	val CONF_DATA_JDBC_URL = "gatling.data.jdbc.db.url"
+	val CONF_DATA_JDBC_USERNAME = "gatling.data.jdbc.db.username"
+	val CONF_DATA_JDBC_PASSWORD = "gatling.data.jdbc.db.password"
 }

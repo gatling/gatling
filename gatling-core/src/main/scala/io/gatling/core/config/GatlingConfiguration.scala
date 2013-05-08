@@ -132,16 +132,19 @@ object GatlingConfiguration {
 					case "file" => "io.gatling.charts.result.reader.FileDataReader"
 					case clazz => clazz
 				},
-				jdbc = JDBCConfiguration(
+				file = FileDataWriterConfiguration(
+				        bufferSize = config.getInt(CONF_DATA_FILE_BUFFER_SIZE)
+				),
+				jdbc = JDBCDataWriterConfiguration(
 					db = DBConfiguration(
-					    url = config.getString(CONF_JDBC_URL),
-					    username = config.getString(CONF_JDBC_USERNAME),
-					    password = config.getString(CONF_JDBC_PASSWORD)
+					    url = config.getString(CONF_DATA_JDBC_URL),
+					    username = config.getString(CONF_DATA_JDBC_USERNAME),
+					    password = config.getString(CONF_DATA_JDBC_PASSWORD)
 					    )
 				),
-				console = ConsoleConfiguration(
+				console = ConsoleDataWriterConfiguration(
 					light = config.getBoolean(CONF_DATA_CONSOLE_LIGHT)),
-				graphite = GraphiteConfiguration(
+				graphite = GraphiteDataWriterConfiguration(
 					light = config.getBoolean(CONF_DATA_GRAPHITE_LIGHT),
 					host = config.getString(CONF_DATA_GRAPHITE_HOST),
 					port = config.getInt(CONF_DATA_GRAPHITE_PORT),
@@ -224,24 +227,29 @@ case class StoreConfiguration(
 case class DataConfiguration(
 	dataWriterClasses: Seq[String],
 	dataReaderClass: String,
-	jdbc: JDBCConfiguration,
-	console: ConsoleConfiguration,
-	graphite: GraphiteConfiguration)
+	file: FileDataWriterConfiguration,
+	jdbc: JDBCDataWriterConfiguration,
+	console: ConsoleDataWriterConfiguration,
+	graphite: GraphiteDataWriterConfiguration)
 
+case class FileDataWriterConfiguration(
+    bufferSize: Int
+)
+	
 case class DBConfiguration(
     url: String,
     username: String,
     password: String
     )
 
-case class JDBCConfiguration(
+case class JDBCDataWriterConfiguration(
     db: DBConfiguration
 )
 	
-case class ConsoleConfiguration(
+case class ConsoleDataWriterConfiguration(
 	light: Boolean)
 
-case class GraphiteConfiguration(
+case class GraphiteDataWriterConfiguration(
 	light: Boolean,
 	host: String,
 	port: Int,
