@@ -129,6 +129,8 @@ object GatlingConfiguration extends Logging {
 				},
 				console = ConsoleConfiguration(
 					light = config.getBoolean(CONF_DATA_CONSOLE_LIGHT)),
+				file = FileDataWriterConfiguration(
+					bufferSize = config.getInt(CONF_DATA_FILE_BUFFER_SIZE)),
 				graphite = GraphiteConfiguration(
 					light = config.getBoolean(CONF_DATA_GRAPHITE_LIGHT),
 					host = config.getString(CONF_DATA_GRAPHITE_HOST),
@@ -204,8 +206,12 @@ case class StoreConfiguration(
 case class DataConfiguration(
 	dataWriterClasses: Seq[String],
 	dataReaderClass: String,
+	file: FileDataWriterConfiguration,
 	console: ConsoleConfiguration,
 	graphite: GraphiteConfiguration)
+
+case class FileDataWriterConfiguration(
+	bufferSize: Int)
 
 case class ConsoleConfiguration(
 	light: Boolean)

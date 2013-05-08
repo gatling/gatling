@@ -76,6 +76,8 @@ object ConfigurationConstants {
 
 	val CONF_DATA_CONSOLE_LIGHT = "gatling.data.console.light"
 
+	val CONF_DATA_FILE_BUFFER_SIZE = "gatling.data.file.bufferSize"
+
 	val CONF_DATA_GRAPHITE_LIGHT = "gatling.data.graphite.light"
 	val CONF_DATA_GRAPHITE_HOST = "gatling.data.graphite.host"
 	val CONF_DATA_GRAPHITE_PORT = "gatling.data.graphite.port"

@@ -15,6 +15,7 @@
  */
 package com.excilys.ebi.gatling.core.result.writer
 
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration
 import com.excilys.ebi.gatling.core.result.message.{ RequestStatus, RequestRecord }
 import com.excilys.ebi.gatling.core.util.StringHelper.END_OF_LINE
 
@@ -27,13 +28,13 @@ import java.io.StringWriter
 
 @RunWith(classOf[JUnitRunner])
 class FileDataWriterSpec extends Specification {
+	
+	GatlingConfiguration.setUp()
 
 	"file data writer" should {
 
 		def logRecord(record: RequestRecord): String = {
-			val stringWriter = new StringWriter()
-			FileDataWriter.append(stringWriter, record)
-			stringWriter.getBuffer.toString
+			new String(FileDataWriter.serialize(record))
 		}
 
 		"log a standard request record" in {
