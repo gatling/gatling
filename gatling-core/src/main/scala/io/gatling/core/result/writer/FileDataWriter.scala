@@ -15,7 +15,7 @@
  */
 package io.gatling.core.result.writer
 
-import java.io.{ BufferedOutputStream, FileOutputStream, OutputStream }
+import java.io.FileOutputStream
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 import com.typesafe.scalalogging.slf4j.Logging
@@ -109,36 +109,57 @@ object FileDataWriter {
  */
 class FileDataWriter extends DataWriter with Logging {
 
+	import scala.collection.mutable
 	import FileDataWriter._
 
-	/**
-	 * The OutputStreamWriter used to write to files
-	 */
-	private var os: OutputStream = _
+	private val bufferSize = 8192
+	private var bufferPosition = 0
+	private val buffer = new Array[Byte](bufferSize)
+	private var os: FileOutputStream = _
+
+	private def flushBuffer {
+		os.write(buffer, 0, bufferPosition)
+		bufferPosition = 0
+	}
+
+	private def write(bytes: Array[Byte]) {
+		if (bytes.length + bufferPosition > bufferSize) {
+			flushBuffer
+		}
+
+		if (bytes.length > bufferSize) {
+			// can't write in buffer
+			logger.warn(s"Buffer size $bufferSize is not sufficient for message of size ${bytes.length}")
+			os.write(bytes)
+
+		} else {
+			System.arraycopy(bytes, 0, buffer, bufferPosition, bytes.length)
+			bufferPosition += bytes.length
+		}
+	}
+
 
 	override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
 		val simulationLog = simulationLogDirectory(run.runId) / "simulation.log"
-		os = new BufferedOutputStream(new FileOutputStream(simulationLog.toString))
-		os.write(run.getBytes)
+		os = new FileOutputStream(simulationLog.toString)
+		write(run.getBytes)
 	}
 
 	override def onScenarioMessage(scenario: ScenarioMessage) {
 		if (scenario.event == End)
-			os.write(scenario.getBytes)
+			write(scenario.getBytes)
 	}
 
 	override def onGroupMessage(group: GroupMessage) {
-		os.write(group.getBytes)
+		write(group.getBytes)
 	}
 
 	override def onRequestMessage(request: RequestMessage) {
-		os.write(request.getBytes)
+		write(request.getBytes)
 	}
 
 	override def onFlushDataWriter {
-
 		logger.info("Received flush order")
-
-		withCloseable(os) { _.flush }
+		withCloseable(os) { _ => flushBuffer }
 	}
 }
