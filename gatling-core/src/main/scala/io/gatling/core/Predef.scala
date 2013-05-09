@@ -28,6 +28,13 @@ import io.gatling.core.structure.{ AssertionBuilder, ChainBuilder, ScenarioBuild
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object Predef {
+	type Session = io.gatling.core.session.Session
+	type Status = io.gatling.core.result.message.Status
+	type Simulation = io.gatling.core.scenario.Simulation
+	type Feeder[T] = io.gatling.core.feeder.Feeder[T]
+	type Assertion = io.gatling.core.structure.Assertion
+	type Expression[T] = io.gatling.core.session.Expression[T]
+
 	implicit def stringToExpression[T: ClassTag](string: String) = string.el
 	implicit def value2Success[T](value: T): Validation[T] = value.success
 	implicit def value2Expression[T](value: T): Expression[T] = value.expression
@@ -58,13 +65,6 @@ object Predef {
 
 	implicit def array2FeederBuilder[T](data: Array[Map[String, T]]): AdvancedFeederBuilder[T] = AdvancedFeederBuilder(data)
 	implicit def feeder2FeederBuilder[T](feeder: Feeder[T]): FeederBuilder[T] = FeederWrapper(feeder)
-
-	type Session = io.gatling.core.session.Session
-	type Status = io.gatling.core.result.message.Status
-	type Simulation = io.gatling.core.scenario.Simulation
-	type Feeder[T] = io.gatling.core.feeder.Feeder[T]
-	type Assertion = io.gatling.core.structure.Assertion
-	type Expression[T] = io.gatling.core.session.Expression[T]
 
 	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName)
 	val bootstrap = new ChainBuilder(Nil)
