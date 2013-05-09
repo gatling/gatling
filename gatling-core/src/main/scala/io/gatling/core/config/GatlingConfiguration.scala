@@ -123,9 +123,9 @@ object GatlingConfiguration {
 			data = DataConfiguration(
 				dataWriterClasses = config.getString(CONF_DATA_WRITER_CLASS_NAMES).toStringSeq.map {
 					case "console" => "io.gatling.core.result.writer.ConsoleDataWriter"
-					case "jdbc" => "io.gatling.core.result.writer.JDBCDataWriter"
 					case "file" => "io.gatling.core.result.writer.FileDataWriter"
 					case "graphite" => "io.gatling.metrics.GraphiteDataWriter"
+					case "jdbc" => "io.gatling.jdbc.result.writer.JdbcDataWriter"
 					case clazz => clazz
 				},
 				dataReaderClass = (config.getString(CONF_DATA_READER_CLASS_NAME)).trim match {

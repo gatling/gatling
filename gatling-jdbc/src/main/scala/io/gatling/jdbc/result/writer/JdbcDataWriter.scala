@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.result.writer
+package io.gatling.jdbc.result.writer
 
 import java.sql.{ Connection, DriverManager, PreparedStatement, ResultSet, Statement }
-
 import com.typesafe.scalalogging.slf4j.Logging
-
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.message.{ GroupMessage, RequestMessage, RunMessage, ScenarioMessage, ShortScenarioDescription }
+import io.gatling.core.result.writer.DataWriter
 
-object JDBCDataWriter {
+object JdbcDataWriter {
 
 	implicit class ExecuteAndClearBatch(val statement: PreparedStatement) extends AnyVal {
 		def executeAndClearBatch = { statement.executeBatch; statement.clearBatch; statement.getConnection.commit }
@@ -34,15 +33,15 @@ object JDBCDataWriter {
  *
  * It writes the data of the simulation to a database
  */
-class JDBCDataWriter extends DataWriter with Logging {
-	
-	import JDBCDataWriter._
+class JdbcDataWriter extends DataWriter with Logging {
+
+	import JdbcDataWriter._
 
 	/**
 	 * The OutputStreamWriter used to write to db
 	 */
-	private val bufferCount: Int = 10
-	private var conn: Connection = _
+	private val bufferSize: Int = 10 // FIXME make configurable
+	private var conn: Connection = _ // TODO investigate if need 1 connection is enough
 	private var statement: Statement = _
 	private var runId: Int = _
 	private var scenarioInsert: PreparedStatement = _
@@ -80,55 +79,67 @@ class JDBCDataWriter extends DataWriter with Logging {
 		//Getting the runId to be dumped later on other tables.
 		while (keys.next) { runId = keys.getInt(1) }
 	}
-
+	
 	override def onScenarioMessage(scenario: ScenarioMessage) {
-		//Do a batch update on reaching buffer count
-		if (scenarioCounter > bufferCount) { scenarioInsert.executeAndClearBatch }
+
 		import scenario._
 		scenarioInsert.setInt(1, runId)
 		scenarioInsert.setString(2, scenarioName)
 		scenarioInsert.setInt(3, userId)
 		scenarioInsert.setString(4, event.name)
-		scenarioInsert.setString(5, startDate.toString)
-		scenarioInsert.setString(6, endDate.toString)
+		scenarioInsert.setString(5, startDate.toString) // FIXME long
+		scenarioInsert.setString(6, endDate.toString) // FIXME long
 		scenarioInsert.addBatch
 
-		scenarioCounter = (scenarioCounter + 1) % bufferCount
+		scenarioCounter += 1
+
+		if (scenarioCounter == bufferSize) {
+			scenarioInsert.executeAndClearBatch
+			scenarioCounter = 0
+		}
 	}
 
 	override def onGroupMessage(group: GroupMessage) {
-		//Do a batch update on reaching buffer count
-		if (groupCounter > bufferCount) { groupInsert.executeAndClearBatch }
+
 		import group._
 		groupInsert.setInt(1, runId)
 		groupInsert.setString(2, scenarioName)
 		groupInsert.setInt(3, userId)
-		groupInsert.setString(4, entryDate.toString)
-		groupInsert.setString(5, exitDate.toString)
-		groupInsert.setString(6, status.toString)
+		groupInsert.setString(4, entryDate.toString) // FIXME long
+		groupInsert.setString(5, exitDate.toString) // FIXME long
+		groupInsert.setString(6, status.toString) // FIXME boolean
 		groupInsert.addBatch
 
-		groupCounter = (groupCounter + 1) % bufferCount
+		groupCounter += 1
+
+		if (groupCounter > bufferSize) {
+			groupInsert.executeAndClearBatch
+			groupCounter = 0
+		}
 	}
 
 	override def onRequestMessage(request: RequestMessage) {
-		//Do a batch update on reaching buffer count
-		if (requestCounter > bufferCount) { requestInsert.executeAndClearBatch }
+
 		import request._
 		requestInsert.setInt(1, runId)
 		requestInsert.setString(2, scenario)
 		requestInsert.setInt(3, userId)
 		requestInsert.setString(4, name)
-		requestInsert.setString(5, requestStartDate.toString)
-		requestInsert.setString(6, requestEndDate.toString)
-		requestInsert.setString(7, responseStartDate.toString)
-		requestInsert.setString(8, responseEndDate.toString)
-		requestInsert.setString(9, status.toString)
-		requestInsert.setString(10, message.toString)
+		requestInsert.setString(5, requestStartDate.toString) // FIXME long
+		requestInsert.setString(6, requestEndDate.toString) // FIXME long
+		requestInsert.setString(7, responseStartDate.toString) // FIXME long
+		requestInsert.setString(8, responseEndDate.toString) // FIXME long
+		requestInsert.setString(9, status.toString) // FIXME boolean
+		requestInsert.setString(10, message.toString) // FIXME option
 		requestInsert.setInt(11, responseTime.toInt)
 		requestInsert.addBatch
 
-		requestCounter = (requestCounter + 1) % bufferCount
+		requestCounter += 1
+
+		if (requestCounter > bufferSize) {
+			requestInsert.executeAndClearBatch
+			requestCounter = 0
+		}
 	}
 
 	override def onFlushDataWriter {
@@ -139,6 +150,7 @@ class JDBCDataWriter extends DataWriter with Logging {
 		requestInsert.executeAndClearBatch
 
 		//Closing all the connections
+		// FIXME ensure connections are always closed, even on crash
 		requestInsert.close
 		scenarioInsert.close
 		groupInsert.close
