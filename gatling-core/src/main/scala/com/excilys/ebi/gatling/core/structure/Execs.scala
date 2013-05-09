@@ -24,14 +24,10 @@ trait Execs[B] {
 	private[core] def newInstance(actionBuilders: List[ActionBuilder]): B
 	private[core] def getInstance: B
 
-	/**
-	 * Method used to execute an action
-	 *
-	 * @param actionBuilder the action builder representing the action to be executed
-	 */
 	def exec(sessionFunction: Session => Session): B = exec(BypassSimpleActionBuilder(sessionFunction))
 	def exec(actionBuilder: ActionBuilder): B = newInstance(actionBuilder :: actionBuilders)
 	def exec(chains: ChainBuilder*): B = exec(chains.toIterable)
 	def exec(chains: Iterator[ChainBuilder]): B = exec(chains.toIterable)
 	def exec(chains: Iterable[ChainBuilder]): B = newInstance(chains.toList.reverse.flatMap(_.actionBuilders) ::: actionBuilders)
+	def exec(scenario: ScenarioBuilder): B = newInstance(scenario.actionBuilders.dropRight(1) ::: actionBuilders)
 }

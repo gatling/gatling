@@ -34,7 +34,7 @@ trait Loops[B] extends Execs[B] {
 	private def repeat(times: Int, loopCounterName: Option[String], chain: ChainBuilder): B = {
 
 		val handler = new CounterBasedIterationHandler {
-			def counterName = loopCounterName.getOrElse(UUID.randomUUID.toString)
+			val counterName = loopCounterName.getOrElse(UUID.randomUUID.toString)
 		}
 
 		val init = SimpleActionBuilder(handler.init)
