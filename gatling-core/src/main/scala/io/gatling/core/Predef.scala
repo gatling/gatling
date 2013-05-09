@@ -23,7 +23,7 @@ import io.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, Match
 import io.gatling.core.feeder.{ AdvancedFeederBuilder, Feeder, FeederBuilder, FeederWrapper }
 import io.gatling.core.feeder.csv.SeparatedValuesParser
 import io.gatling.core.scenario.{ AtOnceInjection, ConstantRateInjection, HeavisideInjection, InjectionStep, NothingForInjection, RampInjection, RampRateInjection, SplitInjection }
-import io.gatling.core.session.{ ELCompiler, ELWrapper }
+import io.gatling.core.session.{ ELCompiler, ELWrapper, Expression }
 import io.gatling.core.structure.{ AssertionBuilder, ChainBuilder, ScenarioBuilder }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
@@ -33,9 +33,8 @@ object Predef {
 	type Simulation = io.gatling.core.scenario.Simulation
 	type Feeder[T] = io.gatling.core.feeder.Feeder[T]
 	type Assertion = io.gatling.core.structure.Assertion
-	type Expression[T] = io.gatling.core.session.Expression[T]
 
-	implicit def stringToExpression[T: ClassTag](string: String) = string.el
+	implicit def stringToExpression[T: ClassTag](string: String): Expression[T] = string.el
 	implicit def value2Success[T](value: T): Validation[T] = value.success
 	implicit def value2Expression[T](value: T): Expression[T] = value.expression
 	implicit def checkBuilder2Check[C <: Check[R], R, P, T, X, E](checkBuilder: CheckBuilder[C, R, P, T, X, E]) = checkBuilder.build
