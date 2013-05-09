@@ -39,23 +39,9 @@ class HttpRequestBaseBuilder(requestName: Expression[String]) {
 	/**
 	 * Starts the definition of an HTTP request with word DELETE
 	 *
-	 * @param url the url on which this request will be made
-	 */
-	def delete(url: String): DeleteHttpRequestBuilder = delete(EL.compile[String](url))
-
-	/**
-	 * Starts the definition of an HTTP request with word DELETE
-	 *
 	 * @param f the function returning the url of this request
 	 */
 	def delete(f: Expression[String]) = DeleteHttpRequestBuilder(requestName, f)
-
-	/**
-	 * Starts the definition of an HTTP request with word GET
-	 *
-	 * @param url the url on which this request will be made
-	 */
-	def get(url: String): GetHttpRequestBuilder = get(EL.compile[String](url))
 
 	/**
 	 * Starts the definition of an HTTP request with word GET
@@ -67,13 +53,6 @@ class HttpRequestBaseBuilder(requestName: Expression[String]) {
 	/**
 	 * Starts the definition of an HTTP request with word POST
 	 *
-	 * @param url the url on which this request will be made
-	 */
-	def post(url: String): PostHttpRequestBuilder = post(EL.compile[String](url))
-
-	/**
-	 * Starts the definition of an HTTP request with word POST
-	 *
 	 * @param f the function returning the url of this request
 	 */
 	def post(f: Expression[String]) = PostHttpRequestBuilder(requestName, f)
@@ -81,23 +60,9 @@ class HttpRequestBaseBuilder(requestName: Expression[String]) {
 	/**
 	 * Starts the definition of an HTTP request with word PUT
 	 *
-	 * @param url the url on which this request will be made
-	 */
-	def put(url: String): PutHttpRequestBuilder = put(EL.compile[String](url))
-
-	/**
-	 * Starts the definition of an HTTP request with word PUT
-	 *
 	 * @param f the function returning the url of this request
 	 */
 	def put(f: Expression[String]) = PutHttpRequestBuilder(requestName, f)
-
-	/**
-	 * Starts the definition of an HTTP request with word HEAD
-	 *
-	 * @param url the url on which this request will be made
-	 */
-	def head(url: String): HeadHttpRequestBuilder = head(EL.compile[String](url))
 
 	/**
 	 * Starts the definition of an HTTP request with word HEAD
