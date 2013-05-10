@@ -21,6 +21,7 @@ import io.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME
 import io.gatling.charts.report.Container.{ GROUP, REQUEST }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.NumberHelper.formatNumberWithSuffix
+import io.gatling.core.util.StringHelper.eol
 
 class StatisticsTableComponent extends Component {
 
@@ -51,7 +52,7 @@ class StatisticsTableComponent extends Component {
                                         <th id="col-2" class="header sortable"><span>Total</span></th>
                                         <th id="col-3" class="header sortable"><span>OK</span></th>
                                         <th id="col-4" class="header sortable"><span>KO</span></th>
-                                        ${responseTimeFields.zipWithIndex.map { case (header, i) => fast"""<th id="col-${i + 5}" class="header sortable"><span>$header</span></th>""" }.mkFastring("\n")}
+                                        ${responseTimeFields.zipWithIndex.map { case (header, i) => fast"""<th id="col-${i + 5}" class="header sortable"><span>$header</span></th>""" }.mkFastring(eol)}
                                     </tr>
                                 </thead>
                                 <tbody></tbody>

@@ -24,7 +24,7 @@ import io.gatling.core.result.message.RunMessage
 import io.gatling.core.util.DateHelper.RichDateTime
 import io.gatling.core.util.FileHelper.FileRichString
 import io.gatling.core.util.HtmlHelper.HtmlRichString
-import io.gatling.core.util.StringHelper.RichString
+import io.gatling.core.util.StringHelper.{ eol, RichString }
 
 object PageTemplate {
 
@@ -109,7 +109,7 @@ abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Opti
 <div class="foot">
     <a href="http://gatling-tool.org" title="Gatling Home Page"><img alt="Gatling" src="style/logo-gatling.jpg"/></a>
 </div>
-${jsFiles.map(jsFile => fast"""<script type="text/javascript" src="js/$jsFile"></script>""").mkFastring("\n")}
+${jsFiles.map(jsFile => fast"""<script type="text/javascript" src="js/$jsFile"></script>""").mkFastring(eol)}
 <script type="text/javascript">
     $pageStats
     $$(document).ready(function() {
