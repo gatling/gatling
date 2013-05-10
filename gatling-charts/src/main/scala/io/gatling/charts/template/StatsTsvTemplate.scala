@@ -18,6 +18,7 @@ package io.gatling.charts.template
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.util.StringHelper.eol
 import io.gatling.charts.report.{ GroupContainer, RequestContainer }
 
 object StatsTsvTemplate {
@@ -46,7 +47,7 @@ ${
 					case subGroup: GroupContainer => renderGroup(subGroup)
 					case request: RequestContainer => request.stats.mkFastring
 				}
-			}).mkFastring("\n")
+			}).mkFastring(eol)
 		}"""
 
 		val headers = StatsTsvTemplate.headers.mkString(configuration.charting.statsTsvSeparator)

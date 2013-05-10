@@ -47,7 +47,7 @@ case class RequestStatistics(name: String,
 	groupedCounts: Seq[GroupedCount],
 	meanNumberOfRequestsPerSecondStatistics: Statistics) {
 
-	def mkString = {
+	def mkFastring = {
 		val outputName = List(if (name == GLOBAL_PAGE_NAME) name else path)
 		List(
 			outputName,
@@ -59,7 +59,7 @@ case class RequestStatistics(name: String,
 			percentiles1.all,
 			percentiles2.all,
 			groupedCounts.flatMap(groupedCount => List(groupedCount.name, groupedCount.count, groupedCount.percentage)),
-			meanNumberOfRequestsPerSecondStatistics.all).flatten.mkString(configuration.charting.statsTsvSeparator)
+			meanNumberOfRequestsPerSecondStatistics.all).flatten.mkFastring(configuration.charting.statsTsvSeparator)
 	}
 }
 
