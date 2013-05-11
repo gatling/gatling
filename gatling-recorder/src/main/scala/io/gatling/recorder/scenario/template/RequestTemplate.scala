@@ -19,8 +19,6 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 
 object RequestTemplate {
 
-	val tripleQuotes = '"'.toString * 3
-
 	def headersBlockName(id: Int) = fast"headers_$id"
 	
 	def render(simulationClass: String,

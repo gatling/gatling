@@ -34,12 +34,12 @@ object SimulationTemplate {
 
 			def printHeaders(headers: List[(String, String)]) = {
 				if (headers.size > 1) {
-					val mapContent = headers.map { case (name, value) => fast"""		"$name" -> "$value"""" }.mkFastring(",\n")
+					val mapContent = headers.map { case (name, value) => fast"		$tripleQuotes$name$tripleQuotes -> $tripleQuotes$value$tripleQuotes" }.mkFastring(",\n")
 					fast"""Map(
 $mapContent)"""
 				} else {
 					val (name, value) = headers(0)
-					fast"""Map("$name" -> "$value")"""
+					fast"Map($tripleQuotes$name$tripleQuotes -> $tripleQuotes$value$tripleQuotes)"
 				}
 			}
 
@@ -73,7 +73,7 @@ $mapContent)"""
 								}
 								fast"$prefix$element"
 							}.mkFastring("\n\t\t")
-							fast"""val chain_$i = $chainContent"""
+							fast"val chain_$i = $chainContent"
 					}.mkFastring("\n\n")
 
 					val chainsList = (for (i <- 0 until chains.size) yield fast"chain_$i").mkFastring(", ")
