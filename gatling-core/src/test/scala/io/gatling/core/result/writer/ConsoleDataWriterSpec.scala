@@ -23,7 +23,6 @@ import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.util.StringHelper.eol
 
 @RunWith(classOf[JUnitRunner])
 class ConsoleDataWriterSpec extends Specification {
@@ -32,7 +31,7 @@ class ConsoleDataWriterSpec extends Specification {
 
 	val time = new DateTime().withDate(2012, 8, 24).withTime(13, 37, 0, 0)
 	
-	def progressBar(summary: ConsoleSummary) = summary.toString.split(eol)(4)
+	def progressBar(summary: ConsoleSummary) = summary.toString.split("\n")(4)
 
 	"console summary progress bar" should {
 
