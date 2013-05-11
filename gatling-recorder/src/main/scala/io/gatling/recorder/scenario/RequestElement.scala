@@ -15,6 +15,7 @@
  */
 package io.gatling.recorder.scenario
 
+import java.net.URI
 import java.nio.charset.Charset
 
 import scala.collection.JavaConversions.{ asScalaBuffer, mapAsScalaMap }
@@ -38,7 +39,7 @@ object RequestElement {
 			request.getContent.getBytes(request.getContent.readerIndex, bufferBytes)
 			Some(new String(bufferBytes, configuration.simulation.encoding))
 		} else None
-		new RequestElement(request.getUri,request.getMethod.toString, headers, content, statusCode, simulationClass)
+		new RequestElement(new URI(request.getUri), request.getMethod.toString, headers, content, statusCode, simulationClass)
 	}
 
 	def apply(r: RequestElement, simulationClass: String) = {
@@ -46,19 +47,18 @@ object RequestElement {
 	}
 }
 
-class RequestElement(val uri: String, val method: String, val headers: Map[String,String], val content: Option[String], val statusCode: Int, val simulationClass: Option[String]) extends ScenarioElement {
+class RequestElement(val uri: URI, val method: String, val headers: Map[String, String], val content: Option[String], val statusCode: Int, val simulationClass: Option[String]) extends ScenarioElement {
 
 	private val containsFormParams: Boolean = headers.get(CONTENT_TYPE).map(_.contains(APPLICATION_X_WWW_FORM_URLENCODED)).getOrElse(false)
 
-	private val uriParts = uri.split("/", 4)
-	val baseUrl = uriParts.take(3).mkString("/")
-	val path = "/" + uriParts.lift(3).getOrElse("").split("\\?")(0)
-	private var printedUrl = baseUrl + path
+	val baseUrl = new URI(uri.getScheme, uri.getAuthority, null, null, null).toString
+	private var printedUrl = new URI(uri.getScheme, uri.getHost, uri.getPath, null, null).toString
+
 	var filteredHeadersId: Option[Int] = None
 
-	val queryParams = convertParamsFromJavaToScala(new QueryStringDecoder(uri, Charset.forName(configuration.simulation.encoding)).getParameters)
+	val queryParams = if (uri.getQuery != null) convertParamsFromJavaToScala(new QueryStringDecoder(uri, Charset.forName(configuration.simulation.encoding)).getParameters) else Nil
 
-	val requestBodyOrParams: Option[Either[String, List[(String, String)]]] = content.map(content => if(containsFormParams) Right(parseFormBody(content)) else Left(content))
+	val requestBodyOrParams: Option[Either[String, List[(String, String)]]] = content.map(content => if (containsFormParams) Right(parseFormBody(content)) else Left(content))
 
 	var id: Int = 0
 
@@ -66,9 +66,12 @@ class RequestElement(val uri: String, val method: String, val headers: Map[Strin
 		this.id = id
 	}
 
-	def updateUrl(baseUrl: String): RequestElement = {
+	def makeRelativeTo(baseUrl: String): RequestElement = {
 		if (baseUrl == this.baseUrl)
-			this.printedUrl = path
+			this.printedUrl = Option(uri.getPath).map {
+				case s if s.startsWith("/") => s
+				case s => "/" + s
+			}.getOrElse("/")
 
 		this
 	}
