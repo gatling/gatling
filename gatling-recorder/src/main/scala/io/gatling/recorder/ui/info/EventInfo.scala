@@ -28,11 +28,7 @@ case class PauseInfo(duration: Long, unit: PauseUnit) extends EventInfo {
 
 case class RequestInfo(request: HttpRequest, response: HttpResponse) extends EventInfo {
 
-	private def getHttpBody(message: HttpMessage) =
-		if (message.getContent.hasArray)
-			new String(message.getContent.array, configuration.simulation.encoding)
-		else
-			""
+	private def getHttpBody(message: HttpMessage) = message.getContent.toString(configuration.core.encoding)
 
 	val requestBody = getHttpBody(request)
 
