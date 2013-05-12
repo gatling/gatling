@@ -35,9 +35,9 @@ object ConfigurationConstants {
 	val PROXY_PORT = "recorder.proxy.outgoing.port"
 	val PROXY_SSL_PORT = "recorder.proxy.outgoing.sslPort"
 
-	val ENCODING = "recorder.simulation.encoding"
-	val SIMULATION_OUTPUT_FOLDER = "recorder.simulation.outputFolder"
-	val REQUEST_BODIES_FOLDER = "recorder.simulation.requestBodiesFolder"
-	val SIMULATION_PACKAGE = "recorder.simulation.package"
-	val SIMULATION_CLASS_NAME = "recorder.simulation.className"
+	val ENCODING = "recorder.core.encoding"
+	val SIMULATION_OUTPUT_FOLDER = "recorder.core.outputFolder"
+	val REQUEST_BODIES_FOLDER = "recorder.core.requestBodiesFolder"
+	val SIMULATION_PACKAGE = "recorder.core.package"
+	val SIMULATION_CLASS_NAME = "recorder.core.className"
 }

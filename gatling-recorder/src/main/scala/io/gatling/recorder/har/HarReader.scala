@@ -15,22 +15,21 @@
  */
 package io.gatling.recorder.har
 
+import java.net.{ URI, URL, URLEncoder }
+
 import scala.io.Source
 import scala.math.round
 import scala.util.Try
 
-import java.net.{ URL, URLEncoder }
+import org.joda.convert.StringConvert
+import org.joda.time.DateTime
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.RichString
 import io.gatling.http.Headers.Names.CONTENT_TYPE
 import io.gatling.recorder.scenario.{ PauseElement, PauseUnit, RequestElement, ScenarioElement }
 import io.gatling.recorder.util.FiltersHelper.isRequestAccepted
-import io.gatling.recorder.util.RedirectHelper._
-
-import org.joda.convert.StringConvert
-import org.joda.time.DateTime
-
+import io.gatling.recorder.util.RedirectHelper.{ isRequestInsideRedirectChain, isRequestRedirectChainEnd, isRequestRedirectChainStart }
 
 object HarReader {
 
@@ -76,15 +75,15 @@ object HarReader {
 			val headers = buildHeaders(entry)
 			// NetExport doesn't copy post params to text field
 			val content = entry.request.postData.map(postData => postData.text.trimToOption.getOrElse(buildContent(postData.params)))
-			scenarioElements = new RequestElement(uri, method, headers, content, statusCode, None) :: scenarioElements
+			scenarioElements = new RequestElement(new URI(uri), method, headers, content, statusCode, None) :: scenarioElements
 		}
 
 		def createPause {
-			def parseMillisFromIso8601DateTime(time: String) = StringConvert.INSTANCE.convertFromString(classOf[DateTime],time).getMillis
+			def parseMillisFromIso8601DateTime(time: String) = StringConvert.INSTANCE.convertFromString(classOf[DateTime], time).getMillis
 
 			val timestamp = parseMillisFromIso8601DateTime(entry.startedDateTime)
 			val diff = timestamp - lastRequestTimestamp
-			if(lastRequestTimestamp != 0 && diff > 10) {
+			if (lastRequestTimestamp != 0 && diff > 10) {
 				val (pauseValue, pauseUnit) =
 					if (diff > 1000)
 						(round(diff / 1000).toLong, PauseUnit.SECONDS)

@@ -15,8 +15,7 @@
  */
 package io.gatling.recorder.scenario
 
-import java.io.{ FileWriter, IOException }
-import java.util.Date
+import java.io.{ FileOutputStream, IOException }
 
 import scala.annotation.tailrec
 import scala.collection.immutable.SortedMap
@@ -33,6 +32,52 @@ object ScenarioExporter extends Logging {
 	private val EVENTS_GROUPING = 100
 
 	def saveScenario(scenarioElements: List[ScenarioElement]) {
+
+		def getBaseUrl(scenarioElements: List[ScenarioElement]): String = {
+			val baseUrls = scenarioElements.collect {
+				case reqElm: RequestElement => reqElm.baseUrl
+			}.groupBy(identity).toSeq
+
+			baseUrls.maxBy {
+				case (url, occurrences) => occurrences.size
+			}._1
+		}
+
+		def getMostFrequentHeaderValue(scenarioElements: List[ScenarioElement], headerName: String): Option[String] = {
+			val headers = scenarioElements.flatMap {
+				case reqElm: RequestElement => reqElm.headers.collect { case (name, value) if (name == headerName) => value }
+				case _ => Nil
+			}
+
+			headers match {
+				case Nil => None
+				case _ =>
+					val mostFrequentValue = headers
+						.groupBy(value => value)
+						.maxBy { case (_, occurrences) => occurrences.size }
+						._1
+					Some(mostFrequentValue)
+			}
+		}
+
+		def getChains(scenarioElements: List[ScenarioElement]): Either[List[ScenarioElement], List[List[ScenarioElement]]] = {
+
+			if (scenarioElements.size > ScenarioExporter.EVENTS_GROUPING)
+				Right(scenarioElements.grouped(ScenarioExporter.EVENTS_GROUPING).toList)
+			else
+				Left(scenarioElements)
+		}
+
+		def dumpRequestBody(idEvent: Int, content: String, simulationClass: String) {
+			withCloseable(new FileOutputStream(File(getFolder(configuration.simulation.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)) {
+				fw =>
+					try {
+						fw.write(content.getBytes(configuration.simulation.encoding))
+					} catch {
+						case e: IOException => logger.error("Error, while dumping request body...", e)
+					}
+			}
+		}
 
 		val baseUrl = getBaseUrl(scenarioElements)
 
@@ -65,7 +110,7 @@ object ScenarioExporter extends Logging {
 		elementsList.foreach {
 			case e: RequestElement =>
 				i = i + 1
-				e.updateUrl(baseUrl).setId(i)
+				e.makeRelativeTo(baseUrl).setId(i)
 				e.requestBodyOrParams.map(_.left.map(dumpRequestBody(i, _, configuration.simulation.className)))
 
 			case _ =>
@@ -120,55 +165,8 @@ object ScenarioExporter extends Logging {
 
 		val output = SimulationTemplate.render(configuration.simulation.pkg, configuration.simulation.className, protocolConfigElement, headers, "Scenario Name", newScenarioElements)
 
-		withCloseable(new FileWriter(File(getOutputFolder / getSimulationFileName).jfile)) {
-			_.write(output)
-		}
-	}
-
-	private def getBaseUrl(scenarioElements: List[ScenarioElement]): String = {
-		val baseUrls = scenarioElements.flatMap {
-			case reqElm: RequestElement => Some(reqElm.baseUrl)
-			case _ => None
-		}.groupBy(url => url).toSeq
-
-		baseUrls.maxBy {
-			case (url, occurrences) => occurrences.size
-		}._1
-	}
-
-	private def getMostFrequentHeaderValue(scenarioElements: List[ScenarioElement], headerName: String): Option[String] = {
-		val headers = scenarioElements.flatMap {
-			case reqElm: RequestElement => reqElm.headers.collect { case (name, value) if (name == headerName) => value }
-			case _ => Nil
-		}
-
-		headers match {
-			case Nil => None
-			case _ =>
-				val mostFrequentValue = headers
-					.groupBy(value => value)
-					.maxBy { case (_, occurrences) => occurrences.size }
-					._1
-				Some(mostFrequentValue)
-		}
-	}
-
-	private def getChains(scenarioElements: List[ScenarioElement]): Either[List[ScenarioElement], List[List[ScenarioElement]]] = {
-
-		if (scenarioElements.size > ScenarioExporter.EVENTS_GROUPING)
-			Right(scenarioElements.grouped(ScenarioExporter.EVENTS_GROUPING).toList)
-		else
-			Left(scenarioElements)
-	}
-
-	private def dumpRequestBody(idEvent: Int, content: String, simulationClass: String) {
-		withCloseable(new FileWriter(File(getFolder(configuration.simulation.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)) {
-			fw =>
-				try {
-					fw.write(content)
-				} catch {
-					case e: IOException => logger.error("Error, while dumping request body...", e)
-				}
+		withCloseable(new FileOutputStream(File(getOutputFolder / getSimulationFileName).jfile)) {
+			_.write(output.getBytes(configuration.simulation.encoding))
 		}
 	}
 

@@ -43,7 +43,7 @@ class BrowserHttpsRequestHandler(controller: RecorderController) extends Abstrac
 
 		def handlePropagatableRequest {
 			// set full uri so that it's correctly recorded FIXME ugly
-			request.setUri(targetHostURI + request.getUri)
+			request.setUri(targetHostURI.resolve(request.getUri).toString)
 
 			val bootstrap = newClientBootstrap(controller, requestContext, request, true)
 
