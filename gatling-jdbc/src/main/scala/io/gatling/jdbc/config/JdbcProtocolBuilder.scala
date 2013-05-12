@@ -46,7 +46,6 @@ private case class Attributes(
 	initSQL: Option[String] = None,
 	properties: Map[String, Any])
 
-// TODO : check size ? allow partitions size ?
 class JdbcProtocolBuilder(attributes: Attributes) extends Logging {
 
 	def url(url: String) = new JdbcProtocolBuilder(attributes.copy(url = url))
@@ -72,10 +71,9 @@ class JdbcProtocolBuilder(attributes: Attributes) extends Logging {
 	def defaultCatalog(catalog: String) = new JdbcProtocolBuilder(attributes.copy(defaultCatalog = Some(catalog)))
 
 	private[jdbc] def build = {
-		require(attributes.driver != "","JDBC driver is not configured.")
-		require(attributes.url != "","JDBC connection URL is not configured.")
+		require(!attributes.driver.isEmpty,"JDBC driver is not configured.")
+		require(!attributes.url.isEmpty,"JDBC connection URL is not configured.")
 		require(attributes.properties.contains(USER), "username is not configured.")
-		require(attributes.properties.contains(PASSWORD),"password is not configured.")
 
 		ConnectionFactory.setDataSource(setupDataSource)
 		system.registerOnTermination(ConnectionFactory.close)
