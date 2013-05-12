@@ -69,10 +69,10 @@ object ScenarioExporter extends Logging {
 		}
 
 		def dumpRequestBody(idEvent: Int, content: String, simulationClass: String) {
-			withCloseable(new FileOutputStream(File(getFolder(configuration.simulation.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)) {
+			withCloseable(new FileOutputStream(File(getFolder(configuration.core.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)) {
 				fw =>
 					try {
-						fw.write(content.getBytes(configuration.simulation.encoding))
+						fw.write(content.getBytes(configuration.core.encoding))
 					} catch {
 						case e: IOException => logger.error("Error, while dumping request body...", e)
 					}
@@ -101,7 +101,7 @@ object ScenarioExporter extends Logging {
 
 		// Add simulationClass to request elements
 		val elementsList: List[ScenarioElement] = scenarioElements.map {
-			case e: RequestElement => RequestElement(e, configuration.simulation.className)
+			case e: RequestElement => e.copy(simulationClass = Some(configuration.core.className))
 			case e => e
 		}
 
@@ -111,7 +111,7 @@ object ScenarioExporter extends Logging {
 			case e: RequestElement =>
 				i = i + 1
 				e.makeRelativeTo(baseUrl).setId(i)
-				e.requestBodyOrParams.map(_.left.map(dumpRequestBody(i, _, configuration.simulation.className)))
+				e.requestBodyOrParams.map(_.left.map(dumpRequestBody(i, _, configuration.core.className)))
 
 			case _ =>
 		}
@@ -163,17 +163,17 @@ object ScenarioExporter extends Logging {
 
 		val newScenarioElements = getChains(elementsList)
 
-		val output = SimulationTemplate.render(configuration.simulation.pkg, configuration.simulation.className, protocolConfigElement, headers, "Scenario Name", newScenarioElements)
+		val output = SimulationTemplate.render(configuration.core.pkg, configuration.core.className, protocolConfigElement, headers, "Scenario Name", newScenarioElements)
 
 		withCloseable(new FileOutputStream(File(getOutputFolder / getSimulationFileName).jfile)) {
-			_.write(output.getBytes(configuration.simulation.encoding))
+			_.write(output.getBytes(configuration.core.encoding))
 		}
 	}
 
-	def getSimulationFileName: String = configuration.simulation.className + ".scala"
+	def getSimulationFileName: String = configuration.core.className + ".scala"
 
 	def getOutputFolder = {
-		val path = configuration.simulation.outputFolder + File.separator + configuration.simulation.pkg.replace(".", File.separator)
+		val path = configuration.core.outputFolder + File.separator + configuration.core.pkg.replace(".", File.separator)
 		getFolder(path)
 	}
 

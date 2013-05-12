@@ -374,15 +374,15 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 			txtProxyUsername.setEnabled(true)
 			txtProxyPassword.setEnabled(true)
 		}
-		configuration.simulation.pkg.trimToOption.map(txtSimulationPackage.setText)
-		txtSimulationClassName.setText(configuration.simulation.className)
+		configuration.core.pkg.trimToOption.map(txtSimulationPackage.setText)
+		txtSimulationClassName.setText(configuration.core.className)
 		cbFilterStrategies.setSelectedItem(configuration.filters.filterStrategy)
 		chkFollowRedirect.setSelected(configuration.http.followRedirect)
 		chkAutomaticReferer.setSelected(configuration.http.automaticReferer)
 		for (pattern <- configuration.filters.patterns)
 			tblFilters.addRow(pattern)
-		txtOutputFolder.setText(configuration.simulation.outputFolder)
+		txtOutputFolder.setText(configuration.core.outputFolder)
 		chkSavePref.setSelected(saveConfiguration)
-		cbOutputEncoding.setSelectedItem(Charset.forName(configuration.simulation.encoding))
+		cbOutputEncoding.setSelectedItem(Charset.forName(configuration.core.encoding))
 	}
 }

@@ -32,22 +32,19 @@ import io.gatling.recorder.scenario.template.RequestTemplate
 
 object RequestElement {
 
-	def apply(request: HttpRequest, statusCode: Int, simulationClass: Option[String]) = {
+	def apply(request: HttpRequest, statusCode: Int, simulationClass: Option[String]): RequestElement = {
 		val headers: Map[String, String] = request.getHeaders.map { entry => (entry.getKey, entry.getValue) }.toMap
 		val content = if (request.getContent.readableBytes > 0) {
 			val bufferBytes = new Array[Byte](request.getContent.readableBytes)
 			request.getContent.getBytes(request.getContent.readerIndex, bufferBytes)
-			Some(new String(bufferBytes, configuration.simulation.encoding))
+			Some(new String(bufferBytes, configuration.core.encoding))
 		} else None
-		new RequestElement(new URI(request.getUri), request.getMethod.toString, headers, content, statusCode, simulationClass)
-	}
-
-	def apply(r: RequestElement, simulationClass: String) = {
-		new RequestElement(r.uri, r.method, r.headers, r.content, r.statusCode, Some(simulationClass))
+		
+		RequestElement(new URI(request.getUri), request.getMethod.toString, headers, content, statusCode, simulationClass)
 	}
 }
 
-class RequestElement(val uri: URI, val method: String, val headers: Map[String, String], val content: Option[String], val statusCode: Int, val simulationClass: Option[String]) extends ScenarioElement {
+case class RequestElement(uri: URI, method: String, headers: Map[String, String], content: Option[String], statusCode: Int, simulationClass: Option[String]) extends ScenarioElement {
 
 	private val containsFormParams: Boolean = headers.get(CONTENT_TYPE).map(_.contains(APPLICATION_X_WWW_FORM_URLENCODED)).getOrElse(false)
 
@@ -56,7 +53,7 @@ class RequestElement(val uri: URI, val method: String, val headers: Map[String, 
 
 	var filteredHeadersId: Option[Int] = None
 
-	val queryParams = if (uri.getQuery != null) convertParamsFromJavaToScala(new QueryStringDecoder(uri, Charset.forName(configuration.simulation.encoding)).getParameters) else Nil
+	val queryParams = if (uri.getQuery != null) convertParamsFromJavaToScala(new QueryStringDecoder(uri, Charset.forName(configuration.core.encoding)).getParameters) else Nil
 
 	val requestBodyOrParams: Option[Either[String, List[(String, String)]]] = content.map(content => if (containsFormParams) Right(parseFormBody(content)) else Left(content))
 

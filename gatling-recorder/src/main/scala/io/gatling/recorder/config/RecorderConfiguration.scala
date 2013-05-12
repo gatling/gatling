@@ -101,7 +101,7 @@ object RecorderConfiguration extends Logging {
 					password = config.getString(PROXY_PASSWORD).trimToOption,
 					port = zeroToOption(config.getInt(PROXY_PORT)),
 					sslPort = zeroToOption(config.getInt(PROXY_SSL_PORT)))),
-			simulation = SimulationConfiguration(
+			core = CoreConfiguration(
 				encoding = config.getString(ENCODING),
 				outputFolder = getOutputFolder(config.getString(SIMULATION_OUTPUT_FOLDER)),
 				requestBodiesFolder = getRequestBodiesFolder,
@@ -131,7 +131,7 @@ case class ProxyConfiguration(
 	sslPort: Int,
 	outgoing: OutgoingProxyConfiguration)
 
-case class SimulationConfiguration(
+case class CoreConfiguration(
 	encoding: String,
 	outputFolder: String,
 	requestBodiesFolder: String,
@@ -142,5 +142,5 @@ case class RecorderConfiguration(
 	filters: FiltersConfiguration,
 	http: HttpConfiguration,
 	proxy: ProxyConfiguration,
-	simulation: SimulationConfiguration,
+	core: CoreConfiguration,
 	config: Config)
