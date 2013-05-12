@@ -21,15 +21,11 @@ import java.sql.SQLException
 
 object ConnectionFactory {
 
-	private var dataSource : BoneCPDataSource = _
+	private var dataSource : Option[BoneCPDataSource] = None
 
-	private[jdbc] def setDataSource(ds: BoneCPDataSource) { dataSource = ds }
+	private[jdbc] def setDataSource(ds: BoneCPDataSource) { dataSource = Some(ds) }
 
-	private[jdbc] def getConnection =
-		if(dataSource != null)
-			dataSource.getConnection
-		else
-			throw new SQLException("DataSource is not configured.")
+	private[jdbc] def getConnection = dataSource.map(_.getConnection).getOrElse(throw new SQLException("DataSource is not configured."))
 
-	private[jdbc] def close = if (dataSource != null ) dataSource.close
+	private[jdbc] def close = dataSource.foreach(_.close)
 }
