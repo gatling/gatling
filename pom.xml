@@ -132,6 +132,7 @@
 		<commons-exec.version>1.1</commons-exec.version>
 		<jsoup.version>1.7.2</jsoup.version>
 		<jzlib.version>1.1.2</jzlib.version>
+		<bonecp.version>0.7.1.RELEASE</bonecp.version>
 		<redis.version>2.10</redis.version>
 		<junit.version>4.11</junit.version>
 		<specs2.version>1.14</specs2.version>
@@ -344,6 +345,11 @@
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-exec</artifactId>
 				<version>${commons-exec.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.jolbox</groupId>
+				<artifactId>bonecp</artifactId>
+				<version>${bonecp.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>net.debasishg</groupId>

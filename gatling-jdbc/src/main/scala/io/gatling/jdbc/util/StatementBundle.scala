@@ -13,40 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.util
+package io.gatling.jdbc.util
 
-import java.io.Closeable
-import java.sql.{ Connection, ResultSet }
+import java.sql.Connection
 
-import scala.io.Source
+import io.gatling.jdbc.statement.builder.AbstractJdbcStatementBuilder
 
-object IOHelper {
+object StatementBundle {
+	def apply(name: String,builder : AbstractJdbcStatementBuilder[_],params: List[Any]) = new StatementBundle(name,builder,params)
+}
 
-	def withCloseable[T, C <: Closeable](closeable: C)(block: C => T) = {
-		try
-			block(closeable)
-		finally
-			closeable.close
-	}
+class StatementBundle(val name : String,builder: AbstractJdbcStatementBuilder[_],params: List[Any]) {
 
-	def withSource[T, C <: Source](closeable: C)(block: C => T) = {
-		try
-			block(closeable)
-		finally
-			closeable.close
-	}
-
-	def withConnection[T, C <: Connection](closeable: C)(block: C => T) = {
-		try
-			block(closeable)
-		finally
-			closeable.close
-	}
-
-	def withResultSet[T, C <: ResultSet](resultSet: C)(block: C => T) = {
-		try
-			block(resultSet)
-		finally
-			resultSet.close
+	def buildStatement(connection: Connection) = {
+		val statement = builder.build(connection)
+		val indexes = 1 to params.length
+		indexes.zip(params).map{case (index,param) => statement.setObject(index,param)}
+		statement
 	}
 }

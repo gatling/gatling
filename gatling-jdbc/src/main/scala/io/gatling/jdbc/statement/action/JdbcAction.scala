@@ -13,40 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.util
+package io.gatling.jdbc.statement.action
 
-import java.io.Closeable
-import java.sql.{ Connection, ResultSet }
+import scala.language.existentials
+import io.gatling.core.action.{ Action, Interruptable }
+import io.gatling.core.session.Session
+import io.gatling.jdbc.statement.builder.AbstractJdbcStatementBuilder
 
-import scala.io.Source
+abstract class JdbcAction extends Action with Interruptable {
 
-object IOHelper {
-
-	def withCloseable[T, C <: Closeable](closeable: C)(block: C => T) = {
-		try
-			block(closeable)
-		finally
-			closeable.close
-	}
-
-	def withSource[T, C <: Source](closeable: C)(block: C => T) = {
-		try
-			block(closeable)
-		finally
-			closeable.close
-	}
-
-	def withConnection[T, C <: Connection](closeable: C)(block: C => T) = {
-		try
-			block(closeable)
-		finally
-			closeable.close
-	}
-
-	def withResultSet[T, C <: ResultSet](resultSet: C)(block: C => T) = {
-		try
-			block(resultSet)
-		finally
-			resultSet.close
+	def resolveQuery(builder: AbstractJdbcStatementBuilder[_],session: Session) = {
+		for {
+			name <- builder.statementName(session)
+			paramsList <- builder.resolveParams(session)
+		} yield (name,paramsList)
 	}
 }

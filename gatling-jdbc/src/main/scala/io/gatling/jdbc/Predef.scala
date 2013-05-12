@@ -15,8 +15,26 @@
  */
 package io.gatling.jdbc
 
+import io.gatling.core.session.Expression
+import io.gatling.jdbc.config.JdbcProtocolConfigurationBuilder
+import io.gatling.jdbc.statement.builder.{ AbstractJdbcStatementBuilder, JdbcStatementBaseBuilder }
+import io.gatling.jdbc.statement.action.builder.JdbcTransactionActionBuilder
 import io.gatling.jdbc.feeder.database.JdbcFeederSource
 
 object Predef {
+
+	val READ_COMMITTED = "READ_COMMITTED"
+	val REPEATABLE_READ = "REPEATABLE_READ"
+	val READ_UNCOMMITTED = "READ_UNCOMMITTED"
+	val SERIALIZABLE = "SERIALIZABLE"
+
+	implicit def jdbcProtocolConfigurationBuilder2JdbcProtocolConfiguration(builder: JdbcProtocolConfigurationBuilder) = builder.build
+	implicit def statementBuilder2ActionBuilder(statementBuilder: AbstractJdbcStatementBuilder[_]) = statementBuilder.toActionBuilder
+
+	def jdbcConfig = JdbcProtocolConfigurationBuilder.jdbcConfig
+	def sql(statementName: Expression[String]) = JdbcStatementBaseBuilder.sql(statementName)
+	def transaction(queries: AbstractJdbcStatementBuilder[_]*) = JdbcTransactionActionBuilder(queries)
+
 	def jdbcFeeder(url: String, username: String, password: String, sql: String) = JdbcFeederSource(url, username, password, sql)
+
 }

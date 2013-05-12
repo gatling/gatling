@@ -43,6 +43,18 @@ object CompileTest extends Simulation {
 		.acceptEncodingHeader("gzip,deflate,sdch")
 		.userAgentHeader("Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.19 (KHTML, like Gecko) Ubuntu/12.04 Chromium/18.0.1025.151 Chrome/18.0.1025.151 Safari/535.19")
 
+	val jdbcProtocol = jdbcConfig
+		.url("jdbc:postgresql://localhost:5632/test")
+		.driver("org.postgresql.driver")
+		.username("user")
+		.password("password")
+		.size(200)
+		.partitions(5)
+		.defaultReadOnly(true)
+		.defaultTransactionIsolation(READ_UNCOMMITTED)
+		.properties(Map("ssl" -> true, "tcpKeepAlive" -> true, "logLevel" -> 2))
+		.initSQL("SELECT 1")
+
 	val httpConfToVerifyUserProvidedInfoExtractors = http
 		.extraInfoExtractor((requestStatus, session, request, response) => List.empty)
 
@@ -69,6 +81,12 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 		.repeat(2) {
 			feed(richTestData)
 				.exec(http("Catégorie Poney").get("/").queryParam("omg", "${omg}").queryParam("socool", "${socool}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform(_.map(_ + "foo")).saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
+				.exec(sql("Funny query").query("SELECT * FROM users WHERE username = ? AND age < ?").bind("${name}").bind("${age}"))
+				.exec(transaction {
+					sql("Inserting stuff").query("INSERT INTO stuff VALUES (?,?)").bind("${stuffId}").bind("${theStuff}")
+					sql("Reading stuff").query("SELECT * FROM stuff")
+				})
+				.exec(sql("Stored procedures for the win").call("{call myAwesomeStoredProcedure(?)}").bind("${myAwesomeParameter}"))
 		}
 		.repeat(2, "counterName") {
 			feed(testData.circular)
@@ -199,7 +217,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 	val inject8 = heaviside(1000 users) over (20 seconds)
 
 	setUp(lambdaUser.inject(inject1), lambdaUser.inject(inject1, inject2))
-		.protocols(httpProtocol)
+		.protocols(httpProtocol, jdbcProtocol)
 		.assertions(
 			global.responseTime.mean.lessThan(50),
 			global.responseTime.max.between(50, 500),
