@@ -15,8 +15,7 @@
  */
 package io.gatling.recorder.scenario
 
-import java.io.{ FileWriter, IOException }
-import java.util.Date
+import java.io.{ FileOutputStream, IOException }
 
 import scala.annotation.tailrec
 import scala.collection.immutable.SortedMap
@@ -70,10 +69,10 @@ object ScenarioExporter extends Logging {
 		}
 
 		def dumpRequestBody(idEvent: Int, content: String, simulationClass: String) {
-			withCloseable(new FileWriter(File(getFolder(configuration.simulation.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)) {
+			withCloseable(new FileOutputStream(File(getFolder(configuration.simulation.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)) {
 				fw =>
 					try {
-						fw.write(content)
+						fw.write(content.getBytes(configuration.simulation.encoding))
 					} catch {
 						case e: IOException => logger.error("Error, while dumping request body...", e)
 					}
@@ -166,8 +165,8 @@ object ScenarioExporter extends Logging {
 
 		val output = SimulationTemplate.render(configuration.simulation.pkg, configuration.simulation.className, protocolConfigElement, headers, "Scenario Name", newScenarioElements)
 
-		withCloseable(new FileWriter(File(getOutputFolder / getSimulationFileName).jfile)) {
-			_.write(output)
+		withCloseable(new FileOutputStream(File(getOutputFolder / getSimulationFileName).jfile)) {
+			_.write(output.getBytes(configuration.simulation.encoding))
 		}
 	}
 
