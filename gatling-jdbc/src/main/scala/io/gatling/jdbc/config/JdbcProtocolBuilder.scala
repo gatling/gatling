@@ -18,19 +18,19 @@ package io.gatling.jdbc.config
 import java.util.Properties
 
 import io.gatling.core.action.system
-import io.gatling.jdbc.config.JdbcProtocolConfigurationBuilder.{ PASSWORD, USER }
+import io.gatling.jdbc.config.JdbcProtocolBuilder.{ PASSWORD, USER }
 import io.gatling.jdbc.statement.action.actor.ConnectionFactory
 
 import com.jolbox.bonecp.BoneCPDataSource
 
 import com.typesafe.scalalogging.slf4j.Logging
 
-object JdbcProtocolConfigurationBuilder {
+object JdbcProtocolBuilder {
 
 	val USER = "user"
 	val PASSWORD = "password"
 
-	private[gatling] val BASE_JDBC_PROTOCOL_CONFIGURATION_BUILDER = new JdbcProtocolConfigurationBuilder(Attributes(properties = Map.empty))
+	private[gatling] val BASE_JDBC_PROTOCOL_CONFIGURATION_BUILDER = new JdbcProtocolBuilder(Attributes(properties = Map.empty))
 
 	def jdbcConfig = BASE_JDBC_PROTOCOL_CONFIGURATION_BUILDER
 }
@@ -39,7 +39,7 @@ private case class Attributes(
 	url: String = "",
 	driver: String = "",
 	nbPartitions: Int = 1,
-	size: Int = 1,
+	maxConnectionsPerPartition: Int = 1,
 	defaultTransactionIsolation: Option[String] = None,
 	defaultCatalog: Option[String] = None,
 	defaultReadOnly: Option[java.lang.Boolean] = None,
@@ -47,29 +47,29 @@ private case class Attributes(
 	properties: Map[String, Any])
 
 // TODO : check size ? allow partitions size ?
-class JdbcProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
+class JdbcProtocolBuilder(attributes: Attributes) extends Logging {
 
-	def url(url: String) = new JdbcProtocolConfigurationBuilder(attributes.copy(url = url))
+	def url(url: String) = new JdbcProtocolBuilder(attributes.copy(url = url))
 
-	def driver(driver: String) = new JdbcProtocolConfigurationBuilder(attributes.copy(driver = driver))
+	def driver(driver: String) = new JdbcProtocolBuilder(attributes.copy(driver = driver))
 
-	def username(username: String) = new JdbcProtocolConfigurationBuilder(attributes.copy(properties = attributes.properties + (USER -> username)))
+	def username(username: String) = new JdbcProtocolBuilder(attributes.copy(properties = attributes.properties + (USER -> username)))
 
-	def password(password: String) = new JdbcProtocolConfigurationBuilder(attributes.copy(properties = attributes.properties + (PASSWORD -> password)))
+	def password(password: String) = new JdbcProtocolBuilder(attributes.copy(properties = attributes.properties + (PASSWORD -> password)))
 
-	def properties(properties: Map[String, Any]) = new JdbcProtocolConfigurationBuilder(attributes.copy(properties = properties))
+	def properties(properties: Map[String, Any]) = new JdbcProtocolBuilder(attributes.copy(properties = properties))
 
-	def partitions(nbPartitions: Int) = new JdbcProtocolConfigurationBuilder(attributes.copy(nbPartitions = nbPartitions))
+	def partitions(nbPartitions: Int) = new JdbcProtocolBuilder(attributes.copy(nbPartitions = nbPartitions))
 
-	def size(size: Int) = new JdbcProtocolConfigurationBuilder(attributes.copy(size = size))
+	def maxConnectionsPerPartition(maxConnectionsPerPartition: Int) = new JdbcProtocolBuilder(attributes.copy(maxConnectionsPerPartition = maxConnectionsPerPartition))
 
-	def initSQL(sql: String) = new JdbcProtocolConfigurationBuilder(attributes.copy(initSQL = Some(sql)))
+	def initSQL(sql: String) = new JdbcProtocolBuilder(attributes.copy(initSQL = Some(sql)))
 
-	def defaultTransactionIsolation(isolationLevel: String) = new JdbcProtocolConfigurationBuilder(attributes.copy(defaultTransactionIsolation = Some(isolationLevel)))
+	def defaultTransactionIsolation(isolationLevel: String) = new JdbcProtocolBuilder(attributes.copy(defaultTransactionIsolation = Some(isolationLevel)))
 
-	def defaultReadOnly(readOnly: Boolean) = new JdbcProtocolConfigurationBuilder(attributes.copy(defaultReadOnly = Some(readOnly)))
+	def defaultReadOnly(readOnly: Boolean) = new JdbcProtocolBuilder(attributes.copy(defaultReadOnly = Some(readOnly)))
 
-	def defaultCatalog(catalog: String) = new JdbcProtocolConfigurationBuilder(attributes.copy(defaultCatalog = Some(catalog)))
+	def defaultCatalog(catalog: String) = new JdbcProtocolBuilder(attributes.copy(defaultCatalog = Some(catalog)))
 
 	private[jdbc] def build = {
 		require(attributes.driver != "","JDBC driver is not configured.")
@@ -79,7 +79,7 @@ class JdbcProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 
 		ConnectionFactory.setDataSource(setupDataSource)
 		system.registerOnTermination(ConnectionFactory.close)
-		JdbcProtocolConfiguration
+		JdbcProtocol
 	}
 
 	private def setupDataSource = {
@@ -89,7 +89,7 @@ class JdbcProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 		ds.setDriverProperties(buildDriverProperties(attributes.properties))
 		ds.setDefaultAutoCommit(true)
 		ds.setPartitionCount(attributes.nbPartitions)
-		ds.setMaxConnectionsPerPartition(attributes.size / attributes.nbPartitions)
+		ds.setMaxConnectionsPerPartition(attributes.maxConnectionsPerPartition)
 		attributes.defaultReadOnly.foreach(ds.setDefaultReadOnly)
 		attributes.defaultCatalog.foreach(ds.setDefaultCatalog)
 		attributes.initSQL.foreach(ds.setInitSQL)

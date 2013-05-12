@@ -16,7 +16,7 @@
 package io.gatling.jdbc
 
 import io.gatling.core.session.Expression
-import io.gatling.jdbc.config.JdbcProtocolConfigurationBuilder
+import io.gatling.jdbc.config.JdbcProtocolBuilder
 import io.gatling.jdbc.statement.builder.{ AbstractJdbcStatementBuilder, JdbcStatementBaseBuilder }
 import io.gatling.jdbc.statement.action.builder.JdbcTransactionActionBuilder
 import io.gatling.jdbc.feeder.database.JdbcFeederSource
@@ -28,10 +28,10 @@ object Predef {
 	val READ_UNCOMMITTED = "READ_UNCOMMITTED"
 	val SERIALIZABLE = "SERIALIZABLE"
 
-	implicit def jdbcProtocolConfigurationBuilder2JdbcProtocolConfiguration(builder: JdbcProtocolConfigurationBuilder) = builder.build
+	implicit def jdbcProtocolConfigurationBuilder2JdbcProtocolConfiguration(builder: JdbcProtocolBuilder) = builder.build
 	implicit def statementBuilder2ActionBuilder(statementBuilder: AbstractJdbcStatementBuilder[_]) = statementBuilder.toActionBuilder
 
-	def jdbcConfig = JdbcProtocolConfigurationBuilder.jdbcConfig
+	def jdbcConfig = JdbcProtocolBuilder.jdbcConfig
 	def sql(statementName: Expression[String]) = JdbcStatementBaseBuilder.sql(statementName)
 	def transaction(queries: AbstractJdbcStatementBuilder[_]*) = JdbcTransactionActionBuilder(queries)
 

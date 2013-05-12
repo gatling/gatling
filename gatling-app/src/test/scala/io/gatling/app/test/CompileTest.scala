@@ -48,7 +48,7 @@ object CompileTest extends Simulation {
 		.driver("org.postgresql.driver")
 		.username("user")
 		.password("password")
-		.size(200)
+		.maxConnectionsPerPartition(40)
 		.partitions(5)
 		.defaultReadOnly(true)
 		.defaultTransactionIsolation(READ_UNCOMMITTED)

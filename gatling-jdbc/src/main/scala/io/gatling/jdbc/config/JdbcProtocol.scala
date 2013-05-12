@@ -17,9 +17,9 @@ package io.gatling.jdbc.config
 
 import io.gatling.core.config.Protocol
 
-case object JdbcProtocolConfiguration extends Protocol {
+case object JdbcProtocol extends Protocol {
 
 	val JDBC_PROTOCOL_TYPE = "jdbcProtocol"
-	val protocolType = JdbcProtocolConfiguration.JDBC_PROTOCOL_TYPE
+	val protocolType = JdbcProtocol.JDBC_PROTOCOL_TYPE
 
 }
