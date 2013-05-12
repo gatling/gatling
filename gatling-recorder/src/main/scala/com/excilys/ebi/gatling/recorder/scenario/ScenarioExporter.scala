@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.recorder.scenario
 
-import java.io.{ FileWriter, IOException }
+import java.io.{ FileOutputStream, IOException }
 import java.util.Date
 
 import scala.annotation.tailrec
@@ -134,8 +134,8 @@ object ScenarioExporter extends Logging {
 				"packageName" -> configuration.simulationPackage,
 				"scenarioElements" -> newScenarioElements))
 
-		use(new FileWriter(File(getOutputFolder / getSimulationFileName(startDate)).jfile)) {
-			_.write(output)
+		use(new FileOutputStream(File(getOutputFolder / getSimulationFileName(startDate)).jfile)) {
+			_.write(output.getBytes(configuration.encoding))
 		}
 	}
 
@@ -176,10 +176,10 @@ object ScenarioExporter extends Logging {
 	}
 
 	private def dumpRequestBody(idEvent: Int, content: String, simulationClass: String) {
-		use(new FileWriter(File(getFolder(configuration.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)) {
+		use(new FileOutputStream(File(getFolder(configuration.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)) {
 			fw =>
 				try {
-					fw.write(content)
+					fw.write(content.getBytes(configuration.encoding))
 				} catch {
 					case e: IOException => error("Error, while dumping request body...", e)
 				}
