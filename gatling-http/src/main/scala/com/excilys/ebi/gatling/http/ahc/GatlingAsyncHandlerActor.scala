@@ -129,10 +129,14 @@ class GatlingAsyncHandlerActor(
 		def dump = {
 			val buff = new StringBuilder
 			buff.append(END_OF_LINE).append(">>>>>>>>>>>>>>>>>>>>>>>>>>").append(END_OF_LINE)
-			buff.append("request was:").append(END_OF_LINE)
+			buff.append("Request:").append(END_OF_LINE).append(requestName).append(": ").append(requestStatus).append(" ").append(errorMessage.getOrElse("")).append(END_OF_LINE)
+            buff.append("=========================").append(END_OF_LINE)
+            buff.append("Session:").append(END_OF_LINE).append(session).append(END_OF_LINE)
+            buff.append("=========================").append(END_OF_LINE)
+			buff.append("HTTP request:").append(END_OF_LINE)
 			request.dumpTo(buff)
 			buff.append("=========================").append(END_OF_LINE)
-			buff.append("response was:").append(END_OF_LINE)
+			buff.append("HTTP response:").append(END_OF_LINE)
 			response.dumpTo(buff)
 			buff.append(END_OF_LINE).append("<<<<<<<<<<<<<<<<<<<<<<<<<")
 			buff
