@@ -93,7 +93,7 @@ abstract class JdbcActor(session: Session,next: ActorRef) extends BaseActor {
 
 	def setupConnection(isolationLevel: Option[Int]) = {
 		val connection = ConnectionFactory.getConnection
-		if (isolationLevel.isDefined) connection.setTransactionIsolation(isolationLevel.get)
+		isolationLevel.foreach(connection.setTransactionIsolation)
 		connection
 	}
 
@@ -106,8 +106,6 @@ abstract class JdbcActor(session: Session,next: ActorRef) extends BaseActor {
 			statement.close
 			}
 	}
-
-	def closeStatement(statement: PreparedStatement) = if (statement != null) statement.close
 
 	def executeNext(newSession: Session) {
 		if(connection != null) connection.close

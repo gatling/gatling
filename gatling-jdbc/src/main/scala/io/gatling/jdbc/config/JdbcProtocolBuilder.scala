@@ -56,7 +56,7 @@ class JdbcProtocolBuilder(attributes: Attributes) extends Logging {
 
 	def password(password: String) = new JdbcProtocolBuilder(attributes.copy(properties = attributes.properties + (PASSWORD -> password)))
 
-	def properties(properties: Map[String, Any]) = new JdbcProtocolBuilder(attributes.copy(properties = properties))
+	def properties(properties: Map[String, Any]) = new JdbcProtocolBuilder(attributes.copy(properties = attributes.properties ++ properties))
 
 	def partitions(nbPartitions: Int) = new JdbcProtocolBuilder(attributes.copy(nbPartitions = nbPartitions))
 
@@ -71,8 +71,8 @@ class JdbcProtocolBuilder(attributes: Attributes) extends Logging {
 	def defaultCatalog(catalog: String) = new JdbcProtocolBuilder(attributes.copy(defaultCatalog = Some(catalog)))
 
 	private[jdbc] def build = {
-		require(!attributes.driver.isEmpty,"JDBC driver is not configured.")
-		require(!attributes.url.isEmpty,"JDBC connection URL is not configured.")
+		require(!attributes.driver.isEmpty, "JDBC driver is not configured.")
+		require(!attributes.url.isEmpty, "JDBC connection URL is not configured.")
 		require(attributes.properties.contains(USER), "username is not configured.")
 
 		ConnectionFactory.setDataSource(setupDataSource)
