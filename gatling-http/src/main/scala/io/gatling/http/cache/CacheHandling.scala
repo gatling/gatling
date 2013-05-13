@@ -15,13 +15,14 @@
  */
 package io.gatling.http.cache
 
-import com.ning.http.client.{ Request, Response }
+import com.ning.http.client.Request
 import com.ning.http.util.AsyncHttpProviderUtils
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.Headers
 import io.gatling.http.config.HttpProtocol
+import io.gatling.http.response.Response
 
 object CacheHandling extends Logging {
 

@@ -102,7 +102,7 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 		_executionEndDate = max(_executionEndDate, _responseReceivingStartDate)
 		val ahcResponse = Option(status).map(_.provider.prepareResponse(status, headers, bodies))
 		val checksums = digests.mapValues(md => bytes2Hex(md.digest)).toMap
-		val rawResponse = new GatlingResponse(request, ahcResponse, checksums, _executionStartDate, _requestSendingEndDate, _responseReceivingStartDate, _executionEndDate)
+		val rawResponse = new Response(request, ahcResponse, checksums, _executionStartDate, _requestSendingEndDate, _responseReceivingStartDate, _executionEndDate)
 
 		responseProcessor
 			.map(_.applyOrElse(rawResponse, identity[Response]))
