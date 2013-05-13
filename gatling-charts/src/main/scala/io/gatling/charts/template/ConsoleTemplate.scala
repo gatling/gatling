@@ -22,18 +22,18 @@ import io.gatling.charts.component.Statistics.PrintableStat
 import io.gatling.core.result.writer.ConsoleSummary.{ newBlock, outputLength, writeSubTitle }
 import io.gatling.core.util.StringHelper.{ eol, RichString }
 
-class ConsoleTemplate(requestStatistics: RequestStatistics) {
+object ConsoleTemplate {
 
 	def writeRequestCounters(statistics: Statistics): Fastring = {
 		import statistics._
-		fast"> ${name.rightPad(outputLength - 32)} TO=${total.printable.rightPad(6)} OK=${success.printable.rightPad(6)} KO=${failure.printable.rightPad(6)}"
+		fast"> ${name.rightPad(outputLength - 34)} ${total.printable.leftPad(7)} (OK=${success.printable.leftPad(6)} / KO=${failure.printable.leftPad(6)})"
 	}
 	def writeGroupedCounters(groupedCount: GroupedCount): Fastring = {
 		import groupedCount._
-		fast"> ${name.rightPad(outputLength - 32)} COUNT=${count.toString.rightPad(6)} PERCENTAGE=${percentage.toString.rightPad(6)}"
+		fast"> ${name.rightPad(outputLength - 34)} ${count.toString.leftPad(7)} (${percentage.toString.leftPad(3)}%)"
 	}
 
-	def getOutput: String = {
+	def apply(requestStatistics: RequestStatistics): String = {
 		import requestStatistics._
 		fast"""
 $newBlock
