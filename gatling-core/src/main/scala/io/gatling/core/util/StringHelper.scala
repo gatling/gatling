@@ -26,6 +26,8 @@ object StringHelper {
 
 	val eol = System.getProperty("line.separator")
 
+	val emptyFastring = fast""
+
 	def bytes2Hex(bytes: Array[Byte]): String = bytes.foldLeft(new StringBuilder) { (buff, b) =>
 		if ((b & 0xff) < 0x10)
 			buff.append("0")

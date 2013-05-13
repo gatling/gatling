@@ -21,6 +21,7 @@ import io.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.reader.DataReader.NO_PLOT_MAGIC_VALUE
 import io.gatling.core.util.NumberHelper.formatNumberWithSuffix
+import io.gatling.core.util.StringHelper.emptyFastring
 
 object Statistics {
 	implicit class PrintableStat(val value: Long) extends AnyVal {
@@ -145,7 +146,7 @@ class StatisticsTextComponent extends Component {
                         </div>
 """
 
-	val js = fast""
+	val js = emptyFastring
 
 	val jsFiles: Seq[String] = Seq.empty
 }

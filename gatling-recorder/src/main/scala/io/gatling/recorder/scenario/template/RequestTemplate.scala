@@ -17,6 +17,8 @@ package io.gatling.recorder.scenario.template
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
+import io.gatling.core.util.StringHelper.emptyFastring
+
 object RequestTemplate {
 
 	def headersBlockName(id: Int) = fast"headers_$id"
@@ -51,7 +53,7 @@ object RequestTemplate {
 			.param($tripleQuotes$key$tripleQuotes, $tripleQuotes$value$tripleQuotes)"""
 				}.mkFastring
 			}
-		}.getOrElse(fast"")
+		}.getOrElse(emptyFastring)
 
 		def renderCredentials = credentials.map {
 			case (username, password) => s"""
