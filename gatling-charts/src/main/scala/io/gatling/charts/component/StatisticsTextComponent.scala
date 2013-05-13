@@ -30,7 +30,6 @@ object Statistics {
 }
 
 case class Statistics(name: String, total: Long, success: Long, failure: Long) {
-
 	def all = List(total, success, failure)
 }
 
