@@ -118,12 +118,14 @@ class GatlingAsyncHandlerActor(
 		def dump = {
 			val buff = new StringBuilder
 			buff.append(eol).append(">>>>>>>>>>>>>>>>>>>>>>>>>>").append(eol)
-			buff.append("request was:").append(eol)
-			buff.appendAHCRequest(request)
+			buff.append("Request:").append(eol).append(s"$requestName: $status ${errorMessage.getOrElse("")}").append(eol)
+            buff.append("=========================").append(eol)
+            buff.append("Session:").append(eol).append(session).append(eol)
+            buff.append("=========================").append(eol)
+			buff.append("HTTP request:").append(eol).appendAHCRequest(request)
 			buff.append("=========================").append(eol)
-			buff.append("response was:").append(eol)
-			buff.appendResponse(response)
-			buff.append(eol).append("<<<<<<<<<<<<<<<<<<<<<<<<<")
+			buff.append("HTTP response:").append(eol).appendResponse(response).append(eol)
+			buff.append("<<<<<<<<<<<<<<<<<<<<<<<<<")
 			buff.toString
 		}
 
