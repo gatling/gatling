@@ -74,8 +74,6 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	def byteArrayBodyPart(name: Expression[String], data: Expression[Array[Byte]], mimeType: String) = bodyPart(ByteArrayBodyPart(name, data, mimeType))
 	def elFileBodyPart(name: Expression[String], filePath: Expression[String]): B = bodyPart(name, ELFileBodies.asString(filePath))
 	def elFileBodyPart(name: Expression[String], filePath: Expression[String], mimeType: String): B = byteArrayBodyPart(name, ELFileBodies.asBytes(filePath), mimeType)
-    @deprecated("Scalate support will be dropped in 2.1.0, prefer EL files or plain scala code", "2.0.0")
-    def sspFileBodyPart(name: Expression[String], filePath: Expression[String], additionalAttributes: Map[String, Any] = Map.empty): B = bodyPart(name, SspFileBodies.asString(filePath, additionalAttributes))
 	@deprecated("Scalate support will be dropped in 2.1.0, prefer EL files or plain scala code", "2.0.0")
 	def sspFileBodyPart(name: Expression[String], filePath: Expression[String], mimeType: String, additionalAttributes: Map[String, Any] = Map.empty): B = byteArrayBodyPart(name, SspFileBodies.asBytes(filePath, additionalAttributes), mimeType)
 	
