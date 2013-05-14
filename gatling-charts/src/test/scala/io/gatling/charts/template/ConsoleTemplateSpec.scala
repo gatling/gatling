@@ -35,12 +35,12 @@ class ConsoleTemplateSpec extends Specification {
 		"format the request counters properly" in {
 			val numberOfRequestsStatistics = Statistics("numberOfRequestsStatistics", 20l, 19l, 1l)
 			val out = ConsoleTemplate.writeRequestCounters(numberOfRequestsStatistics)
-			out.mkString must beEqualTo("> numberOfRequestsStatistics                          20 (OK=    19 / KO=     1)")
+			out.mkString must beEqualTo("> numberOfRequestsStatistics                            20 (OK=19     KO=1     )")
 		}
 
 		"format the grouped counts properly" in {
 			val out = ConsoleTemplate.writeGroupedCounters(GroupedCount("t < 42 ms", 90, 42))
-			out.mkString must beEqualTo("> t < 42 ms                                           90 ( 42%)")
+			out.mkString must beEqualTo("> t < 42 ms                                             90 ( 42%)")
 		}
 
 	}
