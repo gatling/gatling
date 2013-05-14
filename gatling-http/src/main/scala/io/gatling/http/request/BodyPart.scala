@@ -17,8 +17,7 @@ package io.gatling.http.request
 
 import java.io.File
 
-import com.ning.http.client.{ ByteArrayPart, FilePart, Part }
-import com.ning.http.multipart.StringPart
+import com.ning.http.multipart.{ ByteArrayPartSource, FilePart, FilePartSource, Part, StringPart }
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.{ Expression, Session }
@@ -26,32 +25,38 @@ import io.gatling.core.validation.Validation
 
 sealed trait BodyPart {
 
-	def toPart(session: Session): Validation[Part]
+	def toMultiPart(session: Session): Validation[Part]
 }
 
-case class StringBodyPart(name: Expression[String], value: Expression[String]) extends BodyPart {
+case class StringBodyPart(name: Expression[String], value: Expression[String], contentId: Option[String] = None) extends BodyPart {
 
-	def toPart(session: Session): Validation[Part] =
+	def toMultiPart(session: Session): Validation[Part] =
 		for {
 			name <- name(session)
 			value <- value(session)
-		} yield new StringPart(name, value, configuration.core.encoding)
+		} yield new StringPart(name, value, configuration.core.encoding, contentId.getOrElse(null))
 }
 
-case class ByteArrayBodyPart(name: Expression[String], data: Expression[Array[Byte]], mimeType: String) extends BodyPart {
+case class ByteArrayBodyPart(name: Expression[String], data: Expression[Array[Byte]], mimeType: String, contentId: Option[String] = None) extends BodyPart {
 
-	def toPart(session: Session): Validation[Part] =
+	def toMultiPart(session: Session): Validation[Part] =
 		for {
 			name <- name(session)
 			data <- data(session)
-		} yield new ByteArrayPart(name, null, data, mimeType, configuration.core.encoding)
+		} yield {
+			val source = new ByteArrayPartSource(null, data)
+			new FilePart(name, source, mimeType, configuration.core.encoding, contentId.getOrElse(null))
+		}
 }
 
-case class FileBodyPart(name: Expression[String], file: Expression[File], mimeType: String) extends BodyPart {
+case class FileBodyPart(name: Expression[String], file: Expression[File], mimeType: String, contentId: Option[String] = None) extends BodyPart {
 
-	def toPart(session: Session): Validation[Part] =
+	def toMultiPart(session: Session): Validation[Part] =
 		for {
 			name <- name(session)
 			file <- file(session)
-		} yield new FilePart(name, file, mimeType, configuration.core.encoding)
+		} yield {
+			val source = new FilePartSource(null, file)
+			new FilePart(name, source, mimeType, configuration.core.encoding, contentId.getOrElse(null))
+		}
 }

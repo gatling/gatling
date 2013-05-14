@@ -20,7 +20,7 @@ import java.io.{ File, InputStream }
 import com.ning.http.client.RequestBuilder
 
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.{ Validation, ValidationList }
+import io.gatling.core.validation._
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request._
 
@@ -69,31 +69,42 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	def processBody(processor: Body => Body): B = newInstance(httpAttributes, bodyAttributes.copy(body = bodyAttributes.body.map(processor)))
 
 	def bodyPart(bodyPart: BodyPart): B = newInstance(httpAttributes, bodyAttributes.copy(bodyParts = bodyPart :: bodyAttributes.bodyParts))
+
 	def bodyPart(name: Expression[String], value: Expression[String]): B = bodyPart(StringBodyPart(name, value))
+	def bodyPart(name: Expression[String], value: Expression[String], contentId: String): B = bodyPart(StringBodyPart(name, value, Some(contentId)))
+
 	def rawFileBodyPart(name: Expression[String], filePath: Expression[String], mimeType: String) = bodyPart(FileBodyPart(name, RawFileBodies.asFile(filePath), mimeType))
+	def rawFileBodyPart(name: Expression[String], filePath: Expression[String], mimeType: String, contentId: String) = bodyPart(FileBodyPart(name, RawFileBodies.asFile(filePath), mimeType, Some(contentId)))
+
 	def byteArrayBodyPart(name: Expression[String], data: Expression[Array[Byte]], mimeType: String) = bodyPart(ByteArrayBodyPart(name, data, mimeType))
+	def byteArrayBodyPart(name: Expression[String], data: Expression[Array[Byte]], mimeType: String, contentId: String) = bodyPart(ByteArrayBodyPart(name, data, mimeType, Some(contentId)))
+
 	def elFileBodyPart(name: Expression[String], filePath: Expression[String]): B = bodyPart(name, ELFileBodies.asString(filePath))
 	def elFileBodyPart(name: Expression[String], filePath: Expression[String], mimeType: String): B = byteArrayBodyPart(name, ELFileBodies.asBytes(filePath), mimeType)
+	def elFileBodyPart(name: Expression[String], filePath: Expression[String], mimeType: String, contentId: String): B = byteArrayBodyPart(name, ELFileBodies.asBytes(filePath), mimeType, contentId)
+
 	@deprecated("Scalate support will be dropped in 2.1.0, prefer EL files or plain scala code", "2.0.0")
 	def sspFileBodyPart(name: Expression[String], filePath: Expression[String], mimeType: String, additionalAttributes: Map[String, Any] = Map.empty): B = byteArrayBodyPart(name, SspFileBodies.asBytes(filePath, additionalAttributes), mimeType)
-	
-	protected override def getAHCRequestBuilder(session: Session, protocol: HttpProtocol): Validation[RequestBuilder] = {
+    @deprecated("Scalate support will be dropped in 2.1.0, prefer EL files or plain scala code", "2.0.0")
+    def sspFileBodyPart(name: Expression[String], filePath: Expression[String], mimeType: String, contentId: String, additionalAttributes: Map[String, Any]): B = byteArrayBodyPart(name, SspFileBodies.asBytes(filePath, additionalAttributes), mimeType, contentId)
 
-		val requestBuilder = super.getAHCRequestBuilder(session, protocol)
-
+	protected def configureParts(session: Session, requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 		require(!bodyAttributes.body.isDefined || bodyAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
 
 		if (bodyAttributes.body.isDefined)
-			bodyAttributes.body.map(b => requestBuilder.flatMap(b.setBody(_, session))).getOrElse(requestBuilder)
+			bodyAttributes.body.map(_.setBody(requestBuilder, session)).getOrElse(requestBuilder.success)
 
-		else {
-			for {
-				parts <- bodyAttributes.bodyParts.reverse.map(_.toPart(session)).sequence
-				requestBuilder <- requestBuilder
-			} yield {
-				parts.foreach(requestBuilder.addBodyPart)
-				requestBuilder
-			}
-		}
+		else
+			bodyAttributes.bodyParts.reverse.map(_.toMultiPart(session)).sequence
+				.map { parts =>
+					parts.foreach(requestBuilder.addBodyPart)
+					requestBuilder
+				}
+	}
+
+	protected override def getAHCRequestBuilder(session: Session, protocol: HttpProtocol): Validation[RequestBuilder] = {
+
+		val requestBuilder = super.getAHCRequestBuilder(session, protocol)
+		requestBuilder.flatMap(configureParts(session, _))
 	}
 }

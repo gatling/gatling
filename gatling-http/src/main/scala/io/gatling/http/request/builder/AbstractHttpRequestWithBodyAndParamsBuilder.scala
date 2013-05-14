@@ -15,12 +15,12 @@
  */
 package io.gatling.http.request.builder
 
-import com.ning.http.client.{ RequestBuilder, StringPart }
+import com.ning.http.client.RequestBuilder
+import com.ning.http.multipart.StringPart
 
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
-import io.gatling.http.config.HttpProtocol
 import io.gatling.http.util.HttpHelper
 
 /**
@@ -66,16 +66,16 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 
 	private def param(param: HttpParam): B = newInstance(httpAttributes, bodyAttributes, param :: params)
 
-	protected override def getAHCRequestBuilder(session: Session, protocol: HttpProtocol): Validation[RequestBuilder] = {
+	override protected def configureParts(session: Session, requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
-		def configureParams(requestBuilder: RequestBuilder): Validation[RequestBuilder] =
+		def configureAsParams: Validation[RequestBuilder] =
 			if (!params.isEmpty)
 				// As a side effect, requestBuilder.setParameters() resets the body data, so, it should not be called with empty parameters 
 				HttpHelper.httpParamsToFluentMap(params, session).map(requestBuilder.setParameters)
 			else
 				requestBuilder.success
 
-		def configureStringParts(requestBuilder: RequestBuilder): Validation[RequestBuilder] =
+		def configureAsStringParts: Validation[RequestBuilder] =
 			HttpHelper.resolveParams(params, session).map { params =>
 				for {
 					(key, values) <- params
@@ -84,12 +84,12 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 				requestBuilder.addHeader(HeaderNames.CONTENT_TYPE, HeaderValues.MULTIPART_FORM_DATA)
 			}
 
-		val requestBuilder = super.getAHCRequestBuilder(session, protocol)
+		val requestBuilderWithParams =
+			if (bodyAttributes.bodyParts.isEmpty)
+				configureAsParams
+			else
+				configureAsStringParts
 
-		if (bodyAttributes.bodyParts.isEmpty)
-			requestBuilder.flatMap(configureParams)
-		else {
-			requestBuilder.flatMap(configureStringParts)
-		}
+		requestBuilderWithParams.flatMap(super.configureParts(session, _))
 	}
 }
