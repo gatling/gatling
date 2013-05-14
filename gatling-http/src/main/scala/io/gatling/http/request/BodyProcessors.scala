@@ -22,9 +22,9 @@ import io.gatling.core.session.Session
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.http.util.GZIPHelper
 
-object RequestBodyProcessors {
+object BodyProcessors {
 
-	val gzipRequestBody = (body: RequestBody) => {
+	val gzip = (body: Body) => {
 
 		val gzippedBytes = body match {
 			case StringBody(string) => (session: Session) => string(session).map(GZIPHelper.gzip)
@@ -37,14 +37,14 @@ object RequestBodyProcessors {
 		ByteArrayBody(gzippedBytes)
 	}
 
-	val streamRequestBody = (body: RequestBody) => {
+	val stream = (body: Body) => {
 
 		val stream = body match {
 			case StringBody(string) => (session: Session) => string(session).map(s => new BufferedInputStream(new ByteArrayInputStream(s.getBytes(configuration.core.encoding))))
 			case ByteArrayBody(byteArray) => (session: Session) => byteArray(session).map(b => new BufferedInputStream(new ByteArrayInputStream(b)))
 			case RawFileBody(file) => (session: Session) => file(session).map(f => new BufferedInputStream(new FileInputStream(f)))
 			case InputStreamBody(inputStream) => inputStream
-			case _ => throw new UnsupportedOperationException(s"streamRequestBody doesn't support $body")
+			case _ => throw new UnsupportedOperationException(s"streamBody doesn't support $body")
 		}
 
 		InputStreamBody(stream)

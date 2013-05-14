@@ -17,11 +17,10 @@ package io.gatling.http.request.builder
 
 import io.gatling.core.session.{ ELCompiler, Expression, Session }
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.request.RequestBody
 
 object PostHttpRequestBuilder {
 
-	def apply(requestName: Expression[String], url: Expression[String]) = new PostHttpRequestBuilder(HttpAttributes(requestName, "POST", url), None, HttpParamsAttributes())
+	def apply(requestName: Expression[String], url: Expression[String]) = new PostHttpRequestBuilder(HttpAttributes(requestName, "POST", url), BodyAttributes(), Nil)
 
 	def warmUp {
 		val expression = "foo".el[String]
@@ -37,12 +36,12 @@ object PostHttpRequestBuilder {
  */
 class PostHttpRequestBuilder(
 	httpAttributes: HttpAttributes,
-	body: Option[RequestBody],
-	paramsAttributes: HttpParamsAttributes)
-	extends AbstractHttpRequestWithBodyAndParamsBuilder[PostHttpRequestBuilder](httpAttributes, body, paramsAttributes) {
+	bodyAttributes: BodyAttributes,
+	params: List[HttpParam])
+	extends AbstractHttpRequestWithBodyAndParamsBuilder[PostHttpRequestBuilder](httpAttributes, bodyAttributes, params) {
 
 	private[http] def newInstance(
 		httpAttributes: HttpAttributes,
-		body: Option[RequestBody],
-		paramsAttributes: HttpParamsAttributes) = new PostHttpRequestBuilder(httpAttributes, body, paramsAttributes)
+		bodyAttributes: BodyAttributes,
+		params: List[HttpParam]) = new PostHttpRequestBuilder(httpAttributes, bodyAttributes, params)
 }

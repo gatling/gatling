@@ -23,10 +23,5 @@ object StringBodies {
 	def buildExpression[T](expression: Expression[String], f: String => T): Expression[T] = (session: Session) =>
 		expression(session).map(f)
 
-	def asString(expression: Expression[String]): StringBody = new StringBody(expression)
-
-	def asBytes(expression: Expression[String]): ByteArrayBody = {
-		val bytes = buildExpression(expression, _.getBytes(configuration.core.encoding))
-		new ByteArrayBody(bytes)
-	}
+	def asBytes(expression: Expression[String]): Expression[Array[Byte]] = buildExpression(expression, _.getBytes(configuration.core.encoding))
 }

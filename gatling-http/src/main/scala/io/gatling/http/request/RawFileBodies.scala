@@ -15,7 +15,7 @@
  */
 package io.gatling.http.request
 
-import java.io.{ File => JFile }
+import java.io.File
 
 import org.apache.commons.io.FileUtils
 
@@ -25,24 +25,15 @@ import io.gatling.core.session.{ Expression, Session }
 
 object RawFileBodies {
 
-	def buildExpression[T](filePath: Expression[String], f: JFile => T): Expression[T] = (session: Session) =>
+	def buildExpression[T](filePath: Expression[String], f: File => T): Expression[T] = (session: Session) =>
 		for {
 			path <- filePath(session)
 			file <- GatlingFiles.requestBodyFile(path)
 		} yield f(file.jfile)
 
-	def asFile(filePath: Expression[String]): RawFileBody = {
-		val expression = buildExpression(filePath, identity)
-		new RawFileBody(expression)
-	}
+	def asFile(filePath: Expression[String]): Expression[File] = buildExpression(filePath, identity)
 
-	def asString(filePath: Expression[String]): StringBody = {
-		val expression = buildExpression(filePath, FileUtils.readFileToString(_, configuration.core.encoding))
-		new StringBody(expression)
-	}
+	def asString(filePath: Expression[String]): Expression[String] = buildExpression(filePath, FileUtils.readFileToString(_, configuration.core.encoding))
 
-	def asBytes(filePath: Expression[String]): ByteArrayBody = {
-		val expression = buildExpression(filePath, FileUtils.readFileToByteArray)
-		new ByteArrayBody(expression)
-	}
+	def asBytes(filePath: Expression[String]): Expression[Array[Byte]] = buildExpression(filePath, FileUtils.readFileToByteArray)
 }

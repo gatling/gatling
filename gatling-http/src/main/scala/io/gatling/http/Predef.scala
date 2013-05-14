@@ -25,7 +25,7 @@ import io.gatling.http.check.status.HttpStatusCheckBuilder
 import io.gatling.http.check.time.HttpResponseTimeCheckBuilder
 import io.gatling.http.check.url.CurrentLocationCheckBuilder
 import io.gatling.http.config.{ HttpProtocol, HttpProtocolBuilder, HttpProxyBuilder }
-import io.gatling.http.request.RequestBodyProcessors
+import io.gatling.http.request.BodyProcessors
 import io.gatling.http.request.builder.{ AbstractHttpRequestBuilder, HttpRequestBaseBuilder }
 
 object Predef {
@@ -56,8 +56,8 @@ object Predef {
 	def responseTimeInMillis = HttpResponseTimeCheckBuilder.responseTimeInMillis
 	def latencyInMillis = HttpResponseTimeCheckBuilder.latencyInMillis
 	
-	def gzipRequestBody = RequestBodyProcessors.gzipRequestBody
-	def streamRequestBody = RequestBodyProcessors.streamRequestBody
+	val gzipBody = BodyProcessors.gzip
+	val streamBody = BodyProcessors.stream
 
 	val requestUrl = (request: Request) => List(request.getUrl)
 	val requestRawUrl = (request: Request) => List(request.getRawUrl)

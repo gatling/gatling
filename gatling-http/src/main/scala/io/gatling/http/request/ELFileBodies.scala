@@ -24,11 +24,11 @@ import io.gatling.core.config.GatlingFiles
 import io.gatling.core.session.{ EL, Expression, Session }
 import io.gatling.core.validation.Validation
 
-object ELTemplateBodies {
+object ELFileBodies {
 
-	val elTemplateBodiesCache = new collection.mutable.HashMap[String, Validation[Expression[String]]]
+	val elFileBodiesCache = new collection.mutable.HashMap[String, Validation[Expression[String]]]
 
-	def compileTemplate(path: String): Validation[Expression[String]] =
+	def compileFile(path: String): Validation[Expression[String]] =
 		GatlingFiles.requestBodyFile(path)
 			.map(f => FileUtils.readFileToString(f.jfile, configuration.core.encoding))
 			.map(EL.compile[String])
@@ -36,17 +36,11 @@ object ELTemplateBodies {
 	def buildExpression[T](filePath: Expression[String], f: String => T): Expression[T] = (session: Session) =>
 		for {
 			path <- filePath(session)
-			expression <- elTemplateBodiesCache.getOrElseUpdate(path, compileTemplate(path))
+			expression <- elFileBodiesCache.getOrElseUpdate(path, compileFile(path))
 			body <- expression(session)
 		} yield f(body)
 
-	def asString(filePath: Expression[String]) = {
-		val string = buildExpression(filePath, identity)
-		new StringBody(string)
-	}
+	def asString(filePath: Expression[String]) = buildExpression(filePath, identity)
 
-	def asBytes(filePath: Expression[String]): ByteArrayBody = {
-		val bytes = buildExpression(filePath, _.getBytes(configuration.core.encoding))
-		new ByteArrayBody(bytes)
-	}
+	def asBytes(filePath: Expression[String]) = buildExpression(filePath, _.getBytes(configuration.core.encoding))
 }

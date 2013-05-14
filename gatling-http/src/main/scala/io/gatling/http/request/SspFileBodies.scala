@@ -28,11 +28,11 @@ import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 @deprecated("Scalate support will be dropped in 2.1.0, prefer EL files or plain scala code", "2.0.0")
-object SspTemplateBodies extends Logging {
+object SspFileBodies extends Logging {
 
 	val sessionExtraBinding = Seq(Binding("session", classOf[Session].getName))
 
-	val sspTemplateEngine = {
+	val sspFileEngine = {
 		val engine = new TemplateEngine(List(GatlingFiles.requestBodiesDirectory.jfile))
 		engine.allowReload = false
 		engine.escapeMarkup = false
@@ -42,7 +42,7 @@ object SspTemplateBodies extends Logging {
 
 	def buildExpression[T](filePath: Expression[String], additionalAttributes: Map[String, Any], pw: PrintWriter, f: => T): Expression[T] = {
 
-		def sspTemplate(filePath: String): Validation[String] = {
+		def sspFile(filePath: String): Validation[String] = {
 			val file = GatlingFiles.requestBodiesDirectory / filePath
 			if (file.exists) filePath.success
 			else s"Ssp body file $file doesn't exist".failure
@@ -52,11 +52,11 @@ object SspTemplateBodies extends Logging {
 
 			try {
 				withCloseable(pw) { pw =>
-					val renderContext = new DefaultRenderContext(templatePath, sspTemplateEngine, pw)
+					val renderContext = new DefaultRenderContext(templatePath, sspFileEngine, pw)
 					renderContext.attributes("session") = session
 					for ((key, value) <- additionalAttributes) { renderContext.attributes(key) = value }
 
-					sspTemplateEngine.layout(templatePath, renderContext, sessionExtraBinding)
+					sspFileEngine.layout(templatePath, renderContext, sessionExtraBinding)
 					pw.success
 				}
 
@@ -69,20 +69,18 @@ object SspTemplateBodies extends Logging {
 
 		(session: Session) => for {
 			path <- filePath(session)
-			templatePath <- sspTemplate(path)
+			templatePath <- sspFile(path)
 			body <- layout(templatePath, session, additionalAttributes, pw)
 		} yield f
 	}
 
-	def asString(filePath: Expression[String], additionalAttributes: Map[String, Any]): StringBody = {
+	def asString(filePath: Expression[String], additionalAttributes: Map[String, Any]): Expression[String] = {
 		val sw = new StringWriter
-		val expression = buildExpression(filePath, additionalAttributes, new PrintWriter(sw), sw.toString)
-		new StringBody(expression)
+		buildExpression(filePath, additionalAttributes, new PrintWriter(sw), sw.toString)
 	}
 
-	def asBytes(filePath: Expression[String], additionalAttributes: Map[String, Any]): ByteArrayBody = {
+	def asBytes(filePath: Expression[String], additionalAttributes: Map[String, Any]): Expression[Array[Byte]] = {
 		val os = new ByteArrayOutputStream
-		val expression = buildExpression(filePath, additionalAttributes, new PrintWriter(os), os.toByteArray)
-		new ByteArrayBody(expression)
+		buildExpression(filePath, additionalAttributes, new PrintWriter(os), os.toByteArray)
 	}
 }

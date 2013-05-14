@@ -44,14 +44,13 @@ object HttpHelper {
 	}
 
 	def resolveParams(params: List[HttpParam], session: Session): Validation[List[(String, Seq[String])]] = {
-		val validations = params
-			.map {
-				case (key, values) =>
-					for {
-						resolvedKey <- key(session)
-						resolvedValues <- values(session)
-					} yield (resolvedKey, resolvedValues)
-			}
+		val validations = params.map {
+			case (key, values) =>
+				for {
+					resolvedKey <- key(session)
+					resolvedValues <- values(session)
+				} yield (resolvedKey, resolvedValues)
+		}
 
 		validations.sequence
 	}

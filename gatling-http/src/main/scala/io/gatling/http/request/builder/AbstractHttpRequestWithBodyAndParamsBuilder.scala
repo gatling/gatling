@@ -15,23 +15,13 @@
  */
 package io.gatling.http.request.builder
 
-import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.session.{ EL, Expression, Session }
+import com.ning.http.client.{ RequestBuilder, StringPart }
+
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.request.RequestBody
 import io.gatling.http.util.HttpHelper
-import com.ning.http.client.{ RequestBuilder, StringPart }
-import com.ning.http.client.FluentStringsMap
-
-case class HttpParamsAttributes(
-	params: List[HttpParam] = Nil,
-	uploadedFiles: List[UploadedFile] = Nil)
-
-object AbstractHttpRequestWithBodyAndParamsBuilder {
-	val multipartHeaderValueExpression = EL.compile[String](HeaderValues.MULTIPART_FORM_DATA)
-}
 
 /**
  * This class serves as model to HTTP request with a body and parameters
@@ -42,9 +32,9 @@ object AbstractHttpRequestWithBodyAndParamsBuilder {
  */
 abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequestWithBodyAndParamsBuilder[B]](
 	httpAttributes: HttpAttributes,
-	body: Option[RequestBody],
-	paramsAttributes: HttpParamsAttributes)
-	extends AbstractHttpRequestWithBodyBuilder[B](httpAttributes, body) {
+	bodyAttributes: BodyAttributes,
+	params: List[HttpParam])
+	extends AbstractHttpRequestWithBodyBuilder[B](httpAttributes, bodyAttributes) {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type
@@ -55,13 +45,13 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 */
 	private[http] def newInstance(
 		httpAttributes: HttpAttributes,
-		body: Option[RequestBody],
-		paramsAttributes: HttpParamsAttributes): B
+		bodyAttributes: BodyAttributes,
+		params: List[HttpParam]): B
 
 	private[http] def newInstance(
 		httpAttributes: HttpAttributes,
-		body: Option[RequestBody]): B = {
-		newInstance(httpAttributes, body, paramsAttributes)
+		bodyAttributes: BodyAttributes): B = {
+		newInstance(httpAttributes, bodyAttributes, params)
 	}
 
 	def param(key: Expression[String], value: Expression[String]): B = {
@@ -74,48 +64,32 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		param(httpParam)
 	}
 
-	private def param(param: HttpParam): B = newInstance(httpAttributes, body, paramsAttributes.copy(params = param :: paramsAttributes.params))
-
-	def upload(paramKey: Expression[String], fileName: Expression[String], mimeType: String = HeaderValues.APPLICATION_OCTET_STREAM, charset: String = configuration.core.encoding): B =
-		newInstance(httpAttributes, body, paramsAttributes.copy(uploadedFiles = new UploadedFile(paramKey, fileName, mimeType, charset) :: paramsAttributes.uploadedFiles))
-			.header(HeaderNames.CONTENT_TYPE, AbstractHttpRequestWithBodyAndParamsBuilder.multipartHeaderValueExpression)
+	private def param(param: HttpParam): B = newInstance(httpAttributes, bodyAttributes, param :: params)
 
 	protected override def getAHCRequestBuilder(session: Session, protocol: HttpProtocol): Validation[RequestBuilder] = {
 
 		def configureParams(requestBuilder: RequestBuilder): Validation[RequestBuilder] =
-			if (!paramsAttributes.params.isEmpty)
+			if (!params.isEmpty)
 				// As a side effect, requestBuilder.setParameters() resets the body data, so, it should not be called with empty parameters 
-				HttpHelper.httpParamsToFluentMap(paramsAttributes.params, session).map(requestBuilder.setParameters)
+				HttpHelper.httpParamsToFluentMap(params, session).map(requestBuilder.setParameters)
 			else
 				requestBuilder.success
 
-		def configureFileParts(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
-
-			val resolvedFileParts = paramsAttributes.uploadedFiles
-				.map(_.filePart(session))
-				.sequence
-
-			resolvedFileParts.map { uploadedFiles =>
-				uploadedFiles.foreach(requestBuilder.addBodyPart)
-				requestBuilder
-			}
-		}
-
 		def configureStringParts(requestBuilder: RequestBuilder): Validation[RequestBuilder] =
-			HttpHelper.resolveParams(paramsAttributes.params, session).map { params =>
+			HttpHelper.resolveParams(params, session).map { params =>
 				for {
 					(key, values) <- params
 					value <- values
 				} requestBuilder.addBodyPart(new StringPart(key, value))
-				requestBuilder
+				requestBuilder.addHeader(HeaderNames.CONTENT_TYPE, HeaderValues.MULTIPART_FORM_DATA)
 			}
 
 		val requestBuilder = super.getAHCRequestBuilder(session, protocol)
 
-		if (paramsAttributes.uploadedFiles.isEmpty)
+		if (bodyAttributes.bodyParts.isEmpty)
 			requestBuilder.flatMap(configureParams)
 		else {
-			requestBuilder.flatMap(configureStringParts).flatMap(configureFileParts)
+			requestBuilder.flatMap(configureStringParts)
 		}
 	}
 }
