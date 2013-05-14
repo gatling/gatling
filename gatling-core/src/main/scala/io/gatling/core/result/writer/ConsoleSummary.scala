@@ -50,14 +50,14 @@ object ConsoleSummary {
 
 			fast"""${writeSubTitle(scenarioName)}
 [${"#" * done}${"-" * running}${" " * waiting}]${donePercent.toString.leftPad(3)}%
-          waiting: ${waitingCount.toString.rightPad(5)} / running: ${runningCount.toString.rightPad(5)} / done:${doneCount.toString.rightPad(5)}"""
+          waiting: ${waitingCount.toString.rightPad(6)} / running: ${runningCount.toString.rightPad(6)} / done:${doneCount.toString.rightPad(6)}"""
 		}
 
 		def writeRequestsCounter(actionName: String, requestCounters: RequestCounters): Fastring = {
 
 			import requestCounters._
 
-			fast"> ${actionName.rightPad(outputLength - 22)} OK=${successfulCount.toString.rightPad(6)} KO=$failedCount"
+			fast"> ${actionName.rightPad(outputLength - 24)} (OK=${successfulCount.toString.rightPad(6)} KO=${failedCount.toString.rightPad(6)})"
 		}
 
 		val text = fast"""
