@@ -23,11 +23,11 @@ import org.specs2.runner.JUnitRunner
 import com.excilys.ebi.gatling.core.util.IOHelper
 import org.apache.commons.io.IOUtils
 
-object CssExtractorSpec {
+object JoddCssExtractorSpec {
 
 	def extractor(file: String) = {
 		IOHelper.use(getClass.getResourceAsStream(file)) { is =>
-			new CssExtractor(IOUtils.toString(is, "UTF-8"))
+			new JoddCssExtractor(IOUtils.toString(is, "UTF-8"))
 		}
 	}
 }
@@ -36,11 +36,11 @@ object CssExtractorSpec {
  * @see <a href="http://www.w3.org/TR/selectors/#selectors"/> for more details about the CSS selectors syntax
  */
 @RunWith(classOf[JUnitRunner])
-class CssExtractorSpec extends Specification {
+class JoddCssExtractorSpec extends Specification {
 
-	import CssExtractorSpec.extractor
+	import JoddCssExtractorSpec.extractor
 
-	"CssExtractor" should {
+	"JoddCssExtractor" should {
 		"support browser conditional tests and behave as a non-IE browser" in {
 			extractor("/IeConditionalTests.html").count(None)("#helloworld") must beEqualTo(Some(1))
 		}

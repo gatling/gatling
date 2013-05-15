@@ -53,6 +53,11 @@ object GatlingConfiguration extends Logging {
 				runDescription = trimToOption(config.getString(CONF_CORE_RUN_DESCRIPTION)),
 				encoding = config.getString(CONF_CORE_ENCODING),
 				simulationClass = trimToOption(config.getString(CONF_CORE_SIMULATION_CLASS)),
+				extract = ExtractConfiguration(css = CssConfiguration(
+					engine = config.getString(CONF_CORE_EXTRACT_CSS_ENGINE) match {
+						case "jsoup" => Jsoup
+						case _ => Jodd
+					})),
 				timeOut = TimeOutConfiguration(
 					simulation = config.getInt(CONF_CORE_TIMEOUT_SIMULATION),
 					actor = config.getInt(CONF_CORE_TIMEOUT_ACTOR)),
@@ -146,8 +151,15 @@ case class CoreConfiguration(
 	runDescription: Option[String],
 	encoding: String,
 	simulationClass: Option[String],
+	extract: ExtractConfiguration,
 	timeOut: TimeOutConfiguration,
 	directory: DirectoryConfiguration)
+
+case class ExtractConfiguration(
+	css: CssConfiguration)
+
+case class CssConfiguration(
+	engine: CssEngine)
 
 case class TimeOutConfiguration(
 	simulation: Int,
@@ -229,3 +241,7 @@ case class GatlingConfiguration(
 	http: HttpConfiguration,
 	data: DataConfiguration,
 	config: Config)
+
+sealed trait CssEngine
+case object Jodd extends CssEngine
+case object Jsoup extends CssEngine

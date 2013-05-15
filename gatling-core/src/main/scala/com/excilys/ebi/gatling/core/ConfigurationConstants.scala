@@ -22,9 +22,7 @@ object ConfigurationConstants {
 	val CONF_CORE_ENCODING = "gatling.core.encoding"
 	val CONF_CORE_SIMULATION_CLASS = "gatling.core.simulationClass"
 
-	val CONF_CORE_CACHE_REGEX = "gatling.core.cache.regex"
-	val CONF_CORE_CACHE_XPATH = "gatling.core.cache.xpath"
-	val CONF_CORE_CACHE_JSONPATH = "gatling.core.cache.jsonPath"
+	val CONF_CORE_EXTRACT_CSS_ENGINE = "gatling.core.extract.css.engine"
 
 	val CONF_CORE_TIMEOUT_SIMULATION = "gatling.core.timeOut.simulation"
 	val CONF_CORE_TIMEOUT_ACTOR = "gatling.core.timeOut.actor"

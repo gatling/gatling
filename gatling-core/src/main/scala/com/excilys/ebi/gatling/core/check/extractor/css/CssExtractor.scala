@@ -17,19 +17,9 @@ package com.excilys.ebi.gatling.core.check.extractor.css
 
 import scala.collection.JavaConversions.asScalaBuffer
 
-import org.jsoup.Jsoup
-
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
 
-/**
- * A built-in extractor for extracting values with Css Selectors
- *
- * @constructor creates a new CssExtractor
- * @param text the text where the search will be made
- */
-class CssExtractor(string: String) extends Extractor {
-
-	val document = Jsoup.parse(string, "")
+abstract class CssExtractor extends Extractor {
 
 	/**
 	 * @param expression a String containing the CSS selector
@@ -45,11 +35,7 @@ class CssExtractor(string: String) extends Extractor {
 	 * @param nodeAttribute specify an attribute if you don't want to extract the text content
 	 * @return an option containing the values if found, None otherwise
 	 */
-	def extractMultiple(nodeAttribute: Option[String])(expression: String): Option[Seq[String]] = document
-		.select(expression)
-		.map { element =>
-			nodeAttribute.map(element.attr(_)).getOrElse(element.text)
-		}
+	def extractMultiple(nodeAttribute: Option[String])(expression: String): Option[Seq[String]]
 
 	/**
 	 * @param expression a String containing the CSS selector

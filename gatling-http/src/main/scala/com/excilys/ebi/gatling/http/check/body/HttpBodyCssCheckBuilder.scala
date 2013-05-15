@@ -17,7 +17,8 @@ package com.excilys.ebi.gatling.http.check.body
 
 import com.excilys.ebi.gatling.core.check.CheckContext.getOrUpdateCheckContextAttribute
 import com.excilys.ebi.gatling.core.check.ExtractorFactory
-import com.excilys.ebi.gatling.core.check.extractor.css.CssExtractor
+import com.excilys.ebi.gatling.core.check.extractor.css.{ CssExtractor, JoddCssExtractor, JsoupCssExtractor }
+import com.excilys.ebi.gatling.core.config.{ Jodd, Jsoup }
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.session.EvaluatableString
 import com.excilys.ebi.gatling.http.check.HttpMultipleCheckBuilder
@@ -28,9 +29,12 @@ object HttpBodyCssCheckBuilder {
 
 	private val HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY = "HttpBodyCssExtractor"
 
-	private def getCachedExtractor(response: ExtendedResponse) = {
+	private def getCachedExtractor(response: ExtendedResponse): CssExtractor = {
 
-		def newExtractor = new CssExtractor(response.getResponseBody(configuration.core.encoding))
+		def newExtractor = configuration.core.extract.css.engine match {
+			case Jodd => new JoddCssExtractor(response.getResponseBody(configuration.core.encoding))
+			case Jsoup => new JsoupCssExtractor(response.getResponseBody(configuration.core.encoding))
+		}
 
 		getOrUpdateCheckContextAttribute(HTTP_BODY_REGEX_EXTRACTOR_CONTEXT_KEY, newExtractor)
 	}
