@@ -75,6 +75,6 @@ object RegexExtractors {
 
 	val count = new RegexExtractor[Int] {
 
-		def apply(prepared: String, criterion: String): Validation[Option[Int]] = criterion.r.findAllIn(prepared).size.liftOption.success
+		def apply(prepared: String, criterion: String): Validation[Option[Int]] = cachedRegex(criterion).findAllIn(prepared).size.liftOption.success
 	}
 }
