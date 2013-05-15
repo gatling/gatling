@@ -28,6 +28,8 @@ import grizzled.slf4j.Logging
  */
 object StringHelper extends Logging {
 
+	val substringCopiesCharArray = System.getProperty("java.version") >= "1.7.0_06"
+
 	val END_OF_LINE = System.getProperty("line.separator")
 
 	/**
@@ -51,5 +53,5 @@ object StringHelper extends Logging {
 		case string => Some(string)
 	}
 
-	def truncate(s: String,maxLength: Int) = if(s.length < maxLength) s else s.substring(0,maxLength) + "..."
+	def truncate(s: String, maxLength: Int) = if (s.length < maxLength) s else s.substring(0, maxLength) + "..."
 }

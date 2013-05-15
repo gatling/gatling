@@ -20,6 +20,7 @@ import java.util.regex.{ Pattern, Matcher }
 import scala.annotation.tailrec
 
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
+import com.excilys.ebi.gatling.core.util.StringHelper.substringCopiesCharArray
 
 /**
  * A built-in extractor for extracting values with Regular Expressions
@@ -50,10 +51,12 @@ class RegexExtractor(textContent: String) extends Extractor {
 				findRec(countDown - 1)
 		}
 
-		if (findRec(occurrence))
+		if (findRec(occurrence)) {
 			// if a group is specified, return the group 1, else return group 0 (ie the match)
-			new String(matcher.group(matcher.groupCount.min(1)))
-		else
+			val value = matcher.group(matcher.groupCount.min(1))
+			if (substringCopiesCharArray) value
+			else new String(value)
+		} else
 			None
 	}
 
@@ -65,7 +68,9 @@ class RegexExtractor(textContent: String) extends Extractor {
 	 * @return an option containing the value if found, None otherwise
 	 */
 	def extractMultiple(expression: String): Option[Seq[String]] = expression.r.findAllIn(textContent).matchData.map { matcher =>
-		new String(matcher.group(1 min matcher.groupCount))
+		val value = matcher.group(1 min matcher.groupCount)
+		if (substringCopiesCharArray) value
+		else new String(value)
 	}.toSeq
 
 	def count(expression: String): Option[Int] = expression.r.findAllIn(textContent).size
