@@ -28,7 +28,7 @@ object JoddCssExtractors {
 		val name = "css"
 	}
 
-	def parse(string: String) = new NodeSelector((new LagartoDOMBuilder()).parse(string))
+	def parse(string: String) = new NodeSelector(new LagartoDOMBuilder().parse(string))
 
 	private def extractAll(selector: NodeSelector, expression: String, nodeAttribute: Option[String]): Seq[String] = selector
 		.select(expression)
