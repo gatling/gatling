@@ -121,7 +121,7 @@
 		<slf4j.version>1.7.5</slf4j.version>
 		<scalate.version>1.6.1</scalate.version>
 		<fastring.version>0.2.1</fastring.version>
-		<netty.version>3.6.5.Final</netty.version>
+		<netty.version>3.6.6.Final</netty.version>
 		<joda-time.version>2.2</joda-time.version>
 		<joda-convert.version>1.2</joda-convert.version>
 		<scopt.version>2.1.0</scopt.version>
