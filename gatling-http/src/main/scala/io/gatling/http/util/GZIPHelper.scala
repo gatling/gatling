@@ -28,7 +28,7 @@ object GZIPHelper {
 	def gzip(string: String): Array[Byte] = gzip(string.getBytes)
 
 	def gzip(bytes: Array[Byte]): Array[Byte] = {
-		val bytesOut = new ByteArrayOutputStream
+		val bytesOut = new ByteArrayOutputStream(bytes.length)
 
 		withCloseable(new GZIPOutputStream(bytesOut)) {
 			_.write(bytes)
@@ -39,7 +39,7 @@ object GZIPHelper {
 
 	def gzip(in: InputStream): Array[Byte] = {
 
-		val bytesOut = new ByteArrayOutputStream
+		val bytesOut = new ByteArrayOutputStream(512)
 
 		withCloseable(new GZIPOutputStream(bytesOut)) {
 			IOUtils.copy(in, _)

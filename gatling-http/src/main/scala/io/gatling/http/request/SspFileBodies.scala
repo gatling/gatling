@@ -15,13 +15,14 @@
  */
 package io.gatling.http.request
 
-import java.io.{ ByteArrayOutputStream, PrintWriter, StringWriter }
+import java.io.{ PrintWriter, StringWriter }
 
 import org.fusesource.scalate.{ Binding, DefaultRenderContext, TemplateEngine }
 
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.action.system
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.IOHelper.withCloseable
@@ -40,7 +41,7 @@ object SspFileBodies extends Logging {
 		engine
 	}
 
-	def buildExpression[T](filePath: Expression[String], additionalAttributes: Map[String, Any], pw: PrintWriter, f: => T): Expression[T] = {
+	def buildExpression[T](filePath: Expression[String], additionalAttributes: Map[String, Any], f: String => T): Expression[T] = {
 
 		def sspFile(filePath: String): Validation[String] = {
 			val file = GatlingFiles.requestBodiesDirectory / filePath
@@ -48,16 +49,18 @@ object SspFileBodies extends Logging {
 			else s"Ssp body file $file doesn't exist".failure
 		}
 
-		def layout(templatePath: String, session: Session, additionalAttributes: Map[String, Any], pw: PrintWriter): Validation[PrintWriter] = {
+		def layout(templatePath: String, session: Session, additionalAttributes: Map[String, Any]): Validation[String] = {
+
+			val sw = new StringWriter
 
 			try {
-				withCloseable(pw) { pw =>
+				withCloseable(new PrintWriter(sw)) { pw =>
 					val renderContext = new DefaultRenderContext(templatePath, sspFileEngine, pw)
 					renderContext.attributes("session") = session
 					for ((key, value) <- additionalAttributes) { renderContext.attributes(key) = value }
 
 					sspFileEngine.layout(templatePath, renderContext, sessionExtraBinding)
-					pw.success
+					sw.toString.success
 				}
 
 			} catch {
@@ -70,17 +73,11 @@ object SspFileBodies extends Logging {
 		(session: Session) => for {
 			path <- filePath(session)
 			templatePath <- sspFile(path)
-			body <- layout(templatePath, session, additionalAttributes, pw)
-		} yield f
+			body <- layout(templatePath, session, additionalAttributes)
+		} yield f(body)
 	}
 
-	def asString(filePath: Expression[String], additionalAttributes: Map[String, Any]): Expression[String] = {
-		val sw = new StringWriter
-		buildExpression(filePath, additionalAttributes, new PrintWriter(sw), sw.toString)
-	}
+	def asString(filePath: Expression[String], additionalAttributes: Map[String, Any]): Expression[String] = buildExpression(filePath, additionalAttributes, identity)
 
-	def asBytes(filePath: Expression[String], additionalAttributes: Map[String, Any]): Expression[Array[Byte]] = {
-		val os = new ByteArrayOutputStream
-		buildExpression(filePath, additionalAttributes, new PrintWriter(os), os.toByteArray)
-	}
+	def asBytes(filePath: Expression[String], additionalAttributes: Map[String, Any]): Expression[Array[Byte]] = buildExpression(filePath, additionalAttributes, _.getBytes(configuration.core.encoding))
 }
