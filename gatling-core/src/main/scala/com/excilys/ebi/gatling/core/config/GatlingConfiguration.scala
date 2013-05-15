@@ -53,11 +53,18 @@ object GatlingConfiguration extends Logging {
 				runDescription = trimToOption(config.getString(CONF_CORE_RUN_DESCRIPTION)),
 				encoding = config.getString(CONF_CORE_ENCODING),
 				simulationClass = trimToOption(config.getString(CONF_CORE_SIMULATION_CLASS)),
-				extract = ExtractConfiguration(css = CssConfiguration(
-					engine = config.getString(CONF_CORE_EXTRACT_CSS_ENGINE) match {
-						case "jsoup" => Jsoup
-						case _ => Jodd
-					})),
+				extract = ExtractConfiguration(
+					regex = RegexConfiguration(
+						cache = config.getBoolean(CONF_CORE_EXTRACT_REGEXP_CACHE)),
+					xpath = XPathConfiguration(
+						cache = config.getBoolean(CONF_CORE_EXTRACT_XPATH_CACHE)),
+					jsonPath = JsonPathConfiguration(
+						cache = config.getBoolean(CONF_CORE_EXTRACT_JSONPATH_CACHE)),
+					css = CssConfiguration(
+						engine = config.getString(CONF_CORE_EXTRACT_CSS_ENGINE) match {
+							case "jsoup" => Jsoup
+							case _ => Jodd
+						})),
 				timeOut = TimeOutConfiguration(
 					simulation = config.getInt(CONF_CORE_TIMEOUT_SIMULATION),
 					actor = config.getInt(CONF_CORE_TIMEOUT_ACTOR)),
@@ -156,7 +163,20 @@ case class CoreConfiguration(
 	directory: DirectoryConfiguration)
 
 case class ExtractConfiguration(
+	regex: RegexConfiguration,
+	xpath: XPathConfiguration,
+	jsonPath: JsonPathConfiguration,
 	css: CssConfiguration)
+
+case class RegexConfiguration(
+	cache: Boolean)
+
+case class XPathConfiguration(
+	cache: Boolean)
+
+case class JsonPathConfiguration(
+	cache: Boolean)
+
 
 case class CssConfiguration(
 	engine: CssEngine)

@@ -16,12 +16,22 @@
 package com.excilys.ebi.gatling.core.check.extractor.jsonpath
 
 import scala.collection.JavaConversions.asScalaBuffer
+import scala.collection.mutable
 
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.jayway.jsonpath.{ InvalidPathException, JsonPath }
 
 import net.minidev.json.JSONArray
 import net.minidev.json.parser.JSONParser
+
+object JsonPathExtractor {
+
+	val cache = mutable.Map.empty[String, JsonPath]
+	def cachedJsonPath(expression: String): JsonPath =
+		if (configuration.core.extract.jsonPath.cache) cache.getOrElseUpdate(expression, JsonPath.compile(expression))
+		else JsonPath.compile(expression)
+}
 
 /**
  * A built-in extractor for extracting values with  Xpath like expressions for Json
@@ -30,6 +40,8 @@ import net.minidev.json.parser.JSONParser
  * @param textContent the text where the search will be made
  */
 class JsonPathExtractor(bytes: Array[Byte]) extends Extractor {
+
+	import JsonPathExtractor._
 
 	val json = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(bytes)
 
@@ -49,10 +61,8 @@ class JsonPathExtractor(bytes: Array[Byte]) extends Extractor {
 	 */
 	def extractMultiple(expression: String): Option[Seq[String]] = {
 
-		val path = JsonPath.compile(expression)
-
 		try {
-			path.read[Any](json) match {
+			cachedJsonPath(expression).read[Any](json) match {
 				case null => None // can't turn result into an Option as we want to turn empty Seq into None (see below)
 				case array: JSONArray => array.map(_.toString)
 				case other => Some(List(other.toString))

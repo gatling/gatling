@@ -18,12 +18,14 @@ package com.excilys.ebi.gatling.core.check.extractor.xpath
 import java.io.{ InputStream, StringReader }
 
 import scala.collection.JavaConversions.asScalaBuffer
+import scala.collection.mutable
 
 import org.jaxen.dom.DOMXPath
 import org.w3c.dom.{ Node, Document }
 import org.xml.sax.{ InputSource, EntityResolver }
 
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.util.IOHelper
 
 import javax.xml.parsers.{ DocumentBuilderFactory, DocumentBuilder }
@@ -48,6 +50,9 @@ object XPathExtractor {
 		}
 	}
 
+	val cache = mutable.Map.empty[String, DOMXPath]
+	def cachedXPath(expression: String, namespaces: List[(String, String)]) = if (configuration.core.extract.xpath.cache) cache.getOrElseUpdate(expression + namespaces, xpath(expression, namespaces)) else xpath(expression, namespaces)
+
 	def apply(inputStream: Option[InputStream]) = {
 		val document = inputStream.map {
 			IOHelper.use(_) { is =>
@@ -58,6 +63,14 @@ object XPathExtractor {
 			}
 		}
 		new XPathExtractor(document)
+	}
+
+	def xpath(expression: String, namespaces: List[(String, String)]) = {
+		val xpathExpression = new DOMXPath(expression)
+		namespaces.foreach {
+			case (prefix, uri) => xpathExpression.addNamespace(prefix, uri)
+		}
+		xpathExpression
 	}
 }
 
@@ -70,14 +83,8 @@ object XPathExtractor {
  * @param inputStream the XML document in which the XPath search will be applied
  */
 class XPathExtractor(document: Option[Document]) extends Extractor {
-
-	def xpath(expression: String, namespaces: List[(String, String)]) = {
-		val xpathExpression = new DOMXPath(expression)
-		namespaces.foreach {
-			case (prefix, uri) => xpathExpression.addNamespace(prefix, uri)
-		}
-		xpathExpression
-	}
+	
+	import XPathExtractor._
 
 	/**
 	 * The actual extraction happens here. The XPath expression is searched for and the occurrence-th
@@ -88,7 +95,7 @@ class XPathExtractor(document: Option[Document]) extends Extractor {
 	 */
 	def extractOne(occurrence: Int, namespaces: List[(String, String)])(expression: String): Option[String] = {
 
-		val results = document.map(xpath(expression, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]])
+		val results = document.map(cachedXPath(expression, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]])
 
 		results.flatMap(_.lift(occurrence).map(_.getTextContent))
 	}
@@ -100,7 +107,7 @@ class XPathExtractor(document: Option[Document]) extends Extractor {
 	 * @param expression a String containing the XPath expression to be searched
 	 * @return an option containing the value if found, None otherwise
 	 */
-	def extractMultiple(namespaces: List[(String, String)])(expression: String): Option[Seq[String]] = document.map(xpath(expression, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]].map(_.getTextContent))
+	def extractMultiple(namespaces: List[(String, String)])(expression: String): Option[Seq[String]] = document.map(cachedXPath(expression, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]].map(_.getTextContent))
 
-	def count(namespaces: List[(String, String)])(expression: String): Option[Int] = document.map(xpath(expression, namespaces).selectNodes(_).size)
+	def count(namespaces: List[(String, String)])(expression: String): Option[Int] = document.map(cachedXPath(expression, namespaces).selectNodes(_).size)
 }

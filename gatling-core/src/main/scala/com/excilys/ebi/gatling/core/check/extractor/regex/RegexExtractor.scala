@@ -15,12 +15,19 @@
  */
 package com.excilys.ebi.gatling.core.check.extractor.regex
 
-import java.util.regex.{ Pattern, Matcher }
-
 import scala.annotation.tailrec
+import scala.collection.mutable
+import scala.util.matching.Regex
 
 import com.excilys.ebi.gatling.core.check.extractor.Extractor
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
 import com.excilys.ebi.gatling.core.util.StringHelper.substringCopiesCharArray
+
+object RegexExtractor {
+
+	val cache = mutable.Map.empty[String, Regex]
+	def cachedRegex(pattern: String) = if (configuration.core.extract.regex.cache) cache.getOrElseUpdate(pattern, pattern.r) else pattern.r
+}
 
 /**
  * A built-in extractor for extracting values with Regular Expressions
@@ -29,6 +36,8 @@ import com.excilys.ebi.gatling.core.util.StringHelper.substringCopiesCharArray
  * @param textContent the text where the search will be made
  */
 class RegexExtractor(textContent: String) extends Extractor {
+
+	import RegexExtractor._
 
 	/**
 	 * The actual extraction happens here. The regular expression is compiled and the occurrence-th
@@ -39,7 +48,7 @@ class RegexExtractor(textContent: String) extends Extractor {
 	 */
 	def extractOne(occurrence: Int)(expression: String): Option[String] = {
 
-		val matcher = Pattern.compile(expression).matcher(textContent)
+		val matcher = cachedRegex(expression).pattern.matcher(textContent)
 
 		@tailrec
 		def findRec(countDown: Int): Boolean = {
@@ -67,11 +76,11 @@ class RegexExtractor(textContent: String) extends Extractor {
 	 * @param expression a String containing the regular expression to be matched
 	 * @return an option containing the value if found, None otherwise
 	 */
-	def extractMultiple(expression: String): Option[Seq[String]] = expression.r.findAllIn(textContent).matchData.map { matcher =>
+	def extractMultiple(expression: String): Option[Seq[String]] = cachedRegex(expression).findAllIn(textContent).matchData.map { matcher =>
 		val value = matcher.group(1 min matcher.groupCount)
 		if (substringCopiesCharArray) value
 		else new String(value)
-	}.toSeq
+	}.toList // very important: Iterator.toSeq produces a Stream, so map function is only evaluated lazily and the original byte array can't be GCed.
 
-	def count(expression: String): Option[Int] = expression.r.findAllIn(textContent).size
+	def count(expression: String): Option[Int] = cachedRegex(expression).findAllIn(textContent).size
 }
