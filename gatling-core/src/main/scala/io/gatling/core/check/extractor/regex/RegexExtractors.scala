@@ -22,6 +22,7 @@ import scala.util.matching.Regex
 import io.gatling.core.check.Extractor
 import io.gatling.core.check.extractor.Extractors.{ LiftedOption, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.util.StringHelper.substringCopiesCharArray
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object RegexExtractors {
@@ -34,7 +35,9 @@ object RegexExtractors {
 	}
 
 	def extract(string: String, pattern: String): Seq[String] = cachedRegex(pattern).findAllIn(string).matchData.map { matcher =>
-		new String(matcher.group(1 min matcher.groupCount))
+		val value = matcher.group(1 min matcher.groupCount)
+		if (substringCopiesCharArray) value
+		else new String(value)
 	}.toList // very important: Iterator.toSeq produces a Stream, so map function is only evaluated lazily and the original byte array can't be GCed.
 
 	def extractOne(occurrence: Int) = new RegexExtractor[String] {
@@ -53,10 +56,12 @@ object RegexExtractors {
 					findRec(countDown - 1)
 			}
 
-			val value = if (findRec(occurrence))
+			val value = if (findRec(occurrence)) {
 				// if a group is specified, return the group 1, else return group 0 (ie the match)
-				new String(matcher.group(matcher.groupCount.min(1))).liftOption
-			else
+				val value = matcher.group(matcher.groupCount.min(1))
+				if (substringCopiesCharArray) value.liftOption
+				else new String(value).liftOption
+			} else
 				None
 
 			value.success
