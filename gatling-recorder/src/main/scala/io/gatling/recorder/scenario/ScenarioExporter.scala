@@ -49,14 +49,13 @@ object ScenarioExporter extends Logging {
 				case _ => Nil
 			}
 
-			headers match {
-				case Nil => None
-				case _ =>
-					val mostFrequentValue = headers
-						.groupBy(value => value)
-						.maxBy { case (_, occurrences) => occurrences.size }
-						._1
-					Some(mostFrequentValue)
+			if (headers.isEmpty) None
+			else {
+				val mostFrequentValue = headers
+					.groupBy(value => value)
+					.maxBy { case (_, occurrences) => occurrences.size }
+					._1
+				Some(mostFrequentValue)
 			}
 		}
 
