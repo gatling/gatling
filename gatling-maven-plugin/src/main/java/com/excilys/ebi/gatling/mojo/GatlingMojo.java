@@ -235,15 +235,15 @@ public class GatlingMojo extends AbstractMojo {
 				try {
 					caller.run(false);
 				} catch (ExecuteException e) {
-					if (e.getExitValue() == Gatling.SIMULATION_ASSERTIONS_FAILED()) {
-						throw new GatlingSimulationAssertionsFailedException(e);
+					if (e.getExitValue() == Gatling.SIMULATION_CHECK_FAILED()) {
+						throw new GatlingSimulationChecksFailedException(e);
 					}
 				}
 			} else {
 				GatlingJavaMainCallerInProcess caller = new GatlingJavaMainCallerInProcess(this, GATLING_MAIN_CLASS, testClasspath, gatlingArgs);
 				int returnCode = caller.run();
-				if (returnCode == Gatling.SIMULATION_ASSERTIONS_FAILED()) {
-					throw new GatlingSimulationAssertionsFailedException();
+				if (returnCode == Gatling.SIMULATION_CHECK_FAILED()) {
+					throw new GatlingSimulationChecksFailedException();
 				}
 			}
 		} else {
