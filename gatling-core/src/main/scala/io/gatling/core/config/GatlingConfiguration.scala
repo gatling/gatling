@@ -52,10 +52,18 @@ object GatlingConfiguration {
 				runDescription = config.getString(CONF_CORE_RUN_DESCRIPTION).trimToOption,
 				encoding = config.getString(CONF_CORE_ENCODING),
 				simulationClass = config.getString(CONF_CORE_SIMULATION_CLASS).trimToOption,
-				cache = CacheConfiguration(
-					regex = config.getBoolean(CONF_CORE_CACHE_REGEX),
-					xpath = config.getBoolean(CONF_CORE_CACHE_XPATH),
-					jsonPath = config.getBoolean(CONF_CORE_CACHE_JSONPATH)),
+				extract = ExtractConfiguration(
+					regex = RegexConfiguration(
+						cache = config.getBoolean(CONF_CORE_EXTRACT_REGEXP_CACHE)),
+					xpath = XPathConfiguration(
+						cache = config.getBoolean(CONF_CORE_EXTRACT_XPATH_CACHE)),
+					jsonPath = JsonPathConfiguration(
+						cache = config.getBoolean(CONF_CORE_EXTRACT_JSONPATH_CACHE)),
+					css = CssConfiguration(
+						engine = config.getString(CONF_CORE_EXTRACT_CSS_ENGINE) match {
+							case "jsoup" => Jsoup
+							case _ => Jodd
+						})),
 				timeOut = TimeOutConfiguration(
 					simulation = config.getInt(CONF_CORE_TIMEOUT_SIMULATION),
 					actor = config.getInt(CONF_CORE_TIMEOUT_ACTOR)),
@@ -157,7 +165,7 @@ case class CoreConfiguration(
 	runDescription: Option[String],
 	encoding: String,
 	simulationClass: Option[String],
-	cache: CacheConfiguration,
+	extract: ExtractConfiguration,
 	timeOut: TimeOutConfiguration,
 	directory: DirectoryConfiguration)
 
@@ -165,10 +173,23 @@ case class TimeOutConfiguration(
 	simulation: Int,
 	actor: Int)
 
-case class CacheConfiguration(
-	regex: Boolean,
-	xpath: Boolean,
-	jsonPath: Boolean)
+case class ExtractConfiguration(
+	regex: RegexConfiguration,
+	xpath: XPathConfiguration,
+	jsonPath: JsonPathConfiguration,
+	css: CssConfiguration)
+
+case class RegexConfiguration(
+	cache: Boolean)
+
+case class XPathConfiguration(
+	cache: Boolean)
+
+case class JsonPathConfiguration(
+	cache: Boolean)
+
+case class CssConfiguration(
+	engine: CssEngine)
 
 case class DirectoryConfiguration(
 	data: String,
@@ -257,3 +278,7 @@ case class GatlingConfiguration(
 	http: HttpConfiguration,
 	data: DataConfiguration,
 	config: Config)
+
+sealed trait CssEngine
+case object Jodd extends CssEngine
+case object Jsoup extends CssEngine

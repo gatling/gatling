@@ -28,7 +28,7 @@ import io.gatling.core.validation.{ SuccessWrapper, Validation }
 object RegexExtractors {
 
 	val cache = mutable.Map.empty[String, Regex]
-	def cachedRegex(pattern: String) = if (configuration.core.cache.regex) cache.getOrElseUpdate(pattern, pattern.r) else pattern.r
+	def cachedRegex(pattern: String) = if (configuration.core.extract.regex.cache) cache.getOrElseUpdate(pattern, pattern.r) else pattern.r
 
 	abstract class RegexExtractor[X] extends Extractor[String, String, X] {
 		val name = "regex"

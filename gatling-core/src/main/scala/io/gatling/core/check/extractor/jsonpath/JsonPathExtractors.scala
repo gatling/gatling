@@ -37,7 +37,7 @@ object JsonPathExtractors {
 
 	val cache = mutable.Map.empty[String, JsonPath]
 	def cachedJsonPath(expression: String): JsonPath =
-		if (configuration.core.cache.jsonPath) cache.getOrElseUpdate(expression, JsonPath.compile(expression))
+		if (configuration.core.extract.jsonPath.cache) cache.getOrElseUpdate(expression, JsonPath.compile(expression))
 		else JsonPath.compile(expression)
 
 	private def extractAll(json: Any, expression: String): Option[Seq[String]] = {

@@ -24,9 +24,9 @@ import io.gatling.core.check.Extractor
 import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
-object CssExtractors {
+object JsoupCssExtractors {
 
-	abstract class CssExtractor[X] extends Extractor[Document, String, X] {
+	abstract class JsoupCssExtractor[X] extends Extractor[Document, String, X] {
 		val name = "css"
 	}
 
@@ -38,19 +38,19 @@ object CssExtractors {
 			nodeAttribute.map(element.attr(_)).getOrElse(element.text)
 		}
 
-	val extractOne = (nodeAttribute: Option[String]) => (occurrence: Int) => new CssExtractor[String] {
+	val extractOne = (nodeAttribute: Option[String]) => (occurrence: Int) => new JsoupCssExtractor[String] {
 
 		def apply(prepared: Document, criterion: String): Validation[Option[String]] =
 			extractAll(prepared, criterion, nodeAttribute).lift(occurrence).success
 	}
 
-	val extractMultiple = (nodeAttribute: Option[String]) => new CssExtractor[Seq[String]] {
+	val extractMultiple = (nodeAttribute: Option[String]) => new JsoupCssExtractor[Seq[String]] {
 
 		def apply(prepared: Document, criterion: String): Validation[Option[Seq[String]]] =
 			extractAll(prepared, criterion, nodeAttribute).liftSeqOption.success
 	}
 
-	val count = (nodeAttribute: Option[String]) => new CssExtractor[Int] {
+	val count = (nodeAttribute: Option[String]) => new JsoupCssExtractor[Int] {
 
 		def apply(prepared: Document, criterion: String): Validation[Option[Int]] =
 			extractAll(prepared, criterion, nodeAttribute).liftSeqOption.map(_.size).success

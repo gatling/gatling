@@ -15,12 +15,11 @@
  */
 package io.gatling.http.check.body
 
-import org.jsoup.nodes.Document
-
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.check.Preparer
-import io.gatling.core.check.extractor.css.CssExtractors
+import io.gatling.core.check.extractor.css.{ JoddCssExtractors, JsoupCssExtractors }
+import io.gatling.core.config.{ Jodd, Jsoup }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
@@ -29,22 +28,57 @@ import io.gatling.http.response.Response
 
 object HttpBodyCssCheckBuilder extends Logging {
 
-	val preparer: Preparer[Response, Document] = (response: Response) =>
-		try {
-			CssExtractors.parse(response.getResponseBody(configuration.core.encoding)).success
+	object HttpBodyJoddCssCheckBuilder {
 
-		} catch {
-			case e: Exception =>
-				val message = s"Could not parse response into a Jsoup Document: ${e.getMessage}"
-				logger.info(message, e)
-				message.failure
+		import jodd.lagarto.dom.NodeSelector
+
+		val preparer: Preparer[Response, NodeSelector] = (response: Response) =>
+			try {
+				JoddCssExtractors.parse(response.getResponseBody(configuration.core.encoding)).success
+
+			} catch {
+				case e: Exception =>
+					val message = s"Could not parse response into a Jsoup Document: ${e.getMessage}"
+					logger.info(message, e)
+					message.failure
+			}
+
+		def css(expression: Expression[String], nodeAttribute: Option[String]) = new HttpMultipleCheckBuilder[NodeSelector, String, String](
+			HttpCheckBuilders.bodyCheckFactory,
+			preparer,
+			JoddCssExtractors.extractOne(nodeAttribute),
+			JoddCssExtractors.extractMultiple(nodeAttribute),
+			JoddCssExtractors.count(nodeAttribute),
+			expression)
+	}
+
+	object HttpBodyJsoupCssCheckBuilder {
+
+		import org.jsoup.nodes.Document
+
+		val preparer: Preparer[Response, Document] = (response: Response) =>
+			try {
+				JsoupCssExtractors.parse(response.getResponseBody(configuration.core.encoding)).success
+
+			} catch {
+				case e: Exception =>
+					val message = s"Could not parse response into a Jsoup Document: ${e.getMessage}"
+					logger.info(message, e)
+					message.failure
+			}
+
+		def css(expression: Expression[String], nodeAttribute: Option[String]) = new HttpMultipleCheckBuilder[Document, String, String](
+			HttpCheckBuilders.bodyCheckFactory,
+			preparer,
+			JsoupCssExtractors.extractOne(nodeAttribute),
+			JsoupCssExtractors.extractMultiple(nodeAttribute),
+			JsoupCssExtractors.count(nodeAttribute),
+			expression)
+	}
+
+	def css(expression: Expression[String], nodeAttribute: Option[String]): HttpMultipleCheckBuilder[_, String, String] =
+		configuration.core.extract.css.engine match {
+			case Jodd => HttpBodyCssCheckBuilder.css(expression, nodeAttribute)
+			case Jsoup => HttpBodyJsoupCssCheckBuilder.css(expression, nodeAttribute)
 		}
-
-	def css(expression: Expression[String], nodeAttribute: Option[String]) = new HttpMultipleCheckBuilder[Document, String, String](
-		HttpCheckBuilders.bodyCheckFactory,
-		preparer,
-		CssExtractors.extractOne(nodeAttribute),
-		CssExtractors.extractMultiple(nodeAttribute),
-		CssExtractors.count(nodeAttribute),
-		expression)
 }
