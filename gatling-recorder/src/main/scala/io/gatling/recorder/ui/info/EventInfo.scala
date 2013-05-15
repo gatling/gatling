@@ -15,6 +15,8 @@
  */
 package io.gatling.recorder.ui.info
 
+import java.nio.charset.Charset
+
 import org.jboss.netty.handler.codec.http.{ HttpMessage, HttpRequest, HttpResponse }
 
 import io.gatling.recorder.config.RecorderConfiguration.configuration
@@ -28,7 +30,7 @@ case class PauseInfo(duration: Long, unit: PauseUnit) extends EventInfo {
 
 case class RequestInfo(request: HttpRequest, response: HttpResponse) extends EventInfo {
 
-	private def getHttpBody(message: HttpMessage) = message.getContent.toString(configuration.core.encoding)
+	private def getHttpBody(message: HttpMessage) = message.getContent.toString(Charset.forName(configuration.core.encoding))
 
 	val requestBody = getHttpBody(request)
 
