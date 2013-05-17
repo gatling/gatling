@@ -92,7 +92,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol, warmUpUrl: Option[String]
 	def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = copy(protocol = protocol.copy(proxy = Some(httpProxy), securedProxy = httpsProxy))
 
 	def build = {
-		require(!(!protocol.shareClient && protocol.shareConnections), "Invalid protocoluration: can't stop sharing the HTTP client while still sharing connections!")
+		require(!(!protocol.shareClient && protocol.shareConnections), "Invalid protocol configuration: can't stop sharing the HTTP client while still sharing connections!")
 
 		warmUpUrl.map { url =>
 			if (!HttpProtocolBuilder.warmUpUrls.contains(url)) {
