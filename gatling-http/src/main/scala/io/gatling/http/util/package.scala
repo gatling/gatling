@@ -19,8 +19,8 @@ import java.util.{ List => JList, Map => JMap }
 
 import scala.collection.JavaConversions.{ asScalaBuffer, asScalaSet, collectionAsScalaIterable }
 
-import com.ning.http.client.{ ByteArrayPart, FilePart, Request, StringPart }
-import com.ning.http.multipart.{ FilePart => MultipartFilePart, StringPart => MultipartStringPart }
+import com.ning.http.client.Request
+import com.ning.http.multipart.Part
 
 import io.gatling.core.util.StringHelper.eol
 import io.gatling.http.response.Response
@@ -68,11 +68,7 @@ package object util {
 			if (request.getParts != null && !request.getParts.isEmpty) {
 				buff.append("parts=").append(eol)
 				request.getParts.foreach {
-					case byteArrayPart: ByteArrayPart => buff.append("byteArrayPart: name=").append(byteArrayPart.getName).append(eol)
-					case filePart: FilePart => buff.append("filePart: name=").append(filePart.getName).append(" file=").append(filePart.getFile.getAbsolutePath).append(eol)
-					case stringPart: StringPart => buff.append("stringPart: name=").append(stringPart.getName).append(" string=").append(stringPart.getValue).append(eol)
-					case multipartFilePart: MultipartFilePart => buff.append("multipartFilePart: name=").append(multipartFilePart.getName).append(eol)
-					case multipartStringPart: MultipartStringPart => buff.append("multipartStringPart: name=").append(multipartStringPart.getName).append(eol)
+					case part: Part => buff.append(s"FilePart: name=${part.getName} contentType=${part.getContentType} charSet=${part.getCharSet} transferEncoding=${part.getTransferEncoding} contentId=${part.getContentId}$eol")
 				}
 			}
 

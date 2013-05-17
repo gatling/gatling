@@ -81,14 +81,13 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 					(key, values) <- params
 					value <- values
 				} requestBuilder.addBodyPart(new StringPart(key, value))
-				requestBuilder.addHeader(HeaderNames.CONTENT_TYPE, HeaderValues.MULTIPART_FORM_DATA)
+
+				requestBuilder
 			}
 
 		val requestBuilderWithParams =
-			if (bodyAttributes.bodyParts.isEmpty)
-				configureAsParams
-			else
-				configureAsStringParts
+			if (bodyAttributes.bodyParts.isEmpty) configureAsParams
+			else configureAsStringParts
 
 		requestBuilderWithParams.flatMap(super.configureParts(session, _))
 	}
