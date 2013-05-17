@@ -16,7 +16,7 @@
 package io.gatling.core.action
 
 import akka.actor.{ Actor, ActorRef, Props }
-import io.gatling.core.result.message.KO
+import io.gatling.core.result.message.{ OK, KO }
 import io.gatling.core.session.Session
 import io.gatling.core.structure.Loops.{ CounterName, SessionCounters }
 
@@ -44,6 +44,10 @@ class InnerTryMax(times: Int, loopNext: ActorRef, val next: ActorRef)(implicit c
 			else
 				next ! session.exitTryMax.exitLoop
 	}
+	
+	val exitNormally: Receive = {
+		case session: Session if session.status == OK && session.counterValue > 1 => next ! session.exitTryMax.exitLoop
+	}
 
 	/**
 	 * Evaluates the condition and if true executes the first action of loopNext
@@ -56,6 +60,6 @@ class InnerTryMax(times: Int, loopNext: ActorRef, val next: ActorRef)(implicit c
 		val initializedSession = if (!session.isSetUp) session.enterTryMax(interrupt) else session
 		val incrementedSession = initializedSession.incrementLoop
 
-		interrupt.applyOrElse(incrementedSession, (s: Session) => loopNext ! s)
+		exitNormally.orElse(interrupt).applyOrElse(incrementedSession, loopNext !)
 	}
 }
