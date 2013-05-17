@@ -31,7 +31,7 @@ object Predef {
 	implicit def jdbcProtocolConfigurationBuilder2JdbcProtocolConfiguration(builder: JdbcProtocolBuilder) = builder.build
 	implicit def statementBuilder2ActionBuilder(statementBuilder: AbstractJdbcStatementBuilder[_]) = statementBuilder.toActionBuilder
 
-	def jdbcConfig = JdbcProtocolBuilder.jdbcConfig
+	def jdbc = JdbcProtocolBuilder.jdbc
 	def sql(statementName: Expression[String]) = JdbcStatementBaseBuilder.sql(statementName)
 	def transaction(queries: AbstractJdbcStatementBuilder[_]*) = JdbcTransactionActionBuilder(queries)
 

@@ -32,12 +32,14 @@ object JdbcProtocolBuilder {
 
 	private[gatling] val BASE_JDBC_PROTOCOL_CONFIGURATION_BUILDER = new JdbcProtocolBuilder(Attributes(properties = Map.empty))
 
-	def jdbcConfig = BASE_JDBC_PROTOCOL_CONFIGURATION_BUILDER
+	def jdbc = BASE_JDBC_PROTOCOL_CONFIGURATION_BUILDER
 }
 
 private case class Attributes(
 	url: String = "",
 	driver: String = "",
+	username: String = "",
+	password: String = "",
 	nbPartitions: Int = 1,
 	maxConnectionsPerPartition: Int = 1,
 	defaultTransactionIsolation: Option[String] = None,
@@ -52,11 +54,11 @@ class JdbcProtocolBuilder(attributes: Attributes) extends Logging {
 
 	def driver(driver: String) = new JdbcProtocolBuilder(attributes.copy(driver = driver))
 
-	def username(username: String) = new JdbcProtocolBuilder(attributes.copy(properties = attributes.properties + (USER -> username)))
+	def username(username: String) = new JdbcProtocolBuilder(attributes.copy(username = username))
 
-	def password(password: String) = new JdbcProtocolBuilder(attributes.copy(properties = attributes.properties + (PASSWORD -> password)))
+	def password(password: String) = new JdbcProtocolBuilder(attributes.copy(password = password))
 
-	def properties(properties: Map[String, Any]) = new JdbcProtocolBuilder(attributes.copy(properties = attributes.properties ++ properties))
+	def properties(properties: Map[String, Any]) = new JdbcProtocolBuilder(attributes.copy(properties = properties))
 
 	def partitions(nbPartitions: Int) = new JdbcProtocolBuilder(attributes.copy(nbPartitions = nbPartitions))
 
@@ -73,18 +75,19 @@ class JdbcProtocolBuilder(attributes: Attributes) extends Logging {
 	private[jdbc] def build = {
 		require(!attributes.driver.isEmpty, "JDBC driver is not configured.")
 		require(!attributes.url.isEmpty, "JDBC connection URL is not configured.")
-		require(attributes.properties.contains(USER), "username is not configured.")
+		require(!attributes.username.isEmpty, "username is not configured.")
 
-		ConnectionFactory.setDataSource(setupDataSource)
+		ConnectionFactory.setDataSource(setUpDataSource)
 		system.registerOnTermination(ConnectionFactory.close)
 		JdbcProtocol
 	}
 
-	private def setupDataSource = {
+	private def setUpDataSource = {
 		val ds = new BoneCPDataSource
 		ds.setDriverClass(attributes.driver)
 		ds.setJdbcUrl(attributes.url)
-		ds.setDriverProperties(buildDriverProperties(attributes.properties))
+		val credentials = Map((USER, attributes.username),(PASSWORD, attributes.password))
+		ds.setDriverProperties(buildDriverProperties(attributes.properties ++ credentials))
 		ds.setDefaultAutoCommit(true)
 		ds.setPartitionCount(attributes.nbPartitions)
 		ds.setMaxConnectionsPerPartition(attributes.maxConnectionsPerPartition)

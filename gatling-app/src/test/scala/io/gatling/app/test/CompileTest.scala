@@ -43,7 +43,7 @@ object CompileTest extends Simulation {
 		.acceptEncodingHeader("gzip,deflate,sdch")
 		.userAgentHeader("Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.19 (KHTML, like Gecko) Ubuntu/12.04 Chromium/18.0.1025.151 Chrome/18.0.1025.151 Safari/535.19")
 
-	val jdbcProtocol = jdbcConfig
+	val jdbcProtocol = jdbc
 		.url("jdbc:postgresql://localhost:5632/test")
 		.driver("org.postgresql.driver")
 		.username("user")
