@@ -55,7 +55,7 @@ object Predef {
 	def sha1 = HttpChecksumCheckBuilder.sha1
 	def responseTimeInMillis = HttpResponseTimeCheckBuilder.responseTimeInMillis
 	def latencyInMillis = HttpResponseTimeCheckBuilder.latencyInMillis
-	
+
 	val gzipBody = BodyProcessors.gzip
 	val streamBody = BodyProcessors.stream
 

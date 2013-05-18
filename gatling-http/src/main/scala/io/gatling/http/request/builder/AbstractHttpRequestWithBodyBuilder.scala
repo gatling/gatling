@@ -85,8 +85,8 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 
 	@deprecated("Scalate support will be dropped in 2.1.0, prefer EL files or plain scala code", "2.0.0")
 	def sspFileBodyPart(name: Expression[String], filePath: Expression[String], mimeType: String, additionalAttributes: Map[String, Any] = Map.empty): B = byteArrayBodyPart(name, SspFileBodies.asBytes(filePath, additionalAttributes), mimeType)
-    @deprecated("Scalate support will be dropped in 2.1.0, prefer EL files or plain scala code", "2.0.0")
-    def sspFileBodyPart(name: Expression[String], filePath: Expression[String], mimeType: String, contentId: String, additionalAttributes: Map[String, Any]): B = byteArrayBodyPart(name, SspFileBodies.asBytes(filePath, additionalAttributes), mimeType, contentId)
+	@deprecated("Scalate support will be dropped in 2.1.0, prefer EL files or plain scala code", "2.0.0")
+	def sspFileBodyPart(name: Expression[String], filePath: Expression[String], mimeType: String, contentId: String, additionalAttributes: Map[String, Any]): B = byteArrayBodyPart(name, SspFileBodies.asBytes(filePath, additionalAttributes), mimeType, contentId)
 
 	protected def configureParts(session: Session, requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 		require(!bodyAttributes.body.isDefined || bodyAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")

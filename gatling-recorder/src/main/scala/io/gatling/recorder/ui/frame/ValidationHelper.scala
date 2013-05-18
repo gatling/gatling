@@ -80,9 +80,10 @@ object ValidationHelper {
 				cFrame.txtProxyPort.setEnabled(false)
 				cFrame.txtProxyPort.setText("0")
 				cFrame.txtProxyPort.getKeyListeners.foreach {
-					kl => useUIThread {
-						kl.keyReleased(new KeyEvent(cFrame.txtProxyPort, 0, System.currentTimeMillis, 0, 0, '0'))
-					}
+					kl =>
+						useUIThread {
+							kl.keyReleased(new KeyEvent(cFrame.txtProxyPort, 0, System.currentTimeMillis, 0, 0, '0'))
+						}
 				}
 				cFrame.txtProxySslPort.setEnabled(false)
 				cFrame.txtProxySslPort.setText("0")

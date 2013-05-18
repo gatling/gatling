@@ -28,12 +28,12 @@ class HttpProxyBuilder(protocolBuilder: HttpProtocolBuilder, host: String, port:
 	def toHttpProtocolBuilder = {
 
 		def getProxyServer(protocol: ProxyServer.Protocol)(port: Int) = {
-			
+
 			val proxy = for {
 				username <- this.username
 				password <- this.password
 			} yield new ProxyServer(protocol, host, port, username, password)
-			
+
 			proxy.getOrElse(new ProxyServer(protocol, host, port)).setNtlmDomain(null)
 		}
 

@@ -28,7 +28,7 @@ object NumberHelper {
 	 * @param max is the maximum value of the uniform distribution
 	 * @return
 	 */
-	def createUniformRandomLongGenerator(min: Long, max: Long): () => Long = () => 
+	def createUniformRandomLongGenerator(min: Long, max: Long): () => Long = () =>
 		if (min == 0L && max == 0L) 0L
 		else ThreadLocalRandom.current.nextLong(min, max)
 

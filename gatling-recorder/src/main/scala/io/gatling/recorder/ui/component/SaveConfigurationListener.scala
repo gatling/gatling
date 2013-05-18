@@ -66,7 +66,7 @@ class SaveConfigurationListener(controller: RecorderController, configurationFra
 
 		// Set urls filters
 		val patternsList = (for (i <- 0 until configurationFrame.tblFilters.getRowCount) yield configurationFrame.tblFilters.getPattern(i)).toList
-		val (patterns,patternsType) = patternsList.map( p => (p.pattern,p.patternType)).unzip
+		val (patterns, patternsType) = patternsList.map(p => (p.pattern, p.patternType)).unzip
 		props.patterns(patterns)
 		props.patternsType(patternsType.map(_.toString))
 		// Check if a directory was entered
@@ -83,7 +83,7 @@ class SaveConfigurationListener(controller: RecorderController, configurationFra
 		props.simulationClassName(configurationFrame.txtSimulationClassName.getText.trim)
 
 		RecorderConfiguration.reload(props.build)
-		
+
 		if (configurationFrame.chkSavePref.isSelected)
 			RecorderConfiguration.saveConfig
 

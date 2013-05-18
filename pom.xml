@@ -150,6 +150,7 @@
 		<maven-plugin-plugin.version>3.2</maven-plugin-plugin.version>
 		<maven-enforcer-plugin.version>1.2</maven-enforcer-plugin.version>
 		<build-helper-maven-plugin.version>1.7</build-helper-maven-plugin.version>
+		<scalariform-maven-plugin.version>0.1.4</scalariform-maven-plugin.version>
 
 		<header.basedir>${project.basedir}</header.basedir>
 	</properties>
@@ -565,6 +566,23 @@
 					<artifactId>build-helper-maven-plugin</artifactId>
 					<version>${build-helper-maven-plugin.version}</version>
 				</plugin>
+				<plugin>
+					<groupId>org.scalariform</groupId>
+					<artifactId>scalariform-maven-plugin</artifactId>
+					<version>${scalariform-maven-plugin.version}</version>
+					<executions>
+						<execution>
+							<phase>process-sources</phase>
+							<goals>
+								<goal>format</goal>
+							</goals>
+							<configuration>
+								<doubleIndentClassDeclaration>false</doubleIndentClassDeclaration>
+								<indentWithTabs>true</indentWithTabs>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 		<plugins>
@@ -583,6 +601,10 @@
 			<plugin>
 				<groupId>com.mycila.maven-license-plugin</groupId>
 				<artifactId>maven-license-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.scalariform</groupId>
+				<artifactId>scalariform-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>

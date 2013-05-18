@@ -113,7 +113,7 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 	}
 
 	private def initChooser(mode: Int): Chooser = {
-		if(IS_MAC_OSX) {
+		if (IS_MAC_OSX) {
 			Left(new FileDialog(ConfigurationFrame.this))
 		} else {
 			val fileChooser = new JFileChooser
@@ -298,16 +298,18 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 
 	private def setListeners {
 		// Change panel depending on what mode is selected
-		modeSelector.addActionListener{e: ActionEvent => {
-			val selectedMode = modeSelector.getItemAt(modeSelector.getSelectedIndex)
-			if(selectedMode == httpMode) {
-				networkPanel.setVisible(true)
-				harPanel.setVisible(false)
-			} else {
-				networkPanel.setVisible(false)
-				harPanel.setVisible(true)
+		modeSelector.addActionListener { e: ActionEvent =>
+			{
+				val selectedMode = modeSelector.getItemAt(modeSelector.getSelectedIndex)
+				if (selectedMode == httpMode) {
+					networkPanel.setVisible(true)
+					harPanel.setVisible(false)
+				} else {
+					networkPanel.setVisible(false)
+					harPanel.setVisible(true)
+				}
 			}
-		}}
+		}
 		// Enables or disables filter edition depending on the selected strategy
 		cbFilterStrategies.addItemListener { e: ItemEvent =>
 			if (e.getStateChange == ItemEvent.SELECTED && e.getItem == FilterStrategy.NONE) {
@@ -329,21 +331,21 @@ class ConfigurationFrame(controller: RecorderController) extends JFrame with Sca
 		btnClear.addActionListener { e: ActionEvent => tblFilters.removeAllElements }
 
 		// Opens a save dialog when Browse button clicked
-		btnOutputFolder.addActionListener { _ : ActionEvent => getPath(outputFolderChooser).foreach(txtOutputFolder.setText) }
+		btnOutputFolder.addActionListener { _: ActionEvent => getPath(outputFolderChooser).foreach(txtOutputFolder.setText) }
 
-		btnHarFile.addActionListener { _ : ActionEvent => getPath(harFileChooser).foreach(txtHarFile.setText) }
+		btnHarFile.addActionListener { _: ActionEvent => getPath(harFileChooser).foreach(txtHarFile.setText) }
 
 		// Validates form when Start button clicked
 		btnStart.addActionListener(new SaveConfigurationListener(controller, this))
 	}
 
-	private def getPath(chooser : Chooser): Option[String] = chooser match {
+	private def getPath(chooser: Chooser): Option[String] = chooser match {
 		case Left(fileDialog) =>
 			fileDialog.setVisible(true)
 			Option(fileDialog.getDirectory).map(_ + fileDialog.getFile)
 
 		case Right(fileChooser) =>
-			if(fileChooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
+			if (fileChooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
 				None
 			else
 				Some(fileChooser.getSelectedFile.getPath)

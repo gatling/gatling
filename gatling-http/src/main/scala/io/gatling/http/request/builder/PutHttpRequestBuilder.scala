@@ -28,7 +28,7 @@ object PutHttpRequestBuilder {
 class PutHttpRequestBuilder(
 	httpAttributes: HttpAttributes,
 	bodyAttributes: BodyAttributes)
-		extends AbstractHttpRequestWithBodyBuilder[PutHttpRequestBuilder](httpAttributes, bodyAttributes) {
+	extends AbstractHttpRequestWithBodyBuilder[PutHttpRequestBuilder](httpAttributes, bodyAttributes) {
 
 	private[http] def newInstance(
 		httpAttributes: HttpAttributes,
