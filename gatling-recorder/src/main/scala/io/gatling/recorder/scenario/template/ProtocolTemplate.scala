@@ -40,9 +40,9 @@ object ProtocolTemplate {
 			proxyUsername.flatMap(username => proxyPassword.map(password => s"""$eol$indent.credentials("$username","$password")""")).getOrElse("")
 		}
 
-		def renderFollowRedirect = if(!followRedirect) s"$eol$indent.disableFollowRedirect" else ""
+		def renderFollowRedirect = if (!followRedirect) s"$eol$indent.disableFollowRedirect" else ""
 
-		def renderAutomaticReferer = if(!automaticReferer) s"$eol$indent.disableAutomaticReferer" else ""
+		def renderAutomaticReferer = if (!automaticReferer) s"$eol$indent.disableAutomaticReferer" else ""
 
 		def renderHeaders = {
 			def renderHeader(methodName: String, headerValue: String) = fast"""$eol$indent.$methodName("$headerValue")"""

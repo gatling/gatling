@@ -21,7 +21,7 @@ import org.specs2.runner.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class ProtocolRegistrySpec extends Specification {
-	
+
 	class FooProtocol(val foo: String) extends Protocol
 	class BarProtocol(val bar: String) extends Protocol
 

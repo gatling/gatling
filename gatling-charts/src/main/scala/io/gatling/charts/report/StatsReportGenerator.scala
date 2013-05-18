@@ -45,7 +45,7 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 			val groupedCounts = dataReader
 				.numberOfRequestInResponseTimeRange(requestName, group).map {
 					case (name, count) => GroupedCount(name, count, count * 100 / total.count)
-				} 
+				}
 
 			val path = requestName match {
 				case Some(name) => RequestPath.path(name, group)

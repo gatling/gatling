@@ -44,7 +44,7 @@ class InnerTryMax(times: Int, loopNext: ActorRef, val next: ActorRef)(implicit c
 			else
 				next ! session.exitTryMax.exitLoop
 	}
-	
+
 	val exitNormally: Receive = {
 		case session: Session if session.status == OK && session.counterValue > 1 => next ! session.exitTryMax.exitLoop
 	}

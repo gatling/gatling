@@ -75,36 +75,36 @@ case class HttpResponse(
 
 class DelegatingReponse(delegate: Response) extends Response {
 
-  def request: Request = delegate.request
-  def ahcResponse = delegate.ahcResponse
-  def checksums = delegate.checksums
-  def executionStartDate = delegate.executionStartDate
-  def requestSendingEndDate = delegate.requestSendingEndDate
-  def responseReceivingStartDate = delegate.responseReceivingStartDate
-  def executionEndDate = delegate.responseReceivingStartDate
-  def checksum(algorithm: String) = delegate.checksum(algorithm)
-  def reponseTimeInMillis = delegate.reponseTimeInMillis
-  def latencyInMillis = delegate.latencyInMillis
-  def isReceived = delegate.isReceived
-  def getHeadersSafe(name: String) = delegate.getHeadersSafe(name)
+	def request: Request = delegate.request
+	def ahcResponse = delegate.ahcResponse
+	def checksums = delegate.checksums
+	def executionStartDate = delegate.executionStartDate
+	def requestSendingEndDate = delegate.requestSendingEndDate
+	def responseReceivingStartDate = delegate.responseReceivingStartDate
+	def executionEndDate = delegate.responseReceivingStartDate
+	def checksum(algorithm: String) = delegate.checksum(algorithm)
+	def reponseTimeInMillis = delegate.reponseTimeInMillis
+	def latencyInMillis = delegate.latencyInMillis
+	def isReceived = delegate.isReceived
+	def getHeadersSafe(name: String) = delegate.getHeadersSafe(name)
 
-  def getStatusCode = delegate.getStatusCode
-  def getStatusText = delegate.getStatusText
-  def getResponseBodyAsBytes = delegate.getResponseBodyAsBytes
-  def getResponseBodyAsStream = delegate.getResponseBodyAsStream
-  def getResponseBodyAsByteBuffer = delegate.getResponseBodyAsByteBuffer
-  def getResponseBodyExcerpt(maxLength: Int, charset: String) = delegate.getResponseBodyExcerpt(maxLength, charset)
-  def getResponseBody(charset: String) = delegate.getResponseBody(charset)
-  def getResponseBodyExcerpt(maxLength: Int) = delegate.getResponseBodyExcerpt(maxLength)
-  def getResponseBody = delegate.getResponseBody
-  def getUri = delegate.getUri
-  def getContentType = delegate.getContentType
-  def getHeader(name: String) = delegate.getHeader(name)
-  def getHeaders(name: String) = delegate.getHeaders(name)
-  def getHeaders = delegate.getHeaders
-  def isRedirected = delegate.isRedirected
-  def getCookies = delegate.getCookies
-  def hasResponseStatus = delegate.hasResponseStatus
-  def hasResponseHeaders = delegate.hasResponseHeaders
-  def hasResponseBody = delegate.hasResponseHeaders
+	def getStatusCode = delegate.getStatusCode
+	def getStatusText = delegate.getStatusText
+	def getResponseBodyAsBytes = delegate.getResponseBodyAsBytes
+	def getResponseBodyAsStream = delegate.getResponseBodyAsStream
+	def getResponseBodyAsByteBuffer = delegate.getResponseBodyAsByteBuffer
+	def getResponseBodyExcerpt(maxLength: Int, charset: String) = delegate.getResponseBodyExcerpt(maxLength, charset)
+	def getResponseBody(charset: String) = delegate.getResponseBody(charset)
+	def getResponseBodyExcerpt(maxLength: Int) = delegate.getResponseBodyExcerpt(maxLength)
+	def getResponseBody = delegate.getResponseBody
+	def getUri = delegate.getUri
+	def getContentType = delegate.getContentType
+	def getHeader(name: String) = delegate.getHeader(name)
+	def getHeaders(name: String) = delegate.getHeaders(name)
+	def getHeaders = delegate.getHeaders
+	def isRedirected = delegate.isRedirected
+	def getCookies = delegate.getCookies
+	def hasResponseStatus = delegate.hasResponseStatus
+	def hasResponseHeaders = delegate.hasResponseHeaders
+	def hasResponseBody = delegate.hasResponseHeaders
 }

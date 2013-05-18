@@ -29,7 +29,7 @@ object UserEnd {
 class UserEnd extends Action {
 
 	def execute(session: Session) {
-	    logger.info(s"End user #${session.userId}")
+		logger.info(s"End user #${session.userId}")
 		DataWriter.tell(ScenarioMessage(session.scenarioName, session.userId, End, session.startDate, nowMillis))
 	}
 }

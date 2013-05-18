@@ -24,7 +24,7 @@ import io.gatling.core.util.TimeHelper.nowMillis
 class UserStart(val next: ActorRef) extends Chainable {
 
 	def execute(session: Session) {
-		
+
 		val newSession = session.start
 
 		DataWriter.tell(ScenarioMessage(newSession.scenarioName, newSession.userId, Start, newSession.startDate, 0L))

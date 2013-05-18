@@ -21,17 +21,17 @@ import io.gatling.charts.result.reader.ScenarioRecord
 import io.gatling.core.result.IntVsTimePlot
 
 object SessionDeltas {
-    val empty = SessionDeltas(0, 0)
+	val empty = SessionDeltas(0, 0)
 }
 
 case class SessionDeltas(starts: Int, ends: Int) {
-	
+
 	def addStart = copy(starts = starts + 1)
 	def addEnd = copy(ends = ends + 1)
 }
 
 class SessionDeltaBuffer {
-	
+
 	val map = mutable.HashMap.empty[Int, SessionDeltas].withDefaultValue(SessionDeltas.empty)
 
 	def addStart(bucket: Int) {

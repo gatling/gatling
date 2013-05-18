@@ -33,7 +33,7 @@ import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.http.GatlingHttpProxy
 import io.gatling.recorder.scenario.{ PauseElement, PauseUnit, RequestElement, ScenarioElement, ScenarioExporter, TagElement }
 import io.gatling.recorder.ui.frame.{ ConfigurationFrame, RunningFrame }
-import io.gatling.recorder.ui.frame.ConfigurationFrame.{ harMode, httpMode}
+import io.gatling.recorder.ui.frame.ConfigurationFrame.{ harMode, httpMode }
 import io.gatling.recorder.ui.info.{ PauseInfo, RequestInfo, SSLInfo }
 import io.gatling.recorder.ui.util.UIHelper.useUIThread
 import io.gatling.recorder.util.FiltersHelper.isRequestAccepted
@@ -63,8 +63,8 @@ class RecorderController extends Logging {
 	def startRecording {
 		val selectedMode = configurationFrame.modeSelector.getItemAt(configurationFrame.modeSelector.getSelectedIndex)
 		val harFilePath = configurationFrame.txtHarFile.getText
-		if(selectedMode == harMode && harFilePath.isEmpty) {
-			JOptionPane.showMessageDialog(null,"You haven't selected an HAR file.","Error", JOptionPane.ERROR_MESSAGE)
+		if (selectedMode == harMode && harFilePath.isEmpty) {
+			JOptionPane.showMessageDialog(null, "You haven't selected an HAR file.", "Error", JOptionPane.ERROR_MESSAGE)
 		} else {
 			val response = if (File(ScenarioExporter.getOutputFolder / ScenarioExporter.getSimulationFileName).exists)
 				JOptionPane.showConfirmDialog(null, "You are about to overwrite an existing simulation.", "Warning", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE)
@@ -72,14 +72,14 @@ class RecorderController extends Logging {
 
 			if (response == JOptionPane.OK_OPTION) {
 				val selectedMode = configurationFrame.modeSelector.getSelectedItem.asInstanceOf[String]
-				if(selectedMode == httpMode) {
+				if (selectedMode == httpMode) {
 					proxy = new GatlingHttpProxy(this, configuration.proxy.port, configuration.proxy.sslPort)
 					showRunningFrame
 				} else {
-						HarReader.processHarFile(harFilePath)
-						ScenarioExporter.saveScenario(HarReader.scenarioElements.reverse)
-						JOptionPane.showMessageDialog(null,"Successfully converted HAR file to a Gatling simulation","Conversion complete", JOptionPane.INFORMATION_MESSAGE)
-						HarReader.cleanHarReaderState
+					HarReader.processHarFile(harFilePath)
+					ScenarioExporter.saveScenario(HarReader.scenarioElements.reverse)
+					JOptionPane.showMessageDialog(null, "Successfully converted HAR file to a Gatling simulation", "Conversion complete", JOptionPane.INFORMATION_MESSAGE)
+					HarReader.cleanHarReaderState
 				}
 			}
 		}

@@ -22,7 +22,7 @@ import io.gatling.core.util.StringHelper.emptyFastring
 object RequestTemplate {
 
 	def headersBlockName(id: Int) = fast"headers_$id"
-	
+
 	def render(simulationClass: String,
 		id: Int,
 		method: String,
