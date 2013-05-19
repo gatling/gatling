@@ -56,7 +56,7 @@ object RecordParser {
 
 	def parseGroupRecord(strings: Array[String], bucketFunction: Int => Int, runStart: Long): GroupRecord = {
 
-		val group = parseGroup(strings(2))
+		val group = parseGroup(strings(3))
 		val entryDate = (strings(4).toLong - runStart).toInt
 		val exitDate = (strings(5).toLong - runStart).toInt
 		val status = Status.valueOf(strings(6))
