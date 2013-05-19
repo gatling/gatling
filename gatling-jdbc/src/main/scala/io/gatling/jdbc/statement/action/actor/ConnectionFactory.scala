@@ -13,40 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.util
+package io.gatling.jdbc.statement.action.actor
 
-import java.io.Closeable
-import java.sql.{ Connection, ResultSet }
+import com.jolbox.bonecp.BoneCPDataSource
+import java.sql.SQLException
 
-import scala.io.Source
 
-object IOHelper {
+object ConnectionFactory {
 
-	def withCloseable[T, C <: Closeable](closeable: C)(block: C => T) = {
-		try
-			block(closeable)
-		finally
-			closeable.close
-	}
+	private var dataSource : Option[BoneCPDataSource] = None
 
-	def withSource[T, C <: Source](closeable: C)(block: C => T) = {
-		try
-			block(closeable)
-		finally
-			closeable.close
-	}
+	private[jdbc] def setDataSource(ds: BoneCPDataSource) { dataSource = Some(ds) }
 
-	def withConnection[T, C <: Connection](closeable: C)(block: C => T) = {
-		try
-			block(closeable)
-		finally
-			closeable.close
-	}
+	private[jdbc] def getConnection = dataSource.map(_.getConnection).getOrElse(throw new SQLException("DataSource is not configured."))
 
-	def withResultSet[T, C <: ResultSet](resultSet: C)(block: C => T) = {
-		try
-			block(resultSet)
-		finally
-			resultSet.close
-	}
+	private[jdbc] def close = dataSource.foreach(_.close)
 }

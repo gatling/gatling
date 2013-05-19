@@ -19,6 +19,10 @@
 			<groupId>io.gatling</groupId>
 			<artifactId>gatling-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.jolbox</groupId>
+			<artifactId>bonecp</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

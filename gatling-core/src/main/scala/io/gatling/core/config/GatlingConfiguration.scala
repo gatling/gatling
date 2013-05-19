@@ -15,7 +15,7 @@
  */
 package io.gatling.core.config
 
-import scala.collection.JavaConversions.{ asScalaBuffer, mapAsJavaMap }
+import scala.collection.JavaConversions.mapAsJavaMap
 import scala.collection.mutable
 
 import com.typesafe.config.{ Config, ConfigFactory }
@@ -128,6 +128,8 @@ object GatlingConfiguration {
 
 					SslConfiguration(trustStore, keyStore)
 				}),
+			jdbc = JdbcConfiguration(
+				statementTimeoutInMs = config.getInt(CONF_JDBC_STATEMENT_TIMEOUT_IN_MS)),
 			data = DataConfiguration(
 				dataWriterClasses = config.getString(CONF_DATA_WRITER_CLASS_NAMES).toStringSeq.map {
 					case "console" => "io.gatling.core.result.writer.ConsoleDataWriter"
@@ -242,6 +244,9 @@ case class StoreConfiguration(
 	password: String,
 	algorithm: Option[String])
 
+case class JdbcConfiguration(
+	statementTimeoutInMs: Int)
+
 case class DataConfiguration(
 	dataWriterClasses: Seq[String],
 	dataReaderClass: String,
@@ -276,6 +281,7 @@ case class GatlingConfiguration(
 	core: CoreConfiguration,
 	charting: ChartingConfiguration,
 	http: HttpConfiguration,
+	jdbc: JdbcConfiguration,
 	data: DataConfiguration,
 	config: Config)
 
