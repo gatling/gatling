@@ -108,4 +108,3 @@ class JsoupCssExtractorsSpec extends ValidationSpecification {
 	}
 }
 
-

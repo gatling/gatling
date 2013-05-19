@@ -23,12 +23,12 @@ import org.specs2.runner.JUnitRunner
 class ConfigurationSpec extends Specification {
 
 	"building from PropertiesBuilder should support List property" in {
-		
+
 		val props = new GatlingPropertiesBuilder
 		props.simulationClass("Foo")
-		
+
 		GatlingConfiguration.setUp(props.build)
-		
+
 		GatlingConfiguration.configuration.core.simulationClass should beEqualTo(Some("Foo"))
 	}
 }

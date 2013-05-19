@@ -29,7 +29,7 @@ abstract class Simulation {
 		ProtocolRegistry.setUp(_protocols)
 		_scenarios.map(_.build)
 	}
-	
+
 	def protocols = _protocols
 	def assertions = _assertions
 

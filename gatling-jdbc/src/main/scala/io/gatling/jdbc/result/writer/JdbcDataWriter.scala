@@ -79,7 +79,7 @@ class JdbcDataWriter extends DataWriter with Logging {
 		//Getting the runId to be dumped later on other tables.
 		while (keys.next) { runId = keys.getInt(1) }
 	}
-	
+
 	override def onScenarioMessage(scenario: ScenarioMessage) {
 
 		import scenario._

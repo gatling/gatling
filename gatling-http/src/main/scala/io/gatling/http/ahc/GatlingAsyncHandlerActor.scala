@@ -119,9 +119,9 @@ class GatlingAsyncHandlerActor(
 			val buff = new StringBuilder
 			buff.append(eol).append(">>>>>>>>>>>>>>>>>>>>>>>>>>").append(eol)
 			buff.append("Request:").append(eol).append(s"$requestName: $status ${errorMessage.getOrElse("")}").append(eol)
-            buff.append("=========================").append(eol)
-            buff.append("Session:").append(eol).append(session).append(eol)
-            buff.append("=========================").append(eol)
+			buff.append("=========================").append(eol)
+			buff.append("Session:").append(eol).append(session).append(eol)
+			buff.append("=========================").append(eol)
 			buff.append("HTTP request:").append(eol).appendAHCRequest(request)
 			buff.append("=========================").append(eol)
 			buff.append("HTTP response:").append(eol).appendResponse(response).append(eol)

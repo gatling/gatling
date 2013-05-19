@@ -28,30 +28,30 @@ import io.gatling.core.validation.SuccessWrapper
 
 object Loops {
 
-    case class CounterName(name: String) extends AnyVal
+	case class CounterName(name: String) extends AnyVal
 
-    implicit class SessionCounters(val session: Session) extends AnyVal {
+	implicit class SessionCounters(val session: Session) extends AnyVal {
 
-        def timestampName(implicit counterName: CounterName) = "timestamp." + counterName.name
+		def timestampName(implicit counterName: CounterName) = "timestamp." + counterName.name
 
-        def isSetUp(implicit counterName: CounterName) = session.contains(counterName.name)
+		def isSetUp(implicit counterName: CounterName) = session.contains(counterName.name)
 
-        def counterValue(implicit counterName: CounterName) = session(counterName.name).asInstanceOf[Int]
-        def timestampValue(implicit counterName: CounterName) = session(timestampName).asInstanceOf[Long]
+		def counterValue(implicit counterName: CounterName) = session(counterName.name).asInstanceOf[Int]
+		def timestampValue(implicit counterName: CounterName) = session(timestampName).asInstanceOf[Long]
 
-        def incrementLoop(implicit counterName: CounterName): Session = {
-            if (isSetUp)
-                session.set(counterName.name, counterValue + 1)
-            else
-                session.setAll(counterName.name -> 0, timestampName -> nowMillis)
-        }
+		def incrementLoop(implicit counterName: CounterName): Session = {
+			if (isSetUp)
+				session.set(counterName.name, counterValue + 1)
+			else
+				session.setAll(counterName.name -> 0, timestampName -> nowMillis)
+		}
 
-        def exitLoop(implicit counterName: CounterName): Session = session.removeAll(counterName.name, timestampName)
-    }
+		def exitLoop(implicit counterName: CounterName): Session = session.removeAll(counterName.name, timestampName)
+	}
 }
 
 trait Loops[B] extends Execs[B] {
-	
+
 	import Loops._
 
 	def repeat(times: Int)(chain: ChainBuilder): B = repeat(times, UUID.randomUUID.toString)(chain)

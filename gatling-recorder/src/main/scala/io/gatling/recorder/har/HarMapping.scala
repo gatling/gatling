@@ -24,7 +24,7 @@ object HarMapping {
 
 	private def buildLog(log: Json) = Log(log.entries.map(buildEntry))
 
-	private def buildEntry(entry: Json): Entry = Entry(entry.startedDateTime,buildRequest(entry.request),buildResponse(entry.response))
+	private def buildEntry(entry: Json): Entry = Entry(entry.startedDateTime, buildRequest(entry.request), buildResponse(entry.response))
 
 	private def buildRequest(request: Json) = {
 		// FIXME : try early resolution of postData, to trigger the exception

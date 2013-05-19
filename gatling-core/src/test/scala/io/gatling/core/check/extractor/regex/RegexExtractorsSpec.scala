@@ -23,7 +23,7 @@ import io.gatling.core.test.ValidationSpecification
 
 @RunWith(classOf[JUnitRunner])
 class RegexExtractorsSpec extends ValidationSpecification {
-	
+
 	GatlingConfiguration.setUp()
 
 	"extractMultiple" should {

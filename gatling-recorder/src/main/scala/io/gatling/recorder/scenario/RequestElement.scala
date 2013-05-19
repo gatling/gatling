@@ -39,7 +39,7 @@ object RequestElement {
 			request.getContent.getBytes(request.getContent.readerIndex, bufferBytes)
 			Some(new String(bufferBytes, configuration.core.encoding))
 		} else None
-		
+
 		RequestElement(new URI(request.getUri), request.getMethod.toString, headers, content, statusCode, simulationClass)
 	}
 }

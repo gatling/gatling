@@ -28,7 +28,7 @@ import io.gatling.core.util.DateHelper.parseTimestampString
 
 @RunWith(classOf[JUnitRunner])
 class FileDataReaderSpec extends Specification {
-	
+
 	import ConfigurationConstants._
 
 	// Tests must be executed sequentially to avoid configuration conflicts
@@ -43,53 +43,53 @@ class FileDataReaderSpec extends Specification {
 	}
 
 	// FIXME re-enable with fresh and SIMPLE samples
-//	"When reading a single log file, FileDataReader" should {
-//
-//		val singleFileDataReader = new FileDataReader("run_single_node")
-//
-//		"be able to read a single file simulation" in {
-//			singleFileDataReader must not be null
-//		}
-//
-//		"find the two correct scenarios" in {
-//			singleFileDataReader.scenarioNames must beEqualTo(List("Scenario name", "Other Scenario Name"))
-//		}
-//
-//		"find the fifteen correct requests" in {
-//			val requestNames = List("Request request_1", "Request request_2", "Request request_3", "Request request_4", "Request request_5", "Request request_6", "Request request_7", "Request request_8", "Request request_9", "Request request_10")
-//			val otherRequestNames = List("Request other_request_1", "Request other_request_2", "Request other_request_3", "Request other_request_9", "Request other_request_10")
-//			singleFileDataReader.groupsAndRequests.collect { case (group, Some(request)) => RequestPath.path(request, group)} must haveTheSameElementsAs(requestNames ++ otherRequestNames)
-//		}
-//
-//		"have a correct run record" in {
-//			singleFileDataReader.runMessage must beEqualTo(RunMessage(parseTimestampString("20120607202804"), "run1", "interesting test run"))
-//		}
-//
-//	}
-//
-//	"When reading two log files coming from a multinode simulation, FileDataReader" should {
-//
-//		val multipleFilesDataReader = new FileDataReader("run_multiple_nodes")
-//
-//		"be able to read a multiple files simulation" in {
-//			multipleFilesDataReader must not be null
-//		}
-//
-//		"find the two correct scenarios" in {
-//			multipleFilesDataReader.scenarioNames must beEqualTo(List("Scenario name", "Other Scenario Name"))
-//		}
-//
-//		"find the fifteen correct requests" in {
-//			val requestNames = List("Request request_1", "Request request_2", "Request request_3", "Request request_4", "Request request_5", "Request request_6", "Request request_7", "Request request_8", "Request request_9", "Request request_10")
-//			val otherRequestNames = List("Request other_request_1", "Request other_request_2", "Request other_request_3", "Request other_request_9", "Request other_request_10")
-//			multipleFilesDataReader.groupsAndRequests.collect { case (group, Some(request)) => RequestPath.path(request, group)} must haveTheSameElementsAs(requestNames ++ otherRequestNames)
-//		}
-//
-//		//TODO - how to define correctly the runMessage method
-//		"have correct run records" in {
-//			multipleFilesDataReader.runMessage must not be null
-//		}
-//	}
+	//	"When reading a single log file, FileDataReader" should {
+	//
+	//		val singleFileDataReader = new FileDataReader("run_single_node")
+	//
+	//		"be able to read a single file simulation" in {
+	//			singleFileDataReader must not be null
+	//		}
+	//
+	//		"find the two correct scenarios" in {
+	//			singleFileDataReader.scenarioNames must beEqualTo(List("Scenario name", "Other Scenario Name"))
+	//		}
+	//
+	//		"find the fifteen correct requests" in {
+	//			val requestNames = List("Request request_1", "Request request_2", "Request request_3", "Request request_4", "Request request_5", "Request request_6", "Request request_7", "Request request_8", "Request request_9", "Request request_10")
+	//			val otherRequestNames = List("Request other_request_1", "Request other_request_2", "Request other_request_3", "Request other_request_9", "Request other_request_10")
+	//			singleFileDataReader.groupsAndRequests.collect { case (group, Some(request)) => RequestPath.path(request, group)} must haveTheSameElementsAs(requestNames ++ otherRequestNames)
+	//		}
+	//
+	//		"have a correct run record" in {
+	//			singleFileDataReader.runMessage must beEqualTo(RunMessage(parseTimestampString("20120607202804"), "run1", "interesting test run"))
+	//		}
+	//
+	//	}
+	//
+	//	"When reading two log files coming from a multinode simulation, FileDataReader" should {
+	//
+	//		val multipleFilesDataReader = new FileDataReader("run_multiple_nodes")
+	//
+	//		"be able to read a multiple files simulation" in {
+	//			multipleFilesDataReader must not be null
+	//		}
+	//
+	//		"find the two correct scenarios" in {
+	//			multipleFilesDataReader.scenarioNames must beEqualTo(List("Scenario name", "Other Scenario Name"))
+	//		}
+	//
+	//		"find the fifteen correct requests" in {
+	//			val requestNames = List("Request request_1", "Request request_2", "Request request_3", "Request request_4", "Request request_5", "Request request_6", "Request request_7", "Request request_8", "Request request_9", "Request request_10")
+	//			val otherRequestNames = List("Request other_request_1", "Request other_request_2", "Request other_request_3", "Request other_request_9", "Request other_request_10")
+	//			multipleFilesDataReader.groupsAndRequests.collect { case (group, Some(request)) => RequestPath.path(request, group)} must haveTheSameElementsAs(requestNames ++ otherRequestNames)
+	//		}
+	//
+	//		//TODO - how to define correctly the runMessage method
+	//		"have correct run records" in {
+	//			multipleFilesDataReader.runMessage must not be null
+	//		}
+	//	}
 
 	"When reading a single log file with known statistics, FileDataReder" should {
 		val singleFileDataReader = new FileDataReader("run_single_node_with_known_stats")

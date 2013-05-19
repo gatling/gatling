@@ -18,6 +18,6 @@ package io.gatling.recorder.scenario
 case class PauseUnit(toPrint: String, inMilliseconds: Boolean)
 
 object PauseUnit {
-	val SECONDS = PauseUnit("s", false) 
-    val MILLISECONDS = PauseUnit("ms", true)
+	val SECONDS = PauseUnit("s", false)
+	val MILLISECONDS = PauseUnit("ms", true)
 }
