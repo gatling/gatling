@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.gatling</groupId>
 	<artifactId>gatling-parent</artifactId>
@@ -528,6 +529,19 @@
 										<versionRange>[1.0.0,)</versionRange>
 										<goals>
 											<goal>enforce</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.scalariform</groupId>
+										<artifactId>scalariform-maven-plugin</artifactId>
+										<versionRange>[0.1.0,)</versionRange>
+										<goals>
+											<goal>format</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>
