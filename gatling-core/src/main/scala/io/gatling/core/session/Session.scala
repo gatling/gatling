@@ -74,18 +74,22 @@ case class Session(
 	private[gatling] def setTimeShift(timeShift: Long) = copy(timeShift = timeShift)
 	private[gatling] def increaseTimeShift(time: Long) = copy(timeShift = time + timeShift)
 
-	private[gatling] def enterGroup(groupName: String) = copy(groupStack = GroupStackEntry(groupName, nowMillis) :: groupStack)
-	private[gatling] def exitGroup = copy(groupStack = groupStack.tail)
+	private[gatling] def enterGroup(groupName: String) = copy(groupStack = GroupStackEntry(groupName, nowMillis) :: groupStack, statusStack = OK :: statusStack)
+	private[gatling] def exitGroup = statusStack match {
+		case KO :: _ :: tail => copy(statusStack = KO :: tail, groupStack = groupStack.tail) // propagate failure to upper block
+		case _ :: tail => copy(statusStack = tail, groupStack = groupStack.tail)
+	}
 
 	private[gatling] def enterTryMax(interrupt: PartialFunction[Session, Unit]): Session = enterInterruptable(interrupt).copy(statusStack = OK :: statusStack)
 	private[gatling] def exitTryMax: Session = statusStack match {
 		case KO :: _ :: tail => copy(statusStack = KO :: tail, interruptStack = interruptStack.tail) // propagate failure to upper block
-		case _ :: tail => copy(statusStack = tail)
+		case _ :: tail => copy(statusStack = tail, interruptStack = interruptStack.tail)
 	}
 	def markAsFailed: Session = statusStack match {
 		case OK :: tail => copy(statusStack = KO :: tail)
 		case _ => this
 	}
+
 	def status: Status = if (statusStack.contains(KO)) KO else OK
 	def resetStatus = statusStack match {
 		case KO :: tail => copy(statusStack = OK :: tail)
