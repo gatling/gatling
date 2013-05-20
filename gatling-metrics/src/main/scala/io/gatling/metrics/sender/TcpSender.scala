@@ -17,14 +17,16 @@ package io.gatling.metrics.sender
 
 import java.net.Socket
 
+import io.gatling.core.action.system
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.UnsyncronizedBufferedOutputStream
 
 class TcpSender extends MetricsSender {
 
 	val os = {
-		val socket = new Socket(configuration.data.graphite.host, configuration.data.graphite.port)
-		new UnsyncronizedBufferedOutputStream(socket.getOutputStream, configuration.data.graphite.bufferSize)
+		val sos = new Socket(configuration.data.graphite.host, configuration.data.graphite.port).getOutputStream
+		system.registerOnTermination(sos.close)
+		new UnsyncronizedBufferedOutputStream(sos, configuration.data.graphite.bufferSize)
 	}
 
 	def sendToGraphite(bytes: Array[Byte]) { os.write(bytes) }

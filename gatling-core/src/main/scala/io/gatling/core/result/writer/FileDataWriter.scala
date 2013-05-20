@@ -20,6 +20,7 @@ import java.io.FileOutputStream
 import com.dongxiguo.fastring.Fastring.Implicits._
 import com.typesafe.scalalogging.slf4j.Logging
 
+import io.gatling.core.action.system
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.result.Group
@@ -115,7 +116,9 @@ class FileDataWriter extends DataWriter {
 
 	override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
 		val simulationLog = simulationLogDirectory(run.runId) / "simulation.log"
-		os = new UnsyncronizedBufferedOutputStream(new FileOutputStream(simulationLog.toString), configuration.data.file.bufferSize)
+		val fos = new FileOutputStream(simulationLog.toString)
+		system.registerOnTermination(fos.close)
+		os = new UnsyncronizedBufferedOutputStream(fos, configuration.data.file.bufferSize)
 		os.write(run.getBytes)
 	}
 

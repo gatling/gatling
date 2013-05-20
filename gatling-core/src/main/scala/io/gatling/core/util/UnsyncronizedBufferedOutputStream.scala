@@ -19,11 +19,8 @@ import java.io.OutputStream
 
 import com.typesafe.scalalogging.slf4j.Logging
 
-import io.gatling.core.action.system
-
 class UnsyncronizedBufferedOutputStream(os: OutputStream, bufferSize: Int) extends Logging {
 
-	system.registerOnTermination(os.close)
 	private var bufferPosition = 0
 	private val buffer = new Array[Byte](bufferSize)
 
