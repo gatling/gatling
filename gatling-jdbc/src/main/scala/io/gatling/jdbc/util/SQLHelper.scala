@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 		http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,24 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.metrics.sender
+package io.gatling.jdbc.util
 
-import io.gatling.core.config.GatlingConfiguration.configuration
+import java.sql.{ Connection, Statement }
 
-object MetricsSender {
-	def newMetricsSender: MetricsSender = configuration.data.graphite.protocol match {
-		case "tcp" => new TcpSender
-		case "udp" => new UdpSender
-	}
-}
-abstract class MetricsSender {
+object SQLHelper {
 
-	def sendToGraphite(metricPath: String, value: Long, epoch: Long) {
-		val bytes = s"$metricPath $value $epoch\n".getBytes(configuration.core.encoding)
-		sendToGraphite(bytes)
+	def withConnection[T, C <: Connection](closeable: C)(block: C => T) = {
+		try
+			block(closeable)
+		finally
+			closeable.close
 	}
 
-	def sendToGraphite(bytes: Array[Byte])
-
-	def flush
+	def withStatement[T, S <: Statement](statement: S)(block: S => T) = {
+		try
+			block(statement)
+		finally
+			statement.close
+	}
 }

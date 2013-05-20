@@ -18,12 +18,14 @@ package io.gatling.metrics.sender
 import java.net.{ DatagramPacket, DatagramSocket, InetSocketAddress }
 import java.nio.channels.DatagramChannel
 
+import io.gatling.core.action.system
 import io.gatling.core.config.GatlingConfiguration.configuration
 
 class UdpSender extends MetricsSender {
 
 	private val address = new InetSocketAddress(configuration.data.graphite.host, configuration.data.graphite.port)
 	private val socket: DatagramSocket = DatagramChannel.open.socket
+	system.registerOnTermination(socket.close)
 
 	def sendToGraphite(bytes: Array[Byte]) {
 		val packet = new DatagramPacket(bytes, bytes.length, address)
@@ -31,8 +33,4 @@ class UdpSender extends MetricsSender {
 	}
 
 	def flush {}
-
-	def close {
-		socket.close
-	}
 }

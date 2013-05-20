@@ -47,7 +47,7 @@ class GraphiteDataWriter extends DataWriter {
 		metricRootPath = rootPathPrefix :+ run.simulationId
 		allUsers = new UserMetric(scenarios.map(_.nbUsers).sum)
 		scenarios.foreach(scenario => usersPerScenario += scenario.name -> new UserMetric(scenario.nbUsers))
-		system.scheduler.schedule(0 millisecond, 1000 milliseconds, self, SendToGraphite)
+		system.scheduler.schedule(0 millisecond, 1000 milliseconds, self, Send)
 	}
 
 	def onScenarioMessage(scenario: ScenarioMessage) {
@@ -67,7 +67,7 @@ class GraphiteDataWriter extends DataWriter {
 	}
 
 	def onFlushDataWriter {
-		graphiteSender ! CloseSocket
+		graphiteSender ! Flush
 	}
 
 	override def receive = uninitialized
@@ -86,13 +86,9 @@ class GraphiteDataWriter extends DataWriter {
 			metricsSender = MetricsSender.newMetricsSender
 		}
 
-		override def preRestart(reason: Throwable, message: Option[Any]) {
-			metricsSender.close
-		}
-
 		def receive = {
-			case SendToGraphite => sendMetricsToGraphite(nowSeconds)
-			case CloseSocket => metricsSender.close
+			case Send => sendMetricsToGraphite(nowSeconds)
+			case Flush => metricsSender.flush
 		}
 
 		private def sendMetricsToGraphite(epoch: Long) {

@@ -16,5 +16,5 @@
 package io.gatling.metrics
 
 sealed trait GraphiteDataWriterMessage
-case object SendToGraphite extends GraphiteDataWriterMessage
-case object CloseSocket extends GraphiteDataWriterMessage
+case object Send extends GraphiteDataWriterMessage
+case object Flush extends GraphiteDataWriterMessage

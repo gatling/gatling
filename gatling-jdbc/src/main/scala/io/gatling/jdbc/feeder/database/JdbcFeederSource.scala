@@ -21,7 +21,7 @@ import java.sql.ResultSet.{ CONCUR_READ_ONLY, TYPE_FORWARD_ONLY }
 import scala.annotation.tailrec
 
 import io.gatling.core.feeder.Record
-import io.gatling.core.util.IOHelper.withConnection
+import io.gatling.jdbc.util.SQLHelper.withConnection
 
 object JdbcFeederSource {
 

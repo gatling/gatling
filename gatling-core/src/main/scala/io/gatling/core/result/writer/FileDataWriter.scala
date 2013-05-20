@@ -20,11 +20,11 @@ import java.io.FileOutputStream
 import com.dongxiguo.fastring.Fastring.Implicits._
 import com.typesafe.scalalogging.slf4j.Logging
 
+import io.gatling.core.action.system
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.result.Group
 import io.gatling.core.result.message.{ End, GroupMessage, GroupMessageType, GroupStackEntry, RequestMessage, RequestMessageType, RunMessage, RunMessageType, ScenarioMessage, ScenarioMessageType, ShortScenarioDescription }
-import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.core.util.StringHelper.eol
 
 object FileDataWriter {
@@ -158,6 +158,6 @@ class FileDataWriter extends DataWriter with Logging {
 
 	override def onFlushDataWriter {
 		logger.info("Received flush order")
-		withCloseable(os) { _ => flush }
+		os.flush
 	}
 }
