@@ -34,12 +34,12 @@ import javax.xml.parsers.{ DocumentBuilder, DocumentBuilderFactory }
 
 object XPathExtractors {
 
-	System.setProperty("javax.xml.parsers.SAXParserFactory", "org.apache.xerces.jaxp.SAXParserFactoryImpl")
-	System.setProperty("javax.xml.parsers.DOMParserFactory", "org.apache.xerces.jaxp.DOMParserFactoryImpl")
+	System.setProperty("javax.xml.parsers.SAXParserFactory", configuration.core.extract.xpath.saxParserFactory)
+	System.setProperty("javax.xml.parsers.DOMParserFactory", configuration.core.extract.xpath.domParserFactory)
 	private val factory = {
 		val f = DocumentBuilderFactory.newInstance
-		f.setExpandEntityReferences(false)
-		f.setNamespaceAware(true)
+		f.setExpandEntityReferences(configuration.core.extract.xpath.expandEntityReferences)
+		f.setNamespaceAware(configuration.core.extract.xpath.namespaceAware)
 		f
 	}
 

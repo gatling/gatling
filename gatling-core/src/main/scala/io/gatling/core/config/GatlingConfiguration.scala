@@ -56,7 +56,11 @@ object GatlingConfiguration {
 					regex = RegexConfiguration(
 						cache = config.getBoolean(CONF_CORE_EXTRACT_REGEXP_CACHE)),
 					xpath = XPathConfiguration(
-						cache = config.getBoolean(CONF_CORE_EXTRACT_XPATH_CACHE)),
+						cache = config.getBoolean(CONF_CORE_EXTRACT_XPATH_CACHE),
+						saxParserFactory = config.getString(CONF_CORE_EXTRACT_XPATH_SAX_PARSER_FACTORY),
+						domParserFactory = config.getString(CONF_CORE_EXTRACT_XPATH_DOM_PARSER_FACTORY),
+						expandEntityReferences = config.getBoolean(CONF_CORE_EXTRACT_XPATH_EXPAND_ENTITY_REFERENCES),
+						namespaceAware = config.getBoolean(CONF_CORE_EXTRACT_XPATH_NAMESPACE_AWARE)),
 					jsonPath = JsonPathConfiguration(
 						cache = config.getBoolean(CONF_CORE_EXTRACT_JSONPATH_CACHE)),
 					css = CssConfiguration(
@@ -183,7 +187,11 @@ case class RegexConfiguration(
 	cache: Boolean)
 
 case class XPathConfiguration(
-	cache: Boolean)
+	cache: Boolean,
+	saxParserFactory: String,
+	domParserFactory: String,
+	expandEntityReferences: Boolean,
+	namespaceAware: Boolean)
 
 case class JsonPathConfiguration(
 	cache: Boolean)

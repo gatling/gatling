@@ -24,6 +24,10 @@ object ConfigurationConstants {
 
 	val CONF_CORE_EXTRACT_REGEXP_CACHE = "gatling.core.extract.regex.cache"
 	val CONF_CORE_EXTRACT_XPATH_CACHE = "gatling.core.extract.xpath.cache"
+	val CONF_CORE_EXTRACT_XPATH_SAX_PARSER_FACTORY = "gatling.core.extract.xpath.saxParserFactory"
+	val CONF_CORE_EXTRACT_XPATH_DOM_PARSER_FACTORY = "gatling.core.extract.xpath.domParserFactory"
+	val CONF_CORE_EXTRACT_XPATH_EXPAND_ENTITY_REFERENCES = "gatling.core.extract.xpath.expandEntityReferences"
+	val CONF_CORE_EXTRACT_XPATH_NAMESPACE_AWARE = "gatling.core.extract.xpath.namespaceAware"
 	val CONF_CORE_EXTRACT_JSONPATH_CACHE = "gatling.core.extract.jsonPath.cache"
 	val CONF_CORE_EXTRACT_CSS_ENGINE = "gatling.core.extract.css.engine"
 
