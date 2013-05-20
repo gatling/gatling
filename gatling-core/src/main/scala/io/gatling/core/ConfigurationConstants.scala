@@ -89,6 +89,7 @@ object ConfigurationConstants {
 	val CONF_DATA_GRAPHITE_PROTOCOL = "gatling.data.graphite.protocol"
 	val CONF_DATA_GRAPHITE_ROOT_PATH_PREFIX = "gatling.data.graphite.rootPathPrefix"
 	val CONF_DATA_GRAPHITE_BUCKET_WIDTH = "gatling.data.graphite.bucketWidth"
+	val CONF_DATA_GRAPHITE_BUFFER_SIZE = "gatling.data.graphite.bufferSize"
 
 	val CONF_DATA_JDBC_URL = "gatling.data.jdbc.db.url"
 	val CONF_DATA_JDBC_USERNAME = "gatling.data.jdbc.db.username"

@@ -20,12 +20,12 @@ import java.io.FileOutputStream
 import com.dongxiguo.fastring.Fastring.Implicits._
 import com.typesafe.scalalogging.slf4j.Logging
 
-import io.gatling.core.action.system
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.result.Group
 import io.gatling.core.result.message.{ End, GroupMessage, GroupMessageType, GroupStackEntry, RequestMessage, RequestMessageType, RunMessage, RunMessageType, ScenarioMessage, ScenarioMessageType, ShortScenarioDescription }
 import io.gatling.core.util.StringHelper.eol
+import io.gatling.core.util.UnsyncronizedBufferedOutputStream
 
 object FileDataWriter {
 
@@ -107,57 +107,25 @@ object FileDataWriter {
  *
  * It writes the data of the simulation if a tabulation separated values file
  */
-class FileDataWriter extends DataWriter with Logging {
+class FileDataWriter extends DataWriter {
 
 	import FileDataWriter._
 
-	private val bufferSize = configuration.data.file.bufferSize
-	private var bufferPosition = 0
-	private val buffer = new Array[Byte](bufferSize)
-	private var os: FileOutputStream = _
-
-	private def flush {
-		os.write(buffer, 0, bufferPosition)
-		bufferPosition = 0
-	}
-
-	private def write(bytes: Array[Byte]) {
-		if (bytes.length + bufferPosition > bufferSize) {
-			flush
-		}
-
-		if (bytes.length > bufferSize) {
-			// can't write in buffer
-			logger.warn(s"Buffer size $bufferSize is not sufficient for message of size ${bytes.length}")
-			os.write(bytes)
-
-		} else {
-			System.arraycopy(bytes, 0, buffer, bufferPosition, bytes.length)
-			bufferPosition += bytes.length
-		}
-	}
+	private var os: UnsyncronizedBufferedOutputStream = _
 
 	override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
 		val simulationLog = simulationLogDirectory(run.runId) / "simulation.log"
-		os = new FileOutputStream(simulationLog.toString)
-		write(run.getBytes)
+		os = new UnsyncronizedBufferedOutputStream(new FileOutputStream(simulationLog.toString), configuration.data.file.bufferSize)
+		os.write(run.getBytes)
 	}
 
 	override def onScenarioMessage(scenario: ScenarioMessage) {
-		if (scenario.event == End)
-			write(scenario.getBytes)
+		if (scenario.event == End) os.write(scenario.getBytes)
 	}
 
-	override def onGroupMessage(group: GroupMessage) {
-		write(group.getBytes)
-	}
+	override def onGroupMessage(group: GroupMessage) { os.write(group.getBytes) }
 
-	override def onRequestMessage(request: RequestMessage) {
-		write(request.getBytes)
-	}
+	override def onRequestMessage(request: RequestMessage) { os.write(request.getBytes) }
 
-	override def onFlushDataWriter {
-		logger.info("Received flush order")
-		os.flush
-	}
+	override def onFlushDataWriter { os.flush }
 }
