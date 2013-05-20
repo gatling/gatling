@@ -25,6 +25,7 @@ import com.typesafe.config.{ Config, ConfigFactory, ConfigRenderOptions }
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
+import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.core.util.StringHelper.{ eol, RichString }
 import io.gatling.recorder.config.ConfigurationConstants._
 import io.gatling.recorder.ui.enumeration.FilterStrategy
@@ -67,9 +68,7 @@ object RecorderConfiguration extends Logging {
 	def saveConfig {
 		// Remove request bodies folder configuration (transient), keep only Gatling-related properties
 		val configToSave = configuration.config.withoutPath(REQUEST_BODIES_FOLDER).root.withOnlyKey(CONFIG_ROOT)
-		val writer = new BufferedWriter(new FileWriter(configFile))
-		writer.write(cleanOutput(configToSave.render(renderOptions)))
-		writer.close
+		withCloseable(new BufferedWriter(new FileWriter(configFile)))(_.write(cleanOutput(configToSave.render(renderOptions))))
 	}
 
 	// Removes first empty line and remove the extra level of indentation
