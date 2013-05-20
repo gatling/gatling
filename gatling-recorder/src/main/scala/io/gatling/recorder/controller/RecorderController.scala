@@ -43,8 +43,8 @@ import io.gatling.recorder.har.HarReader
 
 object RecorderController {
 
-	def apply(props: mutable.Map[String, Any]) {
-		RecorderConfiguration.initialSetup(props)
+	def apply(props: mutable.Map[String, Any], recorderConfigFile: Option[File] = None) {
+		RecorderConfiguration.initialSetup(props, recorderConfigFile)
 		val controller = new RecorderController
 		controller.showConfigurationFrame
 	}

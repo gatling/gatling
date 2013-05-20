@@ -15,16 +15,18 @@
  */
 package io.gatling.recorder.config
 
+import java.io.{ BufferedWriter, File => JFile, FileWriter }
+
 import scala.collection.JavaConversions.{ asScalaBuffer, mapAsJavaMap }
 import scala.collection.mutable
 import scala.tools.nsc.io.File
-import scala.tools.nsc.io.Path.string2path
 
 import com.typesafe.config.{ Config, ConfigFactory, ConfigRenderOptions }
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
-import io.gatling.core.util.StringHelper.RichString
+import io.gatling.core.util.IOHelper.withCloseable
+import io.gatling.core.util.StringHelper.{ eol, RichString }
 import io.gatling.recorder.config.ConfigurationConstants._
 import io.gatling.recorder.ui.enumeration.FilterStrategy
 import io.gatling.recorder.ui.enumeration.FilterStrategy.FilterStrategy
@@ -35,42 +37,45 @@ case class Pattern(patternType: PatternType, pattern: String)
 
 object RecorderConfiguration extends Logging {
 
+	val remove4Spaces = """\s{4}""".r
+
 	var saveConfiguration = false
 
 	val renderOptions = ConfigRenderOptions.concise.setFormatted(true).setJson(false)
 
-	val configFile = File(System.getProperty("user.home") / "gatling-recorder.conf")
+	var configFile: JFile = _
 
 	var configuration: RecorderConfiguration = _
 
 	GatlingConfiguration.setUp()
 
-	def initialSetup(props: mutable.Map[String, Any]) {
+	def initialSetup(props: mutable.Map[String, _ <: Any], recorderConfigFile: Option[File]) {
 		val classLoader = getClass.getClassLoader
 		val defaultsConfig = ConfigFactory.parseResources(classLoader, "recorder-defaults.conf")
-		val customConfig = getCustomConfig
+		configFile = recorderConfigFile.map(_.jfile).getOrElse(new JFile(classLoader.getResource("recorder.conf").getFile))
+		val customConfig = ConfigFactory.parseFile(configFile)
 		val propertiesConfig = ConfigFactory.parseMap(props)
 		buildConfig(ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(customConfig).withFallback(defaultsConfig))
 		logger.debug(s"configured $configuration")
 	}
 
-	def reload(props: mutable.Map[String, Any]) {
+	def reload(props: mutable.Map[String, _ <: Any]) {
 		val frameConfig = ConfigFactory.parseMap(props)
 		buildConfig(frameConfig.withFallback(configuration.config))
 		logger.debug(s"reconfigured $configuration")
 	}
 
 	def saveConfig {
-		val configToSave = configuration.config.root.withOnlyKey(CONFIG_ROOT)
-		configFile.writeAll(configToSave.render(renderOptions))
+		// Remove request bodies folder configuration (transient), keep only Gatling-related properties
+		val configToSave = configuration.config.withoutPath(REQUEST_BODIES_FOLDER).root.withOnlyKey(CONFIG_ROOT)
+		withCloseable(new BufferedWriter(new FileWriter(configFile)))(_.write(cleanOutput(configToSave.render(renderOptions))))
 	}
 
-	def getCustomConfig = if (configFile.exists) {
-		saveConfiguration = true
-		ConfigFactory.parseFile(configFile.jfile)
-	} else ConfigFactory.empty
+	// Removes first empty line and remove the extra level of indentation
+	private def cleanOutput(configToSave: String) =
+		configToSave.split(eol).drop(1).map(remove4Spaces.replaceFirstIn(_, "")).mkString(eol)
 
-	def buildConfig(config: Config) {
+	private def buildConfig(config: Config) {
 		def zeroToOption(value: Int) = if (value != 0) Some(value) else None
 
 		def buildPatterns(patterns: List[String], patternsType: List[String]) = {
