@@ -33,16 +33,18 @@ object RequestTemplate {
 		requestBodyOrParams: Option[Either[String, List[(String, String)]]],
 		statusCode: Int) = {
 
+		def renderUrl = fast"""$tripleQuotes$printedUrl${
+			if (queryParams.isEmpty) ""
+			else "?" + queryParams.map {
+				case (name, value) => name + "=" + Option(value).getOrElse("")
+			}.mkFastring("&")
+		}$tripleQuotes"""
+
 		def renderHeaders = headersId
 			.map { id =>
 				s"""
 			.headers(${headersBlockName(id)})"""
 			}.getOrElse("")
-
-		def renderQueryParams = queryParams.map {
-			case (name, value) => fast"""
-			.queryParam($tripleQuotes$name$tripleQuotes, $tripleQuotes$value$tripleQuotes)"""
-		}.mkFastring
 
 		def renderBodyOrParams = requestBodyOrParams.map {
 			_ match {
@@ -67,6 +69,6 @@ object RequestTemplate {
 			} else ""
 
 		fast"""exec(http("request_$id")
-			.${method.toLowerCase}("$printedUrl")$renderHeaders$renderQueryParams$renderBodyOrParams$renderCredentials$renderStatusCheck)""".toString
+			.${method.toLowerCase}($renderUrl)$renderHeaders$renderBodyOrParams$renderCredentials$renderStatusCheck)""".toString
 	}
 }
