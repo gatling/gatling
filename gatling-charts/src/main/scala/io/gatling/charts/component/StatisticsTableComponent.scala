@@ -44,7 +44,7 @@ class StatisticsTableComponent extends Component {
                                     <tr>
                                         <th rowspan="2" id="col-1" class="header sortable sorted-up"><span>Requests</span></th>
                                         <th rowspan="2"></th>
-                                        <th colspan="3" class="header"><span class="executions">Executions</span></th>
+                                        <th colspan="4" class="header"><span class="executions">Executions</span></th>
                                         <th rowspan="2"></th>
                                         <th colspan="${responseTimeFields.size}" class="header"><span class="response-time">Response Time (ms)</span></th>
                                     </tr>
@@ -52,7 +52,8 @@ class StatisticsTableComponent extends Component {
                                         <th id="col-2" class="header sortable"><span>Total</span></th>
                                         <th id="col-3" class="header sortable"><span>OK</span></th>
                                         <th id="col-4" class="header sortable"><span>KO</span></th>
-                                        ${responseTimeFields.zipWithIndex.map { case (header, i) => fast"""<th id="col-${i + 5}" class="header sortable"><span>$header</span></th>""" }.mkFastring(eol)}
+                                        <th id="col-5" class="header sortable"><span>% KO</span></th>
+                                        ${responseTimeFields.zipWithIndex.map { case (header, i) => fast"""<th id="col-${i + 6}" class="header sortable"><span>$header</span></th>""" }.mkFastring(eol)}
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -78,6 +79,7 @@ function generateHtmlRow(request, level, index, parent, group) {
     else
         var expandButtonStyle = ' hidden';
 
+    var koPercent = (request.stats.numberOfRequests.ko / request.stats.numberOfRequests.ok).toFixed(2) * 100;
     return '<tr id="' + request.pathFormatted + '" class="child-of-' + parent + '"> \\
         <td class="total col-1"> \\
             <span id="' + request.pathFormatted + '" style="margin-left: ' + (level * 10) + 'px;" class="expand-button' + expandButtonStyle + '">&nbsp;</span> \\
@@ -87,14 +89,15 @@ function generateHtmlRow(request, level, index, parent, group) {
         <td class="value total col-2">' + request.stats.numberOfRequests.total + '</td> \\
         <td class="value ok col-3">' + request.stats.numberOfRequests.ok + '</td> \\
         <td class="value ko col-4">' + request.stats.numberOfRequests.ko + '</td> \\
+         <td class="value ko col-5">' + koPercent + ' %' + '</td> \\
         <td></td> \\
-        <td class="value total col-5">' + request.stats.minResponseTime.total + '</td> \\
-        <td class="value total col-6">' + request.stats.maxResponseTime.total + '</td> \\
-        <td class="value total col-7">' + request.stats.meanResponseTime.total + '</td> \\
-        <td class="value total col-8">' + request.stats.standardDeviation.total + '</td> \\
-        <td class="value total col-9">' + request.stats.percentiles1.total + '</td> \\
-        <td class="value total col-10">' + request.stats.percentiles2.total + '</td> \\
-        <td class="value total col-11">' + request.stats.meanNumberOfRequestsPerSecond.total + '</td> \\
+        <td class="value total col-6">' + request.stats.minResponseTime.total + '</td> \\
+        <td class="value total col-7">' + request.stats.maxResponseTime.total + '</td> \\
+        <td class="value total col-8">' + request.stats.meanResponseTime.total + '</td> \\
+        <td class="value total col-9">' + request.stats.standardDeviation.total + '</td> \\
+        <td class="value total col-10">' + request.stats.percentiles1.total + '</td> \\
+        <td class="value total col-11">' + request.stats.percentiles2.total + '</td> \\
+        <td class="value total col-12">' + request.stats.meanNumberOfRequestsPerSecond.total + '</td> \\
         </tr>';
 }
 
