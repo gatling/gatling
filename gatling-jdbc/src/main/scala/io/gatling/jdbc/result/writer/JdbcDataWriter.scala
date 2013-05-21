@@ -62,9 +62,9 @@ class JdbcDataWriter extends DataWriter with Logging {
 		conn.setAutoCommit(false)
 
 		for {
-		    createRunRecordTable <- configuration.data.jdbc.createRunRecordTable
-		    createRequestRecordTable <- configuration.data.jdbc.createRequestRecordTable
-		    createScenarioRecord <- configuration.data.jdbc.createScenarioRecord
+			createRunRecordTable <- configuration.data.jdbc.createRunRecordTable
+			createRequestRecordTable <- configuration.data.jdbc.createRequestRecordTable
+			createScenarioRecord <- configuration.data.jdbc.createScenarioRecord
 			createGroupRecord <- configuration.data.jdbc.createGroupRecord
 		} {
 			withStatement(conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE)) { statement =>

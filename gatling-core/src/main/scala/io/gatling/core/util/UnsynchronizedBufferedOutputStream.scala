@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * 		http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,7 @@ import java.io.OutputStream
 
 import com.typesafe.scalalogging.slf4j.Logging
 
-class UnsyncronizedBufferedOutputStream(os: OutputStream, bufferSize: Int) extends Logging {
+class UnsynchronizedBufferedOutputStream(os: OutputStream, bufferSize: Int) extends Logging {
 
 	private var bufferPosition = 0
 	private val buffer = new Array[Byte](bufferSize)
