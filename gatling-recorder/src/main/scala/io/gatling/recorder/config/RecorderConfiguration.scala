@@ -43,7 +43,7 @@ object RecorderConfiguration extends Logging {
 
 	val renderOptions = ConfigRenderOptions.concise.setFormatted(true).setJson(false)
 
-	var configFile: JFile = _
+	var configFile: Option[JFile] = None
 
 	var configuration: RecorderConfiguration = _
 
@@ -52,8 +52,14 @@ object RecorderConfiguration extends Logging {
 	def initialSetup(props: mutable.Map[String, _ <: Any], recorderConfigFile: Option[File]) {
 		val classLoader = getClass.getClassLoader
 		val defaultsConfig = ConfigFactory.parseResources(classLoader, "recorder-defaults.conf")
-		configFile = recorderConfigFile.map(_.jfile).getOrElse(new JFile(classLoader.getResource("recorder.conf").getFile))
-		val customConfig = ConfigFactory.parseFile(configFile)
+		configFile = recorderConfigFile.map(_.jfile).orElse(Option(classLoader.getResource("recorder.conf")).map(_.getFile).map(new JFile(_)))
+		val customConfig = configFile match {
+			case Some(file) => ConfigFactory.parseFile(file)
+			case None => // Should only happens with a manually (and incorrectly) updated Maven archetype or SBT template
+				println("Maven archetype or SBT template outdated: Please create a new one or check the migration guide on how to update it.")
+				println("Recorder preferences won't be saved until then.")
+				ConfigFactory.empty
+		}
 		val propertiesConfig = ConfigFactory.parseMap(props)
 		buildConfig(ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(customConfig).withFallback(defaultsConfig))
 		logger.debug(s"configured $configuration")
@@ -68,7 +74,7 @@ object RecorderConfiguration extends Logging {
 	def saveConfig {
 		// Remove request bodies folder configuration (transient), keep only Gatling-related properties
 		val configToSave = configuration.config.withoutPath(REQUEST_BODIES_FOLDER).root.withOnlyKey(CONFIG_ROOT)
-		withCloseable(new BufferedWriter(new FileWriter(configFile)))(_.write(cleanOutput(configToSave.render(renderOptions))))
+		configFile.foreach(file => withCloseable(File(file).bufferedWriter)(_.write(cleanOutput(configToSave.render(renderOptions)))))
 	}
 
 	// Removes first empty line and remove the extra level of indentation
