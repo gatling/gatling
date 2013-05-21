@@ -15,7 +15,7 @@
  */
 package io.gatling.jdbc.result.writer
 
-import java.sql.{ Connection, DriverManager, PreparedStatement, ResultSet, Statement }
+import java.sql.{ Connection, Date => SQLDate, DriverManager, PreparedStatement, ResultSet, Statement }
 
 import com.typesafe.scalalogging.slf4j.Logging
 
@@ -44,7 +44,7 @@ class JdbcDataWriter extends DataWriter with Logging {
 	/**
 	 * The OutputStreamWriter used to write to db
 	 */
-	private val bufferSize: Int = 10 // FIXME make configurable
+	private val bufferSize: Int = configuration.data.jdbc.bufferSize
 	private var conn: Connection = _ // TODO investigate if need 1 connection is enough
 	private var runId: Int = _
 	private var scenarioInsert: PreparedStatement = _
@@ -61,12 +61,18 @@ class JdbcDataWriter extends DataWriter with Logging {
 
 		conn.setAutoCommit(false)
 
-		//Create tables if it doesnt exist
-		withStatement(conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE)) { statement =>
-			statement.executeUpdate("CREATE TABLE IF NOT EXISTS `RunRecords` ( `id` INT NOT NULL AUTO_INCREMENT , `runDate` DATETIME NULL , `simulationId` VARCHAR(45) NULL , `runDescription` VARCHAR(45) NULL , PRIMARY KEY (`id`) )")
-			statement.executeUpdate("CREATE TABLE IF NOT EXISTS `RequestRecords` (`id` int(11) NOT NULL AUTO_INCREMENT, `runId` int(11) DEFAULT NULL, `scenario` varchar(45) DEFAULT NULL, `userId` int(11) DEFAULT NULL, `name` varchar(50) DEFAULT NULL, `requestStartDate` varchar(45) DEFAULT NULL, `requestEndDate` varchar(45) DEFAULT NULL, `responseStartDate` varchar(45) DEFAULT NULL, `responseEndDate` varchar(45) DEFAULT NULL, `status` varchar(45) DEFAULT NULL, `message` varchar(4500) DEFAULT NULL, `responseTime` int(11) DEFAULT NULL, PRIMARY KEY (`id`) )")
-			statement.executeUpdate("CREATE TABLE IF NOT EXISTS `ScenarioRecords` (`id` int(11) NOT NULL AUTO_INCREMENT, `runId` int(11) DEFAULT NULL, `scenarioName` varchar(45) DEFAULT NULL, `userId` int(11) DEFAULT NULL, `event` varchar(50) DEFAULT NULL, `startDate` varchar(45) DEFAULT NULL, `endDate` varchar(45) DEFAULT NULL, PRIMARY KEY (`id`) )")
-			statement.executeUpdate("CREATE TABLE IF NOT EXISTS `GroupRecords` (`id` int(11) NOT NULL AUTO_INCREMENT, `runId` int(11) DEFAULT NULL, `scenarioName` varchar(45) DEFAULT NULL, `userId` int(11) DEFAULT NULL, `entryDate` varchar(50) DEFAULT NULL, `exitDate` varchar(45) DEFAULT NULL,`status` varchar(45) DEFAULT NULL, PRIMARY KEY (`id`) )")
+		for {
+		    createRunRecordTable <- configuration.data.jdbc.createRunRecordTable
+		    createRequestRecordTable <- configuration.data.jdbc.createRequestRecordTable
+		    createScenarioRecord <- configuration.data.jdbc.createScenarioRecord
+			createGroupRecord <- configuration.data.jdbc.createGroupRecord
+		} {
+			withStatement(conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE)) { statement =>
+				statement.executeUpdate(createRunRecordTable)
+				statement.executeUpdate(createRequestRecordTable)
+				statement.executeUpdate(createScenarioRecord)
+				statement.executeUpdate(createGroupRecord)
+			}
 		}
 
 		//Insert queries for batch processing
@@ -79,7 +85,7 @@ class JdbcDataWriter extends DataWriter with Logging {
 
 		//Filling in run information
 		withStatement(conn.prepareStatement("INSERT INTO RunRecords(runDate, simulationId, runDescription) VALUES(?,?,?)")) { runInsert =>
-			runInsert.setDate(1, new java.sql.Date(run.runDate.toDate.getTime))
+			runInsert.setDate(1, new SQLDate(run.runDate.toDate.getTime))
 			runInsert.setString(2, run.simulationId)
 			runInsert.setString(3, run.runDescription)
 			runInsert.executeUpdate
@@ -96,8 +102,8 @@ class JdbcDataWriter extends DataWriter with Logging {
 		scenarioInsert.setString(2, scenarioName)
 		scenarioInsert.setInt(3, userId)
 		scenarioInsert.setString(4, event.name)
-		scenarioInsert.setString(5, startDate.toString) // FIXME long
-		scenarioInsert.setString(6, endDate.toString) // FIXME long
+		scenarioInsert.setLong(5, startDate)
+		scenarioInsert.setLong(6, endDate)
 		scenarioInsert.addBatch
 
 		scenarioCounter += 1
@@ -114,9 +120,9 @@ class JdbcDataWriter extends DataWriter with Logging {
 		groupInsert.setInt(1, runId)
 		groupInsert.setString(2, scenarioName)
 		groupInsert.setInt(3, userId)
-		groupInsert.setString(4, entryDate.toString) // FIXME long
-		groupInsert.setString(5, exitDate.toString) // FIXME long
-		groupInsert.setString(6, status.toString) // FIXME boolean
+		groupInsert.setLong(4, entryDate)
+		groupInsert.setLong(5, exitDate)
+		groupInsert.setString(6, status.toString)
 		groupInsert.addBatch
 
 		groupCounter += 1
@@ -134,13 +140,13 @@ class JdbcDataWriter extends DataWriter with Logging {
 		requestInsert.setString(2, scenario)
 		requestInsert.setInt(3, userId)
 		requestInsert.setString(4, name)
-		requestInsert.setString(5, requestStartDate.toString) // FIXME long
-		requestInsert.setString(6, requestEndDate.toString) // FIXME long
-		requestInsert.setString(7, responseStartDate.toString) // FIXME long
-		requestInsert.setString(8, responseEndDate.toString) // FIXME long
-		requestInsert.setString(9, status.toString) // FIXME boolean
-		requestInsert.setString(10, message.toString) // FIXME option
-		requestInsert.setInt(11, responseTime.toInt)
+		requestInsert.setLong(5, requestStartDate)
+		requestInsert.setLong(6, requestEndDate)
+		requestInsert.setLong(7, responseStartDate)
+		requestInsert.setLong(8, responseEndDate)
+		requestInsert.setString(9, status.toString)
+		requestInsert.setString(10, message.getOrElse(null))
+		requestInsert.setLong(11, responseTime)
 		requestInsert.addBatch
 
 		requestCounter += 1

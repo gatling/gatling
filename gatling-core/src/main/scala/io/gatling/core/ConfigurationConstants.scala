@@ -91,7 +91,12 @@ object ConfigurationConstants {
 	val CONF_DATA_GRAPHITE_BUCKET_WIDTH = "gatling.data.graphite.bucketWidth"
 	val CONF_DATA_GRAPHITE_BUFFER_SIZE = "gatling.data.graphite.bufferSize"
 
-	val CONF_DATA_JDBC_URL = "gatling.data.jdbc.db.url"
-	val CONF_DATA_JDBC_USERNAME = "gatling.data.jdbc.db.username"
-	val CONF_DATA_JDBC_PASSWORD = "gatling.data.jdbc.db.password"
+	val CONF_DATA_JDBC_DB_URL = "gatling.data.jdbc.db.url"
+	val CONF_DATA_JDBC_DB_USERNAME = "gatling.data.jdbc.db.username"
+	val CONF_DATA_JDBC_DB_PASSWORD = "gatling.data.jdbc.db.password"
+	val CONF_DATA_JDBC_BUFFER_SIZE = "gatling.data.jdbc.bufferSize"
+	val CONF_DATA_JDBC_CREATE_RUN_RECORD_TABLE = "gatling.data.jdbc. createRunRecordTable"
+	val CONF_DATA_JDBC_CREATE_REQUEST_RECORD_TABLE = "gatling.data.jdbc.createRequestRecordTable"
+	val CONF_DATA_JDBC_CREATE_SCENARIO_RECORD_TABLE = "gatling.data.jdbc.createScenarioRecord"
+	val CONF_DATA_JDBC_CREATE_GROUP_RECORD_TABLE = "gatling.data.jdbc.createGroupRecord"
 }

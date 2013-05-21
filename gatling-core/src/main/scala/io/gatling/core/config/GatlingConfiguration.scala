@@ -37,6 +37,13 @@ object GatlingConfiguration {
 		}
 	}
 
+	implicit class ConfigStringOption(val string: String) extends AnyVal {
+		def toOption: Option[String] = string.trim match {
+			case "" => None
+			case s => Some(s)
+		}
+	}
+
 	def setUp(props: mutable.Map[String, Any] = mutable.Map.empty) {
 		val classLoader = getClass.getClassLoader
 
@@ -105,22 +112,14 @@ object GatlingConfiguration {
 				userAgent = config.getString(CONF_HTTP_USER_AGENT),
 				useRawUrl = config.getBoolean(CONF_HTTP_USE_RAW_URL),
 				nonStandardJsonSupport = config.getString(CONF_HTTP_JSON_FEATURES).toStringSeq,
-				warmUpUrl = {
-					val value = config.getString(CONF_HTTP_WARM_UP_URL).trim
-					if (value.isEmpty) None else Some(value)
-				},
+				warmUpUrl = config.getString(CONF_HTTP_WARM_UP_URL).toOption,
 				ssl = {
 					def storeConfig(typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String) = {
 
-						def toOption(string: String) = {
-							val trimmed = string.trim
-							if (trimmed.isEmpty) None else Some(trimmed)
-						}
-
-						val storeType = toOption(config.getString(typeKey))
-						val storeFile = toOption(config.getString(fileKey))
+						val storeType = config.getString(typeKey).toOption
+						val storeFile = config.getString(fileKey).toOption
 						val storePassword = config.getString(passwordKey)
-						val storeAlgorithm = toOption(config.getString(algorithmKey))
+						val storeAlgorithm = config.getString(algorithmKey).toOption
 
 						storeType.map { t =>
 							StoreConfiguration(t, storeFile.getOrElse(throw new UnsupportedOperationException(s"$typeKey defined as $t but store file isn't defined")), storePassword, storeAlgorithm)
@@ -158,9 +157,14 @@ object GatlingConfiguration {
 					bufferSize = config.getInt(CONF_DATA_GRAPHITE_BUFFER_SIZE)),
 				jdbc = JDBCDataWriterConfiguration(
 					db = DBConfiguration(
-						url = config.getString(CONF_DATA_JDBC_URL),
-						username = config.getString(CONF_DATA_JDBC_USERNAME),
-						password = config.getString(CONF_DATA_JDBC_PASSWORD)))),
+						url = config.getString(CONF_DATA_JDBC_DB_URL),
+						username = config.getString(CONF_DATA_JDBC_DB_USERNAME),
+						password = config.getString(CONF_DATA_JDBC_DB_PASSWORD)),
+					bufferSize = config.getInt(CONF_DATA_JDBC_BUFFER_SIZE),
+					createRunRecordTable = config.getString(CONF_DATA_JDBC_CREATE_RUN_RECORD_TABLE).toOption,
+					createRequestRecordTable = config.getString(CONF_DATA_JDBC_CREATE_REQUEST_RECORD_TABLE).toOption,
+					createScenarioRecord = config.getString(CONF_DATA_JDBC_CREATE_SCENARIO_RECORD_TABLE).toOption,
+					createGroupRecord = config.getString(CONF_DATA_JDBC_CREATE_GROUP_RECORD_TABLE).toOption)),
 			config)
 	}
 }
@@ -268,7 +272,12 @@ case class DBConfiguration(
 	password: String)
 
 case class JDBCDataWriterConfiguration(
-	db: DBConfiguration)
+	db: DBConfiguration,
+	bufferSize: Int,
+	createRunRecordTable: Option[String],
+	createRequestRecordTable: Option[String],
+	createScenarioRecord: Option[String],
+	createGroupRecord: Option[String])
 
 case class ConsoleDataWriterConfiguration(
 	light: Boolean)
