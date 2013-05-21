@@ -79,7 +79,7 @@ function generateHtmlRow(request, level, index, parent, group) {
     else
         var expandButtonStyle = ' hidden';
 
-    var koPercent = (request.stats.numberOfRequests.ko / request.stats.numberOfRequests.ok).toFixed(2) * 100;
+    var koPercent = (request.stats.numberOfRequests.ko / request.stats.numberOfRequests.total).toFixed(2) * 100;
     return '<tr id="' + request.pathFormatted + '" class="child-of-' + parent + '"> \\
         <td class="total col-1"> \\
             <span id="' + request.pathFormatted + '" style="margin-left: ' + (level * 10) + 'px;" class="expand-button' + expandButtonStyle + '">&nbsp;</span> \\
