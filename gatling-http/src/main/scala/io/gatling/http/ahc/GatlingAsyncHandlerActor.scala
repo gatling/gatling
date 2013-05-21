@@ -216,7 +216,7 @@ class GatlingAsyncHandlerActor(
 				if (protocol.shareClient)
 					GatlingHttpClient.defaultClient
 				else
-					sessionWithUpdatedCookies.get(GatlingHttpClient.httpClientAttributeName, throw new UnsupportedOperationException("Couldn't find an HTTP client stored in the session"))
+					sessionWithUpdatedCookies(GatlingHttpClient.httpClientAttributeName).asOption.getOrElse(throw new UnsupportedOperationException("Couldn't find an HTTP client stored in the session"))
 
 			client.executeRequest(newRequest, handlerFactory(newRequestName, self))
 		}

@@ -108,17 +108,17 @@ object GatlingHttpClient extends Logging {
 		val ahcConfig = session.map { session =>
 
 			val trustManagers = for {
-				storeType <- session.get[String](CONF_HTTP_SSL_TRUST_STORE_TYPE)
-				file <- session.get[String](CONF_HTTP_SSL_TRUST_STORE_FILE)
-				password <- session.get[String](CONF_HTTP_SSL_TRUST_STORE_PASSWORD)
-				algorithm = session.get[String](CONF_HTTP_SSL_TRUST_STORE_ALGORITHM)
+				storeType <- session(CONF_HTTP_SSL_TRUST_STORE_TYPE).asOption[String]
+				file <- session(CONF_HTTP_SSL_TRUST_STORE_FILE).asOption[String]
+				password <- session(CONF_HTTP_SSL_TRUST_STORE_PASSWORD).asOption[String]
+				algorithm = session(CONF_HTTP_SSL_TRUST_STORE_ALGORITHM).asOption[String]
 			} yield newTrustManagers(storeType, file, password, algorithm)
 
 			val keyManagers = for {
-				storeType <- session.get[String](CONF_HTTP_SSL_KEY_STORE_TYPE)
-				file <- session.get[String](CONF_HTTP_SSL_KEY_STORE_FILE)
-				password <- session.get[String](CONF_HTTP_SSL_KEY_STORE_PASSWORD)
-				algorithm = session.get[String](CONF_HTTP_SSL_KEY_STORE_ALGORITHM)
+				storeType <- session(CONF_HTTP_SSL_KEY_STORE_TYPE).asOption[String]
+				file <- session(CONF_HTTP_SSL_KEY_STORE_FILE).asOption[String]
+				password <- session(CONF_HTTP_SSL_KEY_STORE_PASSWORD).asOption[String]
+				algorithm = session(CONF_HTTP_SSL_KEY_STORE_ALGORITHM).asOption[String]
 			} yield newKeyManagers(storeType, file, password, algorithm)
 
 			if (trustManagers.isDefined || keyManagers.isDefined) {
