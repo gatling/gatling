@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.feeder.csv
+package io.gatling.core.feeder
 
 import scala.io.Source
 import scala.tools.nsc.io.Path
-
 import io.gatling.core.config.GatlingFiles
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.feeder.{ AdvancedFeederBuilder, Record }
 import io.gatling.core.util.FileHelper.{ commaSeparator, semicolonSeparator, tabulationSeparator }
 import io.gatling.core.util.IOHelper.withSource
+import scala.Array.canBuildFrom
+import scala.reflect.io.Path.string2path
 
 object SeparatedValuesParser {
 

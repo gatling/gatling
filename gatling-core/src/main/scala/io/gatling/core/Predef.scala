@@ -20,8 +20,7 @@ import scala.reflect.ClassTag
 import scala.tools.nsc.io.{ File, Path }
 
 import io.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
-import io.gatling.core.feeder.{ AdvancedFeederBuilder, Feeder, FeederBuilder, FeederWrapper }
-import io.gatling.core.feeder.csv.SeparatedValuesParser
+import io.gatling.core.feeder.{ AdvancedFeederBuilder, Feeder, FeederBuilder, FeederWrapper, SeparatedValuesParser }
 import io.gatling.core.scenario.{ AtOnceInjection, ConstantRateInjection, HeavisideInjection, InjectionStep, NothingForInjection, RampInjection, RampRateInjection, SplitInjection }
 import io.gatling.core.session.{ ELCompiler, ELWrapper, Expression }
 import io.gatling.core.structure.{ AssertionBuilder, ChainBuilder, ScenarioBuilder }

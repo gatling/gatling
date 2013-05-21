@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.jdbc.feeder.database
+package io.gatling.jdbc.feeder
 
 import java.sql.DriverManager
 import java.sql.ResultSet.{ CONCUR_READ_ONLY, TYPE_FORWARD_ONLY }
-
 import scala.annotation.tailrec
-
 import io.gatling.core.feeder.Record
 import io.gatling.jdbc.util.SQLHelper.withConnection
 
