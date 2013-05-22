@@ -15,12 +15,9 @@
  */
 package io.gatling.recorder.scenario.template
 
-import io.gatling.recorder.scenario.PauseUnit
+import scala.concurrent.duration.{ DurationLong, FiniteDuration }
 
 object PauseTemplate {
 
-	def render(duration: Long, unit: PauseUnit) = {
-		val unitString = if (unit.inMilliseconds) " milliseconds" else ""
-		s"pause($duration$unitString)"
-	}
+	def render(duration: FiniteDuration) = s"pause(${if (duration > 1.second) duration.toSeconds else duration})"
 }

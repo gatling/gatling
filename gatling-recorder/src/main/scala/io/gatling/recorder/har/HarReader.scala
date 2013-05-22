@@ -17,8 +17,8 @@ package io.gatling.recorder.har
 
 import java.net.{ URI, URL, URLEncoder }
 
+import scala.concurrent.duration.DurationLong
 import scala.io.Source
-import scala.math.round
 import scala.util.Try
 
 import org.joda.convert.StringConvert
@@ -27,7 +27,7 @@ import org.joda.time.DateTime
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.RichString
 import io.gatling.http.Headers.Names.CONTENT_TYPE
-import io.gatling.recorder.scenario.{ PauseElement, PauseUnit, RequestElement, ScenarioElement }
+import io.gatling.recorder.scenario.{ PauseElement, RequestElement, ScenarioElement }
 import io.gatling.recorder.util.FiltersHelper.isRequestAccepted
 import io.gatling.recorder.util.RedirectHelper.{ isRequestInsideRedirectChain, isRequestRedirectChainEnd, isRequestRedirectChainStart }
 
@@ -84,12 +84,7 @@ object HarReader {
 			val timestamp = parseMillisFromIso8601DateTime(entry.startedDateTime)
 			val diff = timestamp - lastRequestTimestamp
 			if (lastRequestTimestamp != 0 && diff > 10) {
-				val (pauseValue, pauseUnit) =
-					if (diff > 1000)
-						(round(diff / 1000).toLong, PauseUnit.SECONDS)
-					else
-						(diff, PauseUnit.MILLISECONDS)
-				scenarioElements = new PauseElement(pauseValue, pauseUnit) :: scenarioElements
+				scenarioElements = new PauseElement(diff milliseconds) :: scenarioElements
 			}
 			lastRequestTimestamp = timestamp
 		}
