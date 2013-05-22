@@ -23,7 +23,7 @@ object TypeHelper {
 
 	implicit class TypeCaster(val value: Any) extends AnyVal {
 
-		def as[T: ClassTag]: Validation[T] = {
+		def asValidation[T: ClassTag]: Validation[T] = {
 
 			val clazz = implicitly[ClassTag[T]].runtimeClass
 			val valueClazz = value.getClass.getName match {

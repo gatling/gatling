@@ -76,7 +76,7 @@ class HttpRequestAction(
 					if (protocol.shareClient)
 						(newSession, GatlingHttpClient.defaultClient)
 					else
-						newSession.get[AsyncHttpClient](GatlingHttpClient.httpClientAttributeName)
+						newSession(GatlingHttpClient.httpClientAttributeName).asOption[AsyncHttpClient]
 							.map((newSession, _))
 							.getOrElse {
 								val client = GatlingHttpClient.newClient(newSession)
