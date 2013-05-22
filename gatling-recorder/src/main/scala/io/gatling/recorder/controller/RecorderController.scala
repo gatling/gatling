@@ -18,7 +18,7 @@ package io.gatling.recorder.controller
 import java.net.URI
 
 import scala.collection.mutable
-import scala.math.round
+import scala.concurrent.duration.DurationLong
 import scala.tools.nsc.io.File
 
 import org.jboss.netty.handler.codec.http.{ HttpRequest, HttpResponse }
@@ -31,7 +31,7 @@ import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.http.GatlingHttpProxy
-import io.gatling.recorder.scenario.{ PauseElement, PauseUnit, RequestElement, ScenarioElement, ScenarioExporter, TagElement }
+import io.gatling.recorder.scenario.{ PauseElement, RequestElement, ScenarioElement, ScenarioExporter, TagElement }
 import io.gatling.recorder.ui.frame.{ ConfigurationFrame, RunningFrame }
 import io.gatling.recorder.ui.frame.ConfigurationFrame.{ harMode, httpMode }
 import io.gatling.recorder.ui.info.{ PauseInfo, RequestInfo, SSLInfo }
@@ -123,18 +123,13 @@ class RecorderController extends Logging {
 				val newRequestTimestamp = System.currentTimeMillis
 				val diff = newRequestTimestamp - lastRequestTimestamp
 				if (diff > 10) {
-					val (pauseValue, pauseUnit) =
-						if (diff > 1000)
-							(round(diff / 1000).toLong, PauseUnit.SECONDS)
-						else
-							(diff, PauseUnit.MILLISECONDS)
-
+					val pauseDuration = diff.milliseconds
 					lastRequestTimestamp = newRequestTimestamp
 					useUIThread {
-						runningFrame.receiveEventInfo(PauseInfo(pauseValue, pauseUnit))
+						runningFrame.receiveEventInfo(PauseInfo(pauseDuration))
 					}
 
-					scenarioElements = new PauseElement(pauseValue, pauseUnit) :: scenarioElements
+					scenarioElements = new PauseElement(pauseDuration) :: scenarioElements
 				}
 			} else
 				lastRequestTimestamp = System.currentTimeMillis

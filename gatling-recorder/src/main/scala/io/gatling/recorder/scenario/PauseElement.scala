@@ -15,8 +15,10 @@
  */
 package io.gatling.recorder.scenario
 
+import scala.concurrent.duration.FiniteDuration
+
 import io.gatling.recorder.scenario.template.PauseTemplate
 
-class PauseElement(duration: Long, unit: PauseUnit) extends ScenarioElement {
-	override def toString = PauseTemplate.render(duration, unit)
+case class PauseElement(duration: FiniteDuration) extends ScenarioElement {
+	override def toString = PauseTemplate.render(duration)
 }

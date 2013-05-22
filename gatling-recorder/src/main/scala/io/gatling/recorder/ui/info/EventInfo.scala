@@ -17,15 +17,17 @@ package io.gatling.recorder.ui.info
 
 import java.nio.charset.Charset
 
+import scala.concurrent.duration.{ DurationLong, FiniteDuration }
+
 import org.jboss.netty.handler.codec.http.{ HttpMessage, HttpRequest, HttpResponse }
 
 import io.gatling.recorder.config.RecorderConfiguration.configuration
-import io.gatling.recorder.scenario.PauseUnit
 
 sealed trait EventInfo
 
-case class PauseInfo(duration: Long, unit: PauseUnit) extends EventInfo {
-	override def toString = s"PAUSE $duration${unit.toPrint}"
+case class PauseInfo(duration: FiniteDuration) extends EventInfo {
+	val toPrint = if (duration > 1.second) s"${duration.toSeconds}s" else s"${duration.length}ms"
+	override def toString = s"PAUSE $toPrint"
 }
 
 case class RequestInfo(request: HttpRequest, response: HttpResponse) extends EventInfo {
