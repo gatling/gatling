@@ -41,7 +41,7 @@ object CacheHandling extends Logging {
 			case _: Exception => false
 		}
 
-	private def getCache(session: Session): Set[String] = session.get(httpCacheAttributeName, Set.empty)
+	private def getCache(session: Session): Set[String] = session(httpCacheAttributeName).asOption.getOrElse(Set.empty)
 
 	def isCached(httpProtocol: HttpProtocol, session: Session, request: Request) = httpProtocol.cachingEnabled && getCache(session).contains(request.getUrl)
 

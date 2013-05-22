@@ -29,13 +29,13 @@ object CookieHandling {
 	def getStoredCookies(session: Session, url: String): List[Cookie] = getStoredCookies(session, URI.create(url))
 
 	def getStoredCookies(session: Session, uri: URI): List[Cookie] =
-		session.get[CookieJar](cookieJarAttributeName)
+		session(cookieJarAttributeName).asOption[CookieJar]
 			.map(_.get(uri))
 			.getOrElse(Nil)
 
 	def storeCookies(session: Session, uri: URI, cookies: List[Cookie]): Session =
 		if (!cookies.isEmpty)
-			session.get[CookieJar](cookieJarAttributeName)
+			session(cookieJarAttributeName).asOption[CookieJar]
 				.map(cookieJar => session.set(cookieJarAttributeName, cookieJar.add(uri, cookies)))
 				.getOrElse(session.set(cookieJarAttributeName, CookieJar(uri, cookies)))
 		else

@@ -22,33 +22,33 @@ import io.gatling.core.util.TypeHelper.TypeCaster
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation, ValidationList }
 
 trait Part[+T] {
-	def resolve(session: Session): Validation[T]
+	def apply(session: Session): Validation[T]
 }
 
 case class StaticPart(string: String) extends Part[String] {
-	def resolve(session: Session): Validation[String] = string.success
+	def apply(session: Session): Validation[String] = string.success
 }
 
 case class AttributePart(name: String) extends Part[Any] {
-	def resolve(session: Session): Validation[Any] = session.getV[Any](name)
+	def apply(session: Session): Validation[Any] = session(name).validate[Any]
 }
 
 case class SeqSizePart(name: String) extends Part[Int] {
-	def resolve(session: Session): Validation[Int] = session.getV[Seq[_]](name).map(_.size)
+	def apply(session: Session): Validation[Int] = session(name).validate[Seq[_]].map(_.size)
 }
 
 case class SeqRandomPart(name: String) extends Part[Any] {
-	def resolve(session: Session): Validation[Any] = {
+	def apply(session: Session): Validation[Any] = {
 		def randomItem(seq: Seq[_]) = seq(ThreadLocalRandom.current.nextInt(seq.size))
 
-		session.getV[Seq[_]](name).map(randomItem)
+		session(name).validate[Seq[_]].map(randomItem)
 	}
 }
 
 case class SeqElementPart(name: String, index: String) extends Part[Any] {
-	def resolve(session: Session): Validation[Any] = {
+	def apply(session: Session): Validation[Any] = {
 
-		def seqElementPart(index: Int): Validation[Any] = session.getV[Seq[_]](name).flatMap {
+		def seqElementPart(index: Int): Validation[Any] = session(name).validate[Seq[_]].flatMap {
 			_.lift(index) match {
 				case Some(e) => e.success
 				case None => undefinedSeqIndexMessage(name, index).failure
@@ -59,7 +59,7 @@ case class SeqElementPart(name: String, index: String) extends Part[Any] {
 			val intIndex = index.toInt
 			seqElementPart(intIndex)
 		} catch {
-			case e: NumberFormatException => session.getV[Int](index).flatMap(seqElementPart(_))
+			case e: NumberFormatException => session(index).validate[Int].flatMap(seqElementPart(_))
 		}
 	}
 }
@@ -103,14 +103,14 @@ object EL {
 		}
 
 		parsed match {
-			case List(StaticPart(string)) => (session: Session) => string.as[T]
-			case List(dynamicPart) => dynamicPart.resolve _ andThen (_.flatMap(_.as[T]))
+			case List(StaticPart(string)) => (session: Session) => string.asValidation[T]
+			case List(dynamicPart) => (session: Session) => dynamicPart(session).flatMap(_.asValidation[T])
 			case parts => (session: Session) =>
-				val resolvedString = parts.map(_.resolve(session))
+				val resolvedString = parts.map(_(session))
 					.sequence
 					.map(_.mkString)
 
-				resolvedString.flatMap(_.as[T])
+				resolvedString.flatMap(_.asValidation[T])
 		}
 	}
 }
