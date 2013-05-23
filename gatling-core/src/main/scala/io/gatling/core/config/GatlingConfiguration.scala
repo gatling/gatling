@@ -44,7 +44,7 @@ object GatlingConfiguration {
 		}
 	}
 
-	def setUp(props: mutable.Map[String, Any] = mutable.Map.empty) {
+	def setUp(props: mutable.Map[String, _ <: Any] = mutable.Map.empty) {
 		val classLoader = getClass.getClassLoader
 
 		val defaultsConfig = ConfigFactory.parseResources(classLoader, "gatling-defaults.conf")
@@ -161,10 +161,16 @@ object GatlingConfiguration {
 						username = config.getString(CONF_DATA_JDBC_DB_USERNAME),
 						password = config.getString(CONF_DATA_JDBC_DB_PASSWORD)),
 					bufferSize = config.getInt(CONF_DATA_JDBC_BUFFER_SIZE),
-					createRunRecordTable = config.getString(CONF_DATA_JDBC_CREATE_RUN_RECORD_TABLE).toOption,
-					createRequestRecordTable = config.getString(CONF_DATA_JDBC_CREATE_REQUEST_RECORD_TABLE).toOption,
-					createScenarioRecord = config.getString(CONF_DATA_JDBC_CREATE_SCENARIO_RECORD_TABLE).toOption,
-					createGroupRecord = config.getString(CONF_DATA_JDBC_CREATE_GROUP_RECORD_TABLE).toOption)),
+					createStatements = CreateStatements(
+						createRunRecordTable = config.getString(CONF_DATA_JDBC_CREATE_RUN_RECORD_TABLE).toOption,
+						createRequestRecordTable = config.getString(CONF_DATA_JDBC_CREATE_REQUEST_RECORD_TABLE).toOption,
+						createScenarioRecordTable = config.getString(CONF_DATA_JDBC_CREATE_SCENARIO_RECORD_TABLE).toOption,
+						createGroupRecordTable = config.getString(CONF_DATA_JDBC_CREATE_GROUP_RECORD_TABLE).toOption),
+					insertStatements = InsertStatements(
+						insertRunRecord = config.getString(CONF_DATA_JDBC_INSERT_RUN_RECORD).toOption,
+						insertRequestRecord = config.getString(CONF_DATA_JDBC_INSERT_REQUEST_RECORD).toOption,
+						insertScenarioRecord = config.getString(CONF_DATA_JDBC_INSERT_SCENARIO_RECORD).toOption,
+						insertGroupRecord = config.getString(CONF_DATA_JDBC_INSERT_GROUP_RECORD).toOption))),
 			config)
 	}
 }
@@ -271,13 +277,23 @@ case class DBConfiguration(
 	username: String,
 	password: String)
 
+case class CreateStatements(
+	createRunRecordTable: Option[String],
+	createRequestRecordTable: Option[String],
+	createScenarioRecordTable: Option[String],
+	createGroupRecordTable: Option[String])
+
+case class InsertStatements(
+	insertRunRecord: Option[String],
+	insertRequestRecord: Option[String],
+	insertScenarioRecord: Option[String],
+	insertGroupRecord: Option[String])
+
 case class JDBCDataWriterConfiguration(
 	db: DBConfiguration,
 	bufferSize: Int,
-	createRunRecordTable: Option[String],
-	createRequestRecordTable: Option[String],
-	createScenarioRecord: Option[String],
-	createGroupRecord: Option[String])
+	createStatements: CreateStatements,
+	insertStatements: InsertStatements)
 
 case class ConsoleDataWriterConfiguration(
 	light: Boolean)

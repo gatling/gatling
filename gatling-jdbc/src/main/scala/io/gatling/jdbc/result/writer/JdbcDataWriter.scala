@@ -15,7 +15,7 @@
  */
 package io.gatling.jdbc.result.writer
 
-import java.sql.{ Connection, Date => SQLDate, DriverManager, PreparedStatement, ResultSet, Statement }
+import java.sql.{ Connection, Date => SQLDate, DriverManager, PreparedStatement, ResultSet }
 
 import com.typesafe.scalalogging.slf4j.Logging
 
@@ -62,10 +62,10 @@ class JdbcDataWriter extends DataWriter with Logging {
 		conn.setAutoCommit(false)
 
 		for {
-			createRunRecordTable <- configuration.data.jdbc.createRunRecordTable
-			createRequestRecordTable <- configuration.data.jdbc.createRequestRecordTable
-			createScenarioRecord <- configuration.data.jdbc.createScenarioRecord
-			createGroupRecord <- configuration.data.jdbc.createGroupRecord
+			createRunRecordTable <- configuration.data.jdbc.createStatements.createRunRecordTable
+			createRequestRecordTable <- configuration.data.jdbc.createStatements.createRequestRecordTable
+			createScenarioRecord <- configuration.data.jdbc.createStatements.createScenarioRecordTable
+			createGroupRecord <- configuration.data.jdbc.createStatements.createGroupRecordTable
 		} {
 			withStatement(conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE)) { statement =>
 				statement.executeUpdate(createRunRecordTable)
@@ -76,22 +76,29 @@ class JdbcDataWriter extends DataWriter with Logging {
 		}
 
 		//Insert queries for batch processing
-		scenarioInsert = conn.prepareStatement("INSERT INTO ScenarioRecords (runId, scenarioName, userId, event, startDate, endDate) VALUES (?,?,?,?,?,?) ")
-		system.registerOnTermination(scenarioInsert.close)
-		groupInsert = conn.prepareStatement("INSERT INTO GroupRecords (runId, scenarioName, userId, entryDate, exitDate, status) VALUES (?,?,?,?,?,?) ")
-		system.registerOnTermination(groupInsert.close)
-		requestInsert = conn.prepareStatement("INSERT INTO RequestRecords (runId, scenario, userId, name, requestStartDate, requestEndDate, responseStartDate, responseEndDate, status, message, responseTime) VALUES (?,?,?,?,?,?,?,?,?,?,?) ")
-		system.registerOnTermination(requestInsert.close)
+		for {
+			insertRunRecord <- configuration.data.jdbc.insertStatements.insertRunRecord
+			insertRequestRecord <- configuration.data.jdbc.insertStatements.insertRequestRecord
+			insertScenarioRecord <- configuration.data.jdbc.insertStatements.insertScenarioRecord
+			insertGroupRecord <- configuration.data.jdbc.insertStatements.insertGroupRecord
+		} {
+			scenarioInsert = conn.prepareStatement(insertScenarioRecord)
+			system.registerOnTermination(scenarioInsert.close)
+			groupInsert = conn.prepareStatement(insertGroupRecord)
+			system.registerOnTermination(groupInsert.close)
+			requestInsert = conn.prepareStatement(insertRequestRecord)
+			system.registerOnTermination(requestInsert.close)
 
-		//Filling in run information
-		withStatement(conn.prepareStatement("INSERT INTO RunRecords(runDate, simulationId, runDescription) VALUES(?,?,?)")) { runInsert =>
-			runInsert.setDate(1, new SQLDate(run.runDate.toDate.getTime))
-			runInsert.setString(2, run.simulationId)
-			runInsert.setString(3, run.runDescription)
-			runInsert.executeUpdate
-			val keys: ResultSet = runInsert.getGeneratedKeys
-			//Getting the runId to be dumped later on other tables.
-			while (keys.next) { runId = keys.getInt(1) }
+			//Filling in run information
+			withStatement(conn.prepareStatement(insertRunRecord)) { runInsert =>
+				runInsert.setDate(1, new SQLDate(run.runDate.toDate.getTime))
+				runInsert.setString(2, run.simulationId)
+				runInsert.setString(3, run.runDescription)
+				runInsert.executeUpdate
+				val keys: ResultSet = runInsert.getGeneratedKeys
+				//Getting the runId to be dumped later on other tables.
+				while (keys.next) { runId = keys.getInt(1) }
+			}
 		}
 	}
 

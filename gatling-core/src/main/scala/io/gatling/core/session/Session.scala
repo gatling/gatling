@@ -33,12 +33,11 @@ object SessionPrivateAttributes {
 }
 
 case class SessionAttribute(session: Session, key: String) {
-	
+
 	def as[T]: T = session.attributes(key).asInstanceOf[T]
 	def asOption[T]: Option[T] = session.attributes.get(key).map(_.asInstanceOf[T])
 	def validate[T: ClassTag]: Validation[T] = session.attributes.get(key).map(_.asValidation[T]).getOrElse(undefinedSessionAttributeMessage(key).failure[T])
 }
-
 
 /**
  * Session class representing the session passing through a scenario for a given user
