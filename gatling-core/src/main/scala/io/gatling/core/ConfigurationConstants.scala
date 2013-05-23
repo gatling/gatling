@@ -97,6 +97,6 @@ object ConfigurationConstants {
 	val CONF_DATA_JDBC_BUFFER_SIZE = "gatling.data.jdbc.bufferSize"
 	val CONF_DATA_JDBC_CREATE_RUN_RECORD_TABLE = "gatling.data.jdbc.createRunRecordTable"
 	val CONF_DATA_JDBC_CREATE_REQUEST_RECORD_TABLE = "gatling.data.jdbc.createRequestRecordTable"
-	val CONF_DATA_JDBC_CREATE_SCENARIO_RECORD_TABLE = "gatling.data.jdbc.createScenarioRecord"
-	val CONF_DATA_JDBC_CREATE_GROUP_RECORD_TABLE = "gatling.data.jdbc.createGroupRecord"
+	val CONF_DATA_JDBC_CREATE_SCENARIO_RECORD_TABLE = "gatling.data.jdbc.createScenarioRecordTable"
+	val CONF_DATA_JDBC_CREATE_GROUP_RECORD_TABLE = "gatling.data.jdbc.createGroupRecordTable"
 }
