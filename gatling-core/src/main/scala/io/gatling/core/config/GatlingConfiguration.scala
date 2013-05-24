@@ -15,7 +15,7 @@
  */
 package io.gatling.core.config
 
-import scala.collection.JavaConversions.{ asScalaBuffer, mapAsJavaMap }
+import scala.collection.JavaConversions.mapAsJavaMap
 import scala.collection.mutable
 
 import com.typesafe.config.{ Config, ConfigFactory }
@@ -34,13 +34,6 @@ object GatlingConfiguration {
 		def toStringSeq: Seq[String] = string.trim match {
 			case "" => Nil
 			case s => s.split(",").map(_.trim)
-		}
-	}
-
-	implicit class ConfigStringOption(val string: String) extends AnyVal {
-		def toOption: Option[String] = string.trim match {
-			case "" => None
-			case s => Some(s)
 		}
 	}
 
@@ -112,14 +105,14 @@ object GatlingConfiguration {
 				userAgent = config.getString(CONF_HTTP_USER_AGENT),
 				useRawUrl = config.getBoolean(CONF_HTTP_USE_RAW_URL),
 				nonStandardJsonSupport = config.getString(CONF_HTTP_JSON_FEATURES).toStringSeq,
-				warmUpUrl = config.getString(CONF_HTTP_WARM_UP_URL).toOption,
+				warmUpUrl = config.getString(CONF_HTTP_WARM_UP_URL).trimToOption,
 				ssl = {
 					def storeConfig(typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String) = {
 
-						val storeType = config.getString(typeKey).toOption
-						val storeFile = config.getString(fileKey).toOption
+						val storeType = config.getString(typeKey).trimToOption
+						val storeFile = config.getString(fileKey).trimToOption
 						val storePassword = config.getString(passwordKey)
-						val storeAlgorithm = config.getString(algorithmKey).toOption
+						val storeAlgorithm = config.getString(algorithmKey).trimToOption
 
 						storeType.map { t =>
 							StoreConfiguration(t, storeFile.getOrElse(throw new UnsupportedOperationException(s"$typeKey defined as $t but store file isn't defined")), storePassword, storeAlgorithm)
@@ -162,15 +155,15 @@ object GatlingConfiguration {
 						password = config.getString(CONF_DATA_JDBC_DB_PASSWORD)),
 					bufferSize = config.getInt(CONF_DATA_JDBC_BUFFER_SIZE),
 					createStatements = CreateStatements(
-						createRunRecordTable = config.getString(CONF_DATA_JDBC_CREATE_RUN_RECORD_TABLE).toOption,
-						createRequestRecordTable = config.getString(CONF_DATA_JDBC_CREATE_REQUEST_RECORD_TABLE).toOption,
-						createScenarioRecordTable = config.getString(CONF_DATA_JDBC_CREATE_SCENARIO_RECORD_TABLE).toOption,
-						createGroupRecordTable = config.getString(CONF_DATA_JDBC_CREATE_GROUP_RECORD_TABLE).toOption),
+						createRunRecordTable = config.getString(CONF_DATA_JDBC_CREATE_RUN_RECORD_TABLE).trimToOption,
+						createRequestRecordTable = config.getString(CONF_DATA_JDBC_CREATE_REQUEST_RECORD_TABLE).trimToOption,
+						createScenarioRecordTable = config.getString(CONF_DATA_JDBC_CREATE_SCENARIO_RECORD_TABLE).trimToOption,
+						createGroupRecordTable = config.getString(CONF_DATA_JDBC_CREATE_GROUP_RECORD_TABLE).trimToOption),
 					insertStatements = InsertStatements(
-						insertRunRecord = config.getString(CONF_DATA_JDBC_INSERT_RUN_RECORD).toOption,
-						insertRequestRecord = config.getString(CONF_DATA_JDBC_INSERT_REQUEST_RECORD).toOption,
-						insertScenarioRecord = config.getString(CONF_DATA_JDBC_INSERT_SCENARIO_RECORD).toOption,
-						insertGroupRecord = config.getString(CONF_DATA_JDBC_INSERT_GROUP_RECORD).toOption))),
+						insertRunRecord = config.getString(CONF_DATA_JDBC_INSERT_RUN_RECORD).trimToOption,
+						insertRequestRecord = config.getString(CONF_DATA_JDBC_INSERT_REQUEST_RECORD).trimToOption,
+						insertScenarioRecord = config.getString(CONF_DATA_JDBC_INSERT_SCENARIO_RECORD).trimToOption,
+						insertGroupRecord = config.getString(CONF_DATA_JDBC_INSERT_GROUP_RECORD).trimToOption))),
 			config)
 	}
 }
