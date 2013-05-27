@@ -51,13 +51,13 @@ case class HttpProtocolBuilder(protocol: HttpProtocol, warmUpUrl: Option[String]
 
 	def baseURLs(baseUrl1: String, baseUrl2: String, baseUrls: String*) = copy(protocol = protocol.copy(baseURLs = Some(baseUrl1 :: baseUrl2 :: baseUrls.toList)))
 
-	def disableFollowRedirect = copy(protocol = protocol.copy(followRedirectEnabled = false))
+	def disableFollowRedirect = copy(protocol = protocol.copy(followRedirect = false))
 
-	def disableAutomaticReferer = copy(protocol = protocol.copy(automaticRefererEnabled = false))
+	def disableAutomaticReferer = copy(protocol = protocol.copy(automaticReferer = false))
 
-	def disableCaching = copy(protocol = protocol.copy(cachingEnabled = false))
+	def disableCaching = copy(protocol = protocol.copy(cache = false))
 
-	def disableResponseChunksDiscarding = copy(protocol = protocol.copy(responseChunksDiscardingEnabled = false))
+	def disableResponseChunksDiscarding = copy(protocol = protocol.copy(discardResponseChunks = false))
 
 	def disableClientSharing = copy(protocol = protocol.copy(shareClient = false))
 

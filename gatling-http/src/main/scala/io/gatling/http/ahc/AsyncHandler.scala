@@ -27,7 +27,7 @@ import io.gatling.http.config.HttpProtocol
 object AsyncHandler {
 
 	def newHandlerFactory(checks: List[HttpCheck], protocol: HttpProtocol): HandlerFactory = {
-		val useBodyParts = !protocol.responseChunksDiscardingEnabled || checks.exists(check => check.order == Checksum || check.order == Body)
+		val useBodyParts = !protocol.discardResponseChunks || checks.exists(check => check.order == Checksum || check.order == Body)
 		(requestName: String, actor: ActorRef) => new AsyncHandler(requestName, actor, useBodyParts)
 	}
 }

@@ -37,7 +37,7 @@ object ResponseBuilder {
 			case checksumCheck: ChecksumCheck => checksumCheck
 		}
 
-		val storeBodyParts = !protocol.responseChunksDiscardingEnabled || checks.exists(_.order == Body)
+		val storeBodyParts = !protocol.discardResponseChunks || checks.exists(_.order == Body)
 		request: Request => new ResponseBuilder(request, checksumChecks, responseProcessor, storeBodyParts)
 	}
 }

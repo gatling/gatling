@@ -233,7 +233,7 @@ class AsyncHandlerActor(
 
 		val sessionWithUpdatedCookies = CookieHandling.storeCookies(originalSession, response.getUri, response.getCookies.toList)
 
-		if (response.isRedirected && protocol.followRedirectEnabled)
+		if (response.isRedirected && protocol.followRedirect)
 			redirect(sessionWithUpdatedCookies)
 		else
 			checkAndProceed(sessionWithUpdatedCookies)

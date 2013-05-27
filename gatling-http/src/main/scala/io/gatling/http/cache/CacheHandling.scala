@@ -43,7 +43,7 @@ object CacheHandling extends Logging {
 
 	private def getCache(session: Session): Set[String] = session(httpCacheAttributeName).asOption.getOrElse(Set.empty)
 
-	def isCached(httpProtocol: HttpProtocol, session: Session, request: Request) = httpProtocol.cachingEnabled && getCache(session).contains(request.getUrl)
+	def isCached(httpProtocol: HttpProtocol, session: Session, request: Request) = httpProtocol.cache && getCache(session).contains(request.getUrl)
 
 	def cache(httpProtocol: HttpProtocol, session: Session, request: Request, response: Response): Session = {
 
@@ -53,7 +53,7 @@ object CacheHandling extends Logging {
 			.map(isFutureExpire)
 			.getOrElse(false)
 
-		val isResponseCacheable = httpProtocol.cachingEnabled && !pragmaNoCache && !cacheControlNoCache && expiresInFuture
+		val isResponseCacheable = httpProtocol.cache && !pragmaNoCache && !cacheControlNoCache && expiresInFuture
 
 		if (isResponseCacheable) {
 			val cache = getCache(session)
