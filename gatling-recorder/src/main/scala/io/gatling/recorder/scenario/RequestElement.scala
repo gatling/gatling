@@ -30,6 +30,10 @@ import io.gatling.http.util.HttpHelper.parseFormBody
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.scenario.template.RequestTemplate
 
+sealed trait RequestBody
+case class RequestBodyParams(params: List[(String, String)]) extends RequestBody
+case class RequestBodyBytes(bytes: Array[Byte]) extends RequestBody
+
 object RequestElement {
 
 	def apply(request: HttpRequest, statusCode: Int, simulationClass: Option[String]): RequestElement = {
@@ -37,16 +41,17 @@ object RequestElement {
 		val content = if (request.getContent.readableBytes > 0) {
 			val bufferBytes = new Array[Byte](request.getContent.readableBytes)
 			request.getContent.getBytes(request.getContent.readerIndex, bufferBytes)
-			Some(new String(bufferBytes, configuration.core.encoding))
+			Some(bufferBytes)
 		} else None
 
-		RequestElement(new URI(request.getUri), request.getMethod.toString, headers, content, statusCode, simulationClass)
+		val containsFormParams = headers.get(CONTENT_TYPE).map(_.contains(APPLICATION_X_WWW_FORM_URLENCODED)).getOrElse(false)
+		val body = content.map(content => if (containsFormParams) RequestBodyParams(parseFormBody(new String(content, configuration.core.encoding))) else RequestBodyBytes(content))
+
+		RequestElement(new URI(request.getUri), request.getMethod.toString, headers, body, statusCode, simulationClass)
 	}
 }
 
-case class RequestElement(uri: URI, method: String, headers: Map[String, String], content: Option[String], statusCode: Int, simulationClass: Option[String]) extends ScenarioElement {
-
-	private val containsFormParams: Boolean = headers.get(CONTENT_TYPE).map(_.contains(APPLICATION_X_WWW_FORM_URLENCODED)).getOrElse(false)
+case class RequestElement(uri: URI, method: String, headers: Map[String, String], body: Option[RequestBody], statusCode: Int, simulationClass: Option[String]) extends ScenarioElement {
 
 	val baseUrl = new URI(uri.getScheme, uri.getAuthority, null, null, null).toString
 	private var printedUrl = new URI(uri.getScheme, uri.getHost, uri.getPath, null, null).toString
@@ -54,8 +59,6 @@ case class RequestElement(uri: URI, method: String, headers: Map[String, String]
 	var filteredHeadersId: Option[Int] = None
 
 	val queryParams = if (uri.getQuery != null) convertParamsFromJavaToScala(new QueryStringDecoder(uri, Charset.forName(configuration.core.encoding)).getParameters) else Nil
-
-	val requestBodyOrParams: Option[Either[String, List[(String, String)]]] = content.map(content => if (containsFormParams) Right(parseFormBody(content)) else Left(content))
 
 	var id: Int = 0
 
@@ -74,7 +77,10 @@ case class RequestElement(uri: URI, method: String, headers: Map[String, String]
 	}
 
 	private def convertParamsFromJavaToScala(params: java.util.Map[String, java.util.List[String]]): List[(String, String)] =
-		(for ((key, list) <- params) yield (for (e <- list) yield (key, e))).toList.flatten
+		for {
+			(key, list) <- params.toList
+			e <- list
+		} yield (key, e)
 
 	private val basicAuthCredentials: Option[(String, String)] = {
 		def parseCredentials(header: String) = {
@@ -88,7 +94,7 @@ case class RequestElement(uri: URI, method: String, headers: Map[String, String]
 		headers.get(AUTHORIZATION).filter(_.startsWith("Basic ")).flatMap(parseCredentials)
 	}
 
-	override def toString = {
+	override def toString =
 		RequestTemplate.render(
 			simulationClass.getOrElse(throw new UnsupportedOperationException("simulationName should be set before printing a request element!")),
 			id,
@@ -97,7 +103,6 @@ case class RequestElement(uri: URI, method: String, headers: Map[String, String]
 			filteredHeadersId,
 			basicAuthCredentials,
 			queryParams,
-			requestBodyOrParams,
+			body,
 			statusCode)
-	}
 }

@@ -18,6 +18,7 @@ package io.gatling.recorder.scenario.template
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.core.util.StringHelper.emptyFastring
+import io.gatling.recorder.scenario.{ RequestBody, RequestBodyBytes, RequestBodyParams }
 
 object RequestTemplate {
 
@@ -30,7 +31,7 @@ object RequestTemplate {
 		headersId: Option[Int],
 		credentials: Option[(String, String)],
 		queryParams: List[(String, String)],
-		requestBodyOrParams: Option[Either[String, List[(String, String)]]],
+		body: Option[RequestBody],
 		statusCode: Int) = {
 
 		def renderUrl = fast"""$tripleQuotes$printedUrl${
@@ -46,11 +47,11 @@ object RequestTemplate {
 			.headers(${headersBlockName(id)})"""
 			}.getOrElse("")
 
-		def renderBodyOrParams = requestBodyOrParams.map {
+		def renderBodyOrParams = body.map {
 			_ match {
-				case Left(_) => fast"""
+				case RequestBodyBytes(_) => fast"""
 			.rawFileBody("${simulationClass}_request_$id.txt")"""
-				case Right(params) => params.map {
+				case RequestBodyParams(params) => params.map {
 					case (key, value) => fast"""
 			.param($tripleQuotes$key$tripleQuotes, $tripleQuotes$value$tripleQuotes)"""
 				}.mkFastring

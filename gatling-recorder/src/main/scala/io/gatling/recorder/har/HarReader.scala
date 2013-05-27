@@ -27,7 +27,7 @@ import org.joda.time.DateTime
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.RichString
 import io.gatling.http.Headers.Names.CONTENT_TYPE
-import io.gatling.recorder.scenario.{ PauseElement, RequestElement, ScenarioElement }
+import io.gatling.recorder.scenario.{ PauseElement, RequestBody, RequestBodyBytes, RequestBodyParams, RequestElement, ScenarioElement }
 import io.gatling.recorder.util.FiltersHelper.isRequestAccepted
 import io.gatling.recorder.util.RedirectHelper.{ isRequestInsideRedirectChain, isRequestRedirectChainEnd, isRequestRedirectChainStart }
 
@@ -64,18 +64,19 @@ object HarReader {
 		}
 
 		def createRequest(entry: Entry, statusCode: Int) {
-			def buildContent(postParams: Seq[PostParam]) = {
-				def encode(s: String) = URLEncoder.encode(s, configuration.core.encoding)
-
-				postParams.map(postParam => encode(postParam.name) + "=" + encode(postParam.value)).mkString("&")
-			}
+			def buildContent(postParams: Seq[PostParam]) = RequestBodyParams(postParams.map(postParam => (postParam.name, postParam.value)).toList)
 
 			val uri = entry.request.url
 			val method = entry.request.method
 			val headers = buildHeaders(entry)
 			// NetExport doesn't copy post params to text field
-			val content = entry.request.postData.map(postData => postData.text.trimToOption.getOrElse(buildContent(postData.params)))
-			scenarioElements = new RequestElement(new URI(uri), method, headers, content, statusCode, None) :: scenarioElements
+			val body = entry.request.postData.map { postData =>
+				postData.text.trimToOption match {
+					case Some(string) => RequestBodyBytes(string.getBytes(configuration.core.encoding))
+					case None => buildContent(postData.params)
+				}
+			}
+			scenarioElements = RequestElement(new URI(uri), method, headers, body, statusCode, None) :: scenarioElements
 		}
 
 		def createPause {
