@@ -20,7 +20,13 @@ object RoundRobin {
 	def apply[T](values: Array[T]) =
 		if (values.isEmpty)
 			Iterator.empty
-		else
+		else if (values.length == 1) {
+			val value = values(0)
+			new Iterator[T] {
+				def hasNext = true
+				def next = value
+			}
+		} else
 			new Iterator[T] {
 				val counter = new CyclicCounter(values.length)
 				def hasNext = true

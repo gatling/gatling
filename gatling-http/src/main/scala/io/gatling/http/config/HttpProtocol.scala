@@ -28,7 +28,7 @@ import io.gatling.http.response.{ Response, ResponseProcessor }
  */
 object HttpProtocol {
 	val default = HttpProtocol(
-		baseURLs = None,
+		baseURLs = Nil,
 		proxy = None,
 		securedProxy = None,
 		followRedirect = true,
@@ -50,7 +50,7 @@ object HttpProtocol {
  * @param proxy a proxy through which all the requests must pass to succeed
  */
 case class HttpProtocol(
-	baseURLs: Option[Seq[String]],
+	baseURLs: List[String],
 	proxy: Option[ProxyServer],
 	securedProxy: Option[ProxyServer],
 	followRedirect: Boolean,
@@ -64,7 +64,10 @@ case class HttpProtocol(
 	responseProcessor: Option[ResponseProcessor],
 	extraInfoExtractor: Option[(Status, Session, Request, Response) => List[Any]]) extends Protocol {
 
-	val roundRobinUrls = baseURLs.map(urls => RoundRobin(urls.toArray))
+	val roundRobinUrls = RoundRobin(baseURLs.toArray)
 
-	def baseURL(): Option[String] = roundRobinUrls.map(_.next)
+	def baseURL(): Option[String] = baseURLs match {
+		case Nil => None
+		case _ => Some(roundRobinUrls.next)
+	}
 }

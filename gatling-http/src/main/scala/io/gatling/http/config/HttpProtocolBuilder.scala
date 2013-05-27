@@ -47,9 +47,9 @@ object HttpProtocolBuilder {
  */
 case class HttpProtocolBuilder(protocol: HttpProtocol, warmUpUrl: Option[String]) extends Logging {
 
-	def baseURL(baseUrl: String) = copy(protocol = protocol.copy(baseURLs = Some(List(baseUrl))))
+	def baseURL(baseUrl: String) = copy(protocol = protocol.copy(baseURLs = List(baseUrl)))
 
-	def baseURLs(baseUrl1: String, baseUrl2: String, baseUrls: String*) = copy(protocol = protocol.copy(baseURLs = Some(baseUrl1 :: baseUrl2 :: baseUrls.toList)))
+	def baseURLs(baseUrl1: String, baseUrl2: String, baseUrls: String*) = copy(protocol = protocol.copy(baseURLs = baseUrl1 :: baseUrl2 :: baseUrls.toList))
 
 	def disableFollowRedirect = copy(protocol = protocol.copy(followRedirect = false))
 
