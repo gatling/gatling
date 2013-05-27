@@ -100,7 +100,6 @@ object GatlingConfiguration extends Logging {
 				useProxyProperties = config.getBoolean(CONF_HTTP_USE_PROXY_PROPERTIES),
 				userAgent = config.getString(CONF_HTTP_USER_AGENT),
 				useRawUrl = config.getBoolean(CONF_HTTP_USE_RAW_URL),
-				nonStandardJsonSupport = toStringSeq(config.getString(CONF_HTTP_JSON_FEATURES)),
 				warmUpUrl = {
 					val value = config.getString(CONF_HTTP_WARM_UP_URL).trim
 					if (value.isEmpty) None else Some(value)
@@ -221,7 +220,6 @@ case class HttpConfiguration(
 	useProxyProperties: Boolean,
 	userAgent: String,
 	useRawUrl: Boolean,
-	nonStandardJsonSupport: Seq[String],
 	warmUpUrl: Option[String],
 	ssl: SslConfiguration)
 
