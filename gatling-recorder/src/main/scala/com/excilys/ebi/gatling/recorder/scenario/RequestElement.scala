@@ -28,6 +28,10 @@ import com.ning.http.util.Base64
 
 import grizzled.slf4j.Logging
 
+sealed trait RequestBody
+case class RequestBodyParams(params: List[(String, String)]) extends RequestBody
+case class RequestBodyBytes(bytes: Array[Byte]) extends RequestBody
+
 object RequestElement {
 	def apply(r: RequestElement, newStatusCode: Int) = {
 		new RequestElement(r.request, newStatusCode, r.simulationClass)
@@ -41,8 +45,6 @@ object RequestElement {
 class RequestElement(val request: HttpRequest, val statusCode: Int, val simulationClass: Option[String]) extends ScenarioElement with Logging {
 	val method = request.getMethod.toString
 
-	private val containsFormParams: Boolean = Option(request.getHeader(CONTENT_TYPE)).map(_.contains("application/x-www-form-urlencoded")).getOrElse(false)
-
 	private val uriParts = request.getUri.split("/", 4)
 	val baseUrl = uriParts.take(3).mkString("/")
 	val path = "/" + uriParts.lift(3).getOrElse("").split("\\?")(0)
@@ -54,22 +56,19 @@ class RequestElement(val request: HttpRequest, val statusCode: Int, val simulati
 
 	val queryParams = convertParamsFromJavaToScala(new QueryStringDecoder(request.getUri, Charset.forName(configuration.encoding)).getParameters)
 
-	val requestBodyOrParams: Option[Either[String, List[(String, String)]]] = if (request.getContent.readableBytes > 0) {
+	val body: Option[RequestBody] = {
 
-		val bufferBytes = new Array[Byte](request.getContent.readableBytes)
+		val content = if (request.getContent.readableBytes > 0) {
+			val bufferBytes = new Array[Byte](request.getContent.readableBytes)
+			request.getContent.getBytes(request.getContent.readerIndex, bufferBytes)
+			Some(bufferBytes)
+		} else None
 
-		request.getContent.getBytes(request.getContent.readerIndex, bufferBytes);
-
-		val bodyString = new String(bufferBytes, configuration.encoding)
-
-		if (containsFormParams) {
-			Some(Right(parseFormBody(bodyString)))
-		} else {
-			(Some(Left(bodyString)))
+		content.map { bytes =>
+			val containsFormParams = Option(request.getHeader(CONTENT_TYPE)).map(_.contains("application/x-www-form-urlencoded")).getOrElse(false)
+			if (containsFormParams) RequestBodyParams(parseFormBody(new String(bytes, configuration.encoding)))
+			else RequestBodyBytes(bytes)
 		}
-
-	} else {
-		None
 	}
 
 	var id: Int = 0
@@ -106,7 +105,7 @@ class RequestElement(val request: HttpRequest, val statusCode: Int, val simulati
 				"method" -> method,
 				"printedUrl" -> printedUrl,
 				"queryParams" -> queryParams,
-				"requestBodyOrParams" -> requestBodyOrParams,
+				"body" -> body,
 				"statusCode" -> statusCode,
 				"id" -> id,
 				"credentials" -> basicAuthCredentials,

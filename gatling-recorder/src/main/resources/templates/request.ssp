@@ -2,7 +2,7 @@
 <%@ val method: String %>
 <%@ val printedUrl: String %>
 <%@ val queryParams: List[(String, String)] %>
-<%@ val requestBodyOrParams: Option[Either[String, List[(String, String)]]] %>
+<%@ val body: Option[com.excilys.ebi.gatling.recorder.scenario.RequestBody] %>
 <%@ val statusCode: Int %>
 <%@ val id: Int %>
 <%@ val credentials: Option[(String,String)] %>
@@ -15,10 +15,10 @@ exec(http("request_<%= id %>")
 <% for (queryParam <- queryParams) { %>
 					.queryParam("""<%= queryParam._1 %>""", """<%= queryParam._2 %>""")
 <% } %>
-<% requestBodyOrParams.map { _ match {
-		case Left(_) => %>
+<% body.map { _ match {
+		case com.excilys.ebi.gatling.recorder.scenario.RequestBodyBytes(_) => %>
 						.fileBody("<%= simulationClass %>_request_<%= id %>.txt")
-<%		case Right(params) => params.foreach { case(key, value) => %>
+<%		case com.excilys.ebi.gatling.recorder.scenario.RequestBodyParams(params) => params.foreach { case (key, value) => %>
 						.param("""<%= key %>""", """<%= value %>""")
 <% 				} %>
 <% 		} %>

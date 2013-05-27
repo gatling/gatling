@@ -74,7 +74,12 @@ object ScenarioExporter extends Logging {
 			case e: RequestElement =>
 				i = i + 1
 				e.updateUrl(baseUrl).setId(i)
-				e.requestBodyOrParams.map(_.left.map(dumpRequestBody(i, _, configuration.simulationClassName)))
+				e.body.map {
+					_ match {
+						case RequestBodyBytes(bytes) => dumpRequestBody(i, bytes, configuration.simulationClassName)
+						case _ =>
+					}
+				}
 
 			case _ =>
 		}
@@ -175,11 +180,11 @@ object ScenarioExporter extends Logging {
 			Left(scenarioElements)
 	}
 
-	private def dumpRequestBody(idEvent: Int, content: String, simulationClass: String) {
+	private def dumpRequestBody(idEvent: Int, bytes: Array[Byte], simulationClass: String) {
 		use(new FileOutputStream(File(getFolder(configuration.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)) {
 			fw =>
 				try {
-					fw.write(content.getBytes(configuration.encoding))
+					fw.write(bytes)
 				} catch {
 					case e: IOException => error("Error, while dumping request body...", e)
 				}
