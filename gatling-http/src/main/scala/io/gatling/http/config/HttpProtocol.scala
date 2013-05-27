@@ -17,28 +17,30 @@ package io.gatling.http.config
 
 import com.ning.http.client.{ ProxyServer, Realm, Request }
 
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Protocol
 import io.gatling.core.result.message.Status
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.{ ELWrapper, Expression, Session }
 import io.gatling.core.util.RoundRobin
 import io.gatling.http.response.{ Response, ResponseProcessor }
+import io.gatling.http.util.HttpHelper.{ buildProxy, buildRealm }
 
 /**
  * HttpProtocol class companion
  */
 object HttpProtocol {
 	val default = HttpProtocol(
-		baseURLs = Nil,
-		proxy = None,
-		securedProxy = None,
-		followRedirect = true,
-		automaticReferer = true,
-		cache = true,
-		discardResponseChunks = true,
-		shareClient = true,
-		shareConnections = false,
+		baseURLs = configuration.http.baseURLs,
+		proxy = configuration.http.proxy.map(proxy => buildProxy(proxy.host, proxy.port, proxy.credentials, false)),
+		securedProxy = configuration.http.proxy.flatMap(proxy => proxy.securePort.map(port => buildProxy(proxy.host, port, proxy.credentials, true))),
+		followRedirect = configuration.http.followRedirect,
+		autoReferer = configuration.http.autoReferer,
+		cache = configuration.http.cache,
+		discardResponseChunks = configuration.http.discardResponseChunks,
+		shareClient = configuration.http.shareClient,
+		shareConnections = configuration.http.shareConnections,
+		basicAuth = configuration.http.basicAuth.map(credentials => buildRealm(credentials.username, credentials.password).expression),
 		baseHeaders = Map.empty,
-		basicAuth = None,
 		responseProcessor = None,
 		extraInfoExtractor = None)
 }
@@ -50,11 +52,11 @@ object HttpProtocol {
  * @param proxy a proxy through which all the requests must pass to succeed
  */
 case class HttpProtocol(
-	baseURLs: List[String],
+	baseURLs: Seq[String],
 	proxy: Option[ProxyServer],
 	securedProxy: Option[ProxyServer],
 	followRedirect: Boolean,
-	automaticReferer: Boolean,
+	autoReferer: Boolean,
 	cache: Boolean,
 	discardResponseChunks: Boolean,
 	shareClient: Boolean,

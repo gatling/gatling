@@ -15,31 +15,16 @@
  */
 package io.gatling.http.config
 
-import com.ning.http.client.ProxyServer
+import io.gatling.core.config.Credentials
+import io.gatling.http.util.HttpHelper.buildProxy
 
-class HttpProxyBuilder(protocolBuilder: HttpProtocolBuilder, host: String, port: Int, sslPort: Option[Int], username: Option[String], password: Option[String]) {
+class HttpProxyBuilder(protocolBuilder: HttpProtocolBuilder, host: String, port: Int, sslPort: Option[Int], credentials: Option[Credentials]) {
 
-	def this(protocolBuilder: HttpProtocolBuilder, host: String, port: Int) = this(protocolBuilder, host, port, None, None, None)
+	def this(protocolBuilder: HttpProtocolBuilder, host: String, port: Int) = this(protocolBuilder, host, port, None, None)
 
-	def httpsPort(sslPort: Int) = new HttpProxyBuilder(protocolBuilder, host, port, Some(sslPort), username, password)
+	def httpsPort(sslPort: Int) = new HttpProxyBuilder(protocolBuilder, host, port, Some(sslPort), credentials)
 
-	def credentials(username: String, password: String) = new HttpProxyBuilder(protocolBuilder, host, port, sslPort, Some(username), Some(password))
+	def credentials(username: String, password: String) = new HttpProxyBuilder(protocolBuilder, host, port, sslPort, Some(Credentials(username, password)))
 
-	def toHttpProtocolBuilder = {
-
-		def getProxyServer(protocol: ProxyServer.Protocol)(port: Int) = {
-
-			val proxy = for {
-				username <- this.username
-				password <- this.password
-			} yield new ProxyServer(protocol, host, port, username, password)
-
-			proxy.getOrElse(new ProxyServer(protocol, host, port)).setNtlmDomain(null)
-		}
-
-		def plainProxyServer = getProxyServer(ProxyServer.Protocol.HTTP) _
-		def secureHttpProxyServer = getProxyServer(ProxyServer.Protocol.HTTPS) _
-
-		protocolBuilder.addProxies(plainProxyServer(port), sslPort.map(secureHttpProxyServer))
-	}
+	def toHttpProtocolBuilder = protocolBuilder.addProxies(buildProxy(host, port, credentials, false), sslPort.map(buildProxy(host, _, credentials, true)))
 }

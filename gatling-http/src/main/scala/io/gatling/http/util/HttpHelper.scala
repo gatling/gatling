@@ -21,9 +21,10 @@ import java.util.{ ArrayList => JArrayList }
 import scala.collection.JavaConversions.mapAsJavaMap
 import scala.io.Codec.UTF8
 
-import com.ning.http.client.{ FluentStringsMap, Realm }
+import com.ning.http.client.{ FluentStringsMap, ProxyServer, Realm }
 import com.ning.http.client.Realm.AuthScheme
 
+import io.gatling.core.config.Credentials
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ Validation, ValidationList }
 import io.gatling.http.request.builder.HttpParam
@@ -76,5 +77,16 @@ object HttpHelper {
 		for {
 			usernameValue <- username(session)
 			passwordValue <- password(session)
-		} yield new Realm.RealmBuilder().setPrincipal(usernameValue).setPassword(passwordValue).setUsePreemptiveAuth(true).setScheme(AuthScheme.BASIC).build
+		} yield buildRealm(usernameValue, passwordValue)
+
+	def buildRealm(username: String, password: String): Realm = new Realm.RealmBuilder().setPrincipal(username).setPassword(password).setUsePreemptiveAuth(true).setScheme(AuthScheme.BASIC).build
+
+	def buildProxy(host: String, port: Int, credentials: Option[Credentials], secure: Boolean) = {
+
+		val protocol = if (secure) ProxyServer.Protocol.HTTPS else ProxyServer.Protocol.HTTP
+		credentials
+			.map(c => new ProxyServer(protocol, host, port, c.username, c.password))
+			.getOrElse(new ProxyServer(protocol, host, port))
+			.setNtlmDomain(null)
+	}
 }

@@ -41,7 +41,7 @@ import io.gatling.http.util.HttpStringBuilder
 
 object AsyncHandlerActor {
 	val redirectedRequestNamePattern = """(.+?) Redirect (\d+)""".r
-	val timeout = configuration.http.requestTimeOutInMs milliseconds
+	val timeout = configuration.http.ahc.requestTimeOutInMs milliseconds
 
 	def newAsyncHandlerActorFactory(
 		checks: List[HttpCheck],

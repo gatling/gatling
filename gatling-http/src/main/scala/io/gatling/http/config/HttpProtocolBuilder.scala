@@ -53,7 +53,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol, warmUpUrl: Option[String]
 
 	def disableFollowRedirect = copy(protocol = protocol.copy(followRedirect = false))
 
-	def disableAutomaticReferer = copy(protocol = protocol.copy(automaticReferer = false))
+	def disableAutoReferer = copy(protocol = protocol.copy(autoReferer = false))
 
 	def disableCaching = copy(protocol = protocol.copy(cache = false))
 

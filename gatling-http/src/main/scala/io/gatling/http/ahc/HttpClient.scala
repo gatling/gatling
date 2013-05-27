@@ -55,13 +55,13 @@ object HttpClient extends Logging {
 			}
 		})
 
-		val connectionsPool = new NettyConnectionsPool(configuration.http.maximumConnectionsTotal,
-			configuration.http.maximumConnectionsPerHost,
-			configuration.http.idleConnectionInPoolTimeOutInMs,
-			configuration.http.allowSslConnectionPool)
+		val connectionsPool = new NettyConnectionsPool(configuration.http.ahc.maximumConnectionsTotal,
+			configuration.http.ahc.maximumConnectionsPerHost,
+			configuration.http.ahc.idleConnectionInPoolTimeOutInMs,
+			configuration.http.ahc.allowSslConnectionPool)
 
 		val nettyConfig = {
-			val numWorkers = configuration.http.ioThreadMultiplier * Runtime.getRuntime.availableProcessors
+			val numWorkers = configuration.http.ahc.ioThreadMultiplier * Runtime.getRuntime.availableProcessors
 			val socketChannelFactory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool, applicationThreadPool, numWorkers)
 			system.registerOnTermination(socketChannelFactory.releaseExternalResources)
 			new NettyAsyncHttpProviderConfig().addProperty(NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY, socketChannelFactory)
@@ -70,21 +70,21 @@ object HttpClient extends Logging {
 
 	val defaultAhcConfig = {
 		val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
-			.setAllowPoolingConnection(configuration.http.allowPoolingConnection)
-			.setAllowSslConnectionPool(configuration.http.allowSslConnectionPool)
-			.setCompressionEnabled(configuration.http.compressionEnabled)
-			.setConnectionTimeoutInMs(configuration.http.connectionTimeOut)
-			.setIdleConnectionInPoolTimeoutInMs(configuration.http.idleConnectionInPoolTimeOutInMs)
-			.setIdleConnectionTimeoutInMs(configuration.http.idleConnectionTimeOutInMs)
-			.setIOThreadMultiplier(configuration.http.ioThreadMultiplier)
-			.setMaximumConnectionsPerHost(configuration.http.maximumConnectionsPerHost)
-			.setMaximumConnectionsTotal(configuration.http.maximumConnectionsTotal)
-			.setMaxRequestRetry(configuration.http.maxRetry)
-			.setRequestCompressionLevel(configuration.http.requestCompressionLevel)
-			.setRequestTimeoutInMs(configuration.http.requestTimeOutInMs)
-			.setUseProxyProperties(configuration.http.useProxyProperties)
-			.setUserAgent(configuration.http.userAgent)
-			.setUseRawUrl(configuration.http.useRawUrl)
+			.setAllowPoolingConnection(configuration.http.ahc.allowPoolingConnection)
+			.setAllowSslConnectionPool(configuration.http.ahc.allowSslConnectionPool)
+			.setCompressionEnabled(configuration.http.ahc.compressionEnabled)
+			.setConnectionTimeoutInMs(configuration.http.ahc.connectionTimeOut)
+			.setIdleConnectionInPoolTimeoutInMs(configuration.http.ahc.idleConnectionInPoolTimeOutInMs)
+			.setIdleConnectionTimeoutInMs(configuration.http.ahc.idleConnectionTimeOutInMs)
+			.setIOThreadMultiplier(configuration.http.ahc.ioThreadMultiplier)
+			.setMaximumConnectionsPerHost(configuration.http.ahc.maximumConnectionsPerHost)
+			.setMaximumConnectionsTotal(configuration.http.ahc.maximumConnectionsTotal)
+			.setMaxRequestRetry(configuration.http.ahc.maxRetry)
+			.setRequestCompressionLevel(configuration.http.ahc.requestCompressionLevel)
+			.setRequestTimeoutInMs(configuration.http.ahc.requestTimeOutInMs)
+			.setUseProxyProperties(configuration.http.ahc.useProxyProperties)
+			.setUserAgent(configuration.http.ahc.userAgent)
+			.setUseRawUrl(configuration.http.ahc.useRawUrl)
 			.setExecutorService(SharedResources.applicationThreadPool)
 			.setScheduledExecutorService(SharedResources.reaper)
 			.setAsyncHttpClientProviderConfig(SharedResources.nettyConfig)

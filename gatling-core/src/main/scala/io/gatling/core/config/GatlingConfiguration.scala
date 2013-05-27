@@ -89,21 +89,23 @@ object GatlingConfiguration {
 					percentile1 = config.getInt(CONF_CHARTING_INDICATORS_PERCENTILE1),
 					percentile2 = config.getInt(CONF_CHARTING_INDICATORS_PERCENTILE2))),
 			http = HttpConfiguration(
-				allowPoolingConnection = config.getBoolean(CONF_HTTP_ALLOW_POOLING_CONNECTION),
-				allowSslConnectionPool = config.getBoolean(CONF_HTTP_ALLOW_SSL_CONNECTION_POOL),
-				compressionEnabled = config.getBoolean(CONF_HTTP_COMPRESSION_ENABLED),
-				connectionTimeOut = config.getInt(CONF_HTTP_CONNECTION_TIMEOUT),
-				idleConnectionInPoolTimeOutInMs = config.getInt(CONF_HTTP_IDLE_CONNECTION_IN_POOL_TIMEOUT_IN_MS),
-				idleConnectionTimeOutInMs = config.getInt(CONF_HTTP_IDLE_CONNECTION_TIMEOUT_IN_MS),
-				ioThreadMultiplier = config.getInt(CONF_HTTP_IO_THREAD_MULTIPLIER),
-				maximumConnectionsPerHost = config.getInt(CONF_HTTP_MAXIMUM_CONNECTIONS_PER_HOST),
-				maximumConnectionsTotal = config.getInt(CONF_HTTP_MAXIMUM_CONNECTIONS_TOTAL),
-				maxRetry = config.getInt(CONF_HTTP_MAX_RETRY),
-				requestCompressionLevel = config.getInt(CONF_HTTP_REQUEST_COMPRESSION_LEVEL),
-				requestTimeOutInMs = config.getInt(CONF_HTTP_REQUEST_TIMEOUT_IN_MS),
-				useProxyProperties = config.getBoolean(CONF_HTTP_USE_PROXY_PROPERTIES),
-				userAgent = config.getString(CONF_HTTP_USER_AGENT),
-				useRawUrl = config.getBoolean(CONF_HTTP_USE_RAW_URL),
+				baseURLs = config.getString(CONF_HTTP_BASE_URLS).toStringSeq,
+				proxy = config.getString(CONF_HTTP_PROXY_HOST).trimToOption.map { host =>
+					val port = config.getInt(CONF_HTTP_PROXY_PORT)
+					val securedPort = config.getInt(CONF_HTTP_PROXY_SECURED_PORT) match {
+						case -1 => None
+						case p => Some(p)
+					}
+					val credentials = config.getString(CONF_HTTP_PROXY_USERNAME).trimToOption.map(username => Credentials(username, config.getString(CONF_HTTP_PROXY_PASSWORD)))
+					Proxy(host, port, securedPort, credentials)
+				},
+				followRedirect = config.getBoolean(CONF_HTTP_FOLLOW_REDIRECT),
+				autoReferer = config.getBoolean(CONF_HTTP_AUTO_REFERER),
+				cache = config.getBoolean(CONF_HTTP_CACHE),
+				discardResponseChunks = config.getBoolean(CONF_HTTP_DISCARD_RESPONSE_CHUNKS),
+				shareClient = config.getBoolean(CONF_HTTP_SHARE_CLIENT),
+				shareConnections = config.getBoolean(CONF_HTTP_SHARE_CONNECTIONS),
+				basicAuth = config.getString(CONF_HTTP_BASIC_AUTH_USERNAME).trimToOption.map(username => Credentials(username, config.getString(CONF_HTTP_BASIC_AUTH_PASSWORD))),
 				warmUpUrl = config.getString(CONF_HTTP_WARM_UP_URL).trimToOption,
 				ssl = {
 					def storeConfig(typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String) = {
@@ -122,7 +124,23 @@ object GatlingConfiguration {
 					val keyStore = storeConfig(CONF_HTTP_SSL_KEY_STORE_TYPE, CONF_HTTP_SSL_KEY_STORE_FILE, CONF_HTTP_SSL_KEY_STORE_PASSWORD, CONF_HTTP_SSL_KEY_STORE_ALGORITHM)
 
 					SslConfiguration(trustStore, keyStore)
-				}),
+				},
+				ahc = AHCConfiguration(
+					allowPoolingConnection = config.getBoolean(CONF_HTTP_AHC_ALLOW_POOLING_CONNECTION),
+					allowSslConnectionPool = config.getBoolean(CONF_HTTP_AHC_ALLOW_SSL_CONNECTION_POOL),
+					compressionEnabled = config.getBoolean(CONF_HTTP_AHC_COMPRESSION_ENABLED),
+					connectionTimeOut = config.getInt(CONF_HTTP_AHC_CONNECTION_TIMEOUT),
+					idleConnectionInPoolTimeOutInMs = config.getInt(CONF_HTTP_AHC_IDLE_CONNECTION_IN_POOL_TIMEOUT_IN_MS),
+					idleConnectionTimeOutInMs = config.getInt(CONF_HTTP_AHC_IDLE_CONNECTION_TIMEOUT_IN_MS),
+					ioThreadMultiplier = config.getInt(CONF_HTTP_AHC_IO_THREAD_MULTIPLIER),
+					maximumConnectionsPerHost = config.getInt(CONF_HTTP_AHC_MAXIMUM_CONNECTIONS_PER_HOST),
+					maximumConnectionsTotal = config.getInt(CONF_HTTP_AHC_MAXIMUM_CONNECTIONS_TOTAL),
+					maxRetry = config.getInt(CONF_HTTP_AHC_MAX_RETRY),
+					requestCompressionLevel = config.getInt(CONF_HTTP_AHC_REQUEST_COMPRESSION_LEVEL),
+					requestTimeOutInMs = config.getInt(CONF_HTTP_AHC_REQUEST_TIMEOUT_IN_MS),
+					useProxyProperties = config.getBoolean(CONF_HTTP_AHC_USE_PROXY_PROPERTIES),
+					userAgent = config.getString(CONF_HTTP_AHC_USER_AGENT),
+					useRawUrl = config.getBoolean(CONF_HTTP_AHC_USE_RAW_URL))),
 			data = DataConfiguration(
 				dataWriterClasses = config.getString(CONF_DATA_WRITER_CLASS_NAMES).toStringSeq.map {
 					case "console" => "io.gatling.core.result.writer.ConsoleDataWriter"
@@ -224,6 +242,30 @@ case class IndicatorsConfiguration(
 	percentile2: Int)
 
 case class HttpConfiguration(
+	baseURLs: Seq[String],
+	proxy: Option[Proxy],
+	followRedirect: Boolean,
+	autoReferer: Boolean,
+	cache: Boolean,
+	discardResponseChunks: Boolean,
+	shareClient: Boolean,
+	shareConnections: Boolean,
+	basicAuth: Option[Credentials],
+	warmUpUrl: Option[String],
+	ssl: SslConfiguration,
+	ahc: AHCConfiguration)
+
+case class Proxy(
+	host: String,
+	port: Int,
+	securePort: Option[Int],
+	credentials: Option[Credentials])
+
+case class Credentials(
+	username: String,
+	password: String)
+
+case class AHCConfiguration(
 	allowPoolingConnection: Boolean,
 	allowSslConnectionPool: Boolean,
 	compressionEnabled: Boolean,
@@ -238,9 +280,7 @@ case class HttpConfiguration(
 	requestTimeOutInMs: Int,
 	useProxyProperties: Boolean,
 	userAgent: String,
-	useRawUrl: Boolean,
-	warmUpUrl: Option[String],
-	ssl: SslConfiguration)
+	useRawUrl: Boolean)
 
 case class SslConfiguration(
 	trustStore: Option[StoreConfiguration],
