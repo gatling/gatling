@@ -33,18 +33,12 @@ object Predef {
 	implicit def extractorCheckBuilderToCheckBuilder[C <: Check[R, XC], R, XC, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, XC, X]) = extractorCheckBuilder.find.exists
 	implicit def extractorCheckBuilderToCheck[C <: Check[R, XC], R, XC, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, XC, X]) = extractorCheckBuilder.find.exists.build
 
-	def csv(fileName: String) = SeparatedValuesParser.csv(fileName, None)
-	def csv(fileName: String, escapeChar: String) = SeparatedValuesParser.csv(fileName, Some(escapeChar))
-	def csv(file: File) = SeparatedValuesParser.csv(file, None)
-	def csv(file: File, escapeChar: String) = SeparatedValuesParser.csv(file, Some(escapeChar))
-	def ssv(fileName: String) = SeparatedValuesParser.ssv(fileName, None)
-	def ssv(fileName: String, escapeChar: String) = SeparatedValuesParser.ssv(fileName, Some(escapeChar))
-	def ssv(file: File) = SeparatedValuesParser.ssv(file, None)
-	def ssv(file: File, escapeChar: String) = SeparatedValuesParser.ssv(file, Some(escapeChar))
-	def tsv(fileName: String) = SeparatedValuesParser.tsv(fileName, None)
-	def tsv(fileName: String, escapeChar: String) = SeparatedValuesParser.tsv(fileName, Some(escapeChar))
-	def tsv(file: File) = SeparatedValuesParser.tsv(file, None)
-	def tsv(file: File, escapeChar: String) = SeparatedValuesParser.tsv(file, Some(escapeChar))
+	def csv(fileName: String) = SeparatedValuesParser.csv(fileName)
+	def csv(file: File) = SeparatedValuesParser.csv(file)
+	def ssv(fileName: String) = SeparatedValuesParser.ssv(fileName)
+	def ssv(file: File) = SeparatedValuesParser.ssv(file)
+	def tsv(fileName: String) = SeparatedValuesParser.tsv(fileName)
+	def tsv(file: File) = SeparatedValuesParser.tsv(file)
 
 	implicit def data2Feeder[T](data: Array[Map[String, T]]): Feeder[T] = data2FeederBuiltIns(data).queue
 	implicit def data2FeederBuiltIns[T](data: Array[Map[String, T]]) = new FeederBuiltIns(data)
