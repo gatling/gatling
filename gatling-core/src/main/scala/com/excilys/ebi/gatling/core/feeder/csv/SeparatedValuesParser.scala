@@ -22,32 +22,30 @@ import com.excilys.ebi.gatling.core.config.{ GatlingConfiguration, GatlingFiles 
 import com.excilys.ebi.gatling.core.util.FileHelper.{ COMMA_SEPARATOR, SEMICOLON_SEPARATOR, TABULATION_SEPARATOR }
 import com.excilys.ebi.gatling.core.util.IOHelper.use
 
+import au.com.bytecode.opencsv.CSVParser
+
 object SeparatedValuesParser {
 
-	def csv(fileName: String, escapeChar: Option[String]): Array[Map[String, String]] = csv(GatlingFiles.dataDirectory / fileName, escapeChar)
-	def csv(file: Path, escapeChar: Option[String]): Array[Map[String, String]] = apply(file, COMMA_SEPARATOR, escapeChar)
+	def csv(fileName: String): Array[Map[String, String]] = csv(GatlingFiles.dataDirectory / fileName)
+	def csv(file: Path): Array[Map[String, String]] = apply(file, COMMA_SEPARATOR.charAt(0))
 
-	def tsv(fileName: String, escapeChar: Option[String]): Array[Map[String, String]] = tsv(GatlingFiles.dataDirectory / fileName, escapeChar)
-	def tsv(file: Path, escapeChar: Option[String]): Array[Map[String, String]] = apply(file, TABULATION_SEPARATOR, escapeChar)
+	def tsv(fileName: String): Array[Map[String, String]] = tsv(GatlingFiles.dataDirectory / fileName)
+	def tsv(file: Path): Array[Map[String, String]] = apply(file, TABULATION_SEPARATOR.charAt(0))
 
-	def ssv(fileName: String, escapeChar: Option[String]): Array[Map[String, String]] = ssv(GatlingFiles.dataDirectory / fileName, escapeChar)
-	def ssv(file: Path, escapeChar: Option[String]): Array[Map[String, String]] = apply(file, SEMICOLON_SEPARATOR, escapeChar)
+	def ssv(fileName: String): Array[Map[String, String]] = ssv(GatlingFiles.dataDirectory / fileName)
+	def ssv(file: Path): Array[Map[String, String]] = apply(file, SEMICOLON_SEPARATOR.charAt(0))
 
-	def apply(file: Path, separator: String, escapeChar: Option[String]): Array[Map[String, String]] = {
+	def apply(file: Path, separator: Char): Array[Map[String, String]] = {
 
 		require(file.exists, "file " + file + " doesn't exists")
 
 		use(Source.fromFile(file.jfile, GatlingConfiguration.configuration.core.encoding)) { source =>
 
-			val rawLines = source.getLines.map(_.split(separator))
+			val parser = new CSVParser(separator)
+			val rawLines = source.getLines.map(parser.parseLine)
+			val headers = rawLines.next
 
-			val lines = escapeChar.map { escape =>
-				rawLines.map(_.map(_.stripPrefix(escape).stripSuffix(escape)))
-			}.getOrElse(rawLines).toArray
-
-			val headers = lines.head
-
-			lines.tail.map(line => (headers zip line).toMap)
+			rawLines.map(headers.zip(_).toMap).toArray
 		}
 	}
 }
