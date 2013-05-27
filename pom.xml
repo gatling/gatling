@@ -139,6 +139,7 @@
 		<specs2.version>1.14</specs2.version>
 		<zinc.version>0.3.0-M1</zinc.version>
 		<plexus-selector.version>1.0.0</plexus-selector.version>
+		<opencsv.version>2.3</opencsv.version>
 		<maven2.version>2.2.1</maven2.version>
 		<maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
 		<maven-source-plugin.version>2.2.1</maven-source-plugin.version>
@@ -389,6 +390,11 @@
 				<groupId>com.excilys.ebi</groupId>
 				<artifactId>plexus-selector</artifactId>
 				<version>${plexus-selector.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>net.sf.opencsv</groupId>
+				<artifactId>opencsv</artifactId>
+				<version>${opencsv.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

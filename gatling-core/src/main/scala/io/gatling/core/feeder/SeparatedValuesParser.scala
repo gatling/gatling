@@ -17,36 +17,35 @@ package io.gatling.core.feeder
 
 import scala.io.Source
 import scala.tools.nsc.io.Path
-import io.gatling.core.config.GatlingFiles
+
+import au.com.bytecode.opencsv.CSVParser
 import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingFiles
 import io.gatling.core.util.FileHelper.{ commaSeparator, semicolonSeparator, tabulationSeparator }
 import io.gatling.core.util.IOHelper.withSource
-import scala.Array.canBuildFrom
-import scala.reflect.io.Path.string2path
 
 object SeparatedValuesParser {
 
-	def parse(file: Path, separator: String, escapeChar: Option[String] = None): Array[Record[String]] = {
+	def csv(fileName: String): AdvancedFeederBuilder[String] = csv(GatlingFiles.feederFile(fileName))
+	def csv(file: Path) = AdvancedFeederBuilder(parse(file, commaSeparator.charAt(0)))
 
-		def readLine(line: Array[String]) = escapeChar.map(escape => line.map(_.stripPrefix(escape).stripSuffix(escape))).getOrElse(line)
+	def tsv(fileName: String): AdvancedFeederBuilder[String] = tsv(GatlingFiles.feederFile(fileName))
+	def tsv(file: Path) = AdvancedFeederBuilder(parse(file, tabulationSeparator.charAt(0)))
+
+	def ssv(fileName: String): AdvancedFeederBuilder[String] = ssv(GatlingFiles.feederFile(fileName))
+	def ssv(file: Path) = AdvancedFeederBuilder(parse(file, semicolonSeparator.charAt(0)))
+
+	def parse(file: Path, separator: Char): Array[Record[String]] = {
 
 		require(file.exists, s"File $file doesn't exists")
 
 		withSource(Source.fromFile(file.jfile, configuration.core.encoding)) { source =>
 
-			val rawLines = source.getLines.map(_.split(separator)).map(readLine)
+			val parser = new CSVParser(separator)
+			val rawLines = source.getLines.map(parser.parseLine)
 			val headers = rawLines.next
 
-			rawLines.map(line => headers.zip(line).toMap).toArray
+			rawLines.map(headers.zip(_).toMap).toArray
 		}
 	}
-
-	def csv(fileName: String, escapeChar: Option[String]): AdvancedFeederBuilder[String] = csv(GatlingFiles.feederFile(fileName), escapeChar)
-	def csv(file: Path, escapeChar: Option[String]) = AdvancedFeederBuilder(parse(file, commaSeparator, escapeChar))
-
-	def tsv(fileName: String, escapeChar: Option[String]): AdvancedFeederBuilder[String] = tsv(GatlingFiles.feederFile(fileName), escapeChar)
-	def tsv(file: Path, escapeChar: Option[String]) = AdvancedFeederBuilder(parse(file, tabulationSeparator, escapeChar))
-
-	def ssv(fileName: String, escapeChar: Option[String]): AdvancedFeederBuilder[String] = ssv(GatlingFiles.feederFile(fileName), escapeChar)
-	def ssv(file: Path, escapeChar: Option[String]) = AdvancedFeederBuilder(parse(file, semicolonSeparator, escapeChar))
 }

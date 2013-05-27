@@ -77,6 +77,10 @@
 			<groupId>com.dongxiguo</groupId>
 			<artifactId>fastring_2.10</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>net.sf.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+		</dependency>
 
 		<!-- runtime -->
 		<dependency>
