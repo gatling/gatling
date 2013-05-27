@@ -39,7 +39,7 @@ import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.response.{ Response, ResponseBuilder, ResponseBuilderFactory, ResponseProcessor }
 import io.gatling.http.util.HttpStringBuilder
 
-object GatlingAsyncHandlerActor {
+object AsyncHandlerActor {
 	val redirectedRequestNamePattern = """(.+?) Redirect (\d+)""".r
 	val timeout = configuration.http.requestTimeOutInMs milliseconds
 
@@ -49,11 +49,11 @@ object GatlingAsyncHandlerActor {
 		responseProcessor: Option[ResponseProcessor],
 		protocol: HttpProtocol)(requestName: String) = {
 
-		val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks, protocol)
+		val handlerFactory = AsyncHandler.newHandlerFactory(checks, protocol)
 		val responseBuilderFactory = ResponseBuilder.newResponseBuilder(checks, responseProcessor, protocol)
 
 		(request: Request, session: Session) =>
-			new GatlingAsyncHandlerActor(
+			new AsyncHandlerActor(
 				session,
 				checks,
 				next,
@@ -65,7 +65,7 @@ object GatlingAsyncHandlerActor {
 	}
 }
 
-class GatlingAsyncHandlerActor(
+class AsyncHandlerActor(
 	var originalSession: Session,
 	checks: List[HttpCheck],
 	next: ActorRef,
@@ -78,7 +78,7 @@ class GatlingAsyncHandlerActor(
 	var responseBuilder = responseBuilderFactory(request)
 
 	override def preStart {
-		context.setReceiveTimeout(GatlingAsyncHandlerActor.timeout)
+		context.setReceiveTimeout(AsyncHandlerActor.timeout)
 	}
 
 	def receive = {
@@ -203,7 +203,7 @@ class GatlingAsyncHandlerActor(
 			newRequest.getHeaders.remove(HeaderNames.CONTENT_TYPE)
 
 			val newRequestName = requestName match {
-				case GatlingAsyncHandlerActor.redirectedRequestNamePattern(requestBaseName, redirectCount) => requestBaseName + " Redirect " + (redirectCount.toInt + 1)
+				case AsyncHandlerActor.redirectedRequestNamePattern(requestBaseName, redirectCount) => requestBaseName + " Redirect " + (redirectCount.toInt + 1)
 				case _ => requestName + " Redirect 1"
 			}
 
@@ -214,9 +214,9 @@ class GatlingAsyncHandlerActor(
 
 			val client =
 				if (protocol.shareClient)
-					GatlingHttpClient.defaultClient
+					HttpClient.default
 				else
-					sessionWithUpdatedCookies(GatlingHttpClient.httpClientAttributeName).asOption.getOrElse(throw new UnsupportedOperationException("Couldn't find an HTTP client stored in the session"))
+					sessionWithUpdatedCookies(HttpClient.httpClientAttributeName).asOption.getOrElse(throw new UnsupportedOperationException("Couldn't find an HTTP client stored in the session"))
 
 			client.executeRequest(newRequest, handlerFactory(newRequestName, self))
 		}

@@ -24,11 +24,11 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckOrder.{ Body, Checksum }
 import io.gatling.http.config.HttpProtocol
 
-object GatlingAsyncHandler {
+object AsyncHandler {
 
 	def newHandlerFactory(checks: List[HttpCheck], protocol: HttpProtocol): HandlerFactory = {
 		val useBodyParts = !protocol.responseChunksDiscardingEnabled || checks.exists(check => check.order == Checksum || check.order == Body)
-		(requestName: String, actor: ActorRef) => new GatlingAsyncHandler(requestName, actor, useBodyParts)
+		(requestName: String, actor: ActorRef) => new AsyncHandler(requestName, actor, useBodyParts)
 	}
 }
 
@@ -42,7 +42,7 @@ object GatlingAsyncHandler {
  * @param actor the actor that will perform the logic outside of the IO thread
  * @param useBodyParts id body parts should be sent to the actor
  */
-class GatlingAsyncHandler(requestName: String, actor: ActorRef, useBodyParts: Boolean) extends ProgressAsyncHandler[Unit] with Logging {
+class AsyncHandler(requestName: String, actor: ActorRef, useBodyParts: Boolean) extends ProgressAsyncHandler[Unit] with Logging {
 
 	def onHeaderWriteCompleted = {
 		actor ! new OnHeaderWriteCompleted

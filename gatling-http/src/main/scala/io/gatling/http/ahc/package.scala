@@ -20,11 +20,11 @@ import com.ning.http.client.Request
 import akka.actor.ActorRef
 import io.gatling.core.session.Session
 import io.gatling.core.validation.Validation
-import io.gatling.http.ahc.GatlingAsyncHandler
+import io.gatling.http.ahc.AsyncHandler
 import io.gatling.http.config.HttpProtocol
 
 package object ahc {
 
 	type RequestFactory = (Session, HttpProtocol) => Validation[Request]
-	type HandlerFactory = (String, ActorRef) => GatlingAsyncHandler
+	type HandlerFactory = (String, ActorRef) => AsyncHandler
 }

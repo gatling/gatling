@@ -24,7 +24,7 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.message.Status
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.Headers.Names._
-import io.gatling.http.ahc.GatlingHttpClient
+import io.gatling.http.ahc.HttpClient
 import io.gatling.http.request.builder.{ GetHttpRequestBuilder, PostHttpRequestBuilder }
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
@@ -108,7 +108,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol, warmUpUrl: Option[String]
 				protocol.securedProxy.map { proxy => if (url.startsWith("https://")) requestBuilder.setProxyServer(proxy) }
 
 				try {
-					GatlingHttpClient.defaultClient.executeRequest(requestBuilder.build).get
+					HttpClient.default.executeRequest(requestBuilder.build).get
 				} catch {
 					case e: Exception => logger.info(s"Couldn't execute warm up request $url", e)
 				}

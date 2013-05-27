@@ -35,7 +35,7 @@ import akka.actor.{ ActorRef, Props }
 import io.gatling.core.action.Interruptable
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.Failure
-import io.gatling.http.ahc.{ GatlingAsyncHandler, GatlingAsyncHandlerActor, GatlingHttpClient, RequestFactory }
+import io.gatling.http.ahc.{ AsyncHandler, AsyncHandlerActor, HttpClient, RequestFactory }
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
@@ -60,8 +60,8 @@ class HttpRequestAction(
 	responseProcessor: Option[ResponseProcessor],
 	protocol: HttpProtocol) extends Interruptable {
 
-	val handlerFactory = GatlingAsyncHandler.newHandlerFactory(checks, protocol)
-	val asyncHandlerActorFactory = GatlingAsyncHandlerActor.newAsyncHandlerActorFactory(checks, next, responseProcessor, protocol) _
+	val handlerFactory = AsyncHandler.newHandlerFactory(checks, protocol)
+	val asyncHandlerActorFactory = AsyncHandlerActor.newAsyncHandlerActorFactory(checks, next, responseProcessor, protocol) _
 
 	def execute(session: Session) {
 
@@ -74,13 +74,13 @@ class HttpRequestAction(
 			} else {
 				val (sessionWithClient, client) =
 					if (protocol.shareClient)
-						(newSession, GatlingHttpClient.defaultClient)
+						(newSession, HttpClient.default)
 					else
-						newSession(GatlingHttpClient.httpClientAttributeName).asOption[AsyncHttpClient]
+						newSession(HttpClient.httpClientAttributeName).asOption[AsyncHttpClient]
 							.map((newSession, _))
 							.getOrElse {
-								val client = GatlingHttpClient.newClient(newSession)
-								(newSession.set(GatlingHttpClient.httpClientAttributeName, client), client)
+								val client = HttpClient.newClient(newSession)
+								(newSession.set(HttpClient.httpClientAttributeName, client), client)
 							}
 
 				logger.info(s"Sending request '$resolvedRequestName': scenario '${sessionWithClient.scenarioName}', userId #${sessionWithClient.userId}")

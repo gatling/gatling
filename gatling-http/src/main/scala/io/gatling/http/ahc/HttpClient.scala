@@ -30,7 +30,7 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.util.SSLHelper.{ RichAsyncHttpClientConfigBuilder, newKeyManagers, newTrustManagers }
 
-object GatlingHttpClient extends Logging {
+object HttpClient extends Logging {
 
 	val httpClientAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.client"
 
@@ -91,10 +91,10 @@ object GatlingHttpClient extends Logging {
 			.setConnectionsPool(SharedResources.connectionsPool)
 
 		val trustManagers = configuration.http.ssl.trustStore
-			.map { config => newTrustManagers(config.storeType, config.file, config.password, config.algorithm) }
+			.map(config => newTrustManagers(config.storeType, config.file, config.password, config.algorithm))
 
 		val keyManagers = configuration.http.ssl.keyStore
-			.map { config => newKeyManagers(config.storeType, config.file, config.password, config.algorithm) }
+			.map(config => newKeyManagers(config.storeType, config.file, config.password, config.algorithm))
 
 		if (trustManagers.isDefined || keyManagers.isDefined)
 			ahcConfigBuilder.setSSLContext(trustManagers, keyManagers)
@@ -134,5 +134,5 @@ object GatlingHttpClient extends Logging {
 		client
 	}
 
-	lazy val defaultClient = newClient(None)
+	lazy val default = newClient(None)
 }

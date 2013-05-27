@@ -23,7 +23,7 @@ import io.gatling.core.session.{ EL, Expression, Session }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation, ValidationList }
 import io.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import io.gatling.http.action.HttpRequestActionBuilder
-import io.gatling.http.ahc.{ GatlingConnectionPoolKeyStrategy, RequestFactory }
+import io.gatling.http.ahc.{ ConnectionPoolKeyStrategy, RequestFactory }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.cookie.CookieHandling
@@ -183,7 +183,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 
 		implicit val requestBuilder = new RequestBuilder(httpAttributes.method, configuration.http.useRawUrl).setBodyEncoding(configuration.core.encoding)
 
-		if (!protocol.shareConnections) requestBuilder.setConnectionPoolKeyStrategy(new GatlingConnectionPoolKeyStrategy(session))
+		if (!protocol.shareConnections) requestBuilder.setConnectionPoolKeyStrategy(new ConnectionPoolKeyStrategy(session))
 
 		httpAttributes.url(session)
 			.flatMap(makeAbsolute)
