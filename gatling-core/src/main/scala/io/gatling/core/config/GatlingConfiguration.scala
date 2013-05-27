@@ -104,7 +104,6 @@ object GatlingConfiguration {
 				useProxyProperties = config.getBoolean(CONF_HTTP_USE_PROXY_PROPERTIES),
 				userAgent = config.getString(CONF_HTTP_USER_AGENT),
 				useRawUrl = config.getBoolean(CONF_HTTP_USE_RAW_URL),
-				nonStandardJsonSupport = config.getString(CONF_HTTP_JSON_FEATURES).toStringSeq,
 				warmUpUrl = config.getString(CONF_HTTP_WARM_UP_URL).trimToOption,
 				ssl = {
 					def storeConfig(typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String) = {
@@ -240,7 +239,6 @@ case class HttpConfiguration(
 	useProxyProperties: Boolean,
 	userAgent: String,
 	useRawUrl: Boolean,
-	nonStandardJsonSupport: Seq[String],
 	warmUpUrl: Option[String],
 	ssl: SslConfiguration)
 
