@@ -36,8 +36,8 @@ object Loops {
 
 		def isSetUp(implicit counterName: CounterName) = session.contains(counterName.name)
 
-		def counterValue(implicit counterName: CounterName) = session(counterName.name).asInstanceOf[Int]
-		def timestampValue(implicit counterName: CounterName) = session(timestampName).asInstanceOf[Long]
+		def counterValue(implicit counterName: CounterName): Int = session(counterName.name).as[Int]
+		def timestampValue(implicit counterName: CounterName): Long = session(timestampName).as[Long]
 
 		def incrementLoop(implicit counterName: CounterName): Session = {
 			if (isSetUp)
