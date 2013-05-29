@@ -74,7 +74,7 @@ object ScanHelper {
 	}
 }
 
-sealed abstract class Resource {
+sealed trait Resource {
 	def path: Path
 	def copyTo(target: Path)
 }
