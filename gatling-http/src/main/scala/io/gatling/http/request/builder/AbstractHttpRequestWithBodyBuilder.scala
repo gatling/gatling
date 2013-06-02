@@ -49,16 +49,12 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	def body(bd: Expression[String]): B = requestBody(StringBody(bd))
 	def rawFileBodyAsString(filePath: Expression[String]): B = body(RawFileBodies.asString(filePath))
 	def elFileBody(filePath: Expression[String]): B = body(ELFileBodies.asString(filePath))
-	@deprecated("Scalate support will be dropped in 2.1.0, prefer EL files or plain scala code", "2.0.0")
-	def sspFileBody(filePath: Expression[String], additionalAttributes: Map[String, Any] = Map.empty): B = body(SspFileBodies.asString(filePath, additionalAttributes))
 
 	// Bytes
 	def byteArrayBody(byteArray: Expression[Array[Byte]]): B = requestBody(new ByteArrayBody(byteArray))
 	def rawFileBodyAsBytes(filePath: Expression[String]): B = byteArrayBody(RawFileBodies.asBytes(filePath))
 	def elFileBodyAsBytes(filePath: Expression[String]): B = byteArrayBody(ELFileBodies.asBytes(filePath))
 	def bodyAsBytes(bd: Expression[String]): B = byteArrayBody(StringBodies.asBytes(bd))
-	@deprecated("Scalate support will be dropped in 2.1.0, prefer EL files or plain scala code", "2.0.0")
-	def sspFileBodyAsBytes(filePath: Expression[String], additionalAttributes: Map[String, Any] = Map.empty): B = byteArrayBody(SspFileBodies.asBytes(filePath, additionalAttributes))
 
 	// File
 	def rawFileBody(filePath: Expression[String]): B = requestBody(RawFileBody(RawFileBodies.asFile(filePath)))
@@ -82,11 +78,6 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 	def elFileBodyPart(name: Expression[String], filePath: Expression[String]): B = bodyPart(name, ELFileBodies.asString(filePath))
 	def elFileBodyPart(name: Expression[String], filePath: Expression[String], mimeType: String): B = byteArrayBodyPart(name, ELFileBodies.asBytes(filePath), mimeType)
 	def elFileBodyPart(name: Expression[String], filePath: Expression[String], mimeType: String, contentId: String): B = byteArrayBodyPart(name, ELFileBodies.asBytes(filePath), mimeType, contentId)
-
-	@deprecated("Scalate support will be dropped in 2.1.0, prefer EL files or plain scala code", "2.0.0")
-	def sspFileBodyPart(name: Expression[String], filePath: Expression[String], mimeType: String, additionalAttributes: Map[String, Any] = Map.empty): B = byteArrayBodyPart(name, SspFileBodies.asBytes(filePath, additionalAttributes), mimeType)
-	@deprecated("Scalate support will be dropped in 2.1.0, prefer EL files or plain scala code", "2.0.0")
-	def sspFileBodyPart(name: Expression[String], filePath: Expression[String], mimeType: String, contentId: String, additionalAttributes: Map[String, Any]): B = byteArrayBodyPart(name, SspFileBodies.asBytes(filePath, additionalAttributes), mimeType, contentId)
 
 	protected def configureParts(session: Session, requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 		require(!bodyAttributes.body.isDefined || bodyAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")

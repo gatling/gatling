@@ -165,7 +165,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				.exec(http("Url from session").get("/aaaa"))
 				.pause(1000 milliseconds, 3000 milliseconds)
 				// Second request to be repeated
-				.exec(http("Create Thing blabla").post("/things").queryParam("login", "${login}").queryParam("password", "${password}").sspFileBody("create_thing.ssp").asJSON)
+				.exec(http("Create Thing blabla").post("/things").queryParam("login", "${login}").queryParam("password", "${password}").elFileBody("create_thing.txt").asJSON)
 				.pause(pause1)
 				// Third request to be repeated
 				.exec(http("Liste Articles").get("/things").queryParam("firstname", "${firstname}").queryParam("lastname", "${lastname}"))

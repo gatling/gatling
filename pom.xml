@@ -120,7 +120,6 @@
 		<xerces.version>2.11.0</xerces.version>
 		<logback.version>1.0.12</logback.version>
 		<slf4j.version>1.7.5</slf4j.version>
-		<scalate.version>1.6.1</scalate.version>
 		<fastring.version>0.2.1</fastring.version>
 		<netty.version>3.6.6.Final</netty.version>
 		<joda-time.version>2.2</joda-time.version>
@@ -273,11 +272,6 @@
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
 				<version>${slf4j.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.fusesource.scalate</groupId>
-				<artifactId>scalate-core_2.10</artifactId>
-				<version>${scalate.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.dongxiguo</groupId>
