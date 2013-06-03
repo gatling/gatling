@@ -17,19 +17,24 @@ package io.gatling.http.request
 
 import java.io.File
 
+import scala.collection.mutable
+
 import org.apache.commons.io.FileUtils
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles
 import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.validation.Validation
 
 object RawFileBodies {
+
+	private val rawFileBodiesCache = mutable.Map.empty[String, Validation[File]]
 
 	def buildExpression[T](filePath: Expression[String], f: File => T): Expression[T] = (session: Session) =>
 		for {
 			path <- filePath(session)
-			file <- GatlingFiles.requestBodyFile(path)
-		} yield f(file.jfile)
+			file <- rawFileBodiesCache.getOrElseUpdate(path, GatlingFiles.requestBodyResource(path).map(_.jfile))
+		} yield f(file)
 
 	def asFile(filePath: Expression[String]): Expression[File] = buildExpression(filePath, identity)
 
