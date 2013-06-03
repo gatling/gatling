@@ -15,6 +15,8 @@
  */
 package io.gatling.core.config
 
+import scala.collection.mutable
+
 import scala.tools.nsc.io.{ Directory, Path }
 import scala.tools.nsc.io.Path.string2path
 
@@ -22,12 +24,15 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 object GatlingFiles {
+
 	val GATLING_HOME = Option(System.getenv("GATLING_HOME")).getOrElse(".")
 	val GATLING_ASSETS_PACKAGE = "assets"
 	val GATLING_JS = "js"
 	val GATLING_STYLE = "style"
 	val GATLING_ASSETS_JS_PACKAGE = GATLING_ASSETS_PACKAGE / GATLING_JS
 	val GATLING_ASSETS_STYLE_PACKAGE = GATLING_ASSETS_PACKAGE / GATLING_STYLE
+	private val requestBodyFileMemo = mutable.Map.empty[Path, Validation[Resource]]
+	private val feederFileMemo = mutable.Map.empty[Path, Validation[Resource]]
 
 	private def resolvePath(path: String): Path = {
 		val rawPath = Path(path)
@@ -56,11 +61,15 @@ object GatlingFiles {
 		}
 	}
 
-	def requestBodyFile(filePath: Path): Validation[Path] = {
-		val file = if (filePath.exists) filePath else GatlingFiles.requestBodiesDirectory / filePath
-		if (file.exists) file.success
-		else s"Body file $file doesn't exist".failure
+	def validateResource(filePath: Path, defaultFolder: String): Validation[Resource] = {
+		val defaultPath = defaultFolder / filePath
+		val classPathResource = Option(getClass.getClassLoader.getResourceAsStream((defaultPath).toString))
+			.map(is => ClassPathResource(is, filePath.extension))
+		val resource = classPathResource.orElse(filePath.ifFile(path => FileResource(path.toFile)))
+		resource.map(_.success).getOrElse(s"file $filePath doesn't exist".failure)
 	}
 
-	def feederFile(filePath: Path) = if (filePath.exists) filePath else GatlingFiles.dataDirectory / filePath
+	def requestBodyResource(filePath: Path) = requestBodyFileMemo.getOrElseUpdate(filePath, validateResource(filePath, "request-bodies"))
+
+	def feederResource(filePath: Path) = feederFileMemo.getOrElseUpdate(filePath, validateResource(filePath, "data"))
 }

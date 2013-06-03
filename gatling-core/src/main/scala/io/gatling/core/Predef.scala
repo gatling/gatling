@@ -17,7 +17,7 @@ package io.gatling.core
 
 import scala.concurrent.duration.{ DurationInt, FiniteDuration }
 import scala.reflect.ClassTag
-import scala.tools.nsc.io.{ File, Path }
+import scala.reflect.io.{ File, Path }
 
 import io.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
 import io.gatling.core.feeder.{ AdvancedFeederBuilder, Feeder, FeederBuilder, FeederWrapper, SeparatedValuesParser }
@@ -49,11 +49,11 @@ object Predef {
 	implicit def intToFiniteDuration(i: Int) = i seconds
 
 	def csv(fileName: String) = SeparatedValuesParser.csv(fileName)
-	def csv(file: File) = SeparatedValuesParser.csv(file)
+	def csv(file: File) = SeparatedValuesParser.csv(file.path)
 	def ssv(fileName: String) = SeparatedValuesParser.ssv(fileName)
-	def ssv(file: File) = SeparatedValuesParser.ssv(file)
+	def ssv(file: File) = SeparatedValuesParser.ssv(file.path)
 	def tsv(fileName: String) = SeparatedValuesParser.tsv(fileName)
-	def tsv(file: File) = SeparatedValuesParser.tsv(file)
+	def tsv(file: File) = SeparatedValuesParser.tsv(file.path)
 
 	implicit def array2FeederBuilder[T](data: Array[Map[String, T]]): AdvancedFeederBuilder[T] = AdvancedFeederBuilder(data)
 	implicit def feeder2FeederBuilder[T](feeder: Feeder[T]): FeederBuilder[T] = FeederWrapper(feeder)
