@@ -13,26 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.util
+package io.gatling.core.config
 
-import java.io.Closeable
+import java.io.{ File => JFile, InputStream }
 
-import scala.io.Source
+import scala.reflect.io.File
 
-object IOHelper {
+import org.apache.commons.io.FileUtils.copyInputStreamToFile
 
-	def withCloseable[T, C <: Closeable](closeable: C)(block: C => T) = {
-		try
-			block(closeable)
-		finally
-			closeable.close
+sealed trait Resource {
+	def inputStream: InputStream
+	def jfile: JFile
+}
+
+case class FileResource(file: File) extends Resource {
+	def inputStream = file.inputStream
+	def jfile = file.jfile
+}
+
+case class ClassPathResource(inputStream: InputStream, extension: String) extends Resource {
+	def jfile = {
+		val tempFile = File.makeTemp("gatling", "." + extension).jfile
+		copyInputStreamToFile(inputStream, tempFile)
+		tempFile
 	}
-
-	def withSource[T, C <: Source](closeable: C)(block: C => T) = {
-		try
-			block(closeable)
-		finally
-			closeable.close
-	}
-
 }

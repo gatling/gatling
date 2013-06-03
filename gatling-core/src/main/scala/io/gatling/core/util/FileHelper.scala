@@ -15,7 +15,6 @@
  */
 package io.gatling.core.util
 
-import java.net.URLEncoder
 import java.security.MessageDigest
 
 import io.gatling.core.config.GatlingConfiguration.configuration
@@ -52,4 +51,5 @@ object FileHelper {
 
 		def toRequestFileName = s"req_${string.toFileName}.html"
 	}
+
 }

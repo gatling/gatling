@@ -15,22 +15,23 @@
  */
 package io.gatling.http.request
 
-import java.io.{ BufferedInputStream, ByteArrayInputStream }
+import scala.collection.mutable
 
-import org.apache.commons.io.FileUtils
+import org.apache.commons.io.IOUtils
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles
 import io.gatling.core.session.{ EL, Expression, Session }
 import io.gatling.core.validation.Validation
+import io.gatling.core.util.IOHelper.withCloseable
 
 object ELFileBodies {
 
-	val elFileBodiesCache = new collection.mutable.HashMap[String, Validation[Expression[String]]]
+	private val elFileBodiesCache = mutable.Map.empty[String, Validation[Expression[String]]]
 
 	def compileFile(path: String): Validation[Expression[String]] =
-		GatlingFiles.requestBodyFile(path)
-			.map(f => FileUtils.readFileToString(f.jfile, configuration.core.encoding))
+		GatlingFiles.requestBodyResource(path)
+			.map(resource => withCloseable(resource.inputStream)(IOUtils.toString(_, configuration.core.encoding)))
 			.map(EL.compile[String])
 
 	def buildExpression[T](filePath: Expression[String], f: String => T): Expression[T] = (session: Session) =>
