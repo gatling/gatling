@@ -45,14 +45,14 @@ class While(continueCondition: Expression[Boolean], exitASAP: Boolean, next: Act
 
 class InnerWhile(continueCondition: Expression[Boolean], loopNext: ActorRef, exitASAP: Boolean, val next: ActorRef)(implicit counterName: CounterName) extends Chainable {
 
-	val interrupt: Receive = {
+	val interrupt: PartialFunction[Session, Unit] = {
 
 		def conditionFailed(session: Session) = continueCondition(session) match {
 			case Success(c) => !c
 			case Failure(message) => logger.error(s"Could not evaluate condition: $message, exiting loop"); true
 		}
 
-		{ case session: Session if conditionFailed(session) => next ! session.exitInterruptable.exitLoop }
+		{ case session if conditionFailed(session) => next ! session.exitInterruptable.exitLoop }
 	}
 
 	/**
