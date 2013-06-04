@@ -111,8 +111,8 @@ trait DataWriter extends BaseActor {
 			Terminator.askDataWriterRegistration(self).onSuccess {
 				case _ =>
 					info("Going on with initialization after Terminator registration")
-					onInitializeDataWriter(runRecord, scenarios)
 					context.become(initialized)
+					onInitializeDataWriter(runRecord, scenarios)
 					originalSender ! true
 					info("Initialized")
 			}
