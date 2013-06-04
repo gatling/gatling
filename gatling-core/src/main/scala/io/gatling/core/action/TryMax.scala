@@ -37,16 +37,12 @@ class TryMax(times: Int, next: ActorRef)(implicit counterName: CounterName) exte
 
 class InnerTryMax(times: Int, loopNext: ActorRef, val next: ActorRef)(implicit counterName: CounterName) extends Chainable {
 
-	val interrupt: Receive = {
-		case session: Session if session.statusStack.head == KO =>
+	val interrupt: PartialFunction[Session, Unit] = {
+		case session if session.statusStack.head == KO =>
 			if (session.counterValue < times)
-				self ! session.resetStatus
+				self ! session
 			else
 				next ! session.exitTryMax.exitLoop
-	}
-
-	val exitNormally: Receive = {
-		case session: Session if session.statusStack.head == OK && session.counterValue > 1 => next ! session.exitTryMax.exitLoop
 	}
 
 	/**
@@ -60,6 +56,12 @@ class InnerTryMax(times: Int, loopNext: ActorRef, val next: ActorRef)(implicit c
 		val initializedSession = if (!session.isSetUp) session.enterTryMax(interrupt) else session
 		val incrementedSession = initializedSession.incrementLoop
 
-		exitNormally.orElse(interrupt).applyOrElse(incrementedSession, loopNext !)
+		val counterValue = incrementedSession.counterValue
+		val status = incrementedSession.statusStack.head
+
+		if ((status == OK && counterValue > 1) || (status == KO && counterValue >= times))
+			next ! incrementedSession.exitTryMax.exitLoop // succeed or exit on exceed
+		else
+			loopNext ! incrementedSession.resetStatus // loop
 	}
 }
