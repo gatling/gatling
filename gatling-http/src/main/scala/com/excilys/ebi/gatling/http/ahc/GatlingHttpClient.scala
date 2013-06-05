@@ -49,7 +49,7 @@ object GatlingHttpClient extends Logging {
 
 		val applicationThreadPool = Executors.newCachedThreadPool(new ThreadFactory {
 			override def newThread(r: Runnable) = {
-				val t = new Thread(r, "AsyncHttpClient-Callback")
+				val t = new Thread(r, "Netty Thread")
 				t.setDaemon(true)
 				t
 			}
@@ -58,6 +58,7 @@ object GatlingHttpClient extends Logging {
 		val connectionsPool = new NettyConnectionsPool(configuration.http.maximumConnectionsTotal,
 			configuration.http.maximumConnectionsPerHost,
 			configuration.http.idleConnectionInPoolTimeOutInMs,
+			-1,
 			configuration.http.allowSslConnectionPool)
 
 		val nettyConfig = {
