@@ -49,7 +49,7 @@ object HttpClient extends Logging {
 
 		val applicationThreadPool = Executors.newCachedThreadPool(new ThreadFactory {
 			override def newThread(r: Runnable) = {
-				val t = new Thread(r, "AsyncHttpClient-Callback")
+				val t = new Thread(r, "Netty Thread")
 				t.setDaemon(true)
 				t
 			}
@@ -58,6 +58,7 @@ object HttpClient extends Logging {
 		val connectionsPool = new NettyConnectionsPool(configuration.http.ahc.maximumConnectionsTotal,
 			configuration.http.ahc.maximumConnectionsPerHost,
 			configuration.http.ahc.idleConnectionInPoolTimeOutInMs,
+			-1,
 			configuration.http.ahc.allowSslConnectionPool)
 
 		val nettyConfig = {
