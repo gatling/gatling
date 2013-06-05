@@ -79,6 +79,7 @@ object ConfigurationConstants {
 	val CONF_HTTP_AHC_CONNECTION_TIMEOUT = "gatling.http.ahc.connectionTimeout"
 	val CONF_HTTP_AHC_IDLE_CONNECTION_IN_POOL_TIMEOUT_IN_MS = "gatling.http.ahc.idleConnectionInPoolTimeoutInMs"
 	val CONF_HTTP_AHC_IDLE_CONNECTION_TIMEOUT_IN_MS = "gatling.http.ahc.idleConnectionTimeoutInMs"
+	val CONF_HTTP_AHC_MAX_CONNECTION_LIFETIME_IN_MS = "gatling.http.ahc.maxConnectionLifeTimeInMs"
 	val CONF_HTTP_AHC_IO_THREAD_MULTIPLIER = "gatling.http.ahc.ioThreadMultiplier"
 	val CONF_HTTP_AHC_MAXIMUM_CONNECTIONS_PER_HOST = "gatling.http.ahc.maximumConnectionsPerHost"
 	val CONF_HTTP_AHC_MAXIMUM_CONNECTIONS_TOTAL = "gatling.http.ahc.maximumConnectionsTotal"

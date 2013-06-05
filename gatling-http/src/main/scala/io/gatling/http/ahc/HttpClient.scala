@@ -58,7 +58,7 @@ object HttpClient extends Logging {
 		val connectionsPool = new NettyConnectionsPool(configuration.http.ahc.maximumConnectionsTotal,
 			configuration.http.ahc.maximumConnectionsPerHost,
 			configuration.http.ahc.idleConnectionInPoolTimeOutInMs,
-			-1,
+			configuration.http.ahc.maxConnectionLifeTimeInMs,
 			configuration.http.ahc.allowSslConnectionPool)
 
 		val nettyConfig = {
