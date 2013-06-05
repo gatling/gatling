@@ -58,7 +58,7 @@ object GatlingHttpClient extends Logging {
 		val connectionsPool = new NettyConnectionsPool(configuration.http.maximumConnectionsTotal,
 			configuration.http.maximumConnectionsPerHost,
 			configuration.http.idleConnectionInPoolTimeOutInMs,
-			-1,
+			configuration.http.maxConnectionLifeTimeInMs,
 			configuration.http.allowSslConnectionPool)
 
 		val nettyConfig = {
