@@ -73,7 +73,7 @@ private[cookie] class CookieJar(store: Map[URI, List[Cookie]]) {
 			val fixedPath = Option(cookie.getPath).getOrElse(rawURI.getPath)
 
 			if (fixedDomain != cookie.getDomain || fixedPath != cookie.getPath)
-				new Cookie(fixedDomain, cookie.getName, cookie.getValue, fixedPath, cookie.getMaxAge, cookie.isSecure, cookie.getVersion, cookie.isHttpOnly, cookie.isDiscard, cookie.getComment, cookie.getCommentUrl, cookie.getPorts)
+				new Cookie(fixedDomain, cookie.getName, cookie.getValue, cookie.getRawValue, fixedPath, cookie.getMaxAge, cookie.isSecure, cookie.getVersion, cookie.isHttpOnly, cookie.isDiscard, cookie.getComment, cookie.getCommentUrl, cookie.getPorts)
 			else
 				cookie
 		} filter {

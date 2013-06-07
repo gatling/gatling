@@ -105,6 +105,7 @@ object GatlingConfiguration extends Logging {
 					val value = config.getString(CONF_HTTP_WARM_UP_URL).trim
 					if (value.isEmpty) None else Some(value)
 				},
+				rfc6265CookieEncoding = config.getBoolean(CONF_HTTP_USE_PROXY_PROPERTIES),
 				ssl = {
 					def storeConfig(typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String) = {
 
@@ -177,7 +178,6 @@ case class XPathConfiguration(
 case class JsonPathConfiguration(
 	cache: Boolean)
 
-
 case class CssConfiguration(
 	engine: CssEngine)
 
@@ -223,6 +223,7 @@ case class HttpConfiguration(
 	userAgent: String,
 	useRawUrl: Boolean,
 	warmUpUrl: Option[String],
+	rfc6265CookieEncoding: Boolean,
 	ssl: SslConfiguration)
 
 case class SslConfiguration(

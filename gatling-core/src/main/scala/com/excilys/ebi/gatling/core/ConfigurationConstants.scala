@@ -63,6 +63,7 @@ object ConfigurationConstants {
 	val CONF_HTTP_USER_AGENT = "gatling.http.userAgent"
 	val CONF_HTTP_USE_RAW_URL = "gatling.http.useRawUrl"
 	val CONF_HTTP_WARM_UP_URL = "gatling.http.warmUpUrl"
+	val CONF_HTTP_RFC6265_COOKIE_ENCODING = "gatling.http.rfc6265CookieEncoding"
 	val CONF_HTTP_SSL_TRUST_STORE_TYPE = "gatling.http.ssl.trustStore.type"
 	val CONF_HTTP_SSL_TRUST_STORE_FILE = "gatling.http.ssl.trustStore.file"
 	val CONF_HTTP_SSL_TRUST_STORE_PASSWORD = "gatling.http.ssl.trustStore.password"
