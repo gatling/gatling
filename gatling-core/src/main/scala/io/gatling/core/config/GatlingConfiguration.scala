@@ -141,7 +141,8 @@ object GatlingConfiguration {
 					requestTimeOutInMs = config.getInt(CONF_HTTP_AHC_REQUEST_TIMEOUT_IN_MS),
 					useProxyProperties = config.getBoolean(CONF_HTTP_AHC_USE_PROXY_PROPERTIES),
 					userAgent = config.getString(CONF_HTTP_AHC_USER_AGENT),
-					useRawUrl = config.getBoolean(CONF_HTTP_AHC_USE_RAW_URL))),
+					useRawUrl = config.getBoolean(CONF_HTTP_AHC_USE_RAW_URL),
+					rfc6265CookieEncoding = config.getBoolean(CONF_HTTP_AHC_RFC6265_COOKIE_ENCODING))),
 			data = DataConfiguration(
 				dataWriterClasses = config.getString(CONF_DATA_WRITER_CLASS_NAMES).toStringSeq.map {
 					case "console" => "io.gatling.core.result.writer.ConsoleDataWriter"
@@ -282,7 +283,8 @@ case class AHCConfiguration(
 	requestTimeOutInMs: Int,
 	useProxyProperties: Boolean,
 	userAgent: String,
-	useRawUrl: Boolean)
+	useRawUrl: Boolean,
+	rfc6265CookieEncoding: Boolean)
 
 case class SslConfiguration(
 	trustStore: Option[StoreConfiguration],

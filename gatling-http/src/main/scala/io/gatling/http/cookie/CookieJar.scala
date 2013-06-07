@@ -76,6 +76,7 @@ class CookieJar(store: Map[URI, List[Cookie]]) {
 					fixedDomain,
 					cookie.getName,
 					cookie.getValue,
+					cookie.getRawValue,
 					fixedPath,
 					cookie.getMaxAge,
 					cookie.isSecure,

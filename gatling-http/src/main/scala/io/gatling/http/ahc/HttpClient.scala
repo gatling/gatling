@@ -90,6 +90,7 @@ object HttpClient extends Logging {
 			.setScheduledExecutorService(SharedResources.reaper)
 			.setAsyncHttpClientProviderConfig(SharedResources.nettyConfig)
 			.setConnectionsPool(SharedResources.connectionsPool)
+			.setRfc6265CookieEncoding(configuration.http.ahc.rfc6265CookieEncoding)
 
 		val trustManagers = configuration.http.ssl.trustStore
 			.map(config => newTrustManagers(config.storeType, config.file, config.password, config.algorithm))
