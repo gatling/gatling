@@ -15,9 +15,10 @@
  */
 package io.gatling.core.check.extractor.regex
 
+import java.util.regex.{ Matcher, Pattern }
+
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.util.matching.Regex
 
 import io.gatling.core.check.Extractor
 import io.gatling.core.check.extractor.Extractors.{ LiftedOption, LiftedSeqOption }
@@ -27,24 +28,23 @@ import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object RegexExtractors {
 
-	val cache = mutable.Map.empty[String, Regex]
-	def cachedRegex(pattern: String) = if (configuration.core.extract.regex.cache) cache.getOrElseUpdate(pattern, pattern.r) else pattern.r
+	val cache = mutable.Map.empty[String, Pattern]
+	def cachedRegex(pattern: String) = if (configuration.core.extract.regex.cache) cache.getOrElseUpdate(pattern, Pattern.compile(pattern)) else Pattern.compile(pattern)
 
 	abstract class RegexExtractor[X] extends Extractor[String, String, X] {
 		val name = "regex"
 	}
 
-	def extract(string: String, pattern: String): Seq[String] = cachedRegex(pattern).findAllIn(string).matchData.map { matcher =>
-		val value = matcher.group(1 min matcher.groupCount)
-		if (substringCopiesCharArray) value
-		else new String(value)
-	}.toList // very important: Iterator.toSeq produces a Stream, so map function is only evaluated lazily and the original byte array can't be GCed.
+	implicit class RichMatcher(val matcher: Matcher) extends AnyVal {
 
-	def extractOne(occurrence: Int) = new RegexExtractor[String] {
+		def foldLeft[T](zero: T)(f: (Matcher, T) => T): T = {
+			var temp = zero
+			while (matcher.find)
+				temp = f(matcher, temp)
+			temp
+		}
 
-		def apply(prepared: String, criterion: String): Validation[Option[String]] = {
-
-			val matcher = cachedRegex(criterion).pattern.matcher(prepared)
+		def findMatchN(n: Int): Option[String] = {
 
 			@tailrec
 			def findRec(countDown: Int): Boolean = {
@@ -56,15 +56,33 @@ object RegexExtractors {
 					findRec(countDown - 1)
 			}
 
-			val value = if (findRec(occurrence)) {
-				// if a group is specified, return the group 1, else return group 0 (ie the match)
-				val value = matcher.group(matcher.groupCount.min(1))
-				if (substringCopiesCharArray) value.liftOption
-				else new String(value).liftOption
-			} else
+			if (findRec(n))
+				value.liftOption
+			else
 				None
+		}
 
-			value.success
+		def value = {
+			// if a group is specified, return the group 1, else return group 0 (ie the match)
+			val value = matcher.group(matcher.groupCount min 1)
+			if (substringCopiesCharArray) value
+			else new String(value)
+		}
+	}
+
+	def extract(string: String, pattern: String): Seq[String] = {
+
+		val matcher = cachedRegex(pattern).matcher(string)
+		matcher.foldLeft(List.empty[String]) { (matcher, values) =>
+			matcher.value :: values
+		}.reverse
+	}
+
+	def extractOne(occurrence: Int) = new RegexExtractor[String] {
+
+		def apply(prepared: String, criterion: String): Validation[Option[String]] = {
+			val matcher = cachedRegex(criterion).matcher(prepared)
+			matcher.findMatchN(occurrence).success
 		}
 	}
 
@@ -75,6 +93,11 @@ object RegexExtractors {
 
 	val count = new RegexExtractor[Int] {
 
-		def apply(prepared: String, criterion: String): Validation[Option[Int]] = cachedRegex(criterion).findAllIn(prepared).size.liftOption.success
+		def apply(prepared: String, criterion: String): Validation[Option[Int]] = {
+			val matcher = cachedRegex(criterion).matcher(prepared)
+			matcher.foldLeft(0) { (_, count) =>
+				count + 1
+			}.liftOption.success
+		}
 	}
 }
