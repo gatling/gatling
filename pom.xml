@@ -115,7 +115,7 @@
 		<scala.version>2.9.3</scala.version>
 		<ahc.version>1.7.18.rfc6265</ahc.version>
 		<akka.version>2.0.4</akka.version>
-		<config.version>1.0.0</config.version>
+		<config.version>1.0.1</config.version>
 		<jaxen.version>1.1.6</jaxen.version>
 		<xerces.version>2.11.0</xerces.version>
 		<xml-apis.version>1.4.01</xml-apis.version>
@@ -140,11 +140,11 @@
 		<zinc.version>0.2.5</zinc.version>
 		<opencsv.version>2.3</opencsv.version>
 		<maven2.version>2.2.1</maven2.version>
-		<maven-compiler-plugin.version>3.0</maven-compiler-plugin.version>
+		<maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
 		<maven-source-plugin.version>2.2</maven-source-plugin.version>
 		<maven-assembly-plugin.version>2.2.2</maven-assembly-plugin.version>
 		<maven-jar-plugin.version>2.4</maven-jar-plugin.version>
-		<scala-maven-plugin.version>3.1.4</scala-maven-plugin.version>
+		<scala-maven-plugin.version>3.1.5</scala-maven-plugin.version>
 		<maven-surefire-plugin.version>2.12.4</maven-surefire-plugin.version>
 		<maven-release-plugin.version>2.3.2</maven-release-plugin.version>
 		<maven-license-plugin.version>1.10.b1</maven-license-plugin.version>
