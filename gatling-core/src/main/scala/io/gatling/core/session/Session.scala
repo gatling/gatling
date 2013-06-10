@@ -116,6 +116,7 @@ case class Session(
 		case counterName :: tail => copy(attributes = attributes - counterName - timestampName(counterName), counterStack = tail)
 		case _ => this
 	}
-	def currentLoopCounterValue = attributes(counterStack.head).asInstanceOf[Int]
-	def currentLoopTimestampValue = attributes(timestampName(counterStack.head)).asInstanceOf[Long]
+
+	def loopCounterValue(counterName: String) = attributes(counterName).asInstanceOf[Int]
+	def loopTimestampValue(counterName: String) = attributes(timestampName(counterName)).asInstanceOf[Long]
 }

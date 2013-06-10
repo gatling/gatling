@@ -38,7 +38,7 @@ class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next:
 
 	val interrupt: PartialFunction[Session, Unit] = {
 		case session if session.statusStack.head == KO =>
-			if (session.currentLoopCounterValue < times)
+			if (session.loopCounterValue(counterName) < times)
 				self ! session
 			else
 				next ! session.exitTryMax.exitLoop
@@ -55,7 +55,7 @@ class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next:
 		val initializedSession = if (!session.contains(counterName)) session.enterTryMax(interrupt) else session
 		val incrementedSession = initializedSession.incrementLoop(counterName)
 
-		val counterValue = incrementedSession.currentLoopCounterValue
+		val counterValue = incrementedSession.loopCounterValue(counterName)
 		val status = incrementedSession.statusStack.head
 
 		if ((status == OK && counterValue > 1) || (status == KO && counterValue >= times))

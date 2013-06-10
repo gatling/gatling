@@ -46,12 +46,12 @@ class InnerWhile(continueCondition: Expression[Boolean], loopNext: ActorRef, cou
 
 	val interrupt: PartialFunction[Session, Unit] = {
 
-		def conditionFailed(session: Session) = continueCondition(session) match {
-			case Success(c) => !c
-			case Failure(message) => logger.error(s"Could not evaluate condition: $message, exiting loop"); true
+		def continue(session: Session) = continueCondition(session) match {
+			case Success(c) => c
+			case Failure(message) => logger.error(s"Could not evaluate condition: $message, exiting loop"); false
 		}
 
-		{ case session if conditionFailed(session) => next ! session.exitInterruptable.exitLoop }
+		{ case session if !continue(session) => next ! session.exitInterruptable.exitLoop }
 	}
 
 	/**
@@ -62,7 +62,7 @@ class InnerWhile(continueCondition: Expression[Boolean], loopNext: ActorRef, cou
 	 */
 	def execute(session: Session) {
 
-		val initializedSession = if (!session.contains(counterName)) session.enterInterruptable(interrupt) else session
+		val initializedSession = if (!session.contains(counterName) && exitASAP) session.enterInterruptable(interrupt) else session
 		val incrementedSession = initializedSession.incrementLoop(counterName)
 
 		interrupt.applyOrElse(incrementedSession, (s: Session) => loopNext ! s)
