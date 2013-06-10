@@ -19,17 +19,16 @@ import akka.actor.{ ActorRef, Props }
 import io.gatling.core.action.{ While, system }
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ChainBuilder
-import io.gatling.core.structure.Loops.CounterName
 
 /**
  * @constructor create a new WhileAction
  * @param condition the function that determine the condition
  * @param loopNext chain that will be executed if condition evaluates to true
  */
-class WhileBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, exitASAP: Boolean)(implicit counterName: CounterName) extends ActionBuilder {
+class WhileBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String, exitASAP: Boolean) extends ActionBuilder {
 
 	def build(next: ActorRef) = {
-		val whileActor = system.actorOf(Props(new While(condition, exitASAP, next)))
+		val whileActor = system.actorOf(Props(new While(condition, counterName, exitASAP, next)))
 		val loopNextActor = loopNext.build(whileActor)
 		whileActor ! loopNextActor
 		whileActor

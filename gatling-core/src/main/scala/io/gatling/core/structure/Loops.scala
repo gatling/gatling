@@ -26,40 +26,12 @@ import io.gatling.core.structure.ChainBuilder.chainOf
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.SuccessWrapper
 
-object Loops {
-
-	case class CounterName(name: String) extends AnyVal
-
-	implicit class SessionCounters(val session: Session) extends AnyVal {
-
-		def timestampName(implicit counterName: CounterName) = "timestamp." + counterName.name
-
-		def isSetUp(implicit counterName: CounterName) = session.contains(counterName.name)
-
-		def counterValue(implicit counterName: CounterName): Int = session(counterName.name).as[Int]
-		def timestampValue(implicit counterName: CounterName): Long = session(timestampName).as[Long]
-
-		def incrementLoop(implicit counterName: CounterName): Session = {
-			if (isSetUp)
-				session.set(counterName.name, counterValue + 1)
-			else
-				session.setAll(counterName.name -> 0, timestampName -> nowMillis)
-		}
-
-		def exitLoop(implicit counterName: CounterName): Session = session.removeAll(counterName.name, timestampName)
-	}
-}
-
 trait Loops[B] extends Execs[B] {
-
-	import Loops._
 
 	def repeat(times: Int)(chain: ChainBuilder): B = repeat(times, UUID.randomUUID.toString)(chain)
 	def repeat(times: Int, counter: String)(chain: ChainBuilder): B = {
 
-		implicit val counterName = CounterName(counter)
-
-		val increment = chainOf(new SessionHookBuilder(_.incrementLoop.success))
+		val increment = chainOf(new SessionHookBuilder(_.incrementLoop(counter).success))
 		val exit = chainOf(new SessionHookBuilder(_.exitLoop.success))
 		val reversedLoopContent = exit :: Stream.continually(List(chain, increment)).take(times).flatten.toList
 
@@ -68,35 +40,27 @@ trait Loops[B] extends Execs[B] {
 
 	def repeat(times: Expression[Int], counter: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
 
-		implicit val counterName = CounterName(counter)
+		val continueCondition = (session: Session) => times(session).map(session.currentLoopCounterValue < _)
 
-		val continueCondition = (session: Session) => times(session).map(session.counterValue < _)
-
-		exec(new WhileBuilder(continueCondition, chain, false))
+		asLongAs(continueCondition, counter, false)(chain)
 	}
 
 	def foreach(seq: Expression[Seq[Any]], attributeName: String, counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
 
-		implicit val counter = CounterName(counterName)
+		val exposeCurrentValue = (session: Session) => seq(session).map(seq => session.set(attributeName, seq(session.currentLoopCounterValue)))
+		val continueCondition = (session: Session) => seq(session).map(_.isDefinedAt(session.currentLoopCounterValue))
 
-		val exposeCurrentValue = (session: Session) => seq(session).map(seq => session.set(attributeName, seq(session.counterValue)))
-
-		val continueCondition = (session: Session) => seq(session).map(_.isDefinedAt(session.counterValue))
-
-		exec(new WhileBuilder(continueCondition, chainOf(new SessionHookBuilder(exposeCurrentValue)).exec(chain), false))
+		asLongAs(continueCondition, counterName, false)(chainOf(new SessionHookBuilder(exposeCurrentValue)).exec(chain))
 	}
 
 	def during(duration: Duration, counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B = {
 
-		implicit val counter = CounterName(counterName)
-
 		val durationMillis = duration.toMillis
+		val continueCondition = (session: Session) => (nowMillis - session.currentLoopTimestampValue <= durationMillis).success
 
-		val continueCondition = (session: Session) => (nowMillis - session.timestampValue <= durationMillis).success
-
-		asLongAs(continueCondition, exitASAP, counterName)(chain)
+		asLongAs(continueCondition, counterName, exitASAP)(chain)
 	}
 
-	def asLongAs(condition: Expression[Boolean], exitASAP: Boolean = true, counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B =
-		exec(new WhileBuilder(condition, chain, exitASAP)(CounterName(counterName)))
+	def asLongAs(condition: Expression[Boolean], counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =
+		exec(new WhileBuilder(condition, chain, counterName, exitASAP))
 }

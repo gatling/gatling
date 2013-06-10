@@ -18,15 +18,14 @@ package io.gatling.core.action
 import akka.actor.{ Actor, ActorRef, Props }
 import io.gatling.core.result.message.{ OK, KO }
 import io.gatling.core.session.Session
-import io.gatling.core.structure.Loops.{ CounterName, SessionCounters }
 
-class TryMax(times: Int, next: ActorRef)(implicit counterName: CounterName) extends Actor {
+class TryMax(times: Int, counterName: String, next: ActorRef) extends Actor {
 
 	var innerTryMax: ActorRef = _
 
 	val uninitialized: Receive = {
 		case loopNext: ActorRef =>
-			innerTryMax = context.actorOf(Props(new InnerTryMax(times, loopNext, next)))
+			innerTryMax = context.actorOf(Props(new InnerTryMax(times, loopNext, counterName, next)))
 			context.become(initialized)
 	}
 
@@ -35,11 +34,11 @@ class TryMax(times: Int, next: ActorRef)(implicit counterName: CounterName) exte
 	override def receive = uninitialized
 }
 
-class InnerTryMax(times: Int, loopNext: ActorRef, val next: ActorRef)(implicit counterName: CounterName) extends Chainable {
+class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next: ActorRef) extends Chainable {
 
 	val interrupt: PartialFunction[Session, Unit] = {
 		case session if session.statusStack.head == KO =>
-			if (session.counterValue < times)
+			if (session.currentLoopCounterValue < times)
 				self ! session
 			else
 				next ! session.exitTryMax.exitLoop
@@ -53,10 +52,10 @@ class InnerTryMax(times: Int, loopNext: ActorRef, val next: ActorRef)(implicit c
 	 */
 	def execute(session: Session) {
 
-		val initializedSession = if (!session.isSetUp) session.enterTryMax(interrupt) else session
-		val incrementedSession = initializedSession.incrementLoop
+		val initializedSession = if (!session.contains(counterName)) session.enterTryMax(interrupt) else session
+		val incrementedSession = initializedSession.incrementLoop(counterName)
 
-		val counterValue = incrementedSession.counterValue
+		val counterValue = incrementedSession.currentLoopCounterValue
 		val status = incrementedSession.statusStack.head
 
 		if ((status == OK && counterValue > 1) || (status == KO && counterValue >= times))

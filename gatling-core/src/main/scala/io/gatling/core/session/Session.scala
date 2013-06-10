@@ -57,7 +57,8 @@ case class Session(
 	timeShift: Long = 0L,
 	groupStack: List[GroupStackEntry] = Nil,
 	statusStack: List[Status] = List(OK),
-	interruptStack: List[PartialFunction[Session, Unit]] = Nil) extends Logging {
+	interruptStack: List[PartialFunction[Session, Unit]] = Nil,
+	counterStack: List[String] = Nil) extends Logging {
 
 	val reducedInterruptStack = if (interruptStack.isEmpty) None else Some(interruptStack.reduceLeft(_ orElse _))
 	def shouldInterrupt = reducedInterruptStack.map(_.isDefinedAt(this)).getOrElse(false)
@@ -102,4 +103,19 @@ case class Session(
 
 	private[gatling] def enterInterruptable(interrupt: PartialFunction[Session, Unit]) = copy(interruptStack = interrupt :: interruptStack)
 	private[gatling] def exitInterruptable = copy(interruptStack = interruptStack.tail)
+
+	private def timestampName(counterName: String) = "timestamp." + counterName
+
+	private[gatling] def incrementLoop(counterName: String) = counterStack match {
+		case head :: _ if head == counterName =>
+			val counterValue = attributes(counterName).asInstanceOf[Int] + 1
+			copy(attributes = attributes + (counterName -> counterValue))
+		case _ => copy(attributes = attributes + (counterName -> 0) + (timestampName(counterName) -> nowMillis), counterStack = counterName :: counterStack)
+	}
+	private[gatling] def exitLoop = counterStack match {
+		case counterName :: tail => copy(attributes = attributes - counterName - timestampName(counterName), counterStack = tail)
+		case _ => this
+	}
+	def currentLoopCounterValue = attributes(counterStack.head).asInstanceOf[Int]
+	def currentLoopTimestampValue = attributes(timestampName(counterStack.head)).asInstanceOf[Long]
 }

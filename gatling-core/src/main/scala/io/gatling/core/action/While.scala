@@ -17,7 +17,6 @@ package io.gatling.core.action
 
 import akka.actor.{ Actor, ActorRef, Props }
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.structure.Loops.{ CounterName, SessionCounters }
 import io.gatling.core.validation.{ Failure, Success }
 
 /**
@@ -28,13 +27,13 @@ import io.gatling.core.validation.{ Failure, Success }
  * @param counterName the name of the counter for this loop
  * @param next the chain executed if testFunction evaluates to false
  */
-class While(continueCondition: Expression[Boolean], exitASAP: Boolean, next: ActorRef)(implicit counterName: CounterName) extends Actor {
+class While(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, next: ActorRef) extends Actor {
 
 	var innerWhile: ActorRef = _
 
 	val uninitialized: Receive = {
 		case loopNext: ActorRef =>
-			innerWhile = context.actorOf(Props(new InnerWhile(continueCondition, loopNext, exitASAP, next)))
+			innerWhile = context.actorOf(Props(new InnerWhile(continueCondition, loopNext, counterName, exitASAP, next)))
 			context.become(initialized)
 	}
 
@@ -43,7 +42,7 @@ class While(continueCondition: Expression[Boolean], exitASAP: Boolean, next: Act
 	override def receive = uninitialized
 }
 
-class InnerWhile(continueCondition: Expression[Boolean], loopNext: ActorRef, exitASAP: Boolean, val next: ActorRef)(implicit counterName: CounterName) extends Chainable {
+class InnerWhile(continueCondition: Expression[Boolean], loopNext: ActorRef, counterName: String, exitASAP: Boolean, val next: ActorRef) extends Chainable {
 
 	val interrupt: PartialFunction[Session, Unit] = {
 
@@ -63,8 +62,8 @@ class InnerWhile(continueCondition: Expression[Boolean], loopNext: ActorRef, exi
 	 */
 	def execute(session: Session) {
 
-		val initializedSession = if (!session.isSetUp) session.enterInterruptable(interrupt) else session
-		val incrementedSession = initializedSession.incrementLoop
+		val initializedSession = if (!session.contains(counterName)) session.enterInterruptable(interrupt) else session
+		val incrementedSession = initializedSession.incrementLoop(counterName)
 
 		interrupt.applyOrElse(incrementedSession, (s: Session) => loopNext ! s)
 	}
