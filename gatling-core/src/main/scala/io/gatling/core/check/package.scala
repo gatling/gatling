@@ -34,8 +34,8 @@ package object check {
 					if (actualValue == expected)
 						actual.success
 					else
-						s"expected $expected but found $actualValue".failure
-				case None => s"expected $expected but found nothing".failure
+						s"found $actualValue".failure
+				case None => s"found nothing".failure
 			}
 			def name: String = "is"
 		}
@@ -58,8 +58,8 @@ package object check {
 					if (expected.contains(actualValue))
 						actual.success
 					else
-						s"expected $expected but found $actualValue".failure
-				case None => s"expected $expected but found nothing".failure
+						s"found $actualValue".failure
+				case None => s"found nothing".failure
 			}
 			def name: String = "in"
 		}
