@@ -32,13 +32,19 @@ object HarMapping {
 		Request(request.method, request.url, request.headers.map(buildHeader), postData.map(buildPostData))
 	}
 
+	private val protectedValue = """"(.*)\"""".r
+	private def unprotected(string: String) = string match {
+		case protectedValue(unprotected) => unprotected
+		case _ => string
+	}
+
 	private def buildResponse(response: Json) = Response(response.status)
 
-	private def buildHeader(header: Json) = Header(header.name, header.value)
+	private def buildHeader(header: Json) = Header(header.name, unprotected(header.value))
 
 	private def buildPostData(postData: Json) = PostData(postData.mimeType, postData.text, postData.params.map(buildPostParam))
 
-	private def buildPostParam(postParam: Json) = PostParam(postParam.name, postParam.value)
+	private def buildPostParam(postParam: Json) = PostParam(postParam.name, unprotected(postParam.value))
 }
 
 /*
