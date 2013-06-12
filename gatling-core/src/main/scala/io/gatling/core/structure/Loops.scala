@@ -56,7 +56,7 @@ trait Loops[B] extends Execs[B] {
 	def during(duration: Duration, counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B = {
 
 		val durationMillis = duration.toMillis
-		val continueCondition = (session: Session) => (nowMillis - session.loopTimestampValue(counterName)  <= durationMillis).success
+		val continueCondition = (session: Session) => (nowMillis - session.loopTimestampValue(counterName) <= durationMillis).success
 
 		asLongAs(continueCondition, counterName, exitASAP)(chain)
 	}
