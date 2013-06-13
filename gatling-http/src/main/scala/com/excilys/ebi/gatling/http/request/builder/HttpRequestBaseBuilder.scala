@@ -47,9 +47,9 @@ class HttpRequestBaseBuilder(requestName: EvaluatableString) {
 	/**
 	 * Starts the definition of an HTTP request with word DELETE
 	 *
-	 * @param f the function returning the url of this request
+	 * @param url the function returning the url of this request
 	 */
-	def delete(f: EvaluatableString) = DeleteHttpRequestBuilder(requestName, f)
+	def delete(url: EvaluatableString) = DeleteHttpRequestBuilder(requestName, url)
 
 	/**
 	 * Starts the definition of an HTTP request with word GET
@@ -61,9 +61,9 @@ class HttpRequestBaseBuilder(requestName: EvaluatableString) {
 	/**
 	 * Starts the definition of an HTTP request with word GET
 	 *
-	 * @param f the function returning the url of this request
+	 * @param url the function returning the url of this request
 	 */
-	def get(f: EvaluatableString) = GetHttpRequestBuilder(requestName, f)
+	def get(url: EvaluatableString) = GetHttpRequestBuilder(requestName, url)
 
 	/**
 	 * Starts the definition of an HTTP request with word POST
@@ -75,9 +75,9 @@ class HttpRequestBaseBuilder(requestName: EvaluatableString) {
 	/**
 	 * Starts the definition of an HTTP request with word POST
 	 *
-	 * @param f the function returning the url of this request
+	 * @param url the function returning the url of this request
 	 */
-	def post(f: EvaluatableString) = PostHttpRequestBuilder(requestName, f)
+	def post(url: EvaluatableString) = PostHttpRequestBuilder(requestName, url)
 
 	/**
 	 * Starts the definition of an HTTP request with word PUT
@@ -89,9 +89,9 @@ class HttpRequestBaseBuilder(requestName: EvaluatableString) {
 	/**
 	 * Starts the definition of an HTTP request with word PUT
 	 *
-	 * @param f the function returning the url of this request
+	 * @param url the function returning the url of this request
 	 */
-	def put(f: EvaluatableString) = PutHttpRequestBuilder(requestName, f)
+	def put(url: EvaluatableString) = PutHttpRequestBuilder(requestName, url)
 
 	/**
 	 * Starts the definition of an HTTP request with word HEAD
@@ -103,8 +103,22 @@ class HttpRequestBaseBuilder(requestName: EvaluatableString) {
 	/**
 	 * Starts the definition of an HTTP request with word HEAD
 	 *
-	 * @param f the function returning the url of this request
+	 * @param url the function returning the url of this request
 	 */
-	def head(f: EvaluatableString) = HeadHttpRequestBuilder(requestName, f)
+	def head(url: EvaluatableString) = HeadHttpRequestBuilder(requestName, url)
+	
+		/**
+	 * Starts the definition of an HTTP request with word HEAD
+	 *
+	 * @param url the url on which this request will be made
+	 */
+	def options(url: String): OptionsHttpRequestBuilder = options(parseEL(url))
+
+	/**
+	 * Starts the definition of an HTTP request with word HEAD
+	 *
+	 * @param url the function returning the url of this request
+	 */
+	def options(url: EvaluatableString) = OptionsHttpRequestBuilder(requestName, url)
 }
 
