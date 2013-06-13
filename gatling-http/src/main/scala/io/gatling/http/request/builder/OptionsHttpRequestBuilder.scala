@@ -27,9 +27,9 @@ object OptionsHttpRequestBuilder {
  */
 class OptionsHttpRequestBuilder(httpAttributes: HttpAttributes, bodyAttributes: BodyAttributes) extends AbstractHttpRequestWithBodyBuilder[OptionsHttpRequestBuilder](httpAttributes, bodyAttributes) {
 
-	   private[http] def newInstance(
-        httpAttributes: HttpAttributes,
-        bodyAttributes: BodyAttributes) = {
-        new OptionsHttpRequestBuilder(httpAttributes, bodyAttributes)
-    }
+	private[http] def newInstance(
+		httpAttributes: HttpAttributes,
+		bodyAttributes: BodyAttributes) = {
+		new OptionsHttpRequestBuilder(httpAttributes, bodyAttributes)
+	}
 }

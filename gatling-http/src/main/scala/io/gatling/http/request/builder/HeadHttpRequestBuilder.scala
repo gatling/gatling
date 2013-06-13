@@ -27,9 +27,9 @@ object HeadHttpRequestBuilder {
  */
 class HeadHttpRequestBuilder(httpAttributes: HttpAttributes, bodyAttributes: BodyAttributes) extends AbstractHttpRequestWithBodyBuilder[HeadHttpRequestBuilder](httpAttributes, bodyAttributes) {
 
-	   private[http] def newInstance(
-        httpAttributes: HttpAttributes,
-        bodyAttributes: BodyAttributes) = {
-        new HeadHttpRequestBuilder(httpAttributes, bodyAttributes)
-    }
+	private[http] def newInstance(
+		httpAttributes: HttpAttributes,
+		bodyAttributes: BodyAttributes) = {
+		new HeadHttpRequestBuilder(httpAttributes, bodyAttributes)
+	}
 }
