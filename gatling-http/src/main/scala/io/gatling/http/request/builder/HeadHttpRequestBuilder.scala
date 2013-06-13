@@ -19,13 +19,17 @@ import io.gatling.core.session.Expression
 
 object HeadHttpRequestBuilder {
 
-	def apply(requestName: Expression[String], url: Expression[String]) = new HeadHttpRequestBuilder(HttpAttributes(requestName, "HEAD", url))
+	def apply(requestName: Expression[String], url: Expression[String]) = new HeadHttpRequestBuilder(HttpAttributes(requestName, "HEAD", url), BodyAttributes())
 }
 
 /**
  * This class defines an HTTP request with word HEAD in the DSL
  */
-class HeadHttpRequestBuilder(httpAttributes: HttpAttributes) extends AbstractHttpRequestBuilder[HeadHttpRequestBuilder](httpAttributes) {
+class HeadHttpRequestBuilder(httpAttributes: HttpAttributes, bodyAttributes: BodyAttributes) extends AbstractHttpRequestWithBodyBuilder[HeadHttpRequestBuilder](httpAttributes, bodyAttributes) {
 
-	private[http] def newInstance(httpAttributes: HttpAttributes) = new HeadHttpRequestBuilder(httpAttributes)
+	   private[http] def newInstance(
+        httpAttributes: HttpAttributes,
+        bodyAttributes: BodyAttributes) = {
+        new HeadHttpRequestBuilder(httpAttributes, bodyAttributes)
+    }
 }
