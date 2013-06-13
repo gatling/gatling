@@ -108,14 +108,14 @@ class HttpRequestBaseBuilder(requestName: EvaluatableString) {
 	def head(url: EvaluatableString) = HeadHttpRequestBuilder(requestName, url)
 	
 		/**
-	 * Starts the definition of an HTTP request with word HEAD
+	 * Starts the definition of an HTTP request with word OPTIONS
 	 *
 	 * @param url the url on which this request will be made
 	 */
 	def options(url: String): OptionsHttpRequestBuilder = options(parseEL(url))
 
 	/**
-	 * Starts the definition of an HTTP request with word HEAD
+	 * Starts the definition of an HTTP request with word OPTIONS
 	 *
 	 * @param url the function returning the url of this request
 	 */
