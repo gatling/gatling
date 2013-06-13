@@ -39,36 +39,43 @@ class HttpRequestBaseBuilder(requestName: Expression[String]) {
 	/**
 	 * Starts the definition of an HTTP request with word DELETE
 	 *
-	 * @param f the function returning the url of this request
+	 * @param url the function returning the url of this request
 	 */
-	def delete(f: Expression[String]) = DeleteHttpRequestBuilder(requestName, f)
+	def delete(url: Expression[String]) = DeleteHttpRequestBuilder(requestName, url)
 
 	/**
 	 * Starts the definition of an HTTP request with word GET
 	 *
-	 * @param f the function returning the url of this request
+	 * @param url the function returning the url of this request
 	 */
-	def get(f: Expression[String]) = GetHttpRequestBuilder(requestName, f)
+	def get(url: Expression[String]) = GetHttpRequestBuilder(requestName, url)
 
 	/**
 	 * Starts the definition of an HTTP request with word POST
 	 *
-	 * @param f the function returning the url of this request
+	 * @param url the function returning the url of this request
 	 */
-	def post(f: Expression[String]) = PostHttpRequestBuilder(requestName, f)
+	def post(url: Expression[String]) = PostHttpRequestBuilder(requestName, url)
 
 	/**
 	 * Starts the definition of an HTTP request with word PUT
 	 *
-	 * @param f the function returning the url of this request
+	 * @param url the function returning the url of this request
 	 */
-	def put(f: Expression[String]) = PutHttpRequestBuilder(requestName, f)
+	def put(url: Expression[String]) = PutHttpRequestBuilder(requestName, url)
 
 	/**
 	 * Starts the definition of an HTTP request with word HEAD
 	 *
-	 * @param f the function returning the url of this request
+	 * @param url the function returning the url of this request
 	 */
-	def head(f: Expression[String]) = HeadHttpRequestBuilder(requestName, f)
+	def head(url: Expression[String]) = HeadHttpRequestBuilder(requestName, url)
+
+	/**
+	 * Starts the definition of an HTTP request with word OPTIONS
+	 *
+	 * @param url the function returning the url of this request
+	 */
+	def options(url: Expression[String]) = OptionsHttpRequestBuilder(requestName, url)
 }
 
