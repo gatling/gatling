@@ -24,7 +24,7 @@ object OptionsHttpRequestBuilder {
 }
 
 /**
- * This class defines an HTTP request with word HEAD in the DSL
+ * This class defines an HTTP request with word OPTIONS in the DSL
  */
 class OptionsHttpRequestBuilder(httpAttributes: HttpAttributes, body: Option[HttpRequestBody]) extends AbstractHttpRequestWithBodyBuilder[OptionsHttpRequestBuilder](httpAttributes, body) {
 
