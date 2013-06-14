@@ -40,7 +40,7 @@ object StringHelper {
 
 		def clean = {
 			val normalized = Normalizer.normalize(string, Normalizer.Form.NFD)
-			normalized.toLowerCase.replaceAll("\\p{InCombiningDiacriticalMarks}+", "-").replaceAll("[^a-zA-Z0-9\\-\\.]", "-")
+			normalized.toLowerCase.replaceAll("\\p{InCombiningDiacriticalMarks}+", "-").replaceAll("[^a-zA-Z0-9\\-]", "-")
 		}
 
 		def escapeJsDoubleQuoteString = string.replace("\"", "\\\"")
