@@ -37,7 +37,7 @@ object StringHelper extends Logging {
 	 */
 	def clean(string: String) = {
 		val normalized = Normalizer.normalize(string, Normalizer.Form.NFD)
-		normalized.toLowerCase.replaceAll("\\p{InCombiningDiacriticalMarks}+", "-").replaceAll("[^a-zA-Z0-9\\-\\.]", "-")
+		normalized.toLowerCase.replaceAll("\\p{InCombiningDiacriticalMarks}+", "-").replaceAll("[^a-zA-Z0-9\\-]", "-")
 	}
 
 	def escapeJsQuoteString(s: String) = s.replace("'", "\\\'")
