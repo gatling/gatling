@@ -29,14 +29,13 @@ import io.gatling.core.util.StringHelper.RichString
 import io.gatling.http.Headers.Names.CONTENT_TYPE
 import io.gatling.recorder.scenario.{ PauseElement, RequestBody, RequestBodyBytes, RequestBodyParams, RequestElement, ScenarioElement }
 import io.gatling.recorder.util.FiltersHelper.isRequestAccepted
-import io.gatling.recorder.util.RedirectHelper.{ isRequestInsideRedirectChain, isRequestRedirectChainEnd, isRequestRedirectChainStart }
+import io.gatling.recorder.util.RedirectHelper.isRequestRedirect
 
 object HarReader {
 
 	var scenarioElements: List[ScenarioElement] = Nil
 
 	private var lastEntry: Entry = _
-	private var lastStatus: Int = 0
 	private var lastRequestTimestamp: Long = 0
 
 	def processHarFile(path: String) {
@@ -51,7 +50,6 @@ object HarReader {
 	def cleanHarReaderState {
 		scenarioElements = Nil
 		lastEntry = null
-		lastStatus = 0
 		lastRequestTimestamp = 0
 	}
 
@@ -91,22 +89,20 @@ object HarReader {
 		}
 
 		if (isRequestAccepted(entry.request.url, entry.request.method)) {
-			if (isRequestRedirectChainStart(lastStatus, entry.response.status)) {
+			if (lastEntry == null && isRequestRedirect(entry.response.status)) {
 				createPause
 				lastEntry = entry
 
-			} else if (isRequestRedirectChainEnd(lastStatus, entry.response.status)) {
+			} else if (lastEntry != null && !isRequestRedirect(entry.response.status)) {
 				// process request with new status
 				createRequest(lastEntry, entry.response.status)
 				lastEntry = null
 
-			} else if (!isRequestInsideRedirectChain(lastStatus, entry.response.status)) {
+			} else if (lastEntry == null) {
 				// standard use case
 				createPause
 				createRequest(entry, entry.response.status)
 			}
-			lastStatus = entry.response.status
 		}
 	}
-
 }

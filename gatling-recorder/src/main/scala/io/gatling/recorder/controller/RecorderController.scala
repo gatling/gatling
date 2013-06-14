@@ -55,8 +55,7 @@ class RecorderController extends Logging {
 	private lazy val configurationFrame: ConfigurationFrame = new ConfigurationFrame(this)
 
 	@volatile private var lastRequestTimestamp: Long = 0
-	@volatile private var lastRequest: HttpRequest = _
-	@volatile private var lastStatus: Int = _
+	@volatile private var redirectChainStart: HttpRequest = _
 	@volatile private var proxy: GatlingHttpProxy = _
 	@volatile private var scenarioElements: List[ScenarioElement] = Nil
 
@@ -148,23 +147,23 @@ class RecorderController extends Logging {
 
 		synchronized {
 			if (isRequestAccepted(request.getUri, request.getMethod.toString)) {
-				if (isRequestRedirectChainStart(lastStatus, response.getStatus.getCode)) {
+				if (redirectChainStart == null && isRequestRedirect(response.getStatus.getCode)) {
+					// enter redirect chain
 					processPause
-					lastRequest = request
+					redirectChainStart = request
 
-				} else if (isRequestRedirectChainEnd(lastStatus, response.getStatus.getCode)) {
+				} else if (redirectChainStart != null && !isRequestRedirect(response.getStatus.getCode)) {
+					// exit redirect chain
 					// process request with new status
-					processRequest(lastRequest, response.getStatus.getCode)
-					lastRequest = null
+					processRequest(redirectChainStart, response.getStatus.getCode)
+					redirectChainStart = null
 
-				} else if (!isRequestInsideRedirectChain(lastStatus, response.getStatus.getCode)) {
+				} else if (redirectChainStart == null) {
 					// standard use case
 					processPause
 					processRequest(request, response.getStatus.getCode)
 				}
 			}
-
-			lastStatus = response.getStatus.getCode
 		}
 	}
 
