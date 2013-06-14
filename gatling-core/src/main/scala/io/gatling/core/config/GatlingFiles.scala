@@ -16,7 +16,6 @@
 package io.gatling.core.config
 
 import scala.collection.mutable
-
 import scala.tools.nsc.io.{ Directory, Path }
 import scala.tools.nsc.io.Path.string2path
 
@@ -65,7 +64,7 @@ object GatlingFiles {
 		val defaultPath = defaultFolder / filePath
 		val classPathResource = Option(getClass.getClassLoader.getResource(defaultPath.toString)).map { url =>
 			url.getProtocol match {
-				case "file" => FileResource(defaultPath.toFile)
+				case "file" => FileResource(url.getFile.toFile)
 				case "jar" => ClassPathResource(url, filePath.extension)
 				case _ => throw new UnsupportedOperationException
 			}
