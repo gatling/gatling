@@ -115,9 +115,7 @@ object GatlingConfiguration {
 						val storePassword = config.getString(passwordKey)
 						val storeAlgorithm = config.getString(algorithmKey).trimToOption
 
-						storeType.map { t =>
-							StoreConfiguration(t, storeFile.getOrElse(throw new UnsupportedOperationException(s"$typeKey defined as $t but store file isn't defined")), storePassword, storeAlgorithm)
-						}
+						storeFile.map(StoreConfiguration(storeType, _, storePassword, storeAlgorithm))
 					}
 
 					val trustStore = storeConfig(CONF_HTTP_SSL_TRUST_STORE_TYPE, CONF_HTTP_SSL_TRUST_STORE_FILE, CONF_HTTP_SSL_TRUST_STORE_PASSWORD, CONF_HTTP_SSL_TRUST_STORE_ALGORITHM)
@@ -291,7 +289,7 @@ case class SslConfiguration(
 	keyStore: Option[StoreConfiguration])
 
 case class StoreConfiguration(
-	storeType: String,
+	storeType: Option[String],
 	file: String,
 	password: String,
 	algorithm: Option[String])
