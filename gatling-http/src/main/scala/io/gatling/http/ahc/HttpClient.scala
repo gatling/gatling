@@ -107,7 +107,7 @@ object HttpClient extends Logging {
 	def newClient(session: Session): AsyncHttpClient = newClient(Some(session))
 	def newClient(session: Option[Session]) = {
 
-		val ahcConfig = session.map { session =>
+		val ahcConfig = session.flatMap { session =>
 
 			val trustManagers = for {
 				file <- session(CONF_HTTP_SSL_TRUST_STORE_FILE).asOption[String]
@@ -125,9 +125,9 @@ object HttpClient extends Logging {
 
 			if (trustManagers.isDefined || keyManagers.isDefined) {
 				logger.info(s"Setting a custom SSLContext for user ${session.userId}")
-				new AsyncHttpClientConfig.Builder(defaultAhcConfig).setSSLContext(trustManagers, keyManagers).build
+				Some(new AsyncHttpClientConfig.Builder(defaultAhcConfig).setSSLContext(trustManagers, keyManagers).build)
 			} else
-				defaultAhcConfig
+				None
 
 		}.getOrElse(defaultAhcConfig)
 
