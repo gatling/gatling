@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.ui.enumeration
+package io.gatling.recorder.enumeration
 
 object PatternType extends Enumeration {
 	type PatternType = Value

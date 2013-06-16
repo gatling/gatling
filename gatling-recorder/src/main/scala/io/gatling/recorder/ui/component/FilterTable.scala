@@ -19,7 +19,7 @@ import java.awt.{ Dimension, Component, Color, BorderLayout }
 import java.awt.event.{ MouseListener, MouseEvent, MouseAdapter, ActionListener, ActionEvent }
 
 import io.gatling.recorder.config.Pattern
-import io.gatling.recorder.ui.enumeration.PatternType.{ PatternType, JAVA, ANT }
+import io.gatling.recorder.enumeration.PatternType.{ PatternType, JAVA, ANT }
 
 import javax.swing.{ JTable, JScrollPane, JRadioButton, JPopupMenu, JPanel, JMenuItem, ButtonGroup, AbstractCellEditor }
 import javax.swing.table.{ TableCellRenderer, TableCellEditor, DefaultTableModel }
@@ -53,8 +53,8 @@ class FilterTable extends JPanel with MouseListener {
 
 	def validateCells {
 		stopCellEditing
-		var toRemove = List[Int]()
-		for (i <- 0 until model.getRowCount if (model.getValueAt(i, 0).toString.isEmpty))
+		var toRemove: List[Int] = Nil
+		for (i <- 0 until model.getRowCount if model.getValueAt(i, 0).toString.isEmpty)
 			toRemove = i :: toRemove
 
 		removeRows(toRemove)
@@ -72,9 +72,9 @@ class FilterTable extends JPanel with MouseListener {
 
 	def removeDuplicates {
 		for {
-			i <- (0 until model.getRowCount)
-			j <- (0 until model.getRowCount)
-			if (i != j && getPattern(i) == getPattern(j))
+			i <- 0 until model.getRowCount
+			j <- 0 until model.getRowCount
+			if i != j && getPattern(i) == getPattern(j)
 		} model.removeRow(j)
 	}
 
@@ -99,6 +99,8 @@ class FilterTable extends JPanel with MouseListener {
 	def getRowCount = model.getRowCount
 
 	def getPattern(row: Int) = Pattern(getPatternTypeAt(row), model.getValueAt(row, 0).toString)
+
+	def getPatterns = (for (i <- 0 until getRowCount) yield getPattern(i)).toList
 
 	private def getPatternTypeAt(row: Int): PatternType = {
 		table.getValueAt(row, 1).asInstanceOf[SelectPatternPanel].getPatternType
@@ -149,7 +151,7 @@ class RadioButtonRenderer extends TableCellRenderer {
 
 	def getTableCellRendererComponent(table: JTable, value: Object, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int): Component = {
 		Option(value.asInstanceOf[SelectPatternPanel]).getOrElse {
-			val newValue = SelectPatternPanel()
+			val newValue = new SelectPatternPanel
 			table.setValueAt(newValue, row, 1)
 			newValue
 		}
@@ -158,7 +160,7 @@ class RadioButtonRenderer extends TableCellRenderer {
 
 class RadioButtonEditor extends AbstractCellEditor with TableCellEditor {
 
-	var customPanel = SelectPatternPanel()
+	var customPanel = new SelectPatternPanel
 
 	def getTableCellEditorComponent(table: JTable, value: Object, isSelected: Boolean, row: Int, column: Int): Component = {
 		customPanel = value.asInstanceOf[SelectPatternPanel]
@@ -168,11 +170,7 @@ class RadioButtonEditor extends AbstractCellEditor with TableCellEditor {
 	def getCellEditorValue = customPanel
 }
 
-object SelectPatternPanel {
-	def apply() = new SelectPatternPanel(ANT)
-}
-
-class SelectPatternPanel(patternType: PatternType) extends JPanel {
+class SelectPatternPanel(patternType: PatternType = ANT) extends JPanel {
 
 	val radio1 = new JRadioButton("Ant", true)
 	val radio2 = new JRadioButton("Java", false)

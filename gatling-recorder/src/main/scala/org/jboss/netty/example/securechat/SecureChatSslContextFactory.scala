@@ -65,9 +65,8 @@ object SecureChatSslContextFactory extends Logging {
 		val algorithm = Option(Security.getProperty("ssl.KeyManagerFactory.algorithm")).getOrElse("SunX509")
 		val ks = KeyStore.getInstance("JKS")
 
-		val keystoreStream = Option(System.getProperty(PROPERTY_KEYSTORE_PATH))
+		val keystoreStream = sys.props.get(PROPERTY_KEYSTORE_PATH)
 			.map { keystorePath =>
-				val keystorePath = System.getProperty(PROPERTY_KEYSTORE_PATH)
 				logger.info(s"Loading user-specified keystore: '${keystorePath}'")
 				new FileInputStream(keystorePath)
 			}.getOrElse {
@@ -75,7 +74,7 @@ object SecureChatSslContextFactory extends Logging {
 				ClassLoader.getSystemResourceAsStream("gatling.jks")
 			}
 
-		val keystorePassphrase = Option(System.getProperty(PROPERTY_KEYSTORE_PASSPHRASE)).getOrElse("gatling")
+		val keystorePassphrase = System.getProperty(PROPERTY_KEYSTORE_PASSPHRASE, "gatling")
 
 		withCloseable(keystoreStream) { in =>
 			val passphraseChars = keystorePassphrase.toCharArray

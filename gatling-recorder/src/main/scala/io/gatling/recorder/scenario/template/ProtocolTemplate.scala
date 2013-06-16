@@ -29,15 +29,19 @@ object ProtocolTemplate {
 
 		def renderProxy = {
 			def renderSslPort = configuration.proxy.outgoing.sslPort.map(proxySslPort => s".httpsPort($proxySslPort)").getOrElse("")
-			val proxyHost = configuration.proxy.outgoing.host
-			val proxyPort = configuration.proxy.outgoing.port
-			proxyHost.flatMap(host => proxyPort.map(port => s"""$eol$indent.proxy("$host",$port)$renderSslPort""")).getOrElse("")
+			val protocol = for {
+				proxyHost <- configuration.proxy.outgoing.host
+				proxyPort <- configuration.proxy.outgoing.port
+			} yield s"""$eol$indent.proxy("$proxyHost",$proxyPort)$renderSslPort"""
+			protocol.getOrElse("")
 		}
 
 		def renderCredentials = {
-			val proxyUsername = configuration.proxy.outgoing.username
-			val proxyPassword = configuration.proxy.outgoing.password
-			proxyUsername.flatMap(username => proxyPassword.map(password => s"""$eol$indent.credentials("$username","$password")""")).getOrElse("")
+			val credentials = for {
+				proxyUsername <- configuration.proxy.outgoing.username
+				proxyPassword <- configuration.proxy.outgoing.password
+			} yield s"""$eol$indent.credentials("$proxyUsername","$proxyPassword")"""
+			credentials.getOrElse("")
 		}
 
 		def renderFollowRedirect = if (!followRedirect) s"$eol$indent.disableFollowRedirect" else ""

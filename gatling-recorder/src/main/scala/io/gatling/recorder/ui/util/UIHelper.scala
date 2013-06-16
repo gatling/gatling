@@ -15,13 +15,33 @@
  */
 package io.gatling.recorder.ui.util
 
-import java.awt.EventQueue.invokeLater
+import scala.swing._
+
+import javax.swing.JComponent
 
 object UIHelper {
 
-	def useUIThread(block: => Unit) {
-		invokeLater(new Runnable {
-			def run = block
-		})
+	def titledBorder(title: String) = Swing.TitledBorder(null, title)
+
+	class LeftAlignedFlowPanel extends FlowPanel(FlowPanel.Alignment.Left)()
+	class CenterAlignedFlowPanel extends FlowPanel(FlowPanel.Alignment.Center)()
+	class RightAlignedFlowPanel extends FlowPanel(FlowPanel.Alignment.Right)()
+
+	implicit def wrapComponent(component: JComponent) = Component.wrap(component)
+
+	implicit class RichListView[T](val listView: ListView[T]) extends AnyVal {
+
+		def add(elem: T) {
+			listView.listData = listView.listData :+ elem
+			listView.ensureIndexIsVisible(listView.listData.size - 1)
+		}
+
+	}
+
+	implicit class RichTextComponent[T <: TextComponent](val textComponent: T) extends AnyVal {
+
+		def clear {
+			textComponent.text = ""
+		}
 	}
 }

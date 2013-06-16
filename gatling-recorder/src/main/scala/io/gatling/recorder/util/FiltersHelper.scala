@@ -15,19 +15,17 @@
  */
 package io.gatling.recorder.util
 
-import scala.annotation.tailrec
-
 import java.net.URI
 
 import org.codehaus.plexus.util.SelectorUtils
 
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.config.Pattern
-import io.gatling.recorder.ui.enumeration.{ FilterStrategy, PatternType }
+import io.gatling.recorder.enumeration.{ FilterStrategy, PatternType }
 
 object FiltersHelper {
 
-	private val supportedHttpMethods = Vector("POST", "GET", "PUT", "DELETE", "HEAD")
+	private val supportedHttpMethods = List("POST", "GET", "PUT", "DELETE", "HEAD")
 
 	def isRequestAccepted(uri: String, method: String): Boolean = {
 
@@ -44,15 +42,10 @@ object FiltersHelper {
 				prefix + pattern.pattern + SelectorUtils.PATTERN_HANDLER_SUFFIX
 			}
 
-			@tailrec
-			def matchPath(patterns: List[Pattern]): Boolean = patterns match {
-				case Nil => false
-				case head :: tail =>
-					if (SelectorUtils.matchPath(gatlingPatternToPlexusPattern(head), path)) true
-					else matchPath(tail)
-			}
+			def isPatternMatched(pattern: Pattern) =
+				SelectorUtils.matchPath(gatlingPatternToPlexusPattern(pattern), path)
 
-			matchPath(configuration.filters.patterns)
+			configuration.filters.patterns.exists(isPatternMatched)
 		}
 
 		def requestPassFilters = configuration.filters.filterStrategy match {

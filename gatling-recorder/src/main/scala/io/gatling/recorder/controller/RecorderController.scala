@@ -20,6 +20,7 @@ import java.net.URI
 import scala.collection.mutable
 import scala.concurrent.duration.DurationLong
 import scala.tools.nsc.io.File
+import scala.swing.Swing.onEDT
 
 import org.jboss.netty.handler.codec.http.{ HttpRequest, HttpResponse }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
@@ -33,9 +34,8 @@ import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.http.GatlingHttpProxy
 import io.gatling.recorder.scenario.{ PauseElement, RequestElement, ScenarioElement, ScenarioExporter, TagElement }
 import io.gatling.recorder.ui.frame.{ ConfigurationFrame, RunningFrame }
-import io.gatling.recorder.ui.frame.ConfigurationFrame.{ harMode, httpMode }
-import io.gatling.recorder.ui.info.{ PauseInfo, RequestInfo, SSLInfo }
-import io.gatling.recorder.ui.util.UIHelper.useUIThread
+import io.gatling.recorder.ui.frame.ConfigurationFrame.{ HarMode, HttpMode }
+import io.gatling.recorder.ui.info.{ PauseInfo, RequestInfo, SSLInfo, TagInfo }
 import io.gatling.recorder.util.FiltersHelper.isRequestAccepted
 import io.gatling.recorder.util.RedirectHelper._
 import javax.swing.JOptionPane
@@ -51,8 +51,8 @@ object RecorderController {
 }
 
 class RecorderController extends Logging {
-	private lazy val runningFrame: RunningFrame = new RunningFrame(this)
-	private lazy val configurationFrame: ConfigurationFrame = new ConfigurationFrame(this)
+	private lazy val runningFrame = new RunningFrame(this)
+	private lazy val configurationFrame = new ConfigurationFrame(this)
 
 	@volatile private var lastRequestTimestamp: Long = 0
 	@volatile private var redirectChainStart: HttpRequest = _
@@ -60,9 +60,9 @@ class RecorderController extends Logging {
 	@volatile private var scenarioElements: List[ScenarioElement] = Nil
 
 	def startRecording {
-		val selectedMode = configurationFrame.modeSelector.getItemAt(configurationFrame.modeSelector.getSelectedIndex)
-		val harFilePath = configurationFrame.txtHarFile.getText
-		if (selectedMode == harMode && harFilePath.isEmpty) {
+		val selectedMode = configurationFrame.modeSelector.selection.item
+		val harFilePath = configurationFrame.harFilePath.text
+		if (selectedMode == HarMode && harFilePath.isEmpty) {
 			JOptionPane.showMessageDialog(null, "You haven't selected an HAR file.", "Error", JOptionPane.ERROR_MESSAGE)
 		} else {
 			val response = if (File(ScenarioExporter.getOutputFolder / ScenarioExporter.getSimulationFileName).exists)
@@ -70,15 +70,15 @@ class RecorderController extends Logging {
 			else JOptionPane.OK_OPTION
 
 			if (response == JOptionPane.OK_OPTION) {
-				val selectedMode = configurationFrame.modeSelector.getSelectedItem.asInstanceOf[String]
-				if (selectedMode == httpMode) {
-					proxy = new GatlingHttpProxy(this, configuration.proxy.port, configuration.proxy.sslPort)
-					showRunningFrame
-				} else {
-					HarReader.processHarFile(harFilePath)
-					ScenarioExporter.saveScenario(HarReader.scenarioElements.reverse)
-					JOptionPane.showMessageDialog(null, "Successfully converted HAR file to a Gatling simulation", "Conversion complete", JOptionPane.INFORMATION_MESSAGE)
-					HarReader.cleanHarReaderState
+				selectedMode match {
+					case HarMode =>
+						HarReader.processHarFile(harFilePath)
+						ScenarioExporter.saveScenario(HarReader.scenarioElements.reverse)
+						JOptionPane.showMessageDialog(null, "Successfully converted HAR file to a Gatling simulation", "Conversion complete", JOptionPane.INFORMATION_MESSAGE)
+						HarReader.cleanHarReaderState
+					case HttpMode =>
+						proxy = new GatlingHttpProxy(this, configuration.proxy.port, configuration.proxy.sslPort)
+						showRunningFrame
 				}
 			}
 		}
@@ -124,7 +124,7 @@ class RecorderController extends Logging {
 				if (diff > 10) {
 					val pauseDuration = diff.milliseconds
 					lastRequestTimestamp = newRequestTimestamp
-					useUIThread {
+					onEDT {
 						runningFrame.receiveEventInfo(PauseInfo(pauseDuration))
 					}
 
@@ -140,7 +140,7 @@ class RecorderController extends Logging {
 			scenarioElements = RequestElement(request, statusCode, None) :: scenarioElements
 
 			// Send request information to view
-			useUIThread {
+			onEDT {
 				runningFrame.receiveEventInfo(RequestInfo(request, response))
 			}
 		}
@@ -169,22 +169,23 @@ class RecorderController extends Logging {
 
 	def addTag(text: String) {
 		scenarioElements = new TagElement(text) :: scenarioElements
+		runningFrame.receiveEventInfo(TagInfo(text))
 	}
 
 	def secureConnection(securedHostURI: URI) {
-		useUIThread {
+		onEDT {
 			runningFrame.receiveEventInfo(SSLInfo(securedHostURI.toString))
 		}
 	}
 
 	private def showRunningFrame {
-		runningFrame.setVisible(true)
-		configurationFrame.setVisible(false)
+		runningFrame.visible = true
+		configurationFrame.visible = false
 	}
 
 	private def showConfigurationFrame {
-		configurationFrame.setVisible(true)
-		runningFrame.setVisible(false)
+		configurationFrame.visible = true
+		runningFrame.visible = false
 	}
 
 	def clearRecorderState {

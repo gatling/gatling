@@ -15,11 +15,12 @@
  */
 package io.gatling.recorder.config
 
-import java.io.{ BufferedWriter, File => JFile, FileWriter }
+import java.io.{ File => JFile }
 
 import scala.collection.JavaConversions.{ asScalaBuffer, mapAsJavaMap }
 import scala.collection.mutable
 import scala.tools.nsc.io.File
+import scala.util.Properties.userHome
 
 import com.typesafe.config.{ Config, ConfigFactory, ConfigRenderOptions }
 import com.typesafe.scalalogging.slf4j.Logging
@@ -28,18 +29,18 @@ import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.core.util.StringHelper.{ eol, RichString }
 import io.gatling.recorder.config.ConfigurationConstants._
-import io.gatling.recorder.ui.enumeration.FilterStrategy
-import io.gatling.recorder.ui.enumeration.FilterStrategy.FilterStrategy
-import io.gatling.recorder.ui.enumeration.PatternType
-import io.gatling.recorder.ui.enumeration.PatternType.PatternType
-
-case class Pattern(patternType: PatternType, pattern: String)
+import io.gatling.recorder.enumeration.FilterStrategy
+import io.gatling.recorder.enumeration.FilterStrategy.FilterStrategy
+import io.gatling.recorder.enumeration.PatternType
+import io.gatling.recorder.enumeration.PatternType.PatternType
 
 object RecorderConfiguration extends Logging {
 
-	val remove4Spaces = """\s{4}""".r
+	implicit class IntOption(val value: Int) extends AnyVal {
+		def toOption = if (value != 0) Some(value) else None
+	}
 
-	var saveConfiguration = false
+	val remove4Spaces = """\s{4}""".r
 
 	val renderOptions = ConfigRenderOptions.concise.setFormatted(true).setJson(false)
 
@@ -52,13 +53,12 @@ object RecorderConfiguration extends Logging {
 	def initialSetup(props: mutable.Map[String, _ <: Any], recorderConfigFile: Option[File]) {
 		val classLoader = getClass.getClassLoader
 		val defaultsConfig = ConfigFactory.parseResources(classLoader, "recorder-defaults.conf")
-		configFile = recorderConfigFile.map(_.jfile).orElse(Option(classLoader.getResource("recorder.conf")).map(_.getFile).map(new JFile(_)))
-		val customConfig = configFile match {
-			case Some(file) => ConfigFactory.parseFile(file)
-			case None => // Should only happens with a manually (and incorrectly) updated Maven archetype or SBT template
-				println("Maven archetype or SBT template outdated: Please create a new one or check the migration guide on how to update it.")
-				println("Recorder preferences won't be saved until then.")
-				ConfigFactory.empty
+		configFile = recorderConfigFile.map(_.jfile).orElse(Option(classLoader.getResource("recorder.conf")).map(url => new JFile(url.getFile)))
+		val customConfig = configFile.map(ConfigFactory.parseFile).getOrElse {
+			// Should only happens with a manually (and incorrectly) updated Maven archetype or SBT template
+			println("Maven archetype or SBT template outdated: Please create a new one or check the migration guide on how to update it.")
+			println("Recorder preferences won't be saved until then.")
+			ConfigFactory.empty
 		}
 		val propertiesConfig = ConfigFactory.parseMap(props)
 		buildConfig(ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(customConfig).withFallback(defaultsConfig))
@@ -82,13 +82,11 @@ object RecorderConfiguration extends Logging {
 		configToSave.split(eol).drop(1).map(remove4Spaces.replaceFirstIn(_, "")).mkString(eol)
 
 	private def buildConfig(config: Config) {
-		def zeroToOption(value: Int) = if (value != 0) Some(value) else None
-
 		def buildPatterns(patterns: List[String], patternsType: List[String]) = {
 			patterns.zip(patternsType).map { case (pattern, patternType) => Pattern(PatternType.withName(patternType), pattern) }
 		}
 		def getOutputFolder(folder: String) = {
-			folder.trimToOption.getOrElse(Option(System.getenv("GATLING_HOME")).map(_ => GatlingFiles.sourcesDirectory.toString).getOrElse(System.getProperty("user.home")))
+			folder.trimToOption.getOrElse(sys.env.get("GATLING_HOME").map(_ => GatlingFiles.sourcesDirectory.toString).getOrElse(userHome))
 		}
 
 		def getRequestBodiesFolder =
@@ -110,8 +108,8 @@ object RecorderConfiguration extends Logging {
 					host = config.getString(PROXY_HOST).trimToOption,
 					username = config.getString(PROXY_USERNAME).trimToOption,
 					password = config.getString(PROXY_PASSWORD).trimToOption,
-					port = zeroToOption(config.getInt(PROXY_PORT)),
-					sslPort = zeroToOption(config.getInt(PROXY_SSL_PORT)))),
+					port = config.getInt(PROXY_PORT).toOption,
+					sslPort = config.getInt(PROXY_SSL_PORT).toOption)),
 			core = CoreConfiguration(
 				encoding = config.getString(ENCODING),
 				outputFolder = getOutputFolder(config.getString(SIMULATION_OUTPUT_FOLDER)),
@@ -121,6 +119,8 @@ object RecorderConfiguration extends Logging {
 			config)
 	}
 }
+
+case class Pattern(patternType: PatternType, pattern: String)
 
 case class FiltersConfiguration(
 	filterStrategy: FilterStrategy,

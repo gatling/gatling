@@ -15,376 +15,371 @@
  */
 package io.gatling.recorder.ui.frame
 
-import java.awt.{ BorderLayout, Dimension, FileDialog, FlowLayout }
-import java.awt.event.{ ActionEvent, ItemEvent }
 import java.nio.charset.Charset
 
 import scala.collection.JavaConversions.{ collectionAsScalaIterable, seqAsJavaList }
+import scala.swing._
+import scala.swing.BorderPanel.Position._
+import scala.swing.Swing.pair2Dimension
+import scala.swing.event.{ KeyReleased, SelectionChanged }
+import scala.util.Try
 
 import io.gatling.core.util.StringHelper.RichString
-import io.gatling.recorder.config.RecorderConfiguration.{ configuration, saveConfiguration }
+import io.gatling.recorder.config.{ RecorderConfiguration, RecorderPropertiesBuilder }
+import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.controller.RecorderController
-import io.gatling.recorder.ui.Commons
-import io.gatling.recorder.ui.Commons.iconList
-import io.gatling.recorder.ui.component.{ FilterTable, SaveConfigurationListener }
-import io.gatling.recorder.ui.enumeration.FilterStrategy
-import io.gatling.recorder.ui.frame.ConfigurationFrame.{ harMode, httpMode }
-import io.gatling.recorder.ui.frame.ValidationHelper.{ intValidator, nonEmptyValidator, proxyHostValidator }
-import io.gatling.recorder.ui.util.ScalaSwing
-
-import javax.swing._
+import io.gatling.recorder.enumeration.FilterStrategy
+import io.gatling.recorder.ui.Commons.{ iconList, logoSmall }
+import io.gatling.recorder.ui.component.{ Chooser, FilterTable }
+import io.gatling.recorder.ui.frame.ConfigurationFrame.{ HarMode, HttpMode }
+import io.gatling.recorder.ui.util.UIHelper._
+import io.gatling.recorder.ui.frame.ValidationHelper._
 
 object ConfigurationFrame {
-	val httpMode = "HTTP Proxy"
-	val harMode = "HAR Converter"
+	val HttpMode = "HTTP Proxy"
+	val HarMode = "HAR Converter"
 }
-class ConfigurationFrame(controller: RecorderController) extends JFrame with ScalaSwing {
+class ConfigurationFrame(controller: RecorderController) extends MainFrame {
 
-	type Chooser = Either[FileDialog, JFileChooser]
+	/************************************/
+	/**           COMPONENTS           **/
+	/************************************/
 
-	private val IS_MAC_OSX = System.getProperty("os.name").startsWith("Mac")
+	/* Top panel components */
+	val modeSelector = new ComboBox[String](Seq(HttpMode, HarMode)) { selection.index = 0 }
 
-	val txtPort = new JTextField(4)
-	val txtSslPort = new JTextField(4)
+	/* Network panel components */
+	private val localProxyHttpPort = new TextField(4)
+	private val localProxyHttpsPort = new TextField(4)
+	private val outgoingProxyHost = new TextField(12)
+	private val outgoingProxyHttpPort = new TextField(4) { enabled = false }
+	private val outgoingProxyHttpsPort = new TextField(4) { enabled = false }
+	private val outgoingProxyUsername = new TextField(10) { enabled = false }
+	private val outgoingProxyPassword = new TextField(10) { enabled = false }
 
-	val txtProxyHost = new JTextField(12)
-	val txtProxyPort = new JTextField(4)
-	txtProxyPort.setEnabled(false)
-	val txtProxySslPort = new JTextField(4)
-	txtProxySslPort.setEnabled(false)
-	val txtProxyUsername = new JTextField(10)
-	txtProxyUsername.setEnabled(false)
-	val txtProxyPassword = new JTextField(10)
-	txtProxyPassword.setEnabled(false)
+	/* Har Panel components */
+	val harFilePath = new TextField(66)
+	private val harFileChooser = Chooser(FileChooser.SelectionMode.FilesOnly, this)
+	private val harFileBrowserButton = Button("Browse")(harFileChooser.selection.foreach(harFilePath.text = _))
 
-	val cbFilterStrategies = new JComboBox[FilterStrategy.Value]
-	val chkSavePref = new JCheckBox("Save preferences")
-	val chkFollowRedirect = new JCheckBox("Follow Redirects?")
-	val chkAutomaticReferer = new JCheckBox("Automatic Referers?")
-	val txtHarFile = new JTextField(66)
-	val txtOutputFolder = new JTextField(66)
-	val tblFilters = new FilterTable
-	val cbOutputEncoding = new JComboBox[Charset]
-	val txtSimulationPackage = new JTextField(30)
-	val txtSimulationClassName = new JTextField(30)
+	/* Simulation panel components */
+	private val simulationPackage = new TextField(30)
+	private val simulationClassName = new TextField(30)
+	private val followRedirects = new CheckBox("Follow Redirects?")
+	private val automaticReferers = new CheckBox("Automatic Referers?")
 
-	private val btnFiltersAdd = new JButton("+")
-	private val btnFiltersDel = new JButton("-")
-	private val btnHarFile = new JButton("Browse")
-	private val btnOutputFolder = new JButton("Browse")
-	private val btnClear = new JButton("Clear")
-	val btnStart = new JButton("Start !")
+	/* Output panel components */
+	private val outputEncoding = new ComboBox[Charset](Charset.availableCharsets.values.toSeq)
+	private val outputFolderPath = new TextField(66)
+	private val outputFolderChooser = Chooser(FileChooser.SelectionMode.DirectoriesOnly, this)
+	private val outputFolderBrowserButton = Button("Browse")(outputFolderChooser.selection.foreach(outputFolderPath.text = _))
 
-	private var pnlTop: JPanel = _
-	private var pnlCenter: JPanel = _
-	private var pnlBottom: JPanel = _
-	private var networkPanel: JPanel = _
-	private var harPanel: JPanel = _
+	/* Filters panel components */
+	private val filtersTable = new FilterTable
+	private val filterStrategies = new ComboBox[FilterStrategy.Value](FilterStrategy.values.toSeq)
+	private val addFilter = Button("+")(filtersTable.addRow)
+	private val removeFilter = Button("-")(filtersTable.removeSelectedRow)
+	private val clearFilters = Button("Clear")(filtersTable.removeAllElements)
 
-	private val harFileChooser = initChooser(JFileChooser.FILES_ONLY)
-	private val outputFolderChooser = initChooser(JFileChooser.DIRECTORIES_ONLY)
+	/* Bottom panel components */
+	private val savePreferences = new CheckBox("Save preferences") { horizontalTextPosition = Alignment.Left }
+	private val start = Button("Start !")(reloadConfigurationAndStart)
 
-	var modeSelector: JComboBox[String] = _
-
-	/** Initialization of the frame **/
-
-	setTitle("Gatling Recorder - Configuration")
-	setLayout(new BorderLayout)
-	setMinimumSize(new Dimension(1024, 768))
-	setResizable(true)
-	setLocationRelativeTo(null)
-	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
-	setIconImages(iconList)
-
-	/** Initialization of components **/
-	initTopPanel
-	initCenterPanel
-	initBottomPanel
-
-	setListeners
-
-	setValidationListeners
-
+	registerValidators
 	populateItemsFromConfiguration
 
-	if (IS_MAC_OSX) {
-		// on mac, use native dialog because JFileChooser is buggy
-		System.setProperty("apple.awt.fileDialogForDirectories", "true")
-	}
+	/**********************************/
+	/**           UI SETUP           **/
+	/**********************************/
 
-	private def initChooser(mode: Int): Chooser = {
-		if (IS_MAC_OSX) {
-			Left(new FileDialog(ConfigurationFrame.this))
-		} else {
-			val fileChooser = new JFileChooser
-			fileChooser.setFileSelectionMode(mode)
-			Right(fileChooser)
+	/* Frame setup */
+	title = "Gatling Recorder - Configuration"
+	minimumSize = (1024, 768)
+	resizable = true
+	centerOnScreen()
+	peer.setIconImages(iconList)
+
+	/* Layout setup */
+	val root = new BorderPanel {
+		/* Top panel : Gatling logo & Recorder mode */
+		val top = new BorderPanel {
+			val logo = new CenterAlignedFlowPanel { contents += new Label { icon = logoSmall } }
+			val modeSelection = new BorderPanel {
+				border = titledBorder("Recorder mode")
+				layout(modeSelector) = Center
+			}
+
+			layout(logo) = West
+			layout(modeSelection) = East
 		}
-	}
+		/* Center panel : network config or har import, simulation config, output config & filters */
+		val center = new BoxPanel(Orientation.Vertical) {
+			val network = new BorderPanel {
+				border = titledBorder("Network")
 
-	private def initTopPanel {
-		/***** Creating Top Panel (Network) *****/
-		pnlTop = new JPanel(new BorderLayout)
+				val localProxy = new LeftAlignedFlowPanel {
+					contents += new Label("Listening port* : ")
+					contents += new Label("    localhost")
+					contents += new Label("HTTP")
+					contents += localProxyHttpPort
+					contents += new Label("HTTPS")
+					contents += localProxyHttpsPort
 
-		/* Gatling Image */
-		val pnlImage = new JPanel
-		pnlImage.add(new JLabel(Commons.logoSmall))
-
-		/* Mode selection dropdown */
-		modeSelector = new JComboBox[String]()
-		modeSelector.addItem(httpMode)
-		modeSelector.addItem(harMode)
-		modeSelector.setSelectedIndex(0)
-
-		/* Mode selection panel */
-		val modeSelectionPanel = new JPanel(new BorderLayout)
-		modeSelectionPanel.setBorder(BorderFactory.createTitledBorder("Recorder mode"))
-		modeSelectionPanel.add(modeSelector)
-
-		/* Adding Image and network panel to top panel */
-		pnlTop.add(pnlImage, BorderLayout.WEST)
-		pnlTop.add(modeSelectionPanel, BorderLayout.EAST)
-
-		/* Adding panel to Frame */
-		add(pnlTop, BorderLayout.NORTH)
-	}
-
-	private def initCenterPanel {
-		/***** Creating Center Panel (Output + Start) *****/
-		pnlCenter = new JPanel
-		pnlCenter.setLayout(new BoxLayout(pnlCenter, BoxLayout.Y_AXIS))
-
-		/* Network Panel */
-		networkPanel = new JPanel(new BorderLayout)
-		networkPanel.setBorder(BorderFactory.createTitledBorder("Network"))
-
-		/* Local proxy host panel */
-		val localProxyHostPanel = new JPanel
-		localProxyHostPanel.setLayout(new BoxLayout(localProxyHostPanel, BoxLayout.X_AXIS))
-		localProxyHostPanel.add(new JLabel("Listening port* : "))
-		localProxyHostPanel.add(new JLabel("    localhost"))
-
-		/* Local proxy ports panel */
-		val localProxyPortsPanel = new JPanel
-		localProxyPortsPanel.add(new JLabel("HTTP"))
-		localProxyPortsPanel.add(txtPort)
-		localProxyPortsPanel.add(new JLabel("HTTPS"))
-		localProxyPortsPanel.add(txtSslPort)
-
-		/* Local proxy panel */
-		val localProxyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
-		localProxyPanel.add(localProxyHostPanel)
-		localProxyPanel.add(localProxyPortsPanel)
-
-		/* Outgoing proxy host panel */
-		val outgoingProxyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
-		outgoingProxyPanel.add(new JLabel("Outgoing proxy : "))
-		outgoingProxyPanel.add(new JLabel("host:"))
-		outgoingProxyPanel.add(txtProxyHost)
-		outgoingProxyPanel.add(new JLabel("HTTP"))
-		outgoingProxyPanel.add(txtProxyPort)
-		outgoingProxyPanel.add(new JLabel("HTTPS"))
-		outgoingProxyPanel.add(txtProxySslPort)
-		outgoingProxyPanel.add(new JLabel("Username"))
-		outgoingProxyPanel.add(txtProxyUsername)
-		outgoingProxyPanel.add(new JLabel("Password"))
-		outgoingProxyPanel.add(txtProxyPassword)
-
-		/* Adding panels to newtworkPanel */
-		networkPanel.add(localProxyPanel, BorderLayout.NORTH)
-		networkPanel.add(outgoingProxyPanel, BorderLayout.SOUTH)
-
-		/* Output Folder Panel */
-		val outputFolderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
-		outputFolderPanel.add(new JLabel("Output folder* : "))
-		outputFolderPanel.add(txtOutputFolder)
-		outputFolderPanel.add(btnOutputFolder)
-
-		for (c <- Charset.availableCharsets.values)
-			cbOutputEncoding.addItem(c)
-
-		/* HAR File Panel */
-		val harFilePanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
-		harFilePanel.add(new JLabel("HAR File : "))
-		harFilePanel.add(txtHarFile)
-		harFilePanel.add(btnHarFile)
-
-		/* HAR Panel : not visible when starting*/
-		harPanel = new JPanel(new BorderLayout)
-		harPanel.setVisible(false)
-		harPanel.setBorder(BorderFactory.createTitledBorder("Http Archive (HAR) Import"))
-		harPanel.add(harFilePanel)
-
-		/* Output Panel */
-		val outputPanel = new JPanel(new BorderLayout)
-		outputPanel.setBorder(BorderFactory.createTitledBorder("Output"))
-
-		val outputFormatPanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
-		outputFormatPanel.add(new JLabel("Encoding: "))
-		outputFormatPanel.add(cbOutputEncoding)
-
-		outputPanel.add(outputFolderPanel, BorderLayout.NORTH)
-		outputPanel.add(outputFormatPanel, BorderLayout.CENTER)
-
-		/* Simulation information panel */
-		val simulationInfoPanel = new JPanel(new BorderLayout)
-
-		val packageNamePanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
-		packageNamePanel.add(new JLabel("Package: "))
-		packageNamePanel.add(txtSimulationPackage)
-
-		val simulationNamePanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
-		simulationNamePanel.add(new JLabel("Class Name*: "))
-		simulationNamePanel.add(txtSimulationClassName)
-
-		simulationInfoPanel.add(packageNamePanel, BorderLayout.WEST)
-		simulationInfoPanel.add(simulationNamePanel, BorderLayout.EAST)
-
-		val simulationConfigPanel = new JPanel(new BorderLayout)
-		simulationConfigPanel.setBorder(BorderFactory.createTitledBorder("Simulation Information"))
-
-		simulationConfigPanel.add(simulationInfoPanel, BorderLayout.NORTH)
-		simulationConfigPanel.add(chkFollowRedirect, BorderLayout.WEST)
-		simulationConfigPanel.add(chkAutomaticReferer, BorderLayout.EAST)
-
-		/* Filters Panel */
-		val filtersPanel = new JPanel(new BorderLayout)
-		filtersPanel.setBorder(BorderFactory.createTitledBorder("Filters"))
-
-		// Fill Combo Box for Strategies
-		for (ft <- FilterStrategy.values)
-			cbFilterStrategies.addItem(ft)
-
-		/* Filter Actions panel */
-		val filterActionsPanel = new JPanel
-		filterActionsPanel.add(new JLabel("Strategy"))
-		filterActionsPanel.add(cbFilterStrategies)
-		filterActionsPanel.add(btnFiltersAdd)
-		filterActionsPanel.add(btnFiltersDel)
-		filterActionsPanel.add(btnClear)
-
-		/* Adding panels to filterPanel */
-		filtersPanel.add(tblFilters, BorderLayout.CENTER)
-		filtersPanel.add(filterActionsPanel, BorderLayout.SOUTH)
-
-		/* Adding panels to bottomPanel */
-		pnlCenter.add(networkPanel)
-		pnlCenter.add(harPanel)
-		pnlCenter.add(simulationConfigPanel)
-		pnlCenter.add(outputPanel)
-		pnlCenter.add(filtersPanel)
-
-		/* Adding panel to Frame */
-		add(pnlCenter, BorderLayout.CENTER)
-	}
-
-	private def initBottomPanel {
-		/***** Creating Bottom Panel (Filters) *****/
-		pnlBottom = new JPanel
-		pnlBottom.setLayout(new BorderLayout)
-
-		/* Start Action Panel */
-		val startActionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT))
-		startActionPanel.add(chkSavePref)
-		startActionPanel.add(btnStart)
-
-		chkSavePref.setHorizontalTextPosition(SwingConstants.LEFT)
-
-		pnlBottom.add(startActionPanel, BorderLayout.SOUTH)
-
-		/* Adding panel to Frame */
-		add(pnlBottom, BorderLayout.SOUTH)
-	}
-
-	private def setListeners {
-		// Change panel depending on what mode is selected
-		modeSelector.addActionListener { e: ActionEvent =>
-			{
-				val selectedMode = modeSelector.getItemAt(modeSelector.getSelectedIndex)
-				if (selectedMode == httpMode) {
-					networkPanel.setVisible(true)
-					harPanel.setVisible(false)
-				} else {
-					networkPanel.setVisible(false)
-					harPanel.setVisible(true)
 				}
+				val outgoingProxy = new LeftAlignedFlowPanel {
+					contents += new Label("Outgoing proxy : ")
+					contents += new Label("host:")
+					contents += outgoingProxyHost
+					contents += new Label("HTTP")
+					contents += outgoingProxyHttpPort
+					contents += new Label("HTTPS")
+					contents += outgoingProxyHttpsPort
+					contents += new Label("Username")
+					contents += outgoingProxyUsername
+					contents += new Label("Password")
+					contents += outgoingProxyPassword
+				}
+
+				layout(localProxy) = North
+				layout(outgoingProxy) = South
 			}
-		}
-		// Enables or disables filter edition depending on the selected strategy
-		cbFilterStrategies.addItemListener { e: ItemEvent =>
-			if (e.getStateChange == ItemEvent.SELECTED && e.getItem == FilterStrategy.NONE) {
-				tblFilters.setEnabled(false)
-				tblFilters.setFocusable(false)
-			} else {
-				tblFilters.setEnabled(true)
-				tblFilters.setFocusable(true)
+			val har = new BorderPanel {
+				border = titledBorder("Http Archive (HAR) Import")
+				visible = false
+
+				val fileSelection = new LeftAlignedFlowPanel {
+					contents += new Label("HAR File : ")
+					contents += harFilePath
+					contents += harFileBrowserButton
+				}
+
+				layout(fileSelection) = Center
 			}
+			val simulationConfig = new BorderPanel {
+				border = titledBorder("Simulation Information")
+
+				val config = new BorderPanel {
+					val packageName = new LeftAlignedFlowPanel {
+						contents += new Label("Package: ")
+						contents += simulationPackage
+					}
+					val className = new LeftAlignedFlowPanel {
+						contents += new Label("Class Name*: ")
+						contents += simulationClassName
+					}
+
+					layout(packageName) = West
+					layout(className) = East
+				}
+
+				layout(config) = North
+				layout(followRedirects) = West
+				layout(automaticReferers) = East
+			}
+			val outputConfig = new BorderPanel {
+				border = titledBorder("Output")
+
+				val folderSelection = new LeftAlignedFlowPanel {
+					contents += new Label("Output folder* : ")
+					contents += outputFolderPath
+					contents += outputFolderBrowserButton
+				}
+				val encoding = new LeftAlignedFlowPanel {
+					contents += new Label("Encoding: ")
+					contents += outputEncoding
+				}
+
+				layout(folderSelection) = North
+				layout(encoding) = Center
+			}
+			val filters = new BorderPanel {
+				border = titledBorder("Filters")
+
+				val actions = new CenterAlignedFlowPanel {
+					contents += new Label("Strategy")
+					contents += filterStrategies
+					contents += addFilter
+					contents += removeFilter
+					contents += clearFilters
+				}
+
+				layout(filtersTable) = Center
+				layout(actions) = South
+			}
+
+			contents += network
+			contents += har
+			contents += simulationConfig
+			contents += outputConfig
+			contents += filters
+		}
+		/* Bottom panel : Save preferences & start recording/ export HAR */
+		val bottom = new RightAlignedFlowPanel {
+			contents += savePreferences
+			contents += start
 		}
 
-		// Adds a filter row when + button clicked
-		btnFiltersAdd.addActionListener { e: ActionEvent => tblFilters.addRow }
-
-		// Removes selected filter when - button clicked
-		btnFiltersDel.addActionListener { e: ActionEvent => tblFilters.removeSelectedRow }
-
-		// Removes all filters when clear button clicked
-		btnClear.addActionListener { e: ActionEvent => tblFilters.removeAllElements }
-
-		// Opens a save dialog when Browse button clicked
-		btnOutputFolder.addActionListener { _: ActionEvent => getPath(outputFolderChooser).foreach(txtOutputFolder.setText) }
-
-		btnHarFile.addActionListener { _: ActionEvent => getPath(harFileChooser).foreach(txtHarFile.setText) }
-
-		// Validates form when Start button clicked
-		btnStart.addActionListener(new SaveConfigurationListener(controller, this))
+		layout(top) = North
+		layout(center) = Center
+		layout(bottom) = South
 	}
 
-	private def getPath(chooser: Chooser): Option[String] = chooser match {
-		case Left(fileDialog) =>
-			fileDialog.setVisible(true)
-			Option(fileDialog.getDirectory).map(_ + fileDialog.getFile)
+	contents = root
 
-		case Right(fileChooser) =>
-			if (fileChooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
-				None
-			else
-				Some(fileChooser.getSelectedFile.getPath)
+	/*****************************************/
+	/**           EVENTS HANDLING           **/
+	/*****************************************/
+
+	/* Reactions I : handling filters table edition and switching between Proxy and HAR mode */
+	listenTo(filterStrategies.selection, modeSelector.selection)
+	// Backticks are needed to match the components, see section 8.1.5 of Scala spec.
+	reactions += {
+		case SelectionChanged(`modeSelector`) =>
+			modeSelector.selection.item match {
+				case HttpMode =>
+					root.center.network.visible = true
+					root.center.har.visible = false
+				case HarMode =>
+					root.center.network.visible = false
+					root.center.har.visible = true
+			}
+		case SelectionChanged(`filterStrategies`) =>
+			val isNotNoneStrategy = filterStrategies.selection.item != FilterStrategy.NONE
+			toggleFiltersEdition(isNotNoneStrategy)
 	}
 
-	private def setValidationListeners {
-		txtPort.addKeyListener(intValidator(this, "port"))
-		txtSslPort.addKeyListener(intValidator(this, "sslPort"))
-		txtProxyHost.addKeyListener(proxyHostValidator(this))
-		txtProxyPort.addKeyListener(intValidator(this, "proxyPort"))
-		txtProxySslPort.addKeyListener(intValidator(this, "proxySslPort"))
-		txtOutputFolder.addKeyListener(nonEmptyValidator(this, "outputFolder"))
-		txtSimulationClassName.addKeyListener(nonEmptyValidator(this, "simulationClassName"))
+	private def toggleFiltersEdition(enabled: Boolean) {
+		filtersTable.setEnabled(enabled)
+		filtersTable.setFocusable(enabled)
 	}
 
-	def populateItemsFromConfiguration {
-		txtPort.setText(configuration.proxy.port.toString)
-		txtSslPort.setText(configuration.proxy.sslPort.toString)
+	/* Reactions II : fields validation */
+	listenTo(localProxyHttpPort.keys, localProxyHttpsPort.keys)
+	listenTo(outgoingProxyHost.keys, outgoingProxyHttpPort.keys, outgoingProxyHttpsPort.keys)
+	listenTo(outputFolderPath.keys, simulationClassName.keys)
+
+	private def registerValidators {
+		ValidationHelper.registerValidator(localProxyHttpPort, Validator(isValidPort))
+		ValidationHelper.registerValidator(localProxyHttpsPort, Validator(isValidPort))
+		ValidationHelper.registerValidator(outgoingProxyHost, Validator(isNonEmpty, enableConfig, disableConfig, true))
+		ValidationHelper.registerValidator(outgoingProxyHttpPort, Validator(isValidPort))
+		ValidationHelper.registerValidator(outgoingProxyHttpsPort, Validator(isValidPort))
+		ValidationHelper.registerValidator(outputFolderPath, Validator(isNonEmpty))
+		ValidationHelper.registerValidator(simulationClassName, Validator(isNonEmpty))
+	}
+
+	private def enableConfig(c: Component) {
+		outgoingProxyHttpPort.enabled = true
+		outgoingProxyHttpsPort.enabled = true
+		outgoingProxyUsername.enabled = true
+		outgoingProxyPassword.enabled = true
+	}
+
+	private def disableConfig(c: Component) {
+		outgoingProxyHttpPort.enabled = false
+		outgoingProxyHttpsPort.enabled = false
+		outgoingProxyUsername.enabled = false
+		outgoingProxyPassword.enabled = false
+		outgoingProxyHttpPort.text = "0"
+		outgoingProxyHttpsPort.text = "0"
+		outgoingProxyUsername.text = null
+		outgoingProxyPassword.text = null
+		publish(keyReleased(outgoingProxyHttpPort))
+		publish(keyReleased(outgoingProxyHttpsPort))
+	}
+
+	reactions += {
+		case KeyReleased(field, _, _, _) =>
+			updateValidationStatus(field.asInstanceOf[TextField])
+			start.enabled = ValidationHelper.validationStatus
+	}
+
+	/****************************************/
+	/**           CONFIGURATION            **/
+	/****************************************/
+
+	/**
+	 * Configure fields, checkboxes, filters... based on the current Recorder configuration
+	 */
+	private def populateItemsFromConfiguration {
+		localProxyHttpPort.text = configuration.proxy.port.toString
+		localProxyHttpsPort.text = configuration.proxy.sslPort.toString
 
 		configuration.proxy.outgoing.host.map { proxyHost =>
-			txtProxyHost.setText(proxyHost)
-			txtProxyPort.setText(configuration.proxy.outgoing.port.getOrElse(0).toString)
-			txtProxySslPort.setText(configuration.proxy.outgoing.sslPort.getOrElse(0).toString)
-			txtProxyUsername.setText(configuration.proxy.outgoing.username.getOrElse(null))
-			txtProxyPassword.setText(configuration.proxy.outgoing.password.getOrElse(null))
-			txtProxyPort.setEnabled(true)
-			txtProxySslPort.setEnabled(true)
-			txtProxyUsername.setEnabled(true)
-			txtProxyPassword.setEnabled(true)
+			outgoingProxyHost.text = proxyHost
+			outgoingProxyHttpPort.text = configuration.proxy.outgoing.port.map(_.toString).orNull
+			outgoingProxyHttpsPort.text = configuration.proxy.outgoing.sslPort.map(_.toString).orNull
+			outgoingProxyUsername.text = configuration.proxy.outgoing.username.orNull
+			outgoingProxyPassword.text = configuration.proxy.outgoing.password.orNull
+			outgoingProxyHttpPort.enabled = true
+			outgoingProxyHttpsPort.enabled = true
+			outgoingProxyUsername.enabled = true
+			outgoingProxyPassword.enabled = true
 		}
-		configuration.core.pkg.trimToOption.map(txtSimulationPackage.setText)
-		txtSimulationClassName.setText(configuration.core.className)
-		cbFilterStrategies.setSelectedItem(configuration.filters.filterStrategy)
-		chkFollowRedirect.setSelected(configuration.http.followRedirect)
-		chkAutomaticReferer.setSelected(configuration.http.automaticReferer)
-		for (pattern <- configuration.filters.patterns)
-			tblFilters.addRow(pattern)
-		txtOutputFolder.setText(configuration.core.outputFolder)
-		chkSavePref.setSelected(saveConfiguration)
-		cbOutputEncoding.setSelectedItem(Charset.forName(configuration.core.encoding))
+		configuration.core.pkg.trimToOption.map(simulationPackage.text = _)
+		simulationClassName.text = configuration.core.className
+		filterStrategies.selection.item = configuration.filters.filterStrategy
+		followRedirects.selected = configuration.http.followRedirect
+		automaticReferers.selected = configuration.http.automaticReferer
+		configuration.filters.patterns.map(filtersTable.addRow(_))
+		outputFolderPath.text = configuration.core.outputFolder
+		outputEncoding.selection.item = Charset.forName(configuration.core.encoding)
+	}
+
+	/**
+	 * Reload configuration from the content of the configuration frame
+	 * and start recording
+	 */
+	private def reloadConfigurationAndStart {
+		// validate filters
+		filtersTable.validateCells
+
+		val props = new RecorderPropertiesBuilder
+
+		// Local proxy
+		props.localPort(Try(localProxyHttpPort.text.toInt).getOrElse(0))
+		props.localSslPort(Try(localProxyHttpsPort.text.toInt).getOrElse(0))
+
+		// Outgoing proxy
+		outgoingProxyHost.text.trimToOption match {
+			case Some(host) =>
+				props.proxyHost(host)
+				props.proxyPort(outgoingProxyHttpPort.text.toInt)
+				props.proxySslPort(outgoingProxyHttpsPort.text.toInt)
+				outgoingProxyUsername.text.trimToOption.foreach(props.proxyUsername)
+				outgoingProxyPassword.text.trimToOption.foreach(props.proxyPassword)
+
+			case None =>
+				props.proxyHost("")
+				props.proxyPort(0)
+				props.proxySslPort(0)
+				props.proxyUsername("")
+				props.proxyPassword("")
+		}
+
+		// Filters
+		props.filterStrategy(filterStrategies.selection.item.toString)
+		val (patterns, patternTypes) = {
+			for (pattern <- filtersTable.getPatterns)
+				yield (pattern.pattern, pattern.patternType.toString)
+		}.unzip
+		props.patterns(patterns)
+		props.patternsType(patternTypes)
+
+		// Simulation config
+		props.simulationPackage(simulationPackage.text)
+		props.simulationClassName(simulationClassName.text.trim)
+		props.followRedirect(followRedirects.selected)
+		props.automaticReferer(automaticReferers.selected)
+		props.simulationOutputFolder(outputFolderPath.text.trim)
+		props.encoding(outputEncoding.selection.item.name)
+
+		RecorderConfiguration.reload(props.build)
+
+		if (savePreferences.selected) {
+			RecorderConfiguration.saveConfig
+		}
+
+		controller.startRecording
 	}
 }
