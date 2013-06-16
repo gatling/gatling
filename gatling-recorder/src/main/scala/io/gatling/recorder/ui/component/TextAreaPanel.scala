@@ -15,20 +15,16 @@
  */
 package io.gatling.recorder.ui.component
 
-import java.awt.BorderLayout
+import scala.swing._
+import scala.swing.BorderPanel.Position._
 
-import javax.swing.{ SwingConstants, JTextArea, JPanel, JLabel }
+class TextAreaPanel(title: String, initialSize: Dimension) extends BorderPanel {
 
-class TextAreaPanel(title: String) extends JPanel {
+	preferredSize = initialSize
 
-	setLayout(new BorderLayout)
+	val textArea = new TextArea { editable = false }
+	private val titleLabel = new Label(title) { horizontalAlignment = Alignment.Center }
 
-	val txt = new JTextArea
-	txt.setEditable(false)
-
-	val lblTitle = new JLabel(title)
-	lblTitle.setHorizontalAlignment(SwingConstants.CENTER)
-
-	add(lblTitle, BorderLayout.NORTH)
-	add(txt, BorderLayout.CENTER)
+	layout(titleLabel) = North
+	layout(textArea) = Center
 }

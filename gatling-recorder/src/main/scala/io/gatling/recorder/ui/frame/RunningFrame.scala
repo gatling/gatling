@@ -15,179 +15,176 @@
  */
 package io.gatling.recorder.ui.frame
 
-import java.awt.{ BorderLayout, Dimension, FlowLayout }
-import java.awt.event.ActionEvent
-
 import scala.collection.JavaConversions.seqAsJavaList
+import scala.swing._
+import scala.swing.BorderPanel.Position._
+import scala.swing.ListView.IntervalMode.Single
+import scala.swing.Swing.pair2Dimension
+import scala.swing.event.ListSelectionChanged
 
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.recorder.controller.RecorderController
-import io.gatling.recorder.ui.Commons.iconList
 import io.gatling.recorder.ui.component.TextAreaPanel
-import io.gatling.recorder.ui.info.{ EventInfo, PauseInfo, RequestInfo, SSLInfo, TagInfo }
-import io.gatling.recorder.ui.util.ScalaSwing
-import javax.swing._
-import javax.swing.event.ListSelectionEvent
+import io.gatling.recorder.ui.info._
+import io.gatling.recorder.ui.Commons.iconList
+import io.gatling.recorder.ui.util.UIHelper._
 
-class RunningFrame(controller: RecorderController) extends JFrame with ScalaSwing with Logging {
+class RunningFrame(controller: RecorderController) extends MainFrame with Logging {
 
-	private val btnTag = new JButton("Add")
-	private val btnClear = new JButton("Clear")
-	private val btnCancel = new JButton("Cancel")
-	private val btnStop = new JButton("Stop & Save")
+	/************************************/
+	/**           COMPONENTS           **/
+	/************************************/
 
-	private val txtTag = new JTextField(15)
+	/* Top panel components */
+	private val tagField = new TextField(15)
+	private val tagButton = Button("Add")(addTag)
+	private val clearButton = Button("Clear")(controller.clearRecorderState)
+	private val cancelButton = Button("Cancel") { controller.clearRecorderState; controller.stopRecording }
+	private val stopButton = Button("Stop & Save")(controller.stopRecording)
 
-	private val eventsInfo = new DefaultListModel[EventInfo]
-	private val hostsCertificate = new DefaultListModel[String]
+	/* Center panel components */
+	private val initialSize = (472, 150)
+	private val newSize = (472, 900)
+	private val events = new ListView[EventInfo] { selection.intervalMode = Single }
+	private val requestHeaders = new TextAreaPanel("Summary", initialSize)
+	private val responseHeaders = new TextAreaPanel("Summary", initialSize)
+	private val requestBodies = new TextAreaPanel("Body", initialSize)
+	private val responseBodies = new TextAreaPanel("Body", initialSize)
+	private val infoPanels = List(requestHeaders, requestBodies, responseHeaders, responseBodies)
 
-	private val eventsInfoJList = new JList(eventsInfo)
-	private val requiredHostsCertificate = new JList(hostsCertificate)
+	/* Bottom panel components */
+	private val hostsRequiringCertificates = new ListView[String]
 
-	private val requestHeadersInfo = new TextAreaPanel("Summary")
-	private val responseHeadersInfo = new TextAreaPanel("Summary")
-	private val requestBodyInfo = new TextAreaPanel("Body")
-	private val responseBodyInfo = new TextAreaPanel("Body")
+	/**********************************/
+	/**           UI SETUP           **/
+	/**********************************/
 
-	/* Initialization of the frame */
-	setTitle("Gatling Recorder - Running...")
-	setLayout(new BorderLayout)
-	setMinimumSize(new Dimension(1024, 768))
-	setLocationRelativeTo(null)
-	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
+	/* Frame setup */
+	title = "Gatling Recorder - Running..."
+	minimumSize = (1024, 768)
+	centerOnScreen()
+	peer.setIconImages(iconList)
 
-	setIconImages(iconList)
+	/* Layout setup */
+	val root = new BorderPanel {
+		/* Top panel : Add tag, clear status, cancel recording, save simulation */
+		val top = new BorderPanel {
+			border = titledBorder("Controls")
 
-	/* Top Panel */
-	val topPanel = new JPanel(new BorderLayout)
-	topPanel.setBorder(BorderFactory.createTitledBorder("Controls"))
-
-	val tagPanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
-	tagPanel.add(new JLabel("Tag :"))
-	tagPanel.add(txtTag)
-	tagPanel.add(btnTag)
-
-	val clearPanel = new JPanel(new FlowLayout(FlowLayout.CENTER))
-	clearPanel.add(btnClear)
-
-	val stopPanel = new JPanel(new FlowLayout(FlowLayout.LEFT))
-	stopPanel.add(btnCancel)
-	stopPanel.add(btnStop)
-
-	topPanel.add(tagPanel, BorderLayout.WEST)
-	topPanel.add(clearPanel, BorderLayout.CENTER)
-	topPanel.add(stopPanel, BorderLayout.EAST)
-
-	/* Center Panel */
-	val centerPanel = new JPanel(new BorderLayout)
-
-	val elementsPanel = new JPanel(new BorderLayout)
-	elementsPanel.setBorder(BorderFactory.createTitledBorder("Executed Events"))
-	elementsPanel.add(new JScrollPane(eventsInfoJList), BorderLayout.CENTER)
-
-	val defaultDimension = new Dimension(472, 150)
-
-	requestHeadersInfo.setPreferredSize(defaultDimension)
-	responseHeadersInfo.setPreferredSize(defaultDimension)
-	requestBodyInfo.setPreferredSize(defaultDimension)
-	responseBodyInfo.setPreferredSize(defaultDimension)
-
-	val requestInformationPanel = new JPanel(new BorderLayout)
-	requestInformationPanel.setBorder(BorderFactory.createTitledBorder("Request Information"))
-	requestInformationPanel.add(new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(requestHeadersInfo), new JScrollPane(requestBodyInfo)), BorderLayout.CENTER)
-
-	val responseInformationPanel = new JPanel(new BorderLayout)
-	responseInformationPanel.setBorder(BorderFactory.createTitledBorder("Response Information"))
-	responseInformationPanel.add(new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(responseHeadersInfo), new JScrollPane(responseBodyInfo)), BorderLayout.CENTER)
-
-	centerPanel.add(elementsPanel, BorderLayout.NORTH)
-	centerPanel.add(requestInformationPanel, BorderLayout.WEST)
-	centerPanel.add(responseInformationPanel, BorderLayout.EAST)
-
-	/* Bottom Panel */
-
-	val bottomPanel = new JPanel(new BorderLayout)
-	bottomPanel.setBorder(BorderFactory.createTitledBorder("Secured hosts requiring accepting a certificate:"))
-
-	val panelHostsCertificate = new JScrollPane(requiredHostsCertificate)
-
-	bottomPanel.add(panelHostsCertificate, BorderLayout.CENTER)
-
-	/* Layout */
-	add(topPanel, BorderLayout.NORTH)
-	add(centerPanel, BorderLayout.CENTER)
-	add(bottomPanel, BorderLayout.SOUTH)
-
-	setListeners
-
-	private def setListeners {
-		/* Listeners */
-		btnTag.addActionListener { e: ActionEvent =>
-			if (!txtTag.getText.isEmpty) {
-				val tag = TagInfo(txtTag.getText)
-				eventsInfo.addElement(tag)
-				controller.addTag(txtTag.getText)
-				eventsInfoJList.ensureIndexIsVisible(eventsInfo.getSize() - 1)
-				txtTag.clear
+			val tag = new LeftAlignedFlowPanel {
+				contents += new Label("Tag :")
+				contents += tagField
+				contents += tagButton
 			}
-		}
 
-		eventsInfoJList.addListSelectionListener { e: ListSelectionEvent =>
-			if (eventsInfoJList.getSelectedIndex >= 0) {
-				val obj = eventsInfo.get(eventsInfoJList.getSelectedIndex)
-				obj match {
-					case requestInfo: RequestInfo =>
-						requestHeadersInfo.txt.setText(requestInfo.request.toString)
-						responseHeadersInfo.txt.setText(requestInfo.response.toString)
-						requestBodyInfo.txt.setText(requestInfo.requestBody)
-						responseBodyInfo.txt.setText(requestInfo.responseBody)
-						val newDimension = new Dimension(472, 900)
-						requestHeadersInfo.setPreferredSize(newDimension)
-						responseHeadersInfo.setPreferredSize(newDimension)
-						requestBodyInfo.setPreferredSize(newDimension)
-						responseBodyInfo.setPreferredSize(newDimension)
-						requestHeadersInfo.revalidate
-						requestBodyInfo.revalidate
-						responseHeadersInfo.revalidate
-						responseBodyInfo.revalidate
-					case _ =>
-						requestHeadersInfo.clear
-						responseHeadersInfo.clear
-						requestBodyInfo.clear
-						responseBodyInfo.clear
-				}
+			val clear = new CenterAlignedFlowPanel { contents += clearButton }
+
+			val cancelStop = new LeftAlignedFlowPanel {
+				contents += cancelButton
+				contents += stopButton
 			}
+
+			layout(tag) = West
+			layout(clear) = Center
+			layout(cancelStop) = East
+		}
+		/* Center panel : events info, request/response headers & body */
+		val center = new BorderPanel {
+			val elements = new BorderPanel {
+				border = titledBorder("Executed Events")
+
+				layout(new ScrollPane(events)) = Center
+			}
+			val requests = new BorderPanel {
+				border = titledBorder("Request Information")
+
+				layout(new SplitPane(Orientation.Horizontal, new ScrollPane(requestHeaders), new ScrollPane(requestBodies))) = Center
+			}
+			val responses = new BorderPanel {
+				border = titledBorder("Response Information")
+
+				layout(new SplitPane(Orientation.Horizontal, new ScrollPane(responseHeaders), new ScrollPane(responseBodies))) = Center
+			}
+
+			layout(elements) = North
+			layout(requests) = West
+			layout(responses) = East
+
+		}
+		/* Bottom panel : Secured hosts requiring certificates */
+		val bottom = new BorderPanel {
+			border = titledBorder("Secured hosts requiring accepting a certificate:")
+
+			layout(new ScrollPane(hostsRequiringCertificates)) = Center
 		}
 
-		btnClear.addActionListener { e: ActionEvent => controller.clearRecorderState }
-
-		btnCancel.addActionListener { e: ActionEvent =>
-			controller.clearRecorderState
-			controller.stopRecording
-		}
-
-		btnStop.addActionListener { e: ActionEvent => controller.stopRecording }
+		layout(top) = North
+		layout(center) = Center
+		layout(bottom) = South
 	}
 
+	contents = root
+
+	/*****************************************/
+	/**           EVENTS HANDLING           **/
+	/*****************************************/
+
+	/* Reactions */
+	listenTo(events.selection)
+	reactions += {
+		case ListSelectionChanged(_, _, _) if events.peer.getSelectedIndex >= 0 =>
+			val selectedIndex = events.peer.getSelectedIndex
+			events.listData(selectedIndex) match {
+				case requestInfo: RequestInfo => showRequest(requestInfo)
+				case _ => infoPanels.foreach(_.textArea.clear)
+			}
+		case _ => // Do nothing
+	}
+
+	/**
+	 * Add a new tag to the list of scenario elements
+	 */
+	private def addTag {
+		if (!tagField.text.isEmpty) {
+			controller.addTag(tagField.text)
+			tagField.clear
+		}
+	}
+
+	/**
+	 * Display request going through the Recorder
+	 * @param requestInfo The outgoing request info
+	 */
+	private def showRequest(requestInfo: RequestInfo) {
+		requestHeaders.textArea.text = requestInfo.request.toString
+		responseHeaders.textArea.text = requestInfo.response.toString
+		requestBodies.textArea.text = requestInfo.requestBody
+		responseBodies.textArea.text = requestInfo.responseBody
+		infoPanels.foreach(_.preferredSize = newSize)
+		infoPanels.foreach(_.revalidate)
+	}
+
+	/**
+	 * Clear all the panels showing info about scenarios elements
+	 * or requests of their content
+	 */
 	def clearState {
-		eventsInfo.removeAllElements
-		requestHeadersInfo.clear
-		requestBodyInfo.clear
-		responseHeadersInfo.clear
-		responseBodyInfo.clear
-		eventsInfo.clear
+		events.listData = Seq.empty
+		infoPanels.foreach(_.textArea.clear)
 	}
 
+	/**
+	 * Handle Recorder Events sent by the controller,
+	 * and display them accordingly
+	 * @param eventInfo the event sent by the controller
+	 */
 	def receiveEventInfo(eventInfo: EventInfo) {
 		eventInfo match {
-			case pauseInfo: PauseInfo =>
-				eventsInfo.addElement(pauseInfo)
-				eventsInfoJList.ensureIndexIsVisible(eventsInfo.getSize - 1)
-			case requestInfo: RequestInfo =>
-				eventsInfo.addElement(requestInfo)
-				eventsInfoJList.ensureIndexIsVisible(eventsInfo.getSize - 1)
-			case SSLInfo(uri) if (!hostsCertificate.contains(uri)) => hostsCertificate.addElement(uri)
+			case pauseInfo: PauseInfo => events.add(pauseInfo)
+			case requestInfo: RequestInfo => events.add(requestInfo)
+			case tagInfo: TagInfo => events.add(tagInfo)
+			case SSLInfo(uri) if !hostsRequiringCertificates.listData.contains(uri) => hostsRequiringCertificates.add(uri)
 			case e => logger.debug(s"dropping event $e")
 		}
 	}

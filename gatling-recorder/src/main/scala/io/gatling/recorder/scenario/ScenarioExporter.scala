@@ -34,27 +34,23 @@ object ScenarioExporter extends Logging {
 	def saveScenario(scenarioElements: List[ScenarioElement]) {
 
 		def getBaseUrl(scenarioElements: List[ScenarioElement]): String = {
-			val baseUrls = scenarioElements.collect {
+			val urlsOccurrences = scenarioElements.collect {
 				case reqElm: RequestElement => reqElm.baseUrl
-			}.groupBy(identity).toSeq
+			}.groupBy(identity).mapValues(_.size).toSeq
 
-			baseUrls.maxBy {
-				case (url, occurrences) => occurrences.size
-			}._1
+			urlsOccurrences.maxBy(_._2)._1
 		}
 
 		def getMostFrequentHeaderValue(scenarioElements: List[ScenarioElement], headerName: String): Option[String] = {
 			val headers = scenarioElements.flatMap {
-				case reqElm: RequestElement => reqElm.headers.collect { case (name, value) if (name == headerName) => value }
+				case reqElm: RequestElement => reqElm.headers.collect { case (name, value) if name == headerName => value }
 				case _ => Nil
 			}
 
 			if (headers.isEmpty) None
 			else {
-				val mostFrequentValue = headers
-					.groupBy(value => value)
-					.maxBy { case (_, occurrences) => occurrences.size }
-					._1
+				val headersValuesOccurrences = headers.groupBy(identity).mapValues(_.size).toSeq
+				val mostFrequentValue = headersValuesOccurrences.maxBy(_._2)._1
 				Some(mostFrequentValue)
 			}
 		}
@@ -68,7 +64,8 @@ object ScenarioExporter extends Logging {
 		}
 
 		def dumpRequestBody(idEvent: Int, content: Array[Byte], simulationClass: String) {
-			withCloseable(new FileOutputStream(File(getFolder(configuration.core.requestBodiesFolder) / simulationClass + "_request_" + idEvent + ".txt").jfile)) {
+			val fileName = s"${simulationClass}_request_$idEvent.txt"
+			withCloseable(File(getFolder(configuration.core.requestBodiesFolder) / fileName).outputStream()) {
 				fw =>
 					try {
 						fw.write(content)
@@ -131,7 +128,7 @@ object ScenarioExporter extends Logging {
 				case element :: others => {
 					val acceptedHeaders = element.headers.toList
 						.filterNot {
-							case (headerName, headerValue) => filteredHeaders.contains(headerName) || baseHeaders.get(headerName).map(baseValue => baseValue == headerValue).getOrElse(false)
+							case (headerName, headerValue) => filteredHeaders.contains(headerName) || baseHeaders.get(headerName).exists(_ == headerValue)
 						}
 						.sortBy(_._1)
 
@@ -174,7 +171,7 @@ object ScenarioExporter extends Logging {
 		}
 	}
 
-	def getSimulationFileName: String = configuration.core.className + ".scala"
+	def getSimulationFileName: String = s"${configuration.core.className}.scala"
 
 	def getOutputFolder = {
 		val path = configuration.core.outputFolder + File.separator + configuration.core.pkg.replace(".", File.separator)

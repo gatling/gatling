@@ -15,16 +15,11 @@
  */
 package io.gatling.recorder.ui
 
-import javax.swing.ImageIcon
-
-class Commons
+import scala.swing.Swing.Icon
 
 object Commons {
-	private val favSmall = new ImageIcon(getClass.getResource("img/fav_small.png"))
-	private val favBig = new ImageIcon(getClass.getResource("img/fav_big.png"))
-	private val pictoSmall = new ImageIcon(getClass.getResource("img/picto_small.png"))
-	private val pictoBig = new ImageIcon(getClass.getResource("img/picto_big.png"))
-	val logoSmall = new ImageIcon(getClass.getResource("img/logo_small.png"))
+	val logoSmall = Icon(getClass.getResource("img/logo_small.png"))
 
-	val iconList = List(favSmall.getImage, favBig.getImage, pictoSmall.getImage, pictoBig.getImage)
+	private val iconsFiles = List("img/fav_small.png", "img/fav_big.png", "img/picto_small.png", "img/picto_big.png")
+	val iconList = iconsFiles.map(getClass.getResource).map(Icon(_).getImage)
 }

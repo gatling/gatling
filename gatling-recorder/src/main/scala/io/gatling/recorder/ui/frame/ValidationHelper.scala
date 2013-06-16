@@ -16,92 +16,53 @@
 package io.gatling.recorder.ui.frame
 
 import java.awt.Color
-import java.awt.event.{ KeyAdapter, KeyEvent }
 
 import scala.collection.mutable
+import scala.swing._
+import scala.swing.Swing.MatteBorder
+import scala.swing.event.KeyReleased
+import scala.util.Try
 
 import io.gatling.core.util.StringHelper.RichString
-import io.gatling.recorder.ui.util.UIHelper.useUIThread
-
-import javax.swing.{ JTextField, BorderFactory }
 
 object ValidationHelper {
 
-	private val standardBorder = BorderFactory.createMatteBorder(1, 1, 1, 1, Color.darkGray)
-	private val errorBorder = BorderFactory.createMatteBorder(2, 2, 2, 2, Color.red)
-	private val disabledBorder = BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(184, 207, 229))
+	case class Validator(
+		condition: String => Boolean,
+		successCallback: Component => Unit = setStandardBorder,
+		failureCallback: Component => Unit = setErrorBorder,
+		alwaysValid: Boolean = false)
 
-	private val validationStatus = mutable.Map.empty[String, Boolean]
+	def keyReleased(c: Component) = KeyReleased(c, null, 0, null)(null)
 
-	// TODO: move table validation here
+	private val standardBorder = new TextField().border
+	private val errorBorder = MatteBorder(2, 2, 2, 2, Color.red)
 
-	def intValidator(cFrame: ConfigurationFrame, id: String) = new KeyAdapter {
-		override def keyReleased(e: KeyEvent) {
-			val txtField = e.getComponent.asInstanceOf[JTextField]
-			try {
-				txtField.getText.toInt
-				if (txtField.isEnabled)
-					txtField.setBorder(standardBorder)
-				else
-					txtField.setBorder(disabledBorder)
-				updateValidationStatus(id, true, cFrame)
-			} catch {
-				case e: NumberFormatException =>
-					txtField.setBorder(errorBorder)
-					updateValidationStatus(id, false, cFrame)
-			}
-		}
+	/* Default validators */
+	private val portRange = 0 to 65536
+	def isValidPort(s: String) = Try(s.toInt).toOption.exists(portRange.contains)
+	def isNonEmpty(s: String) = s.trimToOption.isDefined
+
+	/* Default callbacks */
+	def setStandardBorder(c: Component) { c.border = standardBorder }
+	def setErrorBorder(c: Component) { c.border = errorBorder }
+
+	private val validators = mutable.Map.empty[TextField, Validator]
+	private val status = mutable.Map.empty[TextField, Boolean]
+
+	def registerValidator(textField: TextField, validator: Validator) {
+		validators += (textField -> validator)
 	}
 
-	def nonEmptyValidator(cFrame: ConfigurationFrame, id: String) = new KeyAdapter {
-		override def keyReleased(e: KeyEvent) {
-			val txtField = e.getComponent.asInstanceOf[JTextField]
-
-			txtField.getText.trimToOption.map { _ =>
-				txtField.setBorder(standardBorder)
-				updateValidationStatus(id, true, cFrame)
-			}.getOrElse {
-				txtField.setBorder(errorBorder)
-				updateValidationStatus(id, false, cFrame)
-			}
-		}
+	def updateValidationStatus(field: TextField) = validators.get(field) match {
+		case Some(validator) =>
+			val isValid = validator.condition(field.text)
+			val callback = if (isValid) validator.successCallback else validator.failureCallback
+			callback(field)
+			status += (field -> (validator.alwaysValid || isValid))
+		case None =>
+			throw new IllegalStateException(s"No validator registered for component : $field")
 	}
 
-	def proxyHostValidator(cFrame: ConfigurationFrame) = new KeyAdapter {
-		override def keyReleased(e: KeyEvent) {
-			val txtField = e.getComponent.asInstanceOf[JTextField]
-
-			txtField.getText.trimToOption.map { _ =>
-				cFrame.txtProxyPort.setEnabled(true)
-				cFrame.txtProxySslPort.setEnabled(true)
-				cFrame.txtProxyUsername.setEnabled(true)
-				cFrame.txtProxyPassword.setEnabled(true)
-			}.getOrElse {
-				cFrame.txtProxyPort.setEnabled(false)
-				cFrame.txtProxyPort.setText("0")
-				cFrame.txtProxyPort.getKeyListeners.foreach {
-					kl =>
-						useUIThread {
-							kl.keyReleased(new KeyEvent(cFrame.txtProxyPort, 0, System.currentTimeMillis, 0, 0, '0'))
-						}
-				}
-				cFrame.txtProxySslPort.setEnabled(false)
-				cFrame.txtProxySslPort.setText("0")
-				cFrame.txtProxyUsername.setEnabled(false)
-				cFrame.txtProxyUsername.setText(null)
-				cFrame.txtProxyPassword.setEnabled(false)
-				cFrame.txtProxyPassword.setText(null)
-			}
-		}
-	}
-
-	private def updateValidationStatus(id: String, status: Boolean, cfgFrame: ConfigurationFrame) {
-		validationStatus += (id -> status)
-		updateStartButtonStatus(cfgFrame)
-	}
-
-	private def updateStartButtonStatus(cfgFrame: ConfigurationFrame) {
-		val newStatus = validationStatus.values.foldLeft(true)((b1, b2) => b1 && b2)
-		cfgFrame.btnStart.setEnabled(newStatus)
-	}
+	def validationStatus = status.values.forall(identity)
 }

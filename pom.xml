@@ -223,6 +223,11 @@
 				<version>${scala.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.scala-lang</groupId>
+				<artifactId>scala-swing</artifactId>
+				<version>${scala.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>com.ning</groupId>
 				<artifactId>async-http-client</artifactId>
 				<version>${ahc.version}</version>
@@ -446,7 +451,6 @@
 									<arg>-unchecked</arg>
 									<arg>-language:implicitConversions</arg>
 									<arg>-language:postfixOps</arg>
-									<arg>-language:dynamics</arg>
 								</args>
 							</configuration>
 						</execution>
