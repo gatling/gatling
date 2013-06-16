@@ -15,6 +15,8 @@
  */
 package io.gatling.recorder.util
 
+import scala.language.dynamics
+
 import net.minidev.json.{ JSONArray, JSONValue, JSONObject }
 
 object Json {
