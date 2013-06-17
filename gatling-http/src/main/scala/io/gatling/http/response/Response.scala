@@ -24,10 +24,10 @@ trait Response extends AHCResponse {
 	def request: Request
 	def ahcResponse: Option[AHCResponse]
 	def checksums: Map[String, String]
-	def executionStartDate: Long
-	def requestSendingEndDate: Long
-	def responseReceivingStartDate: Long
-	def executionEndDate: Long
+	def firstByteSent: Long
+	def lastByteSent: Long
+	def firstByteReceived: Long
+	def lastByteReceived: Long
 	def checksum(algorithm: String): Option[String]
 	def reponseTimeInMillis: Long
 	def latencyInMillis: Long
@@ -39,14 +39,14 @@ case class HttpResponse(
 	request: Request,
 	ahcResponse: Option[AHCResponse],
 	checksums: Map[String, String],
-	executionStartDate: Long,
-	requestSendingEndDate: Long,
-	responseReceivingStartDate: Long,
-	executionEndDate: Long) extends Response {
+	firstByteSent: Long,
+	lastByteSent: Long,
+	firstByteReceived: Long,
+	lastByteReceived: Long) extends Response {
 
 	def checksum(algorithm: String) = checksums.get(algorithm)
-	def reponseTimeInMillis = executionEndDate - executionStartDate
-	def latencyInMillis = responseReceivingStartDate - requestSendingEndDate
+	def reponseTimeInMillis = lastByteReceived - firstByteSent
+	def latencyInMillis = firstByteReceived - firstByteReceived
 	def isReceived = ahcResponse.isDefined
 	def getHeadersSafe(name: String) = Option(ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).getHeaders(name).toSeq).getOrElse(Nil)
 
@@ -78,10 +78,10 @@ class DelegatingReponse(delegate: Response) extends Response {
 	def request: Request = delegate.request
 	def ahcResponse = delegate.ahcResponse
 	def checksums = delegate.checksums
-	def executionStartDate = delegate.executionStartDate
-	def requestSendingEndDate = delegate.requestSendingEndDate
-	def responseReceivingStartDate = delegate.responseReceivingStartDate
-	def executionEndDate = delegate.responseReceivingStartDate
+	def firstByteSent = delegate.firstByteSent
+	def lastByteSent = delegate.lastByteSent
+	def firstByteReceived = delegate.firstByteReceived
+	def lastByteReceived = delegate.lastByteReceived
 	def checksum(algorithm: String) = delegate.checksum(algorithm)
 	def reponseTimeInMillis = delegate.reponseTimeInMillis
 	def latencyInMillis = delegate.latencyInMillis

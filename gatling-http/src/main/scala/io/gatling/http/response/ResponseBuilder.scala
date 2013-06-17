@@ -16,6 +16,7 @@
 package io.gatling.http.response
 
 import java.security.MessageDigest
+import java.util.ArrayList
 
 import scala.collection.mutable
 import scala.math.max
@@ -44,14 +45,14 @@ object ResponseBuilder {
 
 class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], responseProcessor: Option[ResponseProcessor], storeBodyParts: Boolean) {
 
+	val firstByteSent = nowMillis
+	var lastByteSent = 0L
+	var firstByteReceived = 0L
+	var lastByteReceived = 0L
 	private var status: HttpResponseStatus = _
 	private var headers: HttpResponseHeaders = _
-	private val bodies = new java.util.ArrayList[HttpResponseBodyPart]
+	private val bodies = new ArrayList[HttpResponseBodyPart]
 	private var digests = mutable.Map.empty[String, MessageDigest]
-	val _executionStartDate = nowMillis
-	var _requestSendingEndDate = 0L
-	var _responseReceivingStartDate = 0L
-	var _executionEndDate = 0L
 
 	def accumulate(status: HttpResponseStatus) = {
 		this.status = status
@@ -63,18 +64,18 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 		this
 	}
 
-	def updateRequestSendingEndDate(nanos: Long) = {
-		_requestSendingEndDate = computeTimeMillisFromNanos(nanos)
+	def updateLastByteSent(nanos: Long) = {
+		lastByteSent = computeTimeMillisFromNanos(nanos)
 		this
 	}
 
-	def updateResponseReceivingStartDate(nanos: Long) = {
-		_responseReceivingStartDate = computeTimeMillisFromNanos(nanos)
+	def updateFirstByteReceived(nanos: Long) = {
+		firstByteReceived = computeTimeMillisFromNanos(nanos)
 		this
 	}
 
-	def computeExecutionEndDateFromNanos(nanos: Long) = {
-		_executionEndDate = computeTimeMillisFromNanos(nanos)
+	def updateLastByteReceived(nanos: Long) = {
+		lastByteReceived = computeTimeMillisFromNanos(nanos)
 		this
 	}
 
@@ -93,14 +94,14 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 	def build: Response = {
 		// time measurement is imprecise due to multi-core nature
 		// ensure request doesn't end before starting
-		_requestSendingEndDate = max(_requestSendingEndDate, _executionStartDate)
+		lastByteSent = max(lastByteSent, firstByteSent)
 		// ensure response doesn't start before request ends
-		_responseReceivingStartDate = max(_responseReceivingStartDate, _requestSendingEndDate)
+		firstByteReceived = max(firstByteReceived, lastByteSent)
 		// ensure response doesn't end before starting
-		_executionEndDate = max(_executionEndDate, _responseReceivingStartDate)
+		lastByteReceived = max(lastByteReceived, firstByteReceived)
 		val ahcResponse = Option(status).map(_.provider.prepareResponse(status, headers, bodies))
 		val checksums = digests.mapValues(md => bytes2Hex(md.digest)).toMap
-		val rawResponse = HttpResponse(request, ahcResponse, checksums, _executionStartDate, _requestSendingEndDate, _responseReceivingStartDate, _executionEndDate)
+		val rawResponse = HttpResponse(request, ahcResponse, checksums, firstByteSent, lastByteSent, firstByteReceived, lastByteReceived)
 
 		responseProcessor
 			.map(_.applyOrElse(rawResponse, identity[Response]))

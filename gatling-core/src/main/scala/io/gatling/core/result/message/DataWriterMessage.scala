@@ -32,15 +32,15 @@ case class RequestMessage(
 	userId: Int,
 	groupStack: List[GroupStackEntry],
 	name: String,
-	requestStartDate: Long,
-	requestEndDate: Long,
-	responseStartDate: Long,
-	responseEndDate: Long,
+	firstByteSent: Long,
+	lastByteSent: Long,
+	firstByteReceived: Long,
+	lastByteReceived: Long,
 	status: Status,
 	message: Option[String] = None,
 	extraInfo: List[Any] = Nil) extends DataWriterMessage {
 	val recordType = RequestMessageType
-	def responseTime = responseEndDate - requestStartDate
+	def responseTime = firstByteSent - firstByteSent
 }
 
 case class RunMessage(runDate: DateTime, simulationId: String, runDescription: String) extends DataWriterMessage {

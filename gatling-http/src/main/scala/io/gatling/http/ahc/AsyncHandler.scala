@@ -76,8 +76,11 @@ class AsyncHandler(requestName: String, actor: ActorRef, useBodyParts: Boolean) 
 	}
 
 	def onThrowable(throwable: Throwable) {
-		logger.warn(s"Request '$requestName' failed", throwable)
 		val errorMessage = Option(throwable.getMessage).getOrElse(throwable.getClass.getName)
+		if (logger.underlying.isInfoEnabled)
+			logger.warn(s"Request '$requestName' failed", throwable)
+		else
+			logger.warn(s"Request '$requestName' failed: $errorMessage")
 		actor ! new OnThrowable(errorMessage)
 	}
 }

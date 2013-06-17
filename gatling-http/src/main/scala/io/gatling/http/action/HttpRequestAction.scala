@@ -29,18 +29,18 @@
  */
 package io.gatling.http.action
 
-import com.ning.http.client.{ AsyncHttpClient, Request }
+import com.ning.http.client.Request
 
 import akka.actor.{ ActorRef, Props }
 import io.gatling.core.action.Interruptable
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.Failure
-import io.gatling.http.ahc.{ AsyncHandler, AsyncHandlerActor, HttpClient, RequestFactory }
+import io.gatling.http.ahc.{ AsyncHandler, AsyncHandlerActor, AsyncHandlerActorState, RequestFactory }
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.referer.RefererHandling
-import io.gatling.http.response.ResponseProcessor
+import io.gatling.http.response.{ ResponseBuilder, ResponseProcessor }
 
 /**
  * This is an action that sends HTTP requests
@@ -61,7 +61,7 @@ class HttpRequestAction(
 	protocol: HttpProtocol) extends Interruptable {
 
 	val handlerFactory = AsyncHandler.newHandlerFactory(checks, protocol)
-	val asyncHandlerActorFactory = AsyncHandlerActor.newAsyncHandlerActorFactory(checks, next, responseProcessor, protocol) _
+	val responseBuilderFactory = ResponseBuilder.newResponseBuilder(checks, responseProcessor, protocol)
 
 	def execute(session: Session) {
 
@@ -72,21 +72,17 @@ class HttpRequestAction(
 				next ! newSession
 
 			} else {
-				val (sessionWithClient, client) =
-					if (protocol.shareClient)
-						(newSession, HttpClient.default)
-					else
-						newSession(HttpClient.httpClientAttributeName).asOption[AsyncHttpClient]
-							.map((newSession, _))
-							.getOrElse {
-								val client = HttpClient.newClient(newSession)
-								(newSession.set(HttpClient.httpClientAttributeName, client), client)
-							}
+				logger.info(s"Sending request '$resolvedRequestName': scenario '${newSession.scenarioName}', userId #${newSession.userId}")
 
-				logger.info(s"Sending request '$resolvedRequestName': scenario '${sessionWithClient.scenarioName}', userId #${sessionWithClient.userId}")
-				val actor = context.actorOf(Props(asyncHandlerActorFactory(resolvedRequestName)(request, sessionWithClient)))
-				val ahcHandler = handlerFactory(resolvedRequestName, actor)
-				client.executeRequest(request, ahcHandler)
+				val (sessionWithActor, httpActor) =
+					newSession(AsyncHandlerActor.httpActorAttributeName).asOption[ActorRef]
+						.map((newSession, _))
+						.getOrElse {
+							val httpActor = context.actorOf(Props(new AsyncHandlerActor(protocol)))
+							(newSession.set(AsyncHandlerActor.httpActorAttributeName, httpActor), httpActor)
+						}
+
+				httpActor ! AsyncHandlerActorState(sessionWithActor, request, resolvedRequestName, checks, handlerFactory, responseBuilderFactory, next)
 			}
 		}
 
@@ -99,7 +95,7 @@ class HttpRequestAction(
 
 		execution match {
 			case Failure(message) =>
-				logger.error(message)
+				logger.warn(message)
 				next ! session
 			case _ =>
 		}
