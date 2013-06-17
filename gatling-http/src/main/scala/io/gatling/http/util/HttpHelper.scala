@@ -16,9 +16,8 @@
 package io.gatling.http.util
 
 import java.net.URLDecoder
-import java.util.{ ArrayList => JArrayList }
 
-import scala.collection.JavaConversions.mapAsJavaMap
+import scala.collection.JavaConversions.seqAsJavaList
 import scala.io.Codec.UTF8
 
 import com.ning.http.client.{ FluentStringsMap, ProxyServer, Realm }
@@ -56,22 +55,18 @@ object HttpHelper {
 		validations.sequence
 	}
 
-	def httpParamsToFluentMap(params: List[HttpParam], session: Session): Validation[FluentStringsMap] = {
-
+	def httpParamsToFluentMap(params: List[HttpParam], session: Session): Validation[FluentStringsMap] =
 		resolveParams(params, session).map { params =>
-			val javaParams = params.groupBy(_._1)
-				.mapValues { params =>
-					val arrayList = new JArrayList[String]
-					for {
-						param <- params
-						value <- param._2
-					} arrayList.add(value)
-					arrayList
-				}
 
-			new FluentStringsMap(javaParams)
+			val fsm = new FluentStringsMap
+			params.groupBy(_._1).foreach {
+				case (key, params) =>
+					val values = params.map(_._2).flatten
+					fsm.add(key, values)
+			}
+
+			fsm
 		}
-	}
 
 	def buildRealm(username: Expression[String], password: Expression[String]): Expression[Realm] = (session: Session) =>
 		for {
