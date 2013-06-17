@@ -141,8 +141,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 
 		def configureQueryCookiesAndProxy(url: String)(implicit requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
-			requestBuilder.setUrl(url)
-
 			val proxy = if (url.startsWith(Protocol.HTTPS.getProtocol))
 				protocol.securedProxy
 			else
@@ -153,9 +151,9 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 			CookieHandling.getStoredCookies(session, url).foreach(requestBuilder.addCookie)
 
 			if (!httpAttributes.queryParams.isEmpty)
-				HttpHelper.httpParamsToFluentMap(httpAttributes.queryParams, session).map(requestBuilder.setQueryParameters)
+				HttpHelper.httpParamsToFluentMap(httpAttributes.queryParams, session).map(requestBuilder.setQueryParameters(_).setUrl(url))
 			else
-				requestBuilder.success
+				requestBuilder.setUrl(url).success
 		}
 
 		def configureHeaders(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
