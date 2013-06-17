@@ -35,20 +35,17 @@ class PauseBuilder(minDuration: Expression[Duration], maxDurationOption: Option[
 
 	def build(next: ActorRef) = {
 
-		def delayGenerator(session: Session): Validation[Long] = {
-
-			val resolvedMinDurationInMillis = minDuration(session).map(_.toMillis)
-
-			maxDurationOption.map { maxDuration =>
-				val resolvedMaxDurationInMillis = maxDuration(session)
+		val pauseDuration = maxDurationOption match {
+			case Some(maxDuration) => (session: Session) => {
 				for {
-					min <- resolvedMinDurationInMillis
-					max <- resolvedMaxDurationInMillis
-				} yield createUniformRandomLongGenerator(min, max.toMillis)()
+					min <- minDuration(session)
+					max <- maxDuration(session)
+				} yield createUniformRandomLongGenerator(min.toMillis, max.toMillis)()
+			}
 
-			}.getOrElse(resolvedMinDurationInMillis)
+			case None => (session: Session) => minDuration(session).map(_.toMillis)
 		}
 
-		system.actorOf(Props(new Pause(delayGenerator, next)))
+		system.actorOf(Props(new Pause(pauseDuration, next)))
 	}
 }
