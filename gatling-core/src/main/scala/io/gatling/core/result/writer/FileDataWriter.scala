@@ -68,7 +68,7 @@ object FileDataWriter {
 			val serializedGroups = GroupMessageSerializer.serializeGroups(groupStack)
 			val serializedExtraInfo = extraInfo.map(info => fast"\t${sanitize(info.toString)}").mkFastring
 
-			fast"${RequestMessageType.name}\t$scenario\t$userId\t$serializedGroups\t$name\t$requestStartDate\t$requestEndDate\t$responseStartDate\t$responseEndDate\t$status\t$nonEmptyMessage$serializedExtraInfo$eol"
+			fast"${RequestMessageType.name}\t$scenario\t$userId\t$serializedGroups\t$name\t$firstByteSent\t$lastByteSent\t$firstByteReceived\t$lastByteReceived\t$status\t$nonEmptyMessage$serializedExtraInfo$eol"
 		}
 	}
 
