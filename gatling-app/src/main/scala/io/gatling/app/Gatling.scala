@@ -18,16 +18,17 @@ package io.gatling.app
 import java.lang.System.currentTimeMillis
 
 import scala.collection.mutable
+import scala.util.Try
 
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.app.CommandLineConstants._
 import io.gatling.charts.report.ReportsGenerator
-import io.gatling.core.config.{ GatlingFiles, GatlingPropertiesBuilder }
+import io.gatling.core.config.{GatlingFiles, GatlingPropertiesBuilder}
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.reader.DataReader
-import io.gatling.core.runner.{ Runner, Selection }
+import io.gatling.core.runner.{Runner, Selection}
 import io.gatling.core.scenario.Simulation
 import io.gatling.core.structure.Assertion
 import io.gatling.core.util.StringHelper.RichString
@@ -94,6 +95,12 @@ class Gatling extends Logging {
 
 			def selectSimulationClass(simulations: List[Class[Simulation]]): Class[Simulation] = {
 
+				def readSimulationNumber: Int =
+					Try(Console.readInt).getOrElse {
+						println("Invalid characters, please provide a correct simulation number:")
+						readSimulationNumber
+					}
+
 				val selection = simulations.size match {
 					case 0 =>
 						// If there is no simulation file
@@ -102,12 +109,12 @@ class Gatling extends Logging {
 					case 1 =>
 						println(s"${simulations.head.getName} is the only simulation, executing it.")
 						0
-					case size =>
+					case _ =>
 						println("Choose a simulation number:")
 						for ((simulation, index) <- simulations.zipWithIndex) {
 							println(s"     [$index] ${simulation.getName}")
 						}
-						Console.readInt
+						readSimulationNumber
 				}
 
 				val validRange = 0 until simulations.size
