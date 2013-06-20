@@ -78,7 +78,7 @@ object HttpBodyCssCheckBuilder extends Logging {
 
 	def css(expression: Expression[String], nodeAttribute: Option[String]): HttpMultipleCheckBuilder[_, String, String] =
 		configuration.core.extract.css.engine match {
-			case Jodd => HttpBodyCssCheckBuilder.css(expression, nodeAttribute)
+			case Jodd => HttpBodyJoddCssCheckBuilder.css(expression, nodeAttribute)
 			case Jsoup => HttpBodyJsoupCssCheckBuilder.css(expression, nodeAttribute)
 		}
 }
