@@ -38,7 +38,7 @@ object HttpBodyCssCheckBuilder extends Logging {
 
 			} catch {
 				case e: Exception =>
-					val message = s"Could not parse response into a Jsoup Document: ${e.getMessage}"
+					val message = s"Could not parse response into a Jodd NodeSelector: ${e.getMessage}"
 					logger.info(message, e)
 					message.failure
 			}
