@@ -32,8 +32,6 @@ import io.gatling.http.util.SSLHelper.{ RichAsyncHttpClientConfigBuilder, newKey
 
 object HttpClient extends Logging {
 
-	val httpClientAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.client"
-
 	// set up Netty LoggerFactory for slf4j instead of default JDK
 	InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
 
