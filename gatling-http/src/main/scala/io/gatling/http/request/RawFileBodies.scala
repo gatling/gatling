@@ -28,12 +28,13 @@ import io.gatling.core.validation.Validation
 
 object RawFileBodies {
 
-	private val rawFileBodiesCache = mutable.Map.empty[String, Validation[File]]
+	private val cache = mutable.Map.empty[String, Validation[File]]
+	def cached(path: String) = if (configuration.http.cacheRawFileBodies) cache.getOrElseUpdate(path, GatlingFiles.requestBodyResource(path).map(_.jfile)) else GatlingFiles.requestBodyResource(path).map(_.jfile)
 
 	def buildExpression[T](filePath: Expression[String], f: File => T): Expression[T] = (session: Session) =>
 		for {
 			path <- filePath(session)
-			file <- rawFileBodiesCache.getOrElseUpdate(path, GatlingFiles.requestBodyResource(path).map(_.jfile))
+			file <- cached(path)
 		} yield f(file)
 
 	def asFile(filePath: Expression[String]): Expression[File] = buildExpression(filePath, identity)

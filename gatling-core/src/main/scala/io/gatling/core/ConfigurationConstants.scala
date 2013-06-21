@@ -59,6 +59,8 @@ object ConfigurationConstants {
 	val CONF_HTTP_FOLLOW_REDIRECT = "gatling.http.followRedirect"
 	val CONF_HTTP_AUTO_REFERER = "gatling.http.autoReferer"
 	val CONF_HTTP_CACHE = "gatling.http.cache"
+	val CONF_HTTP_CACHE_EL_FILE_BODIES = "gatling.http.cacheELFileBodies"
+	val CONF_HTTP_CACHE_RAW_FILE_BODIES = "gatling.http.cacheRawFileBodies"
 	val CONF_HTTP_DISCARD_RESPONSE_CHUNKS = "gatling.http.discardResponseChunks"
 	val CONF_HTTP_SHARE_CLIENT = "gatling.http.shareClient"
 	val CONF_HTTP_SHARE_CONNECTIONS = "gatling.http.shareConnections"

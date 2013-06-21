@@ -27,7 +27,8 @@ import io.gatling.core.util.IOHelper.withCloseable
 
 object ELFileBodies {
 
-	private val elFileBodiesCache = mutable.Map.empty[String, Validation[Expression[String]]]
+	private val cache = mutable.Map.empty[String, Validation[Expression[String]]]
+	def cached(path: String) = if (configuration.http.cacheELFileBodies) cache.getOrElseUpdate(path, compileFile(path)) else compileFile(path)
 
 	def compileFile(path: String): Validation[Expression[String]] =
 		GatlingFiles.requestBodyResource(path)
@@ -37,7 +38,7 @@ object ELFileBodies {
 	def buildExpression[T](filePath: Expression[String], f: String => T): Expression[T] = (session: Session) =>
 		for {
 			path <- filePath(session)
-			expression <- elFileBodiesCache.getOrElseUpdate(path, compileFile(path))
+			expression <- cached(path)
 			body <- expression(session)
 		} yield f(body)
 

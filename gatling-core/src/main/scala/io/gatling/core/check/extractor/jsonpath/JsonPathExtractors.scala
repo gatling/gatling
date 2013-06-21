@@ -36,14 +36,14 @@ object JsonPathExtractors {
 	}
 
 	val cache = mutable.Map.empty[String, JsonPath]
-	def cachedJsonPath(expression: String): JsonPath =
+	def cached(expression: String): JsonPath =
 		if (configuration.core.extract.jsonPath.cache) cache.getOrElseUpdate(expression, JsonPath.compile(expression))
 		else JsonPath.compile(expression)
 
 	private def extractAll(json: Any, expression: String): Option[Seq[String]] = {
 
 		try {
-			cachedJsonPath(expression).read[Any](json) match {
+			cached(expression).read[Any](json) match {
 				case null => None // can't turn result into an Option as we want to turn empty Seq into None (see below)
 				case array: JSONArray => array.map(_.toString).liftSeqOption
 				case other => Some(List(other.toString))

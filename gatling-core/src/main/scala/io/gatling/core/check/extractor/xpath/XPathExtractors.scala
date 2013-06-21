@@ -71,7 +71,7 @@ object XPathExtractors {
 	}
 
 	val cache = mutable.Map.empty[String, DOMXPath]
-	def cachedXPath(expression: String, namespaces: List[(String, String)]) = if (configuration.core.extract.xpath.cache) cache.getOrElseUpdate(expression + namespaces, xpath(expression, namespaces)) else xpath(expression, namespaces)
+	def cached(expression: String, namespaces: List[(String, String)]) = if (configuration.core.extract.xpath.cache) cache.getOrElseUpdate(expression + namespaces, xpath(expression, namespaces)) else xpath(expression, namespaces)
 
 	abstract class XPathExtractor[X] extends Extractor[Option[Document], String, X] {
 		val name = "xpath"
@@ -82,7 +82,7 @@ object XPathExtractors {
 		def apply(prepared: Option[Document], criterion: String): Validation[Option[String]] = {
 
 			val result = for {
-				results <- prepared.map(cachedXPath(criterion, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]]) if (results.size > occurrence)
+				results <- prepared.map(cached(criterion, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]]) if (results.size > occurrence)
 				result = results.get(occurrence).getTextContent
 			} yield result
 
@@ -93,11 +93,11 @@ object XPathExtractors {
 	val extractMultiple = (namespaces: List[(String, String)]) => new XPathExtractor[Seq[String]] {
 
 		def apply(prepared: Option[Document], criterion: String): Validation[Option[Seq[String]]] =
-			prepared.flatMap(cachedXPath(criterion, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]].map(_.getTextContent).liftSeqOption).success
+			prepared.flatMap(cached(criterion, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]].map(_.getTextContent).liftSeqOption).success
 	}
 
 	val count = (namespaces: List[(String, String)]) => new XPathExtractor[Int] {
 
-		def apply(prepared: Option[Document], criterion: String): Validation[Option[Int]] = prepared.map(cachedXPath(criterion, namespaces).selectNodes(_).size).success
+		def apply(prepared: Option[Document], criterion: String): Validation[Option[Int]] = prepared.map(cached(criterion, namespaces).selectNodes(_).size).success
 	}
 }

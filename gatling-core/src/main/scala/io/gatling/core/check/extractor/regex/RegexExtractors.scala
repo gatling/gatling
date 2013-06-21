@@ -29,7 +29,7 @@ import io.gatling.core.validation.{ SuccessWrapper, Validation }
 object RegexExtractors {
 
 	val cache = mutable.Map.empty[String, Pattern]
-	def cachedRegex(pattern: String) = if (configuration.core.extract.regex.cache) cache.getOrElseUpdate(pattern, Pattern.compile(pattern)) else Pattern.compile(pattern)
+	def cached(pattern: String) = if (configuration.core.extract.regex.cache) cache.getOrElseUpdate(pattern, Pattern.compile(pattern)) else Pattern.compile(pattern)
 
 	abstract class RegexExtractor[X] extends Extractor[String, String, X] {
 		val name = "regex"
@@ -72,7 +72,7 @@ object RegexExtractors {
 
 	def extract(string: String, pattern: String): Seq[String] = {
 
-		val matcher = cachedRegex(pattern).matcher(string)
+		val matcher = cached(pattern).matcher(string)
 		matcher.foldLeft(List.empty[String]) { (matcher, values) =>
 			matcher.value :: values
 		}.reverse
@@ -81,7 +81,7 @@ object RegexExtractors {
 	def extractOne(occurrence: Int) = new RegexExtractor[String] {
 
 		def apply(prepared: String, criterion: String): Validation[Option[String]] = {
-			val matcher = cachedRegex(criterion).matcher(prepared)
+			val matcher = cached(criterion).matcher(prepared)
 			matcher.findMatchN(occurrence).success
 		}
 	}
@@ -94,7 +94,7 @@ object RegexExtractors {
 	val count = new RegexExtractor[Int] {
 
 		def apply(prepared: String, criterion: String): Validation[Option[Int]] = {
-			val matcher = cachedRegex(criterion).matcher(prepared)
+			val matcher = cached(criterion).matcher(prepared)
 			matcher.foldLeft(0) { (_, count) =>
 				count + 1
 			}.liftOption.success
