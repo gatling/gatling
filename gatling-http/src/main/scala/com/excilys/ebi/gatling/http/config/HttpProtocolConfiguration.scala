@@ -46,6 +46,7 @@ case class HttpProtocolConfiguration(
 	shareClient: Boolean,
 	shareConnections: Boolean,
 	baseHeaders: Map[String, String],
+	virtualHost: Option[String],
 	extraRequestInfoExtractor: Option[(Request => List[String])],
 	extraResponseInfoExtractor: Option[(ExtendedResponse => List[String])]) extends ProtocolConfiguration {
 

@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.core.session.EvaluatableString
 
 object DeleteHttpRequestBuilder {
 
-	def apply(requestName: EvaluatableString, url: EvaluatableString) = new DeleteHttpRequestBuilder(HttpAttributes(requestName, "DELETE", url, Nil, Map.empty, None, Nil))
+	def apply(requestName: EvaluatableString, url: EvaluatableString) = new DeleteHttpRequestBuilder(HttpAttributes(requestName, "DELETE", url, Nil, Map.empty, None, None, Nil))
 }
 
 /**

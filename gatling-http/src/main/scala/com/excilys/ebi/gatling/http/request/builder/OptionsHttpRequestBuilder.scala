@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.http.request.HttpRequestBody
 
 object OptionsHttpRequestBuilder {
 
-	def apply(requestName: EvaluatableString, url: EvaluatableString) = new OptionsHttpRequestBuilder(HttpAttributes(requestName, "OPTIONS", url, Nil, Map.empty, None, Nil), None)
+	def apply(requestName: EvaluatableString, url: EvaluatableString) = new OptionsHttpRequestBuilder(HttpAttributes(requestName, "OPTIONS", url, Nil, Map.empty, None, None, Nil), None)
 }
 
 /**

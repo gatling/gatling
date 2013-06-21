@@ -30,7 +30,7 @@ import grizzled.slf4j.Logging
  */
 object HttpProtocolConfigurationBuilder {
 
-	private[gatling] val default = new HttpProtocolConfigurationBuilder(Attributes(None, None, None, true, true, true, true, true, false, Map.empty, configuration.http.warmUpUrl, None, None))
+	private[gatling] val default = new HttpProtocolConfigurationBuilder(Attributes(None, None, None, true, true, true, true, true, false, Map.empty, configuration.http.warmUpUrl, None, None, None))
 
 	val warmUpUrls = mutable.Set.empty[String]
 }
@@ -46,6 +46,7 @@ private case class Attributes(baseUrls: Option[List[String]],
 	shareConnections: Boolean,
 	baseHeaders: Map[String, String],
 	warmUpUrl: Option[String],
+	virtualHost: Option[String],
 	extraRequestInfoExtractor: Option[Request => List[String]],
 	extraResponseInfoExtractor: Option[ExtendedResponse => List[String]])
 
@@ -98,6 +99,8 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 
 	def disableWarmUp = new HttpProtocolConfigurationBuilder(attributes.copy(warmUpUrl = None))
 
+	def virtualHost(virtualHost: String) = new HttpProtocolConfigurationBuilder(attributes.copy(virtualHost = Some(virtualHost)))
+
 	def requestInfoExtractor(f: Request => List[String]) = new HttpProtocolConfigurationBuilder(attributes.copy(extraRequestInfoExtractor = Some(f)))
 
 	def responseInfoExtractor(f: ExtendedResponse => List[String]) = new HttpProtocolConfigurationBuilder(attributes.copy(extraResponseInfoExtractor = Some(f)))
@@ -126,6 +129,6 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 			}
 		}
 
-		HttpProtocolConfiguration(attributes.baseUrls, attributes.proxy, attributes.securedProxy, attributes.followRedirectEnabled, attributes.automaticRefererEnabled, attributes.cachingEnabled, attributes.responseChunksDiscardingEnabled, attributes.shareClient, attributes.shareConnections, attributes.baseHeaders, attributes.extraRequestInfoExtractor, attributes.extraResponseInfoExtractor)
+		HttpProtocolConfiguration(attributes.baseUrls, attributes.proxy, attributes.securedProxy, attributes.followRedirectEnabled, attributes.automaticRefererEnabled, attributes.cachingEnabled, attributes.responseChunksDiscardingEnabled, attributes.shareClient, attributes.shareConnections, attributes.baseHeaders, attributes.virtualHost, attributes.extraRequestInfoExtractor, attributes.extraResponseInfoExtractor)
 	}
 }

@@ -40,6 +40,7 @@ case class HttpAttributes(
 	queryParams: List[HttpParam],
 	headers: Map[String, EvaluatableString],
 	realm: Option[Session => Realm],
+	virtualHost: Option[String],
 	checks: List[HttpCheck[_]])
 
 /**
@@ -141,6 +142,11 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	}
 
 	/**
+	 * @param virtualHost a virtual host to override default computed one
+	 */
+	def virtualHost(virtualHost: String): B = newInstance(httpAttributes.copy(virtualHost = Some(virtualHost)))
+
+	/**
 	 * This method actually fills the request builder to avoid race conditions
 	 *
 	 * @param session the session of the current scenario
@@ -154,6 +160,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 		configureProxy(requestBuilder, session, isHttps, protocolConfiguration)
 		configureHeaders(requestBuilder, httpAttributes.headers, session, protocolConfiguration)
 		configureRealm(requestBuilder, httpAttributes.realm, session)
+		configureVirtualHost(requestBuilder, protocolConfiguration)
 
 		requestBuilder
 	}
@@ -176,6 +183,12 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 			protocolConfiguration.securedProxy
 		else
 			protocolConfiguration.proxy).map(requestBuilder.setProxyServer)
+	}
+
+	private def configureVirtualHost(requestBuilder: RequestBuilder, protocolConfiguration: HttpProtocolConfiguration) = {
+
+		val virtualHost = httpAttributes.virtualHost.orElse(protocolConfiguration.virtualHost)
+		virtualHost.map(requestBuilder.setVirtualHost)
 	}
 
 	/**

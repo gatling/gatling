@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.http.request.HttpRequestBody
 
 object HeadHttpRequestBuilder {
 
-	def apply(requestName: EvaluatableString, url: EvaluatableString) = new HeadHttpRequestBuilder(HttpAttributes(requestName, "HEAD", url, Nil, Map.empty, None, Nil), None)
+	def apply(requestName: EvaluatableString, url: EvaluatableString) = new HeadHttpRequestBuilder(HttpAttributes(requestName, "HEAD", url, Nil, Map.empty, None, None, Nil), None)
 }
 
 /**
