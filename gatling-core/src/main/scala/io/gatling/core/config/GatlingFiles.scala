@@ -62,7 +62,7 @@ object GatlingFiles {
 
 	def validateResource(filePath: Path, defaultFolder: String): Validation[Resource] = {
 		val defaultPath = defaultFolder / filePath
-		val classPathResource = Option(getClass.getClassLoader.getResource(defaultPath.toString)).map { url =>
+		val classPathResource = Option(getClass.getClassLoader.getResource(defaultPath.toString.replace('\\', '/'))).map { url =>
 			url.getProtocol match {
 				case "file" => FileResource(url.getFile.toFile)
 				case "jar" => ClassPathResource(url, filePath.extension)
