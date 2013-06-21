@@ -41,6 +41,7 @@ object HttpProtocol {
 		shareConnections = configuration.http.shareConnections,
 		basicAuth = configuration.http.basicAuth.map(credentials => buildRealm(credentials.username, credentials.password).expression),
 		baseHeaders = Map.empty,
+		virtualHost = None,
 		responseProcessor = None,
 		extraInfoExtractor = None)
 }
@@ -63,6 +64,7 @@ case class HttpProtocol(
 	shareConnections: Boolean,
 	baseHeaders: Map[String, String],
 	basicAuth: Option[Expression[Realm]],
+	virtualHost: Option[String],
 	responseProcessor: Option[ResponseProcessor],
 	extraInfoExtractor: Option[(Status, Session, Request, Response) => List[Any]]) extends Protocol {
 

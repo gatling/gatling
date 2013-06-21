@@ -38,6 +38,7 @@ case class HttpAttributes(
 	queryParams: List[HttpParam] = Nil,
 	headers: Map[String, Expression[String]] = Map.empty,
 	realm: Option[Expression[Realm]] = None,
+	virtualHost: Option[String] = None,
 	checks: List[HttpCheck] = Nil,
 	responseProcessor: Option[ResponseProcessor] = None)
 
@@ -122,6 +123,11 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	def basicAuth(username: Expression[String], password: Expression[String]): B = newInstance(httpAttributes.copy(realm = Some(HttpHelper.buildRealm(username, password))))
 
 	/**
+	 * @param virtualHost a virtual host to override default compute one
+	 */
+	def virtualHost(virtualHost: String): B = newInstance(httpAttributes.copy(virtualHost = Some(virtualHost)))
+
+	/**
 	 * @param processor processes the response before it's handled to the checks pipeline
 	 */
 	def processResponse(processor: ResponseProcessor): B = newInstance(httpAttributes.copy(responseProcessor = Some(processor)))
@@ -141,12 +147,11 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 
 		def configureQueryCookiesAndProxy(url: String)(implicit requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
-			val proxy = if (url.startsWith(Protocol.HTTPS.getProtocol))
-				protocol.securedProxy
-			else
-				protocol.proxy
-
+			val proxy = if (url.startsWith(Protocol.HTTPS.getProtocol)) protocol.securedProxy else protocol.proxy
 			proxy.map(requestBuilder.setProxyServer)
+
+			val virtualHost = httpAttributes.virtualHost.orElse(protocol.virtualHost)
+			virtualHost.map(requestBuilder.setVirtualHost)
 
 			CookieHandling.getStoredCookies(session, url).foreach(requestBuilder.addCookie)
 
