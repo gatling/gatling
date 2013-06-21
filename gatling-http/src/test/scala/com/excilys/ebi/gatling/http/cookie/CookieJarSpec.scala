@@ -127,6 +127,14 @@ class CookieJarSpec extends Specification {
 			cookieStore.get(new URI("http://www.foo.com")).length must beEqualTo(1)
 		}
 
+		"handle missing path as /" in {
+			val cookies = decode("tooe_token=0b1d81dd02d207491a6e9b0a2af9470da9eb1dad").toList
+			val uri = new URI("http://www.foo.com")
+			val cookieStore = CookieJar(uri, cookies)
+
+			cookieStore.get(new URI("http://www.foo.com")).length must beEqualTo(1)
+		}
+
 		"return the cookie when it's issued from a request with a subpath" in {
 			val cookies = decode("ALPHA; path=/").toList
 			val cookieStore = CookieJar(new URI("http://www.foo.com/bar"), cookies)
