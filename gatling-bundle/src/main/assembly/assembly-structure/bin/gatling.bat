@@ -56,7 +56,7 @@ echo GATLING_HOME is set to "%GATLING_HOME%"
 
 set JAVA_OPTS=-server -XX:+UseThreadPriorities -XX:ThreadPriorityPolicy=42 -Xms512M -Xmx512M -Xmn100M -Xss2M -XX:+HeapDumpOnOutOfMemoryError -XX:+AggressiveOpts -XX:+OptimizeStringConcat -XX:+UseFastAccessorMethods -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSClassUnloadingEnabled -XX:SurvivorRatio=8 -XX:MaxTenuringThreshold=1 -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly %JAVA_OPTS%
 
-set CLASSPATH="%GATLING_HOME%"\lib\*;"%GATLING_HOME%"\conf;%JAVA_CLASSPATH%
+set CLASSPATH="%GATLING_HOME%"\lib\*;"%GATLING_HOME%"\conf;"%GATLING_HOME%"\user-files;%JAVA_CLASSPATH%
 set COMMAND=-cp %CLASSPATH% io.gatling.app.Gatling
 
 java %JAVA_OPTS% %COMMAND% %1 %2 %3 %4 %5 %6 %7 %8 %9
