@@ -79,6 +79,8 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 
 	def shareConnections = new HttpProtocolConfigurationBuilder(attributes.copy(shareConnections = true))
 
+	def baseHeaders(headers: Map[String, String]) = new HttpProtocolConfigurationBuilder(attributes.copy(baseHeaders = attributes.baseHeaders ++ headers))
+
 	def acceptHeader(value: String) = new HttpProtocolConfigurationBuilder(attributes.copy(baseHeaders = attributes.baseHeaders + (Headers.Names.ACCEPT -> value)))
 
 	def acceptCharsetHeader(value: String) = new HttpProtocolConfigurationBuilder(attributes.copy(baseHeaders = attributes.baseHeaders + (Headers.Names.ACCEPT_CHARSET -> value)))
