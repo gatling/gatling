@@ -63,6 +63,8 @@ case class HttpProtocolBuilder(protocol: HttpProtocol, warmUpUrl: Option[String]
 
 	def shareConnections = copy(protocol = protocol.copy(shareConnections = true))
 
+	def baseHeaders(headers: Map[String, String]) = protocol.copy(baseHeaders = protocol.baseHeaders ++ headers)
+
 	def acceptHeader(value: String) = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (ACCEPT -> value)))
 
 	def acceptCharsetHeader(value: String) = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (ACCEPT_CHARSET -> value)))
