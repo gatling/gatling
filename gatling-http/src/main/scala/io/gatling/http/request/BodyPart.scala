@@ -23,40 +23,94 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.Validation
 
+object RawFileBodyPart {
+
+	def apply(name: Expression[String], filePath: Expression[String], contentType: String) = FileBodyPart(name, RawFileBodies.asFile(filePath), contentType)
+}
+
+object ELFileBodyPart {
+
+	def apply(name: Expression[String], filePath: Expression[String]) = StringBodyPart(name, ELFileBodies.asString(filePath))
+}
+
 sealed trait BodyPart {
 
 	def toMultiPart(session: Session): Validation[Part]
 }
 
-case class StringBodyPart(name: Expression[String], value: Expression[String], contentId: Option[String] = None) extends BodyPart {
+case class StringBodyPart(
+	name: Expression[String],
+	value: Expression[String],
+	charset: String = configuration.core.encoding,
+	contentType: Option[String] = None,
+	transferEncoding: Option[String] = None,
+	contentId: Option[String] = None) extends BodyPart {
+
+	def withCharset(charset: String) = copy(charset = charset)
+	def withContentId(contentId: String) = copy(contentId = Some(contentId))
+	def withContentType(contentType: String) = copy(contentType = Some(contentType))
+	def withTransferEncoding(transferEncoding: String) = copy(transferEncoding = Some(transferEncoding))
 
 	def toMultiPart(session: Session): Validation[Part] =
 		for {
 			name <- name(session)
 			value <- value(session)
-		} yield new StringPart(name, value, configuration.core.encoding, contentId.getOrElse(null))
+		} yield {
+			val part = new StringPart(name, value, charset, contentId.getOrElse(null))
+			contentType.map(part.setContentType)
+			transferEncoding.map(part.setTransferEncoding)
+			part
+		}
 }
 
-case class ByteArrayBodyPart(name: Expression[String], data: Expression[Array[Byte]], mimeType: String, contentId: Option[String] = None) extends BodyPart {
+case class ByteArrayBodyPart(
+	name: Expression[String],
+	bytes: Expression[Array[Byte]],
+	contentType: String,
+	charset: String = configuration.core.encoding,
+	fileName: Option[String] = None,
+	transferEncoding: Option[String] = None,
+	contentId: Option[String] = None) extends BodyPart {
+
+	def withCharset(charset: String) = copy(charset = charset)
+	def withFileName(fileName: String) = copy(fileName = Some(fileName))
+	def withContentId(contentId: String) = copy(contentId = Some(contentId))
+	def withTransferEncoding(transferEncoding: String) = copy(transferEncoding = Some(transferEncoding))
 
 	def toMultiPart(session: Session): Validation[Part] =
 		for {
 			name <- name(session)
-			data <- data(session)
+			bytes <- bytes(session)
 		} yield {
-			val source = new ByteArrayPartSource(null, data)
-			new FilePart(name, source, mimeType, configuration.core.encoding, contentId.getOrElse(null))
+			val source = new ByteArrayPartSource(fileName.getOrElse(null), bytes)
+			val part = new FilePart(name, source, contentType, charset, contentId.getOrElse(null))
+			transferEncoding.map(part.setTransferEncoding)
+			part
 		}
 }
 
-case class FileBodyPart(name: Expression[String], file: Expression[File], mimeType: String, contentId: Option[String] = None) extends BodyPart {
+case class FileBodyPart(
+	name: Expression[String],
+	file: Expression[File],
+	contentType: String,
+	charset: String = configuration.core.encoding,
+	fileName: Option[String] = None,
+	transferEncoding: Option[String] = None,
+	contentId: Option[String] = None) extends BodyPart {
+
+	def withCharset(charset: String) = copy(charset = charset)
+	def withFileName(fileName: String) = copy(fileName = Some(fileName))
+	def withContentId(contentId: String) = copy(contentId = Some(contentId))
+	def withTransferEncoding(transferEncoding: String) = copy(transferEncoding = Some(transferEncoding))
 
 	def toMultiPart(session: Session): Validation[Part] =
 		for {
 			name <- name(session)
 			file <- file(session)
 		} yield {
-			val source = new FilePartSource(null, file)
-			new FilePart(name, source, mimeType, configuration.core.encoding, contentId.getOrElse(null))
+			val source = new FilePartSource(fileName.getOrElse(null), file)
+			val part = new FilePart(name, source, contentType, charset, contentId.getOrElse(null))
+			transferEncoding.map(part.setTransferEncoding)
+			part
 		}
 }

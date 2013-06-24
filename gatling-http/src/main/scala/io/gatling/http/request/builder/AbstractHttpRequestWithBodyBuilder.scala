@@ -43,41 +43,11 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 
 	private[http] def newInstance(httpAttributes: HttpAttributes): B = newInstance(httpAttributes, bodyAttributes)
 
-	def requestBody(bd: Body): B = newInstance(httpAttributes, bodyAttributes.copy(body = Some(bd)))
-
-	// String
-	def body(bd: Expression[String]): B = requestBody(StringBody(bd))
-	def rawFileBodyAsString(filePath: Expression[String]): B = body(RawFileBodies.asString(filePath))
-	def elFileBody(filePath: Expression[String]): B = body(ELFileBodies.asString(filePath))
-
-	// Bytes
-	def byteArrayBody(byteArray: Expression[Array[Byte]]): B = requestBody(new ByteArrayBody(byteArray))
-	def rawFileBodyAsBytes(filePath: Expression[String]): B = byteArrayBody(RawFileBodies.asBytes(filePath))
-	def elFileBodyAsBytes(filePath: Expression[String]): B = byteArrayBody(ELFileBodies.asBytes(filePath))
-	def bodyAsBytes(bd: Expression[String]): B = byteArrayBody(StringBodies.asBytes(bd))
-
-	// File
-	def rawFileBody(filePath: Expression[String]): B = requestBody(RawFileBody(RawFileBodies.asFile(filePath)))
-
-	// InputStream
-	def inputStreamBody(is: Expression[InputStream]): B = requestBody(new InputStreamBody(is))
+	def body(bd: Body): B = newInstance(httpAttributes, bodyAttributes.copy(body = Some(bd)))
 
 	def processRequestBody(processor: Body => Body): B = newInstance(httpAttributes, bodyAttributes.copy(body = bodyAttributes.body.map(processor)))
 
 	def bodyPart(bodyPart: BodyPart): B = newInstance(httpAttributes, bodyAttributes.copy(bodyParts = bodyPart :: bodyAttributes.bodyParts))
-
-	def bodyPart(name: Expression[String], value: Expression[String]): B = bodyPart(StringBodyPart(name, value))
-	def bodyPart(name: Expression[String], value: Expression[String], contentId: String): B = bodyPart(StringBodyPart(name, value, Some(contentId)))
-
-	def rawFileBodyPart(name: Expression[String], filePath: Expression[String], mimeType: String) = bodyPart(FileBodyPart(name, RawFileBodies.asFile(filePath), mimeType))
-	def rawFileBodyPart(name: Expression[String], filePath: Expression[String], mimeType: String, contentId: String) = bodyPart(FileBodyPart(name, RawFileBodies.asFile(filePath), mimeType, Some(contentId)))
-
-	def byteArrayBodyPart(name: Expression[String], data: Expression[Array[Byte]], mimeType: String) = bodyPart(ByteArrayBodyPart(name, data, mimeType))
-	def byteArrayBodyPart(name: Expression[String], data: Expression[Array[Byte]], mimeType: String, contentId: String) = bodyPart(ByteArrayBodyPart(name, data, mimeType, Some(contentId)))
-
-	def elFileBodyPart(name: Expression[String], filePath: Expression[String]): B = bodyPart(name, ELFileBodies.asString(filePath))
-	def elFileBodyPart(name: Expression[String], filePath: Expression[String], mimeType: String): B = byteArrayBodyPart(name, ELFileBodies.asBytes(filePath), mimeType)
-	def elFileBodyPart(name: Expression[String], filePath: Expression[String], mimeType: String, contentId: String): B = byteArrayBodyPart(name, ELFileBodies.asBytes(filePath), mimeType, contentId)
 
 	protected def configureParts(session: Session, requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 		require(!bodyAttributes.body.isDefined || bodyAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")

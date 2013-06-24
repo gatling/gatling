@@ -19,8 +19,6 @@ import java.io.File
 
 import scala.collection.mutable
 
-import org.apache.commons.io.FileUtils
-
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles
 import io.gatling.core.session.{ Expression, Session }
@@ -31,15 +29,9 @@ object RawFileBodies {
 	private val cache = mutable.Map.empty[String, Validation[File]]
 	def cached(path: String) = if (configuration.http.cacheRawFileBodies) cache.getOrElseUpdate(path, GatlingFiles.requestBodyResource(path).map(_.jfile)) else GatlingFiles.requestBodyResource(path).map(_.jfile)
 
-	def buildExpression[T](filePath: Expression[String], f: File => T): Expression[T] = (session: Session) =>
+	def asFile(filePath: Expression[String]): Expression[File] = (session: Session) =>
 		for {
 			path <- filePath(session)
 			file <- cached(path)
-		} yield f(file)
-
-	def asFile(filePath: Expression[String]): Expression[File] = buildExpression(filePath, identity)
-
-	def asString(filePath: Expression[String]): Expression[String] = buildExpression(filePath, FileUtils.readFileToString(_, configuration.core.encoding))
-
-	def asBytes(filePath: Expression[String]): Expression[Array[Byte]] = buildExpression(filePath, FileUtils.readFileToByteArray)
+		} yield file
 }

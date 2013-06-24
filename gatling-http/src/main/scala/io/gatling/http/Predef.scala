@@ -25,7 +25,7 @@ import io.gatling.http.check.status.HttpStatusCheckBuilder
 import io.gatling.http.check.time.HttpResponseTimeCheckBuilder
 import io.gatling.http.check.url.CurrentLocationCheckBuilder
 import io.gatling.http.config.{ HttpProtocol, HttpProtocolBuilder, HttpProxyBuilder }
-import io.gatling.http.request.BodyProcessors
+import io.gatling.http.request.{ BodyProcessors, ELFileBodies, FileBodyPart, RawFileBodies, StringBodyPart }
 import io.gatling.http.request.builder.{ AbstractHttpRequestBuilder, HttpRequestBaseBuilder }
 
 object Predef {
@@ -71,4 +71,16 @@ object Predef {
 		case KO => List(session.toString)
 		case _ => Nil
 	}
+
+	def ELFileBody = io.gatling.http.request.ELFileBody
+	def StringBody = io.gatling.http.request.StringBody
+	def RawFileBody = io.gatling.http.request.RawFileBody
+	def ByteArrayBody = io.gatling.http.request.ByteArrayBody
+	def InputStreamBody = io.gatling.http.request.InputStreamBody
+
+	def StringBodyPart = io.gatling.http.request.StringBodyPart
+	def ByteArrayBodyPart = io.gatling.http.request.ByteArrayBodyPart
+	def FileBodyPart = io.gatling.http.request.FileBodyPart
+	def RawFileBodyPart = io.gatling.http.request.RawFileBodyPart
+	def ELFileBodyPart = io.gatling.http.request.ELFileBodyPart
 }

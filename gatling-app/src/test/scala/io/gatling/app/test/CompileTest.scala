@@ -165,7 +165,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				.exec(http("Url from session").get("/aaaa"))
 				.pause(1000 milliseconds, 3000 milliseconds)
 				// Second request to be repeated
-				.exec(http("Create Thing blabla").post("/things").queryParam("login", "${login}").queryParam("password", "${password}").elFileBody("create_thing.txt").asJSON)
+				.exec(http("Create Thing blabla").post("/things").queryParam("login", "${login}").queryParam("password", "${password}").body(ELFileBody("create_thing.txt")).asJSON)
 				.pause(pause1)
 				// Third request to be repeated
 				.exec(http("Liste Articles").get("/things").queryParam("firstname", "${firstname}").queryParam("lastname", "${lastname}"))
@@ -179,7 +179,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 					55 -> exec(http("Possibility 2").get("/p2")) // last 5% bypass
 					)
 				.exec(http("Create Thing omgomg")
-					.post("/things").queryParam("postTest", "${sessionParam}").elFileBody("create_thing.txt").asJSON
+					.post("/things").queryParam("postTest", "${sessionParam}").body(RawFileBody("create_thing.txt")).asJSON
 					.check(status.is(201).saveAs("status")))
 		}
 		// Head request
