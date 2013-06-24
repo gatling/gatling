@@ -16,6 +16,8 @@
 package io.gatling.http.response
 
 import java.security.MessageDigest
+import java.util.{ ArrayList, Collections }
+import java.util.concurrent.atomic.AtomicBoolean
 
 import scala.collection.mutable
 import scala.math.max
@@ -31,6 +33,8 @@ import io.gatling.http.config.HttpProtocol
 
 object ResponseBuilder {
 
+	val emptyBytes = Array.empty[Byte]
+
 	def newResponseBuilder(checks: List[HttpCheck], responseProcessor: Option[ResponseProcessor], protocol: HttpProtocol): ResponseBuilderFactory = {
 
 		val checksumChecks = checks.collect {
@@ -44,14 +48,21 @@ object ResponseBuilder {
 
 class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], responseProcessor: Option[ResponseProcessor], storeBodyParts: Boolean) {
 
-	private var status: HttpResponseStatus = _
-	private var headers: HttpResponseHeaders = _
-	private val bodies = new java.util.ArrayList[HttpResponseBodyPart]
-	private var digests = mutable.Map.empty[String, MessageDigest]
-	val _executionStartDate = nowMillis
-	var _requestSendingEndDate = 0L
-	var _responseReceivingStartDate = 0L
-	var _executionEndDate = 0L
+	var built = new AtomicBoolean(false)
+
+	val firstByteSent = nowMillis
+	@volatile var lastByteSent = 0L
+	@volatile var firstByteReceived = 0L
+	@volatile var lastByteReceived = 0L
+	@volatile private var status: HttpResponseStatus = _
+	@volatile private var headers: HttpResponseHeaders = _
+	private val bodies = Collections.synchronizedList(new ArrayList[HttpResponseBodyPart])
+	@volatile private var digests = if (!checksumChecks.isEmpty) { // FIXME sync
+		val map = mutable.Map.empty[String, MessageDigest]
+		checksumChecks.foreach(check => map += check.algorithm -> MessageDigest.getInstance(check.algorithm))
+		map
+	} else
+		Map.empty[String, MessageDigest]
 
 	def accumulate(status: HttpResponseStatus) = {
 		this.status = status
@@ -63,44 +74,40 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 		this
 	}
 
-	def updateRequestSendingEndDate(nanos: Long) = {
-		_requestSendingEndDate = computeTimeMillisFromNanos(nanos)
+	def updateLastByteSent(nanos: Long) = {
+		lastByteSent = computeTimeMillisFromNanos(nanos)
 		this
 	}
 
-	def updateResponseReceivingStartDate(nanos: Long) = {
-		_responseReceivingStartDate = computeTimeMillisFromNanos(nanos)
+	def updateFirstByteReceived(nanos: Long) = {
+		firstByteReceived = computeTimeMillisFromNanos(nanos)
 		this
 	}
 
-	def computeExecutionEndDateFromNanos(nanos: Long) = {
-		_executionEndDate = computeTimeMillisFromNanos(nanos)
+	def updateLastByteReceived(nanos: Long) = {
+		lastByteReceived = computeTimeMillisFromNanos(nanos)
 		this
 	}
 
-	def accumulate(bodyPart: Option[HttpResponseBodyPart]) = {
-		bodyPart.map { part =>
-			for (check <- checksumChecks) {
-				val algorithm = check.algorithm
-				digests.getOrElseUpdate(algorithm, MessageDigest.getInstance(algorithm)).update(part.getBodyByteBuffer)
-			}
-
-			if (storeBodyParts) bodies.add(part)
-		}
+	def accumulate(bodyPart: HttpResponseBodyPart) = {
+		if (storeBodyParts) bodies.add(bodyPart)
+		if (!checksumChecks.isEmpty) digests.values.foreach(_.update(bodyPart.getBodyByteBuffer))
 		this
 	}
 
 	def build: Response = {
 		// time measurement is imprecise due to multi-core nature
 		// ensure request doesn't end before starting
-		_requestSendingEndDate = max(_requestSendingEndDate, _executionStartDate)
+		lastByteSent = max(lastByteSent, firstByteSent)
 		// ensure response doesn't start before request ends
-		_responseReceivingStartDate = max(_responseReceivingStartDate, _requestSendingEndDate)
+		firstByteReceived = max(firstByteReceived, lastByteSent)
 		// ensure response doesn't end before starting
-		_executionEndDate = max(_executionEndDate, _responseReceivingStartDate)
+		lastByteReceived = max(lastByteReceived, firstByteReceived)
 		val ahcResponse = Option(status).map(_.provider.prepareResponse(status, headers, bodies))
 		val checksums = digests.mapValues(md => bytes2Hex(md.digest)).toMap
-		val rawResponse = HttpResponse(request, ahcResponse, checksums, _executionStartDate, _requestSendingEndDate, _responseReceivingStartDate, _executionEndDate)
+		val bytes = ahcResponse.map(_.getResponseBodyAsBytes).getOrElse(ResponseBuilder.emptyBytes)
+		val rawResponse = HttpResponse(request, ahcResponse, checksums, firstByteSent, lastByteSent, firstByteReceived, lastByteReceived, bytes)
+		bodies.clear
 
 		responseProcessor
 			.map(_.applyOrElse(rawResponse, identity[Response]))

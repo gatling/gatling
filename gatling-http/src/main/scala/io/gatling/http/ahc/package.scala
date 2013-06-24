@@ -26,5 +26,4 @@ import io.gatling.http.config.HttpProtocol
 package object ahc {
 
 	type RequestFactory = (Session, HttpProtocol) => Validation[Request]
-	type HandlerFactory = (String, ActorRef) => AsyncHandler
 }

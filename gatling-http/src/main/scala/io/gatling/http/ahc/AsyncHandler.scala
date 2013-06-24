@@ -15,22 +15,15 @@
  */
 package io.gatling.http.ahc
 
+import java.lang.System.nanoTime
+import java.util.concurrent.atomic.AtomicBoolean
+
 import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, ProgressAsyncHandler }
 import com.ning.http.client.AsyncHandler.STATE.CONTINUE
 import com.typesafe.scalalogging.slf4j.Logging
 
 import akka.actor.ActorRef
-import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.HttpCheckOrder.{ Body, Checksum }
-import io.gatling.http.config.HttpProtocol
-
-object AsyncHandler {
-
-	def newHandlerFactory(checks: List[HttpCheck], protocol: HttpProtocol): HandlerFactory = {
-		val useBodyParts = !protocol.discardResponseChunks || checks.exists(check => check.order == Checksum || check.order == Body)
-		(requestName: String, actor: ActorRef) => new AsyncHandler(requestName, actor, useBodyParts)
-	}
-}
+import io.gatling.http.response.ResponseBuilder
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
@@ -42,42 +35,49 @@ object AsyncHandler {
  * @param actor the actor that will perform the logic outside of the IO thread
  * @param useBodyParts id body parts should be sent to the actor
  */
-class AsyncHandler(requestName: String, actor: ActorRef, useBodyParts: Boolean) extends ProgressAsyncHandler[Unit] with Logging {
+class AsyncHandler(requestName: String, actor: ActorRef, responseBuilder: ResponseBuilder) extends ProgressAsyncHandler[Unit] with Logging {
+
+	private val done = new AtomicBoolean(false)
 
 	def onHeaderWriteCompleted = {
-		actor ! new OnHeaderWriteCompleted
+		if (!done.get) responseBuilder.updateLastByteSent(nanoTime)
 		CONTINUE
 	}
 
 	def onContentWriteCompleted = {
-		actor ! new OnContentWriteCompleted
+		if (!done.get) responseBuilder.updateLastByteSent(nanoTime)
 		CONTINUE
 	}
 
 	def onContentWriteProgress(amount: Long, current: Long, total: Long) = CONTINUE
 
-	def onStatusReceived(responseStatus: HttpResponseStatus) = {
-		actor ! new OnStatusReceived(responseStatus)
+	def onStatusReceived(status: HttpResponseStatus) = {
+		if (!done.get) responseBuilder.updateFirstByteReceived(nanoTime).accumulate(status)
 		CONTINUE
 	}
 
 	def onHeadersReceived(headers: HttpResponseHeaders) = {
-		actor ! new OnHeadersReceived(headers)
+		if (!done.get) responseBuilder.updateLastByteReceived(nanoTime).accumulate(headers)
 		CONTINUE
 	}
 
 	def onBodyPartReceived(bodyPart: HttpResponseBodyPart) = {
-		actor ! new OnBodyPartReceived(if (useBodyParts) Some(bodyPart) else None)
+		if (!done.get) responseBuilder.updateLastByteReceived(nanoTime).accumulate(bodyPart)
 		CONTINUE
 	}
 
 	def onCompleted {
-		actor ! new OnCompleted
+		if (!done.getAndSet(true)) actor ! OnCompleted(responseBuilder.build)
 	}
 
 	def onThrowable(throwable: Throwable) {
-		logger.warn(s"Request '$requestName' failed", throwable)
-		val errorMessage = Option(throwable.getMessage).getOrElse(throwable.getClass.getName)
-		actor ! new OnThrowable(errorMessage)
+		if (!done.getAndSet(true)) {
+			val errorMessage = Option(throwable.getMessage).getOrElse(throwable.getClass.getName)
+			if (logger.underlying.isInfoEnabled)
+				logger.warn(s"Request '$requestName' failed", throwable)
+			else
+				logger.warn(s"Request '$requestName' failed: $errorMessage")
+			actor ! OnThrowable(responseBuilder.updateLastByteReceived(nanoTime).build, errorMessage)
+		}
 	}
 }
