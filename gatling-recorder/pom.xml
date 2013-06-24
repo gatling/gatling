@@ -6,7 +6,6 @@
 		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>gatling-recorder</artifactId>
-	<name>${project.artifactId}</name>
 	<description>Gatling Recorder</description>
 
 	<properties>

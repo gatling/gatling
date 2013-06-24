@@ -7,7 +7,6 @@
 		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>gatling-http</artifactId>
-	<name>${project.artifactId}</name>
 	<description>Gatling HTTP functionnalities</description>
 
 	<properties>
