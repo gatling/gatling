@@ -7,7 +7,6 @@
 		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>gatling-app</artifactId>
-	<name>${project.artifactId}</name>
 	<description>Gatling command line application</description>
 
 	<properties>
@@ -52,16 +51,6 @@
 			<plugin>
 				<groupId>net.alchim31.maven</groupId>
 				<artifactId>scala-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<mainClass>io.gatling.app.App</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
