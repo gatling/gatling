@@ -6,7 +6,6 @@
 		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>gatling-jdbc</artifactId>
-	<name>${project.artifactId}</name>
 	<description>Gatling JDBC functionnalities</description>
 
 	<properties>

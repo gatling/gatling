@@ -9,9 +9,6 @@
 	</parent>
 
 	<artifactId>gatling-metrics</artifactId>
-
-	<name>${project.artifactId}</name>
-
 	<description>Gatling Metrics</description>
 
 	<properties>
@@ -44,10 +41,6 @@
 			<plugin>
 				<groupId>net.alchim31.maven</groupId>
 				<artifactId>scala-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>com.mycila.maven-license-plugin</groupId>
-				<artifactId>maven-license-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>

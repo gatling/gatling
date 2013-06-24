@@ -104,8 +104,6 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
-		<!-- http://repo.typesafe.com/typesafe/releases -->
-		<!-- http://repo.jenkins-ci.org/content/repositories/releases -->
 	</repositories>
 
 	<properties>
@@ -488,7 +486,7 @@
 						<header>${header.basedir}/src/etc/header.txt</header>
 						<strictCheck>true</strictCheck>
 						<excludes>
-							<exclude>src/test/resources/*.*</exclude>
+							<exclude>src/test/resources/**</exclude>
 							<exclude>**/jquery.min.js</exclude>
 							<exclude>**/bootstrap.min.*</exclude>
 							<exclude>**/*.ssp</exclude>
