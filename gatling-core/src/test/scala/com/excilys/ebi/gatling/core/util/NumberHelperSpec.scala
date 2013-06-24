@@ -31,10 +31,6 @@ class NumberHelperSpec extends Specification {
 
 	"getRandomLong" should {
 
-		"be zero when min and max are zero" in {
-			NumberHelper.createUniformRandomLongGenerator(0, 0)() must beEqualTo(0)
-		}
-
 		"produce uniformly-distributed random numbers within the specified range" in {
 			val min: Int = 0
 			val max: Int = 100
