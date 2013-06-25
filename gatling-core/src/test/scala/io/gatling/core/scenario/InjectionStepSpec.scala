@@ -103,6 +103,27 @@ class InjectionStepSpec extends Specification {
 		"provides an injection scheduling with the correct values" in {
 			scheduling(0) must beEqualTo(0 seconds) and (scheduling(1) must beEqualTo(488 milliseconds))
 		}
+
+		val constantRampRate = RampRateInjection(1.0, 1.0, 10 seconds)
+
+		"return the correct injection duration when the acceleration is null" in {
+			rampRate.duration must beEqualTo(10 seconds)
+		}
+
+		"return the correct number of users when the acceleration is null" in {
+			rampRate.users must beEqualTo(30)
+		}
+
+		val constantRampScheduling = constantRampRate.chain(Iterator.empty).toList
+
+		"return a scheduling of constant step when the acceleration is null" in {
+
+			val steps = constantRampScheduling.zip(constantRampScheduling.drop(1)).map {
+				case (i1, i2) => i2 - i1
+			}.toSet
+
+			constantRampScheduling must beSorted and (steps.size must beEqualTo(1))
+		}
 	}
 
 	"SplitInjection" should {

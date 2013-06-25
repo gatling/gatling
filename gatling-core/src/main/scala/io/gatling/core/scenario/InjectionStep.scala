@@ -82,19 +82,23 @@ case class RampRateInjection(r1: Double, r2: Double, duration: FiniteDuration) e
 	override val users = ((r1 + (r2 - r1) / 2) * duration.toSeconds).toInt
 
 	override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
-		val a = (r2 - r1) / (2 * duration.toSeconds)
-		val b = r1
-		val b2 = r1 * r1
+		if ((r2 - r1).abs < 0.0001)
+			ConstantRateInjection(r1, duration).chain(iterator)
+		else {
+			val a = (r2 - r1) / (2 * duration.toSeconds)
+			val b = r1
+			val b2 = r1 * r1
 
-		def userScheduling(u: Int) = {
-			val c = -u
-			val delta = b2 - 4 * a * c
+			def userScheduling(u: Int) = {
+				val c = -u
+				val delta = b2 - 4 * a * c
 
-			val t = (-b + sqrt(delta)) / (2 * a)
-			(t * 1000).toLong milliseconds
+				val t = (-b + sqrt(delta)) / (2 * a)
+				(t * 1000).toLong milliseconds
+			}
+
+			Iterator.range(0, users).map(userScheduling(_)) ++ iterator.map(_ + duration)
 		}
-
-		Iterator.range(0, users).map(userScheduling(_)) ++ iterator.map(_ + duration)
 	}
 }
 
