@@ -105,7 +105,7 @@ object GatlingConfiguration extends Logging {
 					val value = config.getString(CONF_HTTP_WARM_UP_URL).trim
 					if (value.isEmpty) None else Some(value)
 				},
-				rfc6265CookieEncoding = config.getBoolean(CONF_HTTP_USE_PROXY_PROPERTIES),
+				rfc6265CookieEncoding = config.getBoolean(CONF_HTTP_RFC6265_COOKIE_ENCODING),
 				ssl = {
 					def storeConfig(typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String) = {
 
