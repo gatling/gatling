@@ -50,7 +50,7 @@ object RequestTemplate {
 		def renderBodyOrParams = body.map {
 			_ match {
 				case RequestBodyBytes(_) => fast"""
-			.rawFileBody("${simulationClass}_request_$id.txt")"""
+			.body(RawFileBody("${simulationClass}_request_$id.txt"))"""
 				case RequestBodyParams(params) => params.map {
 					case (key, value) => fast"""
 			.param($tripleQuotes$key$tripleQuotes, $tripleQuotes$value$tripleQuotes)"""
