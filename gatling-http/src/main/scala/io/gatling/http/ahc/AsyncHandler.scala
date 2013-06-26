@@ -22,7 +22,6 @@ import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpRes
 import com.ning.http.client.AsyncHandler.STATE.CONTINUE
 import com.typesafe.scalalogging.slf4j.Logging
 
-import akka.actor.ActorRef
 import io.gatling.http.response.ResponseBuilder
 
 /**
@@ -31,12 +30,12 @@ import io.gatling.http.response.ResponseBuilder
  * It is part of the HttpRequestAction
  *
  * @constructor constructs a GatlingAsyncHandler
- * @param requestName the name of the request
- * @param actor the actor that will perform the logic outside of the IO thread
- * @param useBodyParts id body parts should be sent to the actor
+ * @param task the data about the request to be sent and processed
+ * @param responseBuilder the builder for the response
  */
-class AsyncHandler(requestName: String, actor: ActorRef, responseBuilder: ResponseBuilder) extends ProgressAsyncHandler[Unit] with Logging {
+class AsyncHandler(task: HttpTask) extends ProgressAsyncHandler[Unit] with Logging {
 
+	val responseBuilder = task.responseBuilderFactory(task.request)
 	private val done = new AtomicBoolean(false)
 
 	def onHeaderWriteCompleted = {
@@ -67,17 +66,17 @@ class AsyncHandler(requestName: String, actor: ActorRef, responseBuilder: Respon
 	}
 
 	def onCompleted {
-		if (!done.getAndSet(true)) actor ! OnCompleted(responseBuilder.build)
+		if (!done.getAndSet(true)) AsyncHandlerActor.asyncHandlerActor ! OnCompleted(task, responseBuilder.build)
 	}
 
 	def onThrowable(throwable: Throwable) {
 		if (!done.getAndSet(true)) {
 			val errorMessage = Option(throwable.getMessage).getOrElse(throwable.getClass.getName)
 			if (logger.underlying.isInfoEnabled)
-				logger.warn(s"Request '$requestName' failed", throwable)
+				logger.warn(s"Request '${task.requestName}' failed", throwable)
 			else
-				logger.warn(s"Request '$requestName' failed: $errorMessage")
-			actor ! OnThrowable(responseBuilder.updateLastByteReceived(nanoTime).build, errorMessage)
+				logger.warn(s"Request '${task.requestName}' failed: $errorMessage")
+			AsyncHandlerActor.asyncHandlerActor ! OnThrowable(task, responseBuilder.updateLastByteReceived(nanoTime).build, errorMessage)
 		}
 	}
 }

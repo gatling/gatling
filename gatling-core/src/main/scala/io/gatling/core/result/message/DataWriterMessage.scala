@@ -37,8 +37,8 @@ case class RequestMessage(
 	responseStartDate: Long,
 	responseEndDate: Long,
 	status: Status,
-	message: Option[String] = None,
-	extraInfo: List[Any] = Nil) extends DataWriterMessage {
+	message: Option[String],
+	extraInfo: List[Any]) extends DataWriterMessage {
 	val recordType = RequestMessageType
 	def responseTime = responseEndDate - requestStartDate
 }
