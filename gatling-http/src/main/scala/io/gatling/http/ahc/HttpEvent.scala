@@ -15,20 +15,9 @@
  */
 package io.gatling.http.ahc
 
-import com.ning.http.client.Request
-
-import akka.actor.ActorRef
-import io.gatling.core.session.Session
-import io.gatling.http.check.HttpCheck
-import io.gatling.http.response.{ Response, ResponseBuilderFactory }
+import io.gatling.http.response.Response
 
 sealed trait HttpEvent
 
-case class AsyncHandlerActorState(session: Session,
-	request: Request,
-	requestName: String,
-	checks: List[HttpCheck],
-	responseBuilderFactory: ResponseBuilderFactory,
-	next: ActorRef) extends HttpEvent
-case class OnCompleted(response: Response) extends HttpEvent
-case class OnThrowable(response: Response, errorMessage: String) extends HttpEvent
+case class OnCompleted(task: HttpTask, response: Response) extends HttpEvent
+case class OnThrowable(task: HttpTask, response: Response, errorMessage: String) extends HttpEvent
