@@ -26,7 +26,7 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckOrder.Status
 import io.gatling.http.check.status.HttpStatusCheckBuilder.status
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.response.ResponseProcessor
+import io.gatling.http.response.ResponseTransformer
 
 object HttpRequestActionBuilder {
 
@@ -35,7 +35,7 @@ object HttpRequestActionBuilder {
 	 */
 	val DEFAULT_HTTP_STATUS_CHECK = status.find.in(Session => (200 to 210).success).build
 
-	def apply(requestName: Expression[String], requestFactory: RequestFactory, checks: List[HttpCheck], responseProcessor: Option[ResponseProcessor]) = {
+	def apply(requestName: Expression[String], requestFactory: RequestFactory, checks: List[HttpCheck], responseTransformer: Option[ResponseTransformer]) = {
 
 		val resolvedChecks = checks
 			.find(_.order == Status)
@@ -43,7 +43,7 @@ object HttpRequestActionBuilder {
 			.getOrElse(HttpRequestActionBuilder.DEFAULT_HTTP_STATUS_CHECK :: checks)
 			.sorted
 
-		new HttpRequestActionBuilder(requestName, requestFactory, resolvedChecks, responseProcessor)
+		new HttpRequestActionBuilder(requestName, requestFactory, resolvedChecks, responseTransformer)
 	}
 }
 
@@ -54,12 +54,12 @@ object HttpRequestActionBuilder {
  * @param requestBuilder the builder for the request that will be sent
  * @param next the next action to be executed
  */
-class HttpRequestActionBuilder(requestName: Expression[String], requestFactory: RequestFactory, checks: List[HttpCheck], responseProcessor: Option[ResponseProcessor]) extends ActionBuilder {
+class HttpRequestActionBuilder(requestName: Expression[String], requestFactory: RequestFactory, checks: List[HttpCheck], responseTransformer: Option[ResponseTransformer]) extends ActionBuilder {
 
 	private[gatling] def build(next: ActorRef): ActorRef = {
 
 		val httpProtocol = ProtocolRegistry.registry.getProtocol(HttpProtocol.default)
 
-		system.actorOf(Props(new HttpRequestAction(requestName, next, requestFactory, checks, responseProcessor, httpProtocol)))
+		system.actorOf(Props(new HttpRequestAction(requestName, next, requestFactory, checks, responseTransformer, httpProtocol)))
 	}
 }

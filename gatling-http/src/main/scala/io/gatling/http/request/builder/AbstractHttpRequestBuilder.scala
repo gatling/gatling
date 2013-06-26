@@ -28,7 +28,7 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.referer.RefererHandling
-import io.gatling.http.response.ResponseProcessor
+import io.gatling.http.response.ResponseTransformer
 import io.gatling.http.util.HttpHelper
 
 case class HttpAttributes(
@@ -40,7 +40,7 @@ case class HttpAttributes(
 	realm: Option[Expression[Realm]] = None,
 	virtualHost: Option[String] = None,
 	checks: List[HttpCheck] = Nil,
-	responseProcessor: Option[ResponseProcessor] = None)
+	responseTransformer: Option[ResponseTransformer] = None)
 
 object AbstractHttpRequestBuilder {
 
@@ -128,9 +128,9 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	def virtualHost(virtualHost: String): B = newInstance(httpAttributes.copy(virtualHost = Some(virtualHost)))
 
 	/**
-	 * @param processor processes the response before it's handled to the checks pipeline
+	 * @param responseTransformer transforms the response before it's handled to the checks pipeline
 	 */
-	def processResponse(processor: ResponseProcessor): B = newInstance(httpAttributes.copy(responseProcessor = Some(processor)))
+	def transformResponse(responseTransformer: ResponseTransformer): B = newInstance(httpAttributes.copy(responseTransformer = Some(responseTransformer)))
 
 	/**
 	 * This method actually fills the request builder to avoid race conditions
@@ -207,5 +207,5 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 */
 	def build: RequestFactory = (session: Session, protocol: HttpProtocol) => getAHCRequestBuilder(session, protocol).map(_.build)
 
-	def toActionBuilder = HttpRequestActionBuilder(httpAttributes.requestName, this.build, httpAttributes.checks, httpAttributes.responseProcessor)
+	def toActionBuilder = HttpRequestActionBuilder(httpAttributes.requestName, this.build, httpAttributes.checks, httpAttributes.responseTransformer)
 }

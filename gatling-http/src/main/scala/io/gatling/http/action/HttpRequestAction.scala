@@ -40,7 +40,7 @@ import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.referer.RefererHandling
-import io.gatling.http.response.{ ResponseBuilder, ResponseProcessor }
+import io.gatling.http.response.{ ResponseBuilder, ResponseTransformer }
 
 /**
  * This is an action that sends HTTP requests
@@ -57,10 +57,10 @@ class HttpRequestAction(
 	val next: ActorRef,
 	requestFactory: RequestFactory,
 	checks: List[HttpCheck],
-	responseProcessor: Option[ResponseProcessor],
+	responseTransformer: Option[ResponseTransformer],
 	protocol: HttpProtocol) extends Interruptable {
 
-	val responseBuilderFactory = ResponseBuilder.newResponseBuilder(checks, responseProcessor, protocol)
+	val responseBuilderFactory = ResponseBuilder.newResponseBuilder(checks, responseTransformer, protocol)
 
 	def execute(session: Session) {
 

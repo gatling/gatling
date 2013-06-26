@@ -22,7 +22,7 @@ import io.gatling.core.config.Protocol
 import io.gatling.core.result.message.Status
 import io.gatling.core.session.{ ELWrapper, Expression, Session }
 import io.gatling.core.util.RoundRobin
-import io.gatling.http.response.{ Response, ResponseProcessor }
+import io.gatling.http.response.{ Response, ResponseTransformer }
 import io.gatling.http.util.HttpHelper.{ buildProxy, buildRealm }
 
 /**
@@ -42,7 +42,7 @@ object HttpProtocol {
 		basicAuth = configuration.http.basicAuth.map(credentials => buildRealm(credentials.username, credentials.password).expression),
 		baseHeaders = Map.empty,
 		virtualHost = None,
-		responseProcessor = None,
+		responseTransformer = None,
 		extraInfoExtractor = None)
 }
 
@@ -65,7 +65,7 @@ case class HttpProtocol(
 	baseHeaders: Map[String, String],
 	basicAuth: Option[Expression[Realm]],
 	virtualHost: Option[String],
-	responseProcessor: Option[ResponseProcessor],
+	responseTransformer: Option[ResponseTransformer],
 	extraInfoExtractor: Option[(Status, Session, Request, Response) => List[Any]]) extends Protocol {
 
 	val roundRobinUrls = RoundRobin(baseURLs.toArray)

@@ -35,18 +35,18 @@ object ResponseBuilder {
 
 	val emptyBytes = Array.empty[Byte]
 
-	def newResponseBuilder(checks: List[HttpCheck], responseProcessor: Option[ResponseProcessor], protocol: HttpProtocol): ResponseBuilderFactory = {
+	def newResponseBuilder(checks: List[HttpCheck], responseTransformer: Option[ResponseTransformer], protocol: HttpProtocol): ResponseBuilderFactory = {
 
 		val checksumChecks = checks.collect {
 			case checksumCheck: ChecksumCheck => checksumCheck
 		}
 
 		val storeBodyParts = !protocol.discardResponseChunks || checks.exists(_.order == Body)
-		request: Request => new ResponseBuilder(request, checksumChecks, responseProcessor, storeBodyParts)
+		request: Request => new ResponseBuilder(request, checksumChecks, responseTransformer, storeBodyParts)
 	}
 }
 
-class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], responseProcessor: Option[ResponseProcessor], storeBodyParts: Boolean) {
+class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], responseProcessor: Option[ResponseTransformer], storeBodyParts: Boolean) {
 
 	var built = new AtomicBoolean(false)
 
