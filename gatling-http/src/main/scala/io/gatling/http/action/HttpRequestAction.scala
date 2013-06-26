@@ -31,11 +31,11 @@ package io.gatling.http.action
 
 import com.ning.http.client.Request
 
-import akka.actor.{ ActorRef, Props }
+import akka.actor.ActorRef
 import io.gatling.core.action.Interruptable
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.Failure
-import io.gatling.http.ahc.{ AsyncHandler, AsyncHandlerActor, AsyncHandlerActorState, RequestFactory }
+import io.gatling.http.ahc.{ HttpClient, HttpTask, RequestFactory }
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
@@ -73,15 +73,7 @@ class HttpRequestAction(
 			} else {
 				logger.info(s"Sending request '$resolvedRequestName': scenario '${newSession.scenarioName}', userId #${newSession.userId}")
 
-				val (sessionWithActor, httpActor) =
-					newSession(AsyncHandlerActor.httpActorAttributeName).asOption[ActorRef]
-						.map((newSession, _))
-						.getOrElse {
-							val httpActor = context.actorOf(Props(new AsyncHandlerActor(protocol)))
-							(newSession.set(AsyncHandlerActor.httpActorAttributeName, httpActor), httpActor)
-						}
-
-				httpActor ! AsyncHandlerActorState(sessionWithActor, request, resolvedRequestName, checks, responseBuilderFactory, next)
+				HttpClient.sendHttpRequest(HttpTask(session, request, resolvedRequestName, checks, responseBuilderFactory, protocol, next))
 			}
 		}
 

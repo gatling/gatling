@@ -20,15 +20,27 @@ import java.util.concurrent.{ Executors, ThreadFactory }
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory
 import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
 
-import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig }
+import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig, Request }
 import com.ning.http.client.providers.netty.{ NettyAsyncHttpProviderConfig, NettyConnectionsPool }
 import com.typesafe.scalalogging.slf4j.Logging
 
+import akka.actor.ActorRef
 import io.gatling.core.ConfigurationConstants._
 import io.gatling.core.action.system
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.config.HttpProtocol
+import io.gatling.http.response.ResponseBuilderFactory
 import io.gatling.http.util.SSLHelper.{ RichAsyncHttpClientConfigBuilder, newKeyManagers, newTrustManagers }
+
+case class HttpTask(session: Session,
+	request: Request,
+	requestName: String,
+	checks: List[HttpCheck],
+	responseBuilderFactory: ResponseBuilderFactory,
+	protocol: HttpProtocol,
+	next: ActorRef)
 
 object HttpClient extends Logging {
 
@@ -135,4 +147,21 @@ object HttpClient extends Logging {
 	}
 
 	lazy val default = newClient(None)
+
+	val httpClientAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.client"
+
+	def sendHttpRequest(task: HttpTask) {
+
+		val (newTask, httpClient) = if (task.protocol.shareClient)
+			(task, default)
+		else
+			task.session(httpClientAttributeName).asOption[AsyncHttpClient]
+				.map((task, _))
+				.getOrElse {
+					val httpClient = newClient(task.session)
+					(task.copy(session = task.session.set(httpClientAttributeName, httpClient)), httpClient)
+				}
+
+		httpClient.executeRequest(newTask.request, new AsyncHandler(newTask))
+	}
 }
