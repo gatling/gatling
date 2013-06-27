@@ -15,7 +15,7 @@
  */
 package io.gatling.recorder.har
 
-import java.net.{ URI, URL, URLEncoder }
+import java.net.{ URI, URL }
 
 import scala.concurrent.duration.DurationLong
 import scala.io.Source
@@ -27,7 +27,7 @@ import org.joda.time.DateTime
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.RichString
 import io.gatling.http.Headers.Names.CONTENT_TYPE
-import io.gatling.recorder.scenario.{ PauseElement, RequestBody, RequestBodyBytes, RequestBodyParams, RequestElement, ScenarioElement }
+import io.gatling.recorder.scenario.{ PauseElement, RequestBodyBytes, RequestBodyParams, RequestElement, ScenarioElement }
 import io.gatling.recorder.util.FiltersHelper.isRequestAccepted
 import io.gatling.recorder.util.RedirectHelper.isRequestRedirect
 

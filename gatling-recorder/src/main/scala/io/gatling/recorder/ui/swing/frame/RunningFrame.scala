@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.ui.frame
+package io.gatling.recorder.ui.swing.frame
 
 import scala.collection.JavaConversions.seqAsJavaList
 import scala.swing._
@@ -24,13 +24,12 @@ import scala.swing.event.ListSelectionChanged
 
 import com.typesafe.scalalogging.slf4j.Logging
 
-import io.gatling.recorder.controller.RecorderController
-import io.gatling.recorder.ui.component.TextAreaPanel
-import io.gatling.recorder.ui.info._
-import io.gatling.recorder.ui.Commons.iconList
-import io.gatling.recorder.ui.util.UIHelper._
+import io.gatling.recorder.ui._
+import io.gatling.recorder.ui.swing.component.TextAreaPanel
+import io.gatling.recorder.ui.swing.Commons.iconList
+import io.gatling.recorder.ui.swing.util.UIHelper._
 
-class RunningFrame(controller: RecorderController) extends MainFrame with Logging {
+class RunningFrame(frontend: RecorderFrontend) extends MainFrame with Logging {
 
 	/************************************/
 	/**           COMPONENTS           **/
@@ -39,9 +38,9 @@ class RunningFrame(controller: RecorderController) extends MainFrame with Loggin
 	/* Top panel components */
 	private val tagField = new TextField(15)
 	private val tagButton = Button("Add")(addTag)
-	private val clearButton = Button("Clear")(controller.clearRecorderState)
-	private val cancelButton = Button("Cancel") { controller.clearRecorderState; controller.stopRecording }
-	private val stopButton = Button("Stop & Save")(controller.stopRecording)
+	private val clearButton = Button("Clear"){ clearState; frontend.clearRecorderState }
+	private val cancelButton = Button("Cancel")(frontend.stopRecording(false))
+	private val stopButton = Button("Stop & Save")(frontend.stopRecording(true))
 
 	/* Center panel components */
 	private val initialSize = (472, 150)
@@ -147,7 +146,7 @@ class RunningFrame(controller: RecorderController) extends MainFrame with Loggin
 	 */
 	private def addTag {
 		if (!tagField.text.isEmpty) {
-			controller.addTag(tagField.text)
+			frontend.addTag(tagField.text)
 			tagField.clear
 		}
 	}
@@ -172,6 +171,7 @@ class RunningFrame(controller: RecorderController) extends MainFrame with Loggin
 	def clearState {
 		events.listData = Seq.empty
 		infoPanels.foreach(_.textArea.clear)
+		tagField.clear
 	}
 
 	/**

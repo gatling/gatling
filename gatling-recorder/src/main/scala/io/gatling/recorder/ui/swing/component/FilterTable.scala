@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.ui.component
+package io.gatling.recorder.ui.swing.component
 
 import java.awt.{ Dimension, Component, Color, BorderLayout }
 import java.awt.event.{ MouseListener, MouseEvent, MouseAdapter, ActionListener, ActionEvent }

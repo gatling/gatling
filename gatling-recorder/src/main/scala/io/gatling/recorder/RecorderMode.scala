@@ -13,13 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.ui
+package io.gatling.recorder
 
-import scala.swing.Swing.Icon
+sealed trait RecorderMode { def name: String }
 
-object Commons {
-	val logoSmall = Icon(getClass.getResource("img/logo_small.png"))
+case object Proxy extends RecorderMode { val name = "HTTP Proxy" }
 
-	private val iconsFiles = List("img/fav_small.png", "img/fav_big.png", "img/picto_small.png", "img/picto_big.png")
-	val iconList = iconsFiles.map(getClass.getResource).map(Icon(_).getImage)
-}
+case object Har extends RecorderMode { val name = "HAR Converter" }

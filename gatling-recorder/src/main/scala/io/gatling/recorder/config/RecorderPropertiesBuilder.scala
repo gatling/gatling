@@ -15,7 +15,7 @@
  */
 package io.gatling.recorder.config
 
-import java.util.List
+import java.util.{ List => JList }
 
 import scala.collection.mutable
 
@@ -27,9 +27,9 @@ class RecorderPropertiesBuilder {
 
 	def filterStrategy(strategy: String) { props += FILTER_STRATEGY -> strategy }
 
-	def patterns(patterns: List[String]) { props += PATTERNS -> patterns }
+	def patterns(patterns: JList[String]) { props += PATTERNS -> patterns }
 
-	def patternsType(patternsType: List[String]) { props += PATTERNS_TYPE -> patternsType }
+	def patternsType(patternsType: JList[String]) { props += PATTERNS_TYPE -> patternsType }
 
 	def automaticReferer(status: Boolean) { props += AUTOMATIC_REFERER -> status }
 
