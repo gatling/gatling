@@ -15,7 +15,6 @@
  */
 package io.gatling.http.ahc
 
-import java.lang.System.nanoTime
 import java.util.concurrent.atomic.AtomicBoolean
 
 import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, ProgressAsyncHandler }
@@ -39,29 +38,29 @@ class AsyncHandler(task: HttpTask) extends ProgressAsyncHandler[Unit] with Loggi
 	private val done = new AtomicBoolean(false)
 
 	def onHeaderWriteCompleted = {
-		if (!done.get) responseBuilder.updateLastByteSent(nanoTime)
+		if (!done.get) responseBuilder.updateLastByteSent
 		CONTINUE
 	}
 
 	def onContentWriteCompleted = {
-		if (!done.get) responseBuilder.updateLastByteSent(nanoTime)
+		if (!done.get) responseBuilder.updateLastByteSent
 		CONTINUE
 	}
 
 	def onContentWriteProgress(amount: Long, current: Long, total: Long) = CONTINUE
 
 	def onStatusReceived(status: HttpResponseStatus) = {
-		if (!done.get) responseBuilder.updateFirstByteReceived(nanoTime).accumulate(status)
+		if (!done.get) responseBuilder.accumulate(status)
 		CONTINUE
 	}
 
 	def onHeadersReceived(headers: HttpResponseHeaders) = {
-		if (!done.get) responseBuilder.updateLastByteReceived(nanoTime).accumulate(headers)
+		if (!done.get) responseBuilder.accumulate(headers)
 		CONTINUE
 	}
 
 	def onBodyPartReceived(bodyPart: HttpResponseBodyPart) = {
-		if (!done.get) responseBuilder.updateLastByteReceived(nanoTime).accumulate(bodyPart)
+		if (!done.get) responseBuilder.accumulate(bodyPart)
 		CONTINUE
 	}
 
@@ -76,7 +75,7 @@ class AsyncHandler(task: HttpTask) extends ProgressAsyncHandler[Unit] with Loggi
 				logger.warn(s"Request '${task.requestName}' failed", throwable)
 			else
 				logger.warn(s"Request '${task.requestName}' failed: $errorMessage")
-			AsyncHandlerActor.asyncHandlerActor ! OnThrowable(task, responseBuilder.updateLastByteReceived(nanoTime).build, errorMessage)
+			AsyncHandlerActor.asyncHandlerActor ! OnThrowable(task, responseBuilder.updateLastByteReceived.build, errorMessage)
 		}
 	}
 }

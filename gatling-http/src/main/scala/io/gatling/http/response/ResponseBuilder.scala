@@ -64,32 +64,30 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 	} else
 		Map.empty[String, MessageDigest]
 
+	def updateLastByteSent = {
+		lastByteSent = nowMillis
+		this
+	}
+
+	def updateLastByteReceived = {
+		lastByteReceived = nowMillis
+		this
+	}
+
 	def accumulate(status: HttpResponseStatus) = {
 		this.status = status
-		this
+		val now = nowMillis
+		firstByteReceived = now
+		lastByteReceived = now
 	}
 
 	def accumulate(headers: HttpResponseHeaders) = {
 		this.headers = headers
-		this
-	}
-
-	def updateLastByteSent(nanos: Long) = {
-		lastByteSent = computeTimeMillisFromNanos(nanos)
-		this
-	}
-
-	def updateFirstByteReceived(nanos: Long) = {
-		firstByteReceived = computeTimeMillisFromNanos(nanos)
-		this
-	}
-
-	def updateLastByteReceived(nanos: Long) = {
-		lastByteReceived = computeTimeMillisFromNanos(nanos)
-		this
+		updateLastByteReceived
 	}
 
 	def accumulate(bodyPart: HttpResponseBodyPart) = {
+		updateLastByteReceived
 		if (storeBodyParts) bodies.add(bodyPart)
 		if (!checksumChecks.isEmpty) digests.values.foreach(_.update(bodyPart.getBodyByteBuffer))
 		this
@@ -97,6 +95,7 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 
 	def build: Response = {
 		// time measurement is imprecise due to multi-core nature
+		// moreover, there seems to be a bug in AHC where ProgressListener might be called AFTER regular methods
 		// ensure request doesn't end before starting
 		lastByteSent = max(lastByteSent, firstByteSent)
 		// ensure response doesn't start before request ends
