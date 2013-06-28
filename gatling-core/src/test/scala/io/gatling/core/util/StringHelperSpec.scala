@@ -28,7 +28,7 @@ import io.gatling.core.util.StringHelper.RichString
 @RunWith(classOf[JUnitRunner])
 class StringHelperSpec extends Specification {
 
-	val fileBytes = FileUtils.readFileToByteArray(new File("src/test/resources/test.json"))
+	val fileBytes = FileUtils.readFileToByteArray(new File("src/test/resources/emoticon.png"))
 
 	"bytes2Hex" should {
 
@@ -36,14 +36,14 @@ class StringHelperSpec extends Specification {
 			val md = MessageDigest.getInstance("SHA-1")
 			md.update(fileBytes)
 			val digestBytes = md.digest
-			StringHelper.bytes2Hex(digestBytes) must beEqualTo("9d6540f78f2264d947034a9fc7247e2fe9bcc780")
+			StringHelper.bytes2Hex(digestBytes) must beEqualTo("665a5bf97191eb3d8b2a20d833182313343af073")
 		}
 
 		"correctly compute file md5" in {
 			val md = MessageDigest.getInstance("MD5")
 			md.update(fileBytes)
 			val digestBytes = md.digest
-			StringHelper.bytes2Hex(digestBytes) must beEqualTo("4d824413f8fbfe5cc7d69b8898c50acd")
+			StringHelper.bytes2Hex(digestBytes) must beEqualTo("08f6575e7712febe2f529e1ea2c0179e")
 		}
 	}
 
