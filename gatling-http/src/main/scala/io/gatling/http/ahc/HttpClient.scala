@@ -17,11 +17,7 @@ package io.gatling.http.ahc
 
 import java.util.concurrent.{ Executors, ThreadFactory }
 
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory
-import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
-
 import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig, Request }
-import com.ning.http.client.providers.netty.{ NettyAsyncHttpProviderConfig, NettyConnectionsPool }
 import com.typesafe.scalalogging.slf4j.Logging
 
 import akka.actor.ActorRef
@@ -44,40 +40,23 @@ case class HttpTask(session: Session,
 
 object HttpClient extends Logging {
 
-	// set up Netty LoggerFactory for slf4j instead of default JDK
-	InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
-
-	object SharedResources {
-
-		val reaper = Executors.newScheduledThreadPool(Runtime.getRuntime.availableProcessors, new ThreadFactory {
-			override def newThread(r: Runnable): Thread = {
-				val t = new Thread(r, "AsyncHttpClient-Reaper")
-				t.setDaemon(true)
-				t
-			}
-		})
-
-		val applicationThreadPool = Executors.newCachedThreadPool(new ThreadFactory {
-			override def newThread(r: Runnable) = {
-				val t = new Thread(r, "Netty Thread")
-				t.setDaemon(true)
-				t
-			}
-		})
-
-		val connectionsPool = new NettyConnectionsPool(configuration.http.ahc.maximumConnectionsTotal,
-			configuration.http.ahc.maximumConnectionsPerHost,
-			configuration.http.ahc.idleConnectionInPoolTimeOutInMs,
-			configuration.http.ahc.maxConnectionLifeTimeInMs,
-			configuration.http.ahc.allowSslConnectionPool)
-
-		val nettyConfig = {
-			val numWorkers = configuration.http.ahc.ioThreadMultiplier * Runtime.getRuntime.availableProcessors
-			val socketChannelFactory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool, applicationThreadPool, numWorkers)
-			system.registerOnTermination(socketChannelFactory.releaseExternalResources)
-			new NettyAsyncHttpProviderConfig().addProperty(NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY, socketChannelFactory)
+	val applicationThreadPool = Executors.newCachedThreadPool(new ThreadFactory {
+		override def newThread(r: Runnable) = {
+			val t = new Thread(r, "Netty Thread")
+			t.setDaemon(true)
+			t
 		}
-	}
+	})
+
+	val reaper = Executors.newScheduledThreadPool(Runtime.getRuntime.availableProcessors, new ThreadFactory {
+		override def newThread(r: Runnable): Thread = {
+			val t = new Thread(r, "AsyncHttpClient-Reaper")
+			t.setDaemon(true)
+			t
+		}
+	})
+
+	val provider = HttpProvider(applicationThreadPool)
 
 	val defaultAhcConfig = {
 		val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
@@ -96,10 +75,10 @@ object HttpClient extends Logging {
 			.setUseProxyProperties(configuration.http.ahc.useProxyProperties)
 			.setUserAgent(configuration.http.ahc.userAgent)
 			.setUseRawUrl(configuration.http.ahc.useRawUrl)
-			.setExecutorService(SharedResources.applicationThreadPool)
-			.setScheduledExecutorService(SharedResources.reaper)
-			.setAsyncHttpClientProviderConfig(SharedResources.nettyConfig)
-			.setConnectionsPool(SharedResources.connectionsPool)
+			.setExecutorService(applicationThreadPool)
+			.setScheduledExecutorService(reaper)
+			.setAsyncHttpClientProviderConfig(provider.config)
+			.setConnectionsPool(provider.connectionsPool)
 			.setRfc6265CookieEncoding(configuration.http.ahc.rfc6265CookieEncoding)
 
 		val trustManagers = configuration.http.ssl.trustStore
