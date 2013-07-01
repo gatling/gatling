@@ -8,7 +8,7 @@ import akka.util.duration._
 
 class AdvancedExampleSimulation extends Simulation {
 
-	val httpConf = httpConfig.baseURL("http://excilys-bank-web.cloudfoundry.com").disableFollowRedirect
+	val httpConf = httpConfig.baseURL("http://excilysbank.gatling.cloudbees.net").disableFollowRedirect
 
 	setUp(
 		SomeScenario.scn.users(10).ramp(10).protocolConfig(httpConf),
