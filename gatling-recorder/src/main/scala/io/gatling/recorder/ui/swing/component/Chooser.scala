@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.ui.component
+package io.gatling.recorder.ui.swing.component
 
 import java.awt.FileDialog
 
@@ -28,7 +28,7 @@ object Chooser {
 		System.setProperty("apple.awt.fileDialogForDirectories", "true")
 	}
 
-	def apply(mode: FileChooser.SelectionMode.Value, frame: Frame) = {
+	def apply(mode: FileChooser.SelectionMode.Value, frame: Frame): Chooser = {
 		if (isMacOSX)
 			new ChooserUsingFileDialog(frame)
 		else
@@ -40,7 +40,7 @@ sealed trait Chooser {
 	def selection: Option[String]
 }
 
-class ChooserUsingFileDialog(frame: Frame) extends Chooser {
+private class ChooserUsingFileDialog(frame: Frame) extends Chooser {
 	val fileDialog = new FileDialog(frame.peer)
 
 	def selection = {
@@ -49,7 +49,7 @@ class ChooserUsingFileDialog(frame: Frame) extends Chooser {
 	}
 }
 
-class ChooserUsingFileChooser(mode: FileChooser.SelectionMode.Value) extends Chooser {
+private class ChooserUsingFileChooser(mode: FileChooser.SelectionMode.Value) extends Chooser {
 	val fileChooser = new FileChooser { fileSelectionMode = mode }
 
 	def selection = {

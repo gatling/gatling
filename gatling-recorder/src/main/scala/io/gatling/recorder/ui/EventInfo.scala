@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.ui.info
-
-import java.nio.charset.Charset
-
-import scala.concurrent.duration.{ DurationLong, FiniteDuration }
-
-import org.jboss.netty.handler.codec.http.{ HttpMessage, HttpRequest, HttpResponse }
+package io.gatling.recorder.ui
 
 import io.gatling.recorder.config.RecorderConfiguration.configuration
+import java.nio.charset.Charset
+import org.jboss.netty.handler.codec.http.{ HttpMessage, HttpRequest, HttpResponse }
+import scala.concurrent.duration.{ DurationLong, FiniteDuration }
 
 sealed trait EventInfo
 

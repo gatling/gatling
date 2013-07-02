@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.ui.component
+package io.gatling.recorder.ui.swing.component
 
 import scala.swing._
 import scala.swing.BorderPanel.Position._
