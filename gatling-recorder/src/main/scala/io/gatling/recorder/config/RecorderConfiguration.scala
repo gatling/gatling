@@ -50,7 +50,7 @@ object RecorderConfiguration extends Logging {
 
 	GatlingConfiguration.setUp()
 
-	def initialSetup(props: mutable.Map[String, _ <: Any], recorderConfigFile: Option[File]) {
+	def initialSetup(props: mutable.Map[String, _], recorderConfigFile: Option[File]) {
 		val classLoader = getClass.getClassLoader
 		val defaultsConfig = ConfigFactory.parseResources(classLoader, "recorder-defaults.conf")
 		configFile = recorderConfigFile.map(_.jfile).orElse(Option(classLoader.getResource("recorder.conf")).map(url => new JFile(url.getFile)))
@@ -65,21 +65,22 @@ object RecorderConfiguration extends Logging {
 		logger.debug(s"configured $configuration")
 	}
 
-	def reload(props: mutable.Map[String, _ <: Any]) {
+	def reload(props: mutable.Map[String, _]) {
 		val frameConfig = ConfigFactory.parseMap(props)
 		buildConfig(frameConfig.withFallback(configuration.config))
 		logger.debug(s"reconfigured $configuration")
 	}
 
 	def saveConfig {
+		// Removes first empty line and remove the extra level of indentation
+		def cleanOutput(configToSave: String) = {
+			configToSave.split(eol).drop(1).map(remove4Spaces.replaceFirstIn(_, "")).mkString(eol)
+		}
+
 		// Remove request bodies folder configuration (transient), keep only Gatling-related properties
 		val configToSave = configuration.config.withoutPath(REQUEST_BODIES_FOLDER).root.withOnlyKey(CONFIG_ROOT)
 		configFile.foreach(file => withCloseable(File(file).bufferedWriter)(_.write(cleanOutput(configToSave.render(renderOptions)))))
 	}
-
-	// Removes first empty line and remove the extra level of indentation
-	private def cleanOutput(configToSave: String) =
-		configToSave.split(eol).drop(1).map(remove4Spaces.replaceFirstIn(_, "")).mkString(eol)
 
 	private def buildConfig(config: Config) {
 		def buildPatterns(patterns: List[String], patternsType: List[String]) = {
@@ -90,8 +91,7 @@ object RecorderConfiguration extends Logging {
 		}
 
 		def getRequestBodiesFolder =
-			if (config.hasPath(REQUEST_BODIES_FOLDER))
-				config.getString(REQUEST_BODIES_FOLDER)
+			if (config.hasPath(REQUEST_BODIES_FOLDER)) config.getString(REQUEST_BODIES_FOLDER)
 			else GatlingFiles.requestBodiesDirectory.toString
 
 		configuration = RecorderConfiguration(

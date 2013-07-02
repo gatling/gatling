@@ -13,40 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.ui.frame
+package io.gatling.recorder.ui.swing.frame
 
 import java.nio.charset.Charset
 
 import scala.collection.JavaConversions.{ collectionAsScalaIterable, seqAsJavaList }
 import scala.swing._
 import scala.swing.BorderPanel.Position._
+import scala.swing.ListView.Renderer
 import scala.swing.Swing.pair2Dimension
 import scala.swing.event.{ KeyReleased, SelectionChanged }
 import scala.util.Try
 
 import io.gatling.core.util.StringHelper.RichString
+import io.gatling.recorder.{ Har, Proxy, RecorderMode }
 import io.gatling.recorder.config.{ RecorderConfiguration, RecorderPropertiesBuilder }
 import io.gatling.recorder.config.RecorderConfiguration.configuration
-import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.enumeration.FilterStrategy
-import io.gatling.recorder.ui.Commons.{ iconList, logoSmall }
-import io.gatling.recorder.ui.component.{ Chooser, FilterTable }
-import io.gatling.recorder.ui.frame.ConfigurationFrame.{ HarMode, HttpMode }
-import io.gatling.recorder.ui.util.UIHelper._
-import io.gatling.recorder.ui.frame.ValidationHelper._
+import io.gatling.recorder.ui.RecorderFrontend
+import io.gatling.recorder.ui.swing.Commons.{ iconList, logoSmall }
+import io.gatling.recorder.ui.swing.component.{ Chooser, FilterTable }
+import io.gatling.recorder.ui.swing.util.UIHelper._
+import io.gatling.recorder.ui.swing.frame.ValidationHelper._
 
-object ConfigurationFrame {
-	val HttpMode = "HTTP Proxy"
-	val HarMode = "HAR Converter"
-}
-class ConfigurationFrame(controller: RecorderController) extends MainFrame {
+class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 
 	/************************************/
 	/**           COMPONENTS           **/
 	/************************************/
 
 	/* Top panel components */
-	val modeSelector = new ComboBox[String](Seq(HttpMode, HarMode)) { selection.index = 0 }
+	private val modeSelector = new ComboBox[RecorderMode](Seq(Proxy, Har)) {
+		selection.index = 0
+		renderer = Renderer(_.name)
+	}
 
 	/* Network panel components */
 	private val localProxyHttpPort = new TextField(4)
@@ -58,9 +58,9 @@ class ConfigurationFrame(controller: RecorderController) extends MainFrame {
 	private val outgoingProxyPassword = new TextField(10) { enabled = false }
 
 	/* Har Panel components */
-	val harFilePath = new TextField(66)
+	private val harPath = new TextField(66)
 	private val harFileChooser = Chooser(FileChooser.SelectionMode.FilesOnly, this)
-	private val harFileBrowserButton = Button("Browse")(harFileChooser.selection.foreach(harFilePath.text = _))
+	private val harFileBrowserButton = Button("Browse")(harFileChooser.selection.foreach(harPath.text = _))
 
 	/* Simulation panel components */
 	private val simulationPackage = new TextField(30)
@@ -149,7 +149,7 @@ class ConfigurationFrame(controller: RecorderController) extends MainFrame {
 
 				val fileSelection = new LeftAlignedFlowPanel {
 					contents += new Label("HAR File : ")
-					contents += harFilePath
+					contents += harPath
 					contents += harFileBrowserButton
 				}
 
@@ -236,10 +236,10 @@ class ConfigurationFrame(controller: RecorderController) extends MainFrame {
 	reactions += {
 		case SelectionChanged(`modeSelector`) =>
 			modeSelector.selection.item match {
-				case HttpMode =>
+				case Proxy =>
 					root.center.network.visible = true
 					root.center.har.visible = false
-				case HarMode =>
+				case Har =>
 					root.center.network.visible = false
 					root.center.har.visible = true
 			}
@@ -293,6 +293,10 @@ class ConfigurationFrame(controller: RecorderController) extends MainFrame {
 			updateValidationStatus(field.asInstanceOf[TextField])
 			start.enabled = ValidationHelper.validationStatus
 	}
+
+	def selectedMode = modeSelector.selection.item
+
+	def harFilePath = harPath.text
 
 	/****************************************/
 	/**           CONFIGURATION            **/
@@ -380,6 +384,6 @@ class ConfigurationFrame(controller: RecorderController) extends MainFrame {
 			RecorderConfiguration.saveConfig
 		}
 
-		controller.startRecording
+		frontend.startRecording
 	}
 }
