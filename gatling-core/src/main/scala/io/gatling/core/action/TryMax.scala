@@ -58,7 +58,7 @@ class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next:
 		val counterValue = incrementedSession.loopCounterValue(counterName)
 		val status = incrementedSession.statusStack.head
 
-		if ((status == OK && counterValue > 1) || (status == KO && counterValue >= times))
+		if ((status == OK && counterValue > 0) || (status == KO && counterValue >= times))
 			next ! incrementedSession.exitTryMax.exitLoop // succeed or exit on exceed
 		else
 			loopNext ! incrementedSession.resetStatus // loop
