@@ -75,7 +75,7 @@ case class HttpResponse(
 	def getCookies = receivedResponse.getCookies
 	def hasResponseStatus = receivedResponse.hasResponseStatus
 	def hasResponseHeaders = receivedResponse.hasResponseHeaders
-	def hasResponseBody = receivedResponse.hasResponseBody
+	def hasResponseBody = bytes.length != 0
 }
 
 class DelegatingReponse(delegate: Response) extends Response {
