@@ -42,24 +42,24 @@ class Pause(pauseDuration: Expression[Long], val next: ActorRef) extends Interru
 
 		pauseDuration(session) match {
 			case Success(durationInMillis) =>
-				val timeShift = session.timeShift
+				val drift = session.drift
 
-				if (durationInMillis > timeShift) {
+				if (durationInMillis > drift) {
 					// can make pause
-					val durationMinusTimeShift = durationInMillis - timeShift
-					logger.info(s"Pausing for ${durationInMillis}ms (real=${durationMinusTimeShift}ms)")
+					val durationMinusDrift = durationInMillis - drift
+					logger.info(s"Pausing for ${durationInMillis}ms (real=${durationMinusDrift}ms)")
 
 					val pauseStart = nowMillis
-					system.scheduler.scheduleOnce(durationMinusTimeShift milliseconds) {
-						val newTimeShift = nowMillis - pauseStart - durationMinusTimeShift
-						next ! session.setTimeShift(newTimeShift)
+					system.scheduler.scheduleOnce(durationMinusDrift milliseconds) {
+						val newDrift = nowMillis - pauseStart - durationMinusDrift
+						next ! session.setDrift(newDrift)
 					}
 
 				} else {
-					// time shift is too big
-					val remainingTimeShift = timeShift - durationInMillis
-					logger.info(s"can't pause (remaining time shift=${remainingTimeShift}ms)")
-					next ! session.setTimeShift(remainingTimeShift)
+					// drift is too big
+					val remainingDrift = drift - durationInMillis
+					logger.info(s"can't pause (remaining drift=${remainingDrift}ms)")
+					next ! session.setDrift(remainingDrift)
 				}
 
 			case Failure(msg) =>

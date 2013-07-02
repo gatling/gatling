@@ -54,7 +54,7 @@ case class Session(
 	userId: Int,
 	attributes: Map[String, Any] = Map.empty,
 	startDate: Long = 0L,
-	timeShift: Long = 0L,
+	drift: Long = 0L,
 	groupStack: List[GroupStackEntry] = Nil,
 	statusStack: List[Status] = List(OK),
 	interruptStack: List[PartialFunction[Session, Unit]] = Nil,
@@ -76,8 +76,8 @@ case class Session(
 	def removeAll(keys: String*) = copy(attributes = attributes -- keys)
 	def contains(attributeKey: String) = attributes.contains(attributeKey)
 
-	private[gatling] def setTimeShift(timeShift: Long) = copy(timeShift = timeShift)
-	private[gatling] def increaseTimeShift(time: Long) = copy(timeShift = time + timeShift)
+	private[gatling] def setDrift(drift: Long) = copy(drift = drift)
+	private[gatling] def increaseDrift(time: Long) = copy(drift = time + drift)
 
 	private[gatling] def enterGroup(groupName: String) = copy(groupStack = GroupStackEntry(groupName, nowMillis) :: groupStack, statusStack = OK :: statusStack)
 	private[gatling] def exitGroup = statusStack match {
