@@ -17,11 +17,9 @@ package io.gatling.core.action
 
 import scala.concurrent.duration.DurationLong
 
+import akka.actor.ActorRef
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.validation.{ Failure, Success }
-
-import akka.actor.ActorRef
 
 /**
  * PauseAction provides a convenient means to implement pause actions based on random distributions.
@@ -29,7 +27,7 @@ import akka.actor.ActorRef
  * @param generateDelayInMillis a function that can be used to generate a delays for the pause action
  * @param next the next action to execute, which will be notified after the pause is complete
  */
-class Pause(pauseDuration: Expression[Long], val next: ActorRef) extends Interruptable {
+class Pause(pauseDuration: Expression[Long], val next: ActorRef) extends Interruptable with Failable {
 
 	/**
 	 * Generates a duration if required or use the one given and defer
@@ -37,34 +35,31 @@ class Pause(pauseDuration: Expression[Long], val next: ActorRef) extends Interru
 	 *
 	 * @param session the session of the virtual user
 	 */
-	def execute(session: Session) {
-		import system.dispatcher
+	def executeOrFail(session: Session) = {
 
-		pauseDuration(session) match {
-			case Success(durationInMillis) =>
-				val drift = session.drift
+		def schedule(durationInMillis: Long) = {
+			import system.dispatcher
+			val drift = session.drift
 
-				if (durationInMillis > drift) {
-					// can make pause
-					val durationMinusDrift = durationInMillis - drift
-					logger.info(s"Pausing for ${durationInMillis}ms (real=${durationMinusDrift}ms)")
+			if (durationInMillis > drift) {
+				// can make pause
+				val durationMinusDrift = durationInMillis - drift
+				logger.info(s"Pausing for ${durationInMillis}ms (real=${durationMinusDrift}ms)")
 
-					val pauseStart = nowMillis
-					system.scheduler.scheduleOnce(durationMinusDrift milliseconds) {
-						val newDrift = nowMillis - pauseStart - durationMinusDrift
-						next ! session.setDrift(newDrift)
-					}
-
-				} else {
-					// drift is too big
-					val remainingDrift = drift - durationInMillis
-					logger.info(s"can't pause (remaining drift=${remainingDrift}ms)")
-					next ! session.setDrift(remainingDrift)
+				val pauseStart = nowMillis
+				system.scheduler.scheduleOnce(durationMinusDrift milliseconds) {
+					val newDrift = nowMillis - pauseStart - durationMinusDrift
+					next ! session.setDrift(newDrift)
 				}
 
-			case Failure(msg) =>
-				logger.error(msg)
-				next ! session
+			} else {
+				// drift is too big
+				val remainingDrift = drift - durationInMillis
+				logger.info(s"can't pause (remaining drift=${remainingDrift}ms)")
+				next ! session.setDrift(remainingDrift)
+			}
 		}
+
+		pauseDuration(session).map(schedule)
 	}
 }

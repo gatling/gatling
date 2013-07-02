@@ -15,10 +15,8 @@
  */
 package io.gatling.core.action
 
-import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.{ Failure, Success }
-
 import akka.actor.ActorRef
+import io.gatling.core.session.{ Expression, Session }
 
 /**
  * A conditional Action
@@ -29,20 +27,15 @@ import akka.actor.ActorRef
  * @param elseNext chain of actions executed if condition evaluates to false
  * @param next chain of actions executed if condition evaluates to false and elseNext equals None
  */
-class If(condition: Expression[Boolean], thenNext: ActorRef, elseNext: ActorRef, val next: ActorRef) extends Interruptable {
+class If(condition: Expression[Boolean], thenNext: ActorRef, elseNext: ActorRef, val next: ActorRef) extends Interruptable with Failable {
 
 	/**
 	 * Evaluates the condition and decides what to do next
 	 *
 	 * @param session the session of the virtual user
 	 */
-	def execute(session: Session) {
-
-		val nextAction = condition(session) match {
-			case Success(true) => thenNext
-			case Success(false) => elseNext
-			case Failure(message) => logger.error(s"Could not resolve loop condition: $message"); next
-		}
-		nextAction ! session
+	def executeOrFail(session: Session) = condition(session).map { condition =>
+		val n = if (condition) thenNext else elseNext
+		n ! session
 	}
 }

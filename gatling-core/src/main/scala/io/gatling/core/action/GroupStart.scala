@@ -17,17 +17,8 @@ package io.gatling.core.action
 
 import akka.actor.ActorRef
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.{ Failure, Success }
 
-class GroupStart(groupName: Expression[String], val next: ActorRef) extends Chainable {
+class GroupStart(groupName: Expression[String], val next: ActorRef) extends Chainable with Failable {
 
-	def execute(session: Session) {
-
-		val resolvedGroupName = groupName(session) match {
-			case Success(name) => name
-			case Failure(message) => logger.error(s"Could not resolve group name: $message"); "no-group-name"
-		}
-
-		next ! session.enterGroup(resolvedGroupName)
-	}
+	def executeOrFail(session: Session) = groupName(session).map(name => next ! session.enterGroup(name))
 }

@@ -17,7 +17,6 @@ package io.gatling.core.action
 
 import akka.actor.ActorRef
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.{ Failure, Success }
 
 /**
  * Hook for interacting with the Session
@@ -26,23 +25,12 @@ import io.gatling.core.validation.{ Failure, Success }
  * @param sessionFunction a function for manipulating the Session
  * @param next the action to be executed after this one
  */
-class SessionHook(sessionFunction: Expression[Session], val next: ActorRef) extends Chainable {
+class SessionHook(sessionFunction: Expression[Session], val next: ActorRef) extends Chainable with Failable {
 
 	/**
 	 * Applies the function to the Session
 	 *
 	 * @param session the session of the virtual user
 	 */
-	def execute(session: Session) {
-
-		val newSession = sessionFunction(session) match {
-			case Success(newSession) => newSession
-			case Failure(message) =>
-				logger.error(s"Could not resolve sessionFunction: $message")
-				session
-
-		}
-
-		next ! newSession
-	}
+	def executeOrFail(session: Session) = sessionFunction(session).map(newSession => next ! newSession)
 }
