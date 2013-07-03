@@ -242,6 +242,6 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	def errors(requestName: Option[String], group: Option[Group]): Seq[(String, Int, Int)] = {
 		val buff = resultsHolder.getErrorsBuffers(requestName, group)
 		val total = buff.foldLeft(0)(_ + _._2)
-		buff.toSeq.map { case (name, count) => (name, count, count * 100 / total) }.sortBy(_._2)
+		buff.toSeq.map { case (name, count) => (name, count, count * 100 / total) }.sortWith(_._2 > _._2)
 	}
 }
