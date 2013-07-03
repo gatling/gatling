@@ -15,7 +15,7 @@
  */
 package io.gatling.charts.result.reader
 
-import io.gatling.charts.result.reader.buffers.{ GeneralStatsBuffers, LatencyPerSecBuffers, NamesBuffers, RequestsPerSecBuffers, ResponseTimePerSecBuffers, ResponseTimeRangeBuffers, SessionDeltaPerSecBuffers, TransactionsPerSecBuffers }
+import io.gatling.charts.result.reader.buffers.{ ErrorsBuffers, GeneralStatsBuffers, LatencyPerSecBuffers, NamesBuffers, RequestsPerSecBuffers, ResponseTimePerSecBuffers, ResponseTimeRangeBuffers, SessionDeltaPerSecBuffers, TransactionsPerSecBuffers }
 
 class ResultsHolder(minTime: Long, maxTime: Long)
 	extends GeneralStatsBuffers(maxTime - minTime)
@@ -25,7 +25,8 @@ class ResultsHolder(minTime: Long, maxTime: Long)
 	with ResponseTimePerSecBuffers
 	with ResponseTimeRangeBuffers
 	with SessionDeltaPerSecBuffers
-	with TransactionsPerSecBuffers {
+	with TransactionsPerSecBuffers
+	with ErrorsBuffers {
 
 	def addScenarioRecord(record: ScenarioRecord) {
 		addSessionBuffers(record)
@@ -47,5 +48,6 @@ class ResultsHolder(minTime: Long, maxTime: Long)
 		addRequestName(record)
 		updateGeneralStatsBuffers(record)
 		updateResponseTimeRangeBuffer(record)
+		updateErrorBuffers(record)
 	}
 }

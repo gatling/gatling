@@ -71,16 +71,11 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 			componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
 		}
 
-		def statisticsComponent: Component = componentLibrary.getNumberOfRequestsChartComponent
-
-		def statisticsTableComponent: Component = new StatisticsTableComponent
-
-		def indicatorChartComponent: Component = componentLibrary.getRequestDetailsIndicatorChartComponent
-
 		val template = new GlobalPageTemplate(
-			statisticsComponent,
-			indicatorChartComponent,
-			statisticsTableComponent,
+			componentLibrary.getNumberOfRequestsChartComponent,
+			componentLibrary.getRequestDetailsIndicatorChartComponent,
+			new StatisticsTableComponent,
+			componentLibrary.getErrorTableComponent(dataReader.errors(None, None)),
 			activeSessionsChartComponent,
 			responseTimeDistributionChartComponent,
 			requestsChartComponent,

@@ -18,7 +18,7 @@ package io.gatling.charts.result.reader
 import scala.collection.mutable
 
 import io.gatling.core.result.Group
-import io.gatling.core.result.message.Status
+import io.gatling.core.result.message.{ KO, Status }
 import io.gatling.core.result.writer.FileDataWriter.GroupMessageSerializer
 
 object RecordParser {
@@ -39,11 +39,12 @@ object RecordParser {
 		val responseStart = (strings(7).toLong - runStart).toInt
 		val executionEnd = (strings(8).toLong - runStart).toInt
 		val status = Status.valueOf(strings(9))
+		val errorMessage = if (status == KO) Some(strings(10).intern) else None
 		val executionStartBucket = bucketFunction(executionStart)
 		val executionEndBucket = bucketFunction(executionEnd)
 		val responseTime = executionEnd - executionStart
 		val latency = responseStart - requestEnd
-		RequestRecord(group, request, reduceAccuracy(executionStart), reduceAccuracy(executionEnd), status, executionStartBucket, executionEndBucket, reduceAccuracy(responseTime), reduceAccuracy(latency))
+		RequestRecord(group, request, reduceAccuracy(executionStart), reduceAccuracy(executionEnd), status, executionStartBucket, executionEndBucket, reduceAccuracy(responseTime), reduceAccuracy(latency), errorMessage)
 	}
 
 	def parseScenarioRecord(strings: Array[String], bucketFunction: Int => Int, runStart: Long): ScenarioRecord = {
@@ -66,6 +67,6 @@ object RecordParser {
 	}
 }
 
-case class RequestRecord(group: Option[Group], name: String, requestStart: Int, responseEnd: Int, status: Status, requestStartBucket: Int, responseEndBucket: Int, responseTime: Int, latency: Int)
+case class RequestRecord(group: Option[Group], name: String, requestStart: Int, responseEnd: Int, status: Status, requestStartBucket: Int, responseEndBucket: Int, responseTime: Int, latency: Int, errorMessage: Option[String])
 case class ScenarioRecord(scenario: String, startDate: Int, startDateBucket: Int, endDateBucket: Int)
 case class GroupRecord(group: Group, startDate: Int, duration: Int, status: Status, startDateBucket: Int)

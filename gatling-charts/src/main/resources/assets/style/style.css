@@ -435,6 +435,14 @@ h1 span {
 	padding: 0px 5px 5px 5px;
 }
 
+#container_errors {
+	background: #FF9916;
+	padding: 5px 5px 0px 5px;
+	border-bottom-left-radius: 8px;
+	border-bottom-right-radius: 8px;
+	background: #CF6900 url('stat-fond.png') repeat-x;
+}
+
 .statistics-in {
 	margin: 0;
 	border-spacing: 4px;
