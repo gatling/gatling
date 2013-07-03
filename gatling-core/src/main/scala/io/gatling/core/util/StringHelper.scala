@@ -50,7 +50,7 @@ object StringHelper {
 			case string => Some(string)
 		}
 
-		def truncate(maxLength: Int) = if (string.length < maxLength) string else string.substring(0, maxLength) + "..."
+		def truncate(maxLength: Int) = if (string.length <= maxLength) string else string.substring(0, maxLength) + "..."
 
 		def leftPad(length: Int, padder: String = " ") = {
 			val paddingLength = length - string.length
