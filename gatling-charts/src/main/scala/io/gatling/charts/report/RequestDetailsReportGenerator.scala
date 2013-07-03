@@ -55,8 +55,6 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 				componentLibrary.getRequestDetailsLatencyChartComponent(dataReader.runStart, latencySuccessSeries, latencyFailuresSeries)
 			}
 
-			def statisticsComponent: Component = new StatisticsTextComponent
-
 			def scatterChartComponent: Component = {
 				val scatterPlotSuccessData = dataReader.responseTimeAgainstGlobalNumberOfRequestsPerSec(OK, requestName, group)
 				val scatterPlotFailuresData = dataReader.responseTimeAgainstGlobalNumberOfRequestsPerSec(KO, requestName, group)
@@ -66,18 +64,17 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 				componentLibrary.getRequestDetailsScatterChartComponent(scatterPlotSuccessSeries, scatterPlotFailuresSeries)
 			}
 
-			def indicatorChartComponent: Component = componentLibrary.getRequestDetailsIndicatorChartComponent
-
 			val template =
 				new RequestDetailsPageTemplate(path,
 					requestName,
 					group,
+					new StatisticsTextComponent,
+					componentLibrary.getRequestDetailsIndicatorChartComponent,
+					componentLibrary.getErrorTableComponent(dataReader.errors(requestName, group)),
 					responseTimeChartComponent,
 					responseTimeDistributionChartComponent,
 					latencyChartComponent,
-					statisticsComponent,
-					scatterChartComponent,
-					indicatorChartComponent)
+					scatterChartComponent)
 
 			new TemplateWriter(requestFile(runOn, path)).writeToFile(template.getOutput)
 		}
