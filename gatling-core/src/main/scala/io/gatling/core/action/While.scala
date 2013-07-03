@@ -51,7 +51,11 @@ class InnerWhile(continueCondition: Expression[Boolean], loopNext: ActorRef, cou
 			case Failure(message) => logger.error(s"Could not evaluate condition: $message, exiting loop"); false
 		}
 
-		{ case session if !continue(session) => next ! session.exitInterruptable.exitLoop }
+		{
+			case session if !continue(session) =>
+				val nextSession = (if (exitASAP) session.exitInterruptable else session).exitLoop
+				next ! nextSession
+		}
 	}
 
 	/**
