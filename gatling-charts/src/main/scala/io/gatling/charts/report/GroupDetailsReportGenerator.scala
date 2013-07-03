@@ -50,10 +50,11 @@ class GroupDetailsReportGenerator(runOn: String, dataReader: DataReader, compone
 
 			val template =
 				new GroupDetailsPageTemplate(group,
+                    statisticsComponent,
+                    indicatorChartComponent,
+                    componentLibrary.getErrorTableComponent(dataReader.errors(None, Some(group))),
 					responseTimeChartComponent,
-					responseTimeDistributionChartComponent,
-					statisticsComponent,
-					indicatorChartComponent)
+					responseTimeDistributionChartComponent)
 
 			new TemplateWriter(requestFile(runOn, group.name)).writeToFile(template.getOutput)
 		}

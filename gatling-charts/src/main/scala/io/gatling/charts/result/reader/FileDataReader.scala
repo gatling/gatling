@@ -238,4 +238,10 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 					IntVsTimePlot(math.round(count / step * 1000).toInt, responseTimes.higher)
 			}.sortBy(_.time)
 	}
+
+	def errors(requestName: Option[String], group: Option[Group]): Seq[(String, Int, Int)] = {
+		val buff = resultsHolder.getErrorsBuffers(requestName, group)
+		val total = buff.foldLeft(0)(_ + _._2)
+		buff.toSeq.map { case (name, count) => (name, count, count * 100 / total) }.sortBy(_._2)
+	}
 }
