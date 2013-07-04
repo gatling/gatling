@@ -17,6 +17,7 @@ package io.gatling.recorder.controller
 
 import java.net.URI
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.concurrent.duration.DurationLong
 import scala.tools.nsc.io.File
@@ -129,7 +130,13 @@ class RecorderController extends Logging {
 					lastRequestTimestamp = newRequestTimestamp
 					frontEnd.receiveEventInfo(PauseInfo(pauseDuration))
 
-					scenarioElements = new PauseElement(pauseDuration) :: scenarioElements
+					@tailrec
+					def insertPauseAfterTags(elements: List[ScenarioElement], tags: List[TagElement]): List[ScenarioElement] = elements match {
+						case Nil => (new PauseElement(pauseDuration) :: tags).reverse
+						case (t: TagElement) :: others => insertPauseAfterTags(others, t :: tags)
+						case _ => tags reverse_::: new PauseElement(pauseDuration) :: elements
+					}
+					scenarioElements = insertPauseAfterTags(scenarioElements, Nil)
 				}
 			} else
 				lastRequestTimestamp = System.currentTimeMillis
