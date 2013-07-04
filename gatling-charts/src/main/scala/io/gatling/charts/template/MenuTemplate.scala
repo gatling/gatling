@@ -15,10 +15,12 @@
  */
 package io.gatling.charts.template
 
+import com.dongxiguo.fastring.Fastring.Implicits._
+
 import io.gatling.charts.report.Container.{ GROUP, REQUEST }
 
 class MenuTemplate {
-	def getOutput: String = s"""	
+	def getOutput: Fastring = fast"""	
 function getItemLink(item){
 	return 'req_' + item.pathFormatted + '.html';
 }

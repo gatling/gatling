@@ -38,7 +38,7 @@ object StatsTsvTemplate {
 
 class StatsTsvTemplate(stats: GroupContainer) {
 
-	def getOutput: String = {
+	def getOutput: Fastring = {
 
 		def renderGroup(group: GroupContainer): Fastring = fast"""${group.stats.mkFastring}
 ${
@@ -54,7 +54,6 @@ ${
 
 		fast"""$headers
 ${renderGroup(stats)}
-""".toString
-
+"""
 	}
 }

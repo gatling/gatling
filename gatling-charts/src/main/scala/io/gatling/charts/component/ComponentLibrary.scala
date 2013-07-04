@@ -17,6 +17,7 @@ package io.gatling.charts.component
 
 import scala.collection.JavaConversions.enumerationAsScalaIterator
 
+import com.dongxiguo.fastring.Fastring
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.charts.component.impl.ComponentLibraryImpl
@@ -43,7 +44,7 @@ object ComponentLibrary extends Logging {
 }
 
 trait ComponentLibrary {
-	def getAllSessionsJs(runStart: Long, series: Series[IntVsTimePlot]): String
+	def getAllSessionsJs(runStart: Long, series: Series[IntVsTimePlot]): Fastring
 	def getActiveSessionsChartComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component
 	def getRequestsChartComponent(runStart: Long, allRequests: Series[IntVsTimePlot], failedRequests: Series[IntVsTimePlot], succeededRequests: Series[IntVsTimePlot], pieSeries: Series[PieSlice]): Component
 	def getTransactionsChartComponent(runStart: Long, allTransactions: Series[IntVsTimePlot], failedTransactions: Series[IntVsTimePlot], succeededTransactions: Series[IntVsTimePlot], pieSeries: Series[PieSlice]): Component

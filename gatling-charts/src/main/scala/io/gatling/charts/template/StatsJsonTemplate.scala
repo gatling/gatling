@@ -22,7 +22,7 @@ import io.gatling.charts.component.Statistics.PrintableStat
 
 class StatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
 
-	def getFastring: Fastring = {
+	def getOutput: Fastring = {
 
 		def style(value: Long) =
 			if (raw) // raw mode is used for JSON extract, non-raw for displaying in the reports
@@ -94,6 +94,4 @@ class StatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
     }
 }"""
 	}
-
-	def getOutput: String = getFastring.toString
 }

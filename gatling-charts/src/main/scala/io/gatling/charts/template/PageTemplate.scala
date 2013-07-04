@@ -43,12 +43,7 @@ abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Opti
 
 	def jsFiles: Seq[String] = (Seq(JQUERY_FILE, BOOTSTRAP_FILE, GATLING_JS_FILE, MENU_FILE, ALL_SESSIONS_FILE, STATS_JS_FILE) ++ components.flatMap(_.jsFiles)).distinct
 
-	def html: Fastring = components.map(_.html).mkFastring
-
-	def js: Fastring = components.map(_.js).mkFastring
-
-	def getOutput: String = {
-
+	def getOutput: Fastring = {
 		val runMessage = PageTemplate.runMessage
 		val runStart = PageTemplate.runStart
 		val runEnd = PageTemplate.runEnd
@@ -96,7 +91,7 @@ abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Opti
                     <div class="content-in">
                         <h1><span>> </span>$title</h1>
                         <div class="article">
-                            ${html}
+                            ${components.map(_.html).mkFastring}
                         </div>
                     </div>
                 </div>
@@ -118,11 +113,11 @@ ${jsFiles.map(jsFile => fast"""<script type="text/javascript" src="js/$jsFile"><
         ${if (isDetails) "setDetailsMenu();" else "setGlobalMenu();"}
         setActiveMenu();
         fillStats(pageStats);
-        ${js}
+        ${components.map(_.js).mkFastring}
     });
 </script>
 </body>
 </html>
-""".toString
+"""
 	}
 }

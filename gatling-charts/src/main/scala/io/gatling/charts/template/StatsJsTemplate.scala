@@ -26,10 +26,10 @@ import io.gatling.core.util.StringHelper.RichString
 
 class StatsJsTemplate(stats: GroupContainer) {
 
-	def getOutput: String = {
+	def getOutput: Fastring = {
 
 		def renderStatsRequest(request: RequestStatistics) = {
-			val jsonStats = new StatsJsonTemplate(request, false).getFastring
+			val jsonStats = new StatsJsonTemplate(request, false).getOutput
 
 			fast"""name: "${request.name.escapeJsDoubleQuoteString}",
 path: "${request.path.escapeJsDoubleQuoteString}",
@@ -93,6 +93,6 @@ function fillStats(stat){
     $$("#meanNumberOfRequestsPerSecondOK").append(stat.meanNumberOfRequestsPerSecond.ok);
     $$("#meanNumberOfRequestsPerSecondKO").append(stat.meanNumberOfRequestsPerSecond.ko);
 }
-""".toString
+"""
 	}
 }

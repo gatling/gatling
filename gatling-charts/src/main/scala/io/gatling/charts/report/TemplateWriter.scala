@@ -18,12 +18,14 @@ package io.gatling.charts.report
 import scala.io.Codec.string2codec
 import scala.tools.nsc.io.{ File, Path }
 
+import com.dongxiguo.fastring.Fastring
+
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.IOHelper.withCloseable
 
 class TemplateWriter(path: Path) {
 
-	def writeToFile(output: String) {
-		withCloseable(File(path)(configuration.core.encoding).writer) { _.write(output) }
+	def writeToFile(output: Fastring) {
+		withCloseable(File(path)(configuration.core.encoding).writer) { output.appendTo }
 	}
 }
