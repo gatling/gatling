@@ -77,7 +77,9 @@ object GatlingConfiguration {
 					sources = config.getString(CONF_CORE_DIRECTORY_SIMULATIONS),
 					binaries = config.getString(CONF_CORE_DIRECTORY_BINARIES).trimToOption,
 					reportsOnly = config.getString(CONF_CORE_DIRECTORY_REPORTS_ONLY).trimToOption,
-					results = config.getString(CONF_CORE_DIRECTORY_RESULTS))),
+					results = config.getString(CONF_CORE_DIRECTORY_RESULTS)),
+				zinc = ZincConfiguration(
+					jvmArgs = config.getString(CONF_CORE_ZINC_JVM_ARGS).split(" "))),
 			charting = ChartingConfiguration(
 				noReports = config.getBoolean(CONF_CHARTING_NO_REPORTS),
 				statsTsvSeparator = config.getString(CONF_CHARTING_STATS_TSV_SEPARATOR),
@@ -194,7 +196,8 @@ case class CoreConfiguration(
 	simulationClass: Option[String],
 	extract: ExtractConfiguration,
 	timeOut: TimeOutConfiguration,
-	directory: DirectoryConfiguration)
+	directory: DirectoryConfiguration,
+	zinc: ZincConfiguration)
 
 case class TimeOutConfiguration(
 	simulation: Int,
@@ -229,6 +232,9 @@ case class DirectoryConfiguration(
 	binaries: Option[String],
 	reportsOnly: Option[String],
 	results: String)
+
+case class ZincConfiguration(
+	jvmArgs: Array[String])
 
 case class ChartingConfiguration(
 	noReports: Boolean,

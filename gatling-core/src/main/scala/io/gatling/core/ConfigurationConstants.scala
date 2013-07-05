@@ -41,6 +41,8 @@ object ConfigurationConstants {
 	val CONF_CORE_DIRECTORY_REPORTS_ONLY = "gatling.core.directory.reportsOnly"
 	val CONF_CORE_DIRECTORY_RESULTS = "gatling.core.directory.results"
 
+	val CONF_CORE_ZINC_JVM_ARGS = "gatling.core.zinc.jvmArgs"
+
 	val CONF_CHARTING_NO_REPORTS = "gatling.charting.noReports"
 	val CONF_CHARTING_STATS_TSV_SEPARATOR = "gatling.charting.statsTsvSeparator"
 	val CONF_CHARTING_MAX_PLOTS_PER_SERIES = "gatling.charting.maxPlotPerSeries"

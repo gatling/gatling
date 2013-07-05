@@ -33,7 +33,7 @@ object ZincCompiler extends Logging {
 
 	def main(args: Array[String]) {
 
-	    val gatlingHome = args(0)
+		val gatlingHome = args(0)
 		val sourceDirectory = Directory(args(1))
 		val binDirectory = args(2)
 		val classesDirectory = args(3)
@@ -47,7 +47,7 @@ object ZincCompiler extends Logging {
 			val sources = sourceDirectory
 				.deepFiles
 				.collect { case file if (file.hasExtension("scala")) => file.jfile }
-				.toList
+				.toSeq
 
 			def analysisCacheMapEntry(directoryName: String) = (gatlingHome / directoryName).jfile -> (binDirectory / "cache" / directoryName).jfile
 
