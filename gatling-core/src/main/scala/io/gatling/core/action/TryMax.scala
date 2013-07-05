@@ -15,9 +15,13 @@
  */
 package io.gatling.core.action
 
+import scala.annotation.tailrec
+
 import akka.actor.{ Actor, ActorRef, Props }
-import io.gatling.core.result.message.{ OK, KO }
+import io.gatling.core.result.message.{ GroupMessage, GroupStackEntry, KO, OK }
+import io.gatling.core.result.writer.DataWriter
 import io.gatling.core.session.Session
+import io.gatling.core.util.TimeHelper.nowMillis
 
 class TryMax(times: Int, counterName: String, next: ActorRef) extends Actor {
 
@@ -36,12 +40,34 @@ class TryMax(times: Int, counterName: String, next: ActorRef) extends Actor {
 
 class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next: ActorRef) extends Chainable {
 
-	val interrupt: PartialFunction[Session, Unit] = {
-		case session if session.statusStack.head == KO =>
-			if (session.loopCounterValue(counterName) < times)
-				self ! session
+	def interrupt(stackOnEntry: List[GroupStackEntry]): PartialFunction[Session, Unit] = {
+		case session if session.statusStack.head == KO => {
+
+			val sessionWithGroupsExited = if (session.groupStack.size > stackOnEntry.size) {
+
+				val now = nowMillis
+
+				@tailrec
+				def failGroupsInsideTryMax(session: Session): Session = {
+					session.groupStack match {
+						case Nil => session
+						case `stackOnEntry` => session
+						case head :: _ =>
+							// the session contains more groups than when entering, fail head and recurse
+							DataWriter.tell(GroupMessage(session.scenarioName, session.groupStack, session.userId, head.startDate, now, KO))
+							failGroupsInsideTryMax(session.exitGroup)
+					}
+				}
+
+				failGroupsInsideTryMax(session)
+
+			} else session
+
+			if (sessionWithGroupsExited.loopCounterValue(counterName) < times)
+				self ! sessionWithGroupsExited
 			else
-				next ! session.exitTryMax.exitLoop
+				next ! sessionWithGroupsExited.exitTryMax.exitLoop
+		}
 	}
 
 	/**
@@ -52,7 +78,7 @@ class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next:
 	 */
 	def execute(session: Session) {
 
-		val initializedSession = if (!session.contains(counterName)) session.enterTryMax(interrupt) else session
+		val initializedSession = if (!session.contains(counterName)) session.enterTryMax(interrupt(session.groupStack)) else session
 		val incrementedSession = initializedSession.incrementLoop(counterName)
 
 		val counterValue = incrementedSession.loopCounterValue(counterName)
