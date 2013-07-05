@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * 		http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,12 +24,12 @@ import io.gatling.core.validation.{ Failure, Validation }
 
 abstract class BaseActor extends Actor with AkkaDefaults with ClassSimpleNameToString with Logging {
 
-    override def unhandled(message: Any) {
-        message match {
-            case Terminated(dead) => super.unhandled(message)
-            case unknown => throw new IllegalArgumentException(s"Actor $this doesn't support message $unknown")
-        }
-    }
+	override def unhandled(message: Any) {
+		message match {
+			case Terminated(dead) => super.unhandled(message)
+			case unknown => throw new IllegalArgumentException(s"Actor $this doesn't support message $unknown")
+		}
+	}
 }
 
 /**
@@ -38,39 +38,39 @@ abstract class BaseActor extends Actor with AkkaDefaults with ClassSimpleNameToS
  */
 trait Action extends BaseActor {
 
-    def receive = {
-        case session: Session => execute(session)
-    }
+	def receive = {
+		case session: Session => execute(session)
+	}
 
-    /**
-     * Core method executed when the Action received a Session message
-     *
-     * @param session the session of the virtual user
-     * @return Nothing
-     */
-    def execute(session: Session)
+	/**
+	 * Core method executed when the Action received a Session message
+	 *
+	 * @param session the session of the virtual user
+	 * @return Nothing
+	 */
+	def execute(session: Session)
 }
 
 trait Chainable extends Action {
 
-    def next: ActorRef
+	def next: ActorRef
 
-    override def preRestart(reason: Throwable, message: Option[Any]) {
-        logger.error(s"Action $this crashed, forwarding user to next one", reason)
-        message.foreach {
-            case session: Session => next ! session.markAsFailed
-            case _ =>
-        }
-    }
+	override def preRestart(reason: Throwable, message: Option[Any]) {
+		logger.error(s"Action $this crashed, forwarding user to next one", reason)
+		message.foreach {
+			case session: Session => next ! session.markAsFailed
+			case _ =>
+		}
+	}
 }
 
 trait Interruptable extends Chainable {
 
-    val interrupt: PartialFunction[Any, Unit] = {
-        case session: Session if session.shouldInterrupt => session.interrupt
-    }
+	val interrupt: PartialFunction[Any, Unit] = {
+		case session: Session if session.shouldInterrupt => session.interrupt
+	}
 
-    abstract override def receive = interrupt orElse super.receive
+	abstract override def receive = interrupt orElse super.receive
 }
 
 /**
@@ -78,12 +78,12 @@ trait Interruptable extends Chainable {
  */
 trait Failable { self: Action =>
 
-    def execute(session: Session) {
-        executeOrFail(session) match {
-            case Failure(message) => logger.error(message)
-            case _ =>
-        }
-    }
+	def execute(session: Session) {
+		executeOrFail(session) match {
+			case Failure(message) => logger.error(message)
+			case _ =>
+		}
+	}
 
-    def executeOrFail(session: Session): Validation[_]
+	def executeOrFail(session: Session): Validation[_]
 }
