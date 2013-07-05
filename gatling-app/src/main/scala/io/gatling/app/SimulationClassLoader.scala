@@ -18,8 +18,9 @@ package io.gatling.app
 import java.lang.reflect.Modifier
 
 import scala.tools.nsc.interpreter.AbstractFileClassLoader
-import scala.tools.nsc.io.{ Directory, File, Path, PlainFile }
+import scala.tools.nsc.io.{ Directory, File, Path }
 import scala.tools.nsc.io.Path.string2path
+import scala.tools.nsc.io.PlainFile
 
 import io.gatling.core.scenario.Simulation
 
@@ -28,7 +29,7 @@ object SimulationClassLoader {
 	def fromSourcesDirectory(sourceDirectory: Directory): SimulationClassLoader = {
 
 		// Compile the classes
-		val classesDir = ZincCompiler(sourceDirectory)
+		val classesDir = ZincCompilerLauncher(sourceDirectory)
 
 		// Load the compiled classes
 		val byteCodeDir = PlainFile.fromPath(classesDir)

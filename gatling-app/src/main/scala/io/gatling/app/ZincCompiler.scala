@@ -24,8 +24,6 @@ import scala.tools.nsc.io.Path.{ jfile2path, string2path }
 import com.typesafe.scalalogging.slf4j.Logging
 import com.typesafe.zinc.{ Compiler, Inputs, Setup }
 
-import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.config.GatlingFiles
 import sbt.inc.IncOptions
 import xsbti.Logger
 import xsbti.api.Compilation
@@ -33,11 +31,17 @@ import xsbti.compile.CompileOrder
 
 object ZincCompiler extends Logging {
 
-	def apply(sourceDirectory: Directory): Directory = {
+	def main(args: Array[String]) {
+
+	    val gatlingHome = args(0)
+		val sourceDirectory = Directory(args(1))
+		val binDirectory = args(2)
+		val classesDirectory = args(3)
+		val encoding = args(4)
 
 		val classpathURLs = Thread.currentThread.getContextClassLoader.asInstanceOf[URLClassLoader].getURLs
 
-		def simulationInputs(sourceDirectory: Directory, binDir: Path) = {
+		def simulationInputs = {
 			val classpath = classpathURLs.map(url => new JFile(url.toURI))
 
 			val sources = sourceDirectory
@@ -45,14 +49,14 @@ object ZincCompiler extends Logging {
 				.collect { case file if (file.hasExtension("scala")) => file.jfile }
 				.toList
 
-			def analysisCacheMapEntry(directoryName: String) = (GatlingFiles.GATLING_HOME / directoryName).jfile -> (binDir / "cache" / directoryName).jfile
+			def analysisCacheMapEntry(directoryName: String) = (gatlingHome / directoryName).jfile -> (binDirectory / "cache" / directoryName).jfile
 
 			Inputs.inputs(classpath = classpath,
 				sources = sources,
-				classesDirectory = (binDir / "classes").jfile,
-				scalacOptions = Seq("-encoding", configuration.core.encoding, "-target:jvm-1.6", "-deprecation", "-feature", "-unchecked", "-language:implicitConversions", "-language:reflectiveCalls", "-language:postfixOps"),
+				classesDirectory = classesDirectory.jfile,
+				scalacOptions = Seq("-encoding", encoding, "-target:jvm-1.6", "-deprecation", "-feature", "-unchecked", "-language:implicitConversions", "-language:reflectiveCalls", "-language:postfixOps"),
 				javacOptions = Nil,
-				analysisCache = Some((binDir / "zincCache").jfile),
+				analysisCache = Some((binDirectory / "zincCache").jfile),
 				analysisCacheMap = Map(analysisCacheMapEntry("bin"), analysisCacheMapEntry("conf"), analysisCacheMapEntry("user-files")), // avoids having GATLING_HOME polluted with a "cache" folder
 				forceClean = false,
 				javaOnly = false,
@@ -100,14 +104,10 @@ object ZincCompiler extends Logging {
 
 		val zincCompiler = Compiler.create(setup, zincLogger)
 
-		val binDir = GatlingFiles.binariesDirectory.getOrElse(GatlingFiles.GATLING_HOME / "target")
-
 		// Define the inputs
-		val inputs = simulationInputs(sourceDirectory, binDir)
+		val inputs = simulationInputs
 		Inputs.debug(inputs, zincLogger)
 
 		zincCompiler.compile(inputs)(zincLogger)
-
-		Directory(inputs.classesDirectory)
 	}
 }
