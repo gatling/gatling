@@ -22,6 +22,16 @@
 			<groupId>net.debasishg</groupId>
 			<artifactId>redisclient_2.10</artifactId>
 		</dependency>
+
+		<!-- test -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.specs2</groupId>
+			<artifactId>specs2_2.10</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
