@@ -15,17 +15,23 @@
  */
 package io.gatling.redis.util
 
-object RedisHelper {
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
+import org.specs2.mutable.Specification
 
-	val crlf = "\r\n"
+import io.gatling.redis.util.RedisHelper.generateRedisProtocol
 
-	/**
-	 * Generate Redis protocol required for mass insert
-	 * i.e  generateRedisProtocol("LPUSH", "SIM", "SOMETHING COOL!")
-	 */
-	def generateRedisProtocol(d: String*): String = {
-		val protocol = new StringBuilder().append("*").append(d.length).append(crlf)
-		d map { x => protocol.append("$").append(x.length).append(crlf).append(x).append(crlf) }
-		protocol.toString
+@RunWith(classOf[JUnitRunner])
+class RedisHelperSpec extends Specification {
+
+	private val crlf = "\r\n"
+
+	"generateRedisProtocol" should {
+
+		"generate a correct protocol" in {
+			val correctProtocol = List("*3", "$3", "SET", "$5", "mykey", "$7", "myvalue").mkString("", crlf, crlf)
+
+			generateRedisProtocol("SET", "mykey", "myvalue") must be equalTo correctProtocol
+		}
 	}
 }
