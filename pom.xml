@@ -365,11 +365,13 @@
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>${junit.version}</version>
+				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.specs2</groupId>
 				<artifactId>specs2_2.10</artifactId>
 				<version>${specs2.version}</version>
+				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.typesafe.zinc</groupId>
