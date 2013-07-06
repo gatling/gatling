@@ -36,6 +36,8 @@ import scala_maven_executions.JavaMainCallerInProcess;
  */
 public class GatlingJavaMainCallerInProcess extends JavaMainCallerInProcess {
 
+	private String oldClassPath;
+
 	public GatlingJavaMainCallerInProcess(AbstractMojo requester, String mainClassName, String classpath, String[] args) throws Exception {
 		super(requester, mainClassName, classpath, null, args);
 
@@ -48,6 +50,10 @@ public class GatlingJavaMainCallerInProcess extends JavaMainCallerInProcess {
 				requester.getLog().error(e);
 			}
 		}
+
+		// substitute classpath system prop
+		oldClassPath = System.getProperty("java.class.path");
+		System.setProperty("java.class.path", classpath);
 
 		// FIXME why not child of current classloader?
 		// FIXME what about old classloader?
@@ -74,7 +80,13 @@ public class GatlingJavaMainCallerInProcess extends JavaMainCallerInProcess {
 		Class<?> mainClass = cl.loadClass(mainClassName);
 		Method runGatlingMethod = mainClass.getMethod("runGatling", String[].class);
 		String[] argArray = args.toArray(new String[args.size()]);
-		return (Integer) runGatlingMethod.invoke(null, new Object[] { argArray });
+		Integer ret = (Integer) runGatlingMethod.invoke(null, new Object[] { argArray });
+
+		// restore previous classpath system prop
+		System.setProperty("java.class.path", oldClassPath);
+		oldClassPath = null;
+
+		return ret;
 	}
 
 }
