@@ -31,49 +31,38 @@ object SimulationClassLoader {
 		// Compile the classes
 		val classesDir = ZincCompilerLauncher(sourceDirectory)
 
-		// Load the compiled classes
+		// Pass the compiled classes to a ClassLoader
 		val byteCodeDir = PlainFile.fromPath(classesDir)
 		val classLoader = new AbstractFileClassLoader(byteCodeDir, getClass.getClassLoader)
 
-		new FileSystemBackedSimulationClassLoader(classLoader, classesDir)
+		new SimulationClassLoader(classLoader, classesDir)
 	}
 
-	def fromClasspathBinariesDirectory(binariesDirectory: Directory) = new FileSystemBackedSimulationClassLoader(getClass.getClassLoader, binariesDirectory)
+	def fromClasspathBinariesDirectory(binariesDirectory: Directory) = new SimulationClassLoader(getClass.getClassLoader, binariesDirectory)
 }
 
-abstract class SimulationClassLoader {
-
-	def simulationClasses(requestedClassName: Option[String]): List[Class[Simulation]]
-
-	protected def isSimulationClass(clazz: Class[_]): Boolean = classOf[Simulation].isAssignableFrom(clazz) && !clazz.isInterface && !Modifier.isAbstract(clazz.getModifiers)
-}
-
-class FileSystemBackedSimulationClassLoader(classLoader: ClassLoader, binaryDir: Directory) extends SimulationClassLoader {
+class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Directory) {
 
 	def simulationClasses(requestedClassName: Option[String]): List[Class[Simulation]] = {
+
+		def isSimulationClass(clazz: Class[_]): Boolean = classOf[Simulation].isAssignableFrom(clazz) && !clazz.isInterface && !Modifier.isAbstract(clazz.getModifiers)
 
 		def pathToClassName(path: Path, root: Path): String = (path.parent / path.stripExtension)
 			.toString
 			.stripPrefix(root + File.separator)
 			.replace(File.separator, ".")
 
-		val classNames = requestedClassName
-			.map(List(_))
-			.getOrElse {
-				binaryDir
-					.deepFiles
-					.collect { case file if (file.hasExtension("class")) => pathToClassName(file, binaryDir) }
-					.toList
-			}
-
-		val classes = classNames
-			.map(classLoader.loadClass)
-			.collect { case clazz if (isSimulationClass(clazz)) => clazz.asInstanceOf[Class[Simulation]] }
-
 		requestedClassName.map { requestedClassName =>
-			if (!classes.map(_.getName).contains(requestedClassName)) println(s"Simulation class '$requestedClassName' could not be found.")
-		}
+			val clazz = classLoader.loadClass(requestedClassName)
+			assert(isSimulationClass(clazz), s"Requested class name $requestedClassName does not extend Simulation")
+			List(clazz.asInstanceOf[Class[Simulation]])
 
-		classes
+		}.getOrElse {
+			binaryDir
+				.deepFiles
+				.collect { case file if file.hasExtension("class") => classLoader.loadClass(pathToClassName(file, binaryDir)) }
+				.collect { case clazz if isSimulationClass(clazz) => clazz.asInstanceOf[Class[Simulation]] }
+				.toList
+		}
 	}
 }

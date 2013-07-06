@@ -165,20 +165,7 @@ class Gatling extends Logging {
 			println(s"Please open the following file : $indexFile")
 		}
 
-		def attemptDirectSimulationClassLoading(className: String): Option[List[Class[Simulation]]] = try {
-			val clazz = getClass.getClassLoader.loadClass(className).asInstanceOf[Class[Simulation]]
-			Some(List(clazz))
-		} catch {
-			case e: ClassNotFoundException =>
-				logger.info(s"Could not find simulation class $className from class loader, will try to compile it from sources")
-
-				None
-			case e: Exception =>
-				println(s"Could not properly load simulation class $className")
-				throw e
-		}
-
-		def regularSimulationClassLoading: List[Class[Simulation]] = {
+		val simulations = {
 			val simulationClassLoader = GatlingFiles.binariesDirectory
 				.map(SimulationClassLoader.fromClasspathBinariesDirectory) // expect simulations to have been pre-compiled (ex: IDE)
 				.getOrElse(SimulationClassLoader.fromSourcesDirectory(GatlingFiles.sourcesDirectory))
@@ -187,10 +174,6 @@ class Gatling extends Logging {
 				.simulationClasses(configuration.core.simulationClass)
 				.sortWith(_.getName < _.getName)
 		}
-
-		val simulations = configuration.core.simulationClass
-			.flatMap(attemptDirectSimulationClassLoading)
-			.getOrElse(regularSimulationClassLoading)
 
 		val (outputDirectoryName, simulation) = GatlingFiles.reportsOnlyDirectory
 			.map((_, getSingleSimulation(simulations)))
