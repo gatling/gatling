@@ -128,6 +128,7 @@ object GatlingConfiguration {
 					SslConfiguration(trustStore, keyStore)
 				},
 				ahc = AHCConfiguration(
+					provider = config.getString(CONF_HTTP_AHC_PROVIDER),
 					allowPoolingConnection = config.getBoolean(CONF_HTTP_AHC_ALLOW_POOLING_CONNECTION),
 					allowSslConnectionPool = config.getBoolean(CONF_HTTP_AHC_ALLOW_SSL_CONNECTION_POOL),
 					compressionEnabled = config.getBoolean(CONF_HTTP_AHC_COMPRESSION_ENABLED),
@@ -276,6 +277,7 @@ case class Credentials(
 	password: String)
 
 case class AHCConfiguration(
+	provider: String,
 	allowPoolingConnection: Boolean,
 	allowSslConnectionPool: Boolean,
 	compressionEnabled: Boolean,

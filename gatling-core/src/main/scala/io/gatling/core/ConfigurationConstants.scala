@@ -77,6 +77,7 @@ object ConfigurationConstants {
 	val CONF_HTTP_SSL_KEY_STORE_FILE = "gatling.http.ssl.keyStore.file"
 	val CONF_HTTP_SSL_KEY_STORE_PASSWORD = "gatling.http.ssl.keyStore.password"
 	val CONF_HTTP_SSL_KEY_STORE_ALGORITHM = "gatling.http.ssl.keyStore.algorithm"
+	val CONF_HTTP_AHC_PROVIDER = "gatling.http.ahc.provider"
 	val CONF_HTTP_AHC_ALLOW_POOLING_CONNECTION = "gatling.http.ahc.allowPoolingConnection"
 	val CONF_HTTP_AHC_ALLOW_SSL_CONNECTION_POOL = "gatling.http.ahc.allowSslConnectionPool"
 	val CONF_HTTP_AHC_COMPRESSION_ENABLED = "gatling.http.ahc.compressionEnabled"

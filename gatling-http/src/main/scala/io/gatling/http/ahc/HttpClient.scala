@@ -120,7 +120,7 @@ object HttpClient extends Logging {
 
 		}.getOrElse(defaultAhcConfig)
 
-		val client = new AsyncHttpClient(ahcConfig)
+		val client = provider.newAsyncHttpClient(ahcConfig)
 		system.registerOnTermination(client.close)
 		client
 	}
