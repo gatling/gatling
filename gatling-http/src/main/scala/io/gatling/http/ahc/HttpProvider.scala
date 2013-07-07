@@ -15,22 +15,27 @@
  */
 package io.gatling.http.ahc
 
-import java.util.concurrent.{ Executors, ExecutorService, ThreadFactory }
+import java.util.concurrent.{ ExecutorService, Executors }
 
-import com.ning.http.client.{ AsyncHttpProviderConfig, ConnectionsPool }
+import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig, AsyncHttpProviderConfig, ConnectionsPool }
 
 import io.gatling.core.action.system
 import io.gatling.core.config.GatlingConfiguration.configuration
 
 object HttpProvider {
 
-	def apply(threadPool: ExecutorService): HttpProvider = new NettyProvider(threadPool)
+	def apply(threadPool: ExecutorService): HttpProvider =
+		if (configuration.http.ahc.provider.equalsIgnoreCase("grizzly"))
+			new GrizzlyProvider(threadPool)
+		else
+			new NettyProvider(threadPool)
 }
 
 sealed trait HttpProvider {
 
 	def connectionsPool: ConnectionsPool[_, _]
 	def config: AsyncHttpProviderConfig[_, _]
+	def newAsyncHttpClient(config: AsyncHttpClientConfig): AsyncHttpClient
 }
 
 class NettyProvider(threadPool: ExecutorService) extends HttpProvider {
@@ -55,4 +60,24 @@ class NettyProvider(threadPool: ExecutorService) extends HttpProvider {
 		system.registerOnTermination(socketChannelFactory.releaseExternalResources)
 		new NettyAsyncHttpProviderConfig().addProperty(NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY, socketChannelFactory)
 	}
+
+	def newAsyncHttpClient(config: AsyncHttpClientConfig) = new AsyncHttpClient(config)
+}
+
+class GrizzlyProvider(threadPool: ExecutorService) extends HttpProvider {
+
+	import com.ning.http.client.providers.grizzly.{ GrizzlyAsyncHttpProvider, GrizzlyAsyncHttpProviderConfig, GrizzlyConnectionsPool }
+	import com.ning.http.client.providers.grizzly.GrizzlyConnectionsPool.DelayedExecutor
+
+	val connectionsPool = new GrizzlyConnectionsPool(
+		configuration.http.ahc.allowSslConnectionPool,
+		configuration.http.ahc.idleConnectionInPoolTimeOutInMs,
+		configuration.http.ahc.maxConnectionLifeTimeInMs,
+		configuration.http.ahc.maximumConnectionsPerHost,
+		configuration.http.ahc.maximumConnectionsTotal,
+		new DelayedExecutor(threadPool)).asInstanceOf[ConnectionsPool[_, _]]
+
+	val config = new GrizzlyAsyncHttpProviderConfig
+
+	def newAsyncHttpClient(config: AsyncHttpClientConfig) = new AsyncHttpClient(new GrizzlyAsyncHttpProvider(config), config)
 }
