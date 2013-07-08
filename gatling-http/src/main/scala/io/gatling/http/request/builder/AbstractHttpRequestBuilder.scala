@@ -46,7 +46,7 @@ object AbstractHttpRequestBuilder {
 
 	val jsonHeaderValueExpression = EL.compile[String](HeaderValues.APPLICATION_JSON)
 	val xmlHeaderValueExpression = EL.compile[String](HeaderValues.APPLICATION_XML)
-	val xmultipartFormDataValueExpression = EL.compile[String](HeaderValues.MULTIPART_FORM_DATA)
+	val multipartFormDataValueExpression = EL.compile[String](HeaderValues.MULTIPART_FORM_DATA)
 }
 
 /**
@@ -118,7 +118,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	/**
 	 * Adds Content-Type header to the request set with "multipart/form-data" value
 	 */
-	def asMultipartForm: B = header(HeaderNames.CONTENT_TYPE, AbstractHttpRequestBuilder.xmultipartFormDataValueExpression)
+	def asMultipartForm: B = header(HeaderNames.CONTENT_TYPE, AbstractHttpRequestBuilder.multipartFormDataValueExpression)
 
 	/**
 	 * Adds BASIC authentication to the request
