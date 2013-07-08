@@ -23,8 +23,19 @@ import org.specs2.runner.JUnitRunner
 class CacheHandlingSpec extends Specification {
 
 	"convertExpireField" should {
-		"support crapy Int format" in {
-			CacheHandling.isFutureExpire("0") must beEqualTo(false)
+
+		"supports Expires field format" in {
+			CacheHandling.isFutureExpire("Thu, 01 Dec 1994 16:00:00 GMT") must beFalse
+			CacheHandling.isFutureExpire("Tue, 19 Jan 2038 03:14:06 GMT") must beTrue
+		}
+
+		"supports Int format" in {
+			CacheHandling.isFutureExpire("0") must beFalse
+			CacheHandling.isFutureExpire(Int.MaxValue.toString) must beTrue
+		}
+
+		"defaults to false if it's not Expires field format nor Int format" in {
+			CacheHandling.isFutureExpire("fail") must beFalse
 		}
 	}
 }

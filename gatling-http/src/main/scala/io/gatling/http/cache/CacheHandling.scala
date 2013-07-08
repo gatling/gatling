@@ -15,6 +15,8 @@
  */
 package io.gatling.http.cache
 
+import scala.util.Try
+
 import com.ning.http.client.Request
 import com.ning.http.util.AsyncHttpProviderUtils
 import com.typesafe.scalalogging.slf4j.Logging
@@ -28,18 +30,11 @@ object CacheHandling extends Logging {
 
 	val httpCacheAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.cache"
 
-	def isFutureExpire(timeString: String): Boolean =
-		try {
-			val maxAge = try {
-				AsyncHttpProviderUtils.convertExpireField(timeString)
-			} catch {
-				case _: Exception => timeString.toInt
-			}
-
-			maxAge > 0
-		} catch {
-			case _: Exception => false
-		}
+	def isFutureExpire(timeString: String): Boolean = {
+		val tryConvertExpiresField = Try(AsyncHttpProviderUtils.convertExpireField(timeString))
+		val tryConvertToInt = Try(timeString.toInt)
+		tryConvertExpiresField.orElse(tryConvertToInt).map(_ > 0).getOrElse(false)
+	}
 
 	private def getCache(session: Session): Set[String] = session(httpCacheAttributeName).asOption.getOrElse(Set.empty)
 
@@ -47,11 +42,9 @@ object CacheHandling extends Logging {
 
 	def cache(httpProtocol: HttpProtocol, session: Session, request: Request, response: Response): Session = {
 
-		def pragmaNoCache = Option(response.getHeader(Headers.Names.PRAGMA)).map(_.contains(Headers.Values.NO_CACHE)).getOrElse(false)
-		def cacheControlNoCache = Option(response.getHeader(Headers.Names.CACHE_CONTROL)).map(_.contains(Headers.Values.NO_CACHE)).getOrElse(false)
-		def expiresInFuture = Option(response.getHeader(Headers.Names.EXPIRES))
-			.map(isFutureExpire)
-			.getOrElse(false)
+		def pragmaNoCache = Option(response.getHeader(Headers.Names.PRAGMA)).exists(_.contains(Headers.Values.NO_CACHE))
+		def cacheControlNoCache = Option(response.getHeader(Headers.Names.CACHE_CONTROL)).exists(_.contains(Headers.Values.NO_CACHE))
+		def expiresInFuture = Option(response.getHeader(Headers.Names.EXPIRES)).exists(isFutureExpire)
 
 		val isResponseCacheable = httpProtocol.cache && !pragmaNoCache && !cacheControlNoCache && expiresInFuture
 
