@@ -123,7 +123,7 @@
 		<grizzly.version>2.3.3</grizzly.version>
 		<joda-time.version>2.2</joda-time.version>
 		<joda-convert.version>1.2</joda-convert.version>
-		<scopt.version>2.1.0</scopt.version>
+		<scopt.version>3.1.0</scopt.version>
 		<scalalogging.version>1.0.1</scalalogging.version>
 		<jayway-jsonpath.version>0.8.2.fix24</jayway-jsonpath.version>
 		<commons-math3.version>3.2</commons-math3.version>
