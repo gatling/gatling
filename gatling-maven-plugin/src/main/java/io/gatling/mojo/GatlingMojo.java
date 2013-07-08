@@ -302,22 +302,22 @@ public class GatlingMojo extends AbstractMojo {
 
 		// Arguments
 		List<String> args = new ArrayList<String>();
-		args.addAll(asList("-" + CommandLineConstants.CLI_DATA_FOLDER(), dataFolder.getCanonicalPath(),//
-		        "-" + CommandLineConstants.CLI_RESULTS_FOLDER(), resultsFolder.getCanonicalPath(),// ;
-		        "-" + CommandLineConstants.CLI_REQUEST_BODIES_FOLDER(), requestBodiesFolder.getCanonicalPath(),//
-		        "-" + CommandLineConstants.CLI_SIMULATIONS_FOLDER(), simulationsFolder.getCanonicalPath(),//
-		        "-" + CommandLineConstants.CLI_SIMULATION(), simulationClass));
+		args.addAll(asList("-" + CommandLineConstants.DATA_FOLDER_SHORT(), dataFolder.getCanonicalPath(),//
+		        "-" + CommandLineConstants.RESULTS_FOLDER_SHORT(), resultsFolder.getCanonicalPath(),// ;
+		        "-" + CommandLineConstants.REQUEST_BODIES_FOLDER_SHORT(), requestBodiesFolder.getCanonicalPath(),//
+		        "-" + CommandLineConstants.SIMULATIONS_FOLDER_SHORT(), simulationsFolder.getCanonicalPath(),//
+		        "-" + CommandLineConstants.SIMULATION_SHORT(), simulationClass));
 
 		if (noReports) {
-			args.add("-" + CommandLineConstants.CLI_NO_REPORTS());
+			args.add("-" + CommandLineConstants.NO_REPORTS_SHORT());
 		}
 
 		if (reportsOnly != null) {
-			args.addAll(asList("-" + CommandLineConstants.CLI_REPORTS_ONLY(), reportsOnly));
+			args.addAll(asList("-" + CommandLineConstants.REPORTS_ONLY_SHORT(), reportsOnly));
 		}
 
 		if (outputDirectoryBaseName != null) {
-			args.addAll(asList("-" + CommandLineConstants.CLI_OUTPUT_DIRECTORY_BASE_NAME(), outputDirectoryBaseName));
+			args.addAll(asList("-" + CommandLineConstants.OUTPUT_DIRECTORY_BASE_NAME_SHORT(), outputDirectoryBaseName));
 		}
 
 		return args;
