@@ -40,7 +40,7 @@ sealed trait BodyPart {
 
 case class StringBodyPart(
 	name: Expression[String],
-	value: Expression[String],
+	string: Expression[String],
 	charset: String = configuration.core.encoding,
 	contentType: Option[String] = None,
 	transferEncoding: Option[String] = None,
@@ -54,9 +54,9 @@ case class StringBodyPart(
 	def toMultiPart(session: Session): Validation[Part] =
 		for {
 			name <- name(session)
-			value <- value(session)
+			string <- string(session)
 		} yield {
-			val part = new StringPart(name, value, charset, contentId.getOrElse(null))
+			val part = new StringPart(name, string, charset, contentId.getOrElse(null))
 			contentType.map(part.setContentType)
 			transferEncoding.map(part.setTransferEncoding)
 			part
