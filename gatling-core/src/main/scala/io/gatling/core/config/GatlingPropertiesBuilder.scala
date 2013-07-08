@@ -23,9 +23,7 @@ class GatlingPropertiesBuilder {
 
 	private val props = mutable.Map.empty[String, Any]
 
-	def noReports {
-		props += CONF_CHARTING_NO_REPORTS -> true
-	}
+	def noReports { props += CONF_CHARTING_NO_REPORTS -> true }
 
 	def reportsOnly(v: String) { props += CONF_CORE_DIRECTORY_REPORTS_ONLY -> v }
 
@@ -43,7 +41,7 @@ class GatlingPropertiesBuilder {
 
 	def outputDirectoryBaseName(v: String) { props += CONF_CORE_OUTPUT_DIRECTORY_BASE_NAME -> v }
 
-	def runDescription(v: String) { props.put(CONF_CORE_RUN_DESCRIPTION, v) }
+	def runDescription(v: String) { props += CONF_CORE_RUN_DESCRIPTION -> v }
 
 	def build = props
 }
