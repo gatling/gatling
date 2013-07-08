@@ -83,7 +83,9 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				.exec(http("Catégorie Poney").get("/").queryParam("omg", "${omg}").queryParam("socool", "${socool}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
 		}
 		.group("C'est ici qu'on trouve des Poneys") {
-			exec(http("Catégorie Poney").post("/").multiValuedParam("foo", Seq("bar")))
+			exec(http("Catégorie Poney").post("/")
+				.param("baz", "${qix}")
+				.multiValuedParam("foo", Seq("bar")))
 				.exec(http("Catégorie Poney").post("/").multiValuedParam("foo", "${bar}"))
 				.exec(http("Catégorie Poney").get("/").queryParam("omg", "foo"))
 				.exec(http("Catégorie Poney").get("/").queryParam("omg", "${foo}"))
