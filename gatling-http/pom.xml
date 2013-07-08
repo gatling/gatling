@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>gatling-parent</artifactId>
 		<groupId>io.gatling</groupId>
-		<version>2.0.0-M3</version>
+		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>gatling-http</artifactId>
 	<description>Gatling HTTP functionnalities</description>
