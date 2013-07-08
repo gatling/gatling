@@ -5,6 +5,7 @@
 .manager
 .scala_dependencies
 .cache
+.worksheet
 
 # idea conf files
 .idea

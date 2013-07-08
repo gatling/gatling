@@ -25,8 +25,9 @@ import io.gatling.http.check.status.HttpStatusCheckBuilder
 import io.gatling.http.check.time.HttpResponseTimeCheckBuilder
 import io.gatling.http.check.url.CurrentLocationCheckBuilder
 import io.gatling.http.config.{ HttpProtocol, HttpProtocolBuilder, HttpProxyBuilder }
-import io.gatling.http.request.{ BodyProcessors, ELFileBodies, FileBodyPart, RawFileBodies, StringBodyPart }
-import io.gatling.http.request.builder.{ AbstractHttpRequestBuilder, HttpRequestBaseBuilder }
+import io.gatling.http.request.BodyProcessors
+import io.gatling.http.request.builder.{ AbstractHttpRequestBuilder, HttpRequestBaseBuilder, WebSocketBaseBuilder }
+import io.gatling.http.util.{ DefaultRequestLogger, DefaultWebSocketClient }
 
 object Predef {
 	type Request = com.ning.http.client.Request
@@ -83,4 +84,8 @@ object Predef {
 	def FileBodyPart = io.gatling.http.request.FileBodyPart
 	def RawFileBodyPart = io.gatling.http.request.RawFileBodyPart
 	def ELFileBodyPart = io.gatling.http.request.ELFileBodyPart
+
+	def websocket(actionName: Expression[String]) = WebSocketBaseBuilder.websocket(actionName)
+	implicit val defaultWebSocketClient = DefaultWebSocketClient
+	implicit val defaultRequestLogger = DefaultRequestLogger
 }
