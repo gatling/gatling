@@ -113,7 +113,7 @@
 		<scala.version>2.10.2</scala.version>
 		<ahc.version>1.7.19.20130706</ahc.version>
 		<akka.version>2.1.4</akka.version>
-		<config.version>1.0.1</config.version>
+		<config.version>1.0.2</config.version>
 		<jaxen.version>1.1.6</jaxen.version>
 		<xerces.version>2.11.0</xerces.version>
 		<logback.version>1.0.12</logback.version>
