@@ -32,9 +32,8 @@ package io.gatling.http.action
 import com.ning.http.client.Request
 
 import akka.actor.ActorRef
-import io.gatling.core.action.Interruptable
+import io.gatling.core.action.{ Interruptable, Failable }
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.Failure
 import io.gatling.http.ahc.{ HttpClient, HttpTask, RequestFactory }
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheck
@@ -58,11 +57,11 @@ class HttpRequestAction(
 	requestFactory: RequestFactory,
 	checks: List[HttpCheck],
 	responseTransformer: Option[ResponseTransformer],
-	protocol: HttpProtocol) extends Interruptable {
+	protocol: HttpProtocol) extends Interruptable with Failable {
 
 	val responseBuilderFactory = ResponseBuilder.newResponseBuilder(checks, responseTransformer, protocol)
 
-	def execute(session: Session) {
+	def executeOrFail(session: Session) = {
 
 		def sendRequest(resolvedRequestName: String, request: Request, newSession: Session) = {
 
@@ -77,18 +76,11 @@ class HttpRequestAction(
 			}
 		}
 
-		val execution = for {
+		for {
 			resolvedRequestName <- requestName(session)
 			request <- requestFactory(session, protocol)
 			newSession = RefererHandling.storeReferer(request, session, protocol)
 
 		} yield sendRequest(resolvedRequestName, request, newSession)
-
-		execution match {
-			case Failure(message) =>
-				logger.warn(message)
-				next ! session
-			case _ =>
-		}
 	}
 }

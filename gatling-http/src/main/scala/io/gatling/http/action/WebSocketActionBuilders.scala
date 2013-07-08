@@ -17,6 +17,7 @@
 package io.gatling.http.action
 
 import akka.actor.{ ActorRef, Props }
+
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.action.system
 import io.gatling.core.config.ProtocolRegistry

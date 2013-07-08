@@ -18,16 +18,16 @@ package io.gatling.http.action
 
 import java.io.IOException
 import java.net.URI
+
 import com.ning.http.client.websocket.{ WebSocket, WebSocketTextListener }
+
 import akka.actor.{ ActorRef, Props }
-import io.gatling.core.action.{ BaseActor, Interruptable }
+import io.gatling.core.action.{ Action, BaseActor, Failable, Interruptable }
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.validation.Failure
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.util.{ RequestLogger, WebSocketClient }
-import io.gatling.core.action.Action
 
 private[http] class OpenWebSocketAction(
 	actionName: Expression[String],
@@ -36,12 +36,12 @@ private[http] class OpenWebSocketAction(
 	webSocketClient: WebSocketClient,
 	requestLogger: RequestLogger,
 	val next: ActorRef,
-	protocol: HttpProtocol) extends Interruptable {
+	protocol: HttpProtocol) extends Interruptable with Failable {
 
-	def execute(session: Session) {
+	def executeOrFail(session: Session) = {
 
 		def open(actionName: String, url: String) = {
-			logger.info("Opening websocket '" + attributeName + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
+			logger.info(s"Opening websocket '$attributeName': Scenario '${session.scenarioName}', UserId #${session.userId}")
 
 			val actor = context.actorOf(Props(new WebSocketActor(attributeName, requestLogger)))
 
@@ -85,62 +85,43 @@ private[http] class OpenWebSocketAction(
 			}
 		}
 
-		val execution = for {
+		for {
 			actionName <- actionName(session)
 			url <- url(session)
 		} yield open(actionName, url)
-
-		execution match {
-			case Failure(message) =>
-				logger.warn(message)
-				next ! session
-			case _ =>
-		}
 	}
 }
 
-private[http] class SendWebSocketMessageAction(actionName: Expression[String], attributeName: String, message: Expression[String], val next: ActorRef, protocol: HttpProtocol) extends Action {
+private[http] class SendWebSocketMessageAction(actionName: Expression[String], attributeName: String, message: Expression[String], val next: ActorRef, protocol: HttpProtocol) extends Action with Failable {
 
-	def execute(session: Session) {
+	def executeOrFail(session: Session) = {
 
 		def send(actionName: String, message: String) {
 			session(attributeName).asOption[(ActorRef, WebSocket)].foreach(_._1 ! SendMessage(actionName, message, next, session))
 		}
 
-		val execution = for {
+		for {
 			actionName <- actionName(session)
 			message <- message(session)
 		} yield send(actionName, message)
-
-		execution match {
-			case Failure(message) =>
-				logger.warn(message)
-				next ! session
-			case _ =>
-		}
 	}
 }
 
-private[http] class CloseWebSocketAction(actionName: Expression[String], attributeName: String, val next: ActorRef, protocol: HttpProtocol) extends Action {
-	def execute(session: Session) {
+private[http] class CloseWebSocketAction(actionName: Expression[String], attributeName: String, val next: ActorRef, protocol: HttpProtocol) extends Action with Failable {
+
+	def executeOrFail(session: Session) = {
 
 		def close(actionName: String) {
-			logger.info("Closing websocket '" + attributeName + "': Scenario '" + session.scenarioName + "', UserId #" + session.userId)
+			logger.info(s"Closing websocket '$attributeName': Scenario '${session.scenarioName}', UserId #${session.userId}")
 			session(attributeName).asOption[(ActorRef, WebSocket)].foreach(_._1 ! Close(actionName, next, session))
 		}
 
-		val execution = actionName(session).map(close)
-
-		execution match {
-			case Failure(message) =>
-				logger.warn(message)
-				next ! session
-			case _ =>
-		}
+		actionName(session).map(close)
 	}
 }
 
 private[http] class WebSocketActor(val attributeName: String, requestLogger: RequestLogger) extends BaseActor {
+
 	private[this] var webSocket: Option[WebSocket] = None
 
 	def receive = {
