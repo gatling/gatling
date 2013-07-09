@@ -22,7 +22,7 @@ import java.net.URI
 import com.ning.http.client.websocket.{ WebSocket, WebSocketTextListener }
 
 import akka.actor.{ ActorRef, Props }
-import io.gatling.core.action.{ Action, BaseActor, Failable, Interruptable }
+import io.gatling.core.action.{ Action, BaseActor, Chainable, Failable, Interruptable }
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
@@ -92,7 +92,7 @@ private[http] class OpenWebSocketAction(
 	}
 }
 
-private[http] class SendWebSocketMessageAction(actionName: Expression[String], attributeName: String, message: Expression[String], val next: ActorRef, protocol: HttpProtocol) extends Action with Failable {
+private[http] class SendWebSocketMessageAction(actionName: Expression[String], attributeName: String, message: Expression[String], val next: ActorRef, protocol: HttpProtocol) extends Action with Chainable with Failable {
 
 	def executeOrFail(session: Session) = {
 
@@ -107,7 +107,7 @@ private[http] class SendWebSocketMessageAction(actionName: Expression[String], a
 	}
 }
 
-private[http] class CloseWebSocketAction(actionName: Expression[String], attributeName: String, val next: ActorRef, protocol: HttpProtocol) extends Action with Failable {
+private[http] class CloseWebSocketAction(actionName: Expression[String], attributeName: String, val next: ActorRef, protocol: HttpProtocol) extends Action with Chainable with Failable {
 
 	def executeOrFail(session: Session) = {
 
