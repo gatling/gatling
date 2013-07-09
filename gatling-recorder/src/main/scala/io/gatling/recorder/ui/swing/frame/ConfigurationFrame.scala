@@ -15,9 +15,7 @@
  */
 package io.gatling.recorder.ui.swing.frame
 
-import java.nio.charset.Charset
-
-import scala.collection.JavaConversions.{ collectionAsScalaIterable, seqAsJavaList }
+import scala.collection.JavaConversions.seqAsJavaList
 import scala.swing._
 import scala.swing.BorderPanel.Position._
 import scala.swing.ListView.Renderer
@@ -35,6 +33,7 @@ import io.gatling.recorder.ui.swing.Commons.{ iconList, logoSmall }
 import io.gatling.recorder.ui.swing.component.{ Chooser, FilterTable }
 import io.gatling.recorder.ui.swing.util.UIHelper._
 import io.gatling.recorder.ui.swing.frame.ValidationHelper._
+import io.gatling.recorder.ui.swing.util.CommonCharsetHelper
 
 class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 
@@ -69,7 +68,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 	private val automaticReferers = new CheckBox("Automatic Referers?")
 
 	/* Output panel components */
-	private val outputEncoding = new ComboBox[Charset](Charset.availableCharsets.values.toSeq)
+	private val outputEncoding = new ComboBox[String](CommonCharsetHelper.orderedLabelList)
 	private val outputFolderPath = new TextField(66)
 	private val outputFolderChooser = Chooser(FileChooser.SelectionMode.DirectoriesOnly, this)
 	private val outputFolderBrowserButton = Button("Browse")(outputFolderChooser.selection.foreach(outputFolderPath.text = _))
@@ -327,7 +326,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 		automaticReferers.selected = configuration.http.automaticReferer
 		configuration.filters.patterns.map(filtersTable.addRow(_))
 		outputFolderPath.text = configuration.core.outputFolder
-		outputEncoding.selection.item = Charset.forName(configuration.core.encoding)
+		outputEncoding.selection.item = CommonCharsetHelper.charsetNameToLabel(configuration.core.encoding)
 	}
 
 	/**
@@ -376,7 +375,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 		props.followRedirect(followRedirects.selected)
 		props.automaticReferer(automaticReferers.selected)
 		props.simulationOutputFolder(outputFolderPath.text.trim)
-		props.encoding(outputEncoding.selection.item.name)
+		props.encoding(CommonCharsetHelper.labelToCharsetName(outputEncoding.selection.item))
 
 		RecorderConfiguration.reload(props.build)
 
