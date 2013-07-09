@@ -27,7 +27,7 @@ class ByteBufferInputStream(byteBuffer: ByteBuffer) extends InputStream {
 		if (count == 0)
 			-1
 		else {
-			byteBuffer.get(bytes, offset, length)
+			byteBuffer.get(bytes, offset, count)
 			count
 		}
 	}
