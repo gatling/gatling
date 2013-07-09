@@ -1,8 +1,3 @@
-package io.gatling.recorder.ui.swing.util
-
-import java.nio.charset.Charset
-import com.typesafe.scalalogging.slf4j.Logging
-
 /**
  * Copyright 2011-2013 eBusiness Information, Groupe Excilys (www.ebusinessinformation.fr)
  *
@@ -18,7 +13,13 @@ import com.typesafe.scalalogging.slf4j.Logging
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-object CommonCharsetHelper extends Logging {
+package io.gatling.recorder.ui.swing.util
+
+import java.nio.charset.Charset
+
+import com.typesafe.scalalogging.slf4j.Logging
+
+object CharsetHelper extends Logging {
 	type Label = String
 	type Name = String
 
@@ -60,5 +61,4 @@ object CommonCharsetHelper extends Logging {
 	val orderedLabelList: List[Label] = labelOrderedPairList.map { _._2 }
 
 	val labelToCharsetName = charsetNameToLabel.map(_.swap)
-
 }
