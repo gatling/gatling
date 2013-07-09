@@ -249,11 +249,6 @@
 				<version>${akka.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.typesafe.akka</groupId>
-				<artifactId>akka-testkit_2.10</artifactId>
-				<version>${akka.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>com.typesafe</groupId>
 				<artifactId>config</artifactId>
 				<version>${config.version}</version>
@@ -387,9 +382,16 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
+				<groupId>com.typesafe.akka</groupId>
+				<artifactId>akka-testkit_2.10</artifactId>
+				<version>${akka.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-core</artifactId>
 				<version>${mockito.version}</version>
+				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.typesafe.zinc</groupId>
