@@ -15,18 +15,9 @@
  */
 package io.gatling.core
 
-import com.typesafe.config.ConfigFactory
-
 import akka.actor.ActorSystem
 
 package object action {
 
-	val config = {
-		val classLoader = getClass.getClassLoader
-		val defaultsConfig = ConfigFactory.parseResources(classLoader, "akka-defaults.conf")
-		val customConfig = ConfigFactory.parseResources(classLoader, "akka.conf")
-		ConfigFactory.systemProperties.withFallback(customConfig).withFallback(defaultsConfig)
-	}
-
-	val system = ActorSystem("GatlingSystem", config)
+	val system = ActorSystem("GatlingSystem")
 }
