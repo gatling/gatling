@@ -15,6 +15,8 @@
  */
 package io.gatling.http.config
 
+import java.net.InetAddress
+
 import com.ning.http.client.{ ProxyServer, Realm, Request }
 
 import io.gatling.core.config.GatlingConfiguration.configuration
@@ -42,6 +44,7 @@ object HttpProtocol {
 		basicAuth = configuration.http.basicAuth.map(credentials => buildRealm(credentials.username, credentials.password).expression),
 		baseHeaders = Map.empty,
 		virtualHost = None,
+		localAddress = None,
 		responseTransformer = None,
 		extraInfoExtractor = None)
 }
@@ -65,6 +68,7 @@ case class HttpProtocol(
 	baseHeaders: Map[String, String],
 	basicAuth: Option[Expression[Realm]],
 	virtualHost: Option[String],
+	localAddress: Option[InetAddress],
 	responseTransformer: Option[ResponseTransformer],
 	extraInfoExtractor: Option[(Status, Session, Request, Response) => List[Any]]) extends Protocol {
 

@@ -15,6 +15,8 @@
  */
 package io.gatling.http.config
 
+import java.net.InetAddress
+
 import scala.collection.mutable
 
 import com.ning.http.client.{ ProxyServer, Request, RequestBuilder }
@@ -94,6 +96,8 @@ case class HttpProtocolBuilder(protocol: HttpProtocol, warmUpUrl: Option[String]
 	def proxy(host: String, port: Int) = new HttpProxyBuilder(this, host, port)
 
 	def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = copy(protocol = protocol.copy(proxy = Some(httpProxy), securedProxy = httpsProxy))
+
+	def localAddress(localAddress: InetAddress) = copy(protocol = protocol.copy(localAddress = Some(localAddress)))
 
 	def build = {
 		require(!(!protocol.shareClient && protocol.shareConnections), "Invalid protocol configuration: can't stop sharing the HTTP client while still sharing connections!")

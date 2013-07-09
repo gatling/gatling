@@ -15,7 +15,9 @@
  */
 package io.gatling.http.request.builder
 
-import com.ning.http.client.{ Realm, Request, RequestBuilder }
+import java.net.InetAddress
+
+import com.ning.http.client.{ Realm, RequestBuilder }
 import com.ning.http.client.ProxyServer.Protocol
 
 import io.gatling.core.config.GatlingConfiguration.configuration
@@ -39,6 +41,7 @@ case class HttpAttributes(
 	headers: Map[String, Expression[String]] = Map.empty,
 	realm: Option[Expression[Realm]] = None,
 	virtualHost: Option[String] = None,
+	address: Option[InetAddress] = None,
 	checks: List[HttpCheck] = Nil,
 	responseTransformer: Option[ResponseTransformer] = None)
 
@@ -133,6 +136,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 */
 	def virtualHost(virtualHost: String): B = newInstance(httpAttributes.copy(virtualHost = Some(virtualHost)))
 
+	def address(address: InetAddress): B = newInstance(httpAttributes.copy(address = Some(address)))
+
 	/**
 	 * @param responseTransformer transforms the response before it's handled to the checks pipeline
 	 */
@@ -154,10 +159,13 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 		def configureQueryCookiesAndProxy(url: String)(implicit requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
 			val proxy = if (url.startsWith(Protocol.HTTPS.getProtocol)) protocol.securedProxy else protocol.proxy
-			proxy.map(requestBuilder.setProxyServer)
+			proxy.foreach(requestBuilder.setProxyServer)
 
 			val virtualHost = httpAttributes.virtualHost.orElse(protocol.virtualHost)
-			virtualHost.map(requestBuilder.setVirtualHost)
+			virtualHost.foreach(requestBuilder.setVirtualHost)
+
+			protocol.localAddress.foreach(requestBuilder.setLocalInetAddress)
+			httpAttributes.address.foreach(requestBuilder.setInetAddress)
 
 			CookieHandling.getStoredCookies(session, url).foreach(requestBuilder.addCookie)
 
