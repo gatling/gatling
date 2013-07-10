@@ -52,7 +52,7 @@ case class HttpResponse(
 	def reponseTimeInMillis = lastByteReceived - firstByteSent
 	def latencyInMillis = firstByteReceived - firstByteReceived
 	def isReceived = ahcResponse.isDefined
-	def getHeadersSafe(name: String) = Option(ahcResponse.getOrElse(throw new IllegalStateException("Response was not built")).getHeaders(name).toSeq).getOrElse(Nil)
+	def getHeadersSafe(name: String) = Option(receivedResponse.getHeaders(name)).map(_.toSeq).getOrElse(Nil)
 
 	override def toString = ahcResponse.toString
 
