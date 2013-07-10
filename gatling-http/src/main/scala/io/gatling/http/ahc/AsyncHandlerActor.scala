@@ -51,6 +51,14 @@ class AsyncHandlerActor extends BaseActor {
 		context.setReceiveTimeout(AsyncHandlerActor.timeout)
 	}
 
+	override def preRestart(reason: Throwable, message: Option[Any]) {
+		logger.error(s"AsyncHandlerActor crashed on message $message, forwarding user to the next action", reason)
+		message.foreach {
+			case OnCompleted(task, _) => task.next ! task.session.markAsFailed
+			case OnThrowable(task, _, _) => task.next ! task.session.markAsFailed
+		}
+	}
+
 	def receive = {
 		case OnCompleted(task, response) => processResponse(task, response)
 		case OnThrowable(task, response, errorMessage) => ko(task, task.session, response, errorMessage)

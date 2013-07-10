@@ -72,9 +72,9 @@ class AsyncHandler(task: HttpTask) extends ProgressAsyncHandler[Unit] with Loggi
 		if (!done.getAndSet(true)) {
 			val errorMessage = Option(throwable.getMessage).getOrElse(throwable.getClass.getName)
 			if (logger.underlying.isInfoEnabled)
-				logger.warn(s"Request '${task.requestName}' failed", throwable)
+				logger.warn(s"Request '${task.requestName}' failed for user ${task.session.userId}", throwable)
 			else
-				logger.warn(s"Request '${task.requestName}' failed: $errorMessage")
+				logger.warn(s"Request '${task.requestName}' failed for user ${task.session.userId}: $errorMessage")
 			AsyncHandlerActor.asyncHandlerActor ! OnThrowable(task, responseBuilder.updateLastByteReceived.build, errorMessage)
 		}
 	}
