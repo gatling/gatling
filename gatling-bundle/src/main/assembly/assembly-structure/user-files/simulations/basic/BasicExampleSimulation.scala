@@ -11,7 +11,7 @@ import assertions._
 class BasicExampleSimulation extends Simulation {
 
 	val httpProtocol = http
-		.baseURL("http://excilys-bank-web.cloudfoundry.com")
+		.baseURL("http://excilysbank.gatling.cloudbees.net")
 		.acceptCharsetHeader("ISO-8859-1,utf-8;q=0.7,*;q=0.7")
 		.acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
 		.acceptEncodingHeader("gzip, deflate")
