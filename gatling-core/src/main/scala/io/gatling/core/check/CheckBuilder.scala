@@ -15,8 +15,10 @@
  */
 package io.gatling.core.check
 
+import com.typesafe.scalalogging.slf4j.Logging
+
 import io.gatling.core.session.{ Expression, noopStringExpression }
-import io.gatling.core.validation.Validation
+import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 trait ExtractorCheckBuilder[C <: Check[R], R, P, T, X] {
 
@@ -36,11 +38,17 @@ case class MatcherCheckBuilder[C <: Check[R], R, P, T, X](
 	checkFactory: CheckFactory[C, R],
 	preparer: Preparer[R, P],
 	extractor: Extractor[P, T, X],
-	extractorCriterion: Expression[T]) {
+	extractorCriterion: Expression[T]) extends Logging {
 
 	def transform[X2](transformation: Option[X] => Option[X2]): MatcherCheckBuilder[C, R, P, T, X2] = copy(extractor = new Extractor[P, T, X2] {
 		def name = extractor.name + " transformed"
-		def apply(prepared: P, criterion: T): Validation[Option[X2]] = extractor(prepared, criterion).map(transformation)
+		def apply(prepared: P, criterion: T): Validation[Option[X2]] = extractor(prepared, criterion).flatMap { extracted =>
+			try {
+				transformation(extracted).success
+			} catch {
+				case e: Exception => s"transform crashed with a exception: ${e.getMessage}".failure
+			}
+		}
 	})
 
 	def matchWith[E](matcher: Matcher[X, E], expected: Expression[E]) = new CheckBuilder(this, matcher, expected) with SaveAs[C, R, P, T, X, E]
