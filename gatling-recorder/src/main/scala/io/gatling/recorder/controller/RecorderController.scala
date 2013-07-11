@@ -74,7 +74,7 @@ class RecorderController extends Logging {
 							frontEnd.handleHarExportSuccess
 						} catch {
 							case e: Exception =>
-								logger.debug("Error while processing HAR file", e)
+								logger.error("Error while processing HAR file", e)
 								frontEnd.handleHarExportFailure
 						} finally {
 							HarReader.cleanHarReaderState
