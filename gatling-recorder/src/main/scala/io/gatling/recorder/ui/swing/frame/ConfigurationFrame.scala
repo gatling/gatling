@@ -18,6 +18,7 @@ package io.gatling.recorder.ui.swing.frame
 import scala.collection.JavaConversions.seqAsJavaList
 import scala.swing._
 import scala.swing.BorderPanel.Position._
+import scala.swing.FileChooser.SelectionMode
 import scala.swing.ListView.Renderer
 import scala.swing.Swing.pair2Dimension
 import scala.swing.event.{ KeyReleased, SelectionChanged }
@@ -30,7 +31,7 @@ import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.enumeration.FilterStrategy
 import io.gatling.recorder.ui.RecorderFrontend
 import io.gatling.recorder.ui.swing.Commons.{ iconList, logoSmall }
-import io.gatling.recorder.ui.swing.component.{ Chooser, FilterTable }
+import io.gatling.recorder.ui.swing.component.FilterTable
 import io.gatling.recorder.ui.swing.frame.ValidationHelper._
 import io.gatling.recorder.ui.swing.util.CharsetHelper
 import io.gatling.recorder.ui.swing.util.UIHelper._
@@ -58,7 +59,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 
 	/* Har Panel components */
 	private val harPath = new TextField(66)
-	private val harFileChooser = Chooser(FileChooser.SelectionMode.FilesOnly, this)
+	private val harFileChooser = new FileChooser { fileSelectionMode = SelectionMode.FilesOnly }
 	private val harFileBrowserButton = Button("Browse")(harFileChooser.selection.foreach(harPath.text = _))
 
 	/* Simulation panel components */
@@ -70,7 +71,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 	/* Output panel components */
 	private val outputEncoding = new ComboBox[String](CharsetHelper.orderedLabelList)
 	private val outputFolderPath = new TextField(66)
-	private val outputFolderChooser = Chooser(FileChooser.SelectionMode.DirectoriesOnly, this)
+	private val outputFolderChooser = new FileChooser { fileSelectionMode = SelectionMode.DirectoriesOnly }
 	private val outputFolderBrowserButton = Button("Browse")(outputFolderChooser.selection.foreach(outputFolderPath.text = _))
 
 	/* Filters panel components */

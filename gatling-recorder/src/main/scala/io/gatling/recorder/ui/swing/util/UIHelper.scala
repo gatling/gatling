@@ -44,4 +44,14 @@ object UIHelper {
 			textComponent.text = ""
 		}
 	}
+
+	implicit class RichFileChooser(val fileChooser: FileChooser) extends AnyVal {
+
+		def selection = {
+			if (fileChooser.showSaveDialog(null) != FileChooser.Result.Approve)
+				None
+			else
+				Some(fileChooser.selectedFile.getPath)
+		}
+	}
 }
