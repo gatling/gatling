@@ -336,54 +336,56 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 	 */
 	private def reloadConfigurationAndStart {
 		// validate filters
-		filtersTable.validateCells
+		if (filtersTable.validateCells) {
 
-		val props = new RecorderPropertiesBuilder
+			val props = new RecorderPropertiesBuilder
 
-		// Local proxy
-		props.localPort(Try(localProxyHttpPort.text.toInt).getOrElse(0))
-		props.localSslPort(Try(localProxyHttpsPort.text.toInt).getOrElse(0))
+			// Local proxy
+			props.localPort(Try(localProxyHttpPort.text.toInt).getOrElse(0))
+			props.localSslPort(Try(localProxyHttpsPort.text.toInt).getOrElse(0))
 
-		// Outgoing proxy
-		outgoingProxyHost.text.trimToOption match {
-			case Some(host) =>
-				props.proxyHost(host)
-				props.proxyPort(outgoingProxyHttpPort.text.toInt)
-				props.proxySslPort(outgoingProxyHttpsPort.text.toInt)
-				outgoingProxyUsername.text.trimToOption.foreach(props.proxyUsername)
-				outgoingProxyPassword.text.trimToOption.foreach(props.proxyPassword)
+			// Outgoing proxy
+			outgoingProxyHost.text.trimToOption match {
+				case Some(host) =>
+					props.proxyHost(host)
+					props.proxyPort(outgoingProxyHttpPort.text.toInt)
+					props.proxySslPort(outgoingProxyHttpsPort.text.toInt)
+					outgoingProxyUsername.text.trimToOption.foreach(props.proxyUsername)
+					outgoingProxyPassword.text.trimToOption.foreach(props.proxyPassword)
 
-			case None =>
-				props.proxyHost("")
-				props.proxyPort(0)
-				props.proxySslPort(0)
-				props.proxyUsername("")
-				props.proxyPassword("")
+				case None =>
+					props.proxyHost("")
+					props.proxyPort(0)
+					props.proxySslPort(0)
+					props.proxyUsername("")
+					props.proxyPassword("")
+			}
+
+			// Filters
+			props.filterStrategy(filterStrategies.selection.item.toString)
+
+			val (patterns, patternTypes) = {
+				for (pattern <- filtersTable.getPatterns)
+					yield (pattern.pattern, pattern.patternType.toString)
+			}.unzip
+			props.patterns(patterns)
+			props.patternsType(patternTypes)
+
+			// Simulation config
+			props.simulationPackage(simulationPackage.text)
+			props.simulationClassName(simulationClassName.text.trim)
+			props.followRedirect(followRedirects.selected)
+			props.automaticReferer(automaticReferers.selected)
+			props.simulationOutputFolder(outputFolderPath.text.trim)
+			props.encoding(CharsetHelper.labelToCharsetName(outputEncoding.selection.item))
+
+			RecorderConfiguration.reload(props.build)
+
+			if (savePreferences.selected) {
+				RecorderConfiguration.saveConfig
+			}
+
+			frontend.startRecording
 		}
-
-		// Filters
-		props.filterStrategy(filterStrategies.selection.item.toString)
-		val (patterns, patternTypes) = {
-			for (pattern <- filtersTable.getPatterns)
-				yield (pattern.pattern, pattern.patternType.toString)
-		}.unzip
-		props.patterns(patterns)
-		props.patternsType(patternTypes)
-
-		// Simulation config
-		props.simulationPackage(simulationPackage.text)
-		props.simulationClassName(simulationClassName.text.trim)
-		props.followRedirect(followRedirects.selected)
-		props.automaticReferer(automaticReferers.selected)
-		props.simulationOutputFolder(outputFolderPath.text.trim)
-		props.encoding(CharsetHelper.labelToCharsetName(outputEncoding.selection.item))
-
-		RecorderConfiguration.reload(props.build)
-
-		if (savePreferences.selected) {
-			RecorderConfiguration.saveConfig
-		}
-
-		frontend.startRecording
 	}
 }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 		http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,16 +15,23 @@
  */
 package io.gatling.recorder.ui.swing.component
 
+import io.gatling.recorder.enumeration.PatternType.{ PatternType, JAVA, ANT }
+import io.gatling.recorder.config.Pattern
+
 import java.awt.{ Dimension, Component, Color, BorderLayout }
 import java.awt.event.{ MouseListener, MouseEvent, MouseAdapter, ActionListener, ActionEvent }
-
-import io.gatling.recorder.config.Pattern
-import io.gatling.recorder.enumeration.PatternType.{ PatternType, JAVA, ANT }
-
-import javax.swing.{ JTable, JScrollPane, JRadioButton, JPopupMenu, JPanel, JMenuItem, ButtonGroup, AbstractCellEditor }
+import java.util.regex.{ Pattern => JavaPattern }
+import javax.swing._
 import javax.swing.table.{ TableCellRenderer, TableCellEditor, DefaultTableModel }
 
+import scala.util.Try
+import scala.swing.TextField
+import scala.swing.Swing._
+
 class FilterTable extends JPanel with MouseListener {
+
+	private val standardBorder = new TextField().border
+	private val errorBorder = MatteBorder(2, 2, 2, 2, Color.red)
 
 	private val model = new DefaultTableModel
 	private val table = new JTable
@@ -51,14 +58,33 @@ class FilterTable extends JPanel with MouseListener {
 	styleColumn.setMinWidth(150)
 	styleColumn.setMaxWidth(150)
 
-	def validateCells {
+	val textColum = table.getColumn("Filter")
+	textColum.setCellEditor(new TextFieldEditor())
+	textColum.setCellRenderer(new TextFieldRenderer())
+
+	def validateCells = {
 		stopCellEditing
 		var toRemove: List[Int] = Nil
-		for (i <- 0 until model.getRowCount if model.getValueAt(i, 0).toString.isEmpty)
-			toRemove = i :: toRemove
+		var invalidRegex: List[Int] = Nil
+		for (i <- 0 until model.getRowCount) {
+			if (model.getValueAt(i, 0).asInstanceOf[JTextField].getText.isEmpty)
+				toRemove = i :: toRemove
+			else if (!isValidRegex(i)) {
+				invalidRegex = i :: invalidRegex
+				model.getValueAt(i, 0).asInstanceOf[JTextField].setBorder(errorBorder)
+			} else model.getValueAt(i, 0).asInstanceOf[JTextField].setBorder(standardBorder)
+		}
 
 		removeRows(toRemove)
 		removeDuplicates
+		invalidRegex.isEmpty
+	}
+
+	private def isValidRegex(row: Int) = {
+		if (model.getValueAt(row, 1).asInstanceOf[SelectPatternPanel].getPatternType == JAVA)
+			Try(JavaPattern.compile(model.getValueAt(row, 0).asInstanceOf[JTextField].getText)).isSuccess
+		else
+			true
 	}
 
 	def removeRows(toRemove: List[Int]) {
@@ -168,6 +194,36 @@ class RadioButtonEditor extends AbstractCellEditor with TableCellEditor {
 	}
 
 	def getCellEditorValue = customPanel
+}
+
+class TextFieldEditor extends AbstractCellEditor with TableCellEditor {
+
+	var textField = new JTextField()
+	def getCellEditorValue = textField
+
+	def getTableCellEditorComponent(table: JTable, value: Any, isSelected: Boolean, row: Int, column: Int): Component = {
+		value match {
+			case s: String => textField = new JTextField(s)
+			case tf: JTextField => textField = tf
+		}
+		textField
+	}
+
+	override def toString = textField.getText
+}
+
+class TextFieldRenderer extends JLabel with TableCellRenderer {
+	def getTableCellRendererComponent(table: JTable, value: Any, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int): Component = {
+		value match {
+			case null => setText("")
+			case s: String => setText(s)
+			case tf: JTextField => {
+				setText(tf.getText)
+				setBorder(tf.getBorder)
+			}
+		}
+		this
+	}
 }
 
 class SelectPatternPanel(patternType: PatternType = ANT) extends JPanel {
