@@ -67,7 +67,7 @@ class Json(o: Object) extends Seq[Json] with Dynamic {
 
 	def iterator: Iterator[Json] = o match {
 		case a: JSONArray => new JsonIterator(a.iterator)
-		case _ => throw new JsonException
+		case _ => Iterator.empty
 	}
 
 	def selectDynamic(name: String): Json = apply(name)
