@@ -15,8 +15,7 @@
  */
 package io.gatling.recorder.ui
 
-import javax.swing.JOptionPane
-
+import scala.swing.Dialog
 import scala.swing.Swing.onEDT
 
 import io.gatling.recorder.controller.RecorderController
@@ -28,7 +27,7 @@ object RecorderFrontend {
 	// Currently hardwired to the Swing frontend
 	// Will select the desired frontend when more are implemented
 	def newFrontend(controller: RecorderController): RecorderFrontend =
-		new SwingFrontEnd(controller)
+		new SwingFrontend(controller)
 }
 sealed abstract class RecorderFrontend(controller: RecorderController) {
 
@@ -77,7 +76,7 @@ sealed abstract class RecorderFrontend(controller: RecorderController) {
 	}
 }
 
-private class SwingFrontEnd(controller: RecorderController) extends RecorderFrontend(controller) {
+private class SwingFrontend(controller: RecorderController) extends RecorderFrontend(controller) {
 
 	private lazy val runningFrame = new RunningFrame(this)
 	private lazy val configurationFrame = new ConfigurationFrame(this)
@@ -87,20 +86,32 @@ private class SwingFrontEnd(controller: RecorderController) extends RecorderFron
 	def harFilePath = configurationFrame.harFilePath
 
 	def handleMissingHarFile {
-		JOptionPane.showMessageDialog(null, "You haven't selected an HAR file.", "Error", JOptionPane.ERROR_MESSAGE)
+		Dialog.showMessage(
+			title = "Error",
+			message = "You haven't selected an HAR file.",
+			messageType = Dialog.Message.Error)
 	}
 
 	def handleHarExportSuccess {
-		JOptionPane.showMessageDialog(null, "Successfully converted HAR file to a Gatling simulation", "Conversion complete", JOptionPane.INFORMATION_MESSAGE)
+		Dialog.showMessage(
+			title = "Conversion complete",
+			message = "Successfully converted HAR file to a Gatling simulation",
+			messageType = Dialog.Message.Info)
 	}
 
 	def handleHarExportFailure {
-		JOptionPane.showMessageDialog(null, "Export to HAR File unsuccessful.\nSee logs for more information", "Error", JOptionPane.ERROR_MESSAGE)
+		Dialog.showMessage(
+			title = "Error",
+			message = "Export to HAR File unsuccessful.\nSee logs for more information",
+			messageType = Dialog.Message.Error)
 	}
 
 	def askSimulationOverwrite = {
-		val answer = JOptionPane.showConfirmDialog(null, "You are about to overwrite an existing simulation.", "Warning", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE)
-		answer == JOptionPane.OK_OPTION
+		Dialog.showConfirmation(
+			title = "Warning",
+			message = "You are about to overwrite an existing simulation.",
+			optionType = Dialog.Options.OkCancel,
+			messageType = Dialog.Message.Warning) == Dialog.Result.Ok
 	}
 
 	def init {
