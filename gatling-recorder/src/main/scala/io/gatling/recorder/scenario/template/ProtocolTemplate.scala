@@ -46,7 +46,7 @@ object ProtocolTemplate {
 
 		def renderFollowRedirect = if (!followRedirect) s"$eol$indent.disableFollowRedirect" else ""
 
-		def renderAutomaticReferer = if (!automaticReferer) s"$eol$indent.disableAutomaticReferer" else ""
+		def renderAutomaticReferer = if (!automaticReferer) s"$eol$indent.disableAutoReferer" else ""
 
 		def renderHeaders = {
 			def renderHeader(methodName: String, headerValue: String) = fast"""$eol$indent.$methodName("$headerValue")"""
