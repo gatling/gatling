@@ -20,6 +20,7 @@ import java.net.URLClassLoader
 
 import scala.tools.nsc.io.{ Directory, Path }
 import scala.tools.nsc.io.Path.{ jfile2path, string2path }
+import scala.util.Try
 
 import com.typesafe.scalalogging.slf4j.Logging
 import com.typesafe.zinc.{ Compiler, Inputs, Setup }
@@ -108,6 +109,9 @@ object ZincCompiler extends Logging {
 		val inputs = simulationInputs
 		Inputs.debug(inputs, zincLogger)
 
-		zincCompiler.compile(inputs)(zincLogger)
+		if (Try(zincCompiler.compile(inputs)(zincLogger)).isFailure) {
+			// Zinc is already logging all the issues, no need to deal with the exception.
+			System.exit(1)
+		}
 	}
 }
