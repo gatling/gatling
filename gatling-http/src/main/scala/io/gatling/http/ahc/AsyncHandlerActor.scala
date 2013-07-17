@@ -40,7 +40,7 @@ import io.gatling.http.util.HttpStringBuilder
 
 object AsyncHandlerActor {
 	val redirectedRequestNamePattern = """(.+?) Redirect (\d+)""".r
-	val timeout = configuration.core.timeOut.simulation seconds
+	val timeout = configuration.core.timeOut.simulation.seconds
 
 	val asyncHandlerActor = system.actorOf(Props[AsyncHandlerActor].withRouter(RoundRobinRouter(nrOfInstances = 3 * Runtime.getRuntime.availableProcessors)))
 }

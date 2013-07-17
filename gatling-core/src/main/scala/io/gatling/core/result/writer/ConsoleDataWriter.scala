@@ -70,7 +70,7 @@ class ConsoleDataWriter extends DataWriter {
 
 		scenarios.foreach(scenario => usersCounters.put(scenario.name, new UserCounters(scenario.nbUsers)))
 
-		system.scheduler.schedule(0 seconds, 5 seconds, self, Display)
+		system.scheduler.schedule(0.seconds, 5.seconds, self, Display)
 	}
 
 	override def onScenarioMessage(scenario: ScenarioMessage) {

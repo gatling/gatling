@@ -47,7 +47,7 @@ class Pause(pauseDuration: Expression[Long], val next: ActorRef) extends Interru
 				logger.info(s"Pausing for ${durationInMillis}ms (real=${durationMinusDrift}ms)")
 
 				val pauseStart = nowMillis
-				system.scheduler.scheduleOnce(durationMinusDrift milliseconds) {
+				system.scheduler.scheduleOnce(durationMinusDrift.milliseconds) {
 					val newDrift = nowMillis - pauseStart - durationMinusDrift
 					next ! session.setDrift(newDrift)
 				}
