@@ -36,6 +36,7 @@ object ZincCompilerLauncher extends Logging {
 		val classesDirectory = Directory(binDirectory / "classes")
 
 		val cl = new CommandLine(javaExe.toString)
+
 		cl.addArgument("-cp")
 		cl.addArgument(javaClasspath)
 		configuration.core.zinc.jvmArgs.foreach(cl.addArgument)
@@ -49,9 +50,13 @@ object ZincCompilerLauncher extends Logging {
 		logger.debug(s"Launching Zinc: $cl")
 
 		val exec = new DefaultExecutor
+		exec.setExitValues(Array(0, 1))
 		exec.setStreamHandler(new PumpStreamHandler(System.out, System.err, System.in))
 		exec.setProcessDestroyer(new ShutdownHookProcessDestroyer)
-		if (exec.execute(cl) != 0) throw new RuntimeException("Compiling failed")
+		if (exec.execute(cl) != 0) {
+			println("Compilation failed")
+			System.exit(1)
+		}
 
 		classesDirectory
 	}
