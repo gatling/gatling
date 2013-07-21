@@ -107,11 +107,11 @@ class InjectionStepSpec extends Specification {
 		val constantRampRate = RampRateInjection(1.0, 1.0, 10 seconds)
 
 		"return the correct injection duration when the acceleration is null" in {
-			rampRate.duration must beEqualTo(10 seconds)
+			constantRampRate.duration must beEqualTo(10 seconds)
 		}
 
 		"return the correct number of users when the acceleration is null" in {
-			rampRate.users must beEqualTo(30)
+			constantRampRate.users must beEqualTo(10)
 		}
 
 		val constantRampScheduling = constantRampRate.chain(Iterator.empty).toList
