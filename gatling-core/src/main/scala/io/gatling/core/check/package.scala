@@ -35,7 +35,7 @@ package object check {
 						actual.success
 					else
 						s"found $actualValue".failure
-				case None => s"found nothing".failure
+				case None => "found nothing".failure
 			}
 			def name: String = "is"
 		}
@@ -59,7 +59,7 @@ package object check {
 						actual.success
 					else
 						s"found $actualValue".failure
-				case None => s"found nothing".failure
+				case None => "found nothing".failure
 			}
 			def name: String = "in"
 		}
