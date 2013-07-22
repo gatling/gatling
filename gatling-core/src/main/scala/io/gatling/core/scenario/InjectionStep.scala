@@ -38,7 +38,7 @@ case class RampInjection(users: Int, duration: FiniteDuration) extends Injection
 
 	override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
 		val interval = duration / (users - 1).max(1)
-		Iterator.iterate(0 milliseconds)(_ + interval).take(users) ++ iterator.map(_ + duration)
+		Iterator.iterate(0.milliseconds)(_ + interval).take(users) ++ iterator.map(_ + duration)
 	}
 }
 
@@ -65,7 +65,7 @@ case class NothingForInjection(duration: FiniteDuration) extends InjectionStep {
 case class AtOnceInjection(users: Int) extends InjectionStep {
 	require(users > 0, "The number of users must be a strictly positive value")
 
-	override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = Iterator.continually(0 milliseconds).take(users) ++ iterator
+	override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = Iterator.continually(0.milliseconds).take(users) ++ iterator
 }
 
 /**
@@ -94,7 +94,7 @@ case class RampRateInjection(r1: Double, r2: Double, duration: FiniteDuration) e
 				val delta = b2 - 4 * a * c
 
 				val t = (-b + sqrt(delta)) / (2 * a)
-				(t * 1000).toLong milliseconds
+				(t * 1000).toLong.milliseconds
 			}
 
 			Iterator.range(0, users).map(userScheduling(_)) ++ iterator.map(_ + duration)
@@ -147,6 +147,6 @@ case class HeavisideInjection(users: Int, duration: FiniteDuration) extends Inje
 		val d = t0 * 2
 		val k = duration.toMillis / d
 
-		Iterator.range(1, users + 1).map(heavisideInv(_)).map(t => (k * (t + t0)).toLong milliseconds)
+		Iterator.range(1, users + 1).map(heavisideInv(_)).map(t => (k * (t + t0)).toLong.milliseconds)
 	}
 }

@@ -28,7 +28,7 @@ case class Scenario(name: String, entryPoint: ActorRef, injectionProfile: Inject
 		import system.dispatcher
 
 		val scheduler = system.scheduler
-		val zeroMs = 0 millisecond
+		val zeroMs = 0.millisecond
 		def newSession(i: Int) = Session(name, i + userIdStart)
 
 		injectionProfile.allUsers.zipWithIndex.foreach {

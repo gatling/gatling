@@ -25,6 +25,7 @@ import io.gatling.core.scenario.{ AtOnceInjection, ConstantRateInjection, Heavis
 import io.gatling.core.session.{ ELCompiler, ELWrapper, Expression }
 import io.gatling.core.structure.{ AssertionBuilder, ChainBuilder, ScenarioBuilder }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
+import scala.language.implicitConversions
 
 object Predef {
 	type Session = io.gatling.core.session.Session
@@ -46,7 +47,7 @@ object Predef {
 		case string: String => string.el
 		case any => any.expression
 	})
-	implicit def intToFiniteDuration(i: Int) = i seconds
+	implicit def intToFiniteDuration(i: Int) = i.seconds
 
 	def csv(fileName: String) = SeparatedValuesParser.csv(fileName)
 	def csv(file: File) = SeparatedValuesParser.csv(file.path)
