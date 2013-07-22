@@ -20,8 +20,8 @@ import java.io.File
 import com.ning.http.multipart.{ ByteArrayPartSource, FilePart, FilePartSource, Part, StringPart }
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.Validation
+import io.gatling.core.session.{ Expression, resolveOptionalExpression, Session }
+import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object RawFileBodyPart {
 
@@ -94,23 +94,28 @@ case class FileBodyPart(
 	file: Expression[File],
 	contentType: String,
 	charset: String = configuration.core.encoding,
-	fileName: Option[String] = None,
-	transferEncoding: Option[String] = None,
-	contentId: Option[String] = None) extends BodyPart {
+	fileName: Option[Expression[String]] = None,
+	transferEncoding: Option[Expression[String]] = None,
+	contentId: Option[Expression[String]] = None) extends BodyPart {
 
 	def withCharset(charset: String) = copy(charset = charset)
-	def withFileName(fileName: String) = copy(fileName = Some(fileName))
-	def withContentId(contentId: String) = copy(contentId = Some(contentId))
-	def withTransferEncoding(transferEncoding: String) = copy(transferEncoding = Some(transferEncoding))
+	def withFileName(fileName: Expression[String]) = copy(fileName = Some(fileName))
+	def withContentId(contentId: Expression[String]) = copy(contentId = Some(contentId))
+	def withTransferEncoding(transferEncoding: Expression[String]) = copy(transferEncoding = Some(transferEncoding))
 
-	def toMultiPart(session: Session): Validation[Part] =
+	def toMultiPart(session: Session): Validation[Part] = {
+		
 		for {
 			name <- name(session)
 			file <- file(session)
+			fileName <- resolveOptionalExpression(fileName, session)
+			contentId <- resolveOptionalExpression(contentId, session)
+			transferEncoding <- resolveOptionalExpression(transferEncoding, session)
 		} yield {
 			val source = new FilePartSource(fileName.getOrElse(null), file)
 			val part = new FilePart(name, source, contentType, charset, contentId.getOrElse(null))
 			transferEncoding.map(part.setTransferEncoding)
 			part
 		}
+	}
 }

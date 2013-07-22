@@ -34,4 +34,5 @@ package object session {
 	type Expression[T] = Session => Validation[T]
 	def undefinedSeqIndexMessage(name: String, index: Int) = s"Seq named '$name' is undefined for index $index"
 	def undefinedSessionAttributeMessage(name: String) = s"No attribute named '$name' is defined"
+	def resolveOptionalExpression[T](expression: Option[Expression[T]], session: Session): Validation[Option[T]] = expression.map(_(session).map(Some(_))).getOrElse(None.success)
 }
