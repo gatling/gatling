@@ -15,6 +15,7 @@
  */
 package io.gatling.http.ahc
 
+import java.util.Timer
 import java.util.concurrent.{ ExecutorService, Executors }
 
 import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig, AsyncHttpProviderConfig, ConnectionsPool }
@@ -52,7 +53,8 @@ class NettyProvider(threadPool: ExecutorService) extends HttpProvider {
 		configuration.http.ahc.maximumConnectionsPerHost,
 		configuration.http.ahc.idleConnectionInPoolTimeOutInMs,
 		configuration.http.ahc.maxConnectionLifeTimeInMs,
-		configuration.http.ahc.allowSslConnectionPool)
+		configuration.http.ahc.allowSslConnectionPool,
+		new Timer(true))
 
 	val config = {
 		val numWorkers = configuration.http.ahc.ioThreadMultiplier * Runtime.getRuntime.availableProcessors
