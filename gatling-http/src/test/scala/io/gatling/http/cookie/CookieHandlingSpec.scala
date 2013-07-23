@@ -31,8 +31,8 @@ import io.gatling.core.session.Session
 class CookieHandlingSpec extends Specification {
 
 	val originalCookies = CookieDecoder.decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly").toList
-	val originalURI = new URI("https://docs.foo.com/accounts")
-	val originalCookieJar = new CookieJar(Map(originalURI -> originalCookies))
+	val originalDomain = "docs.foo.com"
+	val originalCookieJar = new CookieJar(Map(originalDomain -> originalCookies))
 	val originalSession = Session("scenarioName", 1, Map(CookieHandling.cookieJarAttributeName -> originalCookieJar))
 
 	val emptySession = Session("scenarioName", 2)
