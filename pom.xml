@@ -120,7 +120,7 @@
 		<slf4j.version>1.7.5</slf4j.version>
 		<fastring.version>0.2.1</fastring.version>
 		<netty.version>3.6.6.Final</netty.version>
-		<grizzly.version>2.3.3</grizzly.version>
+		<grizzly.version>2.3.4</grizzly.version>
 		<joda-time.version>2.2</joda-time.version>
 		<joda-convert.version>1.2</joda-convert.version>
 		<scopt.version>3.1.0</scopt.version>
