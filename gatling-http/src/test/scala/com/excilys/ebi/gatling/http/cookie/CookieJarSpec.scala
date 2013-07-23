@@ -25,7 +25,6 @@ import org.specs2.runner.JUnitRunner
 
 import com.ning.org.jboss.netty.handler.codec.http.CookieDecoder.decode
 
-@RunWith(classOf[JUnitRunner])
 class CookieJarSpec extends Specification {
 
 	"storeCookies" should {
@@ -41,11 +40,11 @@ class CookieJarSpec extends Specification {
 			cookieStore.get(new URI("http://www.bar.com")) must beEmpty
 		}
 
-		"return the cookie when domain and path exactly match" in {
+		"return the cookie when it was set on a parent path" in {
 			val cookies = decode("ALPHA; Domain=www.foo.com; path=/bar").toList
-			val cookieStore = CookieJar(new URI("http://www.foo.com/bar"), cookies)
+			val cookieStore = CookieJar(new URI("http://www.foo.com"), cookies)
 
-			cookieStore.get(new URI("http://www.foo.com/bar")).length must beEqualTo(1)
+			cookieStore.get(new URI("http://www.foo.com/bar/baz")).length must beEqualTo(1)
 		}
 
 		"not return the cookie when domain matches but path is different" in {
@@ -78,7 +77,7 @@ class CookieJarSpec extends Specification {
 
 		"replace cookie when set on the same domain and path" in {
 			val cookies = decode("ALPHA=VALUE1; Domain=www.foo.com; path=/bar").toList
-			val uri = new URI("http://www.foo.com/bar")
+			val uri = new URI("http://www.foo.com/bar/baz")
 			val cookieStore = CookieJar(uri, cookies)
 
 			val storedCookies = cookieStore.add(uri, decode("ALPHA=VALUE2; Domain=www.foo.com; path=/bar").toList).get(uri)
@@ -88,7 +87,7 @@ class CookieJarSpec extends Specification {
 
 		"not replace cookies when they don't have the same name" in {
 			val cookies = decode("BETA=VALUE1; Domain=www.foo.com; path=/bar").toList
-			val uri = new URI("http://www.foo.com/bar")
+			val uri = new URI("http://www.foo.com/bar/baz")
 			val cookieStore = CookieJar(uri, cookies)
 
 			val storedCookies = cookieStore.add(uri, decode("ALPHA=VALUE2; Domain=www.foo.com; path=/bar").toList).get(uri)
@@ -168,7 +167,7 @@ class CookieJarSpec extends Specification {
 
 		"handle the cookie name in a case-insensitive manner (RFC 2965 sec. 3.3.3)" in {
 			val cookies = decode("ALPHA=VALUE1; Domain=www.foo.com; path=/bar").toList
-			val uri = new URI("http://www.foo.com/bar")
+			val uri = new URI("http://www.foo.com/bar/baz")
 			val cookieStore = CookieJar(uri, cookies)
 
 			val storedCookies = cookieStore.add(uri, decode("alpha=VALUE2; Domain=www.foo.com; path=/bar").toList).get(uri)
@@ -185,7 +184,7 @@ class CookieJarSpec extends Specification {
 		}
 
 		"not take into account the query parameter in the URI" in {
-			val cookies = decode("ALPHA; Domain=www.foo.com; path=/bar").toList
+			val cookies = decode("ALPHA; Domain=www.foo.com; path=/").toList
 			val cookieStore = CookieJar(new URI("http://www.foo.com/bar?query1"), cookies)
 
 			cookieStore.get(new URI("http://www.foo.com/bar?query2")).length must beEqualTo(1)
@@ -212,12 +211,12 @@ class CookieJarSpec extends Specification {
 
 		"should serve cookies based on the host and independently of the port" in {
 			// rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
-			val cookies1 = decode("cookie1=VALUE1; Path=/moodle/").toList
-			val cookieStore = CookieJar(new URI("http://foo.org//moodle/"), cookies1)
+			val cookies1 = decode("cookie1=VALUE1; Path=/").toList
+			val cookieStore = CookieJar(new URI("http://foo.org/moodle/"), cookies1)
 
-			val cookies2 = decode("cookie1=VALUE2; Path=/moodle/").toList
+			val cookies2 = decode("cookie1=VALUE2; Path=/").toList
 			val cookieStore2 = cookieStore.add(new URI("https://foo.org:443/moodle/login"), cookies2)
-
+			
 			val cookies = cookieStore2.get(new URI("http://foo.org/moodle/login"))
 			cookies.length must beEqualTo(1)
 			cookies.head.getValue must beEqualTo("VALUE2")
