@@ -18,7 +18,9 @@ package io.gatling.http.check.body
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.check.Preparer
-import io.gatling.core.check.extractor.jsonpath.JsonPathExtractors
+import io.gatling.core.check.extractor.jsonpath.JaywayJsonPathExtractors
+import io.gatling.core.config.{ Gatling, Jayway }
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
@@ -26,22 +28,30 @@ import io.gatling.http.response.Response
 
 object HttpBodyJsonPathCheckBuilder extends Logging {
 
-	val preparer: Preparer[Response, Any] = (response: Response) =>
-		try {
-			JsonPathExtractors.parse(response.getResponseBodyAsBytes).success
+	object HttpBodyJaywayJsonPathCheckBuilder {
+		val preparer: Preparer[Response, Any] = (response: Response) =>
+			try {
+				JaywayJsonPathExtractors.parse(response.getResponseBodyAsBytes).success
 
-		} catch {
-			case e: Exception =>
-				val message = s"Could not parse response into a JSON object: ${e.getMessage}"
-				logger.info(message, e)
-				message.failure
+			} catch {
+				case e: Exception =>
+					val message = s"Could not parse response into a JSON object: ${e.getMessage}"
+					logger.info(message, e)
+					message.failure
+			}
+
+		def jsonPath(expression: Expression[String]) = new HttpMultipleCheckBuilder[Any, String, String](
+			HttpCheckBuilders.bodyCheckFactory,
+			preparer,
+			JaywayJsonPathExtractors.extractOne,
+			JaywayJsonPathExtractors.extractMultiple,
+			JaywayJsonPathExtractors.count,
+			expression)
+	}
+
+	def jsonPath(expression: Expression[String]): HttpMultipleCheckBuilder[_, String, String] =
+		configuration.core.extract.jsonPath.engine match {
+			case Gatling => HttpBodyJaywayJsonPathCheckBuilder.jsonPath(expression)
+			case Jayway => HttpBodyJaywayJsonPathCheckBuilder.jsonPath(expression)
 		}
-
-	def jsonPath(expression: Expression[String]) = new HttpMultipleCheckBuilder[Any, String, String](
-		HttpCheckBuilders.bodyCheckFactory,
-		preparer,
-		JsonPathExtractors.extractOne,
-		JsonPathExtractors.extractMultiple,
-		JsonPathExtractors.count,
-		expression)
 }
