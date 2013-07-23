@@ -104,7 +104,7 @@ case class FileBodyPart(
 	def withTransferEncoding(transferEncoding: Expression[String]) = copy(transferEncoding = Some(transferEncoding))
 
 	def toMultiPart(session: Session): Validation[Part] = {
-		
+
 		for {
 			name <- name(session)
 			file <- file(session)
