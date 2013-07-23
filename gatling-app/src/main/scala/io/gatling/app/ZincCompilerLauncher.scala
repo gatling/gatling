@@ -15,45 +15,32 @@
  */
 package io.gatling.app
 
+import scala.sys.process.Process
 import scala.tools.nsc.io.Directory
 import scala.tools.nsc.io.Path.string2path
-
-import org.apache.commons.exec.{ CommandLine, DefaultExecutor, PumpStreamHandler, ShutdownHookProcessDestroyer }
-
-import com.typesafe.scalalogging.slf4j.Logging
+import scala.util.Properties.{ javaClassPath, jdkHome, isWin }
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.config.GatlingFiles
+import io.gatling.core.config.GatlingFiles.{ binariesDirectory, GATLING_HOME }
+import io.gatling.core.util.StringHelper.RichString
 
-object ZincCompilerLauncher extends Logging {
+object ZincCompilerLauncher {
 
 	def apply(sourceDirectory: Directory): Directory = {
 
-		val binDirectory = GatlingFiles.binariesDirectory.getOrElse(GatlingFiles.GATLING_HOME / "target")
-		val javaHome = Option(System.getProperty("java.home")).orElse(Option(System.getenv("JAVA_HOME"))).getOrElse(throw new IllegalStateException("Couldn't locate java, try setting JAVA_HOME environment variable."))
-		val javaExe = javaHome / "bin" / (if (System.getProperty("os.name").contains("dos")) "java.exe" else "java")
-		val javaClasspath = System.getProperty("java.class.path")
+		val binDirectory = binariesDirectory.getOrElse(GATLING_HOME / "target")
+		val javaHome = jdkHome.trimToOption.getOrElse(throw new IllegalStateException("Couldn't locate java, try setting JAVA_HOME environment variable."))
+		val javaExe = javaHome / "bin" / (if (isWin) "java.exe" else "java")
 		val classesDirectory = Directory(binDirectory / "classes")
 
-		val cl = new CommandLine(javaExe.toString)
+		val classPath = Seq("-cp", javaClassPath)
+		val jvmArgs = configuration.core.zinc.jvmArgs.toSeq
+		val clazz = Seq("io.gatling.app.ZincCompiler")
+		val args = Seq(GATLING_HOME, sourceDirectory, binDirectory, classesDirectory, configuration.core.encoding).map(_.toString)
 
-		cl.addArgument("-cp")
-		cl.addArgument(javaClasspath)
-		configuration.core.zinc.jvmArgs.foreach(cl.addArgument)
-		cl.addArgument("io.gatling.app.ZincCompiler")
-		cl.addArgument(GatlingFiles.GATLING_HOME.toString)
-		cl.addArgument(sourceDirectory.toString)
-		cl.addArgument(binDirectory.toString)
-		cl.addArgument(classesDirectory.toString)
-		cl.addArgument(configuration.core.encoding)
+		val process = Process(javaExe.toString(), Seq(classPath, jvmArgs, clazz, args).flatten)
 
-		logger.debug(s"Launching Zinc: $cl")
-
-		val exec = new DefaultExecutor
-		exec.setExitValues(Array(0, 1))
-		exec.setStreamHandler(new PumpStreamHandler(System.out, System.err, System.in))
-		exec.setProcessDestroyer(new ShutdownHookProcessDestroyer)
-		if (exec.execute(cl) != 0) {
+		if (process.! != 0) {
 			println("Compilation failed")
 			System.exit(1)
 		}
