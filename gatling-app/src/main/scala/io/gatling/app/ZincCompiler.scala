@@ -18,8 +18,8 @@ package io.gatling.app
 import java.io.{ File => JFile }
 import java.net.URLClassLoader
 
-import scala.tools.nsc.io.{ Directory, Path }
-import scala.tools.nsc.io.Path.{ jfile2path, string2path }
+import scala.tools.nsc.io.Directory
+import scala.tools.nsc.io.Path.string2path
 import scala.util.Try
 
 import com.typesafe.scalalogging.slf4j.Logging
@@ -47,7 +47,7 @@ object ZincCompiler extends Logging {
 
 			val sources = sourceDirectory
 				.deepFiles
-				.collect { case file if (file.hasExtension("scala")) => file.jfile }
+				.collect { case file if file.hasExtension("scala") => file.jfile }
 				.toSeq
 
 			def analysisCacheMapEntry(directoryName: String) = (gatlingHome / directoryName).jfile -> (binDirectory / "cache" / directoryName).jfile
@@ -55,7 +55,7 @@ object ZincCompiler extends Logging {
 			Inputs.inputs(classpath = classpath,
 				sources = sources,
 				classesDirectory = classesDirectory.jfile,
-				scalacOptions = Seq("-encoding", encoding, "-target:jvm-1.6", "-deprecation", "-feature", "-unchecked", "-language:implicitConversions", "-language:reflectiveCalls", "-language:postfixOps"),
+				scalacOptions = Seq("-encoding", encoding, "-target:jvm-1.6", "-deprecation", "-feature", "-unchecked", "-language:implicitConversions", "-language:postfixOps"),
 				javacOptions = Nil,
 				analysisCache = Some((binDirectory / "zincCache").jfile),
 				analysisCacheMap = Map(analysisCacheMapEntry("bin"), analysisCacheMapEntry("conf"), analysisCacheMapEntry("user-files")), // avoids having GATLING_HOME polluted with a "cache" folder
@@ -72,9 +72,8 @@ object ZincCompiler extends Logging {
 			def jarMatching(regex: String): JFile = {
 				val compiledRegex = regex.r
 				val jarUrl = classpathURLs
-					.filter(url => compiledRegex.findFirstMatchIn(url.toString).isDefined)
-					.headOption
-					.getOrElse(throw new RuntimeException("Can't find the jar matching " + regex))
+					.find(url => compiledRegex.findFirstMatchIn(url.toString).isDefined)
+					.getOrElse(throw new RuntimeException(s"Can't find the jar matching $regex"))
 
 				new JFile(jarUrl.toURI)
 			}
