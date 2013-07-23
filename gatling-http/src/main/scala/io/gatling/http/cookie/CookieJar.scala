@@ -67,9 +67,18 @@ class CookieJar(store: Map[URI, List[Cookie]]) {
 	 * @param cookie    the cookie to store
 	 */
 	def add(rawURI: URI, rawCookies: List[Cookie]): CookieJar = {
+
+		// rfc6265#section-5.2.4
+		def defaultPath = {
+			Option(rawURI.getPath).map {
+				case requestPath if requestPath.count(_ == '/') <= 1 => "/"
+				case requestPath => requestPath.substring(0, requestPath.lastIndexOf('/'))
+			}.getOrElse("/")
+		}
+
 		val newCookies = rawCookies.map { cookie =>
 			val fixedDomain = extractDomain(rawURI, cookie)
-			val fixedPath = Option(cookie.getPath).getOrElse(rawURI.getPath)
+			val fixedPath = Option(cookie.getPath).getOrElse(defaultPath)
 
 			if (fixedDomain != cookie.getDomain || fixedPath != cookie.getPath)
 				new Cookie(

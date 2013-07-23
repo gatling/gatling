@@ -178,10 +178,10 @@ class CookieJarSpec extends Specification {
 
 		"handle the cookie path in a case-sensitive manner (RFC 2965 sec. 3.3.3)" in {
 			val cookies = decode("ALPHA=VALUE1").toList
-			val uri = new URI("http://www.foo.com/bar")
+			val uri = new URI("http://www.foo.com/foo/bar")
 			val cookieStore = CookieJar(uri, cookies)
 
-			cookieStore.get(new URI("http://www.FoO.com/bAr")) must beEmpty
+			cookieStore.get(new URI("http://www.FoO.com/Foo/bAr")) must beEmpty
 		}
 
 		"not take into account the query parameter in the URI" in {
