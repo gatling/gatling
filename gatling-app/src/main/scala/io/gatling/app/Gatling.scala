@@ -172,7 +172,7 @@ class Gatling extends Logging {
 
 			simulationClassLoader
 				.simulationClasses(configuration.core.simulationClass)
-				.sortWith(_.getName < _.getName)
+				.sortBy(_.getName)
 		}
 
 		val (outputDirectoryName, simulation) = GatlingFiles.reportsOnlyDirectory
