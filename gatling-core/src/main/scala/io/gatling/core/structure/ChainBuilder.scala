@@ -20,6 +20,8 @@ import io.gatling.core.action.builder.ActionBuilder
 import akka.actor.ActorRef
 
 object ChainBuilder {
+	val empty = new ChainBuilder(Nil)
+
 	def chainOf(actionBuilder: ActionBuilder*) = new ChainBuilder(actionBuilder.toList)
 }
 

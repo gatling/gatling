@@ -59,7 +59,7 @@ object Predef {
 	implicit def feeder2FeederBuilder[T](feeder: Feeder[T]): FeederBuilder[T] = FeederWrapper(feeder)
 
 	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName)
-	val bootstrap = new ChainBuilder(Nil)
+	val bootstrap = ChainBuilder.empty
 
 	val assertions = new AssertionBuilder
 
