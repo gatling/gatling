@@ -23,8 +23,7 @@ import scala.concurrent.duration.Duration
 import io.gatling.core.action.builder.{ SessionHookBuilder, WhileBuilder }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.structure.ChainBuilder.chainOf
-import io.gatling.core.util.TimeHelper
-import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.core.util.TimeHelper.{ nanosSinceReference, nowMillis }
 import io.gatling.core.validation.SuccessWrapper
 
 trait Loops[B] extends Execs[B] {
@@ -65,7 +64,7 @@ trait Loops[B] extends Execs[B] {
 	def maxSimulationDuration(duration: Duration, counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
 
 		val durationNanos = duration.toNanos
-		val condition = (session: Session) => (TimeHelper.nanosSinceReference <= durationNanos && session.loopCounterValue(counterName) == 0).success
+		val condition = (session: Session) => (nanosSinceReference <= durationNanos && session.loopCounterValue(counterName) == 0).success
 
 		asLongAs(condition, counterName)(chain)
 	}

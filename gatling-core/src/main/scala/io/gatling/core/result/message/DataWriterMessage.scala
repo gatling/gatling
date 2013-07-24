@@ -46,7 +46,7 @@ case class RequestMessage(
 case class RunMessage(runDate: DateTime, simulationId: String, runDescription: String) extends DataWriterMessage {
 	val recordType = RunMessageType
 	val timestamp = runDate.toTimestamp
-	lazy val runId = simulationId + "-" + timestamp
+	val runId = simulationId + "-" + timestamp
 }
 
 case class ScenarioMessage(scenarioName: String, userId: Int, event: MessageEvent, startDate: Long, endDate: Long) extends DataWriterMessage {
