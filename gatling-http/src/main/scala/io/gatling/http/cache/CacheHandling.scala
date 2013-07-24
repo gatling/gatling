@@ -40,14 +40,26 @@ object CacheHandling extends Logging {
 
 	def isCached(httpProtocol: HttpProtocol, session: Session, request: Request) = httpProtocol.cache && getCache(session).contains(request.getUrl)
 
-	val maxAgeRegex = """max-age=(\d+)""".r
+	val maxAgePrefix = "max-age="
+	val maxAgeZero = maxAgePrefix + "0"
+	def hasPositiveMaxAge(s: String) = {
+		val index = s.indexOf(maxAgePrefix)
+		val start = maxAgePrefix.length + index
+		if (index > 0 && start < s.length) {
+			val c = s.charAt(start)
+			if (Character.isDigit(c))
+				c.getNumericValue > 0
+			else
+				false
+		} else
+			false
+	}
 
 	def isResponseCacheable(httpProtocol: HttpProtocol, response: Response): Boolean = {
 		def pragmaNoCache = Option(response.getHeader(Headers.Names.PRAGMA)).exists(_.contains(Headers.Values.NO_CACHE))
 		def cacheControlNoCache = Option(response.getHeader(Headers.Names.CACHE_CONTROL))
-			.exists(h => h.contains(Headers.Values.NO_CACHE) || h.contains(Headers.Values.NO_STORE) || h.contains("max-age=0"))
-		def cacheControlInFuture = Option(response.getHeader(Headers.Names.CACHE_CONTROL))
-			.flatMap(h => for (maxAgeRegex(maxAge) <- maxAgeRegex.findFirstIn(h)) yield maxAge.toInt).exists(_ > 0)
+			.exists(h => h.contains(Headers.Values.NO_CACHE) || h.contains(Headers.Values.NO_STORE) || h.contains(maxAgeZero))
+		def cacheControlInFuture = Option(response.getHeader(Headers.Names.CACHE_CONTROL)).exists(hasPositiveMaxAge(_))
 		def expiresInFuture = Option(response.getHeader(Headers.Names.EXPIRES)).exists(isFutureExpire)
 
 		httpProtocol.cache && !pragmaNoCache && !cacheControlNoCache && (cacheControlInFuture || expiresInFuture)

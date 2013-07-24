@@ -55,9 +55,9 @@ class CacheHandlingSpec extends Specification with Mockito {
 		}
 
 		"correctly support Cache-Control header" in {
-			isCacheable(List(Headers.Names.CACHE_CONTROL -> "private,max-age=3600")) must beTrue
-			isCacheable(List(Headers.Names.EXPIRES -> "3600", Headers.Names.CACHE_CONTROL -> "public,no-cache")) must beFalse
-			isCacheable(List(Headers.Names.EXPIRES -> "3600", Headers.Names.CACHE_CONTROL -> "max-age=0")) must beFalse
+			isCacheable(List(Headers.Names.CACHE_CONTROL -> "private, max-age=3600, must-revalidate")) must beTrue
+			isCacheable(List(Headers.Names.EXPIRES -> "3600", Headers.Names.CACHE_CONTROL -> "public, no-cache")) must beFalse
+			isCacheable(List(Headers.Names.EXPIRES -> "3600", Headers.Names.CACHE_CONTROL -> "public, max-age=0")) must beFalse
 			isCacheable(List(Headers.Names.EXPIRES -> "3600", Headers.Names.CACHE_CONTROL -> "no-store")) must beFalse
 		}
 	}
@@ -76,6 +76,17 @@ class CacheHandlingSpec extends Specification with Mockito {
 
 		"defaults to false if it's not Expires field format nor Int format" in {
 			CacheHandling.isFutureExpire("fail") must beFalse
+		}
+	}
+
+	"hasPositiveMaxAge()" should {
+
+		"tell if there is a 'max-age' control and if it's value is superior to zero" in {
+
+			CacheHandling.hasPositiveMaxAge("private, max-age=3600, must-revalidate") must beTrue
+			CacheHandling.hasPositiveMaxAge("public") must beFalse
+			CacheHandling.hasPositiveMaxAge("private, max-age=nicolas, must-revalidate") must beFalse
+			CacheHandling.hasPositiveMaxAge("private, max-age=0, must-revalidate") must beFalse
 		}
 	}
 }
