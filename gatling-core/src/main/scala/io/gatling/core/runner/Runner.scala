@@ -31,6 +31,7 @@ import io.gatling.core.result.message.RunMessage
 import io.gatling.core.result.terminator.Terminator
 import io.gatling.core.result.writer.DataWriter
 import io.gatling.core.scenario.Simulation
+import io.gatling.core.util.TimeHelper
 
 class Runner(selection: Selection) extends AkkaDefaults with Logging {
 
@@ -61,6 +62,9 @@ class Runner(selection: Selection) extends AkkaDefaults with Logging {
 			Await.result(init, defaultTimeOut.duration)
 
 			logger.debug("Launching All Scenarios")
+
+			// important, init TimeHelper
+			val ref = TimeHelper.nanoTimeReference
 
 			scenarios.foldLeft(0) { (i, scenario) =>
 				scenario.run(i)
