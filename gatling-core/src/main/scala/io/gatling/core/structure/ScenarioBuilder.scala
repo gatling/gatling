@@ -35,7 +35,7 @@ case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = L
 	def inject(is: InjectionStep, iss: InjectionStep*) = new ProfiledScenarioBuilder(this, InjectionProfile(is +: iss))
 }
 
-class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionProfile: InjectionProfile) {
+case class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionProfile: InjectionProfile) {
 
 	/**
 	 * @param protocolRegistry
