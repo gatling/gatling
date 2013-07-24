@@ -64,7 +64,7 @@ class GatlingJsonPathExtractorsSpec extends ValidationSpecification {
 		}
 
 		"return expected result with last function expression" in {
-			GatlingJsonPathExtractors.extractOne(0)(prepared("/test.json"), "$.store.book[(@.length - 1)].title") must succeedWith(Some("The Lord of the Rings"))
+			GatlingJsonPathExtractors.extractOne(0)(prepared("/test.json"), "$.store.book[-1].title") must succeedWith(Some("The Lord of the Rings"))
 		}
 
 		"not mess up if two nodes with the same name are placed in different locations" in {
@@ -72,7 +72,7 @@ class GatlingJsonPathExtractorsSpec extends ValidationSpecification {
 		}
 
 		"support bracket notation" in {
-			GatlingJsonPathExtractors.extractOne(0)(prepared("/test.json"), "$.@id") must succeedWith(Some("ID"))
+			GatlingJsonPathExtractors.extractOne(0)(prepared("/test.json"), "$['@id']") must succeedWith(Some("ID"))
 		}
 
 		"support element filter with object root" in {
@@ -80,15 +80,16 @@ class GatlingJsonPathExtractorsSpec extends ValidationSpecification {
 		}
 
 		"support element filter with array root" in {
-			GatlingJsonPathExtractors.extractOne(0)(prepared("/test2.json"), "$.[?(@.id=='19434')].foo") must succeedWith(Some("1"))
+			GatlingJsonPathExtractors.extractOne(0)(prepared("/test2.json"), "$[?(@.id==19434)].foo") must succeedWith(Some("1"))
 		}
 
-		"support element filter with wildcard" in {
-			GatlingJsonPathExtractors.extractOne(0)(prepared("/test2.json"), "$..[?(@.id==19434)].foo") must succeedWith(Some("1"))
-		}
+		// $..[?()] is not a valid syntax
+		//		"support element filter with wildcard" in {
+		//			GatlingJsonPathExtractors.extractOne(0)(prepared("/test2.json"), "$..[?(@.id==19434)].foo") must succeedWith(Some("1"))
+		//		}
 
 		"support multiple element filters" in {
-			GatlingJsonPathExtractors.extractOne(0)(prepared("/test2.json"), "$..[?(@.id==19434)][?(@.foo==1)].foo") must succeedWith(Some("1"))
+			GatlingJsonPathExtractors.extractOne(0)(prepared("/test2.json"), "$[?(@.id==19434 && @.foo==1)]") must succeedWith(Some("1"))
 		}
 	}
 
@@ -112,6 +113,14 @@ class GatlingJsonPathExtractorsSpec extends ValidationSpecification {
 
 		"support wildcard at second level" in {
 			GatlingJsonPathExtractors.extractMultiple(prepared("/test.json"), "$..store..category") must succeedWith(Some(List("reference", "fiction", "fiction", "fiction")))
+		}
+
+		"support array slicing" in {
+			GatlingJsonPathExtractors.extractMultiple(prepared("/test.json"), "$.store.book[1:3].title") must succeedWith(Some(List("Sword of Honour", "Moby Dick")))
+		}
+
+		"support a step parameter in array slicing" in {
+			GatlingJsonPathExtractors.extractMultiple(prepared("/test.json"), "$.store.book[::-2].title") must succeedWith(Some(List("The Lord of the Rings", "Sword of Honour")))
 		}
 	}
 }

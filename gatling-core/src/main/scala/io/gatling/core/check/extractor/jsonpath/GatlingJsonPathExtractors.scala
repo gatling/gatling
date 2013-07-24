@@ -44,28 +44,28 @@ object GatlingJsonPathExtractors {
 		if (configuration.core.extract.jsonPath.cache) cache.getOrElseUpdate(expression, compile(expression))
 		else compile(expression)
 
-	private def extractAll(json: Any, expression: String): Validation[Option[Seq[String]]] = {
+	private def extractAll(json: Any, expression: String): Validation[Iterator[String]] = {
 
 		cached(expression).map { path =>
-			path.query(json).map(_.toString).toSeq.liftSeqOption
+			path.query(json).map(_.toString)
 		}
 	}
 
 	val extractOne = (occurrence: Int) => new JsonPathExtractor[String] {
 
 		def apply(prepared: Any, criterion: String): Validation[Option[String]] =
-			extractAll(prepared, criterion).map(_.flatMap(_.lift(occurrence)))
+			extractAll(prepared, criterion).map(_.toStream.liftSeqOption.flatMap(_.lift(occurrence)))
 	}
 
 	val extractMultiple = new JsonPathExtractor[Seq[String]] {
 
 		def apply(prepared: Any, criterion: String): Validation[Option[Seq[String]]] =
-			extractAll(prepared, criterion).map(_.flatMap(_.liftSeqOption))
+			extractAll(prepared, criterion).map(_.toVector.liftSeqOption.flatMap(_.liftSeqOption))
 	}
 
 	val count = new JsonPathExtractor[Int] {
 
 		def apply(prepared: Any, criterion: String): Validation[Option[Int]] =
-			extractAll(prepared, criterion).map(_.map(_.size))
+			extractAll(prepared, criterion).map(i => Some(i.size))
 	}
 }
