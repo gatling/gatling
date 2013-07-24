@@ -15,26 +15,24 @@
  */
 package io.gatling.core.scenario
 
-import scala.concurrent.duration.DurationInt
-
 import akka.actor.ActorRef
 import io.gatling.core.action.system
-import io.gatling.core.action.system.dispatcher
 import io.gatling.core.session.Session
+import io.gatling.core.util.TimeHelper.zeroMs
 
 case class Scenario(name: String, entryPoint: ActorRef, injectionProfile: InjectionProfile) {
 
 	def run(userIdStart: Int) {
 		import system.dispatcher
 
-		val scheduler = system.scheduler
-		val zeroMs = 0 millisecond
 		def newSession(i: Int) = Session(name, i + userIdStart)
 
 		injectionProfile.allUsers.zipWithIndex.foreach {
 			case (startingTime, index) =>
-				if (startingTime == zeroMs) entryPoint ! newSession(index)
-				else scheduler.scheduleOnce(startingTime, entryPoint, newSession(index))
+				if (startingTime == zeroMs)
+					entryPoint ! newSession(index)
+				else
+					system.scheduler.scheduleOnce(startingTime, entryPoint, newSession(index))
 		}
 	}
 }

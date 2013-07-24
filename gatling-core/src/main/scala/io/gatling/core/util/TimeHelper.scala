@@ -17,7 +17,11 @@ package io.gatling.core.util
 
 import java.lang.System.{ currentTimeMillis, nanoTime }
 
+import scala.concurrent.duration.DurationInt
+
 object TimeHelper {
+
+	val zeroMs = 0 millisecond
 
 	val currentTimeMillisReference = currentTimeMillis
 	val nanoTimeReference = nanoTime
