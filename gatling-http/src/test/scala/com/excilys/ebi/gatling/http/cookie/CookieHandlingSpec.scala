@@ -27,7 +27,7 @@ import com.ning.http.util.AsyncHttpProviderUtils
 @RunWith(classOf[JUnitRunner])
 class CookieHandlingSpec extends Specification {
 
-	val originalCookie = AsyncHttpProviderUtils.parseCookie("ALPHA=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
+	val originalCookie = AsyncHttpProviderUtils.parseCookie("ALPHA=VALUE1; Domain=docs.foo.com; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
 	val originalDomain = "docs.foo.com"
 	val originalCookieJar = new CookieJar(Map(originalDomain -> List(originalCookie)))
 	val originalSession = new Session("scenarioName", 1, Map(CookieHandling.COOKIES_CONTEXT_KEY -> originalCookieJar))
