@@ -60,8 +60,8 @@ class RecorderController extends Logging {
 	def startRecording {
 		val selectedMode = frontEnd.selectedMode
 		val harFilePath = frontEnd.harFilePath
-		if (selectedMode == Har && harFilePath.isEmpty) {
-			frontEnd.handleMissingHarFile
+		if (selectedMode == Har && !File(harFilePath).exists) {
+			frontEnd.handleMissingHarFile(harFilePath)
 		} else {
 			val simulationFile = File(ScenarioExporter.getOutputFolder / ScenarioExporter.getSimulationFileName)
 			val proceed = if (simulationFile.exists) frontEnd.askSimulationOverwrite else true
