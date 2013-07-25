@@ -149,13 +149,15 @@ class FilterTable extends JPanel with MouseListener {
 
 class RadioButtonRenderer extends TableCellRenderer {
 
-	def getTableCellRendererComponent(table: JTable, value: Object, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int): Component = {
-		Option(value.asInstanceOf[SelectPatternPanel]).getOrElse {
-			val newValue = new SelectPatternPanel
-			table.setValueAt(newValue, row, 1)
-			newValue
+	def getTableCellRendererComponent(table: JTable, value: Object, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int): Component =
+		value match {
+			case null if table.getModel.getValueAt(row, column) != null => table.getModel.getValueAt(row, column).asInstanceOf[SelectPatternPanel]
+			case null =>
+				val newValue = new SelectPatternPanel
+				table.setValueAt(newValue, row, 1)
+				newValue
+			case panel: SelectPatternPanel => panel
 		}
-	}
 }
 
 class RadioButtonEditor extends AbstractCellEditor with TableCellEditor {
