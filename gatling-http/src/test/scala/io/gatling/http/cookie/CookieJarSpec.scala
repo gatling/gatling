@@ -217,7 +217,7 @@ class CookieJarSpec extends Specification {
 
 			val cookies2 = decode("cookie1=VALUE2; Path=/").toList
 			val cookieStore2 = cookieStore.add(new URI("https://foo.org:443/moodle/login"), cookies2)
-			
+
 			val cookies = cookieStore2.get(new URI("http://foo.org/moodle/login"))
 			cookies.length must beEqualTo(1)
 			cookies.head.getValue must beEqualTo("VALUE2")

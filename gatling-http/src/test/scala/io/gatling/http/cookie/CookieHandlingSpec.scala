@@ -30,7 +30,7 @@ import io.gatling.core.session.Session
 @RunWith(classOf[JUnitRunner])
 class CookieHandlingSpec extends Specification {
 
-	val originalCookies = CookieDecoder.decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly").toList
+	val originalCookies = CookieDecoder.decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly").toList
 	val originalDomain = "docs.foo.com"
 	val originalCookieJar = new CookieJar(Map(originalDomain -> originalCookies))
 	val originalSession = Session("scenarioName", 1, Map(CookieHandling.cookieJarAttributeName -> originalCookieJar))
@@ -38,6 +38,7 @@ class CookieHandlingSpec extends Specification {
 	val emptySession = Session("scenarioName", 2)
 
 	"getStoredCookies" should {
+
 		"be able to get a cookie from session" in {
 			CookieHandling.getStoredCookies(originalSession, "https://docs.foo.com/accounts").map(x => x.getValue) must beEqualTo(List("VALUE1"))
 		}
@@ -45,7 +46,6 @@ class CookieHandlingSpec extends Specification {
 		"be called with an empty session" in {
 			CookieHandling.getStoredCookies(emptySession, "https://docs.foo.com/accounts") must beEmpty
 		}
-
 	}
 
 	"storeCookies" should {
