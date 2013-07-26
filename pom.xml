@@ -130,7 +130,7 @@
 		<commons-io.version>2.4</commons-io.version>
 		<commons-exec.version>1.1</commons-exec.version>
 		<jsoup.version>1.7.2</jsoup.version>
-		<jodd.version>3.4.4</jodd.version>
+		<jodd.version>3.4.5</jodd.version>
 		<jzlib.version>1.1.2</jzlib.version>
 		<redis.version>2.10</redis.version>
 		<junit.version>4.11</junit.version>
