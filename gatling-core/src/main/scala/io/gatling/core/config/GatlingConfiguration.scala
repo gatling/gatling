@@ -52,6 +52,7 @@ object GatlingConfiguration {
 				runDescription = config.getString(CONF_CORE_RUN_DESCRIPTION).trimToOption,
 				encoding = config.getString(CONF_CORE_ENCODING),
 				simulationClass = config.getString(CONF_CORE_SIMULATION_CLASS).trimToOption,
+				disableCompiler = config.getBoolean(CONF_CORE_DISABLE_COMPILER),
 				extract = ExtractConfiguration(
 					regex = RegexConfiguration(
 						cache = config.getBoolean(CONF_CORE_EXTRACT_REGEXP_CACHE)),
@@ -195,6 +196,7 @@ case class CoreConfiguration(
 	runDescription: Option[String],
 	encoding: String,
 	simulationClass: Option[String],
+	disableCompiler: Boolean,
 	extract: ExtractConfiguration,
 	timeOut: TimeOutConfiguration,
 	directory: DirectoryConfiguration,

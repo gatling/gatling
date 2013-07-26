@@ -166,13 +166,20 @@ class Gatling extends Logging {
 		}
 
 		val simulations = {
-			val simulationClassLoader = GatlingFiles.binariesDirectory
-				.map(SimulationClassLoader.fromClasspathBinariesDirectory) // expect simulations to have been pre-compiled (ex: IDE)
-				.getOrElse(SimulationClassLoader.fromSourcesDirectory(GatlingFiles.sourcesDirectory))
+			if (configuration.core.disableCompiler) {
+				configuration.core.simulationClass
+					.map(clazz => List(Class.forName(clazz).asInstanceOf[Class[Simulation]]))
+					.getOrElse(throw new IllegalArgumentException("Compiler is disable, but no simulation class is specified"))
 
-			simulationClassLoader
-				.simulationClasses(configuration.core.simulationClass)
-				.sortBy(_.getName)
+			} else {
+				val simulationClassLoader = GatlingFiles.binariesDirectory
+					.map(SimulationClassLoader.fromClasspathBinariesDirectory) // expect simulations to have been pre-compiled (ex: IDE)
+					.getOrElse(SimulationClassLoader.fromSourcesDirectory(GatlingFiles.sourcesDirectory))
+
+				simulationClassLoader
+					.simulationClasses(configuration.core.simulationClass)
+					.sortBy(_.getName)
+			}
 		}
 
 		val (outputDirectoryName, simulation) = GatlingFiles.reportsOnlyDirectory
