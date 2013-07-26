@@ -31,7 +31,7 @@ class ConsoleDataWriterSpec extends Specification {
 
 	val time = new DateTime().withDate(2012, 8, 24).withTime(13, 37, 0, 0)
 
-	def progressBar(summary: ConsoleSummary) = summary.toString.split("\n")(4)
+	def progressBar(summary: ConsoleSummary) = summary.toString.split("\r?\n")(4)
 
 	"console summary progress bar" should {
 
