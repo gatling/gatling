@@ -23,6 +23,7 @@ import org.jboss.netty.handler.codec.http.HttpRequest
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.channel.BootstrapFactory.newClientBootstrap
+import io.gatling.recorder.util.URIHelper
 
 class BrowserHttpRequestHandler(controller: RecorderController) extends AbstractBrowserRequestHandler(controller) {
 
@@ -35,9 +36,10 @@ class BrowserHttpRequestHandler(controller: RecorderController) extends Abstract
 			port <- configuration.proxy.outgoing.port
 		} yield (host, port))
 			.getOrElse {
-				val uri = new URI(request.getUri)
-				val port = if (uri.getPort == -1) 80 else uri.getPort
-				(uri.getHost, port)
+				// the URI sometimes contains invalid characters, so we truncate as we only need the host and port
+				val (schemeHostPort, _) = URIHelper.splitURI(request.getUri)
+				val uri = new URI(schemeHostPort)
+				(uri.getHost, if (uri.getPort == -1) 80 else uri.getPort)
 			}
 
 		bootstrap
