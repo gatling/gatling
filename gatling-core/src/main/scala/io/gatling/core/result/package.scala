@@ -21,4 +21,5 @@ package result {
 	case class IntVsTimePlot(time: Int, value: Int)
 	case class IntRangeVsTimePlot(time: Int, lower: Int, higher: Int)
 	case class PieSlice(name: String, value: Int)
+	case class ErrorStats(message: String, count: Int, percentage: Int)
 }
