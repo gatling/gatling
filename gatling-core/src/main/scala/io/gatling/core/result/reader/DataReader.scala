@@ -16,7 +16,7 @@
 package io.gatling.core.result.reader
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.{ Group, IntRangeVsTimePlot, IntVsTimePlot, StatsPath }
+import io.gatling.core.result.{ ErrorStats, Group, IntRangeVsTimePlot, IntVsTimePlot, StatsPath }
 import io.gatling.core.result.message.{ RunMessage, Status }
 
 object DataReader {
@@ -41,5 +41,5 @@ abstract class DataReader(runUuid: String) {
 	def responseTimeGroupByExecutionStartDate(status: Status, requestName: Option[String] = None, group: Option[Group] = None): Seq[IntRangeVsTimePlot]
 	def latencyGroupByExecutionStartDate(status: Status, requestName: Option[String] = None, group: Option[Group] = None): Seq[IntRangeVsTimePlot]
 	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: Option[String] = None, group: Option[Group] = None): Seq[IntVsTimePlot]
-	def errors(requestName: Option[String], group: Option[Group]): Seq[(String, Int, Int)]
+	def errors(requestName: Option[String], group: Option[Group]): Seq[ErrorStats]
 }
