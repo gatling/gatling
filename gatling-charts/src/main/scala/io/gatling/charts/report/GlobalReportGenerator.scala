@@ -15,7 +15,7 @@
  */
 package io.gatling.charts.report
 
-import io.gatling.charts.component.{ Component, ComponentLibrary, StatisticsTableComponent }
+import io.gatling.charts.component.{ Component, ComponentLibrary, ErrorTableComponent, StatisticsTableComponent }
 import io.gatling.charts.config.ChartsFiles.globalFile
 import io.gatling.charts.template.GlobalPageTemplate
 import io.gatling.charts.util.Colors._
@@ -75,7 +75,7 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 			componentLibrary.getNumberOfRequestsChartComponent,
 			componentLibrary.getRequestDetailsIndicatorChartComponent,
 			new StatisticsTableComponent,
-			componentLibrary.getErrorTableComponent(dataReader.errors(None, None)),
+			new ErrorTableComponent(dataReader.errors(None, None)),
 			activeSessionsChartComponent,
 			responseTimeDistributionChartComponent,
 			requestsChartComponent,

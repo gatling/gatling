@@ -26,7 +26,7 @@ import io.gatling.charts.result.reader.buffers.{ CountBuffer, RangeBuffer }
 import io.gatling.charts.result.reader.stats.StatsHelper
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
-import io.gatling.core.result.{ Group, GroupStatsPath, IntRangeVsTimePlot, IntVsTimePlot, RequestStatsPath, StatsPath }
+import io.gatling.core.result.{ ErrorStats, Group, GroupStatsPath, IntRangeVsTimePlot, IntVsTimePlot, RequestStatsPath, StatsPath }
 import io.gatling.core.result.message.{ GroupMessageType, KO, OK, RequestMessageType, RunMessage, RunMessageType, ScenarioMessageType, Status }
 import io.gatling.core.result.reader.{ DataReader, GeneralStats }
 import io.gatling.core.util.DateHelper.parseTimestampString
@@ -239,9 +239,9 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 			}.sortBy(_.time)
 	}
 
-	def errors(requestName: Option[String], group: Option[Group]): Seq[(String, Int, Int)] = {
+	def errors(requestName: Option[String], group: Option[Group]): Seq[ErrorStats] = {
 		val buff = resultsHolder.getErrorsBuffers(requestName, group)
 		val total = buff.foldLeft(0)(_ + _._2)
-		buff.toSeq.map { case (name, count) => (name, count, count * 100 / total) }.sortWith(_._2 > _._2)
+		buff.toSeq.map { case (name, count) => ErrorStats(name, count, count * 100 / total) }.sortWith(_.count > _.count)
 	}
 }
