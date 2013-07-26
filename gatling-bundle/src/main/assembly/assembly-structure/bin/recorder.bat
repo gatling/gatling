@@ -1,3 +1,4 @@
+@ECHO OFF
 @REM
 @REM Copyright 2011-2013 eBusiness Information, Groupe Excilys (www.ebusinessinformation.fr)
 @REM
