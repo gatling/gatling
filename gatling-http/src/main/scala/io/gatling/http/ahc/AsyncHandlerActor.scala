@@ -117,7 +117,7 @@ class AsyncHandlerActor extends BaseActor {
 	 * @param newSession the new Session
 	 */
 	private def executeNext(task: HttpTask, newSession: Session, response: Response) {
-		task.next ! newSession.increaseDrift(nowMillis - response.lastByteReceived)
+		task.next ! newSession.increaseDrift(nowMillis - response.lastByteReceived).cumulateGroupResponseTime(response.reponseTimeInMillis)
 	}
 
 	private def ok(task: HttpTask, session: Session, response: Response) {

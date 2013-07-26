@@ -79,10 +79,14 @@ case class Session(
 	private[gatling] def setDrift(drift: Long) = copy(drift = drift)
 	private[gatling] def increaseDrift(time: Long) = copy(drift = time + drift)
 
-	private[gatling] def enterGroup(groupName: String) = copy(groupStack = GroupStackEntry(groupName, nowMillis) :: groupStack, statusStack = OK :: statusStack)
+	private[gatling] def enterGroup(groupName: String) = copy(groupStack = GroupStackEntry(groupName, nowMillis, 0L) :: groupStack, statusStack = OK :: statusStack)
 	private[gatling] def exitGroup = statusStack match {
 		case KO :: _ :: tail => copy(statusStack = KO :: tail, groupStack = groupStack.tail) // propagate failure to upper block
 		case _ :: tail => copy(statusStack = tail, groupStack = groupStack.tail)
+	}
+	def cumulateGroupResponseTime(responseTime: Long) = groupStack match {
+		case Nil => this
+		case _ => copy(groupStack = groupStack.map { entry => entry.copy(cumulatedResponseTime = entry.cumulatedResponseTime + responseTime) })
 	}
 
 	private[gatling] def enterTryMax(interrupt: PartialFunction[Session, Unit]): Session = enterInterruptable(interrupt).copy(statusStack = OK :: statusStack)
