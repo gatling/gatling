@@ -95,9 +95,13 @@ trait DataWriter extends BaseActor {
 			try {
 				onFlushDataWriter
 			} finally {
-				context.unbecome
+				context.become(flushed)
 				sender ! true
 			}
+	}
+	
+	def flushed: Receive = {
+		case m => logger.info(s"Can't handle $m after being flush")
 	}
 
 	def receive = uninitialized
