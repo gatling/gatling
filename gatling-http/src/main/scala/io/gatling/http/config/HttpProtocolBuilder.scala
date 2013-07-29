@@ -27,6 +27,7 @@ import io.gatling.core.result.message.Status
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.Headers.Names._
 import io.gatling.http.ahc.HttpClient
+import io.gatling.http.check.HttpCheck
 import io.gatling.http.request.builder.{ GetHttpRequestBuilder, PostHttpRequestBuilder }
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
@@ -98,6 +99,8 @@ case class HttpProtocolBuilder(protocol: HttpProtocol, warmUpUrl: Option[String]
 	def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = copy(protocol = protocol.copy(proxy = Some(httpProxy), securedProxy = httpsProxy))
 
 	def localAddress(localAddress: InetAddress) = copy(protocol = protocol.copy(localAddress = Some(localAddress)))
+
+	def check(checks: HttpCheck*) = copy(protocol = protocol.copy(checks = protocol.checks ::: checks.toList))
 
 	def build = {
 		require(!(!protocol.shareClient && protocol.shareConnections), "Invalid protocol configuration: can't stop sharing the HTTP client while still sharing connections!")

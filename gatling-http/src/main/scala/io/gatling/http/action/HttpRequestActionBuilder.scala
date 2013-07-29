@@ -34,17 +34,6 @@ object HttpRequestActionBuilder {
 	 * This is the default HTTP check used to verify that the response status is 2XX
 	 */
 	val DEFAULT_HTTP_STATUS_CHECK = status.find.in(Session => (200 to 210).success).build
-
-	def apply(requestName: Expression[String], requestFactory: RequestFactory, checks: List[HttpCheck], responseTransformer: Option[ResponseTransformer]) = {
-
-		val resolvedChecks = checks
-			.find(_.order == Status)
-			.map(_ => checks)
-			.getOrElse(HttpRequestActionBuilder.DEFAULT_HTTP_STATUS_CHECK :: checks)
-			.sorted
-
-		new HttpRequestActionBuilder(requestName, requestFactory, resolvedChecks, responseTransformer)
-	}
 }
 
 /**
@@ -60,6 +49,12 @@ class HttpRequestActionBuilder(requestName: Expression[String], requestFactory: 
 
 		val httpProtocol = ProtocolRegistry.registry.getProtocol(HttpProtocol.default)
 
-		system.actorOf(Props(new HttpRequestAction(requestName, next, requestFactory, checks, responseTransformer, httpProtocol)))
+		val resolvedChecks = (httpProtocol.checks ::: checks)
+			.find(_.order == Status)
+			.map(_ => checks)
+			.getOrElse(HttpRequestActionBuilder.DEFAULT_HTTP_STATUS_CHECK :: checks)
+			.sorted
+
+		system.actorOf(Props(new HttpRequestAction(requestName, next, requestFactory, resolvedChecks, responseTransformer, httpProtocol)))
 	}
 }
