@@ -25,7 +25,7 @@ import io.gatling.core.util.NumberHelper
 
 class AssertionBuilder {
 
-	def global = new Selector((reader, status) => reader.generalStats(status, None, None), "Global")
+	def global = new Selector((reader, status) => reader.requestGeneralStats(None, None, status), "Global")
 
 	def details(selector: Path) = {
 
@@ -46,9 +46,9 @@ class AssertionBuilder {
 		def generalStats(selector: Path): (DataReader, Option[Status]) => GeneralStats = {
 			(reader, status) =>
 				path(reader, selector) match {
-					case Some(RequestStatsPath(request, group)) => reader.generalStats(status, Some(request), group)
-					case Some(GroupStatsPath(group)) => reader.generalStats(status, None, Some(group))
-					case None => reader.generalStats(status, None, None)
+					case Some(RequestStatsPath(request, group)) => reader.requestGeneralStats(Some(request), group, status)
+					case Some(GroupStatsPath(group)) => reader.requestGeneralStats(None, Some(group), status)
+					case None => reader.requestGeneralStats(None, None, status)
 				}
 		}
 

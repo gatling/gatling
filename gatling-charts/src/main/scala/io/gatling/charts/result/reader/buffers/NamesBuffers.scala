@@ -17,8 +17,8 @@ package io.gatling.charts.result.reader.buffers
 
 import scala.collection.mutable
 
-import io.gatling.charts.result.reader.{ RequestRecord, ScenarioRecord }
-import io.gatling.core.result.{ Group, GroupStatsPath, RequestStatsPath, StatsPath }
+import io.gatling.charts.result.reader.{ GroupRecord, RequestRecord, ScenarioRecord }
+import io.gatling.core.result.{ GroupStatsPath, RequestStatsPath, StatsPath }
 
 trait NamesBuffers {
 
@@ -35,14 +35,17 @@ trait NamesBuffers {
 	val scenarioNameBuffer = new NameBuffer[String]
 
 	def addScenarioName(record: ScenarioRecord) {
-		scenarioNameBuffer.update(record.scenario, record.startDate)
+		import record._
+		scenarioNameBuffer.update(scenario, startDate)
 	}
 
 	def addRequestName(record: RequestRecord) {
-		groupAndRequestsNameBuffer.update(RequestStatsPath(record.name, record.group), record.requestStart)
+		import record._
+		groupAndRequestsNameBuffer.update(RequestStatsPath(name, group), requestStart)
 	}
 
-	def addGroupName(group: Group, time: Long) {
-		groupAndRequestsNameBuffer.update(GroupStatsPath(group), time)
+	def addGroupName(record: GroupRecord) {
+		import record._
+		groupAndRequestsNameBuffer.update(GroupStatsPath(group), startDate)
 	}
 }
