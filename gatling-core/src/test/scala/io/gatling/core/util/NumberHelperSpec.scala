@@ -15,39 +15,12 @@
  */
 package io.gatling.core.util
 
-import scala.math.abs
-
-import org.apache.commons.math3.exception.NotStrictlyPositiveException
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class NumberHelperSpec extends Specification {
-
-	"getRandomLong" should {
-
-		"be zero when min and max are zero" in {
-			NumberHelper.createUniformRandomLongGenerator(0, 0)() must beEqualTo(0)
-		}
-	}
-
-	"getRandomDoubleFromExponential" should {
-
-		"throw exception when expected average is zero" in {
-			NumberHelper.createExpRandomDoubleGenerator(0) should throwA[NotStrictlyPositiveException]
-		}
-	}
-
-	"getRandomLongFromExponential" should {
-
-		"throw exception when expected average is zero" in {
-			NumberHelper.createExpRandomLongGenerator(0) should throwA[NotStrictlyPositiveException]
-		}
-	}
-
-	def isCloseTo(expected: Double, actual: Double, tolerance: Double): Boolean = abs(actual - expected) <= tolerance
-	def isCloseTo(expected: Long, actual: Long, tolerance: Long): Boolean = abs(actual - expected) <= tolerance
 
 	"formatNumberWithSuffix" should {
 

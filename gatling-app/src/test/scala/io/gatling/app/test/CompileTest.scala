@@ -19,6 +19,7 @@ import io.gatling.core.Predef._
 import io.gatling.http.Headers.Names._
 import io.gatling.http.Predef._
 import io.gatling.jdbc.Predef._
+import io.gatling.core.pause._
 import assertions._
 import bootstrap._
 
@@ -48,7 +49,7 @@ object CompileTest extends Simulation {
 
 	val usersInformation = tsv("user_information.tsv")
 
-	val loginChain = exec(http("First Request Chain").get("/")).pause(1, 2)
+	val loginChain = exec(http("First Request Chain").get("/")).pause(1)
 
 	val testData = tsv("test-data.tsv")
 
@@ -98,7 +99,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 			40 -> exec(http("Catégorie Poney").get("/")),
 			50 -> exec(http("Catégorie Poney").get("/")))
 		.randomSwitch(40 -> exec(http("Catégorie Poney").get("/")))
-		.pause(pause2, pause3)
+		.pause(pause2)
 		// Loop
 		.repeat(iterations, "titi") {
 			// What will be repeated ?
@@ -165,16 +166,16 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 					exec(http("IF=FALSE Request").get("/"))
 				}.pause(pause2)
 				.exec(http("Url from session").get("/aaaa"))
-				.pause(1000 milliseconds, 3000 milliseconds)
+				.pause(1000 milliseconds)
 				// Second request to be repeated
 				.exec(http("Create Thing blabla").post("/things").queryParam("login", "${login}").queryParam("password", "${password}").body(ELFileBody("create_thing.txt")).asJSON)
 				.pause(pause1)
 				// Third request to be repeated
 				.exec(http("Liste Articles").get("/things").queryParam("firstname", "${firstname}").queryParam("lastname", "${lastname}"))
-				.pauseExp(pause1)
+				.pause(pause1)
 				.exec(http("Test Page").get("/tests").check(header(CONTENT_TYPE).is("text/html; charset=utf-8").saveAs("sessionParam")))
 				// Fourth request to be repeated
-				.pauseExp(100 milliseconds)
+				.pause(100 milliseconds)
 				// switch
 				.randomSwitch(
 					40 -> exec(http("Possibility 1").get("/p1")),
@@ -202,6 +203,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 
 	setUp(lambdaUser.inject(inject1), lambdaUser.inject(inject1, inject2))
 		.protocols(httpProtocol)
+		.pauses(UniformDuration(1))
 		.assertions(
 			global.responseTime.mean.lessThan(50),
 			global.responseTime.max.between(50, 500),
@@ -211,3 +213,4 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 			details("Users" / "Search" / "Index page").responseTime.mean.greaterThan(0).lessThan(50),
 			details("Admins" / "Create").failedRequests.percent.lessThan(90))
 }
+
