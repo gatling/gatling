@@ -18,12 +18,13 @@ package io.gatling.core.scenario
 import scala.concurrent.duration.Duration
 
 import io.gatling.core.config.{ Protocol, ProtocolRegistry }
+import io.gatling.core.pause.{ PauseProtocol, PauseType }
 import io.gatling.core.structure.{ Assertion, ChainBuilder, Metric, ProfiledScenarioBuilder }
 
 abstract class Simulation {
 
 	private[scenario] var _scenarios = Seq.empty[ProfiledScenarioBuilder]
-	private[scenario] var _protocols = Seq.empty[Protocol]
+	private[scenario] var _protocols = List.empty[Protocol]
 	private[scenario] var _assertions = Seq.empty[Assertion]
 
 	def scenarios: Seq[Scenario] = {
@@ -37,21 +38,22 @@ abstract class Simulation {
 
 	def setUp(scenario: ProfiledScenarioBuilder, scenarios: ProfiledScenarioBuilder*) = {
 		_scenarios = scenario :: scenarios.toList
-		new SetUp(this)
+		new SetUp
 	}
 
-	class SetUp(val simulation: Simulation) {
+	class SetUp {
 
 		def protocols(protocol: Protocol, protocols: Protocol*) = {
-			simulation._protocols = protocol :: protocols.toList
-			new SetUp(simulation)
+			_protocols = protocol :: protocols.toList
+			this
 		}
 
-		def assertions(metric: Metric, metrics: Metric*) {
-			simulation._assertions = metric.assertions ++ metrics.flatMap(_.assertions)
+		def assertions(metric: Metric, metrics: Metric*) = {
+			_assertions = metric.assertions ++ metrics.flatMap(_.assertions)
+			this
 		}
 
-		def maxDuration(duration: Duration) {
+		def maxDuration(duration: Duration) = {
 
 			_scenarios = _scenarios.map { profiledScenarioBuilder =>
 				val loop = ChainBuilder.empty.maxSimulationDuration(duration) {
@@ -60,6 +62,12 @@ abstract class Simulation {
 
 				profiledScenarioBuilder.copy(scenarioBuilder = profiledScenarioBuilder.scenarioBuilder.copy(actionBuilders = loop.actionBuilders))
 			}
+			this
+		}
+
+		def pauses(pauseType: PauseType) = {
+			_protocols = PauseProtocol(pauseType) :: _protocols
+			this
 		}
 	}
 }

@@ -91,6 +91,7 @@ import io.gatling.core.Predef._
 import io.gatling.core.session.Expression
 import io.gatling.http.Predef._
 import io.gatling.jdbc.Predef._
+import io.gatling.core.pause._
 import io.gatling.http.Headers.Names._
 import io.gatling.http.Headers.Values._
 import scala.concurrent.duration._
