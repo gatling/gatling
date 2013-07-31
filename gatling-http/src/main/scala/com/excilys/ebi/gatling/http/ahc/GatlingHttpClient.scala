@@ -15,6 +15,7 @@
  */
 package com.excilys.ebi.gatling.http.ahc
 
+import java.util.Timer
 import java.util.concurrent.{ Executors, ThreadFactory }
 
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory
@@ -59,7 +60,8 @@ object GatlingHttpClient extends Logging {
 			configuration.http.maximumConnectionsPerHost,
 			configuration.http.idleConnectionInPoolTimeOutInMs,
 			configuration.http.maxConnectionLifeTimeInMs,
-			configuration.http.allowSslConnectionPool)
+			configuration.http.allowSslConnectionPool,
+			new Timer(true))
 
 		val nettyConfig = {
 			val numWorkers = configuration.http.ioThreadMultiplier * Runtime.getRuntime.availableProcessors
