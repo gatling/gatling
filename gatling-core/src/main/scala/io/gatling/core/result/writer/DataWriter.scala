@@ -99,7 +99,7 @@ trait DataWriter extends BaseActor {
 				sender ! true
 			}
 	}
-	
+
 	def flushed: Receive = {
 		case m => logger.info(s"Can't handle $m after being flush")
 	}
