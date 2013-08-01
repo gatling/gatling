@@ -18,12 +18,13 @@ package io.gatling.core.action.builder
 import akka.actor.{ ActorRef, Props }
 import io.gatling.core.action.{ TryMax, system }
 import io.gatling.core.structure.ChainBuilder
+import io.gatling.core.config.ProtocolRegistry
 
 class TryMaxBuilder(times: Int, counterName: String, loopNext: ChainBuilder) extends ActionBuilder {
 
-	def build(next: ActorRef) = {
+	def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = {
 		val tryMaxActor = system.actorOf(Props(new TryMax(times, counterName, next)))
-		val loopContent = loopNext.build(tryMaxActor)
+		val loopContent = loopNext.build(tryMaxActor, protocolRegistry)
 		tryMaxActor ! loopContent
 		tryMaxActor
 	}

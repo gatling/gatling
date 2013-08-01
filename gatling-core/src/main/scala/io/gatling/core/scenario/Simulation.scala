@@ -17,23 +17,22 @@ package io.gatling.core.scenario
 
 import scala.concurrent.duration.Duration
 
-import io.gatling.core.config.{ Protocol, ProtocolRegistry }
+import io.gatling.core.config.Protocol
 import io.gatling.core.pause.{ PauseProtocol, PauseType }
 import io.gatling.core.structure.{ Assertion, ChainBuilder, Metric, ProfiledScenarioBuilder }
 
 abstract class Simulation {
 
 	private[scenario] var _scenarios = Seq.empty[ProfiledScenarioBuilder]
-	private[scenario] var _protocols = List.empty[Protocol]
+	private[scenario] var _globalProtocols = List.empty[Protocol]
 	private[scenario] var _assertions = Seq.empty[Assertion]
 
 	def scenarios: Seq[Scenario] = {
 		require(!_scenarios.isEmpty, "No scenario set up")
-		ProtocolRegistry.setUp(_protocols)
-		_scenarios.map(_.build)
+		_scenarios.map(_.build(_globalProtocols))
 	}
 
-	def protocols = _protocols
+	def protocols = _globalProtocols
 	def assertions = _assertions
 
 	def setUp(scenario: ProfiledScenarioBuilder, scenarios: ProfiledScenarioBuilder*) = {
@@ -44,7 +43,7 @@ abstract class Simulation {
 	class SetUp {
 
 		def protocols(protocol: Protocol, protocols: Protocol*) = {
-			_protocols = protocol :: protocols.toList ::: _protocols
+			_globalProtocols = protocol :: protocols.toList ::: _globalProtocols
 			this
 		}
 
@@ -66,7 +65,7 @@ abstract class Simulation {
 		}
 
 		def pauses(pauseType: PauseType) = {
-			_protocols = PauseProtocol(pauseType) :: _protocols
+			_globalProtocols = PauseProtocol(pauseType) :: _globalProtocols
 			this
 		}
 	}

@@ -49,7 +49,6 @@ class WebSocketActorSpec extends Specification with AllExpectations with Mockito
 		LoggerFactory.getLogger(classOf[WebSocketActorSpec])
 		// set up configuration to avoid NPEs constructing actors
 		GatlingConfiguration.setUp()
-		ProtocolRegistry.setUp(Nil)
 		success
 	}
 
@@ -163,7 +162,7 @@ class WebSocketActorSpec extends Specification with AllExpectations with Mockito
 			next = TestActorRef[DummyAction](Props(new DummyAction))(system)
 			val action = websocket("testRequestName")
 				.open("ws://dummy/", "testAttributeName")(webSocketClient, requestLogger)
-				.build(next)
+				.build(next, ProtocolRegistry(Nil))
 
 			action ! new Session("test", 0)
 		}
@@ -188,7 +187,7 @@ class WebSocketActorSpec extends Specification with AllExpectations with Mockito
 			next = TestActorRef[DummyAction](Props(new DummyAction))(system)
 			val action = websocket("testRequestName")
 				.sendMessage(message, "testAttributeName")
-				.build(next)
+				.build(next, ProtocolRegistry(Nil))
 
 			action ! session
 		}
@@ -198,7 +197,7 @@ class WebSocketActorSpec extends Specification with AllExpectations with Mockito
 			next = TestActorRef[DummyAction](Props(new DummyAction))(system)
 			val action = websocket("testRequestName")
 				.close("testAttributeName")
-				.build(next)
+				.build(next, ProtocolRegistry(Nil))
 
 			action ! session
 		}

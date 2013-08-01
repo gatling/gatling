@@ -15,20 +15,20 @@
  */
 package io.gatling.core.action.builder
 
+import akka.actor.{ ActorRef, Props }
 import io.gatling.core.action.{ Switch, system }
+import io.gatling.core.config.ProtocolRegistry
 import io.gatling.core.structure.ChainBuilder
 import io.gatling.core.util.RoundRobin
-
-import akka.actor.{ ActorRef, Props }
 
 class RoundRobinSwitchBuilder(possibilities: List[ChainBuilder]) extends ActionBuilder {
 
 	require(possibilities.size >= 2, "Can't build a round robin switch with less than 2 possibilities")
 
-	def build(next: ActorRef) = {
+	def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = {
 
 		val rr = {
-			val possibleActions = possibilities.map(_.build(next)).toArray
+			val possibleActions = possibilities.map(_.build(next, protocolRegistry)).toArray
 			RoundRobin(possibleActions)
 		}
 

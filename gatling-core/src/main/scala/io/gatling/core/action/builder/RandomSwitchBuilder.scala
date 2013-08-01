@@ -20,17 +20,18 @@ import scala.concurrent.forkjoin.ThreadLocalRandom
 
 import akka.actor.{ ActorRef, Props }
 import io.gatling.core.action.{ Switch, system }
+import io.gatling.core.config.ProtocolRegistry
 import io.gatling.core.structure.ChainBuilder
 
 class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)]) extends ActionBuilder {
 
 	require(possibilities.map(_._1).sum <= 100, "Can't build a random switch with percentage sum > 100")
 
-	def build(next: ActorRef) = {
+	def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = {
 
 		val possibleActions = possibilities.map {
 			case (percentage, possibility) =>
-				val possibilityAction = possibility.build(next)
+				val possibilityAction = possibility.build(next, protocolRegistry)
 				(percentage, possibilityAction)
 		}
 

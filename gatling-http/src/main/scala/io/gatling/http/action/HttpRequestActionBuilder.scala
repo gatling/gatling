@@ -45,9 +45,9 @@ object HttpRequestActionBuilder {
  */
 class HttpRequestActionBuilder(requestName: Expression[String], requestFactory: RequestFactory, checks: List[HttpCheck], responseTransformer: Option[ResponseTransformer]) extends ActionBuilder {
 
-	private[gatling] def build(next: ActorRef): ActorRef = {
+	private[gatling] def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef = {
 
-		val httpProtocol = ProtocolRegistry.registry.getProtocol(HttpProtocol.default)
+		val httpProtocol = protocolRegistry.getProtocol(HttpProtocol.default)
 
 		val resolvedChecks = (httpProtocol.checks ::: checks)
 			.find(_.order == Status)

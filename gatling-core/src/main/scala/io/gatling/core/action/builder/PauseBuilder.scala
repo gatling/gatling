@@ -31,9 +31,9 @@ import io.gatling.core.session.Expression
  */
 class PauseBuilder(duration: Expression[Duration]) extends ActionBuilder {
 
-	def build(next: ActorRef) = {
+	def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = {
 
-		val pauseProtocol = ProtocolRegistry.registry.getProtocol(PauseProtocol.default)
+		val pauseProtocol = protocolRegistry.getProtocol(PauseProtocol.default)
 		val generator = pauseProtocol.pauseType.generator(duration)
 
 		system.actorOf(Props(new Pause(generator, next)))

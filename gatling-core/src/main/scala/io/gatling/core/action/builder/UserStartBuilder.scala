@@ -15,11 +15,11 @@
  */
 package io.gatling.core.action.builder
 
-import io.gatling.core.action.{ UserStart, system }
-
 import akka.actor.{ ActorRef, Props }
+import io.gatling.core.action.{ UserStart, system }
+import io.gatling.core.config.ProtocolRegistry
 
 object UserStartBuilder extends ActionBuilder {
 
-	def build(next: ActorRef) = system.actorOf(Props(new UserStart(next)))
+	def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = system.actorOf(Props(new UserStart(next)))
 }

@@ -17,7 +17,7 @@ package io.gatling.core.structure
 
 import io.gatling.core.action.UserEnd
 import io.gatling.core.action.builder.{ ActionBuilder, UserStartBuilder }
-import io.gatling.core.config.ProtocolRegistry
+import io.gatling.core.config.{ Protocol, ProtocolRegistry }
 import io.gatling.core.scenario.{ InjectionProfile, InjectionStep, Scenario }
 
 /**
@@ -35,14 +35,19 @@ case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = L
 	def inject(is: InjectionStep, iss: InjectionStep*) = new ProfiledScenarioBuilder(this, InjectionProfile(is +: iss))
 }
 
-case class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionProfile: InjectionProfile) {
+case class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionProfile: InjectionProfile, protocols: List[Protocol] = Nil) {
+
+	def protocols(protocol: Protocol, protocols: Protocol*) = copy(protocols = protocol :: protocols.toList)
 
 	/**
 	 * @param protocolRegistry
 	 * @return the scenario
 	 */
-	private[core] def build: Scenario = {
-		val entryPoint = scenarioBuilder.buildChainedActions(UserEnd.userEnd)
+	private[core] def build(globalProtocols: List[Protocol]): Scenario = {
+
+		val protocolRegistry = ProtocolRegistry(if (protocols.isEmpty) globalProtocols else protocols)
+
+		val entryPoint = scenarioBuilder.buildChainedActions(UserEnd.userEnd, protocolRegistry)
 		new Scenario(scenarioBuilder.name, entryPoint, injectionProfile)
 	}
 }

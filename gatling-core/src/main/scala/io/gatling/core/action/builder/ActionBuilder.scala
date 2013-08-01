@@ -16,6 +16,7 @@
 package io.gatling.core.action.builder
 
 import akka.actor.ActorRef
+import io.gatling.core.config.ProtocolRegistry
 
 /**
  * Top level abstraction for components in charge of building Actions
@@ -24,7 +25,8 @@ trait ActionBuilder {
 
 	/**
 	 * @param next the Action that will be chained with the Action build by this builder
+	 * @param protocolRegistry
 	 * @return the built Action
 	 */
-	private[gatling] def build(next: ActorRef): ActorRef
+	private[gatling] def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef
 }

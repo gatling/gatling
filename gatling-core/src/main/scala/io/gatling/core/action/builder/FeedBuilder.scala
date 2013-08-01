@@ -17,11 +17,11 @@ package io.gatling.core.action.builder
 
 import scala.collection.mutable
 
+import akka.actor.{ ActorRef, Props }
 import io.gatling.core.action.{ Feed, SingletonFeed, system }
+import io.gatling.core.config.ProtocolRegistry
 import io.gatling.core.feeder.FeederBuilder
 import io.gatling.core.session.Expression
-
-import akka.actor.{ ActorRef, Props }
 
 object FeedBuilder {
 
@@ -35,5 +35,5 @@ object FeedBuilder {
 }
 class FeedBuilder(instance: ActorRef, number: Expression[Int]) extends ActionBuilder {
 
-	private[gatling] def build(next: ActorRef) = system.actorOf(Props(new Feed(instance, number, next)))
+	private[gatling] def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = system.actorOf(Props(new Feed(instance, number, next)))
 }
