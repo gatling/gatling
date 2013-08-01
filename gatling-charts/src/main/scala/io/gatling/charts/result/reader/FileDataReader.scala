@@ -84,7 +84,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 				case RunMessageType(array) =>
 					runMessages += RunMessage(parseTimestampString(array(1)), array(2), array(3).trim)
 
-				case _ => logger.info("Ignoring broken line $line")
+				case _ =>
 			}
 		}
 
