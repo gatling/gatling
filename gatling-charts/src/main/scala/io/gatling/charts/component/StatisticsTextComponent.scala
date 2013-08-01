@@ -67,8 +67,8 @@ class StatisticsTextComponent extends Component {
 
 	def html = fast"""
                         <div class="infos">
-                            <div class="titre">STATISTICS</div>
                             <div class="infos-in">
+	                        <div class="infos-title">STATISTICS</div>
                                 <div class="repli"></div>                               
                                 <div class="info">
                                     <h2 class="first">Executions</h2>

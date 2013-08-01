@@ -16,10 +16,10 @@
 package io.gatling.charts.result.reader.buffers
 
 import scala.collection.mutable
-
 import io.gatling.charts.result.reader.RequestRecord
 import io.gatling.core.result.Group
 import io.gatling.core.result.message.{ KO, Status }
+import io.gatling.charts.result.reader.GroupRecord
 
 trait ResponseTimeRangeBuffers {
 
@@ -29,11 +29,13 @@ trait ResponseTimeRangeBuffers {
 		responseTimeRangeBuffers.getOrElseUpdate(BufferKey(requestName, group, None), new ResponseTimeRangeBuffer)
 
 	def updateResponseTimeRangeBuffer(record: RequestRecord) {
-		getResponseTimeRangeBuffers(Some(record.name), record.group).update(record.responseTime, record.status)
-		getResponseTimeRangeBuffers(None, None).update(record.responseTime, record.status)
+		import record._
+		getResponseTimeRangeBuffers(Some(name), group).update(responseTime, status)
+		getResponseTimeRangeBuffers(None, None).update(responseTime, status)
 	}
 
-	def updateGroupResponseTimeRangeBuffer(duration: Int, group: Group, status: Status) {
+	def updateGroupResponseTimeRangeBuffer(record: GroupRecord) {
+		import record._
 		getResponseTimeRangeBuffers(None, Some(group)).update(duration, status)
 	}
 

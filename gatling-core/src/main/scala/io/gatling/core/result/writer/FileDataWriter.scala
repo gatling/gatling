@@ -90,7 +90,8 @@ object FileDataWriter {
 		def serialize(groupMessage: GroupMessage) = {
 			import groupMessage._
 			val serializedGroups = serializeGroups(groupStack)
-			fast"${GroupMessageType.name}\t$scenarioName\t$userId\t$serializedGroups\t$entryDate\t$exitDate\t${groupStack.head.cumulatedResponseTime}\t$status$eol"
+			val group = groupStack.head
+			fast"${GroupMessageType.name}\t$scenarioName\t$userId\t$serializedGroups\t$entryDate\t$exitDate\t${group.cumulatedResponseTime}\t${group.oks}\t${group.kos}\t$status$eol"
 		}
 	}
 

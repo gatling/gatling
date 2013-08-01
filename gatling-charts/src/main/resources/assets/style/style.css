@@ -276,6 +276,16 @@ h1 span {
 	position: relative;
 }
 
+.infos-title {
+	height: 15px;
+	text-align: left;
+	font-weight: bold;
+	background: #ff9916 url('arrow_right.png') 0px 3px no-repeat;
+	border-top-left-radius: 8px;
+	border-top-right-radius: 8px;
+	padding: 5px 15px 0px 15px;
+}
+
 .info {
 	margin: 0;
 	height: 100%;
