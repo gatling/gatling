@@ -86,8 +86,8 @@ case class Session(
 	}
 	def logGroupRequest(responseTime: Long, status: Status) = groupStack match {
 		case Nil => this
-		case _ => 
-			val (ok, ko) = if (status == OK) (1, 0) else (0, 1) 
+		case _ =>
+			val (ok, ko) = if (status == OK) (1, 0) else (0, 1)
 			copy(groupStack = groupStack.map { entry => entry.copy(cumulatedResponseTime = entry.cumulatedResponseTime + responseTime, oks = entry.oks + ok, kos = entry.kos + ko) })
 	}
 
