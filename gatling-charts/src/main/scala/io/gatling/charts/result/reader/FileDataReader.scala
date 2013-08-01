@@ -22,7 +22,7 @@ import scala.io.Source
 
 import com.typesafe.scalalogging.slf4j.Logging
 
-import io.gatling.charts.result.reader.buffers.{ CountBuffer, RangeBuffer }
+import io.gatling.charts.result.reader.buffers.{ CountBuffer, GeneralStatsBuffer, RangeBuffer }
 import io.gatling.charts.result.reader.stats.StatsHelper
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
@@ -32,6 +32,7 @@ import io.gatling.core.result.reader.{ DataReader, GeneralStats }
 import io.gatling.core.util.DateHelper.parseTimestampString
 
 object FileDataReader {
+
 	val logStep = 100000
 	val secMillisecRatio = 1000.0
 	val noPlotMagicValue = -1L
@@ -157,48 +158,84 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	def numberOfTransactionsPerSecond(status: Option[Status], requestName: Option[String], group: Option[Group]): Seq[IntVsTimePlot] =
 		countBuffer2IntVsTimePlots(resultsHolder.getTransactionsPerSecBuffer(requestName, group, status))
 
-	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String], group: Option[Group]): (Seq[IntVsTimePlot], Seq[IntVsTimePlot]) = {
+	private def distribution(slotsNumber: Int, allBuffer: GeneralStatsBuffer, okBuffers: GeneralStatsBuffer, koBuffer: GeneralStatsBuffer): (Seq[IntVsTimePlot], Seq[IntVsTimePlot]) = {
 
 		// get main and max for request/all status
-		val requestStats = resultsHolder.getGeneralStatsBuffers(requestName, group, None).stats
-		val min = requestStats.min
-		val max = requestStats.max
+		val size = allBuffer.stats.count
+		val ok = okBuffers.map.values.toSeq
+		val ko = koBuffer.map.values.toSeq
+		val min = allBuffer.stats.min
+		val max = allBuffer.stats.max
 
-		val size = requestStats.count
-		val step = StatsHelper.step(min, max, 100)
-		val halfStep = step / 2
-		val buckets = StatsHelper.bucketsList(min, max, step)
-		val ok = resultsHolder.getGeneralStatsBuffers(requestName, group, Some(OK)).map.values.toSeq
-		val ko = resultsHolder.getGeneralStatsBuffers(requestName, group, Some(KO)).map.values.toSeq
+		def percent(s: Int) = math.round(s * 100.0 / size).toInt
 
-		val bucketFunction = StatsHelper.bucket(_: Int, min, max, step, halfStep)
+		val maxPlots = 100
+		if (max - min <= maxPlots) {
+			// use exact values
+			def plotsToPercents(plots: Seq[IntVsTimePlot]) = plots.map(plot => plot.copy(value = percent(plot.value))).sortBy(_.time)
+			(plotsToPercents(ok), plotsToPercents(ko))
 
-		def process(buffer: Seq[IntVsTimePlot]): Seq[IntVsTimePlot] = {
+		} else {
+			// use buckets
+			val step = StatsHelper.step(min, max, maxPlots)
+			val halfStep = step / 2
+			val buckets = StatsHelper.bucketsList(min, max, step)
 
-			val bucketsWithValues = buffer
-				.map(record => (bucketFunction(record.time), record))
-				.groupBy(_._1)
-				.map {
-					case (responseTimeBucket, recordList) =>
+			val bucketFunction = StatsHelper.bucket(_: Int, min, max, step, halfStep)
 
-						val sizeBucket = recordList.foldLeft(0) {
-							(partialSize, record) => partialSize + record._2.value
-						}
+			def process(buffer: Seq[IntVsTimePlot]): Seq[IntVsTimePlot] = {
 
-						(responseTimeBucket, math.round(sizeBucket * 100.0 / size).toInt)
+				val bucketsWithValues = buffer
+					.map(record => (bucketFunction(record.time), record))
+					.groupBy(_._1)
+					.map {
+						case (responseTimeBucket, recordList) =>
+
+							val bucketSize = recordList.foldLeft(0) {
+								(partialSize, record) => partialSize + record._2.value
+							}
+
+							(responseTimeBucket, percent(bucketSize))
+					}
+					.toMap
+
+				buckets.map {
+					bucket => IntVsTimePlot(bucket, bucketsWithValues.getOrElse(bucket, 0))
 				}
-				.toMap
-
-			buckets.map {
-				bucket => IntVsTimePlot(bucket, bucketsWithValues.getOrElse(bucket, 0))
 			}
-		}
 
-		(process(ok), process(ko))
+			(process(ok), process(ko))
+		}
 	}
 
-	def generalStats(status: Option[Status], requestName: Option[String], group: Option[Group]): GeneralStats = resultsHolder
-		.getGeneralStatsBuffers(requestName, group, status)
+	def responseTimeDistribution(slotsNumber: Int, requestName: Option[String], group: Option[Group]): (Seq[IntVsTimePlot], Seq[IntVsTimePlot]) =
+		distribution(slotsNumber,
+			resultsHolder.getRequestGeneralStatsBuffers(requestName, group, None),
+			resultsHolder.getRequestGeneralStatsBuffers(requestName, group, Some(OK)),
+			resultsHolder.getRequestGeneralStatsBuffers(requestName, group, Some(KO)))
+
+	def groupCumulatedResponseTimeDistribution(slotsNumber: Int, group: Group): (Seq[IntVsTimePlot], Seq[IntVsTimePlot]) =
+		distribution(slotsNumber,
+			resultsHolder.getGroupCumulatedResponseTimeGeneralStatsBuffers(group, None),
+			resultsHolder.getGroupCumulatedResponseTimeGeneralStatsBuffers(group, Some(OK)),
+			resultsHolder.getGroupCumulatedResponseTimeGeneralStatsBuffers(group, Some(KO)))
+
+	def groupDurationDistribution(slotsNumber: Int, group: Group): (Seq[IntVsTimePlot], Seq[IntVsTimePlot]) =
+		distribution(slotsNumber,
+			resultsHolder.getGroupDurationGeneralStatsBuffers(group, None),
+			resultsHolder.getGroupDurationGeneralStatsBuffers(group, Some(OK)),
+			resultsHolder.getGroupDurationGeneralStatsBuffers(group, Some(KO)))
+
+	def requestGeneralStats(requestName: Option[String], group: Option[Group], status: Option[Status]): GeneralStats = resultsHolder
+		.getRequestGeneralStatsBuffers(requestName, group, status)
+		.stats
+
+	def groupCumulatedResponseTimeGeneralStats(group: Group, status: Option[Status]): GeneralStats = resultsHolder
+		.getGroupCumulatedResponseTimeGeneralStatsBuffers(group, status)
+		.stats
+
+	def groupDurationGeneralStats(group: Group, status: Option[Status]): GeneralStats = resultsHolder
+		.getGroupDurationGeneralStatsBuffers(group, status)
 		.stats
 
 	def numberOfRequestInResponseTimeRange(requestName: Option[String], group: Option[Group]): Seq[(String, Int)] = {
@@ -219,13 +256,13 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 		.toSeq
 		.sortBy(_.time)
 
-	def responseTimeGroupByExecutionStartDate(status: Status, requestName: Option[String], group: Option[Group]): Seq[IntRangeVsTimePlot] =
+	def responseTimeGroupByExecutionStartDate(status: Status, requestName: String, group: Option[Group]): Seq[IntRangeVsTimePlot] =
 		rangeBuffer2IntRangeVsTimePlots(resultsHolder.getResponseTimePerSecBuffers(requestName, group, Some(status)))
 
-	def latencyGroupByExecutionStartDate(status: Status, requestName: Option[String], group: Option[Group]): Seq[IntRangeVsTimePlot] =
+	def latencyGroupByExecutionStartDate(status: Status, requestName: String, group: Option[Group]): Seq[IntRangeVsTimePlot] =
 		rangeBuffer2IntRangeVsTimePlots(resultsHolder.getLatencyPerSecBuffers(requestName, group, Some(status)))
 
-	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: Option[String], group: Option[Group]): Seq[IntVsTimePlot] = {
+	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: String, group: Option[Group]): Seq[IntVsTimePlot] = {
 
 		val globalCountsByBucket = resultsHolder.getRequestsPerSecBuffer(None, None, None).map
 
@@ -239,6 +276,12 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 					IntVsTimePlot(math.round(count / step * 1000).toInt, responseTimes.higher)
 			}.sortBy(_.time)
 	}
+
+	def groupCumulatedResponseTimeGroupByExecutionStartDate(status: Status, group: Group): Seq[IntRangeVsTimePlot] =
+		rangeBuffer2IntRangeVsTimePlots(resultsHolder.getGroupCumulatedResponseTimePerSecBuffers(group, Some(status)))
+
+	def groupDurationGroupByExecutionStartDate(status: Status, group: Group): Seq[IntRangeVsTimePlot] =
+		rangeBuffer2IntRangeVsTimePlots(resultsHolder.getGroupDurationPerSecBuffers(group, Some(status)))
 
 	def errors(requestName: Option[String], group: Option[Group]): Seq[ErrorStats] = {
 		val buff = resultsHolder.getErrorsBuffers(requestName, group)
