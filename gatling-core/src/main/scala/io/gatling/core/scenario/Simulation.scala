@@ -44,7 +44,7 @@ abstract class Simulation {
 	class SetUp {
 
 		def protocols(protocol: Protocol, protocols: Protocol*) = {
-			_protocols = protocol :: protocols.toList
+			_protocols = protocol :: protocols.toList ::: _protocols
 			this
 		}
 
