@@ -18,13 +18,14 @@ package io.gatling.core.config
 import scala.collection.mutable
 import scala.tools.nsc.io.{ Directory, Path }
 import scala.tools.nsc.io.Path.string2path
+import scala.util.Properties._
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 object GatlingFiles {
 
-	val GATLING_HOME = Option(System.getenv("GATLING_HOME")).getOrElse(".")
+	val GATLING_HOME = envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", "."))
 	val GATLING_ASSETS_PACKAGE = "assets"
 	val GATLING_JS = "js"
 	val GATLING_STYLE = "style"
