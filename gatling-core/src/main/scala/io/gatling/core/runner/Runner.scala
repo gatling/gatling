@@ -15,6 +15,7 @@
  */
 package io.gatling.core.runner
 
+import java.util.UUID
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit.SECONDS
 
@@ -43,6 +44,8 @@ class Runner(selection: Selection) extends AkkaDefaults with Logging {
 
 			val runMessage = RunMessage(now, selection.simulationId, selection.description)
 
+			val runUUID = UUID.randomUUID.getMostSignificantBits
+
 			val simulation = simulationClass.newInstance
 			val scenarios = simulation.scenarios
 
@@ -67,7 +70,7 @@ class Runner(selection: Selection) extends AkkaDefaults with Logging {
 			val ref = TimeHelper.nanoTimeReference
 
 			scenarios.foldLeft(0) { (i, scenario) =>
-				scenario.run(i)
+				scenario.run(runUUID + "-", i)
 				i + scenario.injectionProfile.users
 			}
 			logger.debug("Finished Launching scenarios executions")

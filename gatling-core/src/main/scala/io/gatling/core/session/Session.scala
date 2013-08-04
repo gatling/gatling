@@ -51,7 +51,7 @@ case class SessionAttribute(session: Session, key: String) {
  */
 case class Session(
 	scenarioName: String,
-	userId: Int,
+	userId: String,
 	attributes: Map[String, Any] = Map.empty,
 	startDate: Long = 0L,
 	drift: Long = 0L,

@@ -33,9 +33,9 @@ class CookieHandlingSpec extends Specification {
 	val originalCookies = CookieDecoder.decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly").toList
 	val originalDomain = "docs.foo.com"
 	val originalCookieJar = new CookieJar(Map(originalDomain -> originalCookies))
-	val originalSession = Session("scenarioName", 1, Map(CookieHandling.cookieJarAttributeName -> originalCookieJar))
+	val originalSession = Session("scenarioName", "1", Map(CookieHandling.cookieJarAttributeName -> originalCookieJar))
 
-	val emptySession = Session("scenarioName", 2)
+	val emptySession = Session("scenarioName", "2")
 
 	"getStoredCookies" should {
 

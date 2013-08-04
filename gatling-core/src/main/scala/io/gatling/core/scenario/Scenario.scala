@@ -22,10 +22,10 @@ import io.gatling.core.util.TimeHelper.zeroMs
 
 case class Scenario(name: String, entryPoint: ActorRef, injectionProfile: InjectionProfile) {
 
-	def run(userIdStart: Int) {
+	def run(runUUID: String, offset: Int) {
 		import system.dispatcher
 
-		def newSession(i: Int) = Session(name, i + userIdStart)
+		def newSession(i: Int) = Session(name, runUUID + (i + offset))
 
 		injectionProfile.allUsers.zipWithIndex.foreach {
 			case (startingTime, index) =>

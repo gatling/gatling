@@ -164,7 +164,7 @@ class WebSocketActorSpec extends Specification with AllExpectations with Mockito
 				.open("ws://dummy/", "testAttributeName")(webSocketClient, requestLogger)
 				.build(next, ProtocolRegistry(Nil))
 
-			action ! new Session("test", 0)
+			action ! new Session("test", "0")
 		}
 
 		def openSuccessfully(webSocket: WebSocket) {

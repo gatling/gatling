@@ -27,7 +27,7 @@ object PostHttpRequestBuilder {
 		PostHttpRequestBuilder(expression, expression)
 			.header("bar", expression)
 			.param(expression, expression)
-			.build(Session("scenarioName", 0), HttpProtocol.default)
+			.build(Session("scenarioName", "0"), HttpProtocol.default)
 	}
 }
 
