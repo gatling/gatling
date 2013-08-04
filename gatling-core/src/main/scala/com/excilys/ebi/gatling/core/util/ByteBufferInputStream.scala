@@ -20,14 +20,14 @@ import java.nio.ByteBuffer
 
 class ByteBufferInputStream(byteBuffer: ByteBuffer) extends InputStream {
 
-	def read: Int = if (!byteBuffer.hasRemaining) -1 else byteBuffer.get
+	def read: Int = if (byteBuffer.hasRemaining) byteBuffer.get & 0xFF else -1
 
 	override def read(bytes: Array[Byte], offset: Int, length: Int) = {
-		val count = math.min(byteBuffer.remaining, length);
+		val count = math.min(byteBuffer.remaining, length)
 		if (count == 0)
 			-1
 		else {
-			byteBuffer.get(bytes, offset, length)
+			byteBuffer.get(bytes, offset, count)
 			count
 		}
 	}
