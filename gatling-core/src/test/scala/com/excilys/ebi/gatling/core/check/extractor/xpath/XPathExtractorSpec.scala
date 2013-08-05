@@ -19,8 +19,12 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration
+
 @RunWith(classOf[JUnitRunner])
 class XPathExtractorSpec extends Specification {
+
+	GatlingConfiguration.setUp()
 
 	def extractor(file: String) = XPathExtractor(Some(getClass.getResourceAsStream(file)))
 
