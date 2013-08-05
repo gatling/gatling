@@ -24,6 +24,8 @@ import io.gatling.core.test.ValidationSpecification
 @RunWith(classOf[JUnitRunner])
 class XPathExtractorsSpec extends ValidationSpecification {
 
+	GatlingConfiguration.setUp()
+
 	val namespaces = List("foo" -> "http://foo/foo")
 
 	def prepared(file: String) = {
