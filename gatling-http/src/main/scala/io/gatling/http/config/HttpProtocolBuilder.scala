@@ -54,6 +54,8 @@ case class HttpProtocolBuilder(protocol: HttpProtocol, warmUpUrl: Option[String]
 
 	def baseURLs(baseUrl1: String, baseUrl2: String, baseUrls: String*) = copy(protocol = protocol.copy(baseURLs = baseUrl1 :: baseUrl2 :: baseUrls.toList))
 
+	def baseURLs(baseUrls: Seq[String]) = copy(protocol = protocol.copy(baseURLs = baseUrls))
+
 	def disableFollowRedirect = copy(protocol = protocol.copy(followRedirect = false))
 
 	def disableAutoReferer = copy(protocol = protocol.copy(autoReferer = false))
